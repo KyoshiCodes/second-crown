@@ -1,39 +1,35 @@
 # Playtest — friends on Discord
 
-## What they can do today
+## Fast path (guest codes, no Discord app yet)
 
-There is **no login server** yet. GitHub Pages is a static site. Each friend plays in their own browser with their own autosave.
+1. You run the cloud server (`server/README.md`) on your PC or a free host.
+2. Friends open the game (Pages or your `npm run dev`).
+3. They paste the cloud URL into **Cloud playtest** if it is not localhost.
+4. Click **Guest session** → play → **Push save** when they hit a bug.
+5. You **Pull save** on your machine (same guest token only works on their browser). For sharing a broken save they still Export JSON into Discord.
 
-They can still help find bugs:
+Guest sessions live in that browser. Discord login is what lets them keep the same save on phone + PC.
 
-1. Open the live game (GitHub Pages URL for this repo, or your `npm run dev` tunnel).
-2. Type their **Discord name** in the playtester box.
-3. Play. Use **Export** if something breaks and send you the `.json` plus a screenshot.
-4. Use **New Game** to roll a fresh seeded world.
+## Discord login (when you are ready)
 
-Suggested Pages URL once Actions has published:
+Create an application at https://discord.com/developers/applications
+Redirect: `{cloud-server}/auth/discord/callback`
+Env vars: see `server/README.md`
+Then the **Log in with Discord** button enables itself (`/health` reports discord: true).
+
+## Pages URL
 
 `https://kyoshicodes.github.io/second-crown/`
 
-If that 404s: repo Settings → Pages → Source = GitHub Actions. Then re-run the **Deploy to GitHub Pages** workflow.
-
-## What they cannot do yet
-
-- One shared world
-- Accounts / passwords
-- Seeing each other on the map
-- Guilds with real people in them
-
-Those need a backend (accounts + a room). Prep for that is in `docs/ACCOUNTS-PREP.md`.
-
-## Bug report template (paste in Discord)
+## Bug report template
 
 ```
 Tester:
+Signed in: guest / discord
 Tab:
 What I did:
 What I expected:
 What happened:
 Screenshot:
-Save attached: yes/no
+Save: pushed to cloud / attached json
 ```

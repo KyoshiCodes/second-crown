@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { AppShell } from "./AppShell";
 import { TesterBar } from "./TesterBar";
+import { CloudPanel } from "./CloudPanel";
 import "./theme.css";
 import { sfx } from "./sfx";
 
@@ -32,6 +33,7 @@ function Root() {
   return (
     <>
       <TesterBar />
+      <CloudPanel />
       <AppShell />
     </>
   );
