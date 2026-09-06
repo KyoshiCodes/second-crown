@@ -12,6 +12,8 @@ import {
   tryDeclareWar,
   tryResolveWar,
   peaceTicksRemaining,
+  tryAscend,
+  canAscend,
   realmPower,
   serializeState,
   deserializeState,
@@ -35,6 +37,8 @@ function App() {
   const [offlineNote, setOfflineNote] = React.useState("");
   const [power, setPower] = React.useState({ player: 0, rival: 0 });
   const [peaceLeft, setPeaceLeft] = React.useState(0);
+  const [prestige, setPrestige] = React.useState(0);
+  const [ascendReady, setAscendReady] = React.useState(false);
   const engineRef = React.useRef<TickEngine | null>(null);
   const mapRef = React.useRef<MapRenderer | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
@@ -54,6 +58,8 @@ function App() {
       rival: realmPower(s, "rival"),
     });
     setPeaceLeft(peaceTicksRemaining(s));
+    setPrestige(Number(s.flags["prestige_level"] ?? 0));
+    setAscendReady(canAscend(s));
     mapRef.current?.sync(s);
   }, []);
 
@@ -200,6 +206,20 @@ function App() {
     }
   };
 
+  const handleAscend = () => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    const state = engine.getState();
+    if (!tryAscend(state)) {
+      setStatus("Need 50K total resources to claim the Second Crown");
+      return;
+    }
+    nextSlot.current = state.buildings.length;
+    setStatus(`Ascended! Prestige ${state.flags["prestige_level"]} — permanent +1 prod/building`);
+    syncUi(engine);
+    saveToIndexedDb(serializeState(state)).catch(() => {});
+  };
+
   const handleNewGame = async () => {
     await clearIndexedDbSave();
     const state = createGameState({ seed: Date.now() >>> 0, withStarterBuildings: true });
@@ -231,7 +251,9 @@ function App() {
   return (
     <div style={{ padding: 24, maxWidth: 720 }}>
       <h1 style={{ marginTop: 0 }}>Second Crown</h1>
-      <p style={{ opacity: 0.8, marginBottom: 4 }}>Phase J — war loot, peace, traits</p>
+      <p style={{ opacity: 0.8, marginBottom: 4 }}>
+        Phase K — rival growth, prestige{prestige > 0 ? ` · Prestige ${prestige}` : ""}
+      </p>
       {offlineNote ? (
         <p style={{ color: "#3fb950", fontSize: 13, marginTop: 0 }}>{offlineNote}</p>
       ) : null}
@@ -281,7 +303,8 @@ function App() {
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>Build</h2>
       <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
-        Ambitious ruler: buildings cost 10% less
+        Ambitious: −10% build cost · Clever advisor: +1 prod/building
+        {prestige > 0 ? ` · Prestige: +${prestige} prod/building` : ""}
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {types.map((t) => {
@@ -369,6 +392,9 @@ function App() {
       </div>
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>War</h2>
+      <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
+        Iron March recruits more militia over time (and after defeats)
+      </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
         <button
           type="button"
@@ -411,6 +437,26 @@ function App() {
           </li>
         ))}
       </ul>
+
+      <h2 style={{ fontSize: 16, marginTop: 24 }}>Second Crown</h2>
+      <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
+        Soft reset at 50K total resources. Keep prestige for permanent +1 production per building.
+      </p>
+      <button
+        type="button"
+        onClick={handleAscend}
+        disabled={!ascendReady}
+        style={{
+          padding: "8px 12px",
+          borderRadius: 6,
+          border: "1px solid #30363d",
+          background: ascendReady ? "#d4a72c" : "#21262d",
+          color: ascendReady ? "#000" : "#8b949e",
+          cursor: ascendReady ? "pointer" : "not-allowed",
+        }}
+      >
+        Claim the Second Crown{prestige > 0 ? ` (Prestige ${prestige})` : ""}
+      </button>
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>People</h2>
       <ul style={{ fontSize: 13 }}>
