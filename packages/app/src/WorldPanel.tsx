@@ -1,9 +1,22 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
-import { realmPower, playerTitle, KINGDOM_OFFERS } from "@second-crown/sim";
+import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType } from "@second-crown/sim";
 import { Crest } from "./Crest";
 import { crestFor } from "./crests";
 import { getRealmFlavor } from "./content/flavor";
+
+function hostLine(state: GameState, realmId: string): string {
+  const parts = state.units
+    .filter((u) => u.realmId === realmId)
+    .map((u) => {
+      const n = Math.floor(Number(u.count) || 0);
+      if (n <= 0) return "";
+      const name = getUnitType(u.typeId)?.name ?? u.typeId;
+      return `${n} ${name}`;
+    })
+    .filter(Boolean);
+  return parts.length ? parts.join(", ") : "no standing host";
+}
 
 export function WorldPanel(props: {
   state: GameState | undefined;
@@ -31,6 +44,7 @@ export function WorldPanel(props: {
               <span className="sc-charge-pill">{playerFlavor.chargeName}</span>
             </div>
             <p className="sc-realm-blurb">{playerFlavor.blurb}</p>
+            <p style={{ fontSize: 12, opacity: 0.75 }}>Power {realmPower(state, "player")} · {hostLine(state, "player")}</p>
           </div>
         </div>
       </div>
@@ -54,6 +68,7 @@ export function WorldPanel(props: {
                   <span className={`sc-op-tag ${opClass}`}>{op} ({opLabel})</span>
                 </div>
                 <div className="sc-charge-pill">{crestFor(r.id).chargeName}</div>
+                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>Scout: {hostLine(state, r.id)}</div>
               </div>
             </div>
             <p className="sc-realm-blurb">{flavor.blurb}</p>
