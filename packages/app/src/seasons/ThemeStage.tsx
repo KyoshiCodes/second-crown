@@ -2,9 +2,10 @@ import React from "react";
 import type { HolidayId } from "./holidays";
 import type { SeasonName } from "../music";
 
-/** Full-viewport illustrated stage. pointer-events none. */
+/** Full-viewport holiday stage only. Everyday seasons keep tab CSS. */
 export function ThemeStage(props: { season: SeasonName; holiday: HolidayId }) {
-  const { season, holiday } = props;
+  const { holiday } = props;
+  if (holiday === "none") return null;
   return (
     <div className="sc-theme-stage" aria-hidden="true">
       {holiday === "halloween" ? <HalloweenScene /> : null}
@@ -12,7 +13,6 @@ export function ThemeStage(props: { season: SeasonName; holiday: HolidayId }) {
       {holiday === "easter" ? <EasterScene /> : null}
       {holiday === "harvest" ? <HarvestScene /> : null}
       {holiday === "midsummer" ? <MidsummerScene /> : null}
-      {holiday === "none" ? <SeasonScene season={season} /> : null}
     </div>
   );
 }
@@ -70,9 +70,9 @@ function MidwinterScene() {
 function EasterScene() {
   return (
     <svg className="sc-theme-svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
-      <rect width="1200" height="700" fill="#f5e6ff" />
-      <rect y="420" width="1200" height="280" fill="#86efac" />
-      <circle cx="980" cy="120" r="80" fill="#fde68a" />
+      <rect width="1200" height="700" fill="#2a1838" />
+      <rect y="420" width="1200" height="280" fill="#14532d" />
+      <circle cx="980" cy="120" r="80" fill="#fde68a" opacity="0.7" />
       <ellipse cx="200" cy="520" rx="28" ry="36" fill="#f9a8d4" />
       <ellipse cx="280" cy="530" rx="24" ry="32" fill="#c4b5fd" />
       <ellipse cx="900" cy="540" rx="30" ry="38" fill="#fde047" />
@@ -100,23 +100,6 @@ function MidsummerScene() {
       <circle cx="600" cy="520" r="160" fill="#fb923c" opacity="0.55" />
       <circle cx="600" cy="520" r="90" fill="#facc15" />
       <rect y="560" width="1200" height="140" fill="#14532d" />
-    </svg>
-  );
-}
-
-function SeasonScene(props: { season: SeasonName }) {
-  const sky =
-    props.season === "Winter" ? "#1e293b" :
-    props.season === "Autumn" ? "#7c2d12" :
-    props.season === "Summer" ? "#1d4ed8" : "#14532d";
-  const ground =
-    props.season === "Winter" ? "#e2e8f0" :
-    props.season === "Autumn" ? "#9a3412" :
-    props.season === "Summer" ? "#65a30d" : "#4ade80";
-  return (
-    <svg className="sc-theme-svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
-      <rect width="1200" height="700" fill={sky} />
-      <rect y="500" width="1200" height="200" fill={ground} />
     </svg>
   );
 }
