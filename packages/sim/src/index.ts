@@ -86,6 +86,11 @@ export {
   SEASONS,
   currentSeason,
   tryHireChampion,
+  tryNameChampion,
+  championName,
+  tryHireMercs,
+  tryCollectTithe,
+  titheTicksLeft,
   tryOpenRoute,
   routeGoldPerTick,
 } from "./systems/age.js";
