@@ -1,0 +1,53 @@
+SECOND CROWN — copy/paste setup for Windows PowerShell
+======================================================
+Run these in order. Lines starting with # are comments; don't paste them.
+
+# --- 0. verify tools (all three must print a version) ---
+node -v
+npm -v
+git --version
+
+# --- 1. set git identity (only needed once, ever) ---
+git config --global user.name "YOUR NAME"
+git config --global user.email "YOUR EMAIL"
+
+# --- 2. make the two bake-off folders ---
+cd $HOME
+mkdir second-crown-bakeoff
+cd second-crown-bakeoff
+
+# Now unzip second-crown-bootstrap.zip twice, into:
+#   $HOME\second-crown-bakeoff\claude
+#   $HOME\second-crown-bakeoff\gemini
+# Each folder should end up containing AGENTS.md, README.md, .gitignore, docs\, bakeoff\
+
+# --- 3. initialize git in each ---
+cd $HOME\second-crown-bakeoff\claude
+git init
+git add .
+git commit -m "docs: bootstrap design documentation"
+
+cd $HOME\second-crown-bakeoff\gemini
+git init
+git add .
+git commit -m "docs: bootstrap design documentation"
+
+# --- 4. install the agents ---
+npm install -g @anthropic-ai/claude-code
+npm install -g @google/gemini-cli
+
+# --- 5. run Claude Code ---
+cd $HOME\second-crown-bakeoff\claude
+claude
+#   then paste the launch message from LAUNCH-MESSAGE.txt
+
+# --- 6. run Gemini CLI (new PowerShell window) ---
+cd $HOME\second-crown-bakeoff\gemini
+gemini
+#   then paste the same launch message
+
+# --- 7. after picking a winner, push it ---
+cd $HOME\second-crown-bakeoff\claude          # or \gemini
+git remote add origin https://github.com/YOUR-USERNAME/second-crown.git
+git branch -M main
+git push -u origin main
