@@ -1,6 +1,6 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
-import { formatLetterSuffix, getUnitType } from "@second-crown/sim";
+import { formatLetterSuffix, getUnitType, championName } from "@second-crown/sim";
 import { UnitIcon } from "./UnitIcon";
 
 export function ArmyVisual(props: { state: GameState | undefined; realmId?: string }) {
@@ -12,7 +12,11 @@ export function ArmyVisual(props: { state: GameState | undefined; realmId?: stri
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: 10, margin: "12px 0" }}>
       {units.map((u) => {
-        const name = getUnitType(u.typeId)?.name ?? u.typeId;
+        const defName = getUnitType(u.typeId)?.name ?? u.typeId;
+        const name =
+          u.typeId === "champion" && realmId === "player" && props.state
+            ? championName(props.state)
+            : defName;
         const n = Math.min(8, Math.max(1, Math.ceil(Number(u.count) / 40) || 1));
         return (
           <div
