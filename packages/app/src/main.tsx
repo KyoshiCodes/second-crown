@@ -30,6 +30,9 @@ import {
   MARKET_OFFERS,
   tryWhitePeace,
   getEventLog,
+  tryGiftGold,
+  rivalOpinionOfPlayer,
+  playerOpinionOfRival,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -37,6 +40,7 @@ import { createMapRenderer, type MapRenderer } from "@second-crown/render";
 import { saveToIndexedDb, loadFromIndexedDb, clearIndexedDbSave } from "./save/indexedDb";
 import { downloadSave, pickSaveFile } from "./save/fileIo";
 import { EventPanel } from "./EventPanel";
+import { SpeedControls, DiplomacyPanel } from "./HudControls";
 
 type Tab = "kingdom" | "army" | "war" | "crown";
 
@@ -72,7 +76,13 @@ function App() {
   const [lastEvent, setLastEvent] = React.useState("");
   const [lastEventTick, setLastEventTick] = React.useState(0);
   const [eventLog, setEventLog] = React.useState<WorldEvent[]>([]);
+  const [speed, setSpeed] = React.useState(1);
+  const [paused, setPaused] = React.useState(false);
+  const [rivalOp, setRivalOp] = React.useState(0);
+  const [playerOp, setPlayerOp] = React.useState(0);
   const seenEventTick = React.useRef(0);
+  const speedRef = React.useRef(1);
+  const pausedRef = React.useRef(false);
   const engineRef = React.useRef<TickEngine | null>(null);
   const mapRef = React.useRef<MapRenderer | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
@@ -82,6 +92,11 @@ function App() {
   React.useEffect(() => {
     selectedBuildRef.current = selectedBuild;
   }, [selectedBuild]);
+
+  React.useEffect(() => {
+    speedRef.current = speed;
+    pausedRef.current = paused;
+  }, [speed, paused]);
 
   const syncUi = React.useCallback((engine: TickEngine) => {
     const s = engine.getState();
@@ -103,6 +118,8 @@ function App() {
     setLastEvent(evText);
     setLastEventTick(evTick);
     setEventLog(getEventLog(s));
+    setRivalOp(rivalOpinionOfPlayer(s));
+    setPlayerOp(playerOpinionOfRival(s));
     if (evTick > 0 && evTick !== seenEventTick.current) {
       seenEventTick.current = evTick;
       setStatus(evText);
@@ -210,7 +227,9 @@ function App() {
 
       syncUi(engine);
       intervalId = window.setInterval(() => {
-        engine.tick();
+        if (pausedRef.current) return;
+        const n = Math.max(1, speedRef.current);
+        for (let i = 0; i < n; i++) engine.tick();
         engine.getState().meta.lastRealTime = Date.now();
         syncUi(engine);
         if (engine.getState().meta.tick % 50 === 0) {
@@ -331,6 +350,18 @@ function App() {
     }
   };
 
+  const handleGift = () => {
+    const eng = engineRef.current;
+    if (!eng) return;
+    const st = eng.getState();
+    const ok = tryGiftGold(st);
+    setStatus(ok ? "Gift sent to Iron March (+12 opinion)" : "Need 15 gold to send a gift");
+    if (ok) {
+      syncUi(eng);
+      saveToIndexedDb(serializeState(st)).catch(() => {});
+    }
+  };
+
   const handleTrade = (offerId: string) => {
     const eng = engineRef.current;
     if (!eng) return;
@@ -357,6 +388,15 @@ function App() {
         {offlineNote ? (
           <p style={{ color: "#3fb950", fontSize: 13, margin: "6px 0 0" }}>{offlineNote}</p>
         ) : null}
+        <SpeedControls
+          paused={paused}
+          speed={speed}
+          onPauseToggle={() => setPaused((p) => !p)}
+          onSpeed={(n) => {
+            setPaused(false);
+            setSpeed(n);
+          }}
+        />
       </header>
 
       <div
@@ -592,6 +632,7 @@ function App() {
             You {power.player} · Iron March {power.rival}
             {activeWar ? " · Battle pending" : ""}
           </p>
+          <DiplomacyPanel rivalOp={rivalOp} playerOp={playerOp} onGift={handleGift} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
             <button
               type="button"
@@ -685,6 +726,7 @@ function App() {
               );
             })}
           </ul>
+          <DiplomacyPanel rivalOp={rivalOp} playerOp={playerOp} onGift={handleGift} />
 
           <h3 style={{ fontSize: 15 }}>Claim the Second Crown</h3>
           <p style={{ fontSize: 12, opacity: 0.65 }}>
