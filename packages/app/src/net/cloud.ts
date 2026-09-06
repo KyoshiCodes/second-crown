@@ -113,3 +113,32 @@ export async function openWatch(): Promise<{ code: string; url: string }> {
   if (!res.ok) throw new Error("watch failed");
   return res.json();
 }
+
+export async function fetchBoard(): Promise<{ board: BoardRow[] }> {
+  const res = await fetch(`${cloudUrl()}/board`);
+  if (!res.ok) throw new Error("board failed");
+  return res.json();
+}
+
+export async function fetchProfile(id: string): Promise<BoardRow> {
+  const res = await fetch(`${cloudUrl()}/profile/${encodeURIComponent(id)}`);
+  if (!res.ok) throw new Error("no profile");
+  return res.json();
+}
+
+export async function saveProfile(patch: { motto?: string; crest?: string }): Promise<void> {
+  const res = await req("/profile", { method: "PUT", body: JSON.stringify(patch) });
+  if (!res.ok) throw new Error("profile failed");
+}
+
+export type BoardRow = {
+  id: string;
+  name: string;
+  kind: string;
+  motto: string;
+  crest: string;
+  prestige: number;
+  wins: number;
+  tick: number;
+  buildings: number;
+};
