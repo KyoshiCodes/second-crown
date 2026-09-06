@@ -17,16 +17,20 @@ export function TesterBar() {
 
   return (
     <div
+      className="sc-tester-bar"
       style={{
-        maxWidth: 760,
-        margin: "0 auto 8px",
+        position: "sticky",
+        top: 0,
+        zIndex: 80,
+        background: "rgba(12, 10, 8, 0.94)",
+        borderBottom: "1px solid #3a3228",
+        padding: "8px 16px",
         fontSize: 13,
-        opacity: 0.9,
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "center",
         flexWrap: "wrap",
-        gap: 8,
+        gap: 12,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -51,9 +55,8 @@ export function TesterBar() {
           }}
         />
       </div>
-
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span title="Preview seasonal holiday atmospheres (Halloween, Midwinter, Easter, etc.)">Holiday overlay:</span>
+        <span>Holiday overlay</span>
         <select
           value={holidayPreview}
           onChange={(e) => {
@@ -66,21 +69,20 @@ export function TesterBar() {
             color: "#fef08a",
             border: "1px solid #d4a72c",
             borderRadius: 4,
-            padding: "2px 8px",
+            padding: "4px 8px",
             cursor: "pointer",
             fontWeight: 500,
           }}
         >
-          <option value="auto">📅 Auto (Calendar Date)</option>
-          <option value="halloween">🎃 All Hallows (Halloween)</option>
-          <option value="midwinter">❄️ Midwinter (Christmas-tide)</option>
-          <option value="easter">🪺 Dawn Feast (Easter-tide)</option>
-          <option value="harvest">🌕 Harvest Moon</option>
-          <option value="midsummer">☀️ Midsummer Solstice</option>
-          <option value="none">🚫 None / Off</option>
+          <option value="auto">Auto (calendar)</option>
+          <option value="halloween">All Hallows (Halloween)</option>
+          <option value="midwinter">Midwinter (Christmas-tide)</option>
+          <option value="easter">Dawn Feast (Easter-tide)</option>
+          <option value="harvest">Harvest Moon</option>
+          <option value="midsummer">Midsummer Solstice</option>
+          <option value="none">None / off</option>
         </select>
       </div>
     </div>
   );
 }
-
