@@ -4,6 +4,7 @@ import { getOpinion } from "../actions/diplomacy.js";
 import { archetypeForRealm, driftOpinions, growRealm } from "../content/world.js";
 import { pushWorldLog } from "./events.js";
 import { isShielded, noteWar } from "./wave.js";
+import { tickWorldClash } from "./worldClash.js";
 
 export const RivalSystem = {
   nextEventTick(_state: GameState): number | null {
@@ -34,6 +35,7 @@ function tickAi(state: GameState, atTick: number): void {
     growRealm(state, realm.id);
     maybeDeclare(state, realm.id, atTick);
   }
+  tickWorldClash(state, atTick);
 }
 
 function peaceLocked(state: GameState, a: string, b: string): boolean {
