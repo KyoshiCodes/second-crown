@@ -2,6 +2,7 @@ import type { GameState, InputRecord } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { getUnitType } from "../content/units.js";
 import { countBuilding } from "../content/buildings.js";
+import { flagNum } from "../systems/wave.js";
 
 export interface TrainPayload {
   typeId: string;
@@ -11,30 +12,26 @@ export interface TrainPayload {
 
 export function trainCostMultiplier(state: GameState): number {
   const n = countBuilding(state, "barracks");
-  return Math.max(0.5, 1 - n * 0.05);
+  let m = Math.max(0.5, 1 - n * 0.05);
+  if (flagNum(state, "craft_train")) m *= 0.9;
+  return m;
 }
 
 export function tryTrain(state: GameState, payload: TrainPayload): boolean {
   const def = getUnitType(payload.typeId);
   if (!def || payload.count < 1) return false;
-
   const realmId = payload.realmId ?? "player";
   const count = Math.floor(payload.count);
   const mult = trainCostMultiplier(state);
-
   for (const [res, costStr] of Object.entries(def.cost)) {
     const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
-
   for (const [res, costStr] of Object.entries(def.cost)) {
     const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
     state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(need));
   }
-
-  const existing = state.units.find(
-    (u) => u.typeId === def.id && u.realmId === realmId && u.armyId === null
-  );
+  const existing = state.units.find((u) => u.typeId === def.id && u.realmId === realmId && u.armyId === null);
   if (existing) {
     existing.count = toDecimalString(D(existing.count).add(count));
   } else {
@@ -46,14 +43,12 @@ export function tryTrain(state: GameState, payload: TrainPayload): boolean {
       armyId: null,
     });
   }
-
   state.inputLog.push({
     tick: state.meta.tick,
     type: "train",
     payload: { ...payload, realmId, count },
     issuerId: realmId,
   } satisfies InputRecord);
-
   return true;
 }
 
