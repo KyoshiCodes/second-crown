@@ -40,6 +40,13 @@ export type { DeclareWarPayload } from "./actions/war.js";
 export { tryTrade, canTrade, MARKET_OFFERS } from "./actions/trade.js";
 export type { TradeOffer } from "./actions/trade.js";
 
+export {
+  tryGiftGold,
+  getOpinion,
+  rivalOpinionOfPlayer,
+  playerOpinionOfRival,
+} from "./actions/diplomacy.js";
+
 export { tryAscend, canAscend, ascendThreshold } from "./actions/prestige.js";
 
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
