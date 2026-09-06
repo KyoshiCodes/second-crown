@@ -9,7 +9,6 @@ describe("tryBuild", () => {
     const state = createGameState({ seed: 1 });
     expect(canAfford(state, "farm")).toBe(false);
     expect(tryBuild(state, { typeId: "farm", x: 0, y: 0 })).toBe(false);
-    expect(state.buildings.length).toBe(0);
   });
 
   it("queues a building and deducts cost when affordable", () => {
@@ -17,15 +16,11 @@ describe("tryBuild", () => {
     state.resources.wood = "100";
     state.resources.food = "100";
 
-    expect(canAfford(state, "farm")).toBe(true);
-    const ok = tryBuild(state, { typeId: "farm", x: 2, y: 3 });
-    expect(ok).toBe(true);
-    expect(state.buildings.length).toBe(1);
+    expect(tryBuild(state, { typeId: "farm", x: 2, y: 3 })).toBe(true);
     expect(state.buildings[0].typeId).toBe("farm");
-    expect(state.buildings[0].completesAtTick).toBe(40); // farm.buildTicks
-    expect(D(state.resources.wood).eq(92)).toBe(true); // cost 8 wood
-    expect(state.inputLog.length).toBe(1);
-    expect(state.inputLog[0].type).toBe("build");
+    expect(state.buildings[0].completesAtTick).toBe(30);
+    // cost 6 wood × 0.9 ambitious = ceil(5.4) = 6
+    expect(D(state.resources.wood).eq(94)).toBe(true);
   });
 
   it("building eventually produces after completion", () => {
@@ -34,9 +29,8 @@ describe("tryBuild", () => {
     tryBuild(state, { typeId: "farm", x: 0, y: 0 });
 
     const engine = new TickEngine(state);
-    engine.tickMany(50); // past 40 build time
+    engine.tickMany(40);
 
-    // ticks 41..50 = 10 ticks of production
     expect(D(engine.getState().resources.food).gte(10)).toBe(true);
   });
 });

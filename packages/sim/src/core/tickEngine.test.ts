@@ -40,11 +40,6 @@ describe("TickEngine determinism (Invariant 2)", () => {
     expect(sB.meta.tick).toBe(N);
     expect(sA.resources.food).toBe(sB.resources.food);
     expect(sA.resources.wood).toBe(sB.resources.wood);
-    expect(sA.resources.gold).toBe(sB.resources.gold);
-    expect(sA.resources.stone).toBe(sB.resources.stone);
-    expect(sA.buildings.map((b) => b.completesAtTick)).toEqual(
-      sB.buildings.map((b) => b.completesAtTick)
-    );
     expect(sA).toEqual(sB);
   });
 
@@ -54,13 +49,11 @@ describe("TickEngine determinism (Invariant 2)", () => {
 
     engine.tickMany(100);
 
-    // Farm: base 1 + clever advisor bonus 1 = 2 food/tick → 200 food
-    const food = D(engine.getState().resources.food ?? "0");
-    expect(food.eq(200)).toBe(true);
+    // Farm: 1 base + 1 clever = 2/tick → 200 food
+    expect(D(engine.getState().resources.food ?? "0").eq(200)).toBe(true);
 
-    // Lumber finishes at 40; ticks 40..100 inclusive = 61 ticks × (1+1) = 122 wood
-    const wood = D(engine.getState().resources.wood ?? "0");
-    expect(wood.eq(122)).toBe(true);
+    // Lumber finishes at 30; ticks 30..100 inclusive = 71 × 2 = 142 wood
+    expect(D(engine.getState().resources.wood ?? "0").eq(142)).toBe(true);
   });
 
   it("same seed produces same initial state", () => {
@@ -75,9 +68,9 @@ describe("mulberry32", () => {
     const { mulberry32 } = await import("./rng.js");
     const rng1 = mulberry32(42);
     const rng2 = mulberry32(42);
-    const seq1 = Array.from({ length: 20 }, () => rng1());
-    const seq2 = Array.from({ length: 20 }, () => rng2());
-    expect(seq1).toEqual(seq2);
+    expect(Array.from({ length: 20 }, () => rng1())).toEqual(
+      Array.from({ length: 20 }, () => rng2())
+    );
   });
 
   it("produces values in [0, 1)", async () => {
