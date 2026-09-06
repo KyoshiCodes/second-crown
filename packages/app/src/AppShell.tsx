@@ -1,5 +1,5 @@
 import React from "react";
-import { formatLetterSuffix, settlementName } from "@second-crown/sim";
+import { formatLetterSuffix, settlementName, currentSeason } from "@second-crown/sim";
 import { useGameEngine, type Tab } from "./game/useGameEngine";
 import { ResourceHud } from "./hud/ResourceHud";
 import { SpeedControls } from "./HudControls";
@@ -46,6 +46,7 @@ export function AppShell() {
 
   const activeWar = state?.wars.find((w) => w.status === "active");
   const hold = state ? settlementName(state) : "Your Hold";
+  const season = state ? currentSeason(state) : "Spring";
   React.useEffect(() => {
     document.title = hold + " - Second Crown";
   }, [hold]);
@@ -55,7 +56,7 @@ export function AppShell() {
       <div className="sc-panel">
         <h1 style={{ margin: "0 0 4px", fontSize: 22 }} className="sc-title">Second Crown</h1>
         <div style={{ fontSize: 13, opacity: 0.8 }} className="sc-subtitle">
-          {hold} · {title} · Tick {formatLetterSuffix(tick)}
+          {hold} · {title} · {season} · Tick {formatLetterSuffix(tick)}
           {prestige > 0 ? ` · Prestige ${prestige}` : ""} · Power {power.player} vs {power.rival}
         </div>
         {offlineNote ? <p style={{ color: "#3fb950" }}>{offlineNote}</p> : null}
