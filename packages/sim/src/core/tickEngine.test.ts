@@ -54,13 +54,13 @@ describe("TickEngine determinism (Invariant 2)", () => {
 
     engine.tickMany(100);
 
-    // Farm produces 1 food per tick from the start → 100 food
+    // Farm: base 1 + clever advisor bonus 1 = 2 food/tick → 200 food
     const food = D(engine.getState().resources.food ?? "0");
-    expect(food.eq(100)).toBe(true);
+    expect(food.eq(200)).toBe(true);
 
-    // Lumber camp finishes at tick 40, then produces ticks 40..100 inclusive → 61 wood
+    // Lumber finishes at 40; ticks 40..100 inclusive = 61 ticks × (1+1) = 122 wood
     const wood = D(engine.getState().resources.wood ?? "0");
-    expect(wood.eq(61)).toBe(true);
+    expect(wood.eq(122)).toBe(true);
   });
 
   it("same seed produces same initial state", () => {

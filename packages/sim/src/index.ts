@@ -14,7 +14,7 @@ export type { BuildingType } from "./content/buildings.js";
 export { UNIT_TYPES, getUnitType, listUnitTypes } from "./content/units.js";
 export type { UnitType } from "./content/units.js";
 
-export { EconomySystem, computeIncomePerSecond, productionMultiplier } from "./systems/economy.js";
+export { EconomySystem, computeIncomePerSecond, productionBonus } from "./systems/economy.js";
 export { realmPower, resolveBattle } from "./systems/combat.js";
 export type { BattleResult } from "./systems/combat.js";
 export { RivalSystem } from "./systems/rival.js";
