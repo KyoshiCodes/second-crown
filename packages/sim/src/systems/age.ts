@@ -1,5 +1,6 @@
 import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
+import { countBuilding } from "../content/buildings.js";
 
 export const SEASONS = ["Spring", "Summer", "Autumn", "Winter"] as const;
 
@@ -31,6 +32,51 @@ export function tryHireChampion(state: GameState): boolean {
     armyId: null,
   });
   return true;
+}
+
+export function tryNameChampion(state: GameState, name: string): boolean {
+  const n = name.trim().slice(0, 24);
+  if (!n) return false;
+  if (!state.units.some((u) => u.realmId === "player" && u.typeId === "champion")) return false;
+  state.flags.champion_name = n;
+  return true;
+}
+
+export function championName(state: GameState): string {
+  const n = String(state.flags.champion_name || "").trim();
+  return n || "Your Champion";
+}
+
+export function tryHireMercs(state: GameState): boolean {
+  if (D(state.resources.gold ?? "0").lt(30)) return false;
+  state.resources.gold = toDecimalString(D(state.resources.gold ?? "0").sub(30));
+  const existing = state.units.find((u) => u.typeId === "militia" && u.realmId === "player" && u.armyId === null);
+  if (existing) existing.count = toDecimalString(D(existing.count).add(8));
+  else {
+    state.units.push({
+      id: `merc_${state.meta.tick}`,
+      typeId: "militia",
+      realmId: "player",
+      count: "8",
+      armyId: null,
+    });
+  }
+  return true;
+}
+
+export function tryCollectTithe(state: GameState): boolean {
+  const n = countBuilding(state, "chapel");
+  if (n < 1) return false;
+  const ready = Number(state.flags.tithe_ready ?? 0);
+  if (state.meta.tick < ready) return false;
+  const gold = n * 8;
+  state.resources.gold = toDecimalString(D(state.resources.gold ?? "0").add(gold));
+  state.flags.tithe_ready = state.meta.tick + 300;
+  return true;
+}
+
+export function titheTicksLeft(state: GameState): number {
+  return Math.max(0, Number(state.flags.tithe_ready ?? 0) - state.meta.tick);
 }
 
 export function tryOpenRoute(state: GameState): boolean {
