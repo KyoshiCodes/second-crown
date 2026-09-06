@@ -41,7 +41,7 @@ export function CrownTab(props: {
 
   return (
     <>
-      <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} />
+      <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} state={state} />
       <p>Ascend at {formatLetterSuffix(ascendNeed)} total resources.</p>
       <button type="button" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended." : "Not ready."))}>Ascend</button>
 
