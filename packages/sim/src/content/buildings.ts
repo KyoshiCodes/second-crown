@@ -99,7 +99,7 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     buildTicks: 50,
     cost: { wood: "15", stone: "10", food: "15" },
     color: 0x4a5568,
-    blurb: "Each barracks: −5% unit train cost (min 50%)",
+    blurb: "Each barracks: -5% unit train cost (min 50%)",
   },
   stables: {
     id: "stables",
@@ -108,7 +108,7 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     buildTicks: 55,
     cost: { wood: "16", food: "12", gold: "4" },
     color: 0x8b6914,
-    blurb: "−10% Cavalry and Knight train cost",
+    blurb: "-10% Cavalry and Knight train cost",
   },
   archery_range: {
     id: "archery_range",
@@ -117,7 +117,7 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     buildTicks: 50,
     cost: { wood: "14", food: "8" },
     color: 0x2f6f4e,
-    blurb: "−10% Archer and Skirmisher train cost",
+    blurb: "-10% Archer and Skirmisher train cost",
   },
   siege_workshop: {
     id: "siege_workshop",
@@ -126,7 +126,7 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     buildTicks: 70,
     cost: { wood: "22", stone: "16", gold: "8" },
     color: 0x5c4033,
-    blurb: "−15% Siege Engine train cost",
+    blurb: "-15% Siege Engine train cost",
   },
   watchtower: {
     id: "watchtower",
@@ -136,6 +136,24 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     cost: { wood: "8", stone: "12" },
     color: 0x718096,
     blurb: "Each tower: +2 combat power",
+  },
+  chapel: {
+    id: "chapel",
+    name: "Chapel",
+    productionPerTick: { gold: "1" },
+    buildTicks: 55,
+    cost: { stone: "14", wood: "10", gold: "6" },
+    color: 0xc4b5fd,
+    blurb: "Tithe gold. Gemini can paint this tile.",
+  },
+  walls: {
+    id: "walls",
+    name: "Walls",
+    productionPerTick: {},
+    buildTicks: 80,
+    cost: { stone: "24", wood: "12" },
+    color: 0x64748b,
+    blurb: "Each completed wall: +4 combat power",
   },
 };
 
