@@ -8,6 +8,7 @@ import {
   defaultCloudUrl,
   discordLoginUrl,
   health,
+  openWatch,
   pullSave,
   pushSave,
   restoreToken,
@@ -24,6 +25,7 @@ export function CloudPanel() {
   const [kind, setKind] = React.useState("");
   const [code, setCode] = React.useState("");
   const [showCode, setShowCode] = React.useState(false);
+  const [watchUrl, setWatchUrl] = React.useState("");
 
   async function refreshMe() {
     const token = cloudToken();
@@ -52,7 +54,7 @@ export function CloudPanel() {
     try {
       await pushSave(raw);
     } catch {
-      /* offline is fine */
+      /* ignore */
     }
   }
 
@@ -89,131 +91,70 @@ export function CloudPanel() {
     <div style={{ maxWidth: 760, margin: "8px auto 0", padding: "10px 12px", background: "#16100c", borderRadius: 8 }}>
       <strong>Cloud playtest</strong>
       <div style={{ fontSize: 12, opacity: 0.75, margin: "4px 0 8px" }}>
-        Signed-in saves auto-push every 2 minutes and when you leave the tab.
-        Recovery code is only needed on a new browser. Names cannot open another player’s file.
+        Signed-in saves auto-push. Share a watch link so a friend can spectate your kingdom (read-only).
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
-        <input
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          onBlur={() => setCloudUrl(url)}
-          placeholder={defaultCloudUrl()}
-          style={{ minWidth: 220, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" }}
-        />
-        <button
-          type="button"
-          onClick={async () => {
-            setCloudUrl(url);
-            try {
-              const g = await createGuest(getTesterName() || "Guest");
-              setName(g.name);
-              setKind("guest");
-              setStatus(`Guest session ${g.id}. Copy your recovery code below.`);
-              setShowCode(true);
-            } catch {
-              setStatus("Could not create guest.");
-            }
-          }}
-        >
-          Guest session
-        </button>
-        <button
-          type="button"
-          disabled={!discord}
-          onClick={() => {
-            setCloudUrl(url);
-            window.location.href = discordLoginUrl();
-          }}
-        >
-          Log in with Discord
-        </button>
-        <button
-          type="button"
-          disabled={!token}
-          onClick={async () => {
+        <input value={url} onChange={(e) => setUrl(e.target.value)} onBlur={() => setCloudUrl(url)} placeholder={defaultCloudUrl()} style={{ minWidth: 220, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" }} />
+        <button type="button" onClick={async () => {
+          setCloudUrl(url);
+          try {
+            const g = await createGuest(getTesterName() || "Guest");
+            setName(g.name);
+            setKind("guest");
+            setStatus(`Guest session ${g.id}.`);
+            setShowCode(true);
+          } catch { setStatus("Could not create guest."); }
+        }}>Guest session</button>
+        <button type="button" disabled={!discord} onClick={() => { setCloudUrl(url); window.location.href = discordLoginUrl(); }}>Log in with Discord</button>
+        <button type="button" disabled={!token} onClick={async () => {
+          const raw = await loadFromIndexedDb();
+          if (!raw) { setStatus("No local save to push."); return; }
+          try { await pushSave(raw); setStatus("Pushed local save to cloud."); } catch { setStatus("Push failed."); }
+        }}>Push save</button>
+        <button type="button" disabled={!token} onClick={async () => {
+          try {
+            const raw = await pullSave();
+            await saveToIndexedDb(raw);
+            setStatus("Pulled cloud save. Reload the page to play it.");
+          } catch { setStatus("No cloud save yet."); }
+        }}>Pull save</button>
+        <button type="button" disabled={!token} onClick={async () => {
+          try {
             const raw = await loadFromIndexedDb();
-            if (!raw) {
-              setStatus("No local save to push.");
-              return;
-            }
-            try {
-              await pushSave(raw);
-              setStatus("Pushed local save to cloud.");
-            } catch {
-              setStatus("Push failed.");
-            }
-          }}
-        >
-          Push save
-        </button>
-        <button
-          type="button"
-          disabled={!token}
-          onClick={async () => {
-            try {
-              const raw = await pullSave();
-              await saveToIndexedDb(raw);
-              setStatus("Pulled cloud save. Reload the page to play it.");
-            } catch {
-              setStatus("No cloud save yet.");
-            }
-          }}
-        >
-          Pull save
-        </button>
+            if (raw) await pushSave(raw);
+            const w = await openWatch();
+            setWatchUrl(w.url);
+            setStatus(`Watch link ready.`);
+            void navigator.clipboard.writeText(w.url);
+          } catch { setStatus("Could not open a watch room. Sign in first."); }
+        }}>Share watch link</button>
       </div>
+      {watchUrl ? <div style={{ fontSize: 12, marginTop: 8 }}>Watch: <code>{watchUrl}</code></div> : null}
       {token ? (
         <div style={{ fontSize: 12, marginTop: 8 }}>
-          <button type="button" onClick={() => setShowCode((v) => !v)}>
-            {showCode ? "Hide recovery code" : "Show recovery code"}
-          </button>
+          <button type="button" onClick={() => setShowCode((v) => !v)}>{showCode ? "Hide recovery code" : "Show recovery code"}</button>
           {showCode ? (
             <div style={{ marginTop: 6 }}>
-              <code style={{ wordBreak: "break-all" }}>{token}</code>{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  void navigator.clipboard.writeText(token);
-                  setStatus("Recovery code copied.");
-                }}
-              >
-                Copy
-              </button>
+              <code style={{ wordBreak: "break-all" }}>{token}</code>
             </div>
           ) : null}
         </div>
       ) : null}
       <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Paste recovery code"
-          style={{ minWidth: 220, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" }}
-        />
-        <button
-          type="button"
-          onClick={async () => {
-            setCloudUrl(url);
-            try {
-              const me = await restoreToken(code);
-              setName(me.name);
-              setKind(me.kind || "guest");
-              setCode("");
-              setStatus(`Restored ${me.name}. Pull save if you need the cloud file.`);
-            } catch {
-              setStatus("That recovery code is not valid on this server.");
-            }
-          }}
-        >
-          Restore code
-        </button>
+        <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Paste recovery code" style={{ minWidth: 220, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" }} />
+        <button type="button" onClick={async () => {
+          setCloudUrl(url);
+          try {
+            const me = await restoreToken(code);
+            setName(me.name);
+            setKind(me.kind || "guest");
+            setCode("");
+            setStatus(`Restored ${me.name}.`);
+          } catch { setStatus("That recovery code is not valid on this server."); }
+        }}>Restore code</button>
       </div>
       <div style={{ fontSize: 13, marginTop: 8, fontWeight: 600 }}>
-        {name
-          ? kind === "discord"
-            ? `Signed in with Discord as ${name}`
-            : `Signed in as guest ${name}`
-          : "Not signed in."}
+        {name ? (kind === "discord" ? `Signed in with Discord as ${name}` : `Signed in as guest ${name}`) : "Not signed in."}
       </div>
       <div style={{ fontSize: 12, marginTop: 4, opacity: 0.8 }}>{status}</div>
     </div>
