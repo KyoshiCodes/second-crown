@@ -9,6 +9,7 @@ import {
 } from "@second-crown/sim";
 import { ArmyVisual } from "../ArmyVisual";
 import type { ActFn } from "../game/useGameEngine";
+import { sfx } from "../sfx";
 
 export function ArmyTab(props: {
   state: GameState | undefined;
@@ -28,9 +29,7 @@ export function ArmyTab(props: {
           x{q}
         </button>
       ))}
-      <span style={{ marginLeft: 8, fontSize: 12 }}>
-        {barracksN ? `Barracks discount ${Math.round((1 - trainMult) * 100)}%` : ""}
-      </span>
+      <span style={{ fontSize: 12 }}>{barracksN ? ` Barracks discount ${Math.round((1 - trainMult) * 100)}%` : ""}</span>
       <div>
         {unitTypes.map((u) => (
           <button
@@ -38,11 +37,11 @@ export function ArmyTab(props: {
             type="button"
             disabled={!(state && canAffordTrain(state, u.id, trainQty))}
             onClick={() =>
-              act((st) =>
-                tryTrain(st, { typeId: u.id, count: trainQty })
-                  ? `Trained ${trainQty} ${u.name}.`
-                  : "Cannot afford that levy."
-              )
+              act((st) => {
+                const ok = tryTrain(st, { typeId: u.id, count: trainQty });
+                if (ok) sfx.train();
+                return ok ? `Trained ${trainQty} ${u.name}.` : "Cannot afford that levy.";
+              })
             }
           >
             {u.name} pwr {u.power}
