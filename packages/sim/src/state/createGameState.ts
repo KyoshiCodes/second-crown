@@ -54,7 +54,7 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
         x: 1,
         y: 0,
         level: 1,
-        completesAtTick: 50,
+        completesAtTick: 40, // matches lumber_camp.buildTicks
       }
     );
   }
