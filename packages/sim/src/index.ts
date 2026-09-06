@@ -82,6 +82,14 @@ export {
   isScouted,
 } from "./systems/decree.js";
 
+export {
+  SEASONS,
+  currentSeason,
+  tryHireChampion,
+  tryOpenRoute,
+  routeGoldPerTick,
+} from "./systems/age.js";
+
 export { settlementName, tryRenameSettlement } from "./actions/settlement.js";
 
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
