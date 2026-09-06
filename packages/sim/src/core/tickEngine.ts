@@ -1,8 +1,9 @@
 import type { GameState } from "@second-crown/shared";
 import { createRngStreams, type RngStreams } from "./rng.js";
 import { EconomySystem } from "../systems/economy.js";
+import { RivalSystem } from "../systems/rival.js";
 
-const SYSTEMS = [EconomySystem];
+const SYSTEMS = [EconomySystem, RivalSystem];
 
 export class TickEngine {
   readonly rng: RngStreams;
@@ -15,17 +16,14 @@ export class TickEngine {
     return this.state;
   }
 
-  /** Advance exactly one fine tick. */
   tick(): void {
     this.state.meta.tick += 1;
-    this.state.meta.playTimeMs += 100; // 10 Hz → 100 ms logical time
+    this.state.meta.playTimeMs += 100;
 
-    // Process any events scheduled for this exact tick first
     for (const sys of SYSTEMS) {
       sys.processEventsAt(this.state, this.state.meta.tick);
     }
 
-    // Then apply per-tick production
     for (const sys of SYSTEMS) {
       if ("tick" in sys && typeof (sys as any).tick === "function") {
         (sys as any).tick(this.state);
@@ -33,7 +31,6 @@ export class TickEngine {
     }
   }
 
-  /** Advance N fine ticks one-by-one (correctness baseline). */
   tickMany(n: number): void {
     for (let i = 0; i < n; i++) {
       this.tick();
@@ -41,16 +38,7 @@ export class TickEngine {
   }
 
   /**
-   * Event-horizon settlement (Invariant 2).
-   *
-   * Strategy:
-   * - Find next event tick.
-   * - Analytically advance production up to (eventTick - 1).
-   * - Step exactly one fine tick onto the event (processEvents + production).
-   * - Repeat until target is reached.
-   *
-   * This matches the fine-tick order bit-for-bit and avoids off-by-one
-   * double-counting on the completion tick.
+   * Event-horizon settlement: jump to event-1, fine-tick the event, repeat.
    */
   settleTicks(n: number): void {
     if (n <= 0) return;
@@ -68,7 +56,17 @@ export class TickEngine {
         }
       }
 
-      // No upcoming event before target: one analytic jump and done
+      // Also consider rival growth boundaries every 100 ticks
+      const nextRival = Math.floor(this.state.meta.tick / 100) * 100 + 100;
+      if (nextRival > this.state.meta.tick) {
+        if (nextEvent === null || nextRival < nextEvent) {
+          // treat as soft boundary only if before target
+          if (nextRival <= targetTick) {
+            nextEvent = nextEvent === null ? nextRival : Math.min(nextEvent, nextRival);
+          }
+        }
+      }
+
       if (nextEvent === null || nextEvent > targetTick) {
         const from = this.state.meta.tick;
         const distance = targetTick - from;
@@ -82,12 +80,10 @@ export class TickEngine {
         break;
       }
 
-      // Advance analytically to the tick *before* the event
       const preEvent = nextEvent - 1;
       if (preEvent > this.state.meta.tick) {
         const from = this.state.meta.tick;
         const distance = preEvent - from;
-        // Small gap: just fine-tick (keeps logic simple)
         if (distance <= 4) {
           this.tickMany(distance);
         } else {
@@ -99,7 +95,6 @@ export class TickEngine {
         }
       }
 
-      // Step one fine tick onto the event (processEvents + production)
       if (this.state.meta.tick < targetTick) {
         this.tick();
       }
