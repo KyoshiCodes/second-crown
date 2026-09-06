@@ -73,6 +73,8 @@ export {
 
 export { activeClash, tryJoinClash } from "./systems/worldClash.js";
 
+export { settlementName, tryRenameSettlement } from "./actions/settlement.js";
+
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
 export { applyOfflineProgress } from "./offline.js";
