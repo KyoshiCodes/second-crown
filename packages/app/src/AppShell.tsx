@@ -17,11 +17,11 @@ const TAB_LABEL: Record<Tab, string> = {
   crown: "Crown",
 };
 const TAB_ICON: Record<Tab, string> = {
-  kingdom: "\ud83c\udff0",
-  army: "\u2694",
-  war: "\ud83d\udd25",
-  world: "\ud83e\udded",
-  crown: "\ud83d\udc51",
+  kingdom: "🏰",
+  army: "⚔",
+  war: "🔥",
+  world: "🧭",
+  crown: "👑",
 };
 
 export function AppShell() {
@@ -47,7 +47,7 @@ export function AppShell() {
   const activeWar = state?.wars.find((w) => w.status === "active");
   const hold = state ? settlementName(state) : "Your Hold";
   React.useEffect(() => {
-    document.title = `${hold} \u2014 Second Crown`;
+    document.title = hold + " - Second Crown";
   }, [hold]);
 
   return (
@@ -55,8 +55,8 @@ export function AppShell() {
       <div className="sc-panel">
         <h1 style={{ margin: "0 0 4px", fontSize: 22 }} className="sc-title">Second Crown</h1>
         <div style={{ fontSize: 13, opacity: 0.8 }} className="sc-subtitle">
-          {hold} \u00b7 {title} \u00b7 Tick {formatLetterSuffix(tick)}
-          {prestige > 0 ? ` \u00b7 Prestige ${prestige}` : ""} \u00b7 Power {power.player} vs {power.rival}
+          {hold} · {title} · Tick {formatLetterSuffix(tick)}
+          {prestige > 0 ? ` · Prestige ${prestige}` : ""} · Power {power.player} vs {power.rival}
         </div>
         {offlineNote ? <p style={{ color: "#3fb950" }}>{offlineNote}</p> : null}
         <SpeedControls paused={paused} speed={speed} onPauseToggle={() => setPaused((p) => !p)} onSpeed={(n) => { setPaused(false); setSpeed(n); }} />
@@ -66,7 +66,7 @@ export function AppShell() {
           {(["kingdom", "army", "war", "world", "crown"] as Tab[]).map((id) => (
             <button key={id} type="button" className={`sc-tab tab-${id} ${tab === id ? "active" : ""}`} onClick={() => setTab(id)}>
               <span className="sc-tab-icon">{TAB_ICON[id]}</span> {TAB_LABEL[id]}
-              {id === "war" && activeWar ? <span className="sc-war-badge">\u25cf</span> : null}
+              {id === "war" && activeWar ? <span className="sc-war-badge"> *</span> : null}
             </button>
           ))}
         </div>
