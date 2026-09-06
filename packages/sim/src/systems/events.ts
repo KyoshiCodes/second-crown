@@ -16,6 +16,21 @@ export interface WorldEvent {
   text: string;
 }
 
+function readLog(state: GameState): WorldEvent[] {
+  const raw = state.flags["event_log"];
+  if (typeof raw !== "string" || !raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as WorldEvent[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeLog(state: GameState, log: WorldEvent[]): void {
+  state.flags["event_log"] = JSON.stringify(log.slice(-8));
+}
+
 function applyEvent(state: GameState, tick: number): WorldEvent {
   const roll = hashTick(state.meta.seed, tick) % 5;
   let ev: WorldEvent;
@@ -42,23 +57,25 @@ function applyEvent(state: GameState, tick: number): WorldEvent {
 
   state.flags["last_event"] = ev.text;
   state.flags["last_event_tick"] = tick;
+  const log = readLog(state);
+  log.push(ev);
+  writeLog(state, log);
   return ev;
+}
+
+export function getEventLog(state: GameState): WorldEvent[] {
+  return readLog(state);
 }
 
 export const EventSystem = {
   nextEventTick(state: GameState): number | null {
-    const next = Math.floor(state.meta.tick / EVENT_PERIOD) * EVENT_PERIOD + EVENT_PERIOD;
-    return next;
+    return Math.floor(state.meta.tick / EVENT_PERIOD) * EVENT_PERIOD + EVENT_PERIOD;
   },
 
-  advanceAnalytic(_state: GameState, _from: number, _to: number): void {
-    // Events fire only on exact period ticks via processEventsAt / tick()
-  },
+  advanceAnalytic(_state: GameState, _from: number, _to: number): void {},
 
   processEventsAt(state: GameState, tick: number): void {
-    if (tick > 0 && tick % EVENT_PERIOD === 0) {
-      applyEvent(state, tick);
-    }
+    if (tick > 0 && tick % EVENT_PERIOD === 0) applyEvent(state, tick);
   },
 
   tick(_state: GameState): void {},
