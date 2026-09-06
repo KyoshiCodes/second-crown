@@ -34,9 +34,13 @@ export function SpeedControls(props: {
         type="button"
         onClick={() => {
           startMusicBed();
-          const next = !muted;
-          setMusicMuted(next);
-          setMuted(next);
+          if (muted) {
+            setMusicMuted(false);
+            setMuted(false);
+          } else {
+            setMusicMuted(true);
+            setMuted(true);
+          }
         }}
       >
         {muted ? "Music off" : "Music on"}

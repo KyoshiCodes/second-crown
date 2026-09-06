@@ -1,71 +1,78 @@
-/** Soft procedural pentatonic bed that adapts to seasons and holidays.
- * Starts after first click (browser autoplay rule).
- * Completely client-side; zero sim determinism impact.
+/** Layered procedural bed: pad + phrase + optional battle pulse.
+ * Starts after first Music click (browser autoplay).
+ * Client-only. Not a licensed soundtrack — recorded tracks can drop into public/audio later.
  */
 
 export type SeasonName = "Spring" | "Summer" | "Autumn" | "Winter";
 
 let ctx: AudioContext | null = null;
-let timer: number | null = null;
+let melodyTimer: number | null = null;
+let padTimer: number | null = null;
+let battleTimer: number | null = null;
 let muted = false;
 let step = 0;
 let currentSeasonName: SeasonName = "Spring";
 let currentHolidayId: string | null = null;
+let battleOn = false;
+let started = false;
 
-// Musical patterns by season
-const SEASON_PATTERNS: Record<SeasonName, { notes: number[]; intervalMs: number; oscType: OscillatorType }> = {
-  // Lydian / bright major pentatonic (G4, B4, D5, E5, F#5, D5, B4, G4)
+const SEASON: Record<SeasonName, { melody: number[]; bass: number; intervalMs: number; osc: OscillatorType }> = {
   Spring: {
-    notes: [392.00, 493.88, 587.33, 659.25, 739.99, 587.33, 493.88, 392.00],
-    intervalMs: 580,
-    oscType: "triangle",
+    melody: [392, 494, 587, 659, 740, 659, 587, 494, 392, 330, 392, 494, 587, 523, 494, 392],
+    bass: 98,
+    intervalMs: 420,
+    osc: "triangle",
   },
-  // Sunlit warm meadow pentatonic (G3, B3, D4, E4, G4, A4, E4, D4)
   Summer: {
-    notes: [196.00, 246.94, 293.66, 329.63, 392.00, 440.00, 329.63, 293.66],
-    intervalMs: 640,
-    oscType: "triangle",
+    melody: [196, 247, 294, 330, 392, 440, 392, 330, 294, 247, 220, 247, 294, 330, 294, 196],
+    bass: 73.4,
+    intervalMs: 480,
+    osc: "triangle",
   },
-  // Dorian / contemplative harvest minor pentatonic (A3, C4, D4, E4, G4, E4, D4, A3)
   Autumn: {
-    notes: [220.00, 261.63, 293.66, 329.63, 392.00, 329.63, 293.66, 220.00],
-    intervalMs: 680,
-    oscType: "sine",
+    melody: [220, 262, 294, 330, 392, 330, 294, 220, 196, 220, 262, 294, 247, 220, 196, 165],
+    bass: 110,
+    intervalMs: 520,
+    osc: "sine",
   },
-  // Frost / crystalline winter glockenspiel (C4, E4, G4, C5, B4, G4, E4, C4)
   Winter: {
-    notes: [261.63, 329.63, 392.00, 523.25, 493.88, 392.00, 329.63, 261.63],
-    intervalMs: 760,
-    oscType: "sine",
+    melody: [262, 330, 392, 523, 494, 392, 330, 262, 247, 262, 330, 392, 349, 330, 262, 196],
+    bass: 65.4,
+    intervalMs: 560,
+    osc: "sine",
   },
 };
 
-// Holiday special patterns
-const HOLIDAY_PATTERNS: Record<string, { notes: number[]; intervalMs: number; oscType: OscillatorType }> = {
+const HOLIDAY: Record<string, { melody: number[]; bass: number; intervalMs: number; osc: OscillatorType }> = {
   halloween: {
-    notes: [196.00, 207.65, 246.94, 293.66, 207.65, 261.63, 311.13, 196.00],
-    intervalMs: 620,
-    oscType: "triangle",
+    melody: [196, 208, 247, 294, 208, 262, 311, 196, 185, 196, 233, 277, 233, 196, 175, 155],
+    bass: 73.4,
+    intervalMs: 500,
+    osc: "triangle",
   },
   midwinter: {
-    notes: [261.63, 329.63, 392.00, 523.25, 587.33, 523.25, 392.00, 329.63],
-    intervalMs: 700,
-    oscType: "sine",
+    melody: [262, 330, 392, 523, 587, 523, 392, 330, 349, 392, 523, 392, 330, 262, 196, 262],
+    bass: 87.3,
+    intervalMs: 540,
+    osc: "sine",
   },
   easter: {
-    notes: [261.63, 329.63, 392.00, 440.00, 523.25, 659.25, 523.25, 392.00],
-    intervalMs: 560,
-    oscType: "triangle",
+    melody: [262, 330, 392, 440, 523, 659, 523, 392, 349, 392, 440, 523, 440, 392, 330, 262],
+    bass: 98,
+    intervalMs: 400,
+    osc: "triangle",
   },
   harvest: {
-    notes: [196.00, 220.00, 261.63, 293.66, 329.63, 293.66, 220.00, 196.00],
-    intervalMs: 660,
-    oscType: "sine",
+    melody: [196, 220, 262, 294, 330, 294, 220, 196, 175, 196, 220, 262, 247, 220, 196, 147],
+    bass: 98,
+    intervalMs: 500,
+    osc: "sine",
   },
   midsummer: {
-    notes: [329.63, 392.00, 440.00, 493.88, 587.33, 659.25, 493.88, 392.00],
-    intervalMs: 580,
-    oscType: "triangle",
+    melody: [330, 392, 440, 494, 587, 659, 494, 392, 440, 494, 587, 494, 440, 392, 330, 294],
+    bass: 82.4,
+    intervalMs: 420,
+    osc: "triangle",
   },
 };
 
@@ -78,7 +85,7 @@ function audio(): AudioContext | null {
   }
 }
 
-function pluck(freq: number, type: OscillatorType, durSec: number) {
+function tone(freq: number, type: OscillatorType, dur: number, gain: number) {
   const a = audio();
   if (!a || muted) return;
   if (a.state === "suspended") void a.resume();
@@ -86,54 +93,70 @@ function pluck(freq: number, type: OscillatorType, durSec: number) {
   const g = a.createGain();
   o.type = type;
   o.frequency.value = freq;
-  g.gain.value = 0.016;
-  g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + durSec);
+  g.gain.value = gain;
+  g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
   o.connect(g).connect(a.destination);
   o.start();
-  o.stop(a.currentTime + durSec);
+  o.stop(a.currentTime + dur);
 }
 
-function getActivePattern() {
-  if (currentHolidayId && HOLIDAY_PATTERNS[currentHolidayId]) {
-    return HOLIDAY_PATTERNS[currentHolidayId];
-  }
-  return SEASON_PATTERNS[currentSeasonName] ?? SEASON_PATTERNS.Spring;
+function pattern() {
+  if (currentHolidayId && HOLIDAY[currentHolidayId]) return HOLIDAY[currentHolidayId];
+  return SEASON[currentSeasonName] ?? SEASON.Spring;
 }
 
-function restartTimer() {
-  if (timer !== null) {
-    window.clearInterval(timer);
-    timer = null;
-  }
-  const pat = getActivePattern();
-  timer = window.setInterval(() => {
-    const current = getActivePattern();
-    const note = current.notes[step % current.notes.length];
-    pluck(note, current.oscType, current.intervalMs * 0.0009);
+function clearTimers() {
+  if (melodyTimer !== null) window.clearInterval(melodyTimer);
+  if (padTimer !== null) window.clearInterval(padTimer);
+  if (battleTimer !== null) window.clearInterval(battleTimer);
+  melodyTimer = padTimer = battleTimer = null;
+}
+
+function runBed() {
+  if (!started || muted) return;
+  clearTimers();
+  const p = pattern();
+  melodyTimer = window.setInterval(() => {
+    const cur = pattern();
+    const note = cur.melody[step % cur.melody.length];
+    tone(note, cur.osc, 0.55, 0.045);
+    if (step % 4 === 0) tone(note / 2, "sine", 0.8, 0.02);
     step += 1;
-  }, pat.intervalMs);
+  }, p.intervalMs);
+  padTimer = window.setInterval(() => {
+    tone(pattern().bass, "sine", 1.6, 0.03);
+  }, p.intervalMs * 4);
+  if (battleOn) {
+    battleTimer = window.setInterval(() => {
+      tone(70, "sawtooth", 0.18, 0.05);
+      setTimeout(() => tone(90, "square", 0.08, 0.02), 90);
+      setTimeout(() => tone(55, "sine", 0.28, 0.04), 160);
+    }, 520);
+  }
 }
 
 export function startMusicBed(): void {
-  if (timer !== null) return;
+  started = true;
   audio();
-  restartTimer();
+  if (!muted) runBed();
 }
 
 export function setMusicSeason(season: SeasonName): void {
   if (currentSeasonName === season) return;
   currentSeasonName = season;
-  if (timer !== null) {
-    restartTimer();
-  }
+  if (started && !muted) runBed();
 }
 
 export function setMusicHoliday(holidayId: string | null): void {
   if (currentHolidayId === holidayId) return;
   currentHolidayId = holidayId;
-  if (timer !== null) {
-    restartTimer();
-  }
+  if (started && !muted) runBed();
+}
+
+export function setMusicBattle(on: boolean): void {
+  if (battleOn === on) return;
+  battleOn = on;
+  if (started && !muted) runBed();
 }
 
 export function isMusicMuted(): boolean {
@@ -147,6 +170,8 @@ export function setMusicMuted(next: boolean): void {
   } catch {
     /* ignore */
   }
+  if (next) clearTimers();
+  else if (started) runBed();
 }
 
 export function loadMusicMuted(): boolean {
@@ -158,3 +183,4 @@ export function loadMusicMuted(): boolean {
   return muted;
 }
 
+loadMusicMuted();
