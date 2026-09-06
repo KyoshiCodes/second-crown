@@ -1,5 +1,6 @@
 import type { GameState, InputRecord } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
+import { giftOpinionBonus, noteGift } from "../systems/wave.js";
 
 export function getOpinion(state: GameState, fromCharId: string, toCharId: string): number {
   return state.opinions.find((o) => o.from === fromCharId && o.to === toCharId)?.value ?? 0;
@@ -33,8 +34,10 @@ export function tryGiftGold(state: GameState, amount = 15, realmId = "rival"): b
   const ruler = state.characters.find((c) => c.realmId === realmId && c.role === "ruler");
   if (!ruler) return false;
   state.resources.gold = toDecimalString(D(state.resources.gold ?? "0").sub(amount));
-  bump(state, ruler.id, "char_player", 12);
-  bump(state, "char_player", ruler.id, 6);
+  const extra = giftOpinionBonus(state);
+  bump(state, ruler.id, "char_player", 12 + extra);
+  bump(state, "char_player", ruler.id, 6 + extra);
+  noteGift(state);
   state.inputLog.push({
     tick: state.meta.tick,
     type: "gift",
