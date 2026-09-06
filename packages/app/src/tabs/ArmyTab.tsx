@@ -30,24 +30,29 @@ export function ArmyTab(props: {
         </button>
       ))}
       <span style={{ fontSize: 12 }}>{barracksN ? ` Barracks discount ${Math.round((1 - trainMult) * 100)}%` : ""}</span>
-      <div>
-        {unitTypes.map((u) => (
-          <button
-            key={u.id}
-            type="button"
-            disabled={!(state && canAffordTrain(state, u.id, trainQty))}
-            onClick={() =>
-              act((st) => {
-                const ok = tryTrain(st, { typeId: u.id, count: trainQty });
-                if (ok) sfx.train();
-                return ok ? `Trained ${trainQty} ${u.name}.` : "Cannot afford that levy.";
-              })
-            }
-          >
-            {u.name} pwr {u.power}
-          </button>
-        ))}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+        {unitTypes.map((u) => {
+          const cost = Object.entries(u.cost).map(([k, v]) => `${v} ${k}`).join(", ");
+          return (
+            <button
+              key={u.id}
+              type="button"
+              title={`${u.blurb ?? ""} Cost ${cost}`}
+              disabled={!(state && canAffordTrain(state, u.id, trainQty))}
+              onClick={() =>
+                act((st) => {
+                  const ok = tryTrain(st, { typeId: u.id, count: trainQty });
+                  if (ok) sfx.train();
+                  return ok ? `Trained ${trainQty} ${u.name}.` : "Cannot afford that levy.";
+                })
+              }
+            >
+              {u.name} pwr {u.power}
+            </button>
+          );
+        })}
       </div>
+      <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for cost and role. Specialist buildings cheapen matching lines.</p>
       <h3>Your Host</h3>
       <ArmyVisual state={state} realmId="player" />
     </>
