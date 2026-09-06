@@ -2,6 +2,13 @@
 
 Newest first.
 
+## 2026-09-06 — Astra proposal: practice auction and PvP ledger
+
+- Discord-only practice accounts, fixed-price escrow, buy/cancel, and retry receipts.
+- Private PvP challenges with immutable, unverified power/save-hash snapshots.
+- World-tab panel with separate-asset labels, explicit refresh, and retry recovery.
+- Server transaction and HTTP integration tests; no live deployment or ranked combat.
+
 ## 2026-09-06 — HTTPS live + specialist buildings
 
 - Public URL `https://129.153.17.72.sslip.io/` (Caddy, Let's Encrypt)
