@@ -1,7 +1,9 @@
 import type { GameState, InputRecord, War } from "@second-crown/shared";
-import { resolveBattle, type BattleResult } from "../systems/combat.js";
+import { realmPower, resolveBattle, type BattleResult } from "../systems/combat.js";
 import type { RngStreams } from "../core/rng.js";
 import { noteWar } from "../systems/wave.js";
+import { fortifyTicksLeft } from "../systems/court.js";
+import { DECREES, decreeUntil } from "../systems/decree.js";
 
 export interface DeclareWarPayload {
   attackerRealmId: string;
@@ -78,4 +80,21 @@ export function tryWhitePeace(state: GameState): boolean {
 export function peaceTicksRemaining(state: GameState, a = "player", b = "rival"): number {
   const lock = peaceLockedUntil(state, a, b);
   return Math.max(0, lock - state.meta.tick);
+}
+
+export interface WarSummary {
+  playerPower: number;
+  activeWar: War | undefined;
+  fortifyTicksLeft: number;
+  decrees: { id: string; name: string; ticksLeft: number }[];
+}
+
+/** Read-only rollup for the War tab: power, active war, fortify, decree status. No formula changes. */
+export function warSummary(state: GameState): WarSummary {
+  return {
+    playerPower: realmPower(state, "player"),
+    activeWar: state.wars.find((w) => w.status === "active"),
+    fortifyTicksLeft: fortifyTicksLeft(state),
+    decrees: DECREES.map((d) => ({ id: d.id, name: d.name, ticksLeft: decreeUntil(state, d.id) })),
+  };
 }
