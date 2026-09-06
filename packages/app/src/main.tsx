@@ -293,7 +293,6 @@ function App() {
         ) : null}
       </header>
 
-      {/* Persistent resource bar */}
       <div
         style={{
           background: "#161b22",
@@ -333,7 +332,6 @@ function App() {
         </div>
       ) : null}
 
-      {/* Tabs */}
       <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
         {(
           [
@@ -350,27 +348,29 @@ function App() {
         ))}
       </div>
 
-      {/* Map always visible on Kingdom */}
+      {/* Single canvas always mounted */}
+      <div style={{ display: tab === "kingdom" ? "block" : "none", marginBottom: 14 }}>
+        <p style={{ fontSize: 12, opacity: 0.65, margin: "0 0 6px" }}>
+          Selected: <strong>{selectedBuild ?? "none"}</strong> — click map to place
+        </p>
+        <canvas
+          ref={canvasRef}
+          style={{
+            display: "block",
+            width: "100%",
+            maxWidth: 512,
+            borderRadius: 8,
+            border: "1px solid #30363d",
+            imageRendering: "pixelated",
+          }}
+        />
+      </div>
+
       {tab === "kingdom" && (
         <>
-          <p style={{ fontSize: 12, opacity: 0.65, margin: "0 0 6px" }}>
-            Selected: <strong>{selectedBuild ?? "none"}</strong> — click map to place
-          </p>
-          <canvas
-            ref={canvasRef}
-            style={{
-              display: "block",
-              width: "100%",
-              maxWidth: 512,
-              borderRadius: 8,
-              border: "1px solid #30363d",
-              marginBottom: 14,
-              imageRendering: "pixelated",
-            }}
-          />
           <p style={{ fontSize: 12, opacity: 0.6, marginTop: 0 }}>
             Ambitious −10% build cost
-            {barracksN > 0 ? ` · Barracks×${barracksN} train cost ×${(trainMult * 100).toFixed(0)}%` : ""}
+            {barracksN > 0 ? ` · Barracks×${barracksN} train ×${(trainMult * 100).toFixed(0)}%` : ""}
             {towersN > 0 ? ` · Towers +${towersN * 2} power` : ""}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -421,7 +421,7 @@ function App() {
 
       {tab === "army" && (
         <>
-          <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
             {[1, 5, 10].map((q) => (
               <button
                 key={q}
@@ -442,7 +442,7 @@ function App() {
             <span style={{ fontSize: 12, opacity: 0.6, alignSelf: "center" }}>
               {barracksN > 0
                 ? `Barracks discount: ${Math.round((1 - trainMult) * 100)}%`
-                : "Build barracks to discount training"}
+                : "Build barracks (Kingdom) to discount training"}
             </span>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -478,7 +478,7 @@ function App() {
           </div>
           <div style={{ marginTop: 12, fontFamily: "ui-monospace, monospace", fontSize: 13 }}>
             {units.filter((u) => u.realmId === "player").length === 0 ? (
-              <span style={{ opacity: 0.6 }}>No units — train militia with food</span>
+              <span style={{ opacity: 0.6 }}>No units yet</span>
             ) : (
               units
                 .filter((u) => u.realmId === "player")
@@ -489,16 +489,13 @@ function App() {
                 ))
             )}
           </div>
-          <p style={{ fontSize: 12, opacity: 0.55, marginTop: 16 }}>
-            Watchtowers (Kingdom tab) add +2 power each without upkeep.
-          </p>
         </>
       )}
 
       {tab === "war" && (
         <>
           <p style={{ fontSize: 13, opacity: 0.75 }}>
-            You {power.player} power · Iron March {power.rival}
+            You {power.player} · Iron March {power.rival}
             {activeWar ? " · Battle pending" : ""}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
@@ -515,9 +512,7 @@ function App() {
                 cursor: canDeclare ? "pointer" : "not-allowed",
               }}
             >
-              {peaceLeft > 0
-                ? `Peace (${Math.ceil(peaceLeft / 10)}s)`
-                : "Declare war"}
+              {peaceLeft > 0 ? `Peace (${Math.ceil(peaceLeft / 10)}s)` : "Declare war"}
             </button>
             <button
               type="button"
@@ -543,9 +538,6 @@ function App() {
               </li>
             ))}
           </ul>
-          <p style={{ fontSize: 12, opacity: 0.55 }}>
-            Rival grows over time and attacks if stronger. Loot and casualties are deterministic.
-          </p>
         </>
       )}
 
@@ -566,8 +558,8 @@ function App() {
 
           <h3 style={{ fontSize: 15 }}>Claim the Second Crown</h3>
           <p style={{ fontSize: 12, opacity: 0.65 }}>
-            Soft reset at {formatLetterSuffix(ascendNeed)} total resources. Keep prestige for
-            permanent +1 production per building.
+            Soft reset at {formatLetterSuffix(ascendNeed)} total resources. Permanent +1 prod per
+            building per prestige level.
           </p>
           <button
             type="button"
@@ -656,11 +648,6 @@ function App() {
             </button>
           </div>
         </>
-      )}
-
-      {/* Keep canvas mounted even off-tab so Pixi survives — hidden */}
-      {tab !== "kingdom" && (
-        <canvas ref={canvasRef} style={{ display: "none" }} />
       )}
     </div>
   );
