@@ -45,6 +45,17 @@ export function CloudPanel() {
     }
   }
 
+  async function autoPush() {
+    if (!cloudToken()) return;
+    const raw = await loadFromIndexedDb();
+    if (!raw) return;
+    try {
+      await pushSave(raw);
+    } catch {
+      /* offline is fine */
+    }
+  }
+
   React.useEffect(() => {
     const fromHash = absorbHashSession();
     setName(cloudName());
@@ -56,10 +67,20 @@ export function CloudPanel() {
     health()
       .then((h) => {
         setDiscord(h.discord);
-        if (!fromHash) setStatus(h.ok ? "Cloud reachable." : "Cloud down.");
+        if (!fromHash) setStatus(h.ok ? "Cloud reachable. Auto-save is on." : "Cloud down.");
       })
       .catch(() => setStatus("Cloud unreachable — check the URL."));
     void refreshMe();
+    const id = window.setInterval(() => void autoPush(), 120_000);
+    const onHide = () => {
+      if (document.visibilityState === "hidden") void autoPush();
+    };
+    document.addEventListener("visibilitychange", onHide);
+    window.addEventListener("pagehide", () => void autoPush());
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", onHide);
+    };
   }, []);
 
   const token = cloudToken();
@@ -68,8 +89,8 @@ export function CloudPanel() {
     <div style={{ maxWidth: 760, margin: "8px auto 0", padding: "10px 12px", background: "#16100c", borderRadius: 8 }}>
       <strong>Cloud playtest</strong>
       <div style={{ fontSize: 12, opacity: 0.75, margin: "4px 0 8px" }}>
-        Guest session creates a private save. Copy your recovery code if you switch browsers.
-        Name alone cannot open someone else’s file.
+        Signed-in saves auto-push every 2 minutes and when you leave the tab.
+        Recovery code is only needed on a new browser. Names cannot open another player’s file.
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
         <input
