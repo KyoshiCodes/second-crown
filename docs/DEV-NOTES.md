@@ -20,6 +20,16 @@ Last updated: 2026-09-06
 - **2–3 Frame Walker Sprites (`packages/render`)**:
   - Discrete integer-pixel animation keyframes: Frame 0 (planted neutral / pass), Frame 1 (left step), Frame 2 (right step) cycling at ~5 steps/second.
   - 6 distinct citizen roles (Villager, Woodcutter, Miner, Merchant, Guard, Scholar) with animated carried tools, weapons, and accessories.
+  - **Citizen Job Presentation Hook (`packages/render/src/index.ts`)**:
+    - `roleForCitizenJob(job)` maps `farmer` to `villager`, `woodcutter` to `woodcutter`, `miner` to `miner`, `merchant` to `merchant`, `guard` to `guard`, and `scholar` to `scholar`.
+    - `pickDestination(w, state)` queries `state.citizens` for player workers with assigned tiles (`realmId === "player" && tile != null`).
+    - Walkers are assigned to workers via index modulo (`w.id % playerWorkers.length`), setting matching role and dispatching the walker to the target tile coordinates.
+    - If the walker is already within proximity of their assigned tile (`dist <= 0.4`), a subtle work pacing offset (±0.35 tiles) keeps the walker active at their post without freezing.
+    - If no citizens exist in state, falls back to default random wander around center tiles / existing buildings.
+    - `packages/render/src/index.test.ts` provides comprehensive unit tests for role mapping, tile routing, worker modulo wrapping, and empty state fallback.
+  - **Distinct Stone Keep Architecture (`drawIsometricBuilding`)**:
+    - Replaces generic civic box fallback with a dedicated, towering stone hold (`h = 30 + heightBoost`).
+    - Multi-tiered geometry: flared talus foundation plinth, dual-facet ashlar granite walls (`0x64748b` / `0x475569`) with horizontal mortar scoring, twin projecting corner bartizans with slate roofs, machicolation corbel ledge, parapet battlements with merlon crenellations, arched gateway with iron-grated portcullis and carved keystone, arrow loops, warm candlelit leaded royal high window, courtyard ashlar steps, standing iron brazier with animated fire tongues, and soaring royal flagpole with animated waving standard.
 - **Halloween-Class Board Dressing & Weather Across All Holidays (`packages/render`)**:
   - Procedural Ground Scatter (`paintIsometricGround`): Deterministic spatial hash distribution (`(x * 13 + y * 29) % 17`) rendering distinct multi-object scatter per holiday/season (Midwinter snowdrifts, pine sprigs with red holly berries, ice crystals; Easter painted eggs, wildflowers, pale ribbons, clover; Harvest wheat sheaves with twine ties, pumpkins, apple bushels, fallen leaves; Midsummer sunflowers, flower crowns, chamomile, warm flagstones; subtle seasonal scatter for off-holidays).
   - Building Dressing & Dynamic Light Sources (`drawIsometricBuilding`): Rooftop decorations and animated light sources for all holidays (Midwinter thick snow blankets with hanging icicles, door wreaths with red bows, warm candlelit windows with flickering golden ground halos, doorstep brass lanterns; Easter climbing flower vines, fluttering pastel ribbons, morning dawn lamps with golden-lilac halos; Harvest golden wheat bundles, amber oil lamps with deep amber flicker and cast halos, cider barrels; Midsummer standing iron solstice brazier with leaping animated flame tongues and wide bonfire halos, sunset roofline highlights, and marigold garlands).

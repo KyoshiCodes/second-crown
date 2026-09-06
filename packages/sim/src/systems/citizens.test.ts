@@ -9,6 +9,7 @@ import {
   jobForBuildingType,
   seedCitizensFromBuildings,
   hireCitizenForBuilding,
+  walkerRoleForJob,
 } from "./citizens.js";
 import { EconomySystem } from "./economy.js";
 
@@ -86,5 +87,15 @@ describe("citizens (stub)", () => {
     expect(state.citizens[0].job).toBe("guard");
     expect(state.citizens[0].tile).toEqual({ x: 1, y: 1 });
     expect(hireCitizenForBuilding(state, "player", "chapel", 2, 2).job).toBe("scholar");
+  });
+
+  it("maps jobs to walker roles (farmer=villager, woodcutter, miner, merchant, guard, scholar)", () => {
+    expect(walkerRoleForJob("farmer")).toBe("villager");
+    expect(walkerRoleForJob("woodcutter")).toBe("woodcutter");
+    expect(walkerRoleForJob("miner")).toBe("miner");
+    expect(walkerRoleForJob("merchant")).toBe("merchant");
+    expect(walkerRoleForJob("guard")).toBe("guard");
+    expect(walkerRoleForJob("scholar")).toBe("scholar");
+    expect(walkerRoleForJob("unassigned")).toBe("villager");
   });
 });

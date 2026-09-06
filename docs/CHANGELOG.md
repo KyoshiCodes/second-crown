@@ -2,6 +2,27 @@
 
 Newest first.
 
+## 2026-09-06 — Gemini Citizen Job Walkers & Distinct Stone Keep (`bakeoff/gemini-jobs`)
+
+- **Citizen Job Presentation Hook (`packages/render`)**:
+  - `pickDestination` and walker presentation now read `state.citizens`.
+  - Walkers assigned to player workers with an assigned tile walk directly to their workstation tile and adopt matching role visuals:
+    - `farmer` → `villager` (wicker bread basket, rustic tunic)
+    - `woodcutter` → `woodcutter` (felling axe, woodsman green)
+    - `miner` → `miner` (quarry pickaxe, ashlar stone gray)
+    - `merchant` → `merchant` (crimson mercantile robe)
+    - `guard` → `guard` (steel helmet, spear with red pennant, royal blue tabard)
+    - `scholar` → `scholar` (monk cowl, parchment scroll, purple habit)
+  - Falls back cleanly to default center random wander when no citizens or worker tiles exist.
+  - Active work pacing prevents walkers from freezing once they reach their assigned hold.
+  - Full unit test coverage in `packages/render/src/index.test.ts` (5 tests passing).
+- **Distinct Stone Keep (`packages/render`)**:
+  - Replaced generic civic box fallback with a dedicated, towering ashlar granite keep (`h = 30 + heightBoost`).
+  - Architecture: Flared talus plinth foundation, twin corner bartizans (watch turrets) with slate caps, machicolations, parapet battlements with merlon crenellations, double-height arched portal with iron portcullis grille and carved keystone, defensive arrow slits, warm candlelit leaded high royal window, courtyard ashlar steps, standing iron brazier with animated flame tongues, and a towering royal flagpole flying an animated waving crimson and gold standard.
+- **Combat & Sim Integrity**:
+  - Zero changes to combat math or `tickEngine`.
+  - Full automated test suite passing in `@second-crown/sim` (60 tests).
+
 ## 2026-09-06 — Gemini Seasons & War Strip Overhaul (`bakeoff/gemini-seasons`)
 
 - **Halloween-Class Board Dressing for Every Holiday & Season**:
