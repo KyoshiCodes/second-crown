@@ -1,10 +1,8 @@
 import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { realmPower } from "./combat.js";
+import { rivalOpinionOfPlayer } from "../actions/diplomacy.js";
 
-/**
- * Rival passive growth + opportunistic counter-declarations.
- */
 export const RivalSystem = {
   nextEventTick(_state: GameState): number | null {
     return null;
@@ -61,14 +59,19 @@ function peaceLocked(state: GameState): boolean {
   return state.meta.tick < Math.max(t1, t2);
 }
 
-/** If rival is stronger and at peace, they declare war on the player. */
 function maybeRivalDeclares(state: GameState, atTick: number): void {
   if (peaceLocked(state)) return;
   if (state.wars.some((w) => w.status === "active")) return;
 
+  const opinion = rivalOpinionOfPlayer(state);
+  // Friendly rivals (opinion >= 20) will not declare.
+  if (opinion >= 20) return;
+
   const rivalP = realmPower(state, "rival");
   const playerP = realmPower(state, "player");
-  if (rivalP < playerP + 5) return; // need a clear edge
+  // Hostile opinion lowers the power edge they need.
+  const needEdge = opinion <= -40 ? 0 : 5;
+  if (rivalP < playerP + needEdge) return;
 
   state.wars.push({
     id: `war_rival_${atTick}`,
