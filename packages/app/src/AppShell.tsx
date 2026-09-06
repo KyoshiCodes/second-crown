@@ -10,7 +10,7 @@ import { WorldTab } from "./tabs/WorldTab";
 import { CrownTab } from "./tabs/CrownTab";
 import { detectCurrentHoliday, getHolidayMeta, type HolidayId } from "./seasons/holidays";
 import { WeatherOverlay } from "./seasons/WeatherOverlay";
-import { setMusicSeason, setMusicHoliday, type SeasonName } from "./music";
+import { setMusicSeason, setMusicHoliday, setMusicBattle, type SeasonName } from "./music";
 import { sfx } from "./sfx";
 
 const TAB_LABEL: Record<Tab, string> = {
@@ -79,6 +79,10 @@ export function AppShell() {
     setMusicHoliday(holidayId !== "none" ? holidayId : null);
   }, [holidayId]);
 
+  React.useEffect(() => {
+    setMusicBattle(!!activeWar);
+  }, [activeWar]);
+
   return (
     <div className={`sc-shell theme-${tab} season-${season.toLowerCase()} ${holiday ? holiday.themeClass : ""}`}>
       <WeatherOverlay season={season} holiday={holidayId} />
@@ -89,7 +93,6 @@ export function AppShell() {
           {holiday ? ` · ${holiday.propEmoji} ${holiday.name}` : ""} · Tick {formatLetterSuffix(tick)}
           {prestige > 0 ? ` · Prestige ${prestige}` : ""} · Power {power.player} vs {power.rival}
         </div>
-
 
         {offlineNote ? <p style={{ color: "#3fb950" }}>{offlineNote}</p> : null}
         <SpeedControls paused={paused} speed={speed} onPauseToggle={() => setPaused((p) => !p)} onSpeed={(n) => { setPaused(false); setSpeed(n); }} />
