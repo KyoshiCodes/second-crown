@@ -3,6 +3,7 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { getUnitType } from "../content/units.js";
 import { countBuilding } from "../content/buildings.js";
 import { flagNum } from "../systems/wave.js";
+import { decreeActive } from "../systems/decree.js";
 
 export interface TrainPayload {
   typeId: string;
@@ -15,6 +16,7 @@ export function trainCostMultiplier(state: GameState, typeId?: string): number {
   let m = Math.max(0.5, 1 - n * 0.05);
   if (flagNum(state, "craft_train")) m *= 0.9;
   if (state.flags.doctrine === "host") m *= 0.92;
+  if (decreeActive(state, "muster")) m *= 0.9;
   if (typeId === "cavalry" || typeId === "knight") {
     if (countBuilding(state, "stables") > 0) m *= 0.9;
   }
