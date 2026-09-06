@@ -1,5 +1,13 @@
 import React from "react";
-import { tryFoundGuild, tryGiftGold, tryJoinFaction, tryLeaveFaction, type GameState, type WorldEvent } from "@second-crown/sim";
+import {
+  tryFoundGuild,
+  tryGiftGold,
+  tryJoinFaction,
+  tryLeaveFaction,
+  tryKingdomTrade,
+  type GameState,
+  type WorldEvent,
+} from "@second-crown/sim";
 import { WorldPanel } from "../WorldPanel";
 import type { ActFn } from "../game/useGameEngine";
 import { getGiftThanks } from "../content/flavor";
@@ -28,6 +36,7 @@ export function WorldTab(props: {
         onJoin={(id) => act((st) => (tryJoinFaction(st, id) ? "Joined the faction." : "Cannot join."))}
         onLeave={(id) => act((st) => (tryLeaveFaction(st, id) ? "Left the faction." : "Not a member."))}
         onGift={(id) => act((st) => (tryGiftGold(st, 15, id) ? getGiftThanks(id) : "Need 15 gold."))}
+        onTrade={(realmId, offerId) => act((st) => (tryKingdomTrade(st, realmId, offerId) ? "Trade complete." : "Cannot make that trade."))}
       />
     </>
   );
