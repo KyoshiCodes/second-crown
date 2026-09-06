@@ -1,6 +1,7 @@
 import type { GameState, InputRecord } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { getBuildingType } from "../content/buildings.js";
+import { unlock } from "../systems/wave.js";
 
 export interface BuildPayload {
   typeId: string;
@@ -19,20 +20,16 @@ export function buildCostMultiplier(state: GameState, realmId: string): number {
 export function tryBuild(state: GameState, payload: BuildPayload): boolean {
   const def = getBuildingType(payload.typeId);
   if (!def) return false;
-
   const realmId = payload.realmId ?? "player";
   const mult = buildCostMultiplier(state, realmId);
-
   for (const [res, costStr] of Object.entries(def.cost)) {
     const need = D(costStr ?? "0").mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
-
   for (const [res, costStr] of Object.entries(def.cost)) {
     const need = D(costStr ?? "0").mul(mult).ceil();
     state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(need));
   }
-
   const id = `b_${state.meta.tick}_${state.buildings.length}`;
   state.buildings.push({
     id,
@@ -43,14 +40,13 @@ export function tryBuild(state: GameState, payload: BuildPayload): boolean {
     level: 1,
     completesAtTick: def.buildTicks === 0 ? null : state.meta.tick + def.buildTicks,
   });
-
-  const record: InputRecord = {
+  if (def.id === "farm") unlock(state, "ach_farm");
+  state.inputLog.push({
     tick: state.meta.tick,
     type: "build",
     payload: { ...payload, realmId },
     issuerId: realmId,
-  };
-  state.inputLog.push(record);
+  } satisfies InputRecord);
   return true;
 }
 
