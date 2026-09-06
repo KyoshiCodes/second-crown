@@ -1,6 +1,7 @@
 import type { GameState, InputRecord, War } from "@second-crown/shared";
 import { resolveBattle, type BattleResult } from "../systems/combat.js";
 import type { RngStreams } from "../core/rng.js";
+import { noteWar } from "../systems/wave.js";
 
 export interface DeclareWarPayload {
   attackerRealmId: string;
@@ -20,9 +21,7 @@ export function tryDeclareWar(state: GameState, payload: DeclareWarPayload): boo
   if (attackerRealmId === defenderRealmId) return false;
   if (!state.realms.some((r) => r.id === attackerRealmId)) return false;
   if (!state.realms.some((r) => r.id === defenderRealmId)) return false;
-
   if (state.wars.some((w) => w.status === "active")) return false;
-
   if (state.meta.tick < peaceLockedUntil(state, attackerRealmId, defenderRealmId)) return false;
 
   const war: War = {
@@ -33,6 +32,7 @@ export function tryDeclareWar(state: GameState, payload: DeclareWarPayload): boo
     status: "active",
   };
   state.wars.push(war);
+  noteWar(state);
   state.inputLog.push({
     tick: state.meta.tick,
     type: "declare_war",
@@ -50,9 +50,7 @@ export function tryResolveWar(
   const war = warId
     ? state.wars.find((w) => w.id === warId && w.status === "active")
     : state.wars.find((w) => w.status === "active");
-
   if (!war) return { ok: false };
-
   const result = resolveBattle(state, war, rng);
   state.inputLog.push({
     tick: state.meta.tick,
