@@ -1,0 +1,18 @@
+{
+  "name": "second-crown",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Second Crown — deterministic idle kingdom game",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @second-crown/app",
+    "build": "npm run build -w @second-crown/app",
+    "test": "npm run test -w @second-crown/sim",
+    "test:all": "npm run test --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
