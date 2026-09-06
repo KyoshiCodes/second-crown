@@ -1,5 +1,6 @@
 import type { GameState } from "@second-crown/shared";
 import { SAVE_VERSION } from "@second-crown/shared";
+import { seedWorldActors } from "../content/world.js";
 
 export interface CreateGameStateOptions {
   seed?: number;
@@ -28,8 +29,22 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
     buildings: [],
     units: [],
     realms: [
-      { id: "player", name: "Your Crown", rulerId: "char_player" },
-      { id: "rival", name: "Iron March", rulerId: "char_rival" },
+      {
+        id: "player",
+        name: "Your Crown",
+        rulerId: "char_player",
+        era: "present claim",
+        lifestyle: "rising house",
+        aiProfile: "player",
+      },
+      {
+        id: "rival",
+        name: "Iron March",
+        rulerId: "char_rival",
+        era: "high medieval",
+        lifestyle: "warhost",
+        aiProfile: "iron",
+      },
     ],
     characters: [
       {
@@ -62,6 +77,7 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
       { from: "char_rival", to: "char_player", value: -30, expiresTick: null },
     ],
     wars: [],
+    factions: [],
     inputLog: [],
     flags: {},
     unlocks: [],
@@ -74,6 +90,8 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
     count: "12",
     armyId: null,
   });
+
+  seedWorldActors(state);
 
   if (options.withStarterBuildings) {
     state.buildings.push(

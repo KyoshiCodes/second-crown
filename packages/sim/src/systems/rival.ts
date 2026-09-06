@@ -1,7 +1,7 @@
 import type { GameState } from "@second-crown/shared";
-import { D, toDecimalString } from "../core/decimal.js";
 import { realmPower } from "./combat.js";
-import { rivalOpinionOfPlayer } from "../actions/diplomacy.js";
+import { getOpinion } from "../actions/diplomacy.js";
+import { archetypeForRealm, driftOpinions, growRealm } from "../content/world.js";
 
 export const RivalSystem = {
   nextEventTick(_state: GameState): number | null {
@@ -12,8 +12,7 @@ export const RivalSystem = {
     const start = Math.floor(fromTick / 100) + 1;
     const end = Math.floor(toTick / 100);
     for (let step = start; step <= end; step++) {
-      growRivalOnce(state);
-      maybeRivalDeclares(state, step * 100);
+      tickAi(state, step * 100);
     }
   },
 
@@ -21,61 +20,46 @@ export const RivalSystem = {
 
   tick(state: GameState): void {
     if (state.meta.tick > 0 && state.meta.tick % 100 === 0) {
-      growRivalOnce(state);
-      maybeRivalDeclares(state, state.meta.tick);
+      tickAi(state, state.meta.tick);
     }
   },
 };
 
-function growRivalOnce(state: GameState): void {
-  const losses = state.wars.filter(
-    (w) =>
-      (w.defenderRealmId === "rival" && w.status === "attacker_won") ||
-      (w.attackerRealmId === "rival" && w.status === "defender_won")
-  ).length;
-  const amount = 1 + Math.min(3, losses);
-
-  const existing = state.units.find(
-    (u) => u.realmId === "rival" && u.typeId === "militia" && u.armyId === null
-  );
-  if (existing) {
-    existing.count = toDecimalString(D(existing.count).add(amount));
-  } else {
-    state.units.push({
-      id: `u_rival_${state.meta.tick}`,
-      typeId: "militia",
-      realmId: "rival",
-      count: toDecimalString(amount),
-      armyId: null,
-    });
+function tickAi(state: GameState, atTick: number): void {
+  driftOpinions(state);
+  for (const realm of state.realms) {
+    if (realm.id === "player") continue;
+    growRealm(state, realm.id);
+    maybeDeclare(state, realm.id, atTick);
   }
 }
 
-function peaceLocked(state: GameState): boolean {
-  const k1 = state.flags["peace_player_rival"];
-  const k2 = state.flags["peace_rival_player"];
+function peaceLocked(state: GameState, a: string, b: string): boolean {
+  const k1 = state.flags[`peace_${a}_${b}`];
+  const k2 = state.flags[`peace_${b}_${a}`];
   const t1 = typeof k1 === "number" ? k1 : 0;
   const t2 = typeof k2 === "number" ? k2 : 0;
   return state.meta.tick < Math.max(t1, t2);
 }
 
-function maybeRivalDeclares(state: GameState, atTick: number): void {
-  if (peaceLocked(state)) return;
+function maybeDeclare(state: GameState, realmId: string, atTick: number): void {
+  if (peaceLocked(state, realmId, "player")) return;
   if (state.wars.some((w) => w.status === "active")) return;
 
-  const opinion = rivalOpinionOfPlayer(state);
-  // Friendly rivals (opinion >= 20) will not declare.
+  const ruler = state.characters.find((c) => c.realmId === realmId && c.role === "ruler");
+  const opinion = ruler ? getOpinion(state, ruler.id, "char_player") : 0;
   if (opinion >= 20) return;
 
-  const rivalP = realmPower(state, "rival");
+  const arch = archetypeForRealm(realmId);
+  const needEdge = opinion <= -40 ? Math.max(0, (arch?.declareEdge ?? 5) - 5) : arch?.declareEdge ?? 5;
+
+  const theirP = realmPower(state, realmId);
   const playerP = realmPower(state, "player");
-  // Hostile opinion lowers the power edge they need.
-  const needEdge = opinion <= -40 ? 0 : 5;
-  if (rivalP < playerP + needEdge) return;
+  if (theirP < playerP + needEdge) return;
 
   state.wars.push({
-    id: `war_rival_${atTick}`,
-    attackerRealmId: "rival",
+    id: `war_${realmId}_${atTick}`,
+    attackerRealmId: realmId,
     defenderRealmId: "player",
     startedTick: atTick,
     status: "active",
@@ -83,8 +67,7 @@ function maybeRivalDeclares(state: GameState, atTick: number): void {
   state.inputLog.push({
     tick: atTick,
     type: "declare_war",
-    payload: { attackerRealmId: "rival", defenderRealmId: "player" },
-    issuerId: "rival",
+    payload: { attackerRealmId: realmId, defenderRealmId: "player" },
+    issuerId: realmId,
   });
-  state.flags["rival_declared"] = atTick;
 }
