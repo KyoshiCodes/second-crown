@@ -9,24 +9,40 @@ import {
   listUnitTypes,
   tryTrain,
   canAffordTrain,
+  trainCostMultiplier,
   tryDeclareWar,
   tryResolveWar,
   peaceTicksRemaining,
   tryAscend,
   canAscend,
+  ascendThreshold,
   realmPower,
   serializeState,
   deserializeState,
   applyOfflineProgress,
   formatLetterSuffix,
   computeIncomePerSecond,
+  countBuilding,
   type GameState,
 } from "@second-crown/sim";
 import { createMapRenderer, type MapRenderer } from "@second-crown/render";
 import { saveToIndexedDb, loadFromIndexedDb, clearIndexedDbSave } from "./save/indexedDb";
 import { downloadSave, pickSaveFile } from "./save/fileIo";
 
+type Tab = "kingdom" | "army" | "war" | "crown";
+
+const tabBtn = (active: boolean): React.CSSProperties => ({
+  padding: "8px 14px",
+  borderRadius: 6,
+  border: active ? "1px solid #58a6ff" : "1px solid #30363d",
+  background: active ? "#1f2937" : "#161b22",
+  color: active ? "#fff" : "#8b949e",
+  cursor: "pointer",
+  fontWeight: active ? 600 : 400,
+});
+
 function App() {
+  const [tab, setTab] = React.useState<Tab>("kingdom");
   const [tick, setTick] = React.useState(0);
   const [resources, setResources] = React.useState<Record<string, string>>({});
   const [income, setIncome] = React.useState<Record<string, string>>({});
@@ -41,6 +57,7 @@ function App() {
   const [peaceLeft, setPeaceLeft] = React.useState(0);
   const [prestige, setPrestige] = React.useState(0);
   const [ascendReady, setAscendReady] = React.useState(false);
+  const [ascendNeed, setAscendNeed] = React.useState(30_000);
   const [selectedBuild, setSelectedBuild] = React.useState<string | null>("farm");
   const [trainQty, setTrainQty] = React.useState(1);
   const engineRef = React.useRef<TickEngine | null>(null);
@@ -63,13 +80,11 @@ function App() {
     setWars([...s.wars]);
     setCharacters([...s.characters]);
     setRealms([...s.realms]);
-    setPower({
-      player: realmPower(s, "player"),
-      rival: realmPower(s, "rival"),
-    });
+    setPower({ player: realmPower(s, "player"), rival: realmPower(s, "rival") });
     setPeaceLeft(peaceTicksRemaining(s));
     setPrestige(Number(s.flags["prestige_level"] ?? 0));
     setAscendReady(canAscend(s));
+    setAscendNeed(ascendThreshold(s));
     mapRef.current?.sync(s);
 
     const rivalWar = s.wars.find(
@@ -78,6 +93,7 @@ function App() {
     if (rivalWar && rivalWar.id !== lastRivalWar.current) {
       lastRivalWar.current = rivalWar.id;
       setStatus("Iron March has declared war on you!");
+      setTab("war");
     }
   }, []);
 
@@ -92,18 +108,17 @@ function App() {
         if (saved) {
           state = deserializeState(saved);
           const settled = applyOfflineProgress(state);
-          if (settled > 0) {
-            const secs = Math.floor(settled / 10);
-            setOfflineNote(`Welcome back — settled ${settled} ticks (~${secs}s offline)`);
-          } else {
-            setOfflineNote("");
-          }
+          setOfflineNote(
+            settled > 0
+              ? `Welcome back — settled ${settled} ticks (~${Math.floor(settled / 10)}s offline)`
+              : ""
+          );
           setStatus("Loaded autosave");
         } else {
           state = createGameState({ seed: 42, withStarterBuildings: true });
           state.resources.wood = "40";
           state.resources.food = "50";
-          setStatus("New game — select a building, click the map to place");
+          setStatus("Select a building, click the map to place");
           setOfflineNote("");
         }
       } catch {
@@ -115,7 +130,6 @@ function App() {
       }
 
       if (cancelled) return;
-
       state.meta.lastRealTime = Date.now();
       const engine = new TickEngine(state);
       engineRef.current = engine;
@@ -154,7 +168,6 @@ function App() {
       }
 
       syncUi(engine);
-
       intervalId = window.setInterval(() => {
         engine.tick();
         engine.getState().meta.lastRealTime = Date.now();
@@ -173,131 +186,16 @@ function App() {
     };
   }, [syncUi]);
 
-  const handleTrain = (typeId: string) => {
-    const engine = engineRef.current;
-    if (!engine) return;
-    const state = engine.getState();
-    const ok = tryTrain(state, { typeId, count: trainQty });
-    setStatus(ok ? `Trained ${trainQty} ${typeId}` : `Cannot afford ${trainQty}× ${typeId}`);
-    if (ok) {
-      syncUi(engine);
-      saveToIndexedDb(serializeState(state)).catch(() => {});
-    }
-  };
-
-  const handleDeclareWar = () => {
-    const engine = engineRef.current;
-    if (!engine) return;
-    const state = engine.getState();
-    if (peaceTicksRemaining(state) > 0) {
-      setStatus(`Peace treaty — ${peaceTicksRemaining(state)} ticks left`);
-      return;
-    }
-    const ok = tryDeclareWar(state, {
-      attackerRealmId: "player",
-      defenderRealmId: "rival",
-    });
-    setStatus(ok ? "War declared on Iron March!" : "Cannot declare war");
-    if (ok) {
-      syncUi(engine);
-      saveToIndexedDb(serializeState(state)).catch(() => {});
-    }
-  };
-
-  const handleResolveWar = () => {
-    const engine = engineRef.current;
-    if (!engine) return;
-    const state = engine.getState();
-    const result = tryResolveWar(state, engine.rng);
-    if (result.ok && result.result) {
-      const { winnerId, loot } = result.result;
-      const lootStr = Object.entries(loot)
-        .map(([r, v]) => `${formatLetterSuffix(v)} ${r}`)
-        .join(", ");
-      setStatus(
-        winnerId === "player"
-          ? lootStr
-            ? `Victory! Loot: ${lootStr}`
-            : "Victory!"
-          : lootStr
-            ? `Defeat — lost ${lootStr}`
-            : "Defeat"
-      );
-      syncUi(engine);
-      saveToIndexedDb(serializeState(state)).catch(() => {});
-    } else {
-      setStatus("No active war to resolve");
-    }
-  };
-
-  const handleAscend = () => {
-    const engine = engineRef.current;
-    if (!engine) return;
-    const state = engine.getState();
-    if (!tryAscend(state)) {
-      setStatus("Need 50K total resources to claim the Second Crown");
-      return;
-    }
-    setStatus(`Ascended! Prestige ${state.flags["prestige_level"]}`);
-    syncUi(engine);
-    saveToIndexedDb(serializeState(state)).catch(() => {});
-  };
-
-  const handleExport = () => {
-    const engine = engineRef.current;
-    if (!engine) return;
-    engine.getState().meta.lastRealTime = Date.now();
-    downloadSave(serializeState(engine.getState()));
-    setStatus("Save downloaded");
-  };
-
-  const handleImport = async () => {
-    try {
-      const json = await pickSaveFile();
-      const state = deserializeState(json);
-      applyOfflineProgress(state);
-      state.meta.lastRealTime = Date.now();
-      const engine = new TickEngine(state);
-      engineRef.current = engine;
-      lastRivalWar.current = null;
-      setStatus("Save imported");
-      setOfflineNote("");
-      syncUi(engine);
-      await saveToIndexedDb(serializeState(state));
-    } catch {
-      setStatus("Import cancelled or invalid file");
-    }
-  };
-
-  const handleNewGame = async () => {
-    await clearIndexedDbSave();
-    const state = createGameState({ seed: Date.now() >>> 0, withStarterBuildings: true });
-    state.resources.wood = "40";
-    state.resources.food = "50";
-    const engine = new TickEngine(state);
-    engineRef.current = engine;
-    setStatus("New game — select a building, click the map to place");
-    setOfflineNote("");
-    lastRivalWar.current = null;
-    syncUi(engine);
-  };
-
-  const handleSave = async () => {
-    const engine = engineRef.current;
-    if (!engine) return;
-    engine.getState().meta.lastRealTime = Date.now();
-    await saveToIndexedDb(serializeState(engine.getState()));
-    setStatus("Saved");
-  };
-
-  const types = listBuildableTypes();
-  const unitTypes = listUnitTypes();
   const engine = engineRef.current;
   const state = engine?.getState();
+  const types = listBuildableTypes();
+  const unitTypes = listUnitTypes();
   const activeWar = wars.find((w) => w.status === "active");
   const canDeclare = !activeWar && peaceLeft <= 0;
+  const trainMult = state ? trainCostMultiplier(state) : 1;
+  const barracksN = state ? countBuilding(state, "barracks") : 0;
+  const towersN = state ? countBuilding(state, "watchtower") : 0;
 
-  // Building counts by type
   const buildingCounts: Record<string, number> = {};
   for (const b of buildings) {
     buildingCounts[b.typeId] = (buildingCounts[b.typeId] ?? 0) + 1;
@@ -314,266 +212,456 @@ function App() {
       (w.defenderRealmId === "player" && w.status === "attacker_won")
   ).length;
 
+  const handleTrain = (typeId: string) => {
+    const eng = engineRef.current;
+    if (!eng) return;
+    const st = eng.getState();
+    const ok = tryTrain(st, { typeId, count: trainQty });
+    setStatus(ok ? `Trained ${trainQty} ${typeId}` : `Cannot afford ${trainQty}× ${typeId}`);
+    if (ok) {
+      syncUi(eng);
+      saveToIndexedDb(serializeState(st)).catch(() => {});
+    }
+  };
+
+  const handleDeclareWar = () => {
+    const eng = engineRef.current;
+    if (!eng) return;
+    const st = eng.getState();
+    if (peaceTicksRemaining(st) > 0) {
+      setStatus(`Peace — ${peaceTicksRemaining(st)} ticks left`);
+      return;
+    }
+    const ok = tryDeclareWar(st, { attackerRealmId: "player", defenderRealmId: "rival" });
+    setStatus(ok ? "War declared!" : "Cannot declare war");
+    if (ok) {
+      syncUi(eng);
+      saveToIndexedDb(serializeState(st)).catch(() => {});
+    }
+  };
+
+  const handleResolveWar = () => {
+    const eng = engineRef.current;
+    if (!eng) return;
+    const st = eng.getState();
+    const result = tryResolveWar(st, eng.rng);
+    if (result.ok && result.result) {
+      const { winnerId, loot } = result.result;
+      const lootStr = Object.entries(loot)
+        .map(([r, v]) => `${formatLetterSuffix(v)} ${r}`)
+        .join(", ");
+      setStatus(
+        winnerId === "player"
+          ? lootStr
+            ? `Victory! Loot: ${lootStr}`
+            : "Victory!"
+          : lootStr
+            ? `Defeat — lost ${lootStr}`
+            : "Defeat"
+      );
+      syncUi(eng);
+      saveToIndexedDb(serializeState(st)).catch(() => {});
+    } else setStatus("No active war");
+  };
+
+  const handleAscend = () => {
+    const eng = engineRef.current;
+    if (!eng) return;
+    const st = eng.getState();
+    if (!tryAscend(st)) {
+      setStatus(`Need ${formatLetterSuffix(ascendNeed)} total resources`);
+      return;
+    }
+    setStatus(`Ascended! Prestige ${st.flags["prestige_level"]}`);
+    syncUi(eng);
+    saveToIndexedDb(serializeState(st)).catch(() => {});
+  };
+
   return (
-    <div style={{ padding: 24, maxWidth: 720 }}>
-      <h1 style={{ marginTop: 0 }}>Second Crown</h1>
-      <p style={{ opacity: 0.8, marginBottom: 4 }}>
-        Phase M — export/import, summaries
-        {prestige > 0 ? ` · Prestige ${prestige}` : ""}
-        {wins + losses > 0 ? ` · Record ${wins}W–${losses}L` : ""}
-      </p>
-      {offlineNote ? (
-        <p style={{ color: "#3fb950", fontSize: 13, marginTop: 0 }}>{offlineNote}</p>
-      ) : null}
+    <div style={{ padding: 20, maxWidth: 740, margin: "0 auto" }}>
+      <header style={{ marginBottom: 12 }}>
+        <h1 style={{ margin: "0 0 4px", fontSize: 22 }}>Second Crown</h1>
+        <div style={{ fontSize: 13, opacity: 0.75 }}>
+          Tick {formatLetterSuffix(tick)}
+          {prestige > 0 ? ` · Prestige ${prestige}` : ""}
+          {wins + losses > 0 ? ` · ${wins}W–${losses}L` : ""}
+          {" · "}
+          Power {power.player} vs {power.rival}
+        </div>
+        {offlineNote ? (
+          <p style={{ color: "#3fb950", fontSize: 13, margin: "6px 0 0" }}>{offlineNote}</p>
+        ) : null}
+      </header>
 
-      <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>
-        Selected: <strong>{selectedBuild ?? "none"}</strong> — click a grid tile to build
-      </p>
-      <canvas
-        ref={canvasRef}
-        style={{
-          display: "block",
-          width: "100%",
-          maxWidth: 512,
-          borderRadius: 8,
-          border: "1px solid #30363d",
-          marginTop: 4,
-          imageRendering: "pixelated",
-        }}
-      />
-
+      {/* Persistent resource bar */}
       <div
         style={{
           background: "#161b22",
           borderRadius: 8,
-          padding: 16,
-          marginTop: 12,
+          padding: "12px 14px",
           fontFamily: "ui-monospace, monospace",
+          fontSize: 13,
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: 8,
+          marginBottom: 12,
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-          <span>Tick: {formatLetterSuffix(tick)}</span>
-          <span style={{ opacity: 0.8 }}>
-            Power: you {power.player} · rival {power.rival}
-          </span>
-        </div>
-        <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-          {(["food", "wood", "stone", "gold"] as const).map((r) => (
-            <div key={r}>
-              {r[0].toUpperCase() + r.slice(1)}:{" "}
-              {formatLetterSuffix(resources[r] ?? "0")}
-              <span style={{ opacity: 0.55, fontSize: 12 }}>
-                {" "}
-                (+{formatLetterSuffix(income[r] ?? "0")}/s)
-              </span>
+        {(["food", "wood", "stone", "gold"] as const).map((r) => (
+          <div key={r}>
+            <div style={{ opacity: 0.55, fontSize: 11 }}>{r}</div>
+            <div>{formatLetterSuffix(resources[r] ?? "0")}</div>
+            <div style={{ opacity: 0.5, fontSize: 11 }}>
+              +{formatLetterSuffix(income[r] ?? "0")}/s
             </div>
-          ))}
-        </div>
-        {Object.keys(buildingCounts).length > 0 && (
-          <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>
-            {Object.entries(buildingCounts)
-              .map(([id, n]) => `${id}×${n}`)
-              .join(" · ")}
           </div>
-        )}
-        <div style={{ marginTop: 12, opacity: 0.7, fontSize: 13 }}>{status}</div>
+        ))}
       </div>
 
-      <h2 style={{ fontSize: 16, marginTop: 24 }}>Build</h2>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {types.map((t) => {
-          const afford = state ? canAfford(state, t.id) : false;
-          const selected = selectedBuild === t.id;
-          const costStr = Object.entries(t.cost)
-            .map(([r, c]) => `${formatLetterSuffix(c)} ${r}`)
-            .join(", ");
-          return (
-            <button
-              key={t.id}
-              type="button"
-              title={`${t.name}\nCost: ${costStr}`}
-              onClick={() => setSelectedBuild(t.id)}
-              style={{
-                padding: "8px 12px",
-                borderRadius: 6,
-                border: selected ? "2px solid #58a6ff" : "1px solid #30363d",
-                background: afford ? "#238636" : "#21262d",
-                color: afford ? "#fff" : "#8b949e",
-                cursor: "pointer",
-                textAlign: "left",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 2,
-                    background: `#${t.color.toString(16).padStart(6, "0")}`,
-                    display: "inline-block",
-                  }}
-                />
-                {t.name}
-                {buildingCounts[t.id] ? (
-                  <span style={{ opacity: 0.7, fontSize: 11 }}>×{buildingCounts[t.id]}</span>
-                ) : null}
-              </div>
-              <div style={{ fontSize: 11, opacity: 0.85 }}>{costStr}</div>
-            </button>
-          );
-        })}
-      </div>
+      {status ? (
+        <div
+          style={{
+            fontSize: 13,
+            opacity: 0.85,
+            marginBottom: 12,
+            padding: "8px 10px",
+            background: "#21262d",
+            borderRadius: 6,
+          }}
+        >
+          {status}
+        </div>
+      ) : null}
 
-      <h2 style={{ fontSize: 16, marginTop: 24 }}>Army</h2>
-      <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-        {[1, 5, 10].map((q) => (
-          <button
-            key={q}
-            type="button"
-            onClick={() => setTrainQty(q)}
-            style={{
-              padding: "4px 10px",
-              borderRadius: 4,
-              border: trainQty === q ? "1px solid #58a6ff" : "1px solid #30363d",
-              background: trainQty === q ? "#1f6feb" : "#21262d",
-              color: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            ×{q}
+      {/* Tabs */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
+        {(
+          [
+            ["kingdom", "Kingdom"],
+            ["army", "Army"],
+            ["war", "War"],
+            ["crown", "Crown"],
+          ] as const
+        ).map(([id, label]) => (
+          <button key={id} type="button" style={tabBtn(tab === id)} onClick={() => setTab(id)}>
+            {label}
+            {id === "war" && activeWar ? " ●" : ""}
           </button>
         ))}
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {unitTypes.map((u) => {
-          const afford = state ? canAffordTrain(state, u.id, trainQty) : false;
-          const costStr = Object.entries(u.cost)
-            .map(([r, c]) => `${formatLetterSuffix(Number(c) * trainQty)} ${r}`)
-            .join(", ");
-          return (
+
+      {/* Map always visible on Kingdom */}
+      {tab === "kingdom" && (
+        <>
+          <p style={{ fontSize: 12, opacity: 0.65, margin: "0 0 6px" }}>
+            Selected: <strong>{selectedBuild ?? "none"}</strong> — click map to place
+          </p>
+          <canvas
+            ref={canvasRef}
+            style={{
+              display: "block",
+              width: "100%",
+              maxWidth: 512,
+              borderRadius: 8,
+              border: "1px solid #30363d",
+              marginBottom: 14,
+              imageRendering: "pixelated",
+            }}
+          />
+          <p style={{ fontSize: 12, opacity: 0.6, marginTop: 0 }}>
+            Ambitious −10% build cost
+            {barracksN > 0 ? ` · Barracks×${barracksN} train cost ×${(trainMult * 100).toFixed(0)}%` : ""}
+            {towersN > 0 ? ` · Towers +${towersN * 2} power` : ""}
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {types.map((t) => {
+              const afford = state ? canAfford(state, t.id) : false;
+              const selected = selectedBuild === t.id;
+              const costStr = Object.entries(t.cost)
+                .map(([r, c]) => `${formatLetterSuffix(c)} ${r}`)
+                .join(", ");
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  title={t.blurb ? `${t.blurb}\n${costStr}` : costStr}
+                  onClick={() => setSelectedBuild(t.id)}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: 6,
+                    border: selected ? "2px solid #58a6ff" : "1px solid #30363d",
+                    background: afford ? "#238636" : "#21262d",
+                    color: afford ? "#fff" : "#8b949e",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    minWidth: 110,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span
+                      style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 2,
+                        background: `#${t.color.toString(16).padStart(6, "0")}`,
+                      }}
+                    />
+                    {t.name}
+                    {buildingCounts[t.id] ? (
+                      <span style={{ opacity: 0.7, fontSize: 11 }}>×{buildingCounts[t.id]}</span>
+                    ) : null}
+                  </div>
+                  <div style={{ fontSize: 11, opacity: 0.8 }}>{costStr}</div>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {tab === "army" && (
+        <>
+          <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+            {[1, 5, 10].map((q) => (
+              <button
+                key={q}
+                type="button"
+                onClick={() => setTrainQty(q)}
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: 4,
+                  border: trainQty === q ? "1px solid #58a6ff" : "1px solid #30363d",
+                  background: trainQty === q ? "#1f6feb" : "#21262d",
+                  color: "#fff",
+                  cursor: "pointer",
+                }}
+              >
+                ×{q}
+              </button>
+            ))}
+            <span style={{ fontSize: 12, opacity: 0.6, alignSelf: "center" }}>
+              {barracksN > 0
+                ? `Barracks discount: ${Math.round((1 - trainMult) * 100)}%`
+                : "Build barracks to discount training"}
+            </span>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {unitTypes.map((u) => {
+              const afford = state ? canAffordTrain(state, u.id, trainQty) : false;
+              const costStr = Object.entries(u.cost)
+                .map(([r, c]) =>
+                  `${formatLetterSuffix(Math.ceil(Number(c) * trainQty * trainMult))} ${r}`
+                )
+                .join(", ");
+              return (
+                <button
+                  key={u.id}
+                  type="button"
+                  disabled={!afford}
+                  title={u.blurb}
+                  onClick={() => handleTrain(u.id)}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: 6,
+                    border: "1px solid #30363d",
+                    background: afford ? "#1f6feb" : "#21262d",
+                    color: afford ? "#fff" : "#8b949e",
+                    cursor: afford ? "pointer" : "not-allowed",
+                    textAlign: "left",
+                  }}
+                >
+                  {u.name} ⚔{u.power} ×{trainQty}
+                  <div style={{ fontSize: 11, opacity: 0.85 }}>{costStr}</div>
+                </button>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: 12, fontFamily: "ui-monospace, monospace", fontSize: 13 }}>
+            {units.filter((u) => u.realmId === "player").length === 0 ? (
+              <span style={{ opacity: 0.6 }}>No units — train militia with food</span>
+            ) : (
+              units
+                .filter((u) => u.realmId === "player")
+                .map((u) => (
+                  <span key={u.id} style={{ marginRight: 12 }}>
+                    {u.typeId} ×{formatLetterSuffix(u.count)}
+                  </span>
+                ))
+            )}
+          </div>
+          <p style={{ fontSize: 12, opacity: 0.55, marginTop: 16 }}>
+            Watchtowers (Kingdom tab) add +2 power each without upkeep.
+          </p>
+        </>
+      )}
+
+      {tab === "war" && (
+        <>
+          <p style={{ fontSize: 13, opacity: 0.75 }}>
+            You {power.player} power · Iron March {power.rival}
+            {activeWar ? " · Battle pending" : ""}
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
             <button
-              key={u.id}
               type="button"
-              disabled={!afford}
-              onClick={() => handleTrain(u.id)}
+              onClick={handleDeclareWar}
+              disabled={!canDeclare}
               style={{
                 padding: "8px 12px",
                 borderRadius: 6,
                 border: "1px solid #30363d",
-                background: afford ? "#1f6feb" : "#21262d",
-                color: afford ? "#fff" : "#8b949e",
-                cursor: afford ? "pointer" : "not-allowed",
-                textAlign: "left",
+                background: canDeclare ? "#a371f7" : "#21262d",
+                color: "#fff",
+                cursor: canDeclare ? "pointer" : "not-allowed",
               }}
             >
-              {u.name} (⚔{u.power}) ×{trainQty}
-              <div style={{ fontSize: 11, opacity: 0.85 }}>{costStr}</div>
+              {peaceLeft > 0
+                ? `Peace (${Math.ceil(peaceLeft / 10)}s)`
+                : "Declare war"}
             </button>
-          );
-        })}
-      </div>
-      <div style={{ marginTop: 8, fontSize: 13, fontFamily: "ui-monospace, monospace" }}>
-        {units.filter((u) => u.realmId === "player").length === 0 ? (
-          <span style={{ opacity: 0.6 }}>No units yet</span>
-        ) : (
-          units
-            .filter((u) => u.realmId === "player")
-            .map((u) => (
-              <span key={u.id} style={{ marginRight: 12 }}>
-                {u.typeId} ×{formatLetterSuffix(u.count)}
-              </span>
-            ))
-        )}
-      </div>
+            <button
+              type="button"
+              onClick={handleResolveWar}
+              disabled={!activeWar}
+              style={{
+                padding: "8px 12px",
+                borderRadius: 6,
+                border: "1px solid #30363d",
+                background: activeWar ? "#da3633" : "#21262d",
+                color: "#fff",
+                cursor: activeWar ? "pointer" : "not-allowed",
+              }}
+            >
+              Fight battle
+            </button>
+          </div>
+          <ul style={{ fontSize: 13, marginTop: 12 }}>
+            {wars.length === 0 && <li style={{ opacity: 0.6 }}>No wars yet</li>}
+            {wars.slice(-8).map((w) => (
+              <li key={w.id}>
+                {w.attackerRealmId} vs {w.defenderRealmId} — <strong>{w.status}</strong>
+              </li>
+            ))}
+          </ul>
+          <p style={{ fontSize: 12, opacity: 0.55 }}>
+            Rival grows over time and attacks if stronger. Loot and casualties are deterministic.
+          </p>
+        </>
+      )}
 
-      <h2 style={{ fontSize: 16, marginTop: 24 }}>War</h2>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-        <button
-          type="button"
-          onClick={handleDeclareWar}
-          disabled={!canDeclare}
-          style={{
-            padding: "8px 12px",
-            borderRadius: 6,
-            border: "1px solid #30363d",
-            background: canDeclare ? "#a371f7" : "#21262d",
-            color: "#fff",
-            cursor: canDeclare ? "pointer" : "not-allowed",
-          }}
-        >
-          {peaceLeft > 0
-            ? `Peace (${Math.ceil(peaceLeft / 10)}s)`
-            : "Declare war on Iron March"}
-        </button>
-        <button
-          type="button"
-          onClick={handleResolveWar}
-          disabled={!activeWar}
-          style={{
-            padding: "8px 12px",
-            borderRadius: 6,
-            border: "1px solid #30363d",
-            background: activeWar ? "#da3633" : "#21262d",
-            color: "#fff",
-            cursor: activeWar ? "pointer" : "not-allowed",
-          }}
-        >
-          Fight battle
-        </button>
-      </div>
-      <ul style={{ fontSize: 13, marginTop: 8 }}>
-        {wars.length === 0 && <li style={{ opacity: 0.6 }}>No wars yet</li>}
-        {wars.slice(-5).map((w) => (
-          <li key={w.id}>
-            {w.attackerRealmId} vs {w.defenderRealmId} — <strong>{w.status}</strong>
-          </li>
-        ))}
-      </ul>
+      {tab === "crown" && (
+        <>
+          <h3 style={{ fontSize: 15, marginTop: 0 }}>People</h3>
+          <ul style={{ fontSize: 13 }}>
+            {characters.map((c) => {
+              const realm = realms.find((r) => r.id === c.realmId);
+              return (
+                <li key={c.id}>
+                  <strong>{c.name}</strong> ({c.role}) — {realm?.name ?? c.realmId}
+                  {c.traits.length ? ` · ${c.traits.join(", ")}` : ""}
+                </li>
+              );
+            })}
+          </ul>
 
-      <h2 style={{ fontSize: 16, marginTop: 24 }}>Second Crown</h2>
-      <button
-        type="button"
-        onClick={handleAscend}
-        disabled={!ascendReady}
-        style={{
-          padding: "8px 12px",
-          borderRadius: 6,
-          border: "1px solid #30363d",
-          background: ascendReady ? "#d4a72c" : "#21262d",
-          color: ascendReady ? "#000" : "#8b949e",
-          cursor: ascendReady ? "pointer" : "not-allowed",
-        }}
-      >
-        Claim the Second Crown{prestige > 0 ? ` (Prestige ${prestige})` : ""}
-      </button>
+          <h3 style={{ fontSize: 15 }}>Claim the Second Crown</h3>
+          <p style={{ fontSize: 12, opacity: 0.65 }}>
+            Soft reset at {formatLetterSuffix(ascendNeed)} total resources. Keep prestige for
+            permanent +1 production per building.
+          </p>
+          <button
+            type="button"
+            onClick={handleAscend}
+            disabled={!ascendReady}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 6,
+              border: "1px solid #30363d",
+              background: ascendReady ? "#d4a72c" : "#21262d",
+              color: ascendReady ? "#000" : "#8b949e",
+              cursor: ascendReady ? "pointer" : "not-allowed",
+            }}
+          >
+            Ascend{prestige > 0 ? ` (Prestige ${prestige})` : ""}
+          </button>
 
-      <h2 style={{ fontSize: 16, marginTop: 24 }}>People</h2>
-      <ul style={{ fontSize: 13 }}>
-        {characters.map((c) => {
-          const realm = realms.find((r) => r.id === c.realmId);
-          return (
-            <li key={c.id}>
-              <strong>{c.name}</strong> ({c.role}) — {realm?.name ?? c.realmId}
-              {c.traits.length ? ` · ${c.traits.join(", ")}` : ""}
-            </li>
-          );
-        })}
-      </ul>
+          <h3 style={{ fontSize: 15, marginTop: 24 }}>Saves</h3>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <button
+              type="button"
+              onClick={async () => {
+                const eng = engineRef.current;
+                if (!eng) return;
+                eng.getState().meta.lastRealTime = Date.now();
+                await saveToIndexedDb(serializeState(eng.getState()));
+                setStatus("Saved");
+              }}
+            >
+              Save now
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const eng = engineRef.current;
+                if (!eng) return;
+                eng.getState().meta.lastRealTime = Date.now();
+                downloadSave(serializeState(eng.getState()));
+                setStatus("Exported");
+              }}
+            >
+              Export
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const json = await pickSaveFile();
+                  const st = deserializeState(json);
+                  applyOfflineProgress(st);
+                  st.meta.lastRealTime = Date.now();
+                  const eng = new TickEngine(st);
+                  engineRef.current = eng;
+                  lastRivalWar.current = null;
+                  setStatus("Imported");
+                  setOfflineNote("");
+                  syncUi(eng);
+                  await saveToIndexedDb(serializeState(st));
+                } catch {
+                  setStatus("Import cancelled or invalid");
+                }
+              }}
+            >
+              Import
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await clearIndexedDbSave();
+                const st = createGameState({
+                  seed: Date.now() >>> 0,
+                  withStarterBuildings: true,
+                });
+                st.resources.wood = "40";
+                st.resources.food = "50";
+                const eng = new TickEngine(st);
+                engineRef.current = eng;
+                lastRivalWar.current = null;
+                setStatus("New game");
+                setOfflineNote("");
+                setTab("kingdom");
+                syncUi(eng);
+              }}
+            >
+              New game
+            </button>
+          </div>
+        </>
+      )}
 
-      <div style={{ marginTop: 24, display: "flex", flexWrap: "wrap", gap: 8 }}>
-        <button type="button" onClick={handleSave}>
-          Save now
-        </button>
-        <button type="button" onClick={handleExport}>
-          Export save
-        </button>
-        <button type="button" onClick={handleImport}>
-          Import save
-        </button>
-        <button type="button" onClick={handleNewGame}>
-          New game
-        </button>
-      </div>
+      {/* Keep canvas mounted even off-tab so Pixi survives — hidden */}
+      {tab !== "kingdom" && (
+        <canvas ref={canvasRef} style={{ display: "none" }} />
+      )}
     </div>
   );
 }
