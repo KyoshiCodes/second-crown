@@ -3,6 +3,7 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { getUnitType } from "../content/units.js";
 import { countBuilding } from "../content/buildings.js";
 import type { RngStreams } from "../core/rng.js";
+import { grantVictorySpoils } from "./wave.js";
 
 export function realmPower(state: GameState, realmId: string): number {
   let power = 0;
@@ -52,6 +53,7 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
 
   const lootFrac = 0.15 + rng.battle() * 0.1;
   const loot = plunder(state, winnerId, loserId, lootFrac);
+  if (winnerId === "player") grantVictorySpoils(state);
 
   war.status = attackerWins ? "attacker_won" : "defender_won";
 
@@ -61,43 +63,20 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
   adjustOpinion(state, loserId, winnerId, -25);
 
   const phases: BattlePhase[] = [
-    {
-      title: "Muster",
-      text: `Attacker ${atk} power vs defender ${def} power.`,
-    },
-    {
-      title: "Clash",
-      text: `Fortune multiplies the attack ${atkSwing.toFixed(2)} and the defense ${defSwing.toFixed(2)}.`,
-    },
-    {
-      title: "Melee",
-      text: attackerWins ? "The attacker's line holds and pushes." : "The defender's line holds and pushes.",
-    },
-    {
-      title: "Butcher's bill",
-      text: `Winner loses ${Math.round(winFrac * 100)}% of the host. Loser loses ${Math.round(loseFrac * 100)}%.`,
-    },
+    { title: "Muster", text: `Attacker ${atk} power vs defender ${def} power.` },
+    { title: "Clash", text: `Fortune multiplies the attack ${atkSwing.toFixed(2)} and the defense ${defSwing.toFixed(2)}.` },
+    { title: "Melee", text: attackerWins ? "The attacker's line holds and pushes." : "The defender's line holds and pushes." },
+    { title: "Butcher's bill", text: `Winner loses ${Math.round(winFrac * 100)}% of the host. Loser loses ${Math.round(loseFrac * 100)}%.` },
     {
       title: "Spoil",
       text:
         Object.keys(loot).length === 0
           ? "Little was taken from the field."
-          : `Loot: ${Object.entries(loot)
-              .map(([k, v]) => `${v} ${k}`)
-              .join(", ")}.`,
+          : `Loot: ${Object.entries(loot).map(([k, v]) => `${v} ${k}`).join(", ")}.`,
     },
   ];
 
-  return {
-    winnerId,
-    loserId,
-    loot,
-    phases,
-    attackerPower: atk,
-    defenderPower: def,
-    atkSwing,
-    defSwing,
-  };
+  return { winnerId, loserId, loot, phases, attackerPower: atk, defenderPower: def, atkSwing, defSwing };
 }
 
 function applyCasualties(state: GameState, realmId: string, fraction: number): void {
