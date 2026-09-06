@@ -27,14 +27,54 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
     },
     buildings: [],
     units: [],
-    realms: [],
-    characters: [],
-    opinions: [],
+    realms: [
+      { id: "player", name: "Your Crown", rulerId: "char_player" },
+      { id: "rival", name: "Iron March", rulerId: "char_rival" },
+    ],
+    characters: [
+      {
+        id: "char_player",
+        name: "You",
+        role: "ruler",
+        realmId: "player",
+        traits: ["ambitious"],
+        ambition: "expand",
+      },
+      {
+        id: "char_rival",
+        name: "Lord Varric",
+        role: "ruler",
+        realmId: "rival",
+        traits: ["ruthless"],
+        ambition: "conquer",
+      },
+      {
+        id: "char_advisor",
+        name: "Mira the Steward",
+        role: "advisor",
+        realmId: "player",
+        traits: ["clever"],
+        ambition: null,
+      },
+    ],
+    opinions: [
+      { from: "char_player", to: "char_rival", value: -20, expiresTick: null },
+      { from: "char_rival", to: "char_player", value: -30, expiresTick: null },
+    ],
     wars: [],
     inputLog: [],
     flags: {},
     unlocks: [],
   };
+
+  // Rival starts with a small defensive force
+  state.units.push({
+    id: "u_rival_0",
+    typeId: "militia",
+    realmId: "rival",
+    count: "15",
+    armyId: null,
+  });
 
   if (options.withStarterBuildings) {
     state.buildings.push(
@@ -54,7 +94,7 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
         x: 1,
         y: 0,
         level: 1,
-        completesAtTick: 40, // matches lumber_camp.buildTicks
+        completesAtTick: 40,
       }
     );
   }
