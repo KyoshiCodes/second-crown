@@ -52,7 +52,7 @@ export {
 
 export { tryFoundGuild, tryJoinFaction, tryLeaveFaction } from "./actions/faction.js";
 
-export { tryAscend, canAscend, ascendThreshold } from "./actions/prestige.js";
+export { tryAscend, canAscend, ascendThreshold, tryPickDoctrine, DOCTRINES } from "./actions/prestige.js";
 
 export {
   ACHIEVEMENTS,
