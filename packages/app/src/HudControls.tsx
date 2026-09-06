@@ -13,7 +13,7 @@ export function SpeedControls(props: {
       <button type="button" onClick={props.onPauseToggle}>
         {props.paused ? "Resume" : "Pause"}
       </button>
-      {[1, 2].map((sp) => (
+      {[1, 2, 3].map((sp) => (
         <button
           key={sp}
           type="button"
