@@ -21,16 +21,7 @@ export function tryDeclareWar(state: GameState, payload: DeclareWarPayload): boo
   if (!state.realms.some((r) => r.id === attackerRealmId)) return false;
   if (!state.realms.some((r) => r.id === defenderRealmId)) return false;
 
-  if (
-    state.wars.some(
-      (w) =>
-        w.status === "active" &&
-        ((w.attackerRealmId === attackerRealmId && w.defenderRealmId === defenderRealmId) ||
-          (w.attackerRealmId === defenderRealmId && w.defenderRealmId === attackerRealmId))
-    )
-  ) {
-    return false;
-  }
+  if (state.wars.some((w) => w.status === "active")) return false;
 
   if (state.meta.tick < peaceLockedUntil(state, attackerRealmId, defenderRealmId)) return false;
 
@@ -86,7 +77,7 @@ export function tryWhitePeace(state: GameState): boolean {
   return true;
 }
 
-export function peaceTicksRemaining(state: GameState): number {
-  const lock = peaceLockedUntil(state, "player", "rival");
+export function peaceTicksRemaining(state: GameState, a = "player", b = "rival"): number {
+  const lock = peaceLockedUntil(state, a, b);
   return Math.max(0, lock - state.meta.tick);
 }
