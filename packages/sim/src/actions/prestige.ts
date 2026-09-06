@@ -1,7 +1,12 @@
 import type { GameState, InputRecord } from "@second-crown/shared";
 import { D } from "../core/decimal.js";
 
-/** First ascension is easier; later ones scale up. */
+export const DOCTRINES = [
+  { id: "harvest", name: "Harvest Law", blurb: "+2 production on every completed building" },
+  { id: "host", name: "Host Law", blurb: "8% cheaper training" },
+  { id: "court", name: "Court Law", blurb: "Gifts sway opinion more" },
+] as const;
+
 export function ascendThreshold(state: GameState): number {
   const level = Number(state.flags["prestige_level"] ?? 0);
   return 30_000 + level * 25_000;
@@ -21,6 +26,7 @@ export function tryAscend(state: GameState): boolean {
   const level = Number(state.flags["prestige_level"] ?? 0) + 1;
   state.flags["prestige_level"] = level;
   state.flags["prestige_total"] = Number(state.flags["prestige_total"] ?? 0) + 1;
+  delete state.flags.doctrine_lock;
 
   state.resources = { gold: "0", food: "25", wood: "35", stone: "0" };
   state.buildings = [
@@ -56,5 +62,15 @@ export function tryAscend(state: GameState): boolean {
     issuerId: "player",
   } satisfies InputRecord);
 
+  return true;
+}
+
+export function tryPickDoctrine(state: GameState, id: string): boolean {
+  if (!DOCTRINES.some((d) => d.id === id)) return false;
+  const level = Number(state.flags.prestige_level ?? 0);
+  if (level < 1) return false;
+  if (Number(state.flags.doctrine_lock ?? 0) === level && state.flags.doctrine) return false;
+  state.flags.doctrine = id;
+  state.flags.doctrine_lock = level;
   return true;
 }
