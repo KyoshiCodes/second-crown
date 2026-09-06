@@ -18,4 +18,7 @@ export type { BuildPayload } from "./actions/build.js";
 
 export { serializeState, deserializeState } from "./save/serialize.js";
 
+export { applyOfflineProgress } from "./offline.js";
+
 export type { GameState } from "@second-crown/shared";
+export { formatLetterSuffix } from "@second-crown/shared";

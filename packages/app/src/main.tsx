@@ -3,12 +3,13 @@ import { createRoot } from "react-dom/client";
 import {
   createGameState,
   TickEngine,
-  D,
   tryBuild,
   canAfford,
   listBuildableTypes,
   serializeState,
   deserializeState,
+  applyOfflineProgress,
+  formatLetterSuffix,
   type GameState,
 } from "@second-crown/sim";
 import { saveToIndexedDb, loadFromIndexedDb, clearIndexedDbSave } from "./save/indexedDb";
@@ -18,6 +19,7 @@ function App() {
   const [resources, setResources] = React.useState<Record<string, string>>({});
   const [buildings, setBuildings] = React.useState<GameState["buildings"]>([]);
   const [status, setStatus] = React.useState("");
+  const [offlineNote, setOfflineNote] = React.useState("");
   const engineRef = React.useRef<TickEngine | null>(null);
   const nextSlot = React.useRef(0);
 
@@ -30,6 +32,7 @@ function App() {
 
   React.useEffect(() => {
     let cancelled = false;
+    let intervalId: number | undefined;
 
     (async () => {
       let state: GameState;
@@ -37,51 +40,52 @@ function App() {
         const saved = await loadFromIndexedDb();
         if (saved) {
           state = deserializeState(saved);
+          const settled = applyOfflineProgress(state);
+          if (settled > 0) {
+            const secs = Math.floor(settled / 10);
+            setOfflineNote(`Welcome back — settled ${settled} ticks (~${secs}s offline)`);
+          } else {
+            setOfflineNote("");
+          }
           setStatus("Loaded autosave");
         } else {
           state = createGameState({ seed: 42, withStarterBuildings: true });
-          // Give a little wood so the player can build soon
           state.resources.wood = "30";
           state.resources.food = "20";
           setStatus("New game");
+          setOfflineNote("");
         }
       } catch {
         state = createGameState({ seed: 42, withStarterBuildings: true });
         state.resources.wood = "30";
         state.resources.food = "20";
         setStatus("New game (save load failed)");
+        setOfflineNote("");
       }
 
       if (cancelled) return;
 
+      state.meta.lastRealTime = Date.now();
       const engine = new TickEngine(state);
       engineRef.current = engine;
       nextSlot.current = state.buildings.length;
       syncUi(engine);
 
-      const id = window.setInterval(() => {
+      intervalId = window.setInterval(() => {
         engine.tick();
+        engine.getState().meta.lastRealTime = Date.now();
         syncUi(engine);
-        // Autosave every 50 ticks (~5s)
         if (engine.getState().meta.tick % 50 === 0) {
           saveToIndexedDb(serializeState(engine.getState())).catch(() => {});
         }
       }, 100);
-
-      return () => window.clearInterval(id);
     })();
 
     return () => {
       cancelled = true;
+      if (intervalId !== undefined) window.clearInterval(intervalId);
     };
   }, [syncUi]);
-
-  const format = (s: string | undefined) => {
-    if (!s) return "0";
-    const d = D(s);
-    if (d.lt(1000)) return d.toFixed(0);
-    return d.toString();
-  };
 
   const handleBuild = (typeId: string) => {
     const engine = engineRef.current;
@@ -107,12 +111,14 @@ function App() {
     engineRef.current = engine;
     nextSlot.current = state.buildings.length;
     setStatus("New game");
+    setOfflineNote("");
     syncUi(engine);
   };
 
   const handleSave = async () => {
     const engine = engineRef.current;
     if (!engine) return;
+    engine.getState().meta.lastRealTime = Date.now();
     await saveToIndexedDb(serializeState(engine.getState()));
     setStatus("Saved");
   };
@@ -121,26 +127,37 @@ function App() {
   const engine = engineRef.current;
   const state = engine?.getState();
 
+  const completeCount = buildings.filter((b) => b.completesAtTick === null).length;
+  const buildingCount = buildings.length;
+
   return (
     <div style={{ padding: 24, maxWidth: 560 }}>
       <h1 style={{ marginTop: 0 }}>Second Crown</h1>
-      <p style={{ opacity: 0.8 }}>Phase E — build, save, load</p>
+      <p style={{ opacity: 0.8, marginBottom: 4 }}>Phase F — offline catch-up & number format</p>
+      {offlineNote ? (
+        <p style={{ color: "#3fb950", fontSize: 13, marginTop: 0 }}>{offlineNote}</p>
+      ) : null}
 
       <div
         style={{
           background: "#161b22",
           borderRadius: 8,
           padding: 16,
-          marginTop: 16,
+          marginTop: 12,
           fontFamily: "ui-monospace, monospace",
         }}
       >
-        <div>Tick: {tick}</div>
-        <div style={{ marginTop: 12 }}>
-          <div>Food:  {format(resources.food)}</div>
-          <div>Wood:  {format(resources.wood)}</div>
-          <div>Stone: {format(resources.stone)}</div>
-          <div>Gold:  {format(resources.gold)}</div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span>Tick: {formatLetterSuffix(tick)}</span>
+          <span style={{ opacity: 0.7 }}>
+            Buildings: {completeCount}/{buildingCount}
+          </span>
+        </div>
+        <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+          <div>Food:  {formatLetterSuffix(resources.food ?? "0")}</div>
+          <div>Wood:  {formatLetterSuffix(resources.wood ?? "0")}</div>
+          <div>Stone: {formatLetterSuffix(resources.stone ?? "0")}</div>
+          <div>Gold:  {formatLetterSuffix(resources.gold ?? "0")}</div>
         </div>
         <div style={{ marginTop: 12, opacity: 0.7, fontSize: 13 }}>{status}</div>
       </div>
@@ -150,7 +167,7 @@ function App() {
         {types.map((t) => {
           const afford = state ? canAfford(state, t.id) : false;
           const costStr = Object.entries(t.cost)
-            .map(([r, c]) => `${c} ${r}`)
+            .map(([r, c]) => `${formatLetterSuffix(c)} ${r}`)
             .join(", ");
           return (
             <button
@@ -174,14 +191,14 @@ function App() {
         })}
       </div>
 
-      <h2 style={{ fontSize: 16, marginTop: 24 }}>Buildings ({buildings.length})</h2>
+      <h2 style={{ fontSize: 16, marginTop: 24 }}>Buildings</h2>
       <ul style={{ margin: 0, paddingLeft: 18, fontFamily: "ui-monospace, monospace", fontSize: 13 }}>
         {buildings.map((b) => (
           <li key={b.id}>
             {b.typeId} @ ({b.x},{b.y}){" "}
             {b.completesAtTick === null
               ? "— complete"
-              : `— finishes tick ${b.completesAtTick}`}
+              : `— finishes tick ${formatLetterSuffix(b.completesAtTick)}`}
           </li>
         ))}
       </ul>

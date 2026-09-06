@@ -94,3 +94,5 @@ export const TICKS_PER_SECOND = 10;
 
 /** Maximum offline window in real milliseconds (30 days) */
 export const MAX_OFFLINE_MS = 30 * 24 * 60 * 60 * 1000;
+
+export { formatLetterSuffix } from "./formatNumber.js";
