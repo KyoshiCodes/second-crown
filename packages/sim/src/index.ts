@@ -23,6 +23,7 @@ export { EconomySystem, computeIncomePerSecond, productionBonus } from "./system
 export { realmPower, resolveBattle } from "./systems/combat.js";
 export type { BattleResult } from "./systems/combat.js";
 export { RivalSystem } from "./systems/rival.js";
+export { EventSystem, EVENT_PERIOD } from "./systems/events.js";
 
 export { tryBuild, canAfford, buildCostMultiplier } from "./actions/build.js";
 export type { BuildPayload } from "./actions/build.js";
@@ -32,7 +33,7 @@ export { tryUpgrade, canUpgrade, upgradeCost, MAX_BUILDING_LEVEL } from "./actio
 export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
 
-export { tryDeclareWar, tryResolveWar, peaceTicksRemaining } from "./actions/war.js";
+export { tryDeclareWar, tryResolveWar, tryWhitePeace, peaceTicksRemaining } from "./actions/war.js";
 export type { DeclareWarPayload } from "./actions/war.js";
 
 export { tryTrade, canTrade, MARKET_OFFERS } from "./actions/trade.js";
