@@ -10,6 +10,9 @@
   height: 100%;
   display: block;
 }
+.sc-holiday-banner {
+  display: none !important;
+}
 
 .holiday-halloween .sc-panel,
 .holiday-midwinter .sc-panel,
