@@ -1,6 +1,6 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
-import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType } from "@second-crown/sim";
+import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType, isScouted } from "@second-crown/sim";
 import { Crest } from "./Crest";
 import { crestFor } from "./crests";
 import { getRealmFlavor } from "./content/flavor";
@@ -25,6 +25,7 @@ export function WorldPanel(props: {
   onLeave: (id: string) => void;
   onGift?: (realmId: string) => void;
   onTrade?: (realmId: string, offerId: string) => void;
+  onScout?: (realmId: string) => void;
 }) {
   const state = props.state;
   if (!state) return null;
@@ -54,6 +55,7 @@ export function WorldPanel(props: {
         const op = state.opinions.find((o) => o.from === r.rulerId && o.to === "char_player")?.value ?? 0;
         const flavor = getRealmFlavor(r.id);
         const power = realmPower(state, r.id);
+        const seen = isScouted(state, r.id);
         const opLabel = op >= 20 ? "Friendly" : op <= -40 ? "Hostile" : "Neutral";
         const opClass = op >= 20 ? "op-friendly" : op <= -40 ? "op-hostile" : "op-neutral";
         const offers = KINGDOM_OFFERS[r.id] ?? [];
@@ -64,15 +66,20 @@ export function WorldPanel(props: {
               <div style={{ flex: 1 }}>
                 <strong>{r.name}</strong> {flavor.title} · {ruler?.name ?? flavor.rulerName}
                 <div className="sc-realm-meta">
-                  {r.era} · {r.lifestyle} · power {power} ·{" "}
+                  {r.era} · {r.lifestyle} · {seen ? `power ${power}` : "power ?"} ·{" "}
                   <span className={`sc-op-tag ${opClass}`}>{op} ({opLabel})</span>
                 </div>
                 <div className="sc-charge-pill">{crestFor(r.id).chargeName}</div>
-                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>Scout: {hostLine(state, r.id)}</div>
+                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
+                  Scout: {seen ? hostLine(state, r.id) : "unknown host"}
+                </div>
               </div>
             </div>
             <p className="sc-realm-blurb">{flavor.blurb}</p>
             <div className="sc-realm-taunt"><em>"{flavor.warTaunt}"</em></div>
+            {!seen && props.onScout ? (
+              <button type="button" className="sc-btn" onClick={() => props.onScout?.(r.id)}>Scout host (10 gold)</button>
+            ) : null}
             {props.onGift ? (
               <button type="button" className="sc-btn sc-btn-gift" onClick={() => props.onGift?.(r.id)}>
                 Send 15 Gold Tribute to {ruler?.name ?? r.name}
