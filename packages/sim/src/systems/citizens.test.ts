@@ -7,7 +7,10 @@ import {
   citizensByRealm,
   countCitizensByJob,
   jobForBuildingType,
+  seedCitizensFromBuildings,
+  hireCitizenForBuilding,
 } from "./citizens.js";
+import { EconomySystem } from "./economy.js";
 
 describe("citizens (stub)", () => {
   it("starts with no citizens", () => {
@@ -45,5 +48,43 @@ describe("citizens (stub)", () => {
     expect(jobForBuildingType("walls")).toBe("guard");
     expect(jobForBuildingType("keep")).toBe("guard");
     expect(jobForBuildingType("mystery_building")).toBe("unassigned");
+  });
+
+  it("seeds one worker per finished building when the roster is empty", () => {
+    const state = createGameState({ seed: 1 });
+    state.buildings.push({
+      id: "b1",
+      typeId: "farm",
+      realmId: "player",
+      x: 3,
+      y: 4,
+      level: 1,
+      completesAtTick: null,
+    });
+    seedCitizensFromBuildings(state);
+    expect(state.citizens).toHaveLength(1);
+    expect(state.citizens[0].job).toBe("farmer");
+    expect(state.citizens[0].tile).toEqual({ x: 3, y: 4 });
+    seedCitizensFromBuildings(state);
+    expect(state.citizens).toHaveLength(1);
+  });
+
+  it("hires a worker when a building finishes", () => {
+    const state = createGameState({ seed: 1 });
+    state.meta.tick = 10;
+    state.buildings.push({
+      id: "b2",
+      typeId: "keep",
+      realmId: "player",
+      x: 1,
+      y: 1,
+      level: 1,
+      completesAtTick: 10,
+    });
+    EconomySystem.processEventsAt(state, 10);
+    expect(state.buildings[0].completesAtTick).toBeNull();
+    expect(state.citizens[0].job).toBe("guard");
+    expect(state.citizens[0].tile).toEqual({ x: 1, y: 1 });
+    expect(hireCitizenForBuilding(state, "player", "chapel", 2, 2).job).toBe("scholar");
   });
 });
