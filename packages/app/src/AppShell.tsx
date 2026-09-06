@@ -8,6 +8,10 @@ import { ArmyTab } from "./tabs/ArmyTab";
 import { WarTab } from "./tabs/WarTab";
 import { WorldTab } from "./tabs/WorldTab";
 import { CrownTab } from "./tabs/CrownTab";
+import { detectCurrentHoliday, getHolidayMeta, type HolidayId } from "./seasons/holidays";
+import { WeatherOverlay } from "./seasons/WeatherOverlay";
+import { setMusicSeason, setMusicHoliday, type SeasonName } from "./music";
+import { sfx } from "./sfx";
 
 const TAB_LABEL: Record<Tab, string> = {
   kingdom: "Kingdom",
@@ -46,19 +50,47 @@ export function AppShell() {
 
   const activeWar = state?.wars.find((w) => w.status === "active");
   const hold = state ? settlementName(state) : "Your Hold";
-  const season = state ? currentSeason(state) : "Spring";
+  const season = (state ? currentSeason(state) : "Spring") as SeasonName;
+  const [holidayId, setHolidayId] = React.useState<HolidayId>(() => detectCurrentHoliday());
+  const holiday = holidayId !== "none" ? getHolidayMeta(holidayId) : null;
+  const prevSeasonRef = React.useRef(season);
+
   React.useEffect(() => {
     document.title = hold + " - Second Crown";
   }, [hold]);
 
+  React.useEffect(() => {
+    const onHolidayChange = () => {
+      setHolidayId(detectCurrentHoliday());
+    };
+    window.addEventListener("sc-holiday-change", onHolidayChange);
+    return () => window.removeEventListener("sc-holiday-change", onHolidayChange);
+  }, []);
+
+  React.useEffect(() => {
+    setMusicSeason(season);
+    if (prevSeasonRef.current !== season) {
+      sfx.seasonShift(season);
+      prevSeasonRef.current = season;
+    }
+  }, [season]);
+
+  React.useEffect(() => {
+    setMusicHoliday(holidayId !== "none" ? holidayId : null);
+  }, [holidayId]);
+
   return (
-    <div className={`sc-shell theme-${tab}`}>
+    <div className={`sc-shell theme-${tab} season-${season.toLowerCase()} ${holiday ? holiday.themeClass : ""}`}>
+      <WeatherOverlay season={season} holiday={holidayId} />
       <div className="sc-panel">
         <h1 style={{ margin: "0 0 4px", fontSize: 22 }} className="sc-title">Second Crown</h1>
-        <div style={{ fontSize: 13, opacity: 0.8 }} className="sc-subtitle">
-          {hold} · {title} · {season} · Tick {formatLetterSuffix(tick)}
+        <div style={{ fontSize: 13, opacity: 0.85 }} className="sc-subtitle">
+          {hold} · {title} · {season}
+          {holiday ? ` · ${holiday.propEmoji} ${holiday.name}` : ""} · Tick {formatLetterSuffix(tick)}
           {prestige > 0 ? ` · Prestige ${prestige}` : ""} · Power {power.player} vs {power.rival}
         </div>
+
+
         {offlineNote ? <p style={{ color: "#3fb950" }}>{offlineNote}</p> : null}
         <SpeedControls paused={paused} speed={speed} onPauseToggle={() => setPaused((p) => !p)} onSpeed={(n) => { setPaused(false); setSpeed(n); }} />
         <ResourceHud resources={resources} income={income} />

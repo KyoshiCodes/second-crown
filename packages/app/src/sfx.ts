@@ -39,7 +39,47 @@ export const sfx = {
   win: () => {
     tone(392, 0.12);
     setTimeout(() => tone(523, 0.16), 90);
+    setTimeout(() => tone(659, 0.22), 180);
   },
-  lose: () => tone(98, 0.28, "sine", 0.05),
+  lose: () => {
+    tone(130, 0.2, "sawtooth", 0.04);
+    setTimeout(() => tone(98, 0.35, "sine", 0.06), 140);
+  },
   gift: () => tone(660, 0.1),
+  seasonShift: (season: string) => {
+    if (season === "Spring") {
+      tone(440, 0.15, "triangle", 0.03);
+      setTimeout(() => tone(587.33, 0.2, "triangle", 0.03), 100);
+      setTimeout(() => tone(739.99, 0.3, "triangle", 0.03), 200);
+    } else if (season === "Summer") {
+      tone(329.63, 0.18, "triangle", 0.03);
+      setTimeout(() => tone(493.88, 0.28, "triangle", 0.03), 120);
+    } else if (season === "Autumn") {
+      tone(392, 0.2, "sine", 0.03);
+      setTimeout(() => tone(329.63, 0.25, "sine", 0.03), 130);
+      setTimeout(() => tone(261.63, 0.35, "sine", 0.03), 260);
+    } else {
+      // Winter
+      tone(523.25, 0.25, "sine", 0.025);
+      setTimeout(() => tone(659.25, 0.35, "sine", 0.025), 140);
+    }
+  },
+  holiday: (holidayId: string) => {
+    if (holidayId === "halloween") {
+      tone(207.65, 0.25, "sawtooth", 0.03);
+      setTimeout(() => tone(196, 0.35, "triangle", 0.04), 160);
+    } else if (holidayId === "midwinter") {
+      tone(523.25, 0.18, "triangle", 0.03);
+      setTimeout(() => tone(659.25, 0.18, "triangle", 0.03), 110);
+      setTimeout(() => tone(783.99, 0.3, "triangle", 0.03), 220);
+    } else if (holidayId === "easter") {
+      tone(440, 0.12, "triangle", 0.03);
+      setTimeout(() => tone(554.37, 0.14, "triangle", 0.03), 90);
+      setTimeout(() => tone(659.25, 0.25, "triangle", 0.03), 180);
+    } else {
+      tone(392, 0.15, "sine", 0.03);
+      setTimeout(() => tone(523.25, 0.25, "sine", 0.03), 120);
+    }
+  },
 };
+

@@ -1,6 +1,6 @@
 # HANDOFF — current project state
 
-Last updated: 2026-09-06 | Version: playtest-0.4 | Updated by: Grok (HTTPS live + specialist buildings)
+Last updated: 2026-09-06 | Version: playtest-0.4 (Gemini Presentation Pass) | Updated by: Gemini
 
 ## 1. Where we are
 
@@ -15,14 +15,17 @@ Repo: `https://github.com/KyoshiCodes/second-crown` `main`.
 
 ## 2. Version
 
-**0.4-playtest**. Gate: `npm test` then `npm run build -w @second-crown/app`.
+**0.4-playtest** (Gemini Presentation Pass). Gate: `npm test` then `npm run build -w @second-crown/app`.
 
 ## 3. Just completed
 
-- HTTPS via Caddy + Let's Encrypt on `129.153.17.72.sslip.io`
-- Discord redirect + `PUBLIC_APP_URL` on that host
-- Units: skirmisher, cavalry, siege + portraits
-- Buildings: stables, archery range, siege workshop (unit-specific train discounts)
+- **Living Seasons (Seen & Heard)**: Canvas weather particles (Spring pollen/petals, Summer fireflies/shimmer, Autumn leaves, Winter snow) tied to sim season clock + seasonal Web Audio pentatonic scales and timbres.
+- **Calendar & Holiday Overlays**: All Hallows (Halloween), Midwinter (Christmas-tide), Dawn Feast (Easter-tide), Harvest Moon, Midsummer Solstice with ambient lighting, badges, and holiday stingers. Instant preview switcher in `TesterBar`.
+- **Pixi Map Ground Seasoning**: Seasonal ground recoloring and rooftop snow caps in Winter.
+- **Loot & Bazaar Item Tier Chips**: Rarity chips (`common`, `uncommon`, `rare`, `epic`) with SVG badges for the Spoils Bag and Wandering Bazaar.
+- **Atmospheres & Polish**: Layered CSS/SVG atmospheres for all tabs without blocking pointer events, custom Champion portrait, combat victory/defeat sound cues.
+- **Strict Invariant Adherence**: Zero lines touched in `packages/sim` or `server`; 100% sim tests passing.
+
 
 ## 4. In progress
 
