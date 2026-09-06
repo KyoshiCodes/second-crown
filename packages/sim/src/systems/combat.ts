@@ -1,9 +1,10 @@
 import type { GameState, War } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { getUnitType } from "../content/units.js";
+import { countBuilding } from "../content/buildings.js";
 import type { RngStreams } from "../core/rng.js";
 
-/** Total combat power for a realm's units. */
+/** Unit power + watchtower bonus. */
 export function realmPower(state: GameState, realmId: string): number {
   let power = 0;
   for (const u of state.units) {
@@ -11,6 +12,9 @@ export function realmPower(state: GameState, realmId: string): number {
     const def = getUnitType(u.typeId);
     if (!def) continue;
     power += def.power * D(u.count).toNumber();
+  }
+  if (realmId === "player") {
+    power += countBuilding(state, "watchtower") * 2;
   }
   return power;
 }
@@ -21,12 +25,6 @@ export interface BattleResult {
   loot: Record<string, string>;
 }
 
-/**
- * Deterministic battle resolution.
- * Winner gets higher effective power after ±15% RNG swing.
- * Loser loses ~40–60% units; winner ~10–20%.
- * Winner loots 15–25% of loser's resources (player or rival).
- */
 export function resolveBattle(
   state: GameState,
   war: War,
@@ -50,11 +48,9 @@ export function resolveBattle(
 
   war.status = attackerWins ? "attacker_won" : "defender_won";
 
-  // Peace lockout: 500 ticks (~50s) before another war between these realms
   state.flags[`peace_${war.attackerRealmId}_${war.defenderRealmId}`] =
     state.meta.tick + 500;
 
-  // Opinion swing
   adjustOpinion(state, winnerId, loserId, -15);
   adjustOpinion(state, loserId, winnerId, -25);
 
@@ -66,8 +62,7 @@ function applyCasualties(state: GameState, realmId: string, fraction: number): v
     if (u.realmId !== realmId) continue;
     const count = D(u.count);
     const lost = count.mul(fraction).floor();
-    const remaining = count.sub(lost);
-    u.count = toDecimalString(remaining.lt(0) ? 0 : remaining);
+    u.count = toDecimalString(count.sub(lost).lt(0) ? 0 : count.sub(lost));
   }
   state.units = state.units.filter((u) => D(u.count).gt(0));
 }
@@ -79,7 +74,6 @@ function plunder(
   fraction: number
 ): Record<string, string> {
   const loot: Record<string, string> = {};
-  // Only the player has tracked resources in this phase; rival is treated as a purse
   if (loserId === "player") {
     for (const res of ["gold", "food", "wood", "stone"]) {
       const have = D(state.resources[res] ?? "0");
@@ -90,7 +84,6 @@ function plunder(
       }
     }
   } else if (winnerId === "player") {
-    // Loot from rival: grant a purse based on rival "wealth" proxy (power * 2)
     const purse = Math.max(10, Math.floor(realmPower(state, loserId) * 2 + 50));
     for (const res of ["gold", "food", "wood", "stone"]) {
       const taken = D(Math.floor(purse * fraction * (res === "gold" ? 0.5 : 1)));

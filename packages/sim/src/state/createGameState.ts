@@ -67,12 +67,11 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
     unlocks: [],
   };
 
-  // Rival starts with a small defensive force
   state.units.push({
     id: "u_rival_0",
     typeId: "militia",
     realmId: "rival",
-    count: "15",
+    count: "12",
     armyId: null,
   });
 
@@ -94,7 +93,7 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
         x: 1,
         y: 0,
         level: 1,
-        completesAtTick: 40,
+        completesAtTick: 30,
       }
     );
   }

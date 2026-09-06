@@ -8,7 +8,12 @@ export type { RngStreams } from "./core/rng.js";
 
 export { D, toDecimalString, ZERO, ONE } from "./core/decimal.js";
 
-export { BUILDING_TYPES, getBuildingType, listBuildableTypes } from "./content/buildings.js";
+export {
+  BUILDING_TYPES,
+  getBuildingType,
+  listBuildableTypes,
+  countBuilding,
+} from "./content/buildings.js";
 export type { BuildingType } from "./content/buildings.js";
 
 export { UNIT_TYPES, getUnitType, listUnitTypes } from "./content/units.js";
@@ -22,13 +27,13 @@ export { RivalSystem } from "./systems/rival.js";
 export { tryBuild, canAfford, buildCostMultiplier } from "./actions/build.js";
 export type { BuildPayload } from "./actions/build.js";
 
-export { tryTrain, canAffordTrain } from "./actions/train.js";
+export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
 
 export { tryDeclareWar, tryResolveWar, peaceTicksRemaining } from "./actions/war.js";
 export type { DeclareWarPayload } from "./actions/war.js";
 
-export { tryAscend, canAscend } from "./actions/prestige.js";
+export { tryAscend, canAscend, ascendThreshold } from "./actions/prestige.js";
 
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 

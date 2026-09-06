@@ -1,6 +1,7 @@
 import type { GameState, InputRecord } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { getUnitType } from "../content/units.js";
+import { countBuilding } from "../content/buildings.js";
 
 export interface TrainPayload {
   typeId: string;
@@ -8,25 +9,33 @@ export interface TrainPayload {
   realmId?: string;
 }
 
-/** Train units immediately (instant for Phase I simplicity). */
+/** Barracks: −5% cost each, minimum 50% of base. */
+export function trainCostMultiplier(state: GameState): number {
+  const n = countBuilding(state, "barracks");
+  return Math.max(0.5, 1 - n * 0.05);
+}
+
 export function tryTrain(state: GameState, payload: TrainPayload): boolean {
   const def = getUnitType(payload.typeId);
   if (!def || payload.count < 1) return false;
 
   const realmId = payload.realmId ?? "player";
   const count = Math.floor(payload.count);
+  const mult = trainCostMultiplier(state);
 
   for (const [res, costStr] of Object.entries(def.cost)) {
-    const need = D(costStr).mul(count);
+    const need = D(costStr).mul(count).mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
 
   for (const [res, costStr] of Object.entries(def.cost)) {
-    const need = D(costStr).mul(count);
+    const need = D(costStr).mul(count).mul(mult).ceil();
     state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(need));
   }
 
-  const existing = state.units.find((u) => u.typeId === def.id && u.realmId === realmId && u.armyId === null);
+  const existing = state.units.find(
+    (u) => u.typeId === def.id && u.realmId === realmId && u.armyId === null
+  );
   if (existing) {
     existing.count = toDecimalString(D(existing.count).add(count));
   } else {
@@ -39,21 +48,23 @@ export function tryTrain(state: GameState, payload: TrainPayload): boolean {
     });
   }
 
-  const record: InputRecord = {
+  state.inputLog.push({
     tick: state.meta.tick,
     type: "train",
     payload: { ...payload, realmId, count },
     issuerId: realmId,
-  };
-  state.inputLog.push(record);
+  } satisfies InputRecord);
+
   return true;
 }
 
 export function canAffordTrain(state: GameState, typeId: string, count = 1): boolean {
   const def = getUnitType(typeId);
   if (!def || count < 1) return false;
+  const mult = trainCostMultiplier(state);
   for (const [res, costStr] of Object.entries(def.cost)) {
-    if (D(state.resources[res] ?? "0").lt(D(costStr).mul(count))) return false;
+    const need = D(costStr).mul(count).mul(mult).ceil();
+    if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
   return true;
 }
