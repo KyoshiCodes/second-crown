@@ -26,7 +26,16 @@ export function UnitIcon(props: { typeId: string; size?: number }) {
         <path d="M32 10 Q40 24 32 38" stroke="#8b5a2b" strokeWidth="2.5" fill="none" />
         <circle cx="18" cy="14" r="4" fill="#e6d2b0" />
         <rect x="16" y="18" width="5" height="14" rx="2" fill="#2f6f4e" />
-        <rect x="12" y="22" width="4" height="10" fill="#6b3f1d" />
+      </Svg>
+    );
+  }
+  if (typeId === "skirmisher") {
+    return wrap(
+      <Svg title="Skirmisher" bg="#2a3d28">
+        <circle cx="20" cy="13" r="4" fill="#e6d2b0" />
+        <rect x="16" y="17" width="8" height="14" rx="2" fill="#4a6b3a" />
+        <line x1="28" y1="12" x2="38" y2="22" stroke="#c4a574" strokeWidth="2" />
+        <polygon points="38,22 34,20 36,26" fill="#c4a574" />
       </Svg>
     );
   }
@@ -37,7 +46,16 @@ export function UnitIcon(props: { typeId: string; size?: number }) {
         <rect x="18" y="17" width="8" height="16" rx="2" fill="#3d5a80" />
         <line x1="30" y1="6" x2="30" y2="40" stroke="#c0c8d0" strokeWidth="2" />
         <polygon points="30,4 27,10 33,10" fill="#d8dee6" />
-        <rect x="16" y="33" width="12" height="4" fill="#2a3340" />
+      </Svg>
+    );
+  }
+  if (typeId === "cavalry") {
+    return wrap(
+      <Svg title="Cavalry" bg="#3a2410">
+        <ellipse cx="24" cy="30" rx="12" ry="7" fill="#6b4a2b" />
+        <circle cx="34" cy="26" r="5" fill="#6b4a2b" />
+        <circle cx="22" cy="14" r="4" fill="#e6d2b0" />
+        <rect x="18" y="18" width="8" height="10" fill="#4a5568" />
       </Svg>
     );
   }
@@ -48,8 +66,16 @@ export function UnitIcon(props: { typeId: string; size?: number }) {
         <rect x="16" y="18" width="16" height="14" rx="2" fill="#6e5a2c" />
         <circle cx="14" cy="28" r="5" fill="#4a3a1c" />
         <circle cx="34" cy="28" r="5" fill="#4a3a1c" />
-        <rect x="32" y="10" width="3" height="16" fill="#c0c8d0" />
-        <circle cx="24" cy="12" r="2" fill="#1a140c" />
+      </Svg>
+    );
+  }
+  if (typeId === "siege") {
+    return wrap(
+      <Svg title="Siege Engine" bg="#2a2018">
+        <rect x="8" y="22" width="32" height="10" fill="#5c4033" />
+        <circle cx="14" cy="34" r="5" fill="#1a140c" />
+        <circle cx="34" cy="34" r="5" fill="#1a140c" />
+        <rect x="28" y="8" width="4" height="16" fill="#8b6914" />
       </Svg>
     );
   }
@@ -57,7 +83,6 @@ export function UnitIcon(props: { typeId: string; size?: number }) {
     <Svg title="Militia" bg="#2a3328">
       <circle cx="24" cy="14" r="4" fill="#e6d2b0" />
       <rect x="18" y="18" width="12" height="14" rx="2" fill="#6b7a5e" />
-      <circle cx="16" cy="26" r="6" fill="#8a8f7a" />
       <line x1="34" y1="10" x2="34" y2="36" stroke="#8b6914" strokeWidth="2" />
     </Svg>
   );
