@@ -14,6 +14,7 @@ export function trainCostMultiplier(state: GameState, typeId?: string): number {
   const n = countBuilding(state, "barracks");
   let m = Math.max(0.5, 1 - n * 0.05);
   if (flagNum(state, "craft_train")) m *= 0.9;
+  if (state.flags.doctrine === "host") m *= 0.92;
   if (typeId === "cavalry" || typeId === "knight") {
     if (countBuilding(state, "stables") > 0) m *= 0.9;
   }
