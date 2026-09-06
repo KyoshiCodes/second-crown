@@ -7,6 +7,7 @@ import { BoardPanel } from "./BoardPanel";
 import { SpectatorView, watchCodeFromHash } from "./SpectatorView";
 import "./theme.css";
 import { sfx } from "./sfx";
+import { loadMusicMuted, startMusicBed } from "./music";
 
 const THEMES = ["kingdom", "army", "war", "world", "crown"] as const;
 
@@ -16,8 +17,10 @@ function applyTheme(name: string) {
 }
 
 applyTheme("kingdom");
+loadMusicMuted();
 
 document.addEventListener("click", (e) => {
+  startMusicBed();
   const el = e.target as HTMLElement | null;
   const label = el?.textContent?.trim() ?? "";
   const key = THEMES.find(
