@@ -1,7 +1,6 @@
 const TOKEN_KEY = "sc-cloud-token";
 const NAME_KEY = "sc-cloud-name";
 const URL_KEY = "sc-cloud-url";
-
 const ORACLE = "http://129.153.17.72:8787";
 
 export function defaultCloudUrl(): string {
@@ -63,8 +62,7 @@ async function req(path: string, init: RequestInit = {}) {
   const token = cloudToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
   if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
-  const res = await fetch(`${cloudUrl()}${path}`, { ...init, headers });
-  return res;
+  return fetch(`${cloudUrl()}${path}`, { ...init, headers });
 }
 
 export async function health(): Promise<{ ok: boolean; discord: boolean }> {
@@ -85,9 +83,7 @@ export async function restoreToken(token: string) {
   const clean = token.trim();
   if (!clean) throw new Error("empty");
   localStorage.setItem(TOKEN_KEY, clean);
-  const res = await fetch(`${cloudUrl()}/me`, {
-    headers: { Authorization: `Bearer ${clean}` },
-  });
+  const res = await fetch(`${cloudUrl()}/me`, { headers: { Authorization: `Bearer ${clean}` } });
   if (!res.ok) {
     localStorage.removeItem(TOKEN_KEY);
     throw new Error("bad code");
@@ -110,4 +106,10 @@ export async function pullSave(): Promise<string> {
   const res = await req("/save");
   if (!res.ok) throw new Error("no cloud save");
   return res.text();
+}
+
+export async function openWatch(): Promise<{ code: string; url: string }> {
+  const res = await req("/watch", { method: "POST" });
+  if (!res.ok) throw new Error("watch failed");
+  return res.json();
 }

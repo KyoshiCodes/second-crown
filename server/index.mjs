@@ -1,7 +1,3 @@
-/**
- * Tiny playtest cloud: guest codes + optional Discord OAuth + save blobs.
- * Also serves packages/app/dist when present so one public port is enough.
- */
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -20,8 +16,10 @@ const DIST = process.env.APP_DIST || path.join(__dirname, "../packages/app/dist"
 
 const USERS = path.join(DATA, "users.json");
 const SAVES = path.join(DATA, "saves");
+const WATCH = path.join(DATA, "watch");
 
 fs.mkdirSync(SAVES, { recursive: true });
+fs.mkdirSync(WATCH, { recursive: true });
 if (!fs.existsSync(USERS)) fs.writeFileSync(USERS, "{}");
 
 const MIME = {
@@ -32,7 +30,6 @@ const MIME = {
   ".svg": "image/svg+xml",
   ".png": "image/png",
   ".ico": "image/x-icon",
-  ".woff2": "font/woff2",
 };
 
 function readUsers() {
@@ -90,15 +87,17 @@ function tryStatic(urlPath, res) {
   if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) {
     const fallback = path.join(DIST, "index.html");
     if (!fs.existsSync(fallback)) return false;
-    const html = fs.readFileSync(fallback);
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end(html);
+    res.end(fs.readFileSync(fallback));
     return true;
   }
   const ext = path.extname(file);
   res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
   res.end(fs.readFileSync(file));
   return true;
+}
+function mirrorWatch(u, body) {
+  if (u.watchCode) fs.writeFileSync(path.join(WATCH, `${u.watchCode}.json`), body);
 }
 
 async function discordToken(code) {
@@ -125,14 +124,7 @@ async function discordMe(access) {
   return res.json();
 }
 
-const API = new Set([
-  "/health",
-  "/guest",
-  "/me",
-  "/save",
-  "/auth/discord",
-  "/auth/discord/callback",
-]);
+const API = new Set(["/health", "/guest", "/me", "/save", "/watch", "/auth/discord", "/auth/discord/callback"]);
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
@@ -146,12 +138,7 @@ const server = http.createServer(async (req, res) => {
     const users = readUsers();
     const id = `guest_${newCode()}`;
     const token = newToken();
-    users[id] = {
-      id,
-      name: url.searchParams.get("name") || "Guest",
-      token,
-      kind: "guest",
-    };
+    users[id] = { id, name: url.searchParams.get("name") || "Guest", token, kind: "guest" };
     writeUsers(users);
     return json(res, 200, { id, token, name: users[id].name });
   }
@@ -183,6 +170,7 @@ const server = http.createServer(async (req, res) => {
         token,
         kind: "discord",
         discordId: me.id,
+        watchCode: users[id]?.watchCode,
       };
       writeUsers(users);
       const back = new URL(PUBLIC_APP);
@@ -197,7 +185,32 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && url.pathname === "/me") {
     const u = userFromToken(bearer(req));
     if (!u) return json(res, 401, { error: "unauthorized" });
-    return json(res, 200, { id: u.id, name: u.name, kind: u.kind });
+    return json(res, 200, { id: u.id, name: u.name, kind: u.kind, watchCode: u.watchCode || null });
+  }
+
+  if (req.method === "POST" && url.pathname === "/watch") {
+    const u = userFromToken(bearer(req));
+    if (!u) return json(res, 401, { error: "unauthorized" });
+    const users = readUsers();
+    const rec = users[u.id];
+    if (!rec) return json(res, 401, { error: "unauthorized" });
+    rec.watchCode = rec.watchCode || newCode();
+    writeUsers(users);
+    const saveFile = path.join(SAVES, `${u.id}.json`);
+    if (fs.existsSync(saveFile)) {
+      fs.copyFileSync(saveFile, path.join(WATCH, `${rec.watchCode}.json`));
+    }
+    return json(res, 200, {
+      code: rec.watchCode,
+      url: `${PUBLIC_APP}/#watch=${rec.watchCode}`,
+    });
+  }
+
+  if (req.method === "GET" && url.pathname.startsWith("/watch/")) {
+    const code = url.pathname.slice("/watch/".length).replace(/[^a-z0-9]/gi, "");
+    const file = path.join(WATCH, `${code}.json`);
+    if (!fs.existsSync(file)) return json(res, 404, { error: "no watch" });
+    return text(res, 200, fs.readFileSync(file, "utf8"), "application/json");
   }
 
   if (url.pathname === "/save") {
@@ -212,11 +225,13 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       JSON.parse(body);
       fs.writeFileSync(file, body);
+      const users = readUsers();
+      mirrorWatch(users[u.id] || u, body);
       return json(res, 200, { ok: true });
     }
   }
 
-  if (req.method === "GET" && !API.has(url.pathname)) {
+  if (req.method === "GET" && !API.has(url.pathname) && !url.pathname.startsWith("/watch/")) {
     if (tryStatic(url.pathname, res)) return;
   }
 
