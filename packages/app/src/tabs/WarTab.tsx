@@ -1,10 +1,12 @@
 import React from "react";
 import {
+  canAffordTrain,
   peaceTicksRemaining,
   realmPower,
   tryDeclareWar,
   tryGiftGold,
   tryResolveWar,
+  tryTrain,
   tryWhitePeace,
   type GameState,
 } from "@second-crown/sim";
@@ -12,6 +14,7 @@ import { DiplomacyPanel } from "../HudControls";
 import { BattleVisual, type BattleSnap } from "../BattleVisual";
 import type { ActFn } from "../game/useGameEngine";
 import { getGiftThanks, getWarTaunt } from "../content/flavor";
+import { sfx } from "../sfx";
 
 export function WarTab(props: {
   state: GameState | undefined;
@@ -25,6 +28,7 @@ export function WarTab(props: {
   const activeWar = state?.wars.find((w) => w.status === "active");
   const otherRealms = (state?.realms ?? []).filter((r) => r.id !== "player");
   const mine = state ? realmPower(state, "player") : 0;
+  const canLevy = state ? canAffordTrain(state, "militia", 5) : false;
 
   return (
     <>
@@ -34,6 +38,17 @@ export function WarTab(props: {
         onGift={() => act((st) => (tryGiftGold(st) ? `Lord Varric: "${getGiftThanks("rival")}"` : "Need 15 gold."))}
       />
       <p style={{ fontSize: 12, opacity: 0.7 }}>Your power {mine}. Green odds favor you; red favors them. Combat still rolls.</p>
+      <button
+        type="button"
+        disabled={!canLevy}
+        onClick={() => act((st) => {
+          const ok = tryTrain(st, { typeId: "militia", count: 5 });
+          if (ok) sfx.train();
+          return ok ? "Raised 5 militia." : "Cannot afford 5 militia.";
+        })}
+      >
+        Raise 5 militia
+      </button>
       <BattleVisual snap={battleSnap} active={!!activeWar} />
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
         {otherRealms.map((r) => {
