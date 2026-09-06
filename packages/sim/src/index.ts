@@ -107,6 +107,9 @@ export {
   fortifyPower,
 } from "./systems/court.js";
 
+export { tryStrikeHorde, raidTicksLeft } from "./systems/raid.js";
+export { tryBuyBazaar, ITEMS, ITEM_TIERS } from "./systems/loot.js";
+
 export { settlementName, tryRenameSettlement } from "./actions/settlement.js";
 
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
