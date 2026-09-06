@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// base: './' so the build works on GitHub Pages project sites
 export default defineConfig({
   plugins: [react()],
   server: {
@@ -11,5 +10,13 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true,
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/pixi.js") || id.includes("/pixi.js/")) return "pixi";
+        },
+      },
+    },
   },
 });
