@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { AppShell } from "./AppShell";
 import { TesterBar } from "./TesterBar";
 import { CloudPanel } from "./CloudPanel";
+import { SpectatorView, watchCodeFromHash } from "./SpectatorView";
 import "./theme.css";
 import { sfx } from "./sfx";
 
@@ -24,12 +25,11 @@ document.addEventListener("click", (e) => {
   if (key) applyTheme(key);
   if (label === "Fight") sfx.war();
   else if (label.startsWith("Gift")) sfx.gift();
-  else if (label.includes("Militia") || label.includes("Knight") || label.includes("Archer") || label.includes("Spearman"))
-    sfx.train();
-  else if (label === "Save" || label === "Export") sfx.click();
 });
 
 function Root() {
+  const watch = watchCodeFromHash();
+  if (watch) return <SpectatorView code={watch} />;
   return (
     <>
       <TesterBar />
