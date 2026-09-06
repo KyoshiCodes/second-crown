@@ -1,4 +1,5 @@
 import type { Faction, GameState, InputRecord } from "@second-crown/shared";
+import { unlock } from "../systems/wave.js";
 
 export function tryFoundGuild(state: GameState, name = "Your Banner"): boolean {
   if (!Array.isArray(state.factions)) state.factions = [];
@@ -12,6 +13,7 @@ export function tryFoundGuild(state: GameState, name = "Your Banner"): boolean {
     stance: 50,
   };
   state.factions.push(faction);
+  unlock(state, "ach_guild");
   state.inputLog.push({
     tick: state.meta.tick,
     type: "found_guild",
