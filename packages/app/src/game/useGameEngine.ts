@@ -240,6 +240,18 @@ export function useGameEngine() {
     mapRef.current?.setTheme(themeId, holidayId);
   }, []);
 
+  const zoomIn = React.useCallback(() => {
+    mapRef.current?.zoomIn();
+  }, []);
+
+  const zoomOut = React.useCallback(() => {
+    mapRef.current?.zoomOut();
+  }, []);
+
+  const resetView = React.useCallback(() => {
+    mapRef.current?.resetView();
+  }, []);
+
   return {
     tab, setTab,
     tick, resources, income, units, wars,
@@ -254,6 +266,9 @@ export function useGameEngine() {
     battleSnap, setBattleSnap,
     canvasRef,
     setMapTheme,
+    zoomIn,
+    zoomOut,
+    resetView,
     state: engineRef.current?.getState(),
     act,
     saveNow, exportSave, importSaveFile, newGame,

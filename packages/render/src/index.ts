@@ -15,26 +15,30 @@ const CANVAS_W = 560;
 const CANVAS_H = 360;
 const ORIGIN_X = 220;
 const ORIGIN_Y = 64;
+const RIM_SIZE = 16; // Wooden table rim border thickness
 
 export interface MapRenderer {
   sync(state: GameState): void;
   setTheme(themeId: string, holidayId: string): void;
   destroy(): void;
   onTileClick(cb: (x: number, y: number) => void): void;
+  zoomIn(): void;
+  zoomOut(): void;
+  resetView(): void;
 }
 
-// Convert grid (gx, gy) to screen center (px, py)
-function gridToScreen(gx: number, gy: number): { px: number; py: number } {
+// Convert grid (gx, gy) to world space center (wx, wy)
+function gridToWorld(gx: number, gy: number): { wx: number; wy: number } {
   return {
-    px: ORIGIN_X + (gx - gy) * HALF_W,
-    py: ORIGIN_Y + (gx + gy) * HALF_H,
+    wx: ORIGIN_X + (gx - gy) * HALF_W,
+    wy: ORIGIN_Y + (gx + gy) * HALF_H,
   };
 }
 
-// Convert screen (px, py) to grid (gx, gy)
-function screenToGrid(px: number, py: number): { gx: number; gy: number } {
-  const dx = px - ORIGIN_X;
-  const dy = py - ORIGIN_Y;
+// Convert world space (wx, wy) to grid coordinates (gx, gy)
+function worldToGrid(wx: number, wy: number): { gx: number; gy: number } {
+  const dx = wx - ORIGIN_X;
+  const dy = wy - ORIGIN_Y;
   const gx = Math.floor(dx / TILE_W + dy / TILE_H);
   const gy = Math.floor(dy / TILE_H - dx / TILE_W);
   return { gx, gy };
@@ -202,13 +206,12 @@ function paintIsometricGround(g: Graphics, visuals: ThemeVisuals): void {
   g.clear();
 
   // 1. Draw 3D Stone Cliff Foundation along southern perimeter
-  // Left-facing cliff wall along bottom edge (x = 0..15, y = 9)
   const CLIFF_DEPTH = 22;
   for (let x = 0; x < GRID_W; x++) {
-    const { px, py } = gridToScreen(x, GRID_H - 1);
-    const pLeft = { x: px - HALF_W, y: py };
-    const pBottom = { x: px, y: py + HALF_H };
-    const pRight = { x: px + HALF_W, y: py };
+    const { wx, wy } = gridToWorld(x, GRID_H - 1);
+    const pLeft = { x: wx - HALF_W, y: wy };
+    const pBottom = { x: wx, y: wy + HALF_H };
+    const pRight = { x: wx + HALF_W, y: wy };
 
     // South-facing cliff facets
     g.poly([
@@ -235,9 +238,9 @@ function paintIsometricGround(g: Graphics, visuals: ThemeVisuals): void {
 
   // Right-facing cliff wall along right edge (x = 15, y = 0..9)
   for (let y = 0; y < GRID_H; y++) {
-    const { px, py } = gridToScreen(GRID_W - 1, y);
-    const pBottom = { x: px, y: py + HALF_H };
-    const pRight = { x: px + HALF_W, y: py };
+    const { wx, wy } = gridToWorld(GRID_W - 1, y);
+    const pBottom = { x: wx, y: wy + HALF_H };
+    const pRight = { x: wx + HALF_W, y: wy };
 
     g.poly([
       pBottom.x, pBottom.y,
@@ -255,7 +258,7 @@ function paintIsometricGround(g: Graphics, visuals: ThemeVisuals): void {
   // 2. Draw Isometric Diamond Grid Tiles & Cobblestone Paths
   for (let y = 0; y < GRID_H; y++) {
     for (let x = 0; x < GRID_W; x++) {
-      const { px, py } = gridToScreen(x, y);
+      const { wx, wy } = gridToWorld(x, y);
       const isRoad = ROAD_TILES.has(`${x},${y}`);
       const shade = isRoad
         ? ((x + y) % 2 === 0 ? visuals.roadColor : visuals.roadCobble)
@@ -263,10 +266,10 @@ function paintIsometricGround(g: Graphics, visuals: ThemeVisuals): void {
 
       // Base diamond tile
       g.poly([
-        px, py - HALF_H,
-        px + HALF_W, py,
-        px, py + HALF_H,
-        px - HALF_W, py,
+        wx, wy - HALF_H,
+        wx + HALF_W, wy,
+        wx, wy + HALF_H,
+        wx - HALF_W, wy,
       ]);
       g.fill({ color: shade });
 
@@ -275,51 +278,44 @@ function paintIsometricGround(g: Graphics, visuals: ThemeVisuals): void {
 
       // Cobblestone path details
       if (isRoad) {
-        g.rect(px - 6, py - 3, 4, 2);
+        g.rect(wx - 6, wy - 3, 4, 2);
         g.fill({ color: visuals.roadCobble, alpha: 0.7 });
-        g.rect(px + 2, py - 1, 5, 2);
+        g.rect(wx + 2, wy - 1, 5, 2);
         g.fill({ color: visuals.roadColor, alpha: 0.8 });
-        g.rect(px - 3, py + 2, 4, 2);
+        g.rect(wx - 3, wy + 2, 4, 2);
         g.fill({ color: visuals.roadCobble, alpha: 0.75 });
       } else {
         // Seasonal terrain flourishes
         const hash = (x * 13 + y * 29) % 17;
         if (visuals.decorations === "spring" && hash === 3) {
-          // Wildflower blossoms
-          g.circle(px - 3, py - 2, 1.4);
+          g.circle(wx - 3, wy - 2, 1.4);
           g.fill({ color: 0xf472b6, alpha: 0.8 });
         } else if (visuals.decorations === "spring" && hash === 7) {
-          g.circle(px + 4, py + 1, 1.4);
+          g.circle(wx + 4, wy + 1, 1.4);
           g.fill({ color: 0xfacc15, alpha: 0.8 });
         } else if (visuals.decorations === "easter" && hash === 5) {
-          // Easter egg hidden in grass
-          g.ellipse(px, py, 2.5, 3.2);
+          g.ellipse(wx, wy, 2.5, 3.2);
           g.fill({ color: 0xd8b4fe, alpha: 0.85 });
-          g.circle(px, py, 1.2);
+          g.circle(wx, wy, 1.2);
           g.fill({ color: 0xfde047, alpha: 0.9 });
         } else if (visuals.decorations === "halloween" && hash === 4) {
-          // Fallen pumpkin patch
-          g.ellipse(px + 2, py + 1, 3.5, 2.8);
+          g.ellipse(wx + 2, wy + 1, 3.5, 2.8);
           g.fill({ color: 0xe85d04, alpha: 0.85 });
-          g.rect(px + 2, py - 2, 1.2, 2);
+          g.rect(wx + 2, wy - 2, 1.2, 2);
           g.fill({ color: 0x3f6212, alpha: 0.9 });
         } else if (visuals.decorations === "midwinter" && hash % 3 === 0) {
-          // Snow drifts
-          g.ellipse(px, py + 2, 8, 3);
+          g.ellipse(wx, wy + 2, 8, 3);
           g.fill({ color: 0xf1f5f9, alpha: 0.35 });
         } else if (visuals.decorations === "autumn" && hash === 6) {
-          // Fallen autumn leaves
-          g.circle(px - 2, py - 1, 1.8);
+          g.circle(wx - 2, wy - 1, 1.8);
           g.fill({ color: 0xd97706, alpha: 0.8 });
-          g.circle(px + 3, py + 2, 1.6);
+          g.circle(wx + 3, wy + 2, 1.6);
           g.fill({ color: 0xb91c1c, alpha: 0.75 });
         } else if (visuals.decorations === "harvest" && hash === 2) {
-          // Harvest wheat bushel
-          g.rect(px - 1, py - 2, 3, 5);
+          g.rect(wx - 1, wy - 2, 3, 5);
           g.fill({ color: 0xca8a04, alpha: 0.8 });
         } else if (visuals.decorations === "midsummer" && hash === 8) {
-          // Sunburst marigold
-          g.circle(px, py, 1.8);
+          g.circle(wx, wy, 1.8);
           g.fill({ color: 0xfbbf24, alpha: 0.85 });
         }
       }
@@ -328,7 +324,7 @@ function paintIsometricGround(g: Graphics, visuals: ThemeVisuals): void {
 }
 
 // -------------------------------------------------------------
-// Isometric Pixel Building Painter
+// Denser Isometric Pixel Building Painter
 // -------------------------------------------------------------
 function drawIsometricBuilding(
   g: Graphics,
@@ -341,348 +337,511 @@ function drawIsometricBuilding(
   const a = complete ? 1.0 : 0.45;
   g.clear();
 
-  // Isometric ground footprint indicator
+  // 1. Isometric Ground Footprint Shadow & Base Foundation
   g.poly([
     0, -HALF_H,
     HALF_W - 1, 0,
     0, HALF_H - 1,
     -HALF_W + 1, 0,
   ]);
-  g.fill({ color: 0x0b100d, alpha: 0.35 });
+  g.fill({ color: 0x080c09, alpha: 0.4 });
+
+  // Cast shadow to the southeast
+  g.poly([
+    -4, 4,
+    HALF_W + 6, 2,
+    HALF_W + 12, 10,
+    2, HALF_H + 4,
+  ]);
+  g.fill({ color: 0x000000, alpha: 0.28 });
 
   const lvl = Math.max(1, Math.min(5, level));
   const isWinter = visuals.decorations === "winter" || visuals.decorations === "midwinter";
   const isHalloween = visuals.decorations === "halloween";
-
-  // Level visual scaling: base height increases slightly with upgrades
-  const heightBoost = (lvl - 1) * 2;
+  const heightBoost = (lvl - 1) * 3;
 
   switch (typeId) {
     case "farm": {
-      // Thatched Farm Cottage with Field
-      const h = 16 + heightBoost;
-      // Cottage Left Wall (timber)
-      g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+      // Denser Thatched Farmhouse + Stone Well + Vegetable Patch + Hayrick
+      const h = 18 + heightBoost;
+
+      // Farmhouse Timber Walls (left & right facets)
+      g.poly([-16, 0, -2, 7, -2, 7 - h, -16, 0 - h]);
       g.fill({ color: 0x8b5a2b, alpha: a });
-      // Cottage Right Wall (shadowed timber)
-      g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
+      g.poly([-2, 7, 10, 1, 10, 1 - h, -2, 7 - h]);
       g.fill({ color: 0x6e431f, alpha: a });
-      // Thatched Roof
+
+      // Timber framing exposed cross-beams
+      g.moveTo(-16, 0 - h * 0.5); g.lineTo(-2, 7 - h * 0.5);
+      g.moveTo(-2, 7 - h * 0.5); g.lineTo(10, 1 - h * 0.5);
+      g.stroke({ width: 1, color: 0x4a2c11, alpha: a });
+
+      // Thatched Gable Roof with overhang
       g.poly([
         -18, -h,
-        0, 10 - h - 10,
-        16, 1 - h,
-        0, -h - 16,
+        -2, 9 - h - 11,
+        12, 1 - h,
+        -4, -h - 17,
       ]);
       g.fill({ color: 0xd4a359, alpha: a });
-      // Chimney & Smoke
-      g.rect(6, -h - 14, 4, 8);
+      g.moveTo(-18, -h); g.lineTo(-2, 9 - h - 11); g.lineTo(12, 1 - h);
+      g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+
+      // Brick Chimney & Animated Smoke
+      g.rect(4, -h - 15, 4, 9);
       g.fill({ color: 0x71717a, alpha: a });
       const puff = Math.sin(phase * 2) * 2;
-      g.circle(8, -h - 16 + puff, 2.5);
-      g.fill({ color: 0xe4e4e7, alpha: 0.4 * a });
-      // Wooden door & windows
-      g.rect(-10, 4 - h * 0.5, 4, 6);
+      g.circle(6, -h - 18 + puff, 2.5);
+      g.fill({ color: 0xe4e4e7, alpha: 0.45 * a });
+      g.circle(8, -h - 22 + puff, 3.2);
+      g.fill({ color: 0xf4f4f5, alpha: 0.3 * a });
+
+      // Door & glowing window
+      g.rect(-10, 3 - h * 0.45, 4, 6);
       g.fill({ color: 0x3d2410, alpha: a });
-      // Wheat field patch on right
-      g.rect(4, 2, 8, 3);
-      g.fill({ color: 0xca8a04, alpha: a * 0.85 });
+      g.rect(2, -h * 0.4, 3.5, 3.5);
+      g.fill({ color: 0xfef08a, alpha: a * 0.85 });
+
+      // Outbuilding 1: Stone Well with wooden bucket
+      g.ellipse(-11, 4, 3.5, 2.2);
+      g.fill({ color: 0x64748b, alpha: a });
+      g.moveTo(-11, 4); g.lineTo(-11, -2);
+      g.stroke({ width: 1.2, color: 0x78350f, alpha: a });
+
+      // Outbuilding 2: Fenced Vegetable Garden with cabbages & pumpkins
+      g.rect(10, 2, 7, 5);
+      g.fill({ color: 0x27272a, alpha: a * 0.6 });
+      g.circle(12, 4, 1.5); g.fill({ color: 0x22c55e, alpha: a });
+      g.circle(15, 3, 1.5); g.fill({ color: 0x16a34a, alpha: a });
+      g.circle(13, 6, 1.6); g.fill({ color: 0xea580c, alpha: a });
+
+      // Golden Hayrick in foreground corner
+      g.poly([4, 5, 8, 8, 5, 2]);
+      g.fill({ color: 0xca8a04, alpha: a });
       break;
     }
 
     case "lumber_camp": {
-      // Log Cabin with Chopping Block & Tall Pine
-      const h = 14 + heightBoost;
-      // Cabin Walls
+      // Denser Log Cabin + Chopping Awning + Stacked Timber Cords + Tall Pines
+      const h = 16 + heightBoost;
+
+      // Log Cabin Walls with notched log ends
       g.poly([-14, 0, 0, 7, 0, 7 - h, -14, 0 - h]);
       g.fill({ color: 0x5c3d28, alpha: a });
       g.poly([0, 7, 12, 1, 12, 1 - h, 0, 7 - h]);
       g.fill({ color: 0x472d1c, alpha: a });
-      // Log Roof
-      g.poly([-16, -h, 0, 8 - h - 8, 14, 1 - h, 0, -h - 12]);
+
+      // Log Plank Roof
+      g.poly([-16, -h, 0, 8 - h - 9, 14, 1 - h, 0, -h - 13]);
       g.fill({ color: 0x382214, alpha: a });
-      // Pine Tree on left
-      g.poly([-12, 2, -7, -22, -2, 2]);
+
+      // Tall Pine Trees on rear flank
+      g.poly([-14, 0, -9, -24, -4, 0]);
+      g.fill({ color: 0x14532d, alpha: a });
+      g.poly([-13, -10, -9, -30, -5, -10]);
       g.fill({ color: 0x166534, alpha: a });
-      g.poly([-11, -8, -7, -28, -3, -8]);
-      g.fill({ color: 0x15803d, alpha: a });
-      // Chopping block & axe
-      g.rect(4, 3, 5, 3);
+
+      // Woodcutter's Open Shelter & Chopping Block with Steel Axe
+      g.moveTo(3, 4); g.lineTo(3, -4);
+      g.moveTo(11, 0); g.lineTo(11, -7);
+      g.stroke({ width: 1.2, color: 0x78350f, alpha: a });
+      g.poly([1, -4, 13, -7, 11, -11, 0, -8]);
+      g.fill({ color: 0x451a03, alpha: a });
+
+      g.rect(5, 4, 5, 3.5);
       g.fill({ color: 0x854d0e, alpha: a });
-      g.rect(6, 1, 2, 3);
-      g.fill({ color: 0xd1d5db, alpha: a });
+      g.rect(7, 2, 1.8, 3.5);
+      g.fill({ color: 0xd1d5db, alpha: a }); // Steel axe
+
+      // Stacked Firewood Cords on pallet
+      g.rect(-6, 4, 8, 4);
+      g.fill({ color: 0x78350f, alpha: a });
+      g.moveTo(-6, 6); g.lineTo(2, 6);
+      g.stroke({ width: 1, color: 0x3f1d0b, alpha: a });
       break;
     }
 
     case "quarry": {
-      // Stepped Granite Pit with Wooden Crane
-      g.poly([-14, 0, 0, 7, 14, 0, 0, -7]);
-      g.fill({ color: 0x3f3f46, alpha: a });
-      // Tiered Stone Blocks
-      g.poly([-10, 2, 0, 7, 0, 1, -10, -4]);
+      // Denser Granite Quarry Pit + A-Frame Crane + Stone Blocks + Wheelbarrow
+      g.poly([-16, 0, 0, 8, 16, 0, 0, -8]);
+      g.fill({ color: 0x27272a, alpha: a });
+
+      // Terraced granite quarry shelf
+      g.poly([-12, 1, 0, 7, 0, 1, -12, -5]);
       g.fill({ color: 0x71717a, alpha: a });
-      g.poly([0, 7, 10, 2, 10, -4, 0, 1]);
+      g.poly([0, 7, 12, 1, 12, -5, 0, 1]);
       g.fill({ color: 0x52525b, alpha: a });
-      // Wooden Derrick Crane
-      g.moveTo(-4, 0); g.lineTo(-4, -18); g.lineTo(6, -12);
-      g.stroke({ width: 2, color: 0x854d0e, alpha: a });
-      g.circle(6, -6, 2.5);
-      g.fill({ color: 0xa1a1aa, alpha: a }); // Hoisted stone
+
+      // Wooden A-Frame Crane with cable & hoisted block
+      g.moveTo(-4, 0); g.lineTo(-4, -22); g.lineTo(8, -14);
+      g.stroke({ width: 2.2, color: 0x78350f, alpha: a });
+      g.moveTo(-4, -22); g.lineTo(2, 2);
+      g.stroke({ width: 1.5, color: 0x5c2b09, alpha: a });
+      g.moveTo(8, -14); g.lineTo(8, -5);
+      g.stroke({ width: 0.8, color: 0xd1d5db, alpha: a }); // Hoist line
+      g.rect(6, -5, 4.5, 4);
+      g.fill({ color: 0xa1a1aa, alpha: a }); // Hoisted granite block
+
+      // Stack of cut ashlar blocks
+      g.rect(-10, 3, 5, 4); g.fill({ color: 0x94a3b8, alpha: a });
+      g.rect(-8, 0, 5, 3.5); g.fill({ color: 0x64748b, alpha: a });
+
+      // Wooden wheelbarrow
+      g.rect(9, 4, 4.5, 3); g.fill({ color: 0x854d0e, alpha: a });
+      g.circle(8, 6, 1.5); g.fill({ color: 0x18181b, alpha: a });
       break;
     }
 
     case "mason": {
-      // Stonecutter's Atelier with Sculpted Arch
-      const h = 18 + heightBoost;
+      // Denser Stonecutter Atelier + Sculpted Pillars + Urns + Chisel Bench
+      const h = 20 + heightBoost;
+
+      // Masonry walls with stone blocks
       g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
       g.fill({ color: 0x94a3b8, alpha: a });
       g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
       g.fill({ color: 0x64748b, alpha: a });
-      // Slate Gable Roof
-      g.poly([-18, -h, 0, 9 - h - 10, 16, 1 - h, 0, -h - 14]);
+
+      // Arched workshop door
+      g.poly([-8, 4, -2, 7, -2, -h * 0.4, -8, -h * 0.4 - 3]);
+      g.fill({ color: 0x1e293b, alpha: a });
+
+      // Slate Gable Roof with carved gargoyle finial
+      g.poly([-18, -h, 0, 9 - h - 11, 16, 1 - h, 0, -h - 15]);
       g.fill({ color: 0x334155, alpha: a });
-      // Carved stone column
-      g.rect(-10, 2 - h * 0.4, 4, 8);
-      g.fill({ color: 0xf8fafc, alpha: a });
+      g.circle(0, -h - 16, 2.5); g.fill({ color: 0xcbd5e1, alpha: a });
+
+      // Displayed carved column & marble urn
+      g.rect(-13, 2, 3.5, 7); g.fill({ color: 0xf8fafc, alpha: a });
+      g.ellipse(8, 4, 2.5, 3.5); g.fill({ color: 0xe2e8f0, alpha: a });
       break;
     }
 
     case "gold_mine": {
-      // Mine Entrance in Rocky Outcrop with Ore Cart
-      // Rocky mound
-      g.poly([-16, 2, -10, -18, 6, -20, 16, 0, 0, 8]);
+      // Denser Gold Mine Shaft + Timber Portal + Tracks + Gold Cart + Sluice
+      // Rocky crag with glittering gold veins
+      g.poly([-17, 3, -10, -20, 8, -22, 17, 1, 0, 9]);
       g.fill({ color: 0x475569, alpha: a });
-      // Timber Mine Entrance Frame
-      g.poly([-8, 4, 0, 8, 0, -6, -8, -10]);
-      g.fill({ color: 0x18181b, alpha: a }); // Deep shaft
-      g.moveTo(-8, 4); g.lineTo(-8, -10); g.lineTo(0, -6); g.lineTo(0, 8);
-      g.stroke({ width: 2.2, color: 0x78350f, alpha: a });
-      // Gold ore cart on tracks
-      g.rect(4, 2, 7, 5);
+      g.circle(-4, -14, 1.8); g.fill({ color: 0xfacc15, alpha: a });
+      g.circle(4, -10, 1.5); g.fill({ color: 0xfacc15, alpha: a });
+
+      // Timber mine shaft entrance
+      g.poly([-9, 4, 1, 9, 1, -7, -9, -12]);
+      g.fill({ color: 0x09090b, alpha: a });
+      g.moveTo(-9, 4); g.lineTo(-9, -12); g.lineTo(1, -7); g.lineTo(1, 9);
+      g.stroke({ width: 2.5, color: 0x78350f, alpha: a });
+
+      // Mine tracks & ore cart full of gold
+      g.moveTo(-1, 8); g.lineTo(11, 3);
+      g.stroke({ width: 1.5, color: 0x94a3b8, alpha: a });
+      g.rect(6, 2, 8, 5.5);
       g.fill({ color: 0x3f3f46, alpha: a });
-      g.circle(7, 3, 2);
-      g.fill({ color: 0xfacc15, alpha: a }); // Glittering gold
+      g.circle(10, 3, 2.5); g.fill({ color: 0xfacc15, alpha: a });
+      g.circle(7, 2, 2); g.fill({ color: 0xfde047, alpha: a });
+
+      // Sluice wash trough
+      g.rect(-14, 3, 4, 7);
+      g.fill({ color: 0x854d0e, alpha: a });
+      g.rect(-13, 4, 2, 5);
+      g.fill({ color: 0x38bdf8, alpha: a * 0.85 });
       break;
     }
 
     case "mint": {
-      // Royal Mint Vault with Gold Coin Press
-      const h = 20 + heightBoost;
+      // Denser Royal Treasury Vault + Coin Press + Bullion Stacks
+      const h = 22 + heightBoost;
       g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
       g.fill({ color: 0x64748b, alpha: a });
       g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
       g.fill({ color: 0x475569, alpha: a });
-      // Vaulted Gilded Roof
-      g.poly([-18, -h, 0, 9 - h - 8, 16, 1 - h, 0, -h - 14]);
+
+      // Gilded Vaulted Roof with Royal Crown Medallion
+      g.poly([-18, -h, 0, 9 - h - 10, 16, 1 - h, 0, -h - 16]);
       g.fill({ color: 0x854d0e, alpha: a });
-      // Gold Coin Sigil
-      g.circle(0, -h * 0.4, 3.5);
-      g.fill({ color: 0xfacc15, alpha: a });
+      g.circle(0, -h * 0.45, 4); g.fill({ color: 0xfacc15, alpha: a });
+
+      // Double iron-studded security doors
+      g.rect(-10, 3 - h * 0.4, 6, 7);
+      g.fill({ color: 0x1e293b, alpha: a });
+      g.rect(-9, 4 - h * 0.4, 1.5, 1.5); g.fill({ color: 0xd4a359, alpha: a });
+
+      // Turning Flywheel Coin Press on right platform
+      g.circle(8, 2, 4);
+      g.stroke({ width: 1.5, color: 0xd97706, alpha: a });
+      // Shimmering Gold Coin Stacks
+      g.rect(6, 6, 3, 3); g.fill({ color: 0xfacc15, alpha: a });
+      g.rect(10, 5, 3, 4); g.fill({ color: 0xfef08a, alpha: a });
       break;
     }
 
     case "granary": {
-      // Conical Silo with Timber Hoist
-      const h = 22 + heightBoost;
-      // Cylinder body (left/right shading)
-      g.rect(-10, -h + 8, 10, h);
+      // Denser Twin Grain Silos + Central Hoist Gantry + Flour Sacks
+      const h = 24 + heightBoost;
+
+      // Silo 1 (Left Tower)
+      g.rect(-14, -h + 8, 9, h);
       g.fill({ color: 0xd4b36a, alpha: a });
-      g.rect(0, -h + 8, 10, h);
-      g.fill({ color: 0xb59247, alpha: a });
-      // Conical Roof
-      g.poly([-13, -h + 8, 0, -h - 12, 13, -h + 8]);
+      g.poly([-16, -h + 8, -9.5, -h - 10, -3, -h + 8]);
       g.fill({ color: 0x991b1b, alpha: a });
-      // Grain sack on hoist
-      g.circle(12, -h + 12, 2.5);
-      g.fill({ color: 0xfef08a, alpha: a });
+
+      // Silo 2 (Right Tower)
+      g.rect(2, -h + 8, 9, h);
+      g.fill({ color: 0xb59247, alpha: a });
+      g.poly([0, -h + 8, 6.5, -h - 10, 13, -h + 8]);
+      g.fill({ color: 0x7f1d1d, alpha: a });
+
+      // Connecting timber gantry & pulley hoist
+      g.rect(-5, -h + 10, 8, 3);
+      g.fill({ color: 0x78350f, alpha: a });
+      g.moveTo(-1, -h + 10); g.lineTo(-1, -h + 20);
+      g.stroke({ width: 1, color: 0xd1d5db, alpha: a });
+      g.circle(-1, -h + 20, 2.5); g.fill({ color: 0xfef08a, alpha: a }); // Grain sack
+
+      // Grain barrels & flour sacks on ground
+      g.rect(-6, 3, 4.5, 4); g.fill({ color: 0x78350f, alpha: a });
+      g.circle(1, 4, 2.2); g.fill({ color: 0xfef08a, alpha: a });
       break;
     }
 
     case "sawmill": {
-      // Watermill & Saw Shed with Rotating Blade
-      const h = 16 + heightBoost;
-      g.poly([-14, 0, 0, 7, 0, 7 - h, -14, 0 - h]);
+      // Denser River Mill + Oversized Spinning Waterwheel + Log Carriage Track
+      const h = 18 + heightBoost;
+      g.poly([-15, 0, -1, 7, -1, 7 - h, -15, 0 - h]);
       g.fill({ color: 0x78350f, alpha: a });
-      g.poly([0, 7, 12, 1, 12, 1 - h, 0, 7 - h]);
+      g.poly([-1, 7, 11, 1, 11, 1 - h, -1, 7 - h]);
       g.fill({ color: 0x5b2609, alpha: a });
-      // Roof
-      g.poly([-16, -h, 0, 8 - h - 8, 14, 1 - h, 0, -h - 12]);
+
+      // Cedar Shingle Roof
+      g.poly([-17, -h, -1, 8 - h - 9, 13, 1 - h, -1, -h - 13]);
       g.fill({ color: 0x451a03, alpha: a });
-      // Rotating saw blade / waterwheel
+
+      // Spinning Waterwheel with paddle blades & spray
       const spin = phase * 4;
-      g.circle(14, 0, 6);
-      g.fill({ color: 0x94a3b8, alpha: a });
-      g.moveTo(14, 0);
-      g.lineTo(14 + Math.cos(spin) * 5, Math.sin(spin) * 5);
-      g.stroke({ width: 1.5, color: 0x334155, alpha: a });
+      g.circle(14, 1, 7);
+      g.fill({ color: 0x854d0e, alpha: a });
+      g.moveTo(14, 1);
+      g.lineTo(14 + Math.cos(spin) * 6, 1 + Math.sin(spin) * 6);
+      g.stroke({ width: 1.8, color: 0x451a03, alpha: a });
+      // Water churn foam
+      g.circle(14, 8, 2.2);
+      g.fill({ color: 0xe0f2fe, alpha: a * 0.8 });
+
+      // Log carriage & spinning circular saw blade
+      g.rect(-10, 4, 7, 3); g.fill({ color: 0x5c3d28, alpha: a }); // Tree log
+      g.circle(-3, 4, 3); g.fill({ color: 0xcbd5e1, alpha: a }); // Circular blade
       break;
     }
 
     case "market": {
-      // Striped Bazaar Tents with Crates
-      const h = 16 + heightBoost;
-      // Crimson & Gold Striped Canopy
-      g.poly([-16, -2, 0, 6, 0, 6 - h, -16, -2 - h]);
-      g.fill({ color: 0xd97706, alpha: a });
-      g.poly([0, 6, 14, -1, 14, -1 - h, 0, 6 - h]);
-      g.fill({ color: 0xb91c1c, alpha: a });
-      // Peak of tent
-      g.poly([-18, -h, 0, 8 - h - 10, 16, -1 - h, 0, -h - 14]);
+      // Denser 3-Canopy Striped Grand Bazaar + Crates + Hanging Sign
+      const h = 18 + heightBoost;
+
+      // Center Canopy: Crimson & White
+      g.poly([-10, -2, 2, 4, 2, 4 - h, -10, -2 - h]);
+      g.fill({ color: 0xdc2626, alpha: a });
+      g.poly([2, 4, 12, -1, 12, -1 - h, 2, 4 - h]);
+      g.fill({ color: 0xf8fafc, alpha: a });
+      g.poly([-12, -h, 2, 6 - h - 10, 14, -1 - h, 0, -h - 14]);
+      g.fill({ color: 0xef4444, alpha: a });
+
+      // Left Canopy: Gold Striped
+      g.poly([-18, 0, -10, 4, -10, 4 - (h - 3), -18, 0 - (h - 3)]);
       g.fill({ color: 0xf59e0b, alpha: a });
-      // Produce stalls & crates
-      g.rect(-8, 3, 5, 4);
-      g.fill({ color: 0x854d0e, alpha: a });
-      g.circle(-6, 3, 1.8);
-      g.fill({ color: 0x22c55e, alpha: a }); // Apples/melons
-      g.rect(4, 2, 5, 4);
-      g.fill({ color: 0x854d0e, alpha: a });
-      g.circle(6, 2, 1.8);
-      g.fill({ color: 0xef4444, alpha: a }); // Spices/fruit
+
+      // Fruit crates & market stalls
+      g.rect(-8, 3, 5, 4); g.fill({ color: 0x854d0e, alpha: a });
+      g.circle(-6, 3, 1.8); g.fill({ color: 0x22c55e, alpha: a }); // Melons
+      g.rect(4, 3, 5, 4); g.fill({ color: 0x854d0e, alpha: a });
+      g.circle(6, 3, 1.8); g.fill({ color: 0xef4444, alpha: a }); // Apples
+      g.rect(10, 1, 4, 4); g.fill({ color: 0xca8a04, alpha: a }); // Spices
       break;
     }
 
     case "barracks": {
-      // Fortified Stone Keep with Battlements & War Banner
-      const h = 22 + heightBoost;
+      // Denser Garrison Keep + Crenellated Battlements + Fluttering Banner + Training Yard
+      const h = 24 + heightBoost;
       g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
       g.fill({ color: 0x64748b, alpha: a });
       g.poly([0, 8, 16, 0, 16, 0 - h, 0, 8 - h]);
       g.fill({ color: 0x475569, alpha: a });
+
       // Parapet Crenellations
-      g.rect(-16, -h - 3, 6, 4); g.fill({ color: 0x64748b, alpha: a });
-      g.rect(-6, -h - 3, 6, 4); g.fill({ color: 0x64748b, alpha: a });
-      g.rect(4, -h - 3, 6, 4); g.fill({ color: 0x475569, alpha: a });
-      g.rect(12, -h - 3, 6, 4); g.fill({ color: 0x475569, alpha: a });
-      // Iron Gate
-      g.rect(-4, 3, 8, 6);
+      g.rect(-16, -h - 4, 5, 4); g.fill({ color: 0x64748b, alpha: a });
+      g.rect(-7, -h - 4, 5, 4); g.fill({ color: 0x64748b, alpha: a });
+      g.rect(3, -h - 4, 5, 4); g.fill({ color: 0x475569, alpha: a });
+      g.rect(11, -h - 4, 5, 4); g.fill({ color: 0x475569, alpha: a });
+
+      // Iron Portcullis
+      g.rect(-4, 3, 8, 6.5);
       g.fill({ color: 0x1e293b, alpha: a });
-      // Red War Banner waving
-      const wave = Math.sin(phase * 3) * 2;
-      g.moveTo(0, -h - 2); g.lineTo(0, -h - 16);
+
+      // Fluttering Red War Banner
+      const wave = Math.sin(phase * 3.5) * 2.5;
+      g.moveTo(0, -h - 3); g.lineTo(0, -h - 18);
       g.stroke({ width: 1.5, color: 0xd4a359, alpha: a });
-      g.poly([0, -h - 16, 8 + wave, -h - 12, 0, -h - 8]);
+      g.poly([0, -h - 18, 9 + wave, -h - 13, 0, -h - 9]);
       g.fill({ color: 0xdc2626, alpha: a });
+
+      // Training Dummy & Weapon Rack on yard
+      g.moveTo(11, 4); g.lineTo(11, -2);
+      g.stroke({ width: 1.5, color: 0x854d0e, alpha: a });
+      g.circle(11, -2, 2.2); g.fill({ color: 0xfef08a, alpha: a }); // Dummy head
+      g.rect(-14, 4, 4, 3.5); g.fill({ color: 0x3f3f46, alpha: a }); // Armor chest
       break;
     }
 
     case "stables": {
-      // Timber Barn with Hayloft & Stalls
-      const h = 18 + heightBoost;
+      // Denser Equestrian Barn + Open Stalls + Hayloft Hoist + Water Trough
+      const h = 20 + heightBoost;
       g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
       g.fill({ color: 0x78350f, alpha: a });
       g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
       g.fill({ color: 0x5b2609, alpha: a });
-      // Gabled Hayloft Roof
-      g.poly([-18, -h, 0, 9 - h - 10, 16, 1 - h, 0, -h - 14]);
+
+      // Gabled Roof with Hayloft Dormer
+      g.poly([-18, -h, 0, 9 - h - 11, 16, 1 - h, 0, -h - 15]);
       g.fill({ color: 0x451a03, alpha: a });
-      // Stall doors & straw
+
+      // Stalls & Straw Bedding
       g.rect(-10, 3, 5, 5); g.fill({ color: 0x1c1917, alpha: a });
       g.rect(4, 2, 5, 5); g.fill({ color: 0x1c1917, alpha: a });
-      g.rect(4, 6, 5, 2); g.fill({ color: 0xfef08a, alpha: a }); // Straw
+      g.rect(4, 6, 5, 2.5); g.fill({ color: 0xfef08a, alpha: a }); // Straw
+
+      // Water Trough on front courtyard
+      g.rect(-8, 6, 6, 3); g.fill({ color: 0x52525b, alpha: a });
+      g.rect(-7, 7, 4, 1.5); g.fill({ color: 0x38bdf8, alpha: a });
       break;
     }
 
     case "archery_range": {
-      // Target Range with Pavilion & Straw Butts
-      // Grass practice ground
-      g.poly([-12, 0, 0, 6, 12, 0, 0, -6]);
+      // Denser Covered Pavilion + Straw Roundel Targets with Arrows
+      g.poly([-14, 0, 0, 7, 14, 0, 0, -7]);
       g.fill({ color: 0x15803d, alpha: a });
-      // Archery Target Butt (straw round with bullseye)
-      g.circle(8, -6, 5);
-      g.fill({ color: 0xfef08a, alpha: a });
-      g.circle(8, -6, 3.2);
-      g.fill({ color: 0xef4444, alpha: a });
-      g.circle(8, -6, 1.2);
-      g.fill({ color: 0xfacc15, alpha: a });
-      // Archer's Pavilion
-      g.poly([-14, -4, -6, 0, -6, -14, -14, -18]);
+
+      // Archer's Striped Blue Pavilion
+      g.poly([-16, -4, -7, 1, -7, -14, -16, -19]);
       g.fill({ color: 0x1e3a8a, alpha: a });
+      g.poly([-16, -19, -7, -14, -4, -22, -13, -26]);
+      g.fill({ color: 0x3b82f6, alpha: a });
+
+      // Target Butt 1 (Round straw roundel with bullseye)
+      g.circle(8, -6, 5.5); g.fill({ color: 0xfef08a, alpha: a });
+      g.circle(8, -6, 3.5); g.fill({ color: 0xef4444, alpha: a });
+      g.circle(8, -6, 1.5); g.fill({ color: 0xfacc15, alpha: a });
+      // Stuck Arrow
+      g.moveTo(8, -6); g.lineTo(13, -10);
+      g.stroke({ width: 1, color: 0x18181b, alpha: a });
+
+      // Target Butt 2 (Foreground)
+      g.circle(3, 2, 4); g.fill({ color: 0xfef08a, alpha: a });
+      g.circle(3, 2, 2.5); g.fill({ color: 0xef4444, alpha: a });
       break;
     }
 
     case "siege_workshop": {
-      // Engineer Yard with Catapult & Ballista
-      const h = 16 + heightBoost;
+      // Denser Engineering Yard + Rigged Catapult + Boulder Pyramid + Blueprints
+      const h = 18 + heightBoost;
       g.poly([-14, 0, 0, 7, 0, 7 - h, -14, 0 - h]);
       g.fill({ color: 0x57534e, alpha: a });
       g.poly([0, 7, 14, 0, 14, 0 - h, 0, 7 - h]);
       g.fill({ color: 0x44403c, alpha: a });
-      // Timber Catapult Arm & Frame
-      g.moveTo(-6, 2); g.lineTo(6, -14);
-      g.stroke({ width: 3, color: 0x78350f, alpha: a });
-      g.circle(-6, 4, 3);
-      g.fill({ color: 0x292524, alpha: a }); // Wheel
-      g.circle(4, 2, 3);
-      g.fill({ color: 0x292524, alpha: a }); // Wheel
-      // Boulder ammunition pile
-      g.circle(10, 4, 2); g.fill({ color: 0xa8a29e, alpha: a });
-      g.circle(12, 2, 2); g.fill({ color: 0x78716c, alpha: a });
+
+      // Heavy Wooden Catapult / Trebuchet
+      g.moveTo(-6, 3); g.lineTo(6, -16);
+      g.stroke({ width: 3.2, color: 0x78350f, alpha: a });
+      g.circle(-6, 5, 3.5); g.fill({ color: 0x292524, alpha: a }); // Spoked wheel
+      g.circle(5, 3, 3.5); g.fill({ color: 0x292524, alpha: a }); // Spoked wheel
+      g.rect(-9, -2, 5, 4); g.fill({ color: 0x1c1917, alpha: a }); // Counterweight box
+
+      // Projectile Boulder Pyramid
+      g.circle(9, 4, 2.2); g.fill({ color: 0xa8a29e, alpha: a });
+      g.circle(12, 2, 2.2); g.fill({ color: 0x78716c, alpha: a });
+      g.circle(10.5, 1, 2); g.fill({ color: 0x94a3b8, alpha: a });
       break;
     }
 
     case "watchtower": {
-      // High Stone Lookout Tower with Fluttering Banner
-      const h = 32 + heightBoost;
-      g.poly([-8, 0, 0, 4, 0, 4 - h, -8, 0 - h]);
+      // Denser Soaring Stone Lookout + Overhanging Hoarding + Beacon Brazier
+      const h = 34 + heightBoost;
+      g.poly([-9, 0, 0, 4.5, 0, 4.5 - h, -9, 0 - h]);
       g.fill({ color: 0x94a3b8, alpha: a });
-      g.poly([0, 4, 8, 0, 8, 0 - h, 0, 4 - h]);
+      g.poly([0, 4.5, 9, 0, 9, 0 - h, 0, 4.5 - h]);
       g.fill({ color: 0x64748b, alpha: a });
-      // Wooden Hoarding / Platform
-      g.poly([-11, -h + 2, 0, 6 - h, 11, -h + 2, 0, -h - 4]);
+
+      // Arrow slits along shaft
+      g.rect(-4, -h * 0.4, 1.5, 4); g.fill({ color: 0x0f172a, alpha: a });
+      g.rect(3, -h * 0.6, 1.5, 4); g.fill({ color: 0x0f172a, alpha: a });
+
+      // Timber Hoarding Overhang
+      g.poly([-12, -h + 3, 0, 7 - h, 12, -h + 3, 0, -h - 5]);
       g.fill({ color: 0x854d0e, alpha: a });
-      // Conical Roof
-      g.poly([-10, -h, 0, -h - 14, 10, -h]);
+
+      // Conical Slate Roof & Iron Brazier with Fire
+      g.poly([-11, -h, 0, -h - 16, 11, -h]);
       g.fill({ color: 0x713f12, alpha: a });
-      // Royal Flag
-      const flap = Math.sin(phase * 3.5) * 3;
-      g.moveTo(0, -h - 14); g.lineTo(0, -h - 22);
+      const flame = Math.sin(phase * 6) * 1.5;
+      g.circle(0, -h - 18, 2.5 + flame * 0.3);
+      g.fill({ color: 0xf97316, alpha: a });
+
+      // Royal Pennant
+      const flap = Math.sin(phase * 4) * 3;
+      g.moveTo(0, -h - 16); g.lineTo(0, -h - 25);
       g.stroke({ width: 1.5, color: 0xd4a359, alpha: a });
-      g.poly([0, -h - 22, 9 + flap, -h - 18, 0, -h - 14]);
+      g.poly([0, -h - 25, 9 + flap, -h - 21, 0, -h - 17]);
       g.fill({ color: 0xfacc15, alpha: a });
       break;
     }
 
     case "chapel": {
-      // Gothic Sanctuary with Rose Window & Steeple Cross
-      const h = 24 + heightBoost;
-      g.poly([-14, 0, 0, 7, 0, 7 - h, -14, 0 - h]);
+      // Denser Gothic Cathedral Sanctuary + Rose Window + Bell Spire + Cloister Garden
+      const h = 26 + heightBoost;
+      g.poly([-15, 0, 0, 7.5, 0, 7.5 - h, -15, 0 - h]);
       g.fill({ color: 0xc4b5fd, alpha: a });
-      g.poly([0, 7, 14, 0, 14, 0 - h, 0, 7 - h]);
+      g.poly([0, 7.5, 15, 0, 15, 0 - h, 0, 7.5 - h]);
       g.fill({ color: 0xa78bfa, alpha: a });
+
       // Steep Purple Slate Roof
-      g.poly([-16, -h, 0, 8 - h - 12, 16, 0 - h, 0, -h - 18]);
+      g.poly([-17, -h, 0, 9 - h - 13, 17, 0 - h, 0, -h - 19]);
       g.fill({ color: 0x6b21a8, alpha: a });
-      // Rose Stained Glass Window
-      g.circle(0, 2 - h * 0.45, 3.5);
-      g.fill({ color: 0xf43f5e, alpha: a });
-      g.circle(0, 2 - h * 0.45, 1.8);
-      g.fill({ color: 0x60a5fa, alpha: a });
-      // Golden Cross Finial
-      g.rect(-1, -h - 24, 2, 8);
-      g.fill({ color: 0xfacc15, alpha: a });
-      g.rect(-3, -h - 21, 6, 2);
-      g.fill({ color: 0xfacc15, alpha: a });
+
+      // Stained Glass Rose Window
+      g.circle(0, 2 - h * 0.45, 4); g.fill({ color: 0xf43f5e, alpha: a });
+      g.circle(0, 2 - h * 0.45, 2.2); g.fill({ color: 0x60a5fa, alpha: a });
+      g.circle(0, 2 - h * 0.45, 1); g.fill({ color: 0xfacc15, alpha: a });
+
+      // Soaring Golden Cross Finial
+      g.rect(-1, -h - 26, 2, 9); g.fill({ color: 0xfacc15, alpha: a });
+      g.rect(-3.5, -h - 23, 7, 2); g.fill({ color: 0xfacc15, alpha: a });
+
+      // Cloister Garden with Stone Headstone
+      g.rect(-12, 4, 3, 4); g.fill({ color: 0x94a3b8, alpha: a });
+      g.circle(11, 4, 1.8); g.fill({ color: 0xec4899, alpha: a });
       break;
     }
 
     case "walls": {
-      // Fortified Isometric Curtain Wall & Crenellations
-      const h = 18 + heightBoost;
+      // Denser Fortress Curtain Wall + Projecting Bastion + Wall Torches
+      const h = 20 + heightBoost;
       g.poly([-18, 0, 0, 9, 0, 9 - h, -18, 0 - h]);
       g.fill({ color: 0x64748b, alpha: a });
       g.poly([0, 9, 18, 0, 18, 0 - h, 0, 9 - h]);
       g.fill({ color: 0x475569, alpha: a });
-      // Battlements
-      for (let i = -16; i <= 14; i += 7) {
-        g.rect(i, -h - 2, 4, 3);
+
+      // Parapet battlements
+      for (let i = -16; i <= 14; i += 6) {
+        g.rect(i, -h - 3, 3.5, 3.5);
         g.fill({ color: 0x94a3b8, alpha: a });
       }
+
+      // Wall-walk timber hoarding
+      g.moveTo(-16, -h + 2); g.lineTo(16, -h + 2);
+      g.stroke({ width: 1.5, color: 0x78350f, alpha: a });
       break;
     }
 
     default: {
-      // Half-timbered Town Hall
-      const h = 18 + heightBoost;
+      // Grand Half-timbered Civic Hold
+      const h = 20 + heightBoost;
       const bColor = getBuildingType(typeId)?.color ?? 0x3b82f6;
       g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
       g.fill({ color: bColor, alpha: a });
@@ -703,21 +862,27 @@ function drawIsometricBuilding(
     g.stroke({ width: 2.8, color: 0xf8fafc, alpha: 0.92 });
   }
 
-  // Halloween Jack-o'-Lanterns by the Doorstep
+  // All Hallows Jack-o'-Lanterns & Flickering Lanterns
   if (isHalloween && complete) {
-    g.ellipse(8, 4, 3.5, 2.8);
+    // Carved Jack-o'-Lantern on doorstep
+    g.ellipse(8, 4, 3.8, 3);
     g.fill({ color: 0xe85d04, alpha: 0.95 });
-    // Glowing witchfire eyes & mouth
-    const flicker = Math.sin(phase * 5) * 0.15 + 0.85;
-    g.rect(7, 3, 1, 1); g.fill({ color: 0xfef08a, alpha: flicker });
-    g.rect(9, 3, 1, 1); g.fill({ color: 0xfef08a, alpha: flicker });
-    g.rect(7.5, 4.5, 2, 1); g.fill({ color: 0xfef08a, alpha: flicker });
+    g.rect(8, 1, 1.2, 1.8); g.fill({ color: 0x3f6212 }); // Stem
+
+    // Flickering witchfire eyes & jagged grin
+    const flicker = 0.72 + Math.sin(phase * 8.5) * 0.16 + Math.sin(phase * 14.3) * 0.12;
+    g.rect(6.8, 3, 1, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
+    g.rect(9.2, 3, 1, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
+    g.rect(7.2, 4.8, 2.6, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
+
+    // Witchfire ground light cast halo
+    g.ellipse(8, 6, 14, 6);
+    g.fill({ color: 0xf97316, alpha: 0.18 * flicker });
   }
 
   // Under-construction scaffolding overlay
   if (!complete) {
     g.stroke({ width: 1.5, color: 0xfbbf24, alpha: 0.7 });
-    // Scaffolding timber poles
     g.moveTo(-14, 4); g.lineTo(-14, -22);
     g.moveTo(12, 4); g.lineTo(12, -22);
     g.stroke({ width: 2, color: 0x854d0e, alpha: 0.85 });
@@ -733,20 +898,21 @@ function drawIsometricBuilding(
 }
 
 // -------------------------------------------------------------
-// Living Hold Walkers (Presentation Citizens)
+// Living Hold 2-3 Frame Walkers (Discrete Animation Cadence)
 // -------------------------------------------------------------
 interface Walker {
   id: number;
   role: "villager" | "woodcutter" | "miner" | "merchant" | "guard" | "scholar";
-  x: number; // continuous tile coordinates (0..15)
-  y: number; // continuous tile coordinates (0..9)
+  x: number;
+  y: number;
   targetX: number;
   targetY: number;
   state: "walking" | "idle";
   idleTime: number;
   speed: number;
   facing: number; // -1 for left, 1 for right
-  stepPhase: number;
+  walkDist: number;
+  idlePhase: number;
   graphics: Graphics;
 }
 
@@ -765,31 +931,39 @@ function createWalker(id: number, gx: number, gy: number): Walker {
     idleTime: 1.5 + Math.random() * 3,
     speed: 0.65 + Math.random() * 0.35,
     facing: Math.random() > 0.5 ? 1 : -1,
-    stepPhase: Math.random() * Math.PI * 2,
+    walkDist: 0,
+    idlePhase: Math.random() * 10,
     graphics: g,
   };
 }
 
-function drawWalkerSprite(g: Graphics, role: Walker["role"], facing: number, stride: number): void {
+/**
+ * Renders an authentic 2-3 frame pixel walker sprite.
+ * Frame 0: Planted / Neutral (legs together, tool at side, bob 0)
+ * Frame 1: Left Step (left leg forward, right leg back, bob 1px)
+ * Frame 2: Right Step (right leg forward, left leg back, bob 1px)
+ */
+function drawWalkerFrame(g: Graphics, role: Walker["role"], facing: number, frame: 0 | 1 | 2): void {
   g.clear();
 
-  // Subtle ground contact shadow
+  // Ground contact shadow
   g.ellipse(0, 1, 4.5, 2.2);
   g.fill({ color: 0x000000, alpha: 0.28 });
 
-  const bob = Math.abs(Math.sin(stride)) * 1.5;
-  const legOffset = Math.sin(stride) * 2;
+  // Integer pixel offsets for authentic 2-3 frame animation
+  const bob = frame === 0 ? 0 : 1;
+  const legL = frame === 1 ? -2 : (frame === 2 ? 1 : -1);
+  const legR = frame === 1 ? 1 : (frame === 2 ? -2 : 1);
 
-  // Legs / boots
-  g.rect(-2 - legOffset * 0.5, -2 - bob, 2, 3);
+  // Boots / legs
+  g.rect(legL, -3 - bob, 2, 4);
   g.fill({ color: 0x27272a });
-  g.rect(1 + legOffset * 0.5, -2 - bob, 2, 3);
+  g.rect(legR, -3 - bob, 2, 4);
   g.fill({ color: 0x18181b });
 
-  // Body & Clothes by role
+  // Tunic & clothing colors by role
   let tunicColor = 0x854d0e;
   let toolColor: number | null = null;
-
   if (role === "villager") tunicColor = 0xb45309;
   else if (role === "woodcutter") { tunicColor = 0x15803d; toolColor = 0xd1d5db; }
   else if (role === "miner") { tunicColor = 0x52525b; toolColor = 0x71717a; }
@@ -798,45 +972,158 @@ function drawWalkerSprite(g: Graphics, role: Walker["role"], facing: number, str
   else if (role === "scholar") tunicColor = 0x6b21a8;
 
   // Torso / Tunic
-  g.rect(-3, -7 - bob, 6, 5);
+  g.rect(-3, -8 - bob, 6, 6);
   g.fill({ color: tunicColor });
 
   // Head
-  g.circle(0, -10 - bob, 2.8);
+  g.circle(0, -11 - bob, 2.8);
   g.fill({ color: 0xfbcfe8 }); // Skin tone
 
-  // Headwear / hair
+  // Headwear / Hair
   if (role === "guard") {
-    // Steel helmet
-    g.rect(-3, -13 - bob, 6, 3);
-    g.fill({ color: 0x94a3b8 });
+    g.rect(-3, -14 - bob, 6, 3);
+    g.fill({ color: 0x94a3b8 }); // Steel helmet
   } else if (role === "scholar") {
-    // Cowl
-    g.rect(-3, -12 - bob, 6, 2.5);
-    g.fill({ color: 0x581c87 });
+    g.rect(-3, -13 - bob, 6, 2.5);
+    g.fill({ color: 0x581c87 }); // Monk cowl
   } else {
-    // Hair
-    g.rect(-2.5, -12 - bob, 5, 2);
-    g.fill({ color: 0x451a03 });
+    g.rect(-2.5, -13 - bob, 5, 2);
+    g.fill({ color: 0x451a03 }); // Hair
   }
 
-  // Carried Tool / Prop
+  // Carried Tools / Weapons with 2-3 frame arm motion
+  const armSwing = frame === 1 ? -1 : (frame === 2 ? 1 : 0);
   if (toolColor) {
-    g.rect(facing * 3, -8 - bob, 1.5, 6);
+    // Woodsman axe / miner pickaxe
+    g.rect(facing * 3, -9 - bob + armSwing, 1.5, 6);
     g.fill({ color: 0x78350f });
-    g.rect(facing * 3 - 1, -9 - bob, 3.5, 2);
+    g.rect(facing * 3 - 1, -10 - bob + armSwing, 3.5, 2);
     g.fill({ color: toolColor });
   } else if (role === "guard") {
-    // Spear with pennant
-    g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -16 - bob);
+    // Spear with waving pennant
+    g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -17 - bob + armSwing);
     g.stroke({ width: 1.2, color: 0xd4a359 });
-    g.poly([facing * 3, -16 - bob, facing * 3 + facing * 4, -14 - bob, facing * 3, -12 - bob]);
+    g.poly([
+      facing * 3, -17 - bob + armSwing,
+      facing * 3 + facing * 4, -15 - bob + armSwing,
+      facing * 3, -13 - bob + armSwing,
+    ]);
     g.fill({ color: 0xdc2626 });
+  } else if (role === "villager") {
+    // Wicker bread basket
+    g.rect(facing * 3 - 1, -7 - bob + armSwing, 3, 3);
+    g.fill({ color: 0xd4a359 });
+  } else if (role === "scholar") {
+    // Parchment scroll
+    g.rect(facing * 2.5, -7 - bob + armSwing, 2, 4);
+    g.fill({ color: 0xfef3c7 });
   }
 }
 
 // -------------------------------------------------------------
-// Main Map Renderer Factory
+// Hardwood Table Rim & Board Border Painter
+// -------------------------------------------------------------
+function paintTableRim(g: Graphics): void {
+  g.clear();
+
+  // 1. Polished Hardwood Frame Bars (Top, Bottom, Left, Right)
+  // Top Rim
+  g.rect(0, 0, CANVAS_W, RIM_SIZE);
+  g.fill({ color: 0x4a2a14 });
+  g.rect(0, 0, CANVAS_W, 2);
+  g.fill({ color: 0x754826 }); // Top bevel highlight
+  g.rect(0, RIM_SIZE - 2, CANVAS_W, 2);
+  g.fill({ color: 0x241208 }); // Inner shadow
+
+  // Bottom Rim
+  g.rect(0, CANVAS_H - RIM_SIZE, CANVAS_W, RIM_SIZE);
+  g.fill({ color: 0x361d0d });
+  g.rect(0, CANVAS_H - 2, CANVAS_W, 2);
+  g.fill({ color: 0x1a0c05 }); // Bottom bevel shadow
+  g.rect(0, CANVAS_H - RIM_SIZE, CANVAS_W, 2);
+  g.fill({ color: 0x5c351b }); // Inner highlight
+
+  // Left Rim
+  g.rect(0, 0, RIM_SIZE, CANVAS_H);
+  g.fill({ color: 0x412411 });
+  g.rect(0, 0, 2, CANVAS_H);
+  g.fill({ color: 0x6e3f1e }); // Left bevel highlight
+  g.rect(RIM_SIZE - 2, 0, 2, CANVAS_H);
+  g.fill({ color: 0x201007 }); // Inner shadow
+
+  // Right Rim
+  g.rect(CANVAS_W - RIM_SIZE, 0, RIM_SIZE, CANVAS_H);
+  g.fill({ color: 0x2c160a });
+  g.rect(CANVAS_W - 2, 0, 2, CANVAS_H);
+  g.fill({ color: 0x180a04 }); // Right bevel shadow
+  g.rect(CANVAS_W - RIM_SIZE, 0, 2, CANVAS_H);
+  g.fill({ color: 0x4f2a12 }); // Inner highlight
+
+  // 2. Miter Joints at the 4 Corners
+  g.moveTo(0, 0); g.lineTo(RIM_SIZE, RIM_SIZE);
+  g.stroke({ width: 1, color: 0x1f0d05, alpha: 0.8 });
+  g.moveTo(CANVAS_W, 0); g.lineTo(CANVAS_W - RIM_SIZE, RIM_SIZE);
+  g.stroke({ width: 1, color: 0x1f0d05, alpha: 0.8 });
+  g.moveTo(0, CANVAS_H); g.lineTo(RIM_SIZE, CANVAS_H - RIM_SIZE);
+  g.stroke({ width: 1, color: 0x1f0d05, alpha: 0.8 });
+  g.moveTo(CANVAS_W, CANVAS_H); g.lineTo(CANVAS_W - RIM_SIZE, CANVAS_H - RIM_SIZE);
+  g.stroke({ width: 1, color: 0x1f0d05, alpha: 0.8 });
+
+  // 3. Antique Brass Corner Brackets with Rivets
+  const drawCornerBracket = (cx: number, cy: number, flipX: number, flipY: number) => {
+    const size = 26;
+    const thick = 7;
+    // L-shaped brass plate
+    g.poly([
+      cx, cy,
+      cx + flipX * size, cy,
+      cx + flipX * size, cy + flipY * thick,
+      cx + flipX * thick, cy + flipY * thick,
+      cx + flipX * thick, cy + flipY * size,
+      cx, cy + flipY * size,
+    ]);
+    g.fill({ color: 0xc8963e });
+    g.stroke({ width: 1, color: 0x78531e });
+
+    // Highlight inner bevel
+    g.moveTo(cx + flipX * thick, cy + flipY * thick);
+    g.lineTo(cx + flipX * size, cy + flipY * thick);
+    g.stroke({ width: 1, color: 0xfef08a, alpha: 0.6 });
+
+    // 3 Brass Rivets / Studs
+    const rivets = [
+      { rx: cx + flipX * 18, ry: cy + flipY * 3.5 },
+      { rx: cx + flipX * 3.5, ry: cy + flipY * 18 },
+      { rx: cx + flipX * 4.5, ry: cy + flipY * 4.5 },
+    ];
+    for (const r of rivets) {
+      g.circle(r.rx, r.ry, 1.8);
+      g.fill({ color: 0xfacc15 });
+      g.stroke({ width: 0.6, color: 0x543810 });
+    }
+  };
+
+  drawCornerBracket(0, 0, 1, 1);
+  drawCornerBracket(CANVAS_W, 0, -1, 1);
+  drawCornerBracket(0, CANVAS_H, 1, -1);
+  drawCornerBracket(CANVAS_W, CANVAS_H, -1, -1);
+
+  // 4. Inner Recessed Drop Shadow onto Playable Diorama
+  // Top shadow
+  g.rect(RIM_SIZE, RIM_SIZE, CANVAS_W - 2 * RIM_SIZE, 6);
+  g.fill({ color: 0x000000, alpha: 0.35 });
+  // Left shadow
+  g.rect(RIM_SIZE, RIM_SIZE, 6, CANVAS_H - 2 * RIM_SIZE);
+  g.fill({ color: 0x000000, alpha: 0.35 });
+  // Bottom / Right softer shadow
+  g.rect(RIM_SIZE, CANVAS_H - RIM_SIZE - 4, CANVAS_W - 2 * RIM_SIZE, 4);
+  g.fill({ color: 0x000000, alpha: 0.2 });
+  g.rect(CANVAS_W - RIM_SIZE - 4, RIM_SIZE, 4, CANVAS_H - 2 * RIM_SIZE);
+  g.fill({ color: 0x000000, alpha: 0.2 });
+}
+
+// -------------------------------------------------------------
+// Main Map Renderer Factory (Zoom & Pan, Tabletop Board, Walkers)
 // -------------------------------------------------------------
 export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapRenderer> {
   const app = new Application();
@@ -844,20 +1131,44 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     canvas,
     width: CANVAS_W,
     height: CANVAS_H,
-    backgroundColor: 0x0c1014,
+    backgroundColor: 0x0a0c10,
     antialias: false,
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
   });
 
-  // Layer hierarchy
+  // Root containers
+  // 1. worldContainer: scales with zoom and translates with pan
+  const worldContainer = new Container();
+  app.stage.addChild(worldContainer);
+
+  // 2. Viewport mask: cleanly clips the diorama inside the wooden tabletop rim
+  const boardMask = new Graphics();
+  boardMask.rect(RIM_SIZE, RIM_SIZE, CANVAS_W - 2 * RIM_SIZE, CANVAS_H - 2 * RIM_SIZE);
+  boardMask.fill({ color: 0xffffff });
+  app.stage.addChild(boardMask);
+  worldContainer.mask = boardMask;
+
+  // World layers inside worldContainer
   const groundLayer = new Graphics();
-  app.stage.addChild(groundLayer);
+  worldContainer.addChild(groundLayer);
 
   // Depth-sorted entities container (buildings + walkers)
   const entitiesLayer = new Container();
   entitiesLayer.sortableChildren = true;
-  app.stage.addChild(entitiesLayer);
+  worldContainer.addChild(entitiesLayer);
+
+  // All Hallows drifting mist/fog layer
+  const fogLayer = new Graphics();
+  worldContainer.addChild(fogLayer);
+
+  // Ambient lighting overlay
+  const ambientOverlay = new Graphics();
+  worldContainer.addChild(ambientOverlay);
+
+  // Floating atmospheric seasonal particles layer
+  const particlesGraphic = new Graphics();
+  worldContainer.addChild(particlesGraphic);
 
   // Tile hover diamond
   const hoverGraphic = new Graphics();
@@ -870,15 +1181,12 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   hoverGraphic.stroke({ width: 1.8, color: 0xfef08a, alpha: 0.85 });
   hoverGraphic.fill({ color: 0xffffff, alpha: 0.12 });
   hoverGraphic.visible = false;
-  app.stage.addChild(hoverGraphic);
+  worldContainer.addChild(hoverGraphic);
 
-  // Ambient lighting overlay
-  const ambientOverlay = new Graphics();
-  app.stage.addChild(ambientOverlay);
-
-  // Floating atmospheric particles layer
-  const particlesGraphic = new Graphics();
-  app.stage.addChild(particlesGraphic);
+  // 3. Tabletop Hardwood Rim (rendered on top of world and mask)
+  const tableRimLayer = new Graphics();
+  app.stage.addChild(tableRimLayer);
+  paintTableRim(tableRimLayer);
 
   // State management
   const buildingGraphics = new Map<string, Graphics>();
@@ -888,6 +1196,35 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   let currentSeasonName = "Spring";
   let currentHolidayId = "none";
   let visuals = getThemeVisuals(currentSeasonName, currentHolidayId);
+
+  // Zoom & Pan State (strictly zoom & pan, NO rotate)
+  let zoom = 1.0;
+  let panX = 0;
+  let panY = 0;
+  const MIN_ZOOM = 0.75;
+  const MAX_ZOOM = 2.2;
+
+  function applyTransform(): void {
+    worldContainer.scale.set(zoom);
+    worldContainer.position.set(panX, panY);
+  }
+  applyTransform();
+
+  function setZoomCentered(newZoom: number, cx: number, cy: number): void {
+    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
+    if (Math.abs(clamped - zoom) < 0.001) return;
+    const wx = (cx - panX) / zoom;
+    const wy = (cy - panY) / zoom;
+    zoom = clamped;
+    panX = cx - wx * zoom;
+    panY = cy - wy * zoom;
+    // Clamp panning boundaries
+    const maxPanX = CANVAS_W * 0.75;
+    const maxPanY = CANVAS_H * 0.75;
+    panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
+    panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+    applyTransform();
+  }
 
   // Paint ground initially
   paintIsometricGround(groundLayer, visuals);
@@ -901,6 +1238,19 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     entitiesLayer.addChild(w.graphics);
   }
 
+  // Drifting Fog banks for All Hallows
+  const FOG_COUNT = 8;
+  const fogBanks = Array.from({ length: FOG_COUNT }, (_, i) => ({
+    x: 80 + (i * 55) % 400,
+    y: 60 + (i * 38) % 240,
+    vx: 0.12 + (i % 3) * 0.05,
+    vy: 0.04 + (i % 2) * 0.03,
+    rx: 40 + (i % 4) * 12,
+    ry: 18 + (i % 3) * 6,
+    alpha: 0.14 + (i % 3) * 0.05,
+    phase: i * 1.2,
+  }));
+
   // Floating ambient particle pool
   const PARTICLE_COUNT = 24;
   const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
@@ -913,26 +1263,97 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     phase: Math.random() * Math.PI * 2,
   }));
 
-  app.canvas.style.cursor = "pointer";
+  app.canvas.style.cursor = "grab";
 
-  function getGridFromEvent(ev: PointerEvent): { gx: number; gy: number } {
+  // Coordinate Conversion with Zoom & Pan inversion
+  function getCanvasCoords(ev: PointerEvent | MouseEvent): { px: number; py: number } {
     const rect = app.canvas.getBoundingClientRect();
     const scaleX = CANVAS_W / rect.width;
     const scaleY = CANVAS_H / rect.height;
-    const px = (ev.clientX - rect.left) * scaleX;
-    const py = (ev.clientY - rect.top) * scaleY;
-    return screenToGrid(px, py);
+    return {
+      px: (ev.clientX - rect.left) * scaleX,
+      py: (ev.clientY - rect.top) * scaleY,
+    };
   }
 
+  function getWorldCoords(ev: PointerEvent | MouseEvent): { wx: number; wy: number } {
+    const { px, py } = getCanvasCoords(ev);
+    return {
+      wx: (px - panX) / zoom,
+      wy: (py - panY) / zoom,
+    };
+  }
+
+  function getGridFromEvent(ev: PointerEvent | MouseEvent): { gx: number; gy: number } {
+    const { wx, wy } = getWorldCoords(ev);
+    return worldToGrid(wx, wy);
+  }
+
+  // Pointer drag panning and click detection
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let initialPanX = 0;
+  let initialPanY = 0;
+  let dragMoved = 0;
+
+  app.canvas.addEventListener("pointerdown", (ev) => {
+    isDragging = true;
+    app.canvas.style.cursor = "grabbing";
+    dragStartX = ev.clientX;
+    dragStartY = ev.clientY;
+    initialPanX = panX;
+    initialPanY = panY;
+    dragMoved = 0;
+  });
+
   app.canvas.addEventListener("pointermove", (ev) => {
+    const { px, py } = getCanvasCoords(ev);
+
+    if (isDragging) {
+      const dx = (ev.clientX - dragStartX) * (CANVAS_W / app.canvas.clientWidth);
+      const dy = (ev.clientY - dragStartY) * (CANVAS_H / app.canvas.clientHeight);
+      dragMoved += Math.hypot(dx, dy);
+      const maxPanX = CANVAS_W * 0.85;
+      const maxPanY = CANVAS_H * 0.85;
+      panX = Math.max(-maxPanX, Math.min(maxPanX, initialPanX + dx));
+      panY = Math.max(-maxPanY, Math.min(maxPanY, initialPanY + dy));
+      applyTransform();
+    }
+
+    // Hover diamond update (inside worldContainer coordinates)
     const { gx, gy } = getGridFromEvent(ev);
-    if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H) {
-      const { px, py } = gridToScreen(gx, gy);
+    if (
+      px >= RIM_SIZE && px <= CANVAS_W - RIM_SIZE &&
+      py >= RIM_SIZE && py <= CANVAS_H - RIM_SIZE &&
+      gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H
+    ) {
+      const { wx, wy } = gridToWorld(gx, gy);
       hoverGraphic.visible = true;
-      hoverGraphic.x = px;
-      hoverGraphic.y = py;
+      hoverGraphic.x = wx;
+      hoverGraphic.y = wy;
     } else {
       hoverGraphic.visible = false;
+    }
+  });
+
+  window.addEventListener("pointerup", (ev) => {
+    if (!isDragging) return;
+    isDragging = false;
+    app.canvas.style.cursor = "grab";
+
+    // If movement was minimal, interpret as deliberate tile click!
+    if (dragMoved < 6 && clickCb) {
+      const { px, py } = getCanvasCoords(ev);
+      if (
+        px >= RIM_SIZE && px <= CANVAS_W - RIM_SIZE &&
+        py >= RIM_SIZE && py <= CANVAS_H - RIM_SIZE
+      ) {
+        const { gx, gy } = getGridFromEvent(ev);
+        if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H) {
+          clickCb(gx, gy);
+        }
+      }
     }
   });
 
@@ -940,25 +1361,23 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     hoverGraphic.visible = false;
   });
 
-  app.canvas.addEventListener("pointerdown", (ev) => {
-    const { gx, gy } = getGridFromEvent(ev);
-    if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H && clickCb) {
-      clickCb(gx, gy);
-    }
-  });
+  // Mouse wheel zoom centered at cursor
+  app.canvas.addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+    const { px, py } = getCanvasCoords(ev);
+    const zoomDelta = ev.deltaY < 0 ? 1.15 : 0.87;
+    setZoomCentered(zoom * zoomDelta, px, py);
+  }, { passive: false });
 
   // Pick destination for walker based on hold buildings
   function pickDestination(w: Walker, state: GameState | null): void {
     if (state && state.buildings.length > 0 && Math.random() > 0.25) {
-      // Pick a random built building
       const b = state.buildings[Math.floor(Math.random() * state.buildings.length)];
       const bx = ((b.x % GRID_W) + GRID_W) % GRID_W;
       const by = ((b.y % GRID_H) + GRID_H) % GRID_H;
-      // Stroll to building or adjacent road
       w.targetX = Math.max(0, Math.min(GRID_W - 1, bx + (Math.random() > 0.5 ? 1 : -1)));
       w.targetY = Math.max(0, Math.min(GRID_H - 1, by));
     } else {
-      // Idle near the keep / town center
       w.targetX = 6 + Math.floor(Math.random() * 4);
       w.targetY = 3 + Math.floor(Math.random() * 3);
     }
@@ -970,11 +1389,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     for (const w of walkers) {
       if (w.state === "idle") {
         w.idleTime -= dt;
+        w.idlePhase += dt;
         if (w.idleTime <= 0) {
           pickDestination(w, state);
         }
       } else {
-        // Walking towards target
         const dx = w.targetX - w.x;
         const dy = w.targetY - w.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -989,18 +1408,46 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
           w.x += dx * move;
           w.y += dy * move;
           w.facing = dx >= 0 ? 1 : -1;
-          w.stepPhase += dt * 8;
+          w.walkDist += move * 12;
         }
       }
 
-      // Position in isometric space
-      const { px, py } = gridToScreen(w.x, w.y);
-      w.graphics.x = px;
-      w.graphics.y = py;
-      // Depth sort key: objects in foreground (higher x + y) rendered on top
+      // Discrete 2-3 frame animation step calculation:
+      // Cycle: 0 (stand) -> 1 (left step) -> 0 (stand) -> 2 (right step)
+      let frame: 0 | 1 | 2 = 0;
+      if (w.state === "walking") {
+        const cycle = Math.floor(w.walkDist) % 4;
+        if (cycle === 1) frame = 1;
+        else if (cycle === 3) frame = 2;
+        else frame = 0;
+      }
+
+      // Position in world isometric space
+      const { wx, wy } = gridToWorld(w.x, w.y);
+      w.graphics.x = wx;
+      w.graphics.y = wy;
       w.graphics.zIndex = Math.floor((w.x + w.y) * 100) + 40;
 
-      drawWalkerSprite(w.graphics, w.role, w.facing, w.state === "walking" ? w.stepPhase : 0);
+      drawWalkerFrame(w.graphics, w.role, w.facing, frame);
+    }
+  }
+
+  // All Hallows creeping fog rendering
+  function updateFog(t: number): void {
+    fogLayer.clear();
+    if (visuals.decorations !== "halloween") return;
+
+    for (const f of fogBanks) {
+      f.x += f.vx;
+      f.y += f.vy;
+      if (f.x > CANVAS_W + 50) f.x = -50;
+      if (f.y > CANVAS_H + 30) f.y = -30;
+
+      const pulse = Math.sin(t + f.phase) * 0.08 + 1.0;
+      fogLayer.ellipse(f.x, f.y, f.rx * pulse, f.ry * pulse);
+      fogLayer.fill({ color: 0x3b244d, alpha: f.alpha });
+      fogLayer.ellipse(f.x + 4, f.y - 2, f.rx * 0.65 * pulse, f.ry * 0.6 * pulse);
+      fogLayer.fill({ color: 0x241433, alpha: f.alpha * 0.7 });
     }
   }
 
@@ -1017,24 +1464,19 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       if (p.x < -10) p.x = CANVAS_W + 10;
 
       if (dec === "midwinter" || dec === "winter") {
-        // Falling snowflakes
         particlesGraphic.circle(p.x, p.y, p.size * 0.9);
         particlesGraphic.fill({ color: 0xf8fafc, alpha: p.alpha });
       } else if (dec === "halloween") {
-        // Drifting spectral embers / wisps
         particlesGraphic.circle(p.x, p.y, p.size);
         particlesGraphic.fill({ color: 0xf97316, alpha: p.alpha * 0.75 });
       } else if (dec === "midsummer") {
-        // Solstice fireflies pulsing
         const glow = Math.sin(t * 3 + p.phase) * 0.4 + 0.6;
         particlesGraphic.circle(p.x, p.y, p.size * 1.2);
         particlesGraphic.fill({ color: 0xfacc15, alpha: p.alpha * glow });
       } else if (dec === "autumn" || dec === "harvest") {
-        // Swirling autumn leaves
         particlesGraphic.ellipse(p.x, p.y, p.size * 1.5, p.size);
         particlesGraphic.fill({ color: 0xd97706, alpha: p.alpha * 0.8 });
       } else if (dec === "spring" || dec === "easter") {
-        // Drifting spring petals
         particlesGraphic.circle(p.x, p.y, p.size);
         particlesGraphic.fill({ color: 0xf472b6, alpha: p.alpha * 0.6 });
       }
@@ -1044,7 +1486,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   function paintAmbientLighting(): void {
     ambientOverlay.clear();
     if (visuals.tintAlpha > 0) {
-      ambientOverlay.rect(0, 0, CANVAS_W, CANVAS_H);
+      ambientOverlay.rect(-CANVAS_W, -CANVAS_H, CANVAS_W * 3, CANVAS_H * 3);
       ambientOverlay.fill({ color: visuals.tintColor, alpha: visuals.tintAlpha });
     }
   }
@@ -1064,11 +1506,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       const complete = b.completesAtTick === null;
       const gx = ((b.x % GRID_W) + GRID_W) % GRID_W;
       const gy = ((b.y % GRID_H) + GRID_H) % GRID_H;
-      const { px, py } = gridToScreen(gx, gy);
+      const { wx, wy } = gridToWorld(gx, gy);
 
-      g.x = px;
-      g.y = py;
-      // Building depth sorting
+      g.x = wx;
+      g.y = wy;
       g.zIndex = Math.floor((gx + gy) * 100) + 50;
 
       drawIsometricBuilding(g, b.typeId, b.level, complete, t + gx * 0.35, visuals);
@@ -1116,6 +1557,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     phase += dt * 2.5;
 
     updateWalkers(dt, lastState);
+    updateFog(phase);
     updateParticles(phase);
 
     if (lastState) {
@@ -1133,6 +1575,18 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     },
     onTileClick(cb) {
       clickCb = cb;
+    },
+    zoomIn() {
+      setZoomCentered(zoom * 1.25, CANVAS_W / 2, CANVAS_H / 2);
+    },
+    zoomOut() {
+      setZoomCentered(zoom * 0.8, CANVAS_W / 2, CANVAS_H / 2);
+    },
+    resetView() {
+      zoom = 1.0;
+      panX = 0;
+      panY = 0;
+      applyTransform();
     },
   };
 }

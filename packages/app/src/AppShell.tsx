@@ -47,6 +47,9 @@ export function AppShell() {
     battleSnap, setBattleSnap,
     canvasRef,
     setMapTheme,
+    zoomIn,
+    zoomOut,
+    resetView,
     state,
     act,
     saveNow, exportSave, importSaveFile, newGame,
@@ -110,12 +113,92 @@ export function AppShell() {
             </button>
           ))}
         </div>
-        <div className="sc-map-canvas-container" style={{ display: tab === "kingdom" ? "flex" : "none" }}>
-          <canvas
-            ref={canvasRef}
-            className="sc-map-canvas"
-            style={{ borderColor: activePack.chrome.borderColor }}
-          />
+        <div
+          className="sc-map-canvas-container"
+          style={{
+            display: tab === "kingdom" ? "flex" : "none",
+            position: "relative",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ position: "relative", maxWidth: 560, width: "100%" }}>
+            <canvas
+              ref={canvasRef}
+              className="sc-map-canvas"
+              style={{ borderColor: activePack.chrome.borderColor }}
+            />
+            <div
+              className="sc-map-controls"
+              style={{
+                position: "absolute",
+                bottom: 22,
+                right: 22,
+                display: "flex",
+                gap: 5,
+                background: "rgba(18, 12, 8, 0.88)",
+                border: "1px solid #78531e",
+                borderRadius: 6,
+                padding: "3px 6px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.6)",
+                zIndex: 5,
+              }}
+            >
+              <button
+                type="button"
+                onClick={zoomIn}
+                title="Zoom In (or mouse wheel)"
+                style={{
+                  padding: "1px 8px",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  background: "#2a1a10",
+                  color: "#fef08a",
+                  border: "1px solid #c8963e",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                }}
+              >
+                +
+              </button>
+              <button
+                type="button"
+                onClick={zoomOut}
+                title="Zoom Out (or mouse wheel)"
+                style={{
+                  padding: "1px 8px",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  background: "#2a1a10",
+                  color: "#fef08a",
+                  border: "1px solid #c8963e",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                }}
+              >
+                −
+              </button>
+              <button
+                type="button"
+                onClick={resetView}
+                title="Reset View"
+                style={{
+                  padding: "1px 6px",
+                  fontSize: 12,
+                  background: "#2a1a10",
+                  color: "#fef08a",
+                  border: "1px solid #c8963e",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                }}
+              >
+                ⟲
+              </button>
+            </div>
+          </div>
+          <div style={{ fontSize: 11, opacity: 0.65, marginTop: 4 }}>
+            Drag to pan board · Mouse wheel or buttons to zoom · Click to place/upgrade
+          </div>
         </div>
         {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}
         {tab === "army" && <ArmyTab state={state} act={act} trainQty={trainQty} setTrainQty={setTrainQty} />}
