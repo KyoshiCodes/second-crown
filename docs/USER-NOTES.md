@@ -1,10 +1,10 @@
 # USER-NOTES
 
-Last updated: 2026-09-06 | Version: playtest-0.7 (Gemini Tabletop Board)
+Last updated: 2026-09-06 | Version: playtest-0.8 (Gemini Seasons & War Strip)
 
 Play: `https://129.153.17.72.sslip.io/`
 
-## Tabletop Board Diorama & Navigation
+## Tabletop Board Diorama & Holiday Dressing
 
 The Kingdom view is framed as a tabletop board game diorama:
 - **Polished Hardwood Rim**: Recessed diorama framed in walnut with antique brass corner brackets and rivets.
@@ -13,16 +13,22 @@ The Kingdom view is framed as a tabletop board game diorama:
   - Click and drag anywhere on the board to pan your view.
   - On-screen buttons `[+]`, `[-]`, `[⟲]` let you zoom or reset to default center at any time.
   - Clicking tiles without dragging continues to place new buildings or upgrade existing structures up to level 5.
-- **Denser Pixel Architecture**: Every building features dense multi-structure vignettes (stone wells, vegetable patches, firewood cords, stepped quarry pits, derrick cranes, ore carts, silos, spinning waterwheels, multi-canopy bazaars, and training dummies).
-- **2–3 Frame Walkers**: Citizens walk with a discrete, animated 2-3 frame pixel stride (villagers carrying bread baskets, woodsmen with axes, miners with pickaxes, merchants with packs, sentries with waving pennants, and scholars with scrolls).
-- **All Hallows Atmosphere**: Creeping low mist banks roll across the cobblestones, jack-o'-lanterns flicker with witchfire glow on doorsteps, and an authentic gothic folklore backdrop sets the scene.
+- **Halloween-Class Board Dressing Across All Holidays & Seasons**:
+  - **Midwinter**: Contoured snow blankets with hanging icicles, pine wreaths with red bows, warm candlelit windows with golden halos, doorstep brass lanterns, snowdrifts, holly sprigs, and drifting icy blizzard vapor.
+  - **Easter**: Blooming flower vines climbing building facades, fluttering pastel ribbons, dawn lamps with golden-lilac halos, painted easter eggs nestled in grass, spring crocuses, and soft dawn dew mist.
+  - **Harvest**: Bound golden wheat sheaves tied with twine, field pumpkins, apple bushels, amber oil lamps with deep amber flicker and cast halos, cider casks, and warm golden autumn twilight haze.
+  - **Midsummer**: Solstice standing iron bonfire brazier with lively dancing flames and expansive firelight halo, long light sunset highlights, marigold garlands, golden sunflowers, and shimmering golden heat haze.
+  - **All Hallows**: Retained with carved jack-o'-lanterns, witchfire glow, pumpkins, and deep creeping mist banks.
+  - **Standard Seasons**: Subtle, lighter variants of ground scatter, window lighting, and ambient weather mists when holiday is set to "Off".
+- **Denser Pixel Architecture & Walkers**: Every building features dense multi-structure vignettes, animated chimneys, and discrete 2-3 frame pixel citizen walkers.
 
 ## War Tab: Living Pixel Unit Strip
 
-The War tab features an animated tactical unit strip:
-- **Player Host**: Your active companies lined up with animated standard bearer, unit counts, and power contributions.
-- **Enemy Vanguard**: Opposing realm's forces or border watch sentries facing off across the frontier.
-- **Battlefield Clash & Meter**: Real-time power balance percentage bar and clash indicator during active wars.
+The War tab features an overhauled living unit strip:
+- **Two Clear Sides**: Your army lined up on the left with the Royal Standard Bearer; opposing realm's forces on the right with the Host Standard Bearer.
+- **Real Unit Types & Counts**: Only real unit names (Militia, Spearman, Archer, Champion, etc.) and true company counts are displayed, with clean vertical hierarchy ensuring zero label or portrait overlap.
+- **Battlefield Demarcation**: Displays real-time clash status and tactical advantage during active wars, or peaceful border watch status during peacetime.
+- **Power Odds Meter**: Dynamic percentage bar showing realm power balance at a glance. Fully readable at 1280px wide.
 
 ## Recorded Holiday Audio & ChromeDock
 

@@ -287,36 +287,159 @@ function paintIsometricGround(g: Graphics, visuals: ThemeVisuals): void {
       } else {
         // Seasonal terrain flourishes
         const hash = (x * 13 + y * 29) % 17;
-        if (visuals.decorations === "spring" && hash === 3) {
-          g.circle(wx - 3, wy - 2, 1.4);
-          g.fill({ color: 0xf472b6, alpha: 0.8 });
-        } else if (visuals.decorations === "spring" && hash === 7) {
-          g.circle(wx + 4, wy + 1, 1.4);
-          g.fill({ color: 0xfacc15, alpha: 0.8 });
-        } else if (visuals.decorations === "easter" && hash === 5) {
-          g.ellipse(wx, wy, 2.5, 3.2);
-          g.fill({ color: 0xd8b4fe, alpha: 0.85 });
-          g.circle(wx, wy, 1.2);
-          g.fill({ color: 0xfde047, alpha: 0.9 });
-        } else if (visuals.decorations === "halloween" && hash === 4) {
-          g.ellipse(wx + 2, wy + 1, 3.5, 2.8);
-          g.fill({ color: 0xe85d04, alpha: 0.85 });
-          g.rect(wx + 2, wy - 2, 1.2, 2);
-          g.fill({ color: 0x3f6212, alpha: 0.9 });
-        } else if (visuals.decorations === "midwinter" && hash % 3 === 0) {
-          g.ellipse(wx, wy + 2, 8, 3);
-          g.fill({ color: 0xf1f5f9, alpha: 0.35 });
-        } else if (visuals.decorations === "autumn" && hash === 6) {
-          g.circle(wx - 2, wy - 1, 1.8);
-          g.fill({ color: 0xd97706, alpha: 0.8 });
-          g.circle(wx + 3, wy + 2, 1.6);
-          g.fill({ color: 0xb91c1c, alpha: 0.75 });
-        } else if (visuals.decorations === "harvest" && hash === 2) {
-          g.rect(wx - 1, wy - 2, 3, 5);
-          g.fill({ color: 0xca8a04, alpha: 0.8 });
-        } else if (visuals.decorations === "midsummer" && hash === 8) {
-          g.circle(wx, wy, 1.8);
-          g.fill({ color: 0xfbbf24, alpha: 0.85 });
+        const dec = visuals.decorations;
+
+        if (dec === "halloween") {
+          // Keep Halloween scatter as-is (pumpkins + stems)
+          if (hash === 4) {
+            g.ellipse(wx + 2, wy + 1, 3.5, 2.8);
+            g.fill({ color: 0xe85d04, alpha: 0.85 });
+            g.rect(wx + 2, wy - 2, 1.2, 2);
+            g.fill({ color: 0x3f6212, alpha: 0.9 });
+          } else if (hash === 11) {
+            g.circle(wx - 4, wy + 2, 1.5);
+            g.fill({ color: 0xd6d3d1, alpha: 0.55 });
+          }
+        } else if (dec === "midwinter") {
+          // Midwinter: snowdrifts, pine boughs with holly berries, ice crystals
+          if (hash % 4 === 0) {
+            g.ellipse(wx, wy + 1, 7, 3);
+            g.fill({ color: 0xf8fafc, alpha: 0.55 });
+            g.ellipse(wx + 1, wy + 2, 5, 2);
+            g.fill({ color: 0xe2e8f0, alpha: 0.6 });
+          } else if (hash === 5) {
+            g.moveTo(wx - 4, wy + 2);
+            g.lineTo(wx + 4, wy - 2);
+            g.stroke({ width: 1.5, color: 0x166534, alpha: 0.85 });
+            g.circle(wx - 1, wy, 1.3);
+            g.fill({ color: 0xef4444, alpha: 0.9 });
+            g.circle(wx + 1, wy - 1, 1.3);
+            g.fill({ color: 0xdc2626, alpha: 0.9 });
+          } else if (hash === 11) {
+            g.moveTo(wx - 2, wy); g.lineTo(wx + 2, wy);
+            g.moveTo(wx, wy - 2); g.lineTo(wx, wy + 2);
+            g.stroke({ width: 1, color: 0xe0f2fe, alpha: 0.8 });
+            g.circle(wx, wy, 1.2);
+            g.fill({ color: 0xffffff, alpha: 0.9 });
+          }
+        } else if (dec === "easter") {
+          // Easter: painted easter eggs, spring blossoms, pale ribbons, fresh clover
+          if (hash === 5) {
+            g.ellipse(wx, wy, 2.8, 3.6);
+            g.fill({ color: 0xd8b4fe, alpha: 0.9 });
+            g.rect(wx - 2, wy - 0.5, 4, 1.2);
+            g.fill({ color: 0xfef08a, alpha: 0.95 });
+          } else if (hash === 2) {
+            g.circle(wx - 3, wy - 1, 1.8);
+            g.fill({ color: 0xf472b6, alpha: 0.85 });
+            g.circle(wx + 2, wy + 2, 1.6);
+            g.fill({ color: 0xc084fc, alpha: 0.85 });
+            g.circle(wx, wy, 1.2);
+            g.fill({ color: 0xfde047, alpha: 0.9 });
+          } else if (hash === 9) {
+            g.poly([wx - 4, wy + 2, wx - 1, wy, wx + 4, wy + 3, wx + 2, wy + 4]);
+            g.fill({ color: 0xfbcfe8, alpha: 0.85 });
+          } else if (hash === 13) {
+            g.ellipse(wx + 1, wy - 1, 2, 2.5);
+            g.fill({ color: 0xf8fafc, alpha: 0.9 });
+            g.circle(wx + 1, wy - 1, 1);
+            g.fill({ color: 0xfacc15, alpha: 0.9 });
+          }
+        } else if (dec === "harvest") {
+          // Harvest: bound golden sheaves, ripe field pumpkins, apple bushel, autumn leaves
+          if (hash === 2) {
+            g.poly([wx - 2, wy + 3, wx - 3, wy - 3, wx + 3, wy - 3, wx + 2, wy + 3]);
+            g.fill({ color: 0xca8a04, alpha: 0.9 });
+            g.rect(wx - 2.5, wy - 0.5, 5, 1.2);
+            g.fill({ color: 0x78350f, alpha: 0.95 });
+            g.circle(wx - 1, wy - 3.5, 1.2);
+            g.fill({ color: 0xfef08a, alpha: 0.9 });
+            g.circle(wx + 1.5, wy - 3.5, 1.2);
+            g.fill({ color: 0xfef08a, alpha: 0.9 });
+          } else if (hash === 7) {
+            g.ellipse(wx + 2, wy + 1, 3.4, 2.6);
+            g.fill({ color: 0xea580c, alpha: 0.9 });
+            g.rect(wx + 2, wy - 1.8, 1.2, 1.8);
+            g.fill({ color: 0x65a30d, alpha: 0.9 });
+          } else if (hash === 11) {
+            g.rect(wx - 3, wy, 6, 3.5);
+            g.fill({ color: 0x78350f, alpha: 0.85 });
+            g.circle(wx - 1.5, wy - 1, 1.5);
+            g.fill({ color: 0xdc2626, alpha: 0.95 });
+            g.circle(wx + 1.5, wy - 1, 1.5);
+            g.fill({ color: 0xb91c1c, alpha: 0.95 });
+          } else if (hash === 15) {
+            g.circle(wx - 2, wy, 1.5);
+            g.fill({ color: 0xd97706, alpha: 0.8 });
+            g.circle(wx + 3, wy + 1, 1.4);
+            g.fill({ color: 0xb45309, alpha: 0.8 });
+          }
+        } else if (dec === "midsummer") {
+          // Midsummer: sunburst sunflowers, solstice flower crowns, chamomile, warm flagstones
+          if (hash === 8) {
+            g.circle(wx, wy, 2.6);
+            g.fill({ color: 0xfbbf24, alpha: 0.9 });
+            g.circle(wx, wy, 1.2);
+            g.fill({ color: 0x451a03, alpha: 0.95 });
+          } else if (hash === 3) {
+            g.circle(wx + 2, wy - 1, 3.2);
+            g.stroke({ width: 1.5, color: 0x16a34a, alpha: 0.85 });
+            g.circle(wx + 1, wy - 3, 1.2);
+            g.fill({ color: 0xf43f5e, alpha: 0.9 });
+            g.circle(wx + 4, wy - 1, 1.2);
+            g.fill({ color: 0xfacc15, alpha: 0.9 });
+          } else if (hash === 12) {
+            g.circle(wx - 2, wy + 1, 1.6);
+            g.fill({ color: 0xfef08a, alpha: 0.85 });
+            g.circle(wx + 3, wy - 2, 1.4);
+            g.fill({ color: 0xffffff, alpha: 0.85 });
+            g.circle(wx + 3, wy - 2, 0.8);
+            g.fill({ color: 0xf59e0b, alpha: 0.9 });
+          } else if (hash === 16) {
+            g.ellipse(wx, wy + 2, 3, 1.8);
+            g.fill({ color: 0xd4a373, alpha: 0.7 });
+          }
+        } else if (dec === "spring") {
+          // Spring (lighter version of Easter)
+          if (hash === 3) {
+            g.circle(wx - 3, wy - 2, 1.4);
+            g.fill({ color: 0xf472b6, alpha: 0.75 });
+          } else if (hash === 7) {
+            g.circle(wx + 4, wy + 1, 1.4);
+            g.fill({ color: 0xfacc15, alpha: 0.75 });
+          } else if (hash === 11) {
+            g.circle(wx, wy, 1.3);
+            g.fill({ color: 0x4ade80, alpha: 0.7 });
+          }
+        } else if (dec === "summer") {
+          // Summer (lighter version of Midsummer)
+          if (hash === 4) {
+            g.circle(wx + 2, wy - 1, 1.5);
+            g.fill({ color: 0xfacc15, alpha: 0.8 });
+          } else if (hash === 10) {
+            g.circle(wx - 2, wy + 1, 1.5);
+            g.fill({ color: 0x84cc16, alpha: 0.75 });
+          }
+        } else if (dec === "autumn") {
+          // Autumn (lighter version of Harvest)
+          if (hash === 6) {
+            g.circle(wx - 2, wy - 1, 1.6);
+            g.fill({ color: 0xd97706, alpha: 0.75 });
+            g.circle(wx + 3, wy + 2, 1.5);
+            g.fill({ color: 0xb91c1c, alpha: 0.7 });
+          } else if (hash === 12) {
+            g.rect(wx - 1, wy, 2.5, 1.5);
+            g.fill({ color: 0x78350f, alpha: 0.75 });
+          }
+        } else if (dec === "winter") {
+          // Winter (lighter version of Midwinter)
+          if (hash % 5 === 0) {
+            g.ellipse(wx, wy + 1, 5, 2);
+            g.fill({ color: 0xf1f5f9, alpha: 0.35 });
+          } else if (hash === 7) {
+            g.moveTo(wx - 2, wy); g.lineTo(wx + 2, wy);
+            g.stroke({ width: 0.8, color: 0xbae6fd, alpha: 0.6 });
+          }
         }
       }
     }
@@ -853,31 +976,247 @@ function drawIsometricBuilding(
     }
   }
 
-  // Seasonal Rooftop Snow Capping
-  if (isWinter && complete) {
-    const h = 18 + heightBoost;
-    g.moveTo(-16, -h + 2);
-    g.lineTo(0, -h - 10);
-    g.lineTo(16, -h + 2);
-    g.stroke({ width: 2.8, color: 0xf8fafc, alpha: 0.92 });
-  }
+  const h = 18 + heightBoost;
+  const dec = visuals.decorations;
 
-  // All Hallows Jack-o'-Lanterns & Flickering Lanterns
-  if (isHalloween && complete) {
-    // Carved Jack-o'-Lantern on doorstep
-    g.ellipse(8, 4, 3.8, 3);
-    g.fill({ color: 0xe85d04, alpha: 0.95 });
-    g.rect(8, 1, 1.2, 1.8); g.fill({ color: 0x3f6212 }); // Stem
+  // -------------------------------------------------------------
+  // Holiday & Seasonal Building Dressing & Light Sources
+  // -------------------------------------------------------------
+  if (complete) {
+    if (dec === "halloween") {
+      // Keep Halloween as-is: Carved Jack-o'-Lantern on doorstep + witchfire halo
+      g.ellipse(8, 4, 3.8, 3);
+      g.fill({ color: 0xe85d04, alpha: 0.95 });
+      g.rect(8, 1, 1.2, 1.8); g.fill({ color: 0x3f6212 }); // Stem
 
-    // Flickering witchfire eyes & jagged grin
-    const flicker = 0.72 + Math.sin(phase * 8.5) * 0.16 + Math.sin(phase * 14.3) * 0.12;
-    g.rect(6.8, 3, 1, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
-    g.rect(9.2, 3, 1, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
-    g.rect(7.2, 4.8, 2.6, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
+      // Flickering witchfire eyes & jagged grin
+      const flicker = 0.72 + Math.sin(phase * 8.5) * 0.16 + Math.sin(phase * 14.3) * 0.12;
+      g.rect(6.8, 3, 1, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
+      g.rect(9.2, 3, 1, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
+      g.rect(7.2, 4.8, 2.6, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
 
-    // Witchfire ground light cast halo
-    g.ellipse(8, 6, 14, 6);
-    g.fill({ color: 0xf97316, alpha: 0.18 * flicker });
+      // Witchfire ground light cast halo
+      g.ellipse(8, 6, 14, 6);
+      g.fill({ color: 0xf97316, alpha: 0.18 * flicker });
+    } else if (dec === "midwinter") {
+      // Midwinter: thick snow on roofs, hanging icicles, pine wreaths, warm windows, brass lantern
+      // 1. Thick snow on roofs with contoured eaves
+      g.poly([
+        -17, -h + 2,
+        0, -h - 12,
+        17, -h + 2,
+        15, -h + 5,
+        0, -h - 8,
+        -15, -h + 5,
+      ]);
+      g.fill({ color: 0xf8fafc, alpha: 0.96 });
+      // Hanging icicles along eaves
+      for (const ix of [-12, -6, 4, 11]) {
+        const iy = -h + 3 + Math.abs(ix) * 0.35;
+        g.poly([ix - 1, iy, ix + 1, iy, ix, iy + 4]);
+        g.fill({ color: 0xe0f2fe, alpha: 0.9 });
+      }
+
+      // 2. Evergreen pine wreath with bright red ribbon & holly berries
+      g.circle(-6, 3 - h * 0.35, 3.2);
+      g.stroke({ width: 1.8, color: 0x166534, alpha: 0.95 });
+      g.rect(-7, 1 - h * 0.35, 2, 2);
+      g.fill({ color: 0xdc2626 });
+      g.circle(-5, 4 - h * 0.35, 1);
+      g.fill({ color: 0xef4444 });
+
+      // 3. Warm candlelit windows with gentle hearth flicker & golden light halo
+      const winterFlicker = 0.82 + Math.sin(phase * 6.0) * 0.14 + Math.sin(phase * 11.2) * 0.06;
+      g.rect(2, -h * 0.4, 3.5, 3.5);
+      g.fill({ color: 0xfef08a, alpha: 0.95 * winterFlicker });
+      g.rect(3, -h * 0.35, 1.5, 1.5);
+      g.fill({ color: 0xf59e0b, alpha: 0.9 });
+
+      // Warm window/doorway light halo cast on the snow
+      g.ellipse(4, 5, 14, 6);
+      g.fill({ color: 0xfde047, alpha: 0.20 * winterFlicker });
+
+      // 4. Brass porch lantern on doorstep
+      g.rect(9, 2, 2.5, 4);
+      g.fill({ color: 0x78350f });
+      g.rect(9.5, 3, 1.5, 2);
+      g.fill({ color: 0xfef08a, alpha: 0.95 * winterFlicker });
+      g.ellipse(10, 5, 8, 4);
+      g.fill({ color: 0xfacc15, alpha: 0.16 * winterFlicker });
+    } else if (dec === "easter") {
+      // Easter: climbing blossoms, pale ribbons, dawn lantern with golden-lilac halo
+      // 1. Floral vine climbing corner and blooming boughs across eaves
+      g.moveTo(-16, 2);
+      g.quadraticCurveTo(-14, -h * 0.5, -16, -h + 2);
+      g.stroke({ width: 1.5, color: 0x22c55e, alpha: 0.85 });
+
+      // Pastel blossoms along eaves and lintel
+      const flowerSpots: [number, number, number][] = [
+        [-16, 1, 0xf472b6],
+        [-14, -h * 0.4, 0xfbcfe8],
+        [-10, -h * 0.8, 0xf472b6],
+        [-2, -h - 6, 0xf8fafc],
+        [6, -h * 0.7, 0xd8b4fe],
+        [12, -h * 0.4, 0xf472b6],
+        [14, 0, 0xfbcfe8],
+      ];
+      for (const [bx, by, col] of flowerSpots) {
+        g.circle(bx, by, 1.6);
+        g.fill({ color: col, alpha: 0.92 });
+        g.circle(bx, by, 0.7);
+        g.fill({ color: 0xfef08a, alpha: 0.95 });
+      }
+
+      // 2. Silky pale ribbons fluttering from eaves
+      const ribbonSway = Math.sin(phase * 3.2) * 1.5;
+      // Lavender ribbon from left eave
+      g.poly([
+        -14, -h + 3,
+        -14 + ribbonSway, -h + 10,
+        -12 + ribbonSway, -h + 10,
+        -13, -h + 3,
+      ]);
+      g.fill({ color: 0xd8b4fe, alpha: 0.88 });
+      // Pale rose ribbon from right eave
+      g.poly([
+        10, -h + 2,
+        11 + ribbonSway, -h + 9,
+        12.5 + ribbonSway, -h + 9,
+        11.5, -h + 2,
+      ]);
+      g.fill({ color: 0xfbcfe8, alpha: 0.88 });
+
+      // 3. Dawn lantern on doorstep with soft golden-lilac morning halo
+      const dawnGlow = 0.82 + Math.sin(phase * 4.5) * 0.12;
+      g.rect(8, 2, 2.8, 4.5);
+      g.fill({ color: 0xd4a359 });
+      g.rect(8.6, 3, 1.6, 2.5);
+      g.fill({ color: 0xfef08a, alpha: 0.95 * dawnGlow });
+      // Dawn halo cast on doorstep
+      g.ellipse(9, 5, 13, 6);
+      g.fill({ color: 0xe9d5ff, alpha: 0.18 * dawnGlow });
+      g.ellipse(9, 5, 7, 3.5);
+      g.fill({ color: 0xfef08a, alpha: 0.15 * dawnGlow });
+    } else if (dec === "harvest") {
+      // Harvest: golden sheaves, amber oil lamps with deep amber flicker & halo, harvest props
+      // 1. Golden grain sheaves tied with twine propped against building wall
+      g.poly([-14, 5, -16, -h * 0.5, -11, -h * 0.5, -12, 5]);
+      g.fill({ color: 0xca8a04, alpha: 0.95 });
+      g.circle(-14.5, -h * 0.5 - 1.5, 1.8); g.fill({ color: 0xfacc15 });
+      g.circle(-12.5, -h * 0.5 - 1.5, 1.8); g.fill({ color: 0xfef08a });
+      // Rustic twine tie
+      g.rect(-14.5, 1 - h * 0.25, 3.5, 1.4);
+      g.fill({ color: 0x78350f });
+
+      // Smaller sheaf on right flank
+      g.poly([11, 4, 10, -h * 0.35, 14, -h * 0.35, 13, 4]);
+      g.fill({ color: 0xd97706, alpha: 0.9 });
+      g.circle(12, -h * 0.35 - 1.5, 1.6); g.fill({ color: 0xfacc15 });
+
+      // 2. Amber oil lamps with deep amber flicker & cast halo
+      const amberFlicker = 0.76 + Math.sin(phase * 7.2) * 0.16 + Math.sin(phase * 12.1) * 0.08;
+      // Iron arm & lamp
+      g.moveTo(7, -h * 0.3); g.lineTo(9, -h * 0.3); g.lineTo(9, -h * 0.3 + 4);
+      g.stroke({ width: 1.2, color: 0x27272a });
+      g.rect(8, -h * 0.3 + 1, 2.5, 3.5);
+      g.fill({ color: 0x451a03 });
+      // Amber flame
+      g.rect(8.5, -h * 0.3 + 2, 1.5, 2);
+      g.fill({ color: 0xf59e0b, alpha: amberFlicker });
+      // Rich amber halo cast on facade and ground
+      g.ellipse(8, 4, 16, 7);
+      g.fill({ color: 0xf59e0b, alpha: 0.22 * amberFlicker });
+      g.ellipse(8, -h * 0.3 + 2, 9, 7);
+      g.fill({ color: 0xd97706, alpha: 0.16 * amberFlicker });
+
+      // 3. Harvest cider cask & field gourd on porch
+      g.ellipse(-4, 5, 3, 2.2);
+      g.fill({ color: 0x854d0e });
+      g.ellipse(4, 5, 2.6, 2);
+      g.fill({ color: 0xea580c });
+    } else if (dec === "midsummer") {
+      // Midsummer: standing solstice bonfire brazier with dancing flames, long light sunset highlights
+      // 1. Standing iron brazier with leaping bonfire flames
+      const flamePulse = Math.sin(phase * 8.5) * 1.5;
+      const flamePulse2 = Math.sin(phase * 13.7) * 1.2;
+      const brazierGlow = 0.8 + Math.sin(phase * 9.0) * 0.14 + Math.sin(phase * 15.0) * 0.08;
+      // Brazier tripod stand
+      g.moveTo(7, 6); g.lineTo(9, 1);
+      g.moveTo(11, 6); g.lineTo(9, 1);
+      g.stroke({ width: 1.5, color: 0x27272a });
+      // Iron bowl
+      g.ellipse(9, 1, 3.5, 1.8);
+      g.fill({ color: 0x3f3f46 });
+      // Leaping bonfire flame tongues
+      g.poly([
+        6.5, 1,
+        8, -3 + flamePulse,
+        9, -5 + flamePulse2,
+        10.5, -2.5 + flamePulse,
+        11.5, 1,
+      ]);
+      g.fill({ color: 0xf97316, alpha: 0.95 });
+      g.poly([
+        7.5, 1,
+        9, -4 + flamePulse2,
+        10.5, 1,
+      ]);
+      g.fill({ color: 0xfacc15, alpha: 0.98 });
+      g.circle(9, 0, 1.4);
+      g.fill({ color: 0xfef08a, alpha: 1.0 });
+      // Wide bonfire glow halo on ground & building facet
+      g.ellipse(9, 4, 18, 8);
+      g.fill({ color: 0xf59e0b, alpha: 0.24 * brazierGlow });
+      g.ellipse(9, 2, 10, 5);
+      g.fill({ color: 0xfde047, alpha: 0.20 * brazierGlow });
+
+      // 2. Long light: warm golden sunset highlight on roofline & sunburst medallion
+      g.moveTo(-16, -h + 2);
+      g.lineTo(0, -h - 11);
+      g.lineTo(16, -h + 2);
+      g.stroke({ width: 1.8, color: 0xfde047, alpha: 0.75 });
+      // Solstice sunburst medallion above lintel
+      g.circle(0, -h * 0.45, 2.5);
+      g.fill({ color: 0xfacc15, alpha: 0.95 });
+      // Marigold garlands along eaves
+      for (const gx of [-10, -5, 5, 10]) {
+        const gy = -h + 2 + Math.abs(gx) * 0.4;
+        g.circle(gx, gy, 1.5);
+        g.fill({ color: 0xfbbf24, alpha: 0.9 });
+        g.circle(gx, gy, 0.7);
+        g.fill({ color: 0x78350f, alpha: 0.95 });
+      }
+    } else if (dec === "spring") {
+      // Spring (lighter version of Easter): window flowerbox + gentle morning light
+      g.rect(1, -h * 0.35 + 4, 5, 2);
+      g.fill({ color: 0x78350f, alpha: 0.9 });
+      g.circle(2.5, -h * 0.35 + 3.5, 1.2); g.fill({ color: 0x22c55e });
+      g.circle(4.5, -h * 0.35 + 3.5, 1.2); g.fill({ color: 0xf472b6 });
+      g.rect(2, -h * 0.4, 3.5, 3.5);
+      g.fill({ color: 0xfef08a, alpha: 0.65 });
+      g.ellipse(3.5, 4, 8, 3.5);
+      g.fill({ color: 0x86efac, alpha: 0.08 });
+    } else if (dec === "summer") {
+      // Summer (lighter version of Midsummer): brass porch lantern + sunlit roofline
+      g.rect(8, 2, 2.2, 3.5); g.fill({ color: 0x78350f });
+      g.rect(8.5, 3, 1.2, 1.8); g.fill({ color: 0xfef08a, alpha: 0.85 });
+      g.ellipse(9, 4, 9, 4); g.fill({ color: 0xfde047, alpha: 0.12 });
+      g.moveTo(-16, -h + 2); g.lineTo(0, -h - 10); g.lineTo(16, -h + 2);
+      g.stroke({ width: 1.2, color: 0xfef08a, alpha: 0.45 });
+    } else if (dec === "autumn") {
+      // Autumn (lighter version of Harvest): small sheaf, gourd, warm amber window
+      g.poly([-12, 4, -13, -h * 0.3, -10, -h * 0.3, -11, 4]); g.fill({ color: 0xca8a04, alpha: 0.85 });
+      g.ellipse(7, 4, 2.4, 1.8); g.fill({ color: 0xea580c, alpha: 0.85 });
+      g.rect(2, -h * 0.4, 3.5, 3.5); g.fill({ color: 0xf59e0b, alpha: 0.75 });
+      g.ellipse(3.5, 4, 8, 3.5); g.fill({ color: 0xf97316, alpha: 0.10 });
+    } else if (dec === "winter") {
+      // Winter (lighter version of Midwinter): snow ridgeline trim + hearth-lit window
+      g.moveTo(-16, -h + 2); g.lineTo(0, -h - 10); g.lineTo(16, -h + 2);
+      g.stroke({ width: 2.2, color: 0xf8fafc, alpha: 0.85 });
+      const wFlicker = 0.8 + Math.sin(phase * 5.0) * 0.12;
+      g.rect(2, -h * 0.4, 3.5, 3.5); g.fill({ color: 0xfef08a, alpha: 0.85 * wFlicker });
+      g.ellipse(3.5, 4, 9, 4); g.fill({ color: 0xfde047, alpha: 0.12 * wFlicker });
+    }
   }
 
   // Under-construction scaffolding overlay
@@ -1432,10 +1771,63 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     }
   }
 
-  // All Hallows creeping fog rendering
+  // Holiday and seasonal light fog / weather rendering on the isometric map
   function updateFog(t: number): void {
     fogLayer.clear();
-    if (visuals.decorations !== "halloween") return;
+    const dec = visuals.decorations;
+
+    let outerColor = 0x3b244d;
+    let innerColor = 0x241433;
+    let alphaMult = 1.0;
+
+    if (dec === "halloween") {
+      // Keep Halloween as-is: deep creeping purple mist banks
+      outerColor = 0x3b244d;
+      innerColor = 0x241433;
+      alphaMult = 1.0;
+    } else if (dec === "midwinter") {
+      // Midwinter: drifting frosty blizzard mists & icy ground vapors
+      outerColor = 0xbae6fd;
+      innerColor = 0xe0f2fe;
+      alphaMult = 1.15;
+    } else if (dec === "easter") {
+      // Easter: soft pastel dawn mist / morning dew rolling across meadows
+      outerColor = 0xf3e8ff;
+      innerColor = 0xfdf4ff;
+      alphaMult = 0.85;
+    } else if (dec === "harvest") {
+      // Harvest: golden autumn twilight haze / smoky orchard mist
+      outerColor = 0x78350f;
+      innerColor = 0x92400e;
+      alphaMult = 0.95;
+    } else if (dec === "midsummer") {
+      // Midsummer: golden sundown heat haze / twilight shimmer
+      outerColor = 0xfde047;
+      innerColor = 0xfef08a;
+      alphaMult = 0.75;
+    } else if (dec === "spring") {
+      // Spring: light morning dew vapor
+      outerColor = 0xdcfce7;
+      innerColor = 0xf0fdf4;
+      alphaMult = 0.50;
+    } else if (dec === "summer") {
+      // Summer: subtle golden afternoon haze
+      outerColor = 0xfef9c3;
+      innerColor = 0xfef08a;
+      alphaMult = 0.40;
+    } else if (dec === "autumn") {
+      // Autumn: crisp autumn morning mist
+      outerColor = 0x78350f;
+      innerColor = 0xb45309;
+      alphaMult = 0.60;
+    } else if (dec === "winter") {
+      // Winter: pale winter ground frost fog
+      outerColor = 0xe2e8f0;
+      innerColor = 0xf1f5f9;
+      alphaMult = 0.70;
+    } else {
+      return;
+    }
 
     for (const f of fogBanks) {
       f.x += f.vx;
@@ -1445,9 +1837,9 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
       const pulse = Math.sin(t + f.phase) * 0.08 + 1.0;
       fogLayer.ellipse(f.x, f.y, f.rx * pulse, f.ry * pulse);
-      fogLayer.fill({ color: 0x3b244d, alpha: f.alpha });
+      fogLayer.fill({ color: outerColor, alpha: f.alpha * alphaMult });
       fogLayer.ellipse(f.x + 4, f.y - 2, f.rx * 0.65 * pulse, f.ry * 0.6 * pulse);
-      fogLayer.fill({ color: 0x241433, alpha: f.alpha * 0.7 });
+      fogLayer.fill({ color: innerColor, alpha: f.alpha * 0.7 * alphaMult });
     }
   }
 
