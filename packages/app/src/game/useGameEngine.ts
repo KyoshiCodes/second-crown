@@ -25,6 +25,7 @@ import { saveToIndexedDb, loadFromIndexedDb, clearIndexedDbSave } from "../save/
 import { downloadSave, pickSaveFile } from "../save/fileIo";
 import type { BattleSnap } from "../BattleVisual";
 import { getWarTaunt } from "../content/flavor";
+import { sfx } from "../sfx";
 
 export type Tab = "kingdom" | "army" | "war" | "world" | "crown";
 export type ActFn = (fn: (st: GameState, eng: TickEngine) => string) => void;
@@ -112,6 +113,8 @@ export function useGameEngine() {
       const name = s.realms.find((r) => r.id === incoming.attackerRealmId)?.name ?? incoming.attackerRealmId;
       setStatus(`${name} declares war! "${getWarTaunt(incoming.attackerRealmId)}"`);
       setTab("war");
+      setPaused(true);
+      sfx.war();
     }
   }, []);
 
