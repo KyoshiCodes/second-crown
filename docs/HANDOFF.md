@@ -19,7 +19,6 @@ Present:
 - `docs/INVARIANTS.md` — the sixteen hard rules
 - `docs/DECISIONS.md` — ADR-001 through ADR-007
 - `docs/BACKLOG.md` — deferred scope
-- `bakeoff/` — the Claude Code vs Gemini evaluation, and its review kit
 
 Absent: all code, `package.json`, CI, and the rest of the doc set.
 
@@ -44,8 +43,8 @@ Phase A of the master prompt: read the bible and prompt, confirm or challenge th
 three likely failure points, list underspecified areas, ask at most three questions, then stop
 at the gate.
 
-Two agents run Phase A and Phase B independently in separate folders as a comparison. See
-`bakeoff/LAUNCH-RUNBOOK.md`.
+Two agents are running Phase A and Phase B independently, in separate working folders, as an
+evaluation the owner is conducting. Work only on your own copy.
 
 ## 6. Known issues
 
@@ -65,10 +64,9 @@ All bootstrap files listed in section 1.
 
 ## 9. Anything the owner must do manually
 
-- Create a **private** GitHub repository named `second-crown`, with no README, no .gitignore,
-  and no license
-- Install the agents and run the bake-off per `bakeoff/LAUNCH-RUNBOOK.md`
-- Push only the winning folder
+- The private GitHub repository already exists at github.com/KyoshiCodes/second-crown
+
+- Push only the winning agent's folder to that repository
 
 ## 10. How to verify the build is healthy
 
