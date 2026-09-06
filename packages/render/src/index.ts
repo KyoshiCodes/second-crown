@@ -962,6 +962,139 @@ function drawIsometricBuilding(
       break;
     }
 
+    case "keep": {
+      // Taller Stone Hold (Seat of the Realm) + Corner Bartizans + Crenellations + Portcullis + Royal Banner
+      const h = 30 + heightBoost;
+
+      // 1. Foundation Plinth / Flared Talus
+      g.poly([-17, 1, 0, 9.5, 0, 5, -17, -3.5]);
+      g.fill({ color: 0x475569, alpha: a });
+      g.poly([0, 9.5, 17, 1, 17, -3.5, 0, 5]);
+      g.fill({ color: 0x334155, alpha: a });
+
+      // 2. Main Stone Hold Tower Walls (Dressed Ashlar Granite)
+      // Left Facet (Light face)
+      g.poly([-15, -2, 0, 5.5, 0, 5.5 - h, -15, -2 - h]);
+      g.fill({ color: 0x64748b, alpha: a });
+      // Right Facet (Shaded face)
+      g.poly([0, 5.5, 15, -2, 15, -2 - h, 0, 5.5 - h]);
+      g.fill({ color: 0x475569, alpha: a });
+
+      // Ashlar Masonry Course Lines
+      for (const fraction of [0.22, 0.44, 0.66, 0.85]) {
+        const my = 5.5 - h * fraction;
+        g.moveTo(-15, -2 - h * fraction);
+        g.lineTo(0, my);
+        g.lineTo(15, -2 - h * fraction);
+        g.stroke({ width: 0.8, color: 0x334155, alpha: a * 0.65 });
+      }
+
+      // 3. Flanking Corner Bartizans (Stone Watch Turrets)
+      // Left Bartizan
+      g.poly([-17, -h + 2, -12, -h + 4.5, -12, -h - 5, -17, -h - 7.5]);
+      g.fill({ color: 0x71717a, alpha: a });
+      g.poly([-12, -h + 4.5, -9, -h + 3, -9, -h - 6.5, -12, -h - 5]);
+      g.fill({ color: 0x52525b, alpha: a });
+      g.poly([-17, -h - 7.5, -12, -h - 5, -9, -h - 6.5, -14, -h - 11]);
+      g.fill({ color: 0x334155, alpha: a }); // Turret roof cap
+
+      // Right Bartizan
+      g.poly([9, -h + 3, 12, -h + 4.5, 12, -h - 5, 9, -h - 6.5]);
+      g.fill({ color: 0x52525b, alpha: a });
+      g.poly([12, -h + 4.5, 17, -h + 2, 17, -h - 7.5, 12, -h - 5]);
+      g.fill({ color: 0x3f3f46, alpha: a });
+      g.poly([9, -h - 6.5, 12, -h - 5, 17, -h - 7.5, 14, -h - 11]);
+      g.fill({ color: 0x1e293b, alpha: a }); // Turret roof cap
+
+      // 4. Machicolations & Parapet Battlements
+      // Machicolation corbel ledge
+      g.poly([-16, -h + 1, 0, 6.5 - h, 16, -h + 1, 0, -h - 7]);
+      g.fill({ color: 0x64748b, alpha: a });
+      g.stroke({ width: 1, color: 0x334155, alpha: a });
+
+      // Parapet walk surface
+      g.poly([-14, -h - 1, 0, 4.5 - h, 14, -h - 1, 0, -h - 6.5]);
+      g.fill({ color: 0x1e293b, alpha: a });
+
+      // Left battlements (crenellations)
+      for (const mx of [-14, -9, -4]) {
+        const my = -h + (mx + 14) * 0.45;
+        g.rect(mx, my - 4, 3.5, 4);
+        g.fill({ color: 0x94a3b8, alpha: a });
+        g.stroke({ width: 0.6, color: 0x475569, alpha: a });
+      }
+      // Right battlements
+      for (const mx of [1, 6, 11]) {
+        const my = -h + (14 - mx) * 0.45;
+        g.rect(mx, my - 4, 3.5, 4);
+        g.fill({ color: 0x64748b, alpha: a });
+        g.stroke({ width: 0.6, color: 0x334155, alpha: a });
+      }
+
+      // 5. Arched Gateway & Iron Portcullis
+      g.poly([-4, 5, 4, 1.5, 4, -5.5, -4, -2]);
+      g.fill({ color: 0x09090b, alpha: a });
+      // Portcullis iron grate
+      g.moveTo(-2, 4); g.lineTo(-2, -3);
+      g.moveTo(0, 3); g.lineTo(0, -4);
+      g.moveTo(2, 2); g.lineTo(2, -5);
+      g.stroke({ width: 1, color: 0x94a3b8, alpha: a * 0.8 });
+      g.moveTo(-4, 0); g.lineTo(4, -3.5);
+      g.stroke({ width: 1, color: 0x94a3b8, alpha: a * 0.8 });
+      // Arched stone lintel
+      g.moveTo(-4, -2); g.lineTo(4, -5.5);
+      g.stroke({ width: 1.8, color: 0xd4a359, alpha: a });
+
+      // 6. Defensive Arrow Slits & Warm Royal Window
+      // Arrow slits
+      g.rect(-10, -h * 0.35, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
+      g.rect(-10, -h * 0.62, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
+      g.rect(8, -h * 0.4, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
+      g.rect(8, -h * 0.65, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
+      // Arched Royal High Window with warm candlelight
+      const keepCandle = 0.85 + Math.sin(phase * 4) * 0.12;
+      g.rect(-3, -h * 0.55, 4, 5.5);
+      g.fill({ color: 0xfef08a, alpha: a * 0.95 * keepCandle });
+      g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
+      // Stained glass mullion cross
+      g.moveTo(-1, -h * 0.55); g.lineTo(-1, -h * 0.55 + 5.5);
+      g.moveTo(-3, -h * 0.55 + 2.5); g.lineTo(1, -h * 0.55 + 2.5);
+      g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+
+      // 7. Royal Heraldic Shield above the gate
+      g.poly([0, -5, 3, -3.5, 2.5, 0, 0, 2.5, -2.5, 0, -3, -3.5]);
+      g.fill({ color: 0xdc2626, alpha: a });
+      g.poly([0, -5, 3, -3.5, 2.5, 0, 0, 2.5]);
+      g.fill({ color: 0xfacc15, alpha: a });
+      g.stroke({ width: 0.6, color: 0x78350f, alpha: a });
+
+      // 8. Courtyard Details: Stone Steps & Iron Brazier
+      // Steps in front of gate
+      g.poly([-6, 6, 0, 8.8, 6, 6, 0, 3.2]);
+      g.fill({ color: 0x71717a, alpha: a });
+      // Iron Brazier with lively fire
+      g.rect(-11, 4, 3, 3);
+      g.fill({ color: 0x27272a, alpha: a });
+      const kFlame = Math.sin(phase * 6) * 1.5;
+      g.circle(-9.5, 3, 2.2 + kFlame * 0.3);
+      g.fill({ color: 0xf97316, alpha: a });
+      g.circle(-9.5, 2.5, 1.2);
+      g.fill({ color: 0xfef08a, alpha: a });
+
+      // 9. Soaring Royal Standard
+      const bannerWave = Math.sin(phase * 3.5) * 3;
+      g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
+      g.stroke({ width: 1.8, color: 0xd4a359, alpha: a });
+      g.circle(0, -h - 19, 1.8);
+      g.fill({ color: 0xfacc15, alpha: a });
+      // Royal crimson & gold standard
+      g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
+      g.fill({ color: 0xb91c1c, alpha: a });
+      g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
+      g.fill({ color: 0xfacc15, alpha: a });
+      break;
+    }
+
     default: {
       // Grand Half-timbered Civic Hold
       const h = 20 + heightBoost;
@@ -1239,9 +1372,11 @@ function drawIsometricBuilding(
 // -------------------------------------------------------------
 // Living Hold 2-3 Frame Walkers (Discrete Animation Cadence)
 // -------------------------------------------------------------
-interface Walker {
+export type WalkerRole = "villager" | "woodcutter" | "miner" | "merchant" | "guard" | "scholar";
+
+export interface Walker {
   id: number;
-  role: "villager" | "woodcutter" | "miner" | "merchant" | "guard" | "scholar";
+  role: WalkerRole;
   x: number;
   y: number;
   targetX: number;
@@ -1255,8 +1390,66 @@ interface Walker {
   graphics: Graphics;
 }
 
+export function roleForCitizenJob(job: string): WalkerRole {
+  switch (job) {
+    case "farmer":
+      return "villager";
+    case "woodcutter":
+      return "woodcutter";
+    case "miner":
+      return "miner";
+    case "merchant":
+      return "merchant";
+    case "guard":
+      return "guard";
+    case "scholar":
+      return "scholar";
+    default:
+      return "villager";
+  }
+}
+
+export function pickDestination(w: Walker, state: GameState | null): void {
+  const playerWorkers = state?.citizens?.filter(
+    (c) => c.realmId === "player" && c.tile != null
+  ) ?? [];
+
+  if (playerWorkers.length > 0) {
+    const worker = playerWorkers[w.id % playerWorkers.length];
+    w.role = roleForCitizenJob(worker.job);
+
+    const tx = ((worker.tile!.x % GRID_W) + GRID_W) % GRID_W;
+    const ty = ((worker.tile!.y % GRID_H) + GRID_H) % GRID_H;
+
+    const dist = Math.hypot(w.x - tx, w.y - ty);
+    if (dist > 0.4) {
+      w.targetX = tx;
+      w.targetY = ty;
+    } else {
+      // Small pacing near work tile so the walker stays active at their post
+      const ox = (Math.random() - 0.5) * 0.7;
+      const oy = (Math.random() - 0.5) * 0.7;
+      w.targetX = Math.max(0, Math.min(GRID_W - 1, tx + ox));
+      w.targetY = Math.max(0, Math.min(GRID_H - 1, ty + oy));
+    }
+  } else {
+    if (state && state.buildings.length > 0 && Math.random() > 0.25) {
+      const b = state.buildings[Math.floor(Math.random() * state.buildings.length)];
+      const bx = ((b.x % GRID_W) + GRID_W) % GRID_W;
+      const by = ((b.y % GRID_H) + GRID_H) % GRID_H;
+      w.targetX = Math.max(0, Math.min(GRID_W - 1, bx + (Math.random() > 0.5 ? 1 : -1)));
+      w.targetY = Math.max(0, Math.min(GRID_H - 1, by));
+    } else {
+      w.targetX = 6 + Math.floor(Math.random() * 4);
+      w.targetY = 3 + Math.floor(Math.random() * 3);
+    }
+  }
+  w.state = "walking";
+  w.facing = w.targetX >= w.x ? 1 : -1;
+}
+
 function createWalker(id: number, gx: number, gy: number): Walker {
-  const roles: Walker["role"][] = ["villager", "woodcutter", "miner", "merchant", "guard", "scholar"];
+  const roles: WalkerRole[] = ["villager", "woodcutter", "miner", "merchant", "guard", "scholar"];
   const role = roles[id % roles.length];
   const g = new Graphics();
   return {
@@ -1708,24 +1901,17 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     setZoomCentered(zoom * zoomDelta, px, py);
   }, { passive: false });
 
-  // Pick destination for walker based on hold buildings
-  function pickDestination(w: Walker, state: GameState | null): void {
-    if (state && state.buildings.length > 0 && Math.random() > 0.25) {
-      const b = state.buildings[Math.floor(Math.random() * state.buildings.length)];
-      const bx = ((b.x % GRID_W) + GRID_W) % GRID_W;
-      const by = ((b.y % GRID_H) + GRID_H) % GRID_H;
-      w.targetX = Math.max(0, Math.min(GRID_W - 1, bx + (Math.random() > 0.5 ? 1 : -1)));
-      w.targetY = Math.max(0, Math.min(GRID_H - 1, by));
-    } else {
-      w.targetX = 6 + Math.floor(Math.random() * 4);
-      w.targetY = 3 + Math.floor(Math.random() * 3);
-    }
-    w.state = "walking";
-    w.facing = w.targetX >= w.x ? 1 : -1;
-  }
-
   function updateWalkers(dt: number, state: GameState | null): void {
+    const playerWorkers = state?.citizens?.filter(
+      (c) => c.realmId === "player" && c.tile != null
+    ) ?? [];
+
     for (const w of walkers) {
+      if (playerWorkers.length > 0) {
+        const worker = playerWorkers[w.id % playerWorkers.length];
+        w.role = roleForCitizenJob(worker.job);
+      }
+
       if (w.state === "idle") {
         w.idleTime -= dt;
         w.idlePhase += dt;

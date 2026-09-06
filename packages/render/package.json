@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "test": "echo \"No tests yet in render\""
+    "test": "vitest run"
   },
   "dependencies": {
     "@second-crown/shared": "*",

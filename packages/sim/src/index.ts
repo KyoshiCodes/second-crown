@@ -29,6 +29,7 @@ export {
   citizensByRealm,
   countCitizensByJob,
   jobForBuildingType,
+  walkerRoleForJob,
 } from "./systems/citizens.js";
 
 export { playerTitle, extraArchetypes } from "./content/world.js";

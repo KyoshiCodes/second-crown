@@ -21,6 +21,8 @@ The Kingdom view is framed as a tabletop board game diorama:
   - **All Hallows**: Retained with carved jack-o'-lanterns, witchfire glow, pumpkins, and deep creeping mist banks.
   - **Standard Seasons**: Subtle, lighter variants of ground scatter, window lighting, and ambient weather mists when holiday is set to "Off".
 - **Denser Pixel Architecture & Walkers**: Every building features dense multi-structure vignettes, animated chimneys, and discrete 2-3 frame pixel citizen walkers.
+- **Living Citizen Workers**: Citizens hired for your buildings now visibly populate the diorama and report to their workstation tiles. Farmers carry bread baskets in the fields, woodcutters carry axes near the woods, miners carry pickaxes around quarries and mines, merchants tend market stalls, guards patrol military structures with steel helmets and spears, and scholars study at the chapel with scrolls and cowls.
+- **Taller Stone Keep**: The realm's Keep now stands as a commanding ashlar fortress with a flared base plinth, twin corner watch bartizans, crenellated battlements, an iron portcullis, heraldic shield, candlelit high quarters, and an animated royal standard.
 
 ## War Tab: Living Pixel Unit Strip
 
