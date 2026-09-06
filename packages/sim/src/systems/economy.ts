@@ -15,7 +15,6 @@ export function productionBonus(state: GameState): number {
   return bonus;
 }
 
-/** Base rate × building level + flat bonus. Integers only. */
 function rateFor(state: GameState, typeId: string, level: number, res: string, rateStr: string) {
   void typeId;
   void res;
@@ -47,7 +46,7 @@ export const EconomySystem = {
       if (!def) continue;
 
       for (const [res, rateStr] of Object.entries(def.productionPerTick)) {
-        const amount = rateFor(state, b.typeId, b.level, res, rateStr).mul(ticks);
+        const amount = rateFor(state, b.typeId, b.level, res, rateStr ?? "0").mul(ticks);
         totals[res] = (totals[res] ?? D(0)).add(amount);
       }
     }
@@ -78,7 +77,7 @@ export function computeIncomePerSecond(state: GameState): Record<string, string>
     const def = getBuildingType(b.typeId);
     if (!def) continue;
     for (const [res, rateStr] of Object.entries(def.productionPerTick)) {
-      perTick[res] = (perTick[res] ?? D(0)).add(rateFor(state, b.typeId, b.level, res, rateStr));
+      perTick[res] = (perTick[res] ?? D(0)).add(rateFor(state, b.typeId, b.level, res, rateStr ?? "0"));
     }
   }
 

@@ -9,7 +9,6 @@ export interface BuildPayload {
   realmId?: string;
 }
 
-/** Cost multiplier from ruler traits (ambitious = 10% cheaper). */
 export function buildCostMultiplier(state: GameState, realmId: string): number {
   const ruler = state.characters.find((c) => c.realmId === realmId && c.role === "ruler");
   if (!ruler) return 1;
@@ -25,12 +24,12 @@ export function tryBuild(state: GameState, payload: BuildPayload): boolean {
   const mult = buildCostMultiplier(state, realmId);
 
   for (const [res, costStr] of Object.entries(def.cost)) {
-    const need = D(costStr).mul(mult).ceil();
+    const need = D(costStr ?? "0").mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
 
   for (const [res, costStr] of Object.entries(def.cost)) {
-    const need = D(costStr).mul(mult).ceil();
+    const need = D(costStr ?? "0").mul(mult).ceil();
     state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(need));
   }
 
@@ -60,7 +59,7 @@ export function canAfford(state: GameState, typeId: string, realmId = "player"):
   if (!def) return false;
   const mult = buildCostMultiplier(state, realmId);
   for (const [res, costStr] of Object.entries(def.cost)) {
-    const need = D(costStr).mul(mult).ceil();
+    const need = D(costStr ?? "0").mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
   return true;

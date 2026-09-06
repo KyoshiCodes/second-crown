@@ -9,7 +9,6 @@ export interface TrainPayload {
   realmId?: string;
 }
 
-/** Barracks: −5% cost each, minimum 50% of base. */
 export function trainCostMultiplier(state: GameState): number {
   const n = countBuilding(state, "barracks");
   return Math.max(0.5, 1 - n * 0.05);
@@ -24,12 +23,12 @@ export function tryTrain(state: GameState, payload: TrainPayload): boolean {
   const mult = trainCostMultiplier(state);
 
   for (const [res, costStr] of Object.entries(def.cost)) {
-    const need = D(costStr).mul(count).mul(mult).ceil();
+    const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
 
   for (const [res, costStr] of Object.entries(def.cost)) {
-    const need = D(costStr).mul(count).mul(mult).ceil();
+    const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
     state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(need));
   }
 
@@ -63,7 +62,7 @@ export function canAffordTrain(state: GameState, typeId: string, count = 1): boo
   if (!def || count < 1) return false;
   const mult = trainCostMultiplier(state);
   for (const [res, costStr] of Object.entries(def.cost)) {
-    const need = D(costStr).mul(count).mul(mult).ceil();
+    const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
   return true;

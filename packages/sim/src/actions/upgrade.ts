@@ -15,7 +15,7 @@ export function upgradeCost(state: GameState, buildingId: string): Record<string
   const scale = b.level + 1;
   const out: Record<string, string> = {};
   for (const [res, costStr] of Object.entries(def.cost)) {
-    out[res] = toDecimalString(D(costStr).mul(scale).mul(mult).ceil());
+    out[res] = toDecimalString(D(costStr ?? "0").mul(scale).mul(mult).ceil());
   }
   return out;
 }
