@@ -37,9 +37,22 @@ function Root() {
   if (watch) return <SpectatorView code={watch} />;
   return (
     <>
-      <TesterBar />
-      <CloudPanel />
-      <BoardPanel />
+      <div
+        className="sc-chrome"
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 120,
+          background: "rgba(10, 8, 6, 0.96)",
+          borderBottom: "1px solid #3a3228",
+        }}
+      >
+        <TesterBar />
+        <div style={{ maxWidth: 760, margin: "0 auto", padding: "0 12px 8px" }}>
+          <CloudPanel />
+          <BoardPanel />
+        </div>
+      </div>
       <AppShell />
     </>
   );

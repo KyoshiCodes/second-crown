@@ -1,5 +1,5 @@
 import React from "react";
-import { getHolidayOverride, setHolidayOverride } from "./seasons/holidays";
+import { getHolidayMeta, getHolidayOverride, setHolidayOverride } from "./seasons/holidays";
 
 const KEY = "sc-tester-name";
 
@@ -14,16 +14,14 @@ export function getTesterName(): string {
 export function TesterBar() {
   const [name, setName] = React.useState(getTesterName);
   const [holidayPreview, setHolidayPreview] = React.useState(getHolidayOverride);
+  const meta = getHolidayMeta(
+    holidayPreview === "auto" || holidayPreview === "none" ? "none" : (holidayPreview as "halloween")
+  );
 
   return (
     <div
       className="sc-tester-bar"
       style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        background: "rgba(12, 10, 8, 0.94)",
-        borderBottom: "1px solid #3a3228",
         padding: "8px 16px",
         fontSize: 13,
         display: "flex",
@@ -82,6 +80,11 @@ export function TesterBar() {
           <option value="midsummer">Midsummer Solstice</option>
           <option value="none">None / off</option>
         </select>
+        {holidayPreview !== "none" && holidayPreview !== "auto" ? (
+          <span style={{ color: "#fdba74" }}>
+            {meta.propEmoji} {meta.name}
+          </span>
+        ) : null}
       </div>
     </div>
   );
