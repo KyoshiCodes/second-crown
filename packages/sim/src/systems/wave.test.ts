@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryBuyShield, tryCraft, tryKingdomTrade, tryFoundGuild, tryRenameGuild, listAchievements, flagNum } from "./wave.js";
+import { tryFoundGuild } from "../actions/faction.js";
+import { tryBuyShield, tryCraft, tryKingdomTrade, tryRenameGuild, listAchievements, flagNum } from "./wave.js";
 
 describe("wave 1 systems", () => {
   it("buys a shield when gold is enough", () => {
