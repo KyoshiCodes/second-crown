@@ -7,6 +7,7 @@ import {
   tryKingdomTrade,
   activeClash,
   tryJoinClash,
+  tryScout,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -55,6 +56,7 @@ export function WorldTab(props: {
         onLeave={(id) => act((st) => (tryLeaveFaction(st, id) ? "Left the faction." : "Not a member."))}
         onGift={(id) => act((st) => (tryGiftGold(st, 15, id) ? getGiftThanks(id) : "Need 15 gold."))}
         onTrade={(realmId, offerId) => act((st) => (tryKingdomTrade(st, realmId, offerId) ? "Trade complete." : "Cannot make that trade."))}
+        onScout={(id) => act((st) => (tryScout(st, id) ? `Scouts ride to ${nameOf(id)}.` : "Need 10 gold."))}
       />
     </>
   );
