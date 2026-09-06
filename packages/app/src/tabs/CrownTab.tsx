@@ -18,6 +18,7 @@ import {
   type WorldEvent,
 } from "@second-crown/sim";
 import { EventPanel } from "../EventPanel";
+import { DecreesPanel } from "../DecreesPanel";
 import type { ActFn } from "../game/useGameEngine";
 
 export function CrownTab(props: {
@@ -68,6 +69,8 @@ export function CrownTab(props: {
           ))}
         </>
       )}
+
+      <DecreesPanel state={state} act={act} />
 
       <h3>Spoils</h3>
       <p style={{ fontSize: 13 }}>Iron {iron} · Banners {banners} · Relics {relics}</p>
