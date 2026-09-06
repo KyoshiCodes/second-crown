@@ -39,10 +39,17 @@ function App() {
   const [peaceLeft, setPeaceLeft] = React.useState(0);
   const [prestige, setPrestige] = React.useState(0);
   const [ascendReady, setAscendReady] = React.useState(false);
+  const [selectedBuild, setSelectedBuild] = React.useState<string | null>("farm");
+  const [trainQty, setTrainQty] = React.useState(1);
   const engineRef = React.useRef<TickEngine | null>(null);
   const mapRef = React.useRef<MapRenderer | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
-  const nextSlot = React.useRef(0);
+  const selectedBuildRef = React.useRef<string | null>("farm");
+  const lastRivalWar = React.useRef<string | null>(null);
+
+  React.useEffect(() => {
+    selectedBuildRef.current = selectedBuild;
+  }, [selectedBuild]);
 
   const syncUi = React.useCallback((engine: TickEngine) => {
     const s = engine.getState();
@@ -61,6 +68,15 @@ function App() {
     setPrestige(Number(s.flags["prestige_level"] ?? 0));
     setAscendReady(canAscend(s));
     mapRef.current?.sync(s);
+
+    // Notify if rival just declared
+    const rivalWar = s.wars.find(
+      (w) => w.status === "active" && w.attackerRealmId === "rival"
+    );
+    if (rivalWar && rivalWar.id !== lastRivalWar.current) {
+      lastRivalWar.current = rivalWar.id;
+      setStatus("Iron March has declared war on you!");
+    }
   }, []);
 
   React.useEffect(() => {
@@ -85,14 +101,14 @@ function App() {
           state = createGameState({ seed: 42, withStarterBuildings: true });
           state.resources.wood = "40";
           state.resources.food = "50";
-          setStatus("New game");
+          setStatus("New game — select a building, click the map to place");
           setOfflineNote("");
         }
       } catch {
         state = createGameState({ seed: 42, withStarterBuildings: true });
         state.resources.wood = "40";
         state.resources.food = "50";
-        setStatus("New game (save load failed)");
+        setStatus("New game");
         setOfflineNote("");
       }
 
@@ -101,7 +117,6 @@ function App() {
       state.meta.lastRealTime = Date.now();
       const engine = new TickEngine(state);
       engineRef.current = engine;
-      nextSlot.current = state.buildings.length;
 
       if (canvasRef.current) {
         try {
@@ -112,6 +127,26 @@ function App() {
           }
           mapRef.current = map;
           map.sync(state);
+          map.onTileClick((x, y) => {
+            const eng = engineRef.current;
+            const typeId = selectedBuildRef.current;
+            if (!eng || !typeId) {
+              setStatus("Select a building type first");
+              return;
+            }
+            const st = eng.getState();
+            // Occupied tile?
+            if (st.buildings.some((b) => b.x === x && b.y === y)) {
+              setStatus("Tile occupied");
+              return;
+            }
+            const ok = tryBuild(st, { typeId, x, y });
+            setStatus(ok ? `Built ${typeId} at (${x},${y})` : `Cannot afford ${typeId}`);
+            if (ok) {
+              syncUi(eng);
+              saveToIndexedDb(serializeState(st)).catch(() => {});
+            }
+          });
         } catch (e) {
           console.warn("Map renderer failed", e);
         }
@@ -137,27 +172,12 @@ function App() {
     };
   }, [syncUi]);
 
-  const handleBuild = (typeId: string) => {
-    const engine = engineRef.current;
-    if (!engine) return;
-    const state = engine.getState();
-    const slot = nextSlot.current++;
-    const x = slot % 16;
-    const y = Math.floor(slot / 16) % 10;
-    const ok = tryBuild(state, { typeId, x, y });
-    setStatus(ok ? `Queued ${typeId}` : `Cannot afford ${typeId}`);
-    if (ok) {
-      syncUi(engine);
-      saveToIndexedDb(serializeState(state)).catch(() => {});
-    }
-  };
-
   const handleTrain = (typeId: string) => {
     const engine = engineRef.current;
     if (!engine) return;
     const state = engine.getState();
-    const ok = tryTrain(state, { typeId, count: 1 });
-    setStatus(ok ? `Trained 1 ${typeId}` : `Cannot afford ${typeId}`);
+    const ok = tryTrain(state, { typeId, count: trainQty });
+    setStatus(ok ? `Trained ${trainQty} ${typeId}` : `Cannot afford ${trainQty}× ${typeId}`);
     if (ok) {
       syncUi(engine);
       saveToIndexedDb(serializeState(state)).catch(() => {});
@@ -214,7 +234,6 @@ function App() {
       setStatus("Need 50K total resources to claim the Second Crown");
       return;
     }
-    nextSlot.current = state.buildings.length;
     setStatus(`Ascended! Prestige ${state.flags["prestige_level"]} — permanent +1 prod/building`);
     syncUi(engine);
     saveToIndexedDb(serializeState(state)).catch(() => {});
@@ -227,9 +246,9 @@ function App() {
     state.resources.food = "50";
     const engine = new TickEngine(state);
     engineRef.current = engine;
-    nextSlot.current = state.buildings.length;
-    setStatus("New game");
+    setStatus("New game — select a building, click the map to place");
     setOfflineNote("");
+    lastRivalWar.current = null;
     syncUi(engine);
   };
 
@@ -252,12 +271,16 @@ function App() {
     <div style={{ padding: 24, maxWidth: 720 }}>
       <h1 style={{ marginTop: 0 }}>Second Crown</h1>
       <p style={{ opacity: 0.8, marginBottom: 4 }}>
-        Phase K — rival growth, prestige{prestige > 0 ? ` · Prestige ${prestige}` : ""}
+        Phase L — map place, bulk train, rival attacks
+        {prestige > 0 ? ` · Prestige ${prestige}` : ""}
       </p>
       {offlineNote ? (
         <p style={{ color: "#3fb950", fontSize: 13, marginTop: 0 }}>{offlineNote}</p>
       ) : null}
 
+      <p style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>
+        Selected: <strong>{selectedBuild ?? "none"}</strong> — click a grid tile to build
+      </p>
       <canvas
         ref={canvasRef}
         style={{
@@ -266,7 +289,7 @@ function App() {
           maxWidth: 512,
           borderRadius: 8,
           border: "1px solid #30363d",
-          marginTop: 12,
+          marginTop: 4,
           imageRendering: "pixelated",
         }}
       />
@@ -303,12 +326,12 @@ function App() {
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>Build</h2>
       <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
-        Ambitious: −10% build cost · Clever advisor: +1 prod/building
-        {prestige > 0 ? ` · Prestige: +${prestige} prod/building` : ""}
+        Click a type to select, then click the map. Ambitious −10% cost · Advisor +1 prod
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {types.map((t) => {
           const afford = state ? canAfford(state, t.id) : false;
+          const selected = selectedBuild === t.id;
           const costStr = Object.entries(t.cost)
             .map(([r, c]) => `${formatLetterSuffix(c)} ${r}`)
             .join(", ");
@@ -316,16 +339,15 @@ function App() {
             <button
               key={t.id}
               type="button"
-              disabled={!afford}
               title={`${t.name}\nCost: ${costStr}`}
-              onClick={() => handleBuild(t.id)}
+              onClick={() => setSelectedBuild(t.id)}
               style={{
                 padding: "8px 12px",
                 borderRadius: 6,
-                border: "1px solid #30363d",
+                border: selected ? "2px solid #58a6ff" : "1px solid #30363d",
                 background: afford ? "#238636" : "#21262d",
                 color: afford ? "#fff" : "#8b949e",
-                cursor: afford ? "pointer" : "not-allowed",
+                cursor: "pointer",
                 textAlign: "left",
               }}
             >
@@ -348,18 +370,37 @@ function App() {
       </div>
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>Army</h2>
+      <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+        {[1, 5, 10].map((q) => (
+          <button
+            key={q}
+            type="button"
+            onClick={() => setTrainQty(q)}
+            style={{
+              padding: "4px 10px",
+              borderRadius: 4,
+              border: trainQty === q ? "1px solid #58a6ff" : "1px solid #30363d",
+              background: trainQty === q ? "#1f6feb" : "#21262d",
+              color: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            ×{q}
+          </button>
+        ))}
+      </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {unitTypes.map((u) => {
-          const afford = state ? canAffordTrain(state, u.id, 1) : false;
+          const afford = state ? canAffordTrain(state, u.id, trainQty) : false;
           const costStr = Object.entries(u.cost)
-            .map(([r, c]) => `${formatLetterSuffix(c)} ${r}`)
+            .map(([r, c]) => `${formatLetterSuffix(Number(c) * trainQty)} ${r}`)
             .join(", ");
           return (
             <button
               key={u.id}
               type="button"
               disabled={!afford}
-              title={`${u.name} — power ${u.power}\nCost: ${costStr}`}
+              title={`${u.name} ×${trainQty} — power ${u.power}\nCost: ${costStr}`}
               onClick={() => handleTrain(u.id)}
               style={{
                 padding: "8px 12px",
@@ -371,7 +412,7 @@ function App() {
                 textAlign: "left",
               }}
             >
-              {u.name} (⚔{u.power})
+              {u.name} (⚔{u.power}) ×{trainQty}
               <div style={{ fontSize: 11, opacity: 0.85 }}>{costStr}</div>
             </button>
           );
@@ -393,7 +434,7 @@ function App() {
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>War</h2>
       <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
-        Iron March recruits more militia over time (and after defeats)
+        Rival grows over time and may declare war if stronger than you
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
         <button
@@ -440,7 +481,7 @@ function App() {
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>Second Crown</h2>
       <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
-        Soft reset at 50K total resources. Keep prestige for permanent +1 production per building.
+        Soft reset at 50K total resources. Permanent +1 prod/building per prestige.
       </p>
       <button
         type="button"
