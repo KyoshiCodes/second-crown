@@ -47,7 +47,6 @@ describe("combat / war", () => {
       const result = tryResolveWar(state, engine.rng);
       outcomes.add(result.result?.winnerId ?? "none");
     }
-    // With swings, we should see at least one of each across seeds (soft check)
     expect(outcomes.size).toBeGreaterThanOrEqual(1);
   });
 
@@ -58,6 +57,8 @@ describe("combat / war", () => {
     const before = realmPower(state, "player");
     expect(tryTrain(state, { typeId: "militia", count: 5 })).toBe(true);
     expect(realmPower(state, "player")).toBe(before + 5);
-    expect(D(state.resources.food).eq(75)).toBe(true);
+    // militia costs 4 food + 1 wood each → 20 food, 5 wood
+    expect(D(state.resources.food).eq(80)).toBe(true);
+    expect(D(state.resources.wood).eq(95)).toBe(true);
   });
 });
