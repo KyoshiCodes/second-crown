@@ -16,6 +16,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
+import { QuestPanel } from "../QuestPanel";
 
 function costLine(cost: Record<string, string | undefined>): string {
   return Object.entries(cost)
@@ -51,6 +52,7 @@ export function KingdomTab(props: {
         <p style={{ margin: "4px 0" }}>{season} · Doctrine {doctrine} · Routes {routes}/3</p>
         <p style={{ margin: 0, opacity: 0.75 }}>{decrees ? `Active decrees: ${decrees}` : "No decree running. Swear one on the Crown tab."}</p>
       </div>
+      <QuestPanel state={state} act={act} />
       <div style={{ marginBottom: 10 }}>
         <label style={{ fontSize: 12, opacity: 0.7 }}>Hold name</label>
         <div style={{ display: "flex", gap: 6 }}>
