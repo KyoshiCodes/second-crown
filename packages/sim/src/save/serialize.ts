@@ -1,6 +1,7 @@
 import type { GameState } from "@second-crown/shared";
 import { SAVE_VERSION } from "@second-crown/shared";
 import { seedWorldActors } from "../content/world.js";
+import { seedCitizensFromBuildings } from "../systems/citizens.js";
 
 export function serializeState(state: GameState): string {
   return JSON.stringify(state);
@@ -77,6 +78,7 @@ export function ensureWorldStubs(state: GameState): void {
   }
 
   seedWorldActors(state);
+  seedCitizensFromBuildings(state);
 }
 
 export function deserializeState(json: string): GameState {
