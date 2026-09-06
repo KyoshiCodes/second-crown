@@ -14,6 +14,13 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
 
+function costLine(cost: Record<string, string | undefined>): string {
+  return Object.entries(cost)
+    .filter(([, v]) => v)
+    .map(([k, v]) => `${v} ${k}`)
+    .join(", ");
+}
+
 export function KingdomTab(props: {
   state: GameState | undefined;
   act: ActFn;
@@ -23,7 +30,7 @@ export function KingdomTab(props: {
   const { state, act, selectedBuild, setSelectedBuild } = props;
   const types = listBuildableTypes();
   const marketsN = state ? countBuilding(state, "market") : 0;
-  const selectedName = selectedBuild ? getBuildingType(selectedBuild)?.name ?? selectedBuild : "None";
+  const selected = selectedBuild ? getBuildingType(selectedBuild) : undefined;
   const hold = state ? settlementName(state) : "Your Hold";
   const [name, setName] = React.useState(hold);
   React.useEffect(() => setName(hold), [hold]);
@@ -39,15 +46,27 @@ export function KingdomTab(props: {
           </button>
         </div>
       </div>
-      <p style={{ fontSize: 12, opacity: 0.65 }}>
-        Selected: {selectedName}. Empty tile places a building; occupied tile upgrades (max {MAX_BUILDING_LEVEL}).
-      </p>
+      {selected ? (
+        <div className="sc-realm-card" style={{ marginBottom: 10 }}>
+          <strong>{selected.name}</strong>
+          <p style={{ fontSize: 13, margin: "6px 0" }}>{selected.blurb || "A work of the realm."}</p>
+          <p style={{ fontSize: 12, opacity: 0.75 }}>Cost {costLine(selected.cost)} · {selected.buildTicks / 10}s to raise</p>
+          <p style={{ fontSize: 12, opacity: 0.65 }}>Click an empty tile to place. Occupied tile upgrades (max {MAX_BUILDING_LEVEL}).</p>
+        </div>
+      ) : null}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {types.map((t) => {
           const afford = state ? canAfford(state, t.id) : false;
+          const n = state ? countBuilding(state, t.id) : 0;
           return (
-            <button key={t.id} type="button" onClick={() => setSelectedBuild(t.id)} style={{ background: afford ? "#2d5a27" : "#2a221c", color: "#eee" }}>
-              {t.name}{selectedBuild === t.id ? " \u2713" : ""}
+            <button
+              key={t.id}
+              type="button"
+              title={t.blurb}
+              onClick={() => setSelectedBuild(t.id)}
+              style={{ background: selectedBuild === t.id ? "#3d6b30" : afford ? "#2d5a27" : "#2a221c", color: "#eee" }}
+            >
+              {t.name}{n ? ` x${n}` : ""}{selectedBuild === t.id ? " *" : ""}
             </button>
           );
         })}
