@@ -24,13 +24,28 @@ export function ArmyTab(props: {
   return (
     <>
       {[1, 5, 10].map((q) => (
-        <button key={q} type="button" onClick={() => setTrainQty(q)}>\u00d7{q}</button>
+        <button key={q} type="button" onClick={() => setTrainQty(q)}>
+          x{q}
+        </button>
       ))}
-      <span style={{ marginLeft: 8, fontSize: 12 }}>{barracksN ? `Barracks discount ${Math.round((1 - trainMult) * 100)}%` : ""}</span>
+      <span style={{ marginLeft: 8, fontSize: 12 }}>
+        {barracksN ? `Barracks discount ${Math.round((1 - trainMult) * 100)}%` : ""}
+      </span>
       <div>
         {unitTypes.map((u) => (
-          <button key={u.id} type="button" disabled={!(state && canAffordTrain(state, u.id, trainQty))} onClick={() => act((st) => (tryTrain(st, { typeId: u.id, count: trainQty }) ? `Trained ${trainQty} ${u.name}.` : "Cannot afford that levy."))}>
-            {u.name} \u2694{u.power}
+          <button
+            key={u.id}
+            type="button"
+            disabled={!(state && canAffordTrain(state, u.id, trainQty))}
+            onClick={() =>
+              act((st) =>
+                tryTrain(st, { typeId: u.id, count: trainQty })
+                  ? `Trained ${trainQty} ${u.name}.`
+                  : "Cannot afford that levy."
+              )
+            }
+          >
+            {u.name} pwr {u.power}
           </button>
         ))}
       </div>
