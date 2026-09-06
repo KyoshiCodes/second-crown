@@ -99,6 +99,46 @@ function tryStatic(urlPath, res) {
 function mirrorWatch(u, body) {
   if (u.watchCode) fs.writeFileSync(path.join(WATCH, `${u.watchCode}.json`), body);
 }
+function statsFromSave(raw) {
+  try {
+    const s = typeof raw === "string" ? JSON.parse(raw) : raw;
+    const flags = s.flags || {};
+    return {
+      prestige: Number(flags.prestige_level || 0),
+      wins: Number(flags.wars_won || 0),
+      tick: Number(s.meta?.tick || 0),
+      buildings: Array.isArray(s.buildings) ? s.buildings.length : 0,
+    };
+  } catch {
+    return { prestige: 0, wins: 0, tick: 0, buildings: 0 };
+  }
+}
+function boardRow(u, stats) {
+  return {
+    id: u.id,
+    name: u.name,
+    kind: u.kind || "guest",
+    motto: u.motto || "",
+    crest: u.crest || "sun",
+    prestige: stats.prestige || 0,
+    wins: stats.wins || 0,
+    tick: stats.tick || 0,
+    buildings: stats.buildings || 0,
+  };
+}
+function buildBoard() {
+  const users = readUsers();
+  const rows = [];
+  for (const u of Object.values(users)) {
+    const file = path.join(SAVES, `${u.id}.json`);
+    let stats = u.stats || { prestige: 0, wins: 0, tick: 0, buildings: 0 };
+    if (fs.existsSync(file)) stats = statsFromSave(fs.readFileSync(file, "utf8"));
+    else if (!u.stats) continue;
+    rows.push(boardRow(u, stats));
+  }
+  rows.sort((a, b) => b.prestige - a.prestige || b.wins - a.wins || b.tick - a.tick);
+  return rows.slice(0, 50);
+}
 
 async function discordToken(code) {
   const body = new URLSearchParams({
@@ -124,14 +164,43 @@ async function discordMe(access) {
   return res.json();
 }
 
-const API = new Set(["/health", "/guest", "/me", "/save", "/watch", "/auth/discord", "/auth/discord/callback"]);
-
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
   if (req.method === "OPTIONS") return json(res, 204, {});
 
   if (req.method === "GET" && url.pathname === "/health") {
     return json(res, 200, { ok: true, discord: Boolean(DISCORD_CLIENT_ID) });
+  }
+
+  if (req.method === "GET" && url.pathname === "/board") {
+    return json(res, 200, { board: buildBoard() });
+  }
+
+  if (req.method === "GET" && url.pathname.startsWith("/profile/")) {
+    const id = decodeURIComponent(url.pathname.slice("/profile/".length));
+    const users = readUsers();
+    const u = users[id];
+    if (!u) return json(res, 404, { error: "no profile" });
+    const file = path.join(SAVES, `${u.id}.json`);
+    const stats = fs.existsSync(file) ? statsFromSave(fs.readFileSync(file, "utf8")) : u.stats || {};
+    return json(res, 200, boardRow(u, stats));
+  }
+
+  if (req.method === "PUT" && url.pathname === "/profile") {
+    const u = userFromToken(bearer(req));
+    if (!u) return json(res, 401, { error: "unauthorized" });
+    const users = readUsers();
+    const rec = users[u.id];
+    if (!rec) return json(res, 401, { error: "unauthorized" });
+    try {
+      const body = JSON.parse(await readBody(req));
+      if (typeof body.motto === "string") rec.motto = String(body.motto).slice(0, 80);
+      if (typeof body.crest === "string") rec.crest = String(body.crest).slice(0, 16);
+      writeUsers(users);
+      return json(res, 200, { ok: true });
+    } catch {
+      return json(res, 400, { error: "bad profile" });
+    }
   }
 
   if (req.method === "POST" && url.pathname === "/guest") {
@@ -165,6 +234,7 @@ const server = http.createServer(async (req, res) => {
       const id = `discord_${me.id}`;
       const token = users[id]?.token || newToken();
       users[id] = {
+        ...users[id],
         id,
         name: me.global_name || me.username,
         token,
@@ -185,7 +255,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && url.pathname === "/me") {
     const u = userFromToken(bearer(req));
     if (!u) return json(res, 401, { error: "unauthorized" });
-    return json(res, 200, { id: u.id, name: u.name, kind: u.kind, watchCode: u.watchCode || null });
+    return json(res, 200, { id: u.id, name: u.name, kind: u.kind, watchCode: u.watchCode || null, motto: u.motto || "", crest: u.crest || "sun" });
   }
 
   if (req.method === "POST" && url.pathname === "/watch") {
@@ -226,12 +296,16 @@ const server = http.createServer(async (req, res) => {
       JSON.parse(body);
       fs.writeFileSync(file, body);
       const users = readUsers();
-      mirrorWatch(users[u.id] || u, body);
+      const rec = users[u.id] || u;
+      rec.stats = statsFromSave(body);
+      users[u.id] = rec;
+      writeUsers(users);
+      mirrorWatch(rec, body);
       return json(res, 200, { ok: true });
     }
   }
 
-  if (req.method === "GET" && !API.has(url.pathname) && !url.pathname.startsWith("/watch/")) {
+  if (req.method === "GET") {
     if (tryStatic(url.pathname, res)) return;
   }
 
