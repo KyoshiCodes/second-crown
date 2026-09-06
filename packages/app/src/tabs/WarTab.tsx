@@ -24,6 +24,7 @@ export function WarTab(props: {
   const { state, act, rivalOp, playerOp, battleSnap, setBattleSnap } = props;
   const activeWar = state?.wars.find((w) => w.status === "active");
   const otherRealms = (state?.realms ?? []).filter((r) => r.id !== "player");
+  const mine = state ? realmPower(state, "player") : 0;
 
   return (
     <>
@@ -32,23 +33,29 @@ export function WarTab(props: {
         playerOp={playerOp}
         onGift={() => act((st) => (tryGiftGold(st) ? `Lord Varric: "${getGiftThanks("rival")}"` : "Need 15 gold."))}
       />
+      <p style={{ fontSize: 12, opacity: 0.7 }}>Your power {mine}. Green odds favor you; red favors them. Combat still rolls.</p>
       <BattleVisual snap={battleSnap} active={!!activeWar} />
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
         {otherRealms.map((r) => {
           const left = state ? peaceTicksRemaining(state, "player", r.id) : 0;
+          const theirs = state ? realmPower(state, r.id) : 0;
           const locked = !!activeWar || left > 0;
+          const favored = mine >= theirs;
           return (
             <button
               key={r.id}
               type="button"
               disabled={locked}
+              style={{ borderColor: favored ? "#3fb950" : "#f85149", borderWidth: 1, borderStyle: "solid" }}
               onClick={() => act((st) => {
                 const ok = tryDeclareWar(st, { attackerRealmId: "player", defenderRealmId: r.id });
                 if (!ok) return "Cannot declare war.";
                 return `${r.name}: "${getWarTaunt(r.id)}"`;
               })}
             >
-              {left > 0 ? `Peace with ${r.name} (${Math.ceil(left / 10)}s)` : `Declare on ${r.name}`}
+              {left > 0
+                ? `Peace with ${r.name} (${Math.ceil(left / 10)}s)`
+                : `Declare on ${r.name} (${mine} vs ${theirs})`}
             </button>
           );
         })}
