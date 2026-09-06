@@ -9,6 +9,8 @@ import {
   tryHireMercs,
   tryNameChampion,
   championName,
+  tryFoodLevy,
+  levyTicksLeft,
   type GameState,
 } from "@second-crown/sim";
 import { ArmyVisual } from "../ArmyVisual";
@@ -27,6 +29,7 @@ export function ArmyTab(props: {
   const barracksN = state ? countBuilding(state, "barracks") : 0;
   const hasChamp = state?.units.some((u) => u.realmId === "player" && u.typeId === "champion");
   const [cname, setCname] = React.useState(state ? championName(state) : "");
+  const levyWait = state ? levyTicksLeft(state) : 0;
 
   return (
     <>
@@ -59,6 +62,13 @@ export function ArmyTab(props: {
         })}
       </div>
       <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for cost and role.</p>
+      <button
+        type="button"
+        disabled={!state || levyWait > 0}
+        onClick={() => act((st) => (tryFoodLevy(st) ? "Four militia raised from the stores." : "Need 20 food, or the levy is tired."))}
+      >
+        {levyWait > 0 ? `Food levy in ${Math.ceil(levyWait / 10)}s` : "Food levy (20 food, +4 militia)"}
+      </button>
       <button
         type="button"
         disabled={!state || hasChamp}
