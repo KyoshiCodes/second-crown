@@ -22,6 +22,8 @@ export const CRAFTS = [
   { id: "harvest_charm", name: "Harvest Charm", cost: { iron: 8 }, flag: "craft_income", value: 2, blurb: "+2 production bonus" },
   { id: "drill_manual", name: "Drill Manual", cost: { banners: 6 }, flag: "craft_train", value: 1, blurb: "Cheaper training" },
   { id: "silk_seal", name: "Silk Seal", cost: { relics: 4 }, flag: "craft_opinion", value: 1, blurb: "Gifts land harder" },
+  { id: "steel_bit", name: "Steel Bit", cost: { iron: 12, banners: 2 }, flag: "craft_fort", value: 1, blurb: "+3 standing power" },
+  { id: "war_horn", name: "War Horn", cost: { banners: 8, relics: 2 }, flag: "craft_raid", value: 1, blurb: "Horde strikes drop more" },
 ] as const;
 
 export const KINGDOM_OFFERS: Record<string, { id: string; give: Record<string, string>; get: Record<string, string>; label: string }[]> = {
@@ -52,6 +54,9 @@ export function addSpoils(state: GameState, iron: number, banners: number, relic
 export function grantVictorySpoils(state: GameState): void {
   addSpoils(state, 3, 2, 1);
   state.flags.wars_won = flagNum(state, "wars_won") + 1;
+  const w = flagNum(state, "wars_won");
+  if (w % 3 === 0) addSpoils(state, 0, 1, 1);
+  if (w % 7 === 0) addSpoils(state, 4, 2, 2);
   unlock(state, "ach_win");
 }
 
