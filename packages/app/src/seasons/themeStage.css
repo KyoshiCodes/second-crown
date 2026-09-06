@@ -1,0 +1,53 @@
+.sc-theme-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.sc-theme-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.sc-shell {
+  position: relative;
+  z-index: 1;
+}
+.sc-shell .sc-panel {
+  background: rgba(8, 10, 12, 0.62);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 16px 16px 24px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.holiday-halloween {
+  --theme-accent: #fb923c !important;
+  --theme-border: #7c2d12;
+}
+.holiday-halloween .sc-tab {
+  background: #1a0b08;
+  border-color: #ea580c;
+}
+.holiday-halloween .sc-tab.active {
+  background: #7c2d12;
+  border-color: #fdba74;
+  box-shadow: 0 0 12px rgba(249, 115, 22, 0.45);
+}
+.holiday-halloween .sc-title::after {
+  content: "  🎃";
+}
+.holiday-halloween .sc-realm-card {
+  background: rgba(28, 8, 8, 0.88);
+  border-color: #ea580c !important;
+}
+
+.holiday-midwinter .sc-tab.active { border-color: #7dd3fc; background: #0c4a6e; }
+.holiday-midwinter .sc-title::after { content: "  🎄"; }
+.holiday-easter .sc-tab.active { border-color: #e9d5ff; background: #6b21a8; }
+.holiday-easter .sc-title::after { content: "  🧚"; }
+.holiday-harvest .sc-tab.active { border-color: #fbbf24; background: #92400e; }
+.holiday-harvest .sc-title::after { content: "  🌾"; }
+.holiday-midsummer .sc-tab.active { border-color: #fde047; background: #854d0e; }
+.holiday-midsummer .sc-title::after { content: "  ☀️"; }
