@@ -1,6 +1,6 @@
 /**
  * Tiny playtest cloud: guest codes + optional Discord OAuth + save blobs.
- * Does not run the sim. Stores JSON only.
+ * Also serves packages/app/dist when present so one public port is enough.
  */
 import http from "node:http";
 import fs from "node:fs";
@@ -15,13 +15,25 @@ const ORIGIN = process.env.CORS_ORIGIN || "*";
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || "";
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || "";
 const DISCORD_REDIRECT = process.env.DISCORD_REDIRECT || `http://localhost:${PORT}/auth/discord/callback`;
-const PUBLIC_APP = process.env.PUBLIC_APP_URL || "http://localhost:5173";
+const PUBLIC_APP = process.env.PUBLIC_APP_URL || `http://localhost:${PORT}`;
+const DIST = process.env.APP_DIST || path.join(__dirname, "../packages/app/dist");
 
 const USERS = path.join(DATA, "users.json");
 const SAVES = path.join(DATA, "saves");
 
 fs.mkdirSync(SAVES, { recursive: true });
 if (!fs.existsSync(USERS)) fs.writeFileSync(USERS, "{}");
+
+const MIME = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".json": "application/json",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+};
 
 function readUsers() {
   return JSON.parse(fs.readFileSync(USERS, "utf8"));
@@ -61,7 +73,6 @@ function newToken() {
 function newCode() {
   return crypto.randomBytes(3).toString("hex");
 }
-
 function readBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -69,6 +80,25 @@ function readBody(req) {
     req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
     req.on("error", reject);
   });
+}
+function tryStatic(urlPath, res) {
+  if (!fs.existsSync(DIST)) return false;
+  let rel = decodeURIComponent(urlPath.split("?")[0]);
+  if (rel === "/") rel = "/index.html";
+  const file = path.normalize(path.join(DIST, rel));
+  if (!file.startsWith(path.normalize(DIST))) return false;
+  if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+    const fallback = path.join(DIST, "index.html");
+    if (!fs.existsSync(fallback)) return false;
+    const html = fs.readFileSync(fallback);
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(html);
+    return true;
+  }
+  const ext = path.extname(file);
+  res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
+  res.end(fs.readFileSync(file));
+  return true;
 }
 
 async function discordToken(code) {
@@ -87,7 +117,6 @@ async function discordToken(code) {
   if (!res.ok) throw new Error("discord token failed");
   return res.json();
 }
-
 async function discordMe(access) {
   const res = await fetch("https://discord.com/api/users/@me", {
     headers: { Authorization: `Bearer ${access}` },
@@ -96,15 +125,21 @@ async function discordMe(access) {
   return res.json();
 }
 
+const API = new Set([
+  "/health",
+  "/guest",
+  "/me",
+  "/save",
+  "/auth/discord",
+  "/auth/discord/callback",
+]);
+
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
   if (req.method === "OPTIONS") return json(res, 204, {});
 
   if (req.method === "GET" && url.pathname === "/health") {
-    return json(res, 200, {
-      ok: true,
-      discord: Boolean(DISCORD_CLIENT_ID),
-    });
+    return json(res, 200, { ok: true, discord: Boolean(DISCORD_CLIENT_ID) });
   }
 
   if (req.method === "POST" && url.pathname === "/guest") {
@@ -181,9 +216,13 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  if (req.method === "GET" && !API.has(url.pathname)) {
+    if (tryStatic(url.pathname, res)) return;
+  }
+
   return json(res, 404, { error: "not found" });
 });
 
-server.listen(PORT, () => {
-  console.log(`second-crown cloud on :${PORT} discord=${Boolean(DISCORD_CLIENT_ID)}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`second-crown cloud on :${PORT} discord=${Boolean(DISCORD_CLIENT_ID)} dist=${fs.existsSync(DIST)}`);
 });
