@@ -21,22 +21,45 @@ export function CloudPanel() {
   const [status, setStatus] = React.useState("");
   const [discord, setDiscord] = React.useState(false);
   const [name, setName] = React.useState(cloudName);
+  const [kind, setKind] = React.useState("");
   const [code, setCode] = React.useState("");
   const [showCode, setShowCode] = React.useState(false);
 
+  async function refreshMe() {
+    const token = cloudToken();
+    if (!token) {
+      setName("");
+      setKind("");
+      return;
+    }
+    try {
+      const res = await fetch(`${cloudUrl()}/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const me = await res.json();
+      setName(me.name);
+      setKind(me.kind || "");
+    } catch {
+      /* ignore */
+    }
+  }
+
   React.useEffect(() => {
-    absorbHashSession();
+    const fromHash = absorbHashSession();
     setName(cloudName());
     if (!localStorage.getItem("sc-cloud-url")) {
       setCloudUrl(defaultCloudUrl());
       setUrl(defaultCloudUrl());
     }
+    if (fromHash) setStatus("Discord login saved on this browser.");
     health()
       .then((h) => {
         setDiscord(h.discord);
-        setStatus(h.ok ? "Cloud reachable." : "Cloud down.");
+        if (!fromHash) setStatus(h.ok ? "Cloud reachable." : "Cloud down.");
       })
       .catch(() => setStatus("Cloud unreachable — check the URL."));
+    void refreshMe();
   }, []);
 
   const token = cloudToken();
@@ -63,6 +86,7 @@ export function CloudPanel() {
             try {
               const g = await createGuest(getTesterName() || "Guest");
               setName(g.name);
+              setKind("guest");
               setStatus(`Guest session ${g.id}. Copy your recovery code below.`);
               setShowCode(true);
             } catch {
@@ -152,6 +176,7 @@ export function CloudPanel() {
             try {
               const me = await restoreToken(code);
               setName(me.name);
+              setKind(me.kind || "guest");
               setCode("");
               setStatus(`Restored ${me.name}. Pull save if you need the cloud file.`);
             } catch {
@@ -162,10 +187,14 @@ export function CloudPanel() {
           Restore code
         </button>
       </div>
-      <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8 }}>
-        {name ? `Signed in as ${name}. ` : "Not signed in. "}
-        {status}
+      <div style={{ fontSize: 13, marginTop: 8, fontWeight: 600 }}>
+        {name
+          ? kind === "discord"
+            ? `Signed in with Discord as ${name}`
+            : `Signed in as guest ${name}`
+          : "Not signed in."}
       </div>
+      <div style={{ fontSize: 12, marginTop: 4, opacity: 0.8 }}>{status}</div>
     </div>
   );
 }
