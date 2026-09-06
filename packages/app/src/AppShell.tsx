@@ -212,11 +212,13 @@ export function AppShell() {
       syncUi(engine);
       intervalId = window.setInterval(() => {
         if (pausedRef.current) return;
+        const eng = engineRef.current;
+        if (!eng) return;
         const n = Math.max(1, speedRef.current);
-        for (let i = 0; i < n; i++) engine.tick();
-        engine.getState().meta.lastRealTime = Date.now();
-        syncUi(engine);
-        if (engine.getState().meta.tick % 50 === 0) persist(engine.getState());
+        for (let i = 0; i < n; i++) eng.tick();
+        eng.getState().meta.lastRealTime = Date.now();
+        syncUi(eng);
+        if (eng.getState().meta.tick % 50 === 0) persist(eng.getState());
       }, 100);
     })();
     return () => {
@@ -493,7 +495,9 @@ export function AppShell() {
                 engineRef.current = new TickEngine(st);
                 lastRivalWar.current = null;
                 setBattleSnap(null);
+                setOfflineNote("");
                 setTab("kingdom");
+                persist(st);
                 setStatus("New world generated.");
                 syncUi(engineRef.current);
               }}
