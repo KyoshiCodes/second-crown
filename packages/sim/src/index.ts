@@ -16,14 +16,15 @@ export type { UnitType } from "./content/units.js";
 
 export { EconomySystem, computeIncomePerSecond } from "./systems/economy.js";
 export { realmPower, resolveBattle } from "./systems/combat.js";
+export type { BattleResult } from "./systems/combat.js";
 
-export { tryBuild, canAfford } from "./actions/build.js";
+export { tryBuild, canAfford, buildCostMultiplier } from "./actions/build.js";
 export type { BuildPayload } from "./actions/build.js";
 
 export { tryTrain, canAffordTrain } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
 
-export { tryDeclareWar, tryResolveWar } from "./actions/war.js";
+export { tryDeclareWar, tryResolveWar, peaceTicksRemaining } from "./actions/war.js";
 export type { DeclareWarPayload } from "./actions/war.js";
 
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";

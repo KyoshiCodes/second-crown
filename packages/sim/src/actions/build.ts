@@ -9,31 +9,32 @@ export interface BuildPayload {
   realmId?: string;
 }
 
-/**
- * Validate and apply a build order immediately against the current state.
- * Returns true if the building was queued, false if rejected (can't afford, unknown type, etc.).
- * Also appends an InputRecord when successful (for replays / determinism).
- */
+/** Cost multiplier from ruler traits (ambitious = 10% cheaper). */
+export function buildCostMultiplier(state: GameState, realmId: string): number {
+  const ruler = state.characters.find((c) => c.realmId === realmId && c.role === "ruler");
+  if (!ruler) return 1;
+  if (ruler.traits.includes("ambitious")) return 0.9;
+  return 1;
+}
+
 export function tryBuild(state: GameState, payload: BuildPayload): boolean {
   const def = getBuildingType(payload.typeId);
   if (!def) return false;
 
-  // Can we afford it?
-  for (const [res, costStr] of Object.entries(def.cost)) {
-    const have = D(state.resources[res] ?? "0");
-    const need = D(costStr);
-    if (have.lt(need)) return false;
-  }
-
-  // Deduct cost
-  for (const [res, costStr] of Object.entries(def.cost)) {
-    const have = D(state.resources[res] ?? "0");
-    state.resources[res] = toDecimalString(have.sub(D(costStr)));
-  }
-
   const realmId = payload.realmId ?? "player";
-  const id = `b_${state.meta.tick}_${state.buildings.length}`;
+  const mult = buildCostMultiplier(state, realmId);
 
+  for (const [res, costStr] of Object.entries(def.cost)) {
+    const need = D(costStr).mul(mult).ceil();
+    if (D(state.resources[res] ?? "0").lt(need)) return false;
+  }
+
+  for (const [res, costStr] of Object.entries(def.cost)) {
+    const need = D(costStr).mul(mult).ceil();
+    state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(need));
+  }
+
+  const id = `b_${state.meta.tick}_${state.buildings.length}`;
   state.buildings.push({
     id,
     typeId: def.id,
@@ -51,16 +52,16 @@ export function tryBuild(state: GameState, payload: BuildPayload): boolean {
     issuerId: realmId,
   };
   state.inputLog.push(record);
-
   return true;
 }
 
-/** Check affordability without mutating state (for UI). */
-export function canAfford(state: GameState, typeId: string): boolean {
+export function canAfford(state: GameState, typeId: string, realmId = "player"): boolean {
   const def = getBuildingType(typeId);
   if (!def) return false;
+  const mult = buildCostMultiplier(state, realmId);
   for (const [res, costStr] of Object.entries(def.cost)) {
-    if (D(state.resources[res] ?? "0").lt(D(costStr))) return false;
+    const need = D(costStr).mul(mult).ceil();
+    if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
   return true;
 }
