@@ -47,6 +47,7 @@ export {
   getOpinion,
   rivalOpinionOfPlayer,
   playerOpinionOfRival,
+  opinionOfPlayerFromRealm,
 } from "./actions/diplomacy.js";
 
 export { tryFoundGuild, tryJoinFaction, tryLeaveFaction } from "./actions/faction.js";

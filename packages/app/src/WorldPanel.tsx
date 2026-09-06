@@ -8,6 +8,7 @@ export function WorldPanel(props: {
   onFoundGuild: () => void;
   onJoin: (id: string) => void;
   onLeave: (id: string) => void;
+  onGift?: (realmId: string) => void;
 }) {
   const state = props.state;
   if (!state) return null;
@@ -31,7 +32,16 @@ export function WorldPanel(props: {
               <strong>{r.name}</strong> — {ruler?.name}
               <div style={{ opacity: 0.7, fontSize: 12, marginLeft: 34 }}>
                 {r.era} · {r.lifestyle} · power {realmPower(state, r.id)} · opinion {op}
+                {op >= 20 ? " · friendly" : ""}
+                {op <= -40 ? " · hostile" : ""}
               </div>
+              {props.onGift ? (
+                <div style={{ marginLeft: 34, marginTop: 4 }}>
+                  <button type="button" onClick={() => props.onGift?.(r.id)}>
+                    Gift 15 gold to {ruler?.name ?? r.name}
+                  </button>
+                </div>
+              ) : null}
             </li>
           );
         })}
@@ -44,6 +54,7 @@ export function WorldPanel(props: {
             <li key={f.id} style={{ marginBottom: 8 }}>
               <strong>{f.name}</strong> ({f.kind}) stance {f.stance}
               {mine ? " · you are a member" : ""}
+              {f.stance < 0 ? " · souring" : ""}
               <div>
                 {mine ? (
                   <button type="button" onClick={() => props.onLeave(f.id)}>
