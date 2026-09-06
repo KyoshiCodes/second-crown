@@ -32,8 +32,7 @@ export function tryDeclareWar(state: GameState, payload: DeclareWarPayload): boo
     return false;
   }
 
-  const lock = peaceLockedUntil(state, attackerRealmId, defenderRealmId);
-  if (state.meta.tick < lock) return false;
+  if (state.meta.tick < peaceLockedUntil(state, attackerRealmId, defenderRealmId)) return false;
 
   const war: War = {
     id: `war_${state.meta.tick}_${state.wars.length}`,
@@ -43,14 +42,12 @@ export function tryDeclareWar(state: GameState, payload: DeclareWarPayload): boo
     status: "active",
   };
   state.wars.push(war);
-
-  const record: InputRecord = {
+  state.inputLog.push({
     tick: state.meta.tick,
     type: "declare_war",
     payload,
     issuerId: attackerRealmId,
-  };
-  state.inputLog.push(record);
+  });
   return true;
 }
 
@@ -66,19 +63,29 @@ export function tryResolveWar(
   if (!war) return { ok: false };
 
   const result = resolveBattle(state, war, rng);
-
-  const record: InputRecord = {
+  state.inputLog.push({
     tick: state.meta.tick,
     type: "resolve_war",
     payload: { warId: war.id, ...result },
     issuerId: war.attackerRealmId,
-  };
-  state.inputLog.push(record);
-
+  });
   return { ok: true, result: { ...result, warId: war.id } };
 }
 
-/** Ticks remaining before war can be declared again between player and rival. */
+export function tryWhitePeace(state: GameState): boolean {
+  const war = state.wars.find((w) => w.status === "active");
+  if (!war) return false;
+  war.status = "white_peace";
+  state.flags[`peace_${war.attackerRealmId}_${war.defenderRealmId}`] = state.meta.tick + 300;
+  state.inputLog.push({
+    tick: state.meta.tick,
+    type: "white_peace",
+    payload: { warId: war.id },
+    issuerId: "player",
+  } satisfies InputRecord);
+  return true;
+}
+
 export function peaceTicksRemaining(state: GameState): number {
   const lock = peaceLockedUntil(state, "player", "rival");
   return Math.max(0, lock - state.meta.tick);

@@ -9,7 +9,6 @@ const GRID_H = 10;
 export interface MapRenderer {
   sync(state: GameState): void;
   destroy(): void;
-  /** Register a callback for tile clicks (grid x,y). */
   onTileClick(cb: (x: number, y: number) => void): void;
 }
 
@@ -51,34 +50,29 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   app.canvas.style.cursor = "pointer";
 
-  app.canvas.addEventListener("pointermove", (ev) => {
+  function tileFromEvent(ev: PointerEvent) {
     const rect = app.canvas.getBoundingClientRect();
     const scaleX = (GRID_W * TILE) / rect.width;
     const scaleY = (GRID_H * TILE) / rect.height;
     const gx = Math.floor(((ev.clientX - rect.left) * scaleX) / TILE);
     const gy = Math.floor(((ev.clientY - rect.top) * scaleY) / TILE);
+    return { gx, gy };
+  }
+
+  app.canvas.addEventListener("pointermove", (ev) => {
+    const { gx, gy } = tileFromEvent(ev);
     if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H) {
       hover.visible = true;
       hover.x = gx * TILE;
       hover.y = gy * TILE;
-    } else {
-      hover.visible = false;
-    }
+    } else hover.visible = false;
   });
-
   app.canvas.addEventListener("pointerleave", () => {
     hover.visible = false;
   });
-
   app.canvas.addEventListener("pointerdown", (ev) => {
-    const rect = app.canvas.getBoundingClientRect();
-    const scaleX = (GRID_W * TILE) / rect.width;
-    const scaleY = (GRID_H * TILE) / rect.height;
-    const gx = Math.floor(((ev.clientX - rect.left) * scaleX) / TILE);
-    const gy = Math.floor(((ev.clientY - rect.top) * scaleY) / TILE);
-    if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H && clickCb) {
-      clickCb(gx, gy);
-    }
+    const { gx, gy } = tileFromEvent(ev);
+    if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H && clickCb) clickCb(gx, gy);
   });
 
   function sync(state: GameState): void {
@@ -102,8 +96,12 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       g.clear();
       g.rect(4, 4, TILE - 8, TILE - 8);
       g.fill({ color, alpha: complete ? 1 : 0.4 });
-      if (!complete) {
-        g.stroke({ width: 2, color: 0xffffff, alpha: 0.5 });
+      if (!complete) g.stroke({ width: 2, color: 0xffffff, alpha: 0.5 });
+      // Level pips along the bottom of the tile
+      const pips = Math.max(1, Math.min(5, b.level));
+      for (let i = 0; i < pips; i++) {
+        g.rect(6 + i * 4, TILE - 8, 3, 3);
+        g.fill({ color: 0xffffff, alpha: 0.85 });
       }
       g.x = px * TILE;
       g.y = py * TILE;
