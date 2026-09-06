@@ -1,6 +1,6 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
-import { realmPower, playerTitle } from "@second-crown/sim";
+import { realmPower, playerTitle, KINGDOM_OFFERS } from "@second-crown/sim";
 import { Crest } from "./Crest";
 import { crestFor } from "./crests";
 import { getRealmFlavor } from "./content/flavor";
@@ -11,6 +11,7 @@ export function WorldPanel(props: {
   onJoin: (id: string) => void;
   onLeave: (id: string) => void;
   onGift?: (realmId: string) => void;
+  onTrade?: (realmId: string, offerId: string) => void;
 }) {
   const state = props.state;
   if (!state) return null;
@@ -41,6 +42,7 @@ export function WorldPanel(props: {
         const power = realmPower(state, r.id);
         const opLabel = op >= 20 ? "Friendly" : op <= -40 ? "Hostile" : "Neutral";
         const opClass = op >= 20 ? "op-friendly" : op <= -40 ? "op-hostile" : "op-neutral";
+        const offers = KINGDOM_OFFERS[r.id] ?? [];
         return (
           <div key={r.id} className="sc-realm-card">
             <div className="sc-realm-card-header">
@@ -61,6 +63,11 @@ export function WorldPanel(props: {
                 Send 15 Gold Tribute to {ruler?.name ?? r.name}
               </button>
             ) : null}
+            {props.onTrade && offers.map((o) => (
+              <button key={o.id} type="button" className="sc-btn" onClick={() => props.onTrade?.(r.id, o.id)}>
+                Trade: {o.label}
+              </button>
+            ))}
           </div>
         );
       })}
