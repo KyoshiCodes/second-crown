@@ -10,7 +10,9 @@ import { WorldTab } from "./tabs/WorldTab";
 import { CrownTab } from "./tabs/CrownTab";
 import { detectCurrentHoliday, getHolidayMeta, type HolidayId } from "./seasons/holidays";
 import { WeatherOverlay } from "./seasons/WeatherOverlay";
-import { setMusicSeason, setMusicHoliday, setMusicBattle, type SeasonName } from "./music";
+import { ThemeStage } from "./seasons/ThemeStage";
+import { playRecordedLoop } from "./seasons/recorded";
+import { isMusicMuted, setMusicSeason, setMusicHoliday, setMusicBattle, type SeasonName } from "./music";
 import { sfx } from "./sfx";
 
 const TAB_LABEL: Record<Tab, string> = {
@@ -83,8 +85,14 @@ export function AppShell() {
     setMusicBattle(!!activeWar);
   }, [activeWar]);
 
+  React.useEffect(() => {
+    const id = holidayId !== "none" ? holidayId : season.toLowerCase();
+    playRecordedLoop(id, isMusicMuted());
+  }, [holidayId, season]);
+
   return (
     <div className={`sc-shell theme-${tab} season-${season.toLowerCase()} ${holiday ? holiday.themeClass : ""}`}>
+      <ThemeStage season={season} holiday={holidayId} />
       <WeatherOverlay season={season} holiday={holidayId} />
       <div className="sc-panel">
         <h1 style={{ margin: "0 0 4px", fontSize: 22 }} className="sc-title">Second Crown</h1>
