@@ -1,6 +1,7 @@
 import { Application, Graphics, Container } from "pixi.js";
 import type { GameState } from "@second-crown/shared";
-import { getBuildingType } from "@second-crown/sim";
+import { getBuildingType, currentSeason } from "@second-crown/sim";
+
 
 const TILE = 32;
 const GRID_W = 16;
@@ -12,7 +13,7 @@ export interface MapRenderer {
   onTileClick(cb: (x: number, y: number) => void): void;
 }
 
-function drawBuilding(g: Graphics, typeId: string, level: number, complete: boolean, phase: number): void {
+function drawBuilding(g: Graphics, typeId: string, level: number, complete: boolean, phase: number, season?: string): void {
   const a = complete ? 1 : 0.45;
   g.clear();
   g.rect(1, 1, TILE - 2, TILE - 2);
@@ -89,12 +90,92 @@ function drawBuilding(g: Graphics, typeId: string, level: number, complete: bool
     g.fill({ color: 0xd0d4d8, alpha: 0.35 * a });
   }
 
+  // Winter snow capping on rooftops
+  if (season === "Winter" && complete) {
+    if (typeId === "farm" || typeId === "market" || typeId === "stables" || typeId === "barracks" || typeId === "chapel") {
+      g.moveTo(6, 12); g.lineTo(16, 4.5); g.lineTo(26, 12);
+      g.stroke({ width: 2.2, color: 0xf8fafc, alpha: 0.9 });
+    } else if (typeId === "walls") {
+      g.rect(2, 17, 28, 2.5); g.fill({ color: 0xf8fafc, alpha: 0.9 });
+    } else {
+      g.rect(6, 9, 20, 2); g.fill({ color: 0xf8fafc, alpha: 0.85 });
+    }
+  }
+
   const pips = Math.max(1, Math.min(5, level));
   for (let i = 0; i < pips; i++) {
     g.rect(4 + i * 5, TILE - 6, 4, 3);
     g.fill({ color: 0xf5f0d8, alpha: 0.9 });
   }
   if (!complete) g.stroke({ width: 2, color: 0xffffff, alpha: 0.4 });
+}
+
+function paintGround(ground: Graphics, season: string): void {
+  ground.clear();
+  let colorA = 0x1a2e20;
+  let colorB = 0x16261a;
+  let gridColor = 0x27432e;
+
+  if (season === "Summer") {
+    colorA = 0x283318;
+    colorB = 0x222a14;
+    gridColor = 0x3d4b24;
+  } else if (season === "Autumn") {
+    colorA = 0x352316;
+    colorB = 0x2d1c12;
+    gridColor = 0x4d321e;
+  } else if (season === "Winter") {
+    colorA = 0x232f3c;
+    colorB = 0x1c2530;
+    gridColor = 0x394b5e;
+  }
+
+  for (let y = 0; y < GRID_H; y++) {
+    for (let x = 0; x < GRID_W; x++) {
+      const shade = (x + y) % 2 === 0 ? colorA : colorB;
+      ground.rect(x * TILE, y * TILE, TILE, TILE);
+      ground.fill({ color: shade });
+
+      // Subtle ground accents
+      if (season === "Spring") {
+        if ((x * 7 + y * 13) % 11 === 0) {
+          ground.circle(x * TILE + 8, y * TILE + 12, 1.5);
+          ground.fill({ color: 0xf472b6, alpha: 0.7 });
+        } else if ((x * 11 + y * 5) % 13 === 0) {
+          ground.circle(x * TILE + 22, y * TILE + 20, 1.5);
+          ground.fill({ color: 0xfacc15, alpha: 0.7 });
+        }
+      } else if (season === "Summer") {
+        if ((x * 9 + y * 7) % 10 === 0) {
+          ground.rect(x * TILE + 10, y * TILE + 14, 6, 2);
+          ground.fill({ color: 0x84cc16, alpha: 0.35 });
+        }
+      } else if (season === "Autumn") {
+        if ((x * 5 + y * 11) % 7 === 0) {
+          ground.circle(x * TILE + 14, y * TILE + 18, 2);
+          ground.fill({ color: 0xd97706, alpha: 0.65 });
+        } else if ((x * 13 + y * 3) % 9 === 0) {
+          ground.circle(x * TILE + 24, y * TILE + 8, 1.8);
+          ground.fill({ color: 0xb91c1c, alpha: 0.6 });
+        }
+      } else if (season === "Winter") {
+        if ((x * 3 + y * 7) % 6 === 0) {
+          ground.rect(x * TILE + 6, y * TILE + 10, 8, 4);
+          ground.fill({ color: 0xe2e8f0, alpha: 0.28 });
+        }
+      }
+    }
+  }
+
+  for (let x = 0; x <= GRID_W; x++) {
+    ground.moveTo(x * TILE, 0);
+    ground.lineTo(x * TILE, GRID_H * TILE);
+  }
+  for (let y = 0; y <= GRID_H; y++) {
+    ground.moveTo(0, y * TILE);
+    ground.lineTo(GRID_W * TILE, y * TILE);
+  }
+  ground.stroke({ width: 1, color: gridColor, alpha: 0.7 });
 }
 
 export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapRenderer> {
@@ -110,23 +191,9 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   });
 
   const ground = new Graphics();
-  for (let y = 0; y < GRID_H; y++) {
-    for (let x = 0; x < GRID_W; x++) {
-      const shade = (x + y) % 2 === 0 ? 0x1a2a1e : 0x16241a;
-      ground.rect(x * TILE, y * TILE, TILE, TILE);
-      ground.fill({ color: shade });
-    }
-  }
-  for (let x = 0; x <= GRID_W; x++) {
-    ground.moveTo(x * TILE, 0);
-    ground.lineTo(x * TILE, GRID_H * TILE);
-  }
-  for (let y = 0; y <= GRID_H; y++) {
-    ground.moveTo(0, y * TILE);
-    ground.lineTo(GRID_W * TILE, y * TILE);
-  }
-  ground.stroke({ width: 1, color: 0x2a3a30, alpha: 0.7 });
+  paintGround(ground, "Spring");
   app.stage.addChild(ground);
+
 
   const buildingsLayer = new Container();
   app.stage.addChild(buildingsLayer);
@@ -169,7 +236,15 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H && clickCb) clickCb(gx, gy);
   });
 
+  let activeSeason = "";
+
   function paint(state: GameState, t: number): void {
+    const season = currentSeason(state);
+    if (season !== activeSeason) {
+      activeSeason = season;
+      paintGround(ground, season);
+    }
+
     const seen = new Set<string>();
     for (const b of state.buildings) {
       seen.add(b.id);
@@ -182,7 +257,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       const complete = b.completesAtTick === null;
       const px = ((b.x % GRID_W) + GRID_W) % GRID_W;
       const py = ((b.y % GRID_H) + GRID_H) % GRID_H;
-      drawBuilding(g, b.typeId, b.level, complete, t + px * 0.4);
+      drawBuilding(g, b.typeId, b.level, complete, t + px * 0.4, season);
       g.x = px * TILE;
       g.y = py * TILE;
     }
@@ -194,6 +269,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       }
     }
   }
+
 
   function sync(state: GameState): void {
     lastState = state;

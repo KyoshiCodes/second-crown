@@ -12,36 +12,119 @@
 }
 
 .theme-kingdom {
+  --theme-accent: #68d391;
+  --theme-border: #2d4a2c;
+  --theme-card-bg: rgba(20, 32, 20, 0.90);
   background:
-    radial-gradient(900px 420px at 20% 0%, rgba(70, 140, 60, 0.22), transparent 55%),
-    linear-gradient(180deg, #142014 0%, #0b0e0b 60%, #070806 100%);
+    radial-gradient(ellipse 1200px 800px at 50% -10%, rgba(56, 120, 60, 0.18), transparent 70%),
+    radial-gradient(circle at 10% 20%, rgba(212, 167, 44, 0.05), transparent 40%),
+    /* Parchment vignette */
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(10, 15, 10, 0.75) 100%),
+    linear-gradient(180deg, #142014 0%, #0c120c 55%, #060806 100%);
 }
 .theme-army {
+  --theme-accent: #f6ad55;
+  --theme-border: #5a3d1f;
+  --theme-card-bg: rgba(28, 22, 14, 0.92);
   background:
-    radial-gradient(900px 420px at 80% 10%, rgba(180, 120, 40, 0.22), transparent 55%),
-    linear-gradient(180deg, #1c160e 0%, #100c08 60%, #080604 100%);
+    /* Beaten bronze & marching dust */
+    radial-gradient(ellipse 1000px 500px at 80% 0%, rgba(217, 119, 6, 0.18), transparent 60%),
+    radial-gradient(circle at 20% 80%, rgba(120, 70, 20, 0.12), transparent 50%),
+    /* Leather / dust grain vignette */
+    radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(12, 8, 4, 0.8) 100%),
+    linear-gradient(180deg, #1f1810 0%, #120d07 55%, #080604 100%);
 }
 .theme-war {
+  --theme-accent: #fc8181;
+  --theme-border: #6b2121;
+  --theme-card-bg: rgba(36, 14, 14, 0.92);
   background:
-    radial-gradient(900px 480px at 50% 0%, rgba(160, 30, 30, 0.28), transparent 55%),
-    linear-gradient(180deg, #2a1010 0%, #120808 60%, #080404 100%);
+    /* Glowing embers & war smoke */
+    radial-gradient(900px 480px at 50% -5%, rgba(220, 38, 38, 0.28), transparent 65%),
+    radial-gradient(600px 300px at 20% 60%, rgba(234, 88, 12, 0.14), transparent 55%),
+    radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(16, 4, 4, 0.85) 100%),
+    linear-gradient(180deg, #2b1111 0%, #160808 55%, #0a0404 100%);
 }
 .theme-world {
   --theme-accent: #58a6ff;
-  --theme-card-bg: rgba(12, 22, 36, 0.88);
+  --theme-card-bg: rgba(12, 22, 36, 0.90);
   --theme-border: #1d3b5e;
   background:
-    radial-gradient(900px 420px at 10% 20%, rgba(50, 90, 160, 0.25), transparent 55%),
+    /* Starfield speckles and sea fog */
+    radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 75% 35%, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    radial-gradient(900px 420px at 10% 20%, rgba(50, 90, 160, 0.25), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(4, 8, 14, 0.8) 100%),
     linear-gradient(180deg, #101820 0%, #0a0e14 60%, #06080c 100%);
 }
 .theme-crown {
   --theme-accent: #e3b341;
-  --theme-card-bg: rgba(28, 20, 10, 0.90);
+  --theme-card-bg: rgba(28, 20, 10, 0.92);
   --theme-border: #5c4518;
   background:
-    radial-gradient(900px 420px at 50% 0%, rgba(212, 167, 44, 0.28), transparent 50%),
-    linear-gradient(180deg, #241c10 0%, #120e08 60%, #080604 100%);
+    /* Gold weave and polished imperial timber */
+    radial-gradient(900px 450px at 50% -10%, rgba(234, 179, 8, 0.24), transparent 60%),
+    radial-gradient(circle at 80% 75%, rgba(212, 167, 44, 0.12), transparent 45%),
+    radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(14, 10, 4, 0.8) 100%),
+    linear-gradient(180deg, #261e12 0%, #140f09 60%, #090604 100%);
 }
+
+/* --- Holiday atmospheric overlays --- */
+.holiday-halloween {
+  --theme-accent: #fb923c !important;
+}
+.holiday-halloween .sc-panel {
+  filter: drop-shadow(0 0 16px rgba(147, 51, 234, 0.18));
+}
+.holiday-halloween .sc-realm-card,
+.holiday-halloween .sc-faction-card {
+  border-color: #7c2d12 !important;
+  box-shadow: 0 0 12px rgba(234, 88, 12, 0.15);
+}
+
+.holiday-midwinter {
+  --theme-accent: #7dd3fc !important;
+}
+.holiday-midwinter .sc-realm-card,
+.holiday-midwinter .sc-faction-card {
+  border-color: #0369a1 !important;
+  box-shadow: 0 0 14px rgba(186, 230, 253, 0.18);
+}
+
+.holiday-easter {
+  --theme-accent: #d8b4fe !important;
+}
+.holiday-easter .sc-realm-card,
+.holiday-easter .sc-faction-card {
+  border-color: #6b21a8 !important;
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.15);
+}
+
+.holiday-harvest {
+  --theme-accent: #fbbf24 !important;
+}
+.holiday-harvest .sc-realm-card,
+.holiday-harvest .sc-faction-card {
+  border-color: #92400e !important;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+}
+
+.holiday-midsummer {
+  --theme-accent: #fde047 !important;
+}
+.holiday-midsummer .sc-realm-card,
+.holiday-midsummer .sc-faction-card {
+  border-color: #854d0e !important;
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.22);
+}
+
+/* Season subtle subtitle color shifts */
+.season-spring .sc-subtitle { color: #86efac; }
+.season-summer .sc-subtitle { color: #fde047; }
+.season-autumn .sc-subtitle { color: #fdba74; }
+.season-winter .sc-subtitle { color: #bae6fd; }
+
 
 .sc-tab {
   border-radius: 6px;

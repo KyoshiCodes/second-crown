@@ -92,6 +92,8 @@ export function WarTab(props: {
               defenderPower: r.result.defenderPower ?? def,
               phases: r.result.phases,
             });
+            if (r.result.winnerId === "player") sfx.win();
+            else sfx.lose();
             return r.result.winnerId === "player" ? "Victory." : "Defeat.";
           }
           return "No active war.";

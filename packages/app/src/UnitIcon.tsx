@@ -79,6 +79,19 @@ export function UnitIcon(props: { typeId: string; size?: number }) {
       </Svg>
     );
   }
+  if (typeId === "champion") {
+    return wrap(
+      <Svg title="Champion" bg="#301535">
+        <polygon points="18,6 20,11 24,7 28,11 30,6 29,13 19,13" fill="#e3b341" stroke="#fef08a" strokeWidth="0.8" />
+        <rect x="18" y="12" width="12" height="10" rx="2" fill="#8a6f3b" />
+        <circle cx="24" cy="17" r="2.5" fill="#fef08a" />
+        <rect x="16" y="21" width="16" height="16" rx="2" fill="#581c87" />
+        <line x1="36" y1="6" x2="36" y2="42" stroke="#e2e8f0" strokeWidth="2.5" />
+        <line x1="31" y1="14" x2="41" y2="14" stroke="#d4a72c" strokeWidth="2" />
+        <polygon points="36,4 33,9 39,9" fill="#f8fafc" />
+      </Svg>
+    );
+  }
   return wrap(
     <Svg title="Militia" bg="#2a3328">
       <circle cx="24" cy="14" r="4" fill="#e6d2b0" />
