@@ -12,6 +12,10 @@ import {
 } from "./age.js";
 import { D } from "../core/decimal.js";
 
+function playerMilitia(s: ReturnType<typeof createGameState>) {
+  return D(s.units.find((u) => u.typeId === "militia" && u.realmId === "player")?.count ?? "0");
+}
+
 describe("age systems", () => {
   it("hires a single champion", () => {
     const s = createGameState({ seed: 4 });
@@ -44,11 +48,11 @@ describe("age systems", () => {
 
   it("hires mercenaries for gold", () => {
     const s = createGameState({ seed: 4 });
-    const before = D(s.units.find((u) => u.typeId === "militia")?.count ?? "0");
+    const before = playerMilitia(s);
     s.resources.gold = "30";
     expect(tryHireMercs(s)).toBe(true);
-    const after = D(s.units.find((u) => u.typeId === "militia")?.count ?? "0");
-    expect(after.eq(before.add(8))).toBe(true);
+    expect(playerMilitia(s).eq(before.add(8))).toBe(true);
+    expect(D(s.resources.gold).eq(0)).toBe(true);
   });
 
   it("collects tithe only with a chapel", () => {
