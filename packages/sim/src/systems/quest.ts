@@ -24,6 +24,20 @@ export const QUESTS = [
     gold: 25,
     done: (s: GameState) => Number(s.flags.spoils_iron ?? 0) + Number(s.flags.spoils_banners ?? 0) > 0,
   },
+  {
+    id: "swear_champion",
+    name: "Swear a champion",
+    hint: "Hire a champion on the Army tab.",
+    gold: 20,
+    done: (s: GameState) => s.units.some((u) => u.realmId === "player" && u.typeId === "champion"),
+  },
+  {
+    id: "open_route",
+    name: "Open a caravan",
+    hint: "Open a trade route on the Crown tab.",
+    gold: 15,
+    done: (s: GameState) => Number(s.flags.trade_routes ?? 0) > 0,
+  },
 ] as const;
 
 export function listQuests(state: GameState) {
