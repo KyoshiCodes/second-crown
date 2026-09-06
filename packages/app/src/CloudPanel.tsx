@@ -86,12 +86,17 @@ export function CloudPanel() {
   }, []);
 
   const token = cloudToken();
+  const summary = name
+    ? kind === "discord"
+      ? `Cloud · Discord ${name}`
+      : `Cloud · guest ${name}`
+    : "Cloud · not signed in";
 
   return (
-    <div style={{ maxWidth: 760, margin: "8px auto 0", padding: "10px 12px", background: "#16100c", borderRadius: 8 }}>
-      <strong>Cloud playtest</strong>
-      <div style={{ fontSize: 12, opacity: 0.75, margin: "4px 0 8px" }}>
-        Signed-in saves auto-push. Share a watch link so a friend can spectate your kingdom (read-only).
+    <details style={{ maxWidth: 760, margin: "8px auto 0", padding: "8px 12px", background: "#16100c", borderRadius: 8 }}>
+      <summary style={{ cursor: "pointer", fontWeight: 600 }}>{summary}</summary>
+      <div style={{ fontSize: 12, opacity: 0.75, margin: "6px 0 8px" }}>
+        Signed-in saves auto-push. Share a watch link so a friend can spectate (read-only).
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
         <input value={url} onChange={(e) => setUrl(e.target.value)} onBlur={() => setCloudUrl(url)} placeholder={defaultCloudUrl()} style={{ minWidth: 220, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" }} />
@@ -124,7 +129,7 @@ export function CloudPanel() {
             if (raw) await pushSave(raw);
             const w = await openWatch();
             setWatchUrl(w.url);
-            setStatus(`Watch link ready.`);
+            setStatus("Watch link ready.");
             void navigator.clipboard.writeText(w.url);
           } catch { setStatus("Could not open a watch room. Sign in first."); }
         }}>Share watch link</button>
@@ -133,11 +138,7 @@ export function CloudPanel() {
       {token ? (
         <div style={{ fontSize: 12, marginTop: 8 }}>
           <button type="button" onClick={() => setShowCode((v) => !v)}>{showCode ? "Hide recovery code" : "Show recovery code"}</button>
-          {showCode ? (
-            <div style={{ marginTop: 6 }}>
-              <code style={{ wordBreak: "break-all" }}>{token}</code>
-            </div>
-          ) : null}
+          {showCode ? <div style={{ marginTop: 6 }}><code style={{ wordBreak: "break-all" }}>{token}</code></div> : null}
         </div>
       ) : null}
       <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -153,10 +154,7 @@ export function CloudPanel() {
           } catch { setStatus("That recovery code is not valid on this server."); }
         }}>Restore code</button>
       </div>
-      <div style={{ fontSize: 13, marginTop: 8, fontWeight: 600 }}>
-        {name ? (kind === "discord" ? `Signed in with Discord as ${name}` : `Signed in as guest ${name}`) : "Not signed in."}
-      </div>
-      <div style={{ fontSize: 12, marginTop: 4, opacity: 0.8 }}>{status}</div>
-    </div>
+      <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8 }}>{status}</div>
+    </details>
   );
 }
