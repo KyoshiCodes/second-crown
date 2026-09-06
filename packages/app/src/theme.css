@@ -1,0 +1,75 @@
+:root { color-scheme: dark; }
+
+.sc-shell {
+  min-height: 100vh;
+  padding: 20px 20px 48px;
+  transition: background 500ms ease;
+}
+.sc-panel {
+  max-width: 760px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.theme-kingdom {
+  background:
+    radial-gradient(900px 420px at 20% 0%, rgba(70, 140, 60, 0.22), transparent 55%),
+    linear-gradient(180deg, #142014 0%, #0b0e0b 60%, #070806 100%);
+}
+.theme-army {
+  background:
+    radial-gradient(900px 420px at 80% 10%, rgba(180, 120, 40, 0.22), transparent 55%),
+    linear-gradient(180deg, #1c160e 0%, #100c08 60%, #080604 100%);
+}
+.theme-war {
+  background:
+    radial-gradient(900px 480px at 50% 0%, rgba(160, 30, 30, 0.28), transparent 55%),
+    linear-gradient(180deg, #2a1010 0%, #120808 60%, #080404 100%);
+}
+.theme-world {
+  background:
+    radial-gradient(900px 420px at 10% 20%, rgba(50, 90, 160, 0.25), transparent 55%),
+    linear-gradient(180deg, #101820 0%, #0a0e14 60%, #06080c 100%);
+}
+.theme-crown {
+  background:
+    radial-gradient(900px 420px at 50% 0%, rgba(212, 167, 44, 0.28), transparent 50%),
+    linear-gradient(180deg, #241c10 0%, #120e08 60%, #080604 100%);
+}
+
+.sc-tab {
+  border-radius: 6px;
+  border: 1px solid #3a3228;
+  background: #1c1814;
+  color: #e8dcc8;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.sc-tab.active {
+  border-color: #d4a72c;
+  background: #2a2214;
+  box-shadow: 0 0 0 1px rgba(212, 167, 44, 0.35);
+}
+
+.sc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@keyframes sc-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 167, 44, 0.35); }
+  50% { box-shadow: 0 0 18px 2px rgba(212, 167, 44, 0.45); }
+}
+.sc-battle {
+  animation: sc-pulse 2.4s ease-in-out infinite;
+}
+@keyframes sc-march {
+  0% { transform: translateX(0); opacity: 0.7; }
+  50% { transform: translateX(6px); opacity: 1; }
+  100% { transform: translateX(0); opacity: 0.7; }
+}
+.sc-march {
+  display: inline-block;
+  animation: sc-march 1.6s ease-in-out infinite;
+}
