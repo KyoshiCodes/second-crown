@@ -2,11 +2,26 @@ const TOKEN_KEY = "sc-cloud-token";
 const NAME_KEY = "sc-cloud-name";
 const URL_KEY = "sc-cloud-url";
 
+const ORACLE = "http://129.153.17.72:8787";
+
+export function defaultCloudUrl(): string {
+  try {
+    const { protocol, hostname, port } = window.location;
+    if (hostname && hostname !== "localhost" && hostname !== "127.0.0.1") {
+      const p = port ? `:${port}` : "";
+      return `${protocol}//${hostname}${p}`;
+    }
+  } catch {
+    /* ignore */
+  }
+  return ORACLE;
+}
+
 export function cloudUrl(): string {
   try {
-    return localStorage.getItem(URL_KEY) || "http://localhost:8787";
+    return localStorage.getItem(URL_KEY) || defaultCloudUrl();
   } catch {
-    return "http://localhost:8787";
+    return defaultCloudUrl();
   }
 }
 
@@ -63,6 +78,22 @@ export async function createGuest(name: string) {
   const body = await res.json();
   setSession(body.token, body.name);
   return body;
+}
+
+export async function restoreToken(token: string) {
+  const clean = token.trim();
+  if (!clean) throw new Error("empty");
+  localStorage.setItem(TOKEN_KEY, clean);
+  const res = await fetch(`${cloudUrl()}/me`, {
+    headers: { Authorization: `Bearer ${clean}` },
+  });
+  if (!res.ok) {
+    localStorage.removeItem(TOKEN_KEY);
+    throw new Error("bad code");
+  }
+  const me = await res.json();
+  setSession(clean, me.name);
+  return me;
 }
 
 export function discordLoginUrl(): string {
