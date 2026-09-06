@@ -11,8 +11,8 @@ export function upgradeCost(state: GameState, buildingId: string): Record<string
   if (b.level >= MAX_BUILDING_LEVEL) return null;
   const def = getBuildingType(b.typeId);
   if (!def) return null;
-  const mult = buildCostMultiplier(state, b.realmId).mul ? buildCostMultiplier(state, b.realmId) : buildCostMultiplier(state, b.realmId);
-  const scale = b.level + 1; // next level costs base * nextLevel
+  const mult = buildCostMultiplier(state, b.realmId);
+  const scale = b.level + 1;
   const out: Record<string, string> = {};
   for (const [res, costStr] of Object.entries(def.cost)) {
     out[res] = toDecimalString(D(costStr).mul(scale).mul(mult).ceil());
@@ -43,12 +43,11 @@ export function tryUpgrade(state: GameState, buildingId: string): boolean {
   }
   b.level += 1;
 
-  const record: InputRecord = {
+  state.inputLog.push({
     tick: state.meta.tick,
     type: "upgrade",
     payload: { buildingId, level: b.level },
     issuerId: b.realmId,
-  };
-  state.inputLog.push(record);
+  } satisfies InputRecord);
   return true;
 }

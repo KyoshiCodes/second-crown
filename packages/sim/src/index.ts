@@ -27,11 +27,16 @@ export { RivalSystem } from "./systems/rival.js";
 export { tryBuild, canAfford, buildCostMultiplier } from "./actions/build.js";
 export type { BuildPayload } from "./actions/build.js";
 
+export { tryUpgrade, canUpgrade, upgradeCost, MAX_BUILDING_LEVEL } from "./actions/upgrade.js";
+
 export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
 
 export { tryDeclareWar, tryResolveWar, peaceTicksRemaining } from "./actions/war.js";
 export type { DeclareWarPayload } from "./actions/war.js";
+
+export { tryTrade, canTrade, MARKET_OFFERS } from "./actions/trade.js";
+export type { TradeOffer } from "./actions/trade.js";
 
 export { tryAscend, canAscend, ascendThreshold } from "./actions/prestige.js";
 
