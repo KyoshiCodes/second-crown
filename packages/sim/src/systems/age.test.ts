@@ -10,6 +10,7 @@ import {
   championName,
   tryCollectTithe,
 } from "./age.js";
+import { D } from "../core/decimal.js";
 
 describe("age systems", () => {
   it("hires a single champion", () => {
@@ -43,10 +44,11 @@ describe("age systems", () => {
 
   it("hires mercenaries for gold", () => {
     const s = createGameState({ seed: 4 });
+    const before = D(s.units.find((u) => u.typeId === "militia")?.count ?? "0");
     s.resources.gold = "30";
     expect(tryHireMercs(s)).toBe(true);
-    const m = s.units.find((u) => u.typeId === "militia");
-    expect(Number(m?.count)).toBe(8);
+    const after = D(s.units.find((u) => u.typeId === "militia")?.count ?? "0");
+    expect(after.eq(before.add(8))).toBe(true);
   });
 
   it("collects tithe only with a chapel", () => {
