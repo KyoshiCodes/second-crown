@@ -8,6 +8,10 @@ import {
   tryCollectTithe,
   titheTicksLeft,
   countBuilding,
+  tryBanquet,
+  banquetTicksLeft,
+  tryFortify,
+  fortifyTicksLeft,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
@@ -17,6 +21,8 @@ export function DecreesPanel(props: { state: GameState | undefined; act: ActFn }
   const routes = state ? routeGoldPerTick(state) : 0;
   const chapels = state ? countBuilding(state, "chapel") : 0;
   const titheWait = state ? titheTicksLeft(state) : 0;
+  const banquetWait = state ? banquetTicksLeft(state) : 0;
+  const fortWait = state ? fortifyTicksLeft(state) : 0;
   return (
     <div style={{ margin: "12px 0" }}>
       <h3>Royal decrees</h3>
@@ -34,6 +40,21 @@ export function DecreesPanel(props: { state: GameState | undefined; act: ActFn }
           </button>
         );
       })}
+      <h3>Court</h3>
+      <button
+        type="button"
+        disabled={!state || banquetWait > 0}
+        onClick={() => act((st) => (tryBanquet(st) ? "The hall drinks. Opinions ease." : "Need 25 food and 10 gold, or the hall is spent."))}
+      >
+        {banquetWait > 0 ? `Banquet in ${Math.ceil(banquetWait / 10)}s` : "Hold banquet (25 food, 10 gold, +5 opinion)"}
+      </button>
+      <button
+        type="button"
+        disabled={!state || fortWait > 0}
+        onClick={() => act((st) => (tryFortify(st) ? "Palisades up. +6 power." : "Need 20 stone, or walls already stand."))}
+      >
+        {fortWait > 0 ? `Fortify ${Math.ceil(fortWait / 10)}s left` : "Fortify (20 stone, +6 power ~40s)"}
+      </button>
       <h3>Trade routes</h3>
       <p style={{ fontSize: 12 }}>Routes {routes}/3 - each pays 1 gold per tick.</p>
       <button
