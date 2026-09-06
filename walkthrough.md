@@ -1,60 +1,77 @@
-# Walkthrough — Gemini Immersion Foundation (bakeoff/gemini-immersion)
+# Claude Fort — walkthrough
 
-## Overview
-This lane transforms Second Crown's presentation into a living, breathing pixel hold inspired by Realm Grinder and classic isometric kingdom builders, featuring:
-1. **Isometric 2.5D Pixel Hold Map** (`packages/render`): 2:1 isometric diamond grid replacing the flat colored rectangles.
-2. **Living Hold Citizens (Walkers)**: 8 presentation-only walker sprites (villager, woodcutter, miner, merchant, guard, scholar) that dynamically stroll between buildings and idle in town squares with walking stride animations and depth-sorting.
-3. **Theme Packs System** (`packages/app/src/themes/`): 9 comprehensive theme packs (`halloween`, `midwinter`, `easter`, `harvest`, `midsummer`, `spring`, `summer`, `autumn`, `winter`) controlling atmospheric backgrounds, UI chrome, audio files, and map ambient tints.
-4. **Recorded Audio with Synth Fallback**: `audioManager.ts` streams recorded `/audio/<id>.ogg` tracks (including the owner's `packages/app/public/audio/halloween.ogg`), suppressing the synth bed while recorded music plays, and cleanly falling back to the procedural synth bed when files are absent.
-5. **Sticky TesterBar**: `zIndex: 100` pins the holiday selector so it never disappears under the map or stages.
-6. **Strict Sim & Server Purity**: `git diff main -- packages/sim server` is completely empty.
+Branch: `bakeoff/claude-fort` → PR into `main` (not merged).
+Scope per `docs/AGENT-TASK.md` (Claude lane, "Two lanes after PR 7"): sim foundations only —
+fortification buildings that change realm power/defense, and a citizen stub with `job` + `tile`.
+No theme, Pixi, or presentation changes.
 
----
+## What changed
 
-## Key Changes
+### 1. Fortification combat hook (`packages/sim/src/systems/combat.ts`)
 
-### 1. Isometric Pixel Hold & Living Walkers (`packages/render/src/index.ts`)
-- **Projection & Clicks**: Implemented 2:1 isometric diamond projection (`TILE_W = 40`, `TILE_H = 20`, viewport `560×360`). Exact inverse screen-to-grid mapping ensures clicking diamond tiles accurately triggers build and upgrade callbacks `(0..15, 0..9)`.
-- **Terrain & Cobblestones**: Base terrain diamonds with seasonal palettes, a cobblestone road network connecting the hold, and a 3D stone cliff foundation rim along the southern perimeter.
-- **Pixel Buildings**: Dedicated isometric pixel art for all 15 building types (`farm`, `lumber_camp`, `quarry`, `mason`, `gold_mine`, `mint`, `granary`, `sawmill`, `market`, `barracks`, `stables`, `archery_range`, `siege_workshop`, `watchtower`, `chapel`, `walls`, and fallback) with shaded facets, construction scaffolding, level upgrade pips (1–5), animated chimney smoke, and holiday decorations (snow caps, jack-o'-lanterns).
-- **Living Presentation Walkers**: 8 animated citizens with walking stride cycles, direction flipping, and idle routines. Zero sim tick rules.
-- **Atmospheric Particles & Lighting**: Real-time particles for each season and holiday (snowflakes, spectral embers, fireflies, petals, autumn leaves) plus ambient color tinting.
-- **Hover Diamond**: Interactive gold ground diamond highlighting the hovered tile.
+- Extracted the existing watchtower/walls/fortify power bonus (previously inlined in
+  `realmPower`) into `fortificationPower(state, realmId)`, and added a new **`keep`**
+  building (`packages/sim/src/content/buildings.ts`) to it: +8 flat combat power, same
+  pattern as walls (+4) and watchtower (+2).
+- Added `defenseBonus(state, realmId)`: an additional +8 per keep that only applies to
+  whichever side is **defending** a war. `resolveBattle` now computes
+  `def = realmPower(defender) + defenseBonus(defender)`, so a keep is worth more when
+  you're holding a siege than when you're marching out to attack. This is the "hook" —
+  a small, isolated seam future combat content (e.g. a moat, a garrison decree) can plug
+  into the same way without touching `realmPower`'s general-purpose callers (raid power,
+  rival comparisons, world-clash, war odds display all keep their existing behavior
+  unchanged since none of them pass a role).
+- `realmPower` itself is unchanged for existing buildings (walls/watchtower/fortify still
+  count the same as before), so no existing test or balance value moved.
 
-### 2. Unified Theme Packs System (`packages/app/src/themes/`)
-- `types.ts`: `ThemePack`, `ThemeChrome`, and `MapAmbientConfig` types.
-- `packs.ts`: 9 complete theme packs (`halloween`, `midwinter`, `easter`, `harvest`, `midsummer`, `spring`, `summer`, `autumn`, `winter`) with rich radial/linear CSS background gradients, tab/badge chrome, and map color profiles.
-- `audioManager.ts`: HTML5 audio coordinator that plays `/audio/<id>.ogg` tracks (preserving `halloween.ogg`), suppresses synth melody when recorded music plays, falls back smoothly to procedural synth bed in `music.ts`, and activates battle audio during active wars.
+### 2. Citizen job stub (`packages/sim/src/systems/citizens.ts`, `content/citizens.ts`)
 
-### 3. Application Shell & UI Styling (`packages/app/src/AppShell.tsx`, `TesterBar.tsx`, `theme.css`)
-- AppShell synchronizes active pack styling, background gradients, and map ambient colors.
-- `theme.css` provides pack classes (`.pack-halloween`, `.pack-midwinter`, etc.) with customized `--theme-accent`, `--theme-border`, and `--theme-card-bg`.
-- `TesterBar.tsx` sticky styling upgraded to `zIndex: 100` to remain pinned above the isometric canvas and theme stage.
+- Added `CitizenInstance` to `@second-crown/shared`: `{ id, realmId, job, tile }`, where
+  `job` is one of `unassigned | farmer | woodcutter | miner | merchant | guard | scholar`
+  (deliberately the same vocabulary as the presentation walker roles already in
+  `packages/render/src/index.ts`, so a later pass can bind one to the other) and `tile`
+  is `{ x, y } | null`.
+- `GameState.citizens: CitizenInstance[]` is new, defaulted to `[]` in `createGameState`
+  and migrated in `ensureWorldStubs` (`save/serialize.ts`) for old saves.
+- Stub API only, no economy: `createCitizen`, `assignJob`, `assignTile`,
+  `citizensByRealm`, `countCitizensByJob`. Nothing calls these yet — no citizens are
+  spawned, no production/upkeep is attached, and nothing runs on tick. That's
+  intentionally left for a later sim pass per the brief ("No full economy").
+- `jobForBuildingType(typeId)` maps a building type to a suggested job (farm→farmer,
+  quarry/mason/gold_mine→miner, watchtower/walls/keep/barracks→guard, chapel→scholar,
+  etc.) — a lookup table only, not wired into `tryBuild`. This is what ties the two
+  halves of the task together: the same fortification buildings that grant combat power
+  also suggest "guard" as their citizen job, for whenever citizen assignment lands.
 
----
+### Why not more
 
-## Verification Results
+- Did not touch `TickEngine`/`SYSTEMS` — the engine's event/analytic fast-forward
+  machinery (`nextEventTick`, `advanceAnalytic`) is nontrivial to satisfy correctly, and
+  a stub with no economy doesn't need a tick hook yet.
+- Did not wire `keep` into the app's build menu or Pixi/theme rendering — out of lane
+  (Gemini/presentation), and the brief says "sim foundations only."
+- Did not change `realmPower`'s signature (e.g. adding a `role` param) — it's called from
+  five other places (`raid.ts`, `rival.ts`, `worldClash.ts`, `war.ts` odds, tests) that
+  aren't attacker/defender-specific; adding a role param there would be a much larger,
+  riskier diff than the brief asked for. `defenseBonus` is additive instead.
 
-### Automated Tests
-- **Sim Vitest Suite**:
-  ```
-  npm test
-  ✓ 18 passed (18 test files, 48 passed tests)
-  ```
-- **App & Render Build**:
-  ```
-  npm run build -w @second-crown/app
-  ✓ built in 3.71s (TypeScript typecheck & Vite production bundle green)
-  ```
-- **Server Ledger Suite**:
-  ```
-  node --test server/ledger.test.mjs server/ledger-http.test.mjs
-  ℹ pass 10, fail 0
-  ```
-- **Sim & Server Invariant Check**:
-  ```
-  git diff main -- packages/sim server
-  (empty diff — zero edits to packages/sim or server)
-  ```
-- **Asset Integrity**:
-  `packages/app/public/audio/halloween.ogg` verified present and untouched.
+## Tests
+
+Added to `packages/sim`:
+- `systems/combat.test.ts`: keep adds flat power to both sides; keep's defense bonus
+  only shows up when the keep's owner is the defender in `resolveBattle`, not the
+  attacker.
+- `systems/citizens.test.ts`: default empty roster, create/assign job+tile, unknown-id
+  assignment fails safely, building→job mapping (including fortifications → guard).
+- `save/serialize.test.ts`: citizens round-trip through serialize/deserialize, and
+  `ensureWorldStubs` defaults a pre-citizens save to `citizens: []`.
+
+## Verify
+
+```
+npm test                              # 20 files, 57 tests, all green
+npm run build -w @second-crown/app    # tsc -b (workspace-wide) + vite build, clean
+```
+
+`git diff main -- packages/sim server` is non-empty (required); no changes outside
+`packages/shared` (new shared type) and `packages/sim`.
