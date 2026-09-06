@@ -246,6 +246,7 @@ export function AppShell() {
   const barracksN = state ? countBuilding(state, "barracks") : 0;
   const marketsN = state ? countBuilding(state, "market") : 0;
   const selectedName = selectedBuild ? getBuildingType(selectedBuild)?.name ?? selectedBuild : "None";
+  const otherRealms = (state?.realms ?? []).filter((r) => r.id !== "player");
 
   const worldEntries = [...worldLog].reverse();
 
@@ -379,19 +380,24 @@ export function AppShell() {
             onGift={() => act((st) => (tryGiftGold(st) ? "Gift sent." : "Need 15 gold."))}
           />
           <BattleVisual snap={battleSnap} active={!!activeWar} />
-          <button
-            type="button"
-            disabled={!canDeclare}
-            onClick={() =>
-              act((st) =>
-                tryDeclareWar(st, { attackerRealmId: "player", defenderRealmId: "rival" })
-                  ? "War declared on Iron March."
-                  : "Cannot declare war."
-              )
-            }
-          >
-            {peaceLeft > 0 ? `Peace (${Math.ceil(peaceLeft / 10)}s)` : "Declare on Iron March"}
-          </button>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {otherRealms.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                disabled={!canDeclare}
+                onClick={() =>
+                  act((st) =>
+                    tryDeclareWar(st, { attackerRealmId: "player", defenderRealmId: r.id })
+                      ? `War declared on ${r.name}.`
+                      : "Cannot declare war."
+                  )
+                }
+              >
+                {peaceLeft > 0 ? `Peace (${Math.ceil(peaceLeft / 10)}s)` : `Declare on ${r.name}`}
+              </button>
+            ))}
+          </div>
           <button
             type="button"
             disabled={!activeWar}
@@ -406,8 +412,9 @@ export function AppShell() {
                     attackerId: war.attackerRealmId,
                     defenderId: war.defenderRealmId,
                     winnerId: r.result.winnerId,
-                    attackerPower: atk,
-                    defenderPower: def,
+                    attackerPower: r.result.attackerPower ?? atk,
+                    defenderPower: r.result.defenderPower ?? def,
+                    phases: r.result.phases,
                   });
                   return r.result.winnerId === "player" ? "Victory." : "Defeat.";
                 }
