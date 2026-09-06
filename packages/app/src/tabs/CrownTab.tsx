@@ -12,6 +12,8 @@ import {
   tryRenameGuild,
   trySetGuildCrest,
   GUILD_CRESTS,
+  DOCTRINES,
+  tryPickDoctrine,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -38,12 +40,34 @@ export function CrownTab(props: {
   const shield = state ? shieldTicksLeft(state) : 0;
   const guild = state ? playerGuild(state) : null;
   const [guildName, setGuildName] = React.useState(guild?.name ?? "Your Banner");
+  const prestige = state ? Number(state.flags.prestige_level ?? 0) : 0;
+  const doctrine = state ? String(state.flags.doctrine ?? "") : "";
+  const locked = state ? Number(state.flags.doctrine_lock ?? 0) === prestige && Boolean(doctrine) : false;
 
   return (
     <>
       <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} state={state} />
       <p>Ascend at {formatLetterSuffix(ascendNeed)} total resources.</p>
-      <button type="button" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended." : "Not ready."))}>Ascend</button>
+      <button type="button" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended. Pick a doctrine." : "Not ready."))}>Ascend</button>
+
+      <h3>Doctrine</h3>
+      {prestige < 1 ? (
+        <p style={{ fontSize: 13 }}>Ascend once to swear a law for this age.</p>
+      ) : (
+        <>
+          <p style={{ fontSize: 13 }}>{doctrine ? `Current: ${doctrine}` : "Swear one law. You may change it again after the next ascent."}</p>
+          {DOCTRINES.map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              disabled={locked && doctrine === d.id}
+              onClick={() => act((st) => (tryPickDoctrine(st, d.id) ? `Swore ${d.name}.` : "Already sworn this age, or not yet ascended."))}
+            >
+              {d.name} - {d.blurb}
+            </button>
+          ))}
+        </>
+      )}
 
       <h3>Spoils</h3>
       <p style={{ fontSize: 13 }}>Iron {iron} · Banners {banners} · Relics {relics}</p>
@@ -80,7 +104,7 @@ export function CrownTab(props: {
       <h3>Achievements</h3>
       <ul style={{ fontSize: 13 }}>
         {(state ? listAchievements(state) : []).map((a) => (
-          <li key={a.def.id}>{a.done ? "[x]" : "[ ]"} {a.def.name} — {a.def.hint}</li>
+          <li key={a.def.id}>{a.done ? "[x]" : "[ ]"} {a.def.name} - {a.def.hint}</li>
         ))}
       </ul>
 
