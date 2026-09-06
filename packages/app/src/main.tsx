@@ -28,11 +28,15 @@ import {
   tryTrade,
   canTrade,
   MARKET_OFFERS,
+  tryWhitePeace,
+  getEventLog,
   type GameState,
+  type WorldEvent,
 } from "@second-crown/sim";
 import { createMapRenderer, type MapRenderer } from "@second-crown/render";
 import { saveToIndexedDb, loadFromIndexedDb, clearIndexedDbSave } from "./save/indexedDb";
 import { downloadSave, pickSaveFile } from "./save/fileIo";
+import { EventPanel } from "./EventPanel";
 
 type Tab = "kingdom" | "army" | "war" | "crown";
 
@@ -65,6 +69,10 @@ function App() {
   const [ascendNeed, setAscendNeed] = React.useState(30_000);
   const [selectedBuild, setSelectedBuild] = React.useState<string | null>("farm");
   const [trainQty, setTrainQty] = React.useState(1);
+  const [lastEvent, setLastEvent] = React.useState("");
+  const [lastEventTick, setLastEventTick] = React.useState(0);
+  const [eventLog, setEventLog] = React.useState<WorldEvent[]>([]);
+  const seenEventTick = React.useRef(0);
   const engineRef = React.useRef<TickEngine | null>(null);
   const mapRef = React.useRef<MapRenderer | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
@@ -90,6 +98,15 @@ function App() {
     setPrestige(Number(s.flags["prestige_level"] ?? 0));
     setAscendReady(canAscend(s));
     setAscendNeed(ascendThreshold(s));
+    const evText = typeof s.flags["last_event"] === "string" ? s.flags["last_event"] : "";
+    const evTick = Number(s.flags["last_event_tick"] ?? 0);
+    setLastEvent(evText);
+    setLastEventTick(evTick);
+    setEventLog(getEventLog(s));
+    if (evTick > 0 && evTick !== seenEventTick.current) {
+      seenEventTick.current = evTick;
+      setStatus(evText);
+    }
     mapRef.current?.sync(s);
 
     const rivalWar = s.wars.find(
@@ -300,6 +317,18 @@ function App() {
     setStatus(`Ascended! Prestige ${st.flags["prestige_level"]}`);
     syncUi(eng);
     saveToIndexedDb(serializeState(st)).catch(() => {});
+  };
+
+  const handleWhitePeace = () => {
+    const eng = engineRef.current;
+    if (!eng) return;
+    const st = eng.getState();
+    const ok = tryWhitePeace(st);
+    setStatus(ok ? "White peace signed" : "No active war to end");
+    if (ok) {
+      syncUi(eng);
+      saveToIndexedDb(serializeState(st)).catch(() => {});
+    }
   };
 
   const handleTrade = (offerId: string) => {
@@ -594,6 +623,24 @@ function App() {
             >
               Fight battle
             </button>
+            <button
+              type="button"
+              onClick={handleWhitePeace}
+              disabled={!activeWar}
+              style={{
+                padding: "8px 12px",
+                borderRadius: 6,
+                border: "1px solid #30363d",
+                background: activeWar ? "#6e7681" : "#21262d",
+                color: "#fff",
+                cursor: activeWar ? "pointer" : "not-allowed",
+              }}
+            >
+              White peace
+            </button>
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} />
           </div>
           <ul style={{ fontSize: 13, marginTop: 12 }}>
             {wars.length === 0 && <li style={{ opacity: 0.6 }}>No wars yet</li>}
@@ -608,6 +655,24 @@ function App() {
 
       {tab === "crown" && (
         <>
+          <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} />
+          {activeWar && (
+            <button
+              type="button"
+              onClick={handleWhitePeace}
+              style={{
+                padding: "8px 12px",
+                borderRadius: 6,
+                border: "1px solid #30363d",
+                background: "#6e7681",
+                color: "#fff",
+                cursor: "pointer",
+                marginBottom: 16,
+              }}
+            >
+              White peace (end war without a fight)
+            </button>
+          )}
           <h3 style={{ fontSize: 15, marginTop: 0 }}>People</h3>
           <ul style={{ fontSize: 13 }}>
             {characters.map((c) => {
