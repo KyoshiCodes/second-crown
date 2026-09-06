@@ -5,6 +5,7 @@ import Decimal from "break_infinity.js";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { flagNum } from "./wave.js";
 import { decreeActive } from "./decree.js";
+import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
 
 export function productionBonus(state: GameState): number {
   let bonus = 0;
@@ -13,6 +14,7 @@ export function productionBonus(state: GameState): number {
   bonus += flagNum(state, "craft_income");
   if (state.flags.doctrine === "harvest") bonus += 2;
   if (decreeActive(state, "rite")) bonus += 3;
+  bonus += seasonProductionBonus(state);
   const advisor = state.characters.find(
     (c) => c.realmId === "player" && c.role === "advisor" && c.traits.includes("clever")
   );
@@ -52,6 +54,8 @@ export const EconomySystem = {
         totals[res] = (totals[res] ?? D(0)).add(amount);
       }
     }
+    const routes = routeGoldPerTick(state);
+    if (routes > 0) totals.gold = (totals.gold ?? D(0)).add(D(routes).mul(ticks));
     for (const [res, amount] of Object.entries(totals)) {
       state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").add(amount));
     }
@@ -80,6 +84,8 @@ export function computeIncomePerSecond(state: GameState): Record<string, string>
       perTick[res] = (perTick[res] ?? D(0)).add(rateFor(state, b.typeId, b.level, res, rateStr ?? "0"));
     }
   }
+  const routes = routeGoldPerTick(state);
+  if (routes > 0) perTick.gold = (perTick.gold ?? D(0)).add(routes);
   const perSecond: Record<string, string> = {};
   for (const [res, rate] of Object.entries(perTick)) {
     perSecond[res] = toDecimalString(rate.mul(TICKS_PER_SECOND));
