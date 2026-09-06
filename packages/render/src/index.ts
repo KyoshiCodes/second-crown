@@ -68,6 +68,16 @@ function drawBuilding(g: Graphics, typeId: string, level: number, complete: bool
     const flap = Math.sin(phase) * 3;
     g.moveTo(16, 6); g.lineTo(16, 12); g.stroke({ width: 1, color: 0xd4a72c, alpha: a });
     g.moveTo(16, 6); g.lineTo(22 + flap, 8); g.lineTo(16, 10); g.fill({ color: 0xd4a72c, alpha: a });
+  } else if (typeId === "chapel") {
+    g.rect(8, 14, 16, 14); g.fill({ color: 0xc4b5fd, alpha: a });
+    g.moveTo(8, 14); g.lineTo(16, 6); g.lineTo(24, 14); g.fill({ color: 0x7c3aed, alpha: a });
+    g.rect(15, 4, 2, 8); g.fill({ color: 0xf5f0d8, alpha: a });
+    g.rect(13, 6, 6, 2); g.fill({ color: 0xf5f0d8, alpha: a });
+  } else if (typeId === "walls") {
+    g.rect(2, 18, 28, 10); g.fill({ color: 0x64748b, alpha: a });
+    g.rect(4, 12, 6, 16); g.fill({ color: 0x475569, alpha: a });
+    g.rect(22, 12, 6, 16); g.fill({ color: 0x475569, alpha: a });
+    g.rect(13, 10, 6, 18); g.fill({ color: 0x94a3b8, alpha: a });
   } else {
     g.rect(6, 10, 20, 16);
     g.fill({ color: getBuildingType(typeId)?.color ?? 0x4488ff, alpha: a });
