@@ -66,6 +66,14 @@ export const UNIT_TYPES: Record<string, UnitType> = {
     trainTicks: 80,
     blurb: "Breaks walls and hosts",
   },
+  champion: {
+    id: "champion",
+    name: "Champion",
+    power: 18,
+    cost: { gold: "80", food: "40" },
+    trainTicks: 1,
+    blurb: "One named blade. Hire from the Army tab.",
+  },
 };
 
 export function getUnitType(id: string): UnitType | undefined {
@@ -73,5 +81,5 @@ export function getUnitType(id: string): UnitType | undefined {
 }
 
 export function listUnitTypes(): UnitType[] {
-  return Object.values(UNIT_TYPES);
+  return Object.values(UNIT_TYPES).filter((u) => u.id !== "champion");
 }
