@@ -2,32 +2,21 @@
 
 Last updated: 2026-09-06 | Version: playtest-0.3
 
-## Doc rule (do not skip)
+## Doc rule
 
-After every meaningful merge to `main` update, in the same change set:
+Meaningful `main` merge → update HANDOFF, CHANGELOG, USER-NOTES, DEV-NOTES together.
 
-1. `docs/HANDOFF.md` (full rewrite of sections 1–12 if the version moved)
-2. `docs/CHANGELOG.md` (newest first)
-3. `docs/USER-NOTES.md` (player-facing)
-4. `docs/DEV-NOTES.md` (this file — pitfalls, files touched)
+## HTTPS
 
-Do not wait for a later session. Local-only test branches can skip until merge.
+Bare IPs cannot get a public cert. Playbook: `docs/HTTPS.md`.
+Do not point Discord at a self-signed cert. Do not close port 8787 until Caddy health works.
 
-## Pitfalls already paid for
+After Caddy works, `PUBLIC_APP_URL` and `DISCORD_REDIRECT` must use `https://129.153.17.72.sslip.io`.
 
-- `engineRef` must be read each tick or New Game keeps the old engine
-- Peace flags are per pair `peace_a_b`; do not use one global lock
-- Combat tests assume militia food costs without `craft_train`
-- `tryFoundGuild` lives in `actions/faction.ts`, not `wave.ts`
-- Live site is **one** process: `pm2 restart sc-cloud` on 8787. There is no `sc-game`
-- Discord env is on the VM; `pm2 restart` without `--update-env` keeps it
-- Pixi map animation is visual-only; do not call RNG from the ticker
+## Units
 
-## Clash flags
+`packages/sim/src/content/units.ts` + `packages/app/src/UnitIcon.tsx`. Army tab lists `listUnitTypes()` automatically.
 
-`world_a`, `world_b`, `world_until`, `world_side` on `state.flags`. Resolved in `tickWorldClash` from RivalSystem every 100 ticks.
+## Deploy
 
-## Deploy reminder for the owner
-
-Windows: `git pull` + `npm test` + build.  
-SSH: same, then `pm2 restart sc-cloud` only.
+`pm2 restart sc-cloud` only. No `sc-game`.
