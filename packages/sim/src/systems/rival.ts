@@ -2,6 +2,7 @@ import type { GameState } from "@second-crown/shared";
 import { realmPower } from "./combat.js";
 import { getOpinion } from "../actions/diplomacy.js";
 import { archetypeForRealm, driftOpinions, growRealm } from "../content/world.js";
+import { pushWorldLog } from "./events.js";
 
 export const RivalSystem = {
   nextEventTick(_state: GameState): number | null {
@@ -57,6 +58,7 @@ function maybeDeclare(state: GameState, realmId: string, atTick: number): void {
   const playerP = realmPower(state, "player");
   if (theirP < playerP + needEdge) return;
 
+  const name = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
   state.wars.push({
     id: `war_${realmId}_${atTick}`,
     attackerRealmId: realmId,
@@ -70,4 +72,5 @@ function maybeDeclare(state: GameState, realmId: string, atTick: number): void {
     payload: { attackerRealmId: realmId, defenderRealmId: "player" },
     issuerId: realmId,
   });
+  pushWorldLog(state, "declare", `${name} declares war on Your Crown`);
 }
