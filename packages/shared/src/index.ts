@@ -35,6 +35,27 @@ export interface UnitInstance {
   armyId: string | null;
 }
 
+export type CitizenJobId =
+  | "unassigned"
+  | "farmer"
+  | "woodcutter"
+  | "miner"
+  | "merchant"
+  | "guard"
+  | "scholar";
+
+export interface CitizenTile {
+  x: number;
+  y: number;
+}
+
+export interface CitizenInstance {
+  id: string;
+  realmId: string;
+  job: CitizenJobId;
+  tile: CitizenTile | null;
+}
+
 export interface Realm {
   id: string;
   name: string;
@@ -89,6 +110,7 @@ export interface GameState {
   resources: Record<string, DecimalString>;
   buildings: BuildingInstance[];
   units: UnitInstance[];
+  citizens: CitizenInstance[];
   realms: Realm[];
   characters: Character[];
   opinions: OpinionEdge[];

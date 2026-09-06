@@ -6,6 +6,27 @@ import type { RngStreams } from "../core/rng.js";
 import { grantVictorySpoils, flagNum } from "./wave.js";
 import { fortifyPower } from "./court.js";
 
+export function fortificationPower(state: GameState, realmId: string): number {
+  if (realmId !== "player") return 0;
+  return (
+    countBuilding(state, "watchtower") * 2 +
+    countBuilding(state, "walls") * 4 +
+    countBuilding(state, "keep") * 8 +
+    fortifyPower(state)
+  );
+}
+
+/**
+ * Extra power fortifications only grant while defending a siege, on top of
+ * the flat fortificationPower already folded into realmPower. Keeps are the
+ * first building to use this hook: presentation/combat can call this to show
+ * a "defender's advantage" separate from raw power.
+ */
+export function defenseBonus(state: GameState, realmId: string): number {
+  if (realmId !== "player") return 0;
+  return countBuilding(state, "keep") * 8;
+}
+
 export function realmPower(state: GameState, realmId: string): number {
   let power = 0;
   for (const u of state.units) {
@@ -14,10 +35,8 @@ export function realmPower(state: GameState, realmId: string): number {
     if (!def) continue;
     power += def.power * D(u.count).toNumber();
   }
+  power += fortificationPower(state, realmId);
   if (realmId === "player") {
-    power += countBuilding(state, "watchtower") * 2;
-    power += countBuilding(state, "walls") * 4;
-    power += fortifyPower(state);
     power += flagNum(state, "craft_fort") * 3;
   }
   return power;
@@ -41,7 +60,7 @@ export interface BattleResult {
 
 export function resolveBattle(state: GameState, war: War, rng: RngStreams): BattleResult {
   const atk = realmPower(state, war.attackerRealmId);
-  const def = realmPower(state, war.defenderRealmId);
+  const def = realmPower(state, war.defenderRealmId) + defenseBonus(state, war.defenderRealmId);
 
   const atkSwing = 0.85 + rng.battle() * 0.3;
   const defSwing = 0.85 + rng.battle() * 0.3;
