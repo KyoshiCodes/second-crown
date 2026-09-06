@@ -25,7 +25,7 @@ export { EconomySystem, computeIncomePerSecond, productionBonus } from "./system
 export { realmPower, resolveBattle } from "./systems/combat.js";
 export type { BattleResult } from "./systems/combat.js";
 export { RivalSystem } from "./systems/rival.js";
-export { EventSystem, EVENT_PERIOD, getEventLog } from "./systems/events.js";
+export { EventSystem, EVENT_PERIOD, getEventLog, getWorldLog, pushWorldLog } from "./systems/events.js";
 export type { WorldEvent } from "./systems/events.js";
 
 export { tryBuild, canAfford, buildCostMultiplier } from "./actions/build.js";
