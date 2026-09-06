@@ -49,11 +49,11 @@ describe("TickEngine determinism (Invariant 2)", () => {
 
     engine.tickMany(100);
 
-    // Farm: 1 base + 1 clever = 2/tick → 200 food
-    expect(D(engine.getState().resources.food ?? "0").eq(200)).toBe(true);
+    // Farm: 1 base + 1 clever + 1 spring = 3/tick → 300 food
+    expect(D(engine.getState().resources.food ?? "0").eq(300)).toBe(true);
 
-    // Lumber finishes at 30; ticks 30..100 inclusive = 71 × 2 = 142 wood
-    expect(D(engine.getState().resources.wood ?? "0").eq(142)).toBe(true);
+    // Lumber finishes at 30; ticks 30..100 inclusive = 71 × 3 = 213 wood
+    expect(D(engine.getState().resources.wood ?? "0").eq(213)).toBe(true);
   });
 
   it("same seed produces same initial state", () => {

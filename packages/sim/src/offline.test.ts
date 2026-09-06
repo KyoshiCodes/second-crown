@@ -9,8 +9,8 @@ describe("applyOfflineProgress", () => {
     const ticks = applyOfflineProgress(state, 1_000_000 + 10_000);
     expect(ticks).toBe(100);
     expect(state.meta.tick).toBe(100);
-    // Farm: 1 base + 1 clever = 2/tick → 200 food
-    expect(D(state.resources.food).eq(200)).toBe(true);
+    // Farm: 1 base + 1 clever + 1 spring = 3/tick → 300 food
+    expect(D(state.resources.food).eq(300)).toBe(true);
     expect(state.meta.lastRealTime).toBe(1_000_000 + 10_000);
   });
 
