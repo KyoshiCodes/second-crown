@@ -1,20 +1,15 @@
-# USER-NOTES — what players see
+# USER-NOTES
 
-Last updated: 2026-09-06 | Version: playtest-0.3
+Last updated: 2026-09-06 | Version: playtest-0.4
 
-## Play here (today)
+Play here: `https://129.153.17.72.sslip.io/`
 
-`http://129.153.17.72:8787/`
+## New buildings
 
-After HTTPS is turned on, prefer:
+- **Stables** — cheaper Cavalry and Knights
+- **Archery Range** — cheaper Archers and Skirmishers
+- **Siege Workshop** — cheaper Siege Engines
 
-`https://129.153.17.72.sslip.io/`
+Barracks still cheapens every unit a little.
 
-## Army
-
-Train: Militia, Spearman, Skirmisher, Archer, Cavalry, Knight, Siege Engine.
-Siege is expensive wood/stone/gold. Cavalry is the mid shock troop.
-
-## Other recent
-
-Spoils/crafts/shield/guild/achievements on Crown. Trades and levies on World. Board under Cloud.
+Use Discord login on the https site only.

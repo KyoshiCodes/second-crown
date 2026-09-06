@@ -1,22 +1,14 @@
-# DEV-NOTES — for agents and future you
+# DEV-NOTES
 
-Last updated: 2026-09-06 | Version: playtest-0.3
-
-## Doc rule
-
-Meaningful `main` merge → update HANDOFF, CHANGELOG, USER-NOTES, DEV-NOTES together.
+Last updated: 2026-09-06
 
 ## HTTPS
 
-Bare IPs cannot get a public cert. Playbook: `docs/HTTPS.md`.
-Do not point Discord at a self-signed cert. Do not close port 8787 until Caddy health works.
+Caddyfile `/etc/caddy/Caddyfile` → `129.153.17.72.sslip.io` → `127.0.0.1:8787`.
+Never `pm2 delete sc-cloud` without restoring DISCORD_* and PUBLIC_APP_URL=https://129.153.17.72.sslip.io
 
-After Caddy works, `PUBLIC_APP_URL` and `DISCORD_REDIRECT` must use `https://129.153.17.72.sslip.io`.
+Prefer `pm2 restart sc-cloud` for code deploys.
 
-## Units
+## Train discounts
 
-`packages/sim/src/content/units.ts` + `packages/app/src/UnitIcon.tsx`. Army tab lists `listUnitTypes()` automatically.
-
-## Deploy
-
-`pm2 restart sc-cloud` only. No `sc-game`.
+`trainCostMultiplier(state, typeId)` — barracks global, then stables/range/workshop by unit family. Combat tests use militia (no specialist building).
