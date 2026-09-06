@@ -11,6 +11,7 @@ import {
   canAffordTrain,
   tryDeclareWar,
   tryResolveWar,
+  peaceTicksRemaining,
   realmPower,
   serializeState,
   deserializeState,
@@ -26,7 +27,6 @@ function App() {
   const [tick, setTick] = React.useState(0);
   const [resources, setResources] = React.useState<Record<string, string>>({});
   const [income, setIncome] = React.useState<Record<string, string>>({});
-  const [buildings, setBuildings] = React.useState<GameState["buildings"]>([]);
   const [units, setUnits] = React.useState<GameState["units"]>([]);
   const [wars, setWars] = React.useState<GameState["wars"]>([]);
   const [characters, setCharacters] = React.useState<GameState["characters"]>([]);
@@ -34,6 +34,7 @@ function App() {
   const [status, setStatus] = React.useState("");
   const [offlineNote, setOfflineNote] = React.useState("");
   const [power, setPower] = React.useState({ player: 0, rival: 0 });
+  const [peaceLeft, setPeaceLeft] = React.useState(0);
   const engineRef = React.useRef<TickEngine | null>(null);
   const mapRef = React.useRef<MapRenderer | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
@@ -44,7 +45,6 @@ function App() {
     setTick(s.meta.tick);
     setResources({ ...s.resources });
     setIncome(computeIncomePerSecond(s));
-    setBuildings([...s.buildings]);
     setUnits([...s.units]);
     setWars([...s.wars]);
     setCharacters([...s.characters]);
@@ -53,6 +53,7 @@ function App() {
       player: realmPower(s, "player"),
       rival: realmPower(s, "rival"),
     });
+    setPeaceLeft(peaceTicksRemaining(s));
     mapRef.current?.sync(s);
   }, []);
 
@@ -161,6 +162,11 @@ function App() {
     const engine = engineRef.current;
     if (!engine) return;
     const state = engine.getState();
+    const left = peaceTicksRemaining(state);
+    if (left > 0) {
+      setStatus(`Peace treaty — ${left} ticks remaining (~${Math.ceil(left / 10)}s)`);
+      return;
+    }
     const ok = tryDeclareWar(state, {
       attackerRealmId: "player",
       defenderRealmId: "rival",
@@ -178,12 +184,15 @@ function App() {
     const state = engine.getState();
     const result = tryResolveWar(state, engine.rng);
     if (result.ok && result.result) {
-      const { winnerId, loserId } = result.result;
-      setStatus(
-        winnerId === "player"
-          ? `Victory! You defeated ${loserId}`
-          : `Defeat — ${winnerId} won`
-      );
+      const { winnerId, loot } = result.result;
+      const lootStr = Object.entries(loot)
+        .map(([r, v]) => `${formatLetterSuffix(v)} ${r}`)
+        .join(", ");
+      if (winnerId === "player") {
+        setStatus(lootStr ? `Victory! Loot: ${lootStr}` : "Victory!");
+      } else {
+        setStatus(lootStr ? `Defeat — lost ${lootStr}` : "Defeat");
+      }
       syncUi(engine);
       saveToIndexedDb(serializeState(state)).catch(() => {});
     } else {
@@ -217,11 +226,12 @@ function App() {
   const engine = engineRef.current;
   const state = engine?.getState();
   const activeWar = wars.find((w) => w.status === "active");
+  const canDeclare = !activeWar && peaceLeft <= 0;
 
   return (
     <div style={{ padding: 24, maxWidth: 720 }}>
       <h1 style={{ marginTop: 0 }}>Second Crown</h1>
-      <p style={{ opacity: 0.8, marginBottom: 4 }}>Phase I — war, characters, polish</p>
+      <p style={{ opacity: 0.8, marginBottom: 4 }}>Phase J — war loot, peace, traits</p>
       {offlineNote ? (
         <p style={{ color: "#3fb950", fontSize: 13, marginTop: 0 }}>{offlineNote}</p>
       ) : null}
@@ -270,21 +280,21 @@ function App() {
       </div>
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>Build</h2>
+      <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
+        Ambitious ruler: buildings cost 10% less
+      </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {types.map((t) => {
           const afford = state ? canAfford(state, t.id) : false;
           const costStr = Object.entries(t.cost)
             .map(([r, c]) => `${formatLetterSuffix(c)} ${r}`)
             .join(", ");
-          const prodStr = Object.entries(t.productionPerTick)
-            .map(([r, c]) => `+${Number(c) * 10} ${r}/s`)
-            .join(", ");
           return (
             <button
               key={t.id}
               type="button"
               disabled={!afford}
-              title={`${t.name}\nCost: ${costStr}\n${prodStr}`}
+              title={`${t.name}\nCost: ${costStr}`}
               onClick={() => handleBuild(t.id)}
               style={{
                 padding: "8px 12px",
@@ -346,7 +356,7 @@ function App() {
       </div>
       <div style={{ marginTop: 8, fontSize: 13, fontFamily: "ui-monospace, monospace" }}>
         {units.filter((u) => u.realmId === "player").length === 0 ? (
-          <span style={{ opacity: 0.6 }}>No units yet — train militia when you have food.</span>
+          <span style={{ opacity: 0.6 }}>No units yet</span>
         ) : (
           units
             .filter((u) => u.realmId === "player")
@@ -363,17 +373,19 @@ function App() {
         <button
           type="button"
           onClick={handleDeclareWar}
-          disabled={!!activeWar}
+          disabled={!canDeclare}
           style={{
             padding: "8px 12px",
             borderRadius: 6,
             border: "1px solid #30363d",
-            background: activeWar ? "#21262d" : "#a371f7",
+            background: canDeclare ? "#a371f7" : "#21262d",
             color: "#fff",
-            cursor: activeWar ? "not-allowed" : "pointer",
+            cursor: canDeclare ? "pointer" : "not-allowed",
           }}
         >
-          Declare war on Iron March
+          {peaceLeft > 0
+            ? `Peace (${Math.ceil(peaceLeft / 10)}s)`
+            : "Declare war on Iron March"}
         </button>
         <button
           type="button"
