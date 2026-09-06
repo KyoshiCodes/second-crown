@@ -1,4 +1,5 @@
 import React from "react";
+import { isMusicMuted, setMusicMuted, startMusicBed } from "./music";
 
 export function SpeedControls(props: {
   paused: boolean;
@@ -6,8 +7,9 @@ export function SpeedControls(props: {
   onPauseToggle: () => void;
   onSpeed: (n: number) => void;
 }) {
+  const [muted, setMuted] = React.useState(isMusicMuted);
   return (
-    <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+    <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
       <button type="button" onClick={props.onPauseToggle}>
         {props.paused ? "Resume" : "Pause"}
       </button>
@@ -28,6 +30,17 @@ export function SpeedControls(props: {
           {sp}x
         </button>
       ))}
+      <button
+        type="button"
+        onClick={() => {
+          startMusicBed();
+          const next = !muted;
+          setMusicMuted(next);
+          setMuted(next);
+        }}
+      >
+        {muted ? "Music off" : "Music on"}
+      </button>
     </div>
   );
 }
@@ -42,23 +55,8 @@ export function DiplomacyPanel(props: {
       <p style={{ fontSize: 13, margin: "0 0 6px" }}>
         Varric's opinion of you: <strong>{props.rivalOp}</strong>
         {" "}· your opinion of him: {props.playerOp}
-        {props.rivalOp >= 20 ? " · they will not declare while friendly" : ""}
-        {props.rivalOp <= -40 ? " · hostile: they attack more readily" : ""}
       </p>
-      <button
-        type="button"
-        onClick={props.onGift}
-        style={{
-          padding: "8px 12px",
-          borderRadius: 6,
-          border: "1px solid #30363d",
-          background: "#238636",
-          color: "#fff",
-          cursor: "pointer",
-        }}
-      >
-        Gift 15 gold (+12 opinion)
-      </button>
+      <button type="button" onClick={props.onGift}>Gift 15 gold (+12 opinion)</button>
     </div>
   );
 }
