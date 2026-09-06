@@ -9,10 +9,11 @@ import { WarTab } from "./tabs/WarTab";
 import { WorldTab } from "./tabs/WorldTab";
 import { CrownTab } from "./tabs/CrownTab";
 import { detectCurrentHoliday, getHolidayMeta, type HolidayId } from "./seasons/holidays";
+import { resolveActiveThemePack } from "./themes/packs";
+import { audioManager } from "./themes/audioManager";
 import { WeatherOverlay } from "./seasons/WeatherOverlay";
 import { ThemeStage } from "./seasons/ThemeStage";
-import { playRecordedLoop } from "./seasons/recorded";
-import { isMusicMuted, setMusicSeason, setMusicHoliday, setMusicBattle, type SeasonName } from "./music";
+import { type SeasonName } from "./music";
 import { sfx } from "./sfx";
 
 const TAB_LABEL: Record<Tab, string> = {
@@ -45,6 +46,7 @@ export function AppShell() {
     rivalOp, playerOp, title,
     battleSnap, setBattleSnap,
     canvasRef,
+    setMapTheme,
     state,
     act,
     saveNow, exportSave, importSaveFile, newGame,
@@ -55,6 +57,7 @@ export function AppShell() {
   const season = (state ? currentSeason(state) : "Spring") as SeasonName;
   const [holidayId, setHolidayId] = React.useState<HolidayId>(() => detectCurrentHoliday());
   const holiday = holidayId !== "none" ? getHolidayMeta(holidayId) : null;
+  const activePack = resolveActiveThemePack(season, holidayId);
   const prevSeasonRef = React.useRef(season);
 
   React.useEffect(() => {
@@ -70,35 +73,28 @@ export function AppShell() {
   }, []);
 
   React.useEffect(() => {
-    setMusicSeason(season);
+    setMapTheme(activePack.id, holidayId);
+  }, [activePack.id, holidayId, setMapTheme]);
+
+  React.useEffect(() => {
     if (prevSeasonRef.current !== season) {
       sfx.seasonShift(season);
       prevSeasonRef.current = season;
     }
-  }, [season]);
-
-  React.useEffect(() => {
-    setMusicHoliday(holidayId !== "none" ? holidayId : null);
-  }, [holidayId]);
-
-  React.useEffect(() => {
-    setMusicBattle(!!activeWar);
-  }, [activeWar]);
-
-  React.useEffect(() => {
-    const id = holidayId !== "none" ? holidayId : season.toLowerCase();
-    playRecordedLoop(id, isMusicMuted());
-  }, [holidayId, season]);
+    audioManager.sync(activePack, season, !!activeWar);
+  }, [activePack, season, activeWar]);
 
   return (
-    <div className={`sc-shell theme-${tab} season-${season.toLowerCase()} ${holiday ? holiday.themeClass : ""}`}>
+    <div
+      className={`sc-shell theme-${tab} season-${season.toLowerCase()} pack-${activePack.id} ${holiday ? holiday.themeClass : ""}`}
+      style={{ background: activePack.backgroundCss }}
+    >
       <ThemeStage season={season} holiday={holidayId} />
       <WeatherOverlay season={season} holiday={holidayId} />
       <div className="sc-panel">
         <h1 style={{ margin: "0 0 4px", fontSize: 22 }} className="sc-title">Second Crown</h1>
         <div style={{ fontSize: 13, opacity: 0.85 }} className="sc-subtitle">
-          {hold} · {title} · {season}
-          {holiday ? ` · ${holiday.propEmoji} ${holiday.name}` : ""} · Tick {formatLetterSuffix(tick)}
+          {hold} · {title} · {activePack.propEmoji} {activePack.name} · Tick {formatLetterSuffix(tick)}
           {prestige > 0 ? ` · Prestige ${prestige}` : ""} · Power {power.player} vs {power.rival}
         </div>
 
@@ -114,8 +110,12 @@ export function AppShell() {
             </button>
           ))}
         </div>
-        <div style={{ display: tab === "kingdom" ? "block" : "none", marginBottom: 12 }}>
-          <canvas ref={canvasRef} style={{ width: "100%", maxWidth: 512, borderRadius: 8, border: "1px solid #3a2f24" }} />
+        <div className="sc-map-canvas-container" style={{ display: tab === "kingdom" ? "flex" : "none" }}>
+          <canvas
+            ref={canvasRef}
+            className="sc-map-canvas"
+            style={{ borderColor: activePack.chrome.borderColor }}
+          />
         </div>
         {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}
         {tab === "army" && <ArmyTab state={state} act={act} trainQty={trainQty} setTrainQty={setTrainQty} />}

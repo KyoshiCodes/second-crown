@@ -14,19 +14,21 @@ Repo: `https://github.com/KyoshiCodes/second-crown` `main`.
 
 ## 3. Just completed
 
-- Claude WarRoom + `warSummary`.
-- Gemini seasons/holidays/chips/weather (first bakeoff).
-- Astra practice auction + PvP ledger (practice gold only; not kingdom saves).
-- Layered synth bed + battle pulse; recorded-track hook at `/audio/<id>.ogg`.
-- Holiday SVG stages (halloween night, midwinter, etc.). Everyday seasons do **not** use the flat two-color stage.
-- TesterBar holiday dropdown is sticky so it does not vanish under the scene.
+- **Gemini immersion foundation** (`bakeoff/gemini-immersion`):
+  - Theme packs system (`packages/app/src/themes/`): 9 complete packs (halloween, midwinter, easter, harvest, midsummer, spring, summer, autumn, winter) with dedicated backgrounds, tab/badge chrome, music sources, and map ambient profiles.
+  - Recorded audio first with synth fallback: `packages/app/src/themes/audioManager.ts` plays `/audio/<id>.ogg` (preserves owner's `halloween.ogg`), seamlessly falling back to procedural synth when missing, plus battle audio support.
+  - Isometric 2.5D pixel hold (`packages/render`): 2:1 diamond projection matching the exact 16×10 grid click contract, cobblestone streets, 3D raised stone cliff rim.
+  - Pixel isometric buildings: all 15 building types + fallback rendered with shaded facades, scaffolding during construction, upgrade level frames (1–5), and seasonal trims (snow caps, jack-o'-lanterns).
+  - Living hold presentation walkers: 8 animated pixel citizens (villager, woodcutter, miner, merchant, guard, scholar) with walking strides and idle behaviors roaming between buildings or idling near the keep. Zero sim tick rules.
+  - Atmospheric lighting and seasonal particle overlays (falling snow, spectral embers, fireflies, petals, autumn leaves).
+  - Sticky TesterBar (`zIndex: 100`) above map and stage for instant holiday overlay switching.
+  - Strict zero-diff invariant maintained on `packages/sim` and `server`.
 
 ## 4. Next (planned)
 
-**Gemini immersion foundation** — `docs/AGENT-TASK.md`, branch `bakeoff/gemini-immersion`.
-Theme pack system: real backgrounds, pack-driven chrome, CC0 music files, battle beds.
-Not Astra (ledger). Not Claude unless WarRoom breaks.
-After that: friends playtest presentation; real-item trade stays gated.
+- Friends playtest presentation polish.
+- Additional CC0 recorded audio drops into `packages/app/public/audio/`.
+- Real-item trade remains gated behind future phases.
 
 ## 5. New agent
 

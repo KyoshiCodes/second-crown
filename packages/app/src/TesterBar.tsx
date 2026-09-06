@@ -21,7 +21,7 @@ export function TesterBar() {
       style={{
         position: "sticky",
         top: 0,
-        zIndex: 80,
+        zIndex: 100,
         background: "rgba(12, 10, 8, 0.94)",
         borderBottom: "1px solid #3a3228",
         padding: "8px 16px",

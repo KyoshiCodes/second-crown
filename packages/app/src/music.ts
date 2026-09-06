@@ -112,20 +112,24 @@ function clearTimers() {
   melodyTimer = padTimer = battleTimer = null;
 }
 
+let synthMelodySuppressed = false;
+
 function runBed() {
   if (!started || muted) return;
   clearTimers();
-  const p = pattern();
-  melodyTimer = window.setInterval(() => {
-    const cur = pattern();
-    const note = cur.melody[step % cur.melody.length];
-    tone(note, cur.osc, 0.55, 0.045);
-    if (step % 4 === 0) tone(note / 2, "sine", 0.8, 0.02);
-    step += 1;
-  }, p.intervalMs);
-  padTimer = window.setInterval(() => {
-    tone(pattern().bass, "sine", 1.6, 0.03);
-  }, p.intervalMs * 4);
+  if (!synthMelodySuppressed) {
+    const p = pattern();
+    melodyTimer = window.setInterval(() => {
+      const cur = pattern();
+      const note = cur.melody[step % cur.melody.length];
+      tone(note, cur.osc, 0.55, 0.045);
+      if (step % 4 === 0) tone(note / 2, "sine", 0.8, 0.02);
+      step += 1;
+    }, p.intervalMs);
+    padTimer = window.setInterval(() => {
+      tone(pattern().bass, "sine", 1.6, 0.03);
+    }, p.intervalMs * 4);
+  }
   if (battleOn) {
     battleTimer = window.setInterval(() => {
       tone(70, "sawtooth", 0.18, 0.05);
@@ -133,6 +137,12 @@ function runBed() {
       setTimeout(() => tone(55, "sine", 0.28, 0.04), 160);
     }, 520);
   }
+}
+
+export function setSynthMelodySuppressed(suppressed: boolean): void {
+  if (synthMelodySuppressed === suppressed) return;
+  synthMelodySuppressed = suppressed;
+  if (started && !muted) runBed();
 }
 
 export function startMusicBed(): void {
