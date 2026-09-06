@@ -1,6 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryHireChampion, tryOpenRoute, seasonIndex, currentSeason } from "./age.js";
+import {
+  tryHireChampion,
+  tryOpenRoute,
+  seasonIndex,
+  currentSeason,
+  tryHireMercs,
+  tryNameChampion,
+  championName,
+  tryCollectTithe,
+} from "./age.js";
 
 describe("age systems", () => {
   it("hires a single champion", () => {
@@ -10,6 +19,8 @@ describe("age systems", () => {
     expect(tryHireChampion(s)).toBe(true);
     expect(s.units.some((u) => u.typeId === "champion")).toBe(true);
     expect(tryHireChampion(s)).toBe(false);
+    expect(tryNameChampion(s, "Ser Rowan")).toBe(true);
+    expect(championName(s)).toBe("Ser Rowan");
   });
 
   it("opens up to three trade routes", () => {
@@ -28,5 +39,29 @@ describe("age systems", () => {
     const s = createGameState({ seed: 4 });
     s.meta.tick = 4000;
     expect(currentSeason(s)).toBe("Autumn");
+  });
+
+  it("hires mercenaries for gold", () => {
+    const s = createGameState({ seed: 4 });
+    s.resources.gold = "30";
+    expect(tryHireMercs(s)).toBe(true);
+    const m = s.units.find((u) => u.typeId === "militia");
+    expect(Number(m?.count)).toBe(8);
+  });
+
+  it("collects tithe only with a chapel", () => {
+    const s = createGameState({ seed: 4 });
+    expect(tryCollectTithe(s)).toBe(false);
+    s.buildings.push({
+      id: "ch1",
+      typeId: "chapel",
+      realmId: "player",
+      x: 2,
+      y: 2,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(tryCollectTithe(s)).toBe(true);
+    expect(tryCollectTithe(s)).toBe(false);
   });
 });
