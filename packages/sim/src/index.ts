@@ -95,6 +95,8 @@ export {
   routeGoldPerTick,
 } from "./systems/age.js";
 
+export { QUESTS, listQuests, tryClaimQuest } from "./systems/quest.js";
+
 export { settlementName, tryRenameSettlement } from "./actions/settlement.js";
 
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
