@@ -26,15 +26,17 @@ export function ArmyVisual(props: { state: GameState | undefined; realmId?: stri
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <UnitIcon typeId={u.typeId} />
+              <span className="sc-march"><UnitIcon typeId={u.typeId} /></span>
               <div>
                 <div style={{ fontWeight: 700 }}>{name}</div>
-                <div style={{ fontSize: 12, opacity: 0.75 }}>×{formatLetterSuffix(u.count)}</div>
+                <div style={{ fontSize: 12, opacity: 0.75 }}>x{formatLetterSuffix(u.count)}</div>
               </div>
             </div>
             <div style={{ marginTop: 8, display: "flex", gap: 4, flexWrap: "wrap" }}>
               {Array.from({ length: n }, (_, i) => (
-                <UnitIcon key={i} typeId={u.typeId} size={22} />
+                <span key={i} className="sc-march" style={{ animationDelay: `${i * 0.12}s` }}>
+                  <UnitIcon typeId={u.typeId} size={22} />
+                </span>
               ))}
             </div>
           </div>
