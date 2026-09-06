@@ -12,14 +12,15 @@ npm run dev
 
 Open the URL Vite prints (usually http://localhost:5173).
 
-## What’s implemented
+## Features
 
-- **Economy** — farms, camps, mines, income/sec, letter-suffix numbers
-- **Build** — spend resources, construction timers, Pixi grid map
-- **Army** — train militia / spearmen / knights
-- **War** — declare war on Iron March, fight a deterministic battle (seeded RNG)
-- **Characters & realms** — player crown, rival Lord Varric, advisor stub
-- **Save / offline** — IndexedDB autosave + catch-up on reload
+- **Economy** — buildings, income/sec, letter-suffix numbers, offline catch-up
+- **Map** — Pixi grid; select a building, click a tile to place
+- **Army** — militia / spearman / knight; bulk train ×1/×5/×10
+- **War** — declare or be declared on; deterministic battles, loot, peace timer
+- **Characters** — traits affect cost and production
+- **Prestige** — soft reset at 50K resources for permanent bonuses
+- **Saves** — IndexedDB autosave, export/import JSON files
 
 ## Tests
 
@@ -27,15 +28,18 @@ Open the URL Vite prints (usually http://localhost:5173).
 npm test
 ```
 
-Includes Invariant 2 (offline == online) and combat determinism checks.
+## Deploy (GitHub Pages)
 
-## Deploy to GitHub Pages
+1. Repo **Settings → Pages → Source: GitHub Actions**
+2. Push to `main` (workflow: `.github/workflows/deploy-pages.yml`)
+
+Or build locally:
 
 ```bash
 npm run build -w @second-crown/app
 ```
 
-Publish `packages/app/dist` as the Pages root (or wire a GH Action). `base: './'` is already set.
+Output: `packages/app/dist`
 
 ## Stack
 

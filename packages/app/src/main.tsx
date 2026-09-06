@@ -24,11 +24,13 @@ import {
 } from "@second-crown/sim";
 import { createMapRenderer, type MapRenderer } from "@second-crown/render";
 import { saveToIndexedDb, loadFromIndexedDb, clearIndexedDbSave } from "./save/indexedDb";
+import { downloadSave, pickSaveFile } from "./save/fileIo";
 
 function App() {
   const [tick, setTick] = React.useState(0);
   const [resources, setResources] = React.useState<Record<string, string>>({});
   const [income, setIncome] = React.useState<Record<string, string>>({});
+  const [buildings, setBuildings] = React.useState<GameState["buildings"]>([]);
   const [units, setUnits] = React.useState<GameState["units"]>([]);
   const [wars, setWars] = React.useState<GameState["wars"]>([]);
   const [characters, setCharacters] = React.useState<GameState["characters"]>([]);
@@ -56,6 +58,7 @@ function App() {
     setTick(s.meta.tick);
     setResources({ ...s.resources });
     setIncome(computeIncomePerSecond(s));
+    setBuildings([...s.buildings]);
     setUnits([...s.units]);
     setWars([...s.wars]);
     setCharacters([...s.characters]);
@@ -69,7 +72,6 @@ function App() {
     setAscendReady(canAscend(s));
     mapRef.current?.sync(s);
 
-    // Notify if rival just declared
     const rivalWar = s.wars.find(
       (w) => w.status === "active" && w.attackerRealmId === "rival"
     );
@@ -135,7 +137,6 @@ function App() {
               return;
             }
             const st = eng.getState();
-            // Occupied tile?
             if (st.buildings.some((b) => b.x === x && b.y === y)) {
               setStatus("Tile occupied");
               return;
@@ -188,9 +189,8 @@ function App() {
     const engine = engineRef.current;
     if (!engine) return;
     const state = engine.getState();
-    const left = peaceTicksRemaining(state);
-    if (left > 0) {
-      setStatus(`Peace treaty — ${left} ticks remaining (~${Math.ceil(left / 10)}s)`);
+    if (peaceTicksRemaining(state) > 0) {
+      setStatus(`Peace treaty — ${peaceTicksRemaining(state)} ticks left`);
       return;
     }
     const ok = tryDeclareWar(state, {
@@ -214,11 +214,15 @@ function App() {
       const lootStr = Object.entries(loot)
         .map(([r, v]) => `${formatLetterSuffix(v)} ${r}`)
         .join(", ");
-      if (winnerId === "player") {
-        setStatus(lootStr ? `Victory! Loot: ${lootStr}` : "Victory!");
-      } else {
-        setStatus(lootStr ? `Defeat — lost ${lootStr}` : "Defeat");
-      }
+      setStatus(
+        winnerId === "player"
+          ? lootStr
+            ? `Victory! Loot: ${lootStr}`
+            : "Victory!"
+          : lootStr
+            ? `Defeat — lost ${lootStr}`
+            : "Defeat"
+      );
       syncUi(engine);
       saveToIndexedDb(serializeState(state)).catch(() => {});
     } else {
@@ -234,9 +238,35 @@ function App() {
       setStatus("Need 50K total resources to claim the Second Crown");
       return;
     }
-    setStatus(`Ascended! Prestige ${state.flags["prestige_level"]} — permanent +1 prod/building`);
+    setStatus(`Ascended! Prestige ${state.flags["prestige_level"]}`);
     syncUi(engine);
     saveToIndexedDb(serializeState(state)).catch(() => {});
+  };
+
+  const handleExport = () => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    engine.getState().meta.lastRealTime = Date.now();
+    downloadSave(serializeState(engine.getState()));
+    setStatus("Save downloaded");
+  };
+
+  const handleImport = async () => {
+    try {
+      const json = await pickSaveFile();
+      const state = deserializeState(json);
+      applyOfflineProgress(state);
+      state.meta.lastRealTime = Date.now();
+      const engine = new TickEngine(state);
+      engineRef.current = engine;
+      lastRivalWar.current = null;
+      setStatus("Save imported");
+      setOfflineNote("");
+      syncUi(engine);
+      await saveToIndexedDb(serializeState(state));
+    } catch {
+      setStatus("Import cancelled or invalid file");
+    }
   };
 
   const handleNewGame = async () => {
@@ -267,12 +297,30 @@ function App() {
   const activeWar = wars.find((w) => w.status === "active");
   const canDeclare = !activeWar && peaceLeft <= 0;
 
+  // Building counts by type
+  const buildingCounts: Record<string, number> = {};
+  for (const b of buildings) {
+    buildingCounts[b.typeId] = (buildingCounts[b.typeId] ?? 0) + 1;
+  }
+
+  const wins = wars.filter(
+    (w) =>
+      (w.attackerRealmId === "player" && w.status === "attacker_won") ||
+      (w.defenderRealmId === "player" && w.status === "defender_won")
+  ).length;
+  const losses = wars.filter(
+    (w) =>
+      (w.attackerRealmId === "player" && w.status === "defender_won") ||
+      (w.defenderRealmId === "player" && w.status === "attacker_won")
+  ).length;
+
   return (
     <div style={{ padding: 24, maxWidth: 720 }}>
       <h1 style={{ marginTop: 0 }}>Second Crown</h1>
       <p style={{ opacity: 0.8, marginBottom: 4 }}>
-        Phase L — map place, bulk train, rival attacks
+        Phase M — export/import, summaries
         {prestige > 0 ? ` · Prestige ${prestige}` : ""}
+        {wins + losses > 0 ? ` · Record ${wins}W–${losses}L` : ""}
       </p>
       {offlineNote ? (
         <p style={{ color: "#3fb950", fontSize: 13, marginTop: 0 }}>{offlineNote}</p>
@@ -321,13 +369,17 @@ function App() {
             </div>
           ))}
         </div>
+        {Object.keys(buildingCounts).length > 0 && (
+          <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>
+            {Object.entries(buildingCounts)
+              .map(([id, n]) => `${id}×${n}`)
+              .join(" · ")}
+          </div>
+        )}
         <div style={{ marginTop: 12, opacity: 0.7, fontSize: 13 }}>{status}</div>
       </div>
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>Build</h2>
-      <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
-        Click a type to select, then click the map. Ambitious −10% cost · Advisor +1 prod
-      </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {types.map((t) => {
           const afford = state ? canAfford(state, t.id) : false;
@@ -362,6 +414,9 @@ function App() {
                   }}
                 />
                 {t.name}
+                {buildingCounts[t.id] ? (
+                  <span style={{ opacity: 0.7, fontSize: 11 }}>×{buildingCounts[t.id]}</span>
+                ) : null}
               </div>
               <div style={{ fontSize: 11, opacity: 0.85 }}>{costStr}</div>
             </button>
@@ -400,7 +455,6 @@ function App() {
               key={u.id}
               type="button"
               disabled={!afford}
-              title={`${u.name} ×${trainQty} — power ${u.power}\nCost: ${costStr}`}
               onClick={() => handleTrain(u.id)}
               style={{
                 padding: "8px 12px",
@@ -433,9 +487,6 @@ function App() {
       </div>
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>War</h2>
-      <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
-        Rival grows over time and may declare war if stronger than you
-      </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
         <button
           type="button"
@@ -472,7 +523,7 @@ function App() {
       </div>
       <ul style={{ fontSize: 13, marginTop: 8 }}>
         {wars.length === 0 && <li style={{ opacity: 0.6 }}>No wars yet</li>}
-        {wars.map((w) => (
+        {wars.slice(-5).map((w) => (
           <li key={w.id}>
             {w.attackerRealmId} vs {w.defenderRealmId} — <strong>{w.status}</strong>
           </li>
@@ -480,9 +531,6 @@ function App() {
       </ul>
 
       <h2 style={{ fontSize: 16, marginTop: 24 }}>Second Crown</h2>
-      <p style={{ fontSize: 12, opacity: 0.65, marginTop: -8 }}>
-        Soft reset at 50K total resources. Permanent +1 prod/building per prestige.
-      </p>
       <button
         type="button"
         onClick={handleAscend}
@@ -507,15 +555,20 @@ function App() {
             <li key={c.id}>
               <strong>{c.name}</strong> ({c.role}) — {realm?.name ?? c.realmId}
               {c.traits.length ? ` · ${c.traits.join(", ")}` : ""}
-              {c.ambition ? ` · ambition: ${c.ambition}` : ""}
             </li>
           );
         })}
       </ul>
 
-      <div style={{ marginTop: 24, display: "flex", gap: 8 }}>
+      <div style={{ marginTop: 24, display: "flex", flexWrap: "wrap", gap: 8 }}>
         <button type="button" onClick={handleSave}>
           Save now
+        </button>
+        <button type="button" onClick={handleExport}>
+          Export save
+        </button>
+        <button type="button" onClick={handleImport}>
+          Import save
         </button>
         <button type="button" onClick={handleNewGame}>
           New game
