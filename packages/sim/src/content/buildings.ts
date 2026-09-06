@@ -1,9 +1,5 @@
 import type { BuildingTypeId, ResourceId } from "@second-crown/shared";
 
-/**
- * Building definitions — Phase N balance.
- * Production per fine tick (10 Hz). Integer rates for determinism.
- */
 export interface BuildingType {
   id: BuildingTypeId;
   name: string;
@@ -11,12 +7,10 @@ export interface BuildingType {
   buildTicks: number;
   cost: Partial<Record<ResourceId, string>>;
   color: number;
-  /** Optional flavor shown in UI */
   blurb?: string;
 }
 
 export const BUILDING_TYPES: Record<string, BuildingType> = {
-  // --- Early ---
   farm: {
     id: "farm",
     name: "Farm",
@@ -44,7 +38,6 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     color: 0x808080,
     blurb: "Stone for advanced works",
   },
-  // --- Mid ---
   gold_mine: {
     id: "gold_mine",
     name: "Gold Mine",
@@ -90,7 +83,6 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     color: 0xcd853f,
     blurb: "Trade wealth",
   },
-  // --- Late ---
   mint: {
     id: "mint",
     name: "Mint",
@@ -108,6 +100,33 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     cost: { wood: "15", stone: "10", food: "15" },
     color: 0x4a5568,
     blurb: "Each barracks: −5% unit train cost (min 50%)",
+  },
+  stables: {
+    id: "stables",
+    name: "Stables",
+    productionPerTick: { food: "1" },
+    buildTicks: 55,
+    cost: { wood: "16", food: "12", gold: "4" },
+    color: 0x8b6914,
+    blurb: "−10% Cavalry and Knight train cost",
+  },
+  archery_range: {
+    id: "archery_range",
+    name: "Archery Range",
+    productionPerTick: {},
+    buildTicks: 50,
+    cost: { wood: "14", food: "8" },
+    color: 0x2f6f4e,
+    blurb: "−10% Archer and Skirmisher train cost",
+  },
+  siege_workshop: {
+    id: "siege_workshop",
+    name: "Siege Workshop",
+    productionPerTick: {},
+    buildTicks: 70,
+    cost: { wood: "22", stone: "16", gold: "8" },
+    color: 0x5c4033,
+    blurb: "−15% Siege Engine train cost",
   },
   watchtower: {
     id: "watchtower",
@@ -128,7 +147,6 @@ export function listBuildableTypes(): BuildingType[] {
   return Object.values(BUILDING_TYPES);
 }
 
-/** Count completed buildings of a type. */
 export function countBuilding(state: { buildings: { typeId: string; completesAtTick: number | null }[] }, typeId: string): number {
   return state.buildings.filter((b) => b.typeId === typeId && b.completesAtTick === null).length;
 }
