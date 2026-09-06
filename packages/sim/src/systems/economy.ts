@@ -4,6 +4,7 @@ import { getBuildingType } from "../content/buildings.js";
 import Decimal from "break_infinity.js";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { flagNum } from "./wave.js";
+import { decreeActive } from "./decree.js";
 
 export function productionBonus(state: GameState): number {
   let bonus = 0;
@@ -11,6 +12,7 @@ export function productionBonus(state: GameState): number {
   bonus += prestige;
   bonus += flagNum(state, "craft_income");
   if (state.flags.doctrine === "harvest") bonus += 2;
+  if (decreeActive(state, "rite")) bonus += 3;
   const advisor = state.characters.find(
     (c) => c.realmId === "player" && c.role === "advisor" && c.traits.includes("clever")
   );
