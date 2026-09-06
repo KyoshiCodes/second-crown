@@ -26,7 +26,7 @@ export type { TrainPayload } from "./actions/train.js";
 export { tryDeclareWar, tryResolveWar } from "./actions/war.js";
 export type { DeclareWarPayload } from "./actions/war.js";
 
-export { serializeState, deserializeState } from "./save/serialize.js";
+export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
 export { applyOfflineProgress } from "./offline.js";
 
