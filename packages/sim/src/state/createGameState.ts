@@ -28,6 +28,7 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
     },
     buildings: [],
     units: [],
+    citizens: [],
     realms: [
       {
         id: "player",

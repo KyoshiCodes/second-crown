@@ -19,10 +19,22 @@ export type { BuildingType } from "./content/buildings.js";
 export { UNIT_TYPES, getUnitType, listUnitTypes } from "./content/units.js";
 export type { UnitType } from "./content/units.js";
 
+export { CITIZEN_JOBS, getCitizenJob, listCitizenJobs } from "./content/citizens.js";
+export type { CitizenJob } from "./content/citizens.js";
+
+export {
+  createCitizen,
+  assignJob,
+  assignTile,
+  citizensByRealm,
+  countCitizensByJob,
+  jobForBuildingType,
+} from "./systems/citizens.js";
+
 export { playerTitle, extraArchetypes } from "./content/world.js";
 
 export { EconomySystem, computeIncomePerSecond, productionBonus } from "./systems/economy.js";
-export { realmPower, resolveBattle } from "./systems/combat.js";
+export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./systems/combat.js";
 export type { BattleResult } from "./systems/combat.js";
 export { RivalSystem } from "./systems/rival.js";
 export { EventSystem, EVENT_PERIOD, getEventLog, getWorldLog, pushWorldLog } from "./systems/events.js";
@@ -116,5 +128,5 @@ export { serializeState, deserializeState, ensureWorldStubs } from "./save/seria
 
 export { applyOfflineProgress } from "./offline.js";
 
-export type { GameState } from "@second-crown/shared";
+export type { GameState, CitizenInstance, CitizenJobId, CitizenTile } from "@second-crown/shared";
 export { formatLetterSuffix } from "@second-crown/shared";

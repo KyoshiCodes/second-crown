@@ -12,6 +12,7 @@ export function ensureWorldStubs(state: GameState): void {
   if (!Array.isArray(state.opinions)) state.opinions = [];
   if (!Array.isArray(state.wars)) state.wars = [];
   if (!Array.isArray(state.units)) state.units = [];
+  if (!Array.isArray(state.citizens)) state.citizens = [];
   if (!Array.isArray(state.buildings)) state.buildings = [];
   if (!Array.isArray(state.inputLog)) state.inputLog = [];
   if (!Array.isArray(state.factions)) state.factions = [];

@@ -3,8 +3,9 @@ import { createGameState } from "../state/createGameState.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { tryTrain } from "../actions/train.js";
 import { tryDeclareWar, tryResolveWar } from "../actions/war.js";
-import { realmPower } from "./combat.js";
+import { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./combat.js";
 import { D } from "../core/decimal.js";
+import type { War } from "@second-crown/shared";
 
 describe("combat / war", () => {
   it("declare war and resolve is deterministic for same seed", () => {
@@ -60,5 +61,71 @@ describe("combat / war", () => {
     // militia costs 4 food + 1 wood each → 20 food, 5 wood
     expect(D(state.resources.food).eq(80)).toBe(true);
     expect(D(state.resources.wood).eq(95)).toBe(true);
+  });
+
+  it("keep adds flat fortification power to both offense and defense", () => {
+    const state = createGameState({ seed: 1 });
+    const before = realmPower(state, "player");
+    state.buildings.push({
+      id: "b_keep",
+      typeId: "keep",
+      realmId: "player",
+      x: 0,
+      y: 0,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(fortificationPower(state, "player")).toBe(8);
+    expect(realmPower(state, "player")).toBe(before + 8);
+    // rival has no fortifications of its own
+    expect(fortificationPower(state, "rival")).toBe(0);
+  });
+
+  it("keep grants an additional defense-only bonus, applied only when defending", () => {
+    const state = createGameState({ seed: 1 });
+    state.buildings.push({
+      id: "b_keep",
+      typeId: "keep",
+      realmId: "player",
+      x: 0,
+      y: 0,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(defenseBonus(state, "player")).toBe(8);
+
+    const engine = new TickEngine(state);
+    const war: War = {
+      id: "w1",
+      attackerRealmId: "rival",
+      defenderRealmId: "player",
+      startedTick: 0,
+      status: "active",
+    };
+    const result = resolveBattle(state, war, engine.rng);
+    // Defender power must include realmPower(player) + the keep's defense-only bonus.
+    expect(result.defenderPower).toBe(realmPower(state, "player") + 8);
+
+    // The same fortification does not inflate power when player instead attacks.
+    const state2 = createGameState({ seed: 1 });
+    state2.buildings.push({
+      id: "b_keep",
+      typeId: "keep",
+      realmId: "player",
+      x: 0,
+      y: 0,
+      level: 1,
+      completesAtTick: null,
+    });
+    const engine2 = new TickEngine(state2);
+    const war2: War = {
+      id: "w2",
+      attackerRealmId: "player",
+      defenderRealmId: "rival",
+      startedTick: 0,
+      status: "active",
+    };
+    const result2 = resolveBattle(state2, war2, engine2.rng);
+    expect(result2.attackerPower).toBe(realmPower(state2, "player"));
   });
 });

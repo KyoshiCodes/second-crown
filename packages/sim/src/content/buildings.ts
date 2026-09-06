@@ -155,6 +155,15 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     color: 0x64748b,
     blurb: "Each completed wall: +4 combat power",
   },
+  keep: {
+    id: "keep",
+    name: "Keep",
+    productionPerTick: {},
+    buildTicks: 140,
+    cost: { stone: "40", wood: "20", gold: "15" },
+    color: 0x475569,
+    blurb: "Each keep: +8 combat power, and doubles that as bonus defense when attacked",
+  },
 };
 
 export function getBuildingType(id: string): BuildingType | undefined {
