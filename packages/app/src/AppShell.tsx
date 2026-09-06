@@ -29,6 +29,7 @@ import {
   canTrade,
   MARKET_OFFERS,
   getEventLog,
+  getWorldLog,
   tryGiftGold,
   rivalOpinionOfPlayer,
   playerOpinionOfRival,
@@ -36,6 +37,7 @@ import {
   tryJoinFaction,
   tryLeaveFaction,
   playerTitle,
+  getBuildingType,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -45,15 +47,29 @@ import { downloadSave, pickSaveFile } from "./save/fileIo";
 import { EventPanel } from "./EventPanel";
 import { SpeedControls, DiplomacyPanel } from "./HudControls";
 import { WorldPanel } from "./WorldPanel";
+import { ArmyVisual } from "./ArmyVisual";
+import { BattleVisual, type BattleSnap } from "./BattleVisual";
 
-type Tab = "kingdom" | "army" | "war" | "crown";
+type Tab = "kingdom" | "army" | "war" | "world" | "crown";
+const TAB_LABEL: Record<Tab, string> = {
+  kingdom: "Kingdom",
+  army: "Army",
+  war: "War",
+  world: "World",
+  crown: "Crown",
+};
+const RES_LABEL: Record<string, string> = {
+  food: "Food",
+  wood: "Wood",
+  stone: "Stone",
+  gold: "Gold",
+};
 
 export function AppShell() {
   const [tab, setTab] = React.useState<Tab>("kingdom");
   const [tick, setTick] = React.useState(0);
   const [resources, setResources] = React.useState<Record<string, string>>({});
   const [income, setIncome] = React.useState<Record<string, string>>({});
-  const [buildings, setBuildings] = React.useState<GameState["buildings"]>([]);
   const [units, setUnits] = React.useState<GameState["units"]>([]);
   const [wars, setWars] = React.useState<GameState["wars"]>([]);
   const [status, setStatus] = React.useState("");
@@ -68,11 +84,13 @@ export function AppShell() {
   const [lastEvent, setLastEvent] = React.useState("");
   const [lastEventTick, setLastEventTick] = React.useState(0);
   const [eventLog, setEventLog] = React.useState<WorldEvent[]>([]);
+  const [worldLog, setWorldLog] = React.useState<WorldEvent[]>([]);
   const [speed, setSpeed] = React.useState(1);
   const [paused, setPaused] = React.useState(false);
   const [rivalOp, setRivalOp] = React.useState(0);
   const [playerOp, setPlayerOp] = React.useState(0);
   const [title, setTitle] = React.useState("Petty Lord");
+  const [battleSnap, setBattleSnap] = React.useState<BattleSnap | null>(null);
   const seenEventTick = React.useRef(0);
   const speedRef = React.useRef(1);
   const pausedRef = React.useRef(false);
@@ -97,7 +115,6 @@ export function AppShell() {
     setTick(s.meta.tick);
     setResources({ ...s.resources });
     setIncome(computeIncomePerSecond(s));
-    setBuildings([...s.buildings]);
     setUnits([...s.units]);
     setWars([...s.wars]);
     setPower({ player: realmPower(s, "player"), rival: realmPower(s, "rival") });
@@ -108,6 +125,7 @@ export function AppShell() {
     setLastEvent(typeof s.flags.last_event === "string" ? s.flags.last_event : "");
     setLastEventTick(Number(s.flags.last_event_tick ?? 0));
     setEventLog(getEventLog(s));
+    setWorldLog(getWorldLog(s));
     setRivalOp(rivalOpinionOfPlayer(s));
     setPlayerOp(playerOpinionOfRival(s));
     setTitle(playerTitle(s));
@@ -117,10 +135,11 @@ export function AppShell() {
       setStatus(String(s.flags.last_event ?? ""));
     }
     mapRef.current?.sync(s);
-    const rivalWar = s.wars.find((w) => w.status === "active" && w.attackerRealmId !== "player");
-    if (rivalWar && rivalWar.id !== lastRivalWar.current) {
-      lastRivalWar.current = rivalWar.id;
-      setStatus(`${rivalWar.attackerRealmId} has declared war!`);
+    const incoming = s.wars.find((w) => w.status === "active" && w.attackerRealmId !== "player");
+    if (incoming && incoming.id !== lastRivalWar.current) {
+      lastRivalWar.current = incoming.id;
+      const name = s.realms.find((r) => r.id === incoming.attackerRealmId)?.name ?? incoming.attackerRealmId;
+      setStatus(`${name} has declared war!`);
       setTab("war");
     }
   }, []);
@@ -135,15 +154,13 @@ export function AppShell() {
         if (saved) {
           state = deserializeState(saved);
           const settled = applyOfflineProgress(state);
-          setOfflineNote(
-            settled > 0 ? `Welcome back — settled ${settled} ticks` : ""
-          );
-          setStatus("Loaded autosave — use New game on Crown if extra kingdoms are missing");
+          setOfflineNote(settled > 0 ? `Welcome back — settled ${settled} ticks.` : "");
+          setStatus("Loaded autosave.");
         } else {
-          state = createGameState({ seed: (Date.now() >>> 0), withStarterBuildings: true });
+          state = createGameState({ seed: Date.now() >>> 0, withStarterBuildings: true });
           state.resources.wood = "40";
           state.resources.food = "50";
-          setStatus("Click map to place / upgrade");
+          setStatus("Click the map to place or upgrade buildings.");
         }
       } catch {
         state = createGameState({ seed: 42, withStarterBuildings: true });
@@ -170,7 +187,8 @@ export function AppShell() {
             const existing = st.buildings.find((b) => b.x === x && b.y === y);
             if (existing) {
               const ok = tryUpgrade(st, existing.id);
-              setStatus(ok ? `Upgraded ${existing.typeId} lv${existing.level}` : "Cannot upgrade");
+              const nm = getBuildingType(existing.typeId)?.name ?? existing.typeId;
+              setStatus(ok ? `Upgraded ${nm} to level ${existing.level}.` : "Cannot upgrade that building.");
               if (ok) {
                 syncUi(eng);
                 persist(st);
@@ -180,7 +198,8 @@ export function AppShell() {
             const typeId = selectedBuildRef.current;
             if (!typeId) return;
             const ok = tryBuild(st, { typeId, x, y });
-            setStatus(ok ? `Built ${typeId}` : `Cannot afford ${typeId}`);
+            const nm = getBuildingType(typeId)?.name ?? typeId;
+            setStatus(ok ? `Built ${nm}.` : `Cannot afford ${nm}.`);
             if (ok) {
               syncUi(eng);
               persist(st);
@@ -226,9 +245,12 @@ export function AppShell() {
   const trainMult = state ? trainCostMultiplier(state) : 1;
   const barracksN = state ? countBuilding(state, "barracks") : 0;
   const marketsN = state ? countBuilding(state, "market") : 0;
+  const selectedName = selectedBuild ? getBuildingType(selectedBuild)?.name ?? selectedBuild : "None";
+
+  const worldEntries = [...worldLog].reverse();
 
   return (
-    <div style={{ padding: 20, maxWidth: 740, margin: "0 auto", position: "relative" }}>
+    <div style={{ padding: 20, maxWidth: 760, margin: "0 auto" }}>
       <h1 style={{ margin: "0 0 4px", fontSize: 22 }}>Second Crown</h1>
       <div style={{ fontSize: 13, opacity: 0.8 }}>
         {title} · Tick {formatLetterSuffix(tick)}
@@ -259,7 +281,7 @@ export function AppShell() {
       >
         {(["food", "wood", "stone", "gold"] as const).map((r) => (
           <div key={r}>
-            <div style={{ opacity: 0.55, fontSize: 11 }}>{r}</div>
+            <div style={{ opacity: 0.55, fontSize: 11 }}>{RES_LABEL[r]}</div>
             <div>{formatLetterSuffix(resources[r] ?? "0")}</div>
             <div style={{ opacity: 0.5, fontSize: 11 }}>+{formatLetterSuffix(income[r] ?? "0")}/s</div>
           </div>
@@ -268,24 +290,23 @@ export function AppShell() {
       {status ? <div style={{ marginBottom: 10, opacity: 0.85 }}>{status}</div> : null}
 
       <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
-        {(["kingdom", "army", "war", "crown"] as Tab[]).map((id) => (
+        {(["kingdom", "army", "war", "world", "crown"] as Tab[]).map((id) => (
           <button key={id} type="button" onClick={() => setTab(id)}>
-            {id}
+            {TAB_LABEL[id]}
             {id === "war" && activeWar ? " ●" : ""}
           </button>
         ))}
       </div>
 
       <div style={{ display: tab === "kingdom" ? "block" : "none", marginBottom: 12 }}>
-        <canvas
-          ref={canvasRef}
-          style={{ width: "100%", maxWidth: 512, borderRadius: 8, border: "1px solid #3a2f24" }}
-        />
+        <canvas ref={canvasRef} style={{ width: "100%", maxWidth: 512, borderRadius: 8, border: "1px solid #3a2f24" }} />
       </div>
 
       {tab === "kingdom" && (
         <>
-          <p style={{ fontSize: 12, opacity: 0.65 }}>Selected {selectedBuild} — empty tile places, occupied upgrades (max {MAX_BUILDING_LEVEL})</p>
+          <p style={{ fontSize: 12, opacity: 0.65 }}>
+            Selected: {selectedName}. Empty tile places a building; occupied tile upgrades (max {MAX_BUILDING_LEVEL}).
+          </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {types.map((t) => {
               const afford = state ? canAfford(state, t.id) : false;
@@ -309,9 +330,7 @@ export function AppShell() {
               key={o.id}
               type="button"
               disabled={!(state && canTrade(state, o.id))}
-              onClick={() =>
-                act((st) => (tryTrade(st, o.id) ? "Trade complete" : "Cannot trade"))
-              }
+              onClick={() => act((st) => (tryTrade(st, o.id) ? "Trade complete." : "Cannot trade."))}
             >
               {o.label}
             </button>
@@ -338,8 +357,8 @@ export function AppShell() {
                 onClick={() =>
                   act((st) =>
                     tryTrain(st, { typeId: u.id, count: trainQty })
-                      ? `Trained ${trainQty} ${u.name}`
-                      : "Cannot afford"
+                      ? `Trained ${trainQty} ${u.name}.`
+                      : "Cannot afford that levy."
                   )
                 }
               >
@@ -347,27 +366,27 @@ export function AppShell() {
               </button>
             ))}
           </div>
-          <div style={{ marginTop: 8 }}>
-            {units.filter((u) => u.realmId === "player").map((u) => (
-              <span key={u.id} style={{ marginRight: 8 }}>
-                {u.typeId}×{formatLetterSuffix(u.count)}
-              </span>
-            ))}
-          </div>
+          <h3>Your Host</h3>
+          <ArmyVisual state={state} realmId="player" />
         </>
       )}
 
       {tab === "war" && (
         <>
-          <DiplomacyPanel rivalOp={rivalOp} playerOp={playerOp} onGift={() => act((st) => (tryGiftGold(st) ? "Gift sent" : "Need 15 gold"))} />
+          <DiplomacyPanel
+            rivalOp={rivalOp}
+            playerOp={playerOp}
+            onGift={() => act((st) => (tryGiftGold(st) ? "Gift sent." : "Need 15 gold."))}
+          />
+          <BattleVisual snap={battleSnap} active={!!activeWar} />
           <button
             type="button"
             disabled={!canDeclare}
             onClick={() =>
               act((st) =>
                 tryDeclareWar(st, { attackerRealmId: "player", defenderRealmId: "rival" })
-                  ? "War declared"
-                  : "Cannot declare"
+                  ? "War declared on Iron March."
+                  : "Cannot declare war."
               )
             }
           >
@@ -378,22 +397,51 @@ export function AppShell() {
             disabled={!activeWar}
             onClick={() =>
               act((st, eng) => {
+                const war = st.wars.find((w) => w.status === "active");
+                const atk = war ? realmPower(st, war.attackerRealmId) : 0;
+                const def = war ? realmPower(st, war.defenderRealmId) : 0;
                 const r = tryResolveWar(st, eng.rng);
-                return r.ok ? `Battle: ${r.result?.winnerId} wins` : "No war";
+                if (r.ok && r.result && war) {
+                  setBattleSnap({
+                    attackerId: war.attackerRealmId,
+                    defenderId: war.defenderRealmId,
+                    winnerId: r.result.winnerId,
+                    attackerPower: atk,
+                    defenderPower: def,
+                  });
+                  return r.result.winnerId === "player" ? "Victory." : "Defeat.";
+                }
+                return "No active war.";
               })
             }
           >
             Fight
           </button>
-          <button type="button" disabled={!activeWar} onClick={() => act((st) => (tryWhitePeace(st) ? "White peace" : "No war"))}>
-            White peace
+          <button type="button" disabled={!activeWar} onClick={() => act((st) => (tryWhitePeace(st) ? "White peace signed." : "No war."))}>
+            White Peace
           </button>
-          <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} />
+        </>
+      )}
+
+      {tab === "world" && (
+        <>
+          <h3>World Status</h3>
+          <p style={{ fontSize: 13, opacity: 0.7 }}>
+            Chronicle of other crowns, wars, and musters. Your personal harvests stay on the event strip above.
+          </p>
+          <ul style={{ fontSize: 13 }}>
+            {worldEntries.length === 0 && <li>The world is quiet — for now.</li>}
+            {worldEntries.map((e, i) => (
+              <li key={`${e.tick}-${e.id}-${i}`}>
+                Tick {e.tick}: {e.text}
+              </li>
+            ))}
+          </ul>
           <WorldPanel
             state={state}
-            onFoundGuild={() => act((st) => (tryFoundGuild(st) ? "Guild founded" : "Already lead a guild"))}
-            onJoin={(id) => act((st) => (tryJoinFaction(st, id) ? "Joined" : "Cannot join"))}
-            onLeave={(id) => act((st) => (tryLeaveFaction(st, id) ? "Left" : "Not a member"))}
+            onFoundGuild={() => act((st) => (tryFoundGuild(st) ? "Guild founded." : "You already lead a guild."))}
+            onJoin={(id) => act((st) => (tryJoinFaction(st, id) ? "Joined the faction." : "Cannot join."))}
+            onLeave={(id) => act((st) => (tryLeaveFaction(st, id) ? "Left the faction." : "Not a member."))}
           />
         </>
       )}
@@ -401,23 +449,13 @@ export function AppShell() {
       {tab === "crown" && (
         <>
           <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} />
-          <WorldPanel
-            state={state}
-            onFoundGuild={() => act((st) => (tryFoundGuild(st) ? "Guild founded" : "Already lead a guild"))}
-            onJoin={(id) => act((st) => (tryJoinFaction(st, id) ? "Joined" : "Cannot join"))}
-            onLeave={(id) => act((st) => (tryLeaveFaction(st, id) ? "Left" : "Not a member"))}
-          />
           <p>Ascend at {formatLetterSuffix(ascendNeed)} total resources.</p>
-          <button type="button" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended" : "Not ready"))}>
+          <button type="button" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended." : "Not ready."))}>
             Ascend
           </button>
           <div style={{ marginTop: 12 }}>
-            <button type="button" onClick={() => state && persist(state)}>
-              Save
-            </button>
-            <button type="button" onClick={() => state && downloadSave(serializeState(state))}>
-              Export
-            </button>
+            <button type="button" onClick={() => state && persist(state)}>Save</button>
+            <button type="button" onClick={() => state && downloadSave(serializeState(state))}>Export</button>
             <button
               type="button"
               onClick={async () => {
@@ -428,11 +466,11 @@ export function AppShell() {
                   st.meta.lastRealTime = Date.now();
                   engineRef.current = new TickEngine(st);
                   lastRivalWar.current = null;
-                  setStatus("Imported");
+                  setStatus("Imported.");
                   syncUi(engineRef.current);
                   persist(st);
                 } catch {
-                  setStatus("Import cancelled");
+                  setStatus("Import cancelled.");
                 }
               }}
             >
@@ -447,12 +485,13 @@ export function AppShell() {
                 st.resources.food = "50";
                 engineRef.current = new TickEngine(st);
                 lastRivalWar.current = null;
+                setBattleSnap(null);
                 setTab("kingdom");
-                setStatus("New world generated");
+                setStatus("New world generated.");
                 syncUi(engineRef.current);
               }}
             >
-              New game
+              New Game
             </button>
           </div>
         </>
