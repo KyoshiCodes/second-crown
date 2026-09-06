@@ -44,3 +44,6 @@ pnpm-debug.log*
 # local playtest saves / scratch
 *.save.json
 scratch/
+
+# bake-off evaluation material — must never be visible to the agents under test
+bakeoff/
