@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { AppShell } from "./AppShell";
 import { TesterBar } from "./TesterBar";
 import { CloudPanel } from "./CloudPanel";
+import { BoardPanel } from "./BoardPanel";
 import { SpectatorView, watchCodeFromHash } from "./SpectatorView";
 import "./theme.css";
 import { sfx } from "./sfx";
@@ -34,6 +35,7 @@ function Root() {
     <>
       <TesterBar />
       <CloudPanel />
+      <BoardPanel />
       <AppShell />
     </>
   );
