@@ -54,6 +54,23 @@ export { tryFoundGuild, tryJoinFaction, tryLeaveFaction } from "./actions/factio
 
 export { tryAscend, canAscend, ascendThreshold } from "./actions/prestige.js";
 
+export {
+  ACHIEVEMENTS,
+  CRAFTS,
+  KINGDOM_OFFERS,
+  GUILD_CRESTS,
+  flagNum,
+  shieldTicksLeft,
+  isShielded,
+  tryBuyShield,
+  tryCraft,
+  tryKingdomTrade,
+  tryRenameGuild,
+  trySetGuildCrest,
+  playerGuild,
+  listAchievements,
+} from "./systems/wave.js";
+
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
 export { applyOfflineProgress } from "./offline.js";
