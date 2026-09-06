@@ -9,12 +9,10 @@ const GRID_H = 10;
 export interface MapRenderer {
   sync(state: GameState): void;
   destroy(): void;
+  /** Register a callback for tile clicks (grid x,y). */
+  onTileClick(cb: (x: number, y: number) => void): void;
 }
 
-/**
- * Phase H: simple grid map. Buildings are colored rectangles.
- * Under-construction buildings are drawn semi-transparent.
- */
 export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapRenderer> {
   const app = new Application();
   await app.init({
@@ -42,7 +40,46 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   const buildingsLayer = new Container();
   app.stage.addChild(buildingsLayer);
 
+  const hover = new Graphics();
+  hover.rect(0, 0, TILE, TILE);
+  hover.fill({ color: 0xffffff, alpha: 0.08 });
+  hover.visible = false;
+  app.stage.addChild(hover);
+
   const rectById = new Map<string, Graphics>();
+  let clickCb: ((x: number, y: number) => void) | null = null;
+
+  app.canvas.style.cursor = "pointer";
+
+  app.canvas.addEventListener("pointermove", (ev) => {
+    const rect = app.canvas.getBoundingClientRect();
+    const scaleX = (GRID_W * TILE) / rect.width;
+    const scaleY = (GRID_H * TILE) / rect.height;
+    const gx = Math.floor(((ev.clientX - rect.left) * scaleX) / TILE);
+    const gy = Math.floor(((ev.clientY - rect.top) * scaleY) / TILE);
+    if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H) {
+      hover.visible = true;
+      hover.x = gx * TILE;
+      hover.y = gy * TILE;
+    } else {
+      hover.visible = false;
+    }
+  });
+
+  app.canvas.addEventListener("pointerleave", () => {
+    hover.visible = false;
+  });
+
+  app.canvas.addEventListener("pointerdown", (ev) => {
+    const rect = app.canvas.getBoundingClientRect();
+    const scaleX = (GRID_W * TILE) / rect.width;
+    const scaleY = (GRID_H * TILE) / rect.height;
+    const gx = Math.floor(((ev.clientX - rect.left) * scaleX) / TILE);
+    const gy = Math.floor(((ev.clientY - rect.top) * scaleY) / TILE);
+    if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H && clickCb) {
+      clickCb(gx, gy);
+    }
+  });
 
   function sync(state: GameState): void {
     const seen = new Set<string>();
@@ -86,6 +123,9 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     destroy() {
       app.destroy(true);
       rectById.clear();
+    },
+    onTileClick(cb) {
+      clickCb = cb;
     },
   };
 }
