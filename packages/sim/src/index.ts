@@ -71,6 +71,8 @@ export {
   listAchievements,
 } from "./systems/wave.js";
 
+export { activeClash, tryJoinClash } from "./systems/worldClash.js";
+
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
 export { applyOfflineProgress } from "./offline.js";
