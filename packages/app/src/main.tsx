@@ -6,6 +6,7 @@ import { CloudPanel } from "./CloudPanel";
 import { BoardPanel } from "./BoardPanel";
 import { SpectatorView, watchCodeFromHash } from "./SpectatorView";
 import "./theme.css";
+import "./seasons/themeStage.css";
 import { sfx } from "./sfx";
 import { loadMusicMuted, startMusicBed } from "./music";
 
