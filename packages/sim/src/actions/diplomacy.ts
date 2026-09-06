@@ -34,7 +34,7 @@ export function tryGiftGold(state: GameState, amount = 15, realmId = "rival"): b
   const ruler = state.characters.find((c) => c.realmId === realmId && c.role === "ruler");
   if (!ruler) return false;
   state.resources.gold = toDecimalString(D(state.resources.gold ?? "0").sub(amount));
-  const extra = giftOpinionBonus(state);
+  const extra = giftOpinionBonus(state) + (state.flags.doctrine === "court" ? 5 : 0);
   bump(state, ruler.id, "char_player", 12 + extra);
   bump(state, "char_player", ruler.id, 6 + extra);
   noteGift(state);
