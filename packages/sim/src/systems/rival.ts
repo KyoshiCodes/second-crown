@@ -3,6 +3,7 @@ import { realmPower } from "./combat.js";
 import { getOpinion } from "../actions/diplomacy.js";
 import { archetypeForRealm, driftOpinions, growRealm } from "../content/world.js";
 import { pushWorldLog } from "./events.js";
+import { isShielded, noteWar } from "./wave.js";
 
 export const RivalSystem = {
   nextEventTick(_state: GameState): number | null {
@@ -44,6 +45,7 @@ function peaceLocked(state: GameState, a: string, b: string): boolean {
 }
 
 function maybeDeclare(state: GameState, realmId: string, atTick: number): void {
+  if (isShielded(state)) return;
   if (peaceLocked(state, realmId, "player")) return;
   if (state.wars.some((w) => w.status === "active")) return;
 
@@ -73,4 +75,5 @@ function maybeDeclare(state: GameState, realmId: string, atTick: number): void {
     issuerId: realmId,
   });
   pushWorldLog(state, "declare", `${name} declares war on Your Crown`);
+  noteWar(state);
 }
