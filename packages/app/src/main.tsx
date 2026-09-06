@@ -23,6 +23,11 @@ import {
   formatLetterSuffix,
   computeIncomePerSecond,
   countBuilding,
+  tryUpgrade,
+  MAX_BUILDING_LEVEL,
+  tryTrade,
+  canTrade,
+  MARKET_OFFERS,
   type GameState,
 } from "@second-crown/sim";
 import { createMapRenderer, type MapRenderer } from "@second-crown/render";
@@ -118,7 +123,7 @@ function App() {
           state = createGameState({ seed: 42, withStarterBuildings: true });
           state.resources.wood = "40";
           state.resources.food = "50";
-          setStatus("Select a building, click the map to place");
+          setStatus("Select a building, click empty tile to place, existing tile to upgrade");
           setOfflineNote("");
         }
       } catch {
@@ -145,14 +150,33 @@ function App() {
           map.sync(state);
           map.onTileClick((x, y) => {
             const eng = engineRef.current;
-            const typeId = selectedBuildRef.current;
-            if (!eng || !typeId) {
-              setStatus("Select a building type first");
+            if (!eng) return;
+            const st = eng.getState();
+            const existing = st.buildings.find((b) => b.x === x && b.y === y);
+            if (existing) {
+              if (existing.completesAtTick !== null) {
+                setStatus("Still under construction");
+                return;
+              }
+              if (existing.level >= MAX_BUILDING_LEVEL) {
+                setStatus(`${existing.typeId} already max level`);
+                return;
+              }
+              const ok = tryUpgrade(st, existing.id);
+              setStatus(
+                ok
+                  ? `Upgraded ${existing.typeId} to lv${existing.level}`
+                  : `Cannot afford upgrade (lv${existing.level} → ${existing.level + 1})`
+              );
+              if (ok) {
+                syncUi(eng);
+                saveToIndexedDb(serializeState(st)).catch(() => {});
+              }
               return;
             }
-            const st = eng.getState();
-            if (st.buildings.some((b) => b.x === x && b.y === y)) {
-              setStatus("Tile occupied");
+            const typeId = selectedBuildRef.current;
+            if (!typeId) {
+              setStatus("Select a building type first");
               return;
             }
             const ok = tryBuild(st, { typeId, x, y });
@@ -195,6 +219,7 @@ function App() {
   const trainMult = state ? trainCostMultiplier(state) : 1;
   const barracksN = state ? countBuilding(state, "barracks") : 0;
   const towersN = state ? countBuilding(state, "watchtower") : 0;
+  const marketsN = state ? countBuilding(state, "market") : 0;
 
   const buildingCounts: Record<string, number> = {};
   for (const b of buildings) {
@@ -277,6 +302,18 @@ function App() {
     saveToIndexedDb(serializeState(st)).catch(() => {});
   };
 
+  const handleTrade = (offerId: string) => {
+    const eng = engineRef.current;
+    if (!eng) return;
+    const st = eng.getState();
+    const ok = tryTrade(st, offerId);
+    setStatus(ok ? "Trade complete" : marketsN < 1 ? "Build a Market first" : "Cannot afford trade");
+    if (ok) {
+      syncUi(eng);
+      saveToIndexedDb(serializeState(st)).catch(() => {});
+    }
+  };
+
   return (
     <div style={{ padding: 20, maxWidth: 740, margin: "0 auto" }}>
       <header style={{ marginBottom: 12 }}>
@@ -348,10 +385,9 @@ function App() {
         ))}
       </div>
 
-      {/* Single canvas always mounted */}
       <div style={{ display: tab === "kingdom" ? "block" : "none", marginBottom: 14 }}>
         <p style={{ fontSize: 12, opacity: 0.65, margin: "0 0 6px" }}>
-          Selected: <strong>{selectedBuild ?? "none"}</strong> — click map to place
+          Selected: <strong>{selectedBuild ?? "none"}</strong> — empty tile places, occupied tile upgrades (max lv{MAX_BUILDING_LEVEL})
         </p>
         <canvas
           ref={canvasRef}
@@ -412,6 +448,35 @@ function App() {
                     ) : null}
                   </div>
                   <div style={{ fontSize: 11, opacity: 0.8 }}>{costStr}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          <h3 style={{ fontSize: 14, marginTop: 20 }}>Market</h3>
+          <p style={{ fontSize: 12, opacity: 0.6, marginTop: -8 }}>
+            {marketsN < 1 ? "Build a Market to unlock trades." : `Markets ×${marketsN}`}
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {MARKET_OFFERS.map((o) => {
+              const ok = state ? canTrade(state, o.id) : false;
+              return (
+                <button
+                  key={o.id}
+                  type="button"
+                  disabled={!ok}
+                  onClick={() => handleTrade(o.id)}
+                  style={{
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #30363d",
+                    background: ok ? "#9e6a03" : "#21262d",
+                    color: ok ? "#fff" : "#8b949e",
+                    cursor: ok ? "pointer" : "not-allowed",
+                    fontSize: 13,
+                  }}
+                >
+                  {o.label}
                 </button>
               );
             })}
