@@ -4,6 +4,7 @@ import { getUnitType } from "../content/units.js";
 import { countBuilding } from "../content/buildings.js";
 import type { RngStreams } from "../core/rng.js";
 import { grantVictorySpoils } from "./wave.js";
+import { fortifyPower } from "./court.js";
 
 export function realmPower(state: GameState, realmId: string): number {
   let power = 0;
@@ -16,6 +17,7 @@ export function realmPower(state: GameState, realmId: string): number {
   if (realmId === "player") {
     power += countBuilding(state, "watchtower") * 2;
     power += countBuilding(state, "walls") * 4;
+    power += fortifyPower(state);
   }
   return power;
 }
