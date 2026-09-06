@@ -20,3 +20,21 @@ Prefer `pm2 restart sc-cloud` for code deploys.
 ## Train discounts
 
 `trainCostMultiplier(state, typeId)` — barracks global, then stables/range/workshop by unit family. Combat tests use militia (no specialist building).
+
+## Astra ledger foundation (PR, not deployed)
+
+See `SPEC-AUCTION-PVP.md`. New routes use existing Discord bearer identities.
+`server/ledger.mjs` uses the already installed break_infinity.js dependency for
+practice accounting; it imports no sim rules. Kingdom saves are not a trusted
+inventory, so there is deliberately no deposit/withdraw bridge.
+
+Persistence is one bounded versioned JSON ledger, written with temp-file fsync
+and rename. Use one server process, not PM2 cluster mode. Back up
+`DATA_DIR/ledger.json`; deleting it resets practice accounts and receipts. On
+capacity errors retain the file and migrate to transactional storage rather than
+pruning receipts. No production data is initialized by the PR.
+
+Verification: `npm test`, `npm run build -w @second-crown/app`, and
+`node --test server/ledger.test.mjs server/ledger-http.test.mjs`. The last command
+uses temporary directories and local HTTP only; it does not call Discord or the
+live host. Existing package.json/package-lock working changes are outside this PR.

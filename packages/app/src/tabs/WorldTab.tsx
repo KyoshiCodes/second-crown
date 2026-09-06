@@ -13,6 +13,7 @@ import {
 } from "@second-crown/sim";
 import { WorldPanel } from "../WorldPanel";
 import { MarketPanel } from "../MarketPanel";
+import { AuctionPanel } from "../AuctionPanel";
 import type { ActFn } from "../game/useGameEngine";
 import { getGiftThanks } from "../content/flavor";
 
@@ -29,6 +30,7 @@ export function WorldTab(props: {
   return (
     <>
       <MarketPanel state={state} act={act} />
+      <AuctionPanel state={state} />
       <h3>World Status</h3>
       <p style={{ fontSize: 13, opacity: 0.7 }}>Chronicle of other crowns, wars, and musters.</p>
       {clash ? (

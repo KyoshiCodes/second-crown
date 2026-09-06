@@ -57,3 +57,12 @@ Do not `pm2 delete sc-cloud` unless you re-pass Discord env.
 ## 12. Pickup prompt
 
 Second Crown idle/war game. Play `https://129.153.17.72.sslip.io/`. Sim is client-only. Caddy + sc-cloud. Update HANDOFF/CHANGELOG/USER-NOTES/DEV-NOTES on meaningful merges.
+
+## Astra PR — practice exchange and PvP ledger (not deployed)
+
+Branch `bakeoff/astra` adds `/auction`, `/pvp`, and a World-tab panel. Discord
+players can exchange separate practice assets and lock unverified challenge
+snapshots. Real kingdom transfers and rated fights remain gated; see
+`SPEC-AUCTION-PVP.md` and root `walkthrough.md`. No sim, tick cadence, save schema,
+OAuth, guest behavior, or seasonal presentation changes. Keep one sc-cloud
+process and back up `DATA_DIR/ledger.json` with saves. Do not merge automatically.

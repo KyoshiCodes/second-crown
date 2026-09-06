@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { createLedgerHandler } from "./ledger.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -164,6 +165,14 @@ async function discordMe(access) {
   return res.json();
 }
 
+const handleLedger = createLedgerHandler(DATA, {
+  findUser: (id) => Object.values(readUsers()).find((u) => u.id === id),
+  readSave: (id) => {
+    if (!/^[a-zA-Z0-9_-]+$/.test(id)) return null;
+    const file = path.join(SAVES, id + ".json");
+    return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
+  },
+});
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
   if (req.method === "OPTIONS") return json(res, 204, {});
@@ -176,6 +185,9 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { board: buildBoard() });
   }
 
+  if (url.pathname === "/auction" || url.pathname === "/pvp") {
+    return handleLedger(req, res, url.pathname.slice(1), userFromToken(bearer(req)), json);
+  }
   if (req.method === "GET" && url.pathname.startsWith("/profile/")) {
     const id = decodeURIComponent(url.pathname.slice("/profile/".length));
     const users = readUsers();

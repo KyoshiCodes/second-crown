@@ -2,14 +2,25 @@
 
 Newest first.
 
-## 2026-09-06 — Gemini presentation lane: living seasons, holidays, and layered immersion
+## 2026-09-06 — Astra: practice auction and PvP ledger
 
-- **Seen & Heard Seasons**: Dynamic canvas weather particles (Spring pollen/petals, Summer heat shimmer/fireflies, Autumn leaves, Winter snowfall) with matching procedural Web Audio pentatonic scales, tempos, and timbres.
-- **Calendar & Holiday Overlays**: All Hallows / Halloween, Midwinter / Christmas-tide, Dawn Feast / Easter-tide, Harvest Moon, Midsummer Solstice with ambient badges, color grading, and holiday stinger motifs. Playtester dropdown in `TesterBar` allows instant preview.
-- **Pixi Map Ground Seasoning**: Procedural seasonal ground tile recoloring (verdant spring, golden summer, russet autumn, frost winter) with seasonal specks and rooftop snow capping in winter.
-- **Loot & Bazaar Item Tier Chips**: Rarity chips (`common`, `uncommon`, `rare`, `epic`) with SVG badges and count indicators for the Spoils Bag and Wandering Bazaar.
-- **Layered Tab Atmospheres**: CSS vignette and textured gradients across Kingdom, Army, War, World, and Crown tabs without blocking pointer events.
-- **Combat & Audio Polish**: Dedicated Champion unit portrait, victory/defeat sound cues upon war resolution, and season shift stingers.
+- Discord-only practice accounts, fixed-price escrow, buy/cancel, and retry receipts.
+- Private PvP challenges with immutable, unverified power/save-hash snapshots.
+- World-tab panel with separate-asset labels, explicit refresh, and retry recovery.
+- Server transaction and HTTP integration tests; no ranked combat.
+
+## 2026-09-06 — Gemini: living seasons, holidays, and layered immersion
+
+- Canvas weather particles (Spring pollen, Summer fireflies, Autumn leaves, Winter snow) plus seasonal Web Audio beds.
+- Holiday overlays: All Hallows, Midwinter, Dawn Feast, Harvest Moon, Midsummer. TesterBar preview dropdown.
+- Seasonal Pixi ground colors and winter roof snow.
+- Item tier chips on the spoils bag and bazaar.
+- Layered tab atmospheres; Champion portrait; fight win/lose stingers.
+
+## 2026-09-06 — Claude: WarRoom
+
+- War tab is a thin wrapper around WarRoom (odds, levy, declare/resolve/peace, last battle, defenses).
+- Read-only `warSummary()` helper. No combat formula change.
 
 ## 2026-09-06 — HTTPS live + specialist buildings
 
