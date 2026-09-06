@@ -1,12 +1,15 @@
 import React from "react";
-import type { WorldEvent } from "@second-crown/sim";
+import type { GameState, WorldEvent } from "@second-crown/sim";
 import { formatLetterSuffix } from "@second-crown/sim";
+import { miraRemark } from "./content/mira";
 
 export function EventPanel(props: {
   lastEvent: string;
   lastEventTick: number;
   log: WorldEvent[];
+  state?: GameState;
 }) {
+  const mira = miraRemark(props.state, props.lastEvent);
   return (
     <div
       style={{
@@ -26,6 +29,10 @@ export function EventPanel(props: {
           Tick {formatLetterSuffix(props.lastEventTick)}
         </div>
       )}
+      <div style={{ marginTop: 10, fontSize: 13, color: "#c4b5fd", borderLeft: "2px solid #7c3aed", paddingLeft: 10 }}>
+        <div style={{ fontSize: 11, opacity: 0.7 }}>Advisor Mira</div>
+        <em>{mira}</em>
+      </div>
       {props.log.length > 1 && (
         <ul style={{ margin: "10px 0 0", paddingLeft: 18, fontSize: 13, opacity: 0.8 }}>
           {props.log
