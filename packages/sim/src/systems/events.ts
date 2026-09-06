@@ -16,8 +16,8 @@ export interface WorldEvent {
   text: string;
 }
 
-function readLog(state: GameState): WorldEvent[] {
-  const raw = state.flags["event_log"];
+function readLog(state: GameState, key = "event_log"): WorldEvent[] {
+  const raw = state.flags[key];
   if (typeof raw !== "string" || !raw) return [];
   try {
     const parsed = JSON.parse(raw) as WorldEvent[];
@@ -27,8 +27,20 @@ function readLog(state: GameState): WorldEvent[] {
   }
 }
 
-function writeLog(state: GameState, log: WorldEvent[]): void {
-  state.flags["event_log"] = JSON.stringify(log.slice(-8));
+function writeLog(state: GameState, log: WorldEvent[], key = "event_log"): void {
+  state.flags[key] = JSON.stringify(log.slice(-24));
+}
+
+export function pushWorldLog(state: GameState, id: string, text: string): void {
+  const ev: WorldEvent = { tick: state.meta.tick, id, text };
+  const log = readLog(state, "world_log");
+  log.push(ev);
+  writeLog(state, log, "world_log");
+  state.flags["last_world"] = text;
+}
+
+export function getWorldLog(state: GameState): WorldEvent[] {
+  return readLog(state, "world_log");
 }
 
 function applyEvent(state: GameState, tick: number): WorldEvent {
@@ -44,12 +56,14 @@ function applyEvent(state: GameState, tick: number): WorldEvent {
   } else if (roll === 2) {
     const food = D(state.resources.food ?? "0");
     const lost = food.mul(0.05).floor();
-    state.resources.food = toDecimalString(food.sub(lost));
-    ev = { tick, id: "spoil", text: `Spoilage — lost ${lost.toString()} food` };
+    const cap = lost.gt(50) ? D(50) : lost;
+    state.resources.food = toDecimalString(food.sub(cap));
+    ev = { tick, id: "spoil", text: `Spoilage — lost ${cap.toString()} food` };
   } else if (roll === 3) {
     const rival = state.units.find((u) => u.realmId === "rival" && u.typeId === "militia");
     if (rival) rival.count = toDecimalString(D(rival.count).add(3));
     ev = { tick, id: "levy", text: "Iron March raises a levy — +3 militia" };
+    pushWorldLog(state, "levy", "Iron March musters +3 militia");
   } else {
     state.resources.gold = toDecimalString(D(state.resources.gold ?? "0").add(10));
     ev = { tick, id: "tribute", text: "A merchant pays tribute — +10 gold" };
@@ -57,14 +71,14 @@ function applyEvent(state: GameState, tick: number): WorldEvent {
 
   state.flags["last_event"] = ev.text;
   state.flags["last_event_tick"] = tick;
-  const log = readLog(state);
+  const log = readLog(state, "event_log");
   log.push(ev);
-  writeLog(state, log);
+  writeLog(state, log, "event_log");
   return ev;
 }
 
 export function getEventLog(state: GameState): WorldEvent[] {
-  return readLog(state);
+  return readLog(state, "event_log");
 }
 
 export const EventSystem = {
