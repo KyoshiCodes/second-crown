@@ -19,6 +19,8 @@ export type { BuildingType } from "./content/buildings.js";
 export { UNIT_TYPES, getUnitType, listUnitTypes } from "./content/units.js";
 export type { UnitType } from "./content/units.js";
 
+export { playerTitle, extraArchetypes } from "./content/world.js";
+
 export { EconomySystem, computeIncomePerSecond, productionBonus } from "./systems/economy.js";
 export { realmPower, resolveBattle } from "./systems/combat.js";
 export type { BattleResult } from "./systems/combat.js";
@@ -46,6 +48,8 @@ export {
   rivalOpinionOfPlayer,
   playerOpinionOfRival,
 } from "./actions/diplomacy.js";
+
+export { tryFoundGuild, tryJoinFaction, tryLeaveFaction } from "./actions/faction.js";
 
 export { tryAscend, canAscend, ascendThreshold } from "./actions/prestige.js";
 
