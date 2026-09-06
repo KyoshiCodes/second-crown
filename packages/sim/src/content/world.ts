@@ -1,5 +1,6 @@
 import type { Character, Faction, GameState, Realm } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
+import { pushWorldLog } from "../systems/events.js";
 
 export interface KingdomArchetype {
   key: string;
@@ -81,6 +82,58 @@ export const ARCHETYPES: KingdomArchetype[] = [
     declareEdge: 18,
     fickle: 2,
   },
+  {
+    key: "frost",
+    realmName: "Frost Holds",
+    rulerName: "Jarl Signe",
+    era: "north age",
+    lifestyle: "clan",
+    traits: ["proud", "harsh"],
+    ambition: "glory",
+    startMilitia: 9,
+    growth: 1,
+    declareEdge: 6,
+    fickle: 2,
+  },
+  {
+    key: "tide",
+    realmName: "Tide Princes",
+    rulerName: "Admiral Kesh",
+    era: "age of sail",
+    lifestyle: "corsair",
+    traits: ["greedy", "restless"],
+    ambition: "plunder",
+    startMilitia: 7,
+    growth: 2,
+    declareEdge: 4,
+    fickle: 3,
+  },
+  {
+    key: "ember",
+    realmName: "Ember Concord",
+    rulerName: "Magister Rho",
+    era: "arcane renaissance",
+    lifestyle: "mage-court",
+    traits: ["clever", "aloof"],
+    ambition: "knowledge",
+    startMilitia: 4,
+    growth: 1,
+    declareEdge: 14,
+    fickle: 5,
+  },
+  {
+    key: "bronze",
+    realmName: "Bronze League",
+    rulerName: "Strategos Helia",
+    era: "city-state",
+    lifestyle: "phalanx",
+    traits: ["disciplined"],
+    ambition: "order",
+    startMilitia: 11,
+    growth: 1,
+    declareEdge: 7,
+    fickle: 1,
+  },
 ];
 
 function pick(seed: number, salt: number, mod: number): number {
@@ -89,10 +142,9 @@ function pick(seed: number, salt: number, mod: number): number {
   return (x >>> 0) % mod;
 }
 
-/** Extra kingdoms besides player + primary rival. Seed-stable. */
 export function extraArchetypes(seed: number): KingdomArchetype[] {
   const pool = ARCHETYPES.filter((a) => a.key !== "iron");
-  const n = 2 + (pick(seed, 11, 2)); // 2 or 3 extras
+  const n = 3 + pick(seed, 11, 3);
   const out: KingdomArchetype[] = [];
   const used = new Set<string>();
   let salt = 3;
@@ -112,26 +164,24 @@ export function seedWorldActors(state: GameState): void {
     const realmId = `k_${a.key}`;
     const charId = `char_${a.key}`;
     if (!state.realms.some((r) => r.id === realmId)) {
-      const realm: Realm = {
+      state.realms.push({
         id: realmId,
         name: a.realmName,
         rulerId: charId,
         era: a.era,
         lifestyle: a.lifestyle,
         aiProfile: a.key,
-      };
-      state.realms.push(realm);
+      } satisfies Realm);
     }
     if (!state.characters.some((c) => c.id === charId)) {
-      const ch: Character = {
+      state.characters.push({
         id: charId,
         name: a.rulerName,
         role: "ruler",
         realmId,
         traits: [...a.traits],
         ambition: a.ambition,
-      };
-      state.characters.push(ch);
+      } satisfies Character);
     }
     if (!state.opinions.some((o) => o.from === charId && o.to === "char_player")) {
       const v = pick(state.meta.seed, a.key.length * 13, 61) - 30;
@@ -160,6 +210,16 @@ export function seedWorldActors(state: GameState): void {
       stance: pick(state.meta.seed, 99, 40) - 10,
     };
     state.factions.push(fac);
+  }
+  if (!state.factions.some((f) => f.id === "order_salt")) {
+    state.factions.push({
+      id: "order_salt",
+      name: "Salt Road Pact",
+      kind: "order",
+      leaderRealmId: extras[1] ? `k_${extras[1].key}` : null,
+      memberRealmIds: extras.slice(1, 3).map((a) => `k_${a.key}`),
+      stance: pick(state.meta.seed, 77, 30) - 5,
+    });
   }
 }
 
@@ -194,10 +254,15 @@ export function driftOpinions(state: GameState): void {
     }
   }
   for (const f of state.factions ?? []) {
-    if (f.memberRealmIds.includes("player")) {
-      if (state.meta.tick % 400 === 0) {
-        f.stance = Math.max(-100, Math.min(100, f.stance - 1));
-      }
+    if (!f.memberRealmIds.includes("player")) continue;
+    if (state.meta.tick % 300 !== 0) continue;
+    const before = f.stance;
+    f.stance = Math.max(-100, Math.min(100, f.stance - 2));
+    if (before >= 0 && f.stance < 0) {
+      pushWorldLog(state, "faction_sour", `${f.name} grows tired of your banner.`);
+    }
+    if (before >= -10 && f.stance < -10) {
+      pushWorldLog(state, "faction_cold", `${f.name} will not take new oaths from you.`);
     }
   }
 }

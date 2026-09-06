@@ -4,7 +4,6 @@ import { getUnitType } from "../content/units.js";
 import { countBuilding } from "../content/buildings.js";
 import type { RngStreams } from "../core/rng.js";
 
-/** Unit power + watchtower bonus. */
 export function realmPower(state: GameState, realmId: string): number {
   let power = 0;
   for (const u of state.units) {
@@ -19,17 +18,23 @@ export function realmPower(state: GameState, realmId: string): number {
   return power;
 }
 
+export interface BattlePhase {
+  title: string;
+  text: string;
+}
+
 export interface BattleResult {
   winnerId: string;
   loserId: string;
   loot: Record<string, string>;
+  phases: BattlePhase[];
+  attackerPower: number;
+  defenderPower: number;
+  atkSwing: number;
+  defSwing: number;
 }
 
-export function resolveBattle(
-  state: GameState,
-  war: War,
-  rng: RngStreams
-): BattleResult {
+export function resolveBattle(state: GameState, war: War, rng: RngStreams): BattleResult {
   const atk = realmPower(state, war.attackerRealmId);
   const def = realmPower(state, war.defenderRealmId);
 
@@ -40,21 +45,59 @@ export function resolveBattle(
   const winnerId = attackerWins ? war.attackerRealmId : war.defenderRealmId;
   const loserId = attackerWins ? war.defenderRealmId : war.attackerRealmId;
 
-  applyCasualties(state, winnerId, 0.1 + rng.battle() * 0.1);
-  applyCasualties(state, loserId, 0.4 + rng.battle() * 0.2);
+  const winFrac = 0.1 + rng.battle() * 0.1;
+  const loseFrac = 0.4 + rng.battle() * 0.2;
+  applyCasualties(state, winnerId, winFrac);
+  applyCasualties(state, loserId, loseFrac);
 
   const lootFrac = 0.15 + rng.battle() * 0.1;
   const loot = plunder(state, winnerId, loserId, lootFrac);
 
   war.status = attackerWins ? "attacker_won" : "defender_won";
 
-  state.flags[`peace_${war.attackerRealmId}_${war.defenderRealmId}`] =
-    state.meta.tick + 500;
+  state.flags[`peace_${war.attackerRealmId}_${war.defenderRealmId}`] = state.meta.tick + 500;
 
   adjustOpinion(state, winnerId, loserId, -15);
   adjustOpinion(state, loserId, winnerId, -25);
 
-  return { winnerId, loserId, loot };
+  const phases: BattlePhase[] = [
+    {
+      title: "Muster",
+      text: `Attacker ${atk} power vs defender ${def} power.`,
+    },
+    {
+      title: "Clash",
+      text: `Fortune multiplies the attack ${atkSwing.toFixed(2)} and the defense ${defSwing.toFixed(2)}.`,
+    },
+    {
+      title: "Melee",
+      text: attackerWins ? "The attacker's line holds and pushes." : "The defender's line holds and pushes.",
+    },
+    {
+      title: "Butcher's bill",
+      text: `Winner loses ${Math.round(winFrac * 100)}% of the host. Loser loses ${Math.round(loseFrac * 100)}%.`,
+    },
+    {
+      title: "Spoil",
+      text:
+        Object.keys(loot).length === 0
+          ? "Little was taken from the field."
+          : `Loot: ${Object.entries(loot)
+              .map(([k, v]) => `${v} ${k}`)
+              .join(", ")}.`,
+    },
+  ];
+
+  return {
+    winnerId,
+    loserId,
+    loot,
+    phases,
+    attackerPower: atk,
+    defenderPower: def,
+    atkSwing,
+    defSwing,
+  };
 }
 
 function applyCasualties(state: GameState, realmId: string, fraction: number): void {
