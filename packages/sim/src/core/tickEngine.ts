@@ -41,14 +41,16 @@ export class TickEngine {
   }
 
   /**
-   * Event-horizon settlement.
-   * Jumps analytically to the next interesting event (or to the target)
-   * instead of simulating every fine tick. Falls back to fine ticks
-   * when events are dense or the remaining distance is small.
+   * Event-horizon settlement (Invariant 2).
    *
-   * When landing exactly on an event tick, process the event and then
-   * apply production for that tick — same order as fine ticks — so
-   * offline-equals-online holds (Invariant 2).
+   * Strategy:
+   * - Find next event tick.
+   * - Analytically advance production up to (eventTick - 1).
+   * - Step exactly one fine tick onto the event (processEvents + production).
+   * - Repeat until target is reached.
+   *
+   * This matches the fine-tick order bit-for-bit and avoids off-by-one
+   * double-counting on the completion tick.
    */
   settleTicks(n: number): void {
     if (n <= 0) return;
@@ -56,7 +58,6 @@ export class TickEngine {
     const targetTick = this.state.meta.tick + n;
 
     while (this.state.meta.tick < targetTick) {
-      // Find the nearest future event across all systems
       let nextEvent: number | null = null;
       for (const sys of SYSTEMS) {
         const t = sys.nextEventTick(this.state);
@@ -67,40 +68,40 @@ export class TickEngine {
         }
       }
 
-      // How far can we jump?
-      const jumpTo =
-        nextEvent === null
-          ? targetTick
-          : Math.min(nextEvent, targetTick);
-
-      const distance = jumpTo - this.state.meta.tick;
-
-      // Small distances: just run fine ticks (cheaper + simpler)
-      if (distance <= 4) {
-        this.tickMany(Math.min(distance, targetTick - this.state.meta.tick));
-        continue;
-      }
-
-      // Analytic jump over the empty interval (from exclusive → jumpTo inclusive of time span)
-      const from = this.state.meta.tick;
-      for (const sys of SYSTEMS) {
-        sys.advanceAnalytic(this.state, from, jumpTo);
-      }
-
-      this.state.meta.tick = jumpTo;
-      this.state.meta.playTimeMs += distance * 100;
-
-      // If we landed exactly on an event, process it and apply production
-      // for this tick (matches fine-tick order: events then production).
-      if (nextEvent !== null && this.state.meta.tick === nextEvent) {
-        for (const sys of SYSTEMS) {
-          sys.processEventsAt(this.state, this.state.meta.tick);
-        }
-        for (const sys of SYSTEMS) {
-          if ("tick" in sys && typeof (sys as any).tick === "function") {
-            (sys as any).tick(this.state);
+      // No upcoming event before target: one analytic jump and done
+      if (nextEvent === null || nextEvent > targetTick) {
+        const from = this.state.meta.tick;
+        const distance = targetTick - from;
+        if (distance > 0) {
+          for (const sys of SYSTEMS) {
+            sys.advanceAnalytic(this.state, from, targetTick);
           }
+          this.state.meta.tick = targetTick;
+          this.state.meta.playTimeMs += distance * 100;
         }
+        break;
+      }
+
+      // Advance analytically to the tick *before* the event
+      const preEvent = nextEvent - 1;
+      if (preEvent > this.state.meta.tick) {
+        const from = this.state.meta.tick;
+        const distance = preEvent - from;
+        // Small gap: just fine-tick (keeps logic simple)
+        if (distance <= 4) {
+          this.tickMany(distance);
+        } else {
+          for (const sys of SYSTEMS) {
+            sys.advanceAnalytic(this.state, from, preEvent);
+          }
+          this.state.meta.tick = preEvent;
+          this.state.meta.playTimeMs += distance * 100;
+        }
+      }
+
+      // Step one fine tick onto the event (processEvents + production)
+      if (this.state.meta.tick < targetTick) {
+        this.tick();
       }
     }
   }
