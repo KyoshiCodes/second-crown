@@ -990,14 +990,14 @@ function drawIsometricBuilding(
       g.rect(8, 1, 1.2, 1.8); g.fill({ color: 0x3f6212 }); // Stem
 
       // Flickering witchfire eyes & jagged grin
-      const flicker = 0.72 + Math.sin(phase * 8.5) * 0.16 + Math.sin(phase * 14.3) * 0.12;
+      const flicker = 0.72 + Math.sin(phase * 0.45 * 8.5) * 0.16 + Math.sin(phase * 0.45 * 14.3) * 0.12;
       g.rect(6.8, 3, 1, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
       g.rect(9.2, 3, 1, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
       g.rect(7.2, 4.8, 2.6, 1.2); g.fill({ color: 0xfef08a, alpha: flicker });
 
       // Witchfire ground light cast halo
-      g.ellipse(8, 6, 14, 6);
-      g.fill({ color: 0xf97316, alpha: 0.18 * flicker });
+      g.ellipse(8, 6, 5, 2.5);
+      g.fill({ color: 0xf97316, alpha: 0.07 * flicker });
     } else if (dec === "midwinter") {
       // Midwinter: thick snow on roofs, hanging icicles, pine wreaths, warm windows, brass lantern
       // 1. Thick snow on roofs with contoured eaves
@@ -1026,23 +1026,23 @@ function drawIsometricBuilding(
       g.fill({ color: 0xef4444 });
 
       // 3. Warm candlelit windows with gentle hearth flicker & golden light halo
-      const winterFlicker = 0.82 + Math.sin(phase * 6.0) * 0.14 + Math.sin(phase * 11.2) * 0.06;
+      const winterFlicker = 0.82 + Math.sin(phase * 0.45 * 6.0) * 0.14 + Math.sin(phase * 0.45 * 11.2) * 0.06;
       g.rect(2, -h * 0.4, 3.5, 3.5);
       g.fill({ color: 0xfef08a, alpha: 0.95 * winterFlicker });
       g.rect(3, -h * 0.35, 1.5, 1.5);
       g.fill({ color: 0xf59e0b, alpha: 0.9 });
 
       // Warm window/doorway light halo cast on the snow
-      g.ellipse(4, 5, 14, 6);
-      g.fill({ color: 0xfde047, alpha: 0.20 * winterFlicker });
+      g.ellipse(4, 5, 5, 2.5);
+      g.fill({ color: 0xfde047, alpha: 0.07 * winterFlicker });
 
       // 4. Brass porch lantern on doorstep
       g.rect(9, 2, 2.5, 4);
       g.fill({ color: 0x78350f });
       g.rect(9.5, 3, 1.5, 2);
       g.fill({ color: 0xfef08a, alpha: 0.95 * winterFlicker });
-      g.ellipse(10, 5, 8, 4);
-      g.fill({ color: 0xfacc15, alpha: 0.16 * winterFlicker });
+      g.ellipse(10, 5, 4, 2);
+      g.fill({ color: 0xfacc15, alpha: 0.055 * winterFlicker });
     } else if (dec === "easter") {
       // Easter: climbing blossoms, pale ribbons, dawn lantern with golden-lilac halo
       // 1. Floral vine climbing corner and blooming boughs across eaves
@@ -1087,16 +1087,16 @@ function drawIsometricBuilding(
       g.fill({ color: 0xfbcfe8, alpha: 0.88 });
 
       // 3. Dawn lantern on doorstep with soft golden-lilac morning halo
-      const dawnGlow = 0.82 + Math.sin(phase * 4.5) * 0.12;
+      const dawnGlow = 0.82 + Math.sin(phase * 0.45 * 4.5) * 0.12;
       g.rect(8, 2, 2.8, 4.5);
       g.fill({ color: 0xd4a359 });
       g.rect(8.6, 3, 1.6, 2.5);
       g.fill({ color: 0xfef08a, alpha: 0.95 * dawnGlow });
       // Dawn halo cast on doorstep
-      g.ellipse(9, 5, 13, 6);
-      g.fill({ color: 0xe9d5ff, alpha: 0.18 * dawnGlow });
-      g.ellipse(9, 5, 7, 3.5);
-      g.fill({ color: 0xfef08a, alpha: 0.15 * dawnGlow });
+      g.ellipse(9, 5, 5, 2.5);
+      g.fill({ color: 0xe9d5ff, alpha: 0.07 * dawnGlow });
+      g.ellipse(9, 5, 3, 1.5);
+      g.fill({ color: 0xfef08a, alpha: 0.05 * dawnGlow });
     } else if (dec === "harvest") {
       // Harvest: golden sheaves, amber oil lamps with deep amber flicker & halo, harvest props
       // 1. Golden grain sheaves tied with twine propped against building wall
@@ -1114,7 +1114,7 @@ function drawIsometricBuilding(
       g.circle(12, -h * 0.35 - 1.5, 1.6); g.fill({ color: 0xfacc15 });
 
       // 2. Amber oil lamps with deep amber flicker & cast halo
-      const amberFlicker = 0.76 + Math.sin(phase * 7.2) * 0.16 + Math.sin(phase * 12.1) * 0.08;
+      const amberFlicker = 0.76 + Math.sin(phase * 0.45 * 7.2) * 0.16 + Math.sin(phase * 0.45 * 12.1) * 0.08;
       // Iron arm & lamp
       g.moveTo(7, -h * 0.3); g.lineTo(9, -h * 0.3); g.lineTo(9, -h * 0.3 + 4);
       g.stroke({ width: 1.2, color: 0x27272a });
@@ -1124,10 +1124,10 @@ function drawIsometricBuilding(
       g.rect(8.5, -h * 0.3 + 2, 1.5, 2);
       g.fill({ color: 0xf59e0b, alpha: amberFlicker });
       // Rich amber halo cast on facade and ground
-      g.ellipse(8, 4, 16, 7);
-      g.fill({ color: 0xf59e0b, alpha: 0.22 * amberFlicker });
-      g.ellipse(8, -h * 0.3 + 2, 9, 7);
-      g.fill({ color: 0xd97706, alpha: 0.16 * amberFlicker });
+      g.ellipse(8, 4, 5, 2.5);
+      g.fill({ color: 0xf59e0b, alpha: 0.07 * amberFlicker });
+      g.ellipse(8, -h * 0.3 + 2, 4, 2.5);
+      g.fill({ color: 0xd97706, alpha: 0.05 * amberFlicker });
 
       // 3. Harvest cider cask & field gourd on porch
       g.ellipse(-4, 5, 3, 2.2);
@@ -1137,9 +1137,9 @@ function drawIsometricBuilding(
     } else if (dec === "midsummer") {
       // Midsummer: standing solstice bonfire brazier with dancing flames, long light sunset highlights
       // 1. Standing iron brazier with leaping bonfire flames
-      const flamePulse = Math.sin(phase * 8.5) * 1.5;
-      const flamePulse2 = Math.sin(phase * 13.7) * 1.2;
-      const brazierGlow = 0.8 + Math.sin(phase * 9.0) * 0.14 + Math.sin(phase * 15.0) * 0.08;
+      const flamePulse = Math.sin(phase * 0.45 * 8.5) * 1.5;
+      const flamePulse2 = Math.sin(phase * 0.45 * 13.7) * 1.2;
+      const brazierGlow = 0.8 + Math.sin(phase * 0.45 * 9.0) * 0.14 + Math.sin(phase * 0.45 * 15.0) * 0.08;
       // Brazier tripod stand
       g.moveTo(7, 6); g.lineTo(9, 1);
       g.moveTo(11, 6); g.lineTo(9, 1);
@@ -1165,10 +1165,10 @@ function drawIsometricBuilding(
       g.circle(9, 0, 1.4);
       g.fill({ color: 0xfef08a, alpha: 1.0 });
       // Wide bonfire glow halo on ground & building facet
-      g.ellipse(9, 4, 18, 8);
-      g.fill({ color: 0xf59e0b, alpha: 0.24 * brazierGlow });
-      g.ellipse(9, 2, 10, 5);
-      g.fill({ color: 0xfde047, alpha: 0.20 * brazierGlow });
+      g.ellipse(9, 4, 5, 2.5);
+      g.fill({ color: 0xf59e0b, alpha: 0.07 * brazierGlow });
+      g.ellipse(9, 2, 3.5, 1.8);
+      g.fill({ color: 0xfde047, alpha: 0.055 * brazierGlow });
 
       // 2. Long light: warm golden sunset highlight on roofline & sunburst medallion
       g.moveTo(-16, -h + 2);
@@ -1194,13 +1194,13 @@ function drawIsometricBuilding(
       g.circle(4.5, -h * 0.35 + 3.5, 1.2); g.fill({ color: 0xf472b6 });
       g.rect(2, -h * 0.4, 3.5, 3.5);
       g.fill({ color: 0xfef08a, alpha: 0.65 });
-      g.ellipse(3.5, 4, 8, 3.5);
-      g.fill({ color: 0x86efac, alpha: 0.08 });
+      g.ellipse(3.5, 4, 5, 2.5);
+      g.fill({ color: 0x86efac, alpha: 0.05 });
     } else if (dec === "summer") {
       // Summer (lighter version of Midsummer): brass porch lantern + sunlit roofline
       g.rect(8, 2, 2.2, 3.5); g.fill({ color: 0x78350f });
       g.rect(8.5, 3, 1.2, 1.8); g.fill({ color: 0xfef08a, alpha: 0.85 });
-      g.ellipse(9, 4, 9, 4); g.fill({ color: 0xfde047, alpha: 0.12 });
+      g.ellipse(9, 4, 5, 2.5); g.fill({ color: 0xfde047, alpha: 0.07 });
       g.moveTo(-16, -h + 2); g.lineTo(0, -h - 10); g.lineTo(16, -h + 2);
       g.stroke({ width: 1.2, color: 0xfef08a, alpha: 0.45 });
     } else if (dec === "autumn") {
@@ -1208,14 +1208,14 @@ function drawIsometricBuilding(
       g.poly([-12, 4, -13, -h * 0.3, -10, -h * 0.3, -11, 4]); g.fill({ color: 0xca8a04, alpha: 0.85 });
       g.ellipse(7, 4, 2.4, 1.8); g.fill({ color: 0xea580c, alpha: 0.85 });
       g.rect(2, -h * 0.4, 3.5, 3.5); g.fill({ color: 0xf59e0b, alpha: 0.75 });
-      g.ellipse(3.5, 4, 8, 3.5); g.fill({ color: 0xf97316, alpha: 0.10 });
+      g.ellipse(3.5, 4, 5, 2.5); g.fill({ color: 0xf97316, alpha: 0.07 });
     } else if (dec === "winter") {
       // Winter (lighter version of Midwinter): snow ridgeline trim + hearth-lit window
       g.moveTo(-16, -h + 2); g.lineTo(0, -h - 10); g.lineTo(16, -h + 2);
       g.stroke({ width: 2.2, color: 0xf8fafc, alpha: 0.85 });
-      const wFlicker = 0.8 + Math.sin(phase * 5.0) * 0.12;
+      const wFlicker = 0.8 + Math.sin(phase * 0.45 * 5.0) * 0.12;
       g.rect(2, -h * 0.4, 3.5, 3.5); g.fill({ color: 0xfef08a, alpha: 0.85 * wFlicker });
-      g.ellipse(3.5, 4, 9, 4); g.fill({ color: 0xfde047, alpha: 0.12 * wFlicker });
+      g.ellipse(3.5, 4, 5, 2.5); g.fill({ color: 0xfde047, alpha: 0.07 * wFlicker });
     }
   }
 
