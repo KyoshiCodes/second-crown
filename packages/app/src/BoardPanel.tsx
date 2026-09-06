@@ -14,9 +14,9 @@ export function BoardPanel() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 760, margin: "8px auto", padding: "10px 12px", background: "#121820", borderRadius: 8 }}>
-      <strong>Profiles & board</strong>
-      <p style={{ fontSize: 12, opacity: 0.75 }}>Honor-system ranks from the last pushed save. Sign in and push to appear.</p>
+    <details style={{ maxWidth: 760, margin: "8px auto", padding: "8px 12px", background: "#121820", borderRadius: 8 }}>
+      <summary style={{ cursor: "pointer", fontWeight: 600 }}>Board ({rows.length})</summary>
+      <p style={{ fontSize: 12, opacity: 0.75 }}>Honor-system ranks from the last pushed save.</p>
       {cloudToken() ? (
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
           <input value={motto} onChange={(e) => setMotto(e.target.value)} maxLength={80} placeholder="Motto" style={{ minWidth: 200, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" }} />
@@ -45,7 +45,7 @@ export function BoardPanel() {
           {rows.map((r, i) => (
             <tr key={r.id}>
               <td>{i + 1}</td>
-              <td>{r.name}{r.motto ? ` — ${r.motto}` : ""}</td>
+              <td>{r.name}{r.motto ? ` - ${r.motto}` : ""}</td>
               <td>{r.crest}</td>
               <td>{r.prestige}</td>
               <td>{r.wins}</td>
@@ -56,6 +56,6 @@ export function BoardPanel() {
         </tbody>
       </table>
       <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8 }}>{note}</div>
-    </div>
+    </details>
   );
 }
