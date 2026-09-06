@@ -236,6 +236,10 @@ export function useGameEngine() {
     syncUi(engineRef.current);
   }, [syncUi, persist]);
 
+  const setMapTheme = React.useCallback((themeId: string, holidayId: string) => {
+    mapRef.current?.setTheme(themeId, holidayId);
+  }, []);
+
   return {
     tab, setTab,
     tick, resources, income, units, wars,
@@ -249,6 +253,7 @@ export function useGameEngine() {
     rivalOp, playerOp, title,
     battleSnap, setBattleSnap,
     canvasRef,
+    setMapTheme,
     state: engineRef.current?.getState(),
     act,
     saveNow, exportSave, importSaveFile, newGame,

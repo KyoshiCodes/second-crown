@@ -1,6 +1,6 @@
 # HANDOFF — current project state
 
-Last updated: 2026-09-06 | Version: playtest-0.5 | Updated by: Grok
+Last updated: 2026-09-06 | Version: playtest-0.6 | Updated by: Grok
 
 ## Live
 
@@ -9,16 +9,20 @@ Repo `main`: `https://github.com/KyoshiCodes/second-crown`.
 
 ## Just completed
 
-WarRoom, seasons/holidays, practice ledger, synth + `/audio` hook, holiday SVG stages, sticky Holiday overlay bar.
+Isometric pixel hold, presentation walkers, theme packs, recorded `/audio/<id>.ogg` (halloween + easter + midwinter planned), collapsible ChromeDock (Show tools + Holiday).
+WarRoom, seasons, practice ledger still on main once PR 7 merges.
 
 ## Next
 
-**Gemini** `bakeoff/gemini-immersion` — `docs/AGENT-TASK.md`.
-Pixel isometric living map (Realm Grinder direction), theme packs, halloween.ogg, presentation walkers.
-Not full 3D Civ this sprint. Citizen economy stays future sim work.
+After PR 7 is on main:
+- Gemini `bakeoff/gemini-board` — tabletop density, box lid, original holiday motion, War tab dressing, zoom+pan. No sim/server.
+- Claude `bakeoff/claude-fort` — wall/tower/keep combat hooks + citizen job stubs.
+- Astra waits.
 
 ## Deploy
 
 ```bash
 cd ~/second-crown && git pull && npm test && npm run build -w @second-crown/app && pm2 restart sc-cloud
 ```
+
+Do not `pm2 delete sc-cloud`.

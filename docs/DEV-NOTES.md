@@ -2,11 +2,20 @@
 
 Last updated: 2026-09-06
 
-## Presentation Architecture (Gemini Lane)
+## Presentation Architecture (Gemini Immersion Lane)
 
-- **Weather & Holidays**: `packages/app/src/seasons/holidays.ts` and `WeatherOverlay.tsx`. Pure canvas overlay (`pointer-events: none`) matching `currentSeason(state)`. Holidays detect calendar dates with `localStorage` override `sc-preview-holiday` for instant playtester review.
-- **Audio Synthesis**: `packages/app/src/music.ts` dynamically modulates pentatonic scale intervals, tempo, and oscillator timbre based on the active season and holiday without introducing heavy audio assets or violating browser autoplay rules.
-- **Render Ground Seasoning**: `packages/render/src/index.ts` repaints 16x10 ground tiles on season transitions and caps rooftops with snow during Winter. Zero sim impact.
+- **Isometric Pixel Hold (`packages/render`)**:
+  - 2:1 diamond isometric projection (`TILE_W = 40`, `TILE_H = 20`, viewport `560×360`).
+  - Reverse mouse projection: `gx = Math.floor(dx / 40 + dy / 20)`, `gy = Math.floor(dy / 20 - dx / 40)` bounds-checked to `[0..15, 0..9]`. Exact click contract for sim building actions preserved.
+  - Depth sorting: Pixi `Container.sortableChildren = true` with `zIndex` calculated as `(x + y) * 100 + offset`. Walkers naturally walk behind foreground buildings and in front of background buildings.
+  - Living Hold Walkers: 8 presentation citizen sprites (villager, woodcutter, miner, merchant, guard, scholar) with animated stride cycles, destination targeting towards buildings or town center, and idle timers. Presentation-only; zero sim tick rules.
+  - Terrain & Architecture: Raised 3D stone cliff rim along south edges, cobblestone thoroughfares, and detailed pixel art for all 15 building types + fallback with construction scaffolding, level upgrade pips (1–5), animated chimney smoke, and holiday trims.
+  - Atmospheric Particles: In-engine Pixi particle layer rendering snowflakes (midwinter/winter), spectral embers (halloween), fireflies (midsummer), petals (spring/easter), and autumn leaves.
+
+- **Theme Packs & Audio Coordination (`packages/app/src/themes/`)**:
+  - `types.ts` & `packs.ts`: 9 complete packs (`halloween`, `midwinter`, `easter`, `harvest`, `midsummer`, `spring`, `summer`, `autumn`, `winter`) specifying rich CSS background gradients, tab/badge chrome, map ambient parameters, and audio sources.
+  - `audioManager.ts`: Coordinates HTML5 audio playback with `packages/app/src/music.ts`. Attempts to stream `/audio/<id>.ogg` (preserves owner's `halloween.ogg`), suppresses synth melody when recorded music plays, and falls back to procedural pentatonic synth on missing/error tracks. Battle audio triggers during active wars.
+- **Sticky TesterBar**: `zIndex: 100` guarantees holiday overlay selector remains pinned and clickable above canvas and stages.
 - **Item Chips**: `packages/app/src/ItemChip.tsx` maps `ITEMS` from `loot.ts` into styled rarity badges (`common`, `uncommon`, `rare`, `epic`) with SVG iconography.
 
 

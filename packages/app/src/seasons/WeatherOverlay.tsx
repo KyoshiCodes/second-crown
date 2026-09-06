@@ -40,7 +40,6 @@ export function WeatherOverlay(props: {
     };
     window.addEventListener("resize", onResize);
 
-    // Generate particles appropriate for the season and holiday
     const count = season === "Winter" || holiday === "midwinter" ? 50 : 35;
     const particles: Particle[] = [];
 
@@ -60,7 +59,7 @@ export function WeatherOverlay(props: {
       if (isHalloween) {
         type = Math.random() > 0.4 ? "wisp" : "spark";
         color = type === "wisp" ? "#c084fc" : "#ea580c";
-        vy = -(0.4 + Math.random() * 0.8); // Floats upward
+        vy = -(0.4 + Math.random() * 0.8);
         vx = (Math.random() - 0.5) * 0.8;
         size = 3 + Math.random() * 4;
       } else if (isWinter) {
@@ -111,14 +110,11 @@ export function WeatherOverlay(props: {
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
-
       for (const p of particles) {
         p.x += p.vx;
         p.y += p.vy;
         p.rotation += p.vRot;
         if (p.pulse !== undefined) p.pulse += 0.04;
-
-        // Wrap around borders
         if (p.y > height + 20) {
           p.y = -10;
           p.x = Math.random() * width;
@@ -132,15 +128,12 @@ export function WeatherOverlay(props: {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rotation);
-
         let currentAlpha = p.alpha;
         if (p.type === "firefly" || p.type === "wisp") {
           currentAlpha = p.alpha * (0.5 + 0.5 * Math.sin(p.pulse || 0));
         }
-
         ctx.fillStyle = p.color;
         ctx.globalAlpha = currentAlpha;
-
         if (p.type === "snow") {
           ctx.beginPath();
           ctx.arc(0, 0, p.size, 0, Math.PI * 2);
@@ -149,9 +142,6 @@ export function WeatherOverlay(props: {
           ctx.beginPath();
           ctx.ellipse(0, 0, p.size * 1.4, p.size * 0.7, 0, 0, Math.PI * 2);
           ctx.fill();
-          ctx.strokeStyle = "#3e1c03";
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
         } else if (p.type === "petal") {
           ctx.beginPath();
           ctx.ellipse(0, 0, p.size, p.size * 0.6, 0, 0, Math.PI * 2);
@@ -163,24 +153,15 @@ export function WeatherOverlay(props: {
           ctx.shadowColor = p.color;
           ctx.fill();
         } else {
-          // Pollen / spark / firefly
           ctx.beginPath();
           ctx.arc(0, 0, p.size, 0, Math.PI * 2);
-          if (p.type === "firefly") {
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = "#fef08a";
-          }
           ctx.fill();
         }
-
         ctx.restore();
       }
-
       animId = requestAnimationFrame(render);
     };
-
     render();
-
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
@@ -203,28 +184,25 @@ export function WeatherOverlay(props: {
       aria-hidden="true"
     >
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
-
-      {/* Holiday Atmospheric Header Corner Ornament */}
       {holiday !== "none" && (
         <div
           className="sc-holiday-banner"
           style={{
             position: "fixed",
-            top: 8,
-            right: 12,
+            top: 52,
+            right: 16,
             display: "inline-flex",
             alignItems: "center",
             gap: 8,
             padding: "4px 10px",
-            background: "rgba(18, 14, 10, 0.88)",
+            background: "rgba(18, 14, 10, 0.94)",
             border: `1px solid ${holidayMeta.accentColor}`,
             boxShadow: `0 0 12px ${holidayMeta.glowColor}`,
             borderRadius: 6,
             fontSize: 12,
             color: "#f8fafc",
-            zIndex: 10,
+            zIndex: 90,
             pointerEvents: "none",
-            animation: "sc-pulse 2.8s ease-in-out infinite",
           }}
         >
           <span style={{ fontSize: 16 }}>{holidayMeta.propEmoji}</span>
@@ -237,4 +215,3 @@ export function WeatherOverlay(props: {
     </div>
   );
 }
-

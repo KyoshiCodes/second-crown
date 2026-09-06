@@ -119,12 +119,72 @@
   box-shadow: 0 0 14px rgba(250, 204, 21, 0.22);
 }
 
-/* Season subtle subtitle color shifts */
-.season-spring .sc-subtitle { color: #86efac; }
-.season-summer .sc-subtitle { color: #fde047; }
-.season-autumn .sc-subtitle { color: #fdba74; }
-.season-winter .sc-subtitle { color: #bae6fd; }
+/* --- Theme Pack styling --- */
+.pack-halloween {
+  --theme-accent: #fb923c !important;
+  --theme-border: #7c2d12 !important;
+  --theme-card-bg: rgba(26, 12, 34, 0.93) !important;
+  --theme-glow: rgba(249, 115, 22, 0.28) !important;
+}
+.pack-midwinter {
+  --theme-accent: #38bdf8 !important;
+  --theme-border: #0369a1 !important;
+  --theme-card-bg: rgba(10, 24, 40, 0.93) !important;
+  --theme-glow: rgba(56, 189, 248, 0.25) !important;
+}
+.pack-easter {
+  --theme-accent: #c084fc !important;
+  --theme-border: #6b21a8 !important;
+  --theme-card-bg: rgba(28, 16, 36, 0.92) !important;
+  --theme-glow: rgba(192, 132, 252, 0.25) !important;
+}
+.pack-harvest {
+  --theme-accent: #f59e0b !important;
+  --theme-border: #92400e !important;
+  --theme-card-bg: rgba(34, 18, 10, 0.93) !important;
+  --theme-glow: rgba(245, 158, 11, 0.28) !important;
+}
+.pack-midsummer {
+  --theme-accent: #fbbf24 !important;
+  --theme-border: #b45309 !important;
+  --theme-card-bg: rgba(24, 22, 16, 0.92) !important;
+  --theme-glow: rgba(251, 191, 36, 0.25) !important;
+}
+.pack-spring {
+  --theme-accent: #4ade80;
+  --theme-border: #1e3a1e;
+  --theme-card-bg: rgba(18, 30, 20, 0.92);
+}
+.pack-summer {
+  --theme-accent: #facc15;
+  --theme-border: #713f12;
+  --theme-card-bg: rgba(28, 26, 16, 0.92);
+}
+.pack-autumn {
+  --theme-accent: #f97316;
+  --theme-border: #7c2d12;
+  --theme-card-bg: rgba(30, 18, 12, 0.92);
+}
+.pack-winter {
+  --theme-accent: #93c5fd;
+  --theme-border: #1e293b;
+  --theme-card-bg: rgba(14, 20, 30, 0.92);
+}
 
+.sc-map-canvas-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.sc-map-canvas {
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 14 / 9;
+  border-radius: 8px;
+  border: 1px solid var(--theme-border, #3a2f24);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  background: #0c1014;
+}
 
 .sc-tab {
   border-radius: 6px;
@@ -133,11 +193,15 @@
   color: #e8dcc8;
   padding: 6px 12px;
   cursor: pointer;
+  transition: all 180ms ease;
+}
+.sc-tab:hover {
+  border-color: var(--theme-accent, #d4a72c);
 }
 .sc-tab.active {
-  border-color: #d4a72c;
-  background: #2a2214;
-  box-shadow: 0 0 0 1px rgba(212, 167, 44, 0.35);
+  border-color: var(--theme-accent, #d4a72c);
+  background: var(--theme-card-bg, #2a2214);
+  box-shadow: 0 0 10px var(--theme-glow, rgba(212, 167, 44, 0.35));
 }
 
 .sc-player-banner {

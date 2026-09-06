@@ -1,9 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { AppShell } from "./AppShell";
-import { TesterBar } from "./TesterBar";
-import { CloudPanel } from "./CloudPanel";
-import { BoardPanel } from "./BoardPanel";
+import { ChromeDock } from "./ChromeDock";
 import { SpectatorView, watchCodeFromHash } from "./SpectatorView";
 import "./theme.css";
 import "./seasons/themeStage.css";
@@ -37,9 +35,7 @@ function Root() {
   if (watch) return <SpectatorView code={watch} />;
   return (
     <>
-      <TesterBar />
-      <CloudPanel />
-      <BoardPanel />
+      <ChromeDock />
       <AppShell />
     </>
   );
