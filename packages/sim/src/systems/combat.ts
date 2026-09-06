@@ -3,7 +3,7 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { getUnitType } from "../content/units.js";
 import { countBuilding } from "../content/buildings.js";
 import type { RngStreams } from "../core/rng.js";
-import { grantVictorySpoils } from "./wave.js";
+import { grantVictorySpoils, flagNum } from "./wave.js";
 import { fortifyPower } from "./court.js";
 
 export function realmPower(state: GameState, realmId: string): number {
@@ -18,6 +18,7 @@ export function realmPower(state: GameState, realmId: string): number {
     power += countBuilding(state, "watchtower") * 2;
     power += countBuilding(state, "walls") * 4;
     power += fortifyPower(state);
+    power += flagNum(state, "craft_fort") * 3;
   }
   return power;
 }
