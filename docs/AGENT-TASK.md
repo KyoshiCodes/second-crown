@@ -1,38 +1,38 @@
-# Next bakeoff — Gemini immersion foundation
+# Gemini bakeoff — immersion foundation (large)
 
-Owner wants one large presentation pass, then friends playtest.
+Branch: `bakeoff/gemini-immersion` from current `main`.
+Claude/Astra do not take this lane.
 
-## Who
+Owner direction: Realm Grinder / classic pixel kingdom *look*, but **not** a tiny click-grid as the fantasy. Want a living hold: roads, buildings that read as a town, figures that walk. Full Unity-style 3D city sim is **out of scope for this PR**. Do it in the existing Pixi layer (`packages/render`) as isometric / 2.5D pixel art. Citizen *jobs and pathfinding in the sim* is a later Grok/Claude pass — you may add **presentation-only** walkers that roam building tiles using current `state.buildings`.
 
-**Gemini / Antigravity** on branch `bakeoff/gemini-immersion` (cut from current `main`).
-Claude and Astra stay off this lane.
+## Must ship
 
-## Goal
-
-Replace placeholder SVG stages and synth beds with a *theme pack system* other people can drop files into.
-
-Must ship:
-
-1. `packages/app/src/themes/` (or `seasons/packs/`) — one pack per holiday + one per season:
+1. **Theme packs** in `packages/app/src/themes/` (or `seasons/packs/`):
    halloween, midwinter, easter, harvest, midsummer, spring, summer, autumn, winter.
-   Each pack: background layer(s), tab/badge chrome, icon set hooks, music url, optional battle url.
-2. Backgrounds that fill the viewport and look like a place, not two rectangles. Prefer painted SVG or images under `packages/app/public/themes/<id>/`.
-3. Audio: HTMLAudioElement loops from `/audio/<id>.ogg` and `/audio/<id>-battle.ogg` when files exist. Keep synth as fallback. Honor Music mute. Do not bundle copyrighted songs. CC0/CC-BY only; list credits in `public/audio/CREDITS.md`.
-4. Keep TesterBar holiday `<select>` sticky and usable on every theme.
-5. Do not cover map clicks, Cloud, or Board.
-6. Optional motion: CSS/Pixi only. No Unity, no second tick engine.
+   Each pack: background, tab/badge chrome, music src, optional battle src.
+2. **Recorded audio first, synth fallback.** Play `/audio/<id>.ogg` when present.
+   Owner will add `packages/app/public/audio/halloween.ogg` (their file). Do not replace it with silence. Credit any extra CC0/CC-BY tracks in `public/audio/CREDITS.md`. No copyrighted commercial songs.
+3. **Isometric pixel map** replacing the current 16×10 colored-rect grid as the *look*. Keep the same build click contract (tile still maps to the existing building grid so sim does not change). Think Realm Grinder / old-school pixel town, not CAD 3D.
+4. **Living hold (presentation):** 4–12 walker sprites that wander near houses/markets. No new sim tick rules. If a building type is missing, idle near the keep.
+5. **Holiday + season packs tint the map and UI** (Halloween night, snow roofs already exist — go further).
+6. Sticky TesterBar holiday `<select>` must keep working (`z-index` above the map).
+
+## Stretch (only if 1–6 are done and tests/build stay green)
+
+- Battle strip uses pack battle audio.
+- Simple day/night tint from season, not a second clock.
+- Building upgrade changes the pixel building frame.
 
 ## Must not
 
-- `packages/sim` and `server/` stay empty vs main.
-- No Discord/Caddy/OAuth edits.
-- No second `resolveBattle`.
+- Empty `git diff main -- packages/sim server`.
+- No Three.js/Unity unless you can prove the Vite build stays healthy and map clicks still work — default is Pixi isometric.
+- No second combat engine, no Discord/Caddy edits.
+- Do not delete `halloween.ogg` if it is on the branch.
 
 ## Verify
 
-```bash
 npm test
 npm run build -w @second-crown/app
-```
 
-Write `walkthrough.md`. PR into `main`. Do not merge.
+walkthrough.md + PR into main. Do not merge.
