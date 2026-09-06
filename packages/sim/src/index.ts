@@ -36,8 +36,8 @@ export { tryUpgrade, canUpgrade, upgradeCost, MAX_BUILDING_LEVEL } from "./actio
 export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
 
-export { tryDeclareWar, tryResolveWar, tryWhitePeace, peaceTicksRemaining } from "./actions/war.js";
-export type { DeclareWarPayload } from "./actions/war.js";
+export { tryDeclareWar, tryResolveWar, tryWhitePeace, peaceTicksRemaining, warSummary } from "./actions/war.js";
+export type { DeclareWarPayload, WarSummary } from "./actions/war.js";
 
 export { tryTrade, canTrade, MARKET_OFFERS } from "./actions/trade.js";
 export type { TradeOffer } from "./actions/trade.js";
