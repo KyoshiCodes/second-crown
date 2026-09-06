@@ -23,7 +23,7 @@ describe("TickEngine determinism (Invariant 2)", () => {
 
   it("with buildings: one-by-one vs settleTicks produce identical resources", () => {
     const seed = 99;
-    const N = 200;
+    const N = 200; // past the lumber_camp completion at tick 50
 
     const stateA = createGameState({ seed, now: 1_000_000, withStarterBuildings: true });
     const engineA = new TickEngine(stateA);
@@ -38,13 +38,19 @@ describe("TickEngine determinism (Invariant 2)", () => {
 
     expect(sA.meta.tick).toBe(N);
     expect(sB.meta.tick).toBe(N);
+
+    // Resources must match exactly (bit-identical strings)
     expect(sA.resources.food).toBe(sB.resources.food);
     expect(sA.resources.wood).toBe(sB.resources.wood);
     expect(sA.resources.gold).toBe(sB.resources.gold);
     expect(sA.resources.stone).toBe(sB.resources.stone);
+
+    // Building completion state must match
     expect(sA.buildings.map((b) => b.completesAtTick)).toEqual(
       sB.buildings.map((b) => b.completesAtTick)
     );
+
+    // Full state equality
     expect(sA).toEqual(sB);
   });
 
@@ -54,13 +60,13 @@ describe("TickEngine determinism (Invariant 2)", () => {
 
     engine.tickMany(100);
 
+    // Farm produces 1 food per tick from the start → 100 food
     const food = D(engine.getState().resources.food ?? "0");
-    expect(food.gte(9.9)).toBe(true);
-    expect(food.lte(10.1)).toBe(true);
+    expect(food.eq(100)).toBe(true);
 
+    // Lumber camp finishes at tick 50, then produces for ticks 50..100 inclusive → 51 wood
     const wood = D(engine.getState().resources.wood ?? "0");
-    expect(wood.gte(3.9)).toBe(true);
-    expect(wood.lte(4.1)).toBe(true);
+    expect(wood.eq(51)).toBe(true);
   });
 
   it("same seed produces same initial state", () => {
