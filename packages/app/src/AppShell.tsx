@@ -1,5 +1,5 @@
 import React from "react";
-import { formatLetterSuffix } from "@second-crown/sim";
+import { formatLetterSuffix, settlementName } from "@second-crown/sim";
 import { useGameEngine, type Tab } from "./game/useGameEngine";
 import { ResourceHud } from "./hud/ResourceHud";
 import { SpeedControls } from "./HudControls";
@@ -45,13 +45,14 @@ export function AppShell() {
   } = engine;
 
   const activeWar = state?.wars.find((w) => w.status === "active");
+  const hold = state ? settlementName(state) : "Your Hold";
 
   return (
     <div className={`sc-shell theme-${tab}`}>
       <div className="sc-panel">
         <h1 style={{ margin: "0 0 4px", fontSize: 22 }} className="sc-title">Second Crown</h1>
         <div style={{ fontSize: 13, opacity: 0.8 }} className="sc-subtitle">
-          {title} · Tick {formatLetterSuffix(tick)}
+          {hold} · {title} · Tick {formatLetterSuffix(tick)}
           {prestige > 0 ? ` · Prestige ${prestige}` : ""} · Power {power.player} vs {power.rival}
         </div>
         {offlineNote ? <p style={{ color: "#3fb950" }}>{offlineNote}</p> : null}
