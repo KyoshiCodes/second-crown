@@ -48,6 +48,21 @@ function drawBuilding(g: Graphics, typeId: string, level: number, complete: bool
   } else if (typeId === "barracks") {
     g.rect(5, 12, 22, 16); g.fill({ color: 0x4a5568, alpha: a });
     g.moveTo(5, 12); g.lineTo(16, 5); g.lineTo(27, 12); g.fill({ color: 0x8b1a1a, alpha: a });
+  } else if (typeId === "stables") {
+    g.rect(6, 16, 20, 12); g.fill({ color: 0x8b6914, alpha: a });
+    g.moveTo(6, 16); g.lineTo(16, 8); g.lineTo(26, 16); g.fill({ color: 0x5c4033, alpha: a });
+    g.ellipse(11, 24, 4, 3); g.fill({ color: 0x4a3a1c, alpha: a });
+    g.ellipse(21, 24, 4, 3); g.fill({ color: 0x4a3a1c, alpha: a });
+  } else if (typeId === "archery_range") {
+    g.rect(4, 20, 24, 8); g.fill({ color: 0x2f6f4e, alpha: a });
+    g.circle(24, 14, 5); g.fill({ color: 0xc4a35a, alpha: a });
+    g.circle(24, 14, 2); g.fill({ color: 0xb22222, alpha: a });
+    g.rect(8, 8, 2, 16); g.fill({ color: 0x8b5a2b, alpha: a });
+  } else if (typeId === "siege_workshop") {
+    g.rect(5, 14, 22, 14); g.fill({ color: 0x5c4033, alpha: a });
+    g.rect(20, 6, 4, 12); g.fill({ color: 0x8b6914, alpha: a });
+    g.circle(10, 26, 3); g.fill({ color: 0x1a140c, alpha: a });
+    g.circle(22, 26, 3); g.fill({ color: 0x1a140c, alpha: a });
   } else if (typeId === "watchtower") {
     g.rect(12, 10, 8, 18); g.fill({ color: 0x718096, alpha: a });
     const flap = Math.sin(phase) * 3;
@@ -58,7 +73,7 @@ function drawBuilding(g: Graphics, typeId: string, level: number, complete: bool
     g.fill({ color: getBuildingType(typeId)?.color ?? 0x4488ff, alpha: a });
   }
 
-  if (typeId === "farm" || typeId === "lumber_camp" || typeId === "sawmill") {
+  if (typeId === "farm" || typeId === "lumber_camp" || typeId === "sawmill" || typeId === "siege_workshop") {
     const puff = 4 + Math.sin(phase * 1.3) * 2;
     g.circle(24, puff, 2.2);
     g.fill({ color: 0xd0d4d8, alpha: 0.35 * a });
