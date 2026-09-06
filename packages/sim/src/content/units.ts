@@ -26,6 +26,14 @@ export const UNIT_TYPES: Record<string, UnitType> = {
     trainTicks: 30,
     blurb: "Solid line infantry",
   },
+  skirmisher: {
+    id: "skirmisher",
+    name: "Skirmisher",
+    power: 3,
+    cost: { food: "5", wood: "3", gold: "1" },
+    trainTicks: 28,
+    blurb: "Light javelins",
+  },
   archer: {
     id: "archer",
     name: "Archer",
@@ -34,6 +42,14 @@ export const UNIT_TYPES: Record<string, UnitType> = {
     trainTicks: 35,
     blurb: "Skirmish power",
   },
+  cavalry: {
+    id: "cavalry",
+    name: "Cavalry",
+    power: 7,
+    cost: { food: "10", gold: "4", wood: "3" },
+    trainTicks: 50,
+    blurb: "Fast shock horse",
+  },
   knight: {
     id: "knight",
     name: "Knight",
@@ -41,6 +57,14 @@ export const UNIT_TYPES: Record<string, UnitType> = {
     cost: { food: "12", gold: "8", wood: "4" },
     trainTicks: 60,
     blurb: "Heavy hitters",
+  },
+  siege: {
+    id: "siege",
+    name: "Siege Engine",
+    power: 14,
+    cost: { wood: "20", stone: "12", gold: "6" },
+    trainTicks: 80,
+    blurb: "Breaks walls and hosts",
   },
 };
 
