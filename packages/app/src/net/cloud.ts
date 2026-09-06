@@ -47,14 +47,15 @@ export function clearSession(): void {
   localStorage.removeItem(NAME_KEY);
 }
 
-export function absorbHashSession(): void {
+export function absorbHashSession(): boolean {
   const hash = window.location.hash.replace(/^#/, "");
-  if (!hash.includes("cloud_token=")) return;
+  if (!hash.includes("cloud_token=")) return false;
   const p = new URLSearchParams(hash);
   const token = p.get("cloud_token");
   const name = p.get("cloud_name") || "Discord";
   if (token) setSession(token, name);
   history.replaceState(null, "", window.location.pathname + window.location.search);
+  return Boolean(token);
 }
 
 async function req(path: string, init: RequestInit = {}) {
