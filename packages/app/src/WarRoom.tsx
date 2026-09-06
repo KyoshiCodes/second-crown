@@ -13,6 +13,7 @@ import {
 } from "@second-crown/sim";
 import { DiplomacyPanel } from "./HudControls";
 import { BattleVisual, type BattleSnap } from "./BattleVisual";
+import { WarLivingStrip } from "./WarLivingStrip";
 import type { ActFn } from "./game/useGameEngine";
 import { getGiftThanks, getWarTaunt } from "./content/flavor";
 import { sfx } from "./sfx";
@@ -36,6 +37,7 @@ export function WarRoom(props: {
 
   return (
     <div className="sc-tab-war">
+      <WarLivingStrip state={state} />
       <DiplomacyPanel
         rivalOp={rivalOp}
         playerOp={playerOp}

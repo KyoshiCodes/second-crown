@@ -2,21 +2,36 @@
 
 Last updated: 2026-09-06
 
-## Presentation Architecture (Gemini Immersion Lane)
+## Presentation Architecture (Gemini Tabletop Board Lane)
 
-- **Isometric Pixel Hold (`packages/render`)**:
-  - 2:1 diamond isometric projection (`TILE_W = 40`, `TILE_H = 20`, viewport `560×360`).
-  - Reverse mouse projection: `gx = Math.floor(dx / 40 + dy / 20)`, `gy = Math.floor(dy / 20 - dx / 40)` bounds-checked to `[0..15, 0..9]`. Exact click contract for sim building actions preserved.
-  - Depth sorting: Pixi `Container.sortableChildren = true` with `zIndex` calculated as `(x + y) * 100 + offset`. Walkers naturally walk behind foreground buildings and in front of background buildings.
-  - Living Hold Walkers: 8 presentation citizen sprites (villager, woodcutter, miner, merchant, guard, scholar) with animated stride cycles, destination targeting towards buildings or town center, and idle timers. Presentation-only; zero sim tick rules.
-  - Terrain & Architecture: Raised 3D stone cliff rim along south edges, cobblestone thoroughfares, and detailed pixel art for all 15 building types + fallback with construction scaffolding, level upgrade pips (1–5), animated chimney smoke, and holiday trims.
-  - Atmospheric Particles: In-engine Pixi particle layer rendering snowflakes (midwinter/winter), spectral embers (halloween), fireflies (midsummer), petals (spring/easter), and autumn leaves.
-
-- **Theme Packs & Audio Coordination (`packages/app/src/themes/`)**:
-  - `types.ts` & `packs.ts`: 9 complete packs (`halloween`, `midwinter`, `easter`, `harvest`, `midsummer`, `spring`, `summer`, `autumn`, `winter`) specifying rich CSS background gradients, tab/badge chrome, map ambient parameters, and audio sources.
-  - `audioManager.ts`: Coordinates HTML5 audio playback with `packages/app/src/music.ts`. Attempts to stream `/audio/<id>.ogg` (preserves owner's `halloween.ogg`), suppresses synth melody when recorded music plays, and falls back to procedural pentatonic synth on missing/error tracks. Battle audio triggers during active wars.
-- **Sticky TesterBar**: `zIndex: 100` guarantees holiday overlay selector remains pinned and clickable above canvas and stages.
-- **Item Chips**: `packages/app/src/ItemChip.tsx` maps `ITEMS` from `loot.ts` into styled rarity badges (`common`, `uncommon`, `rare`, `epic`) with SVG iconography.
+- **Tabletop Board & Hardwood Rim (`packages/render`)**:
+  - Diorama is framed in a 16px beveled polished walnut rim with mitered 45° joints, antique brass corner plates with rivets, and inner recessed drop shadows cast onto the diorama.
+  - Viewport Clipping Mask: Pixi `boardMask` clips all contents of `worldContainer` to `[16, 16, 528, 328]`, ensuring zoomed and panned elements stay cleanly bounded within the wooden frame.
+  - Zoom & Pan Navigation (No Rotate):
+    - Smooth mouse wheel zoom centered at cursor pointer (`MIN_ZOOM = 0.75`, `MAX_ZOOM = 2.2`).
+    - Pointer drag panning with velocity bounds clamping to prevent the board from getting lost.
+    - Drag vs Click distinction (< 6px movement) guarantees 100% accurate building placement and upgrade clicks without accidental placement during panning.
+    - Coordinate inversion: `wx = (px - panX) / zoom`, `wy = (py - panY) / zoom` passed to `worldToGrid(wx, wy)`.
+    - `zoomIn()`, `zoomOut()`, `resetView()` exported on `MapRenderer` and bound to React UI buttons.
+- **Denser Pixel Architecture (`packages/render`)**:
+  - Each building tile is rendered as a dense multi-structure vignette: outbuildings, stone wells, fenced vegetable patches, hayricks, pine groves, firewood cords, stepped quarry pits, derrick cranes, ore carts, silos, spinning waterwheels, multi-stall bazaars, training dummies, and wall bastions.
+  - Isometric ground contact shadows anchor structures to the terrain.
+  - Dynamic level scaling (`heightBoost = (lvl - 1) * 3`) with gold level pips on the front foundation.
+- **2–3 Frame Walker Sprites (`packages/render`)**:
+  - Discrete integer-pixel animation keyframes: Frame 0 (planted neutral / pass), Frame 1 (left step), Frame 2 (right step) cycling at ~5 steps/second.
+  - 6 distinct citizen roles (Villager, Woodcutter, Miner, Merchant, Guard, Scholar) with animated carried tools, weapons, and accessories.
+- **All Hallows Atmosphere (`packages/render` & `ThemeStage.tsx`)**:
+  - Creeping low mist / fog bank layer in PixiJS rolling across cobblestones and buildings.
+  - Carved Jack-o'-lanterns and lanterns on doorsteps with non-uniform organic witchfire/amber flicker math and soft radial ground light cast.
+  - Spooky gothic folklore backdrop (crescent harvest moon, haunted hold silhouette, gnarled trees; zero Disney likenesses).
+- **War Tab Living Pixel Unit Strip (`packages/app/src/WarLivingStrip.tsx`)**:
+  - Tactile battlefield strip visualizer displaying player companies lined up on the left with animated 2-3 frame soldiers, animated royal standard bearer, opposing enemy vanguard on the right, and dynamic power share meter.
+  - Pure presentation layer reading `state.units`, `state.wars`, and `realmPower(state)`. Zero simulation changes.
+- **Recorded Audio Coordination (`packages/app/src/themes/audioManager.ts` & `main.tsx`)**:
+  - Streams recorded audio loops (`/audio/halloween.ogg`, `/audio/easter.ogg`, `/audio/midwinter.ogg`) when present.
+  - User interaction triggers `audioManager.start()` to satisfy browser autoplay requirements.
+  - Suppresses procedural synth melody while recorded audio is playing; falls back smoothly to procedural synth on error or missing tracks.
+  - Sticky ChromeDock (`zIndex: 120`) allows real-time holiday switching.
 
 
 ## HTTPS

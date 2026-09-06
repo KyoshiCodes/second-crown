@@ -22,29 +22,60 @@ function HalloweenScene() {
     <svg className="sc-theme-svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
       <defs>
         <linearGradient id="h-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#1a0a24" />
-          <stop offset="55%" stopColor="#2b1230" />
-          <stop offset="100%" stopColor="#120806" />
+          <stop offset="0%" stopColor="#180924" />
+          <stop offset="55%" stopColor="#291030" />
+          <stop offset="100%" stopColor="#100608" />
         </linearGradient>
+        <radialGradient id="h-moon-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#fef08a" stopOpacity="0.4" />
+          <stop offset="60%" stopColor="#ea580c" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#180924" stopOpacity="0" />
+        </radialGradient>
       </defs>
+      {/* Sky & Giant Harvest Moon */}
       <rect width="1200" height="700" fill="url(#h-sky)" />
-      <circle cx="980" cy="110" r="70" fill="#f3e8c8" opacity="0.85" />
-      <circle cx="1005" cy="95" r="54" fill="#1a0a24" />
+      <circle cx="980" cy="110" r="120" fill="url(#h-moon-glow)" />
+      <circle cx="980" cy="110" r="68" fill="#fef3c7" opacity="0.9" />
+      <circle cx="1008" cy="94" r="54" fill="#180924" />
+
+      {/* Spooky Rolling Knolls and Gnarled Trees */}
       <path d="M0 520 L80 480 L140 530 L220 470 L300 540 L420 460 L520 530 L640 450 L760 540 L880 470 L980 530 L1100 460 L1200 520 L1200 700 L0 700 Z" fill="#12080e" />
-      <path d="M80 700 L110 420 L160 700 Z" fill="#0b0708" />
-      <path d="M980 700 L1020 380 L1070 700 Z" fill="#0b0708" />
-      <ellipse cx="220" cy="560" rx="38" ry="28" fill="#e85d04" />
-      <polygon points="220,520 232,548 208,548" fill="#2f6f1e" />
-      <polygon points="208,548 220,575 200,560" fill="#1a1a1a" />
-      <polygon points="232,548 240,560 220,575" fill="#1a1a1a" />
-      <ellipse cx="820" cy="580" rx="32" ry="24" fill="#fb923c" />
-      <polygon points="820,548 828,570 812,570" fill="#3f7a1a" />
-      <rect x="500" y="430" width="90" height="110" fill="#1c1010" />
-      <polygon points="490,430 545,370 600,430" fill="#2a1212" />
-      <rect x="535" y="480" width="22" height="60" fill="#3b1c08" />
-      <circle cx="200" cy="200" r="3" fill="#fde68a" />
-      <circle cx="340" cy="140" r="2" fill="#fde68a" />
-      <circle cx="700" cy="90" r="2.5" fill="#fde68a" />
+      {/* Gnarled twisted bare tree silhouettes */}
+      <path d="M80 700 L110 420 L95 380 L110 420 L135 370 L110 420 L160 700 Z" fill="#0b0708" stroke="#0b0708" strokeWidth="2" />
+      <path d="M980 700 L1020 380 L1000 340 L1020 380 L1045 330 L1020 380 L1070 700 Z" fill="#0b0708" stroke="#0b0708" strokeWidth="2" />
+
+      {/* Haunted Keep Silhouette with Glowing Gothic Windows */}
+      <rect x="500" y="420" width="95" height="120" fill="#180d12" />
+      <polygon points="490,420 547,355 605,420" fill="#241018" />
+      <rect x="535" y="475" width="24" height="65" fill="#38180c" />
+      {/* Glowing Amber Windows with flicker */}
+      <circle cx="547" cy="405" r="7" fill="#fef08a" opacity="0.85" />
+      <rect x="515" y="440" width="8" height="14" rx="3" fill="#fef08a" opacity="0.8" />
+      <rect x="572" y="440" width="8" height="14" rx="3" fill="#fef08a" opacity="0.8" />
+
+      {/* Rolling Low Mist across the Graveyard Knolls */}
+      <ellipse cx="600" cy="560" rx="420" ry="30" fill="#3b1f4a" opacity="0.22" />
+      <ellipse cx="300" cy="580" rx="260" ry="25" fill="#2d1538" opacity="0.2" />
+
+      {/* Carved Jack-o'-Lantern 1 with Flickering Witchfire Eyes */}
+      <ellipse cx="220" cy="565" rx="38" ry="28" fill="#e85d04" />
+      <polygon points="220,525 230,550 210,550" fill="#2f6f1e" />
+      <polygon points="208,552 216,562 204,562" fill="#fef08a" />
+      <polygon points="232,552 236,562 224,562" fill="#fef08a" />
+      <polygon points="210,572 230,572 220,580" fill="#fef08a" />
+
+      {/* Carved Jack-o'-Lantern 2 */}
+      <ellipse cx="820" cy="585" rx="32" ry="24" fill="#fb923c" />
+      <polygon points="820,552 828,572 812,572" fill="#3f7a1a" />
+      <circle cx="812" cy="578" r="2.5" fill="#fef08a" />
+      <circle cx="828" cy="578" r="2.5" fill="#fef08a" />
+      <rect x="815" y="588" width="10" height="3" fill="#fef08a" rx="1" />
+
+      {/* Ancient Starlight */}
+      <circle cx="200" cy="180" r="3" fill="#fde68a" opacity="0.75" />
+      <circle cx="340" cy="120" r="2" fill="#fde68a" opacity="0.85" />
+      <circle cx="700" cy="80" r="2.5" fill="#fde68a" opacity="0.9" />
+      <circle cx="840" cy="190" r="2" fill="#fde68a" opacity="0.7" />
     </svg>
   );
 }

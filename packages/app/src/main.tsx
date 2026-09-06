@@ -7,6 +7,7 @@ import "./theme.css";
 import "./seasons/themeStage.css";
 import { sfx } from "./sfx";
 import { loadMusicMuted, startMusicBed } from "./music";
+import { audioManager } from "./themes/audioManager";
 
 const THEMES = ["kingdom", "army", "war", "world", "crown"] as const;
 
@@ -19,6 +20,7 @@ applyTheme("kingdom");
 loadMusicMuted();
 
 document.addEventListener("click", (e) => {
+  audioManager.start();
   startMusicBed();
   const el = e.target as HTMLElement | null;
   const label = el?.textContent?.trim() ?? "";

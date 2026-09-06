@@ -20,41 +20,47 @@ class AudioManager {
   private recordedMusicPlaying = false;
   private recordedBattlePlaying = false;
 
-  constructor() {
-    // Initial sync
-  }
-
   public init(): void {
     if (typeof window === "undefined") return;
     try {
-      this.musicEl = new Audio();
-      this.musicEl.loop = true;
-      this.musicEl.volume = 0.42;
+      if (!this.musicEl) {
+        this.musicEl = new Audio();
+        this.musicEl.loop = true;
+        this.musicEl.volume = 0.42;
 
-      this.musicEl.addEventListener("playing", () => {
-        this.recordedMusicPlaying = true;
-        setSynthMelodySuppressed(true);
-      });
+        this.musicEl.addEventListener("playing", () => {
+          this.recordedMusicPlaying = true;
+          setSynthMelodySuppressed(true);
+        });
 
-      this.musicEl.addEventListener("error", () => {
-        this.recordedMusicPlaying = false;
-        setSynthMelodySuppressed(false);
-      });
+        this.musicEl.addEventListener("pause", () => {
+          if (!isMusicMuted()) {
+            this.recordedMusicPlaying = false;
+          }
+        });
 
-      this.battleEl = new Audio();
-      this.battleEl.loop = true;
-      this.battleEl.volume = 0.48;
+        this.musicEl.addEventListener("error", () => {
+          this.recordedMusicPlaying = false;
+          setSynthMelodySuppressed(false);
+        });
+      }
 
-      this.battleEl.addEventListener("playing", () => {
-        this.recordedBattlePlaying = true;
-      });
+      if (!this.battleEl) {
+        this.battleEl = new Audio();
+        this.battleEl.loop = true;
+        this.battleEl.volume = 0.48;
 
-      this.battleEl.addEventListener("error", () => {
-        this.recordedBattlePlaying = false;
-        if (this.isBattleActive) {
-          setMusicBattle(true);
-        }
-      });
+        this.battleEl.addEventListener("playing", () => {
+          this.recordedBattlePlaying = true;
+        });
+
+        this.battleEl.addEventListener("error", () => {
+          this.recordedBattlePlaying = false;
+          if (this.isBattleActive) {
+            setMusicBattle(true);
+          }
+        });
+      }
     } catch {
       /* ignore */
     }
@@ -66,12 +72,11 @@ class AudioManager {
     this.isBattleActive = battleActive;
     const muted = isMusicMuted();
 
-    // Update synth fallbacks
+    // Update procedural synth fallbacks
     setMusicSeason(season);
     setMusicHoliday(pack.isHoliday ? pack.id : null);
 
     if (battleActive) {
-      // Handle battle track
       if (pack.battleSrc && pack.battleSrc !== this.currentBattleSrc) {
         this.currentBattleSrc = pack.battleSrc;
         if (this.battleEl) {
@@ -80,7 +85,9 @@ class AudioManager {
       }
 
       if (!muted && this.battleEl && pack.battleSrc) {
-        this.battleEl.play().catch(() => {
+        this.battleEl.play().then(() => {
+          this.recordedBattlePlaying = true;
+        }).catch(() => {
           this.recordedBattlePlaying = false;
           setMusicBattle(true);
         });
@@ -96,7 +103,7 @@ class AudioManager {
       setMusicBattle(false);
     }
 
-    // Handle ambient track
+    // Handle ambient track (plays /audio/halloween.ogg, /audio/easter.ogg, /audio/midwinter.ogg when present)
     if (pack.id !== this.currentPackId || pack.musicSrc !== this.currentMusicSrc) {
       this.currentPackId = pack.id;
       this.currentMusicSrc = pack.musicSrc;
@@ -108,7 +115,7 @@ class AudioManager {
             this.recordedMusicPlaying = true;
             setSynthMelodySuppressed(true);
           }).catch(() => {
-            // Recorded track failed or not found (e.g. 404) -> smoothly fall back to procedural synth!
+            // Recorded track failed or blocked by autoplay -> smooth fallback to procedural synth bed
             this.recordedMusicPlaying = false;
             setSynthMelodySuppressed(false);
           });
@@ -138,12 +145,17 @@ class AudioManager {
     } else {
       startMusicBed();
       if (this.musicEl && this.currentMusicSrc) {
-        this.musicEl.play().catch(() => {
+        this.musicEl.play().then(() => {
+          this.recordedMusicPlaying = true;
+          setSynthMelodySuppressed(true);
+        }).catch(() => {
           setSynthMelodySuppressed(false);
         });
       }
       if (this.isBattleActive && this.battleEl && this.currentBattleSrc) {
-        this.battleEl.play().catch(() => {
+        this.battleEl.play().then(() => {
+          this.recordedBattlePlaying = true;
+        }).catch(() => {
           setMusicBattle(true);
         });
       }
@@ -153,7 +165,10 @@ class AudioManager {
   public start(): void {
     startMusicBed();
     if (!isMusicMuted() && this.musicEl && this.currentMusicSrc) {
-      this.musicEl.play().catch(() => {
+      this.musicEl.play().then(() => {
+        this.recordedMusicPlaying = true;
+        setSynthMelodySuppressed(true);
+      }).catch(() => {
         setSynthMelodySuppressed(false);
       });
     }
