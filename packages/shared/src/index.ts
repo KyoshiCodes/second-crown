@@ -39,6 +39,9 @@ export interface Realm {
   id: string;
   name: string;
   rulerId: string;
+  era?: string;
+  lifestyle?: string;
+  aiProfile?: string;
 }
 
 export interface Character {
@@ -65,6 +68,15 @@ export interface War {
   status: "active" | "attacker_won" | "defender_won" | "white_peace";
 }
 
+export interface Faction {
+  id: string;
+  name: string;
+  kind: "guild" | "order" | "house" | "cult";
+  leaderRealmId: string | null;
+  memberRealmIds: string[];
+  stance: number;
+}
+
 export interface InputRecord {
   tick: number;
   type: string;
@@ -81,18 +93,16 @@ export interface GameState {
   characters: Character[];
   opinions: OpinionEdge[];
   wars: War[];
+  factions: Faction[];
   inputLog: InputRecord[];
   flags: Record<string, boolean | number | string>;
   unlocks: string[];
 }
 
-/** Current save schema version */
 export const SAVE_VERSION = 0;
 
-/** Fine ticks per second while tab is focused */
 export const TICKS_PER_SECOND = 10;
 
-/** Maximum offline window in real milliseconds (30 days) */
 export const MAX_OFFLINE_MS = 30 * 24 * 60 * 60 * 1000;
 
 export { formatLetterSuffix } from "./formatNumber.js";
