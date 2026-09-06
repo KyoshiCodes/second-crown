@@ -24,3 +24,5 @@ After PR 7 is on main:
 ```bash
 cd ~/second-crown && git pull && npm test && npm run build -w @second-crown/app && pm2 restart sc-cloud
 ```
+
+Do not `pm2 delete sc-cloud`.
