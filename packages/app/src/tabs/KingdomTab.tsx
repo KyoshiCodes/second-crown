@@ -10,6 +10,9 @@ import {
   tryTrade,
   settlementName,
   tryRenameSettlement,
+  currentSeason,
+  decreeActive,
+  routeGoldPerTick,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
@@ -34,9 +37,20 @@ export function KingdomTab(props: {
   const hold = state ? settlementName(state) : "Your Hold";
   const [name, setName] = React.useState(hold);
   React.useEffect(() => setName(hold), [hold]);
+  const season = state ? currentSeason(state) : "Spring";
+  const doctrine = state ? String(state.flags.doctrine || "none") : "none";
+  const routes = state ? routeGoldPerTick(state) : 0;
+  const decrees = state
+    ? ["muster", "rite", "envoys"].filter((id) => decreeActive(state, id)).join(", ")
+    : "";
 
   return (
     <>
+      <div className="sc-realm-card" style={{ marginBottom: 10, fontSize: 13 }}>
+        <strong>Realm pulse</strong>
+        <p style={{ margin: "4px 0" }}>{season} · Doctrine {doctrine} · Routes {routes}/3</p>
+        <p style={{ margin: 0, opacity: 0.75 }}>{decrees ? `Active decrees: ${decrees}` : "No decree running. Swear one on the Crown tab."}</p>
+      </div>
       <div style={{ marginBottom: 10 }}>
         <label style={{ fontSize: 12, opacity: 0.7 }}>Hold name</label>
         <div style={{ display: "flex", gap: 6 }}>
