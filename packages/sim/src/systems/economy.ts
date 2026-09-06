@@ -10,6 +10,7 @@ export function productionBonus(state: GameState): number {
   const prestige = Number(state.flags["prestige_level"] ?? 0);
   bonus += prestige;
   bonus += flagNum(state, "craft_income");
+  if (state.flags.doctrine === "harvest") bonus += 2;
   const advisor = state.characters.find(
     (c) => c.realmId === "player" && c.role === "advisor" && c.traits.includes("clever")
   );
