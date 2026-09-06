@@ -10,10 +10,19 @@ export interface TrainPayload {
   realmId?: string;
 }
 
-export function trainCostMultiplier(state: GameState): number {
+export function trainCostMultiplier(state: GameState, typeId?: string): number {
   const n = countBuilding(state, "barracks");
   let m = Math.max(0.5, 1 - n * 0.05);
   if (flagNum(state, "craft_train")) m *= 0.9;
+  if (typeId === "cavalry" || typeId === "knight") {
+    if (countBuilding(state, "stables") > 0) m *= 0.9;
+  }
+  if (typeId === "archer" || typeId === "skirmisher") {
+    if (countBuilding(state, "archery_range") > 0) m *= 0.9;
+  }
+  if (typeId === "siege") {
+    if (countBuilding(state, "siege_workshop") > 0) m *= 0.85;
+  }
   return m;
 }
 
@@ -22,7 +31,7 @@ export function tryTrain(state: GameState, payload: TrainPayload): boolean {
   if (!def || payload.count < 1) return false;
   const realmId = payload.realmId ?? "player";
   const count = Math.floor(payload.count);
-  const mult = trainCostMultiplier(state);
+  const mult = trainCostMultiplier(state, def.id);
   for (const [res, costStr] of Object.entries(def.cost)) {
     const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
@@ -55,7 +64,7 @@ export function tryTrain(state: GameState, payload: TrainPayload): boolean {
 export function canAffordTrain(state: GameState, typeId: string, count = 1): boolean {
   const def = getUnitType(typeId);
   if (!def || count < 1) return false;
-  const mult = trainCostMultiplier(state);
+  const mult = trainCostMultiplier(state, typeId);
   for (const [res, costStr] of Object.entries(def.cost)) {
     const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
