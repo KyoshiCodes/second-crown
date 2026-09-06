@@ -11,7 +11,7 @@ export { D, toDecimalString, ZERO, ONE } from "./core/decimal.js";
 export { BUILDING_TYPES, getBuildingType, listBuildableTypes } from "./content/buildings.js";
 export type { BuildingType } from "./content/buildings.js";
 
-export { EconomySystem } from "./systems/economy.js";
+export { EconomySystem, computeIncomePerSecond } from "./systems/economy.js";
 
 export { tryBuild, canAfford } from "./actions/build.js";
 export type { BuildPayload } from "./actions/build.js";

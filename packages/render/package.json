@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@second-crown/shared": "*",
+    "@second-crown/sim": "*",
     "pixi.js": "^8.0.0"
   }
 }
