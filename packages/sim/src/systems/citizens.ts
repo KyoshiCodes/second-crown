@@ -60,8 +60,8 @@ export function hireCitizenForBuilding(
   x: number,
   y: number
 ): CitizenInstance {
-  if (typeId === "cottage") {
-    return { id: "skip_cottage", realmId, job: "unassigned", tile: { x, y } };
+  if (typeId === "cottage" || typeId === "gate") {
+    return { id: `skip_${typeId}`, realmId, job: "unassigned", tile: { x, y } };
   }
   if (!canHouse(state, realmId)) {
     return { id: "skip_cap", realmId, job: jobForBuildingType(typeId), tile: { x, y } };
