@@ -163,6 +163,7 @@ export {
 } from "./systems/ward.js";
 
 export { laborPerTick, applyLabor, maxMarches } from "./systems/labor.js";
+export { housingCap, population, canHouse } from "./systems/housing.js";
 
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
