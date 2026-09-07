@@ -2,6 +2,14 @@
 
 Newest first.
 
+## 2026-09-07 — Claude Hold Economy: Smaller Raids, Academy, Storehouses (`bakeoff/claude-pace`)
+
+- **Raid haul cut (`packages/sim/src/systems/march.ts`)**: breaking a camp now pays +6 wood (was +20); clearing a woodcut/quarry/field node now pays +5 of the matching resource (was +12). Player wins still call `plantOutpost`.
+- **Academy building (`packages/sim/src/content/buildings.ts`, `systems/research.ts`)**: new `academy` building type — no drip production, `wood`/`stone`/`gold` cost, `buildTicks: 130`. Horse lore research now accepts a finished `academy` **or** a finished `barracks` (`needsAny`), so existing barracks-only saves stay unlocked.
+- **Storehouses (`packages/sim/src/systems/storage.ts`, new)**: `storageCap(state, res)` gives `food`/`wood`/`stone`/`gold` finite warehouses (base 200/150/150/100, raised per finished `granary`/`sawmill`/`mason`/`mint`); `addCapped` clamps production and raid payouts at the cap so overflow is lost. Chose reusing existing bulk-production buildings over adding a dedicated `storehouse` type — smaller footprint, no new render/app surface needed.
+- **Tests**: new `storage.test.ts` plus additions to `march.test.ts`, `research.test.ts`, and `build.test.ts` covering cap growth, clamped gains, batching-independent determinism, the new haul amounts, and the academy fallback path.
+- **Sim & App Purity**: `git diff main -- packages/app packages/render server` empty. `tickEngine.ts` untouched — no new tick rate. No new combat resolver, no new unit types. Full `@second-crown/sim` suite (104 tests) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-09-07 — Gemini Pixel Army Tab & Board Marching Columns (`bakeoff/gemini-army`)
 
 - **Pixel Walker Style for Army Tab Roster & Visuals (`packages/app`)**:

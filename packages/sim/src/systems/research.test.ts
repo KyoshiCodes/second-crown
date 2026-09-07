@@ -47,4 +47,21 @@ describe("academy research", () => {
     expect(researchDone(s, "siege")).toBe(true);
     expect(unitUnlocked(s, "siege")).toBe(true);
   });
+
+  it("a finished academy also opens horse lore, no barracks required", () => {
+    const s = createGameState({ seed: 1 });
+    s.resources.gold = "200";
+    s.resources.wood = "200";
+    expect(tryStartResearch(s, "horse")).toBe(false);
+    s.buildings.push({
+      id: "ac",
+      typeId: "academy",
+      realmId: "player",
+      x: 6,
+      y: 6,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(tryStartResearch(s, "horse")).toBe(true);
+  });
 });

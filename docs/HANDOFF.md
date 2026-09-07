@@ -1,5 +1,20 @@
 # HANDOFF
 
+Bakeoff Claude Pace lane delivered on branch `bakeoff/claude-pace` (PR into main unmerged).
+
+- **Raid haul cut (`packages/sim/src/systems/march.ts`)**: camp break payout cut from +20 wood to +6; woodcut/quarry/field node payouts cut from +12 to +5 of the matching resource. Player wins on both paths still call `plantOutpost(state, dest)`.
+- **Academy building (`packages/sim/src/content/buildings.ts`)**: new `BUILDING_TYPES.academy` entry — `productionPerTick: {}` (no drip income), cost `{ wood: 24, stone: 20, gold: 12 }`, `buildTicks: 130`.
+- **Horse lore fallback (`packages/sim/src/systems/research.ts`)**: `RESEARCH.horse.needsAny` is now `["academy", "barracks"]` (was a single required `barracks`); a finished academy or a finished barracks either one unlocks the research, so existing barracks-only saves are never soft-locked. `RESEARCH.siege` kept its single-requirement shape (`needsAny: ["siege_workshop"]`).
+- **Storehouses (`packages/sim/src/systems/storage.ts`, new file)**: `storageCap(state, res)` — finite warehouse ceilings for `food`/`wood`/`stone`/`gold` only (base 200/150/150/100), raised by +300/+250/+250/+150 per finished `granary`/`sawmill`/`mason`/`mint` respectively (chosen over a new `storehouse` building type — smaller footprint, no new build-menu/render surface). `addCapped(state, res, amount)` adds a gain clamped at the cap (excess lost); spends pass through uncapped. Wired into `EconomySystem.advanceAnalytic` (building production, both the per-tick and fast-forward paths) and into the camp/node raid payouts in `march.ts`. Deliberately not applied to spoils (iron/banners/relics), trade, tithe, or quest rewards — out of this lane's "production and raid payouts" scope.
+- **Determinism**: capping is a monotonic `min(current + gain, cap)` clamp on non-negative credits, so splitting a production window into smaller sub-windows (as `TickEngine.settleTicks` does when it interleaves single ticks and analytic jumps) yields the identical final resource value as one big window — verified in `storage.test.ts`.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/app packages/render server` is 100% empty. No app, render, or server files touched.
+  - `packages/sim/src/core/tickEngine.ts` untouched — no second tick rate.
+  - `resolveBattle` (`systems/combat.ts`) and `UNIT_TYPES` (`content/units.ts`) untouched — no second combat resolver, no new unit types.
+  - Full `@second-crown/sim` test suite (104 tests, 93 pre-existing + 11 new) and `npm run build -w @second-crown/app` (`tsc -b && vite build`) pass.
+
+---
+
 Bakeoff Gemini Army lane delivered on branch `bakeoff/gemini-army` (PR into main unmerged).
 
 - **Pixel Walker Style for Army Tab Roster & Visuals (`packages/app`)**:

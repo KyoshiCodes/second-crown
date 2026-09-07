@@ -8,7 +8,8 @@ export const RESEARCH = {
     name: "Horse lore",
     ticks: 240,
     cost: { gold: "40", wood: "24" },
-    needs: "barracks",
+    // Prefers a finished Academy; a Barracks still unlocks it so existing testers aren't soft-locked.
+    needsAny: ["academy", "barracks"],
     unlocks: ["cavalry", "knight"],
   },
   siege: {
@@ -16,7 +17,7 @@ export const RESEARCH = {
     name: "Siege craft",
     ticks: 360,
     cost: { gold: "70", wood: "40", stone: "30" },
-    needs: "siege_workshop",
+    needsAny: ["siege_workshop"],
     unlocks: ["siege"],
   },
 } as const;
@@ -60,7 +61,7 @@ export function tryStartResearch(state: GameState, id: keyof typeof RESEARCH): b
   if (!def) return false;
   if (researchDone(state, id)) return false;
   if (anyStudyOpen(state)) return false;
-  if (countBuilding(state, def.needs) < 1) return false;
+  if (!def.needsAny.some((typeId) => countBuilding(state, typeId) >= 1)) return false;
   for (const [res, cost] of Object.entries(def.cost)) {
     if (D(state.resources[res] ?? "0").lt(cost)) return false;
   }

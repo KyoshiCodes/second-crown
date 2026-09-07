@@ -7,6 +7,7 @@ import { flagNum } from "./wave.js";
 import { decreeActive } from "./decree.js";
 import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
 import { hireCitizenForBuilding } from "./citizens.js";
+import { addCapped } from "./storage.js";
 
 export function productionBonus(state: GameState): number {
   let bonus = 0;
@@ -58,7 +59,7 @@ export const EconomySystem = {
     const routes = routeGoldPerTick(state);
     if (routes > 0) totals.gold = (totals.gold ?? D(0)).add(D(routes).mul(0.15).mul(ticks));
     for (const [res, amount] of Object.entries(totals)) {
-      state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").add(amount));
+      addCapped(state, res, amount);
     }
   },
 

@@ -9,6 +9,7 @@ import { maxMarches } from "./labor.js";
 import { takeForce } from "./column.js";
 import { gateHp } from "./gate.js";
 import { plantOutpost } from "./outpost.js";
+import { addCapped } from "./storage.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -237,11 +238,11 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       dest.node = "none";
       if (march.realmId === "player") {
         plantOutpost(state, dest);
-        state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(20));
+        addCapped(state, "wood", 6);
         returnLevy(state, levy);
-        return "Camp broken. Flag planted. +20 wood.";
+        return "Camp broken. Flag planted. +6 wood.";
       }
-      return "Camp broken. +20 wood.";
+      return "Camp broken. +6 wood.";
     }
     if (march.realmId === "player") returnLevy(state, Math.max(0, levy - 2));
     return "The camp holds. Two did not return.";
@@ -256,16 +257,16 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       plantOutpost(state, dest);
       returnLevy(state, levy);
       if (node === "woodcut") {
-        state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(12));
-        return "Woodcutting party returns +12 wood. Flag planted.";
+        addCapped(state, "wood", 5);
+        return "Woodcutting party returns +5 wood. Flag planted.";
       }
       if (node === "quarry") {
-        state.resources.stone = toDecimalString(D(state.resources.stone ?? "0").add(12));
-        return "Quarry party returns +12 stone. Flag planted.";
+        addCapped(state, "stone", 5);
+        return "Quarry party returns +5 stone. Flag planted.";
       }
       if (node === "field") {
-        state.resources.food = toDecimalString(D(state.resources.food ?? "0").add(12));
-        return "Foragers return +12 food. Flag planted.";
+        addCapped(state, "food", 5);
+        return "Foragers return +5 food. Flag planted.";
       }
     }
     return "Empty province.";

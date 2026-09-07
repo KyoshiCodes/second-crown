@@ -1,8 +1,23 @@
 # USER-NOTES
 
-Last updated: 2026-09-07 | Version: playtest-0.12 (Gemini Army: Pixel Army Tab & Board Marching Columns)
+Last updated: 2026-09-07 | Version: playtest-0.13 (Claude Pace: Smaller Raids, Academy, Storehouses)
 
 Play: `https://129.153.17.72.sslip.io/`
+
+## Slower Raid Hauls, an Academy, and Storehouses
+
+The pace of the early game has been reined in:
+
+1. **Smaller Raid Payouts**:
+   - Breaking a bandit camp now brings home **+6 wood** (was +20).
+   - Clearing a woodcutting stand, quarry, or field now brings home **+5** of the matching resource (was +12).
+   - Winning still plants your flag on the province exactly as before — only the haul shrank.
+2. **Academy**:
+   - A new building. It produces nothing on its own, costs wood/stone/gold, and takes a while to finish.
+   - Horse lore research now unlocks from a finished Academy **or** a finished Barracks — if you already have a Barracks, you're not blocked from training Cavalry or Knights while you save up for an Academy.
+3. **Storehouses**:
+   - Food, Wood, Stone, and Gold now each have a warehouse limit. Once you're at the cap, extra production or raid loot for that resource is lost until you either spend down or build more storage.
+   - Your Granary, Sawmill, Mason Yard, and Mint each raise the cap for their resource (food, wood, stone, and gold respectively) — the more of those you have finished, the more you can stockpile.
 
 ## Living Pixel Army Roster & Board Marching Columns
 

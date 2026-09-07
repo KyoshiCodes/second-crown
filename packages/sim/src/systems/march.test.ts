@@ -2,14 +2,18 @@ import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { D } from "../core/decimal.js";
+import { createRngStreams } from "../core/rng.js";
+import { storageCap } from "./storage.js";
 import {
   applySiegeBlow,
   edgeWallCount,
   hasClosedWallRing,
   listMarches,
+  resolveMarchArrival,
   siegeDefense,
   tryMarch,
   wallHp,
+  type March,
 } from "./march.js";
 
 describe("W2 marches and walls", () => {
@@ -72,5 +76,53 @@ describe("W2 marches and walls", () => {
     expect(s.buildings.find((b) => b.id === "f")?.completesAtTick).toBe(s.meta.tick + 40);
     expect(s.buildings.find((b) => b.id === "k")?.completesAtTick).toBeNull();
     expect(applySiegeBlow(s, 10, 200)).toBeNull();
+  });
+
+  it("cut raid haul: camp pays +6 wood, a gather node pays +5", () => {
+    const rng = createRngStreams(1);
+    const camp = createGameState({ seed: 1 });
+    const campMarch: March = {
+      id: "m1",
+      realmId: "player",
+      fromId: camp.board.homeProvinceId,
+      toId: "p_9_9",
+      arrivesTick: 10,
+      kind: "camp",
+      levy: 5,
+    };
+    camp.board.provinces.push({ id: "p_9_9", x: 9, y: 9, terrain: "plain", node: "camp", occupantRealmId: null });
+    resolveMarchArrival(camp, campMarch, rng);
+    expect(camp.resources.wood).toBe("6");
+
+    const node = createGameState({ seed: 1 });
+    node.board.provinces.push({ id: "p_9_9", x: 9, y: 9, terrain: "plain", node: "woodcut", occupantRealmId: null });
+    const nodeMarch: March = {
+      id: "m2",
+      realmId: "player",
+      fromId: node.board.homeProvinceId,
+      toId: "p_9_9",
+      arrivesTick: 10,
+      kind: "node",
+      levy: 5,
+    };
+    resolveMarchArrival(node, nodeMarch, rng);
+    expect(node.resources.wood).toBe("5");
+  });
+
+  it("raid payouts are lost past the wood storage cap", () => {
+    const s = createGameState({ seed: 1 });
+    s.resources.wood = String(storageCap(s, "wood"));
+    s.board.provinces.push({ id: "p_9_9", x: 9, y: 9, terrain: "plain", node: "camp", occupantRealmId: null });
+    const march: March = {
+      id: "m3",
+      realmId: "player",
+      fromId: s.board.homeProvinceId,
+      toId: "p_9_9",
+      arrivesTick: 10,
+      kind: "camp",
+      levy: 5,
+    };
+    resolveMarchArrival(s, march, createRngStreams(1));
+    expect(s.resources.wood).toBe(String(storageCap(s, "wood")));
   });
 });

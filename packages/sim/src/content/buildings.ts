@@ -128,6 +128,15 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     color: 0x2f6f4e,
     blurb: "-10% Archer and Skirmisher train cost",
   },
+  academy: {
+    id: "academy",
+    name: "Academy",
+    productionPerTick: {},
+    buildTicks: 130,
+    cost: { wood: "24", stone: "20", gold: "12" },
+    color: 0x7c3aed,
+    blurb: "Scholars study horse lore and siege craft. Barracks alone still unlocks horse lore",
+  },
   siege_workshop: {
     id: "siege_workshop",
     name: "Siege Workshop",

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { tryBuild, canAfford } from "./build.js";
+import { getBuildingType } from "../content/buildings.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { D } from "../core/decimal.js";
 
@@ -32,5 +33,13 @@ describe("tryBuild", () => {
     engine.tickMany(40);
 
     expect(D(engine.getState().resources.food).gte(10)).toBe(true);
+  });
+
+  it("academy has no drip production, a stone/wood/gold cost, and a slow build", () => {
+    const def = getBuildingType("academy");
+    expect(def).toBeTruthy();
+    expect(def?.productionPerTick).toEqual({});
+    expect(Object.keys(def?.cost ?? {}).sort()).toEqual(["gold", "stone", "wood"]);
+    expect(def!.buildTicks).toBeGreaterThanOrEqual(120);
   });
 });
