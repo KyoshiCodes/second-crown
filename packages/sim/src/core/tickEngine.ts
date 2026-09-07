@@ -3,8 +3,9 @@ import { createRngStreams, type RngStreams } from "./rng.js";
 import { EconomySystem } from "../systems/economy.js";
 import { RivalSystem } from "../systems/rival.js";
 import { EventSystem } from "../systems/events.js";
+import { MarchSystem } from "../systems/march.js";
 
-const SYSTEMS = [EconomySystem, RivalSystem, EventSystem];
+const SYSTEMS = [EconomySystem, RivalSystem, EventSystem, MarchSystem];
 
 export class TickEngine {
   readonly rng: RngStreams;
