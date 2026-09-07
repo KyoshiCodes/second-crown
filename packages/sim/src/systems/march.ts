@@ -5,11 +5,13 @@ import { getUnitType } from "../content/units.js";
 import { getProvince, neighbors, provinceAt } from "./board.js";
 import { defenseBonus, realmPower, resolveBattle } from "./combat.js";
 import { createRngStreams, type RngStreams } from "../core/rng.js";
+import { maxMarches } from "./labor.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
 const TICKS_PER_STEP = 15;
 const LEVY = 5;
+const RESPAWN = 400;
 
 export interface March {
   id: string;
@@ -19,6 +21,12 @@ export interface March {
   arrivesTick: number;
   kind: "camp" | "node" | "hold";
   levy: number;
+}
+
+interface Respawn {
+  id: string;
+  tick: number;
+  node: Province["node"];
 }
 
 export function edgeWallCount(state: GameState, realmId: string): number {
@@ -59,6 +67,25 @@ function saveMarches(state: GameState, list: March[]): void {
   state.flags["marches_json"] = JSON.stringify(list);
 }
 
+function respawns(state: GameState): Respawn[] {
+  const raw = state.flags["respawn_json"];
+  if (typeof raw !== "string" || !raw) return [];
+  try {
+    return JSON.parse(raw) as Respawn[];
+  } catch {
+    return [];
+  }
+}
+
+function saveRespawns(state: GameState, list: Respawn[]): void {
+  state.flags["respawn_json"] = JSON.stringify(list);
+}
+
+function scheduleRespawn(state: GameState, dest: Province): void {
+  if (dest.node === "none" || dest.node === "hold") return;
+  saveRespawns(state, [...respawns(state), { id: dest.id, tick: state.meta.tick + RESPAWN, node: dest.node }]);
+}
+
 export function listMarches(state: GameState): March[] {
   return marches(state);
 }
@@ -78,9 +105,7 @@ function takeLevy(state: GameState): number {
   const n = Math.min(LEVY, Math.floor(have));
   if (n < 1) return 0;
   u.count = toDecimalString(D(u.count).sub(n));
-  if (D(u.count).lte(0)) {
-    state.units = state.units.filter((x) => x !== u);
-  }
+  if (D(u.count).lte(0)) state.units = state.units.filter((x) => x !== u);
   return n;
 }
 
@@ -104,7 +129,8 @@ function manhattan(a: Province, b: Province): number {
 }
 
 export function tryMarch(state: GameState, destId: string): boolean {
-  if (activePlayerMarch(state)) return false;
+  const mine = marches(state).filter((m) => m.realmId === "player");
+  if (mine.length >= maxMarches(state)) return false;
   const dest = getProvince(state, destId);
   const home = getProvince(state, state.board.homeProvinceId);
   if (!dest || !home) return false;
@@ -116,7 +142,7 @@ export function tryMarch(state: GameState, destId: string): boolean {
   if (dest.node === "camp") kind = "camp";
   if (dest.node === "hold") kind = "hold";
   const march: March = {
-    id: `m_${state.meta.tick}_${destId}`,
+    id: `m_${state.meta.tick}_${destId}_${mine.length}`,
     realmId: "player",
     fromId: home.id,
     toId: dest.id,
@@ -147,8 +173,9 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
   }
   if (march.kind === "camp" || dest.node === "camp") {
     if (pwr >= 4) {
-      state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(20));
+      scheduleRespawn(state, dest);
       dest.node = "none";
+      state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(20));
       returnLevy(state, levy);
       return "Camp broken. +20 wood.";
     }
@@ -156,16 +183,21 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     return "The camp holds. Two did not return.";
   }
   if (march.kind === "node") {
+    const node = dest.node;
+    if (node === "woodcut" || node === "quarry" || node === "field") {
+      scheduleRespawn(state, dest);
+      dest.node = "none";
+    }
     returnLevy(state, levy);
-    if (dest.node === "woodcut") {
+    if (node === "woodcut") {
       state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(12));
       return "Woodcutting party returns +12 wood.";
     }
-    if (dest.node === "quarry") {
+    if (node === "quarry") {
       state.resources.stone = toDecimalString(D(state.resources.stone ?? "0").add(12));
       return "Quarry party returns +12 stone.";
     }
-    if (dest.node === "field") {
+    if (node === "field") {
       state.resources.food = toDecimalString(D(state.resources.food ?? "0").add(12));
       return "Foragers return +12 food.";
     }
@@ -195,19 +227,24 @@ export function applySiegeBlow(state: GameState, attackerPower: number, defender
 
 export const MarchSystem = {
   nextEventTick(state: GameState): number | null {
-    const list = marches(state);
+    const list = [...marches(state).map((m) => m.arrivesTick), ...respawns(state).map((r) => r.tick)];
     if (list.length === 0) return null;
-    return Math.min(...list.map((m) => m.arrivesTick));
+    return Math.min(...list);
   },
   processEventsAt(state: GameState, tick: number): void {
+    const dueR = respawns(state).filter((r) => r.tick === tick);
+    if (dueR.length) {
+      saveRespawns(state, respawns(state).filter((r) => r.tick !== tick));
+      for (const r of dueR) {
+        const p = getProvince(state, r.id);
+        if (p && p.node === "none" && !p.occupantRealmId) p.node = r.node;
+      }
+    }
     const due = marches(state).filter((m) => m.arrivesTick === tick);
     if (due.length === 0) return;
-    const rest = marches(state).filter((m) => m.arrivesTick !== tick);
-    saveMarches(state, rest);
+    saveMarches(state, marches(state).filter((m) => m.arrivesTick !== tick));
     const rng = createRngStreams(state.meta.seed + tick);
-    for (const m of due) {
-      resolveMarchArrival(state, m, rng);
-    }
+    for (const m of due) resolveMarchArrival(state, m, rng);
   },
   advanceAnalytic(): void {},
   tick(): void {},
