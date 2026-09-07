@@ -6,6 +6,8 @@ import { pushWorldLog } from "./events.js";
 import { isShielded, noteWar } from "./wave.js";
 import { tickWorldClash } from "./worldClash.js";
 import { ensureBoard } from "./board.js";
+import { tryNpcMarch } from "./march.js";
+import { maybeNpcRaid } from "./raidMarch.js";
 import { D, toDecimalString } from "../core/decimal.js";
 
 export const RivalSystem = {
@@ -27,15 +29,26 @@ export function tickWorldPulse(state: GameState, atTick: number): void {
   tickAi(state, atTick);
 }
 
+function npcs(state: GameState) {
+  return state.realms.filter((r) => r.id !== "player");
+}
+
+function salt(realmId: string): number {
+  let n = 0;
+  for (let i = 0; i < realmId.length; i++) n = (n + realmId.charCodeAt(i) * (i + 3)) % 997;
+  return n;
+}
+
 function tickAi(state: GameState, atTick: number): void {
   ensureBoard(state);
   driftOpinions(state);
-  for (const realm of state.realms) {
-    if (realm.id === "player") continue;
+  for (const realm of npcs(state)) {
     growRealm(state, realm.id);
     maybeClaim(state, realm.id, atTick);
+    maybeCampMarch(state, realm.id, atTick);
     maybeTrade(state, realm.id, atTick);
     maybeNpcWar(state, realm.id, atTick);
+    if (atTick % 500 === 0) maybeNpcRaid(state, realm.id, atTick);
     maybeDeclare(state, realm.id, atTick);
   }
   tickWorldClash(state, atTick);
@@ -48,9 +61,9 @@ function peaceLocked(state: GameState, a: string, b: string): boolean {
 }
 
 function maybeClaim(state: GameState, realmId: string, atTick: number): void {
-  if (atTick % 200 !== 0) return;
+  if ((atTick + salt(realmId)) % 200 !== 0) return;
   const open = state.board.provinces.find(
-    (p) => !p.occupantRealmId && p.node !== "hold" && p.node !== "none" && p.id !== state.board.homeProvinceId
+    (p) => !p.occupantRealmId && p.node !== "hold" && p.id !== state.board.homeProvinceId
   );
   if (!open) return;
   open.occupantRealmId = realmId;
@@ -58,11 +71,21 @@ function maybeClaim(state: GameState, realmId: string, atTick: number): void {
   pushWorldLog(state, "claim", `${name} plants a marker on ${open.x},${open.y}`);
 }
 
+function maybeCampMarch(state: GameState, realmId: string, atTick: number): void {
+  if ((atTick + salt(realmId)) % 300 !== 0) return;
+  const camp = state.board.provinces.find((p) => p.node === "camp" && p.occupantRealmId !== realmId && p.id !== state.board.homeProvinceId);
+  if (!camp) return;
+  if (tryNpcMarch(state, realmId, camp.id)) {
+    const name = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
+    pushWorldLog(state, "raid", `${name} rides on a camp at ${camp.x},${camp.y}`);
+  }
+}
+
 function maybeTrade(state: GameState, realmId: string, atTick: number): void {
-  if (atTick % 300 !== 0) return;
+  if ((atTick + salt(realmId)) % 300 !== 0) return;
   const others = state.realms.filter((r) => r.id !== realmId);
-  const partner = others[atTick % Math.max(1, others.length)];
-  if (!partner) return;
+  if (!others.length) return;
+  const partner = others[(atTick + salt(realmId)) % others.length];
   if (partner.id === "player") {
     state.resources.gold = toDecimalString(D(state.resources.gold ?? "0").add(1));
   }
@@ -71,11 +94,11 @@ function maybeTrade(state: GameState, realmId: string, atTick: number): void {
 }
 
 function maybeNpcWar(state: GameState, realmId: string, atTick: number): void {
+  if ((atTick + salt(realmId)) % 400 !== 0) return;
   if (state.wars.some((w) => w.status === "active" && (w.attackerRealmId === realmId || w.defenderRealmId === realmId))) return;
-  if (atTick % 400 !== 0) return;
-  const foe = state.realms.find((r) => r.id !== realmId && r.id !== "player");
-  if (!foe) return;
-  if (peaceLocked(state, realmId, foe.id)) return;
+  const foes = npcs(state).filter((r) => r.id !== realmId && !peaceLocked(state, realmId, r.id));
+  if (!foes.length) return;
+  const foe = foes[(atTick + salt(realmId)) % foes.length];
   state.wars.push({
     id: `war_npc_${realmId}_${foe.id}_${atTick}`,
     attackerRealmId: realmId,

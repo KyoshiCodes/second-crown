@@ -12,12 +12,14 @@ describe("cultures and world pulse", () => {
     expect(s.realms.find((r) => r.id === "player")?.lifestyle).toBe("Cedar Kin");
   });
 
-  it("npc pulse can claim a node", () => {
+  it("every npc crown can own a tile after pulses", () => {
     const s = createGameState({ seed: 2 });
     ensureBoard(s);
-    const before = s.board.provinces.filter((p) => p.occupantRealmId && p.occupantRealmId !== "player").length;
-    tickWorldPulse(s, 100);
-    const after = s.board.provinces.filter((p) => p.occupantRealmId && p.occupantRealmId !== "player").length;
-    expect(after).toBeGreaterThanOrEqual(before);
+    const extras = s.realms.filter((r) => r.id !== "player");
+    expect(extras.length).toBeGreaterThan(1);
+    for (const tick of [200, 400, 600, 800, 1000]) tickWorldPulse(s, tick);
+    const owners = new Set(s.board.provinces.map((p) => p.occupantRealmId).filter(Boolean));
+    const acting = extras.filter((r) => owners.has(r.id)).length;
+    expect(acting).toBeGreaterThan(1);
   });
 });
