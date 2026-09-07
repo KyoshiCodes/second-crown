@@ -1,0 +1,37 @@
+import { describe, it, expect } from "vitest";
+import { createGameState } from "../state/createGameState.js";
+import { createCitizen, assignJob } from "./citizens.js";
+import { applyLabor, laborPerTick, maxMarches } from "./labor.js";
+import { tryMarch, listMarches } from "./march.js";
+
+describe("W9 labor and companies", () => {
+  it("farmers add food each tick", () => {
+    const s = createGameState({ seed: 1 });
+    const c = createCitizen(s, "player");
+    assignJob(s, c.id, "farmer");
+    expect(laborPerTick(s).food).toBe(1);
+    applyLabor(s, 10);
+    expect(Number(s.resources.food)).toBe(10);
+  });
+
+  it("a barracks opens a second march slot", () => {
+    const s = createGameState({ seed: 1 });
+    expect(maxMarches(s)).toBe(1);
+    s.buildings.push({
+      id: "br",
+      typeId: "barracks",
+      realmId: "player",
+      x: 3,
+      y: 3,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(maxMarches(s)).toBe(2);
+    s.units.push({ id: "u1", typeId: "militia", realmId: "player", count: "20", armyId: null });
+    const nodes = s.board.provinces.filter((p) => p.node === "camp" || p.node === "woodcut");
+    expect(tryMarch(s, nodes[0].id)).toBe(true);
+    expect(tryMarch(s, nodes[1].id)).toBe(true);
+    expect(listMarches(s).length).toBe(2);
+    expect(tryMarch(s, nodes[0].id)).toBe(false);
+  });
+});
