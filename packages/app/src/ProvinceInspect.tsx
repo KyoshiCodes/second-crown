@@ -5,6 +5,7 @@ import {
   isProvinceSeen,
   listMarches,
   maxMarches,
+  scoutCost,
   tryMarch,
   tryMarchWith,
   tryScoutProvince,
@@ -44,6 +45,7 @@ export function ProvinceInspect(props: {
   const seen = isProvinceSeen(state, selectedId);
   const marching = listMarches(state).filter((m) => m.realmId === "player").length;
   const slots = maxMarches(state);
+  const cost = scoutCost(state);
   const occupant = !seen
     ? "Unknown"
     : p.occupantRealmId
@@ -85,10 +87,10 @@ export function ProvinceInspect(props: {
               <button
                 type="button"
                 onClick={() =>
-                  act((s) => (tryScoutProvince(s, selectedId) ? "Scouts return with a map." : "Need 8 gold, or already seen."))
+                  act((s) => (tryScoutProvince(s, selectedId) ? "Scouts return with a map." : `Need ${scoutCost(s)} gold, or already seen.`))
                 }
               >
-                Scout (8 gold)
+                Scout ({cost} gold)
               </button>
             ) : null}
             <button
