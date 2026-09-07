@@ -81,25 +81,30 @@ export interface OpinionEdge {
   expiresTick: number | null;
 }
 
+export type WarStatus = "active" | "ended" | "white_peace" | "attacker_won" | "defender_won";
+
 export interface WarInstance {
   id: string;
   attackerRealmId: string;
   defenderRealmId: string;
   startedTick: number;
-  status: "active" | "ended";
+  status: WarStatus;
+  endedTick?: number | null;
 }
 
 export interface FactionInstance {
   id: string;
   name: string;
-  leaderRealmId: string;
+  leaderRealmId: string | null;
   memberRealmIds: string[];
-  stance?: number;
+  stance: number;
+  kind?: string;
   crestId?: string;
 }
 
 export type TerrainId = "plain" | "wood" | "hill" | "waste" | "shore" | "peak";
 export type NodeId = "none" | "hold" | "camp" | "woodcut" | "quarry" | "field";
+export type ProvinceNode = NodeId;
 
 export interface Province {
   id: string;
@@ -117,6 +122,12 @@ export interface BoardState {
   provinces: Province[];
 }
 
+export interface InputRecord {
+  tick: number;
+  type: string;
+  payload?: unknown;
+}
+
 export interface GameState {
   meta: MetaState;
   resources: Partial<Record<ResourceId, DecimalString>>;
@@ -128,11 +139,16 @@ export interface GameState {
   opinions: OpinionEdge[];
   wars: WarInstance[];
   factions: FactionInstance[];
-  inputLog: unknown[];
+  inputLog: InputRecord[];
   flags: Record<string, unknown>;
   unlocks: string[];
   board: BoardState;
 }
+
+export type Character = CharacterInstance;
+export type Realm = RealmInstance;
+export type Faction = FactionInstance;
+export type War = WarInstance;
 
 export const SAVE_VERSION = 1;
 
