@@ -2,10 +2,12 @@ import React from "react";
 import {
   activePlayerMarch,
   getProvince,
+  isProvinceSeen,
   listMarches,
   maxMarches,
   tryMarch,
   tryMarchWith,
+  tryScoutProvince,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
@@ -39,11 +41,14 @@ export function ProvinceInspect(props: {
   const p = getProvince(state, selectedId);
   if (!p) return null;
   const home = selectedId === state.board.homeProvinceId;
+  const seen = isProvinceSeen(state, selectedId);
   const marching = listMarches(state).filter((m) => m.realmId === "player").length;
   const slots = maxMarches(state);
-  const occupant = p.occupantRealmId
-    ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
-    : "None";
+  const occupant = !seen
+    ? "Unknown"
+    : p.occupantRealmId
+      ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
+      : "None";
   const full = marching >= slots;
   return (
     <div
@@ -59,14 +64,14 @@ export function ProvinceInspect(props: {
     >
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
         <strong>
-          {TERRAIN[p.terrain] ?? p.terrain} · {p.x},{p.y}
+          {seen ? TERRAIN[p.terrain] ?? p.terrain : "Unscouted"} · {p.x},{p.y}
         </strong>
         <button type="button" onClick={onClear}>
           Close
         </button>
       </div>
       <div style={{ opacity: 0.85, marginTop: 4 }}>
-        {NODE[p.node] ?? p.node} · Occupant: {occupant}
+        {seen ? NODE[p.node] ?? p.node : "Fog"} · Occupant: {occupant}
       </div>
       <div style={{ marginTop: 6, color: "#fef08a" }}>
         Companies out {marching}/{slots}
@@ -76,6 +81,16 @@ export function ProvinceInspect(props: {
           <span style={{ opacity: 0.75 }}>This is your hold. Zoom in to build.</span>
         ) : (
           <>
+            {!seen ? (
+              <button
+                type="button"
+                onClick={() =>
+                  act((s) => (tryScoutProvince(s, selectedId) ? "Scouts return with a map." : "Need 8 gold, or already seen."))
+                }
+              >
+                Scout (8 gold)
+              </button>
+            ) : null}
             <button
               type="button"
               disabled={full}
