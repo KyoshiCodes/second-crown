@@ -4,13 +4,16 @@ import {
   canTrade,
   countBuilding,
   currentSeason,
+  edgeWallCount,
   getBuildingType,
+  hasClosedWallRing,
   listBuildableTypes,
   listScarred,
   MARKET_OFFERS,
   settlementName,
   tryRepair,
   tryTrade,
+  wallHp,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
@@ -30,11 +33,14 @@ export function KingdomTab(props: {
   React.useEffect(() => setName(hold), [hold]);
   const season = state ? currentSeason(state) : "Spring";
   const scarred = state ? listScarred(state) : [];
+  const rim = state ? edgeWallCount(state, "player") : 0;
+  const closed = state ? hasClosedWallRing(state) : false;
+  const hp = state ? wallHp(state) : 0;
 
   return (
     <>
       <p style={{ fontSize: 13 }}>
-        {hold} · {season}. Select a building, then click an empty tile. Rim tiles (edges) are for Walls.
+        {hold} · {season}. Walls on the map edge count toward the ring ({rim}/8{closed ? ", closed" : ""}, {hp} wall HP).
       </p>
       {selected ? <p style={{ fontSize: 12, opacity: 0.8 }}>{selected.name}: {selected.blurb}</p> : null}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
