@@ -1,57 +1,38 @@
-﻿# Walkthrough — Gemini Pixel Army Tab & Board Marching Columns (`bakeoff/gemini-army`)
+# Astra map gathering
 
-## What changed
+This PR adds sim-only gathering on bakeoff/astra-gather. UI wiring is deferred to the presentation lane.
 
-1. **Pixel Silhouettes for Unit Icons (`packages/app/src/UnitIcon.tsx`)**:
-   - Replaced flat geometric chip portraits with authentic integer-pixel silhouettes in SVG, designed in the exact artistic language of hold walkers, keeps, and fortifications (`shapeRendering: "crispEdges"`).
-   - Built-in 2–3 frame marching/idle cadence (`0 -> 1 -> 0 -> 2` via `useUnitCadence`), directional facing (`facing = 1 | -1`), and faction tabard colors.
-   - Distinct weapons and gear for all 8 unit types:
-     - **Militia**: Spear-less peasant levy in homespun coarse wool (`#854d0e`), rope belt (`#a16207`), cloth coif (`#52525b`), unarmed/cudgel posture.
-     - **Spearman**: Steel kettle hat (`#94a3b8` / `#cbd5e1`), royal blue tabard (`#1e40af`), long ash spear with pointed steel spearhead (`#f1f5f9`), and round boss shield (`#1e3a8a` / `#facc15`).
-     - **Skirmisher**: Scout green coat (`#15803d`), leather coif (`#5c3818`), throwing javelins with steel barbs (`#cbd5e1`), and arm buckler.
-     - **Archer**: Deep forest coat (`#14532d`), feathered cap with quill (`#facc15`), recurve yew longbow (`#854d0e`), taut bowstring, nocked arrow, and back quiver.
-     - **Cavalry**: Warhorse mount (`#6b3a19`) with animated galloping legs, leather saddle, reins, and mounted armored lancer with royal blue tunic, steel helm, and pennant.
-     - **Knight**: Full steel plate harness (`#cbd5e1`), great helm with visor eye-slit (`#0f172a`), heraldic crimson heater shield (`#b91c1c`) with golden cross (`#facc15`), steel broadsword, and red mantle.
-     - **Siege Engine**: Sturdy timber carriage (`#5c3818`), spoked wooden wheels with iron rims, upright A-frame trestle, and throwing beam with counterweight bucket and granite boulder.
-     - **Champion**: Radiant gilded plate (`#f59e0b`), winged royal crown helm (`#fde047`), Tyrian purple tabard (`#581c87`), glowing runic broadsword (`#38bdf8`), and flowing crimson cape.
+## Behavior and API
 
-2. **Army Tab Roster & Visuals (`packages/app`)**:
-   - `ArmyTab.tsx`: Redesigned the recruitment roster from plain text buttons into rich medieval cards with animated pixel silhouettes, power ratings, training resource costs, and role blurbs. Added dedicated Champion recruitment card with gilded silhouette, custom name input, and hire actions.
-   - `ArmyVisual.tsx`: Raised companies in "Your Host" display company commander portraits alongside animated squad formations marching in 2–3 frame cadence with staggered offsets.
-   - `ProvinceInspect.tsx`: March column composer displays mini unit pixel icons beside each unit type row.
+- tryGather(state, provinceId, force) validates a known, nonnegative integer troop composition, reserves available troops and a march slot, then sends a column to a woodcut, quarry, or field. Empty forces, unavailable troops, enemy occupation, camps and holds are rejected without mutation.
+- listGathers(state) returns detached expedition records with outbound/gathering/returning phase, origin/target IDs, force, travel and event ticks, capacity, and current load. Quantities are decimal strings. Input troop counts retain the existing column API's safe-integer number convention.
+- tryRecallGather(state, gatherId) starts the return journey with the load already gathered. Recalling again returns false.
+- Resources and the original troop types return only at home arrival, once. Existing standing-army food upkeep can consume food on that same tick.
+- GatherSystem is appended to the existing SYSTEMS list. No clock, combat resolver, or server sim is introduced.
 
-3. **Board Meeple Reuse for Player Columns (`packages/render`)**:
-   - `primaryUnitTypeForMarch(march)`: Pure reader helper exported from `@second-crown/render` resolving the primary unit type for any column based on `march.force` counts and tier priority (champion > siege > knight > cavalry > archer > skirmisher > spearman > militia).
-   - `unitPalette(typeId)`: Pure palette/gear configuration helper exported from `@second-crown/render` mapping unit types to matching tabard, armor, weapon, and equipment attributes.
-   - `paintBoardMarches`: Marching columns on the regional tabletop board (`zoom <= 0.70`) now reuse the exact same sprites, colors, weapons, and 2–3 frame stride cadence as the Army tab. An archer column looks like an archer on the march; a knight column marches with great helm and heater shield; cavalry trots on a warhorse mount; siege engines roll on spoked wheels.
-   - Tabletop hardwood pedestal base, ground shadow, amber route trail, and floating ETA pill badge are fully preserved.
-   - Hostile marches strictly preserve their menacing red/iron war meeple with horned helm and glowing crimson visor.
+## Small deterministic choices
 
-4. **Invariants & Preservations**:
-   - `git diff main -- packages/sim server` is 100% empty. No combat math, march formulas, or server endpoints touched.
-   - ChromeDock, holidays, dim lanterns, inspect card, primer, and zoom/pan completely preserved.
+| Node | Cargo per troop | Ticks per cargo unit | Full loading ticks per troop |
+| --- | --- | --- | --- |
+| woodcut | 6 wood | 10 | 60 |
+| quarry | 4 stone | 20 | 80 |
+| field | 8 food | 5 | 40 |
 
-## Where
+Node throughput is fixed, so larger columns carry more and occupy the site longer. Travel uses 15 existing sim ticks per Manhattan step in either direction. Outbound recall retraces elapsed travel, with a minimum one-tick return. No cargo accrues on the arrival tick; incomplete cargo units are discarded on recall.
 
-- `packages/render/src/index.ts`:
-  - Added `primaryUnitTypeForMarch`, `unitPalette`, and `UnitVisualPalette`.
-  - Updated `paintBoardMarches` to render player columns with unit-specific animated meeples.
-- `packages/render/src/index.test.ts`:
-  - Added unit test suite for `primaryUnitTypeForMarch` and `unitPalette`.
-- `packages/app/src/UnitIcon.tsx`:
-  - Completely rewritten to render authentic integer-pixel SVG silhouettes with 2–3 frame cadence, facing, tabard colors, and weapons.
-- `packages/app/src/tabs/ArmyTab.tsx`:
-  - Redesigned unit roster and champion cards using `UnitIcon`.
-- `packages/app/src/ArmyVisual.tsx`:
-  - Display raised companies and squad march formations with `UnitIcon`.
-- `packages/app/src/ProvinceInspect.tsx`:
-  - Added unit icons to column composition rows.
-- Documentation cadence:
-  - `docs/HANDOFF.md`, `docs/CHANGELOG.md`, `docs/USER-NOTES.md`, `docs/DEV-NOTES.md`, `walkthrough.md`.
+A site is reserved at dispatch, preventing two outbound parties from claiming it; the reservation ends when returning starts. Returning parties still consume a march slot. Regular raids and gathers share maxMarches, checked before troops are removed. This also prevents rejected marches from consuming troops.
 
-## Verification
+Gathering does not deplete nodes, plant outposts, fight, or grant gold. It snapshots node type and capacity. If the node disappears or becomes enemy-owned before arrival, the party returns empty. Once loading starts it finishes or recalls using that snapshot; combat interception and depletion are outside this PR. Existing smash-and-grab raids remain available.
 
-- `npm test`: 90/90 sim tests pass.
-- `npm run test -w @second-crown/render`: 18/18 render tests pass (14 existing + 4 new).
-- `npm run build -w @second-crown/app`: `tsc -b && vite build` passes cleanly.
-- `git diff main -- packages/sim server`: verified 100% empty.
+State uses additive gathers_json and gather_serial flags, consistent with existing march storage. Old saves with neither flag mean no expeditions; current saves preserve active journeys. Successful actions record tick-stamped gather/recall_gather inputs. Force keys are sorted for stable serialization. Load derives from elapsed whole ticks rather than repeated additions.
+
+## Verification and limits
+
+- npm test: 104 tests passed, including 11 gather cases covering all node payouts, mixed troop restoration, recall in transit and while loading, reservation, shared slots, invalid orders, vanished targets, scaling, tick/settle equality, and save/reload.
+- npm run build -w @second-crown/app: passed.
+- git diff main -- packages/app packages/render server: empty.
+- tickEngine.ts changes only import/register GatherSystem.
+
+An existing limitation surfaced during testing: UpkeepSystem removes one starving militia per applyUpkeep call, so five single ticks and a five-tick analytic jump can differ (27 militia with no food becomes 22 versus 26). Fractional food arithmetic can also differ by batching. This PR does not rewrite upkeep or the tick engine. Gathering equivalence is tested with upkeep-exempt champions to isolate the new system; global offline equivalence under starvation is not claimed.
+
+Pre-existing package.json and untracked package-lock.json changes are excluded from this PR. Existing historical documentation, including old merge-marker text in DEV-NOTES, is not rewritten. No deployment or merge to main is performed.

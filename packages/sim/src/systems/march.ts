@@ -8,6 +8,7 @@ import { createRngStreams, type RngStreams } from "../core/rng.js";
 import { maxMarches } from "./labor.js";
 import { takeForce } from "./column.js";
 import { gateHp } from "./gate.js";
+import { listGathers } from "./gather.js";
 import { plantOutpost } from "./outpost.js";
 
 const GRID_W = 16;
@@ -134,7 +135,7 @@ function manhattan(a: Province, b: Province): number {
 
 function enqueueMarch(state: GameState, dest: Province, home: Province, levy: number, force?: Record<string, number>): boolean {
   const mine = marches(state).filter((m) => m.realmId === "player");
-  if (mine.length >= maxMarches(state)) return false;
+  if (mine.length + listGathers(state).length >= maxMarches(state)) return false;
   const dist = Math.max(1, manhattan(home, dest));
   let kind: March["kind"] = "node";
   if (dest.node === "camp") kind = "camp";
@@ -159,6 +160,7 @@ export function tryMarch(state: GameState, destId: string): boolean {
   const dest = getProvince(state, destId);
   const home = getProvince(state, state.board.homeProvinceId);
   if (!dest || !home || dest.id === home.id) return false;
+  if (marches(state).filter((m) => m.realmId === "player").length + listGathers(state).length >= maxMarches(state)) return false;
   const levy = takeLevy(state);
   if (levy < 1) return false;
   return enqueueMarch(state, dest, home, levy, { militia: levy });
@@ -168,6 +170,7 @@ export function tryMarchWith(state: GameState, destId: string, force: Record<str
   const dest = getProvince(state, destId);
   const home = getProvince(state, state.board.homeProvinceId);
   if (!dest || !home || dest.id === home.id) return false;
+  if (marches(state).filter((m) => m.realmId === "player").length + listGathers(state).length >= maxMarches(state)) return false;
   const clean: Record<string, number> = {};
   for (const [k, v] of Object.entries(force)) {
     const n = Math.floor(Number(v) || 0);

@@ -1,5 +1,10 @@
 # USER-NOTES
 
+## 2026-09-07 - Astra map gathering PR
+
+Astra PR preview, not deployed: troops can be sent on gathering expeditions to collect wood, stone, or food, staying until full or recalled. Larger parties carry more and stay longer. Supplies arrive only when troops reach home. A tile supports one gathering party, and expeditions use army march slots. This PR supplies simulation hooks only; gathering buttons and map visuals are not included.
+
+
 Last updated: 2026-09-07 | Version: playtest-0.12 (Gemini Army: Pixel Army Tab & Board Marching Columns)
 
 Play: `https://129.153.17.72.sslip.io/`

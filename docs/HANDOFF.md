@@ -1,5 +1,10 @@
 # HANDOFF
 
+## 2026-09-07 - Astra map gathering PR
+
+Astra map gathering is ready for PR review on bakeoff/astra-gather (not deployed). Sim exports tryGather, tryRecallGather, listGathers, GATHER_NODES and Gather. Expeditions travel, load wood/stone/food, and return before payout. Tile reservations and existing march slots prevent duplicate assignments. UI remains for the presentation lane. See walkthrough.md for tuning, API, persistence, and the pre-existing upkeep offline-equivalence limitation.
+
+
 Bakeoff Gemini Army lane delivered on branch `bakeoff/gemini-army` (PR into main unmerged).
 
 - **Pixel Walker Style for Army Tab Roster & Visuals (`packages/app`)**:
