@@ -32,12 +32,16 @@ export {
   walkerRoleForJob,
 } from "./systems/citizens.js";
 
+export { CULTURES, getCulture } from "./content/cultures.js";
+export type { CultureDef } from "./content/cultures.js";
+export { setPlayerCulture, playerCultureId, cultureOfRealm } from "./systems/culture.js";
+
 export { playerTitle, extraArchetypes } from "./content/world.js";
 
 export { EconomySystem, computeIncomePerSecond, productionBonus } from "./systems/economy.js";
 export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./systems/combat.js";
 export type { BattleResult } from "./systems/combat.js";
-export { RivalSystem } from "./systems/rival.js";
+export { RivalSystem, tickWorldPulse } from "./systems/rival.js";
 export { EventSystem, EVENT_PERIOD, getEventLog, getWorldLog, pushWorldLog } from "./systems/events.js";
 export type { WorldEvent } from "./systems/events.js";
 
