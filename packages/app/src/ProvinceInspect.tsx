@@ -2,7 +2,10 @@ import React from "react";
 import {
   activePlayerMarch,
   getProvince,
+  listMarches,
+  maxMarches,
   tryMarch,
+  tryMarchWith,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
@@ -36,10 +39,12 @@ export function ProvinceInspect(props: {
   const p = getProvince(state, selectedId);
   if (!p) return null;
   const home = selectedId === state.board.homeProvinceId;
-  const march = activePlayerMarch(state);
+  const marching = listMarches(state).filter((m) => m.realmId === "player").length;
+  const slots = maxMarches(state);
   const occupant = p.occupantRealmId
     ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
     : "None";
+  const full = marching >= slots;
   return (
     <div
       style={{
@@ -63,31 +68,43 @@ export function ProvinceInspect(props: {
       <div style={{ opacity: 0.85, marginTop: 4 }}>
         {NODE[p.node] ?? p.node} · Occupant: {occupant}
       </div>
-      {march ? (
-        <div style={{ marginTop: 6, color: "#fef08a" }}>
-          Company marching to {march.toId} · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
-        </div>
-      ) : null}
-      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+      <div style={{ marginTop: 6, color: "#fef08a" }}>
+        Companies out {marching}/{slots}
+      </div>
+      <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
         {home ? (
           <span style={{ opacity: 0.75 }}>This is your hold. Zoom in to build.</span>
         ) : (
-          <button
-            type="button"
-            disabled={Boolean(march)}
-            onClick={() =>
-              act((s) => {
-                if (activePlayerMarch(s)) return "Company already on the march.";
-                const ok = tryMarch(s, selectedId);
-                if (!ok) return "Cannot march there.";
-                const m = activePlayerMarch(s);
-                const eta = m ? m.arrivesTick - s.meta.tick : 0;
-                return `March ordered. ETA ${eta} ticks (${(eta / 10).toFixed(1)}s).`;
-              })
-            }
-          >
-            March here
-          </button>
+          <>
+            <button
+              type="button"
+              disabled={full}
+              onClick={() =>
+                act((s) => {
+                  const ok = tryMarch(s, selectedId);
+                  if (!ok) return "Need militia, or no free company slot.";
+                  const m = activePlayerMarch(s);
+                  const eta = m ? m.arrivesTick - s.meta.tick : 0;
+                  return `5 militia marching. ETA ${eta} ticks.`;
+                })
+              }
+            >
+              March 5 militia
+            </button>
+            <button
+              type="button"
+              disabled={full}
+              onClick={() =>
+                act((s) => {
+                  const ok = tryMarchWith(s, selectedId, { militia: 2, archer: 2 });
+                  if (!ok) return "Need 2 militia and 2 archers, or no slot.";
+                  return "Mixed column of 2 militia and 2 archers is away.";
+                })
+              }
+            >
+              March 2 militia + 2 archers
+            </button>
+          </>
         )}
       </div>
     </div>
