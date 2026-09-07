@@ -17,8 +17,6 @@ import {
   playerOpinionOfRival,
   playerTitle,
   getBuildingType,
-  tryMarch,
-  activePlayerMarch,
   getProvince,
   type GameState,
   type WorldEvent,
@@ -54,6 +52,7 @@ export function useGameEngine() {
   const [ascendReady, setAscendReady] = React.useState(false);
   const [ascendNeed, setAscendNeed] = React.useState(30_000);
   const [selectedBuild, setSelectedBuild] = React.useState<string | null>("farm");
+  const [selectedProvinceId, setSelectedProvinceId] = React.useState<string | null>(null);
   const [trainQty, setTrainQty] = React.useState(1);
   const [lastEvent, setLastEvent] = React.useState("");
   const [lastEventTick, setLastEventTick] = React.useState(0);
@@ -174,27 +173,16 @@ export function useGameEngine() {
             const eng = engineRef.current;
             if (!eng) return;
             const st = eng.getState();
+            setSelectedProvinceId(provinceId);
+            const dest = getProvince(st, provinceId);
+            const label = dest
+              ? `${dest.node !== "none" ? dest.node : dest.terrain} (${dest.x}, ${dest.y})`
+              : provinceId;
+            setStatus(provinceId === st.board.homeProvinceId ? `Your hold — ${label}.` : `Inspecting ${label}.`);
             if (provinceId === st.board.homeProvinceId) {
               mapRef.current?.setBand("hold");
               setCameraBand("hold");
-              return;
             }
-            act((s) => {
-              const dest = getProvince(s, provinceId);
-              const destName = dest
-                ? `${dest.node !== "none" ? dest.node.toUpperCase() : dest.terrain} (${dest.x}, ${dest.y})`
-                : provinceId;
-              if (activePlayerMarch(s)) {
-                return "Company already on the march. Await their return.";
-              }
-              const ok = tryMarch(s, provinceId);
-              if (ok) {
-                const m = activePlayerMarch(s);
-                const eta = m ? m.arrivesTick - s.meta.tick : 0;
-                return `March ordered to ${destName}! ETA: ${eta} ticks (${(eta / 10).toFixed(1)}s).`;
-              }
-              return `Cannot march to ${destName}.`;
-            });
           });
           map.onBandChange((newBand) => {
             setCameraBand(newBand);
@@ -322,6 +310,7 @@ export function useGameEngine() {
     power, prestige,
     ascendReady, ascendNeed,
     selectedBuild, setSelectedBuild,
+    selectedProvinceId, setSelectedProvinceId,
     trainQty, setTrainQty,
     lastEvent, lastEventTick, eventLog, worldLog,
     speed, setSpeed, paused, setPaused,
