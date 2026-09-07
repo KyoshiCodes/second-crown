@@ -144,7 +144,7 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     buildTicks: 40,
     cost: { wood: "8", stone: "12" },
     color: 0x718096,
-    blurb: "Each tower: +2 combat power",
+    blurb: "Each tower: +2 combat power and +1 board vision",
   },
   chapel: {
     id: "chapel",
@@ -172,6 +172,15 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     cost: { stone: "24", wood: "12" },
     color: 0x64748b,
     blurb: "Place on the hold rim. Eight rim walls close the ring",
+  },
+  gate: {
+    id: "gate",
+    name: "Gate",
+    productionPerTick: {},
+    buildTicks: 90,
+    cost: { stone: "28", wood: "16", gold: "6" },
+    color: 0x92400e,
+    blurb: "Place on the hold rim. +30 wall HP while the gate sits on an edge tile",
   },
   keep: {
     id: "keep",
