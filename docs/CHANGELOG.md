@@ -2,6 +2,26 @@
 
 Newest first.
 
+## 2026-09-07 — Gemini Academy & Siege Workshop Art, Scriptorium Lectern & Board Outpost Flags (`bakeoff/gemini-academy`)
+
+- **Distinct Isometric Academy & Polished Siege Workshop (`packages/render`)**:
+  - `drawIsometricBuilding`: Dedicated architectural rendering for `case "academy":` featuring flared sandstone ashlar foundation plinth, limestone facade with buttress pilasters, arched cloister colonnade with marble pillars, Gothic library windows glowing with warm honey candlelight and diamond lattice mullions, steep royal sapphire slate roof with gilded coping, elevated observatory cupola with aged verdigris copper dome, fluttering blue/gold scholar gonfalon, rotating brass armillary astrolabe with celestial rings, and forecourt stone reading lectern with open illuminated vellum folio and brass celestial globe.
+  - `drawIsometricBuilding`: Polished `case "siege_workshop":` from a generic flat polygon box into an authentic heavy siege ordnance yard with timber framing, master engineer's blueprint drafting desk, timber A-frame gantry crane derrick, assembled heavy trebuchet with four spoked wheels and counterweight box, chained pyramid of granite siege boulders, and smoldering ordnance forge hearth with iron anvil.
+- **Scriptorium Lectern / Study Card (`packages/app`)**:
+  - `ResearchBar.tsx` & `theme.css`: Overhauled research bar from two raw `<button>`s into an illuminated medieval Scriptorium Lectern study card.
+  - Dynamic cost binding: Directly reads `@second-crown/sim`'s exported `RESEARCH[id].cost` and `RESEARCH[id].needs`, displaying resource chips with real-time affordability indicators.
+  - Displays unit unlock tags featuring miniature integer-pixel walker silhouettes (`UnitIcon`).
+  - Clear state rendering for Mastered (golden seal), in-progress study (active progress bar with remaining countdown), and available study actions with disabled reason hints.
+- **Board Outpost Flags & Gather Expedition Stubbing (`packages/render`)**:
+  - `paintBoardProvinces`: Distinguishes player home hold from player-occupied field tiles / outposts. Outposts display a dedicated Outpost / Flag Token with royal blue & gold border trim, 4 brass corner pins, stone cairn anchor, tall wooden flagpole with waving royal standard, field bivouac tent, and "OUTPOST" plaque.
+  - `paintBoardGathers` & `listGathersPresentation`: Safely stubs gather expedition queries and renders foraging routes and pack carts when present, cleanly skipping when Astra's lane is unmerged.
+  - Exported pure helpers `isOutpostProvince` and `listGathersPresentation`.
+- **Automated Tests & Purity**:
+  - Added unit test suites in `packages/render/src/index.test.ts` for `isOutpostProvince` and `listGathersPresentation`.
+  - All 20/20 render tests and 93/93 sim tests pass.
+  - Production build clean (`npm run build -w @second-crown/app`).
+  - `git diff main -- packages/sim server` 100% empty. All existing features preserved.
+
 ## 2026-09-07 — Gemini Pixel Army Tab & Board Marching Columns (`bakeoff/gemini-army`)
 
 - **Pixel Walker Style for Army Tab Roster & Visuals (`packages/app`)**:

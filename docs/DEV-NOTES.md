@@ -2,6 +2,55 @@
 
 Last updated: 2026-09-07
 
+## Presentation Architecture: Academy & Siege Workshop Art, Scriptorium Lectern & Board Outposts (`bakeoff/gemini-academy`)
+
+- **Distinct Isometric Academy Architecture (`packages/render/src/index.ts`)**:
+  - Added dedicated `case "academy":` to `drawIsometricBuilding`:
+    - Base height `h = 26 + heightBoost` (`heightBoost = (lvl - 1) * 3`).
+    - Flared sandstone ashlar plinth (`0x475569` / `0x334155`), warm limestone dual-facet masonry walls (`0xf1f5f9` / `0x94a3b8`), buttress pilasters at the corners and facade, and horizontal stringcourse.
+    - Arched cloister arcade entrance: dark vaulted portal (`0x0f172a`), twin marble columns with capitals, triangular classical pediment, and stone entrance steps.
+    - Gothic library casement windows with warm honey candlelight (`0xfef08a` / `0xfde047`) and diamond-pane mullion cross with animated candle flicker (`phase * 4`).
+    - High steep regal sapphire slate roof (`0x1e3a8a`), gilded ridge coping (`0xfacc15`), and elevated stone observatory cupola with aged verdigris copper dome (`0x0f766e`).
+    - Perched brass armillary astrolabe with central brass sphere and rotating celestial coordinate rings (`Math.sin(phase * 2.8)`).
+    - Fluttering scholar's gonfalon (`0x2563eb`).
+    - Forecourt scholarly vignette: stone reading lectern with open illuminated vellum folio with ink script, brass celestial globe on tripod stand, and manuscript scroll bins.
+    - Integrated holiday dressings for Midwinter, Easter, Harvest, Midsummer, and Halloween.
+
+- **Polished Siege Engineering Yard & Forge (`packages/render/src/index.ts`)**:
+  - Completely replaced the previous flat generic box for `case "siege_workshop":`:
+    - Crushed stone apron with squared timber sleepers (`0x5c3818`).
+    - Timber-framed workshop pavilion with heavy oak posts, blackened iron joint straps, and rafter canopy.
+    - Master Engineer's drafting table under the canopy with blue vellum blueprint draft (`0x0284c7`) and brass calipers.
+    - Timber A-frame gantry crane derrick with iron pulley wheel and hoist rope.
+    - Assembled heavy trebuchet: wheeled timber carriage on four spoked wooden wheels with iron rims, upright cross-braced A-frame trestles, bronze pivot axle, heavy tapered oak throwing arm angled skyward, iron-riveted counterweight box with steel rivets, and sling release hook.
+    - Chained pyramid of carved granite siege boulders (`0x78716c`, `0x64748b`, `0xa8a29e`) secured with iron tether chain.
+    - Smoldering ordnance forge hearth with flickering orange/yellow hot embers (`0xea580c` / `0xfacc15`), iron anvil, and ball-peen hammer.
+
+- **Scriptorium Lectern / Study Card & Sim Binding (`packages/app/src/ResearchBar.tsx` & `theme.css`)**:
+  - Replaced the two raw `<button>`s with an illuminated medieval study card (`sc-realm-card sc-research-lectern`).
+  - Reads resource costs and requirements dynamically from `@second-crown/sim`'s exported `RESEARCH[id].cost` and `RESEARCH[id].needs`, preserving sim purity without hardcoded strings.
+  - Dynamically evaluates resource affordability with `D(state.resources[res] ?? "0").gte(costStr)` and building prerequisites via `countBuilding(state, def.needs)` (with fallback support for `academy` on horse lore).
+  - Unlocked units are previewed using integer-pixel `UnitIcon` silhouettes (Cavalry & Knight for horse; Siege Engine for siege).
+  - Clean state transitions: gilded seal when Mastered, animated progress bar with countdown when studying, and action button with disabled reason tooltips when not started.
+
+- **Board Outpost Flags & Gather Expedition Compatibility Stub (`packages/render/src/index.ts`)**:
+  - `paintBoardProvinces`: Distinguishes player home hold (`p.id === state.board.homeProvinceId`) from player outposts (`p.occupantRealmId === "player" && p.id !== state.board.homeProvinceId`).
+    - Home Hold: Preserves gilded royal frame, golden corner studs, golden crown emblem, crimson/gold plaque, and animated halo pulse.
+    - Outposts (captured camps and field tiles): Renders dedicated Outpost / Flag Token with royal blue & gold border trim (`0x2563eb` / `0xfacc15`), 4 brass corner pins, stone cairn anchor, tall wooden flagpole with brass ball finial, waving royal player swallowtail standard (`0x1e40af` with golden cross), field bivouac tent, and bottom "OUTPOST" plaque.
+  - `listGathersPresentation(state)`: Pure reader that safely stubs gather expedition queries (`(state as any).gathers`), returning empty array when Astra's lane is unmerged and ready to read expeditions once merged.
+  - `paintBoardGathers`: Renders green/amber foraging trails and pack-cart gatherer pawns on the board for active gather expeditions.
+  - Exported pure helpers `isOutpostProvince` and `listGathersPresentation`.
+
+- **Unit Tests (`packages/render/src/index.test.ts`)**:
+  - Added test suite for `isOutpostProvince` verifying discrimination between home hold, player outposts, rival holds, and unowned tiles.
+  - Added test suite for `listGathersPresentation` verifying safe fallback and future gather expedition compatibility.
+
+- **Sim & Server Purity**:
+  - `git diff main -- packages/sim server` is strictly empty. No sim rules, combat logic, tick rates, or server routes touched.
+  - Automated tests passing: 93/93 in `@second-crown/sim`, 20/20 in `@second-crown/render`.
+  - App production build clean (`npm run build -w @second-crown/app`).
+  - ChromeDock, holidays, dim lanterns, inspect card, primer, and zoom/pan fully preserved.
+
 ## Presentation Architecture: Pixel Army Tab Roster & Board Marching Columns (`bakeoff/gemini-army`)
 
 - **Integer-Pixel Unit Icon Silhouettes (`packages/app/src/UnitIcon.tsx`)**:

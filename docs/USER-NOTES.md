@@ -1,8 +1,57 @@
 # USER-NOTES
 
-Last updated: 2026-09-07 | Version: playtest-0.12 (Gemini Army: Pixel Army Tab & Board Marching Columns)
+Last updated: 2026-09-07 | Version: playtest-0.13 (Gemini Academy: Scriptorium Lectern, Distinct Academy & Siege Workshop, Board Outpost Flags)
 
 Play: `https://129.153.17.72.sslip.io/`
+
+## Scriptorium Lectern · Realm Lore & Research
+
+The research interface has evolved from plain buttons into an illuminated medieval study card:
+
+1. **Illuminated Study Cards**:
+   - Both **Horse lore** and **Siege craft** are presented on illuminated parchment study cards complete with thematic icons, historical lore blurbs, and estimated research duration.
+   - Dynamic resource chips clearly display costs and reflect your realm's current stockpile in real-time (green when affordable, red when missing).
+   - Building prerequisites (Barracks or Academy for Horse lore; Siege Workshop for Siege craft) clearly state their status.
+
+2. **Military Unit Previews**:
+   - Each study card displays the exact units it unlocks with miniature animated pixel silhouettes:
+     - **Horse lore**: Unlocks the mounted **Cavalry** lancer and fully armored plate **Knight**.
+     - **Siege craft**: Unlocks the heavy wheeled **Siege Engine** trebuchet.
+
+3. **Active Scholar Progress & Mastered Seals**:
+   - When scribes are at work on a treatise, an animated golden progress bar tracks completion percentage alongside a live countdown timer.
+   - Once researched, cards receive a permanent gilded royal seal: `✓ Mastered · Ready to train`.
+
+## Distinct Academy & Heavy Siege Workshop Architecture
+
+1. **Collegiate Academy (Seat of Lore & Astronomy)**:
+   - When constructed, the Academy stands out as an architectural centerpiece on the isometric hold:
+     - **Ashlar Facade & Cloister Colonnade**: Flared foundation plinth, limestone walls with buttresses, and an arched marble entrance colonnade.
+     - **Gothic Library Windows**: Arched casement windows glowing with warm honey candlelight and diamond-pane leaded mullions.
+     - **Sapphire Slate Roof & Observatory Spire**: Regal sapphire slate roof topped by an elevated stone observatory cupola with an aged verdigris copper dome and fluttering scholar gonfalon.
+     - **Armillary Astrolabe**: A gleaming brass astrolabe rotates above the dome with celestial coordinate rings.
+     - **Courtyard Vignette**: A stone reading lectern with an open illuminated leather-bound folio, a brass celestial globe on a tripod stand, and manuscript scroll bins.
+
+2. **Polished Siege Engineering Yard & Forge**:
+   - The Siege Workshop is no longer a generic box—it is a bustling military ordnance yard:
+     - Heavy timber-framed pavilion sheltering the Master Engineer's drafting table with blue vellum blueprint drafts and brass calipers.
+     - Timber A-frame gantry crane derrick with iron pulley and hoist ropes.
+     - Fully assembled heavy trebuchet on four spoked wooden wheels with iron rims, cross-bracing, solid oak throwing arm, and iron counterweight box.
+     - Chained pyramid of carved granite siege boulders and a smoldering ordnance forge hearth with glowing coals and anvil.
+
+## Board Outpost Flags on Captured Field Tiles
+
+1. **Clear Strategic Distinction**:
+   - Your Home Hold (`x=2, y=2`) strictly retains its grand gilded royal frame, golden corner studs, imperial crown, and pulsing golden aura.
+   - Captured resource nodes and camps (turned into field outposts) now fly dedicated **Outpost / Flag Tokens**:
+     - Crisp royal blue & brass outer border trim with 4 brass corner pins.
+     - Field stone cairn anchoring a tall wooden flagstaff with a brass ball finial.
+     - Waving royal player swallowtail standard fluttering in the wind with golden heraldic insignia.
+     - Canvas bivouac supply tent and a bottom "OUTPOST" plaque.
+   - Players can now survey their territorial holdings at a glance at 0.58 regional zoom!
+
+2. **Gather Expedition Compatibility**:
+   - The regional board renderer includes seamless support for gather expeditions, automatically rendering foraging paths and pack-cart pawns when gather columns are dispatched.
 
 ## Living Pixel Army Roster & Board Marching Columns
 

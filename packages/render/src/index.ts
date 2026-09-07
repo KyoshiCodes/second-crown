@@ -1500,25 +1500,296 @@ function drawIsometricBuilding(
       break;
     }
 
+    case "academy": {
+      // Grand Collegiate Academy: Sandstone Ashlar Hall + Arched Cloister Arcade +
+      // Gothic Stained/Lattice Library Windows + Royal Sapphire Slate Roof +
+      // Central Observatory Cupola with Rotating Brass Armillary Astrolabe +
+      // Scriptorium Lectern with Open Illuminated Folio + Celestial Globe
+      const h = 26 + heightBoost;
+
+      // 1. Foundation Plinth
+      g.poly([-17, 1, 0, 9.5, 0, 7.5, -17, -1]);
+      g.fill({ color: 0x475569, alpha: a });
+      g.poly([0, 9.5, 17, 1, 17, -1, 0, 7.5]);
+      g.fill({ color: 0x334155, alpha: a });
+
+      // 2. Collegiate Main Hall Ashlar Walls (Sunlit SW / Shaded SE)
+      g.poly([-15, 0, 0, 7.5, 0, 7.5 - h, -15, 0 - h]);
+      g.fill({ color: 0xf1f5f9, alpha: a });
+      g.poly([0, 7.5, 15, 0, 15, 0 - h, 0, 7.5 - h]);
+      g.fill({ color: 0x94a3b8, alpha: a });
+
+      // Buttress pilasters at corners and facade
+      g.poly([-16, 0 - h, -14, 1 - h, -14, 1, -16, 0]);
+      g.fill({ color: 0xe2e8f0, alpha: a });
+      g.poly([-8, 4 - h, -6, 5 - h, -6, 5, -8, 4]);
+      g.fill({ color: 0xe2e8f0, alpha: a });
+      g.poly([6, 4.5 - h, 8, 3.5 - h, 8, 3.5, 6, 4.5]);
+      g.fill({ color: 0x64748b, alpha: a });
+      g.poly([14, 0.5 - h, 16, -0.5 - h, 16, -0.5, 14, 0.5]);
+      g.fill({ color: 0x64748b, alpha: a });
+
+      // Horizontal decorative stringcourse / cornice
+      g.moveTo(-15, 0 - h * 0.55); g.lineTo(0, 7.5 - h * 0.55); g.lineTo(15, 0 - h * 0.55);
+      g.stroke({ width: 1.2, color: 0x64748b, alpha: a });
+
+      // 3. Arched Cloister Arcade Entrance with Marble Columns & Classical Pediment
+      // Dark vaulted interior doorway
+      g.poly([-4, 5, 0, 7, 4, 5, 4, 1, 0, 3, -4, 1]);
+      g.fill({ color: 0x0f172a, alpha: a });
+      // Flanking marble columns with capitals
+      g.rect(-4.5, 0.8, 1.3, 4.2); g.fill({ color: 0xf8fafc, alpha: a });
+      g.rect(3.2, 0.8, 1.3, 4.2); g.fill({ color: 0xf8fafc, alpha: a });
+      // Classical triangular pediment & lintel
+      g.poly([-5, 1, 0, -2.5, 5, 1]);
+      g.fill({ color: 0xcbd5e1, alpha: a });
+      g.stroke({ width: 0.8, color: 0x64748b, alpha: a });
+      // Stone entrance steps
+      g.poly([-5, 5.5, 0, 8, 5, 5.5, 0, 6.5]);
+      g.fill({ color: 0x64748b, alpha: a });
+
+      // 4. Arched Gothic Library Casement Windows with Warm Honey Candlelight
+      const candleFlicker = 0.85 + Math.sin(phase * 4) * 0.12;
+      // West library window
+      g.rect(-12, -h * 0.45, 4.2, 6.5);
+      g.fill({ color: 0xfef08a, alpha: a * candleFlicker });
+      g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
+      // Window mullion cross
+      g.moveTo(-10, -h * 0.45); g.lineTo(-10, -h * 0.45 + 6.5);
+      g.moveTo(-12, -h * 0.45 + 3.2); g.lineTo(-7.8, -h * 0.45 + 3.2);
+      g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+
+      // East library window
+      g.rect(7, -h * 0.45, 4.2, 6.5);
+      g.fill({ color: 0xfde047, alpha: a * (0.8 + Math.cos(phase * 3.2) * 0.12) });
+      g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
+      g.moveTo(9.1, -h * 0.45); g.lineTo(9.1, -h * 0.45 + 6.5);
+      g.moveTo(7, -h * 0.45 + 3.2); g.lineTo(11.2, -h * 0.45 + 3.2);
+      g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+
+      // 5. Steep Royal Sapphire Slate Roof with Overhang & Gilded Ridge Coping
+      g.poly([
+        -17, -h,
+        0, 9 - h - 11,
+        17, 0 - h,
+        0, -h - 18,
+      ]);
+      g.fill({ color: 0x1e3a8a, alpha: a });
+      // Shaded roof facet
+      g.poly([
+        0, 9 - h - 11,
+        17, 0 - h,
+        0, -h - 18,
+      ]);
+      g.fill({ color: 0x172554, alpha: a * 0.5 });
+      // Gilded ridge coping
+      g.moveTo(-17, -h); g.lineTo(0, 9 - h - 11); g.lineTo(17, 0 - h);
+      g.stroke({ width: 1.4, color: 0xfacc15, alpha: a });
+
+      // 6. Central Elevated Observatory Cupola & Verdigris Dome
+      g.rect(-5, -h - 17, 10, 8);
+      g.fill({ color: 0xe2e8f0, alpha: a });
+      g.stroke({ width: 0.8, color: 0x94a3b8, alpha: a });
+      // Cupola arched observation openings
+      g.rect(-3.5, -h - 15, 2, 4); g.fill({ color: 0x0f172a, alpha: a });
+      g.rect(1.5, -h - 15, 2, 4); g.fill({ color: 0x0f172a, alpha: a });
+      // Aged copper / verdigris dome
+      g.poly([-6, -h - 17, 0, -h - 25, 6, -h - 17]);
+      g.fill({ color: 0x0f766e, alpha: a });
+      g.stroke({ width: 0.8, color: 0x115e59, alpha: a });
+
+      // 7. Perched Brass Armillary Astrolabe & Rotating Celestial Rings
+      g.moveTo(0, -h - 25); g.lineTo(0, -h - 31);
+      g.stroke({ width: 1.4, color: 0xd4a359, alpha: a });
+      // Central brass globe
+      g.circle(0, -h - 29, 2.2);
+      g.fill({ color: 0xfacc15, alpha: a });
+      // Rotating celestial rings
+      const ringOsc = Math.sin(phase * 2.8) * 1.5;
+      g.ellipse(0, -h - 29, 4.2, 2.0 + ringOsc * 0.8);
+      g.stroke({ width: 0.9, color: 0xfde047, alpha: a });
+
+      // 8. Scholar's Gonfalon / Banner
+      const pennantWave = Math.sin(phase * 3.5) * 2;
+      g.poly([0, -h - 21, 7 + pennantWave, -h - 18, 0, -h - 15]);
+      g.fill({ color: 0x2563eb, alpha: a });
+      g.poly([0, -h - 19, 4 + pennantWave * 0.6, -h - 18, 0, -h - 17]);
+      g.fill({ color: 0xfacc15, alpha: a });
+
+      // 9. Forecourt Scholarly Vignette: Reading Lectern with Open Illuminated Tome & Celestial Globe
+      // Stone Reading Lectern
+      g.rect(-11.5, 3, 2.8, 4.2);
+      g.fill({ color: 0x64748b, alpha: a });
+      g.poly([-13.5, 2.5, -8.5, 4.8, -8.5, 3, -13.5, 0.7]);
+      g.fill({ color: 0x78350f, alpha: a });
+      // Open illuminated vellum leaves
+      g.poly([-13, 2, -9, 3.8, -9, 2.2, -13, 0.4]);
+      g.fill({ color: 0xfef3c7, alpha: a });
+      // Ink script markings
+      g.moveTo(-12.2, 1.4); g.lineTo(-10, 2.4);
+      g.stroke({ width: 0.6, color: 0x1e293b, alpha: a });
+
+      // Brass Celestial Globe on Tripod Stand in right foreground
+      g.moveTo(10.5, 6.5); g.lineTo(12, 3); g.lineTo(13.5, 6.5);
+      g.stroke({ width: 0.9, color: 0x78350f, alpha: a });
+      g.circle(12, 2.5, 2.2);
+      g.fill({ color: 0x0284c7, alpha: a });
+      g.ellipse(12, 2.5, 2.6, 1.0);
+      g.stroke({ width: 0.7, color: 0xfacc15, alpha: a });
+
+      // Stacked manuscript scroll bins
+      g.rect(7.5, 4.5, 2.5, 3);
+      g.fill({ color: 0x5c3818, alpha: a });
+      g.circle(8.2, 4.2, 0.9); g.fill({ color: 0xfef3c7, alpha: a });
+      g.circle(9.3, 4.2, 0.9); g.fill({ color: 0xfef3c7, alpha: a });
+
+      // Foundation Level Pips
+      for (let i = 0; i < lvl; i++) {
+        g.circle(-5 + i * 2.5, 7.5, 0.9);
+        g.fill({ color: 0xfacc15, alpha: a });
+      }
+      break;
+    }
+
     case "siege_workshop": {
-      // Denser Engineering Yard + Rigged Catapult + Boulder Pyramid + Blueprints
-      const h = 18 + heightBoost;
-      g.poly([-14, 0, 0, 7, 0, 7 - h, -14, 0 - h]);
-      g.fill({ color: 0x57534e, alpha: a });
-      g.poly([0, 7, 14, 0, 14, 0 - h, 0, 7 - h]);
-      g.fill({ color: 0x44403c, alpha: a });
+      // Heavy Siege Ordnance Yard & Master Engineer's Forge:
+      // Timber-framed Drafting Workshop + Gantry Crane Derrick +
+      // Trebuchet Chassis with Four Spoked Wheels & Pivot Arm +
+      // Chained Pyramid of Granite Siege Boulders + Weapon Smithing Forge
+      const h = 20 + heightBoost;
 
-      // Heavy Wooden Catapult / Trebuchet
-      g.moveTo(-6, 3); g.lineTo(6, -16);
+      // 1. Crushed Stone Apron & Squared Timber Sleepers
+      g.poly([-16, 0, 0, 8, 0, 8 - h * 0.4, -16, 0 - h * 0.4]);
+      g.fill({ color: 0x3f3f46, alpha: a });
+      g.poly([0, 8, 16, 0, 16, 0 - h * 0.4, 0, 8 - h * 0.4]);
+      g.fill({ color: 0x27272a, alpha: a });
+
+      // Squared foundation timbers
+      g.moveTo(-14, 2); g.lineTo(-2, 7.5);
+      g.stroke({ width: 2, color: 0x5c3818, alpha: a });
+      g.moveTo(2, 7.5); g.lineTo(14, 2);
+      g.stroke({ width: 2, color: 0x5c3818, alpha: a });
+
+      // 2. Timber-Framed Open Workshop Pavilion (Left Yard)
+      // Upright oak timber posts with iron joint bands
+      for (const px of [-14, -8, -2]) {
+        const py = (px + 14) * 0.4;
+        g.moveTo(px, py); g.lineTo(px, py - h);
+        g.stroke({ width: 2.2, color: 0x78350f, alpha: a });
+        // Blackened iron straps
+        g.rect(px - 1.2, py - h * 0.45, 2.4, 1.4);
+        g.fill({ color: 0x18181b, alpha: a });
+      }
+      // Workshop Rafters & Shingled Canopy
+      g.poly([
+        -16, -h + 2,
+        0, 8 - h,
+        -1, -h - 6,
+        -17, -h - 3,
+      ]);
+      g.fill({ color: 0x543007, alpha: a });
+      g.moveTo(-16, -h + 2); g.lineTo(0, 8 - h);
+      g.stroke({ width: 1.4, color: 0xa16207, alpha: a });
+
+      // Master Engineer's Drafting Table under canopy
+      g.rect(-11, 0, 6, 3.2);
+      g.fill({ color: 0x451a03, alpha: a });
+      // Blue vellum blueprint draft
+      g.rect(-10.2, -0.6, 4.4, 2.4);
+      g.fill({ color: 0x0284c7, alpha: a });
+      // White draft lines / compass arcs
+      g.moveTo(-9.5, 0.4); g.lineTo(-6.5, 0.4);
+      g.stroke({ width: 0.6, color: 0xffffff, alpha: a * 0.8 });
+      // Brass calipers
+      g.moveTo(-7.5, 1.2); g.lineTo(-6.8, 1.8);
+      g.stroke({ width: 0.8, color: 0xfacc15, alpha: a });
+
+      // Timber Gantry Crane / Derrick on roof
+      g.moveTo(-12, -h - 2); g.lineTo(-5, -h - 15); g.lineTo(2, -h - 2);
+      g.stroke({ width: 2, color: 0x78350f, alpha: a });
+      // Pulley wheel & hoist rope
+      g.circle(-5, -h - 15, 2); g.fill({ color: 0x18181b, alpha: a });
+      g.moveTo(-5, -h - 13); g.lineTo(-5, -h - 3);
+      g.stroke({ width: 1, color: 0xd4a359, alpha: a });
+
+      // 3. Assembled Trebuchet / Heavy Catapult (Center Yard)
+      // Wheeled timber carriage frame
+      g.moveTo(-4, 4); g.lineTo(8, -1);
+      g.stroke({ width: 3.5, color: 0x5c3818, alpha: a });
+
+      // Four spoked wooden wheels with iron rims
+      const wheelList = [
+        { x: -3.5, y: 5 },
+        { x: 2, y: 7.2 },
+        { x: 3.5, y: 1 },
+        { x: 8.5, y: 2.8 },
+      ];
+      for (const w of wheelList) {
+        // Dark iron tire
+        g.circle(w.x, w.y, 3); g.fill({ color: 0x292524, alpha: a });
+        // Wood hub & spokes
+        g.circle(w.x, w.y, 2); g.fill({ color: 0x78350f, alpha: a });
+        g.circle(w.x, w.y, 0.8); g.fill({ color: 0xd1d5db, alpha: a }); // Iron hub pin
+      }
+
+      // Upright A-frame trestle supports
+      g.moveTo(0, 3); g.lineTo(2.5, -10); g.lineTo(5, 1);
+      g.stroke({ width: 2.2, color: 0x78350f, alpha: a });
+      // Bronze pivot axle
+      g.circle(2.5, -10, 1.6); g.fill({ color: 0xd97706, alpha: a });
+
+      // Heavy Tapered Oak Throwing Arm (angled into the sky)
+      g.moveTo(-2, 0); g.lineTo(9, -21);
       g.stroke({ width: 3.2, color: 0x78350f, alpha: a });
-      g.circle(-6, 5, 3.5); g.fill({ color: 0x292524, alpha: a }); // Spoked wheel
-      g.circle(5, 3, 3.5); g.fill({ color: 0x292524, alpha: a }); // Spoked wheel
-      g.rect(-9, -2, 5, 4); g.fill({ color: 0x1c1917, alpha: a }); // Counterweight box
+      g.moveTo(-1, -1); g.lineTo(8.5, -20);
+      g.stroke({ width: 1.2, color: 0xb45309, alpha: a }); // highlight
 
-      // Projectile Boulder Pyramid
-      g.circle(9, 4, 2.2); g.fill({ color: 0xa8a29e, alpha: a });
-      g.circle(12, 2, 2.2); g.fill({ color: 0x78716c, alpha: a });
-      g.circle(10.5, 1, 2); g.fill({ color: 0x94a3b8, alpha: a });
+      // Heavy Iron-Riveted Counterweight Box
+      g.rect(-6, -1, 5.5, 5);
+      g.fill({ color: 0x18181b, alpha: a });
+      g.stroke({ width: 0.8, color: 0x52525b, alpha: a });
+      // Steel rivets on counterweight
+      g.circle(-5, 0.5, 0.6); g.fill({ color: 0xd1d5db, alpha: a });
+      g.circle(-2, 0.5, 0.6); g.fill({ color: 0xd1d5db, alpha: a });
+      g.circle(-3.5, 2.5, 0.6); g.fill({ color: 0xd1d5db, alpha: a });
+
+      // Sling release hook and rope at arm tip
+      g.moveTo(9, -21); g.lineTo(10.5, -24);
+      g.stroke({ width: 1, color: 0xd4a359, alpha: a });
+      g.circle(10.5, -24, 1.2); g.fill({ color: 0xfacc15, alpha: a });
+
+      // 4. Chained Granite Siege Boulder Pyramid (Right Yard)
+      // Bottom layer (3 granite boulders)
+      g.circle(8.5, 4.5, 2.4); g.fill({ color: 0x78716c, alpha: a });
+      g.circle(13, 2.5, 2.4); g.fill({ color: 0x64748b, alpha: a });
+      g.circle(10.8, 1, 2.2); g.fill({ color: 0x78716c, alpha: a });
+      // Middle layer (2 boulders)
+      g.circle(9.8, 2.8, 2.1); g.fill({ color: 0xa8a29e, alpha: a });
+      g.circle(12.2, 1.2, 2.1); g.fill({ color: 0x94a3b8, alpha: a });
+      // Top apex boulder with highlight
+      g.circle(11, -0.2, 2.0); g.fill({ color: 0xcbd5e1, alpha: a });
+      // Iron tether chain
+      g.moveTo(7.5, 5.5); g.lineTo(11, 0.8); g.lineTo(14.5, 3.5);
+      g.stroke({ width: 0.8, color: 0x1e293b, alpha: a * 0.8 });
+
+      // 5. Ordnance Forge Hearth & Smoldering Coals (Forecourt)
+      g.ellipse(13, 6, 3, 2);
+      g.fill({ color: 0x475569, alpha: a });
+      const forgeFlame = Math.sin(phase * 5) * 0.3;
+      g.circle(13, 5.5, 1.8 + forgeFlame);
+      g.fill({ color: 0xea580c, alpha: a * 0.95 });
+      g.circle(13, 5.5, 1.1);
+      g.fill({ color: 0xfacc15, alpha: a });
+      // Anvil on oak block
+      g.rect(10, 6.5, 2.2, 2.2); g.fill({ color: 0x5c3818, alpha: a });
+      g.poly([9.5, 6.5, 12.5, 6.5, 11.5, 5.5, 9.8, 5.5]);
+      g.fill({ color: 0x18181b, alpha: a });
+
+      // Foundation Level Pips
+      for (let i = 0; i < lvl; i++) {
+        g.circle(-3 + i * 2.5, 8.2, 0.9);
+        g.fill({ color: 0xfacc15, alpha: a });
+      }
       break;
     }
 
@@ -2943,39 +3214,97 @@ function paintBoardProvinces(g: Graphics, state: GameState, phase: number): void
 
     // 6. Special Realm Occupant Token Overlays
     if (p.occupantRealmId === "player") {
-      // Player Home Hold: Gilded Royal Frame with corner studs & crown
-      g.rect(b.x, b.y, b.w, b.h);
-      g.stroke({ width: 2, color: 0xfacc15 });
+      const isHome = p.id === state.board.homeProvinceId;
+      if (isHome) {
+        // Player Home Hold: Gilded Royal Frame with corner studs & crown
+        g.rect(b.x, b.y, b.w, b.h);
+        g.stroke({ width: 2, color: 0xfacc15 });
 
-      // Inner golden border highlight
-      g.rect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
-      g.stroke({ width: 1, color: 0xfef08a, alpha: 0.6 });
+        // Inner golden border highlight
+        g.rect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
+        g.stroke({ width: 1, color: 0xfef08a, alpha: 0.6 });
 
-      // 4 Corner Golden Studs
-      g.circle(b.x + 3.5, b.y + 3.5, 1.6); g.fill({ color: 0xfde047 });
-      g.circle(b.x + b.w - 3.5, b.y + 3.5, 1.6); g.fill({ color: 0xfde047 });
-      g.circle(b.x + 3.5, b.y + b.h - 3.5, 1.6); g.fill({ color: 0xfde047 });
-      g.circle(b.x + b.w - 3.5, b.y + b.h - 3.5, 1.6); g.fill({ color: 0xfde047 });
+        // 4 Corner Golden Studs
+        g.circle(b.x + 3.5, b.y + 3.5, 1.6); g.fill({ color: 0xfde047 });
+        g.circle(b.x + b.w - 3.5, b.y + 3.5, 1.6); g.fill({ color: 0xfde047 });
+        g.circle(b.x + 3.5, b.y + b.h - 3.5, 1.6); g.fill({ color: 0xfde047 });
+        g.circle(b.x + b.w - 3.5, b.y + b.h - 3.5, 1.6); g.fill({ color: 0xfde047 });
 
-      // Crown emblem above keep
-      g.poly([
-        cx - 6, cy - 9,
-        cx - 4, cy - 13,
-        cx, cy - 10,
-        cx + 4, cy - 13,
-        cx + 6, cy - 9,
-      ]);
-      g.fill({ color: 0xfacc15 });
+        // Crown emblem above keep
+        g.poly([
+          cx - 6, cy - 9,
+          cx - 4, cy - 13,
+          cx, cy - 10,
+          cx + 4, cy - 13,
+          cx + 6, cy - 9,
+        ]);
+        g.fill({ color: 0xfacc15 });
 
-      // Bottom banner: royal crimson & gold plaque
-      g.rect(b.x + 7, b.y + b.h - 10, b.w - 14, 7);
-      g.fill({ color: 0x7f1d1d });
-      g.stroke({ width: 1, color: 0xfacc15 });
+        // Bottom banner: royal crimson & gold plaque
+        g.rect(b.x + 7, b.y + b.h - 10, b.w - 14, 7);
+        g.fill({ color: 0x7f1d1d });
+        g.stroke({ width: 1, color: 0xfacc15 });
 
-      // Animated golden halo pulse
-      const haloAlpha = 0.35 + Math.sin(phase * 4) * 0.2;
-      g.rect(b.x - 1, b.y - 1, b.w + 2, b.h + 2);
-      g.stroke({ width: 1.5, color: 0xfde047, alpha: haloAlpha });
+        // Animated golden halo pulse
+        const haloAlpha = 0.35 + Math.sin(phase * 4) * 0.2;
+        g.rect(b.x - 1, b.y - 1, b.w + 2, b.h + 2);
+        g.stroke({ width: 1.5, color: 0xfde047, alpha: haloAlpha });
+      } else {
+        // Player Outpost / Flag Token on Player-Occupied Field Tiles & Nodes
+        // Outer royal blue & brass border trim
+        g.rect(b.x, b.y, b.w, b.h);
+        g.stroke({ width: 1.8, color: 0x2563eb });
+
+        g.rect(b.x + 1.5, b.y + 1.5, b.w - 3, b.h - 3);
+        g.stroke({ width: 0.8, color: 0xfacc15, alpha: 0.75 });
+
+        // 4 Corner Brass Pins
+        g.circle(b.x + 3, b.y + 3, 1.2); g.fill({ color: 0xfde047 });
+        g.circle(b.x + b.w - 3, b.y + 3, 1.2); g.fill({ color: 0xfde047 });
+        g.circle(b.x + 3, b.y + b.h - 3, 1.2); g.fill({ color: 0xfde047 });
+        g.circle(b.x + b.w - 3, b.y + b.h - 3, 1.2); g.fill({ color: 0xfde047 });
+
+        // Stone cairn anchor base
+        g.poly([cx - 4, cy + 5, cx + 4, cy + 5, cx + 2, cy + 2, cx - 2, cy + 2]);
+        g.fill({ color: 0x64748b });
+
+        // Tall wooden flagpole
+        g.moveTo(cx, cy + 3); g.lineTo(cx, cy - 14);
+        g.stroke({ width: 1.4, color: 0x78350f });
+        // Brass ball finial
+        g.circle(cx, cy - 14.5, 1.4); g.fill({ color: 0xfacc15 });
+
+        // Waving royal player swallowtail standard
+        const flagWave = Math.sin(phase * 4 + p.x * 2) * 2.2;
+        g.poly([
+          cx, cy - 14,
+          cx + 10 + flagWave, cy - 10,
+          cx + 7 + flagWave * 0.7, cy - 7,
+          cx + 10 + flagWave, cy - 4,
+          cx, cy - 4,
+        ]);
+        g.fill({ color: 0x1e40af });
+
+        // Golden heraldic insignia on the flag
+        g.poly([
+          cx + 2, cy - 11,
+          cx + 6 + flagWave * 0.5, cy - 9,
+          cx + 2, cy - 7,
+        ]);
+        g.fill({ color: 0xfacc15 });
+
+        // Field bivouac supply cache / shelter tent
+        g.poly([cx - 9, cy + 7, cx - 3, cy + 1, cx + 1, cy + 7]);
+        g.fill({ color: 0xb45309 });
+        g.poly([cx - 7, cy + 7, cx - 3, cy + 2.5, cx, cy + 7]);
+        g.fill({ color: 0xd4a359 });
+
+        // Bottom Outpost plaque
+        g.rect(b.x + 9, b.y + b.h - 9, b.w - 18, 6);
+        g.fill({ color: 0x1e3a8a });
+        g.stroke({ width: 0.8, color: 0xfacc15 });
+        g.circle(cx, b.y + b.h - 6, 1.1); g.fill({ color: 0xfde047 });
+      }
     } else if (p.occupantRealmId === "rival") {
       // Iron March / Rival Hold: Spiked Blackened Iron Frame
       g.rect(b.x, b.y, b.w, b.h);
@@ -3016,8 +3345,6 @@ function paintBoardMarches(
   if (!state?.board) return;
 
   const marches = listMarches(state);
-  if (marches.length === 0) return;
-
   for (const m of marches) {
     const fromProv = getProvince(state, m.fromId);
     const toProv = getProvince(state, m.toId);
@@ -3391,6 +3718,91 @@ function paintBoardMarches(
       pawnsG.circle(pawnX + 8, pawnY - 23.5 - bob, 1.5);
       pawnsG.fill({ color: 0x991b1b });
     }
+  }
+
+  // Render gather expeditions if gather system is present (Astra lane stub)
+  paintBoardGathers(routeG, pawnsG, state, phase);
+}
+
+export function isOutpostProvince(
+  state: GameState | null,
+  p: { id: string; occupantRealmId?: string }
+): boolean {
+  if (!state?.board) return false;
+  return p.occupantRealmId === "player" && p.id !== state.board.homeProvinceId;
+}
+
+export function listGathersPresentation(state: GameState | null): any[] {
+  if (!state) return [];
+  if (typeof (state as any).gathers === "object" && Array.isArray((state as any).gathers)) {
+    return (state as any).gathers;
+  }
+  return [];
+}
+
+function paintBoardGathers(
+  routeG: Graphics,
+  pawnsG: Graphics,
+  state: GameState | null,
+  phase: number
+): void {
+  const gathers = listGathersPresentation(state);
+  if (gathers.length === 0) return;
+
+  for (const g of gathers) {
+    const fromId = g.fromId ?? state?.board?.homeProvinceId;
+    const toId = g.toId ?? g.targetProvinceId;
+    if (!fromId || !toId) continue;
+
+    const fromProv = getProvince(state!, fromId);
+    const toProv = getProvince(state!, toId);
+    if (!fromProv || !toProv) continue;
+
+    const fromB = provinceTokenBounds(fromProv.x, fromProv.y);
+    const toB = provinceTokenBounds(toProv.x, toProv.y);
+
+    const dx = toB.cx - fromB.cx;
+    const dy = toB.cy - fromB.cy;
+    const distPx = Math.hypot(dx, dy);
+    const steps = Math.max(3, Math.floor(distPx / 16));
+
+    // Green / timber foraging route trail
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const lx = fromB.cx + dx * t;
+      const ly = fromB.cy + dy * t;
+      const pulse = Math.sin(phase * 4 + i * 0.5) * 0.2 + 0.8;
+      routeG.circle(lx, ly, 1.4);
+      routeG.fill({ color: 0x16a34a, alpha: 0.75 * pulse });
+    }
+
+    // Gather destination target badge
+    routeG.circle(toB.cx, toB.cy, 8);
+    routeG.stroke({ width: 1.2, color: 0x22c55e, alpha: 0.8 });
+
+    // Progress
+    const progress = Math.min(1, Math.max(0, typeof g.progress === "number" ? g.progress : 0.5));
+    const pawnX = fromB.cx + dx * progress;
+    const pawnY = fromB.cy + dy * progress;
+
+    // Contact shadow
+    pawnsG.ellipse(pawnX, pawnY + 5, 7, 3);
+    pawnsG.fill({ color: 0x000000, alpha: 0.4 });
+
+    // Timber pack-cart / gatherer pawn
+    pawnsG.rect(pawnX - 5, pawnY - 2, 10, 4.5);
+    pawnsG.fill({ color: 0x854d0e });
+    pawnsG.stroke({ width: 0.7, color: 0x543007 });
+
+    // Cart wheels
+    pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2);
+    pawnsG.fill({ color: 0x27272a });
+    pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2);
+    pawnsG.fill({ color: 0x27272a });
+
+    // Resource cargo sack in cart
+    pawnsG.circle(pawnX, pawnY - 3, 2.8);
+    pawnsG.fill({ color: 0xd97706 });
   }
 }
 
