@@ -126,11 +126,13 @@ export interface InputRecord {
   tick: number;
   type: string;
   payload?: unknown;
+  issuerId?: string;
+  [key: string]: unknown;
 }
 
 export interface GameState {
   meta: MetaState;
-  resources: Partial<Record<ResourceId, DecimalString>>;
+  resources: Record<string, DecimalString>;
   buildings: BuildingInstance[];
   units: UnitInstance[];
   citizens: CitizenInstance[];
