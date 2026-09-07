@@ -8,6 +8,7 @@ import { createRngStreams, type RngStreams } from "../core/rng.js";
 import { maxMarches } from "./labor.js";
 import { takeForce } from "./column.js";
 import { gateHp } from "./gate.js";
+import { plantOutpost } from "./outpost.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -235,8 +236,10 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       scheduleRespawn(state, dest);
       dest.node = "none";
       if (march.realmId === "player") {
+        plantOutpost(state, dest);
         state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(20));
         returnLevy(state, levy);
+        return "Camp broken. Flag planted. +20 wood.";
       }
       return "Camp broken. +20 wood.";
     }
@@ -250,18 +253,19 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       dest.node = "none";
     }
     if (march.realmId === "player") {
+      plantOutpost(state, dest);
       returnLevy(state, levy);
       if (node === "woodcut") {
         state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(12));
-        return "Woodcutting party returns +12 wood.";
+        return "Woodcutting party returns +12 wood. Flag planted.";
       }
       if (node === "quarry") {
         state.resources.stone = toDecimalString(D(state.resources.stone ?? "0").add(12));
-        return "Quarry party returns +12 stone.";
+        return "Quarry party returns +12 stone. Flag planted.";
       }
       if (node === "field") {
         state.resources.food = toDecimalString(D(state.resources.food ?? "0").add(12));
-        return "Foragers return +12 food.";
+        return "Foragers return +12 food. Flag planted.";
       }
     }
     return "Empty province.";
