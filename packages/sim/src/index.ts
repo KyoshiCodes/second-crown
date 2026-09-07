@@ -49,6 +49,14 @@ export { tryUpgrade, canUpgrade, upgradeCost, MAX_BUILDING_LEVEL, keepLevel, max
 export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
 
+export {
+  RESEARCH,
+  tryStartResearch,
+  researchDone,
+  researchTicksLeft,
+  unitUnlocked,
+} from "./systems/research.js";
+
 export { tryDeclareWar, tryResolveWar, tryWhitePeace, peaceTicksRemaining, warSummary } from "./actions/war.js";
 export type { DeclareWarPayload, WarSummary } from "./actions/war.js";
 
