@@ -19,10 +19,10 @@ describe("W13 fog", () => {
       (p) => Math.abs(p.x - 2) + Math.abs(p.y - 2) >= 3
     )!;
     expect(tryScoutProvince(s, far.id)).toBe(false);
-    s.resources.gold = "20";
+    s.resources.gold = "40";
     expect(tryScoutProvince(s, far.id)).toBe(true);
     expect(isProvinceSeen(s, far.id)).toBe(true);
-    expect(Number(s.resources.gold)).toBe(12);
+    expect(Number(s.resources.gold)).toBe(18);
   });
 
   it("a watchtower extends vision to range 2", () => {
