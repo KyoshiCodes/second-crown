@@ -11,6 +11,9 @@ import {
   championName,
   tryFoodLevy,
   levyTicksLeft,
+  woundedCount,
+  infirmaryBeds,
+  tryTreatWounded,
   type GameState,
 } from "@second-crown/sim";
 import { ArmyVisual } from "../ArmyVisual";
@@ -30,6 +33,8 @@ export function ArmyTab(props: {
   const hasChamp = state?.units.some((u) => u.realmId === "player" && u.typeId === "champion");
   const [cname, setCname] = React.useState(state ? championName(state) : "");
   const levyWait = state ? levyTicksLeft(state) : 0;
+  const wounded = state ? woundedCount(state) : 0;
+  const beds = state ? infirmaryBeds(state) : 0;
 
   return (
     <>
@@ -62,6 +67,16 @@ export function ArmyTab(props: {
         })}
       </div>
       <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for cost and role.</p>
+      <p style={{ fontSize: 13 }}>
+        Wounded {wounded} / {beds} beds. Build an Infirmary so home losses fill beds instead of vanishing.
+      </p>
+      <button
+        type="button"
+        disabled={!state || wounded <= 0}
+        onClick={() => act((st) => (tryTreatWounded(st) ? "One soldier returns to the line." : "Need 4 food, or no wounded."))}
+      >
+        Treat wounded (4 food)
+      </button>
       <button
         type="button"
         disabled={!state || levyWait > 0}

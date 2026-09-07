@@ -147,6 +147,14 @@ export {
 } from "./systems/march.js";
 export type { March } from "./systems/march.js";
 
+export {
+  woundedCount,
+  infirmaryBeds,
+  tryTreatWounded,
+  tryRepair,
+  listScarred,
+} from "./systems/ward.js";
+
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
 export { applyOfflineProgress } from "./offline.js";
