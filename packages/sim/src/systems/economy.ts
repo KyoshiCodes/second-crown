@@ -6,7 +6,6 @@ import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { flagNum } from "./wave.js";
 import { decreeActive } from "./decree.js";
 import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
-import { applyLabor, laborPerTick } from "./labor.js";
 import { hireCitizenForBuilding } from "./citizens.js";
 
 export function productionBonus(state: GameState): number {
@@ -26,8 +25,8 @@ export function productionBonus(state: GameState): number {
 
 function rateFor(state: GameState, typeId: string, level: number, res: string, rateStr: string) {
   void typeId;
-  void res;
-  return D(rateStr).mul(Math.max(1, level)).add(productionBonus(state));
+  const scarce = res === "gold" ? 0.35 : 1;
+  return D(rateStr).mul(Math.max(1, level)).mul(1 + productionBonus(state) * 0.04).mul(scarce);
 }
 
 export const EconomySystem = {
@@ -57,8 +56,7 @@ export const EconomySystem = {
       }
     }
     const routes = routeGoldPerTick(state);
-    if (routes > 0) totals.gold = (totals.gold ?? D(0)).add(D(routes).mul(ticks));
-    applyLabor(state, ticks);
+    if (routes > 0) totals.gold = (totals.gold ?? D(0)).add(D(routes).mul(0.15).mul(ticks));
     for (const [res, amount] of Object.entries(totals)) {
       state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").add(amount));
     }
@@ -89,11 +87,7 @@ export function computeIncomePerSecond(state: GameState): Record<string, string>
     }
   }
   const routes = routeGoldPerTick(state);
-  if (routes > 0) perTick.gold = (perTick.gold ?? D(0)).add(routes);
-  const labor = laborPerTick(state);
-  for (const [res, n] of Object.entries(labor)) {
-    if (n > 0) perTick[res] = (perTick[res] ?? D(0)).add(n);
-  }
+  if (routes > 0) perTick.gold = (perTick.gold ?? D(0)).add(D(routes).mul(0.15));
   const perSecond: Record<string, string> = {};
   for (const [res, rate] of Object.entries(perTick)) {
     perSecond[res] = toDecimalString(rate.mul(TICKS_PER_SECOND));
