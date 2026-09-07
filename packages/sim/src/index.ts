@@ -155,6 +155,8 @@ export {
   listScarred,
 } from "./systems/ward.js";
 
+export { laborPerTick, applyLabor, maxMarches } from "./systems/labor.js";
+
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
 export { applyOfflineProgress } from "./offline.js";
