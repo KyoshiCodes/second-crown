@@ -144,7 +144,16 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     buildTicks: 55,
     cost: { stone: "14", wood: "10", gold: "6" },
     color: 0xc4b5fd,
-    blurb: "Tithe gold. Gemini can paint this tile.",
+    blurb: "Tithe gold",
+  },
+  infirmary: {
+    id: "infirmary",
+    name: "Infirmary",
+    productionPerTick: {},
+    buildTicks: 70,
+    cost: { wood: "16", stone: "12", food: "10" },
+    color: 0xb91c1c,
+    blurb: "Each infirmary: 10 wounded beds. Half of home losses go to beds instead of the grave",
   },
   walls: {
     id: "walls",
@@ -153,7 +162,7 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     buildTicks: 80,
     cost: { stone: "24", wood: "12" },
     color: 0x64748b,
-    blurb: "Each completed wall: +4 combat power",
+    blurb: "Place on the hold rim. Eight rim walls close the ring",
   },
   keep: {
     id: "keep",
