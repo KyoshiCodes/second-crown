@@ -26,4 +26,25 @@ describe("academy research", () => {
     expect(researchDone(s, "horse")).toBe(true);
     expect(tryTrain(s, { typeId: "cavalry", count: 1 })).toBe(true);
   });
+
+  it("blocks siege engines until siege craft finishes", () => {
+    const s = createGameState({ seed: 1 });
+    s.resources.gold = "200";
+    s.resources.wood = "200";
+    s.resources.stone = "200";
+    expect(unitUnlocked(s, "siege")).toBe(false);
+    s.buildings.push({
+      id: "sw",
+      typeId: "siege_workshop",
+      realmId: "player",
+      x: 5,
+      y: 5,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(tryStartResearch(s, "siege")).toBe(true);
+    s.meta.tick = 400;
+    expect(researchDone(s, "siege")).toBe(true);
+    expect(unitUnlocked(s, "siege")).toBe(true);
+  });
 });
