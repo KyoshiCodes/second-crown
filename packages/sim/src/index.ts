@@ -136,6 +136,7 @@ export {
 
 export {
   tryMarch,
+  tryMarchWith,
   tryNpcMarch,
   listMarches,
   activePlayerMarch,
@@ -149,6 +150,9 @@ export {
 export type { March } from "./systems/march.js";
 
 export { incomingOnHome, watchtowerWarning, maybeNpcRaid } from "./systems/raidMarch.js";
+export { resolveSiegeHold, yardPower, keepPower } from "./systems/siege.js";
+export type { SiegeReport } from "./systems/siege.js";
+export { forcePower, takeForce, returnForce } from "./systems/column.js";
 
 export {
   woundedCount,
