@@ -23,6 +23,15 @@ describe("world board (W1)", () => {
     expect(s.board.provinces.some((p) => p.node === "camp")).toBe(true);
   });
 
+  it("extra crowns receive hold tokens", () => {
+    const s = createGameState({ seed: 42 });
+    const extras = s.realms.filter((r) => r.id !== "player" && r.id !== "rival");
+    expect(extras.length).toBeGreaterThan(0);
+    for (const r of extras) {
+      expect(s.board.provinces.some((p) => p.occupantRealmId === r.id && p.node === "hold")).toBe(true);
+    }
+  });
+
   it("home has orthogonal neighbors", () => {
     const s = createGameState({ seed: 1 });
     const n = neighbors(s, s.board.homeProvinceId);

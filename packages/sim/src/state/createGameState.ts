@@ -1,7 +1,7 @@
 import type { GameState } from "@second-crown/shared";
 import { SAVE_VERSION } from "@second-crown/shared";
 import { seedWorldActors } from "../content/world.js";
-import { seedBoard } from "../systems/board.js";
+import { plantRealmHolds, seedBoard } from "../systems/board.js";
 
 export interface CreateGameStateOptions {
   seed?: number;
@@ -95,6 +95,7 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
   });
 
   seedWorldActors(state);
+  plantRealmHolds(state);
 
   if (options.withStarterBuildings) {
     state.buildings.push(
