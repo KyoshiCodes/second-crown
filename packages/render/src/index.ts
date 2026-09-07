@@ -9,6 +9,7 @@ import {
   getProvince,
   isProvinceSeen,
 } from "@second-crown/sim";
+import * as sim from "@second-crown/sim";
 import type { March } from "@second-crown/sim";
 
 export type CameraBand = "hold" | "board";
@@ -119,6 +120,55 @@ export function isRimTile(gx: number, gy: number): boolean {
 
 export function isMarchHostile(march: { realmId: string }): boolean {
   return march.realmId !== "player";
+}
+
+export interface RimFort {
+  x: number;
+  y: number;
+  kind: "wall" | "gate";
+}
+
+/** Index of a rim tile walking the ring clockwise starting at (0,0): top L->R, right T->B, bottom R->L, left B->T. */
+export function rimWalkIndex(x: number, y: number): number {
+  if (y === 0) return x;
+  if (x === GRID_W - 1) return 16 + (y - 1);
+  if (y === GRID_H - 1) return 25 + (GRID_W - 2 - x);
+  return 40 + (GRID_H - 2 - y);
+}
+
+/** Returns the grid coordinates for a given rim index walking clockwise from (0,0). */
+export function getRimTileAt(idx: number): { x: number; y: number } {
+  const norm = ((idx % 48) + 48) % 48;
+  if (norm < 16) return { x: norm, y: 0 };
+  if (norm < 25) return { x: GRID_W - 1, y: norm - 15 };
+  if (norm < 40) return { x: 39 - norm, y: GRID_H - 1 };
+  return { x: 0, y: 48 - norm };
+}
+
+/** Finished wall/gate buildings on the hold rim, ordered clockwise from (0,0). Uses sim.listRimForts if exported, else reads state.buildings. */
+export function listRimFortsPresentation(state: GameState, realmId = "player"): RimFort[] {
+  const simAny = sim as Record<string, unknown>;
+  if (typeof simAny["listRimForts"] === "function") {
+    return (simAny["listRimForts"] as (s: GameState, r?: string) => RimFort[])(state, realmId);
+  }
+  const forts: RimFort[] = [];
+  if (!state?.buildings) return forts;
+  for (const b of state.buildings) {
+    if (b.realmId !== realmId) continue;
+    if (b.completesAtTick !== null) continue;
+    if (!isRimTile(b.x, b.y)) continue;
+    if (b.typeId === "walls") forts.push({ x: b.x, y: b.y, kind: "wall" });
+    else if (b.typeId === "gate") forts.push({ x: b.x, y: b.y, kind: "gate" });
+  }
+  forts.sort((a, b) => rimWalkIndex(a.x, a.y) - rimWalkIndex(b.x, b.y));
+  return forts;
+}
+
+export interface RimNeighbors {
+  hasPrev: boolean;
+  hasNext: boolean;
+  prevKind?: "wall" | "gate";
+  nextKind?: "wall" | "gate";
 }
 const TILE_W = 40;
 const TILE_H = 20;
@@ -552,6 +602,240 @@ function paintIsometricGround(g: Graphics, visuals: ThemeVisuals): void {
 }
 
 // -------------------------------------------------------------
+// Rim Wall Run: Connected Stone Curtain & Gatehouse Wings
+// -------------------------------------------------------------
+function drawRimWallCurtain(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  gx: number,
+  gy: number,
+  rimNeighbors?: RimNeighbors
+): void {
+  const idx = rimWalkIndex(gx, gy);
+  const prevIdx = (idx - 1 + 48) % 48;
+  const nextIdx = (idx + 1) % 48;
+  const pPrev = getRimTileAt(prevIdx);
+  const pNext = getRimTileAt(nextIdx);
+
+  const hasPrev = rimNeighbors?.hasPrev ?? false;
+  const hasNext = rimNeighbors?.hasNext ?? false;
+
+  // Boundary coordinates from tile center (0, 0) to neighbor tiles
+  const bPrevX = ((pPrev.x - gx - (pPrev.y - gy)) * HALF_W) / 2;
+  const bPrevY = ((pPrev.x - gx + (pPrev.y - gy)) * HALF_H) / 2;
+  const bNextX = ((pNext.x - gx - (pNext.y - gy)) * HALF_W) / 2;
+  const bNextY = ((pNext.x - gx + (pNext.y - gy)) * HALF_H) / 2;
+
+  const isTop = gy === 0;
+  const isRight = gx === GRID_W - 1;
+  const isBottom = gy === GRID_H - 1;
+  const isLeft = gx === 0;
+
+  function drawCurtainSpan(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    normX: number,
+    normY: number,
+    sunlit: boolean
+  ) {
+    // 1. Foundation Plinth (bottom 3.5px)
+    g.poly([
+      x0 + normX, y0 + normY,
+      x1 + normX, y1 + normY,
+      x1 + normX, y1 + normY - 3.5,
+      x0 + normX, y0 + normY - 3.5,
+    ]);
+    g.fill({ color: 0x334155, alpha: a });
+
+    // 2. Ashlar Stone Vertical Curtain Face
+    g.poly([
+      x0 + normX, y0 + normY - 3.5,
+      x1 + normX, y1 + normY - 3.5,
+      x1 + normX, y1 + normY - h,
+      x0 + normX, y0 + normY - h,
+    ]);
+    g.fill({ color: sunlit ? 0x64748b : 0x475569, alpha: a });
+
+    // 3. Horizontal Mortar Joint Scoring
+    for (const f of [0.35, 0.70]) {
+      const my0 = y0 + normY - h * f;
+      const my1 = y1 + normY - h * f;
+      g.moveTo(x0 + normX, my0);
+      g.lineTo(x1 + normX, my1);
+      g.stroke({ width: 0.8, color: 0x1e293b, alpha: a * 0.65 });
+    }
+
+    // 4. Wall-Walk Top Walkway (at height -h)
+    g.poly([
+      x0 + normX, y0 + normY - h,
+      x1 + normX, y1 + normY - h,
+      x1 - normX, y1 - normY - h,
+      x0 - normX, y0 - normY - h,
+    ]);
+    g.fill({ color: 0x52525b, alpha: a });
+
+    // Timber wall-walk planking center line
+    g.moveTo(x0, y0 - h);
+    g.lineTo(x1, y1 - h);
+    g.stroke({ width: 1.6, color: 0x78350f, alpha: a });
+
+    // 5. Parapet Merlons along outer edge
+    const dist = Math.hypot(x1 - x0, y1 - y0);
+    const steps = Math.max(1, Math.round(dist / 6));
+    for (let i = 0; i < steps; i++) {
+      const tStart = i / steps;
+      const tEnd = (i + 0.6) / steps;
+      const mx0 = x0 + normX + (x1 - x0) * tStart;
+      const my0 = y0 + normY - h + (y1 - y0) * tStart;
+      const mx1 = x0 + normX + (x1 - x0) * tEnd;
+      const my1 = y0 + normY - h + (y1 - y0) * tEnd;
+
+      // Merlon block (rises 3.5px above parapet)
+      g.poly([
+        mx0, my0,
+        mx1, my1,
+        mx1, my1 - 3.5,
+        mx0, my0 - 3.5,
+      ]);
+      g.fill({ color: sunlit ? 0x94a3b8 : 0x64748b, alpha: a });
+
+      // Merlon coping stone highlight
+      g.moveTo(mx0, my0 - 3.5);
+      g.lineTo(mx1, my1 - 3.5);
+      g.stroke({ width: 0.8, color: 0xf1f5f9, alpha: a * 0.8 });
+    }
+
+    // 6. Arrow loop slits in curtain face
+    const midX = (x0 + x1) / 2 + normX;
+    const midY = (y0 + y1) / 2 + normY - h * 0.45;
+    g.rect(midX - 0.7, midY - 2, 1.4, 4);
+    g.fill({ color: 0x0f172a, alpha: a });
+  }
+
+  function getNorm(isEdgeTop: boolean, isEdgeRight: boolean, isEdgeBottom: boolean, isEdgeLeft: boolean): { nx: number; ny: number; sunlit: boolean } {
+    if (isEdgeBottom) return { nx: -3.5, ny: 1.8, sunlit: true };
+    if (isEdgeRight) return { nx: 3.5, ny: 1.8, sunlit: false };
+    if (isEdgeTop) return { nx: -3.5, ny: -1.8, sunlit: false };
+    return { nx: -3.5, ny: -1.8, sunlit: true };
+  }
+
+  // Draw curtain to prev neighbor
+  const normPrev = getNorm(isTop, isRight, isBottom, isLeft);
+  const pTargetX = hasPrev ? bPrevX : bPrevX * 0.65;
+  const pTargetY = hasPrev ? bPrevY : bPrevY * 0.65;
+  drawCurtainSpan(0, 0, pTargetX, pTargetY, normPrev.nx, normPrev.ny, normPrev.sunlit);
+
+  // Draw curtain to next neighbor
+  const normNext = getNorm(isTop, isRight, isBottom, isLeft);
+  const nTargetX = hasNext ? bNextX : bNextX * 0.65;
+  const nTargetY = hasNext ? bNextY : bNextY * 0.65;
+  drawCurtainSpan(0, 0, nTargetX, nTargetY, normNext.nx, normNext.ny, normNext.sunlit);
+
+  // Center Bastion Tower at (0, 0)
+  const isCorner = (isTop && isLeft) || (isTop && isRight) || (isBottom && isRight) || (isBottom && isLeft);
+  const towerH = h + (isCorner ? 4 : 2);
+  const tw = isCorner ? 7 : 5.5;
+
+  // Tower plinth
+  g.poly([-tw, 0, 0, tw * 0.5, tw, 0, 0, -tw * 0.5]);
+  g.fill({ color: 0x334155, alpha: a });
+
+  // Tower light face (left)
+  g.poly([-tw, 0, 0, tw * 0.5, 0, tw * 0.5 - towerH, -tw, -towerH]);
+  g.fill({ color: 0x64748b, alpha: a });
+
+  // Tower shadow face (right)
+  g.poly([0, tw * 0.5, tw, 0, tw, -towerH, 0, tw * 0.5 - towerH]);
+  g.fill({ color: 0x475569, alpha: a });
+
+  // Tower roof / platform
+  g.poly([-tw, -towerH, 0, tw * 0.5 - towerH, tw, -towerH, 0, -tw * 0.5 - towerH]);
+  g.fill({ color: 0x52525b, alpha: a });
+
+  // Tower crenellations / merlons
+  g.rect(-tw, -towerH - 3, 2.5, 3); g.fill({ color: 0x94a3b8, alpha: a });
+  g.rect(-1, -towerH - 3 + tw * 0.5, 2.5, 3); g.fill({ color: 0x94a3b8, alpha: a });
+  g.rect(tw - 2.5, -towerH - 3, 2.5, 3); g.fill({ color: 0x64748b, alpha: a });
+
+  // Arrow slit in tower front
+  g.rect(-0.7, -towerH * 0.5, 1.4, 4);
+  g.fill({ color: 0x0f172a, alpha: a });
+
+  // Wall torch sconce with flickering animated flame
+  const flameFlicker = Math.sin(phase * 4 + gx * 2) * 0.8;
+  g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0x27272a, alpha: a });
+  g.circle(-tw - 1, -h * 0.45 - 2, 1.6 + flameFlicker * 0.3);
+  g.fill({ color: 0xf97316, alpha: a });
+  g.circle(-tw - 1, -h * 0.45 - 2, 0.8);
+  g.fill({ color: 0xfef08a, alpha: a });
+}
+
+function drawGatehouseCurtainWings(
+  g: Graphics,
+  h: number,
+  a: number,
+  gx: number,
+  gy: number,
+  rimNeighbors: RimNeighbors
+): void {
+  const idx = rimWalkIndex(gx, gy);
+  const prevIdx = (idx - 1 + 48) % 48;
+  const nextIdx = (idx + 1) % 48;
+  const pPrev = getRimTileAt(prevIdx);
+  const pNext = getRimTileAt(nextIdx);
+
+  const bPrevX = ((pPrev.x - gx - (pPrev.y - gy)) * HALF_W) / 2;
+  const bPrevY = ((pPrev.x - gx + (pPrev.y - gy)) * HALF_H) / 2;
+  const bNextX = ((pNext.x - gx - (pNext.y - gy)) * HALF_W) / 2;
+  const bNextY = ((pNext.x - gx + (pNext.y - gy)) * HALF_H) / 2;
+
+  const isBottom = gy === GRID_H - 1;
+  const isRight = gx === GRID_W - 1;
+
+  if (rimNeighbors.hasPrev) {
+    // Connect left bastion tower to prev boundary
+    g.poly([
+      -17, -1,
+      bPrevX, bPrevY,
+      bPrevX, bPrevY - h,
+      -17, -1 - h,
+    ]);
+    g.fill({ color: isBottom ? 0x64748b : 0x475569, alpha: a });
+
+    // Merlons on connection
+    g.rect(bPrevX, bPrevY - h - 3.5, 3.5, 3.5);
+    g.fill({ color: 0x94a3b8, alpha: a });
+
+    // Mortar line
+    g.moveTo(-17, -1 - h * 0.5); g.lineTo(bPrevX, bPrevY - h * 0.5);
+    g.stroke({ width: 0.8, color: 0x1e293b, alpha: a * 0.6 });
+  }
+
+  if (rimNeighbors.hasNext) {
+    // Connect right bastion tower to next boundary
+    g.poly([
+      17, -1,
+      bNextX, bNextY,
+      bNextX, bNextY - h,
+      17, -1 - h,
+    ]);
+    g.fill({ color: isRight ? 0x475569 : 0x64748b, alpha: a });
+
+    // Merlons on connection
+    g.rect(bNextX - 3.5, bNextY - h - 3.5, 3.5, 3.5);
+    g.fill({ color: 0x94a3b8, alpha: a });
+
+    // Mortar line
+    g.moveTo(17, -1 - h * 0.5); g.lineTo(bNextX, bNextY - h * 0.5);
+    g.stroke({ width: 0.8, color: 0x1e293b, alpha: a * 0.6 });
+  }
+}
+
+// -------------------------------------------------------------
 // Denser Isometric Pixel Building Painter
 // -------------------------------------------------------------
 function drawIsometricBuilding(
@@ -562,7 +846,8 @@ function drawIsometricBuilding(
   phase: number,
   visuals: ThemeVisuals,
   gx: number = 0,
-  gy: number = 0
+  gy: number = 0,
+  rimNeighbors?: RimNeighbors
 ): void {
   const a = complete ? 1.0 : 0.45;
   g.clear();
@@ -1134,22 +1419,28 @@ function drawIsometricBuilding(
     }
 
     case "walls": {
-      // Denser Fortress Curtain Wall + Projecting Bastion + Wall Torches
-      const h = 20 + heightBoost;
-      g.poly([-18, 0, 0, 9, 0, 9 - h, -18, 0 - h]);
-      g.fill({ color: 0x64748b, alpha: a });
-      g.poly([0, 9, 18, 0, 18, 0 - h, 0, 9 - h]);
-      g.fill({ color: 0x475569, alpha: a });
+      if (!isRimTile(gx, gy)) {
+        // Interior walls stay the old block
+        const h = 20 + heightBoost;
+        g.poly([-18, 0, 0, 9, 0, 9 - h, -18, 0 - h]);
+        g.fill({ color: 0x64748b, alpha: a });
+        g.poly([0, 9, 18, 0, 18, 0 - h, 0, 9 - h]);
+        g.fill({ color: 0x475569, alpha: a });
 
-      // Parapet battlements
-      for (let i = -16; i <= 14; i += 6) {
-        g.rect(i, -h - 3, 3.5, 3.5);
-        g.fill({ color: 0x94a3b8, alpha: a });
+        // Parapet battlements
+        for (let i = -16; i <= 14; i += 6) {
+          g.rect(i, -h - 3, 3.5, 3.5);
+          g.fill({ color: 0x94a3b8, alpha: a });
+        }
+
+        // Wall-walk timber hoarding
+        g.moveTo(-16, -h + 2); g.lineTo(16, -h + 2);
+        g.stroke({ width: 1.5, color: 0x78350f, alpha: a });
+        break;
       }
 
-      // Wall-walk timber hoarding
-      g.moveTo(-16, -h + 2); g.lineTo(16, -h + 2);
-      g.stroke({ width: 1.5, color: 0x78350f, alpha: a });
+      // Rim Fort Wall Run: Connected stone curtain between neighbors + merlons on top
+      drawRimWallCurtain(g, 20 + heightBoost, a, phase, gx, gy, rimNeighbors);
       break;
     }
 
@@ -1257,6 +1548,10 @@ function drawIsometricBuilding(
         // Portcullis raised high in the archway ceiling
         g.moveTo(-4, 0); g.lineTo(4, 0);
         g.stroke({ width: 1, color: 0x64748b, alpha: a * 0.8 });
+      }
+
+      if (isRim && rimNeighbors) {
+        drawGatehouseCurtainWings(g, 20 + heightBoost, a, gx, gy, rimNeighbors);
       }
 
       break;
@@ -2083,62 +2378,329 @@ function paintBoardProvinces(g: Graphics, state: GameState, phase: number): void
     const cx = b.cx;
     const cy = b.cy;
 
-    // 4. Terrain Chip Details
+    // 4. Terrain Chip Details (Stronger, reads at a glance from 0.58 zoom)
     switch (p.terrain) {
       case "plain": {
-        // Subtle grass blades & chamomile
-        g.moveTo(cx - 14, cy + 10); g.lineTo(cx - 11, cy + 5);
-        g.moveTo(cx - 11, cy + 10); g.lineTo(cx - 8, cy + 6);
-        g.stroke({ width: 1, color: pal.accent, alpha: 0.7 });
-        g.circle(cx + 14, cy + 8, 1.3);
-        g.fill({ color: 0xfef08a, alpha: 0.85 });
+        // Plain stays meadow: lush pastoral meadow with rolling knolls, clover/grass tufts, and wildflower daisy clusters
+        // Meadow grass knoll bands
+        g.moveTo(b.x + 3, cy + 3);
+        g.bezierCurveTo(cx - 10, cy - 2, cx + 8, cy + 6, b.x + b.w - 3, cy + 1);
+        g.stroke({ width: 1.6, color: 0x4d7c0f, alpha: 0.85 });
+
+        g.moveTo(b.x + 4, cy + 10);
+        g.bezierCurveTo(cx - 6, cy + 6, cx + 12, cy + 13, b.x + b.w - 4, cy + 9);
+        g.stroke({ width: 1.4, color: 0x3f6212, alpha: 0.75 });
+
+        // Clustered grass tufts across the meadow
+        for (const [gx, gy] of [
+          [cx - 16, cy - 4],
+          [cx - 7, cy + 5],
+          [cx + 12, cy - 2],
+          [cx + 18, cy + 8],
+          [cx - 14, cy + 11],
+        ]) {
+          g.moveTo(gx, gy + 4); g.lineTo(gx - 2.5, gy - 3);
+          g.moveTo(gx, gy + 4); g.lineTo(gx, gy - 4.5);
+          g.moveTo(gx, gy + 4); g.lineTo(gx + 2.5, gy - 3);
+          g.stroke({ width: 1.2, color: 0x84cc16, alpha: 0.9 });
+        }
+
+        // Wildflower blossoms (daisies, buttercups, cornflowers)
+        for (const [fx, fy, col] of [
+          [cx - 11, cy - 6, 0xffffff],
+          [cx - 3, cy + 2, 0xfacc15],
+          [cx + 6, cy - 5, 0x60a5fa],
+          [cx + 15, cy + 4, 0xffffff],
+          [cx + 8, cy + 10, 0xfacc15],
+          [cx - 8, cy + 12, 0xffffff],
+        ]) {
+          g.circle(fx, fy, 1.6);
+          g.fill({ color: col, alpha: 0.95 });
+          g.circle(fx, fy, 0.7);
+          g.fill({ color: 0xeab308, alpha: 0.9 });
+        }
         break;
       }
+
       case "wood": {
-        // 3 Miniature pine trees
-        g.poly([cx - 14, cy + 8, cx - 10, cy - 4, cx - 6, cy + 8]);
-        g.fill({ color: 0x14532d });
-        g.poly([cx - 5, cy + 11, cx, cy - 8, cx + 5, cy + 11]);
-        g.fill({ color: 0x166534 });
-        g.poly([cx + 6, cy + 8, cx + 10, cy - 3, cx + 14, cy + 8]);
-        g.fill({ color: 0x15803d });
+        // Wood is a stand of trees: dense, multi-tiered forest grove spanning the chip
+        // Deep forest floor mulch
+        g.rect(b.x + 3, cy + 5, b.w - 6, 12);
+        g.fill({ color: 0x052e16, alpha: 0.7 });
+
+        // Stand of 6 layered evergreen pines (background to foreground)
+        const trees = [
+          // Background tier (dark spruce)
+          { tx: cx - 18, ty: cy + 4, scale: 0.8, dark: true },
+          { tx: cx + 18, ty: cy + 3, scale: 0.85, dark: true },
+          { tx: cx - 2, ty: cy - 2, scale: 0.9, dark: true },
+          // Mid tier
+          { tx: cx - 10, ty: cy + 7, scale: 1.0, dark: false },
+          { tx: cx + 10, ty: cy + 6, scale: 1.05, dark: false },
+          // Foreground monarch
+          { tx: cx - 1, ty: cy + 11, scale: 1.25, dark: false },
+        ];
+
+        for (const tr of trees) {
+          const s = tr.scale;
+          const x = tr.tx;
+          const y = tr.ty;
+          const trunkColor = 0x451a03;
+          const leafDark = tr.dark ? 0x064e3b : 0x14532d;
+          const leafMid = tr.dark ? 0x047857 : 0x16a34a;
+          const leafLight = tr.dark ? 0x10b981 : 0x22c55e;
+
+          // Tree trunk
+          g.rect(x - 1.2 * s, y - 2 * s, 2.4 * s, 6 * s);
+          g.fill({ color: trunkColor });
+
+          // Tier 1 (bottom bough)
+          g.poly([x - 7 * s, y, x, y - 6 * s, x + 7 * s, y]);
+          g.fill({ color: leafDark });
+          // Highlight edge on west bough
+          g.moveTo(x - 7 * s, y); g.lineTo(x, y - 6 * s);
+          g.stroke({ width: 1, color: leafLight, alpha: 0.8 });
+
+          // Tier 2 (mid bough)
+          g.poly([x - 5.5 * s, y - 4 * s, x, y - 10 * s, x + 5.5 * s, y - 4 * s]);
+          g.fill({ color: leafMid });
+          g.moveTo(x - 5.5 * s, y - 4 * s); g.lineTo(x, y - 10 * s);
+          g.stroke({ width: 1, color: leafLight, alpha: 0.85 });
+
+          // Tier 3 (treetop spire)
+          g.poly([x - 4 * s, y - 8 * s, x, y - 14 * s, x + 4 * s, y - 8 * s]);
+          g.fill({ color: leafLight });
+        }
         break;
       }
+
       case "hill": {
-        // Layered rolling hill ridge contours
-        g.moveTo(cx - 18, cy + 10); g.lineTo(cx - 8, cy + 3); g.lineTo(cx + 4, cy + 9); g.lineTo(cx + 18, cy + 4);
-        g.stroke({ width: 1.2, color: pal.accent, alpha: 0.8 });
-        g.moveTo(cx - 12, cy + 2); g.lineTo(cx - 2, cy - 4); g.lineTo(cx + 12, cy + 1);
-        g.stroke({ width: 1, color: 0xa8a29e, alpha: 0.7 });
+        // Hill has contours: rich topographic highland contour ridges with light/shadow facets and rounded knolls
+        // Shaded elevation terraces
+        g.poly([b.x + 3, cy + 15, cx - 14, cy + 2, cx + 4, cy + 8, b.x + b.w - 3, cy + 4, b.x + b.w - 3, b.y + b.h - 3, b.x + 3, b.y + b.h - 3]);
+        g.fill({ color: 0x292524, alpha: 0.6 });
+
+        // Base hill mounds (smooth rounded elevation masses)
+        g.ellipse(cx - 12, cy + 5, 14, 9);
+        g.fill({ color: 0x57534e });
+        g.ellipse(cx + 10, cy + 2, 16, 11);
+        g.fill({ color: 0x44403c });
+        g.ellipse(cx - 2, cy + 8, 18, 9);
+        g.fill({ color: 0x57534e });
+
+        // Highlighted topographic contour lines (3 bold stepped contour bands)
+        // Upper contour ridge
+        g.moveTo(b.x + 6, cy - 1);
+        g.bezierCurveTo(cx - 12, cy - 9, cx + 6, cy - 8, b.x + b.w - 6, cy - 2);
+        g.stroke({ width: 1.8, color: 0xa8a29e, alpha: 0.95 });
+
+        // Mid contour ridge (terrace edge)
+        g.moveTo(b.x + 4, cy + 5);
+        g.bezierCurveTo(cx - 14, cy - 1, cx - 2, cy + 1, cx + 14, cy - 2);
+        g.lineTo(b.x + b.w - 4, cy + 5);
+        g.stroke({ width: 2.0, color: 0xd6d3d1, alpha: 0.95 });
+
+        // Lower contour ridge
+        g.moveTo(b.x + 5, cy + 12);
+        g.bezierCurveTo(cx - 10, cy + 7, cx + 4, cy + 8, b.x + b.w - 5, cy + 11);
+        g.stroke({ width: 1.8, color: 0xa8a29e, alpha: 0.9 });
+
+        // Exposed granite rocky bluffs / stone outcroppings
+        g.rect(cx - 9, cy - 3, 4.5, 2.5); g.fill({ color: 0x78716c });
+        g.rect(cx + 8, cy - 4, 5, 3); g.fill({ color: 0x78716c });
+        g.rect(cx - 2, cy + 4, 4, 2); g.fill({ color: 0x78716c });
         break;
       }
+
       case "waste": {
-        // Scorched earth with glowing ember fissures
-        g.moveTo(cx - 18, cy - 3); g.lineTo(cx - 6, cy + 3); g.lineTo(cx + 4, cy - 2); g.lineTo(cx + 16, cy + 6);
-        g.stroke({ width: 1.2, color: 0xd97706, alpha: 0.85 });
-        g.moveTo(cx - 6, cy + 3); g.lineTo(cx - 2, cy + 10);
-        g.stroke({ width: 1, color: 0xef4444, alpha: 0.9 });
+        // Waste glows: scorched basalt caldera with radiant glowing lava fissures and animated heat pulse
+        const pulse = Math.sin(phase * 3 + p.x + p.y) * 0.2 + 0.8;
+
+        // Dark volcanic basalt crust plates
+        g.poly([b.x + 4, b.y + 4, cx - 6, b.y + 4, cx - 12, cy + 2, b.x + 4, cy - 1]);
+        g.fill({ color: 0x1c130f });
+        g.poly([cx + 2, b.y + 4, b.x + b.w - 4, b.y + 4, b.x + b.w - 4, cy - 3, cx + 8, cy + 1]);
+        g.fill({ color: 0x18100c });
+        g.poly([b.x + 4, cy + 4, cx - 4, cy + 6, cx - 8, b.y + b.h - 5, b.x + 4, b.y + b.h - 5]);
+        g.fill({ color: 0x1c130f });
+        g.poly([cx + 6, cy + 4, b.x + b.w - 4, cy + 2, b.x + b.w - 4, b.y + b.h - 5, cx + 4, b.y + b.h - 5]);
+        g.fill({ color: 0x18100c });
+
+        // Radiating volcanic fissures — Layer 1: Wide Deep Crimson Glow
+        const drawFissures = (w: number, col: number, a: number) => {
+          // Main diagonal fault line
+          g.moveTo(b.x + 4, cy - 5);
+          g.lineTo(cx - 8, cy - 1);
+          g.lineTo(cx - 1, cy + 3);
+          g.lineTo(cx + 10, cy - 1);
+          g.lineTo(b.x + b.w - 4, cy + 6);
+          g.stroke({ width: w, color: col, alpha: a });
+
+          // North-south rift
+          g.moveTo(cx - 3, b.y + 3);
+          g.lineTo(cx - 1, cy + 3);
+          g.lineTo(cx + 4, cy + 10);
+          g.lineTo(cx + 2, b.y + b.h - 4);
+          g.stroke({ width: w * 0.8, color: col, alpha: a });
+
+          // Branch fissure southwest
+          g.moveTo(cx - 8, cy - 1);
+          g.lineTo(cx - 14, cy + 8);
+          g.stroke({ width: w * 0.7, color: col, alpha: a });
+        };
+
+        // 1. Broad outer crimson magma aura
+        drawFissures(4.5, 0x991b1b, 0.75 * pulse);
+        // 2. Vivid orange burning lava channel
+        drawFissures(2.6, 0xf97316, 0.95);
+        // 3. Incandescent white-hot / golden-yellow heat core
+        drawFissures(1.2, 0xfef08a, 0.95 * pulse);
+
+        // Central bubbling caldera vent
+        g.circle(cx - 1, cy + 3, 3.5);
+        g.fill({ color: 0xef4444, alpha: 0.9 });
+        g.circle(cx - 1, cy + 3, 2.0);
+        g.fill({ color: 0xfef08a, alpha: pulse });
+
+        // Floating ember motes
+        g.circle(cx - 7, cy - 6, 1.2); g.fill({ color: 0xfb923c, alpha: 0.9 });
+        g.circle(cx + 12, cy + 4, 1.0); g.fill({ color: 0xfde047, alpha: 0.85 });
         break;
       }
+
       case "shore": {
-        // Sandy beach fringe at bottom
-        g.rect(b.x + 1, b.y + b.h - 9, b.w - 2, 6);
+        // Shore has water+foam: deep ocean waters, azure shallows, golden sandy beach, curling surf rollers, and frothing white sea foam
+        // 1. Deep ocean backdrop (top half)
+        g.rect(b.x + 2, b.y + 2, b.w - 4, 18);
+        g.fill({ color: 0x0284c7 });
+
+        // 2. Coastal shelf / turquoise shallows
+        g.rect(b.x + 2, b.y + 16, b.w - 4, 8);
+        g.fill({ color: 0x38bdf8 });
+
+        // 3. Golden sand beach (bottom third)
+        g.poly([
+          b.x + 2, cy + 3,
+          cx - 10, cy + 5,
+          cx + 8, cy + 2,
+          b.x + b.w - 2, cy + 4,
+          b.x + b.w - 2, b.y + b.h - 3,
+          b.x + 2, b.y + b.h - 3,
+        ]);
         g.fill({ color: 0xd4a359 });
-        // Ocean surf wave
-        g.moveTo(cx - 16, cy + 2); g.lineTo(cx - 8, cy - 2); g.lineTo(cx, cy + 2); g.lineTo(cx + 8, cy - 2); g.lineTo(cx + 16, cy + 2);
-        g.stroke({ width: 1.2, color: 0xe0f2fe, alpha: 0.9 });
+
+        // Wet sand tideline
+        g.moveTo(b.x + 2, cy + 3);
+        g.bezierCurveTo(cx - 10, cy + 6, cx + 8, cy + 3, b.x + b.w - 2, cy + 5);
+        g.stroke({ width: 1.5, color: 0xa16207, alpha: 0.6 });
+
+        // 4. Curling wave rollers in deep water
+        const waveShift = Math.sin(phase * 2.5 + p.x) * 1.5;
+        g.moveTo(b.x + 4, cy - 10 + waveShift);
+        g.bezierCurveTo(cx - 12, cy - 13 + waveShift, cx - 2, cy - 7 + waveShift, cx + 10, cy - 11 + waveShift);
+        g.stroke({ width: 1.6, color: 0xbae6fd, alpha: 0.8 });
+
+        g.moveTo(cx - 14, cy - 4 - waveShift * 0.7);
+        g.bezierCurveTo(cx - 2, cy - 8 - waveShift * 0.7, cx + 10, cy - 2 - waveShift * 0.7, b.x + b.w - 4, cy - 6 - waveShift * 0.7);
+        g.stroke({ width: 1.8, color: 0x7dd3fc, alpha: 0.85 });
+
+        // 5. Heavy frothing sea foam / crashing surf line on the beach
+        // Primary breaking surf foam crest
+        g.moveTo(b.x + 2, cy + 2);
+        g.bezierCurveTo(cx - 12, cy - 1, cx + 6, cy + 4, b.x + b.w - 2, cy + 1);
+        g.stroke({ width: 2.5, color: 0xffffff, alpha: 0.95 });
+
+        // Secondary foam lace / bubbling surf fringe
+        for (let fx = b.x + 6; fx <= b.x + b.w - 6; fx += 7) {
+          const fy = cy + 2 + Math.sin(fx * 0.8 + phase * 2) * 1.5;
+          g.circle(fx, fy + 2, 1.4);
+          g.fill({ color: 0xf0fdfa, alpha: 0.95 });
+        }
         break;
       }
+
       case "peak": {
-        // Twin snow-dusted jagged mountain crags
-        g.poly([cx - 16, cy + 10, cx - 8, cy - 7, cx, cy + 10]);
+        // Peak is a real ridge: continuous grand mountain massif with illuminated and shadowed facets, sharp arêtes, and snowcaps
+        const ridgeBaseY = cy + 13;
+
+        // Shadowed eastern mountain slopes (dark basalt shadow)
+        g.poly([
+          cx - 2, cy - 13,
+          cx + 12, cy - 1,
+          cx + 15, cy - 8,
+          b.x + b.w - 4, cy + 7,
+          b.x + b.w - 4, ridgeBaseY,
+          cx - 2, ridgeBaseY,
+        ]);
+        g.fill({ color: 0x1e293b });
+
+        // Illuminated western mountain slopes (bright alpine granite)
+        g.poly([
+          b.x + 4, ridgeBaseY,
+          b.x + 4, cy + 8,
+          cx - 16, cy - 6,
+          cx - 9, cy + 1,
+          cx - 2, cy - 13,
+          cx - 2, ridgeBaseY,
+        ]);
         g.fill({ color: 0x475569 });
-        g.poly([cx - 11, cy - 1, cx - 8, cy - 7, cx - 5, cy - 1]);
-        g.fill({ color: 0xf8fafc });
-        g.poly([cx - 2, cy + 10, cx + 7, cy - 9, cx + 16, cy + 10]);
+
+        // Secondary sunlit peak facets
+        g.poly([
+          cx - 16, cy - 6,
+          cx - 9, cy + 1,
+          cx - 9, ridgeBaseY,
+          cx - 16, ridgeBaseY,
+        ]);
         g.fill({ color: 0x64748b });
-        g.poly([cx + 4, cy - 3, cx + 7, cy - 9, cx + 10, cy - 3]);
+
+        // Sharp central dividing arête ridge line
+        g.moveTo(cx - 2, cy - 13);
+        g.lineTo(cx - 1, ridgeBaseY);
+        g.stroke({ width: 1.4, color: 0x334155 });
+
+        // Pure white snowcaps and hanging glaciers
+        // Monarch center summit snowcap
+        g.poly([
+          cx - 6, cy - 6,
+          cx - 2, cy - 13,
+          cx + 3, cy - 6,
+          cx, cy - 4,
+        ]);
+        g.fill({ color: 0xffffff });
+
+        // Western horn snowcap
+        g.poly([
+          cx - 19, cy - 2,
+          cx - 16, cy - 6,
+          cx - 12, cy - 2,
+          cx - 15, cy,
+        ]);
         g.fill({ color: 0xf8fafc });
+
+        // Eastern horn snowcap
+        g.poly([
+          cx + 11, cy - 4,
+          cx + 15, cy - 8,
+          cx + 19, cy - 3,
+          cx + 15, cy - 2,
+        ]);
+        g.fill({ color: 0xf8fafc });
+
+        // High glacial ice tongue (cirque)
+        g.poly([
+          cx - 5, cy - 3,
+          cx - 2, cy - 1,
+          cx + 2, cy - 3,
+          cx, cy + 2,
+        ]);
+        g.fill({ color: 0xbae6fd });
+
+        // Scree / rock teeth at base of ridge
+        for (let rx = b.x + 8; rx < b.x + b.w - 8; rx += 8) {
+          g.poly([rx - 2, ridgeBaseY, rx, ridgeBaseY - 3, rx + 2, ridgeBaseY]);
+          g.fill({ color: 0x334155 });
+        }
         break;
       }
     }
@@ -3043,6 +3605,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   function paintBuildings(state: GameState, t: number): void {
     const seen = new Set<string>();
+    const rimForts = listRimFortsPresentation(state);
+    const rimFortMap = new Map<number, RimFort>();
+    for (const f of rimForts) {
+      rimFortMap.set(rimWalkIndex(f.x, f.y), f);
+    }
 
     for (const b of state.buildings) {
       seen.add(b.id);
@@ -3062,7 +3629,22 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       g.y = wy;
       g.zIndex = Math.floor((gx + gy) * 100) + 50;
 
-      drawIsometricBuilding(g, b.typeId, b.level, complete, t + gx * 0.35, visuals, gx, gy);
+      let rimNeighbors: RimNeighbors | undefined;
+      if (isRimTile(gx, gy) && (b.typeId === "walls" || b.typeId === "gate")) {
+        const idx = rimWalkIndex(gx, gy);
+        const prevIdx = (idx - 1 + 48) % 48;
+        const nextIdx = (idx + 1) % 48;
+        const prevFort = rimFortMap.get(prevIdx);
+        const nextFort = rimFortMap.get(nextIdx);
+        rimNeighbors = {
+          hasPrev: prevFort != null,
+          hasNext: nextFort != null,
+          prevKind: prevFort?.kind,
+          nextKind: nextFort?.kind,
+        };
+      }
+
+      drawIsometricBuilding(g, b.typeId, b.level, complete, t + gx * 0.35, visuals, gx, gy, rimNeighbors);
     }
 
     for (const [id, g] of buildingGraphics) {
