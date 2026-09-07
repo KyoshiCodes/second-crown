@@ -12,14 +12,14 @@ export function incomingOnHome(state: GameState): March[] {
 }
 
 export function watchtowerWarning(state: GameState): March | undefined {
-  if (countBuilding(state, "watchtower") < 1) return incomingOnHome(state)[0];
+  if (countBuilding(state, "watchtower") < 1) return undefined;
   return incomingOnHome(state)[0];
 }
 
 export function maybeNpcRaid(state: GameState, realmId: string, atTick: number): boolean {
   if (isShielded(state)) return false;
   if (incomingOnHome(state).length > 0) return false;
-  if (realmPower(state, realmId) < realmPower(state, "player") + 8) return false;
+  if (realmPower(state, realmId) < 8) return false;
   const home = state.board.homeProvinceId;
   if (!getProvince(state, home)) return false;
   const ok = tryNpcMarch(state, realmId, home);

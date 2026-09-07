@@ -5,6 +5,7 @@ import { archetypeForRealm, driftOpinions, growRealm } from "../content/world.js
 import { pushWorldLog } from "./events.js";
 import { isShielded, noteWar } from "./wave.js";
 import { tickWorldClash } from "./worldClash.js";
+import { maybeNpcRaid } from "./raidMarch.js";
 
 export const RivalSystem = {
   nextEventTick(_state: GameState): number | null {
@@ -34,6 +35,7 @@ function tickAi(state: GameState, atTick: number): void {
     if (realm.id === "player") continue;
     growRealm(state, realm.id);
     maybeDeclare(state, realm.id, atTick);
+    if (atTick % 200 === 0 && realm.id === "rival") maybeNpcRaid(state, realm.id, atTick);
   }
   tickWorldClash(state, atTick);
 }
