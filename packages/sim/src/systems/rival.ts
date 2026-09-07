@@ -5,8 +5,7 @@ import { archetypeForRealm, driftOpinions, growRealm } from "../content/world.js
 import { pushWorldLog } from "./events.js";
 import { isShielded, noteWar } from "./wave.js";
 import { tickWorldClash } from "./worldClash.js";
-import { getProvince } from "./board.js";
-import { tryNpcMarch } from "./march.js";
+import { ensureBoard } from "./board.js";
 import { D, toDecimalString } from "../core/decimal.js";
 
 export const RivalSystem = {
@@ -29,6 +28,7 @@ export function tickWorldPulse(state: GameState, atTick: number): void {
 }
 
 function tickAi(state: GameState, atTick: number): void {
+  ensureBoard(state);
   driftOpinions(state);
   for (const realm of state.realms) {
     if (realm.id === "player") continue;
@@ -48,24 +48,22 @@ function peaceLocked(state: GameState, a: string, b: string): boolean {
 }
 
 function maybeClaim(state: GameState, realmId: string, atTick: number): void {
-  const home = state.board.provinces.find((p) => p.occupantRealmId === realmId && p.node === "hold");
+  if (atTick % 200 !== 0) return;
   const open = state.board.provinces.find(
-    (p) => !p.occupantRealmId && p.node !== "hold" && p.id !== state.board.homeProvinceId
+    (p) => !p.occupantRealmId && p.node !== "hold" && p.node !== "none" && p.id !== state.board.homeProvinceId
   );
   if (!open) return;
   open.occupantRealmId = realmId;
   const name = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
   pushWorldLog(state, "claim", `${name} plants a marker on ${open.x},${open.y}`);
-  if (home) tryNpcMarch(state, realmId, open.id);
-  void atTick;
 }
 
 function maybeTrade(state: GameState, realmId: string, atTick: number): void {
   if (atTick % 300 !== 0) return;
   const others = state.realms.filter((r) => r.id !== realmId);
-  const partner = others[atTick % others.length];
+  const partner = others[atTick % Math.max(1, others.length)];
   if (!partner) return;
-  if (realmId === "player" || partner.id === "player") {
+  if (partner.id === "player") {
     state.resources.gold = toDecimalString(D(state.resources.gold ?? "0").add(1));
   }
   const a = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
@@ -115,5 +113,4 @@ function maybeDeclare(state: GameState, realmId: string, atTick: number): void {
   });
   pushWorldLog(state, "declare", `${name} declares war on Your Crown`);
   noteWar(state);
-  getProvince(state, state.board.homeProvinceId);
 }
