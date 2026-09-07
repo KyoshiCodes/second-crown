@@ -3,10 +3,10 @@ import {
   activePlayerMarch,
   getProvince,
   isProvinceSeen,
+  listUnitTypes,
   scoutCost,
   tryMarchWith,
   tryScoutProvince,
-  UNIT_TYPES,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
@@ -45,6 +45,7 @@ export function ProvinceInspect(props: {
   if (!state || !selectedId) return null;
   const p = getProvince(state, selectedId);
   if (!p) return null;
+  const roster = listUnitTypes();
   const home = selectedId === state.board.homeProvinceId;
   const march = activePlayerMarch(state);
   const seen = isProvinceSeen(state, selectedId);
@@ -55,11 +56,11 @@ export function ProvinceInspect(props: {
       ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
       : "None"
     : "Unknown (fog)";
-  const types = UNIT_TYPES.filter((u) => owned(state, u.id) > 0 || (force[u.id] ?? 0) > 0);
   return (
     <div
       style={{
         maxWidth: 560,
+        width: "100%",
         margin: "8px auto 10px",
         padding: "10px 12px",
         background: "rgba(18,12,8,0.94)",
@@ -77,11 +78,11 @@ export function ProvinceInspect(props: {
         </button>
       </div>
       <div style={{ opacity: 0.85, marginTop: 4 }}>
-        {seen ? NODE[p.node] ?? p.node : "Fog hides the token."} · Occupant: {occupant}
+        {seen ? NODE[p.node] ?? p.node : "Fog hides the token."} · Occupant: {occupant} · Gold {gold}
       </div>
       {march ? (
         <div style={{ marginTop: 6, color: "#fef08a" }}>
-          Company marching to {march.toId} · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
+          Company marching · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
         </div>
       ) : null}
       {home ? (
@@ -91,7 +92,7 @@ export function ProvinceInspect(props: {
           {!seen ? (
             <button
               type="button"
-              style={{ marginTop: 8 }}
+              style={{ marginTop: 8, marginRight: 8 }}
               disabled={gold < cost}
               onClick={() =>
                 act((s) => {
@@ -103,10 +104,12 @@ export function ProvinceInspect(props: {
             >
               Scout ({cost} gold)
             </button>
-          ) : null}
+          ) : (
+            <span style={{ marginTop: 8, display: "inline-block" }}>Scouted.</span>
+          )}
           <div style={{ marginTop: 10, fontSize: 12 }}>
             Column
-            {UNIT_TYPES.map((u) => {
+            {roster.map((u) => {
               const have = owned(state, u.id);
               if (have <= 0 && !(force[u.id] > 0)) return null;
               return (
@@ -118,7 +121,10 @@ export function ProvinceInspect(props: {
                     max={have}
                     value={force[u.id] ?? 0}
                     onChange={(e) =>
-                      setForce((f) => ({ ...f, [u.id]: Math.max(0, Math.min(have, Number(e.target.value) || 0)) }))
+                      setForce((f) => ({
+                        ...f,
+                        [u.id]: Math.max(0, Math.min(have, Number(e.target.value) || 0)),
+                      }))
                     }
                     style={{ width: 64, marginLeft: 8 }}
                   />
@@ -129,16 +135,14 @@ export function ProvinceInspect(props: {
           <button
             type="button"
             style={{ marginTop: 8 }}
-            disabled={Boolean(march) || types.every((u) => !(force[u.id] > 0))}
+            disabled={Boolean(march) || roster.every((u) => !(force[u.id] > 0))}
             onClick={() =>
               act((s) => {
                 if (activePlayerMarch(s)) return "Company already on the march.";
                 const ok = tryMarchWith(s, selectedId, force);
                 if (!ok) return "Cannot march — check counts or a free column slot.";
                 s.flags.tutorial_marched = 1;
-                const m = activePlayerMarch(s);
-                const eta = m ? m.arrivesTick - s.meta.tick : 0;
-                return `Column ordered. ETA ${eta} ticks.`;
+                return "Column ordered.";
               })
             }
           >
