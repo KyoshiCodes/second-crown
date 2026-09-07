@@ -7,6 +7,7 @@ import { defenseBonus, realmPower, resolveBattle } from "./combat.js";
 import { createRngStreams, type RngStreams } from "../core/rng.js";
 import { maxMarches } from "./labor.js";
 import { takeForce } from "./column.js";
+import { gateHp } from "./gate.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -48,7 +49,7 @@ export function hasClosedWallRing(state: GameState, realmId = "player"): boolean
 export function wallHp(state: GameState, realmId = "player"): number {
   const edge = edgeWallCount(state, realmId);
   const inner = Math.max(0, countBuilding(state, "walls") - edge);
-  return edge * 12 + inner * 4 + (hasClosedWallRing(state, realmId) ? 20 : 0);
+  return edge * 12 + inner * 4 + (hasClosedWallRing(state, realmId) ? 20 : 0) + gateHp(state, realmId);
 }
 
 export function siegeDefense(state: GameState, realmId: string): number {
