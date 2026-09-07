@@ -1,29 +1,39 @@
 # USER-NOTES
 
-Last updated: 2026-09-07 | Version: playtest-0.9 (Gemini Two-Band Camera & Board Diorama)
+Last updated: 2026-09-07 | Version: playtest-0.10 (Gemini Board2: Cottages, Gates, Fog Chips & Iron Meeples)
 
 Play: `https://129.153.17.72.sslip.io/`
 
+## Distinct Residential Cottages & Fortified Rim Gatehouses
+
+1. **Cottage (+2 Citizen Beds)**:
+   - Cozy half-timbered plaster home with steep gabled reed thatch, stone chimney puffing hearth smoke, leaded-glass window glowing with warm honey candlelight, stone doorstep with brass knob, stone-lined flowerbed with blossoms, and stacked cord of split firewood.
+2. **Gatehouse (+30 Wall HP on Rim Tiles)**:
+   - Imposing ashlar granite fortification with twin bastion towers, crenellated battlements, arrow slits, and arched gate portal.
+   - **Rim Placement**: When placed along the outer rim of the hold (`x=0`, `y=0`, `x=15`, `y=9`), heavy iron-reinforced oak double-doors shut and bolt the perimeter with lowered portcullis teeth and a defensive faction pennant, closing your stronghold ring and granting +30 wall HP.
+
 ## Two-Band Camera: Hold vs. Board
 
-The Kingdom view now supports two seamless zoom bands on the same Pixi tabletop diorama:
+The Kingdom view supports two seamless zoom bands on the same Pixi tabletop diorama:
 
 1. **Hold View (Close-up Isometric Band, Zoom > 0.70)**:
    - Your realm's 16×10 isometric diorama.
    - Click any empty tile to place your selected building, or click an existing building to upgrade it up to level 5.
-   - Living pixel walkers, assigned workstation citizens, animated chimney smoke, tall stone keeps, and holiday dressings are visible in rich diorama detail.
+   - Living pixel walkers, assigned workstation citizens, animated chimney smoke, cottages, tall stone keeps, rim gates, and holiday dressings are visible in rich diorama detail.
    - Zoom with mouse wheel or on-screen `[+]` / `[-]` buttons; drag to pan.
 
 2. **Board View (Tabletop Map Band, Zoom <= 0.70)**:
    - When zoomed out past `0.70` (or clicking the **Board / Hold** toggle), the camera transitions into the tabletop realm board: an 8×6 grid of tactile province tokens.
+   - **Tactile Blank Parchment / Fog Chips**: Unseen provinces beyond your vision range appear as blank parchment chips shrouded in drifting fog mists. Terrain, nodes, and occupant heraldry remain concealed until scouted!
    - **6 Distinct Terrain Chips**: Meadow plains, spruce timber woods, highland rolling hills, cracked scorched wastes, coastal azure shores, and snowcapped alpine mountain peaks.
    - **Resource & Strategic Node Marks**: Holds, bandit camps, woodcutting stands, granite quarries, and ripe wheat fields.
    - **Player Seat & Iron March Foe**: Your Home Hold (`x=2, y=2`) is framed in gilded royal brass with a crown emblem and golden halo. The rival Iron March hold (`x=5, y=2`) is framed in spiked blackened steel with iron rivets.
 
-3. **Marching Your Company on the Board**:
+3. **Marching Your Company & Hostile Army Columns**:
    - **Snap to Hold**: Clicking your Home Hold token instantly snaps the camera back to close-up Hold view.
-   - **Order a March**: Clicking any foreign province token (bandit camps, timber stands, quarries, fields, or enemy holds) orders your army to march to that location.
-   - **Active Marching Pawn**: When an expedition is underway, an animated tabletop marching meeple pawn travels along a glowing dotted route line from your hold to the destination. The pawn bobs with marching cadence and carries a waving royal standard with a live ETA counter.
+   - **Order a March**: Clicking any foreign province token orders your army to march to that location.
+   - **Active Player March**: Your marching company travels as an animated tabletop marching meeple pawn along a glowing amber dotted trail with a waving royal standard and live ETA counter.
+   - **Hostile Red/Iron War Meeple**: Enemy and rival marches appear as menacing red/iron meeples on the board, equipped with blackened iron pedestals with rivets, horned helmets with glowing crimson eye-slits, blood-red tabards with crossed iron straps, and jagged halberds marching along blood-red trails.
    - Only one march can be active at a time; on arrival, camps yield bounties, resource nodes bring back lumber/stone/food, and hostile holds trigger battle resolutions!
 
 4. **Board / Hold Toggle Buttons**:

@@ -2,6 +2,43 @@
 
 Last updated: 2026-09-07
 
+## Presentation Architecture (Gemini Cottage, Gate, Fog Chips & Iron Meeple Lane)
+
+- **Distinct Isometric Architecture: Cottage & Rim Gatehouse (`packages/render`)**:
+  - `drawIsometricBuilding` receives tile coordinates `gx, gy` to support location-aware rendering.
+  - **Cottage (`case "cottage"`)**:
+    - Denser half-timbered plaster residence (`h = 16 + heightBoost`).
+    - Warm plaster wall facets (`0xd8c8b0` / `0xb5a38c`) with exposed timber posts, plates, and diagonal bracing (`0x5c3818`).
+    - Steep reed-thatched gabled roof (`0xc68a4c`) with overhanging eaves, ridge trim, and scalloped thatch cresting (`0x7c4e1a`).
+    - Fieldstone chimney (`0x64748b`) puffing animated hearth smoke circles (`Math.sin(phase * 2.2) * 1.8`).
+    - Arched plank door with brass knob (`0xfacc15`) and stone doorstep (`0x78716c`).
+    - Leaded casement window with shutters glowing with warm honey candlelight (`0xfef08a`, `alpha = 0.95`).
+    - Front yard details: stone-lined flowerbed with rose, lavender, and daisy blossoms, plus a stacked cord of split firewood.
+  - **Gatehouse (`case "gate"`)**:
+    - Fortified ashlar stone gatehouse (`h = 24 + heightBoost`) with twin flanking bastion towers (`0x64748b` / `0x475569`), parapet crenellations, arrow slits (`0x0f172a`), and vaulted gateway portal.
+    - **Rim Tile Detection (`isRimTile`)**: Evaluates `gx === 0 || gy === 0 || gx === GRID_W - 1 || gy === GRID_H - 1`.
+    - **On Rim Tiles (`isRim`)**: Renders heavy reinforced oak double-doors (`0x5c3818` / `0x45220a`) with blackened iron strap hinges, iron rivets, central drop-bar lock, lowered portcullis iron teeth, and a defensive crimson faction pennant waving atop the central curtain wall.
+    - **On Interior Tiles (`!isRim`)**: Presents an open vaulted archway passage leading into the hold courtyard.
+- **Board-Band Tokens: Unseen Province Fog Chips (`packages/render`)**:
+  - `paintBoardProvinces` queries `isProvinceSeen(state, p.id)` directly from `@second-crown/sim`, preserving the single source of truth for fog without inventing a second fog system.
+  - Unseen provinces render as tactile 3D blank parchment / fog chips:
+    - Standard drop shadow maintains board tabletop physicality.
+    - Dark parchment bevel (`0x1f1a14`) and blank aged vellum face (`0x2e2720`).
+    - Outer blank parchment border (`0x4d3f31`) with subtle top highlight.
+    - Subtle animated procedural fog mist curves drifting across the chip (`phase * 1.5`) and faint cartographer compass center point.
+    - All terrain chip visuals (trees, grass, hills, waves, peaks), node marks (camps, holds, quarries), and rival occupant heraldry are completely suppressed until revealed.
+  - `paintBoardHighlight`: Unscouted provinces mask confidential occupant identities and show a neutral gray status pip and badge.
+- **Hostile Red/Iron March Meeple (`packages/render`)**:
+  - `paintBoardMarches` distinguishes player vs hostile marches via `isPlayer = m.realmId === "player"`.
+  - Hostile marches (`realmId !== "player"`) use an imposing red/iron war meeple pawn:
+    - Heavy blackened iron pedestal (`0x18181b`) with steel rivets (`0xd1d5db`).
+    - Angular dark steel torso (`0x27272a`) with spiked iron pauldrons (`0x3f3f46`).
+    - Blood-red war tabard (`0x991b1b`) with crossed black iron harness straps.
+    - Horned dark iron helm (`0x18181b`) with horn crests and glowing crimson visor eye-slit (`0xef4444`).
+    - Blackened polearm with jagged halberd blade (`0x52525b`) and ragged crimson/black battle pennant (`0x7f1d1d`).
+    - Dotted crimson route trail (`0xef4444`) and blackened iron / crimson ETA pill badge (`0xdc2626`).
+  - Player marches retain the classic wooden pedestal, golden torso, royal blue tunic, polished steel helm with crimson plume, and amber route trail.
+
 ## Presentation Architecture (Gemini Tabletop Board Lane)
 
 - **Two-Band Camera Architecture (`packages/render`)**:
