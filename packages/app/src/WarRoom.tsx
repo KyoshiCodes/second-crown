@@ -1,14 +1,19 @@
 import React from "react";
 import {
   canAffordTrain,
+  incomingOnHome,
+  listScarred,
   peaceTicksRemaining,
   realmPower,
   tryDeclareWar,
   tryGiftGold,
+  tryRepair,
   tryResolveWar,
   tryTrain,
   tryWhitePeace,
+  wallHp,
   warSummary,
+  watchtowerWarning,
   type GameState,
 } from "@second-crown/sim";
 import { DiplomacyPanel } from "./HudControls";
@@ -18,7 +23,6 @@ import type { ActFn } from "./game/useGameEngine";
 import { getGiftThanks, getWarTaunt } from "./content/flavor";
 import { sfx } from "./sfx";
 
-/** One War tab readable in 20 seconds: odds, levy shortcut, declare/resolve/peace, last battle, fortify/decree status. */
 export function WarRoom(props: {
   state: GameState | undefined;
   act: ActFn;
@@ -34,10 +38,37 @@ export function WarRoom(props: {
   const canLevy = state ? canAffordTrain(state, "militia", 5) : false;
   const summary = state ? warSummary(state) : null;
   const activeDecrees = summary?.decrees.filter((d) => d.ticksLeft > 0) ?? [];
+  const incoming = state ? incomingOnHome(state) : [];
+  const seen = state ? watchtowerWarning(state) : undefined;
+  const scarred = state ? listScarred(state) : [];
+  const hp = state ? wallHp(state) : 0;
+  const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
 
   return (
     <div className="sc-tab-war">
       <WarLivingStrip state={state} />
+      <div className="sc-realm-card" style={{ margin: "10px 0", fontSize: 13 }}>
+        <strong>Hold defense</strong>
+        <p style={{ margin: "4px 0" }}>Wall HP {hp}. Siege hits walls first, then the yard, then the keep.</p>
+        {incoming.length > 0 ? (
+          <p style={{ margin: "4px 0" }}>
+            {seen
+              ? `${nameOf(seen.realmId)} arrives in ${Math.max(0, Math.ceil((seen.arrivesTick - (state?.meta.tick ?? 0)) / 10))}s.`
+              : "A host is on the road. A Watchtower will name them."}
+          </p>
+        ) : (
+          <p style={{ margin: "4px 0", opacity: 0.7 }}>No column on your gates.</p>
+        )}
+        {scarred.map((b) => (
+          <button
+            key={b.id}
+            type="button"
+            onClick={() => act((st) => (tryRepair(st, b.id) ? `Repaired ${b.typeId}.` : "Need 8 stone."))}
+          >
+            Repair {b.typeId} (8 stone)
+          </button>
+        ))}
+      </div>
       <DiplomacyPanel
         rivalOp={rivalOp}
         playerOp={playerOp}
