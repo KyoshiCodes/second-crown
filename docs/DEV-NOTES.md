@@ -2,7 +2,43 @@
 
 Last updated: 2026-09-07
 
-<<<<<<< HEAD
+## Presentation Architecture: Pixel Army Tab Roster & Board Marching Columns (`bakeoff/gemini-army`)
+
+- **Integer-Pixel Unit Icon Silhouettes (`packages/app/src/UnitIcon.tsx`)**:
+  - Replaced the previous flat geometric chip portraits with detailed integer-pixel silhouettes in SVG matching the exact visual style of hold walkers and stone keeps.
+  - Rendered with `shapeRendering: "crispEdges"` for razor-sharp pixel definition on all displays.
+  - **Dynamic 2–3 Frame Cadence (`useUnitCadence`)**:
+    - Cycles `0 -> 1 -> 0 -> 2` every 240ms when `animated` is enabled and no explicit `frame` is provided.
+    - Explicit `frame?: 0 | 1 | 2` prop allows parent callers (like `WarLivingStrip` or unit formation rows) to control frame synchronization.
+    - Directional `facing: 1 | -1` prop (defaults to 1 = facing right) flips weapon and stride direction without bounding-box distortion.
+  - **8 Distinct Unit Classes**:
+    - `militia`: Spear-less peasant levy, coarse homespun tunic (`#854d0e`), rope belt (`#a16207`), cloth coif (`#52525b`), unarmed/cudgel posture.
+    - `spearman`: Steel kettle hat (`#94a3b8` / `#cbd5e1`), royal blue tabard (`#1e40af`), long ash spear with pointed steel spearhead (`#f1f5f9`), and round boss shield (`#1e3a8a` / `#facc15`).
+    - `skirmisher`: Scout green coat (`#15803d`), leather coif (`#5c3818`), throwing javelins with steel barbs (`#cbd5e1`), and arm buckler.
+    - `archer`: Deep forest coat (`#14532d`), feathered cap with quill (`#facc15`), recurve yew longbow (`#854d0e`), taut bowstring, nocked arrow, and back quiver.
+    - `cavalry`: Warhorse mount (`#6b3a19`) with animated galloping legs, leather saddle, reins, and mounted armored lancer with royal blue tunic, steel helm, and pennant.
+    - `knight`: Full steel plate harness (`#cbd5e1`), great helm with visor eye-slit (`#0f172a`), heraldic crimson heater shield (`#b91c1c`) with golden cross (`#facc15`), steel broadsword, and red mantle.
+    - `siege`: Heavy timber carriage (`#5c3818`), spoked wooden wheels with iron rims, upright A-frame trestle, and throwing beam with counterweight bucket and granite boulder.
+    - `champion`: Radiant gilded plate (`#f59e0b`), winged royal crown helm (`#fde047`), Tyrian purple tabard (`#581c87`), glowing runic broadsword (`#38bdf8`), and flowing crimson cape.
+
+- **Board Column Meeple Reuse (`packages/render`)**:
+  - **`primaryUnitTypeForMarch(march)`**: Pure sim-reading helper exported from `@second-crown/render`. Inspects `march.force` dictionary with tier priority resolution (`champion > siege > knight > cavalry > archer > skirmisher > spearman > militia`), falling back to `militia` when force is unspecified.
+  - **`unitPalette(typeId)`**: Pure visual configuration helper exported from `@second-crown/render`. Maps unit type IDs to canonical tabard colors, armor/trim highlights, weapon styles, and mount/chassis flags matching hold walkers.
+  - **Player Marching Meeples (`paintBoardMarches`)**:
+    - Replaced the generic blue wooden pawn for player marches with unit-specific animated meeples that share the exact equipment, silhouette, and colors of the Army tab.
+    - Stride animation cycles `0 -> 1 -> 0 -> 2` via `stepIdx = Math.floor((phase * 6) % 4)`, with directional facing (`dx >= 0 ? 1 : -1`) and vertical bob.
+    - Hardwood pedestal base (`0x854d0e`), base contact shadow (`0x000000`, alpha 0.45), animated trail, and floating ETA pill badge with progress dots are strictly preserved.
+    - Hostile marches strictly preserve their menacing red/iron war meeple with horned helm and glowing crimson visor.
+  - **Unit Tests (`packages/render/src/index.test.ts`)**:
+    - Added test suite for `primaryUnitTypeForMarch` covering default militia fallback, single-type forces, and multi-type tie-breaking by count and tier priority.
+    - Added test suite for `unitPalette` verifying distinct tabard, weapon, and equipment attributes across all 8 unit types.
+
+- **Invariants & Preservations**:
+  - Pure presentation lane: `git diff main -- packages/sim server` is 100% empty.
+  - Automated tests passing: 90/90 in `@second-crown/sim`, 18/18 in `@second-crown/render`.
+  - App production build clean (`npm run build -w @second-crown/app`).
+  - ChromeDock, holidays, dim lanterns, inspect card, primer, and zoom/pan fully preserved.
+
 ## Rim Fort Listing (Claude Walls Lane, `packages/sim`)
 
 - `packages/sim/src/systems/rimForts.ts` adds `listRimForts(state, realmId = "player")`, a pure reader with no new sim state and no changes to `packages/sim/src/core`.
@@ -11,7 +47,7 @@ Last updated: 2026-09-07
 - Exported from `packages/sim/src/index.ts` as `listRimForts` plus the `RimFort` type.
 - Tests in `packages/sim/src/systems/rimForts.test.ts` cover an empty rim, a mix of walls and a gate sorted clockwise across all four edges, and exclusion of an interior wall, an unfinished (in-progress) wall, and a rival-realm wall.
 - `git diff main -- packages/app packages/render server` stays empty; this PR only adds a sim reader and exports it.
-=======
+
 ## Presentation Architecture (Gemini Connected Rim Wall Run & Stronger Terrain Chips Lane)
 
 - **Connected Rim Wall Run on the Hold (`packages/render`)**:
@@ -32,19 +68,12 @@ Last updated: 2026-09-07
     - Interior walls strictly preserve the original isometric block visual and battlements.
     - Tile clicks (`worldToGrid`) remain 100% intact for all tiles.
 - **Stronger 8×6 Terrain Chips on the Board Band (`packages/render`)**:
-  - All 6 tabletop province terrain chips redesigned in `paintBoardProvinces` to read instantly at 0.58 zoom:
-    - **Peak**: Continuous grand mountain ridge spanning `b.x + 4` to `b.x + b.w - 4` with illuminated western granite slopes (`0x475569` / `0x64748b`), dark basalt eastern cliffs (`0x1e293b`), sharp dividing arête (`0x334155`), pure white snowcaps across 3 peaks (`0xffffff` / `0xf8fafc`), glacial cirque (`0xbae6fd`), and scree teeth.
-    - **Shore**: Deep ocean backdrop (`0x0284c7`), turquoise shallows (`0x38bdf8`), golden sand beach (`0xd4a359`) with wet sand tideline (`0xa16207`), curling wave rollers, crashing white surf crest (`0xffffff`, stroke 2.5), and bubbling sea foam lace (`0xf0fdfa`).
-    - **Wood**: Dense stand of 6-7 layered evergreen pines with forest mulch floor (`0x052e16`), timber trunks (`0x451a03`), dark spruce background trees (`0x064e3b`), emerald mid-tier pines (`0x16a34a`), and towering foreground monarch pines with highlighted boughs (`0x22c55e`).
-    - **Waste**: Scorched basalt caldera with dark crust plates (`0x1c130f` / `0x18100c`), radiating volcanic fissure trenches with multi-layered outer crimson magma glow (`0x991b1b`), incandescent orange lava mid-vein (`0xf97316`), pulsing yellow-white heat core (`0xfef08a`), bubbling caldera vent (`0xef4444`), and floating ember specks.
-    - **Hill**: Topographic highland contour ridges with shaded elevation terraces (`0x292524`), rounded hill domes (`0x57534e` / `0x44403c`), 3 bold highlighted elevation contour bands (`0xa8a29e` / `0xd6d3d1`), and exposed granite bluffs (`0x78716c`).
-    - **Plain**: Lush pastoral meadow with rolling grass knoll bands (`0x4d7c0f` / `0x3f6212`), clustered 3-blade tall grass tufts (`0x84cc16`), and sprinkled chamomile daisy, yellow buttercup, and blue cornflower blossoms.
+  - All 6 tabletop province terrain chips redesigned in `paintBoardProvinces` to read instantly at 0.58 zoom (Peak, Shore, Wood, Waste, Hill, Plain).
 - **Invariants & Preservations**:
   - `git diff main -- packages/sim server` is 100% empty.
   - Full automated tests passing: 87/87 in `@second-crown/sim`, 14/14 in `@second-crown/render`.
   - App production build clean (`npm run build -w @second-crown/app`).
   - Fog chips, hostile red meeple, cottage art, zoom/pan, ChromeDock, and dim lanterns completely preserved.
->>>>>>> origin/bakeoff/gemini-map
 
 ## War Tab Briefing (Claude War Lane, `packages/app`)
 

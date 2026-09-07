@@ -2,14 +2,42 @@
 
 Newest first.
 
-<<<<<<< HEAD
+## 2026-09-07 — Gemini Pixel Army Tab & Board Marching Columns (`bakeoff/gemini-army`)
+
+- **Pixel Walker Style for Army Tab Roster & Visuals (`packages/app`)**:
+  - `UnitIcon.tsx`: Replaced flat chip portraits with integer-pixel SVG silhouettes in the authentic aesthetic of hold walkers and buildings (`shapeRendering: "crispEdges"`).
+  - Supports 2–3 frame animated marching/idle cadence (`frame = 0 | 1 | 2` cycling 0 → 1 → 0 → 2), directional facing (`facing = 1 | -1`), and faction tabard colors matching hold walkers.
+  - Weapons and gear match type:
+    - **Militia**: Spear-less peasant levy, coarse homespun tunic (`#854d0e`), rope belt (`#a16207`), cloth coif (`#52525b`), unarmed/cudgel posture.
+    - **Spearman**: Steel kettle hat (`#94a3b8` / `#cbd5e1`), royal blue tabard (`#1e40af`), long ash spear with pointed steel spearhead (`#f1f5f9`), and round boss shield (`#1e3a8a` / `#facc15`).
+    - **Skirmisher**: Scout green coat (`#15803d`), leather coif (`#5c3818`), throwing javelins with steel barbs (`#cbd5e1`), and arm buckler.
+    - **Archer**: Deep forest coat (`#14532d`), feathered cap with quill (`#facc15`), recurve yew longbow (`#854d0e`), taut bowstring, nocked arrow, and back quiver.
+    - **Cavalry**: Warhorse mount (`#6b3a19`) with animated galloping hooves, leather saddle, reins, and mounted armored lancer with royal blue tunic, steel helm, and pennant.
+    - **Knight**: Full steel plate harness (`#cbd5e1`), great helm with visor eye-slit (`#0f172a`), heraldic crimson heater shield (`#b91c1c`) with golden cross (`#facc15`), steel broadsword, and red mantle.
+    - **Siege Engine**: Sturdy timber carriage (`#5c3818`), spoked wooden wheels with iron rims, upright A-frame trestle, and throwing beam with counterweight bucket and granite boulder.
+    - **Champion**: Radiant gilded plate (`#f59e0b`), winged royal crown helm (`#fde047`), Tyrian purple tabard (`#581c87`), glowing runic broadsword (`#38bdf8`), and flowing crimson cape.
+  - `ArmyTab.tsx`: Transformed unit training section into rich roster cards with animated pixel silhouettes, power ratings, training costs, and flavor blurbs. Dedicated Champion recruitment card with gilded champion silhouette, custom naming input, and recruitment actions.
+  - `ArmyVisual.tsx`: Raised companies in "Your Host" display the animated pixel silhouettes alongside company counts, total combat power, and lively multi-unit squad formations marching in 2–3 frame cadence.
+  - `ProvinceInspect.tsx`: March column composer displays mini unit pixel silhouettes next to each unit count.
+- **Board Meeple Reuse for Marching Columns (`packages/render`)**:
+  - `primaryUnitTypeForMarch(march)`: Pure sim-reading helper exported from `@second-crown/render` that resolves the primary unit type for any column based on `march.force` counts and tier priority (champion > siege > knight > cavalry > archer > skirmisher > spearman > militia).
+  - `unitPalette(typeId)`: Pure palette/gear helper exported from `@second-crown/render` providing matching tabard, armor, weapon, and helm properties for all 8 unit types.
+  - Tabletop board marching meeples (`paintBoardMarches`) now render player columns using the exact same sprites, colors, weapons, and 2–3 frame stride cadence as the Army tab. An archer column looks like an archer on the march; a knight column marches with great helm and heater shield; cavalry trots with a warhorse mount; siege engines roll on spoked wheels.
+  - Hardwood pedestal, contact shadow, destination trail, and floating ETA pill badge are fully preserved.
+  - Hostile marches strictly preserve their menacing red/iron war meeple with horned helm and glowing crimson visor.
+- **Sim & Server Purity**:
+  - `git diff main -- packages/sim server` 100% empty.
+  - All automated tests passing: 90/90 in `@second-crown/sim`, 18/18 in `@second-crown/render`.
+  - App production build clean (`npm run build -w @second-crown/app`).
+  - ChromeDock, holidays, dim lanterns, inspect card, primer, and zoom/pan fully preserved.
+
 ## 2026-09-07 — Claude Rim Fort Listing (`bakeoff/claude-walls`)
 
 - **Sim helper (`packages/sim/src/systems/rimForts.ts`)**: new `listRimForts(state, realmId = "player")` returns `{ x, y, kind: "wall" | "gate" }[]` for finished `walls`/`gate` buildings on the 16×10 hold rim (`x===0 || y===0 || x===15 || y===9`), ordered clockwise from `(0,0)` so a renderer can stroke a connected ring.
 - **Sim exports (`packages/sim/src/index.ts`)**: `listRimForts` and the `RimFort` type are now exported from `@second-crown/sim`.
 - **Tests (`packages/sim/src/systems/rimForts.test.ts`)**: empty rim, mixed walls+gate sorted clockwise, and interior walls / unfinished buildings / other realms excluded.
 - **Sim & App Purity**: `git diff main -- packages/app packages/render server` empty. No combat, march, fog, housing, or tickEngine changes. Full `@second-crown/sim` test suite (90 tests) and `npm run build -w @second-crown/app` pass.
-=======
+
 ## 2026-09-07 — Gemini Connected Rim Wall Run & Stronger Terrain Chips (`bakeoff/gemini-map`)
 
 - **Connected Rim Wall Run on the Hold (`packages/render`)**:
@@ -24,19 +52,12 @@ Newest first.
   - Interior walls (`!isRimTile`) strictly preserve the original isometric block visual.
   - Tile clicks and building placement/upgrade contracts remain 100% intact.
 - **Stronger 8×6 Terrain Chips on the Board Band (`packages/render`)**:
-  - All 6 tabletop province terrain chips redesigned to read instantly at 0.58 zoom:
-    - **Peak**: Continuous grand mountain ridge with illuminated western granite slopes, dark basalt eastern shadows, dividing arête, pure white snowcaps across 3 peaks, glacial cirque, and scree teeth.
-    - **Shore**: Deep ocean waters, turquoise shallows, golden sand beach with wet sand tideline, curling wave rollers, crashing white surf crest, and bubbling sea foam lace.
-    - **Wood**: Dense stand of 6-7 layered evergreen pines with forest mulch floor, timber trunks, dark spruce background trees, emerald mid-tier pines, and towering foreground monarch pines with highlighted boughs.
-    - **Waste**: Scorched basalt caldera with dark crust plates, radiating volcanic fissure trenches with multi-layered outer crimson magma glow, incandescent orange lava mid-vein, pulsing yellow-white heat core, caldera vent, and floating ember specks.
-    - **Hill**: Topographic highland contour ridges with shaded elevation terraces, rounded hill domes, 3 bold highlighted elevation contour bands, and exposed granite bluffs.
-    - **Plain**: Lush pastoral meadow with rolling grass knoll bands, clustered 3-blade tall grass tufts, and sprinkled chamomile daisy, yellow buttercup, and blue cornflower blossoms.
+  - All 6 tabletop province terrain chips redesigned to read instantly at 0.58 zoom (Peak, Shore, Wood, Waste, Hill, Plain).
 - **Sim & Server Purity**:
   - `git diff main -- packages/sim server` 100% empty.
   - Automated tests passing: 87/87 in `@second-crown/sim`, 14/14 in `@second-crown/render`.
   - App production build clean (`npm run build -w @second-crown/app`).
   - Fog chips, hostile red meeple, cottage art, zoom/pan, ChromeDock, and dim lanterns completely preserved.
->>>>>>> origin/bakeoff/gemini-map
 
 ## 2026-09-07 — Claude War Tab Briefing (`bakeoff/claude-war2`)
 

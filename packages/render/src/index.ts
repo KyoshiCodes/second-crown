@@ -122,6 +122,169 @@ export function isMarchHostile(march: { realmId: string }): boolean {
   return march.realmId !== "player";
 }
 
+/**
+ * Resolves the primary unit type for a march column.
+ * Inspects march.force counts with tier priority (champion > siege > knight > cavalry > archer > skirmisher > spearman > militia).
+ * Defaults to "militia" when force is empty or unspecified.
+ */
+export function primaryUnitTypeForMarch(march: { force?: Record<string, number>; levy?: number }): string {
+  if (march.force) {
+    let bestType = "";
+    let maxCount = 0;
+    const tierPriority: Record<string, number> = {
+      champion: 10,
+      siege: 9,
+      knight: 8,
+      cavalry: 7,
+      archer: 6,
+      skirmisher: 5,
+      spearman: 4,
+      militia: 1,
+    };
+    for (const [typeId, count] of Object.entries(march.force)) {
+      const n = Number(count) || 0;
+      if (n > maxCount || (n === maxCount && (tierPriority[typeId] ?? 0) > (tierPriority[bestType] ?? 0))) {
+        maxCount = n;
+        bestType = typeId;
+      }
+    }
+    if (bestType && maxCount > 0) return bestType;
+  }
+  return "militia";
+}
+
+export interface UnitVisualPalette {
+  id: string;
+  name: string;
+  tabardColor: number;
+  tabardDark: number;
+  armorColor: number;
+  weaponColor: number;
+  accentColor: number;
+  weaponKind: "spear" | "bow" | "horse" | "heater" | "siege" | "club" | "javelin" | "greatsword";
+  helmKind: "none" | "kettle" | "cap" | "plate" | "crown";
+  hasMount: boolean;
+  isChassis: boolean;
+}
+
+export function unitPalette(typeId: string): UnitVisualPalette {
+  switch (typeId) {
+    case "archer":
+      return {
+        id: "archer",
+        name: "Archer",
+        tabardColor: 0x14532d,
+        tabardDark: 0x052e16,
+        armorColor: 0x78350f,
+        weaponColor: 0x854d0e,
+        accentColor: 0xfacc15,
+        weaponKind: "bow",
+        helmKind: "cap",
+        hasMount: false,
+        isChassis: false,
+      };
+    case "spearman":
+      return {
+        id: "spearman",
+        name: "Spearman",
+        tabardColor: 0x1e40af,
+        tabardDark: 0x172554,
+        armorColor: 0x94a3b8,
+        weaponColor: 0xf1f5f9,
+        accentColor: 0xfacc15,
+        weaponKind: "spear",
+        helmKind: "kettle",
+        hasMount: false,
+        isChassis: false,
+      };
+    case "skirmisher":
+      return {
+        id: "skirmisher",
+        name: "Skirmisher",
+        tabardColor: 0x15803d,
+        tabardDark: 0x14532d,
+        armorColor: 0x5c3818,
+        weaponColor: 0xcbd5e1,
+        accentColor: 0xfde047,
+        weaponKind: "javelin",
+        helmKind: "cap",
+        hasMount: false,
+        isChassis: false,
+      };
+    case "cavalry":
+      return {
+        id: "cavalry",
+        name: "Cavalry",
+        tabardColor: 0x1d4ed8,
+        tabardDark: 0x1e3a8a,
+        armorColor: 0x94a3b8,
+        weaponColor: 0xf8fafc,
+        accentColor: 0x22c55e,
+        weaponKind: "horse",
+        helmKind: "kettle",
+        hasMount: true,
+        isChassis: false,
+      };
+    case "knight":
+      return {
+        id: "knight",
+        name: "Knight",
+        tabardColor: 0xb91c1c,
+        tabardDark: 0x7f1d1d,
+        armorColor: 0xcbd5e1,
+        weaponColor: 0xf8fafc,
+        accentColor: 0xfacc15,
+        weaponKind: "heater",
+        helmKind: "plate",
+        hasMount: false,
+        isChassis: false,
+      };
+    case "siege":
+      return {
+        id: "siege",
+        name: "Siege Engine",
+        tabardColor: 0x5c3818,
+        tabardDark: 0x3b2010,
+        armorColor: 0x27272a,
+        weaponColor: 0x94a3b8,
+        accentColor: 0xd4a359,
+        weaponKind: "siege",
+        helmKind: "none",
+        hasMount: false,
+        isChassis: true,
+      };
+    case "champion":
+      return {
+        id: "champion",
+        name: "Champion",
+        tabardColor: 0x581c87,
+        tabardDark: 0x3b0764,
+        armorColor: 0xf59e0b,
+        weaponColor: 0x38bdf8,
+        accentColor: 0xfde047,
+        weaponKind: "greatsword",
+        helmKind: "crown",
+        hasMount: false,
+        isChassis: false,
+      };
+    case "militia":
+    default:
+      return {
+        id: "militia",
+        name: "Militia",
+        tabardColor: 0x854d0e,
+        tabardDark: 0x543007,
+        armorColor: 0x52525b,
+        weaponColor: 0x78350f,
+        accentColor: 0xa16207,
+        weaponKind: "club",
+        helmKind: "none",
+        hasMount: false,
+        isChassis: false,
+      };
+  }
+}
+
 export interface RimFort {
   x: number;
   y: number;
@@ -2895,56 +3058,248 @@ function paintBoardMarches(
     const pawnY = fromB.cy + dy * progress;
 
     // 3. Marching Pawn / Meeple Presentation
-    const bob = Math.abs(Math.sin(phase * 6)) * 2.5;
+    const facing = dx >= 0 ? 1 : -1;
+    const stepIdx = Math.floor((phase * 6) % 4);
+    const frame: 0 | 1 | 2 = stepIdx === 1 ? 1 : stepIdx === 3 ? 2 : 0;
+    const bob = frame === 0 ? 0 : 2;
 
     // Base contact shadow
     pawnsG.ellipse(pawnX, pawnY + 6, 8, 3.5);
     pawnsG.fill({ color: 0x000000, alpha: 0.45 });
 
     if (isPlayer) {
-      // Player: Classic Blue & Golden Wood Marching Pawn
+      // Player: Meeple styled in the matching unit type pixel language (archer, knight, cavalry, siege, spearman, etc.)
+      const unitType = primaryUnitTypeForMarch(m);
+      const pal = unitPalette(unitType);
+
       // Wooden pawn pedestal base
-      pawnsG.rect(pawnX - 6, pawnY + 2 - bob, 12, 4);
+      pawnsG.rect(pawnX - 6.5, pawnY + 2 - bob, 13, 4);
       pawnsG.fill({ color: 0x854d0e });
+      pawnsG.stroke({ width: 0.8, color: 0x543007 });
 
-      // Tapered wooden torso
-      pawnsG.poly([
-        pawnX - 5, pawnY + 2 - bob,
-        pawnX - 3, pawnY - 8 - bob,
-        pawnX + 3, pawnY - 8 - bob,
-        pawnX + 5, pawnY + 2 - bob,
-      ]);
-      pawnsG.fill({ color: 0xca8a04 });
+      if (pal.isChassis) {
+        // Siege Engine: wheeled chassis, upright A-frame, throwing beam
+        pawnsG.circle(pawnX - 5.5, pawnY + 2 - bob, 3);
+        pawnsG.fill({ color: 0x451a03 });
+        pawnsG.stroke({ width: 0.8, color: 0x27272a });
+        pawnsG.circle(pawnX + 5.5, pawnY + 2 - bob, 3);
+        pawnsG.fill({ color: 0x451a03 });
+        pawnsG.stroke({ width: 0.8, color: 0x27272a });
 
-      // Royal blue faction tunic
-      pawnsG.rect(pawnX - 2.5, pawnY - 7 - bob, 5, 6);
-      pawnsG.fill({ color: 0x1d4ed8 });
+        pawnsG.rect(pawnX - 7.5, pawnY - 3 - bob, 15, 4.5);
+        pawnsG.fill({ color: 0x5c3818 });
+        pawnsG.stroke({ width: 0.7, color: 0x27272a });
 
-      // Steel helmet
-      pawnsG.circle(pawnX, pawnY - 11 - bob, 3.5);
-      pawnsG.fill({ color: 0xe2e8f0 });
+        pawnsG.poly([pawnX - 3.5, pawnY - 3 - bob, pawnX, pawnY - 13 - bob, pawnX + 3.5, pawnY - 3 - bob]);
+        pawnsG.stroke({ width: 1.5, color: 0x78350f });
 
-      // Red plume
-      pawnsG.poly([pawnX, pawnY - 14 - bob, pawnX + 3, pawnY - 17 - bob, pawnX + 1, pawnY - 13 - bob]);
-      pawnsG.fill({ color: 0xef4444 });
+        const armTilt = frame === 1 ? -2 : frame === 2 ? 2 : 0;
+        pawnsG.moveTo(pawnX - facing * 7, pawnY - 5 - bob - armTilt);
+        pawnsG.lineTo(pawnX + facing * 8, pawnY - 17 - bob + armTilt);
+        pawnsG.stroke({ width: 1.8, color: 0x451a03 });
 
-      // Spear and waving pennant
-      pawnsG.moveTo(pawnX + 4, pawnY + 4 - bob);
-      pawnsG.lineTo(pawnX + 4, pawnY - 18 - bob);
-      pawnsG.stroke({ width: 1.2, color: 0x78350f });
+        pawnsG.rect(pawnX - facing * 8.5, pawnY - 7 - bob - armTilt, 3.5, 3.5);
+        pawnsG.fill({ color: 0x27272a });
+        pawnsG.circle(pawnX + facing * 8, pawnY - 17 - bob + armTilt, 2.2);
+        pawnsG.fill({ color: 0x94a3b8 });
+      } else if (pal.hasMount) {
+        // Cavalry: Warhorse with animated legs + mounted armored lancer
+        const hLeg1 = frame === 1 ? 1 : frame === 2 ? -1 : 0;
+        const hLeg2 = frame === 1 ? -1 : frame === 2 ? 1 : 0;
+        pawnsG.rect(pawnX - 5, pawnY - 1 - bob + hLeg1, 2.2, 4);
+        pawnsG.fill({ color: 0x451a03 });
+        pawnsG.rect(pawnX + 3.5, pawnY - 1 - bob + hLeg2, 2.2, 4);
+        pawnsG.fill({ color: 0x6b3a19 });
 
-      const wave = Math.sin(phase * 8) * 1.5;
-      pawnsG.poly([
-        pawnX + 4, pawnY - 18 - bob,
-        pawnX + 12, pawnY - 15 - bob + wave,
-        pawnX + 4, pawnY - 12 - bob,
-      ]);
-      pawnsG.fill({ color: 0xdc2626 });
+        pawnsG.rect(pawnX - 6, pawnY - 5 - bob, 12, 5);
+        pawnsG.fill({ color: 0x6b3a19 });
+
+        pawnsG.poly([
+          pawnX + facing * 3, pawnY - 5 - bob,
+          pawnX + facing * 7, pawnY - 11 - bob,
+          pawnX + facing * 9.5, pawnY - 9 - bob,
+          pawnX + facing * 5, pawnY - 3 - bob,
+        ]);
+        pawnsG.fill({ color: 0x6b3a19 });
+        pawnsG.rect(pawnX + facing * 6.5, pawnY - 12 - bob, 1.8, 2.5);
+        pawnsG.fill({ color: 0x18181b });
+
+        pawnsG.rect(pawnX - 2, pawnY - 6 - bob, 4.5, 2.5);
+        pawnsG.fill({ color: 0x451a03 });
+
+        // Rider
+        pawnsG.rect(pawnX - 2.5, pawnY - 11 - bob, 5, 5);
+        pawnsG.fill({ color: 0x1d4ed8 });
+        pawnsG.circle(pawnX, pawnY - 13 - bob, 2.8);
+        pawnsG.fill({ color: 0x94a3b8 });
+
+        // Lance with pennant
+        pawnsG.moveTo(pawnX - facing * 3, pawnY - 8 - bob);
+        pawnsG.lineTo(pawnX + facing * 12, pawnY - 15 - bob);
+        pawnsG.stroke({ width: 1.3, color: 0x854d0e });
+        pawnsG.poly([
+          pawnX + facing * 9, pawnY - 15 - bob,
+          pawnX + facing * 14, pawnY - 13.5 - bob,
+          pawnX + facing * 9, pawnY - 12 - bob,
+        ]);
+        pawnsG.fill({ color: 0x22c55e });
+      } else {
+        // Humanoid Walkers: militia, spearman, skirmisher, archer, knight, champion
+        const legL = frame === 1 ? -2 : frame === 2 ? 1 : -1;
+        const legR = frame === 1 ? 1 : frame === 2 ? -2 : 1;
+        pawnsG.rect(pawnX + legL, pawnY - 2 - bob, 2.2, 4);
+        pawnsG.fill({ color: pal.armorColor === 0xcbd5e1 ? 0x94a3b8 : 0x27272a });
+        pawnsG.rect(pawnX + legR, pawnY - 2 - bob, 2.2, 4);
+        pawnsG.fill({ color: 0x18181b });
+
+        // Tapered torso
+        pawnsG.poly([
+          pawnX - 4, pawnY + 1 - bob,
+          pawnX - 3, pawnY - 7 - bob,
+          pawnX + 3, pawnY - 7 - bob,
+          pawnX + 4, pawnY + 1 - bob,
+        ]);
+        pawnsG.fill({ color: pal.tabardColor });
+
+        // Belt / accent trim
+        pawnsG.rect(pawnX - 3, pawnY - 2 - bob, 6, 1.4);
+        pawnsG.fill({ color: pal.accentColor });
+
+        // Head
+        pawnsG.circle(pawnX, pawnY - 10 - bob, 3);
+        pawnsG.fill({ color: 0xfbcfe8 });
+
+        // Helmet / Headwear
+        if (pal.helmKind === "kettle") {
+          pawnsG.rect(pawnX - 4, pawnY - 12 - bob, 8, 2);
+          pawnsG.fill({ color: 0x94a3b8 });
+          pawnsG.circle(pawnX, pawnY - 12.5 - bob, 2.4);
+          pawnsG.fill({ color: 0xcbd5e1 });
+        } else if (pal.helmKind === "cap") {
+          pawnsG.rect(pawnX - 3, pawnY - 12 - bob, 6, 2.5);
+          pawnsG.fill({ color: pal.tabardColor });
+          pawnsG.poly([
+            pawnX - facing * 1.5, pawnY - 12 - bob,
+            pawnX - facing * 5, pawnY - 15 - bob,
+            pawnX - facing * 1.5, pawnY - 13 - bob,
+          ]);
+          pawnsG.fill({ color: pal.accentColor });
+        } else if (pal.helmKind === "plate") {
+          pawnsG.rect(pawnX - 3.5, pawnY - 13 - bob, 7, 5.5);
+          pawnsG.fill({ color: 0xcbd5e1 });
+          pawnsG.rect(pawnX - 2, pawnY - 11 - bob, 4, 1.2);
+          pawnsG.fill({ color: 0x0f172a });
+          pawnsG.poly([pawnX - 1, pawnY - 13 - bob, pawnX, pawnY - 16 - bob, pawnX + 1, pawnY - 13 - bob]);
+          pawnsG.fill({ color: 0xdc2626 });
+        } else if (pal.helmKind === "crown") {
+          pawnsG.rect(pawnX - 3.5, pawnY - 13 - bob, 7, 4.5);
+          pawnsG.fill({ color: 0xf59e0b });
+          pawnsG.poly([
+            pawnX - 3, pawnY - 13 - bob,
+            pawnX - 1.5, pawnY - 16 - bob,
+            pawnX, pawnY - 13.5 - bob,
+            pawnX + 1.5, pawnY - 16 - bob,
+            pawnX + 3, pawnY - 13 - bob,
+          ]);
+          pawnsG.fill({ color: 0xfde047 });
+        } else {
+          // Militia peasant coif
+          pawnsG.rect(pawnX - 2.5, pawnY - 12 - bob, 5, 2.5);
+          pawnsG.fill({ color: 0x52525b });
+        }
+
+        // Arm motion & weapons
+        const armSwing = frame === 1 ? -1 : frame === 2 ? 1 : 0;
+        if (pal.weaponKind === "spear") {
+          pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
+          pawnsG.lineTo(pawnX + facing * 4, pawnY - 18 - bob + armSwing);
+          pawnsG.stroke({ width: 1.3, color: 0x78350f });
+          pawnsG.poly([
+            pawnX + facing * 4, pawnY - 18 - bob + armSwing,
+            pawnX + facing * 4 - 2, pawnY - 15 - bob + armSwing,
+            pawnX + facing * 4 + 2, pawnY - 15 - bob + armSwing,
+          ]);
+          pawnsG.fill({ color: 0xf1f5f9 });
+
+          // Round shield on off-arm
+          pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
+          pawnsG.fill({ color: 0x1e3a8a });
+          pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 1.2);
+          pawnsG.fill({ color: 0xfacc15 });
+        } else if (pal.weaponKind === "bow") {
+          pawnsG.poly([
+            pawnX + facing * 3.5, pawnY - 15 - bob + armSwing,
+            pawnX + facing * 5.5, pawnY - 7 - bob + armSwing,
+            pawnX + facing * 3.5, pawnY + 1 - bob + armSwing,
+          ]);
+          pawnsG.stroke({ width: 1.5, color: 0x854d0e });
+          pawnsG.moveTo(pawnX + facing * 3.5, pawnY - 15 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 3.5, pawnY + 1 - bob + armSwing);
+          pawnsG.stroke({ width: 0.8, color: 0xe2e8f0 });
+
+          // Quiver over shoulder
+          pawnsG.rect(pawnX - facing * 3.5, pawnY - 11 - bob, 2.2, 6);
+          pawnsG.fill({ color: 0x78350f });
+          pawnsG.rect(pawnX - facing * 3.5, pawnY - 13 - bob, 2.2, 2);
+          pawnsG.fill({ color: 0xf8fafc });
+        } else if (pal.weaponKind === "javelin") {
+          pawnsG.moveTo(pawnX - facing * 2, pawnY - 3 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 8, pawnY - 13 - bob + armSwing);
+          pawnsG.stroke({ width: 1.2, color: 0x78350f });
+          pawnsG.poly([
+            pawnX + facing * 8, pawnY - 13 - bob + armSwing,
+            pawnX + facing * 9, pawnY - 10 - bob + armSwing,
+            pawnX + facing * 6, pawnY - 11 - bob + armSwing,
+          ]);
+          pawnsG.fill({ color: 0xcbd5e1 });
+          pawnsG.circle(pawnX - facing * 3, pawnY - 5 - bob, 2.5);
+          pawnsG.fill({ color: 0x854d0e });
+        } else if (pal.weaponKind === "heater") {
+          // Knight heater shield
+          pawnsG.poly([
+            pawnX - facing * 2, pawnY - 9 - bob + armSwing,
+            pawnX - facing * 6.5, pawnY - 9 - bob + armSwing,
+            pawnX - facing * 6.5, pawnY - 3 - bob + armSwing,
+            pawnX - facing * 4.2, pawnY + 1 - bob + armSwing,
+            pawnX - facing * 2, pawnY - 3 - bob + armSwing,
+          ]);
+          pawnsG.fill({ color: 0xb91c1c });
+          pawnsG.moveTo(pawnX - facing * 4.2, pawnY - 9 - bob + armSwing);
+          pawnsG.lineTo(pawnX - facing * 4.2, pawnY + 1 - bob + armSwing);
+          pawnsG.stroke({ width: 1, color: 0xfacc15 });
+
+          // Broadsword
+          pawnsG.moveTo(pawnX + facing * 3.5, pawnY - 2 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 3.5, pawnY - 13 - bob + armSwing);
+          pawnsG.stroke({ width: 1.5, color: 0xf8fafc });
+          pawnsG.moveTo(pawnX + facing * 1.5, pawnY - 4 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 5.5, pawnY - 4 - bob + armSwing);
+          pawnsG.stroke({ width: 1.2, color: 0xeab308 });
+        } else if (pal.weaponKind === "greatsword") {
+          // Champion glowing runic greatsword + cape
+          pawnsG.moveTo(pawnX + facing * 4, pawnY + 1 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 4, pawnY - 16 - bob + armSwing);
+          pawnsG.stroke({ width: 2, color: 0x38bdf8 });
+          pawnsG.moveTo(pawnX + facing * 1, pawnY - 3 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 7, pawnY - 3 - bob + armSwing);
+          pawnsG.stroke({ width: 1.5, color: 0xfde047 });
+          pawnsG.poly([
+            pawnX - facing * 2.5, pawnY - 7 - bob,
+            pawnX - facing * 6.5, pawnY + 2 - bob,
+            pawnX - facing * 1.5, pawnY + 1 - bob,
+          ]);
+          pawnsG.fill({ color: 0xdc2626 });
+        } else {
+          // Militia: spear-less levy club
+          pawnsG.rect(pawnX + facing * 3, pawnY - 7 - bob + armSwing, 1.8, 5);
+          pawnsG.fill({ color: 0x78350f });
+        }
+      }
 
       // Floating ETA pill badge
       pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
       pawnsG.fill({ color: 0x181410, alpha: 0.92 });
-      pawnsG.stroke({ width: 1, color: 0xf59e0b, alpha: 0.9 });
+      pawnsG.stroke({ width: 1, color: pal.accentColor, alpha: 0.9 });
 
       // Progress timer dots inside pill
       pawnsG.circle(pawnX - 10, pawnY - 23.5 - bob, 1.8);

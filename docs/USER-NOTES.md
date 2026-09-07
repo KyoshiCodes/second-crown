@@ -1,14 +1,41 @@
 # USER-NOTES
 
-Last updated: 2026-09-07 | Version: playtest-0.11 (Gemini Map: Connected Rim Wall Run & Stronger Terrain Chips)
+Last updated: 2026-09-07 | Version: playtest-0.12 (Gemini Army: Pixel Army Tab & Board Marching Columns)
 
 Play: `https://129.153.17.72.sslip.io/`
 
-<<<<<<< HEAD
-## Behind the scenes: rim fort listing (`bakeoff/claude-walls`)
+## Living Pixel Army Roster & Board Marching Columns
 
-No visible change in this PR. It adds a sim-only helper, `listRimForts`, that reads your finished Walls and Gate on the hold rim and hands them back in clockwise order — the groundwork a future renderer needs to draw a connected wall run around your hold instead of separate wall tiles. Placing and upgrading Walls and Gates works exactly as before.
-=======
+Your military forces now share the authentic pixel art language of hold walkers, keeps, and fortifications:
+
+1. **Pixel Silhouettes Across the Army Tab**:
+   - The flat chip portraits have been replaced with animated integer-pixel silhouettes in the exact style of your hold's citizens and stone keeps:
+     - **Militia**: Spear-less peasant levy in homespun wool and cloth coif, with humble posture and wooden cudgel.
+     - **Spearman**: Disciplined line infantry in polished steel kettle hat, royal blue tabard, tall ash spear with steel point, and round wooden shield with brass boss.
+     - **Skirmisher**: Agile forward scout in leather coif, hunter green coat, throwing javelins, and arm buckler.
+     - **Archer**: Deep forest green coat, feathered archer cap, recurve yew bow with taut string and nocked arrow, and quiver of arrows over the shoulder.
+     - **Cavalry**: Galloping warhorse with animated trotting hooves and leather saddle, carrying a mounted armored lancer in royal blue tunic with fluttering pennant.
+     - **Knight**: Full steel plate armor, great helm with narrow visor eye-slit, heraldic crimson heater shield with golden cross, and steel broadsword.
+     - **Siege Engine**: Sturdy timber carriage on spoked wooden wheels, with an upright A-frame and counterweight throwing arm loaded with a carved stone boulder.
+     - **Champion**: Radiant gilded plate armor, winged royal crown, imperial purple tabard, glowing runic broadsword, and royal crimson cape.
+   - Every unit features discrete 2–3 frame marching and idle stride animation, directional facing, and faction tabard colors.
+
+2. **Upgraded Army Tab Roster**:
+   - The Army training section now presents rich medieval unit cards displaying the animated pixel figure, name, combat power rating, training resource cost, and role blurb.
+   - Dedicated Champion recruitment card featuring the gilded champion silhouette, custom naming input, and recruitment actions.
+   - Raised companies in "Your Host" display their company commander portrait alongside an animated squad formation marching in formation.
+   - March column composition in province inspect cards shows mini pixel icons next to each unit type.
+
+3. **Board Meeple Reuse**:
+   - Player marching columns traveling across the regional tabletop board (`zoom <= 0.70`) no longer appear as generic blue pawns!
+   - Sent columns automatically adopt the sprite, equipment, and colors of the unit type on the march:
+     - An archer column appears as an archer with recurve bow and forest coat.
+     - A knight column marches with great helm and crimson heater shield.
+     - A cavalry column charges forward atop a warhorse mount.
+     - A siege column rolls across the provinces as a wheeled timber siege engine.
+   - Marches animate with 2–3 frame stride cadence, facing their travel direction along the amber dotted route trail with live ETA counter.
+   - Hostile marches preserve their imposing red/blackened iron war meeple with horned helm and glowing crimson visor.
+
 ## Connected Rim Wall Run on the Hold
 
 Building fortifications along the outer rim of your 16×10 hold (`x=0`, `y=0`, `x=15`, `y=9`) now creates a majestic, unbroken fortress wall:
@@ -36,7 +63,6 @@ When zooming out to regional board view (`zoom <= 0.70`, default `0.58`), all 6 
 - **Waste Glows**: Scorched volcanic basalt crust cut by radiating magma fissures with a deep crimson outer glow, blazing incandescent orange lava channels, an animated pulsing golden-yellow heat core, and floating ember motes.
 - **Hill has Contours**: Rolling highland topographic knolls with shaded elevation terraces, rounded hill domes, three bold highlighted contour ridges, and exposed granite bluffs.
 - **Plain Stays Meadow**: A lush pastoral meadow with rolling grass knoll bands, clustered 3-blade tall grass tufts, and sprinkled chamomile daisy, yellow buttercup, and blue cornflower blossoms.
->>>>>>> origin/bakeoff/gemini-map
 
 ## Distinct Residential Cottages & Fortified Rim Gatehouses
 

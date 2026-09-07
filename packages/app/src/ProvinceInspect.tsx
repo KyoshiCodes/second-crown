@@ -10,6 +10,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
+import { UnitIcon } from "./UnitIcon";
 
 const TERRAIN: Record<string, string> = {
   plain: "Plain",
@@ -108,13 +109,24 @@ export function ProvinceInspect(props: {
             <span style={{ marginTop: 8, display: "inline-block" }}>Scouted.</span>
           )}
           <div style={{ marginTop: 10, fontSize: 12 }}>
-            Column
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>March Column Composition</div>
             {roster.map((u) => {
               const have = owned(state, u.id);
               if (have <= 0 && !(force[u.id] > 0)) return null;
               return (
-                <label key={u.id} style={{ display: "block", marginTop: 4 }}>
-                  {u.name} (have {have})
+                <label
+                  key={u.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    marginTop: 4,
+                  }}
+                >
+                  <UnitIcon typeId={u.id} size={22} animated />
+                  <span>
+                    {u.name} (have {have})
+                  </span>
                   <input
                     type="number"
                     min={0}
@@ -126,7 +138,7 @@ export function ProvinceInspect(props: {
                         [u.id]: Math.max(0, Math.min(have, Number(e.target.value) || 0)),
                       }))
                     }
-                    style={{ width: 64, marginLeft: 8 }}
+                    style={{ width: 64, marginLeft: "auto" }}
                   />
                 </label>
               );

@@ -16,6 +16,8 @@ import {
   listRimFortsPresentation,
   GRID_W,
   GRID_H,
+  primaryUnitTypeForMarch,
+  unitPalette,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 
@@ -267,4 +269,61 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       { x: 0, y: 5, kind: "wall" },
     ]);
   });
+
+  describe("primaryUnitTypeForMarch and unitPalette", () => {
+    it("defaults to militia when force is undefined or empty", () => {
+      expect(primaryUnitTypeForMarch({})).toBe("militia");
+      expect(primaryUnitTypeForMarch({ levy: 5 })).toBe("militia");
+      expect(primaryUnitTypeForMarch({ force: {} })).toBe("militia");
+    });
+
+    it("identifies single-type march columns correctly", () => {
+      expect(primaryUnitTypeForMarch({ force: { archer: 10 } })).toBe("archer");
+      expect(primaryUnitTypeForMarch({ force: { knight: 4 } })).toBe("knight");
+      expect(primaryUnitTypeForMarch({ force: { cavalry: 6 } })).toBe("cavalry");
+      expect(primaryUnitTypeForMarch({ force: { siege: 2 } })).toBe("siege");
+      expect(primaryUnitTypeForMarch({ force: { spearman: 8 } })).toBe("spearman");
+      expect(primaryUnitTypeForMarch({ force: { skirmisher: 5 } })).toBe("skirmisher");
+      expect(primaryUnitTypeForMarch({ force: { champion: 1 } })).toBe("champion");
+    });
+
+    it("resolves multi-type columns by highest count and tier priority", () => {
+      // Archer has higher count than militia
+      expect(primaryUnitTypeForMarch({ force: { militia: 2, archer: 5 } })).toBe("archer");
+      // Equal count tie broken by higher tier priority (knight > spearman)
+      expect(primaryUnitTypeForMarch({ force: { spearman: 4, knight: 4 } })).toBe("knight");
+      // Champion priority on equal count
+      expect(primaryUnitTypeForMarch({ force: { champion: 1, siege: 1 } })).toBe("champion");
+    });
+
+    it("provides distinct palettes and gear for all 8 unit types", () => {
+      const types = ["militia", "spearman", "skirmisher", "archer", "cavalry", "knight", "siege", "champion"] as const;
+      const palMap = new Map();
+      for (const t of types) {
+        const pal = unitPalette(t);
+        expect(pal.id).toBe(t);
+        expect(typeof pal.tabardColor).toBe("number");
+        expect(typeof pal.weaponKind).toBe("string");
+        palMap.set(t, pal);
+      }
+
+      // Archer uses bow and green tabard
+      expect(palMap.get("archer").weaponKind).toBe("bow");
+      expect(palMap.get("archer").tabardColor).toBe(0x14532d);
+
+      // Knight uses heater shield and plate
+      expect(palMap.get("knight").weaponKind).toBe("heater");
+      expect(palMap.get("knight").helmKind).toBe("plate");
+
+      // Cavalry is mounted
+      expect(palMap.get("cavalry").hasMount).toBe(true);
+
+      // Siege is a chassis
+      expect(palMap.get("siege").isChassis).toBe(true);
+
+      // Militia is spear-less
+      expect(palMap.get("militia").weaponKind).toBe("club");
+    });
+  });
 });
+
