@@ -7,9 +7,11 @@ import {
   edgeWallCount,
   getBuildingType,
   hasClosedWallRing,
+  housingCap,
   listBuildableTypes,
   listScarred,
   MARKET_OFFERS,
+  population,
   settlementName,
   tryRepair,
   tryTrade,
@@ -29,18 +31,18 @@ export function KingdomTab(props: {
   const marketsN = state ? countBuilding(state, "market") : 0;
   const selected = selectedBuild ? getBuildingType(selectedBuild) : undefined;
   const hold = state ? settlementName(state) : "Your Hold";
-  const [name, setName] = React.useState(hold);
-  React.useEffect(() => setName(hold), [hold]);
   const season = state ? currentSeason(state) : "Spring";
   const scarred = state ? listScarred(state) : [];
   const rim = state ? edgeWallCount(state, "player") : 0;
   const closed = state ? hasClosedWallRing(state) : false;
   const hp = state ? wallHp(state) : 0;
+  const pop = state ? population(state) : 0;
+  const beds = state ? housingCap(state) : 2;
 
   return (
     <>
       <p style={{ fontSize: 13 }}>
-        {hold} · {season}. Walls on the map edge count toward the ring ({rim}/8{closed ? ", closed" : ""}, {hp} wall HP).
+        {hold} · {season}. People {pop}/{beds}. Walls on the map edge ({rim}/8{closed ? ", closed" : ""}, {hp} wall HP).
       </p>
       {selected ? <p style={{ fontSize: 12, opacity: 0.8 }}>{selected.name}: {selected.blurb}</p> : null}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
