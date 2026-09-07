@@ -1,6 +1,12 @@
 # HANDOFF
 
-<<<<<<< HEAD
+Bakeoff Claude lane delivered on branch `bakeoff/claude-walls` (PR into main unmerged).
+
+- **`listRimForts(state, realmId = "player")` (`packages/sim/src/systems/rimForts.ts`)**: returns `{ x, y, kind: "wall" | "gate" }[]` for finished (`completesAtTick === null`) `walls`/`gate` buildings on the 16×10 hold rim (`x===0 || y===0 || x===15 || y===9`), sorted walking the rim clockwise from `(0,0)` (top L→R, right T→B, bottom R→L, left B→T) so `@second-crown/render` can stroke a connected ring without recomputing the walk order.
+- Exported from `packages/sim/src/index.ts` alongside a new `RimFort` type.
+- New tests in `packages/sim/src/systems/rimForts.test.ts`: empty rim, mixed walls+gate sorted clockwise, and interior walls / unfinished buildings / other realms excluded.
+- Pure sim helper only. `git diff main -- packages/app packages/render server` is empty. No combat, march, fog, or housing changes. Full `@second-crown/sim` test suite (90 tests) and the app build (`tsc -b && vite build`) pass.
+
 W16 Claude War tab briefing delivered on branch `bakeoff/claude-war2` (PR into main unmerged).
 - War tab now opens with a single "Briefing" card readable in ~20 seconds:
   - **Incoming**: one line per hostile march bound for your hold — name (only once a Watchtower is built, otherwise "Unknown host") and ETA in seconds — followed by current Wall HP and whether the gate is up or down.
@@ -21,9 +27,8 @@ W3 Gemini two-band camera delivered on branch `bakeoff/gemini-board-cam` (PR int
 - Active player march from `listMarches` / `activePlayerMarch` displays an animated tabletop marching meeple pawn lerped by tick vs arrivesTick with amber route path.
 - Board / Hold toggle button next to ChromeDock and on canvas controls allows switching bands without mouse wheel.
 - Sim and server purity strictly preserved (`git diff main -- packages/sim server` 100% empty).
-=======
+
 Bakeoff Gemini lane delivered on branch `bakeoff/gemini-board2` (PR into main unmerged).
->>>>>>> origin/bakeoff/gemini-board2
 
 - **Distinct Isometric Cottage & Gatehouse (`packages/render`)**:
   - **Cottage (`case "cottage"`)**: Cozy half-timbered residential dwelling with steep gabled reed thatch, stone chimney with curling animated smoke puffs, leaded-glass window glowing with honey candlelight, arched wooden door with brass knob, stone doorstep, stone-lined flowerbed with blossoms, and stacked cord of split firewood.

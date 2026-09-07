@@ -2,7 +2,13 @@
 
 Newest first.
 
-<<<<<<< HEAD
+## 2026-09-07 — Claude Rim Fort Listing (`bakeoff/claude-walls`)
+
+- **Sim helper (`packages/sim/src/systems/rimForts.ts`)**: new `listRimForts(state, realmId = "player")` returns `{ x, y, kind: "wall" | "gate" }[]` for finished `walls`/`gate` buildings on the 16×10 hold rim (`x===0 || y===0 || x===15 || y===9`), ordered clockwise from `(0,0)` so a renderer can stroke a connected ring.
+- **Sim exports (`packages/sim/src/index.ts`)**: `listRimForts` and the `RimFort` type are now exported from `@second-crown/sim`.
+- **Tests (`packages/sim/src/systems/rimForts.test.ts`)**: empty rim, mixed walls+gate sorted clockwise, and interior walls / unfinished buildings / other realms excluded.
+- **Sim & App Purity**: `git diff main -- packages/app packages/render server` empty. No combat, march, fog, housing, or tickEngine changes. Full `@second-crown/sim` test suite (90 tests) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-09-07 — Claude War Tab Briefing (`bakeoff/claude-war2`)
 
 - **War Tab Briefing (`packages/app/src/WarRoom.tsx`)**:
@@ -12,7 +18,7 @@ Newest first.
     - **People**: population vs. housing cap.
 - **Sim exports (`packages/sim/src/index.ts`)**: `gateOnRim` and `gateHp` are now exported from `@second-crown/sim` (pure re-exports of existing `systems/gate.ts` functions already used internally by `wallHp`). No behavior change.
 - **Sim & Core Purity**: `git diff main -- packages/sim/src/core` empty. No combat math, march formulas, fog rules, tickEngine, Discord, or Caddy changes. Full `@second-crown/sim` test suite (87 tests) and `npm run build -w @second-crown/app` pass.
-=======
+
 ## 2026-09-07 — Gemini Isometric Cottage & Gate, Board Fog Chips & Hostile Iron Meeple (`bakeoff/gemini-board2`)
 
 - **Distinct Isometric Cottage & Gatehouse (`packages/render`)**:
@@ -39,7 +45,6 @@ Newest first.
   - All automated tests passing: 87/87 in `@second-crown/sim`, 12/12 in `@second-crown/render`.
   - App production build clean (`npm run build -w @second-crown/app`).
   - Zoom/pan, tile clicks, ChromeDock, recorded audio, and dim holiday lanterns fully preserved.
->>>>>>> origin/bakeoff/gemini-board2
 
 ## 2026-09-07 — Gemini Two-Band Camera & Tabletop Board Diorama (`bakeoff/gemini-board-cam`)
 

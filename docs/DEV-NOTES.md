@@ -2,7 +2,15 @@
 
 Last updated: 2026-09-07
 
-<<<<<<< HEAD
+## Rim Fort Listing (Claude Walls Lane, `packages/sim`)
+
+- `packages/sim/src/systems/rimForts.ts` adds `listRimForts(state, realmId = "player")`, a pure reader with no new sim state and no changes to `packages/sim/src/core`.
+- Filters `state.buildings` to `realmId` matches with `completesAtTick === null` (finished) whose `typeId` is `"walls"` or `"gate"` and which sit on the rim (`x===0 || y===0 || x===GRID_W-1 || y===GRID_H-1`, `GRID_W=16`, `GRID_H=10` — the same constants `systems/gate.ts` and `systems/march.ts` already use), mapping `"walls"` → `kind: "wall"` and `"gate"` → `kind: "gate"`.
+- Sort order is a clockwise walk of the rim starting at `(0,0)`: top edge left→right (`y===0`, index `x`), right edge top→bottom (`x===15`, index `16 + (y-1)`), bottom edge right→left (`y===9`, index `25 + (14-x)`), left edge bottom→top (`x===0`, index `40 + (8-y)`). Each rim tile gets exactly one index (0–47) so ties don't occur, and a renderer can draw the ring by connecting `listRimForts` output in order.
+- Exported from `packages/sim/src/index.ts` as `listRimForts` plus the `RimFort` type.
+- Tests in `packages/sim/src/systems/rimForts.test.ts` cover an empty rim, a mix of walls and a gate sorted clockwise across all four edges, and exclusion of an interior wall, an unfinished (in-progress) wall, and a rival-realm wall.
+- `git diff main -- packages/app packages/render server` stays empty; this PR only adds a sim reader and exports it.
+
 ## War Tab Briefing (Claude War Lane, `packages/app`)
 
 - `WarRoom.tsx` opens with a single `sc-realm-card` titled "Briefing" instead of the old "Hold defense" blurb, built entirely from existing/newly-exported pure sim readers — no new sim state, no combat/march/fog changes:
@@ -10,7 +18,7 @@ Last updated: 2026-09-07
   - **Wounded**: `woundedCount(state)` / `infirmaryBeds(state)` with a "Treat (4 food)" button wired to `tryTreatWounded`, disabled when `woundedCount <= 0`. The 4-food cost is hardcoded in the label the same way the existing Repair button hardcodes "8 stone" (`REPAIR_STONE`/`TREAT_FOOD` live in `systems/ward.ts` and aren't exported as constants).
   - **People**: `population(state)` / `housingCap(state)`.
 - `packages/sim/src/index.ts` gained `export { gateOnRim, gateHp } from "./systems/gate.js";` — both functions already existed and were already used internally by `wallHp` (`systems/march.ts`); this only exposes them to `@second-crown/app`. No logic changed, so `git diff main -- packages/sim/src/core` stays empty and the full sim suite is unaffected.
-=======
+
 ## Presentation Architecture (Gemini Cottage, Gate, Fog Chips & Iron Meeple Lane)
 
 - **Distinct Isometric Architecture: Cottage & Rim Gatehouse (`packages/render`)**:
@@ -47,7 +55,6 @@ Last updated: 2026-09-07
     - Blackened polearm with jagged halberd blade (`0x52525b`) and ragged crimson/black battle pennant (`0x7f1d1d`).
     - Dotted crimson route trail (`0xef4444`) and blackened iron / crimson ETA pill badge (`0xdc2626`).
   - Player marches retain the classic wooden pedestal, golden torso, royal blue tunic, polished steel helm with crimson plume, and amber route trail.
->>>>>>> origin/bakeoff/gemini-board2
 
 ## Presentation Architecture (Gemini Tabletop Board Lane)
 

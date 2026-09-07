@@ -4,6 +4,10 @@ Last updated: 2026-09-07 | Version: playtest-0.10 (Gemini Board2: Cottages, Gate
 
 Play: `https://129.153.17.72.sslip.io/`
 
+## Behind the scenes: rim fort listing (`bakeoff/claude-walls`)
+
+No visible change in this PR. It adds a sim-only helper, `listRimForts`, that reads your finished Walls and Gate on the hold rim and hands them back in clockwise order — the groundwork a future renderer needs to draw a connected wall run around your hold instead of separate wall tiles. Placing and upgrading Walls and Gates works exactly as before.
+
 ## Distinct Residential Cottages & Fortified Rim Gatehouses
 
 1. **Cottage (+2 Citizen Beds)**:
