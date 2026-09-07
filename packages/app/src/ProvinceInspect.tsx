@@ -3,12 +3,10 @@ import {
   activePlayerMarch,
   getProvince,
   isProvinceSeen,
-  listMarches,
-  maxMarches,
   scoutCost,
-  tryMarch,
   tryMarchWith,
   tryScoutProvince,
+  UNIT_TYPES,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
@@ -31,6 +29,11 @@ const NODE: Record<string, string> = {
   field: "Forage field",
 };
 
+function owned(state: GameState, typeId: string): number {
+  const u = state.units.find((x) => x.realmId === "player" && x.typeId === typeId);
+  return Number(u?.count ?? 0);
+}
+
 export function ProvinceInspect(props: {
   state: GameState | undefined;
   selectedId: string | null;
@@ -38,28 +41,29 @@ export function ProvinceInspect(props: {
   act: ActFn;
 }) {
   const { state, selectedId, onClear, act } = props;
+  const [force, setForce] = React.useState<Record<string, number>>({ militia: 5 });
   if (!state || !selectedId) return null;
   const p = getProvince(state, selectedId);
   if (!p) return null;
   const home = selectedId === state.board.homeProvinceId;
+  const march = activePlayerMarch(state);
   const seen = isProvinceSeen(state, selectedId);
-  const marching = listMarches(state).filter((m) => m.realmId === "player").length;
-  const slots = maxMarches(state);
   const cost = scoutCost(state);
-  const occupant = !seen
-    ? "Unknown"
-    : p.occupantRealmId
+  const gold = Number(state.resources.gold ?? 0);
+  const occupant = seen
+    ? p.occupantRealmId
       ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
-      : "None";
-  const full = marching >= slots;
+      : "None"
+    : "Unknown (fog)";
+  const types = UNIT_TYPES.filter((u) => owned(state, u.id) > 0 || (force[u.id] ?? 0) > 0);
   return (
     <div
       style={{
         maxWidth: 560,
-        margin: "8px auto 0",
+        margin: "8px auto 10px",
         padding: "10px 12px",
-        background: "rgba(18,12,8,0.92)",
-        border: "1px solid #78531e",
+        background: "rgba(18,12,8,0.94)",
+        border: "1px solid #c8963e",
         borderRadius: 8,
         fontSize: 13,
       }}
@@ -73,57 +77,75 @@ export function ProvinceInspect(props: {
         </button>
       </div>
       <div style={{ opacity: 0.85, marginTop: 4 }}>
-        {seen ? NODE[p.node] ?? p.node : "Fog"} · Occupant: {occupant}
+        {seen ? NODE[p.node] ?? p.node : "Fog hides the token."} · Occupant: {occupant}
       </div>
-      <div style={{ marginTop: 6, color: "#fef08a" }}>
-        Companies out {marching}/{slots}
-      </div>
-      <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-        {home ? (
-          <span style={{ opacity: 0.75 }}>This is your hold. Zoom in to build.</span>
-        ) : (
-          <>
-            {!seen ? (
-              <button
-                type="button"
-                onClick={() =>
-                  act((s) => (tryScoutProvince(s, selectedId) ? "Scouts return with a map." : `Need ${scoutCost(s)} gold, or already seen.`))
-                }
-              >
-                Scout ({cost} gold)
-              </button>
-            ) : null}
+      {march ? (
+        <div style={{ marginTop: 6, color: "#fef08a" }}>
+          Company marching to {march.toId} · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
+        </div>
+      ) : null}
+      {home ? (
+        <div style={{ marginTop: 8, opacity: 0.8 }}>This is your hold. Zoom in to build.</div>
+      ) : (
+        <>
+          {!seen ? (
             <button
               type="button"
-              disabled={full}
+              style={{ marginTop: 8 }}
+              disabled={gold < cost}
               onClick={() =>
                 act((s) => {
-                  const ok = tryMarch(s, selectedId);
-                  if (!ok) return "Need militia, or no free company slot.";
-                  const m = activePlayerMarch(s);
-                  const eta = m ? m.arrivesTick - s.meta.tick : 0;
-                  return `5 militia marching. ETA ${eta} ticks.`;
+                  const c = scoutCost(s);
+                  if (tryScoutProvince(s, selectedId)) return `Scouted for ${c} gold.`;
+                  return `Need ${c} gold to scout. You have ${s.resources.gold ?? 0}.`;
                 })
               }
             >
-              March 5 militia
+              Scout ({cost} gold)
             </button>
-            <button
-              type="button"
-              disabled={full}
-              onClick={() =>
-                act((s) => {
-                  const ok = tryMarchWith(s, selectedId, { militia: 2, archer: 2 });
-                  if (!ok) return "Need 2 militia and 2 archers, or no slot.";
-                  return "Mixed column of 2 militia and 2 archers is away.";
-                })
-              }
-            >
-              March 2 militia + 2 archers
-            </button>
-          </>
-        )}
-      </div>
+          ) : null}
+          <div style={{ marginTop: 10, fontSize: 12 }}>
+            Column
+            {UNIT_TYPES.map((u) => {
+              const have = owned(state, u.id);
+              if (have <= 0 && !(force[u.id] > 0)) return null;
+              return (
+                <label key={u.id} style={{ display: "block", marginTop: 4 }}>
+                  {u.name} (have {have})
+                  <input
+                    type="number"
+                    min={0}
+                    max={have}
+                    value={force[u.id] ?? 0}
+                    onChange={(e) =>
+                      setForce((f) => ({ ...f, [u.id]: Math.max(0, Math.min(have, Number(e.target.value) || 0)) }))
+                    }
+                    style={{ width: 64, marginLeft: 8 }}
+                  />
+                </label>
+              );
+            })}
+          </div>
+          <button
+            type="button"
+            style={{ marginTop: 8 }}
+            disabled={Boolean(march) || types.every((u) => !(force[u.id] > 0))}
+            onClick={() =>
+              act((s) => {
+                if (activePlayerMarch(s)) return "Company already on the march.";
+                const ok = tryMarchWith(s, selectedId, force);
+                if (!ok) return "Cannot march — check counts or a free column slot.";
+                s.flags.tutorial_marched = 1;
+                const m = activePlayerMarch(s);
+                const eta = m ? m.arrivesTick - s.meta.tick : 0;
+                return `Column ordered. ETA ${eta} ticks.`;
+              })
+            }
+          >
+            Send column
+          </button>
+        </>
+      )}
     </div>
   );
 }
