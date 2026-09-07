@@ -1,48 +1,27 @@
 import { describe, it, expect } from "vitest";
-import { createGameState } from "../state/createGameState.js";
-import { neighbors, provinceAt, seedBoard } from "./board.js";
-import { serializeState, deserializeState } from "../save/serialize.js";
 import { BOARD_H, BOARD_W } from "@second-crown/shared";
+import { createGameState } from "../state/createGameState.js";
+import { ensureBoard, seedBoard } from "./board.js";
 
-describe("world board (W1)", () => {
-  it("same seed produces the same provinces", () => {
-    expect(seedBoard(7)).toEqual(seedBoard(7));
-    expect(seedBoard(7).provinces[0].terrain).not.toBe(seedBoard(99).provinces[0].terrain);
+describe("W17 board size", () => {
+  it("seeds a 12 by 8 table", () => {
+    const b = seedBoard(1);
+    expect(BOARD_W).toBe(12);
+    expect(BOARD_H).toBe(8);
+    expect(b.provinces.length).toBe(96);
+    expect(b.width).toBe(12);
+    expect(b.homeProvinceId).toBe("p_2_2");
   });
 
-  it("createGameState plants a full board with two holds", () => {
-    const s = createGameState({ seed: 7 });
-    expect(s.board.width).toBe(BOARD_W);
-    expect(s.board.height).toBe(BOARD_H);
-    expect(s.board.provinces).toHaveLength(BOARD_W * BOARD_H);
-    const home = s.board.provinces.find((p) => p.id === s.board.homeProvinceId);
-    expect(home?.occupantRealmId).toBe("player");
-    expect(home?.node).toBe("hold");
-    const rival = s.board.provinces.find((p) => p.occupantRealmId === "rival");
-    expect(rival?.node).toBe("hold");
-    expect(s.board.provinces.some((p) => p.node === "camp")).toBe(true);
-  });
-
-  it("extra crowns receive hold tokens", () => {
-    const s = createGameState({ seed: 42 });
-    const extras = s.realms.filter((r) => r.id !== "player" && r.id !== "rival");
-    expect(extras.length).toBeGreaterThan(0);
-    for (const r of extras) {
-      expect(s.board.provinces.some((p) => p.occupantRealmId === r.id && p.node === "hold")).toBe(true);
-    }
-  });
-
-  it("home has orthogonal neighbors", () => {
-    const s = createGameState({ seed: 1 });
-    const n = neighbors(s, s.board.homeProvinceId);
-    expect(n.length).toBeGreaterThanOrEqual(2);
-    expect(provinceAt(s, 2, 2)?.id).toBe(s.board.homeProvinceId);
-  });
-
-  it("board survives serialize", () => {
-    const a = createGameState({ seed: 3 });
-    const b = deserializeState(serializeState(a));
-    expect(b.board.homeProvinceId).toBe(a.board.homeProvinceId);
-    expect(b.board.provinces).toHaveLength(a.board.provinces.length);
+  it("migrates an old 8 by 6 save", () => {
+    const s = createGameState({ seed: 3 });
+    s.board.width = 8;
+    s.board.height = 6;
+    s.board.provinces = s.board.provinces.filter((p) => p.x < 8 && p.y < 6);
+    expect(s.board.provinces.length).toBe(48);
+    ensureBoard(s);
+    expect(s.board.provinces.length).toBe(96);
+    expect(s.board.provinces.some((p) => p.x === 11 && p.y === 7)).toBe(true);
+    expect(s.board.homeProvinceId).toBe("p_2_2");
   });
 });

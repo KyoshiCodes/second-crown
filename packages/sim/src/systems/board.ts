@@ -84,7 +84,7 @@ export function plantRealmHolds(state: GameState): void {
   const extras = state.realms.filter((r) => r.id !== "player" && r.id !== "rival" && !taken.has(r.id));
   const free = state.board.provinces.filter((p) => !p.occupantRealmId && p.node !== "hold");
   extras.forEach((realm, i) => {
-    const slot = free[(hash(state.meta.seed + i * 97) % Math.max(1, free.length))];
+    const slot = free[hash(state.meta.seed + i * 97) % Math.max(1, free.length)];
     if (!slot) return;
     if (slot.occupantRealmId) return;
     slot.node = "hold";
@@ -97,6 +97,26 @@ export function plantRealmHolds(state: GameState): void {
 export function ensureBoard(state: GameState): void {
   if (!state.board || !Array.isArray(state.board.provinces) || state.board.provinces.length === 0) {
     state.board = seedBoard(state.meta.seed);
+    plantRealmHolds(state);
+    return;
+  }
+  const need =
+    state.board.width !== BOARD_W ||
+    state.board.height !== BOARD_H ||
+    state.board.provinces.length !== BOARD_W * BOARD_H;
+  if (need) {
+    const old = state.board.provinces;
+    const homeId = state.board.homeProvinceId;
+    const fresh = seedBoard(state.meta.seed);
+    for (const p of fresh.provinces) {
+      const prev = old.find((o) => o.x === p.x && o.y === p.y);
+      if (!prev) continue;
+      p.terrain = prev.terrain;
+      p.node = prev.node;
+      p.occupantRealmId = prev.occupantRealmId;
+    }
+    if (old.some((o) => o.id === homeId)) fresh.homeProvinceId = homeId;
+    state.board = fresh;
   }
   plantRealmHolds(state);
 }
