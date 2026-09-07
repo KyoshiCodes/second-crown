@@ -149,11 +149,6 @@ export {
 } from "./systems/march.js";
 export type { March } from "./systems/march.js";
 
-export { gateOnRim, gateHp } from "./systems/gate.js";
-
-export { listRimForts } from "./systems/rimForts.js";
-export type { RimFort } from "./systems/rimForts.js";
-
 export { incomingOnHome, watchtowerWarning, maybeNpcRaid } from "./systems/raidMarch.js";
 export { resolveSiegeHold, yardPower, keepPower } from "./systems/siege.js";
 export type { SiegeReport } from "./systems/siege.js";
@@ -170,6 +165,17 @@ export {
 export { laborPerTick, applyLabor, maxMarches } from "./systems/labor.js";
 export { housingCap, population, canHouse } from "./systems/housing.js";
 export { isProvinceSeen, tryScoutProvince, revealProvince, ensureFog, visionRange, scoutCost } from "./systems/fog.js";
+export { listRimForts } from "./systems/rimForts.js";
+export type { RimFort } from "./systems/rimForts.js";
+export { listOutposts, plantOutpost } from "./systems/outpost.js";
+export {
+  TUTORIAL_STEPS,
+  tutorialIndex,
+  tutorialDone,
+  currentTutorial,
+  tryAdvanceTutorial,
+  skipTutorial,
+} from "./systems/tutorial.js";
 
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
