@@ -136,6 +136,7 @@ export {
 
 export {
   tryMarch,
+  tryNpcMarch,
   listMarches,
   activePlayerMarch,
   hasClosedWallRing,
@@ -146,6 +147,8 @@ export {
   MarchSystem,
 } from "./systems/march.js";
 export type { March } from "./systems/march.js";
+
+export { incomingOnHome, watchtowerWarning, maybeNpcRaid } from "./systems/raidMarch.js";
 
 export {
   woundedCount,
