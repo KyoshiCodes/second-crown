@@ -105,6 +105,25 @@ export interface InputRecord {
   issuerId?: string;
 }
 
+export type TerrainId = "plain" | "wood" | "hill" | "waste" | "shore" | "peak";
+export type ProvinceNode = "none" | "hold" | "camp" | "woodcut" | "quarry" | "field";
+
+export interface Province {
+  id: string;
+  x: number;
+  y: number;
+  terrain: TerrainId;
+  node: ProvinceNode;
+  occupantRealmId: string | null;
+}
+
+export interface BoardState {
+  width: number;
+  height: number;
+  homeProvinceId: string;
+  provinces: Province[];
+}
+
 export interface GameState {
   meta: MetaState;
   resources: Record<string, DecimalString>;
@@ -119,6 +138,7 @@ export interface GameState {
   inputLog: InputRecord[];
   flags: Record<string, boolean | number | string>;
   unlocks: string[];
+  board: BoardState;
 }
 
 export const SAVE_VERSION = 0;
@@ -126,5 +146,8 @@ export const SAVE_VERSION = 0;
 export const TICKS_PER_SECOND = 10;
 
 export const MAX_OFFLINE_MS = 30 * 24 * 60 * 60 * 1000;
+
+export const BOARD_W = 8;
+export const BOARD_H = 6;
 
 export { formatLetterSuffix } from "./formatNumber.js";
