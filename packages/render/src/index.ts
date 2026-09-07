@@ -1,6 +1,112 @@
 import { Application, Graphics, Container } from "pixi.js";
-import type { GameState } from "@second-crown/shared";
-import { getBuildingType, currentSeason } from "@second-crown/sim";
+import type { GameState, Province, TerrainId, ProvinceNode } from "@second-crown/shared";
+import { BOARD_W, BOARD_H } from "@second-crown/shared";
+import {
+  getBuildingType,
+  currentSeason,
+  activePlayerMarch,
+  listMarches,
+  getProvince,
+} from "@second-crown/sim";
+import type { March } from "@second-crown/sim";
+
+export type CameraBand = "hold" | "board";
+
+export const ZOOM_THRESHOLD = 0.70;
+export const BOARD_DEFAULT_ZOOM = 0.58;
+export const HOLD_DEFAULT_ZOOM = 1.0;
+export const MIN_CAMERA_ZOOM = 0.45;
+export const MAX_CAMERA_ZOOM = 2.2;
+
+// Tabletop Board Layout Constants (8 columns x 6 rows)
+export const CHIP_W = 56;
+export const CHIP_H = 46;
+export const GAP_X = 6;
+export const GAP_Y = 6;
+export const ORIGIN_BOARD_X = 35;
+export const ORIGIN_BOARD_Y = 27;
+
+export interface MapRenderer {
+  sync(state: GameState): void;
+  setTheme(themeId: string, holidayId: string): void;
+  destroy(): void;
+  onTileClick(cb: (x: number, y: number) => void): void;
+  onProvinceClick(cb: (provinceId: string) => void): void;
+  zoomIn(): void;
+  zoomOut(): void;
+  resetView(): void;
+  getBand(): CameraBand;
+  setBand(band: CameraBand): void;
+  onBandChange(cb: (band: CameraBand) => void): void;
+}
+
+export function bandForZoom(zoom: number): CameraBand {
+  return zoom <= ZOOM_THRESHOLD ? "board" : "hold";
+}
+
+export function provinceTokenBounds(bx: number, by: number): {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  cx: number;
+  cy: number;
+} {
+  const x = ORIGIN_BOARD_X + bx * (CHIP_W + GAP_X);
+  const y = ORIGIN_BOARD_Y + by * (CHIP_H + GAP_Y);
+  return {
+    x,
+    y,
+    w: CHIP_W,
+    h: CHIP_H,
+    cx: x + CHIP_W / 2,
+    cy: y + CHIP_H / 2,
+  };
+}
+
+export function hitTestProvince(boardX: number, boardY: number): { bx: number; by: number } | null {
+  for (let by = 0; by < BOARD_H; by++) {
+    for (let bx = 0; bx < BOARD_W; bx++) {
+      const b = provinceTokenBounds(bx, by);
+      if (boardX >= b.x && boardX <= b.x + b.w && boardY >= b.y && boardY <= b.y + b.h) {
+        return { bx, by };
+      }
+    }
+  }
+  return null;
+}
+
+export function calculateMarchProgress(tick: number, arrivesTick: number, dist: number): number {
+  const totalTicks = Math.max(1, dist * 15);
+  const startTick = arrivesTick - totalTicks;
+  if (tick <= startTick) return 0;
+  if (tick >= arrivesTick) return 1;
+  return (tick - startTick) / totalTicks;
+}
+
+export function terrainChipPalette(terrain: TerrainId): {
+  fill: number;
+  fillDark: number;
+  border: number;
+  accent: number;
+} {
+  switch (terrain) {
+    case "plain":
+      return { fill: 0x2d5a27, fillDark: 0x1e3e1a, border: 0x4d7c0f, accent: 0x78b159 };
+    case "wood":
+      return { fill: 0x163c1b, fillDark: 0x0e2611, border: 0x24582c, accent: 0x15803d };
+    case "hill":
+      return { fill: 0x44403c, fillDark: 0x2e2b29, border: 0x57534e, accent: 0x78716c };
+    case "waste":
+      return { fill: 0x291d18, fillDark: 0x1c130f, border: 0x442f24, accent: 0xd97706 };
+    case "shore":
+      return { fill: 0x0369a1, fillDark: 0x02456b, border: 0x0284c7, accent: 0xd4a359 };
+    case "peak":
+      return { fill: 0x334155, fillDark: 0x1e293b, border: 0x475569, accent: 0xf8fafc };
+    default:
+      return { fill: 0x2d5a27, fillDark: 0x1e3e1a, border: 0x4d7c0f, accent: 0x78b159 };
+  }
+}
 
 // Grid configuration
 const GRID_W = 16;
@@ -16,16 +122,6 @@ const CANVAS_H = 360;
 const ORIGIN_X = 220;
 const ORIGIN_Y = 64;
 const RIM_SIZE = 16; // Wooden table rim border thickness
-
-export interface MapRenderer {
-  sync(state: GameState): void;
-  setTheme(themeId: string, holidayId: string): void;
-  destroy(): void;
-  onTileClick(cb: (x: number, y: number) => void): void;
-  zoomIn(): void;
-  zoomOut(): void;
-  resetView(): void;
-}
 
 // Convert grid (gx, gy) to world space center (wx, wy)
 function gridToWorld(gx: number, gy: number): { wx: number; wy: number } {
@@ -1651,11 +1747,448 @@ function paintTableRim(g: Graphics): void {
   g.rect(RIM_SIZE, CANVAS_H - RIM_SIZE - 4, CANVAS_W - 2 * RIM_SIZE, 4);
   g.fill({ color: 0x000000, alpha: 0.2 });
   g.rect(CANVAS_W - RIM_SIZE - 4, RIM_SIZE, 4, CANVAS_H - 2 * RIM_SIZE);
-  g.fill({ color: 0x000000, alpha: 0.2 });
 }
 
 // -------------------------------------------------------------
-// Main Map Renderer Factory (Zoom & Pan, Tabletop Board, Walkers)
+// Tabletop Board Diorama Painters (8x6 Grid, Terrain Chips, Marches)
+// -------------------------------------------------------------
+function paintBoardBackdrop(g: Graphics, visuals: ThemeVisuals): void {
+  g.clear();
+
+  // 1. Dark oiled walnut diorama table base
+  g.rect(RIM_SIZE, RIM_SIZE, CANVAS_W - 2 * RIM_SIZE, CANVAS_H - 2 * RIM_SIZE);
+  g.fill({ color: 0x14100c });
+
+  // 2. Inner parchment board surface for the 8x6 grid
+  const boardX = ORIGIN_BOARD_X - 6;
+  const boardY = ORIGIN_BOARD_Y - 6;
+  const boardW = 8 * (CHIP_W + GAP_X) - GAP_X + 12;
+  const boardH = 6 * (CHIP_H + GAP_Y) - GAP_Y + 12;
+
+  g.rect(boardX, boardY, boardW, boardH);
+  g.fill({ color: 0x1a1510 });
+  g.stroke({ width: 1.5, color: 0x45311e, alpha: 0.9 });
+
+  // 3. Subtle grid lines interconnecting tabletop provinces
+  for (let bx = 0; bx < BOARD_W; bx++) {
+    const b = provinceTokenBounds(bx, 0);
+    g.moveTo(b.cx, boardY);
+    g.lineTo(b.cx, boardY + boardH);
+    g.stroke({ width: 1, color: 0x2e2116, alpha: 0.4 });
+  }
+  for (let by = 0; by < BOARD_H; by++) {
+    const b = provinceTokenBounds(0, by);
+    g.moveTo(boardX, b.cy);
+    g.lineTo(boardX + boardW, b.cy);
+    g.stroke({ width: 1, color: 0x2e2116, alpha: 0.4 });
+  }
+
+  // 4. Subtle brass studs at grid corners
+  const corners = [
+    { x: boardX + 3, y: boardY + 3 },
+    { x: boardX + boardW - 3, y: boardY + 3 },
+    { x: boardX + 3, y: boardY + boardH - 3 },
+    { x: boardX + boardW - 3, y: boardY + boardH - 3 },
+  ];
+  for (const c of corners) {
+    g.circle(c.x, c.y, 2);
+    g.fill({ color: 0xc8963e });
+  }
+
+  // 5. Compass Rose in top right corner
+  const crX = boardX + boardW - 22;
+  const crY = boardY + 16;
+  g.poly([crX, crY - 8, crX + 2.5, crY, crX, crY + 8, crX - 2.5, crY]);
+  g.fill({ color: 0xc8963e, alpha: 0.55 });
+  g.poly([crX - 8, crY, crX, crY + 2.5, crX + 8, crY, crX, crY - 2.5]);
+  g.fill({ color: 0x78531e, alpha: 0.55 });
+  g.circle(crX, crY, 1.5);
+  g.fill({ color: 0xfde047, alpha: 0.8 });
+}
+
+function paintBoardProvinces(g: Graphics, state: GameState, phase: number): void {
+  g.clear();
+  if (!state?.board?.provinces) return;
+
+  for (const p of state.board.provinces) {
+    const b = provinceTokenBounds(p.x, p.y);
+    const pal = terrainChipPalette(p.terrain);
+
+    // 1. 3D Tactile Token Drop Shadow
+    g.rect(b.x + 2, b.y + 3, b.w, b.h);
+    g.fill({ color: 0x000000, alpha: 0.38 });
+
+    // 2. 3D Bottom Bevel Edge
+    g.rect(b.x, b.y + b.h - 4, b.w, 4);
+    g.fill({ color: pal.fillDark });
+
+    // 3. Token Face
+    g.rect(b.x, b.y, b.w, b.h - 2);
+    g.fill({ color: pal.fill });
+
+    // Top subtle highlight
+    g.moveTo(b.x + 1, b.y + 1);
+    g.lineTo(b.x + b.w - 1, b.y + 1);
+    g.stroke({ width: 1, color: 0xffffff, alpha: 0.16 });
+
+    // Outer chip border
+    g.rect(b.x, b.y, b.w, b.h);
+    g.stroke({ width: 1, color: pal.border, alpha: 0.8 });
+
+    const cx = b.cx;
+    const cy = b.cy;
+
+    // 4. Terrain Chip Details
+    switch (p.terrain) {
+      case "plain": {
+        // Subtle grass blades & chamomile
+        g.moveTo(cx - 14, cy + 10); g.lineTo(cx - 11, cy + 5);
+        g.moveTo(cx - 11, cy + 10); g.lineTo(cx - 8, cy + 6);
+        g.stroke({ width: 1, color: pal.accent, alpha: 0.7 });
+        g.circle(cx + 14, cy + 8, 1.3);
+        g.fill({ color: 0xfef08a, alpha: 0.85 });
+        break;
+      }
+      case "wood": {
+        // 3 Miniature pine trees
+        g.poly([cx - 14, cy + 8, cx - 10, cy - 4, cx - 6, cy + 8]);
+        g.fill({ color: 0x14532d });
+        g.poly([cx - 5, cy + 11, cx, cy - 8, cx + 5, cy + 11]);
+        g.fill({ color: 0x166534 });
+        g.poly([cx + 6, cy + 8, cx + 10, cy - 3, cx + 14, cy + 8]);
+        g.fill({ color: 0x15803d });
+        break;
+      }
+      case "hill": {
+        // Layered rolling hill ridge contours
+        g.moveTo(cx - 18, cy + 10); g.lineTo(cx - 8, cy + 3); g.lineTo(cx + 4, cy + 9); g.lineTo(cx + 18, cy + 4);
+        g.stroke({ width: 1.2, color: pal.accent, alpha: 0.8 });
+        g.moveTo(cx - 12, cy + 2); g.lineTo(cx - 2, cy - 4); g.lineTo(cx + 12, cy + 1);
+        g.stroke({ width: 1, color: 0xa8a29e, alpha: 0.7 });
+        break;
+      }
+      case "waste": {
+        // Scorched earth with glowing ember fissures
+        g.moveTo(cx - 18, cy - 3); g.lineTo(cx - 6, cy + 3); g.lineTo(cx + 4, cy - 2); g.lineTo(cx + 16, cy + 6);
+        g.stroke({ width: 1.2, color: 0xd97706, alpha: 0.85 });
+        g.moveTo(cx - 6, cy + 3); g.lineTo(cx - 2, cy + 10);
+        g.stroke({ width: 1, color: 0xef4444, alpha: 0.9 });
+        break;
+      }
+      case "shore": {
+        // Sandy beach fringe at bottom
+        g.rect(b.x + 1, b.y + b.h - 9, b.w - 2, 6);
+        g.fill({ color: 0xd4a359 });
+        // Ocean surf wave
+        g.moveTo(cx - 16, cy + 2); g.lineTo(cx - 8, cy - 2); g.lineTo(cx, cy + 2); g.lineTo(cx + 8, cy - 2); g.lineTo(cx + 16, cy + 2);
+        g.stroke({ width: 1.2, color: 0xe0f2fe, alpha: 0.9 });
+        break;
+      }
+      case "peak": {
+        // Twin snow-dusted jagged mountain crags
+        g.poly([cx - 16, cy + 10, cx - 8, cy - 7, cx, cy + 10]);
+        g.fill({ color: 0x475569 });
+        g.poly([cx - 11, cy - 1, cx - 8, cy - 7, cx - 5, cy - 1]);
+        g.fill({ color: 0xf8fafc });
+        g.poly([cx - 2, cy + 10, cx + 7, cy - 9, cx + 16, cy + 10]);
+        g.fill({ color: 0x64748b });
+        g.poly([cx + 4, cy - 3, cx + 7, cy - 9, cx + 10, cy - 3]);
+        g.fill({ color: 0xf8fafc });
+        break;
+      }
+    }
+
+    // 5. Node Marks (Hold, Camp, Woodcut, Quarry, Field)
+    switch (p.node) {
+      case "hold": {
+        // Fortress keep silhouette
+        g.rect(cx - 7, cy - 4, 14, 11);
+        g.fill({ color: 0x94a3b8 });
+        // 3 merlon crenellations
+        g.rect(cx - 7, cy - 7, 3.5, 3); g.fill({ color: 0x64748b });
+        g.rect(cx - 1.7, cy - 7, 3.4, 3); g.fill({ color: 0x64748b });
+        g.rect(cx + 3.5, cy - 7, 3.5, 3); g.fill({ color: 0x64748b });
+        // Arched portcullis gate
+        g.rect(cx - 2.5, cy + 1, 5, 6);
+        g.fill({ color: 0x0f172a });
+        // Pennant flag on roof
+        g.moveTo(cx, cy - 7); g.lineTo(cx, cy - 13);
+        g.stroke({ width: 1, color: 0x78350f });
+        g.poly([cx, cy - 13, cx + 5, cy - 11, cx, cy - 9]);
+        g.fill({ color: 0xdc2626 });
+        break;
+      }
+      case "camp": {
+        // Striped war pavilion / tent
+        g.poly([cx - 8, cy + 8, cx, cy - 5, cx + 8, cy + 8]);
+        g.fill({ color: 0xb91c1c });
+        g.poly([cx - 2.5, cy + 8, cx, cy - 1, cx + 2.5, cy + 8]);
+        g.fill({ color: 0xfde047 });
+        // Crossed spears behind tent
+        g.moveTo(cx - 9, cy - 3); g.lineTo(cx + 9, cy + 7);
+        g.moveTo(cx + 9, cy - 3); g.lineTo(cx - 9, cy + 7);
+        g.stroke({ width: 1, color: 0x78350f, alpha: 0.8 });
+        break;
+      }
+      case "woodcut": {
+        // Stacked timber cord + crossed felling axes
+        g.rect(cx - 8, cy + 3, 16, 4.5);
+        g.fill({ color: 0x78350f });
+        g.moveTo(cx - 8, cy + 5); g.lineTo(cx + 8, cy + 5);
+        g.stroke({ width: 0.8, color: 0x3f1d0b });
+        // Crossed steel axes
+        g.moveTo(cx - 6, cy + 2); g.lineTo(cx + 6, cy - 8);
+        g.moveTo(cx + 6, cy + 2); g.lineTo(cx - 6, cy - 8);
+        g.stroke({ width: 1.2, color: 0x854d0e });
+        g.rect(cx + 4, cy - 9, 3, 2.5); g.fill({ color: 0xd1d5db });
+        g.rect(cx - 7, cy - 9, 3, 2.5); g.fill({ color: 0xd1d5db });
+        break;
+      }
+      case "quarry": {
+        // Cut ashlar stone block + pickaxe
+        g.rect(cx - 7, cy - 1, 10, 8);
+        g.fill({ color: 0xa1a1aa });
+        g.rect(cx - 7, cy + 3, 10, 4);
+        g.fill({ color: 0x71717a });
+        // Steel pickaxe
+        g.moveTo(cx + 6, cy + 6); g.lineTo(cx - 2, cy - 7);
+        g.stroke({ width: 1.2, color: 0x78350f });
+        g.poly([cx - 5, cy - 7, cx - 1, cy - 8, cx + 2, cy - 5]);
+        g.stroke({ width: 1.5, color: 0x94a3b8 });
+        break;
+      }
+      case "field": {
+        // Bundled golden sheaf of wheat
+        g.poly([cx - 5, cy + 8, cx - 7, cy - 3, cx + 7, cy - 3, cx + 5, cy + 8]);
+        g.fill({ color: 0xca8a04 });
+        g.rect(cx - 6, cy + 1, 12, 2.5);
+        g.fill({ color: 0xdc2626 });
+        // Wheat ears
+        g.circle(cx - 4, cy - 5, 1.8); g.fill({ color: 0xfef08a });
+        g.circle(cx, cy - 6, 2); g.fill({ color: 0xfde047 });
+        g.circle(cx + 4, cy - 5, 1.8); g.fill({ color: 0xfef08a });
+        break;
+      }
+    }
+
+    // 6. Special Realm Occupant Token Overlays
+    if (p.occupantRealmId === "player") {
+      // Player Home Hold: Gilded Royal Frame with corner studs & crown
+      g.rect(b.x, b.y, b.w, b.h);
+      g.stroke({ width: 2, color: 0xfacc15 });
+
+      // Inner golden border highlight
+      g.rect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
+      g.stroke({ width: 1, color: 0xfef08a, alpha: 0.6 });
+
+      // 4 Corner Golden Studs
+      g.circle(b.x + 3.5, b.y + 3.5, 1.6); g.fill({ color: 0xfde047 });
+      g.circle(b.x + b.w - 3.5, b.y + 3.5, 1.6); g.fill({ color: 0xfde047 });
+      g.circle(b.x + 3.5, b.y + b.h - 3.5, 1.6); g.fill({ color: 0xfde047 });
+      g.circle(b.x + b.w - 3.5, b.y + b.h - 3.5, 1.6); g.fill({ color: 0xfde047 });
+
+      // Crown emblem above keep
+      g.poly([
+        cx - 6, cy - 9,
+        cx - 4, cy - 13,
+        cx, cy - 10,
+        cx + 4, cy - 13,
+        cx + 6, cy - 9,
+      ]);
+      g.fill({ color: 0xfacc15 });
+
+      // Bottom banner: royal crimson & gold plaque
+      g.rect(b.x + 7, b.y + b.h - 10, b.w - 14, 7);
+      g.fill({ color: 0x7f1d1d });
+      g.stroke({ width: 1, color: 0xfacc15 });
+
+      // Animated golden halo pulse
+      const haloAlpha = 0.35 + Math.sin(phase * 4) * 0.2;
+      g.rect(b.x - 1, b.y - 1, b.w + 2, b.h + 2);
+      g.stroke({ width: 1.5, color: 0xfde047, alpha: haloAlpha });
+    } else if (p.occupantRealmId === "rival") {
+      // Iron March / Rival Hold: Spiked Blackened Iron Frame
+      g.rect(b.x, b.y, b.w, b.h);
+      g.stroke({ width: 2, color: 0x71717a });
+
+      // 4 Iron Rivets
+      g.circle(b.x + 3.5, b.y + 3.5, 1.5); g.fill({ color: 0xd1d5db });
+      g.circle(b.x + b.w - 3.5, b.y + 3.5, 1.5); g.fill({ color: 0xd1d5db });
+      g.circle(b.x + 3.5, b.y + b.h - 3.5, 1.5); g.fill({ color: 0xd1d5db });
+      g.circle(b.x + b.w - 3.5, b.y + b.h - 3.5, 1.5); g.fill({ color: 0xd1d5db });
+
+      // Spiked keep battlements
+      g.poly([cx - 6, cy - 7, cx - 4, cy - 12, cx - 2, cy - 7]);
+      g.fill({ color: 0x3f3f46 });
+      g.poly([cx + 2, cy - 7, cx + 4, cy - 12, cx + 6, cy - 7]);
+      g.fill({ color: 0x3f3f46 });
+
+      // Blood red pennant
+      g.poly([cx, cy - 7, cx + 6, cy - 11, cx, cy - 9]);
+      g.fill({ color: 0x991b1b });
+
+      // Bottom banner: dark steel plaque
+      g.rect(b.x + 7, b.y + b.h - 10, b.w - 14, 7);
+      g.fill({ color: 0x18181b });
+      g.stroke({ width: 1, color: 0x71717a });
+    }
+  }
+}
+
+function paintBoardMarches(
+  routeG: Graphics,
+  pawnsG: Graphics,
+  state: GameState | null,
+  phase: number
+): void {
+  routeG.clear();
+  pawnsG.clear();
+  if (!state?.board) return;
+
+  const marches = listMarches(state);
+  if (marches.length === 0) return;
+
+  for (const m of marches) {
+    const fromProv = getProvince(state, m.fromId);
+    const toProv = getProvince(state, m.toId);
+    if (!fromProv || !toProv) continue;
+
+    const fromB = provinceTokenBounds(fromProv.x, fromProv.y);
+    const toB = provinceTokenBounds(toProv.x, toProv.y);
+
+    // 1. Dotted Route Trail between home and destination
+    const dx = toB.cx - fromB.cx;
+    const dy = toB.cy - fromB.cy;
+    const distPx = Math.hypot(dx, dy);
+    const steps = Math.max(4, Math.floor(distPx / 14));
+
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const lx = fromB.cx + dx * t;
+      const ly = fromB.cy + dy * t;
+      const pulse = Math.sin(phase * 4 + i * 0.4) * 0.2 + 0.8;
+      routeG.circle(lx, ly, i % 2 === 0 ? 2 : 1.3);
+      routeG.fill({ color: 0xf59e0b, alpha: 0.7 * pulse });
+    }
+
+    // Destination target indicator
+    routeG.circle(toB.cx, toB.cy, 10);
+    routeG.stroke({ width: 1.5, color: 0xf59e0b, alpha: 0.85 });
+    routeG.moveTo(toB.cx - 13, toB.cy); routeG.lineTo(toB.cx + 13, toB.cy);
+    routeG.moveTo(toB.cx, toB.cy - 13); routeG.lineTo(toB.cx, toB.cy + 13);
+    routeG.stroke({ width: 1, color: 0xf59e0b, alpha: 0.65 });
+
+    // 2. March Progress Calculation
+    const dist = Math.max(1, Math.abs(toProv.x - fromProv.x) + Math.abs(toProv.y - fromProv.y));
+    const progress = calculateMarchProgress(state.meta.tick, m.arrivesTick, dist);
+    const pawnX = fromB.cx + dx * progress;
+    const pawnY = fromB.cy + dy * progress;
+
+    // 3. Marching Pawn Meeple
+    const bob = Math.abs(Math.sin(phase * 6)) * 2.5;
+
+    // Base contact shadow
+    pawnsG.ellipse(pawnX, pawnY + 6, 8, 3.5);
+    pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+
+    // Wooden pawn pedestal base
+    pawnsG.rect(pawnX - 6, pawnY + 2 - bob, 12, 4);
+    pawnsG.fill({ color: 0x854d0e });
+
+    // Tapered wooden torso
+    pawnsG.poly([
+      pawnX - 5, pawnY + 2 - bob,
+      pawnX - 3, pawnY - 8 - bob,
+      pawnX + 3, pawnY - 8 - bob,
+      pawnX + 5, pawnY + 2 - bob,
+    ]);
+    pawnsG.fill({ color: 0xca8a04 });
+
+    // Faction tunic
+    pawnsG.rect(pawnX - 2.5, pawnY - 7 - bob, 5, 6);
+    pawnsG.fill({ color: m.realmId === "player" ? 0x1d4ed8 : 0x3f3f46 });
+
+    // Steel helmet
+    pawnsG.circle(pawnX, pawnY - 11 - bob, 3.5);
+    pawnsG.fill({ color: 0xe2e8f0 });
+
+    // Red plume
+    pawnsG.poly([pawnX, pawnY - 14 - bob, pawnX + 3, pawnY - 17 - bob, pawnX + 1, pawnY - 13 - bob]);
+    pawnsG.fill({ color: 0xef4444 });
+
+    // Spear and waving pennant
+    pawnsG.moveTo(pawnX + 4, pawnY + 4 - bob);
+    pawnsG.lineTo(pawnX + 4, pawnY - 18 - bob);
+    pawnsG.stroke({ width: 1.2, color: 0x78350f });
+
+    const wave = Math.sin(phase * 8) * 1.5;
+    pawnsG.poly([
+      pawnX + 4, pawnY - 18 - bob,
+      pawnX + 12, pawnY - 15 - bob + wave,
+      pawnX + 4, pawnY - 12 - bob,
+    ]);
+    pawnsG.fill({ color: 0xdc2626 });
+
+    // Floating ETA pill badge
+    pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
+    pawnsG.fill({ color: 0x181410, alpha: 0.92 });
+    pawnsG.stroke({ width: 1, color: 0xf59e0b, alpha: 0.9 });
+
+    // Progress timer dots inside pill
+    pawnsG.circle(pawnX - 10, pawnY - 23.5 - bob, 1.8);
+    pawnsG.fill({ color: 0xfde047 });
+    pawnsG.circle(pawnX - 4, pawnY - 23.5 - bob, 1.5);
+    pawnsG.fill({ color: 0xfacc15 });
+    pawnsG.circle(pawnX + 2, pawnY - 23.5 - bob, 1.5);
+    pawnsG.fill({ color: 0xeab308 });
+    pawnsG.circle(pawnX + 8, pawnY - 23.5 - bob, 1.5);
+    pawnsG.fill({ color: 0xca8a04 });
+  }
+}
+
+function paintBoardHighlight(
+  g: Graphics,
+  bx: number,
+  by: number,
+  state: GameState | null
+): void {
+  g.clear();
+  const bounds = provinceTokenBounds(bx, by);
+
+  // 1. Glowing selection border around token
+  g.rect(bounds.x - 2, bounds.y - 2, bounds.w + 4, bounds.h + 4);
+  g.stroke({ width: 2, color: 0xfef08a, alpha: 0.95 });
+
+  // 2. Information plaque at bottom of diorama table
+  const p = state?.board?.provinces?.find((pr) => pr.x === bx && pr.y === by);
+  if (!p) return;
+
+  const plaqueX = 70;
+  const plaqueY = CANVAS_H - RIM_SIZE - 22;
+  const plaqueW = CANVAS_W - 140;
+  const plaqueH = 18;
+
+  g.rect(plaqueX, plaqueY, plaqueW, plaqueH);
+  g.fill({ color: 0x14100c, alpha: 0.92 });
+  g.stroke({ width: 1, color: 0xc8963e, alpha: 0.85 });
+
+  // Status indicator pip on left
+  const isHome = p.id === state?.board?.homeProvinceId;
+  const isRival = p.occupantRealmId === "rival";
+  const pipColor = isHome ? 0xfacc15 : isRival ? 0xef4444 : p.node !== "none" ? 0x38bdf8 : 0x4ade80;
+  g.circle(plaqueX + 12, plaqueY + 9, 3.5);
+  g.fill({ color: pipColor });
+
+  // Action badge on right
+  const isMarching = listMarches(state!).some((m) => m.toId === p.id);
+  const actionColor = isHome ? 0x2d5a27 : isMarching ? 0xb45309 : 0x991b1b;
+  g.rect(plaqueX + plaqueW - 68, plaqueY + 3, 62, 12);
+  g.fill({ color: actionColor });
+  g.stroke({ width: 0.8, color: 0xfef08a, alpha: 0.7 });
+}
+
+// -------------------------------------------------------------
+// Main Map Renderer Factory (Two-Band Camera: Hold vs Board)
 // -------------------------------------------------------------
 export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapRenderer> {
   const app = new Application();
@@ -1681,28 +2214,33 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   app.stage.addChild(boardMask);
   worldContainer.mask = boardMask;
 
-  // World layers inside worldContainer
-  const groundLayer = new Graphics();
-  worldContainer.addChild(groundLayer);
+  // Two camera bands inside worldContainer:
+  // Band 1: Hold Container (16x10 isometric turf, buildings, walkers, fog, particles)
+  const holdContainer = new Container();
+  worldContainer.addChild(holdContainer);
 
-  // Depth-sorted entities container (buildings + walkers)
+  // Band 2: Board Container (8x6 tabletop province tokens, routes, march pawns)
+  const boardContainer = new Container();
+  boardContainer.visible = false;
+  worldContainer.addChild(boardContainer);
+
+  // Hold layers inside holdContainer
+  const groundLayer = new Graphics();
+  holdContainer.addChild(groundLayer);
+
   const entitiesLayer = new Container();
   entitiesLayer.sortableChildren = true;
-  worldContainer.addChild(entitiesLayer);
+  holdContainer.addChild(entitiesLayer);
 
-  // All Hallows drifting mist/fog layer
   const fogLayer = new Graphics();
-  worldContainer.addChild(fogLayer);
+  holdContainer.addChild(fogLayer);
 
-  // Ambient lighting overlay
   const ambientOverlay = new Graphics();
-  worldContainer.addChild(ambientOverlay);
+  holdContainer.addChild(ambientOverlay);
 
-  // Floating atmospheric seasonal particles layer
   const particlesGraphic = new Graphics();
-  worldContainer.addChild(particlesGraphic);
+  holdContainer.addChild(particlesGraphic);
 
-  // Tile hover diamond
   const hoverGraphic = new Graphics();
   hoverGraphic.poly([
     0, -HALF_H,
@@ -1713,7 +2251,24 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   hoverGraphic.stroke({ width: 1.8, color: 0xfef08a, alpha: 0.85 });
   hoverGraphic.fill({ color: 0xffffff, alpha: 0.12 });
   hoverGraphic.visible = false;
-  worldContainer.addChild(hoverGraphic);
+  holdContainer.addChild(hoverGraphic);
+
+  // Board layers inside boardContainer
+  const boardBackdropLayer = new Graphics();
+  boardContainer.addChild(boardBackdropLayer);
+
+  const boardProvincesLayer = new Graphics();
+  boardContainer.addChild(boardProvincesLayer);
+
+  const boardRoutesLayer = new Graphics();
+  boardContainer.addChild(boardRoutesLayer);
+
+  const boardPawnsLayer = new Graphics();
+  boardContainer.addChild(boardPawnsLayer);
+
+  const boardHighlightLayer = new Graphics();
+  boardHighlightLayer.visible = false;
+  boardContainer.addChild(boardHighlightLayer);
 
   // 3. Tabletop Hardwood Rim (rendered on top of world and mask)
   const tableRimLayer = new Graphics();
@@ -1724,33 +2279,59 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   const buildingGraphics = new Map<string, Graphics>();
   let lastState: GameState | null = null;
   let clickCb: ((x: number, y: number) => void) | null = null;
+  let provinceClickCb: ((provinceId: string) => void) | null = null;
+  let bandChangeCb: ((band: CameraBand) => void) | null = null;
   let phase = 0;
   let currentSeasonName = "Spring";
   let currentHolidayId = "none";
   let visuals = getThemeVisuals(currentSeasonName, currentHolidayId);
+  let hoveredProvinceCoord: { bx: number; by: number } | null = null;
 
-  // Zoom & Pan State (strictly zoom & pan, NO rotate)
-  let zoom = 1.0;
+  // Zoom & Pan State (two zoom bands: Hold vs Board)
+  let zoom = HOLD_DEFAULT_ZOOM;
   let panX = 0;
   let panY = 0;
-  const MIN_ZOOM = 0.75;
-  const MAX_ZOOM = 2.2;
+  let currentBand: CameraBand = "hold";
+
+  function updateBand(nextBand: CameraBand): void {
+    if (currentBand !== nextBand) {
+      currentBand = nextBand;
+      bandChangeCb?.(currentBand);
+      window.dispatchEvent(new CustomEvent("sc-camera-band-change", { detail: currentBand }));
+    }
+  }
 
   function applyTransform(): void {
-    worldContainer.scale.set(zoom);
-    worldContainer.position.set(panX, panY);
+    const nextBand = bandForZoom(zoom);
+    updateBand(nextBand);
+
+    if (currentBand === "hold") {
+      holdContainer.visible = true;
+      boardContainer.visible = false;
+      holdContainer.scale.set(zoom);
+      holdContainer.position.set(panX, panY);
+    } else {
+      holdContainer.visible = false;
+      boardContainer.visible = true;
+      const boardScale = zoom / BOARD_DEFAULT_ZOOM;
+      boardContainer.scale.set(boardScale);
+      boardContainer.position.set(
+        panX + (1 - boardScale) * (CANVAS_W / 2),
+        panY + (1 - boardScale) * (CANVAS_H / 2)
+      );
+    }
   }
   applyTransform();
 
   function setZoomCentered(newZoom: number, cx: number, cy: number): void {
-    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
+    const clamped = Math.max(MIN_CAMERA_ZOOM, Math.min(MAX_CAMERA_ZOOM, newZoom));
     if (Math.abs(clamped - zoom) < 0.001) return;
     const wx = (cx - panX) / zoom;
     const wy = (cy - panY) / zoom;
     zoom = clamped;
     panX = cx - wx * zoom;
     panY = cy - wy * zoom;
-    // Clamp panning boundaries
+
     const maxPanX = CANVAS_W * 0.75;
     const maxPanY = CANVAS_H * 0.75;
     panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
@@ -1758,8 +2339,22 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     applyTransform();
   }
 
-  // Paint ground initially
+  function setBand(targetBand: CameraBand): void {
+    if (targetBand === "hold") {
+      zoom = HOLD_DEFAULT_ZOOM;
+      panX = 0;
+      panY = 0;
+    } else {
+      zoom = BOARD_DEFAULT_ZOOM;
+      panX = 0;
+      panY = 0;
+    }
+    applyTransform();
+  }
+
+  // Paint ground and board backdrop initially
   paintIsometricGround(groundLayer, visuals);
+  paintBoardBackdrop(boardBackdropLayer, visuals);
 
   // Living Walkers presentation pool (8 citizens)
   const WALKERS_COUNT = 8;
@@ -1821,6 +2416,17 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     return worldToGrid(wx, wy);
   }
 
+  function getBoardCoords(ev: PointerEvent | MouseEvent): { bx: number; by: number } {
+    const { px, py } = getCanvasCoords(ev);
+    const boardScale = zoom / BOARD_DEFAULT_ZOOM;
+    const boardOriginX = panX + (1 - boardScale) * (CANVAS_W / 2);
+    const boardOriginY = panY + (1 - boardScale) * (CANVAS_H / 2);
+    return {
+      bx: (px - boardOriginX) / boardScale,
+      by: (py - boardOriginY) / boardScale,
+    };
+  }
+
   // Pointer drag panning and click detection
   let isDragging = false;
   let dragStartX = 0;
@@ -1853,19 +2459,37 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       applyTransform();
     }
 
-    // Hover diamond update (inside worldContainer coordinates)
-    const { gx, gy } = getGridFromEvent(ev);
-    if (
-      px >= RIM_SIZE && px <= CANVAS_W - RIM_SIZE &&
-      py >= RIM_SIZE && py <= CANVAS_H - RIM_SIZE &&
-      gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H
-    ) {
-      const { wx, wy } = gridToWorld(gx, gy);
-      hoverGraphic.visible = true;
-      hoverGraphic.x = wx;
-      hoverGraphic.y = wy;
+    if (currentBand === "hold") {
+      boardHighlightLayer.visible = false;
+      const { gx, gy } = getGridFromEvent(ev);
+      if (
+        px >= RIM_SIZE && px <= CANVAS_W - RIM_SIZE &&
+        py >= RIM_SIZE && py <= CANVAS_H - RIM_SIZE &&
+        gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H
+      ) {
+        const { wx, wy } = gridToWorld(gx, gy);
+        hoverGraphic.visible = true;
+        hoverGraphic.x = wx;
+        hoverGraphic.y = wy;
+      } else {
+        hoverGraphic.visible = false;
+      }
     } else {
       hoverGraphic.visible = false;
+      const { bx, by } = getBoardCoords(ev);
+      const hit = hitTestProvince(bx, by);
+      if (
+        hit &&
+        px >= RIM_SIZE && px <= CANVAS_W - RIM_SIZE &&
+        py >= RIM_SIZE && py <= CANVAS_H - RIM_SIZE
+      ) {
+        hoveredProvinceCoord = hit;
+        boardHighlightLayer.visible = true;
+        paintBoardHighlight(boardHighlightLayer, hit.bx, hit.by, lastState);
+      } else {
+        hoveredProvinceCoord = null;
+        boardHighlightLayer.visible = false;
+      }
     }
   });
 
@@ -1874,16 +2498,31 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     isDragging = false;
     app.canvas.style.cursor = "grab";
 
-    // If movement was minimal, interpret as deliberate tile click!
-    if (dragMoved < 6 && clickCb) {
+    if (dragMoved < 6) {
       const { px, py } = getCanvasCoords(ev);
       if (
         px >= RIM_SIZE && px <= CANVAS_W - RIM_SIZE &&
         py >= RIM_SIZE && py <= CANVAS_H - RIM_SIZE
       ) {
-        const { gx, gy } = getGridFromEvent(ev);
-        if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H) {
-          clickCb(gx, gy);
+        if (currentBand === "hold" && clickCb) {
+          const { gx, gy } = getGridFromEvent(ev);
+          if (gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H) {
+            clickCb(gx, gy);
+          }
+        } else if (currentBand === "board" && lastState) {
+          const { bx, by } = getBoardCoords(ev);
+          const hit = hitTestProvince(bx, by);
+          if (hit) {
+            const p = lastState.board?.provinces?.find((pr) => pr.x === hit.bx && pr.y === hit.by);
+            if (p) {
+              if (p.id === lastState.board?.homeProvinceId) {
+                // Clicking home province snaps back to Hold band
+                setBand("hold");
+              } else if (provinceClickCb) {
+                provinceClickCb(p.id);
+              }
+            }
+          }
         }
       }
     }
@@ -1891,6 +2530,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   app.canvas.addEventListener("pointerleave", () => {
     hoverGraphic.visible = false;
+    boardHighlightLayer.visible = false;
+    hoveredProvinceCoord = null;
   });
 
   // Mouse wheel zoom centered at cursor
@@ -1937,8 +2578,6 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         }
       }
 
-      // Discrete 2-3 frame animation step calculation:
-      // Cycle: 0 (stand) -> 1 (left step) -> 0 (stand) -> 2 (right step)
       let frame: 0 | 1 | 2 = 0;
       if (w.state === "walking") {
         const cycle = Math.floor(w.walkDist) % 4;
@@ -1947,7 +2586,6 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         else frame = 0;
       }
 
-      // Position in world isometric space
       const { wx, wy } = gridToWorld(w.x, w.y);
       w.graphics.x = wx;
       w.graphics.y = wy;
@@ -1957,7 +2595,6 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     }
   }
 
-  // Holiday and seasonal light fog / weather rendering on the isometric map
   function updateFog(t: number): void {
     fogLayer.clear();
     const dec = visuals.decorations;
@@ -1967,47 +2604,38 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     let alphaMult = 1.0;
 
     if (dec === "halloween") {
-      // Keep Halloween as-is: deep creeping purple mist banks
       outerColor = 0x3b244d;
       innerColor = 0x241433;
       alphaMult = 1.0;
     } else if (dec === "midwinter") {
-      // Midwinter: drifting frosty blizzard mists & icy ground vapors
       outerColor = 0xbae6fd;
       innerColor = 0xe0f2fe;
       alphaMult = 1.15;
     } else if (dec === "easter") {
-      // Easter: soft pastel dawn mist / morning dew rolling across meadows
       outerColor = 0xf3e8ff;
       innerColor = 0xfdf4ff;
       alphaMult = 0.85;
     } else if (dec === "harvest") {
-      // Harvest: golden autumn twilight haze / smoky orchard mist
       outerColor = 0x78350f;
       innerColor = 0x92400e;
       alphaMult = 0.95;
     } else if (dec === "midsummer") {
-      // Midsummer: golden sundown heat haze / twilight shimmer
       outerColor = 0xfde047;
       innerColor = 0xfef08a;
       alphaMult = 0.75;
     } else if (dec === "spring") {
-      // Spring: light morning dew vapor
       outerColor = 0xdcfce7;
       innerColor = 0xf0fdf4;
       alphaMult = 0.50;
     } else if (dec === "summer") {
-      // Summer: subtle golden afternoon haze
       outerColor = 0xfef9c3;
       innerColor = 0xfef08a;
       alphaMult = 0.40;
     } else if (dec === "autumn") {
-      // Autumn: crisp autumn morning mist
       outerColor = 0x78350f;
       innerColor = 0xb45309;
       alphaMult = 0.60;
     } else if (dec === "winter") {
-      // Winter: pale winter ground frost fog
       outerColor = 0xe2e8f0;
       innerColor = 0xf1f5f9;
       alphaMult = 0.70;
@@ -2093,7 +2721,6 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       drawIsometricBuilding(g, b.typeId, b.level, complete, t + gx * 0.35, visuals);
     }
 
-    // Clean up dismantled buildings
     for (const [id, g] of buildingGraphics) {
       if (!seen.has(id)) {
         entitiesLayer.removeChild(g);
@@ -2111,8 +2738,14 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       visuals = getThemeVisuals(currentSeasonName, currentHolidayId);
       paintIsometricGround(groundLayer, visuals);
       paintAmbientLighting();
+      paintBoardBackdrop(boardBackdropLayer, visuals);
     }
     paintBuildings(state, phase);
+    paintBoardProvinces(boardProvincesLayer, state, phase);
+    paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
+    if (hoveredProvinceCoord) {
+      paintBoardHighlight(boardHighlightLayer, hoveredProvinceCoord.bx, hoveredProvinceCoord.by, state);
+    }
   }
 
   function setTheme(themeId: string, holidayId: string): void {
@@ -2120,8 +2753,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     visuals = getThemeVisuals(currentSeasonName, holidayId);
     paintIsometricGround(groundLayer, visuals);
     paintAmbientLighting();
+    paintBoardBackdrop(boardBackdropLayer, visuals);
     if (lastState) {
       paintBuildings(lastState, phase);
+      paintBoardProvinces(boardProvincesLayer, lastState, phase);
+      paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
     }
   }
 
@@ -2134,12 +2770,17 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
     phase += dt * 2.5;
 
-    updateWalkers(dt, lastState);
-    updateFog(phase);
-    updateParticles(phase);
-
-    if (lastState) {
-      paintBuildings(lastState, phase);
+    if (currentBand === "hold") {
+      updateWalkers(dt, lastState);
+      updateFog(phase);
+      updateParticles(phase);
+      if (lastState) {
+        paintBuildings(lastState, phase);
+      }
+    } else {
+      if (lastState) {
+        paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
+      }
     }
   });
 
@@ -2154,6 +2795,9 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     onTileClick(cb) {
       clickCb = cb;
     },
+    onProvinceClick(cb) {
+      provinceClickCb = cb;
+    },
     zoomIn() {
       setZoomCentered(zoom * 1.25, CANVAS_W / 2, CANVAS_H / 2);
     },
@@ -2161,10 +2805,23 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       setZoomCentered(zoom * 0.8, CANVAS_W / 2, CANVAS_H / 2);
     },
     resetView() {
-      zoom = 1.0;
+      if (currentBand === "hold") {
+        zoom = HOLD_DEFAULT_ZOOM;
+      } else {
+        zoom = BOARD_DEFAULT_ZOOM;
+      }
       panX = 0;
       panY = 0;
       applyTransform();
+    },
+    getBand() {
+      return currentBand;
+    },
+    setBand(band: CameraBand) {
+      setBand(band);
+    },
+    onBandChange(cb) {
+      bandChangeCb = cb;
     },
   };
 }

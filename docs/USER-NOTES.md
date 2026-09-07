@@ -1,18 +1,38 @@
 # USER-NOTES
 
-Last updated: 2026-09-06 | Version: playtest-0.8 (Gemini Seasons & War Strip)
+Last updated: 2026-09-07 | Version: playtest-0.9 (Gemini Two-Band Camera & Board Diorama)
 
 Play: `https://129.153.17.72.sslip.io/`
 
+## Two-Band Camera: Hold vs. Board
+
+The Kingdom view now supports two seamless zoom bands on the same Pixi tabletop diorama:
+
+1. **Hold View (Close-up Isometric Band, Zoom > 0.70)**:
+   - Your realm's 16×10 isometric diorama.
+   - Click any empty tile to place your selected building, or click an existing building to upgrade it up to level 5.
+   - Living pixel walkers, assigned workstation citizens, animated chimney smoke, tall stone keeps, and holiday dressings are visible in rich diorama detail.
+   - Zoom with mouse wheel or on-screen `[+]` / `[-]` buttons; drag to pan.
+
+2. **Board View (Tabletop Map Band, Zoom <= 0.70)**:
+   - When zoomed out past `0.70` (or clicking the **Board / Hold** toggle), the camera transitions into the tabletop realm board: an 8×6 grid of tactile province tokens.
+   - **6 Distinct Terrain Chips**: Meadow plains, spruce timber woods, highland rolling hills, cracked scorched wastes, coastal azure shores, and snowcapped alpine mountain peaks.
+   - **Resource & Strategic Node Marks**: Holds, bandit camps, woodcutting stands, granite quarries, and ripe wheat fields.
+   - **Player Seat & Iron March Foe**: Your Home Hold (`x=2, y=2`) is framed in gilded royal brass with a crown emblem and golden halo. The rival Iron March hold (`x=5, y=2`) is framed in spiked blackened steel with iron rivets.
+
+3. **Marching Your Company on the Board**:
+   - **Snap to Hold**: Clicking your Home Hold token instantly snaps the camera back to close-up Hold view.
+   - **Order a March**: Clicking any foreign province token (bandit camps, timber stands, quarries, fields, or enemy holds) orders your army to march to that location.
+   - **Active Marching Pawn**: When an expedition is underway, an animated tabletop marching meeple pawn travels along a glowing dotted route line from your hold to the destination. The pawn bobs with marching cadence and carries a waving royal standard with a live ETA counter.
+   - Only one march can be active at a time; on arrival, camps yield bounties, resource nodes bring back lumber/stone/food, and hostile holds trigger battle resolutions!
+
+4. **Board / Hold Toggle Buttons**:
+   - For testers using trackpads or without mouse wheels, a dedicated `[🏰 Hold / 🗺️ Board]` button sits at the top in ChromeDock and directly on the bottom-right of the map canvas for instant band switching.
+
 ## Tabletop Board Diorama & Holiday Dressing
 
-The Kingdom view is framed as a tabletop board game diorama:
+The diorama is framed as a tabletop board game:
 - **Polished Hardwood Rim**: Recessed diorama framed in walnut with antique brass corner brackets and rivets.
-- **Zoom & Pan Controls**:
-  - Scroll mouse wheel to zoom in and out smoothly.
-  - Click and drag anywhere on the board to pan your view.
-  - On-screen buttons `[+]`, `[-]`, `[⟲]` let you zoom or reset to default center at any time.
-  - Clicking tiles without dragging continues to place new buildings or upgrade existing structures up to level 5.
 - **Halloween-Class Board Dressing Across All Holidays & Seasons**:
   - **Midwinter**: Contoured snow blankets with hanging icicles, pine wreaths with red bows, warm candlelit windows with golden halos, doorstep brass lanterns, snowdrifts, holly sprigs, and drifting icy blizzard vapor.
   - **Easter**: Blooming flower vines climbing building facades, fluttering pastel ribbons, dawn lamps with golden-lilac halos, painted easter eggs nestled in grass, spring crocuses, and soft dawn dew mist.
@@ -21,8 +41,8 @@ The Kingdom view is framed as a tabletop board game diorama:
   - **All Hallows**: Retained with carved jack-o'-lanterns, witchfire glow, pumpkins, and deep creeping mist banks.
   - **Standard Seasons**: Subtle, lighter variants of ground scatter, window lighting, and ambient weather mists when holiday is set to "Off".
 - **Denser Pixel Architecture & Walkers**: Every building features dense multi-structure vignettes, animated chimneys, and discrete 2-3 frame pixel citizen walkers.
-- **Living Citizen Workers**: Citizens hired for your buildings now visibly populate the diorama and report to their workstation tiles. Farmers carry bread baskets in the fields, woodcutters carry axes near the woods, miners carry pickaxes around quarries and mines, merchants tend market stalls, guards patrol military structures with steel helmets and spears, and scholars study at the chapel with scrolls and cowls.
-- **Taller Stone Keep**: The realm's Keep now stands as a commanding ashlar fortress with a flared base plinth, twin corner watch bartizans, crenellated battlements, an iron portcullis, heraldic shield, candlelit high quarters, and an animated royal standard.
+- **Living Citizen Workers**: Citizens hired for your buildings visibly populate the diorama and report to their workstation tiles. Farmers carry bread baskets in the fields, woodcutters carry axes near the woods, miners carry pickaxes around quarries and mines, merchants tend market stalls, guards patrol military structures with steel helmets and spears, and scholars study at the chapel with scrolls and cowls.
+- **Taller Stone Keep**: The realm's Keep stands as a commanding ashlar fortress with a flared base plinth, twin corner watch bartizans, crenellated battlements, an iron portcullis, heraldic shield, candlelit high quarters, and an animated royal standard.
 
 ## War Tab: Living Pixel Unit Strip
 

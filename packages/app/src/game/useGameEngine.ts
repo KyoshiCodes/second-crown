@@ -17,10 +17,13 @@ import {
   playerOpinionOfRival,
   playerTitle,
   getBuildingType,
+  tryMarch,
+  activePlayerMarch,
+  getProvince,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
-import { createMapRenderer, type MapRenderer } from "@second-crown/render";
+import { createMapRenderer, type MapRenderer, type CameraBand } from "@second-crown/render";
 import { saveToIndexedDb, loadFromIndexedDb, clearIndexedDbSave } from "../save/indexedDb";
 import { downloadSave, pickSaveFile } from "../save/fileIo";
 import type { BattleSnap } from "../BattleVisual";
@@ -61,6 +64,7 @@ export function useGameEngine() {
   const [rivalOp, setRivalOp] = React.useState(0);
   const [playerOp, setPlayerOp] = React.useState(0);
   const [title, setTitle] = React.useState("Petty Lord");
+  const [cameraBand, setCameraBand] = React.useState<CameraBand>("hold");
   const [battleSnap, setBattleSnap] = React.useState<BattleSnap | null>(null);
   const seenEventTick = React.useRef(0);
   const speedRef = React.useRef(1);
@@ -166,6 +170,35 @@ export function useGameEngine() {
             setStatus(ok ? `Built ${nm}.` : `Cannot afford ${nm}.`);
             if (ok) { syncUi(eng); persist(st); }
           });
+          map.onProvinceClick((provinceId) => {
+            const eng = engineRef.current;
+            if (!eng) return;
+            const st = eng.getState();
+            if (provinceId === st.board.homeProvinceId) {
+              mapRef.current?.setBand("hold");
+              setCameraBand("hold");
+              return;
+            }
+            act((s) => {
+              const dest = getProvince(s, provinceId);
+              const destName = dest
+                ? `${dest.node !== "none" ? dest.node.toUpperCase() : dest.terrain} (${dest.x}, ${dest.y})`
+                : provinceId;
+              if (activePlayerMarch(s)) {
+                return "Company already on the march. Await their return.";
+              }
+              const ok = tryMarch(s, provinceId);
+              if (ok) {
+                const m = activePlayerMarch(s);
+                const eta = m ? m.arrivesTick - s.meta.tick : 0;
+                return `March ordered to ${destName}! ETA: ${eta} ticks (${(eta / 10).toFixed(1)}s).`;
+              }
+              return `Cannot march to ${destName}.`;
+            });
+          });
+          map.onBandChange((newBand) => {
+            setCameraBand(newBand);
+          });
         } catch (e) { console.warn(e); }
       }
       syncUi(engine);
@@ -252,6 +285,36 @@ export function useGameEngine() {
     mapRef.current?.resetView();
   }, []);
 
+  const setCameraBandExplicit = React.useCallback((b: CameraBand) => {
+    mapRef.current?.setBand(b);
+    setCameraBand(b);
+  }, []);
+
+  const toggleCameraBand = React.useCallback(() => {
+    const current = mapRef.current?.getBand() ?? "hold";
+    const next = current === "hold" ? "board" : "hold";
+    mapRef.current?.setBand(next);
+    setCameraBand(next);
+  }, []);
+
+  React.useEffect(() => {
+    const onToggle = () => {
+      toggleCameraBand();
+    };
+    const onBand = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail;
+      if (detail === "hold" || detail === "board") {
+        setCameraBand(detail);
+      }
+    };
+    window.addEventListener("sc-toggle-camera-band", onToggle);
+    window.addEventListener("sc-camera-band-change", onBand);
+    return () => {
+      window.removeEventListener("sc-toggle-camera-band", onToggle);
+      window.removeEventListener("sc-camera-band-change", onBand);
+    };
+  }, [toggleCameraBand]);
+
   return {
     tab, setTab,
     tick, resources, income, units, wars,
@@ -269,6 +332,9 @@ export function useGameEngine() {
     zoomIn,
     zoomOut,
     resetView,
+    cameraBand,
+    setCameraBand: setCameraBandExplicit,
+    toggleCameraBand,
     state: engineRef.current?.getState(),
     act,
     saveNow, exportSave, importSaveFile, newGame,
