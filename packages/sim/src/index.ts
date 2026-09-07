@@ -134,6 +134,19 @@ export {
   provinceId,
 } from "./systems/board.js";
 
+export {
+  tryMarch,
+  listMarches,
+  activePlayerMarch,
+  hasClosedWallRing,
+  wallHp,
+  edgeWallCount,
+  siegeDefense,
+  applySiegeBlow,
+  MarchSystem,
+} from "./systems/march.js";
+export type { March } from "./systems/march.js";
+
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
 export { applyOfflineProgress } from "./offline.js";

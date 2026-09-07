@@ -1,6 +1,6 @@
 # HANDOFF
 
-playtest-0.9 | W1 board schema on main.
-8x6 provinces, seeded. Player hold p_2_2, Iron March p_5_2, camps/wood/quarry/field sprinkled.
-No marches yet. Old saves get a board on load.
-Next: W2 siege math (Claude) after tests green on the box.
+W2 on main. Walls on the 16x10 rim (x=0/15 or y=0/9). Eight rim walls = closed ring (+20 HP).
+tryMarch(destProvinceId) one march at a time, 15 ticks per manhattan step.
+Camps/nodes resolve on arrival. Blowout siege (atk > def*1.35) scars a non-keep building.
+No board camera yet. Next: W3 Gemini zoom-out tokens after tests green.
