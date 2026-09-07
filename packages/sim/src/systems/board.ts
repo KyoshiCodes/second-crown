@@ -76,8 +76,27 @@ export function seedBoard(seed: number): BoardState {
   };
 }
 
+export function plantRealmHolds(state: GameState): void {
+  if (!state.board?.provinces?.length) state.board = seedBoard(state.meta.seed);
+  const taken = new Set(
+    state.board.provinces.filter((p) => p.occupantRealmId).map((p) => p.occupantRealmId as string)
+  );
+  const extras = state.realms.filter((r) => r.id !== "player" && r.id !== "rival" && !taken.has(r.id));
+  const free = state.board.provinces.filter((p) => !p.occupantRealmId && p.node !== "hold");
+  extras.forEach((realm, i) => {
+    const slot = free[(hash(state.meta.seed + i * 97) % Math.max(1, free.length))];
+    if (!slot) return;
+    if (slot.occupantRealmId) return;
+    slot.node = "hold";
+    slot.occupantRealmId = realm.id;
+    const idx = free.indexOf(slot);
+    if (idx >= 0) free.splice(idx, 1);
+  });
+}
+
 export function ensureBoard(state: GameState): void {
   if (!state.board || !Array.isArray(state.board.provinces) || state.board.provinces.length === 0) {
     state.board = seedBoard(state.meta.seed);
   }
+  plantRealmHolds(state);
 }
