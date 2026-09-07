@@ -56,22 +56,22 @@ export interface CitizenInstance {
   tile: CitizenTile | null;
 }
 
-export interface Realm {
+export interface CharacterInstance {
+  id: string;
+  name: string;
+  role: string;
+  realmId: string;
+  traits: TraitId[];
+  ambition: AmbitionId | null;
+}
+
+export interface RealmInstance {
   id: string;
   name: string;
   rulerId: string;
   era?: string;
   lifestyle?: string;
   aiProfile?: string;
-}
-
-export interface Character {
-  id: string;
-  name: string;
-  role: "ruler" | "heir" | "advisor" | "general" | "other";
-  realmId: string;
-  traits: TraitId[];
-  ambition: AmbitionId | null;
 }
 
 export interface OpinionEdge {
@@ -81,39 +81,32 @@ export interface OpinionEdge {
   expiresTick: number | null;
 }
 
-export interface War {
+export interface WarInstance {
   id: string;
   attackerRealmId: string;
   defenderRealmId: string;
   startedTick: number;
-  status: "active" | "attacker_won" | "defender_won" | "white_peace";
+  status: "active" | "ended";
 }
 
-export interface Faction {
+export interface FactionInstance {
   id: string;
   name: string;
-  kind: "guild" | "order" | "house" | "cult";
-  leaderRealmId: string | null;
+  leaderRealmId: string;
   memberRealmIds: string[];
-  stance: number;
-}
-
-export interface InputRecord {
-  tick: number;
-  type: string;
-  payload: unknown;
-  issuerId?: string;
+  stance?: number;
+  crestId?: string;
 }
 
 export type TerrainId = "plain" | "wood" | "hill" | "waste" | "shore" | "peak";
-export type ProvinceNode = "none" | "hold" | "camp" | "woodcut" | "quarry" | "field";
+export type NodeId = "none" | "hold" | "camp" | "woodcut" | "quarry" | "field";
 
 export interface Province {
   id: string;
   x: number;
   y: number;
   terrain: TerrainId;
-  node: ProvinceNode;
+  node: NodeId;
   occupantRealmId: string | null;
 }
 
@@ -126,28 +119,28 @@ export interface BoardState {
 
 export interface GameState {
   meta: MetaState;
-  resources: Record<string, DecimalString>;
+  resources: Partial<Record<ResourceId, DecimalString>>;
   buildings: BuildingInstance[];
   units: UnitInstance[];
   citizens: CitizenInstance[];
-  realms: Realm[];
-  characters: Character[];
+  realms: RealmInstance[];
+  characters: CharacterInstance[];
   opinions: OpinionEdge[];
-  wars: War[];
-  factions: Faction[];
-  inputLog: InputRecord[];
-  flags: Record<string, boolean | number | string>;
+  wars: WarInstance[];
+  factions: FactionInstance[];
+  inputLog: unknown[];
+  flags: Record<string, unknown>;
   unlocks: string[];
   board: BoardState;
 }
 
-export const SAVE_VERSION = 0;
+export const SAVE_VERSION = 1;
 
 export const TICKS_PER_SECOND = 10;
 
 export const MAX_OFFLINE_MS = 30 * 24 * 60 * 60 * 1000;
 
-export const BOARD_W = 8;
-export const BOARD_H = 6;
+export const BOARD_W = 12;
+export const BOARD_H = 8;
 
 export { formatLetterSuffix } from "./formatNumber.js";
