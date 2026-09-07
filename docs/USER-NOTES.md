@@ -1,12 +1,42 @@
 # USER-NOTES
 
-Last updated: 2026-09-07 | Version: playtest-0.10 (Gemini Board2: Cottages, Gates, Fog Chips & Iron Meeples)
+Last updated: 2026-09-07 | Version: playtest-0.11 (Gemini Map: Connected Rim Wall Run & Stronger Terrain Chips)
 
 Play: `https://129.153.17.72.sslip.io/`
 
+<<<<<<< HEAD
 ## Behind the scenes: rim fort listing (`bakeoff/claude-walls`)
 
 No visible change in this PR. It adds a sim-only helper, `listRimForts`, that reads your finished Walls and Gate on the hold rim and hands them back in clockwise order — the groundwork a future renderer needs to draw a connected wall run around your hold instead of separate wall tiles. Placing and upgrading Walls and Gates works exactly as before.
+=======
+## Connected Rim Wall Run on the Hold
+
+Building fortifications along the outer rim of your 16×10 hold (`x=0`, `y=0`, `x=15`, `y=9`) now creates a majestic, unbroken fortress wall:
+
+1. **Continuous Stone Curtain**:
+   - Adjacent finished Walls and Gates connect seamlessly with solid ashlar stone curtain walls, foundation plinths, and horizontal mortar scoring.
+   - Walkways with timber decking run along the top of the wall-walk.
+   - Crisp crenellated stone merlons line the outer battlements with stone coping highlights.
+   - Each wall tile features a central bastion tower with arrow loops and animated torch sconces.
+   - Corner bastion towers anchor the four perimeter corners of your hold.
+2. **Gatehouse Sitting in the Gap**:
+   - When a Gatehouse sits on the rim, its twin flanking bastion towers connect flush into neighboring curtain walls.
+   - Heavy reinforced double oak doors, iron strap hinges, and lowered portcullis teeth seal the passage between curtain spans.
+3. **Interior Walls Unchanged**:
+   - Walls built inside the courtyard (away from the outer rim) remain isolated defensive bastion blocks, keeping your internal fortress layout crisp and readable.
+   - Tile clicks for placing, inspecting, and upgrading buildings are 100% preserved.
+
+## Stronger 8×6 Terrain Chips on the Regional Board
+
+When zooming out to regional board view (`zoom <= 0.70`, default `0.58`), all 6 tabletop province chips read at a glance:
+
+- **Peak is a Real Ridge**: A continuous grand alpine massif spanning the chip with sunlit western granite faces, shadowed eastern basalt cliffs, a sharp central arête, pure white snowcaps across three summits, a glacial cirque, and rocky scree foothills.
+- **Shore has Water & Foam**: Deep azure ocean waters meeting turquoise shallows, a golden sand beach with a wet sand tideline, rolling wave crests, and a crashing white surf line with frothing sea foam lace.
+- **Wood is a Stand of Trees**: A dense forest grove of 6-7 layered evergreen pines with timber trunks, dark spruce background trees, vibrant emerald mid-tier pines, and towering foreground monarch pines with highlighted bough needles.
+- **Waste Glows**: Scorched volcanic basalt crust cut by radiating magma fissures with a deep crimson outer glow, blazing incandescent orange lava channels, an animated pulsing golden-yellow heat core, and floating ember motes.
+- **Hill has Contours**: Rolling highland topographic knolls with shaded elevation terraces, rounded hill domes, three bold highlighted contour ridges, and exposed granite bluffs.
+- **Plain Stays Meadow**: A lush pastoral meadow with rolling grass knoll bands, clustered 3-blade tall grass tufts, and sprinkled chamomile daisy, yellow buttercup, and blue cornflower blossoms.
+>>>>>>> origin/bakeoff/gemini-map
 
 ## Distinct Residential Cottages & Fortified Rim Gatehouses
 

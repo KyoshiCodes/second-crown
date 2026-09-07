@@ -2,12 +2,41 @@
 
 Newest first.
 
+<<<<<<< HEAD
 ## 2026-09-07 — Claude Rim Fort Listing (`bakeoff/claude-walls`)
 
 - **Sim helper (`packages/sim/src/systems/rimForts.ts`)**: new `listRimForts(state, realmId = "player")` returns `{ x, y, kind: "wall" | "gate" }[]` for finished `walls`/`gate` buildings on the 16×10 hold rim (`x===0 || y===0 || x===15 || y===9`), ordered clockwise from `(0,0)` so a renderer can stroke a connected ring.
 - **Sim exports (`packages/sim/src/index.ts`)**: `listRimForts` and the `RimFort` type are now exported from `@second-crown/sim`.
 - **Tests (`packages/sim/src/systems/rimForts.test.ts`)**: empty rim, mixed walls+gate sorted clockwise, and interior walls / unfinished buildings / other realms excluded.
 - **Sim & App Purity**: `git diff main -- packages/app packages/render server` empty. No combat, march, fog, housing, or tickEngine changes. Full `@second-crown/sim` test suite (90 tests) and `npm run build -w @second-crown/app` pass.
+=======
+## 2026-09-07 — Gemini Connected Rim Wall Run & Stronger Terrain Chips (`bakeoff/gemini-map`)
+
+- **Connected Rim Wall Run on the Hold (`packages/render`)**:
+  - Automatically queries finished rim fort structures (`listRimForts` if exported from `@second-crown/sim`, otherwise reading `state.buildings` using the matching 16×10 rim rule: `gx === 0 || gy === 0 || gx === 15 || gy === 9` ordered clockwise).
+  - Draws a continuous ashlar stone curtain wall connecting adjacent rim forts (walls and gates):
+    - Dark foundation plinths and dual-tone ashlar granite curtain faces (sunlit on South-West edges, shaded on South-East edges).
+    - Horizontal mortar scoring lines and wall-walk walkway with timber planking center line.
+    - Regular crenellated stone merlons along the outer parapet with bright coping highlights.
+    - Arrow loop slits in the curtain face and center bastion towers with animated flickering wall torches.
+    - Sturdy corner bastion towers anchoring the four perimeter corners `(0,0)`, `(15,0)`, `(15,9)`, `(0,9)`.
+  - Gatehouses sit flush in the gap: flanking bastion towers connect seamlessly to adjacent curtain spans while retaining heavy reinforced double oak doors, iron strap hinges, portcullis teeth, and defensive pennant.
+  - Interior walls (`!isRimTile`) strictly preserve the original isometric block visual.
+  - Tile clicks and building placement/upgrade contracts remain 100% intact.
+- **Stronger 8×6 Terrain Chips on the Board Band (`packages/render`)**:
+  - All 6 tabletop province terrain chips redesigned to read instantly at 0.58 zoom:
+    - **Peak**: Continuous grand mountain ridge with illuminated western granite slopes, dark basalt eastern shadows, dividing arête, pure white snowcaps across 3 peaks, glacial cirque, and scree teeth.
+    - **Shore**: Deep ocean waters, turquoise shallows, golden sand beach with wet sand tideline, curling wave rollers, crashing white surf crest, and bubbling sea foam lace.
+    - **Wood**: Dense stand of 6-7 layered evergreen pines with forest mulch floor, timber trunks, dark spruce background trees, emerald mid-tier pines, and towering foreground monarch pines with highlighted boughs.
+    - **Waste**: Scorched basalt caldera with dark crust plates, radiating volcanic fissure trenches with multi-layered outer crimson magma glow, incandescent orange lava mid-vein, pulsing yellow-white heat core, caldera vent, and floating ember specks.
+    - **Hill**: Topographic highland contour ridges with shaded elevation terraces, rounded hill domes, 3 bold highlighted elevation contour bands, and exposed granite bluffs.
+    - **Plain**: Lush pastoral meadow with rolling grass knoll bands, clustered 3-blade tall grass tufts, and sprinkled chamomile daisy, yellow buttercup, and blue cornflower blossoms.
+- **Sim & Server Purity**:
+  - `git diff main -- packages/sim server` 100% empty.
+  - Automated tests passing: 87/87 in `@second-crown/sim`, 14/14 in `@second-crown/render`.
+  - App production build clean (`npm run build -w @second-crown/app`).
+  - Fog chips, hostile red meeple, cottage art, zoom/pan, ChromeDock, and dim lanterns completely preserved.
+>>>>>>> origin/bakeoff/gemini-map
 
 ## 2026-09-07 — Claude War Tab Briefing (`bakeoff/claude-war2`)
 

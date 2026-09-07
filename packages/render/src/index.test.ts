@@ -11,6 +11,9 @@ import {
   terrainChipPalette,
   isRimTile,
   isMarchHostile,
+  rimWalkIndex,
+  getRimTileAt,
+  listRimFortsPresentation,
   GRID_W,
   GRID_H,
 } from "./index.js";
@@ -221,5 +224,47 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
     expect(isMarchHostile({ realmId: "player" })).toBe(false);
     expect(isMarchHostile({ realmId: "rival" })).toBe(true);
     expect(isMarchHostile({ realmId: "bandit" })).toBe(true);
+  });
+
+  it("walks rim tiles clockwise from (0,0) in a 48-tile bijective ring", () => {
+    // 16 on top + 9 on right + 15 on bottom + 8 on left = 48 tiles
+    for (let i = 0; i < 48; i++) {
+      const tile = getRimTileAt(i);
+      expect(isRimTile(tile.x, tile.y)).toBe(true);
+      expect(rimWalkIndex(tile.x, tile.y)).toBe(i);
+    }
+
+    // Key corners
+    expect(rimWalkIndex(0, 0)).toBe(0);
+    expect(rimWalkIndex(15, 0)).toBe(15);
+    expect(rimWalkIndex(15, 1)).toBe(16);
+    expect(rimWalkIndex(15, 9)).toBe(24);
+    expect(rimWalkIndex(14, 9)).toBe(25);
+    expect(rimWalkIndex(0, 9)).toBe(39);
+    expect(rimWalkIndex(0, 8)).toBe(40);
+    expect(rimWalkIndex(0, 1)).toBe(47);
+  });
+
+  it("lists finished player rim forts sorted clockwise and excludes interior and unfinished buildings", () => {
+    const s = createMockState();
+    s.buildings.push(
+      { id: "w-bottom", typeId: "walls", realmId: "player", x: 10, y: 9, level: 1, completesAtTick: null },
+      { id: "w-top", typeId: "walls", realmId: "player", x: 3, y: 0, level: 1, completesAtTick: null },
+      { id: "g-right", typeId: "gate", realmId: "player", x: 15, y: 4, level: 1, completesAtTick: null },
+      { id: "w-left", typeId: "walls", realmId: "player", x: 0, y: 5, level: 1, completesAtTick: null },
+      // Excluded:
+      { id: "interior", typeId: "walls", realmId: "player", x: 5, y: 5, level: 1, completesAtTick: null },
+      { id: "unfinished", typeId: "walls", realmId: "player", x: 0, y: 0, level: 1, completesAtTick: 100 },
+      { id: "rival", typeId: "walls", realmId: "rival", x: 0, y: 0, level: 1, completesAtTick: null },
+      { id: "other", typeId: "chapel", realmId: "player", x: 0, y: 0, level: 1, completesAtTick: null }
+    );
+
+    const forts = listRimFortsPresentation(s);
+    expect(forts).toEqual([
+      { x: 3, y: 0, kind: "wall" },
+      { x: 15, y: 4, kind: "gate" },
+      { x: 10, y: 9, kind: "wall" },
+      { x: 0, y: 5, kind: "wall" },
+    ]);
   });
 });
