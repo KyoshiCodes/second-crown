@@ -1,6 +1,16 @@
 import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
+import { countBuilding } from "../content/buildings.js";
 import { getProvince, neighbors } from "./board.js";
+
+export function visionRange(state: GameState): number {
+  return 1 + countBuilding(state, "watchtower");
+}
+
+function homeCoord(state: GameState): { x: number; y: number } {
+  const h = getProvince(state, state.board.homeProvinceId);
+  return h ?? { x: 2, y: 2 };
+}
 
 function seenSet(state: GameState): Set<string> {
   const raw = state.flags.fog_seen;
@@ -26,7 +36,11 @@ export function ensureFog(state: GameState): void {
 }
 
 export function isProvinceSeen(state: GameState, id: string): boolean {
-  return seenSet(state).has(id);
+  if (seenSet(state).has(id)) return true;
+  const p = getProvince(state, id);
+  if (!p) return false;
+  const h = homeCoord(state);
+  return Math.abs(p.x - h.x) + Math.abs(p.y - h.y) <= visionRange(state);
 }
 
 export function revealProvince(state: GameState, id: string): void {
@@ -41,9 +55,14 @@ export function revealProvince(state: GameState, id: string): void {
 
 export function tryScoutProvince(state: GameState, id: string): boolean {
   if (isProvinceSeen(state, id)) return false;
-  if (D(state.resources.gold ?? "0").lt(8)) return false;
+  const cost = Math.max(4, 8 - countBuilding(state, "watchtower"));
+  if (D(state.resources.gold ?? "0").lt(cost)) return false;
   if (!getProvince(state, id)) return false;
-  state.resources.gold = toDecimalString(D(state.resources.gold).sub(8));
+  state.resources.gold = toDecimalString(D(state.resources.gold).sub(cost));
   revealProvince(state, id);
   return true;
+}
+
+export function scoutCost(state: GameState): number {
+  return Math.max(4, 8 - countBuilding(state, "watchtower"));
 }
