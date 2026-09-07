@@ -26,11 +26,20 @@ export function WorldTab(props: {
   const worldEntries = [...worldLog].reverse();
   const clash = state ? activeClash(state) : null;
   const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
+  const holds = state?.board.provinces.filter((p) => p.node === "hold") ?? [];
 
   return (
     <>
       <MarketPanel state={state} act={act} />
       <AuctionPanel state={state} />
+      <h3>Holds on the board</h3>
+      <ul style={{ fontSize: 13 }}>
+        {holds.map((p) => (
+          <li key={p.id}>
+            {p.x},{p.y} — {p.occupantRealmId ? nameOf(p.occupantRealmId) : "empty keep"}
+          </li>
+        ))}
+      </ul>
       <h3>World Status</h3>
       <p style={{ fontSize: 13, opacity: 0.7 }}>Chronicle of other crowns, wars, and musters.</p>
       {clash ? (
