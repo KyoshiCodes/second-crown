@@ -8,6 +8,8 @@ import {
   activeClash,
   tryJoinClash,
   tryScout,
+  incomingOnHome,
+  watchtowerWarning,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -27,11 +29,23 @@ export function WorldTab(props: {
   const clash = state ? activeClash(state) : null;
   const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
   const holds = state?.board.provinces.filter((p) => p.node === "hold") ?? [];
+  const incoming = state ? incomingOnHome(state) : [];
+  const seen = state ? watchtowerWarning(state) : undefined;
 
   return (
     <>
       <MarketPanel state={state} act={act} />
       <AuctionPanel state={state} />
+      {incoming.length > 0 ? (
+        <div className="sc-realm-card" style={{ marginBottom: 12 }}>
+          <strong>{seen ? "Watchtower" : "Dust on the road"}</strong>
+          <p style={{ fontSize: 13 }}>
+            {seen
+              ? `${nameOf(seen.realmId)} is ${Math.max(0, Math.ceil((seen.arrivesTick - (state?.meta.tick ?? 0)) / 10))}s from the gates.`
+              : "A host is moving. Build a Watchtower to name them."}
+          </p>
+        </div>
+      ) : null}
       <h3>Holds on the board</h3>
       <ul style={{ fontSize: 13 }}>
         {holds.map((p) => (
