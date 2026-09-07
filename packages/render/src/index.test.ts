@@ -9,6 +9,10 @@ import {
   hitTestProvince,
   calculateMarchProgress,
   terrainChipPalette,
+  isRimTile,
+  isMarchHostile,
+  GRID_W,
+  GRID_H,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 
@@ -192,5 +196,30 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(p.border).toBeGreaterThan(0);
       expect(p.accent).toBeGreaterThan(0);
     }
+  });
+
+  it("accurately detects rim tiles for gatehouse door placement", () => {
+    // Four corners of 16x10 grid
+    expect(isRimTile(0, 0)).toBe(true);
+    expect(isRimTile(GRID_W - 1, 0)).toBe(true);
+    expect(isRimTile(0, GRID_H - 1)).toBe(true);
+    expect(isRimTile(GRID_W - 1, GRID_H - 1)).toBe(true);
+
+    // Edges
+    expect(isRimTile(0, 4)).toBe(true);
+    expect(isRimTile(8, 0)).toBe(true);
+    expect(isRimTile(GRID_W - 1, 5)).toBe(true);
+    expect(isRimTile(7, GRID_H - 1)).toBe(true);
+
+    // Interior tiles
+    expect(isRimTile(1, 1)).toBe(false);
+    expect(isRimTile(8, 5)).toBe(false);
+    expect(isRimTile(GRID_W - 2, GRID_H - 2)).toBe(false);
+  });
+
+  it("differentiates player marches from hostile marches for meeple styling", () => {
+    expect(isMarchHostile({ realmId: "player" })).toBe(false);
+    expect(isMarchHostile({ realmId: "rival" })).toBe(true);
+    expect(isMarchHostile({ realmId: "bandit" })).toBe(true);
   });
 });

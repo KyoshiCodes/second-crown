@@ -2,6 +2,7 @@
 
 Newest first.
 
+<<<<<<< HEAD
 ## 2026-09-07 — Claude War Tab Briefing (`bakeoff/claude-war2`)
 
 - **War Tab Briefing (`packages/app/src/WarRoom.tsx`)**:
@@ -11,6 +12,34 @@ Newest first.
     - **People**: population vs. housing cap.
 - **Sim exports (`packages/sim/src/index.ts`)**: `gateOnRim` and `gateHp` are now exported from `@second-crown/sim` (pure re-exports of existing `systems/gate.ts` functions already used internally by `wallHp`). No behavior change.
 - **Sim & Core Purity**: `git diff main -- packages/sim/src/core` empty. No combat math, march formulas, fog rules, tickEngine, Discord, or Caddy changes. Full `@second-crown/sim` test suite (87 tests) and `npm run build -w @second-crown/app` pass.
+=======
+## 2026-09-07 — Gemini Isometric Cottage & Gate, Board Fog Chips & Hostile Iron Meeple (`bakeoff/gemini-board2`)
+
+- **Distinct Isometric Cottage & Gatehouse (`packages/render`)**:
+  - **Cottage (`case "cottage"`)**: Cozy half-timbered plaster residence with steep reed-thatched gable roof, ridge cresting, fieldstone chimney with gentle curled hearth smoke puffs, warm leaded-glass window with shutters and glowing candlelit interior, plank door with brass knob and stone threshold, front stone-lined flowerbed with blossoms, and stacked cord of split firewood.
+  - **Gatehouse (`case "gate"`)**: Massive fortified ashlar granite gatehouse with twin bastion towers, crenellated parapets, arrow loops, and central vaulted portal arch.
+    - **Rim Tile Detection (`isRimTile`)**: On rim edge tiles (`gx === 0 || gy === 0 || gx === 15 || gy === 9`), renders heavy iron-reinforced oak double-doors with blackened iron strap hinges, iron rivets, central drop-bar lock, lowered portcullis iron teeth, and a defensive crimson faction pennant atop the central curtain wall.
+    - On interior tiles, presents an open vaulted courtyard archway.
+- **Board-Band Tokens: Unseen Province Fog Chips (`packages/render`)**:
+  - Queries existing sim state helper `isProvinceSeen(state, p.id)` without inventing a secondary fog mechanism.
+  - Unseen provinces render as tactile 3D blank parchment / fog chips with drop shadow, dark vellum bevel, blank parchment face, subtle animated fog mist curves, and faint cartographer compass marks.
+  - Completely hides terrain graphics, node icons, and rival heraldry until scouted or within vision range.
+  - Highlight plaque masks confidential occupant identity for unscouted provinces.
+- **Hostile Red/Iron March Meeple (`packages/render`)**:
+  - Hostile marches (`listMarches` where `realmId !== "player"`) use an imposing red/iron meeple pawn:
+    - Heavy blackened iron pedestal base with steel rivets.
+    - Angular dark steel torso with spiked iron pauldrons.
+    - Blood-red war tabard with crossed black iron harness straps.
+    - Jagged dark iron sallet helm with horn crests and glowing crimson visor eye-slit.
+    - Blackened polearm with jagged halberd axe head and ragged crimson/black battle pennant.
+    - Dotted crimson route trail and blackened iron / crimson ETA pill badge.
+  - Player marches retain the polished wood pedestal, royal blue tunic, bright steel helm, golden standard, and amber route trail.
+- **Sim & Server Purity**:
+  - `git diff main -- packages/sim server` 100% empty.
+  - All automated tests passing: 87/87 in `@second-crown/sim`, 12/12 in `@second-crown/render`.
+  - App production build clean (`npm run build -w @second-crown/app`).
+  - Zoom/pan, tile clicks, ChromeDock, recorded audio, and dim holiday lanterns fully preserved.
+>>>>>>> origin/bakeoff/gemini-board2
 
 ## 2026-09-07 — Gemini Two-Band Camera & Tabletop Board Diorama (`bakeoff/gemini-board-cam`)
 

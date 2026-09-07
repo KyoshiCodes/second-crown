@@ -7,6 +7,7 @@ import {
   activePlayerMarch,
   listMarches,
   getProvince,
+  isProvinceSeen,
 } from "@second-crown/sim";
 import type { March } from "@second-crown/sim";
 
@@ -109,8 +110,16 @@ export function terrainChipPalette(terrain: TerrainId): {
 }
 
 // Grid configuration
-const GRID_W = 16;
-const GRID_H = 10;
+export const GRID_W = 16;
+export const GRID_H = 10;
+
+export function isRimTile(gx: number, gy: number): boolean {
+  return gx === 0 || gy === 0 || gx === GRID_W - 1 || gy === GRID_H - 1;
+}
+
+export function isMarchHostile(march: { realmId: string }): boolean {
+  return march.realmId !== "player";
+}
 const TILE_W = 40;
 const TILE_H = 20;
 const HALF_W = TILE_W / 2; // 20
@@ -551,7 +560,9 @@ function drawIsometricBuilding(
   level: number,
   complete: boolean,
   phase: number,
-  visuals: ThemeVisuals
+  visuals: ThemeVisuals,
+  gx: number = 0,
+  gy: number = 0
 ): void {
   const a = complete ? 1.0 : 0.45;
   g.clear();
@@ -637,6 +648,90 @@ function drawIsometricBuilding(
       // Golden Hayrick in foreground corner
       g.poly([4, 5, 8, 8, 5, 2]);
       g.fill({ color: 0xca8a04, alpha: a });
+      break;
+    }
+
+    case "cottage": {
+      // Distinct Thatched Residential Cottage + Plaster/Timber Walls + Chimney Smoke + Leaded Window + Flowerbed
+      const h = 16 + heightBoost;
+
+      // Half-timbered Plaster Walls (left & right facets)
+      // Left Facet (warm plaster tone)
+      g.poly([-15, 0, 0, 7.5, 0, 7.5 - h, -15, 0 - h]);
+      g.fill({ color: 0xd8c8b0, alpha: a });
+      // Right Facet (shaded plaster tone)
+      g.poly([0, 7.5, 13, 1, 13, 1 - h, 0, 7.5 - h]);
+      g.fill({ color: 0xb5a38c, alpha: a });
+
+      // Exposed timber corner posts and horizontal timber wall plate
+      g.moveTo(-15, 0); g.lineTo(-15, -h);
+      g.moveTo(0, 7.5); g.lineTo(0, 7.5 - h);
+      g.moveTo(13, 1); g.lineTo(13, 1 - h);
+      g.moveTo(-15, -h * 0.5); g.lineTo(0, 7.5 - h * 0.5);
+      g.moveTo(0, 7.5 - h * 0.5); g.lineTo(13, 1 - h * 0.5);
+      // Diagonal bracing beams on left facet
+      g.moveTo(-15, 0); g.lineTo(-5, 5 - h * 0.5);
+      g.stroke({ width: 1.2, color: 0x5c3818, alpha: a });
+
+      // Steep Thatched Gable Roof with overhanging eaves
+      g.poly([
+        -17, 1 - h,
+        0, 10 - h - 10,
+        15, 2 - h,
+        -1, -h - 17,
+      ]);
+      g.fill({ color: 0xc68a4c, alpha: a });
+      // Roof edge & ridge trim
+      g.moveTo(-17, 1 - h); g.lineTo(0, 10 - h - 10); g.lineTo(15, 2 - h);
+      g.stroke({ width: 1.4, color: 0x9c6628, alpha: a });
+      // Thatch ridge cresting
+      g.moveTo(0, 10 - h - 10); g.lineTo(-1, -h - 17);
+      g.stroke({ width: 1.8, color: 0x7c4e1a, alpha: a });
+
+      // Fieldstone Chimney & Cozy Animated Hearth Smoke
+      g.rect(-10, -h - 12, 3.5, 8);
+      g.fill({ color: 0x64748b, alpha: a });
+      g.stroke({ width: 0.8, color: 0x334155, alpha: a });
+      const cPuff = Math.sin(phase * 2.2) * 1.8;
+      g.circle(-8.5, -h - 15 + cPuff, 2.2);
+      g.fill({ color: 0xe2e8f0, alpha: 0.45 * a });
+      g.circle(-6.5, -h - 19 + cPuff, 2.8);
+      g.fill({ color: 0xf1f5f9, alpha: 0.3 * a });
+
+      // Rustic Wooden Door with arched frame & brass handle
+      g.rect(-8, 3.5 - h * 0.42, 4.5, 6.5);
+      g.fill({ color: 0x4a2c11, alpha: a });
+      g.circle(-4.5, 7 - h * 0.42, 0.7);
+      g.fill({ color: 0xfacc15, alpha: a }); // Brass knob
+      // Stone doorstep
+      g.rect(-9, 8.5 - h * 0.15, 6, 1.8);
+      g.fill({ color: 0x78716c, alpha: a });
+
+      // Leaded Glass Casement Window with warm amber candlelight & shutters
+      const cottageCandle = 0.88 + Math.sin(phase * 3.5) * 0.1;
+      g.rect(3, 4 - h * 0.45, 4, 4);
+      g.fill({ color: 0xfef08a, alpha: a * 0.95 * cottageCandle });
+      // Window mullions (cross)
+      g.moveTo(5, 4 - h * 0.45); g.lineTo(5, 8 - h * 0.45);
+      g.moveTo(3, 6 - h * 0.45); g.lineTo(7, 6 - h * 0.45);
+      g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+      // Wooden shutters on sides
+      g.rect(1.5, 4 - h * 0.45, 1.5, 4); g.fill({ color: 0x78350f, alpha: a });
+      g.rect(7, 4 - h * 0.45, 1.5, 4); g.fill({ color: 0x78350f, alpha: a });
+
+      // Cottage Yard 1: Stone-lined Flowerbed with blossoms
+      g.rect(-14, 2, 5, 3.5);
+      g.fill({ color: 0x27272a, alpha: a * 0.5 });
+      g.circle(-13, 3, 1.4); g.fill({ color: 0xf43f5e, alpha: a }); // Rose
+      g.circle(-10.5, 4, 1.3); g.fill({ color: 0xa855f7, alpha: a }); // Lavender
+      g.circle(-11.5, 2.5, 1.2); g.fill({ color: 0xfef08a, alpha: a }); // Daisy
+
+      // Cottage Yard 2: Stacked cord of split firewood
+      g.rect(9, 3, 4.5, 3);
+      g.fill({ color: 0x78350f, alpha: a });
+      g.moveTo(9, 4.5); g.lineTo(13.5, 4.5);
+      g.stroke({ width: 0.8, color: 0x3f1d0b, alpha: a });
+
       break;
     }
 
@@ -1055,6 +1150,115 @@ function drawIsometricBuilding(
       // Wall-walk timber hoarding
       g.moveTo(-16, -h + 2); g.lineTo(16, -h + 2);
       g.stroke({ width: 1.5, color: 0x78350f, alpha: a });
+      break;
+    }
+
+    case "gate": {
+      // Fortified Ashlar Stone Gatehouse + Twin Bastion Towers + Crenellations + Archway
+      // On rim tiles (isRim): Heavy reinforced oak & iron double doors + portcullis teeth
+      const h = 24 + heightBoost;
+      const isRim = isRimTile(gx, gy);
+
+      // 1. Foundation Plinth
+      g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);
+      g.fill({ color: 0x334155, alpha: a });
+      g.poly([0, 9, 18, 0, 18, -3, 0, 6]);
+      g.fill({ color: 0x1e293b, alpha: a });
+
+      // 2. Left Bastion Tower (Light face)
+      g.poly([-17, -1, -8, 3.5, -8, 3.5 - (h + 4), -17, -1 - (h + 4)]);
+      g.fill({ color: 0x64748b, alpha: a });
+      g.poly([-8, 3.5, -4, 1.5, -4, 1.5 - (h + 4), -8, 3.5 - (h + 4)]);
+      g.fill({ color: 0x475569, alpha: a });
+
+      // 3. Right Bastion Tower (Shaded face)
+      g.poly([4, 1.5, 8, 3.5, 8, 3.5 - (h + 4), 4, 1.5 - (h + 4)]);
+      g.fill({ color: 0x475569, alpha: a });
+      g.poly([8, 3.5, 17, -1, 17, -1 - (h + 4), 8, 3.5 - (h + 4)]);
+      g.fill({ color: 0x334155, alpha: a });
+
+      // 4. Central Gatehouse Curtain & Vault Bridge
+      g.poly([-4, 1.5, 4, 1.5, 4, 1.5 - h, -4, 1.5 - h]);
+      g.fill({ color: 0x52525b, alpha: a });
+
+      // Ashlar Masonry Horizontal Mortar Scoring
+      for (const frac of [0.3, 0.6, 0.85]) {
+        const myLeft = 3.5 - (h + 4) * frac;
+        g.moveTo(-17, -1 - (h + 4) * frac); g.lineTo(-8, myLeft);
+        const myRight = 3.5 - (h + 4) * frac;
+        g.moveTo(8, myRight); g.lineTo(17, -1 - (h + 4) * frac);
+        g.stroke({ width: 0.8, color: 0x1e293b, alpha: a * 0.6 });
+      }
+
+      // Parapet battlements (crenellations) on Left Tower
+      g.rect(-17, -h - 7, 3.5, 4); g.fill({ color: 0x94a3b8, alpha: a });
+      g.rect(-12, -h - 5, 3.5, 4); g.fill({ color: 0x94a3b8, alpha: a });
+      // Parapet battlements on Right Tower
+      g.rect(9, -h - 5, 3.5, 4); g.fill({ color: 0x64748b, alpha: a });
+      g.rect(14, -h - 7, 3.5, 4); g.fill({ color: 0x64748b, alpha: a });
+      // Central walk battlements
+      g.rect(-2, -h - 2, 4, 3); g.fill({ color: 0x94a3b8, alpha: a });
+
+      // Arrow loops on towers
+      g.rect(-13, -h * 0.45, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
+      g.rect(12, -h * 0.45, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
+
+      // 5. Arched Gateway Portal
+      // Outer stone portal arch
+      g.poly([-5, 5, 0, 7.5, 5, 5, 5, -1, 0, 1.5, -5, -1]);
+      g.fill({ color: 0x18181b, alpha: a });
+      // Carved stone archway trim
+      g.moveTo(-5, -1); g.lineTo(0, 1.5); g.lineTo(5, -1);
+      g.stroke({ width: 1.8, color: 0x94a3b8, alpha: a });
+
+      if (isRim) {
+        // Fortified Rim Gate: Heavy oak double-doors with iron cross-straps & studs
+        // Left Door leaf
+        g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]);
+        g.fill({ color: 0x5c3818, alpha: a });
+        // Right Door leaf
+        g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]);
+        g.fill({ color: 0x45220a, alpha: a });
+
+        // Vertical plank seam
+        g.moveTo(0, 6.5); g.lineTo(0, 0.5);
+        g.stroke({ width: 1, color: 0x271507, alpha: a });
+
+        // Heavy Blackened Iron Hinge Straps
+        for (const dy of [-0.5, 2.5]) {
+          g.moveTo(-4, dy); g.lineTo(0, dy + 2); g.lineTo(4, dy);
+          g.stroke({ width: 1.4, color: 0x1e293b, alpha: a });
+          // Iron rivets on the straps
+          g.circle(-2.5, dy + 0.8, 0.6); g.fill({ color: 0x94a3b8, alpha: a });
+          g.circle(2.5, dy + 0.8, 0.6); g.fill({ color: 0x94a3b8, alpha: a });
+        }
+
+        // Heavy iron drop bar / lock hasp across the center
+        g.moveTo(-3, 3.5); g.lineTo(3, 3.5);
+        g.stroke({ width: 1.6, color: 0x0f172a, alpha: a });
+
+        // Portcullis iron teeth lowered above the doors
+        for (const tx of [-3, -1, 1, 3]) {
+          const ty = 0.5 - Math.abs(tx) * 0.25;
+          g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
+          g.stroke({ width: 1, color: 0x64748b, alpha: a });
+        }
+
+        // Defensive Rim Pennant atop gatehouse
+        const gPennant = Math.sin(phase * 4) * 2;
+        g.moveTo(0, -h); g.lineTo(0, -h - 10);
+        g.stroke({ width: 1.2, color: 0xd4a359, alpha: a });
+        g.poly([0, -h - 10, 7 + gPennant, -h - 7, 0, -h - 4]);
+        g.fill({ color: 0xb91c1c, alpha: a });
+      } else {
+        // Interior Gatehouse Archway (Un-hung open vaulted passage)
+        g.poly([-4, 4.5, 0, 6.5, 4, 4.5, 4, -0.5, 0, 1.5, -4, -0.5]);
+        g.fill({ color: 0x09090b, alpha: a });
+        // Portcullis raised high in the archway ceiling
+        g.moveTo(-4, 0); g.lineTo(4, 0);
+        g.stroke({ width: 1, color: 0x64748b, alpha: a * 0.8 });
+      }
+
       break;
     }
 
@@ -1812,11 +2016,52 @@ function paintBoardProvinces(g: Graphics, state: GameState, phase: number): void
 
   for (const p of state.board.provinces) {
     const b = provinceTokenBounds(p.x, p.y);
-    const pal = terrainChipPalette(p.terrain);
+    const seen = isProvinceSeen(state, p.id);
 
     // 1. 3D Tactile Token Drop Shadow
     g.rect(b.x + 2, b.y + 3, b.w, b.h);
     g.fill({ color: 0x000000, alpha: 0.38 });
+
+    if (!seen) {
+      // Unseen Province: Blank Parchment / Fog Chip
+      // 2. 3D Bottom Bevel Edge (dark parchment bevel)
+      g.rect(b.x, b.y + b.h - 4, b.w, 4);
+      g.fill({ color: 0x1f1a14 });
+
+      // 3. Token Face (blank aged parchment / fog vellum)
+      g.rect(b.x, b.y, b.w, b.h - 2);
+      g.fill({ color: 0x2e2720 });
+
+      // Top subtle parchment highlight
+      g.moveTo(b.x + 1, b.y + 1);
+      g.lineTo(b.x + b.w - 1, b.y + 1);
+      g.stroke({ width: 1, color: 0xffffff, alpha: 0.1 });
+
+      // Outer blank parchment chip border
+      g.rect(b.x, b.y, b.w, b.h);
+      g.stroke({ width: 1, color: 0x4d3f31, alpha: 0.75 });
+
+      const cx = b.cx;
+      const cy = b.cy;
+
+      // Subtle fog mists / parchment texture
+      const fogWave = Math.sin(phase * 1.5 + p.x * 0.7 + p.y * 0.9) * 2;
+      g.moveTo(cx - 16, cy - 4 + fogWave * 0.5);
+      g.bezierCurveTo(cx - 8, cy - 7 + fogWave, cx + 6, cy - 1 - fogWave, cx + 16, cy - 5 - fogWave * 0.5);
+      g.stroke({ width: 1.4, color: 0x6b5c4c, alpha: 0.35 });
+
+      g.moveTo(cx - 14, cy + 5 - fogWave * 0.5);
+      g.bezierCurveTo(cx - 4, cy + 2 - fogWave, cx + 8, cy + 7 + fogWave, cx + 14, cy + 3 + fogWave * 0.5);
+      g.stroke({ width: 1.2, color: 0x574738, alpha: 0.3 });
+
+      // Faint cartographer's parchment center compass dot
+      g.circle(cx, cy, 1.8);
+      g.fill({ color: 0x4a3c2e, alpha: 0.45 });
+
+      continue;
+    }
+
+    const pal = terrainChipPalette(p.terrain);
 
     // 2. 3D Bottom Bevel Edge
     g.rect(b.x, b.y + b.h - 4, b.w, 4);
@@ -2055,12 +2300,15 @@ function paintBoardMarches(
 
     const fromB = provinceTokenBounds(fromProv.x, fromProv.y);
     const toB = provinceTokenBounds(toProv.x, toProv.y);
+    const isPlayer = m.realmId === "player";
 
-    // 1. Dotted Route Trail between home and destination
+    // 1. Dotted Route Trail between origin and destination
     const dx = toB.cx - fromB.cx;
     const dy = toB.cy - fromB.cy;
     const distPx = Math.hypot(dx, dy);
     const steps = Math.max(4, Math.floor(distPx / 14));
+
+    const trailColor = isPlayer ? 0xf59e0b : 0xef4444;
 
     for (let i = 0; i <= steps; i++) {
       const t = i / steps;
@@ -2068,15 +2316,15 @@ function paintBoardMarches(
       const ly = fromB.cy + dy * t;
       const pulse = Math.sin(phase * 4 + i * 0.4) * 0.2 + 0.8;
       routeG.circle(lx, ly, i % 2 === 0 ? 2 : 1.3);
-      routeG.fill({ color: 0xf59e0b, alpha: 0.7 * pulse });
+      routeG.fill({ color: trailColor, alpha: 0.7 * pulse });
     }
 
     // Destination target indicator
     routeG.circle(toB.cx, toB.cy, 10);
-    routeG.stroke({ width: 1.5, color: 0xf59e0b, alpha: 0.85 });
+    routeG.stroke({ width: 1.5, color: trailColor, alpha: 0.85 });
     routeG.moveTo(toB.cx - 13, toB.cy); routeG.lineTo(toB.cx + 13, toB.cy);
     routeG.moveTo(toB.cx, toB.cy - 13); routeG.lineTo(toB.cx, toB.cy + 13);
-    routeG.stroke({ width: 1, color: 0xf59e0b, alpha: 0.65 });
+    routeG.stroke({ width: 1, color: trailColor, alpha: 0.65 });
 
     // 2. March Progress Calculation
     const dist = Math.max(1, Math.abs(toProv.x - fromProv.x) + Math.abs(toProv.y - fromProv.y));
@@ -2084,65 +2332,148 @@ function paintBoardMarches(
     const pawnX = fromB.cx + dx * progress;
     const pawnY = fromB.cy + dy * progress;
 
-    // 3. Marching Pawn Meeple
+    // 3. Marching Pawn / Meeple Presentation
     const bob = Math.abs(Math.sin(phase * 6)) * 2.5;
 
     // Base contact shadow
     pawnsG.ellipse(pawnX, pawnY + 6, 8, 3.5);
     pawnsG.fill({ color: 0x000000, alpha: 0.45 });
 
-    // Wooden pawn pedestal base
-    pawnsG.rect(pawnX - 6, pawnY + 2 - bob, 12, 4);
-    pawnsG.fill({ color: 0x854d0e });
+    if (isPlayer) {
+      // Player: Classic Blue & Golden Wood Marching Pawn
+      // Wooden pawn pedestal base
+      pawnsG.rect(pawnX - 6, pawnY + 2 - bob, 12, 4);
+      pawnsG.fill({ color: 0x854d0e });
 
-    // Tapered wooden torso
-    pawnsG.poly([
-      pawnX - 5, pawnY + 2 - bob,
-      pawnX - 3, pawnY - 8 - bob,
-      pawnX + 3, pawnY - 8 - bob,
-      pawnX + 5, pawnY + 2 - bob,
-    ]);
-    pawnsG.fill({ color: 0xca8a04 });
+      // Tapered wooden torso
+      pawnsG.poly([
+        pawnX - 5, pawnY + 2 - bob,
+        pawnX - 3, pawnY - 8 - bob,
+        pawnX + 3, pawnY - 8 - bob,
+        pawnX + 5, pawnY + 2 - bob,
+      ]);
+      pawnsG.fill({ color: 0xca8a04 });
 
-    // Faction tunic
-    pawnsG.rect(pawnX - 2.5, pawnY - 7 - bob, 5, 6);
-    pawnsG.fill({ color: m.realmId === "player" ? 0x1d4ed8 : 0x3f3f46 });
+      // Royal blue faction tunic
+      pawnsG.rect(pawnX - 2.5, pawnY - 7 - bob, 5, 6);
+      pawnsG.fill({ color: 0x1d4ed8 });
 
-    // Steel helmet
-    pawnsG.circle(pawnX, pawnY - 11 - bob, 3.5);
-    pawnsG.fill({ color: 0xe2e8f0 });
+      // Steel helmet
+      pawnsG.circle(pawnX, pawnY - 11 - bob, 3.5);
+      pawnsG.fill({ color: 0xe2e8f0 });
 
-    // Red plume
-    pawnsG.poly([pawnX, pawnY - 14 - bob, pawnX + 3, pawnY - 17 - bob, pawnX + 1, pawnY - 13 - bob]);
-    pawnsG.fill({ color: 0xef4444 });
+      // Red plume
+      pawnsG.poly([pawnX, pawnY - 14 - bob, pawnX + 3, pawnY - 17 - bob, pawnX + 1, pawnY - 13 - bob]);
+      pawnsG.fill({ color: 0xef4444 });
 
-    // Spear and waving pennant
-    pawnsG.moveTo(pawnX + 4, pawnY + 4 - bob);
-    pawnsG.lineTo(pawnX + 4, pawnY - 18 - bob);
-    pawnsG.stroke({ width: 1.2, color: 0x78350f });
+      // Spear and waving pennant
+      pawnsG.moveTo(pawnX + 4, pawnY + 4 - bob);
+      pawnsG.lineTo(pawnX + 4, pawnY - 18 - bob);
+      pawnsG.stroke({ width: 1.2, color: 0x78350f });
 
-    const wave = Math.sin(phase * 8) * 1.5;
-    pawnsG.poly([
-      pawnX + 4, pawnY - 18 - bob,
-      pawnX + 12, pawnY - 15 - bob + wave,
-      pawnX + 4, pawnY - 12 - bob,
-    ]);
-    pawnsG.fill({ color: 0xdc2626 });
+      const wave = Math.sin(phase * 8) * 1.5;
+      pawnsG.poly([
+        pawnX + 4, pawnY - 18 - bob,
+        pawnX + 12, pawnY - 15 - bob + wave,
+        pawnX + 4, pawnY - 12 - bob,
+      ]);
+      pawnsG.fill({ color: 0xdc2626 });
 
-    // Floating ETA pill badge
-    pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
-    pawnsG.fill({ color: 0x181410, alpha: 0.92 });
-    pawnsG.stroke({ width: 1, color: 0xf59e0b, alpha: 0.9 });
+      // Floating ETA pill badge
+      pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
+      pawnsG.fill({ color: 0x181410, alpha: 0.92 });
+      pawnsG.stroke({ width: 1, color: 0xf59e0b, alpha: 0.9 });
 
-    // Progress timer dots inside pill
-    pawnsG.circle(pawnX - 10, pawnY - 23.5 - bob, 1.8);
-    pawnsG.fill({ color: 0xfde047 });
-    pawnsG.circle(pawnX - 4, pawnY - 23.5 - bob, 1.5);
-    pawnsG.fill({ color: 0xfacc15 });
-    pawnsG.circle(pawnX + 2, pawnY - 23.5 - bob, 1.5);
-    pawnsG.fill({ color: 0xeab308 });
-    pawnsG.circle(pawnX + 8, pawnY - 23.5 - bob, 1.5);
-    pawnsG.fill({ color: 0xca8a04 });
+      // Progress timer dots inside pill
+      pawnsG.circle(pawnX - 10, pawnY - 23.5 - bob, 1.8);
+      pawnsG.fill({ color: 0xfde047 });
+      pawnsG.circle(pawnX - 4, pawnY - 23.5 - bob, 1.5);
+      pawnsG.fill({ color: 0xfacc15 });
+      pawnsG.circle(pawnX + 2, pawnY - 23.5 - bob, 1.5);
+      pawnsG.fill({ color: 0xeab308 });
+      pawnsG.circle(pawnX + 8, pawnY - 23.5 - bob, 1.5);
+      pawnsG.fill({ color: 0xca8a04 });
+    } else {
+      // Hostile March: Red / Blackened Iron War Meeple
+      // Heavy Blackened Iron Pedestal with iron rivets
+      pawnsG.rect(pawnX - 6.5, pawnY + 2 - bob, 13, 4.5);
+      pawnsG.fill({ color: 0x18181b });
+      pawnsG.stroke({ width: 0.8, color: 0x3f3f46 });
+      pawnsG.circle(pawnX - 4.5, pawnY + 4 - bob, 0.7); pawnsG.fill({ color: 0x71717a });
+      pawnsG.circle(pawnX + 4.5, pawnY + 4 - bob, 0.7); pawnsG.fill({ color: 0x71717a });
+
+      // Angular Blackened Iron Meeple Torso
+      pawnsG.poly([
+        pawnX - 6, pawnY + 2 - bob,
+        pawnX - 4, pawnY - 8 - bob,
+        pawnX + 4, pawnY - 8 - bob,
+        pawnX + 6, pawnY + 2 - bob,
+      ]);
+      pawnsG.fill({ color: 0x27272a });
+
+      // Spiked Iron Pauldrons (shoulders)
+      pawnsG.poly([pawnX - 7, pawnY - 5 - bob, pawnX - 4, pawnY - 9 - bob, pawnX - 3, pawnY - 5 - bob]);
+      pawnsG.fill({ color: 0x3f3f46 });
+      pawnsG.poly([pawnX + 3, pawnY - 5 - bob, pawnX + 4, pawnY - 9 - bob, pawnX + 7, pawnY - 5 - bob]);
+      pawnsG.fill({ color: 0x3f3f46 });
+
+      // Blood-red War Tabard
+      pawnsG.rect(pawnX - 2.5, pawnY - 7 - bob, 5, 6);
+      pawnsG.fill({ color: 0x991b1b });
+      // Crossed iron straps on chest
+      pawnsG.moveTo(pawnX - 2, pawnY - 6 - bob); pawnsG.lineTo(pawnX + 2, pawnY - 2 - bob);
+      pawnsG.moveTo(pawnX + 2, pawnY - 6 - bob); pawnsG.lineTo(pawnX - 2, pawnY - 2 - bob);
+      pawnsG.stroke({ width: 0.8, color: 0x18181b });
+
+      // Jagged Dark Iron Helm with horn crest
+      pawnsG.circle(pawnX, pawnY - 11 - bob, 3.8);
+      pawnsG.fill({ color: 0x18181b });
+      // Horn spikes
+      pawnsG.poly([pawnX - 3, pawnY - 12 - bob, pawnX - 6, pawnY - 16 - bob, pawnX - 1.5, pawnY - 13 - bob]);
+      pawnsG.fill({ color: 0x3f3f46 });
+      pawnsG.poly([pawnX + 1.5, pawnY - 13 - bob, pawnX + 6, pawnY - 16 - bob, pawnX + 3, pawnY - 12 - bob]);
+      pawnsG.fill({ color: 0x3f3f46 });
+      // Glowing crimson eye-slit
+      pawnsG.rect(pawnX - 2, pawnY - 11.5 - bob, 4, 1.2);
+      pawnsG.fill({ color: 0xef4444 });
+
+      // Blackened Polearm & ragged war pennant
+      pawnsG.moveTo(pawnX + 4.5, pawnY + 4 - bob);
+      pawnsG.lineTo(pawnX + 4.5, pawnY - 19 - bob);
+      pawnsG.stroke({ width: 1.4, color: 0x18181b });
+      // Jagged halberd axe head
+      pawnsG.poly([
+        pawnX + 4.5, pawnY - 19 - bob,
+        pawnX + 9, pawnY - 16 - bob,
+        pawnX + 7, pawnY - 13 - bob,
+        pawnX + 4.5, pawnY - 14 - bob,
+      ]);
+      pawnsG.fill({ color: 0x52525b });
+
+      // Ragged crimson/black war pennant
+      const hWave = Math.sin(phase * 8.5) * 1.6;
+      pawnsG.poly([
+        pawnX + 4.5, pawnY - 13 - bob,
+        pawnX + 13, pawnY - 11 - bob + hWave,
+        pawnX + 4.5, pawnY - 7 - bob,
+      ]);
+      pawnsG.fill({ color: 0x7f1d1d });
+
+      // Floating ETA pill badge (blackened iron with crimson border)
+      pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
+      pawnsG.fill({ color: 0x09090b, alpha: 0.95 });
+      pawnsG.stroke({ width: 1, color: 0xdc2626, alpha: 0.9 });
+
+      // Crimson indicator dots
+      pawnsG.circle(pawnX - 10, pawnY - 23.5 - bob, 1.8);
+      pawnsG.fill({ color: 0xf87171 });
+      pawnsG.circle(pawnX - 4, pawnY - 23.5 - bob, 1.5);
+      pawnsG.fill({ color: 0xef4444 });
+      pawnsG.circle(pawnX + 2, pawnY - 23.5 - bob, 1.5);
+      pawnsG.fill({ color: 0xdc2626 });
+      pawnsG.circle(pawnX + 8, pawnY - 23.5 - bob, 1.5);
+      pawnsG.fill({ color: 0x991b1b });
+    }
   }
 }
 
@@ -2163,6 +2494,7 @@ function paintBoardHighlight(
   const p = state?.board?.provinces?.find((pr) => pr.x === bx && pr.y === by);
   if (!p) return;
 
+  const seen = state ? isProvinceSeen(state, p.id) : true;
   const plaqueX = 70;
   const plaqueY = CANVAS_H - RIM_SIZE - 22;
   const plaqueW = CANVAS_W - 140;
@@ -2171,6 +2503,18 @@ function paintBoardHighlight(
   g.rect(plaqueX, plaqueY, plaqueW, plaqueH);
   g.fill({ color: 0x14100c, alpha: 0.92 });
   g.stroke({ width: 1, color: 0xc8963e, alpha: 0.85 });
+
+  if (!seen) {
+    // Unscouted province pip
+    g.circle(plaqueX + 12, plaqueY + 9, 3.5);
+    g.fill({ color: 0x78716c });
+
+    // Unscouted status badge
+    g.rect(plaqueX + plaqueW - 68, plaqueY + 3, 62, 12);
+    g.fill({ color: 0x3f3f46 });
+    g.stroke({ width: 0.8, color: 0x78716c, alpha: 0.7 });
+    return;
+  }
 
   // Status indicator pip on left
   const isHome = p.id === state?.board?.homeProvinceId;
@@ -2718,7 +3062,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       g.y = wy;
       g.zIndex = Math.floor((gx + gy) * 100) + 50;
 
-      drawIsometricBuilding(g, b.typeId, b.level, complete, t + gx * 0.35, visuals);
+      drawIsometricBuilding(g, b.typeId, b.level, complete, t + gx * 0.35, visuals, gx, gy);
     }
 
     for (const [id, g] of buildingGraphics) {
