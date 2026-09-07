@@ -55,7 +55,7 @@ export function revealProvince(state: GameState, id: string): void {
 
 export function tryScoutProvince(state: GameState, id: string): boolean {
   if (isProvinceSeen(state, id)) return false;
-  const cost = Math.max(4, 8 - countBuilding(state, "watchtower"));
+  const cost = scoutCost(state);
   if (D(state.resources.gold ?? "0").lt(cost)) return false;
   if (!getProvince(state, id)) return false;
   state.resources.gold = toDecimalString(D(state.resources.gold).sub(cost));
@@ -64,5 +64,5 @@ export function tryScoutProvince(state: GameState, id: string): boolean {
 }
 
 export function scoutCost(state: GameState): number {
-  return Math.max(4, 8 - countBuilding(state, "watchtower"));
+  return Math.max(12, 22 - countBuilding(state, "watchtower") * 2);
 }
