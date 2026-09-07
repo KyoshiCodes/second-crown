@@ -6,7 +6,7 @@ import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { flagNum } from "./wave.js";
 import { decreeActive } from "./decree.js";
 import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
-import { hireCitizenForBuilding } from "./citizens.js";
+import { applyLabor, laborPerTick } from "./labor.js";
 
 export function productionBonus(state: GameState): number {
   let bonus = 0;
@@ -57,6 +57,7 @@ export const EconomySystem = {
     }
     const routes = routeGoldPerTick(state);
     if (routes > 0) totals.gold = (totals.gold ?? D(0)).add(D(routes).mul(ticks));
+    applyLabor(state, ticks);
     for (const [res, amount] of Object.entries(totals)) {
       state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").add(amount));
     }
@@ -66,7 +67,6 @@ export const EconomySystem = {
     for (const b of state.buildings) {
       if (b.completesAtTick === tick) {
         b.completesAtTick = null;
-        hireCitizenForBuilding(state, b.realmId, b.typeId, b.x, b.y);
       }
     }
   },
@@ -88,6 +88,10 @@ export function computeIncomePerSecond(state: GameState): Record<string, string>
   }
   const routes = routeGoldPerTick(state);
   if (routes > 0) perTick.gold = (perTick.gold ?? D(0)).add(routes);
+  const labor = laborPerTick(state);
+  for (const [res, n] of Object.entries(labor)) {
+    if (n > 0) perTick[res] = (perTick[res] ?? D(0)).add(n);
+  }
   const perSecond: Record<string, string> = {};
   for (const [res, rate] of Object.entries(perTick)) {
     perSecond[res] = toDecimalString(rate.mul(TICKS_PER_SECOND));
