@@ -1,9 +1,7 @@
-# Paste unchanged
+Local clone https://github.com/KyoshiCodes/second-crown on bakeoff/gemini-army.
 
-Local clone of https://github.com/KyoshiCodes/second-crown on the branch in docs/AGENT-TASK.md for your lane.
+Read docs/AGENT-TASK.md, docs/HANDOFF.md, docs/DEV-NOTES.md.
 
-Read: docs/AGENT-TASK.md, docs/HANDOFF.md, docs/DEV-NOTES.md.
+Gemini lane only. No sim, no server, no merge to main.
 
-Only your lane. No merge to main. No Discord/Caddy/tickEngine edits.
-
-Done means: commit, push, PR into main left unmerged, walkthrough.md is this PR only.
+Done = commit, push, PR into main left unmerged, walkthrough.md is this PR only.

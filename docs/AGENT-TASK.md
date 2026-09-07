@@ -1,30 +1,18 @@
-# Map bakeoff — wall run + terrain (not a full overworld rewrite)
+# Bakeoff — Army tab matches the hold (Gemini only)
 
-Ground is `main` after PRs 14 and 15. Do not merge. Do not touch tickEngine, Discord, Caddy, holidays, or audio.
+Ground is current `main`. Do not merge. `git diff main -- packages/sim server` must be empty.
 
-## Claude — `bakeoff/claude-walls`
+## Gemini — `bakeoff/gemini-army`
 
-Sim helper only.
+Presentation only.
 
-Add `listRimForts(state, realmId = "player")` in `packages/sim` that returns
-`{ x, y, kind: "wall" | "gate" }[]` for **finished** buildings on the 16×10 hold rim
-(`x===0 || y===0 || x===15 || y===9`).
+1. **Army tab roster** (`packages/app/src/tabs/ArmyTab.tsx`, `ArmyVisual.tsx`, `UnitIcon.tsx`): replace the flat chip portraits with pixel silhouettes in the same language as hold walkers and buildings — 2–3 frame idle/march, facing, tabard colors, weapons that match type (militia spear-less levy, archer bow, cavalry horse, siege frame, knight heater). No new combat math.
+2. **Board meeple reuse:** player columns already on the board should use the same sprites/colors as the Army tab so a sent archer column looks like the Army archer, not a generic blue pawn.
+3. Keep ChromeDock, holidays, dim lanterns, inspect card, primer, zoom/pan.
+4. Tests: `npm test` and `npm run build -w @second-crown/app` green. Add render tests only if you extract pure helpers.
 
-- Sort walking the rim clockwise from (0,0) so a renderer can stroke a ring.
-- Export it from `packages/sim/src/index.ts`.
-- Tests: empty rim, mixed walls+gate, interior wall excluded.
-- No combat, march, fog, or housing changes.
-- `git diff main -- packages/app packages/render server` should be empty.
+Rewrite `walkthrough.md` for this PR. Update HANDOFF, CHANGELOG, USER-NOTES, DEV-NOTES. PR into main, leave unmerged.
 
-## Gemini — `bakeoff/gemini-map`
+## Claude
 
-Presentation only. `git diff main -- packages/sim server` must be empty.
-
-1. **Wall run on the hold:** for each rim fort (use `listRimForts` if exported, else `state.buildings` with the same rim rule) draw a connected stone curtain between neighbors, merlons on top, and the existing gatehouse sitting in the gap. Do not hide tile clicks. Interior `walls` stay the old block.
-2. **Terrain chips on the board band:** make the six terrains read at a glance from 0.58 zoom — peak is a real ridge, shore has water+foam, wood is a stand of trees, waste glows, hill has contours, plain stays meadow. Keep the 8×6 grid and hardwood rim.
-3. Keep fog chips, hostile red meeple, cottage art, zoom/pan, ChromeDock, dim lanterns.
-
-## Both
-
-`npm test` and `npm run build -w @second-crown/app` green.
-Update HANDOFF, CHANGELOG, USER-NOTES, DEV-NOTES. Rewrite `walkthrough.md` for your PR only. Leave PR unmerged.
+Idle this wave.
