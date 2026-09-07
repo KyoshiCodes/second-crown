@@ -19,6 +19,7 @@ import {
 } from "@second-crown/sim";
 import { EventPanel } from "../EventPanel";
 import { DecreesPanel } from "../DecreesPanel";
+import { CulturePicker } from "../CulturePicker";
 import type { ActFn } from "../game/useGameEngine";
 
 export function CrownTab(props: {
@@ -48,6 +49,7 @@ export function CrownTab(props: {
   return (
     <>
       <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} state={state} />
+      <CulturePicker state={state} act={act} />
       <p>Ascend at {formatLetterSuffix(ascendNeed)} total resources.</p>
       <button type="button" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended. Pick a doctrine." : "Not ready."))}>Ascend</button>
 
