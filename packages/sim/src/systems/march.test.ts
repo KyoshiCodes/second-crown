@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { TickEngine } from "../core/tickEngine.js";
+import { D } from "../core/decimal.js";
 import {
   applySiegeBlow,
   edgeWallCount,
@@ -43,6 +44,8 @@ describe("W2 marches and walls", () => {
     const camp = s.board.provinces.find((p) => p.node === "camp");
     expect(camp).toBeTruthy();
     expect(tryMarch(s, camp!.id)).toBe(true);
+    const mid = D(s.units.find((u) => u.id === "u1")?.count ?? "0").toNumber();
+    expect(mid).toBe(15);
     expect(tryMarch(s, camp!.id)).toBe(false);
     expect(listMarches(s)).toHaveLength(1);
     const eta = listMarches(s)[0].arrivesTick;
@@ -50,6 +53,12 @@ describe("W2 marches and walls", () => {
     eng.settleTicks(eta);
     expect(listMarches(s)).toHaveLength(0);
     expect(Number(s.resources.wood)).toBeGreaterThanOrEqual(0);
+  });
+
+  it("cannot march without militia", () => {
+    const s = createGameState({ seed: 1 });
+    const camp = s.board.provinces.find((p) => p.node === "camp");
+    expect(tryMarch(s, camp!.id)).toBe(false);
   });
 
   it("blowout siege scars a non-keep building and never the keep", () => {
