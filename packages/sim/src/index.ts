@@ -129,7 +129,6 @@ export {
 } from "./systems/court.js";
 
 export { tryStrikeHorde, raidTicksLeft } from "./systems/raid.js";
-export { storageCap } from "./systems/storage.js";
 export { tryBuyBazaar, ITEMS, ITEM_TIERS } from "./systems/loot.js";
 
 export { settlementName, tryRenameSettlement } from "./actions/settlement.js";
@@ -178,6 +177,15 @@ export { isProvinceSeen, tryScoutProvince, revealProvince, ensureFog, visionRang
 export { listRimForts } from "./systems/rimForts.js";
 export type { RimFort } from "./systems/rimForts.js";
 export { listOutposts, plantOutpost } from "./systems/outpost.js";
+export { storageCap, addCapped } from "./systems/storage.js";
+export {
+  GATHER_NODES,
+  listGathers,
+  tryGather,
+  tryRecallGather,
+  GatherSystem,
+} from "./systems/gather.js";
+export type { Gather } from "./systems/gather.js";
 export {
   TUTORIAL_STEPS,
   tutorialIndex,
@@ -193,5 +201,3 @@ export { applyOfflineProgress } from "./offline.js";
 
 export type { GameState, CitizenInstance, CitizenJobId, CitizenTile, Province, BoardState } from "@second-crown/shared";
 export { formatLetterSuffix, BOARD_W, BOARD_H } from "@second-crown/shared";
-export { tryGather, tryRecallGather, listGathers, GATHER_NODES, GatherSystem } from "./systems/gather.js";
-export type { Gather } from "./systems/gather.js";

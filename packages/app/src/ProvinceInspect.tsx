@@ -1,16 +1,21 @@
 import React from "react";
 import {
+  GATHER_NODES,
   activePlayerMarch,
   getProvince,
   isProvinceSeen,
+  listGathers,
+  listMarches,
   listUnitTypes,
+  maxMarches,
   scoutCost,
+  tryGather,
   tryMarchWith,
+  tryRecallGather,
   tryScoutProvince,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
-import { UnitIcon } from "./UnitIcon";
 
 const TERRAIN: Record<string, string> = {
   plain: "Plain",
@@ -49,9 +54,14 @@ export function ProvinceInspect(props: {
   const roster = listUnitTypes();
   const home = selectedId === state.board.homeProvinceId;
   const march = activePlayerMarch(state);
+  const gathers = listGathers(state);
+  const here = gathers.find((g) => g.toId === selectedId && g.phase !== "returning");
   const seen = isProvinceSeen(state, selectedId);
   const cost = scoutCost(state);
   const gold = Number(state.resources.gold ?? 0);
+  const canGather = seen && p.node in GATHER_NODES;
+  const slotsUsed = listMarches(state).filter((m) => m.realmId === "player").length + gathers.filter((g) => g.phase !== "returning").length;
+  const full = slotsUsed >= maxMarches(state);
   const occupant = seen
     ? p.occupantRealmId
       ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
@@ -83,7 +93,19 @@ export function ProvinceInspect(props: {
       </div>
       {march ? (
         <div style={{ marginTop: 6, color: "#fef08a" }}>
-          Company marching · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
+          Raid column · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
+        </div>
+      ) : null}
+      {here ? (
+        <div style={{ marginTop: 6 }}>
+          Gathering {here.node} · load {here.load}/{here.capacity} · {here.phase}
+          <button
+            type="button"
+            style={{ marginLeft: 8 }}
+            onClick={() => act((s) => (tryRecallGather(s, here.id) ? "Column recalled." : "Cannot recall."))}
+          >
+            Recall gather
+          </button>
         </div>
       ) : null}
       {home ? (
@@ -105,28 +127,32 @@ export function ProvinceInspect(props: {
             >
               Scout ({cost} gold)
             </button>
-          ) : (
-            <span style={{ marginTop: 8, display: "inline-block" }}>Scouted.</span>
-          )}
+          ) : null}
+          {canGather ? (
+            <button
+              type="button"
+              style={{ marginTop: 8, marginRight: 8 }}
+              disabled={Boolean(here) || full}
+              onClick={() =>
+                act((s) => {
+                  const pack: Record<string, number> = {};
+                  for (const [k, v] of Object.entries(force)) if (v > 0) pack[k] = v;
+                  if (Object.keys(pack).length === 0) pack.militia = 5;
+                  return tryGather(s, selectedId, pack) ? "Gather column sent." : "Cannot gather — need a forage node, free slot, and troops.";
+                })
+              }
+            >
+              Gather here
+            </button>
+          ) : null}
           <div style={{ marginTop: 10, fontSize: 12 }}>
-            <div style={{ fontWeight: 600, marginBottom: 4 }}>March Column Composition</div>
+            Column
             {roster.map((u) => {
               const have = owned(state, u.id);
               if (have <= 0 && !(force[u.id] > 0)) return null;
               return (
-                <label
-                  key={u.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    marginTop: 4,
-                  }}
-                >
-                  <UnitIcon typeId={u.id} size={22} animated />
-                  <span>
-                    {u.name} (have {have})
-                  </span>
+                <label key={u.id} style={{ display: "block", marginTop: 4 }}>
+                  {u.name} (have {have})
                   <input
                     type="number"
                     min={0}
@@ -138,7 +164,7 @@ export function ProvinceInspect(props: {
                         [u.id]: Math.max(0, Math.min(have, Number(e.target.value) || 0)),
                       }))
                     }
-                    style={{ width: 64, marginLeft: "auto" }}
+                    style={{ width: 64, marginLeft: 8 }}
                   />
                 </label>
               );
@@ -150,15 +176,14 @@ export function ProvinceInspect(props: {
             disabled={Boolean(march) || roster.every((u) => !(force[u.id] > 0))}
             onClick={() =>
               act((s) => {
-                if (activePlayerMarch(s)) return "Company already on the march.";
+                if (activePlayerMarch(s)) return "Company already on a raid march.";
                 const ok = tryMarchWith(s, selectedId, force);
-                if (!ok) return "Cannot march — check counts or a free column slot.";
-                s.flags.tutorial_marched = 1;
-                return "Column ordered.";
+                if (!ok) return "Cannot raid — check counts or a free column slot.";
+                return "Raid column ordered.";
               })
             }
           >
-            Send column
+            Send raid column
           </button>
         </>
       )}
