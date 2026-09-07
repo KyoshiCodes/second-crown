@@ -1,6 +1,7 @@
 import type { GameState, Province } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
+import { getUnitType } from "../content/units.js";
 import { getProvince, neighbors, provinceAt } from "./board.js";
 import { defenseBonus, realmPower, resolveBattle } from "./combat.js";
 import { createRngStreams, type RngStreams } from "../core/rng.js";
@@ -8,6 +9,7 @@ import { createRngStreams, type RngStreams } from "../core/rng.js";
 const GRID_W = 16;
 const GRID_H = 10;
 const TICKS_PER_STEP = 15;
+const LEVY = 5;
 
 export interface March {
   id: string;
@@ -16,6 +18,7 @@ export interface March {
   toId: string;
   arrivesTick: number;
   kind: "camp" | "node" | "hold";
+  levy: number;
 }
 
 export function edgeWallCount(state: GameState, realmId: string): number {
@@ -28,7 +31,6 @@ export function edgeWallCount(state: GameState, realmId: string): number {
   ).length;
 }
 
-/** A closed ring is eight or more finished wall segments on the hold rim. */
 export function hasClosedWallRing(state: GameState, realmId = "player"): boolean {
   return edgeWallCount(state, realmId) >= 8;
 }
@@ -65,6 +67,38 @@ export function activePlayerMarch(state: GameState): March | undefined {
   return marches(state).find((m) => m.realmId === "player");
 }
 
+function playerMilitia(state: GameState) {
+  return state.units.find((u) => u.realmId === "player" && u.typeId === "militia");
+}
+
+function takeLevy(state: GameState): number {
+  const u = playerMilitia(state);
+  if (!u) return 0;
+  const have = D(u.count).toNumber();
+  const n = Math.min(LEVY, Math.floor(have));
+  if (n < 1) return 0;
+  u.count = toDecimalString(D(u.count).sub(n));
+  if (D(u.count).lte(0)) {
+    state.units = state.units.filter((x) => x !== u);
+  }
+  return n;
+}
+
+function returnLevy(state: GameState, n: number): void {
+  if (n <= 0) return;
+  const u = playerMilitia(state);
+  if (u) u.count = toDecimalString(D(u.count).add(n));
+  else {
+    state.units.push({
+      id: `u_return_${state.meta.tick}`,
+      typeId: "militia",
+      realmId: "player",
+      count: toDecimalString(n),
+      armyId: null,
+    });
+  }
+}
+
 function manhattan(a: Province, b: Province): number {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
@@ -75,6 +109,8 @@ export function tryMarch(state: GameState, destId: string): boolean {
   const home = getProvince(state, state.board.homeProvinceId);
   if (!dest || !home) return false;
   if (dest.id === home.id) return false;
+  const levy = takeLevy(state);
+  if (levy < 1) return false;
   const dist = Math.max(1, manhattan(home, dest));
   let kind: March["kind"] = "node";
   if (dest.node === "camp") kind = "camp";
@@ -86,6 +122,7 @@ export function tryMarch(state: GameState, destId: string): boolean {
     toId: dest.id,
     arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
     kind,
+    levy,
   };
   saveMarches(state, [...marches(state), march]);
   return true;
@@ -102,17 +139,24 @@ function damageHoldBuilding(state: GameState): string | null {
 
 export function resolveMarchArrival(state: GameState, march: March, rng: RngStreams): string {
   const dest = getProvince(state, march.toId);
-  if (!dest) return "March lost.";
+  const levy = march.levy ?? 0;
+  const pwr = levy * (getUnitType("militia")?.power ?? 1);
+  if (!dest) {
+    returnLevy(state, levy);
+    return "March lost.";
+  }
   if (march.kind === "camp" || dest.node === "camp") {
-    const mine = realmPower(state, "player");
-    if (mine >= 6) {
+    if (pwr >= 4) {
       state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(20));
       dest.node = "none";
+      returnLevy(state, levy);
       return "Camp broken. +20 wood.";
     }
-    return "The camp holds.";
+    returnLevy(state, Math.max(0, levy - 2));
+    return "The camp holds. Two did not return.";
   }
   if (march.kind === "node") {
+    returnLevy(state, levy);
     if (dest.node === "woodcut") {
       state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(12));
       return "Woodcutting party returns +12 wood.";
@@ -137,8 +181,10 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     };
     state.wars.push(war);
     const result = resolveBattle(state, war, rng);
+    returnLevy(state, result.winnerId === "player" ? levy : Math.max(0, Math.floor(levy * 0.4)));
     return result.winnerId === "player" ? "Hold stormed." : "The hold stands.";
   }
+  returnLevy(state, levy);
   return "March arrived.";
 }
 
