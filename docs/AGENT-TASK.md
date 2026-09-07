@@ -1,34 +1,27 @@
-# AGENT-TASK — Gemini W3 only
+# Bakeoff after W16 — presentation + war chrome
 
-Branch: `bakeoff/gemini-board-cam` → PR into `main`, do not merge.
+Ground is `main`. Do not merge. Do not edit `packages/sim/src/core/tickEngine.ts` except Claude if a test forces a one-line import (prefer not).
 
-## Lane
-Presentation only. `git diff main -- packages/sim server` must stay empty.
+## Claude — `bakeoff/claude-war2`
 
-## Goal
-Same Pixi canvas, two zoom bands.
+War tab must read as a briefing in 20 seconds:
+- Incoming column (name, ETA, wall HP, gate up or not).
+- One row: wounded / beds / treat.
+- One row: people / beds (housingCap).
+- Do not change combat math, march formulas, or fog rules.
+- Tests stay green. `git diff main -- packages/sim/src/core` should be empty.
 
-1. **Hold (current):** 16×10 isometric turf. Tile click still builds/upgrades. Zoom/pan/rim stay.
-2. **Board (new):** when the camera is zoomed out past a threshold (pick one number, document it), hide or shrink the turf detail and draw `state.board.provinces` as tabletop tokens on an 8×6 grid. Terrain chips: plain, wood, hill, waste, shore, peak. Node marks: hold, camp, woodcut, quarry, field. Player hold and Iron March reads as tokens, not full towns.
+## Gemini — `bakeoff/gemini-board2`
 
-Click a province on the board band:
-- If it is home → snap back to Hold band.
-- Else call `tryMarch(state, provinceId)` through the existing `act` helper. Toast the result. Do not invent a second travel system.
+Presentation only. `git diff main -- packages/sim server` must be empty.
 
-Show active march from `listMarches` / `activePlayerMarch` as a small pawn between home and dest (lerp by tick vs arrivesTick is enough).
+1. Distinct isometric **cottage** and **gate** (gatehouse with doors on rim tiles).
+2. Board-band tokens: unseen provinces (`isProvinceSeen` is already on state) draw as blank parchment / fog chips. Do not invent a second fog system.
+3. Hostile marches (`listMarches` where `realmId !== "player"`) use a red/iron meeple, not the player blue pawn.
+4. Keep zoom/pan, tile click, ChromeDock, recorded audio.
+5. Dim holiday lanterns stay dim.
 
-Add a **Board / Hold** toggle next to ChromeDock so testers who cannot scroll the wheel can switch bands.
+## Both
 
-## Must keep
-Holiday dressings, walkers, lanterns, recorded audio, ChromeDock collapse, tile-click contract.
-
-## Must not
-New combat math. New province generation. Server routes. Real multiplayer pins.
-
-## Verify
-npm test
-npm run build -w @second-crown/app
-git diff main -- packages/sim server   # empty
-
-Rewrite walkthrough.md for this PR only.
-Update HANDOFF, CHANGELOG, USER-NOTES, DEV-NOTES.
+Update `docs/HANDOFF.md`, `docs/CHANGELOG.md`, `docs/USER-NOTES.md`, `docs/DEV-NOTES.md`, rewrite `walkthrough.md` for your PR only.
+`npm test` and `npm run build -w @second-crown/app` must pass. Leave PR unmerged.
