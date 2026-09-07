@@ -4,8 +4,9 @@ import { EconomySystem } from "../systems/economy.js";
 import { RivalSystem } from "../systems/rival.js";
 import { EventSystem } from "../systems/events.js";
 import { MarchSystem } from "../systems/march.js";
+import { UpkeepSystem } from "../systems/upkeep.js";
 
-const SYSTEMS = [EconomySystem, RivalSystem, EventSystem, MarchSystem];
+const SYSTEMS = [EconomySystem, RivalSystem, EventSystem, MarchSystem, UpkeepSystem];
 
 export class TickEngine {
   readonly rng: RngStreams;
