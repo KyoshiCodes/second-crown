@@ -7,6 +7,7 @@ import { flagNum } from "./wave.js";
 import { decreeActive } from "./decree.js";
 import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
 import { applyLabor, laborPerTick } from "./labor.js";
+import { hireCitizenForBuilding } from "./citizens.js";
 
 export function productionBonus(state: GameState): number {
   let bonus = 0;
@@ -67,6 +68,7 @@ export const EconomySystem = {
     for (const b of state.buildings) {
       if (b.completesAtTick === tick) {
         b.completesAtTick = null;
+        hireCitizenForBuilding(state, b.realmId, b.typeId, b.x, b.y);
       }
     }
   },
