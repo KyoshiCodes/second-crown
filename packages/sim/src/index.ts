@@ -44,7 +44,7 @@ export type { WorldEvent } from "./systems/events.js";
 export { tryBuild, canAfford, buildCostMultiplier } from "./actions/build.js";
 export type { BuildPayload } from "./actions/build.js";
 
-export { tryUpgrade, canUpgrade, upgradeCost, MAX_BUILDING_LEVEL } from "./actions/upgrade.js";
+export { tryUpgrade, canUpgrade, upgradeCost, MAX_BUILDING_LEVEL, keepLevel, maxLevelFor } from "./actions/upgrade.js";
 
 export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
