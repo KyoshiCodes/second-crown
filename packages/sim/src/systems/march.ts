@@ -6,6 +6,7 @@ import { getProvince, neighbors, provinceAt } from "./board.js";
 import { defenseBonus, realmPower, resolveBattle } from "./combat.js";
 import { createRngStreams, type RngStreams } from "../core/rng.js";
 import { maxMarches } from "./labor.js";
+import { takeForce } from "./column.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -21,6 +22,7 @@ export interface March {
   arrivesTick: number;
   kind: "camp" | "node" | "hold";
   levy: number;
+  force?: Record<string, number>;
 }
 
 interface Respawn {
@@ -128,15 +130,9 @@ function manhattan(a: Province, b: Province): number {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
-export function tryMarch(state: GameState, destId: string): boolean {
+function enqueueMarch(state: GameState, dest: Province, home: Province, levy: number, force?: Record<string, number>): boolean {
   const mine = marches(state).filter((m) => m.realmId === "player");
   if (mine.length >= maxMarches(state)) return false;
-  const dest = getProvince(state, destId);
-  const home = getProvince(state, state.board.homeProvinceId);
-  if (!dest || !home) return false;
-  if (dest.id === home.id) return false;
-  const levy = takeLevy(state);
-  if (levy < 1) return false;
   const dist = Math.max(1, manhattan(home, dest));
   let kind: March["kind"] = "node";
   if (dest.node === "camp") kind = "camp";
@@ -144,16 +140,40 @@ export function tryMarch(state: GameState, destId: string): boolean {
   saveMarches(state, [
     ...marches(state),
     {
-      id: `m_${state.meta.tick}_${destId}_${mine.length}`,
+      id: `m_${state.meta.tick}_${dest.id}_${mine.length}`,
       realmId: "player",
       fromId: home.id,
       toId: dest.id,
       arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
       kind,
       levy,
+      force,
     },
   ]);
   return true;
+}
+
+export function tryMarch(state: GameState, destId: string): boolean {
+  const dest = getProvince(state, destId);
+  const home = getProvince(state, state.board.homeProvinceId);
+  if (!dest || !home || dest.id === home.id) return false;
+  const levy = takeLevy(state);
+  if (levy < 1) return false;
+  return enqueueMarch(state, dest, home, levy, { militia: levy });
+}
+
+export function tryMarchWith(state: GameState, destId: string, force: Record<string, number>): boolean {
+  const dest = getProvince(state, destId);
+  const home = getProvince(state, state.board.homeProvinceId);
+  if (!dest || !home || dest.id === home.id) return false;
+  const clean: Record<string, number> = {};
+  for (const [k, v] of Object.entries(force)) {
+    const n = Math.floor(Number(v) || 0);
+    if (n > 0) clean[k] = n;
+  }
+  if (!takeForce(state, clean)) return false;
+  const levy = Object.values(clean).reduce((a, b) => a + b, 0);
+  return enqueueMarch(state, dest, home, levy, clean);
 }
 
 export function tryNpcMarch(state: GameState, realmId: string, destId: string): boolean {
