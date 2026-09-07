@@ -11,7 +11,22 @@ export const RESEARCH = {
     needs: "barracks",
     unlocks: ["cavalry", "knight"],
   },
+  siege: {
+    id: "siege",
+    name: "Siege craft",
+    ticks: 360,
+    cost: { gold: "70", wood: "40", stone: "30" },
+    needs: "siege_workshop",
+    unlocks: ["siege"],
+  },
 } as const;
+
+function anyStudyOpen(state: GameState): boolean {
+  for (const id of Object.keys(RESEARCH)) {
+    if (!researchDone(state, id) && researchTicksLeft(state, id) > 0) return true;
+  }
+  return false;
+}
 
 export function researchDone(state: GameState, id: string): boolean {
   if (Number(state.flags[`research_${id}`] ?? 0) === 1) return true;
@@ -24,14 +39,19 @@ export function researchDone(state: GameState, id: string): boolean {
 }
 
 export function researchTicksLeft(state: GameState, id: string): number {
-  if (researchDone(state, id)) return 0;
+  if (Number(state.flags[`research_${id}`] ?? 0) === 1) return 0;
   const until = Number(state.flags[`research_${id}_until`] ?? 0);
   if (!until) return 0;
-  return Math.max(0, until - state.meta.tick);
+  if (state.meta.tick >= until) {
+    state.flags[`research_${id}`] = 1;
+    return 0;
+  }
+  return until - state.meta.tick;
 }
 
 export function unitUnlocked(state: GameState, typeId: string): boolean {
   if (typeId === "cavalry" || typeId === "knight") return researchDone(state, "horse");
+  if (typeId === "siege") return researchDone(state, "siege");
   return true;
 }
 
@@ -39,7 +59,7 @@ export function tryStartResearch(state: GameState, id: keyof typeof RESEARCH): b
   const def = RESEARCH[id];
   if (!def) return false;
   if (researchDone(state, id)) return false;
-  if (researchTicksLeft(state, id) > 0) return false;
+  if (anyStudyOpen(state)) return false;
   if (countBuilding(state, def.needs) < 1) return false;
   for (const [res, cost] of Object.entries(def.cost)) {
     if (D(state.resources[res] ?? "0").lt(cost)) return false;
