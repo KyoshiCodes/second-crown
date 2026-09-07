@@ -1,6 +1,7 @@
 import type { GameState } from "@second-crown/shared";
 import { SAVE_VERSION } from "@second-crown/shared";
 import { seedWorldActors } from "../content/world.js";
+import { seedBoard } from "../systems/board.js";
 
 export interface CreateGameStateOptions {
   seed?: number;
@@ -82,6 +83,7 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
     inputLog: [],
     flags: {},
     unlocks: [],
+    board: seedBoard(seed),
   };
 
   state.units.push({
