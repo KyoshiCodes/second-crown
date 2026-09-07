@@ -20,6 +20,15 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     color: 0x6b8e23,
     blurb: "Feeds your people and your army",
   },
+  cottage: {
+    id: "cottage",
+    name: "Cottage",
+    productionPerTick: {},
+    buildTicks: 25,
+    cost: { wood: "8", food: "4" },
+    color: 0xb45309,
+    blurb: "Each cottage: +2 citizen beds. Base beds are 2. Keep adds +3",
+  },
   lumber_camp: {
     id: "lumber_camp",
     name: "Lumber Camp",
@@ -171,7 +180,7 @@ export const BUILDING_TYPES: Record<string, BuildingType> = {
     buildTicks: 140,
     cost: { stone: "40", wood: "20", gold: "15" },
     color: 0x475569,
-    blurb: "Each keep: +8 combat power, and doubles that as bonus defense when attacked",
+    blurb: "Each keep: +8 combat power, +3 citizen beds, upgrade cap for other buildings",
   },
 };
 
