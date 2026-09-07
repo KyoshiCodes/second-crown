@@ -1,5 +1,10 @@
 # DEV-NOTES
 
+## 2026-09-07 - Astra map gathering PR
+
+Astra exports tryGather(state, destId, force), tryRecallGather(state, id), listGathers(state), Gather and GATHER_NODES. Additive gathers_json/gather_serial flags persist journeys; missing flags mean no gathers. GatherSystem registers with the existing scheduler. Cargo is derived from elapsed integer ticks with decimal arithmetic; snapshots return through returnForce. March admission counts gather slots before troop withdrawal. Node rates, reservation rules, save behavior and deferred cases are in walkthrough.md. Tests: 104 passed, including 11 gather cases; app build passed. Existing UpkeepSystem starvation batching can violate global tick/settle equality; gather equality tests isolate upkeep using champions. No upkeep rewrite in this lane.
+
+
 Last updated: 2026-09-07
 
 ## Hold Economy: Raid Cut, Academy, Storehouses (Claude Pace Lane, `packages/sim`)

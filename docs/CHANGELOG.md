@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-09-07 - Astra map gathering PR
+
+Added sim-only map gathering: outbound, loading, return and recall; three resource node profiles; reserved tiles; shared march capacity checked before troop withdrawal; decimal cargo and event-based settlement; tick-stamped action records and additive save flags. Added 11 regression cases. No app/render/server changes. Existing upkeep starvation batching limitation documented in walkthrough.md.
+
+
 Newest first.
 
 ## 2026-09-07 — Claude Hold Economy: Smaller Raids, Academy, Storehouses (`bakeoff/claude-pace`)
