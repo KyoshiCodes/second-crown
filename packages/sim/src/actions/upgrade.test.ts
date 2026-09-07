@@ -1,36 +1,33 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryUpgrade, canUpgrade, MAX_BUILDING_LEVEL } from "./upgrade.js";
-import { TickEngine } from "../core/tickEngine.js";
-import { D } from "../core/decimal.js";
+import { maxLevelFor, tryUpgrade } from "./upgrade.js";
 
-describe("upgrade", () => {
-  it("raises level and production", () => {
-    const state = createGameState({ seed: 1, withStarterBuildings: true });
-    state.resources.wood = "1000";
-    state.resources.food = "1000";
-    const farm = state.buildings.find((b) => b.typeId === "farm")!;
-    expect(farm.level).toBe(1);
-    expect(canUpgrade(state, farm.id)).toBe(true);
-    expect(tryUpgrade(state, farm.id)).toBe(true);
+describe("upgrade cap", () => {
+  it("without a keep, farms stop at level 2", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    const farm = s.buildings.find((b) => b.typeId === "farm")!;
+    expect(maxLevelFor(s, "farm")).toBe(2);
+    s.resources.wood = "999";
+    s.resources.food = "999";
+    s.resources.stone = "999";
+    s.resources.gold = "999";
+    expect(tryUpgrade(s, farm.id)).toBe(true);
     expect(farm.level).toBe(2);
-
-    const engine = new TickEngine(state);
-    engine.tickMany(10);
-    // farm lv2: 2 base + 1 clever = 3/tick × 10 = 30 food
-    expect(D(engine.getState().resources.food).gte(30)).toBe(true);
+    expect(tryUpgrade(s, farm.id)).toBe(false);
   });
 
-  it("caps at max level", () => {
-    const state = createGameState({ seed: 1, withStarterBuildings: true });
-    state.resources.wood = "99999";
-    state.resources.food = "99999";
-    state.resources.stone = "99999";
-    const farm = state.buildings.find((b) => b.typeId === "farm")!;
-    for (let i = 1; i < MAX_BUILDING_LEVEL; i++) {
-      expect(tryUpgrade(state, farm.id)).toBe(true);
-    }
-    expect(farm.level).toBe(MAX_BUILDING_LEVEL);
-    expect(tryUpgrade(state, farm.id)).toBe(false);
+  it("a level 2 keep raises the cap to 3", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    s.buildings.push({
+      id: "k",
+      typeId: "keep",
+      realmId: "player",
+      x: 4,
+      y: 4,
+      level: 2,
+      completesAtTick: null,
+    });
+    expect(maxLevelFor(s, "farm")).toBe(3);
+    expect(maxLevelFor(s, "keep")).toBe(5);
   });
 });
