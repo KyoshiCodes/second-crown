@@ -8,7 +8,7 @@ import { ArmyTab } from "./tabs/ArmyTab";
 import { WarTab } from "./tabs/WarTab";
 import { WorldTab } from "./tabs/WorldTab";
 import { CrownTab } from "./tabs/CrownTab";
-import { ProvinceInspect } from "./ProvinceInspect";
+import { TutorialBanner } from "./TutorialBanner";
 import { detectCurrentHoliday, getHolidayMeta, type HolidayId } from "./seasons/holidays";
 import { resolveActiveThemePack } from "./themes/packs";
 import { audioManager } from "./themes/audioManager";
@@ -41,7 +41,6 @@ export function AppShell() {
     power, prestige,
     ascendReady, ascendNeed,
     selectedBuild, setSelectedBuild,
-    selectedProvinceId, setSelectedProvinceId,
     trainQty, setTrainQty,
     lastEvent, lastEventTick, eventLog, worldLog,
     speed, setSpeed, paused, setPaused,
@@ -52,6 +51,8 @@ export function AppShell() {
     zoomIn,
     zoomOut,
     resetView,
+    cameraBand,
+    toggleCameraBand,
     state,
     act,
     saveNow, exportSave, importSaveFile, newGame,
@@ -106,6 +107,7 @@ export function AppShell() {
         {offlineNote ? <p style={{ color: "#3fb950" }}>{offlineNote}</p> : null}
         <SpeedControls paused={paused} speed={speed} onPauseToggle={() => setPaused((p) => !p)} onSpeed={(n) => { setPaused(false); setSpeed(n); }} />
         <ResourceHud resources={resources} income={income} />
+        <TutorialBanner state={state} act={act} />
         {status ? <div className="sc-status-banner" style={{ marginBottom: 10 }}>{status}</div> : null}
         <div className="sc-tabs-bar" style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
           {(["kingdom", "army", "war", "world", "crown"] as Tab[]).map((id) => (
@@ -149,18 +151,13 @@ export function AppShell() {
               <button type="button" onClick={zoomIn} title="Zoom In (or mouse wheel)" style={{ padding: "1px 8px", fontSize: 14, fontWeight: 700, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>+</button>
               <button type="button" onClick={zoomOut} title="Zoom Out (or mouse wheel)" style={{ padding: "1px 8px", fontSize: 14, fontWeight: 700, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>−</button>
               <button type="button" onClick={resetView} title="Reset View" style={{ padding: "1px 6px", fontSize: 12, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>⟲</button>
+              <button type="button" onClick={toggleCameraBand} title="Toggle Board / Hold view" style={{ padding: "1px 8px", fontSize: 12, fontWeight: 600, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>
+                {cameraBand === "board" ? "🏰 Hold" : "🗺️ Board"}
+              </button>
             </div>
           </div>
-          {tab === "kingdom" ? (
-            <ProvinceInspect
-              state={state}
-              selectedId={selectedProvinceId}
-              onClear={() => setSelectedProvinceId(null)}
-              act={act}
-            />
-          ) : null}
           <div style={{ fontSize: 11, opacity: 0.65, marginTop: 4 }}>
-            Board: click a token to inspect, then March. Hold: click tiles to build.
+            Hold view: click to build/upgrade · Board view: click province to inspect · Wheel or toggle to switch bands
           </div>
         </div>
         {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}
