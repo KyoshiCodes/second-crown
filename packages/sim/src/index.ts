@@ -125,9 +125,18 @@ export { tryBuyBazaar, ITEMS, ITEM_TIERS } from "./systems/loot.js";
 
 export { settlementName, tryRenameSettlement } from "./actions/settlement.js";
 
+export {
+  seedBoard,
+  ensureBoard,
+  getProvince,
+  provinceAt,
+  neighbors,
+  provinceId,
+} from "./systems/board.js";
+
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
 export { applyOfflineProgress } from "./offline.js";
 
-export type { GameState, CitizenInstance, CitizenJobId, CitizenTile } from "@second-crown/shared";
-export { formatLetterSuffix } from "@second-crown/shared";
+export type { GameState, CitizenInstance, CitizenJobId, CitizenTile, Province, BoardState } from "@second-crown/shared";
+export { formatLetterSuffix, BOARD_W, BOARD_H } from "@second-crown/shared";
