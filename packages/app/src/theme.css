@@ -294,3 +294,180 @@
   100% { transform: translateX(0); opacity: 0.7; }
 }
 .sc-march { display: inline-block; animation: sc-march 1.6s ease-in-out infinite; }
+
+/* Scriptorium Lectern & Study Card */
+.sc-research-lectern {
+  background: var(--theme-card-bg, rgba(20, 16, 12, 0.95));
+  border: 1px solid var(--theme-border, #453320);
+  border-left: 3px solid #d4a359;
+  margin: 10px 0 14px;
+}
+.sc-lectern-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(212, 163, 89, 0.2);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.sc-lectern-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sc-lectern-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.sc-lectern-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #fef3c7;
+  letter-spacing: 0.3px;
+}
+.sc-lectern-sub {
+  font-size: 12px;
+  color: #a8a29e;
+  margin-top: 1px;
+}
+.sc-study-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+.sc-study-card {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(212, 163, 89, 0.25);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: border-color 0.2s;
+}
+.sc-study-card.is-done {
+  border-color: rgba(74, 222, 128, 0.4);
+  background: rgba(20, 83, 45, 0.12);
+}
+.sc-study-card.is-active {
+  border-color: rgba(250, 204, 21, 0.5);
+  background: rgba(113, 63, 18, 0.15);
+}
+.sc-study-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+.sc-study-name {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: #f1f5f9;
+}
+.sc-study-time {
+  font-size: 11px;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.sc-study-blurb {
+  font-size: 11.5px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.sc-study-unlocks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: #e2e8f0;
+}
+.sc-study-unlock-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(30, 58, 138, 0.35);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.sc-study-reqs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 11.5px;
+}
+.sc-study-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.sc-study-chip.afford-yes {
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+.sc-study-chip.afford-no {
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+.sc-study-building-badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.sc-study-building-badge.has-bldg {
+  background: rgba(22, 101, 52, 0.3);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+.sc-study-building-badge.missing-bldg {
+  background: rgba(127, 29, 29, 0.3);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+.sc-study-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  margin-bottom: 6px;
+}
+.sc-study-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d97706, #fbbf24);
+  transition: width 0.3s ease;
+}
+.sc-study-progress-label {
+  font-size: 11.5px;
+  color: #fde047;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+.sc-study-mastered-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #4ade80;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 4px 8px;
+  background: rgba(22, 101, 52, 0.25);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  border-radius: 4px;
+}

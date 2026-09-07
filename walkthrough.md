@@ -1,38 +1,62 @@
-# Astra map gathering
+# Walkthrough — Gemini Academy, Siege Workshop Polish, Research Lectern & Outpost Flags (`bakeoff/gemini-academy`)
 
-This PR adds sim-only gathering on bakeoff/astra-gather. UI wiring is deferred to the presentation lane.
+## What changed
 
-## Behavior and API
+1. **Distinct Isometric Academy (`packages/render/src/index.ts`)**:
+   - Implemented dedicated `case "academy":` in `drawIsometricBuilding`:
+     - **Collegiate Ashlar Facade**: Flared ashlar foundation plinth (`0x475569` / `0x334155`), warm limestone sunlit and shaded walls (`0xf1f5f9` / `0x94a3b8`), buttress pilasters, and horizontal carved stringcourse.
+     - **Arched Cloister Arcade**: Vaulted interior portal (`0x0f172a`), twin marble columns with capitals, classical triangular pediment, and stone entrance steps.
+     - **Gothic Library Casement Windows**: Deep arched windows glowing with warm honey candlelight (`0xfef08a` / `0xfde047`) and diamond mullion grates with subtle animated candle flicker.
+     - **Sapphire Slate Roof & Cupola**: Regal sapphire hipped slate roof (`0x1e3a8a`), gilded roof ridge coping, elevated stone observatory cupola with aged verdigris copper dome (`0x0f766e`), and fluttering blue/gold scholar gonfalon (`0x2563eb`).
+     - **Rotating Armillary Astrolabe**: Spindle with central brass globe and rotating celestial armillary rings (`Math.sin(phase * 2.8)`).
+     - **Forecourt Scholarly Vignette**: Stone reading lectern with an open illuminated leather-bound folio (`0xfef3c7` parchment with script markings), brass celestial globe on tripod stand, and manuscript scroll bins.
+     - **Dynamic Scaling & Holidays**: Level boost pips and holiday dressing support.
 
-- tryGather(state, provinceId, force) validates a known, nonnegative integer troop composition, reserves available troops and a march slot, then sends a column to a woodcut, quarry, or field. Empty forces, unavailable troops, enemy occupation, camps and holds are rejected without mutation.
-- listGathers(state) returns detached expedition records with outbound/gathering/returning phase, origin/target IDs, force, travel and event ticks, capacity, and current load. Quantities are decimal strings. Input troop counts retain the existing column API's safe-integer number convention.
-- tryRecallGather(state, gatherId) starts the return journey with the load already gathered. Recalling again returns false.
-- Resources and the original troop types return only at home arrival, once. Existing standing-army food upkeep can consume food on that same tick.
-- GatherSystem is appended to the existing SYSTEMS list. No clock, combat resolver, or server sim is introduced.
+2. **Polished Siege Workshop (`packages/render/src/index.ts`)**:
+   - Replaced generic flat polygon box with a heavy ordnance yard and master engineer's forge:
+     - **Workshop Framing**: Heavy oak posts with iron joint bands, rafter canopy, and timber gantry crane derrick with pulley wheel and hoist rope.
+     - **Master Engineer's Drafting Desk**: Sheltered workbench with blue vellum blueprint draft (`0x0284c7`) and brass calipers.
+     - **Assembled Heavy Trebuchet**: Wheeled carriage frame on four spoked wooden wheels with iron rims, cross-braced A-frame trestles, bronze pivot axle, heavy tapered oak throwing arm angled into the sky, iron-riveted counterweight box with steel rivets, and sling release hook.
+     - **Ordnance Supplies**: Chained pyramid of carved granite siege boulders, smoldering ordnance forge hearth with flickering orange/yellow hot coals, iron anvil, and ball-peen hammer.
 
-## Small deterministic choices
+3. **Scriptorium Lectern / Study Card (`packages/app/src/ResearchBar.tsx` & `theme.css`)**:
+   - Replaced two raw `<button>`s with an illuminated medieval study card (`sc-realm-card sc-research-lectern`).
+   - **Dynamic Cost Reading**: Extracts resource costs directly from `@second-crown/sim`'s exported `RESEARCH[id].cost`, displaying resource chips with affordability indicators (`canAfford`).
+   - **Building Prerequisites**: Displays required building from `RESEARCH[id].needs` (Barracks or Academy for Horse lore; Siege Workshop for Siege craft) with status checks.
+   - **Unlocks Display**: Features miniature pixel walker silhouettes from `UnitIcon` next to unit unlock tags (Cavalry & Knight for horse; Siege Engine for siege).
+   - **State Handling**:
+     - *Mastered*: Golden seal badge (`✓ Mastered · Ready to train`).
+     - *Studying*: Active progress bar with percentage and remaining time countdown (`${Math.ceil(left / 10)}s remaining`).
+     - *Available*: Action button with clear tooltip and disabled hints if missing resources, building, or if study slot is busy.
 
-| Node | Cargo per troop | Ticks per cargo unit | Full loading ticks per troop |
-| --- | --- | --- | --- |
-| woodcut | 6 wood | 10 | 60 |
-| quarry | 4 stone | 20 | 80 |
-| field | 8 food | 5 | 40 |
+4. **Board Outpost / Flag Token on Field Tiles (`packages/render/src/index.ts`)**:
+   - Updated `paintBoardProvinces` special realm occupant overlays:
+     - `p.id === state.board.homeProvinceId` preserves the grand Player Home Hold gilded royal frame, golden crown emblem, and golden halo pulse.
+     - `p.occupantRealmId === "player" && p.id !== state.board.homeProvinceId` (player-occupied field tiles / outposts) renders a dedicated **Outpost / Flag Token**:
+       - Royal blue & gold border trim (`0x2563eb` / `0xfacc15`) with 4 brass corner pins.
+       - Stone cairn base anchoring a tall wooden flagpole with brass ball finial.
+       - Waving royal player swallowtail standard (`0x1e40af` with gold heraldic insignia, animated wind wave).
+       - Field bivouac supply cache / tent and bottom "OUTPOST" plaque.
 
-Node throughput is fixed, so larger columns carry more and occupy the site longer. Travel uses 15 existing sim ticks per Manhattan step in either direction. Outbound recall retraces elapsed travel, with a minimum one-tick return. No cargo accrues on the arrival tick; incomplete cargo units are discarded on recall.
+5. **Gather Expedition Pawn Stub (`packages/render/src/index.ts`)**:
+   - Implemented `listGathersPresentation` and `paintBoardGathers`:
+     - Safely checks for gather expeditions without modifying sim.
+     - Stubs route trails and pack-cart gatherer pawns when gathers are present, gracefully skipping when Astra's lane is unmerged.
+   - Exported pure helpers `isOutpostProvince` and `listGathersPresentation`.
 
-A site is reserved at dispatch, preventing two outbound parties from claiming it; the reservation ends when returning starts. Returning parties still consume a march slot. Regular raids and gathers share maxMarches, checked before troops are removed. This also prevents rejected marches from consuming troops.
+6. **Automated Unit Tests (`packages/render/src/index.test.ts`)**:
+   - Added unit test suite covering `isOutpostProvince` (distinguishing home hold from outposts across player, rival, and unowned tiles).
+   - Added unit test suite covering `listGathersPresentation` stubbing behavior.
 
-Gathering does not deplete nodes, plant outposts, fight, or grant gold. It snapshots node type and capacity. If the node disappears or becomes enemy-owned before arrival, the party returns empty. Once loading starts it finishes or recalls using that snapshot; combat interception and depletion are outside this PR. Existing smash-and-grab raids remain available.
+## Sim & Server Purity
 
-State uses additive gathers_json and gather_serial flags, consistent with existing march storage. Old saves with neither flag mean no expeditions; current saves preserve active journeys. Successful actions record tick-stamped gather/recall_gather inputs. Force keys are sorted for stable serialization. Load derives from elapsed whole ticks rather than repeated additions.
+- `git diff main -- packages/sim server` is strictly empty.
+- No combat formulas, tick rates, or server routes modified.
+- All existing features preserved: zoom/pan, inspect/scout, holidays, dim lanterns, pixel army icons.
 
-## Verification and limits
+## Verification
 
-- npm test: 104 tests passed, including 11 gather cases covering all node payouts, mixed troop restoration, recall in transit and while loading, reservation, shared slots, invalid orders, vanished targets, scaling, tick/settle equality, and save/reload.
-- npm run build -w @second-crown/app: passed.
-- git diff main -- packages/app packages/render server: empty.
-- tickEngine.ts changes only import/register GatherSystem.
-
-An existing limitation surfaced during testing: UpkeepSystem removes one starving militia per applyUpkeep call, so five single ticks and a five-tick analytic jump can differ (27 militia with no food becomes 22 versus 26). Fractional food arithmetic can also differ by batching. This PR does not rewrite upkeep or the tick engine. Gathering equivalence is tested with upkeep-exempt champions to isolate the new system; global offline equivalence under starvation is not claimed.
-
-Pre-existing package.json and untracked package-lock.json changes are excluded from this PR. Existing historical documentation, including old merge-marker text in DEV-NOTES, is not rewritten. No deployment or merge to main is performed.
+- `npm test`: 93/93 sim tests pass.
+- `npm run test -w @second-crown/render`: 20/20 render tests pass (18 existing + 2 new).
+- `npm run build -w @second-crown/app`: `tsc -b && vite build` passes cleanly.
+- `git diff main -- packages/sim server`: verified 100% empty.

@@ -18,6 +18,8 @@ import {
   GRID_H,
   primaryUnitTypeForMarch,
   unitPalette,
+  isOutpostProvince,
+  listGathersPresentation,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 
@@ -325,5 +327,45 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(palMap.get("militia").weaponKind).toBe("club");
     });
   });
+
+  describe("isOutpostProvince and listGathersPresentation", () => {
+    it("distinguishes player home hold from player outposts", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "prov-home",
+        provinces: [
+          { id: "prov-home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "prov-outpost", x: 3, y: 2, terrain: "wood", node: "field", occupantRealmId: "player" },
+          { id: "prov-rival", x: 5, y: 2, terrain: "hill", node: "hold", occupantRealmId: "rival" },
+          { id: "prov-unowned", x: 1, y: 1, terrain: "plain", node: "none" },
+        ],
+      };
+
+      // Home hold is not an outpost
+      expect(isOutpostProvince(state, { id: "prov-home", occupantRealmId: "player" })).toBe(false);
+      // Player occupied field tile is an outpost
+      expect(isOutpostProvince(state, { id: "prov-outpost", occupantRealmId: "player" })).toBe(true);
+      // Rival or unowned tiles are not player outposts
+      expect(isOutpostProvince(state, { id: "prov-rival", occupantRealmId: "rival" })).toBe(false);
+      expect(isOutpostProvince(state, { id: "prov-unowned" })).toBe(false);
+      // Null state handling
+      expect(isOutpostProvince(null, { id: "prov-outpost", occupantRealmId: "player" })).toBe(false);
+    });
+
+    it("safely stubs gather expedition queries when Astra gather system is absent", () => {
+      const state = createMockState();
+      // No gathers on state
+      expect(listGathersPresentation(state)).toEqual([]);
+      expect(listGathersPresentation(null)).toEqual([]);
+
+      // When gathers array is present (future Astra merge compatibility)
+      (state as any).gathers = [
+        { id: "g1", fromId: "prov-home", toId: "prov-wood", progress: 0.4 },
+      ];
+      expect(listGathersPresentation(state)).toHaveLength(1);
+      expect(listGathersPresentation(state)[0].id).toBe("g1");
+    });
+  });
 });
+
 
