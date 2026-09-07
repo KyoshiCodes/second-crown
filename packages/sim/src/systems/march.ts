@@ -141,16 +141,40 @@ export function tryMarch(state: GameState, destId: string): boolean {
   let kind: March["kind"] = "node";
   if (dest.node === "camp") kind = "camp";
   if (dest.node === "hold") kind = "hold";
-  const march: March = {
-    id: `m_${state.meta.tick}_${destId}_${mine.length}`,
-    realmId: "player",
-    fromId: home.id,
-    toId: dest.id,
-    arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
-    kind,
-    levy,
-  };
-  saveMarches(state, [...marches(state), march]);
+  saveMarches(state, [
+    ...marches(state),
+    {
+      id: `m_${state.meta.tick}_${destId}_${mine.length}`,
+      realmId: "player",
+      fromId: home.id,
+      toId: dest.id,
+      arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
+      kind,
+      levy,
+    },
+  ]);
+  return true;
+}
+
+export function tryNpcMarch(state: GameState, realmId: string, destId: string): boolean {
+  if (realmId === "player") return false;
+  if (marches(state).some((m) => m.realmId === realmId)) return false;
+  const dest = getProvince(state, destId);
+  const from = state.board.provinces.find((p) => p.occupantRealmId === realmId && p.node === "hold");
+  if (!dest || !from) return false;
+  const dist = Math.max(1, manhattan(from, dest));
+  saveMarches(state, [
+    ...marches(state),
+    {
+      id: `m_${realmId}_${state.meta.tick}`,
+      realmId,
+      fromId: from.id,
+      toId: dest.id,
+      arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
+      kind: dest.node === "hold" ? "hold" : dest.node === "camp" ? "camp" : "node",
+      levy: 8,
+    },
+  ]);
   return true;
 }
 
@@ -168,18 +192,34 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
   const levy = march.levy ?? 0;
   const pwr = levy * (getUnitType("militia")?.power ?? 1);
   if (!dest) {
-    returnLevy(state, levy);
+    if (march.realmId === "player") returnLevy(state, levy);
     return "March lost.";
+  }
+  if (march.realmId !== "player" && dest.id === state.board.homeProvinceId) {
+    const def = siegeDefense(state, "player");
+    applySiegeBlow(state, pwr + realmPower(state, march.realmId), def);
+    const war = {
+      id: `w_siege_${state.meta.tick}`,
+      attackerRealmId: march.realmId,
+      defenderRealmId: "player",
+      startedTick: state.meta.tick,
+      status: "active" as const,
+    };
+    state.wars.push(war);
+    const result = resolveBattle(state, war, rng);
+    return result.winnerId === "player" ? "Siege broken." : "The hold is breached.";
   }
   if (march.kind === "camp" || dest.node === "camp") {
     if (pwr >= 4) {
       scheduleRespawn(state, dest);
       dest.node = "none";
-      state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(20));
-      returnLevy(state, levy);
+      if (march.realmId === "player") {
+        state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(20));
+        returnLevy(state, levy);
+      }
       return "Camp broken. +20 wood.";
     }
-    returnLevy(state, Math.max(0, levy - 2));
+    if (march.realmId === "player") returnLevy(state, Math.max(0, levy - 2));
     return "The camp holds. Two did not return.";
   }
   if (march.kind === "node") {
@@ -188,35 +228,39 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       scheduleRespawn(state, dest);
       dest.node = "none";
     }
-    returnLevy(state, levy);
-    if (node === "woodcut") {
-      state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(12));
-      return "Woodcutting party returns +12 wood.";
-    }
-    if (node === "quarry") {
-      state.resources.stone = toDecimalString(D(state.resources.stone ?? "0").add(12));
-      return "Quarry party returns +12 stone.";
-    }
-    if (node === "field") {
-      state.resources.food = toDecimalString(D(state.resources.food ?? "0").add(12));
-      return "Foragers return +12 food.";
+    if (march.realmId === "player") {
+      returnLevy(state, levy);
+      if (node === "woodcut") {
+        state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(12));
+        return "Woodcutting party returns +12 wood.";
+      }
+      if (node === "quarry") {
+        state.resources.stone = toDecimalString(D(state.resources.stone ?? "0").add(12));
+        return "Quarry party returns +12 stone.";
+      }
+      if (node === "field") {
+        state.resources.food = toDecimalString(D(state.resources.food ?? "0").add(12));
+        return "Foragers return +12 food.";
+      }
     }
     return "Empty province.";
   }
-  if (dest.occupantRealmId && dest.occupantRealmId !== "player") {
+  if (dest.occupantRealmId && dest.occupantRealmId !== march.realmId) {
     const war = {
       id: `w_march_${state.meta.tick}`,
-      attackerRealmId: "player",
+      attackerRealmId: march.realmId,
       defenderRealmId: dest.occupantRealmId,
       startedTick: state.meta.tick,
       status: "active" as const,
     };
     state.wars.push(war);
     const result = resolveBattle(state, war, rng);
-    returnLevy(state, result.winnerId === "player" ? levy : Math.max(0, Math.floor(levy * 0.4)));
-    return result.winnerId === "player" ? "Hold stormed." : "The hold stands.";
+    if (march.realmId === "player") {
+      returnLevy(state, result.winnerId === "player" ? levy : Math.max(0, Math.floor(levy * 0.4)));
+    }
+    return result.winnerId === march.realmId ? "Hold stormed." : "The hold stands.";
   }
-  returnLevy(state, levy);
+  if (march.realmId === "player") returnLevy(state, levy);
   return "March arrived.";
 }
 
