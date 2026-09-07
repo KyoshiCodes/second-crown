@@ -5,13 +5,14 @@ import { applyLabor, laborPerTick, maxMarches } from "./labor.js";
 import { tryMarch, listMarches } from "./march.js";
 
 describe("W9 labor and companies", () => {
-  it("farmers add food each tick", () => {
+  it("farmers add a drip of food each tick", () => {
     const s = createGameState({ seed: 1 });
+    s.resources.food = "0";
     const c = createCitizen(s, "player");
     assignJob(s, c.id, "farmer");
-    expect(laborPerTick(s).food).toBe(1);
+    expect(laborPerTick(s).food).toBeCloseTo(0.1);
     applyLabor(s, 10);
-    expect(Number(s.resources.food)).toBe(10);
+    expect(Number(s.resources.food)).toBeCloseTo(1);
   });
 
   it("a barracks opens a second march slot", () => {

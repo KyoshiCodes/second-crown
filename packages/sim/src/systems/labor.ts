@@ -3,12 +3,15 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { countCitizensByJob } from "./citizens.js";
 import { countBuilding } from "../content/buildings.js";
 
+const LABOR_PER_TICK = 0.1;
+const GOLD_LABOR = 0.03;
+
 export function laborPerTick(state: GameState): Record<string, number> {
   return {
-    food: countCitizensByJob(state, "player", "farmer"),
-    wood: countCitizensByJob(state, "player", "woodcutter"),
-    stone: countCitizensByJob(state, "player", "miner"),
-    gold: countCitizensByJob(state, "player", "merchant"),
+    food: countCitizensByJob(state, "player", "farmer") * LABOR_PER_TICK,
+    wood: countCitizensByJob(state, "player", "woodcutter") * LABOR_PER_TICK,
+    stone: countCitizensByJob(state, "player", "miner") * LABOR_PER_TICK,
+    gold: countCitizensByJob(state, "player", "merchant") * GOLD_LABOR,
   };
 }
 
