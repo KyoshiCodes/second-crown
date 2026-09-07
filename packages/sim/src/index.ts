@@ -164,7 +164,7 @@ export {
 
 export { laborPerTick, applyLabor, maxMarches } from "./systems/labor.js";
 export { housingCap, population, canHouse } from "./systems/housing.js";
-export { isProvinceSeen, tryScoutProvince, revealProvince, ensureFog } from "./systems/fog.js";
+export { isProvinceSeen, tryScoutProvince, revealProvince, ensureFog, visionRange, scoutCost } from "./systems/fog.js";
 
 export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
 
