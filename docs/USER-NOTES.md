@@ -1,8 +1,40 @@
 # USER-NOTES
 
-Last updated: 2026-09-07 | Version: playtest-0.13 (Claude Pace: Smaller Raids, Academy, Storehouses)
+Last updated: 2026-09-07 | Version: playtest-0.14 (Gemini Crowns: NPC Hold Tokens, Culture Tints & World Dispatches)
 
 Play: `https://129.153.17.72.sslip.io/`
+
+## Distinct NPC Hold Tokens, Culture Tints, and World Log Visibility
+
+The world map and your realm's culture now come alive with distinct visual identities and live world events:
+
+1. **Every NPC Hold is a Unique Token on the Board**:
+   - In the tabletop regional view (`zoom <= 0.70`), every rival and neutral hold is no longer a plain node — each displays a bespoke stone keep token with its realm's authentic heraldic colors, stone bartizans, and animated fluttering banners:
+     - **Iron March**: Menacing crimson and blackened iron fortress with spiked battlements.
+     - **Silk Road**: Imperial amethyst purple and radiant gold banners.
+     - **Ash Kingdom**: Smoldering obsidian charcoal walls with fiery orange flags.
+     - **Veil Sanctuary**: Deep mystic teal and luminous cyan pennants.
+     - **Glass Shore**: Azure seafoam keep with gleaming silver-white crest.
+     - **Frost Reaches**: Glacial arctic navy walls with frost ice banners.
+     - **Tide Clans**: Oceanic aqua keep with copper-gold pennant.
+     - **Ember Wastes**: Scorched rust and ember flame standard.
+     - **Bronze Horn**: Antique burnished bronze and deep gold banner.
+   - Claimed outposts across the board feature matching realm flag markers.
+
+2. **Player Culture Visual Tints**:
+   - Picking your Crown style in the Crown tab now transforms the clothing, timber, and stone across your hold and army:
+     - **Crown Marches (`western`)**: Preserves the classic royal blue, warm limestone, and golden crests.
+     - **Cedar Kin (`cedar`)**: Evergreen forest tabards, warm cedar wood trim, and riverstone granite.
+     - **Sand Banner (`sand`)**: Desert gold tabards, sunbleached acacia timber, and golden sandstone.
+     - **Wind Host (`steppe`)**: Deep storm cobalt tabards, pale steppe birch wood, and dark slate.
+     - **Tide Clans (`islands`)**: Deep sea teal tabards, weathered driftwood timber, and coastal stone.
+   - Your isometric Keep building, wandering villagers, miners, and guards on the hold all wear your chosen culture's livery.
+   - Unit icons across the Army roster, Raised Companies, and War living strip instantly adopt your culture's tabard and gear colors.
+
+3. **World Dispatches & Live Crown Chronicle**:
+   - **World Tab Chronicle**: The World tab now opens with a dedicated, live "Crown Chronicle & World Dispatches" deck. Filter events by category (`Claims 🚩`, `Trades ⚖️`, `Wars ⚔️`, `Musters 🛡️`), check precise ticks, and see the latest world developments at a glance.
+   - **Board Hold Overview**: Directly cross-reference holds on the board with realm crest color badges, occupant names, and terrain coordinates.
+   - **Live Dock Ticker**: A live world ticker (`📜 WORLD: ...`) in the top dock bar shows recent claims, trade caravans, and war declarations without needing to leave your current tab or open DevTools.
 
 ## Slower Raid Hauls, an Academy, and Storehouses
 

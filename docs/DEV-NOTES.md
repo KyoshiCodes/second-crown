@@ -7,6 +7,34 @@ Astra exports tryGather(state, destId, force), tryRecallGather(state, id), listG
 
 Last updated: 2026-09-07
 
+## Presentation Architecture: NPC Hold Tokens, Culture Tints & World Log (Gemini Crowns, `bakeoff/gemini-crowns`)
+
+- **NPC Hold Tokens on Board (`packages/render`)**:
+  - `realmTokenPalette(realmId)`: Pure exported mapping function in `packages/render/src/index.ts`. Converts realm ID into heraldic fill, accent, border, and banner colors matching the realm flavor. Supports `rival`, `k_silk`, `k_ash`, `k_veil`, `k_glass`, `k_frost`, `k_tide`, `k_ember`, `k_bronze`, plus deterministic hash fallback for custom/future realms.
+  - `isNpcHoldProvince(province)`: Pure helper exported to determine if a province is a non-player hold.
+  - `paintBoardProvinces`: In board mode (`zoom <= 0.70`), draws distinct keep tokens for all NPC holds:
+    - Ashlar masonry walls, corner bartizans, stone plinth, rivets, animated swallowtail realm banner, and circular heraldic seal.
+    - Spiked battlements preserved for Iron March (`rival`).
+    - Claimed non-hold nodes render a realm claim flag.
+    - Highlight selection rings in `paintBoardHighlight` use the occupant's `accentColor`.
+- **Culture Visual Tints (`packages/render` & `packages/app`)**:
+  - Pure color helpers in `packages/render`: `culturePalette(cultureId)`, `parseHexColor`, `blendDark`, `blendLight`.
+  - Crown Marches (`western`): Retains 100% of original art.
+  - Non-western cultures (`cedar`, `sand`, `steppe`, `islands`):
+    - `drawIsometricBuilding`: In `"keep"`, stone walls, bartizans, plinth, lintels, heraldic shield, and royal banner are tinted by the culture palette.
+    - `drawWalkerFrame`: Villager, miner, and guard tunics, tool handles, spear shafts, and guard pennants tinted by the culture palette.
+    - `packages/app/src/UnitIcon.tsx`: `CultureContext` created and exported. `UnitIconProps` accepts optional `culture?: string`, defaulting to context or `"western"`. Tabards/tunics, timber shafts/bows, and shields/armor are tinted for all 8 unit classes.
+    - `packages/app/src/AppShell.tsx`: Wraps tabs in `<CultureContext.Provider value={state ? playerCultureId(state) : "western"}>`. Re-tints Army rosters dynamically upon culture selection in `CrownTab`.
+    - `packages/app/src/WarLivingStrip.tsx`: Passes player culture to player `UnitIcon`s and opponent realm culture (`cultureOfRealm(state, enemyRealmId)`) to opponent `UnitIcon`s.
+- **World Log Visibility (`packages/app`)**:
+  - `packages/app/src/tabs/WorldTab.tsx`: Redesigned with a prominent "Crown Chronicle & World Dispatches" deck at the top. Provides category filtering (`All`, `Claims 🚩`, `Trades ⚖️`, `Wars ⚔️`, `Musters 🛡️`), event badges, monospace tick badges, newest entry highlight, and scrollable container. "Holds on the Board" card displays realm crest color swatches matching board tokens.
+  - `packages/app/src/game/useGameEngine.ts` & `packages/app/src/ChromeDock.tsx`: `useGameEngine.ts` dispatches `sc-world-dispatch` custom event on window when `state.flags.last_world` updates. `ChromeDock.tsx` listens and renders a live ticker (`📜 WORLD: ...`) in the dock header bar.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` is 100% empty.
+  - 117 `@second-crown/sim` tests pass.
+  - 24 `@second-crown/render` tests pass (including 6 new unit tests for `realmTokenPalette`, `isNpcHoldProvince`, and `culturePalette`).
+  - `npm run build -w @second-crown/app` clean build.
+
 ## Hold Economy: Raid Cut, Academy, Storehouses (Claude Pace Lane, `packages/sim`)
 
 - **Raid haul cut (`packages/sim/src/systems/march.ts`)**: `resolveMarchArrival`'s camp-break payout is now `addCapped(state, "wood", 6)` (was a flat `+20`); the woodcut/quarry/field node payout is now `addCapped(state, res, 5)` (was a flat `+12`). Result strings ("Camp broken... +6 wood.", "...returns +5 wood/stone/food. Flag planted.") match the new amounts. `plantOutpost(state, dest)` is still called on every player win, unchanged.

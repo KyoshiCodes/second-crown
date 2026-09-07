@@ -16,6 +16,7 @@ export function ChromeDock() {
   });
   const [holiday, setHoliday] = React.useState(getHolidayOverride);
   const [band, setBand] = React.useState<"hold" | "board">("hold");
+  const [lastWorld, setLastWorld] = React.useState<string>("");
 
   React.useEffect(() => {
     const onBand = (ev: Event) => {
@@ -24,8 +25,18 @@ export function ChromeDock() {
         setBand(detail);
       }
     };
+    const onWorldDispatch = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail;
+      if (detail && typeof detail.text === "string") {
+        setLastWorld(detail.text);
+      }
+    };
     window.addEventListener("sc-camera-band-change", onBand);
-    return () => window.removeEventListener("sc-camera-band-change", onBand);
+    window.addEventListener("sc-world-dispatch", onWorldDispatch);
+    return () => {
+      window.removeEventListener("sc-camera-band-change", onBand);
+      window.removeEventListener("sc-world-dispatch", onWorldDispatch);
+    };
   }, []);
 
   function toggle() {
@@ -111,6 +122,32 @@ export function ChromeDock() {
             <option value="none">Off</option>
           </select>
         </label>
+        {lastWorld ? (
+          <div
+            title={`Latest World Dispatch: ${lastWorld}`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              background: "rgba(30, 24, 18, 0.9)",
+              border: "1px solid #78531e",
+              borderRadius: 4,
+              padding: "2px 8px",
+              fontSize: 12,
+              color: "#fef08a",
+              maxWidth: 380,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span style={{ fontSize: 13 }} aria-hidden="true">📜</span>
+            <span style={{ color: "#d4a72c", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px" }}>World:</span>
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {lastWorld}
+            </span>
+          </div>
+        ) : null}
       </div>
       {open ? (
         <div style={{ maxWidth: 760, margin: "0 auto", padding: "0 12px 8px" }}>

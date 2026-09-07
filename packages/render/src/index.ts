@@ -285,6 +285,235 @@ export function unitPalette(typeId: string): UnitVisualPalette {
   }
 }
 
+export interface RealmTokenPalette {
+  realmId: string;
+  name: string;
+  glyph: string;
+  borderColor: number;
+  rimColor: number;
+  studColor: number;
+  keepWallColor: number;
+  keepWallDark: number;
+  battlementColor: number;
+  pennantColor: number;
+  accentColor: number;
+  plaqueColor: number;
+  plaqueBorder: number;
+}
+
+export const REALM_TOKEN_PALETTES: Record<string, RealmTokenPalette> = {
+  rival: {
+    realmId: "rival",
+    name: "Iron March",
+    glyph: "⚔",
+    borderColor: 0x71717a,
+    rimColor: 0x2d3748,
+    studColor: 0xd1d5db,
+    keepWallColor: 0x3f3f46,
+    keepWallDark: 0x27272a,
+    battlementColor: 0x3f3f46,
+    pennantColor: 0x991b1b,
+    accentColor: 0xef4444,
+    plaqueColor: 0x18181b,
+    plaqueBorder: 0x71717a,
+  },
+  k_silk: {
+    realmId: "k_silk",
+    name: "Silk Coast",
+    glyph: "⚓",
+    borderColor: 0x1a5b66,
+    rimColor: 0xb8860b,
+    studColor: 0xfad961,
+    keepWallColor: 0x134e5a,
+    keepWallDark: 0x0e353c,
+    battlementColor: 0x247582,
+    pennantColor: 0x0f766e,
+    accentColor: 0xf1c40f,
+    plaqueColor: 0x0e353c,
+    plaqueBorder: 0xfad961,
+  },
+  k_ash: {
+    realmId: "k_ash",
+    name: "Ash Nomads",
+    glyph: "▲",
+    borderColor: 0x6b2c15,
+    rimColor: 0x4a2411,
+    studColor: 0xc98a58,
+    keepWallColor: 0x4a2411,
+    keepWallDark: 0x2b1007,
+    battlementColor: 0x7c2d12,
+    pennantColor: 0xc2410c,
+    accentColor: 0xe67e22,
+    plaqueColor: 0x2b1007,
+    plaqueBorder: 0xc98a58,
+  },
+  k_veil: {
+    realmId: "k_veil",
+    name: "Veil Theocracy",
+    glyph: "✦",
+    borderColor: 0x3d2b63,
+    rimColor: 0x64748b,
+    studColor: 0xe2e8f0,
+    keepWallColor: 0x312350,
+    keepWallDark: 0x1f1435,
+    battlementColor: 0x4c1d95,
+    pennantColor: 0x7c3aed,
+    accentColor: 0xa78bfa,
+    plaqueColor: 0x1f1435,
+    plaqueBorder: 0xa78bfa,
+  },
+  k_glass: {
+    realmId: "k_glass",
+    name: "Glass Cities",
+    glyph: "◇",
+    borderColor: 0x1e4e61,
+    rimColor: 0x0284c7,
+    studColor: 0xbae6fd,
+    keepWallColor: 0x153846,
+    keepWallDark: 0x0c2833,
+    battlementColor: 0x0284c7,
+    pennantColor: 0x0284c7,
+    accentColor: 0x06b6d4,
+    plaqueColor: 0x0c2833,
+    plaqueBorder: 0x38bdf8,
+  },
+  k_frost: {
+    realmId: "k_frost",
+    name: "Frost Holds",
+    glyph: "❄",
+    borderColor: 0x1c3d5a,
+    rimColor: 0x38bdf8,
+    studColor: 0xe0f2fe,
+    keepWallColor: 0x132a3e,
+    keepWallDark: 0x091c2b,
+    battlementColor: 0x0369a1,
+    pennantColor: 0x0284c7,
+    accentColor: 0x7dd3fc,
+    plaqueColor: 0x091c2b,
+    plaqueBorder: 0x7dd3fc,
+  },
+  k_tide: {
+    realmId: "k_tide",
+    name: "Tide Princes",
+    glyph: "≈",
+    borderColor: 0x0c4052,
+    rimColor: 0x0f766e,
+    studColor: 0x6ee7b7,
+    keepWallColor: 0x082e3b,
+    keepWallDark: 0x041e27,
+    battlementColor: 0x0d9488,
+    pennantColor: 0x0d9488,
+    accentColor: 0x2dd4bf,
+    plaqueColor: 0x041e27,
+    plaqueBorder: 0x2dd4bf,
+  },
+  k_ember: {
+    realmId: "k_ember",
+    name: "Ember Concord",
+    glyph: "☄",
+    borderColor: 0x5a180c,
+    rimColor: 0xc2410c,
+    studColor: 0xfdba74,
+    keepWallColor: 0x3d1008,
+    keepWallDark: 0x2d0b05,
+    battlementColor: 0x9a3412,
+    pennantColor: 0xea580c,
+    accentColor: 0xf97316,
+    plaqueColor: 0x2d0b05,
+    plaqueBorder: 0xf97316,
+  },
+  k_bronze: {
+    realmId: "k_bronze",
+    name: "Bronze League",
+    glyph: "Ω",
+    borderColor: 0x4a3512,
+    rimColor: 0x92400e,
+    studColor: 0xfde68a,
+    keepWallColor: 0x33240c,
+    keepWallDark: 0x211604,
+    battlementColor: 0x78350f,
+    pennantColor: 0xd97706,
+    accentColor: 0xfbbf24,
+    plaqueColor: 0x211604,
+    plaqueBorder: 0xfbbf24,
+  },
+};
+
+export function realmTokenPalette(realmId: string): RealmTokenPalette {
+  if (REALM_TOKEN_PALETTES[realmId]) {
+    return REALM_TOKEN_PALETTES[realmId];
+  }
+  let hash = 0;
+  for (let i = 0; i < realmId.length; i++) {
+    hash = (hash * 31 + realmId.charCodeAt(i)) >>> 0;
+  }
+  const hues = [0xb91c1c, 0x1d4ed8, 0x15803d, 0xb45309, 0x7c3aed, 0x0e7490, 0x475569];
+  const col = hues[hash % hues.length];
+  return {
+    realmId,
+    name: realmId,
+    glyph: "✦",
+    borderColor: col,
+    rimColor: 0xd4d4d8,
+    studColor: 0xfef08a,
+    keepWallColor: 0x3f3f46,
+    keepWallDark: 0x27272a,
+    battlementColor: col,
+    pennantColor: col,
+    accentColor: 0xfde047,
+    plaqueColor: 0x18181b,
+    plaqueBorder: col,
+  };
+}
+
+export interface CultureVisualPalette {
+  id: string;
+  tabard: number;
+  timber: number;
+  stone: number;
+  tabardHex: string;
+  timberHex: string;
+  stoneHex: string;
+}
+
+export function parseHexColor(hex: string): number {
+  return parseInt(hex.replace(/^#/, ""), 16);
+}
+
+export function blendDark(col: number, factor: number): number {
+  const r = Math.floor(((col >> 16) & 0xff) * factor);
+  const g = Math.floor(((col >> 8) & 0xff) * factor);
+  const b = Math.floor((col & 0xff) * factor);
+  return (r << 16) | (g << 8) | b;
+}
+
+export function blendLight(col: number, factor: number): number {
+  const r = Math.min(255, Math.floor(((col >> 16) & 0xff) * factor));
+  const g = Math.min(255, Math.floor(((col >> 8) & 0xff) * factor));
+  const b = Math.min(255, Math.floor((col & 0xff) * factor));
+  return (r << 16) | (g << 8) | b;
+}
+
+export function culturePalette(cultureId?: string): CultureVisualPalette {
+  const def = sim.getCulture ? sim.getCulture(cultureId) : null;
+  const tabard = def?.palette?.tabard ?? "#1e40af";
+  const timber = def?.palette?.timber ?? "#5c3818";
+  const stone = def?.palette?.stone ?? "#64748b";
+  return {
+    id: def?.id ?? (cultureId || "western"),
+    tabardHex: tabard,
+    timberHex: timber,
+    stoneHex: stone,
+    tabard: parseHexColor(tabard),
+    timber: parseHexColor(timber),
+    stone: parseHexColor(stone),
+  };
+}
+
+export function isNpcHoldProvince(p: { node?: string; occupantRealmId?: string | null }): boolean {
+  return Boolean(p.occupantRealmId && p.occupantRealmId !== "player" && p.node === "hold");
+}
+
 export interface RimFort {
   x: number;
   y: number;
@@ -1010,7 +1239,8 @@ function drawIsometricBuilding(
   visuals: ThemeVisuals,
   gx: number = 0,
   gy: number = 0,
-  rimNeighbors?: RimNeighbors
+  rimNeighbors?: RimNeighbors,
+  cultureId?: string
 ): void {
   const a = complete ? 1.0 : 0.45;
   g.clear();
@@ -1994,20 +2224,33 @@ function drawIsometricBuilding(
     case "keep": {
       // Taller Stone Hold (Seat of the Realm) + Corner Bartizans + Crenellations + Portcullis + Royal Banner
       const h = 30 + heightBoost;
+      const cult = culturePalette(cultureId);
+      const isDefault = cult.id === "western";
+
+      const stoneLight = isDefault ? 0x64748b : cult.stone;
+      const stoneDark = isDefault ? 0x475569 : blendDark(cult.stone, 0.75);
+      const stonePlinth = isDefault ? 0x334155 : blendDark(cult.stone, 0.58);
+      const bartizanLight = isDefault ? 0x71717a : blendLight(cult.stone, 1.12);
+      const bartizanDark = isDefault ? 0x52525b : blendDark(cult.stone, 0.85);
+      const lintelColor = isDefault ? 0xd4a359 : cult.timber;
+      const bannerTabard = isDefault ? 0xb91c1c : cult.tabard;
+      const bannerGold = isDefault ? 0xfacc15 : blendLight(cult.tabard, 1.35);
+      const shieldTabard = isDefault ? 0xdc2626 : cult.tabard;
+      const shieldGold = isDefault ? 0xfacc15 : blendLight(cult.tabard, 1.35);
 
       // 1. Foundation Plinth / Flared Talus
       g.poly([-17, 1, 0, 9.5, 0, 5, -17, -3.5]);
-      g.fill({ color: 0x475569, alpha: a });
+      g.fill({ color: stoneDark, alpha: a });
       g.poly([0, 9.5, 17, 1, 17, -3.5, 0, 5]);
-      g.fill({ color: 0x334155, alpha: a });
+      g.fill({ color: stonePlinth, alpha: a });
 
       // 2. Main Stone Hold Tower Walls (Dressed Ashlar Granite)
       // Left Facet (Light face)
       g.poly([-15, -2, 0, 5.5, 0, 5.5 - h, -15, -2 - h]);
-      g.fill({ color: 0x64748b, alpha: a });
+      g.fill({ color: stoneLight, alpha: a });
       // Right Facet (Shaded face)
       g.poly([0, 5.5, 15, -2, 15, -2 - h, 0, 5.5 - h]);
-      g.fill({ color: 0x475569, alpha: a });
+      g.fill({ color: stoneDark, alpha: a });
 
       // Ashlar Masonry Course Lines
       for (const fraction of [0.22, 0.44, 0.66, 0.85]) {
@@ -2015,49 +2258,49 @@ function drawIsometricBuilding(
         g.moveTo(-15, -2 - h * fraction);
         g.lineTo(0, my);
         g.lineTo(15, -2 - h * fraction);
-        g.stroke({ width: 0.8, color: 0x334155, alpha: a * 0.65 });
+        g.stroke({ width: 0.8, color: stonePlinth, alpha: a * 0.65 });
       }
 
       // 3. Flanking Corner Bartizans (Stone Watch Turrets)
       // Left Bartizan
       g.poly([-17, -h + 2, -12, -h + 4.5, -12, -h - 5, -17, -h - 7.5]);
-      g.fill({ color: 0x71717a, alpha: a });
+      g.fill({ color: bartizanLight, alpha: a });
       g.poly([-12, -h + 4.5, -9, -h + 3, -9, -h - 6.5, -12, -h - 5]);
-      g.fill({ color: 0x52525b, alpha: a });
+      g.fill({ color: bartizanDark, alpha: a });
       g.poly([-17, -h - 7.5, -12, -h - 5, -9, -h - 6.5, -14, -h - 11]);
-      g.fill({ color: 0x334155, alpha: a }); // Turret roof cap
+      g.fill({ color: stonePlinth, alpha: a }); // Turret roof cap
 
       // Right Bartizan
       g.poly([9, -h + 3, 12, -h + 4.5, 12, -h - 5, 9, -h - 6.5]);
-      g.fill({ color: 0x52525b, alpha: a });
+      g.fill({ color: bartizanDark, alpha: a });
       g.poly([12, -h + 4.5, 17, -h + 2, 17, -h - 7.5, 12, -h - 5]);
-      g.fill({ color: 0x3f3f46, alpha: a });
+      g.fill({ color: stonePlinth, alpha: a });
       g.poly([9, -h - 6.5, 12, -h - 5, 17, -h - 7.5, 14, -h - 11]);
-      g.fill({ color: 0x1e293b, alpha: a }); // Turret roof cap
+      g.fill({ color: stonePlinth, alpha: a }); // Turret roof cap
 
       // 4. Machicolations & Parapet Battlements
       // Machicolation corbel ledge
       g.poly([-16, -h + 1, 0, 6.5 - h, 16, -h + 1, 0, -h - 7]);
-      g.fill({ color: 0x64748b, alpha: a });
-      g.stroke({ width: 1, color: 0x334155, alpha: a });
+      g.fill({ color: stoneLight, alpha: a });
+      g.stroke({ width: 1, color: stonePlinth, alpha: a });
 
       // Parapet walk surface
       g.poly([-14, -h - 1, 0, 4.5 - h, 14, -h - 1, 0, -h - 6.5]);
-      g.fill({ color: 0x1e293b, alpha: a });
+      g.fill({ color: stonePlinth, alpha: a });
 
       // Left battlements (crenellations)
       for (const mx of [-14, -9, -4]) {
         const my = -h + (mx + 14) * 0.45;
         g.rect(mx, my - 4, 3.5, 4);
-        g.fill({ color: 0x94a3b8, alpha: a });
-        g.stroke({ width: 0.6, color: 0x475569, alpha: a });
+        g.fill({ color: bartizanLight, alpha: a });
+        g.stroke({ width: 0.6, color: stoneDark, alpha: a });
       }
       // Right battlements
       for (const mx of [1, 6, 11]) {
         const my = -h + (14 - mx) * 0.45;
         g.rect(mx, my - 4, 3.5, 4);
-        g.fill({ color: 0x64748b, alpha: a });
-        g.stroke({ width: 0.6, color: 0x334155, alpha: a });
+        g.fill({ color: stoneLight, alpha: a });
+        g.stroke({ width: 0.6, color: stonePlinth, alpha: a });
       }
 
       // 5. Arched Gateway & Iron Portcullis
@@ -2070,9 +2313,9 @@ function drawIsometricBuilding(
       g.stroke({ width: 1, color: 0x94a3b8, alpha: a * 0.8 });
       g.moveTo(-4, 0); g.lineTo(4, -3.5);
       g.stroke({ width: 1, color: 0x94a3b8, alpha: a * 0.8 });
-      // Arched stone lintel
+      // Arched stone lintel / timber trim
       g.moveTo(-4, -2); g.lineTo(4, -5.5);
-      g.stroke({ width: 1.8, color: 0xd4a359, alpha: a });
+      g.stroke({ width: 1.8, color: lintelColor, alpha: a });
 
       // 6. Defensive Arrow Slits & Warm Royal Window
       // Arrow slits
@@ -2092,9 +2335,9 @@ function drawIsometricBuilding(
 
       // 7. Royal Heraldic Shield above the gate
       g.poly([0, -5, 3, -3.5, 2.5, 0, 0, 2.5, -2.5, 0, -3, -3.5]);
-      g.fill({ color: 0xdc2626, alpha: a });
+      g.fill({ color: shieldTabard, alpha: a });
       g.poly([0, -5, 3, -3.5, 2.5, 0, 0, 2.5]);
-      g.fill({ color: 0xfacc15, alpha: a });
+      g.fill({ color: shieldGold, alpha: a });
       g.stroke({ width: 0.6, color: 0x78350f, alpha: a });
 
       // 8. Courtyard Details: Stone Steps & Iron Brazier
@@ -2113,14 +2356,14 @@ function drawIsometricBuilding(
       // 9. Soaring Royal Standard
       const bannerWave = Math.sin(phase * 3.5) * 3;
       g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
-      g.stroke({ width: 1.8, color: 0xd4a359, alpha: a });
+      g.stroke({ width: 1.8, color: lintelColor, alpha: a });
       g.circle(0, -h - 19, 1.8);
       g.fill({ color: 0xfacc15, alpha: a });
-      // Royal crimson & gold standard
+      // Royal standard (tabard & accent)
       g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
-      g.fill({ color: 0xb91c1c, alpha: a });
+      g.fill({ color: bannerTabard, alpha: a });
       g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
-      g.fill({ color: 0xfacc15, alpha: a });
+      g.fill({ color: bannerGold, alpha: a });
       break;
     }
 
@@ -2504,7 +2747,13 @@ function createWalker(id: number, gx: number, gy: number): Walker {
  * Frame 1: Left Step (left leg forward, right leg back, bob 1px)
  * Frame 2: Right Step (right leg forward, left leg back, bob 1px)
  */
-function drawWalkerFrame(g: Graphics, role: Walker["role"], facing: number, frame: 0 | 1 | 2): void {
+function drawWalkerFrame(
+  g: Graphics,
+  role: Walker["role"],
+  facing: number,
+  frame: 0 | 1 | 2,
+  cultureId?: string
+): void {
   g.clear();
 
   // Ground contact shadow
@@ -2522,14 +2771,20 @@ function drawWalkerFrame(g: Graphics, role: Walker["role"], facing: number, fram
   g.rect(legR, -3 - bob, 2, 4);
   g.fill({ color: 0x18181b });
 
-  // Tunic & clothing colors by role
+  const cult = culturePalette(cultureId);
+  const isDefaultCulture = cult.id === "western";
+
+  // Tunic & clothing colors by role (tinted by culture when not default western)
   let tunicColor = 0x854d0e;
   let toolColor: number | null = null;
-  if (role === "villager") tunicColor = 0xb45309;
+  const toolHandleColor = isDefaultCulture ? 0x78350f : cult.timber;
+  const guardPennant = isDefaultCulture ? 0xdc2626 : cult.tabard;
+
+  if (role === "villager") tunicColor = isDefaultCulture ? 0xb45309 : cult.tabard;
   else if (role === "woodcutter") { tunicColor = 0x15803d; toolColor = 0xd1d5db; }
-  else if (role === "miner") { tunicColor = 0x52525b; toolColor = 0x71717a; }
+  else if (role === "miner") { tunicColor = isDefaultCulture ? 0x52525b : cult.stone; toolColor = 0x71717a; }
   else if (role === "merchant") tunicColor = 0xb91c1c;
-  else if (role === "guard") tunicColor = 0x1e3a8a;
+  else if (role === "guard") tunicColor = isDefaultCulture ? 0x1e3a8a : cult.tabard;
   else if (role === "scholar") tunicColor = 0x6b21a8;
 
   // Torso / Tunic
@@ -2543,7 +2798,7 @@ function drawWalkerFrame(g: Graphics, role: Walker["role"], facing: number, fram
   // Headwear / Hair
   if (role === "guard") {
     g.rect(-3, -14 - bob, 6, 3);
-    g.fill({ color: 0x94a3b8 }); // Steel helmet
+    g.fill({ color: isDefaultCulture ? 0x94a3b8 : cult.stone }); // Helmet
   } else if (role === "scholar") {
     g.rect(-3, -13 - bob, 6, 2.5);
     g.fill({ color: 0x581c87 }); // Monk cowl
@@ -2557,19 +2812,19 @@ function drawWalkerFrame(g: Graphics, role: Walker["role"], facing: number, fram
   if (toolColor) {
     // Woodsman axe / miner pickaxe
     g.rect(facing * 3, -9 - bob + armSwing, 1.5, 6);
-    g.fill({ color: 0x78350f });
+    g.fill({ color: toolHandleColor });
     g.rect(facing * 3 - 1, -10 - bob + armSwing, 3.5, 2);
     g.fill({ color: toolColor });
   } else if (role === "guard") {
     // Spear with waving pennant
     g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -17 - bob + armSwing);
-    g.stroke({ width: 1.2, color: 0xd4a359 });
+    g.stroke({ width: 1.2, color: toolHandleColor });
     g.poly([
       facing * 3, -17 - bob + armSwing,
       facing * 3 + facing * 4, -15 - bob + armSwing,
       facing * 3, -13 - bob + armSwing,
     ]);
-    g.fill({ color: 0xdc2626 });
+    g.fill({ color: guardPennant });
   } else if (role === "villager") {
     // Wicker bread basket
     g.rect(facing * 3 - 1, -7 - bob + armSwing, 3, 3);
@@ -3215,6 +3470,10 @@ function paintBoardProvinces(g: Graphics, state: GameState, phase: number): void
     // 6. Special Realm Occupant Token Overlays
     if (p.occupantRealmId === "player") {
       const isHome = p.id === state.board.homeProvinceId;
+      const cult = culturePalette(sim.playerCultureId ? sim.playerCultureId(state) : undefined);
+      const playerTabardCol = cult.id === "western" ? 0x1e40af : cult.tabard;
+      const playerHomePlaque = cult.id === "western" ? 0x7f1d1d : cult.tabard;
+
       if (isHome) {
         // Player Home Hold: Gilded Royal Frame with corner studs & crown
         g.rect(b.x, b.y, b.w, b.h);
@@ -3240,9 +3499,9 @@ function paintBoardProvinces(g: Graphics, state: GameState, phase: number): void
         ]);
         g.fill({ color: 0xfacc15 });
 
-        // Bottom banner: royal crimson & gold plaque
+        // Bottom banner: royal plaque (tinted by culture tabard)
         g.rect(b.x + 7, b.y + b.h - 10, b.w - 14, 7);
-        g.fill({ color: 0x7f1d1d });
+        g.fill({ color: playerHomePlaque });
         g.stroke({ width: 1, color: 0xfacc15 });
 
         // Animated golden halo pulse
@@ -3283,7 +3542,7 @@ function paintBoardProvinces(g: Graphics, state: GameState, phase: number): void
           cx + 10 + flagWave, cy - 4,
           cx, cy - 4,
         ]);
-        g.fill({ color: 0x1e40af });
+        g.fill({ color: playerTabardCol });
 
         // Golden heraldic insignia on the flag
         g.poly([
@@ -3301,35 +3560,91 @@ function paintBoardProvinces(g: Graphics, state: GameState, phase: number): void
 
         // Bottom Outpost plaque
         g.rect(b.x + 9, b.y + b.h - 9, b.w - 18, 6);
-        g.fill({ color: 0x1e3a8a });
+        g.fill({ color: playerHomePlaque });
         g.stroke({ width: 0.8, color: 0xfacc15 });
         g.circle(cx, b.y + b.h - 6, 1.1); g.fill({ color: 0xfde047 });
       }
-    } else if (p.occupantRealmId === "rival") {
-      // Iron March / Rival Hold: Spiked Blackened Iron Frame
-      g.rect(b.x, b.y, b.w, b.h);
-      g.stroke({ width: 2, color: 0x71717a });
+    } else if (p.occupantRealmId) {
+      const pal = realmTokenPalette(p.occupantRealmId);
+      if (p.node === "hold") {
+        // Distinct NPC Hold Token for every NPC realm
+        g.rect(b.x, b.y, b.w, b.h);
+        g.stroke({ width: 2, color: pal.borderColor });
 
-      // 4 Iron Rivets
-      g.circle(b.x + 3.5, b.y + 3.5, 1.5); g.fill({ color: 0xd1d5db });
-      g.circle(b.x + b.w - 3.5, b.y + 3.5, 1.5); g.fill({ color: 0xd1d5db });
-      g.circle(b.x + 3.5, b.y + b.h - 3.5, 1.5); g.fill({ color: 0xd1d5db });
-      g.circle(b.x + b.w - 3.5, b.y + b.h - 3.5, 1.5); g.fill({ color: 0xd1d5db });
+        g.rect(b.x + 1.5, b.y + 1.5, b.w - 3, b.h - 3);
+        g.stroke({ width: 0.8, color: pal.rimColor, alpha: 0.8 });
 
-      // Spiked keep battlements
-      g.poly([cx - 6, cy - 7, cx - 4, cy - 12, cx - 2, cy - 7]);
-      g.fill({ color: 0x3f3f46 });
-      g.poly([cx + 2, cy - 7, cx + 4, cy - 12, cx + 6, cy - 7]);
-      g.fill({ color: 0x3f3f46 });
+        // 4 Corner Rivets / Studs
+        g.circle(b.x + 3.5, b.y + 3.5, 1.5); g.fill({ color: pal.studColor });
+        g.circle(b.x + b.w - 3.5, b.y + 3.5, 1.5); g.fill({ color: pal.studColor });
+        g.circle(b.x + 3.5, b.y + b.h - 3.5, 1.5); g.fill({ color: pal.studColor });
+        g.circle(b.x + b.w - 3.5, b.y + b.h - 3.5, 1.5); g.fill({ color: pal.studColor });
 
-      // Blood red pennant
-      g.poly([cx, cy - 7, cx + 6, cy - 11, cx, cy - 9]);
-      g.fill({ color: 0x991b1b });
+        if (p.occupantRealmId === "rival") {
+          // Iron March spiked keep battlements
+          g.poly([cx - 6, cy - 7, cx - 4, cy - 12, cx - 2, cy - 7]);
+          g.fill({ color: pal.battlementColor });
+          g.poly([cx + 2, cy - 7, cx + 4, cy - 12, cx + 6, cy - 7]);
+          g.fill({ color: pal.battlementColor });
+        } else {
+          // Distinct fortified keep tower silhouette with twin bartizans
+          g.poly([cx - 8, cy - 6, cx - 8, cy - 12, cx - 5, cy - 12, cx - 5, cy - 6]);
+          g.fill({ color: pal.battlementColor });
+          g.poly([cx + 5, cy - 6, cx + 5, cy - 12, cx + 8, cy - 12, cx + 8, cy - 6]);
+          g.fill({ color: pal.battlementColor });
+          g.rect(cx - 5, cy - 9, 10, 3);
+          g.fill({ color: pal.keepWallColor });
+        }
 
-      // Bottom banner: dark steel plaque
-      g.rect(b.x + 7, b.y + b.h - 10, b.w - 14, 7);
-      g.fill({ color: 0x18181b });
-      g.stroke({ width: 1, color: 0x71717a });
+        // Animated waving realm heraldic pennant
+        const npcWave = Math.sin(phase * 4 + p.x * 2 + p.y) * 2;
+        g.moveTo(cx, cy - 7); g.lineTo(cx, cy - 14);
+        g.stroke({ width: 1.2, color: pal.rimColor });
+        g.circle(cx, cy - 14.5, 1.2); g.fill({ color: pal.accentColor });
+        g.poly([
+          cx, cy - 14,
+          cx + 8 + npcWave, cy - 11,
+          cx + 5 + npcWave * 0.6, cy - 9,
+          cx + 8 + npcWave, cy - 7,
+          cx, cy - 7,
+        ]);
+        g.fill({ color: pal.pennantColor });
+
+        // Bottom banner: realm plaque
+        g.rect(b.x + 7, b.y + b.h - 10, b.w - 14, 7);
+        g.fill({ color: pal.plaqueColor });
+        g.stroke({ width: 1, color: pal.plaqueBorder });
+        // Center heraldic seal dot
+        g.circle(cx, b.y + b.h - 6.5, 1.4);
+        g.fill({ color: pal.accentColor });
+      } else {
+        // NPC Outpost / Territory Marker on claimed province
+        g.rect(b.x, b.y, b.w, b.h);
+        g.stroke({ width: 1.5, color: pal.borderColor, alpha: 0.85 });
+
+        // 4 Corner Pins
+        g.circle(b.x + 3, b.y + 3, 1.1); g.fill({ color: pal.studColor });
+        g.circle(b.x + b.w - 3, b.y + 3, 1.1); g.fill({ color: pal.studColor });
+        g.circle(b.x + 3, b.y + b.h - 3, 1.1); g.fill({ color: pal.studColor });
+        g.circle(b.x + b.w - 3, b.y + b.h - 3, 1.1); g.fill({ color: pal.studColor });
+
+        // Marker flagpole with realm swallowtail flag
+        const npcFlagWave = Math.sin(phase * 3.5 + p.x) * 2;
+        g.moveTo(cx, cy + 3); g.lineTo(cx, cy - 13);
+        g.stroke({ width: 1.2, color: pal.rimColor });
+        g.poly([
+          cx, cy - 13,
+          cx + 9 + npcFlagWave, cy - 9.5,
+          cx + 6 + npcFlagWave * 0.7, cy - 7,
+          cx, cy - 7,
+        ]);
+        g.fill({ color: pal.pennantColor });
+
+        // Bottom claim plaque
+        g.rect(b.x + 10, b.y + b.h - 8, b.w - 20, 5.5);
+        g.fill({ color: pal.plaqueColor });
+        g.stroke({ width: 0.8, color: pal.plaqueBorder, alpha: 0.9 });
+      }
     }
   }
 }
@@ -3847,8 +4162,13 @@ function paintBoardHighlight(
 
   // Status indicator pip on left
   const isHome = p.id === state?.board?.homeProvinceId;
-  const isRival = p.occupantRealmId === "rival";
-  const pipColor = isHome ? 0xfacc15 : isRival ? 0xef4444 : p.node !== "none" ? 0x38bdf8 : 0x4ade80;
+  const pipColor = isHome
+    ? 0xfacc15
+    : p.occupantRealmId && p.occupantRealmId !== "player"
+    ? realmTokenPalette(p.occupantRealmId).accentColor
+    : p.node !== "none"
+    ? 0x38bdf8
+    : 0x4ade80;
   g.circle(plaqueX + 12, plaqueY + 9, 3.5);
   g.fill({ color: pipColor });
 
@@ -4264,7 +4584,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       w.graphics.y = wy;
       w.graphics.zIndex = Math.floor((w.x + w.y) * 100) + 40;
 
-      drawWalkerFrame(w.graphics, w.role, w.facing, frame);
+      const cultId = lastState && sim.playerCultureId ? sim.playerCultureId(lastState) : undefined;
+      drawWalkerFrame(w.graphics, w.role, w.facing, frame, cultId);
     }
   }
 
@@ -4411,7 +4732,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         };
       }
 
-      drawIsometricBuilding(g, b.typeId, b.level, complete, t + gx * 0.35, visuals, gx, gy, rimNeighbors);
+      const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
+      drawIsometricBuilding(g, b.typeId, b.level, complete, t + gx * 0.35, visuals, gx, gy, rimNeighbors, cultId);
     }
 
     for (const [id, g] of buildingGraphics) {

@@ -7,6 +7,33 @@ Added sim-only map gathering: outbound, loading, return and recall; three resour
 
 Newest first.
 
+## 2026-09-07 — Gemini Crowns: Distinct NPC Hold Tokens, Culture Tints & World Log Visibility (`bakeoff/gemini-crowns`)
+
+- **Distinct NPC Hold Tokens on Board (`packages/render`)**:
+  - `paintBoardProvinces`: Every province with `node === "hold"` occupied by a non-player realm draws a distinct heraldic keep token on the board (`zoom <= 0.70`), not just Iron March.
+  - Exported `realmTokenPalette(realmId)` mapping `rival`, `k_silk`, `k_ash`, `k_veil`, `k_glass`, `k_frost`, `k_tide`, `k_ember`, `k_bronze` to canonical crest colors, with deterministic hash fallback.
+  - Keeps render stone plinth, corner bartizans, ashlar walls, rivets, fluttering swallowtail banner in realm colors, and heraldic seal. Iron March preserves spiked battlements. Claimed non-hold nodes render a realm claim flag.
+  - `paintBoardHighlight` selection pips reflect the realm's accent color.
+  - Pure exported helpers: `realmTokenPalette`, `REALM_TOKEN_PALETTES`, `isNpcHoldProvince`.
+- **Player Culture Tints (`packages/render` & `packages/app`)**:
+  - Reads `playerCultureId(state)` and `CULTURES` from `@second-crown/sim`.
+  - Crown Marches (`western`) strictly retains 100% of the original art.
+  - Cedar Kin (`cedar`), Sand Banner (`sand`), Wind Host (`steppe`), and Tide Clans (`islands`) tint:
+    - Hold keep isometric building: stone walls, bartizans, plinth, lintels, heraldic shield, and royal banner.
+    - Hold walkers: villager/miner/guard tunics, tool handles, spear shafts, and guard pennants.
+    - `UnitIcon` across all 8 unit classes: tunics, bows/shafts, and shields/armor.
+  - In `packages/app`:
+    - `UnitIcon.tsx`: `CultureContext` created; `UnitIconProps` accepts optional `culture?: string`, defaulting to context or `"western"`.
+    - `AppShell.tsx`: Wrapped tabs in `<CultureContext.Provider value={state ? playerCultureId(state) : "western"}>`. Choosing culture in `CrownTab` via `CulturePicker` dynamically re-tints Army rosters immediately.
+    - `WarLivingStrip.tsx`: Passes player culture to player `UnitIcon`s and opponent realm culture (`cultureOfRealm(state, enemyRealmId)`) to opposing `UnitIcon`s.
+- **World Log Visibility (`packages/app`)**:
+  - `WorldTab.tsx`: Elevated Crown Chronicle to the top of World tab. Category filter pills (`All`, `Claims 🚩`, `Trades ⚖️`, `Wars ⚔️`, `Musters 🛡️`), formatted badges, monospace ticks (`T{e.tick}`), newest entry highlight, and scrollable container. "Holds on the Board" card displays realm crest color swatches matching board tokens.
+  - `ChromeDock.tsx` & `useGameEngine.ts`: `useGameEngine` dispatches `sc-world-dispatch` on `state.flags.last_world` updates. `ChromeDock.tsx` renders a live ticker (`📜 WORLD: ...`) in the dock header bar.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` is 100% empty.
+  - Tests passing: 117 in `@second-crown/sim`, 24 in `@second-crown/render`.
+  - App production build clean (`npm run build -w @second-crown/app`).
+
 ## 2026-09-07 — Claude Hold Economy: Smaller Raids, Academy, Storehouses (`bakeoff/claude-pace`)
 
 - **Raid haul cut (`packages/sim/src/systems/march.ts`)**: breaking a camp now pays +6 wood (was +20); clearing a woodcut/quarry/field node now pays +5 of the matching resource (was +12). Player wins still call `plantOutpost`.

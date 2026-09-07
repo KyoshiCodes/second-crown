@@ -1,4 +1,7 @@
 import React from "react";
+import { getCulture } from "@second-crown/sim";
+
+export const CultureContext = React.createContext<string>("western");
 
 export interface UnitIconProps {
   typeId: string;
@@ -8,6 +11,7 @@ export interface UnitIconProps {
   animated?: boolean;
   style?: React.CSSProperties;
   className?: string;
+  culture?: string;
 }
 
 const DEFAULT_SIZE = 48;
@@ -34,6 +38,7 @@ function useUnitCadence(enabled: boolean): 0 | 1 | 2 {
  * Pixel silhouette unit icon in the same language as hold walkers and buildings.
  * Integer pixel alignments, authentic 2-3 frame idle/march strides, facing,
  * tabard colors, and type-specific weapons/gear.
+ * Supports player culture tints (Crown Marches, Cedar Kin, Sand Banner, Wind Host, Tide Clans).
  */
 export function UnitIcon(props: UnitIconProps) {
   const {
@@ -43,7 +48,14 @@ export function UnitIcon(props: UnitIconProps) {
     animated = true,
     style,
     className,
+    culture,
   } = props;
+
+  const contextCulture = React.useContext(CultureContext);
+  const activeCultureId = culture || contextCulture || "western";
+  const cultureDef = getCulture(activeCultureId);
+  const isDefaultCulture = cultureDef.id === "western";
+  const cultPal = cultureDef.palette;
 
   const autoFrame = useUnitCadence(animated && props.frame === undefined);
   const frame = props.frame !== undefined ? props.frame : autoFrame;
@@ -68,22 +80,22 @@ export function UnitIcon(props: UnitIconProps) {
             <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#18181b" />
 
             {/* Deep forest coat / tabard */}
-            <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill="#14532d" />
+            <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill={isDefaultCulture ? "#14532d" : cultPal.tabard} />
             {/* Leather belt */}
-            <rect x="15" y={22 - bob} width="6.5" height="1.6" fill="#78350f" />
+            <rect x="15" y={22 - bob} width="6.5" height="1.6" fill={isDefaultCulture ? "#78350f" : cultPal.timber} />
 
             {/* Head & face */}
             <circle cx="18" cy={14 - bob} r="3" fill="#fbcfe8" />
 
             {/* Archer cap with yellow feather quill */}
-            <rect x="14.5" y={11 - bob} width="7" height="3" fill="#15803d" />
+            <rect x="14.5" y={11 - bob} width="7" height="3" fill={isDefaultCulture ? "#15803d" : cultPal.tabard} />
             <polygon
               points={`${18 - facing * 1.5},${11 - bob} ${18 - facing * 5},${6 - bob} ${18 - facing * 1.5},${9 - bob}`}
               fill="#facc15"
             />
 
             {/* Back quiver of arrows */}
-            <rect x={18 - facing * 4.5} y={15 - bob} width="3" height="8" fill="#78350f" />
+            <rect x={18 - facing * 4.5} y={15 - bob} width="3" height="8" fill={isDefaultCulture ? "#78350f" : cultPal.timber} />
             <line
               x1={18 - facing * 3.5}
               y1={15 - bob}
@@ -96,7 +108,7 @@ export function UnitIcon(props: UnitIconProps) {
             {/* Recurve yew bow */}
             <path
               d={`M${18 + facing * 4.5} ${8 - bob + armSwing} Q${18 + facing * 8} ${19 - bob + armSwing} ${18 + facing * 4.5} ${30 - bob + armSwing}`}
-              stroke="#854d0e"
+              stroke={isDefaultCulture ? "#854d0e" : cultPal.timber}
               strokeWidth="1.8"
               fill="none"
             />
@@ -134,15 +146,15 @@ export function UnitIcon(props: UnitIconProps) {
             <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#18181b" />
 
             {/* Royal blue tabard over chainmail */}
-            <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill="#1e40af" />
-            <rect x="15" y={22 - bob} width="6.5" height="1.6" fill="#3b82f6" />
+            <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill={isDefaultCulture ? "#1e40af" : cultPal.tabard} />
+            <rect x="15" y={22 - bob} width="6.5" height="1.6" fill={isDefaultCulture ? "#3b82f6" : cultPal.tabard} />
 
             {/* Head & face */}
             <circle cx="18" cy={14 - bob} r="3" fill="#fbcfe8" />
 
             {/* Steel kettle hat */}
-            <rect x="13.5" y={12 - bob} width="9.5" height="2" fill="#94a3b8" />
-            <circle cx="18" cy={11 - bob} r="2.6" fill="#cbd5e1" />
+            <rect x="13.5" y={12 - bob} width="9.5" height="2" fill={isDefaultCulture ? "#94a3b8" : cultPal.stone} />
+            <circle cx="18" cy={11 - bob} r="2.6" fill={isDefaultCulture ? "#cbd5e1" : cultPal.stone} />
 
             {/* Tall steel spear / pike */}
             <line
@@ -150,7 +162,7 @@ export function UnitIcon(props: UnitIconProps) {
               y1={30 - bob}
               x2={18 + facing * 5}
               y2={4 - bob + armSwing}
-              stroke="#78350f"
+              stroke={isDefaultCulture ? "#78350f" : cultPal.timber}
               strokeWidth="1.5"
             />
             <polygon
@@ -159,7 +171,7 @@ export function UnitIcon(props: UnitIconProps) {
             />
 
             {/* Round wooden shield with brass boss on off-arm */}
-            <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="4" fill="#1e3a8a" stroke="#cbd5e1" strokeWidth="0.8" />
+            <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="4" fill={isDefaultCulture ? "#1e3a8a" : cultPal.tabard} stroke="#cbd5e1" strokeWidth="0.8" />
             <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="1.5" fill="#facc15" />
           </g>
         );
@@ -177,14 +189,14 @@ export function UnitIcon(props: UnitIconProps) {
             <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#27272a" />
 
             {/* Scout green tunic */}
-            <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill="#15803d" />
-            <line x1="15" y1={18 - bob} x2="21.5" y2={26 - bob} stroke="#78350f" strokeWidth="1" />
+            <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill={isDefaultCulture ? "#15803d" : cultPal.tabard} />
+            <line x1="15" y1={18 - bob} x2="21.5" y2={26 - bob} stroke={isDefaultCulture ? "#78350f" : cultPal.timber} strokeWidth="1" />
 
             {/* Head & face */}
             <circle cx="18" cy={14 - bob} r="3" fill="#fbcfe8" />
 
             {/* Leather cap with feather */}
-            <rect x="15" y={11 - bob} width="6.5" height="3" fill="#5c3818" />
+            <rect x="15" y={11 - bob} width="6.5" height="3" fill={isDefaultCulture ? "#5c3818" : cultPal.timber} />
             <polygon
               points={`${18 - facing * 1.5},${11 - bob} ${18 - facing * 4.5},${7 - bob} ${18 - facing * 1.5},${9.5 - bob}`}
               fill="#fde047"
@@ -196,7 +208,7 @@ export function UnitIcon(props: UnitIconProps) {
               y1={24 - bob + armSwing}
               x2={18 + facing * 9}
               y2={11 - bob + armSwing}
-              stroke="#78350f"
+              stroke={isDefaultCulture ? "#78350f" : cultPal.timber}
               strokeWidth="1.4"
             />
             <polygon
@@ -205,7 +217,7 @@ export function UnitIcon(props: UnitIconProps) {
             />
 
             {/* Arm buckler */}
-            <circle cx={18 - facing * 3.5} y={21 - bob} r="3" fill="#854d0e" stroke="#5c3818" strokeWidth="0.8" />
+            <circle cx={18 - facing * 3.5} y={21 - bob} r="3" fill={isDefaultCulture ? "#854d0e" : cultPal.timber} stroke={isDefaultCulture ? "#5c3818" : cultPal.timber} strokeWidth="0.8" />
           </g>
         );
       }
@@ -235,11 +247,11 @@ export function UnitIcon(props: UnitIconProps) {
             <rect x={18 + facing * 9} y={10 - bob} width="2.5" height="3" fill="#18181b" />
 
             {/* Leather saddle */}
-            <rect x="15" y={18 - bob} width="6" height="3" fill="#451a03" />
+            <rect x="15" y={18 - bob} width="6" height="3" fill={isDefaultCulture ? "#451a03" : cultPal.timber} />
 
             {/* Mounted rider */}
-            <rect x="15" y={12 - bob} width="6" height="6.5" rx="1" fill="#1d4ed8" />
-            <circle cx="18" cy={9 - bob} r="3" fill="#94a3b8" />
+            <rect x="15" y={12 - bob} width="6" height="6.5" rx="1" fill={isDefaultCulture ? "#1d4ed8" : cultPal.tabard} />
+            <circle cx="18" cy={9 - bob} r="3" fill={isDefaultCulture ? "#94a3b8" : cultPal.stone} />
 
             {/* Cavalry lance with pennant */}
             <line
@@ -247,12 +259,12 @@ export function UnitIcon(props: UnitIconProps) {
               y1={16 - bob}
               x2={18 + facing * 15}
               y2={7 - bob}
-              stroke="#854d0e"
+              stroke={isDefaultCulture ? "#854d0e" : cultPal.timber}
               strokeWidth="1.5"
             />
             <polygon
               points={`${18 + facing * 11},${8 - bob} ${18 + facing * 16},${6 - bob} ${18 + facing * 11},${11 - bob}`}
-              fill="#22c55e"
+              fill={isDefaultCulture ? "#22c55e" : cultPal.tabard}
             />
           </g>
         );
@@ -266,25 +278,25 @@ export function UnitIcon(props: UnitIconProps) {
             <ellipse cx="18" cy="30" rx="8" ry="2.2" fill="#000000" fillOpacity="0.35" />
 
             {/* Steel greaves */}
-            <rect x={18 + legL * facing} y={26 - bob} width="2.8" height="4" fill="#94a3b8" />
-            <rect x={18 + legR * facing} y={26 - bob} width="2.8" height="4" fill="#64748b" />
+            <rect x={18 + legL * facing} y={26 - bob} width="2.8" height="4" fill={isDefaultCulture ? "#94a3b8" : cultPal.stone} />
+            <rect x={18 + legR * facing} y={26 - bob} width="2.8" height="4" fill={isDefaultCulture ? "#64748b" : cultPal.stone} />
 
             {/* Full steel plate cuirass */}
-            <rect x="14.5" y={17 - bob} width="7" height="9" rx="1" fill="#cbd5e1" />
+            <rect x="14.5" y={17 - bob} width="7" height="9" rx="1" fill={isDefaultCulture ? "#cbd5e1" : cultPal.stone} />
             {/* Gold trim & belt */}
             <rect x="13.5" y={17 - bob} width="9" height="2" fill="#eab308" />
 
             {/* Great helm */}
-            <rect x="14.5" y={10 - bob} width="7" height="7" rx="1" fill="#cbd5e1" />
+            <rect x="14.5" y={10 - bob} width="7" height="7" rx="1" fill={isDefaultCulture ? "#cbd5e1" : cultPal.stone} />
             {/* Visor eye-slit */}
             <rect x={18 - (facing > 0 ? 1 : 3)} y={13.5 - bob} width="4" height="1.2" fill="#0f172a" />
             {/* Crimson helm plume */}
-            <polygon points={`18,${10 - bob} 19.5,${6 - bob} 17,${7 - bob}`} fill="#dc2626" />
+            <polygon points={`18,${10 - bob} 19.5,${6 - bob} 17,${7 - bob}`} fill={isDefaultCulture ? "#dc2626" : cultPal.tabard} />
 
             {/* Heraldic heater shield with golden cross */}
             <polygon
               points={`${18 - facing * 2},${17 - bob + armSwing} ${18 - facing * 8},${17 - bob + armSwing} ${18 - facing * 8},${25 - bob + armSwing} ${18 - facing * 5},${30 - bob + armSwing} ${18 - facing * 2},${25 - bob + armSwing}`}
-              fill="#b91c1c"
+              fill={isDefaultCulture ? "#b91c1c" : cultPal.tabard}
               stroke="#eab308"
               strokeWidth="0.8"
             />
@@ -337,16 +349,16 @@ export function UnitIcon(props: UnitIconProps) {
             {/* Spoked wheels */}
             <circle cx="8" cy={27 - bob} r="4.5" fill="#451a03" stroke="#27272a" strokeWidth="1" />
             <circle cx="28" cy={27 - bob} r="4.5" fill="#451a03" stroke="#27272a" strokeWidth="1" />
-            <circle cx="8" cy={27 - bob} r="1" fill="#94a3b8" />
-            <circle cx="28" cy={27 - bob} r="1" fill="#94a3b8" />
+            <circle cx="8" cy={27 - bob} r="1" fill={isDefaultCulture ? "#94a3b8" : cultPal.stone} />
+            <circle cx="28" cy={27 - bob} r="1" fill={isDefaultCulture ? "#94a3b8" : cultPal.stone} />
 
             {/* Heavy timber chassis */}
-            <rect x="5" y={21 - bob} width="26" height="5.5" fill="#5c3818" stroke="#27272a" strokeWidth="0.8" />
+            <rect x="5" y={21 - bob} width="26" height="5.5" fill={isDefaultCulture ? "#5c3818" : cultPal.timber} stroke="#27272a" strokeWidth="0.8" />
 
             {/* Upright A-frame trestle */}
             <polygon
               points={`11,${21 - bob} 18,${7 - bob} 25,${21 - bob}`}
-              stroke="#78350f"
+              stroke={isDefaultCulture ? "#78350f" : cultPal.timber}
               strokeWidth="2.2"
               fill="none"
             />
@@ -357,13 +369,13 @@ export function UnitIcon(props: UnitIconProps) {
               y1={19 - bob - armTilt}
               x2={18 + facing * 12}
               y2={3 - bob + armTilt}
-              stroke="#451a03"
+              stroke={isDefaultCulture ? "#451a03" : cultPal.timber}
               strokeWidth="2.6"
             />
             {/* Iron counterweight box */}
             <rect x={18 - facing * 14} y={16 - bob - armTilt} width="5" height="5" fill="#27272a" />
             {/* Granite projectile stone */}
-            <circle cx={18 + facing * 12} cy={3 - bob + armTilt} r="3" fill="#94a3b8" />
+            <circle cx={18 + facing * 12} cy={3 - bob + armTilt} r="3" fill={isDefaultCulture ? "#94a3b8" : cultPal.stone} />
           </g>
         );
       }
@@ -380,7 +392,7 @@ export function UnitIcon(props: UnitIconProps) {
             <rect x={18 + legR * facing} y={26 - bob} width="2.8" height="4" fill="#b45309" />
 
             {/* Royal Tyrian purple velvet tabard */}
-            <rect x="14.5" y={17 - bob} width="7" height="9" rx="1" fill="#581c87" />
+            <rect x="14.5" y={17 - bob} width="7" height="9" rx="1" fill={isDefaultCulture ? "#581c87" : cultPal.tabard} />
             {/* Gilded cuirass & lion trim */}
             <rect x="14.5" y={17 - bob} width="7" height="3" fill="#f59e0b" />
 
@@ -420,10 +432,10 @@ export function UnitIcon(props: UnitIconProps) {
               strokeWidth="1.6"
             />
 
-            {/* Flowing crimson royal cape */}
+            {/* Flowing royal cape */}
             <polygon
               points={`${18 - facing * 3},${17 - bob} ${18 - facing * 8},${28 - bob} ${18 - facing * 1.5},${27 - bob}`}
-              fill="#dc2626"
+              fill={isDefaultCulture ? "#dc2626" : cultPal.tabard}
               opacity="0.9"
             />
           </g>
@@ -443,15 +455,15 @@ export function UnitIcon(props: UnitIconProps) {
             <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#27272a" />
 
             {/* Coarse homespun tunic */}
-            <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill="#854d0e" />
+            <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill={isDefaultCulture ? "#854d0e" : cultPal.tabard} />
             {/* Rope belt */}
-            <rect x="15" y={22 - bob} width="6.5" height="1.6" fill="#a16207" />
+            <rect x="15" y={22 - bob} width="6.5" height="1.6" fill={isDefaultCulture ? "#a16207" : cultPal.timber} />
 
             {/* Head & face */}
             <circle cx="18" cy={14 - bob} r="3" fill="#fbcfe8" />
 
             {/* Peasant coif / cloth hood */}
-            <rect x="14.5" y={11 - bob} width="7" height="3" fill="#52525b" />
+            <rect x="14.5" y={11 - bob} width="7" height="3" fill={isDefaultCulture ? "#52525b" : cultPal.stone} />
 
             {/* Spear-less levy! Simple wooden club / tool held at side */}
             <rect
@@ -460,7 +472,7 @@ export function UnitIcon(props: UnitIconProps) {
               width="2"
               height="6"
               rx="0.5"
-              fill="#78350f"
+              fill={isDefaultCulture ? "#78350f" : cultPal.timber}
             />
           </g>
         );

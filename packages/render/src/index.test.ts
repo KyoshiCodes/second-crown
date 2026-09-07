@@ -20,6 +20,9 @@ import {
   unitPalette,
   isOutpostProvince,
   listGathersPresentation,
+  realmTokenPalette,
+  culturePalette,
+  isNpcHoldProvince,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 
@@ -364,6 +367,124 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       ];
       expect(listGathersPresentation(state)).toHaveLength(1);
       expect(listGathersPresentation(state)[0].id).toBe("g1");
+    });
+  });
+
+  describe("realmTokenPalette and isNpcHoldProvince (Gemini Crowns lane)", () => {
+    it("provides distinct heraldic crest palettes for all seeded NPC realms", () => {
+      const iron = realmTokenPalette("rival");
+      expect(iron.name).toBe("Iron March");
+      expect(iron.pennantColor).toBe(0x991b1b);
+      expect(iron.borderColor).toBe(0x71717a);
+      expect(iron.glyph).toBe("⚔");
+
+      const silk = realmTokenPalette("k_silk");
+      expect(silk.name).toBe("Silk Coast");
+      expect(silk.pennantColor).toBe(0x0f766e);
+      expect(silk.accentColor).toBe(0xf1c40f);
+      expect(silk.glyph).toBe("⚓");
+
+      const ash = realmTokenPalette("k_ash");
+      expect(ash.name).toBe("Ash Nomads");
+      expect(ash.pennantColor).toBe(0xc2410c);
+      expect(ash.glyph).toBe("▲");
+
+      const veil = realmTokenPalette("k_veil");
+      expect(veil.name).toBe("Veil Theocracy");
+      expect(veil.pennantColor).toBe(0x7c3aed);
+      expect(veil.glyph).toBe("✦");
+
+      const glass = realmTokenPalette("k_glass");
+      expect(glass.name).toBe("Glass Cities");
+      expect(glass.glyph).toBe("◇");
+
+      const frost = realmTokenPalette("k_frost");
+      expect(frost.name).toBe("Frost Holds");
+      expect(frost.glyph).toBe("❄");
+
+      const tide = realmTokenPalette("k_tide");
+      expect(tide.name).toBe("Tide Princes");
+      expect(tide.glyph).toBe("≈");
+
+      const ember = realmTokenPalette("k_ember");
+      expect(ember.name).toBe("Ember Concord");
+      expect(ember.glyph).toBe("☄");
+
+      const bronze = realmTokenPalette("k_bronze");
+      expect(bronze.name).toBe("Bronze League");
+      expect(bronze.glyph).toBe("Ω");
+
+      // Deterministic fallback for unknown / dynamically generated realms
+      const custom = realmTokenPalette("k_custom_kingdom");
+      expect(custom.realmId).toBe("k_custom_kingdom");
+      expect(typeof custom.borderColor).toBe("number");
+      expect(typeof custom.pennantColor).toBe("number");
+    });
+
+    it("correctly identifies NPC hold provinces vs outposts and player holds", () => {
+      // Player home hold is not an NPC hold
+      expect(isNpcHoldProvince({ node: "hold", occupantRealmId: "player" })).toBe(false);
+      // Player outpost is not an NPC hold
+      expect(isNpcHoldProvince({ node: "field", occupantRealmId: "player" })).toBe(false);
+      // Unoccupied hold is not an NPC hold
+      expect(isNpcHoldProvince({ node: "hold", occupantRealmId: null })).toBe(false);
+
+      // Rival hold is an NPC hold
+      expect(isNpcHoldProvince({ node: "hold", occupantRealmId: "rival" })).toBe(true);
+      // Seeded NPC holds are NPC holds
+      expect(isNpcHoldProvince({ node: "hold", occupantRealmId: "k_silk" })).toBe(true);
+      expect(isNpcHoldProvince({ node: "hold", occupantRealmId: "k_ash" })).toBe(true);
+
+      // NPC claimed outposts (not hold node) are not NPC holds
+      expect(isNpcHoldProvince({ node: "woodcut", occupantRealmId: "k_silk" })).toBe(false);
+      expect(isNpcHoldProvince({ node: "field", occupantRealmId: "k_frost" })).toBe(false);
+    });
+  });
+
+  describe("culturePalette (Gemini Crowns lane)", () => {
+    it("returns default art values for Crown Marches (western) or undefined", () => {
+      const def = culturePalette(undefined);
+      expect(def.id).toBe("western");
+      expect(def.tabardHex).toBe("#1e40af");
+      expect(def.timberHex).toBe("#5c3818");
+      expect(def.stoneHex).toBe("#64748b");
+      expect(def.tabard).toBe(0x1e40af);
+
+      const west = culturePalette("western");
+      expect(west.id).toBe("western");
+      expect(west.tabardHex).toBe("#1e40af");
+    });
+
+    it("returns authentic culture palettes for Cedar Kin, Sand Banner, Wind Host, and Tide Clans", () => {
+      const woodland = culturePalette("woodland");
+      expect(woodland.id).toBe("woodland");
+      expect(woodland.tabardHex).toBe("#14532d");
+      expect(woodland.timberHex).toBe("#854d0e");
+      expect(woodland.stoneHex).toBe("#78716c");
+      expect(woodland.tabard).toBe(0x14532d);
+      expect(woodland.timber).toBe(0x854d0e);
+      expect(woodland.stone).toBe(0x78716c);
+
+      const desert = culturePalette("desert");
+      expect(desert.id).toBe("desert");
+      expect(desert.tabardHex).toBe("#b45309");
+      expect(desert.timberHex).toBe("#a16207");
+      expect(desert.stoneHex).toBe("#d6c7a1");
+      expect(desert.tabard).toBe(0xb45309);
+
+      const steppe = culturePalette("steppe");
+      expect(steppe.id).toBe("steppe");
+      expect(steppe.tabardHex).toBe("#9f1239");
+      expect(steppe.timberHex).toBe("#7c2d12");
+      expect(steppe.stoneHex).toBe("#57534e");
+      expect(steppe.tabard).toBe(0x9f1239);
+
+      const tide = culturePalette("tide");
+      expect(tide.id).toBe("tide");
+      expect(tide.tabardHex).toBe("#0e7490");
+      expect(tide.timberHex).toBe("#44403c");
+      expect(tide.stoneHex).toBe("#94a3b8");
+      expect(tide.tabard).toBe(0x0e7490);
     });
   });
 });

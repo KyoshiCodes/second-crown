@@ -1,6 +1,7 @@
 import React from "react";
-import { formatLetterSuffix, settlementName, currentSeason } from "@second-crown/sim";
+import { formatLetterSuffix, settlementName, currentSeason, playerCultureId } from "@second-crown/sim";
 import { useGameEngine, type Tab } from "./game/useGameEngine";
+import { CultureContext } from "./UnitIcon";
 import { ResourceHud } from "./hud/ResourceHud";
 import { SpeedControls } from "./HudControls";
 import { KingdomTab } from "./tabs/KingdomTab";
@@ -167,25 +168,27 @@ export function AppShell() {
             </div>
           </div>
         </div>
-        {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}
-        {tab === "army" && <ArmyTab state={state} act={act} trainQty={trainQty} setTrainQty={setTrainQty} />}
-        {tab === "war" && <WarTab state={state} act={act} rivalOp={rivalOp} playerOp={playerOp} battleSnap={battleSnap} setBattleSnap={setBattleSnap} />}
-        {tab === "world" && <WorldTab state={state} act={act} worldLog={worldLog} />}
-        {tab === "crown" && (
-          <CrownTab
-            state={state}
-            act={act}
-            lastEvent={lastEvent}
-            lastEventTick={lastEventTick}
-            eventLog={eventLog}
-            ascendReady={ascendReady}
-            ascendNeed={ascendNeed}
-            saveNow={saveNow}
-            exportSave={exportSave}
-            importSaveFile={importSaveFile}
-            newGame={newGame}
-          />
-        )}
+        <CultureContext.Provider value={state ? playerCultureId(state) : "western"}>
+          {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}
+          {tab === "army" && <ArmyTab state={state} act={act} trainQty={trainQty} setTrainQty={setTrainQty} />}
+          {tab === "war" && <WarTab state={state} act={act} rivalOp={rivalOp} playerOp={playerOp} battleSnap={battleSnap} setBattleSnap={setBattleSnap} />}
+          {tab === "world" && <WorldTab state={state} act={act} worldLog={worldLog} />}
+          {tab === "crown" && (
+            <CrownTab
+              state={state}
+              act={act}
+              lastEvent={lastEvent}
+              lastEventTick={lastEventTick}
+              eventLog={eventLog}
+              ascendReady={ascendReady}
+              ascendNeed={ascendNeed}
+              saveNow={saveNow}
+              exportSave={exportSave}
+              importSaveFile={importSaveFile}
+              newGame={newGame}
+            />
+          )}
+        </CultureContext.Provider>
       </div>
     </div>
   );

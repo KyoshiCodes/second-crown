@@ -1,6 +1,6 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
-import { formatLetterSuffix, getUnitType, realmPower, D, toDecimalString } from "@second-crown/sim";
+import { formatLetterSuffix, getUnitType, realmPower, D, toDecimalString, playerCultureId, cultureOfRealm } from "@second-crown/sim";
 import type Decimal from "break_infinity.js";
 import { Crest } from "./Crest";
 import { UnitIcon } from "./UnitIcon";
@@ -213,7 +213,7 @@ export function WarLivingStrip(props: { state: GameState | undefined }) {
                       lineHeight: 0,
                     }}
                   >
-                    <UnitIcon typeId={u.typeId} size={36} />
+                    <UnitIcon typeId={u.typeId} size={36} culture={state ? playerCultureId(state) : "western"} />
                   </div>
                   <div
                     style={{
@@ -342,7 +342,7 @@ export function WarLivingStrip(props: { state: GameState | undefined }) {
                       transform: "scaleX(-1)", // Sprite faces towards the player
                     }}
                   >
-                    <UnitIcon typeId={u.typeId} size={36} />
+                    <UnitIcon typeId={u.typeId} size={36} culture={state ? cultureOfRealm(state, enemyRealmId) : "western"} />
                   </div>
                   <div
                     style={{
