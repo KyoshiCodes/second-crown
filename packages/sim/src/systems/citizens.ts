@@ -1,4 +1,5 @@
 import type { CitizenInstance, CitizenJobId, CitizenTile, GameState } from "@second-crown/shared";
+import { canHouse } from "./housing.js";
 
 const BUILDING_JOB: Record<string, CitizenJobId> = {
   farm: "farmer",
@@ -59,6 +60,12 @@ export function hireCitizenForBuilding(
   x: number,
   y: number
 ): CitizenInstance {
+  if (typeId === "cottage") {
+    return { id: "skip_cottage", realmId, job: "unassigned", tile: { x, y } };
+  }
+  if (!canHouse(state, realmId)) {
+    return { id: "skip_cap", realmId, job: jobForBuildingType(typeId), tile: { x, y } };
+  }
   return createCitizen(state, realmId, jobForBuildingType(typeId), { x, y });
 }
 
