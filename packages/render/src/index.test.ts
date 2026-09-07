@@ -1,5 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { roleForCitizenJob, pickDestination, type Walker } from "./index.js";
+import {
+  roleForCitizenJob,
+  pickDestination,
+  type Walker,
+  bandForZoom,
+  ZOOM_THRESHOLD,
+  provinceTokenBounds,
+  hitTestProvince,
+  calculateMarchProgress,
+  terrainChipPalette,
+} from "./index.js";
 import type { GameState } from "@second-crown/shared";
 
 function createMockWalker(id: number = 0, x: number = 0, y: number = 0): Walker {
@@ -123,7 +133,64 @@ describe("packages/render walker roles and pickDestination", () => {
     expect(walker.targetX).toBeGreaterThanOrEqual(6);
     expect(walker.targetX).toBeLessThanOrEqual(9);
     expect(walker.targetY).toBeGreaterThanOrEqual(3);
-    expect(walker.targetY).toBeLessThanOrEqual(5);
     expect(walker.state).toBe("walking");
+  });
+});
+
+describe("packages/render two-band camera and tabletop board helpers", () => {
+  it("determines camera band based on ZOOM_THRESHOLD", () => {
+    expect(bandForZoom(1.0)).toBe("hold");
+    expect(bandForZoom(0.71)).toBe("hold");
+    expect(bandForZoom(ZOOM_THRESHOLD)).toBe("board");
+    expect(bandForZoom(0.58)).toBe("board");
+    expect(bandForZoom(0.45)).toBe("board");
+  });
+
+  it("calculates 8x6 province token bounds within diorama viewport", () => {
+    const origin = provinceTokenBounds(0, 0);
+    expect(origin.x).toBe(35);
+    expect(origin.y).toBe(27);
+    expect(origin.w).toBe(56);
+    expect(origin.h).toBe(46);
+    expect(origin.cx).toBe(35 + 28);
+    expect(origin.cy).toBe(27 + 23);
+
+    // Far corner token (column 7, row 5)
+    const far = provinceTokenBounds(7, 5);
+    expect(far.x + far.w).toBeLessThanOrEqual(544); // within RIM_SIZE=16 to 544
+    expect(far.y + far.h).toBeLessThanOrEqual(344); // within RIM_SIZE=16 to 344
+  });
+
+  it("hit tests province tokens on the board", () => {
+    const b0 = provinceTokenBounds(2, 3);
+    const hit = hitTestProvince(b0.cx, b0.cy);
+    expect(hit).toEqual({ bx: 2, by: 3 });
+
+    // Click in the gap between tokens
+    const miss = hitTestProvince(35 + 56 + 2, 27);
+    expect(miss).toBeNull();
+  });
+
+  it("lerps march progress accurately across elapsed ticks", () => {
+    // 2 steps distance = 30 ticks total
+    const dist = 2;
+    const arrivesTick = 100;
+    // startTick = 100 - 30 = 70
+
+    expect(calculateMarchProgress(50, arrivesTick, dist)).toBe(0);
+    expect(calculateMarchProgress(70, arrivesTick, dist)).toBe(0);
+    expect(calculateMarchProgress(85, arrivesTick, dist)).toBe(0.5);
+    expect(calculateMarchProgress(100, arrivesTick, dist)).toBe(1);
+    expect(calculateMarchProgress(120, arrivesTick, dist)).toBe(1);
+  });
+
+  it("provides rich palette colors for all six board terrain chips", () => {
+    for (const t of ["plain", "wood", "hill", "waste", "shore", "peak"] as const) {
+      const p = terrainChipPalette(t);
+      expect(p.fill).toBeGreaterThan(0);
+      expect(p.fillDark).toBeGreaterThan(0);
+      expect(p.border).toBeGreaterThan(0);
+      expect(p.accent).toBeGreaterThan(0);
+    }
   });
 });

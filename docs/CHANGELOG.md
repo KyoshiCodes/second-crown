@@ -2,6 +2,40 @@
 
 Newest first.
 
+## 2026-09-07 — Gemini Two-Band Camera & Tabletop Board Diorama (`bakeoff/gemini-board-cam`)
+
+- **Two-Band Camera Architecture (`packages/render`)**:
+  - Unified camera viewport on the single existing Pixi canvas with two distinct zoom bands separated by threshold `ZOOM_THRESHOLD = 0.70`:
+    - **Hold Band (`zoom > 0.70`)**: 16×10 isometric turf with building placement/upgrade tile clicks, living walkers, animated keeps, holiday dressing, mist, and polished hardwood table rim.
+    - **Board Band (`zoom <= 0.70`)**: Hides Hold turf detail and presents `state.board.provinces` as tactile tabletop chips on an 8×6 grid.
+  - Smooth mouse wheel zooming across the threshold transitions seamlessly between close diorama view and regional tabletop view.
+  - Dedicated `[Board / Hold]` toggle button next to ChromeDock and on canvas control overlay allows instant switching without mouse wheel scrolling.
+- **Tabletop 8×6 Province Tokens (`packages/render`)**:
+  - 8 columns × 6 rows grid framed in dark oiled walnut tabletop diorama with brass corner brackets and compass rose.
+  - 6 distinct terrain chips:
+    - `plain`: verdant meadow green with grass blade marks and chamomile flower dots.
+    - `wood`: deep spruce forest with miniature cluster of three stylized pine trees.
+    - `hill`: highland stone brown with layered rolling contour hill ridges.
+    - `waste`: scorched volcanic ash with glowing amber and crimson fissure lines.
+    - `shore`: coastal azure waves with sandy beach margin and surf crests.
+    - `peak`: alpine granite crags with snowcapped summits.
+  - Distinct node marks:
+    - `hold`: carved stone keep silhouette with battlements, portcullis, and flag.
+    - `camp`: striped war pavilion tent with crossed spears.
+    - `woodcut`: stacked timber cord with crossed felling axes.
+    - `quarry`: ashlar granite block with leaning steel pickaxe.
+    - `field`: bundled golden grain sheaf bound with crimson twine.
+  - Special realm occupant tokens:
+    - Player Hold (`x=2, y=2`): Gilded royal brass border, 4 corner studs, royal crown emblem, crimson plaque, and golden pulse halo.
+    - Iron March / Rival (`x=5, y=2`): Spiked blackened iron border, iron rivets, spiked battlements, blood-red pennant, and dark steel plaque.
+- **Interactive Marching & Active March Pawn (`packages/render`, `packages/app`)**:
+  - Clicking home province token snaps camera back to Hold band.
+  - Clicking foreign province token calls `tryMarch(state, provinceId)` via existing `act` helper and toasts the outcome in the status banner.
+  - Active march from `listMarches` / `activePlayerMarch` displays a lerped tabletop marching meeple pawn between origin and destination with animated marching bob, tabard, steel helmet, spear with pennant, dotted amber trail, and remaining ETA badge.
+- **Sim & Server Purity**:
+  - `git diff main -- packages/sim server` 100% empty.
+  - Full automated tests passing: 68/68 in `@second-crown/sim`, 10/10 in `@second-crown/render`.
+
 ## 2026-09-06 — Gemini Citizen Job Walkers & Distinct Stone Keep (`bakeoff/gemini-jobs`)
 
 - **Citizen Job Presentation Hook (`packages/render`)**:

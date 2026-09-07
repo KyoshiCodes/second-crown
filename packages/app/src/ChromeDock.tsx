@@ -15,6 +15,18 @@ export function ChromeDock() {
     }
   });
   const [holiday, setHoliday] = React.useState(getHolidayOverride);
+  const [band, setBand] = React.useState<"hold" | "board">("hold");
+
+  React.useEffect(() => {
+    const onBand = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail;
+      if (detail === "hold" || detail === "board") {
+        setBand(detail);
+      }
+    };
+    window.addEventListener("sc-camera-band-change", onBand);
+    return () => window.removeEventListener("sc-camera-band-change", onBand);
+  }, []);
 
   function toggle() {
     setOpen((v) => {
@@ -26,6 +38,10 @@ export function ChromeDock() {
       }
       return next;
     });
+  }
+
+  function toggleBand() {
+    window.dispatchEvent(new CustomEvent("sc-toggle-camera-band"));
   }
 
   return (
@@ -52,6 +68,22 @@ export function ChromeDock() {
       >
         <button type="button" onClick={toggle}>
           {open ? "Hide tools" : "Show tools"}
+        </button>
+        <button
+          type="button"
+          onClick={toggleBand}
+          title="Toggle camera zoom band between Hold (close-up isometric) and Board (tabletop map)"
+          style={{
+            background: band === "board" ? "#3b2a1a" : "#1a2a1a",
+            color: "#fef08a",
+            border: "1px solid #d4a72c",
+            borderRadius: 4,
+            padding: "3px 10px",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          {band === "board" ? "🗺️ Board (Switch to Hold 🏰)" : "🏰 Hold (Switch to Board 🗺️)"}
         </button>
         <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
           Holiday

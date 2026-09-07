@@ -50,6 +50,8 @@ export function AppShell() {
     zoomIn,
     zoomOut,
     resetView,
+    cameraBand,
+    toggleCameraBand,
     state,
     act,
     saveNow, exportSave, importSaveFile, newGame,
@@ -194,10 +196,27 @@ export function AppShell() {
               >
                 ⟲
               </button>
+              <button
+                type="button"
+                onClick={toggleCameraBand}
+                title="Toggle Board / Hold view"
+                style={{
+                  padding: "1px 8px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  background: "#2a1a10",
+                  color: "#fef08a",
+                  border: "1px solid #c8963e",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                }}
+              >
+                {cameraBand === "board" ? "🏰 Hold" : "🗺️ Board"}
+              </button>
             </div>
           </div>
           <div style={{ fontSize: 11, opacity: 0.65, marginTop: 4 }}>
-            Drag to pan board · Mouse wheel or buttons to zoom · Click to place/upgrade
+            Hold view: click to build/upgrade · Board view: click province to march · Wheel or toggle to switch bands
           </div>
         </div>
         {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}

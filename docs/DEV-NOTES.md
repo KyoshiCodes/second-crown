@@ -1,18 +1,56 @@
 # DEV-NOTES
 
-Last updated: 2026-09-06
+Last updated: 2026-09-07
 
 ## Presentation Architecture (Gemini Tabletop Board Lane)
 
+- **Two-Band Camera Architecture (`packages/render`)**:
+  - Unified single Pixi canvas (560×360) partitioned into two distinct zoom bands via threshold `ZOOM_THRESHOLD = 0.70`:
+    - **Hold Band (`zoom > 0.70`, range 0.70–2.2, default 1.0)**:
+      - Renders 16×10 isometric turf with living workers, detailed pixel vignettes, animated chimneys, holiday dressings, mists, and particles.
+      - Pointer clicks hit-test the 16×10 tile grid via `worldToGrid(wx, wy)` and trigger `onTileClick(x, y)` to build or upgrade structures.
+    - **Board Band (`zoom <= 0.70`, range 0.45–0.70, default 0.58)**:
+      - Hides Hold detail (`holdContainer.visible = false`) and reveals `boardContainer`.
+      - Scales `boardContainer` by `boardScale = zoom / BOARD_DEFAULT_ZOOM` centered inside the 528×328 diorama window.
+      - Pointer clicks hit-test 8×6 tabletop province chips via `hitTestProvince(bx, by)`.
+      - Clicking home province (`state.board.homeProvinceId`) snaps back to Hold band via `setBand("hold")`.
+      - Clicking foreign province dispatches `tryMarch(state, provinceId)` via `act` helper and toasts the result in the status banner.
+  - Band Transition & Sync:
+    - Wheel zooming across `0.70` smoothly toggles layer visibility and dispatches `onBandChange(band)` as well as a DOM `sc-camera-band-change` event.
+    - `[Board / Hold]` toggle button in `ChromeDock` and on the canvas controls allows instant band switching for testers without mouse wheels.
+- **8×6 Tabletop Board & Province Tokens (`packages/render`)**:
+  - 8 columns × 6 rows grid laid out at `ORIGIN_BOARD_X = 35`, `ORIGIN_BOARD_Y = 27`, with chip size `CHIP_W = 56`, `CHIP_H = 46`, and spacing `GAP_X = 6`, `GAP_Y = 6`.
+  - 3D tactile tokens with contact drop shadow, bottom bevel facet, top highlight, and rich terrain chip palettes:
+    - `plain`: `0x2d5a27` with blade marks and chamomile flower dots.
+    - `wood`: `0x163c1b` with 3 miniature stylized pine trees.
+    - `hill`: `0x44403c` with layered contour ridges.
+    - `waste`: `0x291d18` with glowing amber and red fissure lines.
+    - `shore`: `0x0369a1` with coastal beach fringe and curled surf crests.
+    - `peak`: `0x334155` with twin granite peaks and snowcaps.
+  - Node marks:
+    - `hold`: stone fortress keep with crenellations and flag.
+    - `camp`: striped war pavilion with crossed spears.
+    - `woodcut`: stacked timber cord with crossed axes.
+    - `quarry`: ashlar block with pickaxe.
+    - `field`: bound wheat sheaf with crimson ribbon.
+  - Special realm tokens:
+    - Player Hold (`x=2, y=2`): Gilded brass border, 4 corner studs, golden crown emblem, and animated halo pulse.
+    - Iron March / Rival (`x=5, y=2`): Spiked blackened iron border, iron rivets, spiked battlements, blood-red banner, and dark steel banner.
+- **Active March Pawn Presentation (`packages/render`)**:
+  - `paintBoardMarches` reads `listMarches(state)` / `activePlayerMarch(state)`.
+  - Computes manhattan step distance `dist = |to.x - from.x| + |to.y - from.y|` and total duration `dist * 15` ticks.
+  - Progress lerp: `calculateMarchProgress(tick, arrivesTick, dist)` lerps between origin province center and destination province center.
+  - Dotted animated amber trail connects home hold to destination with destination crosshair target.
+  - Animated tabletop meeple pawn carries faction tabard, steel helm, crimson plume, waving royal standard with stride bob cadence (`Math.sin(phase * 6)`), and live ETA badge.
 - **Tabletop Board & Hardwood Rim (`packages/render`)**:
   - Diorama is framed in a 16px beveled polished walnut rim with mitered 45° joints, antique brass corner plates with rivets, and inner recessed drop shadows cast onto the diorama.
   - Viewport Clipping Mask: Pixi `boardMask` clips all contents of `worldContainer` to `[16, 16, 528, 328]`, ensuring zoomed and panned elements stay cleanly bounded within the wooden frame.
   - Zoom & Pan Navigation (No Rotate):
-    - Smooth mouse wheel zoom centered at cursor pointer (`MIN_ZOOM = 0.75`, `MAX_ZOOM = 2.2`).
+    - Smooth mouse wheel zoom centered at cursor pointer (`MIN_CAMERA_ZOOM = 0.45`, `MAX_CAMERA_ZOOM = 2.2`).
     - Pointer drag panning with velocity bounds clamping to prevent the board from getting lost.
-    - Drag vs Click distinction (< 6px movement) guarantees 100% accurate building placement and upgrade clicks without accidental placement during panning.
+    - Drag vs Click distinction (< 6px movement) guarantees 100% accurate building placement, upgrade clicks, and province clicks without accidental placement during panning.
     - Coordinate inversion: `wx = (px - panX) / zoom`, `wy = (py - panY) / zoom` passed to `worldToGrid(wx, wy)`.
-    - `zoomIn()`, `zoomOut()`, `resetView()` exported on `MapRenderer` and bound to React UI buttons.
+    - `zoomIn()`, `zoomOut()`, `resetView()`, `getBand()`, `setBand()` exported on `MapRenderer` and bound to React UI buttons.
 - **Denser Pixel Architecture (`packages/render`)**:
   - Each building tile is rendered as a dense multi-structure vignette: outbuildings, stone wells, fenced vegetable patches, hayricks, pine groves, firewood cords, stepped quarry pits, derrick cranes, ore carts, silos, spinning waterwheels, multi-stall bazaars, training dummies, and wall bastions.
   - Isometric ground contact shadows anchor structures to the terrain.
