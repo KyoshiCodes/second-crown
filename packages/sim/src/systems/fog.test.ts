@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { isProvinceSeen, tryScoutProvince } from "./fog.js";
+import { isProvinceSeen, tryScoutProvince, visionRange } from "./fog.js";
 
 describe("W13 fog", () => {
   it("home and neighbors start seen", () => {
@@ -23,5 +23,24 @@ describe("W13 fog", () => {
     expect(tryScoutProvince(s, far.id)).toBe(true);
     expect(isProvinceSeen(s, far.id)).toBe(true);
     expect(Number(s.resources.gold)).toBe(12);
+  });
+
+  it("a watchtower extends vision to range 2", () => {
+    const s = createGameState({ seed: 1 });
+    expect(visionRange(s)).toBe(1);
+    s.buildings.push({
+      id: "t",
+      typeId: "watchtower",
+      realmId: "player",
+      x: 3,
+      y: 3,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(visionRange(s)).toBe(2);
+    const mid = s.board.provinces.find(
+      (p) => Math.abs(p.x - 2) + Math.abs(p.y - 2) === 2
+    );
+    expect(mid && isProvinceSeen(s, mid.id)).toBe(true);
   });
 });
