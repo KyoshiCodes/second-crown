@@ -1,5 +1,13 @@
 # HANDOFF
 
+W16 Claude War tab briefing delivered on branch `bakeoff/claude-war2` (PR into main unmerged).
+- War tab now opens with a single "Briefing" card readable in ~20 seconds:
+  - **Incoming**: one line per hostile march bound for your hold — name (only once a Watchtower is built, otherwise "Unknown host") and ETA in seconds — followed by current Wall HP and whether the gate is up or down.
+  - **Wounded**: wounded count vs. infirmary beds, with a "Treat (4 food)" button (`tryTreatWounded`) disabled when nobody is wounded.
+  - **People**: population vs. housing cap (`housingCap`).
+- New pure-function exports from `@second-crown/sim`: `gateOnRim`, `gateHp` (already used internally by `wallHp`/siege math, now exposed for the UI). No combat math, march formulas, or fog rules changed.
+- `git diff main -- packages/sim/src/core` is empty. All existing sim tests (87) and the app build (`tsc -b && vite build`) pass unchanged.
+
 W3 Gemini two-band camera delivered on branch `bakeoff/gemini-board-cam` (PR into main unmerged).
 - Two camera bands on existing Pixi canvas: Hold (`zoom > 0.70`) vs Board (`zoom <= 0.70`).
 - Tabletop 8×6 board tokens rendered from `state.board.provinces`:

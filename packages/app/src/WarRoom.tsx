@@ -1,19 +1,25 @@
 import React from "react";
 import {
   canAffordTrain,
+  gateOnRim,
+  housingCap,
   incomingOnHome,
+  infirmaryBeds,
   listScarred,
   peaceTicksRemaining,
+  population,
   realmPower,
   tryDeclareWar,
   tryGiftGold,
   tryRepair,
   tryResolveWar,
   tryTrain,
+  tryTreatWounded,
   tryWhitePeace,
   wallHp,
   warSummary,
   watchtowerWarning,
+  woundedCount,
   type GameState,
 } from "@second-crown/sim";
 import { DiplomacyPanel } from "./HudControls";
@@ -42,23 +48,50 @@ export function WarRoom(props: {
   const seen = state ? watchtowerWarning(state) : undefined;
   const scarred = state ? listScarred(state) : [];
   const hp = state ? wallHp(state) : 0;
+  const gateUp = state ? gateOnRim(state) : false;
+  const wounded = state ? woundedCount(state) : 0;
+  const beds = state ? infirmaryBeds(state) : 0;
+  const pop = state ? population(state) : 0;
+  const cap = state ? housingCap(state) : 0;
+  const tick = state?.meta.tick ?? 0;
   const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
+  const etaOf = (arrivesTick: number) => Math.max(0, Math.ceil((arrivesTick - tick) / 10));
 
   return (
     <div className="sc-tab-war">
       <WarLivingStrip state={state} />
       <div className="sc-realm-card" style={{ margin: "10px 0", fontSize: 13 }}>
-        <strong>Hold defense</strong>
-        <p style={{ margin: "4px 0" }}>Wall HP {hp}. Siege hits walls first, then the yard, then the keep.</p>
-        {incoming.length > 0 ? (
+        <strong>Briefing</strong>
+        <div style={{ margin: "6px 0" }}>
+          <div style={{ opacity: 0.85, marginBottom: 2 }}>Incoming</div>
+          {incoming.length > 0 ? (
+            <ul style={{ margin: "0 0 4px", paddingLeft: 18 }}>
+              {incoming.map((m) => (
+                <li key={m.id}>
+                  {seen ? nameOf(m.realmId) : "Unknown host"} — ETA {etaOf(m.arrivesTick)}s
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p style={{ margin: "4px 0", opacity: 0.7 }}>No column on your gates.</p>
+          )}
           <p style={{ margin: "4px 0" }}>
-            {seen
-              ? `${nameOf(seen.realmId)} arrives in ${Math.max(0, Math.ceil((seen.arrivesTick - (state?.meta.tick ?? 0)) / 10))}s.`
-              : "A host is on the road. A Watchtower will name them."}
+            Wall HP {hp}. Gate {gateUp ? "up" : "down"}. Siege hits walls first, then the yard, then the keep.
           </p>
-        ) : (
-          <p style={{ margin: "4px 0", opacity: 0.7 }}>No column on your gates.</p>
-        )}
+        </div>
+        <p style={{ margin: "4px 0" }}>
+          Wounded {wounded} / {beds} beds.{" "}
+          <button
+            type="button"
+            disabled={wounded <= 0}
+            onClick={() => act((st) => (tryTreatWounded(st) ? "Treated 1 wounded." : "Need 4 food."))}
+          >
+            Treat (4 food)
+          </button>
+        </p>
+        <p style={{ margin: "4px 0" }}>
+          People {pop} / {cap} housing.
+        </p>
         {scarred.map((b) => (
           <button
             key={b.id}

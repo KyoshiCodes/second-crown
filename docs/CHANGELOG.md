@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-09-07 — Claude War Tab Briefing (`bakeoff/claude-war2`)
+
+- **War Tab Briefing (`packages/app/src/WarRoom.tsx`)**:
+  - Replaced the old single-line "Hold defense" blurb with a "Briefing" card that reads in one glance:
+    - **Incoming**: a row per hostile march headed for your hold, with realm name (revealed only once a Watchtower is built — otherwise "Unknown host") and ETA in seconds, plus current Wall HP and Gate status (up/down).
+    - **Wounded**: wounded count vs. infirmary beds with a "Treat (4 food)" action.
+    - **People**: population vs. housing cap.
+- **Sim exports (`packages/sim/src/index.ts`)**: `gateOnRim` and `gateHp` are now exported from `@second-crown/sim` (pure re-exports of existing `systems/gate.ts` functions already used internally by `wallHp`). No behavior change.
+- **Sim & Core Purity**: `git diff main -- packages/sim/src/core` empty. No combat math, march formulas, fog rules, tickEngine, Discord, or Caddy changes. Full `@second-crown/sim` test suite (87 tests) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-09-07 — Gemini Two-Band Camera & Tabletop Board Diorama (`bakeoff/gemini-board-cam`)
 
 - **Two-Band Camera Architecture (`packages/render`)**:

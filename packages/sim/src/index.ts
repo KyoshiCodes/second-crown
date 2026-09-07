@@ -149,6 +149,8 @@ export {
 } from "./systems/march.js";
 export type { March } from "./systems/march.js";
 
+export { gateOnRim, gateHp } from "./systems/gate.js";
+
 export { incomingOnHome, watchtowerWarning, maybeNpcRaid } from "./systems/raidMarch.js";
 export { resolveSiegeHold, yardPower, keepPower } from "./systems/siege.js";
 export type { SiegeReport } from "./systems/siege.js";

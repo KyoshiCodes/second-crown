@@ -52,6 +52,15 @@ The War tab features an overhauled living unit strip:
 - **Battlefield Demarcation**: Displays real-time clash status and tactical advantage during active wars, or peaceful border watch status during peacetime.
 - **Power Odds Meter**: Dynamic percentage bar showing realm power balance at a glance. Fully readable at 1280px wide.
 
+## War Tab: Briefing Card
+
+Below the unit strip, a single "Briefing" card is meant to be read in about 20 seconds:
+- **Incoming**: one line per hostile column marching on your hold, showing who it is and how many seconds until it arrives. The name only shows once you've built a Watchtower — until then it just says "Unknown host". Right below the list: your current Wall HP and whether the Gate is up or down.
+- **Wounded**: how many wounded you have against your infirmary bed capacity, with a one-click "Treat (4 food)" button (grayed out when nobody's hurt).
+- **People**: your population against your housing cap, so you can see at a glance whether you need another Cottage.
+
+Scarred/damaged buildings still list their own "Repair (8 stone)" buttons underneath, unchanged.
+
 ## Recorded Holiday Audio & ChromeDock
 
 - **Recorded Tracks First**: Plays official recorded loops (`/audio/halloween.ogg`, `/audio/easter.ogg`, `/audio/midwinter.ogg`) when present; smoothly falls back to procedural synth for standard seasons.

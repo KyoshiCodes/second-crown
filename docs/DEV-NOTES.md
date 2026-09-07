@@ -2,6 +2,14 @@
 
 Last updated: 2026-09-07
 
+## War Tab Briefing (Claude War Lane, `packages/app`)
+
+- `WarRoom.tsx` opens with a single `sc-realm-card` titled "Briefing" instead of the old "Hold defense" blurb, built entirely from existing/newly-exported pure sim readers — no new sim state, no combat/march/fog changes:
+  - **Incoming**: `incomingOnHome(state)` lists every hostile `March` bound for `state.board.homeProvinceId`. Each row shows the realm name — gated behind `watchtowerWarning(state)` truthiness exactly as before (a Watchtower must be built; the reveal check is not per-march, matching the pre-existing single-target behavior) — else "Unknown host", plus `Math.max(0, Math.ceil((m.arrivesTick - tick) / 10))`s ETA. `wallHp(state)` and the new `gateOnRim(state)` (up/down) are shown once beneath the list since they describe home defense, not any individual column.
+  - **Wounded**: `woundedCount(state)` / `infirmaryBeds(state)` with a "Treat (4 food)" button wired to `tryTreatWounded`, disabled when `woundedCount <= 0`. The 4-food cost is hardcoded in the label the same way the existing Repair button hardcodes "8 stone" (`REPAIR_STONE`/`TREAT_FOOD` live in `systems/ward.ts` and aren't exported as constants).
+  - **People**: `population(state)` / `housingCap(state)`.
+- `packages/sim/src/index.ts` gained `export { gateOnRim, gateHp } from "./systems/gate.js";` — both functions already existed and were already used internally by `wallHp` (`systems/march.ts`); this only exposes them to `@second-crown/app`. No logic changed, so `git diff main -- packages/sim/src/core` stays empty and the full sim suite is unaffected.
+
 ## Presentation Architecture (Gemini Tabletop Board Lane)
 
 - **Two-Band Camera Architecture (`packages/render`)**:
