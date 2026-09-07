@@ -5,6 +5,7 @@ import { countBuilding } from "../content/buildings.js";
 import type { RngStreams } from "../core/rng.js";
 import { grantVictorySpoils, flagNum } from "./wave.js";
 import { fortifyPower } from "./court.js";
+import { absorbWounded } from "./ward.js";
 
 export function fortificationPower(state: GameState, realmId: string): number {
   if (realmId !== "player") return 0;
@@ -16,12 +17,6 @@ export function fortificationPower(state: GameState, realmId: string): number {
   );
 }
 
-/**
- * Extra power fortifications only grant while defending a siege, on top of
- * the flat fortificationPower already folded into realmPower. Keeps are the
- * first building to use this hook: presentation/combat can call this to show
- * a "defender's advantage" separate from raw power.
- */
 export function defenseBonus(state: GameState, realmId: string): number {
   if (realmId !== "player") return 0;
   return countBuilding(state, "keep") * 8;
@@ -107,7 +102,12 @@ function applyCasualties(state: GameState, realmId: string, fraction: number): v
     if (u.realmId !== realmId) continue;
     const count = D(u.count);
     const lost = count.mul(fraction).floor();
-    u.count = toDecimalString(count.sub(lost).lt(0) ? 0 : count.sub(lost));
+    let remain = count.sub(lost);
+    if (remain.lt(0)) remain = D(0);
+    if (realmId === "player") {
+      absorbWounded(state, lost.toNumber());
+    }
+    u.count = toDecimalString(remain);
   }
   state.units = state.units.filter((u) => D(u.count).gt(0));
 }
