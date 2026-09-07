@@ -3,7 +3,7 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
 import { getProvince, neighbors, provinceAt } from "./board.js";
 import { defenseBonus, realmPower, resolveBattle } from "./combat.js";
-import type { RngStreams } from "../core/rng.js";
+import { createRngStreams, type RngStreams } from "../core/rng.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -142,7 +142,6 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
   return "March arrived.";
 }
 
-/** Incoming strike on the player's hold (used by tests and later AI). */
 export function applySiegeBlow(state: GameState, attackerPower: number, defenderScore: number): string | null {
   if (attackerPower <= defenderScore * 1.35) return null;
   return damageHoldBuilding(state);
@@ -159,12 +158,9 @@ export const MarchSystem = {
     if (due.length === 0) return;
     const rest = marches(state).filter((m) => m.arrivesTick !== tick);
     saveMarches(state, rest);
+    const rng = createRngStreams(state.meta.seed + tick);
     for (const m of due) {
-      resolveMarchArrival(state, m, {
-        battle: () => 0.5,
-        world: () => 0.5,
-        loot: () => 0.5,
-      } as RngStreams);
+      resolveMarchArrival(state, m, rng);
     }
   },
   advanceAnalytic(): void {},
