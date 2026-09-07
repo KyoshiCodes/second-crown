@@ -13,8 +13,8 @@ describe("academy research", () => {
     expect(tryTrain(s, { typeId: "cavalry", count: 1 })).toBe(false);
     expect(tryStartResearch(s, "horse")).toBe(false);
     s.buildings.push({
-      id: "ac",
-      typeId: "academy",
+      id: "br",
+      typeId: "barracks",
       realmId: "player",
       x: 4,
       y: 4,

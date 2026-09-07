@@ -8,7 +8,7 @@ export const RESEARCH = {
     name: "Horse lore",
     ticks: 240,
     cost: { gold: "40", wood: "24" },
-    needs: "academy",
+    needs: "barracks",
     unlocks: ["cavalry", "knight"],
   },
 } as const;
