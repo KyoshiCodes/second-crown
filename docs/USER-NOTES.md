@@ -1,8 +1,38 @@
 # USER-NOTES
 
-Last updated: 2026-09-08 | Version: playtest-0.15 (Gemini Culture Kits: Distinct Silhouettes for Cedar, Sand, Steppe & Islands)
+Last updated: 2026-09-08 | Version: playtest-0.16 (Gemini Kits + Climate: Full Silhouettes & Ambient Climates)
 
 Play: `https://129.153.17.72.sslip.io/`
+
+## Full Culture Silhouettes & Regional Climate Overlays
+
+Your realm's cultural choice now transforms the entire hold, army roster, and ambient world atmosphere with distinct cultural architecture, weapon silhouettes, and climate layers. Crown Marches (`western`) retains 100% of its classic European medieval visuals and soundtracks.
+
+1. **Complete Architectural Silhouettes Across Every Building**:
+   - **All 19 Buildings Completed**: Every structure in the game (`keep`, `cottage`, `farm`, `lumber`, `quarry`, `barracks`, `chapel`, `watchtower`, `walls`, `gate`, `infirmary`, `academy`, `siege_workshop`, `mint`, `granary`, `sawmill`, `mason`, `stables`, `archery_range`) has a unique physical model for `cedar`, `sand`, `steppe`, and `islands`.
+   - **Regional Outpost Flags**: When claiming an outpost on the regional board, your faction plants its authentic cultural standard — Cedar forest totems with carved bear heads, Sand bronze lances with silk pennants, Steppe horsehair sulde standards, or Island bamboo spars with conch shell finials.
+
+2. **Complete Army Roster Cultural Weaponry & Regalia**:
+   - Every military unit (`archer`, `skirmisher`, `spearman`, `militia`, `cavalry`, `knight`, `siege`, `champion`) features culturally authentic equipment:
+     - **Cedar Kin**: Recurve flatbows, hunting javelins, elk-skin armored forest cavalry, bear-fur claymore knights, sinew-torsion log ballistas, and dual-greataxe warlords in bear-skull helms.
+     - **Sand Banner**: Desert composite hornbows, throwing darts, silk-caparisoned Arabian chargers, gilded lamellar shamshir knights, bronze traction trebuchets, and winged desert masters with twin scimitars.
+     - **Wind Host**: Reflex horse-bows, streamer darts, shaggy steppe lancers, heavy cataphract sabre knights, wheeled cart catapults, and royal fur-trimmed khagans with ancestral bows.
+     - **Tide Clans**: Braided-hemp bamboo longbows, bone-barbed harpoons, outrigger sea cavalry, turtle-shell leiomano knights, salt-hardened springalds, and feathered great-trident chieftains.
+
+3. **Subtle Atmospheric Climates (Hold + Board)**:
+   - When ruling a non-western realm, a delicate, non-intrusive atmospheric layer touches your screen without obscuring gameplay or blocking clicks:
+     - **Cedar Kin**: Fine pine pollen motes floating in the air, a cool green forest mist drift, and cooler evergreen washes across board forest and plain tiles.
+     - **Sand Banner**: Floating golden dust motes with gentle heat shimmer, radiant sun washes, and warm desert dune washes on waste and plain board tiles.
+     - **Wind Host**: Swift windblown grass seeds sweeping across the view, an open wide-sky horizon wash, and grass ripple sweeps across plain and steppe chips.
+     - **Tide Clans**: Shimmering sea spray droplets, coastal haze and surf sheen, and glistening wet stone textures across shorelines.
+   - Holidays remain completely intact; lanterns and candles glow bright without drowning.
+
+4. **Procedural Synth Soundscapes**:
+   - Each culture features a distinct Web Audio soundscape when music is enabled, with seamless fallback if no recorded audio file is present:
+     - **Cedar**: A lyrical woodwind flute bed in a forest minor scale with soft breath overtones.
+     - **Sand**: An arid Phrygian melody with dry doumbek/frame drum percussion accents.
+     - **Steppe**: A wide-plains pentatonic melody accompanied by a bowed horsehair fiddle (Morin Khuur) drone swell.
+     - **Islands**: An oceanic pentatonic chime accompanied by a rhythmic ocean surf wave surge.
 
 ## Culture Kits: Distinct Architectural & Unit Silhouettes
 

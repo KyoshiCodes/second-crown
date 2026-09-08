@@ -1,5 +1,42 @@
 # HANDOFF
 
+Bakeoff Gemini Kits + Climate lane delivered on branch `bakeoff/gemini-climate` (PR into main unmerged).
+
+- **Complete Culture Kit Silhouettes for All Buildings (`packages/render`)**:
+  - Full architectural silhouettes across all remaining 15 building types for non-western cultures (`cedar`, `sand`, `steppe`, `islands`):
+    - `quarry`, `barracks`, `chapel`, `watchtower`, `walls`, `gate`, `infirmary`, `academy`, `siege_workshop`, `mint`, `granary`, `sawmill`, `mason`, `stables`, `archery_range`.
+    - Custom regional outpost flags in `paintBoardProvinces`: cedar totem with bear finial, sand bronze lance with silk swallowtail, steppe horsehair sulde standard, and islands bamboo spar with shell finial.
+    - Western Crown Marches (`western`) retains 100% untouched original art and architecture.
+- **Complete Culture Kit Silhouettes for All Unit Icons (`packages/app/src/UnitIcon.tsx`)**:
+  - Distinct cultural silhouettes across all remaining unit types (`archer`, `skirmisher`, `cavalry`, `knight`, `siege`, `champion`):
+    - `cedar`: Woodland hunters with recurve flatbows, camouflaged javelin skirmishers, elk-skin barded forest cavalry, bear-fur claymore knights, sinew torsion log ballistas, and bear-skull crowned greataxe warlords.
+    - `sand`: Desert composite hornbow archers, keffiyeh dart skirmishers, silk-caparisoned arabian cavalry, gilded lamellar shamshir knights, bronze traction trebuchets, and twin-scimitar winged masters of the dunes.
+    - `steppe`: Nomadic reflex horse-archers, rawhide dart skirmishers, shaggy pony lancers, heavy cataphract sabre knights, wheeled cart catapults, and royal fur-trimmed khagans with ancestral recurve bows.
+    - `islands`: Bamboo hemp-strung archers, bone-barb throwing harpooners, outrigger marine cavalry, turtle-shell leiomano knights, salt-hardened springalds, and feathered great-trident chieftains.
+    - `western`: 100% untouched knightly plate, yew longbows, destriers, mangonels, and winged champions.
+- **Presentation-Only Culture Climate Overlays (Hold & Board)**:
+  - Non-blocking (`pointerEvents: none`) climate atmospheric presentation active when `playerCultureId !== "western"`:
+    - `cedar`: Pine pollen motes, cool forest mist drift (`.sc-climate-cedar`), cooler green terrain wash on plain/wood chips.
+    - `sand`: Shimmering heat dust motes, radiant sun shimmer (`.sc-climate-sand`), warm dune wash across waste/plain chips.
+    - `steppe`: Rapid windblown grass seeds, wide-sky horizon wash (`.sc-climate-steppe`), grass ripple washes across plain/waste chips.
+    - `islands`: Coastal sea spray droplets, sea haze & surf sheen (`.sc-climate-islands`), wet stone sheen across shore chips.
+  - Strictly preserves holidays, never drowns dim lanterns, and leaves tile clicks 100% interactive.
+- **Procedural Synth Beds & Audio Fallback (`music.ts` & `audioManager.ts`)**:
+  - Web Audio procedural synth bed fallbacks with 0 binary assets required:
+    - `cedar`: Lyrical woodwind flute bed in dorian minor with soft cedar breath harmonics.
+    - `sand`: Desert Phrygian melody with dry percussion fallback (frame drum / doumbek strike and finger tap).
+    - `steppe`: Nomadic pentatonic melody with bowed Morin Khuur horsehair drone swell and fifth overtone harmonics.
+    - `islands`: Oceanic pentatonic chimes with surging sea surf wave swell bed.
+    - `western`: 100% untouched seasonal and holiday soundtracks.
+  - `audioManager.ts`: Hooks `sync(pack, season, battleActive, culture)`. Proactively checks `/audio/${culture}.ogg`; on error (file missing), smoothly falls back to procedural synth bed without uncaught errors or audio gaps.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` is 100% empty.
+  - `@second-crown/sim` tests: 119/119 pass.
+  - `@second-crown/render` tests: 28/28 pass (includes all 19 buildings across all 5 kits).
+  - `@second-crown/app`: Builds in ~4.3s with 0 errors.
+
+---
+
 Bakeoff Gemini Culture Kits lane delivered on branch `bakeoff/gemini-kits` (PR into main unmerged).
 
 - **Culture Kit Silhouettes for Hold Buildings (`packages/render`)**:

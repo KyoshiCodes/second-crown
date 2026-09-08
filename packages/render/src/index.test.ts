@@ -24,6 +24,8 @@ import {
   culturePalette,
   resolveCultureKit,
   isNpcHoldProvince,
+  drawIsometricBuilding,
+  getThemeVisuals,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 
@@ -522,6 +524,68 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(resolveCultureKit("tide")).toBe("islands");
 
       expect(resolveCultureKit("unknown_culture")).toBe("western");
+    });
+  });
+
+  describe("drawIsometricBuilding culture kit rendering", () => {
+    function createMockGraphics() {
+      const g: any = new Proxy({}, {
+        get: (_target, prop) => {
+          if (prop === "then") return undefined;
+          return () => g;
+        },
+      });
+      return g;
+    }
+
+    const buildingTypes = [
+      "keep",
+      "cottage",
+      "farm",
+      "lumber",
+      "quarry",
+      "barracks",
+      "chapel",
+      "watchtower",
+      "walls",
+      "gate",
+      "infirmary",
+      "academy",
+      "siege_workshop",
+      "mint",
+      "granary",
+      "sawmill",
+      "mason",
+      "stables",
+      "archery_range",
+    ];
+
+    const cultureKits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+
+    it("renders all 19 building types for all 5 culture kits without error", () => {
+      const g = createMockGraphics();
+      const visuals = getThemeVisuals("Spring", "none");
+
+      for (const kit of cultureKits) {
+        for (const typeId of buildingTypes) {
+          expect(() => {
+            drawIsometricBuilding(g, typeId, 2, true, 0.5, visuals, 4, 4, undefined, kit);
+          }).not.toThrow();
+        }
+      }
+    });
+
+    it("renders incomplete buildings and level progression for all cultures", () => {
+      const g = createMockGraphics();
+      const visuals = getThemeVisuals("Winter", "none");
+
+      for (const kit of cultureKits) {
+        expect(() => {
+          drawIsometricBuilding(g, "quarry", 1, false, 0, visuals, 2, 2, undefined, kit);
+          drawIsometricBuilding(g, "barracks", 5, true, 1.2, visuals, 2, 2, undefined, kit);
+          drawIsometricBuilding(g, "walls", 3, true, 0, visuals, 0, 0, { n: true, s: false, e: true, w: false }, kit);
+        }).not.toThrow();
+      }
     });
   });
 });

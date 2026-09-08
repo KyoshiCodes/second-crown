@@ -471,3 +471,42 @@
   border: 1px solid rgba(74, 222, 128, 0.4);
   border-radius: 4px;
 }
+
+/* --- Culture Climate Overlays --- */
+@keyframes sc-heat-shimmer {
+  0%, 100% { opacity: 0.035; transform: scaleY(1); }
+  50% { opacity: 0.06; transform: scaleY(1.015); }
+}
+
+.sc-climate-sand {
+  animation: sc-heat-shimmer 7s ease-in-out infinite;
+}
+
+@keyframes sc-grass-ripple {
+  0% { transform: translateX(-15px); opacity: 0.03; }
+  50% { opacity: 0.055; }
+  100% { transform: translateX(15px); opacity: 0.03; }
+}
+
+.sc-climate-steppe {
+  animation: sc-grass-ripple 11s ease-in-out infinite alternate;
+}
+
+@keyframes sc-surf-sheen {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.06; }
+}
+
+.sc-climate-islands {
+  animation: sc-surf-sheen 8s ease-in-out infinite;
+}
+
+@keyframes sc-mist-drift {
+  0% { opacity: 0.03; transform: translateX(-10px); }
+  50% { opacity: 0.05; }
+  100% { opacity: 0.03; transform: translateX(10px); }
+}
+
+.sc-climate-cedar {
+  animation: sc-mist-drift 10s ease-in-out infinite alternate;
+}

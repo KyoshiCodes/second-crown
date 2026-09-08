@@ -1,5 +1,46 @@
 # DEV-NOTES
 
+## 2026-09-08 — Presentation Architecture: Full Building & Unit Silhouettes, Culture Climates & Audio Fallbacks (Gemini Kits + Climate, `bakeoff/gemini-climate`)
+
+- **Full Hold Building Silhouette Kit Coverage (`packages/render/src/index.ts`)**:
+  - Implemented 15 new culture dispatch drawing helpers: `drawQuarryCulture`, `drawMasonCulture`, `drawGranaryCulture`, `drawSawmillCulture`, `drawMintCulture`, `drawBarracksCulture`, `drawStablesCulture`, `drawArcheryRangeCulture`, `drawChapelCulture`, `drawWatchtowerCulture`, `drawAcademyCulture`, `drawSiegeWorkshopCulture`, `drawInfirmary`, `drawWallsCulture`, `drawGateCulture`.
+  - Dispatched inside `drawIsometricBuilding` for every building type in the game when `resolveCultureKit(cultureId) !== "western"`.
+  - Enriched `CultureVisualPalette` with `roof`, `plaster`, and `accent` fields across all culture kits.
+  - Exported `drawIsometricBuilding` and `getThemeVisuals` for headless matrix test coverage.
+  - Crown Marches (`western`) executes its original drawing code path 100% unaltered.
+- **Outpost Banners on Board (`packages/render/src/index.ts`)**:
+  - `paintBoardProvinces`: Renders custom cultural outpost flags on claimed non-hold provinces:
+    - `cedar`: Pine totem standard with bear finial and jagged forest pennant.
+    - `sand`: Crescent bronze lance with crimson silk swallowtail.
+    - `steppe`: Horsehair sulde standard with flying leather streamer.
+    - `islands`: Bamboo spar with conch shell finial and woven teal trident flag.
+    - `western`: Untouched knightly banner on ash pole.
+- **Unit Icon Silhouette Variations (`packages/app/src/UnitIcon.tsx`)**:
+  - Completed distinct cultural SVG silhouettes across all remaining military unit classes: `archer`, `skirmisher`, `cavalry`, `knight`, `siege`, and `champion`.
+  - Every unit features unique equipment geometry (bows, javelins, barding, helmets, shields, and siege mechanisms) without infringing on copyrighted franchise shapes.
+  - Western culture SVG vectors remain 100% untouched.
+- **Presentation-Only Climate Overlays (`packages/render`, `packages/app`)**:
+  - Board terrain chip washes in `paintBoardProvinces`:
+    - `sand`: Warm desert dune wash over waste and plain chips (`0xd97706`, alpha 0.05).
+    - `cedar`: Pine pollen and mist wash over plain and wood chips (`0x203525`, alpha 0.06).
+    - `steppe`: Sweeping grass ripple wash over plain and waste chips (`0x84cc16`, alpha 0.04).
+    - `islands`: Wet stone and surf sheen wash over shore and water chips (`0x0ea5e9`, alpha 0.06).
+  - Canvas particles in `WeatherOverlay.tsx`: Added non-western culture particle streams (`pine_pollen`, `dust`, `ripple`, `spray`) running concurrently with seasonal particles.
+  - CSS climate layers (`theme.css` & `WeatherOverlay.tsx`): Subtle atmospheric background radial/linear gradients with `@keyframes sc-heat-shimmer`, `sc-grass-ripple`, `sc-surf-sheen`, and `sc-mist-drift`.
+  - Container styling: All climate overlays use `pointer-events: none` and sit at `z-index: 0` so tile clicks, inspection, and lanterns are never obstructed.
+- **Procedural Synth Soundscapes & Audio Fallback (`music.ts`, `audioManager.ts`)**:
+  - `music.ts`: Added `CULTURE_MUSIC` dictionary defining scales, bass drones, and tempos for `cedar` (dorian woodwind flute), `sand` (phrygian desert scale), `steppe` (open plains pentatonic), and `islands` (pentatonic chimes).
+  - Added dedicated procedural ambient timers in `runBed`:
+    - `sand`: Frame drum / doumbek strike and high finger tap.
+    - `steppe`: Bowed horsehair Morin Khuur drone swell with fifth overtone.
+    - `islands`: Low oceanic surf wave surge.
+    - `cedar`: Soft cedar woodwind breath overtone.
+  - `audioManager.ts`: Updated `sync(pack, season, battleActive, culture)`. Proactively queries `/audio/${culture}.ogg`; on error (missing asset), smoothly triggers `setMusicCulture(culture)` and unmutes the procedural synth bed.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` is strictly empty (0 lines changed).
+  - Vitest suites pass completely: 119 in `@second-crown/sim`, 28 in `@second-crown/render`.
+  - `npm run build -w @second-crown/app` succeeds with zero errors.
+
 ## 2026-09-08 — Presentation Architecture: Culture Kit Silhouettes for Hold Buildings, Walkers & Unit Icons (Gemini Culture Kits, `bakeoff/gemini-kits`)
 
 - **Culture Kit Normalization & Helpers (`packages/render`)**:
