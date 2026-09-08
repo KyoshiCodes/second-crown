@@ -117,13 +117,13 @@ export function useGameEngine() {
       window.dispatchEvent(new CustomEvent("sc-world-dispatch", { detail: worldLine }));
     }
     mapRef.current?.sync(s);
-    const incoming = s.wars.find((w) => w.status === "active" && w.attackerRealmId !== "player");
+    const incoming = s.wars.find(
+      (w) => w.status === "active" && w.defenderRealmId === "player" && w.attackerRealmId !== "player"
+    );
     if (incoming && incoming.id !== lastRivalWar.current) {
       lastRivalWar.current = incoming.id;
       const name = s.realms.find((r) => r.id === incoming.attackerRealmId)?.name ?? incoming.attackerRealmId;
-      setStatus(`${name} declares war! "${getWarTaunt(incoming.attackerRealmId)}"`);
-      setTab("war");
-      setPaused(true);
+      setStatus(`${name} declares war! "${getWarTaunt(incoming.attackerRealmId)}" Clock still runs.`);
       sfx.war();
     }
   }, []);
