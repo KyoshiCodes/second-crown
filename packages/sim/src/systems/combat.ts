@@ -6,6 +6,7 @@ import type { RngStreams } from "../core/rng.js";
 import { grantVictorySpoils, flagNum } from "./wave.js";
 import { fortifyPower } from "./court.js";
 import { absorbWounded } from "./ward.js";
+import { takePlunder } from "./vault.js";
 
 export function fortificationPower(state: GameState, realmId: string): number {
   if (realmId !== "player") return 0;
@@ -122,11 +123,9 @@ function plunder(
   if (loserId === "player") {
     for (const res of ["gold", "food", "wood", "stone"]) {
       const have = D(state.resources[res] ?? "0");
-      const taken = have.mul(fraction).floor();
-      if (taken.gt(0)) {
-        state.resources[res] = toDecimalString(have.sub(taken));
-        loot[res] = toDecimalString(taken);
-      }
+      const want = have.mul(fraction).floor().toNumber();
+      const taken = takePlunder(state, res, want);
+      if (taken > 0) loot[res] = toDecimalString(taken);
     }
   } else if (winnerId === "player") {
     const purse = Math.max(10, Math.floor(realmPower(state, loserId) * 2 + 50));
