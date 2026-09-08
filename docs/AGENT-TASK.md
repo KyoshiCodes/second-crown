@@ -1,27 +1,44 @@
-# Lane: Gemini leftover kits
+# Lane: Gemini remaining silhouettes
 
-Branch: `bakeoff/gemini-holdrest` from current `main`.
+Branch: `bakeoff/gemini-remain` from current `main`.
 Do not merge. Do not edit `packages/sim` or `server`.
 `git diff main -- packages/sim server` must stay empty.
+Owner screenshots (Sand + teal-roof holds): grey curtain walls, grey gate towers, purple chapel, red-cross infirmary, western siege yard, and Army icons for cavalry / knight / champion / siege still use the Crown Marches drawing.
 
-PR 23–24 covered most hold art. This lane is the leftovers the sim still lists.
+## Still western (must redesign for cedar, sand, steppe, islands)
 
-## Must-draw (real ids from packages/sim/src/content/buildings.ts)
-`farm`, `cottage`, `lumber_camp` (not `lumber`), `quarry`, `gold_mine`, `granary`, `sawmill`, `mason`, `market`, `mint`, `barracks`, `stables`, `archery_range`, `siege_workshop`, `watchtower`, `chapel`, `infirmary`, `walls`, `gate`, `keep`.
-If `drawIsometricBuilding` still keys `lumber` only, alias `lumber_camp`.
-`gold_mine` and `market` are the usual misses — they need cedar/sand/steppe/islands silhouettes. Western stays current.
+Buildings (hold):
+- walls (interior block AND rim curtain + merlons)
+- gate / gatehouse towers
+- chapel
+- infirmary (drop the generic red-cross field hospital)
+- siege_workshop
+- watchtower if it is still the same slate turret on all kits
+- barracks / stables / archery_range if they still share one western hall
 
-## Columns and strips
-Player march meeples and gather carts on the board, plus WarLivingStrip / ArmyVisual UnitIcons, must use the same culture kit as the hold. Hostile Iron March meeples stay red/iron.
+Units (UnitIcon.tsx — these cases have no kit switch today):
+- archer
+- skirmisher
+- cavalry
+- knight
+- siege
+- champion (named heroes like Suki still use this type)
 
-## Climate
-Do not rip out PR 24 climate. You may thicken gold_mine/market only.
-No new building types. No copyrighted franchise shapes.
+Already kit-switched (do not restyle western; only touch if a kit is missing):
+- keep, cottage, farm, lumber_camp, quarry, gold_mine, market, granary, sawmill, mason, mint
+- militia, spearman
+- villager / guard walkers
+
+## Rules
+Western Crown Marches stays the current look.
+Original designs. No franchise copies.
+Do not break tile clicks, rim wall HP presentation, holidays, or dim lanterns.
+Do not add a second music bed.
 
 ## Verify
-Add or extend render tests so every BUILDING_TYPES id is passed through `drawIsometricBuilding` for western + cedar + sand + steppe + islands without throw.
+Render tests: walls, gate, chapel, infirmary, siege_workshop, plus UnitIcon types above, for all 5 kits without throw.
 `npm test`
 `npm run test -w @second-crown/render`
 `npm run build -w @second-crown/app`
-Rewrite `walkthrough.md` for this PR only. Update HANDOFF, CHANGELOG, USER-NOTES, DEV-NOTES.
+Rewrite walkthrough.md for this PR only. Update HANDOFF, CHANGELOG, USER-NOTES, DEV-NOTES.
 PR into main, leave unmerged.

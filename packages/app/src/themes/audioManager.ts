@@ -72,18 +72,17 @@ class AudioManager {
     this.isBattleActive = battleActive;
     const muted = isMusicMuted();
 
-    // Update procedural synth fallbacks
+    // Recorded holiday beds must kill the beep before setMusicHoliday restarts it.
+    if (pack.musicSrc) setSynthMelodySuppressed(true);
+
     setMusicSeason(season);
     setMusicHoliday(pack.isHoliday ? pack.id : null);
 
     if (battleActive) {
       if (pack.battleSrc && pack.battleSrc !== this.currentBattleSrc) {
         this.currentBattleSrc = pack.battleSrc;
-        if (this.battleEl) {
-          this.battleEl.src = pack.battleSrc;
-        }
+        if (this.battleEl) this.battleEl.src = pack.battleSrc;
       }
-
       if (!muted && this.battleEl && pack.battleSrc) {
         this.battleEl.play().then(() => {
           this.recordedBattlePlaying = true;
@@ -91,7 +90,7 @@ class AudioManager {
           this.recordedBattlePlaying = false;
           setMusicBattle(true);
         });
-      } else {
+      } else if (battleActive && !pack.battleSrc) {
         setMusicBattle(true);
       }
     } else {
@@ -103,25 +102,30 @@ class AudioManager {
       setMusicBattle(false);
     }
 
-    // Handle ambient track (plays /audio/halloween.ogg, /audio/easter.ogg, /audio/midwinter.ogg when present)
     if (pack.id !== this.currentPackId || pack.musicSrc !== this.currentMusicSrc) {
       this.currentPackId = pack.id;
       this.currentMusicSrc = pack.musicSrc;
 
-      if (this.musicEl) {
+      if (this.musicEl && pack.musicSrc) {
         this.musicEl.src = pack.musicSrc;
         if (!muted) {
           this.musicEl.play().then(() => {
             this.recordedMusicPlaying = true;
             setSynthMelodySuppressed(true);
           }).catch(() => {
-            // Recorded track failed or blocked by autoplay -> smooth fallback to procedural synth bed
             this.recordedMusicPlaying = false;
             setSynthMelodySuppressed(false);
           });
         }
+      } else if (!pack.musicSrc) {
+        if (this.musicEl) {
+          this.musicEl.removeAttribute("src");
+          this.musicEl.load();
+        }
+        this.recordedMusicPlaying = false;
+        if (!muted) setSynthMelodySuppressed(false);
       }
-    } else if (!muted && this.musicEl && this.musicEl.paused && !this.musicEl.error) {
+    } else if (!muted && this.musicEl && pack.musicSrc && this.musicEl.paused && !this.musicEl.error) {
       this.musicEl.play().then(() => {
         this.recordedMusicPlaying = true;
         setSynthMelodySuppressed(true);
@@ -145,6 +149,7 @@ class AudioManager {
     } else {
       startMusicBed();
       if (this.musicEl && this.currentMusicSrc) {
+        setSynthMelodySuppressed(true);
         this.musicEl.play().then(() => {
           this.recordedMusicPlaying = true;
           setSynthMelodySuppressed(true);
@@ -165,6 +170,7 @@ class AudioManager {
   public start(): void {
     startMusicBed();
     if (!isMusicMuted() && this.musicEl && this.currentMusicSrc) {
+      setSynthMelodySuppressed(true);
       this.musicEl.play().then(() => {
         this.recordedMusicPlaying = true;
         setSynthMelodySuppressed(true);
