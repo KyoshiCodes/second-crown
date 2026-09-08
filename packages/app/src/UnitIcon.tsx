@@ -1,5 +1,6 @@
 import React from "react";
 import { getCulture } from "@second-crown/sim";
+import { resolveCultureKit, type CultureKit } from "@second-crown/render";
 
 export const CultureContext = React.createContext<string>("western");
 
@@ -38,7 +39,7 @@ function useUnitCadence(enabled: boolean): 0 | 1 | 2 {
  * Pixel silhouette unit icon in the same language as hold walkers and buildings.
  * Integer pixel alignments, authentic 2-3 frame idle/march strides, facing,
  * tabard colors, and type-specific weapons/gear.
- * Supports player culture tints (Crown Marches, Cedar Kin, Sand Banner, Wind Host, Tide Clans).
+ * Supports player culture tints and distinct silhouettes (Crown Marches, Cedar Kin, Sand Banner, Wind Host, Tide Clans).
  */
 export function UnitIcon(props: UnitIconProps) {
   const {
@@ -53,8 +54,9 @@ export function UnitIcon(props: UnitIconProps) {
 
   const contextCulture = React.useContext(CultureContext);
   const activeCultureId = culture || contextCulture || "western";
+  const kit: CultureKit = resolveCultureKit(activeCultureId);
   const cultureDef = getCulture(activeCultureId);
-  const isDefaultCulture = cultureDef.id === "western";
+  const isDefaultCulture = kit === "western";
   const cultPal = cultureDef.palette;
 
   const autoFrame = useUnitCadence(animated && props.frame === undefined);
@@ -135,6 +137,98 @@ export function UnitIcon(props: UnitIconProps) {
       }
 
       case "spearman": {
+        if (!isDefaultCulture) {
+          switch (kit) {
+            case "cedar": {
+              // Woodland hunter spearman: leaf-blade spear, hooded cowl, fur mantle, round cedar shield
+              return (
+                <g>
+                  <ellipse cx="18" cy="30" rx="7.5" ry="2.2" fill="#000000" fillOpacity="0.35" />
+                  <rect x={18 + legL * facing} y={26 - bob} width="2.5" height="4" fill="#36220f" />
+                  <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#24170b" />
+                  <rect x="14.5" y={18 - bob} width="7" height="8" rx="1" fill="#2d4a22" />
+                  <rect x="14.5" y={22 - bob} width="7" height="1.6" fill={cultPal.timber} />
+                  <polygon points={`14,${17 - bob} 22,${17 - bob} 23,${21 - bob} 18,${22 - bob} 13,${21 - bob}`} fill="#4a3728" />
+                  <circle cx="18" cy={14 - bob} r="3" fill="#e2c8a2" />
+                  <polygon points={`14,${14 - bob} 18,${8 - bob} 22,${14 - bob} ${18 - facing * 2.5},${17 - bob}`} fill="#1e3318" />
+                  <circle cx="18" cy={8 - bob} r="1" fill="#36220f" />
+                  <line x1={18 + facing * 5} y1={30 - bob} x2={18 + facing * 5} y2={4 - bob + armSwing} stroke="#5c3818" strokeWidth="1.5" />
+                  <polygon points={`${18 + facing * 5},${2 - bob + armSwing} ${18 + facing * 5 - 2.8},${6 - bob + armSwing} ${18 + facing * 5},${9 - bob + armSwing} ${18 + facing * 5 + 2.8},${6 - bob + armSwing}`} fill="#cbd5e1" stroke="#475569" strokeWidth="0.5" />
+                  <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="4.2" fill="#78350f" stroke="#36220f" strokeWidth="1" />
+                  <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="2.2" fill="#2d4a22" />
+                  <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="1" fill="#cbd5e1" />
+                </g>
+              );
+            }
+            case "sand": {
+              // Desert spearman: fluttering turban havelock, crimson sash, slender pennon lance, brass sun buckler
+              return (
+                <g>
+                  <ellipse cx="18" cy="30" rx="7.5" ry="2.2" fill="#000000" fillOpacity="0.35" />
+                  <rect x={18 + legL * facing} y={26 - bob} width="2.5" height="4" fill="#a16207" />
+                  <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#854d0e" />
+                  <rect x="14.5" y={18 - bob} width="7" height="8.5" rx="1" fill="#fef3c7" />
+                  <rect x="14" y={22 - bob} width="8" height="2" fill="#b91c1c" />
+                  <line x1={18 - facing * 2} y1={23 - bob} x2={18 - facing * 4.5} y2={28 - bob} stroke="#b91c1c" strokeWidth="1.5" />
+                  <circle cx="18" cy={14 - bob} r="3" fill="#d4a373" />
+                  <rect x="14" y={11 - bob} width="8" height="3.5" rx="1.5" fill="#fde68a" />
+                  <path d={`M${18 - facing * 3} ${12 - bob} Q${18 - facing * 6} ${16 - bob} ${18 - facing * 4} ${22 - bob}`} stroke="#fef3c7" strokeWidth="2.2" fill="none" />
+                  <line x1={18 + facing * 5} y1={30 - bob} x2={18 + facing * 5} y2={3 - bob + armSwing} stroke="#78350f" strokeWidth="1.3" />
+                  <polygon points={`${18 + facing * 5},${1 - bob + armSwing} ${18 + facing * 5 - 1.5},${6 - bob + armSwing} ${18 + facing * 5 + 1.5},${6 - bob + armSwing}`} fill="#f1f5f9" />
+                  <polygon points={`${18 + facing * 5},${5 - bob + armSwing} ${18 + facing * 9},${7 - bob + armSwing} ${18 + facing * 5},${9 - bob + armSwing}`} fill="#dc2626" />
+                  <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="3.8" fill="#d97706" stroke="#facc15" strokeWidth="1" />
+                  <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="1.5" fill="#fef08a" />
+                </g>
+              );
+            }
+            case "steppe": {
+              // Steppe nomad spearman: conical spangenhelm with horsehair crest, double-breasted caftan, horsehair lance, studded buckler
+              return (
+                <g>
+                  <ellipse cx="18" cy="30" rx="7.5" ry="2.2" fill="#000000" fillOpacity="0.35" />
+                  <rect x={18 + legL * facing} y={26 - bob} width="2.7" height="4" fill="#1e1b18" />
+                  <rect x={18 + legR * facing} y={26 - bob} width="2.7" height="4" fill="#3f3f46" />
+                  <rect x="14" y={17 - bob} width="8" height="9.5" rx="1.5" fill="#475569" />
+                  <polygon points={`15,${17 - bob} 18,${21 - bob} 15,${26 - bob}`} fill="#334155" />
+                  <rect x="13.5" y={22 - bob} width="9" height="1.8" fill="#eab308" />
+                  <circle cx="18" cy={14 - bob} r="3" fill="#e5bb82" />
+                  <polygon points={`14,${13 - bob} 18,${8 - bob} 22,${13 - bob}`} fill="#94a3b8" stroke="#475569" strokeWidth="0.5" />
+                  <rect x="13.5" y={12.5 - bob} width="9" height="1.5" fill="#64748b" />
+                  <path d={`M18,${8 - bob} Q${18 - facing * 3},${5 - bob} ${18 - facing * 5},${9 - bob}`} stroke="#dc2626" strokeWidth="1.6" fill="none" />
+                  <line x1={18 + facing * 5} y1={30 - bob} x2={18 + facing * 5} y2={4 - bob + armSwing} stroke="#6b3a19" strokeWidth="1.4" />
+                  <polygon points={`${18 + facing * 5},${2 - bob + armSwing} ${18 + facing * 5 - 1.8},${7 - bob + armSwing} ${18 + facing * 5 + 1.8},${7 - bob + armSwing}`} fill="#f1f5f9" />
+                  <rect x={18 + facing * 5 - 2} y={7 - bob + armSwing} width="4" height="2.5" rx="0.5" fill="#18181b" />
+                  <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="3.8" fill="#78350f" stroke="#a16207" strokeWidth="1.2" />
+                  <circle cx={18 - facing * 3} y={20 - bob + armSwing} r="1.3" fill="#d97706" />
+                </g>
+              );
+            }
+            case "islands": {
+              // Island spearman: woven reed cap with shell band, sailcloth/kilt, barbed fishing trident, reef buckler
+              return (
+                <g>
+                  <ellipse cx="18" cy="30" rx="7.5" ry="2.2" fill="#000000" fillOpacity="0.35" />
+                  <rect x={18 + legL * facing} y={26 - bob} width="2.4" height="4" fill="#78350f" />
+                  <rect x={18 + legR * facing} y={26 - bob} width="2.4" height="4" fill="#a16207" />
+                  <rect x="14.5" y={17.5 - bob} width="7" height="5" fill="#0f766e" />
+                  <polygon points={`14,${22 - bob} 22,${22 - bob} 22.5,${27 - bob} 13.5,${27 - bob}`} fill="#d4d4d4" stroke="#a3a3a3" strokeWidth="0.5" />
+                  <rect x="14" y={22 - bob} width="8" height="1.4" fill="#854d0e" />
+                  <circle cx="18" cy={14 - bob} r="3" fill="#d99b66" />
+                  <path d={`M14,${13 - bob} Q18,${9 - bob} 22,${13 - bob} Z`} fill="#d97706" />
+                  <line x1="13.5" y1={13 - bob} x2="22.5" y2={13 - bob} stroke="#fef08a" strokeWidth="1.2" />
+                  <line x1={18 + facing * 5} y1={30 - bob} x2={18 + facing * 5} y2={6 - bob + armSwing} stroke="#78350f" strokeWidth="1.5" />
+                  <line x1={18 + facing * 5 - 3} y1={7 - bob + armSwing} x2={18 + facing * 5 + 3} y2={7 - bob + armSwing} stroke="#0284c7" strokeWidth="1.2" />
+                  <line x1={18 + facing * 5 - 3} y1={7 - bob + armSwing} x2={18 + facing * 5 - 3} y2={2 - bob + armSwing} stroke="#0284c7" strokeWidth="1.2" />
+                  <line x1={18 + facing * 5} y1={7 - bob + armSwing} x2={18 + facing * 5} y2={1 - bob + armSwing} stroke="#38bdf8" strokeWidth="1.4" />
+                  <line x1={18 + facing * 5 + 3} y1={7 - bob + armSwing} x2={18 + facing * 5 + 3} y2={2 - bob + armSwing} stroke="#0284c7" strokeWidth="1.2" />
+                  <ellipse cx={18 - facing * 3} cy={20 - bob + armSwing} rx="3.5" ry="4.5" fill="#115e59" stroke="#14b8a6" strokeWidth="1" />
+                  <circle cx={18 - facing * 3} cy={20 - bob + armSwing} r="1.2" fill="#99f6e4" />
+                </g>
+              );
+            }
+          }
+        }
+
         // Steel kettle hat, royal blue tabard, tall ash spear with steel tip, round shield
         return (
           <g>
@@ -444,6 +538,78 @@ export function UnitIcon(props: UnitIconProps) {
 
       case "militia":
       default: {
+        if (!isDefaultCulture) {
+          switch (kit) {
+            case "cedar": {
+              // Woodland hunter militia: hooded cowl, buckskin tunic, heavy carved cedar cudgel
+              return (
+                <g>
+                  <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
+                  <rect x={18 + legL * facing} y={26 - bob} width="2.5" height="4" fill="#292524" />
+                  <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#1c1917" />
+                  <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill="#3f4a34" />
+                  <rect x="15" y={22 - bob} width="6.5" height="1.6" fill="#78350f" />
+                  <circle cx="18" cy={14 - bob} r="3" fill="#e2c8a2" />
+                  <polygon points={`14,${15 - bob} 18,${10 - bob} 22,${15 - bob} ${18 - facing * 3},${17 - bob}`} fill="#1e3318" />
+                  <polygon points={`${18 + facing * 4},${25 - bob + armSwing} ${18 + facing * 5.5},${17 - bob + armSwing} ${18 + facing * 2.5},${17 - bob + armSwing} ${18 + facing * 3.5},${25 - bob + armSwing}`} fill="#5c3818" stroke="#36220f" strokeWidth="0.5" />
+                </g>
+              );
+            }
+            case "sand": {
+              // Desert militia: loose linen robe, flowing waist sash, desert ironwood walking staff
+              return (
+                <g>
+                  <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
+                  <rect x={18 + legL * facing} y={26 - bob} width="2.5" height="4" fill="#854d0e" />
+                  <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#713f12" />
+                  <rect x="14.5" y={18 - bob} width="7" height="8.5" rx="1" fill="#fef3c7" />
+                  <rect x="14" y={22 - bob} width="8" height="1.8" fill="#b45309" />
+                  <line x1={18 - facing * 2} y1={23 - bob} x2={18 - facing * 4} y2={28 - bob} stroke="#b45309" strokeWidth="1.2" />
+                  <circle cx="18" cy={14 - bob} r="3" fill="#d4a373" />
+                  <rect x="14" y={11 - bob} width="8" height="3.5" rx="1" fill="#fde68a" />
+                  <line x1="14" y1={12.5 - bob} x2="22" y2={12.5 - bob} stroke="#92400e" strokeWidth="0.8" />
+                  <line x1={18 + facing * 4.5} y1={30 - bob} x2={18 + facing * 4.5} y2={10 - bob + armSwing} stroke="#78350f" strokeWidth="1.6" />
+                  <circle cx={18 + facing * 4.5} cy={10 - bob + armSwing} r="1.3" fill="#b45309" />
+                </g>
+              );
+            }
+            case "steppe": {
+              // Steppe nomad militia: conical felt cap with fur brim, belted nomad coat (deel), spiked wooden cudgel
+              return (
+                <g>
+                  <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
+                  <rect x={18 + legL * facing} y={26 - bob} width="2.6" height="4" fill="#292524" />
+                  <rect x={18 + legR * facing} y={26 - bob} width="2.6" height="4" fill="#1c1917" />
+                  <rect x="14.5" y={17.5 - bob} width="7.5" height="9" rx="1" fill="#475569" />
+                  <rect x="14" y={22 - bob} width="8.5" height="1.8" fill="#ca8a04" />
+                  <circle cx="18" cy={14 - bob} r="3" fill="#e5bb82" />
+                  <polygon points={`15,${12 - bob} 18,${7 - bob} 21,${12 - bob}`} fill="#78350f" />
+                  <rect x="14" y={11.5 - bob} width="8" height="2.5" rx="1" fill="#d97706" />
+                  <line x1={18 + facing * 4.5} y1={25 - bob + armSwing} x2={18 + facing * 5.5} y2={16 - bob + armSwing} stroke="#573312" strokeWidth="2.2" />
+                  <circle cx={18 + facing * 5.5} cy={16 - bob + armSwing} r="2.2" fill="#3f3f46" />
+                </g>
+              );
+            }
+            case "islands": {
+              // Island levy: broad-brim straw hat, frayed sailcloth tunic, carved boat oar
+              return (
+                <g>
+                  <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
+                  <rect x={18 + legL * facing} y={27 - bob} width="2.4" height="3" fill="#b45309" />
+                  <rect x={18 + legR * facing} y={27 - bob} width="2.4" height="3" fill="#92400e" />
+                  <rect x="15" y={18 - bob} width="6.5" height="8" rx="0.5" fill="#0d9488" />
+                  <rect x="14.5" y={22 - bob} width="7.5" height="1.6" fill="#854d0e" />
+                  <circle cx="18" cy={14 - bob} r="3" fill="#d99b66" />
+                  <ellipse cx="18" cy={12 - bob} rx="6" ry="1.8" fill="#ca8a04" />
+                  <circle cx="18" cy={10.5 - bob} r="2.4" fill="#a16207" />
+                  <line x1={18 + facing * 4.5} y1={28 - bob} x2={18 + facing * 4.5} y2={11 - bob + armSwing} stroke="#78350f" strokeWidth="1.4" />
+                  <polygon points={`${18 + facing * 4.5 - 2},${15 - bob + armSwing} ${18 + facing * 4.5 + 2},${15 - bob + armSwing} ${18 + facing * 4.5 + 1.2},${8 - bob + armSwing} ${18 + facing * 4.5 - 1.2},${8 - bob + armSwing}`} fill="#b45309" stroke="#78350f" strokeWidth="0.5" />
+                </g>
+              );
+            }
+          }
+        }
+
         // Spear-less peasant levy, coarse wool tunic, cloth coif, unarmed/club posture
         return (
           <g>

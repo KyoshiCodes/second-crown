@@ -1,5 +1,56 @@
 # CHANGELOG
 
+## 2026-09-08 — Gemini Culture Kits: Distinct Silhouettes for Cedar, Sand, Steppe & Islands (`bakeoff/gemini-kits`)
+
+- **Culture Kit Silhouettes for Hold Buildings (`packages/render`)**:
+  - Exported `resolveCultureKit(cultureId)` resolving sim IDs (`western`, `woodland`, `desert`, `steppe`, `tide`) and culture kit names (`cedar`, `sand`, `steppe`, `islands`).
+  - Western Crown Marches (`western`) keeps current keep, cottage, farm, lumber, walkers, and UnitIcon 100% untouched.
+  - Distinct architectural silhouette changes in `drawIsometricBuilding`:
+    - **Keep**:
+      - `cedar`: Sturdy timber longhouse keep on riverstone plinth with cross-lap log walls, pitched roof, and carved ridgepole.
+      - `sand`: Open quadrangle courtyard keep on sunbleached limestone with flat parapet roofs and inner courtyard opening.
+      - `steppe`: Nomadic circular felt-roof great hall on low earth mound with conical tent canopy, timber door frame, and smoke cowl.
+      - `islands`: Elevated stilt pile-house keep on timber pilings with driftwood ladder, woven pavilion roof, and hanging sea lantern.
+    - **Cottage**:
+      - `cedar`: Hewn log cabin with overhanging gables and stone hearth.
+      - `sand`: Flat-roof desert adobe dwelling with timber shade canopy.
+      - `steppe`: Circular felt yurt/ger with domed roof, felt bands, and low door frame.
+      - `islands`: Stilthouse cabin raised above ground on timber piles with reed thatch.
+    - **Farm**:
+      - `cedar`: Forest split-rail log fenced clearing with dark loam soil and vegetable mounds.
+      - `sand`: Terraced irrigation garden with earthen bunds, central water channel, and date palm fronds.
+      - `steppe`: Nomad hurdle livestock pen with steppe grasses and sheep hayrack.
+      - `islands`: Tidal crop paddy with drying racks and flooded basin lines.
+    - **Lumber**:
+      - `cedar`: Split-rail logging yard with stacked heavy timber logs, chopping stump, and splitting axe.
+      - `sand`: Desert acacia drying yard with lashed lumber poles and desert woodpile.
+      - `steppe`: Nomad wagon yard with timber cart axles, wheelwright trestle, and wood sled.
+      - `islands`: Coastal timber slipway with net-drying racks, boat timbers, and rope coils.
+- **Hold Walkers (`packages/render`)**:
+  - `drawCultureWalker`: Villagers and guards feature distinct headwear and gear silhouettes per culture kit:
+    - `cedar`: Hooded hunter cowl, buckskin tunic, leaf-spear / woodsman tool.
+    - `sand`: Desert turban with draped havelock veil behind, flowing linen robe, crimson sash, slender lance.
+    - `steppe`: Pointed nomad cap / conical steel helmet with horsehair plume, double-breasted caftan coat, horsehair lance.
+    - `islands`: Woven reed war cap / straw sun hat, sailcloth vest and rope wraps, 3-pronged barbed fishing trident.
+- **Unit Icons (`packages/app/src/UnitIcon.tsx`)**:
+  - `spearman`:
+    - `western`: Untouched steel kettle hat, royal blue tabard over chainmail, ash pike, and round shield.
+    - `cedar`: Pointed hunter cowl, fur shoulder mantle, buckskin tunic, broad leaf-blade spear, and cedar bark shield.
+    - `sand`: Desert turban with fluttering havelock veil, flowing linen tunic, crimson waist sash, slender lance with red pennon, and polished brass sun buckler.
+    - `steppe`: Conical spangenhelm with horsehair crest, nomad caftan coat with gold silk sash, horsehair collar lance, and studded rawhide buckler.
+    - `islands`: Woven reed war cap with shell band, teal sailcloth vest, rope wrap kilt, 3-pronged barbed trident, and oval turtle-shell reef buckler.
+  - `militia`:
+    - `western`: Untouched homespun tunic, cloth coif, and simple wooden club.
+    - `cedar`: Woodland hunter hood, buckskin tunic, and heavy carved cedar cudgel.
+    - `sand`: Desert turban, flowing linen robe with hanging sash tails, and upright ironwood walking staff.
+    - `steppe`: Conical felt cap with fur brim, belted nomad coat (deel), and spiked wooden cudgel.
+    - `islands`: Broad-brim woven straw hat, frayed sailcloth tunic with rope belt, and carved boat paddle oar.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` is 100% empty.
+  - Western culture visual assets remain 100% unaltered.
+  - Full tests pass: 119 in `@second-crown/sim`, 26 in `@second-crown/render`.
+  - `npm run build -w @second-crown/app` builds cleanly.
+
 ## 2026-09-07 - Astra map gathering PR
 
 Added sim-only map gathering: outbound, loading, return and recall; three resource node profiles; reserved tiles; shared march capacity checked before troop withdrawal; decimal cargo and event-based settlement; tick-stamped action records and additive save flags. Added 11 regression cases. No app/render/server changes. Existing upkeep starvation batching limitation documented in walkthrough.md.

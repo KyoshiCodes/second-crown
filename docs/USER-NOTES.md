@@ -1,8 +1,55 @@
 # USER-NOTES
 
-Last updated: 2026-09-07 | Version: playtest-0.14 (Gemini Crowns: NPC Hold Tokens, Culture Tints & World Dispatches)
+Last updated: 2026-09-08 | Version: playtest-0.15 (Gemini Culture Kits: Distinct Silhouettes for Cedar, Sand, Steppe & Islands)
 
 Play: `https://129.153.17.72.sslip.io/`
+
+## Culture Kits: Distinct Architectural & Unit Silhouettes
+
+Choosing your Crown culture now gives your realm distinct physical architectural silhouettes, citizen attire, and military arms rather than simple color tints. Western Crown Marches (`western`) retains 100% of its classic stone keeps, cottages, and kettle-hat soldiers.
+
+1. **Unique Hold Architecture Silhouettes**:
+   - **Keep**:
+     - **Cedar Kin (`cedar`)**: Sturdy timber longhouse fortress built from cross-lapped cedar logs on a riverstone foundation, with pitched gables, carved ridgepole, and forest clan banner.
+     - **Sand Banner (`sand`)**: Open-air quadrangle courtyard keep on a sunbleached limestone terrace with flat parapet roofs, crenellated sand bastions, and central interior courtyard.
+     - **Wind Host (`steppe`)**: Grand nomad circular felt-roof hall on a low earth mound with conical tent canopy, timber entrance portal, smoke cowl, and horsehair clan standard.
+     - **Tide Clans (`islands`)**: Elevated coastal pile-house keep raised above the surf on timber stilts, with driftwood access ladder, reed-thatched pavilion roof, and hanging sea-lantern.
+   - **Cottages & Homes**:
+     - **Cedar**: Hewn log cabins with overhanging eaves and moss-lichen stone hearths.
+     - **Sand**: Flat-roof desert adobe dwellings with shade awnings and rooftop terrace parapets.
+     - **Steppe**: Circular felt yurts (gers) with lattice frames, felt ties, and domed roofs.
+     - **Islands**: Stilthouse dwellings raised on timber pilings with woven reed thatch.
+   - **Farms & Agriculture**:
+     - **Cedar**: Forest clearings enclosed with rustic split-rail log fencing, dark loam soil, and leafy squash mounds.
+     - **Sand**: Terraced irrigation gardens with earthen mud bunds, central water conduits, and date palm fronds.
+     - **Steppe**: Nomad livestock enclosures with hurdle rail pens, steppe grasses, and hayracks.
+     - **Islands**: Tidal crop paddies and shellfish drying racks with bamboo fencing and flooded basin beds.
+   - **Lumber & Logging Yards**:
+     - **Cedar**: Deep forest logging camps with stacked heavy cedar logs, chopping stumps, and splitting axes.
+     - **Sand**: Desert pole yards with lashed sun-drying timber poles and desert woodpiles.
+     - **Steppe**: Nomad wagon yards with heavy timber cart axles, wheelwright trestles, and timber sleds.
+     - **Islands**: Maritime timber slipways with net-drying racks, boat timbers, and rope coils.
+
+2. **Hold Walkers with Authentic Cultural Gear**:
+   - Wandering villagers and patrol guards on your hold reflect their regional origins:
+     - **Cedar**: Hooded hunter cowls, buckskin tunics, leaf-blade guard spears, and woodsman timber tools.
+     - **Sand**: Desert turbans with draped havelock veils fluttering in the breeze, loose linen robes, crimson sashes, and slender lances.
+     - **Steppe**: Conical nomad caps, steel helmets with horsehair plumes, double-breasted caftan coats, and horsehair lances.
+     - **Islands**: Woven reed caps, wide-brim sun hats, sailcloth vests with rope wraps, and 3-pronged barbed tridents.
+
+3. **Army Roster Silhouettes (Spearman & Militia)**:
+   - **Spearman**:
+     - **Western**: Kettle hat, mail coat with royal blue tabard, tall ash pike, and brass-boss round shield.
+     - **Cedar**: Pointed hunter cowl, fur shoulder mantle, buckskin tunic, wide leaf-blade hunting spear, and round cedar bark shield.
+     - **Sand**: Desert turban with fluttering neck cloth, flowing linen tunic, crimson waist sash, slender lance with red pennon, and polished brass sun buckler.
+     - **Steppe**: Pointed steel spangenhelm with horsehair crest, double-breasted nomad caftan with gold silk sash, horsehair collar lance, and studded rawhide buckler.
+     - **Islands**: Woven reed war cap with shell band, teal sailcloth vest, rope wrap kilt, barbed 3-pronged fishing trident, and turtle-shell reef buckler.
+   - **Militia**:
+     - **Western**: Homespun wool tunic, cloth coif, and wooden club.
+     - **Cedar**: Woodland hunter hood, buckskin tunic, and carved knot-wood cudgel.
+     - **Sand**: Wrapped linen turban, loose desert robe with hanging sash tails, and desert ironwood staff.
+     - **Steppe**: Conical felt cap with fur trim, belted nomad coat (deel), and spiked wooden mace.
+     - **Islands**: Broad-brim woven straw hat, frayed sailcloth tunic with rope belt, and carved boat paddle oar.
 
 ## Distinct NPC Hold Tokens, Culture Tints, and World Log Visibility
 

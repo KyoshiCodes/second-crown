@@ -22,6 +22,7 @@ import {
   listGathersPresentation,
   realmTokenPalette,
   culturePalette,
+  resolveCultureKit,
   isNpcHoldProvince,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
@@ -485,6 +486,42 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(tide.timberHex).toBe("#44403c");
       expect(tide.stoneHex).toBe("#94a3b8");
       expect(tide.tabard).toBe(0x0e7490);
+    });
+
+    it("resolves alias culture IDs (cedar, sand, islands) to canonical palettes", () => {
+      const cedar = culturePalette("cedar");
+      expect(cedar.tabardHex).toBe("#14532d");
+      expect(cedar.timberHex).toBe("#854d0e");
+
+      const sand = culturePalette("sand");
+      expect(sand.tabardHex).toBe("#b45309");
+      expect(sand.stoneHex).toBe("#d6c7a1");
+
+      const islands = culturePalette("islands");
+      expect(islands.tabardHex).toBe("#0e7490");
+      expect(islands.timberHex).toBe("#44403c");
+    });
+  });
+
+  describe("resolveCultureKit (Gemini Culture Kits lane)", () => {
+    it("maps culture identifiers to the 5 canonical presentation kits", () => {
+      expect(resolveCultureKit(undefined)).toBe("western");
+      expect(resolveCultureKit("")).toBe("western");
+      expect(resolveCultureKit("western")).toBe("western");
+
+      expect(resolveCultureKit("cedar")).toBe("cedar");
+      expect(resolveCultureKit("woodland")).toBe("cedar");
+      expect(resolveCultureKit("  CEDAR  ")).toBe("cedar");
+
+      expect(resolveCultureKit("sand")).toBe("sand");
+      expect(resolveCultureKit("desert")).toBe("sand");
+
+      expect(resolveCultureKit("steppe")).toBe("steppe");
+
+      expect(resolveCultureKit("islands")).toBe("islands");
+      expect(resolveCultureKit("tide")).toBe("islands");
+
+      expect(resolveCultureKit("unknown_culture")).toBe("western");
     });
   });
 });

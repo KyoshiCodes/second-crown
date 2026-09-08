@@ -1,5 +1,61 @@
 # DEV-NOTES
 
+## 2026-09-08 — Presentation Architecture: Culture Kit Silhouettes for Hold Buildings, Walkers & Unit Icons (Gemini Culture Kits, `bakeoff/gemini-kits`)
+
+- **Culture Kit Normalization & Helpers (`packages/render`)**:
+  - `CultureKit = "western" | "cedar" | "sand" | "steppe" | "islands"`: Strongly-typed canonical culture kit keys.
+  - `resolveCultureKit(cultureId: string): CultureKit`: Pure exported mapping function normalizing sim culture IDs (`western`, `woodland`, `desert`, `steppe`, `tide`) and culture kit alias names (`cedar`, `sand`, `steppe`, `islands`) to canonical keys. Defaults to `"western"`.
+  - `culturePalette(cultureId)`: Updated to resolve through `resolveCultureKit`, ensuring unified color definitions whether sim culture ID or kit alias is provided.
+- **Hold Building Silhouette Variations (`packages/render/src/index.ts`)**:
+  - `drawIsometricBuilding`: Dispatches to culture-specific drawing helpers when `kit !== "western"` for `keep`, `cottage`, `farm`, and `lumber`:
+    - `drawKeepCulture(g, kit, pal, bX, bY, tileW, tileH)`:
+      - `cedar`: Sturdy timber longhouse keep on riverstone plinth with cross-lapped cedar logs, pitched gables, carved ridgepole beam, and forest clan banner.
+      - `sand`: Open-air quadrangle courtyard keep on sunbleached limestone terrace with flat roofs, crenellated sand bastions, interior courtyard opening, and sun banner.
+      - `steppe`: Nomadic circular felt-roof great hall on low earth mound with conical tent canopy, timber door frame, and smoke cowl.
+      - `islands`: Elevated stilt pile-house keep on timber pilings with driftwood ladder, woven reed pavilion roof, hanging lantern, and teal sea banner.
+    - `drawCottageCulture(g, kit, pal, bX, bY, tileW, tileH)`:
+      - `cedar`: Hewn log cabin with overhanging gables and moss-lichen stone hearth.
+      - `sand`: Flat-roof desert adobe dwelling with timber shade canopy.
+      - `steppe`: Circular felt yurt/ger with domed roof, felt bands, and low door frame.
+      - `islands`: Stilthouse cabin raised above ground on timber piles with reed thatch.
+    - `drawFarmCulture(g, kit, pal, bX, bY, tileW, tileH)`:
+      - `cedar`: Forest split-rail log fenced clearing with dark loam soil and vegetable mounds.
+      - `sand`: Terraced irrigation garden with earthen bunds, central water channel, and date palm fronds.
+      - `steppe`: Nomad hurdle livestock pen with steppe grasses and sheep hayrack.
+      - `islands`: Tidal crop paddy with drying racks and flooded basin lines.
+    - `drawLumberCulture(g, kit, pal, bX, bY, tileW, tileH)`:
+      - `cedar`: Split-rail logging yard with stacked heavy timber logs, chopping stump, and splitting axe.
+      - `sand`: Desert acacia drying yard with lashed lumber poles and desert woodpile.
+      - `steppe`: Nomad wagon yard with timber cart axles, wheelwright trestle, and wood sled.
+      - `islands`: Coastal timber slipway with net-drying racks, boat timbers, and rope coils.
+  - Western Crown Marches (`western`): Uses the original branch without modification, preserving 100% of the original drawing instructions, coordinates, and styling.
+- **Hold Walker Silhouettes (`packages/render/src/index.ts`)**:
+  - `drawCultureWalker(g, type, kit, pal, px, py, frame, facing, armSwing, legSwing)`:
+    - Dedicated renderer for non-western `villager` and `guard` hold walkers.
+    - `cedar`: Pointed hunter cowl hanging over back, buckskin tunic, leaf-spear for guards, timber tool for villagers.
+    - `sand`: Wrapped desert turban with draped havelock veil fluttering behind, flowing linen robe, crimson sash, slender lance.
+    - `steppe`: Conical nomad cap, pointed steel helmet with horsehair plume, double-breasted caftan coat, horsehair lance.
+    - `islands`: Woven reed war cap / broad sun hat, sailcloth vest and rope wraps, 3-pronged barbed fishing trident.
+  - Intercepted in `drawWalkerFrame` before fallback Western walker rendering; Western walkers execute their original code path untouched.
+- **Unit Icon Silhouette Variations (`packages/app/src/UnitIcon.tsx`)**:
+  - `UnitIcon`: Resolves `kit = resolveCultureKit(activeCultureId)` and checks `isDefaultCulture = kit === "western"`.
+  - For `spearman`:
+    - `western`: Untouched kettle hat, royal blue tabard over mail, ash pike, and round shield.
+    - `cedar`: Pointed hunter cowl, fur shoulder mantle, buckskin tunic, wide leaf-blade hunting spear, round cedar bark shield.
+    - `sand`: Desert turban with fluttering havelock veil, flowing linen tunic, crimson waist sash, slender lance with red pennon, polished brass sun buckler.
+    - `steppe`: Pointed steel spangenhelm with horsehair crest, double-breasted nomad caftan with gold silk sash, horsehair collar lance, studded rawhide buckler.
+    - `islands`: Woven reed war cap with shell band, teal sailcloth vest, rope wrap kilt, barbed 3-pronged fishing trident, turtle-shell reef buckler.
+  - For `militia`:
+    - `western`: Untouched homespun wool tunic, cloth coif, and wooden club.
+    - `cedar`: Woodland hunter hood, buckskin tunic, carved knot-wood cudgel.
+    - `sand`: Wrapped linen turban, loose desert robe with hanging sash tails, desert ironwood staff.
+    - `steppe`: Conical felt cap with fur trim, belted nomad coat (deel), spiked wooden mace.
+    - `islands`: Broad-brim woven straw hat, frayed sailcloth tunic with rope belt, carved boat paddle oar.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` is strictly 100% empty. No changes to sim, rules, state schema, or server.
+  - All automated tests passing: 119 in `@second-crown/sim`, 26 in `@second-crown/render`.
+  - App production build clean (`npm run build -w @second-crown/app`).
+
 ## 2026-09-07 - Astra map gathering PR
 
 Astra exports tryGather(state, destId, force), tryRecallGather(state, id), listGathers(state), Gather and GATHER_NODES. Additive gathers_json/gather_serial flags persist journeys; missing flags mean no gathers. GatherSystem registers with the existing scheduler. Cargo is derived from elapsed integer ticks with decimal arithmetic; snapshots return through returnForce. March admission counts gather slots before troop withdrawal. Node rates, reservation rules, save behavior and deferred cases are in walkthrough.md. Tests: 104 passed, including 11 gather cases; app build passed. Existing UpkeepSystem starvation batching can violate global tick/settle equality; gather equality tests isolate upkeep using champions. No upkeep rewrite in this lane.
