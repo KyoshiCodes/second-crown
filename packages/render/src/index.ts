@@ -167,10 +167,11 @@ export interface UnitVisualPalette {
   isChassis: boolean;
 }
 
-export function unitPalette(typeId: string): UnitVisualPalette {
+export function unitPalette(typeId: string, cultureId?: string): UnitVisualPalette {
+  let pal: UnitVisualPalette;
   switch (typeId) {
     case "archer":
-      return {
+      pal = {
         id: "archer",
         name: "Archer",
         tabardColor: 0x14532d,
@@ -183,8 +184,9 @@ export function unitPalette(typeId: string): UnitVisualPalette {
         hasMount: false,
         isChassis: false,
       };
+      break;
     case "spearman":
-      return {
+      pal = {
         id: "spearman",
         name: "Spearman",
         tabardColor: 0x1e40af,
@@ -197,8 +199,9 @@ export function unitPalette(typeId: string): UnitVisualPalette {
         hasMount: false,
         isChassis: false,
       };
+      break;
     case "skirmisher":
-      return {
+      pal = {
         id: "skirmisher",
         name: "Skirmisher",
         tabardColor: 0x15803d,
@@ -211,8 +214,9 @@ export function unitPalette(typeId: string): UnitVisualPalette {
         hasMount: false,
         isChassis: false,
       };
+      break;
     case "cavalry":
-      return {
+      pal = {
         id: "cavalry",
         name: "Cavalry",
         tabardColor: 0x1d4ed8,
@@ -225,8 +229,9 @@ export function unitPalette(typeId: string): UnitVisualPalette {
         hasMount: true,
         isChassis: false,
       };
+      break;
     case "knight":
-      return {
+      pal = {
         id: "knight",
         name: "Knight",
         tabardColor: 0xb91c1c,
@@ -239,8 +244,9 @@ export function unitPalette(typeId: string): UnitVisualPalette {
         hasMount: false,
         isChassis: false,
       };
+      break;
     case "siege":
-      return {
+      pal = {
         id: "siege",
         name: "Siege Engine",
         tabardColor: 0x5c3818,
@@ -253,8 +259,9 @@ export function unitPalette(typeId: string): UnitVisualPalette {
         hasMount: false,
         isChassis: true,
       };
+      break;
     case "champion":
-      return {
+      pal = {
         id: "champion",
         name: "Champion",
         tabardColor: 0x581c87,
@@ -267,9 +274,10 @@ export function unitPalette(typeId: string): UnitVisualPalette {
         hasMount: false,
         isChassis: false,
       };
+      break;
     case "militia":
     default:
-      return {
+      pal = {
         id: "militia",
         name: "Militia",
         tabardColor: 0x854d0e,
@@ -282,7 +290,25 @@ export function unitPalette(typeId: string): UnitVisualPalette {
         hasMount: false,
         isChassis: false,
       };
+      break;
   }
+
+  if (cultureId) {
+    const kit = resolveCultureKit(cultureId);
+    if (kit !== "western") {
+      const cult = culturePalette(cultureId);
+      pal.tabardColor = cult.tabard;
+      pal.tabardDark = blendDark(cult.tabard, 0.7);
+      pal.accentColor = cult.accent;
+      if (kit === "cedar" || kit === "sand") {
+        pal.armorColor = cult.timber;
+      } else if (kit === "steppe" || kit === "islands") {
+        pal.armorColor = cult.stone;
+      }
+    }
+  }
+
+  return pal;
 }
 
 export interface RealmTokenPalette {
@@ -471,9 +497,11 @@ export interface CultureVisualPalette {
   tabard: number;
   timber: number;
   stone: number;
+  accent: number;
   tabardHex: string;
   timberHex: string;
   stoneHex: string;
+  accentHex: string;
 }
 
 export function parseHexColor(hex: string): number {
@@ -512,8 +540,8 @@ export function resolveCultureKit(cultureId?: string): CultureKit {
 
 export function culturePalette(cultureId?: string): CultureVisualPalette {
   let simLookupId = cultureId;
+  const kit = resolveCultureKit(cultureId);
   if (cultureId) {
-    const kit = resolveCultureKit(cultureId);
     if (kit === "cedar" && cultureId !== "woodland") simLookupId = "woodland";
     else if (kit === "sand" && cultureId !== "desert") simLookupId = "desert";
     else if (kit === "islands" && cultureId !== "tide") simLookupId = "tide";
@@ -522,14 +550,26 @@ export function culturePalette(cultureId?: string): CultureVisualPalette {
   const tabard = def?.palette?.tabard ?? "#1e40af";
   const timber = def?.palette?.timber ?? "#5c3818";
   const stone = def?.palette?.stone ?? "#64748b";
+  const accentHex =
+    kit === "cedar"
+      ? "#ca8a04"
+      : kit === "sand"
+      ? "#facc15"
+      : kit === "steppe"
+      ? "#facc15"
+      : kit === "islands"
+      ? "#06b6d4"
+      : "#facc15";
   return {
     id: def?.id ?? (cultureId || "western"),
     tabardHex: tabard,
     timberHex: timber,
     stoneHex: stone,
+    accentHex,
     tabard: parseHexColor(tabard),
     timber: parseHexColor(timber),
     stone: parseHexColor(stone),
+    accent: parseHexColor(accentHex),
   };
 }
 
@@ -625,7 +665,7 @@ const ROAD_TILES = new Set<string>([
   "6,5", "9,5",
 ]);
 
-interface ThemeVisuals {
+export interface ThemeVisuals {
   groundA: number;
   groundB: number;
   gridLine: number;
@@ -638,7 +678,7 @@ interface ThemeVisuals {
   decorations: "none" | "halloween" | "midwinter" | "easter" | "harvest" | "midsummer" | "spring" | "summer" | "autumn" | "winter";
 }
 
-function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
+export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
   if (holiday === "halloween") {
     return {
       groundA: 0x1c1026,
@@ -2059,10 +2099,381 @@ function drawKeepCulture(
   }
 }
 
+function drawGoldMineCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Forest Placer Mine & River-panning Flume
+    // Stepped timber sluice flume cascading down the slope, heavy log headframe against river crag,
+    // riffle sluice box catching nuggets, timber wash trough, and gold panning dish
+    // Crag bedrock
+    g.poly([-17, 3, -11, -18, 9, -20, 17, 1, 0, 9]);
+    g.fill({ color: 0x57534e, alpha: a });
+    // Mossy patches on rock
+    g.circle(-5, -12, 3); g.fill({ color: 0x166534, alpha: a * 0.8 });
+    g.circle(6, -8, 2.5); g.fill({ color: 0x14532d, alpha: a * 0.75 });
+    // Glittering gold veins
+    g.circle(-3, -14, 1.8); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(3, -10, 1.5); g.fill({ color: 0xfde047, alpha: a });
+
+    // Heavy cedar log timbering / adit portal
+    g.poly([-9, 4, 1, 9, 1, -7, -9, -12]);
+    g.fill({ color: 0x1c1917, alpha: a });
+    // Log posts
+    g.moveTo(-9, 4); g.lineTo(-9, -12); g.lineTo(1, -7); g.lineTo(1, 9);
+    g.stroke({ width: 2.8, color: 0x854d0e, alpha: a });
+
+    // Stepped Cedar Sluice Flume with rushing mountain water
+    g.poly([-15, 5, -5, 10, -5, 7, -15, 2]);
+    g.fill({ color: 0x78350f, alpha: a });
+    g.poly([-14, 4, -6, 8, -6, 6, -14, 2]);
+    g.fill({ color: 0x38bdf8, alpha: a * 0.85 }); // Clear water
+    // Gold flecks in sluice riffles
+    g.circle(-10, 5.5, 1); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(-7, 7, 1); g.fill({ color: 0xfde047, alpha: a });
+
+    // Split-cedar ore bin & cedar water bucket
+    g.rect(5, 2, 8, 6);
+    g.fill({ color: 0x5c3818, alpha: a });
+    g.circle(8, 3, 2); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(11, 4, 1.8); g.fill({ color: 0xfde047, alpha: a });
+
+    // Round wooden gold panning dish
+    g.ellipse(0, 6, 2.8, 1.6);
+    g.fill({ color: 0x3f220c, alpha: a });
+    g.circle(0, 6, 0.8); g.fill({ color: 0xfacc15, alpha: a });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Desert Canyon Adit & Dry Winnowing Rocker Box
+    // Sunbleached sandstone canyon cut with windlass hoist / well-bucket crane over deep dry shaft,
+    // striped sun awning shading dry winnowing rocker box, earthenware amphorae of gold dust
+    // Sandstone canyon cut
+    g.poly([-17, 3, -10, -20, 8, -22, 17, 1, 0, 9]);
+    g.fill({ color: 0xd6c7a1, alpha: a });
+    // Desert strata scoring lines
+    g.moveTo(-15, -4); g.lineTo(12, -7);
+    g.stroke({ width: 1, color: 0xb8a77d, alpha: a * 0.7 });
+    g.moveTo(-12, -12); g.lineTo(6, -15);
+    g.stroke({ width: 1, color: 0xa89668, alpha: a * 0.7 });
+    // Gold nuggets embedded in quartz vein
+    g.circle(-4, -13, 2); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(4, -9, 1.6); g.fill({ color: 0xfde047, alpha: a });
+
+    // Square timber shaft with windlass crane
+    g.poly([-8, 3, 0, 7, 0, -8, -8, -12]);
+    g.fill({ color: 0x181410, alpha: a });
+    // Acacia frame posts
+    g.moveTo(-8, 3); g.lineTo(-8, -12); g.lineTo(0, -8); g.lineTo(0, 7);
+    g.stroke({ width: 2.2, color: 0xa16207, alpha: a });
+    // Windlass cross-axle & bucket rope
+    g.moveTo(-8, -10); g.lineTo(0, -6);
+    g.stroke({ width: 1.6, color: 0x78350f, alpha: a });
+    g.moveTo(-4, -8); g.lineTo(-4, -1);
+    g.stroke({ width: 0.8, color: 0xd1d5db, alpha: a });
+    // Hoisted hide ore bucket
+    g.circle(-4, 0, 2.2); g.fill({ color: 0x5c3818, alpha: a });
+    g.circle(-4, -0.5, 1.2); g.fill({ color: 0xfacc15, alpha: a });
+
+    // Striped sun awning over rocker table
+    g.poly([3, 1, 15, -5, 15, -12, 3, -6]);
+    g.fill({ color: 0xd97706, alpha: a * 0.9 });
+    g.moveTo(3, 1); g.lineTo(3, -6);
+    g.moveTo(15, -5); g.lineTo(15, -12);
+    g.stroke({ width: 1.4, color: 0xa16207, alpha: a });
+
+    // Dry winnowing rocker box on trestle
+    g.rect(5, 1, 7, 4.5);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.circle(8, 2, 1.5); g.fill({ color: 0xfacc15, alpha: a });
+
+    // Clay amphorae / earthenware jars of gold dust
+    g.ellipse(-13, 5, 2.5, 3.5);
+    g.fill({ color: 0xc2410c, alpha: a });
+    g.rect(-13.5, 1.5, 1.5, 1.5); g.fill({ color: 0x9a3412, alpha: a });
+    g.ellipse(-10, 6, 2, 2.8);
+    g.fill({ color: 0xd97706, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Nomadic Alluvial Pit & Golden Fleece Sluice
+    // Open trench in gravel mound, timber shoring, horse-drawn hide drag-bucket,
+    // nomad felt windbreak screen, sheep fleece sluice lined with wool fleece
+    // Gravel embankment
+    g.poly([-17, 3, -11, -17, 8, -19, 17, 1, 0, 9]);
+    g.fill({ color: 0x57534e, alpha: a });
+    g.poly([-14, 1, -8, -13, 5, -15, 13, 0, 0, 6]);
+    g.fill({ color: 0x44403c, alpha: a });
+    // Alluvial gold grains in gravel
+    g.circle(-2, -10, 1.8); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(5, -7, 1.5); g.fill({ color: 0xfde047, alpha: a });
+    g.circle(-7, -4, 1.2); g.fill({ color: 0xfacc15, alpha: a });
+
+    // Timber trench shoring
+    g.poly([-8, 4, 1, 8, 1, -6, -8, -10]);
+    g.fill({ color: 0x1c1917, alpha: a });
+    g.moveTo(-8, 4); g.lineTo(-8, -10);
+    g.moveTo(1, 8); g.lineTo(1, -6);
+    g.stroke({ width: 2.2, color: 0x7c2d12, alpha: a });
+    g.moveTo(-8, -3); g.lineTo(1, 1);
+    g.stroke({ width: 1.5, color: 0xa16207, alpha: a });
+
+    // Nomad Felt Windbreak Screen
+    g.poly([-16, -6, -6, -11, -6, -19, -16, -14]);
+    g.fill({ color: 0xd6d3d1, alpha: a * 0.95 });
+    g.stroke({ width: 1.2, color: 0x7c2d12, alpha: a });
+
+    // Fleece Sluice Trough (Golden Fleece method)
+    g.poly([3, 5, 13, 0, 14, 3, 4, 8]);
+    g.fill({ color: 0x78350f, alpha: a });
+    // Wool fleece lining in trough with caught nuggets
+    g.poly([4, 6, 12, 2, 13, 3, 5, 7]);
+    g.fill({ color: 0xf5f5f4, alpha: a });
+    g.circle(7, 5, 1.2); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(10, 3.5, 1.2); g.fill({ color: 0xfde047, alpha: a });
+
+    // Ironbound timber chest of nugget spoils
+    g.rect(-13, 4, 5, 4);
+    g.fill({ color: 0x5c3818, alpha: a });
+    g.stroke({ width: 0.8, color: 0x18181b, alpha: a });
+    g.circle(-10.5, 4.5, 0.8); g.fill({ color: 0xfacc15, alpha: a });
+
+  } else {
+    // Tide Clans: Coastal Reef & Tidal Sea-Cave Mine
+    // Elevated stilt sluice on driftwood pilings above surf, tidal waterwheel driving stamp hammer,
+    // salt-crusted bins, bamboo chutes, wicker baskets of black sand gold
+    // Sea crag with barnacles / sea foam
+    g.poly([-17, 3, -10, -19, 8, -21, 17, 1, 0, 9]);
+    g.fill({ color: 0x475569, alpha: a });
+    // Wet rock tide line
+    g.poly([-17, 3, 0, 9, 17, 1, 15, 3, 0, 11, -15, 5]);
+    g.fill({ color: 0x1e293b, alpha: a * 0.8 });
+    // Seafoam edge
+    g.circle(-6, 8, 1.5); g.fill({ color: 0xe0f2fe, alpha: a * 0.75 });
+    g.circle(5, 7, 1.5); g.fill({ color: 0xe0f2fe, alpha: a * 0.75 });
+    // Gold vein in wave-cut cave
+    g.circle(-3, -11, 1.8); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(3, -8, 1.5); g.fill({ color: 0xfde047, alpha: a });
+
+    // Sea-cave entrance with timber pilings
+    g.poly([-8, 3, 0, 7, 0, -8, -8, -12]);
+    g.fill({ color: 0x0f172a, alpha: a });
+    g.moveTo(-8, 3); g.lineTo(-8, -12); g.lineTo(0, -8); g.lineTo(0, 7);
+    g.stroke({ width: 2.2, color: 0x44403c, alpha: a });
+
+    // Elevated Driftwood Stilt Flume
+    g.moveTo(3, 7); g.lineTo(3, 0);
+    g.moveTo(12, 3); g.lineTo(12, -4);
+    g.stroke({ width: 1.6, color: 0x57534e, alpha: a });
+    g.poly([2, 0, 13, -5, 14, -2, 3, 3]);
+    g.fill({ color: 0x334155, alpha: a });
+    g.poly([3, 1, 12, -3.5, 13, -2, 4, 2.5]);
+    g.fill({ color: 0x06b6d4, alpha: a * 0.85 }); // Surf water
+    g.circle(7, 0, 1); g.fill({ color: 0xfacc15, alpha: a });
+
+    // Wicker basket of black sand & gold
+    g.ellipse(-12, 4, 3, 2.2);
+    g.fill({ color: 0xa16207, alpha: a });
+    g.circle(-12, 4, 1.5); g.fill({ color: 0x18181b, alpha: a });
+    g.circle(-11.5, 3.8, 0.8); g.fill({ color: 0xfacc15, alpha: a });
+
+    // Tidal paddle wheel
+    g.circle(13, 2, 4.5);
+    g.stroke({ width: 1.2, color: 0x44403c, alpha: a });
+    g.circle(13, 2, 1); g.fill({ color: 0x94a3b8, alpha: a });
+  }
+}
+
+function drawMarketCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Forest Trading Post / Split-Cedar Log Trading House
+    // Cedar shingle & bark canopies, timber trading counter, pelt racks (fur, buckskin),
+    // bundled herbs, smoked fish / dried venison racks, woven bark baskets of berries, amber lantern
+    // Main Log Trading Counter
+    g.poly([-12, -1, 0, 5, 0, 5 - h * 0.75, -12, -1 - h * 0.75]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([0, 5, 11, -1, 11, -1 - h * 0.75, 0, 5 - h * 0.75]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    // Overhanging Cedar-Bark Roof Canopy
+    g.poly([-15, -h * 0.75, 0, 7 - h * 0.75 - 7, 14, -h * 0.75, 0, -h * 0.75 - 13]);
+    g.fill({ color: 0x654321, alpha: a });
+    g.moveTo(-15, -h * 0.75); g.lineTo(0, 7 - h * 0.75 - 7); g.lineTo(14, -h * 0.75);
+    g.stroke({ width: 1.4, color: 0x3f220c, alpha: a });
+
+    // Side Timber Canopy (Left Stall)
+    g.poly([-17, 2, -10, 6, -10, 6 - (h * 0.55), -17, 2 - (h * 0.55)]);
+    g.fill({ color: 0x166534, alpha: a * 0.9 });
+    g.moveTo(-17, 2); g.lineTo(-17, 2 - h * 0.55);
+    g.stroke({ width: 1.2, color: 0x3f220c, alpha: a });
+
+    // Fur / Pelt Racks (furs drying on wooden frame)
+    g.moveTo(-14, 5); g.lineTo(-14, -2); g.lineTo(-9, 0.5); g.lineTo(-9, 7.5);
+    g.stroke({ width: 1.2, color: 0x5c3818, alpha: a });
+    g.poly([-13.5, 4, -9.5, 6, -9.5, 1, -13.5, -1]);
+    g.fill({ color: 0xd4a359, alpha: a }); // Buckskin pelt
+
+    // Berry Baskets & Forest Produce
+    g.ellipse(3, 4.5, 2.5, 1.8);
+    g.fill({ color: 0xa16207, alpha: a });
+    g.circle(3, 4.5, 1.2); g.fill({ color: 0xef4444, alpha: a }); // Red berries
+    g.ellipse(8, 2.5, 2.5, 1.8);
+    g.fill({ color: 0xa16207, alpha: a });
+    g.circle(8, 2.5, 1.2); g.fill({ color: 0x38bdf8, alpha: a }); // Blueberries
+
+    // Amber lantern hanging from post
+    g.rect(0, -h * 0.75 - 4, 2.2, 3.5);
+    g.fill({ color: 0xfef08a, alpha: a * 0.95 });
+    g.circle(1.1, -h * 0.75 - 2, 1.8);
+    g.fill({ color: 0xf59e0b, alpha: a * 0.5 });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Desert Souk / Grand Bazaar
+    // Striped silk & linen awnings (desert gold, crimson, teal), mudbrick alcoves,
+    // hanging brass lamps, sacks of fragrant spices (saffron, paprika, sumac), rolled carpets, date palm baskets
+    // Mudbrick counter base
+    g.poly([-13, 0, 0, 6, 0, 6 - h * 0.65, -13, 0 - h * 0.65]);
+    g.fill({ color: 0xd6c7a1, alpha: a });
+    g.poly([0, 6, 12, 0, 12, 0 - h * 0.65, 0, 6 - h * 0.65]);
+    g.fill({ color: 0xb8a77d, alpha: a });
+
+    // Center Striped Canopy: Crimson & Desert Gold
+    g.poly([-11, -2, 2, 4.5, 2, 4.5 - h, -11, -2 - h]);
+    g.fill({ color: 0xb45309, alpha: a });
+    g.poly([2, 4.5, 13, -1, 13, -1 - h, 2, 4.5 - h]);
+    g.fill({ color: 0xfacc15, alpha: a });
+    g.poly([-13, -h, 2, 6.5 - h - 10, 15, -1 - h, 0, -h - 14]);
+    g.fill({ color: 0xd97706, alpha: a });
+
+    // Left Wing Canopy: Teal Silk
+    g.poly([-18, 1, -9, 5, -9, 5 - (h - 2), -18, 1 - (h - 2)]);
+    g.fill({ color: 0x0f766e, alpha: a * 0.9 });
+    g.poly([-18, 1 - (h - 2), -9, 5 - (h - 2), -7, -h + 2, -16, -h - 2]);
+    g.fill({ color: 0x14b8a6, alpha: a });
+
+    // Upright timber posts supporting canopies
+    g.moveTo(-16, 2); g.lineTo(-16, -h + 2);
+    g.moveTo(0, 6); g.lineTo(0, -h + 6);
+    g.moveTo(13, 0); g.lineTo(13, -h + 1);
+    g.stroke({ width: 1.4, color: 0xa16207, alpha: a });
+
+    // Sacks of exotic spices (Saffron, Paprika, Turmeric)
+    g.circle(-6, 4.5, 2.4); g.fill({ color: 0xca8a04, alpha: a }); // Saffron gold
+    g.circle(-2, 6, 2.2); g.fill({ color: 0xdc2626, alpha: a }); // Paprika crimson
+    g.circle(4, 5, 2.2); g.fill({ color: 0xea580c, alpha: a }); // Sumac orange
+
+    // Rolled desert carpets & brass urn
+    g.rect(8, 2, 4, 6);
+    g.fill({ color: 0x991b1b, alpha: a });
+    g.ellipse(13, 3, 2, 3);
+    g.fill({ color: 0xfacc15, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad Caravan Fair & Trading Yurt Encampment
+    // Circular trading yurt with felt roof bands, flanked by spoked arba trade wagons,
+    // displayed wool rugs, horse tack & bronze bridles on trestles, kumis jars
+    // Central Circular Trading Yurt
+    const yurtR = 9;
+    g.ellipse(0, 0, yurtR + 2, yurtR * 0.55);
+    g.fill({ color: 0x27272a, alpha: a * 0.4 });
+    // Yurt wall drum
+    g.poly([-yurtR, 0, yurtR, 0, yurtR, -h * 0.5, -yurtR, -h * 0.5]);
+    g.fill({ color: 0xe7e5e4, alpha: a });
+    // Timber lattice door frame
+    g.rect(-2.5, -h * 0.45, 5, h * 0.45);
+    g.fill({ color: 0x7c2d12, alpha: a });
+    // Conical Felt Roof
+    g.poly([-yurtR - 1.5, -h * 0.5, 0, -h - 4, yurtR + 1.5, -h * 0.5]);
+    g.fill({ color: 0xd6d3d1, alpha: a });
+    // Crimson felt tension bands
+    g.moveTo(-yurtR, -h * 0.25); g.lineTo(yurtR, -h * 0.25);
+    g.stroke({ width: 1.2, color: 0x9f1239, alpha: a });
+    g.moveTo(-yurtR, -h * 0.5); g.lineTo(0, -h - 4); g.lineTo(yurtR, -h * 0.5);
+    g.stroke({ width: 1.2, color: 0x9f1239, alpha: a });
+
+    // Trade Arba Wagon (Left)
+    g.rect(-16, 1, 6.5, 4);
+    g.fill({ color: 0x78350f, alpha: a });
+    // Spoked wooden cart wheel
+    g.circle(-13, 5.5, 3.2);
+    g.stroke({ width: 1.4, color: 0x44403c, alpha: a });
+    g.circle(-13, 5.5, 0.8); g.fill({ color: 0xca8a04, alpha: a });
+
+    // Wool felt bundles & horse tack on wooden trestle (Right)
+    g.rect(6, 2, 7, 3.5);
+    g.fill({ color: 0x9f1239, alpha: a });
+    g.moveTo(7, 1); g.lineTo(12, 1);
+    g.stroke({ width: 1, color: 0xfacc15, alpha: a }); // Bronze bridle
+    g.ellipse(10, 6, 2.2, 3);
+    g.fill({ color: 0x78350f, alpha: a }); // Kumis flagon
+
+    // Clan Horsehair Standard
+    g.moveTo(-1, -h - 4); g.lineTo(-1, -h - 14);
+    g.stroke({ width: 1.4, color: 0x7c2d12, alpha: a });
+    g.poly([-1, -h - 14, 5, -h - 11, -1, -h - 8]);
+    g.fill({ color: 0x9f1239, alpha: a });
+
+  } else {
+    // Tide Clans: Shoreline Pier Market & Fish/Pearl Exchange
+    // Raised driftwood boardwalk on timber pilings, thatched reed/palm canopies,
+    // hanging sea glass lantern, woven wicker traps, pearl baskets, dried kelp, coral blocks
+    // Boardwalk platform on pilings
+    for (const px of [-14, -6, 2, 11]) {
+      const py = (px + 14) * 0.35 + 2;
+      g.moveTo(px, py); g.lineTo(px, py + 5);
+      g.stroke({ width: 1.4, color: 0x44403c, alpha: a });
+    }
+    // Wooden plank decking
+    g.poly([-16, 2, 0, 8, 14, 1, -2, -5]);
+    g.fill({ color: 0x52525b, alpha: a });
+    g.stroke({ width: 1, color: 0x334155, alpha: a });
+
+    // Thatched Palm Pavilion Canopy
+    g.poly([-14, -h * 0.7, 0, 6 - h * 0.7 - 8, 12, -h * 0.7, -2, -h * 0.7 - 12]);
+    g.fill({ color: 0x0e7490, alpha: a * 0.9 });
+    g.stroke({ width: 1.4, color: 0x155e75, alpha: a });
+    // Palm frond roof fringe
+    for (const fx of [-12, -7, -2, 3, 8]) {
+      g.moveTo(fx, -h * 0.7 + 2); g.lineTo(fx - 1, -h * 0.7 + 5);
+      g.stroke({ width: 1, color: 0x06b6d4, alpha: a });
+    }
+
+    // Fish Drying Rack & Woven Eel Traps
+    g.moveTo(-13, 2); g.lineTo(-13, -h * 0.4); g.lineTo(-7, 2 - h * 0.4); g.lineTo(-7, 4);
+    g.stroke({ width: 1.2, color: 0x44403c, alpha: a });
+    g.poly([-12, 1 - h * 0.4, -8, 2 - h * 0.4, -8, -h * 0.4 - 2, -12, -h * 0.4 - 2]);
+    g.fill({ color: 0x64748b, alpha: a }); // Dried fish
+
+    // Pearl & Shell Baskets
+    g.ellipse(2, 6, 2.5, 1.8);
+    g.fill({ color: 0xa16207, alpha: a });
+    g.circle(2, 6, 1.2); g.fill({ color: 0xf8fafc, alpha: a }); // Luminous pearls
+    g.ellipse(7, 4.5, 2.5, 1.8);
+    g.fill({ color: 0xa16207, alpha: a });
+    g.circle(7, 4.5, 1.2); g.fill({ color: 0x06b6d4, alpha: a }); // Sea glass
+
+    // Hanging Sea Lantern
+    g.circle(-2, -h * 0.7 - 2, 2.2);
+    g.fill({ color: 0x67e8f9, alpha: a * 0.9 });
+    g.circle(-2, -h * 0.7 - 2, 1.1);
+    g.fill({ color: 0xffffff, alpha: a });
+  }
+}
+
 // -------------------------------------------------------------
 // Denser Isometric Pixel Building Painter
 // -------------------------------------------------------------
-function drawIsometricBuilding(
+export function drawIsometricBuilding(
   g: Graphics,
   typeId: string,
   level: number,
@@ -2255,6 +2666,7 @@ function drawIsometricBuilding(
       break;
     }
 
+    case "lumber":
     case "lumber_camp": {
       if (kit !== "western") {
         drawLumberCulture(g, 16 + heightBoost, a, phase, kit, cult);
@@ -2356,6 +2768,10 @@ function drawIsometricBuilding(
     }
 
     case "gold_mine": {
+      if (kit !== "western") {
+        drawGoldMineCulture(g, 20 + heightBoost, a, phase, kit, cult);
+        break;
+      }
       // Denser Gold Mine Shaft + Timber Portal + Tracks + Gold Cart + Sluice
       // Rocky crag with glittering gold veins
       g.poly([-17, 3, -10, -20, 8, -22, 17, 1, 0, 9]);
@@ -2471,6 +2887,10 @@ function drawIsometricBuilding(
     }
 
     case "market": {
+      if (kit !== "western") {
+        drawMarketCulture(g, 18 + heightBoost, a, phase, kit, cult);
+        break;
+      }
       // Denser 3-Canopy Striped Grand Bazaar + Crates + Hanging Sign
       const h = 18 + heightBoost;
 
@@ -2925,6 +3345,79 @@ function drawIsometricBuilding(
       // Cloister Garden with Stone Headstone
       g.rect(-12, 4, 3, 4); g.fill({ color: 0x94a3b8, alpha: a });
       g.circle(11, 4, 1.8); g.fill({ color: 0xec4899, alpha: a });
+      break;
+    }
+
+    case "infirmary": {
+      // Dedicated Field Hospital / Hospice Sanctuary:
+      // Half-timbered hospice hall with warm plaster walls, red cross / healer emblem on gable,
+      // steep slate roof with dormer glowing with healing candlelight, stone chimney puffing hearth smoke,
+      // healing herb garden (lavender & medicinal poppies), washbasin / herbalist bench, and cots
+      const h = 20 + heightBoost;
+
+      // 1. Foundation Plinth
+      g.poly([-16, 0, 0, 8, 0, 5, -16, -3]);
+      g.fill({ color: 0x475569, alpha: a });
+      g.poly([0, 8, 14, 1, 14, -2, 0, 5]);
+      g.fill({ color: 0x334155, alpha: a });
+
+      // 2. Hospice Walls (Warm plaster with timber framing)
+      g.poly([-15, -1, 0, 6.5, 0, 6.5 - h, -15, -1 - h]);
+      g.fill({ color: 0xf1f5f9, alpha: a });
+      g.poly([0, 6.5, 13, 0, 13, 0 - h, 0, 6.5 - h]);
+      g.fill({ color: 0x94a3b8, alpha: a });
+
+      // Timber corner posts and cross beams
+      g.moveTo(-15, -1); g.lineTo(-15, -1 - h);
+      g.moveTo(0, 6.5); g.lineTo(0, 6.5 - h);
+      g.moveTo(13, 0); g.lineTo(13, 0 - h);
+      g.moveTo(-15, -1 - h * 0.5); g.lineTo(0, 6.5 - h * 0.5);
+      g.moveTo(0, 6.5 - h * 0.5); g.lineTo(13, 0 - h * 0.5);
+      g.stroke({ width: 1.2, color: 0x5c3818, alpha: a });
+
+      // 3. Steep Gabled Slate Roof with Dormer
+      g.poly([-17, -h, 0, 8 - h - 11, 15, -h, 0, -h - 17]);
+      g.fill({ color: 0x991b1b, alpha: a }); // Red hospital roof trim
+      g.poly([-16, -h - 1, 0, 8 - h - 12, 14, -h - 1, 0, -h - 16]);
+      g.fill({ color: 0x334155, alpha: a }); // Slate center
+
+      // 4. Red Cross / Healer Emblem on Front Facet
+      g.circle(6, 2 - h * 0.5, 3.8);
+      g.fill({ color: 0xffffff, alpha: a });
+      g.rect(4.8, 0.5 - h * 0.5, 2.4, 3);
+      g.fill({ color: 0xdc2626, alpha: a });
+      g.rect(3.5, 1.5 - h * 0.5, 5, 1.2);
+      g.fill({ color: 0xdc2626, alpha: a });
+
+      // Arched entryway door
+      g.poly([-8, 2.5, -2, 5.5, -2, -h * 0.35, -8, -h * 0.35 - 3]);
+      g.fill({ color: 0x1e293b, alpha: a });
+
+      // Glowing candlelit window
+      g.rect(-13, -1 - h * 0.45, 3.5, 3.5);
+      g.fill({ color: 0xfef08a, alpha: a * 0.95 });
+
+      // 5. Fieldstone Chimney & Medicinal Herbal Hearth Smoke
+      g.rect(-12, -h - 14, 4, 9);
+      g.fill({ color: 0x64748b, alpha: a });
+      const infPuff = Math.sin(phase * 2.2) * 1.8;
+      g.circle(-10, -h - 17 + infPuff, 2.4);
+      g.fill({ color: 0xe2e8f0, alpha: 0.45 * a });
+      g.circle(-8, -h - 21 + infPuff, 3);
+      g.fill({ color: 0xf1f5f9, alpha: 0.3 * a });
+
+      // 6. Courtyard Details: Medicinal Herb Garden (Lavender & Red Poppies)
+      g.rect(-14, 3, 6, 4);
+      g.fill({ color: 0x27272a, alpha: a * 0.6 });
+      g.circle(-12, 4.5, 1.5); g.fill({ color: 0xa855f7, alpha: a }); // Lavender
+      g.circle(-10, 5.5, 1.5); g.fill({ color: 0xef4444, alpha: a }); // Red poppy
+      g.circle(-9, 4, 1.2); g.fill({ color: 0x22c55e, alpha: a });
+
+      // Water Basin / Mortar & Pestle on herbalist bench
+      g.rect(8, 4, 5, 3);
+      g.fill({ color: 0x78350f, alpha: a });
+      g.ellipse(10.5, 4.5, 1.8, 1.2);
+      g.fill({ color: 0x38bdf8, alpha: a * 0.9 });
       break;
     }
 
@@ -4796,7 +5289,10 @@ function paintBoardMarches(
     if (isPlayer) {
       // Player: Meeple styled in the matching unit type pixel language (archer, knight, cavalry, siege, spearman, etc.)
       const unitType = primaryUnitTypeForMarch(m);
-      const pal = unitPalette(unitType);
+      const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
+      const kit = resolveCultureKit(cultId);
+      const cult = culturePalette(cultId);
+      const pal = unitPalette(unitType, cultId);
 
       // Wooden pawn pedestal base
       pawnsG.rect(pawnX - 6.5, pawnY + 2 - bob, 13, 4);
@@ -4855,9 +5351,9 @@ function paintBoardMarches(
 
         // Rider
         pawnsG.rect(pawnX - 2.5, pawnY - 11 - bob, 5, 5);
-        pawnsG.fill({ color: 0x1d4ed8 });
+        pawnsG.fill({ color: pal.tabardColor });
         pawnsG.circle(pawnX, pawnY - 13 - bob, 2.8);
-        pawnsG.fill({ color: 0x94a3b8 });
+        pawnsG.fill({ color: pal.armorColor });
 
         // Lance with pennant
         pawnsG.moveTo(pawnX - facing * 3, pawnY - 8 - bob);
@@ -4868,7 +5364,7 @@ function paintBoardMarches(
           pawnX + facing * 14, pawnY - 13.5 - bob,
           pawnX + facing * 9, pawnY - 12 - bob,
         ]);
-        pawnsG.fill({ color: 0x22c55e });
+        pawnsG.fill({ color: pal.accentColor });
       } else {
         // Humanoid Walkers: militia, spearman, skirmisher, archer, knight, champion
         const legL = frame === 1 ? -2 : frame === 2 ? 1 : -1;
@@ -4897,10 +5393,39 @@ function paintBoardMarches(
 
         // Helmet / Headwear
         if (pal.helmKind === "kettle") {
-          pawnsG.rect(pawnX - 4, pawnY - 12 - bob, 8, 2);
-          pawnsG.fill({ color: 0x94a3b8 });
-          pawnsG.circle(pawnX, pawnY - 12.5 - bob, 2.4);
-          pawnsG.fill({ color: 0xcbd5e1 });
+          if (kit === "cedar") {
+            // Hunter cowl
+            pawnsG.poly([
+              pawnX - 4, pawnY - 9 - bob,
+              pawnX, pawnY - 14 - bob,
+              pawnX + 4, pawnY - 9 - bob,
+              pawnX - facing * 3.5, pawnY - 15 - bob,
+            ]);
+            pawnsG.fill({ color: cult.tabard });
+          } else if (kit === "sand") {
+            // Desert turban with draped havelock veil
+            pawnsG.circle(pawnX, pawnY - 12 - bob, 3.4);
+            pawnsG.fill({ color: 0xfafaf9 });
+            pawnsG.rect(pawnX - facing * 3.5, pawnY - 11 - bob, 2.2, 5);
+            pawnsG.fill({ color: cult.accent });
+          } else if (kit === "steppe") {
+            // Conical spangenhelm with horsehair crest
+            pawnsG.poly([pawnX - 3.5, pawnY - 11 - bob, pawnX, pawnY - 15 - bob, pawnX + 3.5, pawnY - 11 - bob]);
+            pawnsG.fill({ color: cult.stone });
+            pawnsG.moveTo(pawnX, pawnY - 15 - bob); pawnsG.lineTo(pawnX - facing * 3, pawnY - 17 - bob);
+            pawnsG.stroke({ width: 1.2, color: 0x9f1239 });
+          } else if (kit === "islands") {
+            // Woven reed war cap
+            pawnsG.poly([pawnX - 4.5, pawnY - 11 - bob, pawnX, pawnY - 14 - bob, pawnX + 4.5, pawnY - 11 - bob]);
+            pawnsG.fill({ color: 0xd4a359 });
+            pawnsG.rect(pawnX - 3.5, pawnY - 11 - bob, 7, 1.2);
+            pawnsG.fill({ color: 0x0e7490 });
+          } else {
+            pawnsG.rect(pawnX - 4, pawnY - 12 - bob, 8, 2);
+            pawnsG.fill({ color: 0x94a3b8 });
+            pawnsG.circle(pawnX, pawnY - 12.5 - bob, 2.4);
+            pawnsG.fill({ color: 0xcbd5e1 });
+          }
         } else if (pal.helmKind === "cap") {
           pawnsG.rect(pawnX - 3, pawnY - 12 - bob, 6, 2.5);
           pawnsG.fill({ color: pal.tabardColor });
@@ -4930,28 +5455,94 @@ function paintBoardMarches(
           pawnsG.fill({ color: 0xfde047 });
         } else {
           // Militia peasant coif
-          pawnsG.rect(pawnX - 2.5, pawnY - 12 - bob, 5, 2.5);
-          pawnsG.fill({ color: 0x52525b });
+          if (kit === "cedar") {
+            pawnsG.rect(pawnX - 3, pawnY - 12 - bob, 6, 2.5);
+            pawnsG.fill({ color: 0x854d0e });
+          } else if (kit === "sand") {
+            pawnsG.circle(pawnX, pawnY - 12 - bob, 2.8);
+            pawnsG.fill({ color: 0xd6c7a1 });
+          } else if (kit === "steppe") {
+            pawnsG.rect(pawnX - 3, pawnY - 12 - bob, 6, 2.5);
+            pawnsG.fill({ color: 0x7c2d12 });
+          } else if (kit === "islands") {
+            pawnsG.rect(pawnX - 4, pawnY - 12 - bob, 8, 2);
+            pawnsG.fill({ color: 0xd4a359 });
+          } else {
+            pawnsG.rect(pawnX - 2.5, pawnY - 12 - bob, 5, 2.5);
+            pawnsG.fill({ color: 0x52525b });
+          }
         }
 
         // Arm motion & weapons
         const armSwing = frame === 1 ? -1 : frame === 2 ? 1 : 0;
         if (pal.weaponKind === "spear") {
-          pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
-          pawnsG.lineTo(pawnX + facing * 4, pawnY - 18 - bob + armSwing);
-          pawnsG.stroke({ width: 1.3, color: 0x78350f });
-          pawnsG.poly([
-            pawnX + facing * 4, pawnY - 18 - bob + armSwing,
-            pawnX + facing * 4 - 2, pawnY - 15 - bob + armSwing,
-            pawnX + facing * 4 + 2, pawnY - 15 - bob + armSwing,
-          ]);
-          pawnsG.fill({ color: 0xf1f5f9 });
+          if (kit === "cedar") {
+            // Leaf-blade hunting spear
+            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
+            pawnsG.lineTo(pawnX + facing * 4, pawnY - 18 - bob + armSwing);
+            pawnsG.stroke({ width: 1.3, color: 0x854d0e });
+            pawnsG.ellipse(pawnX + facing * 4, pawnY - 17 - bob + armSwing, 2.2, 3.2);
+            pawnsG.fill({ color: 0xd1d5db });
+            // Cedar bark shield
+            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
+            pawnsG.fill({ color: 0x854d0e });
+            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 1.2);
+            pawnsG.fill({ color: 0x166534 });
+          } else if (kit === "sand") {
+            // Slender lance with red pennon & brass sun buckler
+            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
+            pawnsG.lineTo(pawnX + facing * 4, pawnY - 19 - bob + armSwing);
+            pawnsG.stroke({ width: 1.2, color: 0xa16207 });
+            pawnsG.poly([
+              pawnX + facing * 4, pawnY - 16 - bob + armSwing,
+              pawnX + facing * 8, pawnY - 14 - bob + armSwing,
+              pawnX + facing * 4, pawnY - 12 - bob + armSwing,
+            ]);
+            pawnsG.fill({ color: 0xdc2626 });
+            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
+            pawnsG.fill({ color: 0xfacc15 });
+          } else if (kit === "steppe") {
+            // Horsehair collar lance & studded rawhide buckler
+            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
+            pawnsG.lineTo(pawnX + facing * 4, pawnY - 19 - bob + armSwing);
+            pawnsG.stroke({ width: 1.3, color: 0x7c2d12 });
+            pawnsG.rect(pawnX + facing * 3.2, pawnY - 16 - bob + armSwing, 1.6, 2.5);
+            pawnsG.fill({ color: 0x9f1239 });
+            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
+            pawnsG.fill({ color: 0x78350f });
+            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 1);
+            pawnsG.fill({ color: 0xfacc15 });
+          } else if (kit === "islands") {
+            // 3-pronged barbed fishing trident & turtle-shell reef buckler
+            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
+            pawnsG.lineTo(pawnX + facing * 4, pawnY - 19 - bob + armSwing);
+            pawnsG.stroke({ width: 1.3, color: 0x44403c });
+            // Trident prongs
+            pawnsG.moveTo(pawnX + facing * 2.5, pawnY - 19 - bob + armSwing);
+            pawnsG.lineTo(pawnX + facing * 2.5, pawnY - 16 - bob + armSwing);
+            pawnsG.lineTo(pawnX + facing * 5.5, pawnY - 16 - bob + armSwing);
+            pawnsG.lineTo(pawnX + facing * 5.5, pawnY - 19 - bob + armSwing);
+            pawnsG.stroke({ width: 1, color: 0x06b6d4 });
+            pawnsG.ellipse(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.4, 4);
+            pawnsG.fill({ color: 0x0e7490 });
+          } else {
+            // Western untouched
+            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
+            pawnsG.lineTo(pawnX + facing * 4, pawnY - 18 - bob + armSwing);
+            pawnsG.stroke({ width: 1.3, color: 0x78350f });
+            pawnsG.poly([
+              pawnX + facing * 4, pawnY - 18 - bob + armSwing,
+              pawnX + facing * 4 - 2, pawnY - 15 - bob + armSwing,
+              pawnX + facing * 4 + 2, pawnY - 15 - bob + armSwing,
+            ]);
+            pawnsG.fill({ color: 0xf1f5f9 });
 
-          // Round shield on off-arm
-          pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
-          pawnsG.fill({ color: 0x1e3a8a });
-          pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 1.2);
-          pawnsG.fill({ color: 0xfacc15 });
+            // Round shield on off-arm
+            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
+            pawnsG.fill({ color: 0x1e3a8a });
+            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 1.2);
+            pawnsG.fill({ color: 0xfacc15 });
+          }
         } else if (pal.weaponKind === "bow") {
           pawnsG.poly([
             pawnX + facing * 3.5, pawnY - 15 - bob + armSwing,
@@ -5148,6 +5739,10 @@ function paintBoardGathers(
   const gathers = listGathersPresentation(state);
   if (gathers.length === 0) return;
 
+  const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
+  const kit = resolveCultureKit(cultId);
+  const cult = culturePalette(cultId);
+
   for (const g of gathers) {
     const fromId = g.fromId ?? state?.board?.homeProvinceId;
     const toId = g.toId ?? g.targetProvinceId;
@@ -5188,20 +5783,59 @@ function paintBoardGathers(
     pawnsG.ellipse(pawnX, pawnY + 5, 7, 3);
     pawnsG.fill({ color: 0x000000, alpha: 0.4 });
 
-    // Timber pack-cart / gatherer pawn
-    pawnsG.rect(pawnX - 5, pawnY - 2, 10, 4.5);
-    pawnsG.fill({ color: 0x854d0e });
-    pawnsG.stroke({ width: 0.7, color: 0x543007 });
+    // Culture-kit pack-cart / gatherer pawn
+    if (kit === "cedar") {
+      // Split-cedar wood pack cart with foraging burlap sack
+      pawnsG.rect(pawnX - 5.5, pawnY - 2, 11, 4.5);
+      pawnsG.fill({ color: cult.timber });
+      pawnsG.stroke({ width: 0.8, color: 0x3f220c });
+      pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: 0x3f220c });
+      pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: 0x3f220c });
+      pawnsG.circle(pawnX, pawnY - 3, 3); pawnsG.fill({ color: cult.tabard }); // Woodland bundle
+      pawnsG.circle(pawnX + 1, pawnY - 3.5, 1.5); pawnsG.fill({ color: 0xca8a04 });
+    } else if (kit === "sand") {
+      // Sunbleached acacia timber cart with clay amphorae cargo
+      pawnsG.rect(pawnX - 5.5, pawnY - 2, 11, 4.5);
+      pawnsG.fill({ color: cult.stone });
+      pawnsG.stroke({ width: 0.8, color: 0xa16207 });
+      pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: cult.timber });
+      pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: cult.timber });
+      pawnsG.ellipse(pawnX - 1.5, pawnY - 3, 2.2, 3); pawnsG.fill({ color: 0xc2410c }); // Amphora
+      pawnsG.ellipse(pawnX + 2, pawnY - 3, 1.8, 2.5); pawnsG.fill({ color: cult.accent });
+    } else if (kit === "steppe") {
+      // Nomad two-wheeled arba wagon with wool felt cargo bundle
+      pawnsG.rect(pawnX - 6, pawnY - 2.5, 12, 4.5);
+      pawnsG.fill({ color: cult.timber });
+      pawnsG.stroke({ width: 0.8, color: 0x44403c });
+      pawnsG.circle(pawnX - 4, pawnY + 3.2, 2.6); pawnsG.stroke({ width: 1.2, color: 0x44403c });
+      pawnsG.circle(pawnX + 4, pawnY + 3.2, 2.6); pawnsG.stroke({ width: 1.2, color: 0x44403c });
+      pawnsG.rect(pawnX - 3, pawnY - 5, 6, 3.5); pawnsG.fill({ color: 0xf5f5f4 }); // Felt pack
+      pawnsG.rect(pawnX - 3, pawnY - 3.5, 6, 1); pawnsG.fill({ color: cult.tabard }); // Crimson strap
+    } else if (kit === "islands") {
+      // Coastal driftwood slip cart with reed baskets & net sacks
+      pawnsG.rect(pawnX - 5.5, pawnY - 2, 11, 4.5);
+      pawnsG.fill({ color: cult.timber });
+      pawnsG.stroke({ width: 0.8, color: 0x1e293b });
+      pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: 0x1e293b });
+      pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: 0x1e293b });
+      pawnsG.circle(pawnX - 1.5, pawnY - 3, 2.5); pawnsG.fill({ color: 0xa16207 }); // Reed basket
+      pawnsG.circle(pawnX + 2, pawnY - 3, 2.2); pawnsG.fill({ color: cult.tabard }); // Fish net bundle
+    } else {
+      // Western: Classic untouched timber pack-cart
+      pawnsG.rect(pawnX - 5, pawnY - 2, 10, 4.5);
+      pawnsG.fill({ color: 0x854d0e });
+      pawnsG.stroke({ width: 0.7, color: 0x543007 });
 
-    // Cart wheels
-    pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2);
-    pawnsG.fill({ color: 0x27272a });
-    pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2);
-    pawnsG.fill({ color: 0x27272a });
+      // Cart wheels
+      pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2);
+      pawnsG.fill({ color: 0x27272a });
+      pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2);
+      pawnsG.fill({ color: 0x27272a });
 
-    // Resource cargo sack in cart
-    pawnsG.circle(pawnX, pawnY - 3, 2.8);
-    pawnsG.fill({ color: 0xd97706 });
+      // Resource cargo sack in cart
+      pawnsG.circle(pawnX, pawnY - 3, 2.8);
+      pawnsG.fill({ color: 0xd97706 });
+    }
   }
 }
 

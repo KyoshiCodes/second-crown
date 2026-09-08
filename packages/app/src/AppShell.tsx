@@ -112,6 +112,7 @@ export function AppShell() {
         <ResourceHud resources={resources} income={income} />
         <TutorialBanner state={state} act={act} />
         {status ? <div className="sc-status-banner" style={{ marginBottom: 10 }}>{status}</div> : null}
+        <CultureContext.Provider value={state ? playerCultureId(state) : "western"}>
         {tab === "kingdom" ? (
           <ProvinceInspect
             state={state}
@@ -168,7 +169,6 @@ export function AppShell() {
             </div>
           </div>
         </div>
-        <CultureContext.Provider value={state ? playerCultureId(state) : "western"}>
           {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}
           {tab === "army" && <ArmyTab state={state} act={act} trainQty={trainQty} setTrainQty={setTrainQty} />}
           {tab === "war" && <WarTab state={state} act={act} rivalOp={rivalOp} playerOp={playerOp} battleSnap={battleSnap} setBattleSnap={setBattleSnap} />}

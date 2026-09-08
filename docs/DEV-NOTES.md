@@ -1,5 +1,37 @@
 # DEV-NOTES
 
+## 2026-09-08 — Presentation Architecture: Leftover Hold Building Art, Gold Mine & Market Culture Silhouettes, Column Kits (Gemini Leftover Kits, `bakeoff/gemini-holdrest`)
+
+- **Hold Building Switch Completeness (`packages/render/src/index.ts`)**:
+  - Aliased `case "lumber": case "lumber_camp":` so both sim canonical ID `lumber_camp` and common alias `lumber` invoke identical render paths across all culture kits.
+  - Added dedicated `case "infirmary":` field hospital hospice renderer with foundation plinth, half-timbered plaster walls, red cross emblem, steep slate roof with candlelit dormer, stone chimney with herbal hearth smoke, and courtyard medicinal herb garden.
+  - Implemented `drawGoldMineCulture(g, h, a, phase, kit, cult)`:
+    - `cedar`: River-panning flume, heavy cedar log headframe, gravel sluice box, and nugget wash pan.
+    - `sand`: Sandstone canyon adit portal with sunshade canopy awning, rocker box dry winnower, and ore amphorae.
+    - `steppe`: Alluvial gravel trench with timber shoring, nomad felt windbreak screen, golden fleece sluice trough, and ironbound nugget chest.
+    - `islands`: Coastal reef cave mine with elevated stilt flume on driftwood pilings, tidal paddle wheel, and woven black-sand gold baskets.
+    - `western`: Untouched classic crag portal, timber headframe, ore tracks, and gold ore cart.
+  - Implemented `drawMarketCulture(g, h, a, phase, kit, cult)`:
+    - `cedar`: Forest log trading post with cedar bark roof canopy, side shelter, buckskin & fur pelt racks, wild berry baskets, and amber lantern.
+    - `sand`: Desert souk bazaar with mudbrick base, striped crimson & desert gold silk awnings, teal wing canopy, hanging brass lamp, spice sacks, and date baskets.
+    - `steppe`: Nomad caravan fair with trade yurt canopy, two-wheeled arba trade wagon, kumis flagons, and clan standard.
+    - `islands`: Boardwalk pier market on driftwood pilings, thatched palm pavilion canopy, dried fish racks, and woven baskets of pearls and sea glass.
+    - `western`: Untouched classic three-canopy grand bazaar with fruit crates.
+  - Exported `drawIsometricBuilding`, `getThemeVisuals`, and `ThemeVisuals` so render test suites can exhaustively exercise all 21 IDs from `BUILDING_TYPES` without needing a DOM/Canvas environment.
+- **Board March Columns & Gather Expeditions (`packages/render/src/index.ts`)**:
+  - `paintBoardMarches`: When `!isHostile`, player marches look up `kit = resolveCultureKit(cultId)`. Meeples draw authentic regional headwear (hunter cowl, turban with veil, spangenhelm, woven reed cap) and weapons/shields (leaf spear & cedar shield, slender lance & brass sun buckler, horsehair lance & studded buckler, barbed trident & turtle-shell buckler). Hostile Iron March columns strictly maintain their sinister red/iron heraldry.
+  - `paintBoardGathers`: Gather pack-carts render culture-adapted pack-carts: split-cedar cart with foraging burlap sack (`cedar`), acacia cart with terracotta amphorae (`sand`), two-wheeled arba wagon with wool felt pack (`steppe`), coastal driftwood slip cart with reed baskets (`islands`), or classic timber cart (`western`).
+  - `unitPalette`: Updated with optional `cultureId?: string`. When culture is non-western, tabard, armor, and accent colors adapt to the culture palette while preserving the default western unit color values.
+  - `CultureVisualPalette`: Extended with `accent` and `accentHex`.
+- **Army Visual Roster Kit Propagation (`packages/app`)**:
+  - `ArmyVisual.tsx`: Resolves player culture using `playerCultureId(state)` / `cultureOfRealm(state, "player")` and passes `culture={culture}` into both commander and squad formation `UnitIcon` instances.
+  - `AppShell.tsx`: Unified `CultureContext.Provider` wrapping `ProvinceInspect` and tab contents to eliminate redundant nested providers.
+- **Invariants & Verification**:
+  - `git diff main -- packages/sim server` is 100% empty.
+  - Western culture visual assets remain 100% unaltered.
+  - Vitest render test suite expanded from 26 to 37 tests, including iterating all 21 building types across all 5 kits.
+  - `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` all pass cleanly.
+
 ## 2026-09-08 — Presentation Architecture: Culture Kit Silhouettes for Hold Buildings, Walkers & Unit Icons (Gemini Culture Kits, `bakeoff/gemini-kits`)
 
 - **Culture Kit Normalization & Helpers (`packages/render`)**:

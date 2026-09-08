@@ -1,5 +1,44 @@
 # HANDOFF
 
+Bakeoff Gemini Leftover Kits lane delivered on branch `bakeoff/gemini-holdrest` (PR into main unmerged).
+
+- **Hold Building Art & Silhouettes (`packages/render`)**:
+  - Aliased `lumber` to `lumber_camp` in `drawIsometricBuilding`: both IDs render identically across all kits.
+  - Dedicated hold art for `infirmary`: half-timbered hospice hall on stone plinth, red cross healer emblem on front gable, steep slate roof with glowing candlelit dormer, stone chimney with herbal hearth smoke, courtyard medicinal herb garden (lavender and red poppies), and herbalist water basin bench.
+  - Bespoke culture silhouettes for `gold_mine`:
+    - `cedar`: River-panning flume, heavy cedar log headframe, gravel sluice box, and nugget wash pan.
+    - `sand`: Sandstone canyon adit portal with sunshade awning, rocker box dry winnower, and ore amphorae.
+    - `steppe`: Alluvial gravel trench with timber shoring, nomad felt windbreak screen, golden fleece sluice trough, and ironbound spoil chest.
+    - `islands`: Coastal reef/cave mine with elevated stilt flume on driftwood pilings, tidal paddle wheel, and wicker black-sand gold baskets.
+    - `western`: Classic crag portal, timber headframe, ore tracks, and gold cart untouched.
+  - Bespoke culture silhouettes for `market`:
+    - `cedar`: Forest log trading post with cedar bark roof canopy, left stall canopy, buckskin/fur pelt rack, berry baskets, and hanging amber lantern.
+    - `sand`: Desert souk grand bazaar with mudbrick base, striped crimson & desert gold silk awning, teal silk wing canopy, hanging brass lantern, spice sacks, and date palm baskets.
+    - `steppe`: Nomad caravan fair with trade yurt tent canopy, arba two-wheeled trade wagon, kumis flagons, and horsehair standard.
+    - `islands`: Shoreline pier market on elevated driftwood boardwalk pilings, thatched palm pavilion canopy with frond fringe, fish drying rack, and woven baskets of pearls and sea glass.
+    - `western`: Classic three-canopy grand bazaar with fruit crates untouched.
+  - Comprehensive coverage: all 21 IDs from `packages/sim/src/content/buildings.ts` (`farm`, `cottage`, `lumber_camp`, `quarry`, `gold_mine`, `granary`, `sawmill`, `mason`, `market`, `mint`, `barracks`, `stables`, `archery_range`, `academy`, `siege_workshop`, `watchtower`, `chapel`, `infirmary`, `walls`, `gate`, `keep`) plus `lumber` alias render through `drawIsometricBuilding` across all 5 culture kits (`western`, `cedar`, `sand`, `steppe`, `islands`).
+- **Board March Columns & Gather Expeditions Culture Kits (`packages/render`)**:
+  - Player march meeples (`paintBoardMarches`) dynamically resolve the player hold's active culture kit (`resolveCultureKit(playerCultureId)`):
+    - `cedar`: Hooded hunter cowl, buckskin tunic, leaf-blade hunting spear, round cedar bark shield.
+    - `sand`: Desert turban with havelock veil, crimson sash, slender lance with red pennon, polished brass sun buckler.
+    - `steppe`: Conical spangenhelm with horsehair crest, nomad coat, horsehair collar lance, studded rawhide buckler.
+    - `islands`: Woven reed war cap, teal vest, 3-pronged barbed fishing trident, turtle-shell reef buckler.
+    - `western`: Classic kettle hat, royal blue tabard, ash spear, brass-boss round shield untouched.
+    - Hostile Iron March columns strictly remain red/iron.
+  - Gather pack-carts (`paintBoardGathers`) render culture-adapted pack-carts: split-cedar cart with foraging burlap sack (`cedar`), acacia cart with terracotta amphorae (`sand`), two-wheeled arba wagon with wool felt pack (`steppe`), coastal driftwood slip cart with reed baskets (`islands`), or classic timber cart (`western`).
+  - Unit visual palette (`unitPalette`): accepts optional `cultureId` and adapts tabard, armor, and accent colors for non-western cultures while preserving default western palettes.
+- **Army Visual Culture Kit Propagation (`packages/app`)**:
+  - `packages/app/src/ArmyVisual.tsx`: Resolves player culture using `playerCultureId(state)` / `cultureOfRealm(state, "player")` and passes `culture={culture}` to both commander and squad formation `UnitIcon` instances.
+  - `packages/app/src/AppShell.tsx`: Unified `CultureContext.Provider` wrapping `ProvinceInspect` and tab contents.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` is 100% empty.
+  - Western culture visual assets remain 100% unaltered.
+  - Full tests pass: 119 in `@second-crown/sim`, 37 in `@second-crown/render`.
+  - `npm run build -w @second-crown/app` builds cleanly.
+
+---
+
 Bakeoff Gemini Culture Kits lane delivered on branch `bakeoff/gemini-kits` (PR into main unmerged).
 
 - **Culture Kit Silhouettes for Hold Buildings (`packages/render`)**:

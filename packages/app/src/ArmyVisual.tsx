@@ -1,10 +1,13 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
-import { formatLetterSuffix, getUnitType, championName } from "@second-crown/sim";
+import { formatLetterSuffix, getUnitType, championName, playerCultureId, cultureOfRealm } from "@second-crown/sim";
 import { UnitIcon } from "./UnitIcon";
 
 export function ArmyVisual(props: { state: GameState | undefined; realmId?: string }) {
   const realmId = props.realmId ?? "player";
+  const culture = props.state
+    ? (realmId === "player" ? playerCultureId(props.state) : cultureOfRealm(props.state, realmId))
+    : undefined;
   const units = (props.state?.units ?? []).filter((u) => u.realmId === realmId);
   if (units.length === 0) {
     return <p style={{ opacity: 0.65 }}>No companies raised yet.</p>;
@@ -44,7 +47,7 @@ export function ArmyVisual(props: { state: GameState | undefined; realmId?: stri
                   boxShadow: "inset 0 1px 4px rgba(0,0,0,0.6)",
                 }}
               >
-                <UnitIcon typeId={u.typeId} size={44} animated />
+                <UnitIcon typeId={u.typeId} size={44} animated culture={culture} />
               </div>
               <div>
                 <div style={{ fontWeight: 700, color: "#fef08a", fontSize: 13.5 }}>{name}</div>
@@ -77,7 +80,7 @@ export function ArmyVisual(props: { state: GameState | undefined; realmId?: stri
                     lineHeight: 0,
                   }}
                 >
-                  <UnitIcon typeId={u.typeId} size={24} animated />
+                  <UnitIcon typeId={u.typeId} size={24} animated culture={culture} />
                 </span>
               ))}
             </div>

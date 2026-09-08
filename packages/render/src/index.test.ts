@@ -24,8 +24,13 @@ import {
   culturePalette,
   resolveCultureKit,
   isNpcHoldProvince,
+  drawIsometricBuilding,
+  getThemeVisuals,
+  type ThemeVisuals,
+  type RimNeighbors,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
+import { BUILDING_TYPES } from "@second-crown/sim";
 
 function createMockWalker(id: number = 0, x: number = 0, y: number = 0): Walker {
   return {
@@ -522,6 +527,171 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(resolveCultureKit("tide")).toBe("islands");
 
       expect(resolveCultureKit("unknown_culture")).toBe("western");
+    });
+  });
+
+  describe("drawIsometricBuilding and culture kits (Gemini Leftover Kits lane)", () => {
+    function createMockGraphics() {
+      const calls: { method: string; args: any[] }[] = [];
+      const g: any = {
+        calls,
+        clear: () => { calls.push({ method: "clear", args: [] }); },
+        poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+        fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+        stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+        rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+        circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+        ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+        moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+        lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+        quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+      };
+      return g;
+    }
+
+    const defaultVisuals: ThemeVisuals = getThemeVisuals("Spring", "none");
+    const kits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+
+    it("renders all 21 BUILDING_TYPES IDs across all 5 culture kits without throwing", () => {
+      const typeIds = Object.keys(BUILDING_TYPES);
+      expect(typeIds.length).toBe(21);
+
+      for (const typeId of typeIds) {
+        for (const kit of kits) {
+          const g = createMockGraphics();
+          expect(() => {
+            drawIsometricBuilding(g, typeId, 1, true, 0, defaultVisuals, 0, 0, undefined, kit);
+          }).not.toThrow();
+          expect(g.calls.length).toBeGreaterThan(0);
+        }
+      }
+    });
+
+    it("correctly aliases 'lumber' to 'lumber_camp' across all 5 culture kits", () => {
+      for (const kit of kits) {
+        const gCamp = createMockGraphics();
+        const gAlias = createMockGraphics();
+
+        drawIsometricBuilding(gCamp, "lumber_camp", 1, true, 0, defaultVisuals, 0, 0, undefined, kit);
+        drawIsometricBuilding(gAlias, "lumber", 1, true, 0, defaultVisuals, 0, 0, undefined, kit);
+
+        expect(gAlias.calls.length).toBeGreaterThan(0);
+        expect(gAlias.calls.length).toEqual(gCamp.calls.length);
+        expect(gAlias.calls).toEqual(gCamp.calls);
+      }
+    });
+
+    it("renders dedicated infirmary building art", () => {
+      const g = createMockGraphics();
+      expect(() => {
+        drawIsometricBuilding(g, "infirmary", 1, true, 0, defaultVisuals, 5, 5);
+      }).not.toThrow();
+      expect(g.calls.length).toBeGreaterThan(10);
+      // Infirmary draws red cross / emblem
+      const fills = g.calls.filter((c: any) => c.method === "fill");
+      expect(fills.some((f: any) => f.args[0]?.color === 0xdc2626)).toBe(true);
+    });
+
+    it("renders bespoke silhouettes for gold_mine across cedar, sand, steppe, islands and western", () => {
+      for (const kit of kits) {
+        const g = createMockGraphics();
+        expect(() => {
+          drawIsometricBuilding(g, "gold_mine", 2, true, 0.5, defaultVisuals, 2, 2, undefined, kit);
+        }).not.toThrow();
+        expect(g.calls.length).toBeGreaterThan(5);
+      }
+    });
+
+    it("renders bespoke silhouettes for market across cedar, sand, steppe, islands and western", () => {
+      for (const kit of kits) {
+        const g = createMockGraphics();
+        expect(() => {
+          drawIsometricBuilding(g, "market", 1, true, 0.2, defaultVisuals, 3, 3, undefined, kit);
+        }).not.toThrow();
+        expect(g.calls.length).toBeGreaterThan(5);
+      }
+    });
+
+    it("handles building levels 1 through 5 and incomplete building states", () => {
+      for (let lvl = 1; lvl <= 5; lvl++) {
+        const g = createMockGraphics();
+        drawIsometricBuilding(g, "keep", lvl, false, 0, defaultVisuals, 0, 0);
+        expect(g.calls.length).toBeGreaterThan(0);
+      }
+    });
+
+    it("handles rim fortress walls and gates with rim neighbors", () => {
+      const neighbors: RimNeighbors = {
+        hasPrev: true,
+        hasNext: true,
+        prevKind: "wall",
+        nextKind: "gate",
+      };
+
+      // Walls on rim
+      const gWallRim = createMockGraphics();
+      drawIsometricBuilding(gWallRim, "walls", 1, true, 0, defaultVisuals, 0, 0, neighbors);
+      expect(gWallRim.calls.length).toBeGreaterThan(0);
+
+      // Walls interior
+      const gWallInt = createMockGraphics();
+      drawIsometricBuilding(gWallInt, "walls", 1, true, 0, defaultVisuals, 4, 4);
+      expect(gWallInt.calls.length).toBeGreaterThan(0);
+
+      // Gate on rim
+      const gGateRim = createMockGraphics();
+      drawIsometricBuilding(gGateRim, "gate", 1, true, 0, defaultVisuals, 15, 4, neighbors);
+      expect(gGateRim.calls.length).toBeGreaterThan(0);
+
+      // Gate interior
+      const gGateInt = createMockGraphics();
+      drawIsometricBuilding(gGateInt, "gate", 1, true, 0, defaultVisuals, 4, 4);
+      expect(gGateInt.calls.length).toBeGreaterThan(0);
+    });
+
+    it("handles holiday visual decorations without throwing", () => {
+      for (const holiday of ["halloween", "midwinter", "easter", "harvest", "midsummer"] as const) {
+        const visuals = getThemeVisuals("Autumn", holiday);
+        const g = createMockGraphics();
+        drawIsometricBuilding(g, "farm", 1, true, 0, visuals, 2, 2);
+        expect(g.calls.length).toBeGreaterThan(0);
+      }
+    });
+
+    it("renders fallback hold for unknown building type without throwing", () => {
+      const g = createMockGraphics();
+      expect(() => {
+        drawIsometricBuilding(g, "unknown_tower", 1, true, 0, defaultVisuals, 0, 0);
+      }).not.toThrow();
+      expect(g.calls.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("unitPalette with culture kits", () => {
+    it("preserves western default unit palettes when culture is undefined or western", () => {
+      const defaultArcher = unitPalette("archer");
+      const westernArcher = unitPalette("archer", "western");
+      expect(defaultArcher.tabardColor).toBe(0x14532d);
+      expect(westernArcher.tabardColor).toBe(0x14532d);
+
+      const defaultSpear = unitPalette("spearman");
+      const westernSpear = unitPalette("spearman", "western");
+      expect(defaultSpear.tabardColor).toBe(0x1e40af);
+      expect(westernSpear.tabardColor).toBe(0x1e40af);
+    });
+
+    it("adapts tabard and accent colors when non-western cultureId is provided", () => {
+      const cedarSpear = unitPalette("spearman", "cedar");
+      expect(cedarSpear.tabardColor).toBe(0x14532d); // Cedar green tabard
+
+      const sandSpear = unitPalette("spearman", "sand");
+      expect(sandSpear.tabardColor).toBe(0xb45309); // Sand amber tabard
+
+      const steppeSpear = unitPalette("spearman", "steppe");
+      expect(steppeSpear.tabardColor).toBe(0x9f1239); // Steppe crimson tabard
+
+      const islandsSpear = unitPalette("spearman", "islands");
+      expect(islandsSpear.tabardColor).toBe(0x0e7490); // Islands cyan/teal tabard
     });
   });
 });

@@ -1,10 +1,45 @@
 # USER-NOTES
 
-Last updated: 2026-09-08 | Version: playtest-0.15 (Gemini Culture Kits: Distinct Silhouettes for Cedar, Sand, Steppe & Islands)
+Last updated: 2026-09-08 | Version: playtest-0.16 (Gemini Leftover Kits: Hold Buildings, Gold Mine & Market Silhouettes, Column Kits)
 
 Play: `https://129.153.17.72.sslip.io/`
 
-## Culture Kits: Distinct Architectural & Unit Silhouettes
+## Culture Kits: Complete Hold Buildings, Market & Gold Mine Silhouettes, March Columns
+
+Choosing your Crown culture now gives your realm fully distinct hold building art for all 21 building IDs, bespoke silhouettes for gold mines and trading markets, and culture-styled marching columns and pack-carts on the tabletop board.
+
+1. **Expanded Hold Architecture & Dedicated Silhouettes**:
+   - **Infirmary (Dedicated Hold Art)**:
+     - Field hospital hospice sanctuary featuring a half-timbered stone-plinth hall, red cross healer emblem on the front gable, steep slate roof with candlelit dormer, fieldstone chimney with lavender herbal hearth smoke, a courtyard medicinal garden (lavender & red poppies), and an herbalist washbasin bench.
+   - **Gold Mine Silhouettes**:
+     - **Cedar Kin (`cedar`)**: Forest river-panning flume, heavy cedar log headframe, gravel sluice box, and nugget wash pan.
+     - **Sand Banner (`sand`)**: Desert sandstone canyon adit portal with sunshade canopy awning, rocker box dry winnower, and ore amphorae.
+     - **Wind Host (`steppe`)**: Alluvial gravel trench with timber shoring, nomad felt windbreak screen, golden fleece sluice trough, and ironbound nugget chest.
+     - **Tide Clans (`islands`)**: Coastal reef cave mine with elevated stilt flume on driftwood pilings, tidal paddle wheel, and woven black-sand gold baskets.
+     - **Western Crown Marches (`western`)**: Classic rocky crag portal, timber headframe, ore tracks, and gold ore cart untouched.
+   - **Market Silhouettes**:
+     - **Cedar Kin (`cedar`)**: Forest log trading post with cedar bark roof canopy, side shelter, buckskin & fur pelt racks, wild berry baskets, and amber lantern.
+     - **Sand Banner (`sand`)**: Desert souk bazaar with mudbrick base, striped crimson & desert gold silk awnings, teal wing canopy, hanging brass lamp, spice sacks, and date baskets.
+     - **Wind Host (`steppe`)**: Nomad caravan fair with trade yurt canopy, two-wheeled arba trade wagon, kumis flagons, and clan standard.
+     - **Tide Clans (`islands`)**: Boardwalk pier market on driftwood pilings, thatched palm pavilion canopy, dried fish racks, and woven baskets of pearls and sea glass.
+     - **Western Crown Marches (`western`)**: Classic three-canopy grand bazaar with fruit crates untouched.
+   - **Lumber Camp & Lumber Alias**:
+     - `lumber_camp` and `lumber` now render identically across all kits, eliminating any missing hold art when querying either ID.
+
+2. **Tabletop March Columns & Gather Pack-Carts**:
+   - When your armies march across the board (`zoom <= 0.70`), your meeples display authentic culture gear:
+     - **Cedar**: Hunter cowl, buckskin tunic, leaf-blade hunting spear, round cedar bark shield.
+     - **Sand**: Desert turban with fluttering veil, crimson sash, slender lance with red pennon, polished brass sun buckler.
+     - **Steppe**: Conical spangenhelm with horsehair crest, nomad caftan, horsehair collar lance, studded rawhide buckler.
+     - **Islands**: Woven reed war cap, teal vest, 3-pronged barbed fishing trident, turtle-shell reef buckler.
+     - **Western**: Classic steel kettle hat, royal blue tabard, spear, round blue shield.
+     - Hostile Iron March columns strictly maintain their sinister red/iron heraldry.
+   - Gather pack-carts now reflect regional transport: split-cedar foraging cart (`cedar`), terracotta amphorae cart (`sand`), two-wheeled nomad arba wagon (`steppe`), and coastal driftwood slip cart (`islands`).
+
+3. **Army Visual Roster**:
+   - The Army tab's commander unit icon and squad formation cards reflect your realm's active culture kit automatically.
+
+## Culture Kits: Distinct Architectural & Unit Silhouettes (Previous Lane)
 
 Choosing your Crown culture now gives your realm distinct physical architectural silhouettes, citizen attire, and military arms rather than simple color tints. Western Crown Marches (`western`) retains 100% of its classic stone keeps, cottages, and kettle-hat soldiers.
 
