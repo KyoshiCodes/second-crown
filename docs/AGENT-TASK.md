@@ -1,24 +1,29 @@
-# Lane: Gemini culture kits
+# Lane: Gemini kits + climate
 
-Branch: `bakeoff/gemini-kits` from current `main`.
+Branch: `bakeoff/gemini-climate` from current `main`.
 Do not merge. Do not edit `packages/sim` or `server`.
 `git diff main -- packages/sim server` must stay empty.
 
-## Ship
+PR 23 already gave keep / cottage / farm / lumber plus villager/guard and militia/spearman kits.
+This lane finishes the rest of the hold + army, then adds per-culture climate. Crown Marches (`western`) stays the current art and current holiday/season weather.
 
-Player `playerCultureId(state)` already picks western | cedar | sand | steppe | islands.
-Crown Marches (`western`) keeps current keep, cottage, farm, walkers, UnitIcon.
-The other four packs need **silhouette changes**, not only palette tints:
-
-- cedar: timber longhouse keep, split-rail yards, woodland walker cloaks
-- sand: courtyard keep, flat roofs, linen/sash walkers
-- steppe: felt-roof hall, wagon yard, coat-and-sash walkers
-- islands: pile-house keep, net racks, sailcloth walkers
-
-Cover at least: keep, cottage, farm, lumber, walker villager/guard, UnitIcon militia + spearman.
+## A. Remaining silhouettes
+Use `resolveCultureKit` already on the branch (western | cedar | sand | steppe | islands).
+Cover every other `drawIsometricBuilding` type that has a western drawing: quarry, barracks, chapel, watchtower, walls, gate, infirmary, academy, siege workshop, mint/granary/sawmill/mason if those cases exist, outpost flag.
+Cover remaining UnitIcon types: skirmisher, archer, cavalry, knight, siege, champion.
 Original designs. No copyrighted franchise shapes.
-Do not add building types or combat math.
-Keep zoom/pan, inspect/gather, holidays, dim lanterns, ChromeDock, recorded audio.
+
+## B. Culture climate (presentation only)
+When `playerCultureId` is not western, overlay a light climate on the hold + board that does not replace holidays:
+- cedar: mist / pine pollen, cooler greens, optional woodwind bed if no recorded track
+- sand: heat shimmer, dune wash on board waste/plain chips, dust motes, dry percussion fallback
+- steppe: wide-sky wash, grass ripple, horsehair drone fallback
+- islands: sea haze, wet stone sheen, surf bed fallback
+Do not drown dim lanterns. Do not block tile clicks. Prefer CSS + existing WeatherOverlay / audioManager hooks over a second Pixi engine.
+If you add `/audio/<kit>.ogg` placeholders, missing files must fall back to synth. Do not require new binaries in the PR.
+
+## C. Preserve
+Zoom/pan, inspect/gather, holidays, ChromeDock, recorded halloween/easter/midwinter oggs, vault/army posts UI.
 
 ## Verify
 `npm test`
