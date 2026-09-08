@@ -3,6 +3,7 @@ import {
   setMusicHoliday,
   setMusicSeason,
   setMusicBattle,
+  setMusicCulture,
   isMusicMuted,
   setMusicMuted,
   setSynthMelodySuppressed,
@@ -66,7 +67,7 @@ class AudioManager {
     }
   }
 
-  public sync(pack: ThemePack, season: SeasonName, battleActive: boolean): void {
+  public sync(pack: ThemePack, season: SeasonName, battleActive: boolean, culture = "western"): void {
     if (!this.musicEl) this.init();
 
     this.isBattleActive = battleActive;
@@ -75,6 +76,7 @@ class AudioManager {
     // Update procedural synth fallbacks
     setMusicSeason(season);
     setMusicHoliday(pack.isHoliday ? pack.id : null);
+    setMusicCulture(culture);
 
     if (battleActive) {
       if (pack.battleSrc && pack.battleSrc !== this.currentBattleSrc) {
@@ -103,13 +105,17 @@ class AudioManager {
       setMusicBattle(false);
     }
 
-    // Handle ambient track (plays /audio/halloween.ogg, /audio/easter.ogg, /audio/midwinter.ogg when present)
-    if (pack.id !== this.currentPackId || pack.musicSrc !== this.currentMusicSrc) {
+    // Handle ambient track (plays /audio/halloween.ogg, /audio/easter.ogg, /audio/midwinter.ogg, or /audio/<kit>.ogg when present)
+    const desiredMusicSrc = (pack.isHoliday && pack.musicSrc)
+      ? pack.musicSrc
+      : (culture !== "western" ? `/audio/${culture}.ogg` : pack.musicSrc);
+
+    if (pack.id !== this.currentPackId || desiredMusicSrc !== this.currentMusicSrc) {
       this.currentPackId = pack.id;
-      this.currentMusicSrc = pack.musicSrc;
+      this.currentMusicSrc = desiredMusicSrc;
 
       if (this.musicEl) {
-        this.musicEl.src = pack.musicSrc;
+        this.musicEl.src = desiredMusicSrc;
         if (!muted) {
           this.musicEl.play().then(() => {
             this.recordedMusicPlaying = true;

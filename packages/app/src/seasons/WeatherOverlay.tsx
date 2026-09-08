@@ -11,15 +11,16 @@ interface Particle {
   rotation: number;
   vRot: number;
   color: string;
-  type: "snow" | "leaf" | "pollen" | "spark" | "petal" | "firefly" | "wisp";
+  type: "snow" | "leaf" | "pollen" | "spark" | "petal" | "firefly" | "wisp" | "dust" | "ripple" | "spray" | "pine_pollen";
   pulse?: number;
 }
 
 export function WeatherOverlay(props: {
   season: "Spring" | "Summer" | "Autumn" | "Winter";
   holiday: HolidayId;
+  culture?: string;
 }) {
-  const { season, holiday } = props;
+  const { season, holiday, culture = "western" } = props;
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const holidayMeta = getHolidayMeta(holiday);
 
@@ -40,10 +41,75 @@ export function WeatherOverlay(props: {
     };
     window.addEventListener("resize", onResize);
 
-    const count = season === "Winter" || holiday === "midwinter" ? 50 : 35;
+    const baseCount = season === "Winter" || holiday === "midwinter" ? 50 : 35;
+    const isNonWestern = culture !== "western";
+    const count = isNonWestern ? baseCount + 16 : baseCount;
     const particles: Particle[] = [];
 
-    const initParticle = (): Particle => {
+    const initParticle = (isCultureSpecial = false): Particle => {
+      if (isCultureSpecial && isNonWestern) {
+        if (culture === "cedar") {
+          return {
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: 0.2 + (Math.random() - 0.5) * 0.4,
+            vy: 0.3 + Math.random() * 0.5,
+            size: 1.5 + Math.random() * 1.8,
+            alpha: 0.25 + Math.random() * 0.45,
+            rotation: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.03,
+            color: Math.random() > 0.4 ? "#a3e635" : "#bef264",
+            type: "pine_pollen",
+            pulse: Math.random() * Math.PI * 2,
+          };
+        }
+        if (culture === "sand") {
+          return {
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: -(0.2 + Math.random() * 0.5),
+            size: 1.8 + Math.random() * 2.2,
+            alpha: 0.2 + Math.random() * 0.5,
+            rotation: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.04,
+            color: Math.random() > 0.5 ? "#f59e0b" : "#fbbf24",
+            type: "dust",
+            pulse: Math.random() * Math.PI * 2,
+          };
+        }
+        if (culture === "steppe") {
+          return {
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: 1.5 + Math.random() * 1.8,
+            vy: (Math.random() - 0.5) * 0.3,
+            size: 2.0 + Math.random() * 2.4,
+            alpha: 0.2 + Math.random() * 0.4,
+            rotation: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.05,
+            color: Math.random() > 0.5 ? "#fef08a" : "#f1f5f9",
+            type: "ripple",
+            pulse: Math.random() * Math.PI * 2,
+          };
+        }
+        if (culture === "islands") {
+          return {
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: 0.6 + Math.random() * 0.7,
+            vy: 0.4 + Math.random() * 0.6,
+            size: 1.6 + Math.random() * 2.0,
+            alpha: 0.25 + Math.random() * 0.5,
+            rotation: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.03,
+            color: Math.random() > 0.4 ? "#bae6fd" : "#e0f2fe",
+            type: "spray",
+            pulse: Math.random() * Math.PI * 2,
+          };
+        }
+      }
+
       const isWinter = season === "Winter" || holiday === "midwinter";
       const isAutumn = season === "Autumn" || holiday === "harvest";
       const isSpring = season === "Spring" || holiday === "easter";
@@ -105,7 +171,7 @@ export function WeatherOverlay(props: {
     };
 
     for (let i = 0; i < count; i++) {
-      particles.push(initParticle());
+      particles.push(initParticle(i >= baseCount));
     }
 
     const render = () => {
@@ -129,7 +195,7 @@ export function WeatherOverlay(props: {
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rotation);
         let currentAlpha = p.alpha;
-        if (p.type === "firefly" || p.type === "wisp") {
+        if (p.type === "firefly" || p.type === "wisp" || p.type === "dust") {
           currentAlpha = p.alpha * (0.5 + 0.5 * Math.sin(p.pulse || 0));
         }
         ctx.fillStyle = p.color;
@@ -146,11 +212,27 @@ export function WeatherOverlay(props: {
           ctx.beginPath();
           ctx.ellipse(0, 0, p.size, p.size * 0.6, 0, 0, Math.PI * 2);
           ctx.fill();
+        } else if (p.type === "ripple") {
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size * 2.2, p.size * 0.5, 0, 0, Math.PI * 2);
+          ctx.fill();
         } else if (p.type === "wisp") {
           ctx.beginPath();
           ctx.arc(0, 0, p.size, 0, Math.PI * 2);
           ctx.shadowBlur = 8;
           ctx.shadowColor = p.color;
+          ctx.fill();
+        } else if (p.type === "spray") {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+          ctx.shadowBlur = 4;
+          ctx.shadowColor = "#38bdf8";
+          ctx.fill();
+        } else if (p.type === "pine_pollen") {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+          ctx.shadowBlur = 3;
+          ctx.shadowColor = "#84cc16";
           ctx.fill();
         } else {
           ctx.beginPath();
@@ -166,11 +248,11 @@ export function WeatherOverlay(props: {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
     };
-  }, [season, holiday]);
+  }, [season, holiday, culture]);
 
   return (
     <div
-      className={`sc-weather-container season-${season.toLowerCase()} ${holiday !== "none" ? `holiday-${holiday}` : ""}`}
+      className={`sc-weather-container season-${season.toLowerCase()} ${holiday !== "none" ? `holiday-${holiday}` : ""} culture-${culture || "western"}`}
       style={{
         position: "fixed",
         top: 0,
@@ -184,6 +266,50 @@ export function WeatherOverlay(props: {
       aria-hidden="true"
     >
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
+      {culture === "cedar" && (
+        <div
+          className="sc-climate-cedar"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "radial-gradient(ellipse 1200px 800px at 50% 20%, rgba(34, 197, 94, 0.035), transparent 75%)",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+      {culture === "sand" && (
+        <div
+          className="sc-climate-sand"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "radial-gradient(ellipse 1400px 900px at 50% -10%, rgba(245, 158, 11, 0.04), transparent 70%), linear-gradient(180deg, transparent 60%, rgba(180, 83, 9, 0.025) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+      {culture === "steppe" && (
+        <div
+          className="sc-climate-steppe"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(56, 189, 248, 0.035) 0%, transparent 55%), radial-gradient(ellipse 1000px 600px at 50% 100%, rgba(163, 230, 53, 0.02), transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+      {culture === "islands" && (
+        <div
+          className="sc-climate-islands"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "radial-gradient(ellipse 1400px 800px at 50% 0%, rgba(14, 165, 233, 0.035), transparent 65%), linear-gradient(180deg, transparent 70%, rgba(6, 182, 212, 0.025) 100%)",
+            pointerEvents: "none",
+          }}
+        />
+      )}
       {holiday !== "none" && (
         <div
           className="sc-holiday-banner"

@@ -13,8 +13,41 @@ let muted = false;
 let step = 0;
 let currentSeasonName: SeasonName = "Spring";
 let currentHolidayId: string | null = null;
+let currentCultureId = "western";
+let cultureTimer: number | null = null;
 let battleOn = false;
 let started = false;
+
+const CULTURE_MUSIC: Record<string, { melody: number[]; bass: number; intervalMs: number; osc: OscillatorType }> = {
+  cedar: {
+    // Woodwind bed: soft lyrical minor/dorian forest flute tones
+    melody: [330, 392, 440, 494, 587, 659, 587, 494, 440, 392, 330, 294, 330, 392, 440, 392],
+    bass: 110,
+    intervalMs: 460,
+    osc: "sine",
+  },
+  sand: {
+    // Arid desert tones (Phrygian)
+    melody: [220, 233, 293, 330, 349, 330, 293, 233, 220, 196, 220, 233, 293, 330, 293, 220],
+    bass: 73.4,
+    intervalMs: 440,
+    osc: "triangle",
+  },
+  steppe: {
+    // Open plains pentatonic with bowed horsehair timbre
+    melody: [196, 220, 262, 294, 392, 440, 392, 294, 262, 220, 196, 165, 196, 220, 294, 220],
+    bass: 98,
+    intervalMs: 500,
+    osc: "sawtooth",
+  },
+  islands: {
+    // Oceanic pentatonic bell & surf chime
+    melody: [262, 330, 392, 523, 659, 784, 659, 523, 392, 330, 262, 196, 262, 330, 392, 523],
+    bass: 65.4,
+    intervalMs: 540,
+    osc: "sine",
+  },
+};
 
 const SEASON: Record<SeasonName, { melody: number[]; bass: number; intervalMs: number; osc: OscillatorType }> = {
   Spring: {
@@ -102,6 +135,9 @@ function tone(freq: number, type: OscillatorType, dur: number, gain: number) {
 
 function pattern() {
   if (currentHolidayId && HOLIDAY[currentHolidayId]) return HOLIDAY[currentHolidayId];
+  if (currentCultureId && currentCultureId !== "western" && CULTURE_MUSIC[currentCultureId]) {
+    return CULTURE_MUSIC[currentCultureId];
+  }
   return SEASON[currentSeasonName] ?? SEASON.Spring;
 }
 
@@ -109,7 +145,8 @@ function clearTimers() {
   if (melodyTimer !== null) window.clearInterval(melodyTimer);
   if (padTimer !== null) window.clearInterval(padTimer);
   if (battleTimer !== null) window.clearInterval(battleTimer);
-  melodyTimer = padTimer = battleTimer = null;
+  if (cultureTimer !== null) window.clearInterval(cultureTimer);
+  melodyTimer = padTimer = battleTimer = cultureTimer = null;
 }
 
 let synthMelodySuppressed = false;
@@ -129,6 +166,29 @@ function runBed() {
     padTimer = window.setInterval(() => {
       tone(pattern().bass, "sine", 1.6, 0.03);
     }, p.intervalMs * 4);
+
+    // Light atmospheric culture ambient layer (dry percussion, horsehair drone, surf bed, woodwind)
+    if (currentCultureId === "sand") {
+      cultureTimer = window.setInterval(() => {
+        tone(58, "triangle", 0.08, 0.03);
+        setTimeout(() => tone(460, "sine", 0.03, 0.012), 220);
+      }, 880);
+    } else if (currentCultureId === "steppe") {
+      cultureTimer = window.setInterval(() => {
+        tone(98, "sawtooth", 1.8, 0.016);
+        tone(147, "sawtooth", 1.8, 0.011);
+      }, 2000);
+    } else if (currentCultureId === "islands") {
+      cultureTimer = window.setInterval(() => {
+        tone(55, "sine", 2.4, 0.022);
+        tone(82, "triangle", 2.0, 0.014);
+      }, 3200);
+    } else if (currentCultureId === "cedar") {
+      cultureTimer = window.setInterval(() => {
+        tone(220, "sine", 1.6, 0.02);
+        tone(330, "sine", 1.4, 0.015);
+      }, 2400);
+    }
   }
   if (battleOn) {
     battleTimer = window.setInterval(() => {
@@ -160,6 +220,12 @@ export function setMusicSeason(season: SeasonName): void {
 export function setMusicHoliday(holidayId: string | null): void {
   if (currentHolidayId === holidayId) return;
   currentHolidayId = holidayId;
+  if (started && !muted) runBed();
+}
+
+export function setMusicCulture(culture: string): void {
+  if (currentCultureId === culture) return;
+  currentCultureId = culture;
   if (started && !muted) runBed();
 }
 

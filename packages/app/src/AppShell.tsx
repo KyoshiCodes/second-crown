@@ -64,6 +64,7 @@ export function AppShell() {
   const activeWar = state?.wars.find((w) => w.status === "active");
   const hold = state ? settlementName(state) : "Your Hold";
   const season = (state ? currentSeason(state) : "Spring") as SeasonName;
+  const culture = state ? playerCultureId(state) : "western";
   const [holidayId, setHolidayId] = React.useState<HolidayId>(() => detectCurrentHoliday());
   const holiday = holidayId !== "none" ? getHolidayMeta(holidayId) : null;
   const activePack = resolveActiveThemePack(season, holidayId);
@@ -90,16 +91,16 @@ export function AppShell() {
       sfx.seasonShift(season);
       prevSeasonRef.current = season;
     }
-    audioManager.sync(activePack, season, !!activeWar);
-  }, [activePack, season, activeWar]);
+    audioManager.sync(activePack, season, !!activeWar, culture);
+  }, [activePack, season, activeWar, culture]);
 
   return (
     <div
-      className={`sc-shell theme-${tab} season-${season.toLowerCase()} pack-${activePack.id} ${holiday ? holiday.themeClass : ""}`}
+      className={`sc-shell theme-${tab} season-${season.toLowerCase()} pack-${activePack.id} culture-${culture} ${holiday ? holiday.themeClass : ""}`}
       style={{ background: activePack.backgroundCss }}
     >
       <ThemeStage season={season} holiday={holidayId} />
-      <WeatherOverlay season={season} holiday={holidayId} />
+      <WeatherOverlay season={season} holiday={holidayId} culture={culture} />
       <div className="sc-panel">
         <h1 style={{ margin: "0 0 4px", fontSize: 22 }} className="sc-title">Second Crown</h1>
         <div style={{ fontSize: 13, opacity: 0.85 }} className="sc-subtitle">
