@@ -1,6 +1,5 @@
 /** Layered procedural bed: pad + phrase + optional battle pulse.
- * Starts after first Music click (browser autoplay).
- * Client-only. Not a licensed soundtrack — recorded tracks can drop into public/audio later.
+ * Recorded holiday tracks mute the whole synth, including the 520ms battle bounce.
  */
 
 export type SeasonName = "Spring" | "Summer" | "Autumn" | "Winter";
@@ -15,6 +14,9 @@ let currentSeasonName: SeasonName = "Spring";
 let currentHolidayId: string | null = null;
 let battleOn = false;
 let started = false;
+let synthMelodySuppressed = false;
+
+const RECORDED_HOLIDAYS = new Set(["halloween", "midwinter", "easter"]);
 
 const SEASON: Record<SeasonName, { melody: number[]; bass: number; intervalMs: number; osc: OscillatorType }> = {
   Spring: {
@@ -112,12 +114,15 @@ function clearTimers() {
   melodyTimer = padTimer = battleTimer = null;
 }
 
-let synthMelodySuppressed = false;
+function recordedHolidayOn(): boolean {
+  return Boolean(currentHolidayId && RECORDED_HOLIDAYS.has(currentHolidayId));
+}
 
 function runBed() {
   if (!started || muted) return;
   clearTimers();
-  if (!synthMelodySuppressed) {
+  const hush = synthMelodySuppressed || recordedHolidayOn();
+  if (!hush) {
     const p = pattern();
     melodyTimer = window.setInterval(() => {
       const cur = pattern();
@@ -130,7 +135,8 @@ function runBed() {
       tone(pattern().bass, "sine", 1.6, 0.03);
     }, p.intervalMs * 4);
   }
-  if (battleOn) {
+  // Battle bounce stays off while a recorded holiday owns the speakers.
+  if (battleOn && !hush) {
     battleTimer = window.setInterval(() => {
       tone(70, "sawtooth", 0.18, 0.05);
       setTimeout(() => tone(90, "square", 0.08, 0.02), 90);
@@ -160,6 +166,7 @@ export function setMusicSeason(season: SeasonName): void {
 export function setMusicHoliday(holidayId: string | null): void {
   if (currentHolidayId === holidayId) return;
   currentHolidayId = holidayId;
+  if (recordedHolidayOn()) synthMelodySuppressed = true;
   if (started && !muted) runBed();
 }
 
