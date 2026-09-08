@@ -1,15 +1,24 @@
-# Lane: Gemini crowns
+# Lane: Gemini culture kits
 
-Branch: `bakeoff/gemini-crowns` from current `main`.
-Do not merge to main. Do not edit `packages/sim` or `server`.
+Branch: `bakeoff/gemini-kits` from current `main`.
+Do not merge. Do not edit `packages/sim` or `server`.
 `git diff main -- packages/sim server` must stay empty.
 
 ## Ship
 
-1. **Every NPC hold is a token, not only Iron March.** `paintBoardProvinces` (or equivalent) must draw a distinct keep/chip for each `occupantRealmId` that is not the player. Reuse existing crest colors / realm names from flavor if present; do not invent a second board schema.
-2. **Player culture tint.** Read `playerCultureId(state)` / `CULTURES` from `@second-crown/sim`. Crown Marches stays current art. Cedar Kin, Sand Banner, Wind Host, Tide Clans get tabard/timber/stone tints on hold walkers, keep dress, and `UnitIcon` — palettes already exist on `CULTURES[i].palette`. Do not replace combat or building types.
-3. **World log visibility.** World tab (or dock) should show the latest claim / trade / npc-war lines so extra crowns are readable without opening DevTools.
-4. Keep zoom/pan, inspect/gather, holidays, dim lanterns, ChromeDock, recorded audio.
+Player `playerCultureId(state)` already picks western | cedar | sand | steppe | islands.
+Crown Marches (`western`) keeps current keep, cottage, farm, walkers, UnitIcon.
+The other four packs need **silhouette changes**, not only palette tints:
+
+- cedar: timber longhouse keep, split-rail yards, woodland walker cloaks
+- sand: courtyard keep, flat roofs, linen/sash walkers
+- steppe: felt-roof hall, wagon yard, coat-and-sash walkers
+- islands: pile-house keep, net racks, sailcloth walkers
+
+Cover at least: keep, cottage, farm, lumber, walker villager/guard, UnitIcon militia + spearman.
+Original designs. No copyrighted franchise shapes.
+Do not add building types or combat math.
+Keep zoom/pan, inspect/gather, holidays, dim lanterns, ChromeDock, recorded audio.
 
 ## Verify
 `npm test`
