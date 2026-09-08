@@ -18,6 +18,7 @@ import {
   playerTitle,
   getBuildingType,
   getProvince,
+  setPlayerCulture,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -27,6 +28,7 @@ import { downloadSave, pickSaveFile } from "../save/fileIo";
 import type { BattleSnap } from "../BattleVisual";
 import { getWarTaunt } from "../content/flavor";
 import { sfx } from "../sfx";
+import { rememberedCulture } from "../CulturePicker";
 
 export type Tab = "kingdom" | "army" | "war" | "world" | "crown";
 export type ActFn = (fn: (st: GameState, eng: TickEngine) => string) => void;
@@ -35,6 +37,7 @@ function freshState(seed: number): GameState {
   const state = createGameState({ seed, withStarterBuildings: true });
   state.resources.wood = "40";
   state.resources.food = "50";
+  setPlayerCulture(state, rememberedCulture());
   return state;
 }
 
@@ -73,7 +76,6 @@ export function useGameEngine() {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const selectedBuildRef = React.useRef<string | null>("farm");
   const lastRivalWar = React.useRef<string | null>(null);
-  const lastWorldRef = React.useRef<string>("");
 
   React.useEffect(() => { selectedBuildRef.current = selectedBuild; }, [selectedBuild]);
   React.useEffect(() => { speedRef.current = speed; pausedRef.current = paused; }, [speed, paused]);
@@ -110,10 +112,9 @@ export function useGameEngine() {
       seenEventTick.current = evTick;
       setStatus(String(s.flags.last_event ?? ""));
     }
-    const curWorld = typeof s.flags.last_world === "string" ? s.flags.last_world : "";
-    if (curWorld && curWorld !== lastWorldRef.current) {
-      lastWorldRef.current = curWorld;
-      window.dispatchEvent(new CustomEvent("sc-world-dispatch", { detail: { text: curWorld, tick: s.meta.tick } }));
+    const worldLine = typeof s.flags.last_world === "string" ? s.flags.last_world : "";
+    if (worldLine) {
+      window.dispatchEvent(new CustomEvent("sc-world-dispatch", { detail: worldLine }));
     }
     mapRef.current?.sync(s);
     const incoming = s.wars.find((w) => w.status === "active" && w.attackerRealmId !== "player");
