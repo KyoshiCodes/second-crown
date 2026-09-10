@@ -7,8 +7,10 @@ import {
   isProvinceSeen,
   listGathers,
   listMarches,
+  listOutposts,
   listUnitTypes,
   maxMarches,
+  outpostTithePerTick,
   scoutCost,
   tryGather,
   tryMarchWith,
@@ -35,7 +37,7 @@ const NODE: Record<string, string> = {
   woodcut: "Timber stand",
   quarry: "Stone outcrop",
   field: "Forage field",
-  ruins: "Old ruins",
+  ruins: "Ruins",
 };
 
 function owned(state: GameState, typeId: string): number {
@@ -63,9 +65,12 @@ export function ProvinceInspect(props: {
   const cost = scoutCost(state);
   const gold = Number(state.resources.gold ?? 0);
   const canGather = seen && p.node in GATHER_NODES;
-  const slotsUsed = listMarches(state).filter((m) => m.realmId === "player").length + gathers.filter((g) => g.phase !== "returning").length;
+  const slotsUsed =
+    listMarches(state).filter((m) => m.realmId === "player").length +
+    gathers.filter((g) => g.phase !== "returning").length;
   const full = slotsUsed >= maxMarches(state);
-  const threat = seen && (p.node === "camp" || p.node === "ruins") ? campThreat(state, p) : 0;
+  const flagged = listOutposts(state).some((o) => o.id === selectedId);
+  const tithe = flagged ? outpostTithePerTick(state) : null;
   const occupant = seen
     ? p.occupantRealmId
       ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
@@ -94,18 +99,28 @@ export function ProvinceInspect(props: {
       </div>
       <div style={{ opacity: 0.85, marginTop: 4 }}>
         {seen ? NODE[p.node] ?? p.node : "Fog hides the token."} · Occupant: {occupant} · Gold {gold}
-        {threat > 0 ? ` · Threat ${threat}` : ""}
       </div>
+      {seen && p.node === "camp" ? (
+        <div style={{ marginTop: 4 }}>Camp threat {campThreat(state, p)}</div>
+      ) : null}
+      {flagged ? (
+        <div style={{ marginTop: 4, color: "#86efac" }}>
+          Your flag. Tithe / tick — food {tithe?.food ?? 0} wood {tithe?.wood ?? 0} stone {tithe?.stone ?? 0} gold{" "}
+          {tithe?.gold ?? 0}
+        </div>
+      ) : null}
       {march ? (
         <div style={{ marginTop: 6, color: "#fef08a" }}>
           Raid column · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
-          <button
-            type="button"
-            style={{ marginLeft: 8 }}
-            onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}
-          >
-            Recall column
-          </button>
+          {march.arrivesTick > state.meta.tick ? (
+            <button
+              type="button"
+              style={{ marginLeft: 8 }}
+              onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}
+            >
+              Recall raid
+            </button>
+          ) : null}
         </div>
       ) : null}
       {here ? (
@@ -150,7 +165,9 @@ export function ProvinceInspect(props: {
                   const pack: Record<string, number> = {};
                   for (const [k, v] of Object.entries(force)) if (v > 0) pack[k] = v;
                   if (Object.keys(pack).length === 0) pack.militia = 5;
-                  return tryGather(s, selectedId, pack) ? "Gather column sent." : "Cannot gather — need a forage node, free slot, and troops.";
+                  return tryGather(s, selectedId, pack)
+                    ? "Gather column sent."
+                    : "Cannot gather — need a forage node, free slot, and troops.";
                 })
               }
             >
