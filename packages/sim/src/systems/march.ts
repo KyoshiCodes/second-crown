@@ -9,10 +9,11 @@ import { maxMarches } from "./labor.js";
 import { returnForce, takeForce } from "./column.js";
 import { gateHp } from "./gate.js";
 import { listGathers } from "./gather.js";
-import { plantOutpost } from "./outpost.js";
+import { plantOutpost, listOutposts } from "./outpost.js";
 import { addCapped } from "./storage.js";
 import { campThreat } from "./camp.js";
 import { absorbWounded } from "./ward.js";
+import { detachGarrison, mergeGarrisonForce } from "./garrison.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -29,6 +30,7 @@ export interface March {
   kind: "camp" | "node" | "hold";
   levy: number;
   force?: Record<string, number>;
+  purpose?: "raid" | "garrison" | "garrison_home";
 }
 
 interface Respawn {
@@ -136,7 +138,14 @@ function manhattan(a: Province, b: Province): number {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
-function enqueueMarch(state: GameState, dest: Province, home: Province, levy: number, force?: Record<string, number>): boolean {
+function enqueueMarch(
+  state: GameState,
+  dest: Province,
+  home: Province,
+  levy: number,
+  force?: Record<string, number>,
+  purpose?: March["purpose"]
+): boolean {
   const mine = marches(state).filter((m) => m.realmId === "player");
   if (mine.length + listGathers(state).length >= maxMarches(state)) return false;
   const dist = Math.max(1, manhattan(home, dest));
@@ -154,6 +163,7 @@ function enqueueMarch(state: GameState, dest: Province, home: Province, levy: nu
       kind,
       levy,
       force,
+      purpose,
     },
   ]);
   return true;
@@ -166,7 +176,7 @@ export function tryMarch(state: GameState, destId: string): boolean {
   if (marches(state).filter((m) => m.realmId === "player").length + listGathers(state).length >= maxMarches(state)) return false;
   const levy = takeLevy(state);
   if (levy < 1) return false;
-  return enqueueMarch(state, dest, home, levy, { militia: levy });
+  return enqueueMarch(state, dest, home, levy, { militia: levy }, "raid");
 }
 
 export function tryMarchWith(state: GameState, destId: string, force: Record<string, number>): boolean {
@@ -181,7 +191,44 @@ export function tryMarchWith(state: GameState, destId: string, force: Record<str
   }
   if (!takeForce(state, clean)) return false;
   const levy = Object.values(clean).reduce((a, b) => a + b, 0);
-  return enqueueMarch(state, dest, home, levy, clean);
+  return enqueueMarch(state, dest, home, levy, clean, "raid");
+}
+
+export function tryDispatchGarrison(state: GameState, destId: string, force: Record<string, number>): boolean {
+  const dest = getProvince(state, destId);
+  const home = getProvince(state, state.board.homeProvinceId);
+  if (!dest || !home || dest.id === home.id) return false;
+  if (!listOutposts(state).some((p) => p.id === destId)) return false;
+  const clean: Record<string, number> = {};
+  for (const [k, v] of Object.entries(force)) {
+    const n = Math.floor(Number(v) || 0);
+    if (n > 0) clean[k] = n;
+  }
+  if (!takeForce(state, clean)) return false;
+  const levy = Object.values(clean).reduce((a, b) => a + b, 0);
+  const ok = enqueueMarch(state, dest, home, levy, clean, "garrison");
+  if (!ok) {
+    returnForce(state, clean, 1);
+    return false;
+  }
+  state.inputLog.push({ tick: state.meta.tick, type: "dispatch_garrison", payload: { destId, force: clean } });
+  return true;
+}
+
+export function tryDispatchRecallGarrison(state: GameState, destId: string): boolean {
+  const dest = getProvince(state, destId);
+  const home = getProvince(state, state.board.homeProvinceId);
+  if (!dest || !home) return false;
+  const force = detachGarrison(state, destId);
+  if (!force) return false;
+  const levy = Object.values(force).reduce((a, b) => a + b, 0);
+  const ok = enqueueMarch(state, home, dest, levy, force, "garrison_home");
+  if (!ok) {
+    mergeGarrisonForce(state, destId, force);
+    return false;
+  }
+  state.inputLog.push({ tick: state.meta.tick, type: "dispatch_recall_garrison", payload: { destId } });
+  return true;
 }
 
 export function tryNpcMarch(state: GameState, realmId: string, destId: string): boolean {
@@ -211,7 +258,8 @@ export function tryRecallMarch(state: GameState): boolean {
   if (!m) return false;
   if (m.arrivesTick <= state.meta.tick) return false;
   saveMarches(state, marches(state).filter((x) => x.id !== m.id));
-  if (m.force) returnForce(state, m.force, 1);
+  if (m.purpose === "garrison_home" && m.force) mergeGarrisonForce(state, m.fromId, m.force);
+  else if (m.force) returnForce(state, m.force, 1);
   else returnLevy(state, m.levy);
   state.inputLog.push({ tick: state.meta.tick, type: "recall_march", payload: { id: m.id } });
   return true;
@@ -231,8 +279,17 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
   const levy = march.levy ?? 0;
   const pwr = levy * (getUnitType("militia")?.power ?? 1);
   if (!dest) {
-    if (march.realmId === "player") returnLevy(state, levy);
+    if (march.realmId === "player" && march.force) returnForce(state, march.force, 1);
+    else if (march.realmId === "player") returnLevy(state, levy);
     return "March lost.";
+  }
+  if (march.purpose === "garrison" && march.force) {
+    mergeGarrisonForce(state, dest.id, march.force);
+    return "Garrison posted.";
+  }
+  if (march.purpose === "garrison_home" && march.force) {
+    returnForce(state, march.force, 1);
+    return "Garrison returned home.";
   }
   if (march.realmId !== "player" && dest.id === state.board.homeProvinceId) {
     const def = siegeDefense(state, "player");
