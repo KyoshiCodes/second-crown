@@ -103,7 +103,7 @@ export interface FactionInstance {
 }
 
 export type TerrainId = "plain" | "wood" | "hill" | "waste" | "shore" | "peak";
-export type NodeId = "none" | "hold" | "camp" | "woodcut" | "quarry" | "field";
+export type NodeId = "none" | "hold" | "camp" | "woodcut" | "quarry" | "field" | "ruins";
 export type ProvinceNode = NodeId;
 
 export interface Province {
