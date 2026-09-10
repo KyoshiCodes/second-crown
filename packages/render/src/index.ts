@@ -7069,8 +7069,9 @@ export function isOutpostProvince(
 
 export function listGathersPresentation(state: GameState | null): any[] {
   if (!state) return [];
-  if (typeof sim.listGathers === "function") {
-    return sim.listGathers(state).map((g) => {
+  const fromSim = typeof sim.listGathers === "function" ? sim.listGathers(state) : [];
+  if (fromSim.length) {
+    return fromSim.map((g) => {
       const tick = state.meta.tick;
       let progress = 0.5;
       if (g.phase === "outbound") {
@@ -7085,6 +7086,7 @@ export function listGathersPresentation(state: GameState | null): any[] {
       return { ...g, progress };
     });
   }
+  if (Array.isArray((state as any).gathers)) return (state as any).gathers;
   return [];
 }
 
