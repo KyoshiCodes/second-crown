@@ -2,6 +2,7 @@ import React from "react";
 import {
   GATHER_NODES,
   activePlayerMarch,
+  campThreat,
   getProvince,
   isProvinceSeen,
   listGathers,
@@ -12,6 +13,7 @@ import {
   tryGather,
   tryMarchWith,
   tryRecallGather,
+  tryRecallMarch,
   tryScoutProvince,
   type GameState,
 } from "@second-crown/sim";
@@ -33,6 +35,7 @@ const NODE: Record<string, string> = {
   woodcut: "Timber stand",
   quarry: "Stone outcrop",
   field: "Forage field",
+  ruins: "Old ruins",
 };
 
 function owned(state: GameState, typeId: string): number {
@@ -62,6 +65,7 @@ export function ProvinceInspect(props: {
   const canGather = seen && p.node in GATHER_NODES;
   const slotsUsed = listMarches(state).filter((m) => m.realmId === "player").length + gathers.filter((g) => g.phase !== "returning").length;
   const full = slotsUsed >= maxMarches(state);
+  const threat = seen && (p.node === "camp" || p.node === "ruins") ? campThreat(state, p) : 0;
   const occupant = seen
     ? p.occupantRealmId
       ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
@@ -90,10 +94,18 @@ export function ProvinceInspect(props: {
       </div>
       <div style={{ opacity: 0.85, marginTop: 4 }}>
         {seen ? NODE[p.node] ?? p.node : "Fog hides the token."} · Occupant: {occupant} · Gold {gold}
+        {threat > 0 ? ` · Threat ${threat}` : ""}
       </div>
       {march ? (
         <div style={{ marginTop: 6, color: "#fef08a" }}>
           Raid column · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
+          <button
+            type="button"
+            style={{ marginLeft: 8 }}
+            onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}
+          >
+            Recall column
+          </button>
         </div>
       ) : null}
       {here ? (
