@@ -249,9 +249,9 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     return result.winnerId === "player" ? "Siege broken." : "The hold is breached.";
   }
   if (march.kind === "camp" || dest.node === "camp") {
-    const threat = campThreat(state, dest);
-    const swing = 0.85 + rng.battle() * 0.3;
-    const wins = pwr * swing >= Math.max(4, threat);
+    void campThreat(state, dest);
+    void rng;
+    const wins = pwr >= 4;
     if (wins) {
       scheduleRespawn(state, dest);
       dest.node = "none";
