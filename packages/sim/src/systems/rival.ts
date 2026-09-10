@@ -46,6 +46,7 @@ function tickAi(state: GameState, atTick: number): void {
     growRealm(state, realm.id);
     maybeClaim(state, realm.id, atTick);
     maybeCampMarch(state, realm.id, atTick);
+    maybeContestFlag(state, realm.id, atTick);
     maybeTrade(state, realm.id, atTick);
     maybeNpcWar(state, realm.id, atTick);
     if (atTick % 500 === 0) maybeNpcRaid(state, realm.id, atTick);
@@ -79,6 +80,20 @@ function maybeCampMarch(state: GameState, realmId: string, atTick: number): void
     const name = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
     pushWorldLog(state, "raid", `${name} rides on a camp at ${camp.x},${camp.y}`);
   }
+}
+
+export function maybeContestFlag(state: GameState, realmId: string, atTick: number): boolean {
+  if (realmId === "player") return false;
+  if (peaceLocked(state, realmId, "player")) return false;
+  if (isShielded(state)) return false;
+  const flag = state.board.provinces.find(
+    (p) => p.occupantRealmId === "player" && p.id !== state.board.homeProvinceId && p.node !== "hold"
+  );
+  if (!flag) return false;
+  if (!tryNpcMarch(state, realmId, flag.id)) return false;
+  const name = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
+  pushWorldLog(state, "raid", `${name} contests your flag at ${flag.x},${flag.y}`);
+  return true;
 }
 
 function maybeTrade(state: GameState, realmId: string, atTick: number): void {
