@@ -13,7 +13,7 @@ import { plantOutpost, listOutposts } from "./outpost.js";
 import { addCapped } from "./storage.js";
 import { campThreat } from "./camp.js";
 import { absorbWounded } from "./ward.js";
-import { detachGarrison, mergeGarrisonForce } from "./garrison.js";
+import { detachGarrison, garrisonPower, mergeGarrisonForce } from "./garrison.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -287,9 +287,18 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     mergeGarrisonForce(state, dest.id, march.force);
     return "Garrison posted.";
   }
-  if (march.purpose === "garrison_home" && march.force) {
+    if (march.purpose === "garrison_home" && march.force) {
     returnForce(state, march.force, 1);
     return "Garrison returned home.";
+  }
+  if (march.realmId !== "player" && dest.occupantRealmId === "player" && dest.id !== state.board.homeProvinceId) {
+    const def = garrisonPower(state, dest.id);
+    if (pwr > def) {
+      detachGarrison(state, dest.id);
+      dest.occupantRealmId = march.realmId;
+      return "Outpost fallen.";
+    }
+    return "Garrison holds the flag.";
   }
   if (march.realmId !== "player" && dest.id === state.board.homeProvinceId) {
     const def = siegeDefense(state, "player");
