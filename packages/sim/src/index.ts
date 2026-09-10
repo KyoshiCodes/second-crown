@@ -152,6 +152,8 @@ export {
   tryMarchWith,
   tryNpcMarch,
   tryRecallMarch,
+  tryDispatchGarrison,
+  tryDispatchRecallGarrison,
   listMarches,
   activePlayerMarch,
   hasClosedWallRing,
