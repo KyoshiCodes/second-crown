@@ -151,6 +151,7 @@ export {
   tryMarch,
   tryMarchWith,
   tryNpcMarch,
+  tryRecallMarch,
   listMarches,
   activePlayerMarch,
   hasClosedWallRing,
@@ -161,6 +162,7 @@ export {
   MarchSystem,
 } from "./systems/march.js";
 export type { March } from "./systems/march.js";
+export { campThreat } from "./systems/camp.js";
 
 export { incomingOnHome, watchtowerWarning, maybeNpcRaid } from "./systems/raidMarch.js";
 export { resolveSiegeHold, yardPower, keepPower } from "./systems/siege.js";
