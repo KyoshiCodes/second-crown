@@ -184,6 +184,8 @@ export { isProvinceSeen, tryScoutProvince, revealProvince, ensureFog, visionRang
 export { listRimForts } from "./systems/rimForts.js";
 export type { RimFort } from "./systems/rimForts.js";
 export { listOutposts, plantOutpost, outpostTithePerTick, applyOutpostTithe } from "./systems/outpost.js";
+export { listGarrisons, garrisonAt, garrisonPower, tryGarrison, tryRecallGarrison } from "./systems/garrison.js";
+export type { Garrison } from "./systems/garrison.js";
 export { vaultProtects, takePlunder } from "./systems/vault.js";
 export { listTroopPosts, troopWounded } from "./systems/troops.js";
 export {
