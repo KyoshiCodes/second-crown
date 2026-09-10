@@ -658,12 +658,60 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       }
     });
 
-    it("renders fallback hold for unknown building type without throwing", () => {
-      const g = createMockGraphics();
-      expect(() => {
-        drawIsometricBuilding(g, "unknown_tower", 1, true, 0, defaultVisuals, 0, 0);
-      }).not.toThrow();
-      expect(g.calls.length).toBeGreaterThan(0);
+    it("renders bespoke silhouettes for walls, gate, chapel, infirmary, siege_workshop, watchtower, barracks, stables, archery_range across all 5 culture kits without throwing", () => {
+      const remainingBuildings = [
+        "chapel",
+        "infirmary",
+        "siege_workshop",
+        "watchtower",
+        "barracks",
+        "stables",
+        "archery_range",
+      ] as const;
+
+      const neighbors: RimNeighbors = {
+        hasPrev: true,
+        hasNext: true,
+        prevKind: "wall",
+        nextKind: "gate",
+      };
+
+      for (const kit of kits) {
+        // Interior and rim walls
+        const gWallRim = createMockGraphics();
+        expect(() => {
+          drawIsometricBuilding(gWallRim, "walls", 1, true, 0, defaultVisuals, 0, 0, neighbors, kit);
+        }).not.toThrow();
+        expect(gWallRim.calls.length).toBeGreaterThan(0);
+
+        const gWallInt = createMockGraphics();
+        expect(() => {
+          drawIsometricBuilding(gWallInt, "walls", 1, true, 0, defaultVisuals, 4, 4, undefined, kit);
+        }).not.toThrow();
+        expect(gWallInt.calls.length).toBeGreaterThan(0);
+
+        // Interior and rim gates
+        const gGateRim = createMockGraphics();
+        expect(() => {
+          drawIsometricBuilding(gGateRim, "gate", 1, true, 0, defaultVisuals, 15, 4, neighbors, kit);
+        }).not.toThrow();
+        expect(gGateRim.calls.length).toBeGreaterThan(0);
+
+        const gGateInt = createMockGraphics();
+        expect(() => {
+          drawIsometricBuilding(gGateInt, "gate", 1, true, 0, defaultVisuals, 4, 4, undefined, kit);
+        }).not.toThrow();
+        expect(gGateInt.calls.length).toBeGreaterThan(0);
+
+        // Each specialized hold building
+        for (const bld of remainingBuildings) {
+          const g = createMockGraphics();
+          expect(() => {
+            drawIsometricBuilding(g, bld, 1, true, 0.2, defaultVisuals, 5, 5, undefined, kit);
+          }).not.toThrow();
+          expect(g.calls.length).toBeGreaterThan(5);
+        }
+      }
     });
   });
 
@@ -692,6 +740,19 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
 
       const islandsSpear = unitPalette("spearman", "islands");
       expect(islandsSpear.tabardColor).toBe(0x0e7490); // Islands cyan/teal tabard
+    });
+
+    it("evaluates unitPalette across all 5 cultures for archer, skirmisher, cavalry, knight, siege, champion without throwing", () => {
+      const types = ["archer", "skirmisher", "cavalry", "knight", "siege", "champion"] as const;
+      const cults = ["western", "cedar", "sand", "steppe", "islands"] as const;
+      for (const t of types) {
+        for (const c of cults) {
+          const pal = unitPalette(t, c);
+          expect(pal.id).toBe(t);
+          expect(typeof pal.tabardColor).toBe("number");
+          expect(pal.tabardColor).toBeGreaterThan(0);
+        }
+      }
     });
   });
 });

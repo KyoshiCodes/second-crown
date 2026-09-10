@@ -1,8 +1,32 @@
 # USER-NOTES
 
-Last updated: 2026-09-08 | Version: playtest-0.16 (Gemini Leftover Kits: Hold Buildings, Gold Mine & Market Silhouettes, Column Kits)
+Last updated: 2026-09-10 | Version: playtest-0.17 (Gemini Remaining Silhouettes: Hold Buildings & Army Units)
 
 Play: `https://129.153.17.72.sslip.io/`
+
+## Culture Kits: Remaining Silhouettes for Hold Buildings and Army Units
+
+The visual transformation across all cultures is now complete. Every single hold building, curtain wall, gate, and army unit displays authentic culture-specific architectural design, materials, weapons, armor, and heraldry for Cedar Kin, Sand Banner, Wind Host, and Tide Clans, while Western Crown Marches retains its classic medieval stonework and kettle-hat armory.
+
+1. **Hold Buildings & Fortifications**:
+   - **Walls & Parapets**: Riverstone foundation plinths with cross-lapped cedar log palisades (`cedar`), sandstone ramparts with stepped sawtooth merlons (`sand`), rammed-earth ramparts with bound wattle hurdles and horsehair streamers (`steppe`), coral-stone foundations with mangrove/driftwood stilt palisades (`islands`).
+   - **Gatehouses**: Heavy timber blockhouses with totem lintels (`cedar`), monumental sandstone horseshoe arches (`sand`), leather-bound pylon gateways (`steppe`), driftwood and bamboo gatehouses with bamboo portcullises (`islands`).
+   - **Chapels**: Woodland spirit grove totem lodges (`cedar`), sandstone sun sanctuaries with gold cupola domes (`sand`), open-sky Tengri stone cairn altars (`steppe`), tidal stone shrines with giant clam fonts (`islands`).
+   - **Infirmaries**: Dropped the generic red-cross hospice for non-western realms! Forest herbalist lodges with cedar soaking tubs (`cedar`), desert bimaristan courtyard hospitals with cooling fountains (`sand`), nomad shaman yurts with wormwood smoke braziers (`steppe`), elevated reef apothecaries with nautilus shell emblems (`islands`).
+   - **Military Compounds**:
+     - *Barracks*: Log warrior lodges (`cedar`), colonnaded sandstone halls (`sand`), three-yurt war camps (`steppe`), coral stilt pavilions (`islands`).
+     - *Stables*: Split-rail corrals (`cedar`), domed equestrian pavilions (`sand`), open horse paddocks (`steppe`), coastal beast stilt pens (`islands`).
+     - *Archery Ranges*: Tree stump ranges (`cedar`), silk-canopied pavilions with sunburst roundels (`sand`), mounted ring-target tracks (`steppe`), shoreline spear decks (`islands`).
+     - *Watchtowers*: Timber trestle lookout towers with beacon cages (`cedar`), slender sandstone minarets (`sand`), four-legged signal smoke pylons (`steppe`), driftwood stilt lighthouses (`islands`).
+     - *Siege Workshops*: Battering ram yards (`cedar`), desert mangonel arsenals with Greek fire (`sand`), war arba workshops (`steppe`), naval harpoon yards (`islands`).
+
+2. **Army Roster Unit Silhouettes**:
+   - **Archer**: Woodland flatbow marksman (`cedar`), turban composite reflex bowman (`sand`), conical cap horn bowman (`steppe`), reed-hat daikyu bamboo archer (`islands`).
+   - **Skirmisher**: Fur-hood tomahawk stalker (`cedar`), keffiyeh javelin thrower with red tassels (`sand`), nomad dart outrider (`steppe`), reef diver with barbed harpoon (`islands`).
+   - **Cavalry**: Boreal bay charger with boar lance (`cedar`), cream Arabian courser with silk banner lance (`sand`), dun steppe pony with horsehair streamer lance (`steppe`), slate coastal tide mount with trident polearm (`islands`).
+   - **Knight**: Hearthguard with antler helm and oak-leaf shield (`cedar`), Mamluk in mirror armor with sunburst sipar and shamshir (`sand`), Kheshig in lamellar coat with tamga shield and kilij (`steppe`), Tide Sentinel in pearl-shell armor with wave shield and leiomano (`islands`).
+   - **Siege**: Cedar log ram/trebuchet with river-stone basket (`cedar`), desert mangonel with flaming Greek fire pot (`sand`), war arba wagon cart with sandbag counterweight (`steppe`), bamboo catamaran shore catapult with volcanic pumice (`islands`).
+   - **Champion (including named heroes like Suki)**: High Chieftain with antler emerald crown and radiant green blade (`cedar`), Sultan with ruby turban-crown and blazing sun-scimitar (`sand`), Khagan with winged falcon crown and lightning saber (`steppe`), Tide Sovereign with ray crown and aqua tidestrike trident (`islands`).
 
 ## Culture Kits: Complete Hold Buildings, Market & Gold Mine Silhouettes, March Columns
 

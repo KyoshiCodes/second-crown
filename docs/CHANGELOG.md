@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## 2026-09-10 — Gemini Remaining Silhouettes: Hold Buildings & Army Units (`bakeoff/gemini-remain`)
+
+- **Hold Building Silhouettes (`packages/render`)**:
+  - `walls`: Distinct interior block ramparts and rim curtain walls + parapet merlons across all 4 cultures: riverstone log palisade (`cedar`), sandstone rampart with sawtooth merlons (`sand`), rammed-earth wattle hurdle rampart with horsehair streamers (`steppe`), and coral/driftwood stilt wall (`islands`). Western ashlar stone untouched.
+  - `gate`: Distinct gatehouses and arches: cedar log blockhouse (`cedar`), horseshoe-arched sandstone portal (`sand`), leather-wrapped pylon gateway (`steppe`), and driftwood/bamboo gatehouse with bamboo portcullis (`islands`). Western bastion towers untouched.
+  - `chapel`: Spirit grove totem lodge (`cedar`), sandstone sun sanctuary with cupola dome (`sand`), open-sky Tengri cairn altar (`steppe`), tidal stone shrine with giant clam font (`islands`). Western gothic chapel untouched.
+  - `infirmary`: Dropped generic red cross for all non-western cultures: woodland herbalist lodge with hot tub (`cedar`), bimaristan courtyard hospital with cooling fountain (`sand`), nomad shaman yurt with wormwood smoke braziers (`steppe`), slatted reef apothecary with nautilus emblem (`islands`). Western red-cross hospice untouched.
+  - `siege_workshop`: Cedar logging yard ram/catapult (`cedar`), desert mangonel arsenal (`sand`), war arba wagon workshop (`steppe`), shoreline outrigger artillery dock (`islands`). Western carriage yard untouched.
+  - `watchtower`: Cedar trestle lookout with beacon cage (`cedar`), sandstone minaret with observation balcony (`sand`), four-legged signal smoke pylon (`steppe`), driftwood/bamboo stilt lighthouse (`islands`). Western turret untouched.
+  - `barracks`: Cedar log warrior lodge (`cedar`), colonnaded sandstone barracks (`sand`), three-yurt war camp (`steppe`), open coral/bamboo stilt pavilion (`islands`). Western soldier hall untouched.
+  - `stables`: Split-rail cedar paddock (`cedar`), domed equestrian pavilion (`sand`), steppe horse paddock (`steppe`), coastal stilt pen (`islands`). Western stable untouched.
+  - `archery_range`: Forest stump range (`cedar`), silk-canopied desert pavilion (`sand`), mounted nomad ring-target track (`steppe`), beachside spear deck (`islands`). Western butt range untouched.
+- **Unit Silhouettes (`UnitIcon.tsx` in `packages/app`)**:
+  - `archer`: Woodland marksman with flatbow (`cedar`), turban composite reflex bowman (`sand`), conical cap horn bowman (`steppe`), reed-hat daikyu bamboo marksman (`islands`).
+  - `skirmisher`: Fur hood tomahawk stalker (`cedar`), keffiyeh javelin thrower with red tassels (`sand`), nomad dart outrider (`steppe`), reef diver with barbed harpoon (`islands`).
+  - `cavalry`: Boreal bay charger with boar lance (`cedar`), cream Arabian courser with silk banner lance (`sand`), dun steppe pony with horsehair streamer lance (`steppe`), slate tide mount with trident polearm (`islands`).
+  - `knight`: Hearthguard with antler helm and oak-leaf shield (`cedar`), Mamluk in mirror armor with sunburst sipar and shamshir (`sand`), Kheshig in lamellar coat with tamga shield and kilij (`steppe`), Tide Sentinel in pearl-shell armor with wave shield and leiomano (`islands`).
+  - `siege`: Cedar log ram/trebuchet with river-stone basket (`cedar`), desert mangonel with flaming Greek fire pot (`sand`), war arba wagon cart with sandbag counterweight (`steppe`), bamboo catamaran shore catapult with volcanic pumice (`islands`).
+  - `champion`: High Chieftain with antler emerald crown and radiant green blade (`cedar`), Sultan with ruby turban-crown and blazing sun-scimitar (`sand`), Khagan with winged falcon crown and lightning saber (`steppe`), Tide Sovereign with ray crown and aqua tidestrike trident (`islands`).
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` is 100% empty.
+  - Western Crown Marches hold buildings, curtain walls, and army unit icons remain 100% untouched.
+  - Full tests pass: 119 in `@second-crown/sim`, 38 in `@second-crown/render`.
+  - `npm run build -w @second-crown/app` builds cleanly.
+
 ## 2026-09-08 — Gemini Leftover Kits: Hold Building Art, Gold Mine & Market Culture Silhouettes, Column Kits (`bakeoff/gemini-holdrest`)
 
 - **Hold Building Art & Silhouettes (`packages/render`)**:

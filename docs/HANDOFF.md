@@ -1,5 +1,77 @@
 # HANDOFF
 
+Bakeoff Gemini Remaining Silhouettes lane delivered on branch `bakeoff/gemini-remain` (PR into main unmerged).
+
+- **Hold Building Silhouettes (`packages/render`)**:
+  - `walls`: Bespoke interior block walls and rim curtain walls + parapet merlons across all 4 cultures:
+    - `cedar`: Riverstone foundation plinth with cross-lapped cedar log palisade parapet, sharpened stake merlons, and bark-shingle gangway decking.
+    - `sand`: Dressed sandstone rampart with stepped sawtooth merlons, terracotta crenel coping, and crimson fabric pennants.
+    - `steppe`: Compacted rammed-earth rampart revetted with bound wattle hurdles, timber palisade stakes, and horsehair streamer posts.
+    - `islands`: Coral-stone foundation block with mangrove and driftwood stilt palisade, bamboo cane merlons, and woven palm gangway.
+    - `western`: Classic ashlar stone curtain with crenellated stone merlons untouched.
+  - `gate`: Bespoke gatehouse blockhouses, bastions, and arches across all 4 cultures:
+    - `cedar`: Heavy timber blockhouse with totem lintel.
+    - `sand`: Monumental sandstone portal with horseshoe arch and brass studding.
+    - `steppe`: Twin pylon gateway bound in boiled leather with horsehair battle standards.
+    - `islands`: Driftwood and bamboo gatehouse with suspended bamboo portcullis.
+    - `western`: Twin ashlar bastion towers with archway and portcullis untouched.
+  - `chapel`:
+    - `cedar`: Spirit grove totem lodge with carved antler finials.
+    - `sand`: Open-air sandstone sun sanctuary with gold cupola dome.
+    - `steppe`: Open-sky stone cairn altar (Tengri shrine) with prayer ribbon posts.
+    - `islands`: Tidal stone shrine with giant clam shell baptismal font.
+    - `western`: Gothic stone chapel with stained glass and cross finial untouched.
+  - `infirmary`: Dropped generic red cross for all non-western cultures:
+    - `cedar`: Woodland herbalist lodge with hot soaking tub and leaf emblem.
+    - `sand`: Desert bimaristan courtyard hospital with cooling fountain and golden mortar emblem.
+    - `steppe`: Nomad shaman yurt with wormwood smoke braziers and sun-wheel emblem.
+    - `islands`: Slatted reef apothecary on stilts with nautilus shell emblem.
+    - `western`: Red-cross half-timbered hospice untouched.
+  - `siege_workshop`:
+    - `cedar`: Woodland logging yard with heavy battering ram carriage and catapult framework.
+    - `sand`: Desert arsenal yard with traction mangonel and Greek fire pots.
+    - `steppe`: Nomad war arba wagon workshop with swivel ballista.
+    - `islands`: Shoreline outrigger shipyard with naval harpoon artillery.
+    - `western`: Timber carriage yard and trebuchet untouched.
+  - `watchtower`:
+    - `cedar`: Heavy cedar trestle lookout tower with iron beacon brazier cage.
+    - `sand`: Slender sandstone minaret with openwork arched observation balcony.
+    - `steppe`: Four-legged timber beacon pylon with smoke signal platform.
+    - `islands`: Driftwood and bamboo elevated shore beacon / stilt lighthouse.
+    - `western`: Slate-roof stone turret untouched.
+  - `barracks`:
+    - `cedar`: Sturdy cedar log warrior lodge with crossed halberd crest.
+    - `sand`: Colonnaded sandstone barracks with sunshade canopy.
+    - `steppe`: Three-yurt circular military camp with clan battle standard.
+    - `islands`: Open slatted bamboo and coral stilt pavilion.
+    - `western`: Half-timbered soldier hall untouched.
+  - `stables`:
+    - `cedar`: Split-rail cedar paddock with log shelter and hayrack.
+    - `sand`: Domed sandstone equestrian pavilion with silk shade awnings.
+    - `steppe`: Expansive steppe horse paddock with hitching rails.
+    - `islands`: Coastal coral and bamboo stilt pen with palm shade.
+    - `western`: Classic timber stable hall untouched.
+  - `archery_range`:
+    - `cedar`: Forest shooting clearing with log firing benches and tree stump targets.
+    - `sand`: Desert shooting pavilion under crimson silk canopy with gold sunburst targets.
+    - `steppe`: Mounted nomad archery track with ring targets atop poles.
+    - `islands`: Beachside shooting deck over tide with woven reed fish-basket targets.
+    - `western`: Timber butt targets range untouched.
+- **Unit Silhouettes (`UnitIcon.tsx` in `packages/app`)**:
+  - `archer`: Woodland marksman with flatbow (`cedar`), turban composite reflex bowman (`sand`), conical cap horn bowman (`steppe`), reed-hat daikyu bamboo marksman (`islands`).
+  - `skirmisher`: Fur hood tomahawk stalker (`cedar`), keffiyeh javelin thrower with red tassels (`sand`), nomad dart outrider (`steppe`), reef diver with barbed harpoon (`islands`).
+  - `cavalry`: Boreal bay charger with boar lance (`cedar`), cream Arabian courser with silk banner lance (`sand`), dun steppe pony with horsehair streamer lance (`steppe`), slate tide mount with trident polearm (`islands`).
+  - `knight`: Hearthguard with antler helm and oak-leaf shield (`cedar`), Mamluk in mirror armor with sunburst sipar and shamshir (`sand`), Kheshig in lamellar coat with tamga shield and kilij (`steppe`), Tide Sentinel in pearl-shell armor with wave shield and leiomano (`islands`).
+  - `siege`: Cedar log ram/trebuchet with river-stone basket (`cedar`), desert mangonel with flaming Greek fire pot (`sand`), war arba wagon cart with sandbag counterweight (`steppe`), bamboo catamaran shore catapult with volcanic pumice (`islands`).
+  - `champion`: High Chieftain with antler emerald crown and radiant green blade (`cedar`), Sultan with ruby turban-crown and blazing sun-scimitar (`sand`), Khagan with winged falcon crown and lightning saber (`steppe`), Tide Sovereign with ray crown and aqua tidestrike trident (`islands`).
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` is 100% empty.
+  - Western Crown Marches hold buildings, curtain walls, and army unit icons remain 100% untouched.
+  - Full tests pass: 119 in `@second-crown/sim`, 38 in `@second-crown/render`.
+  - `npm run build -w @second-crown/app` builds cleanly.
+
+---
+
 Bakeoff Gemini Leftover Kits lane delivered on branch `bakeoff/gemini-holdrest` (PR into main unmerged).
 
 - **Hold Building Art & Silhouettes (`packages/render`)**:

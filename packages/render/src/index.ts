@@ -1066,7 +1066,9 @@ function drawRimWallCurtain(
   phase: number,
   gx: number,
   gy: number,
-  rimNeighbors?: RimNeighbors
+  rimNeighbors?: RimNeighbors,
+  kit: CultureKit = "western",
+  cult?: CultureVisualPalette
 ): void {
   const idx = rimWalkIndex(gx, gy);
   const prevIdx = (idx - 1 + 48) % 48;
@@ -1088,6 +1090,114 @@ function drawRimWallCurtain(
   const isBottom = gy === GRID_H - 1;
   const isLeft = gx === 0;
 
+  const plinthCol =
+    kit === "cedar"
+      ? 0x27272a
+      : kit === "sand"
+      ? 0x78350f
+      : kit === "steppe"
+      ? 0x44403c
+      : kit === "islands"
+      ? 0x334155
+      : 0x334155;
+
+  const wallSunlitCol =
+    kit === "cedar"
+      ? 0x854d0e
+      : kit === "sand"
+      ? 0xd4a373
+      : kit === "steppe"
+      ? 0x713f12
+      : kit === "islands"
+      ? 0x94a3b8
+      : 0x64748b;
+
+  const wallShadedCol =
+    kit === "cedar"
+      ? 0x5c3818
+      : kit === "sand"
+      ? 0xa16207
+      : kit === "steppe"
+      ? 0x543007
+      : kit === "islands"
+      ? 0x64748b
+      : 0x475569;
+
+  const mortarCol =
+    kit === "cedar"
+      ? 0x3f220c
+      : kit === "sand"
+      ? 0x78350f
+      : kit === "steppe"
+      ? 0x291807
+      : kit === "islands"
+      ? 0x78350f
+      : 0x1e293b;
+
+  const walkCol =
+    kit === "cedar"
+      ? 0x78350f
+      : kit === "sand"
+      ? 0xc29d62
+      : kit === "steppe"
+      ? 0x5c3818
+      : kit === "islands"
+      ? 0xa8a29e
+      : 0x52525b;
+
+  const walkPlankCol =
+    kit === "cedar"
+      ? 0x3f220c
+      : kit === "sand"
+      ? 0x8c7954
+      : kit === "steppe"
+      ? 0x291807
+      : kit === "islands"
+      ? 0x78350f
+      : 0x78350f;
+
+  const merlonSunlitCol =
+    kit === "cedar"
+      ? 0x854d0e
+      : kit === "sand"
+      ? 0xfde68a
+      : kit === "steppe"
+      ? 0x854d0e
+      : kit === "islands"
+      ? 0xd97706
+      : 0x94a3b8;
+
+  const merlonShadedCol =
+    kit === "cedar"
+      ? 0x5c3818
+      : kit === "sand"
+      ? 0xd4a373
+      : kit === "steppe"
+      ? 0x713f12
+      : kit === "islands"
+      ? 0xb45309
+      : 0x64748b;
+
+  const merlonCopingCol =
+    kit === "cedar"
+      ? 0xd97706
+      : kit === "sand"
+      ? 0xfef3c7
+      : kit === "steppe"
+      ? 0xd97706
+      : kit === "islands"
+      ? 0x06b6d4
+      : 0xf1f5f9;
+
+  const arrowSlitCol =
+    kit === "cedar"
+      ? 0x1c1917
+      : kit === "sand"
+      ? 0x451a03
+      : kit === "steppe"
+      ? 0x18181b
+      : 0x0f172a;
+
   function drawCurtainSpan(
     x0: number,
     y0: number,
@@ -1104,24 +1214,24 @@ function drawRimWallCurtain(
       x1 + normX, y1 + normY - 3.5,
       x0 + normX, y0 + normY - 3.5,
     ]);
-    g.fill({ color: 0x334155, alpha: a });
+    g.fill({ color: plinthCol, alpha: a });
 
-    // 2. Ashlar Stone Vertical Curtain Face
+    // 2. Vertical Curtain Face
     g.poly([
       x0 + normX, y0 + normY - 3.5,
       x1 + normX, y1 + normY - 3.5,
       x1 + normX, y1 + normY - h,
       x0 + normX, y0 + normY - h,
     ]);
-    g.fill({ color: sunlit ? 0x64748b : 0x475569, alpha: a });
+    g.fill({ color: sunlit ? wallSunlitCol : wallShadedCol, alpha: a });
 
-    // 3. Horizontal Mortar Joint Scoring
+    // 3. Horizontal Mortar / Seam Scoring
     for (const f of [0.35, 0.70]) {
       const my0 = y0 + normY - h * f;
       const my1 = y1 + normY - h * f;
       g.moveTo(x0 + normX, my0);
       g.lineTo(x1 + normX, my1);
-      g.stroke({ width: 0.8, color: 0x1e293b, alpha: a * 0.65 });
+      g.stroke({ width: 0.8, color: mortarCol, alpha: a * 0.65 });
     }
 
     // 4. Wall-Walk Top Walkway (at height -h)
@@ -1131,12 +1241,12 @@ function drawRimWallCurtain(
       x1 - normX, y1 - normY - h,
       x0 - normX, y0 - normY - h,
     ]);
-    g.fill({ color: 0x52525b, alpha: a });
+    g.fill({ color: walkCol, alpha: a });
 
-    // Timber wall-walk planking center line
+    // Wall-walk planking center line
     g.moveTo(x0, y0 - h);
     g.lineTo(x1, y1 - h);
-    g.stroke({ width: 1.6, color: 0x78350f, alpha: a });
+    g.stroke({ width: 1.6, color: walkPlankCol, alpha: a });
 
     // 5. Parapet Merlons along outer edge
     const dist = Math.hypot(x1 - x0, y1 - y0);
@@ -1149,26 +1259,55 @@ function drawRimWallCurtain(
       const mx1 = x0 + normX + (x1 - x0) * tEnd;
       const my1 = y0 + normY - h + (y1 - y0) * tEnd;
 
-      // Merlon block (rises 3.5px above parapet)
-      g.poly([
-        mx0, my0,
-        mx1, my1,
-        mx1, my1 - 3.5,
-        mx0, my0 - 3.5,
-      ]);
-      g.fill({ color: sunlit ? 0x94a3b8 : 0x64748b, alpha: a });
+      if (kit === "cedar") {
+        // Pointed cedar log stakes
+        g.poly([
+          mx0, my0,
+          (mx0 + mx1) * 0.5, my0 - 4.5,
+          mx1, my1,
+          mx1, my1 - 2,
+          mx0, my0 - 2,
+        ]);
+        g.fill({ color: sunlit ? merlonSunlitCol : merlonShadedCol, alpha: a });
+        g.moveTo((mx0 + mx1) * 0.5, my0 - 4.5);
+        g.lineTo(mx1, my1);
+        g.stroke({ width: 0.8, color: merlonCopingCol, alpha: a * 0.8 });
+      } else if (kit === "sand") {
+        // Stepped / sawtooth desert crenellations
+        g.poly([
+          mx0, my0,
+          (mx0 + mx1) * 0.5, my0 - 4,
+          mx1, my1,
+          mx1, my1 - 2,
+          mx0, my0 - 2,
+        ]);
+        g.fill({ color: sunlit ? merlonSunlitCol : merlonShadedCol, alpha: a });
+        g.moveTo(mx0, my0 - 2);
+        g.lineTo((mx0 + mx1) * 0.5, my0 - 4);
+        g.lineTo(mx1, my1 - 2);
+        g.stroke({ width: 0.8, color: merlonCopingCol, alpha: a * 0.9 });
+      } else {
+        // Merlon block (rises 3.5px above parapet)
+        g.poly([
+          mx0, my0,
+          mx1, my1,
+          mx1, my1 - 3.5,
+          mx0, my0 - 3.5,
+        ]);
+        g.fill({ color: sunlit ? merlonSunlitCol : merlonShadedCol, alpha: a });
 
-      // Merlon coping stone highlight
-      g.moveTo(mx0, my0 - 3.5);
-      g.lineTo(mx1, my1 - 3.5);
-      g.stroke({ width: 0.8, color: 0xf1f5f9, alpha: a * 0.8 });
+        // Merlon coping stone highlight
+        g.moveTo(mx0, my0 - 3.5);
+        g.lineTo(mx1, my1 - 3.5);
+        g.stroke({ width: 0.8, color: merlonCopingCol, alpha: a * 0.8 });
+      }
     }
 
     // 6. Arrow loop slits in curtain face
     const midX = (x0 + x1) / 2 + normX;
     const midY = (y0 + y1) / 2 + normY - h * 0.45;
     g.rect(midX - 0.7, midY - 2, 1.4, 4);
-    g.fill({ color: 0x0f172a, alpha: a });
+    g.fill({ color: arrowSlitCol, alpha: a });
   }
 
   function getNorm(isEdgeTop: boolean, isEdgeRight: boolean, isEdgeBottom: boolean, isEdgeLeft: boolean): { nx: number; ny: number; sunlit: boolean } {
@@ -1197,36 +1336,59 @@ function drawRimWallCurtain(
 
   // Tower plinth
   g.poly([-tw, 0, 0, tw * 0.5, tw, 0, 0, -tw * 0.5]);
-  g.fill({ color: 0x334155, alpha: a });
+  g.fill({ color: plinthCol, alpha: a });
 
   // Tower light face (left)
   g.poly([-tw, 0, 0, tw * 0.5, 0, tw * 0.5 - towerH, -tw, -towerH]);
-  g.fill({ color: 0x64748b, alpha: a });
+  g.fill({ color: wallSunlitCol, alpha: a });
 
   // Tower shadow face (right)
   g.poly([0, tw * 0.5, tw, 0, tw, -towerH, 0, tw * 0.5 - towerH]);
-  g.fill({ color: 0x475569, alpha: a });
+  g.fill({ color: wallShadedCol, alpha: a });
 
   // Tower roof / platform
   g.poly([-tw, -towerH, 0, tw * 0.5 - towerH, tw, -towerH, 0, -tw * 0.5 - towerH]);
-  g.fill({ color: 0x52525b, alpha: a });
+  g.fill({ color: walkCol, alpha: a });
 
   // Tower crenellations / merlons
-  g.rect(-tw, -towerH - 3, 2.5, 3); g.fill({ color: 0x94a3b8, alpha: a });
-  g.rect(-1, -towerH - 3 + tw * 0.5, 2.5, 3); g.fill({ color: 0x94a3b8, alpha: a });
-  g.rect(tw - 2.5, -towerH - 3, 2.5, 3); g.fill({ color: 0x64748b, alpha: a });
+  g.rect(-tw, -towerH - 3, 2.5, 3); g.fill({ color: merlonSunlitCol, alpha: a });
+  g.rect(-1, -towerH - 3 + tw * 0.5, 2.5, 3); g.fill({ color: merlonSunlitCol, alpha: a });
+  g.rect(tw - 2.5, -towerH - 3, 2.5, 3); g.fill({ color: merlonShadedCol, alpha: a });
 
   // Arrow slit in tower front
   g.rect(-0.7, -towerH * 0.5, 1.4, 4);
-  g.fill({ color: 0x0f172a, alpha: a });
+  g.fill({ color: arrowSlitCol, alpha: a });
 
-  // Wall torch sconce with flickering animated flame
-  const flameFlicker = Math.sin(phase * 4 + gx * 2) * 0.8;
-  g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0x27272a, alpha: a });
-  g.circle(-tw - 1, -h * 0.45 - 2, 1.6 + flameFlicker * 0.3);
-  g.fill({ color: 0xf97316, alpha: a });
-  g.circle(-tw - 1, -h * 0.45 - 2, 0.8);
-  g.fill({ color: 0xfef08a, alpha: a });
+  // Wall fixture
+  if (kit === "cedar") {
+    // Carved beast totem marker & pitch torch
+    g.rect(-2, -towerH * 0.7, 4, 3); g.fill({ color: 0xd4a359, alpha: a });
+    const flameFlicker = Math.sin(phase * 4 + gx * 2) * 0.8;
+    g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0x3f220c, alpha: a });
+    g.circle(-tw - 1, -h * 0.45 - 2, 1.6 + flameFlicker * 0.3);
+    g.fill({ color: 0xea580c, alpha: a });
+  } else if (kit === "sand") {
+    // Hanging brass oil lantern
+    g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0xb45309, alpha: a });
+    g.circle(-tw - 1, -h * 0.45 - 2, 1.6); g.fill({ color: 0xfacc15, alpha: a });
+  } else if (kit === "steppe") {
+    // Timber pole with horsehair streamer
+    g.moveTo(-tw - 1, -h * 0.45); g.lineTo(-tw - 1, -h * 0.45 - 6);
+    g.stroke({ width: 1.2, color: 0x291807, alpha: a });
+    g.circle(-tw - 1, -h * 0.45 - 6, 1.5); g.fill({ color: 0xdc2626, alpha: a });
+  } else if (kit === "islands") {
+    // Hanging sea-lantern with cyan glow
+    g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(-tw - 1, -h * 0.45 - 2, 1.6); g.fill({ color: 0x06b6d4, alpha: a });
+  } else {
+    // Western: Wall torch sconce with flickering animated flame
+    const flameFlicker = Math.sin(phase * 4 + gx * 2) * 0.8;
+    g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0x27272a, alpha: a });
+    g.circle(-tw - 1, -h * 0.45 - 2, 1.6 + flameFlicker * 0.3);
+    g.fill({ color: 0xf97316, alpha: a });
+    g.circle(-tw - 1, -h * 0.45 - 2, 0.8);
+    g.fill({ color: 0xfef08a, alpha: a });
+  }
 }
 
 function drawGatehouseCurtainWings(
@@ -1235,7 +1397,9 @@ function drawGatehouseCurtainWings(
   a: number,
   gx: number,
   gy: number,
-  rimNeighbors: RimNeighbors
+  rimNeighbors: RimNeighbors,
+  kit: CultureKit = "western",
+  cult?: CultureVisualPalette
 ): void {
   const idx = rimWalkIndex(gx, gy);
   const prevIdx = (idx - 1 + 48) % 48;
@@ -1251,6 +1415,50 @@ function drawGatehouseCurtainWings(
   const isBottom = gy === GRID_H - 1;
   const isRight = gx === GRID_W - 1;
 
+  const sunlitWingCol =
+    kit === "cedar"
+      ? 0x854d0e
+      : kit === "sand"
+      ? 0xd4a373
+      : kit === "steppe"
+      ? 0x713f12
+      : kit === "islands"
+      ? 0x94a3b8
+      : 0x64748b;
+
+  const shadedWingCol =
+    kit === "cedar"
+      ? 0x5c3818
+      : kit === "sand"
+      ? 0xa16207
+      : kit === "steppe"
+      ? 0x543007
+      : kit === "islands"
+      ? 0x64748b
+      : 0x475569;
+
+  const merlonCol =
+    kit === "cedar"
+      ? 0xd97706
+      : kit === "sand"
+      ? 0xfde68a
+      : kit === "steppe"
+      ? 0x854d0e
+      : kit === "islands"
+      ? 0xd97706
+      : 0x94a3b8;
+
+  const mortarCol =
+    kit === "cedar"
+      ? 0x3f220c
+      : kit === "sand"
+      ? 0x78350f
+      : kit === "steppe"
+      ? 0x291807
+      : kit === "islands"
+      ? 0x78350f
+      : 0x1e293b;
+
   if (rimNeighbors.hasPrev) {
     // Connect left bastion tower to prev boundary
     g.poly([
@@ -1259,15 +1467,15 @@ function drawGatehouseCurtainWings(
       bPrevX, bPrevY - h,
       -17, -1 - h,
     ]);
-    g.fill({ color: isBottom ? 0x64748b : 0x475569, alpha: a });
+    g.fill({ color: isBottom ? sunlitWingCol : shadedWingCol, alpha: a });
 
     // Merlons on connection
     g.rect(bPrevX, bPrevY - h - 3.5, 3.5, 3.5);
-    g.fill({ color: 0x94a3b8, alpha: a });
+    g.fill({ color: merlonCol, alpha: a });
 
     // Mortar line
     g.moveTo(-17, -1 - h * 0.5); g.lineTo(bPrevX, bPrevY - h * 0.5);
-    g.stroke({ width: 0.8, color: 0x1e293b, alpha: a * 0.6 });
+    g.stroke({ width: 0.8, color: mortarCol, alpha: a * 0.6 });
   }
 
   if (rimNeighbors.hasNext) {
@@ -1278,15 +1486,15 @@ function drawGatehouseCurtainWings(
       bNextX, bNextY - h,
       17, -1 - h,
     ]);
-    g.fill({ color: isRight ? 0x475569 : 0x64748b, alpha: a });
+    g.fill({ color: isRight ? shadedWingCol : sunlitWingCol, alpha: a });
 
     // Merlons on connection
     g.rect(bNextX - 3.5, bNextY - h - 3.5, 3.5, 3.5);
-    g.fill({ color: 0x94a3b8, alpha: a });
+    g.fill({ color: merlonCol, alpha: a });
 
     // Mortar line
     g.moveTo(17, -1 - h * 0.5); g.lineTo(bNextX, bNextY - h * 0.5);
-    g.stroke({ width: 0.8, color: 0x1e293b, alpha: a * 0.6 });
+    g.stroke({ width: 0.8, color: mortarCol, alpha: a * 0.6 });
   }
 }
 
@@ -2470,6 +2678,1107 @@ function drawMarketCulture(
   }
 }
 
+function drawInteriorWallCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Squared Cross-Lap Cedar Log Stockade Block
+    g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);
+    g.fill({ color: 0x3f3f46, alpha: a });
+    g.poly([0, 9, 18, 0, 18, -3, 0, 6]);
+    g.fill({ color: 0x27272a, alpha: a });
+
+    g.poly([-17, -1, 0, 7.5, 0, 7.5 - h, -17, -1 - h]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([0, 7.5, 17, -1, 17, -1 - h, 0, 7.5 - h]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    for (const f of [0.25, 0.5, 0.75]) {
+      g.moveTo(-17, -1 - h * f); g.lineTo(0, 7.5 - h * f);
+      g.moveTo(0, 7.5 - h * f); g.lineTo(17, -1 - h * f);
+      g.stroke({ width: 1.1, color: 0x3f220c, alpha: a });
+    }
+
+    g.poly([-17, -1 - h, 0, 7.5 - h, 17, -1 - h, 0, -9.5 - h]);
+    g.fill({ color: 0x78350f, alpha: a });
+
+    for (let i = -16; i <= 14; i += 5) {
+      g.poly([i, -h - 1, i + 2, -h - 5, i + 4, -h - 1]);
+      g.fill({ color: 0xd97706, alpha: a });
+      g.stroke({ width: 0.6, color: 0x5c3818, alpha: a });
+    }
+
+    g.circle(-12, 1, 1.2); g.fill({ color: 0x166534, alpha: a * 0.8 });
+    g.circle(8, 4, 1.2); g.fill({ color: 0x15803d, alpha: a * 0.8 });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Sunbaked Sandstone Rampart with Sawtooth Merlons
+    g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);
+    g.fill({ color: 0x92400e, alpha: a });
+    g.poly([0, 9, 18, 0, 18, -3, 0, 6]);
+    g.fill({ color: 0x78350f, alpha: a });
+
+    g.poly([-17, -1, 0, 7.5, 0, 7.5 - h, -17, -1 - h]);
+    g.fill({ color: 0xd4a373, alpha: a });
+    g.poly([0, 7.5, 17, -1, 17, -1 - h, 0, 7.5 - h]);
+    g.fill({ color: 0xa16207, alpha: a });
+
+    for (const f of [0.33, 0.66]) {
+      g.moveTo(-17, -1 - h * f); g.lineTo(0, 7.5 - h * f);
+      g.moveTo(0, 7.5 - h * f); g.lineTo(17, -1 - h * f);
+      g.stroke({ width: 0.8, color: 0x78350f, alpha: a * 0.6 });
+    }
+
+    g.poly([-17, -1 - h, 0, 7.5 - h, 17, -1 - h, 0, -9.5 - h]);
+    g.fill({ color: 0xc29d62, alpha: a });
+
+    for (let i = -15; i <= 13; i += 6) {
+      g.poly([i, -h - 1, i + 2.5, -h - 4.5, i + 5, -h - 1]);
+      g.fill({ color: 0xfde68a, alpha: a });
+      g.stroke({ width: 0.7, color: 0xb45309, alpha: a });
+    }
+
+    g.rect(-8, 3 - h * 0.5, 1.4, 3.5); g.fill({ color: 0x451a03, alpha: a });
+    g.rect(8, 3 - h * 0.5, 1.4, 3.5); g.fill({ color: 0x451a03, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad Rammed-Earth Rampart with Bound Hurdle Wattle
+    g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);
+    g.fill({ color: 0x44403c, alpha: a });
+    g.poly([0, 9, 18, 0, 18, -3, 0, 6]);
+    g.fill({ color: 0x292524, alpha: a });
+
+    g.poly([-17, -1, 0, 7.5, 0, 7.5 - h, -17, -1 - h]);
+    g.fill({ color: 0x713f12, alpha: a });
+    g.poly([0, 7.5, 17, -1, 17, -1 - h, 0, 7.5 - h]);
+    g.fill({ color: 0x543007, alpha: a });
+
+    for (const px of [-13, -7, -2, 4, 10, 15]) {
+      const py = (px + 17) * 0.5 - 1;
+      g.moveTo(px, py); g.lineTo(px, py - h);
+      g.stroke({ width: 1.2, color: 0x291807, alpha: a });
+    }
+
+    g.poly([-17, -1 - h, 0, 7.5 - h, 17, -1 - h, 0, -9.5 - h]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    for (let i = -16; i <= 14; i += 6) {
+      g.rect(i, -h - 3.5, 4, 3.5);
+      g.fill({ color: 0x854d0e, alpha: a });
+      g.moveTo(i, -h - 3.5); g.lineTo(i + 4, -h - 3.5);
+      g.stroke({ width: 0.8, color: 0xd97706, alpha: a });
+    }
+
+  } else if (kit === "islands") {
+    // Tide Clans: Coral-Stone & Driftwood Stilt Palisade
+    g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);
+    g.fill({ color: 0x334155, alpha: a });
+    g.poly([0, 9, 18, 0, 18, -3, 0, 6]);
+    g.fill({ color: 0x1e293b, alpha: a });
+
+    g.poly([-17, -1, 0, 7.5, 0, 7.5 - h, -17, -1 - h]);
+    g.fill({ color: 0x94a3b8, alpha: a });
+    g.poly([0, 7.5, 17, -1, 17, -1 - h, 0, 7.5 - h]);
+    g.fill({ color: 0x64748b, alpha: a });
+
+    for (const f of [0.33, 0.66]) {
+      g.moveTo(-17, -1 - h * f); g.lineTo(0, 7.5 - h * f);
+      g.moveTo(0, 7.5 - h * f); g.lineTo(17, -1 - h * f);
+      g.stroke({ width: 0.9, color: 0x78350f, alpha: a * 0.7 });
+    }
+
+    g.poly([-17, -1 - h, 0, 7.5 - h, 17, -1 - h, 0, -9.5 - h]);
+    g.fill({ color: 0xa8a29e, alpha: a });
+
+    for (let i = -16; i <= 14; i += 6) {
+      g.rect(i, -h - 3.5, 4, 3.5);
+      g.fill({ color: 0xd97706, alpha: a });
+      g.moveTo(i, -h - 3.5); g.lineTo(i + 4, -h - 3.5);
+      g.stroke({ width: 0.8, color: 0x06b6d4, alpha: a * 0.8 });
+    }
+  }
+}
+
+function drawGateCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette,
+  isRim: boolean,
+  gx: number,
+  gy: number,
+  rimNeighbors?: RimNeighbors
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Log Blockhouse Gatehouse with Wolf/Bear Totem Lintel
+    g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);
+    g.fill({ color: 0x3f3f46, alpha: a });
+    g.poly([0, 9, 18, 0, 18, -3, 0, 6]);
+    g.fill({ color: 0x27272a, alpha: a });
+
+    // Left log bastion tower
+    g.poly([-17, -1, -8, 3.5, -8, 3.5 - (h + 4), -17, -1 - (h + 4)]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([-8, 3.5, -4, 1.5, -4, 1.5 - (h + 4), -8, 3.5 - (h + 4)]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    // Right log bastion tower
+    g.poly([4, 1.5, 8, 3.5, 8, 3.5 - (h + 4), 4, 1.5 - (h + 4)]);
+    g.fill({ color: 0x5c3818, alpha: a });
+    g.poly([8, 3.5, 17, -1, 17, -1 - (h + 4), 8, 3.5 - (h + 4)]);
+    g.fill({ color: 0x3f220c, alpha: a });
+
+    for (const frac of [0.3, 0.6, 0.85]) {
+      const myLeft = 3.5 - (h + 4) * frac;
+      g.moveTo(-17, -1 - (h + 4) * frac); g.lineTo(-8, myLeft);
+      const myRight = 3.5 - (h + 4) * frac;
+      g.moveTo(8, myRight); g.lineTo(17, -1 - (h + 4) * frac);
+      g.stroke({ width: 0.9, color: 0x3f220c, alpha: a * 0.7 });
+    }
+
+    // Central gatehouse curtain
+    g.poly([-4, 1.5, 4, 1.5, 4, 1.5 - h, -4, 1.5 - h]);
+    g.fill({ color: 0x78350f, alpha: a });
+
+    // Sharpened log merlons
+    g.poly([-17, -h - 5, -14, -h - 8, -11, -h - 5]); g.fill({ color: 0xd97706, alpha: a });
+    g.poly([11, -h - 5, 14, -h - 8, 17, -h - 5]); g.fill({ color: 0xd97706, alpha: a });
+    g.rect(-2, -h - 2, 4, 3); g.fill({ color: 0xd97706, alpha: a });
+
+    // Carved beast totem lintel
+    g.rect(-5, -h * 0.4, 10, 2.5);
+    g.fill({ color: 0xd4a359, alpha: a });
+    g.circle(-2, -h * 0.4 + 1.2, 0.7); g.fill({ color: 0x06b6d4, alpha: a });
+    g.circle(2, -h * 0.4 + 1.2, 0.7); g.fill({ color: 0x06b6d4, alpha: a });
+
+    // Gateway portal
+    g.poly([-5, 5, 0, 7.5, 5, 5, 5, -1, 0, 1.5, -5, -1]);
+    g.fill({ color: 0x1c1917, alpha: a });
+
+    if (isRim) {
+      // Split cedar double doors with blackened iron straps
+      g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x78350f, alpha: a });
+      g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x5c3818, alpha: a });
+      g.moveTo(0, 6.5); g.lineTo(0, 0.5); g.stroke({ width: 1, color: 0x3f220c, alpha: a });
+
+      for (const dy of [-0.5, 2.5]) {
+        g.moveTo(-4, dy); g.lineTo(0, dy + 2); g.lineTo(4, dy);
+        g.stroke({ width: 1.4, color: 0x18181b, alpha: a });
+      }
+      for (const tx of [-3, -1, 1, 3]) {
+        const ty = 0.5 - Math.abs(tx) * 0.25;
+        g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
+        g.stroke({ width: 1.2, color: 0x3f220c, alpha: a });
+      }
+      const gPennant = Math.sin(phase * 4) * 2;
+      g.moveTo(0, -h); g.lineTo(0, -h - 10);
+      g.stroke({ width: 1.2, color: 0xd4a359, alpha: a });
+      g.poly([0, -h - 10, 7 + gPennant, -h - 7, 0, -h - 4]);
+      g.fill({ color: 0x15803d, alpha: a });
+    }
+
+    if (isRim && rimNeighbors) {
+      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult);
+    }
+
+  } else if (kit === "sand") {
+    // Sand Banner: Desert Sandstone Gate with Horseshoe Arch & Mosaic Trim
+    g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);
+    g.fill({ color: 0x92400e, alpha: a });
+    g.poly([0, 9, 18, 0, 18, -3, 0, 6]);
+    g.fill({ color: 0x78350f, alpha: a });
+
+    // Left tower
+    g.poly([-17, -1, -8, 3.5, -8, 3.5 - (h + 4), -17, -1 - (h + 4)]);
+    g.fill({ color: 0xd4a373, alpha: a });
+    g.poly([-8, 3.5, -4, 1.5, -4, 1.5 - (h + 4), -8, 3.5 - (h + 4)]);
+    g.fill({ color: 0xa16207, alpha: a });
+
+    // Right tower
+    g.poly([4, 1.5, 8, 3.5, 8, 3.5 - (h + 4), 4, 1.5 - (h + 4)]);
+    g.fill({ color: 0xa16207, alpha: a });
+    g.poly([8, 3.5, 17, -1, 17, -1 - (h + 4), 8, 3.5 - (h + 4)]);
+    g.fill({ color: 0x78350f, alpha: a });
+
+    for (const frac of [0.3, 0.6, 0.85]) {
+      const myLeft = 3.5 - (h + 4) * frac;
+      g.moveTo(-17, -1 - (h + 4) * frac); g.lineTo(-8, myLeft);
+      const myRight = 3.5 - (h + 4) * frac;
+      g.moveTo(8, myRight); g.lineTo(17, -1 - (h + 4) * frac);
+      g.stroke({ width: 0.8, color: 0x78350f, alpha: a * 0.6 });
+    }
+
+    // Central curtain
+    g.poly([-4, 1.5, 4, 1.5, 4, 1.5 - h, -4, 1.5 - h]);
+    g.fill({ color: 0xc29d62, alpha: a });
+
+    // Stepped sawtooth merlons
+    g.poly([-17, -h - 5, -14, -h - 8, -11, -h - 5]); g.fill({ color: 0xfde68a, alpha: a });
+    g.poly([11, -h - 5, 14, -h - 8, 17, -h - 5]); g.fill({ color: 0xfde68a, alpha: a });
+    g.rect(-2, -h - 2, 4, 3); g.fill({ color: 0xfde68a, alpha: a });
+
+    // Decorative turquoise mosaic tile frieze
+    g.rect(-4, 0.5 - h * 0.6, 8, 2);
+    g.fill({ color: 0x0d9488, alpha: a });
+    g.circle(0, 1.5 - h * 0.6, 0.8); g.fill({ color: 0xfacc15, alpha: a });
+
+    // Horseshoe archway portal
+    g.poly([-5, 5, 0, 7.5, 5, 5, 5, -1, 0, 2, -5, -1]);
+    g.fill({ color: 0x271507, alpha: a });
+    g.moveTo(-5, -1); g.lineTo(0, 2); g.lineTo(5, -1);
+    g.stroke({ width: 1.8, color: 0xfde68a, alpha: a });
+
+    if (isRim) {
+      // Brass-studded cedar double doors
+      g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x854d0e, alpha: a });
+      g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x78350f, alpha: a });
+      g.circle(-2, 2.5, 0.6); g.fill({ color: 0xfacc15, alpha: a });
+      g.circle(2, 2.5, 0.6); g.fill({ color: 0xfacc15, alpha: a });
+
+      // Bronze lattice portcullis
+      for (const tx of [-3, -1, 1, 3]) {
+        const ty = 0.5 - Math.abs(tx) * 0.25;
+        g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
+        g.stroke({ width: 1, color: 0xd97706, alpha: a });
+      }
+
+      const gPennant = Math.sin(phase * 4) * 2;
+      g.moveTo(0, -h); g.lineTo(0, -h - 10);
+      g.stroke({ width: 1.2, color: 0xfacc15, alpha: a });
+      g.poly([0, -h - 10, 7 + gPennant, -h - 7, 0, -h - 4]);
+      g.fill({ color: 0xdc2626, alpha: a });
+    }
+
+    if (isRim && rimNeighbors) {
+      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult);
+    }
+
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad Fortified Gate with Leather-Wrapped Pylons & Horsehair Standard
+    g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);
+    g.fill({ color: 0x44403c, alpha: a });
+    g.poly([0, 9, 18, 0, 18, -3, 0, 6]);
+    g.fill({ color: 0x292524, alpha: a });
+
+    // Left pylon
+    g.poly([-17, -1, -8, 3.5, -8, 3.5 - (h + 4), -17, -1 - (h + 4)]);
+    g.fill({ color: 0x713f12, alpha: a });
+    g.poly([-8, 3.5, -4, 1.5, -4, 1.5 - (h + 4), -8, 3.5 - (h + 4)]);
+    g.fill({ color: 0x543007, alpha: a });
+
+    // Right pylon
+    g.poly([4, 1.5, 8, 3.5, 8, 3.5 - (h + 4), 4, 1.5 - (h + 4)]);
+    g.fill({ color: 0x543007, alpha: a });
+    g.poly([8, 3.5, 17, -1, 17, -1 - (h + 4), 8, 3.5 - (h + 4)]);
+    g.fill({ color: 0x291807, alpha: a });
+
+    // Central curtain
+    g.poly([-4, 1.5, 4, 1.5, 4, 1.5 - h, -4, 1.5 - h]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    // Bound wattle hurdle merlons
+    g.rect(-16, -h - 6, 6, 3.5); g.fill({ color: 0x854d0e, alpha: a });
+    g.rect(10, -h - 6, 6, 3.5); g.fill({ color: 0x854d0e, alpha: a });
+    g.rect(-2, -h - 2, 4, 3); g.fill({ color: 0x854d0e, alpha: a });
+
+    // Horse skull talisman on lintel
+    g.circle(0, 1 - h * 0.5, 1.5); g.fill({ color: 0xf5f5f4, alpha: a });
+    g.rect(-0.8, 1.5 - h * 0.5, 1.6, 2); g.fill({ color: 0xe7e5e4, alpha: a });
+
+    // Gateway portal
+    g.poly([-5, 5, 0, 7.5, 5, 5, 5, -1, 0, 1.5, -5, -1]);
+    g.fill({ color: 0x18181b, alpha: a });
+
+    if (isRim) {
+      g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x854d0e, alpha: a });
+      g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x713f12, alpha: a });
+      g.moveTo(-3, 1); g.lineTo(3, 4); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+      g.moveTo(-3, 4); g.lineTo(3, 1); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+
+      const gPennant = Math.sin(phase * 4) * 2;
+      g.moveTo(0, -h); g.lineTo(0, -h - 10);
+      g.stroke({ width: 1.2, color: 0x291807, alpha: a });
+      g.circle(0, -h - 10, 1.4); g.fill({ color: 0xf5f5f4, alpha: a });
+      g.poly([0, -h - 9, 6 + gPennant, -h - 6, 0, -h - 3]);
+      g.fill({ color: 0xdc2626, alpha: a });
+    }
+
+    if (isRim && rimNeighbors) {
+      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult);
+    }
+
+  } else if (kit === "islands") {
+    // Tide Clans: Elevated Driftwood & Coral Gate with Bamboo Portcullis
+    g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);
+    g.fill({ color: 0x334155, alpha: a });
+    g.poly([0, 9, 18, 0, 18, -3, 0, 6]);
+    g.fill({ color: 0x1e293b, alpha: a });
+
+    // Left tower
+    g.poly([-17, -1, -8, 3.5, -8, 3.5 - (h + 4), -17, -1 - (h + 4)]);
+    g.fill({ color: 0x94a3b8, alpha: a });
+    g.poly([-8, 3.5, -4, 1.5, -4, 1.5 - (h + 4), -8, 3.5 - (h + 4)]);
+    g.fill({ color: 0x64748b, alpha: a });
+
+    // Right tower
+    g.poly([4, 1.5, 8, 3.5, 8, 3.5 - (h + 4), 4, 1.5 - (h + 4)]);
+    g.fill({ color: 0x64748b, alpha: a });
+    g.poly([8, 3.5, 17, -1, 17, -1 - (h + 4), 8, 3.5 - (h + 4)]);
+    g.fill({ color: 0x334155, alpha: a });
+
+    // Thatched gables on towers
+    g.poly([-18, -h - 4, -12, -h - 10, -6, -h - 4]); g.fill({ color: 0xd97706, alpha: a });
+    g.poly([6, -h - 4, 12, -h - 10, 18, -h - 4]); g.fill({ color: 0xd97706, alpha: a });
+
+    // Central curtain
+    g.poly([-4, 1.5, 4, 1.5, 4, 1.5 - h, -4, 1.5 - h]);
+    g.fill({ color: 0xa8a29e, alpha: a });
+
+    for (const sx of [-2, 0, 2]) {
+      g.moveTo(sx, -h * 0.45); g.lineTo(sx, -h * 0.45 + 3);
+      g.stroke({ width: 0.8, color: 0xfef08a, alpha: a });
+    }
+
+    g.poly([-5, 5, 0, 7.5, 5, 5, 5, -1, 0, 1.5, -5, -1]);
+    g.fill({ color: 0x0f172a, alpha: a });
+
+    if (isRim) {
+      g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x78716c, alpha: a });
+      g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x57534e, alpha: a });
+
+      for (const tx of [-3, -1, 1, 3]) {
+        const ty = 0.5 - Math.abs(tx) * 0.25;
+        g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
+        g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+      }
+
+      const gPennant = Math.sin(phase * 4) * 2;
+      g.moveTo(0, -h); g.lineTo(0, -h - 10);
+      g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+      g.poly([0, -h - 10, 7 + gPennant, -h - 7, 0, -h - 4]);
+      g.fill({ color: 0x06b6d4, alpha: a });
+    }
+
+    if (isRim && rimNeighbors) {
+      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult);
+    }
+  }
+}
+
+function drawChapelCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Sacred Spirit Grove Totem Lodge
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([0, 8, 15, 0, 15, 0 - h, 0, 8 - h]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    g.poly([-18, -h, 0, 9 - h - 12, 17, 0 - h, 0, -h - 18]);
+    g.fill({ color: 0x654321, alpha: a });
+    g.moveTo(-18, -h); g.lineTo(0, 9 - h - 12); g.lineTo(17, 0 - h);
+    g.stroke({ width: 1.6, color: 0x166534, alpha: a * 0.9 });
+
+    // Towering Carved Spirit Totem Pole (front yard)
+    g.rect(-14, -h * 0.6, 4, 18);
+    g.fill({ color: 0x78350f, alpha: a });
+    g.poly([-17, -h * 0.5, -14, -h * 0.55, -10, -h * 0.5]);
+    g.fill({ color: 0x5c3818, alpha: a });
+    g.circle(-13, -h * 0.45, 0.8); g.fill({ color: 0x06b6d4, alpha: a });
+    g.circle(-11, -h * 0.45, 0.8); g.fill({ color: 0x06b6d4, alpha: a });
+    g.rect(-13.5, -h * 0.25, 3, 2); g.fill({ color: 0xd4a359, alpha: a });
+
+    // Ceremonial Hearth Pit & Incense Smoke
+    g.ellipse(8, 4, 3.5, 2); g.fill({ color: 0x3f3f46, alpha: a });
+    const cPuff = Math.sin(phase * 2.5) * 1.5;
+    g.circle(8, 2 + cPuff, 2); g.fill({ color: 0x86efac, alpha: 0.4 * a });
+    g.circle(9, -2 + cPuff, 2.5); g.fill({ color: 0xe2e8f0, alpha: 0.3 * a });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Sun Sanctuary with Gilded Sunburst Cupola Dome
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0xd4a373, alpha: a });
+    g.poly([0, 8, 15, 0, 15, 0 - h, 0, 8 - h]);
+    g.fill({ color: 0xa16207, alpha: a });
+
+    for (const ax of [-11, -5, 4, 10]) {
+      g.poly([ax - 2, 4 - h * 0.3, ax, 2 - h * 0.3, ax + 2, 4 - h * 0.3, ax + 2, 8 - h * 0.3, ax - 2, 8 - h * 0.3]);
+      g.fill({ color: 0x451a03, alpha: a });
+    }
+
+    g.poly([-17, -h, 0, 8 - h - 5, 16, -h, 0, -h - 10]);
+    g.fill({ color: 0xc29d62, alpha: a });
+
+    // Central Gilded Sunburst Cupola Dome
+    g.poly([-6, -h - 2, 0, -h - 16, 6, -h - 2]);
+    g.fill({ color: 0xf59e0b, alpha: a });
+    g.circle(0, -h - 8, 4.5); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(0, -h - 16, 1.2); g.fill({ color: 0xfef08a, alpha: a });
+
+    // Slender Minaret Spire at left
+    g.rect(-15, -h - 20, 3, 18); g.fill({ color: 0xd4a373, alpha: a });
+    g.poly([-16, -h - 20, -13.5, -h - 26, -11, -h - 20]); g.fill({ color: 0x0d9488, alpha: a });
+
+    // Courtyard Fountain Basin
+    g.ellipse(0, 5, 4, 2.2); g.fill({ color: 0x78350f, alpha: a });
+    g.ellipse(0, 5, 3, 1.5); g.fill({ color: 0x38bdf8, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Sky Altar & Tengri Shrine of the Eternal Blue
+    g.poly([-16, 0, 0, 8, 0, 8 - h * 0.4, -16, 0 - h * 0.4]);
+    g.fill({ color: 0x57534e, alpha: a });
+    g.poly([0, 8, 15, 0, 15, 0 - h * 0.4, 0, 8 - h * 0.4]);
+    g.fill({ color: 0x44403c, alpha: a });
+
+    // Great White Ceremonial Yurt Pavilion
+    const yR = 10;
+    g.poly([-yR, 2 - h * 0.3, yR, 2 - h * 0.3, yR, 2 - h * 0.7, -yR, 2 - h * 0.7]);
+    g.fill({ color: 0xf5f5f4, alpha: a });
+    g.poly([-yR - 1, 2 - h * 0.7, 0, 2 - h - 8, yR + 1, 2 - h * 0.7]);
+    g.fill({ color: 0xe7e5e4, alpha: a });
+    g.moveTo(-yR, 2 - h * 0.7); g.lineTo(0, 2 - h - 8); g.lineTo(yR, 2 - h * 0.7);
+    g.stroke({ width: 1.2, color: 0xdc2626, alpha: a });
+
+    // Prayer Ribbon Poles
+    for (const px of [-13, 12]) {
+      g.moveTo(px, 3); g.lineTo(px, -h - 10);
+      g.stroke({ width: 1.2, color: 0xd4a359, alpha: a });
+      g.circle(px, -h - 10, 1.2); g.fill({ color: 0x38bdf8, alpha: a });
+    }
+
+    // Soaring Sulde (Horsehair Spirit Banner)
+    const wave = Math.sin(phase * 4) * 2;
+    g.moveTo(0, 2 - h - 8); g.lineTo(0, -h - 22);
+    g.stroke({ width: 1.5, color: 0xd97706, alpha: a });
+    g.poly([0, -h - 22, 6 + wave, -h - 18, 0, -h - 14]);
+    g.fill({ color: 0x0284c7, alpha: a });
+
+  } else if (kit === "islands") {
+    // Tide Clans: Tide Shrine of the Deep & Giant Clam Pearl Altar
+    g.poly([-16, 0, 0, 8, 0, 8 - h * 0.4, -16, 0 - h * 0.4]);
+    g.fill({ color: 0x64748b, alpha: a });
+    g.poly([0, 8, 15, 0, 15, 0 - h * 0.4, 0, 8 - h * 0.4]);
+    g.fill({ color: 0x475569, alpha: a });
+
+    for (const px of [-12, -4, 4, 12]) {
+      g.moveTo(px, 3); g.lineTo(px, 3 - h);
+      g.stroke({ width: 1.8, color: 0x78350f, alpha: a });
+    }
+
+    g.poly([-18, -h, 0, 9 - h - 14, 18, -h, 0, -h - 19]);
+    g.fill({ color: 0xd97706, alpha: a });
+    g.moveTo(-18, -h); g.lineTo(0, 9 - h - 14); g.lineTo(18, -h);
+    g.stroke({ width: 1.5, color: 0x06b6d4, alpha: a });
+
+    // Giant Clam Shell Font with glowing seawater
+    g.ellipse(0, 3 - h * 0.2, 4.5, 2.5); g.fill({ color: 0xf8fafc, alpha: a });
+    g.ellipse(0, 3 - h * 0.2, 3.2, 1.6); g.fill({ color: 0x06b6d4, alpha: a * 0.9 });
+    g.circle(0, 3 - h * 0.2, 1.2); g.fill({ color: 0xffffff, alpha: a });
+
+    // Ancestor Tiki Monolith
+    g.rect(10, -2, 3.5, 6); g.fill({ color: 0x334155, alpha: a });
+    g.circle(11.7, -0.5, 0.8); g.fill({ color: 0xfef08a, alpha: a });
+  }
+}
+
+function drawInfirmaryCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Woodland Herbalist Lodge & Healing Soaking Bath
+    g.poly([-15, -1, 0, 6.5, 0, 6.5 - h, -15, -1 - h]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([0, 6.5, 13, 0, 13, 0 - h, 0, 6.5 - h]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    g.poly([-17, -h, 0, 8 - h - 11, 15, -h, 0, -h - 17]);
+    g.fill({ color: 0x166534, alpha: a });
+    g.moveTo(-17, -h); g.lineTo(0, 8 - h - 11); g.lineTo(15, -h);
+    g.stroke({ width: 1.2, color: 0x15803d, alpha: a });
+
+    // Sacred Spiraling Leaf Healing Emblem (drop red cross)
+    g.circle(6, 2 - h * 0.5, 3.5);
+    g.fill({ color: 0x14532d, alpha: a });
+    g.circle(6, 2 - h * 0.5, 2);
+    g.fill({ color: 0x4ade80, alpha: a });
+
+    g.rect(-12, -h - 14, 4, 9);
+    g.fill({ color: 0x64748b, alpha: a });
+    const cPuff = Math.sin(phase * 2.2) * 1.8;
+    g.circle(-10, -h - 17 + cPuff, 2.4);
+    g.fill({ color: 0x86efac, alpha: 0.45 * a });
+
+    // Natural Cedar Soaking Tub with Steaming Stones
+    g.ellipse(8, 4.5, 4.5, 2.6); g.fill({ color: 0x78350f, alpha: a });
+    g.ellipse(8, 4.5, 3.5, 1.8); g.fill({ color: 0x38bdf8, alpha: a * 0.8 });
+    g.circle(7, 4.2, 0.9); g.fill({ color: 0x3f3f46, alpha: a });
+    g.circle(9, 4.5, 0.9); g.fill({ color: 0x52525b, alpha: a });
+
+    // Herbal drying rack
+    g.moveTo(-14, 4); g.lineTo(-10, 6); g.lineTo(-6, 4);
+    g.stroke({ width: 1.2, color: 0x78350f, alpha: a });
+    g.circle(-10, 4.5, 1.2); g.fill({ color: 0xa855f7, alpha: a });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Bimaristan / Desert Apothecary House
+    g.poly([-15, -1, 0, 6.5, 0, 6.5 - h, -15, -1 - h]);
+    g.fill({ color: 0xfef3c7, alpha: a });
+    g.poly([0, 6.5, 13, 0, 13, 0 - h, 0, 6.5 - h]);
+    g.fill({ color: 0xd4a373, alpha: a });
+
+    g.poly([-16, -h, 0, 7 - h - 5, 14, -h, 0, -h - 10]);
+    g.fill({ color: 0xc29d62, alpha: a });
+    g.poly([-12, -h - 4, 0, -h - 8, 12, -h - 4, 0, -h - 1]);
+    g.fill({ color: 0xfef08a, alpha: a * 0.9 });
+
+    // Golden Mortar / Aloe Bloom Healing Emblem
+    g.circle(6, 2 - h * 0.5, 3.5);
+    g.fill({ color: 0x78350f, alpha: a });
+    g.circle(6, 2 - h * 0.5, 2.2);
+    g.fill({ color: 0xfacc15, alpha: a });
+
+    // Central Cooling Fountain & Aloe Pots
+    g.ellipse(8, 4.5, 3.5, 2); g.fill({ color: 0x92400e, alpha: a });
+    g.ellipse(8, 4.5, 2.5, 1.2); g.fill({ color: 0x38bdf8, alpha: a });
+    g.circle(-11, 4.5, 1.6); g.fill({ color: 0x15803d, alpha: a });
+
+    // Copper Distillation Alembic Still
+    g.rect(-7, 3, 3, 3); g.fill({ color: 0xd97706, alpha: a });
+    g.circle(-5.5, 2, 1.5); g.fill({ color: 0xb45309, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad Shaman Yurt & Healing Sanctuary
+    const yR = 9;
+    g.poly([-yR, 1 - h * 0.2, yR, 1 - h * 0.2, yR, 1 - h * 0.6, -yR, 1 - h * 0.6]);
+    g.fill({ color: 0xf5f5f4, alpha: a });
+    g.poly([-yR - 1, 1 - h * 0.6, 0, 1 - h - 6, yR + 1, 1 - h * 0.6]);
+    g.fill({ color: 0xe7e5e4, alpha: a });
+
+    // Sun-Wheel Healing Symbol on front flap
+    g.circle(0, 1 - h * 0.4, 3.2); g.fill({ color: 0xdc2626, alpha: a });
+    g.circle(0, 1 - h * 0.4, 1.8); g.fill({ color: 0xfacc15, alpha: a });
+
+    // Healing Sage & Wormwood smoke puff
+    const puff = Math.sin(phase * 2.2) * 1.5;
+    g.circle(0, -h - 8 + puff, 2.2); g.fill({ color: 0xd1fae5, alpha: 0.5 * a });
+
+    // Sheepskin Cot under Awning
+    g.rect(6, 2, 6, 3.5); g.fill({ color: 0x78350f, alpha: a });
+    g.rect(6.5, 2.5, 5, 2.5); g.fill({ color: 0xf5f5f4, alpha: a });
+
+    g.moveTo(-12, 4); g.lineTo(-9, 1); g.lineTo(-6, 4);
+    g.stroke({ width: 1.2, color: 0x5c3818, alpha: a });
+
+  } else if (kit === "islands") {
+    // Tide Clans: Reef Apothecary & Slatted Stilt Hospice
+    g.poly([-15, -1, 0, 6.5, 0, 6.5 - h, -15, -1 - h]);
+    g.fill({ color: 0x94a3b8, alpha: a });
+    g.poly([0, 6.5, 13, 0, 13, 0 - h, 0, 6.5 - h]);
+    g.fill({ color: 0x64748b, alpha: a });
+
+    for (const f of [0.3, 0.5, 0.7]) {
+      g.moveTo(-15, -1 - h * f); g.lineTo(0, 6.5 - h * f);
+      g.moveTo(0, 6.5 - h * f); g.lineTo(13, 0 - h * f);
+      g.stroke({ width: 0.8, color: 0x334155, alpha: a * 0.6 });
+    }
+
+    g.poly([-17, -h, 0, 8 - h - 11, 15, -h, 0, -h - 16]);
+    g.fill({ color: 0xd97706, alpha: a });
+
+    // Spiraling Nautilus Shell Healing Emblem
+    g.circle(6, 2 - h * 0.5, 3.2); g.fill({ color: 0x0f766e, alpha: a });
+    g.circle(6, 2 - h * 0.5, 1.8); g.fill({ color: 0x06b6d4, alpha: a });
+
+    // Bamboo Aqueduct Flume & Freshwater Basin
+    g.moveTo(-14, -h * 0.3); g.lineTo(-8, 3);
+    g.stroke({ width: 1.6, color: 0xca8a04, alpha: a });
+    g.ellipse(-7, 4, 3, 1.8); g.fill({ color: 0x38bdf8, alpha: a });
+
+    // Medicinal Kelp & Coral Sponge Racks
+    g.rect(7, 3, 5, 2.5); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(8.5, 4, 1.2); g.fill({ color: 0x0d9488, alpha: a });
+    g.circle(10.5, 4, 1.2); g.fill({ color: 0xfef08a, alpha: a });
+  }
+}
+
+function drawSiegeWorkshopCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Logging Yard Battering Ram & Heavy Catapult Yard
+    g.poly([-16, 0, 0, 8, 0, 8 - h * 0.4, -16, 0 - h * 0.4]);
+    g.fill({ color: 0x3f3f46, alpha: a });
+    g.poly([0, 8, 16, 0, 16, 0 - h * 0.4, 0, 8 - h * 0.4]);
+    g.fill({ color: 0x27272a, alpha: a });
+
+    // Heavy Cedar Gantry Frame
+    g.moveTo(-14, 2); g.lineTo(-14, -h - 4); g.lineTo(-2, -h - 4); g.lineTo(-2, 7);
+    g.stroke({ width: 2.4, color: 0x5c3818, alpha: a });
+
+    // Massive Suspended Battering Ram with Carved Ironwood Head
+    g.moveTo(-14, -h * 0.5); g.lineTo(-8, 1);
+    g.moveTo(-2, -h * 0.5); g.lineTo(2, 4);
+    g.stroke({ width: 1, color: 0x18181b, alpha: a });
+    g.poly([-10, 0, 4, 5, 4, 2, -10, -3]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([4, 5, 7, 6, 7, 3, 4, 2]);
+    g.fill({ color: 0x3f220c, alpha: a });
+
+    // Stacked fire-hardened cedar stakes & pitch barrels
+    g.rect(8, 2, 4, 5); g.fill({ color: 0x18181b, alpha: a });
+    g.moveTo(7, 6); g.lineTo(14, 2); g.stroke({ width: 1.4, color: 0xd97706, alpha: a });
+
+    // Blacksmith Hearth with glowing coals
+    g.ellipse(13, 6, 2.8, 1.8); g.fill({ color: 0x475569, alpha: a });
+    const fFlame = Math.sin(phase * 5) * 0.3;
+    g.circle(13, 5.5, 1.6 + fFlame); g.fill({ color: 0xea580c, alpha: a });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Desert Traction Mangonel & Fire Arsenal
+    g.poly([-16, 0, 0, 8, 0, 8 - h * 0.4, -16, 0 - h * 0.4]);
+    g.fill({ color: 0xa16207, alpha: a });
+    g.poly([0, 8, 16, 0, 16, 0 - h * 0.4, 0, 8 - h * 0.4]);
+    g.fill({ color: 0x78350f, alpha: a });
+
+    // Striped Canvas Sunshade Canopy
+    g.poly([-15, -h + 2, -1, 7 - h, -2, -h - 7, -16, -h - 4]);
+    g.fill({ color: 0xdc2626, alpha: a });
+    g.poly([-12, -h + 1, -1, 7 - h, -2, -h - 7, -13, -h - 5]);
+    g.fill({ color: 0xfacc15, alpha: a * 0.85 });
+
+    // Traction Mangonel on Sandstone Frame
+    g.moveTo(-3, 4); g.lineTo(7, -1);
+    g.stroke({ width: 3.5, color: 0x8c7954, alpha: a });
+    g.circle(2, 1, 2); g.fill({ color: 0xd97706, alpha: a });
+    g.moveTo(-2, 3); g.lineTo(9, -20);
+    g.stroke({ width: 2.8, color: 0xb45309, alpha: a });
+
+    // Terracotta Greek Fire Amphorae
+    g.circle(10, 4, 1.8); g.fill({ color: 0xd97706, alpha: a });
+    g.circle(13, 2, 1.8); g.fill({ color: 0xd97706, alpha: a });
+    g.circle(11.5, 0.5, 1.6); g.fill({ color: 0xea580c, alpha: a });
+
+    // Sandstone shot pyramid
+    g.circle(-8, 5, 2); g.fill({ color: 0xfef3c7, alpha: a });
+    g.circle(-5, 6.5, 2); g.fill({ color: 0xfde68a, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad War Arba Workshop & Swivel Siege Ballista
+    g.poly([-16, 0, 0, 8, 0, 8 - h * 0.4, -16, 0 - h * 0.4]);
+    g.fill({ color: 0x57534e, alpha: a });
+    g.poly([0, 8, 16, 0, 16, 0 - h * 0.4, 0, 8 - h * 0.4]);
+    g.fill({ color: 0x44403c, alpha: a });
+
+    // Heavy Two-Wheeled Siege Arba Wagon
+    g.circle(-2, 7, 4.5); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(8, 2, 4.5); g.fill({ color: 0x5c3818, alpha: a });
+    g.circle(-2, 7, 1); g.fill({ color: 0xd1d5db, alpha: a });
+    g.circle(8, 2, 1); g.fill({ color: 0xd1d5db, alpha: a });
+
+    g.poly([-8, 2, 4, 7, 4, -4, -8, -9]);
+    g.fill({ color: 0x713f12, alpha: a });
+    for (const sx of [-6, -2, 2]) {
+      g.circle(sx, 1, 0.7); g.fill({ color: 0xd1d5db, alpha: a });
+    }
+
+    // Mounted heavy recurve spear-thrower
+    g.moveTo(0, 0); g.lineTo(10, -16);
+    g.stroke({ width: 2.6, color: 0x291807, alpha: a });
+    g.moveTo(5, -16); g.lineTo(14, -13);
+    g.stroke({ width: 2.2, color: 0xdc2626, alpha: a });
+
+    // Quiver chest of siege bolts
+    g.rect(-14, 1, 5, 4); g.fill({ color: 0x451a03, alpha: a });
+    g.moveTo(-13, 0); g.lineTo(-9, 0); g.stroke({ width: 1.2, color: 0xd1d5db, alpha: a });
+
+  } else if (kit === "islands") {
+    // Tide Clans: Coastal Harpoon Artillery & Driftwood Slipway
+    g.poly([-16, 0, 0, 8, 0, 8 - h * 0.4, -16, 0 - h * 0.4]);
+    g.fill({ color: 0x475569, alpha: a });
+    g.poly([0, 8, 16, 0, 16, 0 - h * 0.4, 0, 8 - h * 0.4]);
+    g.fill({ color: 0x334155, alpha: a });
+
+    // Driftwood slipway launch ramps
+    g.moveTo(-14, 4); g.lineTo(12, -4);
+    g.stroke({ width: 2.8, color: 0x78716c, alpha: a });
+    g.moveTo(-10, 6); g.lineTo(16, -2);
+    g.stroke({ width: 2.8, color: 0x57534e, alpha: a });
+
+    // Heavy Swivel Harpoon Ballista
+    g.circle(1, 1, 3.5); g.fill({ color: 0x1e293b, alpha: a });
+    g.moveTo(-2, 3); g.lineTo(8, -18);
+    g.stroke({ width: 3, color: 0x0284c7, alpha: a });
+
+    // Massive Barbed Whale Harpoon & Coiled Line
+    g.moveTo(7, -17); g.lineTo(11, -22);
+    g.stroke({ width: 2, color: 0x38bdf8, alpha: a });
+    g.circle(-5, 4.5, 2.5); g.fill({ color: 0xa16207, alpha: a });
+
+    // Volcanic Basalt Shot Stack
+    g.circle(10, 4, 2); g.fill({ color: 0x18181b, alpha: a });
+    g.circle(13, 2, 2); g.fill({ color: 0x27272a, alpha: a });
+    g.circle(11.5, 0.5, 1.8); g.fill({ color: 0x3f3f46, alpha: a });
+  }
+}
+
+function drawWatchtowerCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Cross-Braced Cedar Trestle Lookout with Beacon Cage
+    g.poly([-8, 0, 0, 4, 8, 0, 0, -4]); g.fill({ color: 0x3f3f46, alpha: a });
+
+    g.moveTo(-7, 0); g.lineTo(-4, -h);
+    g.moveTo(7, 0); g.lineTo(4, -h);
+    g.moveTo(0, 4); g.lineTo(0, -h + 2);
+    g.stroke({ width: 2.2, color: 0x78350f, alpha: a });
+
+    for (const f of [0.25, 0.5, 0.75]) {
+      g.moveTo(-6, -h * f); g.lineTo(6, -h * f);
+      g.stroke({ width: 1.2, color: 0x5c3818, alpha: a });
+    }
+
+    g.poly([-8, -h + 2, 0, 4 - h, 8, -h + 2, 0, -h - 4]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([-8, -h - 2, 0, -h - 16, 8, -h - 2]);
+    g.fill({ color: 0x654321, alpha: a });
+
+    const fPuff = Math.sin(phase * 6) * 1.2;
+    g.circle(0, -h - 18, 2.5 + fPuff * 0.2); g.fill({ color: 0xea580c, alpha: a });
+    g.circle(0, -h - 18, 1.2); g.fill({ color: 0xfacc15, alpha: a });
+
+    g.circle(-5, -h, 1.6); g.fill({ color: 0xd97706, alpha: a });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Slender Sandstone Minaret with Openwork Balcony
+    g.poly([-8, 0, 0, 4, 8, 0, 0, -4]); g.fill({ color: 0x92400e, alpha: a });
+
+    g.poly([-6, 0, 0, 3, 0, 3 - h, -6, -h]); g.fill({ color: 0xd4a373, alpha: a });
+    g.poly([0, 3, 6, 0, 6, -h, 0, 3 - h]); g.fill({ color: 0xa16207, alpha: a });
+
+    g.rect(-2, -h * 0.4, 1.4, 4); g.fill({ color: 0x451a03, alpha: a });
+    g.rect(2, -h * 0.7, 1.4, 4); g.fill({ color: 0x451a03, alpha: a });
+
+    g.poly([-9, -h + 2, 0, 5 - h, 9, -h + 2, 0, -h - 4]);
+    g.fill({ color: 0xc29d62, alpha: a });
+    g.rect(-8, -h - 3, 16, 3); g.fill({ color: 0xfde68a, alpha: a });
+
+    g.poly([-6, -h - 3, 0, -h - 15, 6, -h - 3]); g.fill({ color: 0xd97706, alpha: a });
+    g.circle(0, -h - 15, 1.4); g.fill({ color: 0xfacc15, alpha: a });
+
+    const sWave = Math.sin(phase * 4) * 2;
+    g.moveTo(0, -h - 15); g.lineTo(8 + sWave, -h - 11);
+    g.stroke({ width: 1.2, color: 0xdc2626, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad Timber Lookout Scaffolding & Signal Smoke Pylon
+    g.poly([-8, 0, 0, 4, 8, 0, 0, -4]); g.fill({ color: 0x44403c, alpha: a });
+
+    g.moveTo(-7, 0); g.lineTo(-3, -h);
+    g.moveTo(7, 0); g.lineTo(3, -h);
+    g.stroke({ width: 2, color: 0x5c3818, alpha: a });
+
+    for (let y = -4; y > -h; y -= 5) {
+      g.moveTo(-3, y); g.lineTo(3, y);
+      g.stroke({ width: 1, color: 0x78350f, alpha: a });
+    }
+
+    g.rect(-6, -h - 2, 12, 6); g.fill({ color: 0x854d0e, alpha: a });
+    g.stroke({ width: 1, color: 0x291807, alpha: a });
+
+    const sPuff = Math.sin(phase * 3) * 2;
+    g.circle(0, -h - 8 + sPuff, 3); g.fill({ color: 0x3f3f46, alpha: 0.5 * a });
+    g.circle(2, -h - 14 + sPuff, 4); g.fill({ color: 0x27272a, alpha: 0.35 * a });
+
+    g.moveTo(5, -h - 2); g.lineTo(5, -h - 12);
+    g.stroke({ width: 1.2, color: 0x291807, alpha: a });
+    g.circle(5, -h - 12, 1.4); g.fill({ color: 0xdc2626, alpha: a });
+
+  } else if (kit === "islands") {
+    // Tide Clans: Driftwood & Bamboo Lighthouse Tower
+    g.poly([-8, 0, 0, 4, 8, 0, 0, -4]); g.fill({ color: 0x334155, alpha: a });
+
+    g.moveTo(-6, 0); g.lineTo(-3, -h);
+    g.moveTo(6, 0); g.lineTo(3, -h);
+    g.stroke({ width: 2, color: 0xca8a04, alpha: a });
+
+    g.poly([-8, -h + 2, 0, 4 - h, 8, -h + 2, 0, -h - 4]);
+    g.fill({ color: 0xa8a29e, alpha: a });
+    g.poly([-7, -h - 2, 0, -h - 14, 7, -h - 2]);
+    g.fill({ color: 0xd97706, alpha: a });
+
+    g.circle(0, -h - 4, 2.8); g.fill({ color: 0x06b6d4, alpha: a * 0.9 });
+    g.circle(0, -h - 4, 1.4); g.fill({ color: 0xffffff, alpha: a });
+
+    g.circle(-4, -h, 1.4); g.fill({ color: 0xfef08a, alpha: a });
+  }
+}
+
+function drawBarracksCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Hewn Log Warrior Lodge on Riverstone Plinth
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([0, 8, 16, 0, 16, 0 - h, 0, 8 - h]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    g.poly([-18, -h, 0, 9 - h - 10, 18, 0 - h, 0, -h - 16]);
+    g.fill({ color: 0x654321, alpha: a });
+    g.moveTo(0, 9 - h - 10); g.lineTo(0, -h - 18);
+    g.stroke({ width: 1.5, color: 0xfacc15, alpha: a });
+
+    g.rect(-4, 2, 8, 7); g.fill({ color: 0x271507, alpha: a });
+
+    g.moveTo(10, 4); g.lineTo(10, -2); g.stroke({ width: 1.4, color: 0x5c3818, alpha: a });
+    g.circle(10, 0, 2); g.fill({ color: 0x166534, alpha: a });
+
+    g.moveTo(-11, 4); g.lineTo(-11, 0); g.stroke({ width: 1.6, color: 0x78350f, alpha: a });
+    g.circle(-11, 0, 2); g.fill({ color: 0xd4a359, alpha: a });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Desert Guard Barracks with Shaded Colonnade
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0xd4a373, alpha: a });
+    g.poly([0, 8, 16, 0, 16, 0 - h, 0, 8 - h]);
+    g.fill({ color: 0xa16207, alpha: a });
+
+    for (const bx of [-14, -6, 2, 10]) {
+      g.rect(bx, -h - 3.5, 4, 3.5); g.fill({ color: 0xfde68a, alpha: a });
+    }
+
+    g.poly([-12, 1, -2, 5, 6, 2, -4, -2]);
+    g.fill({ color: 0xdc2626, alpha: a * 0.9 });
+
+    g.moveTo(11, 4); g.lineTo(11, 0); g.stroke({ width: 1.2, color: 0x78350f, alpha: a });
+    g.circle(11, 2, 1.8); g.fill({ color: 0xfacc15, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad War Yurt Compound
+    const yR = 10;
+    g.poly([-yR, 0, yR, 0, yR, -h * 0.5, -yR, -h * 0.5]);
+    g.fill({ color: 0xe7e5e4, alpha: a });
+    g.poly([-yR - 1, -h * 0.5, 0, -h - 8, yR + 1, -h * 0.5]);
+    g.fill({ color: 0xd6d3d1, alpha: a });
+
+    g.moveTo(-yR, -h * 0.5); g.lineTo(yR, -h * 0.5);
+    g.stroke({ width: 1.5, color: 0xdc2626, alpha: a });
+
+    const wave = Math.sin(phase * 4) * 2;
+    g.moveTo(0, -h - 8); g.lineTo(0, -h - 18);
+    g.stroke({ width: 1.4, color: 0x291807, alpha: a });
+    g.poly([0, -h - 18, 7 + wave, -h - 14, 0, -h - 10]);
+    g.fill({ color: 0xdc2626, alpha: a });
+
+    g.ellipse(9, 3, 4, 2.2); g.fill({ color: 0xa8a29e, alpha: a * 0.6 });
+
+  } else if (kit === "islands") {
+    // Tide Clans: Elevated Coral & Bamboo Warrior Pavilion
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0x94a3b8, alpha: a });
+    g.poly([0, 8, 16, 0, 16, 0 - h, 0, 8 - h]);
+    g.fill({ color: 0x64748b, alpha: a });
+
+    g.poly([-18, -h, 0, 9 - h - 10, 18, 0 - h, 0, -h - 15]);
+    g.fill({ color: 0xd97706, alpha: a });
+
+    g.moveTo(10, 4); g.lineTo(10, -3); g.stroke({ width: 1.4, color: 0xca8a04, alpha: a });
+    g.circle(10, -3, 1.4); g.fill({ color: 0x06b6d4, alpha: a });
+
+    g.poly([-8, 3, 0, 6.5, 8, 3, 0, -0.5]);
+    g.fill({ color: 0xd4d4d4, alpha: a * 0.8 });
+  }
+}
+
+function drawStablesCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Woodland Split-Rail Elk/Horse Corral & Lean-To
+    g.poly([-16, 0, 0, 8, 0, 8 - h * 0.8, -16, 0 - h * 0.8]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h * 0.8, 0, 8 - h * 0.8]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    g.poly([-18, -h * 0.8, 0, 9 - h * 0.8 - 9, 16, 1 - h * 0.8, 0, -h * 0.8 - 12]);
+    g.fill({ color: 0x654321, alpha: a });
+
+    g.moveTo(-14, 4); g.lineTo(-2, 7); g.stroke({ width: 1.4, color: 0x78350f, alpha: a });
+    g.rect(4, 3, 6, 3); g.fill({ color: 0x5c3818, alpha: a });
+    g.rect(4, 2, 6, 1.5); g.fill({ color: 0x166534, alpha: a });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Arabian Horse Pavilion with Horseshoe Arches & Water Basin
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0xd4a373, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
+    g.fill({ color: 0xa16207, alpha: a });
+
+    g.poly([-10, 5, -5, 2.5, -5, -h * 0.3, -10, 2 - h * 0.3]); g.fill({ color: 0x451a03, alpha: a });
+    g.poly([3, 4, 8, 2, 8, -h * 0.3, 3, 2 - h * 0.3]); g.fill({ color: 0x451a03, alpha: a });
+
+    g.poly([-16, -h, 0, 7 - h - 6, 15, 1 - h, 0, -h - 10]);
+    g.fill({ color: 0xdc2626, alpha: a });
+
+    g.rect(-8, 5, 5, 2.5); g.fill({ color: 0xfef3c7, alpha: a });
+    g.rect(-7, 5.5, 3, 1.2); g.fill({ color: 0x38bdf8, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad Steppe Horse Herd Paddock & Felt Shelter
+    g.poly([-16, 0, 0, 8, 0, 8 - h * 0.6, -16, 0 - h * 0.6]);
+    g.fill({ color: 0x713f12, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h * 0.6, 0, 8 - h * 0.6]);
+    g.fill({ color: 0x543007, alpha: a });
+
+    g.poly([-17, -h * 0.6, 0, 7 - h * 0.6 - 6, 15, -h * 0.6, 0, -h * 0.6 - 9]);
+    g.fill({ color: 0xe7e5e4, alpha: a });
+
+    for (const px of [-12, -4, 4, 12]) {
+      g.moveTo(px, 4); g.lineTo(px, 0); g.stroke({ width: 1.4, color: 0x451a03, alpha: a });
+    }
+    g.moveTo(-12, 2); g.lineTo(12, 2); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+
+    g.rect(6, 3, 5, 3); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(8.5, 3, 1.6); g.fill({ color: 0xfacc15, alpha: a });
+
+  } else if (kit === "islands") {
+    // Tide Clans: Coastal Pack-Beast & Boar Stilt Pen
+    g.poly([-16, 0, 0, 8, 0, 8 - h * 0.7, -16, 0 - h * 0.7]);
+    g.fill({ color: 0x94a3b8, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h * 0.7, 0, 8 - h * 0.7]);
+    g.fill({ color: 0x64748b, alpha: a });
+
+    g.poly([-17, -h * 0.7, 0, 7 - h * 0.7 - 7, 15, -h * 0.7, 0, -h * 0.7 - 11]);
+    g.fill({ color: 0xd97706, alpha: a });
+
+    g.rect(-8, 5, 6, 2.5); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(-5, 5.5, 1.4); g.fill({ color: 0x0f766e, alpha: a });
+  }
+}
+
+function drawArcheryRangeCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Woodland Hunting Range with Carved Animal Targets
+    g.poly([-14, 0, 0, 7, 14, 0, 0, -7]);
+    g.fill({ color: 0x166534, alpha: a });
+
+    g.poly([-16, -3, -7, 2, -7, -12, -16, -17]);
+    g.fill({ color: 0x854d0e, alpha: a });
+    g.poly([-16, -17, -7, -12, -4, -20, -13, -24]);
+    g.fill({ color: 0x5c3818, alpha: a });
+
+    g.circle(8, -5, 5); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(8, -5, 3.2); g.fill({ color: 0xd4a359, alpha: a });
+    g.circle(8, -5, 1.4); g.fill({ color: 0x166534, alpha: a });
+    g.moveTo(8, -5); g.lineTo(13, -9); g.stroke({ width: 1, color: 0xfacc15, alpha: a });
+
+    g.circle(3, 3, 3.5); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(3, 3, 2); g.fill({ color: 0xef4444, alpha: a });
+
+  } else if (kit === "sand") {
+    // Sand Banner: Desert Archery Pavilion with Striped Silk Canopy
+    g.poly([-14, 0, 0, 7, 14, 0, 0, -7]);
+    g.fill({ color: 0xd4a373, alpha: a });
+
+    g.poly([-16, -4, -7, 1, -7, -14, -16, -19]);
+    g.fill({ color: 0xdc2626, alpha: a });
+    g.poly([-16, -19, -7, -14, -4, -22, -13, -26]);
+    g.fill({ color: 0xfacc15, alpha: a });
+
+    g.circle(8, -6, 5.5); g.fill({ color: 0xfef3c7, alpha: a });
+    g.circle(8, -6, 3.5); g.fill({ color: 0xd97706, alpha: a });
+    g.circle(8, -6, 1.5); g.fill({ color: 0xdc2626, alpha: a });
+    g.moveTo(8, -6); g.lineTo(13, -10); g.stroke({ width: 1, color: 0x18181b, alpha: a });
+
+    g.circle(3, 2, 4); g.fill({ color: 0xfef3c7, alpha: a });
+    g.circle(3, 2, 2.2); g.fill({ color: 0x0d9488, alpha: a });
+
+    g.ellipse(-4, 3, 1.5, 2.5); g.fill({ color: 0xfacc15, alpha: a });
+
+  } else if (kit === "steppe") {
+    // Wind Host: Mounted Archery Track & Hanging Ring Targets
+    g.poly([-14, 0, 0, 7, 14, 0, 0, -7]);
+    g.fill({ color: 0x713f12, alpha: a });
+
+    g.poly([-16, -4, -7, 1, -7, -14, -16, -19]);
+    g.fill({ color: 0xe7e5e4, alpha: a });
+    g.poly([-16, -19, -7, -14, -4, -22, -13, -26]);
+    g.fill({ color: 0x475569, alpha: a });
+
+    g.moveTo(8, 0); g.lineTo(8, -12); g.stroke({ width: 1.4, color: 0x5c3818, alpha: a });
+    g.circle(8, -12, 4); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(8, -12, 2); g.fill({ color: 0xdc2626, alpha: a });
+    g.moveTo(8, -12); g.lineTo(12, -15); g.stroke({ width: 1, color: 0x18181b, alpha: a });
+
+    g.circle(3, 2, 3.5); g.fill({ color: 0x854d0e, alpha: a });
+    g.circle(3, 2, 1.8); g.fill({ color: 0xf5f5f4, alpha: a });
+
+  } else if (kit === "islands") {
+    // Tide Clans: Shoreline Spear & Archery Deck with Fish-Basket Targets
+    g.poly([-14, 0, 0, 7, 14, 0, 0, -7]);
+    g.fill({ color: 0x0e7490, alpha: a });
+
+    g.poly([-16, -4, -7, 1, -7, -14, -16, -19]);
+    g.fill({ color: 0xd97706, alpha: a });
+    g.poly([-16, -19, -7, -14, -4, -22, -13, -26]);
+    g.fill({ color: 0xb45309, alpha: a });
+
+    g.circle(8, -6, 5); g.fill({ color: 0xa16207, alpha: a });
+    g.circle(8, -6, 3); g.fill({ color: 0x06b6d4, alpha: a });
+    g.circle(8, -6, 1.2); g.fill({ color: 0xfef08a, alpha: a });
+    g.moveTo(8, -6); g.lineTo(13, -11); g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+
+    g.circle(3, 2, 3.5); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(3, 2, 1.8); g.fill({ color: 0x38bdf8, alpha: a });
+  }
+}
+
 // -------------------------------------------------------------
 // Denser Isometric Pixel Building Painter
 // -------------------------------------------------------------
@@ -2916,6 +4225,10 @@ export function drawIsometricBuilding(
     }
 
     case "barracks": {
+      if (kit !== "western") {
+        drawBarracksCulture(g, 24 + heightBoost, a, phase, kit, cult);
+        break;
+      }
       // Denser Garrison Keep + Crenellated Battlements + Fluttering Banner + Training Yard
       const h = 24 + heightBoost;
       g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
@@ -2949,6 +4262,10 @@ export function drawIsometricBuilding(
     }
 
     case "stables": {
+      if (kit !== "western") {
+        drawStablesCulture(g, 20 + heightBoost, a, phase, kit, cult);
+        break;
+      }
       // Denser Equestrian Barn + Open Stalls + Hayloft Hoist + Water Trough
       const h = 20 + heightBoost;
       g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
@@ -2972,6 +4289,10 @@ export function drawIsometricBuilding(
     }
 
     case "archery_range": {
+      if (kit !== "western") {
+        drawArcheryRangeCulture(g, 18 + heightBoost, a, phase, kit, cult);
+        break;
+      }
       // Denser Covered Pavilion + Straw Roundel Targets with Arrows
       g.poly([-14, 0, 0, 7, 14, 0, 0, -7]);
       g.fill({ color: 0x15803d, alpha: a });
@@ -3148,6 +4469,10 @@ export function drawIsometricBuilding(
     }
 
     case "siege_workshop": {
+      if (kit !== "western") {
+        drawSiegeWorkshopCulture(g, 20 + heightBoost, a, phase, kit, cult);
+        break;
+      }
       // Heavy Siege Ordnance Yard & Master Engineer's Forge:
       // Timber-framed Drafting Workshop + Gantry Crane Derrick +
       // Trebuchet Chassis with Four Spoked Wheels & Pivot Arm +
@@ -3290,6 +4615,10 @@ export function drawIsometricBuilding(
     }
 
     case "watchtower": {
+      if (kit !== "western") {
+        drawWatchtowerCulture(g, 34 + heightBoost, a, phase, kit, cult);
+        break;
+      }
       // Denser Soaring Stone Lookout + Overhanging Hoarding + Beacon Brazier
       const h = 34 + heightBoost;
       g.poly([-9, 0, 0, 4.5, 0, 4.5 - h, -9, 0 - h]);
@@ -3322,6 +4651,10 @@ export function drawIsometricBuilding(
     }
 
     case "chapel": {
+      if (kit !== "western") {
+        drawChapelCulture(g, 26 + heightBoost, a, phase, kit, cult);
+        break;
+      }
       // Denser Gothic Cathedral Sanctuary + Rose Window + Bell Spire + Cloister Garden
       const h = 26 + heightBoost;
       g.poly([-15, 0, 0, 7.5, 0, 7.5 - h, -15, 0 - h]);
@@ -3349,6 +4682,10 @@ export function drawIsometricBuilding(
     }
 
     case "infirmary": {
+      if (kit !== "western") {
+        drawInfirmaryCulture(g, 20 + heightBoost, a, phase, kit, cult);
+        break;
+      }
       // Dedicated Field Hospital / Hospice Sanctuary:
       // Half-timbered hospice hall with warm plaster walls, red cross / healer emblem on gable,
       // steep slate roof with dormer glowing with healing candlelight, stone chimney puffing hearth smoke,
@@ -3423,6 +4760,10 @@ export function drawIsometricBuilding(
 
     case "walls": {
       if (!isRimTile(gx, gy)) {
+        if (kit !== "western") {
+          drawInteriorWallCulture(g, 20 + heightBoost, a, phase, kit, cult);
+          break;
+        }
         // Interior walls stay the old block
         const h = 20 + heightBoost;
         g.poly([-18, 0, 0, 9, 0, 9 - h, -18, 0 - h]);
@@ -3443,15 +4784,19 @@ export function drawIsometricBuilding(
       }
 
       // Rim Fort Wall Run: Connected stone curtain between neighbors + merlons on top
-      drawRimWallCurtain(g, 20 + heightBoost, a, phase, gx, gy, rimNeighbors);
+      drawRimWallCurtain(g, 20 + heightBoost, a, phase, gx, gy, rimNeighbors, kit, cult);
       break;
     }
 
     case "gate": {
+      const isRim = isRimTile(gx, gy);
+      if (kit !== "western") {
+        drawGateCulture(g, 24 + heightBoost, a, phase, kit, cult, isRim, gx, gy, rimNeighbors);
+        break;
+      }
       // Fortified Ashlar Stone Gatehouse + Twin Bastion Towers + Crenellations + Archway
       // On rim tiles (isRim): Heavy reinforced oak & iron double doors + portcullis teeth
       const h = 24 + heightBoost;
-      const isRim = isRimTile(gx, gy);
 
       // 1. Foundation Plinth
       g.poly([-18, 0, 0, 9, 0, 6, -18, -3]);

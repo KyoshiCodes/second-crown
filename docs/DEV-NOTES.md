@@ -1,5 +1,41 @@
 # DEV-NOTES
 
+## 2026-09-10 — Presentation Architecture: Remaining Silhouettes for Hold Buildings & Army Units (Gemini Remaining Silhouettes, `bakeoff/gemini-remain`)
+
+- **Rim Curtain Walls & Gate Towers (`packages/render/src/index.ts`)**:
+  - `drawRimWallCurtain(g, x, y, hpRatio, kit, cult)` & `drawGatehouseCurtainWings(g, x, y, kit, cult)`:
+    - Extended with `kit: CultureKit` and `cult?: CultureVisualPalette`.
+    - `cedar`: Riverstone foundation base, cross-lapped cedar log palisade parapet with notched bark seams, sharpened timber merlons, and split-cedar gangway decking.
+    - `sand`: Dressed sandstone rampart with stepped sawtooth merlons, terracotta crenel coping tiles, and crimson fabric pennants.
+    - `steppe`: Compacted rammed-earth rampart revetted with bound wattle hurdles, timber palisade stakes, and horsehair streamer posts.
+    - `islands`: Coral-stone foundation block with mangrove and driftwood stilt palisades, bamboo cane merlons, and woven palm gangway.
+    - `western`: Untouched ashlar stone curtain and crenellated stone merlons.
+- **Dedicated Hold Building Culture Drawing Functions (`packages/render/src/index.ts`)**:
+  - Implemented 9 dedicated culture renderer functions dispatched by `drawIsometricBuilding`:
+    - `drawInteriorWallCulture`: Log stockade (`cedar`), sandstone rampart (`sand`), hurdle rampart (`steppe`), coral stilt wall (`islands`).
+    - `drawGateCulture`: Cedar log blockhouse with totem lintel (`cedar`), sandstone portal with horseshoe arch and brass studding (`sand`), twin pylon gateway bound in boiled leather with horsehair standards (`steppe`), driftwood/bamboo gatehouse with suspended bamboo portcullis (`islands`).
+    - `drawChapelCulture`: Spirit grove totem lodge (`cedar`), open-air sandstone sun sanctuary with gold cupola dome (`sand`), open-sky Tengri cairn altar (`steppe`), tidal stone shrine with giant clam font (`islands`).
+    - `drawInfirmaryCulture`: Woodland herbalist lodge with hot soaking tub (`cedar`), bimaristan courtyard hospital with cooling fountain (`sand`), nomad shaman yurt with wormwood smoke braziers (`steppe`), slatted reef apothecary with nautilus emblem (`islands`). Dropped generic red cross for all non-western cultures.
+    - `drawSiegeWorkshopCulture`: Cedar logging yard ram/catapult (`cedar`), desert mangonel arsenal (`sand`), war arba wagon workshop (`steppe`), shoreline outrigger artillery dock (`islands`).
+    - `drawWatchtowerCulture`: Cedar trestle lookout with beacon cage (`cedar`), sandstone minaret with observation balcony (`sand`), four-legged signal smoke pylon (`steppe`), driftwood/bamboo stilt lighthouse (`islands`).
+    - `drawBarracksCulture`: Cedar log warrior lodge (`cedar`), colonnaded sandstone barracks (`sand`), three-yurt war camp (`steppe`), open coral/bamboo stilt pavilion (`islands`).
+    - `drawStablesCulture`: Split-rail cedar paddock (`cedar`), domed equestrian pavilion (`sand`), steppe horse paddock (`steppe`), coastal stilt pen (`islands`).
+    - `drawArcheryRangeCulture`: Forest stump range (`cedar`), silk-canopied desert pavilion (`sand`), mounted nomad ring-target track (`steppe`), beachside spear deck (`islands`).
+- **Army Unit Silhouettes (`packages/app/src/UnitIcon.tsx`)**:
+  - Implemented non-default culture branches in `UnitIcon.tsx` for all 6 remaining units:
+    - `archer`: Woodland marksman with flatbow (`cedar`), turban composite reflex bowman (`sand`), conical cap horn bowman (`steppe`), reed-hat daikyu bamboo marksman (`islands`).
+    - `skirmisher`: Fur hood tomahawk stalker (`cedar`), keffiyeh javelin thrower with red tassels (`sand`), nomad dart outrider (`steppe`), reef diver with barbed harpoon (`islands`).
+    - `cavalry`: Boreal bay charger with boar lance (`cedar`), cream Arabian courser with silk banner lance (`sand`), dun steppe pony with horsehair streamer lance (`steppe`), slate tide mount with trident polearm (`islands`).
+    - `knight`: Hearthguard with antler helm and oak-leaf shield (`cedar`), Mamluk in mirror armor with sunburst sipar and shamshir (`sand`), Kheshig in lamellar coat with tamga shield and kilij (`steppe`), Tide Sentinel in pearl-shell armor with wave shield and leiomano (`islands`).
+    - `siege`: Cedar log ram/trebuchet with river-stone basket (`cedar`), desert mangonel with flaming Greek fire pot (`sand`), war arba wagon cart with sandbag counterweight (`steppe`), bamboo catamaran shore catapult with volcanic pumice (`islands`).
+    - `champion` (including named heroes like Suki): High Chieftain with antler emerald crown and radiant green blade (`cedar`), Sultan with ruby turban-crown and blazing sun-scimitar (`sand`), Khagan with winged falcon crown and lightning saber (`steppe`), Tide Sovereign with ray crown and aqua tidestrike trident (`islands`).
+  - Western Crown Marches unit icons stay 100% untouched.
+- **Invariants & Verification**:
+  - `git diff main -- packages/sim server` is 100% empty.
+  - Western Crown Marches hold buildings, curtain walls, and army unit icons remain 100% unaltered.
+  - Vitest render test suite expanded with exhaustive test covering walls, gate, chapel, infirmary, siege_workshop, watchtower, barracks, stables, archery_range, and all 6 unit types across all 5 kits.
+  - `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` all pass cleanly.
+
 ## 2026-09-08 — Presentation Architecture: Leftover Hold Building Art, Gold Mine & Market Culture Silhouettes, Column Kits (Gemini Leftover Kits, `bakeoff/gemini-holdrest`)
 
 - **Hold Building Switch Completeness (`packages/render/src/index.ts`)**:
