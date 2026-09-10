@@ -14,10 +14,10 @@ import {
   maxMarches,
   outpostTithePerTick,
   scoutCost,
-  tryGarrison,
+  tryDispatchGarrison,
+  tryDispatchRecallGarrison,
   tryGather,
   tryMarchWith,
-  tryRecallGarrison,
   tryRecallGather,
   tryRecallMarch,
   tryScoutProvince,
@@ -115,10 +115,10 @@ export function ProvinceInspect(props: {
       ) : null}
       {march ? (
         <div style={{ marginTop: 6, color: "#fef08a" }}>
-          Raid column · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
+          Column · {march.purpose ?? "raid"} · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
           {march.arrivesTick > state.meta.tick ? (
             <button type="button" style={{ marginLeft: 8 }} onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}>
-              Recall raid
+              Recall column
             </button>
           ) : null}
         </div>
@@ -161,7 +161,7 @@ export function ProvinceInspect(props: {
                   const pack: Record<string, number> = {};
                   for (const [k, v] of Object.entries(force)) if (v > 0) pack[k] = v;
                   if (Object.keys(pack).length === 0) pack.militia = 5;
-                  return tryGather(s, selectedId, pack) ? "Gather column sent." : "Cannot gather — need a forage node, free slot, and troops.";
+                  return tryGather(s, selectedId, pack) ? "Gather column sent." : "Cannot gather.";
                 })
               }
             >
@@ -173,19 +173,25 @@ export function ProvinceInspect(props: {
               <button
                 type="button"
                 style={{ marginTop: 8, marginRight: 8 }}
+                disabled={Boolean(march) || full}
                 onClick={() =>
                   act((s) => {
                     const pack: Record<string, number> = {};
                     for (const [k, v] of Object.entries(force)) if (v > 0) pack[k] = v;
                     if (Object.keys(pack).length === 0) pack.militia = 3;
-                    return tryGarrison(s, selectedId, pack) ? "Garrison stationed." : "Cannot garrison.";
+                    return tryDispatchGarrison(s, selectedId, pack) ? "Garrison marching." : "Cannot send garrison.";
                   })
                 }
               >
                 Station garrison
               </button>
               {posted ? (
-                <button type="button" style={{ marginTop: 8, marginRight: 8 }} onClick={() => act((s) => (tryRecallGarrison(s, selectedId) ? "Garrison recalled." : "No garrison."))}>
+                <button
+                  type="button"
+                  style={{ marginTop: 8, marginRight: 8 }}
+                  disabled={Boolean(march) || full}
+                  onClick={() => act((s) => (tryDispatchRecallGarrison(s, selectedId) ? "Garrison marching home." : "No garrison."))}
+                >
                   Recall garrison
                 </button>
               ) : null}
@@ -222,9 +228,9 @@ export function ProvinceInspect(props: {
             disabled={Boolean(march) || roster.every((u) => !(force[u.id] > 0))}
             onClick={() =>
               act((s) => {
-                if (activePlayerMarch(s)) return "Company already on a raid march.";
+                if (activePlayerMarch(s)) return "Company already on the board.";
                 const ok = tryMarchWith(s, selectedId, force);
-                if (!ok) return "Cannot raid — check counts or a free column slot.";
+                if (!ok) return "Cannot raid.";
                 return "Raid column ordered.";
               })
             }
