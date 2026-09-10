@@ -65,6 +65,7 @@ export function seedBoard(seed: number): BoardState {
       else if (h % 11 === 1) node = "woodcut";
       else if (h % 11 === 2) node = "quarry";
       else if (h % 11 === 3) node = "field";
+      else if (h % 11 === 4) node = "ruins";
       provinces.push({ id, x, y, terrain, node, occupantRealmId: occupant });
     }
   }
