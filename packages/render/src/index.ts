@@ -7069,8 +7069,21 @@ export function isOutpostProvince(
 
 export function listGathersPresentation(state: GameState | null): any[] {
   if (!state) return [];
-  if (typeof (state as any).gathers === "object" && Array.isArray((state as any).gathers)) {
-    return (state as any).gathers;
+  if (typeof sim.listGathers === "function") {
+    return sim.listGathers(state).map((g) => {
+      const tick = state.meta.tick;
+      let progress = 0.5;
+      if (g.phase === "outbound") {
+        const span = Math.max(1, g.arrivesTick - g.departedTick);
+        progress = Math.min(1, Math.max(0, (tick - g.departedTick) / span));
+      } else if (g.phase === "gathering") {
+        progress = 1;
+      } else if (g.phase === "returning") {
+        const span = Math.max(1, g.arrivesTick - g.departedTick);
+        progress = 1 - Math.min(1, Math.max(0, (tick - g.departedTick) / span));
+      }
+      return { ...g, progress };
+    });
   }
   return [];
 }
