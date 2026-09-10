@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { plantOutpost } from "./outpost.js";
-import { garrisonAt, garrisonPower, tryGarrison, tryRecallGarrison } from "./garrison.js";
+import { createRngStreams } from "../core/rng.js";
+import { garrisonAt, garrisonPower, mergeGarrisonForce, tryGarrison, tryRecallGarrison } from "./garrison.js";
+import { resolveMarchArrival } from "./march.js";
 
 describe("garrison", () => {
   it("stations militia on a flagged tile and recalls them", () => {
@@ -36,5 +38,27 @@ describe("garrison", () => {
     });
     const camp = s.board.provinces.find((p) => p.node === "camp")!;
     expect(tryGarrison(s, camp.id, { militia: 2 })).toBe(false);
+  });
+
+  it("strong garrison holds a flag against an NPC column", () => {
+    const s = createGameState({ seed: 1 });
+    const camp = s.board.provinces.find((p) => p.node === "camp")!;
+    plantOutpost(s, camp);
+    mergeGarrisonForce(s, camp.id, { militia: 20 });
+    const msg = resolveMarchArrival(
+      s,
+      {
+        id: "m_npc",
+        realmId: "rival",
+        fromId: s.board.provinces.find((p) => p.occupantRealmId === "rival")?.id ?? camp.id,
+        toId: camp.id,
+        arrivesTick: s.meta.tick,
+        kind: "node",
+        levy: 8,
+      },
+      createRngStreams(1)
+    );
+    expect(msg).toMatch(/Garrison holds/);
+    expect(camp.occupantRealmId).toBe("player");
   });
 });
