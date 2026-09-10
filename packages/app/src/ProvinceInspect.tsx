@@ -3,6 +3,8 @@ import {
   GATHER_NODES,
   activePlayerMarch,
   campThreat,
+  garrisonAt,
+  garrisonPower,
   getProvince,
   isProvinceSeen,
   listGathers,
@@ -12,8 +14,10 @@ import {
   maxMarches,
   outpostTithePerTick,
   scoutCost,
+  tryGarrison,
   tryGather,
   tryMarchWith,
+  tryRecallGarrison,
   tryRecallGather,
   tryRecallMarch,
   tryScoutProvince,
@@ -71,6 +75,7 @@ export function ProvinceInspect(props: {
   const full = slotsUsed >= maxMarches(state);
   const flagged = listOutposts(state).some((o) => o.id === selectedId);
   const tithe = flagged ? outpostTithePerTick(state) : null;
+  const posted = garrisonAt(state, selectedId);
   const occupant = seen
     ? p.occupantRealmId
       ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
@@ -100,24 +105,19 @@ export function ProvinceInspect(props: {
       <div style={{ opacity: 0.85, marginTop: 4 }}>
         {seen ? NODE[p.node] ?? p.node : "Fog hides the token."} · Occupant: {occupant} · Gold {gold}
       </div>
-      {seen && p.node === "camp" ? (
-        <div style={{ marginTop: 4 }}>Camp threat {campThreat(state, p)}</div>
-      ) : null}
+      {seen && p.node === "camp" ? <div style={{ marginTop: 4 }}>Camp threat {campThreat(state, p)}</div> : null}
       {flagged ? (
         <div style={{ marginTop: 4, color: "#86efac" }}>
           Your flag. Tithe / tick — food {tithe?.food ?? 0} wood {tithe?.wood ?? 0} stone {tithe?.stone ?? 0} gold{" "}
           {tithe?.gold ?? 0}
+          {posted ? ` · Garrison power ${garrisonPower(state, selectedId)}` : " · No garrison"}
         </div>
       ) : null}
       {march ? (
         <div style={{ marginTop: 6, color: "#fef08a" }}>
           Raid column · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
           {march.arrivesTick > state.meta.tick ? (
-            <button
-              type="button"
-              style={{ marginLeft: 8 }}
-              onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}
-            >
+            <button type="button" style={{ marginLeft: 8 }} onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}>
               Recall raid
             </button>
           ) : null}
@@ -126,11 +126,7 @@ export function ProvinceInspect(props: {
       {here ? (
         <div style={{ marginTop: 6 }}>
           Gathering {here.node} · load {here.load}/{here.capacity} · {here.phase}
-          <button
-            type="button"
-            style={{ marginLeft: 8 }}
-            onClick={() => act((s) => (tryRecallGather(s, here.id) ? "Column recalled." : "Cannot recall."))}
-          >
+          <button type="button" style={{ marginLeft: 8 }} onClick={() => act((s) => (tryRecallGather(s, here.id) ? "Column recalled." : "Cannot recall."))}>
             Recall gather
           </button>
         </div>
@@ -165,14 +161,35 @@ export function ProvinceInspect(props: {
                   const pack: Record<string, number> = {};
                   for (const [k, v] of Object.entries(force)) if (v > 0) pack[k] = v;
                   if (Object.keys(pack).length === 0) pack.militia = 5;
-                  return tryGather(s, selectedId, pack)
-                    ? "Gather column sent."
-                    : "Cannot gather — need a forage node, free slot, and troops.";
+                  return tryGather(s, selectedId, pack) ? "Gather column sent." : "Cannot gather — need a forage node, free slot, and troops.";
                 })
               }
             >
               Gather here
             </button>
+          ) : null}
+          {flagged ? (
+            <>
+              <button
+                type="button"
+                style={{ marginTop: 8, marginRight: 8 }}
+                onClick={() =>
+                  act((s) => {
+                    const pack: Record<string, number> = {};
+                    for (const [k, v] of Object.entries(force)) if (v > 0) pack[k] = v;
+                    if (Object.keys(pack).length === 0) pack.militia = 3;
+                    return tryGarrison(s, selectedId, pack) ? "Garrison stationed." : "Cannot garrison.";
+                  })
+                }
+              >
+                Station garrison
+              </button>
+              {posted ? (
+                <button type="button" style={{ marginTop: 8, marginRight: 8 }} onClick={() => act((s) => (tryRecallGarrison(s, selectedId) ? "Garrison recalled." : "No garrison."))}>
+                  Recall garrison
+                </button>
+              ) : null}
+            </>
           ) : null}
           <div style={{ marginTop: 10, fontSize: 12 }}>
             Column
