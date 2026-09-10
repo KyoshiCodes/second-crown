@@ -48,4 +48,158 @@ export type { WorldEvent } from "./systems/events.js";
 export { tryBuild, canAfford, buildCostMultiplier } from "./actions/build.js";
 export type { BuildPayload } from "./actions/build.js";
 
-export { tryUpgrade, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
+export { tryUpgrade, canUpgrade, upgradeCost, MAX_BUILDING_LEVEL, keepLevel, maxLevelFor } from "./actions/upgrade.js";
+
+export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
+export type { TrainPayload } from "./actions/train.js";
+
+export {
+  RESEARCH,
+  tryStartResearch,
+  researchDone,
+  researchTicksLeft,
+  unitUnlocked,
+} from "./systems/research.js";
+
+export { tryDeclareWar, tryResolveWar, tryWhitePeace, peaceTicksRemaining, warSummary } from "./actions/war.js";
+export type { DeclareWarPayload, WarSummary } from "./actions/war.js";
+
+export { tryTrade, canTrade, MARKET_OFFERS } from "./actions/trade.js";
+export type { TradeOffer } from "./actions/trade.js";
+
+export {
+  tryGiftGold,
+  getOpinion,
+  rivalOpinionOfPlayer,
+  playerOpinionOfRival,
+  opinionOfPlayerFromRealm,
+} from "./actions/diplomacy.js";
+
+export { tryFoundGuild, tryJoinFaction, tryLeaveFaction } from "./actions/faction.js";
+
+export { tryAscend, canAscend, ascendThreshold, tryPickDoctrine, DOCTRINES } from "./actions/prestige.js";
+
+export {
+  ACHIEVEMENTS,
+  CRAFTS,
+  KINGDOM_OFFERS,
+  GUILD_CRESTS,
+  flagNum,
+  shieldTicksLeft,
+  isShielded,
+  tryBuyShield,
+  tryCraft,
+  tryKingdomTrade,
+  tryRenameGuild,
+  trySetGuildCrest,
+  playerGuild,
+  listAchievements,
+} from "./systems/wave.js";
+
+export { activeClash, tryJoinClash } from "./systems/worldClash.js";
+
+export {
+  DECREES,
+  tryDecree,
+  decreeActive,
+  decreeUntil,
+  tryScout,
+  isScouted,
+} from "./systems/decree.js";
+
+export {
+  SEASONS,
+  currentSeason,
+  tryHireChampion,
+  tryNameChampion,
+  championName,
+  tryHireMercs,
+  tryCollectTithe,
+  titheTicksLeft,
+  tryOpenRoute,
+  routeGoldPerTick,
+} from "./systems/age.js";
+
+export { QUESTS, listQuests, tryClaimQuest } from "./systems/quest.js";
+
+export { tryFoodLevy, levyTicksLeft } from "./systems/levy.js";
+
+export {
+  tryBanquet,
+  banquetTicksLeft,
+  tryFortify,
+  fortifyTicksLeft,
+  fortifyPower,
+} from "./systems/court.js";
+
+export { tryStrikeHorde, raidTicksLeft } from "./systems/raid.js";
+export { storageCap } from "./systems/storage.js";
+export { tryBuyBazaar, ITEMS, ITEM_TIERS } from "./systems/loot.js";
+
+export { settlementName, tryRenameSettlement } from "./actions/settlement.js";
+
+export {
+  seedBoard,
+  ensureBoard,
+  getProvince,
+  provinceAt,
+  neighbors,
+  provinceId,
+} from "./systems/board.js";
+
+export {
+  tryMarch,
+  tryMarchWith,
+  tryNpcMarch,
+  tryRecallMarch,
+  listMarches,
+  activePlayerMarch,
+  hasClosedWallRing,
+  wallHp,
+  edgeWallCount,
+  siegeDefense,
+  applySiegeBlow,
+  MarchSystem,
+} from "./systems/march.js";
+export type { March } from "./systems/march.js";
+export { campThreat } from "./systems/camp.js";
+
+export { incomingOnHome, watchtowerWarning, maybeNpcRaid } from "./systems/raidMarch.js";
+export { resolveSiegeHold, yardPower, keepPower } from "./systems/siege.js";
+export type { SiegeReport } from "./systems/siege.js";
+export { forcePower, takeForce, returnForce } from "./systems/column.js";
+export { gateOnRim, gateHp } from "./systems/gate.js";
+
+export {
+  woundedCount,
+  infirmaryBeds,
+  tryTreatWounded,
+  tryRepair,
+  listScarred,
+} from "./systems/ward.js";
+
+export { laborPerTick, applyLabor, maxMarches } from "./systems/labor.js";
+export { housingCap, population, canHouse } from "./systems/housing.js";
+export { isProvinceSeen, tryScoutProvince, revealProvince, ensureFog, visionRange, scoutCost } from "./systems/fog.js";
+export { listRimForts } from "./systems/rimForts.js";
+export type { RimFort } from "./systems/rimForts.js";
+export { listOutposts, plantOutpost, outpostTithePerTick, applyOutpostTithe } from "./systems/outpost.js";
+export { vaultProtects, takePlunder } from "./systems/vault.js";
+export { listTroopPosts, troopWounded } from "./systems/troops.js";
+export {
+  TUTORIAL_STEPS,
+  tutorialIndex,
+  tutorialDone,
+  currentTutorial,
+  tryAdvanceTutorial,
+  skipTutorial,
+} from "./systems/tutorial.js";
+
+export { serializeState, deserializeState, ensureWorldStubs } from "./save/serialize.js";
+
+export { applyOfflineProgress } from "./offline.js";
+
+export type { GameState, CitizenInstance, CitizenJobId, CitizenTile, Province, BoardState } from "@second-crown/shared";
+export { formatLetterSuffix, BOARD_W, BOARD_H } from "@second-crown/shared";
+export { tryGather, tryRecallGather, listGathers, GATHER_NODES, GatherSystem } from "./systems/gather.js";
+export type { Gather } from "./systems/gather.js";
