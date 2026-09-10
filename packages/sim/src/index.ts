@@ -170,6 +170,7 @@ export { resolveSiegeHold, yardPower, keepPower } from "./systems/siege.js";
 export type { SiegeReport } from "./systems/siege.js";
 export { forcePower, takeForce, returnForce } from "./systems/column.js";
 export { gateOnRim, gateHp } from "./systems/gate.js";
+export { campThreat } from "./systems/camp.js";
 
 export {
   woundedCount,
