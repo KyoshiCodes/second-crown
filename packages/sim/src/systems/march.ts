@@ -6,11 +6,13 @@ import { getProvince, neighbors, provinceAt } from "./board.js";
 import { defenseBonus, realmPower, resolveBattle } from "./combat.js";
 import { createRngStreams, type RngStreams } from "../core/rng.js";
 import { maxMarches } from "./labor.js";
-import { takeForce } from "./column.js";
+import { returnForce, takeForce } from "./column.js";
 import { gateHp } from "./gate.js";
 import { listGathers } from "./gather.js";
 import { plantOutpost } from "./outpost.js";
 import { addCapped } from "./storage.js";
+import { campThreat } from "./camp.js";
+import { absorbWounded } from "./ward.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -204,6 +206,17 @@ export function tryNpcMarch(state: GameState, realmId: string, destId: string): 
   return true;
 }
 
+export function tryRecallMarch(state: GameState): boolean {
+  const m = activePlayerMarch(state);
+  if (!m) return false;
+  if (m.arrivesTick <= state.meta.tick) return false;
+  saveMarches(state, marches(state).filter((x) => x.id !== m.id));
+  if (m.force) returnForce(state, m.force, 1);
+  else returnLevy(state, m.levy);
+  state.inputLog.push({ tick: state.meta.tick, type: "recall_march", payload: { id: m.id } });
+  return true;
+}
+
 function damageHoldBuilding(state: GameState): string | null {
   const target = state.buildings.find(
     (b) => b.realmId === "player" && b.typeId !== "keep" && b.completesAtTick === null
@@ -236,7 +249,10 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     return result.winnerId === "player" ? "Siege broken." : "The hold is breached.";
   }
   if (march.kind === "camp" || dest.node === "camp") {
-    if (pwr >= 4) {
+    const threat = campThreat(state, dest);
+    const swing = 0.85 + rng.battle() * 0.3;
+    const wins = pwr * swing >= Math.max(4, threat);
+    if (wins) {
       scheduleRespawn(state, dest);
       dest.node = "none";
       if (march.realmId === "player") {
@@ -247,12 +263,15 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       }
       return "Camp broken. +6 wood.";
     }
-    if (march.realmId === "player") returnLevy(state, Math.max(0, levy - 2));
+    if (march.realmId === "player") {
+      absorbWounded(state, 2);
+      returnLevy(state, Math.max(0, levy - 2));
+    }
     return "The camp holds. Two did not return.";
   }
   if (march.kind === "node") {
     const node = dest.node;
-    if (node === "woodcut" || node === "quarry" || node === "field") {
+    if (node === "woodcut" || node === "quarry" || node === "field" || node === "ruins") {
       scheduleRespawn(state, dest);
       dest.node = "none";
     }
@@ -270,6 +289,11 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       if (node === "field") {
         addCapped(state, "food", 5);
         return "Foragers return +5 food. Flag planted.";
+      }
+      if (node === "ruins") {
+        addCapped(state, "gold", 4);
+        addCapped(state, "stone", 3);
+        return "Ruins picked clean. +4 gold +3 stone. Flag planted.";
       }
     }
     return "Empty province.";
