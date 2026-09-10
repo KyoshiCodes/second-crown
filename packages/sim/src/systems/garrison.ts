@@ -35,6 +35,25 @@ export function garrisonPower(state: GameState, provinceId: string): number {
   return g ? forcePower(g.force) : 0;
 }
 
+export function mergeGarrisonForce(state: GameState, provinceId: string, force: Record<string, number>): void {
+  const list = read(state);
+  const existing = list.find((g) => g.provinceId === provinceId);
+  if (existing) {
+    for (const [k, n] of Object.entries(force)) existing.force[k] = (existing.force[k] ?? 0) + n;
+  } else {
+    list.push({ provinceId, force: { ...force } });
+  }
+  save(state, list);
+}
+
+export function detachGarrison(state: GameState, provinceId: string): Record<string, number> | null {
+  const list = read(state);
+  const g = list.find((x) => x.provinceId === provinceId);
+  if (!g) return null;
+  save(state, list.filter((x) => x.provinceId !== provinceId));
+  return { ...g.force };
+}
+
 export function tryGarrison(state: GameState, provinceId: string, force: Record<string, number>): boolean {
   const dest = getProvince(state, provinceId);
   if (!dest) return false;
@@ -46,24 +65,15 @@ export function tryGarrison(state: GameState, provinceId: string, force: Record<
   }
   if (Object.keys(clean).length === 0) return false;
   if (!takeForce(state, clean)) return false;
-  const list = read(state);
-  const existing = list.find((g) => g.provinceId === provinceId);
-  if (existing) {
-    for (const [k, n] of Object.entries(clean)) existing.force[k] = (existing.force[k] ?? 0) + n;
-  } else {
-    list.push({ provinceId, force: clean });
-  }
-  save(state, list);
+  mergeGarrisonForce(state, provinceId, clean);
   state.inputLog.push({ tick: state.meta.tick, type: "garrison", payload: { provinceId, force: clean } });
   return true;
 }
 
 export function tryRecallGarrison(state: GameState, provinceId: string): boolean {
-  const list = read(state);
-  const g = list.find((x) => x.provinceId === provinceId);
-  if (!g) return false;
-  returnForce(state, g.force, 1);
-  save(state, list.filter((x) => x.provinceId !== provinceId));
+  const force = detachGarrison(state, provinceId);
+  if (!force) return false;
+  returnForce(state, force, 1);
   state.inputLog.push({ tick: state.meta.tick, type: "recall_garrison", payload: { provinceId } });
   return true;
 }
