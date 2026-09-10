@@ -8,6 +8,7 @@ import { decreeActive } from "./decree.js";
 import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
 import { hireCitizenForBuilding } from "./citizens.js";
 import { addCapped } from "./storage.js";
+import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 
 export function productionBonus(state: GameState): number {
   let bonus = 0;
@@ -61,6 +62,7 @@ export const EconomySystem = {
     for (const [res, amount] of Object.entries(totals)) {
       addCapped(state, res, amount);
     }
+    applyOutpostTithe(state, ticks);
   },
 
   processEventsAt(state: GameState, tick: number): void {
@@ -89,6 +91,10 @@ export function computeIncomePerSecond(state: GameState): Record<string, string>
   }
   const routes = routeGoldPerTick(state);
   if (routes > 0) perTick.gold = (perTick.gold ?? D(0)).add(D(routes).mul(0.15));
+  const tithe = outpostTithePerTick(state);
+  for (const [res, rate] of Object.entries(tithe)) {
+    if (rate > 0) perTick[res] = (perTick[res] ?? D(0)).add(D(rate));
+  }
   const perSecond: Record<string, string> = {};
   for (const [res, rate] of Object.entries(perTick)) {
     perSecond[res] = toDecimalString(rate.mul(TICKS_PER_SECOND));

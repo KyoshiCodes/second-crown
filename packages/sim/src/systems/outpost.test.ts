@@ -1,9 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { createRngStreams } from "../core/rng.js";
-import { plantOutpost, listOutposts } from "./outpost.js";
+import { plantOutpost, listOutposts, outpostTithePerTick, applyOutpostTithe } from "./outpost.js";
 import { currentTutorial, skipTutorial, tryAdvanceTutorial } from "./tutorial.js";
 import { resolveMarchArrival } from "./march.js";
+import { D } from "../core/decimal.js";
 
 describe("W18 outpost and tutorial", () => {
   it("plants a flag on a cleared camp tile", () => {
@@ -55,5 +56,15 @@ describe("W18 outpost and tutorial", () => {
     );
     expect(msg).toMatch(/Flag planted/);
     expect(listOutposts(s).some((p) => p.id === camp.id)).toBe(true);
+  });
+
+  it("flagged field drips a food tithe", () => {
+    const s = createGameState({ seed: 1 });
+    const camp = s.board.provinces.find((p) => p.node === "camp")!;
+    plantOutpost(s, camp);
+    const before = D(s.resources.food);
+    applyOutpostTithe(s, 100);
+    expect(D(s.resources.food).gt(before)).toBe(true);
+    expect(outpostTithePerTick(s).food).toBeGreaterThan(0);
   });
 });
