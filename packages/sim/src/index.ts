@@ -133,7 +133,8 @@ export {
 } from "./systems/court.js";
 
 export { tryStrikeHorde, raidTicksLeft } from "./systems/raid.js";
-export { storageCap } from "./systems/storage.js";
+export { storageCap, resourceLedger } from "./systems/storage.js";
+export type { ResourceLedger } from "./systems/storage.js";
 export { tryBuyBazaar, ITEMS, ITEM_TIERS } from "./systems/loot.js";
 
 export { settlementName, tryRenameSettlement } from "./actions/settlement.js";
