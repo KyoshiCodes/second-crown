@@ -38,15 +38,16 @@ export function tryTrain(state: GameState, payload: TrainPayload): boolean {
   const realmId = payload.realmId ?? "player";
   const count = Math.floor(payload.count);
   const mult = trainCostMultiplier(state, def.id);
+  const paid: Record<string, string> = {};
   for (const [res, costStr] of Object.entries(def.cost)) {
     const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
+    paid[res] = toDecimalString(need);
   }
-  for (const [res, costStr] of Object.entries(def.cost)) {
-    const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
-    state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(need));
+  for (const [res, amount] of Object.entries(paid)) {
+    state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(amount));
   }
-  if (!enqueueTraining(state, def.id, count, realmId)) return false;
+  if (!enqueueTraining(state, def.id, count, realmId, paid)) return false;
   state.inputLog.push({
     tick: state.meta.tick,
     type: "train",

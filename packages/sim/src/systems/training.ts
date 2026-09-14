@@ -2,6 +2,7 @@ import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { getUnitType } from "../content/units.js";
 import { countBuilding } from "../content/buildings.js";
+import { addCapped } from "./storage.js";
 
 export interface TrainingJob {
   id: string;
@@ -10,6 +11,7 @@ export interface TrainingJob {
   count: number;
   startedTick: number;
   doneTick: number;
+  paid: Record<string, string>;
 }
 
 function read(state: GameState): TrainingJob[] {
@@ -60,6 +62,7 @@ export function enqueueTraining(
   typeId: string,
   count: number,
   realmId: string,
+  paid: Record<string, string> = {},
 ): TrainingJob | null {
   const duration = trainDurationTicks(state, typeId, count);
   if (duration < 1) return null;
@@ -74,9 +77,44 @@ export function enqueueTraining(
     count,
     startedTick: start,
     doneTick: start + duration,
+    paid,
   };
   save(state, [...jobs, job]);
   return job;
+}
+
+function shiftQueue(jobs: TrainingJob[], fromTick: number, delta: number): void {
+  if (delta <= 0) return;
+  for (const job of jobs) {
+    if (job.startedTick >= fromTick) {
+      job.startedTick -= delta;
+      job.doneTick -= delta;
+    }
+  }
+}
+
+/** Refunds the unused fraction of the paid cost and pulls later jobs forward. */
+export function tryCancelTraining(state: GameState, jobId: string): boolean {
+  const jobs = read(state);
+  const idx = jobs.findIndex((j) => j.id === jobId);
+  if (idx < 0) return false;
+  const job = jobs[idx];
+  const span = Math.max(1, job.doneTick - job.startedTick);
+  const left = Math.max(0, job.doneTick - Math.max(state.meta.tick, job.startedTick));
+  const frac = job.startedTick > state.meta.tick ? 1 : left / span;
+  for (const [res, amount] of Object.entries(job.paid ?? {})) {
+    addCapped(state, res, D(amount).mul(frac));
+  }
+  const rest = jobs.filter((j) => j.id !== jobId);
+  shiftQueue(rest, job.doneTick, left);
+  save(state, rest);
+  state.inputLog.push({
+    tick: state.meta.tick,
+    type: "cancel_train",
+    issuerId: job.realmId,
+    payload: { id: jobId },
+  });
+  return true;
 }
 
 export const TrainingSystem = {

@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { tryTrain } from "../actions/train.js";
-import { listTraining, trainDurationTicks } from "./training.js";
+import { listTraining, trainDurationTicks, tryCancelTraining } from "./training.js";
+import { D } from "../core/decimal.js";
 
 function playerMilitia(state: ReturnType<typeof createGameState>) {
   return state.units.find((u) => u.typeId === "militia" && u.realmId === "player");
@@ -34,5 +35,19 @@ describe("training queue", () => {
     tryTrain(s, { typeId: "militia", count: 1 });
     expect(listTraining(s)).toHaveLength(2);
     expect(listTraining(s)[1].startedTick).toBe(listTraining(s)[0].doneTick);
+  });
+
+  it("cancels a waiting job and refunds the full cost", () => {
+    const s = createGameState({ seed: 3 });
+    s.resources.food = "100";
+    s.resources.wood = "100";
+    tryTrain(s, { typeId: "militia", count: 1 });
+    tryTrain(s, { typeId: "militia", count: 1 });
+    const waiting = listTraining(s)[1];
+    expect(tryCancelTraining(s, waiting.id)).toBe(true);
+    expect(listTraining(s)).toHaveLength(1);
+    expect(D(s.resources.food).eq(96)).toBe(true);
+    expect(D(s.resources.wood).eq(99)).toBe(true);
+    expect(playerMilitia(s)).toBeUndefined();
   });
 });
