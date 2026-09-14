@@ -7,6 +7,7 @@ import {
   listUnitTypes,
   trainCostMultiplier,
   trainDurationTicks,
+  tryCancelTraining,
   troopWounded,
   tryTrain,
   tryHireChampion,
@@ -75,14 +76,25 @@ export function ArmyTab(props: {
         {queue.length === 0 ? <div>No companies drilling.</div> : null}
         {queue.map((job) => {
           const left = state ? Math.max(0, job.doneTick - state.meta.tick) : 0;
+          const waiting = state ? job.startedTick > state.meta.tick : false;
           return (
-            <div key={job.id}>
-              {job.count} {job.typeId} · {Math.ceil(left / 10)}s left
+            <div key={job.id} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <span>
+                {job.count} {job.typeId} · {waiting ? "waiting" : `${Math.ceil(left / 10)}s left`}
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  act((st) => (tryCancelTraining(st, job.id) ? "Levy dismissed. Unused stores returned." : "That order already left the yard."))
+                }
+              >
+                Cancel
+              </button>
             </div>
           );
         })}
       </div>
-      <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for cost, role, and drill time. Food levy and mercenaries still arrive at once.</p>
+      <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for cost, role, and drill time. Cancel refunds the unused fraction. Food levy and mercenaries still arrive at once.</p>
       <div style={{ fontSize: 13, margin: "10px 0" }}>
         <strong>Posts</strong>
         {posts.length === 0 ? <div>No companies raised.</div> : null}
