@@ -58,6 +58,7 @@ export type { TrainingJob } from "./systems/training.js";
 export {
   RESEARCH,
   tryStartResearch,
+  tryCancelResearch,
   researchDone,
   researchTicksLeft,
   unitUnlocked,
