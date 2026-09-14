@@ -48,7 +48,19 @@ export type { WorldEvent } from "./systems/events.js";
 export { tryBuild, canAfford, buildCostMultiplier, tryCancelBuild, listWorksInProgress, buildTicksLeft } from "./actions/build.js";
 export type { BuildPayload } from "./actions/build.js";
 
-export { tryUpgrade, canUpgrade, upgradeCost, MAX_BUILDING_LEVEL, keepLevel, maxLevelFor } from "./actions/upgrade.js";
+export {
+  tryUpgrade,
+  canUpgrade,
+  upgradeCost,
+  MAX_BUILDING_LEVEL,
+  keepLevel,
+  maxLevelFor,
+  listUpgrades,
+  upgradeJobFor,
+  tryCancelUpgrade,
+  upgradeDurationTicks,
+} from "./actions/upgrade.js";
+export type { UpgradeJob } from "./actions/upgrade.js";
 
 export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
