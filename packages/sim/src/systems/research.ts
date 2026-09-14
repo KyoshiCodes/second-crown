@@ -4,12 +4,43 @@ import { countBuilding } from "../content/buildings.js";
 import { addCapped } from "./storage.js";
 
 export const RESEARCH = {
+  husbandry: {
+    id: "husbandry",
+    name: "Husbandry",
+    ticks: 180,
+    cost: { food: "20", wood: "12" },
+    needsAny: ["farm", "granary", "academy"],
+    unlocks: [] as const,
+  },
+  forestry: {
+    id: "forestry",
+    name: "Forestry",
+    ticks: 180,
+    cost: { wood: "20", food: "10" },
+    needsAny: ["lumber_camp", "sawmill", "academy"],
+    unlocks: [] as const,
+  },
+  masonry: {
+    id: "masonry",
+    name: "Masonry",
+    ticks: 200,
+    cost: { stone: "16", wood: "12" },
+    needsAny: ["quarry", "mason", "academy"],
+    unlocks: [] as const,
+  },
+  logistics: {
+    id: "logistics",
+    name: "Logistics",
+    ticks: 220,
+    cost: { gold: "30", wood: "16", food: "12" },
+    needsAny: ["barracks", "market", "academy"],
+    unlocks: [] as const,
+  },
   horse: {
     id: "horse",
     name: "Horse lore",
     ticks: 240,
     cost: { gold: "40", wood: "24" },
-    // Prefers a finished Academy; a Barracks still unlocks it so existing testers aren't soft-locked.
     needsAny: ["academy", "barracks"],
     unlocks: ["cavalry", "knight"],
   },
