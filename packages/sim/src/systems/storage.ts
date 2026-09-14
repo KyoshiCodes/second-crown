@@ -3,6 +3,7 @@ import Decimal from "break_infinity.js";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
 import { vaultProtects } from "./vault.js";
+import { logisticsCapBonus } from "./research.js";
 
 const CAPPED_RESOURCES = ["food", "wood", "stone", "gold"] as const;
 type CappedResource = (typeof CAPPED_RESOURCES)[number];
@@ -37,7 +38,7 @@ function isCapped(res: string): res is CappedResource {
 /** Finite warehouse ceiling for food/wood/stone/gold. Every other resource is uncapped. */
 export function storageCap(state: GameState, res: string): number {
   if (!isCapped(res)) return Infinity;
-  return BASE_CAP[res] + countBuilding(state, CAP_BUILDING[res]) * CAP_PER_BUILDING[res];
+  return BASE_CAP[res] + countBuilding(state, CAP_BUILDING[res]) * CAP_PER_BUILDING[res] + logisticsCapBonus(state);
 }
 
 export type ResourceLedger = {
