@@ -21,6 +21,9 @@ function fixture(node: keyof typeof GATHER_NODES = "woodcut") {
 function advance(s: ReturnType<typeof fixture>["s"]) {
   new TickEngine(s).settleTicks(listGathers(s)[0].arrivesTick - s.meta.tick);
 }
+function playerUnit(s: ReturnType<typeof fixture>["s"], typeId: string) {
+  return s.units.find((u) => u.realmId === "player" && u.typeId === typeId);
+}
 
 describe("gather expeditions", () => {
   it.each(["woodcut", "quarry", "field"] as const)("travels, fills %s, walks home, pays once and returns original troops", (node) => {
@@ -29,7 +32,7 @@ describe("gather expeditions", () => {
     s.resources.food = "0";
     s.units.push({ id: "archers", typeId: "archer", realmId: "player", count: "2", armyId: null });
     expect(tryGather(s, dest.id, { militia: 1, archer: 2 })).toBe(true);
-    expect(s.units.find((u) => u.typeId === "archer")).toBeUndefined();
+    expect(playerUnit(s, "archer")).toBeUndefined();
     expect(listGathers(s)[0].phase).toBe("outbound");
     expect(s.inputLog.at(-1)?.type).toBe("gather");
     advance(s);
@@ -45,7 +48,7 @@ describe("gather expeditions", () => {
     advance(s);
     expect(listGathers(s)).toEqual([]);
     expect(Number(s.resources[res])).toBeCloseTo(Number(capacity) - (res === "food" ? 0.06 : 0), 8);
-    expect(s.units.find((u) => u.typeId === "archer")?.count).toBe("2");
+    expect(playerUnit(s, "archer")?.count).toBe("2");
     expect(dest.node).toBe(node);
     const paid = s.resources[res];
     new TickEngine(s).settleTicks(1);
@@ -75,7 +78,7 @@ describe("gather expeditions", () => {
     expect(listGathers(s)[0].arrivesTick).toBe(14);
     advance(s);
     expect(s.resources.wood).toBe("0");
-    expect(s.units[0].count).toBe("30");
+    expect(playerUnit(s, "militia")?.count).toBe("30");
     expect(tryRecallGather(s, "missing")).toBe(false);
   });
 
@@ -130,7 +133,7 @@ describe("gather expeditions", () => {
     expect(listGathers(s)[0].phase).toBe("returning");
     advance(s);
     expect(s.resources.wood).toBe("0");
-    expect(s.units[0].count).toBe("30");
+    expect(playerUnit(s, "militia")?.count).toBe("30");
   });
 
   it("scales load and duration by troop count and node type", () => {
