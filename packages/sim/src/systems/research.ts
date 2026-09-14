@@ -11,6 +11,7 @@ export const RESEARCH = {
     cost: { food: "20", wood: "12" },
     needsAny: ["farm", "granary", "academy"],
     unlocks: [] as const,
+    effect: "Farms and granaries yield more food.",
   },
   forestry: {
     id: "forestry",
@@ -19,6 +20,7 @@ export const RESEARCH = {
     cost: { wood: "20", food: "10" },
     needsAny: ["lumber_camp", "sawmill", "academy"],
     unlocks: [] as const,
+    effect: "Lumber camps and sawmills yield more wood.",
   },
   masonry: {
     id: "masonry",
@@ -27,6 +29,7 @@ export const RESEARCH = {
     cost: { stone: "16", wood: "12" },
     needsAny: ["quarry", "mason", "academy"],
     unlocks: [] as const,
+    effect: "Quarries yield more stone. Finished walls hold +16 HP.",
   },
   logistics: {
     id: "logistics",
@@ -35,6 +38,7 @@ export const RESEARCH = {
     cost: { gold: "30", wood: "16", food: "12" },
     needsAny: ["barracks", "market", "academy"],
     unlocks: [] as const,
+    effect: "One extra column on the board and +50 warehouse space.",
   },
   horse: {
     id: "horse",
@@ -43,6 +47,7 @@ export const RESEARCH = {
     cost: { gold: "40", wood: "24" },
     needsAny: ["academy", "barracks"],
     unlocks: ["cavalry", "knight"],
+    effect: "Unlocks cavalry and knights.",
   },
   siege: {
     id: "siege",
@@ -51,6 +56,7 @@ export const RESEARCH = {
     cost: { gold: "70", wood: "40", stone: "30" },
     needsAny: ["siege_workshop"],
     unlocks: ["siege"],
+    effect: "Unlocks siege engines.",
   },
 } as const;
 
@@ -86,6 +92,23 @@ export function unitUnlocked(state: GameState, typeId: string): boolean {
   if (typeId === "cavalry" || typeId === "knight") return researchDone(state, "horse");
   if (typeId === "siege") return researchDone(state, "siege");
   return true;
+}
+
+/** Extra per-tick yield fraction for one resource after the matching study. */
+export function researchYield(state: GameState, res: string): number {
+  if (res === "food" && researchDone(state, "husbandry")) return 0.12;
+  if (res === "wood" && researchDone(state, "forestry")) return 0.12;
+  if (res === "stone" && researchDone(state, "masonry")) return 0.12;
+  if (res === "gold" && researchDone(state, "logistics")) return 0.08;
+  return 0;
+}
+
+export function masonryWallBonus(state: GameState): number {
+  return researchDone(state, "masonry") ? 16 : 0;
+}
+
+export function logisticsCapBonus(state: GameState): number {
+  return researchDone(state, "logistics") ? 50 : 0;
 }
 
 export function tryStartResearch(state: GameState, id: keyof typeof RESEARCH): boolean {
