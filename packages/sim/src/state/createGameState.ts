@@ -87,13 +87,22 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
     board: seedBoard(seed),
   };
 
-  state.units.push({
-    id: "u_rival_0",
-    typeId: "militia",
-    realmId: "rival",
-    count: "12",
-    armyId: null,
-  });
+  state.units.push(
+    {
+      id: "u_rival_0",
+      typeId: "militia",
+      realmId: "rival",
+      count: "12",
+      armyId: null,
+    },
+    {
+      id: "u_rival_spear",
+      typeId: "spearman",
+      realmId: "rival",
+      count: "4",
+      armyId: null,
+    }
+  );
 
   seedWorldActors(state);
   plantRealmHolds(state);
