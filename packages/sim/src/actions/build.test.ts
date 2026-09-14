@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryBuild, canAfford } from "./build.js";
+import { tryBuild, canAfford, tryCancelBuild, listWorksInProgress } from "./build.js";
 import { getBuildingType } from "../content/buildings.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { D } from "../core/decimal.js";
@@ -41,5 +41,18 @@ describe("tryBuild", () => {
     expect(def?.productionPerTick).toEqual({});
     expect(Object.keys(def?.cost ?? {}).sort()).toEqual(["gold", "stone", "wood"]);
     expect(def!.buildTicks).toBeGreaterThanOrEqual(120);
+  });
+
+  it("cancels scaffolding and refunds unused stores", () => {
+    const state = createGameState({ seed: 1 });
+    state.resources.wood = "100";
+    expect(tryBuild(state, { typeId: "farm", x: 1, y: 1 })).toBe(true);
+    expect(listWorksInProgress(state)).toHaveLength(1);
+    const id = state.buildings[0].id;
+    new TickEngine(state).settleTicks(15);
+    expect(tryCancelBuild(state, id)).toBe(true);
+    expect(state.buildings.find((b) => b.id === id)).toBeUndefined();
+    expect(D(state.resources.wood).gte(94)).toBe(true);
+    expect(tryCancelBuild(state, id)).toBe(false);
   });
 });
