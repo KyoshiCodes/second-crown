@@ -1,6 +1,7 @@
 import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
+import { addCapped } from "./storage.js";
 
 export const RESEARCH = {
   horse: {
@@ -69,5 +70,22 @@ export function tryStartResearch(state: GameState, id: keyof typeof RESEARCH): b
     state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(cost));
   }
   state.flags[`research_${id}_until`] = state.meta.tick + def.ticks;
+  state.inputLog.push({ tick: state.meta.tick, type: "research", issuerId: "player", payload: { id } });
+  return true;
+}
+
+/** Refunds the unused fraction of the study cost and frees the lectern. */
+export function tryCancelResearch(state: GameState, id: keyof typeof RESEARCH): boolean {
+  const def = RESEARCH[id];
+  if (!def) return false;
+  if (researchDone(state, id)) return false;
+  const left = researchTicksLeft(state, id);
+  if (left <= 0) return false;
+  const frac = left / def.ticks;
+  for (const [res, cost] of Object.entries(def.cost)) {
+    addCapped(state, res, D(cost).mul(frac));
+  }
+  delete state.flags[`research_${id}_until`];
+  state.inputLog.push({ tick: state.meta.tick, type: "cancel_research", issuerId: "player", payload: { id } });
   return true;
 }
