@@ -68,8 +68,8 @@ describe("academy research", () => {
 
   it("cancels a study and refunds the unused fraction", () => {
     const s = createGameState({ seed: 1 });
-    s.resources.gold = "40";
-    s.resources.wood = "24";
+    s.resources.gold = "80";
+    s.resources.wood = "48";
     s.buildings.push({
       id: "ac",
       typeId: "academy",
@@ -80,14 +80,14 @@ describe("academy research", () => {
       completesAtTick: null,
     });
     expect(tryStartResearch(s, "horse")).toBe(true);
-    expect(s.resources.gold).toBe("0");
+    expect(s.resources.gold).toBe("40");
     s.meta.tick = 120;
     expect(researchTicksLeft(s, "horse")).toBe(120);
     expect(tryCancelResearch(s, "horse")).toBe(true);
     expect(researchTicksLeft(s, "horse")).toBe(0);
     expect(researchDone(s, "horse")).toBe(false);
-    expect(D(s.resources.gold).eq(20)).toBe(true);
-    expect(D(s.resources.wood).eq(12)).toBe(true);
+    expect(D(s.resources.gold).eq(60)).toBe(true);
+    expect(D(s.resources.wood).eq(36)).toBe(true);
     expect(tryCancelResearch(s, "horse")).toBe(false);
     expect(tryStartResearch(s, "horse")).toBe(true);
   });
