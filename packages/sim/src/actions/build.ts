@@ -2,6 +2,7 @@ import type { GameState, InputRecord } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { getBuildingType } from "../content/buildings.js";
 import { unlock } from "../systems/wave.js";
+import { addCapped } from "../systems/storage.js";
 
 export interface BuildPayload {
   typeId: string;
@@ -58,5 +59,40 @@ export function canAfford(state: GameState, typeId: string, realmId = "player"):
     const need = D(costStr ?? "0").mul(mult).ceil();
     if (D(state.resources[res] ?? "0").lt(need)) return false;
   }
+  return true;
+}
+
+export function listWorksInProgress(state: GameState, realmId = "player") {
+  return state.buildings.filter((b) => b.realmId === realmId && b.completesAtTick !== null);
+}
+
+export function buildTicksLeft(state: GameState, buildingId: string): number {
+  const b = state.buildings.find((x) => x.id === buildingId);
+  if (!b || b.completesAtTick === null) return 0;
+  return Math.max(0, b.completesAtTick - state.meta.tick);
+}
+
+/** Tear down scaffolding. Refunds the unused fraction of the paid cost. */
+export function tryCancelBuild(state: GameState, buildingId: string): boolean {
+  const idx = state.buildings.findIndex((b) => b.id === buildingId);
+  if (idx < 0) return false;
+  const b = state.buildings[idx];
+  if (b.completesAtTick === null) return false;
+  const def = getBuildingType(b.typeId);
+  if (!def || def.buildTicks <= 0) return false;
+  const left = Math.max(0, b.completesAtTick - state.meta.tick);
+  const frac = Math.min(1, left / def.buildTicks);
+  const mult = buildCostMultiplier(state, b.realmId);
+  for (const [res, costStr] of Object.entries(def.cost)) {
+    const paid = D(costStr ?? "0").mul(mult).ceil();
+    addCapped(state, res, paid.mul(frac));
+  }
+  state.buildings.splice(idx, 1);
+  state.inputLog.push({
+    tick: state.meta.tick,
+    type: "cancel_build",
+    issuerId: b.realmId,
+    payload: { buildingId, typeId: b.typeId },
+  });
   return true;
 }
