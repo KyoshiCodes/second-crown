@@ -6,7 +6,7 @@ import { getProvince, neighbors, provinceAt } from "./board.js";
 import { defenseBonus, realmPower, resolveBattle } from "./combat.js";
 import { createRngStreams, type RngStreams } from "../core/rng.js";
 import { maxMarches } from "./labor.js";
-import { returnForce, takeForce } from "./column.js";
+import { forcePower, returnForce, takeForce } from "./column.js";
 import { gateHp } from "./gate.js";
 import { listGathers } from "./gather.js";
 import { plantOutpost, listOutposts } from "./outpost.js";
@@ -231,6 +231,17 @@ export function tryDispatchRecallGarrison(state: GameState, destId: string): boo
   return true;
 }
 
+function npcColumnForce(state: GameState, realmId: string): Record<string, number> {
+  const force: Record<string, number> = {};
+  for (const u of state.units) {
+    if (u.realmId !== realmId) continue;
+    const n = Math.min(6, Math.floor(Number(u.count) || 0));
+    if (n > 0) force[u.typeId] = n;
+  }
+  if (Object.keys(force).length === 0) force.militia = 8;
+  return force;
+}
+
 export function tryNpcMarch(state: GameState, realmId: string, destId: string): boolean {
   if (realmId === "player") return false;
   if (marches(state).some((m) => m.realmId === realmId)) return false;
@@ -238,6 +249,8 @@ export function tryNpcMarch(state: GameState, realmId: string, destId: string): 
   const from = state.board.provinces.find((p) => p.occupantRealmId === realmId && p.node === "hold");
   if (!dest || !from) return false;
   const dist = Math.max(1, manhattan(from, dest));
+  const force = npcColumnForce(state, realmId);
+  const levy = Object.values(force).reduce((a, b) => a + b, 0);
   saveMarches(state, [
     ...marches(state),
     {
@@ -247,7 +260,8 @@ export function tryNpcMarch(state: GameState, realmId: string, destId: string): 
       toId: dest.id,
       arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
       kind: dest.node === "hold" ? "hold" : dest.node === "camp" ? "camp" : "node",
-      levy: 8,
+      levy,
+      force,
     },
   ]);
   return true;
@@ -277,7 +291,7 @@ function damageHoldBuilding(state: GameState): string | null {
 export function resolveMarchArrival(state: GameState, march: March, rng: RngStreams): string {
   const dest = getProvince(state, march.toId);
   const levy = march.levy ?? 0;
-  const pwr = levy * (getUnitType("militia")?.power ?? 1);
+  const pwr = march.force ? forcePower(march.force) : levy * (getUnitType("militia")?.power ?? 1);
   if (!dest) {
     if (march.realmId === "player" && march.force) returnForce(state, march.force, 1);
     else if (march.realmId === "player") returnLevy(state, levy);
