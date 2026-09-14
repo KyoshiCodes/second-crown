@@ -20,11 +20,11 @@ import {
   scoutCost,
   tryDispatchGarrison,
   tryDispatchRecallGarrison,
+  tryDispatchScout,
   tryGather,
   tryMarchWith,
   tryRecallGather,
   tryRecallMarch,
-  tryScoutProvince,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
@@ -91,6 +91,8 @@ export function ProvinceInspect(props: {
       ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
       : "None"
     : "Unknown (fog)";
+  const canScout =
+    !seen && gold >= cost && !full && (owned(state, "skirmisher") >= 1 || owned(state, "militia") >= 1);
   return (
     <div
       style={{
@@ -161,16 +163,16 @@ export function ProvinceInspect(props: {
             <button
               type="button"
               style={{ marginTop: 8, marginRight: 8 }}
-              disabled={gold < cost}
+              disabled={!canScout}
               onClick={() =>
                 act((s) => {
                   const c = scoutCost(s);
-                  if (tryScoutProvince(s, selectedId)) return `Scouted for ${c} gold.`;
-                  return `Need ${c} gold to scout. You have ${s.resources.gold ?? 0}.`;
+                  if (tryDispatchScout(s, selectedId)) return `Scout column sent (${c} gold).`;
+                  return `Need ${c} gold and one skirmisher or militia, plus a free column.`;
                 })
               }
             >
-              Scout ({cost} gold)
+              Scout column ({cost} gold)
             </button>
           ) : null}
           {canGather ? (
