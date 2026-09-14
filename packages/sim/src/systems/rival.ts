@@ -8,6 +8,7 @@ import { tickWorldClash } from "./worldClash.js";
 import { ensureBoard } from "./board.js";
 import { tryNpcMarch } from "./march.js";
 import { maybeNpcRaid } from "./raidMarch.js";
+import { tryNpcGather } from "./gather.js";
 import { D, toDecimalString } from "../core/decimal.js";
 
 export const RivalSystem = {
@@ -47,6 +48,7 @@ function tickAi(state: GameState, atTick: number): void {
     maybeClaim(state, realm.id, atTick);
     maybeCampMarch(state, realm.id, atTick);
     maybeContestFlag(state, realm.id, atTick);
+    maybeGather(state, realm.id, atTick);
     maybeTrade(state, realm.id, atTick);
     maybeNpcWar(state, realm.id, atTick);
     if (atTick % 500 === 0) maybeNpcRaid(state, realm.id, atTick);
@@ -80,6 +82,13 @@ function maybeCampMarch(state: GameState, realmId: string, atTick: number): void
     const name = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
     pushWorldLog(state, "raid", `${name} rides on a camp at ${camp.x},${camp.y}`);
   }
+}
+
+function maybeGather(state: GameState, realmId: string, atTick: number): void {
+  if ((atTick + salt(realmId)) % 200 !== 0) return;
+  if (!tryNpcGather(state, realmId)) return;
+  const name = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
+  pushWorldLog(state, "gather", `${name} sends foragers onto the board`);
 }
 
 export function maybeContestFlag(state: GameState, realmId: string, atTick: number): boolean {
