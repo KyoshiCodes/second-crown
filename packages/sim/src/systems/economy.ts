@@ -9,7 +9,7 @@ import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
 import { hireCitizenForBuilding } from "./citizens.js";
 import { addCapped } from "./storage.js";
 import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
-import { researchDone } from "./research.js";
+import { researchYield } from "./research.js";
 
 export function productionBonus(state: GameState): number {
   let bonus = 0;
@@ -19,9 +19,6 @@ export function productionBonus(state: GameState): number {
   if (state.flags.doctrine === "harvest") bonus += 2;
   if (decreeActive(state, "rite")) bonus += 3;
   bonus += seasonProductionBonus(state);
-  if (researchDone(state, "husbandry")) bonus += 1;
-  if (researchDone(state, "forestry")) bonus += 1;
-  if (researchDone(state, "masonry")) bonus += 1;
   const advisor = state.characters.find(
     (c) => c.realmId === "player" && c.role === "advisor" && c.traits.includes("clever")
   );
@@ -32,7 +29,10 @@ export function productionBonus(state: GameState): number {
 function rateFor(state: GameState, typeId: string, level: number, res: string, rateStr: string) {
   void typeId;
   const scarce = res === "gold" ? 0.35 : 1;
-  return D(rateStr).mul(Math.max(1, level)).mul(1 + productionBonus(state) * 0.04).mul(scarce);
+  return D(rateStr)
+    .mul(Math.max(1, level))
+    .mul(1 + productionBonus(state) * 0.04 + researchYield(state, res))
+    .mul(scarce);
 }
 
 export const EconomySystem = {
