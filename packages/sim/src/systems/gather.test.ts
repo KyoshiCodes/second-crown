@@ -3,8 +3,9 @@ import { createGameState } from "../state/createGameState.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { D } from "../core/decimal.js";
 import { serializeState, deserializeState } from "../save/serialize.js";
-import { tryGather, tryRecallGather, listGathers, GATHER_NODES } from "./gather.js";
+import { tryGather, tryRecallGather, tryNpcGather, listGathers, GATHER_NODES } from "./gather.js";
 import { tryMarch, tryMarchWith } from "./march.js";
+import { nodeStock } from "./nodeStock.js";
 
 function fixture(node: keyof typeof GATHER_NODES = "woodcut") {
   const s = createGameState({ seed: 1, now: 0, withStarterBuildings: false });
@@ -150,7 +151,6 @@ describe("gather expeditions", () => {
 
   it("matches tickMany, settleTicks and save/reload across phases and recall", () => {
     const { s, dest } = fixture();
-    // Champions have no upkeep: isolate gather equivalence from pre-existing upkeep rounding/starvation.
     s.units = [{ id: "champ", typeId: "champion", realmId: "player", count: "3", armyId: null }];
     tryGather(s, dest.id, { champion: 3 });
     const online = structuredClone(s);
@@ -162,11 +162,24 @@ describe("gather expeditions", () => {
       expect(listGathers(offline)).toEqual(listGathers(online));
     }
     const loaded = deserializeState(serializeState(offline));
-    // Migration may restore absent fixture NPC troops; compare to the same migrated online state.
     const live = deserializeState(serializeState(online));
     for (const state of [loaded, live]) tryRecallGather(state, listGathers(state)[0].id);
     new TickEngine(loaded).settleTicks(150);
     new TickEngine(live).tickMany(150);
     expect(loaded).toEqual(live);
+  });
+
+  it("lets a foreign crown gather and drain the tile without paying the player", () => {
+    const { s, dest } = fixture();
+    const hold = s.board.provinces.find((p) => p.id !== dest.id && p.id !== s.board.homeProvinceId)!;
+    hold.occupantRealmId = "rival";
+    hold.node = "hold";
+    const wood = s.resources.wood;
+    expect(tryNpcGather(s, "rival")).toBe(true);
+    expect(listGathers(s)[0].realmId).toBe("rival");
+    advance(s);
+    advance(s);
+    expect(nodeStock(s, dest.id)).toBeLessThan(24);
+    expect(s.resources.wood).toBe(wood);
   });
 });
