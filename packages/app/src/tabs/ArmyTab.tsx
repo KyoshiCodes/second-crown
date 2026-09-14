@@ -3,8 +3,10 @@ import {
   canAffordTrain,
   countBuilding,
   listTroopPosts,
+  listTraining,
   listUnitTypes,
   trainCostMultiplier,
+  trainDurationTicks,
   troopWounded,
   tryTrain,
   tryHireChampion,
@@ -35,6 +37,7 @@ export function ArmyTab(props: {
   const levyWait = state ? levyTicksLeft(state) : 0;
   const posts = state ? listTroopPosts(state) : [];
   const wounded = state ? troopWounded(state) : 0;
+  const queue = state ? listTraining(state) : [];
 
   return (
     <>
@@ -47,17 +50,18 @@ export function ArmyTab(props: {
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
         {unitTypes.map((u) => {
           const cost = Object.entries(u.cost).map(([k, v]) => `${v} ${k}`).join(", ");
+          const ticks = state ? trainDurationTicks(state, u.id, trainQty) : u.trainTicks * trainQty;
           return (
             <button
               key={u.id}
               type="button"
-              title={`${u.blurb ?? ""} Cost ${cost}`}
+              title={`${u.blurb ?? ""} Cost ${cost}. ${ticks} ticks to drill.`}
               disabled={!(state && canAffordTrain(state, u.id, trainQty))}
               onClick={() =>
                 act((st) => {
                   const ok = tryTrain(st, { typeId: u.id, count: trainQty });
                   if (ok) sfx.train();
-                  return ok ? `Trained ${trainQty} ${u.name}.` : "Cannot afford that levy.";
+                  return ok ? `Queued ${trainQty} ${u.name}.` : "Cannot afford that levy.";
                 })
               }
             >
@@ -66,7 +70,19 @@ export function ArmyTab(props: {
           );
         })}
       </div>
-      <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for cost and role.</p>
+      <div style={{ fontSize: 12, marginTop: 8 }}>
+        <strong>Barracks queue</strong>
+        {queue.length === 0 ? <div>No companies drilling.</div> : null}
+        {queue.map((job) => {
+          const left = state ? Math.max(0, job.doneTick - state.meta.tick) : 0;
+          return (
+            <div key={job.id}>
+              {job.count} {job.typeId} · {Math.ceil(left / 10)}s left
+            </div>
+          );
+        })}
+      </div>
+      <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for cost, role, and drill time. Food levy and mercenaries still arrive at once.</p>
       <div style={{ fontSize: 13, margin: "10px 0" }}>
         <strong>Posts</strong>
         {posts.length === 0 ? <div>No companies raised.</div> : null}
