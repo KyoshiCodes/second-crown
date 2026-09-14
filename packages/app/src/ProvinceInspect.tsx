@@ -1,6 +1,7 @@
 import React from "react";
 import {
   GATHER_NODES,
+  NODE_REGEN_PERIOD,
   activePlayerMarch,
   campThreat,
   garrisonAt,
@@ -116,7 +117,9 @@ export function ProvinceInspect(props: {
       </div>
       {canGather ? (
         <div style={{ marginTop: 4 }}>
-          Stock {stock} / {stockMax}{stock <= 0 ? " · dry" : ""}
+          Stock {stock} / {stockMax}
+          {stock < stockMax ? ` · refills +1 / ${NODE_REGEN_PERIOD / 10}s` : ""}
+          {stock <= 0 ? " · dry" : ""}
         </div>
       ) : null}
       {seen && p.node === "camp" ? <div style={{ marginTop: 4 }}>Camp threat {campThreat(state, p)}</div> : null}
