@@ -15,7 +15,7 @@ export const GATHER_NODES = {
 
 export interface Gather {
   id: string;
-  realmId: "player";
+  realmId: string;
   fromId: string;
   toId: string;
   node: keyof typeof GATHER_NODES;
@@ -45,6 +45,13 @@ export function listGathers(state: GameState): Gather[] {
     : g.load }));
 }
 
+function npcHomeId(state: GameState, realmId: string): string | null {
+  const hold = state.board.provinces.find((p) => p.occupantRealmId === realmId && p.node === "hold");
+  if (hold) return hold.id;
+  const any = state.board.provinces.find((p) => p.occupantRealmId === realmId);
+  return any?.id ?? null;
+}
+
 export function tryGather(state: GameState, destId: string, force: Record<string, number>): boolean {
   const dest = getProvince(state, destId);
   const home = getProvince(state, state.board.homeProvinceId);
@@ -53,7 +60,10 @@ export function tryGather(state: GameState, destId: string, force: Record<string
   if (nodeStock(state, dest.id) <= 0) return false;
   const gathers = listGathers(state);
   if (gathers.some((g) => g.toId === destId && g.phase !== "returning")) return false;
-  if (gathers.length + listMarches(state).filter((m) => m.realmId === "player").length >= maxMarches(state)) return false;
+  const playerBusy =
+    gathers.filter((g) => g.realmId === "player").length +
+    listMarches(state).filter((m) => m.realmId === "player").length;
+  if (playerBusy >= maxMarches(state)) return false;
   const clean: Record<string, number> = {};
   let count = 0;
   for (const id of Object.keys(force).sort()) {
@@ -78,6 +88,37 @@ export function tryGather(state: GameState, destId: string, force: Record<string
   return true;
 }
 
+export function tryNpcGather(state: GameState, realmId: string): boolean {
+  if (realmId === "player") return false;
+  const fromId = npcHomeId(state, realmId);
+  if (!fromId) return false;
+  const home = getProvince(state, fromId);
+  if (!home) return false;
+  const dest = state.board.provinces.find(
+    (p) =>
+      p.id !== fromId &&
+      p.node in GATHER_NODES &&
+      (!p.occupantRealmId || p.occupantRealmId === realmId) &&
+      nodeStock(state, p.id) > 0
+  );
+  if (!dest) return false;
+  const gathers = listGathers(state);
+  if (gathers.some((g) => g.toId === dest.id && g.phase !== "returning")) return false;
+  if (gathers.some((g) => g.realmId === realmId && g.phase !== "returning")) return false;
+  const node = dest.node as Gather["node"];
+  const force = { militia: 3 };
+  const capacity = D(3).mul(GATHER_NODES[node].perTroop);
+  const travelTicks = Math.max(1, Math.abs(home.x - dest.x) + Math.abs(home.y - dest.y)) * 15;
+  const serial = Number(state.flags["gather_serial"] ?? 0) + 1;
+  state.flags["gather_serial"] = serial;
+  save(state, [...gathers, {
+    id: `g_${serial}`, realmId, fromId, toId: dest.id, node, force,
+    phase: "outbound", departedTick: state.meta.tick, arrivesTick: state.meta.tick + travelTicks,
+    travelTicks, gatherStartedTick: 0, capacity: toDecimalString(capacity), load: "0",
+  }]);
+  return true;
+}
+
 function returnHome(g: Gather, tick: number): void {
   const travel = g.phase === "outbound" ? Math.max(1, tick - g.departedTick) : g.travelTicks;
   g.phase = "returning";
@@ -88,7 +129,7 @@ function returnHome(g: Gather, tick: number): void {
 export function tryRecallGather(state: GameState, id: string): boolean {
   const gathers = listGathers(state);
   const g = gathers.find((entry) => entry.id === id);
-  if (!g || g.phase === "returning") return false;
+  if (!g || g.phase === "returning" || g.realmId !== "player") return false;
   if (g.phase === "gathering") drainNodeStock(state, g.toId, Number(g.load));
   returnHome(g, state.meta.tick);
   save(state, gathers);
@@ -108,9 +149,11 @@ export const GatherSystem = {
     for (const g of gathers) {
       if (g.arrivesTick === tick) {
         if (g.phase === "returning") {
-          const res = GATHER_NODES[g.node].resource;
-          state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").add(g.load));
-          returnForce(state, g.force);
+          if (g.realmId === "player") {
+            const res = GATHER_NODES[g.node].resource;
+            state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").add(g.load));
+            returnForce(state, g.force);
+          }
           continue;
         }
         if (g.phase === "gathering") {
@@ -120,7 +163,8 @@ export const GatherSystem = {
         } else {
           const dest = getProvince(state, g.toId);
           const left = nodeStock(state, g.toId);
-          if (dest?.node === g.node && (!dest.occupantRealmId || dest.occupantRealmId === "player") && left > 0) {
+          const friendly = !dest?.occupantRealmId || dest.occupantRealmId === g.realmId || dest.occupantRealmId === "player" && g.realmId === "player";
+          if (dest?.node === g.node && friendly && left > 0) {
             if (D(g.capacity).gt(left)) g.capacity = toDecimalString(left);
             g.phase = "gathering";
             g.gatherStartedTick = tick;
