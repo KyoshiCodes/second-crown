@@ -2,6 +2,7 @@ import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countCitizensByJob } from "./citizens.js";
 import { countBuilding } from "../content/buildings.js";
+import { researchDone } from "./research.js";
 
 const LABOR_PER_TICK = 0.1;
 const GOLD_LABOR = 0.03;
@@ -24,5 +25,6 @@ export function applyLabor(state: GameState, ticks: number): void {
 }
 
 export function maxMarches(state: GameState): number {
-  return Math.min(3, 1 + countBuilding(state, "barracks"));
+  const extra = researchDone(state, "logistics") ? 1 : 0;
+  return Math.min(4, 1 + countBuilding(state, "barracks") + extra);
 }
