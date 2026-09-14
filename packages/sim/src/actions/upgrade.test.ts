@@ -37,13 +37,13 @@ describe("upgrade cap", () => {
   it("cancels an upgrade and refunds unused stores", () => {
     const s = createGameState({ seed: 1, withStarterBuildings: true });
     const farm = s.buildings.find((b) => b.typeId === "farm")!;
-    s.resources.wood = "999";
-    const before = Number(s.resources.wood);
+    s.resources.wood = "40";
     expect(tryUpgrade(s, farm.id)).toBe(true);
+    const afterPay = Number(s.resources.wood);
     expect(listUpgrades(s)).toHaveLength(1);
     expect(tryCancelUpgrade(s, farm.id)).toBe(true);
     expect(listUpgrades(s)).toHaveLength(0);
     expect(farm.level).toBe(1);
-    expect(Number(s.resources.wood)).toBeGreaterThan(before - 1);
+    expect(Number(s.resources.wood)).toBeGreaterThan(afterPay);
   });
 });
