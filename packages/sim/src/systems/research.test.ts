@@ -1,8 +1,19 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryStartResearch, tryCancelResearch, researchDone, researchTicksLeft, unitUnlocked } from "./research.js";
+import {
+  tryStartResearch,
+  tryCancelResearch,
+  researchDone,
+  researchTicksLeft,
+  unitUnlocked,
+  researchYield,
+  masonryWallBonus,
+  logisticsCapBonus,
+} from "./research.js";
 import { tryTrain } from "../actions/train.js";
 import { D } from "../core/decimal.js";
+import { storageCap } from "./storage.js";
+import { maxMarches } from "./labor.js";
 
 describe("academy research", () => {
   it("blocks cavalry until horse lore finishes", () => {
@@ -90,5 +101,22 @@ describe("academy research", () => {
     expect(D(s.resources.wood).eq(36)).toBe(true);
     expect(tryCancelResearch(s, "horse")).toBe(false);
     expect(tryStartResearch(s, "horse")).toBe(true);
+  });
+
+  it("husbandry only lifts food, masonry lifts walls, logistics lifts cap and columns", () => {
+    const s = createGameState({ seed: 1 });
+    expect(researchYield(s, "food")).toBe(0);
+    expect(masonryWallBonus(s)).toBe(0);
+    const cap = storageCap(s, "wood");
+    const slots = maxMarches(s);
+    s.flags.research_husbandry = 1;
+    s.flags.research_masonry = 1;
+    s.flags.research_logistics = 1;
+    expect(researchYield(s, "food")).toBe(0.12);
+    expect(researchYield(s, "wood")).toBe(0);
+    expect(masonryWallBonus(s)).toBe(16);
+    expect(logisticsCapBonus(s)).toBe(50);
+    expect(storageCap(s, "wood")).toBe(cap + 50);
+    expect(maxMarches(s)).toBe(slots + 1);
   });
 });
