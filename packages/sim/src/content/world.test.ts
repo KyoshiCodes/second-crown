@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { extraArchetypes, playerTitle } from "./world.js";
+import { extraArchetypes, playerTitle, growRealm } from "./world.js";
 import { tryFoundGuild, tryJoinFaction } from "../actions/faction.js";
 
 describe("world seed", () => {
@@ -36,5 +36,16 @@ describe("world seed", () => {
   it("starting title is Petty Lord", () => {
     const s = createGameState({ seed: 1 });
     expect(playerTitle(s)).toBe("Petty Lord");
+  });
+
+  it("NPC crowns field more than militia", () => {
+    const s = createGameState({ seed: 42 });
+    expect(s.units.some((u) => u.realmId === "rival" && u.typeId === "spearman")).toBe(true);
+    const foreign = s.units.filter((u) => u.realmId !== "player" && u.typeId !== "militia");
+    expect(foreign.length).toBeGreaterThan(0);
+    const before = Number(s.units.find((u) => u.realmId === "rival" && u.typeId === "spearman")?.count ?? 0);
+    s.meta.tick = 200;
+    growRealm(s, "rival");
+    expect(Number(s.units.find((u) => u.realmId === "rival" && u.typeId === "spearman")?.count ?? 0)).toBeGreaterThan(before);
   });
 });
