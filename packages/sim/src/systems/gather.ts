@@ -5,6 +5,7 @@ import { getProvince } from "./board.js";
 import { takeForce, returnForce } from "./column.js";
 import { maxMarches } from "./labor.js";
 import { listMarches } from "./march.js";
+import { drainNodeStock, nodeStock } from "./nodeStock.js";
 
 export const GATHER_NODES = {
   woodcut: { resource: "wood", perTroop: 6, ticksPerLoad: 10 },
@@ -49,6 +50,7 @@ export function tryGather(state: GameState, destId: string, force: Record<string
   const home = getProvince(state, state.board.homeProvinceId);
   if (!dest || !home || dest.id === home.id || !(dest.node in GATHER_NODES)) return false;
   if (dest.occupantRealmId && dest.occupantRealmId !== "player") return false;
+  if (nodeStock(state, dest.id) <= 0) return false;
   const gathers = listGathers(state);
   if (gathers.some((g) => g.toId === destId && g.phase !== "returning")) return false;
   if (gathers.length + listMarches(state).filter((m) => m.realmId === "player").length >= maxMarches(state)) return false;
@@ -87,6 +89,7 @@ export function tryRecallGather(state: GameState, id: string): boolean {
   const gathers = listGathers(state);
   const g = gathers.find((entry) => entry.id === id);
   if (!g || g.phase === "returning") return false;
+  if (g.phase === "gathering") drainNodeStock(state, g.toId, Number(g.load));
   returnHome(g, state.meta.tick);
   save(state, gathers);
   state.inputLog.push({ tick: state.meta.tick, type: "recall_gather", issuerId: "player", payload: { id } });
@@ -112,10 +115,21 @@ export const GatherSystem = {
         }
         const dest = getProvince(state, g.toId);
         if (g.phase === "outbound" && dest?.node === g.node && (!dest.occupantRealmId || dest.occupantRealmId === "player")) {
-          g.phase = "gathering";
-          g.gatherStartedTick = tick;
-          g.arrivesTick = tick + D(g.capacity).mul(GATHER_NODES[g.node].ticksPerLoad).toNumber();
+          const left = nodeStock(state, g.toId);
+          if (left <= 0) {
+            returnHome(g, tick);
+          } else {
+            if (D(g.capacity).gt(left)) g.capacity = toDecimalString(left);
+            g.phase = "gathering";
+            g.gatherStartedTick = tick;
+            g.arrivesTick = tick + D(g.capacity).mul(GATHER_NODES[g.node].ticksPerLoad).toNumber();
+          }
         } else returnHome(g, tick);
+        if (g.phase === "gathering" && g.arrivesTick === tick) {
+          g.load = g.capacity;
+          drainNodeStock(state, g.toId, Number(g.load));
+          returnHome(g, tick);
+        }
       }
       remaining.push(g);
     }
