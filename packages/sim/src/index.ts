@@ -183,6 +183,8 @@ export {
   tryTreatWounded,
   tryRepair,
   listScarred,
+  healTicksLeft,
+  listHealing,
 } from "./systems/ward.js";
 
 export { laborPerTick, applyLabor, maxMarches } from "./systems/labor.js";
