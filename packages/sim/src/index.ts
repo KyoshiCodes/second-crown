@@ -180,6 +180,7 @@ export {
   MarchSystem,
 } from "./systems/march.js";
 export type { March } from "./systems/march.js";
+export { tryDispatchScout } from "./systems/scoutColumn.js";
 export { incomingOnProvince, incomingOnPlayerFlags } from "./systems/incoming.js";
 
 export { incomingOnHome, watchtowerWarning, maybeNpcRaid } from "./systems/raidMarch.js";
