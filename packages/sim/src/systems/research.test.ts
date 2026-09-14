@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryStartResearch, researchDone, unitUnlocked } from "./research.js";
+import { tryStartResearch, tryCancelResearch, researchDone, researchTicksLeft, unitUnlocked } from "./research.js";
 import { tryTrain } from "../actions/train.js";
+import { D } from "../core/decimal.js";
 
 describe("academy research", () => {
   it("blocks cavalry until horse lore finishes", () => {
@@ -62,6 +63,32 @@ describe("academy research", () => {
       level: 1,
       completesAtTick: null,
     });
+    expect(tryStartResearch(s, "horse")).toBe(true);
+  });
+
+  it("cancels a study and refunds the unused fraction", () => {
+    const s = createGameState({ seed: 1 });
+    s.resources.gold = "40";
+    s.resources.wood = "24";
+    s.buildings.push({
+      id: "ac",
+      typeId: "academy",
+      realmId: "player",
+      x: 6,
+      y: 6,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(tryStartResearch(s, "horse")).toBe(true);
+    expect(s.resources.gold).toBe("0");
+    s.meta.tick = 120;
+    expect(researchTicksLeft(s, "horse")).toBe(120);
+    expect(tryCancelResearch(s, "horse")).toBe(true);
+    expect(researchTicksLeft(s, "horse")).toBe(0);
+    expect(researchDone(s, "horse")).toBe(false);
+    expect(D(s.resources.gold).eq(20)).toBe(true);
+    expect(D(s.resources.wood).eq(12)).toBe(true);
+    expect(tryCancelResearch(s, "horse")).toBe(false);
     expect(tryStartResearch(s, "horse")).toBe(true);
   });
 });
