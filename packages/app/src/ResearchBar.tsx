@@ -4,6 +4,7 @@ import {
   countBuilding,
   researchDone,
   researchTicksLeft,
+  tryCancelResearch,
   tryStartResearch,
   type GameState,
 } from "@second-crown/sim";
@@ -24,7 +25,21 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
   const hasHall = buildings.some((b) => countBuilding(state, b) > 0);
   const label = def.name;
   if (done) return <div>{label} known.</div>;
-  if (left > 0) return <div>Studying {label.toLowerCase()} · {Math.ceil(left / 10)}s left</div>;
+  if (left > 0) {
+    return (
+      <div>
+        Studying {label.toLowerCase()} · {Math.ceil(left / 10)}s left{" "}
+        <button
+          type="button"
+          onClick={() =>
+            act((s) => (tryCancelResearch(s, id) ? `Called off ${label.toLowerCase()}.` : "Nothing to cancel."))
+          }
+        >
+          Cancel
+        </button>
+      </div>
+    );
+  }
   const cost = Object.entries(def.cost).map(([k, v]) => `${v} ${k}`).join(", ");
   return (
     <button
