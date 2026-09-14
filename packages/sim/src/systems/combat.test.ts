@@ -4,8 +4,14 @@ import { TickEngine } from "../core/tickEngine.js";
 import { tryTrain } from "../actions/train.js";
 import { tryDeclareWar, tryResolveWar } from "../actions/war.js";
 import { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./combat.js";
+import { trainDurationTicks } from "./training.js";
 import { D } from "../core/decimal.js";
 import type { War } from "@second-crown/shared";
+
+function trainNow(state: ReturnType<typeof createGameState>, typeId: string, count: number) {
+  tryTrain(state, { typeId, count });
+  new TickEngine(state).settleTicks(trainDurationTicks(state, typeId, count));
+}
 
 describe("combat / war", () => {
   it("declare war and resolve is deterministic for same seed", () => {
@@ -14,7 +20,7 @@ describe("combat / war", () => {
       state.resources.food = "500";
       state.resources.wood = "500";
       state.resources.gold = "100";
-      tryTrain(state, { typeId: "militia", count: 20 });
+      trainNow(state, "militia", 20);
       tryDeclareWar(state, { attackerRealmId: "player", defenderRealmId: "rival" });
       const engine = new TickEngine(state);
       const result = tryResolveWar(state, engine.rng);
@@ -42,7 +48,7 @@ describe("combat / war", () => {
       const state = createGameState({ seed, now: 1 });
       state.resources.food = "500";
       state.resources.wood = "500";
-      tryTrain(state, { typeId: "militia", count: 15 });
+      trainNow(state, "militia", 15);
       tryDeclareWar(state, { attackerRealmId: "player", defenderRealmId: "rival" });
       const engine = new TickEngine(state);
       const result = tryResolveWar(state, engine.rng);
@@ -57,8 +63,9 @@ describe("combat / war", () => {
     state.resources.wood = "100";
     const before = realmPower(state, "player");
     expect(tryTrain(state, { typeId: "militia", count: 5 })).toBe(true);
+    expect(realmPower(state, "player")).toBe(before);
+    new TickEngine(state).settleTicks(trainDurationTicks(state, "militia", 5));
     expect(realmPower(state, "player")).toBe(before + 5);
-    // militia costs 4 food + 1 wood each → 20 food, 5 wood
     expect(D(state.resources.food).eq(80)).toBe(true);
     expect(D(state.resources.wood).eq(95)).toBe(true);
   });
@@ -77,7 +84,6 @@ describe("combat / war", () => {
     });
     expect(fortificationPower(state, "player")).toBe(8);
     expect(realmPower(state, "player")).toBe(before + 8);
-    // rival has no fortifications of its own
     expect(fortificationPower(state, "rival")).toBe(0);
   });
 
@@ -103,10 +109,8 @@ describe("combat / war", () => {
       status: "active",
     };
     const result = resolveBattle(state, war, engine.rng);
-    // Defender power must include realmPower(player) + the keep's defense-only bonus.
     expect(result.defenderPower).toBe(realmPower(state, "player") + 8);
 
-    // The same fortification does not inflate power when player instead attacks.
     const state2 = createGameState({ seed: 1 });
     state2.buildings.push({
       id: "b_keep",

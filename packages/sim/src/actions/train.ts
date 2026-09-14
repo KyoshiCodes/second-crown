@@ -5,6 +5,7 @@ import { countBuilding } from "../content/buildings.js";
 import { flagNum } from "../systems/wave.js";
 import { decreeActive } from "../systems/decree.js";
 import { unitUnlocked } from "../systems/research.js";
+import { enqueueTraining } from "../systems/training.js";
 
 export interface TrainPayload {
   typeId: string;
@@ -45,18 +46,7 @@ export function tryTrain(state: GameState, payload: TrainPayload): boolean {
     const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
     state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(need));
   }
-  const existing = state.units.find((u) => u.typeId === def.id && u.realmId === realmId && u.armyId === null);
-  if (existing) {
-    existing.count = toDecimalString(D(existing.count).add(count));
-  } else {
-    state.units.push({
-      id: `u_${state.meta.tick}_${state.units.length}`,
-      typeId: def.id,
-      realmId,
-      count: toDecimalString(count),
-      armyId: null,
-    });
-  }
+  if (!enqueueTraining(state, def.id, count, realmId)) return false;
   state.inputLog.push({
     tick: state.meta.tick,
     type: "train",
