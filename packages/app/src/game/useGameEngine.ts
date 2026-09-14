@@ -4,7 +4,9 @@ import {
   TickEngine,
   tryBuild,
   tryCancelBuild,
+  tryCancelUpgrade,
   tryUpgrade,
+  upgradeJobFor,
   canAscend,
   ascendThreshold,
   realmPower,
@@ -171,8 +173,14 @@ export function useGameEngine() {
                 if (ok) { syncUi(eng); persist(st); }
                 return;
               }
+              if (upgradeJobFor(st, existing.id)) {
+                const ok = tryCancelUpgrade(st, existing.id);
+                setStatus(ok ? `Stopped improving the ${nm}. Unused stores returned.` : `Cannot cancel ${nm}.`);
+                if (ok) { syncUi(eng); persist(st); }
+                return;
+              }
               const ok = tryUpgrade(st, existing.id);
-              setStatus(ok ? `Upgraded ${nm} to level ${existing.level}.` : "Cannot upgrade that building.");
+              setStatus(ok ? `Improving ${nm} toward level ${existing.level + 1}.` : "Cannot upgrade that building.");
               if (ok) { syncUi(eng); persist(st); }
               return;
             }
