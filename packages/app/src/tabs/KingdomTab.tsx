@@ -11,11 +11,13 @@ import {
   housingCap,
   listBuildableTypes,
   listScarred,
+  listUpgrades,
   listWorksInProgress,
   MARKET_OFFERS,
   population,
   settlementName,
   tryCancelBuild,
+  tryCancelUpgrade,
   tryRepair,
   tryTrade,
   wallHp,
@@ -37,6 +39,7 @@ export function KingdomTab(props: {
   const season = state ? currentSeason(state) : "Spring";
   const scarred = state ? listScarred(state) : [];
   const works = state ? listWorksInProgress(state) : [];
+  const upgrades = state ? listUpgrades(state) : [];
   const rim = state ? edgeWallCount(state, "player") : 0;
   const closed = state ? hasClosedWallRing(state) : false;
   const hp = state ? wallHp(state) : 0;
@@ -78,6 +81,27 @@ export function KingdomTab(props: {
                 <button
                   type="button"
                   onClick={() => act((st) => (tryCancelBuild(st, b.id) ? `Struck the ${nm} scaffolding.` : "That work already stands."))}
+                >
+                  Cancel
+                </button>
+              </div>
+            );
+          })}
+        </>
+      ) : null}
+      {upgrades.length > 0 ? (
+        <>
+          <h3>Improving</h3>
+          {upgrades.map((job) => {
+            const b = state?.buildings.find((x) => x.id === job.buildingId);
+            const nm = getBuildingType(b?.typeId ?? "")?.name ?? job.buildingId;
+            const left = state ? Math.max(0, job.doneTick - state.meta.tick) : 0;
+            return (
+              <div key={job.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
+                <span>{nm} → lv {job.fromLevel + 1} · {Math.ceil(left / 10)}s left</span>
+                <button
+                  type="button"
+                  onClick={() => act((st) => (tryCancelUpgrade(st, job.buildingId) ? `Stopped improving the ${nm}.` : "That work already finished."))}
                 >
                   Cancel
                 </button>
