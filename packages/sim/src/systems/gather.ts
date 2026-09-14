@@ -113,22 +113,21 @@ export const GatherSystem = {
           returnForce(state, g.force);
           continue;
         }
-        const dest = getProvince(state, g.toId);
-        if (g.phase === "outbound" && dest?.node === g.node && (!dest.occupantRealmId || dest.occupantRealmId === "player")) {
+        if (g.phase === "gathering") {
+          g.load = g.capacity;
+          drainNodeStock(state, g.toId, Number(g.load));
+          returnHome(g, tick);
+        } else {
+          const dest = getProvince(state, g.toId);
           const left = nodeStock(state, g.toId);
-          if (left <= 0) {
-            returnHome(g, tick);
-          } else {
+          if (dest?.node === g.node && (!dest.occupantRealmId || dest.occupantRealmId === "player") && left > 0) {
             if (D(g.capacity).gt(left)) g.capacity = toDecimalString(left);
             g.phase = "gathering";
             g.gatherStartedTick = tick;
             g.arrivesTick = tick + D(g.capacity).mul(GATHER_NODES[g.node].ticksPerLoad).toNumber();
+          } else {
+            returnHome(g, tick);
           }
-        } else returnHome(g, tick);
-        if (g.phase === "gathering" && g.arrivesTick === tick) {
-          g.load = g.capacity;
-          drainNodeStock(state, g.toId, Number(g.load));
-          returnHome(g, tick);
         }
       }
       remaining.push(g);
