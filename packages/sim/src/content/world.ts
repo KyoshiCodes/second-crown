@@ -11,6 +11,8 @@ export interface KingdomArchetype {
   traits: string[];
   ambition: string;
   startMilitia: number;
+  eliteType: string;
+  startElite: number;
   growth: number;
   declareEdge: number;
   fickle: number;
@@ -26,6 +28,8 @@ export const ARCHETYPES: KingdomArchetype[] = [
     traits: ["ruthless"],
     ambition: "conquer",
     startMilitia: 12,
+    eliteType: "spearman",
+    startElite: 4,
     growth: 1,
     declareEdge: 5,
     fickle: 1,
@@ -39,6 +43,8 @@ export const ARCHETYPES: KingdomArchetype[] = [
     traits: ["greedy", "clever"],
     ambition: "wealth",
     startMilitia: 6,
+    eliteType: "archer",
+    startElite: 3,
     growth: 1,
     declareEdge: 12,
     fickle: 3,
@@ -52,6 +58,8 @@ export const ARCHETYPES: KingdomArchetype[] = [
     traits: ["restless"],
     ambition: "raid",
     startMilitia: 10,
+    eliteType: "cavalry",
+    startElite: 3,
     growth: 2,
     declareEdge: 0,
     fickle: 4,
@@ -65,6 +73,8 @@ export const ARCHETYPES: KingdomArchetype[] = [
     traits: ["zealous"],
     ambition: "convert",
     startMilitia: 8,
+    eliteType: "archer",
+    startElite: 2,
     growth: 1,
     declareEdge: 8,
     fickle: 2,
@@ -78,6 +88,8 @@ export const ARCHETYPES: KingdomArchetype[] = [
     traits: ["cautious"],
     ambition: "survive",
     startMilitia: 5,
+    eliteType: "skirmisher",
+    startElite: 2,
     growth: 1,
     declareEdge: 18,
     fickle: 2,
@@ -91,6 +103,8 @@ export const ARCHETYPES: KingdomArchetype[] = [
     traits: ["proud", "harsh"],
     ambition: "glory",
     startMilitia: 9,
+    eliteType: "spearman",
+    startElite: 3,
     growth: 1,
     declareEdge: 6,
     fickle: 2,
@@ -104,6 +118,8 @@ export const ARCHETYPES: KingdomArchetype[] = [
     traits: ["greedy", "restless"],
     ambition: "plunder",
     startMilitia: 7,
+    eliteType: "skirmisher",
+    startElite: 4,
     growth: 2,
     declareEdge: 4,
     fickle: 3,
@@ -117,6 +133,8 @@ export const ARCHETYPES: KingdomArchetype[] = [
     traits: ["clever", "aloof"],
     ambition: "knowledge",
     startMilitia: 4,
+    eliteType: "archer",
+    startElite: 2,
     growth: 1,
     declareEdge: 14,
     fickle: 5,
@@ -130,6 +148,8 @@ export const ARCHETYPES: KingdomArchetype[] = [
     traits: ["disciplined"],
     ambition: "order",
     startMilitia: 11,
+    eliteType: "spearman",
+    startElite: 5,
     growth: 1,
     declareEdge: 7,
     fickle: 1,
@@ -156,6 +176,22 @@ export function extraArchetypes(seed: number): KingdomArchetype[] {
     out.push(a);
   }
   return out;
+}
+
+function addNpcUnit(state: GameState, realmId: string, typeId: string, amount: number): void {
+  if (amount <= 0) return;
+  const existing = state.units.find((u) => u.realmId === realmId && u.typeId === typeId && u.armyId === null);
+  if (existing) {
+    existing.count = toDecimalString(D(existing.count).add(amount));
+    return;
+  }
+  state.units.push({
+    id: `u_${realmId}_${typeId}_${state.meta.tick}`,
+    typeId,
+    realmId,
+    count: toDecimalString(amount),
+    armyId: null,
+  });
 }
 
 export function seedWorldActors(state: GameState): void {
@@ -189,13 +225,8 @@ export function seedWorldActors(state: GameState): void {
       state.opinions.push({ from: "char_player", to: charId, value: Math.floor(v / 2), expiresTick: null });
     }
     if (!state.units.some((u) => u.realmId === realmId)) {
-      state.units.push({
-        id: `u_${realmId}_0`,
-        typeId: "militia",
-        realmId,
-        count: toDecimalString(a.startMilitia),
-        armyId: null,
-      });
+      addNpcUnit(state, realmId, "militia", a.startMilitia);
+      addNpcUnit(state, realmId, a.eliteType, a.startElite);
     }
   }
 
@@ -270,18 +301,8 @@ export function driftOpinions(state: GameState): void {
 export function growRealm(state: GameState, realmId: string): void {
   const arch = archetypeForRealm(realmId);
   const amount = arch?.growth ?? 1;
-  const existing = state.units.find(
-    (u) => u.realmId === realmId && u.typeId === "militia" && u.armyId === null
-  );
-  if (existing) {
-    existing.count = toDecimalString(D(existing.count).add(amount));
-  } else {
-    state.units.push({
-      id: `u_${realmId}_${state.meta.tick}`,
-      typeId: "militia",
-      realmId,
-      count: toDecimalString(amount),
-      armyId: null,
-    });
+  addNpcUnit(state, realmId, "militia", amount);
+  if (arch && state.meta.tick % 200 === 0) {
+    addNpcUnit(state, realmId, arch.eliteType, 1);
   }
 }
