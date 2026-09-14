@@ -222,7 +222,7 @@ export { applyOfflineProgress } from "./offline.js";
 
 export type { GameState, CitizenInstance, CitizenJobId, CitizenTile, Province, BoardState } from "@second-crown/shared";
 export { formatLetterSuffix, BOARD_W, BOARD_H } from "@second-crown/shared";
-export { tryGather, tryRecallGather, listGathers, GATHER_NODES, GatherSystem } from "./systems/gather.js";
+export { tryGather, tryRecallGather, tryNpcGather, listGathers, GATHER_NODES, GatherSystem } from "./systems/gather.js";
 export type { Gather } from "./systems/gather.js";
 export { nodeStock, nodeStockMax, NODE_REGEN_PERIOD } from "./systems/nodeStock.js";
 export {
