@@ -9,6 +9,7 @@ import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
 import { hireCitizenForBuilding } from "./citizens.js";
 import { addCapped } from "./storage.js";
 import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
+import { researchDone } from "./research.js";
 
 export function productionBonus(state: GameState): number {
   let bonus = 0;
@@ -18,6 +19,9 @@ export function productionBonus(state: GameState): number {
   if (state.flags.doctrine === "harvest") bonus += 2;
   if (decreeActive(state, "rite")) bonus += 3;
   bonus += seasonProductionBonus(state);
+  if (researchDone(state, "husbandry")) bonus += 1;
+  if (researchDone(state, "forestry")) bonus += 1;
+  if (researchDone(state, "masonry")) bonus += 1;
   const advisor = state.characters.find(
     (c) => c.realmId === "player" && c.role === "advisor" && c.traits.includes("clever")
   );
