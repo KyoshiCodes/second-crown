@@ -2,6 +2,7 @@ import type { GameState } from "@second-crown/shared";
 import Decimal from "break_infinity.js";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
+import { vaultProtects } from "./vault.js";
 
 const CAPPED_RESOURCES = ["food", "wood", "stone", "gold"] as const;
 type CappedResource = (typeof CAPPED_RESOURCES)[number];
@@ -37,6 +38,24 @@ function isCapped(res: string): res is CappedResource {
 export function storageCap(state: GameState, res: string): number {
   if (!isCapped(res)) return Infinity;
   return BASE_CAP[res] + countBuilding(state, CAP_BUILDING[res]) * CAP_PER_BUILDING[res];
+}
+
+export type ResourceLedger = {
+  have: number;
+  cap: number;
+  vault: number;
+  exposed: number;
+  full: boolean;
+};
+
+/** Stock / warehouse / raid-safe floor for the HUD. */
+export function resourceLedger(state: GameState, res: string): ResourceLedger {
+  const have = D(state.resources[res] ?? "0").toNumber();
+  const cap = storageCap(state, res);
+  const vault = vaultProtects(state, res);
+  const exposed = Math.max(0, have - vault);
+  const full = Number.isFinite(cap) && have >= cap - 1e-9;
+  return { have, cap, vault, exposed, full };
 }
 
 /**

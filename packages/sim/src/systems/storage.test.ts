@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { storageCap, addCapped } from "./storage.js";
+import { storageCap, addCapped, resourceLedger } from "./storage.js";
+import { vaultProtects } from "./vault.js";
 import { EconomySystem } from "./economy.js";
 
 describe("storageCap", () => {
@@ -68,5 +69,17 @@ describe("production respects storage caps", () => {
 
     expect(a.resources.food).toBe(b.resources.food);
     expect(Number(a.resources.food)).toBe(storageCap(a, "food"));
+  });
+});
+
+describe("resourceLedger", () => {
+  it("marks a full warehouse and reports the raid-safe vault floor", () => {
+    const s = createGameState({ seed: 1 });
+    s.resources.gold = String(storageCap(s, "gold"));
+    const line = resourceLedger(s, "gold");
+    expect(line.full).toBe(true);
+    expect(line.cap).toBe(100);
+    expect(line.vault).toBe(vaultProtects(s, "gold"));
+    expect(line.exposed).toBe(Math.max(0, line.have - line.vault));
   });
 });

@@ -109,7 +109,7 @@ export function AppShell() {
 
         {offlineNote ? <p style={{ color: "#3fb950" }}>{offlineNote}</p> : null}
         <SpeedControls paused={paused} speed={speed} onPauseToggle={() => setPaused((p) => !p)} onSpeed={(n) => { setPaused(false); setSpeed(n); }} />
-        <ResourceHud resources={resources} income={income} />
+        <ResourceHud resources={resources} income={income} state={state} />
         <TutorialBanner state={state} act={act} />
         {status ? <div className="sc-status-banner" style={{ marginBottom: 10 }}>{status}</div> : null}
         <CultureContext.Provider value={state ? playerCultureId(state) : "western"}>
