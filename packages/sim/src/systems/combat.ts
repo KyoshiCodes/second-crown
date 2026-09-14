@@ -7,6 +7,7 @@ import { grantVictorySpoils, flagNum } from "./wave.js";
 import { fortifyPower } from "./court.js";
 import { absorbWounded } from "./ward.js";
 import { takePlunder } from "./vault.js";
+import { masonryWallBonus } from "./research.js";
 
 export function fortificationPower(state: GameState, realmId: string): number {
   if (realmId !== "player") return 0;
@@ -14,13 +15,14 @@ export function fortificationPower(state: GameState, realmId: string): number {
     countBuilding(state, "watchtower") * 2 +
     countBuilding(state, "walls") * 4 +
     countBuilding(state, "keep") * 8 +
-    fortifyPower(state)
+    fortifyPower(state) +
+    masonryWallBonus(state)
   );
 }
 
 export function defenseBonus(state: GameState, realmId: string): number {
   if (realmId !== "player") return 0;
-  return countBuilding(state, "keep") * 8;
+  return countBuilding(state, "keep") * 8 + masonryWallBonus(state);
 }
 
 export function realmPower(state: GameState, realmId: string): number {
@@ -104,7 +106,7 @@ function applyCasualties(state: GameState, realmId: string, fraction: number): v
     const count = D(u.count);
     const lost = count.mul(fraction).floor();
     let remain = count.sub(lost);
-    if (remain.lt(0)) remain = D(0);
+    if (remain.lt(0) remain = D(0);
     if (realmId === "player") {
       absorbWounded(state, lost.toNumber());
     }
