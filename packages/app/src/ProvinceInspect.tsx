@@ -13,6 +13,8 @@ import {
   listOutposts,
   listUnitTypes,
   maxMarches,
+  nodeStock,
+  nodeStockMax,
   outpostTithePerTick,
   scoutCost,
   tryDispatchGarrison,
@@ -70,6 +72,8 @@ export function ProvinceInspect(props: {
   const cost = scoutCost(state);
   const gold = Number(state.resources.gold ?? 0);
   const canGather = seen && p.node in GATHER_NODES;
+  const stock = canGather ? nodeStock(state, selectedId) : 0;
+  const stockMax = canGather ? nodeStockMax(p.node) : 0;
   const slotsUsed =
     listMarches(state).filter((m) => m.realmId === "player").length +
     gathers.filter((g) => g.phase !== "returning").length;
@@ -110,6 +114,11 @@ export function ProvinceInspect(props: {
       <div style={{ opacity: 0.85, marginTop: 4 }}>
         {seen ? NODE[p.node] ?? p.node : "Fog hides the token."} · Occupant: {occupant} · Gold {gold}
       </div>
+      {canGather ? (
+        <div style={{ marginTop: 4 }}>
+          Stock {stock} / {stockMax}{stock <= 0 ? " · dry" : ""}
+        </div>
+      ) : null}
       {seen && p.node === "camp" ? <div style={{ marginTop: 4 }}>Camp threat {campThreat(state, p)}</div> : null}
       {flagged ? (
         <div style={{ marginTop: 4, color: "#86efac" }}>
@@ -165,7 +174,7 @@ export function ProvinceInspect(props: {
             <button
               type="button"
               style={{ marginTop: 8, marginRight: 8 }}
-              disabled={Boolean(here) || full}
+              disabled={Boolean(here) || full || stock <= 0}
               onClick={() =>
                 act((s) => {
                   const pack: Record<string, number> = {};
@@ -175,7 +184,7 @@ export function ProvinceInspect(props: {
                 })
               }
             >
-              Gather here
+              {stock <= 0 ? "Tile is dry" : "Gather here"}
             </button>
           ) : null}
           {flagged ? (
