@@ -14,6 +14,7 @@ import { addCapped } from "./storage.js";
 import { campThreat } from "./camp.js";
 import { absorbWounded } from "./ward.js";
 import { detachGarrison, garrisonPower, mergeGarrisonForce } from "./garrison.js";
+import { revealProvince } from "./fog.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -30,7 +31,7 @@ export interface March {
   kind: "camp" | "node" | "hold";
   levy: number;
   force?: Record<string, number>;
-  purpose?: "raid" | "garrison" | "garrison_home";
+  purpose?: "raid" | "garrison" | "garrison_home" | "scout";
 }
 
 interface Respawn {
@@ -301,9 +302,14 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     mergeGarrisonForce(state, dest.id, march.force);
     return "Garrison posted.";
   }
-    if (march.purpose === "garrison_home" && march.force) {
+  if (march.purpose === "garrison_home" && march.force) {
     returnForce(state, march.force, 1);
     return "Garrison returned home.";
+  }
+  if (march.purpose === "scout") {
+    revealProvince(state, dest.id);
+    if (march.force) returnForce(state, march.force, 1);
+    return "Scout returned. Tile mapped.";
   }
   if (march.realmId !== "player" && dest.occupantRealmId === "player" && dest.id !== state.board.homeProvinceId) {
     const def = garrisonPower(state, dest.id);
