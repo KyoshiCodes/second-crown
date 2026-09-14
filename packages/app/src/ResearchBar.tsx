@@ -24,7 +24,8 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
   const buildings = needList(def);
   const hasHall = buildings.some((b) => countBuilding(state, b) > 0);
   const label = def.name;
-  if (done) return <div>{label} known.</div>;
+  const effect = "effect" in def ? String(def.effect) : "";
+  if (done) return <div title={effect}>{label} known.{effect ? ` ${effect}` : ""}</div>;
   if (left > 0) {
     return (
       <div>
@@ -45,6 +46,7 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
     <button
       type="button"
       disabled={!hasHall}
+      title={effect}
       onClick={() =>
         act((s) =>
           tryStartResearch(s, id)
