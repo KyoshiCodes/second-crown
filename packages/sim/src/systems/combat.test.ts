@@ -64,10 +64,10 @@ describe("combat / war", () => {
     const before = realmPower(state, "player");
     expect(tryTrain(state, { typeId: "militia", count: 5 })).toBe(true);
     expect(realmPower(state, "player")).toBe(before);
-    new TickEngine(state).settleTicks(trainDurationTicks(state, "militia", 5));
-    expect(realmPower(state, "player")).toBe(before + 5);
     expect(D(state.resources.food).eq(80)).toBe(true);
     expect(D(state.resources.wood).eq(95)).toBe(true);
+    new TickEngine(state).settleTicks(trainDurationTicks(state, "militia", 5));
+    expect(realmPower(state, "player")).toBe(before + 5);
   });
 
   it("keep adds flat fortification power to both offense and defense", () => {
