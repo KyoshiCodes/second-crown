@@ -1,7 +1,8 @@
 import type { GameState } from "@second-crown/shared";
-import { GATHER_NODES } from "./gather.js";
 
-export const NODE_STOCK_MAX: Record<keyof typeof GATHER_NODES, number> = {
+const GATHER_NODES = new Set(["woodcut", "quarry", "field"]);
+
+export const NODE_STOCK_MAX: Record<string, number> = {
   woodcut: 120,
   quarry: 90,
   field: 160,
@@ -12,12 +13,12 @@ function key(id: string): string {
 }
 
 export function nodeStockMax(node: string): number {
-  return NODE_STOCK_MAX[node as keyof typeof NODE_STOCK_MAX] ?? 0;
+  return NODE_STOCK_MAX[node] ?? 0;
 }
 
 export function nodeStock(state: GameState, provinceId: string): number {
   const p = state.board.provinces.find((x) => x.id === provinceId);
-  if (!p || !(p.node in GATHER_NODES)) return 0;
+  if (!p || !GATHER_NODES.has(p.node)) return 0;
   const raw = state.flags[key(provinceId)];
   if (typeof raw === "number" && Number.isFinite(raw)) return Math.max(0, raw);
   return nodeStockMax(p.node);
