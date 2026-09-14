@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  buildTicksLeft,
   canAfford,
   canTrade,
   countBuilding,
@@ -10,9 +11,11 @@ import {
   housingCap,
   listBuildableTypes,
   listScarred,
+  listWorksInProgress,
   MARKET_OFFERS,
   population,
   settlementName,
+  tryCancelBuild,
   tryRepair,
   tryTrade,
   wallHp,
@@ -33,6 +36,7 @@ export function KingdomTab(props: {
   const hold = state ? settlementName(state) : "Your Hold";
   const season = state ? currentSeason(state) : "Spring";
   const scarred = state ? listScarred(state) : [];
+  const works = state ? listWorksInProgress(state) : [];
   const rim = state ? edgeWallCount(state, "player") : 0;
   const closed = state ? hasClosedWallRing(state) : false;
   const hp = state ? wallHp(state) : 0;
@@ -62,6 +66,26 @@ export function KingdomTab(props: {
           );
         })}
       </div>
+      {works.length > 0 ? (
+        <>
+          <h3>Raising</h3>
+          {works.map((b) => {
+            const left = state ? buildTicksLeft(state, b.id) : 0;
+            const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
+            return (
+              <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
+                <span>{nm} · {Math.ceil(left / 10)}s left</span>
+                <button
+                  type="button"
+                  onClick={() => act((st) => (tryCancelBuild(st, b.id) ? `Struck the ${nm} scaffolding.` : "That work already stands."))}
+                >
+                  Cancel
+                </button>
+              </div>
+            );
+          })}
+        </>
+      ) : null}
       {scarred.length > 0 ? (
         <>
           <h3>Scarred works</h3>
