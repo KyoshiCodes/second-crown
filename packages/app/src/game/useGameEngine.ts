@@ -3,6 +3,7 @@ import {
   createGameState,
   TickEngine,
   tryBuild,
+  tryCancelBuild,
   tryUpgrade,
   canAscend,
   ascendThreshold,
@@ -163,8 +164,14 @@ export function useGameEngine() {
             const st = eng.getState();
             const existing = st.buildings.find((b) => b.x === x && b.y === y);
             if (existing) {
-              const ok = tryUpgrade(st, existing.id);
               const nm = getBuildingType(existing.typeId)?.name ?? existing.typeId;
+              if (existing.completesAtTick !== null) {
+                const ok = tryCancelBuild(st, existing.id);
+                setStatus(ok ? `Struck the ${nm} scaffolding. Unused stores returned.` : `Cannot cancel ${nm}.`);
+                if (ok) { syncUi(eng); persist(st); }
+                return;
+              }
+              const ok = tryUpgrade(st, existing.id);
               setStatus(ok ? `Upgraded ${nm} to level ${existing.level}.` : "Cannot upgrade that building.");
               if (ok) { syncUi(eng); persist(st); }
               return;
