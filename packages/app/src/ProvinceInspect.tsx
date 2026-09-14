@@ -6,6 +6,7 @@ import {
   garrisonAt,
   garrisonPower,
   getProvince,
+  incomingOnProvince,
   isProvinceSeen,
   listGathers,
   listMarches,
@@ -76,6 +77,10 @@ export function ProvinceInspect(props: {
   const flagged = listOutposts(state).some((o) => o.id === selectedId);
   const tithe = flagged ? outpostTithePerTick(state) : null;
   const posted = garrisonAt(state, selectedId);
+  const incoming = incomingOnProvince(state, selectedId);
+  const incomingName = incoming
+    ? state.realms.find((r) => r.id === incoming.realmId)?.name ?? incoming.realmId
+    : "";
   const occupant = seen
     ? p.occupantRealmId
       ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
@@ -111,6 +116,11 @@ export function ProvinceInspect(props: {
           Your flag. Tithe / tick — food {tithe?.food ?? 0} wood {tithe?.wood ?? 0} stone {tithe?.stone ?? 0} gold{" "}
           {tithe?.gold ?? 0}
           {posted ? ` · Garrison power ${garrisonPower(state, selectedId)}` : " · No garrison"}
+        </div>
+      ) : null}
+      {incoming ? (
+        <div style={{ marginTop: 6, color: "#fca5a5" }}>
+          Incoming contest · {incomingName} · {Math.max(0, incoming.arrivesTick - state.meta.tick)} ticks
         </div>
       ) : null}
       {march ? (
