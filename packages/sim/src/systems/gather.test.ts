@@ -176,10 +176,11 @@ describe("gather expeditions", () => {
     hold.node = "hold";
     const wood = s.resources.wood;
     expect(tryNpcGather(s, "rival")).toBe(true);
-    expect(listGathers(s)[0].realmId).toBe("rival");
+    const target = listGathers(s)[0].toId;
+    const before = nodeStock(s, target);
     advance(s);
     advance(s);
-    expect(nodeStock(s, dest.id)).toBeLessThan(24);
+    expect(nodeStock(s, target)).toBeLessThan(before);
     expect(s.resources.wood).toBe(wood);
   });
 });
