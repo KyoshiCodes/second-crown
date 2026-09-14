@@ -4,6 +4,20 @@ import { countBuilding } from "../content/buildings.js";
 
 const REPAIR_STONE = 8;
 const TREAT_FOOD = 4;
+export const HEAL_TICKS = 50;
+
+interface HealJob {
+  doneTick: number;
+}
+
+function readHeals(state: GameState): HealJob[] {
+  const raw = state.flags["heal_json"];
+  return typeof raw === "string" ? (JSON.parse(raw) as HealJob[]) : [];
+}
+
+function saveHeals(state: GameState, jobs: HealJob[]): void {
+  state.flags["heal_json"] = JSON.stringify(jobs);
+}
 
 export function woundedCount(state: GameState): number {
   return Math.max(0, Number(state.flags.wounded_player ?? 0));
@@ -11,6 +25,16 @@ export function woundedCount(state: GameState): number {
 
 export function infirmaryBeds(state: GameState): number {
   return countBuilding(state, "infirmary") * 10;
+}
+
+export function healTicksLeft(state: GameState): number {
+  const jobs = readHeals(state);
+  if (!jobs.length) return 0;
+  return Math.max(0, Math.min(...jobs.map((j) => j.doneTick)) - state.meta.tick);
+}
+
+export function listHealing(state: GameState): HealJob[] {
+  return readHeals(state);
 }
 
 export function absorbWounded(state: GameState, lost: number): number {
@@ -23,12 +47,7 @@ export function absorbWounded(state: GameState, lost: number): number {
   return saved;
 }
 
-export function tryTreatWounded(state: GameState): boolean {
-  const n = woundedCount(state);
-  if (n <= 0) return false;
-  if (D(state.resources.food ?? "0").lt(TREAT_FOOD)) return false;
-  state.resources.food = toDecimalString(D(state.resources.food).sub(TREAT_FOOD));
-  state.flags.wounded_player = n - 1;
+function deliverMilitia(state: GameState): void {
   const militia = state.units.find((u) => u.realmId === "player" && u.typeId === "militia");
   if (militia) militia.count = toDecimalString(D(militia.count).add(1));
   else {
@@ -40,6 +59,18 @@ export function tryTreatWounded(state: GameState): boolean {
       armyId: null,
     });
   }
+}
+
+export function tryTreatWounded(state: GameState): boolean {
+  const n = woundedCount(state);
+  if (n <= 0) return false;
+  if (D(state.resources.food ?? "0").lt(TREAT_FOOD)) return false;
+  state.resources.food = toDecimalString(D(state.resources.food ?? "0").sub(TREAT_FOOD));
+  state.flags.wounded_player = n - 1;
+  const jobs = readHeals(state);
+  const start = jobs.reduce((t, j) => Math.max(t, j.doneTick), state.meta.tick);
+  saveHeals(state, [...jobs, { doneTick: start + HEAL_TICKS }]);
+  state.inputLog.push({ tick: state.meta.tick, type: "treat", issuerId: "player" });
   return true;
 }
 
@@ -51,7 +82,26 @@ export function tryRepair(state: GameState, buildingId: string): boolean {
   const b = state.buildings.find((x) => x.id === buildingId && x.realmId === "player");
   if (!b || b.completesAtTick === null) return false;
   if (D(state.resources.stone ?? "0").lt(REPAIR_STONE)) return false;
-  state.resources.stone = toDecimalString(D(state.resources.stone).sub(REPAIR_STONE));
+  state.resources.stone = toDecimalString(D(state.resources.stone ?? "0").sub(REPAIR_STONE));
   b.completesAtTick = null;
   return true;
 }
+
+export const WardSystem = {
+  nextEventTick(state: GameState): number | null {
+    const jobs = readHeals(state);
+    return jobs.length ? Math.min(...jobs.map((j) => j.doneTick)) : null;
+  },
+  processEventsAt(state: GameState, tick: number): void {
+    const jobs = readHeals(state);
+    if (!jobs.some((j) => j.doneTick === tick)) return;
+    const remaining: HealJob[] = [];
+    for (const job of jobs) {
+      if (job.doneTick === tick) deliverMilitia(state);
+      else remaining.push(job);
+    }
+    saveHeals(state, remaining);
+  },
+  advanceAnalytic(): void {},
+  tick(): void {},
+};
