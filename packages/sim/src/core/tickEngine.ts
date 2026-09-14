@@ -9,8 +9,9 @@ import { UpkeepSystem } from "../systems/upkeep.js";
 import { GatherSystem } from "../systems/gather.js";
 import { TrainingSystem } from "../systems/training.js";
 import { NodeStockSystem } from "../systems/nodeStock.js";
+import { WardSystem } from "../systems/ward.js";
 
-const SYSTEMS = [EconomySystem, RivalSystem, EventSystem, MarchSystem, UpkeepSystem, GatherSystem, TrainingSystem, NodeStockSystem];
+const SYSTEMS = [EconomySystem, RivalSystem, EventSystem, MarchSystem, UpkeepSystem, GatherSystem, TrainingSystem, NodeStockSystem, WardSystem];
 
 export class TickEngine {
   readonly rng: RngStreams;
