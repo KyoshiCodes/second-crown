@@ -52,7 +52,7 @@ export { tryUpgrade, canUpgrade, upgradeCost, MAX_BUILDING_LEVEL, keepLevel, max
 
 export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
-export { listTraining, trainDurationTicks, trainingTicksLeft } from "./systems/training.js";
+export { listTraining, trainDurationTicks, trainingTicksLeft, tryCancelTraining } from "./systems/training.js";
 export type { TrainingJob } from "./systems/training.js";
 
 export {
