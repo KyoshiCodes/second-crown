@@ -2,9 +2,11 @@ import React from "react";
 import {
   canAffordTrain,
   gateOnRim,
+  healTicksLeft,
   housingCap,
   incomingOnHome,
   infirmaryBeds,
+  listHealing,
   listScarred,
   peaceTicksRemaining,
   population,
@@ -51,6 +53,8 @@ export function WarRoom(props: {
   const gateUp = state ? gateOnRim(state) : false;
   const wounded = state ? woundedCount(state) : 0;
   const beds = state ? infirmaryBeds(state) : 0;
+  const healing = state ? listHealing(state).length : 0;
+  const healLeft = state ? healTicksLeft(state) : 0;
   const pop = state ? population(state) : 0;
   const cap = state ? housingCap(state) : 0;
   const tick = state?.meta.tick ?? 0;
@@ -80,13 +84,13 @@ export function WarRoom(props: {
           </p>
         </div>
         <p style={{ margin: "4px 0" }}>
-          Wounded {wounded} / {beds} beds.{" "}
+          Wounded {wounded} / {beds} beds{healing > 0 ? ` · treating ${healing} (${Math.ceil(healLeft / 10)}s)` : ""}.{" "}
           <button
             type="button"
             disabled={wounded <= 0}
-            onClick={() => act((st) => (tryTreatWounded(st) ? "Treated 1 wounded." : "Need 4 food."))}
+            onClick={() => act((st) => (tryTreatWounded(st) ? "Sent 1 wounded to the ward." : "Need 4 food."))}
           >
-            Treat (4 food)
+            Treat (4 food, 5s)
           </button>
         </p>
         <p style={{ margin: "4px 0" }}>
@@ -120,7 +124,7 @@ export function WarRoom(props: {
         Raise 5 militia
       </button>
       <div className="sc-realm-card" style={{ margin: "10px 0", fontSize: 12 }}>
-        <strong>Defenses &amp; decrees</strong>
+        <strong>Defenses & decrees</strong>
         <p style={{ margin: "4px 0" }}>
           {summary && summary.fortifyTicksLeft > 0
             ? `Walls stand (${Math.ceil(summary.fortifyTicksLeft / 10)}s left).`
