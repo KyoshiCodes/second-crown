@@ -106,7 +106,7 @@ function applyCasualties(state: GameState, realmId: string, fraction: number): v
     const count = D(u.count);
     const lost = count.mul(fraction).floor();
     let remain = count.sub(lost);
-    if (remain.lt(0) remain = D(0);
+    if (remain.lt(0)) remain = D(0);
     if (realmId === "player") {
       absorbWounded(state, lost.toNumber());
     }
