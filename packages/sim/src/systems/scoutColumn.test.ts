@@ -9,20 +9,20 @@ describe("scout columns", () => {
   it("pays gold, walks, maps the tile, and returns the runner", () => {
     const s = createGameState({ seed: 1 });
     s.resources.gold = "40";
+    s.resources.food = "200";
     s.units.push({ id: "u_player_m", typeId: "militia", realmId: "player", count: "4", armyId: null });
     const far = s.board.provinces.find((p) => Math.abs(p.x - 2) + Math.abs(p.y - 2) >= 3)!;
     expect(isProvinceSeen(s, far.id)).toBe(false);
     expect(tryDispatchScout(s, far.id)).toBe(true);
     expect(isProvinceSeen(s, far.id)).toBe(false);
     expect(listMarches(s).some((m) => m.purpose === "scout" && m.toId === far.id)).toBe(true);
-    const gold = Number(s.resources.gold);
-    expect(gold).toBeLessThan(40);
-    const before = Number(s.units.find((u) => u.realmId === "player" && u.typeId === "militia")?.count ?? 0);
+    expect(Number(s.resources.gold)).toBeLessThan(40);
+    expect(Number(s.units.find((u) => u.realmId === "player" && u.typeId === "militia")?.count ?? 0)).toBe(3);
     const eta = listMarches(s)[0].arrivesTick - s.meta.tick;
     new TickEngine(s).settleTicks(eta);
     expect(isProvinceSeen(s, far.id)).toBe(true);
     expect(listMarches(s)).toEqual([]);
-    expect(Number(s.units.find((u) => u.realmId === "player" && u.typeId === "militia")?.count ?? 0)).toBe(before + 1);
+    expect(Number(s.units.find((u) => u.realmId === "player" && u.typeId === "militia")?.count ?? 0)).toBe(4);
   });
 
   it("refuses a tile already seen", () => {
