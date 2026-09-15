@@ -11,6 +11,18 @@ export interface BuildPayload {
   realmId?: string;
 }
 
+const HOLD_W = 16;
+const HOLD_H = 10;
+
+export function buildingAt(state: GameState, x: number, y: number) {
+  return state.buildings.find((b) => b.x === x && b.y === y);
+}
+
+export function canPlaceAt(state: GameState, x: number, y: number): boolean {
+  if (x < 0 || y < 0 || x >= HOLD_W || y >= HOLD_H) return false;
+  return !buildingAt(state, x, y);
+}
+
 export function buildCostMultiplier(state: GameState, realmId: string): number {
   const ruler = state.characters.find((c) => c.realmId === realmId && c.role === "ruler");
   if (!ruler) return 1;
@@ -21,6 +33,7 @@ export function buildCostMultiplier(state: GameState, realmId: string): number {
 export function tryBuild(state: GameState, payload: BuildPayload): boolean {
   const def = getBuildingType(payload.typeId);
   if (!def) return false;
+  if (!canPlaceAt(state, payload.x, payload.y)) return false;
   const realmId = payload.realmId ?? "player";
   const mult = buildCostMultiplier(state, realmId);
   for (const [res, costStr] of Object.entries(def.cost)) {
