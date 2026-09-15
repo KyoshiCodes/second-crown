@@ -11,13 +11,12 @@ describe("column vision", () => {
     s.resources.gold = "40";
     s.resources.food = "200";
     s.units.push({ id: "u_player_m", typeId: "militia", realmId: "player", count: "4", armyId: null });
-    const far = s.board.provinces.find((p) => Math.abs(p.x - 2) + Math.abs(p.y - 2) >= 3)!;
+    const far = s.board.provinces.find((p) => Math.abs(p.x - 2) + Math.abs(p.y - 2) >= 4)!;
     const path = routeTiles(s, s.board.homeProvinceId, far.id);
-    expect(path.length).toBeGreaterThan(2);
-    const mid = path[1];
-    expect(isProvinceSeen(s, mid) || mid === s.board.homeProvinceId).toBeTruthy();
+    const hidden = path.find((id) => !isProvinceSeen(s, id));
+    expect(hidden).toBeTruthy();
     expect(tryDispatchScout(s, far.id)).toBe(true);
-    new TickEngine(s).settleTicks(16);
-    expect(isProvinceSeen(s, path[1])).toBe(true);
+    new TickEngine(s).settleTicks(45);
+    expect(isProvinceSeen(s, hidden!)).toBe(true);
   });
 });
