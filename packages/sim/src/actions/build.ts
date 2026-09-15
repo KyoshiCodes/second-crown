@@ -14,9 +14,22 @@ export interface BuildPayload {
 const HOLD_W = 16;
 const HOLD_H = 10;
 const RIM_ONLY = new Set(["walls", "gate"]);
+const UNIQUE = new Set([
+  "keep",
+  "academy",
+  "mint",
+  "chapel",
+  "stables",
+  "archery_range",
+  "siege_workshop",
+]);
 
 export function isHoldRim(x: number, y: number): boolean {
   return x === 0 || y === 0 || x === HOLD_W - 1 || y === HOLD_H - 1;
+}
+
+export function isUniqueBuilding(typeId: string): boolean {
+  return UNIQUE.has(typeId);
 }
 
 export function buildingAt(state: GameState, x: number, y: number) {
@@ -28,9 +41,14 @@ export function canPlaceAt(state: GameState, x: number, y: number): boolean {
   return !buildingAt(state, x, y);
 }
 
-export function canPlaceType(state: GameState, typeId: string, x: number, y: number): boolean {
+export function realmOwnsType(state: GameState, typeId: string, realmId = "player"): boolean {
+  return state.buildings.some((b) => b.realmId === realmId && b.typeId === typeId);
+}
+
+export function canPlaceType(state: GameState, typeId: string, x: number, y: number, realmId = "player"): boolean {
   if (!canPlaceAt(state, x, y)) return false;
   if (RIM_ONLY.has(typeId) && !isHoldRim(x, y)) return false;
+  if (UNIQUE.has(typeId) && realmOwnsType(state, typeId, realmId)) return false;
   return true;
 }
 
@@ -44,8 +62,8 @@ export function buildCostMultiplier(state: GameState, realmId: string): number {
 export function tryBuild(state: GameState, payload: BuildPayload): boolean {
   const def = getBuildingType(payload.typeId);
   if (!def) return false;
-  if (!canPlaceType(state, payload.typeId, payload.x, payload.y)) return false;
   const realmId = payload.realmId ?? "player";
+  if (!canPlaceType(state, payload.typeId, payload.x, payload.y, realmId)) return false;
   const mult = buildCostMultiplier(state, realmId);
   for (const [res, costStr] of Object.entries(def.cost)) {
     const need = D(costStr ?? "0").mul(mult).ceil();
