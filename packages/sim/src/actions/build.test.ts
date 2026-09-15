@@ -106,7 +106,9 @@ describe("tryBuild", () => {
     expect(tryBuild(state, { typeId: "gate", x: 5, y: 5 })).toBe(false);
     expect(tryBuild(state, { typeId: "gate", x: 15, y: 3 })).toBe(false);
     expect(tryBuild(state, { typeId: "gate", x: 0, y: 5 })).toBe(true);
+    expect(tryBuild(state, { typeId: "gate", x: 0, y: 6 })).toBe(false);
     expect(tryBuild(state, { typeId: "walls", x: 0, y: 6 })).toBe(true);
+    expect(isUniqueBuilding("gate")).toBe(true);
   });
 
   it("allows only one keep and one academy", () => {
