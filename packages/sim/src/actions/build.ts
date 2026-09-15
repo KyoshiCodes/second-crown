@@ -13,6 +13,11 @@ export interface BuildPayload {
 
 const HOLD_W = 16;
 const HOLD_H = 10;
+const RIM_ONLY = new Set(["walls", "gate"]);
+
+export function isHoldRim(x: number, y: number): boolean {
+  return x === 0 || y === 0 || x === HOLD_W - 1 || y === HOLD_H - 1;
+}
 
 export function buildingAt(state: GameState, x: number, y: number) {
   return state.buildings.find((b) => b.x === x && b.y === y);
@@ -21,6 +26,12 @@ export function buildingAt(state: GameState, x: number, y: number) {
 export function canPlaceAt(state: GameState, x: number, y: number): boolean {
   if (x < 0 || y < 0 || x >= HOLD_W || y >= HOLD_H) return false;
   return !buildingAt(state, x, y);
+}
+
+export function canPlaceType(state: GameState, typeId: string, x: number, y: number): boolean {
+  if (!canPlaceAt(state, x, y)) return false;
+  if (RIM_ONLY.has(typeId) && !isHoldRim(x, y)) return false;
+  return true;
 }
 
 export function buildCostMultiplier(state: GameState, realmId: string): number {
@@ -33,7 +44,7 @@ export function buildCostMultiplier(state: GameState, realmId: string): number {
 export function tryBuild(state: GameState, payload: BuildPayload): boolean {
   const def = getBuildingType(payload.typeId);
   if (!def) return false;
-  if (!canPlaceAt(state, payload.x, payload.y)) return false;
+  if (!canPlaceType(state, payload.typeId, payload.x, payload.y)) return false;
   const realmId = payload.realmId ?? "player";
   const mult = buildCostMultiplier(state, realmId);
   for (const [res, costStr] of Object.entries(def.cost)) {
