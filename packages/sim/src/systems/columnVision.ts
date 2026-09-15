@@ -31,8 +31,7 @@ function revealProgress(state: GameState, fromId: string, toId: string, progress
   for (let i = 0; i < reached && i < path.length; i++) revealProvince(state, path[i]);
 }
 
-export function revealActiveColumns(state: GameState): void {
-  const tick = state.meta.tick;
+export function revealActiveColumns(state: GameState, atTick = state.meta.tick): void {
   for (const m of listMarches(state)) {
     if (m.realmId !== "player") continue;
     const from = getProvince(state, m.fromId);
@@ -41,12 +40,12 @@ export function revealActiveColumns(state: GameState): void {
     const travel = Math.max(1, (Math.abs(from.x - to.x) + Math.abs(from.y - to.y)) * TICKS_PER_STEP);
     const departed = m.arrivesTick - travel;
     const span = Math.max(1, m.arrivesTick - departed);
-    revealProgress(state, m.fromId, m.toId, (tick - departed) / span);
+    revealProgress(state, m.fromId, m.toId, (atTick - departed) / span);
   }
   for (const g of listGathers(state)) {
     if (g.realmId !== "player") continue;
     const span = Math.max(1, g.arrivesTick - g.departedTick);
-    const progress = (tick - g.departedTick) / span;
+    const progress = (atTick - g.departedTick) / span;
     if (g.phase === "returning") revealProgress(state, g.toId, g.fromId, progress);
     else revealProgress(state, g.fromId, g.toId, g.phase === "gathering" ? 1 : progress);
   }
@@ -57,10 +56,10 @@ export const ColumnVisionSystem = {
     return null;
   },
   processEventsAt(): void {},
-  advanceAnalytic(state: GameState): void {
-    revealActiveColumns(state);
+  advanceAnalytic(state: GameState, _fromTick?: number, toTick?: number): void {
+    revealActiveColumns(state, toTick ?? state.meta.tick);
   },
   tick(state: GameState): void {
-    revealActiveColumns(state);
+    revealActiveColumns(state, state.meta.tick);
   },
 };
