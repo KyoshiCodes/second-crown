@@ -18,6 +18,7 @@ import {
   settlementName,
   tryCancelBuild,
   tryCancelUpgrade,
+  tryDemolish,
   tryRepair,
   tryTrade,
   wallHp,
@@ -40,6 +41,8 @@ export function KingdomTab(props: {
   const scarred = state ? listScarred(state) : [];
   const works = state ? listWorksInProgress(state) : [];
   const upgrades = state ? listUpgrades(state) : [];
+  const standing =
+    state?.buildings.filter((b) => b.realmId === "player" && b.completesAtTick === null && b.typeId !== "keep") ?? [];
   const rim = state ? edgeWallCount(state, "player") : 0;
   const closed = state ? hasClosedWallRing(state) : false;
   const hp = state ? wallHp(state) : 0;
@@ -104,6 +107,25 @@ export function KingdomTab(props: {
                   onClick={() => act((st) => (tryCancelUpgrade(st, job.buildingId) ? `Stopped improving the ${nm}.` : "That work already finished."))}
                 >
                   Cancel
+                </button>
+              </div>
+            );
+          })}
+        </>
+      ) : null}
+      {standing.length > 0 ? (
+        <>
+          <h3>Standing</h3>
+          {standing.map((b) => {
+            const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
+            return (
+              <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
+                <span>{nm} lv {b.level} · {b.x},{b.y}</span>
+                <button
+                  type="button"
+                  onClick={() => act((st) => (tryDemolish(st, b.id) ? `Pulled down the ${nm}. Salvage returned.` : "Cannot demolish."))}
+                >
+                  Demolish
                 </button>
               </div>
             );
