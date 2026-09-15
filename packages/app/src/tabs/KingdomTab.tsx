@@ -32,6 +32,8 @@ import {
   tryTrade,
   wallHp,
   watchtowerWarning,
+  workPlotCap,
+  workPlotsUsed,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
@@ -60,6 +62,8 @@ export function KingdomTab(props: {
   const hp = state ? wallHp(state) : 0;
   const pop = state ? population(state) : 0;
   const beds = state ? housingCap(state) : 2;
+  const plots = state ? workPlotsUsed(state) : 0;
+  const plotCap = state ? workPlotCap(state) : 2;
   const incoming = state ? incomingOnHome(state) : [];
   const onFlags = state ? incomingOnPlayerFlags(state) : [];
   const seen = state ? watchtowerWarning(state) : undefined;
@@ -72,7 +76,7 @@ export function KingdomTab(props: {
   return (
     <>
       <p style={{ fontSize: 13 }}>
-        {hold} · {season}. People {pop}/{beds}. Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
+        {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more). Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
       </p>
       {incoming.length > 0 ? (
         <p style={{ fontSize: 13, color: "#f85149" }}>
