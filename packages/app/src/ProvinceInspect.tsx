@@ -18,6 +18,7 @@ import {
   nodeStockMax,
   outpostTithePerTick,
   scoutCost,
+  tryAbandonOutpost,
   tryDispatchGarrison,
   tryDispatchRecallGarrison,
   tryDispatchScout,
@@ -219,6 +220,13 @@ export function ProvinceInspect(props: {
                   Recall garrison
                 </button>
               ) : null}
+              <button
+                type="button"
+                style={{ marginTop: 8, marginRight: 8 }}
+                onClick={() => act((s) => (tryAbandonOutpost(s, selectedId) ? "Banner pulled. Garrison home." : "Cannot abandon."))}
+              >
+                Abandon flag
+              </button>
             </>
           ) : null}
           <div style={{ marginTop: 10, fontSize: 12 }}>
