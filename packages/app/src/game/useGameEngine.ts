@@ -9,6 +9,8 @@ import {
   upgradeJobFor,
   canAfford,
   canPlaceType,
+  isUniqueBuilding,
+  realmOwnsType,
   canAscend,
   ascendThreshold,
   realmPower,
@@ -193,7 +195,9 @@ export function useGameEngine() {
               setStatus(
                 typeId === "walls" || typeId === "gate"
                   ? "Walls and gates belong on the rim."
-                  : "That plot is taken or outside the hold."
+                  : isUniqueBuilding(typeId) && realmOwnsType(st, typeId)
+                    ? `You already have a ${nm}. Upgrade that one.`
+                    : "That plot is taken or outside the hold."
               );
               return;
             }
