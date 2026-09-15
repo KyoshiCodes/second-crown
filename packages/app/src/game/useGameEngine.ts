@@ -8,7 +8,7 @@ import {
   tryUpgrade,
   upgradeJobFor,
   canAfford,
-  canPlaceAt,
+  canPlaceType,
   canAscend,
   ascendThreshold,
   realmPower,
@@ -189,8 +189,12 @@ export function useGameEngine() {
             const typeId = selectedBuildRef.current;
             if (!typeId) return;
             const nm = getBuildingType(typeId)?.name ?? typeId;
-            if (!canPlaceAt(st, x, y)) {
-              setStatus("That plot is taken or outside the hold.");
+            if (!canPlaceType(st, typeId, x, y)) {
+              setStatus(
+                typeId === "walls" || typeId === "gate"
+                  ? "Walls and gates belong on the rim."
+                  : "That plot is taken or outside the hold."
+              );
               return;
             }
             const ok = tryBuild(st, { typeId, x, y });
