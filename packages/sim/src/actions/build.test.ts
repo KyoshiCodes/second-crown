@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryBuild, canAfford, tryCancelBuild, listWorksInProgress } from "./build.js";
+import { tryBuild, canAfford, tryCancelBuild, tryDemolish, listWorksInProgress } from "./build.js";
 import { getBuildingType } from "../content/buildings.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { D } from "../core/decimal.js";
@@ -20,7 +20,6 @@ describe("tryBuild", () => {
     expect(tryBuild(state, { typeId: "farm", x: 2, y: 3 })).toBe(true);
     expect(state.buildings[0].typeId).toBe("farm");
     expect(state.buildings[0].completesAtTick).toBe(30);
-    // cost 6 wood × 0.9 ambitious = ceil(5.4) = 6
     expect(D(state.resources.wood).eq(94)).toBe(true);
   });
 
@@ -54,5 +53,33 @@ describe("tryBuild", () => {
     expect(state.buildings.find((b) => b.id === id)).toBeUndefined();
     expect(D(state.resources.wood).gte(94)).toBe(true);
     expect(tryCancelBuild(state, id)).toBe(false);
+  });
+
+  it("demolishes a finished farm for salvage and will not touch a keep", () => {
+    const state = createGameState({ seed: 1 });
+    state.buildings.push({
+      id: "farm_done",
+      typeId: "farm",
+      realmId: "player",
+      x: 1,
+      y: 1,
+      level: 1,
+      completesAtTick: null,
+    });
+    state.buildings.push({
+      id: "keep_1",
+      typeId: "keep",
+      realmId: "player",
+      x: 4,
+      y: 4,
+      level: 1,
+      completesAtTick: null,
+    });
+    const wood = Number(state.resources.wood);
+    expect(tryDemolish(state, "farm_done")).toBe(true);
+    expect(state.buildings.find((b) => b.id === "farm_done")).toBeUndefined();
+    expect(Number(state.resources.wood)).toBeGreaterThan(wood);
+    expect(tryDemolish(state, "keep_1")).toBe(false);
+    expect(state.buildings.find((b) => b.id === "keep_1")).toBeTruthy();
   });
 });
