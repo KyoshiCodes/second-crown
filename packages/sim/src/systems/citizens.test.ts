@@ -10,6 +10,8 @@ import {
   seedCitizensFromBuildings,
   hireCitizenForBuilding,
   walkerRoleForJob,
+  tryAssignCitizen,
+  tryIdleCitizen,
 } from "./citizens.js";
 import { EconomySystem } from "./economy.js";
 
@@ -97,5 +99,26 @@ describe("citizens (stub)", () => {
     expect(walkerRoleForJob("guard")).toBe("guard");
     expect(walkerRoleForJob("scholar")).toBe("scholar");
     expect(walkerRoleForJob("unassigned")).toBe("villager");
+  });
+
+  it("posts a villager on a finished farm and can idle them", () => {
+    const state = createGameState({ seed: 1 });
+    const c = createCitizen(state, "player");
+    state.buildings.push({
+      id: "farm_1",
+      typeId: "farm",
+      realmId: "player",
+      x: 5,
+      y: 2,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(tryAssignCitizen(state, c.id, "farm_1")).toBe(true);
+    expect(c.job).toBe("farmer");
+    expect(c.tile).toEqual({ x: 5, y: 2 });
+    expect(tryAssignCitizen(state, c.id, "missing")).toBe(false);
+    expect(tryIdleCitizen(state, c.id)).toBe(true);
+    expect(c.job).toBe("unassigned");
+    expect(c.tile).toBeNull();
   });
 });
