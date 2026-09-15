@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryBuild, canAfford, tryCancelBuild, tryDemolish, listWorksInProgress } from "./build.js";
+import { tryBuild, canAfford, canPlaceAt, tryCancelBuild, tryDemolish, listWorksInProgress } from "./build.js";
 import { getBuildingType } from "../content/buildings.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { D } from "../core/decimal.js";
@@ -81,5 +81,17 @@ describe("tryBuild", () => {
     expect(Number(state.resources.wood)).toBeGreaterThan(wood);
     expect(tryDemolish(state, "keep_1")).toBe(false);
     expect(state.buildings.find((b) => b.id === "keep_1")).toBeTruthy();
+  });
+
+  it("refuses a second building on the same plot and does not take stores", () => {
+    const state = createGameState({ seed: 1 });
+    state.resources.wood = "100";
+    expect(tryBuild(state, { typeId: "farm", x: 3, y: 3 })).toBe(true);
+    const wood = state.resources.wood;
+    expect(canPlaceAt(state, 3, 3)).toBe(false);
+    expect(tryBuild(state, { typeId: "farm", x: 3, y: 3 })).toBe(false);
+    expect(state.resources.wood).toBe(wood);
+    expect(state.buildings.filter((b) => b.x === 3 && b.y === 3)).toHaveLength(1);
+    expect(canPlaceAt(state, 99, 0)).toBe(false);
   });
 });
