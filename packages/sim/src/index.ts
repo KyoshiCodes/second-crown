@@ -45,7 +45,7 @@ export { RivalSystem, tickWorldPulse, maybeContestFlag } from "./systems/rival.j
 export { EventSystem, EVENT_PERIOD, getEventLog, getWorldLog, pushWorldLog } from "./systems/events.js";
 export type { WorldEvent } from "./systems/events.js";
 
-export { tryBuild, canAfford, canPlaceAt, canPlaceType, isHoldRim, buildingAt, buildCostMultiplier, tryCancelBuild, tryDemolish, listWorksInProgress, buildTicksLeft } from "./actions/build.js";
+export { tryBuild, canAfford, canPlaceAt, canPlaceType, isHoldRim, isUniqueBuilding, realmOwnsType, buildingAt, buildCostMultiplier, tryCancelBuild, tryDemolish, listWorksInProgress, buildTicksLeft } from "./actions/build.js";
 export type { BuildPayload } from "./actions/build.js";
 
 export {
