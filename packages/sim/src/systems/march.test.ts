@@ -23,7 +23,7 @@ describe("W2 marches and walls", () => {
     expect(wallHp(s)).toBe(0);
   });
 
-  it("eight rim walls close the ring", () => {
+  it("eight rim walls plus a rim gate close the ring", () => {
     const s = createGameState({ seed: 1 });
     for (let i = 0; i < 8; i++) {
       s.buildings.push({
@@ -37,8 +37,19 @@ describe("W2 marches and walls", () => {
       });
     }
     expect(edgeWallCount(s, "player")).toBe(8);
+    expect(hasClosedWallRing(s)).toBe(false);
+    expect(wallHp(s)).toBe(8 * 12);
+    s.buildings.push({
+      id: "g1",
+      typeId: "gate",
+      realmId: "player",
+      x: 15,
+      y: 3,
+      level: 1,
+      completesAtTick: null,
+    });
     expect(hasClosedWallRing(s)).toBe(true);
-    expect(wallHp(s)).toBe(8 * 12 + 20);
+    expect(wallHp(s)).toBe(8 * 12 + 20 + 30);
     expect(siegeDefense(s, "player")).toBeGreaterThan(wallHp(s) - 1);
   });
 
