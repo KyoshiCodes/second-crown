@@ -77,4 +77,30 @@ describe("W12 housing", () => {
     expect(tryBuild(s, { typeId: "gold_mine", x: 5, y: 1 })).toBe(true);
     expect(tryBuild(s, { typeId: "farm", x: 6, y: 1 })).toBe(false);
   });
+
+  it("cottage and keep levels buy more beds and plots", () => {
+    const s = createGameState({ seed: 1 });
+    s.buildings.push({
+      id: "c",
+      typeId: "cottage",
+      realmId: "player",
+      x: 1,
+      y: 1,
+      level: 2,
+      completesAtTick: null,
+    });
+    expect(housingCap(s)).toBe(6);
+    expect(workPlotCap(s)).toBe(6);
+    s.buildings.push({
+      id: "k",
+      typeId: "keep",
+      realmId: "player",
+      x: 2,
+      y: 2,
+      level: 3,
+      completesAtTick: null,
+    });
+    expect(housingCap(s)).toBe(15);
+    expect(workPlotCap(s)).toBe(9);
+  });
 });
