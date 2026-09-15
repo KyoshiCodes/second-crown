@@ -37,6 +37,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
+import { PeoplePanel } from "../PeoplePanel";
 
 export function KingdomTab(props: {
   state: GameState | undefined;
@@ -214,6 +215,7 @@ export function KingdomTab(props: {
           })}
         </>
       ) : null}
+      <PeoplePanel state={state} act={act} />
       <h3>Market</h3>
       <p style={{ fontSize: 12 }}>{marketsN < 1 ? "Build a Market to trade." : `Markets x${marketsN}`}</p>
       {MARKET_OFFERS.map((o) => (
