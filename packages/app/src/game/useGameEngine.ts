@@ -26,6 +26,8 @@ import {
   getBuildingType,
   getProvince,
   setPlayerCulture,
+  incomingOnHome,
+  watchtowerWarning,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -83,6 +85,7 @@ export function useGameEngine() {
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const selectedBuildRef = React.useRef<string | null>("farm");
   const lastRivalWar = React.useRef<string | null>(null);
+  const lastIncoming = React.useRef<string | null>(null);
 
   React.useEffect(() => { selectedBuildRef.current = selectedBuild; }, [selectedBuild]);
   React.useEffect(() => { speedRef.current = speed; pausedRef.current = paused; }, [speed, paused]);
@@ -124,13 +127,25 @@ export function useGameEngine() {
       window.dispatchEvent(new CustomEvent("sc-world-dispatch", { detail: worldLine }));
     }
     mapRef.current?.sync(s);
-    const incoming = s.wars.find(
+    const incoming = incomingOnHome(s)[0];
+    if (incoming && incoming.id !== lastIncoming.current) {
+      lastIncoming.current = incoming.id;
+      const named = watchtowerWarning(s);
+      const name = named
+        ? s.realms.find((r) => r.id === incoming.realmId)?.name ?? incoming.realmId
+        : "Unknown host";
+      const eta = Math.max(0, Math.ceil((incoming.arrivesTick - s.meta.tick) / 10));
+      setStatus(`${name} marches on your hold · ${eta}s.`);
+      sfx.war();
+    }
+    if (!incoming) lastIncoming.current = null;
+    const warIn = s.wars.find(
       (w) => w.status === "active" && w.defenderRealmId === "player" && w.attackerRealmId !== "player"
     );
-    if (incoming && incoming.id !== lastRivalWar.current) {
-      lastRivalWar.current = incoming.id;
-      const name = s.realms.find((r) => r.id === incoming.attackerRealmId)?.name ?? incoming.attackerRealmId;
-      setStatus(`${name} declares war! "${getWarTaunt(incoming.attackerRealmId)}" Clock still runs.`);
+    if (warIn && warIn.id !== lastRivalWar.current) {
+      lastRivalWar.current = warIn.id;
+      const name = s.realms.find((r) => r.id === warIn.attackerRealmId)?.name ?? warIn.attackerRealmId;
+      setStatus(`${name} declares war! "${getWarTaunt(warIn.attackerRealmId)}" Clock still runs.`);
       sfx.war();
     }
   }, []);
@@ -272,6 +287,7 @@ export function useGameEngine() {
       st.meta.lastRealTime = Date.now();
       engineRef.current = new TickEngine(st);
       lastRivalWar.current = null;
+      lastIncoming.current = null;
       setStatus("Imported.");
       syncUi(engineRef.current);
       persist(st);
@@ -285,6 +301,7 @@ export function useGameEngine() {
     const st = freshState(Date.now() >>> 0);
     engineRef.current = new TickEngine(st);
     lastRivalWar.current = null;
+    lastIncoming.current = null;
     setBattleSnap(null);
     setOfflineNote("");
     setTab("kingdom");
