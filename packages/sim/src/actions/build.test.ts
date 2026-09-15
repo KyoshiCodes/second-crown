@@ -95,7 +95,7 @@ describe("tryBuild", () => {
     expect(canPlaceAt(state, 99, 0)).toBe(false);
   });
 
-  it("walls and gates only sit on the rim", () => {
+  it("walls and gates only sit on the rim and must join the run", () => {
     const state = createGameState({ seed: 1 });
     state.resources.wood = "200";
     state.resources.stone = "200";
@@ -104,7 +104,9 @@ describe("tryBuild", () => {
     expect(tryBuild(state, { typeId: "walls", x: 4, y: 4 })).toBe(false);
     expect(tryBuild(state, { typeId: "walls", x: 0, y: 4 })).toBe(true);
     expect(tryBuild(state, { typeId: "gate", x: 5, y: 5 })).toBe(false);
-    expect(tryBuild(state, { typeId: "gate", x: 15, y: 3 })).toBe(true);
+    expect(tryBuild(state, { typeId: "gate", x: 15, y: 3 })).toBe(false);
+    expect(tryBuild(state, { typeId: "gate", x: 0, y: 5 })).toBe(true);
+    expect(tryBuild(state, { typeId: "walls", x: 0, y: 6 })).toBe(true);
   });
 
   it("allows only one keep and one academy", () => {
