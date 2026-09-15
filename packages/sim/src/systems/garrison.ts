@@ -77,3 +77,14 @@ export function tryRecallGarrison(state: GameState, provinceId: string): boolean
   state.inputLog.push({ tick: state.meta.tick, type: "recall_garrison", payload: { provinceId } });
   return true;
 }
+
+/** Pull the banner. Garrison walks home instantly so troops are not lost. */
+export function tryAbandonOutpost(state: GameState, provinceId: string): boolean {
+  if (!listOutposts(state).some((p) => p.id === provinceId)) return false;
+  const dest = getProvince(state, provinceId);
+  if (!dest) return false;
+  if (garrisonAt(state, provinceId)) tryRecallGarrison(state, provinceId);
+  dest.occupantRealmId = null;
+  state.inputLog.push({ tick: state.meta.tick, type: "abandon_outpost", payload: { provinceId } });
+  return true;
+}
