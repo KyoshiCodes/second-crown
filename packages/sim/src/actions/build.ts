@@ -16,6 +16,7 @@ const HOLD_H = 10;
 const RIM_ONLY = new Set(["walls", "gate"]);
 const UNIQUE = new Set([
   "keep",
+  "gate",
   "academy",
   "mint",
   "chapel",
