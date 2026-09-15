@@ -60,6 +60,7 @@ describe("W12 housing", () => {
     const s = createGameState({ seed: 1 });
     s.resources.wood = "200";
     s.resources.food = "200";
+    s.resources.stone = "200";
     s.buildings.push({
       id: "c",
       typeId: "cottage",
