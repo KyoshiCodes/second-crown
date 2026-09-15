@@ -27,7 +27,9 @@ import {
   getProvince,
   setPlayerCulture,
   incomingOnHome,
+  incomingOnPlayerFlags,
   watchtowerWarning,
+  countBuilding,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -86,6 +88,7 @@ export function useGameEngine() {
   const selectedBuildRef = React.useRef<string | null>("farm");
   const lastRivalWar = React.useRef<string | null>(null);
   const lastIncoming = React.useRef<string | null>(null);
+  const lastFlagHit = React.useRef<string | null>(null);
 
   React.useEffect(() => { selectedBuildRef.current = selectedBuild; }, [selectedBuild]);
   React.useEffect(() => { speedRef.current = speed; pausedRef.current = paused; }, [speed, paused]);
@@ -139,6 +142,19 @@ export function useGameEngine() {
       sfx.war();
     }
     if (!incoming) lastIncoming.current = null;
+    const flagHit = incomingOnPlayerFlags(s)[0];
+    if (flagHit && flagHit.id !== lastFlagHit.current) {
+      lastFlagHit.current = flagHit.id;
+      const named = countBuilding(s, "watchtower") > 0;
+      const name = named
+        ? s.realms.find((r) => r.id === flagHit.realmId)?.name ?? flagHit.realmId
+        : "Unknown host";
+      const dest = getProvince(s, flagHit.toId);
+      const where = dest ? `${dest.x},${dest.y}` : "a flag";
+      const eta = Math.max(0, Math.ceil((flagHit.arrivesTick - s.meta.tick) / 10));
+      setStatus(`${name} contests flag ${where} · ${eta}s.`);
+    }
+    if (!flagHit) lastFlagHit.current = null;
     const warIn = s.wars.find(
       (w) => w.status === "active" && w.defenderRealmId === "player" && w.attackerRealmId !== "player"
     );
@@ -288,6 +304,7 @@ export function useGameEngine() {
       engineRef.current = new TickEngine(st);
       lastRivalWar.current = null;
       lastIncoming.current = null;
+      lastFlagHit.current = null;
       setStatus("Imported.");
       syncUi(engineRef.current);
       persist(st);
@@ -302,6 +319,7 @@ export function useGameEngine() {
     engineRef.current = new TickEngine(st);
     lastRivalWar.current = null;
     lastIncoming.current = null;
+    lastFlagHit.current = null;
     setBattleSnap(null);
     setOfflineNote("");
     setTab("kingdom");
