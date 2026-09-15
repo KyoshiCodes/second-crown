@@ -96,3 +96,30 @@ export function tryCancelBuild(state: GameState, buildingId: string): boolean {
   });
   return true;
 }
+
+const SALVAGE = 0.3;
+
+/** Tear down a finished work. Keep stays. Salvage is 30% of base cost × level. */
+export function tryDemolish(state: GameState, buildingId: string): boolean {
+  const idx = state.buildings.findIndex((b) => b.id === buildingId);
+  if (idx < 0) return false;
+  const b = state.buildings[idx];
+  if (b.typeId === "keep") return false;
+  if (b.completesAtTick !== null) return false;
+  const def = getBuildingType(b.typeId);
+  if (!def) return false;
+  const level = Math.max(1, b.level ?? 1);
+  const mult = buildCostMultiplier(state, b.realmId);
+  for (const [res, costStr] of Object.entries(def.cost)) {
+    const paid = D(costStr ?? "0").mul(mult).ceil();
+    addCapped(state, res, paid.mul(SALVAGE).mul(level));
+  }
+  state.buildings.splice(idx, 1);
+  state.inputLog.push({
+    tick: state.meta.tick,
+    type: "demolish",
+    issuerId: b.realmId,
+    payload: { buildingId, typeId: b.typeId },
+  });
+  return true;
+}
