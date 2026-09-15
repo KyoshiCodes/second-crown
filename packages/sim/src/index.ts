@@ -202,7 +202,7 @@ export {
 
 export { laborPerTick, applyLabor, maxMarches } from "./systems/labor.js";
 export { housingCap, population, canHouse } from "./systems/housing.js";
-export { isProvinceSeen, tryScoutProvince, revealProvince, ensureFog, visionRange, scoutCost } from "./systems/fog.js";
+export { isProvinceSeen, tryScoutProvince, revealProvince, ensureFog, visionRange, scoutCost, rimWatchtowers } from "./systems/fog.js";
 export { listRimForts } from "./systems/rimForts.js";
 export type { RimFort } from "./systems/rimForts.js";
 export { listOutposts, plantOutpost, outpostTithePerTick } from "./systems/outpost.js";
