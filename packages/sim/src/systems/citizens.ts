@@ -98,3 +98,25 @@ export function citizensByRealm(state: GameState, realmId: string): CitizenInsta
 export function countCitizensByJob(state: GameState, realmId: string, job: CitizenJobId): number {
   return state.citizens.filter((c) => c.realmId === realmId && c.job === job).length;
 }
+
+/** Send a worker to a finished building. Cottage and gate have no trade. */
+export function tryAssignCitizen(state: GameState, citizenId: string, buildingId: string): boolean {
+  const citizen = state.citizens.find((c) => c.id === citizenId);
+  if (!citizen) return false;
+  const b = state.buildings.find((x) => x.id === buildingId);
+  if (!b || b.completesAtTick !== null) return false;
+  if (b.realmId !== citizen.realmId) return false;
+  const job = jobForBuildingType(b.typeId);
+  if (job === "unassigned") return false;
+  citizen.job = job;
+  citizen.tile = { x: b.x, y: b.y };
+  return true;
+}
+
+export function tryIdleCitizen(state: GameState, citizenId: string): boolean {
+  const citizen = state.citizens.find((c) => c.id === citizenId);
+  if (!citizen) return false;
+  citizen.job = "unassigned";
+  citizen.tile = null;
+  return true;
+}
