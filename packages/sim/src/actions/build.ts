@@ -45,9 +45,22 @@ export function realmOwnsType(state: GameState, typeId: string, realmId = "playe
   return state.buildings.some((b) => b.realmId === realmId && b.typeId === typeId);
 }
 
+function rimForts(state: GameState, realmId: string) {
+  return state.buildings.filter(
+    (b) => b.realmId === realmId && RIM_ONLY.has(b.typeId) && isHoldRim(b.x, b.y)
+  );
+}
+
+export function rimRunTouches(state: GameState, x: number, y: number, realmId = "player"): boolean {
+  const existing = rimForts(state, realmId);
+  if (existing.length === 0) return true;
+  return existing.some((b) => Math.abs(b.x - x) + Math.abs(b.y - y) === 1);
+}
+
 export function canPlaceType(state: GameState, typeId: string, x: number, y: number, realmId = "player"): boolean {
   if (!canPlaceAt(state, x, y)) return false;
   if (RIM_ONLY.has(typeId) && !isHoldRim(x, y)) return false;
+  if (RIM_ONLY.has(typeId) && !rimRunTouches(state, x, y, realmId)) return false;
   if (UNIQUE.has(typeId) && realmOwnsType(state, typeId, realmId)) return false;
   return true;
 }
