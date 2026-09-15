@@ -3,6 +3,7 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { getBuildingType } from "../content/buildings.js";
 import { unlock } from "../systems/wave.js";
 import { addCapped } from "../systems/storage.js";
+import { WORK_PLOTS, canRaiseWork } from "../systems/housing.js";
 
 export interface BuildPayload {
   typeId: string;
@@ -63,6 +64,7 @@ export function canPlaceType(state: GameState, typeId: string, x: number, y: num
   if (RIM_ONLY.has(typeId) && !isHoldRim(x, y)) return false;
   if (RIM_ONLY.has(typeId) && !rimRunTouches(state, x, y, realmId)) return false;
   if (UNIQUE.has(typeId) && realmOwnsType(state, typeId, realmId)) return false;
+  if (WORK_PLOTS.has(typeId) && !canRaiseWork(state, realmId)) return false;
   return true;
 }
 
