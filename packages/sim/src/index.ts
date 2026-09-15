@@ -30,6 +30,8 @@ export {
   countCitizensByJob,
   jobForBuildingType,
   walkerRoleForJob,
+  tryAssignCitizen,
+  tryIdleCitizen,
 } from "./systems/citizens.js";
 
 export { CULTURES, getCulture } from "./content/cultures.js";
