@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
+import { plantOutpost } from "./outpost.js";
 import { isProvinceSeen, tryScoutProvince, visionRange } from "./fog.js";
 
 describe("W13 fog", () => {
@@ -42,5 +43,19 @@ describe("W13 fog", () => {
       (p) => Math.abs(p.x - 2) + Math.abs(p.y - 2) === 2
     );
     expect(mid && isProvinceSeen(s, mid.id)).toBe(true);
+  });
+
+  it("a planted flag lights its own tile and adjacent hexes", () => {
+    const s = createGameState({ seed: 1 });
+    const far = s.board.provinces.find(
+      (p) => Math.abs(p.x - 2) + Math.abs(p.y - 2) >= 4 && p.node !== "hold"
+    )!;
+    expect(isProvinceSeen(s, far.id)).toBe(false);
+    plantOutpost(s, far);
+    expect(isProvinceSeen(s, far.id)).toBe(true);
+    const next = s.board.provinces.find(
+      (p) => p.id !== far.id && Math.abs(p.x - far.x) + Math.abs(p.y - far.y) === 1
+    );
+    expect(next && isProvinceSeen(s, next.id)).toBe(true);
   });
 });
