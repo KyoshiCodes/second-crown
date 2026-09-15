@@ -7,19 +7,24 @@ import {
   currentSeason,
   edgeWallCount,
   gateOnRim,
+  garrisonAt,
+  garrisonPower,
   getBuildingType,
   getProvince,
   hasClosedWallRing,
   housingCap,
   incomingOnHome,
   incomingOnPlayerFlags,
+  incomingOnProvince,
   listBuildableTypes,
+  listOutposts,
   listScarred,
   listUpgrades,
   listWorksInProgress,
   MARKET_OFFERS,
   population,
   settlementName,
+  tryAbandonOutpost,
   tryCancelBuild,
   tryCancelUpgrade,
   tryDemolish,
@@ -46,6 +51,7 @@ export function KingdomTab(props: {
   const scarred = state ? listScarred(state) : [];
   const works = state ? listWorksInProgress(state) : [];
   const upgrades = state ? listUpgrades(state) : [];
+  const flags = state ? listOutposts(state) : [];
   const standing =
     state?.buildings.filter((b) => b.realmId === "player" && b.completesAtTick === null && b.typeId !== "keep") ?? [];
   const rim = state ? edgeWallCount(state, "player") : 0;
@@ -59,7 +65,7 @@ export function KingdomTab(props: {
   const seen = state ? watchtowerWarning(state) : undefined;
   const tick = state?.meta.tick ?? 0;
   const nameOf = (id: string) =>
-    seen || countBuilding(state!, "watchtower") > 0
+    seen || (state && countBuilding(state, "watchtower") > 0)
       ? state?.realms.find((r) => r.id === id)?.name ?? id
       : "Unknown host";
 
@@ -176,6 +182,32 @@ export function KingdomTab(props: {
               Repair {b.typeId} (8 stone)
             </button>
           ))}
+        </>
+      ) : null}
+      {flags.length > 0 ? (
+        <>
+          <h3>Flags</h3>
+          {flags.map((p) => {
+            const posted = state ? garrisonAt(state, p.id) : undefined;
+            const power = state && posted ? garrisonPower(state, p.id) : 0;
+            const hit = state ? incomingOnProvince(state, p.id) : undefined;
+            const eta = hit ? Math.max(0, Math.ceil((hit.arrivesTick - tick) / 10)) : 0;
+            return (
+              <div key={p.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, flexWrap: "wrap" }}>
+                <span>
+                  {p.node} {p.x},{p.y}
+                  {posted ? ` · garrison ${power}` : " · unguarded"}
+                  {hit ? ` · ${nameOf(hit.realmId)} in ${eta}s` : ""}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => act((st) => (tryAbandonOutpost(st, p.id) ? "Banner pulled. Garrison home." : "Cannot abandon."))}
+                >
+                  Abandon
+                </button>
+              </div>
+            );
+          })}
         </>
       ) : null}
       <h3>Market</h3>
