@@ -10,6 +10,7 @@ import {
   getBuildingType,
   hasClosedWallRing,
   housingCap,
+  incomingOnHome,
   listBuildableTypes,
   listScarred,
   listUpgrades,
@@ -23,6 +24,7 @@ import {
   tryRepair,
   tryTrade,
   wallHp,
+  watchtowerWarning,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
@@ -50,12 +52,26 @@ export function KingdomTab(props: {
   const hp = state ? wallHp(state) : 0;
   const pop = state ? population(state) : 0;
   const beds = state ? housingCap(state) : 2;
+  const incoming = state ? incomingOnHome(state) : [];
+  const seen = state ? watchtowerWarning(state) : undefined;
+  const tick = state?.meta.tick ?? 0;
 
   return (
     <>
       <p style={{ fontSize: 13 }}>
         {hold} · {season}. People {pop}/{beds}. Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
       </p>
+      {incoming.length > 0 ? (
+        <p style={{ fontSize: 13, color: "#f85149" }}>
+          {incoming.map((m) => {
+            const name = seen
+              ? state?.realms.find((r) => r.id === m.realmId)?.name ?? m.realmId
+              : "Unknown host";
+            const eta = Math.max(0, Math.ceil((m.arrivesTick - tick) / 10));
+            return `${name} at the gates · ${eta}s`;
+          }).join(" · ")}
+        </p>
+      ) : null}
       {selected ? <p style={{ fontSize: 12, opacity: 0.8 }}>{selected.name}: {selected.blurb}</p> : null}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
         {types.map((t) => {
