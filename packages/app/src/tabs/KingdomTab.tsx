@@ -8,9 +8,11 @@ import {
   edgeWallCount,
   gateOnRim,
   getBuildingType,
+  getProvince,
   hasClosedWallRing,
   housingCap,
   incomingOnHome,
+  incomingOnPlayerFlags,
   listBuildableTypes,
   listScarred,
   listUpgrades,
@@ -53,8 +55,13 @@ export function KingdomTab(props: {
   const pop = state ? population(state) : 0;
   const beds = state ? housingCap(state) : 2;
   const incoming = state ? incomingOnHome(state) : [];
+  const onFlags = state ? incomingOnPlayerFlags(state) : [];
   const seen = state ? watchtowerWarning(state) : undefined;
   const tick = state?.meta.tick ?? 0;
+  const nameOf = (id: string) =>
+    seen || countBuilding(state!, "watchtower") > 0
+      ? state?.realms.find((r) => r.id === id)?.name ?? id
+      : "Unknown host";
 
   return (
     <>
@@ -64,11 +71,18 @@ export function KingdomTab(props: {
       {incoming.length > 0 ? (
         <p style={{ fontSize: 13, color: "#f85149" }}>
           {incoming.map((m) => {
-            const name = seen
-              ? state?.realms.find((r) => r.id === m.realmId)?.name ?? m.realmId
-              : "Unknown host";
             const eta = Math.max(0, Math.ceil((m.arrivesTick - tick) / 10));
-            return `${name} at the gates · ${eta}s`;
+            return `${nameOf(m.realmId)} at the gates · ${eta}s`;
+          }).join(" · ")}
+        </p>
+      ) : null}
+      {onFlags.length > 0 ? (
+        <p style={{ fontSize: 13, color: "#d29922" }}>
+          {onFlags.map((m) => {
+            const dest = state ? getProvince(state, m.toId) : undefined;
+            const eta = Math.max(0, Math.ceil((m.arrivesTick - tick) / 10));
+            const where = dest ? `${dest.x},${dest.y}` : m.toId;
+            return `${nameOf(m.realmId)} on flag ${where} · ${eta}s`;
           }).join(" · ")}
         </p>
       ) : null}
