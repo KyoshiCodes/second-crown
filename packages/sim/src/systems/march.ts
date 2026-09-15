@@ -7,7 +7,7 @@ import { defenseBonus, realmPower, resolveBattle } from "./combat.js";
 import { createRngStreams, type RngStreams } from "../core/rng.js";
 import { maxMarches } from "./labor.js";
 import { forcePower, returnForce, takeForce } from "./column.js";
-import { gateHp } from "./gate.js";
+import { gateHp, gateOnRim } from "./gate.js";
 import { listGathers } from "./gather.js";
 import { plantOutpost, listOutposts } from "./outpost.js";
 import { addCapped } from "./storage.js";
@@ -51,7 +51,7 @@ export function edgeWallCount(state: GameState, realmId: string): number {
 }
 
 export function hasClosedWallRing(state: GameState, realmId = "player"): boolean {
-  return edgeWallCount(state, realmId) >= 8;
+  return edgeWallCount(state, realmId) >= 8 && gateOnRim(state, realmId);
 }
 
 export function wallHp(state: GameState, realmId = "player"): number {
