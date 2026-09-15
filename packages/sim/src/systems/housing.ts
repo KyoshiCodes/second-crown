@@ -2,14 +2,24 @@ import type { GameState } from "@second-crown/shared";
 
 export const WORK_PLOTS = new Set(["farm", "lumber_camp", "quarry", "gold_mine"]);
 
-function finished(state: GameState, typeId: string, realmId: string): number {
+function finishedOf(state: GameState, typeId: string, realmId: string) {
   return state.buildings.filter(
     (b) => b.realmId === realmId && b.typeId === typeId && b.completesAtTick === null
-  ).length;
+  );
+}
+
+function levelsOf(state: GameState, typeId: string, realmId: string): number {
+  return finishedOf(state, typeId, realmId).reduce((n, b) => n + Math.max(1, b.level ?? 1), 0);
+}
+
+function keepLv(state: GameState, realmId: string): number {
+  const keeps = finishedOf(state, "keep", realmId);
+  if (keeps.length === 0) return 0;
+  return Math.max(...keeps.map((b) => Math.max(1, b.level ?? 1)));
 }
 
 export function housingCap(state: GameState, realmId = "player"): number {
-  return 2 + finished(state, "cottage", realmId) * 2 + finished(state, "keep", realmId) * 3;
+  return 2 + levelsOf(state, "cottage", realmId) * 2 + keepLv(state, realmId) * 3;
 }
 
 export function population(state: GameState, realmId = "player"): number {
@@ -20,9 +30,9 @@ export function canHouse(state: GameState, realmId = "player"): boolean {
   return population(state, realmId) < housingCap(state, realmId);
 }
 
-/** Finished cottages and keep buy more field plots. Scaffolding still occupies a plot. */
+/** Cottages buy 2 plots per level. Keep level buys 1 plot. Scaffolding still occupies a plot. */
 export function workPlotCap(state: GameState, realmId = "player"): number {
-  return 2 + finished(state, "cottage", realmId) * 2 + finished(state, "keep", realmId);
+  return 2 + levelsOf(state, "cottage", realmId) * 2 + keepLv(state, realmId);
 }
 
 export function workPlotsUsed(state: GameState, realmId = "player"): number {
