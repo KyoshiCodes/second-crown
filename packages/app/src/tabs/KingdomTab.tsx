@@ -6,6 +6,7 @@ import {
   countBuilding,
   currentSeason,
   edgeWallCount,
+  gateOnRim,
   getBuildingType,
   hasClosedWallRing,
   housingCap,
@@ -45,6 +46,7 @@ export function KingdomTab(props: {
     state?.buildings.filter((b) => b.realmId === "player" && b.completesAtTick === null && b.typeId !== "keep") ?? [];
   const rim = state ? edgeWallCount(state, "player") : 0;
   const closed = state ? hasClosedWallRing(state) : false;
+  const gate = state ? gateOnRim(state) : false;
   const hp = state ? wallHp(state) : 0;
   const pop = state ? population(state) : 0;
   const beds = state ? housingCap(state) : 2;
@@ -52,7 +54,7 @@ export function KingdomTab(props: {
   return (
     <>
       <p style={{ fontSize: 13 }}>
-        {hold} · {season}. People {pop}/{beds}. Walls on the map edge ({rim}/8{closed ? ", closed" : ""}, {hp} wall HP).
+        {hold} · {season}. People {pop}/{beds}. Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
       </p>
       {selected ? <p style={{ fontSize: 12, opacity: 0.8 }}>{selected.name}: {selected.blurb}</p> : null}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
