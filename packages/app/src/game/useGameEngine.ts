@@ -7,6 +7,8 @@ import {
   tryCancelUpgrade,
   tryUpgrade,
   upgradeJobFor,
+  canAfford,
+  canPlaceAt,
   canAscend,
   ascendThreshold,
   realmPower,
@@ -186,9 +188,13 @@ export function useGameEngine() {
             }
             const typeId = selectedBuildRef.current;
             if (!typeId) return;
-            const ok = tryBuild(st, { typeId, x, y });
             const nm = getBuildingType(typeId)?.name ?? typeId;
-            setStatus(ok ? `Built ${nm}.` : `Cannot afford ${nm}.`);
+            if (!canPlaceAt(st, x, y)) {
+              setStatus("That plot is taken or outside the hold.");
+              return;
+            }
+            const ok = tryBuild(st, { typeId, x, y });
+            setStatus(ok ? `Built ${nm}.` : canAfford(st, typeId) ? `Cannot place ${nm}.` : `Cannot afford ${nm}.`);
             if (ok) { syncUi(eng); persist(st); }
           });
           map.onProvinceClick((provinceId) => {
