@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryBuild, canAfford, canPlaceAt, tryCancelBuild, tryDemolish, listWorksInProgress } from "./build.js";
+import { tryBuild, canAfford, canPlaceAt, canPlaceType, tryCancelBuild, tryDemolish, listWorksInProgress } from "./build.js";
 import { getBuildingType } from "../content/buildings.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { D } from "../core/decimal.js";
@@ -93,5 +93,17 @@ describe("tryBuild", () => {
     expect(state.resources.wood).toBe(wood);
     expect(state.buildings.filter((b) => b.x === 3 && b.y === 3)).toHaveLength(1);
     expect(canPlaceAt(state, 99, 0)).toBe(false);
+  });
+
+  it("walls and gates only sit on the rim", () => {
+    const state = createGameState({ seed: 1 });
+    state.resources.wood = "200";
+    state.resources.stone = "200";
+    state.resources.gold = "50";
+    expect(canPlaceType(state, "walls", 4, 4)).toBe(false);
+    expect(tryBuild(state, { typeId: "walls", x: 4, y: 4 })).toBe(false);
+    expect(tryBuild(state, { typeId: "walls", x: 0, y: 4 })).toBe(true);
+    expect(tryBuild(state, { typeId: "gate", x: 5, y: 5 })).toBe(false);
+    expect(tryBuild(state, { typeId: "gate", x: 15, y: 3 })).toBe(true);
   });
 });
