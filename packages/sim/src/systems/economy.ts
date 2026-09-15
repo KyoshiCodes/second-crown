@@ -6,7 +6,7 @@ import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { flagNum } from "./wave.js";
 import { decreeActive } from "./decree.js";
 import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
-import { hireCitizenForBuilding } from "./citizens.js";
+import { hireCitizenForBuilding, jobForBuildingType } from "./citizens.js";
 import { addCapped } from "./storage.js";
 import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
@@ -26,13 +26,27 @@ export function productionBonus(state: GameState): number {
   return bonus;
 }
 
-function rateFor(state: GameState, typeId: string, level: number, res: string, rateStr: string) {
-  void typeId;
+/** Matching job on this tile: +20% each, cap +40%. Unmanned stays 1. */
+export function staffBonus(state: GameState, building: GameState["buildings"][number]): number {
+  const job = jobForBuildingType(building.typeId);
+  if (job === "unassigned") return 1;
+  const n = state.citizens.filter(
+    (c) =>
+      c.realmId === building.realmId &&
+      c.job === job &&
+      c.tile?.x === building.x &&
+      c.tile?.y === building.y
+  ).length;
+  return 1 + Math.min(0.4, n * 0.2);
+}
+
+function rateFor(state: GameState, building: GameState["buildings"][number], res: string, rateStr: string) {
   const scarce = res === "gold" ? 0.35 : 1;
   return D(rateStr)
-    .mul(Math.max(1, level))
+    .mul(Math.max(1, building.level))
     .mul(1 + productionBonus(state) * 0.04 + researchYield(state, res))
-    .mul(scarce);
+    .mul(scarce)
+    .mul(staffBonus(state, building));
 }
 
 export const EconomySystem = {
@@ -57,7 +71,7 @@ export const EconomySystem = {
       const def = getBuildingType(b.typeId);
       if (!def) continue;
       for (const [res, rateStr] of Object.entries(def.productionPerTick)) {
-        const amount = rateFor(state, b.typeId, b.level, res, rateStr ?? "0").mul(ticks);
+        const amount = rateFor(state, b, res, rateStr ?? "0").mul(ticks);
         totals[res] = (totals[res] ?? D(0)).add(amount);
       }
     }
@@ -90,7 +104,7 @@ export function computeIncomePerSecond(state: GameState): Record<string, string>
     const def = getBuildingType(b.typeId);
     if (!def) continue;
     for (const [res, rateStr] of Object.entries(def.productionPerTick)) {
-      perTick[res] = (perTick[res] ?? D(0)).add(rateFor(state, b.typeId, b.level, res, rateStr ?? "0"));
+      perTick[res] = (perTick[res] ?? D(0)).add(rateFor(state, b, res, rateStr ?? "0"));
     }
   }
   const routes = routeGoldPerTick(state);
