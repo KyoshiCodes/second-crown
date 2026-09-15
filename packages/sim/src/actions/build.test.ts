@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { tryBuild, canAfford, canPlaceAt, canPlaceType, tryCancelBuild, tryDemolish, listWorksInProgress } from "./build.js";
+import { tryBuild, canAfford, canPlaceAt, canPlaceType, tryCancelBuild, tryDemolish, listWorksInProgress, isUniqueBuilding } from "./build.js";
 import { getBuildingType } from "../content/buildings.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { D } from "../core/decimal.js";
@@ -105,5 +105,23 @@ describe("tryBuild", () => {
     expect(tryBuild(state, { typeId: "walls", x: 0, y: 4 })).toBe(true);
     expect(tryBuild(state, { typeId: "gate", x: 5, y: 5 })).toBe(false);
     expect(tryBuild(state, { typeId: "gate", x: 15, y: 3 })).toBe(true);
+  });
+
+  it("allows only one keep and one academy", () => {
+    const state = createGameState({ seed: 1 });
+    state.resources.wood = "400";
+    state.resources.stone = "400";
+    state.resources.gold = "200";
+    expect(isUniqueBuilding("keep")).toBe(true);
+    expect(isUniqueBuilding("farm")).toBe(false);
+    expect(tryBuild(state, { typeId: "keep", x: 4, y: 4 })).toBe(true);
+    const gold = state.resources.gold;
+    expect(canPlaceType(state, "keep", 5, 5)).toBe(false);
+    expect(tryBuild(state, { typeId: "keep", x: 5, y: 5 })).toBe(false);
+    expect(state.resources.gold).toBe(gold);
+    expect(tryBuild(state, { typeId: "academy", x: 6, y: 4 })).toBe(true);
+    expect(tryBuild(state, { typeId: "academy", x: 7, y: 4 })).toBe(false);
+    expect(tryBuild(state, { typeId: "farm", x: 2, y: 2 })).toBe(true);
+    expect(tryBuild(state, { typeId: "farm", x: 2, y: 3 })).toBe(true);
   });
 });
