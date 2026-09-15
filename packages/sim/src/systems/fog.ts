@@ -2,6 +2,7 @@ import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
 import { getProvince, neighbors } from "./board.js";
+import { listOutposts } from "./outpost.js";
 
 export function visionRange(state: GameState): number {
   return 1 + countBuilding(state, "watchtower");
@@ -35,8 +36,18 @@ export function ensureFog(state: GameState): void {
   seenSet(state);
 }
 
+function inFlagVision(state: GameState, id: string): boolean {
+  const p = getProvince(state, id);
+  if (!p) return false;
+  for (const o of listOutposts(state, "player")) {
+    if (Math.abs(p.x - o.x) + Math.abs(p.y - o.y) <= 1) return true;
+  }
+  return false;
+}
+
 export function isProvinceSeen(state: GameState, id: string): boolean {
   if (seenSet(state).has(id)) return true;
+  if (inFlagVision(state, id)) return true;
   const p = getProvince(state, id);
   if (!p) return false;
   const h = homeCoord(state);
