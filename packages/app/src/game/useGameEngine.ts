@@ -30,6 +30,8 @@ import {
   incomingOnPlayerFlags,
   watchtowerWarning,
   countBuilding,
+  WORK_PLOTS,
+  canRaiseWork,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -228,7 +230,9 @@ export function useGameEngine() {
                   ? "Walls and gates belong on the rim."
                   : isUniqueBuilding(typeId) && realmOwnsType(st, typeId)
                     ? `You already have a ${nm}. Upgrade that one.`
-                    : "That plot is taken or outside the hold."
+                    : WORK_PLOTS.has(typeId) && !canRaiseWork(st)
+                      ? "No free work plots. Raise or improve a cottage, or upgrade the keep."
+                      : "That plot is taken or outside the hold."
               );
               return;
             }
