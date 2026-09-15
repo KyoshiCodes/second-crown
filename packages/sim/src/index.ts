@@ -229,6 +229,7 @@ export { nodeStock, nodeStockMax, NODE_REGEN_PERIOD } from "./systems/nodeStock.
 export {
   tryGarrison,
   tryRecallGarrison,
+  tryAbandonOutpost,
   garrisonAt,
   garrisonPower,
   listGarrisons,
