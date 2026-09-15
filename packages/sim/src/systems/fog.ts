@@ -1,11 +1,22 @@
 import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
+import { isHoldRim } from "../actions/build.js";
 import { getProvince, neighbors } from "./board.js";
 import { listOutposts } from "./outpost.js";
 
+export function rimWatchtowers(state: GameState, realmId = "player"): number {
+  return state.buildings.filter(
+    (b) =>
+      b.realmId === realmId &&
+      b.typeId === "watchtower" &&
+      b.completesAtTick === null &&
+      isHoldRim(b.x, b.y)
+  ).length;
+}
+
 export function visionRange(state: GameState): number {
-  return 1 + countBuilding(state, "watchtower");
+  return 1 + countBuilding(state, "watchtower") + rimWatchtowers(state);
 }
 
 function homeCoord(state: GameState): { x: number; y: number } {
