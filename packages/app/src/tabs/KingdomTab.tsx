@@ -24,6 +24,7 @@ import {
   MARKET_OFFERS,
   population,
   settlementName,
+  staffBonus,
   tryAbandonOutpost,
   tryCancelBuild,
   tryCancelUpgrade,
@@ -161,9 +162,13 @@ export function KingdomTab(props: {
           <h3>Standing</h3>
           {standing.map((b) => {
             const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
+            const staffed = state ? staffBonus(state, b) > 1 : false;
+            const pct = state ? Math.round((staffBonus(state, b) - 1) * 100) : 0;
             return (
               <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
-                <span>{nm} lv {b.level} · {b.x},{b.y}</span>
+                <span>
+                  {nm} lv {b.level} · {b.x},{b.y} · {staffed ? `staffed +${pct}%` : "empty"}
+                </span>
                 <button
                   type="button"
                   onClick={() => act((st) => (tryDemolish(st, b.id) ? `Pulled down the ${nm}. Salvage returned.` : "Cannot demolish."))}
