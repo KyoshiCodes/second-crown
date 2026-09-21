@@ -17,6 +17,9 @@ import {
   tryAppointMarshal,
   playerMarshal,
   MARSHAL_TREES,
+  tryClaimSeason,
+  seasonClaimed,
+  seasonBoonPreview,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -51,6 +54,8 @@ export function CrownTab(props: {
   const locked = state ? Number(state.flags.doctrine_lock ?? 0) === prestige && Boolean(doctrine) : false;
   const marshal = state ? playerMarshal(state) : undefined;
   const court = state?.characters.filter((c) => c.realmId === "player") ?? [];
+  const boon = state ? seasonBoonPreview(state) : null;
+  const claimed = state ? seasonClaimed(state) : true;
 
   return (
     <>
@@ -77,6 +82,17 @@ export function CrownTab(props: {
           ))}
         </div>
       ))}
+      <h3>Season court</h3>
+      <p style={{ fontSize: 13 }}>
+        {boon ? `${boon.season}: +${boon.amount} ${boon.res} once this season.` : ""}
+      </p>
+      <button
+        type="button"
+        disabled={!state || claimed}
+        onClick={() => act((st) => (tryClaimSeason(st) ? "Season court collected." : "Already claimed this season."))}
+      >
+        {claimed ? "Claimed" : "Claim season court"}
+      </button>
       <LedgerPanel state={state} />
       <p>Ascend at {formatLetterSuffix(ascendNeed)} total resources.</p>
       <button type="button" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended. Pick a doctrine." : "Not ready."))}>Ascend</button>
