@@ -4,11 +4,16 @@ import { createRngStreams } from "../core/rng.js";
 import { applyMarshalBonuses, playerMarshal, tryAppointMarshal } from "./marshal.js";
 import { resolveColumnClash, stacksFromForce } from "./engagement.js";
 
+function giveHomeMilitia(s: ReturnType<typeof createGameState>, count: string) {
+  const u = s.units.find((x) => x.realmId === "player" && x.typeId === "militia");
+  if (u) u.count = count;
+  else s.units.push({ id: "u_militia_home", typeId: "militia", realmId: "player", count, armyId: null });
+}
+
 describe("board column clash", () => {
   it("uses column counts, not the home army", () => {
     const s = createGameState({ seed: 3 });
-    const home = s.units.find((u) => u.realmId === "player" && u.typeId === "militia");
-    if (home) home.count = "40";
+    giveHomeMilitia(s, "40");
     const a = { realmId: "player", levy: 5, force: { militia: 5 } };
     const b = { realmId: "rival", levy: 4, force: { militia: 4 } };
     resolveColumnClash(s, a, b, createRngStreams(3));
