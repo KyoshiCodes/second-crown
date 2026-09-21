@@ -40,6 +40,7 @@ import {
   pairBonus,
   PAIR_LABEL,
   population,
+  resourceLedger,
   settlementName,
   staffBonus,
   tryAbandonOutpost,
@@ -100,6 +101,14 @@ export function KingdomTab(props: {
   const idle = state ? emptyStaffWorks(state) : [];
   const room = state ? canHouse(state) : true;
   const plotRoom = state ? canRaiseWork(state) : true;
+  const ledgers = state
+    ? {
+        food: resourceLedger(state, "food"),
+        wood: resourceLedger(state, "wood"),
+        stone: resourceLedger(state, "stone"),
+        gold: resourceLedger(state, "gold"),
+      }
+    : null;
   const nameOf = (id: string) =>
     seen || (state && countBuilding(state, "watchtower") > 0)
       ? state?.realms.find((r) => r.id === id)?.name ?? id
@@ -132,6 +141,15 @@ export function KingdomTab(props: {
       <p style={{ fontSize: 12, opacity: 0.75 }}>
         People labor /tick · food {labor.food} · wood {labor.wood} · stone {labor.stone} · gold {labor.gold}. Assign jobs on People.
       </p>
+      {ledgers ? (
+        <p style={{ fontSize: 12, opacity: 0.75 }}>
+          Vault keeps (raid cannot take) · food {formatLetterSuffix(String(ledgers.food.vault))} · wood{" "}
+          {formatLetterSuffix(String(ledgers.wood.vault))} · stone {formatLetterSuffix(String(ledgers.stone.vault))} · gold{" "}
+          {formatLetterSuffix(String(ledgers.gold.vault))}. Exposed · food {formatLetterSuffix(String(ledgers.food.exposed))} · wood{" "}
+          {formatLetterSuffix(String(ledgers.wood.exposed))} · stone {formatLetterSuffix(String(ledgers.stone.exposed))} · gold{" "}
+          {formatLetterSuffix(String(ledgers.gold.exposed))}. Raise Keep, Mint, or Granary to hide more.
+        </p>
+      ) : null}
       {packed.length > 0 ? (
         <p style={{ fontSize: 12, color: "#f85149" }}>
           Store full — extra is lost. Raise {packed.map((p) => p.label).join(", ")} to hold more {packed.map((p) => p.res).join(", ")}.
@@ -168,7 +186,7 @@ export function KingdomTab(props: {
           {onFlags.map((m) => {
             const dest = state ? getProvince(state, m.toId) : undefined;
             const eta = Math.max(0, Math.ceil((m.arrivesTick - tick) / 10));
-            const where = dest ? `${dest.x},${dest.y}` : m.toId;
+            const where = dest ? `${dest.x},{dest.y}` : m.toId;
             return `${nameOf(m.realmId)} on flag ${where} · ${eta}s`;
           }).join(" · ")}
         </p>
