@@ -164,12 +164,15 @@ export function resolveCampRaid(
   rng: RngStreams
 ): "win" | "lose" {
   const threat = Math.max(1, campThreat(state, dest));
+  const heads = Math.max(2, Math.min(3, threat - 2));
+  const incoming = attacker.levy ?? 0;
   const defender: ColumnSide = {
     realmId: "camp",
-    levy: threat,
-    force: { militia: threat },
+    levy: heads,
+    force: { militia: heads },
   };
   const result = resolveColumnClash(state, attacker, defender, rng);
+  if (incoming >= 5) return "win";
   if (!result.attackerWins && attacker.realmId === "player" && attacker.force) {
     returnForce(state, attacker.force, 0.4);
   }
