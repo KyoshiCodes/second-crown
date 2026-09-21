@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { applyMarshalBonuses, playerMarshal, tryAppointMarshal } from "./marshal.js";
+import { applyMarshalBonuses, playerMarshal, tryAppointMarshal, tryPromoteMarshal } from "./marshal.js";
 import { stacksFor } from "./resolver.js";
 
 function give(s: ReturnType<typeof createGameState>, typeId: string, count = "8") {
@@ -60,5 +60,22 @@ describe("marshal schema", () => {
     const bow0 = bow.attack;
     applyMarshalBonuses(rangeStacks, playerMarshal(s));
     expect(bow.attack).toBeGreaterThan(bow0);
+  });
+
+  it("promotes to rank 2 and doubles line hold", () => {
+    const s = createGameState({ seed: 1 });
+    s.resources.gold = "200";
+    const ruler = s.characters.find((c) => c.realmId === "player")!;
+    tryAppointMarshal(s, ruler.id, "line");
+    give(s, "militia");
+    const r1 = stacksFor(s, "player");
+    applyMarshalBonuses(r1, playerMarshal(s));
+    const def1 = r1.find((x) => x.typeId === "militia")!.defense;
+    expect(tryPromoteMarshal(s)).toBe(true);
+    expect(playerMarshal(s)?.marshalRank).toBe(2);
+    expect(tryPromoteMarshal(s)).toBe(false);
+    const r2 = stacksFor(s, "player");
+    applyMarshalBonuses(r2, playerMarshal(s));
+    expect(r2.find((x) => x.typeId === "militia")!.defense).toBeGreaterThan(def1);
   });
 });
