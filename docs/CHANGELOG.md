@@ -1,6 +1,38 @@
 # CHANGELOG
 
-## 2026-09-10 — Gemini Remaining Silhouettes: Hold Buildings & Army Units (`bakeoff/gemini-remain`)
+## 2026-09-21 — Gemini Lords Mobile Overworld & Height-Mapped Tiles (`bakeoff/gemini-overworld`)
+
+- **Lords Mobile 3D Overworld Map (`packages/render`)**:
+  - `terrainElevation`: Added vertical elevation thickness mapping across all 6 board terrain types: peaks tower highest (13px), hills form stepped highland contour terraces (9px), wastes feature cracked basalt cliffs (8px), woods form elevated loam embankments (6px), plains form rich sod terraces (5px), and shores meet coastal sea shelves (3px).
+  - `paintTileHeightFace`: Stratified vertical cliff faces with light/shadow facets, vertical granite chisel clefts and snowmelt gullies (`peak`), horizontal sedimentary strata lines and overhanging highland sod (`hill`), dark loam and dangling gnarled tree roots (`wood`), agricultural loam and fine rootlets (`plain`), vertical basalt columns with animated pulsing molten magma fissures (`waste`), and wave-cut sandstone notches with frothing surf spray (`shore`).
+  - Taller relief artwork for each terrain feature on the top plateau (towering arête mountain massifs with cirque glaciers, multi-tier evergreen pine groves with taller monarch spires, stepped contour knolls, bubbling caldera vents, and breaking coastal surf).
+- **Miniature Pixel Keeps on Board Holds (`packages/render`)**:
+  - `drawMiniatureKeep`: Replaced generic flat 14×11 rectangle with authentic miniature scale (`~0.42x`) pixel keeps reusing the culture kit silhouettes:
+    - `western`: Ashlar stone tower with twin corner bartizans, merlon battlements, iron portcullis, candlelit high royal window, heraldic shield, and waving royal standard.
+    - `cedar`: Sturdy timber longhouse keep on riverstone plinth with cross-lap logs, steep shake roof, golden eagle ridgepole finials, corner watchposts, and forest pennant.
+    - `sand`: Sunbleached limestone quadrangle keep with parapet flat roof, observation minaret turret, and desert silk standard.
+    - `steppe`: Circular felt-roof great hall on earthen mound with conical dome, timber door frame, and horsehair streamer standard.
+    - `islands`: Elevated stilt pile-house keep on driftwood pilings with woven pavilion roof, hanging sea lantern, and ocean pennant.
+    - `rival` (Iron March): Spiked blackened iron fortress keep with angular iron bastion walls, serrated spiked battlements, narrow glowing crimson eye-slit gate, and blood-red war standard.
+    - Neutral/unclaimed: Weathered ancient stone keep ruins.
+- **Fog as a Height Veil (`packages/render`)**:
+  - `paintFogHeightVeil`: Unscouted provinces rise as billowing volumetric cloud plateaus with 3D drop shadow, shaded vapor strata in the height face, undulating cloud crests, shifting mist tendrils, and faint cartographer markings.
+- **Full-Chrome Canvas Presentation (`packages/app` & `packages/render`)**:
+  - `theme.css`: Removed `max-width: 560px` restriction on `.sc-map-canvas`, setting `max-width: 100%` so the canvas expands cleanly across the full chrome container (`maxWidth: 900px`).
+  - `createMapRenderer`: Ensures canvas style width fills 100% dynamically without fixed pixel clamping.
+- **Modular Split of `packages/render`**:
+  - Split 7,921-line monolithic `index.ts` into modular, focused files:
+    - `src/camera.ts`: camera viewport, zoom bands, projection, coordinate conversion, province token bounds, table rim.
+    - `src/tiles.ts`: terrain elevation, height faces, fog height veil, isometric ground, rim fort navigation.
+    - `src/buildings.ts`: culture palettes, theme visuals, isometric building drawers across all 21 types and 5 culture kits.
+    - `src/tokens.ts`: miniature pixel keep drawers, board provinces painter, march columns, gather carts, province inspect plaque.
+    - `src/walkers.ts`: citizen job mapping, destination picking, 2-3 frame animation cadence.
+    - `src/index.ts`: public re-exports and MapRenderer factory.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zooming, tile clicks, building placement/upgrades, holidays, and dim lanterns remain completely preserved.
+  - Full tests pass: 195 in `@second-crown/sim`, 42 in `@second-crown/render` (+4 new tests).
+  - Clean build in `@second-crown/app`.
 
 - **Hold Building Silhouettes (`packages/render`)**:
   - `walls`: Distinct interior block ramparts and rim curtain walls + parapet merlons across all 4 cultures: riverstone log palisade (`cedar`), sandstone rampart with sawtooth merlons (`sand`), rammed-earth wattle hurdle rampart with horsehair streamers (`steppe`), and coral/driftwood stilt wall (`islands`). Western ashlar stone untouched.
