@@ -3,6 +3,8 @@ import {
   adjacencyBonus,
   buildTicksLeft,
   canAfford,
+  canHouse,
+  canRaiseWork,
   canTrade,
   clearKeepNotice,
   computeIncomePerSecond,
@@ -96,6 +98,8 @@ export function KingdomTab(props: {
   const misses = state ? unpairedWorks(state) : [];
   const packed = state ? fullStores(state) : [];
   const idle = state ? emptyStaffWorks(state) : [];
+  const room = state ? canHouse(state) : true;
+  const plotRoom = state ? canRaiseWork(state) : true;
   const nameOf = (id: string) =>
     seen || (state && countBuilding(state, "watchtower") > 0)
       ? state?.realms.find((r) => r.id === id)?.name ?? id
@@ -114,6 +118,12 @@ export function KingdomTab(props: {
       <p style={{ fontSize: 13 }}>
         {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more). Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
       </p>
+      {!room ? (
+        <p style={{ fontSize: 12, color: "#d29922" }}>Beds full. Raise a Cottage (or the Keep) before more people will stay.</p>
+      ) : null}
+      {!plotRoom ? (
+        <p style={{ fontSize: 12, color: "#d29922" }}>Work plots full. Raise a Cottage before you place another farm or camp.</p>
+      ) : null}
       <p style={{ fontSize: 12, opacity: 0.85 }}>
         Income /s · food {formatLetterSuffix(income.food ?? "0")} · wood {formatLetterSuffix(income.wood ?? "0")} · stone{" "}
         {formatLetterSuffix(income.stone ?? "0")} · gold {formatLetterSuffix(income.gold ?? "0")}. Flag tithe /tick · food{" "}
