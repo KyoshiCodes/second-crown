@@ -17,7 +17,8 @@ export {
 export type { BuildingType } from "./content/buildings.js";
 
 export { UNIT_TYPES, getUnitType, listUnitTypes } from "./content/units.js";
-export type { UnitType } from "./content/units.js";
+export type { UnitType, UnitRole } from "./content/units.js";
+export { matchupModifier } from "./content/matchup.js";
 
 export { CITIZEN_JOBS, getCitizenJob, listCitizenJobs } from "./content/citizens.js";
 export type { CitizenJob } from "./content/citizens.js";
