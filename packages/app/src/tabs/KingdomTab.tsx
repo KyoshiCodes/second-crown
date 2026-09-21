@@ -5,6 +5,7 @@ import {
   canAfford,
   canTrade,
   countBuilding,
+  currentKeepGate,
   currentSeason,
   edgeWallCount,
   gateOnRim,
@@ -17,6 +18,8 @@ import {
   incomingOnHome,
   incomingOnPlayerFlags,
   incomingOnProvince,
+  KEEP_GATES,
+  keepLevel,
   listBuildableTypes,
   listOutposts,
   listScarred,
@@ -71,6 +74,8 @@ export function KingdomTab(props: {
   const onFlags = state ? incomingOnPlayerFlags(state) : [];
   const seen = state ? watchtowerWarning(state) : undefined;
   const tick = state?.meta.tick ?? 0;
+  const keepLv = state ? keepLevel(state) : 0;
+  const gateRow = state ? currentKeepGate(state) : KEEP_GATES[0];
   const nameOf = (id: string) =>
     seen || (state && countBuilding(state, "watchtower") > 0)
       ? state?.realms.find((r) => r.id === id)?.name ?? id
@@ -81,6 +86,22 @@ export function KingdomTab(props: {
       <p style={{ fontSize: 13 }}>
         {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more). Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
       </p>
+      <div style={{ fontSize: 12, margin: "8px 0", padding: 8, background: "#1c1814", border: "1px solid #3a3228" }}>
+        <strong>Keep {keepLv || "none"}</strong> — other works cap at level {gateRow.otherCap}. {gateRow.note}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+          {KEEP_GATES.map((row) => (
+            <span
+              key={row.keep}
+              style={{
+                opacity: row.keep === gateRow.keep ? 1 : 0.55,
+                borderBottom: row.keep === gateRow.keep ? "1px solid #c9a227" : "none",
+              }}
+            >
+              K{row.keep}: lv{row.otherCap}
+            </span>
+          ))}
+        </div>
+      </div>
       {incoming.length > 0 ? (
         <p style={{ fontSize: 13, color: "#f85149" }}>
           {incoming.map((m) => {
