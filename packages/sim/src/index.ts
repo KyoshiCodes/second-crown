@@ -43,6 +43,7 @@ export { playerTitle, extraArchetypes } from "./content/world.js";
 
 export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
 export { unpairedWorks, PAIR_LABEL, PAIR_MATE } from "./systems/pairHint.js";
+export { emptyStaffWorks } from "./systems/staffHint.js";
 export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./systems/combat.js";
 export type { BattleResult } from "./systems/combat.js";
 export { lastBattleStory } from "./systems/lastBattle.js";
