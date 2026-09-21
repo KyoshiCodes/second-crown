@@ -11,6 +11,15 @@ import { realmTokenPalette } from "@second-crown/render";
 const TILE_W = 54;
 const TILE_H = 27;
 
+/** Pixi palettes store colors as 0xRRGGBB numbers. SVG fill/stroke need CSS strings. */
+export function cssColor(value: string | number | undefined, fallback: string): string {
+  if (typeof value === "string" && value.length > 0) return value;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return `#${(value >>> 0).toString(16).padStart(6, "0")}`;
+  }
+  return fallback;
+}
+
 function iso(x: number, y: number) {
   return {
     x: (x - y) * (TILE_W / 2),
@@ -24,24 +33,42 @@ function diamond(cx: number, cy: number) {
   return `${cx},${cy - hh} ${cx + hw},${cy} ${cx},${cy + hh} ${cx - hw},${cy}`;
 }
 
-function terrainPaint(p: Province): { top: string; side: string; lift: number } {
-  if (p.node === "hold") return { top: "#6a5340", side: "#3a2c22", lift: 14 };
+function terrainPaint(p: Province): { top: string; left: string; right: string; lift: number } {
+  if (p.node === "hold") {
+    return { top: "#6a5340", left: "#3a2c22", right: "#2a1e16", lift: 14 };
+  }
   switch (p.terrain) {
     case "peak":
-      return { top: "#8a8f86", side: "#4a4e48", lift: 16 };
+      return { top: "#8a8f86", left: "#4a4e48", right: "#32362f", lift: 18 };
     case "hill":
-      return { top: "#6b7a4a", side: "#3f4a2c", lift: 10 };
+      return { top: "#6b7a4a", left: "#3f4a2c", right: "#2c3420", lift: 11 };
     case "wood":
-      return { top: "#2f5a38", side: "#1c3822", lift: 6 };
+      return { top: "#2f5a38", left: "#1c3822", right: "#122418", lift: 7 };
     case "plain":
-      return { top: "#5c7a3a", side: "#3a4e24", lift: 3 };
+      return { top: "#5c7a3a", left: "#3a4e24", right: "#283618", lift: 3 };
     case "waste":
-      return { top: "#c2a36a", side: "#8a7040", lift: 2 };
+      return { top: "#c2a36a", left: "#8a7040", right: "#6a5430", lift: 2 };
     case "shore":
-      return { top: "#2a6a7a", side: "#163e48", lift: 1 };
+      return { top: "#2a6a7a", left: "#163e48", right: "#0e2a32", lift: 1 };
     default:
-      return { top: "#4a5c38", side: "#2c3822", lift: 4 };
+      return { top: "#4a5c38", left: "#2c3822", right: "#1c2416", lift: 4 };
   }
+}
+
+function MiniKeep(props: { cx: number; cy: number; fill: string; roof: string; home: boolean }) {
+  const { cx, cy, fill, roof, home } = props;
+  return (
+    <g>
+      <rect x={cx - 7} y={cy - 6} width={14} height={8} fill="#1a120c" opacity={0.45} />
+      <rect x={cx - 6} y={cy - 14} width={12} height={10} fill={fill} stroke="#e8dcc8" strokeWidth={0.6} />
+      <rect x={cx - 7} y={cy - 16} width={3} height={3} fill={fill} />
+      <rect x={cx - 1.5} y={cy - 16} width={3} height={3} fill={fill} />
+      <rect x={cx + 4} y={cy - 16} width={3} height={3} fill={fill} />
+      <polygon points={`${cx - 8},${cy - 16} ${cx},${cy - 26} ${cx + 8},${cy - 16}`} fill={roof} stroke="#111" strokeWidth={0.4} />
+      <rect x={cx - 1.5} y={cy - 8} width={3} height={4} fill="#111" />
+      {home ? <circle cx={cx + 5} cy={cy - 22} r={1.6} fill="#fde047" /> : null}
+    </g>
+  );
 }
 
 export function OverworldAtlas(props: {
@@ -54,18 +81,20 @@ export function OverworldAtlas(props: {
   const provinces = state.board.provinces;
   const origin = iso(0, BOARD_H - 1);
   const width = BOARD_W * TILE_W + 80;
-  const height = (BOARD_W + BOARD_H) * (TILE_H / 2) + 90;
+  const height = (BOARD_W + BOARD_H) * (TILE_H / 2) + 110;
   const ox = width / 2;
-  const oy = 36;
+  const oy = 42;
   const marches = listMarches(state);
   const homeId = state.board.homeProvinceId;
+
+  const sorted = [...provinces].sort((a, b) => a.x + a.y - (b.x + b.y));
 
   return (
     <div className="sc-overworld-atlas" style={{ margin: "0 0 14px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
         <strong style={{ color: "#fef08a", fontSize: 14 }}>Kingdom Atlas</strong>
         <span style={{ fontSize: 11, opacity: 0.7 }}>
-          Zoom-out board · pixel holds sit on raised 3D tiles · click a province
+          Raised terrain · pixel keeps · march traces · click a province
         </span>
       </div>
       <svg
@@ -83,8 +112,13 @@ export function OverworldAtlas(props: {
           <filter id="atlas-shade" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#000" floodOpacity="0.45" />
           </filter>
+          <radialGradient id="atlas-water" cx="50%" cy="40%" r="70%">
+            <stop offset="0%" stopColor="#163848" />
+            <stop offset="100%" stopColor="#0a1418" />
+          </radialGradient>
         </defs>
-        {provinces.map((p) => {
+        <ellipse cx={width / 2} cy={height * 0.55} rx={width * 0.46} ry={height * 0.38} fill="url(#atlas-water)" opacity={0.55} />
+        {sorted.map((p) => {
           const pos = iso(p.x, p.y);
           const cx = ox + pos.x - origin.x;
           const cy = oy + pos.y;
@@ -93,7 +127,12 @@ export function OverworldAtlas(props: {
           const pal = occupant ? realmTokenPalette(occupant) : null;
           const isHome = p.id === homeId || occupant === "player";
           const selected = selectedId === p.id;
-          const top = selected ? "#d4a72c" : pal?.accentColor ?? paint.top;
+          const accent = cssColor(pal?.accentColor, paint.top);
+          const wall = cssColor(pal?.keepWallColor, "#3f2a1c");
+          const top = selected ? "#d4a72c" : occupant ? accent : paint.top;
+          const hw = TILE_W / 2;
+          const hh = TILE_H / 2;
+          const lift = paint.lift;
           return (
             <g
               key={p.id}
@@ -101,7 +140,14 @@ export function OverworldAtlas(props: {
               style={{ cursor: "pointer" }}
               onClick={() => onSelect?.(p.id)}
             >
-              <polygon points={diamond(cx, cy + paint.lift)} fill={paint.side} />
+              <polygon
+                points={`${cx - hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx - hw},${cy + lift}`}
+                fill={paint.left}
+              />
+              <polygon
+                points={`${cx + hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx + hw},${cy + lift}`}
+                fill={paint.right}
+              />
               <polygon
                 points={diamond(cx, cy)}
                 fill={top}
@@ -110,19 +156,23 @@ export function OverworldAtlas(props: {
                 opacity={0.95}
               />
               {p.node === "hold" ? (
-                <g>
-                  <rect x={cx - 5} y={cy - 16} width={10} height={10} fill="#2a1c12" stroke="#e8dcc8" strokeWidth={0.6} />
-                  <polygon points={`${cx - 7},${cy - 16} ${cx},${cy - 24} ${cx + 7},${cy - 16}`} fill={isHome ? "#ca8a04" : pal?.accentColor ?? "#8b5a2b"} />
-                </g>
+                <MiniKeep cx={cx} cy={cy} fill={wall} roof={isHome ? "#ca8a04" : accent} home={isHome} />
               ) : p.node && p.node !== "none" ? (
                 <circle cx={cx} cy={cy - 2} r={3.2} fill="#fbbf24" stroke="#111" strokeWidth={0.5} />
+              ) : p.terrain === "wood" ? (
+                <>
+                  <ellipse cx={cx - 4} cy={cy} rx={3} ry={2} fill="#163822" />
+                  <ellipse cx={cx + 3} cy={cy + 1} rx={2.4} ry={1.6} fill="#1a4028" />
+                </>
+              ) : p.terrain === "peak" ? (
+                <polygon points={`${cx - 5},${cy + 2} ${cx},${cy - 10} ${cx + 5},${cy + 2}`} fill="#d6d3d1" opacity={0.85} />
               ) : null}
             </g>
           );
         })}
         {marches.map((m) => {
-          const from = provinces.find((p) => p.id === m.fromId);
-          const to = provinces.find((p) => p.id === m.toId);
+          const from = provinces.find((pr) => pr.id === m.fromId);
+          const to = provinces.find((pr) => pr.id === m.toId);
           if (!from || !to) return null;
           const a = iso(from.x, from.y);
           const b = iso(to.x, to.y);
@@ -131,10 +181,20 @@ export function OverworldAtlas(props: {
           const x2 = ox + b.x - origin.x;
           const y2 = oy + b.y;
           const pal = realmTokenPalette(m.realmId);
+          const stroke = cssColor(pal.accentColor, "#fbbf24");
           return (
             <g key={m.id}>
-              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={pal.accentColor} strokeWidth={2} strokeDasharray="4 3" opacity={0.85} />
-              <circle cx={(x1 + x2) / 2} cy={(y1 + y2) / 2} r={4} fill={pal.accentColor} stroke="#111" />
+              <line
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke={stroke}
+                strokeWidth={2}
+                strokeDasharray="4 3"
+                opacity={0.85}
+              />
+              <circle cx={(x1 + x2) / 2} cy={(y1 + y2) / 2} r={4} fill={stroke} stroke="#111" />
             </g>
           );
         })}
