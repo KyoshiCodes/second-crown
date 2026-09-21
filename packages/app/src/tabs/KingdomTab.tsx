@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  adjacencyBonus,
   buildTicksLeft,
   canAfford,
   canTrade,
@@ -164,10 +165,12 @@ export function KingdomTab(props: {
             const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
             const staffed = state ? staffBonus(state, b) > 1 : false;
             const pct = state ? Math.round((staffBonus(state, b) - 1) * 100) : 0;
+            const cluster = state ? Math.round((adjacencyBonus(state, b) - 1) * 100) : 0;
             return (
               <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
                 <span>
                   {nm} lv {b.level} · {b.x},{b.y} · {staffed ? `staffed +${pct}%` : "empty"}
+                  {cluster > 0 ? ` · cluster +${cluster}%` : ""}
                 </span>
                 <button
                   type="button"
