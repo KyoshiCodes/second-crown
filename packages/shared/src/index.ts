@@ -56,6 +56,8 @@ export interface CitizenInstance {
   tile: CitizenTile | null;
 }
 
+export type MarshalTree = "line" | "shock" | "ranged";
+
 export interface CharacterInstance {
   id: string;
   name: string;
@@ -63,6 +65,8 @@ export interface CharacterInstance {
   realmId: string;
   traits: TraitId[];
   ambition: AmbitionId | null;
+  marshalTree?: MarshalTree | null;
+  marshalRank?: number;
 }
 
 export interface RealmInstance {
