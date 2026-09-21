@@ -40,7 +40,7 @@ export { setPlayerCulture, playerCultureId, cultureOfRealm } from "./systems/cul
 
 export { playerTitle, extraArchetypes } from "./content/world.js";
 
-export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus } from "./systems/economy.js";
+export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, adjacencyBonus } from "./systems/economy.js";
 export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./systems/combat.js";
 export type { BattleResult } from "./systems/combat.js";
 export { RivalSystem, tickWorldPulse, maybeContestFlag } from "./systems/rival.js";
