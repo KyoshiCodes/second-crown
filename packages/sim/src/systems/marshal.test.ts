@@ -21,10 +21,24 @@ describe("marshal schema", () => {
     expect(tryAppointMarshal(s, s.characters[0].id, "dragon" as never)).toBe(false);
   });
 
-  it("bonus hook is currently identity", () => {
+  it("Line Hold raises line defense and opening morale", () => {
     const s = createGameState({ seed: 1 });
+    const ruler = s.characters.find((c) => c.realmId === "player")!;
+    tryAppointMarshal(s, ruler.id, "line");
+    s.units.push({
+      id: "u_line",
+      typeId: "militia",
+      realmId: "player",
+      count: "10",
+      armyId: null,
+    });
     const stacks = stacksFor(s, "player");
-    const after = applyMarshalBonuses(stacks, playerMarshal(s));
-    expect(after).toBe(stacks);
+    const line = stacks.find((x) => x.role === "Line");
+    expect(line).toBeTruthy();
+    const def0 = line!.defense;
+    const mor0 = line!.morale;
+    applyMarshalBonuses(stacks, playerMarshal(s));
+    expect(line!.defense).toBeGreaterThan(def0);
+    expect(line!.morale).toBeGreaterThan(mor0);
   });
 });
