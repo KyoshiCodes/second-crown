@@ -4,6 +4,7 @@ import { TickEngine } from "../core/tickEngine.js";
 import { D } from "../core/decimal.js";
 import { createRngStreams } from "../core/rng.js";
 import { storageCap } from "./storage.js";
+import { listLedger } from "./ledger.js";
 import {
   applySiegeBlow,
   edgeWallCount,
@@ -104,6 +105,7 @@ describe("W2 marches and walls", () => {
     camp.board.provinces.push({ id: "p_9_9", x: 9, y: 9, terrain: "plain", node: "camp", occupantRealmId: null });
     resolveMarchArrival(camp, campMarch, rng);
     expect(camp.resources.wood).toBe("6");
+    expect(listLedger(camp).some((e) => /Camp broken/.test(e.text))).toBe(true);
 
     const node = createGameState({ seed: 1 });
     node.board.provinces.push({ id: "p_9_9", x: 9, y: 9, terrain: "plain", node: "woodcut", occupantRealmId: null });
@@ -118,6 +120,7 @@ describe("W2 marches and walls", () => {
     };
     resolveMarchArrival(node, nodeMarch, rng);
     expect(node.resources.wood).toBe("5");
+    expect(listLedger(node).some((e) => /Woodcutting/.test(e.text))).toBe(true);
   });
 
   it("raid payouts are lost past the wood storage cap", () => {
