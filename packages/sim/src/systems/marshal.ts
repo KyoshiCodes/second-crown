@@ -34,7 +34,7 @@ export function tryAppointMarshal(
   return true;
 }
 
-/** Line Hold (rank 1): Line stacks +10% defense and +5 opening morale. Other trees still no-op. */
+/** Line Hold (rank 1): line stacks +10% defense and +5 opening morale. */
 export function applyMarshalBonuses(
   stacks: Stack[],
   marshal: CharacterInstance | undefined
@@ -42,7 +42,7 @@ export function applyMarshalBonuses(
   if (!marshal || marshal.marshalTree !== "line") return stacks;
   const rank = Math.max(1, marshal.marshalRank ?? 1);
   for (const s of stacks) {
-    if (s.role !== "Line") continue;
+    if (s.role !== "line") continue;
     s.defense = s.defense * (1 + 0.1 * rank);
     s.morale = Math.min(100, s.morale + 5 * rank);
   }
