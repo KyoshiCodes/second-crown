@@ -157,7 +157,16 @@ export {
   fortifyPower,
 } from "./systems/court.js";
 
-export { tryAppointMarshal, tryPromoteMarshal, playerMarshal, applyMarshalBonuses, MARSHAL_TREES, MARSHAL_PROMOTE_GOLD } from "./systems/marshal.js";
+export {
+  tryAppointMarshal,
+  tryPromoteMarshal,
+  canPromoteMarshal,
+  playerMarshal,
+  applyMarshalBonuses,
+  MARSHAL_TREES,
+  MARSHAL_PROMOTE_GOLD,
+  MARSHAL_PROMOTE_KEEP,
+} from "./systems/marshal.js";
 export { listLedger, recordCrown } from "./systems/ledger.js";
 export type { LedgerEntry } from "./systems/ledger.js";
 
