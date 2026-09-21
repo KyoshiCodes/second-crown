@@ -1,15 +1,12 @@
 # HANDOFF — current ground (2026-09-21)
 
 Play: https://129.153.17.72.sslip.io/
-Plan: docs/ASCENT.md | Player recap: docs/PROGRESS.md
+Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 
-## Combat
+Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
+`resolveBattle` is still the only fight function.
 
-`resolveBattle` in `packages/sim/src/systems/combat.ts` is an adapter.
-Rounds live in `packages/sim/src/systems/resolver.ts`.
-Do not add another fight function.
+## Next recommended wave
 
-## Next — R4
-
-Wounded-by-default in the adapter: winner losses → infirmary; loser overflow past beds dies.
-Keep `resolveBattle` signature. Tests required.
+Marshal schema (`systems/marshal.ts`) on `CharacterInstance`. Do not add a second combat path.
+Skills can no-op until they fire inside `resolveRounds`.
