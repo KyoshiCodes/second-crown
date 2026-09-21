@@ -8,6 +8,8 @@ import { writeLastBattle } from "./lastBattle.js";
 import { returnForce } from "./column.js";
 
 export interface ColumnSide {
+  id?: string;
+  toId?: string;
   realmId: string;
   levy: number;
   force?: Record<string, number>;
@@ -97,4 +99,32 @@ export function resolveColumnClash(
     attackerForce,
     defenderForce,
   };
+}
+
+export function pairClashingMarches<T extends ColumnSide>(
+  state: GameState,
+  due: T[],
+  rng: RngStreams
+): T[] {
+  const remaining: T[] = [];
+  const used = new Set<string>();
+  for (const a of due) {
+    const aid = a.id ?? `${a.realmId}-${a.toId}`;
+    if (used.has(aid)) continue;
+    const foe = due.find((b) => {
+      const bid = b.id ?? `${b.realmId}-${b.toId}`;
+      return bid !== aid && !used.has(bid) && b.toId === a.toId && b.realmId !== a.realmId;
+    });
+    if (foe) {
+      const bid = foe.id ?? `${foe.realmId}-${foe.toId}`;
+      used.add(aid);
+      used.add(bid);
+      const result = resolveColumnClash(state, a, foe, rng);
+      const winner = result.attackerWins ? a : foe;
+      if ((winner.levy ?? 0) > 0) remaining.push(winner);
+      continue;
+    }
+    remaining.push(a);
+  }
+  return remaining;
 }

@@ -16,6 +16,7 @@ import { absorbWounded } from "./ward.js";
 import { detachGarrison, garrisonPower, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
+import { pairClashingMarches } from "./engagement.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -433,7 +434,8 @@ export const MarchSystem = {
     if (due.length === 0) return;
     saveMarches(state, marches(state).filter((m) => m.arrivesTick !== tick));
     const rng = createRngStreams(state.meta.seed + tick);
-    for (const m of due) resolveMarchArrival(state, m, rng);
+    const remaining = pairClashingMarches(state, due, rng);
+    for (const m of remaining) resolveMarchArrival(state, m, rng);
   },
   advanceAnalytic(): void {},
   tick(): void {},
