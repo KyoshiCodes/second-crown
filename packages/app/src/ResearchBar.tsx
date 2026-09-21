@@ -3,6 +3,8 @@ import {
   RESEARCH,
   countBuilding,
   researchDone,
+  researchKeepMin,
+  researchKeepReady,
   researchTicksLeft,
   tryCancelResearch,
   tryStartResearch,
@@ -23,6 +25,8 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
   const left = researchTicksLeft(state, id);
   const buildings = needList(def);
   const hasHall = buildings.some((b) => countBuilding(state, b) > 0);
+  const keepOk = researchKeepReady(state, id);
+  const keepNeed = researchKeepMin(id);
   const label = def.name;
   const effect = "effect" in def ? String(def.effect) : "";
   if (done) return <div title={effect}>{label} known.{effect ? ` ${effect}` : ""}</div>;
@@ -42,20 +46,21 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
     );
   }
   const cost = Object.entries(def.cost).map(([k, v]) => `${v} ${k}`).join(", ");
+  const gate = keepNeed > 0 ? `; Keep ${keepNeed}` : "";
   return (
     <button
       type="button"
-      disabled={!hasHall}
+      disabled={!hasHall || !keepOk}
       title={effect}
       onClick={() =>
         act((s) =>
           tryStartResearch(s, id)
             ? `Scribes begin ${label.toLowerCase()}.`
-            : `Need ${buildings.join(" or ")}, ${cost}, and a free study slot.`
+            : `Need ${buildings.join(" or ")}${keepNeed ? `, Keep ${keepNeed}` : ""}, ${cost}, and a free study slot.`
         )
       }
     >
-      Study {label.toLowerCase()} ({cost}; {buildings.join(" or ")})
+      Study {label.toLowerCase()} ({cost}; {buildings.join(" or ")}{gate})
     </button>
   );
 }
