@@ -25,15 +25,28 @@ describe("keep gate table", () => {
     }
   });
 
-  it("lists marshal, drill, stores, and columns from Keep II", () => {
+  it("lists marshal, drill, stores, columns, beds, and plots from Keep II", () => {
     expect(keepGateFor(1).marshal).toMatch(/Rank 1/);
     expect(keepGateFor(1).trainCap).toBe(2);
     expect(keepGateFor(1).storeMult).toBe(1);
     expect(keepGateFor(1).marchCap).toBe(2);
+    expect(keepGateFor(1).bedBase).toBe(5);
+    expect(keepGateFor(1).plotBase).toBe(3);
     expect(keepGateFor(2).marshal).toMatch(/Rank 2/);
     expect(keepGateFor(2).trainCap).toBe(3);
     expect(keepGateFor(2).trainSpeed).toBeLessThan(1);
     expect(keepGateFor(2).storeMult).toBeGreaterThan(1);
     expect(keepGateFor(2).marchCap).toBe(3);
+    expect(keepGateFor(2).bedBase).toBe(8);
+    expect(keepGateFor(2).plotBase).toBe(4);
+    expect(keepGateFor(5).bedBase).toBe(17);
+    expect(keepGateFor(5).plotBase).toBe(7);
+  });
+
+  it("bed and plot bases match housing formulas without cottages", () => {
+    for (const row of KEEP_GATES) {
+      expect(row.bedBase).toBe(2 + row.keep * 3);
+      expect(row.plotBase).toBe(2 + row.keep);
+    }
   });
 });

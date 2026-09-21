@@ -11,6 +11,7 @@ import { WorldTab } from "./tabs/WorldTab";
 import { CrownTab } from "./tabs/CrownTab";
 import { TutorialBanner } from "./TutorialBanner";
 import { ProvinceInspect } from "./ProvinceInspect";
+import { OverworldAtlas } from "./OverworldAtlas";
 import { detectCurrentHoliday, getHolidayMeta, type HolidayId } from "./seasons/holidays";
 import { resolveActiveThemePack } from "./themes/packs";
 import { audioManager } from "./themes/audioManager";
@@ -132,13 +133,13 @@ export function AppShell() {
         <div
           className="sc-map-canvas-container"
           style={{
-            display: tab === "kingdom" ? "flex" : "none",
+            display: tab === "kingdom" || tab === "world" ? "flex" : "none",
             position: "relative",
             flexDirection: "column",
             alignItems: "center",
           }}
         >
-          <div style={{ position: "relative", maxWidth: 560, width: "100%" }}>
+          <div style={{ position: "relative", maxWidth: 900, width: "100%" }}>
             <canvas
               ref={canvasRef}
               className="sc-map-canvas"
@@ -172,7 +173,16 @@ export function AppShell() {
           {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}
           {tab === "army" && <ArmyTab state={state} act={act} trainQty={trainQty} setTrainQty={setTrainQty} />}
           {tab === "war" && <WarTab state={state} act={act} rivalOp={rivalOp} playerOp={playerOp} battleSnap={battleSnap} setBattleSnap={setBattleSnap} />}
-          {tab === "world" && <WorldTab state={state} act={act} worldLog={worldLog} />}
+          {tab === "world" && (
+            <>
+              <OverworldAtlas
+                state={state}
+                selectedId={selectedProvinceId}
+                onSelect={(id) => setSelectedProvinceId(id)}
+              />
+              <WorldTab state={state} act={act} worldLog={worldLog} />
+            </>
+          )}
           {tab === "crown" && (
             <CrownTab
               state={state}
