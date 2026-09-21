@@ -10,6 +10,7 @@ import {
   currentKeepGate,
   currentSeason,
   edgeWallCount,
+  emptyStaffWorks,
   formatLetterSuffix,
   fullStores,
   gateOnRim,
@@ -94,6 +95,7 @@ export function KingdomTab(props: {
   const labor = state ? laborPerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const misses = state ? unpairedWorks(state) : [];
   const packed = state ? fullStores(state) : [];
+  const idle = state ? emptyStaffWorks(state) : [];
   const nameOf = (id: string) =>
     seen || (state && countBuilding(state, "watchtower") > 0)
       ? state?.realms.find((r) => r.id === id)?.name ?? id
@@ -123,6 +125,12 @@ export function KingdomTab(props: {
       {packed.length > 0 ? (
         <p style={{ fontSize: 12, color: "#f85149" }}>
           Store full — extra is lost. Raise {packed.map((p) => p.label).join(", ")} to hold more {packed.map((p) => p.res).join(", ")}.
+        </p>
+      ) : null}
+      {idle.length > 0 ? (
+        <p style={{ fontSize: 12, color: "#d29922" }}>
+          No worker on {idle.slice(0, 5).map((w) => w.name).join(", ")}
+          {idle.length > 5 ? ` +${idle.length - 5} more` : ""}. Assign on People for +20%.
         </p>
       ) : null}
       {misses.length > 0 ? (
