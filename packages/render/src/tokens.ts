@@ -16,6 +16,11 @@ import {
   CANVAS_W,
   CANVAS_H,
   RIM_SIZE,
+  BOARD_TILE_W,
+  BOARD_TILE_H,
+  BOARD_HALF_W,
+  BOARD_HALF_H,
+  boardGridToWorld,
 } from "./camera.js";
 import {
   terrainChipPalette,
@@ -734,102 +739,115 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
   g.clear();
   if (!state?.board?.provinces) return;
 
-  for (const p of state.board.provinces) {
+  // Sort back-to-front by depth (y * 20 + x) so foreground isometric tiles and cliff faces layer on top
+  const sortedProvinces = [...state.board.provinces].sort((a, b) => (a.y * 20 + a.x) - (b.y * 20 + b.x));
+
+  for (const p of sortedProvinces) {
     const b = provinceTokenBounds(p.x, p.y);
     const seen = isProvinceSeen(state, p.id);
 
     if (!seen) {
-      // Unseen Province: Fog Height Veil (Billowing Cloud Plateau)
+      // Unseen Province: Raised Volumetric Cumulus Cloud Mass (NOT purple squares)
       paintFogHeightVeil(g, b, p, phase);
       continue;
     }
 
     const pal = terrainChipPalette(p.terrain);
-
-    // 1. 3D Tactile Token Drop Shadow
     const elev = terrainElevation(p.terrain);
-    g.rect(b.x + 2, b.y + 3, b.w, b.h + elev * 0.4);
-    g.fill({ color: 0x000000, alpha: 0.42 });
+    const wx = b.cx;
+    const wy = b.cy;
+    const hw = BOARD_HALF_W;
+    const hh = BOARD_HALF_H;
 
-    // 2. 3D Height Face (Vertical Cliff Face based on Terrain)
-    paintTileHeightFace(g, b, p.terrain, pal, phase);
+    // 1. 3D Tactile Diamond Drop Shadow onto Tabletop
+    g.poly([
+      wx, wy - hh + 2,
+      wx + hw + 2, wy + 2,
+      wx, wy + hh + 3,
+      wx - hw - 2, wy + 2,
+    ]);
+    g.fill({ color: 0x000000, alpha: 0.32 });
 
-    // 3. Token Face (Raised Top Plateau)
-    const faceH = elev + 2;
-    g.rect(b.x, b.y, b.w, b.h - faceH + 2);
+    // 2. 3D Height Faces (Front-left & Front-right vertical cliffs based on Terrain)
+    if (elev > 0) {
+      paintTileHeightFace(g, b, p.terrain, pal, phase);
+    }
+
+    // 3. Raised Top Diamond Plateau
+    const cy = wy - elev;
+    const topDiamond = [
+      wx, cy - hh,
+      wx + hw, cy,
+      wx, cy + hh,
+      wx - hw, cy,
+    ];
+    g.poly(topDiamond);
     g.fill({ color: pal.fill });
 
-    // Top subtle highlight rim
-    g.moveTo(b.x + 1, b.y + 1);
-    g.lineTo(b.x + b.w - 1, b.y + 1);
-    g.stroke({ width: 1, color: 0xffffff, alpha: 0.18 });
+    // Top subtle highlight rim along rear two facets
+    g.moveTo(wx - hw, cy);
+    g.lineTo(wx, cy - hh);
+    g.lineTo(wx + hw, cy);
+    g.stroke({ width: 1, color: 0xffffff, alpha: 0.22 });
 
-    // Outer chip border
-    g.rect(b.x, b.y, b.w, b.h);
+    // Outer diamond border
+    g.poly(topDiamond);
     g.stroke({ width: 1, color: pal.border, alpha: 0.85 });
 
-    const cx = b.cx;
-    const cy = b.cy - Math.floor(elev * 0.4);
+    const cx = wx;
 
-    // 4. Terrain Details (Taller Relief Artwork)
+    // 4. Terrain Details (Isometric Relief Artwork)
     switch (p.terrain) {
       case "plain": {
-        // Lush pastoral meadow with rolling knolls, grass tufts, and daisy blossoms
-        g.moveTo(b.x + 3, cy + 3);
-        g.bezierCurveTo(cx - 10, cy - 2, cx + 8, cy + 6, b.x + b.w - 3, cy + 1);
-        g.stroke({ width: 1.6, color: 0x4d7c0f, alpha: 0.85 });
+        // Lush pastoral meadow with rolling knoll lines, grass tufts, and daisy blossoms
+        g.moveTo(cx - 14, cy);
+        g.bezierCurveTo(cx - 5, cy - 3, cx + 5, cy + 3, cx + 14, cy);
+        g.stroke({ width: 1.4, color: 0x4d7c0f, alpha: 0.85 });
 
-        g.moveTo(b.x + 4, cy + 8);
-        g.bezierCurveTo(cx - 6, cy + 5, cx + 12, cy + 11, b.x + b.w - 4, cy + 7);
-        g.stroke({ width: 1.4, color: 0x3f6212, alpha: 0.75 });
+        g.moveTo(cx - 10, cy + 3);
+        g.bezierCurveTo(cx - 3, cy + 1, cx + 6, cy + 5, cx + 11, cy + 3);
+        g.stroke({ width: 1.1, color: 0x3f6212, alpha: 0.75 });
 
         // Grass tufts
         for (const [gx, gy] of [
-          [cx - 16, cy - 4],
-          [cx - 7, cy + 4],
-          [cx + 12, cy - 2],
-          [cx + 18, cy + 6],
-          [cx - 14, cy + 8],
+          [cx - 9, cy - 3],
+          [cx + 8, cy - 2],
+          [cx - 3, cy + 4],
+          [cx + 6, cy + 4],
         ]) {
-          g.moveTo(gx, gy + 4); g.lineTo(gx - 2.5, gy - 3);
-          g.moveTo(gx, gy + 4); g.lineTo(gx, gy - 4.5);
-          g.moveTo(gx, gy + 4); g.lineTo(gx + 2.5, gy - 3);
-          g.stroke({ width: 1.2, color: 0x84cc16, alpha: 0.9 });
+          g.moveTo(gx, gy + 3); g.lineTo(gx - 2, gy - 2);
+          g.moveTo(gx, gy + 3); g.lineTo(gx, gy - 3.5);
+          g.moveTo(gx, gy + 3); g.lineTo(gx + 2, gy - 2);
+          g.stroke({ width: 1.1, color: 0x84cc16, alpha: 0.9 });
         }
 
         // Wildflowers
         for (const [fx, fy, col] of [
-          [cx - 11, cy - 6, 0xffffff],
-          [cx - 3, cy + 2, 0xfacc15],
-          [cx + 6, cy - 5, 0x60a5fa],
-          [cx + 15, cy + 3, 0xffffff],
-          [cx + 8, cy + 8, 0xfacc15],
-          [cx - 8, cy + 9, 0xffffff],
+          [cx - 6, cy - 4, 0xffffff],
+          [cx + 4, cy - 4, 0xfacc15],
+          [cx - 1, cy + 2, 0x60a5fa],
+          [cx + 10, cy + 2, 0xffffff],
+          [cx - 7, cy + 5, 0xfacc15],
         ]) {
-          g.circle(fx, fy, 1.6);
+          g.circle(fx, fy, 1.3);
           g.fill({ color: col, alpha: 0.95 });
-          g.circle(fx, fy, 0.7);
+          g.circle(fx, fy, 0.6);
           g.fill({ color: 0xeab308, alpha: 0.9 });
         }
         break;
       }
 
       case "wood": {
-        // Deep forest grove spanning the chip with tall evergreen spires
-        g.rect(b.x + 3, cy + 4, b.w - 6, 10);
-        g.fill({ color: 0x052e16, alpha: 0.7 });
-
+        // Deep forest pine grove with small evergreen spires standing on diamond
         const trees = [
-          { tx: cx - 18, ty: cy + 3, scale: 0.85, dark: true },
-          { tx: cx + 18, ty: cy + 2, scale: 0.9, dark: true },
-          { tx: cx - 2, ty: cy - 3, scale: 0.95, dark: true },
-          { tx: cx - 10, ty: cy + 5, scale: 1.05, dark: false },
-          { tx: cx + 10, ty: cy + 4, scale: 1.1, dark: false },
-          { tx: cx - 1, ty: cy + 8, scale: 1.3, dark: false },
+          { tx: cx - 10, ty: cy - 2, s: 0.85, dark: true },
+          { tx: cx + 9, ty: cy - 3, s: 0.9, dark: true },
+          { tx: cx - 4, ty: cy + 4, s: 1.1, dark: false },
+          { tx: cx + 5, ty: cy + 3, s: 1.05, dark: false },
         ];
 
         for (const tr of trees) {
-          const s = tr.scale;
+          const s = tr.s;
           const x = tr.tx;
           const y = tr.ty;
           const trunkColor = 0x451a03;
@@ -837,214 +855,167 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
           const leafMid = tr.dark ? 0x047857 : 0x16a34a;
           const leafLight = tr.dark ? 0x10b981 : 0x22c55e;
 
-          g.rect(x - 1.2 * s, y - 2 * s, 2.4 * s, 6 * s);
+          g.rect(x - 1 * s, y - 2 * s, 2 * s, 4 * s);
           g.fill({ color: trunkColor });
 
-          g.poly([x - 7 * s, y, x, y - 6 * s, x + 7 * s, y]);
+          g.poly([x - 5.5 * s, y - 1 * s, x, y - 6 * s, x + 5.5 * s, y - 1 * s]);
           g.fill({ color: leafDark });
-          g.moveTo(x - 7 * s, y); g.lineTo(x, y - 6 * s);
-          g.stroke({ width: 1, color: leafLight, alpha: 0.8 });
-
-          g.poly([x - 5.5 * s, y - 4 * s, x, y - 10 * s, x + 5.5 * s, y - 4 * s]);
+          g.poly([x - 4.5 * s, y - 4 * s, x, y - 9 * s, x + 4.5 * s, y - 4 * s]);
           g.fill({ color: leafMid });
-          g.moveTo(x - 5.5 * s, y - 4 * s); g.lineTo(x, y - 10 * s);
-          g.stroke({ width: 1, color: leafLight, alpha: 0.85 });
-
-          g.poly([x - 4 * s, y - 8 * s, x, y - 14 * s, x + 4 * s, y - 8 * s]);
+          g.poly([x - 3.5 * s, y - 7 * s, x, y - 12 * s, x + 3.5 * s, y - 7 * s]);
           g.fill({ color: leafLight });
         }
         break;
       }
 
       case "hill": {
-        // High stepped contour terraces
-        g.poly([b.x + 3, cy + 12, cx - 14, cy + 1, cx + 4, cy + 6, b.x + b.w - 3, cy + 3, b.x + b.w - 3, cy + 12]);
-        g.fill({ color: 0x292524, alpha: 0.6 });
-
-        g.ellipse(cx - 12, cy + 4, 14, 8);
+        // High stepped contour terraces on diamond
+        g.ellipse(cx - 4, cy - 2, 11, 5.5);
         g.fill({ color: 0x57534e });
-        g.ellipse(cx + 10, cy + 1, 16, 10);
+        g.ellipse(cx + 4, cy + 2, 10, 5);
         g.fill({ color: 0x44403c });
-        g.ellipse(cx - 2, cy + 6, 18, 8);
+        g.ellipse(cx, cy, 7, 3.5);
         g.fill({ color: 0x57534e });
 
         // Highlighted contour ridges
-        g.moveTo(b.x + 6, cy - 2);
-        g.bezierCurveTo(cx - 12, cy - 10, cx + 6, cy - 9, b.x + b.w - 6, cy - 3);
-        g.stroke({ width: 1.8, color: 0xa8a29e, alpha: 0.95 });
+        g.moveTo(cx - 12, cy - 2);
+        g.bezierCurveTo(cx - 4, cy - 6, cx + 4, cy - 5, cx + 11, cy - 1);
+        g.stroke({ width: 1.4, color: 0xd6d3d1, alpha: 0.9 });
 
-        g.moveTo(b.x + 4, cy + 4);
-        g.bezierCurveTo(cx - 14, cy - 2, cx - 2, cy, cx + 14, cy - 3);
-        g.lineTo(b.x + b.w - 4, cy + 4);
-        g.stroke({ width: 2.0, color: 0xd6d3d1, alpha: 0.95 });
+        g.moveTo(cx - 10, cy + 2);
+        g.bezierCurveTo(cx - 2, cy + 5, cx + 6, cy + 4, cx + 12, cy + 1);
+        g.stroke({ width: 1.2, color: 0xa8a29e, alpha: 0.85 });
 
-        g.moveTo(b.x + 5, cy + 10);
-        g.bezierCurveTo(cx - 10, cy + 6, cx + 4, cy + 7, b.x + b.w - 5, cy + 9);
-        g.stroke({ width: 1.8, color: 0xa8a29e, alpha: 0.9 });
-
-        // Granite rocky bluffs
-        g.rect(cx - 9, cy - 4, 4.5, 2.5); g.fill({ color: 0x78716c });
-        g.rect(cx + 8, cy - 5, 5, 3); g.fill({ color: 0x78716c });
-        g.rect(cx - 2, cy + 3, 4, 2); g.fill({ color: 0x78716c });
+        // Granite stone boulders
+        g.rect(cx - 5, cy - 3, 3.5, 2); g.fill({ color: 0x78716c });
+        g.rect(cx + 4, cy - 1, 4, 2.5); g.fill({ color: 0x78716c });
+        g.rect(cx - 1, cy + 2, 3, 2); g.fill({ color: 0x78716c });
         break;
       }
 
       case "waste": {
         // Scorched basalt caldera with glowing magma fissures
         const pulse = Math.sin(phase * 3 + p.x + p.y) * 0.2 + 0.8;
-
-        g.poly([b.x + 4, b.y + 4, cx - 6, b.y + 4, cx - 12, cy + 1, b.x + 4, cy - 2]);
-        g.fill({ color: 0x1c130f });
-        g.poly([cx + 2, b.y + 4, b.x + b.w - 4, b.y + 4, b.x + b.w - 4, cy - 4, cx + 8, cy]);
-        g.fill({ color: 0x18100c });
+        g.ellipse(cx, cy, 12, 6);
+        g.fill({ color: 0x140e0a });
 
         const drawFissures = (w: number, col: number, a: number) => {
-          g.moveTo(b.x + 4, cy - 6);
-          g.lineTo(cx - 8, cy - 2);
-          g.lineTo(cx - 1, cy + 2);
-          g.lineTo(cx + 10, cy - 2);
-          g.lineTo(b.x + b.w - 4, cy + 5);
+          g.moveTo(cx - 14, cy - 1);
+          g.lineTo(cx - 5, cy + 1);
+          g.lineTo(cx + 1, cy - 2);
+          g.lineTo(cx + 8, cy + 2);
+          g.lineTo(cx + 14, cy - 1);
           g.stroke({ width: w, color: col, alpha: a });
 
-          g.moveTo(cx - 3, b.y + 3);
-          g.lineTo(cx - 1, cy + 2);
-          g.lineTo(cx + 4, cy + 8);
+          g.moveTo(cx - 2, cy - 6);
+          g.lineTo(cx + 1, cy - 2);
+          g.lineTo(cx + 3, cy + 5);
           g.stroke({ width: w * 0.8, color: col, alpha: a });
 
-          g.moveTo(cx - 8, cy - 2);
-          g.lineTo(cx - 14, cy + 6);
+          g.moveTo(cx - 5, cy + 1);
+          g.lineTo(cx - 8, cy + 5);
           g.stroke({ width: w * 0.7, color: col, alpha: a });
         };
 
-        drawFissures(4.5, 0x991b1b, 0.75 * pulse);
-        drawFissures(2.6, 0xf97316, 0.95);
-        drawFissures(1.2, 0xfef08a, 0.95 * pulse);
+        drawFissures(3.2, 0x991b1b, 0.75 * pulse);
+        drawFissures(1.8, 0xf97316, 0.95);
+        drawFissures(0.8, 0xfef08a, 0.95 * pulse);
 
-        g.circle(cx - 1, cy + 2, 3.5);
+        g.circle(cx + 1, cy - 2, 2.2);
         g.fill({ color: 0xef4444, alpha: 0.9 });
-        g.circle(cx - 1, cy + 2, 2.0);
+        g.circle(cx + 1, cy - 2, 1.2);
         g.fill({ color: 0xfef08a, alpha: pulse });
-
-        g.circle(cx - 7, cy - 7, 1.2); g.fill({ color: 0xfb923c, alpha: 0.9 });
-        g.circle(cx + 12, cy + 3, 1.0); g.fill({ color: 0xfde047, alpha: 0.85 });
         break;
       }
 
       case "shore": {
-        // Deep water, coastal shallows, golden beach, and frothing surf
-        g.rect(b.x + 2, b.y + 2, b.w - 4, 16);
+        // Coastline: northwest sea, southeast beach, and frothing wave surf
+        g.poly([
+          cx - hw, cy,
+          cx, cy - hh,
+          cx + hw * 0.3, cy - hh * 0.7,
+          cx - hw * 0.3, cy + hh * 0.7,
+        ]);
         g.fill({ color: 0x0284c7 });
 
-        g.rect(b.x + 2, b.y + 15, b.w - 4, 7);
-        g.fill({ color: 0x38bdf8 });
-
         g.poly([
-          b.x + 2, cy + 2,
-          cx - 10, cy + 4,
-          cx + 8, cy + 1,
-          b.x + b.w - 2, cy + 3,
-          b.x + b.w - 2, cy + 10,
-          b.x + 2, cy + 10,
+          cx - hw * 0.3, cy + hh * 0.7,
+          cx + hw * 0.3, cy - hh * 0.7,
+          cx + hw, cy,
+          cx, cy + hh,
         ]);
         g.fill({ color: 0xd4a359 });
 
-        const waveShift = Math.sin(phase * 2.5 + p.x) * 1.5;
-        g.moveTo(b.x + 4, cy - 9 + waveShift);
-        g.bezierCurveTo(cx - 12, cy - 12 + waveShift, cx - 2, cy - 6 + waveShift, cx + 10, cy - 10 + waveShift);
-        g.stroke({ width: 1.6, color: 0xbae6fd, alpha: 0.8 });
+        const waveShift = Math.sin(phase * 2.5 + p.x) * 1.2;
+        g.moveTo(cx - hw * 0.5, cy + hh * 0.5);
+        g.bezierCurveTo(
+          cx - 4, cy - 2 + waveShift,
+          cx + 4, cy + 2 - waveShift,
+          cx + hw * 0.5, cy - hh * 0.5
+        );
+        g.stroke({ width: 2.2, color: 0xffffff, alpha: 0.95 });
 
-        // Crashing surf line
-        g.moveTo(b.x + 2, cy + 1);
-        g.bezierCurveTo(cx - 12, cy - 2, cx + 6, cy + 3, b.x + b.w - 2, cy);
-        g.stroke({ width: 2.5, color: 0xffffff, alpha: 0.95 });
-
-        for (let fx = b.x + 6; fx <= b.x + b.w - 6; fx += 7) {
-          const fy = cy + 1 + Math.sin(fx * 0.8 + phase * 2) * 1.5;
-          g.circle(fx, fy + 2, 1.4);
+        for (let fx = cx - 8; fx <= cx + 8; fx += 5) {
+          const fy = cy + Math.sin(fx * 0.8 + phase * 2) * 1.2;
+          g.circle(fx, fy, 1.1);
           g.fill({ color: 0xf0fdfa, alpha: 0.95 });
         }
         break;
       }
 
       case "peak": {
-        // Towering alpine mountain massif with snowcapped arêtes
-        const ridgeBaseY = cy + 10;
-
+        // Towering alpine mountain peak: twin snowcapped rocky crags
         // Shadowed eastern slopes
         g.poly([
-          cx - 2, cy - 14,
-          cx + 12, cy - 2,
-          cx + 15, cy - 9,
-          b.x + b.w - 4, cy + 5,
-          b.x + b.w - 4, ridgeBaseY,
-          cx - 2, ridgeBaseY,
+          cx, cy - 14,
+          cx + 11, cy - 1,
+          cx + 13, cy - 7,
+          cx + hw - 3, cy,
+          cx, cy + 4,
         ]);
         g.fill({ color: 0x1e293b });
 
         // Illuminated western slopes
         g.poly([
-          b.x + 4, ridgeBaseY,
-          b.x + 4, cy + 6,
-          cx - 16, cy - 7,
-          cx - 9, cy,
-          cx - 2, cy - 14,
-          cx - 2, ridgeBaseY,
+          cx - hw + 3, cy,
+          cx - 12, cy - 5,
+          cx - 7, cy + 1,
+          cx, cy - 14,
+          cx, cy + 4,
         ]);
         g.fill({ color: 0x475569 });
 
-        g.poly([
-          cx - 16, cy - 7,
-          cx - 9, cy,
-          cx - 9, ridgeBaseY,
-          cx - 16, ridgeBaseY,
-        ]);
-        g.fill({ color: 0x64748b });
-
         // Central arête ridge line
-        g.moveTo(cx - 2, cy - 14);
-        g.lineTo(cx - 1, ridgeBaseY);
-        g.stroke({ width: 1.4, color: 0x334155 });
+        g.moveTo(cx, cy - 14);
+        g.lineTo(cx, cy + 4);
+        g.stroke({ width: 1.2, color: 0x334155 });
 
         // Monarch summit snowcap
         g.poly([
-          cx - 6, cy - 7,
-          cx - 2, cy - 14,
-          cx + 3, cy - 7,
-          cx, cy - 5,
+          cx - 4, cy - 8,
+          cx, cy - 14,
+          cx + 4, cy - 8,
+          cx, cy - 6,
         ]);
         g.fill({ color: 0xffffff });
 
         // Western horn snowcap
         g.poly([
-          cx - 19, cy - 3,
-          cx - 16, cy - 7,
-          cx - 12, cy - 3,
-          cx - 15, cy - 1,
+          cx - 14, cy - 2,
+          cx - 12, cy - 5,
+          cx - 9, cy - 2,
+          cx - 11, cy - 1,
         ]);
         g.fill({ color: 0xf8fafc });
 
         // Eastern horn snowcap
         g.poly([
-          cx + 11, cy - 5,
-          cx + 15, cy - 9,
-          cx + 19, cy - 4,
+          cx + 10, cy - 4,
+          cx + 13, cy - 7,
           cx + 15, cy - 3,
+          cx + 13, cy - 2,
         ]);
         g.fill({ color: 0xf8fafc });
-
-        // Glacial ice tongue
-        g.poly([
-          cx - 5, cy - 4,
-          cx - 2, cy - 2,
-          cx + 2, cy - 4,
-          cx, cy + 1,
-        ]);
-        g.fill({ color: 0xbae6fd });
-
-        for (let rx = b.x + 8; rx < b.x + b.w - 8; rx += 8) {
-          g.poly([rx - 2, ridgeBaseY, rx, ridgeBaseY - 3, rx + 2, ridgeBaseY]);
-          g.fill({ color: 0x334155 });
-        }
         break;
       }
     }
@@ -1055,7 +1026,7 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
     const isPlayerHome = p.occupantRealmId === "player" && p.id === state.board.homeProvinceId;
 
     if (isHoldNode || isNpcHold || (p.occupantRealmId === "player" && isHoldNode)) {
-      // Tiny Pixel Keep reusing kit keep drawers at miniature scale
+      // Tiny Pixel Keep sitting squarely on top of the raised diamond tile
       let kit: CultureKit = "western";
       let realmPal: RealmTokenPalette | undefined;
 
@@ -1065,7 +1036,7 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
       } else if (p.occupantRealmId) {
         realmPal = realmTokenPalette(p.occupantRealmId);
         if (p.occupantRealmId === "rival") {
-          kit = "western"; // Uses Iron March spiked keep
+          kit = "western"; // Iron March spiked keep
         } else if (p.occupantRealmId === "k_silk") {
           kit = "sand";
         } else if (p.occupantRealmId === "k_ash") {
@@ -1077,50 +1048,50 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
         }
       }
 
-      drawMiniatureKeep(g, cx, cy, kit, realmPal, isPlayerHome, phase);
+      drawMiniatureKeep(g, cx, cy - 2, kit, realmPal, isPlayerHome, phase);
     } else {
       switch (p.node) {
         case "camp": {
-          g.poly([cx - 8, cy + 7, cx, cy - 6, cx + 8, cy + 7]);
+          g.poly([cx - 7, cy + 6, cx, cy - 5, cx + 7, cy + 6]);
           g.fill({ color: 0xb91c1c });
-          g.poly([cx - 2.5, cy + 7, cx, cy - 2, cx + 2.5, cy + 7]);
+          g.poly([cx - 2, cy + 6, cx, cy - 1, cx + 2, cy + 6]);
           g.fill({ color: 0xfde047 });
-          g.moveTo(cx - 9, cy - 4); g.lineTo(cx + 9, cy + 6);
-          g.moveTo(cx + 9, cy - 4); g.lineTo(cx - 9, cy + 6);
-          g.stroke({ width: 1, color: 0x78350f, alpha: 0.8 });
+          g.moveTo(cx - 7, cy - 3); g.lineTo(cx + 7, cy + 5);
+          g.moveTo(cx + 7, cy - 3); g.lineTo(cx - 7, cy + 5);
+          g.stroke({ width: 0.9, color: 0x78350f, alpha: 0.8 });
           break;
         }
         case "woodcut": {
-          g.rect(cx - 8, cy + 2, 16, 4.5);
+          g.rect(cx - 7, cy + 1, 14, 4);
           g.fill({ color: 0x78350f });
-          g.moveTo(cx - 8, cy + 4); g.lineTo(cx + 8, cy + 4);
+          g.moveTo(cx - 7, cy + 3); g.lineTo(cx + 7, cy + 3);
           g.stroke({ width: 0.8, color: 0x3f1d0b });
-          g.moveTo(cx - 6, cy + 1); g.lineTo(cx + 6, cy - 9);
-          g.moveTo(cx + 6, cy + 1); g.lineTo(cx - 6, cy - 9);
-          g.stroke({ width: 1.2, color: 0x854d0e });
-          g.rect(cx + 4, cy - 10, 3, 2.5); g.fill({ color: 0xd1d5db });
-          g.rect(cx - 7, cy - 10, 3, 2.5); g.fill({ color: 0xd1d5db });
+          g.moveTo(cx - 5, cy); g.lineTo(cx + 5, cy - 8);
+          g.moveTo(cx + 5, cy); g.lineTo(cx - 5, cy - 8);
+          g.stroke({ width: 1.1, color: 0x854d0e });
+          g.rect(cx + 3, cy - 9, 2.8, 2.2); g.fill({ color: 0xd1d5db });
+          g.rect(cx - 6, cy - 9, 2.8, 2.2); g.fill({ color: 0xd1d5db });
           break;
         }
         case "quarry": {
-          g.rect(cx - 7, cy - 2, 10, 8);
+          g.rect(cx - 6, cy - 2, 9, 7);
           g.fill({ color: 0xa1a1aa });
-          g.rect(cx - 7, cy + 2, 10, 4);
+          g.rect(cx - 6, cy + 1, 9, 4);
           g.fill({ color: 0x71717a });
-          g.moveTo(cx + 6, cy + 5); g.lineTo(cx - 2, cy - 8);
-          g.stroke({ width: 1.2, color: 0x78350f });
-          g.poly([cx - 5, cy - 8, cx - 1, cy - 9, cx + 2, cy - 6]);
-          g.stroke({ width: 1.5, color: 0x94a3b8 });
+          g.moveTo(cx + 5, cy + 4); g.lineTo(cx - 2, cy - 7);
+          g.stroke({ width: 1.1, color: 0x78350f });
+          g.poly([cx - 5, cy - 7, cx - 1, cy - 8, cx + 2, cy - 5]);
+          g.stroke({ width: 1.3, color: 0x94a3b8 });
           break;
         }
         case "field": {
-          g.poly([cx - 5, cy + 7, cx - 7, cy - 4, cx + 7, cy - 4, cx + 5, cy + 7]);
+          g.poly([cx - 4, cy + 6, cx - 6, cy - 3, cx + 6, cy - 3, cx + 4, cy + 6]);
           g.fill({ color: 0xca8a04 });
-          g.rect(cx - 6, cy, 12, 2.5);
+          g.rect(cx - 5, cy - 0.5, 10, 2);
           g.fill({ color: 0xdc2626 });
-          g.circle(cx - 4, cy - 6, 1.8); g.fill({ color: 0xfef08a });
-          g.circle(cx, cy - 7, 2); g.fill({ color: 0xfde047 });
-          g.circle(cx + 4, cy - 6, 1.8); g.fill({ color: 0xfef08a });
+          g.circle(cx - 3, cy - 5, 1.5); g.fill({ color: 0xfef08a });
+          g.circle(cx, cy - 6, 1.8); g.fill({ color: 0xfde047 });
+          g.circle(cx + 3, cy - 5, 1.5); g.fill({ color: 0xfef08a });
           break;
         }
       }
@@ -1131,150 +1102,108 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
       const isHome = p.id === state.board.homeProvinceId;
       const cult = culturePalette(sim.playerCultureId ? sim.playerCultureId(state) : undefined);
       const playerTabardCol = cult.id === "western" ? 0x1e40af : cult.tabard;
-      const playerHomePlaque = cult.id === "western" ? 0x7f1d1d : cult.tabard;
 
       if (isHome) {
-        // Player Home Hold: Gilded Royal Frame with corner studs & crown
-        g.rect(b.x, b.y, b.w, b.h);
+        // Player Home Hold: Gilded Royal Diamond Frame with corner studs & crown
+        g.poly(topDiamond);
         g.stroke({ width: 2, color: 0xfacc15 });
 
-        g.rect(b.x + 2, b.y + 2, b.w - 4, b.h - 4);
-        g.stroke({ width: 1, color: 0xfef08a, alpha: 0.6 });
-
-        // 4 Corner Golden Studs
-        g.circle(b.x + 3.5, b.y + 3.5, 1.6); g.fill({ color: 0xfde047 });
-        g.circle(b.x + b.w - 3.5, b.y + 3.5, 1.6); g.fill({ color: 0xfde047 });
-        g.circle(b.x + 3.5, b.y + b.h - 3.5, 1.6); g.fill({ color: 0xfde047 });
-        g.circle(b.x + b.w - 3.5, b.y + b.h - 3.5, 1.6); g.fill({ color: 0xfde047 });
+        // 4 Corner Golden Studs at the diamond vertices
+        g.circle(wx, cy - hh, 1.6); g.fill({ color: 0xfde047 });
+        g.circle(wx + hw, cy, 1.6); g.fill({ color: 0xfde047 });
+        g.circle(wx, cy + hh, 1.6); g.fill({ color: 0xfde047 });
+        g.circle(wx - hw, cy, 1.6); g.fill({ color: 0xfde047 });
 
         // Crown emblem above keep
         g.poly([
-          cx - 6, cy - 11,
-          cx - 4, cy - 15,
-          cx, cy - 12,
-          cx + 4, cy - 15,
-          cx + 6, cy - 11,
+          cx - 6, cy - 15,
+          cx - 4, cy - 19,
+          cx, cy - 16,
+          cx + 4, cy - 19,
+          cx + 6, cy - 15,
         ]);
         g.fill({ color: 0xfacc15 });
-
-        // Bottom banner: royal plaque
-        g.rect(b.x + 7, b.y + b.h - 10, b.w - 14, 7);
-        g.fill({ color: playerHomePlaque });
-        g.stroke({ width: 1, color: 0xfacc15 });
 
         // Animated golden halo pulse
         const haloAlpha = 0.35 + Math.sin(phase * 4) * 0.2;
-        g.rect(b.x - 1, b.y - 1, b.w + 2, b.h + 2);
+        g.poly([
+          wx, cy - hh - 1.5,
+          wx + hw + 1.5, cy,
+          wx, cy + hh + 1.5,
+          wx - hw - 1.5, cy,
+        ]);
         g.stroke({ width: 1.5, color: 0xfde047, alpha: haloAlpha });
       } else {
         // Player Outpost / Flag Token on Player-Occupied Field Tiles & Nodes
-        g.rect(b.x, b.y, b.w, b.h);
-        g.stroke({ width: 1.8, color: 0x2563eb });
+        g.poly(topDiamond);
+        g.stroke({ width: 1.6, color: 0x2563eb });
 
-        g.rect(b.x + 1.5, b.y + 1.5, b.w - 3, b.h - 3);
-        g.stroke({ width: 0.8, color: 0xfacc15, alpha: 0.75 });
-
-        // 4 Corner Brass Pins
-        g.circle(b.x + 3, b.y + 3, 1.2); g.fill({ color: 0xfde047 });
-        g.circle(b.x + b.w - 3, b.y + 3, 1.2); g.fill({ color: 0xfde047 });
-        g.circle(b.x + 3, b.y + b.h - 3, 1.2); g.fill({ color: 0xfde047 });
-        g.circle(b.x + b.w - 3, b.y + b.h - 3, 1.2); g.fill({ color: 0xfde047 });
-
-        // Stone cairn anchor base
-        g.poly([cx - 4, cy + 5, cx + 4, cy + 5, cx + 2, cy + 2, cx - 2, cy + 2]);
-        g.fill({ color: 0x64748b });
+        // Corner brass pins
+        g.circle(wx, cy - hh, 1.2); g.fill({ color: 0xfde047 });
+        g.circle(wx + hw, cy, 1.2); g.fill({ color: 0xfde047 });
+        g.circle(wx, cy + hh, 1.2); g.fill({ color: 0xfde047 });
+        g.circle(wx - hw, cy, 1.2); g.fill({ color: 0xfde047 });
 
         // Flagpole & royal swallowtail standard
-        g.moveTo(cx, cy + 3); g.lineTo(cx, cy - 14);
-        g.stroke({ width: 1.4, color: 0x78350f });
-        g.circle(cx, cy - 14.5, 1.4); g.fill({ color: 0xfacc15 });
+        g.moveTo(cx, cy + 3); g.lineTo(cx, cy - 13);
+        g.stroke({ width: 1.3, color: 0x78350f });
+        g.circle(cx, cy - 13.5, 1.3); g.fill({ color: 0xfacc15 });
 
-        const flagWave = Math.sin(phase * 4 + p.x * 2) * 2.2;
+        const flagWave = Math.sin(phase * 4 + p.x * 2) * 2;
         g.poly([
-          cx, cy - 14,
-          cx + 10 + flagWave, cy - 10,
-          cx + 7 + flagWave * 0.7, cy - 7,
-          cx + 10 + flagWave, cy - 4,
-          cx, cy - 4,
+          cx, cy - 13,
+          cx + 8 + flagWave, cy - 10,
+          cx + 6 + flagWave * 0.7, cy - 7,
+          cx + 8 + flagWave, cy - 5,
+          cx, cy - 5,
         ]);
         g.fill({ color: playerTabardCol });
 
-        g.poly([
-          cx + 2, cy - 11,
-          cx + 6 + flagWave * 0.5, cy - 9,
-          cx + 2, cy - 7,
-        ]);
-        g.fill({ color: 0xfacc15 });
-
-        // Shelter tent
-        g.poly([cx - 9, cy + 7, cx - 3, cy + 1, cx + 1, cy + 7]);
+        // Small shelter tent
+        g.poly([cx - 8, cy + 5, cx - 3, cy, cx + 1, cy + 5]);
         g.fill({ color: 0xb45309 });
-        g.poly([cx - 7, cy + 7, cx - 3, cy + 2.5, cx, cy + 7]);
-        g.fill({ color: 0xd4a359 });
-
-        // Bottom Outpost plaque
-        g.rect(b.x + 9, b.y + b.h - 9, b.w - 18, 6);
-        g.fill({ color: playerHomePlaque });
-        g.stroke({ width: 0.8, color: 0xfacc15 });
-        g.circle(cx, b.y + b.h - 6, 1.1); g.fill({ color: 0xfde047 });
       }
     } else if (p.occupantRealmId) {
       const pal = realmTokenPalette(p.occupantRealmId);
       if (p.node === "hold") {
-        // Distinct NPC Hold Token
-        g.rect(b.x, b.y, b.w, b.h);
+        // Distinct NPC Hold Diamond Rim
+        g.poly(topDiamond);
         g.stroke({ width: 2, color: pal.borderColor });
 
-        g.rect(b.x + 1.5, b.y + 1.5, b.w - 3, b.h - 3);
-        g.stroke({ width: 0.8, color: pal.rimColor, alpha: 0.8 });
-
         // 4 Corner Studs
-        g.circle(b.x + 3.5, b.y + 3.5, 1.5); g.fill({ color: pal.studColor });
-        g.circle(b.x + b.w - 3.5, b.y + 3.5, 1.5); g.fill({ color: pal.studColor });
-        g.circle(b.x + 3.5, b.y + b.h - 3.5, 1.5); g.fill({ color: pal.studColor });
-        g.circle(b.x + b.w - 3.5, b.y + b.h - 3.5, 1.5); g.fill({ color: pal.studColor });
-
-        // Bottom banner: realm plaque
-        g.rect(b.x + 7, b.y + b.h - 10, b.w - 14, 7);
-        g.fill({ color: pal.plaqueColor });
-        g.stroke({ width: 1, color: pal.plaqueBorder });
-        g.circle(cx, b.y + b.h - 6.5, 1.4);
-        g.fill({ color: pal.accentColor });
+        g.circle(wx, cy - hh, 1.5); g.fill({ color: pal.studColor });
+        g.circle(wx + hw, cy, 1.5); g.fill({ color: pal.studColor });
+        g.circle(wx, cy + hh, 1.5); g.fill({ color: pal.studColor });
+        g.circle(wx - hw, cy, 1.5); g.fill({ color: pal.studColor });
       } else {
         // NPC Outpost on claimed province
-        g.rect(b.x, b.y, b.w, b.h);
+        g.poly(topDiamond);
         g.stroke({ width: 1.5, color: pal.borderColor, alpha: 0.85 });
 
-        g.circle(b.x + 3, b.y + 3, 1.1); g.fill({ color: pal.studColor });
-        g.circle(b.x + b.w - 3, b.y + 3, 1.1); g.fill({ color: pal.studColor });
-        g.circle(b.x + 3, b.y + b.h - 3, 1.1); g.fill({ color: pal.studColor });
-        g.circle(b.x + b.w - 3, b.y + b.h - 3, 1.1); g.fill({ color: pal.studColor });
+        g.circle(wx, cy - hh, 1.1); g.fill({ color: pal.studColor });
+        g.circle(wx + hw, cy, 1.1); g.fill({ color: pal.studColor });
+        g.circle(wx, cy + hh, 1.1); g.fill({ color: pal.studColor });
+        g.circle(wx - hw, cy, 1.1); g.fill({ color: pal.studColor });
 
-        // Territory flag with realm pennant
-        g.moveTo(cx - 3, cy + 4); g.lineTo(cx - 3, cy - 13);
+        // Territory flag
+        g.moveTo(cx - 3, cy + 4); g.lineTo(cx - 3, cy - 12);
         g.stroke({ width: 1.2, color: pal.rimColor });
-        g.circle(cx - 3, cy - 13.5, 1.2); g.fill({ color: pal.studColor });
+        g.circle(cx - 3, cy - 12.5, 1.2); g.fill({ color: pal.studColor });
 
-        const flagWave = Math.sin(phase * 4 + p.x * 2) * 2;
+        const flagWave = Math.sin(phase * 4 + p.x * 2) * 1.8;
         g.poly([
-          cx - 3, cy - 13,
-          cx + 6 + flagWave, cy - 10,
-          cx + 3 + flagWave * 0.6, cy - 8,
-          cx + 6 + flagWave, cy - 6,
-          cx - 3, cy - 6,
+          cx - 3, cy - 12,
+          cx + 5 + flagWave, cy - 9.5,
+          cx + 3 + flagWave * 0.6, cy - 7.5,
+          cx + 5 + flagWave, cy - 5.5,
+          cx - 3, cy - 5.5,
         ]);
         g.fill({ color: pal.pennantColor });
 
         // Supply crate
-        g.rect(cx + 2, cy + 2, 5.5, 4.5);
+        g.rect(cx + 2, cy + 1, 5, 4);
         g.fill({ color: pal.keepWallColor });
         g.stroke({ width: 0.8, color: pal.borderColor });
-
-        // Bottom Territory plaque
-        g.rect(b.x + 9, b.y + b.h - 9, b.w - 18, 6);
-        g.fill({ color: pal.plaqueColor });
-        g.stroke({ width: 0.8, color: pal.plaqueBorder });
-        g.circle(cx, b.y + b.h - 6, 1.1); g.fill({ color: pal.accentColor });
       }
     }
   }
@@ -1915,17 +1844,35 @@ export function paintBoardHighlight(
   state: GameState | null
 ): void {
   g.clear();
-  const bounds = provinceTokenBounds(bx, by);
+  const { wx, wy } = boardGridToWorld(bx, by);
+  const p = state?.board?.provinces?.find((pr) => pr.x === bx && pr.y === by);
+  const seen = (state && p) ? isProvinceSeen(state, p.id) : true;
+  const elev = (p && seen) ? terrainElevation(p.terrain) : 4;
+  const cy = wy - elev;
+  const hw = BOARD_HALF_W;
+  const hh = BOARD_HALF_H;
 
-  // 1. Glowing selection border around token
-  g.rect(bounds.x - 2, bounds.y - 2, bounds.w + 4, bounds.h + 4);
+  // 1. Glowing selection border around the isometric diamond
+  g.poly([
+    wx, cy - hh - 1,
+    wx + hw + 1, cy,
+    wx, cy + hh + 1,
+    wx - hw - 1, cy,
+  ]);
   g.stroke({ width: 2, color: 0xfef08a, alpha: 0.95 });
 
+  if (elev > 0) {
+    g.moveTo(wx - hw - 1, cy);
+    g.lineTo(wx - hw - 1, wy);
+    g.lineTo(wx, wy + hh + 1);
+    g.lineTo(wx + hw + 1, wy);
+    g.lineTo(wx + hw + 1, cy);
+    g.stroke({ width: 1.5, color: 0xfef08a, alpha: 0.65 });
+  }
+
   // 2. Information plaque at bottom of diorama table
-  const p = state?.board?.provinces?.find((pr) => pr.x === bx && pr.y === by);
   if (!p) return;
 
-  const seen = state ? isProvinceSeen(state, p.id) : true;
   const plaqueX = 70;
   const plaqueY = CANVAS_H - RIM_SIZE - 22;
   const plaqueW = CANVAS_W - 140;

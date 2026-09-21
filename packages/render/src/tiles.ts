@@ -18,7 +18,15 @@ import {
   HALF_W,
   HALF_H,
   gridToWorld,
+  BOARD_TILE_W,
+  BOARD_TILE_H,
+  BOARD_HALF_W,
+  BOARD_HALF_H,
+  BOARD_ORIGIN_X,
+  BOARD_ORIGIN_Y,
+  boardGridToWorld,
 } from "./camera.js";
+import { blendDark } from "./buildings.js";
 
 // Grid configuration
 export const GRID_W = 16;
@@ -141,13 +149,13 @@ export function terrainChipPalette(terrain: TerrainId): {
  */
 export function terrainElevation(terrain: TerrainId): number {
   switch (terrain) {
-    case "peak": return 13;
+    case "peak": return 14;
     case "hill": return 9;
-    case "waste": return 8;
-    case "wood": return 6;
-    case "plain": return 5;
-    case "shore": return 3;
-    default: return 5;
+    case "waste": return 7;
+    case "wood": return 5;
+    case "plain": return 4;
+    case "shore": return 1;
+    default: return 4;
   }
 }
 
@@ -164,190 +172,170 @@ export function paintTileHeightFace(
   phase: number
 ): void {
   const elev = terrainElevation(terrain);
-  const faceH = elev + 2;
-  const faceY = b.y + b.h - faceH;
+  if (elev <= 0) return;
 
-  // 1. Base Cliff Face Block
-  g.rect(b.x, faceY, b.w, faceH);
+  const wx = b.cx;
+  const wy = b.cy;
+  const hw = BOARD_HALF_W;
+  const hh = BOARD_HALF_H;
+
+  // 1. Front-left cliff face (moderate shadow, facing down-left)
+  g.poly([
+    wx - hw, wy - elev,
+    wx, wy + hh - elev,
+    wx, wy + hh,
+    wx - hw, wy,
+  ]);
   g.fill({ color: pal.fillDark });
 
-  // 2. Front vertical cliff dividing groove / top lip
-  g.moveTo(b.x, faceY);
-  g.lineTo(b.x + b.w, faceY);
-  g.stroke({ width: 1.2, color: pal.border, alpha: 0.9 });
+  // 2. Front-right cliff face (deeper shadow, facing down-right)
+  const cliffShadeRight = blendDark(pal.fillDark, 0.7);
+  g.poly([
+    wx, wy + hh - elev,
+    wx + hw, wy - elev,
+    wx + hw, wy,
+    wx, wy + hh,
+  ]);
+  g.fill({ color: cliffShadeRight });
+
+  // Center vertical prow seam between the two faces
+  g.moveTo(wx, wy + hh - elev);
+  g.lineTo(wx, wy + hh);
+  g.stroke({ width: 1.2, color: 0x000000, alpha: 0.45 });
+
+  // Top lip dividing strokes
+  g.moveTo(wx - hw, wy - elev);
+  g.lineTo(wx, wy + hh - elev);
+  g.lineTo(wx + hw, wy - elev);
+  g.stroke({ width: 1.2, color: pal.border, alpha: 0.85 });
 
   // Left bevel highlight
-  g.moveTo(b.x, faceY);
-  g.lineTo(b.x, b.y + b.h);
-  g.stroke({ width: 1, color: 0xffffff, alpha: 0.15 });
+  g.moveTo(wx - hw, wy - elev);
+  g.lineTo(wx - hw, wy);
+  g.stroke({ width: 1, color: 0xffffff, alpha: 0.18 });
 
   // Right bevel shadow
-  g.moveTo(b.x + b.w, faceY);
-  g.lineTo(b.x + b.w, b.y + b.h);
-  g.stroke({ width: 1, color: 0x000000, alpha: 0.35 });
+  g.moveTo(wx + hw, wy - elev);
+  g.lineTo(wx + hw, wy);
+  g.stroke({ width: 1, color: 0x000000, alpha: 0.4 });
 
   // 3. Terrain-specific height face stratification
   switch (terrain) {
     case "peak": {
-      // Tall alpine granite cliff face with vertical chiseled clefts and meltwater streaks
-      g.rect(b.x, faceY, b.w, faceH);
-      g.fill({ color: 0x1e293b });
-
-      // Vertical basalt & granite rock column strata
-      for (const rx of [b.x + 8, b.x + 18, b.x + 30, b.x + 42, b.x + 50]) {
-        g.moveTo(rx, faceY);
-        g.lineTo(rx + (rx % 3 - 1), b.y + b.h);
-        g.stroke({ width: 1.2, color: 0x0f172a, alpha: 0.8 });
-        // Granite facet highlight
-        g.moveTo(rx + 1.5, faceY);
-        g.lineTo(rx + 1.5, b.y + b.h);
-        g.stroke({ width: 0.8, color: 0x475569, alpha: 0.65 });
+      // Tall alpine granite cliff face with vertical basalt fissures and meltwater streaks
+      for (const lx of [wx - 14, wx - 6]) {
+        const t = (lx - (wx - hw)) / hw;
+        const topY = (wy - elev) + t * hh;
+        const botY = wy + t * hh;
+        g.moveTo(lx, topY);
+        g.lineTo(lx + 0.5, botY);
+        g.stroke({ width: 1.2, color: 0x0f172a, alpha: 0.85 });
+        g.moveTo(lx + 1, topY);
+        g.lineTo(lx + 1.5, botY);
+        g.stroke({ width: 0.7, color: 0x475569, alpha: 0.6 });
       }
 
-      // Vertical snow melt streaks trickling down the rock face
-      g.moveTo(b.x + 14, faceY);
-      g.lineTo(b.x + 14, faceY + faceH * 0.7);
-      g.stroke({ width: 1, color: 0xbae6fd, alpha: 0.85 });
-
-      g.moveTo(b.x + 36, faceY);
-      g.lineTo(b.x + 37, faceY + faceH * 0.85);
-      g.stroke({ width: 1.2, color: 0xf8fafc, alpha: 0.9 });
-
-      // Talus scree along the foot of the cliff
-      for (let sx = b.x + 4; sx < b.x + b.w - 4; sx += 7) {
-        g.poly([sx - 2, b.y + b.h, sx, b.y + b.h - 2.5, sx + 2, b.y + b.h]);
-        g.fill({ color: 0x334155 });
+      for (const rx of [wx + 6, wx + 14]) {
+        const t = (rx - wx) / hw;
+        const topY = (wy + hh - elev) - t * hh;
+        const botY = (wy + hh) - t * hh;
+        g.moveTo(rx, topY);
+        g.lineTo(rx - 0.5, botY);
+        g.stroke({ width: 1.2, color: 0x0f172a, alpha: 0.9 });
       }
+
+      // Vertical snow melt trickles
+      g.moveTo(wx - 4, wy + hh * 0.7 - elev);
+      g.lineTo(wx - 4, wy + hh * 0.7);
+      g.stroke({ width: 1.1, color: 0xbae6fd, alpha: 0.85 });
+
+      g.moveTo(wx + 4, wy + hh * 0.8 - elev);
+      g.lineTo(wx + 4, wy + hh * 0.8);
+      g.stroke({ width: 1.1, color: 0xf8fafc, alpha: 0.9 });
       break;
     }
 
     case "hill": {
-      // Highland contour terrace: earthen clay strata and overhanging sod lip
-      g.rect(b.x, faceY, b.w, faceH);
-      g.fill({ color: 0x3e3226 });
+      // Highland sedimentary strata lines along both cliff slopes
+      g.moveTo(wx - hw + 2, wy - elev * 0.5);
+      g.lineTo(wx - 1, wy + hh - elev * 0.5);
+      g.stroke({ width: 1.0, color: 0x5a4635, alpha: 0.85 });
 
-      // Horizontal geological sedimentary strata lines
-      g.moveTo(b.x + 1, faceY + faceH * 0.45);
-      g.lineTo(b.x + b.w - 1, faceY + faceH * 0.45);
-      g.stroke({ width: 1, color: 0x5a4635, alpha: 0.85 });
+      g.moveTo(wx + 1, wy + hh - elev * 0.5);
+      g.lineTo(wx + hw - 2, wy - elev * 0.5);
+      g.stroke({ width: 1.0, color: 0x3a2b1f, alpha: 0.85 });
 
-      g.moveTo(b.x + 2, faceY + faceH * 0.75);
-      g.lineTo(b.x + b.w - 2, faceY + faceH * 0.75);
-      g.stroke({ width: 0.9, color: 0x2b2219, alpha: 0.75 });
-
-      // Overhanging highland turf fringe at the top edge
-      for (let tx = b.x + 3; tx < b.x + b.w - 3; tx += 6) {
-        g.poly([tx - 2, faceY, tx, faceY + 2.4, tx + 2, faceY]);
-        g.fill({ color: 0x65a30d });
-      }
-
-      // Exposed bedrock stones embedded in the cliff face
-      g.rect(b.x + 12, faceY + 3, 4.5, 2.2);
-      g.fill({ color: 0x78716c });
-      g.rect(b.x + 38, faceY + 4, 5, 2.5);
-      g.fill({ color: 0x78716c });
+      // Overhanging turf fringe
+      g.poly([wx - 10, wy + hh * 0.45 - elev, wx - 8, wy + hh * 0.45 - elev + 2.5, wx - 6, wy + hh * 0.45 - elev]);
+      g.fill({ color: 0x65a30d });
+      g.poly([wx + 6, wy + hh * 0.65 - elev, wx + 8, wy + hh * 0.65 - elev + 2.5, wx + 10, wy + hh * 0.65 - elev]);
+      g.fill({ color: 0x65a30d });
       break;
     }
 
     case "wood": {
-      // Forest bluff: rich dark loam, tangled roots dangling down, mossy brow
-      g.rect(b.x, faceY, b.w, faceH);
-      g.fill({ color: 0x181008 });
+      // Dangling tangled roots along the earthen slope
+      g.rect(wx - hw, wy - elev, hw * 2, 1.5);
+      g.fill({ color: 0x15803d, alpha: 0.7 });
 
-      // Mossy brow on the lip
-      g.rect(b.x, faceY, b.w, 1.8);
-      g.fill({ color: 0x15803d });
-
-      // Dangling tangled tree roots
-      for (const [rx, rlen] of [
-        [b.x + 9, faceH * 0.8],
-        [b.x + 21, faceH * 0.95],
-        [b.x + 33, faceH * 0.75],
-        [b.x + 47, faceH * 0.85],
-      ]) {
-        g.moveTo(rx, faceY + 1);
-        g.lineTo(rx + 1, faceY + rlen * 0.5);
-        g.lineTo(rx - 0.5, faceY + rlen);
+      for (const rx of [wx - 11, wx - 2, wx + 8]) {
+        const isLeft = rx < wx;
+        const t = isLeft ? (rx - (wx - hw)) / hw : (rx - wx) / hw;
+        const topY = isLeft ? (wy - elev) + t * hh : (wy + hh - elev) - t * hh;
+        g.moveTo(rx, topY + 1);
+        g.lineTo(rx + (isLeft ? 1 : -1), topY + elev * 0.8);
         g.stroke({ width: 1.1, color: 0x78350f, alpha: 0.95 });
-        // Root highlight
-        g.moveTo(rx + 0.8, faceY + 1);
-        g.lineTo(rx + 0.8, faceY + rlen * 0.4);
+        g.moveTo(rx + 0.5, topY + 1);
+        g.lineTo(rx + 0.5, topY + elev * 0.4);
         g.stroke({ width: 0.6, color: 0xa16207, alpha: 0.7 });
       }
       break;
     }
 
     case "plain": {
-      // Pastoral turf cut: vibrant grass sod top layer + fertile dark loam
-      g.rect(b.x, faceY, b.w, faceH);
-      g.fill({ color: 0x23170c });
-
-      // Green grass sod layer
-      g.rect(b.x, faceY, b.w, 2);
-      g.fill({ color: 0x4d7c0f });
-
-      // Fine rootlets
-      for (let fx = b.x + 6; fx < b.x + b.w - 5; fx += 8) {
-        g.moveTo(fx, faceY + 2);
-        g.lineTo(fx + (fx % 2 === 0 ? 1 : -1), faceY + 4.5);
-        g.stroke({ width: 0.8, color: 0x854d0e, alpha: 0.75 });
-      }
+      // Grass sod lip along the top edge
+      g.moveTo(wx - hw, wy - elev);
+      g.lineTo(wx, wy + hh - elev);
+      g.lineTo(wx + hw, wy - elev);
+      g.stroke({ width: 1.8, color: 0x4d7c0f, alpha: 0.9 });
       break;
     }
 
     case "waste": {
-      // Scorched basalt crag cliff with vertical glowing magma fissures
-      g.rect(b.x, faceY, b.w, faceH);
-      g.fill({ color: 0x140e0a });
-
+      // Basalt crag with glowing magma fissures down the cliff face
       const pulse = Math.sin(phase * 3 + b.x) * 0.2 + 0.8;
+      g.moveTo(wx, wy + hh - elev);
+      g.lineTo(wx, wy + hh);
+      g.stroke({ width: 2.8, color: 0x991b1b, alpha: 0.85 * pulse });
+      g.moveTo(wx, wy + hh - elev);
+      g.lineTo(wx, wy + hh);
+      g.stroke({ width: 1.4, color: 0xf97316, alpha: 0.95 });
+      g.moveTo(wx, wy + hh - elev + 1);
+      g.lineTo(wx, wy + hh - 1);
+      g.stroke({ width: 0.6, color: 0xfef08a, alpha: pulse });
 
-      // Volcanic magma fissure fissures cracking vertically through the cliff face
-      for (const [vx, vOffset] of [
-        [b.x + 12, 0],
-        [b.x + 28, 1.5],
-        [b.x + 44, 0.8],
-      ]) {
-        const vPulse = Math.sin(phase * 4 + vx) * 0.25 + 0.75;
-        // 1. Broad crimson magma glow
-        g.moveTo(vx, faceY);
-        g.lineTo(vx - 1.5, faceY + faceH * 0.5);
-        g.lineTo(vx + 1, b.y + b.h);
-        g.stroke({ width: 3.2, color: 0x991b1b, alpha: 0.8 * vPulse });
-
-        // 2. Intense bright orange molten lava core
-        g.moveTo(vx, faceY);
-        g.lineTo(vx - 1.5, faceY + faceH * 0.5);
-        g.lineTo(vx + 1, b.y + b.h);
-        g.stroke({ width: 1.6, color: 0xf97316, alpha: 0.95 });
-
-        // 3. Incandescent golden-yellow heat thread
-        g.moveTo(vx, faceY + 1);
-        g.lineTo(vx - 1.5, faceY + faceH * 0.5);
-        g.lineTo(vx + 1, b.y + b.h - 1);
-        g.stroke({ width: 0.7, color: 0xfef08a, alpha: pulse });
-      }
+      g.moveTo(wx - 8, wy + hh * 0.55 - elev);
+      g.lineTo(wx - 7, wy + hh * 0.55);
+      g.stroke({ width: 1.8, color: 0xef4444, alpha: 0.85 * pulse });
+      g.moveTo(wx - 8, wy + hh * 0.55 - elev);
+      g.lineTo(wx - 7, wy + hh * 0.55);
+      g.stroke({ width: 0.8, color: 0xfef08a, alpha: pulse });
       break;
     }
 
     case "shore": {
-      // Coastal sea shelf: sandstone ledge, wet tideline, and frothing surf wash
-      g.rect(b.x, faceY, b.w, faceH);
-      g.fill({ color: 0x6e4b1b });
-
-      // Dark wet tideline notch
-      g.moveTo(b.x, faceY + faceH * 0.5);
-      g.lineTo(b.x + b.w, faceY + faceH * 0.5);
-      g.stroke({ width: 1, color: 0x3d2710, alpha: 0.85 });
-
-      // Foaming white wash along the sea-shelf baseline
-      const washShift = Math.sin(phase * 2.5 + b.x) * 1.5;
-      g.moveTo(b.x, b.y + b.h - 1);
-      g.bezierCurveTo(b.cx - 10, b.y + b.h - 2.5 + washShift, b.cx + 10, b.y + b.h - 0.5 - washShift, b.x + b.w, b.y + b.h - 1);
+      // Sea shelf waterline and frothing wash along the bottom edge
+      const washShift = Math.sin(phase * 2.5 + b.x) * 1.2;
+      g.moveTo(wx - hw, wy);
+      g.lineTo(wx, wy + hh + washShift);
+      g.lineTo(wx + hw, wy);
       g.stroke({ width: 1.8, color: 0xffffff, alpha: 0.95 });
 
-      for (let sx = b.x + 5; sx < b.x + b.w - 4; sx += 9) {
-        g.circle(sx, b.y + b.h - 1.5, 1.2);
+      for (let sx = wx - 14; sx <= wx + 14; sx += 7) {
+        const isLeft = sx < wx;
+        const t = isLeft ? (sx - (wx - hw)) / hw : (sx - wx) / hw;
+        const fy = isLeft ? wy + t * hh : (wy + hh) - t * hh;
+        g.circle(sx, fy - 0.5, 1.2);
         g.fill({ color: 0xe0f2fe, alpha: 0.9 });
       }
       break;
@@ -356,8 +344,8 @@ export function paintTileHeightFace(
 }
 
 /**
- * Fog as a Height Veil for Unseen Provinces on the Board.
- * Conceals unknown terrain beneath a towering, billowing volumetric cloud plateau.
+ * Fog as a Raised Cloud Mass for Unseen Provinces on the Board.
+ * Volumetric billowing cumulus cloud plateau floating directly over the diamond tile.
  */
 export function paintFogHeightVeil(
   g: Graphics,
@@ -365,80 +353,52 @@ export function paintFogHeightVeil(
   p: Province,
   phase: number
 ): void {
-  const veilElev = 10;
-  const faceH = veilElev + 2;
-  const faceY = b.y + b.h - faceH;
+  const wx = b.cx;
+  const wy = b.cy;
+  const hw = BOARD_HALF_W;
+  const hh = BOARD_HALF_H;
 
-  // 1. Deep 3D drop shadow onto board
-  g.rect(b.x + 2, b.y + 4, b.w, b.h + 2);
-  g.fill({ color: 0x000000, alpha: 0.42 });
+  // 1. Soft contact shadow under the cloud mass on the tabletop
+  g.ellipse(wx, wy + 3, hw * 0.9, hh * 0.9);
+  g.fill({ color: 0x000000, alpha: 0.28 });
 
-  // 2. Shaded Cloud Veil Height Face (Bottom Mist Stratum)
-  g.rect(b.x, faceY, b.w, faceH);
-  g.fill({ color: 0x1a1622 });
+  // 2. Volumetric billowing cumulus cloud mass raised above the diamond
+  const bob = Math.sin(phase * 1.6 + p.x * 0.8 + p.y * 0.6) * 1.2;
+  const cy = wy - 7 + bob;
 
-  // Rolling vapor lobes in height face
-  const fogWave = Math.sin(phase * 1.6 + p.x * 0.8 + p.y * 0.9) * 2;
-  for (let lx = b.x + 5; lx <= b.x + b.w - 5; lx += 11) {
-    const lobePulse = Math.sin(phase * 2 + lx) * 1.2;
-    g.ellipse(lx, faceY + faceH * 0.55 + lobePulse * 0.3, 7, faceH * 0.4);
-    g.fill({ color: 0x282234 });
-    g.ellipse(lx, faceY + faceH * 0.4 + lobePulse * 0.2, 5, faceH * 0.3);
-    g.fill({ color: 0x362f44 });
-  }
+  // Shaded base mist stratum (silver-slate cloud shadow)
+  g.ellipse(wx, cy + 4, hw * 0.88, hh * 0.75);
+  g.fill({ color: 0x94a3b8, alpha: 0.65 });
+  g.ellipse(wx, cy + 2, hw * 0.92, hh * 0.8);
+  g.fill({ color: 0xcbd5e1, alpha: 0.8 });
 
-  // Lip dividing line between top veil and height face
-  g.moveTo(b.x, faceY);
-  g.lineTo(b.x + b.w, faceY);
-  g.stroke({ width: 1.4, color: 0x544766, alpha: 0.75 });
+  // Puffy overlapping cloud lobes in crisp white & pearl
+  g.circle(wx - 10, cy - 1, 7.5); g.fill({ color: 0xf1f5f9 });
+  g.circle(wx + 10, cy - 1, 7.5); g.fill({ color: 0xf1f5f9 });
+  g.circle(wx - 1, cy - 6, 8.5); g.fill({ color: 0xf8fafc });
+  g.circle(wx + 1, cy + 1, 8.0); g.fill({ color: 0xffffff });
+  g.circle(wx - 6, cy + 2, 6.5); g.fill({ color: 0xf8fafc });
+  g.circle(wx + 7, cy + 2, 6.5); g.fill({ color: 0xf8fafc });
 
-  // 3. Cloud Plateau Face (Raised Top Surface)
-  g.rect(b.x, b.y, b.w, b.h - faceH + 2);
-  g.fill({ color: 0x2e2738 });
+  // Sunlit crest highlights on top of the billowing puffs
+  g.ellipse(wx - 2, cy - 8, 5, 2.5); g.fill({ color: 0xffffff });
+  g.circle(wx + 8, cy - 3, 2.8); g.fill({ color: 0xffffff });
+  g.circle(wx - 8, cy - 3, 2.8); g.fill({ color: 0xffffff });
 
-  // Pearlescent cloud crests
+  // Antique brass compass star glinting subtly through the cloud vapor
   g.poly([
-    b.x + 1, b.y + 1,
-    b.x + b.w - 1, b.y + 1,
-    b.x + b.w - 1, b.y + 12,
-    b.cx + 8, b.y + 16,
-    b.cx - 10, b.y + 10,
-    b.x + 1, b.y + 14,
+    wx, cy - 5,
+    wx + 1.2, cy - 1.5,
+    wx + 4.5, cy,
+    wx + 1.2, cy + 1.5,
+    wx, cy + 5,
+    wx - 1.2, cy + 1.5,
+    wx - 4.5, cy,
+    wx - 1.2, cy - 1.5,
   ]);
-  g.fill({ color: 0x3d334a, alpha: 0.85 });
-
-  // Top highlight rim
-  g.moveTo(b.x + 1, b.y + 1);
-  g.lineTo(b.x + b.w - 1, b.y + 1);
-  g.stroke({ width: 1.2, color: 0xffffff, alpha: 0.18 });
-
-  // Outer chip border
-  g.rect(b.x, b.y, b.w, b.h);
-  g.stroke({ width: 1.2, color: 0x534464, alpha: 0.85 });
-
-  const cx = b.cx;
-  const cy = b.cy - 3;
-
-  // 4. Volumetric Shifting Cloud Tendrils & Mist Curtains
-  g.moveTo(cx - 18, cy - 6 + fogWave * 0.6);
-  g.bezierCurveTo(cx - 9, cy - 10 + fogWave, cx + 7, cy - 3 - fogWave, cx + 18, cy - 8 - fogWave * 0.5);
-  g.stroke({ width: 2.0, color: 0x7c698f, alpha: 0.45 });
-
-  g.moveTo(cx - 16, cy + 3 - fogWave * 0.5);
-  g.bezierCurveTo(cx - 5, cy - 1 - fogWave, cx + 9, cy + 6 + fogWave, cx + 16, cy + 1 + fogWave * 0.5);
-  g.stroke({ width: 1.8, color: 0x6b5a7d, alpha: 0.4 });
-
-  // Ethereal cloud puffs
-  g.ellipse(cx - 8, cy - 2, 8, 4.5);
-  g.fill({ color: 0x4f435e, alpha: 0.55 });
-  g.ellipse(cx + 7, cy + 1, 9, 5);
-  g.fill({ color: 0x483d56, alpha: 0.5 });
-
-  // Faint cartographer's parchment compass mark peeking through the clouds
-  g.circle(cx, cy, 2);
-  g.fill({ color: 0x8b7aa1, alpha: 0.5 });
-  g.circle(cx, cy, 1);
-  g.fill({ color: 0xd8b4fe, alpha: 0.6 });
+  g.fill({ color: 0xd4a359, alpha: 0.6 });
+  g.circle(wx, cy, 1.2);
+  g.fill({ color: 0xfef08a, alpha: 0.8 });
 }
 
 // -------------------------------------------------------------
@@ -687,51 +647,62 @@ export function paintBoardBackdrop(g: Graphics, visuals: ThemeVisuals): void {
 
   // 1. Dark oiled walnut diorama table base
   g.rect(RIM_SIZE, RIM_SIZE, CANVAS_W - 2 * RIM_SIZE, CANVAS_H - 2 * RIM_SIZE);
-  g.fill({ color: 0x14100c });
+  g.fill({ color: 0x120d09 });
 
-  // 2. Inner parchment board surface for the 8x6 grid
-  const boardX = ORIGIN_BOARD_X - 6;
-  const boardY = ORIGIN_BOARD_Y - 6;
-  const boardW = 8 * (CHIP_W + GAP_X) - GAP_X + 12;
-  const boardH = 6 * (CHIP_H + GAP_Y) - GAP_Y + 12;
-
-  g.rect(boardX, boardY, boardW, boardH);
-  g.fill({ color: 0x1a1510 });
-  g.stroke({ width: 1.5, color: 0x45311e, alpha: 0.9 });
-
-  // 3. Subtle grid lines interconnecting tabletop provinces
-  for (let bx = 0; bx < BOARD_W; bx++) {
-    const b = provinceTokenBounds(bx, 0);
-    g.moveTo(b.cx, boardY);
-    g.lineTo(b.cx, boardY + boardH);
-    g.stroke({ width: 1, color: 0x2e2116, alpha: 0.4 });
-  }
-  for (let by = 0; by < BOARD_H; by++) {
-    const b = provinceTokenBounds(0, by);
-    g.moveTo(boardX, b.cy);
-    g.lineTo(boardX + boardW, b.cy);
-    g.stroke({ width: 1, color: 0x2e2116, alpha: 0.4 });
-  }
-
-  // 4. Subtle brass studs at grid corners
-  const corners = [
-    { x: boardX + 3, y: boardY + 3 },
-    { x: boardX + boardW - 3, y: boardY + 3 },
-    { x: boardX + 3, y: boardY + boardH - 3 },
-    { x: boardX + boardW - 3, y: boardY + boardH - 3 },
+  // 2. Beveled parchment diorama plinth framing the 12x8 isometric board
+  // 12x8 isometric diamond board vertices with padding:
+  // Top: (236, 43), Right: (500, 177), Bottom: (324, 267), Left: (60, 133)
+  const pad = 10;
+  const plinthPoly = [
+    236, 43 - pad,
+    500 + pad * 1.4, 177 - pad * 0.4,
+    500 + pad * 1.4, 177 + pad * 0.6,
+    324 + pad * 0.4, 267 + pad * 1.2,
+    324 - pad * 0.4, 267 + pad * 1.2,
+    60 - pad * 1.4, 133 + pad * 0.6,
+    60 - pad * 1.4, 133 - pad * 0.4,
   ];
-  for (const c of corners) {
-    g.circle(c.x, c.y, 2);
+
+  // Soft drop shadow under plinth
+  g.poly(plinthPoly.map((v, i) => (i % 2 === 1 ? v + 4 : v + 2)));
+  g.fill({ color: 0x000000, alpha: 0.45 });
+
+  // Plinth surface
+  g.poly(plinthPoly);
+  g.fill({ color: 0x1a1510 });
+  g.stroke({ width: 1.8, color: 0x45311e, alpha: 0.9 });
+
+  // Inner subtle brass inlay
+  const innerPoly = [
+    236, 43 - pad + 3,
+    500 + pad * 1.4 - 3, 177,
+    324, 267 + pad * 1.2 - 3,
+    60 - pad * 1.4 + 3, 133,
+  ];
+  g.poly(innerPoly);
+  g.stroke({ width: 1, color: 0xc8963e, alpha: 0.35 });
+
+  // 3. Brass corner rivets on the plinth
+  const rivets = [
+    { x: 236, y: 43 - pad + 5 },
+    { x: 500 + pad * 1.4 - 5, y: 177 },
+    { x: 324, y: 267 + pad * 1.2 - 5 },
+    { x: 60 - pad * 1.4 + 5, y: 133 },
+  ];
+  for (const r of rivets) {
+    g.circle(r.x, r.y, 2);
     g.fill({ color: 0xc8963e });
+    g.circle(r.x, r.y, 1);
+    g.fill({ color: 0xfde047 });
   }
 
-  // 5. Compass Rose in top right corner
-  const crX = boardX + boardW - 22;
-  const crY = boardY + 16;
-  g.poly([crX, crY - 8, crX + 2.5, crY, crX, crY + 8, crX - 2.5, crY]);
-  g.fill({ color: 0xc8963e, alpha: 0.55 });
-  g.poly([crX - 8, crY, crX, crY + 2.5, crX + 8, crY, crX, crY - 2.5]);
-  g.fill({ color: 0x78350f, alpha: 0.55 });
-  g.circle(crX, crY, 1.5);
-  g.fill({ color: 0xfde047, alpha: 0.8 });
+  // 4. Antique Cartographer Compass Rose in upper right corner of table
+  const crX = CANVAS_W - RIM_SIZE - 28;
+  const crY = RIM_SIZE + 28;
+  g.poly([crX, crY - 10, crX + 3, crY, crX, crY + 10, crX - 3, crY]);
+  g.fill({ color: 0xc8963e, alpha: 0.65 });
+  g.poly([crX - 10, crY, crX, crY + 3, crX + 10, crY, crX, crY - 3]);
+  g.fill({ color: 0x78350f, alpha: 0.65 });
+  g.circle(crX, crY, 2);
+  g.fill({ color: 0xfde047, alpha: 0.85 });
 }

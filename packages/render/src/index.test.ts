@@ -170,18 +170,20 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
     expect(bandForZoom(0.45)).toBe("board");
   });
 
-  it("calculates 8x6 province token bounds within diorama viewport", () => {
+  it("calculates 12x8 isometric province token bounds within diorama viewport", () => {
     const origin = provinceTokenBounds(0, 0);
-    expect(origin.x).toBe(35);
-    expect(origin.y).toBe(27);
-    expect(origin.w).toBe(56);
-    expect(origin.h).toBe(46);
-    expect(origin.cx).toBe(35 + 28);
-    expect(origin.cy).toBe(27 + 23);
+    expect(origin.x).toBe(214);
+    expect(origin.y).toBe(45);
+    expect(origin.w).toBe(44);
+    expect(origin.h).toBe(22);
+    expect(origin.cx).toBe(236);
+    expect(origin.cy).toBe(56);
 
-    // Far corner token (column 7, row 5)
-    const far = provinceTokenBounds(7, 5);
+    // Far corner token (column 11, row 7)
+    const far = provinceTokenBounds(11, 7);
+    expect(far.x).toBeGreaterThanOrEqual(16);
     expect(far.x + far.w).toBeLessThanOrEqual(544); // within RIM_SIZE=16 to 544
+    expect(far.y).toBeGreaterThanOrEqual(16);
     expect(far.y + far.h).toBeLessThanOrEqual(344); // within RIM_SIZE=16 to 344
   });
 
@@ -190,8 +192,8 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
     const hit = hitTestProvince(b0.cx, b0.cy);
     expect(hit).toEqual({ bx: 2, by: 3 });
 
-    // Click in the gap between tokens
-    const miss = hitTestProvince(35 + 56 + 2, 27);
+    // Click outside the board diorama
+    const miss = hitTestProvince(10, 10);
     expect(miss).toBeNull();
   });
 

@@ -9,13 +9,21 @@ export const HOLD_DEFAULT_ZOOM = 1.0;
 export const MIN_CAMERA_ZOOM = 0.45;
 export const MAX_CAMERA_ZOOM = 2.2;
 
-// Tabletop Board Layout Constants (8 columns x 6 rows)
-export const CHIP_W = 56;
-export const CHIP_H = 46;
-export const GAP_X = 6;
-export const GAP_Y = 6;
-export const ORIGIN_BOARD_X = 35;
-export const ORIGIN_BOARD_Y = 27;
+// Tabletop Board Isometric Geometry (12 columns x 8 rows)
+export const BOARD_TILE_W = 44;
+export const BOARD_TILE_H = 22;
+export const BOARD_HALF_W = BOARD_TILE_W / 2; // 22
+export const BOARD_HALF_H = BOARD_TILE_H / 2; // 11
+export const BOARD_ORIGIN_X = 236;
+export const BOARD_ORIGIN_Y = 56;
+
+// Backward-compatible chip constants
+export const CHIP_W = BOARD_TILE_W;
+export const CHIP_H = BOARD_TILE_H;
+export const GAP_X = 0;
+export const GAP_Y = 0;
+export const ORIGIN_BOARD_X = BOARD_ORIGIN_X;
+export const ORIGIN_BOARD_Y = BOARD_ORIGIN_Y;
 
 // Canvas viewport configuration
 export const CANVAS_W = 560;
@@ -34,6 +42,21 @@ export function bandForZoom(zoom: number): CameraBand {
   return zoom <= ZOOM_THRESHOLD ? "board" : "hold";
 }
 
+export function boardGridToWorld(bx: number, by: number): { wx: number; wy: number } {
+  return {
+    wx: BOARD_ORIGIN_X + (bx - by) * BOARD_HALF_W,
+    wy: BOARD_ORIGIN_Y + (bx + by) * BOARD_HALF_H,
+  };
+}
+
+export function boardWorldToGrid(wx: number, wy: number): { bx: number; by: number } {
+  const dx = wx - BOARD_ORIGIN_X;
+  const dy = wy - BOARD_ORIGIN_Y;
+  const bx = Math.floor(dx / BOARD_TILE_W + dy / BOARD_TILE_H);
+  const by = Math.floor(dy / BOARD_TILE_H - dx / BOARD_TILE_W);
+  return { bx, by };
+}
+
 export function provinceTokenBounds(bx: number, by: number): {
   x: number;
   y: number;
@@ -42,27 +65,54 @@ export function provinceTokenBounds(bx: number, by: number): {
   cx: number;
   cy: number;
 } {
-  const x = ORIGIN_BOARD_X + bx * (CHIP_W + GAP_X);
-  const y = ORIGIN_BOARD_Y + by * (CHIP_H + GAP_Y);
+  const { wx, wy } = boardGridToWorld(bx, by);
   return {
-    x,
-    y,
-    w: CHIP_W,
-    h: CHIP_H,
-    cx: x + CHIP_W / 2,
-    cy: y + CHIP_H / 2,
+    x: wx - BOARD_HALF_W,
+    y: wy - BOARD_HALF_H,
+    w: BOARD_TILE_W,
+    h: BOARD_TILE_H,
+    cx: wx,
+    cy: wy,
   };
 }
 
 export function hitTestProvince(boardX: number, boardY: number): { bx: number; by: number } | null {
-  for (let by = 0; by < BOARD_H; by++) {
-    for (let bx = 0; bx < BOARD_W; bx++) {
-      const b = provinceTokenBounds(bx, by);
-      if (boardX >= b.x && boardX <= b.x + b.w && boardY >= b.y && boardY <= b.y + b.h) {
-        return { bx, by };
+  const base = boardWorldToGrid(boardX, boardY);
+
+  // If directly inside the diamond of base tile
+  if (base.bx >= 0 && base.bx < BOARD_W && base.by >= 0 && base.by < BOARD_H) {
+    const { wx, wy } = boardGridToWorld(base.bx, base.by);
+    const dxNorm = Math.abs(boardX - wx) / BOARD_HALF_W;
+    const dyNorm = Math.abs(boardY - wy) / BOARD_HALF_H;
+    if (dxNorm + dyNorm <= 1.0) {
+      return base;
+    }
+  }
+
+  // Check if click hits a raised top diamond / cliff face of a neighboring elevated tile
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      const bx = base.bx + dx;
+      const by = base.by + dy;
+      if (bx >= 0 && bx < BOARD_W && by >= 0 && by < BOARD_H) {
+        const { wx, wy } = boardGridToWorld(bx, by);
+        const dxNorm = Math.abs(boardX - wx) / BOARD_HALF_W;
+        if (dxNorm <= 1.0) {
+          const topY = wy - BOARD_HALF_H * (1 - dxNorm) - 14;
+          const botY = wy + BOARD_HALF_H * (1 - dxNorm);
+          if (boardY >= topY && boardY <= botY) {
+            return { bx, by };
+          }
+        }
       }
     }
   }
+
+  // Fallback to base grid if within bounds
+  if (base.bx >= 0 && base.bx < BOARD_W && base.by >= 0 && base.by < BOARD_H) {
+    return base;
+  }
+
   return null;
 }
 
