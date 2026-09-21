@@ -41,7 +41,7 @@ export function MarshalCard(props: { state: GameState | undefined; act: ActFn })
                 onClick={() =>
                   act((st) =>
                     tryAppointMarshal(st, c.id, tree)
-                      ? `${c.name} takes ${marshalSkillName(tree)}. `
+                      ? `${c.name} takes ${marshalSkillName(tree)}.`
                       : "Cannot appoint that marshal."
                   )
                 }
@@ -57,8 +57,8 @@ export function MarshalCard(props: { state: GameState | undefined; act: ActFn })
           onClick={() =>
             act((st) =>
               tryPromoteMarshal(st)
-                ? "Marshal promoted. Line Hold and kin scale."
-                : `Need Keep II and ${MARSHAL_PROMOTE_GOLD} gold."`
+                ? "Marshal promoted. Skills scale."
+                : `Need Keep II and ${MARSHAL_PROMOTE_GOLD} gold.`
             )
           }
         >
