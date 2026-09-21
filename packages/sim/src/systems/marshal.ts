@@ -1,15 +1,27 @@
 import type { CharacterInstance, GameState, MarshalTree } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
+import { keepLevel } from "../actions/upgrade.js";
 import type { Stack } from "./resolver.js";
 
 export const MARSHAL_TREES: readonly MarshalTree[] = ["line", "shock", "ranged"];
 export const MARSHAL_PROMOTE_GOLD = 80;
 export const MARSHAL_MAX_RANK = 2;
+export const MARSHAL_PROMOTE_KEEP = 2;
 
 export function playerMarshal(state: GameState): CharacterInstance | undefined {
   return state.characters.find(
     (c) => c.realmId === "player" && c.marshalTree && MARSHAL_TREES.includes(c.marshalTree)
   );
+}
+
+export function canPromoteMarshal(state: GameState): boolean {
+  const who = playerMarshal(state);
+  if (!who) return false;
+  const rank = Math.max(1, who.marshalRank ?? 1);
+  if (rank >= MARSHAL_MAX_RANK) return false;
+  if (keepLevel(state) < MARSHAL_PROMOTE_KEEP) return false;
+  if (D(state.resources.gold ?? "0").lt(MARSHAL_PROMOTE_GOLD)) return false;
+  return true;
 }
 
 export function tryAppointMarshal(
@@ -38,13 +50,10 @@ export function tryAppointMarshal(
 }
 
 export function tryPromoteMarshal(state: GameState): boolean {
-  const who = playerMarshal(state);
-  if (!who) return false;
-  const rank = Math.max(1, who.marshalRank ?? 1);
-  if (rank >= MARSHAL_MAX_RANK) return false;
-  if (D(state.resources.gold ?? "0").lt(MARSHAL_PROMOTE_GOLD)) return false;
+  if (!canPromoteMarshal(state)) return false;
+  const who = playerMarshal(state)!;
   state.resources.gold = toDecimalString(D(state.resources.gold ?? "0").sub(MARSHAL_PROMOTE_GOLD));
-  who.marshalRank = rank + 1;
+  who.marshalRank = Math.max(1, who.marshalRank ?? 1) + 1;
   state.inputLog.push({
     tick: state.meta.tick,
     type: "promote_marshal",
