@@ -24,4 +24,9 @@ describe("keep gate table", () => {
       }
     }
   });
+
+  it("lists marshal rank 2 from Keep II", () => {
+    expect(keepGateFor(1).marshal).toMatch(/Rank 1/);
+    expect(keepGateFor(2).marshal).toMatch(/Rank 2/);
+  });
 });
