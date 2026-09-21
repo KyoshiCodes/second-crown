@@ -9,6 +9,7 @@ import { absorbBattleCasualties } from "./ward.js";
 import { takePlunder } from "./vault.js";
 import { masonryWallBonus } from "./research.js";
 import { resolveRounds, stacksFor, writeStacks, type BattleEvent } from "./resolver.js";
+import { applyMarshalBonuses, playerMarshal } from "./marshal.js";
 
 export type { BattleEvent };
 
@@ -73,6 +74,9 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
   const beforePlayer = countRealm(state, "player");
   const atkStacks = stacksFor(state, war.attackerRealmId);
   const defStacks = stacksFor(state, war.defenderRealmId);
+  const marshal = playerMarshal(state);
+  if (war.attackerRealmId === "player") applyMarshalBonuses(atkStacks, marshal);
+  if (war.defenderRealmId === "player") applyMarshalBonuses(defStacks, marshal);
   const fought = resolveRounds(atkStacks, defStacks, rng);
   writeStacks(state, [...atkStacks, ...defStacks]);
 
