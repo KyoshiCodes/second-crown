@@ -59,6 +59,7 @@ import {
 import type { ActFn } from "../game/useGameEngine";
 import { PeoplePanel } from "../PeoplePanel";
 import { KeepGateCard } from "../KeepGateCard";
+import { StudyLine } from "../StudyLine";
 
 export function KingdomTab(props: {
   state: GameState | undefined;
@@ -138,6 +139,7 @@ export function KingdomTab(props: {
         {formatLetterSuffix(income.stone ?? "0")} · gold {formatLetterSuffix(income.gold ?? "0")}. Flag tithe /tick · food{" "}
         {tithe.food} · wood {tithe.wood} · stone {tithe.stone} · gold {tithe.gold}.
       </p>
+      <StudyLine state={state} />
       <p style={{ fontSize: 12, opacity: 0.75 }}>
         People labor /tick · food {labor.food} · wood {labor.wood} · stone {labor.stone} · gold {labor.gold}. Assign jobs on People.
       </p>
