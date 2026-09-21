@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { applyMarshalBonuses, playerMarshal, tryAppointMarshal, tryPromoteMarshal } from "./marshal.js";
+import {
+  applyMarshalBonuses,
+  marshalSkillName,
+  playerMarshal,
+  tryAppointMarshal,
+  tryPromoteMarshal,
+} from "./marshal.js";
 import { stacksFor } from "./resolver.js";
 
 function give(s: ReturnType<typeof createGameState>, typeId: string, count = "8") {
@@ -28,6 +34,13 @@ function keepAt(s: ReturnType<typeof createGameState>, level: number) {
 }
 
 describe("marshal schema", () => {
+  it("names Line Hold, Shock Charge, and Ranged Volley", () => {
+    expect(marshalSkillName("line")).toBe("Line Hold");
+    expect(marshalSkillName("shock")).toBe("Shock Charge");
+    expect(marshalSkillName("ranged")).toBe("Ranged Volley");
+    expect(marshalSkillName(null)).toBe("None");
+  });
+
   it("appoints one player marshal and clears the last", () => {
     const s = createGameState({ seed: 1 });
     const ruler = s.characters.find((c) => c.realmId === "player");
