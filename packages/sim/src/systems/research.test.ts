@@ -9,14 +9,34 @@ import {
   researchYield,
   masonryWallBonus,
   logisticsCapBonus,
+  researchKeepReady,
 } from "./research.js";
 import { tryTrain } from "../actions/train.js";
 import { D } from "../core/decimal.js";
 import { storageCap } from "./storage.js";
 import { maxMarches } from "./labor.js";
+import { visionRange } from "./fog.js";
+
+function keepAt(s: ReturnType<typeof createGameState>, level: number) {
+  const keep = s.buildings.find((b) => b.typeId === "keep" && b.realmId === "player");
+  if (keep) {
+    keep.level = level;
+    keep.completesAtTick = null;
+  } else {
+    s.buildings.push({
+      id: "keep_t",
+      typeId: "keep",
+      realmId: "player",
+      x: 3,
+      y: 3,
+      level,
+      completesAtTick: null,
+    });
+  }
+}
 
 describe("academy research", () => {
-  it("blocks cavalry until horse lore finishes", () => {
+  it("blocks cavalry until horse lore finishes behind Keep II", () => {
     const s = createGameState({ seed: 1 });
     s.resources.gold = "200";
     s.resources.food = "200";
@@ -33,13 +53,16 @@ describe("academy research", () => {
       level: 1,
       completesAtTick: null,
     });
+    expect(researchKeepReady(s, "horse")).toBe(false);
+    expect(tryStartResearch(s, "horse")).toBe(false);
+    keepAt(s, 2);
     expect(tryStartResearch(s, "horse")).toBe(true);
     s.meta.tick = 300;
     expect(researchDone(s, "horse")).toBe(true);
     expect(tryTrain(s, { typeId: "cavalry", count: 1 })).toBe(true);
   });
 
-  it("blocks siege engines until siege craft finishes", () => {
+  it("blocks siege engines until siege craft finishes behind Keep III", () => {
     const s = createGameState({ seed: 1 });
     s.resources.gold = "200";
     s.resources.wood = "200";
@@ -54,13 +77,16 @@ describe("academy research", () => {
       level: 1,
       completesAtTick: null,
     });
+    keepAt(s, 2);
+    expect(tryStartResearch(s, "siege")).toBe(false);
+    keepAt(s, 3);
     expect(tryStartResearch(s, "siege")).toBe(true);
     s.meta.tick = 400;
     expect(researchDone(s, "siege")).toBe(true);
     expect(unitUnlocked(s, "siege")).toBe(true);
   });
 
-  it("a finished academy also opens horse lore, no barracks required", () => {
+  it("a finished academy also opens horse lore once Keep II stands", () => {
     const s = createGameState({ seed: 1 });
     s.resources.gold = "200";
     s.resources.wood = "200";
@@ -74,6 +100,7 @@ describe("academy research", () => {
       level: 1,
       completesAtTick: null,
     });
+    keepAt(s, 2);
     expect(tryStartResearch(s, "horse")).toBe(true);
   });
 
@@ -81,6 +108,7 @@ describe("academy research", () => {
     const s = createGameState({ seed: 1 });
     s.resources.gold = "80";
     s.resources.wood = "48";
+    keepAt(s, 2);
     s.buildings.push({
       id: "ac",
       typeId: "academy",
@@ -118,5 +146,27 @@ describe("academy research", () => {
     expect(logisticsCapBonus(s)).toBe(50);
     expect(storageCap(s, "wood")).toBe(cap + 50);
     expect(maxMarches(s)).toBe(slots + 1);
+  });
+
+  it("surveying needs Keep II and stretches vision", () => {
+    const s = createGameState({ seed: 1 });
+    s.resources.gold = "40";
+    s.resources.wood = "40";
+    s.buildings.push({
+      id: "ac",
+      typeId: "academy",
+      realmId: "player",
+      x: 6,
+      y: 6,
+      level: 1,
+      completesAtTick: null,
+    });
+    const base = visionRange(s);
+    expect(tryStartResearch(s, "surveying")).toBe(false);
+    keepAt(s, 2);
+    expect(tryStartResearch(s, "surveying")).toBe(true);
+    s.meta.tick = 250;
+    expect(researchDone(s, "surveying")).toBe(true);
+    expect(visionRange(s)).toBe(base + 1);
   });
 });
