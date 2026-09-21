@@ -3,6 +3,8 @@ import { createGameState } from "../state/createGameState.js";
 import { createCitizen, assignJob, assignTile } from "./citizens.js";
 import { applyLabor, laborPerTick, maxMarches } from "./labor.js";
 import { tryMarch, listMarches } from "./march.js";
+import { TickEngine } from "../core/tickEngine.js";
+import { computeIncomePerSecond } from "./economy.js";
 
 describe("W9 labor and companies", () => {
   it("posted farmers add a drip of food each tick", () => {
@@ -15,6 +17,17 @@ describe("W9 labor and companies", () => {
     expect(laborPerTick(s).food).toBeCloseTo(0.1);
     applyLabor(s, 10);
     expect(Number(s.resources.food)).toBeCloseTo(1);
+  });
+
+  it("live ticks pay the posted drip and the HUD includes it", () => {
+    const s = createGameState({ seed: 3 });
+    s.resources.food = "0";
+    const c = createCitizen(s, "player");
+    assignJob(s, c.id, "farmer");
+    assignTile(s, c.id, { x: 4, y: 4 });
+    expect(Number(computeIncomePerSecond(s).food ?? 0)).toBeGreaterThan(0);
+    new TickEngine(s).settleTicks(10);
+    expect(Number(s.resources.food)).toBeGreaterThan(0);
   });
 
   it("a barracks opens a second march slot", () => {
