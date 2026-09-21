@@ -25,6 +25,7 @@ import {
   keepBonus,
   keepLevel,
   keepNotice,
+  laborPerTick,
   listBuildableTypes,
   listOutposts,
   listScarred,
@@ -89,6 +90,7 @@ export function KingdomTab(props: {
   const notice = state ? keepNotice(state) : "";
   const income = state ? computeIncomePerSecond(state) : {};
   const tithe = state ? outpostTithePerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
+  const labor = state ? laborPerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const misses = state ? unpairedWorks(state) : [];
   const nameOf = (id: string) =>
     seen || (state && countBuilding(state, "watchtower") > 0)
@@ -112,6 +114,9 @@ export function KingdomTab(props: {
         Income /s · food {formatLetterSuffix(income.food ?? "0")} · wood {formatLetterSuffix(income.wood ?? "0")} · stone{" "}
         {formatLetterSuffix(income.stone ?? "0")} · gold {formatLetterSuffix(income.gold ?? "0")}. Flag tithe /tick · food{" "}
         {tithe.food} · wood {tithe.wood} · stone {tithe.stone} · gold {tithe.gold}.
+      </p>
+      <p style={{ fontSize: 12, opacity: 0.75 }}>
+        People labor /tick · food {labor.food} · wood {labor.wood} · stone {labor.stone} · gold {labor.gold}. Assign jobs on People.
       </p>
       {misses.length > 0 ? (
         <p style={{ fontSize: 12, color: "#e8c36a" }}>
