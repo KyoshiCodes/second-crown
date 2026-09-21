@@ -5,10 +5,12 @@ import {
   canAfford,
   canTrade,
   clearKeepNotice,
+  computeIncomePerSecond,
   countBuilding,
   currentKeepGate,
   currentSeason,
   edgeWallCount,
+  formatLetterSuffix,
   gateOnRim,
   garrisonAt,
   garrisonPower,
@@ -20,6 +22,7 @@ import {
   incomingOnPlayerFlags,
   incomingOnProvince,
   KEEP_GATES,
+  keepBonus,
   keepLevel,
   keepNotice,
   listBuildableTypes,
@@ -28,6 +31,8 @@ import {
   listUpgrades,
   listWorksInProgress,
   MARKET_OFFERS,
+  outpostTithePerTick,
+  pairBonus,
   population,
   settlementName,
   staffBonus,
@@ -80,6 +85,8 @@ export function KingdomTab(props: {
   const keepLv = state ? keepLevel(state) : 0;
   const gateRow = state ? currentKeepGate(state) : KEEP_GATES[0];
   const notice = state ? keepNotice(state) : "";
+  const income = state ? computeIncomePerSecond(state) : {};
+  const tithe = state ? outpostTithePerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const nameOf = (id: string) =>
     seen || (state && countBuilding(state, "watchtower") > 0)
       ? state?.realms.find((r) => r.id === id)?.name ?? id
@@ -97,6 +104,11 @@ export function KingdomTab(props: {
       ) : null}
       <p style={{ fontSize: 13 }}>
         {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more). Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
+      </p>
+      <p style={{ fontSize: 12, opacity: 0.85 }}>
+        Income /s · food {formatLetterSuffix(income.food ?? "0")} · wood {formatLetterSuffix(income.wood ?? "0")} · stone{" "}
+        {formatLetterSuffix(income.stone ?? "0")} · gold {formatLetterSuffix(income.gold ?? "0")}. Flag tithe /tick · food{" "}
+        {tithe.food} · wood {tithe.wood} · stone {tithe.stone} · gold {tithe.gold}.
       </p>
       <KeepGateCard gate={gateRow} keepLv={keepLv} beds={beds} pop={pop} plots={plots} plotCap={plotCap} />
       {incoming.length > 0 ? (
@@ -184,11 +196,15 @@ export function KingdomTab(props: {
             const staffed = state ? staffBonus(state, b) > 1 : false;
             const pct = state ? Math.round((staffBonus(state, b) - 1) * 100) : 0;
             const cluster = state ? Math.round((adjacencyBonus(state, b) - 1) * 100) : 0;
+            const pair = state ? Math.round((pairBonus(state, b) - 1) * 100) : 0;
+            const keep = state ? Math.round((keepBonus(state, b) - 1) * 100) : 0;
             return (
               <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
                 <span>
                   {nm} lv {b.level} · {b.x},{b.y} · {staffed ? `staffed +${pct}%` : "empty"}
                   {cluster > 0 ? ` · cluster +${cluster}%` : ""}
+                  {pair > 0 ? ` · pair +${pair}%` : ""}
+                  {keep > 0 ? ` · keep +${keep}%` : ""}
                 </span>
                 <button
                   type="button"
