@@ -13,6 +13,20 @@ export interface TrainPayload {
   realmId?: string;
 }
 
+function barracksOnKeepYard(state: GameState): boolean {
+  const keeps = state.buildings.filter(
+    (b) => b.realmId === "player" && b.typeId === "keep" && b.completesAtTick === null
+  );
+  if (keeps.length === 0) return false;
+  return state.buildings.some(
+    (b) =>
+      b.realmId === "player" &&
+      b.typeId === "barracks" &&
+      b.completesAtTick === null &&
+      keeps.some((k) => Math.abs(k.x - b.x) + Math.abs(k.y - b.y) === 1)
+  );
+}
+
 export function trainCostMultiplier(state: GameState, typeId?: string): number {
   const n = countBuilding(state, "barracks");
   let m = Math.max(0.5, 1 - n * 0.05);
@@ -28,7 +42,8 @@ export function trainCostMultiplier(state: GameState, typeId?: string): number {
   if (typeId === "siege") {
     if (countBuilding(state, "siege_workshop") > 0) m *= 0.85;
   }
-  return m;
+  if (barracksOnKeepYard(state)) m *= 0.9;
+  return Math.max(0.45, m);
 }
 
 export function tryTrain(state: GameState, payload: TrainPayload): boolean {
