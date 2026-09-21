@@ -340,6 +340,10 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     const result = resolveBattle(state, war, rng);
     return noteMarch(state, result.winnerId === "player" ? "Siege broken." : "The hold is breached.");
   }
+  if (dest.occupantRealmId && dest.occupantRealmId !== march.realmId && dest.node !== "camp") {
+    const outcome = resolveHoldStorm(state, march, dest, rng);
+    return noteMarch(state, outcome === "stormed" ? "Hold stormed." : "The hold stands.");
+  }
   if (march.kind === "camp" || dest.node === "camp") {
     void campThreat(state, dest);
     const wins = resolveCampRaid(state, march, dest, rng) === "win";
@@ -388,10 +392,6 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       }
     }
     return noteMarch(state, "Empty province.");
-  }
-  if (dest.occupantRealmId && dest.occupantRealmId !== march.realmId) {
-    const outcome = resolveHoldStorm(state, march, dest, rng);
-    return noteMarch(state, outcome === "stormed" ? "Hold stormed." : "The hold stands.");
   }
   if (march.realmId === "player") returnLevy(state, levy);
   return noteMarch(state, "March arrived.");
