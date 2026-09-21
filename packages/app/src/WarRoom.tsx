@@ -67,42 +67,129 @@ export function WarRoom(props: {
     : undefined;
   const story = state ? lastBattleStory(state) : null;
 
+  const card = { margin: "10px 0", fontSize: 13 } as const;
+  const h = { display: "block", marginBottom: 6 } as const;
+  const resolveWar = () => act((st, eng) => {
+    const war = st.wars.find((w) => w.status === "active");
+    const atk = war ? realmPower(st, war.attackerRealmId) : 0;
+    const def = war ? realmPower(st, war.defenderRealmId) : 0;
+    const r = tryResolveWar(st, eng.rng);
+    if (r.ok && r.result && war) {
+      setBattleSnap({
+        attackerId: war.attackerRealmId,
+        defenderId: war.defenderRealmId,
+        winnerId: r.result.winnerId,
+        attackerPower: r.result.attackerPower ?? atk,
+        defenderPower: r.result.defenderPower ?? def,
+        phases: r.result.phases,
+      });
+      if (r.result.winnerId === "player") sfx.win();
+      else sfx.lose();
+      return r.result.winnerId === "player" ? "Victory." : "Defeat.";
+    }
+    return "No active war.";
+  });
+
   return (
     <div className="sc-tab-war">
       <WarLivingStrip state={state} />
-      <div className="sc-realm-card" style={{ margin: "10px 0", fontSize: 13 }}>
-        <strong>Briefing</strong>
+
+      <section className="sc-realm-card" style={card}>
+        <strong style={h}>Odds</strong>
+        <p style={{ margin: "0 0 6px", fontSize: 12, opacity: 0.75 }}>
+          Your power {mine}. Green favors you, red favors them. Combat still rolls.
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {otherRealms.map((r) => {
+            const left = state ? peaceTicksRemaining(state, "player", r.id) : 0;
+            const theirs = state ? realmPower(state, r.id) : 0;
+            const locked = !!activeWar || left > 0;
+            const favored = mine >= theirs;
+            const share = mine + theirs > 0 ? Math.round((mine / (mine + theirs)) * 100) : 50;
+            return (
+              <button
+                key={r.id}
+                type="button"
+                disabled={locked}
+                style={{ borderColor: favored ? "#3fb950" : "#f85149", borderWidth: 1, borderStyle: "solid" }}
+                onClick={() => act((st) => {
+                  const ok = tryDeclareWar(st, { attackerRealmId: "player", defenderRealmId: r.id });
+                  if (!ok) return "Cannot declare war.";
+                  return `${r.name}: "${getWarTaunt(r.id)}"`;
+                })}
+              >
+                {left > 0
+                  ? `Peace with ${r.name} (${Math.ceil(left / 10)}s)`
+                  : `Declare on ${r.name} · ${mine} vs ${theirs} (${share}%)`}
+              </button>
+            );
+          })}
+        </div>
+        <DiplomacyPanel
+          rivalOp={rivalOp}
+          playerOp={playerOp}
+          onGift={() => act((st) => (tryGiftGold(st) ? `Lord Varric: "${getGiftThanks("rival")}"` : "Need 15 gold."))}
+        />
+      </section>
+
+      <section className="sc-realm-card" style={card}>
+        <strong style={h}>Levy and fight</strong>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          <button
+            type="button"
+            disabled={!canLevy}
+            onClick={() => act((st) => {
+              const ok = tryTrain(st, { typeId: "militia", count: 5 });
+              if (ok) sfx.train();
+              return ok ? "Raised 5 militia." : "Cannot afford 5 militia.";
+            })}
+          >
+            Raise 5 militia
+          </button>
+          <button type="button" disabled={!activeWar} onClick={resolveWar}>
+            Fight
+          </button>
+          <button type="button" disabled={!activeWar} onClick={() => act((st) => (tryWhitePeace(st) ? "White peace signed." : "No war."))}>
+            White Peace
+          </button>
+        </div>
+        {!activeWar ? <p style={{ margin: "6px 0 0", fontSize: 12, opacity: 0.7 }}>No war declared. Fight opens once one is.</p> : null}
+        <BattleVisual snap={battleSnap} active={!!activeWar} />
+      </section>
+
+      <section className="sc-realm-card" style={card}>
+        <strong style={h}>Last battle</strong>
         {lastField ? (
-          <p style={{ margin: "6px 0 4px" }}>
-            Last field: {lastField.text}
-          </p>
+          <p style={{ margin: "0 0 4px" }}>{lastField.text}</p>
         ) : (
-          <p style={{ margin: "6px 0 4px", opacity: 0.7 }}>No field report yet.</p>
+          <p style={{ margin: "0 0 4px", opacity: 0.7 }}>No field report yet.</p>
         )}
         {story && story.events.length > 0 ? (
-          <ul style={{ margin: "0 0 8px", paddingLeft: 18, fontSize: 12 }}>
+          <ul style={{ margin: "0 0 4px", paddingLeft: 18, fontSize: 12 }}>
             {story.events.slice(0, 8).map((ev, i) => (
               <li key={`${ev.round}-${i}`}>{ev.text}</li>
             ))}
           </ul>
         ) : null}
-        <div style={{ margin: "6px 0" }}>
-          <div style={{ opacity: 0.85, marginBottom: 2 }}>Incoming</div>
-          {incoming.length > 0 ? (
-            <ul style={{ margin: "0 0 4px", paddingLeft: 18 }}>
-              {incoming.map((m) => (
-                <li key={m.id}>
-                  {seen ? nameOf(m.realmId) : "Unknown host"} — ETA {etaOf(m.arrivesTick)}s
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p style={{ margin: "4px 0", opacity: 0.7 }}>No column on your gates.</p>
-          )}
-          <p style={{ margin: "4px 0" }}>
-            Wall HP {hp}. Gate {gateUp ? "up" : "down"}. Siege hits walls first, then the yard, then the keep.
-          </p>
-        </div>
+      </section>
+
+      <section className="sc-realm-card" style={card}>
+        <strong style={h}>Home front</strong>
+        <div style={{ opacity: 0.85, marginBottom: 2 }}>Incoming</div>
+        {incoming.length > 0 ? (
+          <ul style={{ margin: "0 0 4px", paddingLeft: 18 }}>
+            {incoming.map((m) => (
+              <li key={m.id}>
+                {seen ? nameOf(m.realmId) : "Unknown host"} — ETA {etaOf(m.arrivesTick)}s
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ margin: "4px 0", opacity: 0.7 }}>No column on your gates.</p>
+        )}
+        <p style={{ margin: "4px 0" }}>
+          Wall HP {hp}. Gate {gateUp ? "up" : "down"}. Siege hits walls first, then the yard, then the keep.
+        </p>
         <p style={{ margin: "4px 0" }}>
           Wounded {wounded} / {beds} beds{healing > 0 ? ` · treating ${healing} (${Math.ceil(healLeft / 10)}s)` : ""}.{" "}
           <button
@@ -125,26 +212,10 @@ export function WarRoom(props: {
             Repair {b.typeId} (8 stone)
           </button>
         ))}
-      </div>
-      <DiplomacyPanel
-        rivalOp={rivalOp}
-        playerOp={playerOp}
-        onGift={() => act((st) => (tryGiftGold(st) ? `Lord Varric: "${getGiftThanks("rival")}"` : "Need 15 gold."))}
-      />
-      <p style={{ fontSize: 12, opacity: 0.7 }}>Your power {mine}. Green odds favor you; red favors them. Combat still rolls.</p>
-      <button
-        type="button"
-        disabled={!canLevy}
-        onClick={() => act((st) => {
-          const ok = tryTrain(st, { typeId: "militia", count: 5 });
-          if (ok) sfx.train();
-          return ok ? "Raised 5 militia." : "Cannot afford 5 militia.";
-        })}
-      >
-        Raise 5 militia
-      </button>
-      <div className="sc-realm-card" style={{ margin: "10px 0", fontSize: 12 }}>
-        <strong>Defenses & decrees</strong>
+      </section>
+
+      <section className="sc-realm-card" style={{ ...card, fontSize: 12 }}>
+        <strong style={h}>Decrees</strong>
         <p style={{ margin: "4px 0" }}>
           {summary && summary.fortifyTicksLeft > 0
             ? `Walls stand (${Math.ceil(summary.fortifyTicksLeft / 10)}s left).`
@@ -152,65 +223,10 @@ export function WarRoom(props: {
         </p>
         <p style={{ margin: "4px 0" }}>
           {activeDecrees.length > 0
-            ? `Active decrees: ${activeDecrees.map((d) => d.name).join(", ")}.`
+            ? `Active: ${activeDecrees.map((d) => `${d.name} (${Math.ceil(d.ticksLeft / 10)}s)`).join(", ")}.`
             : "No decree running. Swear one on the Crown tab."}
         </p>
-      </div>
-      <BattleVisual snap={battleSnap} active={!!activeWar} />
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {otherRealms.map((r) => {
-          const left = state ? peaceTicksRemaining(state, "player", r.id) : 0;
-          const theirs = state ? realmPower(state, r.id) : 0;
-          const locked = !!activeWar || left > 0;
-          const favored = mine >= theirs;
-          return (
-            <button
-              key={r.id}
-              type="button"
-              disabled={locked}
-              style={{ borderColor: favored ? "#3fb950" : "#f85149", borderWidth: 1, borderStyle: "solid" }}
-              onClick={() => act((st) => {
-                const ok = tryDeclareWar(st, { attackerRealmId: "player", defenderRealmId: r.id });
-                if (!ok) return "Cannot declare war.";
-                return `${r.name}: "${getWarTaunt(r.id)}"`;
-              })}
-            >
-              {left > 0
-                ? `Peace with ${r.name} (${Math.ceil(left / 10)}s)`
-                : `Declare on ${r.name} (${mine} vs ${theirs})`}
-            </button>
-          );
-        })}
-      </div>
-      <button
-        type="button"
-        disabled={!activeWar}
-        onClick={() => act((st, eng) => {
-          const war = st.wars.find((w) => w.status === "active");
-          const atk = war ? realmPower(st, war.attackerRealmId) : 0;
-          const def = war ? realmPower(st, war.defenderRealmId) : 0;
-          const r = tryResolveWar(st, eng.rng);
-          if (r.ok && r.result && war) {
-            setBattleSnap({
-              attackerId: war.attackerRealmId,
-              defenderId: war.defenderRealmId,
-              winnerId: r.result.winnerId,
-              attackerPower: r.result.attackerPower ?? atk,
-              defenderPower: r.result.defenderPower ?? def,
-              phases: r.result.phases,
-            });
-            if (r.result.winnerId === "player") sfx.win();
-            else sfx.lose();
-            return r.result.winnerId === "player" ? "Victory." : "Defeat.";
-          }
-          return "No active war.";
-        })}
-      >
-        Fight
-      </button>
-      <button type="button" disabled={!activeWar} onClick={() => act((st) => (tryWhitePeace(st) ? "White peace signed." : "No war."))}>
-        White Peace
-      </button>
+      </section>
     </div>
   );
 }

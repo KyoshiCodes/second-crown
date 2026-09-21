@@ -18,3 +18,8 @@ Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 
 Marshal schema (`systems/marshal.ts`) on `CharacterInstance`. Do not add a second combat path.
 Skills can no-op until they fire inside `resolveRounds`.
+
+## War tab + camera (claude-war lane)
+
+WarRoom is now sectioned: Odds, Levy and fight, Last battle, Home front, Decrees.
+Camera/zoom/pan moved from render/src/index.ts to render/src/camera.ts (createCamera).
