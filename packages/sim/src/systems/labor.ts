@@ -3,6 +3,7 @@ import type { CitizenJobId } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
 import { researchDone } from "./research.js";
+import { currentKeepGate } from "./keepGate.js";
 
 const LABOR_PER_TICK = 0.1;
 const GOLD_LABOR = 0.03;
@@ -32,5 +33,6 @@ export function applyLabor(state: GameState, ticks: number): void {
 
 export function maxMarches(state: GameState): number {
   const extra = researchDone(state, "logistics") ? 1 : 0;
-  return Math.min(4, 1 + countBuilding(state, "barracks") + extra);
+  const raised = 1 + countBuilding(state, "barracks") + extra;
+  return Math.max(1, Math.min(currentKeepGate(state).marchCap, raised));
 }
