@@ -16,9 +16,12 @@ import {
   tryPickDoctrine,
   tryAppointMarshal,
   tryPromoteMarshal,
+  canPromoteMarshal,
   playerMarshal,
   MARSHAL_TREES,
   MARSHAL_PROMOTE_GOLD,
+  MARSHAL_PROMOTE_KEEP,
+  keepLevel,
   tryClaimSeason,
   seasonClaimed,
   seasonBoonPreview,
@@ -64,6 +67,8 @@ export function CrownTab(props: {
   const dailyDone = state ? dailyClaimed(state) : true;
   const dailyWait = state ? dailyMsLeft(state) : 0;
   const rank = marshal?.marshalRank ?? 0;
+  const keep = state ? keepLevel(state) : 0;
+  const canPromo = state ? canPromoteMarshal(state) : false;
 
   return (
     <>
@@ -72,7 +77,7 @@ export function CrownTab(props: {
       <h3>Marshal</h3>
       <p style={{ fontSize: 13 }}>
         {marshal
-          ? `${marshal.name} walks the ${marshal.marshalTree} tree (rank ${rank}). Rank 2 doubles the tree bonus.`
+          ? `${marshal.name} walks the ${marshal.marshalTree} tree (rank ${rank}). Rank 2 needs Keep ${MARSHAL_PROMOTE_KEEP} and ${MARSHAL_PROMOTE_GOLD} gold.`
           : "Appoint a courtier. Line, shock, and ranged each have a rank-1 skill."}
       </p>
       {court.map((c) => (
@@ -92,10 +97,10 @@ export function CrownTab(props: {
       ))}
       <button
         type="button"
-        disabled={!marshal || rank >= 2}
-        onClick={() => act((st) => (tryPromoteMarshal(st) ? "Marshal raised to rank 2." : `Need ${MARSHAL_PROMOTE_GOLD} gold, or already rank 2.`))}
+        disabled={!canPromo}
+        onClick={() => act((st) => (tryPromoteMarshal(st) ? "Marshal raised to rank 2." : `Need Keep ${MARSHAL_PROMOTE_KEEP} and ${MARSHAL_PROMOTE_GOLD} gold.`))}
       >
-        {rank >= 2 ? "Rank 2" : `Promote marshal (${MARSHAL_PROMOTE_GOLD} gold)`}
+        {rank >= 2 ? "Rank 2" : keep < MARSHAL_PROMOTE_KEEP ? `Promote (needs Keep ${MARSHAL_PROMOTE_KEEP})` : `Promote marshal (${MARSHAL_PROMOTE_GOLD} gold)`}
       </button>
       <h3>Daily court</h3>
       <p style={{ fontSize: 13 }}>+12 gold and +20 food once per UTC day.</p>
