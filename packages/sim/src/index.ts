@@ -73,7 +73,7 @@ export type { KeepGateRow } from "./systems/keepGate.js";
 
 export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
-export { listTraining, trainDurationTicks, trainingTicksLeft, tryCancelTraining } from "./systems/training.js";
+export { listTraining, trainDurationTicks, trainingTicksLeft, tryCancelTraining, trainingQueueCap } from "./systems/training.js";
 export type { TrainingJob } from "./systems/training.js";
 
 export {
