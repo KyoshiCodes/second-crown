@@ -10,6 +10,7 @@ import {
   edgeWallCount,
   hasClosedWallRing,
   listMarches,
+  MarchSystem,
   resolveMarchArrival,
   siegeDefense,
   tryMarch,
@@ -138,5 +139,35 @@ describe("W2 marches and walls", () => {
     };
     resolveMarchArrival(s, march, createRngStreams(1));
     expect(s.resources.wood).toBe(String(storageCap(s, "wood")));
+  });
+
+  it("two columns on the same tile write a Field clash", () => {
+    const s = createGameState({ seed: 5 });
+    const dest = s.board.provinces.find((p) => p.id !== s.board.homeProvinceId)!;
+    const tick = s.meta.tick;
+    s.flags.marches_json = JSON.stringify([
+      {
+        id: "ma",
+        realmId: "player",
+        fromId: s.board.homeProvinceId,
+        toId: dest.id,
+        arrivesTick: tick,
+        kind: "node",
+        levy: 6,
+        force: { militia: 6 },
+      },
+      {
+        id: "mb",
+        realmId: "rival",
+        fromId: dest.id,
+        toId: dest.id,
+        arrivesTick: tick,
+        kind: "node",
+        levy: 6,
+        force: { militia: 6 },
+      },
+    ]);
+    MarchSystem.processEventsAt(s, tick);
+    expect(listLedger(s).some((e) => /Field clash/.test(e.text))).toBe(true);
   });
 });
