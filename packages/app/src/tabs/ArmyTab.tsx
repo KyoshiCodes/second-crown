@@ -21,6 +21,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { ArmyVisual } from "../ArmyVisual";
+import { MarshalCard } from "../MarshalCard";
 import type { ActFn } from "../game/useGameEngine";
 import { sfx } from "../sfx";
 
@@ -138,6 +139,7 @@ export function ArmyTab(props: {
       <button type="button" onClick={() => act((st) => (tryHireMercs(st) ? "Eight mercenaries join the line." : "Need 30 gold."))}>
         Hire mercenaries (30 gold, +8 militia)
       </button>
+      <MarshalCard state={state} act={act} />
       <h3>Your Host</h3>
       <ArmyVisual state={state} realmId="player" />
     </>

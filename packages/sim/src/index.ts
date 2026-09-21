@@ -167,6 +167,8 @@ export {
   canPromoteMarshal,
   playerMarshal,
   applyMarshalBonuses,
+  marshalSkillName,
+  marshalSkillBlurb,
   MARSHAL_TREES,
   MARSHAL_PROMOTE_GOLD,
   MARSHAL_PROMOTE_KEEP,
