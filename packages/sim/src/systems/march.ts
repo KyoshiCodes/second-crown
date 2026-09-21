@@ -16,7 +16,7 @@ import { absorbWounded } from "./ward.js";
 import { detachGarrison, garrisonPower, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
-import { pairClashingMarches } from "./engagement.js";
+import { pairClashingMarches, resolveOutpostAssault } from "./engagement.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -319,9 +319,8 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     return noteMarch(state, "Scout returned. Tile mapped.");
   }
   if (march.realmId !== "player" && dest.occupantRealmId === "player" && dest.id !== state.board.homeProvinceId) {
-    const def = garrisonPower(state, dest.id);
-    if (pwr > def) {
-      detachGarrison(state, dest.id);
+    const outcome = resolveOutpostAssault(state, march, dest.id, rng);
+    if (outcome === "fallen") {
       dest.occupantRealmId = march.realmId;
       return noteMarch(state, "Outpost fallen.");
     }

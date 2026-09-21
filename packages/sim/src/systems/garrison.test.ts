@@ -62,11 +62,34 @@ describe("garrison", () => {
         arrivesTick: s.meta.tick,
         kind: "node",
         levy: 8,
+        force: { militia: 8 },
       },
       createRngStreams(1)
     );
     expect(msg).toMatch(/Garrison holds/);
     expect(camp.occupantRealmId).toBe("player");
+  });
+
+  it("empty flag falls to an NPC column", () => {
+    const s = createGameState({ seed: 1 });
+    const camp = s.board.provinces.find((p) => p.node === "camp")!;
+    plantOutpost(s, camp);
+    const msg = resolveMarchArrival(
+      s,
+      {
+        id: "m_npc_empty",
+        realmId: "rival",
+        fromId: s.board.provinces.find((p) => p.occupantRealmId === "rival")?.id ?? camp.id,
+        toId: camp.id,
+        arrivesTick: s.meta.tick,
+        kind: "node",
+        levy: 8,
+        force: { militia: 8 },
+      },
+      createRngStreams(1)
+    );
+    expect(msg).toMatch(/Outpost fallen/);
+    expect(camp.occupantRealmId).toBe("rival");
   });
 
   it("abandoning a flag sends the garrison home and drops the banner", () => {
