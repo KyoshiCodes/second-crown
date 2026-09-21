@@ -20,6 +20,9 @@ import {
   tryClaimSeason,
   seasonClaimed,
   seasonBoonPreview,
+  tryClaimDaily,
+  dailyClaimed,
+  dailyMsLeft,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -56,6 +59,8 @@ export function CrownTab(props: {
   const court = state?.characters.filter((c) => c.realmId === "player") ?? [];
   const boon = state ? seasonBoonPreview(state) : null;
   const claimed = state ? seasonClaimed(state) : true;
+  const dailyDone = state ? dailyClaimed(state) : true;
+  const dailyWait = state ? dailyMsLeft(state) : 0;
 
   return (
     <>
@@ -82,6 +87,15 @@ export function CrownTab(props: {
           ))}
         </div>
       ))}
+      <h3>Daily court</h3>
+      <p style={{ fontSize: 13 }}>+12 gold and +20 food once per UTC day.</p>
+      <button
+        type="button"
+        disabled={!state || dailyDone}
+        onClick={() => act((st) => (tryClaimDaily(st) ? "Daily court collected." : "Already claimed today."))}
+      >
+        {dailyDone ? `Returns in ${Math.ceil(dailyWait / 3_600_000)}h` : "Claim daily court"}
+      </button>
       <h3>Season court</h3>
       <p style={{ fontSize: 13 }}>
         {boon ? `${boon.season}: +${boon.amount} ${boon.res} once this season.` : ""}
