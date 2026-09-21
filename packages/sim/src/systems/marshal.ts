@@ -1,5 +1,5 @@
 import type { CharacterInstance, GameState, MarshalTree } from "@second-crown/shared";
-import type { UnitStack } from "./resolver.js";
+import type { Stack } from "./resolver.js";
 
 export const MARSHAL_TREES: readonly MarshalTree[] = ["line", "shock", "ranged"];
 
@@ -36,8 +36,8 @@ export function tryAppointMarshal(
 
 /** Hook for resolveRounds. Rank 1 currently changes nothing. */
 export function applyMarshalBonuses(
-  stacks: UnitStack[],
+  stacks: Stack[],
   _marshal: CharacterInstance | undefined
-): UnitStack[] {
+): Stack[] {
   return stacks;
 }
