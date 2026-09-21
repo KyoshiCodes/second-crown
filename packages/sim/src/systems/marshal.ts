@@ -34,23 +34,6 @@ export function tryAppointMarshal(
   return true;
 }
 
-function withUnit(
-  state: GameState,
-  typeId: string
-): void {
-  const existing = state.units.find((u) => u.realmId === "player" && u.typeId === typeId);
-  if (!existing) {
-    state.units.push({
-      id: `u_${typeId}_${state.meta.tick}`,
-      typeId,
-      realmId: "player",
-      count: "4",
-      armyId: null,
-    });
-  }
-}
-void withUnit;
-
 /** Rank 1: Line Hold, Shock Charge, Ranged Volley. */
 export function applyMarshalBonuses(
   stacks: Stack[],
