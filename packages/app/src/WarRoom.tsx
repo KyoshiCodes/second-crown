@@ -1,6 +1,7 @@
 import React from "react";
 import {
   canAffordTrain,
+  canSally,
   gateOnRim,
   healTicksLeft,
   housingCap,
@@ -17,6 +18,7 @@ import {
   tryGiftGold,
   tryRepair,
   tryResolveWar,
+  trySally,
   tryTrain,
   tryTreatWounded,
   tryWhitePeace,
@@ -61,10 +63,11 @@ export function WarRoom(props: {
   const pop = state ? population(state) : 0;
   const cap = state ? housingCap(state) : 0;
   const tick = state?.meta.tick ?? 0;
+  const sallyReady = state ? canSally(state) : false;
   const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
   const etaOf = (arrivesTick: number) => Math.max(0, Math.ceil((arrivesTick - tick) / 10));
   const lastField = state
-    ? listLedger(state).find((e) => /march|battle|camp|siege|hold|garrison|flag|storm/i.test(`${e.kind} ${e.text}`))
+    ? listLedger(state).find((e) => /march|battle|camp|siege|hold|garrison|flag|storm|sally/i.test(`${e.kind} ${e.text}`))
     : undefined;
   const story = state ? lastBattleStory(state) : null;
 
@@ -189,6 +192,18 @@ export function WarRoom(props: {
         ) : (
           <p style={{ margin: "4px 0", opacity: 0.7 }}>No column on your gates.</p>
         )}
+        <button
+          type="button"
+          disabled={!sallyReady}
+          onClick={() =>
+            act((st) => {
+              if (!trySally(st)) return "Need 5 militia and a column on the road.";
+              return "Sally at the gate.";
+            })
+          }
+        >
+          Sally (5 militia)
+        </button>
         <p style={{ margin: "4px 0" }}>
           Wall HP {hp}. Gate {gateUp ? "up" : "down"}. Siege hits walls first, then the yard, then the keep.
         </p>
