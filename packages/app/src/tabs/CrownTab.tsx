@@ -23,6 +23,7 @@ import {
 import { EventPanel } from "../EventPanel";
 import { DecreesPanel } from "../DecreesPanel";
 import { CulturePicker } from "../CulturePicker";
+import { LedgerPanel } from "../LedgerPanel";
 import type { ActFn } from "../game/useGameEngine";
 
 export function CrownTab(props: {
@@ -58,8 +59,8 @@ export function CrownTab(props: {
       <h3>Marshal</h3>
       <p style={{ fontSize: 13 }}>
         {marshal
-          ? `${marshal.name} walks the ${marshal.marshalTree} tree (rank ${marshal.marshalRank ?? 1}). Line Hold steadies militia and spears.`
-          : "Appoint a courtier. Line Hold is the only live skill."}
+          ? `${marshal.name} walks the ${marshal.marshalTree} tree (rank ${marshal.marshalRank ?? 1}).`
+          : "Appoint a courtier. Line, shock, and ranged each have a rank-1 skill."}
       </p>
       {court.map((c) => (
         <div key={c.id} style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", fontSize: 12, marginBottom: 4 }}>
@@ -76,6 +77,7 @@ export function CrownTab(props: {
           ))}
         </div>
       ))}
+      <LedgerPanel state={state} />
       <p>Ascend at {formatLetterSuffix(ascendNeed)} total resources.</p>
       <button type="button" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended. Pick a doctrine." : "Not ready."))}>Ascend</button>
 
