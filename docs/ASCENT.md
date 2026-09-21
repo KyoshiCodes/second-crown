@@ -8,16 +8,20 @@ Command mode stays late, twelve Marshal cap, invariant tests ride with Phase 1.
 
 **R1 — stats + triangle (2026-09-21)**
 - `UnitType` now has `attack`, `defense`, `hp`, `speed`, `role`, `tier`.
-- IDs unchanged: militia, spearman, skirmisher, archer, cavalry, knight, siege, champion.
-- `matchupModifier(attackerRole, defenderRole)` in `packages/sim/src/content/matchup.ts`.
-- Triangle: line > shock > ranged > line (±40% material). Skirmish / siege / support asymmetric.
-- `resolveBattle` is untouched. Live fights still `power × count × rng`.
+- IDs unchanged.
+- `matchupModifier` in `packages/sim/src/content/matchup.ts`.
+- `resolveBattle` untouched.
 
-## Next waves (do not skip)
+**R2 — harness (2026-09-21)**
+- `packages/sim/src/harness/battleHarness.ts` runs 1,000 seeded fights across 10 compositions.
+- CSV helper `harnessCsv`. Summary tracks player-win rate and that 2× militia never loses under the current swing range.
+- Same seed + same stacks = same winner / swings.
+- Still does not change `resolveBattle`.
+
+## Next
 
 | Wave | What | Must not do |
 |---|---|---|
-| R2 | 1,000-fight harness CSV under `packages/sim` | Change combat math |
 | R3 | Round + morale + `BattleEvent[]` behind `resolveBattle` adapter | Second combat function |
 | R4 | Wounded-by-default (overflow dies) | Break war/siege/march call sites |
 | Then | Marshal schema, Keep gate table UI, Ledger of Crowns | Engagements before R3 gate |
