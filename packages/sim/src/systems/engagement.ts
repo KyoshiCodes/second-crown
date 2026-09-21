@@ -1,4 +1,4 @@
-import type { GameState } from "@second-crown/shared";
+import type { GameState, Province } from "@second-crown/shared";
 import { getUnitType } from "../content/units.js";
 import type { RngStreams } from "../core/rng.js";
 import { resolveRounds, type BattleEvent, type Stack } from "./resolver.js";
@@ -7,6 +7,7 @@ import { recordCrown } from "./ledger.js";
 import { writeLastBattle } from "./lastBattle.js";
 import { detachGarrison, garrisonAt, mergeGarrisonForce } from "./garrison.js";
 import { returnForce } from "./column.js";
+import { campThreat } from "./camp.js";
 
 export interface ColumnSide {
   id?: string;
@@ -154,4 +155,23 @@ export function resolveOutpostAssault(
     mergeGarrisonForce(state, provinceId, defender.force);
   }
   return "holds";
+}
+
+export function resolveCampRaid(
+  state: GameState,
+  attacker: ColumnSide,
+  dest: Province,
+  rng: RngStreams
+): "win" | "lose" {
+  const threat = Math.max(1, campThreat(state, dest));
+  const defender: ColumnSide = {
+    realmId: "camp",
+    levy: threat,
+    force: { militia: threat },
+  };
+  const result = resolveColumnClash(state, attacker, defender, rng);
+  if (!result.attackerWins && attacker.realmId === "player" && attacker.force) {
+    returnForce(state, attacker.force, 0.4);
+  }
+  return result.attackerWins ? "win" : "lose";
 }
