@@ -10,6 +10,7 @@ import { takePlunder } from "./vault.js";
 import { masonryWallBonus } from "./research.js";
 import { resolveRounds, stacksFor, writeStacks, type BattleEvent } from "./resolver.js";
 import { applyMarshalBonuses, playerMarshal } from "./marshal.js";
+import { recordCrown } from "./ledger.js";
 
 export type { BattleEvent };
 
@@ -67,6 +68,10 @@ function countRealm(state: GameState, realmId: string): number {
     .reduce((n, u) => n + D(u.count).toNumber(), 0);
 }
 
+function realmName(state: GameState, id: string): string {
+  return state.realms.find((r) => r.id === id)?.name ?? id;
+}
+
 export function resolveBattle(state: GameState, war: War, rng: RngStreams): BattleResult {
   const atk = realmPower(state, war.attackerRealmId);
   const def = realmPower(state, war.defenderRealmId) + defenseBonus(state, war.defenderRealmId);
@@ -94,6 +99,12 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
   if (winnerId === "player") grantVictorySpoils(state);
 
   war.status = attackerWins ? "attacker_won" : "defender_won";
+  war.endedTick = state.meta.tick;
+  recordCrown(
+    state,
+    "battle",
+    `${realmName(state, winnerId)} held the field against ${realmName(state, loserId)}.`
+  );
 
   state.flags[`peace_${war.attackerRealmId}_${war.defenderRealmId}`] = state.meta.tick + 500;
 
