@@ -8,6 +8,9 @@ import { fortifyPower } from "./court.js";
 import { absorbWounded } from "./ward.js";
 import { takePlunder } from "./vault.js";
 import { masonryWallBonus } from "./research.js";
+import { resolveRounds, stacksFor, writeStacks, type BattleEvent } from "./resolver.js";
+
+export type { BattleEvent };
 
 export function fortificationPower(state: GameState, realmId: string): number {
   if (realmId !== "player") return 0;
@@ -54,23 +57,34 @@ export interface BattleResult {
   defenderPower: number;
   atkSwing: number;
   defSwing: number;
+  events?: BattleEvent[];
+}
+
+function countRealm(state: GameState, realmId: string): number {
+  return state.units
+    .filter((u) => u.realmId === realmId)
+    .reduce((n, u) => n + D(u.count).toNumber(), 0);
 }
 
 export function resolveBattle(state: GameState, war: War, rng: RngStreams): BattleResult {
   const atk = realmPower(state, war.attackerRealmId);
   const def = realmPower(state, war.defenderRealmId) + defenseBonus(state, war.defenderRealmId);
 
-  const atkSwing = 0.85 + rng.battle() * 0.3;
-  const defSwing = 0.85 + rng.battle() * 0.3;
-  const attackerWins = atk * atkSwing >= def * defSwing;
+  const beforePlayer = countRealm(state, "player");
+  const atkStacks = stacksFor(state, war.attackerRealmId);
+  const defStacks = stacksFor(state, war.defenderRealmId);
+  const fought = resolveRounds(atkStacks, defStacks, rng);
+  writeStacks(state, [...atkStacks, ...defStacks]);
+
+  const lostPlayer = Math.max(0, beforePlayer - countRealm(state, "player"));
+  if (lostPlayer > 0) absorbWounded(state, lostPlayer);
+
+  const attackerWins = fought.attackerWins;
+  const atkSwing = atk > 0 ? 1 : 1;
+  const defSwing = 1;
 
   const winnerId = attackerWins ? war.attackerRealmId : war.defenderRealmId;
   const loserId = attackerWins ? war.defenderRealmId : war.attackerRealmId;
-
-  const winFrac = 0.1 + rng.battle() * 0.1;
-  const loseFrac = 0.4 + rng.battle() * 0.2;
-  applyCasualties(state, winnerId, winFrac);
-  applyCasualties(state, loserId, loseFrac);
 
   const lootFrac = 0.15 + rng.battle() * 0.1;
   const loot = plunder(state, winnerId, loserId, lootFrac);
@@ -85,9 +99,12 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
 
   const phases: BattlePhase[] = [
     { title: "Muster", text: `Attacker ${atk} power vs defender ${def} power.` },
-    { title: "Clash", text: `Fortune multiplies the attack ${atkSwing.toFixed(2)} and the defense ${defSwing.toFixed(2)}.` },
-    { title: "Melee", text: attackerWins ? "The attacker's line holds and pushes." : "The defender's line holds and pushes." },
-    { title: "Butcher's bill", text: `Winner loses ${Math.round(winFrac * 100)}% of the host. Loser loses ${Math.round(loseFrac * 100)}%.` },
+    { title: "Clash", text: fought.events[0]?.text ?? "Lines close." },
+    {
+      title: "Melee",
+      text: attackerWins ? "The attacker's line holds and pushes." : "The defender's line holds and pushes.",
+    },
+    { title: "Butcher's bill", text: `${fought.rounds} rounds. Armies break; they do not all die.` },
     {
       title: "Spoil",
       text:
@@ -97,22 +114,17 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
     },
   ];
 
-  return { winnerId, loserId, loot, phases, attackerPower: atk, defenderPower: def, atkSwing, defSwing };
-}
-
-function applyCasualties(state: GameState, realmId: string, fraction: number): void {
-  for (const u of state.units) {
-    if (u.realmId !== realmId) continue;
-    const count = D(u.count);
-    const lost = count.mul(fraction).floor();
-    let remain = count.sub(lost);
-    if (remain.lt(0)) remain = D(0);
-    if (realmId === "player") {
-      absorbWounded(state, lost.toNumber());
-    }
-    u.count = toDecimalString(remain);
-  }
-  state.units = state.units.filter((u) => D(u.count).gt(0));
+  return {
+    winnerId,
+    loserId,
+    loot,
+    phases,
+    attackerPower: atk,
+    defenderPower: def,
+    atkSwing,
+    defSwing,
+    events: fought.events,
+  };
 }
 
 function plunder(
