@@ -3,6 +3,7 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { getUnitType } from "../content/units.js";
 import { countBuilding } from "../content/buildings.js";
 import { addCapped } from "./storage.js";
+import { currentKeepGate } from "./keepGate.js";
 
 export interface TrainingJob {
   id: string;
@@ -23,15 +24,26 @@ function save(state: GameState, jobs: TrainingJob[]): void {
   state.flags["training_json"] = JSON.stringify(jobs);
 }
 
-export function listTraining(state: GameState): TrainingJob[] {
-  return read(state);
+export function listTraining(state: GameState, realmId?: string): TrainingJob[] {
+  const jobs = read(state);
+  return realmId ? jobs.filter((j) => j.realmId === realmId) : jobs;
 }
 
-export function trainDurationTicks(state: GameState, typeId: string, count: number): number {
+export function trainingQueueCap(state: GameState, realmId = "player"): number {
+  if (realmId !== "player") return 4;
+  return currentKeepGate(state, realmId).trainCap;
+}
+
+export function keepTrainSpeed(state: GameState, realmId = "player"): number {
+  if (realmId !== "player") return 1;
+  return currentKeepGate(state, realmId).trainSpeed;
+}
+
+export function trainDurationTicks(state: GameState, typeId: string, count: number, realmId = "player"): number {
   const def = getUnitType(typeId);
   if (!def || count < 1) return 0;
   const barracks = countBuilding(state, "barracks");
-  const mult = Math.max(0.4, 1 - barracks * 0.08);
+  const mult = Math.max(0.4, 1 - barracks * 0.08) * keepTrainSpeed(state, realmId);
   return Math.max(1, Math.ceil(def.trainTicks * count * mult));
 }
 
@@ -64,7 +76,8 @@ export function enqueueTraining(
   realmId: string,
   paid: Record<string, string> = {},
 ): TrainingJob | null {
-  const duration = trainDurationTicks(state, typeId, count);
+  if (listTraining(state, realmId).length >= trainingQueueCap(state, realmId)) return null;
+  const duration = trainDurationTicks(state, typeId, count, realmId);
   if (duration < 1) return null;
   const jobs = read(state);
   const serial = Number(state.flags["training_serial"] ?? 0) + 1;
