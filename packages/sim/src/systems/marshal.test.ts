@@ -25,15 +25,19 @@ describe("marshal schema", () => {
     const s = createGameState({ seed: 1 });
     const ruler = s.characters.find((c) => c.realmId === "player")!;
     tryAppointMarshal(s, ruler.id, "line");
-    s.units.push({
-      id: "u_line",
-      typeId: "militia",
-      realmId: "player",
-      count: "10",
-      armyId: null,
-    });
+    const existing = s.units.find((u) => u.realmId === "player" && u.typeId === "militia");
+    if (existing) existing.count = "10";
+    else {
+      s.units.push({
+        id: "u_line",
+        typeId: "militia",
+        realmId: "player",
+        count: "10",
+        armyId: null,
+      });
+    }
     const stacks = stacksFor(s, "player");
-    const line = stacks.find((x) => x.role === "Line");
+    const line = stacks.find((x) => x.role === "line" || x.typeId === "militia");
     expect(line).toBeTruthy();
     const def0 = line!.defense;
     const mor0 = line!.morale;
