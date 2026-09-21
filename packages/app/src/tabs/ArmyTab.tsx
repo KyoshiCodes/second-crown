@@ -17,6 +17,7 @@ import {
   championName,
   tryFoodLevy,
   levyTicksLeft,
+  unitUnlocked,
   vaultProtects,
   type GameState,
 } from "@second-crown/sim";
@@ -24,6 +25,12 @@ import { ArmyVisual } from "../ArmyVisual";
 import { MarshalCard } from "../MarshalCard";
 import type { ActFn } from "../game/useGameEngine";
 import { sfx } from "../sfx";
+
+function lockNote(id: string): string {
+  if (id === "cavalry" || id === "knight") return "Study Horse lore on Crown (Keep II).";
+  if (id === "siege") return "Study Siege craft on Crown (Keep III + workshop).";
+  return "";
+}
 
 export function ArmyTab(props: {
   state: GameState | undefined;
@@ -55,25 +62,31 @@ export function ArmyTab(props: {
         {unitTypes.map((u) => {
           const cost = Object.entries(u.cost).map(([k, v]) => `${v} ${k}`).join(", ");
           const ticks = state ? trainDurationTicks(state, u.id, trainQty) : u.trainTicks * trainQty;
+          const open = !state || unitUnlocked(state, u.id);
+          const lock = lockNote(u.id);
           return (
             <button
               key={u.id}
               type="button"
-              title={`${u.blurb ?? ""} Cost ${cost}. ${ticks} ticks to drill.`}
-              disabled={!(state && canAffordTrain(state, u.id, trainQty))}
+              title={open ? `${u.blurb ?? ""} Cost ${cost}. ${ticks} ticks to drill.` : lock}
+              disabled={!open || !(state && canAffordTrain(state, u.id, trainQty))}
               onClick={() =>
                 act((st) => {
+                  if (!unitUnlocked(st, u.id)) return lock;
                   const ok = tryTrain(st, { typeId: u.id, count: trainQty });
                   if (ok) sfx.train();
                   return ok ? `Queued ${trainQty} ${u.name}.` : queue.length >= cap ? "Barracks queue is full. Raise the Keep." : "Cannot afford that levy.";
                 })
               }
             >
-              {u.name} pwr {u.power}
+              {open ? `${u.name} pwr ${u.power}` : `${u.name} locked`}
             </button>
           );
         })}
       </div>
+      <p style={{ fontSize: 12, opacity: 0.75, marginTop: 6 }}>
+        Cavalry and knights need Horse lore. Siege needs Siege craft. Both start on the Crown lectern.
+      </p>
       <div style={{ fontSize: 12, marginTop: 8 }}>
         <strong>Barracks queue {queue.length}/{cap}</strong>
         {queue.length === 0 ? <div>No companies drilling. Keep I holds two slots; Keep II opens a third.</div> : null}
