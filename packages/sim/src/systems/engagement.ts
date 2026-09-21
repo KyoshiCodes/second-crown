@@ -8,6 +8,7 @@ import { writeLastBattle } from "./lastBattle.js";
 import { detachGarrison, garrisonAt, mergeGarrisonForce } from "./garrison.js";
 import { returnForce } from "./column.js";
 import { campThreat } from "./camp.js";
+import { plantOutpost } from "./outpost.js";
 
 export interface ColumnSide {
   id?: string;
@@ -177,4 +178,40 @@ export function resolveCampRaid(
     returnForce(state, attacker.force, 0.4);
   }
   return result.attackerWins ? "win" : "lose";
+}
+
+export function resolveHoldStorm(
+  state: GameState,
+  attacker: ColumnSide,
+  dest: Province,
+  rng: RngStreams
+): "stormed" | "stands" {
+  const owner = dest.occupantRealmId;
+  if (!owner || owner === attacker.realmId) return "stands";
+  const posted = garrisonAt(state, dest.id);
+  const guard =
+    posted?.force && Object.values(posted.force).some((n) => n > 0)
+      ? { ...posted.force }
+      : { militia: dest.node === "hold" ? 8 : 4 };
+  const defender: ColumnSide = {
+    realmId: owner,
+    levy: Object.values(guard).reduce((n, v) => n + v, 0),
+    force: guard,
+  };
+  const result = resolveColumnClash(state, attacker, defender, rng);
+  if (result.attackerWins) {
+    if (posted) detachGarrison(state, dest.id);
+    if (dest.node !== "hold") {
+      dest.occupantRealmId = attacker.realmId;
+      if (attacker.realmId === "player") plantOutpost(state, dest, "player");
+    }
+    if (attacker.realmId === "player" && attacker.force) returnForce(state, attacker.force, 1);
+    return "stormed";
+  }
+  if (posted && defender.force && Object.values(defender.force).some((n) => n > 0)) {
+    detachGarrison(state, dest.id);
+    mergeGarrisonForce(state, dest.id, defender.force);
+  }
+  if (attacker.realmId === "player" && attacker.force) returnForce(state, attacker.force, 0.4);
+  return "stands";
 }

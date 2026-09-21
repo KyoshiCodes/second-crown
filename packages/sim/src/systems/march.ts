@@ -13,10 +13,10 @@ import { plantOutpost, listOutposts } from "./outpost.js";
 import { addCapped } from "./storage.js";
 import { campThreat } from "./camp.js";
 import { absorbWounded } from "./ward.js";
-import { detachGarrison, garrisonPower, mergeGarrisonForce } from "./garrison.js";
+import { detachGarrison, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
-import { pairClashingMarches, resolveCampRaid, resolveOutpostAssault } from "./engagement.js";
+import { pairClashingMarches, resolveCampRaid, resolveHoldStorm, resolveOutpostAssault } from "./engagement.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -340,6 +340,10 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     const result = resolveBattle(state, war, rng);
     return noteMarch(state, result.winnerId === "player" ? "Siege broken." : "The hold is breached.");
   }
+  if (dest.occupantRealmId && dest.occupantRealmId !== march.realmId && dest.node !== "camp") {
+    const outcome = resolveHoldStorm(state, march, dest, rng);
+    return noteMarch(state, outcome === "stormed" ? "Hold stormed." : "The hold stands.");
+  }
   if (march.kind === "camp" || dest.node === "camp") {
     void campThreat(state, dest);
     const wins = resolveCampRaid(state, march, dest, rng) === "win";
@@ -388,21 +392,6 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       }
     }
     return noteMarch(state, "Empty province.");
-  }
-  if (dest.occupantRealmId && dest.occupantRealmId !== march.realmId) {
-    const war = {
-      id: `w_march_${state.meta.tick}`,
-      attackerRealmId: march.realmId,
-      defenderRealmId: dest.occupantRealmId,
-      startedTick: state.meta.tick,
-      status: "active" as const,
-    };
-    state.wars.push(war);
-    const result = resolveBattle(state, war, rng);
-    if (march.realmId === "player") {
-      returnLevy(state, result.winnerId === "player" ? levy : Math.max(0, Math.floor(levy * 0.4)));
-    }
-    return noteMarch(state, result.winnerId === march.realmId ? "Hold stormed." : "The hold stands.");
   }
   if (march.realmId === "player") returnLevy(state, levy);
   return noteMarch(state, "March arrived.");

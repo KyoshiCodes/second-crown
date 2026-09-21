@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { createRngStreams } from "../core/rng.js";
 import { applyMarshalBonuses, playerMarshal, tryAppointMarshal } from "./marshal.js";
-import { resolveColumnClash, stacksFromForce } from "./engagement.js";
+import { resolveColumnClash, resolveHoldStorm, stacksFromForce } from "./engagement.js";
+import { listOutposts } from "./outpost.js";
 
 function giveHomeMilitia(s: ReturnType<typeof createGameState>, count: string) {
   const u = s.units.find((x) => x.realmId === "player" && x.typeId === "militia");
@@ -40,5 +41,18 @@ describe("board column clash", () => {
       return resolveColumnClash(s, a, b, createRngStreams(seed)).attackerWins;
     };
     expect(run(11)).toBe(run(11));
+  });
+
+  it("storming a rival field plants a player flag", () => {
+    const s = createGameState({ seed: 6 });
+    giveHomeMilitia(s, "0");
+    const dest = s.board.provinces.find((p) => p.id !== s.board.homeProvinceId && p.node !== "hold")!;
+    dest.occupantRealmId = "rival";
+    dest.node = "field";
+    const col = { realmId: "player", levy: 16, force: { militia: 16 } };
+    const outcome = resolveHoldStorm(s, col, dest, createRngStreams(6));
+    expect(outcome).toBe("stormed");
+    expect(dest.occupantRealmId).toBe("player");
+    expect(listOutposts(s).some((p) => p.id === dest.id)).toBe(true);
   });
 });
