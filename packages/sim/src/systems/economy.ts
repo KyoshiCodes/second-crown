@@ -12,6 +12,13 @@ import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
 
+const PAIR: Record<string, string> = {
+  farm: "granary",
+  lumber_camp: "sawmill",
+  quarry: "mason",
+  gold_mine: "mint",
+};
+
 export function productionBonus(state: GameState): number {
   let bonus = 0;
   const prestige = Number(state.flags["prestige_level"] ?? 0);
@@ -54,6 +61,26 @@ export function adjacencyBonus(state: GameState, building: GameState["buildings"
   return 1 + Math.min(0.2, n * 0.1);
 }
 
+function edgeOf(state: GameState, building: GameState["buildings"][number], typeId: string): boolean {
+  return state.buildings.some(
+    (b) =>
+      b.id !== building.id &&
+      b.realmId === building.realmId &&
+      b.typeId === typeId &&
+      b.completesAtTick === null &&
+      Math.abs(b.x - building.x) + Math.abs(b.y - building.y) === 1
+  );
+}
+
+/** Producer next to its warehouse: +15%. Warehouse next to its producer: +15% on its own drip. */
+export function pairBonus(state: GameState, building: GameState["buildings"][number]): number {
+  const mate = PAIR[building.typeId];
+  if (mate && edgeOf(state, building, mate)) return 1.15;
+  const producer = Object.entries(PAIR).find(([, store]) => store === building.typeId)?.[0];
+  if (producer && edgeOf(state, building, producer)) return 1.15;
+  return 1;
+}
+
 function rateFor(state: GameState, building: GameState["buildings"][number], res: string, rateStr: string) {
   const scarce = res === "gold" ? 0.35 : 1;
   return D(rateStr)
@@ -61,7 +88,8 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(1 + productionBonus(state) * 0.04 + researchYield(state, res))
     .mul(scarce)
     .mul(staffBonus(state, building))
-    .mul(adjacencyBonus(state, building));
+    .mul(adjacencyBonus(state, building))
+    .mul(pairBonus(state, building));
 }
 
 export const EconomySystem = {
