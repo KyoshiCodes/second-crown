@@ -81,6 +81,12 @@ export function pairBonus(state: GameState, building: GameState["buildings"][num
   return 1;
 }
 
+/** Finished keep on an edge of this work: +10%. Keep itself does not lift itself. */
+export function keepBonus(state: GameState, building: GameState["buildings"][number]): number {
+  if (building.typeId === "keep") return 1;
+  return edgeOf(state, building, "keep") ? 1.1 : 1;
+}
+
 function rateFor(state: GameState, building: GameState["buildings"][number], res: string, rateStr: string) {
   const scarce = res === "gold" ? 0.35 : 1;
   return D(rateStr)
@@ -89,7 +95,8 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(scarce)
     .mul(staffBonus(state, building))
     .mul(adjacencyBonus(state, building))
-    .mul(pairBonus(state, building));
+    .mul(pairBonus(state, building))
+    .mul(keepBonus(state, building));
 }
 
 export const EconomySystem = {
