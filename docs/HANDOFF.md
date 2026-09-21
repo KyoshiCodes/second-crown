@@ -1,36 +1,29 @@
 # HANDOFF — current ground (2026-09-21)
 
-Read this first. Older per-PR bakeoff notes live in CHANGELOG.md.
-Player-facing recap: docs/PROGRESS.md. Depth plan: docs/ASCENT.md.
+Read this first. Player recap: docs/PROGRESS.md. Plan: docs/ASCENT.md.
 Play: https://129.153.17.72.sslip.io/
 
-## Repo
+## Live systems
 
-- Monorepo: `packages/sim` (rules), `packages/render` (Pixi board), `packages/app` (React), `packages/shared`, `server/`.
-- Host: Oracle ARM Ubuntu, Caddy HTTPS on `129.153.17.72.sslip.io`, pm2 `sc-cloud` on 8787.
-- Stack: Vite 8 on Windows clones; server may still show Vite 5 until Node on the VM is raised. Sim tests are the gate.
-- Invariants: deterministic ticks, one combat function, content-as-data, no Discord/Caddy edits unless asked.
+Hold + 12×8 board, marches, gather, garrisons, fog, siege, cultures, cloud save.
+Combat is still scalar `resolveBattle`.
 
-## Live systems (do not rebuild)
+## Shipped this week
 
-Hold + 12×8 board, marches, gather + node stock, garrisons, fog, scouts, camps, siege, rim walls/gate, incoming warnings, warehouse caps, research, training queue, upgrade queue, citizens + jobs, labor from posted workers, adjacency / pair / keep-yard / barracks-on-keep train discount, cultures (5 kits), holidays + audio, Discord cloud save.
+- Layout bonuses (staff, cluster, pair, keep yard, barracks-on-keep).
+- R1 unit stats + `matchupModifier` (unused by combat).
+- R2 harness: `packages/sim/src/harness/battleHarness.ts` — 1,000 fights, deterministic, 2× militia baseline.
 
-Combat is still scalar `resolveBattle` (power × count × rng).
+## Next agent task — R3
 
-## Just landed — Ascent R1
-
-- Units have attack/defense/hp/speed/role/tier.
-- `matchupModifier` exists and is tested.
-- Fights do not use those fields yet.
-
-## Next agent task
-
-R2: headless 1,000-battle harness writing CSV. Do not edit `resolveBattle`. Do not touch app/render unless asked.
+Replace the internals of `resolveBattle` with a round + morale + `BattleEvent[]` loop.
+Keep the same function name and `BattleResult` fields so war/siege/march keep compiling.
+Use `matchupModifier` and unit stats. Seeded rng ±5% per round max.
+Same seed + same stacks = identical log. Do not add a second combat function.
 
 ## Verify
 
 ```
 npm test
-npm run test -w @second-crown/render
 npm run build -w @second-crown/app
 ```
