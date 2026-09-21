@@ -5,6 +5,7 @@ import { resolveRounds, type BattleEvent, type Stack } from "./resolver.js";
 import { applyMarshalBonuses, marshalSkillName, playerMarshal } from "./marshal.js";
 import { recordCrown } from "./ledger.js";
 import { writeLastBattle } from "./lastBattle.js";
+import { detachGarrison, garrisonAt, mergeGarrisonForce } from "./garrison.js";
 import { returnForce } from "./column.js";
 
 export interface ColumnSide {
@@ -84,14 +85,13 @@ export function resolveColumnClash(
     winnerId: fought.attackerWins ? attacker.realmId : defender.realmId,
     loserId: fought.attackerWins ? defender.realmId : attacker.realmId,
     events: [
-      skill !== "None" ? { round: 0, kind: "open" as const, text: `${skill} is on the field.` } : { round: 0, kind: "open" as const, text: "Columns meet." },
+      skill !== "None"
+        ? { round: 0, kind: "open" as const, text: `${skill} is on the field.` }
+        : { round: 0, kind: "open" as const, text: "Columns meet." },
       ...fought.events,
     ],
     phases: [{ title: "Field", text: "Two columns met on the same tile." }],
   });
-
-  const loser = fought.attackerWins ? defender : attacker;
-  if (loser.realmId === "player" && loser.force) returnForce(state, loser.force, 0.4);
 
   return {
     attackerWins: fought.attackerWins,
@@ -121,10 +121,37 @@ export function pairClashingMarches<T extends ColumnSide>(
       used.add(bid);
       const result = resolveColumnClash(state, a, foe, rng);
       const winner = result.attackerWins ? a : foe;
+      const loser = result.attackerWins ? foe : a;
+      if (loser.realmId === "player" && loser.force) returnForce(state, loser.force, 0.4);
       if ((winner.levy ?? 0) > 0) remaining.push(winner);
       continue;
     }
     remaining.push(a);
   }
   return remaining;
+}
+
+export function resolveOutpostAssault(
+  state: GameState,
+  attacker: ColumnSide,
+  provinceId: string,
+  rng: RngStreams
+): "fallen" | "holds" {
+  const posted = garrisonAt(state, provinceId);
+  const defForce = { ...(posted?.force ?? {}) };
+  const defender: ColumnSide = {
+    realmId: "player",
+    levy: Object.values(defForce).reduce((n, v) => n + v, 0),
+    force: defForce,
+  };
+  const result = resolveColumnClash(state, attacker, defender, rng);
+  detachGarrison(state, provinceId);
+  if (result.attackerWins) {
+    if (defender.force) returnForce(state, defender.force, 0.4);
+    return "fallen";
+  }
+  if (defender.force && Object.values(defender.force).some((n) => n > 0)) {
+    mergeGarrisonForce(state, provinceId, defender.force);
+  }
+  return "holds";
 }
