@@ -1,19 +1,16 @@
 # Ascent — depth plan status
 
-## Shipped (Phase 1 gate)
+## Shipped
 
-- **R1** unit stats + matchup table
-- **R2** 1,000-fight harness
-- **R3** rounds + morale inside `resolveBattle`
-- **R4 (2026-09-21)** wounded-by-default: `absorbBattleCasualties`
-  - Winner losses fill infirmary beds first
-  - Loser overflow past beds is dead (already removed from the host)
-  - No infirmary = no beds = all losses stay dead
+- R1–R4 combat gate (stats, harness, rounds/morale, wounded-by-default)
+- **Marshal schema (2026-09-21)** — `CharacterInstance.marshalTree` / `marshalRank`
+  - `tryAppointMarshal` sets one player marshal to line | shock | ranged
+  - `applyMarshalBonuses` is identity until skills hook `resolveRounds`
 
-## Next (Phase 2+)
+## Next
 
-Marshal schema on existing `CharacterInstance`, Keep gate table in the UI, Ledger of Crowns.
-Do not start board engagements until Marshals have a hook into the resolver.
+Keep gate table in the UI. Then first real marshal skill (Line Hold) inside `resolveRounds` only.
+Do not start board engagements until that skill exists.
 
 ## Hard rules
 
