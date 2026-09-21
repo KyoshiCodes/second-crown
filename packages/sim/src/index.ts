@@ -83,6 +83,8 @@ export {
   researchDone,
   researchTicksLeft,
   unitUnlocked,
+  researchKeepMin,
+  researchKeepReady,
 } from "./systems/research.js";
 
 export { tryDeclareWar, tryResolveWar, tryWhitePeace, peaceTicksRemaining, warSummary } from "./actions/war.js";
