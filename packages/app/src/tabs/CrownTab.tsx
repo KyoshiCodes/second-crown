@@ -14,6 +14,9 @@ import {
   GUILD_CRESTS,
   DOCTRINES,
   tryPickDoctrine,
+  tryAppointMarshal,
+  playerMarshal,
+  MARSHAL_TREES,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -45,11 +48,34 @@ export function CrownTab(props: {
   const prestige = state ? Number(state.flags.prestige_level ?? 0) : 0;
   const doctrine = state ? String(state.flags.doctrine ?? "") : "";
   const locked = state ? Number(state.flags.doctrine_lock ?? 0) === prestige && Boolean(doctrine) : false;
+  const marshal = state ? playerMarshal(state) : undefined;
+  const court = state?.characters.filter((c) => c.realmId === "player") ?? [];
 
   return (
     <>
       <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} state={state} />
       <CulturePicker state={state} act={act} />
+      <h3>Marshal</h3>
+      <p style={{ fontSize: 13 }}>
+        {marshal
+          ? `${marshal.name} walks the ${marshal.marshalTree} tree (rank ${marshal.marshalRank ?? 1}). Line Hold steadies militia and spears.`
+          : "Appoint a courtier. Line Hold is the only live skill."}
+      </p>
+      {court.map((c) => (
+        <div key={c.id} style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", fontSize: 12, marginBottom: 4 }}>
+          <span>{c.name}</span>
+          {MARSHAL_TREES.map((tree) => (
+            <button
+              key={tree}
+              type="button"
+              disabled={marshal?.id === c.id && marshal.marshalTree === tree}
+              onClick={() => act((st) => (tryAppointMarshal(st, c.id, tree) ? `${c.name} takes the ${tree} tree.` : "Cannot appoint."))}
+            >
+              {tree}
+            </button>
+          ))}
+        </div>
+      ))}
       <p>Ascend at {formatLetterSuffix(ascendNeed)} total resources.</p>
       <button type="button" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended. Pick a doctrine." : "Not ready."))}>Ascend</button>
 
