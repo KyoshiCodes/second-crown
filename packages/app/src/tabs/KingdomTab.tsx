@@ -87,7 +87,7 @@ export function KingdomTab(props: {
         {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more). Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
       </p>
       <div style={{ fontSize: 12, margin: "8px 0", padding: 8, background: "#1c1814", border: "1px solid #3a3228" }}>
-        <strong>Keep {keepLv || "none"}</strong> — other works cap at level {gateRow.otherCap}. {gateRow.note}
+        <strong>Keep {keepLv || "none"}</strong> — other works cap at level {gateRow.otherCap}. {gateRow.note} {gateRow.marshal}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
           {KEEP_GATES.map((row) => (
             <span
@@ -97,7 +97,7 @@ export function KingdomTab(props: {
                 borderBottom: row.keep === gateRow.keep ? "1px solid #c9a227" : "none",
               }}
             >
-              K{row.keep}: lv{row.otherCap}
+              K{row.keep}: lv{row.otherCap}{row.keep >= 2 ? " · M2" : ""}
             </span>
           ))}
         </div>
