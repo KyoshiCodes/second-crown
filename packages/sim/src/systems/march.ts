@@ -15,6 +15,7 @@ import { campThreat } from "./camp.js";
 import { absorbWounded } from "./ward.js";
 import { detachGarrison, garrisonPower, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
+import { recordCrown } from "./ledger.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -38,6 +39,11 @@ interface Respawn {
   id: string;
   tick: number;
   node: Province["node"];
+}
+
+function noteMarch(state: GameState, text: string): string {
+  recordCrown(state, "march", text);
+  return text;
 }
 
 export function edgeWallCount(state: GameState, realmId: string): number {
@@ -296,29 +302,29 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
   if (!dest) {
     if (march.realmId === "player" && march.force) returnForce(state, march.force, 1);
     else if (march.realmId === "player") returnLevy(state, levy);
-    return "March lost.";
+    return noteMarch(state, "March lost.");
   }
   if (march.purpose === "garrison" && march.force) {
     mergeGarrisonForce(state, dest.id, march.force);
-    return "Garrison posted.";
+    return noteMarch(state, "Garrison posted.");
   }
   if (march.purpose === "garrison_home" && march.force) {
     returnForce(state, march.force, 1);
-    return "Garrison returned home.";
+    return noteMarch(state, "Garrison returned home.");
   }
   if (march.purpose === "scout") {
     revealProvince(state, dest.id);
     if (march.force) returnForce(state, march.force, 1);
-    return "Scout returned. Tile mapped.";
+    return noteMarch(state, "Scout returned. Tile mapped.");
   }
   if (march.realmId !== "player" && dest.occupantRealmId === "player" && dest.id !== state.board.homeProvinceId) {
     const def = garrisonPower(state, dest.id);
     if (pwr > def) {
       detachGarrison(state, dest.id);
       dest.occupantRealmId = march.realmId;
-      return "Outpost fallen.";
+      return noteMarch(state, "Outpost fallen.");
     }
-    return "Garrison holds the flag.";
+    return noteMarch(state, "Garrison holds the flag.");
   }
   if (march.realmId !== "player" && dest.id === state.board.homeProvinceId) {
     const def = siegeDefense(state, "player");
@@ -332,7 +338,7 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     };
     state.wars.push(war);
     const result = resolveBattle(state, war, rng);
-    return result.winnerId === "player" ? "Siege broken." : "The hold is breached.";
+    return noteMarch(state, result.winnerId === "player" ? "Siege broken." : "The hold is breached.");
   }
   if (march.kind === "camp" || dest.node === "camp") {
     void campThreat(state, dest);
@@ -345,15 +351,15 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
         plantOutpost(state, dest);
         addCapped(state, "wood", 6);
         returnLevy(state, levy);
-        return "Camp broken. Flag planted. +6 wood.";
+        return noteMarch(state, "Camp broken. Flag planted. +6 wood.");
       }
-      return "Camp broken. +6 wood.";
+      return noteMarch(state, "Camp broken. +6 wood.");
     }
     if (march.realmId === "player") {
       absorbWounded(state, 2);
       returnLevy(state, Math.max(0, levy - 2));
     }
-    return "The camp holds. Two did not return.";
+    return noteMarch(state, "The camp holds. Two did not return.");
   }
   if (march.kind === "node") {
     const node = dest.node;
@@ -366,23 +372,23 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       returnLevy(state, levy);
       if (node === "woodcut") {
         addCapped(state, "wood", 5);
-        return "Woodcutting party returns +5 wood. Flag planted.";
+        return noteMarch(state, "Woodcutting party returns +5 wood. Flag planted.");
       }
       if (node === "quarry") {
         addCapped(state, "stone", 5);
-        return "Quarry party returns +5 stone. Flag planted.";
+        return noteMarch(state, "Quarry party returns +5 stone. Flag planted.");
       }
       if (node === "field") {
         addCapped(state, "food", 5);
-        return "Foragers return +5 food. Flag planted.";
+        return noteMarch(state, "Foragers return +5 food. Flag planted.");
       }
       if (node === "ruins") {
         addCapped(state, "gold", 4);
         addCapped(state, "stone", 3);
-        return "Ruins picked clean. +4 gold +3 stone. Flag planted.";
+        return noteMarch(state, "Ruins picked clean. +4 gold +3 stone. Flag planted.");
       }
     }
-    return "Empty province.";
+    return noteMarch(state, "Empty province.");
   }
   if (dest.occupantRealmId && dest.occupantRealmId !== march.realmId) {
     const war = {
@@ -397,10 +403,10 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     if (march.realmId === "player") {
       returnLevy(state, result.winnerId === "player" ? levy : Math.max(0, Math.floor(levy * 0.4)));
     }
-    return result.winnerId === march.realmId ? "Hold stormed." : "The hold stands.";
+    return noteMarch(state, result.winnerId === march.realmId ? "Hold stormed." : "The hold stands.");
   }
   if (march.realmId === "player") returnLevy(state, levy);
-  return "March arrived.";
+  return noteMarch(state, "March arrived.");
 }
 
 export function applySiegeBlow(state: GameState, attackerPower: number, defenderScore: number): string | null {
