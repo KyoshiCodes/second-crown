@@ -2,11 +2,29 @@ import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { tryTrain } from "../actions/train.js";
-import { listTraining, trainDurationTicks, tryCancelTraining } from "./training.js";
+import { listTraining, trainDurationTicks, trainingQueueCap, tryCancelTraining } from "./training.js";
 import { D } from "../core/decimal.js";
 
 function playerMilitia(state: ReturnType<typeof createGameState>) {
   return state.units.find((u) => u.typeId === "militia" && u.realmId === "player");
+}
+
+function keepAt(s: ReturnType<typeof createGameState>, level: number) {
+  const keep = s.buildings.find((b) => b.typeId === "keep" && b.realmId === "player");
+  if (keep) {
+    keep.level = level;
+    keep.completesAtTick = null;
+  } else {
+    s.buildings.push({
+      id: "keep_t",
+      typeId: "keep",
+      realmId: "player",
+      x: 3,
+      y: 3,
+      level,
+      completesAtTick: null,
+    });
+  }
 }
 
 describe("training queue", () => {
@@ -49,5 +67,21 @@ describe("training queue", () => {
     expect(D(s.resources.food).eq(96)).toBe(true);
     expect(D(s.resources.wood).eq(99)).toBe(true);
     expect(playerMilitia(s)).toBeUndefined();
+  });
+
+  it("Keep I stops at two drills; Keep II opens a third and drills faster", () => {
+    const s = createGameState({ seed: 4 });
+    s.resources.food = "400";
+    s.resources.wood = "400";
+    expect(trainingQueueCap(s)).toBe(2);
+    const slow = trainDurationTicks(s, "militia", 1);
+    expect(tryTrain(s, { typeId: "militia", count: 1 })).toBe(true);
+    expect(tryTrain(s, { typeId: "militia", count: 1 })).toBe(true);
+    expect(tryTrain(s, { typeId: "militia", count: 1 })).toBe(false);
+    keepAt(s, 2);
+    expect(trainingQueueCap(s)).toBe(3);
+    expect(trainDurationTicks(s, "militia", 1)).toBeLessThan(slow);
+    expect(tryTrain(s, { typeId: "militia", count: 1 })).toBe(true);
+    expect(listTraining(s)).toHaveLength(3);
   });
 });
