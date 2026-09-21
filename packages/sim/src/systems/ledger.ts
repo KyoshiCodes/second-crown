@@ -35,6 +35,14 @@ export function listLedger(state: GameState): LedgerEntry[] {
         text: `Marshal appointed to the ${payload?.tree ?? "unknown"} tree`,
       });
     }
+    if (rec.type === "promote_marshal") {
+      const payload = rec.payload as { rank?: number; tree?: string } | undefined;
+      out.push({
+        tick: rec.tick,
+        kind: "marshal",
+        text: `Marshal raised to rank ${payload?.rank ?? 2} (${payload?.tree ?? "tree"})`,
+      });
+    }
   }
   out.sort((a, b) => b.tick - a.tick);
   return out.slice(0, 24);
