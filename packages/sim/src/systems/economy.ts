@@ -10,6 +10,7 @@ import { hireCitizenForBuilding, jobForBuildingType } from "./citizens.js";
 import { addCapped } from "./storage.js";
 import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
+import { laborPerTick } from "./labor.js";
 
 export function productionBonus(state: GameState): number {
   let bonus = 0;
@@ -77,6 +78,10 @@ export const EconomySystem = {
     }
     const routes = routeGoldPerTick(state);
     if (routes > 0) totals.gold = (totals.gold ?? D(0)).add(D(routes).mul(0.15).mul(ticks));
+    const labor = laborPerTick(state);
+    for (const [res, n] of Object.entries(labor)) {
+      if (n > 0) totals[res] = (totals[res] ?? D(0)).add(D(n).mul(ticks));
+    }
     for (const [res, amount] of Object.entries(totals)) {
       addCapped(state, res, amount);
     }
@@ -112,6 +117,10 @@ export function computeIncomePerSecond(state: GameState): Record<string, string>
   const tithe = outpostTithePerTick(state);
   for (const [res, rate] of Object.entries(tithe)) {
     if (rate > 0) perTick[res] = (perTick[res] ?? D(0)).add(D(rate));
+  }
+  const labor = laborPerTick(state);
+  for (const [res, n] of Object.entries(labor)) {
+    if (n > 0) perTick[res] = (perTick[res] ?? D(0)).add(D(n));
   }
   const perSecond: Record<string, string> = {};
   for (const [res, rate] of Object.entries(perTick)) {
