@@ -1,6 +1,7 @@
 import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
+import { keepLevel } from "../actions/upgrade.js";
 import { addCapped } from "./storage.js";
 
 export const RESEARCH = {
@@ -10,6 +11,7 @@ export const RESEARCH = {
     ticks: 180,
     cost: { food: "20", wood: "12" },
     needsAny: ["farm", "granary", "academy"],
+    keepMin: 0,
     unlocks: [] as const,
     effect: "Farms and granaries yield more food.",
   },
@@ -19,6 +21,7 @@ export const RESEARCH = {
     ticks: 180,
     cost: { wood: "20", food: "10" },
     needsAny: ["lumber_camp", "sawmill", "academy"],
+    keepMin: 0,
     unlocks: [] as const,
     effect: "Lumber camps and sawmills yield more wood.",
   },
@@ -28,6 +31,7 @@ export const RESEARCH = {
     ticks: 200,
     cost: { stone: "16", wood: "12" },
     needsAny: ["quarry", "mason", "academy"],
+    keepMin: 0,
     unlocks: [] as const,
     effect: "Quarries yield more stone. Finished walls hold +16 HP.",
   },
@@ -37,8 +41,19 @@ export const RESEARCH = {
     ticks: 220,
     cost: { gold: "30", wood: "16", food: "12" },
     needsAny: ["barracks", "market", "academy"],
+    keepMin: 2,
     unlocks: [] as const,
-    effect: "One extra column on the board and +50 warehouse space.",
+    effect: "One extra column on the board and +50 warehouse space. Needs Keep II.",
+  },
+  surveying: {
+    id: "surveying",
+    name: "Surveying",
+    ticks: 200,
+    cost: { gold: "24", wood: "16" },
+    needsAny: ["watchtower", "academy"],
+    keepMin: 2,
+    unlocks: [] as const,
+    effect: "Hold vision reaches one tile farther. Needs Keep II.",
   },
   horse: {
     id: "horse",
@@ -46,8 +61,9 @@ export const RESEARCH = {
     ticks: 240,
     cost: { gold: "40", wood: "24" },
     needsAny: ["academy", "barracks"],
+    keepMin: 2,
     unlocks: ["cavalry", "knight"],
-    effect: "Unlocks cavalry and knights.",
+    effect: "Unlocks cavalry and knights. Needs Keep II.",
   },
   siege: {
     id: "siege",
@@ -55,16 +71,28 @@ export const RESEARCH = {
     ticks: 360,
     cost: { gold: "70", wood: "40", stone: "30" },
     needsAny: ["siege_workshop"],
+    keepMin: 3,
     unlocks: ["siege"],
-    effect: "Unlocks siege engines.",
+    effect: "Unlocks siege engines. Needs Keep III.",
   },
 } as const;
+
+export type ResearchId = keyof typeof RESEARCH;
 
 function anyStudyOpen(state: GameState): boolean {
   for (const id of Object.keys(RESEARCH)) {
     if (!researchDone(state, id) && researchTicksLeft(state, id) > 0) return true;
   }
   return false;
+}
+
+export function researchKeepMin(id: string): number {
+  const def = RESEARCH[id as ResearchId];
+  return def?.keepMin ?? 0;
+}
+
+export function researchKeepReady(state: GameState, id: string): boolean {
+  return keepLevel(state) >= researchKeepMin(id);
 }
 
 export function researchDone(state: GameState, id: string): boolean {
@@ -111,11 +139,16 @@ export function logisticsCapBonus(state: GameState): number {
   return researchDone(state, "logistics") ? 50 : 0;
 }
 
-export function tryStartResearch(state: GameState, id: keyof typeof RESEARCH): boolean {
+export function surveyingVisionBonus(state: GameState): number {
+  return researchDone(state, "surveying") ? 1 : 0;
+}
+
+export function tryStartResearch(state: GameState, id: ResearchId): boolean {
   const def = RESEARCH[id];
   if (!def) return false;
   if (researchDone(state, id)) return false;
   if (anyStudyOpen(state)) return false;
+  if (!researchKeepReady(state, id)) return false;
   if (!def.needsAny.some((typeId) => countBuilding(state, typeId) >= 1)) return false;
   for (const [res, cost] of Object.entries(def.cost)) {
     if (D(state.resources[res] ?? "0").lt(cost)) return false;
@@ -129,7 +162,7 @@ export function tryStartResearch(state: GameState, id: keyof typeof RESEARCH): b
 }
 
 /** Refunds the unused fraction of the study cost and frees the lectern. */
-export function tryCancelResearch(state: GameState, id: keyof typeof RESEARCH): boolean {
+export function tryCancelResearch(state: GameState, id: ResearchId): boolean {
   const def = RESEARCH[id];
   if (!def) return false;
   if (researchDone(state, id)) return false;
