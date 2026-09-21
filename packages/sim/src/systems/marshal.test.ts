@@ -9,6 +9,24 @@ function give(s: ReturnType<typeof createGameState>, typeId: string, count = "8"
   else s.units.push({ id: `u_${typeId}`, typeId, realmId: "player", count, armyId: null });
 }
 
+function keepAt(s: ReturnType<typeof createGameState>, level: number) {
+  const keep = s.buildings.find((b) => b.typeId === "keep" && b.realmId === "player");
+  if (keep) {
+    keep.level = level;
+    keep.completesAtTick = null;
+  } else {
+    s.buildings.push({
+      id: "keep_t",
+      typeId: "keep",
+      realmId: "player",
+      x: 3,
+      y: 3,
+      level,
+      completesAtTick: null,
+    });
+  }
+}
+
 describe("marshal schema", () => {
   it("appoints one player marshal and clears the last", () => {
     const s = createGameState({ seed: 1 });
@@ -62,11 +80,14 @@ describe("marshal schema", () => {
     expect(bow.attack).toBeGreaterThan(bow0);
   });
 
-  it("promotes to rank 2 and doubles line hold", () => {
+  it("promotes to rank 2 only with Keep 2", () => {
     const s = createGameState({ seed: 1 });
     s.resources.gold = "200";
     const ruler = s.characters.find((c) => c.realmId === "player")!;
     tryAppointMarshal(s, ruler.id, "line");
+    keepAt(s, 1);
+    expect(tryPromoteMarshal(s)).toBe(false);
+    keepAt(s, 2);
     give(s, "militia");
     const r1 = stacksFor(s, "player");
     applyMarshalBonuses(r1, playerMarshal(s));
