@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { createRngStreams } from "../core/rng.js";
-import { tryAppointMarshal } from "./marshal.js";
+import { applyMarshalBonuses, playerMarshal, tryAppointMarshal } from "./marshal.js";
 import { resolveColumnClash, stacksFromForce } from "./engagement.js";
 
 describe("board column clash", () => {
@@ -23,7 +23,6 @@ describe("board column clash", () => {
     tryAppointMarshal(s, ruler.id, "line");
     const stacks = stacksFromForce("player", { militia: 8 });
     const before = stacks[0].defense;
-    const { applyMarshalBonuses, playerMarshal } = require("./marshal.js") as typeof import("./marshal.js");
     applyMarshalBonuses(stacks, playerMarshal(s));
     expect(stacks[0].defense).toBeGreaterThan(before);
   });
