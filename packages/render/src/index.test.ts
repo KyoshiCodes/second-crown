@@ -28,6 +28,10 @@ import {
   getThemeVisuals,
   type ThemeVisuals,
   type RimNeighbors,
+  terrainElevation,
+  paintTileHeightFace,
+  paintFogHeightVeil,
+  drawMiniatureKeep,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -753,6 +757,95 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           expect(pal.tabardColor).toBeGreaterThan(0);
         }
       }
+    });
+  });
+
+  describe("terrainElevation, height faces, fog veil and miniature keeps (Lords Mobile overworld)", () => {
+    function createMockGraphics() {
+      const calls: { method: string; args: any[] }[] = [];
+      const g: any = {
+        calls,
+        clear: () => { calls.push({ method: "clear", args: [] }); },
+        poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+        fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+        stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+        rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+        circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+        ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+        moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+        lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+        bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+      };
+      return g;
+    }
+
+    it("assigns distinct vertical elevations to all terrain types with peaks highest", () => {
+      const peakElev = terrainElevation("peak");
+      const hillElev = terrainElevation("hill");
+      const wasteElev = terrainElevation("waste");
+      const woodElev = terrainElevation("wood");
+      const plainElev = terrainElevation("plain");
+      const shoreElev = terrainElevation("shore");
+
+      expect(peakElev).toBeGreaterThan(hillElev);
+      expect(hillElev).toBeGreaterThan(plainElev);
+      expect(plainElev).toBeGreaterThan(shoreElev);
+      expect(wasteElev).toBeGreaterThan(plainElev);
+      expect(woodElev).toBeGreaterThan(shoreElev);
+      expect(shoreElev).toBeGreaterThan(0);
+    });
+
+    it("paints 3D height faces for all 6 terrain types without throwing", () => {
+      const terrains = ["peak", "hill", "waste", "wood", "plain", "shore"] as const;
+      const b = provinceTokenBounds(2, 2);
+
+      for (const t of terrains) {
+        const pal = terrainChipPalette(t);
+        const g = createMockGraphics();
+        expect(() => {
+          paintTileHeightFace(g, b, t, pal, 1.0);
+        }).not.toThrow();
+        expect(g.calls.length).toBeGreaterThan(5);
+      }
+    });
+
+    it("paints fog height veil for unseen provinces without throwing", () => {
+      const b = provinceTokenBounds(3, 3);
+      const prov = { id: "p1", x: 3, y: 3, terrain: "wood" as const, node: "none" as const };
+      const g = createMockGraphics();
+
+      expect(() => {
+        paintFogHeightVeil(g, b, prov, 0.5);
+      }).not.toThrow();
+      expect(g.calls.length).toBeGreaterThan(10);
+    });
+
+    it("renders miniature pixel keeps across all culture kits, rival iron keep, and player home without throwing", () => {
+      const kits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+
+      for (const kit of kits) {
+        const g = createMockGraphics();
+        expect(() => {
+          drawMiniatureKeep(g, 50, 50, kit, undefined, false, 0);
+        }).not.toThrow();
+        expect(g.calls.length).toBeGreaterThan(5);
+      }
+
+      // Player home keep
+      const gHome = createMockGraphics();
+      expect(() => {
+        drawMiniatureKeep(gHome, 50, 50, "western", undefined, true, 1.2);
+      }).not.toThrow();
+      expect(gHome.calls.length).toBeGreaterThan(5);
+
+      // Rival (Iron March) keep
+      const gRival = createMockGraphics();
+      const rivalPal = realmTokenPalette("rival");
+      expect(() => {
+        drawMiniatureKeep(gRival, 50, 50, "western", rivalPal, false, 2.0);
+      }).not.toThrow();
+      expect(gRival.calls.length).toBeGreaterThan(5);
     });
   });
 });

@@ -178,7 +178,7 @@
 }
 .sc-map-canvas {
   width: 100%;
-  max-width: 560px;
+  max-width: 100%;
   aspect-ratio: 14 / 9;
   border-radius: 8px;
   border: 1px solid var(--theme-border, #3a2f24);

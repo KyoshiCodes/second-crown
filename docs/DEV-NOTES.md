@@ -23,3 +23,13 @@ Keep `power` — `realmPower` and existing tests still use it.
 Sim: packages/sim + shared only.
 Art: packages/render + app, empty diff on sim/server.
 No Caddy or Discord route edits unless asked.
+
+## Render architecture (packages/render)
+
+Split from monolithic index.ts into:
+- `camera.ts`: camera viewport, zoom bands, projection, coordinate conversion, province token bounds, table rim.
+- `tiles.ts`: terrain elevation, height faces, fog height veil, isometric ground, rim fort navigation.
+- `buildings.ts`: culture palettes, theme visuals, isometric building drawers across all 21 types and 5 culture kits.
+- `tokens.ts`: miniature pixel keep drawers, board provinces painter, march columns, gather carts, province inspect plaque.
+- `walkers.ts`: citizen job mapping, destination picking, 2-3 frame animation cadence.
+- `index.ts`: re-exports public API + MapRenderer factory with responsive canvas sizing.
