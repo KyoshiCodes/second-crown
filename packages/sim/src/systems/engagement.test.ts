@@ -4,6 +4,7 @@ import { createRngStreams } from "../core/rng.js";
 import { applyMarshalBonuses, playerMarshal, tryAppointMarshal } from "./marshal.js";
 import { resolveColumnClash, resolveHoldStorm, stacksFromForce } from "./engagement.js";
 import { listOutposts } from "./outpost.js";
+import { woundedCount } from "./ward.js";
 
 function giveHomeMilitia(s: ReturnType<typeof createGameState>, count: string) {
   const u = s.units.find((x) => x.realmId === "player" && x.typeId === "militia");
@@ -54,5 +55,22 @@ describe("board column clash", () => {
     expect(outcome).toBe("stormed");
     expect(dest.occupantRealmId).toBe("player");
     expect(listOutposts(s).some((p) => p.id === dest.id)).toBe(true);
+  });
+
+  it("player losses from a column fight go to the ward", () => {
+    const s = createGameState({ seed: 8 });
+    s.buildings.push({
+      id: "inf1",
+      typeId: "infirmary",
+      realmId: "player",
+      x: 2,
+      y: 2,
+      level: 1,
+      completesAtTick: null,
+    });
+    const a = { realmId: "player", levy: 3, force: { militia: 3 } };
+    const b = { realmId: "rival", levy: 20, force: { militia: 20 } };
+    resolveColumnClash(s, a, b, createRngStreams(8));
+    expect(woundedCount(s)).toBeGreaterThan(0);
   });
 });
