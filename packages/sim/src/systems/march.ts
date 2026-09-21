@@ -16,7 +16,7 @@ import { absorbWounded } from "./ward.js";
 import { detachGarrison, garrisonPower, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
-import { pairClashingMarches, resolveOutpostAssault } from "./engagement.js";
+import { pairClashingMarches, resolveCampRaid, resolveOutpostAssault } from "./engagement.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -342,8 +342,7 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
   }
   if (march.kind === "camp" || dest.node === "camp") {
     void campThreat(state, dest);
-    void rng;
-    const wins = pwr >= 4;
+    const wins = resolveCampRaid(state, march, dest, rng) === "win";
     if (wins) {
       scheduleRespawn(state, dest);
       dest.node = "none";
