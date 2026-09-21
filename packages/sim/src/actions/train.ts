@@ -5,7 +5,7 @@ import { countBuilding } from "../content/buildings.js";
 import { flagNum } from "../systems/wave.js";
 import { decreeActive } from "../systems/decree.js";
 import { unitUnlocked } from "../systems/research.js";
-import { enqueueTraining } from "../systems/training.js";
+import { enqueueTraining, listTraining, trainingQueueCap } from "../systems/training.js";
 
 export interface TrainPayload {
   typeId: string;
@@ -51,6 +51,7 @@ export function tryTrain(state: GameState, payload: TrainPayload): boolean {
   if (!def || payload.count < 1) return false;
   if (!unitUnlocked(state, def.id)) return false;
   const realmId = payload.realmId ?? "player";
+  if (listTraining(state, realmId).length >= trainingQueueCap(state, realmId)) return false;
   const count = Math.floor(payload.count);
   const mult = trainCostMultiplier(state, def.id);
   const paid: Record<string, string> = {};
@@ -76,6 +77,8 @@ export function canAffordTrain(state: GameState, typeId: string, count = 1): boo
   const def = getUnitType(typeId);
   if (!def || count < 1) return false;
   if (!unitUnlocked(state, typeId)) return false;
+  const realmId = "player";
+  if (listTraining(state, realmId).length >= trainingQueueCap(state, realmId)) return false;
   const mult = trainCostMultiplier(state, typeId);
   for (const [res, costStr] of Object.entries(def.cost)) {
     const need = D(costStr ?? "0").mul(count).mul(mult).ceil();
