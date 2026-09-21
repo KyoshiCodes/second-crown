@@ -1,7 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
-import { maxLevelFor, tryUpgrade, tryCancelUpgrade, listUpgrades } from "./upgrade.js";
+import {
+  maxLevelFor,
+  tryUpgrade,
+  tryCancelUpgrade,
+  listUpgrades,
+  keepNotice,
+  completeUpgrades,
+} from "./upgrade.js";
 import { TickEngine } from "../core/tickEngine.js";
+import { listLedger } from "../systems/ledger.js";
 
 describe("upgrade cap", () => {
   it("without a keep, farms stop at level 2", () => {
@@ -45,5 +53,32 @@ describe("upgrade cap", () => {
     expect(listUpgrades(s)).toHaveLength(0);
     expect(farm.level).toBe(1);
     expect(Number(s.resources.wood)).toBeGreaterThan(afterPay);
+  });
+
+  it("finishing Keep II posts a marshal notice on the ledger", () => {
+    const s = createGameState({ seed: 1 });
+    s.buildings.push({
+      id: "keep_up",
+      typeId: "keep",
+      realmId: "player",
+      x: 3,
+      y: 3,
+      level: 1,
+      completesAtTick: null,
+    });
+    s.flags.upgrades_json = [
+      {
+        id: "up_keep",
+        buildingId: "keep_up",
+        fromLevel: 1,
+        doneTick: s.meta.tick,
+        ticks: 1,
+        paid: {},
+      },
+    ];
+    completeUpgrades(s, s.meta.tick);
+    expect(s.buildings.find((b) => b.id === "keep_up")?.level).toBe(2);
+    expect(keepNotice(s)).toMatch(/Marshal rank 2/);
+    expect(listLedger(s).some((e) => /Marshal rank 2/.test(e.text))).toBe(true);
   });
 });
