@@ -41,13 +41,27 @@ export function staffBonus(state: GameState, building: GameState["buildings"][nu
   return 1 + Math.min(0.4, n * 0.2);
 }
 
+/** Finished same-type neighbor on an edge: +10% each, cap +20%. */
+export function adjacencyBonus(state: GameState, building: GameState["buildings"][number]): number {
+  const n = state.buildings.filter(
+    (b) =>
+      b.id !== building.id &&
+      b.realmId === building.realmId &&
+      b.typeId === building.typeId &&
+      b.completesAtTick === null &&
+      Math.abs(b.x - building.x) + Math.abs(b.y - building.y) === 1
+  ).length;
+  return 1 + Math.min(0.2, n * 0.1);
+}
+
 function rateFor(state: GameState, building: GameState["buildings"][number], res: string, rateStr: string) {
   const scarce = res === "gold" ? 0.35 : 1;
   return D(rateStr)
     .mul(Math.max(1, building.level))
     .mul(1 + productionBonus(state) * 0.04 + researchYield(state, res))
     .mul(scarce)
-    .mul(staffBonus(state, building));
+    .mul(staffBonus(state, building))
+    .mul(adjacencyBonus(state, building));
 }
 
 export const EconomySystem = {
