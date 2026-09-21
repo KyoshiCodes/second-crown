@@ -27,4 +27,21 @@ describe("trade", () => {
     expect(D(state.resources.food).eq(80)).toBe(true);
     expect(D(state.resources.gold).eq(5)).toBe(true);
   });
+
+  it("trades gold for wood", () => {
+    const state = createGameState({ seed: 1 });
+    state.resources.gold = "20";
+    state.buildings.push({
+      id: "m1",
+      typeId: "market",
+      realmId: "player",
+      x: 3,
+      y: 3,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(tryTrade(state, "gold_wood")).toBe(true);
+    expect(D(state.resources.gold).eq(12)).toBe(true);
+    expect(D(state.resources.wood).gte(22)).toBe(true);
+  });
 });
