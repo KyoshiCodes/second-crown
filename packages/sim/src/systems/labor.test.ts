@@ -6,6 +6,24 @@ import { tryMarch, listMarches } from "./march.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { computeIncomePerSecond } from "./economy.js";
 
+function keepAt(s: ReturnType<typeof createGameState>, level: number) {
+  const keep = s.buildings.find((b) => b.typeId === "keep" && b.realmId === "player");
+  if (keep) {
+    keep.level = level;
+    keep.completesAtTick = null;
+  } else {
+    s.buildings.push({
+      id: "keep_t",
+      typeId: "keep",
+      realmId: "player",
+      x: 3,
+      y: 3,
+      level,
+      completesAtTick: null,
+    });
+  }
+}
+
 describe("W9 labor and companies", () => {
   it("posted farmers add a drip of food each tick", () => {
     const s = createGameState({ seed: 1 });
@@ -49,5 +67,16 @@ describe("W9 labor and companies", () => {
     expect(tryMarch(s, nodes[1].id)).toBe(true);
     expect(listMarches(s).length).toBe(2);
     expect(tryMarch(s, nodes[0].id)).toBe(false);
+  });
+
+  it("extra barracks cannot pass the Keep ceiling until Keep II", () => {
+    const s = createGameState({ seed: 1 });
+    s.buildings.push(
+      { id: "br1", typeId: "barracks", realmId: "player", x: 3, y: 3, level: 1, completesAtTick: null },
+      { id: "br2", typeId: "barracks", realmId: "player", x: 4, y: 3, level: 1, completesAtTick: null }
+    );
+    expect(maxMarches(s)).toBe(2);
+    keepAt(s, 2);
+    expect(maxMarches(s)).toBe(3);
   });
 });
