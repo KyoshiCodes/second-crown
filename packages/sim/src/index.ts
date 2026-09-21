@@ -141,6 +141,7 @@ export {
 } from "./systems/age.js";
 
 export { tryClaimSeason, seasonClaimed, seasonBoonPreview } from "./systems/seasonClaim.js";
+export { tryClaimDaily, dailyClaimed, dailyMsLeft } from "./systems/daily.js";
 
 export { QUESTS, listQuests, tryClaimQuest } from "./systems/quest.js";
 
