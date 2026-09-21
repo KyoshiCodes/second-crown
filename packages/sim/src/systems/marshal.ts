@@ -34,17 +34,42 @@ export function tryAppointMarshal(
   return true;
 }
 
-/** Line Hold (rank 1): line stacks +10% defense and +5 opening morale (cap 110). */
+function withUnit(
+  state: GameState,
+  typeId: string
+): void {
+  const existing = state.units.find((u) => u.realmId === "player" && u.typeId === typeId);
+  if (!existing) {
+    state.units.push({
+      id: `u_${typeId}_${state.meta.tick}`,
+      typeId,
+      realmId: "player",
+      count: "4",
+      armyId: null,
+    });
+  }
+}
+void withUnit;
+
+/** Rank 1: Line Hold, Shock Charge, Ranged Volley. */
 export function applyMarshalBonuses(
   stacks: Stack[],
   marshal: CharacterInstance | undefined
 ): Stack[] {
-  if (!marshal || marshal.marshalTree !== "line") return stacks;
+  if (!marshal?.marshalTree) return stacks;
   const rank = Math.max(1, marshal.marshalRank ?? 1);
+  const tree = marshal.marshalTree;
   for (const s of stacks) {
-    if (s.role !== "line") continue;
-    s.defense = s.defense * (1 + 0.1 * rank);
-    s.morale = Math.min(110, s.morale + 5 * rank);
+    if (tree === "line" && s.role === "line") {
+      s.defense = s.defense * (1 + 0.1 * rank);
+      s.morale = Math.min(110, s.morale + 5 * rank);
+    }
+    if (tree === "shock" && s.role === "shock") {
+      s.attack = s.attack * (1 + 0.1 * rank);
+    }
+    if (tree === "ranged" && s.role === "ranged") {
+      s.attack = s.attack * (1 + 0.1 * rank);
+    }
   }
   return stacks;
 }
