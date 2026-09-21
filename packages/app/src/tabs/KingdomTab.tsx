@@ -4,6 +4,7 @@ import {
   buildTicksLeft,
   canAfford,
   canTrade,
+  clearKeepNotice,
   countBuilding,
   currentKeepGate,
   currentSeason,
@@ -20,6 +21,7 @@ import {
   incomingOnProvince,
   KEEP_GATES,
   keepLevel,
+  keepNotice,
   listBuildableTypes,
   listOutposts,
   listScarred,
@@ -76,6 +78,7 @@ export function KingdomTab(props: {
   const tick = state?.meta.tick ?? 0;
   const keepLv = state ? keepLevel(state) : 0;
   const gateRow = state ? currentKeepGate(state) : KEEP_GATES[0];
+  const notice = state ? keepNotice(state) : "";
   const nameOf = (id: string) =>
     seen || (state && countBuilding(state, "watchtower") > 0)
       ? state?.realms.find((r) => r.id === id)?.name ?? id
@@ -83,6 +86,14 @@ export function KingdomTab(props: {
 
   return (
     <>
+      {notice ? (
+        <p style={{ fontSize: 13, color: "#e8c36a", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <span>{notice}</span>
+          <button type="button" onClick={() => act((st) => { clearKeepNotice(st); return "Noted."; })}>
+            Dismiss
+          </button>
+        </p>
+      ) : null}
       <p style={{ fontSize: 13 }}>
         {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more). Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
       </p>
@@ -115,7 +126,7 @@ export function KingdomTab(props: {
           {onFlags.map((m) => {
             const dest = state ? getProvince(state, m.toId) : undefined;
             const eta = Math.max(0, Math.ceil((m.arrivesTick - tick) / 10));
-            const where = dest ? `${dest.x},${dest.y}` : m.toId;
+            const where = dest ? `${dest.x},{dest.y}` : m.toId;
             return `${nameOf(m.realmId)} on flag ${where} · ${eta}s`;
           }).join(" · ")}
         </p>
