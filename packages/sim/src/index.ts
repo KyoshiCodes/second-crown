@@ -213,6 +213,7 @@ export { tryDispatchScout } from "./systems/scoutColumn.js";
 export { incomingOnProvince, incomingOnPlayerFlags } from "./systems/incoming.js";
 
 export { incomingOnHome, watchtowerWarning, maybeNpcRaid } from "./systems/raidMarch.js";
+export { canSally, trySally } from "./systems/sally.js";
 export { resolveSiegeHold, yardPower, keepPower } from "./systems/siege.js";
 export type { SiegeReport } from "./systems/siege.js";
 export { forcePower, takeForce, returnForce } from "./systems/column.js";
