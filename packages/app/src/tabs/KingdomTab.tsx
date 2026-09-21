@@ -45,6 +45,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
 import { PeoplePanel } from "../PeoplePanel";
+import { KeepGateCard } from "../KeepGateCard";
 
 export function KingdomTab(props: {
   state: GameState | undefined;
@@ -97,22 +98,7 @@ export function KingdomTab(props: {
       <p style={{ fontSize: 13 }}>
         {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more). Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
       </p>
-      <div style={{ fontSize: 12, margin: "8px 0", padding: 8, background: "#1c1814", border: "1px solid #3a3228" }}>
-        <strong>Keep {keepLv || "none"}</strong> — other works cap at level {gateRow.otherCap}. {gateRow.note} {gateRow.marshal}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
-          {KEEP_GATES.map((row) => (
-            <span
-              key={row.keep}
-              style={{
-                opacity: row.keep === gateRow.keep ? 1 : 0.55,
-                borderBottom: row.keep === gateRow.keep ? "1px solid #c9a227" : "none",
-              }}
-            >
-              K{row.keep}: lv{row.otherCap}{row.keep >= 2 ? " · M2" : ""}
-            </span>
-          ))}
-        </div>
-      </div>
+      <KeepGateCard gate={gateRow} keepLv={keepLv} beds={beds} pop={pop} plots={plots} plotCap={plotCap} />
       {incoming.length > 0 ? (
         <p style={{ fontSize: 13, color: "#f85149" }}>
           {incoming.map((m) => {
@@ -126,7 +112,7 @@ export function KingdomTab(props: {
           {onFlags.map((m) => {
             const dest = state ? getProvince(state, m.toId) : undefined;
             const eta = Math.max(0, Math.ceil((m.arrivesTick - tick) / 10));
-            const where = dest ? `${dest.x},{dest.y}` : m.toId;
+            const where = dest ? `${dest.x},${dest.y}` : m.toId;
             return `${nameOf(m.realmId)} on flag ${where} · ${eta}s`;
           }).join(" · ")}
         </p>
