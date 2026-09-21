@@ -5,7 +5,7 @@ import { countBuilding } from "../content/buildings.js";
 import type { RngStreams } from "../core/rng.js";
 import { grantVictorySpoils, flagNum } from "./wave.js";
 import { fortifyPower } from "./court.js";
-import { absorbWounded } from "./ward.js";
+import { absorbBattleCasualties } from "./ward.js";
 import { takePlunder } from "./vault.js";
 import { masonryWallBonus } from "./research.js";
 import { resolveRounds, stacksFor, writeStacks, type BattleEvent } from "./resolver.js";
@@ -76,15 +76,14 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
   const fought = resolveRounds(atkStacks, defStacks, rng);
   writeStacks(state, [...atkStacks, ...defStacks]);
 
-  const lostPlayer = Math.max(0, beforePlayer - countRealm(state, "player"));
-  if (lostPlayer > 0) absorbWounded(state, lostPlayer);
-
   const attackerWins = fought.attackerWins;
-  const atkSwing = atk > 0 ? 1 : 1;
-  const defSwing = 1;
-
   const winnerId = attackerWins ? war.attackerRealmId : war.defenderRealmId;
   const loserId = attackerWins ? war.defenderRealmId : war.attackerRealmId;
+
+  const lostPlayer = Math.max(0, beforePlayer - countRealm(state, "player"));
+  if (lostPlayer > 0) {
+    absorbBattleCasualties(state, lostPlayer, winnerId === "player" ? "winner" : "loser");
+  }
 
   const lootFrac = 0.15 + rng.battle() * 0.1;
   const loot = plunder(state, winnerId, loserId, lootFrac);
@@ -104,7 +103,7 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
       title: "Melee",
       text: attackerWins ? "The attacker's line holds and pushes." : "The defender's line holds and pushes.",
     },
-    { title: "Butcher's bill", text: `${fought.rounds} rounds. Armies break; they do not all die.` },
+    { title: "Butcher's bill", text: `${fought.rounds} rounds. Fallen go to beds first.` },
     {
       title: "Spoil",
       text:
@@ -121,8 +120,8 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
     phases,
     attackerPower: atk,
     defenderPower: def,
-    atkSwing,
-    defSwing,
+    atkSwing: 1,
+    defSwing: 1,
     events: fought.events,
   };
 }
