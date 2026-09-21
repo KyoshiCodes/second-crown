@@ -8,6 +8,27 @@ export const MARSHAL_PROMOTE_GOLD = 80;
 export const MARSHAL_MAX_RANK = 2;
 export const MARSHAL_PROMOTE_KEEP = 2;
 
+export function marshalSkillName(tree: MarshalTree | null | undefined): string {
+  if (tree === "line") return "Line Hold";
+  if (tree === "shock") return "Shock Charge";
+  if (tree === "ranged") return "Ranged Volley";
+  return "None";
+}
+
+export function marshalSkillBlurb(tree: MarshalTree | null | undefined, rank = 1): string {
+  const r = Math.max(1, rank);
+  if (tree === "line") {
+    return `Line Hold: +${10 * r}% defense and +${5 * r} opening morale for line troops${r >= 2 ? "; +1 hp at rank 2" : ""}.`;
+  }
+  if (tree === "shock") {
+    return `Shock Charge: +${10 * r}% attack for shock troops${r >= 2 ? "; extra morale at rank 2" : ""}.`;
+  }
+  if (tree === "ranged") {
+    return `Ranged Volley: +${10 * r}% attack for ranged troops${r >= 2 ? "; +1 attack at rank 2" : ""}.`;
+  }
+  return "Appoint a marshal so a skill fires inside the same battle resolver.";
+}
+
 export function playerMarshal(state: GameState): CharacterInstance | undefined {
   return state.characters.find(
     (c) => c.realmId === "player" && c.marshalTree && MARSHAL_TREES.includes(c.marshalTree)
