@@ -6,6 +6,7 @@ import {
   housingCap,
   incomingOnHome,
   infirmaryBeds,
+  lastBattleStory,
   listHealing,
   listLedger,
   listScarred,
@@ -64,6 +65,7 @@ export function WarRoom(props: {
   const lastField = state
     ? listLedger(state).find((e) => /march|battle|camp|siege|hold|garrison|flag|storm/i.test(`${e.kind} ${e.text}`))
     : undefined;
+  const story = state ? lastBattleStory(state) : null;
 
   return (
     <div className="sc-tab-war">
@@ -77,6 +79,13 @@ export function WarRoom(props: {
         ) : (
           <p style={{ margin: "6px 0 4px", opacity: 0.7 }}>No field report yet.</p>
         )}
+        {story && story.events.length > 0 ? (
+          <ul style={{ margin: "0 0 8px", paddingLeft: 18, fontSize: 12 }}>
+            {story.events.slice(0, 8).map((ev, i) => (
+              <li key={`${ev.round}-${i}`}>{ev.text}</li>
+            ))}
+          </ul>
+        ) : null}
         <div style={{ margin: "6px 0" }}>
           <div style={{ opacity: 0.85, marginBottom: 2 }}>Incoming</div>
           {incoming.length > 0 ? (
