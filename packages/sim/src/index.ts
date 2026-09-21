@@ -64,6 +64,8 @@ export {
   upgradeDurationTicks,
 } from "./actions/upgrade.js";
 export type { UpgradeJob } from "./actions/upgrade.js";
+export { KEEP_GATES, keepGateFor, currentKeepGate } from "./systems/keepGate.js";
+export type { KeepGateRow } from "./systems/keepGate.js";
 
 export { tryTrain, canAffordTrain, trainCostMultiplier } from "./actions/train.js";
 export type { TrainPayload } from "./actions/train.js";
