@@ -150,6 +150,8 @@ export {
   fortifyPower,
 } from "./systems/court.js";
 
+export { tryAppointMarshal, playerMarshal, applyMarshalBonuses, MARSHAL_TREES } from "./systems/marshal.js";
+
 export { tryStrikeHorde, raidTicksLeft } from "./systems/raid.js";
 export { storageCap, resourceLedger } from "./systems/storage.js";
 export type { ResourceLedger } from "./systems/storage.js";
@@ -201,6 +203,7 @@ export {
   listScarred,
   healTicksLeft,
   listHealing,
+  absorbBattleCasualties,
 } from "./systems/ward.js";
 
 export { laborPerTick, applyLabor, maxMarches } from "./systems/labor.js";
@@ -224,7 +227,7 @@ export { serializeState, deserializeState, ensureWorldStubs } from "./save/seria
 
 export { applyOfflineProgress } from "./offline.js";
 
-export type { GameState, CitizenInstance, CitizenJobId, CitizenTile, Province, BoardState } from "@second-crown/shared";
+export type { GameState, CitizenInstance, CitizenJobId, CitizenTile, Province, BoardState, MarshalTree } from "@second-crown/shared";
 export { formatLetterSuffix, BOARD_W, BOARD_H } from "@second-crown/shared";
 export { tryGather, tryRecallGather, tryNpcGather, listGathers, GATHER_NODES, GatherSystem } from "./systems/gather.js";
 export type { Gather } from "./systems/gather.js";
