@@ -25,11 +25,13 @@ describe("keep gate table", () => {
     }
   });
 
-  it("lists marshal rank 2 and a third drill from Keep II", () => {
+  it("lists marshal, drill, and stores from Keep II", () => {
     expect(keepGateFor(1).marshal).toMatch(/Rank 1/);
     expect(keepGateFor(1).trainCap).toBe(2);
+    expect(keepGateFor(1).storeMult).toBe(1);
     expect(keepGateFor(2).marshal).toMatch(/Rank 2/);
     expect(keepGateFor(2).trainCap).toBe(3);
     expect(keepGateFor(2).trainSpeed).toBeLessThan(1);
+    expect(keepGateFor(2).storeMult).toBeGreaterThan(1);
   });
 });
