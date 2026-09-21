@@ -8,14 +8,17 @@ import {
   incomingOnHome,
   infirmaryBeds,
   lastBattleStory,
+  listGarrisons,
   listHealing,
   listLedger,
+  listMarches,
   listScarred,
   peaceTicksRemaining,
   population,
   realmPower,
   tryDeclareWar,
   tryGiftGold,
+  tryRecallMarch,
   tryRepair,
   tryResolveWar,
   trySally,
@@ -64,6 +67,8 @@ export function WarRoom(props: {
   const cap = state ? housingCap(state) : 0;
   const tick = state?.meta.tick ?? 0;
   const sallyReady = state ? canSally(state) : false;
+  const columns = state ? listMarches(state).filter((m) => m.realmId === "player") : [];
+  const posts = state ? listGarrisons(state) : [];
   const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
   const etaOf = (arrivesTick: number) => Math.max(0, Math.ceil((arrivesTick - tick) / 10));
   const lastField = state
@@ -176,6 +181,39 @@ export function WarRoom(props: {
             ))}
           </ul>
         ) : null}
+      </section>
+
+      <section className="sc-realm-card" style={card}>
+        <strong style={h}>Columns</strong>
+        {columns.length === 0 ? (
+          <p style={{ margin: "0 0 6px", opacity: 0.7 }}>No column on the road. March from the map.</p>
+        ) : (
+          <ul style={{ margin: "0 0 6px", paddingLeft: 18 }}>
+            {columns.map((m) => (
+              <li key={m.id}>
+                {m.purpose ?? m.kind} → {m.toId} · {m.levy} · ETA {etaOf(m.arrivesTick)}s
+              </li>
+            ))}
+          </ul>
+        )}
+        <button
+          type="button"
+          disabled={columns.length === 0}
+          onClick={() => act((st) => (tryRecallMarch(st) ? "Column recalled." : "Too late to recall."))}
+        >
+          Recall column
+        </button>
+        <div style={{ marginTop: 8 }}>
+          {posts.length === 0 ? (
+            <p style={{ margin: 0, opacity: 0.7 }}>No garrison posted on a flag.</p>
+          ) : (
+            posts.map((g) => (
+              <div key={g.provinceId}>
+                Garrison {g.provinceId}: {Object.entries(g.force).map(([k, n]) => `${n} ${k}`).join(", ")}
+              </div>
+            ))
+          )}
+        </div>
       </section>
 
       <section className="sc-realm-card" style={card}>
