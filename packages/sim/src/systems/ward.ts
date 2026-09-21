@@ -37,14 +37,32 @@ export function listHealing(state: GameState): HealJob[] {
   return readHeals(state);
 }
 
-export function absorbWounded(state: GameState, lost: number): number {
-  if (lost <= 0) return 0;
+function takeBeds(state: GameState, n: number): number {
+  if (n <= 0) return 0;
   const beds = infirmaryBeds(state);
   const have = woundedCount(state);
   const space = Math.max(0, beds - have);
-  const saved = Math.min(space, Math.floor(lost * 0.5));
+  const saved = Math.min(space, Math.floor(n));
   state.flags.wounded_player = have + saved;
   return saved;
+}
+
+/** Legacy half-save used by older call sites. */
+export function absorbWounded(state: GameState, lost: number): number {
+  if (lost <= 0) return 0;
+  return takeBeds(state, Math.floor(lost * 0.5));
+}
+
+/** Winner: every loss that fits a bed. Loser: beds first, overflow already dead on the field. */
+export function absorbBattleCasualties(
+  state: GameState,
+  lost: number,
+  side: "winner" | "loser"
+): { saved: number; dead: number } {
+  if (lost <= 0) return { saved: 0, dead: 0 };
+  const want = side === "winner" ? lost : lost;
+  const saved = takeBeds(state, want);
+  return { saved, dead: Math.max(0, lost - saved) };
 }
 
 function deliverMilitia(state: GameState): void {
