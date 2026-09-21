@@ -34,7 +34,7 @@ export function tryAppointMarshal(
   return true;
 }
 
-/** Line Hold (rank 1): line stacks +10% defense and +5 opening morale. */
+/** Line Hold (rank 1): line stacks +10% defense and +5 opening morale (cap 110). */
 export function applyMarshalBonuses(
   stacks: Stack[],
   marshal: CharacterInstance | undefined
@@ -44,7 +44,7 @@ export function applyMarshalBonuses(
   for (const s of stacks) {
     if (s.role !== "line") continue;
     s.defense = s.defense * (1 + 0.1 * rank);
-    s.morale = Math.min(100, s.morale + 5 * rank);
+    s.morale = Math.min(110, s.morale + 5 * rank);
   }
   return stacks;
 }
