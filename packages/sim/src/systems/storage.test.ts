@@ -4,6 +4,24 @@ import { storageCap, addCapped, resourceLedger } from "./storage.js";
 import { vaultProtects } from "./vault.js";
 import { EconomySystem } from "./economy.js";
 
+function keepAt(s: ReturnType<typeof createGameState>, level: number) {
+  const keep = s.buildings.find((b) => b.typeId === "keep" && b.realmId === "player");
+  if (keep) {
+    keep.level = level;
+    keep.completesAtTick = null;
+  } else {
+    s.buildings.push({
+      id: "keep_t",
+      typeId: "keep",
+      realmId: "player",
+      x: 3,
+      y: 3,
+      level,
+      completesAtTick: null,
+    });
+  }
+}
+
 describe("storageCap", () => {
   it("gives a tight default warehouse with no storage buildings", () => {
     const s = createGameState({ seed: 1 });
@@ -25,6 +43,23 @@ describe("storageCap", () => {
       { id: "g2", typeId: "granary", realmId: "player", x: 1, y: 0, level: 1, completesAtTick: 999 }
     );
     expect(storageCap(s, "food")).toBe(200 + 300);
+  });
+
+  it("Keep II stretches the default floor and the granary wing", () => {
+    const s = createGameState({ seed: 1 });
+    const base = storageCap(s, "food");
+    keepAt(s, 2);
+    expect(storageCap(s, "food")).toBe(Math.floor(base * 1.2));
+    s.buildings.push({
+      id: "g1",
+      typeId: "granary",
+      realmId: "player",
+      x: 0,
+      y: 0,
+      level: 1,
+      completesAtTick: null,
+    });
+    expect(storageCap(s, "food")).toBe(Math.floor((200 + 300) * 1.2));
   });
 });
 
