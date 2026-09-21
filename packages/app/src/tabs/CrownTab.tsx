@@ -22,6 +22,8 @@ import {
   MARSHAL_PROMOTE_GOLD,
   MARSHAL_PROMOTE_KEEP,
   keepLevel,
+  keepNotice,
+  clearKeepNotice,
   tryClaimSeason,
   seasonClaimed,
   seasonBoonPreview,
@@ -69,10 +71,17 @@ export function CrownTab(props: {
   const rank = marshal?.marshalRank ?? 0;
   const keep = state ? keepLevel(state) : 0;
   const canPromo = state ? canPromoteMarshal(state) : false;
+  const notice = state ? keepNotice(state) : "";
 
   return (
     <>
       <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} state={state} />
+      {notice ? (
+        <p style={{ fontSize: 13, color: "#e8c36a" }}>
+          {notice}{" "}
+          <button type="button" onClick={() => act((st) => { clearKeepNotice(st); return "Noted."; })}>Dismiss</button>
+        </p>
+      ) : null}
       <CulturePicker state={state} act={act} />
       <h3>Marshal</h3>
       <p style={{ fontSize: 13 }}>
