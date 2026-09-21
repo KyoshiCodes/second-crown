@@ -33,6 +33,7 @@ import {
   MARKET_OFFERS,
   outpostTithePerTick,
   pairBonus,
+  PAIR_LABEL,
   population,
   settlementName,
   staffBonus,
@@ -42,6 +43,7 @@ import {
   tryDemolish,
   tryRepair,
   tryTrade,
+  unpairedWorks,
   wallHp,
   watchtowerWarning,
   workPlotCap,
@@ -87,6 +89,7 @@ export function KingdomTab(props: {
   const notice = state ? keepNotice(state) : "";
   const income = state ? computeIncomePerSecond(state) : {};
   const tithe = state ? outpostTithePerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
+  const misses = state ? unpairedWorks(state) : [];
   const nameOf = (id: string) =>
     seen || (state && countBuilding(state, "watchtower") > 0)
       ? state?.realms.find((r) => r.id === id)?.name ?? id
@@ -110,6 +113,17 @@ export function KingdomTab(props: {
         {formatLetterSuffix(income.stone ?? "0")} · gold {formatLetterSuffix(income.gold ?? "0")}. Flag tithe /tick · food{" "}
         {tithe.food} · wood {tithe.wood} · stone {tithe.stone} · gold {tithe.gold}.
       </p>
+      {misses.length > 0 ? (
+        <p style={{ fontSize: 12, color: "#e8c36a" }}>
+          Pair for +15%: {misses
+            .slice(0, 6)
+            .map((m) => `${PAIR_LABEL[m.typeId] ?? m.typeId} wants ${PAIR_LABEL[m.wants] ?? m.wants}`)
+            .join(" · ")}
+          {misses.length > 6 ? ` · +${misses.length - 6} more` : ""}.
+        </p>
+      ) : (
+        <p style={{ fontSize: 12, opacity: 0.6 }}>Every farm/camp/mine that can pair is next to its warehouse.</p>
+      )}
       <KeepGateCard gate={gateRow} keepLv={keepLv} beds={beds} pop={pop} plots={plots} plotCap={plotCap} />
       {incoming.length > 0 ? (
         <p style={{ fontSize: 13, color: "#f85149" }}>
