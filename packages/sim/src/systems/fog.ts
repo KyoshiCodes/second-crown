@@ -4,6 +4,7 @@ import { countBuilding } from "../content/buildings.js";
 import { isHoldRim } from "../actions/build.js";
 import { getProvince, neighbors } from "./board.js";
 import { listOutposts } from "./outpost.js";
+import { surveyingVisionBonus } from "./research.js";
 
 export function rimWatchtowers(state: GameState, realmId = "player"): number {
   return state.buildings.filter(
@@ -16,7 +17,7 @@ export function rimWatchtowers(state: GameState, realmId = "player"): number {
 }
 
 export function visionRange(state: GameState): number {
-  return 1 + countBuilding(state, "watchtower") + rimWatchtowers(state);
+  return 1 + countBuilding(state, "watchtower") + rimWatchtowers(state) + surveyingVisionBonus(state);
 }
 
 function homeCoord(state: GameState): { x: number; y: number } {
