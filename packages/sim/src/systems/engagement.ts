@@ -9,6 +9,7 @@ import { detachGarrison, garrisonAt, mergeGarrisonForce } from "./garrison.js";
 import { returnForce } from "./column.js";
 import { campThreat } from "./camp.js";
 import { plantOutpost } from "./outpost.js";
+import { absorbBattleCasualties } from "./ward.js";
 
 export interface ColumnSide {
   id?: string;
@@ -48,6 +49,13 @@ export function forceFromStacks(stacks: Stack[]): Record<string, number> {
   return force;
 }
 
+function sideStart(side: ColumnSide): number {
+  if (side.force && Object.keys(side.force).length > 0) {
+    return Object.values(side.force).reduce((n, v) => n + Math.max(0, Number(v) || 0), 0);
+  }
+  return Math.max(0, side.levy ?? 0);
+}
+
 export function resolveColumnClash(
   state: GameState,
   attacker: ColumnSide,
@@ -59,6 +67,8 @@ export function resolveColumnClash(
   attackerForce: Record<string, number>;
   defenderForce: Record<string, number>;
 } {
+  const atkStart = sideStart(attacker);
+  const defStart = sideStart(defender);
   const atk = stacksFromForce(attacker.realmId, attacker.force, attacker.levy);
   const def = stacksFromForce(defender.realmId, defender.force, defender.levy);
   const marshal = playerMarshal(state);
@@ -71,6 +81,21 @@ export function resolveColumnClash(
   attacker.levy = Object.values(attackerForce).reduce((n, v) => n + v, 0);
   defender.force = defenderForce;
   defender.levy = Object.values(defenderForce).reduce((n, v) => n + v, 0);
+
+  if (attacker.realmId === "player") {
+    absorbBattleCasualties(
+      state,
+      Math.max(0, atkStart - attacker.levy),
+      fought.attackerWins ? "winner" : "loser"
+    );
+  }
+  if (defender.realmId === "player") {
+    absorbBattleCasualties(
+      state,
+      Math.max(0, defStart - defender.levy),
+      fought.attackerWins ? "loser" : "winner"
+    );
+  }
 
   const skill =
     marshal && (attacker.realmId === "player" || defender.realmId === "player")
