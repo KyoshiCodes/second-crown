@@ -7,6 +7,7 @@ import {
   incomingOnHome,
   infirmaryBeds,
   listHealing,
+  listLedger,
   listScarred,
   peaceTicksRemaining,
   population,
@@ -60,12 +61,22 @@ export function WarRoom(props: {
   const tick = state?.meta.tick ?? 0;
   const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
   const etaOf = (arrivesTick: number) => Math.max(0, Math.ceil((arrivesTick - tick) / 10));
+  const lastField = state
+    ? listLedger(state).find((e) => /march|battle|camp|siege|hold|garrison|flag|storm/i.test(`${e.kind} ${e.text}`))
+    : undefined;
 
   return (
     <div className="sc-tab-war">
       <WarLivingStrip state={state} />
       <div className="sc-realm-card" style={{ margin: "10px 0", fontSize: 13 }}>
         <strong>Briefing</strong>
+        {lastField ? (
+          <p style={{ margin: "6px 0 4px" }}>
+            Last field: {lastField.text}
+          </p>
+        ) : (
+          <p style={{ margin: "6px 0 4px", opacity: 0.7 }}>No field report yet.</p>
+        )}
         <div style={{ margin: "6px 0" }}>
           <div style={{ opacity: 0.85, marginBottom: 2 }}>Incoming</div>
           {incoming.length > 0 ? (
