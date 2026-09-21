@@ -42,6 +42,7 @@ export function ArmyTab(props: {
   const unitTypes = listUnitTypes();
   const trainMult = state ? trainCostMultiplier(state) : 1;
   const barracksN = state ? countBuilding(state, "barracks") : 0;
+  const halls = state ? countBuilding(state, "infirmary") : 0;
   const hasChamp = state?.units.some((u) => u.realmId === "player" && u.typeId === "champion");
   const [cname, setCname] = React.useState(state ? championName(state) : "");
   const levyWait = state ? levyTicksLeft(state) : 0;
@@ -49,6 +50,7 @@ export function ArmyTab(props: {
   const wounded = state ? troopWounded(state) : 0;
   const queue = state ? listTraining(state, "player") : [];
   const cap = state ? trainingQueueCap(state) : 2;
+  const beds = halls * 10;
 
   return (
     <>
@@ -119,7 +121,10 @@ export function ArmyTab(props: {
             {p.typeId}: home {p.home} · marching {p.marching} · gathering {p.gathering}
           </div>
         ))}
-        <div>Wounded {wounded}</div>
+        <div>Wounded {wounded}{halls > 0 ? ` · Infirmary ${halls} (${beds} beds)` : ""}</div>
+        {wounded > 0 && halls < 1 ? (
+          <div style={{ color: "#d29922", fontSize: 12 }}>Raise an Infirmary on Kingdom. Half of home losses go to beds instead of the grave.</div>
+        ) : null}
         {state ? (
           <div style={{ opacity: 0.75, marginTop: 4 }}>
             Vault floor · food {vaultProtects(state, "food")} · wood {vaultProtects(state, "wood")} · stone{" "}
