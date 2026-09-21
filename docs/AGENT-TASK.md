@@ -1,44 +1,39 @@
-# Lane: Gemini remaining silhouettes
+# Lane: Gemini + Claude — Lords Mobile overworld + pixel holds
 
-Branch: `bakeoff/gemini-remain` from current `main`.
-Do not merge. Do not edit `packages/sim` or `server`.
+Branch from current `main`. Do not merge until `npm test` and `npm run build -w @second-crown/app` are green.
+
+## Shared vision
+
+Zoom-out board should read like a 3D kingdom map (raised terrain, hold tokens, marching columns).
+Zoom-in hold keeps our pixel buildings, walkers, and unit silhouettes.
+Do not replace pixel art with generic 3D city meshes.
+
+## Gemini (packages/render only)
+
 `git diff main -- packages/sim server` must stay empty.
-Owner screenshots (Sand + teal-roof holds): grey curtain walls, grey gate towers, purple chapel, red-cross infirmary, western siege yard, and Army icons for cavalry / knight / champion / siege still use the Crown Marches drawing.
 
-## Still western (must redesign for cedar, sand, steppe, islands)
+1. Split `packages/render/src/index.ts` into camera / tiles / buildings / tokens files if you touch it.
+2. Board-band tiles get a height face (peak/hill/wood/plain/waste/shore).
+3. Hold tokens on the board reuse kit keep drawers at miniature scale.
+4. Canvas fills the chrome (not a 560px stamp).
+5. Fog is a height veil.
 
-Buildings (hold):
-- walls (interior block AND rim curtain + merlons)
-- gate / gatehouse towers
-- chapel
-- infirmary (drop the generic red-cross field hospital)
-- siege_workshop
-- watchtower if it is still the same slate turret on all kits
-- barracks / stables / archery_range if they still share one western hall
+## Claude (app chrome + architecture)
 
-Units (UnitIcon.tsx — these cases have no kit switch today):
-- archer
-- skirmisher
-- cavalry
-- knight
-- siege
-- champion (named heroes like Suki still use this type)
+Wire `OverworldAtlas` clicks to `selectedProvinceId`.
+Keep `toggleCameraBand`.
+Do not change TickEngine or `resolveBattle`.
 
-Already kit-switched (do not restyle western; only touch if a kit is missing):
-- keep, cottage, farm, lumber_camp, quarry, gold_mine, market, granary, sawmill, mason, mint
-- militia, spearman
-- villager / guard walkers
+## Already landed on this wave
 
-## Rules
-Western Crown Marches stays the current look.
-Original designs. No franchise copies.
-Do not break tile clicks, rim wall HP presentation, holidays, or dim lanterns.
-Do not add a second music bed.
+- Keep charter table includes beds + plots
+- `KeepGateCard` on Kingdom
+- SVG `OverworldAtlas` on World
+- Live canvas also visible on World tab
 
 ## Verify
-Render tests: walls, gate, chapel, infirmary, siege_workshop, plus UnitIcon types above, for all 5 kits without throw.
-`npm test`
-`npm run test -w @second-crown/render`
-`npm run build -w @second-crown/app`
-Rewrite walkthrough.md for this PR only. Update HANDOFF, CHANGELOG, USER-NOTES, DEV-NOTES.
-PR into main, leave unmerged.
+
+npm test
+npm run test -w @second-crown/render
+npm run build -w @second-crown/app
+Update HANDOFF, CHANGELOG, USER-NOTES, DEV-NOTES.
