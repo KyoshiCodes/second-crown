@@ -11,6 +11,7 @@ import { masonryWallBonus } from "./research.js";
 import { resolveRounds, stacksFor, writeStacks, type BattleEvent } from "./resolver.js";
 import { applyMarshalBonuses, playerMarshal } from "./marshal.js";
 import { recordCrown } from "./ledger.js";
+import { writeLastBattle } from "./lastBattle.js";
 
 export type { BattleEvent };
 
@@ -127,6 +128,8 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams): Batt
           : `Loot: ${Object.entries(loot).map(([k, v]) => `${v} ${k}`).join(", ")}.`,
     },
   ];
+
+  writeLastBattle(state, { winnerId, loserId, events: fought.events, phases });
 
   return {
     winnerId,
