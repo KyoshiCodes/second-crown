@@ -11,6 +11,7 @@ import {
   currentSeason,
   edgeWallCount,
   formatLetterSuffix,
+  fullStores,
   gateOnRim,
   garrisonAt,
   garrisonPower,
@@ -92,6 +93,7 @@ export function KingdomTab(props: {
   const tithe = state ? outpostTithePerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const labor = state ? laborPerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const misses = state ? unpairedWorks(state) : [];
+  const packed = state ? fullStores(state) : [];
   const nameOf = (id: string) =>
     seen || (state && countBuilding(state, "watchtower") > 0)
       ? state?.realms.find((r) => r.id === id)?.name ?? id
@@ -118,6 +120,11 @@ export function KingdomTab(props: {
       <p style={{ fontSize: 12, opacity: 0.75 }}>
         People labor /tick · food {labor.food} · wood {labor.wood} · stone {labor.stone} · gold {labor.gold}. Assign jobs on People.
       </p>
+      {packed.length > 0 ? (
+        <p style={{ fontSize: 12, color: "#f85149" }}>
+          Store full — extra is lost. Raise {packed.map((p) => p.label).join(", ")} to hold more {packed.map((p) => p.res).join(", ")}.
+        </p>
+      ) : null}
       {misses.length > 0 ? (
         <p style={{ fontSize: 12, color: "#e8c36a" }}>
           Pair for +15%: {misses

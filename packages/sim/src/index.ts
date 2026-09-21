@@ -179,6 +179,7 @@ export type { LedgerEntry } from "./systems/ledger.js";
 
 export { tryStrikeHorde, raidTicksLeft } from "./systems/raid.js";
 export { storageCap, resourceLedger } from "./systems/storage.js";
+export { fullStores } from "./systems/storageHint.js";
 export type { ResourceLedger } from "./systems/storage.js";
 export { tryBuyBazaar, ITEMS, ITEM_TIERS } from "./systems/loot.js";
 
