@@ -64,6 +64,8 @@ export {
   upgradeJobFor,
   tryCancelUpgrade,
   upgradeDurationTicks,
+  keepNotice,
+  clearKeepNotice,
 } from "./actions/upgrade.js";
 export type { UpgradeJob } from "./actions/upgrade.js";
 export { KEEP_GATES, keepGateFor, currentKeepGate } from "./systems/keepGate.js";
