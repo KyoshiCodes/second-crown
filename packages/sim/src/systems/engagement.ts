@@ -1,0 +1,100 @@
+import type { GameState } from "@second-crown/shared";
+import { getUnitType } from "../content/units.js";
+import type { RngStreams } from "../core/rng.js";
+import { resolveRounds, type BattleEvent, type Stack } from "./resolver.js";
+import { applyMarshalBonuses, marshalSkillName, playerMarshal } from "./marshal.js";
+import { recordCrown } from "./ledger.js";
+import { writeLastBattle } from "./lastBattle.js";
+import { returnForce } from "./column.js";
+
+export interface ColumnSide {
+  realmId: string;
+  levy: number;
+  force?: Record<string, number>;
+}
+
+export function stacksFromForce(realmId: string, force?: Record<string, number>, levy = 0): Stack[] {
+  const src = force && Object.keys(force).length > 0 ? force : levy > 0 ? { militia: levy } : {};
+  const out: Stack[] = [];
+  for (const [typeId, raw] of Object.entries(src)) {
+    const def = getUnitType(typeId);
+    const count = Math.max(0, Math.floor(Number(raw) || 0));
+    if (!def || count <= 0) continue;
+    out.push({
+      realmId,
+      typeId,
+      count,
+      hp: count * def.hp,
+      morale: 100,
+      role: def.role,
+      attack: def.attack,
+      defense: def.defense,
+      hpEach: def.hp,
+    });
+  }
+  return out;
+}
+
+export function forceFromStacks(stacks: Stack[]): Record<string, number> {
+  const force: Record<string, number> = {};
+  for (const s of stacks) {
+    if (s.count > 0) force[s.typeId] = (force[s.typeId] ?? 0) + s.count;
+  }
+  return force;
+}
+
+export function resolveColumnClash(
+  state: GameState,
+  attacker: ColumnSide,
+  defender: ColumnSide,
+  rng: RngStreams
+): {
+  attackerWins: boolean;
+  events: BattleEvent[];
+  attackerForce: Record<string, number>;
+  defenderForce: Record<string, number>;
+} {
+  const atk = stacksFromForce(attacker.realmId, attacker.force, attacker.levy);
+  const def = stacksFromForce(defender.realmId, defender.force, defender.levy);
+  const marshal = playerMarshal(state);
+  if (attacker.realmId === "player") applyMarshalBonuses(atk, marshal);
+  if (defender.realmId === "player") applyMarshalBonuses(def, marshal);
+  const fought = resolveRounds(atk, def, rng);
+  const attackerForce = forceFromStacks(atk);
+  const defenderForce = forceFromStacks(def);
+  attacker.force = attackerForce;
+  attacker.levy = Object.values(attackerForce).reduce((n, v) => n + v, 0);
+  defender.force = defenderForce;
+  defender.levy = Object.values(defenderForce).reduce((n, v) => n + v, 0);
+
+  const skill =
+    marshal && (attacker.realmId === "player" || defender.realmId === "player")
+      ? marshalSkillName(marshal.marshalTree)
+      : "None";
+  recordCrown(
+    state,
+    "battle",
+    fought.attackerWins
+      ? `Field clash: ${attacker.realmId} broke ${defender.realmId}.`
+      : `Field clash: ${defender.realmId} held against ${attacker.realmId}.`
+  );
+  writeLastBattle(state, {
+    winnerId: fought.attackerWins ? attacker.realmId : defender.realmId,
+    loserId: fought.attackerWins ? defender.realmId : attacker.realmId,
+    events: [
+      skill !== "None" ? { round: 0, kind: "open" as const, text: `${skill} is on the field.` } : { round: 0, kind: "open" as const, text: "Columns meet." },
+      ...fought.events,
+    ],
+    phases: [{ title: "Field", text: "Two columns met on the same tile." }],
+  });
+
+  const loser = fought.attackerWins ? defender : attacker;
+  if (loser.realmId === "player" && loser.force) returnForce(state, loser.force, 0.4);
+
+  return {
+    attackerWins: fought.attackerWins,
+    events: fought.events,
+    attackerForce,
+    defenderForce,
+  };
+}
