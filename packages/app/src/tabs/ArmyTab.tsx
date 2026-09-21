@@ -7,6 +7,7 @@ import {
   listUnitTypes,
   trainCostMultiplier,
   trainDurationTicks,
+  trainingQueueCap,
   tryCancelTraining,
   troopWounded,
   tryTrain,
@@ -38,7 +39,8 @@ export function ArmyTab(props: {
   const levyWait = state ? levyTicksLeft(state) : 0;
   const posts = state ? listTroopPosts(state) : [];
   const wounded = state ? troopWounded(state) : 0;
-  const queue = state ? listTraining(state) : [];
+  const queue = state ? listTraining(state, "player") : [];
+  const cap = state ? trainingQueueCap(state) : 2;
 
   return (
     <>
@@ -62,7 +64,7 @@ export function ArmyTab(props: {
                 act((st) => {
                   const ok = tryTrain(st, { typeId: u.id, count: trainQty });
                   if (ok) sfx.train();
-                  return ok ? `Queued ${trainQty} ${u.name}.` : "Cannot afford that levy.";
+                  return ok ? `Queued ${trainQty} ${u.name}.` : queue.length >= cap ? "Barracks queue is full. Raise the Keep." : "Cannot afford that levy.";
                 })
               }
             >
@@ -72,8 +74,8 @@ export function ArmyTab(props: {
         })}
       </div>
       <div style={{ fontSize: 12, marginTop: 8 }}>
-        <strong>Barracks queue</strong>
-        {queue.length === 0 ? <div>No companies drilling.</div> : null}
+        <strong>Barracks queue {queue.length}/{cap}</strong>
+        {queue.length === 0 ? <div>No companies drilling. Keep I holds two slots; Keep II opens a third.</div> : null}
         {queue.map((job) => {
           const left = state ? Math.max(0, job.doneTick - state.meta.tick) : 0;
           const waiting = state ? job.startedTick > state.meta.tick : false;
