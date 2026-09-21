@@ -3,6 +3,7 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { getBuildingType } from "../content/buildings.js";
 import { buildCostMultiplier } from "./build.js";
 import { addCapped } from "../systems/storage.js";
+import { recordCrown } from "../systems/ledger.js";
 
 export const MAX_BUILDING_LEVEL = 5;
 
@@ -44,6 +45,14 @@ export function keepLevel(state: GameState, realmId = "player"): number {
 export function maxLevelFor(state: GameState, typeId: string, realmId = "player"): number {
   if (typeId === "keep") return MAX_BUILDING_LEVEL;
   return Math.min(MAX_BUILDING_LEVEL, Math.max(2, keepLevel(state, realmId) + 1));
+}
+
+export function keepNotice(state: GameState): string {
+  return String(state.flags.keep_notice ?? "");
+}
+
+export function clearKeepNotice(state: GameState): void {
+  delete state.flags.keep_notice;
 }
 
 export function upgradeDurationTicks(state: GameState, buildingId: string): number {
@@ -134,6 +143,17 @@ export function tryCancelUpgrade(state: GameState, buildingId: string): boolean 
   return true;
 }
 
+function noteKeepUpgrade(state: GameState, fromLevel: number, toLevel: number, realmId: string): void {
+  if (realmId !== "player") return;
+  const note =
+    toLevel === 2
+      ? "Keep II stands. Works may reach level 3. Marshal rank 2 is open (80 gold)."
+      : `Keep ${toLevel} stands. Works may reach level ${Math.min(5, Math.max(2, toLevel + 1))}.`;
+  state.flags.keep_notice = note;
+  recordCrown(state, "keep", note);
+  void fromLevel;
+}
+
 export function completeUpgrades(state: GameState, tick: number): void {
   const jobs = readJobs(state);
   if (jobs.length === 0) return;
@@ -144,7 +164,10 @@ export function completeUpgrades(state: GameState, tick: number): void {
       continue;
     }
     const b = state.buildings.find((x) => x.id === job.buildingId);
-    if (b) b.level = job.fromLevel + 1;
+    if (b) {
+      b.level = job.fromLevel + 1;
+      if (b.typeId === "keep") noteKeepUpgrade(state, job.fromLevel, b.level, b.realmId);
+    }
   }
   writeJobs(state, left);
 }
