@@ -3,12 +3,14 @@ import {
   canAffordTrain,
   canSally,
   gateOnRim,
+  getProvince,
   healTicksLeft,
   housingCap,
   incomingOnHome,
   infirmaryBeds,
   lastBattleStory,
   listGarrisons,
+  listGathers,
   listHealing,
   listLedger,
   listMarches,
@@ -18,6 +20,7 @@ import {
   realmPower,
   tryDeclareWar,
   tryGiftGold,
+  tryRecallGather,
   tryRecallMarch,
   tryRepair,
   tryResolveWar,
@@ -68,6 +71,7 @@ export function WarRoom(props: {
   const tick = state?.meta.tick ?? 0;
   const sallyReady = state ? canSally(state) : false;
   const columns = state ? listMarches(state).filter((m) => m.realmId === "player") : [];
+  const gathers = state ? listGathers(state).filter((g) => g.realmId === "player") : [];
   const posts = state ? listGarrisons(state) : [];
   const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
   const etaOf = (arrivesTick: number) => Math.max(0, Math.ceil((arrivesTick - tick) / 10));
@@ -203,6 +207,31 @@ export function WarRoom(props: {
         >
           Recall column
         </button>
+        <div style={{ marginTop: 8 }}>
+          {gathers.length === 0 ? (
+            <p style={{ margin: 0, opacity: 0.7 }}>No gather party out.</p>
+          ) : (
+            gathers.map((g) => {
+              const dest = state ? getProvince(state, g.toId) : undefined;
+              const where = dest ? `${dest.x},${dest.y}` : g.toId;
+              return (
+                <div key={g.id} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <span>
+                    {g.node} {where} · {g.phase} · ETA {etaOf(g.arrivesTick)}s
+                    {g.phase !== "outbound" ? ` · load ${g.load}` : ""}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={g.phase === "returning"}
+                    onClick={() => act((st) => (tryRecallGather(st, g.id) ? "Gather party recalled." : "Already returning."))}
+                  >
+                    Recall
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
         <div style={{ marginTop: 8 }}>
           {posts.length === 0 ? (
             <p style={{ margin: 0, opacity: 0.7 }}>No garrison posted on a flag.</p>
