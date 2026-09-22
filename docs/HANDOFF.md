@@ -1,4 +1,4 @@
-# HANDOFF — current ground (2026-09-21)
+# HANDOFF — current ground (2026-09-22)
 
 Play: https://129.153.17.72.sslip.io/
 Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
@@ -6,7 +6,19 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-overworld)
+## Recent Wave (bakeoff/gemini-units)
+
+- **Unit & Keep Readability on Diamond Board**:
+  - Miniature keeps now have ambient ground contact shadows and stepped foundation plinths to detach cleanly from textured 3D terrain relief.
+  - High-contrast facet illumination on keeps (bright sunlit left face with quoins/shakes vs deep shaded right face with dividing corner seams).
+  - NPC holds display mounted heraldic escutcheon shields with faction colors (`k_silk`, `k_ash`, `k_veil`, `k_glass`, `k_frost`, `k_tide`, etc.).
+  - Player home keep features a regal golden coronet crest with pearl jewels.
+  - March pawns feature distinct faction pedestal bases (turned walnut + golden/sapphire faction ring for player; spiked blackened iron + crimson danger ring for hostile).
+  - Iconic weapon and armor silhouettes for all 8 unit types (archer recurve bow + bodkin arrow + quiver; spearman towering pike + heraldic shield; skirmisher poised javelin; cavalry warhorse + couched lance; knight plate armor + Greathelm + heater shield; siege engine timber chassis + wheels + throwing beam; champion royal cape + crown + glowing runic claymore; militia spiked war club).
+  - Floating ETA pill badges with glass drop-shadows and glowing timer pips.
+  - Zero diff on `packages/sim` or `server/`.
+
+## Prior Wave (bakeoff/gemini-overworld)
 
 - **Lords Mobile Overworld Map**: Zoomed-out board tiles feature 3D stepped elevations and height faces per terrain (peaks tower highest with granite rock strata and snow streaks, hills with stepped contour terraces, wastes with basalt columns and magma veins, woods with loam and tree roots, plains with sod cuts, shores with wave wash).
 - **Tiny Pixel Keeps on Board Holds**: Provinces with holds now reuse authentic culture kit keep silhouettes at miniature scale (Western stone keep, Cedar longhouse, Sand courtyard keep with minaret, Steppe circular hall, Islands stilt pile-house, and Iron March spiked battlement keep).

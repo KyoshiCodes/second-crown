@@ -1,7 +1,16 @@
 # USER-NOTES
 
-Updated: 2026-09-21 | Play: https://129.153.17.72.sslip.io/
+Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
+
+## Overworld Units & Miniature Keeps
+
+Marching armies and kingdom holds now read with razor-sharp clarity across the 3D isometric diamond board:
+- **Miniature Keeps**: Ground contact shadows and stepped plinths lift keeps off the terrain relief. Contrasting sunlit and shaded facets make each fortress stand out in sharp relief.
+- **Kingdom Heraldry**: NPC holds display their realm's heraldic escutcheon shield on the keep wall, identifying factions at a glance without having to click. The player's capital keep is topped by a golden coronet crest.
+- **March Columns & Faction Pedestals**: Columns march atop distinct faction pedestals (polished walnut with a golden-sapphire faction ring for the player; spiked blackened iron with a crimson danger ring for enemies).
+- **Unit Silhouette Clarity**: Each of the 8 unit types is instantly recognizable on the march (archers with forward recurve bows and back quivers, spearmen with towering pikes and heraldic shields, skirmishers poised to throw javelins, cavalry with galloping warhorses and couched lances, knights in full plate with waving plumes and heater shields, siege engines with wheeled timber frames and throwing beams, champions with billowing mantles and glowing runic greatswords, and militia with spiked war clubs).
+- **High-Contrast Route Trails**: Glowing pulsating trails and reticle target indicators make active marches effortless to track across all terrain.
 
 ## Overworld Map
 

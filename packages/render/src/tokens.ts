@@ -418,6 +418,7 @@ export function isNpcHoldProvince(p: { node?: string; occupantRealmId?: string |
 // -------------------------------------------------------------
 // Miniature Pixel Keeps for Board-Band Holds (Lords Mobile Style)
 // Reuses Authentic Culture Kit Silhouettes at Miniature Scale (~0.42x)
+// High-Readability Foundations, High-Contrast Lighting & Heraldry
 // -------------------------------------------------------------
 export function drawMiniatureKeep(
   g: Graphics,
@@ -428,54 +429,81 @@ export function drawMiniatureKeep(
   isHome = false,
   phase = 0
 ): void {
+  // 0. Ambient ground contact shadow (detaches keep from busy terrain relief)
+  g.ellipse(cx, cy + 4, 11, 4.5);
+  g.fill({ color: 0x050403, alpha: 0.62 });
+
   // If this is a rival (Iron March) hold
   if (realmPal?.realmId === "rival") {
     // Spiked Blackened Iron Keep
     const ironPlinth = 0x18181b;
-    const ironWallLight = 0x3f3f46;
-    const ironWallDark = 0x27272a;
-    const ironBattlement = 0x71717a;
+    const ironWallLight = 0x52525b;
+    const ironWallDark = 0x18181b;
+    const ironBattlement = 0x3f3f46;
 
-    // Foundation talus
-    g.poly([cx - 8, cy + 3, cx, cy + 6.5, cx + 8, cy + 3, cx, cy]);
+    // Foundation talus with dark border
+    g.poly([cx - 8.5, cy + 2.5, cx, cy + 6.5, cx + 8.5, cy + 2.5, cx, cy - 0.5]);
     g.fill({ color: ironPlinth });
+    g.stroke({ width: 0.9, color: 0x09090b });
 
-    // Main tower walls (left light, right dark)
+    // Main tower walls (left cold gunmetal, right obsidian iron)
     g.poly([cx - 7, cy + 1, cx, cy + 4, cx, cy - 9, cx - 7, cy - 12]);
     g.fill({ color: ironWallLight });
+    g.stroke({ width: 0.8, color: 0x09090b });
     g.poly([cx, cy + 4, cx + 7, cy + 1, cx + 7, cy - 12, cx, cy - 9]);
     g.fill({ color: ironWallDark });
+    g.stroke({ width: 0.8, color: 0x09090b });
+
+    // Vertical dividing corner seam
+    g.moveTo(cx, cy - 9); g.lineTo(cx, cy + 4);
+    g.stroke({ width: 1, color: 0x09090b });
 
     // Iron rivets on tower
-    g.circle(cx - 4, cy - 4, 0.8); g.fill({ color: 0xa1a1aa });
-    g.circle(cx + 4, cy - 4, 0.8); g.fill({ color: 0x71717a });
+    g.circle(cx - 4, cy - 4, 0.9); g.fill({ color: 0xa1a1aa });
+    g.circle(cx + 4, cy - 4, 0.9); g.fill({ color: 0x52525b });
+    g.circle(cx - 4, cy + 0.5, 0.9); g.fill({ color: 0xa1a1aa });
+    g.circle(cx + 4, cy + 0.5, 0.9); g.fill({ color: 0x52525b });
 
-    // Spiked iron battlements
-    g.poly([cx - 7, cy - 12, cx - 5, cy - 16, cx - 3, cy - 12]);
+    // Spiked iron battlements with sharpened steel tips
+    g.poly([cx - 7, cy - 12, cx - 5, cy - 17, cx - 3, cy - 12]);
     g.fill({ color: ironBattlement });
-    g.poly([cx - 2, cy - 12, cx, cy - 15, cx + 2, cy - 12]);
-    g.fill({ color: ironBattlement });
-    g.poly([cx + 3, cy - 12, cx + 5, cy - 16, cx + 7, cy - 12]);
-    g.fill({ color: ironBattlement });
+    g.stroke({ width: 0.7, color: 0x09090b });
+    g.circle(cx - 5, cy - 17, 0.7); g.fill({ color: 0xe4e4e7 });
 
-    // Narrow glowing crimson eye-slit gate
-    g.rect(cx - 2, cy, 4, 4);
+    g.poly([cx - 2, cy - 12, cx, cy - 16, cx + 2, cy - 12]);
+    g.fill({ color: ironBattlement });
+    g.stroke({ width: 0.7, color: 0x09090b });
+    g.circle(cx, cy - 16, 0.7); g.fill({ color: 0xe4e4e7 });
+
+    g.poly([cx + 3, cy - 12, cx + 5, cy - 17, cx + 7, cy - 12]);
+    g.fill({ color: 0x27272a });
+    g.stroke({ width: 0.7, color: 0x09090b });
+    g.circle(cx + 5, cy - 17, 0.7); g.fill({ color: 0xd4d4d8 });
+
+    // Sinister glowing crimson eye-slit gate
+    g.rect(cx - 2.5, cy - 0.5, 5, 4.5);
     g.fill({ color: 0x09090b });
-    g.rect(cx - 1.5, cy + 1, 3, 1.4);
+    g.rect(cx - 2, cy + 1, 4, 1.8);
+    g.fill({ color: 0x7f1d1d });
+    g.rect(cx - 1.5, cy + 1.2, 3, 1.2);
     g.fill({ color: 0xef4444 });
+    g.circle(cx, cy + 1.8, 0.7);
+    g.fill({ color: 0xfef08a });
 
     // Waving blood-red spiked war pennant
     const wave = Math.sin(phase * 4 + cx) * 1.8;
-    g.moveTo(cx, cy - 9); g.lineTo(cx, cy - 18);
-    g.stroke({ width: 1.2, color: 0x52525b });
+    g.moveTo(cx, cy - 9); g.lineTo(cx, cy - 20);
+    g.stroke({ width: 1.3, color: 0x3f3f46 });
+    g.circle(cx, cy - 20.5, 0.9); g.fill({ color: 0x71717a });
     g.poly([
-      cx, cy - 18,
-      cx + 7 + wave, cy - 15,
-      cx + 4 + wave * 0.6, cy - 13,
-      cx + 7 + wave, cy - 11,
-      cx, cy - 11,
+      cx, cy - 20,
+      cx + 8 + wave, cy - 16.5,
+      cx + 5 + wave * 0.6, cy - 14,
+      cx + 8 + wave, cy - 11.5,
+      cx, cy - 11.5,
     ]);
     g.fill({ color: 0x991b1b });
+    g.stroke({ width: 0.7, color: 0x450a0a });
     return;
   }
 
@@ -483,134 +511,199 @@ export function drawMiniatureKeep(
   switch (kit) {
     case "cedar": {
       // Cedar Kin: Miniature Timber Longhouse Keep on Riverstone Plinth
-      const timberLight = 0x854d0e;
-      const timberDark = 0x5c3818;
-      const timberPlinth = 0x3f220c;
-      const roofShake = 0x6d3d0c;
+      const timberLight = 0xa16207;
+      const timberDark = 0x451a03;
+      const timberPlinth = 0x292524;
+      const roofShake = 0x78350f;
       const flagCol = realmPal ? realmPal.pennantColor : 0x14532d;
 
-      // Riverstone plinth
-      g.poly([cx - 8, cy + 3, cx, cy + 6.5, cx + 8, cy + 3, cx, cy]);
+      // Riverstone plinth with stone outline
+      g.poly([cx - 8.5, cy + 2.5, cx, cy + 6.5, cx + 8.5, cy + 2.5, cx, cy - 0.5]);
       g.fill({ color: timberPlinth });
+      g.stroke({ width: 0.8, color: 0x1c1917 });
 
-      // Cross-lap log walls
+      g.circle(cx - 5, cy + 3.2, 1); g.fill({ color: 0x57534e });
+      g.circle(cx, cy + 4.5, 1.1); g.fill({ color: 0x78350f });
+      g.circle(cx + 5, cy + 3.2, 1); g.fill({ color: 0x44403c });
+
+      // Cross-lap log walls (left golden cedar, right dark bark shadow)
       g.poly([cx - 7, cy + 1, cx, cy + 4, cx, cy - 7, cx - 7, cy - 10]);
       g.fill({ color: timberLight });
+      g.stroke({ width: 0.8, color: 0x451a03 });
       g.poly([cx, cy + 4, cx + 7, cy + 1, cx + 7, cy - 10, cx, cy - 7]);
       g.fill({ color: timberDark });
+      g.stroke({ width: 0.8, color: 0x1c0f05 });
+
+      // Vertical center seam
+      g.moveTo(cx, cy - 7); g.lineTo(cx, cy + 4);
+      g.stroke({ width: 1, color: 0x3f1d0b });
 
       // Hewn log horizontal courses
-      for (const my of [cy - 5, cy - 2, cy + 1]) {
+      for (const my of [cy - 4.5, cy - 1.5, cy + 1.5]) {
         g.moveTo(cx - 7, my - 2); g.lineTo(cx, my); g.lineTo(cx + 7, my - 2);
-        g.stroke({ width: 0.8, color: timberPlinth, alpha: 0.8 });
+        g.stroke({ width: 0.9, color: 0x271306, alpha: 0.85 });
       }
 
       // Steep pitched cedar-shake gabled roof
-      g.poly([cx - 9, cy - 8, cx, cy - 15, cx + 9, cy - 8, cx, cy - 5]);
+      g.poly([cx - 9.5, cy - 7.5, cx, cy - 15.5, cx + 9.5, cy - 7.5, cx, cy - 4.5]);
       g.fill({ color: roofShake });
-      g.stroke({ width: 1, color: timberPlinth });
+      g.stroke({ width: 1, color: 0x3f1d0b });
+
+      // Left illuminated roof slope
+      g.poly([cx - 9.5, cy - 7.5, cx, cy - 15.5, cx, cy - 4.5]);
+      g.fill({ color: 0x92400e });
+
+      // Shingle texture highlights
+      g.moveTo(cx - 6, cy - 9.5); g.lineTo(cx, cy - 7.5); g.stroke({ width: 0.7, color: 0xb45309 });
+      g.moveTo(cx - 3, cy - 12); g.lineTo(cx, cy - 10); g.stroke({ width: 0.7, color: 0xb45309 });
 
       // Golden eagle ridgepole finials
-      g.poly([cx, cy - 15, cx - 2, cy - 18, cx, cy - 17, cx + 2, cy - 18]);
+      g.poly([cx, cy - 15.5, cx - 2.5, cy - 19, cx, cy - 17.5, cx + 2.5, cy - 19]);
       g.fill({ color: 0xfacc15 });
+      g.stroke({ width: 0.7, color: 0x78350f });
+      g.circle(cx, cy - 17.5, 0.7); g.fill({ color: 0xfef08a });
 
-      // Timber doorway
-      g.rect(cx - 2, cy, 4, 3.5);
+      // Timber doorway with warm hearth fire glow
+      g.rect(cx - 2, cy - 0.5, 4, 4);
       g.fill({ color: 0x1c1008 });
+      g.rect(cx - 1.2, cy + 0.5, 2.4, 2.8);
+      g.fill({ color: 0xd97706 });
+      g.circle(cx, cy + 1.8, 0.8);
+      g.fill({ color: 0xfef08a });
 
       // Waving cedar pennant
       const cWave = Math.sin(phase * 4 + cx) * 1.8;
-      g.moveTo(cx, cy - 15); g.lineTo(cx, cy - 20);
-      g.stroke({ width: 1.1, color: 0x3f220c });
-      g.poly([cx, cy - 20, cx + 6 + cWave, cy - 17.5, cx, cy - 15]);
+      g.moveTo(cx, cy - 15.5); g.lineTo(cx, cy - 21);
+      g.stroke({ width: 1.2, color: 0x3f220c });
+      g.circle(cx, cy - 21.5, 0.8); g.fill({ color: 0xfacc15 });
+      g.poly([cx, cy - 21, cx + 7 + cWave, cy - 18, cx, cy - 15.5]);
       g.fill({ color: flagCol });
+      g.stroke({ width: 0.6, color: 0x1c1917 });
       break;
     }
 
     case "sand": {
       // Sand Banner: Miniature Sunbleached Limestone Courtyard Keep + Lookout Minaret
       const sandPlinth = 0x78531e;
-      const sandLight = 0xd6c7a1;
-      const sandDark = 0xb8a882;
+      const sandLight = 0xf5ebe0;
+      const sandDark = 0xa16207;
       const flagCol = realmPal ? realmPal.pennantColor : 0xb45309;
 
-      // Foundation plinth
-      g.poly([cx - 8, cy + 3, cx, cy + 6.5, cx + 8, cy + 3, cx, cy]);
+      // Terraced foundation plinth
+      g.poly([cx - 8.5, cy + 2.5, cx, cy + 6.5, cx + 8.5, cy + 2.5, cx, cy - 0.5]);
       g.fill({ color: sandPlinth });
+      g.stroke({ width: 0.8, color: 0x451a03 });
 
-      // Main limestone hold
+      // Main limestone hold (left ivory, right sandstone shadow)
       g.poly([cx - 7, cy + 1, cx, cy + 4, cx, cy - 8, cx - 7, cy - 11]);
       g.fill({ color: sandLight });
+      g.stroke({ width: 0.8, color: 0x5c4217 });
       g.poly([cx, cy + 4, cx + 7, cy + 1, cx + 7, cy - 11, cx, cy - 8]);
       g.fill({ color: sandDark });
+      g.stroke({ width: 0.8, color: 0x5c4217 });
+
+      // Vertical dividing seam
+      g.moveTo(cx, cy - 8); g.lineTo(cx, cy + 4);
+      g.stroke({ width: 1, color: 0x5c4217 });
 
       // Flat roof parapet with sawtooth merlons
-      g.rect(cx - 7, cy - 12, 14, 2.5);
-      g.fill({ color: sandLight });
-      g.rect(cx - 6, cy - 14, 2.5, 2); g.fill({ color: sandDark });
-      g.rect(cx - 1, cy - 14, 2.5, 2); g.fill({ color: sandDark });
-      g.rect(cx + 4, cy - 14, 2.5, 2); g.fill({ color: sandDark });
+      g.rect(cx - 7.5, cy - 12, 15, 2.5);
+      g.fill({ color: 0xe6d5ac });
+      g.stroke({ width: 0.8, color: 0x5c4217 });
+      g.rect(cx - 6.5, cy - 14.5, 2.5, 2.5); g.fill({ color: sandLight }); g.stroke({ width: 0.6, color: 0x5c4217 });
+      g.rect(cx - 1.2, cy - 14.5, 2.4, 2.5); g.fill({ color: sandLight }); g.stroke({ width: 0.6, color: 0x5c4217 });
+      g.rect(cx + 4, cy - 14.5, 2.5, 2.5); g.fill({ color: sandDark }); g.stroke({ width: 0.6, color: 0x5c4217 });
 
       // Corner lookout minaret turret with golden dome
-      g.rect(cx + 4, cy - 17, 3.5, 6);
+      g.rect(cx + 4, cy - 18, 4, 6.5);
       g.fill({ color: sandLight });
-      g.circle(cx + 5.7, cy - 18, 2);
+      g.stroke({ width: 0.8, color: 0x5c4217 });
+      g.circle(cx + 6, cy - 19, 2.4);
       g.fill({ color: 0xfacc15 });
+      g.stroke({ width: 0.7, color: 0x78350f });
+      g.circle(cx + 5.3, cy - 19.8, 0.8);
+      g.fill({ color: 0xffffff }); // specular dome glint
+      g.moveTo(cx + 6, cy - 21.4); g.lineTo(cx + 6, cy - 23);
+      g.stroke({ width: 0.8, color: 0xfacc15 }); // crescent spire
 
       // Horseshoe arched portal
-      g.poly([cx - 2, cy + 3, cx - 2, cy, cx, cy - 1.5, cx + 2, cy, cx + 2, cy + 3]);
-      g.fill({ color: 0x181008 });
+      g.poly([cx - 2, cy + 3.5, cx - 2, cy, cx, cy - 1.8, cx + 2, cy, cx + 2, cy + 3.5]);
+      g.fill({ color: 0x1c1008 });
+      g.circle(cx, cy - 1.8, 0.7); g.fill({ color: 0xfacc15 }); // keystone
 
       // Waving desert silk standard
       const sWave = Math.sin(phase * 4 + cx) * 1.8;
-      g.moveTo(cx - 4, cy - 12); g.lineTo(cx - 4, cy - 19);
-      g.stroke({ width: 1.1, color: 0x78531e });
-      g.poly([cx - 4, cy - 19, cx + 3 + sWave, cy - 16.5, cx - 4, cy - 14]);
+      g.moveTo(cx - 4, cy - 12); g.lineTo(cx - 4, cy - 20);
+      g.stroke({ width: 1.2, color: 0x78531e });
+      g.circle(cx - 4, cy - 20.5, 0.8); g.fill({ color: 0xfacc15 });
+      g.poly([cx - 4, cy - 20, cx + 4 + sWave, cy - 17, cx - 4, cy - 14]);
       g.fill({ color: flagCol });
+      g.stroke({ width: 0.6, color: 0x451a03 });
       break;
     }
 
     case "steppe": {
       // Wind Host: Miniature Great Hall on Mound + Conical Dome + Horsehair Standard
-      const moundColor = 0x44403c;
-      const wallLight = 0xe7e5e4;
-      const wallDark = 0xa8a29e;
-      const bandColor = 0x9f1239;
+      const moundColor = 0x292524;
+      const wallLight = 0xffffff;
+      const wallDark = 0x78716c;
       const flagCol = realmPal ? realmPal.pennantColor : 0x9f1239;
 
-      // Earthen mound
-      g.ellipse(cx, cy + 3, 9, 4.5);
+      // Packed earthen kurgan mound
+      g.ellipse(cx, cy + 3.5, 9.5, 4.8);
       g.fill({ color: moundColor });
+      g.stroke({ width: 0.8, color: 0x1c1917 });
 
-      // Circular felt yurt wall
-      g.poly([cx - 7, cy + 2, cx, cy + 4.5, cx + 7, cy + 2, cx + 7, cy - 5, cx, cy - 3, cx - 7, cy - 5]);
+      // Circular felt yurt wall (left bleached wool, right shaded felt)
+      g.poly([cx - 7.5, cy + 2, cx, cy + 4.5, cx, cy - 3, cx - 7.5, cy - 5]);
       g.fill({ color: wallLight });
-      g.poly([cx, cy + 4.5, cx + 7, cy + 2, cx + 7, cy - 5, cx, cy - 3]);
+      g.stroke({ width: 0.8, color: 0x44403c });
+      g.poly([cx, cy + 4.5, cx + 7.5, cy + 2, cx + 7.5, cy - 5, cx, cy - 3]);
       g.fill({ color: wallDark });
+      g.stroke({ width: 0.8, color: 0x44403c });
 
-      // Decorative crimson felt band
-      g.moveTo(cx - 7, cy - 1); g.lineTo(cx, cy + 0.5); g.lineTo(cx + 7, cy - 1);
-      g.stroke({ width: 1, color: bandColor });
+      // Center dividing seam
+      g.moveTo(cx, cy - 3); g.lineTo(cx, cy + 4.5);
+      g.stroke({ width: 1, color: 0x44403c });
+
+      // Decorative crimson felt geometric bands
+      g.moveTo(cx - 7.5, cy - 1); g.lineTo(cx, cy + 0.8); g.lineTo(cx + 7.5, cy - 1);
+      g.stroke({ width: 1.5, color: 0xbe123c });
+      g.moveTo(cx - 7.5, cy - 4); g.lineTo(cx, cy - 2.2); g.lineTo(cx + 7.5, cy - 4);
+      g.stroke({ width: 0.8, color: 0x9f1239 });
 
       // Conical yurt roof canopy
-      g.poly([cx - 8, cy - 4, cx, cy - 13, cx + 8, cy - 4, cx, cy - 2]);
+      g.poly([cx - 8.5, cy - 4, cx, cy - 14, cx + 8.5, cy - 4, cx, cy - 2]);
       g.fill({ color: 0xf5f5f4 });
-      g.stroke({ width: 0.8, color: wallDark });
+      g.stroke({ width: 0.9, color: 0x44403c });
+      g.poly([cx - 8.5, cy - 4, cx, cy - 14, cx, cy - 2]);
+      g.fill({ color: 0xffffff });
 
-      // Central smoke cowl ring
-      g.circle(cx, cy - 13, 2);
+      // Radial tension ribs
+      g.moveTo(cx, cy - 14); g.lineTo(cx - 5, cy - 3); g.stroke({ width: 0.7, color: 0xa8a29e });
+      g.moveTo(cx, cy - 14); g.lineTo(cx + 5, cy - 3); g.stroke({ width: 0.7, color: 0x78350f });
+
+      // Central carved timber smoke crown (shangyrak)
+      g.circle(cx, cy - 14, 2.2);
       g.fill({ color: 0x78350f });
+      g.stroke({ width: 0.8, color: 0x451a03 });
+      g.circle(cx, cy - 14, 0.9);
+      g.fill({ color: 0xf59e0b });
 
       // Wooden door frame
-      g.rect(cx - 2, cy, 4, 3.5);
-      g.fill({ color: 0x7c2d12 });
+      g.rect(cx - 2, cy - 0.2, 4, 4);
+      g.fill({ color: 0x451a03 });
+      g.rect(cx - 1.2, cy + 0.5, 2.4, 3);
+      g.fill({ color: 0x9a3412 });
 
       // Tall horsehair banner pole
       const stWave = Math.sin(phase * 4 + cx) * 1.8;
-      g.moveTo(cx + 6, cy + 1); g.lineTo(cx + 6, cy - 18);
-      g.stroke({ width: 1.1, color: 0x78350f });
-      g.poly([cx + 6, cy - 18, cx + 12 + stWave, cy - 15.5, cx + 6, cy - 13]);
+      g.moveTo(cx + 6.5, cy + 2); g.lineTo(cx + 6.5, cy - 19);
+      g.stroke({ width: 1.3, color: 0x451a03 });
+      g.circle(cx + 6.5, cy - 19.5, 0.8); g.fill({ color: 0xd4a359 });
+      g.poly([cx + 6.5, cy - 19, cx + 13 + stWave, cy - 16, cx + 6.5, cy - 13.5]);
       g.fill({ color: flagCol });
+      g.stroke({ width: 0.6, color: 0x451a03 });
       break;
     }
 
@@ -618,116 +711,191 @@ export function drawMiniatureKeep(
       // Tide Clans: Miniature Stilt Pile-House Keep on Driftwood Pilings
       const deckPlinth = 0x44403c;
       const reedLight = 0xa8a29e;
-      const reedDark = 0x78716c;
+      const reedDark = 0x57534e;
       const thatchRoof = 0x0e7490;
       const flagCol = realmPal ? realmPal.pennantColor : 0x0e7490;
 
-      // Elevated timber pilings
-      g.moveTo(cx - 6, cy + 4); g.lineTo(cx - 6, cy);
-      g.moveTo(cx - 1, cy + 5); g.lineTo(cx - 1, cy + 1);
-      g.moveTo(cx + 4, cy + 4); g.lineTo(cx + 4, cy);
-      g.stroke({ width: 1.4, color: deckPlinth });
+      // Elevated timber pilings with cross-brace
+      g.moveTo(cx - 6.5, cy + 4.5); g.lineTo(cx - 6.5, cy);
+      g.moveTo(cx - 1, cy + 5.5); g.lineTo(cx - 1, cy + 1);
+      g.moveTo(cx + 5, cy + 4.5); g.lineTo(cx + 5, cy);
+      g.stroke({ width: 1.6, color: 0x292524 });
+      g.moveTo(cx - 6.5, cy + 4); g.lineTo(cx - 1, cy + 1.5);
+      g.stroke({ width: 0.8, color: 0x1c1917 });
 
       // Elevated platform deck
-      g.poly([cx - 8, cy, cx, cy + 3.5, cx + 8, cy, cx, cy - 3]);
+      g.poly([cx - 8.5, cy, cx, cy + 3.8, cx + 8.5, cy, cx, cy - 3.2]);
       g.fill({ color: deckPlinth });
+      g.stroke({ width: 0.9, color: 0x1c1917 });
 
-      // Slatted stilt cabin walls
-      g.poly([cx - 6, cy - 1, cx, cy + 1.5, cx, cy - 8, cx - 6, cy - 10]);
+      // Slatted stilt cabin walls (left salt-bleached cedar, right shadow drift)
+      g.poly([cx - 6.5, cy - 1, cx, cy + 1.8, cx, cy - 8, cx - 6.5, cy - 10.5]);
       g.fill({ color: reedLight });
-      g.poly([cx, cy + 1.5, cx + 6, cy - 1, cx + 6, cy - 10, cx, cy - 8]);
+      g.stroke({ width: 0.8, color: 0x292524 });
+      g.poly([cx, cy + 1.8, cx + 6.5, cy - 1, cx + 6.5, cy - 10.5, cx, cy - 8]);
       g.fill({ color: reedDark });
+      g.stroke({ width: 0.8, color: 0x292524 });
 
-      // Multi-tiered woven pavilion roof
-      g.poly([cx - 8, cy - 8, cx, cy - 15, cx + 8, cy - 8, cx, cy - 6]);
+      // Center seam
+      g.moveTo(cx, cy - 8); g.lineTo(cx, cy + 1.8);
+      g.stroke({ width: 1, color: 0x292524 });
+
+      // Multi-tiered woven pavilion roof in vibrant ocean teal
+      g.poly([cx - 9, cy - 8, cx, cy - 16, cx + 9, cy - 8, cx, cy - 5.5]);
       g.fill({ color: thatchRoof });
-      g.stroke({ width: 0.8, color: 0x155e75 });
+      g.stroke({ width: 1, color: 0x155e75 });
+      g.poly([cx - 9, cy - 8, cx, cy - 16, cx, cy - 5.5]);
+      g.fill({ color: 0x06b6d4 });
+      g.moveTo(cx - 5, cy - 10); g.lineTo(cx, cy - 8.5);
+      g.stroke({ width: 0.8, color: 0x67e8f9 });
 
       // Wave crest finial
-      g.circle(cx, cy - 15.5, 1.5);
+      g.circle(cx, cy - 16.5, 1.8);
       g.fill({ color: 0x38bdf8 });
+      g.stroke({ width: 0.6, color: 0x0284c7 });
+      g.circle(cx, cy - 16.5, 0.7);
+      g.fill({ color: 0xffffff });
 
-      // Hanging sea lantern
-      g.circle(cx - 5, cy - 5, 1.2);
-      g.fill({ color: 0xfacc15, alpha: 0.9 });
+      // Hanging glowing sea lantern
+      g.moveTo(cx - 5, cy - 8); g.lineTo(cx - 5, cy - 4.5);
+      g.stroke({ width: 0.8, color: 0x292524 });
+      g.circle(cx - 5, cy - 4.5, 2.4);
+      g.fill({ color: 0xfde047, alpha: 0.4 });
+      g.circle(cx - 5, cy - 4.5, 1.3);
+      g.fill({ color: 0xfef08a });
 
       // Waving ocean swallowtail pennant
       const iWave = Math.sin(phase * 4 + cx) * 1.8;
-      g.moveTo(cx, cy - 15); g.lineTo(cx, cy - 20);
-      g.stroke({ width: 1.1, color: 0x44403c });
-      g.poly([cx, cy - 20, cx + 7 + iWave, cy - 17.5, cx + 4 + iWave * 0.5, cy - 15.5, cx, cy - 15.5]);
+      g.moveTo(cx, cy - 16); g.lineTo(cx, cy - 21.5);
+      g.stroke({ width: 1.2, color: 0x292524 });
+      g.circle(cx, cy - 22, 0.8); g.fill({ color: 0x38bdf8 });
+      g.poly([cx, cy - 21.5, cx + 8 + iWave, cy - 18.5, cx + 4.5 + iWave * 0.5, cy - 16.5, cx, cy - 16.5]);
       g.fill({ color: flagCol });
+      g.stroke({ width: 0.6, color: 0x155e75 });
       break;
     }
 
     default: {
       // Western Crown Marches: Miniature Ashlar Stone Keep Tower + Bartizans + Crenellations
-      const stonePlinth = 0x334155;
-      const stoneLight = 0x64748b;
-      const stoneDark = 0x475569;
-      const bartizanLight = 0x71717a;
-      const bartizanDark = 0x52525b;
+      const stonePlinth = 0x1e293b;
+      const stoneLight = 0x94a3b8;
+      const stoneDark = 0x334155;
+      const bartizanLight = 0xcbd5e1;
+      const bartizanDark = 0x475569;
       const flagCol = realmPal ? realmPal.pennantColor : isHome ? 0x1e40af : 0xb91c1c;
 
-      // 1. Foundation talus plinth
-      g.poly([cx - 8, cy + 3, cx, cy + 6.5, cx + 8, cy + 3, cx, cy]);
+      // 1. Foundation talus plinth with dark border
+      g.poly([cx - 8.5, cy + 2.5, cx, cy + 6.5, cx + 8.5, cy + 2.5, cx, cy - 0.5]);
       g.fill({ color: stonePlinth });
+      g.stroke({ width: 0.8, color: 0x0f172a });
 
-      // 2. Main Stone Hold Tower Walls
+      // 2. Main Stone Hold Tower Walls (left granite with corner quoins, right shadowed slate)
       g.poly([cx - 7, cy + 1, cx, cy + 4, cx, cy - 9, cx - 7, cy - 12]);
       g.fill({ color: stoneLight });
+      g.stroke({ width: 0.8, color: 0x1e293b });
       g.poly([cx, cy + 4, cx + 7, cy + 1, cx + 7, cy - 12, cx, cy - 9]);
       g.fill({ color: stoneDark });
+      g.stroke({ width: 0.8, color: 0x0f172a });
+
+      // Quoins on left outer corner
+      g.rect(cx - 7, cy - 10, 1.6, 2); g.fill({ color: 0xcbd5e1 });
+      g.rect(cx - 7, cy - 6, 1.6, 2); g.fill({ color: 0xcbd5e1 });
+      g.rect(cx - 7, cy - 2, 1.6, 2); g.fill({ color: 0xcbd5e1 });
+
+      // Center dividing seam
+      g.moveTo(cx, cy - 9); g.lineTo(cx, cy + 4);
+      g.stroke({ width: 1.1, color: 0x0f172a });
 
       // Horizontal masonry course lines
       g.moveTo(cx - 7, cy - 5); g.lineTo(cx, cy - 2.5); g.lineTo(cx + 7, cy - 5);
-      g.stroke({ width: 0.8, color: stonePlinth, alpha: 0.7 });
+      g.stroke({ width: 0.8, color: 0x1e293b, alpha: 0.75 });
       g.moveTo(cx - 7, cy - 1); g.lineTo(cx, cy + 1.5); g.lineTo(cx + 7, cy - 1);
-      g.stroke({ width: 0.8, color: stonePlinth, alpha: 0.7 });
+      g.stroke({ width: 0.8, color: 0x1e293b, alpha: 0.75 });
 
       // 3. Corner Watch Bartizans
       g.poly([cx - 8, cy - 10, cx - 5.5, cy - 8.5, cx - 5.5, cy - 14, cx - 8, cy - 15]);
       g.fill({ color: bartizanLight });
-      g.poly([cx - 8, cy - 15, cx - 5.5, cy - 14, cx - 7, cy - 17]);
-      g.fill({ color: stonePlinth }); // Left turret cap
+      g.stroke({ width: 0.6, color: 0x1e293b });
+      g.poly([cx - 8, cy - 15, cx - 5.5, cy - 14, cx - 6.8, cy - 17.5]);
+      g.fill({ color: stonePlinth });
+      g.circle(cx - 6.8, cy - 17.5, 0.6); g.fill({ color: 0xfacc15 });
 
       g.poly([cx + 5.5, cy - 8.5, cx + 8, cy - 10, cx + 8, cy - 15, cx + 5.5, cy - 14]);
       g.fill({ color: bartizanDark });
-      g.poly([cx + 5.5, cy - 14, cx + 8, cy - 15, cx + 7, cy - 17]);
-      g.fill({ color: stonePlinth }); // Right turret cap
+      g.stroke({ width: 0.6, color: 0x0f172a });
+      g.poly([cx + 5.5, cy - 14, cx + 8, cy - 15, cx + 6.8, cy - 17.5]);
+      g.fill({ color: 0x0f172a });
+      g.circle(cx + 6.8, cy - 17.5, 0.6); g.fill({ color: 0xfacc15 });
 
       // 4. Parapet battlements (3 crenellations)
-      g.rect(cx - 5, cy - 13.5, 2.5, 2.5); g.fill({ color: bartizanLight });
-      g.rect(cx - 1.2, cy - 13.5, 2.4, 2.5); g.fill({ color: bartizanLight });
-      g.rect(cx + 2.5, cy - 13.5, 2.5, 2.5); g.fill({ color: bartizanDark });
+      g.rect(cx - 5, cy - 14, 2.5, 2.8); g.fill({ color: bartizanLight }); g.stroke({ width: 0.6, color: 0x1e293b });
+      g.rect(cx - 1.2, cy - 14, 2.4, 2.8); g.fill({ color: bartizanLight }); g.stroke({ width: 0.6, color: 0x1e293b });
+      g.rect(cx + 2.5, cy - 14, 2.5, 2.8); g.fill({ color: stoneDark }); g.stroke({ width: 0.6, color: 0x0f172a });
 
       // 5. Arched Gateway & Portcullis
       g.rect(cx - 2, cy + 0.5, 4, 4);
       g.fill({ color: 0x09090b });
-      g.moveTo(cx - 1, cy + 1); g.lineTo(cx - 1, cy + 4);
-      g.moveTo(cx + 1, cy + 1); g.lineTo(cx + 1, cy + 4);
-      g.stroke({ width: 0.8, color: 0x94a3b8, alpha: 0.8 });
+      g.moveTo(cx - 1, cy + 1); g.lineTo(cx - 1, cy + 4.5);
+      g.moveTo(cx + 1, cy + 1); g.lineTo(cx + 1, cy + 4.5);
+      g.stroke({ width: 0.8, color: 0x94a3b8, alpha: 0.85 });
 
-      // 6. Warm Royal Candlelit Window
+      // 6. Warm Royal Candlelit Window with ambient glow
       const candle = 0.85 + Math.sin(phase * 4 + cx) * 0.15;
-      g.rect(cx - 1, cy - 6, 2.2, 3);
+      g.circle(cx, cy - 5, 2.5);
+      g.fill({ color: 0xfef08a, alpha: candle * 0.35 });
+      g.rect(cx - 1.2, cy - 6.5, 2.4, 3.2);
       g.fill({ color: 0xfef08a, alpha: candle });
+      g.stroke({ width: 0.6, color: 0x78350f });
 
       // 7. Waving Swallowtail Pennant on Mast
       const wWave = Math.sin(phase * 4 + cx) * 1.8;
-      g.moveTo(cx, cy - 11); g.lineTo(cx, cy - 19);
-      g.stroke({ width: 1.2, color: 0x334155 });
-      g.circle(cx, cy - 19.5, 1); g.fill({ color: 0xfacc15 });
+      g.moveTo(cx, cy - 11); g.lineTo(cx, cy - 20);
+      g.stroke({ width: 1.3, color: 0x1e293b });
+      g.circle(cx, cy - 20.5, 1); g.fill({ color: 0xfacc15 });
       g.poly([
-        cx, cy - 19,
-        cx + 7 + wWave, cy - 16.5,
-        cx + 4.5 + wWave * 0.6, cy - 14.5,
-        cx + 7 + wWave, cy - 12.5,
+        cx, cy - 20,
+        cx + 8 + wWave, cy - 17,
+        cx + 5 + wWave * 0.6, cy - 14.8,
+        cx + 8 + wWave, cy - 12.5,
         cx, cy - 12.5,
       ]);
       g.fill({ color: flagCol });
+      g.stroke({ width: 0.6, color: 0x0f172a });
       break;
     }
+  }
+
+  // Ornamental Heraldic Realm Shield on NPC Keep Wall
+  if (realmPal && !isHome && realmPal.realmId !== "player" && realmPal.realmId !== "rival") {
+    g.poly([
+      cx - 2.5, cy - 3.5,
+      cx + 2.5, cy - 3.5,
+      cx + 2.5, cy - 0.5,
+      cx, cy + 2,
+      cx - 2.5, cy - 0.5,
+    ]);
+    g.fill({ color: realmPal.pennantColor });
+    g.stroke({ width: 0.8, color: realmPal.borderColor });
+    g.circle(cx, cy - 1, 0.9);
+    g.fill({ color: realmPal.accentColor });
+  }
+
+  // Majestic Golden Coronet Crest for Player Capital Home Keep
+  if (isHome) {
+    g.poly([
+      cx - 5.5, cy - 19,
+      cx - 4.5, cy - 23.5,
+      cx - 2, cy - 20.5,
+      cx, cy - 24.5,
+      cx + 2, cy - 20.5,
+      cx + 4.5, cy - 23.5,
+      cx + 5.5, cy - 19,
+    ]);
+    g.fill({ color: 0xfacc15 });
+    g.stroke({ width: 0.8, color: 0x78350f });
+    g.circle(cx - 4.5, cy - 23.5, 0.7); g.fill({ color: 0xffffff });
+    g.circle(cx, cy - 24.5, 0.8); g.fill({ color: 0xfde047 });
+    g.circle(cx + 4.5, cy - 23.5, 0.7); g.fill({ color: 0xffffff });
   }
 }
 
@@ -1144,24 +1312,32 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
         g.circle(wx, cy + hh, 1.2); g.fill({ color: 0xfde047 });
         g.circle(wx - hw, cy, 1.2); g.fill({ color: 0xfde047 });
 
+        // Ground shadow under shelter tent & flag
+        g.ellipse(cx - 3.5, cy + 5, 6, 2.5);
+        g.fill({ color: 0x000000, alpha: 0.45 });
+
+        // Small shelter tent with entrance flap
+        g.poly([cx - 8.5, cy + 5, cx - 3.5, cy - 1, cx + 1.5, cy + 5]);
+        g.fill({ color: 0xb45309 });
+        g.stroke({ width: 0.7, color: 0x78350f });
+        g.poly([cx - 4.5, cy + 5, cx - 3.5, cy + 1.2, cx - 2.5, cy + 5]);
+        g.fill({ color: 0x451a03 });
+
         // Flagpole & royal swallowtail standard
-        g.moveTo(cx, cy + 3); g.lineTo(cx, cy - 13);
-        g.stroke({ width: 1.3, color: 0x78350f });
-        g.circle(cx, cy - 13.5, 1.3); g.fill({ color: 0xfacc15 });
+        g.moveTo(cx + 3, cy + 4); g.lineTo(cx + 3, cy - 14);
+        g.stroke({ width: 1.4, color: 0x78350f });
+        g.circle(cx + 3, cy - 14.5, 1.3); g.fill({ color: 0xfacc15 });
 
         const flagWave = Math.sin(phase * 4 + p.x * 2) * 2;
         g.poly([
-          cx, cy - 13,
-          cx + 8 + flagWave, cy - 10,
-          cx + 6 + flagWave * 0.7, cy - 7,
-          cx + 8 + flagWave, cy - 5,
-          cx, cy - 5,
+          cx + 3, cy - 14,
+          cx + 11 + flagWave, cy - 11,
+          cx + 9 + flagWave * 0.7, cy - 8,
+          cx + 11 + flagWave, cy - 6,
+          cx + 3, cy - 6,
         ]);
         g.fill({ color: playerTabardCol });
-
-        // Small shelter tent
-        g.poly([cx - 8, cy + 5, cx - 3, cy, cx + 1, cy + 5]);
-        g.fill({ color: 0xb45309 });
+        g.stroke({ width: 0.6, color: 0x1e3a8a });
       }
     } else if (p.occupantRealmId) {
       const pal = realmTokenPalette(p.occupantRealmId);
@@ -1185,25 +1361,32 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
         g.circle(wx, cy + hh, 1.1); g.fill({ color: pal.studColor });
         g.circle(wx - hw, cy, 1.1); g.fill({ color: pal.studColor });
 
+        // Ground shadow under crate & flag
+        g.ellipse(cx + 4.5, cy + 5, 4.5, 2);
+        g.fill({ color: 0x000000, alpha: 0.45 });
+
         // Territory flag
-        g.moveTo(cx - 3, cy + 4); g.lineTo(cx - 3, cy - 12);
-        g.stroke({ width: 1.2, color: pal.rimColor });
-        g.circle(cx - 3, cy - 12.5, 1.2); g.fill({ color: pal.studColor });
+        g.moveTo(cx - 3, cy + 4); g.lineTo(cx - 3, cy - 14);
+        g.stroke({ width: 1.3, color: pal.rimColor });
+        g.circle(cx - 3, cy - 14.5, 1.3); g.fill({ color: pal.studColor });
 
         const flagWave = Math.sin(phase * 4 + p.x * 2) * 1.8;
         g.poly([
-          cx - 3, cy - 12,
-          cx + 5 + flagWave, cy - 9.5,
-          cx + 3 + flagWave * 0.6, cy - 7.5,
-          cx + 5 + flagWave, cy - 5.5,
-          cx - 3, cy - 5.5,
+          cx - 3, cy - 14,
+          cx + 5 + flagWave, cy - 11.5,
+          cx + 3 + flagWave * 0.6, cy - 9.5,
+          cx + 5 + flagWave, cy - 7.5,
+          cx - 3, cy - 7.5,
         ]);
         g.fill({ color: pal.pennantColor });
+        g.stroke({ width: 0.6, color: pal.borderColor });
 
-        // Supply crate
-        g.rect(cx + 2, cy + 1, 5, 4);
+        // Reinforced supply crate with iron banding
+        g.rect(cx + 2, cy + 1, 5.5, 4.5);
         g.fill({ color: pal.keepWallColor });
         g.stroke({ width: 0.8, color: pal.borderColor });
+        g.moveTo(cx + 2, cy + 1); g.lineTo(cx + 7.5, cy + 5.5);
+        g.stroke({ width: 0.6, color: pal.borderColor });
       }
     }
   }
@@ -1242,16 +1425,22 @@ export function paintBoardMarches(
       const lx = fromB.cx + dx * t;
       const ly = fromB.cy + dy * t;
       const pulse = Math.sin(phase * 4 + i * 0.4) * 0.2 + 0.8;
-      routeG.circle(lx, ly, i % 2 === 0 ? 2 : 1.3);
-      routeG.fill({ color: trailColor, alpha: 0.7 * pulse });
+      // High-contrast outer glow
+      routeG.circle(lx, ly, i % 2 === 0 ? 2.6 : 1.8);
+      routeG.fill({ color: trailColor, alpha: 0.35 * pulse });
+      // Sharp inner core
+      routeG.circle(lx, ly, i % 2 === 0 ? 1.5 : 1.0);
+      routeG.fill({ color: 0xffffff, alpha: 0.85 * pulse });
     }
 
     // Destination target indicator
-    routeG.circle(toB.cx, toB.cy, 10);
+    routeG.circle(toB.cx, toB.cy, 11);
     routeG.stroke({ width: 1.5, color: trailColor, alpha: 0.85 });
-    routeG.moveTo(toB.cx - 13, toB.cy); routeG.lineTo(toB.cx + 13, toB.cy);
-    routeG.moveTo(toB.cx, toB.cy - 13); routeG.lineTo(toB.cx, toB.cy + 13);
+    routeG.circle(toB.cx, toB.cy, 4);
     routeG.stroke({ width: 1, color: trailColor, alpha: 0.65 });
+    routeG.moveTo(toB.cx - 14, toB.cy); routeG.lineTo(toB.cx + 14, toB.cy);
+    routeG.moveTo(toB.cx, toB.cy - 14); routeG.lineTo(toB.cx, toB.cy + 14);
+    routeG.stroke({ width: 1, color: trailColor, alpha: 0.7 });
 
     // 2. March Progress Calculation
     const dist = Math.max(1, Math.abs(toProv.x - fromProv.x) + Math.abs(toProv.y - fromProv.y));
@@ -1266,8 +1455,8 @@ export function paintBoardMarches(
     const bob = frame === 0 ? 0 : 2;
 
     // Base contact shadow
-    pawnsG.ellipse(pawnX, pawnY + 6, 8, 3.5);
-    pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+    pawnsG.ellipse(pawnX, pawnY + 6.5, 9.5, 4);
+    pawnsG.fill({ color: 0x000000, alpha: 0.55 });
 
     if (isPlayer) {
       // Player: Meeple styled in the matching unit type pixel language (archer, knight, cavalry, siege, spearman, etc.)
@@ -1277,97 +1466,153 @@ export function paintBoardMarches(
       const cult = culturePalette(cultId);
       const pal = unitPalette(unitType, cultId);
 
-      // Wooden pawn pedestal base
-      pawnsG.rect(pawnX - 6.5, pawnY + 2 - bob, 13, 4);
-      pawnsG.fill({ color: 0x854d0e });
-      pawnsG.stroke({ width: 0.8, color: 0x543007 });
+      // Turned wooden pawn pedestal base with golden faction ring
+      pawnsG.rect(pawnX - 7, pawnY + 2 - bob, 14, 4.5);
+      pawnsG.fill({ color: 0x451a03 });
+      pawnsG.stroke({ width: 0.8, color: 0x271302 });
+
+      // Golden Faction Ring on top of pedestal
+      pawnsG.rect(pawnX - 6, pawnY + 1.2 - bob, 12, 1.8);
+      pawnsG.fill({ color: 0xfacc15 });
+      pawnsG.rect(pawnX - 4, pawnY + 1.5 - bob, 8, 1.2);
+      pawnsG.fill({ color: 0x2563eb });
+
+      // Corner golden studs
+      pawnsG.circle(pawnX - 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+      pawnsG.circle(pawnX + 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
 
       if (pal.isChassis) {
         // Siege Engine: wheeled chassis, upright A-frame, throwing beam
-        pawnsG.circle(pawnX - 5.5, pawnY + 2 - bob, 3);
-        pawnsG.fill({ color: 0x451a03 });
-        pawnsG.stroke({ width: 0.8, color: 0x27272a });
-        pawnsG.circle(pawnX + 5.5, pawnY + 2 - bob, 3);
-        pawnsG.fill({ color: 0x451a03 });
-        pawnsG.stroke({ width: 0.8, color: 0x27272a });
-
-        pawnsG.rect(pawnX - 7.5, pawnY - 3 - bob, 15, 4.5);
-        pawnsG.fill({ color: 0x5c3818 });
-        pawnsG.stroke({ width: 0.7, color: 0x27272a });
-
-        pawnsG.poly([pawnX - 3.5, pawnY - 3 - bob, pawnX, pawnY - 13 - bob, pawnX + 3.5, pawnY - 3 - bob]);
-        pawnsG.stroke({ width: 1.5, color: 0x78350f });
-
-        const armTilt = frame === 1 ? -2 : frame === 2 ? 2 : 0;
-        pawnsG.moveTo(pawnX - facing * 7, pawnY - 5 - bob - armTilt);
-        pawnsG.lineTo(pawnX + facing * 8, pawnY - 17 - bob + armTilt);
-        pawnsG.stroke({ width: 1.8, color: 0x451a03 });
-
-        pawnsG.rect(pawnX - facing * 8.5, pawnY - 7 - bob - armTilt, 3.5, 3.5);
+        // Large spiked wooden wheels with iron rims & bronze hubs
+        pawnsG.circle(pawnX - 6, pawnY + 2 - bob, 3.5);
         pawnsG.fill({ color: 0x27272a });
-        pawnsG.circle(pawnX + facing * 8, pawnY - 17 - bob + armTilt, 2.2);
-        pawnsG.fill({ color: 0x94a3b8 });
+        pawnsG.stroke({ width: 0.8, color: 0x52525b });
+        pawnsG.circle(pawnX - 6, pawnY + 2 - bob, 1.2);
+        pawnsG.fill({ color: 0xd4a359 });
+
+        pawnsG.circle(pawnX + 6, pawnY + 2 - bob, 3.5);
+        pawnsG.fill({ color: 0x27272a });
+        pawnsG.stroke({ width: 0.8, color: 0x52525b });
+        pawnsG.circle(pawnX + 6, pawnY + 2 - bob, 1.2);
+        pawnsG.fill({ color: 0xd4a359 });
+
+        // Heavy timber chassis bed
+        pawnsG.rect(pawnX - 8, pawnY - 3 - bob, 16, 5);
+        pawnsG.fill({ color: 0x5c3818 });
+        pawnsG.stroke({ width: 0.8, color: 0x27272a });
+
+        // Corner iron brackets
+        pawnsG.rect(pawnX - 8, pawnY - 3 - bob, 2.5, 5); pawnsG.fill({ color: 0x27272a });
+        pawnsG.rect(pawnX + 5.5, pawnY - 3 - bob, 2.5, 5); pawnsG.fill({ color: 0x27272a });
+
+        // Upright timber A-frame gantry
+        pawnsG.poly([pawnX - 4, pawnY - 3 - bob, pawnX, pawnY - 14 - bob, pawnX + 4, pawnY - 3 - bob]);
+        pawnsG.stroke({ width: 1.8, color: 0x78350f });
+
+        // Throwing beam with pivot
+        const armTilt = frame === 1 ? -2.5 : frame === 2 ? 2.5 : 0;
+        pawnsG.moveTo(pawnX - facing * 8, pawnY - 5 - bob - armTilt);
+        pawnsG.lineTo(pawnX + facing * 9, pawnY - 18 - bob + armTilt);
+        pawnsG.stroke({ width: 2, color: 0x451a03 });
+
+        // Iron counterweight box
+        pawnsG.rect(pawnX - facing * 9.5, pawnY - 7.5 - bob - armTilt, 4.5, 4.5);
+        pawnsG.fill({ color: 0x18181b });
+        pawnsG.stroke({ width: 0.8, color: 0x52525b });
+
+        // Sling basket loaded with stone projectile
+        pawnsG.circle(pawnX + facing * 9, pawnY - 18 - bob + armTilt, 2.5);
+        pawnsG.fill({ color: 0xd1d5db });
+        pawnsG.stroke({ width: 0.7, color: 0x475569 });
       } else if (pal.hasMount) {
-        // Cavalry: Warhorse with animated legs + mounted armored lancer
-        const hLeg1 = frame === 1 ? 1 : frame === 2 ? -1 : 0;
-        const hLeg2 = frame === 1 ? -1 : frame === 2 ? 1 : 0;
-        pawnsG.rect(pawnX - 5, pawnY - 1 - bob + hLeg1, 2.2, 4);
+        // Cavalry: Warhorse with animated galloping legs + mounted armored lancer
+        const hLeg1 = frame === 1 ? 2 : frame === 2 ? -2 : 0;
+        const hLeg2 = frame === 1 ? -2 : frame === 2 ? 2 : 0;
+
+        // Galloping legs with dark hooves
+        pawnsG.rect(pawnX - 5.5, pawnY - 1 - bob + hLeg1, 2.4, 4.5);
         pawnsG.fill({ color: 0x451a03 });
-        pawnsG.rect(pawnX + 3.5, pawnY - 1 - bob + hLeg2, 2.2, 4);
-        pawnsG.fill({ color: 0x6b3a19 });
-
-        pawnsG.rect(pawnX - 6, pawnY - 5 - bob, 12, 5);
-        pawnsG.fill({ color: 0x6b3a19 });
-
-        pawnsG.poly([
-          pawnX + facing * 3, pawnY - 5 - bob,
-          pawnX + facing * 7, pawnY - 11 - bob,
-          pawnX + facing * 9.5, pawnY - 9 - bob,
-          pawnX + facing * 5, pawnY - 3 - bob,
-        ]);
-        pawnsG.fill({ color: 0x6b3a19 });
-        pawnsG.rect(pawnX + facing * 6.5, pawnY - 12 - bob, 1.8, 2.5);
+        pawnsG.rect(pawnX - 5.5, pawnY + 2.5 - bob + hLeg1, 2.4, 1.2);
         pawnsG.fill({ color: 0x18181b });
 
-        pawnsG.rect(pawnX - 2, pawnY - 6 - bob, 4.5, 2.5);
-        pawnsG.fill({ color: 0x451a03 });
+        pawnsG.rect(pawnX + 4, pawnY - 1 - bob + hLeg2, 2.4, 4.5);
+        pawnsG.fill({ color: 0x6b3a19 });
+        pawnsG.rect(pawnX + 4, pawnY + 2.5 - bob + hLeg2, 2.4, 1.2);
+        pawnsG.fill({ color: 0x18181b });
+
+        // Horse body
+        pawnsG.rect(pawnX - 6.5, pawnY - 5.5 - bob, 13, 5.5);
+        pawnsG.fill({ color: 0x6b3a19 });
+
+        // Saddle blanket / caparison
+        pawnsG.rect(pawnX - 3.5, pawnY - 6.5 - bob, 7, 4.5);
+        pawnsG.fill({ color: pal.tabardColor });
+        pawnsG.stroke({ width: 0.6, color: 0xfacc15 });
+
+        // Horse neck and head
+        pawnsG.poly([
+          pawnX + facing * 3.5, pawnY - 5.5 - bob,
+          pawnX + facing * 7.5, pawnY - 12 - bob,
+          pawnX + facing * 10.5, pawnY - 10 - bob,
+          pawnX + facing * 5.5, pawnY - 3.5 - bob,
+        ]);
+        pawnsG.fill({ color: 0x6b3a19 });
+
+        // Mane and bridle
+        pawnsG.rect(pawnX + facing * 7, pawnY - 13 - bob, 2, 3);
+        pawnsG.fill({ color: 0x18181b });
+        pawnsG.moveTo(pawnX + facing * 9.5, pawnY - 9.5 - bob);
+        pawnsG.lineTo(pawnX + facing * 2, pawnY - 9 - bob);
+        pawnsG.stroke({ width: 0.7, color: 0x18181b });
 
         // Rider
-        pawnsG.rect(pawnX - 2.5, pawnY - 11 - bob, 5, 5);
+        pawnsG.rect(pawnX - 2.5, pawnY - 12 - bob, 5.5, 6);
         pawnsG.fill({ color: pal.tabardColor });
-        pawnsG.circle(pawnX, pawnY - 13 - bob, 2.8);
-        pawnsG.fill({ color: pal.armorColor });
+        pawnsG.circle(pawnX, pawnY - 14 - bob, 3);
+        pawnsG.fill({ color: 0xcbd5e1 });
+        pawnsG.stroke({ width: 0.7, color: 0x334155 });
 
-        // Lance with pennant
-        pawnsG.moveTo(pawnX - facing * 3, pawnY - 8 - bob);
-        pawnsG.lineTo(pawnX + facing * 12, pawnY - 15 - bob);
-        pawnsG.stroke({ width: 1.3, color: 0x854d0e });
+        // Couched lance with fluttering lance pennon
+        pawnsG.moveTo(pawnX - facing * 4, pawnY - 9 - bob);
+        pawnsG.lineTo(pawnX + facing * 13, pawnY - 16 - bob);
+        pawnsG.stroke({ width: 1.5, color: 0x854d0e });
+
+        // Lance steel tip
         pawnsG.poly([
-          pawnX + facing * 9, pawnY - 15 - bob,
-          pawnX + facing * 14, pawnY - 13.5 - bob,
-          pawnX + facing * 9, pawnY - 12 - bob,
+          pawnX + facing * 12, pawnY - 15.5 - bob,
+          pawnX + facing * 14.5, pawnY - 16.5 - bob,
+          pawnX + facing * 12, pawnY - 17.5 - bob,
+        ]);
+        pawnsG.fill({ color: 0xffffff });
+
+        // Lance pennon
+        pawnsG.poly([
+          pawnX + facing * 9, pawnY - 16 - bob,
+          pawnX + facing * 14, pawnY - 14 - bob,
+          pawnX + facing * 9, pawnY - 12.5 - bob,
         ]);
         pawnsG.fill({ color: pal.accentColor });
       } else {
         // Humanoid Walkers: militia, spearman, skirmisher, archer, knight, champion
-        const legL = frame === 1 ? -2 : frame === 2 ? 1 : -1;
-        const legR = frame === 1 ? 1 : frame === 2 ? -2 : 1;
-        pawnsG.rect(pawnX + legL, pawnY - 2 - bob, 2.2, 4);
-        pawnsG.fill({ color: pal.armorColor === 0xcbd5e1 ? 0x94a3b8 : 0x27272a });
-        pawnsG.rect(pawnX + legR, pawnY - 2 - bob, 2.2, 4);
-        pawnsG.fill({ color: 0x18181b });
+        const legL = frame === 1 ? -2.2 : frame === 2 ? 1.2 : -1;
+        const legR = frame === 1 ? 1.2 : frame === 2 ? -2.2 : 1;
+        pawnsG.rect(pawnX + legL, pawnY - 2 - bob, 2.4, 4.5);
+        pawnsG.fill({ color: 0x334155 });
+        pawnsG.rect(pawnX + legR, pawnY - 2 - bob, 2.4, 4.5);
+        pawnsG.fill({ color: 0x1e293b });
 
         // Tapered torso
         pawnsG.poly([
-          pawnX - 4, pawnY + 1 - bob,
-          pawnX - 3, pawnY - 7 - bob,
-          pawnX + 3, pawnY - 7 - bob,
-          pawnX + 4, pawnY + 1 - bob,
+          pawnX - 4.5, pawnY + 1 - bob,
+          pawnX - 3.5, pawnY - 7 - bob,
+          pawnX + 3.5, pawnY - 7 - bob,
+          pawnX + 4.5, pawnY + 1 - bob,
         ]);
         pawnsG.fill({ color: pal.tabardColor });
+        pawnsG.stroke({ width: 0.7, color: pal.tabardDark });
 
         // Belt / accent trim
-        pawnsG.rect(pawnX - 3, pawnY - 2 - bob, 6, 1.4);
+        pawnsG.rect(pawnX - 3.5, pawnY - 2 - bob, 7, 1.5);
         pawnsG.fill({ color: pal.accentColor });
 
         // Head
@@ -1375,67 +1620,81 @@ export function paintBoardMarches(
         pawnsG.fill({ color: 0xfbcfe8 });
 
         // Helmet / Headwear
-        if (pal.helmKind === "kettle") {
+        if (pal.helmKind === "crown") {
+          // Champion golden coronet helm
+          pawnsG.rect(pawnX - 3.5, pawnY - 13.5 - bob, 7, 5);
+          pawnsG.fill({ color: 0xf59e0b });
+          pawnsG.poly([
+            pawnX - 3.5, pawnY - 13.5 - bob,
+            pawnX - 2, pawnY - 17 - bob,
+            pawnX, pawnY - 14 - bob,
+            pawnX + 2, pawnY - 17 - bob,
+            pawnX + 3.5, pawnY - 13.5 - bob,
+          ]);
+          pawnsG.fill({ color: 0xfde047 });
+          pawnsG.stroke({ width: 0.6, color: 0x78350f });
+        } else if (pal.helmKind === "plate") {
+          // Knight Greathelm with waving chivalric plume
+          pawnsG.rect(pawnX - 3.5, pawnY - 13.5 - bob, 7, 6);
+          pawnsG.fill({ color: 0xe2e8f0 });
+          pawnsG.stroke({ width: 0.7, color: 0x475569 });
+          pawnsG.rect(pawnX - 2, pawnY - 11.5 - bob, 4, 1.4);
+          pawnsG.fill({ color: 0x0f172a });
+          pawnsG.poly([
+            pawnX - facing * 1, pawnY - 13.5 - bob,
+            pawnX - facing * 4.5, pawnY - 17.5 - bob,
+            pawnX - facing * 1, pawnY - 15 - bob,
+          ]);
+          pawnsG.fill({ color: 0xdc2626 });
+        } else if (pal.helmKind === "kettle") {
           if (kit === "cedar") {
             // Hunter cowl
             pawnsG.poly([
               pawnX - 4, pawnY - 9 - bob,
-              pawnX, pawnY - 14 - bob,
+              pawnX, pawnY - 15 - bob,
               pawnX + 4, pawnY - 9 - bob,
-              pawnX - facing * 3.5, pawnY - 15 - bob,
             ]);
             pawnsG.fill({ color: cult.tabard });
+            pawnsG.moveTo(pawnX, pawnY - 15 - bob);
+            pawnsG.lineTo(pawnX - facing * 3.5, pawnY - 17.5 - bob);
+            pawnsG.stroke({ width: 1.2, color: 0xfde047 });
           } else if (kit === "sand") {
             // Desert turban with draped havelock veil
-            pawnsG.circle(pawnX, pawnY - 12 - bob, 3.4);
+            pawnsG.circle(pawnX, pawnY - 12.5 - bob, 3.6);
             pawnsG.fill({ color: 0xfafaf9 });
-            pawnsG.rect(pawnX - facing * 3.5, pawnY - 11 - bob, 2.2, 5);
+            pawnsG.rect(pawnX - facing * 3.5, pawnY - 11 - bob, 2.4, 5.5);
             pawnsG.fill({ color: cult.accent });
           } else if (kit === "steppe") {
             // Conical spangenhelm with horsehair crest
-            pawnsG.poly([pawnX - 3.5, pawnY - 11 - bob, pawnX, pawnY - 15 - bob, pawnX + 3.5, pawnY - 11 - bob]);
-            pawnsG.fill({ color: cult.stone });
-            pawnsG.moveTo(pawnX, pawnY - 15 - bob); pawnsG.lineTo(pawnX - facing * 3, pawnY - 17 - bob);
-            pawnsG.stroke({ width: 1.2, color: 0x9f1239 });
+            pawnsG.poly([pawnX - 3.5, pawnY - 11 - bob, pawnX, pawnY - 16 - bob, pawnX + 3.5, pawnY - 11 - bob]);
+            pawnsG.fill({ color: 0xd1d5db });
+            pawnsG.moveTo(pawnX, pawnY - 16 - bob);
+            pawnsG.lineTo(pawnX - facing * 3.5, pawnY - 18 - bob);
+            pawnsG.stroke({ width: 1.3, color: 0x9f1239 });
           } else if (kit === "islands") {
             // Woven reed war cap
-            pawnsG.poly([pawnX - 4.5, pawnY - 11 - bob, pawnX, pawnY - 14 - bob, pawnX + 4.5, pawnY - 11 - bob]);
+            pawnsG.poly([pawnX - 4.5, pawnY - 11 - bob, pawnX, pawnY - 14.5 - bob, pawnX + 4.5, pawnY - 11 - bob]);
             pawnsG.fill({ color: 0xd4a359 });
-            pawnsG.rect(pawnX - 3.5, pawnY - 11 - bob, 7, 1.2);
+            pawnsG.circle(pawnX, pawnY - 14.5 - bob, 1);
             pawnsG.fill({ color: 0x0e7490 });
           } else {
-            pawnsG.rect(pawnX - 4, pawnY - 12 - bob, 8, 2);
+            // Western kettle helm
+            pawnsG.rect(pawnX - 4.5, pawnY - 12 - bob, 9, 2);
             pawnsG.fill({ color: 0x94a3b8 });
-            pawnsG.circle(pawnX, pawnY - 12.5 - bob, 2.4);
-            pawnsG.fill({ color: 0xcbd5e1 });
+            pawnsG.circle(pawnX, pawnY - 12.5 - bob, 2.6);
+            pawnsG.fill({ color: 0xf1f5f9 });
+            pawnsG.stroke({ width: 0.6, color: 0x334155 });
           }
         } else if (pal.helmKind === "cap") {
-          pawnsG.rect(pawnX - 3, pawnY - 12 - bob, 6, 2.5);
+          // Archer / Skirmisher cap with cockade feather
+          pawnsG.rect(pawnX - 3.2, pawnY - 12 - bob, 6.4, 2.5);
           pawnsG.fill({ color: pal.tabardColor });
           pawnsG.poly([
             pawnX - facing * 1.5, pawnY - 12 - bob,
-            pawnX - facing * 5, pawnY - 15 - bob,
-            pawnX - facing * 1.5, pawnY - 13 - bob,
+            pawnX - facing * 5.5, pawnY - 16 - bob,
+            pawnX - facing * 1.5, pawnY - 13.5 - bob,
           ]);
           pawnsG.fill({ color: pal.accentColor });
-        } else if (pal.helmKind === "plate") {
-          pawnsG.rect(pawnX - 3.5, pawnY - 13 - bob, 7, 5.5);
-          pawnsG.fill({ color: 0xcbd5e1 });
-          pawnsG.rect(pawnX - 2, pawnY - 11 - bob, 4, 1.2);
-          pawnsG.fill({ color: 0x0f172a });
-          pawnsG.poly([pawnX - 1, pawnY - 13 - bob, pawnX, pawnY - 16 - bob, pawnX + 1, pawnY - 13 - bob]);
-          pawnsG.fill({ color: 0xdc2626 });
-        } else if (pal.helmKind === "crown") {
-          pawnsG.rect(pawnX - 3.5, pawnY - 13 - bob, 7, 4.5);
-          pawnsG.fill({ color: 0xf59e0b });
-          pawnsG.poly([
-            pawnX - 3, pawnY - 13 - bob,
-            pawnX - 1.5, pawnY - 16 - bob,
-            pawnX, pawnY - 13.5 - bob,
-            pawnX + 1.5, pawnY - 16 - bob,
-            pawnX + 3, pawnY - 13 - bob,
-          ]);
-          pawnsG.fill({ color: 0xfde047 });
         } else {
           // Militia peasant coif
           if (kit === "cedar") {
@@ -1459,146 +1718,138 @@ export function paintBoardMarches(
         // Arm motion & weapons
         const armSwing = frame === 1 ? -1 : frame === 2 ? 1 : 0;
         if (pal.weaponKind === "spear") {
-          if (kit === "cedar") {
-            // Leaf-blade hunting spear
-            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
-            pawnsG.lineTo(pawnX + facing * 4, pawnY - 18 - bob + armSwing);
-            pawnsG.stroke({ width: 1.3, color: 0x854d0e });
-            pawnsG.ellipse(pawnX + facing * 4, pawnY - 17 - bob + armSwing, 2.2, 3.2);
-            pawnsG.fill({ color: 0xd1d5db });
-            // Cedar bark shield
-            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
-            pawnsG.fill({ color: 0x854d0e });
-            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 1.2);
-            pawnsG.fill({ color: 0x166534 });
-          } else if (kit === "sand") {
-            // Slender lance with red pennon & brass sun buckler
-            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
-            pawnsG.lineTo(pawnX + facing * 4, pawnY - 19 - bob + armSwing);
-            pawnsG.stroke({ width: 1.2, color: 0xa16207 });
-            pawnsG.poly([
-              pawnX + facing * 4, pawnY - 16 - bob + armSwing,
-              pawnX + facing * 8, pawnY - 14 - bob + armSwing,
-              pawnX + facing * 4, pawnY - 12 - bob + armSwing,
-            ]);
-            pawnsG.fill({ color: 0xdc2626 });
-            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
-            pawnsG.fill({ color: 0xfacc15 });
-          } else if (kit === "steppe") {
-            // Horsehair collar lance & studded rawhide buckler
-            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
-            pawnsG.lineTo(pawnX + facing * 4, pawnY - 19 - bob + armSwing);
-            pawnsG.stroke({ width: 1.3, color: 0x7c2d12 });
-            pawnsG.rect(pawnX + facing * 3.2, pawnY - 16 - bob + armSwing, 1.6, 2.5);
-            pawnsG.fill({ color: 0x9f1239 });
-            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
-            pawnsG.fill({ color: 0x78350f });
-            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 1);
-            pawnsG.fill({ color: 0xfacc15 });
-          } else if (kit === "islands") {
-            // 3-pronged barbed fishing trident & turtle-shell reef buckler
-            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
-            pawnsG.lineTo(pawnX + facing * 4, pawnY - 19 - bob + armSwing);
-            pawnsG.stroke({ width: 1.3, color: 0x44403c });
-            // Trident prongs
-            pawnsG.moveTo(pawnX + facing * 2.5, pawnY - 19 - bob + armSwing);
-            pawnsG.lineTo(pawnX + facing * 2.5, pawnY - 16 - bob + armSwing);
-            pawnsG.lineTo(pawnX + facing * 5.5, pawnY - 16 - bob + armSwing);
-            pawnsG.lineTo(pawnX + facing * 5.5, pawnY - 19 - bob + armSwing);
-            pawnsG.stroke({ width: 1, color: 0x06b6d4 });
-            pawnsG.ellipse(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.4, 4);
-            pawnsG.fill({ color: 0x0e7490 });
-          } else {
-            // Western untouched
-            pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
-            pawnsG.lineTo(pawnX + facing * 4, pawnY - 18 - bob + armSwing);
-            pawnsG.stroke({ width: 1.3, color: 0x78350f });
-            pawnsG.poly([
-              pawnX + facing * 4, pawnY - 18 - bob + armSwing,
-              pawnX + facing * 4 - 2, pawnY - 15 - bob + armSwing,
-              pawnX + facing * 4 + 2, pawnY - 15 - bob + armSwing,
-            ]);
-            pawnsG.fill({ color: 0xf1f5f9 });
+          // Spearman towering pike & shield
+          pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
+          pawnsG.lineTo(pawnX + facing * 4, pawnY - 21 - bob + armSwing);
+          pawnsG.stroke({ width: 1.4, color: 0x78350f });
 
-            // Round shield on off-arm
-            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 3.2);
-            pawnsG.fill({ color: 0x1e3a8a });
-            pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob + armSwing, 1.2);
-            pawnsG.fill({ color: 0xfacc15 });
-          }
-        } else if (pal.weaponKind === "bow") {
           pawnsG.poly([
-            pawnX + facing * 3.5, pawnY - 15 - bob + armSwing,
-            pawnX + facing * 5.5, pawnY - 7 - bob + armSwing,
-            pawnX + facing * 3.5, pawnY + 1 - bob + armSwing,
+            pawnX + facing * 4, pawnY - 21 - bob + armSwing,
+            pawnX + facing * 4 - 2.2, pawnY - 17 - bob + armSwing,
+            pawnX + facing * 4 + 2.2, pawnY - 17 - bob + armSwing,
           ]);
-          pawnsG.stroke({ width: 1.5, color: 0x854d0e });
-          pawnsG.moveTo(pawnX + facing * 3.5, pawnY - 15 - bob + armSwing);
-          pawnsG.lineTo(pawnX + facing * 3.5, pawnY + 1 - bob + armSwing);
-          pawnsG.stroke({ width: 0.8, color: 0xe2e8f0 });
+          pawnsG.fill({ color: 0xffffff });
+          pawnsG.stroke({ width: 0.6, color: 0x475569 });
 
-          // Quiver over shoulder
-          pawnsG.rect(pawnX - facing * 3.5, pawnY - 11 - bob, 2.2, 6);
+          // Shield on off-arm
+          pawnsG.circle(pawnX - facing * 3, pawnY - 5 - bob + armSwing, 3.8);
+          pawnsG.fill({ color: pal.tabardColor });
+          pawnsG.stroke({ width: 1, color: pal.accentColor });
+          pawnsG.circle(pawnX - facing * 3, pawnY - 5 - bob + armSwing, 1.4);
+          pawnsG.fill({ color: pal.accentColor });
+        } else if (pal.weaponKind === "bow") {
+          // Archer recurve bow, nocked arrow & back quiver
+          pawnsG.poly([
+            pawnX + facing * 3.5, pawnY - 16 - bob + armSwing,
+            pawnX + facing * 6.5, pawnY - 7 - bob + armSwing,
+            pawnX + facing * 3.5, pawnY + 2 - bob + armSwing,
+          ]);
+          pawnsG.stroke({ width: 2, color: 0x854d0e });
+          pawnsG.moveTo(pawnX + facing * 3.5, pawnY - 16 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 3.5, pawnY + 2 - bob + armSwing);
+          pawnsG.stroke({ width: 0.9, color: 0xffffff });
+
+          // Nocked bodkin arrow
+          pawnsG.moveTo(pawnX, pawnY - 7 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 8, pawnY - 7 - bob + armSwing);
+          pawnsG.stroke({ width: 1.1, color: 0xd4a359 });
+          pawnsG.poly([
+            pawnX + facing * 8, pawnY - 8.2 - bob + armSwing,
+            pawnX + facing * 9.5, pawnY - 7 - bob + armSwing,
+            pawnX + facing * 8, pawnY - 5.8 - bob + armSwing,
+          ]);
+          pawnsG.fill({ color: 0xffffff });
+
+          // Quiver over shoulder with arrows
+          pawnsG.rect(pawnX - facing * 3.8, pawnY - 11 - bob, 2.6, 6);
           pawnsG.fill({ color: 0x78350f });
-          pawnsG.rect(pawnX - facing * 3.5, pawnY - 13 - bob, 2.2, 2);
+          pawnsG.rect(pawnX - facing * 3.8, pawnY - 14 - bob, 2.6, 3);
           pawnsG.fill({ color: 0xf8fafc });
         } else if (pal.weaponKind === "javelin") {
-          pawnsG.moveTo(pawnX - facing * 2, pawnY - 3 - bob + armSwing);
-          pawnsG.lineTo(pawnX + facing * 8, pawnY - 13 - bob + armSwing);
-          pawnsG.stroke({ width: 1.2, color: 0x78350f });
+          // Skirmisher poised throwing javelin & extra javelins
+          pawnsG.moveTo(pawnX - facing * 3, pawnY - 4 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 9, pawnY - 15 - bob + armSwing);
+          pawnsG.stroke({ width: 1.4, color: 0x78350f });
           pawnsG.poly([
-            pawnX + facing * 8, pawnY - 13 - bob + armSwing,
-            pawnX + facing * 9, pawnY - 10 - bob + armSwing,
-            pawnX + facing * 6, pawnY - 11 - bob + armSwing,
+            pawnX + facing * 9, pawnY - 15 - bob + armSwing,
+            pawnX + facing * 10.5, pawnY - 12 - bob + armSwing,
+            pawnX + facing * 7.5, pawnY - 13 - bob + armSwing,
           ]);
-          pawnsG.fill({ color: 0xcbd5e1 });
-          pawnsG.circle(pawnX - facing * 3, pawnY - 5 - bob, 2.5);
-          pawnsG.fill({ color: 0x854d0e });
+          pawnsG.fill({ color: 0xffffff });
+
+          // Spare javelins on back
+          pawnsG.moveTo(pawnX - facing * 3.5, pawnY - 6 - bob);
+          pawnsG.lineTo(pawnX - facing * 6.5, pawnY - 15 - bob);
+          pawnsG.stroke({ width: 1.1, color: 0x78350f });
+          pawnsG.moveTo(pawnX - facing * 2.5, pawnY - 6 - bob);
+          pawnsG.lineTo(pawnX - facing * 4.5, pawnY - 15 - bob);
+          pawnsG.stroke({ width: 1.1, color: 0x78350f });
+
+          // Off-arm buckler
+          pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob, 3);
+          pawnsG.fill({ color: 0xa16207 });
+          pawnsG.circle(pawnX - facing * 2.5, pawnY - 5 - bob, 1.2);
+          pawnsG.fill({ color: 0xfacc15 });
         } else if (pal.weaponKind === "heater") {
-          // Knight heater shield
+          // Knight chivalric heater shield & broadsword
           pawnsG.poly([
-            pawnX - facing * 2, pawnY - 9 - bob + armSwing,
-            pawnX - facing * 6.5, pawnY - 9 - bob + armSwing,
-            pawnX - facing * 6.5, pawnY - 3 - bob + armSwing,
-            pawnX - facing * 4.2, pawnY + 1 - bob + armSwing,
+            pawnX - facing * 2, pawnY - 10 - bob + armSwing,
+            pawnX - facing * 7, pawnY - 10 - bob + armSwing,
+            pawnX - facing * 7, pawnY - 3 - bob + armSwing,
+            pawnX - facing * 4.5, pawnY + 1.5 - bob + armSwing,
             pawnX - facing * 2, pawnY - 3 - bob + armSwing,
           ]);
           pawnsG.fill({ color: 0xb91c1c });
-          pawnsG.moveTo(pawnX - facing * 4.2, pawnY - 9 - bob + armSwing);
-          pawnsG.lineTo(pawnX - facing * 4.2, pawnY + 1 - bob + armSwing);
+          pawnsG.stroke({ width: 1, color: 0xfacc15 });
+          pawnsG.moveTo(pawnX - facing * 4.5, pawnY - 10 - bob + armSwing);
+          pawnsG.lineTo(pawnX - facing * 4.5, pawnY + 1.5 - bob + armSwing);
           pawnsG.stroke({ width: 1, color: 0xfacc15 });
 
-          // Broadsword
-          pawnsG.moveTo(pawnX + facing * 3.5, pawnY - 2 - bob + armSwing);
-          pawnsG.lineTo(pawnX + facing * 3.5, pawnY - 13 - bob + armSwing);
-          pawnsG.stroke({ width: 1.5, color: 0xf8fafc });
-          pawnsG.moveTo(pawnX + facing * 1.5, pawnY - 4 - bob + armSwing);
-          pawnsG.lineTo(pawnX + facing * 5.5, pawnY - 4 - bob + armSwing);
-          pawnsG.stroke({ width: 1.2, color: 0xeab308 });
+          // Upright broadsword
+          pawnsG.moveTo(pawnX + facing * 3.8, pawnY - 1 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 3.8, pawnY - 14 - bob + armSwing);
+          pawnsG.stroke({ width: 1.8, color: 0xffffff });
+          pawnsG.moveTo(pawnX + facing * 1.8, pawnY - 3.5 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 5.8, pawnY - 3.5 - bob + armSwing);
+          pawnsG.stroke({ width: 1.3, color: 0xfacc15 });
         } else if (pal.weaponKind === "greatsword") {
-          // Champion glowing runic greatsword + cape
-          pawnsG.moveTo(pawnX + facing * 4, pawnY + 1 - bob + armSwing);
-          pawnsG.lineTo(pawnX + facing * 4, pawnY - 16 - bob + armSwing);
-          pawnsG.stroke({ width: 2, color: 0x38bdf8 });
-          pawnsG.moveTo(pawnX + facing * 1, pawnY - 3 - bob + armSwing);
-          pawnsG.lineTo(pawnX + facing * 7, pawnY - 3 - bob + armSwing);
-          pawnsG.stroke({ width: 1.5, color: 0xfde047 });
+          // Champion billowing royal cape & glowing runic greatsword
           pawnsG.poly([
             pawnX - facing * 2.5, pawnY - 7 - bob,
-            pawnX - facing * 6.5, pawnY + 2 - bob,
-            pawnX - facing * 1.5, pawnY + 1 - bob,
+            pawnX - facing * 8, pawnY + 3 - bob,
+            pawnX - facing * 1.5, pawnY + 2 - bob,
           ]);
-          pawnsG.fill({ color: 0xdc2626 });
+          pawnsG.fill({ color: 0x581c87 });
+          pawnsG.stroke({ width: 0.8, color: 0xfacc15 });
+
+          // Runic claymore with glowing aura
+          pawnsG.moveTo(pawnX + facing * 4.2, pawnY + 2 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 4.2, pawnY - 17 - bob + armSwing);
+          pawnsG.stroke({ width: 2.4, color: 0x38bdf8 });
+          pawnsG.moveTo(pawnX + facing * 4.2, pawnY + 1 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 4.2, pawnY - 16 - bob + armSwing);
+          pawnsG.stroke({ width: 1, color: 0xffffff });
+          pawnsG.moveTo(pawnX + facing * 1, pawnY - 2.5 - bob + armSwing);
+          pawnsG.lineTo(pawnX + facing * 7.5, pawnY - 2.5 - bob + armSwing);
+          pawnsG.stroke({ width: 1.6, color: 0xfde047 });
         } else {
-          // Militia: spear-less levy club
-          pawnsG.rect(pawnX + facing * 3, pawnY - 7 - bob + armSwing, 1.8, 5);
+          // Militia: spiked war club & buckler
+          pawnsG.rect(pawnX + facing * 3.2, pawnY - 8 - bob + armSwing, 2.2, 6);
           pawnsG.fill({ color: 0x78350f });
+          pawnsG.stroke({ width: 0.6, color: 0x451a03 });
+          pawnsG.circle(pawnX + facing * 4.3, pawnY - 7 - bob + armSwing, 0.8); pawnsG.fill({ color: 0xd1d5db });
+          pawnsG.circle(pawnX + facing * 4.3, pawnY - 4 - bob + armSwing, 0.8); pawnsG.fill({ color: 0xd1d5db });
+          pawnsG.circle(pawnX - facing * 2.5, pawnY - 4.5 - bob + armSwing, 2.8);
+          pawnsG.fill({ color: 0x5c3818 });
+          pawnsG.stroke({ width: 0.8, color: 0x27272a });
         }
       }
 
-      // Floating ETA pill badge
+      // Floating ETA pill badge with subtle shadow
+      pawnsG.rect(pawnX - 16, pawnY - 27 - bob, 32, 9);
+      pawnsG.fill({ color: 0x000000, alpha: 0.45 });
       pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
-      pawnsG.fill({ color: 0x181410, alpha: 0.92 });
+      pawnsG.fill({ color: 0x090d16, alpha: 0.95 });
       pawnsG.stroke({ width: 1, color: pal.accentColor, alpha: 0.9 });
 
       // Progress timer dots inside pill
@@ -1612,12 +1863,16 @@ export function paintBoardMarches(
       pawnsG.fill({ color: 0xca8a04 });
     } else {
       // Hostile March: Red / Blackened Iron War Meeple
-      // Heavy Blackened Iron Pedestal with iron rivets
-      pawnsG.rect(pawnX - 6.5, pawnY + 2 - bob, 13, 4.5);
+      // Heavy Spiked Blackened Iron Pedestal
+      pawnsG.rect(pawnX - 7, pawnY + 2 - bob, 14, 4.5);
       pawnsG.fill({ color: 0x18181b });
       pawnsG.stroke({ width: 0.8, color: 0x3f3f46 });
-      pawnsG.circle(pawnX - 4.5, pawnY + 4 - bob, 0.7); pawnsG.fill({ color: 0x71717a });
-      pawnsG.circle(pawnX + 4.5, pawnY + 4 - bob, 0.7); pawnsG.fill({ color: 0x71717a });
+      pawnsG.circle(pawnX - 5, pawnY + 4.2 - bob, 0.8); pawnsG.fill({ color: 0x71717a });
+      pawnsG.circle(pawnX + 5, pawnY + 4.2 - bob, 0.8); pawnsG.fill({ color: 0x71717a });
+
+      // Crimson danger ring on pedestal
+      pawnsG.rect(pawnX - 6, pawnY + 1.2 - bob, 12, 1.8);
+      pawnsG.fill({ color: 0xdc2626 });
 
       // Angular Blackened Iron Meeple Torso
       pawnsG.poly([
@@ -1627,11 +1882,12 @@ export function paintBoardMarches(
         pawnX + 6, pawnY + 2 - bob,
       ]);
       pawnsG.fill({ color: 0x27272a });
+      pawnsG.stroke({ width: 0.8, color: 0x09090b });
 
       // Spiked Iron Pauldrons (shoulders)
-      pawnsG.poly([pawnX - 7, pawnY - 5 - bob, pawnX - 4, pawnY - 9 - bob, pawnX - 3, pawnY - 5 - bob]);
+      pawnsG.poly([pawnX - 7.5, pawnY - 5 - bob, pawnX - 4, pawnY - 9.5 - bob, pawnX - 3, pawnY - 5 - bob]);
       pawnsG.fill({ color: 0x3f3f46 });
-      pawnsG.poly([pawnX + 3, pawnY - 5 - bob, pawnX + 4, pawnY - 9 - bob, pawnX + 7, pawnY - 5 - bob]);
+      pawnsG.poly([pawnX + 3, pawnY - 5 - bob, pawnX + 4, pawnY - 9.5 - bob, pawnX + 7.5, pawnY - 5 - bob]);
       pawnsG.fill({ color: 0x3f3f46 });
 
       // Blood-red War Tabard
@@ -1643,40 +1899,48 @@ export function paintBoardMarches(
       pawnsG.stroke({ width: 0.8, color: 0x18181b });
 
       // Jagged Dark Iron Helm with horn crest
-      pawnsG.circle(pawnX, pawnY - 11 - bob, 3.8);
+      pawnsG.circle(pawnX, pawnY - 11.5 - bob, 3.8);
       pawnsG.fill({ color: 0x18181b });
       // Horn spikes
-      pawnsG.poly([pawnX - 3, pawnY - 12 - bob, pawnX - 6, pawnY - 16 - bob, pawnX - 1.5, pawnY - 13 - bob]);
-      pawnsG.fill({ color: 0x3f3f46 });
-      pawnsG.poly([pawnX + 1.5, pawnY - 13 - bob, pawnX + 6, pawnY - 16 - bob, pawnX + 3, pawnY - 12 - bob]);
-      pawnsG.fill({ color: 0x3f3f46 });
-      // Glowing crimson eye-slit
-      pawnsG.rect(pawnX - 2, pawnY - 11.5 - bob, 4, 1.2);
+      pawnsG.poly([pawnX - 3, pawnY - 12.5 - bob, pawnX - 6.5, pawnY - 17 - bob, pawnX - 1.5, pawnY - 13.5 - bob]);
+      pawnsG.fill({ color: 0x52525b });
+      pawnsG.poly([pawnX + 1.5, pawnY - 13.5 - bob, pawnX + 6.5, pawnY - 17 - bob, pawnX + 3, pawnY - 12.5 - bob]);
+      pawnsG.fill({ color: 0x52525b });
+
+      // Glowing crimson eye-slit with ambient corona
+      pawnsG.circle(pawnX, pawnY - 11.5 - bob, 2.5);
+      pawnsG.fill({ color: 0x7f1d1d, alpha: 0.6 });
+      pawnsG.rect(pawnX - 2.2, pawnY - 12 - bob, 4.4, 1.4);
       pawnsG.fill({ color: 0xef4444 });
 
       // Blackened Polearm & ragged war pennant
       pawnsG.moveTo(pawnX + 4.5, pawnY + 4 - bob);
-      pawnsG.lineTo(pawnX + 4.5, pawnY - 19 - bob);
-      pawnsG.stroke({ width: 1.4, color: 0x18181b });
+      pawnsG.lineTo(pawnX + 4.5, pawnY - 20 - bob);
+      pawnsG.stroke({ width: 1.5, color: 0x18181b });
+
       // Jagged halberd axe head
       pawnsG.poly([
-        pawnX + 4.5, pawnY - 19 - bob,
-        pawnX + 9, pawnY - 16 - bob,
-        pawnX + 7, pawnY - 13 - bob,
-        pawnX + 4.5, pawnY - 14 - bob,
+        pawnX + 4.5, pawnY - 20 - bob,
+        pawnX + 9.5, pawnY - 17 - bob,
+        pawnX + 7, pawnY - 13.5 - bob,
+        pawnX + 4.5, pawnY - 14.5 - bob,
       ]);
-      pawnsG.fill({ color: 0x52525b });
+      pawnsG.fill({ color: 0x71717a });
+      pawnsG.stroke({ width: 0.6, color: 0x09090b });
 
       // Ragged crimson/black war pennant
-      const hWave = Math.sin(phase * 8.5) * 1.6;
+      const hWave = Math.sin(phase * 8.5) * 1.8;
       pawnsG.poly([
-        pawnX + 4.5, pawnY - 13 - bob,
-        pawnX + 13, pawnY - 11 - bob + hWave,
-        pawnX + 4.5, pawnY - 7 - bob,
+        pawnX + 4.5, pawnY - 13.5 - bob,
+        pawnX + 13.5, pawnY - 11 - bob + hWave,
+        pawnX + 4.5, pawnY - 7.5 - bob,
       ]);
       pawnsG.fill({ color: 0x7f1d1d });
+      pawnsG.stroke({ width: 0.6, color: 0x18181b });
 
-      // Floating ETA pill badge (blackened iron with crimson border)
+      // Floating ETA pill badge (blackened iron with crimson border and drop shadow)
+      pawnsG.rect(pawnX - 16, pawnY - 27 - bob, 32, 9);
+      pawnsG.fill({ color: 0x000000, alpha: 0.45 });
       pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
       pawnsG.fill({ color: 0x09090b, alpha: 0.95 });
       pawnsG.stroke({ width: 1, color: 0xdc2626, alpha: 0.9 });

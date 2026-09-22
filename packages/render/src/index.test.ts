@@ -32,6 +32,8 @@ import {
   paintTileHeightFace,
   paintFogHeightVeil,
   drawMiniatureKeep,
+  paintBoardMarches,
+  paintBoardProvinces,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -848,6 +850,102 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         drawMiniatureKeep(gRival, 50, 50, "western", rivalPal, false, 2.0);
       }).not.toThrow();
       expect(gRival.calls.length).toBeGreaterThan(5);
+
+      // Seeded NPC keeps with heraldic escutcheon shields
+      for (const realmId of ["k_silk", "k_ash", "k_tide", "k_veil", "k_glass", "k_frost"] as const) {
+        const gNpc = createMockGraphics();
+        const pal = realmTokenPalette(realmId);
+        expect(() => {
+          drawMiniatureKeep(gNpc, 50, 50, "western", pal, false, 0.5);
+        }).not.toThrow();
+        expect(gNpc.calls.length).toBeGreaterThan(8);
+      }
+    });
+
+    it("paints board marches with distinct unit meeples, pedestals, and route trails without throwing", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p0",
+        provinces: [
+          { id: "p0", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p1", x: 4, y: 3, terrain: "wood", node: "none" },
+          { id: "p2", x: 6, y: 4, terrain: "peak", node: "hold", occupantRealmId: "rival" },
+        ],
+      };
+
+      const unitTypes = ["archer", "spearman", "skirmisher", "cavalry", "knight", "siege", "champion", "militia"] as const;
+
+      for (const u of unitTypes) {
+        state.flags["marches_json"] = JSON.stringify([
+          {
+            id: `m_${u}`,
+            realmId: "player",
+            fromId: "p0",
+            toId: "p1",
+            arrivesTick: 100,
+            force: { [u]: 5 },
+          },
+        ]);
+
+        const routeG = createMockGraphics();
+        const pawnsG = createMockGraphics();
+
+        expect(() => {
+          paintBoardMarches(routeG, pawnsG, state, 1.5);
+        }).not.toThrow();
+
+        expect(routeG.calls.length).toBeGreaterThan(5);
+        expect(pawnsG.calls.length).toBeGreaterThan(10);
+      }
+
+      // Hostile march (rival Iron March)
+      state.flags["marches_json"] = JSON.stringify([
+        {
+          id: "m_hostile",
+          realmId: "rival",
+          fromId: "p2",
+          toId: "p0",
+          arrivesTick: 120,
+          force: { knight: 10 },
+        },
+      ]);
+
+      const hRouteG = createMockGraphics();
+      const hPawnsG = createMockGraphics();
+
+      expect(() => {
+        paintBoardMarches(hRouteG, hPawnsG, state, 2.0);
+      }).not.toThrow();
+
+      expect(hRouteG.calls.length).toBeGreaterThan(5);
+      expect(hPawnsG.calls.length).toBeGreaterThan(10);
+    });
+
+    it("paints board provinces with keeps and outposts on diamond plateaus without throwing", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_outpost", x: 1, y: 0, terrain: "wood", node: "field", occupantRealmId: "player" },
+          { id: "p_npc_hold", x: 2, y: 0, terrain: "shore", node: "hold", occupantRealmId: "k_silk" },
+          { id: "p_npc_outpost", x: 3, y: 0, terrain: "hill", node: "quarry", occupantRealmId: "k_ash" },
+          { id: "p_unseen", x: 4, y: 0, terrain: "waste", node: "none" },
+        ],
+      };
+      // Mark seen provinces (unseen is p_unseen)
+      state.flags = {
+        "seen:p_home": true,
+        "seen:p_outpost": true,
+        "seen:p_npc_hold": true,
+        "seen:p_npc_outpost": true,
+      };
+
+      const g = createMockGraphics();
+      expect(() => {
+        paintBoardProvinces(g, state, 0);
+      }).not.toThrow();
+      expect(g.calls.length).toBeGreaterThan(20);
     });
   });
 });
