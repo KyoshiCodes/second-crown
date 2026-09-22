@@ -1871,10 +1871,19 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
   }
 }
 
+/**
+ * Determines if a march represents an active reconnaissance scout column.
+ */
+export function isScoutMarch(m: any): boolean {
+  if (!m) return false;
+  return m.purpose === "scout" || (typeof m.id === "string" && m.id.startsWith("m_scout_"));
+}
+
 export function isGatherMarch(m: any, state: GameState | null): boolean {
   if (!m) return false;
-  if (m.kind === "node") return true;
+  if (isScoutMarch(m)) return false;
   if (m.purpose === "gather") return true;
+  if (m.kind === "node") return true;
   if (!state?.board) return false;
   const toProv = getProvince(state, m.toId);
   if (
@@ -2113,6 +2122,223 @@ export function drawGatherColumnMeeple(
   }
 }
 
+/**
+ * Draws a distinct small cloak/spy meeple for reconnaissance scout columns,
+ * featuring nimble running legs, a deep shadowed hooded cowl with glowing cyan eye slit,
+ * a billowing ranger stealth cloak, and a brass spyglass scanning the uncharted horizon.
+ */
+export function drawScoutColumnMeeple(
+  pawnsG: Graphics,
+  pawnX: number,
+  pawnY: number,
+  facing: number,
+  frame: 0 | 1 | 2,
+  bob: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette,
+  phase: number = 0,
+  progress: number = 0.5
+): void {
+  // 1. Sleek, Nimble Ground Contact Shadow
+  pawnsG.ellipse(pawnX, pawnY + 5.5, 7.5, 2.6);
+  pawnsG.fill({ color: 0x000000, alpha: 0.42 });
+
+  // 2. Nimble Running Legs with Leather Scout Boots
+  const bootColor = 0x292524;
+  const cuffColor = 0x57534e;
+  const legY = pawnY + 1;
+
+  if (frame === 1) {
+    // Forward stride
+    pawnsG.moveTo(pawnX, legY);
+    pawnsG.lineTo(pawnX + facing * 3.5, legY + 3.5);
+    pawnsG.stroke({ width: 1.6, color: bootColor });
+    pawnsG.circle(pawnX + facing * 3.5, legY + 4, 1.1);
+    pawnsG.fill({ color: cuffColor });
+
+    pawnsG.moveTo(pawnX, legY);
+    pawnsG.lineTo(pawnX - facing * 3, legY + 3);
+    pawnsG.stroke({ width: 1.5, color: bootColor });
+    pawnsG.circle(pawnX - facing * 3, legY + 3.5, 1.0);
+    pawnsG.fill({ color: cuffColor });
+  } else if (frame === 2) {
+    // Opposite stride
+    pawnsG.moveTo(pawnX, legY);
+    pawnsG.lineTo(pawnX + facing * 2, legY + 3.5);
+    pawnsG.stroke({ width: 1.5, color: bootColor });
+    pawnsG.circle(pawnX + facing * 2, legY + 4, 1.0);
+    pawnsG.fill({ color: cuffColor });
+
+    pawnsG.moveTo(pawnX, legY);
+    pawnsG.lineTo(pawnX - facing * 4, legY + 3.2);
+    pawnsG.stroke({ width: 1.6, color: bootColor });
+    pawnsG.circle(pawnX - facing * 4, legY + 3.8, 1.1);
+    pawnsG.fill({ color: cuffColor });
+  } else {
+    // Neutral alert prowl
+    pawnsG.moveTo(pawnX - 1.2, legY);
+    pawnsG.lineTo(pawnX - 1.8, legY + 4);
+    pawnsG.stroke({ width: 1.5, color: bootColor });
+    pawnsG.circle(pawnX - 1.8, legY + 4.2, 1.0);
+    pawnsG.fill({ color: cuffColor });
+
+    pawnsG.moveTo(pawnX + 1.2, legY);
+    pawnsG.lineTo(pawnX + 1.8, legY + 4);
+    pawnsG.stroke({ width: 1.5, color: bootColor });
+    pawnsG.circle(pawnX + 1.8, legY + 4.2, 1.0);
+    pawnsG.fill({ color: cuffColor });
+  }
+
+  // 3. Flowing Ranger Stealth Cloak / Billowing Mantle (Trailing behind scout)
+  const cloakMain = cult?.tabard ? blendDark(cult.tabard, 0.45) : 0x0f172a;
+  const cloakDark = 0x020617;
+  const cloakRim = 0x38bdf8; // faint moonlit cyan rim
+  const flutter = frame === 1 ? -2.2 : frame === 2 ? -1.2 : 0.5;
+
+  // Billowing rear cloak tail
+  pawnsG.poly([
+    pawnX - facing * 1, pawnY - 2 - bob,
+    pawnX - facing * 6.5, pawnY + 1 - bob + flutter,
+    pawnX - facing * 8.5, pawnY + 3.5 - bob + flutter * 1.3,
+    pawnX - facing * 5, pawnY + 4.5 - bob,
+    pawnX - facing * 2, pawnY + 1.5 - bob,
+  ]);
+  pawnsG.fill({ color: cloakMain });
+  pawnsG.stroke({ width: 0.6, color: cloakDark });
+
+  // Cloak shadow fold
+  pawnsG.moveTo(pawnX - facing * 1.5, pawnY - 1 - bob);
+  pawnsG.lineTo(pawnX - facing * 6, pawnY + 2.5 - bob + flutter);
+  pawnsG.stroke({ width: 0.8, color: cloakDark, alpha: 0.85 });
+
+  // Subtle moonlit edge glint on top hem
+  pawnsG.moveTo(pawnX - facing * 1, pawnY - 2 - bob);
+  pawnsG.lineTo(pawnX - facing * 7.5, pawnY + 1.5 - bob + flutter);
+  pawnsG.stroke({ width: 0.6, color: cloakRim, alpha: 0.65 });
+
+  // 4. Leather Scout Tunic & Torso
+  pawnsG.rect(pawnX - 2.5, pawnY - 3.5 - bob, 5, 5);
+  pawnsG.fill({ color: 0x1e293b }); // Midnight slate leather
+  pawnsG.stroke({ width: 0.6, color: 0x0f172a });
+
+  // Belt & brass buckle
+  pawnsG.rect(pawnX - 2.5, pawnY + 0.5 - bob, 5, 1.2);
+  pawnsG.fill({ color: 0x451a03 });
+  pawnsG.circle(pawnX, pawnY + 1 - bob, 0.7);
+  pawnsG.fill({ color: 0xfacc15 });
+
+  // Rolled Cartography Map / Scroll tucked in belt
+  pawnsG.rect(pawnX - facing * 2.8, pawnY - 0.5 - bob, 2.2, 3);
+  pawnsG.fill({ color: 0xfef08a }); // Parchment
+  pawnsG.circle(pawnX - facing * 1.7, pawnY + 1 - bob, 0.6);
+  pawnsG.fill({ color: 0xdc2626 }); // Crimson wax seal
+
+  // Cloak Brooch / Clasp at collar
+  pawnsG.circle(pawnX + facing * 0.5, pawnY - 3 - bob, 0.8);
+  pawnsG.fill({ color: 0xe2e8f0 }); // Silver clasp
+
+  // 5. Deep Shadowed Hooded Cowl (Head)
+  // Outer hood dome
+  pawnsG.poly([
+    pawnX - 3.2, pawnY - 3.5 - bob,
+    pawnX - 3.6, pawnY - 7.5 - bob,
+    pawnX - 1.5, pawnY - 10.5 - bob,
+    pawnX + 2, pawnY - 10 - bob,
+    pawnX + 3.8, pawnY - 6.5 - bob,
+    pawnX + 2.5, pawnY - 3.5 - bob,
+  ]);
+  pawnsG.fill({ color: cloakMain });
+  pawnsG.stroke({ width: 0.7, color: cloakDark });
+
+  // Culture-specific cowl touch
+  if (kit === "cedar") {
+    // Red huntsman feather
+    pawnsG.moveTo(pawnX - 2, pawnY - 10 - bob);
+    pawnsG.lineTo(pawnX - 4.5, pawnY - 13 - bob);
+    pawnsG.stroke({ width: 1, color: 0xef4444 });
+    pawnsG.circle(pawnX - 4.5, pawnY - 13 - bob, 0.5);
+    pawnsG.fill({ color: 0xfacc15 });
+  } else if (kit === "sand") {
+    // Ivory nomad headwrap sash
+    pawnsG.rect(pawnX - 3, pawnY - 6.5 - bob, 6, 1.4);
+    pawnsG.fill({ color: 0xfef08a });
+  } else if (kit === "steppe") {
+    // Fur cowl rim
+    pawnsG.rect(pawnX - 3.5, pawnY - 8 - bob, 7, 1.2);
+    pawnsG.fill({ color: 0xd6d3d1 });
+  } else if (kit === "islands") {
+    // Shell pearl clasp
+    pawnsG.circle(pawnX + facing * 0.5, pawnY - 3 - bob, 0.9);
+    pawnsG.fill({ color: 0x06b6d4 });
+  }
+
+  // Pitch-black shadow cavity under the cowl
+  pawnsG.ellipse(pawnX + facing * 1, pawnY - 6.5 - bob, 2.2, 1.8);
+  pawnsG.fill({ color: 0x020617 });
+
+  // Keen glowing scout eye / spy slit
+  const eyeX = pawnX + facing * 1.5;
+  const eyeY = pawnY - 6.5 - bob;
+  pawnsG.ellipse(eyeX, eyeY, 1.1, 0.7);
+  pawnsG.fill({ color: 0x38bdf8 }); // Radiant spy cyan
+  pawnsG.circle(eyeX, eyeY, 0.45);
+  pawnsG.fill({ color: 0xffffff }); // Specular gleam
+
+  // 6. Brass Spyglass / Monocular Telescope (Scanning the frontier)
+  const glassAngleY = -0.5; // slight upward tilt
+  const armStartX = pawnX + facing * 1.5;
+  const armStartY = pawnY - 2.5 - bob;
+  const handX = pawnX + facing * 4;
+  const handY = pawnY - 3.5 - bob;
+
+  // Reaching arm
+  pawnsG.moveTo(armStartX, armStartY);
+  pawnsG.lineTo(handX, handY);
+  pawnsG.stroke({ width: 1.4, color: 0x1e293b });
+
+  // Spyglass brass cylinder
+  const tubeStart = handX;
+  const tubeEnd = handX + facing * 4.5;
+  const tubeY = handY + glassAngleY;
+
+  pawnsG.moveTo(tubeStart, handY);
+  pawnsG.lineTo(tubeEnd, tubeY);
+  pawnsG.stroke({ width: 1.6, color: 0xd97706 }); // Polished brass barrel
+
+  // Brass eyepiece rim
+  pawnsG.circle(tubeStart, handY, 0.9);
+  pawnsG.fill({ color: 0xfacc15 });
+
+  // Objective lens band
+  pawnsG.circle(tubeEnd, tubeY, 1.1);
+  pawnsG.fill({ color: 0xfacc15 });
+
+  // Front glass objective lens
+  pawnsG.ellipse(tubeEnd + facing * 0.6, tubeY, 0.7, 1.2);
+  pawnsG.fill({ color: 0x38bdf8 });
+  pawnsG.circle(tubeEnd + facing * 0.6, tubeY, 0.45);
+  pawnsG.fill({ color: 0xffffff }); // Lens glint catching daylight
+
+  // 7. Floating Reconnaissance Status Badge
+  const badgeY = pawnY - 15 - bob;
+  pawnsG.rect(pawnX - 8.5, badgeY - 2.5, 17, 5);
+  pawnsG.fill({ color: 0x0f172a, alpha: 0.92 });
+  pawnsG.rect(pawnX - 8.5, badgeY - 2.5, 17, 5);
+  pawnsG.stroke({ width: 0.7, color: 0x0284c7, alpha: 0.85 });
+
+  // Compass / Eye icon
+  pawnsG.circle(pawnX - 4.5, badgeY, 1.4);
+  pawnsG.fill({ color: 0x38bdf8 });
+  pawnsG.circle(pawnX - 4.5, badgeY, 0.5);
+  pawnsG.fill({ color: 0xffffff });
+
+  // Scouting progress pips
+  pawnsG.circle(pawnX + 0.5, badgeY, 1.0);
+  pawnsG.fill({ color: progress >= 0.33 ? 0x38bdf8 : 0x334155 });
+  pawnsG.circle(pawnX + 4.5, badgeY, 1.0);
+  pawnsG.fill({ color: progress >= 0.75 ? 0x38bdf8 : 0x334155 });
+}
+
 export function paintBoardMarches(
   routeG: Graphics,
   pawnsG: Graphics,
@@ -2134,7 +2360,8 @@ export function paintBoardMarches(
     const fromB = provinceTokenBounds(fromProv.x, fromProv.y);
     const toB = provinceTokenBounds(toProv.x, toProv.y);
     const isPlayer = m.realmId === "player";
-    const isGather = isGatherMarch(m, state);
+    const isScout = isScoutMarch(m);
+    const isGather = !isScout && isGatherMarch(m, state);
 
     // 1. Dotted Route Trail between origin and destination
     const dx = toB.cx - fromB.cx;
@@ -2142,7 +2369,34 @@ export function paintBoardMarches(
     const distPx = Math.hypot(dx, dy);
     const steps = Math.max(4, Math.floor(distPx / 14));
 
-    if (isGather) {
+    if (isScout) {
+      // Stealth reconnaissance route trail (midnight cyan & starlight core)
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const lx = fromB.cx + dx * t;
+        const ly = fromB.cy + dy * t;
+        const pulse = Math.sin(phase * 4 + i * 0.5) * 0.2 + 0.8;
+        // Outer cyan recon aura
+        routeG.circle(lx, ly, i % 2 === 0 ? 2.2 : 1.4);
+        routeG.fill({ color: 0x0284c7, alpha: 0.35 * pulse });
+        // Crisp starlight core
+        routeG.circle(lx, ly, i % 2 === 0 ? 1.2 : 0.8);
+        routeG.fill({ color: 0xe0f2fe, alpha: 0.85 * pulse });
+      }
+
+      // Recon destination spyglass/compass indicator
+      routeG.circle(toB.cx, toB.cy, 11);
+      routeG.stroke({ width: 1.4, color: 0x38bdf8, alpha: 0.85 });
+      routeG.circle(toB.cx, toB.cy, 4.5);
+      routeG.stroke({ width: 1, color: 0x0284c7, alpha: 0.65 });
+      routeG.moveTo(toB.cx - 13, toB.cy); routeG.lineTo(toB.cx - 8, toB.cy);
+      routeG.moveTo(toB.cx + 8, toB.cy); routeG.lineTo(toB.cx + 13, toB.cy);
+      routeG.moveTo(toB.cx, toB.cy - 13); routeG.lineTo(toB.cx, toB.cy - 8);
+      routeG.moveTo(toB.cx, toB.cy + 8); routeG.lineTo(toB.cx, toB.cy + 13);
+      routeG.stroke({ width: 1, color: 0x38bdf8, alpha: 0.75 });
+      routeG.circle(toB.cx, toB.cy, 1.8);
+      routeG.fill({ color: 0xfef08a, alpha: 0.9 });
+    } else if (isGather) {
       // Pastoral foraging route trail (emerald & harvest gold)
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
@@ -2204,7 +2458,20 @@ export function paintBoardMarches(
     const kit = resolveCultureKit(cultId);
     const cult = culturePalette(cultId);
 
-    if (isGather) {
+    if (isScout) {
+      drawScoutColumnMeeple(
+        pawnsG,
+        pawnX,
+        pawnY,
+        facing,
+        frame,
+        bob,
+        kit,
+        cult,
+        phase,
+        progress
+      );
+    } else if (isGather) {
       renderedGatherIds.add(m.id);
       if (m.toId) renderedGatherIds.add(m.toId);
       drawGatherColumnMeeple(

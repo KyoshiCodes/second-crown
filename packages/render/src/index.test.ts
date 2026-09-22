@@ -28,6 +28,8 @@ import {
   paintBoardGathers,
   isGatherMarch,
   drawGatherColumnMeeple,
+  isScoutMarch,
+  drawScoutColumnMeeple,
   realmTokenPalette,
   culturePalette,
   resolveCultureKit,
@@ -1378,6 +1380,137 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         paintBoardProvinces(g, state, 0.5);
       }).not.toThrow();
       expect(g.calls.length).toBeGreaterThan(50);
+    });
+
+    it("identifies scout columns via isScoutMarch and separates from gather/war marches", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_wood", x: 1, y: 0, terrain: "wood", node: "woodcut" },
+          { id: "p_fog", x: 2, y: 0, terrain: "peak", node: "none" },
+          { id: "p_camp", x: 3, y: 0, terrain: "waste", node: "camp" },
+        ],
+      };
+
+      // Scout marches with explicit purpose or scout id
+      expect(isScoutMarch({ purpose: "scout", toId: "p_fog" })).toBe(true);
+      expect(isScoutMarch({ id: "m_scout_12_p_fog", kind: "node", toId: "p_fog" })).toBe(true);
+      expect(isScoutMarch({ id: "m_scout_45_p_wood", kind: "node", purpose: "scout", toId: "p_wood" })).toBe(true);
+
+      // Non-scout marches
+      expect(isScoutMarch({ kind: "node", toId: "p_wood" })).toBe(false);
+      expect(isScoutMarch({ kind: "camp", toId: "p_camp", purpose: "raid" })).toBe(false);
+      expect(isScoutMarch(null)).toBe(false);
+      expect(isScoutMarch({})).toBe(false);
+
+      // Crucial: scout marches targeting a node province are NOT gather marches
+      const scoutMarchOnNode = { id: "m_scout_10_p_wood", kind: "node", purpose: "scout", toId: "p_wood" };
+      expect(isScoutMarch(scoutMarchOnNode)).toBe(true);
+      expect(isGatherMarch(scoutMarchOnNode, state)).toBe(false);
+
+      // Standard gather march targeting a node province IS a gather march
+      const gatherMarch = { id: "m_gather_10", kind: "node", purpose: "gather", toId: "p_wood" };
+      expect(isScoutMarch(gatherMarch)).toBe(false);
+      expect(isGatherMarch(gatherMarch, state)).toBe(true);
+    });
+
+    it("draws 2-3 frame pixel scout column meeple (hooded cowl / billowing cloak / brass spyglass) across frames, facings, and cultures", () => {
+      const frames: (0 | 1 | 2)[] = [0, 1, 2];
+      const facings = [1, -1];
+      const kits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+
+      for (const kit of kits) {
+        const cult = culturePalette(kit);
+        for (const frame of frames) {
+          for (const facing of facings) {
+            const g = createMockGraphics();
+            expect(() => {
+              drawScoutColumnMeeple(
+                g,
+                100,
+                100,
+                facing,
+                frame,
+                frame === 0 ? 0 : 2,
+                kit,
+                cult,
+                1.5,
+                0.65
+              );
+            }).not.toThrow();
+            expect(g.calls.length).toBeGreaterThanOrEqual(20);
+          }
+        }
+      }
+
+      // Progress variation (0.1, 0.5, 0.9)
+      for (const progress of [0.1, 0.5, 0.9]) {
+        const g = createMockGraphics();
+        drawScoutColumnMeeple(g, 100, 100, 1, 1, 2, "western", culturePalette("western"), 0, progress);
+        expect(g.calls.length).toBeGreaterThanOrEqual(20);
+      }
+    });
+
+    it("paints board marches with scout reconnaissance columns, cyan stealth trails, and compass targets", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_scout_dest", x: 3, y: 1, terrain: "peak", node: "none" },
+          { id: "p_gather_dest", x: 1, y: 2, terrain: "wood", node: "woodcut" },
+          { id: "p_war_dest", x: 4, y: 2, terrain: "waste", node: "camp" },
+        ],
+      };
+
+      state.flags = {
+        marches_json: JSON.stringify([
+          {
+            id: "m_scout_100",
+            realmId: "player",
+            fromId: "p_home",
+            toId: "p_scout_dest",
+            arrivesTick: 150,
+            kind: "node",
+            levy: 1,
+            purpose: "scout",
+          },
+          {
+            id: "m_gather_101",
+            realmId: "player",
+            fromId: "p_home",
+            toId: "p_gather_dest",
+            arrivesTick: 140,
+            kind: "node",
+            levy: 5,
+            purpose: "gather",
+          },
+          {
+            id: "m_war_102",
+            realmId: "player",
+            fromId: "p_home",
+            toId: "p_war_dest",
+            arrivesTick: 160,
+            kind: "camp",
+            levy: 20,
+            purpose: "raid",
+          },
+        ]),
+      };
+
+      const routeG = createMockGraphics();
+      const pawnsG = createMockGraphics();
+
+      expect(() => {
+        paintBoardMarches(routeG, pawnsG, state, 0.5);
+      }).not.toThrow();
+
+      // Route trail includes all 3 distinct trails (cyan recon, emerald harvest, amber war)
+      expect(routeG.calls.length).toBeGreaterThan(30);
+      // Pawns include all 3 distinct meeples (scout cloak/spy, gather cart/sack/mule, war soldier on pedestal)
+      expect(pawnsG.calls.length).toBeGreaterThan(40);
     });
   });
 });
