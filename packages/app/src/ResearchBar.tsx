@@ -3,6 +3,7 @@ import {
   RESEARCH,
   countBuilding,
   researchDone,
+  researchDuration,
   researchKeepMin,
   researchKeepReady,
   researchTicksLeft,
@@ -10,6 +11,7 @@ import {
   tryStartResearch,
   type GameState,
 } from "@second-crown/sim";
+import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 
 function needList(def: { needs?: string; needsAny?: readonly string[] }): string[] {
@@ -47,6 +49,7 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
   }
   const cost = Object.entries(def.cost).map(([k, v]) => `${v} ${k}`).join(", ");
   const gate = keepNeed > 0 ? `; Keep ${keepNeed}` : "";
+  const seconds = Math.round(researchDuration(state, id) / TICKS_PER_SECOND);
   return (
     <button
       type="button"
@@ -60,7 +63,7 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
         )
       }
     >
-      Study {label.toLowerCase()} ({cost}; {buildings.join(" or ")}{gate})
+      Study {label.toLowerCase()} ({cost}; {buildings.join(" or ")}{gate}; {seconds}s)
     </button>
   );
 }
