@@ -74,7 +74,9 @@ import {
 
 import {
   type Walker,
+  type WalkerJobTool,
   roleForCitizenJob,
+  toolForCitizen,
   createWalker,
   drawWalkerFrame,
   pickDestination,
@@ -462,6 +464,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       if (playerWorkers.length > 0) {
         const worker = playerWorkers[w.id % playerWorkers.length];
         w.role = roleForCitizenJob(worker.job);
+        const b = state?.buildings?.find(
+          (bld) => bld.x === worker.tile!.x && bld.y === worker.tile!.y
+        );
+        w.tool = toolForCitizen(worker.job, b?.typeId, w.id);
       }
 
       if (w.state === "idle") {
@@ -503,7 +509,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       w.graphics.zIndex = Math.floor((w.x + w.y) * 100) + 40;
 
       const cultId = lastState && sim.playerCultureId ? sim.playerCultureId(lastState) : undefined;
-      drawWalkerFrame(w.graphics, w.role, w.facing, frame, cultId);
+      drawWalkerFrame(w.graphics, w.role, w.facing, frame, cultId, w.tool);
     }
   }
 

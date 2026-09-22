@@ -1,6 +1,28 @@
 # CHANGELOG
 
-## 2026-09-22 — Gemini Unit & Miniature Keep Readability (`bakeoff/gemini-units`)
+## 2026-09-22 — Gemini Isometric Hold Citizen Walkers (`bakeoff/gemini-walkers`)
+
+- **2-3 Frame Pixel Walkers & Job Tools (`packages/render/src/walkers.ts`)**:
+  - Citizens walking the isometric hold village now read as authentic 2–3 frame pixel walkers with distinct, high-contrast tools for the hold's 4 core resource works:
+    - **Farm (`farm`)**: Peasant wide-brim straw sun hat with sunny crown highlight and rustic band, harvest amber tunic with rope waist twine, 3-tined forged iron pitchfork with steel tips that tilts with the stride, and a golden sheaf of harvested wheat stalks nestled on the hip.
+    - **Wood (`wood`)**: Forester/huntsman felt cap with red pheasant quill feather, forest green tunic with dark leather shoulder baldric, heavy felling broadaxe with bearded iron head and razor-sharp specular steel cutting bit that flashes on the swing, and a rough-hewn pine timber log slung over the shoulder with exposed ring core.
+    - **Stone (`stone`)**: Protective quarry dust cowl/hood, heavy split-cowhide mason apron with iron belt buckle over stone-grey tunic, double-pointed heavy quarry pickaxe with long curved forward piercing beak and rear chisel striker, and a hand-hewn square granite ashlar block carried on the hip with chisel highlights.
+    - **Gold (`gold`)**: Royal midnight navy velvet tunic with gleaming gold waist sash and polished gold buckle, miner/assayer leather headband with glowing golden forehead reflector lamp, gilded prospector's pick with golden steel head and flashing tip, and an iron prospecting pan filled with raw gold dust, bullion bar, and an animated 2–3 frame specular gold star twinkle.
+  - **Dynamic Tool Resolution (`toolForCitizen`, `resolveWalkerTool`)**:
+    - Automatically links citizen jobs and work tile building types (`farm`/`granary` → farm pitchfork; `lumber_camp`/`sawmill` → wood broadaxe; `quarry`/`mason` → stone pickaxe; `gold_mine`/`mint` → gold prospector pick & pan).
+    - Default presentation pool (8 citizens) rotates across all four job tools (`farm`, `wood`, `stone`, `gold`) so the hold feels active with industry from the very first tick.
+  - **Culture Kit Adaptations (`drawCultureWalker`)**:
+    - Supports non-western culture kits (`cedar`, `sand`, `steppe`, `tide`) by tinting tool handles and stonework with culture timber and stone palettes while preserving culture-specific headwear and cloaks.
+  - **Authentic 2-3 Frame Animation Physics**:
+    - Frame 0 (planted / neutral): 0px bob, legs centered under body, tools in neutral carry pose.
+    - Frame 1 (forward step): 1px bob up, forward leg extends, lead arm swings forward, tool tilts into the stride catching specular light.
+    - Frame 2 (opposite step): 1px bob up, opposite leg extends, lead arm swings back, tool head flashes/sparkles.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zero changes to camera math, zoom, or tile click hit-testing.
+  - Full test suite passes: 215 in `@second-crown/sim`, 49 in `@second-crown/render` (+5 new test blocks).
+  - Clean production build in `@second-crown/app`.
+
 
 - **Miniature Keeps Readability on Diamond Board (`packages/render/src/tokens.ts`)**:
   - Added ground contact footprint shadows (`0x050403`, alpha 0.62) to cleanly detach miniature keeps from textured, height-mapped 3D terrain relief.
