@@ -1,5 +1,45 @@
 # CHANGELOG
 
+## 2026-09-22 — Gemini Unit & Miniature Keep Readability (`bakeoff/gemini-units`)
+
+- **Miniature Keeps Readability on Diamond Board (`packages/render/src/tokens.ts`)**:
+  - Added ground contact footprint shadows (`0x050403`, alpha 0.62) to cleanly detach miniature keeps from textured, height-mapped 3D terrain relief.
+  - Added stepped foundation plinths with crisp dark contour outlining across all culture kits.
+  - Enhanced facet lighting contrast: bright sunlit left facets with corner quoins, masonry seams, and shingle highlights vs deep cool shaded right facets with vertical dividing corner seams.
+  - Culture kits:
+    - `western`: Heavy dressed ashlar talus plinth, granite walls with alternating corner quoins, corbelled watch bartizans with golden finials, arched portcullis gate, warm candlelit window with ambient halo, and waving swallowtail royal banner.
+    - `cedar`: Riverstone plinth with individual stone outlines, golden cedar cross-lap logs, steep shake roof with shingle texture highlights, golden eagle ridgepole finials, and warm hearthfire doorway.
+    - `sand`: Terraced sandstone plinth, radiant ivory limestone hold, sharp sawtooth merlons, lookout minaret turret with specular dome glint and crescent spire, and horseshoe arched portal with keystone.
+    - `steppe`: Packed earthen kurgan mound with stone rim, royal felt yurt with radial tension ribs, carved timber smoke crown (*shangyrak*), crimson embroidered felt bands, and tall horsehair streamer pole.
+    - `islands`: Elevated driftwood/ironwood pilings with cross-bracing, planked wharf deck, multi-tier ocean teal pavilion roof with wave-crest finial, glowing hanging sea lantern, and maritime swallowtail pennant.
+    - `rival` (Iron March): Charred basalt foundation talus with corner brackets, cold gunmetal lit wall, obsidian shadow wall, spiked battlements with sharpened steel spike glints, sinister crimson eye-slit gate with dark iron backing, and waving blood-red spiked war pennant.
+  - **NPC Hold Faction Escutcheons**: Mounted heraldic realm shields on NPC keep walls displaying `realmPal.pennantColor`, `realmPal.borderColor`, and `realmPal.accentColor`, making NPC holds instantly identifiable by realm at a glance without having to click them.
+  - **Player Home Keep Badge**: Rendered a majestic golden coronet crest with pearl jewels above the capital keep tower.
+- **Pixel Units & March Pawns Readability (`packages/render/src/tokens.ts`)**:
+  - **Faction Pedestal Bases**:
+    - Player columns: Turned walnut plinth with beveled base, dual-tier golden and sapphire faction ring (`0xfacc15` / `0x2563eb`), and corner golden studs.
+    - Hostile (Rival) columns: Heavy spiked blackened iron pedestal with crimson danger ring (`0xdc2626`) and dark iron rivets.
+  - **Iconic Unit Silhouettes across all 8 unit types**:
+    - `archer`: High-visibility recurve bow held forward with taut string and nocked bodkin arrow, feathered back quiver, Robin Hood cowl with cockade feather.
+    - `spearman`: Towering steel-tipped pike reaching high above the column, culture-styled heraldic shield with metallic rim and boss.
+    - `skirmisher`: Poised throwing stance with steel-tipped javelin, back harness with spare javelins, off-arm target buckler.
+    - `cavalry`: Muscular warhorse with animated 2-frame galloping stride, hooves, saddle caparison with golden trim, mounted armored lancer with couched lance and fluttering lance pennon.
+    - `knight`: Polished silver plate armor, Greathelm with cross-visor and waving chivalric plume, heavy heraldic heater shield with golden cross, upright broadsword.
+    - `siege`: Heavy timber bed with iron corner brackets, studded wheels with bronze axle hubs, A-frame gantry, pivoting throwing beam with iron counterweight and stone projectile.
+    - `champion`: Billowing royal mantle with golden border, golden spiked coronet helm, and massive two-handed claymore with glowing azure runic edge and power pulse.
+    - `militia`: Peasant levy tunic and coif, spiked knotty oak war club with steel studs, and banded target buckler.
+  - **Hostile March Meeples**: Blackened iron dreadplate with spiked pauldrons, horned greathelm, glowing crimson eye-slit with ambient corona, jagged halberd axe head, and tattered blood-red war pennant.
+  - **Floating March ETA Badge**: Dark obsidian glass background with drop shadow, sharp unit accent border, and cleanly spaced glowing progress timer dots.
+  - **Route Trails**: Two-tone glowing pulse with high-contrast inner core and concentric target crosshair reticle.
+- **Claimed Territory Outposts**:
+  - Enhanced player outposts with ground contact shadows, detailed expedition shelter tents with entrance flaps, and waving royal swallowtail banners.
+  - Enhanced NPC outposts with ground shadows, realm-colored territory flags, and iron-banded supply crates.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zooming, pan, tile clicks, building placement/upgrades, holidays, and dim lanterns remain completely preserved.
+  - Full test suite passes: 214 in `@second-crown/sim`, 44 in `@second-crown/render` (+2 new test blocks).
+  - Clean production build in `@second-crown/app`.
+
 ## 2026-09-21 — Gemini Lords Mobile Overworld & Height-Mapped Tiles (`bakeoff/gemini-overworld`)
 
 - **Lords Mobile 3D Overworld Map (`packages/render`)**:
