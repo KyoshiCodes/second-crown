@@ -1,10 +1,20 @@
 # CHANGELOG
 
-## 2026-09-22 — Wall line on Kingdom tab and hold inspect (`wave/wall-line`)
+## 2026-09-22 — Gemini Connected Rim Walls & Gate Ring on Isometric Hold (`bakeoff/gemini-walls`)
 
-- Added `WallLine` component (`packages/app/src/WallLine.tsx`): `Walls · rim N/8 · ring open|closed · wall HP X · gate HP Y` (or "no gate on the rim").
-- Kingdom tab uses it in place of the inline wall text; home-hold `ProvinceInspect` shows it too.
-- No siege math change. Zero diff on `packages/sim`, `packages/render`, `server/`.
+- **Connected Rim Walls & Gate Ring (`packages/render/src/buildings.ts`)**:
+  - Rim walls and the gatehouse now render as a continuous, unified defensive ring on the isometric hold view with gap-free curtain spans:
+    - **Gapless Continuous Curtain Runs**: For contiguous wall runs (`hasPrev && hasNext`), wall segments span cleanly from neighbor boundary to neighbor boundary (`bPrev` to `bNext`). Features continuous stone foundation plinths, vertical curtain faces with horizontal ashlar mortar scoring, top wall-walk ramparts at height `-h` with planking centerlines, and culture-kit specific crenellations along the outer parapet.
+    - **Wall Buttress Pilasters & Torches**: Intermediate wall segments feature a projecting stone buttress pilaster with an arrow loop slit and culture-specific wall fixtures (western animated flame torch sconces, cedar carved beast totems with pitch torches, sand brass oil lanterns with amber glow, steppe horsehair standards, and islands driftwood sea-lanterns with cyan beacons).
+    - **Four Corner Bastion Towers**: Grid corners `(0,0)`, `(15,0)`, `(15,9)`, and `(0,9)` feature towering keep bastions (`towerH = h + 5`) with diamond plinths, sunlit/shaded facets, roof platforms, four-sided merlons, arrow loops, and cultural apex banners, cleanly bonding orthogonal wall directions without visual clipping.
+    - **Seamless Gatehouse Flanking Wings (`drawGatehouseCurtainWings`)**: Gatehouse curtain wings now span from the left/right flanking bastion towers to the exact tile boundaries (`bLeft` and `bRight`) with identical profile geometry (matching wall-walk height, width, plinth, and merlons), creating a seamless transition where the defensive curtain meets the gatehouse.
+    - **Terminal Pier End Caps**: Unconnected wall terminals (`hasPrev` or `hasNext` false) cleanly terminate with a fortified terminal pier and merlon post instead of open hollow cross-sections; isolated walls render as compact defensive bastion blocks.
+    - **Perimeter Ground Foundation Shadow**: Tailored ambient ground footprint shadows along the rim to prevent individual isolated diamond cutouts or awkward southeast diagonal shadow breaks under wall runs.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zero changes to camera math, zoom, or tile click hit-testing.
+  - Full test suite passes: 216 monorepo tests, 71 tests in `@second-crown/render` (+3 new comprehensive test blocks for closed 48-tile ring, partial runs, and 4-edge gatehouse wings).
+  - Clean production build in `@second-crown/app`.
 
 ## 2026-09-22 — Gemini Red Warband Meeple for Hostile Incoming Marches (`bakeoff/gemini-incoming`)
 

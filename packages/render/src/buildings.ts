@@ -220,37 +220,20 @@ export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
 // -------------------------------------------------------------
 // Isometric Hold Building Drawers (Culture Kits & Silhouettes)
 // -------------------------------------------------------------
-function drawRimWallCurtain(
-  g: Graphics,
-  h: number,
-  a: number,
-  phase: number,
-  gx: number,
-  gy: number,
-  rimNeighbors?: RimNeighbors,
-  kit: CultureKit = "western",
-  cult?: CultureVisualPalette
-): void {
-  const idx = rimWalkIndex(gx, gy);
-  const prevIdx = (idx - 1 + 48) % 48;
-  const nextIdx = (idx + 1) % 48;
-  const pPrev = getRimTileAt(prevIdx);
-  const pNext = getRimTileAt(nextIdx);
+interface WallColors {
+  plinthCol: number;
+  wallSunlitCol: number;
+  wallShadedCol: number;
+  mortarCol: number;
+  walkCol: number;
+  walkPlankCol: number;
+  merlonSunlitCol: number;
+  merlonShadedCol: number;
+  merlonCopingCol: number;
+  arrowSlitCol: number;
+}
 
-  const hasPrev = rimNeighbors?.hasPrev ?? false;
-  const hasNext = rimNeighbors?.hasNext ?? false;
-
-  // Boundary coordinates from tile center (0, 0) to neighbor tiles
-  const bPrevX = ((pPrev.x - gx - (pPrev.y - gy)) * HALF_W) / 2;
-  const bPrevY = ((pPrev.x - gx + (pPrev.y - gy)) * HALF_H) / 2;
-  const bNextX = ((pNext.x - gx - (pNext.y - gy)) * HALF_W) / 2;
-  const bNextY = ((pNext.x - gx + (pNext.y - gy)) * HALF_H) / 2;
-
-  const isTop = gy === 0;
-  const isRight = gx === GRID_W - 1;
-  const isBottom = gy === GRID_H - 1;
-  const isLeft = gx === 0;
-
+function getWallColors(kit: CultureKit, _cult?: CultureVisualPalette): WallColors {
   const plinthCol =
     kit === "cedar"
       ? 0x27272a
@@ -359,69 +342,185 @@ function drawRimWallCurtain(
       ? 0x18181b
       : 0x0f172a;
 
-  function drawCurtainSpan(
-    x0: number,
-    y0: number,
-    x1: number,
-    y1: number,
-    normX: number,
-    normY: number,
-    sunlit: boolean
-  ) {
-    // 1. Foundation Plinth (bottom 3.5px)
-    g.poly([
-      x0 + normX, y0 + normY,
-      x1 + normX, y1 + normY,
-      x1 + normX, y1 + normY - 3.5,
-      x0 + normX, y0 + normY - 3.5,
-    ]);
-    g.fill({ color: plinthCol, alpha: a });
+  return {
+    plinthCol,
+    wallSunlitCol,
+    wallShadedCol,
+    mortarCol,
+    walkCol,
+    walkPlankCol,
+    merlonSunlitCol,
+    merlonShadedCol,
+    merlonCopingCol,
+    arrowSlitCol,
+  };
+}
 
-    // 2. Vertical Curtain Face
-    g.poly([
-      x0 + normX, y0 + normY - 3.5,
-      x1 + normX, y1 + normY - 3.5,
-      x1 + normX, y1 + normY - h,
-      x0 + normX, y0 + normY - h,
-    ]);
-    g.fill({ color: sunlit ? wallSunlitCol : wallShadedCol, alpha: a });
+interface SpanEdgeInfo {
+  outX: number;
+  outY: number;
+  inX: number;
+  inY: number;
+  isFrontFacing: boolean;
+  sunlit: boolean;
+  faceX: number;
+  faceY: number;
+}
 
-    // 3. Horizontal Mortar / Seam Scoring
-    for (const f of [0.35, 0.70]) {
-      const my0 = y0 + normY - h * f;
-      const my1 = y1 + normY - h * f;
-      g.moveTo(x0 + normX, my0);
-      g.lineTo(x1 + normX, my1);
-      g.stroke({ width: 0.8, color: mortarCol, alpha: a * 0.65 });
+function getSpanEdgeInfo(gx: number, gy: number, targetX: number, targetY: number): SpanEdgeInfo {
+  const isTop = gy === 0;
+  const isRight = gx === GRID_W - 1;
+  const isBottom = gy === GRID_H - 1;
+  const isLeft = gx === 0;
+
+  let edge: "top" | "right" | "bottom" | "left" = "bottom";
+
+  if (isTop && !isLeft && !isRight) {
+    edge = "top";
+  } else if (isBottom && !isLeft && !isRight) {
+    edge = "bottom";
+  } else if (isLeft && !isTop && !isBottom) {
+    edge = "left";
+  } else if (isRight && !isTop && !isBottom) {
+    edge = "right";
+  } else {
+    // Corner tile: determine edge from target direction
+    if (isTop && isLeft) {
+      edge = targetX > 0 && targetY > 0 ? "top" : "left";
+    } else if (isTop && isRight) {
+      edge = targetX < 0 && targetY < 0 ? "top" : "right";
+    } else if (isBottom && isRight) {
+      edge = targetX > 0 && targetY < 0 ? "right" : "bottom";
+    } else if (isBottom && isLeft) {
+      edge = targetX > 0 && targetY > 0 ? "bottom" : "left";
     }
+  }
 
-    // 4. Wall-Walk Top Walkway (at height -h)
-    g.poly([
-      x0 + normX, y0 + normY - h,
-      x1 + normX, y1 + normY - h,
-      x1 - normX, y1 - normY - h,
-      x0 - normX, y0 - normY - h,
-    ]);
-    g.fill({ color: walkCol, alpha: a });
+  if (edge === "top") {
+    return {
+      outX: 3.5,
+      outY: -1.8,
+      inX: -3.5,
+      inY: 1.8,
+      isFrontFacing: false,
+      sunlit: true,
+      faceX: -3.5,
+      faceY: 1.8,
+    };
+  } else if (edge === "right") {
+    return {
+      outX: 3.5,
+      outY: 1.8,
+      inX: -3.5,
+      inY: -1.8,
+      isFrontFacing: true,
+      sunlit: false,
+      faceX: 3.5,
+      faceY: 1.8,
+    };
+  } else if (edge === "bottom") {
+    return {
+      outX: -3.5,
+      outY: 1.8,
+      inX: 3.5,
+      inY: -1.8,
+      isFrontFacing: true,
+      sunlit: true,
+      faceX: -3.5,
+      faceY: 1.8,
+    };
+  } else {
+    // left
+    return {
+      outX: -3.5,
+      outY: -1.8,
+      inX: 3.5,
+      inY: 1.8,
+      isFrontFacing: false,
+      sunlit: false,
+      faceX: 3.5,
+      faceY: 1.8,
+    };
+  }
+}
 
-    // Wall-walk planking center line
-    g.moveTo(x0, y0 - h);
-    g.lineTo(x1, y1 - h);
-    g.stroke({ width: 1.6, color: walkPlankCol, alpha: a });
+function drawCurtainSpan(
+  g: Graphics,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  edge: SpanEdgeInfo,
+  h: number,
+  a: number,
+  kit: CultureKit,
+  colors: WallColors,
+  isTerminalStart: boolean = false,
+  isTerminalEnd: boolean = false
+): void {
+  const faceX = edge.faceX;
+  const faceY = edge.faceY;
+  const faceCol = edge.sunlit ? colors.wallSunlitCol : colors.wallShadedCol;
 
-    // 5. Parapet Merlons along outer edge
-    const dist = Math.hypot(x1 - x0, y1 - y0);
-    const steps = Math.max(1, Math.round(dist / 6));
+  // 1. Foundation Plinth (bottom 3.5px)
+  g.poly([
+    x0 + faceX, y0 + faceY,
+    x1 + faceX, y1 + faceY,
+    x1 + faceX, y1 + faceY - 3.5,
+    x0 + faceX, y0 + faceY - 3.5,
+  ]);
+  g.fill({ color: colors.plinthCol, alpha: a });
+
+  // 2. Vertical Curtain Face
+  g.poly([
+    x0 + faceX, y0 + faceY - 3.5,
+    x1 + faceX, y1 + faceY - 3.5,
+    x1 + faceX, y1 + faceY - h,
+    x0 + faceX, y0 + faceY - h,
+  ]);
+  g.fill({ color: faceCol, alpha: a });
+
+  // 3. Horizontal Mortar / Course Scoring
+  for (const f of [0.35, 0.70]) {
+    const my0 = y0 + faceY - h * f;
+    const my1 = y1 + faceY - h * f;
+    g.moveTo(x0 + faceX, my0);
+    g.lineTo(x1 + faceX, my1);
+    g.stroke({ width: 0.8, color: colors.mortarCol, alpha: a * 0.65 });
+  }
+
+  // 4. Wall-Walk Top Walkway (at height -h)
+  g.poly([
+    x0 + edge.outX, y0 + edge.outY - h,
+    x1 + edge.outX, y1 + edge.outY - h,
+    x1 + edge.inX, y1 + edge.inY - h,
+    x0 + edge.inX, y0 + edge.inY - h,
+  ]);
+  g.fill({ color: colors.walkCol, alpha: a });
+
+  // Wall-walk centerline
+  const mid0X = x0 + (edge.outX + edge.inX) * 0.5;
+  const mid0Y = y0 + (edge.outY + edge.inY) * 0.5 - h;
+  const mid1X = x1 + (edge.outX + edge.inX) * 0.5;
+  const mid1Y = y1 + (edge.outY + edge.inY) * 0.5 - h;
+  g.moveTo(mid0X, mid0Y);
+  g.lineTo(mid1X, mid1Y);
+  g.stroke({ width: 1.4, color: colors.walkPlankCol, alpha: a * 0.8 });
+
+  // 5. Parapet Merlons along outer edge
+  const dist = Math.hypot(x1 - x0, y1 - y0);
+  if (dist > 3) {
+    const steps = Math.max(1, Math.round(dist / 6.5));
     for (let i = 0; i < steps; i++) {
-      const tStart = i / steps;
-      const tEnd = (i + 0.6) / steps;
-      const mx0 = x0 + normX + (x1 - x0) * tStart;
-      const my0 = y0 + normY - h + (y1 - y0) * tStart;
-      const mx1 = x0 + normX + (x1 - x0) * tEnd;
-      const my1 = y0 + normY - h + (y1 - y0) * tEnd;
+      const tStart = (i + 0.12) / steps;
+      const tEnd = (i + 0.72) / steps;
+      const mx0 = x0 + edge.outX + (x1 - x0) * tStart;
+      const my0 = y0 + edge.outY - h + (y1 - y0) * tStart;
+      const mx1 = x0 + edge.outX + (x1 - x0) * tEnd;
+      const my1 = y0 + edge.outY - h + (y1 - y0) * tEnd;
+      const mCol = edge.sunlit ? colors.merlonSunlitCol : colors.merlonShadedCol;
 
       if (kit === "cedar") {
-        // Pointed cedar log stakes
         g.poly([
           mx0, my0,
           (mx0 + mx1) * 0.5, my0 - 4.5,
@@ -429,12 +528,11 @@ function drawRimWallCurtain(
           mx1, my1 - 2,
           mx0, my0 - 2,
         ]);
-        g.fill({ color: sunlit ? merlonSunlitCol : merlonShadedCol, alpha: a });
+        g.fill({ color: mCol, alpha: a });
         g.moveTo((mx0 + mx1) * 0.5, my0 - 4.5);
         g.lineTo(mx1, my1);
-        g.stroke({ width: 0.8, color: merlonCopingCol, alpha: a * 0.8 });
+        g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.8 });
       } else if (kit === "sand") {
-        // Stepped / sawtooth desert crenellations
         g.poly([
           mx0, my0,
           (mx0 + mx1) * 0.5, my0 - 4,
@@ -442,113 +540,281 @@ function drawRimWallCurtain(
           mx1, my1 - 2,
           mx0, my0 - 2,
         ]);
-        g.fill({ color: sunlit ? merlonSunlitCol : merlonShadedCol, alpha: a });
+        g.fill({ color: mCol, alpha: a });
         g.moveTo(mx0, my0 - 2);
         g.lineTo((mx0 + mx1) * 0.5, my0 - 4);
         g.lineTo(mx1, my1 - 2);
-        g.stroke({ width: 0.8, color: merlonCopingCol, alpha: a * 0.9 });
-      } else {
-        // Merlon block (rises 3.5px above parapet)
+        g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.9 });
+      } else if (kit === "steppe") {
         g.poly([
           mx0, my0,
           mx1, my1,
           mx1, my1 - 3.5,
           mx0, my0 - 3.5,
         ]);
-        g.fill({ color: sunlit ? merlonSunlitCol : merlonShadedCol, alpha: a });
-
-        // Merlon coping stone highlight
+        g.fill({ color: mCol, alpha: a });
+        g.moveTo(mx0, my0 - 1.5);
+        g.lineTo(mx1, my1 - 1.5);
+        g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.7 });
+      } else if (kit === "islands") {
+        g.poly([
+          mx0, my0,
+          mx1, my1,
+          mx1, my1 - 3.5,
+          mx0, my0 - 3.5,
+        ]);
+        g.fill({ color: mCol, alpha: a });
         g.moveTo(mx0, my0 - 3.5);
         g.lineTo(mx1, my1 - 3.5);
-        g.stroke({ width: 0.8, color: merlonCopingCol, alpha: a * 0.8 });
+        g.stroke({ width: 0.9, color: colors.merlonCopingCol, alpha: a * 0.85 });
+      } else {
+        // Western
+        g.poly([
+          mx0, my0,
+          mx1, my1,
+          mx1, my1 - 3.5,
+          mx0, my0 - 3.5,
+        ]);
+        g.fill({ color: mCol, alpha: a });
+        g.moveTo(mx0, my0 - 3.5);
+        g.lineTo(mx1, my1 - 3.5);
+        g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.8 });
       }
     }
-
-    // 6. Arrow loop slits in curtain face
-    const midX = (x0 + x1) / 2 + normX;
-    const midY = (y0 + y1) / 2 + normY - h * 0.45;
-    g.rect(midX - 0.7, midY - 2, 1.4, 4);
-    g.fill({ color: arrowSlitCol, alpha: a });
   }
 
-  function getNorm(isEdgeTop: boolean, isEdgeRight: boolean, isEdgeBottom: boolean, isEdgeLeft: boolean): { nx: number; ny: number; sunlit: boolean } {
-    if (isEdgeBottom) return { nx: -3.5, ny: 1.8, sunlit: true };
-    if (isEdgeRight) return { nx: 3.5, ny: 1.8, sunlit: false };
-    if (isEdgeTop) return { nx: -3.5, ny: -1.8, sunlit: false };
-    return { nx: -3.5, ny: -1.8, sunlit: true };
+  // 6. Terminal Caps
+  if (isTerminalStart) {
+    g.poly([
+      x0 + edge.outX, y0 + edge.outY,
+      x0 + edge.inX, y0 + edge.inY,
+      x0 + edge.inX, y0 + edge.inY - h,
+      x0 + edge.outX, y0 + edge.outY - h,
+    ]);
+    g.fill({ color: faceCol, alpha: a });
+    g.rect(x0 + edge.outX - 1, y0 + edge.outY - h - 3.5, 2.5, 3.5);
+    g.fill({ color: colors.merlonSunlitCol, alpha: a });
   }
 
-  // Draw curtain to prev neighbor
-  const normPrev = getNorm(isTop, isRight, isBottom, isLeft);
-  const pTargetX = hasPrev ? bPrevX : bPrevX * 0.65;
-  const pTargetY = hasPrev ? bPrevY : bPrevY * 0.65;
-  drawCurtainSpan(0, 0, pTargetX, pTargetY, normPrev.nx, normPrev.ny, normPrev.sunlit);
+  if (isTerminalEnd) {
+    g.poly([
+      x1 + edge.outX, y1 + edge.outY,
+      x1 + edge.inX, y1 + edge.inY,
+      x1 + edge.inX, y1 + edge.inY - h,
+      x1 + edge.outX, y1 + edge.outY - h,
+    ]);
+    g.fill({ color: faceCol, alpha: a });
+    g.rect(x1 + edge.outX - 1, y1 + edge.outY - h - 3.5, 2.5, 3.5);
+    g.fill({ color: colors.merlonSunlitCol, alpha: a });
+  }
+}
 
-  // Draw curtain to next neighbor
-  const normNext = getNorm(isTop, isRight, isBottom, isLeft);
-  const nTargetX = hasNext ? bNextX : bNextX * 0.65;
-  const nTargetY = hasNext ? bNextY : bNextY * 0.65;
-  drawCurtainSpan(0, 0, nTargetX, nTargetY, normNext.nx, normNext.ny, normNext.sunlit);
+function drawRimWallCurtain(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  gx: number,
+  gy: number,
+  rimNeighbors?: RimNeighbors,
+  kit: CultureKit = "western",
+  cult?: CultureVisualPalette
+): void {
+  const idx = rimWalkIndex(gx, gy);
+  const prevIdx = (idx - 1 + 48) % 48;
+  const nextIdx = (idx + 1) % 48;
+  const pPrev = getRimTileAt(prevIdx);
+  const pNext = getRimTileAt(nextIdx);
 
-  // Center Bastion Tower at (0, 0)
+  const hasPrev = rimNeighbors?.hasPrev ?? false;
+  const hasNext = rimNeighbors?.hasNext ?? false;
+
+  const bPrevX = ((pPrev.x - gx - (pPrev.y - gy)) * HALF_W) / 2;
+  const bPrevY = ((pPrev.x - gx + (pPrev.y - gy)) * HALF_H) / 2;
+  const bNextX = ((pNext.x - gx - (pNext.y - gy)) * HALF_W) / 2;
+  const bNextY = ((pNext.x - gx + (pNext.y - gy)) * HALF_H) / 2;
+
+  const isTop = gy === 0;
+  const isRight = gx === GRID_W - 1;
+  const isBottom = gy === GRID_H - 1;
+  const isLeft = gx === 0;
   const isCorner = (isTop && isLeft) || (isTop && isRight) || (isBottom && isRight) || (isBottom && isLeft);
-  const towerH = h + (isCorner ? 4 : 2);
-  const tw = isCorner ? 7 : 5.5;
 
-  // Tower plinth
-  g.poly([-tw, 0, 0, tw * 0.5, tw, 0, 0, -tw * 0.5]);
-  g.fill({ color: plinthCol, alpha: a });
+  const edgePrev = getSpanEdgeInfo(gx, gy, bPrevX, bPrevY);
+  const edgeNext = getSpanEdgeInfo(gx, gy, bNextX, bNextY);
+  const colors = getWallColors(kit, cult);
 
-  // Tower light face (left)
-  g.poly([-tw, 0, 0, tw * 0.5, 0, tw * 0.5 - towerH, -tw, -towerH]);
-  g.fill({ color: wallSunlitCol, alpha: a });
+  if (isCorner) {
+    // Corner Bastion Tower at (0, 0)
+    const towerH = h + 5;
+    const tw = 7.5;
 
-  // Tower shadow face (right)
-  g.poly([0, tw * 0.5, tw, 0, tw, -towerH, 0, tw * 0.5 - towerH]);
-  g.fill({ color: wallShadedCol, alpha: a });
+    // 1. Spans meeting under the corner tower
+    if (hasPrev) {
+      drawCurtainSpan(g, 0, 0, bPrevX, bPrevY, edgePrev, h, a, kit, colors, false, false);
+    } else {
+      drawCurtainSpan(g, 0, 0, bPrevX * 0.45, bPrevY * 0.45, edgePrev, h, a, kit, colors, false, true);
+    }
 
-  // Tower roof / platform
-  g.poly([-tw, -towerH, 0, tw * 0.5 - towerH, tw, -towerH, 0, -tw * 0.5 - towerH]);
-  g.fill({ color: walkCol, alpha: a });
+    if (hasNext) {
+      drawCurtainSpan(g, 0, 0, bNextX, bNextY, edgeNext, h, a, kit, colors, false, false);
+    } else {
+      drawCurtainSpan(g, 0, 0, bNextX * 0.45, bNextY * 0.45, edgeNext, h, a, kit, colors, false, true);
+    }
 
-  // Tower crenellations / merlons
-  g.rect(-tw, -towerH - 3, 2.5, 3); g.fill({ color: merlonSunlitCol, alpha: a });
-  g.rect(-1, -towerH - 3 + tw * 0.5, 2.5, 3); g.fill({ color: merlonSunlitCol, alpha: a });
-  g.rect(tw - 2.5, -towerH - 3, 2.5, 3); g.fill({ color: merlonShadedCol, alpha: a });
+    // 2. Corner Bastion Tower crowning the corner
+    g.poly([-tw, 0, 0, tw * 0.5, tw, 0, 0, -tw * 0.5]);
+    g.fill({ color: colors.plinthCol, alpha: a });
 
-  // Arrow slit in tower front
-  g.rect(-0.7, -towerH * 0.5, 1.4, 4);
-  g.fill({ color: arrowSlitCol, alpha: a });
+    g.poly([-tw, 0, 0, tw * 0.5, 0, tw * 0.5 - towerH, -tw, -towerH]);
+    g.fill({ color: colors.wallSunlitCol, alpha: a });
 
-  // Wall fixture
-  if (kit === "cedar") {
-    // Carved beast totem marker & pitch torch
-    g.rect(-2, -towerH * 0.7, 4, 3); g.fill({ color: 0xd4a359, alpha: a });
-    const flameFlicker = Math.sin(phase * 4 + gx * 2) * 0.8;
-    g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0x3f220c, alpha: a });
-    g.circle(-tw - 1, -h * 0.45 - 2, 1.6 + flameFlicker * 0.3);
-    g.fill({ color: 0xea580c, alpha: a });
-  } else if (kit === "sand") {
-    // Hanging brass oil lantern
-    g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0xb45309, alpha: a });
-    g.circle(-tw - 1, -h * 0.45 - 2, 1.6); g.fill({ color: 0xfacc15, alpha: a });
-  } else if (kit === "steppe") {
-    // Timber pole with horsehair streamer
-    g.moveTo(-tw - 1, -h * 0.45); g.lineTo(-tw - 1, -h * 0.45 - 6);
-    g.stroke({ width: 1.2, color: 0x291807, alpha: a });
-    g.circle(-tw - 1, -h * 0.45 - 6, 1.5); g.fill({ color: 0xdc2626, alpha: a });
-  } else if (kit === "islands") {
-    // Hanging sea-lantern with cyan glow
-    g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0x78350f, alpha: a });
-    g.circle(-tw - 1, -h * 0.45 - 2, 1.6); g.fill({ color: 0x06b6d4, alpha: a });
+    g.poly([0, tw * 0.5, tw, 0, tw, -towerH, 0, tw * 0.5 - towerH]);
+    g.fill({ color: colors.wallShadedCol, alpha: a });
+
+    g.poly([-tw, -towerH, 0, tw * 0.5 - towerH, tw, -towerH, 0, -tw * 0.5 - towerH]);
+    g.fill({ color: colors.walkCol, alpha: a });
+
+    // Tower battlements / crenellations
+    g.rect(-tw, -towerH - 3.5, 3, 3.5);
+    g.fill({ color: colors.merlonSunlitCol, alpha: a });
+    g.moveTo(-tw, -towerH - 3.5); g.lineTo(-tw + 3, -towerH - 3.5);
+    g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.8 });
+
+    g.rect(-1.5, -towerH - 3.5 + tw * 0.5, 3, 3.5);
+    g.fill({ color: colors.merlonSunlitCol, alpha: a });
+
+    g.rect(tw - 3, -towerH - 3.5, 3, 3.5);
+    g.fill({ color: colors.merlonShadedCol, alpha: a });
+    g.moveTo(tw - 3, -towerH - 3.5); g.lineTo(tw, -towerH - 3.5);
+    g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.8 });
+
+    // Arrow loops on tower facets
+    g.rect(-tw * 0.5 - 0.7, -towerH * 0.5, 1.4, 4);
+    g.fill({ color: colors.arrowSlitCol, alpha: a });
+    g.rect(tw * 0.5 - 0.7, -towerH * 0.5, 1.4, 4);
+    g.fill({ color: colors.arrowSlitCol, alpha: a });
+
+    // Cultural corner flag / beacon
+    if (kit === "cedar") {
+      g.rect(-1.5, -towerH - 8, 3, 8);
+      g.fill({ color: 0x854d0e, alpha: a });
+      const flameFlicker = Math.sin(phase * 4 + gx * 2) * 0.8;
+      g.circle(0, -towerH - 10, 1.8 + flameFlicker * 0.3);
+      g.fill({ color: 0xea580c, alpha: a });
+    } else if (kit === "sand") {
+      g.poly([0, -towerH - 7, 3, -towerH - 2, -3, -towerH - 2]);
+      g.fill({ color: 0xfacc15, alpha: a });
+      g.circle(0, -towerH - 8, 1.2);
+      g.fill({ color: 0x0d9488, alpha: a });
+    } else if (kit === "steppe") {
+      g.moveTo(0, -towerH); g.lineTo(0, -towerH - 9);
+      g.stroke({ width: 1.3, color: 0x291807, alpha: a });
+      g.circle(0, -towerH - 9, 1.5);
+      g.fill({ color: 0xdc2626, alpha: a });
+    } else if (kit === "islands") {
+      g.moveTo(0, -towerH); g.lineTo(0, -towerH - 8);
+      g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+      g.circle(0, -towerH - 8, 1.6);
+      g.fill({ color: 0x06b6d4, alpha: a });
+    } else {
+      // Western: corner flag pennant
+      const pennantWave = Math.sin(phase * 4 + gx * 2) * 2;
+      g.moveTo(0, -towerH); g.lineTo(0, -towerH - 10);
+      g.stroke({ width: 1.2, color: 0xd4a359, alpha: a });
+      g.poly([0, -towerH - 10, 7 + pennantWave, -towerH - 7, 0, -towerH - 4]);
+      g.fill({ color: 0xb91c1c, alpha: a });
+    }
+    return;
+  }
+
+  // Straight Wall Run
+  if (hasPrev && hasNext) {
+    // Continuous stone curtain wall spanning cleanly across the entire tile!
+    drawCurtainSpan(g, bPrevX, bPrevY, bNextX, bNextY, edgeNext, h, a, kit, colors, false, false);
+
+    // Center Wall Buttress / Pilaster along visible face
+    const midX = edgeNext.faceX;
+    const midY = edgeNext.faceY;
+    const isXAxis = isTop || isBottom;
+    const px0 = isXAxis ? midX - 1.4 : midX - 1.4;
+    const py0 = isXAxis ? midY - 0.7 : midY + 0.7;
+    const px1 = isXAxis ? midX + 1.4 : midX + 1.4;
+    const py1 = isXAxis ? midY + 0.7 : midY - 0.7;
+
+    // Pilaster plinth
+    g.poly([px0, py0, px1, py1, px1, py1 - 3.5, px0, py0 - 3.5]);
+    g.fill({ color: colors.plinthCol, alpha: a });
+
+    // Pilaster body rising to -h - 1
+    g.poly([px0, py0 - 3.5, px1, py1 - 3.5, px1, py1 - h - 1, px0, py0 - h - 1]);
+    g.fill({ color: edgeNext.sunlit ? colors.wallSunlitCol : colors.wallShadedCol, alpha: a });
+
+    // Arrow slit in pilaster
+    g.rect(midX - 0.7, midY - h * 0.45 - 2, 1.4, 4);
+    g.fill({ color: colors.arrowSlitCol, alpha: a });
+
+    // Cultural Wall Fixture
+    if (kit === "cedar") {
+      g.rect(midX - 2, midY - h * 0.75, 4, 3);
+      g.fill({ color: 0xd4a359, alpha: a });
+      const flameFlicker = Math.sin(phase * 4 + gx * 2) * 0.8;
+      g.circle(midX, midY - h * 0.75 - 2, 1.6 + flameFlicker * 0.3);
+      g.fill({ color: 0xea580c, alpha: a });
+    } else if (kit === "sand") {
+      g.rect(midX - 1, midY - h * 0.65, 2, 3);
+      g.fill({ color: 0xb45309, alpha: a });
+      g.circle(midX, midY - h * 0.65 - 2, 1.5);
+      g.fill({ color: 0xfacc15, alpha: a });
+    } else if (kit === "steppe") {
+      g.moveTo(midX, midY - h * 0.4); g.lineTo(midX, midY - h * 0.4 - 5);
+      g.stroke({ width: 1.1, color: 0x291807, alpha: a });
+      g.circle(midX, midY - h * 0.4 - 5, 1.3);
+      g.fill({ color: 0xdc2626, alpha: a });
+    } else if (kit === "islands") {
+      g.rect(midX - 1, midY - h * 0.65, 2, 3);
+      g.fill({ color: 0x78350f, alpha: a });
+      g.circle(midX, midY - h * 0.65 - 2, 1.5);
+      g.fill({ color: 0x06b6d4, alpha: a });
+    } else {
+      // Western: iron torch sconce with flickering animated flame
+      const flameFlicker = Math.sin(phase * 4 + gx * 2) * 0.8;
+      g.rect(midX - 1, midY - h * 0.65, 2, 3);
+      g.fill({ color: 0x27272a, alpha: a });
+      g.circle(midX, midY - h * 0.65 - 2, 1.5 + flameFlicker * 0.3);
+      g.fill({ color: 0xf97316, alpha: a });
+      g.circle(midX, midY - h * 0.65 - 2, 0.7);
+      g.fill({ color: 0xfef08a, alpha: a });
+    }
+  } else if (hasPrev && !hasNext) {
+    // Terminating wall ending at (0, 0)
+    drawCurtainSpan(g, bPrevX, bPrevY, 0, 0, edgePrev, h, a, kit, colors, false, true);
+  } else if (!hasPrev && hasNext) {
+    // Starting wall beginning at (0, 0)
+    drawCurtainSpan(g, 0, 0, bNextX, bNextY, edgeNext, h, a, kit, colors, true, false);
   } else {
-    // Western: Wall torch sconce with flickering animated flame
-    const flameFlicker = Math.sin(phase * 4 + gx * 2) * 0.8;
-    g.rect(-tw - 1.5, -h * 0.45, 1.5, 3.5); g.fill({ color: 0x27272a, alpha: a });
-    g.circle(-tw - 1, -h * 0.45 - 2, 1.6 + flameFlicker * 0.3);
-    g.fill({ color: 0xf97316, alpha: a });
-    g.circle(-tw - 1, -h * 0.45 - 2, 0.8);
-    g.fill({ color: 0xfef08a, alpha: a });
+    // Isolated freestanding defensive bastion block
+    const tw = 6;
+    const towerH = h + 2;
+
+    g.poly([-tw, 0, 0, tw * 0.5, tw, 0, 0, -tw * 0.5]);
+    g.fill({ color: colors.plinthCol, alpha: a });
+
+    g.poly([-tw, 0, 0, tw * 0.5, 0, tw * 0.5 - towerH, -tw, -towerH]);
+    g.fill({ color: colors.wallSunlitCol, alpha: a });
+
+    g.poly([0, tw * 0.5, tw, 0, tw, -towerH, 0, tw * 0.5 - towerH]);
+    g.fill({ color: colors.wallShadedCol, alpha: a });
+
+    g.poly([-tw, -towerH, 0, tw * 0.5 - towerH, tw, -towerH, 0, -tw * 0.5 - towerH]);
+    g.fill({ color: colors.walkCol, alpha: a });
+
+    g.rect(-tw, -towerH - 3, 2.5, 3); g.fill({ color: colors.merlonSunlitCol, alpha: a });
+    g.rect(-1, -towerH - 3 + tw * 0.5, 2.5, 3); g.fill({ color: colors.merlonSunlitCol, alpha: a });
+    g.rect(tw - 2.5, -towerH - 3, 2.5, 3); g.fill({ color: colors.merlonShadedCol, alpha: a });
+
+    g.rect(-0.7, -towerH * 0.5, 1.4, 4);
+    g.fill({ color: colors.arrowSlitCol, alpha: a });
   }
 }
 
@@ -573,89 +839,31 @@ function drawGatehouseCurtainWings(
   const bNextX = ((pNext.x - gx - (pNext.y - gy)) * HALF_W) / 2;
   const bNextY = ((pNext.x - gx + (pNext.y - gy)) * HALF_H) / 2;
 
-  const isBottom = gy === GRID_H - 1;
-  const isRight = gx === GRID_W - 1;
+  const edgePrev = getSpanEdgeInfo(gx, gy, bPrevX, bPrevY);
+  const edgeNext = getSpanEdgeInfo(gx, gy, bNextX, bNextY);
+  const colors = getWallColors(kit, cult);
 
-  const sunlitWingCol =
-    kit === "cedar"
-      ? 0x854d0e
-      : kit === "sand"
-      ? 0xd4a373
-      : kit === "steppe"
-      ? 0x713f12
-      : kit === "islands"
-      ? 0x94a3b8
-      : 0x64748b;
+  // Map to left and right flanks in screen space
+  const prevIsLeft = bPrevX < 0;
 
-  const shadedWingCol =
-    kit === "cedar"
-      ? 0x5c3818
-      : kit === "sand"
-      ? 0xa16207
-      : kit === "steppe"
-      ? 0x543007
-      : kit === "islands"
-      ? 0x64748b
-      : 0x475569;
+  const hasLeft = prevIsLeft ? rimNeighbors.hasPrev : rimNeighbors.hasNext;
+  const bLeftX = prevIsLeft ? bPrevX : bNextX;
+  const bLeftY = prevIsLeft ? bPrevY : bNextY;
+  const edgeLeft = prevIsLeft ? edgePrev : edgeNext;
 
-  const merlonCol =
-    kit === "cedar"
-      ? 0xd97706
-      : kit === "sand"
-      ? 0xfde68a
-      : kit === "steppe"
-      ? 0x854d0e
-      : kit === "islands"
-      ? 0xd97706
-      : 0x94a3b8;
+  const hasRight = prevIsLeft ? rimNeighbors.hasNext : rimNeighbors.hasPrev;
+  const bRightX = prevIsLeft ? bNextX : bPrevX;
+  const bRightY = prevIsLeft ? bNextY : bPrevY;
+  const edgeRight = prevIsLeft ? edgeNext : edgePrev;
 
-  const mortarCol =
-    kit === "cedar"
-      ? 0x3f220c
-      : kit === "sand"
-      ? 0x78350f
-      : kit === "steppe"
-      ? 0x291807
-      : kit === "islands"
-      ? 0x78350f
-      : 0x1e293b;
-
-  if (rimNeighbors.hasPrev) {
-    // Connect left bastion tower to prev boundary
-    g.poly([
-      -17, -1,
-      bPrevX, bPrevY,
-      bPrevX, bPrevY - h,
-      -17, -1 - h,
-    ]);
-    g.fill({ color: isBottom ? sunlitWingCol : shadedWingCol, alpha: a });
-
-    // Merlons on connection
-    g.rect(bPrevX, bPrevY - h - 3.5, 3.5, 3.5);
-    g.fill({ color: merlonCol, alpha: a });
-
-    // Mortar line
-    g.moveTo(-17, -1 - h * 0.5); g.lineTo(bPrevX, bPrevY - h * 0.5);
-    g.stroke({ width: 0.8, color: mortarCol, alpha: a * 0.6 });
+  if (hasLeft) {
+    // Wing from gatehouse left bastion flank to bLeft
+    drawCurtainSpan(g, bLeftX * 0.40, bLeftY * 0.40, bLeftX, bLeftY, edgeLeft, h, a, kit, colors, false, false);
   }
 
-  if (rimNeighbors.hasNext) {
-    // Connect right bastion tower to next boundary
-    g.poly([
-      17, -1,
-      bNextX, bNextY,
-      bNextX, bNextY - h,
-      17, -1 - h,
-    ]);
-    g.fill({ color: isRight ? shadedWingCol : sunlitWingCol, alpha: a });
-
-    // Merlons on connection
-    g.rect(bNextX - 3.5, bNextY - h - 3.5, 3.5, 3.5);
-    g.fill({ color: merlonCol, alpha: a });
-
-    // Mortar line
-    g.moveTo(17, -1 - h * 0.5); g.lineTo(bNextX, bNextY - h * 0.5);
-    g.stroke({ width: 0.8, color: mortarCol, alpha: a * 0.6 });
+  if (hasRight) {
+    // Wing from gatehouse right bastion flank to bRight
+    drawCurtainSpan(g, bRightX * 0.40, bRightY * 0.40, bRightX, bRightY, edgeRight, h, a, kit, colors, false, false);
   }
 }
 
@@ -2959,22 +3167,36 @@ export function drawIsometricBuilding(
   g.clear();
 
   // 1. Isometric Ground Footprint Shadow & Base Foundation
-  g.poly([
-    0, -HALF_H,
-    HALF_W - 1, 0,
-    0, HALF_H - 1,
-    -HALF_W + 1, 0,
-  ]);
-  g.fill({ color: 0x080c09, alpha: 0.4 });
+  const isRimWall = typeId === "walls" && isRimTile(gx, gy);
+  const isRimGate = typeId === "gate" && isRimTile(gx, gy);
 
-  // Cast shadow to the southeast
-  g.poly([
-    -4, 4,
-    HALF_W + 6, 2,
-    HALF_W + 12, 10,
-    2, HALF_H + 4,
-  ]);
-  g.fill({ color: 0x000000, alpha: 0.28 });
+  if (!isRimWall && !isRimGate) {
+    g.poly([
+      0, -HALF_H,
+      HALF_W - 1, 0,
+      0, HALF_H - 1,
+      -HALF_W + 1, 0,
+    ]);
+    g.fill({ color: 0x080c09, alpha: 0.4 });
+
+    // Cast shadow to the southeast
+    g.poly([
+      -4, 4,
+      HALF_W + 6, 2,
+      HALF_W + 12, 10,
+      2, HALF_H + 4,
+    ]);
+    g.fill({ color: 0x000000, alpha: 0.28 });
+  } else {
+    // Continuous foundation footprint shadow along the wall perimeter run
+    g.poly([
+      -HALF_W + 2, 0,
+      0, HALF_H - 2,
+      HALF_W - 2, 0,
+      0, -HALF_H + 2,
+    ]);
+    g.fill({ color: 0x080c09, alpha: 0.25 });
+  }
 
   const lvl = Math.max(1, Math.min(5, level));
   const isWinter = visuals.decorations === "winter" || visuals.decorations === "midwinter";
