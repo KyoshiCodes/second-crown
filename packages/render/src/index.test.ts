@@ -25,6 +25,9 @@ import {
   unitPalette,
   isOutpostProvince,
   listGathersPresentation,
+  paintBoardGathers,
+  isGatherMarch,
+  drawGatherColumnMeeple,
   realmTokenPalette,
   culturePalette,
   resolveCultureKit,
@@ -507,6 +510,186 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       ];
       expect(listGathersPresentation(state)).toHaveLength(1);
       expect(listGathersPresentation(state)[0].id).toBe("g1");
+    });
+
+    it("distinguishes gather marches from military war marches using isGatherMarch", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_wood", x: 1, y: 0, terrain: "wood", node: "woodcut" },
+          { id: "p_stone", x: 2, y: 0, terrain: "hill", node: "quarry" },
+          { id: "p_food", x: 3, y: 0, terrain: "plain", node: "field" },
+          { id: "p_ruins", x: 4, y: 0, terrain: "waste", node: "ruins" },
+          { id: "p_camp", x: 5, y: 0, terrain: "peak", node: "none" },
+          { id: "p_hold", x: 6, y: 0, terrain: "shore", node: "hold", occupantRealmId: "rival" },
+        ],
+      };
+
+      // Explicit node kind march
+      expect(isGatherMarch({ kind: "node", toId: "p_wood" }, state)).toBe(true);
+      // Explicit gather purpose march
+      expect(isGatherMarch({ kind: "camp", purpose: "gather", toId: "p_wood" }, state)).toBe(true);
+
+      // Marches targeting resource nodes
+      expect(isGatherMarch({ toId: "p_wood" }, state)).toBe(true);
+      expect(isGatherMarch({ toId: "p_stone" }, state)).toBe(true);
+      expect(isGatherMarch({ toId: "p_food" }, state)).toBe(true);
+      expect(isGatherMarch({ toId: "p_ruins" }, state)).toBe(true);
+
+      // Military war marches (camps, holds, plain territory)
+      expect(isGatherMarch({ kind: "camp", toId: "p_camp" }, state)).toBe(false);
+      expect(isGatherMarch({ kind: "hold", toId: "p_hold" }, state)).toBe(false);
+      expect(isGatherMarch({ kind: "camp", toId: "p_wood" }, state)).toBe(false);
+      expect(isGatherMarch(null, state)).toBe(false);
+    });
+
+    it("draws 2-3 frame pixel gather column meeple (cart / sack / draft animal) across animation frames and nodes", () => {
+      const createMockG = () => {
+        const calls: string[] = [];
+        return {
+          calls,
+          clear: () => calls.push("clear"),
+          ellipse: (...args: any[]) => calls.push(`ellipse`),
+          rect: (...args: any[]) => calls.push(`rect`),
+          circle: (...args: any[]) => calls.push(`circle`),
+          poly: (...args: any[]) => calls.push(`poly`),
+          moveTo: (...args: any[]) => calls.push(`moveTo`),
+          lineTo: (...args: any[]) => calls.push(`lineTo`),
+          fill: (...args: any[]) => calls.push(`fill`),
+          stroke: (...args: any[]) => calls.push(`stroke`),
+        } as any;
+      };
+
+      const nodes = ["field", "woodcut", "quarry", "ruins", undefined];
+      const frames: (0 | 1 | 2)[] = [0, 1, 2];
+      const facings = [1, -1];
+      const cult = culturePalette("western");
+
+      for (const node of nodes) {
+        for (const frame of frames) {
+          for (const facing of facings) {
+            const g = createMockG();
+            drawGatherColumnMeeple(g, 100, 100, facing, frame, frame === 0 ? 0 : 2, "western", cult, node, 1.5, 0.6);
+            expect(g.calls.length).toBeGreaterThan(20);
+          }
+        }
+      }
+
+      // Culture variations
+      for (const kit of ["western", "cedar", "sand", "steppe", "islands"] as const) {
+        const g = createMockG();
+        drawGatherColumnMeeple(g, 100, 100, 1, 1, 2, kit, culturePalette(kit), "woodcut", 2.0, 0.8);
+        expect(g.calls.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("paints board marches using cart/sack for gather marches and military pedestals for war marches", () => {
+      const createMockG = () => {
+        const calls: string[] = [];
+        return {
+          calls,
+          clear: () => calls.push("clear"),
+          ellipse: (...args: any[]) => calls.push(`ellipse`),
+          rect: (...args: any[]) => calls.push(`rect`),
+          circle: (...args: any[]) => calls.push(`circle`),
+          poly: (...args: any[]) => calls.push(`poly`),
+          moveTo: (...args: any[]) => calls.push(`moveTo`),
+          lineTo: (...args: any[]) => calls.push(`lineTo`),
+          fill: (...args: any[]) => calls.push(`fill`),
+          stroke: (...args: any[]) => calls.push(`stroke`),
+        } as any;
+      };
+
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_forage", x: 3, y: 2, terrain: "wood", node: "woodcut" },
+          { id: "p_enemy", x: 5, y: 4, terrain: "hill", node: "hold", occupantRealmId: "rival" },
+        ],
+      };
+
+      state.flags["marches_json"] = JSON.stringify([
+        // Gather march to woodcut
+        {
+          id: "m_gather",
+          realmId: "player",
+          fromId: "p_home",
+          toId: "p_forage",
+          kind: "node",
+          arrivesTick: 100,
+        },
+        // Military war march to rival hold
+        {
+          id: "m_war",
+          realmId: "player",
+          fromId: "p_home",
+          toId: "p_enemy",
+          kind: "hold",
+          arrivesTick: 150,
+          force: { knight: 5 },
+        },
+      ]);
+
+      const routeG = createMockG();
+      const pawnsG = createMockG();
+
+      expect(() => {
+        paintBoardMarches(routeG, pawnsG, state, 1.5);
+      }).not.toThrow();
+
+      expect(routeG.calls.length).toBeGreaterThan(10);
+      expect(pawnsG.calls.length).toBeGreaterThan(20);
+    });
+
+    it("paints gather expeditions via paintBoardGathers using distinct cart & sack meeple", () => {
+      const createMockG = () => {
+        const calls: string[] = [];
+        return {
+          calls,
+          clear: () => calls.push("clear"),
+          ellipse: (...args: any[]) => calls.push(`ellipse`),
+          rect: (...args: any[]) => calls.push(`rect`),
+          circle: (...args: any[]) => calls.push(`circle`),
+          poly: (...args: any[]) => calls.push(`poly`),
+          moveTo: (...args: any[]) => calls.push(`moveTo`),
+          lineTo: (...args: any[]) => calls.push(`lineTo`),
+          fill: (...args: any[]) => calls.push(`fill`),
+          stroke: (...args: any[]) => calls.push(`stroke`),
+        } as any;
+      };
+
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_quarry", x: 4, y: 2, terrain: "hill", node: "quarry" },
+        ],
+      };
+
+      (state as any).gathers = [
+        {
+          id: "g_expedition",
+          fromId: "p_home",
+          toId: "p_quarry",
+          node: "quarry",
+          progress: 0.5,
+        },
+      ];
+
+      const routeG = createMockG();
+      const pawnsG = createMockG();
+
+      expect(() => {
+        paintBoardGathers(routeG, pawnsG, state, 2.0);
+      }).not.toThrow();
+
+      expect(routeG.calls.length).toBeGreaterThan(5);
+      expect(pawnsG.calls.length).toBeGreaterThan(15);
     });
   });
 

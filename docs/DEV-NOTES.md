@@ -1,6 +1,6 @@
 # DEV-NOTES
 
-Updated: 2026-09-21
+Updated: 2026-09-22
 Per-PR bakeoff history: docs/CHANGELOG.md
 Plan: docs/ASCENT.md | Player recap: docs/PROGRESS.md | Agent start: docs/HANDOFF.md
 
@@ -30,6 +30,6 @@ Split from monolithic index.ts into:
 - `camera.ts`: camera viewport, zoom bands, projection, coordinate conversion, province token bounds, table rim.
 - `tiles.ts`: terrain elevation, height faces, fog height veil, isometric ground, rim fort navigation.
 - `buildings.ts`: culture palettes, theme visuals, isometric building drawers across all 21 types and 5 culture kits.
-- `tokens.ts`: miniature pixel keep drawers (with contact shadows, high-contrast facets, NPC heraldic escutcheons, and golden home coronets), board provinces painter, march columns (faction pedestal bases, iconic 8-unit silhouettes, glowing route trails), gather carts, province inspect plaque.
+- `tokens.ts`: miniature pixel keep drawers (with contact shadows, high-contrast facets, NPC heraldic escutcheons, and golden home coronets), board provinces painter, march columns (faction pedestal bases, iconic 8-unit silhouettes, glowing route trails), distinct gather columns (`isGatherMarch`, `drawGatherColumnMeeple` with rolling spoked wheels, burlap sacks, node cargo, animated draft mule, and pastoral route trails), province inspect plaque.
 - `walkers.ts`: citizen job mapping, dynamic tool resolution (`toolForCitizen` / `resolveWalkerTool`), authentic 2-3 frame pixel animation physics, and high-contrast job tools (`farm`, `wood`, `stone`, `gold`).
 - `index.ts`: re-exports public API + MapRenderer factory with responsive canvas sizing.

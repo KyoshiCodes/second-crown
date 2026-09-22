@@ -3,6 +3,14 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## Gather Columns & Resource Carts on the Board
+
+Gather columns traveling across the isometric board now display a distinctive cart-and-sack meeple that clearly differentiates logistical resource harvesting from military war campaigns:
+- **Freight Cart & Burlap Sacks**: A sturdy wooden cart frame with rolling spoked wheels and bulging burlap sacks of harvested goods tied with twine knots.
+- **Visual Resource Cargo**: Carts visibly carry the specific resource of their target node (golden sheaves of wheat from fields, cut timber logs from woodcuts, dressed granite blocks from quarries, and gilded treasure chests from ruins).
+- **Draft Animal**: An animated pack mule leads the cart with harness shafts and an animated trotting gait.
+- **Pastoral Route Trails**: Gather operations are connected by soft emerald and harvest amber trails with golden harvest indicators, separating them from high-stakes military war trails and combat targeting crosshairs.
+
 ## Hold Citizen Walkers & Job Tools
 
 Citizens walking the isometric hold view now display authentic 2–3 frame pixel animations and distinct tools reflecting their labor:
