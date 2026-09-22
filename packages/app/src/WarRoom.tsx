@@ -8,6 +8,7 @@ import {
   healTicksLeft,
   housingCap,
   incomingOnHome,
+  incomingOnPlayerFlags,
   infirmaryBeds,
   lastBattleStory,
   listGarrisons,
@@ -60,6 +61,8 @@ export function WarRoom(props: {
   const summary = state ? warSummary(state) : null;
   const activeDecrees = summary?.decrees.filter((d) => d.ticksLeft > 0) ?? [];
   const incoming = state ? incomingOnHome(state) : [];
+  const incomingFlags = state ? incomingOnPlayerFlags(state) : [];
+  const hostileColumns = [...incoming, ...incomingFlags];
   const seen = state ? watchtowerWarning(state) : undefined;
   const scarred = state ? listScarred(state) : [];
   const hp = state ? wallHp(state) : 0;
@@ -79,6 +82,10 @@ export function WarRoom(props: {
   const posts = state ? listGarrisons(state) : [];
   const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
   const etaOf = (arrivesTick: number) => Math.max(0, Math.ceil((arrivesTick - tick) / 10));
+  const provinceLabel = (id: string) => {
+    const p = state ? getProvince(state, id) : undefined;
+    return p ? `${p.x},${p.y}` : id;
+  };
   const lastField = state
     ? listLedger(state).find((e) => /march|battle|camp|siege|hold|garrison|flag|storm|sally/i.test(`${e.kind} ${e.text}`))
     : undefined;
@@ -295,29 +302,31 @@ export function WarRoom(props: {
       <section className="sc-realm-card" style={card}>
         <strong style={h}>Home front</strong>
         <div style={{ opacity: 0.85, marginBottom: 2 }}>Incoming</div>
-        {incoming.length > 0 ? (
+        {hostileColumns.length > 0 ? (
           <ul style={{ margin: "0 0 4px", paddingLeft: 18 }}>
-            {incoming.map((m) => (
+            {hostileColumns.map((m) => (
               <li key={m.id}>
-                {seen ? nameOf(m.realmId) : "Unknown host"} — ETA {etaOf(m.arrivesTick)}s
+                {seen ? nameOf(m.realmId) : "Unknown host"}: {provinceLabel(m.fromId)} →{" "}
+                {provinceLabel(m.toId)} · ETA {etaOf(m.arrivesTick)}s
               </li>
             ))}
           </ul>
         ) : (
-          <p style={{ margin: "4px 0", opacity: 0.7 }}>No column on your gates.</p>
+          <p style={{ margin: "4px 0", opacity: 0.7 }}>No column on your gates or flags.</p>
         )}
-        <button
-          type="button"
-          disabled={!sallyReady}
-          onClick={() =>
-            act((st) => {
-              if (!trySally(st)) return "Need 5 militia and a column on the road.";
-              return "Sally at the gate.";
-            })
-          }
-        >
-          Sally (5 militia)
-        </button>
+        {sallyReady ? (
+          <button
+            type="button"
+            onClick={() =>
+              act((st) => {
+                if (!trySally(st)) return "Need 5 militia and a column on the road.";
+                return "Sally at the gate.";
+              })
+            }
+          >
+            Sally (5 militia)
+          </button>
+        ) : null}
         <p style={{ margin: "4px 0" }}>
           Wall HP {hp}. Gate {gateUp ? "up" : "down"}. Siege hits walls first, then the yard, then the keep.
         </p>
