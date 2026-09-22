@@ -42,6 +42,9 @@ export function ArmyTab(props: {
   const unitTypes = listUnitTypes();
   const trainMult = state ? trainCostMultiplier(state) : 1;
   const barracksN = state ? countBuilding(state, "barracks") : 0;
+  const stablesN = state ? countBuilding(state, "stables") : 0;
+  const rangeN = state ? countBuilding(state, "archery_range") : 0;
+  const shopN = state ? countBuilding(state, "siege_workshop") : 0;
   const halls = state ? countBuilding(state, "infirmary") : 0;
   const hasChamp = state?.units.some((u) => u.realmId === "player" && u.typeId === "champion");
   const [cname, setCname] = React.useState(state ? championName(state) : "");
@@ -59,7 +62,12 @@ export function ArmyTab(props: {
           x{q}
         </button>
       ))}
-      <span style={{ fontSize: 12 }}>{barracksN ? ` Barracks discount ${Math.round((1 - trainMult) * 100)}%` : ""}</span>
+      <span style={{ fontSize: 12 }}>
+        {barracksN ? ` Barracks −5% each (now ${Math.round((1 - trainMult) * 100)}% off base)` : " Raise Barracks on Kingdom for cheaper levies."}
+        {stablesN ? " · Stables −10% cavalry/knights" : ""}
+        {rangeN ? " · Range −10% archers" : ""}
+        {shopN ? " · Workshop −15% siege" : ""}
+      </span>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
         {unitTypes.map((u) => {
           const cost = Object.entries(u.cost).map(([k, v]) => `${v} ${k}`).join(", ");
