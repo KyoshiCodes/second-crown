@@ -1,8 +1,13 @@
 import { describe, it, expect } from "vitest";
 import {
   roleForCitizenJob,
+  toolForCitizen,
+  resolveWalkerTool,
+  createWalker,
+  drawWalkerFrame,
   pickDestination,
   type Walker,
+  type WalkerJobTool,
   bandForZoom,
   ZOOM_THRESHOLD,
   provinceTokenBounds,
@@ -160,6 +165,127 @@ describe("packages/render walker roles and pickDestination", () => {
     expect(walker.targetX).toBeLessThanOrEqual(9);
     expect(walker.targetY).toBeGreaterThanOrEqual(3);
     expect(walker.state).toBe("walking");
+  });
+
+  it("resolves job tools for farm, wood, stone, gold based on job and building type", () => {
+    expect(toolForCitizen("farmer", "farm")).toBe("farm");
+    expect(toolForCitizen("farmer", "granary")).toBe("farm");
+    expect(toolForCitizen("woodcutter", "lumber_camp")).toBe("wood");
+    expect(toolForCitizen("woodcutter", "sawmill")).toBe("wood");
+    expect(toolForCitizen("miner", "quarry")).toBe("stone");
+    expect(toolForCitizen("miner", "mason")).toBe("stone");
+    expect(toolForCitizen("miner", "gold_mine")).toBe("gold");
+    expect(toolForCitizen("merchant", "mint")).toBe("gold");
+    expect(toolForCitizen("gold")).toBe("gold");
+    expect(toolForCitizen("gold_miner")).toBe("gold");
+    expect(toolForCitizen("stone")).toBe("stone");
+    expect(toolForCitizen("stone_cutter")).toBe("stone");
+    // Fallback modulo cycling
+    expect(toolForCitizen("miner", undefined, 0)).toBe("stone");
+    expect(toolForCitizen("miner", undefined, 1)).toBe("gold");
+  });
+
+  it("resolves walker tool from role or explicit tool override", () => {
+    expect(resolveWalkerTool("farm")).toBe("farm");
+    expect(resolveWalkerTool("farmer")).toBe("farm");
+    expect(resolveWalkerTool("wood")).toBe("wood");
+    expect(resolveWalkerTool("woodcutter")).toBe("wood");
+    expect(resolveWalkerTool("stone")).toBe("stone");
+    expect(resolveWalkerTool("gold")).toBe("gold");
+    expect(resolveWalkerTool("villager")).toBe("farm");
+    expect(resolveWalkerTool("miner")).toBe("stone");
+    expect(resolveWalkerTool("villager", "gold")).toBe("gold");
+    expect(resolveWalkerTool("guard")).toBe(null);
+    expect(resolveWalkerTool("scholar")).toBe(null);
+  });
+
+  it("creates presentation walkers with assigned job tools cycling across farm, wood, stone, gold", () => {
+    const w0 = createWalker(0, 5, 5);
+    const w1 = createWalker(1, 5, 5);
+    const w2 = createWalker(2, 5, 5);
+    const w3 = createWalker(3, 5, 5);
+    const w4 = createWalker(4, 5, 5);
+
+    expect(w0.tool).toBe("farm");
+    expect(w0.role).toBe("villager");
+    expect(w1.tool).toBe("wood");
+    expect(w1.role).toBe("woodcutter");
+    expect(w2.tool).toBe("stone");
+    expect(w2.role).toBe("miner");
+    expect(w3.tool).toBe("gold");
+    expect(w3.role).toBe("miner");
+    expect(w4.tool).toBe("farm");
+  });
+
+  it("assigns appropriate tool when picking destination based on worker building", () => {
+    const state = createMockState();
+    state.buildings.push(
+      { id: "b1", typeId: "quarry", x: 2, y: 3, level: 1 } as any,
+      { id: "b2", typeId: "gold_mine", x: 4, y: 5, level: 1 } as any,
+      { id: "b3", typeId: "lumber_camp", x: 6, y: 7, level: 1 } as any
+    );
+    state.citizens.push(
+      { id: "c1", realmId: "player", job: "miner", tile: { x: 2, y: 3 } },
+      { id: "c2", realmId: "player", job: "miner", tile: { x: 4, y: 5 } },
+      { id: "c3", realmId: "player", job: "woodcutter", tile: { x: 6, y: 7 } }
+    );
+
+    const walker0 = createMockWalker(0, 0, 0);
+    const walker1 = createMockWalker(1, 0, 0);
+    const walker2 = createMockWalker(2, 0, 0);
+
+    pickDestination(walker0, state);
+    pickDestination(walker1, state);
+    pickDestination(walker2, state);
+
+    expect(walker0.role).toBe("miner");
+    expect(walker0.tool).toBe("stone");
+
+    expect(walker1.role).toBe("miner");
+    expect(walker1.tool).toBe("gold");
+
+    expect(walker2.role).toBe("woodcutter");
+    expect(walker2.tool).toBe("wood");
+  });
+
+  it("draws 2-3 frame pixel walkers with distinct tools across all frames and facings", () => {
+    const createMockG = () => {
+      const calls: string[] = [];
+      return {
+        calls,
+        clear: () => calls.push("clear"),
+        ellipse: (...args: any[]) => calls.push(`ellipse`),
+        rect: (...args: any[]) => calls.push(`rect`),
+        circle: (...args: any[]) => calls.push(`circle`),
+        poly: (...args: any[]) => calls.push(`poly`),
+        moveTo: (...args: any[]) => calls.push(`moveTo`),
+        lineTo: (...args: any[]) => calls.push(`lineTo`),
+        fill: (...args: any[]) => calls.push(`fill`),
+        stroke: (...args: any[]) => calls.push(`stroke`),
+      } as any;
+    };
+
+    const tools: WalkerJobTool[] = ["farm", "wood", "stone", "gold"];
+    const frames: (0 | 1 | 2)[] = [0, 1, 2];
+    const facings = [1, -1];
+
+    for (const tool of tools) {
+      for (const frame of frames) {
+        for (const facing of facings) {
+          const g = createMockG();
+          drawWalkerFrame(g, tool, facing, frame, "western", tool);
+          expect(g.calls.length).toBeGreaterThan(15);
+          expect(g.calls[0]).toBe("clear");
+        }
+      }
+    }
+
+    // Verify non-western cultures also render job tools
+    for (const cult of ["cedar", "sand", "steppe", "tide"]) {
+      const g = createMockG();
+      drawWalkerFrame(g, "villager", 1, 1, cult, "gold");
+      expect(g.calls.length).toBeGreaterThan(15);
+    }
   });
 });
 

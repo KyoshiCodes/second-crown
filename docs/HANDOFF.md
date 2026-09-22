@@ -6,7 +6,14 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-units)
+## Recent Wave (bakeoff/gemini-walkers)
+
+- **Hold Citizens & 2-3 Frame Job Tools**:
+  - Citizens walking the isometric hold view read as 2–3 frame pixel walkers with job tools for the 4 primary hold works: `farm` (pitchfork + straw hat + golden sheaf), `wood` (felling broadaxe + feather cap + pine log), `stone` (double-pointed quarry pickaxe + quarry cowl + granite block), and `gold` (gilded prospector pick + assayer lamp + gold pan with animated star twinkle).
+  - Dynamic tool resolution links citizen jobs and work tile building types to matching tools; default 8-citizen wander pool rotates across all four tools.
+  - Zero diff on `packages/sim` or `server/`. Hit-tests and camera math strictly untouched.
+
+## Prior Wave (bakeoff/gemini-units)
 
 - **Unit & Keep Readability on Diamond Board**:
   - Miniature keeps now have ambient ground contact shadows and stepped foundation plinths to detach cleanly from textured 3D terrain relief.

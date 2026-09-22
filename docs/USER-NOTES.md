@@ -3,6 +3,14 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## Hold Citizen Walkers & Job Tools
+
+Citizens walking the isometric hold view now display authentic 2–3 frame pixel animations and distinct tools reflecting their labor:
+- **Farm (`farm`)**: Farmers wear broad straw sun hats with sunny highlights and carry a forged 3-tined pitchfork that tilts as they stride, with a golden bundle of wheat grain tucked at the hip.
+- **Wood (`wood`)**: Woodcutters sport a forester cap with a pheasant feather, swinging a heavy bearded felling axe with a gleaming steel razor edge, carrying a pine timber log over their shoulder.
+- **Stone (`stone`)**: Quarrymen wear protective stone dust cowls and split-leather aprons with iron buckles, swinging a heavy double-pointed quarry pickaxe and carrying a hand-hewn granite block.
+- **Gold (`gold`)**: Gold miners wear midnight navy velvet with a gleaming gold sash, a forehead miner reflector lamp, a gilded prospector pickaxe, and an iron pan filled with raw gold dust and a glistening bullion bar that sparkles with a 2–3 frame star twinkle.
+
 ## Overworld Units & Miniature Keeps
 
 Marching armies and kingdom holds now read with razor-sharp clarity across the 3D isometric diamond board:
