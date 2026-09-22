@@ -2,6 +2,8 @@ import React from "react";
 import {
   canAffordTrain,
   countBuilding,
+  healTicksLeft,
+  listHealing,
   listTroopPosts,
   listTraining,
   listUnitTypes,
@@ -11,6 +13,7 @@ import {
   tryCancelTraining,
   troopWounded,
   tryTrain,
+  tryTreatWounded,
   tryHireChampion,
   tryHireMercs,
   tryNameChampion,
@@ -54,6 +57,8 @@ export function ArmyTab(props: {
   const queue = state ? listTraining(state, "player") : [];
   const cap = state ? trainingQueueCap(state) : 2;
   const beds = halls * 10;
+  const healing = state ? listHealing(state).length : 0;
+  const healLeft = state ? healTicksLeft(state) : 0;
 
   return (
     <>
@@ -129,10 +134,29 @@ export function ArmyTab(props: {
             {p.typeId}: home {p.home} · marching {p.marching} · gathering {p.gathering}
           </div>
         ))}
-        <div>Wounded {wounded}{halls > 0 ? ` · Infirmary ${halls} (${beds} beds)` : ""}</div>
+        <div>
+          Wounded {wounded}
+          {halls > 0 ? ` · Infirmary ${halls} (${beds} beds)` : ""}
+          {healing > 0 ? ` · treating ${healing} · next in ${Math.ceil(healLeft / 10)}s` : ""}
+        </div>
         {wounded > 0 && halls < 1 ? (
           <div style={{ color: "#d29922", fontSize: 12 }}>Raise an Infirmary on Kingdom. Half of home losses go to beds instead of the grave.</div>
         ) : null}
+        <button
+          type="button"
+          disabled={!state || wounded < 1}
+          onClick={() =>
+            act((st) =>
+              tryTreatWounded(st)
+                ? "One wounded taken to a cot. 4 food. Back as militia in 5s."
+                : wounded < 1
+                  ? "No wounded."
+                  : "Need 4 food."
+            )
+          }
+        >
+          {wounded < 1 ? "Treat wounded (need wounded)" : "Treat 1 wounded (4 food → militia in 5s)"}
+        </button>
         {state ? (
           <div style={{ opacity: 0.75, marginTop: 4 }}>
             Vault floor · food {vaultProtects(state, "food")} · wood {vaultProtects(state, "wood")} · stone{" "}
