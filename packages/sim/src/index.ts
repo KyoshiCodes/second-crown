@@ -83,6 +83,7 @@ export {
   tryStartResearch,
   tryCancelResearch,
   researchDone,
+  researchDuration,
   researchTicksLeft,
   unitUnlocked,
   researchKeepMin,

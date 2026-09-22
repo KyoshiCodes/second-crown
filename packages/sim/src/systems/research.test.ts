@@ -4,6 +4,7 @@ import {
   tryStartResearch,
   tryCancelResearch,
   researchDone,
+  researchDuration,
   researchTicksLeft,
   unitUnlocked,
   researchYield,
@@ -193,6 +194,25 @@ describe("academy research", () => {
       completesAtTick: null,
     });
     expect(researchTicksLeft(withoutAcademy, "husbandry")).toBe(180);
+  });
+
+  it("researchDuration reports the full tick length, or 20% less once an Academy stands", () => {
+    const s = createGameState({ seed: 1 });
+    expect(researchDuration(s, "husbandry")).toBe(180);
+    expect(researchDuration(s, "siege")).toBe(360);
+    s.buildings.push({
+      id: "ac",
+      typeId: "academy",
+      realmId: "player",
+      x: 6,
+      y: 6,
+      level: 1,
+      completesAtTick: null,
+    });
+    // 180 * 0.8 = 144, exact.
+    expect(researchDuration(s, "husbandry")).toBe(144);
+    // 360 * 0.8 = 288, exact - Academy discounts every study, even ones it doesn't gate.
+    expect(researchDuration(s, "siege")).toBe(288);
   });
 
   it("surveying needs Keep II and stretches vision", () => {
