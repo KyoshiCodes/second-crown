@@ -56,4 +56,12 @@ describe("trade", () => {
     expect(D(state.resources.food).eq(10)).toBe(true);
     expect(D(state.resources.stone).gte(12)).toBe(true);
   });
+
+  it("trades wood for food", () => {
+    const state = withMarket();
+    state.resources.wood = "30";
+    expect(tryTrade(state, "wood_food")).toBe(true);
+    expect(D(state.resources.wood).eq(6)).toBe(true);
+    expect(D(state.resources.food).gte(20)).toBe(true);
+  });
 });
