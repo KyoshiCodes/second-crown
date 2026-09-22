@@ -86,6 +86,16 @@ function anyStudyOpen(state: GameState): boolean {
   return false;
 }
 
+function academyReady(state: GameState): boolean {
+  return countBuilding(state, "academy") >= 1;
+}
+
+/** A finished Academy shortens every new study by 20%. In-progress studies are unaffected. */
+export function researchDuration(state: GameState, id: ResearchId): number {
+  const def = RESEARCH[id];
+  return academyReady(state) ? Math.ceil(def.ticks * 0.8) : def.ticks;
+}
+
 export function researchKeepMin(id: string): number {
   const def = RESEARCH[id as ResearchId];
   return def?.keepMin ?? 0;
@@ -156,7 +166,9 @@ export function tryStartResearch(state: GameState, id: ResearchId): boolean {
   for (const [res, cost] of Object.entries(def.cost)) {
     state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").sub(cost));
   }
-  state.flags[`research_${id}_until`] = state.meta.tick + def.ticks;
+  const duration = researchDuration(state, id);
+  state.flags[`research_${id}_until`] = state.meta.tick + duration;
+  state.flags[`research_${id}_total`] = duration;
   state.inputLog.push({ tick: state.meta.tick, type: "research", issuerId: "player", payload: { id } });
   return true;
 }
@@ -168,11 +180,13 @@ export function tryCancelResearch(state: GameState, id: ResearchId): boolean {
   if (researchDone(state, id)) return false;
   const left = researchTicksLeft(state, id);
   if (left <= 0) return false;
-  const frac = left / def.ticks;
+  const total = Number(state.flags[`research_${id}_total`] ?? def.ticks);
+  const frac = left / total;
   for (const [res, cost] of Object.entries(def.cost)) {
     addCapped(state, res, D(cost).mul(frac));
   }
   delete state.flags[`research_${id}_until`];
+  delete state.flags[`research_${id}_total`];
   state.inputLog.push({ tick: state.meta.tick, type: "cancel_research", issuerId: "player", payload: { id } });
   return true;
 }
