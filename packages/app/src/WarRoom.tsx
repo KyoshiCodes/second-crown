@@ -2,6 +2,7 @@ import React from "react";
 import {
   canAffordTrain,
   canSally,
+  garrisonPower,
   gateOnRim,
   getProvince,
   healTicksLeft,
@@ -20,6 +21,7 @@ import {
   realmPower,
   tryDeclareWar,
   tryGiftGold,
+  tryRecallGarrison,
   tryRecallGather,
   tryRecallMarch,
   tryRepair,
@@ -261,14 +263,31 @@ export function WarRoom(props: {
           )}
         </div>
         <div style={{ marginTop: 8 }}>
+          <div style={{ opacity: 0.85, marginBottom: 2 }}>Garrisons</div>
           {posts.length === 0 ? (
             <p style={{ margin: 0, opacity: 0.7 }}>No garrison posted on a flag.</p>
           ) : (
-            posts.map((g) => (
-              <div key={g.provinceId}>
-                Garrison {g.provinceId}: {Object.entries(g.force).map(([k, n]) => `${n} ${k}`).join(", ")}
-              </div>
-            ))
+            posts.map((g) => {
+              const dest = state ? getProvince(state, g.provinceId) : undefined;
+              const where = dest ? `${dest.x},${dest.y}` : g.provinceId;
+              const power = state ? garrisonPower(state, g.provinceId) : 0;
+              return (
+                <div key={g.provinceId} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <span>
+                    Garrison {where} · power {power} ·{" "}
+                    {Object.entries(g.force).map(([k, n]) => `${n} ${k}`).join(", ")}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      act((st) => (tryRecallGarrison(st, g.provinceId) ? "Garrison recalled." : "Cannot recall garrison."))
+                    }
+                  >
+                    Recall
+                  </button>
+                </div>
+              );
+            })
           )}
         </div>
       </section>
