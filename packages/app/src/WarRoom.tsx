@@ -71,6 +71,8 @@ export function WarRoom(props: {
   const tick = state?.meta.tick ?? 0;
   const sallyReady = state ? canSally(state) : false;
   const columns = state ? listMarches(state).filter((m) => m.realmId === "player") : [];
+  const scouts = columns.filter((m) => m.purpose === "scout");
+  const firstColumnId = columns[0]?.id;
   const gathers = state ? listGathers(state).filter((g) => g.realmId === "player") : [];
   const posts = state ? listGarrisons(state) : [];
   const nameOf = (id: string) => state?.realms.find((r) => r.id === id)?.name ?? id;
@@ -207,6 +209,32 @@ export function WarRoom(props: {
         >
           Recall column
         </button>
+        <div style={{ marginTop: 8 }}>
+          <div style={{ opacity: 0.85, marginBottom: 2 }}>Scouts</div>
+          {scouts.length === 0 ? (
+            <p style={{ margin: 0, opacity: 0.7 }}>No scout on the road.</p>
+          ) : (
+            scouts.map((m) => {
+              const dest = state ? getProvince(state, m.toId) : undefined;
+              const where = dest ? `${dest.x},${dest.y}` : m.toId;
+              const canRecall = m.id === firstColumnId && tick < m.arrivesTick;
+              return (
+                <div key={m.id} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <span>
+                    Scout → {where} · ETA {etaOf(m.arrivesTick)}s
+                  </span>
+                  <button
+                    type="button"
+                    disabled={!canRecall}
+                    onClick={() => act((st) => (tryRecallMarch(st) ? "Scout recalled." : "Too late to recall."))}
+                  >
+                    Recall
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
         <div style={{ marginTop: 8 }}>
           {gathers.length === 0 ? (
             <p style={{ margin: 0, opacity: 0.7 }}>No gather party out.</p>
