@@ -3,6 +3,16 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## Posted Garrisons & Encampment Meeples on the Board
+
+Outpost flag tiles with a posted garrison now show an authentic military pavilion encampment meeple:
+- **Pitched Pavilion Tent & Lantern Glow**: A pitched canvas ridgepole pavilion anchored with tension guy ropes and timber pegs. An open arched entryway casts a warm amber lantern glow from inside the tent.
+- **Defensive Armaments**: Guard halberds and steel spears stand propped beside the tent, alongside culture-heraldic defensive heater shields.
+- **Elevated War Banner**: A tall hardwood flagpole flies a waving swallowtail battle standard adorned with a golden chevron garrison charge.
+- **Fortified Readiness Crest**: A hovering obsidian shield badge with golden studs marks the defensive strength of the garrisoned position.
+- **Unguarded vs Guarded Clarity**: Outposts without a posted garrison show only a lone wooden boundary stake and territory pennant, letting players instantly spot undefended frontiers.
+- **Garrison Deployment & Recall Columns**: When dispatching or recalling troops to a flag tile, the column travels as an animated mobile encampment along a royal blue and gold supply trail.
+
 ## Scout Columns & Cloak/Spy Meeple on the Board
 
 Reconnaissance scout columns dispatched to map unexplored provinces in the fog now display a distinctive, agile cloak-and-spy meeple:

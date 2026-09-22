@@ -8,6 +8,9 @@ import {
   nodeStock,
   nodeStockMax,
   GATHER_NODES,
+  garrisonAt,
+  garrisonPower,
+  listGarrisons,
 } from "@second-crown/sim";
 import * as sim from "@second-crown/sim";
 import type { March } from "@second-crown/sim";
@@ -1747,7 +1750,9 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
     // 6. Special Realm Occupant Token Overlays
     if (p.occupantRealmId === "player") {
       const isHome = p.id === state.board.homeProvinceId;
-      const cult = culturePalette(sim.playerCultureId ? sim.playerCultureId(state) : undefined);
+      const cultId = sim.playerCultureId ? sim.playerCultureId(state) : undefined;
+      const kit = resolveCultureKit(cultId);
+      const cult = culturePalette(cultId);
       const playerTabardCol = cult.id === "western" ? 0x1e40af : cult.tabard;
 
       if (isHome) {
@@ -1791,32 +1796,34 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
         g.circle(wx, cy + hh, 1.2); g.fill({ color: 0xfde047 });
         g.circle(wx - hw, cy, 1.2); g.fill({ color: 0xfde047 });
 
-        // Ground shadow under shelter tent & flag
-        g.ellipse(cx - 3.5, cy + 5, 6, 2.5);
-        g.fill({ color: 0x000000, alpha: 0.45 });
+        const garrison = getPostedGarrison(state, p.id);
+        if (garrison.posted) {
+          // Posted Garrison Encampment: small tent + banner meeple with armaments & power crest
+          drawGarrisonMeeple(g, cx, cy, kit, cult, garrison.power, phase);
+        } else {
+          // Unguarded Territory Claim: solitary wooden marker stake & fluttering territory pennant
+          // Ground contact shadow under stake
+          g.ellipse(cx, cy + 4.5, 3.8, 1.8);
+          g.fill({ color: 0x000000, alpha: 0.38 });
 
-        // Small shelter tent with entrance flap
-        g.poly([cx - 8.5, cy + 5, cx - 3.5, cy - 1, cx + 1.5, cy + 5]);
-        g.fill({ color: 0xb45309 });
-        g.stroke({ width: 0.7, color: 0x78350f });
-        g.poly([cx - 4.5, cy + 5, cx - 3.5, cy + 1.2, cx - 2.5, cy + 5]);
-        g.fill({ color: 0x451a03 });
+          // Wooden boundary marker stake
+          g.moveTo(cx, cy + 5);
+          g.lineTo(cx, cy - 13);
+          g.stroke({ width: 1.3, color: 0x78350f });
+          g.circle(cx, cy - 13.5, 1.1);
+          g.fill({ color: 0xfacc15 });
 
-        // Flagpole & royal swallowtail standard
-        g.moveTo(cx + 3, cy + 4); g.lineTo(cx + 3, cy - 14);
-        g.stroke({ width: 1.4, color: 0x78350f });
-        g.circle(cx + 3, cy - 14.5, 1.3); g.fill({ color: 0xfacc15 });
-
-        const flagWave = Math.sin(phase * 4 + p.x * 2) * 2;
-        g.poly([
-          cx + 3, cy - 14,
-          cx + 11 + flagWave, cy - 11,
-          cx + 9 + flagWave * 0.7, cy - 8,
-          cx + 11 + flagWave, cy - 6,
-          cx + 3, cy - 6,
-        ]);
-        g.fill({ color: playerTabardCol });
-        g.stroke({ width: 0.6, color: 0x1e3a8a });
+          // Fluttering territory claim pennant
+          const pennantWave = Math.sin(phase * 4 + p.x * 2) * 1.6;
+          g.poly([
+            cx, cy - 13,
+            cx + 8 + pennantWave, cy - 10.5,
+            cx + 6 + pennantWave * 0.6, cy - 8,
+            cx, cy - 8,
+          ]);
+          g.fill({ color: playerTabardCol, alpha: 0.85 });
+          g.stroke({ width: 0.6, color: 0x1e3a8a });
+        }
       }
     } else if (p.occupantRealmId) {
       const pal = realmTokenPalette(p.occupantRealmId);
@@ -1869,6 +1876,33 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
       }
     }
   }
+}
+
+/**
+ * Resolves whether a province has a posted garrison stationed on it,
+ * along with its defensive garrison power rating and garrisoned force breakdown.
+ */
+export function getPostedGarrison(
+  state: GameState | null,
+  provinceId: string
+): { posted: boolean; power: number; force?: Record<string, number> } {
+  if (!state) return { posted: false, power: 0 };
+  const g = garrisonAt(state, provinceId);
+  if (!g) return { posted: false, power: 0 };
+  const power = garrisonPower(state, provinceId);
+  return { posted: true, power, force: g.force };
+}
+
+/**
+ * Determines if a march represents an active garrison deployment or recall expedition.
+ */
+export function isGarrisonMarch(m: any): boolean {
+  if (!m) return false;
+  return (
+    m.purpose === "garrison" ||
+    m.purpose === "garrison_home" ||
+    (typeof m.id === "string" && m.id.startsWith("m_garrison_"))
+  );
 }
 
 /**
@@ -2339,6 +2373,295 @@ export function drawScoutColumnMeeple(
   pawnsG.fill({ color: progress >= 0.75 ? 0x38bdf8 : 0x334155 });
 }
 
+/**
+ * Draws a distinct military encampment pavilion tent and heraldic banner meeple
+ * representing posted garrisons stationed on player outposts and flag tiles,
+ * as well as marching garrison deployment/recall columns.
+ *
+ * Distinct features:
+ * - 3D pitched pavilion canvas ridgepole tent with guy ropes and timber ground pegs
+ * - Open arched tent flap revealing a warm glowing lantern / hearth amber light
+ * - Defensive garrison armaments leaning beside the tent (steel spearhead & heraldic guard shield)
+ * - Elevated royal hardwood flagpole with gilded finial and waving swallowtail standard
+ * - Heraldic garrison chevron / charge emblazoned on the waving banner
+ * - Floating fortified steel & gold garrison shield crest indicating defensive readiness
+ * - Culture-responsive palettes and architectural styling across all 5 cultures
+ */
+export function drawGarrisonMeeple(
+  pawnsG: Graphics,
+  x: number,
+  y: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette,
+  power: number = 0,
+  phase: number = 0,
+  options?: { facing?: number; frame?: 0 | 1 | 2; isColumn?: boolean }
+): void {
+  const facing = options?.facing ?? 1;
+  const isColumn = !!options?.isColumn;
+  const bob = isColumn ? (options?.frame === 0 ? 0 : 2) : 0;
+  const cy = y - bob;
+
+  // 1. Dual Ground Contact Shadows (encampment footprint + flagpole base)
+  pawnsG.ellipse(x - 3.5, cy + 5.5, 9.5, 3.4);
+  pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+
+  pawnsG.ellipse(x + 5.5, cy + 5.5, 4.0, 1.8);
+  pawnsG.fill({ color: 0x000000, alpha: 0.38 });
+
+  // 2. Tension Guy Ropes & Timber Ground Pegs
+  // Left rear tension rope & timber peg
+  pawnsG.moveTo(x - 9, cy + 3.2);
+  pawnsG.lineTo(x - 13.5, cy + 6.2);
+  pawnsG.stroke({ width: 0.7, color: 0xd4a373 });
+  pawnsG.rect(x - 14, cy + 5.2, 1.5, 2.5);
+  pawnsG.fill({ color: 0x78350f });
+
+  // Right tension rope & timber peg
+  pawnsG.moveTo(x + 2, cy + 3.2);
+  pawnsG.lineTo(x + 5, cy + 6.2);
+  pawnsG.stroke({ width: 0.7, color: 0xd4a373 });
+  pawnsG.rect(x + 4.5, cy + 5.2, 1.5, 2.5);
+  pawnsG.fill({ color: 0x78350f });
+
+  // 3. Pavilion Military Tent
+  const canvasMain =
+    kit === "sand"
+      ? 0xd97706
+      : kit === "cedar"
+      ? 0x15803d
+      : kit === "steppe"
+      ? 0xa16207
+      : kit === "islands"
+      ? 0x0284c7
+      : 0xb45309;
+
+  const canvasDark = blendDark(canvasMain, 0.4);
+  const canvasLight = blendLight(canvasMain, 0.25);
+  const timberColor = cult.timber ?? 0x78350f;
+
+  if (kit === "steppe") {
+    // Steppe: Conical nomadic yurt pavilion
+    // Round yurt lower cylinder
+    pawnsG.rect(x - 9.5, cy - 0.5, 12.5, 6);
+    pawnsG.fill({ color: canvasDark });
+    pawnsG.stroke({ width: 0.7, color: 0x451a03 });
+
+    // Conical felt roof dome
+    pawnsG.poly([
+      x - 10.5, cy - 0.5,
+      x - 3.5, cy - 7.5,
+      x + 3.5, cy - 0.5,
+    ]);
+    pawnsG.fill({ color: canvasLight });
+    pawnsG.stroke({ width: 0.7, color: 0x451a03 });
+
+    // Yurt crown / compression ring
+    pawnsG.circle(x - 3.5, cy - 7.5, 1.4);
+    pawnsG.fill({ color: 0xd6d3d1 });
+    pawnsG.stroke({ width: 0.5, color: 0x451a03 });
+  } else {
+    // Pitched Pavilion Ridge Tent
+    // Left roof pitch (shadowed)
+    pawnsG.poly([
+      x - 10, cy + 5.5,
+      x - 3.5, cy - 6,
+      x - 1, cy - 6,
+      x - 7, cy + 5.5,
+    ]);
+    pawnsG.fill({ color: canvasDark });
+
+    // Right roof pitch / front gable (sunlit)
+    pawnsG.poly([
+      x - 7, cy + 5.5,
+      x - 1, cy - 6,
+      x + 3, cy + 5.5,
+    ]);
+    pawnsG.fill({ color: canvasLight });
+
+    // Roof ridge outline
+    pawnsG.poly([
+      x - 10, cy + 5.5,
+      x - 3.5, cy - 6,
+      x - 1, cy - 6,
+      x + 3, cy + 5.5,
+    ]);
+    pawnsG.stroke({ width: 0.7, color: 0x451a03 });
+
+    // Ridgepole along apex
+    pawnsG.moveTo(x - 4, cy - 6);
+    pawnsG.lineTo(x - 0.5, cy - 6);
+    pawnsG.stroke({ width: 1.3, color: timberColor });
+  }
+
+  // Faction Tabard Scalloped Valance / Eaves Trim
+  pawnsG.poly([
+    x - 10, cy + 2,
+    x - 3.5, cy - 2.5,
+    x + 3, cy + 2,
+    x + 3, cy + 3.4,
+    x - 3.5, cy - 1.2,
+    x - 10, cy + 3.4,
+  ]);
+  pawnsG.fill({ color: cult.tabard });
+  pawnsG.stroke({ width: 0.5, color: blendDark(cult.tabard, 0.4) });
+
+  // Arched Tent Entrance Flap
+  pawnsG.poly([
+    x - 5.5, cy + 5.5,
+    x - 3.5, cy - 0.2,
+    x - 1.5, cy + 5.5,
+  ]);
+  pawnsG.fill({ color: 0x1c1917 });
+
+  // Glowing Lantern / Hearth Fire inside tent
+  pawnsG.circle(x - 3.5, cy + 3.0, 2.2);
+  pawnsG.fill({ color: 0xf59e0b, alpha: 0.28 });
+  pawnsG.circle(x - 3.5, cy + 3.0, 1.3);
+  pawnsG.fill({ color: 0xfef08a });
+  pawnsG.circle(x - 3.5, cy + 3.0, 0.6);
+  pawnsG.fill({ color: 0xffffff });
+
+  // 4. Defensive Garrison Armaments Beside Tent
+  // Guard Spear / Halberd leaning against left flank
+  pawnsG.moveTo(x - 8.5, cy + 5);
+  pawnsG.lineTo(x - 6.5, cy - 9.5);
+  pawnsG.stroke({ width: 1.2, color: timberColor });
+
+  // Steel Spearhead
+  pawnsG.poly([
+    x - 7.6, cy - 8.5,
+    x - 6.5, cy - 12,
+    x - 5.4, cy - 8.5,
+  ]);
+  pawnsG.fill({ color: 0xe2e8f0 });
+  pawnsG.stroke({ width: 0.5, color: 0x475569 });
+
+  // Crossbar / Halberd hook
+  pawnsG.moveTo(x - 8, cy - 7.5);
+  pawnsG.lineTo(x - 5, cy - 7.5);
+  pawnsG.stroke({ width: 0.7, color: 0x94a3b8 });
+
+  // Leaning Heater / Buckler Shield beside tent entrance
+  if (kit === "sand" || kit === "steppe") {
+    // Round Buckler Shield
+    pawnsG.circle(x - 7.2, cy + 3.2, 2.5);
+    pawnsG.fill({ color: cult.tabard });
+    pawnsG.stroke({ width: 0.6, color: 0xfacc15 });
+    pawnsG.circle(x - 7.2, cy + 3.2, 0.9);
+    pawnsG.fill({ color: 0xfde047 });
+  } else {
+    // Heater Shield with golden rim
+    pawnsG.poly([
+      x - 8.8, cy + 1,
+      x - 5.2, cy + 1,
+      x - 5.2, cy + 4.5,
+      x - 7.0, cy + 6.8,
+      x - 8.8, cy + 4.5,
+    ]);
+    pawnsG.fill({ color: cult.tabard });
+    pawnsG.stroke({ width: 0.6, color: 0xfacc15 });
+    // Center boss
+    pawnsG.circle(x - 7.0, cy + 3.2, 0.7);
+    pawnsG.fill({ color: 0xfde047 });
+  }
+
+  // 5. Elevated Royal Heraldic War Banner
+  // Hardwood Flagpole
+  const poleX = x + 5.5;
+  pawnsG.moveTo(poleX, cy + 6);
+  pawnsG.lineTo(poleX, cy - 16);
+  pawnsG.stroke({ width: 1.5, color: timberColor });
+
+  // Pole Base Iron Bracket
+  pawnsG.rect(poleX - 1.2, cy + 3.5, 2.4, 2.5);
+  pawnsG.fill({ color: 0x27272a });
+
+  // Gilded Finial Tip
+  pawnsG.circle(poleX, cy - 16.5, 1.4);
+  pawnsG.fill({ color: 0xfacc15 });
+  pawnsG.circle(poleX, cy - 16.5, 0.5);
+  pawnsG.fill({ color: 0xffffff });
+
+  // Culture-specific finial decoration
+  if (kit === "cedar") {
+    // Red huntsman plume
+    pawnsG.moveTo(poleX, cy - 16.5);
+    pawnsG.lineTo(poleX - 2.5, cy - 19.5);
+    pawnsG.stroke({ width: 1.1, color: 0xef4444 });
+    pawnsG.circle(poleX - 2.5, cy - 19.5, 0.6);
+    pawnsG.fill({ color: 0xfacc15 });
+  } else if (kit === "steppe") {
+    // Horsehair pennant tuft
+    pawnsG.moveTo(poleX, cy - 15.5);
+    pawnsG.lineTo(poleX - 2, cy - 11.5);
+    pawnsG.stroke({ width: 1.1, color: 0xd6d3d1 });
+  } else if (kit === "islands") {
+    // Sea pearl
+    pawnsG.circle(poleX, cy - 16.5, 1.2);
+    pawnsG.fill({ color: 0x06b6d4 });
+  }
+
+  // Waving Heraldic Swallowtail Standard
+  const flagWave = Math.sin(phase * 4 + (x + y) * 0.15) * 2;
+  pawnsG.poly([
+    poleX, cy - 16,
+    poleX + 11.5 + flagWave, cy - 12.5,
+    poleX + 9.0 + flagWave * 0.7, cy - 9.5,
+    poleX + 11.5 + flagWave, cy - 6.5,
+    poleX, cy - 6.5,
+  ]);
+  pawnsG.fill({ color: cult.tabard });
+  pawnsG.stroke({ width: 0.7, color: cult.accent ?? 0xfacc15 });
+
+  // Heraldic Garrison Charge (Chevron / Insignia on banner)
+  pawnsG.poly([
+    poleX + 2.5 + flagWave * 0.2, cy - 12.5,
+    poleX + 5.5 + flagWave * 0.45, cy - 9.5,
+    poleX + 2.5 + flagWave * 0.2, cy - 7.5,
+    poleX + 4.0 + flagWave * 0.3, cy - 7.5,
+    poleX + 7.0 + flagWave * 0.55, cy - 9.5,
+    poleX + 4.0 + flagWave * 0.3, cy - 12.5,
+  ]);
+  pawnsG.fill({ color: 0xfde047 });
+
+  // 6. Floating Fortified Garrison Readiness Crest (Power Emblem)
+  const badgeX = x - 3.5;
+  const badgeY = cy - 14;
+
+  // Steel & Gold Garrison Shield Badge
+  pawnsG.poly([
+    badgeX - 4.5, badgeY - 3.5,
+    badgeX + 4.5, badgeY - 3.5,
+    badgeX + 4.5, badgeY,
+    badgeX, badgeY + 4.2,
+    badgeX - 4.5, badgeY,
+  ]);
+  pawnsG.fill({ color: 0x0f172a, alpha: 0.92 });
+  pawnsG.stroke({ width: 0.8, color: 0xfacc15, alpha: 0.95 });
+
+  // Inner Garrison Power Indicators
+  if (power >= 25) {
+    // Elite garrison: 2 golden stars
+    pawnsG.circle(badgeX - 2.0, badgeY - 0.5, 0.9);
+    pawnsG.fill({ color: 0xfde047 });
+    pawnsG.circle(badgeX + 2.0, badgeY - 0.5, 0.9);
+    pawnsG.fill({ color: 0xfde047 });
+    pawnsG.circle(badgeX, badgeY + 1.2, 0.6);
+    pawnsG.fill({ color: 0xfde047 });
+  } else if (power > 0) {
+    // Standard garrison: 1 central golden garrison star
+    pawnsG.circle(badgeX, badgeY - 0.2, 1.2);
+    pawnsG.fill({ color: 0xfacc15 });
+    pawnsG.circle(badgeX, badgeY - 0.2, 0.5);
+    pawnsG.fill({ color: 0xffffff });
+  } else {
+    // Sentry post / minimal outpost
+    pawnsG.circle(badgeX, badgeY - 0.2, 0.9);
+    pawnsG.fill({ color: 0x94a3b8 });
+  }
+}
+
 export function paintBoardMarches(
   routeG: Graphics,
   pawnsG: Graphics,
@@ -2362,6 +2685,7 @@ export function paintBoardMarches(
     const isPlayer = m.realmId === "player";
     const isScout = isScoutMarch(m);
     const isGather = !isScout && isGatherMarch(m, state);
+    const isGarrison = !isScout && !isGather && isGarrisonMarch(m);
 
     // 1. Dotted Route Trail between origin and destination
     const dx = toB.cx - fromB.cx;
@@ -2416,6 +2740,31 @@ export function paintBoardMarches(
       routeG.stroke({ width: 1, color: 0x16a34a, alpha: 0.65 });
       routeG.circle(toB.cx, toB.cy, 2);
       routeG.fill({ color: 0xfacc15, alpha: 0.8 });
+    } else if (isGarrison) {
+      // Royal blue & gold garrison deployment route trail
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const lx = fromB.cx + dx * t;
+        const ly = fromB.cy + dy * t;
+        const pulse = Math.sin(phase * 4 + i * 0.4) * 0.2 + 0.8;
+        // Outer royal blue aura
+        routeG.circle(lx, ly, i % 2 === 0 ? 2.5 : 1.6);
+        routeG.fill({ color: 0x2563eb, alpha: 0.35 * pulse });
+        // Steel / golden core
+        routeG.circle(lx, ly, i % 2 === 0 ? 1.3 : 0.8);
+        routeG.fill({ color: 0xfde047, alpha: 0.85 * pulse });
+      }
+
+      // Fortified outpost destination target indicator
+      routeG.circle(toB.cx, toB.cy, 11);
+      routeG.stroke({ width: 1.4, color: 0x2563eb, alpha: 0.85 });
+      routeG.circle(toB.cx, toB.cy, 4.5);
+      routeG.stroke({ width: 1, color: 0x1d4ed8, alpha: 0.65 });
+      routeG.moveTo(toB.cx - 12, toB.cy); routeG.lineTo(toB.cx + 12, toB.cy);
+      routeG.moveTo(toB.cx, toB.cy - 12); routeG.lineTo(toB.cx, toB.cy + 12);
+      routeG.stroke({ width: 0.8, color: 0x60a5fa, alpha: 0.75 });
+      routeG.circle(toB.cx, toB.cy, 1.8);
+      routeG.fill({ color: 0xfacc15, alpha: 0.9 });
     } else {
       const trailColor = isPlayer ? 0xf59e0b : 0xef4444;
 
@@ -2486,6 +2835,21 @@ export function paintBoardMarches(
         toProv.node,
         phase,
         progress
+      );
+    } else if (isGarrison) {
+      let gPower = 0;
+      if (m.force) {
+        for (const n of Object.values(m.force)) gPower += Number(n) || 0;
+      }
+      drawGarrisonMeeple(
+        pawnsG,
+        pawnX,
+        pawnY,
+        kit,
+        cult,
+        gPower,
+        phase,
+        { facing, frame, isColumn: true }
       );
     } else if (isPlayer) {
       // Player: Meeple styled in the matching unit type pixel language (archer, knight, cavalry, siege, spearman, etc.)

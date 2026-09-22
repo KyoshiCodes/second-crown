@@ -6,7 +6,15 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-scouts)
+## Recent Wave (bakeoff/gemini-garrisons)
+
+- **Posted Garrison Tent & Banner Meeple on Flag Tiles**:
+  - Implemented distinct `drawGarrisonMeeple` in `tokens.ts` (pitched pavilion ridgepole canvas tent with guy ropes, timber ground stakes, glowing warm interior lantern light, leaning steel spearhead and heraldic guard shield, tall hardwood flagpole with finial, waving swallowtail standard with golden chevron charge, and floating fortified shield crest).
+  - Outposts on the board with active garrisons display the complete military encampment meeple; undefended/unguarded outposts display a solitary boundary marker stake and pennant, clearly contrasting fortified flags with vacant claims.
+  - Garrison dispatch and recall marches classified via `isGarrisonMarch` with royal blue & gold supply trails.
+  - Zero diff on `packages/sim` or `server/`. Hit-tests and camera math strictly untouched.
+
+## Prior Wave (bakeoff/gemini-scouts)
 
 - **Cloak & Spy Meeple for Reconnaissance Scouts**:
   - Implemented distinct `drawScoutColumnMeeple` in `tokens.ts` (nimble running boots, deep shadowed hooded cowl with glowing cyan eye slit, billowing ranger stealth cloak, brass spyglass scanning frontier, cartography map scroll, and floating recon status badge).
