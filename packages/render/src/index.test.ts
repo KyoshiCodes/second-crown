@@ -30,6 +30,9 @@ import {
   drawGatherColumnMeeple,
   isScoutMarch,
   drawScoutColumnMeeple,
+  isGarrisonMarch,
+  getPostedGarrison,
+  drawGarrisonMeeple,
   realmTokenPalette,
   culturePalette,
   resolveCultureKit,
@@ -1513,6 +1516,182 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(pawnsG.calls.length).toBeGreaterThan(40);
     });
   });
+
+  describe("posted garrisons and garrison meeples", () => {
+    function createMockGraphics() {
+      const calls: { method: string; args: any[] }[] = [];
+      const g: any = {
+        calls,
+        clear: () => { calls.push({ method: "clear", args: [] }); },
+        poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+        fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+        stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+        rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+        circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+        ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+        moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+        lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+        bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+      };
+      return g;
+    }
+
+    it("resolves posted garrison status via getPostedGarrison", () => {
+      expect(getPostedGarrison(null, "p_flag")).toEqual({ posted: false, power: 0 });
+
+      const state = createMockState();
+      state.flags = {};
+      expect(getPostedGarrison(state, "p_flag")).toEqual({ posted: false, power: 0 });
+
+      state.flags["garrisons_json"] = JSON.stringify([
+        { provinceId: "p_flag", force: { spearman: 4, archer: 2 } },
+      ]);
+      const res = getPostedGarrison(state, "p_flag");
+      expect(res.posted).toBe(true);
+      expect(res.power).toBeGreaterThan(0);
+      expect(res.force).toEqual({ spearman: 4, archer: 2 });
+
+      // Unrelated province remains unposted
+      expect(getPostedGarrison(state, "p_other")).toEqual({ posted: false, power: 0 });
+    });
+
+    it("identifies garrison deployment and recall marches via isGarrisonMarch", () => {
+      expect(isGarrisonMarch(null)).toBe(false);
+      expect(isGarrisonMarch({})).toBe(false);
+      expect(isGarrisonMarch({ purpose: "scout" })).toBe(false);
+      expect(isGarrisonMarch({ purpose: "gather" })).toBe(false);
+      expect(isGarrisonMarch({ purpose: "raid" })).toBe(false);
+
+      expect(isGarrisonMarch({ purpose: "garrison" })).toBe(true);
+      expect(isGarrisonMarch({ purpose: "garrison_home" })).toBe(true);
+      expect(isGarrisonMarch({ id: "m_garrison_123" })).toBe(true);
+    });
+
+    it("draws distinct pavilion tent and banner meeple across culture kits, powers, and frames", () => {
+      const kits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+      const powers = [0, 15, 45];
+      const frames: (0 | 1 | 2)[] = [0, 1, 2];
+      const facings = [1, -1];
+
+      for (const kit of kits) {
+        const cult = culturePalette(kit);
+        for (const power of powers) {
+          const g = createMockGraphics();
+          drawGarrisonMeeple(g, 100, 100, kit, cult, power, 0.5);
+          expect(g.calls.length).toBeGreaterThan(25);
+        }
+      }
+
+      // Test animated marching column mode
+      for (const frame of frames) {
+        for (const facing of facings) {
+          const g = createMockGraphics();
+          drawGarrisonMeeple(g, 120, 140, "western", culturePalette("western"), 20, 1.2, {
+            facing,
+            frame,
+            isColumn: true,
+          });
+          expect(g.calls.length).toBeGreaterThan(25);
+        }
+      }
+    });
+
+    it("paints board provinces displaying distinct tent + banner meeple for posted garrison vs boundary stake for unguarded", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_unguarded", x: 1, y: 0, terrain: "wood", node: "woodcut", occupantRealmId: "player" },
+          { id: "p_guarded", x: 2, y: 0, terrain: "hill", node: "quarry", occupantRealmId: "player" },
+        ],
+      };
+      state.flags = {
+        "seen:p_home": true,
+        "seen:p_unguarded": true,
+        "seen:p_guarded": true,
+        "garrisons_json": JSON.stringify([
+          { provinceId: "p_guarded", force: { spearman: 6, knight: 2 } },
+        ]),
+      };
+
+      const g = createMockGraphics();
+      expect(() => {
+        paintBoardProvinces(g, state, 0.4);
+      }).not.toThrow();
+
+      // Ensure graphics rendered for all tiles including guarded encampment and unguarded boundary
+      expect(g.calls.length).toBeGreaterThan(30);
+    });
+
+    it("paints board marches rendering distinct route trails and meeples for garrison, scout, gather, and war", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_garrison_dest", x: 1, y: 1, terrain: "hill", node: "none", occupantRealmId: "player" },
+          { id: "p_scout_dest", x: 2, y: 0, terrain: "waste", node: "none" },
+          { id: "p_gather_dest", x: 0, y: 2, terrain: "wood", node: "woodcut" },
+          { id: "p_war_dest", x: 3, y: 2, terrain: "shore", node: "hold", occupantRealmId: "rival" },
+        ],
+      };
+      state.flags = {
+        "seen:p_home": true,
+        "seen:p_garrison_dest": true,
+        "seen:p_gather_dest": true,
+        "marches_json": JSON.stringify([
+          {
+            id: "m_garrison_1",
+            realmId: "player",
+            fromId: "p_home",
+            toId: "p_garrison_dest",
+            arrivesTick: 120,
+            purpose: "garrison",
+            force: { spearman: 5 },
+          },
+          {
+            id: "m_scout_2",
+            realmId: "player",
+            fromId: "p_home",
+            toId: "p_scout_dest",
+            arrivesTick: 130,
+            purpose: "scout",
+          },
+          {
+            id: "m_gather_3",
+            realmId: "player",
+            fromId: "p_home",
+            toId: "p_gather_dest",
+            arrivesTick: 140,
+            purpose: "gather",
+          },
+          {
+            id: "m_war_4",
+            realmId: "player",
+            fromId: "p_home",
+            toId: "p_war_dest",
+            arrivesTick: 150,
+            purpose: "raid",
+            force: { knight: 3 },
+          },
+        ]),
+      };
+
+      const routeG = createMockGraphics();
+      const pawnsG = createMockGraphics();
+
+      expect(() => {
+        paintBoardMarches(routeG, pawnsG, state, 0.7);
+      }).not.toThrow();
+
+      // All 4 march types render route indicators and distinct animated meeples
+      expect(routeG.calls.length).toBeGreaterThan(40);
+      expect(pawnsG.calls.length).toBeGreaterThan(50);
+    });
+  });
 });
+
 
 

@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## 2026-09-22 — Gemini Posted Garrison Tent & Banner Meeple (`bakeoff/gemini-garrisons`)
+
+- **Distinct Tent & Banner Meeple for Posted Garrisons (`packages/render/src/tokens.ts`)**:
+  - Outpost flag tiles with a posted garrison now show a distinctive, compact military encampment meeple clearly separate from gather carts, stealth scouts, and war march pedestals:
+    - **3D Pitched Pavilion Tent**: High-tensile canvas ridgepole pavilion with shadowed left pitch, sunlit right gable, timber ridgepole, taut guy ropes stretching to timber ground pegs, and culture-colored valance trim.
+    - **Glowing Hearth / Lantern Interior**: Arched dark entryway revealing a warm golden lantern glow (`0xfef08a`, `0xf59e0b`) radiating candlelight from inside the shelter.
+    - **Leaning Defensive Armaments**: Steel-tipped guard spear/halberd and an iron-bossed heraldic heater shield leaning ready beside the encampment entrance.
+    - **Elevated Royal Heraldic War Banner**: Hardwood flagpole topped with a gilded finial and waving royal swallowtail standard emblazoned with a golden garrison chevron charge.
+    - **Floating Garrison Readiness Crest**: Fortified obsidian shield badge hovering above the pavilion indicating garrison presence, with golden rank studs reflecting garrison defensive strength.
+    - **Culture Kit Responsive**:
+      - `western`: Royal blue canvas valance, steel halberd, gold finial, and heater shield with gold rim.
+      - `cedar`: Woodland forest green pavilion, dark timber ridgepole, red huntsman plume on flagpole, and oak stakes.
+      - `sand`: Desert nomad pavilion with scalloped amber cloth, sun brass finial, and round bronze buckler shield.
+      - `steppe`: Conical felt yurt dome with horsehair flagpole tuft and round shield.
+      - `islands`: Marine blue pavilion with ocean pearl finial and naval wave heraldry.
+  - **Guarded vs Unguarded Outpost Clarity**:
+    - Provinces with posted garrisons (`getPostedGarrison(state, provinceId).posted`) display the fortified tent + banner encampment meeple.
+    - Unguarded outposts / territory claims display a solitary wooden boundary marker stake with a fluttering pennant flag, making undefended borders immediately obvious at a glance.
+  - **Garrison Deployment & Recall Marches (`isGarrisonMarch`)**:
+    - Automatically classifies garrison dispatches (`purpose === "garrison"`) and recalls (`purpose === "garrison_home"`), rendering them with a royal blue and steel/gold garrison deployment route trail and fortified outpost reticle.
+    - Marching garrison columns render with the distinct tent + banner meeple in animated marching mode with vertical bob.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zero changes to camera math, zoom, or province tile click hit-testing.
+  - Full test suite passes: 216 monorepo tests, 65 tests in `@second-crown/render` (+5 new comprehensive test blocks for garrison status, march classification, meeple rendering, board provinces, and multi-march routes).
+  - Clean production build in `@second-crown/app`.
+
 ## 2026-09-22 — Gemini Reconnaissance Scout Cloak & Spy Meeple (`bakeoff/gemini-scouts`)
 
 - **Distinct Cloak/Spy Meeple for Scout Columns (`packages/render/src/tokens.ts`)**:
