@@ -18,6 +18,7 @@ export const MARKET_OFFERS: TradeOffer[] = [
   { id: "wood_stone", give: { wood: "24" }, get: { stone: "16" }, label: "24 wood → 16 stone" },
   { id: "gold_stone", give: { gold: "10" }, get: { stone: "18" }, label: "10 gold → 18 stone" },
   { id: "food_stone", give: { food: "30" }, get: { stone: "12" }, label: "30 food → 12 stone" },
+  { id: "wood_food", give: { wood: "24" }, get: { food: "20" }, label: "24 wood → 20 food" },
 ];
 
 export function canTrade(state: GameState, offerId: string): boolean {
