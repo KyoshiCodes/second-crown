@@ -3,6 +3,16 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## Red Warband Meeple for Hostile Incoming Marches
+
+Hostile incoming marches traveling across the isometric board now display a menacing, hulking red warband meeple that immediately signals impending battle danger:
+- **Horned Iron War Helm & Glowing Red Visor**: A heavy dark iron Greathelm crowned with curved demonic horn spikes, featuring a burning crimson eye-slit visor that pulses with an ominous red aura.
+- **Armored Torso & Blood-Red Tabard**: A hulking blackened iron cuirass draped in a blood-red warband surcoat with heavy crossed iron harness straps and central skull medallion.
+- **Barbed Halberd & Ragged Battle Pennant**: Blackened polearm tipped with a jagged, razor-beveled halberd axe head and a violently waving crimson-and-black war pennant.
+- **Spiked Heater Shield & Pauldrons**: Off-hand iron-trimmed heater shield with a central defensive spike and aggressive flared iron pauldrons on the shoulders.
+- **Spiked Iron Pedestal & Danger Ring**: A heavy spiked blackened iron pedestal encircled by a bright crimson danger ring, grounding the warband with high-contrast menace.
+- **Rival Realm Heraldry**: The battle pennant and shield trims automatically take on the faction colors of the specific invading realm (`k_silk`, `k_ash`, `k_frost`, `k_tide`, etc.), grounding each warband to its source kingdom.
+
 ## Posted Garrisons & Encampment Meeples on the Board
 
 Outpost flag tiles with a posted garrison now show an authentic military pavilion encampment meeple:
