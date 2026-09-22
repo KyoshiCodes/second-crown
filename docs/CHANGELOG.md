@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## 2026-09-22 — Gemini Reconnaissance Scout Cloak & Spy Meeple (`bakeoff/gemini-scouts`)
+
+- **Distinct Cloak/Spy Meeple for Scout Columns (`packages/render/src/tokens.ts`)**:
+  - Scout columns exploring uncharted provinces on the isometric board now use an iconic, agile spy/ranger meeple clearly distinct from heavy military war marches and agrarian gather carts:
+    - **Deep Shadowed Hooded Cowl**: Deep shadow-cast facial cavity concealing the operative's identity, pierced by glowing radiant cyan scout eyes (`0x38bdf8`) with a specular starlight slit scanning the frontier.
+    - **Billowing Ranger Stealth Cloak**: Midnight slate mantle (`0x0f172a` tinted by culture) trailing behind the runner with dynamic flapping physics across stride frames (`frame 1` & `frame 2` lift up in the wind; `frame 0` drapes gracefully), silver cloak clasp pin, and moonlit hem highlights.
+    - **Brass Spyglass / Monocular Telescope**: Held forward in the scout's outstretched lead hand, featuring polished brass tubing, brass eyepiece and objective rings, and a glinting glass lens with a bright sky reflection flare.
+    - **Nimble Running Legs**: Agile stride with leather scout boots and turn-down cuffs animated in a 2-3 frame running gait with zero pedestal, keeping the silhouette grounded and fleet-footed.
+    - **Scout Kit Gear**: Leather utility belt with brass buckle and a rolled cartography map scroll sealed with a crimson wax stamp.
+    - **Culture Kit Detailing**:
+      - `western`: Classic silver-brooched ranger cowl with trailing swallowtail cloak hem.
+      - `cedar`: Red huntsman feather pinned to the hood crown.
+      - `sand`: Ivory nomad headwrap sash fluttering behind.
+      - `steppe`: Fur-trimmed hood rim.
+      - `islands`: Marine sailor cowl with cyan sea-shell pearl brooch.
+    - **Floating Reconnaissance Status Badge**: Obsidian glass pill with a glowing spyglass/eye icon and travel progress pips.
+  - **March Classification & Recon Route Trails (`isScoutMarch`)**:
+    - Automatically classifies scout missions (`purpose === "scout"` or `id` starting with `m_scout_`), ensuring scout marches to resource node tiles are never misclassified as gather trips.
+    - **Reconnaissance Route Trails**: Renders with stealth midnight cyan glowing trail and crisp starlight core, leading to a 4-point compass rose reticle and vision eye target indicator on the destination province.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zero changes to camera math, zoom, or province tile click hit-testing.
+  - Full test suite passes: 216 monorepo tests, 60 tests in `@second-crown/render` (+3 new comprehensive test blocks for scout classification, meeple rendering, and multi-march board rendering).
+  - Clean production build in `@second-crown/app`.
+
 ## 2026-09-22 — Gemini Resource Node Dynamic Stock Piles (`bakeoff/gemini-nodes`)
 
 - **Dynamic Resource Node Stock Piles (`packages/render/src/tokens.ts`)**:

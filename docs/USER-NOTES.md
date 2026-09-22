@@ -3,6 +3,15 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## Scout Columns & Cloak/Spy Meeple on the Board
+
+Reconnaissance scout columns dispatched to map unexplored provinces in the fog now display a distinctive, agile cloak-and-spy meeple:
+- **Shadowed Hooded Cowl & Glowing Gaze**: A deep cowl shrouding the scout's face, illuminated only by a radiant cyan eye glint and specular starlight slit scanning ahead.
+- **Billowing Ranger Stealth Cloak**: A flowing dark cloak that dynamically flutters behind the scout during their running stride and settles gracefully when resting, complete with culture-specific cloak and brooch accents.
+- **Brass Spyglass**: An outstretched telescope catching specular light on its glass lens as the scout surveys uncharted territory.
+- **Cartography Map Scroll**: A rolled parchment map with crimson wax seal tucked at the scout's hip.
+- **Stealth Recon Route Trails**: Scouts travel along glowing midnight cyan paths with starlight cores, leading to a 4-point compass rose reticle on their target province.
+
 ## Resource Node Stock Piles on the Board
 
 Resource nodes on the regional isometric board now show an active, material-specific stock pile that visually depletes as the node is harvested:

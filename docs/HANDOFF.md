@@ -6,7 +6,14 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-nodes)
+## Recent Wave (bakeoff/gemini-scouts)
+
+- **Cloak & Spy Meeple for Reconnaissance Scouts**:
+  - Implemented distinct `drawScoutColumnMeeple` in `tokens.ts` (nimble running boots, deep shadowed hooded cowl with glowing cyan eye slit, billowing ranger stealth cloak, brass spyglass scanning frontier, cartography map scroll, and floating recon status badge).
+  - Scout columns classified via `isScoutMarch` receive stealth midnight cyan glowing trails with starlight core and 4-point compass rose reticles on destination provinces.
+  - Zero diff on `packages/sim` or `server/`. Hit-tests and camera math strictly untouched.
+
+## Prior Wave (bakeoff/gemini-nodes)
 
 - **Dynamic Resource Node Stock Piles on Isometric Board**:
   - Resource nodes (`woodcut`, `quarry`, `field`, `ruins`) now display material-specific stock piles (stacked timber logs on skid beams, dressed ashlar granite masonry blocks on gravel, plump burlap grain sacks on threshing mats) that visibly deplete across 4 volume tiers as nodes are harvested down to dry/empty.
