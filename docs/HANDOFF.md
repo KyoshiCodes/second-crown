@@ -6,7 +6,14 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-garrisons)
+## Recent Wave (bakeoff/gemini-incoming)
+
+- **Red Warband Meeple for Hostile Incoming Marches**:
+  - Implemented distinct `drawRedWarbandMeeple` (aliased as `drawWarbandMeeple`) in `tokens.ts` (spiked blackened iron pedestal with crimson danger ring, hulking iron-armored torso with blood-red warband surcoat and crossed iron harness straps, horned dark iron war helm with curved demon horns, glowing crimson eye-slit visor with burning pupil hot spots, spiked heater shield, jagged poleaxe with cutting bevel, ragged crimson battle pennant, and threat pill badge).
+  - Hostile marches classified via `isIncomingMarch` (`m.realmId !== "player"` and not scout/gather/garrison), cleanly separating hostile incoming warbands from player war marches, scout runners, gather carts, and garrison columns.
+  - Zero diff on `packages/sim` or `server/`. Hit-tests and camera math strictly untouched.
+
+## Prior Wave (bakeoff/gemini-garrisons)
 
 - **Posted Garrison Tent & Banner Meeple on Flag Tiles**:
   - Implemented distinct `drawGarrisonMeeple` in `tokens.ts` (pitched pavilion ridgepole canvas tent with guy ropes, timber ground stakes, glowing warm interior lantern light, leaning steel spearhead and heraldic guard shield, tall hardwood flagpole with finial, waving swallowtail standard with golden chevron charge, and floating fortified shield crest).

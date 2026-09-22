@@ -33,6 +33,9 @@ import {
   isGarrisonMarch,
   getPostedGarrison,
   drawGarrisonMeeple,
+  isIncomingMarch,
+  drawRedWarbandMeeple,
+  drawWarbandMeeple,
   realmTokenPalette,
   culturePalette,
   resolveCultureKit,
@@ -1689,6 +1692,130 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       // All 4 march types render route indicators and distinct animated meeples
       expect(routeG.calls.length).toBeGreaterThan(40);
       expect(pawnsG.calls.length).toBeGreaterThan(50);
+    });
+  });
+
+  describe("hostile incoming marches and red warband meeple", () => {
+    function createMockGraphics() {
+      const calls: { method: string; args: any[] }[] = [];
+      const g: any = {
+        calls,
+        clear: () => { calls.push({ method: "clear", args: [] }); },
+        poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+        fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+        stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+        rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+        circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+        ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+        moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+        lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+        bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+      };
+      return g;
+    }
+
+    it("identifies hostile incoming marches via isIncomingMarch and excludes player, scout, gather, and garrison", () => {
+      expect(isIncomingMarch(null)).toBe(false);
+      expect(isIncomingMarch(undefined)).toBe(false);
+
+      // Player marches are never hostile incoming
+      expect(isIncomingMarch({ realmId: "player", purpose: "raid" })).toBe(false);
+      expect(isIncomingMarch({ realmId: "player", purpose: "scout" })).toBe(false);
+      expect(isIncomingMarch({ realmId: "player", purpose: "gather" })).toBe(false);
+      expect(isIncomingMarch({ realmId: "player", purpose: "garrison" })).toBe(false);
+
+      // Scout marches are not warbands
+      expect(isIncomingMarch({ realmId: "k_silk", purpose: "scout" })).toBe(false);
+      expect(isIncomingMarch({ realmId: "k_silk", id: "m_scout_99" })).toBe(false);
+
+      // Gather marches are not warbands
+      expect(isIncomingMarch({ realmId: "k_silk", purpose: "gather" })).toBe(false);
+
+      // Garrison dispatches/recalls are not warbands
+      expect(isIncomingMarch({ realmId: "k_silk", purpose: "garrison" })).toBe(false);
+      expect(isIncomingMarch({ realmId: "k_silk", purpose: "garrison_home" })).toBe(false);
+
+      // Hostile warbands / raids
+      expect(isIncomingMarch({ realmId: "k_silk", purpose: "raid" })).toBe(true);
+      expect(isIncomingMarch({ realmId: "rival" })).toBe(true);
+      expect(isIncomingMarch({ realmId: "bandit" })).toBe(true);
+    });
+
+    it("draws distinct red warband meeple across frames, facings, and rival realms", () => {
+      expect(drawWarbandMeeple).toBe(drawRedWarbandMeeple);
+
+      const frames: (0 | 1 | 2)[] = [0, 1, 2];
+      const facings = [1, -1];
+      const realms = ["k_silk", "k_ash", "k_frost", "k_tide", undefined];
+      const powers = [0, 15, 60];
+
+      for (const realmId of realms) {
+        for (const power of powers) {
+          const g = createMockGraphics();
+          drawRedWarbandMeeple(g, 100, 100, 1, 0, 0, realmId, 0.5, power);
+          expect(g.calls.length).toBeGreaterThan(25);
+        }
+      }
+
+      for (const frame of frames) {
+        for (const facing of facings) {
+          const g = createMockGraphics();
+          drawRedWarbandMeeple(g, 120, 120, facing, frame, frame === 0 ? 0 : 2, "k_silk", 1.2, 25);
+          expect(g.calls.length).toBeGreaterThan(25);
+        }
+      }
+    });
+
+    it("paints board marches rendering red warband meeple for hostile incoming marches distinct from all other march types", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_outpost", x: 1, y: 0, terrain: "wood", node: "woodcut", occupantRealmId: "player" },
+          { id: "p_enemy_base", x: 4, y: 2, terrain: "hill", node: "hold", occupantRealmId: "k_silk" },
+        ],
+      };
+      state.flags = {
+        "seen:p_home": true,
+        "seen:p_outpost": true,
+        "marches_json": JSON.stringify([
+          // Hostile incoming raid targeting player home
+          {
+            id: "m_incoming_raid",
+            realmId: "k_silk",
+            fromId: "p_enemy_base",
+            toId: "p_home",
+            arrivesTick: 150,
+            purpose: "raid",
+            levy: 15,
+            force: { spearman: 10, knight: 5 },
+          },
+          // Player war march targeting enemy base
+          {
+            id: "m_player_war",
+            realmId: "player",
+            fromId: "p_home",
+            toId: "p_enemy_base",
+            arrivesTick: 160,
+            purpose: "raid",
+            force: { knight: 5 },
+          },
+        ]),
+      };
+
+      const routeG = createMockGraphics();
+      const pawnsG = createMockGraphics();
+
+      expect(() => {
+        paintBoardMarches(routeG, pawnsG, state, 1.0);
+      }).not.toThrow();
+
+      // Renders both hostile crimson warband route & player amber route
+      expect(routeG.calls.length).toBeGreaterThan(20);
+      // Renders red warband meeple with horned helm and player knight
+      expect(pawnsG.calls.length).toBeGreaterThan(30);
     });
   });
 });

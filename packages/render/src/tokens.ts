@@ -1906,6 +1906,18 @@ export function isGarrisonMarch(m: any): boolean {
 }
 
 /**
+ * Determines if a march represents a hostile incoming war march or enemy raid column.
+ */
+export function isIncomingMarch(m: any, state?: GameState | null): boolean {
+  if (!m) return false;
+  if (m.realmId === "player") return false;
+  if (isScoutMarch(m)) return false;
+  if (m.purpose === "gather") return false;
+  if (m.purpose === "garrison" || m.purpose === "garrison_home") return false;
+  return true;
+}
+
+/**
  * Determines if a march represents an active reconnaissance scout column.
  */
 export function isScoutMarch(m: any): boolean {
@@ -2662,6 +2674,211 @@ export function drawGarrisonMeeple(
   }
 }
 
+/**
+ * Draws a distinct, menacing red warband meeple for hostile incoming marches
+ * advancing on player territory or traversing the isometric board.
+ *
+ * Distinct features:
+ * - Spiked blackened iron pedestal base with crimson danger ring
+ * - Hulking iron-armored torso with blood-red warband surcoat and crossed iron harness straps
+ * - Tiered spiked iron pauldrons (shoulders) with aggressive silhouette
+ * - Horned iron war helm with curved demon/warband horns
+ * - Glowing crimson eye-slit visor with burning pupil hot spots and pulsing aura
+ * - Heavy barbed halberd axe blade with specular cutting bevel and ragged waving crimson/black war pennant
+ * - Spiked off-hand heater shield with central iron boss
+ * - Floating ETA/threat pill badge with skull hazard emblem and impending danger pips
+ * - Adapts subtle heraldic accents if the hostile march belongs to a specific rival realm
+ */
+export function drawRedWarbandMeeple(
+  pawnsG: Graphics,
+  pawnX: number,
+  pawnY: number,
+  facing: number,
+  frame: 0 | 1 | 2,
+  bob: number,
+  realmId?: string,
+  phase: number = 0,
+  power: number = 0
+): void {
+  const pal = realmId ? realmTokenPalette(realmId) : null;
+  const accentRed = 0xdc2626;
+  const darkRed = 0x991b1b;
+  const bloodRed = 0x7f1d1d;
+
+  // 1. Heavy Contact Shadow with Ground Menace Pulse
+  pawnsG.ellipse(pawnX, pawnY + 6.5, 10.5, 4.2);
+  pawnsG.fill({ color: 0x000000, alpha: 0.6 });
+
+  // 2. Heavy Spiked Blackened Iron Pedestal
+  pawnsG.rect(pawnX - 7.5, pawnY + 2 - bob, 15, 4.5);
+  pawnsG.fill({ color: 0x18181b });
+  pawnsG.stroke({ width: 0.8, color: 0x3f3f46 });
+
+  // Spiked flange studs
+  pawnsG.circle(pawnX - 5.5, pawnY + 4.2 - bob, 0.8);
+  pawnsG.fill({ color: 0x71717a });
+  pawnsG.circle(pawnX + 5.5, pawnY + 4.2 - bob, 0.8);
+  pawnsG.fill({ color: 0x71717a });
+
+  // Crimson danger ring on pedestal
+  pawnsG.rect(pawnX - 6.5, pawnY + 1.2 - bob, 13, 2.0);
+  pawnsG.fill({ color: accentRed });
+  pawnsG.stroke({ width: 0.5, color: darkRed });
+
+  // 3. Angular Blackened Iron Meeple Torso
+  pawnsG.poly([
+    pawnX - 6.5, pawnY + 2 - bob,
+    pawnX - 4.5, pawnY - 8.5 - bob,
+    pawnX + 4.5, pawnY - 8.5 - bob,
+    pawnX + 6.5, pawnY + 2 - bob,
+  ]);
+  pawnsG.fill({ color: 0x27272a });
+  pawnsG.stroke({ width: 0.8, color: 0x09090b });
+
+  // 4. Spiked Iron Pauldrons (Shoulders)
+  pawnsG.poly([
+    pawnX - 8.5, pawnY - 5 - bob,
+    pawnX - 5.0, pawnY - 10.5 - bob,
+    pawnX - 3.5, pawnY - 5 - bob,
+  ]);
+  pawnsG.fill({ color: 0x3f3f46 });
+  pawnsG.stroke({ width: 0.6, color: 0x18181b });
+
+  pawnsG.poly([
+    pawnX + 3.5, pawnY - 5 - bob,
+    pawnX + 5.0, pawnY - 10.5 - bob,
+    pawnX + 8.5, pawnY - 5 - bob,
+  ]);
+  pawnsG.fill({ color: 0x3f3f46 });
+  pawnsG.stroke({ width: 0.6, color: 0x18181b });
+
+  // 5. Blood-Red Warband Tabard & Crossed Iron Straps
+  pawnsG.rect(pawnX - 3.0, pawnY - 7.5 - bob, 6.0, 6.5);
+  pawnsG.fill({ color: darkRed });
+
+  // Crossed harness straps
+  pawnsG.moveTo(pawnX - 2.5, pawnY - 6.5 - bob);
+  pawnsG.lineTo(pawnX + 2.5, pawnY - 2.0 - bob);
+  pawnsG.stroke({ width: 0.9, color: 0x18181b });
+
+  pawnsG.moveTo(pawnX + 2.5, pawnY - 6.5 - bob);
+  pawnsG.lineTo(pawnX - 2.5, pawnY - 2.0 - bob);
+  pawnsG.stroke({ width: 0.9, color: 0x18181b });
+
+  // Central iron skull / medallion boss
+  pawnsG.circle(pawnX, pawnY - 4.2 - bob, 1.2);
+  pawnsG.fill({ color: pal ? pal.studColor : 0xd4d4d8 });
+
+  // 6. Jagged Dark Iron Helm with Curved Horn Spikes
+  pawnsG.circle(pawnX, pawnY - 12 - bob, 4.0);
+  pawnsG.fill({ color: 0x18181b });
+  pawnsG.stroke({ width: 0.8, color: 0x09090b });
+
+  // Left curved horn
+  pawnsG.poly([
+    pawnX - 3.0, pawnY - 13.0 - bob,
+    pawnX - 7.5, pawnY - 18.0 - bob,
+    pawnX - 1.5, pawnY - 14.0 - bob,
+  ]);
+  pawnsG.fill({ color: 0x52525b });
+  pawnsG.stroke({ width: 0.6, color: 0x18181b });
+
+  // Right curved horn
+  pawnsG.poly([
+    pawnX + 1.5, pawnY - 14.0 - bob,
+    pawnX + 7.5, pawnY - 18.0 - bob,
+    pawnX + 3.0, pawnY - 13.0 - bob,
+  ]);
+  pawnsG.fill({ color: 0x52525b });
+  pawnsG.stroke({ width: 0.6, color: 0x18181b });
+
+  // Glowing crimson eye-slit visor with ambient corona
+  const eyePulse = Math.sin(phase * 8) * 0.2 + 0.8;
+  pawnsG.ellipse(pawnX, pawnY - 12 - bob, 2.8, 1.6);
+  pawnsG.fill({ color: bloodRed, alpha: 0.65 * eyePulse });
+
+  pawnsG.rect(pawnX - 2.4, pawnY - 12.5 - bob, 4.8, 1.4);
+  pawnsG.fill({ color: 0xef4444 });
+
+  // Dual specular burning red/white hot spots
+  pawnsG.circle(pawnX - 1.1, pawnY - 12 - bob, 0.45);
+  pawnsG.fill({ color: 0xffffff });
+  pawnsG.circle(pawnX + 1.1, pawnY - 12 - bob, 0.45);
+  pawnsG.fill({ color: 0xffffff });
+
+  // 7. Spiked Heater Shield on Off-Arm
+  const armSwing = frame === 1 ? -1 : frame === 2 ? 1 : 0;
+  pawnsG.poly([
+    pawnX - facing * 3.5, pawnY - 9 - bob + armSwing,
+    pawnX - facing * 8.5, pawnY - 9 - bob + armSwing,
+    pawnX - facing * 8.5, pawnY - 2 - bob + armSwing,
+    pawnX - facing * 6.0, pawnY + 3 - bob + armSwing,
+    pawnX - facing * 3.5, pawnY - 2 - bob + armSwing,
+  ]);
+  pawnsG.fill({ color: pal ? pal.borderColor : bloodRed });
+  pawnsG.stroke({ width: 0.8, color: accentRed });
+
+  // Shield iron spike boss
+  pawnsG.circle(pawnX - facing * 6.0, pawnY - 3.5 - bob + armSwing, 1.2);
+  pawnsG.fill({ color: 0xd4d4d8 });
+
+  // 8. Heavy Blackened Polearm & Ragged Crimson War Pennant
+  // Polearm shaft
+  pawnsG.moveTo(pawnX + facing * 5.0, pawnY + 4 - bob);
+  pawnsG.lineTo(pawnX + facing * 5.0, pawnY - 22 - bob + armSwing);
+  pawnsG.stroke({ width: 1.6, color: 0x18181b });
+
+  // Jagged barbed halberd axe head
+  pawnsG.poly([
+    pawnX + facing * 5.0, pawnY - 22 - bob + armSwing,
+    pawnX + facing * 11.5, pawnY - 18.5 - bob + armSwing,
+    pawnX + facing * 8.5, pawnY - 14.5 - bob + armSwing,
+    pawnX + facing * 5.0, pawnY - 15.5 - bob + armSwing,
+  ]);
+  pawnsG.fill({ color: 0x71717a });
+  pawnsG.stroke({ width: 0.7, color: 0x09090b });
+
+  // Razor cutting edge
+  pawnsG.moveTo(pawnX + facing * 11.5, pawnY - 18.5 - bob + armSwing);
+  pawnsG.lineTo(pawnX + facing * 8.5, pawnY - 14.5 - bob + armSwing);
+  pawnsG.stroke({ width: 0.9, color: 0xf87171 });
+
+  // Ragged crimson/black war pennant
+  const hWave = Math.sin(phase * 8.5) * 2.0;
+  pawnsG.poly([
+    pawnX + facing * 5.0, pawnY - 14.5 - bob + armSwing,
+    pawnX + facing * 15.0 + hWave, pawnY - 11.5 - bob + armSwing,
+    pawnX + facing * 12.0 + hWave * 0.7, pawnY - 9.0 - bob + armSwing,
+    pawnX + facing * 15.0 + hWave, pawnY - 7.0 - bob + armSwing,
+    pawnX + facing * 5.0, pawnY - 7.5 - bob + armSwing,
+  ]);
+  pawnsG.fill({ color: pal ? pal.pennantColor : bloodRed });
+  pawnsG.stroke({ width: 0.7, color: 0x18181b });
+
+  // 9. Floating Hostile Threat & ETA Pill Badge
+  pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
+  pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+  pawnsG.rect(pawnX - 16, pawnY - 29 - bob, 32, 9);
+  pawnsG.fill({ color: 0x09090b, alpha: 0.95 });
+  pawnsG.stroke({ width: 1, color: accentRed, alpha: 0.95 });
+
+  // Skull / Hazard Icon on the left
+  pawnsG.circle(pawnX - 10.5, pawnY - 24.5 - bob, 2.0);
+  pawnsG.fill({ color: 0xf87171 });
+  pawnsG.rect(pawnX - 11.5, pawnY - 23.5 - bob, 2.0, 1.2);
+  pawnsG.fill({ color: 0xf87171 });
+
+  // Threat indicator dots inside pill
+  pawnsG.circle(pawnX - 4, pawnY - 24.5 - bob, 1.5);
+  pawnsG.fill({ color: 0xef4444 });
+  pawnsG.circle(pawnX + 2, pawnY - 24.5 - bob, 1.5);
+  pawnsG.fill({ color: accentRed });
+  pawnsG.circle(pawnX + 8, pawnY - 24.5 - bob, 1.5);
+  pawnsG.fill({ color: darkRed });
+}
+
+export const drawWarbandMeeple = drawRedWarbandMeeple;
+
 export function paintBoardMarches(
   routeG: Graphics,
   pawnsG: Graphics,
@@ -3256,98 +3473,21 @@ export function paintBoardMarches(
       pawnsG.circle(pawnX + 8, pawnY - 23.5 - bob, 1.5);
       pawnsG.fill({ color: 0xca8a04 });
     } else {
-      // Hostile March: Red / Blackened Iron War Meeple
-      // Heavy Spiked Blackened Iron Pedestal
-      pawnsG.rect(pawnX - 7, pawnY + 2 - bob, 14, 4.5);
-      pawnsG.fill({ color: 0x18181b });
-      pawnsG.stroke({ width: 0.8, color: 0x3f3f46 });
-      pawnsG.circle(pawnX - 5, pawnY + 4.2 - bob, 0.8); pawnsG.fill({ color: 0x71717a });
-      pawnsG.circle(pawnX + 5, pawnY + 4.2 - bob, 0.8); pawnsG.fill({ color: 0x71717a });
-
-      // Crimson danger ring on pedestal
-      pawnsG.rect(pawnX - 6, pawnY + 1.2 - bob, 12, 1.8);
-      pawnsG.fill({ color: 0xdc2626 });
-
-      // Angular Blackened Iron Meeple Torso
-      pawnsG.poly([
-        pawnX - 6, pawnY + 2 - bob,
-        pawnX - 4, pawnY - 8 - bob,
-        pawnX + 4, pawnY - 8 - bob,
-        pawnX + 6, pawnY + 2 - bob,
-      ]);
-      pawnsG.fill({ color: 0x27272a });
-      pawnsG.stroke({ width: 0.8, color: 0x09090b });
-
-      // Spiked Iron Pauldrons (shoulders)
-      pawnsG.poly([pawnX - 7.5, pawnY - 5 - bob, pawnX - 4, pawnY - 9.5 - bob, pawnX - 3, pawnY - 5 - bob]);
-      pawnsG.fill({ color: 0x3f3f46 });
-      pawnsG.poly([pawnX + 3, pawnY - 5 - bob, pawnX + 4, pawnY - 9.5 - bob, pawnX + 7.5, pawnY - 5 - bob]);
-      pawnsG.fill({ color: 0x3f3f46 });
-
-      // Blood-red War Tabard
-      pawnsG.rect(pawnX - 2.5, pawnY - 7 - bob, 5, 6);
-      pawnsG.fill({ color: 0x991b1b });
-      // Crossed iron straps on chest
-      pawnsG.moveTo(pawnX - 2, pawnY - 6 - bob); pawnsG.lineTo(pawnX + 2, pawnY - 2 - bob);
-      pawnsG.moveTo(pawnX + 2, pawnY - 6 - bob); pawnsG.lineTo(pawnX - 2, pawnY - 2 - bob);
-      pawnsG.stroke({ width: 0.8, color: 0x18181b });
-
-      // Jagged Dark Iron Helm with horn crest
-      pawnsG.circle(pawnX, pawnY - 11.5 - bob, 3.8);
-      pawnsG.fill({ color: 0x18181b });
-      // Horn spikes
-      pawnsG.poly([pawnX - 3, pawnY - 12.5 - bob, pawnX - 6.5, pawnY - 17 - bob, pawnX - 1.5, pawnY - 13.5 - bob]);
-      pawnsG.fill({ color: 0x52525b });
-      pawnsG.poly([pawnX + 1.5, pawnY - 13.5 - bob, pawnX + 6.5, pawnY - 17 - bob, pawnX + 3, pawnY - 12.5 - bob]);
-      pawnsG.fill({ color: 0x52525b });
-
-      // Glowing crimson eye-slit with ambient corona
-      pawnsG.circle(pawnX, pawnY - 11.5 - bob, 2.5);
-      pawnsG.fill({ color: 0x7f1d1d, alpha: 0.6 });
-      pawnsG.rect(pawnX - 2.2, pawnY - 12 - bob, 4.4, 1.4);
-      pawnsG.fill({ color: 0xef4444 });
-
-      // Blackened Polearm & ragged war pennant
-      pawnsG.moveTo(pawnX + 4.5, pawnY + 4 - bob);
-      pawnsG.lineTo(pawnX + 4.5, pawnY - 20 - bob);
-      pawnsG.stroke({ width: 1.5, color: 0x18181b });
-
-      // Jagged halberd axe head
-      pawnsG.poly([
-        pawnX + 4.5, pawnY - 20 - bob,
-        pawnX + 9.5, pawnY - 17 - bob,
-        pawnX + 7, pawnY - 13.5 - bob,
-        pawnX + 4.5, pawnY - 14.5 - bob,
-      ]);
-      pawnsG.fill({ color: 0x71717a });
-      pawnsG.stroke({ width: 0.6, color: 0x09090b });
-
-      // Ragged crimson/black war pennant
-      const hWave = Math.sin(phase * 8.5) * 1.8;
-      pawnsG.poly([
-        pawnX + 4.5, pawnY - 13.5 - bob,
-        pawnX + 13.5, pawnY - 11 - bob + hWave,
-        pawnX + 4.5, pawnY - 7.5 - bob,
-      ]);
-      pawnsG.fill({ color: 0x7f1d1d });
-      pawnsG.stroke({ width: 0.6, color: 0x18181b });
-
-      // Floating ETA pill badge (blackened iron with crimson border and drop shadow)
-      pawnsG.rect(pawnX - 16, pawnY - 27 - bob, 32, 9);
-      pawnsG.fill({ color: 0x000000, alpha: 0.45 });
-      pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
-      pawnsG.fill({ color: 0x09090b, alpha: 0.95 });
-      pawnsG.stroke({ width: 1, color: 0xdc2626, alpha: 0.9 });
-
-      // Crimson indicator dots
-      pawnsG.circle(pawnX - 10, pawnY - 23.5 - bob, 1.8);
-      pawnsG.fill({ color: 0xf87171 });
-      pawnsG.circle(pawnX - 4, pawnY - 23.5 - bob, 1.5);
-      pawnsG.fill({ color: 0xef4444 });
-      pawnsG.circle(pawnX + 2, pawnY - 23.5 - bob, 1.5);
-      pawnsG.fill({ color: 0xdc2626 });
-      pawnsG.circle(pawnX + 8, pawnY - 23.5 - bob, 1.5);
-      pawnsG.fill({ color: 0x991b1b });
+      // Hostile Incoming Warband: Red Warband Meeple
+      const forceCount = m.force
+        ? Object.values(m.force).reduce((a, b) => a + (Number(b) || 0), 0)
+        : (m.levy ?? 10);
+      drawRedWarbandMeeple(
+        pawnsG,
+        pawnX,
+        pawnY,
+        facing,
+        frame,
+        bob,
+        m.realmId,
+        phase,
+        forceCount
+      );
     }
   }
 

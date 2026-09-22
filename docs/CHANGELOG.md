@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## 2026-09-22 — Gemini Red Warband Meeple for Hostile Incoming Marches (`bakeoff/gemini-incoming`)
+
+- **Distinct Red Warband Meeple (`drawRedWarbandMeeple` in `packages/render/src/tokens.ts`)**:
+  - Hostile incoming marches advancing on player territory or traversing the board now display a menacing, hulking red warband meeple clearly distinct from player war marches, scout runners, gather carts, and garrison encampments:
+    - **Spiked Blackened Iron Pedestal**: Heavy faceted iron pedestal base flanked by spiked flange studs and an illuminated crimson danger ring (`0xdc2626`).
+    - **Hulking Iron Torso & Blood-Red Tabard**: Broad angular blackened iron breastplate (`0x27272a`) draped in a blood-red warband surcoat (`0x991b1b`) with crossed heavy iron harness straps and central skull/stud medallion.
+    - **Tiered Spiked Pauldrons**: Aggressive tiered iron shoulder guards flaring outward on both flanks.
+    - **Horned Iron War Helm**: Menacing dark iron Greathelm crowned with two sweeping curved demonic horn spikes (`0x52525b`).
+    - **Glowing Crimson Visor**: Deep shadowed eye-slit cavity with a pulsing crimson eye corona and dual burning white/red specular pupil hot spots.
+    - **Wicked Barbed Poleaxe & Ragged War Pennant**: Tall blackened shaft carrying a jagged, barbed halberd axe head with a razor cutting bevel and a violently fluttering ragged crimson/black battle pennant.
+    - **Spiked Heater Shield**: Heavy off-hand iron-trimmed heater shield with central spiked iron boss.
+    - **Hostile Threat & ETA Badge**: Floating blackened iron pill badge with skull hazard insignia and pulsing crimson threat LEDs indicating impending impact.
+    - **Rival Realm Integration**: Automatically incorporates realm heraldic palettes (`realmTokenPalette`) for the war pennant and shield trims when the hostile march belongs to a rival kingdom (`k_silk`, `k_ash`, `k_frost`, `k_tide`, etc.).
+  - **March Classification & Identification (`isIncomingMarch`)**:
+    - `isIncomingMarch` safely identifies all hostile incoming threats (`m.realmId !== "player"` and not scout/gather/garrison), cleanly separating enemy warbands from player columns.
+    - Re-exports `drawWarbandMeeple` as an alias for flexible integration.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zero changes to camera math, zoom, or province tile click hit-testing.
+  - Full test suite passes: 216 monorepo tests, 68 tests in `@second-crown/render` (+3 new comprehensive test blocks for `isIncomingMarch`, `drawRedWarbandMeeple`, and board march rendering).
+  - Clean production build in `@second-crown/app`.
+
 ## 2026-09-22 — Gemini Posted Garrison Tent & Banner Meeple (`bakeoff/gemini-garrisons`)
 
 - **Distinct Tent & Banner Meeple for Posted Garrisons (`packages/render/src/tokens.ts`)**:
