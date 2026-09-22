@@ -3,6 +3,15 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## Resource Node Stock Piles on the Board
+
+Resource nodes on the regional isometric board now show an active, material-specific stock pile that visually depletes as the node is harvested:
+- **Timber Stands (`woodcut`)**: Displays a stacked lumber rick of pine logs resting on timber skids. Brimming nodes feature a tall 6-log pyramid; partially gathered nodes show 2-4 logs; and dry nodes show bare skid rails on sawdust with a pulsing red depletion alert pip.
+- **Stone Outcrops (`quarry`)**: Features dressed ashlar granite masonry blocks. Full veins show 6 stacked blocks with sunlit facets and chisel bevels; depleted quarries show a bare excavated gravel bed with chisel marks.
+- **Forage Fields (`field`)**: Features bulging burlap harvest grain sacks on a threshing pad. Plump multi-sack stacks indicate ripe bounty, which shrinks down to a single sagging sack and finally an empty threshing cloth when picked clean.
+- **Ruins (`ruins`)**: Displays a gilded treasure chest overflowing with gold bullion and coins that empties into a picked-clean open chest once looted.
+- **Facility Work Stations**: Each node is anchored by a labor landmark (broadaxe in a tree stump, quarry pickaxe against granite cliffs, reaping sickle by a wheat sheaf, or ancient columns) paired with the dynamic stock pile.
+
 ## Gather Columns & Resource Carts on the Board
 
 Gather columns traveling across the isometric board now display a distinctive cart-and-sack meeple that clearly differentiates logistical resource harvesting from military war campaigns:

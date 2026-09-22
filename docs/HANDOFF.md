@@ -6,7 +6,14 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-gathers)
+## Recent Wave (bakeoff/gemini-nodes)
+
+- **Dynamic Resource Node Stock Piles on Isometric Board**:
+  - Resource nodes (`woodcut`, `quarry`, `field`, `ruins`) now display material-specific stock piles (stacked timber logs on skid beams, dressed ashlar granite masonry blocks on gravel, plump burlap grain sacks on threshing mats) that visibly deplete across 4 volume tiers as nodes are harvested down to dry/empty.
+  - Work station landmarks on the left (stump with broadaxe, granite quarry cliff with pickaxe, wheat sheaf with reaping sickle, broken classical column) paired with dynamic stock piles on the right.
+  - Zero diff on `packages/sim` or `server/`. Hit-tests and camera math strictly untouched.
+
+## Prior Wave (bakeoff/gemini-gathers)
 
 - **Gather Columns vs War Marches on Isometric Board**:
   - Implemented distinct `drawGatherColumnMeeple` in `tokens.ts` (rolling spoked wheels with iron tires, timber cart chassis, stacked burlap sacks with tied twine knots, resource overlays for field/woodcut/quarry/ruins, and harnessed trotting draft mule with animated 2-3 frame walking gait).

@@ -42,6 +42,9 @@ import {
   drawMiniatureKeep,
   paintBoardMarches,
   paintBoardProvinces,
+  getNodeStockInfo,
+  drawNodeStockPile,
+  drawResourceNode,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -1255,6 +1258,126 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         paintBoardProvinces(g, state, 0);
       }).not.toThrow();
       expect(g.calls.length).toBeGreaterThan(20);
+    });
+
+    it("resolves node stock information and clamps ratio properly", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_wood", x: 1, y: 0, terrain: "wood", node: "woodcut" },
+          { id: "p_stone", x: 2, y: 0, terrain: "hill", node: "quarry" },
+          { id: "p_food", x: 3, y: 0, terrain: "plain", node: "field" },
+          { id: "p_open", x: 4, y: 0, terrain: "plain", node: "none" },
+        ],
+      };
+      state.flags = {};
+
+      // Fresh nodes default to full capacity (ratio = 1)
+      const woodInfo = getNodeStockInfo(state, "p_wood", "woodcut");
+      expect(woodInfo.max).toBe(120);
+      expect(woodInfo.stock).toBe(120);
+      expect(woodInfo.ratio).toBe(1);
+
+      const stoneInfo = getNodeStockInfo(state, "p_stone", "quarry");
+      expect(stoneInfo.max).toBe(90);
+      expect(stoneInfo.stock).toBe(90);
+      expect(stoneInfo.ratio).toBe(1);
+
+      const foodInfo = getNodeStockInfo(state, "p_food", "field");
+      expect(foodInfo.max).toBe(160);
+      expect(foodInfo.stock).toBe(160);
+      expect(foodInfo.ratio).toBe(1);
+
+      // Partially drained nodes
+      state.flags["node_stock_p_wood"] = 60;
+      expect(getNodeStockInfo(state, "p_wood", "woodcut").ratio).toBe(0.5);
+
+      state.flags["node_stock_p_stone"] = 18;
+      expect(getNodeStockInfo(state, "p_stone", "quarry").ratio).toBe(0.2);
+
+      // Depleted nodes (0 stock)
+      state.flags["node_stock_p_food"] = 0;
+      const depletedFood = getNodeStockInfo(state, "p_food", "field");
+      expect(depletedFood.stock).toBe(0);
+      expect(depletedFood.ratio).toBe(0);
+
+      // Clamping bounds
+      state.flags["node_stock_p_wood"] = -10;
+      expect(getNodeStockInfo(state, "p_wood", "woodcut").ratio).toBe(0);
+
+      state.flags["node_stock_p_wood"] = 500;
+      expect(getNodeStockInfo(state, "p_wood", "woodcut").ratio).toBe(1);
+
+      // Non-gather node returns ratio 1
+      expect(getNodeStockInfo(state, "p_open", "none").ratio).toBe(1);
+    });
+
+    it("draws small stock piles that read emptier across all 4 volume tiers", () => {
+      const nodes = ["woodcut", "quarry", "field", "ruins"] as const;
+      const ratios = [1.0, 0.5, 0.2, 0.0];
+
+      for (const node of nodes) {
+        for (const ratio of ratios) {
+          const g = createMockGraphics();
+          expect(() => {
+            drawNodeStockPile(g, 100, 100, node, ratio, 0);
+          }).not.toThrow();
+          expect(g.calls.length).toBeGreaterThanOrEqual(5);
+        }
+      }
+
+      // Verify that full piles have more drawing calls than depleted/empty piles
+      for (const node of ["woodcut", "quarry", "field"] as const) {
+        const fullG = createMockGraphics();
+        drawNodeStockPile(fullG, 100, 100, node, 1.0, 0);
+
+        const emptyG = createMockGraphics();
+        drawNodeStockPile(emptyG, 100, 100, node, 0.0, 0);
+
+        // Full stock pile has more logs / blocks / sacks drawn than empty skid/gravel bed
+        expect(fullG.calls.length).toBeGreaterThan(emptyG.calls.length);
+      }
+    });
+
+    it("draws complete resource nodes with station landmark and dynamic stock pile", () => {
+      for (const node of ["woodcut", "quarry", "field", "ruins"] as const) {
+        const g = createMockGraphics();
+        expect(() => {
+          drawResourceNode(g, 100, 100, node, 0.8, 1.5);
+        }).not.toThrow();
+        expect(g.calls.length).toBeGreaterThan(15);
+      }
+    });
+
+    it("paints board provinces with active resource nodes at full and depleted stock", () => {
+      const state = createMockState();
+      state.board = {
+        homeProvinceId: "p_home",
+        provinces: [
+          { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          { id: "p_wood", x: 1, y: 0, terrain: "wood", node: "woodcut" },
+          { id: "p_stone", x: 2, y: 0, terrain: "hill", node: "quarry" },
+          { id: "p_field", x: 3, y: 0, terrain: "plain", node: "field" },
+          { id: "p_ruins", x: 4, y: 0, terrain: "waste", node: "ruins" },
+        ],
+      };
+      state.flags = {
+        "seen:p_home": true,
+        "seen:p_wood": true,
+        "seen:p_stone": true,
+        "seen:p_field": true,
+        "seen:p_ruins": true,
+        "node_stock_p_wood": 120, // Full wood
+        "node_stock_p_stone": 0,   // Dry stone
+        "node_stock_p_field": 32,  // Low food
+      };
+
+      const g = createMockGraphics();
+      expect(() => {
+        paintBoardProvinces(g, state, 0.5);
+      }).not.toThrow();
+      expect(g.calls.length).toBeGreaterThan(50);
     });
   });
 });

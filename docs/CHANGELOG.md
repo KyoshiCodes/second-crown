@@ -1,5 +1,39 @@
 # CHANGELOG
 
+## 2026-09-22 — Gemini Resource Node Dynamic Stock Piles (`bakeoff/gemini-nodes`)
+
+- **Dynamic Resource Node Stock Piles (`packages/render/src/tokens.ts`)**:
+  - Resource nodes on the isometric board now display a dedicated, material-specific stock pile beside their work station that visibly empties as the node stock drains:
+    - **Woodcut (`woodcut`)**: Sturdy timber skid rails supporting stacked pine logs with dark bark and golden heartwood growth rings. Transitions dynamically across 4 volume tiers:
+      - *Full (ratio >= 0.65)*: 6 logs stacked 3 tiers high with retaining end stakes and golden dust sparkle.
+      - *Medium (0.35 <= ratio < 0.65)*: 4 logs stacked 2 tiers high.
+      - *Low (0.10 <= ratio < 0.35)*: 2 lone logs resting flat on the skids with loose wood shavings.
+      - *Depleted / Dry (ratio < 0.10)*: Zero logs; bare timber skid rails on sawdust ground with a soft pulsing amber/red depletion alert dot when empty (`ratio <= 0`).
+    - **Quarry (`quarry`)**: Excavated gravel bed with dressed ashlar granite masonry blocks displaying 3D sunlit facets, shaded walls, and chisel bevels:
+      - *Full (ratio >= 0.65)*: 6 dressed ashlar blocks stacked in a stepped pyramid with specular chisel glint.
+      - *Medium (0.35 <= ratio < 0.65)*: 4 blocks stacked in 2 tiers.
+      - *Low (0.10 <= ratio < 0.35)*: 2 lone blocks resting on gravel with loose stone rubble chips.
+      - *Depleted / Dry (ratio < 0.10)*: Zero blocks; bare excavated gravel pit with chisel scoring and a pulsing depletion alert pip when empty.
+    - **Field (`field`)**: Woven burlap threshing pad with plump harvest grain sacks tied with twine knots and golden wheat sprigs:
+      - *Full (ratio >= 0.65)*: 5 plump harvest sacks stacked high with wheat ear highlights.
+      - *Medium (0.35 <= ratio < 0.65)*: 3 sacks nestled together.
+      - *Low (0.10 <= ratio < 0.35)*: 1 lone sagging sack with scattered chaff seeds.
+      - *Depleted / Dry (ratio < 0.10)*: Zero sacks; bare trampled threshing cloth with a pulsing depletion alert pip when empty.
+    - **Ruins (`ruins`)**: Cracked flagstones with an iron-banded treasure chest overflowing with gold bullion and jewels when stocked, or an open empty picked-clean chest when looted.
+  - **Work Station Facility Landmarks (`drawResourceNode`)**:
+    - Each node pairs its dynamic stock pile on the right (`cx + 5, cy + 1`) with an evocative labor landmark on the left (`cx - 5, cy`):
+      - *Woodcut*: Root-flared tree stump with an embedded steel felling broadaxe and an A-frame timber sawbuck.
+      - *Quarry*: Stratified granite rock wall with exposed bedrock seams and a heavy double-pointed quarry pickaxe.
+      - *Field*: Standing golden wheat sheaf bundle tied with a crimson waist cord and an embedded crescent reaping sickle.
+      - *Ruins*: Weathered classical stone archway with fluted column drums and cracked lintel.
+  - **Stock Resolution Helper (`getNodeStockInfo`)**:
+    - Resolves stock directly from sim (`nodeStock(state, provinceId)` and `nodeStockMax(p.node)`) or `state.flags[\`node_stock_${p.id}\`]`, normalizing cleanly to `ratio` in `[0, 1]`.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zero changes to camera math, zoom, or province tile click hit-testing.
+  - Full test suite passes: 216 monorepo tests, 57 tests in `@second-crown/render` (+4 comprehensive test blocks for stock pile tiers and node rendering).
+  - Clean production build in `@second-crown/app`.
+
 ## 2026-09-22 — Gemini Distinct Gather Columns vs War Marches (`bakeoff/gemini-gathers`)
 
 - **Distinct Cart & Sack Meeple for Gather Columns (`packages/render/src/tokens.ts`)**:

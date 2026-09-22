@@ -5,6 +5,9 @@ import {
   listMarches,
   isProvinceSeen,
   getProvince,
+  nodeStock,
+  nodeStockMax,
+  GATHER_NODES,
 } from "@second-crown/sim";
 import * as sim from "@second-crown/sim";
 import type { March } from "@second-crown/sim";
@@ -899,6 +902,507 @@ export function drawMiniatureKeep(
   }
 }
 
+// -------------------------------------------------------------
+// Resource Node Stock Info & Isometric Stock Pile Renderers
+// -------------------------------------------------------------
+
+/**
+ * Resolves stock information for a resource node on the board.
+ * Returns { stock, max, ratio } where ratio is normalized between 0 and 1.
+ */
+export function getNodeStockInfo(
+  state: GameState,
+  provinceId: string,
+  nodeType: string
+): { stock: number; max: number; ratio: number } {
+  const max = typeof nodeStockMax === "function"
+    ? nodeStockMax(nodeType)
+    : (typeof sim.nodeStockMax === "function"
+        ? sim.nodeStockMax(nodeType)
+        : (nodeType === "field" ? 160 : nodeType === "woodcut" ? 120 : nodeType === "quarry" ? 90 : 0));
+
+  if (max <= 0) {
+    return { stock: 0, max: 0, ratio: 1 };
+  }
+
+  let stock: number | undefined;
+  if (state?.flags) {
+    const raw = state.flags[`node_stock_${provinceId}`];
+    if (typeof raw === "number" && Number.isFinite(raw)) {
+      stock = Math.max(0, raw);
+    }
+  }
+
+  if (stock === undefined) {
+    if (typeof nodeStock === "function" && state?.board?.provinces) {
+      stock = nodeStock(state, provinceId);
+    } else if (typeof sim.nodeStock === "function" && state?.board?.provinces) {
+      stock = sim.nodeStock(state, provinceId);
+    } else {
+      stock = max;
+    }
+  }
+
+  const ratio = Math.max(0, Math.min(1, stock / max));
+  return { stock, max, ratio };
+}
+
+/**
+ * Draws the resource node stock pile on the isometric diamond tile.
+ * Reads visibly emptier when the node is low:
+ * - High / Full (ratio >= 0.65): Stacked multi-tier full pyramid pile
+ * - Medium (0.35 <= ratio < 0.65): Reduced 2-tier pile
+ * - Low (0.10 <= ratio < 0.35): Diminished 1-tier pile (1-2 items)
+ * - Empty / Depleted (ratio < 0.10): Empty skids / bare gravel / trampled threshing floor with depletion indicator
+ */
+export function drawNodeStockPile(
+  g: Graphics,
+  px: number,
+  py: number,
+  nodeType: string,
+  ratio: number,
+  phase: number = 0
+): void {
+  const clampedRatio = Math.max(0, Math.min(1, ratio));
+
+  if (nodeType === "woodcut") {
+    // -------------------------------------------------------------
+    // Timber Log Rick / Stack
+    // -------------------------------------------------------------
+    // 1. Ground contact shadow
+    g.ellipse(px, py + 3.5, 7.5, 2.2);
+    g.fill({ color: 0x000000, alpha: 0.38 });
+
+    // 2. Timber skid beams (supporting rails)
+    g.rect(px - 5.5, py + 1.5, 11, 2.5);
+    g.fill({ color: 0x713f12, alpha: 0.35 }); // sawdust footprint
+    g.moveTo(px - 5.5, py + 1.5); g.lineTo(px - 5.5, py + 4.5);
+    g.stroke({ width: 1.2, color: 0x3f1d0b });
+    g.moveTo(px + 4.5, py + 1.5); g.lineTo(px + 4.5, py + 4.5);
+    g.stroke({ width: 1.2, color: 0x3f1d0b });
+
+    const drawLog = (lx: number, ly: number, len: number) => {
+      // Bark cylinder body
+      g.rect(lx - len / 2, ly - 1.5, len - 2, 3);
+      g.fill({ color: 0x78350f });
+      // Bark highlight top seam
+      g.moveTo(lx - len / 2, ly - 1.5);
+      g.lineTo(lx + len / 2 - 2, ly - 1.5);
+      g.stroke({ width: 0.7, color: 0x9a3412 });
+      // Bark bottom shadow seam
+      g.moveTo(lx - len / 2, ly + 1.5);
+      g.lineTo(lx + len / 2 - 2, ly + 1.5);
+      g.stroke({ width: 0.7, color: 0x451a03 });
+      // Cut circular log face end (growth rings)
+      g.ellipse(lx + len / 2 - 1.2, ly, 1.4, 1.5);
+      g.fill({ color: 0xd97706 });
+      g.circle(lx + len / 2 - 1.2, ly, 0.6);
+      g.fill({ color: 0xfde047 });
+    };
+
+    if (clampedRatio >= 0.65) {
+      // Stage 3: Full 6-log stack (3 bottom, 2 middle, 1 top)
+      drawLog(px - 3, py + 1.5, 7);
+      drawLog(px + 2.5, py + 1.5, 7);
+      drawLog(px - 0.5, py + 3.5, 8);
+      drawLog(px - 1.5, py - 0.5, 7);
+      drawLog(px + 2.5, py - 0.5, 7);
+      drawLog(px + 0.5, py - 2.5, 7);
+
+      // End retaining stakes
+      g.moveTo(px - 6, py - 3); g.lineTo(px - 6, py + 4.5);
+      g.stroke({ width: 1.1, color: 0x451a03 });
+      g.moveTo(px + 6, py - 3); g.lineTo(px + 6, py + 4.5);
+      g.stroke({ width: 1.1, color: 0x451a03 });
+
+      if (clampedRatio >= 0.9) {
+        g.circle(px + 0.5, py - 3, 0.7);
+        g.fill({ color: 0xfef08a });
+      }
+    } else if (clampedRatio >= 0.35) {
+      // Stage 2: Medium 4-log stack (3 bottom, 1 top)
+      drawLog(px - 3, py + 1.5, 7);
+      drawLog(px + 2.5, py + 1.5, 7);
+      drawLog(px - 0.5, py + 3.5, 8);
+      drawLog(px + 0.5, py - 0.5, 7);
+
+      // Shorter retaining stakes
+      g.moveTo(px - 6, py - 1); g.lineTo(px - 6, py + 4.5);
+      g.stroke({ width: 1.1, color: 0x451a03 });
+      g.moveTo(px + 6, py - 1); g.lineTo(px + 6, py + 4.5);
+      g.stroke({ width: 1.1, color: 0x451a03 });
+    } else if (clampedRatio >= 0.10) {
+      // Stage 1: Low 2-log stack lying flat
+      drawLog(px - 2, py + 2.5, 7);
+      drawLog(px + 3, py + 2.5, 7);
+      // Scattered wood curlings
+      g.circle(px - 4, py + 4, 0.7); g.fill({ color: 0xfde047 });
+      g.circle(px + 1, py + 4.5, 0.6); g.fill({ color: 0xd97706 });
+    } else {
+      // Stage 0: Depleted / Dry (zero logs)
+      g.circle(px - 3, py + 3, 0.6); g.fill({ color: 0xd97706 });
+      g.circle(px + 2, py + 3.5, 0.6); g.fill({ color: 0xb45309 });
+      if (clampedRatio <= 0) {
+        const pulse = Math.sin(phase * 4) * 0.25 + 0.75;
+        g.circle(px, py - 1, 1.5);
+        g.fill({ color: 0xef4444, alpha: 0.85 * pulse });
+        g.circle(px, py - 1, 0.7);
+        g.fill({ color: 0xfef08a, alpha: pulse });
+      }
+    }
+  } else if (nodeType === "quarry") {
+    // -------------------------------------------------------------
+    // Dressed Ashlar Stone Block Pile
+    // -------------------------------------------------------------
+    // 1. Ground contact shadow
+    g.ellipse(px, py + 3.5, 7.5, 2.5);
+    g.fill({ color: 0x18181b, alpha: 0.45 });
+
+    // 2. Excavated gravel dust bed
+    g.ellipse(px, py + 2.5, 6, 2);
+    g.fill({ color: 0x52525b, alpha: 0.35 });
+
+    const drawBlock = (bx: number, by: number, w: number, h: number) => {
+      // Top sunlit facet
+      g.poly([
+        bx - w / 2, by - h / 2,
+        bx, by - h / 2 - 1,
+        bx + w / 2, by - h / 2,
+        bx, by - h / 2 + 1,
+      ]);
+      g.fill({ color: 0xe4e4e7 });
+
+      // Left lit face
+      g.poly([
+        bx - w / 2, by - h / 2,
+        bx, by - h / 2 + 1,
+        bx, by + h / 2,
+        bx - w / 2, by + h / 2 - 1,
+      ]);
+      g.fill({ color: 0xa1a1aa });
+
+      // Right shaded face
+      g.poly([
+        bx, by - h / 2 + 1,
+        bx + w / 2, by - h / 2,
+        bx + w / 2, by + h / 2 - 1,
+        bx, by + h / 2,
+      ]);
+      g.fill({ color: 0x71717a });
+
+      // Outlines
+      g.poly([
+        bx - w / 2, by - h / 2,
+        bx, by - h / 2 - 1,
+        bx + w / 2, by - h / 2,
+        bx + w / 2, by + h / 2 - 1,
+        bx, by + h / 2,
+        bx - w / 2, by + h / 2 - 1,
+      ]);
+      g.stroke({ width: 0.6, color: 0x3f3f46 });
+    };
+
+    if (clampedRatio >= 0.65) {
+      // Stage 3: Full 6-block pyramid
+      drawBlock(px - 3.5, py + 2.5, 4.5, 3);
+      drawBlock(px + 1, py + 3, 4.5, 3);
+      drawBlock(px + 5, py + 2, 4, 3);
+      drawBlock(px - 1.5, py + 0.2, 4.5, 3);
+      drawBlock(px + 3, py + 0.5, 4.5, 3);
+      drawBlock(px + 0.5, py - 2.2, 4.5, 3);
+
+      if (clampedRatio >= 0.9) {
+        g.circle(px + 0.5, py - 3.2, 0.7);
+        g.fill({ color: 0xffffff });
+      }
+    } else if (clampedRatio >= 0.35) {
+      // Stage 2: Medium 4-block pile
+      drawBlock(px - 3.5, py + 2.5, 4.5, 3);
+      drawBlock(px + 1, py + 3, 4.5, 3);
+      drawBlock(px + 5, py + 2, 4, 3);
+      drawBlock(px + 0.5, py + 0.5, 4.5, 3);
+    } else if (clampedRatio >= 0.10) {
+      // Stage 1: Low 2-block pile
+      drawBlock(px - 2, py + 2.5, 4.5, 3);
+      drawBlock(px + 3, py + 2.5, 4.5, 3);
+      // Rubble chips
+      g.rect(px - 4.5, py + 4, 1.2, 1); g.fill({ color: 0xa1a1aa });
+      g.rect(px + 1, py + 4.5, 1, 0.9); g.fill({ color: 0x71717a });
+    } else {
+      // Stage 0: Depleted / Dry (zero blocks)
+      g.ellipse(px, py + 2.5, 5.5, 2);
+      g.fill({ color: 0x3f3f46, alpha: 0.65 });
+      g.rect(px - 2, py + 2, 1.2, 1); g.fill({ color: 0x71717a });
+      g.rect(px + 2, py + 3, 1, 0.8); g.fill({ color: 0x52525b });
+      if (clampedRatio <= 0) {
+        const pulse = Math.sin(phase * 4) * 0.25 + 0.75;
+        g.circle(px, py - 1, 1.5);
+        g.fill({ color: 0xef4444, alpha: 0.85 * pulse });
+        g.circle(px, py - 1, 0.7);
+        g.fill({ color: 0xfef08a, alpha: pulse });
+      }
+    }
+  } else if (nodeType === "field") {
+    // -------------------------------------------------------------
+    // Burlap Harvest Grain Sack Pile
+    // -------------------------------------------------------------
+    // 1. Ground contact shadow
+    g.ellipse(px, py + 3.5, 7.5, 2.5);
+    g.fill({ color: 0x451a03, alpha: 0.4 });
+
+    // 2. Threshing cloth / straw mat
+    g.poly([
+      px - 6, py + 2,
+      px, py + 0.5,
+      px + 6, py + 2.5,
+      px, py + 4.5,
+    ]);
+    g.fill({ color: 0x92400e });
+
+    const drawSack = (sx: number, sy: number, size: number) => {
+      // Sack belly
+      g.ellipse(sx, sy + 0.5, size * 1.7, size * 1.3);
+      g.fill({ color: 0xb45309 });
+      // Upper belly highlight
+      g.ellipse(sx - 0.3, sy, size * 1.2, size * 0.8);
+      g.fill({ color: 0xd97706 });
+      // Tied neck
+      g.rect(sx - size * 0.5, sy - size * 1.0, size * 1.0, 1);
+      g.fill({ color: 0x78350f });
+      // Flared opening
+      g.poly([
+        sx - size * 0.6, sy - size * 1.0,
+        sx + size * 0.6, sy - size * 1.0,
+        sx + size * 0.8, sy - size * 1.5,
+        sx - size * 0.8, sy - size * 1.5,
+      ]);
+      g.fill({ color: 0xb45309 });
+      // Wheat grain ear peeking out
+      g.circle(sx, sy - size * 1.4, 0.7);
+      g.fill({ color: 0xfde047 });
+    };
+
+    if (clampedRatio >= 0.65) {
+      // Stage 3: Full 5-sack stack
+      drawSack(px - 3.5, py + 2, 1.3);
+      drawSack(px + 1.5, py + 2.5, 1.3);
+      drawSack(px + 4.5, py + 1.2, 1.2);
+      drawSack(px - 1, py - 0.5, 1.3);
+      drawSack(px + 3, py, 1.2);
+
+      if (clampedRatio >= 0.9) {
+        g.circle(px - 1, py - 2, 0.7);
+        g.fill({ color: 0xfef08a });
+      }
+    } else if (clampedRatio >= 0.35) {
+      // Stage 2: Medium 3-sack pile
+      drawSack(px - 3, py + 2.2, 1.3);
+      drawSack(px + 2, py + 2.5, 1.3);
+      drawSack(px - 0.5, py + 0.2, 1.3);
+    } else if (clampedRatio >= 0.10) {
+      // Stage 1: Low 1 lone sack
+      drawSack(px, py + 2, 1.3);
+      // Chaff seeds
+      g.circle(px - 4, py + 3, 0.6); g.fill({ color: 0xfde047 });
+      g.circle(px + 3, py + 3.5, 0.6); g.fill({ color: 0xfef08a });
+    } else {
+      // Stage 0: Depleted / Dry (zero sacks)
+      g.circle(px - 2, py + 2.5, 0.6); g.fill({ color: 0xfde047 });
+      g.circle(px + 2, py + 3, 0.5); g.fill({ color: 0xd97706 });
+      if (clampedRatio <= 0) {
+        const pulse = Math.sin(phase * 4) * 0.25 + 0.75;
+        g.circle(px, py - 1, 1.5);
+        g.fill({ color: 0xef4444, alpha: 0.85 * pulse });
+        g.circle(px, py - 1, 0.7);
+        g.fill({ color: 0xfef08a, alpha: pulse });
+      }
+    }
+  } else if (nodeType === "ruins") {
+    // -------------------------------------------------------------
+    // Relic Cache / Treasure Hoard
+    // -------------------------------------------------------------
+    g.ellipse(px, py + 3.5, 6, 2);
+    g.fill({ color: 0x18181b, alpha: 0.4 });
+
+    if (clampedRatio >= 0.5) {
+      // Full unlooted treasure chest
+      g.rect(px - 3.5, py + 1, 7, 4);
+      g.fill({ color: 0x78350f });
+      g.stroke({ width: 0.7, color: 0x3f3f46 });
+      g.circle(px, py + 2.5, 0.8);
+      g.fill({ color: 0xfacc15 });
+      g.circle(px + 2.5, py + 3.5, 0.9);
+      g.fill({ color: 0xfde047 });
+    } else {
+      // Open / looted chest
+      g.rect(px - 3.5, py + 1.5, 7, 3);
+      g.fill({ color: 0x451a03 });
+      g.stroke({ width: 0.6, color: 0x3f3f46 });
+      if (clampedRatio <= 0) {
+        const pulse = Math.sin(phase * 4) * 0.25 + 0.75;
+        g.circle(px, py - 1, 1.5);
+        g.fill({ color: 0xef4444, alpha: 0.85 * pulse });
+        g.circle(px, py - 1, 0.7);
+        g.fill({ color: 0xfef08a, alpha: pulse });
+      }
+    }
+  }
+}
+
+/**
+ * Draws the complete resource node on an isometric diamond tile:
+ * 1. Facility / work station landmark on the left (stump+axe, quarry face+pick, wheat stook+sickle, or ruins columns)
+ * 2. Small stock pile on the right (stacked logs, ashlar blocks, grain sacks) that reads emptier when low.
+ */
+export function drawResourceNode(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  nodeType: string,
+  ratio: number,
+  phase: number = 0
+): void {
+  // 1. Station Landmark on Left Side
+  switch (nodeType) {
+    case "woodcut": {
+      // Tree stump with root flares
+      g.poly([
+        cx - 9, cy + 4,
+        cx - 7, cy + 1,
+        cx - 3, cy + 1,
+        cx - 1, cy + 4,
+      ]);
+      g.fill({ color: 0x451a03 });
+      g.rect(cx - 7.5, cy + 0.5, 5, 3.5);
+      g.fill({ color: 0x713f12 });
+      g.ellipse(cx - 5, cy + 0.5, 2.5, 1.2);
+      g.fill({ color: 0xa16207 });
+      g.circle(cx - 5, cy + 0.5, 0.6);
+      g.fill({ color: 0xd97706 });
+
+      // Embedded felling broadaxe
+      g.moveTo(cx - 5, cy + 0.5);
+      g.lineTo(cx - 9, cy - 7);
+      g.stroke({ width: 1.1, color: 0x78350f });
+      g.poly([cx - 5, cy + 0.5, cx - 7, cy - 1.5, cx - 4.5, cy - 2.5]);
+      g.fill({ color: 0x94a3b8 });
+      g.moveTo(cx - 5, cy + 0.5);
+      g.lineTo(cx - 7, cy - 1.5);
+      g.stroke({ width: 0.8, color: 0xf8fafc });
+
+      // Small timber A-frame sawbuck behind it
+      g.moveTo(cx - 4, cy - 1);
+      g.lineTo(cx + 1, cy - 7);
+      g.stroke({ width: 0.9, color: 0x854d0e });
+      g.moveTo(cx + 1, cy - 1);
+      g.lineTo(cx - 4, cy - 7);
+      g.stroke({ width: 0.9, color: 0x854d0e });
+      break;
+    }
+
+    case "quarry": {
+      // Exposed granite quarry rock outcrop
+      g.poly([
+        cx - 9, cy + 4,
+        cx - 1, cy + 4,
+        cx - 2, cy + 1,
+        cx - 8, cy + 1,
+      ]);
+      g.fill({ color: 0x18181b, alpha: 0.4 });
+      g.poly([
+        cx - 8.5, cy + 3.5,
+        cx - 2.5, cy + 3.5,
+        cx - 2.5, cy - 3,
+        cx - 8.5, cy - 1,
+      ]);
+      g.fill({ color: 0x52525b });
+      g.poly([
+        cx - 8.5, cy - 1,
+        cx - 2.5, cy - 3,
+        cx - 4, cy - 5,
+        cx - 9.5, cy - 3,
+      ]);
+      g.fill({ color: 0xa1a1aa });
+      g.moveTo(cx - 8, cy + 1);
+      g.lineTo(cx - 3, cy + 0.5);
+      g.stroke({ width: 0.7, color: 0x27272a });
+
+      // Heavy quarry pickaxe leaning against ledge
+      g.moveTo(cx - 2, cy + 4);
+      g.lineTo(cx - 7, cy - 6);
+      g.stroke({ width: 1.1, color: 0x78350f });
+      g.poly([cx - 9, cy - 5, cx - 7, cy - 6, cx - 5, cy - 7.5, cx - 7, cy - 6.5]);
+      g.fill({ color: 0x94a3b8 });
+      g.circle(cx - 9, cy - 5, 0.7);
+      g.fill({ color: 0xf1f5f9 });
+      break;
+    }
+
+    case "field": {
+      // Harvest wheat stook / sheaf standing tall
+      g.ellipse(cx - 5, cy + 4, 4, 1.5);
+      g.fill({ color: 0x000000, alpha: 0.35 });
+      g.poly([
+        cx - 7, cy + 4,
+        cx - 8, cy - 2,
+        cx - 2, cy - 2,
+        cx - 3, cy + 4,
+      ]);
+      g.fill({ color: 0xca8a04 });
+      g.rect(cx - 7.5, cy + 0.5, 5, 1.5);
+      g.fill({ color: 0xdc2626 });
+      g.poly([
+        cx - 8, cy - 2,
+        cx - 9, cy - 5,
+        cx - 5, cy - 6,
+        cx - 5, cy - 2,
+      ]);
+      g.fill({ color: 0xfacc15 });
+      g.poly([
+        cx - 5, cy - 2,
+        cx - 5, cy - 6,
+        cx - 1, cy - 5,
+        cx - 2, cy - 2,
+      ]);
+      g.fill({ color: 0xfde047 });
+      g.circle(cx - 7, cy - 5, 1.1); g.fill({ color: 0xfef08a });
+      g.circle(cx - 5, cy - 6, 1.2); g.fill({ color: 0xfde047 });
+      g.circle(cx - 3, cy - 5, 1.1); g.fill({ color: 0xfef08a });
+
+      // Reaping sickle stuck in ground
+      g.moveTo(cx - 1, cy + 4);
+      g.lineTo(cx + 1, cy + 0.5);
+      g.stroke({ width: 0.9, color: 0x78350f });
+      g.moveTo(cx + 1, cy + 0.5);
+      g.bezierCurveTo(cx + 3, cy - 1, cx + 2, cy - 4, cx, cy - 3.5);
+      g.stroke({ width: 0.9, color: 0xe2e8f0 });
+      g.circle(cx + 2.5, cy - 2, 0.6);
+      g.fill({ color: 0xffffff });
+      break;
+    }
+
+    case "ruins": {
+      // Crumbling classical stone column & archway
+      g.rect(cx - 8, cy + 2, 5, 2);
+      g.fill({ color: 0x52525b });
+      g.rect(cx - 7.5, cy - 5, 4, 7);
+      g.fill({ color: 0xa1a1aa });
+      g.moveTo(cx - 6.5, cy - 5); g.lineTo(cx - 6.5, cy + 2);
+      g.stroke({ width: 0.6, color: 0x71717a });
+      g.moveTo(cx - 4.5, cy - 5); g.lineTo(cx - 4.5, cy + 2);
+      g.stroke({ width: 0.6, color: 0x71717a });
+      g.poly([cx - 8, cy - 5, cx - 6, cy - 7, cx - 4, cy - 5.5, cx - 3, cy - 5]);
+      g.fill({ color: 0xd4d4d8 });
+      g.moveTo(cx - 4, cy - 6); g.lineTo(cx, cy - 3);
+      g.stroke({ width: 1.4, color: 0x71717a });
+      break;
+    }
+  }
+
+  // 2. Small Stock Pile on Right Side
+  drawNodeStockPile(g, cx + 5, cy + 1, nodeType, ratio, phase);
+}
+
 
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
@@ -1229,37 +1733,12 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
           g.stroke({ width: 0.9, color: 0x78350f, alpha: 0.8 });
           break;
         }
-        case "woodcut": {
-          g.rect(cx - 7, cy + 1, 14, 4);
-          g.fill({ color: 0x78350f });
-          g.moveTo(cx - 7, cy + 3); g.lineTo(cx + 7, cy + 3);
-          g.stroke({ width: 0.8, color: 0x3f1d0b });
-          g.moveTo(cx - 5, cy); g.lineTo(cx + 5, cy - 8);
-          g.moveTo(cx + 5, cy); g.lineTo(cx - 5, cy - 8);
-          g.stroke({ width: 1.1, color: 0x854d0e });
-          g.rect(cx + 3, cy - 9, 2.8, 2.2); g.fill({ color: 0xd1d5db });
-          g.rect(cx - 6, cy - 9, 2.8, 2.2); g.fill({ color: 0xd1d5db });
-          break;
-        }
-        case "quarry": {
-          g.rect(cx - 6, cy - 2, 9, 7);
-          g.fill({ color: 0xa1a1aa });
-          g.rect(cx - 6, cy + 1, 9, 4);
-          g.fill({ color: 0x71717a });
-          g.moveTo(cx + 5, cy + 4); g.lineTo(cx - 2, cy - 7);
-          g.stroke({ width: 1.1, color: 0x78350f });
-          g.poly([cx - 5, cy - 7, cx - 1, cy - 8, cx + 2, cy - 5]);
-          g.stroke({ width: 1.3, color: 0x94a3b8 });
-          break;
-        }
-        case "field": {
-          g.poly([cx - 4, cy + 6, cx - 6, cy - 3, cx + 6, cy - 3, cx + 4, cy + 6]);
-          g.fill({ color: 0xca8a04 });
-          g.rect(cx - 5, cy - 0.5, 10, 2);
-          g.fill({ color: 0xdc2626 });
-          g.circle(cx - 3, cy - 5, 1.5); g.fill({ color: 0xfef08a });
-          g.circle(cx, cy - 6, 1.8); g.fill({ color: 0xfde047 });
-          g.circle(cx + 3, cy - 5, 1.5); g.fill({ color: 0xfef08a });
+        case "woodcut":
+        case "quarry":
+        case "field":
+        case "ruins": {
+          const { ratio } = getNodeStockInfo(state, p.id, p.node);
+          drawResourceNode(g, cx, cy, p.node, ratio, phase);
           break;
         }
       }
