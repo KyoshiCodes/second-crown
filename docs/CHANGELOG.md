@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 2026-09-22 — Gemini Distinct Gather Columns vs War Marches (`bakeoff/gemini-gathers`)
+
+- **Distinct Cart & Sack Meeple for Gather Columns (`packages/render/src/tokens.ts`)**:
+  - Implemented `drawGatherColumnMeeple` giving gather columns on the isometric board a distinct, highly readable non-military meeple silhouette:
+    - **Wheeled Cart Chassis**: Sturdy timber freight bed with iron corner brackets, heavy iron axle, and rolling spoked wheels with iron rim tires and bronze axle hubs that rotate with movement frames.
+    - **Burlap Cargo Sacks**: Bulging woven burlap sacks with tied twine knots stacked high in the cart bed.
+    - **Resource Cargo Overlays**: Dynamic visual cargo rendered atop the sacks matching destination node types:
+      - `field`: Golden sheaf of wheat stalks and harvest ears.
+      - `woodcut`: Rough-hewn pine logs with bark and cut rings.
+      - `quarry`: Dressed ashlar granite stone blocks with chisel facets.
+      - `ruins`: Gilded treasure chest with golden bullion and coin glints.
+    - **Harnessed Draft Mule / Pack Animal**: Animated pack animal leading the cart in front with harness shafts, bridle straps, alert pricked ears, and a 2-3 frame walking leg gait matching column travel ticks.
+    - **Culture Kit Adaptations**: Timber bed, wheel spokes, and mule harness accents dynamically adapt to regional culture palettes (`western`, `cedar`, `sand`, `steppe`, `islands`).
+    - **Gather Status Pill**: Semi-transparent dark obsidian floating indicator showing active harvest progress pips (`outbound`, `gathering`, `returning`).
+  - **March Classification & Distinct Trails (`isGatherMarch`)**:
+    - Automatically classifies marches as gather operations (`kind === "node"`, `purpose === "gather"`, or targeting resource node provinces `field`, `woodcut`, `quarry`, `ruins`) vs military war marches (`kind === "camp"`, `kind === "hold"`).
+    - **Gather Columns**: Render with soft emerald/harvest amber pastoral supply route trails and a gentle golden node harvest indicator.
+    - **War Marches**: Retain tactical battle pedestals (walnut/faction ring for player, dread iron/danger ring for rival), iconic unit weapon silhouettes, high-contrast war route trails, and red targeting reticles.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zero changes to camera math, zoom, or province tile click hit-testing.
+  - Full test suite passes: 216 monorepo tests, 53 tests in `@second-crown/render` (+4 comprehensive test blocks for gather meeples and trails).
+  - Clean production build in `@second-crown/app`.
+
 ## 2026-09-22 — Gemini Isometric Hold Citizen Walkers (`bakeoff/gemini-walkers`)
 
 - **2-3 Frame Pixel Walkers & Job Tools (`packages/render/src/walkers.ts`)**:

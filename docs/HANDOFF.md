@@ -6,7 +6,14 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-walkers)
+## Recent Wave (bakeoff/gemini-gathers)
+
+- **Gather Columns vs War Marches on Isometric Board**:
+  - Implemented distinct `drawGatherColumnMeeple` in `tokens.ts` (rolling spoked wheels with iron tires, timber cart chassis, stacked burlap sacks with tied twine knots, resource overlays for field/woodcut/quarry/ruins, and harnessed trotting draft mule with animated 2-3 frame walking gait).
+  - Gather marches classified via `isGatherMarch` receive soft emerald/harvest pastoral supply route trails and golden node harvest indicators, distinct from military war marches (tactical battle pedestals, iconic weapon silhouettes, war route trails, red targeting reticles).
+  - Zero diff on `packages/sim` or `server/`. Hit-tests and camera math strictly untouched.
+
+## Prior Wave (bakeoff/gemini-walkers)
 
 - **Hold Citizens & 2-3 Frame Job Tools**:
   - Citizens walking the isometric hold view read as 2–3 frame pixel walkers with job tools for the 4 primary hold works: `farm` (pitchfork + straw hat + golden sheaf), `wood` (felling broadaxe + feather cap + pine log), `stone` (double-pointed quarry pickaxe + quarry cowl + granite block), and `gold` (gilded prospector pick + assayer lamp + gold pan with animated star twinkle).

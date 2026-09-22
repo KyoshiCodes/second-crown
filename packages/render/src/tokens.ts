@@ -1392,6 +1392,248 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
   }
 }
 
+export function isGatherMarch(m: any, state: GameState | null): boolean {
+  if (!m) return false;
+  if (m.kind === "node") return true;
+  if (m.purpose === "gather") return true;
+  if (!state?.board) return false;
+  const toProv = getProvince(state, m.toId);
+  if (
+    toProv &&
+    (toProv.node === "woodcut" ||
+      toProv.node === "quarry" ||
+      toProv.node === "field" ||
+      toProv.node === "ruins")
+  ) {
+    if (m.kind !== "hold" && m.kind !== "camp") return true;
+  }
+  return false;
+}
+
+/**
+ * Draws a distinct 2-3 frame pixel gather column meeple (cargo cart / bulging sacks / draft mule)
+ * clearly distinguishing gather expeditions from military war marches.
+ */
+export function drawGatherColumnMeeple(
+  pawnsG: Graphics,
+  pawnX: number,
+  pawnY: number,
+  facing: number,
+  frame: 0 | 1 | 2,
+  bob: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette,
+  nodeType?: string,
+  phase: number = 0,
+  progress: number = 0.5
+): void {
+  // 1. Dual Ground Contact Shadows (cart wheelbase + draft animal)
+  pawnsG.ellipse(pawnX, pawnY + 5.5, 12, 4);
+  pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+
+  pawnsG.ellipse(pawnX + facing * 8, pawnY + 5, 6, 2.8);
+  pawnsG.fill({ color: 0x000000, alpha: 0.38 });
+
+  // 2. Draft Animal / Puller (trotting in front with 2-3 frame animated trot)
+  const muleX = pawnX + facing * 8;
+  const muleY = pawnY + 1;
+  const muleLeg1 = frame === 1 ? 1.8 : frame === 2 ? -1.8 : 0;
+  const muleLeg2 = frame === 1 ? -1.8 : frame === 2 ? 1.8 : 0;
+
+  // Hind legs
+  pawnsG.rect(muleX - facing * 2.5, muleY + muleLeg1 - bob * 0.4, 1.8, 4);
+  pawnsG.fill({ color: 0x3f220c });
+  pawnsG.rect(muleX - facing * 2.5, muleY + muleLeg1 + 3 - bob * 0.4, 1.8, 1);
+  pawnsG.fill({ color: 0x18181b });
+
+  // Fore legs
+  pawnsG.rect(muleX + facing * 2, muleY + muleLeg2 - bob * 0.4, 1.8, 4);
+  pawnsG.fill({ color: 0x5c3818 });
+  pawnsG.rect(muleX + facing * 2, muleY + muleLeg2 + 3 - bob * 0.4, 1.8, 1);
+  pawnsG.fill({ color: 0x18181b });
+
+  // Draft torso
+  const muleColor = kit === "sand" ? 0xa16207 : kit === "steppe" ? 0x451a03 : 0x5c3818;
+  pawnsG.rect(muleX - 3.5, muleY - 4.5 - bob * 0.5, 7, 4.5);
+  pawnsG.fill({ color: muleColor });
+
+  // Leather breast-collar and harness
+  pawnsG.rect(muleX - 3.5, muleY - 2.5 - bob * 0.5, 7, 1);
+  pawnsG.fill({ color: 0x271406 });
+  pawnsG.circle(muleX + facing * 0.5, muleY - 2 - bob * 0.5, 0.8);
+  pawnsG.fill({ color: 0xca8a04 });
+
+  // Neck and head
+  pawnsG.poly([
+    muleX + facing * 2, muleY - 4.5 - bob * 0.5,
+    muleX + facing * 5.5, muleY - 9 - bob * 0.5,
+    muleX + facing * 8, muleY - 7.5 - bob * 0.5,
+    muleX + facing * 3.5, muleY - 2.5 - bob * 0.5,
+  ]);
+  pawnsG.fill({ color: muleColor });
+
+  // Perked ears
+  pawnsG.poly([
+    muleX + facing * 5, muleY - 9 - bob * 0.5,
+    muleX + facing * 5.5, muleY - 12 - bob * 0.5,
+    muleX + facing * 6.5, muleY - 9 - bob * 0.5,
+  ]);
+  pawnsG.fill({ color: 0x3f220c });
+
+  // Dark muzzle & bridle
+  pawnsG.rect(muleX + facing * 6.5, muleY - 8.5 - bob * 0.5, 2, 2);
+  pawnsG.fill({ color: 0x271406 });
+  pawnsG.moveTo(muleX + facing * 7, muleY - 8 - bob * 0.5);
+  pawnsG.lineTo(muleX + facing * 5, muleY - 7 - bob * 0.5);
+  pawnsG.stroke({ width: 0.6, color: 0x18181b });
+
+  // Connecting draft shafts / traces
+  pawnsG.moveTo(pawnX, pawnY - 0.5 - bob);
+  pawnsG.lineTo(muleX - facing * 1, muleY - 2 - bob * 0.5);
+  pawnsG.stroke({ width: 1.2, color: 0x78350f });
+
+  // 3. The Cargo Cart
+  const cartX = pawnX;
+  const cartY = pawnY;
+  const cartTimber =
+    kit === "sand"
+      ? cult.stone
+      : kit === "cedar" || kit === "islands"
+      ? cult.timber
+      : 0x78350f;
+
+  // Timber bed
+  pawnsG.rect(cartX - 6.5, cartY - 3.5 - bob, 13, 5);
+  pawnsG.fill({ color: cartTimber });
+  pawnsG.stroke({ width: 0.8, color: 0x3f220c });
+
+  // Side plank groove
+  pawnsG.moveTo(cartX - 6.5, cartY - 1 - bob);
+  pawnsG.lineTo(cartX + 6.5, cartY - 1 - bob);
+  pawnsG.stroke({ width: 0.6, color: 0x451a03 });
+
+  // Corner stakes & iron brackets
+  pawnsG.rect(cartX - 6.5, cartY - 4 - bob, 1.8, 5.5);
+  pawnsG.fill({ color: 0x27272a });
+  pawnsG.rect(cartX + 4.7, cartY - 4 - bob, 1.8, 5.5);
+  pawnsG.fill({ color: 0x27272a });
+
+  // Axle beam
+  pawnsG.rect(cartX - 5.5, cartY + 1.5 - bob, 11, 1.8);
+  pawnsG.fill({ color: 0x271406 });
+
+  // Two Spoked Rotating Wheels
+  for (const wx of [cartX - 4.5, cartX + 4.5]) {
+    const wy = cartY + 2.5;
+    pawnsG.circle(wx, wy, 3.5);
+    pawnsG.fill({ color: 0x27272a });
+    pawnsG.circle(wx, wy, 2.7);
+    pawnsG.fill({ color: 0x854d0e });
+
+    // Rotating spokes across frames
+    if (frame === 0) {
+      pawnsG.moveTo(wx, wy - 2.5); pawnsG.lineTo(wx, wy + 2.5);
+      pawnsG.moveTo(wx - 2.5, wy); pawnsG.lineTo(wx + 2.5, wy);
+    } else if (frame === 1) {
+      pawnsG.moveTo(wx - 1.8, wy - 1.8); pawnsG.lineTo(wx + 1.8, wy + 1.8);
+      pawnsG.moveTo(wx + 1.8, wy - 1.8); pawnsG.lineTo(wx - 1.8, wy + 1.8);
+    } else {
+      pawnsG.moveTo(wx - 1, wy - 2.2); pawnsG.lineTo(wx + 1, wy + 2.2);
+      pawnsG.moveTo(wx - 2.2, wy + 1); pawnsG.lineTo(wx + 2.2, wy - 1);
+    }
+    pawnsG.stroke({ width: 0.6, color: 0x451a03 });
+
+    // Brass hub
+    pawnsG.circle(wx, wy, 1.2);
+    pawnsG.fill({ color: 0xd4a359 });
+    pawnsG.circle(wx, wy, 0.5);
+    pawnsG.fill({ color: 0x18181b });
+  }
+
+  // 4. Piled High Bulging Burlap Cargo Sacks
+  // Center large sack
+  pawnsG.ellipse(cartX - facing * 0.5, cartY - 6.5 - bob, 4.5, 3.8);
+  pawnsG.fill({ color: 0xd97706 });
+  pawnsG.stroke({ width: 0.6, color: 0xb45309 });
+  // Tied sack neck
+  pawnsG.rect(cartX - facing * 0.5 - 1.2, cartY - 11 - bob, 2.4, 2);
+  pawnsG.fill({ color: 0xb45309 });
+  pawnsG.rect(cartX - facing * 0.5 - 1.8, cartY - 9.5 - bob, 3.6, 1);
+  pawnsG.fill({ color: 0x78350f });
+  pawnsG.circle(cartX - facing * 0.5, cartY - 11.5 - bob, 1.2);
+  pawnsG.fill({ color: 0xfde047 });
+
+  // Forward sack
+  pawnsG.ellipse(cartX + facing * 3.2, cartY - 4.5 - bob, 3.2, 2.8);
+  pawnsG.fill({ color: 0xb45309 });
+  pawnsG.rect(cartX + facing * 3.2 - 0.8, cartY - 8 - bob, 1.6, 1.5);
+  pawnsG.fill({ color: 0x92400e });
+  pawnsG.rect(cartX + facing * 3.2 - 1.2, cartY - 7 - bob, 2.4, 0.8);
+  pawnsG.fill({ color: 0x78350f });
+
+  // Trailing sack
+  pawnsG.ellipse(cartX - facing * 3.5, cartY - 4.5 - bob, 3.4, 2.8);
+  pawnsG.fill({ color: 0xc2410c });
+  pawnsG.rect(cartX - facing * 3.5 - 0.8, cartY - 8 - bob, 1.6, 1.5);
+  pawnsG.fill({ color: 0x9a3412 });
+
+  // Resource-specific cargo
+  if (nodeType === "woodcut" || nodeType === "wood") {
+    // Stack of logs
+    pawnsG.rect(cartX - 5, cartY - 7 - bob, 10, 2.8);
+    pawnsG.fill({ color: 0x713f12 });
+    pawnsG.ellipse(cartX + (facing > 0 ? 5 : -5), cartY - 5.6 - bob, 1.2, 1.4);
+    pawnsG.fill({ color: 0xfde047 });
+    pawnsG.rect(cartX - 4, cartY - 9.5 - bob, 8, 2.6);
+    pawnsG.fill({ color: 0x543007 });
+    pawnsG.ellipse(cartX + (facing > 0 ? 4 : -4), cartY - 8.2 - bob, 1, 1.3);
+    pawnsG.fill({ color: 0xfacc15 });
+  } else if (nodeType === "quarry" || nodeType === "stone") {
+    // Ashlar stone block
+    pawnsG.rect(cartX - 4, cartY - 7 - bob, 8, 4);
+    pawnsG.fill({ color: 0x64748b });
+    pawnsG.stroke({ width: 0.7, color: 0xcbd5e1 });
+    pawnsG.moveTo(cartX - 1.5, cartY - 7 - bob);
+    pawnsG.lineTo(cartX - 1.5, cartY - 3 - bob);
+    pawnsG.stroke({ width: 0.8, color: 0x78350f });
+  } else if (nodeType === "ruins" || nodeType === "gold") {
+    // Gold chest & nuggets
+    pawnsG.rect(cartX - 4, cartY - 8 - bob, 8, 4.5);
+    pawnsG.fill({ color: 0x451a03 });
+    pawnsG.stroke({ width: 0.8, color: 0xfacc15 });
+    pawnsG.circle(cartX + facing * 1.5, cartY - 9 - bob, 1.2);
+    pawnsG.fill({ color: 0xfef08a });
+  } else {
+    // Field / food: wheat ears
+    pawnsG.circle(cartX - facing * 0.5 - 1.8, cartY - 9 - bob, 1.3);
+    pawnsG.fill({ color: 0xfacc15 });
+    pawnsG.circle(cartX - facing * 0.5 + 1.8, cartY - 8.5 - bob, 1.1);
+    pawnsG.fill({ color: 0xfef08a });
+  }
+
+  // 5. Floating Harvest Cargo Badge / Load Pill
+  pawnsG.rect(cartX - 14, cartY - 19 - bob, 28, 8);
+  pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+  pawnsG.rect(cartX - 14, cartY - 20 - bob, 28, 8);
+  pawnsG.fill({ color: 0x142e1b, alpha: 0.95 });
+  pawnsG.stroke({ width: 1, color: 0x22c55e, alpha: 0.85 });
+
+  // Mini sack icon
+  pawnsG.circle(cartX - 8, cartY - 16 - bob, 1.8);
+  pawnsG.fill({ color: 0xf59e0b });
+  pawnsG.rect(cartX - 8.6, cartY - 18 - bob, 1.2, 0.8);
+  pawnsG.fill({ color: 0x92400e });
+
+  // Load progress pips
+  const pips = 3;
+  for (let p = 0; p < pips; p++) {
+    const pipX = cartX - 2 + p * 4.5;
+    const filled = progress >= (p + 1) / (pips + 1);
+    pawnsG.circle(pipX, cartY - 16 - bob, 1.3);
+    pawnsG.fill({ color: filled ? 0x4ade80 : 0x1e3a29 });
+  }
+}
+
 export function paintBoardMarches(
   routeG: Graphics,
   pawnsG: Graphics,
@@ -1403,6 +1645,8 @@ export function paintBoardMarches(
   if (!state?.board) return;
 
   const marches = listMarches(state);
+  const renderedGatherIds = new Set<string>();
+
   for (const m of marches) {
     const fromProv = getProvince(state, m.fromId);
     const toProv = getProvince(state, m.toId);
@@ -1411,6 +1655,7 @@ export function paintBoardMarches(
     const fromB = provinceTokenBounds(fromProv.x, fromProv.y);
     const toB = provinceTokenBounds(toProv.x, toProv.y);
     const isPlayer = m.realmId === "player";
+    const isGather = isGatherMarch(m, state);
 
     // 1. Dotted Route Trail between origin and destination
     const dx = toB.cx - fromB.cx;
@@ -1418,29 +1663,51 @@ export function paintBoardMarches(
     const distPx = Math.hypot(dx, dy);
     const steps = Math.max(4, Math.floor(distPx / 14));
 
-    const trailColor = isPlayer ? 0xf59e0b : 0xef4444;
+    if (isGather) {
+      // Pastoral foraging route trail (emerald & harvest gold)
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const lx = fromB.cx + dx * t;
+        const ly = fromB.cy + dy * t;
+        const pulse = Math.sin(phase * 4 + i * 0.45) * 0.2 + 0.8;
+        routeG.circle(lx, ly, i % 2 === 0 ? 2.4 : 1.6);
+        routeG.fill({ color: 0x16a34a, alpha: 0.35 * pulse });
+        routeG.circle(lx, ly, i % 2 === 0 ? 1.4 : 0.9);
+        routeG.fill({ color: 0xfef08a, alpha: 0.85 * pulse });
+      }
 
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const lx = fromB.cx + dx * t;
-      const ly = fromB.cy + dy * t;
-      const pulse = Math.sin(phase * 4 + i * 0.4) * 0.2 + 0.8;
-      // High-contrast outer glow
-      routeG.circle(lx, ly, i % 2 === 0 ? 2.6 : 1.8);
-      routeG.fill({ color: trailColor, alpha: 0.35 * pulse });
-      // Sharp inner core
-      routeG.circle(lx, ly, i % 2 === 0 ? 1.5 : 1.0);
-      routeG.fill({ color: 0xffffff, alpha: 0.85 * pulse });
+      // Harvest destination target indicator (green harvest circle & seed center)
+      routeG.circle(toB.cx, toB.cy, 11);
+      routeG.stroke({ width: 1.4, color: 0x22c55e, alpha: 0.85 });
+      routeG.circle(toB.cx, toB.cy, 4.5);
+      routeG.stroke({ width: 1, color: 0x16a34a, alpha: 0.65 });
+      routeG.circle(toB.cx, toB.cy, 2);
+      routeG.fill({ color: 0xfacc15, alpha: 0.8 });
+    } else {
+      const trailColor = isPlayer ? 0xf59e0b : 0xef4444;
+
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const lx = fromB.cx + dx * t;
+        const ly = fromB.cy + dy * t;
+        const pulse = Math.sin(phase * 4 + i * 0.4) * 0.2 + 0.8;
+        // High-contrast outer glow
+        routeG.circle(lx, ly, i % 2 === 0 ? 2.6 : 1.8);
+        routeG.fill({ color: trailColor, alpha: 0.35 * pulse });
+        // Sharp inner core
+        routeG.circle(lx, ly, i % 2 === 0 ? 1.5 : 1.0);
+        routeG.fill({ color: 0xffffff, alpha: 0.85 * pulse });
+      }
+
+      // Destination target indicator
+      routeG.circle(toB.cx, toB.cy, 11);
+      routeG.stroke({ width: 1.5, color: trailColor, alpha: 0.85 });
+      routeG.circle(toB.cx, toB.cy, 4);
+      routeG.stroke({ width: 1, color: trailColor, alpha: 0.65 });
+      routeG.moveTo(toB.cx - 14, toB.cy); routeG.lineTo(toB.cx + 14, toB.cy);
+      routeG.moveTo(toB.cx, toB.cy - 14); routeG.lineTo(toB.cx, toB.cy + 14);
+      routeG.stroke({ width: 1, color: trailColor, alpha: 0.7 });
     }
-
-    // Destination target indicator
-    routeG.circle(toB.cx, toB.cy, 11);
-    routeG.stroke({ width: 1.5, color: trailColor, alpha: 0.85 });
-    routeG.circle(toB.cx, toB.cy, 4);
-    routeG.stroke({ width: 1, color: trailColor, alpha: 0.65 });
-    routeG.moveTo(toB.cx - 14, toB.cy); routeG.lineTo(toB.cx + 14, toB.cy);
-    routeG.moveTo(toB.cx, toB.cy - 14); routeG.lineTo(toB.cx, toB.cy + 14);
-    routeG.stroke({ width: 1, color: trailColor, alpha: 0.7 });
 
     // 2. March Progress Calculation
     const dist = Math.max(1, Math.abs(toProv.x - fromProv.x) + Math.abs(toProv.y - fromProv.y));
@@ -1454,17 +1721,34 @@ export function paintBoardMarches(
     const frame: 0 | 1 | 2 = stepIdx === 1 ? 1 : stepIdx === 3 ? 2 : 0;
     const bob = frame === 0 ? 0 : 2;
 
-    // Base contact shadow
-    pawnsG.ellipse(pawnX, pawnY + 6.5, 9.5, 4);
-    pawnsG.fill({ color: 0x000000, alpha: 0.55 });
+    const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
+    const kit = resolveCultureKit(cultId);
+    const cult = culturePalette(cultId);
 
-    if (isPlayer) {
+    if (isGather) {
+      renderedGatherIds.add(m.id);
+      if (m.toId) renderedGatherIds.add(m.toId);
+      drawGatherColumnMeeple(
+        pawnsG,
+        pawnX,
+        pawnY,
+        facing,
+        frame,
+        bob,
+        kit,
+        cult,
+        toProv.node,
+        phase,
+        progress
+      );
+    } else if (isPlayer) {
       // Player: Meeple styled in the matching unit type pixel language (archer, knight, cavalry, siege, spearman, etc.)
       const unitType = primaryUnitTypeForMarch(m);
-      const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
-      const kit = resolveCultureKit(cultId);
-      const cult = culturePalette(cultId);
       const pal = unitPalette(unitType, cultId);
+
+      // Base contact shadow
+      pawnsG.ellipse(pawnX, pawnY + 6.5, 9.5, 4);
+      pawnsG.fill({ color: 0x000000, alpha: 0.55 });
 
       // Turned wooden pawn pedestal base with golden faction ring
       pawnsG.rect(pawnX - 7, pawnY + 2 - bob, 14, 4.5);
@@ -1996,7 +2280,8 @@ export function paintBoardGathers(
   routeG: Graphics,
   pawnsG: Graphics,
   state: GameState | null,
-  phase: number
+  phase: number,
+  renderedGatherIds?: Set<string>
 ): void {
   const gathers = listGathersPresentation(state);
   if (gathers.length === 0) return;
@@ -2006,6 +2291,8 @@ export function paintBoardGathers(
   const cult = culturePalette(cultId);
 
   for (const g of gathers) {
+    if (renderedGatherIds && (renderedGatherIds.has(g.id) || (g.toId && renderedGatherIds.has(g.toId)))) continue;
+
     const fromId = g.fromId ?? state?.board?.homeProvinceId;
     const toId = g.toId ?? g.targetProvinceId;
     if (!fromId || !toId) continue;
@@ -2027,77 +2314,44 @@ export function paintBoardGathers(
       const t = i / steps;
       const lx = fromB.cx + dx * t;
       const ly = fromB.cy + dy * t;
-      const pulse = Math.sin(phase * 4 + i * 0.5) * 0.2 + 0.8;
-      routeG.circle(lx, ly, 1.4);
-      routeG.fill({ color: 0x16a34a, alpha: 0.75 * pulse });
+      const pulse = Math.sin(phase * 4 + i * 0.45) * 0.2 + 0.8;
+      routeG.circle(lx, ly, i % 2 === 0 ? 2.4 : 1.6);
+      routeG.fill({ color: 0x16a34a, alpha: 0.35 * pulse });
+      routeG.circle(lx, ly, i % 2 === 0 ? 1.4 : 0.9);
+      routeG.fill({ color: 0xfef08a, alpha: 0.85 * pulse });
     }
 
     // Gather destination target badge
-    routeG.circle(toB.cx, toB.cy, 8);
-    routeG.stroke({ width: 1.2, color: 0x22c55e, alpha: 0.8 });
+    routeG.circle(toB.cx, toB.cy, 11);
+    routeG.stroke({ width: 1.4, color: 0x22c55e, alpha: 0.85 });
+    routeG.circle(toB.cx, toB.cy, 4.5);
+    routeG.stroke({ width: 1, color: 0x16a34a, alpha: 0.65 });
+    routeG.circle(toB.cx, toB.cy, 2);
+    routeG.fill({ color: 0xfacc15, alpha: 0.8 });
 
     // Progress
     const progress = Math.min(1, Math.max(0, typeof g.progress === "number" ? g.progress : 0.5));
     const pawnX = fromB.cx + dx * progress;
     const pawnY = fromB.cy + dy * progress;
 
-    // Contact shadow
-    pawnsG.ellipse(pawnX, pawnY + 5, 7, 3);
-    pawnsG.fill({ color: 0x000000, alpha: 0.4 });
+    const facing = dx >= 0 ? 1 : -1;
+    const stepIdx = Math.floor((phase * 6) % 4);
+    const frame: 0 | 1 | 2 = stepIdx === 1 ? 1 : stepIdx === 3 ? 2 : 0;
+    const bob = frame === 0 ? 0 : 2;
 
-    // Culture-kit pack-cart / gatherer pawn
-    if (kit === "cedar") {
-      // Split-cedar wood pack cart with foraging burlap sack
-      pawnsG.rect(pawnX - 5.5, pawnY - 2, 11, 4.5);
-      pawnsG.fill({ color: cult.timber });
-      pawnsG.stroke({ width: 0.8, color: 0x3f220c });
-      pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: 0x3f220c });
-      pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: 0x3f220c });
-      pawnsG.circle(pawnX, pawnY - 3, 3); pawnsG.fill({ color: cult.tabard }); // Woodland bundle
-      pawnsG.circle(pawnX + 1, pawnY - 3.5, 1.5); pawnsG.fill({ color: 0xca8a04 });
-    } else if (kit === "sand") {
-      // Sunbleached acacia timber cart with clay amphorae cargo
-      pawnsG.rect(pawnX - 5.5, pawnY - 2, 11, 4.5);
-      pawnsG.fill({ color: cult.stone });
-      pawnsG.stroke({ width: 0.8, color: 0xa16207 });
-      pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: cult.timber });
-      pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: cult.timber });
-      pawnsG.ellipse(pawnX - 1.5, pawnY - 3, 2.2, 3); pawnsG.fill({ color: 0xc2410c }); // Amphora
-      pawnsG.ellipse(pawnX + 2, pawnY - 3, 1.8, 2.5); pawnsG.fill({ color: cult.accent });
-    } else if (kit === "steppe") {
-      // Nomad two-wheeled arba wagon with wool felt cargo bundle
-      pawnsG.rect(pawnX - 6, pawnY - 2.5, 12, 4.5);
-      pawnsG.fill({ color: cult.timber });
-      pawnsG.stroke({ width: 0.8, color: 0x44403c });
-      pawnsG.circle(pawnX - 4, pawnY + 3.2, 2.6); pawnsG.stroke({ width: 1.2, color: 0x44403c });
-      pawnsG.circle(pawnX + 4, pawnY + 3.2, 2.6); pawnsG.stroke({ width: 1.2, color: 0x44403c });
-      pawnsG.rect(pawnX - 3, pawnY - 5, 6, 3.5); pawnsG.fill({ color: 0xf5f5f4 }); // Felt pack
-      pawnsG.rect(pawnX - 3, pawnY - 3.5, 6, 1); pawnsG.fill({ color: cult.tabard }); // Crimson strap
-    } else if (kit === "islands") {
-      // Coastal driftwood slip cart with reed baskets & net sacks
-      pawnsG.rect(pawnX - 5.5, pawnY - 2, 11, 4.5);
-      pawnsG.fill({ color: cult.timber });
-      pawnsG.stroke({ width: 0.8, color: 0x1e293b });
-      pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: 0x1e293b });
-      pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2); pawnsG.fill({ color: 0x1e293b });
-      pawnsG.circle(pawnX - 1.5, pawnY - 3, 2.5); pawnsG.fill({ color: 0xa16207 }); // Reed basket
-      pawnsG.circle(pawnX + 2, pawnY - 3, 2.2); pawnsG.fill({ color: cult.tabard }); // Fish net bundle
-    } else {
-      // Western: Classic untouched timber pack-cart
-      pawnsG.rect(pawnX - 5, pawnY - 2, 10, 4.5);
-      pawnsG.fill({ color: 0x854d0e });
-      pawnsG.stroke({ width: 0.7, color: 0x543007 });
-
-      // Cart wheels
-      pawnsG.circle(pawnX - 3.5, pawnY + 3, 2.2);
-      pawnsG.fill({ color: 0x27272a });
-      pawnsG.circle(pawnX + 3.5, pawnY + 3, 2.2);
-      pawnsG.fill({ color: 0x27272a });
-
-      // Resource cargo sack in cart
-      pawnsG.circle(pawnX, pawnY - 3, 2.8);
-      pawnsG.fill({ color: 0xd97706 });
-    }
+    drawGatherColumnMeeple(
+      pawnsG,
+      pawnX,
+      pawnY,
+      facing,
+      frame,
+      bob,
+      kit,
+      cult,
+      g.node ?? toProv.node,
+      phase,
+      progress
+    );
   }
 }
 
