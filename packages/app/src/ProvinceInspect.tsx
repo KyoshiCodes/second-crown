@@ -120,7 +120,7 @@ export function ProvinceInspect(props: {
       </div>
       {canGather ? (
         <div style={{ marginTop: 4 }}>
-          Stock {stock} / {stockMax}
+          {NODE[p.node] ?? p.node} {stock}/{stockMax}
           {stock < stockMax ? ` · refills +1 / ${NODE_REGEN_PERIOD / 10}s` : ""}
           {stock <= 0 ? " · dry" : ""}
         </div>
