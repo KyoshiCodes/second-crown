@@ -20,6 +20,8 @@ Keep `power` — `realmPower` and existing tests still use it.
 
 ## Agent lanes
 
+`WallLine` (app) is display only. Note `wallHp` already includes `gateHp`, so gate HP is shown as a part of wall HP, not added to it.
+
 Sim: packages/sim + shared only.
 Art: packages/render + app, empty diff on sim/server.
 No Caddy or Discord route edits unless asked.

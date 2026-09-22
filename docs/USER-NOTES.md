@@ -3,6 +3,10 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## Wall line
+
+The Kingdom tab and your hold's inspect panel now show your walls at a glance: how many rim walls you have out of 8, whether the ring is open or closed (closed needs 8 rim walls plus a gate on the rim), total wall HP, and gate HP if a gate stands on the rim.
+
 ## Red Warband Meeple for Hostile Incoming Marches
 
 Hostile incoming marches traveling across the isometric board now display a menacing, hulking red warband meeple that immediately signals impending battle danger:

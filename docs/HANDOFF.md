@@ -6,6 +6,12 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
+## Recent Wave (wave/wall-line)
+
+- New `packages/app/src/WallLine.tsx`: rim walls N/8, ring open/closed, wall HP, gate HP when a gate is on the rim.
+- Shown on the Kingdom tab (replaces the old inline wall text) and in the home-hold inspect panel.
+- UI only. Reads `edgeWallCount`, `hasClosedWallRing`, `wallHp`, `gateOnRim`, `gateHp`. Zero diff on sim, render, server.
+
 ## Recent Wave (bakeoff/gemini-incoming)
 
 - **Red Warband Meeple for Hostile Incoming Marches**:

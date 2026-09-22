@@ -11,16 +11,13 @@ import {
   countBuilding,
   currentKeepGate,
   currentSeason,
-  edgeWallCount,
   emptyStaffWorks,
   formatLetterSuffix,
   fullStores,
-  gateOnRim,
   garrisonAt,
   garrisonPower,
   getBuildingType,
   getProvince,
-  hasClosedWallRing,
   housingCap,
   incomingOnHome,
   incomingOnPlayerFlags,
@@ -50,7 +47,6 @@ import {
   tryRepair,
   tryTrade,
   unpairedWorks,
-  wallHp,
   watchtowerWarning,
   workPlotCap,
   workPlotsUsed,
@@ -60,6 +56,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { PeoplePanel } from "../PeoplePanel";
 import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
+import { WallLine } from "../WallLine";
 
 export function KingdomTab(props: {
   state: GameState | undefined;
@@ -79,10 +76,6 @@ export function KingdomTab(props: {
   const flags = state ? listOutposts(state) : [];
   const standing =
     state?.buildings.filter((b) => b.realmId === "player" && b.completesAtTick === null && b.typeId !== "keep") ?? [];
-  const rim = state ? edgeWallCount(state, "player") : 0;
-  const closed = state ? hasClosedWallRing(state) : false;
-  const gate = state ? gateOnRim(state) : false;
-  const hp = state ? wallHp(state) : 0;
   const pop = state ? population(state) : 0;
   const beds = state ? housingCap(state) : 2;
   const plots = state ? workPlotsUsed(state) : 0;
@@ -126,8 +119,9 @@ export function KingdomTab(props: {
         </p>
       ) : null}
       <p style={{ fontSize: 13 }}>
-        {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more). Walls on the map edge ({rim}/8{closed ? ", closed" : ""}{gate ? ", gate up" : ", no gate"}, {hp} wall HP).
+        {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more).
       </p>
+      <WallLine state={state} />
       {!room ? (
         <p style={{ fontSize: 12, color: "#d29922" }}>Beds full. Raise a Cottage (or the Keep) before more people will stay.</p>
       ) : null}

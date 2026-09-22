@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-22 — Wall line on Kingdom tab and hold inspect (`wave/wall-line`)
+
+- Added `WallLine` component (`packages/app/src/WallLine.tsx`): `Walls · rim N/8 · ring open|closed · wall HP X · gate HP Y` (or "no gate on the rim").
+- Kingdom tab uses it in place of the inline wall text; home-hold `ProvinceInspect` shows it too.
+- No siege math change. Zero diff on `packages/sim`, `packages/render`, `server/`.
+
 ## 2026-09-22 — Gemini Red Warband Meeple for Hostile Incoming Marches (`bakeoff/gemini-incoming`)
 
 - **Distinct Red Warband Meeple (`drawRedWarbandMeeple` in `packages/render/src/tokens.ts`)**:
