@@ -1,11 +1,29 @@
 # CHANGELOG
-
-## 2026-09-22 — Repair line on Kingdom tab (`wave/repair-line`)
-
-- `packages/app/src/tabs/KingdomTab.tsx`: "Scarred works" lists each building from `listScarred` as a row (name, level, tile) with a Repair (8 stone) button using `tryRepair`. Replaces the old raw-`typeId` buttons.
-- No sim, render, or server changes. Siege blow and repair cost unchanged. 216 tests pass; app builds.
-
-## 2026-09-22 — Gemini Connected Rim Walls & Gate Ring on Isometric Hold (`bakeoff/gemini-walls`)
+ 
++## 2026-09-22 — Gemini Scarred Buildings with Cracked Stone & Smoke Suppression (`bakeoff/gemini-scar`)
++
++- **Scarred / Knocked-out Buildings with Cracked Stone & Smoke Suppression (`packages/render/src/buildings.ts`)**:
++  - Buildings with `completesAtTick !== null` (knocked out by siege strikes, or under build/repair) now render as solid, battered structures with rich cracked stone detailing and complete suppression of work-in-progress smoke puffs:
++    - **Cracked Stone Overlay (`drawCrackedStoneOverlay`)**: Replaced the placeholder under-construction scaffolding overlay with a comprehensive cracked stone presentation:
++      - **Primary Structural Fissures**: Jagged shadow crevice fault lines (`0x0f172a`) paired with offset light stone highlight ridges (`0xcbd5e1`) that zig-zag down the wall facets across masonry courses, accompanied by branching diagonal stress fractures.
++      - **Transverse Masonry Fractures & Roof Cleave**: Secondary hairline cracks scoring opposing facets and cleaved notches splitting the roofline/eave coping.
++      - **Radial Impact Blowout Crater**: Dark scorch shadow halo, pulverized stone crater depression, bright shattered stone fleck highlights, and radiating micro-fracture spokes simulating a direct siege artillery impact strike.
++      - **Fallen Masonry Rubble & Debris Chunks**: 3D faceted isometric stone blocks sheared from the walls lying at the ground footing/plinth with cast shadows, lit top faces, and shaded side facets, surrounded by scattered debris pebbles.
++      - **Culture-Adapted Palettes**: Material palettes adapt automatically across culture kits (granite/slate for western, desert sandstone for sand, weathered shale/basalt for steppe, river rock/timber for cedar, and reef limestone/coral for islands).
++      - **Deterministic Stability**: Fissure paths and rubble placements use a deterministic PRNG seeded by tile coordinates `(gx, gy)` and building height, giving stable, diverse fracture patterns across the hold.
++    - **Complete Smoke & Flame Suppression**:
++      - Suppressed chimney smoke in Western farm, cottage, and infirmary.
++      - Suppressed culture smoke puffs across Cedar farm, cottage, keep, chapel (incense), and infirmary, as well as Steppe farm, cottage, keep, infirmary, and watchtower (signal smoke pylon).
++      - Extinguished active forge flame in siege workshop and beacon braziers in watchtower and keep, displaying dormant ash coals instead.
++    - **Solid Stonework Presentation**: Changed base building opacity from 0.45 translucent ghost to solid `1.0` so masonry and cracks read with crisp clarity.
++    - **Finished Buildings Unchanged**: Finished buildings (`completesAtTick === null`) remain 100% untouched with all smoke, decorations, and lighting preserved.
++- **Invariants & Preservations**:
++  - `git diff main -- packages/sim server` strictly 100% empty.
++  - Zero changes to camera math, zoom, or tile click hit-testing.
++  - Full test suite passes: 216 monorepo tests, 81 tests in `@second-crown/render` (+10 new comprehensive test blocks for scarred building presentation, cracked stone overlay, and culture smoke suppression).
++  - Clean production build in `@second-crown/app`.
++
+ ## 2026-09-22 — Gemini Connected Rim Walls & Gate Ring on Isometric Hold (`bakeoff/gemini-walls`)
 
 - **Connected Rim Walls & Gate Ring (`packages/render/src/buildings.ts`)**:
   - Rim walls and the gatehouse now render as a continuous, unified defensive ring on the isometric hold view with gap-free curtain spans:

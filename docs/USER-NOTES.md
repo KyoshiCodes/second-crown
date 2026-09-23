@@ -3,9 +3,15 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
-## Repairing scarred buildings
+## Scarred Buildings: Cracked Stone & Silent Hearths
 
-When a siege scars your buildings, the Kingdom tab shows them under **Scarred works**, one row each with its name and location. Press **Repair (8 stone)** to fix it.
+Buildings knocked out or scarred by siege attacks (or undergoing build/repair) now visually read as battered stone structures instead of translucent blueprint ghosts:
+- **Cracked Stone & Structural Fissures**: Deep dark fault lines with carved stone highlight edges split across the wall facades, capturing the structural trauma of boulder and ram strikes.
+- **Radial Impact Craters**: Wall facets display scorched impact depressions with pulverized stone fragments and radiating stress micro-cracks where siege artillery landed blows.
+- **Fallen Masonry Rubble**: Cleaved stone masonry blocks and chipped rubble debris lie scattered at the foundation plinth, grounded with ambient contact shadows.
+- **Cold Hearths & Suppressed Smoke**: All chimney, hearth, forge, and incense smoke puffs cease animating while a building is scarred or knocked out. Forges and braziers display cold dormant ash instead of blazing fire until repairs are complete.
+- **Culture-Tailored Stonework**: Rubble and fractures automatically match the culture style—granite/slate for Western holds, golden sandstone for Sand banners, weathered shale for Steppe yurtholds, river rock for Cedar longhouses, and reef basalt/coral for Island settlements.
+- **Finished Buildings Pristine**: Undamaged, finished buildings maintain their cheerful hearth smoke, blazing torches, and celebratory seasonal decorations intact.
 
 ## Connected Rim Walls & Gate Ring on the Isometric Hold
 

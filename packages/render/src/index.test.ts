@@ -53,6 +53,8 @@ import {
   getNodeStockInfo,
   drawNodeStockPile,
   drawResourceNode,
+  drawCrackedStoneOverlay,
+  buildingHeight,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -1923,6 +1925,301 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(routeG.calls.length).toBeGreaterThan(20);
       // Renders red warband meeple with horned helm and player knight
       expect(pawnsG.calls.length).toBeGreaterThan(30);
+    });
+  });
+
+  describe("Scarred / Knocked-out Buildings & Cracked Stone Overlay (Gemini Scar Lane)", () => {
+    function createMockGraphics() {
+      const calls: { method: string; args: any[] }[] = [];
+      const mock: any = {
+        calls,
+        clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+        poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+        fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+        stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+        moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+        lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+        circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+        rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+        ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+        roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+        quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+      };
+      return mock;
+    }
+
+    const defaultVisuals: ThemeVisuals = {
+      groundLight: 0x2d4a22,
+      groundDark: 0x22381a,
+      gridLine: 0x3d5e30,
+      wallColor: 0x64748b,
+      wallTrim: 0x475569,
+      parapet: 0x334155,
+      decorations: "none",
+      season: "summer",
+      seasonName: "Verdant Sun",
+    };
+
+    it("resolves correct buildingHeight across all building types and levels", () => {
+      expect(buildingHeight("watchtower", 1)).toBe(34);
+      expect(buildingHeight("watchtower", 3)).toBe(34 + 6);
+      expect(buildingHeight("keep", 1)).toBe(30);
+      expect(buildingHeight("keep", 2)).toBe(33);
+      expect(buildingHeight("academy", 1)).toBe(26);
+      expect(buildingHeight("chapel", 1)).toBe(26);
+      expect(buildingHeight("granary", 1)).toBe(24);
+      expect(buildingHeight("barracks", 1)).toBe(24);
+      expect(buildingHeight("gate", 1)).toBe(24);
+      expect(buildingHeight("infirmary", 1)).toBe(20);
+      expect(buildingHeight("siege_workshop", 1)).toBe(20);
+      expect(buildingHeight("walls", 1)).toBe(20);
+      expect(buildingHeight("farm", 1)).toBe(18);
+      expect(buildingHeight("gold_mine", 1)).toBe(18);
+      expect(buildingHeight("cottage", 1)).toBe(16);
+      expect(buildingHeight("quarry", 1)).toBe(14);
+    });
+
+    it("draws cracked stone overlay across all culture kits with fractures, craters and rubble", () => {
+      const kits = ["western", "sand", "steppe", "cedar", "islands"] as const;
+      for (const kit of kits) {
+        const g = createMockGraphics();
+        expect(() => {
+          drawCrackedStoneOverlay(g, "farm", 20, 2, 3, kit, 1);
+        }).not.toThrow();
+
+        // Must produce strokes for fault lines and stress cracks
+        const strokes = g.calls.filter((c) => c.method === "stroke");
+        expect(strokes.length).toBeGreaterThanOrEqual(4);
+
+        // Must produce fills for impact crater scorch and fallen rubble masonry blocks
+        const fills = g.calls.filter((c) => c.method === "fill");
+        expect(fills.length).toBeGreaterThanOrEqual(5);
+
+        // Must produce polygons for faceted 3D fallen stone blocks
+        const polys = g.calls.filter((c) => c.method === "poly");
+        expect(polys.length).toBeGreaterThanOrEqual(4);
+
+        // Must produce ellipses for impact crater and cast ground rubble shadows
+        const ellipses = g.calls.filter((c) => c.method === "ellipse");
+        expect(ellipses.length).toBeGreaterThanOrEqual(2);
+      }
+    });
+
+    it("seeds deterministic unique crack patterns per tile coordinates", () => {
+      const g1 = createMockGraphics();
+      const g2 = createMockGraphics();
+      drawCrackedStoneOverlay(g1, "barracks", 24, 1, 1, "western", 1);
+      drawCrackedStoneOverlay(g2, "barracks", 24, 7, 8, "western", 1);
+
+      // Same number of structural elements but different coordinates
+      expect(g1.calls.length).toBeGreaterThan(15);
+      expect(g2.calls.length).toBeGreaterThan(15);
+      const lines1 = g1.calls.filter((c) => c.method === "lineTo");
+      const lines2 = g2.calls.filter((c) => c.method === "lineTo");
+      expect(lines1.length).toBeGreaterThan(0);
+      // Fissure vertices differ due to tile coordinates
+      expect(lines1[0].args).not.toEqual(lines2[0].args);
+    });
+
+    it("scarred building (complete = false) renders cracked stone overlay without scaffolding", () => {
+      const gScar = createMockGraphics();
+      const gDone = createMockGraphics();
+
+      drawIsometricBuilding(gScar, "barracks", 1, false, 0, defaultVisuals, 3, 3);
+      drawIsometricBuilding(gDone, "barracks", 1, true, 0, defaultVisuals, 3, 3);
+
+      // Scarred building has cracked stone rubble blocks and fissures
+      expect(gScar.calls.length).toBeGreaterThan(0);
+      expect(gDone.calls.length).toBeGreaterThan(0);
+
+      // Check that the old scaffolding stroke (color 0xfbbf24 with moveTo -14, 4) is not drawn
+      const scaffoldingMoves = gScar.calls.filter(
+        (c) => c.method === "moveTo" && c.args[0] === -14 && c.args[1] === 4
+      );
+      expect(scaffoldingMoves.length).toBe(0);
+
+      // Scarred building includes the cracked stone rubble and crater
+      const scarStrokes = gScar.calls.filter((c) => c.method === "stroke");
+      const doneStrokes = gDone.calls.filter((c) => c.method === "stroke");
+      expect(scarStrokes.length).toBeGreaterThan(doneStrokes.length);
+    });
+
+    it("suppresses chimney smoke in Western farm when completesAtTick is set (complete = false)", () => {
+      const gDone = createMockGraphics();
+      const gScar = createMockGraphics();
+
+      drawIsometricBuilding(gDone, "farm", 1, true, 0.5, defaultVisuals, 2, 2, undefined, "western");
+      drawIsometricBuilding(gScar, "farm", 1, false, 0.5, defaultVisuals, 2, 2, undefined, "western");
+
+      // Western farm chimney smoke circles are at x = 6 and x = 8
+      const smokeCirclesDone = gDone.calls.filter(
+        (c) => c.method === "circle" && (c.args[0] === 6 || c.args[0] === 8)
+      );
+      const smokeCirclesScar = gScar.calls.filter(
+        (c) => c.method === "circle" && (c.args[0] === 6 || c.args[0] === 8)
+      );
+
+      expect(smokeCirclesDone.length).toBe(2);
+      expect(smokeCirclesScar.length).toBe(0);
+    });
+
+    it("suppresses chimney smoke in Western cottage when completesAtTick is set (complete = false)", () => {
+      const gDone = createMockGraphics();
+      const gScar = createMockGraphics();
+
+      drawIsometricBuilding(gDone, "cottage", 1, true, 0.5, defaultVisuals, 2, 2, undefined, "western");
+      drawIsometricBuilding(gScar, "cottage", 1, false, 0.5, defaultVisuals, 2, 2, undefined, "western");
+
+      // Western cottage chimney smoke circles are at x = -8.5 and x = -6.5
+      const smokeDone = gDone.calls.filter(
+        (c) => c.method === "circle" && (c.args[0] === -8.5 || c.args[0] === -6.5)
+      );
+      const smokeScar = gScar.calls.filter(
+        (c) => c.method === "circle" && (c.args[0] === -8.5 || c.args[0] === -6.5)
+      );
+
+      expect(smokeDone.length).toBe(2);
+      expect(smokeScar.length).toBe(0);
+    });
+
+    it("suppresses chimney smoke in Western infirmary when completesAtTick is set (complete = false)", () => {
+      const gDone = createMockGraphics();
+      const gScar = createMockGraphics();
+
+      drawIsometricBuilding(gDone, "infirmary", 1, true, 0.5, defaultVisuals, 2, 2, undefined, "western");
+      drawIsometricBuilding(gScar, "infirmary", 1, false, 0.5, defaultVisuals, 2, 2, undefined, "western");
+
+      // Infirmary chimney smoke circles are at x = -10 and x = -8, elevated above the roof (y < -20)
+      const smokeDone = gDone.calls.filter(
+        (c) => c.method === "circle" && (c.args[0] === -10 || c.args[0] === -8) && c.args[1] < -20
+      );
+      const smokeScar = gScar.calls.filter(
+        (c) => c.method === "circle" && (c.args[0] === -10 || c.args[0] === -8) && c.args[1] < -20
+      );
+
+      expect(smokeDone.length).toBe(2);
+      expect(smokeScar.length).toBe(0);
+    });
+
+    it("suppresses Cedar culture smoke in farm, cottage, keep, chapel, and infirmary when complete = false", () => {
+      const types = ["farm", "cottage", "keep", "chapel", "infirmary"] as const;
+      for (const t of types) {
+        const gDone = createMockGraphics();
+        const gScar = createMockGraphics();
+
+        drawIsometricBuilding(gDone, t, 1, true, 0.5, defaultVisuals, 2, 2, undefined, "cedar");
+        drawIsometricBuilding(gScar, t, 1, false, 0.5, defaultVisuals, 2, 2, undefined, "cedar");
+
+        // Cedar farm smoke at x=6, x=8
+        if (t === "farm") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && (c.args[0] === 6 || c.args[0] === 8));
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && (c.args[0] === 6 || c.args[0] === 8));
+          expect(sDone.length).toBe(2);
+          expect(sScar.length).toBe(0);
+        }
+        // Cedar cottage smoke at x=-8.5, x=-6.5
+        if (t === "cottage") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && (c.args[0] === -8.5 || c.args[0] === -6.5));
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && (c.args[0] === -8.5 || c.args[0] === -6.5));
+          expect(sDone.length).toBe(2);
+          expect(sScar.length).toBe(0);
+        }
+        // Cedar keep smoke at x=0, x=2
+        if (t === "keep") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && (c.args[0] === 0 || c.args[0] === 2) && c.args[1] < -30);
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && (c.args[0] === 0 || c.args[0] === 2) && c.args[1] < -30);
+          expect(sDone.length).toBeGreaterThanOrEqual(2);
+          expect(sScar.length).toBe(0);
+        }
+        // Cedar chapel incense smoke at x=8, x=9
+        if (t === "chapel") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && (c.args[0] === 8 || c.args[0] === 9));
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && (c.args[0] === 8 || c.args[0] === 9));
+          expect(sDone.length).toBe(2);
+          expect(sScar.length).toBe(0);
+        }
+        // Cedar infirmary smoke at x=-10
+        if (t === "infirmary") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && c.args[0] === -10 && c.args[1] < -20);
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && c.args[0] === -10 && c.args[1] < -20);
+          expect(sDone.length).toBe(1);
+          expect(sScar.length).toBe(0);
+        }
+      }
+    });
+
+    it("suppresses Steppe culture smoke in farm, cottage, keep, infirmary, and watchtower when complete = false", () => {
+      const types = ["farm", "cottage", "keep", "infirmary", "watchtower"] as const;
+      for (const t of types) {
+        const gDone = createMockGraphics();
+        const gScar = createMockGraphics();
+
+        drawIsometricBuilding(gDone, t, 1, true, 0.5, defaultVisuals, 2, 2, undefined, "steppe");
+        drawIsometricBuilding(gScar, t, 1, false, 0.5, defaultVisuals, 2, 2, undefined, "steppe");
+
+        if (t === "farm") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && c.args[0] === -10 && c.args[2] === 1.8 && c.args[1] < -11);
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && c.args[0] === -10 && c.args[2] === 1.8 && c.args[1] < -11);
+          expect(sDone.length).toBe(2);
+          expect(sScar.length).toBe(1);
+        }
+        if (t === "cottage") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && (c.args[0] === 0 || c.args[0] === 1.5));
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && (c.args[0] === 0 || c.args[0] === 1.5));
+          expect(sDone.length).toBe(2);
+          expect(sScar.length).toBe(0);
+        }
+        if (t === "keep") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && (c.args[0] === 0 || c.args[0] === 2) && c.args[1] < -30);
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && (c.args[0] === 0 || c.args[0] === 2) && c.args[1] < -30);
+          expect(sDone.length).toBe(2);
+          expect(sScar.length).toBe(0);
+        }
+        if (t === "infirmary") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && c.args[0] === 0 && c.args[1] < -20);
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && c.args[0] === 0 && c.args[1] < -20);
+          expect(sDone.length).toBe(1);
+          expect(sScar.length).toBe(0);
+        }
+        if (t === "watchtower") {
+          const sDone = gDone.calls.filter((c) => c.method === "circle" && (c.args[0] === 0 || c.args[0] === 2) && c.args[1] < -30);
+          const sScar = gScar.calls.filter((c) => c.method === "circle" && (c.args[0] === 0 || c.args[0] === 2) && c.args[1] < -30);
+          expect(sDone.length).toBe(2);
+          expect(sScar.length).toBe(0);
+        }
+      }
+    });
+
+    it("extinguishes active fire in forge, watchtower beacon, and keep brazier when complete = false", () => {
+      // Siege workshop forge
+      const gForgeDone = createMockGraphics();
+      const gForgeScar = createMockGraphics();
+      drawIsometricBuilding(gForgeDone, "siege_workshop", 1, true, 0.5, defaultVisuals, 0, 0);
+      drawIsometricBuilding(gForgeScar, "siege_workshop", 1, false, 0.5, defaultVisuals, 0, 0);
+      const forgeFlameDone = gForgeDone.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xea580c);
+      const forgeFlameScar = gForgeScar.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xea580c);
+      expect(forgeFlameDone.length).toBe(1);
+      expect(forgeFlameScar.length).toBe(0);
+
+      // Watchtower beacon
+      const gTowerDone = createMockGraphics();
+      const gTowerScar = createMockGraphics();
+      drawIsometricBuilding(gTowerDone, "watchtower", 1, true, 0.5, defaultVisuals, 0, 0);
+      drawIsometricBuilding(gTowerScar, "watchtower", 1, false, 0.5, defaultVisuals, 0, 0);
+      const towerFlameDone = gTowerDone.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+      const towerFlameScar = gTowerScar.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+      expect(towerFlameDone.length).toBe(1);
+      expect(towerFlameScar.length).toBe(0);
+
+      // Keep brazier
+      const gKeepDone = createMockGraphics();
+      const gKeepScar = createMockGraphics();
+      drawIsometricBuilding(gKeepDone, "keep", 1, true, 0.5, defaultVisuals, 0, 0);
+      drawIsometricBuilding(gKeepScar, "keep", 1, false, 0.5, defaultVisuals, 0, 0);
+      const keepFlameDone = gKeepDone.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+      const keepFlameScar = gKeepScar.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+      expect(keepFlameDone.length).toBe(1);
+      expect(keepFlameScar.length).toBe(0);
     });
   });
 });
