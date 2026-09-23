@@ -6,12 +6,27 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (wave/repair-line)
+## Recent Wave (bakeoff/gemini-scar)
 
-- Kingdom tab "Scarred works" is now one row per scarred building: display name, level, tile, and a Repair (8 stone) button calling `tryRepair`.
-- App only. Siege blow and repair cost unchanged. Zero diff on `packages/sim`, `packages/render`, `server/`.
+- **Scarred / Knocked-out Buildings & Cracked Stone Overlay on Isometric Hold**:
+  - Buildings with `completesAtTick !== null` (scarred / knocked out by siege strikes, or under build/repair) now render as solid, battered structures with rich cracked stone detailing and complete suppression of work-in-progress smoke puffs:
+    - **Cracked Stone Overlay (`drawCrackedStoneOverlay`)**: Replaced the placeholder under-construction scaffolding poles with an authentic multi-layered cracked masonry presentation:
+      - **Primary Structural Fissures**: Jagged deep fracture crevice lines (`0x0f172a`) paired with offset light stone highlight ridges (`0xcbd5e1`) that zig-zag down the wall facets across masonry courses, accompanied by branching diagonal stress fractures.
+      - **Transverse Masonry Fractures**: Secondary hairline cracks scoring opposing facets and cleaved notches splitting the roofline/eave coping.
+      - **Radial Impact Blowout Crater**: Dark scorch shadow halo, pulverized stone crater depression, bright shattered stone fleck highlights, and radiating micro-fracture spokes simulating a direct siege artillery impact strike.
+      - **Fallen Masonry Rubble & Debris Chunks**: 3D faceted isometric stone blocks sheared from the walls lying at the ground footing/plinth with cast shadows, lit top faces, and shaded side facets, surrounded by scattered debris pebbles.
+      - **Culture-Adapted Palettes**: Material palettes adapt automatically across culture kits (granite/slate for western, desert sandstone for sand, weathered shale/basalt for steppe, river rock/timber for cedar, and reef limestone/coral for islands).
+      - **Deterministic Stability**: Fissure paths and rubble placements use a deterministic PRNG seeded by tile coordinates `(gx, gy)` and building height, giving stable, diverse fracture patterns across the hold.
+    - **Complete Smoke & Flame Suppression**: Silent, cold hearths and chimneys when `complete === false`:
+      - Suppressed chimney smoke in Western farm, cottage, and infirmary.
+      - Suppressed culture smoke puffs across Cedar farm, cottage, keep, chapel (incense), and infirmary, as well as Steppe farm, cottage, keep, infirmary, and watchtower (signal smoke pylon).
+      - Extinguished active forge flame in siege workshop and beacon braziers in watchtower and keep, displaying dormant ash coals instead.
+    - **Solid Stonework Presentation**: Changed base building opacity from 0.45 translucent ghost to solid `1.0` so masonry and cracks read with crisp clarity.
+    - **Finished Buildings Unchanged**: Finished buildings (`completesAtTick === null`) remain 100% untouched with all smoke, decorations, and lighting preserved.
+  - Zero diff on `packages/sim` or `server/`. Hit-tests and camera math strictly untouched.
 
 ## Prior Wave (bakeoff/gemini-walls)
+
 - **Connected Rim Walls & Gate Ring on Isometric Hold**:
   - Re-architected rim wall and gatehouse rendering in `buildings.ts` so that walls and the gate read as a solid, continuous, unbroken defensive stone ring encircling the hold:
     - **Continuous Straight Runs**: When adjacent rim walls exist (`hasPrev && hasNext`), wall segments span continuously across tile boundaries from boundary to boundary with zero gaps. Features continuous foundation plinths, vertical curtain faces with horizontal ashlar mortar scoring, stone parapet walkways with planking centerlines, culture-styled outer merlons/crenellations, and mid-tile wall buttress pilasters with arrow slits and animated torches/lanterns.
