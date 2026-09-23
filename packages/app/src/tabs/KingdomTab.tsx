@@ -57,6 +57,7 @@ import { PeoplePanel } from "../PeoplePanel";
 import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
 import { WallLine } from "../WallLine";
+import { VisionLine } from "../VisionLine";
 
 export function KingdomTab(props: {
   state: GameState | undefined;
@@ -122,6 +123,7 @@ export function KingdomTab(props: {
         {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more).
       </p>
       <WallLine state={state} />
+      <VisionLine state={state} />
       {!room ? (
         <p style={{ fontSize: 12, color: "#d29922" }}>Beds full. Raise a Cottage (or the Keep) before more people will stay.</p>
       ) : null}
