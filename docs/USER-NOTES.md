@@ -3,6 +3,10 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## Repairing scarred buildings
+
+When a siege scars your buildings, the Kingdom tab shows them under **Scarred works**, one row each with its name and location. Press **Repair (8 stone)** to fix it.
+
 ## Connected Rim Walls & Gate Ring on the Isometric Hold
 
 Rim walls and the gatehouse now render as a fully connected, unbroken defensive stone ring encircling the isometric hold:
