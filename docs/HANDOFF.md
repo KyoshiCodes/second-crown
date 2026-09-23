@@ -6,13 +6,18 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (wave/wall-line)
+## Recent Wave (bakeoff/gemini-walls)
 
-- New `packages/app/src/WallLine.tsx`: rim walls N/8, ring open/closed, wall HP, gate HP when a gate is on the rim.
-- Shown on the Kingdom tab (replaces the old inline wall text) and in the home-hold inspect panel.
-- UI only. Reads `edgeWallCount`, `hasClosedWallRing`, `wallHp`, `gateOnRim`, `gateHp`. Zero diff on sim, render, server.
+- **Connected Rim Walls & Gate Ring on Isometric Hold**:
+  - Re-architected rim wall and gatehouse rendering in `buildings.ts` so that walls and the gate read as a solid, continuous, unbroken defensive stone ring encircling the hold:
+    - **Continuous Straight Runs**: When adjacent rim walls exist (`hasPrev && hasNext`), wall segments span continuously across tile boundaries from boundary to boundary with zero gaps. Features continuous foundation plinths, vertical curtain faces with horizontal ashlar mortar scoring, stone parapet walkways with planking centerlines, culture-styled outer merlons/crenellations, and mid-tile wall buttress pilasters with arrow slits and animated torches/lanterns.
+    - **Corner Bastion Towers**: At the 4 grid corners `(0,0)`, `(15,0)`, `(15,9)`, `(0,9)`, prominent corner keep towers sit at `(0, 0)` with elevated roofs (`h + 5`), diamond plinths, sunlit/shaded facets, platform walkways, four-sided merlons, arrow loops, and cultural apex banners/standards, seamlessly joining orthogonal curtain spans.
+    - **Flanking Gatehouse Curtain Wings**: Redesigned `drawGatehouseCurtainWings` to connect the gatehouse's left and right flanking bastion towers directly into adjacent wall runs using the identical curtain wall profile, plinth, walkway height, and outer merlons, eliminating all gaps and visual seams between gate and wall.
+    - **Terminal Pier Caps**: Single or dead-end wall segments cap cleanly with defensive terminal piers and capping merlon posts instead of open cross-sections.
+    - **Ground Shadow Continuity**: Tailored rim fort ground footprint shadows along the perimeter to prevent isolated diamond cutouts or awkward diagonal spills.
+  - Zero diff on `packages/sim` or `server/`. Hit-tests and camera math strictly untouched.
 
-## Recent Wave (bakeoff/gemini-incoming)
+## Prior Wave (bakeoff/gemini-incoming)
 
 - **Red Warband Meeple for Hostile Incoming Marches**:
   - Implemented distinct `drawRedWarbandMeeple` (aliased as `drawWarbandMeeple`) in `tokens.ts` (spiked blackened iron pedestal with crimson danger ring, hulking iron-armored torso with blood-red warband surcoat and crossed iron harness straps, horned dark iron war helm with curved demon horns, glowing crimson eye-slit visor with burning pupil hot spots, spiked heater shield, jagged poleaxe with cutting bevel, ragged crimson battle pennant, and threat pill badge).

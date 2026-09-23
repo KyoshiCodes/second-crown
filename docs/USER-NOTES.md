@@ -3,9 +3,14 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
-## Wall line
+## Connected Rim Walls & Gate Ring on the Isometric Hold
 
-The Kingdom tab and your hold's inspect panel now show your walls at a glance: how many rim walls you have out of 8, whether the ring is open or closed (closed needs 8 rim walls plus a gate on the rim), total wall HP, and gate HP if a gate stands on the rim.
+Rim walls and the gatehouse now render as a fully connected, unbroken defensive stone ring encircling the isometric hold:
+- **Gapless Fortress Curtain**: Building adjacent wall tiles now creates a seamless, continuous curtain wall that flows smoothly from tile to tile without gaps or disjointed seams. A closed ring of 48 rim forts forms an authentic, impenetrable walled citadel.
+- **Rampart Walkway & Parapet**: A continuous stone rampart walkway with timber planking lines runs atop the entire wall run, flanked by outer crenellations and defensive merlons styled to the realm's culture kit (western ashlar battlements, cedar log palisade stakes, desert sawtooth crenellations, steppe wattle hurdles, and islands thatched caps).
+- **Four Corner Keep Bastions**: The four corners of the hold `(0,0)`, `(15,0)`, `(15,9)`, and `(0,9)` feature towering stone bastions that rise above the curtain walls, with roof platforms, all-around merlons, arrow slits, and waving pennants/banners that anchor the 90-degree corner transitions.
+- **Seamless Gatehouse Flanks**: The gatehouse now extends matching fortified stone wings from its twin bastion towers directly into adjacent wall tiles, bridging the gate portal to flanking walls with no gaps.
+- **Wall Buttress Pilasters & Torches**: Intermediate wall segments feature architectural stone buttresses with arrow slits and animated culture-specific fixtures (flickering iron torch sconces, carved totem markers, brass oil lanterns, horsehair standards, and glowing sea-lanterns).
 
 ## Red Warband Meeple for Hostile Incoming Marches
 

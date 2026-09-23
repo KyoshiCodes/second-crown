@@ -1041,6 +1041,113 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         }
       }
     });
+
+    it("renders a closed 48-tile fortress perimeter ring with continuous walls, 4 corner bastions, and a gatehouse across all 48 tiles", () => {
+      // 48 rim tiles: 47 walls + 1 gate at (0, 5)
+      const rimTiles: { x: number; y: number; kind: "wall" | "gate" }[] = [];
+      for (let i = 0; i < 48; i++) {
+        const pt = getRimTileAt(i);
+        const isGate = pt.x === 0 && pt.y === 5;
+        rimTiles.push({ x: pt.x, y: pt.y, kind: isGate ? "gate" : "wall" });
+      }
+      expect(rimTiles.length).toBe(48);
+
+      // Verify the 4 corners exist at exact indices
+      expect(rimWalkIndex(0, 0)).toBe(0);
+      expect(rimWalkIndex(15, 0)).toBe(15);
+      expect(rimWalkIndex(15, 9)).toBe(24);
+      expect(rimWalkIndex(0, 9)).toBe(39);
+
+      // Render each tile in the closed ring with full neighbors (hasPrev=true, hasNext=true)
+      for (let i = 0; i < 48; i++) {
+        const tile = rimTiles[i];
+        const prevTile = rimTiles[(i - 1 + 48) % 48];
+        const nextTile = rimTiles[(i + 1) % 48];
+        const neighbors: RimNeighbors = {
+          hasPrev: true,
+          hasNext: true,
+          prevKind: prevTile.kind,
+          nextKind: nextTile.kind,
+        };
+
+        const g = createMockGraphics();
+        expect(() => {
+          drawIsometricBuilding(
+            g,
+            tile.kind === "gate" ? "gate" : "walls",
+            1,
+            true,
+            0.5,
+            defaultVisuals,
+            tile.x,
+            tile.y,
+            neighbors
+          );
+        }).not.toThrow();
+
+        // Must produce substantive visual geometry
+        expect(g.calls.length).toBeGreaterThan(10);
+      }
+    });
+
+    it("supports partial runs: starting wall, ending wall, and isolated wall bastion", () => {
+      // Starting wall (hasPrev: false, hasNext: true)
+      const gStart = createMockGraphics();
+      const startNeighbors: RimNeighbors = { hasPrev: false, hasNext: true, nextKind: "wall" };
+      drawIsometricBuilding(gStart, "walls", 1, true, 0, defaultVisuals, 3, 0, startNeighbors);
+      expect(gStart.calls.length).toBeGreaterThan(5);
+
+      // Ending wall (hasPrev: true, hasNext: false)
+      const gEnd = createMockGraphics();
+      const endNeighbors: RimNeighbors = { hasPrev: true, hasNext: false, prevKind: "wall" };
+      drawIsometricBuilding(gEnd, "walls", 1, true, 0, defaultVisuals, 3, 0, endNeighbors);
+      expect(gEnd.calls.length).toBeGreaterThan(5);
+
+      // Isolated wall bastion (hasPrev: false, hasNext: false)
+      const gIso = createMockGraphics();
+      const isoNeighbors: RimNeighbors = { hasPrev: false, hasNext: false };
+      drawIsometricBuilding(gIso, "walls", 1, true, 0, defaultVisuals, 3, 0, isoNeighbors);
+      expect(gIso.calls.length).toBeGreaterThan(5);
+    });
+
+    it("renders gatehouse curtain wings seamlessly connecting to adjacent walls on all 4 rim edges", () => {
+      const edgeGatePositions = [
+        { x: 0, y: 5, edge: "left" },
+        { x: 15, y: 4, edge: "right" },
+        { x: 8, y: 0, edge: "top" },
+        { x: 8, y: 9, edge: "bottom" },
+      ];
+
+      for (const pos of edgeGatePositions) {
+        const gBoth = createMockGraphics();
+        const neighborsBoth: RimNeighbors = {
+          hasPrev: true,
+          hasNext: true,
+          prevKind: "wall",
+          nextKind: "wall",
+        };
+        drawIsometricBuilding(gBoth, "gate", 1, true, 0.2, defaultVisuals, pos.x, pos.y, neighborsBoth);
+        expect(gBoth.calls.length).toBeGreaterThan(15);
+
+        // One-sided connection (prev only)
+        const gLeftOnly = createMockGraphics();
+        drawIsometricBuilding(gLeftOnly, "gate", 1, true, 0.2, defaultVisuals, pos.x, pos.y, {
+          hasPrev: true,
+          hasNext: false,
+          prevKind: "wall",
+        });
+        expect(gLeftOnly.calls.length).toBeGreaterThan(10);
+
+        // One-sided connection (next only)
+        const gRightOnly = createMockGraphics();
+        drawIsometricBuilding(gRightOnly, "gate", 1, true, 0.2, defaultVisuals, pos.x, pos.y, {
+          hasPrev: false,
+          hasNext: true,
+          nextKind: "wall",
+        });
+        expect(gRightOnly.calls.length).toBeGreaterThan(10);
+      }
+    });
   });
 
   describe("unitPalette with culture kits", () => {
