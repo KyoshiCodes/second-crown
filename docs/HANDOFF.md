@@ -6,8 +6,12 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-walls)
+## Recent Wave (wave/repair-line)
 
+- Kingdom tab "Scarred works" is now one row per scarred building: display name, level, tile, and a Repair (8 stone) button calling `tryRepair`.
+- App only. Siege blow and repair cost unchanged. Zero diff on `packages/sim`, `packages/render`, `server/`.
+
+## Prior Wave (bakeoff/gemini-walls)
 - **Connected Rim Walls & Gate Ring on Isometric Hold**:
   - Re-architected rim wall and gatehouse rendering in `buildings.ts` so that walls and the gate read as a solid, continuous, unbroken defensive stone ring encircling the hold:
     - **Continuous Straight Runs**: When adjacent rim walls exist (`hasPrev && hasNext`), wall segments span continuously across tile boundaries from boundary to boundary with zero gaps. Features continuous foundation plinths, vertical curtain faces with horizontal ashlar mortar scoring, stone parapet walkways with planking centerlines, culture-styled outer merlons/crenellations, and mid-tile wall buttress pilasters with arrow slits and animated torches/lanterns.

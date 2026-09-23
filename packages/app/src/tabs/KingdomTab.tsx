@@ -278,15 +278,22 @@ export function KingdomTab(props: {
       {scarred.length > 0 ? (
         <>
           <h3>Scarred works</h3>
-          {scarred.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              onClick={() => act((st) => (tryRepair(st, b.id) ? `Repaired ${b.typeId}.` : "Need 8 stone."))}
-            >
-              Repair {b.typeId} (8 stone)
-            </button>
-          ))}
+          {scarred.map((b) => {
+            const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
+            return (
+              <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
+                <span>
+                  {nm} lv {b.level} · {b.x},{b.y}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => act((st) => (tryRepair(st, b.id) ? `Repaired the ${nm}.` : "Need 8 stone."))}
+                >
+                  Repair (8 stone)
+                </button>
+              </div>
+            );
+          })}
         </>
       ) : null}
       {flags.length > 0 ? (

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-09-22 — Repair line on Kingdom tab (`wave/repair-line`)
+
+- `packages/app/src/tabs/KingdomTab.tsx`: "Scarred works" lists each building from `listScarred` as a row (name, level, tile) with a Repair (8 stone) button using `tryRepair`. Replaces the old raw-`typeId` buttons.
+- No sim, render, or server changes. Siege blow and repair cost unchanged. 216 tests pass; app builds.
+
 ## 2026-09-22 — Gemini Connected Rim Walls & Gate Ring on Isometric Hold (`bakeoff/gemini-walls`)
 
 - **Connected Rim Walls & Gate Ring (`packages/render/src/buildings.ts`)**:

@@ -20,6 +20,8 @@ Keep `power` — `realmPower` and existing tests still use it.
 
 ## Agent lanes
 
+Kingdom "Scarred works" rows read `listScarred` and call `tryRepair` (cost is `REPAIR_STONE` = 8 in `sim/systems/ward.ts`; the "8 stone" label in the app is hardcoded, so update both if cost changes).
+
 `WallLine` (app) is display only. Note `wallHp` already includes `gateHp`, so gate HP is shown as a part of wall HP, not added to it.
 
 Sim: packages/sim + shared only.
