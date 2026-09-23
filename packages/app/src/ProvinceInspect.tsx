@@ -29,6 +29,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
+import { WallLine } from "./WallLine";
 
 const TERRAIN: Record<string, string> = {
   plain: "Plain",
@@ -157,7 +158,10 @@ export function ProvinceInspect(props: {
         </div>
       ) : null}
       {home ? (
-        <div style={{ marginTop: 8, opacity: 0.8 }}>This is your hold. Zoom in to build.</div>
+        <div style={{ marginTop: 8 }}>
+          <div style={{ opacity: 0.8 }}>This is your hold. Zoom in to build.</div>
+          <WallLine state={state} />
+        </div>
       ) : (
         <>
           {!seen ? (
