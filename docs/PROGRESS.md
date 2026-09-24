@@ -1,31 +1,24 @@
-# Second Crown — what exists now
+# Progress — Second Crown (audit 2026-09-24)
 
-Play: https://129.153.17.72.sslip.io/
-Updated: 2026-09-21
+Idle / kingdom-builder / grand-war. Live: `http://129.153.17.72:8787/` · process `sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
 
-This is the living player note. Older bakeoff logs stay in CHANGELOG.md.
+Tests on last merge: **216** sim tests, **80+** render tests, app build clean.
 
-## How to play in one page
+## Eras (beginning → now)
 
-1. Pick a Crown style on the Crown tab (Western, Cedar, Sand, Steppe, Islands).
-2. Build on the hold (zoom in). Walls and the gate only go on the rim.
-3. Zoom out to the board. Scout fog tiles, gather nodes, plant flags, garrison them.
-4. Staff citizens on work tiles. Cluster same buildings. Pair farms with granaries. Park producers on the Keep edge. Put Barracks on the Keep edge to train cheaper.
-5. Train through the queue. Research at the Academy. Treat wounded at the Infirmary.
-6. Discord login and cloud save are live. Guest recovery codes keep a slot.
+1. **Kernel** — 10 Hz deterministic sim, offline catch-up, IndexedDB + cloud save, Discord login stub, Vite/React/Pixi monorepo.
+2. **Hold** — buildings, citizens, labor, housing, keep upgrades, pairs, storage, vault.
+3. **Host** — train queue, barracks/stables/range/workshop discounts, marshal, food levy, mercs, champion.
+4. **Board war** — marches, column clash (column only, not home army), camps, outposts, hold storm, sally, wounded + infirmary treat.
+5. **Map economy** — gathers, node stock, scouts, garrisons, incoming raids.
+6. **Crown** — lectern studies, Academy −20% new study time, market stalls, decrees.
+7. **Presentation** — isometric 12×8 diamonds, culture kits, walkers, meeples (war/gather/scout/garrison/incoming), walls, towers, scars, tired host.
+8. **Coaching UI** — Kingdom/Army/War lines so a beginner can see *why* a number moved.
 
-## From zero to now (meaningful beats)
+## What is playable today
 
-- Deterministic idle sim: TypeScript monorepo, 10 Hz ticks, break_infinity numbers, offline catch-up, GitHub Pages then Oracle + Caddy HTTPS + Discord OAuth.
-- Hold + board camera: 16×10 isometric turf, 12×8 province board, zoom/pan, hardwood rim, holiday dressings, recorded holiday audio.
-- War and map: marches, camps, node stock, gather carts, garrisons, incoming warnings, rim walls, siege HP, scouts, fog, NPC crowns that claim and fight.
-- Economy: warehouse caps, slower raids, academy research, training queues, timed upgrades, labor from posted workers, adjacency / pair / keep-yard bonuses.
-- Cultures: five kits with distinct buildings, walkers, and unit silhouettes.
-- Cloud testers: HTTPS at the sslip.io host, Discord sign-in, autosave.
+Build the hold, staff works, trade at Market, study on Crown, raise companies, march columns, plant flags, garrison, gather nodes, scout fog, treat wounded, sally incoming, close an 8-tile wall ring.
 
-## Ascent plan (Lords Mobile / Rise of Kingdoms depth)
+## What is not done
 
-See `docs/ASCENT.md`.
-
-- **R1 shipped:** every unit now has attack, defense, hp, speed, role, and tier. Line > shock > ranged > line is data only. Fights still use the old power roll until R3.
-- **Next:** R2 harness (1,000 seeded fights), then R3 round/morale resolver behind the same `resolveBattle` name.
+True multiplayer battles, player bazaar/auction, guild rallies, deep research tree, hero gear loop, mobile client. See `docs/ROADMAP.md`.
