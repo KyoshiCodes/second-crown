@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Open branch (wave/hud-strip, not merged)
+
+- Top resource strip is a carved timber ledger: one cell per store with name, amount (/ cap), and `+N/s` only when income is above zero.
+- Full stores turn the cell amber. Food turns red when `isFoodStoresEmptyOrLow` is true (same check that makes militia look tired).
+- Vault amount moved from a visible line to the cell tooltip.
+- App + CSS only; no sim, render, or server changes.
+
 ## Active Bakeoff (bakeoff/gemini-hud)
 
 - **Inhabited Shell HUD & Stamped Tabs**:

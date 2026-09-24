@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-24 — Timber ledger stores
+
+- Food, wood, stone, and gold sit in carved wooden cells at the top. Each shows how much you have and how fast it grows.
+- A full store glows amber: anything extra is wasted, so spend it.
+- Food glows red when the larder is bare. That is when your soldiers look tired.
+- Hover a cell to see how much your vault keeps safe.
+
 ## 2026-09-24 — Inhabited shell & stamped tabs
 
 - The Crown lectern and realm cards glow with faint candle flicker and drifting dust motes, framed in gold.

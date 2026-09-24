@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-24 — Timber ledger resource strip (`wave/hud-strip`)
+
+- `packages/app/src/hud/ResourceHud.tsx`: strip rebuilt as four ledger cells (name, amount / cap, `+N/s` shown only if income > 0). Inline styles moved to `.sc-ledger*` classes in `theme.css`.
+- Full store (`resourceLedger().full`) → amber `is-full` cell with a FULL tag. Food + `isFoodStoresEmptyOrLow` → red `is-empty` cell with a BARE tag; red wins over amber.
+- Colors come from the existing `--chrome-*` vars, so Dusk/Night/Parchment all apply. Two columns under 520px.
+- Vault line now lives in the cell `title` tooltip. No new math; `git diff origin/main -- packages/sim packages/render server` is empty.
+
 ## 2026-09-24 — Gemini Inhabited Shell HUD, Stamped Tabs & Primer Banner (bakeoff/gemini-hud)
 
 - **Inhabited Atmosphere for Lectern & Realm Cards (`packages/app/src/hud/InhabitedOverlay.tsx`, `packages/app/src/theme.css`, `packages/app/src/ResearchBar.tsx`)**:

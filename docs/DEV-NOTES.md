@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-24 — hud-strip
+
+- The "empty food" red cell uses `isFoodStoresEmptyOrLow` from `@second-crown/render`, not `have <= 0`, so the strip and the tired militia always agree. That helper also fires when food is low versus army mouths, not only at zero.
+- `.sc-ledger*` styles read `--chrome-*` vars only; the amber/red state colors are fixed and tuned to read on all three palettes.
+- `.sc-resource-bar` class is kept on the strip root in case anything targets it.
+
 ## 2026-09-24 — hud-chrome
 
 - Chrome palette lives on `<html data-chrome>`, separate from the body `theme-<tab>` classes and the season/holiday packs. Add new chrome colors as `--chrome-*` vars in all three blocks of `theme.css`.
