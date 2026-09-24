@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  adjacencyBonus,
   buildTicksLeft,
   canAfford,
   canHouse,
@@ -23,7 +22,6 @@ import {
   incomingOnPlayerFlags,
   incomingOnProvince,
   KEEP_GATES,
-  keepBonus,
   keepLevel,
   keepNotice,
   laborPerTick,
@@ -34,17 +32,13 @@ import {
   listWorksInProgress,
   MARKET_OFFERS,
   outpostTithePerTick,
-  pairBonus,
   PAIR_LABEL,
   population,
   resourceLedger,
   settlementName,
-  staffBonus,
   tryAbandonOutpost,
   tryCancelBuild,
   tryCancelUpgrade,
-  tryDemolish,
-  tryRepair,
   tryTrade,
   unpairedWorks,
   watchtowerWarning,
@@ -58,6 +52,7 @@ import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
+import { isScarred, WorkCard } from "../hud/WorkCard";
 
 export function KingdomTab(props: {
   state: GameState | undefined;
@@ -71,8 +66,8 @@ export function KingdomTab(props: {
   const selected = selectedBuild ? getBuildingType(selectedBuild) : undefined;
   const hold = state ? settlementName(state) : "Your Hold";
   const season = state ? currentSeason(state) : "Spring";
-  const scarred = state ? listScarred(state) : [];
-  const works = state ? listWorksInProgress(state) : [];
+  const scarred = state ? listScarred(state).filter(isScarred) : [];
+  const works = state ? listWorksInProgress(state).filter((b) => !isScarred(b)) : [];
   const upgrades = state ? listUpgrades(state) : [];
   const flags = state ? listOutposts(state) : [];
   const standing =
@@ -248,54 +243,17 @@ export function KingdomTab(props: {
           })}
         </>
       ) : null}
-      {standing.length > 0 ? (
+      {state && standing.length + scarred.length > 0 ? (
         <>
-          <h3>Standing</h3>
-          {standing.map((b) => {
-            const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
-            const staffed = state ? staffBonus(state, b) > 1 : false;
-            const pct = state ? Math.round((staffBonus(state, b) - 1) * 100) : 0;
-            const cluster = state ? Math.round((adjacencyBonus(state, b) - 1) * 100) : 0;
-            const pair = state ? Math.round((pairBonus(state, b) - 1) * 100) : 0;
-            const keep = state ? Math.round((keepBonus(state, b) - 1) * 100) : 0;
-            return (
-              <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
-                <span>
-                  {nm} lv {b.level} · {b.x},{b.y} · {staffed ? `staffed +${pct}%` : "empty"}
-                  {cluster > 0 ? ` · cluster +${cluster}%` : ""}
-                  {pair > 0 ? ` · pair +${pair}%` : ""}
-                  {keep > 0 ? ` · keep +${keep}%` : ""}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => act((st) => (tryDemolish(st, b.id) ? `Pulled down the ${nm}. Salvage returned.` : "Cannot demolish."))}
-                >
-                  Demolish
-                </button>
-              </div>
-            );
-          })}
-        </>
-      ) : null}
-      {scarred.length > 0 ? (
-        <>
-          <h3>Scarred works</h3>
-          {scarred.map((b) => {
-            const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
-            return (
-              <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
-                <span>
-                  {nm} lv {b.level} · {b.x},{b.y}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => act((st) => (tryRepair(st, b.id) ? `Repaired the ${nm}.` : "Need 8 stone."))}
-                >
-                  Repair (8 stone)
-                </button>
-              </div>
-            );
-          })}
+          <h3>Standing works</h3>
+          <div className="sc-work-grid">
+            {scarred.map((b) => (
+              <WorkCard key={b.id} state={state} b={b} scarred act={act} />
+            ))}
+            {standing.map((b) => (
+              <WorkCard key={b.id} state={state} b={b} scarred={false} act={act} />
+            ))}
+          </div>
         </>
       ) : null}
       {flags.length > 0 ? (

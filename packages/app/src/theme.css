@@ -973,3 +973,65 @@ button:disabled {
   .sc-ledger-cell:nth-child(3) { margin-left: 0; }
   .sc-ledger-cell:nth-child(3)::before { display: none; }
 }
+
+/* --- Kingdom works: one card per finished player building. Chrome palette, so Dusk/Night/Parchment all apply. --- */
+.sc-work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.sc-work-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-radius: 5px;
+}
+.sc-work-card.is-staffed { border-left-color: #4ade80; }
+.sc-work-card.is-empty { border-left-color: var(--chrome-bar-border); }
+.sc-work-card.is-scarred {
+  border-color: #b4553a;
+  border-left-color: #f85149;
+  background:
+    repeating-linear-gradient(135deg, rgba(248, 81, 73, 0.07) 0 4px, transparent 4px 10px),
+    linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+}
+.sc-work-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+.sc-work-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-work-level {
+  flex: none;
+  font-size: 11px;
+  color: var(--chrome-accent);
+}
+.sc-work-status { opacity: 0.85; }
+.sc-work-card.is-staffed .sc-work-status { color: #86efac; opacity: 1; }
+.sc-work-card.is-scarred .sc-work-status { color: #fca5a0; opacity: 1; }
+.sc-work-perks { font-size: 11px; opacity: 0.7; }
+.sc-work-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 3px;
+}
+.sc-work-where { font-size: 11px; opacity: 0.55; }
+.sc-work-btn { padding: 1px 8px; font-size: 11px; }
+.sc-work-btn.is-repair { border-color: #f85149; }
