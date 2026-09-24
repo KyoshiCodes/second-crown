@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-24 — People job cards
+
+- The People list on the Kingdom tab is now grouped into cards, one per job.
+- Each card shows how many people do that job and which buildings they walk to.
+- Idle villagers get their own dashed amber card at the top, so spare hands are easy to spot.
+- "Post at…" and "Idle" still work per worker, same as before.
+
 ## 2026-09-24 — Army cards & 28px culture-kit chips
 
 - Levies and companies on the Army tab now sit in dedicated unit cards:
