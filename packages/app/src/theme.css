@@ -884,3 +884,92 @@ button:disabled {
   border: 1px solid rgba(74, 222, 128, 0.4);
   border-radius: 4px;
 }
+
+/* --- Resource strip: carved timber ledger. Uses the chrome palette, so Dusk/Night/Parchment all apply. --- */
+.sc-ledger {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 12px 0;
+  padding: 4px;
+  border: 1px solid var(--chrome-btn-border);
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.018) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.4);
+  color: var(--chrome-btn-text);
+}
+.sc-ledger-cell {
+  position: relative;
+  min-width: 0;
+  padding: 6px 10px 7px;
+  border-radius: 3px;
+  background: var(--chrome-bar-bg);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  transition: background 300ms ease, box-shadow 300ms ease;
+}
+.sc-ledger-cell + .sc-ledger-cell { margin-left: 5px; }
+.sc-ledger-cell + .sc-ledger-cell::before {
+  /* carved groove between cells */
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.55), rgba(255, 255, 255, 0.07));
+}
+.sc-ledger-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.sc-ledger-tag {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 0 4px;
+  border-radius: 2px;
+  border: 1px solid currentColor;
+  opacity: 0.95;
+}
+.sc-ledger-amount {
+  font-family: ui-monospace, monospace;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--chrome-accent);
+}
+.sc-ledger-cap { font-size: 11px; opacity: 0.5; color: var(--chrome-btn-text); }
+.sc-ledger-rate {
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  opacity: 0.6;
+}
+.sc-ledger-cell.is-full {
+  background: linear-gradient(180deg, rgba(217, 140, 30, 0.34), rgba(120, 70, 10, 0.3));
+  box-shadow: inset 0 0 0 1px rgba(245, 170, 60, 0.7), inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.sc-ledger-cell.is-full .sc-ledger-name { color: #fbbf5a; opacity: 1; }
+.sc-ledger-cell.is-full .sc-ledger-amount { color: #fcd38a; }
+.sc-ledger-cell.is-empty {
+  background: linear-gradient(180deg, rgba(185, 40, 30, 0.38), rgba(90, 14, 10, 0.34));
+  box-shadow: inset 0 0 0 1px rgba(240, 90, 70, 0.75), inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.sc-ledger-cell.is-empty .sc-ledger-name { color: #fca5a0; opacity: 1; }
+.sc-ledger-cell.is-empty .sc-ledger-amount { color: #fecaca; }
+
+@media (max-width: 520px) {
+  .sc-ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 5px; }
+  .sc-ledger-cell:nth-child(3) { margin-left: 0; }
+  .sc-ledger-cell:nth-child(3)::before { display: none; }
+}
