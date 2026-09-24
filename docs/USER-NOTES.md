@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-24 — War tab force cards
+
+- On the War tab, each enemy column, scout, gather party, and garrison now gets its own small card: where it is going and how many seconds until it arrives.
+- Recall sits on its card. Sally sits on the card of the column at your gate.
+- Card edge color tells you what it is: red enemy, blue scout, amber gather, green garrison.
+
 ## 2026-09-24 — People cards & walker role pips
 
 - People on the Kingdom tab now sit in trade cards with walker role pips:

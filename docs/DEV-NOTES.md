@@ -1,5 +1,10 @@
 # Dev notes
 
+## 2026-09-24 — hud-war / force cards
+
+- `trySally` and `tryRecallMarch` take no target id. Sally always hits `incomingOnHome(state)[0]`; recall always hits the first active player march. So the Sally button only renders on that incoming card, and scout Recall stays disabled unless the scout is `firstColumnId`. Do not add per-card targets without a sim change.
+- `ForceCard` omits `seconds` for garrisons and shows "posted".
+
 ## 2026-09-24 — people-cards / walker role pips
 
 - `WalkerPip.tsx`: 24px walker role pips (hoe, axe, pick, coin) must unconditionally set `pointer-events: none !important;` in SVG styles, wrapper styles, and CSS to guarantee worker assignment selects and "Idle" buttons on `JobCard` receive clicks without obstruction.

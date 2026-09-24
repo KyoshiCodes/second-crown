@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hud-war, not merged)
+
+- War tab: Incoming, Scouts, Gathers, Garrisons render as small `ForceCard`s (`packages/app/src/hud/ForceCard.tsx`, `hud/force-card.css`): name, dest, seconds, one Recall/Sally button. Garrisons show "posted" instead of seconds.
+- Odds, Levy and fight, Last battle, Decrees, Columns list unchanged. No sim change.
+
 ## Active Bakeoff (bakeoff/gemini-people)
 
 - **People Cards & Walker Role Pips (`packages/app/src/hud/WalkerPip.tsx`, `packages/app/src/hud/JobCard.tsx`, `packages/app/src/PeoplePanel.tsx`, `packages/app/src/theme.css`)**:

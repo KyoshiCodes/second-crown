@@ -1,0 +1,46 @@
+/* --- War: one small card per force. Edge color = kind. --- */
+.sc-force-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  margin: 2px 0 6px;
+}
+.sc-force-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 5px 8px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-radius: 5px;
+}
+.sc-force-card.is-hostile { border-left-color: #f85149; }
+.sc-force-card.is-scout { border-left-color: #58a6ff; }
+.sc-force-card.is-gather { border-left-color: #d29922; }
+.sc-force-card.is-garrison { border-left-color: #4ade80; }
+.sc-force-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+.sc-force-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-force-eta { flex: none; font-size: 11px; color: var(--chrome-accent); font-variant-numeric: tabular-nums; }
+.sc-force-dest { font-size: 11px; opacity: 0.8; }
+.sc-force-detail {
+  font-size: 11px;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-force-btn { align-self: flex-start; margin-top: 2px; padding: 1px 8px; font-size: 11px; }

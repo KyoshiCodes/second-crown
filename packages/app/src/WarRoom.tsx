@@ -41,6 +41,7 @@ import { DiplomacyPanel } from "./HudControls";
 import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
+import { ForceCard } from "./hud/ForceCard";
 import type { ActFn } from "./game/useGameEngine";
 import { getGiftThanks, getWarTaunt } from "./content/flavor";
 import { sfx } from "./sfx";
@@ -63,6 +64,8 @@ export function WarRoom(props: {
   const incoming = state ? incomingOnHome(state) : [];
   const incomingFlags = state ? incomingOnPlayerFlags(state) : [];
   const hostileColumns = [...incoming, ...incomingFlags];
+  // trySally always meets the first column on the home gate.
+  const sallyTargetId = incoming[0]?.id;
   const seen = state ? watchtowerWarning(state) : undefined;
   const scarred = state ? listScarred(state) : [];
   const hp = state ? wallHp(state) : 0;
@@ -223,50 +226,46 @@ export function WarRoom(props: {
           {scouts.length === 0 ? (
             <p style={{ margin: 0, opacity: 0.7 }}>No scout on the road.</p>
           ) : (
-            scouts.map((m) => {
-              const dest = state ? getProvince(state, m.toId) : undefined;
-              const where = dest ? `${dest.x},${dest.y}` : m.toId;
-              const canRecall = m.id === firstColumnId && tick < m.arrivesTick;
-              return (
-                <div key={m.id} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                  <span>
-                    Scout → {where} · ETA {etaOf(m.arrivesTick)}s
-                  </span>
-                  <button
-                    type="button"
-                    disabled={!canRecall}
-                    onClick={() => act((st) => (tryRecallMarch(st) ? "Scout recalled." : "Too late to recall."))}
-                  >
-                    Recall
-                  </button>
-                </div>
-              );
-            })
+            <div className="sc-force-grid">
+              {scouts.map((m) => (
+                <ForceCard
+                  key={m.id}
+                  tone="scout"
+                  name="Scout"
+                  dest={provinceLabel(m.toId)}
+                  seconds={etaOf(m.arrivesTick)}
+                  action={{
+                    label: "Recall",
+                    disabled: !(m.id === firstColumnId && tick < m.arrivesTick),
+                    onClick: () => act((st) => (tryRecallMarch(st) ? "Scout recalled." : "Too late to recall.")),
+                  }}
+                />
+              ))}
+            </div>
           )}
         </div>
         <div style={{ marginTop: 8 }}>
+          <div style={{ opacity: 0.85, marginBottom: 2 }}>Gathers</div>
           {gathers.length === 0 ? (
             <p style={{ margin: 0, opacity: 0.7 }}>No gather party out.</p>
           ) : (
-            gathers.map((g) => {
-              const dest = state ? getProvince(state, g.toId) : undefined;
-              const where = dest ? `${dest.x},${dest.y}` : g.toId;
-              return (
-                <div key={g.id} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                  <span>
-                    {g.node} {where} · {g.phase} · ETA {etaOf(g.arrivesTick)}s
-                    {g.phase !== "outbound" ? ` · load ${g.load}` : ""}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={g.phase === "returning"}
-                    onClick={() => act((st) => (tryRecallGather(st, g.id) ? "Gather party recalled." : "Already returning."))}
-                  >
-                    Recall
-                  </button>
-                </div>
-              );
-            })
+            <div className="sc-force-grid">
+              {gathers.map((g) => (
+                <ForceCard
+                  key={g.id}
+                  tone="gather"
+                  name={`Gather ${g.node}`}
+                  dest={provinceLabel(g.toId)}
+                  seconds={etaOf(g.arrivesTick)}
+                  detail={g.phase !== "outbound" ? `${g.phase} · load ${g.load}` : g.phase}
+                  action={{
+                    label: "Recall",
+                    disabled: g.phase === "returning",
+                    onClick: () => act((st) => (tryRecallGather(st, g.id) ? "Gather party recalled." : "Already returning.")),
+                  }}
+                />
+              ))}
+            </div>
           )}
         </div>
         <div style={{ marginTop: 8 }}>
@@ -274,27 +273,22 @@ export function WarRoom(props: {
           {posts.length === 0 ? (
             <p style={{ margin: 0, opacity: 0.7 }}>No garrison posted on a flag.</p>
           ) : (
-            posts.map((g) => {
-              const dest = state ? getProvince(state, g.provinceId) : undefined;
-              const where = dest ? `${dest.x},${dest.y}` : g.provinceId;
-              const power = state ? garrisonPower(state, g.provinceId) : 0;
-              return (
-                <div key={g.provinceId} style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                  <span>
-                    Garrison {where} · power {power} ·{" "}
-                    {Object.entries(g.force).map(([k, n]) => `${n} ${k}`).join(", ")}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      act((st) => (tryRecallGarrison(st, g.provinceId) ? "Garrison recalled." : "Cannot recall garrison."))
-                    }
-                  >
-                    Recall
-                  </button>
-                </div>
-              );
-            })
+            <div className="sc-force-grid">
+              {posts.map((g) => (
+                <ForceCard
+                  key={g.provinceId}
+                  tone="garrison"
+                  name={`Garrison · power ${state ? garrisonPower(state, g.provinceId) : 0}`}
+                  dest={provinceLabel(g.provinceId)}
+                  detail={Object.entries(g.force).map(([k, n]) => `${n} ${k}`).join(", ")}
+                  action={{
+                    label: "Recall",
+                    onClick: () =>
+                      act((st) => (tryRecallGarrison(st, g.provinceId) ? "Garrison recalled." : "Cannot recall garrison.")),
+                  }}
+                />
+              ))}
+            </div>
           )}
         </div>
       </section>
@@ -303,30 +297,33 @@ export function WarRoom(props: {
         <strong style={h}>Home front</strong>
         <div style={{ opacity: 0.85, marginBottom: 2 }}>Incoming</div>
         {hostileColumns.length > 0 ? (
-          <ul style={{ margin: "0 0 4px", paddingLeft: 18 }}>
+          <div className="sc-force-grid">
             {hostileColumns.map((m) => (
-              <li key={m.id}>
-                {seen ? nameOf(m.realmId) : "Unknown host"}: {provinceLabel(m.fromId)} →{" "}
-                {provinceLabel(m.toId)} · ETA {etaOf(m.arrivesTick)}s
-              </li>
+              <ForceCard
+                key={m.id}
+                tone="hostile"
+                name={seen ? nameOf(m.realmId) : "Unknown host"}
+                dest={provinceLabel(m.toId)}
+                seconds={etaOf(m.arrivesTick)}
+                detail={`from ${provinceLabel(m.fromId)}`}
+                action={
+                  sallyReady && m.id === sallyTargetId
+                    ? {
+                        label: "Sally (5 militia)",
+                        onClick: () =>
+                          act((st) => {
+                            if (!trySally(st)) return "Need 5 militia and a column on the road.";
+                            return "Sally at the gate.";
+                          }),
+                      }
+                    : undefined
+                }
+              />
             ))}
-          </ul>
+          </div>
         ) : (
           <p style={{ margin: "4px 0", opacity: 0.7 }}>No column on your gates or flags.</p>
         )}
-        {sallyReady ? (
-          <button
-            type="button"
-            onClick={() =>
-              act((st) => {
-                if (!trySally(st)) return "Need 5 militia and a column on the road.";
-                return "Sally at the gate.";
-              })
-            }
-          >
-            Sally (5 militia)
-          </button>
-        ) : null}
         <p style={{ margin: "4px 0" }}>
           Wall HP {hp}. Gate {gateUp ? "up" : "down"}. Siege hits walls first, then the yard, then the keep.
         </p>

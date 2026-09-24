@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-24 — War tab force cards (wave/hud-war)
+
+- `hud/ForceCard.tsx` + `hud/force-card.css`: small card per force with kind edge color (red incoming, blue scout, amber gather, green garrison), dest, seconds, optional button.
+- `WarRoom.tsx`: Incoming, Scouts, Gathers, Garrisons use `ForceCard`. Sally moves onto the card for the first home-gate column (the one `trySally` meets). Recall buttons keep the same enable rules and calls.
+- Odds, Levy, Last battle, Decrees untouched. `packages/sim` and `server` untouched. 220 tests pass, app build clean.
+
 ## 2026-09-24 — Gemini People Cards with Walker Role Pips (bakeoff/gemini-people)
 
 - **Walker Role Pips (`packages/app/src/hud/WalkerPip.tsx`, `packages/app/src/hud/JobCard.tsx`, `packages/app/src/theme.css`)**:
