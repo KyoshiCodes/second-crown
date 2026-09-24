@@ -2,6 +2,7 @@ import React from "react";
 import { TesterBar } from "./TesterBar";
 import { CloudPanel } from "./CloudPanel";
 import { BoardPanel } from "./BoardPanel";
+import { ThemeDock } from "./ThemeDock";
 import { getHolidayOverride, setHolidayOverride } from "./seasons/holidays";
 
 const KEY = "sc-chrome-open";
@@ -62,8 +63,8 @@ export function ChromeDock() {
         position: "sticky",
         top: 0,
         zIndex: 120,
-        background: open ? "rgba(10, 8, 6, 0.96)" : "rgba(10, 8, 6, 0.72)",
-        borderBottom: "1px solid #3a3228",
+        background: open ? "var(--chrome-bar-bg-open)" : "var(--chrome-bar-bg)",
+        borderBottom: "1px solid var(--chrome-bar-border)",
       }}
     >
       <div
@@ -85,13 +86,8 @@ export function ChromeDock() {
           onClick={toggleBand}
           title="Toggle camera zoom band between Hold (close-up isometric) and Board (tabletop map)"
           style={{
-            background: band === "board" ? "#3b2a1a" : "#1a2a1a",
-            color: "#fef08a",
-            border: "1px solid #d4a72c",
-            borderRadius: 4,
-            padding: "3px 10px",
+            color: "var(--chrome-accent)",
             fontWeight: 600,
-            cursor: "pointer",
           }}
         >
           {band === "board" ? "🗺️ Board (Switch to Hold 🏰)" : "🏰 Hold (Switch to Board 🗺️)"}
@@ -106,9 +102,9 @@ export function ChromeDock() {
               setHolidayOverride(next);
             }}
             style={{
-              background: "#1a1410",
-              color: "#fef08a",
-              border: "1px solid #d4a72c",
+              background: "var(--chrome-btn-bg)",
+              color: "var(--chrome-btn-text)",
+              border: "1px solid var(--chrome-btn-border)",
               borderRadius: 4,
               padding: "3px 8px",
             }}
@@ -122,6 +118,7 @@ export function ChromeDock() {
             <option value="none">Off</option>
           </select>
         </label>
+        <ThemeDock />
         {lastWorld ? (
           <div
             title={`Latest World Dispatch: ${lastWorld}`}

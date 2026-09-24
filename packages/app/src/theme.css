@@ -1,5 +1,68 @@
 :root { color-scheme: dark; }
 
+/* --- HUD chrome palettes (ThemeDock, key sc-chrome) --- */
+:root,
+:root[data-chrome="dusk"] {
+  --chrome-bar-bg: rgba(10, 8, 6, 0.72);
+  --chrome-bar-bg-open: rgba(10, 8, 6, 0.96);
+  --chrome-bar-border: #3a3228;
+  --chrome-btn-bg: #1c1814;
+  --chrome-btn-bg-hover: #2a2219;
+  --chrome-btn-bg-disabled: #120f0c;
+  --chrome-btn-text: #f5ead8;
+  --chrome-btn-border: #6b542e;
+  --chrome-btn-border-hover: #d4a72c;
+  --chrome-accent: #fef08a;
+}
+:root[data-chrome="night"] {
+  --chrome-bar-bg: rgba(10, 14, 20, 0.78);
+  --chrome-bar-bg-open: rgba(10, 14, 20, 0.96);
+  --chrome-bar-border: #2a3444;
+  --chrome-btn-bg: #161c24;
+  --chrome-btn-bg-hover: #202a36;
+  --chrome-btn-bg-disabled: #0e1218;
+  --chrome-btn-text: #e2e8f0;
+  --chrome-btn-border: #3e4c60;
+  --chrome-btn-border-hover: #7aa2d4;
+  --chrome-accent: #cbd5e1;
+}
+:root[data-chrome="parchment"] {
+  --chrome-bar-bg: rgba(38, 26, 16, 0.82);
+  --chrome-bar-bg-open: rgba(38, 26, 16, 0.97);
+  --chrome-bar-border: #6a4a2a;
+  --chrome-btn-bg: #2e2014;
+  --chrome-btn-bg-hover: #3c2a1a;
+  --chrome-btn-bg-disabled: #1e150d;
+  --chrome-btn-text: #f3e2c2;
+  --chrome-btn-border: #8a6436;
+  --chrome-btn-border-hover: #e0b060;
+  --chrome-accent: #f6d98e;
+}
+
+/* Raw buttons: dark by default. Element selector only, so any class or inline style still wins. */
+button {
+  background: var(--chrome-btn-bg);
+  color: var(--chrome-btn-text);
+  border: 1px solid var(--chrome-btn-border);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover:not(:disabled) {
+  background: var(--chrome-btn-bg-hover);
+  border-color: var(--chrome-btn-border-hover);
+}
+button:focus-visible {
+  outline: 2px solid var(--chrome-btn-border-hover);
+  outline-offset: 1px;
+}
+button:disabled {
+  background: var(--chrome-btn-bg-disabled);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .sc-shell {
   min-height: 100vh;
   padding: 20px 20px 48px;

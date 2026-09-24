@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-24 — Darker buttons, chrome picker, draggable atlas
+
+- Buttons are dark everywhere. No more light-grey Windows buttons.
+- Top bar has a Chrome picker: Dusk (gold, the default), Night (cool slate), Parchment (warm brown). Your pick is remembered.
+- World tab atlas sits centered. Drag it to pan. Recenter puts it back. Clicking a province still selects it.
+
 ## 2026-09-24 — Host hunger
 
 - Army tab shows how much food the host eats.

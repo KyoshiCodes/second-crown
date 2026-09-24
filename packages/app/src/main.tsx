@@ -8,6 +8,7 @@ import "./seasons/themeStage.css";
 import { sfx } from "./sfx";
 import { loadMusicMuted, startMusicBed } from "./music";
 import { audioManager } from "./themes/audioManager";
+import { applyChrome, loadChrome } from "./ThemeDock";
 
 const THEMES = ["kingdom", "army", "war", "world", "crown"] as const;
 
@@ -17,6 +18,7 @@ function applyTheme(name: string) {
 }
 
 applyTheme("kingdom");
+applyChrome(loadChrome());
 loadMusicMuted();
 
 document.addEventListener("click", (e) => {

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-09-24 — HUD chrome, ThemeDock, atlas pan (`wave/hud-chrome`)
+
+- `packages/app/src/theme.css`: chrome palettes as CSS vars on `:root[data-chrome=dusk|night|parchment]`. A low-specificity `button` rule makes every raw button dark (`#1c1814` / `#f5ead8` / `#6b542e` in Dusk); disabled is darker at 0.45 opacity.
+- `packages/app/src/ThemeDock.tsx` (new): Dusk / Night / Parchment picker in the ChromeDock bar. Saved to localStorage `sc-chrome`. `main.tsx` applies it before first render.
+- `packages/app/src/ChromeDock.tsx`: bar, band toggle, and holiday select read the chrome vars.
+- `packages/app/src/OverworldAtlas.tsx`: viewBox fits the tile cloud (centered). Pointer-drag pans a wrapper `<g>`; a press that moves under 6px still selects a province. Recenter button resets pan.
+- No sim, render, or server changes.
+
 ## 2026-09-23 — Upkeep line on Army tab (`wave/upkeep-line`)
 
 - `packages/app/src/UpkeepLine.tsx` (new, display only): "Upkeep · N mouths · X food/tick (Y/s)." Mounted under Posts in `ArmyTab.tsx`.
