@@ -23,6 +23,9 @@ npm run build -w @second-crown/app
 
 ## Invariants that still bite
 
+- HUD chrome palette: `<html data-chrome>` via `ThemeDock.tsx`, key `sc-chrome`. Buttons default dark from `theme.css`.
+- World atlas pans by drag. 6px slop keeps clicks working. Recenter resets.
+
 - Sim is 10 Hz, deterministic, offline catch-up. No sim on `server/`.
 - Column clashes use the column, not the home army.
 - Presentation branches must leave `git diff main -- packages/sim server` empty.

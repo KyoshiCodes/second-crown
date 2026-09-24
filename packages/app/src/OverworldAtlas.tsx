@@ -71,41 +71,151 @@ function MiniKeep(props: { cx: number; cy: number; fill: string; roof: string; h
   );
 }
 
+/** Pointer travel (screen px) below which a press counts as a click, not a drag. */
+const DRAG_SLOP = 6;
+const PAD = 24;
+/** Tallest decoration above a tile top (MiniKeep roof peak). */
+const HEADROOM = 28;
+
 export function OverworldAtlas(props: {
   state: GameState | undefined;
   selectedId?: string | null;
   onSelect?: (id: string) => void;
 }) {
   const { state, selectedId, onSelect } = props;
+  const svgRef = React.useRef<SVGSVGElement>(null);
+  const [pan, setPan] = React.useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = React.useState(false);
+  const drag = React.useRef<{
+    id: number;
+    sx: number;
+    sy: number;
+    px: number;
+    py: number;
+    moved: boolean;
+  } | null>(null);
+  /** Set when the last press became a drag, so the trailing click is ignored. */
+  const suppressClick = React.useRef(false);
+
   if (!state) return null;
   const provinces = state.board.provinces;
   const origin = iso(0, BOARD_H - 1);
-  const width = BOARD_W * TILE_W + 80;
-  const height = (BOARD_W + BOARD_H) * (TILE_H / 2) + 110;
-  const ox = width / 2;
+  const ox = (BOARD_W * TILE_W + 80) / 2;
   const oy = 42;
   const marches = listMarches(state);
   const homeId = state.board.homeProvinceId;
 
   const sorted = [...provinces].sort((a, b) => a.x + a.y - (b.x + b.y));
 
+  // Fit the viewBox to the tile cloud so it sits centered regardless of board shape.
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (const p of provinces) {
+    const pos = iso(p.x, p.y);
+    const cx = ox + pos.x - origin.x;
+    const cy = oy + pos.y;
+    minX = Math.min(minX, cx - TILE_W / 2);
+    maxX = Math.max(maxX, cx + TILE_W / 2);
+    minY = Math.min(minY, cy - TILE_H / 2 - HEADROOM);
+    maxY = Math.max(maxY, cy + TILE_H / 2 + terrainPaint(p).lift);
+  }
+  if (!Number.isFinite(minX)) {
+    minX = 0;
+    maxX = BOARD_W * TILE_W;
+    minY = 0;
+    maxY = (BOARD_W + BOARD_H) * (TILE_H / 2);
+  }
+  const vbX = minX - PAD;
+  const vbY = minY - PAD;
+  const width = maxX - minX + PAD * 2;
+  const height = maxY - minY + PAD * 2;
+  const midX = vbX + width / 2;
+  const midY = vbY + height / 2;
+
+  function onPointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    if (e.button !== 0) return;
+    drag.current = { id: e.pointerId, sx: e.clientX, sy: e.clientY, px: pan.x, py: pan.y, moved: false };
+    suppressClick.current = false;
+  }
+
+  function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
+    const d = drag.current;
+    if (!d || d.id !== e.pointerId) return;
+    const dx = e.clientX - d.sx;
+    const dy = e.clientY - d.sy;
+    if (!d.moved) {
+      if (Math.hypot(dx, dy) < DRAG_SLOP) return;
+      d.moved = true;
+      setDragging(true);
+      // Capture only once it is a real drag, so plain clicks still land on the province.
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
+    const rect = svgRef.current?.getBoundingClientRect();
+    const scale = rect && rect.width > 0 ? width / rect.width : 1;
+    setPan({ x: d.px + dx * scale, y: d.py + dy * scale });
+  }
+
+  function endDrag(e: React.PointerEvent<SVGSVGElement>) {
+    const d = drag.current;
+    if (!d || d.id !== e.pointerId) return;
+    if (d.moved) {
+      suppressClick.current = true;
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    }
+    drag.current = null;
+    setDragging(false);
+  }
+
+  function selectProvince(id: string) {
+    if (suppressClick.current) {
+      suppressClick.current = false;
+      return;
+    }
+    onSelect?.(id);
+  }
+
+  const panned = pan.x !== 0 || pan.y !== 0;
+
   return (
     <div className="sc-overworld-atlas" style={{ margin: "0 0 14px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 6 }}>
         <strong style={{ color: "#fef08a", fontSize: 14 }}>Kingdom Atlas</strong>
-        <span style={{ fontSize: 11, opacity: 0.7 }}>
-          Raised terrain · pixel keeps · march traces · click a province
+        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 11, opacity: 0.7 }}>
+            Drag to pan · click a province
+          </span>
+          <button
+            type="button"
+            onClick={() => setPan({ x: 0, y: 0 })}
+            disabled={!panned}
+            title="Center the atlas again"
+            style={{ fontSize: 12, padding: "2px 8px" }}
+          >
+            Recenter
+          </button>
         </span>
       </div>
       <svg
-        viewBox={`0 0 ${width} ${height}`}
+        ref={svgRef}
+        viewBox={`${vbX} ${vbY} ${width} ${height}`}
         width="100%"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
         style={{
           display: "block",
           background: "radial-gradient(ellipse at 50% 30%, #1c2830 0%, #0c1014 70%)",
           border: "1px solid #78531e",
           borderRadius: 10,
           boxShadow: "inset 0 0 40px rgba(0,0,0,0.45)",
+          cursor: dragging ? "grabbing" : "grab",
+          touchAction: "none",
+          userSelect: "none",
         }}
       >
         <defs>
@@ -117,7 +227,8 @@ export function OverworldAtlas(props: {
             <stop offset="100%" stopColor="#0a1418" />
           </radialGradient>
         </defs>
-        <ellipse cx={width / 2} cy={height * 0.55} rx={width * 0.46} ry={height * 0.38} fill="url(#atlas-water)" opacity={0.55} />
+        <g transform={`translate(${pan.x} ${pan.y})`}>
+        <ellipse cx={midX} cy={midY} rx={width * 0.5} ry={height * 0.46} fill="url(#atlas-water)" opacity={0.55} />
         {sorted.map((p) => {
           const pos = iso(p.x, p.y);
           const cx = ox + pos.x - origin.x;
@@ -138,7 +249,7 @@ export function OverworldAtlas(props: {
               key={p.id}
               filter="url(#atlas-shade)"
               style={{ cursor: "pointer" }}
-              onClick={() => onSelect?.(p.id)}
+              onClick={() => selectProvince(p.id)}
             >
               <polygon
                 points={`${cx - hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx - hw},${cy + lift}`}
@@ -198,6 +309,7 @@ export function OverworldAtlas(props: {
             </g>
           );
         })}
+        </g>
       </svg>
     </div>
   );
