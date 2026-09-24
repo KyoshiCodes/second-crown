@@ -83,6 +83,7 @@ export function ArmyTab(props: {
           return (
             <UnitCard
               key={u.id}
+              typeId={u.id}
               name={u.name}
               power={u.power}
               cost={u.cost}
@@ -169,18 +170,10 @@ export function ArmyTab(props: {
           </div>
         ) : null}
       </div>
-      <button
-        type="button"
-        disabled={!state || levyWait > 0}
-        onClick={() => act((st) => (tryFoodLevy(st) ? "Four militia raised from the stores." : "Need 20 food, or the levy is tired."))}
-      >
+      <button type="button" disabled={!state || levyWait > 0} onClick={() => act((st) => (tryFoodLevy(st) ? "Four militia raised from the stores." : "Need 20 food, or the levy is tired."))}>
         {levyWait > 0 ? `Food levy in ${Math.ceil(levyWait / 10)}s` : "Food levy (20 food, +4 militia)"}
       </button>
-      <button
-        type="button"
-        disabled={!state || hasChamp}
-        onClick={() => act((st) => (tryHireChampion(st) ? "A champion takes your coin." : "Need 80 gold and 40 food, or you already have one."))}
-      >
+      <button type="button" disabled={!state || hasChamp} onClick={() => act((st) => (tryHireChampion(st) ? "A champion takes your coin." : "Need 80 gold and 40 food, or you already have one."))}>
         {hasChamp ? `Champion: ${state ? championName(state) : ""}` : "Hire champion (80 gold, 40 food, pwr 18)"}
       </button>
       {hasChamp ? (

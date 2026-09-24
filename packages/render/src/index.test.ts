@@ -2908,6 +2908,71 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(card).toContain("is-locked");
     });
   });
+
+  describe("Army Unit Cards & 28px Culture-Kit Chips (Gemini Army Lane)", () => {
+    it("theme.css defines unit card grid, 28px chip art wrapper, and greyed locked states", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const themeCssPath = path.resolve(__dirname, "../../app/src/theme.css");
+      expect(fs.existsSync(themeCssPath)).toBe(true);
+      const css = fs.readFileSync(themeCssPath, "utf-8");
+
+      // 1. Unit card grid & card structure
+      expect(css).toContain("sc-unit-grid");
+      expect(css).toContain("sc-unit-card");
+      expect(css).toContain("sc-unit-head");
+      expect(css).toContain("sc-unit-name");
+      expect(css).toContain("sc-unit-power");
+      expect(css).toContain("sc-unit-cost");
+      expect(css).toContain("sc-unit-lock");
+
+      // 2. 28px culture-kit chip art wrapper with non-blocking pointer events
+      expect(css).toContain("sc-unit-art-wrapper");
+      expect(css).toContain("width: 28px");
+      expect(css).toContain("height: 28px");
+      expect(css).toContain("pointer-events: none !important");
+
+      // 3. Locked cards are greyed
+      expect(css).toContain(".sc-unit-card.is-locked");
+      expect(css).toContain("grayscale(1)");
+      expect(css).toContain(".sc-unit-card.is-locked .sc-unit-art-wrapper");
+    });
+
+    it("UnitCard renders 28px UnitIcon culture-kit chip and handles locked/ready/short states", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const cardPath = path.resolve(__dirname, "../../app/src/hud/UnitCard.tsx");
+      expect(fs.existsSync(cardPath)).toBe(true);
+      const code = fs.readFileSync(cardPath, "utf-8");
+
+      // Uses UnitIcon with size 28
+      expect(code).toContain("UnitIcon");
+      expect(code).toContain("size={28}");
+      expect(code).toContain("sc-unit-art-wrapper");
+      expect(code).toContain('pointerEvents: "none"');
+
+      // Handles locked, ready, short classes
+      expect(code).toContain("is-locked");
+      expect(code).toContain("is-ready");
+      expect(code).toContain("is-short");
+    });
+
+    it("ArmyTab trains through UnitCard grid and passes typeId for 28px culture-kit chips", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const tabPath = path.resolve(__dirname, "../../app/src/tabs/ArmyTab.tsx");
+      expect(fs.existsSync(tabPath)).toBe(true);
+      const code = fs.readFileSync(tabPath, "utf-8");
+
+      expect(code).toContain("UnitCard");
+      expect(code).toContain("sc-unit-grid");
+      expect(code).toContain("typeId={u.id}");
+      expect(code).toContain("affordable={!!state && canAffordTrain(state, u.id, trainQty)}");
+      expect(code).toContain("open={open}");
+      expect(code).toContain("lock={lock}");
+      expect(code).not.toContain("pwr ${u.power}");
+    });
+  });
 });
 
 

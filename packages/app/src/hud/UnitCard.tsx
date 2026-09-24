@@ -1,9 +1,10 @@
 import React from "react";
+import { UnitIcon } from "../UnitIcon";
 
 export type UnitCardProps = {
+  typeId: string;
   name: string;
   power: number;
-  /** Base cost per unit, before Barracks/Stables/Range/Workshop discounts. */
   cost: Partial<Record<string, string | number>>;
   blurb?: string;
   ticks: number;
@@ -14,7 +15,7 @@ export type UnitCardProps = {
 };
 
 export function UnitCard(props: UnitCardProps) {
-  const { name, power, cost, blurb, ticks, open, lock, affordable, onTrain } = props;
+  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain } = props;
   const costText = Object.entries(cost).map(([k, v]) => `${v} ${k}`).join(" · ");
   const cls = ["sc-unit-card", !open ? "is-locked" : affordable ? "is-ready" : "is-short"].join(" ");
   return (
@@ -26,6 +27,9 @@ export function UnitCard(props: UnitCardProps) {
       onClick={onTrain}
     >
       <span className="sc-unit-head">
+        <span className="sc-unit-art" style={{ pointerEvents: "none", display: "inline-flex" }}>
+          <UnitIcon typeId={typeId} size={28} animated={open} />
+        </span>
         <span className="sc-unit-name">{name}</span>
         <span className="sc-unit-power">pwr {power}</span>
       </span>

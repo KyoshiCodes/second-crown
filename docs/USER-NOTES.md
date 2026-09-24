@@ -2,11 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-24 — Army unit cards
+## 2026-09-24 — Army cards & 28px culture-kit chips
 
-- On the Army tab, each unit you can train is now a card showing its name, power, cost per unit and drill time.
-- Locked units say what to study to unlock them.
-- Green edge: you can train it. Amber: not enough stores. Grey: locked.
+- Levies and companies on the Army tab now sit in dedicated unit cards:
+  - Each card shows the unit's culture-kit icon (militia, spearman, archer, skirmisher, cavalry, knight, champion, siege).
+  - Cards show unit power, levy costs, and training duration at a glance.
+- Locked units (like cavalry and knights needing Horse lore, or siege needing Siege craft) are greyed out with clear study requirements.
+- The unit art is completely click-transparent, so tapping cards to drill companies is instant and reliable.
 
 ## 2026-09-24 — Kingdom works & isometric hall chips
 
