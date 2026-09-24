@@ -1,9 +1,9 @@
 # Dev notes
 
-## 2026-09-24 — hud-army
+## 2026-09-24 — army-cards / culture-kit chips
 
-- `UnitCard` is presentational. `ArmyTab` still owns the `act(tryTrain…)` call, so train logic and messages live in one place.
-- The cost on the card is `u.cost` (base, per unit). Discounts from Barracks/Stables/Range/Workshop are not applied in the display, same as the old tooltip. Drill time uses `trainDurationTicks` for the chosen x1/x5/x10.
+- `UnitCard.tsx`: All culture-kit unit art and `.sc-unit-art-wrapper` elements unconditionally set `pointer-events: none !important;` so that training buttons, hover tooltips, and click events are never blocked by SVG art.
+- Locked unit cards apply `.is-locked` with `filter: grayscale(1)`, `opacity: 0.55`, and disabled button state (`disabled={!open || !affordable}`), while still allowing hover inspection of lock requirements.
 
 ## 2026-09-24 — hud-works / hall-chips
 

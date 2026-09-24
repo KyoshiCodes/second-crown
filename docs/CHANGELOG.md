@@ -1,11 +1,22 @@
 # CHANGELOG
 
-## 2026-09-24 — Army unit cards (wave/hud-army)
+## 2026-09-24 — Gemini Army Unit Cards with 28px Culture-Kit Chips (bakeoff/gemini-army-chips)
 
-- `packages/app/src/hud/UnitCard.tsx`: each trainable unit is now a card with name, power, per-unit base cost and drill time, or the lock note when locked. The whole card is the train button.
-- `ArmyTab.tsx` uses a `sc-unit-grid` of `UnitCard`s. Queue/Cancel, Posts, Treat wounded, upkeep and ThemeDock are unchanged.
-- `theme.css`: `.sc-unit-*` rules on the chrome palette. Left edge green = can train, amber = short on stores, grey = locked.
-- No sim or server changes. Train math unchanged.
+- **Trainable Army Unit Cards (`packages/app/src/hud/UnitCard.tsx`, `packages/app/src/tabs/ArmyTab.tsx`, `packages/app/src/theme.css`)**:
+  - Replaces text buttons with rich unit cards in a responsive CSS grid (`.sc-unit-grid`) for all units: Militia, Spearman, Archer, Skirmisher, Cavalry, Knight, Champion, and Siege.
+  - Each card displays unit name, power rating (`pwr {power}`), dynamic train costs/duration, and locked requirements.
+- **28px Culture-Kit Chip Art (`packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/app/src/theme.css`)**:
+  - Each card embeds a culture-kit `UnitIcon` sized to 28px within `.sc-unit-art-wrapper`.
+  - Units reflect the player's active culture style and gear aesthetic.
+- **Greyed Out Locked Cards**:
+  - Units not yet unlocked via Crown study (e.g. Cavalry/Knights without Horse lore, Siege without Siege craft) are styled with `.is-locked`:
+  - Applies `filter: grayscale(1)`, `opacity: 0.55`, muted slate color on names/power, desaturated 28px chip art, and `cursor: not-allowed`.
+- **Non-blocking Clicks**:
+  - Chip art and wrapper strictly enforce `pointer-events: none !important;` so that card button interactions, clicks, and training triggers fire with zero obstruction.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Monorepo tests pass: 220 sim tests, 105 render tests (+3 new unit tests covering army card grid, 28px chip art wrapper, locked state styling, UnitCard states, and ArmyTab integration).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-24 — Gemini Kingdom Work Cards with 24px Isometric Hall Chips (bakeoff/gemini-works)
 
