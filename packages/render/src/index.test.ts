@@ -2653,6 +2653,128 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(lectern).toContain("sc-research-lectern");
     });
   });
+
+  describe("Resource Strip Animated Pips (Gemini Strip Lane)", () => {
+    it("theme.css defines stepped 2-3 frame loops, slumped idle, stacked glow, and non-blocking pointer events", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const themeCssPath = path.resolve(__dirname, "../../app/src/theme.css");
+      expect(fs.existsSync(themeCssPath)).toBe(true);
+      const css = fs.readFileSync(themeCssPath, "utf-8");
+
+      // 1. Timber ledger strip layout & cells
+      expect(css).toContain("sc-ledger");
+      expect(css).toContain("sc-ledger-cell");
+      expect(css).toContain("sc-pip-wrapper");
+
+      // 2. Stepped 3-frame looping animation (f0, f1, f2)
+      expect(css).toContain("sc-pip-f0");
+      expect(css).toContain("sc-pip-f1");
+      expect(css).toContain("sc-pip-f2");
+      expect(css).toContain("@keyframes sc-pip-loop-0");
+      expect(css).toContain("@keyframes sc-pip-loop-1");
+      expect(css).toContain("@keyframes sc-pip-loop-2");
+      expect(css).toContain("step-end");
+
+      // 3. Empty food pip slumps (animation & transform)
+      expect(css).toContain("sc-pip-slumped");
+      expect(css).toContain("@keyframes sc-pip-slump-breathe");
+      expect(css).toContain("is-empty");
+
+      // 4. Full store pip stacks high (golden aura glow)
+      expect(css).toContain("sc-pip-stacked");
+      expect(css).toContain("@keyframes sc-pip-stacked-glow");
+      expect(css).toContain("is-full");
+
+      // 5. Clicks NOT blocked: pips and wrapper enforce pointer-events: none !important
+      expect(css).toContain(".sc-pip");
+      expect(css).toContain("pointer-events: none !important");
+      expect(css).toContain(".sc-pip-wrapper");
+    });
+
+    it("ResourcePip renders 2-3 frame SVGs for grain sack, log, ashlar, and coin", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const pipPath = path.resolve(__dirname, "../../app/src/hud/ResourcePip.tsx");
+      expect(fs.existsSync(pipPath)).toBe(true);
+      const code = fs.readFileSync(pipPath, "utf-8");
+
+      // All 4 resource types present
+      expect(code).toContain("GrainSackNormal");
+      expect(code).toContain("GrainSackSlumped");
+      expect(code).toContain("GrainSackStacked");
+      expect(code).toContain("TimberLogNormal");
+      expect(code).toContain("TimberLogStacked");
+      expect(code).toContain("AshlarNormal");
+      expect(code).toContain("AshlarStacked");
+      expect(code).toContain("CoinNormal");
+      expect(code).toContain("CoinStacked");
+
+      // Loop frames 0, 1, 2 present
+      expect(code).toContain('data-frame="0"');
+      expect(code).toContain('data-frame="1"');
+      expect(code).toContain('data-frame="2"');
+      expect(code).toContain("sc-pip-f0");
+      expect(code).toContain("sc-pip-f1");
+      expect(code).toContain("sc-pip-f2");
+
+      // Guaranteed non-blocking inline
+      expect(code).toContain('pointerEvents: "none"');
+      expect(code).toContain('aria-hidden="true"');
+    });
+
+    it("evaluates resolveResourcePipVariant: empty food slumps, full stores stack high", async () => {
+      const { resolveResourcePipVariant } = await import("../../app/src/hud/ResourcePip.tsx");
+
+      // 1. Food slumping logic
+      // Empty / nearly empty food state slumps
+      const emptyState = createMockState();
+      emptyState.resources.food = "0";
+      expect(resolveResourcePipVariant("food", emptyState, false, "0")).toBe("slumped");
+
+      const lowFoodState = createMockState();
+      lowFoodState.resources.food = "3";
+      expect(resolveResourcePipVariant("food", lowFoodState, false, "3")).toBe("slumped");
+
+      // Empty raw amount with no state slumps
+      expect(resolveResourcePipVariant("food", null, false, "0")).toBe("slumped");
+      expect(resolveResourcePipVariant("food", null, false, "-2")).toBe("slumped");
+
+      // Well-fed food is normal (or stacked if full)
+      const wellFedState = createMockState();
+      wellFedState.resources.food = "500";
+      expect(resolveResourcePipVariant("food", wellFedState, false, "500")).toBe("normal");
+      expect(resolveResourcePipVariant("food", wellFedState, true, "500")).toBe("stacked");
+
+      // 2. Full store stacks high for all 4 resource types
+      expect(resolveResourcePipVariant("food", wellFedState, true)).toBe("stacked");
+      expect(resolveResourcePipVariant("wood", wellFedState, true)).toBe("stacked");
+      expect(resolveResourcePipVariant("stone", wellFedState, true)).toBe("stacked");
+      expect(resolveResourcePipVariant("gold", wellFedState, true)).toBe("stacked");
+
+      // 3. Non-full stores default to normal
+      expect(resolveResourcePipVariant("wood", wellFedState, false)).toBe("normal");
+      expect(resolveResourcePipVariant("stone", wellFedState, false)).toBe("normal");
+      expect(resolveResourcePipVariant("gold", wellFedState, false)).toBe("normal");
+    });
+
+    it("ResourceHud mounts cells with non-blocking pip wrapper and intact tooltips", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const hudPath = path.resolve(__dirname, "../../app/src/hud/ResourceHud.tsx");
+      expect(fs.existsSync(hudPath)).toBe(true);
+      const code = fs.readFileSync(hudPath, "utf-8");
+
+      expect(code).toContain("ResourcePip");
+      expect(code).toContain("resolveResourcePipVariant");
+      expect(code).toContain("sc-pip-wrapper");
+      expect(code).toContain("sc-ledger");
+      expect(code).toContain("sc-ledger-cell");
+      expect(code).toContain("sc-ledger-amount");
+      expect(code).toContain("sc-ledger-rate");
+      expect(code).toContain("title={tip}");
+    });
+  });
 });
 
 

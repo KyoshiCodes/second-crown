@@ -13,21 +13,17 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Open branch (wave/hud-strip, not merged)
+## Active Bakeoff (bakeoff/gemini-strip)
 
-- Top resource strip is a carved timber ledger: one cell per store with name, amount (/ cap), and `+N/s` only when income is above zero.
-- Full stores turn the cell amber. Food turns red when `isFoodStoresEmptyOrLow` is true (same check that makes militia look tired).
-- Vault amount moved from a visible line to the cell tooltip.
-- App + CSS only; no sim, render, or server changes.
-
-## Active Bakeoff (bakeoff/gemini-hud)
-
-- **Inhabited Shell HUD & Stamped Tabs**:
-  - Lectern and realm cards: inner gold edge (`inset 0 0 0 1px rgba(212, 163, 89, 0.42)`), idle candle flicker (`sc-candle-flicker`), and faint dust motes via `InhabitedOverlay` (`pointer-events: none`).
-  - Stamped metal tabs: brushed bronze plate gradient, beveled inset highlights, active tab lantern tick with animated ticking lantern flame.
-  - Primer banner: royal wax seal badge, deckled vellum page edge seam, and high-contrast readable buttons ("Done with this step", "Skip primer").
-  - Form inputs untouched (not restyled to white).
-  - All click-through and button actions 100% preserved.
+- **Carved Timber Ledger with Animated Resource Pips (`packages/app/src/hud/ResourceHud.tsx`, `packages/app/src/hud/ResourcePip.tsx`, `packages/app/src/theme.css`)**:
+  - Each resource cell (Food, Wood, Stone, Gold) features a looping 2–3 frame animated sprite pip:
+    - Food: Burlap grain sack with tied twine, gentle breathing and golden grain glints.
+    - Wood: Felled timber log with bark ridges and growth rings, catching amber resin glints.
+    - Stone: Dressed cubic ashlar masonry block in isometric relief with chiseled margins and tool sparkle.
+    - Gold: Minted royal coin with reeded edge and crown stamp, gleaming with specular star shine.
+  - **Empty food pip slumps**: When player food stores are empty or critically low (`isFoodStoresEmptyOrLow`), the grain sack pip visibly slumps flat to the ground with a deflated pancake silhouette and sagging neck.
+  - **Full store pip stacks high**: When any store reaches capacity (`full`), its pip stacks high into a proud pyramid/tower (3 bursting grain sacks with sprouting wheat sheaves, 5 stacked timber logs in a cord, 4-tier stepped ashlar fortress pier, towering double coin stacks) bathed in a radiant golden glow.
+  - **Non-blocking clicks**: All pips and wrappers strictly enforce `pointer-events: none !important;` guaranteeing zero interference with clicks, tooltips, or interactions.
 
 ## Verify
 
