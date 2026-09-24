@@ -27,6 +27,7 @@ import {
 import { ArmyVisual } from "../ArmyVisual";
 import { MarshalCard } from "../MarshalCard";
 import { UpkeepLine } from "../UpkeepLine";
+import { UnitCard } from "../hud/UnitCard";
 import type { ActFn } from "../game/useGameEngine";
 import { sfx } from "../sfx";
 
@@ -74,19 +75,23 @@ export function ArmyTab(props: {
         {rangeN ? " · Range −10% archers" : ""}
         {shopN ? " · Workshop −15% siege" : ""}
       </span>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+      <div className="sc-unit-grid">
         {unitTypes.map((u) => {
-          const cost = Object.entries(u.cost).map(([k, v]) => `${v} ${k}`).join(", ");
           const ticks = state ? trainDurationTicks(state, u.id, trainQty) : u.trainTicks * trainQty;
           const open = !state || unitUnlocked(state, u.id);
           const lock = lockNote(u.id);
           return (
-            <button
+            <UnitCard
               key={u.id}
-              type="button"
-              title={open ? `${u.blurb ?? ""} Cost ${cost}. ${ticks} ticks to drill.` : lock}
-              disabled={!open || !(state && canAffordTrain(state, u.id, trainQty))}
-              onClick={() =>
+              name={u.name}
+              power={u.power}
+              cost={u.cost}
+              blurb={u.blurb}
+              ticks={ticks}
+              open={open}
+              lock={lock}
+              affordable={!!state && canAffordTrain(state, u.id, trainQty)}
+              onTrain={() =>
                 act((st) => {
                   if (!unitUnlocked(st, u.id)) return lock;
                   const ok = tryTrain(st, { typeId: u.id, count: trainQty });
@@ -94,9 +99,7 @@ export function ArmyTab(props: {
                   return ok ? `Queued ${trainQty} ${u.name}.` : queue.length >= cap ? "Barracks queue is full. Raise the Keep." : "Cannot afford that levy.";
                 })
               }
-            >
-              {open ? `${u.name} pwr ${u.power}` : `${u.name} locked`}
-            </button>
+            />
           );
         })}
       </div>
@@ -126,7 +129,7 @@ export function ArmyTab(props: {
           );
         })}
       </div>
-      <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for cost, role, and drill time. Cancel refunds the unused fraction. Food levy and mercenaries still arrive at once.</p>
+      <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for its role. Costs shown are per unit, before discounts. Cancel refunds the unused fraction. Food levy and mercenaries still arrive at once.</p>
       <div style={{ fontSize: 13, margin: "10px 0" }}>
         <strong>Posts</strong>
         {posts.length === 0 ? <div>No companies raised.</div> : null}

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-24 — Army unit cards (wave/hud-army)
+
+- `packages/app/src/hud/UnitCard.tsx`: each trainable unit is now a card with name, power, per-unit base cost and drill time, or the lock note when locked. The whole card is the train button.
+- `ArmyTab.tsx` uses a `sc-unit-grid` of `UnitCard`s. Queue/Cancel, Posts, Treat wounded, upkeep and ThemeDock are unchanged.
+- `theme.css`: `.sc-unit-*` rules on the chrome palette. Left edge green = can train, amber = short on stores, grey = locked.
+- No sim or server changes. Train math unchanged.
+
 ## 2026-09-24 — Gemini Kingdom Work Cards with 24px Isometric Hall Chips (bakeoff/gemini-works)
 
 - **24px Isometric Hall Chips (`packages/app/src/hud/HallChip.tsx`, `packages/app/src/theme.css`)**:
