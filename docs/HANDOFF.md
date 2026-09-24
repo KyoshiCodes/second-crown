@@ -13,6 +13,15 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active Bakeoff (bakeoff/gemini-hud)
+
+- **Inhabited Shell HUD & Stamped Tabs**:
+  - Lectern and realm cards: inner gold edge (`inset 0 0 0 1px rgba(212, 163, 89, 0.42)`), idle candle flicker (`sc-candle-flicker`), and faint dust motes via `InhabitedOverlay` (`pointer-events: none`).
+  - Stamped metal tabs: brushed bronze plate gradient, beveled inset highlights, active tab lantern tick with animated ticking lantern flame.
+  - Primer banner: royal wax seal badge, deckled vellum page edge seam, and high-contrast readable buttons ("Done with this step", "Skip primer").
+  - Form inputs untouched (not restyled to white).
+  - All click-through and button actions 100% preserved.
+
 ## Verify
 
 ```

@@ -25,27 +25,28 @@ export function TutorialBanner(props: { state: GameState | undefined; act: ActFn
   return (
     <>
       {state && step ? (
-        <div
-          style={{
-            margin: "8px 0",
-            padding: "8px 10px",
-            background: "rgba(18,12,8,0.92)",
-            border: "1px solid #c8963e",
-            borderRadius: 6,
-            fontSize: 13,
-          }}
-        >
-          <strong>
+        <div className="sc-primer-banner">
+          {/* Royal Wax Seal */}
+          <div className="sc-wax-seal" title="Royal Charter Seal" aria-hidden="true">
+            <div className="sc-wax-seal-inner">👑</div>
+          </div>
+
+          <strong style={{ color: "#fef3c7", fontSize: 13.5, letterSpacing: 0.3 }}>
             Primer {n}/{TUTORIAL_STEPS.length}
           </strong>
-          <div style={{ opacity: 0.8, marginTop: 2 }}>{TAB_HINT[step.tab] ?? ""}</div>
-          <div style={{ marginTop: 4 }}>{step.text}</div>
-          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-            <button type="button" onClick={() => act((st) => (tryAdvanceTutorial(st) ? "Primer advanced." : "Not yet — finish this step."))}>
+          <div style={{ opacity: 0.85, marginTop: 2, color: "#fde047", fontSize: 12 }}>{TAB_HINT[step.tab] ?? ""}</div>
+          <div style={{ marginTop: 5, color: "#e2e8f0", lineHeight: 1.45 }}>{step.text}</div>
+          <div className="sc-primer-actions">
+            <button
+              type="button"
+              className="sc-primer-btn-done"
+              onClick={() => act((st) => (tryAdvanceTutorial(st) ? "Primer advanced." : "Not yet — finish this step."))}
+            >
               Done with this step
             </button>
             <button
               type="button"
+              className="sc-primer-btn-skip"
               onClick={() =>
                 act((st) => {
                   skipTutorial(st);

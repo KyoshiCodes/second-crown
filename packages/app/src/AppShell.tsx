@@ -122,13 +122,44 @@ export function AppShell() {
             act={act}
           />
         ) : null}
-        <div className="sc-tabs-bar" style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
-          {(["kingdom", "army", "war", "world", "crown"] as Tab[]).map((id) => (
-            <button key={id} type="button" className={`sc-tab tab-${id} ${tab === id ? "active" : ""}`} onClick={() => setTab(id)}>
-              <span className="sc-tab-icon">{TAB_ICON[id]}</span> {TAB_LABEL[id]}
-              {id === "war" && activeWar ? <span className="sc-war-badge"> *</span> : null}
-            </button>
-          ))}
+        <div className="sc-tabs-bar" style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+          {(["kingdom", "army", "war", "world", "crown"] as Tab[]).map((id) => {
+            const isActive = tab === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                className={`sc-tab tab-${id} ${isActive ? "active" : ""}`}
+                onClick={() => setTab(id)}
+              >
+                <span className="sc-tab-icon">{TAB_ICON[id]}</span>
+                <span>{TAB_LABEL[id]}</span>
+                {isActive && (
+                  <span className="sc-tab-lantern" title="Active lantern tick" aria-hidden="true">
+                    <svg
+                      width="13"
+                      height="15"
+                      viewBox="0 0 14 16"
+                      fill="none"
+                      style={{ verticalAlign: "middle", overflow: "visible" }}
+                    >
+                      {/* Lantern top cap & ring */}
+                      <path d="M7 1v2M4.5 3h5l1 2.5h-7L4.5 3z" stroke="#d4a359" strokeWidth="1.2" strokeLinecap="round" />
+                      {/* Glass cage & corner ribs */}
+                      <rect x="3.5" y="5.5" width="7" height="6.5" rx="1" stroke="#d4a359" strokeWidth="1" fill="rgba(245, 158, 11, 0.2)" />
+                      <line x1="7" y1="5.5" x2="7" y2="12" stroke="#d4a359" strokeWidth="0.8" />
+                      {/* Dancing lantern flame */}
+                      <circle cx="7" cy="8.8" r="2.2" fill="#fef08a" />
+                      <circle cx="7" cy="8.8" r="1.1" fill="#ffffff" />
+                      {/* Brass pedestal base */}
+                      <path d="M5 12h4l1 2.5H4L5 12z" fill="#b45309" stroke="#d4a359" strokeWidth="0.8" />
+                    </svg>
+                  </span>
+                )}
+                {id === "war" && activeWar ? <span className="sc-war-badge"> *</span> : null}
+              </button>
+            );
+          })}
         </div>
         <div
           className="sc-map-canvas-container"

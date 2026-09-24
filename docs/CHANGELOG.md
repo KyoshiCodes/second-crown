@@ -1,12 +1,24 @@
 # CHANGELOG
 
-## 2026-09-24 — HUD chrome, ThemeDock, atlas pan (`wave/hud-chrome`)
+## 2026-09-24 — Gemini Inhabited Shell HUD, Stamped Tabs & Primer Banner (bakeoff/gemini-hud)
 
-- `packages/app/src/theme.css`: chrome palettes as CSS vars on `:root[data-chrome=dusk|night|parchment]`. A low-specificity `button` rule makes every raw button dark (`#1c1814` / `#f5ead8` / `#6b542e` in Dusk); disabled is darker at 0.45 opacity.
-- `packages/app/src/ThemeDock.tsx` (new): Dusk / Night / Parchment picker in the ChromeDock bar. Saved to localStorage `sc-chrome`. `main.tsx` applies it before first render.
-- `packages/app/src/ChromeDock.tsx`: bar, band toggle, and holiday select read the chrome vars.
-- `packages/app/src/OverworldAtlas.tsx`: viewBox fits the tile cloud (centered). Pointer-drag pans a wrapper `<g>`; a press that moves under 6px still selects a province. Recenter button resets pan.
-- No sim, render, or server changes.
+- **Inhabited Atmosphere for Lectern & Realm Cards (`packages/app/src/hud/InhabitedOverlay.tsx`, `packages/app/src/theme.css`, `packages/app/src/ResearchBar.tsx`)**:
+  - Lectern card and realm cards enhanced with inner gold leaf edge (`inset 0 0 0 1px rgba(212, 163, 89, 0.42)`), subtle candle flare, and warm scriptorium ambience.
+  - Ambient dust motes drift lazily upward and twinkle as they catch candlelight via dedicated canvas overlay (`InhabitedOverlay`).
+  - Organic multi-harmonic candle flicker (`@keyframes sc-candle-flicker`) provides a living, breathing study and kingdom atmosphere.
+  - Overlay strictly enforces `pointer-events: none` and content uses `z-index: 1`, guaranteeing 100% click-through and interaction integrity.
+- **Stamped Metal Navigation Tabs & Active Lantern Tick (`packages/app/src/theme.css`, `packages/app/src/AppShell.tsx`)**:
+  - Navigation tabs restyled as stamped bronze/iron plates with beveled highlights, metallic gradient backings, and pressed tactile responses.
+  - Active tab features an ornate hanging lantern tick icon (`.sc-tab-lantern`) with a pulsing candle flame (`@keyframes sc-lantern-flame`) and top metal notch indicator.
+- **Primer Banner with Royal Wax Seal & Page Edge (`packages/app/src/TutorialBanner.tsx`, `packages/app/src/theme.css`)**:
+  - Tutorial banner upgraded to look like imperial vellum with a deckled page edge, gold embroidery stitch border, and ruby wax seal medallion.
+  - Action buttons ("Done with this step" and "Skip primer") given prominent high-contrast finishes to preserve immediate readability against parchment.
+- **HUD Input Styling Preserved**:
+  - Did not restyle form inputs to white; form elements retain consistent dark HUD styling.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Full test suite passes: 220 sim tests, 94 render & HUD unit tests.
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-23 — Upkeep line on Army tab (`wave/upkeep-line`)
 
