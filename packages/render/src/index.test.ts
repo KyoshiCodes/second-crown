@@ -2584,6 +2584,75 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(bandForZoom(0.3)).toBe("board");
     });
   });
+
+  describe("Inhabited Shell HUD, Stamped Tabs & Primer Banner (Gemini HUD Lane)", () => {
+    it("theme.css incorporates inner gold edges, candle flicker, dust motes, and stamped metal tabs", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const themeCssPath = path.resolve(__dirname, "../../app/src/theme.css");
+      expect(fs.existsSync(themeCssPath)).toBe(true);
+      const css = fs.readFileSync(themeCssPath, "utf-8");
+
+      // 1. Inner gold edge on realm cards and lectern
+      expect(css).toContain("sc-realm-card");
+      expect(css).toContain("inset 0 0 0 1px rgba(212, 163, 89");
+      expect(css).toContain("sc-research-lectern");
+      expect(css).toContain("border-left: 4px solid #d4a359");
+
+      // 2. Idle candle flicker & faint dust motes
+      expect(css).toContain("@keyframes sc-candle-flicker");
+      expect(css).toContain("@keyframes sc-dust-drift");
+      expect(css).toContain("sc-candle-flicker");
+
+      // 3. Stamped metal tabs and active tab lantern tick
+      expect(css).toContain("sc-tab");
+      expect(css).toContain("sc-tab.active");
+      expect(css).toContain("@keyframes sc-lantern-tick");
+      expect(css).toContain("sc-tab-lantern");
+
+      // 4. Primer banner with wax seal and page edge
+      expect(css).toContain("sc-primer-banner");
+      expect(css).toContain("sc-wax-seal");
+      expect(css).toContain("sc-primer-btn-done");
+      expect(css).toContain("sc-primer-btn-skip");
+
+      // 5. Clicks NOT broken: overlays strictly enforce pointer-events: none
+      expect(css).toContain(".sc-tab.active::after");
+      expect(css).toContain("pointer-events: none");
+
+      // 6. Form inputs are NOT restyled to white
+      expect(css).not.toMatch(/input\s*\{[^}]*background:\s*white/i);
+      expect(css).not.toMatch(/input\s*\{[^}]*background:\s*#fff/i);
+    });
+
+    it("AppShell, TutorialBanner, and Lectern preserve clean button action handlers and tab switching", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const appShellPath = path.resolve(__dirname, "../../app/src/AppShell.tsx");
+      const bannerPath = path.resolve(__dirname, "../../app/src/TutorialBanner.tsx");
+      const lecternPath = path.resolve(__dirname, "../../app/src/ResearchBar.tsx");
+
+      const appShell = fs.readFileSync(appShellPath, "utf-8");
+      const banner = fs.readFileSync(bannerPath, "utf-8");
+      const lectern = fs.readFileSync(lecternPath, "utf-8");
+
+      // Active lantern tick SVG is present in AppShell
+      expect(appShell).toContain("sc-tab-lantern");
+      expect(appShell).toContain("Lantern top cap & ring");
+
+      // Primer banner buttons remain readable with exact required text
+      expect(banner).toContain("sc-primer-banner");
+      expect(banner).toContain("sc-wax-seal");
+      expect(banner).toContain("Done with this step");
+      expect(banner).toContain("Skip primer");
+      expect(banner).toContain("sc-primer-btn-done");
+      expect(banner).toContain("sc-primer-btn-skip");
+
+      // InhabitedOverlay present on the Lectern
+      expect(lectern).toContain("InhabitedOverlay");
+      expect(lectern).toContain("sc-research-lectern");
+    });
+  });
 });
 
 

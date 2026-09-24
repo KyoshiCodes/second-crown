@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-24 — Darker buttons, chrome picker, draggable atlas
+## 2026-09-24 — Inhabited shell & stamped tabs
 
-- Buttons are dark everywhere. No more light-grey Windows buttons.
-- Top bar has a Chrome picker: Dusk (gold, the default), Night (cool slate), Parchment (warm brown). Your pick is remembered.
-- World tab atlas sits centered. Drag it to pan. Recenter puts it back. Clicking a province still selects it.
+- The Crown lectern and realm cards glow with faint candle flicker and drifting dust motes, framed in gold.
+- Kingdom tabs look like stamped metal plates, with an amber lantern marking whichever tab is active.
+- The tutorial primer sits on parchment with a crimson wax seal; "Done with this step" and "Skip primer" remain bold and clear.
+- All buttons and controls respond instantly—the atmosphere never gets in the way of clicks.
 
 ## 2026-09-24 — Host hunger
 
