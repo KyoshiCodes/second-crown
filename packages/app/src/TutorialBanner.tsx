@@ -10,6 +10,14 @@ import {
 import type { ActFn } from "./game/useGameEngine";
 import { ResearchBar } from "./ResearchBar";
 
+const TAB_HINT: Record<string, string> = {
+  kingdom: "Open Kingdom.",
+  army: "Open Army.",
+  war: "Open War.",
+  crown: "Open Crown.",
+  board: "Use the map / Board.",
+};
+
 export function TutorialBanner(props: { state: GameState | undefined; act: ActFn }) {
   const { state, act } = props;
   const step = state ? currentTutorial(state) : null;
@@ -30,15 +38,21 @@ export function TutorialBanner(props: { state: GameState | undefined; act: ActFn
           <strong>
             Primer {n}/{TUTORIAL_STEPS.length}
           </strong>
+          <div style={{ opacity: 0.8, marginTop: 2 }}>{TAB_HINT[step.tab] ?? ""}</div>
           <div style={{ marginTop: 4 }}>{step.text}</div>
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button type="button" onClick={() => act((st) => (tryAdvanceTutorial(st) ? "Primer advanced." : "Not yet — finish this step."))}>
               Done with this step
             </button>
-            <button type="button" onClick={() => act((st) => {
-              skipTutorial(st);
-              return "Primer skipped.";
-            })}>
+            <button
+              type="button"
+              onClick={() =>
+                act((st) => {
+                  skipTutorial(st);
+                  return "Primer skipped.";
+                })
+              }
+            >
               Skip primer
             </button>
           </div>
