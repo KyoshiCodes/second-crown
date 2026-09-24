@@ -22,6 +22,8 @@ Keep `power` — `realmPower` and existing tests still use it.
 
 Kingdom "Scarred works" rows read `listScarred` and call `tryRepair` (cost is `REPAIR_STONE` = 8 in `sim/systems/ward.ts`; the "8 stone" label in the app is hardcoded, so update both if cost changes).
 
+`UpkeepLine` (app) is display only. It reads `armyMouths` / `upkeepPerTick` from `sim/systems/upkeep.ts` (0.02 food per non-champion unit per tick); per second is `× TICKS_PER_SECOND`. If the rate changes in sim, the line follows automatically.
+
 `VisionLine` (app) is display only. "Watchtowers" is `rimWatchtowers` (finished rim towers only), not `countBuilding(state, "watchtower")`; `visionRange` adds both plus surveying, so the numbers will not sum by eye.
 
 `WallLine` (app) is display only. Note `wallHp` already includes `gateHp`, so gate HP is shown as a part of wall HP, not added to it.
