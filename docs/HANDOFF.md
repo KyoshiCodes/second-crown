@@ -13,18 +13,18 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active Bakeoff (bakeoff/gemini-army-chips)
+## Active Bakeoff (bakeoff/gemini-people)
 
-- **Army Unit Cards with 28px Culture-Kit Chips (`packages/app/src/hud/UnitCard.tsx`, `packages/app/src/tabs/ArmyTab.tsx`, `packages/app/src/theme.css`)**:
-  - Each trainable unit on the Army tab (militia, spearman, archer, skirmisher, cavalry, knight, champion, siege) sits in a dedicated `UnitCard`.
-  - **28px Culture-Kit Chip Art**: Displays the unit's culture-kit icon (`UnitIcon` at 28px) inside `.sc-unit-art-wrapper`.
-  - **Locked Cards Greyed**: Locked units (such as cavalry/knights without Horse lore or siege without Siege craft) are styled with `.is-locked` (`filter: grayscale(1)`, `opacity: 0.55`, muted text, `cursor: not-allowed`).
-  - **Non-blocking Clicks**: Strictly enforces `pointer-events: none !important;` on `.sc-unit-art-wrapper` and its SVG children so drilling levies and clicking unit cards is never obstructed.
-
-## Active wave (wave/hud-people)
-
-- People panel (Kingdom tab) groups workers into job cards (`packages/app/src/hud/JobCard.tsx`): job name, count, and the building(s) they walk to. Idle card is dashed/amber, assigned cards have a green edge. Per-worker "Post at…" and "Idle" controls are kept. Not merged yet.
-- Known red on `origin/main` before this branch: 3 render tests in `packages/render/src/index.test.ts` expect `sc-work-title-group` and `sc-unit-art-wrapper`, which `theme.css` / `UnitCard.tsx` do not define (from the Gemini bakeoff merges). `npm test` (sim) is green.
+- **People Cards & Walker Role Pips (`packages/app/src/hud/WalkerPip.tsx`, `packages/app/src/hud/JobCard.tsx`, `packages/app/src/PeoplePanel.tsx`, `packages/app/src/theme.css`)**:
+  - Each people card (Farmer, Woodcutter, Miner, Merchant, Idle) features a matching walker role pip (hoe, axe, pick, coin, or idle sitting villager).
+  - **Matching Walker Role Pips**:
+    - `farmer`: 3-tined forged iron field hoe & golden wheat harvest sprout.
+    - `woodcutter`: Bearded felling broadaxe with razor cutting edge & pine log.
+    - `miner`: Double-pointed quarry pickaxe with piercing beak & stone/ore.
+    - `merchant`: Minted royal gold sovereign with starburst twinkle & coin pouch.
+  - **Idle Pip Sits**: When unassigned or idle (`assigned === false`), the walker sits comfortably on a hay bale, pine log, granite ashlar block, or strongbox trunk with hands resting peacefully.
+  - **Assigned Pip Walks 2 Frames**: When assigned to a trade (`assigned === true`), the pip walks through a stepped 2-frame walking cycle (`.sc-walker-f0`, `.sc-walker-f1`) with dynamic tool swaying and bobbing.
+  - **Non-blocking Clicks**: Wrapper and SVG strictly enforce `pointer-events: none !important;` so all card selections, worker "Post at..." dropdowns, and "Idle" buttons receive clicks with zero obstruction.
 
 ## Verify
 

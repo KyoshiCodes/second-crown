@@ -27,7 +27,7 @@ export function UnitCard(props: UnitCardProps) {
       onClick={onTrain}
     >
       <span className="sc-unit-head">
-        <span className="sc-unit-art" style={{ pointerEvents: "none", display: "inline-flex" }}>
+        <span className="sc-unit-art sc-unit-art-wrapper" style={{ pointerEvents: "none", display: "inline-flex" }}>
           <UnitIcon typeId={typeId} size={28} animated={open} />
         </span>
         <span className="sc-unit-name">{name}</span>

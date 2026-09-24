@@ -2973,6 +2973,114 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(code).not.toContain("pwr ${u.power}");
     });
   });
+
+  describe("People Cards & Walker Role Pips (Gemini People Lane)", () => {
+    it("theme.css defines job card grid, walker role pip, 2-frame walk animations, sitting idle states, and non-blocking pointer-events", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const themeCssPath = path.resolve(__dirname, "../../app/src/theme.css");
+      expect(fs.existsSync(themeCssPath)).toBe(true);
+      const css = fs.readFileSync(themeCssPath, "utf-8");
+
+      // 1. Job card grid & trade card states
+      expect(css).toContain("sc-job-grid");
+      expect(css).toContain("sc-job-card");
+      expect(css).toContain("sc-job-card.is-assigned");
+      expect(css).toContain("sc-job-card.is-idle");
+      expect(css).toContain("sc-job-head");
+      expect(css).toContain("sc-job-title-group");
+      expect(css).toContain("sc-job-name");
+      expect(css).toContain("sc-job-count");
+      expect(css).toContain("sc-job-where");
+
+      // 2. Walker role pip wrapper & base element
+      expect(css).toContain("sc-walker-pip-wrapper");
+      expect(css).toContain("sc-walker-pip");
+      expect(css).toContain("width: 24px");
+      expect(css).toContain("height: 24px");
+
+      // 3. Assigned pip walks 2 frames with stepped keyframes
+      expect(css).toContain(".sc-walker-pip.is-walking .sc-walker-f0");
+      expect(css).toContain(".sc-walker-pip.is-walking .sc-walker-f1");
+      expect(css).toContain("@keyframes sc-walker-walk0");
+      expect(css).toContain("@keyframes sc-walker-walk1");
+      expect(css).toContain("steps(1)");
+
+      // 4. Idle pip sits
+      expect(css).toContain(".sc-walker-pip.is-sitting .sc-walker-sit");
+      expect(css).toContain(".sc-walker-pip.is-sitting .sc-walker-f0");
+
+      // 5. Clicks NOT blocked: pointer-events: none !important
+      expect(css).toContain(".sc-walker-pip-wrapper");
+      expect(css).toContain(".sc-walker-pip *");
+      expect(css).toContain("pointer-events: none !important");
+    });
+
+    it("WalkerPip resolves matching walker role tools (hoe, axe, pick, coin) and supports walking & sitting states", async () => {
+      const { toolForRole } = await import("../../app/src/hud/WalkerPip.tsx");
+      expect(typeof toolForRole).toBe("function");
+
+      // Matching tools
+      expect(toolForRole("farmer")).toBe("hoe");
+      expect(toolForRole("farm")).toBe("hoe");
+      expect(toolForRole("woodcutter")).toBe("axe");
+      expect(toolForRole("wood")).toBe("axe");
+      expect(toolForRole("miner")).toBe("pick");
+      expect(toolForRole("stone")).toBe("pick");
+      expect(toolForRole("merchant")).toBe("coin");
+      expect(toolForRole("gold")).toBe("coin");
+
+      // Code structure verification
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const pipPath = path.resolve(__dirname, "../../app/src/hud/WalkerPip.tsx");
+      expect(fs.existsSync(pipPath)).toBe(true);
+      const code = fs.readFileSync(pipPath, "utf-8");
+
+      expect(code).toContain("FarmerPip");
+      expect(code).toContain("WoodcutterPip");
+      expect(code).toContain("MinerPip");
+      expect(code).toContain("MerchantPip");
+
+      expect(code).toContain("sc-walker-f0");
+      expect(code).toContain("sc-walker-f1");
+      expect(code).toContain("sc-walker-sit");
+      expect(code).toContain('pointerEvents: "none"');
+      expect(code).toContain('aria-hidden="true"');
+      expect(code).toContain('viewBox="0 0 24 24"');
+    });
+
+    it("JobCard mounts WalkerPip in sc-job-head and displays worksite and controls", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const cardPath = path.resolve(__dirname, "../../app/src/hud/JobCard.tsx");
+      expect(fs.existsSync(cardPath)).toBe(true);
+      const code = fs.readFileSync(cardPath, "utf-8");
+
+      expect(code).toContain("WalkerPip");
+      expect(code).toContain("sc-job-head");
+      expect(code).toContain("sc-job-title-group");
+      expect(code).toContain("sc-job-name");
+      expect(code).toContain("sc-job-count");
+      expect(code).toContain("sc-job-where");
+      expect(code).toContain("sc-job-row");
+      expect(code).toContain("sc-job-btn");
+      expect(code).toContain("effectiveRole");
+    });
+
+    it("PeoplePanel mounts people cards in sc-job-grid with idle first", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const panelPath = path.resolve(__dirname, "../../app/src/PeoplePanel.tsx");
+      expect(fs.existsSync(panelPath)).toBe(true);
+      const code = fs.readFileSync(panelPath, "utf-8");
+
+      expect(code).toContain("JobCard");
+      expect(code).toContain("sc-job-grid");
+      expect(code).toContain("listCitizenJobs");
+      expect(code).toContain('k === "unassigned" ? "Idle"');
+    });
+  });
 });
 
 

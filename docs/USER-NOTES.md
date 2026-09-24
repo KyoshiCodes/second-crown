@@ -2,12 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-24 — People job cards
+## 2026-09-24 — People cards & walker role pips
 
-- The People list on the Kingdom tab is now grouped into cards, one per job.
-- Each card shows how many people do that job and which buildings they walk to.
-- Idle villagers get their own dashed amber card at the top, so spare hands are easy to spot.
-- "Post at…" and "Idle" still work per worker, same as before.
+- People on the Kingdom tab now sit in trade cards with walker role pips:
+  - Farmers carry a field hoe and golden wheat sheaf.
+  - Woodcutters carry a bearded broadaxe and pine log.
+  - Miners carry a quarry pickaxe and stone/ore.
+  - Merchants carry a minted royal gold coin with star glints.
+- Idle villagers sit peacefully on hay bales, pine logs, or stone blocks, resting until assigned.
+- Assigned workers walk with a 2-frame stride, swaying their tools as they walk to their posts.
+- All walker pips pass clicks straight through, so posting workers and idling hands is fast and smooth.
 
 ## 2026-09-24 — Army cards & 28px culture-kit chips
 
