@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-09-24 — Kingdom works as cards (wave/hud-works)
+
+- `packages/app/src/hud/WorkCard.tsx`, `tabs/KingdomTab.tsx`, `theme.css`: the Standing and Scarred lists are now one "Standing works" grid. Each card shows display name, level, staffed/empty (plus cluster/pair/keep bonuses), coords, and Demolish, or Repair (8 stone) when scarred. `.sc-work-*` styles use `--chrome-*` vars, so Dusk/Night/Parchment all apply.
+- Fresh scaffolding no longer shows in the Scarred list with a Repair button. It stays under Raising with Cancel. No sim change.
+
 ## 2026-09-24 — Gemini Resource Strip Animated Pips (bakeoff/gemini-strip)
 
 - **Looping 2–3 Frame Animated Pips (`packages/app/src/hud/ResourcePip.tsx`, `packages/app/src/hud/ResourceHud.tsx`, `packages/app/src/theme.css`)**:

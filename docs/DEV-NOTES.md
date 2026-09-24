@@ -1,5 +1,10 @@
 # Dev notes
 
+## 2026-09-24 — hud-works
+
+- Sim does not flag scars: `listScarred` and `listWorksInProgress` both return every player building with `completesAtTick !== null`, fresh builds included. `isScarred` in `hud/WorkCard.tsx` guesses from the id: a fresh build is `b_<tick>_<n>` and finishes at exactly `tick + def.buildTicks`, and anything else counts as scarred. If build time ever gets modifiers (Academy, decrees), this guess breaks. The proper fix is a `scarred` flag in the sim.
+- `tryRepair` finishes any building that has `completesAtTick` set. Before this change the UI let fresh scaffolding be "repaired" for 8 stone. The UI no longer offers that, but the sim still allows it.
+
 ## 2026-09-24 — resource-strip / pips
 
 - Resource pips (`ResourcePip.tsx`): All pips and container wrappers unconditionally set `pointer-events: none !important;` so that parent cell hover/tooltip (`title`) and click events are never intercepted.

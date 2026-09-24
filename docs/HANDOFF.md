@@ -13,6 +13,10 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Branch wave/hud-works (not merged)
+
+- Kingdom tab: Standing + Scarred lists → one `.sc-work-grid` of `WorkCard`s (name, level, staffed/empty, Demolish or Repair). UI-only. `isScarred` is an id-based guess; see DEV-NOTES.
+
 ## Active Bakeoff (bakeoff/gemini-strip)
 
 - **Carved Timber Ledger with Animated Resource Pips (`packages/app/src/hud/ResourceHud.tsx`, `packages/app/src/hud/ResourcePip.tsx`, `packages/app/src/theme.css`)**:

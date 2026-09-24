@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-24 — Kingdom buildings as cards
+
+- On the Kingdom tab, every finished building is now a small card: its name, level, whether someone works there, and a Demolish button.
+- Buildings hit in a siege show up red-striped with a Repair (8 stone) button.
+- Buildings still going up stay in the Raising list and no longer show a Repair button by mistake.
+
 ## 2026-09-24 — Animated resource ledger & stacked stores
 
 - Food, wood, stone, and gold sit in a carved timber ledger with lively animated icons:
