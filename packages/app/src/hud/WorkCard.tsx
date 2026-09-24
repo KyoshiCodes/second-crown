@@ -10,10 +10,10 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
+import { HallChip } from "./HallChip";
 
 type Building = GameState["buildings"][number];
 
-/** One finished (or scarred) player work on the Kingdom tab. Reads sim, never writes outside `act`. */
 export function WorkCard(props: { state: GameState; b: Building; scarred: boolean; act: ActFn }) {
   const { state, b, scarred, act } = props;
   const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
@@ -32,6 +32,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
   return (
     <div className={cls} title={`${nm} at ${b.x},${b.y}`}>
       <div className="sc-work-head">
+        <HallChip typeId={b.typeId} staffed={staff > 0} scarred={scarred} />
         <span className="sc-work-name">{nm}</span>
         <span className="sc-work-level">lv {b.level}</span>
       </div>
@@ -63,11 +64,6 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
   );
 }
 
-/**
- * Sim marks both fresh scaffolding and siege scars as `completesAtTick !== null`.
- * A fresh build has id `b_<tick>_<n>` and finishes exactly buildTicks after that tick; a scar is +40 from the blow.
- * Presentation-only guess. Unparseable ids count as scarred (the old list's behaviour).
- */
 export function isScarred(b: Building): boolean {
   if (b.completesAtTick === null || b.level < 1) return false;
   const m = /^b_(\d+)_\d+$/.exec(b.id);
