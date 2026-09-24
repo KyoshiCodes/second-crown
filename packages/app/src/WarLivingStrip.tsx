@@ -4,6 +4,7 @@ import { formatLetterSuffix, getUnitType, realmPower, D, toDecimalString, player
 import type Decimal from "break_infinity.js";
 import { Crest } from "./Crest";
 import { UnitIcon } from "./UnitIcon";
+import { isFoodStoresEmptyOrLow } from "@second-crown/render";
 
 interface AggregatedUnit {
   typeId: string;
@@ -66,11 +67,14 @@ export function WarLivingStrip(props: { state: GameState | undefined }) {
   const playerUnits = getAggregatedUnits(state, "player");
   const enemyUnits = getAggregatedUnits(state, enemyRealmId);
 
+  const isTired = state ? isFoodStoresEmptyOrLow(state) : false;
+
   // Bob and arm offsets for 2-3 frame walker soldiers
   const bob = frame === 0 ? 0 : 2;
   const legL = frame === 1 ? -2 : frame === 2 ? 1 : 0;
   const legR = frame === 1 ? 1 : frame === 2 ? -2 : 0;
-  const bannerWave = frame === 1 ? -2 : frame === 2 ? 2 : 0;
+  const bannerWave = isTired ? 0 : (frame === 1 ? -2 : frame === 2 ? 2 : 0);
+  const bearerBob = isTired ? 0 : bob;
 
   return (
     <div
@@ -176,12 +180,12 @@ export function WarLivingStrip(props: { state: GameState | undefined }) {
               />
               <circle cx="6" cy="4" r="2.5" fill="#facc15" />
               {/* Standard Bearer Body (2-3 frame walker) */}
-              <rect x="2" y={32 + bob} width="8" height="12" fill="#15803d" rx="1" />
-              <circle cx="6" cy={26 + bob} r="4" fill="#fbcfe8" />
-              <rect x="3" y={22 + bob} width="6" height="3" fill="#94a3b8" /> {/* Helm */}
+              <rect x="2" y={32 + bearerBob} width="8" height="12" fill="#15803d" rx="1" />
+              <circle cx="6" cy={26 + bearerBob} r="4" fill="#fbcfe8" />
+              <rect x="3" y={22 + bearerBob} width="6" height="3" fill="#94a3b8" /> {/* Helm */}
               {/* Boots */}
-              <rect x={3 + legL} y={44 + bob} width="3" height="6" fill="#18181b" />
-              <rect x={7 + legR} y={44 + bob} width="3" height="6" fill="#27272a" />
+              <rect x={3 + (isTired ? 0 : legL)} y={44 + bearerBob} width="3" height="6" fill="#18181b" />
+              <rect x={7 + (isTired ? 0 : legR)} y={44 + bearerBob} width="3" height="6" fill="#27272a" />
             </svg>
             <span style={{ fontSize: 9.5, color: "#86efac", fontWeight: 700, marginTop: 4 }}>Standard</span>
           </div>
@@ -213,7 +217,7 @@ export function WarLivingStrip(props: { state: GameState | undefined }) {
                       lineHeight: 0,
                     }}
                   >
-                    <UnitIcon typeId={u.typeId} size={36} culture={state ? playerCultureId(state) : "western"} />
+                    <UnitIcon typeId={u.typeId} size={36} culture={state ? playerCultureId(state) : "western"} tired={isTired && u.typeId === "militia"} />
                   </div>
                   <div
                     style={{

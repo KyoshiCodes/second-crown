@@ -13,6 +13,7 @@ export interface UnitIconProps {
   style?: React.CSSProperties;
   className?: string;
   culture?: string;
+  tired?: boolean;
 }
 
 const DEFAULT_SIZE = 48;
@@ -1187,6 +1188,10 @@ export function UnitIcon(props: UnitIconProps) {
 
       case "militia":
       default: {
+        const isTired = Boolean(props.tired);
+        const activeBob = isTired ? 0 : bob;
+        const slump = isTired ? 2 : 0;
+
         if (!isDefaultCulture) {
           switch (kit) {
             case "cedar": {
@@ -1194,13 +1199,14 @@ export function UnitIcon(props: UnitIconProps) {
               return (
                 <g>
                   <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
-                  <rect x={18 + legL * facing} y={26 - bob} width="2.5" height="4" fill="#292524" />
-                  <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#1c1917" />
-                  <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill="#3f4a34" />
-                  <rect x="15" y={22 - bob} width="6.5" height="1.6" fill="#78350f" />
-                  <circle cx="18" cy={14 - bob} r="3" fill="#e2c8a2" />
-                  <polygon points={`14,${15 - bob} 18,${10 - bob} 22,${15 - bob} ${18 - facing * 3},${17 - bob}`} fill="#1e3318" />
-                  <polygon points={`${18 + facing * 4},${25 - bob + armSwing} ${18 + facing * 5.5},${17 - bob + armSwing} ${18 + facing * 2.5},${17 - bob + armSwing} ${18 + facing * 3.5},${25 - bob + armSwing}`} fill="#5c3818" stroke="#36220f" strokeWidth="0.5" />
+                  <rect x={18 + legL * facing} y={26 - activeBob} width="2.5" height="4" fill="#292524" />
+                  <rect x={18 + legR * facing} y={26 - activeBob} width="2.5" height="4" fill="#1c1917" />
+                  <rect x="15" y={18 - activeBob + slump * 0.7} width="6.5" height="8" rx="1" fill="#3f4a34" />
+                  <rect x="15" y={22 - activeBob + slump * 0.7} width="6.5" height="1.6" fill="#78350f" />
+                  <circle cx="18" cy={14 - activeBob + slump} r="3" fill="#e2c8a2" />
+                  <polygon points={`14,${15 - activeBob + slump} 18,${10 - activeBob + slump} 22,${15 - activeBob + slump} ${18 - facing * 3},${17 - activeBob + slump}`} fill="#1e3318" />
+                  {isTired && <line x1="16.5" y1={13.5 + slump} x2="19.5" y2={13.5 + slump} stroke="#292524" strokeWidth="0.8" />}
+                  <polygon points={`${18 + facing * 4},${(isTired ? 27 : 25) - activeBob + (isTired ? 0 : armSwing)} ${18 + facing * 5.5},${(isTired ? 19 : 17) - activeBob + (isTired ? 0 : armSwing)} ${18 + facing * 2.5},${(isTired ? 19 : 17) - activeBob + (isTired ? 0 : armSwing)} ${18 + facing * 3.5},${(isTired ? 27 : 25) - activeBob + (isTired ? 0 : armSwing)}`} fill="#5c3818" stroke="#36220f" strokeWidth="0.5" />
                 </g>
               );
             }
@@ -1209,16 +1215,17 @@ export function UnitIcon(props: UnitIconProps) {
               return (
                 <g>
                   <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
-                  <rect x={18 + legL * facing} y={26 - bob} width="2.5" height="4" fill="#854d0e" />
-                  <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#713f12" />
-                  <rect x="14.5" y={18 - bob} width="7" height="8.5" rx="1" fill="#fef3c7" />
-                  <rect x="14" y={22 - bob} width="8" height="1.8" fill="#b45309" />
-                  <line x1={18 - facing * 2} y1={23 - bob} x2={18 - facing * 4} y2={28 - bob} stroke="#b45309" strokeWidth="1.2" />
-                  <circle cx="18" cy={14 - bob} r="3" fill="#d4a373" />
-                  <rect x="14" y={11 - bob} width="8" height="3.5" rx="1" fill="#fde68a" />
-                  <line x1="14" y1={12.5 - bob} x2="22" y2={12.5 - bob} stroke="#92400e" strokeWidth="0.8" />
-                  <line x1={18 + facing * 4.5} y1={30 - bob} x2={18 + facing * 4.5} y2={10 - bob + armSwing} stroke="#78350f" strokeWidth="1.6" />
-                  <circle cx={18 + facing * 4.5} cy={10 - bob + armSwing} r="1.3" fill="#b45309" />
+                  <rect x={18 + legL * facing} y={26 - activeBob} width="2.5" height="4" fill="#854d0e" />
+                  <rect x={18 + legR * facing} y={26 - activeBob} width="2.5" height="4" fill="#713f12" />
+                  <rect x="14.5" y={18 - activeBob + slump * 0.7} width="7" height="8.5" rx="1" fill="#fef3c7" />
+                  <rect x="14" y={22 - activeBob + slump * 0.7} width="8" height="1.8" fill="#b45309" />
+                  <line x1={18 - facing * 2} y1={23 - activeBob + slump * 0.7} x2={18 - facing * 4} y2={28 - activeBob} stroke="#b45309" strokeWidth="1.2" />
+                  <circle cx="18" cy={14 - activeBob + slump} r="3" fill="#d4a373" />
+                  <rect x="14" y={11 - activeBob + slump} width="8" height="3.5" rx="1" fill="#fde68a" />
+                  <line x1="14" y1={12.5 - activeBob + slump} x2="22" y2={12.5 - activeBob + slump} stroke="#92400e" strokeWidth="0.8" />
+                  {isTired && <line x1="16.5" y1={13.5 + slump} x2="19.5" y2={13.5 + slump} stroke="#713f12" strokeWidth="0.8" />}
+                  <line x1={18 + facing * 4.5} y1={30 - activeBob} x2={18 + facing * 4.5} y2={(isTired ? 14 : 10) - activeBob + (isTired ? 0 : armSwing)} stroke="#78350f" strokeWidth="1.6" />
+                  <circle cx={18 + facing * 4.5} cy={(isTired ? 14 : 10) - activeBob + (isTired ? 0 : armSwing)} r="1.3" fill="#b45309" />
                 </g>
               );
             }
@@ -1227,15 +1234,16 @@ export function UnitIcon(props: UnitIconProps) {
               return (
                 <g>
                   <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
-                  <rect x={18 + legL * facing} y={26 - bob} width="2.6" height="4" fill="#292524" />
-                  <rect x={18 + legR * facing} y={26 - bob} width="2.6" height="4" fill="#1c1917" />
-                  <rect x="14.5" y={17.5 - bob} width="7.5" height="9" rx="1" fill="#475569" />
-                  <rect x="14" y={22 - bob} width="8.5" height="1.8" fill="#ca8a04" />
-                  <circle cx="18" cy={14 - bob} r="3" fill="#e5bb82" />
-                  <polygon points={`15,${12 - bob} 18,${7 - bob} 21,${12 - bob}`} fill="#78350f" />
-                  <rect x="14" y={11.5 - bob} width="8" height="2.5" rx="1" fill="#d97706" />
-                  <line x1={18 + facing * 4.5} y1={25 - bob + armSwing} x2={18 + facing * 5.5} y2={16 - bob + armSwing} stroke="#573312" strokeWidth="2.2" />
-                  <circle cx={18 + facing * 5.5} cy={16 - bob + armSwing} r="2.2" fill="#3f3f46" />
+                  <rect x={18 + legL * facing} y={26 - activeBob} width="2.6" height="4" fill="#292524" />
+                  <rect x={18 + legR * facing} y={26 - activeBob} width="2.6" height="4" fill="#1c1917" />
+                  <rect x="14.5" y={17.5 - activeBob + slump * 0.7} width="7.5" height="9" rx="1" fill="#475569" />
+                  <rect x="14" y={22 - activeBob + slump * 0.7} width="8.5" height="1.8" fill="#ca8a04" />
+                  <circle cx="18" cy={14 - activeBob + slump} r="3" fill="#e5bb82" />
+                  <polygon points={`15,${12 - activeBob + slump} 18,${7 - activeBob + slump} 21,${12 - activeBob + slump}`} fill="#78350f" />
+                  <rect x="14" y={11.5 - activeBob + slump} width="8" height="2.5" rx="1" fill="#d97706" />
+                  {isTired && <line x1="16.5" y1={13.5 + slump} x2="19.5" y2={13.5 + slump} stroke="#292524" strokeWidth="0.8" />}
+                  <line x1={18 + facing * 4.5} y1={25 - activeBob} x2={18 + facing * 5.5} y2={(isTired ? 19 : 16) - activeBob + (isTired ? 0 : armSwing)} stroke="#573312" strokeWidth="2.2" />
+                  <circle cx={18 + facing * 5.5} cy={(isTired ? 19 : 16) - activeBob + (isTired ? 0 : armSwing)} r="2.2" fill="#3f3f46" />
                 </g>
               );
             }
@@ -1244,15 +1252,16 @@ export function UnitIcon(props: UnitIconProps) {
               return (
                 <g>
                   <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
-                  <rect x={18 + legL * facing} y={27 - bob} width="2.4" height="3" fill="#b45309" />
-                  <rect x={18 + legR * facing} y={27 - bob} width="2.4" height="3" fill="#92400e" />
-                  <rect x="15" y={18 - bob} width="6.5" height="8" rx="0.5" fill="#0d9488" />
-                  <rect x="14.5" y={22 - bob} width="7.5" height="1.6" fill="#854d0e" />
-                  <circle cx="18" cy={14 - bob} r="3" fill="#d99b66" />
-                  <ellipse cx="18" cy={12 - bob} rx="6" ry="1.8" fill="#ca8a04" />
-                  <circle cx="18" cy={10.5 - bob} r="2.4" fill="#a16207" />
-                  <line x1={18 + facing * 4.5} y1={28 - bob} x2={18 + facing * 4.5} y2={11 - bob + armSwing} stroke="#78350f" strokeWidth="1.4" />
-                  <polygon points={`${18 + facing * 4.5 - 2},${15 - bob + armSwing} ${18 + facing * 4.5 + 2},${15 - bob + armSwing} ${18 + facing * 4.5 + 1.2},${8 - bob + armSwing} ${18 + facing * 4.5 - 1.2},${8 - bob + armSwing}`} fill="#b45309" stroke="#78350f" strokeWidth="0.5" />
+                  <rect x={18 + legL * facing} y={27 - activeBob} width="2.4" height="3" fill="#b45309" />
+                  <rect x={18 + legR * facing} y={27 - activeBob} width="2.4" height="3" fill="#92400e" />
+                  <rect x="15" y={18 - activeBob + slump * 0.7} width="6.5" height="8" rx="0.5" fill="#0d9488" />
+                  <rect x="14.5" y={22 - activeBob + slump * 0.7} width="7.5" height="1.6" fill="#854d0e" />
+                  <circle cx="18" cy={14 - activeBob + slump} r="3" fill="#d99b66" />
+                  <ellipse cx="18" cy={12 - activeBob + slump} rx="6" ry="1.8" fill="#ca8a04" />
+                  <circle cx="18" cy={10.5 - activeBob + slump} r="2.4" fill="#a16207" />
+                  {isTired && <line x1="16.5" y1={13.5 + slump} x2="19.5" y2={13.5 + slump} stroke="#b45309" strokeWidth="0.8" />}
+                  <line x1={18 + facing * 4.5} y1={28 - activeBob} x2={18 + facing * 4.5} y2={(isTired ? 15 : 11) - activeBob + (isTired ? 0 : armSwing)} stroke="#78350f" strokeWidth="1.4" />
+                  <polygon points={`${18 + facing * 4.5 - 2},${(isTired ? 19 : 15) - activeBob + (isTired ? 0 : armSwing)} ${18 + facing * 4.5 + 2},${(isTired ? 19 : 15) - activeBob + (isTired ? 0 : armSwing)} ${18 + facing * 4.5 + 1.2},${(isTired ? 12 : 8) - activeBob + (isTired ? 0 : armSwing)} ${18 + facing * 4.5 - 1.2},${(isTired ? 12 : 8) - activeBob + (isTired ? 0 : armSwing)}`} fill="#b45309" stroke="#78350f" strokeWidth="0.5" />
                 </g>
               );
             }
@@ -1266,24 +1275,27 @@ export function UnitIcon(props: UnitIconProps) {
             <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
 
             {/* Rough shoes */}
-            <rect x={18 + legL * facing} y={26 - bob} width="2.5" height="4" fill="#3f3f46" />
-            <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#27272a" />
+            <rect x={18 + legL * facing} y={26 - activeBob} width="2.5" height="4" fill="#3f3f46" />
+            <rect x={18 + legR * facing} y={26 - activeBob} width="2.5" height="4" fill="#27272a" />
 
-            {/* Coarse homespun tunic */}
-            <rect x="15" y={18 - bob} width="6.5" height="8" rx="1" fill={isDefaultCulture ? "#854d0e" : cultPal.tabard} />
+            {/* Coarse homespun tunic (slumped when tired) */}
+            <rect x="15" y={18 - activeBob + slump * 0.7} width="6.5" height="8" rx="1" fill={isDefaultCulture ? "#854d0e" : cultPal.tabard} />
             {/* Rope belt */}
-            <rect x="15" y={22 - bob} width="6.5" height="1.6" fill={isDefaultCulture ? "#a16207" : cultPal.timber} />
+            <rect x="15" y={22 - activeBob + slump * 0.7} width="6.5" height="1.6" fill={isDefaultCulture ? "#a16207" : cultPal.timber} />
 
-            {/* Head & face */}
-            <circle cx="18" cy={14 - bob} r="3" fill="#fbcfe8" />
+            {/* Head & face (slumped when tired) */}
+            <circle cx="18" cy={14 - activeBob + slump} r="3" fill="#fbcfe8" />
 
             {/* Peasant coif / cloth hood */}
-            <rect x="14.5" y={11 - bob} width="7" height="3" fill={isDefaultCulture ? "#52525b" : cultPal.stone} />
+            <rect x="14.5" y={11 - activeBob + slump} width="7" height="3" fill={isDefaultCulture ? "#52525b" : cultPal.stone} />
 
-            {/* Spear-less levy! Simple wooden club / tool held at side */}
+            {/* Tired brow / half-shut eyes */}
+            {isTired && <line x1="16.5" y1={13.5 + slump} x2="19.5" y2={13.5 + slump} stroke="#52525b" strokeWidth="0.8" />}
+
+            {/* Spear-less levy! Simple wooden club / tool held at side (dragging low when tired, no bounce) */}
             <rect
               x={18 + facing * 4}
-              y={19 - bob + armSwing}
+              y={(isTired ? 21 : 19) - activeBob + (isTired ? 0 : armSwing)}
               width="2"
               height="6"
               rx="0.5"

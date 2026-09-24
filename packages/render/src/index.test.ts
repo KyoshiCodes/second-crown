@@ -6,6 +6,7 @@ import {
   createWalker,
   drawWalkerFrame,
   pickDestination,
+  isFoodStoresEmptyOrLow,
   type Walker,
   type WalkerJobTool,
   bandForZoom,
@@ -2411,6 +2412,176 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       const g = createMockGraphics();
       drawWatchtowerScaffolding(g, 44, 1.0, 0, "western", culturePalette("western"), true);
       expect(g.calls.length).toBeGreaterThan(20);
+    });
+  });
+
+  describe("Home Militia Meeples & Upkeep Hunger Visuals (Gemini Upkeep Lane)", () => {
+    function createMockGraphics() {
+      const calls: { method: string; args: any[] }[] = [];
+      const mock: any = {
+        calls,
+        clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+        poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+        fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+        stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+        moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+        lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+        circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+        rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+        ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+        roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+        quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+      };
+      return mock;
+    }
+
+    it("evaluates isFoodStoresEmptyOrLow correctly for empty, low, and full food stores", () => {
+      // 1. Missing or undefined state/resources/food
+      expect(isFoodStoresEmptyOrLow(null)).toBe(true);
+      expect(isFoodStoresEmptyOrLow(undefined)).toBe(true);
+      expect(isFoodStoresEmptyOrLow({} as any)).toBe(true);
+      expect(isFoodStoresEmptyOrLow({ resources: {} } as any)).toBe(true);
+      expect(isFoodStoresEmptyOrLow({ resources: { food: "0" } } as any)).toBe(true);
+      expect(isFoodStoresEmptyOrLow({ resources: { food: "-5" } } as any)).toBe(true);
+
+      // 2. Low food buffer (<= 5 when army upkeep is 0)
+      expect(isFoodStoresEmptyOrLow({ resources: { food: "4" } } as any)).toBe(true);
+      expect(isFoodStoresEmptyOrLow({ resources: { food: "5" } } as any)).toBe(true);
+      expect(isFoodStoresEmptyOrLow({ resources: { food: "6" } } as any)).toBe(false);
+
+      // 3. Standing army mouths increase nearly-empty upkeep threshold
+      // 100 militia: upkeep = 100 * 0.02 = 2.0 / tick. Threshold = max(5, 2.0 * 50) = 100.
+      const stateWithArmy: any = {
+        resources: { food: "80" },
+        units: [{ realmId: "player", typeId: "militia", count: "100" }],
+      };
+      expect(isFoodStoresEmptyOrLow(stateWithArmy)).toBe(true); // 80 <= 100 => nearly empty
+
+      stateWithArmy.resources.food = "150";
+      expect(isFoodStoresEmptyOrLow(stateWithArmy)).toBe(false); // 150 > 100 => well stocked
+
+      // Champion does not consume food mouths
+      const stateWithChamp: any = {
+        resources: { food: "6" },
+        units: [{ realmId: "player", typeId: "champion", count: "100" }],
+      };
+      expect(isFoodStoresEmptyOrLow(stateWithChamp)).toBe(false);
+    });
+
+    it("draws tired home militia meeple with slumped head, torso, low weapon, and NO banner bounce when food stores empty", () => {
+      // Compare frames 0, 1, 2 for full stores (tired = false)
+      const gFullF0 = createMockGraphics();
+      const gFullF1 = createMockGraphics();
+      const gFullF2 = createMockGraphics();
+      drawWalkerFrame(gFullF0, "militia", 1, 0, "western", undefined, false);
+      drawWalkerFrame(gFullF1, "militia", 1, 1, "western", undefined, false);
+      drawWalkerFrame(gFullF2, "militia", 1, 2, "western", undefined, false);
+
+      // In full stores, banner/spear poly bounces with stride bob/armSwing (-17 - bob + armSwing)
+      const polyFull0 = gFullF0.calls.find((c: any) => c.method === "poly");
+      const polyFull1 = gFullF1.calls.find((c: any) => c.method === "poly");
+      const polyFull2 = gFullF2.calls.find((c: any) => c.method === "poly");
+      expect(polyFull0).toBeDefined();
+      expect(polyFull1).toBeDefined();
+      expect(polyFull2).toBeDefined();
+      // Poly y coordinates differ across frames due to banner bounce!
+      expect(polyFull0!.args[0][1]).not.toBe(polyFull1!.args[0][1]);
+
+      // Compare frames 0, 1, 2 for tired stores (tired = true)
+      const gTiredF0 = createMockGraphics();
+      const gTiredF1 = createMockGraphics();
+      const gTiredF2 = createMockGraphics();
+      drawWalkerFrame(gTiredF0, "militia", 1, 0, "western", undefined, true);
+      drawWalkerFrame(gTiredF1, "militia", 1, 1, "western", undefined, true);
+      drawWalkerFrame(gTiredF2, "militia", 1, 2, "western", undefined, true);
+
+      // In tired stores, spear drags low and pennant has NO BANNER BOUNCE across strides
+      const polyTired0 = gTiredF0.calls.find((c: any) => c.method === "poly");
+      const polyTired1 = gTiredF1.calls.find((c: any) => c.method === "poly");
+      const polyTired2 = gTiredF2.calls.find((c: any) => c.method === "poly");
+      expect(polyTired0).toBeDefined();
+      expect(polyTired1).toBeDefined();
+      expect(polyTired2).toBeDefined();
+      // Exact same static coordinates across strides: NO BANNER BOUNCE!
+      expect(polyTired0!.args[0]).toEqual(polyTired1!.args[0]);
+      expect(polyTired1!.args[0]).toEqual(polyTired2!.args[0]);
+
+      // Head and torso are slumped down by 2px when tired
+      // Full torso: rect(-3, -8, 6, 6). Tired torso: rect(-3, -8 + 2, 6, 6) = rect(-3, -6, 6, 6)
+      const torsoFull = gFullF0.calls.find((c: any) => c.method === "rect" && c.args[2] === 6 && c.args[3] === 6);
+      const torsoTired = gTiredF0.calls.find((c: any) => c.method === "rect" && c.args[2] === 6 && c.args[3] === 6);
+      expect(torsoFull!.args[1]).toBe(-8);
+      expect(torsoTired!.args[1]).toBe(-6); // Slumped down 2px!
+
+      // Head circle is also slumped down by 2px
+      const headFull = gFullF0.calls.find((c: any) => c.method === "circle" && c.args[2] === 2.8);
+      const headTired = gTiredF0.calls.find((c: any) => c.method === "circle" && c.args[2] === 2.8);
+      expect(headFull!.args[1]).toBe(-11);
+      expect(headTired!.args[1]).toBe(-9); // Slumped down 2px!
+
+      // Tired brow stroke exists only when tired
+      const browFull = gFullF0.calls.find((c: any) => c.method === "moveTo" && c.args[0] === -1.2);
+      const browTired = gTiredF0.calls.find((c: any) => c.method === "moveTo" && c.args[0] === -1.2);
+      expect(browFull).toBeUndefined();
+      expect(browTired).toBeDefined();
+    });
+
+    it("applies tired slumping and suppresses banner bounce across Cedar, Sand, Steppe, and Tide cultures", () => {
+      const cultures = ["cedar", "sand", "steppe", "islands"] as const;
+
+      for (const cult of cultures) {
+        const gAlertF1 = createMockGraphics();
+        const gTiredF0 = createMockGraphics();
+        const gTiredF1 = createMockGraphics();
+
+        drawWalkerFrame(gAlertF1, "militia", 1, 1, cult, undefined, false);
+        drawWalkerFrame(gTiredF0, "militia", 1, 0, cult, undefined, true);
+        drawWalkerFrame(gTiredF1, "militia", 1, 1, cult, undefined, true);
+
+        // All cultures have tired brow when tired
+        const browTired = gTiredF0.calls.find((c: any) => c.method === "moveTo" && c.args[0] === -1.2);
+        expect(browTired).toBeDefined();
+
+        // All cultures have slumped head (slumpY = 2)
+        const headAlert = gAlertF1.calls.find((c: any) => c.method === "circle" && c.args[2] === 2.8);
+        const headTired = gTiredF1.calls.find((c: any) => c.method === "circle" && c.args[2] === 2.8);
+        expect(headAlert).toBeDefined();
+        expect(headTired).toBeDefined();
+        expect(headTired!.args[1] - headAlert!.args[1]).toBe(2);
+
+        // Weapon/banner poly has zero bounce across animation frames when tired
+        const polysTired0 = gTiredF0.calls.filter((c: any) => c.method === "poly");
+        const polysTired1 = gTiredF1.calls.filter((c: any) => c.method === "poly");
+        const weaponPoly0 = polysTired0[polysTired0.length - 1];
+        const weaponPoly1 = polysTired1[polysTired1.length - 1];
+        expect(weaponPoly0).toBeDefined();
+        expect(weaponPoly1).toBeDefined();
+        expect(weaponPoly0.args[0]).toEqual(weaponPoly1.args[0]);
+      }
+    });
+
+    it("pickDestination assigns patrol destinations for home militia when home militia is present", () => {
+      const w = createWalker(0, 5, 5);
+      const stateWithMilitia: any = {
+        citizens: [],
+        units: [{ realmId: "player", typeId: "militia", count: "10" }],
+        buildings: [{ typeId: "watchtower", x: 2, y: 3 }],
+      };
+
+      pickDestination(w, stateWithMilitia);
+      expect(w.role).toBe("militia");
+      expect(w.state).toBe("walking");
+      expect(w.tool).toBeUndefined();
+    });
+
+    it("preserves hit-testing and camera projection invariants regardless of food upkeep state", () => {
+      // Board hit test unchanged
+      const hit = hitTestProvince(100, 100);
+      expect(hit).toBeDefined();
+
+      // Band for zoom threshold unchanged
+      expect(bandForZoom(1.0)).toBe("hold");
+      expect(bandForZoom(0.3)).toBe("board");
     });
   });
 });

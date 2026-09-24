@@ -6,10 +6,38 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (wave/upkeep-line)
+## Recent Wave (bakeoff/gemini-upkeep)
 
-- Army tab shows "Upkeep · N mouths · X food/tick (Y/s)." under Posts (`UpkeepLine`, app).
-- Sim index re-exports `armyMouths`, `upkeepPerTick` (read-only). Upkeep math unchanged. Zero diff on `packages/render`, `server/`.
+- **Tired Home Militia Meeples on Hold & Units When Food Stores Empty or Low**:
+  - When the player's food stores are empty or nearly empty (food <= 0 or depleted below standing army upkeep reserve), home militia meeples on the isometric hold and army displays visually slump into a tired, exhausted posture with limp banners and zero banner bounce:
+    - **Food Depletion & Upkeep Detection (`isFoodStoresEmptyOrLow`)**:
+      - Evaluates whether food stores are empty (`food <= 0`, null, or undefined) or nearly empty based on standing army mouths (`mouths * 0.02 * 50` ticks buffer, minimum 5 units).
+      - Self-contained in render and app without mutating sim state or exports.
+    - **Slumped Meeple Stance & Drooping Brow (`drawWalkerFrame`, `drawCultureWalker`)**:
+      - When tired, militia and guard walkers slump their torso and head downward by 2px (`slumpY = 2`).
+      - A drooping, exhausted brow line (`moveTo(-1.2, -10.5)`, `lineTo(1.2, -10.5)`) renders over the face across all cultures.
+      - Helmets and headgear drop down to match the slumped head.
+      - Bucklers and shields hang low at the hip (`-3 + slumpY`) rather than braced at guard height.
+    - **Dragged Weapons & Suppressed Banner Bounce (No Banner Bounce)**:
+      - Normal alert militia/guards hold spears and lances upright at `-17 - bob + armSwing` where walking strides cause the swallowtail pennant to rhythmically bounce up and down.
+      - Tired militia drag their spears/lances low to the ground (`moveTo(facing * 3, 1)`, `lineTo(facing * 4, -10)`).
+      - Pennants hang limp and sagged: banner coordinates remain completely static across stride frames 0, 1, and 2, ensuring **no banner bounce** (`bannerBob = 0`)!
+    - **Culture-Kit Adaptations**:
+      - Western: Slumped tabard, low heater shield, dragged ash spear, limp crimson pennant without bounce.
+      - Cedar Kin: Slumped forest tunic, sagging cedar buckler, dragged leaf-spear, limp pennant without bounce.
+      - Sand Banner: Slumped desert robe, drooping brass buckler, dragged slender lance, limp crimson banner without bounce.
+      - Wind Host (Steppe): Slumped nomad coat, drooping shield, dragged lance with sagging horsehair plume without bounce.
+      - Tide Clans: Slumped sailcloth tunic, low turtle buckler, dragged barbed trident without bounce.
+    - **Full Food Stores Unchanged**:
+      - When food stores are well-stocked, meeples render in their authentic upright stance with alert posture and active, bouncing banner animations.
+    - **App Integration (`UnitIcon.tsx`, `ArmyVisual.tsx`, `WarLivingStrip.tsx`)**:
+      - `UnitIcon` accepts `tired?: boolean` and renders fatigued levy postures with low wooden clubs, slumped tunics, and suppressed bobbing when food is low.
+      - `ArmyVisual` passes `tired` to unit icons and marching squad rows.
+      - `WarLivingStrip` slumps the Royal Standard Bearer and suppresses the royal pennant wave/bounce when the realm is hungry.
+    - **Invariants & Preservations**:
+      - `git diff main -- packages/sim server` strictly 100% empty.
+      - Camera projection, viewport bands, and click hit-testing completely untouched.
+      - Full test suites pass: 216 sim tests, 92 render tests (+5 new tests for food thresholds, slumped frames, suppressed banner bounce, and culture kits).
 
 ## Prior Wave (bakeoff/gemini-towers)
 
