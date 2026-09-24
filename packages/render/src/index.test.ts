@@ -3081,6 +3081,112 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(code).toContain('k === "unassigned" ? "Idle"');
     });
   });
+
+  describe("War Force Cards & 24px War Chips (Gemini War Lane)", () => {
+    it("theme.css and force-card.css define force card grid, tone accents, 24px war chips, and non-blocking clicks", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const themeCssPath = path.resolve(__dirname, "../../app/src/theme.css");
+      expect(fs.existsSync(themeCssPath)).toBe(true);
+      const css = fs.readFileSync(themeCssPath, "utf-8");
+
+      // 1. Force grid and force card structure
+      expect(css).toContain("sc-force-grid");
+      expect(css).toContain("sc-force-card");
+      expect(css).toContain("sc-force-card.is-hostile");
+      expect(css).toContain("sc-force-card.is-scout");
+      expect(css).toContain("sc-force-card.is-gather");
+      expect(css).toContain("sc-force-card.is-garrison");
+      expect(css).toContain("sc-force-head");
+      expect(css).toContain("sc-force-title-group");
+      expect(css).toContain("sc-force-name");
+      expect(css).toContain("sc-force-eta");
+      expect(css).toContain("sc-force-dest");
+
+      // 2. 24px war chips
+      expect(css).toContain("sc-war-chip-wrapper");
+      expect(css).toContain("sc-war-chip");
+      expect(css).toContain("width: 24px");
+      expect(css).toContain("height: 24px");
+
+      // 3. Chip drop-shadow glows for the 4 tones
+      expect(css).toContain("sc-war-chip-warband");
+      expect(css).toContain("sc-war-chip-cloak");
+      expect(css).toContain("sc-war-chip-cart");
+      expect(css).toContain("sc-war-chip-tent");
+
+      // 4. Clicks NOT blocked: pointer-events: none !important
+      expect(css).toContain(".sc-war-chip-wrapper");
+      expect(css).toContain(".sc-war-chip *");
+      expect(css).toContain("pointer-events: none !important");
+    });
+
+    it("WarChip normalizes kinds to warband, cloak, cart, tent and renders 24px SVGs with pointer-events none", async () => {
+      const { normalizeWarChipKind, WarChip } = await import("../../app/src/hud/WarChip.tsx");
+      expect(typeof normalizeWarChipKind).toBe("function");
+      expect(typeof WarChip).toBe("function");
+
+      // Normalization
+      expect(normalizeWarChipKind("hostile")).toBe("warband");
+      expect(normalizeWarChipKind("warband")).toBe("warband");
+      expect(normalizeWarChipKind("scout")).toBe("cloak");
+      expect(normalizeWarChipKind("cloak")).toBe("cloak");
+      expect(normalizeWarChipKind("gather")).toBe("cart");
+      expect(normalizeWarChipKind("cart")).toBe("cart");
+      expect(normalizeWarChipKind("garrison")).toBe("tent");
+      expect(normalizeWarChipKind("tent")).toBe("tent");
+
+      // Code structure verification
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const chipPath = path.resolve(__dirname, "../../app/src/hud/WarChip.tsx");
+      expect(fs.existsSync(chipPath)).toBe(true);
+      const code = fs.readFileSync(chipPath, "utf-8");
+
+      expect(code).toContain("WarbandSvg");
+      expect(code).toContain("CloakSvg");
+      expect(code).toContain("CartSvg");
+      expect(code).toContain("TentSvg");
+
+      expect(code).toContain("sc-war-chip-wrapper");
+      expect(code).toContain('pointerEvents: "none"');
+      expect(code).toContain('aria-hidden="true"');
+      expect(code).toContain('viewBox="0 0 24 24"');
+    });
+
+    it("ForceCard mounts WarChip in sc-force-head and renders force info and actions", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const cardPath = path.resolve(__dirname, "../../app/src/hud/ForceCard.tsx");
+      expect(fs.existsSync(cardPath)).toBe(true);
+      const code = fs.readFileSync(cardPath, "utf-8");
+
+      expect(code).toContain("WarChip");
+      expect(code).toContain("sc-force-card");
+      expect(code).toContain("sc-force-head");
+      expect(code).toContain("sc-force-title-group");
+      expect(code).toContain("sc-force-name");
+      expect(code).toContain("sc-force-eta");
+      expect(code).toContain("sc-force-dest");
+      expect(code).toContain("sc-force-btn");
+      expect(code).toContain("size={24}");
+    });
+
+    it("WarRoom mounts ForceCard grid for incoming, scouts, gathers, and garrisons", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const roomPath = path.resolve(__dirname, "../../app/src/WarRoom.tsx");
+      expect(fs.existsSync(roomPath)).toBe(true);
+      const code = fs.readFileSync(roomPath, "utf-8");
+
+      expect(code).toContain("ForceCard");
+      expect(code).toContain("sc-force-grid");
+      expect(code).toContain('tone="hostile"');
+      expect(code).toContain('tone="scout"');
+      expect(code).toContain('tone="gather"');
+      expect(code).toContain('tone="garrison"');
+    });
+  });
 });
 
 

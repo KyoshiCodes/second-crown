@@ -1033,21 +1033,81 @@ button:disabled {
   padding-top: 3px;
 }
 .sc-work-where { font-size: 11px; opacity: 0.55; }
+.sc-work-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
 .sc-work-btn { padding: 1px 8px; font-size: 11px; }
 .sc-work-btn.is-repair { border-color: #f85149; }
 
-/* --- Army: one card per trainable unit. Same chrome palette as the work cards. --- */
+/* --- 24px Isometric Hall Chip --- */
+.sc-chip-wrapper {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+}
+
+.sc-chip {
+  display: block;
+  width: 24px;
+  height: 24px;
+  overflow: visible;
+  pointer-events: none !important;
+  transition: opacity 250ms ease, filter 250ms ease;
+}
+.sc-chip * {
+  pointer-events: none !important;
+}
+
+/* Unstaffed chip is dim */
+.sc-chip.is-unstaffed,
+.sc-chip-wrapper.is-unstaffed .sc-chip {
+  opacity: 0.42;
+  filter: grayscale(0.55) brightness(0.68);
+}
+
+/* Staffed chip is warm & vibrant */
+.sc-chip.is-staffed,
+.sc-chip-wrapper.is-staffed .sc-chip {
+  opacity: 1;
+  filter: drop-shadow(0 0 1px rgba(250, 204, 21, 0.35));
+}
+
+/* Scarred chip is cracked */
+.sc-chip.is-scarred,
+.sc-chip-wrapper.is-scarred .sc-chip {
+  opacity: 0.88;
+  filter: saturate(0.6) drop-shadow(0 0 2px rgba(239, 68, 68, 0.7));
+}
+.sc-chip-cracks {
+  pointer-events: none;
+}
+.sc-chip-crack-main {
+  filter: drop-shadow(0 0 1.5px #ef4444);
+}
+.sc-chip-crack-branch {
+  filter: drop-shadow(0 0 1px #dc2626);
+}
+
+/* --- Army: one card per trainable unit with 28px culture-kit chip art --- */
 .sc-unit-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 6px;
   margin-top: 8px;
 }
+
 .sc-unit-card {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 3px;
   min-width: 0;
   padding: 6px 8px;
   font-size: 12px;
@@ -1057,25 +1117,107 @@ button:disabled {
   border: 1px solid var(--chrome-btn-border);
   border-left-width: 3px;
   border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 200ms ease, background 200ms ease, opacity 200ms ease, filter 200ms ease;
 }
-.sc-unit-card.is-ready { border-left-color: #4ade80; }
-.sc-unit-card.is-short { border-left-color: #d29922; }
-.sc-unit-card.is-locked { border-left-color: var(--chrome-bar-border); }
+
+.sc-unit-card.is-ready {
+  border-left-color: #4ade80;
+}
+
+.sc-unit-card.is-short {
+  border-left-color: #d29922;
+  opacity: 0.85;
+}
+
+/* Locked cards are greyed */
+.sc-unit-card.is-locked {
+  border-left-color: var(--chrome-bar-border);
+  background: var(--chrome-bar-bg);
+  filter: grayscale(1);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.sc-unit-card.is-locked .sc-unit-name {
+  color: #94a3b8;
+}
+.sc-unit-card.is-locked .sc-unit-power {
+  color: #64748b;
+}
+.sc-unit-card.is-locked .sc-unit-lock {
+  color: #94a3b8;
+  font-style: italic;
+}
+.sc-unit-card.is-locked .sc-unit-art-wrapper {
+  filter: grayscale(1) brightness(0.65);
+  opacity: 0.5;
+}
+
+.sc-unit-card-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+/* 28px culture-kit chip art: pointer-events none */
+.sc-unit-art-wrapper {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+}
+.sc-unit-art-wrapper * {
+  pointer-events: none !important;
+}
+
+.sc-unit-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
 .sc-unit-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 6px;
 }
+
 .sc-unit-name {
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sc-unit-power { flex: none; font-size: 11px; color: var(--chrome-accent); }
-.sc-unit-cost { font-size: 11px; opacity: 0.8; }
-.sc-unit-lock { font-size: 11px; opacity: 0.7; font-style: italic; }
+
+.sc-unit-power {
+  flex: none;
+  font-size: 11px;
+  color: var(--chrome-accent);
+}
+
+.sc-unit-cost {
+  font-size: 11px;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-unit-lock {
+  font-size: 11px;
+  opacity: 0.7;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* --- People: one card per trade. Assigned = green edge, idle = dashed and muted. --- */
 .sc-job-grid {
@@ -1111,6 +1253,13 @@ button:disabled {
   justify-content: space-between;
   gap: 6px;
 }
+.sc-job-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
 .sc-job-name {
   font-weight: 600;
   overflow: hidden;
@@ -1135,3 +1284,157 @@ button:disabled {
 }
 .sc-job-row select { max-width: 90px; font-size: 11px; }
 .sc-job-btn { padding: 1px 8px; font-size: 11px; }
+
+/* --- Walker Role Pip (hoe, axe, pick, coin). Idle pip sits, assigned walks 2 frames --- */
+.sc-walker-pip-wrapper {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+}
+
+.sc-walker-pip {
+  display: block;
+  width: 24px;
+  height: 24px;
+  overflow: visible;
+  pointer-events: none !important;
+}
+.sc-walker-pip * {
+  pointer-events: none !important;
+}
+
+/* Assigned pip walks 2 frames (0.7s stepped cycle) */
+.sc-walker-pip.is-walking .sc-walker-f0 {
+  display: inline;
+  animation: sc-walker-walk0 0.7s steps(1) infinite;
+}
+.sc-walker-pip.is-walking .sc-walker-f1 {
+  display: none;
+  animation: sc-walker-walk1 0.7s steps(1) infinite;
+}
+.sc-walker-pip.is-walking .sc-walker-sit {
+  display: none;
+}
+
+@keyframes sc-walker-walk0 {
+  0%, 49.9% { display: inline; }
+  50%, 100% { display: none; }
+}
+
+@keyframes sc-walker-walk1 {
+  0%, 49.9% { display: none; }
+  50%, 100% { display: inline; }
+}
+
+/* Idle pip sits */
+.sc-walker-pip.is-sitting .sc-walker-f0,
+.sc-walker-pip.is-sitting .sc-walker-f1 {
+  display: none;
+}
+.sc-walker-pip.is-sitting .sc-walker-sit {
+  display: inline;
+}
+
+/* --- War: one small card per force with 24px war chip art. Edge color = kind. --- */
+.sc-force-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  margin: 2px 0 6px;
+}
+.sc-force-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 5px 8px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-radius: 5px;
+}
+.sc-force-card.is-hostile { border-left-color: #f85149; }
+.sc-force-card.is-scout { border-left-color: #58a6ff; }
+.sc-force-card.is-gather { border-left-color: #d29922; }
+.sc-force-card.is-garrison { border-left-color: #4ade80; }
+.sc-force-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.sc-force-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+.sc-force-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-force-eta { flex: none; font-size: 11px; color: var(--chrome-accent); font-variant-numeric: tabular-nums; }
+.sc-force-dest { font-size: 11px; opacity: 0.8; }
+.sc-force-detail {
+  font-size: 11px;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-force-btn { align-self: flex-start; margin-top: 2px; padding: 1px 8px; font-size: 11px; }
+
+/* --- 24px War Chips: warband (red), cloak (scouts), cart (gathers), tent (garrisons) --- */
+.sc-war-chip-wrapper {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+}
+
+.sc-war-chip {
+  display: block;
+  width: 24px;
+  height: 24px;
+  overflow: visible;
+  pointer-events: none !important;
+}
+.sc-war-chip * {
+  pointer-events: none !important;
+}
+
+/* Red Warband Pip Glow */
+.sc-war-chip.sc-war-chip-warband,
+.sc-war-chip.sc-war-chip-hostile {
+  filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.7));
+}
+
+/* Scout Cloak Pip Glow */
+.sc-war-chip.sc-war-chip-cloak,
+.sc-war-chip.sc-war-chip-scout {
+  filter: drop-shadow(0 0 1.5px rgba(56, 189, 248, 0.5));
+}
+
+/* Gather Cart Pip Glow */
+.sc-war-chip.sc-war-chip-cart,
+.sc-war-chip.sc-war-chip-gather {
+  filter: drop-shadow(0 0 1.5px rgba(245, 158, 11, 0.45));
+}
+
+/* Garrison Tent Pip Glow */
+.sc-war-chip.sc-war-chip-tent,
+.sc-war-chip.sc-war-chip-garrison {
+  filter: drop-shadow(0 0 1.5px rgba(74, 222, 128, 0.45));
+}

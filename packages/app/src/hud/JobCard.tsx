@@ -33,11 +33,14 @@ export function JobCard(props: {
   }
   const siteText = [...sites].map(([k, n]) => (n > 1 ? `${k} ×${n}` : k)).join(" · ");
   const cls = ["sc-job-card", idle ? "is-idle" : "is-assigned"].join(" ");
+  const effectiveRole = idle ? "idle" : (workers[0]?.job ?? name.toLowerCase());
   return (
     <div className={cls}>
       <span className="sc-job-head">
-        <WalkerPip role={idle ? "idle" : name.toLowerCase()} assigned={!idle} />
-        <span className="sc-job-name">{name}</span>
+        <span className="sc-job-title-group">
+          <WalkerPip role={effectiveRole} assigned={!idle} />
+          <span className="sc-job-name">{name}</span>
+        </span>
         <span className="sc-job-count">×{workers.length}</span>
       </span>
       <span className="sc-job-where">{idle ? "No post · waiting for work" : `Walks to ${siteText || "—"}`}</span>
