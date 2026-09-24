@@ -3,6 +3,10 @@
 Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## How far you can see
+
+The Kingdom tab now shows a line like **Vision 2 · Watchtowers 1 · Scout 20 gold.** Vision is how many tiles out from home the fog lifts on its own. Watchtowers counts finished watchtowers on your hold's rim. Scout is the gold cost to reveal one fogged province by hand.
+
 ## Scarred Buildings: Cracked Stone & Silent Hearths
 
 Buildings knocked out or scarred by siege attacks (or undergoing build/repair) now visually read as battered stone structures instead of translucent blueprint ghosts:

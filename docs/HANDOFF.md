@@ -1,4 +1,4 @@
-# HANDOFF — current ground (2026-09-22)
+# HANDOFF — current ground (2026-09-23)
 
 Play: https://129.153.17.72.sslip.io/
 Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
@@ -6,7 +6,12 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-scar)
+## Recent Wave (wave/vision-line)
+
+- Kingdom tab shows "Vision N · Watchtowers N · Scout N gold." under the wall line (`VisionLine`, app only).
+- Zero diff on `packages/sim`, `packages/render`, `server/`. Fog math unchanged.
+
+## Prior Wave (bakeoff/gemini-scar)
 
 - **Scarred / Knocked-out Buildings & Cracked Stone Overlay on Isometric Hold**:
   - Buildings with `completesAtTick !== null` (scarred / knocked out by siege strikes, or under build/repair) now render as solid, battered structures with rich cracked stone detailing and complete suppression of work-in-progress smoke puffs:

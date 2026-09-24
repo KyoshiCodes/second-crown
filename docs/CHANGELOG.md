@@ -1,5 +1,10 @@
 # CHANGELOG
  
+## 2026-09-23 — Vision line on Kingdom tab (`wave/vision-line`)
+
+- `packages/app/src/VisionLine.tsx` (new, display only): "Vision N · Watchtowers N · Scout N gold." from `visionRange`, `rimWatchtowers`, `scoutCost`. Mounted under `WallLine` in `KingdomTab.tsx`.
+- No sim, render, or server changes. Fog math unchanged.
+
 +## 2026-09-22 — Gemini Scarred Buildings with Cracked Stone & Smoke Suppression (`bakeoff/gemini-scar`)
 +
 +- **Scarred / Knocked-out Buildings with Cracked Stone & Smoke Suppression (`packages/render/src/buildings.ts`)**:
