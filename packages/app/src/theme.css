@@ -1076,3 +1076,62 @@ button:disabled {
 .sc-unit-power { flex: none; font-size: 11px; color: var(--chrome-accent); }
 .sc-unit-cost { font-size: 11px; opacity: 0.8; }
 .sc-unit-lock { font-size: 11px; opacity: 0.7; font-style: italic; }
+
+/* --- People: one card per trade. Assigned = green edge, idle = dashed and muted. --- */
+.sc-job-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.sc-job-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-radius: 5px;
+}
+.sc-job-card.is-assigned { border-left-color: #4ade80; }
+.sc-job-card.is-idle {
+  border-style: dashed;
+  border-left-style: solid;
+  border-left-color: #d29922;
+  background: var(--chrome-btn-bg);
+}
+.sc-job-card.is-idle .sc-job-name { font-style: italic; color: #d29922; }
+.sc-job-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+.sc-job-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-job-count { flex: none; font-size: 11px; color: var(--chrome-accent); }
+.sc-job-where { font-size: 11px; opacity: 0.75; }
+.sc-job-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+.sc-job-who {
+  flex: 1;
+  min-width: 0;
+  opacity: 0.8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-job-row select { max-width: 90px; font-size: 11px; }
+.sc-job-btn { padding: 1px 8px; font-size: 11px; }

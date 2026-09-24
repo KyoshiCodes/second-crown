@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-24 — People job cards (wave/hud-people)
+
+- `packages/app/src/hud/JobCard.tsx`: one card per job with name, worker count and the buildings they walk to (e.g. `Farm 3,4 ×2`). Each worker row keeps the existing "Post at…" select and "Idle" button.
+- `PeoplePanel.tsx` groups player citizens by job. Idle villagers (job `unassigned` or no tile) come first, then trades in `listCitizenJobs()` order.
+- `theme.css`: `.sc-job-*` rules on the chrome palette. Assigned = green left edge. Idle = dashed border, amber edge and italic amber name.
+- No sim or server changes. Citizen math unchanged.
+
 ## 2026-09-24 — Gemini Army Unit Cards with 28px Culture-Kit Chips (bakeoff/gemini-army-chips)
 
 - **Trainable Army Unit Cards (`packages/app/src/hud/UnitCard.tsx`, `packages/app/src/tabs/ArmyTab.tsx`, `packages/app/src/theme.css`)**:

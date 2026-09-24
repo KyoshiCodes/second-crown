@@ -1,62 +1,48 @@
 import React from "react";
 import {
   citizensByRealm,
-  getBuildingType,
   getCitizenJob,
   jobForBuildingType,
-  tryAssignCitizen,
-  tryIdleCitizen,
+  listCitizenJobs,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
+import { JobCard } from "./hud/JobCard";
 
 export function PeoplePanel(props: { state: GameState | undefined; act: ActFn }) {
   const { state, act } = props;
   const people = state ? citizensByRealm(state, "player") : [];
-  const posts =
-    state?.buildings.filter(
-      (b) =>
-        b.realmId === "player" &&
-        b.completesAtTick === null &&
-        jobForBuildingType(b.typeId) !== "unassigned"
-    ) ?? [];
+  const mine = state?.buildings.filter((b) => b.realmId === "player") ?? [];
+  const posts = mine.filter((b) => b.completesAtTick === null && jobForBuildingType(b.typeId) !== "unassigned");
   if (people.length === 0) return null;
+  // Idle first so spare hands are the first thing you see, then trades in roster order.
+  const order = listCitizenJobs().map((j) => j.id as string);
+  const groups = new Map<string, typeof people>();
+  for (const c of people) {
+    const k = c.job === "unassigned" || !c.tile ? "unassigned" : c.job;
+    groups.set(k, [...(groups.get(k) ?? []), c]);
+  }
+  const keys = [...groups.keys()].sort((a, b) => {
+    const ia = order.indexOf(a);
+    const ib = order.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
   return (
     <>
       <h3>People</h3>
-      {people.map((c) => {
-        const job = getCitizenJob(c.job)?.name ?? c.job;
-        const where = c.tile ? `${c.tile.x},${c.tile.y}` : "idle";
-        return (
-          <div key={c.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, flexWrap: "wrap" }}>
-            <span>
-              {job} · {where}
-            </span>
-            <select
-              defaultValue=""
-              onChange={(e) => {
-                const id = e.target.value;
-                e.target.value = "";
-                if (!id) return;
-                act((st) => (tryAssignCitizen(st, c.id, id) ? "Worker posted." : "Cannot post there."));
-              }}
-            >
-              <option value="">Post at…</option>
-              {posts.map((b) => {
-                const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
-                return (
-                  <option key={b.id} value={b.id}>
-                    {nm} {b.x},{b.y}
-                  </option>
-                );
-              })}
-            </select>
-            <button type="button" onClick={() => act((st) => (tryIdleCitizen(st, c.id) ? "Worker idle." : "Already idle."))}>
-              Idle
-            </button>
-          </div>
-        );
-      })}
+      <div className="sc-job-grid">
+        {keys.map((k) => (
+          <JobCard
+            key={k}
+            name={k === "unassigned" ? "Idle" : getCitizenJob(k)?.name ?? k}
+            idle={k === "unassigned"}
+            workers={groups.get(k) ?? []}
+            buildings={mine}
+            posts={posts}
+            act={act}
+          />
+        ))}
+      </div>
     </>
   );
 }

@@ -21,10 +21,10 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
   - **Locked Cards Greyed**: Locked units (such as cavalry/knights without Horse lore or siege without Siege craft) are styled with `.is-locked` (`filter: grayscale(1)`, `opacity: 0.55`, muted text, `cursor: not-allowed`).
   - **Non-blocking Clicks**: Strictly enforces `pointer-events: none !important;` on `.sc-unit-art-wrapper` and its SVG children so drilling levies and clicking unit cards is never obstructed.
 
-## Active wave (wave/hud-army)
+## Active wave (wave/hud-people)
 
-- Army tab units are cards (`packages/app/src/hud/UnitCard.tsx`) instead of "Militia pwr 4" buttons. Not merged yet.
-- Known red test on `origin/main` before this branch: render test "theme.css defines work card grid…" expects `sc-work-title-group`, which `theme.css` does not define (from the gemini-works bakeoff merge).
+- People panel (Kingdom tab) groups workers into job cards (`packages/app/src/hud/JobCard.tsx`): job name, count, and the building(s) they walk to. Idle card is dashed/amber, assigned cards have a green edge. Per-worker "Post at…" and "Idle" controls are kept. Not merged yet.
+- Known red on `origin/main` before this branch: 3 render tests in `packages/render/src/index.test.ts` expect `sc-work-title-group` and `sc-unit-art-wrapper`, which `theme.css` / `UnitCard.tsx` do not define (from the Gemini bakeoff merges). `npm test` (sim) is green.
 
 ## Verify
 

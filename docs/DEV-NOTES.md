@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-24 — hud-people
+
+- `JobCard` resolves "building they walk to" by matching `citizen.tile` to a player building at that x,y. `tryAssignCitizen` sets the tile to the building tile, so this holds. If a building is gone the label falls back to `Tile x,y`.
+- The "Idle" button is disabled on the Idle card (those workers are already idle). The `act(tryAssignCitizen/tryIdleCitizen)` calls are the same as before.
+- A citizen with a job but no tile counts as idle for display only. Sim state is untouched.
+
 ## 2026-09-24 — army-cards / culture-kit chips
 
 - `UnitCard.tsx`: All culture-kit unit art and `.sc-unit-art-wrapper` elements unconditionally set `pointer-events: none !important;` so that training buttons, hover tooltips, and click events are never blocked by SVG art.
