@@ -21,6 +21,11 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
   - **Scarred chip is cracked**: When damaged by siege strikes, the chip displays jagged stone crack fractures (`sc-chip-cracks`, `sc-chip-crack-main`, `sc-chip-crack-branch`) and chipped masonry.
   - **Non-blocking clicks**: All chips and wrappers strictly enforce `pointer-events: none !important;` so Demolish and Repair buttons always receive clicks with zero obstruction.
 
+## Active wave (wave/hud-army)
+
+- Army tab units are cards (`packages/app/src/hud/UnitCard.tsx`) instead of "Militia pwr 4" buttons. Not merged yet.
+- Known red test on `origin/main` before this branch: render test "theme.css defines work card grid…" expects `sc-work-title-group`, which `theme.css` does not define (from the gemini-works bakeoff merge).
+
 ## Verify
 
 ```

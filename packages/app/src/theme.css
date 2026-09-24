@@ -1035,3 +1035,44 @@ button:disabled {
 .sc-work-where { font-size: 11px; opacity: 0.55; }
 .sc-work-btn { padding: 1px 8px; font-size: 11px; }
 .sc-work-btn.is-repair { border-color: #f85149; }
+
+/* --- Army: one card per trainable unit. Same chrome palette as the work cards. --- */
+.sc-unit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.sc-unit-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 8px;
+  font-size: 12px;
+  text-align: left;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-radius: 5px;
+}
+.sc-unit-card.is-ready { border-left-color: #4ade80; }
+.sc-unit-card.is-short { border-left-color: #d29922; }
+.sc-unit-card.is-locked { border-left-color: var(--chrome-bar-border); }
+.sc-unit-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+.sc-unit-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-unit-power { flex: none; font-size: 11px; color: var(--chrome-accent); }
+.sc-unit-cost { font-size: 11px; opacity: 0.8; }
+.sc-unit-lock { font-size: 11px; opacity: 0.7; font-style: italic; }

@@ -2890,6 +2890,23 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(code).toContain("sc-work-grid");
       expect(code).toContain("Standing works");
     });
+
+    it("ArmyTab trains through UnitCard grid with lock notes", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const tab = fs.readFileSync(path.resolve(__dirname, "../../app/src/tabs/ArmyTab.tsx"), "utf-8");
+      expect(tab).toContain("UnitCard");
+      expect(tab).toContain("sc-unit-grid");
+      expect(tab).not.toContain("pwr ${u.power}");
+      expect(tab).toContain("tryCancelTraining");
+      expect(tab).toContain("tryTreatWounded");
+      expect(tab).toContain("Posts");
+      expect(tab).toContain("UpkeepLine");
+      const card = fs.readFileSync(path.resolve(__dirname, "../../app/src/hud/UnitCard.tsx"), "utf-8");
+      expect(card).toContain("sc-unit-lock");
+      expect(card).toContain("sc-unit-cost");
+      expect(card).toContain("is-locked");
+    });
   });
 });
 

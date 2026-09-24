@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-24 — Army unit cards
+
+- On the Army tab, each unit you can train is now a card showing its name, power, cost per unit and drill time.
+- Locked units say what to study to unlock them.
+- Green edge: you can train it. Amber: not enough stores. Grey: locked.
+
 ## 2026-09-24 — Kingdom works & isometric hall chips
 
 - Finished kingdom buildings now sit in tidy work cards, showing their level, location, staffing status, and Demolish/Repair actions.

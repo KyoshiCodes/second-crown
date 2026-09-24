@@ -1,5 +1,10 @@
 # Dev notes
 
+## 2026-09-24 — hud-army
+
+- `UnitCard` is presentational. `ArmyTab` still owns the `act(tryTrain…)` call, so train logic and messages live in one place.
+- The cost on the card is `u.cost` (base, per unit). Discounts from Barracks/Stables/Range/Workshop are not applied in the display, same as the old tooltip. Drill time uses `trainDurationTicks` for the chosen x1/x5/x10.
+
 ## 2026-09-24 — hud-works / hall-chips
 
 - `HallChip.tsx`: Isometric 24px building chips must unconditionally set `pointer-events: none !important;` in SVG styles, wrapper styles, and CSS to guarantee Demolish and Repair buttons on `WorkCard` receive clicks without obstruction.
