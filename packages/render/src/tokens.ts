@@ -42,6 +42,7 @@ import {
   blendDark,
   blendLight,
 } from "./buildings.js";
+import { isFoodStoresEmptyOrLow } from "./walkers.js";
 
 export function isMarchHostile(march: { realmId: string }): boolean {
   return march.realmId !== "player";
@@ -2407,11 +2408,12 @@ export function drawGarrisonMeeple(
   cult: CultureVisualPalette,
   power: number = 0,
   phase: number = 0,
-  options?: { facing?: number; frame?: 0 | 1 | 2; isColumn?: boolean }
+  options?: { facing?: number; frame?: 0 | 1 | 2; isColumn?: boolean; tired?: boolean }
 ): void {
   const facing = options?.facing ?? 1;
   const isColumn = !!options?.isColumn;
-  const bob = isColumn ? (options?.frame === 0 ? 0 : 2) : 0;
+  const isTired = Boolean(options?.tired);
+  const bob = (isColumn && !isTired) ? (options?.frame === 0 ? 0 : 2) : 0;
   const cy = y - bob;
 
   // 1. Dual Ground Contact Shadows (encampment footprint + flagpole base)
@@ -2614,8 +2616,8 @@ export function drawGarrisonMeeple(
     pawnsG.fill({ color: 0x06b6d4 });
   }
 
-  // Waving Heraldic Swallowtail Standard
-  const flagWave = Math.sin(phase * 4 + (x + y) * 0.15) * 2;
+  // Waving Heraldic Swallowtail Standard (suppressed when tired)
+  const flagWave = isTired ? 0 : Math.sin(phase * 4 + (x + y) * 0.15) * 2;
   pawnsG.poly([
     poleX, cy - 16,
     poleX + 11.5 + flagWave, cy - 12.5,
@@ -3058,6 +3060,7 @@ export function paintBoardMarches(
       if (m.force) {
         for (const n of Object.values(m.force)) gPower += Number(n) || 0;
       }
+      const isTired = isFoodStoresEmptyOrLow(state);
       drawGarrisonMeeple(
         pawnsG,
         pawnX,
@@ -3066,7 +3069,7 @@ export function paintBoardMarches(
         cult,
         gPower,
         phase,
-        { facing, frame, isColumn: true }
+        { facing, frame, isColumn: true, tired: isTired }
       );
     } else if (isPlayer) {
       // Player: Meeple styled in the matching unit type pixel language (archer, knight, cavalry, siege, spearman, etc.)
@@ -3445,14 +3448,27 @@ export function paintBoardMarches(
           pawnsG.stroke({ width: 1.6, color: 0xfde047 });
         } else {
           // Militia: spiked war club & buckler
-          pawnsG.rect(pawnX + facing * 3.2, pawnY - 8 - bob + armSwing, 2.2, 6);
-          pawnsG.fill({ color: 0x78350f });
-          pawnsG.stroke({ width: 0.6, color: 0x451a03 });
-          pawnsG.circle(pawnX + facing * 4.3, pawnY - 7 - bob + armSwing, 0.8); pawnsG.fill({ color: 0xd1d5db });
-          pawnsG.circle(pawnX + facing * 4.3, pawnY - 4 - bob + armSwing, 0.8); pawnsG.fill({ color: 0xd1d5db });
-          pawnsG.circle(pawnX - facing * 2.5, pawnY - 4.5 - bob + armSwing, 2.8);
-          pawnsG.fill({ color: 0x5c3818 });
-          pawnsG.stroke({ width: 0.8, color: 0x27272a });
+          const isTired = isFoodStoresEmptyOrLow(state);
+          if (isTired) {
+            // Tired militia: club dragging low, buckler slumped, no bob
+            pawnsG.rect(pawnX + facing * 3.2, pawnY - 4, 2.2, 6);
+            pawnsG.fill({ color: 0x78350f });
+            pawnsG.stroke({ width: 0.6, color: 0x451a03 });
+            pawnsG.circle(pawnX + facing * 4.3, pawnY - 3, 0.8); pawnsG.fill({ color: 0xd1d5db });
+            pawnsG.circle(pawnX + facing * 4.3, pawnY, 0.8); pawnsG.fill({ color: 0xd1d5db });
+            pawnsG.circle(pawnX - facing * 2.5, pawnY - 1, 2.8);
+            pawnsG.fill({ color: 0x5c3818 });
+            pawnsG.stroke({ width: 0.8, color: 0x27272a });
+          } else {
+            pawnsG.rect(pawnX + facing * 3.2, pawnY - 8 - bob + armSwing, 2.2, 6);
+            pawnsG.fill({ color: 0x78350f });
+            pawnsG.stroke({ width: 0.6, color: 0x451a03 });
+            pawnsG.circle(pawnX + facing * 4.3, pawnY - 7 - bob + armSwing, 0.8); pawnsG.fill({ color: 0xd1d5db });
+            pawnsG.circle(pawnX + facing * 4.3, pawnY - 4 - bob + armSwing, 0.8); pawnsG.fill({ color: 0xd1d5db });
+            pawnsG.circle(pawnX - facing * 2.5, pawnY - 4.5 - bob + armSwing, 2.8);
+            pawnsG.fill({ color: 0x5c3818 });
+            pawnsG.stroke({ width: 0.8, color: 0x27272a });
+          }
         }
       }
 

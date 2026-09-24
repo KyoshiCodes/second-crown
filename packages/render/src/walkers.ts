@@ -10,6 +10,7 @@ export type WalkerRole =
   | "miner"
   | "merchant"
   | "guard"
+  | "militia"
   | "scholar"
   | "farm"
   | "wood"
@@ -18,6 +19,33 @@ export type WalkerRole =
   | "farmer";
 
 export type WalkerJobTool = "farm" | "wood" | "stone" | "gold";
+
+/**
+ * Determines whether the player's food stores are empty or nearly empty.
+ * Empty: food <= 0 or missing/undefined.
+ * Nearly empty: food stores are depleted below immediate army upkeep demands (e.g. <= 5 units or low margin).
+ */
+export function isFoodStoresEmptyOrLow(state: GameState | null | undefined): boolean {
+  if (!state?.resources) return true;
+  const food = state.resources.food;
+  if (food == null || food === "") return true;
+  const foodNum = Number(food);
+  if (isNaN(foodNum) || foodNum <= 0) return true;
+
+  // Calculate standing army mouths: units with realmId === "player" and typeId !== "champion"
+  let mouths = 0;
+  if (state.units && Array.isArray(state.units)) {
+    for (const u of state.units) {
+      if (u.realmId === "player" && u.typeId !== "champion") {
+        mouths += Number(u.count) || 0;
+      }
+    }
+  }
+  const upkeep = mouths * 0.02;
+  // Nearly empty buffer: 50 ticks of upkeep or at least 5 units
+  const nearlyEmptyThreshold = Math.max(5, upkeep * 50);
+  return foodNum <= nearlyEmptyThreshold;
+}
 
 export interface Walker {
   id: number;
@@ -48,6 +76,8 @@ export function roleForCitizenJob(job: string): WalkerRole {
       return "merchant";
     case "guard":
       return "guard";
+    case "militia":
+      return "militia";
     case "scholar":
       return "scholar";
     default:
@@ -98,8 +128,28 @@ export function pickDestination(w: Walker, state: GameState | null): void {
   const playerWorkers = state?.citizens?.filter(
     (c) => c.realmId === "player" && c.tile != null
   ) ?? [];
+  const playerMilitia = state?.units?.find(
+    (u) => u.realmId === "player" && u.typeId === "militia" && (u.armyId == null)
+  );
+  const hasHomeMilitia = Boolean(playerMilitia && Number(playerMilitia.count) > 0);
+  const isMilitiaSlot = hasHomeMilitia && (playerWorkers.length === 0 || w.id % 2 === 0);
 
-  if (playerWorkers.length > 0) {
+  if (isMilitiaSlot) {
+    w.role = "militia";
+    w.tool = undefined;
+    const defense = state?.buildings?.find(
+      (b) => b.typeId === "watchtower" || b.typeId === "barracks" || b.typeId === "gatehouse" || b.typeId === "wall"
+    );
+    if (defense && Math.random() > 0.35) {
+      const bx = ((defense.x % GRID_W) + GRID_W) % GRID_W;
+      const by = ((defense.y % GRID_H) + GRID_H) % GRID_H;
+      w.targetX = Math.max(0, Math.min(GRID_W - 1, bx + (Math.random() > 0.5 ? 1 : -1)));
+      w.targetY = Math.max(0, Math.min(GRID_H - 1, by));
+    } else {
+      w.targetX = 4 + Math.floor(Math.random() * 8);
+      w.targetY = 2 + Math.floor(Math.random() * 6);
+    }
+  } else if (playerWorkers.length > 0) {
     const worker = playerWorkers[w.id % playerWorkers.length];
     w.role = roleForCitizenJob(worker.job);
 
@@ -362,11 +412,15 @@ export function drawCultureWalker(
   legL: number,
   legR: number,
   armSwing: number,
-  tool?: WalkerJobTool
+  tool?: WalkerJobTool,
+  tired: boolean = false
 ): void {
+  const isGuardOrMilitia = role === "guard" || role === "militia";
+  const slumpY = (tired && isGuardOrMilitia) ? 2 : 0;
+
   if (kit === "cedar") {
     // Cedar Kin: Woodland Walker Cloaks
-    if (role !== "guard") {
+    if (!isGuardOrMilitia) {
       g.rect(legL, -3 - bob, 2, 4); g.fill({ color: 0x5c3818 });
       g.rect(legR, -3 - bob, 2, 4); g.fill({ color: 0x3f220c });
 
@@ -398,45 +452,68 @@ export function drawCultureWalker(
         g.fill({ color: 0xef4444 });
       }
     } else {
-      // Guard: Woodland warrior with travel cloak, leather coif, shield, hunting spear
+      // Guard / Militia: Woodland warrior with travel cloak, leather coif, shield, hunting spear
       g.rect(legL, -3 - bob, 2, 4); g.fill({ color: 0x3f220c });
       g.rect(legR, -3 - bob, 2, 4); g.fill({ color: 0x271406 });
 
-      g.rect(-3, -8 - bob, 6, 6); g.fill({ color: 0x14532d });
+      g.rect(-3, -8 - bob + slumpY, 6, 6); g.fill({ color: 0x14532d });
 
       // Trailing woodland travel cloak
       g.poly([
-        -facing * 2.5, -8 - bob,
-        -facing * 6.5, -1 - bob + (frame === 1 ? 1 : 0),
-        -facing * 2, 0 - bob,
+        -facing * 2.5, -8 - bob + slumpY,
+        -facing * 6.5, -1 - bob + (frame === 1 ? 1 : 0) + slumpY,
+        -facing * 2, 0 - bob + slumpY,
       ]);
       g.fill({ color: 0x166534 });
 
-      g.rect(-3.5, -9 - bob, 7, 3); g.fill({ color: 0x166534 });
+      g.rect(-3.5, -9 - bob + slumpY, 7, 3); g.fill({ color: 0x166534 });
 
-      g.circle(0, -11 - bob, 2.8); g.fill({ color: 0xfbcfe8 });
+      g.circle(0, -11 - bob + slumpY, 2.8); g.fill({ color: 0xfbcfe8 });
 
-      g.rect(-3, -14 - bob, 6, 3); g.fill({ color: 0x5c3818 });
-      g.rect(-1, -15 - bob, 2, 1.5); g.fill({ color: 0xfef3c7 });
+      g.rect(-3, -14 - bob + slumpY, 6, 3); g.fill({ color: 0x5c3818 });
+      g.rect(-1, -15 - bob + slumpY, 2, 1.5); g.fill({ color: 0xfef3c7 });
 
-      // Carved round cedar war shield on off-arm
-      g.circle(-facing * 3, -6 - bob + armSwing, 3.5);
-      g.fill({ color: 0x854d0e });
-      g.stroke({ width: 0.8, color: 0xca8a04 });
+      if (tired) {
+        // Tired brow / half-shut eyes
+        g.moveTo(-1.2, -10.5 - bob + slumpY);
+        g.lineTo(1.2, -10.5 - bob + slumpY);
+        g.stroke({ width: 0.8, color: 0x3f220c });
 
-      // Heavy ash hunting spear with leaf head
-      g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -17 - bob + armSwing);
-      g.stroke({ width: 1.4, color: 0x78350f });
-      g.poly([
-        facing * 3, -17 - bob + armSwing,
-        facing * 3 - 2, -14 - bob + armSwing,
-        facing * 3 + 2, -14 - bob + armSwing,
-      ]);
-      g.fill({ color: 0xe2e8f0 });
+        // Slumped shield hanging low at side
+        g.circle(-facing * 2.5, -3 + slumpY, 3.5);
+        g.fill({ color: 0x854d0e });
+        g.stroke({ width: 0.8, color: 0xca8a04 });
+
+        // Ash hunting spear dragging low (NO BANNER BOUNCE)
+        g.moveTo(facing * 3, 1);
+        g.lineTo(facing * 4, -10);
+        g.stroke({ width: 1.4, color: 0x78350f });
+        g.poly([
+          facing * 4, -10,
+          facing * 4 - 2, -7,
+          facing * 4 + 2, -7,
+        ]);
+        g.fill({ color: 0xe2e8f0 });
+      } else {
+        // Carved round cedar war shield on off-arm
+        g.circle(-facing * 3, -6 - bob + armSwing, 3.5);
+        g.fill({ color: 0x854d0e });
+        g.stroke({ width: 0.8, color: 0xca8a04 });
+
+        // Heavy ash hunting spear with leaf head (banner bounce)
+        g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -17 - bob + armSwing);
+        g.stroke({ width: 1.4, color: 0x78350f });
+        g.poly([
+          facing * 3, -17 - bob + armSwing,
+          facing * 3 - 2, -14 - bob + armSwing,
+          facing * 3 + 2, -14 - bob + armSwing,
+        ]);
+        g.fill({ color: 0xe2e8f0 });
+      }
     }
   } else if (kit === "sand") {
     // Sand Banner: Linen/Sash Walkers
-    if (role !== "guard") {
+    if (!isGuardOrMilitia) {
       g.rect(legL, -2 - bob, 2, 3); g.fill({ color: 0xa16207 });
       g.rect(legR, -2 - bob, 2, 3); g.fill({ color: 0x78350f });
 
@@ -462,34 +539,58 @@ export function drawCultureWalker(
         g.fill({ color: 0xc2410c });
       }
     } else {
-      // Sand Guard: Desert turban with havelock, sand tunic with crimson sash, brass buckler, slender lance
+      // Sand Guard / Militia: Desert turban with havelock, sand tunic with crimson sash, brass buckler, slender lance
       g.rect(legL, -3 - bob, 2, 4); g.fill({ color: 0x78350f });
       g.rect(legR, -3 - bob, 2, 4); g.fill({ color: 0x5c3818 });
 
-      g.rect(-3, -8 - bob, 6, 6); g.fill({ color: 0xd6c7a1 });
-      g.rect(-3.5, -6 - bob, 7, 2.2); g.fill({ color: 0xb45309 });
+      g.rect(-3, -8 - bob + slumpY, 6, 6); g.fill({ color: 0xd6c7a1 });
+      g.rect(-3.5, -6 - bob + slumpY, 7, 2.2); g.fill({ color: 0xb45309 });
 
-      g.circle(0, -11 - bob, 2.8); g.fill({ color: 0xfbcfe8 });
+      g.circle(0, -11 - bob + slumpY, 2.8); g.fill({ color: 0xfbcfe8 });
 
-      g.rect(-3.5, -14 - bob, 7, 3.5); g.fill({ color: 0xfef08a });
-      g.rect(-facing * 3, -12 - bob, 2.5, 6); g.fill({ color: 0xfde047 });
+      g.rect(-3.5, -14 - bob + slumpY, 7, 3.5); g.fill({ color: 0xfef08a });
+      g.rect(-facing * 3, -12 - bob + slumpY, 2.5, 6); g.fill({ color: 0xfde047 });
 
-      g.circle(-facing * 3, -6 - bob + armSwing, 3.5);
-      g.fill({ color: 0xf59e0b });
-      g.stroke({ width: 0.8, color: 0xfacc15 });
+      if (tired) {
+        // Tired brow / half-shut eyes
+        g.moveTo(-1.2, -10.5 - bob + slumpY);
+        g.lineTo(1.2, -10.5 - bob + slumpY);
+        g.stroke({ width: 0.8, color: 0x78350f });
 
-      g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -18 - bob + armSwing);
-      g.stroke({ width: 1.2, color: 0xa16207 });
-      g.poly([
-        facing * 3, -18 - bob + armSwing,
-        facing * 3 + facing * 4, -16 - bob + armSwing,
-        facing * 3, -14 - bob + armSwing,
-      ]);
-      g.fill({ color: 0xb45309 });
+        // Slumped buckler hanging low
+        g.circle(-facing * 2.5, -3 + slumpY, 3.5);
+        g.fill({ color: 0xf59e0b });
+        g.stroke({ width: 0.8, color: 0xfacc15 });
+
+        // Slender lance dragging low, crimson banner hanging limp (NO BANNER BOUNCE)
+        g.moveTo(facing * 3, 1);
+        g.lineTo(facing * 4, -10);
+        g.stroke({ width: 1.2, color: 0xa16207 });
+        g.poly([
+          facing * 4, -10,
+          facing * 4 + facing * 3.5, -8,
+          facing * 4, -6,
+        ]);
+        g.fill({ color: 0xb45309 });
+      } else {
+        g.circle(-facing * 3, -6 - bob + armSwing, 3.5);
+        g.fill({ color: 0xf59e0b });
+        g.stroke({ width: 0.8, color: 0xfacc15 });
+
+        // Slender lance with waving banner (banner bounce)
+        g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -18 - bob + armSwing);
+        g.stroke({ width: 1.2, color: 0xa16207 });
+        g.poly([
+          facing * 3, -18 - bob + armSwing,
+          facing * 3 + facing * 4, -16 - bob + armSwing,
+          facing * 3, -14 - bob + armSwing,
+        ]);
+        g.fill({ color: 0xb45309 });
+      }
     }
   } else if (kit === "steppe") {
     // Wind Host: Coat-and-Sash Walkers
-    if (role !== "guard") {
+    if (!isGuardOrMilitia) {
       g.rect(legL, -3 - bob, 2.5, 4); g.fill({ color: 0x451a03 });
       g.rect(legR, -3 - bob, 2.5, 4); g.fill({ color: 0x271406 });
 
@@ -512,38 +613,69 @@ export function drawCultureWalker(
         g.fill({ color: 0xca8a04 });
       }
     } else {
-      // Steppe Guard: Nomad coat with sash, pointed steel helmet with horsehair plume, shield, lance
+      // Steppe Guard / Militia: Nomad coat with sash, pointed steel helmet with horsehair plume, shield, lance
       g.rect(legL, -3 - bob, 2.5, 4); g.fill({ color: 0x451a03 });
       g.rect(legR, -3 - bob, 2.5, 4); g.fill({ color: 0x271406 });
 
-      g.rect(-3.5, -9 - bob, 7, 7); g.fill({ color: 0x9f1239 });
-      g.rect(-3.5, -6 - bob, 7, 2.2); g.fill({ color: 0xca8a04 });
+      g.rect(-3.5, -9 - bob + slumpY, 7, 7); g.fill({ color: 0x9f1239 });
+      g.rect(-3.5, -6 - bob + slumpY, 7, 2.2); g.fill({ color: 0xca8a04 });
 
-      g.circle(0, -11 - bob, 2.8); g.fill({ color: 0xfbcfe8 });
+      g.circle(0, -11 - bob + slumpY, 2.8); g.fill({ color: 0xfbcfe8 });
 
-      g.poly([-3, -13 - bob, 0, -17 - bob, 3, -13 - bob]);
+      g.poly([-3, -13 - bob + slumpY, 0, -17 - bob + slumpY, 3, -13 - bob + slumpY]);
       g.fill({ color: 0xcbd5e1 });
-      g.moveTo(0, -17 - bob); g.lineTo(0, -20 - bob);
-      g.stroke({ width: 1.4, color: 0x9f1239 });
 
-      g.circle(-facing * 3, -6 - bob + armSwing, 3.5);
-      g.fill({ color: 0x57534e });
-      g.stroke({ width: 0.8, color: 0xca8a04 });
+      if (tired) {
+        // Tired brow / half-shut eyes
+        g.moveTo(-1.2, -10.5 - bob + slumpY);
+        g.lineTo(1.2, -10.5 - bob + slumpY);
+        g.stroke({ width: 0.8, color: 0x451a03 });
 
-      g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -18 - bob + armSwing);
-      g.stroke({ width: 1.4, color: 0x7c2d12 });
-      g.circle(facing * 3, -15 - bob + armSwing, 1.4);
-      g.fill({ color: 0x18181b });
-      g.poly([
-        facing * 3, -18 - bob + armSwing,
-        facing * 3 - 1.5, -15 - bob + armSwing,
-        facing * 3 + 1.5, -15 - bob + armSwing,
-      ]);
-      g.fill({ color: 0xf1f5f9 });
+        // Horsehair plume drooping low
+        g.moveTo(0, -17 - bob + slumpY); g.lineTo(-facing * 1.5, -15 - bob + slumpY);
+        g.stroke({ width: 1.2, color: 0x9f1239 });
+
+        // Shield hanging low
+        g.circle(-facing * 2.5, -3 + slumpY, 3.5);
+        g.fill({ color: 0x57534e });
+        g.stroke({ width: 0.8, color: 0xca8a04 });
+
+        // Slumped lance dragging low, plume sagging (NO BANNER BOUNCE)
+        g.moveTo(facing * 3, 1);
+        g.lineTo(facing * 4, -10);
+        g.stroke({ width: 1.4, color: 0x7c2d12 });
+        g.circle(facing * 4, -8, 1.2);
+        g.fill({ color: 0x18181b });
+        g.poly([
+          facing * 4, -10,
+          facing * 4 - 1.5, -8,
+          facing * 4 + 1.5, -8,
+        ]);
+        g.fill({ color: 0xf1f5f9 });
+      } else {
+        g.moveTo(0, -17 - bob); g.lineTo(0, -20 - bob);
+        g.stroke({ width: 1.4, color: 0x9f1239 });
+
+        g.circle(-facing * 3, -6 - bob + armSwing, 3.5);
+        g.fill({ color: 0x57534e });
+        g.stroke({ width: 0.8, color: 0xca8a04 });
+
+        // Steppe lance with waving horsehair pennant (banner bounce)
+        g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -18 - bob + armSwing);
+        g.stroke({ width: 1.4, color: 0x7c2d12 });
+        g.circle(facing * 3, -15 - bob + armSwing, 1.4);
+        g.fill({ color: 0x18181b });
+        g.poly([
+          facing * 3, -18 - bob + armSwing,
+          facing * 3 - 1.5, -15 - bob + armSwing,
+          facing * 3 + 1.5, -15 - bob + armSwing,
+        ]);
+        g.fill({ color: 0xf1f5f9 });
+      }
     }
   } else {
     // Tide Clans: Sailcloth Walkers
-    if (role !== "guard") {
+    if (!isGuardOrMilitia) {
       g.rect(legL, -3 - bob, 2, 3); g.fill({ color: 0x0e7490 });
       g.rect(legL, 0 - bob, 2, 1); g.fill({ color: 0xfbcfe8 });
       g.rect(legR, -3 - bob, 2, 3); g.fill({ color: 0x155e75 });
@@ -566,32 +698,56 @@ export function drawCultureWalker(
         g.fill({ color: 0xa16207 });
       }
     } else {
-      // Tide Guard: Sailcloth warrior vest, reed war cap, turtle-shell buckler, barbed trident
+      // Tide Guard / Militia: Sailcloth warrior vest, reed war cap, turtle-shell buckler, barbed trident
       g.rect(legL, -3 - bob, 2, 4); g.fill({ color: 0x44403c });
       g.rect(legR, -3 - bob, 2, 4); g.fill({ color: 0x271406 });
 
-      g.rect(-3, -8 - bob, 6, 6); g.fill({ color: 0x0e7490 });
-      g.moveTo(-3, -8 - bob); g.lineTo(3, -2 - bob);
+      g.rect(-3, -8 - bob + slumpY, 6, 6); g.fill({ color: 0x0e7490 });
+      g.moveTo(-3, -8 - bob + slumpY); g.lineTo(3, -2 - bob + slumpY);
       g.stroke({ width: 1, color: 0x44403c });
 
-      g.circle(0, -11 - bob, 2.8); g.fill({ color: 0xfbcfe8 });
+      g.circle(0, -11 - bob + slumpY, 2.8); g.fill({ color: 0xfbcfe8 });
 
-      g.rect(-3, -14 - bob, 6, 3); g.fill({ color: 0x0e7490 });
-      g.moveTo(-3, -13 - bob); g.lineTo(3, -13 - bob);
+      g.rect(-3, -14 - bob + slumpY, 6, 3); g.fill({ color: 0x0e7490 });
+      g.moveTo(-3, -13 - bob + slumpY); g.lineTo(3, -13 - bob + slumpY);
       g.stroke({ width: 0.8, color: 0xf8fafc });
 
-      g.ellipse(-facing * 3, -6 - bob + armSwing, 3, 4);
-      g.fill({ color: 0x44403c });
-      g.stroke({ width: 0.8, color: 0x94a3b8 });
+      if (tired) {
+        // Tired brow / half-shut eyes
+        g.moveTo(-1.2, -10.5 - bob + slumpY);
+        g.lineTo(1.2, -10.5 - bob + slumpY);
+        g.stroke({ width: 0.8, color: 0x44403c });
 
-      g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -18 - bob + armSwing);
-      g.stroke({ width: 1.4, color: 0x44403c });
-      g.poly([
-        facing * 3 - 2, -18 - bob + armSwing,
-        facing * 3, -21 - bob + armSwing,
-        facing * 3 + 2, -18 - bob + armSwing,
-      ]);
-      g.stroke({ width: 1, color: 0xcbd5e1 });
+        // Buckler hanging low
+        g.ellipse(-facing * 2.5, -3 + slumpY, 3, 4);
+        g.fill({ color: 0x44403c });
+        g.stroke({ width: 0.8, color: 0x94a3b8 });
+
+        // Barbed trident dragging low (NO BANNER BOUNCE)
+        g.moveTo(facing * 3, 1);
+        g.lineTo(facing * 4, -10);
+        g.stroke({ width: 1.4, color: 0x44403c });
+        g.poly([
+          facing * 4 - 2, -10,
+          facing * 4, -12,
+          facing * 4 + 2, -10,
+        ]);
+        g.stroke({ width: 1, color: 0xcbd5e1 });
+      } else {
+        g.ellipse(-facing * 3, -6 - bob + armSwing, 3, 4);
+        g.fill({ color: 0x44403c });
+        g.stroke({ width: 0.8, color: 0x94a3b8 });
+
+        // Barbed trident with banner bounce
+        g.moveTo(facing * 3, 0 - bob); g.lineTo(facing * 3, -18 - bob + armSwing);
+        g.stroke({ width: 1.4, color: 0x44403c });
+        g.poly([
+          facing * 3 - 2, -18 - bob + armSwing,
+          facing * 3, -21 - bob + armSwing,
+          facing * 3 + 2, -18 - bob + armSwing,
+        ]);
+        g.stroke({ width: 1, color: 0xcbd5e1 });
+      }
     }
   }
 }
@@ -609,7 +765,8 @@ export function drawWalkerFrame(
   facing: number,
   frame: 0 | 1 | 2,
   cultureId?: string,
-  tool?: WalkerJobTool
+  tool?: WalkerJobTool,
+  tired: boolean = false
 ): void {
   g.clear();
 
@@ -627,10 +784,12 @@ export function drawWalkerFrame(
   const cult = culturePalette(cultureId);
   const isDefaultCulture = kit === "western";
   const jobTool = resolveWalkerTool(role, tool);
+  const isGuardOrMilitia = role === "guard" || role === "militia";
+  const slumpY = (tired && isGuardOrMilitia) ? 2 : 0;
 
   // Culture-specific silhouette rendering for non-western cultures
-  if (!isDefaultCulture && (role === "villager" || role === "guard" || jobTool != null)) {
-    drawCultureWalker(g, role, facing, frame, kit, cult, bob, legL, legR, armSwing, jobTool ?? undefined);
+  if (!isDefaultCulture && (role === "villager" || isGuardOrMilitia || jobTool != null)) {
+    drawCultureWalker(g, role, facing, frame, kit, cult, bob, legL, legR, armSwing, jobTool ?? undefined, tired);
     return;
   }
 
@@ -662,14 +821,14 @@ export function drawWalkerFrame(
     tunicColor = isDefaultCulture ? 0x475569 : cult.stone;
   } else if (role === "merchant") {
     tunicColor = 0xb91c1c;
-  } else if (role === "guard") {
+  } else if (isGuardOrMilitia) {
     tunicColor = isDefaultCulture ? 0x1e3a8a : cult.tabard;
   } else if (role === "scholar") {
     tunicColor = 0x6b21a8;
   }
 
-  // Torso / Tunic
-  g.rect(-3, -8 - bob, 6, 6);
+  // Torso / Tunic (slumped downward when tired)
+  g.rect(-3, -8 - bob + slumpY, 6, 6);
   g.fill({ color: tunicColor });
 
   // Special Torso Overlays (Apron, baldric, gold sash)
@@ -698,9 +857,16 @@ export function drawWalkerFrame(
     g.fill({ color: 0x78350f });
   }
 
-  // Head (Skin tone)
-  g.circle(0, -11 - bob, 2.8);
+  // Head (Skin tone, slumped downward when tired)
+  g.circle(0, -11 - bob + slumpY, 2.8);
   g.fill({ color: 0xfbcfe8 });
+
+  // Tired brow / droop
+  if (tired && isGuardOrMilitia) {
+    g.moveTo(-1.2, -10.5 - bob + slumpY);
+    g.lineTo(1.2, -10.5 - bob + slumpY);
+    g.stroke({ width: 0.8, color: 0x334155 });
+  }
 
   // Headwear / Hair
   if (jobTool === "farm") {
@@ -738,8 +904,8 @@ export function drawWalkerFrame(
     g.fill({ color: 0xfacc15 });
     g.circle(facing * 1.8, -14 - bob, 0.8);
     g.fill({ color: 0xffffff });
-  } else if (role === "guard") {
-    g.rect(-3, -14 - bob, 6, 3);
+  } else if (isGuardOrMilitia) {
+    g.rect(-3, -14 - bob + slumpY, 6, 3);
     g.fill({ color: isDefaultCulture ? 0x94a3b8 : cult.stone }); // Helmet
   } else if (role === "scholar") {
     g.rect(-3, -13 - bob, 6, 2.5);
@@ -752,21 +918,40 @@ export function drawWalkerFrame(
   // Carried Tools / Weapons with 2-3 frame arm motion
   if (jobTool) {
     drawJobTool(g, jobTool, facing, frame, bob, armSwing, toolHandleColor, stoneMatColor);
-  } else if (role === "guard") {
-    // Guard: Spear with waving pennant and round shield
-    g.moveTo(facing * 3, 0 - bob);
-    g.lineTo(facing * 3, -17 - bob + armSwing);
-    g.stroke({ width: 1.2, color: toolHandleColor });
-    g.poly([
-      facing * 3, -17 - bob + armSwing,
-      facing * 3 + facing * 4, -15 - bob + armSwing,
-      facing * 3, -13 - bob + armSwing,
-    ]);
-    g.fill({ color: guardPennant });
-    // Shield on off-arm
-    g.circle(-facing * 3, -6 - bob + armSwing, 3.5);
-    g.fill({ color: 0x475569 });
-    g.stroke({ width: 0.8, color: 0x94a3b8 });
+  } else if (isGuardOrMilitia) {
+    if (tired) {
+      // Tired / Slumped Guard / Militia: Drooping spear with limp sagged pennant (NO BANNER BOUNCE)
+      // Slumped spear dragging low
+      g.moveTo(facing * 3, 1);
+      g.lineTo(facing * 4, -10);
+      g.stroke({ width: 1.2, color: toolHandleColor });
+      // Limp drooping pennant (hanging down without animated bounce)
+      g.poly([
+        facing * 4, -10,
+        facing * 4 + facing * 3.5, -8,
+        facing * 4, -5,
+      ]);
+      g.fill({ color: guardPennant });
+      // Shield hanging low on off-arm
+      g.circle(-facing * 2.5, -3 + slumpY, 3.5);
+      g.fill({ color: 0x475569 });
+      g.stroke({ width: 0.8, color: 0x94a3b8 });
+    } else {
+      // Guard: Spear with waving pennant and round shield (banner bounce)
+      g.moveTo(facing * 3, 0 - bob);
+      g.lineTo(facing * 3, -17 - bob + armSwing);
+      g.stroke({ width: 1.2, color: toolHandleColor });
+      g.poly([
+        facing * 3, -17 - bob + armSwing,
+        facing * 3 + facing * 4, -15 - bob + armSwing,
+        facing * 3, -13 - bob + armSwing,
+      ]);
+      g.fill({ color: guardPennant });
+      // Shield on off-arm
+      g.circle(-facing * 3, -6 - bob + armSwing, 3.5);
+      g.fill({ color: 0x475569 });
+      g.stroke({ width: 0.8, color: 0x94a3b8 });
+    }
   } else if (role === "scholar") {
     // Parchment scroll
     g.rect(facing * 2.5, -7 - bob + armSwing, 2, 4);

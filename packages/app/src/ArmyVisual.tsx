@@ -1,10 +1,12 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
 import { formatLetterSuffix, getUnitType, championName, playerCultureId, cultureOfRealm } from "@second-crown/sim";
+import { isFoodStoresEmptyOrLow } from "@second-crown/render";
 import { UnitIcon } from "./UnitIcon";
 
 export function ArmyVisual(props: { state: GameState | undefined; realmId?: string }) {
   const realmId = props.realmId ?? "player";
+  const isTired = props.state && realmId === "player" ? isFoodStoresEmptyOrLow(props.state) : false;
   const culture = props.state
     ? (realmId === "player" ? playerCultureId(props.state) : cultureOfRealm(props.state, realmId))
     : undefined;
@@ -47,7 +49,7 @@ export function ArmyVisual(props: { state: GameState | undefined; realmId?: stri
                   boxShadow: "inset 0 1px 4px rgba(0,0,0,0.6)",
                 }}
               >
-                <UnitIcon typeId={u.typeId} size={44} animated culture={culture} />
+                <UnitIcon typeId={u.typeId} size={44} animated culture={culture} tired={isTired && u.typeId === "militia"} />
               </div>
               <div>
                 <div style={{ fontWeight: 700, color: "#fef08a", fontSize: 13.5 }}>{name}</div>
@@ -80,7 +82,7 @@ export function ArmyVisual(props: { state: GameState | undefined; realmId?: stri
                     lineHeight: 0,
                   }}
                 >
-                  <UnitIcon typeId={u.typeId} size={24} animated culture={culture} />
+                  <UnitIcon typeId={u.typeId} size={24} animated culture={culture} tired={isTired && u.typeId === "militia"} />
                 </span>
               ))}
             </div>

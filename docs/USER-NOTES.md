@@ -3,9 +3,15 @@
 Updated: 2026-09-23 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
-## What your army eats
+## Tired Home Militia & Hunger Visuals on Depleted Food Stores
 
-The Army tab now shows a line like **Upkeep · 20 mouths · 0.40 food/tick (4.0/s).** Mouths is every soldier in your host except the champion. Each one eats 0.02 food per tick. If food runs out, militia start to desert until you have food again.
+When the player's food granaries and stores run dry or drop below the threshold needed to sustain the standing army, home militia meeples on the hold and army displays visually slump into a tired, hungry posture:
+- **Slumped Meeple Posture & Drooping Brow**: Torso and head droop downward by 2px with an exhausted forward posture and drooping brow line across the face, communicating hunger across all cultures.
+- **Dragged Weapons**: Instead of holding weapons upright at guard, tired militia drag their spears, cudgels, and lances low along the ground.
+- **Suppressed Banner Bounce (No Banner Bounce)**: While well-fed militia march with lively bouncing spears and waving heraldic pennants, tired militia's pennants sag limp without bouncing as they walk.
+- **Culture Variations**: Slumped tunics and dragged weapons are tailored across every culture kit (Western tabards & spears, Cedar buckskin & leaf-spears, Sand linen robes & lances, Steppe nomad coats & horsehair spears, and Island sailcloth & tridents).
+- **Army Visuals & Standard Bearer**: Unit icons in the Army view display slumped levies with dragging clubs, and the Royal Standard Bearer in the War Clash strip suppresses the royal banner wave when food reserves are critical.
+- **Full Stores Unchanged**: As soon as food stores are restored above upkeep reserves, militia immediately stand tall and resume alert postures and proud, bouncing banners.
 
 ## Taller Rim Watchtowers with Beacons & Unfinished Scaffolding
 

@@ -80,6 +80,7 @@ import {
   createWalker,
   drawWalkerFrame,
   pickDestination,
+  isFoodStoresEmptyOrLow,
 } from "./walkers.js";
 
 export interface MapRenderer {
@@ -456,12 +457,21 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   }, { passive: false });
 
   function updateWalkers(dt: number, state: GameState | null): void {
+    const isTired = isFoodStoresEmptyOrLow(state ?? lastState);
     const playerWorkers = state?.citizens?.filter(
       (c) => c.realmId === "player" && c.tile != null
     ) ?? [];
+    const playerMilitia = state?.units?.find(
+      (u) => u.realmId === "player" && u.typeId === "militia" && (u.armyId == null)
+    );
+    const hasHomeMilitia = Boolean(playerMilitia && Number(playerMilitia.count) > 0);
 
     for (const w of walkers) {
-      if (playerWorkers.length > 0) {
+      const isMilitiaSlot = hasHomeMilitia && (playerWorkers.length === 0 || w.id % 2 === 0);
+      if (isMilitiaSlot) {
+        w.role = "militia";
+        w.tool = undefined;
+      } else if (playerWorkers.length > 0) {
         const worker = playerWorkers[w.id % playerWorkers.length];
         w.role = roleForCitizenJob(worker.job);
         const b = state?.buildings?.find(
@@ -509,7 +519,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       w.graphics.zIndex = Math.floor((w.x + w.y) * 100) + 40;
 
       const cultId = lastState && sim.playerCultureId ? sim.playerCultureId(lastState) : undefined;
-      drawWalkerFrame(w.graphics, w.role, w.facing, frame, cultId, w.tool);
+      drawWalkerFrame(w.graphics, w.role, w.facing, frame, cultId, w.tool, isTired);
     }
   }
 

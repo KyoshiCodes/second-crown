@@ -6,7 +6,32 @@
 - `packages/sim/src/index.ts`: now re-exports existing read-only `armyMouths` and `upkeepPerTick` from `systems/upkeep.ts`. No logic change; units eat the same.
 - No render or server changes.
  
-+## 2026-09-23 — Gemini Rim Watchtowers Taller with Beacon & Scaffolding (`bakeoff/gemini-towers`)
++## 2026-09-23 — Gemini Tired Home Militia on Low/Empty Food Stores (`bakeoff/gemini-upkeep`)
++
++- **Tired Home Militia Meeples on Hold & Units When Food Stores Depleted (`packages/render/src/walkers.ts`, `packages/render/src/index.ts`, `packages/app/src/UnitIcon.tsx`)**:
++  - If player food stores are empty or nearly empty, home militia meeples on the hold and army displays visually slump into a tired posture with dragged weapons and zero banner bounce:
++    - **Food Upkeep Depletion Detection (`isFoodStoresEmptyOrLow`)**:
++      - Self-contained function checking whether food is missing, `<= 0`, or depleted below standing army upkeep demands (`mouths * 0.02 * 50` ticks buffer, minimum 5 food).
++    - **Slumped Meeple Stance & Drooping Brow (`drawWalkerFrame`, `drawCultureWalker`)**:
++      - Torso and head slump down by 2px (`slumpY = 2`).
++      - Drooping exhausted brow line drawn across eyes/face.
++      - Shield hangs low at the hip (`-3 + slumpY`).
++    - **Low Dragged Weapons & Suppressed Banner Bounce (No Banner Bounce)**:
++      - Spear/lance dragged low along the ground (`moveTo(facing * 3, 1)`, `lineTo(facing * 4, -10)`).
++      - Pennants hang limp and sagged; coordinates remain completely static across walk animation frames 0, 1, 2 (**zero banner bounce**).
++    - **Culture-Kit Adaptations**: Western, Cedar Kin, Sand Banner, Wind Host (Steppe), and Tide Clans all feature tailored tired postures and suppressed banner bounce.
++    - **Full Food Stores Unchanged**: Alert upright posture and energetic banner bounce preserved when food stores are sufficient.
++    - **App Visuals (`UnitIcon.tsx`, `ArmyVisual.tsx`, `WarLivingStrip.tsx`)**:
++      - `UnitIcon` supports `tired?: boolean` slumping clubs and tunics.
++      - `ArmyVisual` passes `tired` to company cards and marching squad rows.
++      - `WarLivingStrip` slumps the Royal Standard Bearer and suppresses royal banner wave when food is low.
++- **Invariants & Preservations**:
++  - `git diff main -- packages/sim server` strictly 100% empty.
++  - Zero changes to camera math, projection, or click hit-testing.
++  - Full test suite passes: 216 monorepo tests, 92 tests in `@second-crown/render` (+5 new tests covering empty/low food detection, slumped coordinates, suppressed banner bounce, and culture kits).
++  - Clean production build in `@second-crown/app`.
++
+ ## 2026-09-23 — Gemini Rim Watchtowers Taller with Beacon & Scaffolding (`bakeoff/gemini-towers`)
 +
 +- **Rim Watchtowers & Unfinished Scaffolding (`packages/render/src/buildings.ts`)**:
 +  - Finished watchtowers on the rim now read taller with a small beacon, and unfinished towers stay scaffolding:
