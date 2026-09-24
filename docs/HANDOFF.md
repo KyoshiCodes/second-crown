@@ -6,7 +6,12 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (bakeoff/gemini-towers)
+## Recent Wave (wave/upkeep-line)
+
+- Army tab shows "Upkeep · N mouths · X food/tick (Y/s)." under Posts (`UpkeepLine`, app).
+- Sim index re-exports `armyMouths`, `upkeepPerTick` (read-only). Upkeep math unchanged. Zero diff on `packages/render`, `server/`.
+
+## Prior Wave (bakeoff/gemini-towers)
 
 - **Finished Rim Watchtowers Read Taller with Small Beacon & Unfinished Towers Stay Scaffolding**:
   - Watchtowers on the rim (`isRimTile(gx, gy)`) now stand noticeably taller with elevated beacons, while unfinished towers stay authentic construction scaffolding across all culture kits:

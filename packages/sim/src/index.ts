@@ -236,6 +236,7 @@ export {
 } from "./systems/ward.js";
 
 export { laborPerTick, applyLabor, maxMarches } from "./systems/labor.js";
+export { armyMouths, upkeepPerTick } from "./systems/upkeep.js";
 export { housingCap, population, canHouse, workPlotCap, workPlotsUsed, canRaiseWork, WORK_PLOTS } from "./systems/housing.js";
 export { isProvinceSeen, tryScoutProvince, revealProvince, ensureFog, visionRange, scoutCost, rimWatchtowers } from "./systems/fog.js";
 export { listRimForts } from "./systems/rimForts.js";

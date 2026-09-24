@@ -3,6 +3,10 @@
 Updated: 2026-09-23 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
+## What your army eats
+
+The Army tab now shows a line like **Upkeep · 20 mouths · 0.40 food/tick (4.0/s).** Mouths is every soldier in your host except the champion. Each one eats 0.02 food per tick. If food runs out, militia start to desert until you have food again.
+
 ## Taller Rim Watchtowers with Beacons & Unfinished Scaffolding
 
 Watchtowers along the rim of the hold now stand taller with signal beacons, while towers under construction stay scaffolding:

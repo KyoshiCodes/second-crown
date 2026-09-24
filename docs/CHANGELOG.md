@@ -1,4 +1,10 @@
 # CHANGELOG
+
+## 2026-09-23 — Upkeep line on Army tab (`wave/upkeep-line`)
+
+- `packages/app/src/UpkeepLine.tsx` (new, display only): "Upkeep · N mouths · X food/tick (Y/s)." Mounted under Posts in `ArmyTab.tsx`.
+- `packages/sim/src/index.ts`: now re-exports existing read-only `armyMouths` and `upkeepPerTick` from `systems/upkeep.ts`. No logic change; units eat the same.
+- No render or server changes.
  
 +## 2026-09-23 — Gemini Rim Watchtowers Taller with Beacon & Scaffolding (`bakeoff/gemini-towers`)
 +

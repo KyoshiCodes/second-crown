@@ -26,6 +26,7 @@ import {
 } from "@second-crown/sim";
 import { ArmyVisual } from "../ArmyVisual";
 import { MarshalCard } from "../MarshalCard";
+import { UpkeepLine } from "../UpkeepLine";
 import type { ActFn } from "../game/useGameEngine";
 import { sfx } from "../sfx";
 
@@ -134,6 +135,7 @@ export function ArmyTab(props: {
             {p.typeId}: home {p.home} · marching {p.marching} · gathering {p.gathering}
           </div>
         ))}
+        <UpkeepLine state={state} />
         <div>
           Wounded {wounded}
           {halls > 0 ? ` · Infirmary ${halls} (${beds} beds)` : ""}
