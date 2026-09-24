@@ -1,11 +1,29 @@
 # CHANGELOG
 
-## 2026-09-24 — Timber ledger resource strip (`wave/hud-strip`)
+## 2026-09-24 — Gemini Resource Strip Animated Pips (bakeoff/gemini-strip)
 
-- `packages/app/src/hud/ResourceHud.tsx`: strip rebuilt as four ledger cells (name, amount / cap, `+N/s` shown only if income > 0). Inline styles moved to `.sc-ledger*` classes in `theme.css`.
-- Full store (`resourceLedger().full`) → amber `is-full` cell with a FULL tag. Food + `isFoodStoresEmptyOrLow` → red `is-empty` cell with a BARE tag; red wins over amber.
-- Colors come from the existing `--chrome-*` vars, so Dusk/Night/Parchment all apply. Two columns under 520px.
-- Vault line now lives in the cell `title` tooltip. No new math; `git diff origin/main -- packages/sim packages/render server` is empty.
+- **Looping 2–3 Frame Animated Pips (`packages/app/src/hud/ResourcePip.tsx`, `packages/app/src/hud/ResourceHud.tsx`, `packages/app/src/theme.css`)**:
+  - Each resource store cell in the carved timber ledger features an authentic 2–3 frame looping animated pip:
+    - **Food (Grain Sack)**: Plump burlap sack tied with twine, breathing and shifting folds, settling with golden grain glints.
+    - **Wood (Timber Log)**: Felled cylindrical log with tree growth rings and bark grain, catching glowing amber resin sap droplets.
+    - **Stone (Cut Ashlar)**: Isometric masonry ashlar block with drafted bevel margins and crystalline chisel tool glints.
+    - **Gold (Minted Coin)**: Royal gold sovereign with reeded edge and crown stamp, gleaming with traveling starburst shines.
+  - **Empty Food Pip Slumps**:
+    - When player food stores are depleted or critically low (`isFoodStoresEmptyOrLow`), the food pip deflates completely into a flat slumped sack collapsed in the dirt with a drooping limp neck and tired horizontal folds.
+  - **Full Store Pip Stacks High**:
+    - When any store is full (`isFull`), its pip stacks high into an impressive multi-tier structure:
+      - Food: 3-sack pyramid stacked high with sprouting ripe wheat ears.
+      - Wood: 5-log timber cord rick stacked high in three tiers with cross-section rings.
+      - Stone: 4-tier stepped fortress masonry pier and capstone stacked high.
+      - Gold: Twin towering treasury coin stacks with loose golden coins spilled at the base.
+      - Enhanced with a warm golden aura glow (`@keyframes sc-pip-stacked-glow`).
+  - **Non-blocking Clicks**:
+    - Strictly enforced `pointer-events: none !important;` on all pips and wrappers. All cell clicks, tooltips, and interactions remain 100% responsive.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Form inputs not restyled to white.
+  - Monorepo tests pass: 220 sim tests, 98 render tests (+4 new unit tests covering stepped loops, slumped idle, stacked glow, variant resolution, and non-blocking click pass-through).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-24 — Gemini Inhabited Shell HUD, Stamped Tabs & Primer Banner (bakeoff/gemini-hud)
 

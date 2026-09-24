@@ -1,10 +1,11 @@
 # Dev notes
 
-## 2026-09-24 — hud-strip
+## 2026-09-24 — resource-strip / pips
 
-- The "empty food" red cell uses `isFoodStoresEmptyOrLow` from `@second-crown/render`, not `have <= 0`, so the strip and the tired militia always agree. That helper also fires when food is low versus army mouths, not only at zero.
-- `.sc-ledger*` styles read `--chrome-*` vars only; the amber/red state colors are fixed and tuned to read on all three palettes.
-- `.sc-resource-bar` class is kept on the strip root in case anything targets it.
+- Resource pips (`ResourcePip.tsx`): All pips and container wrappers unconditionally set `pointer-events: none !important;` so that parent cell hover/tooltip (`title`) and click events are never intercepted.
+- Discrete 3-frame looping uses CSS stepped keyframes (`step-end`) on `<g className="sc-pip-f0|1|2">`, avoiding React render thrashing.
+- Empty food detection in the HUD uses `isFoodStoresEmptyOrLow(state)` from `@second-crown/render`, matching the exact logic that slumps militia meeples on the hold.
+- Full store detection uses `line?.full` from `resourceLedger(state, r)`, switching the pip to `variant="stacked"` with `@keyframes sc-pip-stacked-glow`.
 
 ## 2026-09-24 — hud-chrome
 

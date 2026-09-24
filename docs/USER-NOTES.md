@@ -2,12 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-24 — Timber ledger stores
+## 2026-09-24 — Animated resource ledger & stacked stores
 
-- Food, wood, stone, and gold sit in carved wooden cells at the top. Each shows how much you have and how fast it grows.
-- A full store glows amber: anything extra is wasted, so spend it.
-- Food glows red when the larder is bare. That is when your soldiers look tired.
-- Hover a cell to see how much your vault keeps safe.
+- Food, wood, stone, and gold sit in a carved timber ledger with lively animated icons:
+  - Food shows a tied burlap grain sack.
+  - Wood shows a felled timber log with tree rings.
+  - Stone shows a dressed cubic ashlar block.
+  - Gold shows a minted royal coin.
+- When the food larder is empty or nearly bare, the grain sack slumps flat to the ground (matching your tired soldiers).
+- When any store is completely full, its icon stacks high into towering piles—sacks piled high with wheat, cords of logs, fortress stone piers, and towering coin stacks.
+- All icons pass mouse clicks straight through, so hovering cells for vault safety information works seamlessly.
 
 ## 2026-09-24 — Inhabited shell & stamped tabs
 
