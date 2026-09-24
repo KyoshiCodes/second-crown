@@ -2,11 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-24 — Kingdom buildings as cards
+## 2026-09-24 — Kingdom works & isometric hall chips
 
-- On the Kingdom tab, every finished building is now a small card: its name, level, whether someone works there, and a Demolish button.
-- Buildings hit in a siege show up red-striped with a Repair (8 stone) button.
-- Buildings still going up stay in the Raising list and no longer show a Repair button by mistake.
+- Finished kingdom buildings now sit in tidy work cards, showing their level, location, staffing status, and Demolish/Repair actions.
+- Each work card features a 24px isometric hall chip illustrating the building (cottages, farms, lumber camps, quarries, barracks, chapels, etc.):
+  - Staffed buildings glow brightly with warm lit windows and active hearth smoke.
+  - Unstaffed buildings appear dim and quiet.
+  - Scarred buildings show jagged stone crack fractures across the hall.
+- All chips are click-transparent, so tapping Demolish or Repair always responds instantly.
 
 ## 2026-09-24 — Animated resource ledger & stacked stores
 

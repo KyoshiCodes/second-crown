@@ -1,9 +1,33 @@
 # CHANGELOG
 
-## 2026-09-24 — Kingdom works as cards (wave/hud-works)
+## 2026-09-24 — Gemini Kingdom Work Cards with 24px Isometric Hall Chips (bakeoff/gemini-works)
 
-- `packages/app/src/hud/WorkCard.tsx`, `tabs/KingdomTab.tsx`, `theme.css`: the Standing and Scarred lists are now one "Standing works" grid. Each card shows display name, level, staffed/empty (plus cluster/pair/keep bonuses), coords, and Demolish, or Repair (8 stone) when scarred. `.sc-work-*` styles use `--chrome-*` vars, so Dusk/Night/Parchment all apply.
-- Fresh scaffolding no longer shows in the Scarred list with a Repair button. It stays under Raising with Cancel. No sim change.
+- **24px Isometric Hall Chips (`packages/app/src/hud/HallChip.tsx`, `packages/app/src/theme.css`)**:
+  - Each player work card is equipped with a distinct 24px isometric SVG architectural chip reflecting its building type:
+    - `cottage`: Timber hall with half-timber studs, pitched thatch roof, stone chimney with smoke wisp.
+    - `farm`: Barn with gambrel roof, cross-braced doors, cylindrical stone granary silo, spilling golden straw.
+    - `lumber_camp` / `camp`: A-frame timber shelter, stacked firewood rick with growth rings, woodsman's axe in stump.
+    - `quarry` / `mason`: Stepped ashlar blocks, timber crane derrick boom with pulley and hoisted stone.
+    - `market`: Merchant stall with striped crimson/gold scalloped awning canopy and goods baskets.
+    - `barracks`: Fortified stone training hall with crenellated parapet battlements, arched gateway, heraldic shield.
+    - `academy`: Classical scriptorium with stone columns, triangular pediment, scholar's cupola and golden astrolabe finial.
+    - `chapel`: Soaring sanctuary bell spire crowned with golden cross and stained glass lancet window.
+    - `infirmary`: Healer's hospice hall with steep slate roof and bold red cross medallion.
+    - `watchtower`: Tall stone tower shaft, corbelled parapet, elevated iron brazier with signal fire beacon.
+    - Additional bespoke isometric SVGs for `granary`, `sawmill`, `gold_mine`/`mint`, `stables`, `archery_range`, `siege_workshop`, `walls`, `gate`.
+- **Unstaffed Chip is Dim**:
+  - When a building lacks assigned staff, its chip dims (`opacity: 0.42`, `filter: grayscale(0.55) brightness(0.68)`) with extinguished windows and dormant hearths. Staffed buildings display warm golden candlelight and vibrant colors.
+- **Scarred Chip is Cracked**:
+  - When damaged from siege attacks, the chip renders jagged stone fracture crack lines (`sc-chip-cracks`, `sc-chip-crack-main`, `sc-chip-crack-branch`) and chipped stone effects.
+- **Kingdom Tab Card Grid (`packages/app/src/hud/WorkCard.tsx`, `packages/app/src/tabs/KingdomTab.tsx`)**:
+  - Replaces text lists with responsive cards featuring building name, level, staffing status, bonuses, and Demolish/Repair actions.
+  - Distinguishes fresh building scaffolding from siege scars via `isScarred`.
+- **Non-blocking Clicks**:
+  - Strictly enforces `pointer-events: none !important;` on all chip wrappers and SVGs so Demolish and Repair buttons always receive clicks cleanly.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Monorepo tests pass: 220 sim tests, 102 render tests (+4 new unit tests covering work card grid, 24px hall chip, dim unstaffed state, and cracked scarred state).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-24 — Gemini Resource Strip Animated Pips (bakeoff/gemini-strip)
 

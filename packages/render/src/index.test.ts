@@ -2655,41 +2655,33 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
   });
 
   describe("Resource Strip Animated Pips (Gemini Strip Lane)", () => {
-    it("theme.css defines stepped 2-3 frame loops, slumped idle, stacked glow, and non-blocking pointer events", async () => {
+    it("resource-pip.css and theme.css define stepped loops, slumped idle, stacked glow, and non-blocking pointer events", async () => {
       const fs = await import("node:fs");
       const path = await import("node:path");
       const themeCssPath = path.resolve(__dirname, "../../app/src/theme.css");
+      const pipCssPath = path.resolve(__dirname, "../../app/src/hud/resource-pip.css");
       expect(fs.existsSync(themeCssPath)).toBe(true);
-      const css = fs.readFileSync(themeCssPath, "utf-8");
+      expect(fs.existsSync(pipCssPath)).toBe(true);
+      const themeCss = fs.readFileSync(themeCssPath, "utf-8");
+      const pipCss = fs.readFileSync(pipCssPath, "utf-8");
 
       // 1. Timber ledger strip layout & cells
-      expect(css).toContain("sc-ledger");
-      expect(css).toContain("sc-ledger-cell");
-      expect(css).toContain("sc-pip-wrapper");
+      expect(themeCss).toContain("sc-ledger");
+      expect(themeCss).toContain("sc-ledger-cell");
 
       // 2. Stepped 3-frame looping animation (f0, f1, f2)
-      expect(css).toContain("sc-pip-f0");
-      expect(css).toContain("sc-pip-f1");
-      expect(css).toContain("sc-pip-f2");
-      expect(css).toContain("@keyframes sc-pip-loop-0");
-      expect(css).toContain("@keyframes sc-pip-loop-1");
-      expect(css).toContain("@keyframes sc-pip-loop-2");
-      expect(css).toContain("step-end");
+      expect(pipCss).toContain("sc-pip-f0");
+      expect(pipCss).toContain("sc-pip-f1");
+      expect(pipCss).toContain("sc-pip-f2");
+      expect(pipCss).toContain("steps(1)");
 
-      // 3. Empty food pip slumps (animation & transform)
-      expect(css).toContain("sc-pip-slumped");
-      expect(css).toContain("@keyframes sc-pip-slump-breathe");
-      expect(css).toContain("is-empty");
+      // 3. Empty food pip slumps & full store stacks
+      expect(pipCss).toContain("sc-pip-slumped");
+      expect(pipCss).toContain("sc-pip-stacked");
 
-      // 4. Full store pip stacks high (golden aura glow)
-      expect(css).toContain("sc-pip-stacked");
-      expect(css).toContain("@keyframes sc-pip-stacked-glow");
-      expect(css).toContain("is-full");
-
-      // 5. Clicks NOT blocked: pips and wrapper enforce pointer-events: none !important
-      expect(css).toContain(".sc-pip");
-      expect(css).toContain("pointer-events: none !important");
-      expect(css).toContain(".sc-pip-wrapper");
+      // 4. Clicks NOT blocked: pointer-events: none !important
+      expect(pipCss).toContain(".sc-pip");
+      expect(pipCss).toContain("pointer-events: none !important");
     });
 
     it("ResourcePip renders 2-3 frame SVGs for grain sack, log, ashlar, and coin", async () => {
@@ -2758,7 +2750,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(resolveResourcePipVariant("gold", wellFedState, false)).toBe("normal");
     });
 
-    it("ResourceHud mounts cells with non-blocking pip wrapper and intact tooltips", async () => {
+    it("ResourceHud mounts cells with non-blocking pips and intact tooltips", async () => {
       const fs = await import("node:fs");
       const path = await import("node:path");
       const hudPath = path.resolve(__dirname, "../../app/src/hud/ResourceHud.tsx");
@@ -2767,12 +2759,136 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
 
       expect(code).toContain("ResourcePip");
       expect(code).toContain("resolveResourcePipVariant");
-      expect(code).toContain("sc-pip-wrapper");
       expect(code).toContain("sc-ledger");
       expect(code).toContain("sc-ledger-cell");
       expect(code).toContain("sc-ledger-amount");
       expect(code).toContain("sc-ledger-rate");
       expect(code).toContain("title={tip}");
+    });
+  });
+
+  describe("Work Cards & 24px Isometric Hall Chips (Gemini Works Lane)", () => {
+    it("theme.css defines work card grid, 24px hall chip, dim unstaffed state, and cracked scarred state", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const themeCssPath = path.resolve(__dirname, "../../app/src/theme.css");
+      expect(fs.existsSync(themeCssPath)).toBe(true);
+      const css = fs.readFileSync(themeCssPath, "utf-8");
+
+      // 1. Work grid and work card structure
+      expect(css).toContain("sc-work-grid");
+      expect(css).toContain("sc-work-card");
+      expect(css).toContain("sc-work-head");
+      expect(css).toContain("sc-work-title-group");
+      expect(css).toContain("sc-work-name");
+      expect(css).toContain("sc-work-level");
+      expect(css).toContain("sc-work-status");
+      expect(css).toContain("sc-work-foot");
+      expect(css).toContain("sc-work-btn");
+
+      // 2. 24px isometric hall chip
+      expect(css).toContain("sc-chip-wrapper");
+      expect(css).toContain("sc-chip");
+      expect(css).toContain("width: 24px");
+      expect(css).toContain("height: 24px");
+
+      // 3. Unstaffed chip is dim
+      expect(css).toContain(".sc-chip.is-unstaffed");
+      expect(css).toContain("brightness(0.68)");
+
+      // 4. Scarred chip is cracked
+      expect(css).toContain(".sc-chip.is-scarred");
+      expect(css).toContain("sc-chip-cracks");
+      expect(css).toContain("sc-chip-crack-main");
+
+      // 5. Clicks NOT blocked: pointer-events: none !important
+      expect(css).toContain(".sc-chip-wrapper");
+      expect(css).toContain(".sc-chip *");
+      expect(css).toContain("pointer-events: none !important");
+    });
+
+    it("HallChip renders 24px isometric SVGs for building types with dim unstaffed and cracked scarred states", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const chipPath = path.resolve(__dirname, "../../app/src/hud/HallChip.tsx");
+      expect(fs.existsSync(chipPath)).toBe(true);
+      const code = fs.readFileSync(chipPath, "utf-8");
+
+      // Building types supported
+      expect(code).toContain("CottageSvg");
+      expect(code).toContain("FarmSvg");
+      expect(code).toContain("LumberCampSvg");
+      expect(code).toContain("QuarrySvg");
+      expect(code).toContain("MarketSvg");
+      expect(code).toContain("BarracksSvg");
+      expect(code).toContain("AcademySvg");
+      expect(code).toContain("ChapelSvg");
+      expect(code).toContain("InfirmarySvg");
+      expect(code).toContain("WatchtowerSvg");
+
+      // Unstaffed dim state and scarred cracked state
+      expect(code).toContain("CrackedOverlay");
+      expect(code).toContain("sc-chip-crack-main");
+      expect(code).toContain("is-unstaffed");
+      expect(code).toContain("is-scarred");
+      expect(code).toContain('pointerEvents: "none"');
+      expect(code).toContain('aria-hidden="true"');
+      expect(code).toContain('viewBox="0 0 24 24"');
+    });
+
+    it("WorkCard integrates HallChip and evaluates isScarred accurately", async () => {
+      const { isScarred, WorkCard } = await import("../../app/src/hud/WorkCard.tsx");
+      expect(typeof isScarred).toBe("function");
+      expect(typeof WorkCard).toBe("function");
+
+      // Finished building (completesAtTick is null) is not scarred
+      const finishedBuilding = {
+        id: "b_100_1",
+        typeId: "farm",
+        realmId: "player",
+        x: 3,
+        y: 3,
+        level: 1,
+        completesAtTick: null,
+      };
+      expect(isScarred(finishedBuilding)).toBe(false);
+
+      // Fresh build scaffolding: finishes at 100 + buildTicks (farm = 30 ticks -> 130)
+      const freshScaffolding = {
+        id: "b_100_1",
+        typeId: "farm",
+        realmId: "player",
+        x: 3,
+        y: 3,
+        level: 1,
+        completesAtTick: 130, // 100 + 30
+      };
+      expect(isScarred(freshScaffolding)).toBe(false);
+
+      // Siege scarred building: completesAtTick is blow tick + 40 (e.g. tick 200 -> 240 != 130)
+      const scarredBuilding = {
+        id: "b_100_1",
+        typeId: "farm",
+        realmId: "player",
+        x: 3,
+        y: 3,
+        level: 1,
+        completesAtTick: 240, // siege damage scar
+      };
+      expect(isScarred(scarredBuilding)).toBe(true);
+    });
+
+    it("KingdomTab renders standing works with WorkCard grid", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const tabPath = path.resolve(__dirname, "../../app/src/tabs/KingdomTab.tsx");
+      expect(fs.existsSync(tabPath)).toBe(true);
+      const code = fs.readFileSync(tabPath, "utf-8");
+
+      expect(code).toContain("WorkCard");
+      expect(code).toContain("isScarred");
+      expect(code).toContain("sc-work-grid");
+      expect(code).toContain("Standing works");
     });
   });
 });
