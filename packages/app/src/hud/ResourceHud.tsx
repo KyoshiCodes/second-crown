@@ -5,10 +5,11 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { isFoodStoresEmptyOrLow } from "@second-crown/render";
+import { ResourcePip, resolveResourcePipVariant } from "./ResourcePip";
+import "./resource-pip.css";
 
 const RES_LABEL: Record<string, string> = { food: "Food", wood: "Wood", stone: "Stone", gold: "Gold" };
 
-/** True when an income string is a positive number (skips "0", "", "-3"). */
 function hasIncome(raw: string | undefined): boolean {
   const n = Number(raw ?? "0");
   return Number.isFinite(n) ? n > 0 : n === Infinity;
@@ -19,7 +20,6 @@ export function ResourceHud(props: {
   income: Record<string, string>;
   state?: GameState;
 }) {
-  // Same check that slumps the militia: an empty larder reads red here too.
   const hungry = props.state ? isFoodStoresEmptyOrLow(props.state) : false;
   return (
     <div className="sc-resource-bar sc-ledger" role="list" aria-label="Stores">
@@ -31,6 +31,7 @@ export function ResourceHud(props: {
         const empty = r === "food" && hungry;
         const full = !empty && Boolean(line?.full);
         const tone = empty ? "empty" : full ? "full" : "";
+        const variant = resolveResourcePipVariant(r, props.state, full, have);
         const tip = [
           `${RES_LABEL[r]} ${formatLetterSuffix(have)}${cap ? ` of ${cap}` : ""}`,
           line ? `vault keeps ${formatLetterSuffix(String(line.vault))} safe` : "",
@@ -40,6 +41,7 @@ export function ResourceHud(props: {
         return (
           <div key={r} role="listitem" className={`sc-ledger-cell ${tone ? `is-${tone}` : ""}`} title={tip}>
             <div className="sc-ledger-name">
+              <ResourcePip resource={r} variant={variant} />
               {RES_LABEL[r]}
               {full ? <span className="sc-ledger-tag">full</span> : null}
               {empty ? <span className="sc-ledger-tag">bare</span> : null}

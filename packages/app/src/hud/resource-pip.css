@@ -1,0 +1,47 @@
+.sc-pip {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  pointer-events: none !important;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+.sc-ledger-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sc-pip-frame {
+  display: none;
+}
+.sc-pip-f0 {
+  display: inline;
+  animation: sc-pip-cycle 0.9s step-end infinite;
+}
+@keyframes sc-pip-cycle {
+  0%, 32% { opacity: 1; }
+  33%, 100% { opacity: 1; }
+}
+.sc-pip .sc-pip-f0 { animation: sc-pip-show0 1.2s steps(1) infinite; }
+.sc-pip .sc-pip-f1 { animation: sc-pip-show1 1.2s steps(1) infinite; }
+.sc-pip .sc-pip-f2 { animation: sc-pip-show2 1.2s steps(1) infinite; }
+@keyframes sc-pip-show0 {
+  0%, 32% { display: inline; }
+  33%, 100% { display: none; }
+}
+@keyframes sc-pip-show1 {
+  0%, 32% { display: none; }
+  33%, 65% { display: inline; }
+  66%, 100% { display: none; }
+}
+@keyframes sc-pip-show2 {
+  0%, 65% { display: none; }
+  66%, 100% { display: inline; }
+}
+.sc-pip-slumped {
+  filter: grayscale(0.25);
+}
+.sc-pip-stacked {
+  filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.45));
+}
