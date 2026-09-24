@@ -2836,6 +2836,195 @@ function drawSiegeWorkshopCulture(
   }
 }
 
+/**
+ * Unfinished watchtower presentation: authentic timber construction scaffolding tower.
+ * Replaces finished stone masonry with wooden standards, ledgers, diagonal cross-braces,
+ * staging platforms, access ladder, and a builder's hoist lifting stone blocks.
+ */
+export function drawWatchtowerScaffolding(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette,
+  isRim: boolean = false
+): void {
+  // Scaffolding wood & stone palette adapted by culture kit
+  let woodMain = 0x78350f;     // Warm oak timber
+  let woodLedger = 0x854d0e;   // Medium ledger planks
+  let woodPlank = 0xb45309;    // Platform decking
+  let woodDark = 0x451a03;     // Shadowed uprights & lashings
+  let stoneFoot = 0x64748b;    // Cut foundation stone
+  let stoneLit = 0x94a3b8;     // Lit stone face
+  let ropeColor = 0xd4a373;    // Natural hemp rope
+
+  if (kit === "cedar") {
+    woodMain = 0x5c3818;
+    woodLedger = 0x78350f;
+    woodPlank = 0x854d0e;
+    woodDark = 0x291807;
+    stoneFoot = 0x52525b;
+    stoneLit = 0x71717a;
+    ropeColor = 0xb45309;
+  } else if (kit === "sand") {
+    woodMain = 0x92400e;
+    woodLedger = 0xb45309;
+    woodPlank = 0xd97706;
+    woodDark = 0x451a03;
+    stoneFoot = 0xa16207;
+    stoneLit = 0xd4a373;
+    ropeColor = 0xfde68a;
+  } else if (kit === "steppe") {
+    woodMain = 0x44403c;
+    woodLedger = 0x57534e;
+    woodPlank = 0x78716c;
+    woodDark = 0x1c1917;
+    stoneFoot = 0x27272a;
+    stoneLit = 0x3f3f46;
+    ropeColor = 0xa8a29e;
+  } else if (kit === "islands") {
+    woodMain = 0xca8a04;
+    woodLedger = 0xa16207;
+    woodPlank = 0xeab308;
+    woodDark = 0x713f12;
+    stoneFoot = 0x78716c;
+    stoneLit = 0xa8a29e;
+    ropeColor = 0xfef08a;
+  }
+
+  // 1. Partial Foundation Masonry (Work In Progress Footings)
+  // Low foundation plinth showing initial stone courses laid by builders
+  g.poly([-8, 0, 0, 4, 0, 1.5, -8, -2.5]);
+  g.fill({ color: stoneLit, alpha: a });
+  g.poly([0, 4, 8, 0, 8, -2.5, 0, 1.5]);
+  g.fill({ color: stoneFoot, alpha: a });
+
+  // Plinth top surface
+  g.poly([-8, -2.5, 0, 1.5, 8, -2.5, 0, -6.5]);
+  g.fill({ color: stoneLit, alpha: a * 0.85 });
+
+  // Uncut ashlar stone blocks waiting to be laid near the base
+  g.poly([-11, 2, -7, 4, -7, 1.5, -11, -0.5]);
+  g.fill({ color: stoneFoot, alpha: a });
+  g.poly([6, 3, 10, 1, 10, -1.5, 6, 0.5]);
+  g.fill({ color: stoneLit, alpha: a });
+
+  // 2. Corner Upright Scaffold Poles (Timber Standards)
+  // Back-left pole
+  g.moveTo(-7, -4); g.lineTo(-5, -h);
+  g.stroke({ width: 2.0, color: woodDark, alpha: a * 0.85 });
+  // Back-right pole
+  g.moveTo(7, -4); g.lineTo(5, -h);
+  g.stroke({ width: 2.0, color: woodDark, alpha: a * 0.85 });
+  // Front-left pole
+  g.moveTo(-7, 2); g.lineTo(-5, -h + 2);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+  // Front-right pole
+  g.moveTo(7, 2); g.lineTo(5, -h + 2);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+
+  // 3. Multi-Tier Horizontal Ledgers & Diagonal X-Braces
+  const tiers = isRim ? [0.22, 0.44, 0.66, 0.88, 1.0] : [0.28, 0.55, 0.82, 1.0];
+  let prevY = 0;
+
+  for (let i = 0; i < tiers.length; i++) {
+    const f = tiers[i];
+    const currY = -h * f;
+    const lX = -7 + 2 * f;
+    const rX = 7 - 2 * f;
+
+    // Horizontal front ledger rail
+    g.moveTo(lX, currY + 2); g.lineTo(rX, currY + 2);
+    g.stroke({ width: 1.6, color: woodLedger, alpha: a });
+
+    // Diagonal X-braces between tiers
+    if (i > 0) {
+      const prevLX = -7 + 2 * tiers[i - 1];
+      const prevRX = 7 - 2 * tiers[i - 1];
+      // Diagonal 1
+      g.moveTo(prevLX, prevY + 2); g.lineTo(rX, currY + 2);
+      g.stroke({ width: 1.1, color: woodLedger, alpha: a * 0.9 });
+      // Diagonal 2
+      g.moveTo(prevRX, prevY + 2); g.lineTo(lX, currY + 2);
+      g.stroke({ width: 1.1, color: woodLedger, alpha: a * 0.9 });
+
+      // Rope joint lashings (dark dots at joints)
+      g.circle(lX, currY + 2, 0.9); g.fill({ color: 0x1e293b, alpha: a });
+      g.circle(rX, currY + 2, 0.9); g.fill({ color: 0x1e293b, alpha: a });
+    }
+
+    prevY = currY;
+  }
+
+  // 4. Staging Work Platforms (Planking Decks)
+  // Mid-level working platform
+  const midF = isRim ? 0.44 : 0.55;
+  const midY = -h * midF;
+  g.poly([
+    -6.5, midY + 3,
+    0, midY + 6,
+    6.5, midY + 3,
+    0, midY,
+  ]);
+  g.fill({ color: woodPlank, alpha: a });
+  g.stroke({ width: 0.8, color: woodDark, alpha: a });
+
+  // Top construction staging platform
+  const topY = -h * (isRim ? 0.88 : 0.82);
+  g.poly([
+    -5.5, topY + 2.5,
+    0, topY + 5,
+    5.5, topY + 2.5,
+    0, topY,
+  ]);
+  g.fill({ color: woodPlank, alpha: a });
+  g.stroke({ width: 0.8, color: woodDark, alpha: a });
+
+  // Stack of building planks on mid platform
+  g.rect(-4, midY + 1, 4, 1.8);
+  g.fill({ color: woodLedger, alpha: a });
+
+  // 5. Access Ladder along Left Upright
+  for (let ly = 0; ly > midY; ly -= 3.2) {
+    g.moveTo(-7.5, ly + 1.5); g.lineTo(-5.2, ly + 1.5);
+    g.stroke({ width: 0.9, color: woodMain, alpha: a });
+  }
+
+  // 6. Builder's Hoist Crane Jib & Suspended Stone Block
+  // Cantilever boom pole projecting from top platform
+  const boomY = -h;
+  g.moveTo(0, topY + 1); g.lineTo(9, boomY - 3);
+  g.stroke({ width: 1.8, color: woodMain, alpha: a });
+  // Diagonal boom brace strut
+  g.moveTo(3, topY + 2); g.lineTo(7, boomY - 1);
+  g.stroke({ width: 1.1, color: woodLedger, alpha: a });
+
+  // Pulley wheel at the boom tip
+  g.circle(9, boomY - 3, 1.2);
+  g.fill({ color: 0x334155, alpha: a });
+
+  // Hanging hoist rope
+  const ropeSway = Math.sin(phase * 2) * 0.8;
+  g.moveTo(9, boomY - 2);
+  g.lineTo(9 + ropeSway, boomY + 7);
+  g.stroke({ width: 0.9, color: ropeColor, alpha: a });
+
+  // Hoisted ashlar stone block swinging gently on the line
+  g.poly([
+    7.5 + ropeSway, boomY + 7,
+    10.5 + ropeSway, boomY + 7,
+    10.5 + ropeSway, boomY + 10.5,
+    7.5 + ropeSway, boomY + 10.5,
+  ]);
+  g.fill({ color: stoneLit, alpha: a });
+  g.stroke({ width: 0.5, color: stoneFoot, alpha: a });
+
+  // Mortar bucket on the top deck
+  g.rect(-3, topY - 1, 2.2, 2.5);
+  g.fill({ color: 0x475569, alpha: a });
+}
+
 function drawWatchtowerCulture(
   g: Graphics,
   h: number,
@@ -2843,8 +3032,14 @@ function drawWatchtowerCulture(
   phase: number,
   kit: CultureKit,
   cult: CultureVisualPalette,
-  complete: boolean = true
+  complete: boolean = true,
+  isRim: boolean = false
 ): void {
+  if (!complete) {
+    drawWatchtowerScaffolding(g, h, a, phase, kit, cult, isRim);
+    return;
+  }
+
   if (kit === "cedar") {
     // Cedar Kin: Cross-Braced Cedar Trestle Lookout with Beacon Cage
     g.poly([-8, 0, 0, 4, 8, 0, 0, -4]); g.fill({ color: 0x3f3f46, alpha: a });
@@ -2854,7 +3049,8 @@ function drawWatchtowerCulture(
     g.moveTo(0, 4); g.lineTo(0, -h + 2);
     g.stroke({ width: 2.2, color: 0x78350f, alpha: a });
 
-    for (const f of [0.25, 0.5, 0.75]) {
+    const fTies = isRim ? [0.2, 0.4, 0.6, 0.8] : [0.25, 0.5, 0.75];
+    for (const f of fTies) {
       g.moveTo(-6, -h * f); g.lineTo(6, -h * f);
       g.stroke({ width: 1.2, color: 0x5c3818, alpha: a });
     }
@@ -2864,12 +3060,13 @@ function drawWatchtowerCulture(
     g.poly([-8, -h - 2, 0, -h - 16, 8, -h - 2]);
     g.fill({ color: 0x654321, alpha: a });
 
-    if (complete) {
-      const fPuff = Math.sin(phase * 6) * 1.2;
-      g.circle(0, -h - 18, 2.5 + fPuff * 0.2); g.fill({ color: 0xea580c, alpha: a });
-      g.circle(0, -h - 18, 1.2); g.fill({ color: 0xfacc15, alpha: a });
-    } else {
-      g.circle(0, -h - 18, 1.2); g.fill({ color: 0x1e293b, alpha: a * 0.8 });
+    // Cedar Beacon Cage & Signal Fire
+    const fPuff = Math.sin(phase * 6) * 1.2;
+    g.rect(-3.5, -h - 17, 7, 2); g.fill({ color: 0x27272a, alpha: a });
+    g.circle(0, -h - 18, 2.5 + fPuff * 0.2); g.fill({ color: 0xea580c, alpha: a });
+    g.circle(0, -h - 18, 1.2); g.fill({ color: 0xfacc15, alpha: a });
+    if (isRim) {
+      g.ellipse(0, -h - 18, 7.5, 4.2); g.fill({ color: 0xfde047, alpha: 0.18 * a });
     }
 
     g.circle(-5, -h, 1.6); g.fill({ color: 0xd97706, alpha: a });
@@ -2883,6 +3080,9 @@ function drawWatchtowerCulture(
 
     g.rect(-2, -h * 0.4, 1.4, 4); g.fill({ color: 0x451a03, alpha: a });
     g.rect(2, -h * 0.7, 1.4, 4); g.fill({ color: 0x451a03, alpha: a });
+    if (isRim) {
+      g.rect(-2, -h * 0.2, 1.4, 3.5); g.fill({ color: 0x451a03, alpha: a });
+    }
 
     g.poly([-9, -h + 2, 0, 5 - h, 9, -h + 2, 0, -h - 4]);
     g.fill({ color: 0xc29d62, alpha: a });
@@ -2891,9 +3091,16 @@ function drawWatchtowerCulture(
     g.poly([-6, -h - 3, 0, -h - 15, 6, -h - 3]); g.fill({ color: 0xd97706, alpha: a });
     g.circle(0, -h - 15, 1.4); g.fill({ color: 0xfacc15, alpha: a });
 
+    // Sand Beacon Lantern Cupola & Pennant
     const sWave = Math.sin(phase * 4) * 2;
     g.moveTo(0, -h - 15); g.lineTo(8 + sWave, -h - 11);
     g.stroke({ width: 1.2, color: 0xdc2626, alpha: a });
+    if (isRim) {
+      const flame = Math.sin(phase * 6) * 1.2;
+      g.circle(0, -h - 17, 2.2 + flame * 0.25); g.fill({ color: 0xf97316, alpha: a });
+      g.circle(0, -h - 17, 1.0); g.fill({ color: 0xfef08a, alpha: a });
+      g.ellipse(0, -h - 17, 6.5, 3.8); g.fill({ color: 0xfde047, alpha: a * 0.16 });
+    }
 
   } else if (kit === "steppe") {
     // Wind Host: Nomad Timber Lookout Scaffolding & Signal Smoke Pylon
@@ -2911,15 +3118,21 @@ function drawWatchtowerCulture(
     g.rect(-6, -h - 2, 12, 6); g.fill({ color: 0x854d0e, alpha: a });
     g.stroke({ width: 1, color: 0x291807, alpha: a });
 
-    if (complete) {
-      const sPuff = Math.sin(phase * 3) * 2;
-      g.circle(0, -h - 8 + sPuff, 3); g.fill({ color: 0x3f3f46, alpha: 0.5 * a });
-      g.circle(2, -h - 14 + sPuff, 4); g.fill({ color: 0x27272a, alpha: 0.35 * a });
-    }
+    // Signal Beacon Coals & Billowing Signal Smoke
+    const sPuff = Math.sin(phase * 3) * 2;
+    g.circle(0, -h - 8 + sPuff, 3); g.fill({ color: 0x3f3f46, alpha: 0.5 * a });
+    g.circle(2, -h - 14 + sPuff, 4); g.fill({ color: 0x27272a, alpha: 0.35 * a });
 
     g.moveTo(5, -h - 2); g.lineTo(5, -h - 12);
     g.stroke({ width: 1.2, color: 0x291807, alpha: a });
     g.circle(5, -h - 12, 1.4); g.fill({ color: 0xdc2626, alpha: a });
+
+    if (isRim) {
+      // Elevated beacon brazier on rim
+      g.rect(-2.5, -h - 4, 5, 2.5); g.fill({ color: 0x1c1917, alpha: a });
+      g.circle(0, -h - 4, 1.6); g.fill({ color: 0xea580c, alpha: a });
+      g.circle(0, -h - 4, 0.8); g.fill({ color: 0xfacc15, alpha: a });
+    }
 
   } else if (kit === "islands") {
     // Tide Clans: Driftwood & Bamboo Lighthouse Tower
@@ -2934,8 +3147,12 @@ function drawWatchtowerCulture(
     g.poly([-7, -h - 2, 0, -h - 14, 7, -h - 2]);
     g.fill({ color: 0xd97706, alpha: a });
 
+    // Nautical Beacon Light
     g.circle(0, -h - 4, 2.8); g.fill({ color: 0x06b6d4, alpha: a * 0.9 });
     g.circle(0, -h - 4, 1.4); g.fill({ color: 0xffffff, alpha: a });
+    if (isRim) {
+      g.ellipse(0, -h - 4, 8, 4.5); g.fill({ color: 0x38bdf8, alpha: 0.22 * a });
+    }
 
     g.circle(-4, -h, 1.4); g.fill({ color: 0xfef08a, alpha: a });
   }
@@ -3181,10 +3398,13 @@ function drawArcheryRangeCulture(
 // -------------------------------------------------------------
 // Building Height Resolver for Isometric Elevations & Overlays
 // -------------------------------------------------------------
-export function buildingHeight(typeId: string, lvl: number = 1): number {
+export function buildingHeight(typeId: string, lvl: number = 1, gx?: number, gy?: number): number {
   const heightBoost = (Math.max(1, Math.min(5, lvl)) - 1) * 3;
   switch (typeId) {
-    case "watchtower": return 34 + heightBoost;
+    case "watchtower": {
+      const isRim = gx !== undefined && gy !== undefined && isRimTile(gx, gy);
+      return (isRim ? 44 : 34) + heightBoost;
+    }
     case "keep": return 30 + heightBoost;
     case "academy":
     case "chapel": return 26 + heightBoost;
@@ -4267,20 +4487,39 @@ export function drawIsometricBuilding(
     }
 
     case "watchtower": {
-      if (kit !== "western") {
-        drawWatchtowerCulture(g, 34 + heightBoost, a, phase, kit, cult, complete);
+      const isRim = isRimTile(gx, gy);
+      const h = (isRim ? 44 : 34) + heightBoost;
+
+      if (!complete) {
+        drawWatchtowerScaffolding(g, h, a, phase, kit, cult, isRim);
         break;
       }
+
+      if (kit !== "western") {
+        drawWatchtowerCulture(g, h, a, phase, kit, cult, complete, isRim);
+        break;
+      }
+
       // Denser Soaring Stone Lookout + Overhanging Hoarding + Beacon Brazier
-      const h = 34 + heightBoost;
+      // Base stone shaft (left & right facets)
       g.poly([-9, 0, 0, 4.5, 0, 4.5 - h, -9, 0 - h]);
       g.fill({ color: 0x94a3b8, alpha: a });
       g.poly([0, 4.5, 9, 0, 9, 0 - h, 0, 4.5 - h]);
       g.fill({ color: 0x64748b, alpha: a });
 
       // Arrow slits along shaft
-      g.rect(-4, -h * 0.4, 1.5, 4); g.fill({ color: 0x0f172a, alpha: a });
-      g.rect(3, -h * 0.6, 1.5, 4); g.fill({ color: 0x0f172a, alpha: a });
+      if (isRim) {
+        // Taller rim shaft has tiered arrow loops & stone corbel belt course
+        g.rect(-4, -h * 0.28, 1.5, 3.5); g.fill({ color: 0x0f172a, alpha: a });
+        g.rect(3, -h * 0.45, 1.5, 3.5); g.fill({ color: 0x0f172a, alpha: a });
+        g.rect(-4, -h * 0.7, 1.5, 3.5); g.fill({ color: 0x0f172a, alpha: a });
+        // Stone belt corbel trim
+        g.moveTo(-9, -h * 0.5); g.lineTo(0, 4.5 - h * 0.5); g.lineTo(9, -h * 0.5);
+        g.stroke({ width: 1.2, color: 0x475569, alpha: a });
+      } else {
+        g.rect(-4, -h * 0.4, 1.5, 4); g.fill({ color: 0x0f172a, alpha: a });
+        g.rect(3, -h * 0.6, 1.5, 4); g.fill({ color: 0x0f172a, alpha: a });
+      }
 
       // Timber Hoarding Overhang
       g.poly([-12, -h + 3, 0, 7 - h, 12, -h + 3, 0, -h - 5]);
@@ -4289,20 +4528,32 @@ export function drawIsometricBuilding(
       // Conical Slate Roof & Iron Brazier with Fire
       g.poly([-11, -h, 0, -h - 16, 11, -h]);
       g.fill({ color: 0x713f12, alpha: a });
-      if (complete) {
-        const flame = Math.sin(phase * 6) * 1.5;
-        g.circle(0, -h - 18, 2.5 + flame * 0.3);
-        g.fill({ color: 0xf97316, alpha: a });
-      } else {
-        g.circle(0, -h - 18, 1.2);
-        g.fill({ color: 0x1e293b, alpha: a * 0.8 });
+
+      // Iron Brazier Basket & Elevated Beacon Fire
+      g.rect(-3.5, -h - 17, 7, 2.5);
+      g.fill({ color: 0x1e293b, alpha: a });
+
+      const flame = Math.sin(phase * 6) * 1.5;
+      g.circle(0, -h - 18, 2.5 + flame * 0.3);
+      g.fill({ color: 0xf97316, alpha: a });
+      g.circle(0, -h - 18.5, 1.2);
+      g.fill({ color: 0xfacc15, alpha: a });
+
+      if (isRim) {
+        // Taller rim beacon has radiant warm beacon glow and ember spark
+        g.ellipse(0, -h - 18, 7.5 + Math.sin(phase * 4) * 1.0, 4.5 + Math.sin(phase * 4) * 0.6);
+        g.fill({ color: 0xfde047, alpha: 0.18 * a });
+        g.circle(Math.sin(phase * 5) * 1.8, -h - 22, 0.7);
+        g.fill({ color: 0xfef08a, alpha: 0.85 * a });
       }
 
       // Royal Pennant
       const flap = Math.sin(phase * 4) * 3;
-      g.moveTo(0, -h - 16); g.lineTo(0, -h - 25);
+      const pennantTop = isRim ? -h - 28 : -h - 25;
+      const pennantBase = isRim ? -h - 18 : -h - 16;
+      g.moveTo(0, pennantBase); g.lineTo(0, pennantTop);
       g.stroke({ width: 1.5, color: 0xd4a359, alpha: a });
-      g.poly([0, -h - 25, 9 + flap, -h - 21, 0, -h - 17]);
+      g.poly([0, pennantTop, 9 + flap, pennantTop + 4, 0, pennantTop + 8]);
       g.fill({ color: 0xfacc15, alpha: a });
       break;
     }
@@ -4977,8 +5228,9 @@ export function drawIsometricBuilding(
   }
 
   // Scarred / knocked-out building presentation: cracked stone & rubble overlay
-  if (!complete) {
-    const effectiveH = buildingHeight(typeId, lvl);
+  // Unfinished towers stay scaffolding, while scarred buildings draw cracked stone
+  if (!complete && typeId !== "watchtower") {
+    const effectiveH = buildingHeight(typeId, lvl, gx, gy);
     drawCrackedStoneOverlay(g, typeId, effectiveH, gx, gy, kit, lvl);
   }
 

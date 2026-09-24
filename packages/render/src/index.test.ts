@@ -55,6 +55,7 @@ import {
   drawResourceNode,
   drawCrackedStoneOverlay,
   buildingHeight,
+  drawWatchtowerScaffolding,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -2220,6 +2221,196 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       const keepFlameScar = gKeepScar.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
       expect(keepFlameDone.length).toBe(1);
       expect(keepFlameScar.length).toBe(0);
+    });
+  });
+
+  describe("Watchtowers on the rim and unfinished scaffolding (bakeoff/gemini-towers)", () => {
+    function createMockGraphics() {
+      const calls: { method: string; args: any[] }[] = [];
+      const mock: any = {
+        calls,
+        clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+        poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+        fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+        stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+        moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+        lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+        circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+        rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+        ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+        roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+        quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+      };
+      return mock;
+    }
+
+    const defaultVisuals: ThemeVisuals = {
+      groundColors: [0x1e3a1e, 0x2d4a27, 0x3b5a32],
+      unclaimedColor: 0x3a3f3a,
+      decorations: "none",
+      seasonName: "Verdant Sun",
+    };
+
+    it("resolves taller buildingHeight for rim watchtowers while preserving interior height", () => {
+      // Interior watchtower (1, 1) or (2, 2)
+      expect(buildingHeight("watchtower", 1, 1, 1)).toBe(34);
+      expect(buildingHeight("watchtower", 3, 2, 2)).toBe(34 + 6);
+
+      // Rim watchtowers at outer perimeter (gx === 0, gy === 0, gx === GRID_W - 1, gy === GRID_H - 1)
+      expect(buildingHeight("watchtower", 1, 0, 4)).toBe(44);
+      expect(buildingHeight("watchtower", 2, 0, 4)).toBe(44 + 3);
+      expect(buildingHeight("watchtower", 3, 0, 4)).toBe(44 + 6);
+      expect(buildingHeight("watchtower", 1, 5, 0)).toBe(44);
+      expect(buildingHeight("watchtower", 1, 15, 5)).toBe(44);
+      expect(buildingHeight("watchtower", 1, 5, 9)).toBe(44);
+
+      // Default without coordinates maintains backward compatibility (interior standard)
+      expect(buildingHeight("watchtower", 1)).toBe(34);
+      expect(buildingHeight("watchtower", 2)).toBe(37);
+    });
+
+    it("finished Western watchtower on the rim reads taller with a small beacon and radiant glow", () => {
+      const gRim = createMockGraphics();
+      const gInt = createMockGraphics();
+
+      drawIsometricBuilding(gRim, "watchtower", 1, true, 0.5, defaultVisuals, 0, 4, undefined, "western");
+      drawIsometricBuilding(gInt, "watchtower", 1, true, 0.5, defaultVisuals, 2, 2, undefined, "western");
+
+      // Verify rim watchtower reaches higher apex (more negative Y) than interior
+      const minYRim = Math.min(...gRim.calls.flatMap((c) =>
+        c.method === "moveTo" || c.method === "lineTo" ? [c.args[1]] :
+        c.method === "circle" ? [c.args[1]] :
+        c.method === "poly" ? (c.args[0] as number[]).filter((_, i) => i % 2 === 1) : []
+      ));
+      const minYInt = Math.min(...gInt.calls.flatMap((c) =>
+        c.method === "moveTo" || c.method === "lineTo" ? [c.args[1]] :
+        c.method === "circle" ? [c.args[1]] :
+        c.method === "poly" ? (c.args[0] as number[]).filter((_, i) => i % 2 === 1) : []
+      ));
+
+      // Rim watchtower should be at least 10px taller than interior watchtower
+      expect(minYInt - minYRim).toBeGreaterThanOrEqual(10);
+
+      // Both have active flame (0xf97316)
+      const flameRim = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+      const flameInt = gInt.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+      expect(flameRim.length).toBe(1);
+      expect(flameInt.length).toBe(1);
+
+      // Rim beacon has radiant warm beacon glow halo (0xfde047)
+      const haloRim = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+      expect(haloRim.length).toBeGreaterThan(0);
+    });
+
+    it("finished culture watchtowers scale taller on the rim with culture-specific beacons", () => {
+      const kits = ["cedar", "sand", "steppe", "islands"] as const;
+
+      for (const kit of kits) {
+        const gRim = createMockGraphics();
+        const gInt = createMockGraphics();
+
+        drawIsometricBuilding(gRim, "watchtower", 1, true, 0.5, defaultVisuals, 0, 4, undefined, kit);
+        drawIsometricBuilding(gInt, "watchtower", 1, true, 0.5, defaultVisuals, 2, 2, undefined, kit);
+
+        const minYRim = Math.min(...gRim.calls.flatMap((c) =>
+          c.method === "moveTo" || c.method === "lineTo" ? [c.args[1]] :
+          c.method === "circle" ? [c.args[1]] :
+          c.method === "poly" ? (c.args[0] as number[]).filter((_, i) => i % 2 === 1) : []
+        ));
+        const minYInt = Math.min(...gInt.calls.flatMap((c) =>
+          c.method === "moveTo" || c.method === "lineTo" ? [c.args[1]] :
+          c.method === "circle" ? [c.args[1]] :
+          c.method === "poly" ? (c.args[0] as number[]).filter((_, i) => i % 2 === 1) : []
+        ));
+
+        // Rim version reaches higher elevation across all culture kits
+        expect(minYInt - minYRim).toBeGreaterThanOrEqual(8);
+
+        // Rim beacon lighting presence
+        if (kit === "cedar") {
+          const cedarFire = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xea580c);
+          expect(cedarFire.length).toBe(1);
+          const cedarHalo = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+          expect(cedarHalo.length).toBe(1);
+        } else if (kit === "sand") {
+          const sandFire = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+          expect(sandFire.length).toBe(1);
+          const sandHalo = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+          expect(sandHalo.length).toBe(1);
+        } else if (kit === "steppe") {
+          const steppeCoals = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xea580c);
+          expect(steppeCoals.length).toBe(1);
+          const steppeSmoke = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x3f3f46);
+          expect(steppeSmoke.length).toBe(1);
+        } else if (kit === "islands") {
+          const beaconLens = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x06b6d4);
+          expect(beaconLens.length).toBe(1);
+          const islandHalo = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x38bdf8);
+          expect(islandHalo.length).toBe(1);
+        }
+      }
+    });
+
+    it("unfinished watchtowers stay scaffolding across Western and all culture kits without cracked stone", () => {
+      const kits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+
+      for (const kit of kits) {
+        const gUnfinished = createMockGraphics();
+        const gFinished = createMockGraphics();
+
+        drawIsometricBuilding(gUnfinished, "watchtower", 1, false, 0.5, defaultVisuals, 0, 4, undefined, kit);
+        drawIsometricBuilding(gFinished, "watchtower", 1, true, 0.5, defaultVisuals, 0, 4, undefined, kit);
+
+        // 1. Unfinished tower has NO active beacon fire
+        const unfinishedFlames = gUnfinished.calls.filter(
+          (c) => c.method === "fill" && (c.args[0]?.color === 0xf97316 || c.args[0]?.color === 0xea580c)
+        );
+        expect(unfinishedFlames.length).toBe(0);
+
+        // 2. Unfinished tower draws timber scaffolding elements (corner standards, ledgers, X-bracing, work decks, ladder, hoist boom)
+        const strokes = gUnfinished.calls.filter((c) => c.method === "stroke");
+        expect(strokes.length).toBeGreaterThanOrEqual(10);
+
+        // 3. Unfinished tower has builder's hoist pulley and suspended stone block
+        const hoistedBlock = gUnfinished.calls.filter(
+          (c) => c.method === "poly" && (c.args[0] as number[]).length === 8
+        );
+        expect(hoistedBlock.length).toBeGreaterThan(0);
+
+        // 4. Unfinished tower does NOT draw cracked stone overlay (crater or fissures)
+        const fissures = gUnfinished.calls.filter(
+          (c) => c.method === "stroke" && c.args[0]?.color === 0x0f172a && c.args[0]?.width === 1.4
+        );
+        expect(fissures.length).toBe(0);
+      }
+    });
+
+    it("unfinished rim watchtower scaffolding scales taller than interior scaffolding", () => {
+      const gRim = createMockGraphics();
+      const gInt = createMockGraphics();
+
+      drawIsometricBuilding(gRim, "watchtower", 1, false, 0.5, defaultVisuals, 0, 4);
+      drawIsometricBuilding(gInt, "watchtower", 1, false, 0.5, defaultVisuals, 2, 2);
+
+      const minYRim = Math.min(...gRim.calls.flatMap((c) =>
+        c.method === "moveTo" || c.method === "lineTo" ? [c.args[1]] :
+        c.method === "circle" ? [c.args[1]] :
+        c.method === "poly" ? (c.args[0] as number[]).filter((_, i) => i % 2 === 1) : []
+      ));
+      const minYInt = Math.min(...gInt.calls.flatMap((c) =>
+        c.method === "moveTo" || c.method === "lineTo" ? [c.args[1]] :
+        c.method === "circle" ? [c.args[1]] :
+        c.method === "poly" ? (c.args[0] as number[]).filter((_, i) => i % 2 === 1) : []
+      ));
+
+      // Rim scaffolding reaches taller (at least 10px higher) to match rim elevation
+      expect(minYInt - minYRim).toBeGreaterThanOrEqual(10);
+    });
+
+    it("drawWatchtowerScaffolding can be directly called with custom culture palettes", () => {
+      const g = createMockGraphics();
+      drawWatchtowerScaffolding(g, 44, 1.0, 0, "western", culturePalette("western"), true);
+      expect(g.calls.length).toBeGreaterThan(20);
     });
   });
 });

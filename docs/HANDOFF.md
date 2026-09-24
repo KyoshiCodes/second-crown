@@ -6,10 +6,32 @@ Plan: docs/ASCENT.md | Recap: docs/PROGRESS.md
 Phase 1 of Ascent is on main: stats, harness, rounds/morale, wounded-by-default.
 `resolveBattle` is still the only fight function.
 
-## Recent Wave (wave/vision-line)
+## Recent Wave (bakeoff/gemini-towers)
 
-- Kingdom tab shows "Vision N · Watchtowers N · Scout N gold." under the wall line (`VisionLine`, app only).
-- Zero diff on `packages/sim`, `packages/render`, `server/`. Fog math unchanged.
+- **Finished Rim Watchtowers Read Taller with Small Beacon & Unfinished Towers Stay Scaffolding**:
+  - Watchtowers on the rim (`isRimTile(gx, gy)`) now stand noticeably taller with elevated beacons, while unfinished towers stay authentic construction scaffolding across all culture kits:
+    - **Taller Rim Watchtowers (`buildingHeight`, `drawIsometricBuilding`)**:
+      - Watchtowers built along the outer perimeter / rim now have a base height of 44px (`h = 44 + heightBoost`), standing +10px taller than standard interior towers (34px) and towering over curtain walls (20px) and gates (24px).
+      - Taller stone masonry shaft features tiered arrow slit loops at multiple elevations (`-h * 0.28`, `-h * 0.45`, `-h * 0.7`) and an architectural stone corbel belt course.
+      - Conical slate roof and observation platform reach an elevated summit.
+    - **Small Beacon Fire & Radiant Glow**:
+      - Summit of finished watchtowers features an elevated iron basket brazier cage (`0x1e293b`).
+      - In Western kit: blazing beacon flame (`0xf97316`), bright hot core ember (`0xfacc15`), radiant warm beacon halo (`0xfde047`), and rising spark flecks (`0xfef08a`).
+      - Culture kits adapt their signal beacons: Cedar trestles display beacon braziers with warm halos, Sand minarets feature golden cupola beacons with silk pennants, Steppe pylons feature signal smoke and beacon coals, and Islands towers feature nautical beacon lenses (`0x06b6d4`) and halos (`0x38bdf8`).
+      - Royal swallowtail pennants fly proud from the summit finial.
+    - **Unfinished Towers Stay Scaffolding (`drawWatchtowerScaffolding`)**:
+      - When `complete === false` (`completesAtTick !== null`), watchtowers stay authentic wooden construction scaffolding rather than finished stone with cracked stone overlays:
+        - Four heavy corner upright timber standards rising up to tower height `h` (adapted by culture kit wood tones).
+        - Multi-tier horizontal ledger rails and diagonal cross-braces (X-braces) with rope joint lashings.
+        - Wooden staging platforms (mid-level and upper construction decks) with stacked building planks.
+        - Builder's access ladder along the upright standard.
+        - Builder's hoist crane jib extending over the edge with dangling rope, pulley wheel, and hoisted ashlar stone block.
+        - Low WIP stone foundation courses and mortar bucket at the base.
+        - Complete suppression of beacon flame, smoke, finished roofs, and pennants.
+        - Unfinished watchtowers are cleanly exempted from `drawCrackedStoneOverlay`, preserving their timber construction scaffolding look.
+    - **Invariants & Preservations**:
+      - Zero diff on `packages/sim` or `server/`. Hit-tests and camera math strictly untouched.
+      - Full test suite passing (216 sim tests, 87 render tests).
 
 ## Prior Wave (bakeoff/gemini-scar)
 

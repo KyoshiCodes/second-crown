@@ -1,11 +1,15 @@
 # USER-NOTES
 
-Updated: 2026-09-22 | Play: https://129.153.17.72.sslip.io/
+Updated: 2026-09-23 | Play: https://129.153.17.72.sslip.io/
 Full recap: docs/PROGRESS.md
 
-## How far you can see
+## Taller Rim Watchtowers with Beacons & Unfinished Scaffolding
 
-The Kingdom tab now shows a line like **Vision 2 · Watchtowers 1 · Scout 20 gold.** Vision is how many tiles out from home the fog lifts on its own. Watchtowers counts finished watchtowers on your hold's rim. Scout is the gold cost to reveal one fogged province by hand.
+Watchtowers along the rim of the hold now stand taller with signal beacons, while towers under construction stay scaffolding:
+- **Taller Rim Silhouette**: Watchtowers built on perimeter rim tiles now stand +10px taller than interior towers, projecting commanding height above curtain walls and gatehouses to survey the frontier.
+- **Small Signal Beacon**: Finished watchtowers feature an elevated iron brazier basket with an animated signal beacon fire, radiant warm light halo, and dancing ember sparks visible from across the territory.
+- **Culture-Specific Beacons**: Signal beacons adapt across cultures—elevated iron fire baskets for Western holds, cross-braced cedar beacon cages for Cedar kin, golden cupola lanterns for Sand minarets, signal smoke and braziers for Steppe pylons, and cyan maritime lighthouse beacons for Tide Clans.
+- **Unfinished Towers Stay Scaffolding**: Watchtowers under construction or repair visually stay timber construction scaffolding—featuring four corner timber standards, cross-bracing, wooden staging decks, climbing ladders, and a builder's hoist crane with dangling rope and hoisted stone block.
 
 ## Scarred Buildings: Cracked Stone & Silent Hearths
 
