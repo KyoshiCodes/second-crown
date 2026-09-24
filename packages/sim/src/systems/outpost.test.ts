@@ -34,7 +34,7 @@ describe("W18 outpost and tutorial", () => {
       completesAtTick: null,
     });
     expect(tryAdvanceTutorial(s)).toBe(true);
-    expect(currentTutorial(s)?.id).toBe("board");
+    expect(currentTutorial(s)?.id).toBe("cottage");
   });
 
   it("raid arrival plants a player flag", () => {
