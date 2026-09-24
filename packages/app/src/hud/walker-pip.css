@@ -1,0 +1,16 @@
+.sc-walker-pip-wrapper, .sc-walker-pip { pointer-events: none !important; }
+.sc-job-head { display: flex; align-items: center; gap: 6px; }
+.sc-walker-pip.is-sitting .sc-walker-f0,
+.sc-walker-pip.is-sitting .sc-walker-f1 { display: none; }
+.sc-walker-pip.is-sitting .sc-walker-sit { display: inline; }
+.sc-walker-pip.is-walking .sc-walker-sit { display: none; }
+.sc-walker-pip.is-walking .sc-walker-f0 { animation: sc-w0 0.8s steps(1) infinite; }
+.sc-walker-pip.is-walking .sc-walker-f1 { animation: sc-w1 0.8s steps(1) infinite; }
+@keyframes sc-w0 {
+  0%, 49% { display: inline; }
+  50%, 100% { display: none; }
+}
+@keyframes sc-w1 {
+  0%, 49% { display: none; }
+  50%, 100% { display: inline; }
+}

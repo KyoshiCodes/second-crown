@@ -1,10 +1,10 @@
 # Dev notes
 
-## 2026-09-24 — hud-people
+## 2026-09-24 — people-cards / walker role pips
 
-- `JobCard` resolves "building they walk to" by matching `citizen.tile` to a player building at that x,y. `tryAssignCitizen` sets the tile to the building tile, so this holds. If a building is gone the label falls back to `Tile x,y`.
-- The "Idle" button is disabled on the Idle card (those workers are already idle). The `act(tryAssignCitizen/tryIdleCitizen)` calls are the same as before.
-- A citizen with a job but no tile counts as idle for display only. Sim state is untouched.
+- `WalkerPip.tsx`: 24px walker role pips (hoe, axe, pick, coin) must unconditionally set `pointer-events: none !important;` in SVG styles, wrapper styles, and CSS to guarantee worker assignment selects and "Idle" buttons on `JobCard` receive clicks without obstruction.
+- Two-frame walking animation runs on CSS keyframes (`steps(1)`) cycling `.sc-walker-f0` and `.sc-walker-f1` over 0.7s, avoiding React re-render thrashing.
+- Sitting idle pose (`.is-sitting`) displays `.sc-walker-sit` and hides walking frames, giving unassigned villagers a calm resting appearance on hay bales, pine logs, or ashlar blocks.
 
 ## 2026-09-24 — army-cards / culture-kit chips
 

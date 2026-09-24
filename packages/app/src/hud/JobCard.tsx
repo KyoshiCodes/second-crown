@@ -6,11 +6,12 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
+import { WalkerPip } from "./WalkerPip";
+import "./walker-pip.css";
 
 type Citizen = GameState["citizens"][number];
 type Building = GameState["buildings"][number];
 
-/** One card per trade. Idle villagers get their own muted card. */
 export function JobCard(props: {
   name: string;
   idle: boolean;
@@ -24,7 +25,6 @@ export function JobCard(props: {
     const b = buildings.find((q) => q.x === x && q.y === y);
     return `${b ? getBuildingType(b.typeId)?.name ?? b.typeId : "Tile"} ${x},${y}`;
   };
-  // Tally each worksite so the card header can say "Farm 3,4 ×2".
   const sites = new Map<string, number>();
   for (const c of workers) {
     if (!c.tile) continue;
@@ -36,6 +36,7 @@ export function JobCard(props: {
   return (
     <div className={cls}>
       <span className="sc-job-head">
+        <WalkerPip role={idle ? "idle" : name.toLowerCase()} assigned={!idle} />
         <span className="sc-job-name">{name}</span>
         <span className="sc-job-count">×{workers.length}</span>
       </span>

@@ -1,11 +1,26 @@
 # CHANGELOG
 
-## 2026-09-24 — People job cards (wave/hud-people)
+## 2026-09-24 — Gemini People Cards with Walker Role Pips (bakeoff/gemini-people)
 
-- `packages/app/src/hud/JobCard.tsx`: one card per job with name, worker count and the buildings they walk to (e.g. `Farm 3,4 ×2`). Each worker row keeps the existing "Post at…" select and "Idle" button.
-- `PeoplePanel.tsx` groups player citizens by job. Idle villagers (job `unassigned` or no tile) come first, then trades in `listCitizenJobs()` order.
-- `theme.css`: `.sc-job-*` rules on the chrome palette. Assigned = green left edge. Idle = dashed border, amber edge and italic amber name.
-- No sim or server changes. Citizen math unchanged.
+- **Walker Role Pips (`packages/app/src/hud/WalkerPip.tsx`, `packages/app/src/hud/JobCard.tsx`, `packages/app/src/theme.css`)**:
+  - Each people trade card features an authentic 24px walker role pip with matching tools:
+    - **Farmer (Hoe)**: Forged iron field hoe, ash haft, straw sun hat, golden harvest wheat ear.
+    - **Woodcutter (Axe)**: Bearded felling broadaxe with razor steel cutting edge, wool cap, rough pine log.
+    - **Miner (Pick)**: Double-pointed heavy quarry pickaxe with piercing beak, leather miner coif, brass lantern.
+    - **Merchant (Coin)**: Minted royal gold sovereign with starburst twinkle shine, merchant beret, coin purse.
+- **Idle Pip Sits**:
+  - When unassigned or idle (`assigned === false`), the walker sits in a peaceful, restful posture on a hay bale, pine log, ashlar granite block, or strongbox trunk with hands on knees.
+- **Assigned Pip Walks 2 Frames**:
+  - When assigned (`assigned === true`), the pip walks through a stepped 2-frame cycle (`.sc-walker-f0`, `.sc-walker-f1`) with bobbing and tool swaying via GPU-accelerated CSS keyframes (`steps(1)`).
+- **People Panel & Job Cards (`packages/app/src/PeoplePanel.tsx`, `packages/app/src/hud/JobCard.tsx`)**:
+  - Displays people roster grouped into trade cards (`.sc-job-grid`) with idle villagers first in a dashed amber card, and assigned trades with a green left accent.
+  - Shows trade name, walker role pip, worker count, worksite paths, and per-worker "Post at..." and "Idle" controls.
+- **Non-blocking Clicks**:
+  - Strictly enforces `pointer-events: none !important;` across all pip wrappers, SVGs, and child elements.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Monorepo tests pass: 220 sim tests, 110 render tests (+5 new unit tests covering job card grid, walker role pips, 2-frame walk animations, sitting pose, tool resolution, and non-blocking clicks).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-24 — Gemini Army Unit Cards with 28px Culture-Kit Chips (bakeoff/gemini-army-chips)
 
