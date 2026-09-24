@@ -1,11 +1,30 @@
 # CHANGELOG
  
-## 2026-09-23 — Vision line on Kingdom tab (`wave/vision-line`)
-
-- `packages/app/src/VisionLine.tsx` (new, display only): "Vision N · Watchtowers N · Scout N gold." from `visionRange`, `rimWatchtowers`, `scoutCost`. Mounted under `WallLine` in `KingdomTab.tsx`.
-- No sim, render, or server changes. Fog math unchanged.
-
-+## 2026-09-22 — Gemini Scarred Buildings with Cracked Stone & Smoke Suppression (`bakeoff/gemini-scar`)
++## 2026-09-23 — Gemini Rim Watchtowers Taller with Beacon & Scaffolding (`bakeoff/gemini-towers`)
++
++- **Rim Watchtowers & Unfinished Scaffolding (`packages/render/src/buildings.ts`)**:
++  - Finished watchtowers on the rim now read taller with a small beacon, and unfinished towers stay scaffolding:
++    - **Elevated Rim Profile (`buildingHeight`, `drawIsometricBuilding`)**:
++      - Extended `buildingHeight` to accept optional `(gx, gy)` coordinates. Rim watchtowers resolve to height `44 + heightBoost` (vs interior `34 + heightBoost`), rising prominently above walls (20px) and gates (24px).
++      - Extended Western stone shaft with multi-level arrow slit tiers and stone corbel belt course.
++    - **Small Signal Beacon**:
++      - Elevated iron brazier basket cage with animated beacon fire (`0xf97316`), inner hot ember (`0xfacc15`), radiant beacon illumination halo (`0xfde047`), and floating ember sparks.
++      - Culture kits feature tailored beacons: Cedar beacon cage with signal fire, Sand minaret golden cupola beacon with crimson pennant, Steppe signal pylon with coals and smoke, and Islands maritime beacon lens and halo.
++    - **Unfinished Towers Stay Scaffolding (`drawWatchtowerScaffolding`)**:
++      - When `complete === false`, watchtowers render as timber construction scaffolding towers across Western and all 4 culture kits:
++        - Heavy corner timber upright standards, multi-tier horizontal ledger rails, and diagonal X-braces with rope lashings.
++        - Planking staging platforms at mid-height and top levels with stacked materials.
++        - Side access ladder and cantilevered builder's hoist boom with pulley wheel, dangling rope, and hoisted ashlar block.
++        - Low WIP masonry footings and mortar bucket.
++        - Completely suppresses finished roofs, pennants, and beacon fire.
++        - Exempted watchtowers from `drawCrackedStoneOverlay`, ensuring unfinished towers stay authentic scaffolding.
++- **Invariants & Preservations**:
++  - `git diff main -- packages/sim server` strictly 100% empty.
++  - Zero changes to camera math, zoom, or tile click hit-testing.
++  - Full test suite passes: 216 monorepo tests, 87 tests in `@second-crown/render` (+6 new tests covering rim height, beacons across cultures, scaffolding details, and rim scaffolding scale).
++  - Clean production build in `@second-crown/app`.
++
+ ## 2026-09-22 — Gemini Scarred Buildings with Cracked Stone & Smoke Suppression (`bakeoff/gemini-scar`)
 +
 +- **Scarred / Knocked-out Buildings with Cracked Stone & Smoke Suppression (`packages/render/src/buildings.ts`)**:
 +  - Buildings with `completesAtTick !== null` (knocked out by siege strikes, or under build/repair) now render as solid, battered structures with rich cracked stone detailing and complete suppression of work-in-progress smoke puffs:
