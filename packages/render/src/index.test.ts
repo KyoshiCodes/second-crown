@@ -3307,7 +3307,118 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(code).toContain("report={lastField?.text}");
     });
   });
+
+  describe("Crown Decrees & 24px Wax-Seal Pip (Gemini Decrees Lane)", () => {
+    it("defines decree card layout, 24px wax-seal pip art, and active lit glow in theme.css and decree-card.css", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+
+      const cssPath = path.resolve(__dirname, "../../app/src/hud/decree-card.css");
+      expect(fs.existsSync(cssPath)).toBe(true);
+      const css = fs.readFileSync(cssPath, "utf-8");
+
+      // 1. Decree card & grid layout
+      expect(css).toContain("sc-decree-grid");
+      expect(css).toContain("sc-decree-card");
+      expect(css).toContain("sc-decree-card.is-ready");
+      expect(css).toContain("sc-decree-card.is-active");
+      expect(css).toContain("sc-decree-card.is-off");
+      expect(css).toContain("sc-decree-head");
+      expect(css).toContain("sc-decree-title-group");
+      expect(css).toContain("sc-decree-name");
+      expect(css).toContain("sc-decree-left");
+      expect(css).toContain("sc-decree-blurb");
+      expect(css).toContain("sc-decree-cost");
+      expect(css).toContain("sc-decree-amt");
+      expect(css).toContain("sc-decree-btn");
+
+      // 2. 24px wax-seal pip wrapper & art
+      expect(css).toContain("sc-wax-seal-pip-wrapper");
+      expect(css).toContain("sc-wax-seal-pip");
+      expect(css).toContain("width: 24px");
+      expect(css).toContain("height: 24px");
+
+      // 3. Active seal lit glow & flame animation
+      expect(css).toContain("sc-wax-seal-pip.is-lit");
+      expect(css).toContain("sc-wax-flame");
+      expect(css).toContain("drop-shadow");
+
+      // 4. Click pass-through: strictly pointer-events: none !important
+      expect(css).toContain(".sc-wax-seal-pip-wrapper");
+      expect(css).toContain(".sc-wax-seal-pip *");
+      expect(css).toContain("pointer-events: none !important");
+    });
+
+    it("WaxSealPip renders 24px wax seal with active lit state and pointer-events none", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const pipPath = path.resolve(__dirname, "../../app/src/hud/WaxSealPip.tsx");
+      expect(fs.existsSync(pipPath)).toBe(true);
+      const code = fs.readFileSync(pipPath, "utf-8");
+
+      // Verify component exports & properties
+      expect(code).toContain("WaxSealPip");
+      expect(code).toContain("size = 24");
+      expect(code).toContain('pointerEvents: "none"');
+      expect(code).toContain('aria-hidden="true"');
+      expect(code).toContain('viewBox="0 0 24 24"');
+      expect(code).toContain("sc-wax-seal-pip-wrapper");
+      expect(code).toContain("sc-wax-seal-pip");
+      expect(code).toContain("is-lit");
+      expect(code).toContain("is-dormant");
+
+      // Verify active lit features (gold/amber tones, sparkles)
+      expect(code).toContain("sc-wax-lit-sparkle");
+      expect(code).toContain("#f59e0b");
+      expect(code).toContain("#fbbf24");
+
+      // Verify dormant wax features (crimson tones)
+      expect(code).toContain("#991b1b");
+      expect(code).toContain("#7f1d1d");
+
+      // Verify decree-specific emblem support
+      expect(code).toContain("sc-wax-sigil-rite");
+      expect(code).toContain("sc-wax-sigil-muster");
+      expect(code).toContain("sc-wax-sigil-crown");
+    });
+
+    it("DecreeCard mounts 24px WaxSealPip in sc-decree-title-group, displays costs and handles active status", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const cardPath = path.resolve(__dirname, "../../app/src/hud/DecreeCard.tsx");
+      expect(fs.existsSync(cardPath)).toBe(true);
+      const code = fs.readFileSync(cardPath, "utf-8");
+
+      expect(code).toContain("WaxSealPip");
+      expect(code).toContain("size={24}");
+      expect(code).toContain("sc-decree-card");
+      expect(code).toContain("sc-decree-head");
+      expect(code).toContain("sc-decree-title-group");
+      expect(code).toContain("sc-decree-name");
+      expect(code).toContain("sc-decree-left");
+      expect(code).toContain("sc-decree-cost");
+      expect(code).toContain("ResourcePip");
+      expect(code).toContain("decreeUntil");
+      expect(code).toContain("tryDecree");
+      expect(code).toContain("Already active");
+      expect(code).toContain("Issue");
+    });
+
+    it("DecreesPanel mounts DecreeCard in sc-decree-grid for each royal decree", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const panelPath = path.resolve(__dirname, "../../app/src/DecreesPanel.tsx");
+      expect(fs.existsSync(panelPath)).toBe(true);
+      const code = fs.readFileSync(panelPath, "utf-8");
+
+      expect(code).toContain("DecreeCard");
+      expect(code).toContain("sc-decree-grid");
+      expect(code).toContain("DECREES.map");
+      expect(code).toContain("<DecreeCard key={d.id} state={state} decree={d} act={act} />");
+    });
+  });
 });
+
 
 
 
