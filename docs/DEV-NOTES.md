@@ -1,11 +1,13 @@
 # Dev notes
 
-## 2026-09-27 — hud-diplo / realm cards
+## 2026-09-27 — hud-diplo / realm-crest-pip
 
-- `RealmCard.tsx` is presentational; WarRoom passes `onDeclare` / `onGift` with the same `act` bodies as before.
-- `realmStance(atWar, peaceLeft, opinion)` is a display label only: war > truce > opinion (>= 25 Friendly, <= -25 Hostile, else Wary). Opinion is `rivalOp` for rival, else `opinionOfPlayerFromRealm`.
-- Gift stays rival-only because the old button was. `tryGiftGold` already takes a `realmId` if we want gifts on every card later.
-- No pact action exists in sim yet; add its button to `RealmCard` when one lands.
+- `RealmCrestPip.tsx`: 28px realm crest pip integrating the existing heraldic `Crest` (`size = 28`, `width: 28px; height: 28px;`).
+  - When `isColder` or `stance === "hostile" || stance === "war"`: the crest is colder, applying `saturate(0.5) hue-rotate(185deg) brightness(0.9)` with an icy cyan drop-shadow (`rgba(56, 189, 248, 0.75)`) and a subtle frost contour overlay (`.sc-realm-crest-frost`).
+  - Peaceful / neutral stances show warm heraldic tones (emerald radiance for friendly, azure for truce, warm amber for wary).
+  - Wrapper (`.sc-realm-crest-wrapper`), SVG, and all child paths unconditionally enforce `pointer-events: none !important;` so that Declare war and Gift gold buttons never get intercepted.
+- `RealmCard.tsx`: Mounts `RealmCrestPip` at `size={28}` inside `.sc-realm-dip-title-group`. Displays stance badge (with truce countdown), opinion line (reads `opinionOfPlayerFromRealm`), and power comparison with favored/unfavored coloring.
+- Invariants: Sim unchanged; `opinionOfPlayerFromRealm`, `peaceTicksRemaining`, `realmPower`, and `tryDeclareWar` used as-is. `git diff main -- packages/sim server` strictly empty.
 
 ## 2026-09-27 — hud-decrees / wax-seal-pip
 

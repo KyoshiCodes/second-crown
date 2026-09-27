@@ -1,12 +1,12 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
+import { RealmCrestPip } from "./RealmCrestPip";
 import "./realm-card.css";
 
 type Realm = GameState["realms"][number];
 
 export type RealmStance = "war" | "truce" | "friendly" | "wary" | "hostile";
 
-/** Display-only label. Reads opinion and peace timers; changes no diplomacy math. */
 export function realmStance(atWar: boolean, peaceLeft: number, opinion: number): RealmStance {
   if (atWar) return "war";
   if (peaceLeft > 0) return "truce";
@@ -23,10 +23,6 @@ const STANCE_LABEL: Record<RealmStance, string> = {
   hostile: "Hostile",
 };
 
-/**
- * One realm on the Diplomacy panel: name, stance, opinion, and the existing
- * declare-war and gift buttons. Handlers come from WarRoom unchanged.
- */
 export function RealmCard(props: {
   realm: Realm;
   stance: RealmStance;
@@ -46,7 +42,10 @@ export function RealmCard(props: {
   return (
     <div className={`sc-realm-dip is-${stance}`} data-realm={realm.id}>
       <span className="sc-realm-dip-head">
-        <span className="sc-realm-dip-name">{realm.name}</span>
+        <span className="sc-realm-dip-title-group">
+          <RealmCrestPip realmId={realm.id} stance={stance} size={28} />
+          <span className="sc-realm-dip-name">{realm.name}</span>
+        </span>
         <span className={`sc-realm-dip-stance is-${stance}`}>
           {STANCE_LABEL[stance]}
           {stance === "truce" ? ` ${Math.ceil(peaceLeft / 10)}s` : ""}
