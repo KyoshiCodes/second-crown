@@ -13,6 +13,10 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Wave: hud-market (branch `wave/hud-market`, not merged)
+
+- Kingdom tab Market is a grid of `OfferCard`s (give / get / Trade). Disabled via `canTrade`. `tryTrade` and `MARKET_OFFERS` untouched.
+
 ## Active Bakeoff (bakeoff/gemini-war-chips)
 
 - **War Force Cards & 24px War Chips (`packages/app/src/hud/WarChip.tsx`, `packages/app/src/hud/ForceCard.tsx`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:

@@ -1,0 +1,35 @@
+/* --- Market: one card per offer. Give on top, get below, Trade at the foot. --- */
+.sc-offer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px;
+  margin: 2px 0 6px;
+}
+.sc-offer-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 5px 8px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left: 3px solid #d29922;
+  border-radius: 5px;
+}
+.sc-offer-card.is-off { border-left-color: var(--chrome-btn-border); opacity: 0.75; }
+.sc-offer-row { display: flex; align-items: center; gap: 6px; }
+.sc-offer-tag {
+  flex: none;
+  width: 28px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.65;
+}
+.sc-offer-side { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.sc-offer-amt { display: inline-flex; align-items: center; font-variant-numeric: tabular-nums; }
+.sc-offer-amt.is-short { color: #f85149; }
+.sc-pip.sc-offer-pip { width: 18px; height: 18px; flex: 0 0 18px; margin-right: 3px; }
+.sc-offer-btn { align-self: flex-start; margin-top: 2px; padding: 1px 10px; font-size: 11px; }

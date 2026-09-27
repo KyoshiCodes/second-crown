@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-27 — Market offer cards
+
+- Each Market trade on the Kingdom tab is now its own card: what you give, what you get, and a Trade button.
+- The button greys out when you cannot pay (or have no Market). The amount you are short on turns red.
+- Prices are the same as before.
+
 ## 2026-09-24 — War force cards & 24px war chips
 
 - Military operations on the War tab now appear as dedicated tactical force cards:
