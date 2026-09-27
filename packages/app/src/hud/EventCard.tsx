@@ -29,8 +29,10 @@ export function EventCard(props: {
   return (
     <div className={`sc-event-card is-${event.id}${latest ? " is-latest" : ""}`} data-event={event.id}>
       <span className="sc-event-head">
-        <OmenPip variant={omen} size={24} />
-        <span className="sc-event-title">{title}</span>
+        <span className="sc-event-title-group">
+          <OmenPip variant={omen} size={24} />
+          <span className="sc-event-title">{title}</span>
+        </span>
         <span className="sc-event-tick">t{formatLetterSuffix(event.tick)}</span>
       </span>
       {body ? <span className="sc-event-body">{body}</span> : null}

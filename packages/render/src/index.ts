@@ -70,6 +70,7 @@ import {
   paintBoardProvinces,
   paintBoardMarches,
   paintBoardHighlight,
+  paintBoardSelectionRim,
 } from "./tokens.js";
 
 import {
@@ -84,11 +85,13 @@ import {
 } from "./walkers.js";
 
 export interface MapRenderer {
-  sync(state: GameState): void;
+  sync(state: GameState, selectedProvinceId?: string | null): void;
   setTheme(themeId: string, holidayId: string): void;
   destroy(): void;
   onTileClick(cb: (x: number, y: number) => void): void;
   onProvinceClick(cb: (provinceId: string) => void): void;
+  setSelectedProvince(provinceId: string | null): void;
+  getSelectedProvince(): string | null;
   zoomIn(): void;
   zoomOut(): void;
   resetView(): void;
@@ -174,6 +177,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   const boardProvincesLayer = new Graphics();
   boardContainer.addChild(boardProvincesLayer);
 
+  const boardSelectionLayer = new Graphics();
+  boardSelectionLayer.visible = false;
+  boardContainer.addChild(boardSelectionLayer);
+
   const boardRoutesLayer = new Graphics();
   boardContainer.addChild(boardRoutesLayer);
 
@@ -200,6 +207,19 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   let currentHolidayId = "none";
   let visuals = getThemeVisuals(currentSeasonName, currentHolidayId);
   let hoveredProvinceCoord: { bx: number; by: number } | null = null;
+  let selectedProvinceCoord: { bx: number; by: number } | null = null;
+  let selectedProvinceId: string | null = null;
+
+  function renderBoardSelection(state: GameState | null): void {
+    if (!selectedProvinceCoord || !state) {
+      boardSelectionLayer.clear();
+      boardSelectionLayer.visible = false;
+      return;
+    }
+    boardSelectionLayer.clear();
+    boardSelectionLayer.visible = true;
+    paintBoardSelectionRim(boardSelectionLayer, selectedProvinceCoord.bx, selectedProvinceCoord.by, state, phase);
+  }
 
   // Zoom & Pan State (two zoom bands: Hold vs Board)
   let zoom = HOLD_DEFAULT_ZOOM;
@@ -429,6 +449,9 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
           if (hit) {
             const p = lastState.board?.provinces?.find((pr) => pr.x === hit.bx && pr.y === hit.by);
             if (p) {
+              selectedProvinceId = p.id;
+              selectedProvinceCoord = { bx: p.x, by: p.y };
+              renderBoardSelection(lastState);
               if (p.id === lastState.board?.homeProvinceId) {
                 // Clicking home province snaps back to Hold band
                 setBand("hold");
@@ -679,8 +702,15 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     }
   }
 
-  function sync(state: GameState): void {
+  function sync(state: GameState, selectId?: string | null): void {
     lastState = state;
+    if (selectId !== undefined) {
+      selectedProvinceId = selectId;
+    }
+    if (selectedProvinceId && state.board?.provinces) {
+      const p = state.board.provinces.find((pr) => pr.id === selectedProvinceId);
+      selectedProvinceCoord = p ? { bx: p.x, by: p.y } : null;
+    }
     const season = currentSeason(state);
     if (season !== currentSeasonName) {
       currentSeasonName = season;
@@ -690,10 +720,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintBoardBackdrop(boardBackdropLayer, visuals);
     }
     paintBuildings(state, phase);
-    paintBoardProvinces(boardProvincesLayer, state, phase);
+    paintBoardProvinces(boardProvincesLayer, state, phase, selectedProvinceId);
     paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
+    renderBoardSelection(state);
     if (hoveredProvinceCoord) {
-      paintBoardHighlight(boardHighlightLayer, hoveredProvinceCoord.bx, hoveredProvinceCoord.by, state);
+      paintBoardHighlight(boardHighlightLayer, hoveredProvinceCoord.bx, hoveredProvinceCoord.by, state, phase);
     }
   }
 
@@ -705,8 +736,9 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     paintBoardBackdrop(boardBackdropLayer, visuals);
     if (lastState) {
       paintBuildings(lastState, phase);
-      paintBoardProvinces(boardProvincesLayer, lastState, phase);
+      paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId);
       paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
+      renderBoardSelection(lastState);
     }
   }
 
@@ -729,6 +761,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     } else {
       if (lastState) {
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
+        renderBoardSelection(lastState);
       }
     }
   });
@@ -746,6 +779,19 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     },
     onProvinceClick(cb) {
       provinceClickCb = cb;
+    },
+    setSelectedProvince(provinceId: string | null) {
+      selectedProvinceId = provinceId;
+      if (!provinceId || !lastState?.board?.provinces) {
+        selectedProvinceCoord = null;
+      } else {
+        const p = lastState.board.provinces.find((pr) => pr.id === provinceId);
+        selectedProvinceCoord = p ? { bx: p.x, by: p.y } : null;
+      }
+      renderBoardSelection(lastState);
+    },
+    getSelectedProvince() {
+      return selectedProvinceId;
     },
     zoomIn() {
       setZoomCentered(zoom * 1.25, CANVAS_W / 2, CANVAS_H / 2);
@@ -774,4 +820,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     },
   };
 }
+
+export {
+  paintBoardProvinces,
+  paintBoardMarches,
+  paintBoardHighlight,
+  paintBoardSelectionRim,
+};
 

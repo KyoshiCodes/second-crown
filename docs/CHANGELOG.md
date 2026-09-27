@@ -1,12 +1,22 @@
 # CHANGELOG
 
-## 2026-09-27 — Province inspect card (wave/hud-inspect)
+## 2026-09-27 — Gemini Selected Board Province Clear Gold Rim & Ground Ring (bakeoff/gemini-select-rim)
 
-- `ProvinceInspect.tsx` renders one `.sc-inspect-card`: name, terrain, owner, tile, gold, then the existing actions.
-- Name comes from `settlementName` at home, the node label when scouted, "Unscouted province" in fog.
-- Left edge colors: gold for home, green for your flag, grey for fog.
-- Styles only in `packages/app/src/hud/inspect-card.css`; no inline styles left in the component. `theme.css` not edited.
-- No sim, server, click or march logic changed. No conflict markers. 220 sim tests pass; app build clean.
+- **Clear Gold Rim & Ground Ring (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/game/useGameEngine.ts`)**:
+  - **Tabletop Ground Ring (`wy`)**: Selected board provinces now project a clear radiant gold ground ring at tabletop ground level (`0xfacc15`, `0xb45309`, `0xfef08a`) with an inner shimmer line and 4 cardinal corner bracket pips, anchoring the tile firmly to the tabletop plane.
+  - **Vertical Cliff Corner Struts**: For elevated provinces (`elev > 0`), vertical corner struts drop down the cliff facets from the elevated plateau to the ground ring, paired with a front cliff ground rim.
+  - **Top Gold Rim (`cy = wy - elev`)**: Surrounds the elevated playable plateau with a double gold rim (`0xfacc15`, `0xd97706`), rear sunlight facet glint, and 4 cardinal diamond corner glints.
+  - **Board Selection Layer & MapRenderer API**:
+    - Adds `boardSelectionLayer` to Pixi `boardContainer` and implements `paintBoardSelectionRim`.
+    - `MapRenderer` exposes `setSelectedProvince(provinceId: string | null)` and `getSelectedProvince()`, synchronizing seamlessly with game state in `useGameEngine.ts`.
+    - `paintBoardHighlight` (hover) and `paintBoardProvinces` both integrate `paintBoardSelectionRim`.
+    - `OverworldAtlas.tsx` renders matching `.sc-atlas-select-rim` with base ground ring, top gold rim, and corner bracket pips (`pointerEvents="none"`).
+- **Invariants & Preservations**:
+  - Hit-test math (`hitTestProvince`) and camera math in `camera.ts` remain 100% unchanged.
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Zero `<<<<<<<` merge conflict markers anywhere in the repository.
+  - Monorepo tests pass: 220 sim tests, 144 render tests (+6 unit tests covering ground ring geometry, top gold rim, vertical cliff struts, selection layer, MapRenderer methods, and camera invariants).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-27 — Gemini Event Cards & 24px Omen Pip (bakeoff/gemini-events)
 

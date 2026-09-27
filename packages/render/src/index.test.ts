@@ -3785,6 +3785,156 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(code).not.toContain("<<<<<<<");
       });
     });
+
+    describe("Selected Board Province Clear Gold Rim & Ground Ring (Gemini Select Rim Lane)", () => {
+      function createMockGraphics() {
+        const calls: { method: string; args: any[] }[] = [];
+        const g: any = {
+          calls,
+          clear: () => { calls.push({ method: "clear", args: [] }); },
+          poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+          fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+          stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+          rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+          circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+          ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+          moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+          lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+          quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        };
+        return g;
+      }
+
+      it("paintBoardSelectionRim renders both tabletop ground ring and top gold rim", async () => {
+        const { paintBoardSelectionRim } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_hill", x: 3, y: 2, terrain: "hill", node: "quarry" },
+            { id: "p_peak", x: 4, y: 2, terrain: "peak", node: "none" },
+          ],
+        };
+        state.flags["seen:p_home"] = true;
+        state.flags["seen:p_hill"] = true;
+        state.flags["seen:p_peak"] = true;
+
+        const g = createMockGraphics();
+        paintBoardSelectionRim(g, 3, 2, state, 0);
+
+        // Ground ring poly + top rim poly
+        const polys = g.calls.filter((c: any) => c.method === "poly");
+        expect(polys.length).toBeGreaterThanOrEqual(4);
+
+        // Strokes with gold colors (0xfacc15, 0xb45309, 0xd97706)
+        const strokes = g.calls.filter((c: any) => c.method === "stroke");
+        expect(strokes.length).toBeGreaterThanOrEqual(5);
+        const goldStrokeColors = strokes.map((c: any) => c.args[0]?.color);
+        expect(goldStrokeColors).toContain(0xfacc15);
+        expect(goldStrokeColors).toContain(0xb45309);
+
+        // Pips (ground brackets and top glints)
+        const circles = g.calls.filter((c: any) => c.method === "circle");
+        expect(circles.length).toBeGreaterThanOrEqual(8);
+
+        // Vertical corner cliff struts for elevated terrain
+        const lineTos = g.calls.filter((c: any) => c.method === "lineTo");
+        expect(lineTos.length).toBeGreaterThan(0);
+      });
+
+      it("paintBoardHighlight includes paintBoardSelectionRim before plaque", async () => {
+        const { paintBoardHighlight } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          ],
+        };
+        state.flags["seen:p_home"] = true;
+
+        const g = createMockGraphics();
+        paintBoardHighlight(g, 2, 2, state, 0);
+
+        // Ground ring + top gold rim + bottom plaque
+        const rects = g.calls.filter((c: any) => c.method === "rect");
+        expect(rects.length).toBeGreaterThan(0); // plaque
+        const circles = g.calls.filter((c: any) => c.method === "circle");
+        expect(circles.length).toBeGreaterThan(5); // selection pips + plaque pip
+      });
+
+      it("paintBoardProvinces renders selection rim when selectedProvinceId matches", async () => {
+        const { paintBoardProvinces } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_target", x: 3, y: 2, terrain: "wood", node: "woodcut" },
+          ],
+        };
+        state.flags["seen:p_home"] = true;
+        state.flags["seen:p_target"] = true;
+
+        const gWithoutSel = createMockGraphics();
+        paintBoardProvinces(gWithoutSel, state, 0, null);
+
+        const gWithSel = createMockGraphics();
+        paintBoardProvinces(gWithSel, state, 0, "p_target");
+
+        // Selected province gets additional gold rim and ground ring calls
+        expect(gWithSel.calls.length).toBeGreaterThan(gWithoutSel.calls.length);
+      });
+
+      it("OverworldAtlas renders sc-atlas-select-rim with gold rim and ground ring", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const atlasPath = path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx");
+        expect(fs.existsSync(atlasPath)).toBe(true);
+        const code = fs.readFileSync(atlasPath, "utf-8");
+
+        expect(code).toContain("sc-atlas-select-rim");
+        expect(code).toContain("Ground ring at base");
+        expect(code).toContain("Top gold rim");
+        expect(code).toContain("#facc15");
+        expect(code).toContain("pointerEvents=\"none\"");
+        expect(code).not.toContain("<<<<<<<");
+      });
+
+      it("MapRenderer provides setSelectedProvince and getSelectedProvince methods", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const indexPath = path.resolve(__dirname, "index.ts");
+        const code = fs.readFileSync(indexPath, "utf-8");
+
+        expect(code).toContain("setSelectedProvince(provinceId: string | null)");
+        expect(code).toContain("getSelectedProvince()");
+        expect(code).toContain("boardSelectionLayer");
+        expect(code).toContain("paintBoardSelectionRim");
+        expect(code).not.toContain("<<<<<<<");
+      });
+
+      it("hit-test math and camera math in camera.ts remain completely unchanged", async () => {
+        const { hitTestProvince, boardGridToWorld, boardWorldToGrid, bandForZoom, ZOOM_THRESHOLD } = await import("./camera.js");
+        expect(typeof hitTestProvince).toBe("function");
+        expect(typeof boardGridToWorld).toBe("function");
+        expect(typeof boardWorldToGrid).toBe("function");
+        expect(typeof bandForZoom).toBe("function");
+        expect(ZOOM_THRESHOLD).toBe(0.70);
+
+        // Verification of boardGridToWorld and boardWorldToGrid roundtrip
+        const { wx, wy } = boardGridToWorld(2, 3);
+        const grid = boardWorldToGrid(wx, wy);
+        expect(grid.bx).toBe(2);
+        expect(grid.by).toBe(3);
+
+        // Verification of bandForZoom
+        expect(bandForZoom(0.58)).toBe("board");
+        expect(bandForZoom(1.0)).toBe("hold");
+      });
+    });
   });
 });
 

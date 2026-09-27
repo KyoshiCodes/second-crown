@@ -1411,7 +1411,12 @@ export function drawResourceNode(
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
 // -------------------------------------------------------------
-export function paintBoardProvinces(g: Graphics, state: GameState, phase: number): void {
+export function paintBoardProvinces(
+  g: Graphics,
+  state: GameState,
+  phase: number,
+  selectedProvinceId?: string | null
+): void {
   g.clear();
   if (!state?.board?.provinces) return;
 
@@ -1875,6 +1880,11 @@ export function paintBoardProvinces(g: Graphics, state: GameState, phase: number
         g.moveTo(cx + 2, cy + 1); g.lineTo(cx + 7.5, cy + 5.5);
         g.stroke({ width: 0.6, color: pal.borderColor });
       }
+    }
+
+    // 7. Clear Gold Rim & Ground Ring for Currently Selected Province
+    if (selectedProvinceId && p.id === selectedProvinceId) {
+      paintBoardSelectionRim(g, p.x, p.y, state, phase);
     }
   }
 }
@@ -3621,13 +3631,13 @@ export function paintBoardGathers(
   }
 }
 
-export function paintBoardHighlight(
+export function paintBoardSelectionRim(
   g: Graphics,
   bx: number,
   by: number,
-  state: GameState | null
+  state: GameState | null,
+  phase: number = 0
 ): void {
-  g.clear();
   const { wx, wy } = boardGridToWorld(bx, by);
   const p = state?.board?.provinces?.find((pr) => pr.x === bx && pr.y === by);
   const seen = (state && p) ? isProvinceSeen(state, p.id) : true;
@@ -3636,25 +3646,124 @@ export function paintBoardHighlight(
   const hw = BOARD_HALF_W;
   const hh = BOARD_HALF_H;
 
-  // 1. Glowing selection border around the isometric diamond
+  // Gentle radiant breath
+  const pulse = Math.sin(phase * 3) * 0.08;
+  const alphaBase = 0.92 + pulse;
+
+  // 1. CLEAR GOLD GROUND RING (tabletop ground plane at wy)
+  // Outer warm amber-gold ground aura
+  g.poly([
+    wx, wy - hh - 3,
+    wx + hw + 3, wy,
+    wx, wy + hh + 3,
+    wx - hw - 3, wy,
+  ]);
+  g.stroke({ width: 3.5, color: 0xb45309, alpha: 0.45 * alphaBase });
+
+  // Main radiant gold ground ring
+  g.poly([
+    wx, wy - hh - 2,
+    wx + hw + 2, wy,
+    wx, wy + hh + 2,
+    wx - hw - 2, wy,
+  ]);
+  g.stroke({ width: 2, color: 0xfacc15, alpha: 0.95 * alphaBase });
+
+  // Inner bright ground shimmer
+  g.poly([
+    wx, wy - hh - 1,
+    wx + hw + 1, wy,
+    wx, wy + hh + 1,
+    wx - hw - 1, wy,
+  ]);
+  g.stroke({ width: 0.8, color: 0xfef08a, alpha: 0.8 * alphaBase });
+
+  // Ground ring cardinal bracket pips
+  const groundPips = [
+    { x: wx, y: wy - hh - 2 },
+    { x: wx + hw + 2, y: wy },
+    { x: wx, y: wy + hh + 2 },
+    { x: wx - hw - 2, y: wy },
+  ];
+  for (const pip of groundPips) {
+    g.circle(pip.x, pip.y, 1.8);
+    g.fill({ color: 0xfef08a });
+    g.stroke({ width: 0.6, color: 0xb45309 });
+  }
+
+  // 2. VERTICAL CORNER STRUTS & FRONT RIM (connecting ground ring to elevated plateau)
+  if (elev > 0) {
+    g.moveTo(wx - hw - 1, cy);
+    g.lineTo(wx - hw - 1, wy);
+    g.stroke({ width: 2, color: 0xfacc15, alpha: 0.85 * alphaBase });
+
+    g.moveTo(wx, cy + hh + 1);
+    g.lineTo(wx, wy + hh + 1);
+    g.stroke({ width: 2.2, color: 0xfacc15, alpha: 0.95 * alphaBase });
+
+    g.moveTo(wx + hw + 1, cy);
+    g.lineTo(wx + hw + 1, wy);
+    g.stroke({ width: 2, color: 0xfacc15, alpha: 0.85 * alphaBase });
+
+    g.moveTo(wx - hw - 1, wy);
+    g.lineTo(wx, wy + hh + 1);
+    g.lineTo(wx + hw + 1, wy);
+    g.stroke({ width: 1.5, color: 0xfef08a, alpha: 0.75 * alphaBase });
+  }
+
+  // 3. RADIANT GOLD TOP RIM (elevated plateau at cy)
+  // Outer warm golden glow
+  g.poly([
+    wx, cy - hh - 2,
+    wx + hw + 2, cy,
+    wx, cy + hh + 2,
+    wx - hw - 2, cy,
+  ]);
+  g.stroke({ width: 3, color: 0xd97706, alpha: 0.45 * alphaBase });
+
+  // Main brilliant gold top rim
   g.poly([
     wx, cy - hh - 1,
     wx + hw + 1, cy,
     wx, cy + hh + 1,
     wx - hw - 1, cy,
   ]);
-  g.stroke({ width: 2, color: 0xfef08a, alpha: 0.95 });
+  g.stroke({ width: 2.2, color: 0xfacc15, alpha: 0.98 * alphaBase });
 
-  if (elev > 0) {
-    g.moveTo(wx - hw - 1, cy);
-    g.lineTo(wx - hw - 1, wy);
-    g.lineTo(wx, wy + hh + 1);
-    g.lineTo(wx + hw + 1, wy);
-    g.lineTo(wx + hw + 1, cy);
-    g.stroke({ width: 1.5, color: 0xfef08a, alpha: 0.65 });
+  // Sunlit top edge highlight (rear facets)
+  g.moveTo(wx - hw - 0.5, cy);
+  g.lineTo(wx, cy - hh - 0.5);
+  g.lineTo(wx + hw + 0.5, cy);
+  g.stroke({ width: 1.2, color: 0xffffff, alpha: 0.9 * alphaBase });
+
+  // Top cardinal reticle bracket pips
+  const topPips = [
+    { x: wx, y: cy - hh - 1, r: 2.0, color: 0xffffff },
+    { x: wx + hw + 1, y: cy, r: 1.6, color: 0xfef08a },
+    { x: wx, y: cy + hh + 1, r: 1.6, color: 0xfef08a },
+    { x: wx - hw - 1, y: cy, r: 1.6, color: 0xfef08a },
+  ];
+  for (const pip of topPips) {
+    g.circle(pip.x, pip.y, pip.r);
+    g.fill({ color: pip.color });
+    g.stroke({ width: 0.6, color: 0xb45309 });
   }
+}
+
+export function paintBoardHighlight(
+  g: Graphics,
+  bx: number,
+  by: number,
+  state: GameState | null,
+  phase: number = 0
+): void {
+  g.clear();
+  // 1. Clear gold rim and ground ring
+  paintBoardSelectionRim(g, bx, by, state, phase);
 
   // 2. Information plaque at bottom of diorama table
+  const p = state?.board?.provinces?.find((pr) => pr.x === bx && pr.y === by);
+  const seen = (state && p) ? isProvinceSeen(state, p.id) : true;
   if (!p) return;
 
   const plaqueX = 70;

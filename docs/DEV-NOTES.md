@@ -1,10 +1,16 @@
 # Dev notes
 
-## 2026-09-27 — hud-inspect / province inspect card
+## 2026-09-27 — board / select-rim & ground-ring
 
-- `ProvinceInspect.tsx`: return JSX rebuilt as `.sc-inspect-card` (modifiers `.is-home`, `.is-flagged`, `.is-fog`). Head `.sc-inspect-name` + `.sc-inspect-close`; facts in a `<dl class="sc-inspect-facts">`; status rows `.sc-inspect-line` (`.is-good` / `.is-bad` / `.is-warn`); buttons in `.sc-inspect-actions` (hidden via `:empty` when nothing applies); unit picker `.sc-inspect-column`; `.sc-inspect-raid`.
-- All derived values and every `act(...)` handler are byte-for-byte the old logic. Only new sim import is `settlementName` (read-only, for the name).
-- Styles isolated to `packages/app/src/hud/inspect-card.css`, imported from `ProvinceInspect.tsx`. Uses `--chrome-btn-*` tokens like the other HUD cards.
+- `paintBoardSelectionRim(g, bx, by, state, phase)`: Renders clearer gold rim and ground ring on board provinces:
+  - Tabletop Ground Ring: At ground level `wy`, draws multi-layered gold diamond (`0xfacc15`, `0xb45309`, `0xfef08a`) with 4 cardinal corner bracket studs (`1.8px`).
+  - Vertical Cliff Struts: For elevated tiles (`elev > 0`), corner cliff struts descend from `cy` to `wy` with bottom front rim.
+  - Radiant Top Rim: Surrounds the top plateau at `cy` with a double gold rim (`2.2px` `0xfacc15`, `3px` `0xd97706`), sunlit facet glint, and 4 corner diamond bracket glints.
+  - Subtle breathing animation pulse modulated with `phase`.
+- Dedicated `boardSelectionLayer` in `boardContainer`: Placed above `boardProvincesLayer` and below routes/pawns.
+- `MapRenderer`: Exposes `setSelectedProvince(provinceId: string | null)` and `getSelectedProvince()`. Synchronized via `useGameEngine.ts` `useEffect` on `selectedProvinceId` and passed in `sync(s, selectedId)`.
+- `OverworldAtlas.tsx`: Renders `.sc-atlas-select-rim` with base ground ring at `cy + lift`, top gold rim, and corner bracket studs (`pointerEvents="none"`).
+- Invariants: Hit-test math (`hitTestProvince` in `camera.ts`) and camera geometry (`boardGridToWorld`, `boardWorldToGrid`, `bandForZoom`, `ZOOM_THRESHOLD`) remain 100% untouched. Sim and server remain completely unchanged.
 
 ## 2026-09-27 — hud-events / omen-pip
 
