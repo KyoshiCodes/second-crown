@@ -2,11 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-27 — Diplomacy cards
+## 2026-09-27 — Diplomacy realm cards & 28px realm crest pip
 
-- On the War tab, the old Odds buttons are now a **Diplomacy** section with one card per realm.
-- Each card shows the realm's name, how it stands with you (At war, Truce with seconds left, Friendly, Wary, Hostile), its opinion of you, and your power odds.
-- Declare war is on every card. The gold gift to Lord Varric is on his card. Nothing about how opinion or war works has changed.
+- The War tab's Odds and Varric diplomacy sections are now unified into dedicated diplomacy realm cards:
+  - **Realm Crest Pip (28px)**: Displays each kingdom's authentic heraldic shield. When a realm is hostile or at war, its crest turns **colder** with an icy frost contour and chilly blue-steel sheen, contrasting with the warm emerald or amber glow of peaceful realms.
+  - **Stance & Truce Timer**: Clear labels (Friendly, Truce, Wary, Hostile, At war) with a live countdown for active peace treaties.
+  - **Diplomatic Opinions**: Displays both their opinion of you and your opinion of them.
+  - **Power Balance Odds**: Direct side-by-side power comparison with percentage share, color-coded in green when favored and red when unfavored.
+  - **Direct Actions**: Declare war or send gold gifts directly from each kingdom's card.
+- All realm crest art is completely click-transparent, ensuring instant, unobstructed button clicks.
 
 ## 2026-09-27 — Royal decree cards & 24px wax-seal pip
 

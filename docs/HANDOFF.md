@@ -13,27 +13,18 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/hud-diplo)
+## Active Bakeoff (bakeoff/gemini-diplo)
 
-- War tab "Odds" section is now **Diplomacy**: one `RealmCard` per other realm (`packages/app/src/hud/RealmCard.tsx`, `realm-card.css`) in `.sc-realm-dip-grid`.
-- Card: name, stance (At war / Truce Ns / Friendly / Wary / Hostile), opinion of you, power odds, existing Declare war button, and the existing Gift button on Varric's (rival) card only.
-- `DiplomacyPanel` removed from `HudControls.tsx`. Sim untouched. Not merged.
-
-## Active Bakeoff (bakeoff/gemini-decrees)
-
-- **Royal Decree Cards & 24px Wax-Seal Pip (`packages/app/src/hud/DecreeCard.tsx`, `packages/app/src/hud/WaxSealPip.tsx`, `packages/app/src/hud/decree-card.css`, `packages/app/src/DecreesPanel.tsx`, `packages/app/src/theme.css`)**:
-  - Replaces raw decree buttons in the Crown tab with dedicated `DecreeCard` elements arranged in `.sc-decree-grid`:
-    - Shows decree name, blurb, cost row with 16px `ResourcePip`s, and active countdown timer (`${Math.ceil(left / 10)}s left`).
-    - Action button: "Issue" (or "Already active" when in effect).
-    - Status tones: `.is-ready` (amber), `.is-active` (green + illuminated backdrop), `.is-off` (unaffordable).
-  - **24px Wax-Seal Pip (`WaxSealPip.tsx`)**:
-    - Circular stamped royal wax seal at 24px (`width: 24px; height: 24px; viewBox="0 0 24 24"`):
-      - Scalloped wax matrix edge with molten droplets and hanging silk ribbons.
-      - Stamped royal crown matrix sigil (with specialized emblems for "muster", "rite", "envoys").
-      - **Active Seal is LIT**: Molten amber-gold wax, glowing incandescent core, radiant crown flare, and animated flame flicker (`drop-shadow(0 0 2.5px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 6px rgba(245, 158, 11, 0.65))`).
-      - **Dormant Seal**: Deep pressed royal crimson wax (`#991b1b` / `#7f1d1d`).
+- **Diplomacy Realm Cards & 28px Realm Crest Pip (`packages/app/src/hud/RealmCard.tsx`, `packages/app/src/hud/RealmCrestPip.tsx`, `packages/app/src/hud/realm-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
+  - Replaces raw odds button list in the War tab with dedicated `RealmCard` elements arranged in `.sc-realm-dip-grid`:
+    - Shows realm name, stance badge (with truce countdown timer), opinion breakdown, power odds comparison (mine vs theirs and share %), and Declare war / Gift actions.
+    - Card edge colors by stance: `.is-war` (red `#f85149`), `.is-truce` (azure `#58a6ff`), `.is-friendly` (green `#3fb950`), `.is-wary` (amber `#d29922`), `.is-hostile` (orange `#db6d28`).
+  - **28px Realm Crest Pip (`RealmCrestPip.tsx`)**:
+    - Mounts the existing heraldic `Crest` at 28px (`width: 28px; height: 28px; size={28}`).
+    - **Hostile Crest is Colder**: When in a hostile stance (`stance === "hostile"` or `stance === "war"`), the crest shifts to a colder hue-rotated blue-grey steel frost (`saturate(0.5) hue-rotate(185deg) brightness(0.9)`), accompanied by a crystalline frost contour overlay and icy cyan glow (`drop-shadow(0 0 2.5px rgba(56, 189, 248, 0.75))`).
+    - Stance auras: friendly is warm emerald green, truce is serene azure, and wary is warm amber.
   - **Non-blocking Clicks**:
-    - Wrapper (`.sc-wax-seal-pip-wrapper`), SVG (`.sc-wax-seal-pip`), and all child elements strictly enforce `pointer-events: none !important;` so that Issue button and card clicks are never intercepted.
+    - Wrapper (`.sc-realm-crest-wrapper`), SVG, and all child paths strictly enforce `pointer-events: none !important;` so that Declare war and Gift gold button clicks are never obstructed.
 
 ## Verify
 

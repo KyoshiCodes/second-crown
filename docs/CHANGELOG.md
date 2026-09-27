@@ -1,10 +1,20 @@
 # CHANGELOG
 
-## 2026-09-27 — Diplomacy realm cards (wave/hud-diplo)
+## 2026-09-27 — Gemini Diplomacy Realm Cards & 28px Realm Crest Pip (bakeoff/gemini-diplo)
 
-- War tab: the Odds section is renamed **Diplomacy** and each other realm is a `RealmCard` (`packages/app/src/hud/RealmCard.tsx`, `packages/app/src/hud/realm-card.css`).
-- Card shows name, stance, opinion of you (rival also shows yours of them), power odds, Declare war, and Gift 15 gold on the rival card.
-- Same handlers as before (`tryDeclareWar`, `tryGiftGold`); `DiplomacyPanel` removed. `git diff main -- packages/sim server` is empty.
+- **Diplomacy Realm Cards (`packages/app/src/hud/RealmCard.tsx`, `packages/app/src/hud/realm-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
+  - Replaces raw odds button list in the War tab with dedicated `RealmCard` components arranged in a responsive grid (`.sc-realm-dip-grid`).
+  - Card displays realm name, stance badge (with truce countdown timer), opinion breakdown, power odds comparison (mine vs theirs and share percentage with favorable green or unfavorable red color), and direct Declare war / Gift actions.
+  - Card left border indicates diplomatic stance: `.is-war` (red `#f85149`), `.is-truce` (azure `#58a6ff`), `.is-friendly` (green `#3fb950`), `.is-wary` (amber `#d29922`), `.is-hostile` (orange `#db6d28`).
+- **28px Realm Crest Pip (`packages/app/src/hud/RealmCrestPip.tsx`, `packages/app/src/hud/realm-card.css`, `packages/app/src/theme.css`)**:
+  - Integrates the existing heraldic `Crest` at 28px (`width: 28px; height: 28px; size={28}`).
+  - **Hostile Crest is Colder**: When a realm is in a hostile stance (`stance === "hostile"` or `stance === "war"`), the crest shifts to a colder hue-rotated steel frost (`saturate(0.5) hue-rotate(185deg) brightness(0.9)`), accompanied by a crystalline frost contour overlay and icy cyan glow (`drop-shadow(0 0 2.5px rgba(56, 189, 248, 0.75))`).
+  - Friendly stances apply a warm emerald radiance, truce a calm azure glow, and wary a warm amber rim.
+  - Unconditionally enforces `pointer-events: none !important;` on wrapper, SVG, and child elements so Declare war and Gift gold button clicks are never obstructed.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Monorepo tests pass: 220 sim tests, 127 render tests (+5 unit tests covering diplomacy card CSS rules, stance mapping, 28px realm crest pip colder state, RealmCard mounting, and WarRoom grid).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-27 — Gemini Royal Decree Cards & 24px Wax-Seal Pip (bakeoff/gemini-decrees)
 

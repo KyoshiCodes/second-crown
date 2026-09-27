@@ -3417,7 +3417,124 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(code).toContain("<DecreeCard key={d.id} state={state} decree={d} act={act} />");
     });
   });
+
+  describe("Diplomacy Realm Cards & 28px Realm Crest Pip (Gemini Diplo Lane)", () => {
+    it("defines diplomacy card layout, 28px realm crest pip art, and colder hostile styling in theme.css and realm-card.css", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+
+      const cssPath = path.resolve(__dirname, "../../app/src/hud/realm-card.css");
+      expect(fs.existsSync(cssPath)).toBe(true);
+      const css = fs.readFileSync(cssPath, "utf-8");
+
+      // 1. Diplomacy card & grid layout
+      expect(css).toContain("sc-realm-dip-grid");
+      expect(css).toContain("sc-realm-dip");
+      expect(css).toContain("sc-realm-dip.is-war");
+      expect(css).toContain("sc-realm-dip.is-truce");
+      expect(css).toContain("sc-realm-dip.is-friendly");
+      expect(css).toContain("sc-realm-dip.is-wary");
+      expect(css).toContain("sc-realm-dip.is-hostile");
+      expect(css).toContain("sc-realm-dip-head");
+      expect(css).toContain("sc-realm-dip-title-group");
+      expect(css).toContain("sc-realm-dip-name");
+      expect(css).toContain("sc-realm-dip-stance");
+      expect(css).toContain("sc-realm-dip-line");
+      expect(css).toContain("sc-realm-dip-actions");
+      expect(css).toContain("sc-realm-dip-btn");
+
+      // 2. 28px realm crest pip wrapper
+      expect(css).toContain("sc-realm-crest-wrapper");
+      expect(css).toContain("width: 28px");
+      expect(css).toContain("height: 28px");
+
+      // 3. Hostile crest is colder
+      expect(css).toContain("sc-realm-crest-wrapper.is-colder");
+      expect(css).toContain("hue-rotate(185deg)");
+      expect(css).toContain("drop-shadow");
+
+      // 4. Click transparency: pointer-events: none !important
+      expect(css).toContain(".sc-realm-crest-wrapper");
+      expect(css).toContain(".sc-realm-crest-wrapper *");
+      expect(css).toContain("pointer-events: none !important");
+    });
+
+    it("realmStance accurately maps war, peace countdown, and opinion thresholds", async () => {
+      const { realmStance } = await import("../../app/src/hud/RealmCard.tsx");
+      expect(typeof realmStance).toBe("function");
+
+      // At war overrides everything
+      expect(realmStance(true, 0, 50)).toBe("war");
+      expect(realmStance(true, 100, -50)).toBe("war");
+
+      // Truce when peace ticks remain
+      expect(realmStance(false, 50, 0)).toBe("truce");
+      expect(realmStance(false, 10, -30)).toBe("truce");
+
+      // Friendly when opinion >= 25
+      expect(realmStance(false, 0, 25)).toBe("friendly");
+      expect(realmStance(false, 0, 40)).toBe("friendly");
+
+      // Hostile when opinion <= -25
+      expect(realmStance(false, 0, -25)).toBe("hostile");
+      expect(realmStance(false, 0, -50)).toBe("hostile");
+
+      // Wary when in neutral opinion range
+      expect(realmStance(false, 0, 0)).toBe("wary");
+      expect(realmStance(false, 0, 24)).toBe("wary");
+      expect(realmStance(false, 0, -24)).toBe("wary");
+    });
+
+    it("RealmCrestPip renders 28px realm crest, colder hostile state, and pointer-events none", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const pipPath = path.resolve(__dirname, "../../app/src/hud/RealmCrestPip.tsx");
+      expect(fs.existsSync(pipPath)).toBe(true);
+      const code = fs.readFileSync(pipPath, "utf-8");
+
+      expect(code).toContain("RealmCrestPip");
+      expect(code).toContain("size = 28");
+      expect(code).toContain('pointerEvents: "none"');
+      expect(code).toContain('aria-hidden="true"');
+      expect(code).toContain("sc-realm-crest-wrapper");
+      expect(code).toContain("is-colder");
+      expect(code).toContain("sc-realm-crest-frost");
+      expect(code).toContain("Crest");
+    });
+
+    it("RealmCard mounts 28px RealmCrestPip in sc-realm-dip-title-group and displays realm diplomacy details", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const cardPath = path.resolve(__dirname, "../../app/src/hud/RealmCard.tsx");
+      expect(fs.existsSync(cardPath)).toBe(true);
+      const code = fs.readFileSync(cardPath, "utf-8");
+
+      expect(code).toContain("RealmCrestPip");
+      expect(code).toContain("size={28}");
+      expect(code).toContain("sc-realm-dip");
+      expect(code).toContain("sc-realm-dip-head");
+      expect(code).toContain("sc-realm-dip-title-group");
+      expect(code).toContain("sc-realm-dip-name");
+      expect(code).toContain("sc-realm-dip-stance");
+      expect(code).toContain("sc-realm-dip-line");
+      expect(code).toContain("Declare war");
+    });
+
+    it("WarRoom mounts RealmCard in sc-realm-dip-grid for other realms", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const roomPath = path.resolve(__dirname, "../../app/src/WarRoom.tsx");
+      expect(fs.existsSync(roomPath)).toBe(true);
+      const code = fs.readFileSync(roomPath, "utf-8");
+
+      expect(code).toContain("RealmCard");
+      expect(code).toContain("sc-realm-dip-grid");
+      expect(code).toContain("otherRealms.map");
+      expect(code).toContain("realmStance(atWar, left, opinion)");
+    });
+  });
 });
+
 
 
 

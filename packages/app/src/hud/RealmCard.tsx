@@ -1,5 +1,9 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
+<<<<<<< HEAD
+=======
+import { RealmCrestPip } from "./RealmCrestPip";
+>>>>>>> 64f4556 (feat(app): diplomacy realm cards with 28px realm crest pip (hostile crest is colder))
 import "./realm-card.css";
 
 type Realm = GameState["realms"][number];
@@ -24,8 +28,15 @@ const STANCE_LABEL: Record<RealmStance, string> = {
 };
 
 /**
+<<<<<<< HEAD
  * One realm on the Diplomacy panel: name, stance, opinion, and the existing
  * declare-war and gift buttons. Handlers come from WarRoom unchanged.
+=======
+ * One realm on the Diplomacy panel:
+ * - 28px realm crest pip (hostile/at war crest is colder with frost aura).
+ * - Stance badge with peace timer, opinion line, power comparison, declare war and gift actions.
+ * GUARANTEE: art has strictly pointer-events: none so clicks are never blocked!
+>>>>>>> 64f4556 (feat(app): diplomacy realm cards with 28px realm crest pip (hostile crest is colder))
  */
 export function RealmCard(props: {
   realm: Realm;
@@ -46,7 +57,14 @@ export function RealmCard(props: {
   return (
     <div className={`sc-realm-dip is-${stance}`} data-realm={realm.id}>
       <span className="sc-realm-dip-head">
+<<<<<<< HEAD
         <span className="sc-realm-dip-name">{realm.name}</span>
+=======
+        <span className="sc-realm-dip-title-group">
+          <RealmCrestPip realmId={realm.id} stance={stance} size={28} />
+          <span className="sc-realm-dip-name">{realm.name}</span>
+        </span>
+>>>>>>> 64f4556 (feat(app): diplomacy realm cards with 28px realm crest pip (hostile crest is colder))
         <span className={`sc-realm-dip-stance is-${stance}`}>
           {STANCE_LABEL[stance]}
           {stance === "truce" ? ` ${Math.ceil(peaceLeft / 10)}s` : ""}
