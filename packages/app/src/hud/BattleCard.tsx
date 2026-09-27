@@ -26,11 +26,13 @@ export function BattleCard(props: {
   return (
     <div className={`sc-battle-card ${tone}`}>
       <span className="sc-battle-head">
-        <ClashPip variant={pipVariant} size={28} />
-        <span className="sc-battle-sides">
-          <span className="sc-battle-side is-winner">{nameOf(winnerId)}</span>
-          <span className="sc-battle-vs">vs</span>
-          <span className="sc-battle-side">{nameOf(loserId)}</span>
+        <span className="sc-battle-title-group">
+          <ClashPip variant={pipVariant} size={28} />
+          <span className="sc-battle-sides">
+            <span className="sc-battle-side is-winner">{nameOf(winnerId)}</span>
+            <span className="sc-battle-vs">vs</span>
+            <span className="sc-battle-side">{nameOf(loserId)}</span>
+          </span>
         </span>
         <span className="sc-battle-verdict">{verdict}</span>
       </span>

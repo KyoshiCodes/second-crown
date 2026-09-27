@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-09-27 — Gemini Royal Decree Cards & 24px Wax-Seal Pip (bakeoff/gemini-decrees)
+
+- **Royal Decree Cards (`packages/app/src/hud/DecreeCard.tsx`, `packages/app/src/hud/decree-card.css`, `packages/app/src/DecreesPanel.tsx`, `packages/app/src/theme.css`)**:
+  - Replaces raw decree buttons in the Crown tab with dedicated `DecreeCard` components in a responsive `.sc-decree-grid`.
+  - Card displays decree name, blurb, cost row with 16px `ResourcePip`s (with red short amounts when unaffordable), active countdown timer (`${Math.ceil(left / 10)}s left`), and Issue button ("Already active" when sworn).
+  - Tones match system states: `.is-ready` (amber), `.is-active` (green with subtle illuminated background), `.is-off` (muted when unaffordable).
+- **24px Wax-Seal Pip (`packages/app/src/hud/WaxSealPip.tsx`, `packages/app/src/hud/decree-card.css`, `packages/app/src/theme.css`)**:
+  - 24px circular stamped royal wax seal (`width: 24px; height: 24px; viewBox="0 0 24 24"`) featuring organic scalloped wax pooling, hanging royal ribbon tails, and a stamped royal signet crown matrix.
+  - **Active seal is LIT**: Transmutes to molten amber-gold wax with radiant incandescent core, crown flare, secondary specular glints, and gentle flame glow flicker (`drop-shadow(0 0 2.5px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 6px rgba(245, 158, 11, 0.65))`).
+  - **Dormant seal**: Deep regal crimson pressed wax (`#991b1b` / `#7f1d1d`).
+  - Unconditionally enforces `pointer-events: none !important;` on wrapper, SVG, and all child paths so card clicks and Issue button presses are never blocked.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Monorepo tests pass: 220 sim tests, 122 render tests (+4 unit tests covering decree card CSS rules, 24px wax-seal pip active lit state and dormant state, DecreeCard mounting, and DecreesPanel grid).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
+
 ## 2026-09-27 — Gemini Last Battle Card & 28px Clash Pip (bakeoff/gemini-battle)
 
 - **Last Battle Card (`packages/app/src/hud/BattleCard.tsx`, `packages/app/src/hud/battle-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:

@@ -2,6 +2,18 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-27 — Royal decree cards & 24px wax-seal pip
+
+- Each royal decree on the Crown tab is now presented as a royal proclamation card:
+  - **Decree name & blurb**: Clear description of the temporary age-long bonus provided.
+  - **Cost breakdown**: Displayed with 16px resource pips. Insufficient funds highlight in red.
+  - **Issue command**: Swear the decree with a single click. The card tracks remaining time with a live countdown (`X seconds left`).
+  - **24px Wax-Seal Pip**:
+    - Stamped with the royal signet matrix and hanging silk ribbon tails.
+    - When active, the seal is **lit** with molten amber-gold radiance, a four-pointed star glint on the crown peak, and living candle flicker!
+    - When dormant, it displays as deep crimson pressed wax.
+- All wax-seal art is completely click-transparent, so swearing decrees is instant and unobstructed.
+
 ## 2026-09-27 — Last battle card & 28px clash pip
 
 - The War tab's Last battle section is now a dedicated battle card showing who fought, who triumphed, and an authentic 28px clash pip:
