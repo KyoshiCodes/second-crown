@@ -13,6 +13,10 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Open branch (wave/hud-quests, not merged)
+
+- Quest cards: `hud/QuestCard.tsx` + `hud/quest-card.css`, wired in `QuestPanel.tsx`. Title, hint, status, 0/1 progress bar, Claim when ready. Sim, server, `theme.css` untouched.
+
 ## Active Bakeoff (bakeoff/gemini-diplo)
 
 - **Diplomacy Realm Cards & 28px Realm Crest Pip (`packages/app/src/hud/RealmCard.tsx`, `packages/app/src/hud/RealmCrestPip.tsx`, `packages/app/src/hud/realm-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
