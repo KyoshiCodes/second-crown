@@ -2,11 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-27 — Last battle card
+## 2026-09-27 — Last battle card & 28px clash pip
 
-- The War tab's Last battle is now a single card: who fought, who won, and a green Victory or red Defeat tag.
-- The round-by-round list is folded under "Blow by blow". Click to open it.
-- Battles work exactly as before.
+- The War tab's Last battle section is now a dedicated battle card showing who fought, who triumphed, and an authentic 28px clash pip:
+  - **Crossed Blades**: Two crossed forged steel arming swords with gold pommels and a bright clash spark, glowing with green victory light when you win.
+  - **Broken Shield**: A shattered, iron-rimmed heater shield cleaved down the center with red embers when you suffer a defeat.
+- Read the combat report line, Butcher's bill phase, and expand "Blow by blow" to inspect round-by-round combat events.
+- All clash pip art is click-transparent so card inspection and expanding combat details is instantaneous.
 
 ## 2026-09-27 — Market offer cards
 

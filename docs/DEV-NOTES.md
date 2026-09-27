@@ -1,10 +1,10 @@
 # Dev notes
 
-## 2026-09-27 — hud-battle / last battle card
+## 2026-09-27 — hud-battle / clash-pip
 
-- `BattleCard.tsx` takes `LastBattleStory | null`, an optional ledger `report` string, and `nameOf`. Null story shows the report or "No field report yet."
-- Losses are not shown: `writeLastBattle` stores winner, loser, events (max 10), phases (max 6), no counts. Event texts carry "(N down)" but no realm id, so summing them would mislabel sides. Add a `losses` field to the story in sim first if wanted.
-- "Butcher's bill" phase is matched by title (`/butcher/i`); field clashes from `engagement.ts` have no such phase and just omit the line.
+- `ClashPip.tsx`: 28px clash pip renders `crossed_blades` (victory or general clash) or `broken_shield` (defeat when `story.loserId === "player"`). All wrappers, SVGs, and paths strictly enforce `pointer-events: none !important;` so that card clicks and details expansion never get blocked.
+- `BattleCard.tsx`: Integrates `ClashPip` at `size={28}` in `.sc-battle-title-group`. Displays verdict (Victory, Defeat, or rival winner), field combat report, Butcher's bill phase when present, and folds detailed blow-by-blow events inside `<details>`.
+- Invariants: Sim unchanged; `writeLastBattle` and `LastBattleStory` shape completely untouched.
 
 ## 2026-09-27 — hud-market / offer cards
 

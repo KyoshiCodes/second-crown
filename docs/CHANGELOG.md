@@ -1,11 +1,19 @@
 # CHANGELOG
 
-## 2026-09-27 — Last battle card (wave/hud-battle)
+## 2026-09-27 — Gemini Last Battle Card & 28px Clash Pip (bakeoff/gemini-battle)
 
-- War tab Last battle is now one `BattleCard` (`packages/app/src/hud/BattleCard.tsx`, `battle-card.css`): who fought (winner bold vs loser), verdict tag, latest field ledger line, Butcher's bill phase text when the story has it.
-- Edge and verdict color: green Victory, red Defeat, amber when the player was not in the fight.
-- Event list (up to 8) moved into a collapsed "Blow by blow" fold.
-- Reads existing `lastBattleStory`. Combat math, sim, server untouched.
+- **Last Battle Card (`packages/app/src/hud/BattleCard.tsx`, `packages/app/src/hud/battle-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
+  - Replaces raw paragraphs and event list with a dedicated `BattleCard`:
+    - Header shows combatants (`winner` vs `loser`), outcome verdict (Victory in green, Defeat in red, or X won in amber), and the 28px clash pip.
+    - Shows combat report line, Butcher's bill phase when present, and folds detailed round-by-round combat logs under `<details className="sc-battle-log"><summary>Blow by blow</summary>`.
+- **28px Clash Pip (`packages/app/src/hud/ClashPip.tsx`, `packages/app/src/hud/battle-card.css`, `packages/app/src/theme.css`)**:
+  - **Crossed Blades (`variant="crossed_blades"`)**: Two crossed forged steel arming swords with gold pommels and central clash spark with emerald victor glow (`rgba(63, 185, 80, 0.65)`). Displays on victory or AI clash.
+  - **Broken Shield (`variant="broken_shield"`)**: Fractured iron-rimmed heater shield cleaved by a jagged glowing fissure with embers and silver rivets (`rgba(248, 81, 73, 0.75)`). Displays when the player is defeated (`loserId === "player"`).
+  - Strictly enforces `pointer-events: none !important;` across all pip elements, wrappers, and SVGs.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Monorepo tests pass: 220 sim tests, 118 render tests (+4 unit tests covering battle card structure, clash pip variant resolution, defeat broken shield, and WarRoom mounting).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-27 — Market offer cards (wave/hud-market)
 

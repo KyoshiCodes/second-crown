@@ -1,4 +1,4 @@
-# Handoff (2026-09-24)
+# Handoff (2026-09-27)
 
 Read `AGENTS.md` then this file.
 
@@ -13,28 +13,17 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Wave: hud-battle (branch `wave/hud-battle`, not merged)
+## Active Bakeoff (bakeoff/gemini-battle)
 
-- War tab Last battle is one `BattleCard` (`packages/app/src/hud/BattleCard.tsx`): winner vs loser, Victory / Defeat (or "X won" for rival-only clashes), ledger line, Butcher's bill phase if present, blow-by-blow folded in `<details>`.
-- No loss counts: `last_battle_json` does not store them. Odds, Levy, Decrees, force cards unchanged. No sim change.
-
-## Wave: hud-market (branch `wave/hud-market`, not merged)
-
-- Kingdom tab Market is a grid of `OfferCard`s (give / get / Trade). Disabled via `canTrade`. `tryTrade` and `MARKET_OFFERS` untouched.
-
-## Active Bakeoff (bakeoff/gemini-war-chips)
-
-- **War Force Cards & 24px War Chips (`packages/app/src/hud/WarChip.tsx`, `packages/app/src/hud/ForceCard.tsx`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
-  - The War room organizes standing military actions into dedicated force cards (`.sc-force-grid`), each equipped with a bespoke 24px tactical SVG chip:
-    - **Incoming Cards (`tone="hostile"`)**: Red warband pip (`WarbandSvg`) with horned iron crest, blood-red tabard, and spiked morningstar flail; bordered in crimson with soft red shadow glow.
-    - **Scouts Cards (`tone="scout"`)**: Cloak pip (`CloakSvg`) with twilight-navy cowl mantle, sky-cyan border trim, and polished brass spyglass telescope; bordered in blue.
-    - **Gathers Cards (`tone="gather"`)**: Cart pip (`CartSvg`) with heavy timber cargo flatbed, banded grain sacks, and iron-spoke wagon wheel; bordered in amber.
-    - **Garrisons Cards (`tone="garrison"`)**: Tent pip (`TentSvg`) with heavy canvas pavilion ridgepole, leaning spear and tower heater shield, and glowing warm lantern; bordered in emerald.
-  - **Force Card Structure**:
-    - Header mounts 24px `WarChip` beside force name, destination province/token, and countdown ETA ("posted" or `${seconds}s`).
-    - Compact action buttons ("Sally" for incoming raids, "Recall" for player march/gather/scout columns) align neatly on the card.
-  - **Non-blocking Clicks**:
-    - All chip wrappers (`.sc-war-chip-wrapper`), SVGs, and child paths strictly enforce `pointer-events: none !important;` so Recall, Sally, and province targeting clicks fire cleanly without obstruction.
+- **Last-Battle Card & 28px Clash Pip (`packages/app/src/hud/BattleCard.tsx`, `packages/app/src/hud/ClashPip.tsx`, `packages/app/src/hud/battle-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
+  - Replaces raw paragraphs and event list in the War tab with a dedicated `BattleCard`:
+    - Shows combatants (winner vs loser) and outcome verdict (green Victory, red Defeat, or amber X won for AI rival clashes).
+    - **28px Clash Pip (`ClashPip.tsx`)**:
+      - **Crossed Blades (`variant="crossed_blades"`)**: Two crossed forged steel arming swords with gold pommels, quillons, and clash spark; green/gold glow on victory or general field clash.
+      - **Broken Shield (`variant="broken_shield"`)**: Fractured iron-rimmed heater shield split by a jagged fissure crack with fiery embers and rivets; red glow when player is defeated (`loserId === "player"`).
+    - **Non-blocking Clicks**:
+      - Wrapper (`.sc-clash-pip-wrapper`), SVG, and child paths strictly enforce `pointer-events: none !important;` so card inspection and folded details remain completely unobstructed.
+    - Shows combat log report, Butcher's bill phase when present, and folds detailed round-by-round events under `<details className="sc-battle-log"><summary>Blow by blow</summary>`.
 
 ## Verify
 

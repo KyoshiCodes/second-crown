@@ -3187,7 +3187,128 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(code).toContain('tone="garrison"');
     });
   });
+
+  describe("Last Battle Card & 28px Clash Pip (Gemini Battle Lane)", () => {
+    it("theme.css defines last-battle card, outcome edge colors, 28px clash pip, and non-blocking pointer-events", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const themeCssPath = path.resolve(__dirname, "../../app/src/theme.css");
+      expect(fs.existsSync(themeCssPath)).toBe(true);
+      const css = fs.readFileSync(themeCssPath, "utf-8");
+
+      // 1. Battle card structure and outcome tones
+      expect(css).toContain("sc-battle-card");
+      expect(css).toContain("sc-battle-card.is-won");
+      expect(css).toContain("sc-battle-card.is-lost");
+      expect(css).toContain("sc-battle-card.is-other");
+      expect(css).toContain("sc-battle-head");
+      expect(css).toContain("sc-battle-title-group");
+      expect(css).toContain("sc-battle-sides");
+      expect(css).toContain("sc-battle-side");
+      expect(css).toContain("sc-battle-verdict");
+      expect(css).toContain("sc-battle-report");
+      expect(css).toContain("sc-battle-bill");
+      expect(css).toContain("sc-battle-log");
+
+      // 2. 28px clash pip wrapper & art
+      expect(css).toContain("sc-clash-pip-wrapper");
+      expect(css).toContain("sc-clash-pip");
+      expect(css).toContain("width: 28px");
+      expect(css).toContain("height: 28px");
+
+      // 3. Crossed blades glow & broken shield glow
+      expect(css).toContain("sc-clash-crossed_blades");
+      expect(css).toContain("sc-clash-broken_shield");
+
+      // 4. Clicks NOT blocked: pointer-events: none !important
+      expect(css).toContain(".sc-clash-pip-wrapper");
+      expect(css).toContain(".sc-clash-pip *");
+      expect(css).toContain("pointer-events: none !important");
+    });
+
+    it("ClashPip renders 28px crossed blades for victory/clash and broken shield for defeat with pointer-events none", async () => {
+      const { resolveClashPipVariant, ClashPip } = await import("../../app/src/hud/ClashPip.tsx");
+      expect(typeof resolveClashPipVariant).toBe("function");
+      expect(typeof ClashPip).toBe("function");
+
+      // Victory / field clash -> crossed_blades
+      const victoryStory = {
+        winnerId: "player",
+        loserId: "r1",
+        events: [],
+        phases: [],
+      };
+      expect(resolveClashPipVariant(victoryStory)).toBe("crossed_blades");
+
+      // Player defeat -> broken_shield
+      const defeatStory = {
+        winnerId: "r1",
+        loserId: "player",
+        events: [],
+        phases: [],
+      };
+      expect(resolveClashPipVariant(defeatStory)).toBe("broken_shield");
+
+      // Neutral / AI clash -> crossed_blades
+      const aiStory = {
+        winnerId: "r1",
+        loserId: "r2",
+        events: [],
+        phases: [],
+      };
+      expect(resolveClashPipVariant(aiStory)).toBe("crossed_blades");
+      expect(resolveClashPipVariant(null)).toBe("crossed_blades");
+
+      // Code structure verification
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const pipPath = path.resolve(__dirname, "../../app/src/hud/ClashPip.tsx");
+      expect(fs.existsSync(pipPath)).toBe(true);
+      const code = fs.readFileSync(pipPath, "utf-8");
+
+      expect(code).toContain("CrossedBladesSvg");
+      expect(code).toContain("BrokenShieldSvg");
+      expect(code).toContain("sc-clash-pip-wrapper");
+      expect(code).toContain("size = 28");
+      expect(code).toContain('pointerEvents: "none"');
+      expect(code).toContain('aria-hidden="true"');
+      expect(code).toContain('viewBox="0 0 28 28"');
+    });
+
+    it("BattleCard mounts 28px ClashPip in sc-battle-title-group and displays outcome, combatants, and log", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const cardPath = path.resolve(__dirname, "../../app/src/hud/BattleCard.tsx");
+      expect(fs.existsSync(cardPath)).toBe(true);
+      const code = fs.readFileSync(cardPath, "utf-8");
+
+      expect(code).toContain("ClashPip");
+      expect(code).toContain("size={28}");
+      expect(code).toContain("sc-battle-card");
+      expect(code).toContain("sc-battle-head");
+      expect(code).toContain("sc-battle-title-group");
+      expect(code).toContain("sc-battle-sides");
+      expect(code).toContain("sc-battle-verdict");
+      expect(code).toContain("broken_shield");
+      expect(code).toContain("crossed_blades");
+      expect(code).toContain("Blow by blow");
+    });
+
+    it("WarRoom mounts BattleCard in Last battle section", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const roomPath = path.resolve(__dirname, "../../app/src/WarRoom.tsx");
+      expect(fs.existsSync(roomPath)).toBe(true);
+      const code = fs.readFileSync(roomPath, "utf-8");
+
+      expect(code).toContain("BattleCard");
+      expect(code).toContain("Last battle");
+      expect(code).toContain("story={story}");
+      expect(code).toContain("report={lastField?.text}");
+    });
+  });
 });
+
 
 
 

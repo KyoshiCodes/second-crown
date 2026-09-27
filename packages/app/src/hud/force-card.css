@@ -28,6 +28,13 @@
   justify-content: space-between;
   gap: 6px;
 }
+.sc-force-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
 .sc-force-name {
   font-weight: 600;
   overflow: hidden;
