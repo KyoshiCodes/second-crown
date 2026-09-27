@@ -1,0 +1,112 @@
+/* --- World events: one card per event. Left edge color = event kind. --- */
+.sc-event-panel {
+  margin-bottom: 14px;
+}
+
+.sc-event-label {
+  font-size: 12px;
+  opacity: 0.55;
+  margin-bottom: 4px;
+}
+
+.sc-event-empty {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.sc-event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 6px;
+  margin: 2px 0 6px;
+}
+
+.sc-event-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 9px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-left-color: #6e7681;
+  border-radius: 5px;
+}
+
+.sc-event-card.is-harvest { border-left-color: #3fb950; }
+.sc-event-card.is-timber { border-left-color: #a5794a; }
+.sc-event-card.is-spoil { border-left-color: #f85149; }
+.sc-event-card.is-levy { border-left-color: #a371f7; }
+.sc-event-card.is-tribute { border-left-color: #e3b341; }
+
+.sc-event-card.is-latest {
+  padding: 9px 12px;
+  margin-bottom: 8px;
+}
+
+.sc-event-card.is-latest .sc-event-title {
+  font-size: 15px;
+  color: #e3b341;
+}
+
+.sc-event-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sc-event-title {
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-event-tick {
+  flex: none;
+  font-size: 11px;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-event-body {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.sc-event-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.sc-event-btn {
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid var(--chrome-btn-border);
+}
+
+.sc-event-btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.sc-event-mira {
+  margin: 4px 0 10px;
+  padding-left: 10px;
+  font-size: 13px;
+  color: #c4b5fd;
+  border-left: 2px solid #7c3aed;
+}
+
+.sc-event-mira-name {
+  font-size: 11px;
+  opacity: 0.7;
+}

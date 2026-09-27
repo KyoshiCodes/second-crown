@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-27 — Event cards
+
+- World events on the Crown tab now show as cards with a title, what happened, and when.
+- The newest event is shown larger. Older events are in a grid below Advisor Mira.
+- Card edge color tells you the kind: green harvest, brown timber, red spoilage, purple levy, gold tribute.
+
 ## 2026-09-27 — Quest cards & 24px scroll pip
 
 - Quests now appear as royal mandate cards:
