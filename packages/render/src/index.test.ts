@@ -3652,6 +3652,139 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(code).toContain("rows.map");
       expect(code).not.toContain("<<<<<<<");
     });
+
+    describe("World Events & 24px Omen Pip (Gemini Events Lane)", () => {
+      it("defines event-card.css with 24px omen pips and pointer-events none", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const cssPath = path.resolve(__dirname, "../../app/src/hud/event-card.css");
+        expect(fs.existsSync(cssPath)).toBe(true);
+        const css = fs.readFileSync(cssPath, "utf-8");
+
+        // 1. Grid & card structures
+        expect(css).toContain("sc-event-panel");
+        expect(css).toContain("sc-event-label");
+        expect(css).toContain("sc-event-grid");
+        expect(css).toContain("sc-event-card");
+        expect(css).toContain("sc-event-head");
+        expect(css).toContain("sc-event-title-group");
+        expect(css).toContain("sc-event-title");
+        expect(css).toContain("sc-event-tick");
+        expect(css).toContain("sc-event-body");
+        expect(css).toContain("sc-event-choices");
+        expect(css).toContain("sc-event-btn");
+
+        // 2. 24px omen pip wrapper & art
+        expect(css).toContain("sc-omen-pip-wrapper");
+        expect(css).toContain("sc-omen-pip");
+        expect(css).toContain("width: 24px");
+        expect(css).toContain("height: 24px");
+
+        // 3. Omen variants
+        expect(css).toContain("sc-omen-comet");
+        expect(css).toContain("sc-omen-raven");
+        expect(css).toContain("sc-omen-harvest");
+
+        // 4. Click pass-through: strictly pointer-events: none !important
+        expect(css).toContain(".sc-omen-pip-wrapper");
+        expect(css).toContain(".sc-omen-pip *");
+        expect(css).toContain("pointer-events: none !important");
+
+        // 5. Invariant: styles only in event-card.css, theme.css not edited for event cards
+        const themePath = path.resolve(__dirname, "../../app/src/theme.css");
+        const themeCss = fs.readFileSync(themePath, "utf-8");
+        expect(themeCss).not.toContain("sc-event-grid");
+        expect(themeCss).not.toContain("sc-omen-pip");
+
+        // 6. Invariant: no <<<<<<< markers
+        expect(css).not.toContain("<<<<<<<");
+      });
+
+      it("resolveOmenVariant correctly maps event kinds to comet, raven, and harvest", async () => {
+        const { resolveOmenVariant } = await import("../../app/src/hud/OmenPip.tsx");
+        expect(typeof resolveOmenVariant).toBe("function");
+
+        // Harvest variant: bounties, crops, timber
+        expect(resolveOmenVariant("harvest", "Bountiful harvest — +25 food")).toBe("harvest");
+        expect(resolveOmenVariant("timber", "Timber windfall — +20 wood")).toBe("harvest");
+        expect(resolveOmenVariant("farm", "Wheat grain feast")).toBe("harvest");
+
+        // Raven variant: military levies, spoilage, pestilence, battle
+        expect(resolveOmenVariant("spoil", "Spoilage — lost 10 food")).toBe("raven");
+        expect(resolveOmenVariant("levy", "Aderyn raises a levy — +3 militia")).toBe("raven");
+        expect(resolveOmenVariant("war", "Enemy scouts spotted")).toBe("raven");
+
+        // Comet variant: celestial, tributes, stars, fallback
+        expect(resolveOmenVariant("tribute", "A merchant pays tribute — +10 gold")).toBe("comet");
+        expect(resolveOmenVariant("e_comet", "A flaming comet streaks across the stars")).toBe("comet");
+        expect(resolveOmenVariant(undefined, undefined)).toBe("comet");
+      });
+
+      it("splitEventText correctly parses title and body from simulation text", async () => {
+        const { splitEventText } = await import("../../app/src/hud/EventCard.tsx");
+        expect(typeof splitEventText).toBe("function");
+
+        expect(splitEventText("Bountiful harvest — +25 food")).toEqual({
+          title: "Bountiful harvest",
+          body: "+25 food",
+        });
+
+        expect(splitEventText("Lone Star Portent")).toEqual({
+          title: "Lone Star Portent",
+          body: "",
+        });
+      });
+
+      it("OmenPip renders 24px omen pip with comet, raven, and harvest variants with pointer-events none", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const pipPath = path.resolve(__dirname, "../../app/src/hud/OmenPip.tsx");
+        expect(fs.existsSync(pipPath)).toBe(true);
+        const code = fs.readFileSync(pipPath, "utf-8");
+
+        expect(code).toContain("OmenPip");
+        expect(code).toContain("size = 24");
+        expect(code).toContain('pointerEvents: "none"');
+        expect(code).toContain('aria-hidden="true"');
+        expect(code).toContain('viewBox="0 0 24 24"');
+        expect(code).toContain("sc-omen-pip-wrapper");
+        expect(code).toContain("sc-omen-pip");
+        expect(code).toContain("sc-omen-comet-art");
+        expect(code).toContain("sc-omen-raven-art");
+        expect(code).toContain("sc-omen-harvest-art");
+        expect(code).not.toContain("<<<<<<<");
+      });
+
+      it("EventCard mounts 24px OmenPip in sc-event-title-group with title and tick", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const cardPath = path.resolve(__dirname, "../../app/src/hud/EventCard.tsx");
+        expect(fs.existsSync(cardPath)).toBe(true);
+        const code = fs.readFileSync(cardPath, "utf-8");
+
+        expect(code).toContain("OmenPip");
+        expect(code).toContain("size={24}");
+        expect(code).toContain("sc-event-card");
+        expect(code).toContain("sc-event-head");
+        expect(code).toContain("sc-event-title-group");
+        expect(code).toContain("sc-event-title");
+        expect(code).toContain("sc-event-tick");
+        expect(code).not.toContain("<<<<<<<");
+      });
+
+      it("EventPanel mounts EventCard inside sc-event-grid for world events", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const panelPath = path.resolve(__dirname, "../../app/src/EventPanel.tsx");
+        expect(fs.existsSync(panelPath)).toBe(true);
+        const code = fs.readFileSync(panelPath, "utf-8");
+
+        expect(code).toContain("EventCard");
+        expect(code).toContain("sc-event-grid");
+        expect(code).toContain("older.map");
+        expect(code).not.toContain("<<<<<<<");
+      });
+    });
   });
 });
 

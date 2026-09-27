@@ -13,24 +13,21 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/hud-events, not merged)
+## Active Bakeoff (bakeoff/gemini-events)
 
-- Event cards: `packages/app/src/hud/EventCard.tsx`, `event-card.css`, `EventPanel.tsx`. Title, body, tick per event.
-- World events have no choices in the sim. `EventCard` accepts an optional `choices` prop for when they do.
-- Also removes conflict markers that were live on `main` in `quest-card.css`.
-
-## Active Bakeoff (bakeoff/gemini-quests)
-
-- **Quest Cards & 24px Scroll Pip (`packages/app/src/hud/QuestCard.tsx`, `packages/app/src/hud/ScrollPip.tsx`, `packages/app/src/hud/quest-card.css`, `packages/app/src/QuestPanel.tsx`)**:
-  - Replaces raw quest rows with dedicated `QuestCard` components arranged in `.sc-quest-grid`:
-    - Shows quest title, hint, 0/1 progress bar, and a Claim button when complete and ready.
-    - Card edge colors by status: `.is-open` (amber `#d29922`), `.is-ready` (green `#3fb950`), `.is-claimed` (muted slate `#6e7681`).
-  - **24px Scroll Pip (`ScrollPip.tsx`)**:
-    - Unrolled medieval parchment mandate at 24px (`width: 24px; height: 24px; viewBox="0 0 24 24"`) with roller rods, sepia script lines, and wax signet seal.
-    - **Ready Pip is LIT**: When complete and ready to claim (`status === "ready"`), the scroll glows with radiant golden vellum, an incandescent aura, dual sparkle stars, and candle flame flicker (`drop-shadow(0 0 2.5px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 6px rgba(245, 158, 11, 0.65))`).
-    - In progress ("open") shows warm antique vellum; claimed shows muted archived silver-grey.
-  - **Styles isolated to quest-card.css only**: `theme.css` was not touched. Zero conflict markers.
-  - **Non-blocking Clicks**: Wrapper (`.sc-scroll-pip-wrapper`), SVG, and all child paths strictly enforce `pointer-events: none !important;` so that Claim button and card clicks are never obstructed.
+- **Event Cards & 24px Omen Pip (`packages/app/src/hud/EventCard.tsx`, `packages/app/src/hud/OmenPip.tsx`, `packages/app/src/hud/event-card.css`, `packages/app/src/EventPanel.tsx`)**:
+  - Replaces raw paragraphs/buttons in `EventPanel` with dedicated `EventCard` components:
+    - Displays event title, body narrative, tick count (`tX`), and optional interactive choices.
+    - Prominently showcases latest event with `.is-latest`, followed by Advisor Mira, with previous events organized in a responsive `.sc-event-grid`.
+    - Card left edge colors by event kind: harvest (green), timber (wood brown), spoil (red), levy (purple), tribute/comet (amber gold).
+  - **24px Omen Pip (`OmenPip.tsx`)**:
+    - Authentic 24px medieval omen art (`width: 24px; height: 24px; viewBox="0 0 24 24"`) with three variants:
+      - `comet`: blazing celestial star portent with streaking flaming tail, incandescent core, and star dust embers.
+      - `raven`: prophetic obsidian raven perched with glinting keen eye and twilight plumage.
+      - `harvest`: auspicious golden wheat sheaf tied with crimson ribbon, ripe wheat grains, awn whiskers, and solar glints.
+    - Helper `resolveOmenVariant(eventId?: string, text?: string)` automatically maps simulation event types to the proper omen pip.
+  - **Styles isolated to event-card.css only**: `theme.css` was not edited. Zero conflict markers.
+  - **Non-blocking Clicks**: Wrapper (`.sc-omen-pip-wrapper`), SVG, and all child paths strictly enforce `pointer-events: none !important;` so that button clicks and cards are never obstructed.
 
 ## Verify
 

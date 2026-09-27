@@ -2,11 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-27 — Event cards
+## 2026-09-27 — Event cards & 24px omen pip
 
-- World events on the Crown tab now show as cards with a title, what happened, and when.
-- The newest event is shown larger. Older events are in a grid below Advisor Mira.
-- Card edge color tells you the kind: green harvest, brown timber, red spoilage, purple levy, gold tribute.
+- World events on the Crown tab now appear as chronicle cards with authentic 24px omen pips:
+  - **Comet Pip (24px)**: A blazing celestial star portent cutting across the night sky with streaking fiery tails and astral sparks (seen on tributes and cosmic wonders).
+  - **Raven Pip (24px)**: An ominous perched raven with a keen, glinting eye and obsidian plumage, heralding levies of war and dark portents of spoilage.
+  - **Harvest Pip (24px)**: An auspicious golden wheat sheaf tied with a crimson ribbon and radiating solar glints, heralding bountiful harvests and timber windfalls.
+- The newest event is highlighted at the top, followed by Advisor Mira's counsel, with past events neatly organized in a card grid below.
+- All omen pip art is completely click-transparent, ensuring instant, unobstructed button clicks.
 
 ## 2026-09-27 — Quest cards & 24px scroll pip
 
