@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-09-27 — Province inspect card (wave/hud-inspect)
+
+- `ProvinceInspect.tsx` renders one `.sc-inspect-card`: name, terrain, owner, tile, gold, then the existing actions.
+- Name comes from `settlementName` at home, the node label when scouted, "Unscouted province" in fog.
+- Left edge colors: gold for home, green for your flag, grey for fog.
+- Styles only in `packages/app/src/hud/inspect-card.css`; no inline styles left in the component. `theme.css` not edited.
+- No sim, server, click or march logic changed. No conflict markers. 220 sim tests pass; app build clean.
+
 ## 2026-09-27 — Gemini Event Cards & 24px Omen Pip (bakeoff/gemini-events)
 
 - **World Event Cards (`packages/app/src/hud/EventCard.tsx`, `packages/app/src/hud/event-card.css`, `packages/app/src/EventPanel.tsx`)**:

@@ -1,0 +1,121 @@
+/* --- Province inspect: one card for the clicked tile (name, terrain, owner, actions). --- */
+.sc-inspect-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 560px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 8px auto 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-left-color: #c8963e;
+  border-radius: 5px;
+}
+
+.sc-inspect-card.is-home { border-left-color: #e3b341; }
+.sc-inspect-card.is-flagged { border-left-color: #3fb950; }
+.sc-inspect-card.is-fog { border-left-color: #6e7681; }
+
+.sc-inspect-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sc-inspect-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e3b341;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-inspect-close {
+  flex: none;
+}
+
+.sc-inspect-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 4px 10px;
+  margin: 0;
+}
+
+.sc-inspect-facts > div {
+  min-width: 0;
+}
+
+.sc-inspect-facts dt {
+  font-size: 11px;
+  opacity: 0.55;
+}
+
+.sc-inspect-facts dd {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-inspect-line {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.sc-inspect-line.is-good { color: #86efac; }
+.sc-inspect-line.is-bad { color: #fca5a5; }
+.sc-inspect-line.is-warn { color: #fef08a; }
+
+.sc-inspect-inline-btn {
+  margin-left: 8px;
+}
+
+.sc-inspect-hint {
+  opacity: 0.8;
+}
+
+.sc-inspect-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sc-inspect-actions:empty {
+  display: none;
+}
+
+.sc-inspect-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+  font-size: 12px;
+  border-top: 1px solid var(--chrome-btn-border);
+}
+
+.sc-inspect-column-label {
+  opacity: 0.55;
+}
+
+.sc-inspect-unit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sc-inspect-unit input {
+  width: 64px;
+}
+
+.sc-inspect-raid {
+  align-self: flex-start;
+}

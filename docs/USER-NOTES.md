@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-27 — Province inspect card
+
+- Clicking a province on the Kingdom tab now shows one tidy card: its name, terrain, owner, tile and your gold at the top, with the same buttons as before underneath.
+- Your hold shows your settlement's name. Unscouted tiles say so and show a grey edge; your flagged tiles get a green edge.
+
 ## 2026-09-27 — Event cards & 24px omen pip
 
 - World events on the Crown tab now appear as chronicle cards with authentic 24px omen pips:

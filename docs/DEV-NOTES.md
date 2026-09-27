@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-27 — hud-inspect / province inspect card
+
+- `ProvinceInspect.tsx`: return JSX rebuilt as `.sc-inspect-card` (modifiers `.is-home`, `.is-flagged`, `.is-fog`). Head `.sc-inspect-name` + `.sc-inspect-close`; facts in a `<dl class="sc-inspect-facts">`; status rows `.sc-inspect-line` (`.is-good` / `.is-bad` / `.is-warn`); buttons in `.sc-inspect-actions` (hidden via `:empty` when nothing applies); unit picker `.sc-inspect-column`; `.sc-inspect-raid`.
+- All derived values and every `act(...)` handler are byte-for-byte the old logic. Only new sim import is `settlementName` (read-only, for the name).
+- Styles isolated to `packages/app/src/hud/inspect-card.css`, imported from `ProvinceInspect.tsx`. Uses `--chrome-btn-*` tokens like the other HUD cards.
+
 ## 2026-09-27 — hud-events / omen-pip
 
 - `OmenPip.tsx`: 24px omen pip (`size = 24`, `viewBox="0 0 24 24"`) with three medieval portent variants: `comet`, `raven`, `harvest`.

@@ -29,6 +29,14 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
   - **Styles isolated to event-card.css only**: `theme.css` was not edited. Zero conflict markers.
   - **Non-blocking Clicks**: Wrapper (`.sc-omen-pip-wrapper`), SVG, and all child paths strictly enforce `pointer-events: none !important;` so that button clicks and cards are never obstructed.
 
+## Active wave (wave/hud-inspect)
+
+- **Province inspect card (`packages/app/src/ProvinceInspect.tsx`, `packages/app/src/hud/inspect-card.css`)**: the clicked-province panel is now one `.sc-inspect-card`.
+  - Head: name (your hold's name at home, the node label once scouted, "Unscouted province" in fog) plus Close.
+  - Facts grid: Terrain, Owner, Tile (x,y), Gold.
+  - Status lines (stock, camp threat, flag tithe, incoming, column, gather), then the existing action buttons in `.sc-inspect-actions`, the Column picker, and Send raid column.
+  - All inline styles removed; styles live only in `inspect-card.css`. Click, march, scout, gather and garrison handlers are unchanged.
+
 ## Verify
 
 ```
