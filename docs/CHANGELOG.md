@@ -1,14 +1,24 @@
 # CHANGELOG
 
-## 2026-09-27 — Event cards (wave/hud-events)
+## 2026-09-27 — Gemini Event Cards & 24px Omen Pip (bakeoff/gemini-events)
 
-- **Event cards (`packages/app/src/hud/EventCard.tsx`, `packages/app/src/hud/event-card.css`, `packages/app/src/EventPanel.tsx`)**:
-  - Each world event on the Crown tab is now a card: title, body, tick. Latest event is a larger card; older events sit in `.sc-event-grid`.
-  - Title and body come from splitting the sim text on ` — ` (`splitEventText`).
-  - Left border color by event id: harvest, timber, spoil, levy, tribute.
-  - `EventCard` takes an optional `choices` prop and renders buttons. Nothing passes it yet: sim world events have no choices today.
-- **Fix**: removed leftover conflict markers from `packages/app/src/hud/quest-card.css` (merged in with #100). Kept the scroll-pip side.
-- Styles only in `event-card.css`. `theme.css` not edited. Sim and server unchanged.
+- **World Event Cards (`packages/app/src/hud/EventCard.tsx`, `packages/app/src/hud/event-card.css`, `packages/app/src/EventPanel.tsx`)**:
+  - Presents world events as medieval chronicle cards with title, body narrative, tick count, and optional interactive choices.
+  - The latest event is highlighted as a banner card, followed by Advisor Mira's counsel, with past events arranged in a responsive grid (`.sc-event-grid`).
+  - Distinct left-edge border colors by event type: `.is-harvest`, `.is-timber`, `.is-spoil`, `.is-levy`, `.is-tribute`, `.is-comet`, `.is-raven`.
+- **24px Omen Pip (`packages/app/src/hud/OmenPip.tsx`, `packages/app/src/hud/event-card.css`)**:
+  - 24px SVG heraldic omen pip (`width: 24px; height: 24px; viewBox="0 0 24 24"`) with three authentic medieval portent variants:
+    - `comet`: blazing celestial star portent with streaking fiery tail, star dust embers, glowing nucleus, and astral aura.
+    - `raven`: prophetic obsidian raven perched upon a twilight crag with piercing glinting eye, sharp beak, and folded wing plumage.
+    - `harvest`: auspicious golden wheat sheaf bound with crimson ribbon, alternating ripe wheat grains, awn whiskers, and solar sparkles.
+  - `resolveOmenVariant` helper maps simulation events (`harvest`, `timber`, `spoil`, `levy`, `tribute`, `comet`, etc.) to the appropriate omen pip.
+  - Click pass-through: strictly enforces `pointer-events: none !important;` on wrapper, SVG, and child elements so choice buttons and event cards are never blocked.
+- **Invariants & Preservations**:
+  - Styles strictly isolated to `packages/app/src/hud/event-card.css` only; `packages/app/src/theme.css` was NOT edited.
+  - Zero `<<<<<<<` merge conflict markers anywhere in the repository.
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Monorepo tests pass: 220 sim tests, 138 render tests (+6 unit tests covering event card CSS rules, variant resolution, text splitting, 24px omen pip SVG art, EventCard mounting, and EventPanel grid).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-27 — Gemini Quest Cards & 24px Scroll Pip (bakeoff/gemini-quests)
 

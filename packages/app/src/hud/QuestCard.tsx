@@ -32,8 +32,10 @@ export function QuestCard(props: {
   return (
     <div className={`sc-quest-card is-${status}`} data-quest={id}>
       <span className="sc-quest-head">
-        <ScrollPip status={status} size={24} />
-        <span className="sc-quest-title">{name}</span>
+        <span className="sc-quest-title-group">
+          <ScrollPip status={status} size={24} />
+          <span className="sc-quest-title">{name}</span>
+        </span>
         <span className={`sc-quest-status is-${status}`}>{STATUS_LABEL[status]}</span>
       </span>
       <span className="sc-quest-hint">{hint}</span>

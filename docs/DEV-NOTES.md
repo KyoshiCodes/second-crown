@@ -1,11 +1,15 @@
 # Dev notes
 
-## 2026-09-27 — hud-events
+## 2026-09-27 — hud-events / omen-pip
 
-- `EventCard.tsx`: renders one `WorldEvent`. `splitEventText` splits `text` on the first ` — ` into title/body (no dash → title only). Class `is-<event.id>` drives edge color; `latest` prop enlarges.
-- `choices?: EventChoice[]` (`id`, `label`, `disabled?`, `onPick`) renders `.sc-event-btn` buttons. Unused for now: `systems/events.ts` auto-applies every event, there is no choice data. Adding choices needs a sim change (ask first per AGENTS.md).
-- `EventPanel.tsx`: inline styles moved to `event-card.css`. Falls back to `lastEvent` flags if the log is empty.
-- `quest-card.css` on main had unresolved conflict markers from #100; resolved keeping the scroll-pip side (`ScrollPip.tsx` uses `.sc-scroll-pip*`).
+- `OmenPip.tsx`: 24px omen pip (`size = 24`, `viewBox="0 0 24 24"`) with three medieval portent variants: `comet`, `raven`, `harvest`.
+  - `comet`: layered blazing fire trails (`#ea580c`, `#f97316`, `#facc15`, `#fef08a`), drifting astral dust embers, hot core nucleus, and star cross glint.
+  - `raven`: perched raven silhouette (`#0f172a`, `#1e293b`), sharp beak, piercing glowing eye (`#38bdf8`), and crest glint on a twilight perch.
+  - `harvest`: bound golden wheat sheaf (`#ca8a04`), crimson tie ribbon (`#b91c1c`), alternating ripe grains (`#fde047`, `#facc15`), awn whiskers, and solar sparkle.
+  - `resolveOmenVariant(eventId?: string, text?: string)` helper categorizes sim events (harvest/timber -> harvest, spoil/levy -> raven, tribute/celestial -> comet).
+  - Wrapper (`.sc-omen-pip-wrapper`), SVG, and all child paths unconditionally enforce `pointer-events: none !important;` so that card clicks and choice buttons are never intercepted.
+- `EventCard.tsx`: Mounts `OmenPip` at `size={24}` inside `.sc-event-title-group`. Displays event title, body text (parsed via `splitEventText`), tick badge (`tX`), and optional interactive choice buttons.
+- Invariants: Sim unchanged; `WorldEvent`, `formatLetterSuffix`, and `miraRemark` used as-is. Styles isolated entirely to `packages/app/src/hud/event-card.css`; `theme.css` was NOT edited. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-27 — hud-quests / scroll-pip
 

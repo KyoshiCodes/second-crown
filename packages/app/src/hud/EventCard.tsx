@@ -1,6 +1,7 @@
 import React from "react";
 import type { WorldEvent } from "@second-crown/sim";
 import { formatLetterSuffix } from "@second-crown/sim";
+import { OmenPip, resolveOmenVariant } from "./OmenPip";
 import "./event-card.css";
 
 export type EventChoice = {
@@ -10,7 +11,6 @@ export type EventChoice = {
   onPick: () => void;
 };
 
-/** Sim event text is "Title — body". No dash means the whole text is the title. */
 export function splitEventText(text: string): { title: string; body: string } {
   const at = text.indexOf(" — ");
   if (at < 0) return { title: text, body: "" };
@@ -24,10 +24,12 @@ export function EventCard(props: {
 }) {
   const { event, latest, choices } = props;
   const { title, body } = splitEventText(event.text);
+  const omen = resolveOmenVariant(event.id, event.text);
 
   return (
     <div className={`sc-event-card is-${event.id}${latest ? " is-latest" : ""}`} data-event={event.id}>
       <span className="sc-event-head">
+        <OmenPip variant={omen} size={24} />
         <span className="sc-event-title">{title}</span>
         <span className="sc-event-tick">t{formatLetterSuffix(event.tick)}</span>
       </span>
