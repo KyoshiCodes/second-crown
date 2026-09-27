@@ -1,8 +1,8 @@
 import React from "react";
 import type { LastBattleStory } from "@second-crown/sim";
+import { ClashPip } from "./ClashPip";
 import "./battle-card.css";
 
-/** Last battle as one card: who fought, who won, the ledger line, blow-by-blow folded away. */
 export function BattleCard(props: {
   story: LastBattleStory | null;
   report?: string;
@@ -18,12 +18,15 @@ export function BattleCard(props: {
   }
   const { winnerId, loserId } = story;
   const playerIn = winnerId === "player" || loserId === "player";
-  const tone = !playerIn ? "is-other" : winnerId === "player" ? "is-won" : "is-lost";
-  const verdict = !playerIn ? `${nameOf(winnerId)} won` : winnerId === "player" ? "Victory" : "Defeat";
+  const isLoss = playerIn && winnerId !== "player";
+  const tone = !playerIn ? "is-other" : isLoss ? "is-lost" : "is-won";
+  const verdict = !playerIn ? `${nameOf(winnerId)} won` : isLoss ? "Defeat" : "Victory";
+  const pipVariant = isLoss ? "broken_shield" : "crossed_blades";
   const bill = story.phases.find((p) => /butcher/i.test(p.title));
   return (
     <div className={`sc-battle-card ${tone}`}>
       <span className="sc-battle-head">
+        <ClashPip variant={pipVariant} size={28} />
         <span className="sc-battle-sides">
           <span className="sc-battle-side is-winner">{nameOf(winnerId)}</span>
           <span className="sc-battle-vs">vs</span>

@@ -18,8 +18,10 @@ export function ForceCard(props: {
   return (
     <div className={`sc-force-card is-${tone}`}>
       <span className="sc-force-head">
-        <WarChip kind={tone} />
-        <span className="sc-force-name">{name}</span>
+        <span className="sc-force-title-group">
+          <WarChip kind={tone} size={24} />
+          <span className="sc-force-name">{name}</span>
+        </span>
         <span className="sc-force-eta">{seconds === undefined ? "posted" : `${seconds}s`}</span>
       </span>
       <span className="sc-force-dest">→ {dest}</span>
