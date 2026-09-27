@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/* --- World events: one card per event. Left edge color = event kind. --- */
-=======
-/* --- World events: one card per event with 24px omen pip. Left edge color = event kind. --- */
->>>>>>> 71f96e3 (feat(app): world event cards with 24px omen pip (comet / raven / harvest))
+/* --- World events: one card per event with 24px omen pip. --- */
 .sc-event-panel {
   margin-bottom: 14px;
 }
@@ -38,25 +34,16 @@
   border-left-width: 3px;
   border-left-color: #6e7681;
   border-radius: 5px;
-<<<<<<< HEAD
-}
-
-=======
   position: relative;
 }
 
-/* Event kind border accents */
->>>>>>> 71f96e3 (feat(app): world event cards with 24px omen pip (comet / raven / harvest))
 .sc-event-card.is-harvest { border-left-color: #3fb950; }
 .sc-event-card.is-timber { border-left-color: #a5794a; }
 .sc-event-card.is-spoil { border-left-color: #f85149; }
 .sc-event-card.is-levy { border-left-color: #a371f7; }
 .sc-event-card.is-tribute { border-left-color: #e3b341; }
-<<<<<<< HEAD
-=======
 .sc-event-card.is-comet { border-left-color: #f59e0b; }
 .sc-event-card.is-raven { border-left-color: #818cf8; }
->>>>>>> 71f96e3 (feat(app): world event cards with 24px omen pip (comet / raven / harvest))
 
 .sc-event-card.is-latest {
   padding: 9px 12px;
@@ -70,17 +57,11 @@
 
 .sc-event-head {
   display: flex;
-<<<<<<< HEAD
-  align-items: baseline;
-=======
   align-items: center;
->>>>>>> 71f96e3 (feat(app): world event cards with 24px omen pip (comet / raven / harvest))
   justify-content: space-between;
   gap: 6px;
 }
 
-<<<<<<< HEAD
-=======
 .sc-event-title-group {
   display: flex;
   align-items: center;
@@ -89,7 +70,6 @@
   overflow: hidden;
 }
 
->>>>>>> 71f96e3 (feat(app): world event cards with 24px omen pip (comet / raven / harvest))
 .sc-event-title {
   font-weight: 600;
   min-width: 0;
@@ -141,10 +121,7 @@
   font-size: 11px;
   opacity: 0.7;
 }
-<<<<<<< HEAD
-=======
 
-/* --- 24px Omen Pip (comet / raven / harvest): pointer-events strictly none --- */
 .sc-omen-pip-wrapper {
   display: inline-flex;
   align-items: center;
@@ -161,14 +138,12 @@
   width: 24px;
   height: 24px;
   pointer-events: none !important;
-  transition: transform 0.15s ease, filter 0.15s ease;
 }
 
 .sc-omen-pip * {
   pointer-events: none !important;
 }
 
-/* Variant aura glow filters */
 .sc-omen-comet {
   filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.45));
 }
@@ -180,16 +155,3 @@
 .sc-omen-harvest {
   filter: drop-shadow(0 0 3px rgba(234, 179, 8, 0.45));
 }
-
-.sc-event-card:hover .sc-omen-comet {
-  filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.75)) drop-shadow(0 0 8px rgba(239, 68, 68, 0.4));
-}
-
-.sc-event-card:hover .sc-omen-raven {
-  filter: drop-shadow(0 0 5px rgba(129, 140, 248, 0.7)) drop-shadow(0 0 8px rgba(99, 102, 241, 0.4));
-}
-
-.sc-event-card:hover .sc-omen-harvest {
-  filter: drop-shadow(0 0 5px rgba(250, 204, 21, 0.75)) drop-shadow(0 0 8px rgba(202, 138, 4, 0.4));
-}
->>>>>>> 71f96e3 (feat(app): world event cards with 24px omen pip (comet / raven / harvest))
