@@ -13,23 +13,19 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/hud-war, not merged)
+## Active Bakeoff (bakeoff/gemini-war-chips)
 
-- War tab: Incoming, Scouts, Gathers, Garrisons render as small `ForceCard`s (`packages/app/src/hud/ForceCard.tsx`, `hud/force-card.css`): name, dest, seconds, one Recall/Sally button. Garrisons show "posted" instead of seconds.
-- Odds, Levy and fight, Last battle, Decrees, Columns list unchanged. No sim change.
-
-## Active Bakeoff (bakeoff/gemini-people)
-
-- **People Cards & Walker Role Pips (`packages/app/src/hud/WalkerPip.tsx`, `packages/app/src/hud/JobCard.tsx`, `packages/app/src/PeoplePanel.tsx`, `packages/app/src/theme.css`)**:
-  - Each people card (Farmer, Woodcutter, Miner, Merchant, Idle) features a matching walker role pip (hoe, axe, pick, coin, or idle sitting villager).
-  - **Matching Walker Role Pips**:
-    - `farmer`: 3-tined forged iron field hoe & golden wheat harvest sprout.
-    - `woodcutter`: Bearded felling broadaxe with razor cutting edge & pine log.
-    - `miner`: Double-pointed quarry pickaxe with piercing beak & stone/ore.
-    - `merchant`: Minted royal gold sovereign with starburst twinkle & coin pouch.
-  - **Idle Pip Sits**: When unassigned or idle (`assigned === false`), the walker sits comfortably on a hay bale, pine log, granite ashlar block, or strongbox trunk with hands resting peacefully.
-  - **Assigned Pip Walks 2 Frames**: When assigned to a trade (`assigned === true`), the pip walks through a stepped 2-frame walking cycle (`.sc-walker-f0`, `.sc-walker-f1`) with dynamic tool swaying and bobbing.
-  - **Non-blocking Clicks**: Wrapper and SVG strictly enforce `pointer-events: none !important;` so all card selections, worker "Post at..." dropdowns, and "Idle" buttons receive clicks with zero obstruction.
+- **War Force Cards & 24px War Chips (`packages/app/src/hud/WarChip.tsx`, `packages/app/src/hud/ForceCard.tsx`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
+  - The War room organizes standing military actions into dedicated force cards (`.sc-force-grid`), each equipped with a bespoke 24px tactical SVG chip:
+    - **Incoming Cards (`tone="hostile"`)**: Red warband pip (`WarbandSvg`) with horned iron crest, blood-red tabard, and spiked morningstar flail; bordered in crimson with soft red shadow glow.
+    - **Scouts Cards (`tone="scout"`)**: Cloak pip (`CloakSvg`) with twilight-navy cowl mantle, sky-cyan border trim, and polished brass spyglass telescope; bordered in blue.
+    - **Gathers Cards (`tone="gather"`)**: Cart pip (`CartSvg`) with heavy timber cargo flatbed, banded grain sacks, and iron-spoke wagon wheel; bordered in amber.
+    - **Garrisons Cards (`tone="garrison"`)**: Tent pip (`TentSvg`) with heavy canvas pavilion ridgepole, leaning spear and tower heater shield, and glowing warm lantern; bordered in emerald.
+  - **Force Card Structure**:
+    - Header mounts 24px `WarChip` beside force name, destination province/token, and countdown ETA ("posted" or `${seconds}s`).
+    - Compact action buttons ("Sally" for incoming raids, "Recall" for player march/gather/scout columns) align neatly on the card.
+  - **Non-blocking Clicks**:
+    - All chip wrappers (`.sc-war-chip-wrapper`), SVGs, and child paths strictly enforce `pointer-events: none !important;` so Recall, Sally, and province targeting clicks fire cleanly without obstruction.
 
 ## Verify
 

@@ -1,9 +1,10 @@
 # Dev notes
 
-## 2026-09-24 — hud-war / force cards
+## 2026-09-24 — war-chips / force-cards
 
-- `trySally` and `tryRecallMarch` take no target id. Sally always hits `incomingOnHome(state)[0]`; recall always hits the first active player march. So the Sally button only renders on that incoming card, and scout Recall stays disabled unless the scout is `firstColumnId`. Do not add per-card targets without a sim change.
-- `ForceCard` omits `seconds` for garrisons and shows "posted".
+- `WarChip.tsx`: 24px tactical war chips (warband, cloak, cart, tent) must unconditionally enforce `pointer-events: none !important;` in SVG styles, wrapper elements (`.sc-war-chip-wrapper`), and CSS so that Sally, Recall, and atlas interaction clicks are never intercepted.
+- `ForceCard.tsx`: Military force cards (`.sc-force-card`) mount `WarChip` inside `.sc-force-title-group`. Formats ETA as `"posted"` if ticks/seconds undefined, or `${seconds}s` if moving, matching existing time display conventions.
+- Glow filters: `.sc-war-chip-warband` / `.sc-war-chip-hostile` applies red drop shadow (`rgba(239, 68, 68, 0.7)`), `.sc-war-chip-cloak` / `.sc-war-chip-scout` applies cyan drop shadow, `.sc-war-chip-cart` / `.sc-war-chip-gather` applies amber drop shadow, and `.sc-war-chip-tent` / `.sc-war-chip-garrison` applies emerald green drop shadow.
 
 ## 2026-09-24 — people-cards / walker role pips
 

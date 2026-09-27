@@ -1,4 +1,5 @@
 import React from "react";
+import { WarChip } from "./WarChip";
 import "./force-card.css";
 
 export type ForceTone = "hostile" | "scout" | "gather" | "garrison";
@@ -17,6 +18,7 @@ export function ForceCard(props: {
   return (
     <div className={`sc-force-card is-${tone}`}>
       <span className="sc-force-head">
+        <WarChip kind={tone} />
         <span className="sc-force-name">{name}</span>
         <span className="sc-force-eta">{seconds === undefined ? "posted" : `${seconds}s`}</span>
       </span>

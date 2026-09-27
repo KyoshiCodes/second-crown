@@ -2,11 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-24 — War tab force cards
+## 2026-09-24 — War force cards & 24px war chips
 
-- On the War tab, each enemy column, scout, gather party, and garrison now gets its own small card: where it is going and how many seconds until it arrives.
-- Recall sits on its card. Sally sits on the card of the column at your gate.
-- Card edge color tells you what it is: red enemy, blue scout, amber gather, green garrison.
+- Military operations on the War tab now appear as dedicated tactical force cards:
+  - **Incoming hostiles**: Red warband pip with horned barbarian crest and spiked flail, glowing with a menacing red shadow. Sally out your defenders directly from the card.
+  - **Scouts in the field**: Twilight cloak pip with spyglass telescope, bordered in blue. Recalling scouts returns them to the hold.
+  - **Gathering convoys**: Timber wagon cart pip with tied sacks and spoke wheels, bordered in golden amber. Recalling gathers packs up and hauls goods home.
+  - **Garrisons**: Field pavilion tent pip with leaning spear, shield, and lantern, bordered in emerald green.
+- Every force card displays destination province coordinates, countdown time to arrival ("posted" or `${seconds}s`), and clear Sally or Recall commands.
+- All 24px military chips are completely click-transparent, ensuring instant, unobstructed button clicks and targeting.
 
 ## 2026-09-24 — People cards & walker role pips
 

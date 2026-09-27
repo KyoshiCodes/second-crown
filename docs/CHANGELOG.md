@@ -1,10 +1,24 @@
 # CHANGELOG
 
-## 2026-09-24 — War tab force cards (wave/hud-war)
+## 2026-09-24 — Gemini War Force Cards & 24px War Chips (bakeoff/gemini-war-chips)
 
-- `hud/ForceCard.tsx` + `hud/force-card.css`: small card per force with kind edge color (red incoming, blue scout, amber gather, green garrison), dest, seconds, optional button.
-- `WarRoom.tsx`: Incoming, Scouts, Gathers, Garrisons use `ForceCard`. Sally moves onto the card for the first home-gate column (the one `trySally` meets). Recall buttons keep the same enable rules and calls.
-- Odds, Levy, Last battle, Decrees untouched. `packages/sim` and `server` untouched. 220 tests pass, app build clean.
+- **Tactical War Force Cards (`packages/app/src/hud/ForceCard.tsx`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
+  - Converts plain military mission lists into a structured, responsive CSS grid (`.sc-force-grid`) of force cards.
+  - Covers incoming hostile warbands, scouting expeditions, supply gather convoys, and outpost garrisons.
+  - Each card presents force name, destination target, dynamic ETA timer ("posted" or `${seconds}s`), and instant Sally / Recall actions.
+- **24px Bespoke Tactical War Chips (`packages/app/src/hud/WarChip.tsx`, `packages/app/src/theme.css`)**:
+  - Every force card features a distinct 24px tactical SVG chip matching its mission role:
+    - **Incoming (`tone="hostile"` / `kind="warband"`)**: Red warband pip with horned barbarian helm, blood-red tabard, and spiked morningstar flail; crimson left accent with `drop-shadow(0 0 2px rgba(239, 68, 68, 0.7))`.
+    - **Scouts (`tone="scout"` / `kind="cloak"`)**: Scout cloak pip with twilight-navy cowl mantle, sky-cyan border trim, and brass spyglass telescope; blue left accent with cyan glow.
+    - **Gathers (`tone="gather"` / `kind="cart"`)**: Gather cart pip with timber cargo wagon, banded grain sacks, and iron-spoke wheel; golden amber left accent with warm glow.
+    - **Garrisons (`tone="garrison"` / `kind="tent"`)**: Garrison tent pip with canvas pavilion ridgepole, leaning spear and tower heater shield, and warm lantern hearth; emerald green left accent.
+- **Strict Non-blocking Pointer Events**:
+  - All chip wrappers (`.sc-war-chip-wrapper`), SVGs, and descendant elements unconditionally enforce `pointer-events: none !important;`.
+  - Guarantees zero obstruction for Sally, Recall, and atlas interaction clicks.
+- **Invariants & Preservations**:
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Monorepo tests pass: 220 sim tests, 114 render tests (+4 unit tests covering force grid, war chip rendering, kind normalization, and WarRoom mounting).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-24 — Gemini People Cards with Walker Role Pips (bakeoff/gemini-people)
 
