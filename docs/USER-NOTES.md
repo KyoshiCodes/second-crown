@@ -2,10 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-27 — Province inspect card
+## 2026-09-27 — Selected board province gold rim & ground ring
 
-- Clicking a province on the Kingdom tab now shows one tidy card: its name, terrain, owner, tile and your gold at the top, with the same buttons as before underneath.
-- Your hold shows your settlement's name. Unscouted tiles say so and show a grey edge; your flagged tiles get a green edge.
+- The currently selected province on the board and overworld atlas now features a much clearer, vibrant golden visual highlight:
+  - **Tabletop Ground Ring**: An illuminated golden ring with corner bracket studs encircles the base of the selected province directly on the tabletop, clearly identifying which tile is active even when inspecting elevated hills and mountains.
+  - **Radiant Gold Top Rim**: A brilliant gold rim with sunlit facet glints crowns the elevated plateau of the tile.
+  - **Vertical Cliff Struts**: For raised hills, forests, mountains, and holds, vertical golden struts hug the cliff corners, connecting the top plateau down to the ground ring.
+- Selection remains illuminated even when you move your mouse to command marches or inspect reports.
 
 ## 2026-09-27 — Event cards & 24px omen pip
 

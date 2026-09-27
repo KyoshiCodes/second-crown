@@ -262,10 +262,49 @@ export function OverworldAtlas(props: {
               <polygon
                 points={diamond(cx, cy)}
                 fill={top}
-                stroke={isHome ? "#fde047" : selected ? "#fff7c2" : "#1a140c"}
-                strokeWidth={isHome || selected ? 1.6 : 0.6}
+                stroke={isHome ? "#fde047" : selected ? "#facc15" : "#1a140c"}
+                strokeWidth={selected ? 2.2 : isHome ? 1.6 : 0.6}
                 opacity={0.95}
               />
+              {selected ? (
+                <g className="sc-atlas-select-rim" pointerEvents="none">
+                  {/* Ground ring at base */}
+                  <polygon
+                    points={diamond(cx, cy + lift)}
+                    fill="none"
+                    stroke="#d97706"
+                    strokeWidth={3.5}
+                    opacity={0.5}
+                  />
+                  <polygon
+                    points={diamond(cx, cy + lift)}
+                    fill="none"
+                    stroke="#facc15"
+                    strokeWidth={2}
+                    opacity={0.95}
+                  />
+                  {/* Top gold rim */}
+                  <polygon
+                    points={diamond(cx, cy)}
+                    fill="none"
+                    stroke="#d97706"
+                    strokeWidth={3.5}
+                    opacity={0.45}
+                  />
+                  <polygon
+                    points={diamond(cx, cy)}
+                    fill="none"
+                    stroke="#ffffff"
+                    strokeWidth={1}
+                    opacity={0.85}
+                  />
+                  {/* Cardinal corner bracket pips */}
+                  <circle cx={cx} cy={cy - hh} r={2} fill="#ffffff" stroke="#b45309" strokeWidth={0.5} />
+                  <circle cx={cx + hw} cy={cy} r={1.6} fill="#fef08a" stroke="#b45309" strokeWidth={0.5} />
+                  <circle cx={cx} cy={cy + hh} r={1.6} fill="#fef08a" stroke="#b45309" strokeWidth={0.5} />
+                  <circle cx={cx - hw} cy={cy} r={1.6} fill="#fef08a" stroke="#b45309" strokeWidth={0.5} />
+                </g>
+              ) : null}
               {p.node === "hold" ? (
                 <MiniKeep cx={cx} cy={cy} fill={wall} roof={isHome ? "#ca8a04" : accent} home={isHome} />
               ) : p.node && p.node !== "none" ? (

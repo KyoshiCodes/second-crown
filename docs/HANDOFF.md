@@ -13,21 +13,20 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active Bakeoff (bakeoff/gemini-events)
+## Active Bakeoff (bakeoff/gemini-select-rim)
 
-- **Event Cards & 24px Omen Pip (`packages/app/src/hud/EventCard.tsx`, `packages/app/src/hud/OmenPip.tsx`, `packages/app/src/hud/event-card.css`, `packages/app/src/EventPanel.tsx`)**:
-  - Replaces raw paragraphs/buttons in `EventPanel` with dedicated `EventCard` components:
-    - Displays event title, body narrative, tick count (`tX`), and optional interactive choices.
-    - Prominently showcases latest event with `.is-latest`, followed by Advisor Mira, with previous events organized in a responsive `.sc-event-grid`.
-    - Card left edge colors by event kind: harvest (green), timber (wood brown), spoil (red), levy (purple), tribute/comet (amber gold).
-  - **24px Omen Pip (`OmenPip.tsx`)**:
-    - Authentic 24px medieval omen art (`width: 24px; height: 24px; viewBox="0 0 24 24"`) with three variants:
-      - `comet`: blazing celestial star portent with streaking flaming tail, incandescent core, and star dust embers.
-      - `raven`: prophetic obsidian raven perched with glinting keen eye and twilight plumage.
-      - `harvest`: auspicious golden wheat sheaf tied with crimson ribbon, ripe wheat grains, awn whiskers, and solar glints.
-    - Helper `resolveOmenVariant(eventId?: string, text?: string)` automatically maps simulation event types to the proper omen pip.
-  - **Styles isolated to event-card.css only**: `theme.css` was not edited. Zero conflict markers.
-  - **Non-blocking Clicks**: Wrapper (`.sc-omen-pip-wrapper`), SVG, and all child paths strictly enforce `pointer-events: none !important;` so that button clicks and cards are never obstructed.
+- **Selected Board Province Clear Gold Rim & Ground Ring (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/game/useGameEngine.ts`)**:
+  - **Clear Gold Rim & Ground Ring (`paintBoardSelectionRim`)**:
+    - **Tabletop Ground Ring (`wy`)**: Encircles the province footprint at ground level with a brilliant gold ring (`0xfacc15`, `0xb45309`, `0xfef08a`), inner shimmer line, and 4 cardinal corner bracket pips, clearly anchoring the tile to the tabletop.
+    - **Vertical Cliff Struts**: For elevated tiles (`elev > 0`), corner struts descend along the vertical cliff edges connecting the ground ring to the top plateau with a front cliff ground rim.
+    - **Top Gold Rim (`cy = wy - elev`)**: Surrounds the elevated plateau with a double gold rim (`0xfacc15`, `0xd97706`), sunlight facet glint, and 4 cardinal diamond corner glints.
+  - **Synchronized Board & Atlas Selection**:
+    - Board Pixi renderer introduces dedicated `boardSelectionLayer` and integrates `paintBoardSelectionRim` into `paintBoardHighlight` and `paintBoardProvinces`.
+    - `MapRenderer` exposes `setSelectedProvince(provinceId: string | null)` and `getSelectedProvince()`, kept in sync with engine state in `useGameEngine.ts`.
+    - `OverworldAtlas.tsx` renders matching `.sc-atlas-select-rim` with base ground ring and top gold rim (`pointerEvents="none"`).
+  - **Strict Invariants Preserved**:
+    - Hit-test math (`hitTestProvince`) and camera math in `camera.ts` remain 100% unchanged.
+    - `git diff main -- packages/sim server` strictly empty. Zero conflict markers.
 
 ## Active wave (wave/hud-inspect)
 

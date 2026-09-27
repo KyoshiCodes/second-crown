@@ -88,11 +88,16 @@ export function useGameEngine() {
   const mapRef = React.useRef<MapRenderer | null>(null);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const selectedBuildRef = React.useRef<string | null>("farm");
+  const selectedProvinceIdRef = React.useRef<string | null>(null);
   const lastRivalWar = React.useRef<string | null>(null);
   const lastIncoming = React.useRef<string | null>(null);
   const lastFlagHit = React.useRef<string | null>(null);
 
   React.useEffect(() => { selectedBuildRef.current = selectedBuild; }, [selectedBuild]);
+  React.useEffect(() => {
+    selectedProvinceIdRef.current = selectedProvinceId;
+    mapRef.current?.setSelectedProvince(selectedProvinceId);
+  }, [selectedProvinceId]);
   React.useEffect(() => { speedRef.current = speed; pausedRef.current = paused; }, [speed, paused]);
   React.useEffect(() => {
     const THEMES = ["kingdom", "army", "war", "world", "crown"];
@@ -131,7 +136,7 @@ export function useGameEngine() {
     if (worldLine) {
       window.dispatchEvent(new CustomEvent("sc-world-dispatch", { detail: worldLine }));
     }
-    mapRef.current?.sync(s);
+    mapRef.current?.sync(s, selectedProvinceIdRef.current);
     const incoming = incomingOnHome(s)[0];
     if (incoming && incoming.id !== lastIncoming.current) {
       lastIncoming.current = incoming.id;
