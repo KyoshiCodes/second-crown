@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-27 — Diplomacy cards
+
+- On the War tab, the old Odds buttons are now a **Diplomacy** section with one card per realm.
+- Each card shows the realm's name, how it stands with you (At war, Truce with seconds left, Friendly, Wary, Hostile), its opinion of you, and your power odds.
+- Declare war is on every card. The gold gift to Lord Varric is on his card. Nothing about how opinion or war works has changed.
+
 ## 2026-09-27 — Royal decree cards & 24px wax-seal pip
 
 - Each royal decree on the Crown tab is now presented as a royal proclamation card:

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-27 — Diplomacy realm cards (wave/hud-diplo)
+
+- War tab: the Odds section is renamed **Diplomacy** and each other realm is a `RealmCard` (`packages/app/src/hud/RealmCard.tsx`, `packages/app/src/hud/realm-card.css`).
+- Card shows name, stance, opinion of you (rival also shows yours of them), power odds, Declare war, and Gift 15 gold on the rival card.
+- Same handlers as before (`tryDeclareWar`, `tryGiftGold`); `DiplomacyPanel` removed. `git diff main -- packages/sim server` is empty.
+
 ## 2026-09-27 — Gemini Royal Decree Cards & 24px Wax-Seal Pip (bakeoff/gemini-decrees)
 
 - **Royal Decree Cards (`packages/app/src/hud/DecreeCard.tsx`, `packages/app/src/hud/decree-card.css`, `packages/app/src/DecreesPanel.tsx`, `packages/app/src/theme.css`)**:

@@ -1,0 +1,77 @@
+/* --- Diplomacy: one card per realm. Left edge color = stance. --- */
+.sc-realm-dip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 6px;
+  margin: 2px 0 6px;
+}
+
+.sc-realm-dip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 9px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-radius: 5px;
+}
+
+.sc-realm-dip.is-war { border-left-color: #f85149; }
+.sc-realm-dip.is-truce { border-left-color: #58a6ff; }
+.sc-realm-dip.is-friendly { border-left-color: #3fb950; }
+.sc-realm-dip.is-wary { border-left-color: #d29922; }
+.sc-realm-dip.is-hostile { border-left-color: #db6d28; }
+
+.sc-realm-dip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sc-realm-dip-name {
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-realm-dip-stance {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-realm-dip-stance.is-war { color: #f85149; }
+.sc-realm-dip-stance.is-truce { color: #58a6ff; }
+.sc-realm-dip-stance.is-friendly { color: #3fb950; }
+.sc-realm-dip-stance.is-wary { color: #d29922; }
+.sc-realm-dip-stance.is-hostile { color: #db6d28; }
+
+.sc-realm-dip-line {
+  font-size: 11px;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-realm-dip-line.is-favored { color: #3fb950; }
+.sc-realm-dip-line.is-unfavored { color: #f85149; }
+
+.sc-realm-dip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.sc-realm-dip-btn {
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
