@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-27 — Decree cards (wave/hud-decrees)
+
+- Crown tab Royal decrees: each `DECREES` entry is now a `DecreeCard` (`packages/app/src/hud/DecreeCard.tsx`, `decree-card.css`) in `.sc-decree-grid`: name, blurb, cost with resource pips, time left while active, and an Issue / Already active button.
+- Still calls `tryDecree`. Decree costs, durations and effects unchanged. No sim or server changes.
+- Known: `origin/main` has leftover merge-conflict markers in `packages/app/src/hud/battle-card.css` (from #95), which fail `vite build`. Not touched here.
+
 ## 2026-09-27 — Gemini Last Battle Card & 28px Clash Pip (bakeoff/gemini-battle)
 
 - **Last Battle Card (`packages/app/src/hud/BattleCard.tsx`, `packages/app/src/hud/battle-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:

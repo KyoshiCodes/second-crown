@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-27 — Decree cards
+
+- Each royal decree on the Crown tab is now its own card: name, what it does, what it costs, and an Issue button.
+- While a decree is running, the card turns green, shows the seconds left, and the button reads "Already active".
+- A cost you cannot pay turns red. Costs and effects are the same as before.
+
 ## 2026-09-27 — Last battle card & 28px clash pip
 
 - The War tab's Last battle section is now a dedicated battle card showing who fought, who triumphed, and an authentic 28px clash pip:

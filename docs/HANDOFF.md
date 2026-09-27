@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Open branch (wave/hud-decrees)
+
+- Crown tab decrees are cards (`packages/app/src/hud/DecreeCard.tsx`, `decree-card.css`, `DecreesPanel.tsx`). Not merged.
+- **Blocker on main:** `packages/app/src/hud/battle-card.css` has committed conflict markers (`<<<<<<<` / `>>>>>>>`), so `npm run build -w @second-crown/app` fails. Resolve by keeping the `0bf0929` side (it carries the `.sc-clash-pip*` rules `ClashPip.tsx` needs).
+
 ## Active Bakeoff (bakeoff/gemini-battle)
 
 - **Last-Battle Card & 28px Clash Pip (`packages/app/src/hud/BattleCard.tsx`, `packages/app/src/hud/ClashPip.tsx`, `packages/app/src/hud/battle-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:

@@ -1,0 +1,43 @@
+/* --- Crown: one card per royal decree. Edge color = ready / active / cannot pay. --- */
+.sc-decree-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  margin: 2px 0 6px;
+}
+.sc-decree-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 5px 8px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-radius: 5px;
+}
+.sc-decree-card.is-ready { border-left-color: #d29922; }
+.sc-decree-card.is-active { border-left-color: #3fb950; }
+.sc-decree-card.is-off { opacity: 0.75; }
+.sc-decree-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+.sc-decree-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-decree-left {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: #3fb950;
+  font-variant-numeric: tabular-nums;
+}
+.sc-decree-blurb { font-size: 11px; opacity: 0.75; }
+.sc-decree-cost { display: flex; flex-wrap: wrap; gap: 6px; }
+.sc-decree-amt { display: inline-flex; align-items: center; font-variant-numeric: tabular-nums; }
+.sc-decree-amt.is-short { color: #f85149; }
+.sc-pip.sc-decree-pip { width: 18px; height: 18px; flex: 0 0 18px; margin-right: 3px; }
+.sc-decree-btn { align-self: flex-start; margin-top: 2px; padding: 1px 10px; font-size: 11px; }

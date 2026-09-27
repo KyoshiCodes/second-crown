@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-27 — hud-decrees / decree cards
+
+- `DecreeCard.tsx` takes one `DECREES` entry (`(typeof DECREES)[number]`); adding a decree needs no UI change.
+- Button disabled only on `!state || decreeUntil > 0`, same as before; `tryDecree` still decides affordability. The red "short" hint and `is-off` tone are display-only (Number compare).
+- Time left = `Math.ceil(decreeUntil / 10)` seconds, matching the old label. Reuses `ResourcePip` at 18px via `.sc-pip.sc-decree-pip`.
+
 ## 2026-09-27 — hud-battle / clash-pip
 
 - `ClashPip.tsx`: 28px clash pip renders `crossed_blades` (victory or general clash) or `broken_shield` (defeat when `story.loserId === "player"`). All wrappers, SVGs, and paths strictly enforce `pointer-events: none !important;` so that card clicks and details expansion never get blocked.
