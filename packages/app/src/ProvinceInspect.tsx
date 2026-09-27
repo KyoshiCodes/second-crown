@@ -18,6 +18,7 @@ import {
   nodeStockMax,
   outpostTithePerTick,
   scoutCost,
+  settlementName,
   tryAbandonOutpost,
   tryDispatchGarrison,
   tryDispatchRecallGarrison,
@@ -30,6 +31,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
 import { WallLine } from "./WallLine";
+import "./hud/inspect-card.css";
 
 const TERRAIN: Record<string, string> = {
   plain: "Plain",
@@ -95,152 +97,158 @@ export function ProvinceInspect(props: {
     : "Unknown (fog)";
   const canScout =
     !seen && gold >= cost && !full && (owned(state, "skirmisher") >= 1 || owned(state, "militia") >= 1);
+  const name = home ? settlementName(state) : seen ? NODE[p.node] ?? p.node : "Unscouted province";
+  const terrain = seen ? TERRAIN[p.terrain] ?? p.terrain : "Unknown";
   return (
-    <div
-      style={{
-        maxWidth: 560,
-        width: "100%",
-        margin: "8px auto 10px",
-        padding: "10px 12px",
-        background: "rgba(18,12,8,0.94)",
-        border: "1px solid #c8963e",
-        borderRadius: 8,
-        fontSize: 13,
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-        <strong>
-          {seen ? TERRAIN[p.terrain] ?? p.terrain : "Unscouted"} · {p.x},{p.y}
-        </strong>
-        <button type="button" onClick={onClear}>
+    <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
+      <div className="sc-inspect-head">
+        <div className="sc-inspect-name">{name}</div>
+        <button type="button" className="sc-inspect-close" onClick={onClear}>
           Close
         </button>
       </div>
-      <div style={{ opacity: 0.85, marginTop: 4 }}>
-        {seen ? NODE[p.node] ?? p.node : "Fog hides the token."} · Occupant: {occupant} · Gold {gold}
-      </div>
+      <dl className="sc-inspect-facts">
+        <div>
+          <dt>Terrain</dt>
+          <dd>{terrain}</dd>
+        </div>
+        <div>
+          <dt>Owner</dt>
+          <dd>{occupant}</dd>
+        </div>
+        <div>
+          <dt>Tile</dt>
+          <dd>
+            {p.x},{p.y}
+          </dd>
+        </div>
+        <div>
+          <dt>Gold</dt>
+          <dd>{gold}</dd>
+        </div>
+      </dl>
+      {!seen ? <div className="sc-inspect-line">Fog hides the token.</div> : null}
       {canGather ? (
-        <div style={{ marginTop: 4 }}>
+        <div className="sc-inspect-line">
           {NODE[p.node] ?? p.node} {stock}/{stockMax}
           {stock < stockMax ? ` · refills +1 / ${NODE_REGEN_PERIOD / 10}s` : ""}
           {stock <= 0 ? " · dry" : ""}
         </div>
       ) : null}
-      {seen && p.node === "camp" ? <div style={{ marginTop: 4 }}>Camp threat {campThreat(state, p)}</div> : null}
+      {seen && p.node === "camp" ? <div className="sc-inspect-line">Camp threat {campThreat(state, p)}</div> : null}
       {flagged ? (
-        <div style={{ marginTop: 4, color: "#86efac" }}>
+        <div className="sc-inspect-line is-good">
           Your flag. Tithe / tick — food {tithe?.food ?? 0} wood {tithe?.wood ?? 0} stone {tithe?.stone ?? 0} gold{" "}
           {tithe?.gold ?? 0}
           {posted ? ` · Garrison power ${garrisonPower(state, selectedId)}` : " · No garrison"}
         </div>
       ) : null}
       {incoming ? (
-        <div style={{ marginTop: 6, color: "#fca5a5" }}>
+        <div className="sc-inspect-line is-bad">
           Incoming contest · {incomingName} · {Math.max(0, incoming.arrivesTick - state.meta.tick)} ticks
         </div>
       ) : null}
       {march ? (
-        <div style={{ marginTop: 6, color: "#fef08a" }}>
+        <div className="sc-inspect-line is-warn">
           Column · {march.purpose ?? "raid"} · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
           {march.arrivesTick > state.meta.tick ? (
-            <button type="button" style={{ marginLeft: 8 }} onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}>
+            <button type="button" className="sc-inspect-inline-btn" onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}>
               Recall column
             </button>
           ) : null}
         </div>
       ) : null}
       {here ? (
-        <div style={{ marginTop: 6 }}>
+        <div className="sc-inspect-line">
           Gathering {here.node} · load {here.load}/{here.capacity} · {here.phase}
-          <button type="button" style={{ marginLeft: 8 }} onClick={() => act((s) => (tryRecallGather(s, here.id) ? "Column recalled." : "Cannot recall."))}>
+          <button type="button" className="sc-inspect-inline-btn" onClick={() => act((s) => (tryRecallGather(s, here.id) ? "Column recalled." : "Cannot recall."))}>
             Recall gather
           </button>
         </div>
       ) : null}
       {home ? (
-        <div style={{ marginTop: 8 }}>
-          <div style={{ opacity: 0.8 }}>This is your hold. Zoom in to build.</div>
+        <div className="sc-inspect-home">
+          <div className="sc-inspect-hint">This is your hold. Zoom in to build.</div>
           <WallLine state={state} />
         </div>
       ) : (
         <>
-          {!seen ? (
-            <button
-              type="button"
-              style={{ marginTop: 8, marginRight: 8 }}
-              disabled={!canScout}
-              onClick={() =>
-                act((s) => {
-                  const c = scoutCost(s);
-                  if (tryDispatchScout(s, selectedId)) return `Scout column sent (${c} gold).`;
-                  return `Need ${c} gold and one skirmisher or militia, plus a free column.`;
-                })
-              }
-            >
-              Scout column ({cost} gold)
-            </button>
-          ) : null}
-          {canGather ? (
-            <button
-              type="button"
-              style={{ marginTop: 8, marginRight: 8 }}
-              disabled={Boolean(here) || full || stock <= 0}
-              onClick={() =>
-                act((s) => {
-                  const pack: Record<string, number> = {};
-                  for (const [k, v] of Object.entries(force)) if (v > 0) pack[k] = v;
-                  if (Object.keys(pack).length === 0) pack.militia = 5;
-                  return tryGather(s, selectedId, pack) ? "Gather column sent." : "Cannot gather.";
-                })
-              }
-            >
-              {stock <= 0 ? "Tile is dry" : "Gather here"}
-            </button>
-          ) : null}
-          {flagged ? (
-            <>
+          <div className="sc-inspect-actions">
+            {!seen ? (
               <button
                 type="button"
-                style={{ marginTop: 8, marginRight: 8 }}
-                disabled={Boolean(march) || full}
+                disabled={!canScout}
+                onClick={() =>
+                  act((s) => {
+                    const c = scoutCost(s);
+                    if (tryDispatchScout(s, selectedId)) return `Scout column sent (${c} gold).`;
+                    return `Need ${c} gold and one skirmisher or militia, plus a free column.`;
+                  })
+                }
+              >
+                Scout column ({cost} gold)
+              </button>
+            ) : null}
+            {canGather ? (
+              <button
+                type="button"
+                disabled={Boolean(here) || full || stock <= 0}
                 onClick={() =>
                   act((s) => {
                     const pack: Record<string, number> = {};
                     for (const [k, v] of Object.entries(force)) if (v > 0) pack[k] = v;
-                    if (Object.keys(pack).length === 0) pack.militia = 3;
-                    return tryDispatchGarrison(s, selectedId, pack) ? "Garrison marching." : "Cannot send garrison.";
+                    if (Object.keys(pack).length === 0) pack.militia = 5;
+                    return tryGather(s, selectedId, pack) ? "Gather column sent." : "Cannot gather.";
                   })
                 }
               >
-                Station garrison
+                {stock <= 0 ? "Tile is dry" : "Gather here"}
               </button>
-              {posted ? (
+            ) : null}
+            {flagged ? (
+              <>
                 <button
                   type="button"
-                  style={{ marginTop: 8, marginRight: 8 }}
                   disabled={Boolean(march) || full}
-                  onClick={() => act((s) => (tryDispatchRecallGarrison(s, selectedId) ? "Garrison marching home." : "No garrison."))}
+                  onClick={() =>
+                    act((s) => {
+                      const pack: Record<string, number> = {};
+                      for (const [k, v] of Object.entries(force)) if (v > 0) pack[k] = v;
+                      if (Object.keys(pack).length === 0) pack.militia = 3;
+                      return tryDispatchGarrison(s, selectedId, pack) ? "Garrison marching." : "Cannot send garrison.";
+                    })
+                  }
                 >
-                  Recall garrison
+                  Station garrison
                 </button>
-              ) : null}
-              <button
-                type="button"
-                style={{ marginTop: 8, marginRight: 8 }}
-                onClick={() => act((s) => (tryAbandonOutpost(s, selectedId) ? "Banner pulled. Garrison home." : "Cannot abandon."))}
-              >
-                Abandon flag
-              </button>
-            </>
-          ) : null}
-          <div style={{ marginTop: 10, fontSize: 12 }}>
-            Column
+                {posted ? (
+                  <button
+                    type="button"
+                    disabled={Boolean(march) || full}
+                    onClick={() => act((s) => (tryDispatchRecallGarrison(s, selectedId) ? "Garrison marching home." : "No garrison."))}
+                  >
+                    Recall garrison
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => act((s) => (tryAbandonOutpost(s, selectedId) ? "Banner pulled. Garrison home." : "Cannot abandon."))}
+                >
+                  Abandon flag
+                </button>
+              </>
+            ) : null}
+          </div>
+          <div className="sc-inspect-column">
+            <div className="sc-inspect-column-label">Column</div>
             {roster.map((u) => {
               const have = owned(state, u.id);
               if (have <= 0 && !(force[u.id] > 0)) return null;
               return (
-                <label key={u.id} style={{ display: "block", marginTop: 4 }}>
-                  {u.name} (have {have})
+                <label key={u.id} className="sc-inspect-unit">
+                  <span>
+                    {u.name} (have {have})
+                  </span>
                   <input
                     type="number"
                     min={0}
@@ -252,7 +260,6 @@ export function ProvinceInspect(props: {
                         [u.id]: Math.max(0, Math.min(have, Number(e.target.value) || 0)),
                       }))
                     }
-                    style={{ width: 64, marginLeft: 8 }}
                   />
                 </label>
               );
@@ -260,7 +267,7 @@ export function ProvinceInspect(props: {
           </div>
           <button
             type="button"
-            style={{ marginTop: 8 }}
+            className="sc-inspect-raid"
             disabled={Boolean(march) || roster.every((u) => !(force[u.id] > 0))}
             onClick={() =>
               act((s) => {
