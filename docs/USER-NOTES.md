@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-27 — Last battle card
+
+- The War tab's Last battle is now a single card: who fought, who won, and a green Victory or red Defeat tag.
+- The round-by-round list is folded under "Blow by blow". Click to open it.
+- Battles work exactly as before.
+
 ## 2026-09-27 — Market offer cards
 
 - Each Market trade on the Kingdom tab is now its own card: what you give, what you get, and a Trade button.

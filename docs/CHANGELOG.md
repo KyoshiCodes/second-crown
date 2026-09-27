@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-27 — Last battle card (wave/hud-battle)
+
+- War tab Last battle is now one `BattleCard` (`packages/app/src/hud/BattleCard.tsx`, `battle-card.css`): who fought (winner bold vs loser), verdict tag, latest field ledger line, Butcher's bill phase text when the story has it.
+- Edge and verdict color: green Victory, red Defeat, amber when the player was not in the fight.
+- Event list (up to 8) moved into a collapsed "Blow by blow" fold.
+- Reads existing `lastBattleStory`. Combat math, sim, server untouched.
+
 ## 2026-09-27 — Market offer cards (wave/hud-market)
 
 - Kingdom tab Market: each `MARKET_OFFERS` entry is now an `OfferCard` (`packages/app/src/hud/OfferCard.tsx`, `offer-card.css`) in `.sc-offer-grid`: Give row, Get row (resource pips), Trade button.

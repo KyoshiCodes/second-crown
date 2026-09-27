@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-27 — hud-battle / last battle card
+
+- `BattleCard.tsx` takes `LastBattleStory | null`, an optional ledger `report` string, and `nameOf`. Null story shows the report or "No field report yet."
+- Losses are not shown: `writeLastBattle` stores winner, loser, events (max 10), phases (max 6), no counts. Event texts carry "(N down)" but no realm id, so summing them would mislabel sides. Add a `losses` field to the story in sim first if wanted.
+- "Butcher's bill" phase is matched by title (`/butcher/i`); field clashes from `engagement.ts` have no such phase and just omit the line.
+
 ## 2026-09-27 — hud-market / offer cards
 
 - `OfferCard.tsx` renders from the `TradeOffer` shape (`give` / `get` records); `label` is no longer shown. Adding an offer to `MARKET_OFFERS` needs no UI change.

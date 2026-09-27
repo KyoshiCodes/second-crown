@@ -42,6 +42,7 @@ import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
 import { ForceCard } from "./hud/ForceCard";
+import { BattleCard } from "./hud/BattleCard";
 import type { ActFn } from "./game/useGameEngine";
 import { getGiftThanks, getWarTaunt } from "./content/flavor";
 import { sfx } from "./sfx";
@@ -187,18 +188,7 @@ export function WarRoom(props: {
 
       <section className="sc-realm-card" style={card}>
         <strong style={h}>Last battle</strong>
-        {lastField ? (
-          <p style={{ margin: "0 0 4px" }}>{lastField.text}</p>
-        ) : (
-          <p style={{ margin: "0 0 4px", opacity: 0.7 }}>No field report yet.</p>
-        )}
-        {story && story.events.length > 0 ? (
-          <ul style={{ margin: "0 0 4px", paddingLeft: 18, fontSize: 12 }}>
-            {story.events.slice(0, 8).map((ev, i) => (
-              <li key={`${ev.round}-${i}`}>{ev.text}</li>
-            ))}
-          </ul>
-        ) : null}
+        <BattleCard story={story} report={lastField?.text} nameOf={nameOf} />
       </section>
 
       <section className="sc-realm-card" style={card}>

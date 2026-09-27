@@ -1,0 +1,50 @@
+/* --- War: last battle as one card. Edge color = outcome for you. --- */
+.sc-battle-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 9px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-radius: 5px;
+}
+.sc-battle-card.is-won { border-left-color: #3fb950; }
+.sc-battle-card.is-lost { border-left-color: #f85149; }
+.sc-battle-card.is-other { border-left-color: #d29922; }
+.sc-battle-card.is-none { opacity: 0.7; }
+.sc-battle-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sc-battle-sides {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.sc-battle-side { overflow: hidden; text-overflow: ellipsis; opacity: 0.8; }
+.sc-battle-side.is-winner { font-weight: 600; opacity: 1; }
+.sc-battle-vs { flex: none; font-size: 10px; text-transform: uppercase; opacity: 0.55; }
+.sc-battle-verdict {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.sc-battle-card.is-won .sc-battle-verdict { color: #3fb950; }
+.sc-battle-card.is-lost .sc-battle-verdict { color: #f85149; }
+.sc-battle-card.is-other .sc-battle-verdict { color: #d29922; }
+.sc-battle-report { font-size: 12px; }
+.sc-battle-bill { font-size: 11px; opacity: 0.75; }
+.sc-battle-log { font-size: 11px; }
+.sc-battle-log summary { cursor: pointer; opacity: 0.75; }
+.sc-battle-log ul { margin: 3px 0 0; padding-left: 16px; }
