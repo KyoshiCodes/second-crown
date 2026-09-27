@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hud-diplo)
+
+- War tab "Odds" section is now **Diplomacy**: one `RealmCard` per other realm (`packages/app/src/hud/RealmCard.tsx`, `realm-card.css`) in `.sc-realm-dip-grid`.
+- Card: name, stance (At war / Truce Ns / Friendly / Wary / Hostile), opinion of you, power odds, existing Declare war button, and the existing Gift button on Varric's (rival) card only.
+- `DiplomacyPanel` removed from `HudControls.tsx`. Sim untouched. Not merged.
+
 ## Active Bakeoff (bakeoff/gemini-decrees)
 
 - **Royal Decree Cards & 24px Wax-Seal Pip (`packages/app/src/hud/DecreeCard.tsx`, `packages/app/src/hud/WaxSealPip.tsx`, `packages/app/src/hud/decree-card.css`, `packages/app/src/DecreesPanel.tsx`, `packages/app/src/theme.css`)**:

@@ -17,6 +17,7 @@ import {
   listLedger,
   listMarches,
   listScarred,
+  opinionOfPlayerFromRealm,
   peaceTicksRemaining,
   population,
   realmPower,
@@ -37,7 +38,7 @@ import {
   woundedCount,
   type GameState,
 } from "@second-crown/sim";
-import { DiplomacyPanel } from "./HudControls";
+import { RealmCard, realmStance } from "./hud/RealmCard";
 import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
@@ -124,41 +125,40 @@ export function WarRoom(props: {
       <MarshalCard state={state} act={act} />
 
       <section className="sc-realm-card" style={card}>
-        <strong style={h}>Odds</strong>
+        <strong style={h}>Diplomacy</strong>
         <p style={{ margin: "0 0 6px", fontSize: 12, opacity: 0.75 }}>
           Your power {mine}. Green favors you, red favors them. Combat still rolls.
         </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        <div className="sc-realm-dip-grid">
           {otherRealms.map((r) => {
             const left = state ? peaceTicksRemaining(state, "player", r.id) : 0;
             const theirs = state ? realmPower(state, r.id) : 0;
-            const locked = !!activeWar || left > 0;
-            const favored = mine >= theirs;
-            const share = mine + theirs > 0 ? Math.round((mine / (mine + theirs)) * 100) : 50;
+            const isRival = r.id === "rival";
+            const opinion = isRival ? rivalOp : state ? opinionOfPlayerFromRealm(state, r.id) : 0;
+            const atWar = !!activeWar && [activeWar.attackerRealmId, activeWar.defenderRealmId].includes(r.id);
             return (
-              <button
+              <RealmCard
                 key={r.id}
-                type="button"
-                disabled={locked}
-                style={{ borderColor: favored ? "#3fb950" : "#f85149", borderWidth: 1, borderStyle: "solid" }}
-                onClick={() => act((st) => {
+                realm={r}
+                stance={realmStance(atWar, left, opinion)}
+                peaceLeft={left}
+                opinion={opinion}
+                myOpinion={isRival ? playerOp : undefined}
+                mine={mine}
+                theirs={theirs}
+                declareLocked={!!activeWar || left > 0}
+                onDeclare={() => act((st) => {
                   const ok = tryDeclareWar(st, { attackerRealmId: "player", defenderRealmId: r.id });
                   if (!ok) return "Cannot declare war.";
                   return `${r.name}: "${getWarTaunt(r.id)}"`;
                 })}
-              >
-                {left > 0
-                  ? `Peace with ${r.name} (${Math.ceil(left / 10)}s)`
-                  : `Declare on ${r.name} · ${mine} vs ${theirs} (${share}%)`}
-              </button>
+                onGift={isRival
+                  ? () => act((st) => (tryGiftGold(st) ? `Lord Varric: "${getGiftThanks("rival")}"` : "Need 15 gold."))
+                  : undefined}
+              />
             );
           })}
         </div>
-        <DiplomacyPanel
-          rivalOp={rivalOp}
-          playerOp={playerOp}
-          onGift={() => act((st) => (tryGiftGold(st) ? `Lord Varric: "${getGiftThanks("rival")}"` : "Need 15 gold."))}
-        />
       </section>
 
       <section className="sc-realm-card" style={card}>

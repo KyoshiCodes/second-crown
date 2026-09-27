@@ -49,18 +49,3 @@ export function SpeedControls(props: {
   );
 }
 
-export function DiplomacyPanel(props: {
-  rivalOp: number;
-  playerOp: number;
-  onGift: () => void;
-}) {
-  return (
-    <div style={{ margin: "8px 0 12px" }}>
-      <p style={{ fontSize: 13, margin: "0 0 6px" }}>
-        Varric's opinion of you: <strong>{props.rivalOp}</strong>
-        {" "}· your opinion of him: {props.playerOp}
-      </p>
-      <button type="button" onClick={props.onGift}>Gift 15 gold (+12 opinion)</button>
-    </div>
-  );
-}

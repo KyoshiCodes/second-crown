@@ -1,5 +1,12 @@
 # Dev notes
 
+## 2026-09-27 — hud-diplo / realm cards
+
+- `RealmCard.tsx` is presentational; WarRoom passes `onDeclare` / `onGift` with the same `act` bodies as before.
+- `realmStance(atWar, peaceLeft, opinion)` is a display label only: war > truce > opinion (>= 25 Friendly, <= -25 Hostile, else Wary). Opinion is `rivalOp` for rival, else `opinionOfPlayerFromRealm`.
+- Gift stays rival-only because the old button was. `tryGiftGold` already takes a `realmId` if we want gifts on every card later.
+- No pact action exists in sim yet; add its button to `RealmCard` when one lands.
+
 ## 2026-09-27 — hud-decrees / wax-seal-pip
 
 - `WaxSealPip.tsx`: 24px stamped wax-seal pip (`size = 24`, `viewBox="0 0 24 24"`). Displays scalloped matrix pool, hanging ribbon tails, and stamped royal crown matrix sigil (with specialized emblems for "muster", "rite", "envoys" or default royal coronet).
