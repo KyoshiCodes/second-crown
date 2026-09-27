@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Wave: hud-battle (branch `wave/hud-battle`, not merged)
+
+- War tab Last battle is one `BattleCard` (`packages/app/src/hud/BattleCard.tsx`): winner vs loser, Victory / Defeat (or "X won" for rival-only clashes), ledger line, Butcher's bill phase if present, blow-by-blow folded in `<details>`.
+- No loss counts: `last_battle_json` does not store them. Odds, Levy, Decrees, force cards unchanged. No sim change.
+
 ## Wave: hud-market (branch `wave/hud-market`, not merged)
 
 - Kingdom tab Market is a grid of `OfferCard`s (give / get / Trade). Disabled via `canTrade`. `tryTrade` and `MARKET_OFFERS` untouched.
