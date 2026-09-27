@@ -2,10 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-27 — Quest cards
+## 2026-09-27 — Quest cards & 24px scroll pip
 
-- Each quest is now its own card showing the goal, a progress bar, and whether it is in progress, ready, or claimed.
-- The Claim button appears only when a quest is ready. Claimed quests fade out.
+- Quests now appear as royal mandate cards:
+  - **Scroll Pip (24px)**: An authentic medieval parchment scroll with roller rods, sepia script, and a signet wax seal. When your quest is fulfilled and ready to claim, the scroll **ignites with warm golden illumination** and shining star sparkles!
+  - **Progress Tracking**: A clean progress bar shows completion status (0/1).
+  - **Claim Button**: Collect your gold reward with a single, clear button click when the mandate is fulfilled.
+- All scroll pip art is completely click-transparent, ensuring instant, unobstructed claiming.
 
 ## 2026-09-27 — Diplomacy realm cards & 28px realm crest pip
 
