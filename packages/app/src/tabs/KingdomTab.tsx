@@ -4,7 +4,6 @@ import {
   canAfford,
   canHouse,
   canRaiseWork,
-  canTrade,
   clearKeepNotice,
   computeIncomePerSecond,
   countBuilding,
@@ -39,7 +38,6 @@ import {
   tryAbandonOutpost,
   tryCancelBuild,
   tryCancelUpgrade,
-  tryTrade,
   unpairedWorks,
   watchtowerWarning,
   workPlotCap,
@@ -53,6 +51,7 @@ import { StudyLine } from "../StudyLine";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
 import { isScarred, WorkCard } from "../hud/WorkCard";
+import { OfferCard } from "../hud/OfferCard";
 
 export function KingdomTab(props: {
   state: GameState | undefined;
@@ -285,9 +284,11 @@ export function KingdomTab(props: {
       <PeoplePanel state={state} act={act} />
       <h3>Market</h3>
       <p style={{ fontSize: 12 }}>{marketsN < 1 ? "Build a Market to trade." : `Markets x${marketsN}`}</p>
-      {MARKET_OFFERS.map((o) => (
-        <button key={o.id} type="button" disabled={!(state && canTrade(state, o.id))} onClick={() => act((st) => (tryTrade(st, o.id) ? "Trade complete." : "Cannot trade."))}>{o.label}</button>
-      ))}
+      <div className="sc-offer-grid">
+        {MARKET_OFFERS.map((o) => (
+          <OfferCard key={o.id} state={state} offer={o} act={act} />
+        ))}
+      </div>
     </>
   );
 }

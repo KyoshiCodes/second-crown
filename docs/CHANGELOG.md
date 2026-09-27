@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-27 — Market offer cards (wave/hud-market)
+
+- Kingdom tab Market: each `MARKET_OFFERS` entry is now an `OfferCard` (`packages/app/src/hud/OfferCard.tsx`, `offer-card.css`) in `.sc-offer-grid`: Give row, Get row (resource pips), Trade button.
+- Trade is disabled when `canTrade` is false (no Market, or short on the give resource). Short amounts show in red.
+- Still calls `tryTrade`. Prices unchanged. No sim or server changes.
+
 ## 2026-09-24 — Gemini War Force Cards & 24px War Chips (bakeoff/gemini-war-chips)
 
 - **Tactical War Force Cards (`packages/app/src/hud/ForceCard.tsx`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
