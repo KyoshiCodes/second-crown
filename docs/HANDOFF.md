@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hud-events, not merged)
+
+- Event cards: `packages/app/src/hud/EventCard.tsx`, `event-card.css`, `EventPanel.tsx`. Title, body, tick per event.
+- World events have no choices in the sim. `EventCard` accepts an optional `choices` prop for when they do.
+- Also removes conflict markers that were live on `main` in `quest-card.css`.
+
 ## Active Bakeoff (bakeoff/gemini-quests)
 
 - **Quest Cards & 24px Scroll Pip (`packages/app/src/hud/QuestCard.tsx`, `packages/app/src/hud/ScrollPip.tsx`, `packages/app/src/hud/quest-card.css`, `packages/app/src/QuestPanel.tsx`)**:

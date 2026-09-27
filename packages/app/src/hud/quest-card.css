@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/* --- Quests: one card per quest. Left edge color = status. --- */
-=======
 /* --- Quests: one card per quest with 24px scroll pip. Left edge color = status. --- */
->>>>>>> fc0c63f (feat(app): quest cards with 24px scroll pip (ready pip is lit))
 .sc-quest-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
@@ -36,8 +32,6 @@
   gap: 6px;
 }
 
-<<<<<<< HEAD
-=======
 .sc-quest-title-group {
   display: flex;
   align-items: center;
@@ -46,7 +40,6 @@
   overflow: hidden;
 }
 
->>>>>>> fc0c63f (feat(app): quest cards with 24px scroll pip (ready pip is lit))
 .sc-quest-title {
   font-weight: 600;
   min-width: 0;
@@ -108,8 +101,6 @@
   cursor: pointer;
   border: 1px solid #3fb950;
 }
-<<<<<<< HEAD
-=======
 
 /* --- 24px Scroll Pip: medieval parchment mandate (ready pip is lit) --- */
 .sc-scroll-pip-wrapper {
@@ -165,4 +156,3 @@
     filter: drop-shadow(0 0 4px rgba(254, 240, 138, 1)) drop-shadow(0 0 8px rgba(234, 179, 8, 0.85));
   }
 }
->>>>>>> fc0c63f (feat(app): quest cards with 24px scroll pip (ready pip is lit))

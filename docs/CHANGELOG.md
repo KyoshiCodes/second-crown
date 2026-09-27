@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-09-27 — Event cards (wave/hud-events)
+
+- **Event cards (`packages/app/src/hud/EventCard.tsx`, `packages/app/src/hud/event-card.css`, `packages/app/src/EventPanel.tsx`)**:
+  - Each world event on the Crown tab is now a card: title, body, tick. Latest event is a larger card; older events sit in `.sc-event-grid`.
+  - Title and body come from splitting the sim text on ` — ` (`splitEventText`).
+  - Left border color by event id: harvest, timber, spoil, levy, tribute.
+  - `EventCard` takes an optional `choices` prop and renders buttons. Nothing passes it yet: sim world events have no choices today.
+- **Fix**: removed leftover conflict markers from `packages/app/src/hud/quest-card.css` (merged in with #100). Kept the scroll-pip side.
+- Styles only in `event-card.css`. `theme.css` not edited. Sim and server unchanged.
+
 ## 2026-09-27 — Gemini Quest Cards & 24px Scroll Pip (bakeoff/gemini-quests)
 
 - **Quest Cards (`packages/app/src/hud/QuestCard.tsx`, `packages/app/src/hud/quest-card.css`, `packages/app/src/QuestPanel.tsx`)**:

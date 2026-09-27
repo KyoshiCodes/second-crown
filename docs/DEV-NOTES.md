@@ -1,5 +1,12 @@
 # Dev notes
 
+## 2026-09-27 — hud-events
+
+- `EventCard.tsx`: renders one `WorldEvent`. `splitEventText` splits `text` on the first ` — ` into title/body (no dash → title only). Class `is-<event.id>` drives edge color; `latest` prop enlarges.
+- `choices?: EventChoice[]` (`id`, `label`, `disabled?`, `onPick`) renders `.sc-event-btn` buttons. Unused for now: `systems/events.ts` auto-applies every event, there is no choice data. Adding choices needs a sim change (ask first per AGENTS.md).
+- `EventPanel.tsx`: inline styles moved to `event-card.css`. Falls back to `lastEvent` flags if the log is empty.
+- `quest-card.css` on main had unresolved conflict markers from #100; resolved keeping the scroll-pip side (`ScrollPip.tsx` uses `.sc-scroll-pip*`).
+
 ## 2026-09-27 — hud-quests / scroll-pip
 
 - `ScrollPip.tsx`: 24px parchment mandate scroll pip (`size = 24`, `viewBox="0 0 24 24"`). Displays unrolled parchment sheet, wooden roller rod curls, sepia script lines, and a wax signet seal.
