@@ -1,0 +1,95 @@
+/* --- Quests: one card per quest. Left edge color = status. --- */
+.sc-quest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 6px;
+  margin: 2px 0 6px;
+}
+
+.sc-quest-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 9px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left-width: 3px;
+  border-radius: 5px;
+  transition: border-color 200ms ease, opacity 200ms ease;
+}
+
+.sc-quest-card.is-open { border-left-color: #d29922; }
+.sc-quest-card.is-ready { border-left-color: #3fb950; }
+.sc-quest-card.is-claimed { border-left-color: #6e7681; opacity: 0.65; }
+
+.sc-quest-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sc-quest-title {
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-quest-status {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sc-quest-status.is-open { color: #d29922; }
+.sc-quest-status.is-ready { color: #3fb950; }
+.sc-quest-status.is-claimed { color: #6e7681; }
+
+.sc-quest-hint {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.sc-quest-progress {
+  display: block;
+  height: 4px;
+  overflow: hidden;
+  background: var(--chrome-btn-border);
+  border-radius: 2px;
+}
+
+.sc-quest-progress-fill {
+  display: block;
+  height: 100%;
+  background: #3fb950;
+  transition: width 250ms ease;
+}
+
+.sc-quest-card.is-claimed .sc-quest-progress-fill { background: #6e7681; }
+
+.sc-quest-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.sc-quest-count,
+.sc-quest-reward {
+  font-size: 11px;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-quest-btn {
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid #3fb950;
+}

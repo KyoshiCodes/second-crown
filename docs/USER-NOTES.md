@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-27 — Quest cards
+
+- Each quest is now its own card showing the goal, a progress bar, and whether it is in progress, ready, or claimed.
+- The Claim button appears only when a quest is ready. Claimed quests fade out.
+
 ## 2026-09-27 — Diplomacy realm cards & 28px realm crest pip
 
 - The War tab's Odds and Varric diplomacy sections are now unified into dedicated diplomacy realm cards:

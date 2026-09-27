@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-27 — Quest cards (wave/hud-quests)
+
+- **Quest cards (`packages/app/src/hud/QuestCard.tsx`, `packages/app/src/hud/quest-card.css`, `packages/app/src/QuestPanel.tsx`)**: each quest is a card in `.sc-quest-grid` with title, hint, status (In progress / Ready / Claimed), a 0/1 progress bar, and a Claim button only when ready. Claim still calls `tryClaimQuest` with the same log message.
+- Left edge by status: `.is-open` amber, `.is-ready` green, `.is-claimed` grey and dimmed.
+- `packages/sim`, `server`, and `theme.css` untouched. 220 tests pass; app build clean.
+
 ## 2026-09-27 — Gemini Diplomacy Realm Cards & 28px Realm Crest Pip (bakeoff/gemini-diplo)
 
 - **Diplomacy Realm Cards (`packages/app/src/hud/RealmCard.tsx`, `packages/app/src/hud/realm-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:

@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-27 — hud-quests
+
+- `QuestCard.tsx`: pure props (`id`, `name`, `hint`, `gold`, `complete`, `claimed`, `onClaim`). `questStatus()` maps to `open | ready | claimed`.
+- Quests in `packages/sim/src/systems/quest.ts` are boolean (`done(state)`), so progress is shown as 0/1. If quests gain counts later, add `progress`/`goal` to `listQuests` and pass them through.
+- All styles live in `hud/quest-card.css`; `theme.css` untouched. The panel wrapper still uses `.sc-realm-card` from theme.
+
 ## 2026-09-27 — hud-diplo / realm-crest-pip
 
 - `RealmCrestPip.tsx`: 28px realm crest pip integrating the existing heraldic `Crest` (`size = 28`, `width: 28px; height: 28px;`).
