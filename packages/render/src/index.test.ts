@@ -3533,7 +3533,128 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       expect(code).toContain("realmStance(atWar, left, opinion)");
     });
   });
+
+  describe("Quest Cards & 24px Scroll Pip (Gemini Quests Lane)", () => {
+    it("defines quest card layout, 24px scroll pip art, and ready lit glow only in quest-card.css without editing theme.css", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+
+      const cssPath = path.resolve(__dirname, "../../app/src/hud/quest-card.css");
+      expect(fs.existsSync(cssPath)).toBe(true);
+      const css = fs.readFileSync(cssPath, "utf-8");
+
+      // 1. Quest card & grid layout
+      expect(css).toContain("sc-quest-grid");
+      expect(css).toContain("sc-quest-card");
+      expect(css).toContain("sc-quest-card.is-open");
+      expect(css).toContain("sc-quest-card.is-ready");
+      expect(css).toContain("sc-quest-card.is-claimed");
+      expect(css).toContain("sc-quest-head");
+      expect(css).toContain("sc-quest-title-group");
+      expect(css).toContain("sc-quest-title");
+      expect(css).toContain("sc-quest-status");
+      expect(css).toContain("sc-quest-hint");
+      expect(css).toContain("sc-quest-progress");
+      expect(css).toContain("sc-quest-progress-fill");
+      expect(css).toContain("sc-quest-foot");
+      expect(css).toContain("sc-quest-count");
+      expect(css).toContain("sc-quest-reward");
+      expect(css).toContain("sc-quest-btn");
+
+      // 2. 24px scroll pip wrapper & art
+      expect(css).toContain("sc-scroll-pip-wrapper");
+      expect(css).toContain("sc-scroll-pip");
+      expect(css).toContain("width: 24px");
+      expect(css).toContain("height: 24px");
+
+      // 3. Ready pip is lit with golden glow & flicker animation
+      expect(css).toContain("sc-scroll-pip.is-lit");
+      expect(css).toContain("sc-scroll-lit-flame");
+      expect(css).toContain("drop-shadow");
+
+      // 4. Click pass-through: strictly pointer-events: none !important
+      expect(css).toContain(".sc-scroll-pip-wrapper");
+      expect(css).toContain(".sc-scroll-pip *");
+      expect(css).toContain("pointer-events: none !important");
+
+      // 5. Invariant: styles only in quest-card.css, theme.css not edited for quest cards
+      const themePath = path.resolve(__dirname, "../../app/src/theme.css");
+      const themeCss = fs.readFileSync(themePath, "utf-8");
+      expect(themeCss).not.toContain("sc-quest-grid");
+      expect(themeCss).not.toContain("sc-scroll-pip");
+
+      // 6. Invariant: no <<<<<<< markers
+      expect(css).not.toContain("<<<<<<<");
+    });
+
+    it("questStatus correctly resolves open, ready, and claimed states", async () => {
+      const { questStatus } = await import("../../app/src/hud/QuestCard.tsx");
+      expect(typeof questStatus).toBe("function");
+
+      // Claimed takes priority
+      expect(questStatus(true, true)).toBe("claimed");
+      expect(questStatus(false, true)).toBe("claimed");
+
+      // Complete and not claimed is ready
+      expect(questStatus(true, false)).toBe("ready");
+
+      // Incomplete is open
+      expect(questStatus(false, false)).toBe("open");
+    });
+
+    it("ScrollPip renders 24px scroll pip with lit ready state and pointer-events none", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const pipPath = path.resolve(__dirname, "../../app/src/hud/ScrollPip.tsx");
+      expect(fs.existsSync(pipPath)).toBe(true);
+      const code = fs.readFileSync(pipPath, "utf-8");
+
+      expect(code).toContain("ScrollPip");
+      expect(code).toContain("size = 24");
+      expect(code).toContain('pointerEvents: "none"');
+      expect(code).toContain('aria-hidden="true"');
+      expect(code).toContain('viewBox="0 0 24 24"');
+      expect(code).toContain("sc-scroll-pip-wrapper");
+      expect(code).toContain("sc-scroll-pip");
+      expect(code).toContain("is-lit");
+      expect(code).toContain("sc-scroll-lit-sparkle");
+      expect(code).not.toContain("<<<<<<<");
+    });
+
+    it("QuestCard mounts 24px ScrollPip in sc-quest-title-group, shows progress and Claim button when ready", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const cardPath = path.resolve(__dirname, "../../app/src/hud/QuestCard.tsx");
+      expect(fs.existsSync(cardPath)).toBe(true);
+      const code = fs.readFileSync(cardPath, "utf-8");
+
+      expect(code).toContain("ScrollPip");
+      expect(code).toContain("size={24}");
+      expect(code).toContain("sc-quest-card");
+      expect(code).toContain("sc-quest-head");
+      expect(code).toContain("sc-quest-title-group");
+      expect(code).toContain("sc-quest-title");
+      expect(code).toContain("sc-quest-status");
+      expect(code).toContain("sc-quest-progress");
+      expect(code).toContain("sc-quest-btn");
+      expect(code).not.toContain("<<<<<<<");
+    });
+
+    it("QuestPanel mounts QuestCard inside sc-quest-grid for all quests", async () => {
+      const fs = await import("node:fs");
+      const path = await import("node:path");
+      const panelPath = path.resolve(__dirname, "../../app/src/QuestPanel.tsx");
+      expect(fs.existsSync(panelPath)).toBe(true);
+      const code = fs.readFileSync(panelPath, "utf-8");
+
+      expect(code).toContain("QuestCard");
+      expect(code).toContain("sc-quest-grid");
+      expect(code).toContain("rows.map");
+      expect(code).not.toContain("<<<<<<<");
+    });
+  });
 });
+
 
 
 

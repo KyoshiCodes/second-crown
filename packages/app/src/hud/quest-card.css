@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* --- Quests: one card per quest. Left edge color = status. --- */
+=======
+/* --- Quests: one card per quest with 24px scroll pip. Left edge color = status. --- */
+>>>>>>> fc0c63f (feat(app): quest cards with 24px scroll pip (ready pip is lit))
 .sc-quest-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
@@ -32,6 +36,17 @@
   gap: 6px;
 }
 
+<<<<<<< HEAD
+=======
+.sc-quest-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+>>>>>>> fc0c63f (feat(app): quest cards with 24px scroll pip (ready pip is lit))
 .sc-quest-title {
   font-weight: 600;
   min-width: 0;
@@ -93,3 +108,61 @@
   cursor: pointer;
   border: 1px solid #3fb950;
 }
+<<<<<<< HEAD
+=======
+
+/* --- 24px Scroll Pip: medieval parchment mandate (ready pip is lit) --- */
+.sc-scroll-pip-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+  transition: filter 250ms ease;
+}
+
+.sc-scroll-pip {
+  display: block;
+  width: 24px;
+  height: 24px;
+  overflow: visible;
+  pointer-events: none !important;
+  transition: filter 250ms ease;
+}
+
+.sc-scroll-pip * {
+  pointer-events: none !important;
+}
+
+/* In-progress open scroll */
+.sc-scroll-pip.is-open,
+.sc-scroll-pip-wrapper.is-open .sc-scroll-pip {
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.45));
+}
+
+/* Claimed archived scroll */
+.sc-scroll-pip.is-claimed,
+.sc-scroll-pip-wrapper.is-claimed .sc-scroll-pip {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35)) grayscale(0.5);
+  opacity: 0.75;
+}
+
+/* Ready pip is LIT with warm golden illumination and candle flame flicker */
+.sc-scroll-pip.is-lit,
+.sc-scroll-pip-wrapper.is-lit .sc-scroll-pip {
+  filter: drop-shadow(0 0 2.5px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 6px rgba(245, 158, 11, 0.65));
+  animation: sc-scroll-lit-flame 2.2s ease-in-out infinite;
+}
+
+@keyframes sc-scroll-lit-flame {
+  0%, 100% {
+    filter: drop-shadow(0 0 2.5px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 5.5px rgba(245, 158, 11, 0.65));
+  }
+  50% {
+    filter: drop-shadow(0 0 4px rgba(254, 240, 138, 1)) drop-shadow(0 0 8px rgba(234, 179, 8, 0.85));
+  }
+}
+>>>>>>> fc0c63f (feat(app): quest cards with 24px scroll pip (ready pip is lit))

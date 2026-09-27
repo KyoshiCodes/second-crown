@@ -13,22 +13,18 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Open branch (wave/hud-quests, not merged)
+## Active Bakeoff (bakeoff/gemini-quests)
 
-- Quest cards: `hud/QuestCard.tsx` + `hud/quest-card.css`, wired in `QuestPanel.tsx`. Title, hint, status, 0/1 progress bar, Claim when ready. Sim, server, `theme.css` untouched.
-
-## Active Bakeoff (bakeoff/gemini-diplo)
-
-- **Diplomacy Realm Cards & 28px Realm Crest Pip (`packages/app/src/hud/RealmCard.tsx`, `packages/app/src/hud/RealmCrestPip.tsx`, `packages/app/src/hud/realm-card.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/theme.css`)**:
-  - Replaces raw odds button list in the War tab with dedicated `RealmCard` elements arranged in `.sc-realm-dip-grid`:
-    - Shows realm name, stance badge (with truce countdown timer), opinion breakdown, power odds comparison (mine vs theirs and share %), and Declare war / Gift actions.
-    - Card edge colors by stance: `.is-war` (red `#f85149`), `.is-truce` (azure `#58a6ff`), `.is-friendly` (green `#3fb950`), `.is-wary` (amber `#d29922`), `.is-hostile` (orange `#db6d28`).
-  - **28px Realm Crest Pip (`RealmCrestPip.tsx`)**:
-    - Mounts the existing heraldic `Crest` at 28px (`width: 28px; height: 28px; size={28}`).
-    - **Hostile Crest is Colder**: When in a hostile stance (`stance === "hostile"` or `stance === "war"`), the crest shifts to a colder hue-rotated blue-grey steel frost (`saturate(0.5) hue-rotate(185deg) brightness(0.9)`), accompanied by a crystalline frost contour overlay and icy cyan glow (`drop-shadow(0 0 2.5px rgba(56, 189, 248, 0.75))`).
-    - Stance auras: friendly is warm emerald green, truce is serene azure, and wary is warm amber.
-  - **Non-blocking Clicks**:
-    - Wrapper (`.sc-realm-crest-wrapper`), SVG, and all child paths strictly enforce `pointer-events: none !important;` so that Declare war and Gift gold button clicks are never obstructed.
+- **Quest Cards & 24px Scroll Pip (`packages/app/src/hud/QuestCard.tsx`, `packages/app/src/hud/ScrollPip.tsx`, `packages/app/src/hud/quest-card.css`, `packages/app/src/QuestPanel.tsx`)**:
+  - Replaces raw quest rows with dedicated `QuestCard` components arranged in `.sc-quest-grid`:
+    - Shows quest title, hint, 0/1 progress bar, and a Claim button when complete and ready.
+    - Card edge colors by status: `.is-open` (amber `#d29922`), `.is-ready` (green `#3fb950`), `.is-claimed` (muted slate `#6e7681`).
+  - **24px Scroll Pip (`ScrollPip.tsx`)**:
+    - Unrolled medieval parchment mandate at 24px (`width: 24px; height: 24px; viewBox="0 0 24 24"`) with roller rods, sepia script lines, and wax signet seal.
+    - **Ready Pip is LIT**: When complete and ready to claim (`status === "ready"`), the scroll glows with radiant golden vellum, an incandescent aura, dual sparkle stars, and candle flame flicker (`drop-shadow(0 0 2.5px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 6px rgba(245, 158, 11, 0.65))`).
+    - In progress ("open") shows warm antique vellum; claimed shows muted archived silver-grey.
+  - **Styles isolated to quest-card.css only**: `theme.css` was not touched. Zero conflict markers.
+  - **Non-blocking Clicks**: Wrapper (`.sc-scroll-pip-wrapper`), SVG, and all child paths strictly enforce `pointer-events: none !important;` so that Claim button and card clicks are never obstructed.
 
 ## Verify
 

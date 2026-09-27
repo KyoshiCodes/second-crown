@@ -1,10 +1,22 @@
 # CHANGELOG
 
-## 2026-09-27 — Quest cards (wave/hud-quests)
+## 2026-09-27 — Gemini Quest Cards & 24px Scroll Pip (bakeoff/gemini-quests)
 
-- **Quest cards (`packages/app/src/hud/QuestCard.tsx`, `packages/app/src/hud/quest-card.css`, `packages/app/src/QuestPanel.tsx`)**: each quest is a card in `.sc-quest-grid` with title, hint, status (In progress / Ready / Claimed), a 0/1 progress bar, and a Claim button only when ready. Claim still calls `tryClaimQuest` with the same log message.
-- Left edge by status: `.is-open` amber, `.is-ready` green, `.is-claimed` grey and dimmed.
-- `packages/sim`, `server`, and `theme.css` untouched. 220 tests pass; app build clean.
+- **Quest Cards (`packages/app/src/hud/QuestCard.tsx`, `packages/app/src/hud/quest-card.css`, `packages/app/src/QuestPanel.tsx`)**:
+  - Replaces raw quest rows with dedicated `QuestCard` components arranged in a responsive grid (`.sc-quest-grid`).
+  - Card displays quest title, hint, 0/1 progress bar track and fill, count, and Claim button when ready (or gold reward preview / taken text).
+  - Left border highlights status: `.is-open` (amber `#d29922`), `.is-ready` (green `#3fb950`), `.is-claimed` (muted slate `#6e7681`).
+- **24px Scroll Pip (`packages/app/src/hud/ScrollPip.tsx`, `packages/app/src/hud/quest-card.css`)**:
+  - Unrolled medieval parchment mandate at 24px (`width: 24px; height: 24px; viewBox="0 0 24 24"`) with wooden roller rod curls, sepia script lines, and a wax signet seal.
+  - **Ready Pip is LIT**: When complete and ready to claim, the scroll glows with radiant golden vellum (`#fffbeb`, `#fbbf24`), dual sparkle stars, and candle flame flicker (`drop-shadow(0 0 2.5px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 6px rgba(245, 158, 11, 0.65))`).
+  - Open quests display warm antique vellum; claimed quests show archived slate-grey.
+  - Unconditionally enforces `pointer-events: none !important;` on wrapper, SVG, and all child paths so card clicks and Claim button presses are never obstructed.
+- **Invariants & Preservations**:
+  - Styles strictly isolated to `packages/app/src/hud/quest-card.css` only; `packages/app/src/theme.css` was NOT edited.
+  - Zero `<<<<<<<` merge conflict markers anywhere in the repository.
+  - `git diff main -- packages/sim server` strictly 100% empty.
+  - Monorepo tests pass: 220 sim tests, 132 render tests (+5 unit tests covering quest card CSS rules, questStatus state machine, 24px scroll pip ready lit glow, QuestCard mounting, and QuestPanel grid).
+  - Clean production build with Vite (`npm run build -w @second-crown/app`).
 
 ## 2026-09-27 — Gemini Diplomacy Realm Cards & 28px Realm Crest Pip (bakeoff/gemini-diplo)
 

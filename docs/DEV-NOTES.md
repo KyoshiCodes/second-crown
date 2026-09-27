@@ -1,10 +1,14 @@
 # Dev notes
 
-## 2026-09-27 — hud-quests
+## 2026-09-27 — hud-quests / scroll-pip
 
-- `QuestCard.tsx`: pure props (`id`, `name`, `hint`, `gold`, `complete`, `claimed`, `onClaim`). `questStatus()` maps to `open | ready | claimed`.
-- Quests in `packages/sim/src/systems/quest.ts` are boolean (`done(state)`), so progress is shown as 0/1. If quests gain counts later, add `progress`/`goal` to `listQuests` and pass them through.
-- All styles live in `hud/quest-card.css`; `theme.css` untouched. The panel wrapper still uses `.sc-realm-card` from theme.
+- `ScrollPip.tsx`: 24px parchment mandate scroll pip (`size = 24`, `viewBox="0 0 24 24"`). Displays unrolled parchment sheet, wooden roller rod curls, sepia script lines, and a wax signet seal.
+  - When `status === "ready"`: the pip is LIT! Applies radiant golden vellum (`#fffbeb`, `#fbbf24`), four-pointed star glint on the roller apex, amber signet sparkle, and gentle flame glow flicker (`@keyframes sc-scroll-lit-flame`).
+  - When `status === "open"`: displays warm antique vellum (`#fef3c7`).
+  - When `status === "claimed"`: displays archived silver-grey vellum (`#e2e8f0`).
+  - Wrapper (`.sc-scroll-pip-wrapper`), SVG, and all child paths unconditionally enforce `pointer-events: none !important;` so that Claim buttons and card clicks are never intercepted.
+- `QuestCard.tsx`: Mounts `ScrollPip` at `size={24}` inside `.sc-quest-title-group`. Displays hint, 0/1 progress bar, and a Claim button when complete and ready.
+- Invariants: Sim unchanged; `listQuests` and `tryClaimQuest` used as-is. Styles isolated entirely to `packages/app/src/hud/quest-card.css`; `theme.css` was NOT edited. Zero conflict markers.
 
 ## 2026-09-27 — hud-diplo / realm-crest-pip
 
