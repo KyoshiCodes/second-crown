@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hud-outpost)
+
+- **Inspect card outpost/camp badge (`packages/app/src/ProvinceInspect.tsx`, `packages/app/src/hud/inspect-card.css`)**:
+  - Small badge beside the tile name: `Your outpost` (green), `<Realm> outpost` (red), or `Camp` (orange).
+  - Derived only from existing `Province.node` and `Province.occupantRealmId`. No new sim fields; sim and server diff empty.
+  - Hidden on the home hold, other holds, unowned tiles, and fogged tiles.
+
 ## Active Bakeoff (bakeoff/gemini-node-piles)
 
 - **Node Stock Piles on Diamond (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
