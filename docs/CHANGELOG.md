@@ -5,7 +5,7 @@
 - `LedgerPanel.tsx` renders each Ledger of Crowns entry as a small `.sc-ledger-card`: time (`tN`) then text.
 - Order unchanged: `listLedger` already sorts newest first.
 - Styles only in `packages/app/src/hud/ledger-card.css`; inline styles removed from the component. `theme.css` not edited.
-- No sim, server or ledger data changed. No conflict markers. 220 sim tests pass; app build clean.
+- No sim, server or ledger data changed. No conflict markers. 220 sim tests pass, 146 render tests pass; app build clean.
 
 ## 2026-09-27 — Gemini Selected Board Province Clear Gold Rim & Ground Ring (bakeoff/gemini-select-rim)
 
