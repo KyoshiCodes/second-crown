@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-28 — hud-ledger / ledger cards
+
+- `LedgerPanel.tsx`: list is `ul.sc-ledger-card-list` of `li.sc-ledger-card` with `.sc-ledger-card-time` and `.sc-ledger-card-text`; empty state `.sc-ledger-card-empty`.
+- Class prefix is `sc-ledger-card-*` because `sc-ledger-cell/name/tag/amount/cap/rate` already belong to the resource HUD in `theme.css` / `resource-pip.css`.
+- `listLedger` output and keys used as-is. Styles in `packages/app/src/hud/ledger-card.css`, imported from `LedgerPanel.tsx`; uses `--chrome-btn-*` tokens.
+
 ## 2026-09-27 — board / select-rim & ground-ring
 
 - `paintBoardSelectionRim(g, bx, by, state, phase)`: Renders clearer gold rim and ground ring on board provinces:
