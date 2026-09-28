@@ -1717,13 +1717,10 @@ export function paintBoardProvinces(
     } else {
       switch (p.node) {
         case "camp": {
-          g.poly([cx - 7, cy + 6, cx, cy - 5, cx + 7, cy + 6]);
-          g.fill({ color: 0xb91c1c });
-          g.poly([cx - 2, cy + 6, cx, cy - 1, cx + 2, cy + 6]);
-          g.fill({ color: 0xfde047 });
-          g.moveTo(cx - 7, cy - 3); g.lineTo(cx + 7, cy + 5);
-          g.moveTo(cx + 7, cy - 3); g.lineTo(cx - 7, cy + 5);
-          g.stroke({ width: 0.9, color: 0x78350f, alpha: 0.8 });
+          if (p.occupantRealmId !== "player") {
+            const campPal = p.occupantRealmId ? realmTokenPalette(p.occupantRealmId) : undefined;
+            drawCampTentAndFlag(g, cx, cy, "western", undefined, phase, false, { flagColor: campPal?.pennantColor });
+          }
           break;
         }
         case "woodcut":
@@ -1791,28 +1788,8 @@ export function paintBoardProvinces(
           // Posted Garrison Encampment: small tent + banner meeple with armaments & power crest
           drawGarrisonMeeple(g, cx, cy, kit, cult, garrison.power, phase);
         } else {
-          // Unguarded Territory Claim: solitary wooden marker stake & fluttering territory pennant
-          // Ground contact shadow under stake
-          g.ellipse(cx, cy + 4.5, 3.8, 1.8);
-          g.fill({ color: 0x000000, alpha: 0.38 });
-
-          // Wooden boundary marker stake
-          g.moveTo(cx, cy + 5);
-          g.lineTo(cx, cy - 13);
-          g.stroke({ width: 1.3, color: 0x78350f });
-          g.circle(cx, cy - 13.5, 1.1);
-          g.fill({ color: 0xfacc15 });
-
-          // Fluttering territory claim pennant
-          const pennantWave = Math.sin(phase * 4 + p.x * 2) * 1.6;
-          g.poly([
-            cx, cy - 13,
-            cx + 8 + pennantWave, cy - 10.5,
-            cx + 6 + pennantWave * 0.6, cy - 8,
-            cx, cy - 8,
-          ]);
-          g.fill({ color: playerTabardCol, alpha: 0.85 });
-          g.stroke({ width: 0.6, color: 0x1e3a8a });
+          // Player Camp / Outpost: clearer tent + flag
+          drawPlayerCampTentAndFlag(g, cx, cy, kit, cult, phase, { node: p.node, flagColor: playerTabardCol });
         }
       }
     } else if (p.occupantRealmId) {
@@ -2378,6 +2355,223 @@ export function drawScoutColumnMeeple(
   pawnsG.fill({ color: progress >= 0.33 ? 0x38bdf8 : 0x334155 });
   pawnsG.circle(pawnX + 4.5, badgeY, 1.0);
   pawnsG.fill({ color: progress >= 0.75 ? 0x38bdf8 : 0x334155 });
+}
+
+/**
+ * Draws a clear, distinct pitched canvas encampment tent and waving heraldic flag standard
+ * for camps and outposts on the tabletop board.
+ *
+ * Distinct features:
+ * - Soft ground contact shadows under tent footprint and flagpole base
+ * - Angled tension guy ropes anchored with wooden ground stakes
+ * - 3D pitched dual-tone canvas tent with shaded flank and sunlit roof pitch
+ * - Timber ridgepole along tent apex and faction valance trim along eaves
+ * - Open arched tent entrance revealing warm glowing lantern / hearth light
+ * - Elevated hardwood flagpole with iron base bracket and polished finial sphere
+ * - Fluttering heraldic flag standard with animated wave and chevron charge
+ */
+export function drawCampTentAndFlag(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  kit: CultureKit = "western",
+  cult?: CultureVisualPalette,
+  phase: number = 0,
+  isPlayer: boolean = false,
+  options?: { node?: string; flagColor?: number }
+): void {
+  // 1. Dual Ground Contact Shadows
+  g.ellipse(cx - 3, cy + 5, 8.5, 3.2);
+  g.fill({ color: 0x000000, alpha: 0.38 });
+
+  const poleX = cx + 5.5;
+  g.ellipse(poleX, cy + 5.5, 3.2, 1.6);
+  g.fill({ color: 0x000000, alpha: 0.32 });
+
+  // 2. Tension Guy Ropes and Timber Ground Pegs
+  // Left guy rope & ground peg
+  g.moveTo(cx - 8, cy + 2.5);
+  g.lineTo(cx - 12, cy + 5.5);
+  g.stroke({ width: 0.7, color: 0xd4a373 });
+  g.rect(cx - 12.5, cy + 4.5, 1.4, 2.4);
+  g.fill({ color: 0x78350f });
+
+  // Right guy rope & ground peg
+  g.moveTo(cx + 1.5, cy + 2.5);
+  g.lineTo(cx + 3.8, cy + 5.5);
+  g.stroke({ width: 0.7, color: 0xd4a373 });
+  g.rect(cx + 3.4, cy + 4.5, 1.4, 2.4);
+  g.fill({ color: 0x78350f });
+
+  // 3. Faction Palette & Canvas Styling
+  const tabard = options?.flagColor ?? (isPlayer
+    ? (cult?.tabard ?? 0x1e40af)
+    : 0xb91c1c);
+  const accent = isPlayer ? (cult?.accent ?? 0xfacc15) : 0xf59e0b;
+  const timber = cult?.timber ?? 0x78350f;
+
+  const canvasMain = isPlayer
+    ? (kit === "sand"
+      ? 0xd97706
+      : kit === "cedar"
+      ? 0x15803d
+      : kit === "steppe"
+      ? 0xa16207
+      : kit === "islands"
+      ? 0x0284c7
+      : 0xb45309)
+    : 0x9a3412;
+
+  const canvasDark = blendDark(canvasMain, 0.38);
+  const canvasLight = blendLight(canvasMain, 0.22);
+
+  // 4. Tent Structure
+  if (kit === "steppe" && isPlayer) {
+    // Steppe round yurt cylinder
+    g.rect(cx - 8.5, cy - 0.5, 11, 5.5);
+    g.fill({ color: canvasDark });
+    g.stroke({ width: 0.7, color: 0x451a03 });
+
+    // Conical felt dome
+    g.poly([
+      cx - 9.5, cy - 0.5,
+      cx - 3, cy - 7,
+      cx + 2.5, cy - 0.5,
+    ]);
+    g.fill({ color: canvasLight });
+    g.stroke({ width: 0.7, color: 0x451a03 });
+
+    // Yurt crown / compression ring
+    g.circle(cx - 3, cy - 7, 1.3);
+    g.fill({ color: 0xd6d3d1 });
+    g.stroke({ width: 0.5, color: 0x451a03 });
+  } else {
+    // Pitched Pavilion Ridge Tent
+    // Left roof pitch (shadowed)
+    g.poly([
+      cx - 9, cy + 5,
+      cx - 3.5, cy - 6,
+      cx - 1, cy - 6,
+      cx - 6, cy + 5,
+    ]);
+    g.fill({ color: canvasDark });
+
+    // Right roof pitch / front gable (sunlit)
+    g.poly([
+      cx - 6, cy + 5,
+      cx - 1, cy - 6,
+      cx + 2.5, cy + 5,
+    ]);
+    g.fill({ color: canvasLight });
+
+    // Roof seam outline
+    g.poly([
+      cx - 9, cy + 5,
+      cx - 3.5, cy - 6,
+      cx - 1, cy - 6,
+      cx + 2.5, cy + 5,
+    ]);
+    g.stroke({ width: 0.7, color: 0x451a03 });
+
+    // Timber ridgepole along apex
+    g.moveTo(cx - 4, cy - 6);
+    g.lineTo(cx - 0.5, cy - 6);
+    g.stroke({ width: 1.3, color: timber });
+  }
+
+  // Faction Tabard Valance / Eaves Trim
+  g.poly([
+    cx - 9, cy + 2,
+    cx - 3.5, cy - 2.5,
+    cx + 2.5, cy + 2,
+    cx + 2.5, cy + 3.2,
+    cx - 3.5, cy - 1.3,
+    cx - 9, cy + 3.2,
+  ]);
+  g.fill({ color: tabard });
+  g.stroke({ width: 0.5, color: blendDark(tabard, 0.4) });
+
+  // Arched Tent Entrance Flap
+  g.poly([
+    cx - 5, cy + 5,
+    cx - 3.5, cy,
+    cx - 2, cy + 5,
+  ]);
+  g.fill({ color: 0x1c1917 });
+
+  // Glowing Lantern / Hearth Fire inside tent
+  g.circle(cx - 3.5, cy + 2.8, 1.8);
+  g.fill({ color: 0xf59e0b, alpha: 0.32 });
+  g.circle(cx - 3.5, cy + 2.8, 1.1);
+  g.fill({ color: 0xfef08a });
+  g.circle(cx - 3.5, cy + 2.8, 0.5);
+  g.fill({ color: 0xffffff });
+
+  // 5. Elevated Hardwood Flagpole
+  g.moveTo(poleX, cy + 5.5);
+  g.lineTo(poleX, cy - 15);
+  g.stroke({ width: 1.4, color: timber });
+
+  // Pole Base Iron Bracket
+  g.rect(poleX - 1.1, cy + 3.5, 2.2, 2.2);
+  g.fill({ color: 0x27272a });
+
+  // Finial Tip
+  g.circle(poleX, cy - 15.5, 1.3);
+  g.fill({ color: isPlayer ? 0xfacc15 : 0x94a3b8 });
+  g.circle(poleX, cy - 15.5, 0.4);
+  g.fill({ color: 0xffffff });
+
+  // Culture finial plume
+  if (isPlayer && kit === "cedar") {
+    g.moveTo(poleX, cy - 15.5);
+    g.lineTo(poleX - 2.5, cy - 18.5);
+    g.stroke({ width: 1.1, color: 0xef4444 });
+    g.circle(poleX - 2.5, cy - 18.5, 0.6);
+    g.fill({ color: 0xfacc15 });
+  } else if (isPlayer && kit === "steppe") {
+    g.moveTo(poleX, cy - 14.5);
+    g.lineTo(poleX - 2, cy - 10.5);
+    g.stroke({ width: 1.1, color: 0xd6d3d1 });
+  } else if (isPlayer && kit === "islands") {
+    g.circle(poleX, cy - 15.5, 1.1);
+    g.fill({ color: 0x06b6d4 });
+  }
+
+  // 6. Fluttering Waving Heraldic Flag Standard
+  const flagWave = Math.sin(phase * 4 + (cx + cy) * 0.15) * 1.8;
+  g.poly([
+    poleX, cy - 15,
+    poleX + 10.5 + flagWave, cy - 11.5,
+    poleX + 8.5 + flagWave * 0.7, cy - 8.5,
+    poleX + 10.5 + flagWave, cy - 5.5,
+    poleX, cy - 5.5,
+  ]);
+  g.fill({ color: tabard });
+  g.stroke({ width: 0.7, color: accent });
+
+  // Heraldic Charge / Chevron on banner
+  g.poly([
+    poleX + 2 + flagWave * 0.2, cy - 11.5,
+    poleX + 5 + flagWave * 0.45, cy - 8.5,
+    poleX + 2 + flagWave * 0.2, cy - 6.5,
+    poleX + 3.5 + flagWave * 0.3, cy - 6.5,
+    poleX + 6.5 + flagWave * 0.55, cy - 8.5,
+    poleX + 3.5 + flagWave * 0.3, cy - 11.5,
+  ]);
+  g.fill({ color: isPlayer ? 0xfde047 : 0xfef08a });
+}
+
+export function drawPlayerCampTentAndFlag(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  kit: CultureKit = "western",
+  cult?: CultureVisualPalette,
+  phase: number = 0,
+  options?: { node?: string; flagColor?: number }
+): void {
+  drawCampTentAndFlag(g, cx, cy, kit, cult, phase, true, options);
 }
 
 /**

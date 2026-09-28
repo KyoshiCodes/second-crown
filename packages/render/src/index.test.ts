@@ -57,6 +57,8 @@ import {
   drawCrackedStoneOverlay,
   buildingHeight,
   drawWatchtowerScaffolding,
+  drawCampTentAndFlag,
+  drawPlayerCampTentAndFlag,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -4120,6 +4122,97 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       });
 
       it("preserves hit-test math and camera invariants", async () => {
+        const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+        expect(typeof hitTestProvince).toBe("function");
+        expect(typeof boardGridToWorld).toBe("function");
+        expect(bandForZoom(1.0)).toBe("hold");
+      });
+    });
+
+    describe("bakeoff/gemini-camps: clearer tent + flag for player camps and outposts", () => {
+      function createMockGraphics() {
+        const calls: { method: string; args: any[] }[] = [];
+        const g: any = {
+          calls,
+          clear: () => { calls.push({ method: "clear", args: [] }); },
+          poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+          fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+          stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+          rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+          circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+          ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+          moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+          lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+          quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        };
+        return g;
+      }
+
+      it("drawCampTentAndFlag renders ground shadows, guy ropes, pitched tent, flagpole, and banner", () => {
+        const g = createMockGraphics();
+        drawCampTentAndFlag(g, 100, 100, "western", undefined, 0, false);
+        expect(g.calls.length).toBeGreaterThan(15);
+
+        // Check for ground shadow, guy ropes, and tent
+        const hasCircle = g.calls.some((c) => c.method === "circle");
+        const hasPoly = g.calls.some((c) => c.method === "poly");
+        const hasLineTo = g.calls.some((c) => c.method === "lineTo");
+        expect(hasCircle).toBe(true);
+        expect(hasPoly).toBe(true);
+        expect(hasLineTo).toBe(true);
+      });
+
+      it("drawPlayerCampTentAndFlag renders culture-styled tent and player heraldic flag standard", () => {
+        const kits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+        for (const kit of kits) {
+          const g = createMockGraphics();
+          const cult = culturePalette(kit);
+          drawPlayerCampTentAndFlag(g, 100, 100, kit, cult, 0.5);
+          expect(g.calls.length).toBeGreaterThan(20);
+        }
+      });
+
+      it("paintBoardProvinces renders player camps and outposts with clearer tent + flag", () => {
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_outpost_field", x: 3, y: 2, terrain: "wood", node: "field", occupantRealmId: "player" },
+            { id: "p_outpost_camp", x: 4, y: 2, terrain: "waste", node: "camp", occupantRealmId: "player" },
+            { id: "p_wild_camp", x: 5, y: 2, terrain: "waste", node: "camp" },
+          ],
+        };
+        state.flags["seen:p_home"] = true;
+        state.flags["seen:p_outpost_field"] = true;
+        state.flags["seen:p_outpost_camp"] = true;
+        state.flags["seen:p_wild_camp"] = true;
+
+        const g = createMockGraphics();
+        expect(() => {
+          paintBoardProvinces(g, state, 0.2);
+        }).not.toThrow();
+
+        expect(g.calls.length).toBeGreaterThan(40);
+      });
+
+      it("OverworldAtlas defines MiniCamp with tent and flag on diamond", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const atlasPath = path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx");
+        expect(fs.existsSync(atlasPath)).toBe(true);
+        const code = fs.readFileSync(atlasPath, "utf-8");
+
+        expect(code).toContain("MiniCamp");
+        expect(code).toContain("sc-atlas-camp");
+        expect(code).toContain('p.node === "camp"');
+        expect(code).toContain('occupant === "player" && p.id !== homeId');
+        expect(code).toContain('pointerEvents: "none"');
+        expect(code).not.toContain("<<<<<<<");
+      });
+
+      it("preserves hit-test and camera invariants", async () => {
         const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
         expect(typeof hitTestProvince).toBe("function");
         expect(typeof boardGridToWorld).toBe("function");
