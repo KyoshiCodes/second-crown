@@ -1,5 +1,12 @@
 # Dev notes
 
+## 2026-09-28 — hud / wall + gate HP on inspect card (wave/hud-wall-hp)
+
+- `ProvinceInspect.tsx`: when `selectedId === state.board.homeProvinceId`, three extra `<dt>/<dd>` facts: `wallHp(state)`, `gateOnRim(state) ? gateHp(state) : "No gate on rim"`, `edgeWallCount(state, "player")/8 · closed|open`. Read-only; no new state.
+- `WallLine` import removed from the inspect card only; `KingdomTab` still uses it.
+- `wallHp` counts inner walls via `countBuilding` (not realm-scoped), so rival holds are deliberately not shown.
+- CSS: `.sc-inspect-wall` + `.is-none` / `.is-closed` / `.is-open` in `hud/inspect-card.css`.
+
 ## 2026-09-28 — board / camps and outposts tent + flag (bakeoff/gemini-camps)
 
 - `drawCampTentAndFlag(g, cx, cy, kit, cult, phase, isPlayer, options)` & `drawPlayerCampTentAndFlag(g, cx, cy, kit, cult, phase, options)`:

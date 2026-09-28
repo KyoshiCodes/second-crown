@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-28 — Wall and gate HP on your hold
+
+- Click your home hold on the board. The card now shows your Wall HP, Gate HP, and how many rim walls you have out of 8 (green when the ring is closed).
+- Nothing about sieges changed. This only shows numbers the game already tracked.
+
 ## 2026-09-28 — Clearer tent and flag for player camps and outposts
 
 - Player camps and territory outposts across the tabletop board now display an unmistakable, handsome pitched canvas tent and waving heraldic flag:

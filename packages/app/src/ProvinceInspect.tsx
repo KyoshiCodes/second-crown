@@ -4,9 +4,13 @@ import {
   NODE_REGEN_PERIOD,
   activePlayerMarch,
   campThreat,
+  edgeWallCount,
+  gateHp,
+  gateOnRim,
   garrisonAt,
   garrisonPower,
   getProvince,
+  hasClosedWallRing,
   incomingOnProvince,
   isProvinceSeen,
   listGathers,
@@ -28,10 +32,10 @@ import {
   tryMarchWith,
   tryRecallGather,
   tryRecallMarch,
+  wallHp,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
-import { WallLine } from "./WallLine";
 import "./hud/inspect-card.css";
 
 const TERRAIN: Record<string, string> = {
@@ -150,6 +154,24 @@ export function ProvinceInspect(props: {
           <dt>Gold</dt>
           <dd>{gold}</dd>
         </div>
+        {home ? (
+          <>
+            <div className="sc-inspect-wall">
+              <dt>Wall HP</dt>
+              <dd>{wallHp(state)}</dd>
+            </div>
+            <div className={`sc-inspect-wall${gateOnRim(state) ? "" : " is-none"}`}>
+              <dt>Gate HP</dt>
+              <dd>{gateOnRim(state) ? gateHp(state) : "No gate on rim"}</dd>
+            </div>
+            <div className={`sc-inspect-wall${hasClosedWallRing(state) ? " is-closed" : " is-open"}`}>
+              <dt>Rim ring</dt>
+              <dd>
+                {edgeWallCount(state, "player")}/8 · {hasClosedWallRing(state) ? "closed" : "open"}
+              </dd>
+            </div>
+          </>
+        ) : null}
         {stored !== null ? (
           <div>
             <dt>{RESOURCE[stockRes] ?? stockRes} left</dt>
@@ -199,7 +221,6 @@ export function ProvinceInspect(props: {
       {home ? (
         <div className="sc-inspect-home">
           <div className="sc-inspect-hint">This is your hold. Zoom in to build.</div>
-          <WallLine state={state} />
         </div>
       ) : (
         <>

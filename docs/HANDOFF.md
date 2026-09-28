@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hud-wall-hp)
+
+- Home hold inspect card (`packages/app/src/ProvinceInspect.tsx`) shows **Wall HP**, **Gate HP** and **Rim ring** (rim walls x/8, closed/open) as facts. Numbers come from existing sim selectors `wallHp`, `gateHp`, `gateOnRim`, `edgeWallCount`, `hasClosedWallRing`. The old one-line `WallLine` is no longer on the inspect card (still on Kingdom tab).
+- Rim wall tiles live on the settlement grid, not the board, so they never open this card. Not covered.
+- Styles only in `hud/inspect-card.css`. `git diff main -- packages/sim server` empty.
+
 ## Active Bakeoff (bakeoff/gemini-camps)
 
 - **Player Camps and Outposts Clearer Tent + Flag (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
