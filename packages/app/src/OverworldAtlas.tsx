@@ -141,6 +141,54 @@ function MiniBlocks(props: { cx: number; cy: number }) {
   );
 }
 
+function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor?: string }) {
+  const { cx, cy, isPlayer = false, flagColor = "#2563eb" } = props;
+  return (
+    <g className="sc-atlas-camp" style={{ pointerEvents: "none" }}>
+      {/* Ground contact shadow */}
+      <ellipse cx={cx - 1} cy={cy + 3.5} rx={7} ry={2.5} fill="#000000" opacity={0.35} />
+      {/* Guy ropes */}
+      <line x1={cx - 6} y1={cy + 2} x2={cx - 8.5} y2={cy + 4} stroke="#d4a373" strokeWidth={0.5} />
+      <line x1={cx + 2} y1={cy + 2} x2={cx + 4} y2={cy + 4} stroke="#d4a373" strokeWidth={0.5} />
+      {/* Pitched tent - left shaded face */}
+      <polygon
+        points={`${cx - 7},${cy + 3.5} ${cx - 2},${cy - 5} ${cx},${cy - 5} ${cx - 5},${cy + 3.5}`}
+        fill={isPlayer ? "#92400e" : "#78350f"}
+        stroke="#451a03"
+        strokeWidth={0.4}
+      />
+      {/* Pitched tent - right sunlit face */}
+      <polygon
+        points={`${cx - 5},${cy + 3.5} ${cx},${cy - 5} ${cx + 3},${cy + 3.5}`}
+        fill={isPlayer ? "#d97706" : "#b45309"}
+        stroke="#451a03"
+        strokeWidth={0.4}
+      />
+      {/* Entrance flap */}
+      <polygon points={`${cx - 4},${cy + 3.5} ${cx - 2.5},${cy} ${cx - 1},${cy + 3.5}`} fill="#1c1917" />
+      {/* Hearth lantern glow */}
+      <circle cx={cx - 2.5} cy={cy + 2} r={1.2} fill="#fef08a" />
+      <circle cx={cx - 2.5} cy={cy + 2} r={0.5} fill="#ffffff" />
+      {/* Flagpole */}
+      <line x1={cx + 4.5} y1={cy + 4} x2={cx + 4.5} y2={cy - 11} stroke="#78350f" strokeWidth={1} />
+      {/* Finial gold ball */}
+      <circle cx={cx + 4.5} cy={cy - 11.5} r={1} fill={isPlayer ? "#facc15" : "#a1a1aa"} />
+      {/* Flag pennant */}
+      <polygon
+        points={`${cx + 4.5},${cy - 11} ${cx + 12},${cy - 8.5} ${cx + 10},${cy - 6.5} ${cx + 12},${cy - 4.5} ${cx + 4.5},${cy - 4.5}`}
+        fill={flagColor}
+        stroke={isPlayer ? "#facc15" : "#451a03"}
+        strokeWidth={0.5}
+      />
+      {/* Chevron / stripe on flag */}
+      <polygon
+        points={`${cx + 6.5},${cy - 8.5} ${cx + 8.5},${cy - 6.5} ${cx + 6.5},${cy - 5.5} ${cx + 7.5},${cy - 5.5} ${cx + 9.5},${cy - 6.5} ${cx + 7.5},${cy - 8.5}`}
+        fill={isPlayer ? "#fde047" : "#fca5a5"}
+      />
+    </g>
+  );
+}
+
 /** Pointer travel (screen px) below which a press counts as a click, not a drag. */
 const DRAG_SLOP = 6;
 const PAD = 24;
@@ -383,6 +431,8 @@ export function OverworldAtlas(props: {
                 <MiniSacks cx={cx} cy={cy} />
               ) : p.node === "quarry" && nodeStock(state, p.id) > 0 ? (
                 <MiniBlocks cx={cx} cy={cy} />
+              ) : p.node === "camp" || (occupant === "player" && p.id !== homeId) ? (
+                <MiniCamp cx={cx} cy={cy} isPlayer={occupant === "player"} flagColor={occupant === "player" ? "#2563eb" : "#dc2626"} />
               ) : p.node && p.node !== "none" ? (
                 <circle cx={cx} cy={cy - 2} r={3.2} fill="#fbbf24" stroke="#111" strokeWidth={0.5} />
               ) : p.terrain === "wood" ? (

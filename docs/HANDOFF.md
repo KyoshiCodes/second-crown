@@ -13,12 +13,19 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/hud-outpost)
+## Active Bakeoff (bakeoff/gemini-camps)
 
-- **Inspect card outpost/camp badge (`packages/app/src/ProvinceInspect.tsx`, `packages/app/src/hud/inspect-card.css`)**:
-  - Small badge beside the tile name: `Your outpost` (green), `<Realm> outpost` (red), or `Camp` (orange).
-  - Derived only from existing `Province.node` and `Province.occupantRealmId`. No new sim fields; sim and server diff empty.
-  - Hidden on the home hold, other holds, unowned tiles, and fogged tiles.
+- **Player Camps and Outposts Clearer Tent + Flag (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - Player camps and outposts on the board now display a high-fidelity pitched canvas tent and fluttering heraldic flag standard:
+    - **Pitched Canvas Pavilion Tent**: Dual-tone 3D tent faces (shaded flank, sunlit roof pitch), timber ridgepole along apex, culture tabard valance trim along eaves, arched doorway flap, and cozy interior golden lantern / hearth amber glow. Steppe culture renders nomadic round yurt with felt dome and crown ring.
+    - **Anchoring Guy Ropes & Stakes**: Angled tension guy ropes anchored into the ground with hardwood pegs, resting over soft ground contact shadows.
+    - **Hardwood Flagpole & Flying Banner**: Grounded timber pole with iron base bracket, polished golden finial sphere (with culture-specific adornments: cedar huntsman plume, steppe horsehair tuft, islands sea pearl), and animated waving swallowtail heraldic flag with chevron charge.
+    - **Camp Node Upgrade**: Neutral / unaligned wild camps on the board (`node === "camp"`) now draw a distinct weathered canvas tent with crimson camp pennant instead of the primitive red polygon.
+    - **Overworld Atlas `<MiniCamp>`**: SVG mini tent + flag component on diamond for `p.node === "camp"` and player outposts (`style={{ pointerEvents: "none" }}`).
+  - **Invariants**:
+    - Hit-test math (`hitTestProvince`) and camera math in `camera.ts` remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
 
 ## Active Bakeoff (bakeoff/gemini-node-piles)
 

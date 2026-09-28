@@ -1,11 +1,20 @@
 # Dev notes
 
-## 2026-09-28 — hud-outpost / inspect card site badge (wave/hud-outpost)
+## 2026-09-28 — board / camps and outposts tent + flag (bakeoff/gemini-camps)
 
-- `siteOf(state, id, seen)` in `ProvinceInspect.tsx` returns `{ kind: "outpost" | "rival" | "camp", label } | null`.
-- Rules: `null` if fogged or home; `camp` if `node === "camp"`; `null` if `node === "hold"` or no occupant; else `outpost` for `"player"`, `rival` for anyone else. Matches `listOutposts` (occupied, not home, not hold).
-- Note `plantOutpost` turns a `camp` into `field`, so a tile is never both camp and outpost.
-- Badge `.sc-inspect-site` sits in `.sc-inspect-head` with `margin-right: auto` so Close stays right. Styles only in `hud/inspect-card.css`.
+- `drawCampTentAndFlag(g, cx, cy, kit, cult, phase, isPlayer, options)` & `drawPlayerCampTentAndFlag(g, cx, cy, kit, cult, phase, options)`:
+  - Tabletop board encampment renderer in `packages/render/src/tokens.ts`.
+  - Dual ground contact shadows under tent footprint and flagpole base.
+  - Left and right guy ropes with timber pegs (`0x78350f`) anchored into the turf.
+  - Pitched pavilion ridge tent (or steppe felt yurt) with shaded/sunlit dual faces, apex ridgepole, faction valance trim, arched entrance flap, and warm multi-ring amber/white lantern glow (`0xf59e0b`, `0xfef08a`, `0xffffff`).
+  - Elevated hardwood flagpole (`cx + 5.5`, from `cy + 5.5` to `cy - 15`) with iron base bracket, finial sphere (and culture plumes: cedar, steppe, islands), and animated waving swallowtail banner with chevron charge.
+- `paintBoardProvinces`:
+  - `case "camp":` calls `drawCampTentAndFlag(g, cx, cy, "western", undefined, phase, false, { flagColor: campPal?.pennantColor })` for non-player camps, replacing the old red triangle.
+  - Player outposts (`p.occupantRealmId === "player"` and `!isHome`) call `drawPlayerCampTentAndFlag(g, cx, cy, kit, cult, phase, { node: p.node, flagColor: playerTabardCol })` when `!garrison.posted`, replacing the bare marker stake with the clear tent + flag.
+- `OverworldAtlas.tsx`:
+  - Adds `<MiniCamp cx={cx} cy={cy} isPlayer={...} flagColor={...} />` SVG component with `style={{ pointerEvents: "none" }}`.
+  - Rendered on diamond for `p.node === "camp"` or `(occupant === "player" && p.id !== homeId)`.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-28 — board / node-piles on diamond (bakeoff/gemini-node-piles)
 

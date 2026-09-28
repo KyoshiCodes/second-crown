@@ -2,10 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-28 — Inspect card shows outposts and camps
+## 2026-09-28 — Clearer tent and flag for player camps and outposts
 
-- Click a tile and the card now tells you at a glance what it is: **Your outpost** (green), a rival's outpost with their name (red), or a **Camp** (orange).
-- Fogged tiles don't show the badge until you scout them.
+- Player camps and territory outposts across the tabletop board now display an unmistakable, handsome pitched canvas tent and waving heraldic flag:
+  - **Canvas Pavilion Tent**: A sturdy military pavilion tent with sunlit canvas roof panels, timber ridgepole, faction-colored valance trim, open arched entryway, and a warm amber lantern glowing invitingly inside.
+  - **Nomadic Yurts for Steppe Clans**: When playing or occupying as the Steppe culture, outposts feature authentic circular nomadic felt yurts with conical roof domes and wooden crowns.
+  - **Hardwood Flagpole & Fluttering Standard**: A tall hardwood flagpole crowned with a polished golden finial and an animated swallowtail banner waving in the wind, emblazoned with your realm's heraldic colors.
+  - **Guy Ropes and Timber Pegs**: Angled tension ropes pegged into the turf firmly anchor each encampment to the terrain.
+  - **Wild Camps**: Neutral camps on the board now look like authentic weathered field camps with red pennants instead of flat red polygons.
+  - **Atlas Overworld Map**: The mini Overworld Atlas also features the new mini tent and flag on claimed outposts and camp nodes, with complete click transparency so clicking provinces remains effortless.
 
 ## 2026-09-28 — Resource node stock piles on the map diamond
 

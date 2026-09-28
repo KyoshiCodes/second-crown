@@ -1,10 +1,25 @@
 # CHANGELOG
 
-## 2026-09-28 — Inspect card outpost/camp badge (wave/hud-outpost)
+## 2026-09-28 — Gemini Player Camps and Outposts Clearer Tent + Flag (bakeoff/gemini-camps)
 
-- `ProvinceInspect.tsx`: new `siteOf()` helper reads `node` + `occupantRealmId` and shows a badge in the card head — `Your outpost`, `<Realm> outpost`, or `Camp`.
-- Styles only in `packages/app/src/hud/inspect-card.css` (`.sc-inspect-site`, `.is-outpost` / `.is-rival` / `.is-camp`). `theme.css` untouched.
-- No sim or server changes. 221 tests pass; app build clean.
+- **Clearer Tent + Flag for Player Camps and Outposts (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - **Encampment Tent (`drawCampTentAndFlag`, `drawPlayerCampTentAndFlag`)**:
+    - Replaces the rudimentary stake or primitive red triangle with an authentic pitched military pavilion tent: dual-tone canvas roof panels, timber apex ridgepole, scalloped valance eaves trim in faction tabard colors, dark arched entry flap, and cozy glowing lantern/hearth light.
+    - Nomadic Steppe culture features a rounded felt yurt with conical dome and compression crown ring.
+    - Angled tension guy ropes anchored by timber ground pegs with soft ground contact footprint shadows.
+  - **Heraldic Flag Standard**:
+    - Tall hardwood flagpole with iron ground bracket and polished finial sphere (customized per culture: cedar huntsman plume, steppe horsehair tuft, islands sea pearl).
+    - Fluttering swallowtail heraldic banner waving in the wind with animated phase wave and golden chevron charge.
+  - **Tile Integration**:
+    - Player outposts on the board (`p.occupantRealmId === "player"` and `p.id !== homeProvinceId`) now prominently display the clear tent + flag when unguarded, and the fortified pavilion with garrison armor when guarded.
+    - Wild / neutral camp nodes (`p.node === "camp"`) render a rugged weathered hide canvas tent with crimson camp pennant.
+  - **Overworld Atlas `<MiniCamp>`**:
+    - Adds `<MiniCamp>` SVG component to `OverworldAtlas.tsx` for camp tiles and player outposts (`style={{ pointerEvents: "none" }}`), displaying pitched tent, entrance, lantern glow, flagpole, and heraldic flag pennant.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera geometry remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Tests pass: 221 sim tests pass, 158 render tests pass (+5 new tests covering tent and flag rendering across all culture kits, board painting, and atlas components); app build clean.
 
 ## 2026-09-28 — Gemini Node Stock Piles on Diamond (bakeoff/gemini-node-piles)
 
