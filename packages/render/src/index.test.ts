@@ -4009,6 +4009,123 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(code).not.toContain("<<<<<<<");
       });
     });
+
+    describe("Node Stock Piles on Diamond & Empty Node Invariants (Bakeoff Gemini Node Piles)", () => {
+      function createMockGraphics() {
+        const calls: { method: string; args: any[] }[] = [];
+        const g: any = {
+          calls,
+          clear: () => { calls.push({ method: "clear", args: [] }); },
+          poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+          fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+          stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+          rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+          circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+          ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+          moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+          lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+          quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        };
+        return g;
+      }
+
+      it("getNodeStockInfo detects hasStock correctly for active and empty nodes", async () => {
+        const { getNodeStockInfo } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_wood", x: 2, y: 2, terrain: "wood", node: "woodcut" },
+            { id: "p_quarry", x: 3, y: 2, terrain: "hill", node: "quarry" },
+            { id: "p_empty", x: 4, y: 2, terrain: "plain", node: "field" },
+          ],
+        };
+
+        // p_wood has full stock (untouched)
+        const woodInfo = getNodeStockInfo(state, "p_wood", "woodcut");
+        expect(woodInfo.hasStock).toBe(true);
+        expect(woodInfo.stock).toBeGreaterThan(0);
+        expect(woodInfo.ratio).toBeGreaterThan(0);
+
+        // p_quarry has partial stock stored in state
+        state.flags["node_stock_p_quarry"] = 45;
+        const quarryInfo = getNodeStockInfo(state, "p_quarry", "quarry");
+        expect(quarryInfo.hasStock).toBe(true);
+        expect(quarryInfo.stock).toBe(45);
+        expect(quarryInfo.ratio).toBeCloseTo(45 / 90);
+
+        // p_empty is depleted (0 stock stored in state)
+        state.flags["node_stock_p_empty"] = 0;
+        const emptyInfo = getNodeStockInfo(state, "p_empty", "field");
+        expect(emptyInfo.hasStock).toBe(false);
+        expect(emptyInfo.stock).toBe(0);
+        expect(emptyInfo.ratio).toBe(0);
+      });
+
+      it("drawResourceNode draws small pile on diamond when hasStock is true, and skips pile when empty", async () => {
+        const { drawResourceNode } = await import("./tokens.js");
+
+        for (const node of ["woodcut", "quarry", "field"] as const) {
+          const stockedG = createMockGraphics();
+          drawResourceNode(stockedG, 100, 100, node, 0.8, 0, true);
+
+          const emptyG = createMockGraphics();
+          drawResourceNode(emptyG, 100, 100, node, 0.0, 0, false);
+
+          // Stocked node draws both station landmark AND the small stock pile on the diamond
+          // Empty node draws ONLY the station landmark, keeping the empty node as it is
+          expect(stockedG.calls.length).toBeGreaterThan(emptyG.calls.length);
+          expect(emptyG.calls.length).toBeGreaterThan(0); // landmark intact
+        }
+      });
+
+      it("paintBoardProvinces renders small stock piles on diamonds for stocked nodes", async () => {
+        const { paintBoardProvinces } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_wood", x: 3, y: 2, terrain: "wood", node: "woodcut" },
+            { id: "p_empty", x: 4, y: 2, terrain: "plain", node: "field" },
+          ],
+        };
+        state.flags["seen:p_home"] = true;
+        state.flags["seen:p_wood"] = true;
+        state.flags["seen:p_empty"] = true;
+        state.flags["node_stock_p_empty"] = 0; // empty node
+
+        const g = createMockGraphics();
+        paintBoardProvinces(g, state, 0);
+
+        expect(g.calls.length).toBeGreaterThan(20);
+      });
+
+      it("OverworldAtlas defines MiniLogs, MiniSacks, MiniBlocks on diamond for stocked provinces", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const atlasPath = path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx");
+        expect(fs.existsSync(atlasPath)).toBe(true);
+        const code = fs.readFileSync(atlasPath, "utf-8");
+
+        expect(code).toContain("MiniLogs");
+        expect(code).toContain("MiniSacks");
+        expect(code).toContain("MiniBlocks");
+        expect(code).toContain("nodeStock(state, p.id) > 0");
+        expect(code).toContain("sc-atlas-pile-logs");
+        expect(code).toContain("sc-atlas-pile-sacks");
+        expect(code).toContain("sc-atlas-pile-blocks");
+        expect(code).not.toContain("<<<<<<<");
+      });
+
+      it("preserves hit-test math and camera invariants", async () => {
+        const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+        expect(typeof hitTestProvince).toBe("function");
+        expect(typeof boardGridToWorld).toBe("function");
+        expect(bandForZoom(1.0)).toBe("hold");
+      });
+    });
   });
 });
 

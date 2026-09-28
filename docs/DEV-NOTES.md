@@ -1,10 +1,12 @@
 # Dev notes
 
-## 2026-09-28 — hud-node-stock / inspect stock row
+## 2026-09-28 — board / node-piles on diamond (bakeoff/gemini-node-piles)
 
-- `storedNodeStock(state, provinceId): number | null` in `packages/sim/src/systems/nodeStock.ts` reads the `node_stock_<id>` flag only; `null` when never written. Unlike `nodeStock`, it does not fall back to `nodeStockMax`. Pure read, no state writes.
-- `ProvinceInspect.tsx` adds a `<dt>{Resource} left</dt>` fact when `stored !== null`; resource comes from `GATHER_NODES[node].resource`. The existing `stock/max · refills` line is unchanged.
-- Test: `nodeStock.test.ts` "storedNodeStock reads only stock already in state".
+- `getNodeStockInfo`: Returns `{ stock, max, ratio, hasStock: stock > 0 }`. Detects whether a province has remaining node stock or is depleted/empty.
+- `drawResourceNode`: Station landmark rendered on left (`cx - 5`), small stock pile drawn on right of the diamond (`cx + 5, cy + 1`) ONLY when `hasStock && ratio > 0`. Empty nodes (`stock <= 0`) draw only the station landmark, keeping the empty node as it is without a pile.
+- `drawNodeStockPile`: Removed red flashing dot on depleted state; empty nodes retain clean ground footprint when inspected or drawn directly.
+- `OverworldAtlas.tsx`: Renders `<MiniLogs>`, `<MiniSacks>`, and `<MiniBlocks>` SVG components directly on the diamond for provinces with positive stock (`nodeStock(state, p.id) > 0`). Empty or non-gather nodes remain as standard circular markers.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-28 — hud-ledger / quill-pip & ledger cards (bakeoff/gemini-ledger)
 

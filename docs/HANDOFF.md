@@ -13,9 +13,14 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/hud-node-stock)
+## Active Bakeoff (bakeoff/gemini-node-piles)
 
-- Inspect card shows "Wood/Food/Stone left N" for a clicked gather tile only when stock is already in state. Uses new read-only `storedNodeStock` from sim. Gather math untouched. Not merged.
+- **Node Stock Piles on Diamond (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - Provinces that already have node stock draw a small pile on the diamond: stacked timber logs on `woodcut`, burlap grain sacks on `field`, and ashlar stone blocks on `quarry`.
+  - Empty nodes (`stock <= 0`) stay as they are without any pile drawn.
+  - Implemented across both the Pixi tabletop diorama and the SVG Overworld Atlas.
+  - Hit-test math and camera math remain 100% untouched.
+  - Sim and server strictly empty diff. Zero conflict markers.
 
 ## Active Bakeoff (bakeoff/gemini-ledger)
 
