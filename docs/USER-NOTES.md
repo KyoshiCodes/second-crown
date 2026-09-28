@@ -2,9 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-28 — Tile stock on the inspect card
+## 2026-09-28 — Resource node stock piles on the map diamond
 
-- Click a timber stand, stone outcrop or forage field that has been gathered from and the inspect card now shows how much wood, stone or food is left there.
+- Resource provinces that have stores of lumber, grain, or stone now display an authentic small stock pile directly on the isometric diamond tile:
+  - **Timber Stands (`woodcut`)**: Stacks of hewn pine logs resting on timber skid rails.
+  - **Forage Fields (`field`)**: Burlap harvest grain sacks gathered on threshing mats with golden grain stalks.
+  - **Quarry Outcrops (`quarry`)**: Piles of cut ashlar stone blocks with sunlit facets.
+- **Empty Nodes Stay As They Are**: When a resource node is depleted or holds zero stock, no pile is drawn on the diamond tile, keeping depleted provinces clean and visually distinct without flashing warning indicators.
+- Both the main 3D tabletop diorama and the Overworld Atlas display these matching stock piles.
 
 ## 2026-09-28 — Ledger cards with quill / ink pip
 

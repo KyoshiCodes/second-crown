@@ -1,10 +1,19 @@
 # CHANGELOG
 
-## 2026-09-28 — Node stock on inspect card (wave/hud-node-stock)
+## 2026-09-28 — Gemini Node Stock Piles on Diamond (bakeoff/gemini-node-piles)
 
-- `ProvinceInspect.tsx`: the facts grid gains a "Wood / Food / Stone left" row when the clicked gather tile already has stock written in state (`node_stock_<id>` flag). Untouched tiles show no row; nothing is invented.
-- Sim: new read-only `storedNodeStock(state, id)` in `systems/nodeStock.ts` (exported), returns the stored number or `null`. Gather, drain and regen math unchanged.
-- `theme.css` not edited. No conflict markers. 221 sim tests pass; app build clean.
+- **Node Stock Piles on Diamond (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - Provinces that already have node stock draw a small stock pile on the diamond tile:
+    - **Woodcut**: Stacked timber logs on supporting skid beams with detailed bark bodies and cut growth rings.
+    - **Field**: Burlap harvest grain sacks on a threshing mat with tied necks and golden grain ear tips.
+    - **Quarry**: Dressed isometric ashlar stone blocks with sunlit top facets and shaded faces.
+  - **Empty Nodes Stay As They Are**: When a node has no stock (`stock <= 0` or depleted), no pile is drawn on the diamond and empty nodes stay as they are (preserving the base landmark/circle marker without red blinking dots).
+  - **Overworld Atlas Integration**: Adds `<MiniLogs>`, `<MiniSacks>`, and `<MiniBlocks>` SVG components to `OverworldAtlas.tsx` for provinces with positive stock (`nodeStock(state, p.id) > 0`). Empty nodes remain as default node circles.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera geometry remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Tests pass: 220 sim tests pass, 153 render tests pass (+5 new tests covering stock pile detection, empty node preservation, and atlas mini-piles); app build clean.
 
 ## 2026-09-28 — Gemini Ledger Cards & 16–20px Quill/Ink Pip (bakeoff/gemini-ledger)
 

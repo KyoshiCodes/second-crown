@@ -3,6 +3,7 @@ import {
   BOARD_H,
   BOARD_W,
   listMarches,
+  nodeStock,
   type GameState,
   type Province,
 } from "@second-crown/sim";
@@ -67,6 +68,75 @@ function MiniKeep(props: { cx: number; cy: number; fill: string; roof: string; h
       <polygon points={`${cx - 8},${cy - 16} ${cx},${cy - 26} ${cx + 8},${cy - 16}`} fill={roof} stroke="#111" strokeWidth={0.4} />
       <rect x={cx - 1.5} y={cy - 8} width={3} height={4} fill="#111" />
       {home ? <circle cx={cx + 5} cy={cy - 22} r={1.6} fill="#fde047" /> : null}
+    </g>
+  );
+}
+
+function MiniLogs(props: { cx: number; cy: number }) {
+  const { cx, cy } = props;
+  return (
+    <g className="sc-atlas-node-pile sc-atlas-pile-logs" style={{ pointerEvents: "none" }}>
+      {/* Ground contact shadow */}
+      <ellipse cx={cx} cy={cy + 1} rx={8} ry={3} fill="#000000" opacity={0.35} />
+      {/* Bottom left log */}
+      <rect x={cx - 7} y={cy - 3} width={9} height={3.5} rx={0.8} fill="#78350f" stroke="#3f1d0b" strokeWidth={0.5} />
+      <ellipse cx={cx + 2} cy={cy - 1.25} rx={1.2} ry={1.6} fill="#d97706" />
+      <circle cx={cx + 2} cy={cy - 1.25} r={0.5} fill="#fde047" />
+      {/* Bottom right log */}
+      <rect x={cx - 3} y={cy - 1.5} width={9} height={3.5} rx={0.8} fill="#78350f" stroke="#3f1d0b" strokeWidth={0.5} />
+      <ellipse cx={cx + 6} cy={cy + 0.25} rx={1.2} ry={1.6} fill="#d97706" />
+      <circle cx={cx + 6} cy={cy + 0.25} r={0.5} fill="#fde047" />
+      {/* Top log */}
+      <rect x={cx - 5} y={cy - 5.5} width={9} height={3.5} rx={0.8} fill="#9a3412" stroke="#451a03" strokeWidth={0.5} />
+      <ellipse cx={cx + 4} cy={cy - 3.75} rx={1.2} ry={1.6} fill="#f59e0b" />
+      <circle cx={cx + 4} cy={cy - 3.75} r={0.5} fill="#fef08a" />
+    </g>
+  );
+}
+
+function MiniSacks(props: { cx: number; cy: number }) {
+  const { cx, cy } = props;
+  return (
+    <g className="sc-atlas-node-pile sc-atlas-pile-sacks" style={{ pointerEvents: "none" }}>
+      {/* Ground contact shadow */}
+      <ellipse cx={cx} cy={cy + 1} rx={8} ry={3} fill="#000000" opacity={0.35} />
+      {/* Bottom left sack */}
+      <ellipse cx={cx - 4} cy={cy - 1} rx={4} ry={3} fill="#b45309" stroke="#78350f" strokeWidth={0.5} />
+      <ellipse cx={cx - 4.5} cy={cy - 1.8} rx={2.5} ry={1.5} fill="#d97706" />
+      <rect x={cx - 4.5} y={cy - 4.2} width={1.8} height={1.2} fill="#78350f" />
+      <circle cx={cx - 3.6} cy={cy - 4.5} r={0.7} fill="#fde047" />
+      {/* Bottom right sack */}
+      <ellipse cx={cx + 4} cy={cy} rx={4} ry={3} fill="#b45309" stroke="#78350f" strokeWidth={0.5} />
+      <ellipse cx={cx + 3.5} cy={cy - 0.8} rx={2.5} ry={1.5} fill="#d97706" />
+      <rect x={cx + 3.5} y={cy - 3.2} width={1.8} height={1.2} fill="#78350f" />
+      <circle cx={cx + 4.4} cy={cy - 3.5} r={0.7} fill="#fde047" />
+      {/* Top sack */}
+      <ellipse cx={cx} cy={cy - 3.5} rx={3.8} ry={2.8} fill="#ca8a04" stroke="#78350f" strokeWidth={0.5} />
+      <ellipse cx={cx - 0.5} cy={cy - 4.2} rx={2.4} ry={1.4} fill="#eab308" />
+      <rect x={cx - 0.8} y={cy - 6.6} width={1.6} height={1.2} fill="#78350f" />
+      <circle cx={cx - 0.2} cy={cy - 7} r={0.8} fill="#fef08a" />
+    </g>
+  );
+}
+
+function MiniBlocks(props: { cx: number; cy: number }) {
+  const { cx, cy } = props;
+  return (
+    <g className="sc-atlas-node-pile sc-atlas-pile-blocks" style={{ pointerEvents: "none" }}>
+      {/* Ground contact shadow */}
+      <ellipse cx={cx} cy={cy + 1.5} rx={8} ry={3} fill="#000000" opacity={0.35} />
+      {/* Bottom left block */}
+      <polygon points={`${cx - 7},${cy - 2} ${cx - 3},${cy - 4} ${cx + 1},${cy - 2} ${cx - 3},${cy}`} fill="#e4e4e7" stroke="#3f3f46" strokeWidth={0.4} />
+      <polygon points={`${cx - 7},${cy - 2} ${cx - 3},${cy} ${cx - 3},${cy + 3} ${cx - 7},${cy + 1}`} fill="#a1a1aa" stroke="#3f3f46" strokeWidth={0.4} />
+      <polygon points={`${cx - 3},${cy} ${cx + 1},${cy - 2} ${cx + 1},${cy + 1} ${cx - 3},${cy + 3}`} fill="#71717a" stroke="#3f3f46" strokeWidth={0.4} />
+      {/* Bottom right block */}
+      <polygon points={`${cx - 1},${cy - 0.5} ${cx + 3},${cy - 2.5} ${cx + 7},${cy - 0.5} ${cx + 3},${cy + 1.5}`} fill="#e4e4e7" stroke="#3f3f46" strokeWidth={0.4} />
+      <polygon points={`${cx - 1},${cy - 0.5} ${cx + 3},${cy + 1.5} ${cx + 3},${cy + 4.5} ${cx - 1},${cy + 2.5}`} fill="#a1a1aa" stroke="#3f3f46" strokeWidth={0.4} />
+      <polygon points={`${cx + 3},${cy + 1.5} ${cx + 7},${cy - 0.5} ${cx + 7},${cy + 2.5} ${cx + 3},${cy + 4.5}`} fill="#71717a" stroke="#3f3f46" strokeWidth={0.4} />
+      {/* Top center block */}
+      <polygon points={`${cx - 4},${cy - 4.5} ${cx},${cy - 6.5} ${cx + 4},${cy - 4.5} ${cx},${cy - 2.5}`} fill="#f4f4f5" stroke="#3f3f46" strokeWidth={0.4} />
+      <polygon points={`${cx - 4},${cy - 4.5} ${cx},${cy - 2.5} ${cx},${cy + 0.5} ${cx - 4},${cy - 1.5}`} fill="#d4d4d8" stroke="#3f3f46" strokeWidth={0.4} />
+      <polygon points={`${cx},${cy - 2.5} ${cx + 4},${cy - 4.5} ${cx + 4},${cy - 1.5} ${cx},${cy + 0.5}`} fill="#a1a1aa" stroke="#3f3f46" strokeWidth={0.4} />
     </g>
   );
 }
@@ -307,6 +377,12 @@ export function OverworldAtlas(props: {
               ) : null}
               {p.node === "hold" ? (
                 <MiniKeep cx={cx} cy={cy} fill={wall} roof={isHome ? "#ca8a04" : accent} home={isHome} />
+              ) : p.node === "woodcut" && nodeStock(state, p.id) > 0 ? (
+                <MiniLogs cx={cx} cy={cy} />
+              ) : p.node === "field" && nodeStock(state, p.id) > 0 ? (
+                <MiniSacks cx={cx} cy={cy} />
+              ) : p.node === "quarry" && nodeStock(state, p.id) > 0 ? (
+                <MiniBlocks cx={cx} cy={cy} />
               ) : p.node && p.node !== "none" ? (
                 <circle cx={cx} cy={cy - 2} r={3.2} fill="#fbbf24" stroke="#111" strokeWidth={0.5} />
               ) : p.terrain === "wood" ? (

@@ -918,7 +918,7 @@ export function getNodeStockInfo(
   state: GameState,
   provinceId: string,
   nodeType: string
-): { stock: number; max: number; ratio: number } {
+): { stock: number; max: number; ratio: number; hasStock: boolean } {
   const max = typeof nodeStockMax === "function"
     ? nodeStockMax(nodeType)
     : (typeof sim.nodeStockMax === "function"
@@ -926,7 +926,7 @@ export function getNodeStockInfo(
         : (nodeType === "field" ? 160 : nodeType === "woodcut" ? 120 : nodeType === "quarry" ? 90 : 0));
 
   if (max <= 0) {
-    return { stock: 0, max: 0, ratio: 1 };
+    return { stock: 0, max: 0, ratio: 1, hasStock: false };
   }
 
   let stock: number | undefined;
@@ -947,8 +947,9 @@ export function getNodeStockInfo(
     }
   }
 
+  const hasStock = stock > 0;
   const ratio = Math.max(0, Math.min(1, stock / max));
-  return { stock, max, ratio };
+  return { stock, max, ratio, hasStock };
 }
 
 /**
@@ -1043,16 +1044,9 @@ export function drawNodeStockPile(
       g.circle(px - 4, py + 4, 0.7); g.fill({ color: 0xfde047 });
       g.circle(px + 1, py + 4.5, 0.6); g.fill({ color: 0xd97706 });
     } else {
-      // Stage 0: Depleted / Dry (zero logs)
+      // Stage 0: Depleted / Dry (zero logs) - empty node stays as it is
       g.circle(px - 3, py + 3, 0.6); g.fill({ color: 0xd97706 });
       g.circle(px + 2, py + 3.5, 0.6); g.fill({ color: 0xb45309 });
-      if (clampedRatio <= 0) {
-        const pulse = Math.sin(phase * 4) * 0.25 + 0.75;
-        g.circle(px, py - 1, 1.5);
-        g.fill({ color: 0xef4444, alpha: 0.85 * pulse });
-        g.circle(px, py - 1, 0.7);
-        g.fill({ color: 0xfef08a, alpha: pulse });
-      }
     }
   } else if (nodeType === "quarry") {
     // -------------------------------------------------------------
@@ -1133,18 +1127,11 @@ export function drawNodeStockPile(
       g.rect(px - 4.5, py + 4, 1.2, 1); g.fill({ color: 0xa1a1aa });
       g.rect(px + 1, py + 4.5, 1, 0.9); g.fill({ color: 0x71717a });
     } else {
-      // Stage 0: Depleted / Dry (zero blocks)
+      // Stage 0: Depleted / Dry (zero blocks) - empty node stays as it is
       g.ellipse(px, py + 2.5, 5.5, 2);
       g.fill({ color: 0x3f3f46, alpha: 0.65 });
       g.rect(px - 2, py + 2, 1.2, 1); g.fill({ color: 0x71717a });
       g.rect(px + 2, py + 3, 1, 0.8); g.fill({ color: 0x52525b });
-      if (clampedRatio <= 0) {
-        const pulse = Math.sin(phase * 4) * 0.25 + 0.75;
-        g.circle(px, py - 1, 1.5);
-        g.fill({ color: 0xef4444, alpha: 0.85 * pulse });
-        g.circle(px, py - 1, 0.7);
-        g.fill({ color: 0xfef08a, alpha: pulse });
-      }
     }
   } else if (nodeType === "field") {
     // -------------------------------------------------------------
@@ -1210,16 +1197,9 @@ export function drawNodeStockPile(
       g.circle(px - 4, py + 3, 0.6); g.fill({ color: 0xfde047 });
       g.circle(px + 3, py + 3.5, 0.6); g.fill({ color: 0xfef08a });
     } else {
-      // Stage 0: Depleted / Dry (zero sacks)
+      // Stage 0: Depleted / Dry (zero sacks) - empty node stays as it is
       g.circle(px - 2, py + 2.5, 0.6); g.fill({ color: 0xfde047 });
       g.circle(px + 2, py + 3, 0.5); g.fill({ color: 0xd97706 });
-      if (clampedRatio <= 0) {
-        const pulse = Math.sin(phase * 4) * 0.25 + 0.75;
-        g.circle(px, py - 1, 1.5);
-        g.fill({ color: 0xef4444, alpha: 0.85 * pulse });
-        g.circle(px, py - 1, 0.7);
-        g.fill({ color: 0xfef08a, alpha: pulse });
-      }
     }
   } else if (nodeType === "ruins") {
     // -------------------------------------------------------------
@@ -1256,7 +1236,8 @@ export function drawNodeStockPile(
 /**
  * Draws the complete resource node on an isometric diamond tile:
  * 1. Facility / work station landmark on the left (stump+axe, quarry face+pick, wheat stook+sickle, or ruins columns)
- * 2. Small stock pile on the right (stacked logs, ashlar blocks, grain sacks) that reads emptier when low.
+ * 2. Small stock pile on the right (stacked logs, ashlar blocks, grain sacks) when the province already has node stock.
+ * When the node is empty (stock <= 0), no pile is drawn on the diamond and empty nodes stay as they are.
  */
 export function drawResourceNode(
   g: Graphics,
@@ -1264,7 +1245,8 @@ export function drawResourceNode(
   cy: number,
   nodeType: string,
   ratio: number,
-  phase: number = 0
+  phase: number = 0,
+  hasStock: boolean = ratio > 0
 ): void {
   // 1. Station Landmark on Left Side
   switch (nodeType) {
@@ -1403,8 +1385,10 @@ export function drawResourceNode(
     }
   }
 
-  // 2. Small Stock Pile on Right Side
-  drawNodeStockPile(g, cx + 5, cy + 1, nodeType, ratio, phase);
+  // 2. Small Stock Pile on Right Side of Diamond (only when province already has stock; empty nodes stay as they are)
+  if (hasStock && ratio > 0) {
+    drawNodeStockPile(g, cx + 5, cy + 1, nodeType, ratio, phase);
+  }
 }
 
 
@@ -1746,8 +1730,8 @@ export function paintBoardProvinces(
         case "quarry":
         case "field":
         case "ruins": {
-          const { ratio } = getNodeStockInfo(state, p.id, p.node);
-          drawResourceNode(g, cx, cy, p.node, ratio, phase);
+          const { ratio, hasStock } = getNodeStockInfo(state, p.id, p.node);
+          drawResourceNode(g, cx, cy, p.node, ratio, phase, hasStock);
           break;
         }
       }
