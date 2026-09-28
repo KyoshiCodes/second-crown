@@ -3936,8 +3936,8 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       });
     });
 
-    describe("Ledger of Crowns & Ledger Cards (Wave HUD Ledger)", () => {
-      it("defines ledger-card.css with card list, card items, time and text styling", async () => {
+    describe("Ledger of Crowns & Ledger Cards with Quill/Ink Pip (Bakeoff Gemini Ledger)", () => {
+      it("defines ledger-card.css with card list, card items, quill pip styles and pointer-events none", async () => {
         const fs = await import("node:fs");
         const path = await import("node:path");
         const cssPath = path.resolve(__dirname, "../../app/src/hud/ledger-card.css");
@@ -3949,18 +3949,53 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(css).toContain("sc-ledger-card");
         expect(css).toContain("sc-ledger-card-time");
         expect(css).toContain("sc-ledger-card-text");
+        expect(css).toContain("sc-quill-pip-wrapper");
+        expect(css).toContain("sc-quill-pip");
+        expect(css).toContain("pointer-events: none");
         expect(css).toContain("border-left: 3px solid #e3b341");
 
-        // Invariant: styles only in ledger-card.css, theme.css not edited for ledger cards
+        // Invariant: styles only in ledger-card.css, theme.css not edited
         const themePath = path.resolve(__dirname, "../../app/src/theme.css");
         const themeCss = fs.readFileSync(themePath, "utf-8");
         expect(themeCss).not.toContain("sc-ledger-card");
+        expect(themeCss).not.toContain("sc-quill-pip");
 
         // Invariant: no <<<<<<< markers
         expect(css).not.toContain("<<<<<<<");
       });
 
-      it("LedgerPanel mounts sc-ledger-card elements for each ledger row", async () => {
+      it("QuillPip renders 16–20px vector pip with pointer-events: none and ink colors", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const pipPath = path.resolve(__dirname, "../../app/src/hud/QuillPip.tsx");
+        expect(fs.existsSync(pipPath)).toBe(true);
+        const code = fs.readFileSync(pipPath, "utf-8");
+
+        expect(code).toContain("export function QuillPip");
+        expect(code).toContain('pointerEvents: "none"');
+        expect(code).toContain("sc-quill-pip");
+        expect(code).toContain("resolveInkColors");
+        expect(code).toContain("sc-quill-inkpot");
+        expect(code).toContain("sc-quill-pen");
+        expect(code).toContain("sc-quill-droplet");
+        expect(code).not.toContain("<<<<<<<");
+      });
+
+      it("LedgerCard mounts sc-ledger-card with QuillPip, time tag and text", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const cardPath = path.resolve(__dirname, "../../app/src/hud/LedgerCard.tsx");
+        expect(fs.existsSync(cardPath)).toBe(true);
+        const code = fs.readFileSync(cardPath, "utf-8");
+
+        expect(code).toContain("sc-ledger-card");
+        expect(code).toContain("sc-ledger-card-time");
+        expect(code).toContain("sc-ledger-card-text");
+        expect(code).toContain("QuillPip");
+        expect(code).not.toContain("<<<<<<<");
+      });
+
+      it("LedgerPanel mounts sc-ledger-card-list and LedgerCard elements for each row", async () => {
         const fs = await import("node:fs");
         const path = await import("node:path");
         const panelPath = path.resolve(__dirname, "../../app/src/LedgerPanel.tsx");
@@ -3968,9 +4003,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         const code = fs.readFileSync(panelPath, "utf-8");
 
         expect(code).toContain("sc-ledger-card-list");
-        expect(code).toContain("sc-ledger-card");
-        expect(code).toContain("sc-ledger-card-time");
-        expect(code).toContain("sc-ledger-card-text");
+        expect(code).toContain("LedgerCard");
         expect(code).toContain("sc-ledger-card-empty");
         expect(code).toContain("listLedger");
         expect(code).not.toContain("<<<<<<<");

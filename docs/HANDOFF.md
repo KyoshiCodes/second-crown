@@ -13,10 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/hud-ledger)
+## Active Bakeoff (bakeoff/gemini-ledger)
 
-- **Ledger cards (`packages/app/src/LedgerPanel.tsx`, `packages/app/src/hud/ledger-card.css`)**: each Ledger of Crowns line is a small `.sc-ledger-card` (time, text), newest first as before.
-  - Ledger data (`listLedger`) untouched; styles only in `ledger-card.css`.
+- **Ledger Cards & 16–20px Quill/Ink Pip (`packages/app/src/hud/QuillPip.tsx`, `packages/app/src/hud/LedgerCard.tsx`, `packages/app/src/hud/ledger-card.css`, `packages/app/src/LedgerPanel.tsx`)**:
+  - Each ledger card in `packages/app/src/hud` displays an authentic 16–20px quill & inkpot pip with goose feather plume, carved rachis, sharp writing nib, faceted inkpot, and wet ink droplet.
+  - Scribe ink color dynamically reflects entry kind (war/defeat: rubrication crimson, victory/truce: royal gold, marshal: imperial indigo, default: azure iron-gall).
+  - Pip CSS strictly in `ledger-card.css`; `theme.css` not edited. Strictly `pointer-events: none`.
+  - Sim and server untouched. No conflict markers.
 
 ## Active Bakeoff (bakeoff/gemini-select-rim)
 
