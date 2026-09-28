@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-28 — Inspect card shows outposts and camps
+
+- Click a tile and the card now tells you at a glance what it is: **Your outpost** (green), a rival's outpost with their name (red), or a **Camp** (orange).
+- Fogged tiles don't show the badge until you scout them.
+
 ## 2026-09-28 — Resource node stock piles on the map diamond
 
 - Resource provinces that have stores of lumber, grain, or stone now display an authentic small stock pile directly on the isometric diamond tile:

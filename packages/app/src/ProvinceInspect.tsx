@@ -59,6 +59,19 @@ const RESOURCE: Record<string, string> = {
   stone: "Stone",
 };
 
+type Site = { kind: "outpost" | "rival" | "camp"; label: string } | null;
+
+/** Outpost/camp status from existing state: node + occupantRealmId. No new sim fields. */
+function siteOf(state: GameState, id: string, seen: boolean): Site {
+  const p = getProvince(state, id);
+  if (!p || !seen || id === state.board.homeProvinceId) return null;
+  if (p.node === "camp") return { kind: "camp", label: "Camp" };
+  if (p.node === "hold" || !p.occupantRealmId) return null;
+  if (p.occupantRealmId === "player") return { kind: "outpost", label: "Your outpost" };
+  const who = state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId;
+  return { kind: "rival", label: `${who} outpost` };
+}
+
 function owned(state: GameState, typeId: string): number {
   const u = state.units.find((x) => x.realmId === "player" && x.typeId === typeId);
   return Number(u?.count ?? 0);
@@ -107,11 +120,13 @@ export function ProvinceInspect(props: {
   const canScout =
     !seen && gold >= cost && !full && (owned(state, "skirmisher") >= 1 || owned(state, "militia") >= 1);
   const name = home ? settlementName(state) : seen ? NODE[p.node] ?? p.node : "Unscouted province";
+  const site = siteOf(state, selectedId, seen);
   const terrain = seen ? TERRAIN[p.terrain] ?? p.terrain : "Unknown";
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
       <div className="sc-inspect-head">
         <div className="sc-inspect-name">{name}</div>
+        {site ? <span className={`sc-inspect-site is-${site.kind}`}>{site.label}</span> : null}
         <button type="button" className="sc-inspect-close" onClick={onClear}>
           Close
         </button>

@@ -1,5 +1,12 @@
 # Dev notes
 
+## 2026-09-28 — hud-outpost / inspect card site badge (wave/hud-outpost)
+
+- `siteOf(state, id, seen)` in `ProvinceInspect.tsx` returns `{ kind: "outpost" | "rival" | "camp", label } | null`.
+- Rules: `null` if fogged or home; `camp` if `node === "camp"`; `null` if `node === "hold"` or no occupant; else `outpost` for `"player"`, `rival` for anyone else. Matches `listOutposts` (occupied, not home, not hold).
+- Note `plantOutpost` turns a `camp` into `field`, so a tile is never both camp and outpost.
+- Badge `.sc-inspect-site` sits in `.sc-inspect-head` with `margin-right: auto` so Close stays right. Styles only in `hud/inspect-card.css`.
+
 ## 2026-09-28 — board / node-piles on diamond (bakeoff/gemini-node-piles)
 
 - `getNodeStockInfo`: Returns `{ stock, max, ratio, hasStock: stock > 0 }`. Detects whether a province has remaining node stock or is depleted/empty.

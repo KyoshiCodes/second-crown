@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-28 — Inspect card outpost/camp badge (wave/hud-outpost)
+
+- `ProvinceInspect.tsx`: new `siteOf()` helper reads `node` + `occupantRealmId` and shows a badge in the card head — `Your outpost`, `<Realm> outpost`, or `Camp`.
+- Styles only in `packages/app/src/hud/inspect-card.css` (`.sc-inspect-site`, `.is-outpost` / `.is-rival` / `.is-camp`). `theme.css` untouched.
+- No sim or server changes. 221 tests pass; app build clean.
+
 ## 2026-09-28 — Gemini Node Stock Piles on Diamond (bakeoff/gemini-node-piles)
 
 - **Node Stock Piles on Diamond (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
