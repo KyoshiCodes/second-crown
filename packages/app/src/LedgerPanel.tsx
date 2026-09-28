@@ -1,5 +1,6 @@
 import React from "react";
 import { listLedger, type GameState } from "@second-crown/sim";
+import { LedgerCard } from "./hud/LedgerCard";
 import "./hud/ledger-card.css";
 
 export function LedgerPanel(props: { state: GameState | undefined }) {
@@ -12,13 +13,17 @@ export function LedgerPanel(props: { state: GameState | undefined }) {
       ) : (
         <ul className="sc-ledger-card-list">
           {rows.map((r, i) => (
-            <li key={`${r.tick}-${r.kind}-${i}`} className="sc-ledger-card">
-              <span className="sc-ledger-card-time">t{r.tick}</span>
-              <span className="sc-ledger-card-text">{r.text}</span>
-            </li>
+            <LedgerCard
+              key={`${r.tick}-${r.kind}-${i}`}
+              tick={r.tick}
+              text={r.text}
+              kind={r.kind}
+            />
           ))}
         </ul>
       )}
     </>
   );
 }
+
+export { LedgerCard };

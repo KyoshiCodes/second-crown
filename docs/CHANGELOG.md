@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 2026-09-28 — Gemini Ledger Cards & 16–20px Quill/Ink Pip (bakeoff/gemini-ledger)
+
+- **Ledger Cards with Quill / Ink Pip (`packages/app/src/hud/QuillPip.tsx`, `packages/app/src/hud/LedgerCard.tsx`, `packages/app/src/hud/ledger-card.css`, `packages/app/src/LedgerPanel.tsx`)**:
+  - **Quill / Ink Pip (`QuillPip.tsx`)**: 16–20px vector pip (`size = 18`, `viewBox="0 0 20 20"`) featuring a finely detailed goose feather scribe quill (slender rachis, barb notches, calamus barrel, writing nib, and slit) beside a faceted stone inkpot with liquid ink pool, gloss meniscus glint, and a hanging wet ink bead.
+  - **Dynamic Rubrication Ink Tinting (`resolveInkColors`)**: Inks automatically harmonize with entry categories:
+    - War / Defeat / Clash: Scribe's crimson rubrication ink (`#dc2626`).
+    - Victory / Truce / Peace: Royal golden illumination ink (`#d97706`).
+    - Marshal / Decrees: Imperial sapphire/indigo court ink (`#6366f1`).
+    - General Chronicle: Traditional azure iron-gall ink (`#0284c7`).
+  - **Ledger Card Component (`LedgerCard.tsx`)**: Renders `<li className="sc-ledger-card">` with `QuillPip`, `sc-ledger-card-time`, and `sc-ledger-card-text`. Integrated into `LedgerPanel.tsx`.
+  - **Strict Invariants**:
+    - Strictly `pointer-events: none` on both pip wrapper and SVG elements.
+    - All pip styling contained entirely in `packages/app/src/hud/ledger-card.css`.
+    - `packages/app/src/theme.css` remains 100% untouched.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Tests pass: 220 sim tests pass, 148 render tests pass; app build clean.
+
 ## 2026-09-28 — Ledger cards (wave/hud-ledger)
 
 - `LedgerPanel.tsx` renders each Ledger of Crowns entry as a small `.sc-ledger-card`: time (`tN`) then text.

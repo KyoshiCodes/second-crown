@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-28 — Ledger cards with quill / ink pip
+
+- Each line in the Ledger of Crowns now features a handsome 16–20px scribe's quill and inkpot pip:
+  - **Scribe's Quill & Inkpot**: A detailed feather quill poised beside an inkpot with fresh liquid ink and a hanging droplet.
+  - **Rubricated Ink Tints**: The ink color dynamically matches the event: red ink for battles and defeats, radiant gold ink for victories and truces, imperial sapphire ink for marshal appointments, and classic blue-black chronicler ink for kingdom records.
+  - The pip art is completely click-transparent, so selecting cards or clicking ledger rows is never blocked.
+
 ## 2026-09-28 — Ledger cards
 
 - The Ledger of Crowns on the Crown tab now shows each entry as its own small card: the tick on the left, what happened on the right. Newest is still on top.

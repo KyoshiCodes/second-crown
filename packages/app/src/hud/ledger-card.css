@@ -15,7 +15,7 @@
 
 .sc-ledger-card {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   min-width: 0;
   padding: 5px 9px;
@@ -25,6 +25,53 @@
   border: 1px solid var(--chrome-btn-border);
   border-left: 3px solid #e3b341;
   border-radius: 5px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.sc-ledger-card:hover {
+  background: var(--chrome-btn-bg-hover);
+  border-color: rgba(227, 179, 65, 0.45);
+}
+
+/* 16–20px Quill / Ink Pip: strictly pointer-events: none */
+.sc-quill-pip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.sc-quill-pip {
+  display: block;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.sc-quill-pip * {
+  pointer-events: none;
+}
+
+/* Subtle kind-specific border accents aligning with scribe ink rubrication */
+.sc-ledger-card[data-kind*="war"],
+.sc-ledger-card[data-kind*="defeat"],
+.sc-ledger-card[data-kind*="loss"] {
+  border-left-color: #ef4444;
+}
+
+.sc-ledger-card[data-kind*="victory"],
+.sc-ledger-card[data-kind*="truce"],
+.sc-ledger-card[data-kind*="peace"] {
+  border-left-color: #facc15;
+}
+
+.sc-ledger-card[data-kind*="marshal"],
+.sc-ledger-card[data-kind*="crown"],
+.sc-ledger-card[data-kind*="decree"] {
+  border-left-color: #818cf8;
 }
 
 .sc-ledger-card-time {

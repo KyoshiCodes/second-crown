@@ -1,5 +1,14 @@
 # Dev notes
 
+## 2026-09-28 — hud-ledger / quill-pip & ledger cards (bakeoff/gemini-ledger)
+
+- `QuillPip.tsx`: 16–20px vector pip (`size = 18`, `viewBox="0 0 20 20"`). Renders detailed feather quill (rachis spine, barb notches, calamus shaft, nib point, split line) and faceted stone inkpot with liquid ink and droplet.
+- Dynamic ink coloring via `resolveInkColors(kind)`: maps `"war"`/`"defeat"` to `#dc2626`, `"victory"`/`"truce"` to `#d97706`, `"marshal"` to `#6366f1`, and default chronicle entries to `#0284c7`.
+- Strict invariant: `pointer-events: none` on wrapper `span`, `<svg>`, and nested elements.
+- `LedgerCard.tsx`: Dedicated card component in `packages/app/src/hud/`, mounted by `LedgerPanel.tsx`.
+- Styles strictly in `packages/app/src/hud/ledger-card.css`. `theme.css` was NOT edited.
+- Invariants: Sim unchanged; `listLedger` used as-is. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-28 — hud-ledger / ledger cards
 
 - `LedgerPanel.tsx`: list is `ul.sc-ledger-card-list` of `li.sc-ledger-card` with `.sc-ledger-card-time` and `.sc-ledger-card-text`; empty state `.sc-ledger-card-empty`.
