@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-28 — Ledger cards
+
+- The Ledger of Crowns on the Crown tab now shows each entry as its own small card: the tick on the left, what happened on the right. Newest is still on top.
+
 ## 2026-09-27 — Selected board province gold rim & ground ring
 
 - The currently selected province on the board and overworld atlas now features a much clearer, vibrant golden visual highlight:

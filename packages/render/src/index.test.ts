@@ -3935,6 +3935,47 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(bandForZoom(1.0)).toBe("hold");
       });
     });
+
+    describe("Ledger of Crowns & Ledger Cards (Wave HUD Ledger)", () => {
+      it("defines ledger-card.css with card list, card items, time and text styling", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const cssPath = path.resolve(__dirname, "../../app/src/hud/ledger-card.css");
+        expect(fs.existsSync(cssPath)).toBe(true);
+        const css = fs.readFileSync(cssPath, "utf-8");
+
+        expect(css).toContain("sc-ledger-card-empty");
+        expect(css).toContain("sc-ledger-card-list");
+        expect(css).toContain("sc-ledger-card");
+        expect(css).toContain("sc-ledger-card-time");
+        expect(css).toContain("sc-ledger-card-text");
+        expect(css).toContain("border-left: 3px solid #e3b341");
+
+        // Invariant: styles only in ledger-card.css, theme.css not edited for ledger cards
+        const themePath = path.resolve(__dirname, "../../app/src/theme.css");
+        const themeCss = fs.readFileSync(themePath, "utf-8");
+        expect(themeCss).not.toContain("sc-ledger-card");
+
+        // Invariant: no <<<<<<< markers
+        expect(css).not.toContain("<<<<<<<");
+      });
+
+      it("LedgerPanel mounts sc-ledger-card elements for each ledger row", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const panelPath = path.resolve(__dirname, "../../app/src/LedgerPanel.tsx");
+        expect(fs.existsSync(panelPath)).toBe(true);
+        const code = fs.readFileSync(panelPath, "utf-8");
+
+        expect(code).toContain("sc-ledger-card-list");
+        expect(code).toContain("sc-ledger-card");
+        expect(code).toContain("sc-ledger-card-time");
+        expect(code).toContain("sc-ledger-card-text");
+        expect(code).toContain("sc-ledger-card-empty");
+        expect(code).toContain("listLedger");
+        expect(code).not.toContain("<<<<<<<");
+      });
+    });
   });
 });
 

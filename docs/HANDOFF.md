@@ -1,4 +1,4 @@
-# Handoff (2026-09-27)
+# Handoff (2026-09-28)
 
 Read `AGENTS.md` then this file.
 
@@ -12,6 +12,11 @@ Last docs+upkeep merge includes PRs through **#77**.
 Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
+
+## Active wave (wave/hud-ledger)
+
+- **Ledger cards (`packages/app/src/LedgerPanel.tsx`, `packages/app/src/hud/ledger-card.css`)**: each Ledger of Crowns line is a small `.sc-ledger-card` (time, text), newest first as before.
+  - Ledger data (`listLedger`) untouched; styles only in `ledger-card.css`.
 
 ## Active Bakeoff (bakeoff/gemini-select-rim)
 

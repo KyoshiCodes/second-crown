@@ -1,0 +1,43 @@
+/* --- Ledger of Crowns: one small card per entry (time, text). Newest first. --- */
+.sc-ledger-card-empty {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.sc-ledger-card-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 2px 0 8px;
+  padding: 0;
+}
+
+.sc-ledger-card {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  padding: 5px 9px;
+  font-size: 12px;
+  color: var(--chrome-btn-text);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+  border: 1px solid var(--chrome-btn-border);
+  border-left: 3px solid #e3b341;
+  border-radius: 5px;
+}
+
+.sc-ledger-card-time {
+  flex: 0 0 auto;
+  min-width: 42px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+}
+
+.sc-ledger-card-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
