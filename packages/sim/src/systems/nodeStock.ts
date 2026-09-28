@@ -27,6 +27,13 @@ export function nodeStock(state: GameState, provinceId: string): number {
   return nodeStockMax(p.node);
 }
 
+/** Stock already written to state for this tile, or null if the tile has never been touched. Read-only. */
+export function storedNodeStock(state: GameState, provinceId: string): number | null {
+  const raw = state.flags[key(provinceId)];
+  if (typeof raw !== "number" || !Number.isFinite(raw)) return null;
+  return Math.max(0, raw);
+}
+
 export function drainNodeStock(state: GameState, provinceId: string, amount: number): number {
   const have = nodeStock(state, provinceId);
   const take = Math.max(0, Math.min(have, amount));
