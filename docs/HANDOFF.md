@@ -13,6 +13,10 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hud-node-stock)
+
+- Inspect card shows "Wood/Food/Stone left N" for a clicked gather tile only when stock is already in state. Uses new read-only `storedNodeStock` from sim. Gather math untouched. Not merged.
+
 ## Active Bakeoff (bakeoff/gemini-ledger)
 
 - **Ledger Cards & 16–20px Quill/Ink Pip (`packages/app/src/hud/QuillPip.tsx`, `packages/app/src/hud/LedgerCard.tsx`, `packages/app/src/hud/ledger-card.css`, `packages/app/src/LedgerPanel.tsx`)**:

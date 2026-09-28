@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-28 — Node stock on inspect card (wave/hud-node-stock)
+
+- `ProvinceInspect.tsx`: the facts grid gains a "Wood / Food / Stone left" row when the clicked gather tile already has stock written in state (`node_stock_<id>` flag). Untouched tiles show no row; nothing is invented.
+- Sim: new read-only `storedNodeStock(state, id)` in `systems/nodeStock.ts` (exported), returns the stored number or `null`. Gather, drain and regen math unchanged.
+- `theme.css` not edited. No conflict markers. 221 sim tests pass; app build clean.
+
 ## 2026-09-28 — Gemini Ledger Cards & 16–20px Quill/Ink Pip (bakeoff/gemini-ledger)
 
 - **Ledger Cards with Quill / Ink Pip (`packages/app/src/hud/QuillPip.tsx`, `packages/app/src/hud/LedgerCard.tsx`, `packages/app/src/hud/ledger-card.css`, `packages/app/src/LedgerPanel.tsx`)**:

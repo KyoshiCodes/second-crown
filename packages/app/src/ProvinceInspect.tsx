@@ -19,6 +19,7 @@ import {
   outpostTithePerTick,
   scoutCost,
   settlementName,
+  storedNodeStock,
   tryAbandonOutpost,
   tryDispatchGarrison,
   tryDispatchRecallGarrison,
@@ -52,6 +53,12 @@ const NODE: Record<string, string> = {
   ruins: "Ruins",
 };
 
+const RESOURCE: Record<string, string> = {
+  wood: "Wood",
+  food: "Food",
+  stone: "Stone",
+};
+
 function owned(state: GameState, typeId: string): number {
   const u = state.units.find((x) => x.realmId === "player" && x.typeId === typeId);
   return Number(u?.count ?? 0);
@@ -79,6 +86,8 @@ export function ProvinceInspect(props: {
   const canGather = seen && p.node in GATHER_NODES;
   const stock = canGather ? nodeStock(state, selectedId) : 0;
   const stockMax = canGather ? nodeStockMax(p.node) : 0;
+  const stored = canGather ? storedNodeStock(state, selectedId) : null;
+  const stockRes = canGather ? GATHER_NODES[p.node as keyof typeof GATHER_NODES].resource : "";
   const slotsUsed =
     listMarches(state).filter((m) => m.realmId === "player").length +
     gathers.filter((g) => g.phase !== "returning").length;
@@ -126,6 +135,12 @@ export function ProvinceInspect(props: {
           <dt>Gold</dt>
           <dd>{gold}</dd>
         </div>
+        {stored !== null ? (
+          <div>
+            <dt>{RESOURCE[stockRes] ?? stockRes} left</dt>
+            <dd>{stored}</dd>
+          </div>
+        ) : null}
       </dl>
       {!seen ? <div className="sc-inspect-line">Fog hides the token.</div> : null}
       {canGather ? (

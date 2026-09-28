@@ -2,9 +2,19 @@ import { describe, it, expect } from "vitest";
 import { createGameState } from "../state/createGameState.js";
 import { TickEngine } from "../core/tickEngine.js";
 import { tryGather, listGathers } from "./gather.js";
-import { drainNodeStock, nodeStock, NODE_REGEN_PERIOD } from "./nodeStock.js";
+import { drainNodeStock, nodeStock, storedNodeStock, NODE_REGEN_PERIOD } from "./nodeStock.js";
 
 describe("node stock", () => {
+  it("storedNodeStock reads only stock already in state", () => {
+    const s = createGameState({ seed: 1, now: 0, withStarterBuildings: false });
+    const dest = s.board.provinces.find((p) => p.id !== s.board.homeProvinceId)!;
+    dest.node = "woodcut";
+    expect(storedNodeStock(s, dest.id)).toBeNull();
+    drainNodeStock(s, dest.id, 7);
+    expect(storedNodeStock(s, dest.id)).toBe(nodeStock(s, dest.id));
+    expect(storedNodeStock(s, dest.id)).toBe(113);
+  });
+
   it("caps a gather to whatever the tile still holds", () => {
     const s = createGameState({ seed: 1, now: 0, withStarterBuildings: false });
     s.units = [{ id: "t", typeId: "militia", realmId: "player", count: "20", armyId: null }];

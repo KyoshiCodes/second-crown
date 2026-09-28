@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-28 — Tile stock on the inspect card
+
+- Click a timber stand, stone outcrop or forage field that has been gathered from and the inspect card now shows how much wood, stone or food is left there.
+
 ## 2026-09-28 — Ledger cards with quill / ink pip
 
 - Each line in the Ledger of Crowns now features a handsome 16–20px scribe's quill and inkpot pip:

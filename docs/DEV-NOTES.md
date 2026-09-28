@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-28 — hud-node-stock / inspect stock row
+
+- `storedNodeStock(state, provinceId): number | null` in `packages/sim/src/systems/nodeStock.ts` reads the `node_stock_<id>` flag only; `null` when never written. Unlike `nodeStock`, it does not fall back to `nodeStockMax`. Pure read, no state writes.
+- `ProvinceInspect.tsx` adds a `<dt>{Resource} left</dt>` fact when `stored !== null`; resource comes from `GATHER_NODES[node].resource`. The existing `stock/max · refills` line is unchanged.
+- Test: `nodeStock.test.ts` "storedNodeStock reads only stock already in state".
+
 ## 2026-09-28 — hud-ledger / quill-pip & ledger cards (bakeoff/gemini-ledger)
 
 - `QuillPip.tsx`: 16–20px vector pip (`size = 18`, `viewBox="0 0 20 20"`). Renders detailed feather quill (rachis spine, barb notches, calamus shaft, nib point, split line) and faceted stone inkpot with liquid ink and droplet.
