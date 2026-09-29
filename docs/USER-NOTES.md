@@ -2,10 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-28 — Wall and gate HP on your hold
+## 2026-09-28 — Rim wall battle scars & missing merlons on low wall HP
 
-- Click your home hold on the board. The card now shows your Wall HP, Gate HP, and how many rim walls you have out of 8 (green when the ring is closed).
-- Nothing about sieges changed. This only shows numbers the game already tracked.
+- When your kingdom's rim walls suffer damage during sieges or when wall HP is low, the rim wall art now visually reflects that battle damage:
+  - **Fissures & Cracked Stone**: Jagged structural impact cracks and stress fractures run down the curtain walls, with fallen stone chips scattered along the base.
+  - **Missing & Chipped Merlons**: Battlements are dynamically scarred during attacks—sections of merlons are shattered away leaving crumbled mortar stumps and jagged gaps, while other merlons show chips and cracks.
+  - **Corner Bastions & Gate Wings**: Corner watchtowers and connecting gatehouse wings also display knocked-out battlements and stress fractures when defenses are compromised.
+  - **Full HP Walls Stay Intact**: Walls that are at full HP or in peaceful times stay completely pristine with smooth ashlar masonry, clean coping stones, and 100% full-height merlons.
 
 ## 2026-09-28 — Clearer tent and flag for player camps and outposts
 

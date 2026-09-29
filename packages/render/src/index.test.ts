@@ -59,6 +59,10 @@ import {
   drawWatchtowerScaffolding,
   drawCampTentAndFlag,
   drawPlayerCampTentAndFlag,
+  getWallHpStatus,
+  isWallHpLow,
+  drawRimWallCurtain,
+  drawGatehouseCurtainWings,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -4217,6 +4221,158 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(typeof hitTestProvince).toBe("function");
         expect(typeof boardGridToWorld).toBe("function");
         expect(bandForZoom(1.0)).toBe("hold");
+      });
+    });
+
+    describe("bakeoff/gemini-wall-scar: damaged rim wall presentation with low wallHp", () => {
+      function createMockGraphics() {
+        const calls: { method: string; args: any[] }[] = [];
+        const g: any = {
+          calls,
+          clear: () => { calls.push({ method: "clear", args: [] }); },
+          poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+          fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+          stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+          rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+          circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+          ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+          moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+          lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+          quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        };
+        return g;
+      }
+
+      it("getWallHpStatus and isWallHpLow identify wall HP presence and low threshold", () => {
+        // 1. Undefined or empty state
+        expect(getWallHpStatus(undefined).hasWallHp).toBe(false);
+        expect(getWallHpStatus(null).hasWallHp).toBe(false);
+        const emptyState = createMockState();
+        expect(getWallHpStatus(emptyState).hasWallHp).toBe(false);
+        expect(isWallHpLow(emptyState)).toBe(false);
+
+        // 2. Numeric wallHp on state
+        const lowNumState = createMockState();
+        (lowNumState as any).wallHp = 15;
+        expect(getWallHpStatus(lowNumState).hasWallHp).toBe(true);
+        expect(getWallHpStatus(lowNumState).isLow).toBe(true);
+        expect(isWallHpLow(lowNumState)).toBe(true);
+
+        const highNumState = createMockState();
+        (highNumState as any).wallHp = 100;
+        expect(getWallHpStatus(highNumState).hasWallHp).toBe(true);
+        expect(getWallHpStatus(highNumState).isLow).toBe(false);
+        expect(isWallHpLow(highNumState)).toBe(false);
+
+        // 3. Object wallHp on state: { cur, max }
+        const lowObjState = createMockState();
+        (lowObjState as any).wallHp = { cur: 20, max: 100 };
+        expect(getWallHpStatus(lowObjState).isLow).toBe(true);
+        expect(isWallHpLow(lowObjState)).toBe(true);
+
+        const highObjState = createMockState();
+        (highObjState as any).wallHp = { cur: 90, max: 100 };
+        expect(getWallHpStatus(highObjState).isLow).toBe(false);
+        expect(isWallHpLow(highObjState)).toBe(false);
+
+        // 4. Flags wallHp
+        const flagState = createMockState();
+        flagState.flags["wall_hp"] = 10;
+        expect(getWallHpStatus(flagState).hasWallHp).toBe(true);
+        expect(isWallHpLow(flagState)).toBe(true);
+
+        // 5. Ratio as float <= 1
+        const ratioState = createMockState();
+        (ratioState as any).wallHp = 0.25;
+        expect(getWallHpStatus(ratioState).isLow).toBe(true);
+      });
+
+      it("drawRimWallCurtain renders cracks and missing merlons when isDamaged is true", () => {
+        const visuals = getThemeVisuals("summer");
+        const rimNeighbors: RimNeighbors = { hasPrev: true, hasNext: true };
+
+        const gFull = createMockGraphics();
+        drawRimWallCurtain(gFull, 20, 1.0, 0, 0, 3, rimNeighbors, "western", visuals.cult, false);
+
+        const gDamaged = createMockGraphics();
+        drawRimWallCurtain(gDamaged, 20, 1.0, 0, 0, 3, rimNeighbors, "western", visuals.cult, true);
+
+        // Damaged wall must render additional cracked stone details, fissures, and stroke elements
+        expect(gDamaged.calls.length).toBeGreaterThan(0);
+        expect(gFull.calls.length).toBeGreaterThan(0);
+
+        // Cracks and missing merlons add specialized stroke lines and mortar stump fills
+        const fullStrokes = gFull.calls.filter((c: any) => c.method === "stroke");
+        const damagedStrokes = gDamaged.calls.filter((c: any) => c.method === "stroke");
+        expect(damagedStrokes.length).toBeGreaterThan(fullStrokes.length);
+      });
+
+      it("drawRimWallCurtain corner bastion renders damaged merlons and impact cracks", () => {
+        const visuals = getThemeVisuals("summer");
+        const rimNeighbors: RimNeighbors = { hasPrev: true, hasNext: true };
+
+        // Corner tile (0, 0)
+        const gCornerFull = createMockGraphics();
+        drawRimWallCurtain(gCornerFull, 20, 1.0, 0, 0, 0, rimNeighbors, "western", visuals.cult, false);
+
+        const gCornerDamaged = createMockGraphics();
+        drawRimWallCurtain(gCornerDamaged, 20, 1.0, 0, 0, 0, rimNeighbors, "western", visuals.cult, true);
+
+        expect(gCornerDamaged.calls.length).toBeGreaterThan(0);
+        const damagedStrokes = gCornerDamaged.calls.filter((c: any) => c.method === "stroke");
+        const fullStrokes = gCornerFull.calls.filter((c: any) => c.method === "stroke");
+        expect(damagedStrokes.length).toBeGreaterThan(fullStrokes.length);
+      });
+
+      it("drawIsometricBuilding reflects wallHp state on rim walls across all culture kits", () => {
+        const visuals = getThemeVisuals("summer");
+        const rimNeighbors: RimNeighbors = { hasPrev: true, hasNext: true };
+        const cultures = ["western", "cedar", "sand", "steppe", "islands"] as const;
+
+        for (const cult of cultures) {
+          const gFull = createMockGraphics();
+          drawIsometricBuilding(gFull, "walls", 1, true, 0, visuals, 0, 4, rimNeighbors, cult, { isWallLow: false });
+
+          const gLow = createMockGraphics();
+          drawIsometricBuilding(gLow, "walls", 1, true, 0, visuals, 0, 4, rimNeighbors, cult, { isWallLow: true });
+
+          expect(gFull.calls.length).toBeGreaterThan(0);
+          expect(gLow.calls.length).toBeGreaterThan(0);
+
+          const fullStrokes = gFull.calls.filter((c: any) => c.method === "stroke");
+          const lowStrokes = gLow.calls.filter((c: any) => c.method === "stroke");
+          expect(lowStrokes.length).toBeGreaterThan(fullStrokes.length);
+        }
+      });
+
+      it("drawGatehouseCurtainWings reflects damaged status for gatehouse rim spans", () => {
+        const visuals = getThemeVisuals("summer");
+        const rimNeighbors: RimNeighbors = { hasPrev: true, hasNext: true };
+
+        const gFull = createMockGraphics();
+        drawGatehouseCurtainWings(gFull, 20, 1.0, 0, 5, rimNeighbors, "western", visuals.cult, false);
+
+        const gDamaged = createMockGraphics();
+        drawGatehouseCurtainWings(gDamaged, 20, 1.0, 0, 5, rimNeighbors, "western", visuals.cult, true);
+
+        const fullStrokes = gFull.calls.filter((c: any) => c.method === "stroke");
+        const damagedStrokes = gDamaged.calls.filter((c: any) => c.method === "stroke");
+        expect(damagedStrokes.length).toBeGreaterThan(fullStrokes.length);
+      });
+
+      it("preserves hit-test and camera invariants without conflict markers", async () => {
+        const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+        expect(typeof hitTestProvince).toBe("function");
+        expect(typeof boardGridToWorld).toBe("function");
+        expect(bandForZoom(1.0)).toBe("hold");
+
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const buildingsCode = fs.readFileSync(path.resolve(__dirname, "./buildings.ts"), "utf-8");
+        expect(buildingsCode).not.toContain("<<<<<<<");
+        const indexCode = fs.readFileSync(path.resolve(__dirname, "./index.ts"), "utf-8");
+        expect(indexCode).not.toContain("<<<<<<<");
       });
     });
   });

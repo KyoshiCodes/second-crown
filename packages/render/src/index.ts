@@ -63,6 +63,8 @@ import {
 import {
   getThemeVisuals,
   drawIsometricBuilding,
+  getWallHpStatus,
+  isWallHpLow,
 } from "./buildings.js";
 
 import {
@@ -656,6 +658,15 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       rimFortMap.set(rimWalkIndex(f.x, f.y), f);
     }
 
+    const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
+    const wallStatus = getWallHpStatus(state);
+    const isWallLow = wallStatus.hasWallHp && wallStatus.isLow;
+    const buildingOptions = {
+      isWallLow,
+      wallHpRatio: wallStatus.ratio,
+      state,
+    };
+
     for (const b of state.buildings) {
       seen.add(b.id);
       let g = buildingGraphics.get(b.id);
@@ -689,8 +700,19 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         };
       }
 
-      const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
-      drawIsometricBuilding(g, b.typeId, b.level, complete, t + gx * 0.35, visuals, gx, gy, rimNeighbors, cultId);
+      drawIsometricBuilding(
+        g,
+        b.typeId,
+        b.level,
+        complete,
+        t + gx * 0.35,
+        visuals,
+        gx,
+        gy,
+        rimNeighbors,
+        cultId,
+        buildingOptions
+      );
     }
 
     for (const [id, g] of buildingGraphics) {

@@ -1,11 +1,28 @@
 # Dev notes
 
-## 2026-09-28 — hud / wall + gate HP on inspect card (wave/hud-wall-hp)
+## 2026-09-28 — render / damaged rim wall scars & missing merlons (bakeoff/gemini-wall-scar)
 
-- `ProvinceInspect.tsx`: when `selectedId === state.board.homeProvinceId`, three extra `<dt>/<dd>` facts: `wallHp(state)`, `gateOnRim(state) ? gateHp(state) : "No gate on rim"`, `edgeWallCount(state, "player")/8 · closed|open`. Read-only; no new state.
-- `WallLine` import removed from the inspect card only; `KingdomTab` still uses it.
-- `wallHp` counts inner walls via `countBuilding` (not realm-scoped), so rival holds are deliberately not shown.
-- CSS: `.sc-inspect-wall` + `.is-none` / `.is-closed` / `.is-open` in `hud/inspect-card.css`.
+- `getWallHpStatus(state?: GameState | null)` & `isWallHpLow(state?: GameState | null)`:
+  - Exported from `packages/render/src/buildings.ts` and `packages/render/src/index.ts`.
+  - Inspects `state.wallHp` (supports number or `{ cur, max }` object), `state.wall_hp`, or `state.flags.wallHp` / `wall_hp` / `wallHpCur` / `wall_hp_cur`.
+  - If `wallHp` is not found, returns `{ hasWallHp: false, cur: 100, max: 100, ratio: 1.0, isLow: false }`.
+  - Determines nominal baseline (~96–146) from active rim walls / gates or explicit `maxHp`.
+  - Threshold: `isLow = cur <= 0 || ratio < 0.60`.
+- `drawCurtainSpan`:
+  - Added `isDamaged: boolean = false, gx: number = 0, gy: number = 0`.
+  - When `isDamaged`: renders deep dark fissure lines (`colors.arrowSlitCol`) down curtain face, branch stress cracks, sunlit coping catch edges (`colors.merlonCopingCol`), and fallen stone chips at plinth base.
+  - Parapet crenellation merlons: deterministic PRNG based on `(gx * 17 + gy * 31 + i * 13)`. If `rand < 0.45`, merlon is missing (crumbled mortar stump at lip); if `0.45 <= rand < 0.70`, merlon is chipped to partial height; otherwise intact.
+- `drawRimWallCurtain` & `drawGatehouseCurtainWings`:
+  - Added `isDamaged: boolean = false`.
+  - Corner bastions: shears front center merlon to mortar stump, chips left merlon, and draws vertical stress crack down the tower face with plinth rubble.
+  - Pilaster buttresses: draws diagonal stress fracture across pilaster body.
+  - Terminating / starting spans and gatehouse curtain wings pass `isDamaged` into `drawCurtainSpan`.
+- `drawIsometricBuilding`:
+  - Added optional 11th parameter `options?: BuildingDrawOptions` (`{ isWallLow?, isDamaged?, wallHpRatio?, state? }`).
+  - Automatically computes `isWallDamaged` and passes to `drawRimWallCurtain` and `drawGateCulture` / `drawGatehouseCurtainWings`.
+- `paintBuildings` in `packages/render/src/index.ts`:
+  - Queries `getWallHpStatus(state)` once per pass and feeds `buildingOptions` to `drawIsometricBuilding`.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-28 — board / camps and outposts tent + flag (bakeoff/gemini-camps)
 

@@ -1,4 +1,5 @@
 import { Graphics } from "pixi.js";
+import type { GameState } from "@second-crown/shared";
 import { getBuildingType } from "@second-crown/sim";
 import * as sim from "@second-crown/sim";
 import { HALF_W, HALF_H, TILE_W, TILE_H } from "./camera.js";
@@ -456,7 +457,10 @@ function drawCurtainSpan(
   kit: CultureKit,
   colors: WallColors,
   isTerminalStart: boolean = false,
-  isTerminalEnd: boolean = false
+  isTerminalEnd: boolean = false,
+  isDamaged: boolean = false,
+  gx: number = 0,
+  gy: number = 0
 ): void {
   const faceX = edge.faceX;
   const faceY = edge.faceY;
@@ -489,6 +493,53 @@ function drawCurtainSpan(
     g.stroke({ width: 0.8, color: colors.mortarCol, alpha: a * 0.65 });
   }
 
+  const dist = Math.hypot(x1 - x0, y1 - y0);
+
+  // 3b. Structural Impact Cracks & Fractures (only when wallHp is low)
+  if (isDamaged && dist > 2) {
+    const crackSeed = Math.abs(Math.sin((gx * 53 + gy * 79) * 2.3) * 23456.789);
+    const numCracks = dist > 12 ? 2 : 1;
+    for (let c = 0; c < numCracks; c++) {
+      const ct = numCracks === 1 ? 0.5 : (c === 0 ? 0.32 : 0.68);
+      const cxBase = x0 + faceX + (x1 - x0) * ct;
+      const cyBase = y0 + faceY + (y1 - y0) * ct;
+      const p1 = ((crackSeed * (c + 1) * 17) % 1) - 0.5;
+
+      // Primary jagged vertical fissure descending along the stone face
+      const cxTop = cxBase + p1 * 3;
+      const cyTop = cyBase - h * 0.88;
+      const cxMid1 = cxBase + (p1 > 0 ? -1.8 : 1.8);
+      const cyMid1 = cyBase - h * 0.60;
+      const cxMid2 = cxBase + (p1 > 0 ? 1.5 : -1.5);
+      const cyMid2 = cyBase - h * 0.32;
+      const cxBot = cxBase + (p1 > 0 ? -1.0 : 1.0);
+      const cyBot = cyBase - 3.5;
+
+      // Dark shadow fissure
+      g.moveTo(cxTop, cyTop);
+      g.lineTo(cxMid1, cyMid1);
+      g.lineTo(cxMid2, cyMid2);
+      g.lineTo(cxBot, cyBot);
+      g.stroke({ width: 0.9, color: colors.arrowSlitCol, alpha: a * 0.92 });
+
+      // Minor branch crack splitting off
+      g.moveTo(cxMid1, cyMid1);
+      g.lineTo(cxMid1 + (p1 > 0 ? 2.5 : -2.5), cyMid1 + h * 0.16);
+      g.stroke({ width: 0.6, color: colors.arrowSlitCol, alpha: a * 0.8 });
+
+      // Highlight catch edge catching sunlight along the fissure
+      g.moveTo(cxTop + 0.6, cyTop);
+      g.lineTo(cxMid1 + 0.6, cyMid1);
+      g.lineTo(cxMid2 + 0.6, cyMid2);
+      g.stroke({ width: 0.5, color: colors.merlonCopingCol, alpha: a * 0.55 });
+
+      // Dislodged masonry rubble chip fallen at plinth base
+      g.rect(cxBot - 1.2, cyBase - 2.5, 2.2, 1.6);
+      g.fill({ color: colors.merlonShadedCol, alpha: a });
+      g.stroke({ width: 0.4, color: colors.arrowSlitCol, alpha: a * 0.8 });
+    }
+  }
+
   // 4. Wall-Walk Top Walkway (at height -h)
   g.poly([
     x0 + edge.outX, y0 + edge.outY - h,
@@ -508,7 +559,6 @@ function drawCurtainSpan(
   g.stroke({ width: 1.4, color: colors.walkPlankCol, alpha: a * 0.8 });
 
   // 5. Parapet Merlons along outer edge
-  const dist = Math.hypot(x1 - x0, y1 - y0);
   if (dist > 3) {
     const steps = Math.max(1, Math.round(dist / 6.5));
     for (let i = 0; i < steps; i++) {
@@ -519,6 +569,42 @@ function drawCurtainSpan(
       const mx1 = x0 + edge.outX + (x1 - x0) * tEnd;
       const my1 = y0 + edge.outY - h + (y1 - y0) * tEnd;
       const mCol = edge.sunlit ? colors.merlonSunlitCol : colors.merlonShadedCol;
+
+      if (isDamaged) {
+        // Deterministic pseudo-random seed per merlon
+        const merlonSeed = Math.abs(Math.sin((gx * 17 + gy * 31 + i * 13) * 1.5) * 43758.5453);
+        const rand = merlonSeed - Math.floor(merlonSeed);
+
+        if (rand < 0.45) {
+          // Missing merlon: completely absent / shattered gap in battlements
+          // Draw jagged crumbled mortar rubble stump at wall-walk parapet lip
+          g.poly([
+            mx0, my0,
+            mx1, my1,
+            mx1, my1 - 0.9,
+            (mx0 + mx1) * 0.5, my1 - 0.4,
+            mx0, my0 - 0.8,
+          ]);
+          g.fill({ color: colors.mortarCol, alpha: a });
+          g.circle((mx0 + mx1) * 0.5, my0 - 0.2, 0.6);
+          g.fill({ color: colors.arrowSlitCol, alpha: a * 0.8 });
+          continue; // Skip drawing full merlon -> missing merlon!
+        } else if (rand < 0.70) {
+          // Chipped / broken merlon: cracked down to low partial height
+          g.poly([
+            mx0, my0,
+            mx1, my1,
+            mx1, my1 - 1.8,
+            (mx0 + mx1) * 0.5, my0 - 2.4,
+            mx0, my0 - 1.2,
+          ]);
+          g.fill({ color: mCol, alpha: a });
+          g.moveTo(mx0, my0 - 1.2);
+          g.lineTo(mx1, my1 - 1.8);
+          g.stroke({ width: 0.6, color: colors.arrowSlitCol, alpha: a * 0.7 });
+          continue;
+        }
+      }
 
       if (kit === "cedar") {
         g.poly([
@@ -592,8 +678,13 @@ function drawCurtainSpan(
       x0 + edge.outX, y0 + edge.outY - h,
     ]);
     g.fill({ color: faceCol, alpha: a });
-    g.rect(x0 + edge.outX - 1, y0 + edge.outY - h - 3.5, 2.5, 3.5);
-    g.fill({ color: colors.merlonSunlitCol, alpha: a });
+    if (isDamaged) {
+      g.rect(x0 + edge.outX - 1, y0 + edge.outY - h - 1.5, 2.5, 1.5);
+      g.fill({ color: colors.merlonSunlitCol, alpha: a });
+    } else {
+      g.rect(x0 + edge.outX - 1, y0 + edge.outY - h - 3.5, 2.5, 3.5);
+      g.fill({ color: colors.merlonSunlitCol, alpha: a });
+    }
   }
 
   if (isTerminalEnd) {
@@ -604,12 +695,17 @@ function drawCurtainSpan(
       x1 + edge.outX, y1 + edge.outY - h,
     ]);
     g.fill({ color: faceCol, alpha: a });
-    g.rect(x1 + edge.outX - 1, y1 + edge.outY - h - 3.5, 2.5, 3.5);
-    g.fill({ color: colors.merlonSunlitCol, alpha: a });
+    if (isDamaged) {
+      g.rect(x1 + edge.outX - 1, y1 + edge.outY - h - 1.5, 2.5, 1.5);
+      g.fill({ color: colors.merlonSunlitCol, alpha: a });
+    } else {
+      g.rect(x1 + edge.outX - 1, y1 + edge.outY - h - 3.5, 2.5, 3.5);
+      g.fill({ color: colors.merlonSunlitCol, alpha: a });
+    }
   }
 }
 
-function drawRimWallCurtain(
+export function drawRimWallCurtain(
   g: Graphics,
   h: number,
   a: number,
@@ -618,7 +714,8 @@ function drawRimWallCurtain(
   gy: number,
   rimNeighbors?: RimNeighbors,
   kit: CultureKit = "western",
-  cult?: CultureVisualPalette
+  cult?: CultureVisualPalette,
+  isDamaged: boolean = false
 ): void {
   const idx = rimWalkIndex(gx, gy);
   const prevIdx = (idx - 1 + 48) % 48;
@@ -651,15 +748,15 @@ function drawRimWallCurtain(
 
     // 1. Spans meeting under the corner tower
     if (hasPrev) {
-      drawCurtainSpan(g, 0, 0, bPrevX, bPrevY, edgePrev, h, a, kit, colors, false, false);
+      drawCurtainSpan(g, 0, 0, bPrevX, bPrevY, edgePrev, h, a, kit, colors, false, false, isDamaged, gx, gy);
     } else {
-      drawCurtainSpan(g, 0, 0, bPrevX * 0.45, bPrevY * 0.45, edgePrev, h, a, kit, colors, false, true);
+      drawCurtainSpan(g, 0, 0, bPrevX * 0.45, bPrevY * 0.45, edgePrev, h, a, kit, colors, false, true, isDamaged, gx, gy);
     }
 
     if (hasNext) {
-      drawCurtainSpan(g, 0, 0, bNextX, bNextY, edgeNext, h, a, kit, colors, false, false);
+      drawCurtainSpan(g, 0, 0, bNextX, bNextY, edgeNext, h, a, kit, colors, false, false, isDamaged, gx, gy);
     } else {
-      drawCurtainSpan(g, 0, 0, bNextX * 0.45, bNextY * 0.45, edgeNext, h, a, kit, colors, false, true);
+      drawCurtainSpan(g, 0, 0, bNextX * 0.45, bNextY * 0.45, edgeNext, h, a, kit, colors, false, true, isDamaged, gx, gy);
     }
 
     // 2. Corner Bastion Tower crowning the corner
@@ -676,18 +773,46 @@ function drawRimWallCurtain(
     g.fill({ color: colors.walkCol, alpha: a });
 
     // Tower battlements / crenellations
-    g.rect(-tw, -towerH - 3.5, 3, 3.5);
-    g.fill({ color: colors.merlonSunlitCol, alpha: a });
-    g.moveTo(-tw, -towerH - 3.5); g.lineTo(-tw + 3, -towerH - 3.5);
-    g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.8 });
+    if (isDamaged) {
+      // Left merlon: chipped/broken
+      g.poly([-tw, -towerH, -tw + 3, -towerH - 1.5, -tw + 3, -towerH, -tw, -towerH]);
+      g.fill({ color: colors.merlonSunlitCol, alpha: a });
 
-    g.rect(-1.5, -towerH - 3.5 + tw * 0.5, 3, 3.5);
-    g.fill({ color: colors.merlonSunlitCol, alpha: a });
+      // Center merlon: knocked out / missing! Only crumbled mortar stump
+      g.poly([-1.5, -towerH + tw * 0.5, 1.5, -towerH + tw * 0.5, 1.5, -towerH + tw * 0.5 - 0.8, -1.5, -towerH + tw * 0.5 - 0.6]);
+      g.fill({ color: colors.mortarCol, alpha: a });
 
-    g.rect(tw - 3, -towerH - 3.5, 3, 3.5);
-    g.fill({ color: colors.merlonShadedCol, alpha: a });
-    g.moveTo(tw - 3, -towerH - 3.5); g.lineTo(tw, -towerH - 3.5);
-    g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.8 });
+      // Right merlon: intact with coping
+      g.rect(tw - 3, -towerH - 3.5, 3, 3.5);
+      g.fill({ color: colors.merlonShadedCol, alpha: a });
+      g.moveTo(tw - 3, -towerH - 3.5); g.lineTo(tw, -towerH - 3.5);
+      g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.8 });
+
+      // Impact stress crack down the tower face
+      g.moveTo(0, -towerH * 0.85);
+      g.lineTo(-2, -towerH * 0.5);
+      g.lineTo(1, -towerH * 0.2);
+      g.lineTo(0, tw * 0.5);
+      g.stroke({ width: 0.8, color: colors.arrowSlitCol, alpha: a * 0.85 });
+
+      // Fallen stone chip at tower plinth
+      g.rect(-2, tw * 0.5 - 1.5, 2.5, 1.8);
+      g.fill({ color: colors.plinthCol, alpha: a });
+      g.stroke({ width: 0.4, color: colors.arrowSlitCol, alpha: a * 0.7 });
+    } else {
+      g.rect(-tw, -towerH - 3.5, 3, 3.5);
+      g.fill({ color: colors.merlonSunlitCol, alpha: a });
+      g.moveTo(-tw, -towerH - 3.5); g.lineTo(-tw + 3, -towerH - 3.5);
+      g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.8 });
+
+      g.rect(-1.5, -towerH - 3.5 + tw * 0.5, 3, 3.5);
+      g.fill({ color: colors.merlonSunlitCol, alpha: a });
+
+      g.rect(tw - 3, -towerH - 3.5, 3, 3.5);
+      g.fill({ color: colors.merlonShadedCol, alpha: a });
+      g.moveTo(tw - 3, -towerH - 3.5); g.lineTo(tw, -towerH - 3.5);
+      g.stroke({ width: 0.8, color: colors.merlonCopingCol, alpha: a * 0.8 });
+    }
 
     // Arrow loops on tower facets
     g.rect(-tw * 0.5 - 0.7, -towerH * 0.5, 1.4, 4);
@@ -731,7 +856,7 @@ function drawRimWallCurtain(
   // Straight Wall Run
   if (hasPrev && hasNext) {
     // Continuous stone curtain wall spanning cleanly across the entire tile!
-    drawCurtainSpan(g, bPrevX, bPrevY, bNextX, bNextY, edgeNext, h, a, kit, colors, false, false);
+    drawCurtainSpan(g, bPrevX, bPrevY, bNextX, bNextY, edgeNext, h, a, kit, colors, false, false, isDamaged, gx, gy);
 
     // Center Wall Buttress / Pilaster along visible face
     const midX = edgeNext.faceX;
@@ -749,6 +874,14 @@ function drawRimWallCurtain(
     // Pilaster body rising to -h - 1
     g.poly([px0, py0 - 3.5, px1, py1 - 3.5, px1, py1 - h - 1, px0, py0 - h - 1]);
     g.fill({ color: edgeNext.sunlit ? colors.wallSunlitCol : colors.wallShadedCol, alpha: a });
+
+    if (isDamaged) {
+      // Crack splitting across the pilaster buttress
+      g.moveTo(midX - 1, midY - h * 0.7);
+      g.lineTo(midX + 1, midY - h * 0.5);
+      g.lineTo(midX - 0.5, midY - h * 0.25);
+      g.stroke({ width: 0.7, color: colors.arrowSlitCol, alpha: a * 0.8 });
+    }
 
     // Arrow slit in pilaster
     g.rect(midX - 0.7, midY - h * 0.45 - 2, 1.4, 4);
@@ -788,10 +921,10 @@ function drawRimWallCurtain(
     }
   } else if (hasPrev && !hasNext) {
     // Terminating wall ending at (0, 0)
-    drawCurtainSpan(g, bPrevX, bPrevY, 0, 0, edgePrev, h, a, kit, colors, false, true);
+    drawCurtainSpan(g, bPrevX, bPrevY, 0, 0, edgePrev, h, a, kit, colors, false, true, isDamaged, gx, gy);
   } else if (!hasPrev && hasNext) {
     // Starting wall beginning at (0, 0)
-    drawCurtainSpan(g, 0, 0, bNextX, bNextY, edgeNext, h, a, kit, colors, true, false);
+    drawCurtainSpan(g, 0, 0, bNextX, bNextY, edgeNext, h, a, kit, colors, true, false, isDamaged, gx, gy);
   } else {
     // Isolated freestanding defensive bastion block
     const tw = 6;
@@ -809,16 +942,29 @@ function drawRimWallCurtain(
     g.poly([-tw, -towerH, 0, tw * 0.5 - towerH, tw, -towerH, 0, -tw * 0.5 - towerH]);
     g.fill({ color: colors.walkCol, alpha: a });
 
-    g.rect(-tw, -towerH - 3, 2.5, 3); g.fill({ color: colors.merlonSunlitCol, alpha: a });
-    g.rect(-1, -towerH - 3 + tw * 0.5, 2.5, 3); g.fill({ color: colors.merlonSunlitCol, alpha: a });
-    g.rect(tw - 2.5, -towerH - 3, 2.5, 3); g.fill({ color: colors.merlonShadedCol, alpha: a });
+    if (isDamaged) {
+      g.rect(-tw, -towerH - 3, 2.5, 3); g.fill({ color: colors.merlonSunlitCol, alpha: a });
+      // Center merlon missing: crumbled stump
+      g.rect(-1, -towerH + tw * 0.5 - 0.8, 2.5, 0.8); g.fill({ color: colors.mortarCol, alpha: a });
+      g.rect(tw - 2.5, -towerH - 2, 2.5, 2); g.fill({ color: colors.merlonShadedCol, alpha: a });
+
+      // Crack across isolated tower face
+      g.moveTo(0, -towerH * 0.7);
+      g.lineTo(-1.5, -towerH * 0.4);
+      g.lineTo(1, -towerH * 0.15);
+      g.stroke({ width: 0.8, color: colors.arrowSlitCol, alpha: a * 0.85 });
+    } else {
+      g.rect(-tw, -towerH - 3, 2.5, 3); g.fill({ color: colors.merlonSunlitCol, alpha: a });
+      g.rect(-1, -towerH - 3 + tw * 0.5, 2.5, 3); g.fill({ color: colors.merlonSunlitCol, alpha: a });
+      g.rect(tw - 2.5, -towerH - 3, 2.5, 3); g.fill({ color: colors.merlonShadedCol, alpha: a });
+    }
 
     g.rect(-0.7, -towerH * 0.5, 1.4, 4);
     g.fill({ color: colors.arrowSlitCol, alpha: a });
   }
 }
 
-function drawGatehouseCurtainWings(
+export function drawGatehouseCurtainWings(
   g: Graphics,
   h: number,
   a: number,
@@ -826,7 +972,8 @@ function drawGatehouseCurtainWings(
   gy: number,
   rimNeighbors: RimNeighbors,
   kit: CultureKit = "western",
-  cult?: CultureVisualPalette
+  cult?: CultureVisualPalette,
+  isDamaged: boolean = false
 ): void {
   const idx = rimWalkIndex(gx, gy);
   const prevIdx = (idx - 1 + 48) % 48;
@@ -858,12 +1005,12 @@ function drawGatehouseCurtainWings(
 
   if (hasLeft) {
     // Wing from gatehouse left bastion flank to bLeft
-    drawCurtainSpan(g, bLeftX * 0.40, bLeftY * 0.40, bLeftX, bLeftY, edgeLeft, h, a, kit, colors, false, false);
+    drawCurtainSpan(g, bLeftX * 0.40, bLeftY * 0.40, bLeftX, bLeftY, edgeLeft, h, a, kit, colors, false, false, isDamaged, gx, gy);
   }
 
   if (hasRight) {
     // Wing from gatehouse right bastion flank to bRight
-    drawCurtainSpan(g, bRightX * 0.40, bRightY * 0.40, bRightX, bRightY, edgeRight, h, a, kit, colors, false, false);
+    drawCurtainSpan(g, bRightX * 0.40, bRightY * 0.40, bRightX, bRightY, edgeRight, h, a, kit, colors, false, false, isDamaged, gx, gy);
   }
 }
 
@@ -2198,7 +2345,8 @@ function drawGateCulture(
   isRim: boolean,
   gx: number,
   gy: number,
-  rimNeighbors?: RimNeighbors
+  rimNeighbors?: RimNeighbors,
+  isDamaged: boolean = false
 ): void {
   if (kit === "cedar") {
     // Cedar Kin: Log Blockhouse Gatehouse with Wolf/Bear Totem Lintel
@@ -2269,7 +2417,7 @@ function drawGateCulture(
     }
 
     if (isRim && rimNeighbors) {
-      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult);
+      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult, isDamaged);
     }
 
   } else if (kit === "sand") {
@@ -2341,7 +2489,7 @@ function drawGateCulture(
     }
 
     if (isRim && rimNeighbors) {
-      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult);
+      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult, isDamaged);
     }
 
   } else if (kit === "steppe") {
@@ -2395,7 +2543,7 @@ function drawGateCulture(
     }
 
     if (isRim && rimNeighbors) {
-      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult);
+      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult, isDamaged);
     }
 
   } else if (kit === "islands") {
@@ -2451,7 +2599,7 @@ function drawGateCulture(
     }
 
     if (isRim && rimNeighbors) {
-      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult);
+      drawGatehouseCurtainWings(g, 20 + (h - 24), a, gx, gy, rimNeighbors, kit, cult, isDamaged);
     }
   }
 }
@@ -3628,6 +3776,127 @@ export function drawCrackedStoneOverlay(
 }
 
 // -------------------------------------------------------------
+// Wall HP Detection & Status Helpers
+// -------------------------------------------------------------
+export interface WallHpStatus {
+  hasWallHp: boolean;
+  cur: number;
+  max: number;
+  ratio: number;
+  isLow: boolean;
+}
+
+export function getWallHpStatus(state?: GameState | null): WallHpStatus {
+  if (!state) {
+    return { hasWallHp: false, cur: 100, max: 100, ratio: 1.0, isLow: false };
+  }
+
+  const anyState = state as unknown as Record<string, unknown>;
+  const flags = state.flags as Record<string, unknown> | undefined;
+
+  let rawVal: unknown = undefined;
+
+  if (anyState.wallHp !== undefined && anyState.wallHp !== null) {
+    rawVal = anyState.wallHp;
+  } else if (anyState.wall_hp !== undefined && anyState.wall_hp !== null) {
+    rawVal = anyState.wall_hp;
+  } else if (flags?.wallHp !== undefined && flags?.wallHp !== null) {
+    rawVal = flags.wallHp;
+  } else if (flags?.wall_hp !== undefined && flags?.wall_hp !== null) {
+    rawVal = flags.wall_hp;
+  } else if (flags?.wallHpCur !== undefined && flags?.wallHpCur !== null) {
+    rawVal = flags.wallHpCur;
+  } else if (flags?.wall_hp_cur !== undefined && flags?.wall_hp_cur !== null) {
+    rawVal = flags.wall_hp_cur;
+  }
+
+  if (rawVal === undefined || rawVal === null) {
+    return { hasWallHp: false, cur: 100, max: 100, ratio: 1.0, isLow: false };
+  }
+
+  let cur = 100;
+  let max = 100;
+
+  if (typeof rawVal === "number") {
+    cur = rawVal;
+    const rawMax =
+      anyState.wallMaxHp ??
+      anyState.wallHpMax ??
+      anyState.wall_max_hp ??
+      flags?.wallMaxHp ??
+      flags?.wall_max_hp ??
+      flags?.wall_hp_max;
+    if (typeof rawMax === "number" && rawMax > 0) {
+      max = rawMax;
+    } else if (cur <= 1 && cur >= 0) {
+      max = 1;
+    } else {
+      let nominal = 100;
+      try {
+        const edgeWalls = (state.buildings ?? []).filter(
+          (b) =>
+            b.realmId === "player" &&
+            b.typeId === "walls" &&
+            b.completesAtTick === null &&
+            (b.x === 0 || b.y === 0 || b.x === 15 || b.y === 9)
+        ).length;
+        if (edgeWalls > 0) {
+          nominal = edgeWalls * 12 + 20 + 30;
+        }
+      } catch {
+        nominal = 100;
+      }
+      max = Math.max(nominal, cur, 50);
+    }
+  } else if (typeof rawVal === "object") {
+    const obj = rawVal as Record<string, unknown>;
+    const c = obj.cur ?? obj.current ?? obj.hp ?? obj.value ?? obj.curHp ?? obj.currentHp;
+    const m = obj.max ?? obj.maxHp ?? obj.maximum ?? obj.total;
+    if (typeof c === "number") cur = c;
+    if (typeof m === "number" && m > 0) max = m;
+    else max = Math.max(100, cur);
+  } else if (typeof rawVal === "boolean") {
+    cur = rawVal ? 100 : 0;
+    max = 100;
+  } else if (typeof rawVal === "string") {
+    const parsed = parseFloat(rawVal);
+    if (!Number.isNaN(parsed)) {
+      cur = parsed;
+      max = Math.max(100, cur);
+    } else {
+      const lower = rawVal.toLowerCase();
+      if (lower === "low" || lower === "damaged" || lower === "broken" || lower === "scarred") {
+        cur = 20;
+        max = 100;
+      }
+    }
+  }
+
+  const ratio = max > 0 ? cur / max : 1.0;
+  const isLow = cur <= 0 || ratio < 0.60;
+
+  return {
+    hasWallHp: true,
+    cur,
+    max,
+    ratio,
+    isLow,
+  };
+}
+
+export function isWallHpLow(state?: GameState | null): boolean {
+  const status = getWallHpStatus(state);
+  return status.hasWallHp && status.isLow;
+}
+
+export interface BuildingDrawOptions {
+  wallHpRatio?: number;
+  isDamaged?: boolean;
+  isWallLow?: boolean;
+  state?: GameState;
+}
+
+// -------------------------------------------------------------
 // Denser Isometric Pixel Building Painter
 // -------------------------------------------------------------
 export function drawIsometricBuilding(
@@ -3640,8 +3909,16 @@ export function drawIsometricBuilding(
   gx: number = 0,
   gy: number = 0,
   rimNeighbors?: RimNeighbors,
-  cultureId?: string
+  cultureId?: string,
+  options?: BuildingDrawOptions
 ): void {
+  const isWallDamaged = Boolean(
+    options?.isWallLow ||
+    options?.isDamaged ||
+    (options?.wallHpRatio !== undefined && options.wallHpRatio < 0.6) ||
+    (options?.state && isWallHpLow(options.state))
+  );
+
   const a = 1.0;
   g.clear();
 
@@ -4694,14 +4971,14 @@ export function drawIsometricBuilding(
       }
 
       // Rim Fort Wall Run: Connected stone curtain between neighbors + merlons on top
-      drawRimWallCurtain(g, 20 + heightBoost, a, phase, gx, gy, rimNeighbors, kit, cult);
+      drawRimWallCurtain(g, 20 + heightBoost, a, phase, gx, gy, rimNeighbors, kit, cult, isWallDamaged);
       break;
     }
 
     case "gate": {
       const isRim = isRimTile(gx, gy);
       if (kit !== "western") {
-        drawGateCulture(g, 24 + heightBoost, a, phase, kit, cult, isRim, gx, gy, rimNeighbors);
+        drawGateCulture(g, 24 + heightBoost, a, phase, kit, cult, isRim, gx, gy, rimNeighbors, isWallDamaged);
         break;
       }
       // Fortified Ashlar Stone Gatehouse + Twin Bastion Towers + Crenellations + Archway
@@ -4809,7 +5086,7 @@ export function drawIsometricBuilding(
       }
 
       if (isRim && rimNeighbors) {
-        drawGatehouseCurtainWings(g, 20 + heightBoost, a, gx, gy, rimNeighbors);
+        drawGatehouseCurtainWings(g, 20 + heightBoost, a, gx, gy, rimNeighbors, kit, cult, isWallDamaged);
       }
 
       break;
