@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-28 — hud / gate open or closed on inspect card (wave/hud-gate)
+
+- The sim has no gate open/closed flag. The card derives it read-only: `!gateOnRim` → none; `hasClosedWallRing` (>= 8 rim walls + gate on rim) → closed; else open. `gateHp` still shown in its own row.
+- New row sits after Gate HP inside the existing `home` block of `ProvinceInspect.tsx`.
+- CSS: `.sc-inspect-gate` + `.is-none` / `.is-closed` / `.is-open` in `hud/inspect-card.css`.
+
 ## 2026-09-28 — render / damaged rim wall scars & missing merlons (bakeoff/gemini-wall-scar)
 
 - `getWallHpStatus(state?: GameState | null)` & `isWallHpLow(state?: GameState | null)`:

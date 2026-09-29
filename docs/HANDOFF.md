@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hud-gate)
+
+- Home hold inspect card shows **Gate**: Closed (ring sealed), Open (gate on rim but rim has gaps) or None. Derived from `gateOnRim` + `hasClosedWallRing`; no new state.
+- Styles only in `hud/inspect-card.css`. `git diff main -- packages/sim server` empty.
+
 ## Active Bakeoff (bakeoff/gemini-wall-scar)
 
 - **Damaged Rim Wall Art Presentation on Low wallHp (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`)**:
