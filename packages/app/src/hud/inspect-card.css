@@ -219,3 +219,28 @@
 
 .sc-inspect-dest-label { font-weight: 600; color: #fef08a; }
 .sc-inspect-dest-eta { margin-left: auto; font-variant-numeric: tabular-nums; }
+
+/* Groups: Tile / Owner / Forces / Hold, short heads over existing lines. One card. */
+.sc-inspect-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sc-inspect-group + .sc-inspect-group {
+  padding-top: 6px;
+  border-top: 1px solid var(--chrome-btn-border);
+}
+
+.sc-inspect-group-head {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c8963e;
+  opacity: 0.85;
+}
+
+.sc-inspect-group.is-hold .sc-inspect-group-head { color: #e3b341; }
+.sc-inspect-group.is-forces .sc-inspect-group-head { color: #fef08a; }
