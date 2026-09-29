@@ -64,6 +64,10 @@ import {
   isWallRingClosed,
   drawRimWallCurtain,
   drawGatehouseCurtainWings,
+  listKeepYardBuildings,
+  drawKeepYardAnnex,
+  type KeepYardBuildingInfo,
+  type KeepYardSlot,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -4538,6 +4542,187 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         const path = await import("node:path");
         const buildingsCode = fs.readFileSync(path.resolve(__dirname, "./buildings.ts"), "utf-8");
         expect(buildingsCode).not.toContain("<<<<<<<");
+        const indexCode = fs.readFileSync(path.resolve(__dirname, "./index.ts"), "utf-8");
+        expect(indexCode).not.toContain("<<<<<<<");
+      });
+    });
+
+    describe("keep-yard buildings and annexes around home tile keep (bakeoff/gemini-yard)", () => {
+      function createMockGraphics() {
+        const calls: { method: string; args: any[] }[] = [];
+        const g: any = {
+          calls,
+          clear: () => { calls.push({ method: "clear", args: [] }); },
+          poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+          fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+          stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+          rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+          circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+          ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+          moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+          lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+          quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        };
+        return g;
+      }
+
+      it("listKeepYardBuildings identifies finished and unfinished buildings adjacent to the keep", () => {
+        const state = createMockState();
+        state.buildings = [
+          { id: "k1", realmId: "player", typeId: "keep", level: 1, x: 5, y: 5, completesAtTick: null },
+          // West adjacent (dx = -1, dy = 0) - finished
+          { id: "b_granary", realmId: "player", typeId: "granary", level: 1, x: 4, y: 5, completesAtTick: null },
+          // South adjacent (dx = 0, dy = 1) - unfinished
+          { id: "b_barracks", realmId: "player", typeId: "barracks", level: 1, x: 5, y: 6, completesAtTick: 120 },
+          // East adjacent (dx = 1, dy = 0) - finished
+          { id: "b_sawmill", realmId: "player", typeId: "sawmill", level: 1, x: 6, y: 5, completesAtTick: null },
+          // North adjacent (dx = 0, dy = -1) - unfinished
+          { id: "b_quarry", realmId: "player", typeId: "quarry", level: 1, x: 5, y: 4, completesAtTick: 200 },
+          // Non-adjacent building (distance > 1) - should NOT be included
+          { id: "b_distant", realmId: "player", typeId: "farm", level: 1, x: 2, y: 2, completesAtTick: null },
+          // Rival realm building - should NOT be included
+          { id: "b_rival", realmId: "rival", typeId: "chapel", level: 1, x: 4, y: 5, completesAtTick: null },
+        ];
+
+        const yard = listKeepYardBuildings(state);
+        expect(yard.length).toBe(4);
+
+        const west = yard.find((b) => b.slot === "west");
+        expect(west).toBeDefined();
+        expect(west?.typeId).toBe("granary");
+        expect(west?.isFinished).toBe(true);
+
+        const south = yard.find((b) => b.slot === "south");
+        expect(south).toBeDefined();
+        expect(south?.typeId).toBe("barracks");
+        expect(south?.isFinished).toBe(false);
+
+        const east = yard.find((b) => b.slot === "east");
+        expect(east).toBeDefined();
+        expect(east?.typeId).toBe("sawmill");
+        expect(east?.isFinished).toBe(true);
+
+        const north = yard.find((b) => b.slot === "north");
+        expect(north).toBeDefined();
+        expect(north?.typeId).toBe("quarry");
+        expect(north?.isFinished).toBe(false);
+      });
+
+      it("handles null state and empty buildings gracefully", () => {
+        expect(listKeepYardBuildings(null)).toEqual([]);
+        expect(listKeepYardBuildings(undefined)).toEqual([]);
+        const state = createMockState();
+        state.buildings = [];
+        expect(listKeepYardBuildings(state)).toEqual([]);
+      });
+
+      it("drawKeepYardAnnex renders finished architectural annexes with walls, roofs, and hearth glow", () => {
+        const g = createMockGraphics();
+        const info: KeepYardBuildingInfo = {
+          id: "b_farm",
+          typeId: "granary",
+          isFinished: true,
+          level: 1,
+          slot: "south",
+        };
+        drawKeepYardAnnex(g, 100, 100, info, "western", 0);
+        expect(g.calls.length).toBeGreaterThan(0);
+
+        const callsStr = JSON.stringify(g.calls);
+        // Should draw polygon facets and window glow
+        expect(callsStr).toContain("poly");
+        expect(callsStr).toContain("rect");
+        expect(callsStr).toContain("circle");
+        expect(callsStr).toContain("fill");
+      });
+
+      it("drawKeepYardAnnex renders unfinished buildings as timber scaffolding with posts, ledgers, and hoist", () => {
+        const gScaffold = createMockGraphics();
+        const scaffoldInfo: KeepYardBuildingInfo = {
+          id: "b_scaffold",
+          typeId: "barracks",
+          isFinished: false,
+          level: 1,
+          slot: "south",
+        };
+        drawKeepYardAnnex(gScaffold, 100, 100, scaffoldInfo, "western", 0);
+
+        const gFinished = createMockGraphics();
+        const finishedInfo: KeepYardBuildingInfo = {
+          id: "b_fin",
+          typeId: "barracks",
+          isFinished: true,
+          level: 1,
+          slot: "south",
+        };
+        drawKeepYardAnnex(gFinished, 100, 100, finishedInfo, "western", 0);
+
+        // Finished annex and unfinished scaffolding must produce distinctly different drawing commands
+        expect(JSON.stringify(gScaffold.calls)).not.toEqual(JSON.stringify(gFinished.calls));
+        // Scaffolding draws timber strokes and hoist
+        const scaffoldStr = JSON.stringify(gScaffold.calls);
+        expect(scaffoldStr).toContain("moveTo");
+        expect(scaffoldStr).toContain("lineTo");
+        expect(scaffoldStr).toContain("stroke");
+      });
+
+      it("supports culture kits for annexes and scaffolding", () => {
+        const kits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+        for (const kit of kits) {
+          const g = createMockGraphics();
+          drawKeepYardAnnex(g, 50, 50, { typeId: "sawmill", isFinished: true, slot: "east" }, kit, 0);
+          expect(g.calls.length).toBeGreaterThan(5);
+
+          const gScaffold = createMockGraphics();
+          drawKeepYardAnnex(gScaffold, 50, 50, { typeId: "sawmill", isFinished: false, slot: "east" }, kit, 0);
+          expect(gScaffold.calls.length).toBeGreaterThan(5);
+        }
+      });
+
+      it("drawMiniatureKeep integrates keep-yard buildings in rear and front visual depth", () => {
+        const gAlone = createMockGraphics();
+        drawMiniatureKeep(gAlone, 100, 100, "western", undefined, true, 0);
+
+        const gWithYard = createMockGraphics();
+        const yard: KeepYardBuildingInfo[] = [
+          { typeId: "granary", isFinished: true, slot: "west" },
+          { typeId: "barracks", isFinished: false, slot: "south" },
+        ];
+        drawMiniatureKeep(gWithYard, 100, 100, "western", undefined, true, 0, { yardBuildings: yard });
+
+        expect(gWithYard.calls.length).toBeGreaterThan(gAlone.calls.length);
+      });
+
+      it("paintBoardProvinces renders keep-yard buildings on player home province diamond", () => {
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+          ],
+        };
+        state.buildings = [
+          { id: "k1", realmId: "player", typeId: "keep", level: 1, x: 5, y: 5, completesAtTick: null },
+          { id: "b1", realmId: "player", typeId: "farm", level: 1, x: 5, y: 6, completesAtTick: null },
+          { id: "b2", realmId: "player", typeId: "quarry", level: 1, x: 4, y: 5, completesAtTick: 50 },
+        ];
+
+        const g = createMockGraphics();
+        paintBoardProvinces(g, state, null, 1.0, 0);
+        expect(g.calls.length).toBeGreaterThan(30);
+      });
+
+      it("preserves camera and hit-test invariants with zero conflict markers", async () => {
+        const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+        expect(typeof hitTestProvince).toBe("function");
+        expect(typeof boardGridToWorld).toBe("function");
+        expect(bandForZoom(1.0)).toBe("hold");
+
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const tokensCode = fs.readFileSync(path.resolve(__dirname, "./tokens.ts"), "utf-8");
+        expect(tokensCode).not.toContain("<<<<<<<");
         const indexCode = fs.readFileSync(path.resolve(__dirname, "./index.ts"), "utf-8");
         expect(indexCode).not.toContain("<<<<<<<");
       });

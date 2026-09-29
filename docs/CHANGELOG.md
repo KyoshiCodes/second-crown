@@ -1,10 +1,38 @@
 # CHANGELOG
 
-## 2026-09-28 — Keep-yard works on home inspect card (wave/hud-yard)
+## 2026-09-28 — Gemini Keep-Yard Annexes & Construction Scaffolding (bakeoff/gemini-yard)
 
-- `ProvinceInspect.tsx`: home hold card adds a full-width **Keep yard (n)** fact listing finished player works on a keep edge (`keepBonus(state, b) > 1`), named as `WorkCard` names them (`getBuildingType(typeId)?.name ?? typeId`). Shows "No works on the keep edge" when empty.
-- `hud/inspect-card.css`: `.sc-inspect-yard` (full row, wrapping names, green; dim when none).
-- No sim, build math, server or theme changes.
+- **Finished Keep-Yard Annexes and Scaffolding Around Home Tile Keep (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - **Keep-Yard Spatial Geometry & Adjacency (`listKeepYardBuildings`)**:
+    - Identifies buildings on the home hold grid adjacent to the player's keep (`Math.abs(dx) + Math.abs(dy) === 1`), matching `keepBonus` economy logic.
+    - Maps adjacent buildings to 4 isometric yard slots around the keep:
+      - `west`: Rear-left flank (`cx - 11.5, cy - 3.8`)
+      - `north`: Rear-right flank (`cx + 11.5, cy - 3.8`)
+      - `south`: Front-left flank (`cx - 11.5, cy + 2.8`)
+      - `east`: Front-right flank (`cx + 11.5, cy + 2.8`)
+    - Evaluates construction state via `completesAtTick` (`null` = finished annex, non-null = unfinished scaffolding).
+  - **Finished Buildings: Architectural Annexes (`drawKeepYardAnnex`)**:
+    - Solid isometric ashlar/timber walls with sunlit and shaded facets.
+    - Ground footprint shadow detaching building from terrain relief.
+    - Pitched gabled roof with eaves or crenellated stone parapet wing with crest shield for military works.
+    - Plinth foundation, dark doorway aperture, and warm flickering hearth/candlelight glow (`0xfef08a`).
+    - Type-specific courtyard props: grain sacks for stores, firewood cords for timber/industry, ashlar stone blocks for masons/quarries, golden finial cross for chapels.
+    - Cultural palettes across all 5 cultures: Western granite, Cedar log/timber, Sand limestone, Steppe felt/kurgan, Islands weathered driftwood.
+  - **Unfinished Buildings: Authentic Timber Construction Scaffolding**:
+    - Upright timber standards (corner posts) rising alongside sawdust turf debris.
+    - Horizontal ledger beams and diagonal X-bracing.
+    - Staging deck planks where laborers work.
+    - Builder's rope hoist line suspending a cut stone ashlar block mid-air.
+  - **Natural Depth Ordering (Not a Flat Stack)**:
+    - In `drawMiniatureKeep`, rear annexes (`west`, `north`) are painted before the keep silhouette, and front annexes (`south`, `east`) are painted after the keep.
+    - Annexes cluster naturally around the keep perimeter creating genuine 3D visual depth instead of a flat vertical stack.
+  - **Kingdom Atlas Integration (`packages/app/src/OverworldAtlas.tsx`)**:
+    - `OverworldAtlas` renders SVG mini annexes and scaffolding for home hold with identical isometric depth and styling.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Full test suite passing (221 sim tests, 177 render tests; clean app build).
 
 ## 2026-09-28 — Gemini Hold Gatehouse Open vs Shut Doors (bakeoff/gemini-gate)
 

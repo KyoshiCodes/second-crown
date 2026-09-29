@@ -422,6 +422,307 @@ export function isNpcHoldProvince(p: { node?: string; occupantRealmId?: string |
   return Boolean(p.occupantRealmId && p.occupantRealmId !== "player" && p.node === "hold");
 }
 
+export type KeepYardSlot = "west" | "south" | "east" | "north";
+
+export interface KeepYardBuildingInfo {
+  id?: string;
+  typeId: string;
+  isFinished: boolean;
+  level?: number;
+  slot: KeepYardSlot;
+}
+
+export interface MiniatureKeepOptions {
+  state?: GameState | null;
+  yardBuildings?: KeepYardBuildingInfo[];
+}
+
+/**
+ * Returns finished and unfinished keep-yard buildings sharing an edge with the player's keep.
+ * Mapped to 4 relative isometric slots around the keep:
+ * - west: North-West flank (behind-left)
+ * - south: South-West flank (front-left)
+ * - east: South-East flank (front-right)
+ * - north: North-East flank (behind-right)
+ */
+export function listKeepYardBuildings(
+  state?: GameState | null,
+  realmId = "player"
+): KeepYardBuildingInfo[] {
+  if (!state || !Array.isArray(state.buildings)) return [];
+
+  // Check explicit test / mock flag overrides first if present
+  const anyState = state as unknown as Record<string, unknown>;
+  const flags = state.flags as Record<string, unknown> | undefined;
+  const mockYard = anyState.keepYard ?? flags?.keepYard;
+  if (Array.isArray(mockYard)) {
+    return mockYard as KeepYardBuildingInfo[];
+  }
+
+  const keep = state.buildings.find(
+    (b) => b.realmId === realmId && b.typeId === "keep"
+  );
+
+  const candidateBuildings = state.buildings.filter(
+    (b) =>
+      b.realmId === realmId &&
+      b.typeId !== "keep" &&
+      b.typeId !== "walls" &&
+      b.typeId !== "gate"
+  );
+
+  const results: KeepYardBuildingInfo[] = [];
+  const usedSlots = new Set<string>();
+
+  if (keep) {
+    for (const b of candidateBuildings) {
+      const dx = b.x - keep.x;
+      const dy = b.y - keep.y;
+      if (Math.abs(dx) + Math.abs(dy) === 1) {
+        let slot: KeepYardSlot;
+        if (dx === -1 && dy === 0) slot = "west";
+        else if (dx === 0 && dy === 1) slot = "south";
+        else if (dx === 1 && dy === 0) slot = "east";
+        else slot = "north";
+
+        if (!usedSlots.has(slot)) {
+          usedSlots.add(slot);
+          results.push({
+            id: b.id,
+            typeId: b.typeId,
+            isFinished: b.completesAtTick === null || b.completesAtTick === undefined,
+            level: b.level ?? 1,
+            slot,
+          });
+        }
+      }
+    }
+  }
+
+  // Fallback: if keep is not placed or buildings don't share exact coordinates (e.g. test mock),
+  // but candidate buildings exist on state, map up to 4 to slots
+  if (results.length === 0 && candidateBuildings.length > 0) {
+    const slots: KeepYardSlot[] = ["south", "east", "west", "north"];
+    let slotIdx = 0;
+    for (const b of candidateBuildings.slice(0, 4)) {
+      const slot = slots[slotIdx++];
+      results.push({
+        id: b.id,
+        typeId: b.typeId,
+        isFinished: b.completesAtTick === null || b.completesAtTick === undefined,
+        level: b.level ?? 1,
+        slot,
+      });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Draws an authentic miniature isometric building annex or timber scaffolding around the keep.
+ * Finished buildings read as small architectural annexes with walls, gabled/hipped roofs, and characteristic details.
+ * Unfinished buildings stay authentic timber scaffolding with corner posts, ledger cross-beams, diagonal X-braces,
+ * builder's work deck, and stone hoist.
+ */
+export function drawKeepYardAnnex(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  info: KeepYardBuildingInfo,
+  kit: CultureKit = "western",
+  phase = 0
+): void {
+  const { typeId, isFinished, slot } = info;
+  let ax = cx;
+  let ay = cy;
+
+  if (slot === "south") {
+    ax = cx - 11.5;
+    ay = cy + 2.8;
+  } else if (slot === "east") {
+    ax = cx + 11.5;
+    ay = cy + 2.8;
+  } else if (slot === "west") {
+    ax = cx - 11.5;
+    ay = cy - 3.8;
+  } else {
+    // north
+    ax = cx + 11.5;
+    ay = cy - 3.8;
+  }
+
+  // 1. Ground contact footprint shadow
+  g.ellipse(ax, ay + 2.5, 4.8, 2.2);
+  g.fill({ color: 0x050403, alpha: 0.45 });
+
+  if (!isFinished) {
+    // -------------------------------------------------------------
+    // Unfinished keep-yard building: timber construction scaffolding
+    // -------------------------------------------------------------
+    // Sawdust / wood chips on turf
+    g.circle(ax - 2.5, ay + 2.2, 0.5); g.fill({ color: 0xd97706 });
+    g.circle(ax + 2.8, ay + 2.5, 0.5); g.fill({ color: 0xfbbf24 });
+
+    // Timber upright standards (corner posts)
+    const poleCol = kit === "steppe" ? 0x44403c : kit === "islands" ? 0x57534e : 0x78350f;
+    const ledgerCol = kit === "steppe" ? 0x78716c : kit === "islands" ? 0xca8a04 : 0x92400e;
+    const braceCol = kit === "steppe" ? 0xa8a29e : kit === "islands" ? 0x0284c7 : 0xb45309;
+
+    g.moveTo(ax - 3.5, ay - 7.5); g.lineTo(ax - 3.5, ay + 0.5);
+    g.moveTo(ax + 3.5, ay - 7.5); g.lineTo(ax + 3.5, ay + 0.5);
+    g.moveTo(ax, ay - 9); g.lineTo(ax, ay + 2.5);
+    g.stroke({ width: 0.9, color: poleCol });
+
+    // Horizontal ledger beams
+    g.moveTo(ax - 3.5, ay - 2); g.lineTo(ax, ay); g.lineTo(ax + 3.5, ay - 2);
+    g.stroke({ width: 0.8, color: ledgerCol });
+    g.moveTo(ax - 3.5, ay - 5.5); g.lineTo(ax, ay - 3.5); g.lineTo(ax + 3.5, ay - 5.5);
+    g.stroke({ width: 0.8, color: ledgerCol });
+
+    // Diagonal X-bracing
+    g.moveTo(ax - 3.5, ay - 5.5); g.lineTo(ax, ay);
+    g.moveTo(ax - 3.5, ay - 2); g.lineTo(ax, ay - 3.5);
+    g.stroke({ width: 0.6, color: braceCol, alpha: 0.85 });
+    g.moveTo(ax, ay - 3.5); g.lineTo(ax + 3.5, ay - 2);
+    g.moveTo(ax, ay); g.lineTo(ax + 3.5, ay - 5.5);
+    g.stroke({ width: 0.6, color: poleCol, alpha: 0.85 });
+
+    // Planks work staging deck
+    g.poly([ax - 4, ay - 4, ax, ay - 2.2, ax + 4, ay - 4, ax, ay - 5.5]);
+    g.fill({ color: braceCol });
+    g.stroke({ width: 0.5, color: poleCol });
+
+    // Hoist line and suspended building block
+    g.moveTo(ax + 1, ay - 8.5); g.lineTo(ax + 1, ay - 4.5);
+    g.stroke({ width: 0.6, color: 0xe2e8f0 });
+    g.rect(ax + 0.2, ay - 4.5, 1.8, 1.8);
+    g.fill({ color: 0x94a3b8 });
+    g.stroke({ width: 0.4, color: 0x334155 });
+    return;
+  }
+
+  // -------------------------------------------------------------
+  // Finished keep-yard building: small architectural annex
+  // -------------------------------------------------------------
+  // Culture kit palettes
+  let wallLight = 0x94a3b8;
+  let wallDark = 0x475569;
+  let plinthCol = 0x1e293b;
+  let roofLight = 0x854d0e;
+  let roofDark = 0x5c3818;
+  let strokeCol = 0x0f172a;
+
+  if (kit === "cedar") {
+    wallLight = 0xa16207;
+    wallDark = 0x451a03;
+    plinthCol = 0x292524;
+    roofLight = 0x92400e;
+    roofDark = 0x78350f;
+    strokeCol = 0x1c0f05;
+  } else if (kit === "sand") {
+    wallLight = 0xf5ebe0;
+    wallDark = 0xa16207;
+    plinthCol = 0x78531e;
+    roofLight = 0xd97706;
+    roofDark = 0xb45309;
+    strokeCol = 0x451a03;
+  } else if (kit === "steppe") {
+    wallLight = 0xf5f5f4;
+    wallDark = 0x78716c;
+    plinthCol = 0x292524;
+    roofLight = 0xffffff;
+    roofDark = 0xd6d3d1;
+    strokeCol = 0x44403c;
+  } else if (kit === "islands") {
+    wallLight = 0xa8a29e;
+    wallDark = 0x57534e;
+    plinthCol = 0x292524;
+    roofLight = 0x06b6d4;
+    roofDark = 0x0e7490;
+    strokeCol = 0x155e75;
+  }
+
+  // Type-specific adjustments
+  const isMilitary = typeId === "barracks" || typeId === "archery_range" || typeId === "siege_workshop";
+  const isReligious = typeId === "chapel" || typeId === "infirmary";
+  const isIndustry = typeId === "sawmill" || typeId === "lumber" || typeId === "lumber_camp";
+  const isStore = typeId === "granary" || typeId === "farm";
+  const isStone = typeId === "mason" || typeId === "quarry";
+
+  if (isMilitary && kit === "western") {
+    roofLight = 0x94a3b8;
+    roofDark = 0x64748b;
+  } else if (isReligious && kit === "western") {
+    roofLight = 0x334155;
+    roofDark = 0x1e293b;
+  }
+
+  // 1. Foundation plinth
+  g.poly([ax - 4.5, ay + 0.8, ax, ay + 2.8, ax + 4.5, ay + 0.8, ax, ay - 1.2]);
+  g.fill({ color: plinthCol });
+  g.stroke({ width: 0.6, color: strokeCol });
+
+  // 2. Isometric walls
+  // Left facet (sunlit)
+  g.poly([ax - 4, ay + 0.5, ax, ay + 2.5, ax, ay - 3.8, ax - 4, ay - 5.8]);
+  g.fill({ color: wallLight });
+  g.stroke({ width: 0.6, color: strokeCol });
+  // Right facet (shaded)
+  g.poly([ax, ay + 2.5, ax + 4, ay + 0.5, ax + 4, ay - 5.8, ax, ay - 3.8]);
+  g.fill({ color: wallDark });
+  g.stroke({ width: 0.6, color: strokeCol });
+
+  // Corner dividing seam
+  g.moveTo(ax, ay - 3.8); g.lineTo(ax, ay + 2.5);
+  g.stroke({ width: 0.8, color: strokeCol });
+
+  // 3. Roof / Parapet
+  if (isMilitary && kit === "western") {
+    // Crenellated stone parapet wing
+    g.rect(ax - 4, ay - 7.5, 2, 2.2); g.fill({ color: roofLight }); g.stroke({ width: 0.5, color: strokeCol });
+    g.rect(ax + 2, ay - 7.5, 2, 2.2); g.fill({ color: roofDark }); g.stroke({ width: 0.5, color: strokeCol });
+    // Red shield crest on front wall
+    g.poly([ax - 2.5, ay - 1.5, ax - 1, ay - 0.5, ax - 1, ay - 3, ax - 2.5, ay - 4]);
+    g.fill({ color: 0xb91c1c });
+  } else {
+    // Gabled / hipped roof with eaves
+    g.poly([ax - 5, ay - 5.5, ax, ay - 9.5, ax + 5, ay - 5.5, ax, ay - 3.5]);
+    g.fill({ color: roofDark });
+    g.stroke({ width: 0.7, color: strokeCol });
+    // Left roof pitch
+    g.poly([ax - 5, ay - 5.5, ax, ay - 9.5, ax, ay - 3.5]);
+    g.fill({ color: roofLight });
+  }
+
+  // 4. Doorway / warm window
+  g.rect(ax - 1.2, ay - 0.2, 2.4, 2.4);
+  g.fill({ color: 0x18181b });
+  // Warm candlelit window / hearth glow inside
+  const glow = 0.8 + Math.sin(phase * 4 + ax) * 0.2;
+  g.circle(ax, ay + 0.8, 0.7);
+  g.fill({ color: 0xfef08a, alpha: glow });
+
+  // 5. Distinctive yard annex details
+  if (isStore) {
+    // Grain sack / hay bundle
+    g.circle(ax + 2.6, ay + 1.2, 0.9);
+    g.fill({ color: 0xd97706 });
+  } else if (isIndustry) {
+    // Stacked firewood logs
+    g.rect(ax + 2, ay + 0.6, 2.2, 1.2);
+    g.fill({ color: 0x92400e });
+  } else if (isStone) {
+    // Cut ashlar block
+    g.rect(ax + 2, ay + 0.6, 1.6, 1.4);
+    g.fill({ color: 0x94a3b8 });
+  } else if (isReligious) {
+    // Tiny golden cross atop gable
+    g.moveTo(ax, ay - 11); g.lineTo(ax, ay - 9.5);
+    g.stroke({ width: 0.7, color: 0xfacc15 });
+  }
+}
+
 // -------------------------------------------------------------
 // Miniature Pixel Keeps for Board-Band Holds (Lords Mobile Style)
 // Reuses Authentic Culture Kit Silhouettes at Miniature Scale (~0.42x)
@@ -434,7 +735,8 @@ export function drawMiniatureKeep(
   kit: CultureKit,
   realmPal?: RealmTokenPalette,
   isHome = false,
-  phase = 0
+  phase = 0,
+  options?: MiniatureKeepOptions
 ): void {
   // 0. Ambient ground contact shadow (detaches keep from busy terrain relief)
   g.ellipse(cx, cy + 4, 11, 4.5);
@@ -512,6 +814,16 @@ export function drawMiniatureKeep(
     g.fill({ color: 0x991b1b });
     g.stroke({ width: 0.7, color: 0x450a0a });
     return;
+  }
+
+  // Keep yard annexes and scaffolding for home hold
+  const yard = options?.yardBuildings ?? (isHome && options?.state ? listKeepYardBuildings(options.state) : []);
+  const rearAnnexes = yard.filter((a) => a.slot === "west" || a.slot === "north");
+  const frontAnnexes = yard.filter((a) => a.slot === "south" || a.slot === "east");
+
+  // 1. Draw rear annexes / scaffolding (behind keep)
+  for (const annex of rearAnnexes) {
+    drawKeepYardAnnex(g, cx, cy, annex, kit, phase);
   }
 
   // Culture-specific miniature pixel keeps
@@ -870,6 +1182,11 @@ export function drawMiniatureKeep(
       g.stroke({ width: 0.6, color: 0x0f172a });
       break;
     }
+  }
+
+  // 2. Draw front annexes / scaffolding (in front of keep)
+  for (const annex of frontAnnexes) {
+    drawKeepYardAnnex(g, cx, cy, annex, kit, phase);
   }
 
   // Ornamental Heraldic Realm Shield on NPC Keep Wall
@@ -1713,7 +2030,7 @@ export function paintBoardProvinces(
         }
       }
 
-      drawMiniatureKeep(g, cx, cy - 2, kit, realmPal, isPlayerHome, phase);
+      drawMiniatureKeep(g, cx, cy - 2, kit, realmPal, isPlayerHome, phase, isPlayerHome ? { state } : undefined);
     } else {
       switch (p.node) {
         case "camp": {

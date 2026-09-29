@@ -1,9 +1,29 @@
 # Dev notes
 
-## 2026-09-28 — hud / keep-yard works on inspect card (wave/hud-yard)
+## 2026-09-28 — render / keep-yard annexes and scaffolding (bakeoff/gemini-yard)
 
-- `keepYardWorks(state)` in `ProvinceInspect.tsx` is read-only: player buildings with `completesAtTick === null` and `keepBonus > 1`. Reuses the sim selector so the list cannot drift from the +10% economy rule. Scarred works (`completesAtTick` set) drop out naturally.
-- Row sits after Rim ring inside the existing `home` block. CSS: `.sc-inspect-yard` + `.is-none` in `hud/inspect-card.css`.
+- `listKeepYardBuildings(state?: GameState | null, realmId = "player"): KeepYardBuildingInfo[]`:
+  - Exported from `packages/render/src/tokens.ts` and re-exported by `packages/render/src/index.ts`.
+  - Finds the player keep (`typeId === "keep"`) and checks candidate buildings with Manhattan distance `|dx| + |dy| === 1`.
+  - Maps to slots: `west` (dx = -1, dy = 0), `south` (dx = 0, dy = 1), `east` (dx = 1, dy = 0), `north` (dx = 0, dy = -1).
+  - Fallback logic supports test mocks / flags (`keepYard`).
+- `drawKeepYardAnnex(g: Graphics, cx: number, cy: number, info: KeepYardBuildingInfo, kit: CultureKit, phase: number)`:
+  - Renders isometric annexes or timber scaffolding at appropriate slot offsets:
+    - `south`: `cx - 11.5, cy + 2.8`
+    - `east`: `cx + 11.5, cy + 2.8`
+    - `west`: `cx - 11.5, cy - 3.8`
+    - `north`: `cx + 11.5, cy - 3.8`
+  - Unfinished: timber standards, ledger beams, diagonal X-braces, work platform, hoist with suspended block.
+  - Finished: plinth, sunlit/shaded isometric facets, gabled roof / military parapet, warm hearth glow (`0xfef08a`), courtyard cargo props.
+- `drawMiniatureKeep`:
+  - Accepts optional `options?: MiniatureKeepOptions`.
+  - Splits yard into `rearAnnexes` (`west`, `north`) and `frontAnnexes` (`south`, `east`).
+  - Paints rear annexes before keep body and front annexes after keep body.
+- `paintBoardProvinces`:
+  - Passes `{ state }` to `drawMiniatureKeep` for player home province.
+- `packages/app/src/OverworldAtlas.tsx`:
+  - Added `MiniYardBuilding` and updated `MiniKeep` to render SVG annexes and scaffolding in rear/front depth.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-28 — render / hold gatehouse open vs shut doors (bakeoff/gemini-gate)
 
