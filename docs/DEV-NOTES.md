@@ -1,5 +1,34 @@
 # Dev notes
 
+## 2026-09-29 — render / tiles that are march destinations get faint ring (bakeoff/gemini-dest)
+
+- `buildMarchDestinationMap` & `getTileMarchDestination` in `packages/render/src/tokens.ts`:
+  - Scans active marches in `listMarches(state)` and gathers in `listGathersPresentation(state)`:
+    - Hostile enemy columns (`realmId !== "player"` or `isIncomingMarch(m, state)`) mapping to `m.toId` are tagged `"hostile"`.
+    - Player columns (`realmId === "player"`) mapping to `m.toId` are tagged `"player"`.
+    - Outbound gathers map to `g.toId`; returning gathers map to home `fromId`.
+    - Hostile enemy destinations take alert priority when both factions march toward the same province.
+  - Exported and re-exported in `packages/render/src/index.ts`.
+- `paintBoardDestinationRing` in `packages/render/src/tokens.ts`:
+  - Renders a faint, animated ring around the perimeter of destination tiles:
+    - Player gold palette: `0xf59e0b` (ring), `0xd97706` (glow), `0xfde047` (shimmer & pips).
+    - Hostile red palette: `0xef4444` (ring), `0xdc2626` (glow), `0xfca5a5` (shimmer & pips).
+    - Tabletop ground ring at `wy` with soft atmospheric glow (`alpha: 0.25 - 0.55`).
+    - Elevated plateau ring at `cy` (`wy - elev`) with rear-facet sunlit shimmer.
+    - Subtle cardinal corner bracket pips on the 4 diamond vertices.
+    - Animated breathing pulse driven by `Math.sin(phase * 3 + p.x * 2 + p.y) * 0.12`.
+    - Distinct from the thick, high-opacity gold player selection rim (`paintBoardSelectionRim`).
+  - Exported and re-exported in `packages/render/src/index.ts`.
+- `paintBoardProvinces` in `packages/render/src/tokens.ts`:
+  - Builds `marchDestMap = buildMarchDestinationMap(state)` once per frame.
+  - Renders `paintBoardDestinationRing` for both unseen (fog cloud veil) and seen tiles.
+  - Rendered at step 6.5 after relief art and structures, immediately preceding step 7 selection rim.
+- `OverworldAtlas` in `packages/app/src/OverworldAtlas.tsx` & `theme.css`:
+  - Evaluates `destKind = getTileMarchDestination(state, p.id)` per province.
+  - Renders `<g className="sc-atlas-dest-ring" pointerEvents="none">` with diamond ground/plateau strokes and corner pips.
+  - Added `.sc-atlas-dest-ring` with `pointer-events: none !important;` in `theme.css`.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-29 — render / rival home keeps show realm crest above keep (bakeoff/gemini-capitals)
 
 - `drawRealmCrestAboveKeep` in `packages/render/src/tokens.ts`:

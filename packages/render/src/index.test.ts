@@ -5416,6 +5416,163 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           }
         });
       });
+
+      describe("bakeoff/gemini-dest: tiles that are already a march destination get a faint ring (player gold, hostile red)", () => {
+        function createMockGraphics() {
+          const calls: { method: string; args: any[] }[] = [];
+          const g: any = {
+            calls,
+            clear: () => { calls.push({ method: "clear", args: [] }); },
+            poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+            fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+            stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+            rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+            circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+            ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+            moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+            lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+            bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+            quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          };
+          return g;
+        }
+
+        it("buildMarchDestinationMap and getTileMarchDestination accurately classify player vs hostile destination tiles", async () => {
+          const { buildMarchDestinationMap, getTileMarchDestination } = await import("./tokens.js");
+
+          const state: any = {
+            board: {
+              homeProvinceId: "p_home",
+              provinces: [
+                { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold" },
+                { id: "p_target_player", x: 3, y: 2, terrain: "wood", node: "camp" },
+                { id: "p_target_hostile", x: 2, y: 3, terrain: "plain", node: "outpost" },
+                { id: "p_target_both", x: 4, y: 2, terrain: "peak", node: "camp" },
+                { id: "p_untargeted", x: 1, y: 1, terrain: "plain", node: "none" },
+              ],
+            },
+            flags: {
+              marches_json: JSON.stringify([
+                { id: "m_p1", realmId: "player", fromId: "p_home", toId: "p_target_player", arrivesTick: 50 },
+                { id: "m_h1", realmId: "rival", fromId: "p_enemy", toId: "p_target_hostile", arrivesTick: 80 },
+                { id: "m_p2", realmId: "player", fromId: "p_home", toId: "p_target_both", arrivesTick: 60 },
+                { id: "m_h2", realmId: "rival", fromId: "p_enemy", toId: "p_target_both", arrivesTick: 70 },
+              ]),
+            },
+          };
+
+          const destMap = buildMarchDestinationMap(state);
+          expect(destMap.get("p_target_player")).toBe("player");
+          expect(destMap.get("p_target_hostile")).toBe("hostile");
+          // Hostile alert takes priority when both armies target the same province
+          expect(destMap.get("p_target_both")).toBe("hostile");
+          expect(destMap.get("p_untargeted")).toBeUndefined();
+
+          expect(getTileMarchDestination(state, "p_target_player")).toBe("player");
+          expect(getTileMarchDestination(state, "p_target_hostile")).toBe("hostile");
+          expect(getTileMarchDestination(state, "p_target_both")).toBe("hostile");
+          expect(getTileMarchDestination(state, "p_untargeted")).toBeNull();
+          expect(getTileMarchDestination(null, "p_target_player")).toBeNull();
+        });
+
+        it("paintBoardDestinationRing paints faint gold ring for player marches and faint red ring for hostile marches", async () => {
+          const { paintBoardDestinationRing } = await import("./tokens.js");
+
+          const provPlain = { id: "p1", x: 2, y: 2, terrain: "plain", node: "none" } as any;
+          const provPeak = { id: "p2", x: 3, y: 2, terrain: "peak", node: "camp" } as any;
+
+          // 1. Player Destination Ring: warm gold colors (0xf59e0b = 16096779, 0xd97706 = 14251782, 0xfde047 = 16638023)
+          const gPlayer = createMockGraphics();
+          paintBoardDestinationRing(gPlayer, provPeak, "player", 0);
+          const playerCalls = JSON.stringify(gPlayer.calls);
+          expect(playerCalls).toContain("16096779"); // 0xf59e0b ring
+          expect(playerCalls).toContain("14251782"); // 0xd97706 glow
+          expect(playerCalls).toContain("16638023"); // 0xfde047 shimmer/pips
+          expect(gPlayer.calls.length).toBeGreaterThan(6);
+
+          // 2. Hostile Destination Ring: danger red colors (0xef4444 = 15680580, 0xdc2626 = 14427686, 0xfca5a5 = 16557477)
+          const gHostile = createMockGraphics();
+          paintBoardDestinationRing(gHostile, provPlain, "hostile", 0);
+          const hostileCalls = JSON.stringify(gHostile.calls);
+          expect(hostileCalls).toContain("15680580"); // 0xef4444 ring
+          expect(hostileCalls).toContain("14427686"); // 0xdc2626 glow
+          expect(hostileCalls).toContain("16557477"); // 0xfca5a5 shimmer/pips
+          expect(gHostile.calls.length).toBeGreaterThan(4);
+        });
+
+        it("paintBoardProvinces automatically renders faint destination ring for tiles targeted by marches", async () => {
+          const { paintBoardProvinces } = await import("./tokens.js");
+
+          const state: any = {
+            season: "Spring",
+            buildings: [],
+            fog: { explored: { p_home: true, p_dest_player: true, p_dest_hostile: true, p_unrelated: true } },
+            board: {
+              homeProvinceId: "p_home",
+              provinces: [
+                { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                { id: "p_dest_player", x: 3, y: 2, terrain: "wood", node: "woodcut" },
+                { id: "p_dest_hostile", x: 2, y: 3, terrain: "plain", node: "none" },
+                { id: "p_unrelated", x: 4, y: 2, terrain: "plain", node: "none" },
+              ],
+            },
+            flags: {
+              fog_seen: JSON.stringify(["p_home", "p_dest_player", "p_dest_hostile", "p_unrelated"]),
+              marches_json: JSON.stringify([
+                { id: "m_p1", realmId: "player", fromId: "p_home", toId: "p_dest_player", arrivesTick: 40 },
+                { id: "m_h1", realmId: "rival", fromId: "p_enemy", toId: "p_dest_hostile", arrivesTick: 90 },
+              ]),
+            },
+          };
+
+          const g = createMockGraphics();
+          paintBoardProvinces(g, state, 0);
+
+          const callsJson = JSON.stringify(g.calls);
+          // Contains player gold destination ring color (0xf59e0b = 16096779)
+          expect(callsJson).toContain("16096779");
+          // Contains hostile red destination ring color (0xef4444 = 15680580)
+          expect(callsJson).toContain("15680580");
+        });
+
+        it("OverworldAtlas renders sc-atlas-dest-ring with pointer-events: none on march destination tiles", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+
+          const atlasCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx"), "utf-8");
+          expect(atlasCode).toContain("getTileMarchDestination");
+          expect(atlasCode).toContain("sc-atlas-dest-ring");
+          expect(atlasCode).toContain("pointerEvents=\"none\"");
+          expect(atlasCode).toContain("#f59e0b");
+          expect(atlasCode).toContain("#ef4444");
+
+          const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+          expect(themeCss).toContain(".sc-atlas-dest-ring");
+          expect(themeCss).toContain("pointer-events: none !important;");
+        });
+
+        it("preserves camera and hit-test invariants with zero conflict markers", async () => {
+          const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+          expect(typeof hitTestProvince).toBe("function");
+          expect(typeof boardGridToWorld).toBe("function");
+          expect(bandForZoom(1.0)).toBe("hold");
+
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const filesToCheck = [
+            "./tokens.ts",
+            "./tiles.ts",
+            "./buildings.ts",
+            "./index.ts",
+            "../../app/src/OverworldAtlas.tsx",
+            "../../app/src/theme.css",
+          ];
+          for (const rel of filesToCheck) {
+            const code = fs.readFileSync(path.resolve(__dirname, rel), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+          }
+        });
+      });
     });
   });
 });

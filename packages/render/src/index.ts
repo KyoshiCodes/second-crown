@@ -79,6 +79,9 @@ import {
   resolveBoardThemeVisuals,
   resolveBoardSeasonTint,
   drawRealmCrestAboveKeep,
+  buildMarchDestinationMap,
+  getTileMarchDestination,
+  paintBoardDestinationRing,
 } from "./tokens.js";
 
 import {
@@ -862,5 +865,8 @@ export {
   resolveBoardThemeVisuals,
   resolveBoardSeasonTint,
   drawRealmCrestAboveKeep,
+  buildMarchDestinationMap,
+  getTileMarchDestination,
+  paintBoardDestinationRing,
 };
 

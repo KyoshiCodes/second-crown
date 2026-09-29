@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-29 — Tiles that are already a march destination get a faint ring
+
+- Any map tile that is currently the destination of an active marching force now receives a faint, animated ring around the tile perimeter:
+  - **Player Gold**: Tiles targeted by your own forces (scouting expeditions, supply gathers, garrison deployments, and attack marches) are encircled by a soft, luminous gold ring.
+  - **Hostile Red**: Tiles targeted by enemy raiders or rival warbands are marked with a menacing, faint crimson hazard ring, giving you instant battlefield awareness of where enemy columns are headed.
+  - **Fog of War Support**: If you send scouts into unexplored fog territory, the destination tile faintly gleams in gold beneath the cloud bank so you can easily track where your scouts were dispatched.
+  - **Non-Interfering & Clickable**: The destination ring is soft and translucent, leaving the full terrain, buildings, camps, and units underneath crystal clear. Clicks on the tile pass cleanly through.
+  - **Overworld Atlas Map**: The kingdom atlas map also reflects faint gold and crimson destination rings on provinces targeted by active marches.
+
 ## 2026-09-29 — Rival home keeps show small realm crest above keep
 
 - Rival and foreign NPC home holds now display their distinctive realm crest floating proudly above their home keep:
