@@ -204,3 +204,18 @@
 .sc-inspect-owner.is-rival dd { color: #fca5a5; }
 .sc-inspect-owner.is-empty dd { font-weight: 400; opacity: 0.6; }
 .sc-inspect-owner.is-fog dd { color: #8b949e; font-weight: 400; font-style: italic; }
+
+/* Destination: tile is a march toId; soonest seconds from arrivesTick, read-only. */
+.sc-inspect-dest {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 6px;
+  font-size: 12px;
+  border-left: 2px solid #fef08a;
+  background: rgba(254, 240, 138, 0.08);
+  border-radius: 3px;
+}
+
+.sc-inspect-dest-label { font-weight: 600; color: #fef08a; }
+.sc-inspect-dest-eta { margin-left: auto; font-variant-numeric: tabular-nums; }

@@ -159,6 +159,8 @@ export function ProvinceInspect(props: {
   const site = siteOf(state, selectedId, seen);
   const yard = home ? keepYardWorks(state) : [];
   const onTile = marchesHere(state, selectedId, seen);
+  const inbound = onTile.filter((m) => m.secs > 0);
+  const soonest = inbound.length > 0 ? Math.min(...inbound.map((m) => m.secs)) : null;
   const terrain = seen ? TERRAIN[p.terrain] ?? p.terrain : "Unknown";
   const season = currentSeason(state);
   const owner = ownerOf(state, selectedId, seen);
@@ -254,6 +256,15 @@ export function ProvinceInspect(props: {
       {incoming ? (
         <div className="sc-inspect-line is-bad">
           Incoming contest · {incomingName} · {Math.max(0, incoming.arrivesTick - state.meta.tick)} ticks
+        </div>
+      ) : null}
+      {soonest !== null ? (
+        <div className="sc-inspect-dest">
+          <span className="sc-inspect-dest-label">Incoming to this tile</span>
+          <span className="sc-inspect-dest-eta">
+            {inbound.length > 1 ? `${inbound.length} columns · first in ` : ""}
+            {soonest}s
+          </span>
         </div>
       ) : null}
       {onTile.length > 0 ? (
