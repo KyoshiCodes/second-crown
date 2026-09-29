@@ -1,5 +1,36 @@
 # Dev notes
 
+## 2026-09-29 — render / rival home keeps show realm crest above keep (bakeoff/gemini-capitals)
+
+- `drawRealmCrestAboveKeep` in `packages/render/src/tokens.ts`:
+  - Implements a finely-rendered heraldic escutcheon shield floating above keep pinnacles (`cx`, `cy - 23.5`):
+    - Ground drop shadow on keep / air (`0x050403`, alpha 0.65).
+    - Escutcheon rim plaque (`pal.plaqueColor`, `pal.borderColor`).
+    - Inner shield field filled with `pal.pennantColor` and subtle accent inner border (`pal.accentColor`, alpha 0.5).
+    - Faction-specific heraldic charge / sigil:
+      - `rival` (Iron March): Crossed blades (`0xf4f4f5`), crimson boss rivet (`0xef4444`), gold stud (`0xfef08a`).
+      - `k_silk` (Silk Coast): Golden anchor (`0xf1c40f`, `0xfef08a`) with bezier nautical curve.
+      - `k_ash` (Ash Nomads): Steppe arrowhead (`0xe67e22`, `0x7c2d12`, `0xfde047`).
+      - `k_veil` (Veil Theocracy): Radiant 8-pointed star (`0xffffff`, `0xa78bfa`, `0x7c3aed`).
+      - `k_glass` (Glass Cities): Faceted cyan prism diamond (`0x06b6d4`, `0x38bdf8`, `0xffffff`).
+      - `k_frost` (Frost Holds): Six-pointed snowflake crystal (`0xffffff`, `0x7dd3fc`).
+      - `k_tide` (Tide Princes): Twin bezier ocean surf waves (`0x2dd4bf`, `0x5eead4`).
+      - `k_ember` (Ember Concord): Rising flame comet (`0xea580c`, `0xf97316`, `0xfef08a`).
+      - `k_bronze` (Bronze League): Classical bronze arch & anvil (`0xfbbf24`, `0xfde68a`).
+      - default: Chevron & realm stud (`pal.accentColor`, `pal.studColor`).
+    - Finial crown stud atop the shield apex (`pal.studColor`, `pal.borderColor`, `0xffffff`).
+    - Breathing glint at upper-left corner driven by `Math.sin(phase * 3 + cx)`.
+  - Exported and re-exported in `packages/render/src/index.ts`.
+- `drawMiniatureKeep` in `packages/render/src/tokens.ts`:
+  - When `!isHome && realmPal && realmPal.realmId !== "player"`, calls `drawRealmCrestAboveKeep(g, cx, cy, realmPal, phase)`.
+  - When `isHome === true`, renders the player's majestic sovereign golden coronet (`0xfacc15`, `0xfde047`) and gilded royal frame; `drawRealmCrestAboveKeep` is NOT called (player home is unchanged).
+- `OverworldAtlas` in `packages/app/src/OverworldAtlas.tsx` & `theme.css`:
+  - Added `<MiniRealmCrest>` SVG component with matching shield geometry, faction colors, and charges.
+  - Passes `occupantRealmId={p.occupantRealmId}` to `MiniKeep`.
+  - When `!home && occupantRealmId && occupantRealmId !== "player"`, renders `<MiniRealmCrest>` above the keep.
+  - Wrapped with `.sc-atlas-realm-crest` and `pointer-events: none !important;` in `theme.css` so atlas clicks cleanly fall through.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-29 — render / light seasonal and holiday tint on board tiles (bakeoff/gemini-season-tint)
 
 - `getThemeVisuals` in `packages/render/src/buildings.ts`:

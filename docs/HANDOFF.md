@@ -13,6 +13,33 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active Bakeoff (bakeoff/gemini-capitals)
+
+- **Rival & Foreign Home Keeps Show Small Realm Crest Above Keep (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:
+  - Rival and foreign NPC home holds show a distinct heraldic escutcheon realm crest floating above their keep (`cx`, `cy - 23.5`).
+  - **Player Home Unchanged**: The player home keep retains its sovereign golden coronet (`cx`, `cy - 23.5`) and gilded royal frame; it does NOT display a rival realm crest.
+  - **Distinct Heraldic Escutcheon Crests (`drawRealmCrestAboveKeep`)**:
+    - Ground drop shadow and escutcheon rim plaque with faction border.
+    - Inner shield field filled with faction primary pennant color and accent rim.
+    - Faction-specific heraldic charge / sigil:
+      - Iron March (`rival`): Crossed white blades and crimson central rivet.
+      - Silk Coast (`k_silk`): Golden anchor and nautical trident.
+      - Ash Nomads (`k_ash`): Steppe nomad arrowhead with amber core.
+      - Veil Theocracy (`k_veil`): Radiant dawn star with purple aura.
+      - Glass Cities (`k_glass`): Cyan faceted prism diamond.
+      - Frost Holds (`k_frost`): Six-pointed crystalline snowflake.
+      - Tide Princes (`k_tide`): Twin ocean surf waves.
+      - Ember Concord (`k_ember`): Rising flame comet.
+      - Bronze League (`k_bronze`): Classical bronze arch & anvil.
+      - Custom / other realms: Chevron with realm stud.
+    - Finial crown stud atop the crest shield and subtle animated breathing glint.
+  - **Kingdom Atlas SVG Integration (`MiniRealmCrest`)**:
+    - Matching SVG mini-crest rendered above rival/foreign keeps with `.sc-atlas-realm-crest` and `pointer-events: none !important`.
+  - **Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+
 ## Active Bakeoff (bakeoff/gemini-season-tint)
 
 - **Light Seasonal & Holiday Tint on Board Tiles (`packages/render/src/tokens.ts`, `packages/render/src/buildings.ts`, `packages/render/src/tiles.ts`, `packages/app/src/OverworldAtlas.tsx`)**:

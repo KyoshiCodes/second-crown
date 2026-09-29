@@ -726,6 +726,184 @@ export function drawKeepYardAnnex(
 }
 
 // -------------------------------------------------------------
+// Small Heraldic Realm Crest Above Rival / NPC Capital Keeps
+// -------------------------------------------------------------
+export function drawRealmCrestAboveKeep(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  pal: RealmTokenPalette,
+  phase = 0
+): void {
+  const crestY = cy - 23.5;
+
+  // 1. Drop shadow onto keep / air
+  g.poly([
+    cx - 4.5, crestY - 4,
+    cx + 4.5, crestY - 4,
+    cx + 4.5, crestY + 1,
+    cx, crestY + 5.5,
+    cx - 4.5, crestY + 1,
+  ]);
+  g.fill({ color: 0x050403, alpha: 0.65 });
+
+  // 2. Escutcheon rim plaque
+  g.poly([
+    cx - 4.5, crestY - 4.5,
+    cx + 4.5, crestY - 4.5,
+    cx + 4.5, crestY + 0.5,
+    cx, crestY + 5,
+    cx - 4.5, crestY + 0.5,
+  ]);
+  g.fill({ color: pal.plaqueColor || 0x18181b });
+  g.stroke({ width: 0.9, color: pal.borderColor });
+
+  // 3. Inner shield field (faction primary color)
+  g.poly([
+    cx - 3.5, crestY - 3.5,
+    cx + 3.5, crestY - 3.5,
+    cx + 3.5, crestY + 0.2,
+    cx, crestY + 4,
+    cx - 3.5, crestY + 0.2,
+  ]);
+  g.fill({ color: pal.pennantColor });
+
+  // 4. Subtle inner border accent
+  g.poly([
+    cx - 3.5, crestY - 3.5,
+    cx + 3.5, crestY - 3.5,
+    cx + 3.5, crestY + 0.2,
+    cx, crestY + 4,
+    cx - 3.5, crestY + 0.2,
+  ]);
+  g.stroke({ width: 0.5, color: pal.accentColor, alpha: 0.5 });
+
+  // 5. Faction Sigil / Charge
+  switch (pal.realmId) {
+    case "rival": {
+      // Iron March: Crossed blades & crimson rivet
+      g.moveTo(cx - 2.2, crestY - 2.2); g.lineTo(cx + 2.2, crestY + 2.2);
+      g.stroke({ width: 0.8, color: 0xf4f4f5 });
+      g.moveTo(cx + 2.2, crestY - 2.2); g.lineTo(cx - 2.2, crestY + 2.2);
+      g.stroke({ width: 0.8, color: 0xf4f4f5 });
+      g.circle(cx, crestY, 0.8); g.fill({ color: 0xef4444 });
+      g.circle(cx, crestY, 0.4); g.fill({ color: 0xfef08a });
+      break;
+    }
+    case "k_silk": {
+      // Silk Coast: Golden anchor / trident
+      g.moveTo(cx, crestY - 2.5); g.lineTo(cx, crestY + 2.5);
+      g.stroke({ width: 0.8, color: 0xf1c40f });
+      g.moveTo(cx - 1.6, crestY - 1); g.lineTo(cx + 1.6, crestY - 1);
+      g.stroke({ width: 0.7, color: 0xf1c40f });
+      g.moveTo(cx - 1.8, crestY + 0.8);
+      g.bezierCurveTo(cx - 1.8, crestY + 2.4, cx + 1.8, crestY + 2.4, cx + 1.8, crestY + 0.8);
+      g.stroke({ width: 0.8, color: 0xf1c40f });
+      g.circle(cx, crestY - 2.5, 0.6); g.fill({ color: 0xfef08a });
+      break;
+    }
+    case "k_ash": {
+      // Ash Nomads: Peaked steppe nomad arrowhead
+      g.poly([cx, crestY - 2.8, cx + 2.2, crestY + 1.8, cx - 2.2, crestY + 1.8]);
+      g.fill({ color: 0xe67e22 });
+      g.stroke({ width: 0.6, color: 0x7c2d12 });
+      g.poly([cx, crestY - 1.5, cx + 1.1, crestY + 1.2, cx - 1.1, crestY + 1.2]);
+      g.fill({ color: 0xfde047 });
+      break;
+    }
+    case "k_veil": {
+      // Veil Theocracy: Radiant dawn star
+      g.poly([
+        cx, crestY - 3,
+        cx + 0.8, crestY - 0.8,
+        cx + 2.8, crestY,
+        cx + 0.8, crestY + 0.8,
+        cx, crestY + 3,
+        cx - 0.8, crestY + 0.8,
+        cx - 2.8, crestY,
+        cx - 0.8, crestY - 0.8,
+      ]);
+      g.fill({ color: 0xffffff });
+      g.stroke({ width: 0.5, color: 0xa78bfa });
+      g.circle(cx, crestY, 0.5); g.fill({ color: 0x7c3aed });
+      break;
+    }
+    case "k_glass": {
+      // Glass Cities: Faceted cyan prism diamond
+      g.poly([cx, crestY - 2.8, cx + 2.2, crestY, cx, crestY + 2.8, cx - 2.2, crestY]);
+      g.fill({ color: 0x06b6d4 });
+      g.stroke({ width: 0.6, color: 0x38bdf8 });
+      g.poly([cx, crestY - 1.6, cx + 1.2, crestY, cx, crestY + 1.6, cx - 1.2, crestY]);
+      g.fill({ color: 0xffffff });
+      break;
+    }
+    case "k_frost": {
+      // Frost Holds: Six-pointed frost crystal
+      g.moveTo(cx, crestY - 2.6); g.lineTo(cx, crestY + 2.6);
+      g.stroke({ width: 0.7, color: 0xffffff });
+      g.moveTo(cx - 2.2, crestY - 1.3); g.lineTo(cx + 2.2, crestY + 1.3);
+      g.stroke({ width: 0.7, color: 0xffffff });
+      g.moveTo(cx - 2.2, crestY + 1.3); g.lineTo(cx + 2.2, crestY - 1.3);
+      g.stroke({ width: 0.7, color: 0xffffff });
+      g.circle(cx, crestY, 0.6); g.fill({ color: 0x7dd3fc });
+      break;
+    }
+    case "k_tide": {
+      // Tide Princes: Twin ocean surf waves
+      g.moveTo(cx - 2.4, crestY - 1);
+      g.bezierCurveTo(cx - 1.2, crestY - 2.4, cx, crestY + 0.2, cx + 2.4, crestY - 1);
+      g.stroke({ width: 0.8, color: 0x2dd4bf });
+      g.moveTo(cx - 2.4, crestY + 1.4);
+      g.bezierCurveTo(cx - 1.2, crestY - 0.2, cx, crestY + 2.4, cx + 2.4, crestY + 1.4);
+      g.stroke({ width: 0.8, color: 0x5eead4 });
+      break;
+    }
+    case "k_ember": {
+      // Ember Concord: Rising flame comet
+      g.circle(cx, crestY + 1.2, 1.2); g.fill({ color: 0xea580c });
+      g.poly([cx - 1.3, crestY + 1.2, cx, crestY - 3, cx + 1.3, crestY + 1.2]);
+      g.fill({ color: 0xf97316 });
+      g.circle(cx, crestY + 0.8, 0.5); g.fill({ color: 0xfef08a });
+      break;
+    }
+    case "k_bronze": {
+      // Bronze League: Classical bronze arch & anvil
+      g.moveTo(cx - 2.0, crestY + 1.3);
+      g.bezierCurveTo(cx - 2.0, crestY - 2.2, cx + 2.0, crestY - 2.2, cx + 2.0, crestY + 1.3);
+      g.stroke({ width: 0.8, color: 0xfbbf24 });
+      g.moveTo(cx - 2.2, crestY + 1.3); g.lineTo(cx - 1.1, crestY + 1.3);
+      g.stroke({ width: 0.8, color: 0xfbbf24 });
+      g.moveTo(cx + 1.1, crestY + 1.3); g.lineTo(cx + 2.2, crestY + 1.3);
+      g.stroke({ width: 0.8, color: 0xfbbf24 });
+      g.circle(cx, crestY - 0.3, 0.6); g.fill({ color: 0xfde68a });
+      break;
+    }
+    default: {
+      // Fallback: Chevron & stud
+      g.poly([cx - 2.2, crestY + 1.6, cx, crestY - 1.2, cx + 2.2, crestY + 1.6]);
+      g.stroke({ width: 0.8, color: pal.accentColor });
+      g.circle(cx, crestY - 0.6, 0.7); g.fill({ color: pal.studColor });
+      break;
+    }
+  }
+
+  // 6. Finial crown topper stud atop the crest shield
+  g.poly([
+    cx - 1.8, crestY - 4.5,
+    cx, crestY - 6.2,
+    cx + 1.8, crestY - 4.5,
+  ]);
+  g.fill({ color: pal.studColor });
+  g.stroke({ width: 0.5, color: pal.borderColor });
+  g.circle(cx, crestY - 6.2, 0.6); g.fill({ color: 0xffffff });
+
+  // 7. Subtle animated breathing glint on left corner
+  const glint = 0.5 + Math.sin(phase * 3 + cx) * 0.35;
+  g.circle(cx - 2.8, crestY - 2.6, 0.6);
+  g.fill({ color: 0xffffff, alpha: glint });
+}
+
+// -------------------------------------------------------------
 // Miniature Pixel Keeps for Board-Band Holds (Lords Mobile Style)
 // Reuses Authentic Culture Kit Silhouettes at Miniature Scale (~0.42x)
 // High-Readability Foundations, High-Contrast Lighting & Heraldry
@@ -815,6 +993,7 @@ export function drawMiniatureKeep(
     ]);
     g.fill({ color: 0x991b1b });
     g.stroke({ width: 0.7, color: 0x450a0a });
+    drawRealmCrestAboveKeep(g, cx, cy, realmPal, phase);
     return;
   }
 
@@ -1204,6 +1383,11 @@ export function drawMiniatureKeep(
     g.stroke({ width: 0.8, color: realmPal.borderColor });
     g.circle(cx, cy - 1, 0.9);
     g.fill({ color: realmPal.accentColor });
+  }
+
+  // Small Heraldic Realm Crest Above Keep for Rival / NPC Home Holds
+  if (!isHome && realmPal && realmPal.realmId !== "player") {
+    drawRealmCrestAboveKeep(g, cx, cy, realmPal, phase);
   }
 
   // Majestic Golden Coronet Crest for Player Capital Home Keep

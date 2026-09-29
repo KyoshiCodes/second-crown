@@ -2,6 +2,23 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-29 — Rival home keeps show small realm crest above keep
+
+- Rival and foreign NPC home holds now display their distinctive realm crest floating proudly above their home keep:
+  - **Heraldic Escutcheon Crests**: Each foreign realm capital displays a finely detailed miniature shield plaque floating over its keep, adorned with its faction colors and authentic heraldic charges:
+    - **Iron March**: Crossed silver warblades on a crimson field with a gleaming brass boss.
+    - **Silk Coast**: Golden nautical anchor and sea trident on coastal azure.
+    - **Ash Nomads**: Steppe nomad broadhead arrowhead on warm terra cotta.
+    - **Veil Theocracy**: Radiant eight-pointed dawn star on mystic purple.
+    - **Glass Cities**: Faceted cyan prism diamond on turquoise.
+    - **Frost Holds**: Six-pointed crystalline snowflake on glacial ice blue.
+    - **Tide Princes**: Twin rolling ocean waves on seafoam teal.
+    - **Ember Concord**: Rising fire comet on fiery orange.
+    - **Bronze League**: Classical bronze arch and anvil on deep gold.
+  - **Finial Crown & Breathing Glint**: Each crest features a miniature finial crown topper and a subtle breathing light glint, signaling sovereign capital status across the continent.
+  - **Player Home Stays Unchanged**: Your own royal keep retains its iconic golden coronet crest and gilded royal frame, untouched and instantly recognizable as your home.
+  - **World Atlas Map**: The overworld kingdom atlas also displays matching miniature realm crests above foreign capitals with non-blocking click behavior.
+
 ## 2026-09-29 — Light seasonal and holiday tint on world board tiles
 
 - World map tiles now dynamically pick up a subtle seasonal tint that reflects the current season and active holidays:
