@@ -65,6 +65,7 @@ import {
   drawIsometricBuilding,
   getWallHpStatus,
   isWallHpLow,
+  isWallRingClosed,
 } from "./buildings.js";
 
 import {
@@ -661,9 +662,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
     const wallStatus = getWallHpStatus(state);
     const isWallLow = wallStatus.hasWallHp && wallStatus.isLow;
+    const isRingClosed = isWallRingClosed(state);
     const buildingOptions = {
       isWallLow,
       wallHpRatio: wallStatus.ratio,
+      isRingClosed,
       state,
     };
 
