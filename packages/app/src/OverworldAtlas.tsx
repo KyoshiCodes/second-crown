@@ -5,6 +5,7 @@ import {
   listMarches,
   nodeStock,
   isProvinceSeen,
+  currentSeason,
   type GameState,
   type Province,
 } from "@second-crown/sim";
@@ -13,7 +14,9 @@ import {
   listKeepYardBuildings,
   type KeepYardBuildingInfo,
   calculateMarchProgress,
+  getThemeVisuals,
 } from "@second-crown/render";
+import { detectCurrentHoliday } from "./seasons/holidays";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -396,6 +399,12 @@ export function OverworldAtlas(props: {
   const oy = 42;
   const marches = listMarches(state);
   const homeId = state.board.homeProvinceId;
+  const season = state ? currentSeason(state) : "Spring";
+  const holiday = typeof detectCurrentHoliday === "function" ? detectCurrentHoliday() : "none";
+  const visuals = getThemeVisuals(season, holiday);
+  const seasonTint = visuals.tintColor && visuals.tintAlpha > 0
+    ? { color: cssColor(visuals.tintColor, "#86efac"), alpha: visuals.tintAlpha }
+    : null;
 
   const sorted = [...provinces].sort((a, b) => a.x + a.y - (b.x + b.y));
 
@@ -554,6 +563,22 @@ export function OverworldAtlas(props: {
                     points={`${cx + hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx + hw},${cy + lift}`}
                     fill={paint.right}
                   />
+                  {seasonTint ? (
+                    <>
+                      <polygon
+                        points={`${cx - hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx - hw},${cy + lift}`}
+                        fill={seasonTint.color}
+                        opacity={seasonTint.alpha * 0.55}
+                        style={{ pointerEvents: "none" }}
+                      />
+                      <polygon
+                        points={`${cx + hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx + hw},${cy + lift}`}
+                        fill={seasonTint.color}
+                        opacity={seasonTint.alpha * 0.4}
+                        style={{ pointerEvents: "none" }}
+                      />
+                    </>
+                  ) : null}
                   <polygon
                     points={diamond(cx, cy)}
                     fill={top}
@@ -561,6 +586,14 @@ export function OverworldAtlas(props: {
                     strokeWidth={selected ? 2.2 : isHome ? 1.6 : 0.6}
                     opacity={0.95}
                   />
+                  {seasonTint ? (
+                    <polygon
+                      points={diamond(cx, cy)}
+                      fill={seasonTint.color}
+                      opacity={seasonTint.alpha}
+                      style={{ pointerEvents: "none" }}
+                    />
+                  ) : null}
                 </>
               ) : (
                 <>

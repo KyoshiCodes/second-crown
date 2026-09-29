@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## 2026-09-29 — Gemini Board Tiles Seasonal & Holiday Tint (bakeoff/gemini-season-tint)
+
+- **Light Seasonal & Holiday Tint on Board Tiles (`packages/render/src/tokens.ts`, `packages/render/src/buildings.ts`, `packages/render/src/tiles.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - **Light Seasonal Tint Wash (`resolveBoardThemeVisuals`, `resolveBoardSeasonTint`, `paintBoardProvinces`)**:
+    - Tabletop board tiles pick up a light seasonal tint wash from existing season/holiday state without hiding underlying terrain:
+      - Spring: Fresh spring green (`0x86efac`, alpha 0.10).
+      - Summer: Warm sunbeam yellow (`0xfef08a`, alpha 0.10).
+      - Autumn: Luminous autumn gold (`0xf59e0b`, alpha 0.14).
+      - Winter: Cool frost cyan (`0xbae6fd`, alpha 0.14).
+      - Holiday packs (Halloween `0x581c87`, Midwinter `0x38bdf8`, Easter `0xc084fc`, Harvest `0xf59e0b`, Midsummer `0xfde047`).
+  - **Terrain Preservation & Layering**:
+    - Translucent tint wash is painted immediately above the base plateau fill (`pal.fill`) and before all isometric relief artwork, ensuring terrain features (trees, wildflowers, rocks, grass tufts, ridges, waves) remain 100% visible on top.
+    - Cliff height faces in `paintTileHeightFace` pick up a subtle matching glazed wash on front-left and front-right facets.
+  - **Kingdom Atlas Integration (`packages/app/src/OverworldAtlas.tsx`)**:
+    - Evaluates `currentSeason(state)` and `detectCurrentHoliday()` to apply translucent SVG tint polygons with `style={{ pointerEvents: "none" }}` to seen provinces.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Full test suite passing (221 sim tests, 196 render tests; clean app build).
+
 ## 2026-09-29 — Gemini Board March Meeple Seconds Badge (bakeoff/gemini-eta)
 
 - **Tiny Seconds Badge on Board March Meeples (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:

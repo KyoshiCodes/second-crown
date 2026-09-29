@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-29 — Light seasonal and holiday tint on world board tiles
+
+- World map tiles now dynamically pick up a subtle seasonal tint that reflects the current season and active holidays:
+  - **Spring Green**: A gentle, fresh pastel green wash brings the awakening of spring across all explored tiles.
+  - **Summer Warmth**: A delicate warm sunbeam tone bathes summer territories.
+  - **Autumn Gold**: A luminous amber and golden glow tints the harvest landscape.
+  - **Winter Cool**: A crisp, cool cyan frost tint settles over winter provinces.
+  - **Holiday Packs**: When holiday events or packs are active (All Hallows Eve, Midwinter Tide, Dawn Feast, Harvest Moon, Midsummer), tiles take on the distinctive holiday atmospheric glaze (e.g. mystical Halloween purple, Midwinter icy cyan).
+  - **Terrain Detail Stays Clear**: The tints are light, translucent washes designed to enhance atmosphere without hiding any terrain features—plains, hills, forests, peaks, rivers, trees, and camps remain crisp, distinct, and fully visible.
+  - **World Atlas**: The kingdom atlas map also reflects the seasonal glaze across seen lands while keeping clicks and interactions completely seamless.
+
 ## 2026-09-29 — Seconds countdown badge on marching board meeples
 
 - March meeples in motion across the tabletop board now show a tiny seconds countdown badge above their heads:

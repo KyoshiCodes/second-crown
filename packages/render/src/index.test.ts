@@ -5070,6 +5070,162 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         const atlasCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx"), "utf-8");
         expect(atlasCode).not.toContain("<<<<<<<");
       });
+
+      describe("Seasonal and holiday board tile tinting", () => {
+        it("resolveBoardThemeVisuals resolves spring green, autumn gold, winter cool, and summer tints correctly", async () => {
+          const { resolveBoardThemeVisuals, resolveBoardSeasonTint } = await import("./tokens.js");
+
+          // Spring: 0x86efac (spring green), alpha 0.10
+          const springState: any = { season: "Spring", flags: {} };
+          const springVis = resolveBoardThemeVisuals(springState);
+          expect(springVis.tintColor).toBe(0x86efac);
+          expect(springVis.tintAlpha).toBeCloseTo(0.10, 2);
+
+          const springTint = resolveBoardSeasonTint(springState);
+          expect(springTint.hex).toBe("#86efac");
+          expect(springTint.season).toBe("Spring");
+
+          // Summer: 0xfef08a (sunbeam), alpha 0.10
+          const summerState: any = { season: "Summer", flags: {} };
+          const summerVis = resolveBoardThemeVisuals(summerState);
+          expect(summerVis.tintColor).toBe(0xfef08a);
+          expect(summerVis.tintAlpha).toBeCloseTo(0.10, 2);
+
+          // Autumn: 0xf59e0b (autumn gold), alpha 0.14
+          const autumnState: any = { season: "Autumn", flags: {} };
+          const autumnVis = resolveBoardThemeVisuals(autumnState);
+          expect(autumnVis.tintColor).toBe(0xf59e0b);
+          expect(autumnVis.tintAlpha).toBeCloseTo(0.14, 2);
+
+          const autumnTint = resolveBoardSeasonTint(autumnState);
+          expect(autumnTint.hex).toBe("#f59e0b");
+          expect(autumnTint.season).toBe("Autumn");
+
+          // Winter: 0xbae6fd (winter cool frost cyan), alpha 0.14
+          const winterState: any = { season: "Winter", flags: {} };
+          const winterVis = resolveBoardThemeVisuals(winterState);
+          expect(winterVis.tintColor).toBe(0xbae6fd);
+          expect(winterVis.tintAlpha).toBeCloseTo(0.14, 2);
+
+          const winterTint = resolveBoardSeasonTint(winterState);
+          expect(winterTint.hex).toBe("#bae6fd");
+          expect(winterTint.season).toBe("Winter");
+        });
+
+        it("resolveBoardThemeVisuals honors holiday pack overrides (halloween, midwinter, easter, harvest)", async () => {
+          const { resolveBoardThemeVisuals } = await import("./tokens.js");
+
+          const halloweenState: any = { season: "Autumn", flags: { holiday: "halloween" } };
+          const halloweenVis = resolveBoardThemeVisuals(halloweenState);
+          expect(halloweenVis.tintColor).toBe(0x581c87);
+          expect(halloweenVis.decorations).toBe("halloween");
+
+          const midwinterState: any = { season: "Winter", flags: { holiday: "midwinter" } };
+          const midwinterVis = resolveBoardThemeVisuals(midwinterState);
+          expect(midwinterVis.tintColor).toBe(0x38bdf8);
+          expect(midwinterVis.decorations).toBe("midwinter");
+
+          const easterState: any = { season: "Spring", flags: { holiday: "easter" } };
+          const easterVis = resolveBoardThemeVisuals(easterState);
+          expect(easterVis.tintColor).toBe(0xc084fc);
+          expect(easterVis.decorations).toBe("easter");
+
+          const harvestState: any = { season: "Autumn", flags: { holiday: "harvest" } };
+          const harvestVis = resolveBoardThemeVisuals(harvestState);
+          expect(harvestVis.tintColor).toBe(0xf59e0b);
+          expect(harvestVis.decorations).toBe("harvest");
+        });
+
+        it("resolveBoardThemeVisuals prioritizes explicitly passed visuals object", async () => {
+          const { resolveBoardThemeVisuals } = await import("./tokens.js");
+          const customVisuals: any = {
+            tintColor: 0x123456,
+            tintAlpha: 0.15,
+            decorations: "custom",
+          };
+          const state: any = { season: "Spring", flags: {} };
+          const resolved = resolveBoardThemeVisuals(state, customVisuals);
+          expect(resolved.tintColor).toBe(0x123456);
+          expect(resolved.tintAlpha).toBe(0.15);
+        });
+
+        it("paintBoardProvinces glazes seen tile plateau with seasonal tint without hiding terrain", async () => {
+          const { paintBoardProvinces } = await import("./tokens.js");
+          const { terrainChipPalette } = await import("./tiles.js");
+
+          const state: any = {
+            season: "Autumn",
+            fog: { explored: { p_hill: true } },
+            buildings: [],
+            board: {
+              homeProvinceId: "p_home",
+              provinces: [
+                { id: "p_hill", x: 2, y: 3, terrain: "hill" },
+              ],
+            },
+            flags: {},
+          };
+
+          const g = createMockGraphics();
+          paintBoardProvinces(g, state, 0);
+
+          expect(g.calls.length).toBeGreaterThan(15);
+          const json = JSON.stringify(g.calls);
+
+          // Base terrain color for hill is drawn first (0x6b7a4a = 7043658)
+          const pal = terrainChipPalette("hill");
+          expect(json).toContain(String(pal.fill));
+
+          // Autumn gold tint wash is applied to the plateau (0xf59e0b = 16096779)
+          expect(json).toContain("16096779");
+
+          // Test Spring green tint wash (0x86efac = 8843180)
+          const springState: any = { ...state, season: "Spring" };
+          const gSpring = createMockGraphics();
+          paintBoardProvinces(gSpring, springState, 0);
+          const springJson = JSON.stringify(gSpring.calls);
+          expect(springJson).toContain("8843180");
+
+          // Test Winter cool tint wash (0xbae6fd = 12248829)
+          const winterState: any = { ...state, season: "Winter" };
+          const gWinter = createMockGraphics();
+          paintBoardProvinces(gWinter, winterState, 0);
+          const winterJson = JSON.stringify(gWinter.calls);
+          expect(winterJson).toContain("12248829");
+        });
+
+        it("OverworldAtlas renders seasonal tint with pointer-events: none and does not hide terrain", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+
+          const atlasCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx"), "utf-8");
+          expect(atlasCode).toContain("seasonTint");
+          expect(atlasCode).toContain("currentSeason(state)");
+          expect(atlasCode).toContain("getThemeVisuals");
+          expect(atlasCode).toContain("pointerEvents: \"none\"");
+        });
+
+        it("preserves camera and hit-test invariants with zero conflict markers", async () => {
+          const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+          expect(typeof hitTestProvince).toBe("function");
+          expect(typeof boardGridToWorld).toBe("function");
+          expect(bandForZoom(1.0)).toBe("hold");
+
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const filesToCheck = [
+            "./tokens.ts",
+            "./tiles.ts",
+            "./buildings.ts",
+            "./index.ts",
+            "../../app/src/OverworldAtlas.tsx",
+          ];
+          for (const rel of filesToCheck) {
+            const code = fs.readFileSync(path.resolve(__dirname, rel), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+          }
+        });
+      });
     });
   });
 });

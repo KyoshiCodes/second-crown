@@ -76,6 +76,8 @@ import {
   paintBoardSelectionRim,
   drawMarchEtaBadge,
   MARCH_ETA_GLYPHS_3X5,
+  resolveBoardThemeVisuals,
+  resolveBoardSeasonTint,
 } from "./tokens.js";
 
 import {
@@ -748,7 +750,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintBoardBackdrop(boardBackdropLayer, visuals);
     }
     paintBuildings(state, phase);
-    paintBoardProvinces(boardProvincesLayer, state, phase, selectedProvinceId);
+    paintBoardProvinces(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
     paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
     renderBoardSelection(state);
     if (hoveredProvinceCoord) {
@@ -764,7 +766,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     paintBoardBackdrop(boardBackdropLayer, visuals);
     if (lastState) {
       paintBuildings(lastState, phase);
-      paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId);
+      paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
       paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
       renderBoardSelection(lastState);
     }
@@ -856,5 +858,7 @@ export {
   paintBoardSelectionRim,
   drawMarchEtaBadge,
   MARCH_ETA_GLYPHS_3X5,
+  resolveBoardThemeVisuals,
+  resolveBoardSeasonTint,
 };
 

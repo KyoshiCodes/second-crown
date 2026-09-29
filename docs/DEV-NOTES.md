@@ -1,5 +1,30 @@
 # Dev notes
 
+## 2026-09-29 — render / light seasonal and holiday tint on board tiles (bakeoff/gemini-season-tint)
+
+- `getThemeVisuals` in `packages/render/src/buildings.ts`:
+  - Normalized case matching for season (`spring`, `summer`, `autumn`, `winter`) and holiday (`halloween`, `midwinter`, `easter`, `harvest`, `midsummer`).
+  - Configured seasonal tints:
+    - Spring: `0x86efac` (spring green, alpha 0.10)
+    - Summer: `0xfef08a` (summer sunbeam, alpha 0.10)
+    - Autumn: `0xf59e0b` (autumn gold, alpha 0.14)
+    - Winter: `0xbae6fd` (winter cool frost cyan, alpha 0.14)
+    - Holidays: Halloween (`0x581c87`, alpha 0.18), Midwinter (`0x38bdf8`, alpha 0.16), Easter (`0xc084fc`, alpha 0.12), Harvest (`0xf59e0b`, alpha 0.16), Midsummer (`0xfde047`, alpha 0.14).
+- `resolveBoardThemeVisuals` & `resolveBoardSeasonTint` in `packages/render/src/tokens.ts`:
+  - Exported helper functions for resolving `ThemeVisuals` and `BoardSeasonTint` from `state` (via `currentSeason` or `state.season`) and active flags/theme overrides.
+  - Re-exported from `packages/render/src/index.ts`.
+- `paintTileHeightFace` in `packages/render/src/tiles.ts`:
+  - Accepts optional `theme?: ThemeVisuals | null`.
+  - Glazes front-left cliff face (`theme.tintAlpha * 0.55`) and front-right cliff face (`theme.tintAlpha * 0.40`) with `theme.tintColor`.
+- `paintBoardProvinces` in `packages/render/src/tokens.ts`:
+  - Accepts optional `visuals?: ThemeVisuals | null`.
+  - Passes `theme` to `paintTileHeightFace`.
+  - Glazes `topDiamond` with `theme.tintColor` and `theme.tintAlpha` directly above base `pal.fill` and before drawing relief artwork, highlights, borders, and meeples, preserving full terrain visibility.
+- `OverworldAtlas` in `packages/app/src/OverworldAtlas.tsx`:
+  - Resolves `seasonTint` via `currentSeason(state)` and `detectCurrentHoliday()`.
+  - Glazes seen tile cliffs and top diamond with `pointerEvents: "none"`.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-29 — render / tiny seconds badge on board march meeples (bakeoff/gemini-eta)
 
 - `drawMarchEtaBadge` in `packages/render/src/tokens.ts`:

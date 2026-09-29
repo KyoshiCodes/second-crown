@@ -169,7 +169,8 @@ export function paintTileHeightFace(
   b: { x: number; y: number; w: number; h: number; cx: number; cy: number },
   terrain: TerrainId,
   pal: { fill: number; fillDark: number; border: number; accent: number },
-  phase: number
+  phase: number,
+  theme?: ThemeVisuals | null
 ): void {
   const elev = terrainElevation(terrain);
   if (elev <= 0) return;
@@ -180,23 +181,33 @@ export function paintTileHeightFace(
   const hh = BOARD_HALF_H;
 
   // 1. Front-left cliff face (moderate shadow, facing down-left)
-  g.poly([
+  const leftFace = [
     wx - hw, wy - elev,
     wx, wy + hh - elev,
     wx, wy + hh,
     wx - hw, wy,
-  ]);
+  ];
+  g.poly(leftFace);
   g.fill({ color: pal.fillDark });
+  if (theme?.tintColor && theme.tintAlpha > 0) {
+    g.poly(leftFace);
+    g.fill({ color: theme.tintColor, alpha: theme.tintAlpha * 0.55 });
+  }
 
   // 2. Front-right cliff face (deeper shadow, facing down-right)
   const cliffShadeRight = blendDark(pal.fillDark, 0.7);
-  g.poly([
+  const rightFace = [
     wx, wy + hh - elev,
     wx + hw, wy - elev,
     wx + hw, wy,
     wx, wy + hh,
-  ]);
+  ];
+  g.poly(rightFace);
   g.fill({ color: cliffShadeRight });
+  if (theme?.tintColor && theme.tintAlpha > 0) {
+    g.poly(rightFace);
+    g.fill({ color: theme.tintColor, alpha: theme.tintAlpha * 0.4 });
+  }
 
   // Center vertical prow seam between the two faces
   g.moveTo(wx, wy + hh - elev);
