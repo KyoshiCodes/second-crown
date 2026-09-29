@@ -51,6 +51,8 @@ import {
   drawMiniatureKeep,
   paintBoardMarches,
   paintBoardProvinces,
+  drawMarchEtaBadge,
+  MARCH_ETA_GLYPHS_3X5,
   getNodeStockInfo,
   drawNodeStockPile,
   drawResourceNode,
@@ -4838,6 +4840,235 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(tokensCode).not.toContain("<<<<<<<");
         const indexCode = fs.readFileSync(path.resolve(__dirname, "./index.ts"), "utf-8");
         expect(indexCode).not.toContain("<<<<<<<");
+      });
+    });
+
+    describe("bakeoff/gemini-eta: board march meeples show tiny seconds badge with pointer-events none", () => {
+      function createMockGraphics() {
+        const calls: { method: string; args: any[] }[] = [];
+        const g: any = {
+          calls,
+          clear: () => { calls.push({ method: "clear", args: [] }); },
+          poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+          fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+          stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+          rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+          circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+          ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+          moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+          lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+          quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        };
+        return g;
+      }
+
+      it("drawMarchEtaBadge renders shadow, pill background, hourglass pip, and 3x5 pixel glyphs for seconds countdown", () => {
+        const g = createMockGraphics();
+        drawMarchEtaBadge(g, 100, 100, 4, 0xf59e0b, 0, false);
+
+        expect(g.calls.length).toBeGreaterThan(10);
+        const rectCalls = g.calls.filter((c: any) => c.method === "rect");
+        expect(rectCalls.length).toBeGreaterThan(5);
+
+        const strokeCalls = g.calls.filter((c: any) => c.method === "stroke");
+        expect(strokeCalls.length).toBeGreaterThanOrEqual(1);
+
+        // Friendly badge has golden hourglass pip (0xfde047 = 16638023)
+        const json = JSON.stringify(g.calls);
+        expect(json).toContain("16638023");
+        // White pixel text (0xffffff = 16777215)
+        expect(json).toContain("16777215");
+      });
+
+      it("drawMarchEtaBadge renders hostile hazard skull pip and crimson border for hostile march", () => {
+        const g = createMockGraphics();
+        drawMarchEtaBadge(g, 120, 120, 18, 0xdc2626, 2, true);
+
+        expect(g.calls.length).toBeGreaterThan(12);
+        const json = JSON.stringify(g.calls);
+        // Hostile skull/hazard pip uses crimson red (0xf87171 = 16281969)
+        expect(json).toContain("16281969");
+        // White pixel text (0xffffff = 16777215)
+        expect(json).toContain("16777215");
+      });
+
+      it("handles zero seconds and large numbers gracefully", () => {
+        const gZero = createMockGraphics();
+        drawMarchEtaBadge(gZero, 100, 100, 0, 0xf59e0b, 0, false);
+        expect(gZero.calls.length).toBeGreaterThan(8);
+
+        const gLarge = createMockGraphics();
+        drawMarchEtaBadge(gLarge, 100, 100, 120, 0xf59e0b, 0, false);
+        expect(gLarge.calls.length).toBeGreaterThan(gZero.calls.length);
+      });
+
+      it("MARCH_ETA_GLYPHS_3X5 defines 5 rows of 3-bit patterns for digits 0-9 and unit s", () => {
+        for (let i = 0; i <= 9; i++) {
+          const glyph = MARCH_ETA_GLYPHS_3X5[String(i)];
+          expect(glyph).toBeDefined();
+          expect(glyph.length).toBe(5);
+          for (const row of glyph) {
+            expect(row).toBeGreaterThanOrEqual(0);
+            expect(row).toBeLessThanOrEqual(7);
+          }
+        }
+        const sGlyph = MARCH_ETA_GLYPHS_3X5["s"];
+        expect(sGlyph).toBeDefined();
+        expect(sGlyph.length).toBe(5);
+      });
+
+      it("paintBoardMarches renders seconds badge on all active march types with arrival times", () => {
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_scout", x: 3, y: 2, terrain: "wood", node: "none" },
+            { id: "p_gather", x: 2, y: 3, terrain: "hill", node: "quarry" },
+            { id: "p_garrison", x: 1, y: 2, terrain: "plain", node: "woodcut", occupantRealmId: "player" },
+            { id: "p_enemy", x: 4, y: 4, terrain: "waste", node: "hold", occupantRealmId: "k_iron" },
+          ],
+        };
+        state.meta.tick = 100;
+        state.flags = {
+          "seen:p_home": true,
+          "seen:p_garrison": true,
+          "marches_json": JSON.stringify([
+            // 1. Scout march: arrives at tick 140 (4s left)
+            {
+              id: "m_scout",
+              realmId: "player",
+              fromId: "p_home",
+              toId: "p_scout",
+              arrivesTick: 140,
+              purpose: "scout",
+              force: { skirmisher: 1 },
+            },
+            // 2. Gather march: arrives at tick 180 (8s left)
+            {
+              id: "m_gather",
+              realmId: "player",
+              fromId: "p_home",
+              toId: "p_gather",
+              arrivesTick: 180,
+              purpose: "gather",
+              force: { worker: 2 },
+            },
+            // 3. Garrison march: arrives at tick 160 (6s left)
+            {
+              id: "m_garrison",
+              realmId: "player",
+              fromId: "p_home",
+              toId: "p_garrison",
+              arrivesTick: 160,
+              purpose: "garrison",
+              force: { guard: 5 },
+            },
+            // 4. Player combat march: arrives at tick 220 (12s left)
+            {
+              id: "m_combat",
+              realmId: "player",
+              fromId: "p_home",
+              toId: "p_enemy",
+              arrivesTick: 220,
+              purpose: "raid",
+              force: { knight: 5 },
+            },
+            // 5. Hostile incoming warband: arrives at tick 250 (15s left)
+            {
+              id: "m_hostile",
+              realmId: "k_iron",
+              fromId: "p_enemy",
+              toId: "p_home",
+              arrivesTick: 250,
+              purpose: "raid",
+              force: { spearman: 20 },
+            },
+          ]),
+        };
+
+        const routeG = createMockGraphics();
+        const pawnsG = createMockGraphics();
+
+        paintBoardMarches(routeG, pawnsG, state, 1.0);
+
+        expect(routeG.calls.length).toBeGreaterThan(30);
+        expect(pawnsG.calls.length).toBeGreaterThan(60);
+
+        const pawnsJson = JSON.stringify(pawnsG.calls);
+        // Golden hourglass pip (friendly ETA): 0xfde047 = 16638023
+        expect(pawnsJson).toContain("16638023");
+        // Hostile hazard pip (hostile ETA): 0xf87171 = 16281969
+        expect(pawnsJson).toContain("16281969");
+        // Crisp white text digits (0xffffff = 16777215)
+        expect(pawnsJson).toContain("16777215");
+      });
+
+      it("paintBoardGathers renders seconds badge when arrivesTick is present", () => {
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_quarry", x: 3, y: 2, terrain: "hill", node: "quarry" },
+          ],
+        };
+        state.meta.tick = 50;
+        (state as any).gathers = [
+          {
+            id: "g1",
+            fromId: "p_home",
+            toId: "p_quarry",
+            phase: "outbound",
+            departedTick: 40,
+            arrivesTick: 90,
+            progress: 0.2,
+          },
+        ];
+
+        const routeG = createMockGraphics();
+        const pawnsG = createMockGraphics();
+
+        paintBoardGathers(routeG, pawnsG, state, 0.5);
+
+        expect(pawnsG.calls.length).toBeGreaterThan(25);
+        const pawnsJson = JSON.stringify(pawnsG.calls);
+        // Golden hourglass pip for gather ETA: 0xfde047 = 16638023
+        expect(pawnsJson).toContain("16638023");
+        // White text digits
+        expect(pawnsJson).toContain("16777215");
+      });
+
+      it("OverworldAtlas defines sc-atlas-march-eta-badge with pointer-events: none and theme.css enforces pointer-events: none !important", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+
+        const atlasCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx"), "utf-8");
+        expect(atlasCode).toContain("sc-atlas-march-eta-badge");
+        expect(atlasCode).toContain("pointerEvents: \"none\"");
+        expect(atlasCode).toContain("calculateMarchProgress");
+        expect(atlasCode).toContain("{secs}s");
+
+        const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+        expect(themeCss).toContain(".sc-atlas-march-eta-badge");
+        expect(themeCss).toContain("pointer-events: none !important");
+      });
+
+      it("preserves camera and hit-test invariants with zero conflict markers", async () => {
+        const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+        expect(typeof hitTestProvince).toBe("function");
+        expect(typeof boardGridToWorld).toBe("function");
+        expect(bandForZoom(1.0)).toBe("hold");
+
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const tokensCode = fs.readFileSync(path.resolve(__dirname, "./tokens.ts"), "utf-8");
+        expect(tokensCode).not.toContain("<<<<<<<");
+        const indexCode = fs.readFileSync(path.resolve(__dirname, "./index.ts"), "utf-8");
+        expect(indexCode).not.toContain("<<<<<<<");
+        const atlasCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx"), "utf-8");
+        expect(atlasCode).not.toContain("<<<<<<<");
       });
     });
   });

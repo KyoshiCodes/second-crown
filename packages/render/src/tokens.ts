@@ -3187,13 +3187,116 @@ export function drawGarrisonMeeple(
  *
  * Distinct features:
  * - Spiked blackened iron pedestal base with crimson danger ring
+/**
+ * 3x5 Pixel Bitmap Font for numeric digits 0-9 and unit 's'.
+ * Bit 2 is x=0, Bit 1 is x=1, Bit 0 is x=2.
+ */
+export const MARCH_ETA_GLYPHS_3X5: Record<string, number[]> = {
+  "0": [7, 5, 5, 5, 7],
+  "1": [2, 6, 2, 2, 7],
+  "2": [7, 1, 7, 4, 7],
+  "3": [7, 1, 7, 1, 7],
+  "4": [5, 5, 7, 1, 1],
+  "5": [7, 4, 7, 1, 7],
+  "6": [7, 4, 7, 5, 7],
+  "7": [7, 1, 1, 1, 1],
+  "8": [7, 5, 7, 5, 7],
+  "9": [7, 5, 7, 1, 7],
+  "s": [7, 4, 7, 1, 7],
+};
+
+/**
+ * Draws a tiny seconds badge floating above a board march meeple.
+ * Strictly non-interactive (pointer-events: none on layer), pure pixel art graphics.
+ * Shows remaining seconds (e.g. "4s", "18s", "0s") with an hourglass/hazard pip.
+ */
+export function drawMarchEtaBadge(
+  pawnsG: Graphics,
+  pawnX: number,
+  pawnY: number,
+  secs: number,
+  borderColor: number = 0xf59e0b,
+  bob: number = 0,
+  isHostile: boolean = false
+): void {
+  const safeSecs = Math.max(0, Math.floor(secs));
+  const text = `${safeSecs}s`;
+
+  // Compute compact width based on char count
+  // Each char: 3px wide, 1px spacing. Icon: 3px. Padding: 3px left & right. Gap: 2px.
+  // totalWidth = 3 + 3 + 2 + (text.length * 3 + (text.length - 1)) + 3 = 10 + 4 * text.length
+  const badgeW = Math.max(18, 10 + 4 * text.length);
+  const badgeH = 9;
+  const badgeX = Math.round(pawnX - badgeW / 2);
+  const badgeY = Math.round(pawnY - 28 - bob);
+
+  // 1. Subtle drop shadow
+  pawnsG.rect(badgeX, badgeY + 1, badgeW, badgeH);
+  pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+
+  // 2. Crisp dark pill container with faction/threat border
+  pawnsG.rect(badgeX, badgeY, badgeW, badgeH);
+  pawnsG.fill({ color: 0x090d16, alpha: 0.95 });
+  pawnsG.stroke({ width: 0.9, color: borderColor, alpha: 0.95 });
+
+  // 3. Status pip on the left: Skull/hazard for hostile, golden hourglass for friendly/neutral
+  const iconX = badgeX + 3;
+  const iconY = badgeY + 2;
+
+  if (isHostile) {
+    // Red skull / hazard pip
+    pawnsG.circle(iconX + 1.5, iconY + 1.5, 1.4);
+    pawnsG.fill({ color: 0xf87171 });
+    pawnsG.rect(iconX + 0.5, iconY + 2.5, 2, 1.2);
+    pawnsG.fill({ color: 0xf87171 });
+  } else {
+    // Golden hourglass pip
+    pawnsG.rect(iconX, iconY, 3, 1);
+    pawnsG.rect(iconX + 1, iconY + 1, 1, 3);
+    pawnsG.rect(iconX, iconY + 4, 3, 1);
+    pawnsG.fill({ color: 0xfde047 });
+  }
+
+  // 4. Pixel font characters (3x5) in crisp white
+  let charX = iconX + 3 + 2;
+  const charY = badgeY + 2;
+
+  for (let c = 0; c < text.length; c++) {
+    const ch = text[c];
+    const glyph = MARCH_ETA_GLYPHS_3X5[ch] ?? MARCH_ETA_GLYPHS_3X5["s"];
+    for (let r = 0; r < 5; r++) {
+      const bits = glyph[r];
+      if (bits === 7) {
+        pawnsG.rect(charX, charY + r, 3, 1);
+      } else if (bits === 6) {
+        pawnsG.rect(charX, charY + r, 2, 1);
+      } else if (bits === 5) {
+        pawnsG.rect(charX, charY + r, 1, 1);
+        pawnsG.rect(charX + 2, charY + r, 1, 1);
+      } else if (bits === 4) {
+        pawnsG.rect(charX, charY + r, 1, 1);
+      } else if (bits === 3) {
+        pawnsG.rect(charX + 1, charY + r, 2, 1);
+      } else if (bits === 2) {
+        pawnsG.rect(charX + 1, charY + r, 1, 1);
+      } else if (bits === 1) {
+        pawnsG.rect(charX + 2, charY + r, 1, 1);
+      }
+    }
+    charX += 4;
+  }
+  pawnsG.fill({ color: 0xffffff });
+}
+
+/**
+ * Draws a distinct, menacing red warband meeple for hostile incoming marches
  * - Hulking iron-armored torso with blood-red warband surcoat and crossed iron harness straps
  * - Tiered spiked iron pauldrons (shoulders) with aggressive silhouette
  * - Horned iron war helm with curved demon/warband horns
  * - Glowing crimson eye-slit visor with burning pupil hot spots and pulsing aura
  * - Heavy barbed halberd axe blade with specular cutting bevel and ragged waving crimson/black war pennant
  * - Spiked off-hand heater shield with central iron boss
- * - Floating ETA/threat pill badge with skull hazard emblem and impending danger pips
+ * - Floating ETA/threat pill badge with skull hazard emblem and remaining seconds badge
  * - Adapts subtle heraldic accents if the hostile march belongs to a specific rival realm
  */
 export function drawRedWarbandMeeple(
@@ -3205,7 +3308,8 @@ export function drawRedWarbandMeeple(
   bob: number,
   realmId?: string,
   phase: number = 0,
-  power: number = 0
+  power: number = 0,
+  secs?: number
 ): void {
   const pal = realmId ? realmTokenPalette(realmId) : null;
   const accentRed = 0xdc2626;
@@ -3363,25 +3467,29 @@ export function drawRedWarbandMeeple(
   pawnsG.stroke({ width: 0.7, color: 0x18181b });
 
   // 9. Floating Hostile Threat & ETA Pill Badge
-  pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
-  pawnsG.fill({ color: 0x000000, alpha: 0.45 });
-  pawnsG.rect(pawnX - 16, pawnY - 29 - bob, 32, 9);
-  pawnsG.fill({ color: 0x09090b, alpha: 0.95 });
-  pawnsG.stroke({ width: 1, color: accentRed, alpha: 0.95 });
+  if (typeof secs === "number") {
+    drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, accentRed, bob, true);
+  } else {
+    pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
+    pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+    pawnsG.rect(pawnX - 16, pawnY - 29 - bob, 32, 9);
+    pawnsG.fill({ color: 0x09090b, alpha: 0.95 });
+    pawnsG.stroke({ width: 1, color: accentRed, alpha: 0.95 });
 
-  // Skull / Hazard Icon on the left
-  pawnsG.circle(pawnX - 10.5, pawnY - 24.5 - bob, 2.0);
-  pawnsG.fill({ color: 0xf87171 });
-  pawnsG.rect(pawnX - 11.5, pawnY - 23.5 - bob, 2.0, 1.2);
-  pawnsG.fill({ color: 0xf87171 });
+    // Skull / Hazard Icon on the left
+    pawnsG.circle(pawnX - 10.5, pawnY - 24.5 - bob, 2.0);
+    pawnsG.fill({ color: 0xf87171 });
+    pawnsG.rect(pawnX - 11.5, pawnY - 23.5 - bob, 2.0, 1.2);
+    pawnsG.fill({ color: 0xf87171 });
 
-  // Threat indicator dots inside pill
-  pawnsG.circle(pawnX - 4, pawnY - 24.5 - bob, 1.5);
-  pawnsG.fill({ color: 0xef4444 });
-  pawnsG.circle(pawnX + 2, pawnY - 24.5 - bob, 1.5);
-  pawnsG.fill({ color: accentRed });
-  pawnsG.circle(pawnX + 8, pawnY - 24.5 - bob, 1.5);
-  pawnsG.fill({ color: darkRed });
+    // Threat indicator dots inside pill
+    pawnsG.circle(pawnX - 4, pawnY - 24.5 - bob, 1.5);
+    pawnsG.fill({ color: 0xef4444 });
+    pawnsG.circle(pawnX + 2, pawnY - 24.5 - bob, 1.5);
+    pawnsG.fill({ color: accentRed });
+    pawnsG.circle(pawnX + 8, pawnY - 24.5 - bob, 1.5);
+    pawnsG.fill({ color: darkRed });
+  }
 }
 
 export const drawWarbandMeeple = drawRedWarbandMeeple;
@@ -3527,6 +3635,10 @@ export function paintBoardMarches(
     const frame: 0 | 1 | 2 = stepIdx === 1 ? 1 : stepIdx === 3 ? 2 : 0;
     const bob = frame === 0 ? 0 : 2;
 
+    const hasArrival = typeof m.arrivesTick === "number";
+    const ticksLeft = hasArrival ? Math.max(0, m.arrivesTick - (state.meta.tick ?? 0)) : 0;
+    const secs = Math.ceil(ticksLeft / 10);
+
     const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
     const kit = resolveCultureKit(cultId);
     const cult = culturePalette(cultId);
@@ -3544,6 +3656,9 @@ export function paintBoardMarches(
         phase,
         progress
       );
+      if (hasArrival) {
+        drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x38bdf8, bob);
+      }
     } else if (isGather) {
       renderedGatherIds.add(m.id);
       if (m.toId) renderedGatherIds.add(m.toId);
@@ -3560,6 +3675,9 @@ export function paintBoardMarches(
         phase,
         progress
       );
+      if (hasArrival) {
+        drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x22c55e, bob);
+      }
     } else if (isGarrison) {
       let gPower = 0;
       if (m.force) {
@@ -3576,6 +3694,9 @@ export function paintBoardMarches(
         phase,
         { facing, frame, isColumn: true, tired: isTired }
       );
+      if (hasArrival) {
+        drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x3b82f6, bob);
+      }
     } else if (isPlayer) {
       // Player: Meeple styled in the matching unit type pixel language (archer, knight, cavalry, siege, spearman, etc.)
       const unitType = primaryUnitTypeForMarch(m);
@@ -3977,22 +4098,26 @@ export function paintBoardMarches(
         }
       }
 
-      // Floating ETA pill badge with subtle shadow
-      pawnsG.rect(pawnX - 16, pawnY - 27 - bob, 32, 9);
-      pawnsG.fill({ color: 0x000000, alpha: 0.45 });
-      pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
-      pawnsG.fill({ color: 0x090d16, alpha: 0.95 });
-      pawnsG.stroke({ width: 1, color: pal.accentColor, alpha: 0.9 });
+      if (hasArrival) {
+        drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, pal.accentColor, bob);
+      } else {
+        // Floating ETA pill badge with subtle shadow
+        pawnsG.rect(pawnX - 16, pawnY - 27 - bob, 32, 9);
+        pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+        pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
+        pawnsG.fill({ color: 0x090d16, alpha: 0.95 });
+        pawnsG.stroke({ width: 1, color: pal.accentColor, alpha: 0.9 });
 
-      // Progress timer dots inside pill
-      pawnsG.circle(pawnX - 10, pawnY - 23.5 - bob, 1.8);
-      pawnsG.fill({ color: 0xfde047 });
-      pawnsG.circle(pawnX - 4, pawnY - 23.5 - bob, 1.5);
-      pawnsG.fill({ color: 0xfacc15 });
-      pawnsG.circle(pawnX + 2, pawnY - 23.5 - bob, 1.5);
-      pawnsG.fill({ color: 0xeab308 });
-      pawnsG.circle(pawnX + 8, pawnY - 23.5 - bob, 1.5);
-      pawnsG.fill({ color: 0xca8a04 });
+        // Progress timer dots inside pill
+        pawnsG.circle(pawnX - 10, pawnY - 23.5 - bob, 1.8);
+        pawnsG.fill({ color: 0xfde047 });
+        pawnsG.circle(pawnX - 4, pawnY - 23.5 - bob, 1.5);
+        pawnsG.fill({ color: 0xfacc15 });
+        pawnsG.circle(pawnX + 2, pawnY - 23.5 - bob, 1.5);
+        pawnsG.fill({ color: 0xeab308 });
+        pawnsG.circle(pawnX + 8, pawnY - 23.5 - bob, 1.5);
+        pawnsG.fill({ color: 0xca8a04 });
+      }
     } else {
       // Hostile Incoming Warband: Red Warband Meeple
       const forceCount = m.force
@@ -4007,7 +4132,8 @@ export function paintBoardMarches(
         bob,
         m.realmId,
         phase,
-        forceCount
+        forceCount,
+        hasArrival ? secs : undefined
       );
     }
   }
@@ -4123,6 +4249,13 @@ export function paintBoardGathers(
       phase,
       progress
     );
+
+    const hasArrival = typeof g.arrivesTick === "number";
+    if (hasArrival) {
+      const ticksLeft = Math.max(0, g.arrivesTick - (state?.meta?.tick ?? 0));
+      const secs = Math.ceil(ticksLeft / 10);
+      drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x22c55e, bob);
+    }
   }
 }
 

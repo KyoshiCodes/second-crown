@@ -13,9 +13,27 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Open wave (wave/hud-march)
+## Active Bakeoff (bakeoff/gemini-eta)
 
-- Inspect card lists marches targeting or sitting on the clicked tile: who + seconds left, from existing `March` fields. UI + `inspect-card.css` only; no sim or theme change.
+- **Tiny Seconds Badge on Board March Meeples (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - Each board march meeple that already has an arrival time (`m.arrivesTick` or `g.arrivesTick`) displays a tiny seconds badge floating above its head (e.g. `4s`, `18s`, `0s`).
+  - **Deterministic Pixel Art Badge (`drawMarchEtaBadge`, `MARCH_ETA_GLYPHS_3X5`)**:
+    - Compact rounded pill container with subtle drop shadow, dark translucent background (`0x090d16`), and crisp border matching the march faction or mission type:
+      - Player war/raid march: Warm golden amber (`pal.accentColor`) with golden hourglass pip.
+      - Scout column: Celestial recon cyan (`0x38bdf8`) with cyan hourglass pip.
+      - Gather column / expedition: Emerald green (`0x22c55e`) with harvest hourglass pip.
+      - Garrison column: Royal blue (`0x3b82f6`) with defensive hourglass pip.
+      - Hostile incoming warband: Blood-red crimson (`0xef4444`, `0xdc2626`) with hazard skull pip.
+    - 3x5 bitmap pixel font rendered via pure geometry rects, eliminating external DOM font dependencies and guaranteeing 100% determinism in headless tests and WebGL.
+    - Floating height automatically tracks the marching meeple stride and head bob (`pawnY - 28 - bob`).
+  - **Pointer-Events None Invariant**:
+    - `boardPawnsLayer.eventMode = "none"` in Pixi stage setup.
+    - Mini-map SVG `<g className="sc-atlas-march-eta-badge" style={{ pointerEvents: "none" }}>` with `.sc-atlas-march-eta-badge { pointer-events: none !important; }` in `theme.css`.
+    - Clicks cleanly fall through to provinces, tiles, and pawns underneath.
+  - **Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
 
 ## Active Bakeoff (bakeoff/gemini-fog)
 

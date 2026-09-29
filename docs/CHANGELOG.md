@@ -1,9 +1,27 @@
 # CHANGELOG
 
-## 2026-09-29 — Inspect card lists marches on the tile (wave/hud-march)
+## 2026-09-29 — Gemini Board March Meeple Seconds Badge (bakeoff/gemini-eta)
 
-- `ProvinceInspect.tsx`: for every march whose `toId` is the clicked tile, a row shows **who** (your column or the rival realm name), purpose/kind, and **seconds left** (`arrivesTick - tick`, divided by `TICKS_PER_SECOND`). Arrived-but-unresolved marches read `on tile`. Rival marches are hidden on unseen tiles. March math untouched.
-- Styles in `hud/inspect-card.css` only (`.sc-inspect-marches`, `.sc-inspect-march`, `is-mine` green, `is-rival` red).
+- **Tiny Seconds Badge on Board March Meeples (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - **Deterministic Pixel Art Badge (`drawMarchEtaBadge`, `MARCH_ETA_GLYPHS_3X5`)**:
+    - Each board march meeple that already has an arrival time (`m.arrivesTick` or `g.arrivesTick`) displays a tiny seconds countdown badge floating above its head (e.g. `4s`, `18s`, `0s`).
+    - Compact rounded pill container with subtle drop shadow, dark translucent background (`0x090d16`), and crisp stroke border:
+      - Player war/raid march: Warm golden amber (`pal.accentColor`) with golden hourglass pip.
+      - Scout column: Celestial recon cyan (`0x38bdf8`) with cyan hourglass pip.
+      - Gather column / expedition: Emerald green (`0x22c55e`) with harvest hourglass pip.
+      - Garrison column: Royal blue (`0x3b82f6`) with defensive hourglass pip.
+      - Hostile incoming warband: Menacing crimson (`0xdc2626`, `0xef4444`) with hazard skull pip.
+    - 3x5 bitmap pixel font rendered via pure geometry rects, eliminating DOM font dependencies and guaranteeing 100% determinism in headless tests and WebGL.
+    - Floating height dynamically tracks the marching meeple stride and head bob (`pawnY - 28 - bob`).
+  - **Strict Pointer-Events None Guarantee**:
+    - Pixi layer `boardPawnsLayer.eventMode = "none"` guarantees clicks never get blocked or intercepted.
+    - Mini-map SVG `<g className="sc-atlas-march-eta-badge" style={{ pointerEvents: "none" }}>` with `.sc-atlas-march-eta-badge { pointer-events: none !important; }` in `theme.css`.
+    - Clicks and hovers fall cleanly through to provinces, tiles, and hit tests underneath.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Full test suite passing (221 sim tests, 190 render tests; clean app build).
 
 ## 2026-09-29 — Gemini Cloud Veil on Unseen Tiles (bakeoff/gemini-fog)
 

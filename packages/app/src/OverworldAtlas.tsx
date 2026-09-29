@@ -8,7 +8,12 @@ import {
   type GameState,
   type Province,
 } from "@second-crown/sim";
-import { realmTokenPalette, listKeepYardBuildings, type KeepYardBuildingInfo } from "@second-crown/render";
+import {
+  realmTokenPalette,
+  listKeepYardBuildings,
+  type KeepYardBuildingInfo,
+  calculateMarchProgress,
+} from "@second-crown/render";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -656,6 +661,16 @@ export function OverworldAtlas(props: {
           const y2 = oy + b.y;
           const pal = realmTokenPalette(m.realmId);
           const stroke = cssColor(pal.accentColor, "#fbbf24");
+          const dist = Math.max(1, Math.abs(to.x - from.x) + Math.abs(to.y - from.y));
+          const progress = typeof m.arrivesTick === "number"
+            ? calculateMarchProgress(state.meta.tick, m.arrivesTick, dist)
+            : 0.5;
+          const mx = x1 + (x2 - x1) * progress;
+          const my = y1 + (y2 - y1) * progress;
+          const hasEta = typeof m.arrivesTick === "number";
+          const secs = hasEta
+            ? Math.max(0, Math.ceil((m.arrivesTick - state.meta.tick) / 10))
+            : null;
           return (
             <g key={m.id}>
               <line
@@ -668,7 +683,33 @@ export function OverworldAtlas(props: {
                 strokeDasharray="4 3"
                 opacity={0.85}
               />
-              <circle cx={(x1 + x2) / 2} cy={(y1 + y2) / 2} r={4} fill={stroke} stroke="#111" />
+              <circle cx={mx} cy={my} r={4} fill={stroke} stroke="#111" />
+              {hasEta && secs !== null ? (
+                <g className="sc-atlas-march-eta-badge" style={{ pointerEvents: "none" }}>
+                  <rect
+                    x={mx - 10}
+                    y={my - 16}
+                    width={20}
+                    height={10}
+                    rx={3}
+                    fill="#090d16"
+                    stroke={stroke}
+                    strokeWidth={0.8}
+                  />
+                  <text
+                    x={mx}
+                    y={my - 8.5}
+                    textAnchor="middle"
+                    fill="#ffffff"
+                    fontSize={7.5}
+                    fontWeight="bold"
+                    fontFamily="monospace"
+                    style={{ pointerEvents: "none", userSelect: "none" }}
+                  >
+                    {secs}s
+                  </text>
+                </g>
+              ) : null}
             </g>
           );
         })}
