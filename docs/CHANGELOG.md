@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## 2026-09-29 — Gemini March Destination Tile Faint Rings (bakeoff/gemini-dest)
+
+- **Tiles That Are a March Destination Get a Faint Ring (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:
+  - **Color-Coded Faint Destination Rings (`paintBoardDestinationRing`)**:
+    - Tiles that are already a march destination get a faint, elegant ring around the tile perimeter:
+      - **Player march destination**: Warm luminous amber-gold palette (`0xf59e0b` ring, `0xd97706` glow, `0xfde047` pips).
+      - **Hostile march destination**: Menacing crimson danger palette (`0xef4444` ring, `0xdc2626` glow, `0xfca5a5` pips).
+    - Faint ground ring at the tabletop base plane with soft atmospheric glow (`alpha: 0.25 - 0.55`).
+    - Faint elevated plateau ring on raised terrain facets with rear-facet sunlit shimmer.
+    - Subtle cardinal corner bracket pips marking the tile vertices.
+    - Subtle breathing pulse driven by phase and tile coordinates (`Math.sin(phase * 3 + p.x * 2 + p.y)`).
+    - Covers both seen and unseen (fog/cloud) destination tiles so player scout routes remain readable.
+    - Distinct from the thick, high-opacity gold player selection rim (`paintBoardSelectionRim`).
+  - **March Destination Classification (`buildMarchDestinationMap`, `getTileMarchDestination`)**:
+    - Automatically maps destinations of all active marches in `listMarches(state)` and gathers in `listGathersPresentation(state)`.
+    - Hostile enemy warbands and raids take combat alert priority if both forces target the same province.
+  - **Kingdom Atlas SVG Integration (`packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:
+    - `<g className="sc-atlas-dest-ring" pointerEvents="none">` renders matching faint SVG destination rings on the kingdom map.
+    - Enforced non-interactive pointer events (`pointerEvents: "none"` and `.sc-atlas-dest-ring { pointer-events: none !important; }`), ensuring clicks fall through to tile selections.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Full test suite passing (221 sim tests, 206 render tests; clean app build).
+
 ## 2026-09-29 — Gemini Rival Home Keeps Realm Crests (bakeoff/gemini-capitals)
 
 - **Rival Home Keeps Show Small Realm Crest Above Keep (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:

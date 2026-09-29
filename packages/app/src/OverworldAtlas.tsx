@@ -15,6 +15,7 @@ import {
   type KeepYardBuildingInfo,
   calculateMarchProgress,
   getThemeVisuals,
+  getTileMarchDestination,
 } from "@second-crown/render";
 import { detectCurrentHoliday } from "./seasons/holidays";
 
@@ -625,6 +626,7 @@ export function OverworldAtlas(props: {
           const hw = TILE_W / 2;
           const hh = TILE_H / 2;
           const lift = paint.lift;
+          const destKind = getTileMarchDestination(state, p.id);
           return (
             <g
               key={p.id}
@@ -688,6 +690,34 @@ export function OverworldAtlas(props: {
                   <MiniCloudVeil cx={cx} cy={cy} />
                 </>
               )}
+              {/* March destination faint ring (player gold, hostile red) */}
+              {destKind ? (
+                <g className="sc-atlas-dest-ring" pointerEvents="none">
+                  {/* Ground ring at base */}
+                  <polygon
+                    points={diamond(cx, cy + (seen ? lift : 0))}
+                    fill="none"
+                    stroke={destKind === "player" ? "#f59e0b" : "#ef4444"}
+                    strokeWidth={2}
+                    opacity={destKind === "player" ? 0.45 : 0.55}
+                  />
+                  {/* Elevated plateau ring */}
+                  {seen && lift > 0 ? (
+                    <polygon
+                      points={diamond(cx, cy)}
+                      fill="none"
+                      stroke={destKind === "player" ? "#facc15" : "#f87171"}
+                      strokeWidth={1.2}
+                      opacity={destKind === "player" ? 0.50 : 0.60}
+                    />
+                  ) : null}
+                  {/* Cardinal corner bracket pips */}
+                  <circle cx={cx} cy={cy - hh} r={1.3} fill={destKind === "player" ? "#fde047" : "#fca5a5"} opacity={0.7} />
+                  <circle cx={cx + hw} cy={cy} r={1.3} fill={destKind === "player" ? "#fde047" : "#fca5a5"} opacity={0.7} />
+                  <circle cx={cx} cy={cy + hh} r={1.3} fill={destKind === "player" ? "#fde047" : "#fca5a5"} opacity={0.7} />
+                  <circle cx={cx - hw} cy={cy} r={1.3} fill={destKind === "player" ? "#fde047" : "#fca5a5"} opacity={0.7} />
+                </g>
+              ) : null}
               {selected ? (
                 <g className="sc-atlas-select-rim" pointerEvents="none">
                   {/* Ground ring at base */}

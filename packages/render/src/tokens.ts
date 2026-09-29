@@ -1965,6 +1965,7 @@ export function paintBoardProvinces(
 
   const animPhase = typeof phase === "number" ? phase : 0;
   const theme = resolveBoardThemeVisuals(state, visuals);
+  const marchDestMap = buildMarchDestinationMap(state);
 
   // Sort back-to-front by depth (y * 20 + x) so foreground isometric tiles and cliff faces layer on top
   const sortedProvinces = [...state.board.provinces].sort((a, b) => (a.y * 20 + a.x) - (b.y * 20 + b.x));
@@ -1976,6 +1977,10 @@ export function paintBoardProvinces(
     if (!seen) {
       // Unseen Province: Raised Volumetric Cumulus Cloud Mass (NOT purple squares)
       paintFogHeightVeil(g, b, p, animPhase);
+      const destKind = marchDestMap.get(p.id);
+      if (destKind) {
+        paintBoardDestinationRing(g, p, destKind, animPhase);
+      }
       continue;
     }
 
@@ -2411,9 +2416,15 @@ export function paintBoardProvinces(
       }
     }
 
+    // 6.5 Faint Ring for March Destination Tiles (Player Gold / Hostile Red)
+    const destKind = marchDestMap.get(p.id);
+    if (destKind) {
+      paintBoardDestinationRing(g, p, destKind, animPhase);
+    }
+
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province
     if (selectedProvinceId && p.id === selectedProvinceId) {
-      paintBoardSelectionRim(g, p.x, p.y, state, phase);
+      paintBoardSelectionRim(g, p.x, p.y, state, animPhase);
     }
   }
 }
@@ -4626,6 +4637,139 @@ export function paintBoardSelectionRim(
     g.circle(pip.x, pip.y, pip.r);
     g.fill({ color: pip.color });
     g.stroke({ width: 0.6, color: 0xb45309 });
+  }
+}
+
+/**
+ * Maps all province IDs that are destinations of active marches to their destination kind:
+ * - "hostile": hostile warband/raid/column targeting the province (takes alert priority)
+ * - "player": player war/raid/scout/gather/garrison column targeting the province
+ */
+export function buildMarchDestinationMap(
+  state: GameState | null
+): Map<string, "player" | "hostile"> {
+  const map = new Map<string, "player" | "hostile">();
+  if (!state?.board) return map;
+
+  const marches = listMarches(state);
+  for (const m of marches) {
+    if (!m?.toId) continue;
+    const isPlayer = m.realmId === "player";
+    const current = map.get(m.toId);
+    if (!isPlayer) {
+      // Hostile march destination takes alert priority
+      map.set(m.toId, "hostile");
+    } else if (!current) {
+      map.set(m.toId, "player");
+    }
+  }
+
+  // Also check gathers for outbound and returning trips
+  const gathers = listGathersPresentation(state);
+  for (const g of gathers) {
+    if (!g) continue;
+    const destId = g.phase === "returning"
+      ? (g.fromId ?? state.board?.homeProvinceId)
+      : (g.toId ?? g.targetProvinceId);
+    if (!destId) continue;
+    const isPlayer = !g.realmId || g.realmId === "player";
+    const current = map.get(destId);
+    if (!isPlayer) {
+      map.set(destId, "hostile");
+    } else if (!current) {
+      map.set(destId, "player");
+    }
+  }
+
+  return map;
+}
+
+/**
+ * Resolves whether a province is currently the destination of an active march:
+ * Returns "player" (gold), "hostile" (red), or null if not a march destination.
+ */
+export function getTileMarchDestination(
+  state: GameState | null,
+  provinceId: string
+): "player" | "hostile" | null {
+  if (!state || !provinceId) return null;
+  const map = buildMarchDestinationMap(state);
+  return map.get(provinceId) ?? null;
+}
+
+/**
+ * Paints a faint, elegant destination ring around an isometric tile that is already a march destination.
+ * - Player marches: warm luminous gold palette (0xf59e0b, 0xd97706, 0xfde047)
+ * - Hostile marches: menacing crimson/red palette (0xef4444, 0xdc2626, 0xfca5a5)
+ * Distinct from the high-opacity, thick player selection rim.
+ */
+export function paintBoardDestinationRing(
+  g: Graphics,
+  p: Province,
+  destType: "player" | "hostile",
+  phase: number = 0
+): void {
+  const b = provinceTokenBounds(p.x, p.y);
+  const elev = terrainElevation(p.terrain);
+  const wx = b.cx;
+  const wy = b.cy;
+  const cy = wy - elev;
+  const hw = BOARD_HALF_W;
+  const hh = BOARD_HALF_H;
+
+  const isPlayer = destType === "player";
+  const ringColor = isPlayer ? 0xf59e0b : 0xef4444;
+  const glowColor = isPlayer ? 0xd97706 : 0xdc2626;
+  const shimmerColor = isPlayer ? 0xfde047 : 0xfca5a5;
+
+  const pulse = Math.sin(phase * 3 + p.x * 2 + p.y) * 0.12;
+  const alphaBase = isPlayer ? (0.50 + pulse) : (0.60 + pulse);
+
+  // 1. Soft atmospheric outer glow around the ground footprint
+  g.poly([
+    wx, wy - hh - 2.5,
+    wx + hw + 2.5, wy,
+    wx, wy + hh + 2.5,
+    wx - hw - 2.5, wy,
+  ]);
+  g.stroke({ width: 2.5, color: glowColor, alpha: 0.25 * alphaBase });
+
+  // 2. Main faint ground ring on tabletop ground plane
+  g.poly([
+    wx, wy - hh - 1.5,
+    wx + hw + 1.5, wy,
+    wx, wy + hh + 1.5,
+    wx - hw - 1.5, wy,
+  ]);
+  g.stroke({ width: 1.5, color: ringColor, alpha: 0.55 * alphaBase });
+
+  // 3. Faint elevated plateau ring if tile has elevation
+  if (elev > 0) {
+    g.poly([
+      wx, cy - hh - 1,
+      wx + hw + 1, cy,
+      wx, cy + hh + 1,
+      wx - hw - 1, cy,
+    ]);
+    g.stroke({ width: 1.2, color: ringColor, alpha: 0.50 * alphaBase });
+
+    // Subtle sunlit rear-facet rim
+    g.moveTo(wx - hw - 0.5, cy);
+    g.lineTo(wx, cy - hh - 0.5);
+    g.lineTo(wx + hw + 0.5, cy);
+    g.stroke({ width: 0.8, color: shimmerColor, alpha: 0.65 * alphaBase });
+  }
+
+  // 4. Subtle corner target pips on the 4 cardinal diamond points
+  const pips = [
+    { x: wx, y: cy - hh - 1 },
+    { x: wx + hw + 1, y: cy },
+    { x: wx, y: cy + hh + 1 },
+    { x: wx - hw - 1, y: cy },
+  ];
+  for (const pip of pips) {
+    g.circle(pip.x, pip.y, 1.2);
+    g.fill({ color: shimmerColor, alpha: 0.75 * alphaBase });
   }
 }
 

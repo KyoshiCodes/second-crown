@@ -13,6 +13,29 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active Bakeoff (bakeoff/gemini-dest)
+
+- **Faint Ring for March Destination Tiles (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:
+  - Tiles that are already a march destination display a faint, elegant ring around the tile perimeter:
+    - **Player marches**: Warm luminous gold palette (`0xf59e0b` ring, `0xd97706` glow, `0xfde047` pips).
+    - **Hostile marches**: Menacing danger red palette (`0xef4444` ring, `0xdc2626` glow, `0xfca5a5` pips).
+  - **Atmospheric & Readable Geometry (`paintBoardDestinationRing`)**:
+    - Faint ground ring at the tabletop base plane with soft atmospheric glow.
+    - Faint elevated plateau ring on raised terrain facets with rear-facet sunlit shimmer.
+    - Subtle cardinal corner bracket pips marking the tile vertices.
+    - Gentle pulsing breath driven by phase and coordinates (`Math.sin(phase * 3 + p.x * 2 + p.y)`).
+    - Covers both seen and unseen (fog/cloud) destination tiles so player scout routes remain readable.
+    - Distinct from the thick, high-opacity gold player selection rim (`paintBoardSelectionRim`).
+  - **March Classification (`buildMarchDestinationMap`, `getTileMarchDestination`)**:
+    - Automatically maps destinations of all active marches in `listMarches(state)` and gathers in `listGathersPresentation(state)`.
+    - Hostile enemy warbands and raids take combat alert priority if both forces target the same province.
+  - **Kingdom Atlas SVG Integration (`packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:
+    - Matching SVG destination rings rendered on the kingdom map with `.sc-atlas-dest-ring` and `pointer-events: none !important;` so map clicks fall cleanly through.
+  - **Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+
 ## Active Bakeoff (bakeoff/gemini-capitals)
 
 - **Rival & Foreign Home Keeps Show Small Realm Crest Above Keep (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:

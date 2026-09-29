@@ -1840,4 +1840,12 @@ button:disabled {
   user-select: none !important;
 }
 
+/* --- March Destination Ring: faint ring strictly pointer-events: none --- */
+.sc-atlas-dest-ring,
+.sc-atlas-dest-ring * {
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+
 
