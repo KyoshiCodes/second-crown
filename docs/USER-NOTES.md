@@ -2,9 +2,18 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-29 — Inspect card shows columns heading to a tile
+## 2026-09-29 — Seconds countdown badge on marching board meeples
 
-- Click a tile: if any column is marching to it (or has just arrived), the card lists **who** it is and **how many seconds** until it lands. Your columns are green, rival columns red. Rival columns on fogged tiles stay hidden.
+- March meeples in motion across the tabletop board now show a tiny seconds countdown badge above their heads:
+  - **Live Seconds Remaining**: Whenever a column (scouts, gathers, garrisons, player warbands, or incoming hostile warbands) has an arrival time, a tiny badge counts down the remaining seconds until arrival (e.g. `4s`, `18s`, `0s`).
+  - **Color-Coded Status & Mission Types**:
+    - Player war columns feature a warm golden border and hourglass pip.
+    - Scouts feature a bright cyan recon border.
+    - Foraging gathers feature an emerald green harvest border.
+    - Garrison detachments feature a royal blue shield border.
+    - Hostile incoming warbands feature a crimson hazard border and tiny skull icon.
+  - **Non-Blocking Clicks (`pointer-events: none`)**: The badges are strictly non-interactive and transparent to clicks, ensuring clicking on a province, march, or token underneath works smoothly without hindrance.
+  - **Atlas Mini-Map**: The kingdom atlas map also reflects the march seconds countdown badge above meeples in transit.
 
 ## 2026-09-29 — Unseen tiles cloud veil & clear seen tiles
 

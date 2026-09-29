@@ -74,6 +74,8 @@ import {
   paintBoardMarches,
   paintBoardHighlight,
   paintBoardSelectionRim,
+  drawMarchEtaBadge,
+  MARCH_ETA_GLYPHS_3X5,
 } from "./tokens.js";
 
 import {
@@ -188,6 +190,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardContainer.addChild(boardRoutesLayer);
 
   const boardPawnsLayer = new Graphics();
+  boardPawnsLayer.eventMode = "none";
   boardContainer.addChild(boardPawnsLayer);
 
   const boardHighlightLayer = new Graphics();
@@ -851,5 +854,7 @@ export {
   paintBoardMarches,
   paintBoardHighlight,
   paintBoardSelectionRim,
+  drawMarchEtaBadge,
+  MARCH_ETA_GLYPHS_3X5,
 };
 

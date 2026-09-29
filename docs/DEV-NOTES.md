@@ -1,8 +1,24 @@
 # Dev notes
 
-## 2026-09-29 — hud / inspect marches on tile (wave/hud-march)
+## 2026-09-29 — render / tiny seconds badge on board march meeples (bakeoff/gemini-eta)
 
-- `marchesHere(state, id, seen)` in `ProvinceInspect.tsx` filters `listMarches(state)` by `toId === id` and reads only `realmId`, `purpose ?? kind`, `arrivesTick`. Seconds use `TICKS_PER_SECOND` from `@second-crown/shared` (ceil, floored at 0). Non-player marches require `seen`. No sim change, no `theme.css`.
+- `drawMarchEtaBadge` in `packages/render/src/tokens.ts`:
+  - Implements a compact floating seconds badge (`w = 10 + 4 * text.length`, `h = 9`) above board march meeples with drop shadow (`alpha: 0.45`), dark container pill (`0x090d16`), status pip (golden hourglass or hostile crimson skull), and 3x5 bitmap pixel font.
+  - Pixel font defined via `MARCH_ETA_GLYPHS_3X5` (3-bit masks for digits 0-9 and 's'), eliminating DOM font dependencies and guaranteeing full determinism across headless tests and WebGL.
+  - Dynamically offsets with the marching stride and head bob (`pawnY - 28 - bob`).
+- `paintBoardMarches` in `packages/render/src/tokens.ts`:
+  - Calculates `secs = Math.ceil(ticksLeft / 10)` when `typeof m.arrivesTick === "number"`.
+  - Displays `drawMarchEtaBadge` for all active march types with arrival times: scout columns (`0x38bdf8`), gather columns (`0x22c55e`), garrison detachments (`0x3b82f6`), player war columns (`pal.accentColor`), and hostile warbands (`0xdc2626`).
+- `drawRedWarbandMeeple` in `packages/render/src/tokens.ts`:
+  - Accepts optional `secs?: number`. When provided, calls `drawMarchEtaBadge` with hostile hazard pip and crimson border; preserves fallback behavior when `secs` is omitted.
+- `paintBoardGathers` in `packages/render/src/tokens.ts`:
+  - When `typeof g.arrivesTick === "number"`, renders `drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x22c55e, bob)`.
+- `boardPawnsLayer.eventMode = "none"` in `packages/render/src/index.ts`:
+  - Sets Pixi v8 `eventMode = "none"` on `boardPawnsLayer` to guarantee march meeples and badges are non-interactive and never block pointer events.
+- `OverworldAtlas` in `packages/app/src/OverworldAtlas.tsx` & `theme.css`:
+  - Renders SVG `<g className="sc-atlas-march-eta-badge" style={{ pointerEvents: "none" }}>` with `{secs}s`.
+  - Added `.sc-atlas-march-eta-badge` with `pointer-events: none !important;` in `theme.css`.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-29 — render / cloud veil on unseen tiles (bakeoff/gemini-fog)
 
