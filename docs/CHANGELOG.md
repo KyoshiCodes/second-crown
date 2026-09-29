@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-28 — Keep-yard works on home inspect card (wave/hud-yard)
+
+- `ProvinceInspect.tsx`: home hold card adds a full-width **Keep yard (n)** fact listing finished player works on a keep edge (`keepBonus(state, b) > 1`), named as `WorkCard` names them (`getBuildingType(typeId)?.name ?? typeId`). Shows "No works on the keep edge" when empty.
+- `hud/inspect-card.css`: `.sc-inspect-yard` (full row, wrapping names, green; dim when none).
+- No sim, build math, server or theme changes.
+
 ## 2026-09-28 — Gemini Hold Gatehouse Open vs Shut Doors (bakeoff/gemini-gate)
 
 - **Hold Gatehouse Open vs Shut Doors (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`)**:

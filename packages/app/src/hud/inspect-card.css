@@ -149,3 +149,8 @@
 .sc-inspect-gate.is-none dd { font-weight: 400; opacity: 0.6; }
 .sc-inspect-gate.is-closed dd { color: #3fb950; }
 .sc-inspect-gate.is-open dd { color: #d29922; }
+
+/* Home hold: works on the keep edge (keepBonus > 1), full row, names wrap. */
+.sc-inspect-yard { grid-column: 1 / -1; }
+.sc-inspect-yard dd { white-space: normal; color: #86efac; }
+.sc-inspect-yard.is-none dd { color: inherit; opacity: 0.6; }

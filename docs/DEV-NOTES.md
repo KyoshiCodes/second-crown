@@ -1,5 +1,10 @@
 # Dev notes
 
+## 2026-09-28 — hud / keep-yard works on inspect card (wave/hud-yard)
+
+- `keepYardWorks(state)` in `ProvinceInspect.tsx` is read-only: player buildings with `completesAtTick === null` and `keepBonus > 1`. Reuses the sim selector so the list cannot drift from the +10% economy rule. Scarred works (`completesAtTick` set) drop out naturally.
+- Row sits after Rim ring inside the existing `home` block. CSS: `.sc-inspect-yard` + `.is-none` in `hud/inspect-card.css`.
+
 ## 2026-09-28 — render / hold gatehouse open vs shut doors (bakeoff/gemini-gate)
 
 - `isWallRingClosed(state?: GameState | null, realmId = "player"): boolean`:

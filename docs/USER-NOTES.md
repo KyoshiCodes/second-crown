@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-28 — Keep-yard works on your hold
+
+- Click your home hold on the board. The card now lists **Keep yard**: every finished work sitting right next to your keep (those get +10% output). If none are there, it says so.
+- Nothing about building or output changed.
+
 ## 2026-09-28 — Hold gatehouse open vs shut doors
 
 - Your hold's gatehouse now dynamically shows whether your perimeter defenses are open or securely shut:
