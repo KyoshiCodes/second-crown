@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-28 — Gate open or closed on your hold
+
+- Click your home hold on the board. The card now says whether your gate is **Closed** (green: 8 rim walls plus a gate seal the ring), **Open** (amber: you have a gate but the rim still has gaps) or **None**.
+- Nothing about sieges changed.
+
 ## 2026-09-28 — Rim wall battle scars & missing merlons on low wall HP
 
 - When your kingdom's rim walls suffer damage during sieges or when wall HP is low, the rim wall art now visually reflects that battle damage:

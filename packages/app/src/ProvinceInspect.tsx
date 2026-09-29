@@ -164,6 +164,14 @@ export function ProvinceInspect(props: {
               <dt>Gate HP</dt>
               <dd>{gateOnRim(state) ? gateHp(state) : "No gate on rim"}</dd>
             </div>
+            <div
+              className={`sc-inspect-gate${
+                !gateOnRim(state) ? " is-none" : hasClosedWallRing(state) ? " is-closed" : " is-open"
+              }`}
+            >
+              <dt>Gate</dt>
+              <dd>{!gateOnRim(state) ? "None" : hasClosedWallRing(state) ? "Closed · ring sealed" : "Open · rim has gaps"}</dd>
+            </div>
             <div className={`sc-inspect-wall${hasClosedWallRing(state) ? " is-closed" : " is-open"}`}>
               <dt>Rim ring</dt>
               <dd>

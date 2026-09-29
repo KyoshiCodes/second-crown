@@ -144,3 +144,8 @@
 .sc-inspect-wall.is-none dd { color: inherit; font-weight: 400; opacity: 0.6; }
 .sc-inspect-wall.is-closed dd { color: #3fb950; }
 .sc-inspect-wall.is-open dd { color: #d29922; }
+
+.sc-inspect-gate dd { font-weight: 600; }
+.sc-inspect-gate.is-none dd { font-weight: 400; opacity: 0.6; }
+.sc-inspect-gate.is-closed dd { color: #3fb950; }
+.sc-inspect-gate.is-open dd { color: #d29922; }

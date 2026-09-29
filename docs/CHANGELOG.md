@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-28 — Gate open / closed on home inspect card (wave/hud-gate)
+
+- `ProvinceInspect.tsx`: home hold card adds a **Gate** fact: "Closed · ring sealed" when `hasClosedWallRing`, "Open · rim has gaps" when `gateOnRim` but the ring is not closed, "None" when no gate is on the rim. Existing Gate HP row unchanged.
+- `hud/inspect-card.css`: `.sc-inspect-gate` value styles (green closed, amber open, dim none).
+- No sim, gate math, server or theme changes.
+
 ## 2026-09-28 — Gemini Damaged Rim Wall Art Presentation with Low wallHp (bakeoff/gemini-wall-scar)
 
 - **Damaged Rim Wall Art Presentation with Low wallHp (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`)**:
