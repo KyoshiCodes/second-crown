@@ -154,6 +154,10 @@ export function ProvinceInspect(props: {
           <dt>Owner</dt>
           <dd>{occupant}</dd>
         </div>
+        <div className={`sc-inspect-sight${seen ? " is-seen" : " is-unseen"}`}>
+          <dt>Sight</dt>
+          <dd>{seen ? "Seen" : "Unseen"}</dd>
+        </div>
         <div>
           <dt>Tile</dt>
           <dd>

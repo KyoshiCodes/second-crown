@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-09-28 — Inspect card shows Seen / Unseen (wave/hud-fog)
+
+- `ProvinceInspect.tsx`: new **Sight** fact reads `Seen` or `Unseen` from `isProvinceSeen` (existing fog state). Fog math untouched.
+- Styles in `hud/inspect-card.css` only (`.sc-inspect-sight`, `is-seen` green, `is-unseen` grey italic).
+
 ## 2026-09-28 — Gemini Keep-Yard Annexes & Construction Scaffolding (bakeoff/gemini-yard)
 
 - **Finished Keep-Yard Annexes and Scaffolding Around Home Tile Keep (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
