@@ -197,3 +197,10 @@
 .sc-inspect-season.is-summer dd { color: #fde68a; }
 .sc-inspect-season.is-autumn dd { color: #fdba74; }
 .sc-inspect-season.is-winter dd { color: #bae6fd; }
+
+/* Owner: you / rival name / empty, from home id + occupantRealmId. */
+.sc-inspect-owner dd { font-weight: 600; }
+.sc-inspect-owner.is-you dd { color: #86efac; }
+.sc-inspect-owner.is-rival dd { color: #fca5a5; }
+.sc-inspect-owner.is-empty dd { font-weight: 400; opacity: 0.6; }
+.sc-inspect-owner.is-fog dd { color: #8b949e; font-weight: 400; font-style: italic; }

@@ -101,6 +101,18 @@ function marchesHere(state: GameState, id: string, seen: boolean): MarchHere[] {
     });
 }
 
+type Owner = { kind: "you" | "rival" | "empty" | "fog"; label: string };
+
+/** Who holds the tile, from home id + occupantRealmId. Display only; no ownership math. */
+function ownerOf(state: GameState, id: string, seen: boolean): Owner {
+  if (id === state.board.homeProvinceId) return { kind: "you", label: "You" };
+  if (!seen) return { kind: "fog", label: "Unknown (fog)" };
+  const occ = getProvince(state, id)?.occupantRealmId;
+  if (!occ) return { kind: "empty", label: "Empty" };
+  if (occ === "player") return { kind: "you", label: "You" };
+  return { kind: "rival", label: state.realms.find((r) => r.id === occ)?.name ?? occ };
+}
+
 function owned(state: GameState, typeId: string): number {
   const u = state.units.find((x) => x.realmId === "player" && x.typeId === typeId);
   return Number(u?.count ?? 0);
@@ -141,11 +153,6 @@ export function ProvinceInspect(props: {
   const incomingName = incoming
     ? state.realms.find((r) => r.id === incoming.realmId)?.name ?? incoming.realmId
     : "";
-  const occupant = seen
-    ? p.occupantRealmId
-      ? state.realms.find((r) => r.id === p.occupantRealmId)?.name ?? p.occupantRealmId
-      : "None"
-    : "Unknown (fog)";
   const canScout =
     !seen && gold >= cost && !full && (owned(state, "skirmisher") >= 1 || owned(state, "militia") >= 1);
   const name = home ? settlementName(state) : seen ? NODE[p.node] ?? p.node : "Unscouted province";
@@ -154,6 +161,7 @@ export function ProvinceInspect(props: {
   const onTile = marchesHere(state, selectedId, seen);
   const terrain = seen ? TERRAIN[p.terrain] ?? p.terrain : "Unknown";
   const season = currentSeason(state);
+  const owner = ownerOf(state, selectedId, seen);
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
       <div className="sc-inspect-head">
@@ -168,9 +176,9 @@ export function ProvinceInspect(props: {
           <dt>Terrain</dt>
           <dd>{terrain}</dd>
         </div>
-        <div>
+        <div className={`sc-inspect-owner is-${owner.kind}`}>
           <dt>Owner</dt>
-          <dd>{occupant}</dd>
+          <dd>{owner.label}</dd>
         </div>
         <div className={`sc-inspect-sight${seen ? " is-seen" : " is-unseen"}`}>
           <dt>Sight</dt>
