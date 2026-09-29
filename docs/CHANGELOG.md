@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-28 — Wall / gate HP on home inspect card (wave/hud-wall-hp)
+
+- `ProvinceInspect.tsx`: home hold card adds Wall HP, Gate HP (or "No gate on rim") and Rim ring facts from existing `wallHp` / `gateHp` / `gateOnRim` / `edgeWallCount` / `hasClosedWallRing`. Replaces the inline `WallLine` sentence on this card.
+- `hud/inspect-card.css`: `.sc-inspect-wall` value styles (gold HP, green closed ring, amber open ring, dim when no gate).
+- No sim, siege math, server or theme changes. 221 tests pass; app build clean.
+
 ## 2026-09-28 — Gemini Player Camps and Outposts Clearer Tent + Flag (bakeoff/gemini-camps)
 
 - **Clearer Tent + Flag for Player Camps and Outposts (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
