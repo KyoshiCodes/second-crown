@@ -190,3 +190,10 @@
 .sc-inspect-march-eta { margin-left: auto; font-variant-numeric: tabular-nums; }
 .sc-inspect-march.is-mine .sc-inspect-march-who { color: #86efac; }
 .sc-inspect-march.is-rival .sc-inspect-march-who { color: #fca5a5; }
+
+/* Season: currentSeason(state), read-only. */
+.sc-inspect-season dd { font-weight: 600; }
+.sc-inspect-season.is-spring dd { color: #86efac; }
+.sc-inspect-season.is-summer dd { color: #fde68a; }
+.sc-inspect-season.is-autumn dd { color: #fdba74; }
+.sc-inspect-season.is-winter dd { color: #bae6fd; }
