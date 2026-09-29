@@ -154,3 +154,8 @@
 .sc-inspect-yard { grid-column: 1 / -1; }
 .sc-inspect-yard dd { white-space: normal; color: #86efac; }
 .sc-inspect-yard.is-none dd { color: inherit; opacity: 0.6; }
+
+/* Fog: Seen / Unseen from isProvinceSeen (existing fog state). */
+.sc-inspect-sight dd { font-weight: 600; }
+.sc-inspect-sight.is-seen dd { color: #86efac; }
+.sc-inspect-sight.is-unseen dd { color: #8b949e; font-style: italic; }

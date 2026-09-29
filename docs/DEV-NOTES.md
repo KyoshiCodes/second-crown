@@ -1,5 +1,9 @@
 # Dev notes
 
+## 2026-09-28 — hud / inspect Sight row (wave/hud-fog)
+
+- `ProvinceInspect` already computed `seen = isProvinceSeen(state, id)`; the new `.sc-inspect-sight` fact just renders it. No new selector, no fog math change, no `theme.css`.
+
 ## 2026-09-28 — render / keep-yard annexes and scaffolding (bakeoff/gemini-yard)
 
 - `listKeepYardBuildings(state?: GameState | null, realmId = "player"): KeepYardBuildingInfo[]`:

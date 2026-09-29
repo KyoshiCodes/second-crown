@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-28 — Inspect card says Seen or Unseen
+
+- Click any tile: the card now has a **Sight** line. Green **Seen** means you can see it now or have scouted it. Grey **Unseen** means it is still in fog — send a scout column to reveal it.
+
 ## 2026-09-28 — Keep-yard annexes and construction scaffolding on home tile
 
 - Your home tile keep now displays your finished hold buildings as small architectural annexes nestled around the keep, rather than a flat vertical stack:

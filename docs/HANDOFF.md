@@ -13,6 +13,10 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Open wave (wave/hud-fog)
+
+- Inspect card has a **Sight** row: `Seen` / `Unseen` from `isProvinceSeen`. UI + `inspect-card.css` only; no sim, fog, or theme change.
+
 ## Active Bakeoff (bakeoff/gemini-yard)
 
 - **Finished Keep-Yard Annexes & Construction Scaffolding (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
