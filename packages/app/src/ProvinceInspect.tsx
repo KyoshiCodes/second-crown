@@ -4,6 +4,7 @@ import {
   NODE_REGEN_PERIOD,
   activePlayerMarch,
   campThreat,
+  currentSeason,
   edgeWallCount,
   gateHp,
   getBuildingType,
@@ -152,6 +153,7 @@ export function ProvinceInspect(props: {
   const yard = home ? keepYardWorks(state) : [];
   const onTile = marchesHere(state, selectedId, seen);
   const terrain = seen ? TERRAIN[p.terrain] ?? p.terrain : "Unknown";
+  const season = currentSeason(state);
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
       <div className="sc-inspect-head">
@@ -179,6 +181,10 @@ export function ProvinceInspect(props: {
           <dd>
             {p.x},{p.y}
           </dd>
+        </div>
+        <div className={`sc-inspect-season is-${season.toLowerCase()}`}>
+          <dt>Season</dt>
+          <dd>{season}</dd>
         </div>
         <div>
           <dt>Gold</dt>
