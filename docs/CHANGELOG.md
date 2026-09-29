@@ -1,9 +1,27 @@
 # CHANGELOG
 
-## 2026-09-28 — Inspect card shows Seen / Unseen (wave/hud-fog)
+## 2026-09-29 — Gemini Cloud Veil on Unseen Tiles (bakeoff/gemini-fog)
 
-- `ProvinceInspect.tsx`: new **Sight** fact reads `Seen` or `Unseen` from `isProvinceSeen` (existing fog state). Fog math untouched.
-- Styles in `hud/inspect-card.css` only (`.sc-inspect-sight`, `is-seen` green, `is-unseen` grey italic).
+- **Unseen Tiles Cloud Veil & Clear Seen Tiles (`packages/render/src/tiles.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - **High-Distinction Volumetric Cloud Veil (`paintFogHeightVeil`)**:
+    - Unseen tiles on the tabletop board render as a distinct atmospheric cloud mass floating above the diamond tile, making the veil immediately and unmistakably distinguishable from solid terrain (peaks, rocks, wastes, plains, hills, shores).
+    - Floating diffused aerial shadow on the tabletop plane (`0x000000`, `0x0f172a`), clearly detaching the airborne cloud bank from ground-level terrain.
+    - Ethereal sky-mist atmospheric base stratum with cool celestial azure undertone (`0x38bdf8`, `0xdbeafe`) and soft underside shadow (`0x475569`, `0x94a3b8`).
+    - Multi-tiered billowing cumulus cloud lobes spanning the full diamond width and height with brilliant pure white sunlit crests (`0xffffff`).
+    - Windblown curving vapor wisps and trailing mist curls (`0xe0f2fe`, `0xffffff`) signaling living air and fog in motion.
+    - Antique cartographer 8-point brass compass rose with warm golden star glint (`0xd4a359`, `0xfef08a`), the authentic cartographic seal of uncharted terra incognita.
+    - Gentle floating hover animation (`bob`, `driftX`) across animation phases.
+  - **Clear Seen Tiles**:
+    - Seen provinces stay 100% clear on both tabletop board and atlas, displaying their crisp terrain plateaus, 3D height cliff faces, trees/props, resource node piles, camps, and keep-yard annexes.
+  - **Kingdom Atlas Integration (`packages/app/src/OverworldAtlas.tsx`)**:
+    - Evaluates `isProvinceSeen(state, p.id)` for each atlas province.
+    - Unseen provinces stay an atmospheric SVG `<MiniCloudVeil>` with soft aerial shadow, celestial mist, billowing cumulus lobes, wind wisps, and brass compass star, completely hiding unexplored terrain.
+    - Supports selection and inspect card scouting clicks while keeping the visual boundary distinct from explored lands.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Full test suite passing (221 sim tests, 182 render tests; clean app build).
 
 ## 2026-09-28 — Gemini Keep-Yard Annexes & Construction Scaffolding (bakeoff/gemini-yard)
 

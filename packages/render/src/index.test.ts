@@ -4727,6 +4727,119 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(indexCode).not.toContain("<<<<<<<");
       });
     });
+
+    describe("bakeoff/gemini-fog: unseen tiles stay a cloud veil; seen tiles stay clear", () => {
+      function createMockGraphics() {
+        const calls: { method: string; args: any[] }[] = [];
+        const g: any = {
+          calls,
+          clear: () => { calls.push({ method: "clear", args: [] }); },
+          poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+          fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+          stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+          rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+          circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+          ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+          moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+          lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+          quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        };
+        return g;
+      }
+
+      it("paintFogHeightVeil renders rich volumetric cloud veil with celestial mist base, lobes, wisps, and compass star", () => {
+        const b = provinceTokenBounds(3, 3);
+        const prov = { id: "p_unseen", x: 3, y: 3, terrain: "wood" as const, node: "none" as const };
+        const g = createMockGraphics();
+
+        paintFogHeightVeil(g, b, prov, 0.5);
+
+        expect(g.calls.length).toBeGreaterThan(25);
+        const json = JSON.stringify(g.calls);
+
+        // Verify aerial shadow
+        expect(json).toContain("ellipse");
+        // Verify celestial mist base (0x38bdf8 = 3718648)
+        expect(json).toContain("3718648");
+        // Verify billowing white cumulus lobes (0xffffff = 16777215)
+        expect(json).toContain("16777215");
+        // Verify curving wind wisps
+        expect(json).toContain("quadraticCurveTo");
+        // Verify cartographer brass compass star (0xd4a359 = 13935449) and golden glint (0xfef08a = 16707722)
+        expect(json).toContain("13935449");
+        expect(json).toContain("16707722");
+      });
+
+      it("cloud veil is visually and structurally distinct from solid terrain height faces", () => {
+        const b = provinceTokenBounds(3, 3);
+        const prov = { id: "p_unseen", x: 3, y: 3, terrain: "peak" as const, node: "none" as const };
+
+        const gFog = createMockGraphics();
+        paintFogHeightVeil(gFog, b, prov, 0);
+
+        const gPeak = createMockGraphics();
+        const pal = terrainChipPalette("peak");
+        paintTileHeightFace(gPeak, b, "peak", pal, 0);
+
+        const fogJson = JSON.stringify(gFog.calls);
+        const peakJson = JSON.stringify(gPeak.calls);
+
+        expect(fogJson).not.toEqual(peakJson);
+        // Fog has soft circular cumulus lobes and quadratic curve wisps
+        expect(fogJson).toContain("circle");
+        expect(fogJson).toContain("quadraticCurveTo");
+        // Peak has vertical cliff drop polygons
+        expect(peakJson).toContain("poly");
+      });
+
+      it("paintBoardProvinces renders cloud veil for unseen tiles while seen tiles stay clear", () => {
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_unseen", x: 4, y: 2, terrain: "peak", node: "none" },
+          ],
+        };
+
+        const g = createMockGraphics();
+        paintBoardProvinces(g, state, 0);
+
+        const json = JSON.stringify(g.calls);
+        // Unseen province draws fog veil with celestial mist (3718648)
+        expect(json).toContain("3718648");
+        // Seen province draws clear terrain (plain green = 2972199)
+        expect(json).toContain("2972199");
+      });
+
+      it("OverworldAtlas defines MiniCloudVeil for unseen provinces and keeps seen provinces clear", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const atlasCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx"), "utf-8");
+
+        expect(atlasCode).toContain("function MiniCloudVeil");
+        expect(atlasCode).toContain("isProvinceSeen");
+        expect(atlasCode).toContain("sc-atlas-fog-veil");
+        expect(atlasCode).not.toContain("<<<<<<<");
+      });
+
+      it("preserves camera and hit-test invariants with zero conflict markers", async () => {
+        const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+        expect(typeof hitTestProvince).toBe("function");
+        expect(typeof boardGridToWorld).toBe("function");
+        expect(bandForZoom(1.0)).toBe("hold");
+
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const tilesCode = fs.readFileSync(path.resolve(__dirname, "./tiles.ts"), "utf-8");
+        expect(tilesCode).not.toContain("<<<<<<<");
+        const tokensCode = fs.readFileSync(path.resolve(__dirname, "./tokens.ts"), "utf-8");
+        expect(tokensCode).not.toContain("<<<<<<<");
+        const indexCode = fs.readFileSync(path.resolve(__dirname, "./index.ts"), "utf-8");
+        expect(indexCode).not.toContain("<<<<<<<");
+      });
+    });
   });
 });
 

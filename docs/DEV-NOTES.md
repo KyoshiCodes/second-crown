@@ -1,8 +1,16 @@
 # Dev notes
 
-## 2026-09-28 — hud / inspect Sight row (wave/hud-fog)
+## 2026-09-29 — render / cloud veil on unseen tiles (bakeoff/gemini-fog)
 
-- `ProvinceInspect` already computed `seen = isProvinceSeen(state, id)`; the new `.sc-inspect-sight` fact just renders it. No new selector, no fog math change, no `theme.css`.
+- `paintFogHeightVeil` in `packages/render/src/tiles.ts`:
+  - Rebuilt with multi-tiered volumetric cumulus lobes, diffused floating aerial shadow at `wy + 4`, cool celestial azure mist stratum (`0x38bdf8`, `0xdbeafe`), sunlit white crests (`0xffffff`), curving vapor wisps, and antique brass 8-point compass rose with golden star eye (`0xd4a359`, `0xfef08a`).
+  - Distinguishes unseen tiles from peak rock facets and snowcaps through soft circular lobe geometry, floating elevation hover (`wy - 8 + bob`), and cyan-azure ethereal mist base.
+- `paintBoardProvinces` in `packages/render/src/tokens.ts`:
+  - Checks `isProvinceSeen(state, p.id)`: unseen tiles render `paintFogHeightVeil(g, b, p, phase)` and skip terrain/node rendering, while seen tiles stay clear.
+- `OverworldAtlas` in `packages/app/src/OverworldAtlas.tsx`:
+  - Added `<MiniCloudVeil>` component and evaluated `isProvinceSeen(state, p.id)`.
+  - Unseen tiles render `<MiniCloudVeil>` over subtle click target, while seen tiles render full terrain, lift cliffs, and nodes.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-28 — render / keep-yard annexes and scaffolding (bakeoff/gemini-yard)
 
