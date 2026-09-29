@@ -13,10 +13,27 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/hud-yard)
+## Active Bakeoff (bakeoff/gemini-yard)
 
-- Home hold inspect card lists **Keep yard** works: finished works touching a keep edge (the ones `keepBonus` lifts +10%). Names match Standing works cards. No new state.
-- Styles only in `hud/inspect-card.css`. `git diff main -- packages/sim server` empty.
+- **Finished Keep-Yard Annexes & Construction Scaffolding (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - The player's home tile keep renders finished adjacent hold buildings as miniature architectural annexes nestled around the keep, and unfinished buildings as authentic timber scaffolding.
+  - **Adjacency Mapping (`listKeepYardBuildings`)**:
+    - Discovers buildings sharing an edge with the player keep (`|dx| + |dy| === 1`) on the hold grid, consistent with `keepBonus` in sim economy.
+    - Maps to 4 isometric yard positions: `west` (rear-left), `north` (rear-right), `south` (front-left), `east` (front-right).
+    - Checks `completesAtTick` (`null` = finished, number = under construction).
+  - **Finished Annexes**:
+    - Solid masonry/timber walls with light/shaded facets, foundation plinth, and gabled roof or military crenellated wing.
+    - Doorway with warm candle/hearth glow (`0xfef08a`).
+    - Type-specific props (grain sacks, firewood piles, cut ashlar stone blocks, golden cross).
+    - Full support for 5 culture palettes (Western, Cedar, Sand, Steppe, Islands).
+  - **Unfinished Scaffolding**:
+    - Timber upright corner posts, horizontal ledger beams, diagonal X-bracing, plank staging deck, builder's rope hoist with suspended stone block.
+  - **Depth Layering**:
+    - Rear annexes (`west`, `north`) draw behind the keep; front annexes (`south`, `east`) draw in front of the keep. Clustered around the keep perimeter rather than a flat vertical stack.
+  - **Invariants**:
+    - Hit-test math (`hitTestProvince`) and camera math in `camera.ts` remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
 
 ## Active Bakeoff (bakeoff/gemini-gate)
 

@@ -7,7 +7,7 @@ import {
   type GameState,
   type Province,
 } from "@second-crown/sim";
-import { realmTokenPalette } from "@second-crown/render";
+import { realmTokenPalette, listKeepYardBuildings, type KeepYardBuildingInfo } from "@second-crown/render";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -56,10 +56,90 @@ function terrainPaint(p: Province): { top: string; left: string; right: string; 
   }
 }
 
-function MiniKeep(props: { cx: number; cy: number; fill: string; roof: string; home: boolean }) {
-  const { cx, cy, fill, roof, home } = props;
+function MiniYardBuilding(props: { cx: number; cy: number; info: KeepYardBuildingInfo }) {
+  const { cx, cy, info } = props;
+  let ax = cx;
+  let ay = cy;
+  if (info.slot === "south") {
+    ax = cx - 11.5;
+    ay = cy + 2.8;
+  } else if (info.slot === "east") {
+    ax = cx + 11.5;
+    ay = cy + 2.8;
+  } else if (info.slot === "west") {
+    ax = cx - 11.5;
+    ay = cy - 4.5;
+  } else {
+    // north
+    ax = cx + 11.5;
+    ay = cy - 4.5;
+  }
+
+  if (!info.isFinished) {
+    // Unfinished scaffolding
+    return (
+      <g className="sc-atlas-yard-scaffolding" style={{ pointerEvents: "none" }}>
+        {/* Timber upright posts */}
+        <line x1={ax - 3} y1={ay - 6} x2={ax - 3} y2={ay + 1} stroke="#78350f" strokeWidth={0.7} />
+        <line x1={ax + 3} y1={ay - 6} x2={ax + 3} y2={ay + 1} stroke="#78350f" strokeWidth={0.7} />
+        <line x1={ax} y1={ay - 7.5} x2={ax} y2={ay + 2} stroke="#78350f" strokeWidth={0.7} />
+        {/* Horizontal ledgers */}
+        <line x1={ax - 3} y1={ay - 1.5} x2={ax} y2={ay} stroke="#92400e" strokeWidth={0.6} />
+        <line x1={ax} y1={ay} x2={ax + 3} y2={ay - 1.5} stroke="#92400e" strokeWidth={0.6} />
+        <line x1={ax - 3} y1={ay - 4} x2={ax} y2={ay - 2.5} stroke="#92400e" strokeWidth={0.6} />
+        <line x1={ax} y1={ay - 2.5} x2={ax + 3} y2={ay - 4} stroke="#92400e" strokeWidth={0.6} />
+        {/* Diagonal X-bracing */}
+        <line x1={ax - 3} y1={ay - 4} x2={ax} y2={ay} stroke="#b45309" strokeWidth={0.5} opacity={0.8} />
+        <line x1={ax - 3} y1={ay - 1.5} x2={ax} y2={ay - 2.5} stroke="#b45309" strokeWidth={0.5} opacity={0.8} />
+        <line x1={ax} y1={ay - 2.5} x2={ax + 3} y2={ay - 1.5} stroke="#b45309" strokeWidth={0.5} opacity={0.8} />
+        {/* Staging deck */}
+        <polygon points={`${ax - 3.5},${ay - 3} ${ax},${ay - 1.5} ${ax + 3.5},${ay - 3} ${ax},${ay - 4.2}`} fill="#b45309" stroke="#78350f" strokeWidth={0.4} />
+        {/* Hoist & block */}
+        <line x1={ax + 0.8} y1={ay - 7} x2={ax + 0.8} y2={ay - 3.5} stroke="#e2e8f0" strokeWidth={0.5} />
+        <rect x={ax + 0.1} y={ay - 3.5} width={1.4} height={1.4} fill="#94a3b8" stroke="#334155" strokeWidth={0.3} />
+      </g>
+    );
+  }
+
+  // Finished annex
+  return (
+    <g className="sc-atlas-yard-annex" style={{ pointerEvents: "none" }}>
+      {/* Footprint shadow */}
+      <ellipse cx={ax} cy={ay + 2} rx={4.5} ry={2} fill="#1a120c" opacity={0.45} />
+      {/* Plinth */}
+      <polygon points={`${ax - 4},${ay + 0.5} ${ax},${ay + 2} ${ax + 4},${ay + 0.5} ${ax},${ay - 1}`} fill="#1e293b" />
+      {/* Sunlit left facet */}
+      <polygon points={`${ax - 3.5},${ay + 0.5} ${ax},${ay + 2} ${ax},${ay - 3} ${ax - 3.5},${ay - 4.5}`} fill="#94a3b8" stroke="#0f172a" strokeWidth={0.4} />
+      {/* Shaded right facet */}
+      <polygon points={`${ax},${ay + 2} ${ax + 3.5},${ay + 0.5} ${ax + 3.5},${ay - 4.5} ${ax},${ay - 3}`} fill="#475569" stroke="#0f172a" strokeWidth={0.4} />
+      {/* Gabled roof */}
+      <polygon points={`${ax - 4.5},${ay - 4} ${ax},${ay - 7.5} ${ax + 4.5},${ay - 4} ${ax},${ay - 2.5}`} fill="#5c3818" stroke="#0f172a" strokeWidth={0.4} />
+      <polygon points={`${ax - 4.5},${ay - 4} ${ax},${ay - 7.5} ${ax},${ay - 2.5}`} fill="#854d0e" />
+      {/* Warm door / hearth */}
+      <rect x={ax - 1} y={ay - 0.5} width={2} height={2} fill="#18181b" />
+      <circle cx={ax} cy={ay + 0.5} r={0.6} fill="#fef08a" />
+    </g>
+  );
+}
+
+function MiniKeep(props: {
+  cx: number;
+  cy: number;
+  fill: string;
+  roof: string;
+  home: boolean;
+  yardBuildings?: KeepYardBuildingInfo[];
+}) {
+  const { cx, cy, fill, roof, home, yardBuildings = [] } = props;
+  const rearAnnexes = yardBuildings.filter((a) => a.slot === "west" || a.slot === "north");
+  const frontAnnexes = yardBuildings.filter((a) => a.slot === "south" || a.slot === "east");
+
   return (
     <g>
+      {/* Rear yard annexes / scaffolding */}
+      {rearAnnexes.map((info) => (
+        <MiniYardBuilding key={info.id ?? info.slot} cx={cx} cy={cy} info={info} />
+      ))}
       <rect x={cx - 7} y={cy - 6} width={14} height={8} fill="#1a120c" opacity={0.45} />
       <rect x={cx - 6} y={cy - 14} width={12} height={10} fill={fill} stroke="#e8dcc8" strokeWidth={0.6} />
       <rect x={cx - 7} y={cy - 16} width={3} height={3} fill={fill} />
@@ -68,6 +148,10 @@ function MiniKeep(props: { cx: number; cy: number; fill: string; roof: string; h
       <polygon points={`${cx - 8},${cy - 16} ${cx},${cy - 26} ${cx + 8},${cy - 16}`} fill={roof} stroke="#111" strokeWidth={0.4} />
       <rect x={cx - 1.5} y={cy - 8} width={3} height={4} fill="#111" />
       {home ? <circle cx={cx + 5} cy={cy - 22} r={1.6} fill="#fde047" /> : null}
+      {/* Front yard annexes / scaffolding */}
+      {frontAnnexes.map((info) => (
+        <MiniYardBuilding key={info.id ?? info.slot} cx={cx} cy={cy} info={info} />
+      ))}
     </g>
   );
 }
@@ -424,7 +508,14 @@ export function OverworldAtlas(props: {
                 </g>
               ) : null}
               {p.node === "hold" ? (
-                <MiniKeep cx={cx} cy={cy} fill={wall} roof={isHome ? "#ca8a04" : accent} home={isHome} />
+                <MiniKeep
+                  cx={cx}
+                  cy={cy}
+                  fill={wall}
+                  roof={isHome ? "#ca8a04" : accent}
+                  home={isHome}
+                  yardBuildings={isHome && state ? listKeepYardBuildings(state) : undefined}
+                />
               ) : p.node === "woodcut" && nodeStock(state, p.id) > 0 ? (
                 <MiniLogs cx={cx} cy={cy} />
               ) : p.node === "field" && nodeStock(state, p.id) > 0 ? (

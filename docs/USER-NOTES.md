@@ -2,10 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-28 — Keep-yard works on your hold
+## 2026-09-28 — Keep-yard annexes and construction scaffolding on home tile
 
-- Click your home hold on the board. The card now lists **Keep yard**: every finished work sitting right next to your keep (those get +10% output). If none are there, it says so.
-- Nothing about building or output changed.
+- Your home tile keep now displays your finished hold buildings as small architectural annexes nestled around the keep, rather than a flat vertical stack:
+  - **Finished Annexes**: Buildings sharing an edge with your keep (granaries, sawmills, barracks, chapels) appear as miniature architectural wings around the keep with sunlit masonry facets, gabled roofs, warm candlelit doorways, and distinctive courtyard details (grain sacks, firewood cords, cut stone blocks).
+  - **Unfinished Scaffolding**: Buildings currently under construction appear as timber scaffolding with corner posts, cross-beams, diagonal X-bracing, staging planks, and a builder's hoist suspending a stone block.
+  - **Natural 3D Depth**: Rear buildings appear naturally behind the keep while front buildings appear in front of it, framing your royal seat with an evolving courtyard cluster as your kingdom grows.
+  - **Atlas Map**: The kingdom atlas map also reflects finished annexes and construction scaffolding around your home keep.
 
 ## 2026-09-28 — Hold gatehouse open vs shut doors
 
