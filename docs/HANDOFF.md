@@ -13,6 +13,10 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Open wave (wave/hud-march)
+
+- Inspect card lists marches targeting or sitting on the clicked tile: who + seconds left, from existing `March` fields. UI + `inspect-card.css` only; no sim or theme change.
+
 ## Active Bakeoff (bakeoff/gemini-fog)
 
 - **Cloud Veil on Unseen Tiles & Clear Seen Tiles (`packages/render/src/tiles.ts`, `packages/app/src/OverworldAtlas.tsx`)**:

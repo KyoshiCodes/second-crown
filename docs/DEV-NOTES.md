@@ -1,5 +1,9 @@
 # Dev notes
 
+## 2026-09-29 — hud / inspect marches on tile (wave/hud-march)
+
+- `marchesHere(state, id, seen)` in `ProvinceInspect.tsx` filters `listMarches(state)` by `toId === id` and reads only `realmId`, `purpose ?? kind`, `arrivesTick`. Seconds use `TICKS_PER_SECOND` from `@second-crown/shared` (ceil, floored at 0). Non-player marches require `seen`. No sim change, no `theme.css`.
+
 ## 2026-09-29 — render / cloud veil on unseen tiles (bakeoff/gemini-fog)
 
 - `paintFogHeightVeil` in `packages/render/src/tiles.ts`:

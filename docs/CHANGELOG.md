@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-09-29 — Inspect card lists marches on the tile (wave/hud-march)
+
+- `ProvinceInspect.tsx`: for every march whose `toId` is the clicked tile, a row shows **who** (your column or the rival realm name), purpose/kind, and **seconds left** (`arrivesTick - tick`, divided by `TICKS_PER_SECOND`). Arrived-but-unresolved marches read `on tile`. Rival marches are hidden on unseen tiles. March math untouched.
+- Styles in `hud/inspect-card.css` only (`.sc-inspect-marches`, `.sc-inspect-march`, `is-mine` green, `is-rival` red).
+
 ## 2026-09-29 — Gemini Cloud Veil on Unseen Tiles (bakeoff/gemini-fog)
 
 - **Unseen Tiles Cloud Veil & Clear Seen Tiles (`packages/render/src/tiles.ts`, `packages/app/src/OverworldAtlas.tsx`)**:

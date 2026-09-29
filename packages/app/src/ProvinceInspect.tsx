@@ -37,6 +37,7 @@ import {
   wallHp,
   type GameState,
 } from "@second-crown/sim";
+import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
 
@@ -83,6 +84,20 @@ function keepYardWorks(state: GameState): string[] {
   return state.buildings
     .filter((b) => b.realmId === "player" && b.completesAtTick === null && keepBonus(state, b) > 1)
     .map((b) => getBuildingType(b.typeId)?.name ?? b.typeId);
+}
+
+type MarchHere = { key: string; who: string; mine: boolean; what: string; secs: number };
+
+/** Marches whose toId is this tile. Reads existing March fields only; fog hides rival columns. */
+function marchesHere(state: GameState, id: string, seen: boolean): MarchHere[] {
+  return listMarches(state)
+    .filter((m) => m.toId === id && (seen || m.realmId === "player"))
+    .map((m) => {
+      const mine = m.realmId === "player";
+      const who = mine ? "Your column" : state.realms.find((r) => r.id === m.realmId)?.name ?? m.realmId;
+      const secs = Math.max(0, Math.ceil((m.arrivesTick - state.meta.tick) / TICKS_PER_SECOND));
+      return { key: m.id, who, mine, what: m.purpose ?? m.kind, secs };
+    });
 }
 
 function owned(state: GameState, typeId: string): number {
@@ -135,6 +150,7 @@ export function ProvinceInspect(props: {
   const name = home ? settlementName(state) : seen ? NODE[p.node] ?? p.node : "Unscouted province";
   const site = siteOf(state, selectedId, seen);
   const yard = home ? keepYardWorks(state) : [];
+  const onTile = marchesHere(state, selectedId, seen);
   const terrain = seen ? TERRAIN[p.terrain] ?? p.terrain : "Unknown";
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
@@ -225,6 +241,17 @@ export function ProvinceInspect(props: {
         <div className="sc-inspect-line is-bad">
           Incoming contest · {incomingName} · {Math.max(0, incoming.arrivesTick - state.meta.tick)} ticks
         </div>
+      ) : null}
+      {onTile.length > 0 ? (
+        <ul className="sc-inspect-marches">
+          {onTile.map((m) => (
+            <li key={m.key} className={`sc-inspect-march${m.mine ? " is-mine" : " is-rival"}`}>
+              <span className="sc-inspect-march-who">{m.who}</span>
+              <span className="sc-inspect-march-what">{m.what}</span>
+              <span className="sc-inspect-march-eta">{m.secs > 0 ? `${m.secs}s left` : "on tile"}</span>
+            </li>
+          ))}
+        </ul>
       ) : null}
       {march ? (
         <div className="sc-inspect-line is-warn">
