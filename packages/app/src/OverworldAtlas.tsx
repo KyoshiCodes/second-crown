@@ -4,6 +4,7 @@ import {
   BOARD_W,
   listMarches,
   nodeStock,
+  isProvinceSeen,
   type GameState,
   type Province,
 } from "@second-crown/sim";
@@ -273,6 +274,90 @@ function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor
   );
 }
 
+function MiniCloudVeil(props: { cx: number; cy: number }) {
+  const { cx, cy } = props;
+  const hw = TILE_W / 2; // 27
+  const hh = TILE_H / 2; // 13.5
+
+  return (
+    <g className="sc-atlas-fog-veil" style={{ pointerEvents: "none" }}>
+      {/* 1. Diffused floating aerial shadow on table */}
+      <ellipse cx={cx} cy={cy + 4} rx={hw * 0.92} ry={hh * 0.85} fill="#000000" opacity={0.32} />
+      <ellipse cx={cx} cy={cy + 3} rx={hw * 0.72} ry={hh * 0.65} fill="#0f172a" opacity={0.25} />
+
+      {/* 2. Ethereal atmospheric sky-mist aura & base stratum */}
+      <ellipse cx={cx} cy={cy + 2} rx={hw * 0.94} ry={hh * 0.84} fill="#38bdf8" opacity={0.18} />
+      <ellipse cx={cx} cy={cy + 1} rx={hw * 0.88} ry={hh * 0.78} fill="#64748b" opacity={0.45} />
+      <ellipse cx={cx} cy={cy - 1} rx={hw * 0.88} ry={hh * 0.76} fill="#94a3b8" opacity={0.65} />
+      <ellipse cx={cx} cy={cy - 2} rx={hw * 0.84} ry={hh * 0.7} fill="#cbd5e1" opacity={0.85} />
+
+      {/* 3. Multi-tiered billowing cumulus cloud lobes */}
+      {/* Lateral flanks */}
+      <circle cx={cx - 15} cy={cy - 3} r={8} fill="#dbeafe" opacity={0.9} />
+      <circle cx={cx + 15} cy={cy - 3} r={8} fill="#dbeafe" opacity={0.9} />
+      <circle cx={cx - 19} cy={cy - 1} r={6} fill="#e2e8f0" />
+      <circle cx={cx + 19} cy={cy - 1} r={6} fill="#e2e8f0" />
+      <circle cx={cx} cy={cy - 9} r={9.5} fill="#e0f2fe" />
+      <circle cx={cx} cy={cy + 2} r={9} fill="#cbd5e1" />
+
+      {/* Main volumetric cumulus mounds */}
+      <circle cx={cx - 9} cy={cy - 4} r={9.5} fill="#f1f5f9" />
+      <circle cx={cx + 9} cy={cy - 4} r={9.5} fill="#f1f5f9" />
+      <circle cx={cx - 1} cy={cy - 7} r={10.5} fill="#f8fafc" />
+      <circle cx={cx + 1} cy={cy} r={10} fill="#ffffff" />
+      <circle cx={cx - 7} cy={cy + 1} r={8} fill="#f8fafc" />
+      <circle cx={cx + 7} cy={cy + 1} r={8} fill="#f8fafc" />
+
+      {/* 4. Sunlit rounded crest highlights */}
+      <ellipse cx={cx - 2} cy={cy - 11} rx={7} ry={3.5} fill="#ffffff" />
+      <circle cx={cx - 8} cy={cy - 7} r={5} fill="#ffffff" />
+      <circle cx={cx + 8} cy={cy - 7} r={5} fill="#ffffff" />
+      <ellipse cx={cx + 1} cy={cy - 2} rx={6.5} ry={3.5} fill="#ffffff" />
+      <circle cx={cx + 15} cy={cy - 4.5} r={3.5} fill="#ffffff" />
+      <circle cx={cx - 15} cy={cy - 4.5} r={3.5} fill="#ffffff" />
+
+      {/* 5. Wind wisps & curving vapor tendrils */}
+      <path
+        d={`M ${cx - 18} ${cy - 5} Q ${cx - 22} ${cy - 8} ${cx - 26} ${cy - 5.5}`}
+        stroke="#e0f2fe"
+        strokeWidth={1}
+        fill="none"
+        opacity={0.85}
+      />
+      <path
+        d={`M ${cx + 16} ${cy + 2} Q ${cx + 21} ${cy + 5} ${cx + 25} ${cy + 3}`}
+        stroke="#e0f2fe"
+        strokeWidth={1}
+        fill="none"
+        opacity={0.85}
+      />
+      <path
+        d={`M ${cx - 7} ${cy - 12.5} Q ${cx} ${cy - 15} ${cx + 7} ${cy - 12.5}`}
+        stroke="#ffffff"
+        strokeWidth={1.1}
+        fill="none"
+        opacity={0.9}
+      />
+
+      {/* 6. Antique cartographer brass compass star & glint */}
+      <polygon
+        points={`${cx},${cy - 7} ${cx + 1.6},${cy - 1.8} ${cx + 6.5},${cy} ${cx + 1.6},${cy + 1.8} ${cx},${cy + 7} ${cx - 1.6},${cy + 1.8} ${cx - 6.5},${cy} ${cx - 1.6},${cy - 1.8}`}
+        fill="#d4a359"
+        opacity={0.8}
+        stroke="#78350f"
+        strokeWidth={0.4}
+      />
+      <polygon
+        points={`${cx - 3.2},${cy - 3.2} ${cx},${cy - 0.9} ${cx + 3.2},${cy - 3.2} ${cx + 0.9},${cy} ${cx + 3.2},${cy + 3.2} ${cx},${cy + 0.9} ${cx - 3.2},${cy + 3.2} ${cx - 0.9},${cy}`}
+        fill="#b45309"
+        opacity={0.7}
+      />
+      <circle cx={cx} cy={cy} r={1.6} fill="#fef08a" />
+      <circle cx={cx} cy={cy} r={0.7} fill="#ffffff" />
+    </g>
+  );
+}
+
 /** Pointer travel (screen px) below which a press counts as a click, not a drag. */
 const DRAG_SLOP = 6;
 const PAD = 24;
@@ -442,6 +527,7 @@ export function OverworldAtlas(props: {
           const selected = selectedId === p.id;
           const accent = cssColor(pal?.accentColor, paint.top);
           const wall = cssColor(pal?.keepWallColor, "#3f2a1c");
+          const seen = state ? isProvinceSeen(state, p.id) : true;
           const top = selected ? "#d4a72c" : occupant ? accent : paint.top;
           const hw = TILE_W / 2;
           const hh = TILE_H / 2;
@@ -449,37 +535,54 @@ export function OverworldAtlas(props: {
           return (
             <g
               key={p.id}
-              filter="url(#atlas-shade)"
+              filter={seen ? "url(#atlas-shade)" : undefined}
               style={{ cursor: "pointer" }}
               onClick={() => selectProvince(p.id)}
             >
-              <polygon
-                points={`${cx - hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx - hw},${cy + lift}`}
-                fill={paint.left}
-              />
-              <polygon
-                points={`${cx + hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx + hw},${cy + lift}`}
-                fill={paint.right}
-              />
-              <polygon
-                points={diamond(cx, cy)}
-                fill={top}
-                stroke={isHome ? "#fde047" : selected ? "#facc15" : "#1a140c"}
-                strokeWidth={selected ? 2.2 : isHome ? 1.6 : 0.6}
-                opacity={0.95}
-              />
+              {seen ? (
+                <>
+                  <polygon
+                    points={`${cx - hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx - hw},${cy + lift}`}
+                    fill={paint.left}
+                  />
+                  <polygon
+                    points={`${cx + hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx + hw},${cy + lift}`}
+                    fill={paint.right}
+                  />
+                  <polygon
+                    points={diamond(cx, cy)}
+                    fill={top}
+                    stroke={isHome ? "#fde047" : selected ? "#facc15" : "#1a140c"}
+                    strokeWidth={selected ? 2.2 : isHome ? 1.6 : 0.6}
+                    opacity={0.95}
+                  />
+                </>
+              ) : (
+                <>
+                  {/* Subtle click target diamond beneath cloud veil */}
+                  <polygon
+                    points={diamond(cx, cy)}
+                    fill="#0f172a"
+                    stroke="#1e293b"
+                    strokeWidth={0.6}
+                    opacity={0.35}
+                  />
+                  {/* Atmospheric cloud veil */}
+                  <MiniCloudVeil cx={cx} cy={cy} />
+                </>
+              )}
               {selected ? (
                 <g className="sc-atlas-select-rim" pointerEvents="none">
                   {/* Ground ring at base */}
                   <polygon
-                    points={diamond(cx, cy + lift)}
+                    points={diamond(cx, cy + (seen ? lift : 0))}
                     fill="none"
                     stroke="#d97706"
                     strokeWidth={3.5}
                     opacity={0.5}
                   />
                   <polygon
-                    points={diamond(cx, cy + lift)}
+                    points={diamond(cx, cy + (seen ? lift : 0))}
                     fill="none"
                     stroke="#facc15"
                     strokeWidth={2}
@@ -507,32 +610,36 @@ export function OverworldAtlas(props: {
                   <circle cx={cx - hw} cy={cy} r={1.6} fill="#fef08a" stroke="#b45309" strokeWidth={0.5} />
                 </g>
               ) : null}
-              {p.node === "hold" ? (
-                <MiniKeep
-                  cx={cx}
-                  cy={cy}
-                  fill={wall}
-                  roof={isHome ? "#ca8a04" : accent}
-                  home={isHome}
-                  yardBuildings={isHome && state ? listKeepYardBuildings(state) : undefined}
-                />
-              ) : p.node === "woodcut" && nodeStock(state, p.id) > 0 ? (
-                <MiniLogs cx={cx} cy={cy} />
-              ) : p.node === "field" && nodeStock(state, p.id) > 0 ? (
-                <MiniSacks cx={cx} cy={cy} />
-              ) : p.node === "quarry" && nodeStock(state, p.id) > 0 ? (
-                <MiniBlocks cx={cx} cy={cy} />
-              ) : p.node === "camp" || (occupant === "player" && p.id !== homeId) ? (
-                <MiniCamp cx={cx} cy={cy} isPlayer={occupant === "player"} flagColor={occupant === "player" ? "#2563eb" : "#dc2626"} />
-              ) : p.node && p.node !== "none" ? (
-                <circle cx={cx} cy={cy - 2} r={3.2} fill="#fbbf24" stroke="#111" strokeWidth={0.5} />
-              ) : p.terrain === "wood" ? (
+              {seen ? (
                 <>
-                  <ellipse cx={cx - 4} cy={cy} rx={3} ry={2} fill="#163822" />
-                  <ellipse cx={cx + 3} cy={cy + 1} rx={2.4} ry={1.6} fill="#1a4028" />
+                  {p.node === "hold" ? (
+                    <MiniKeep
+                      cx={cx}
+                      cy={cy}
+                      fill={wall}
+                      roof={isHome ? "#ca8a04" : accent}
+                      home={isHome}
+                      yardBuildings={isHome && state ? listKeepYardBuildings(state) : undefined}
+                    />
+                  ) : p.node === "woodcut" && nodeStock(state, p.id) > 0 ? (
+                    <MiniLogs cx={cx} cy={cy} />
+                  ) : p.node === "field" && nodeStock(state, p.id) > 0 ? (
+                    <MiniSacks cx={cx} cy={cy} />
+                  ) : p.node === "quarry" && nodeStock(state, p.id) > 0 ? (
+                    <MiniBlocks cx={cx} cy={cy} />
+                  ) : p.node === "camp" || (occupant === "player" && p.id !== homeId) ? (
+                    <MiniCamp cx={cx} cy={cy} isPlayer={occupant === "player"} flagColor={occupant === "player" ? "#2563eb" : "#dc2626"} />
+                  ) : p.node && p.node !== "none" ? (
+                    <circle cx={cx} cy={cy - 2} r={3.2} fill="#fbbf24" stroke="#111" strokeWidth={0.5} />
+                  ) : p.terrain === "wood" ? (
+                    <>
+                      <ellipse cx={cx - 4} cy={cy} rx={3} ry={2} fill="#163822" />
+                      <ellipse cx={cx + 3} cy={cy + 1} rx={2.4} ry={1.6} fill="#1a4028" />
+                    </>
+                  ) : p.terrain === "peak" ? (
+                    <polygon points={`${cx - 5},${cy + 2} ${cx},${cy - 10} ${cx + 5},${cy + 2}`} fill="#d6d3d1" opacity={0.85} />
+                  ) : null}
                 </>
-              ) : p.terrain === "peak" ? (
-                <polygon points={`${cx - 5},${cy + 2} ${cx},${cy - 10} ${cx + 5},${cy + 2}`} fill="#d6d3d1" opacity={0.85} />
               ) : null}
             </g>
           );

@@ -346,6 +346,13 @@ export function paintTileHeightFace(
 /**
  * Fog as a Raised Cloud Mass for Unseen Provinces on the Board.
  * Volumetric billowing cumulus cloud plateau floating directly over the diamond tile.
+ * Clearly distinguishable from solid terrain (mountain peaks, plains, hills, wastes) via:
+ * - Floating aerial shadow cast on the tabletop plane below
+ * - Translucent atmospheric celestial sky-mist base stratum (cool azure/slate undertone)
+ * - Multi-tiered billowing cumulus cloud lobes with soft ambient underside and sunlit white crests
+ * - Dynamic curving vapor wisps trailing off the cloud periphery
+ * - Antique cartographic brass compass star glinting at the center
+ * - Airy floating hover animation
  */
 export function paintFogHeightVeil(
   g: Graphics,
@@ -358,47 +365,104 @@ export function paintFogHeightVeil(
   const hw = BOARD_HALF_W;
   const hh = BOARD_HALF_H;
 
-  // 1. Soft contact shadow under the cloud mass on the tabletop
-  g.ellipse(wx, wy + 3, hw * 0.9, hh * 0.9);
-  g.fill({ color: 0x000000, alpha: 0.28 });
+  // 1. Soft diffused aerial shadow on tabletop (wider & softer than solid ground terrain)
+  g.ellipse(wx, wy + 4, hw * 0.96, hh * 0.88);
+  g.fill({ color: 0x000000, alpha: 0.22 });
+  g.ellipse(wx, wy + 3, hw * 0.76, hh * 0.68);
+  g.fill({ color: 0x0f172a, alpha: 0.18 });
 
-  // 2. Volumetric billowing cumulus cloud mass raised above the diamond
-  const bob = Math.sin(phase * 1.6 + p.x * 0.8 + p.y * 0.6) * 1.2;
-  const cy = wy - 7 + bob;
+  // 2. Continuous airy floating hover & wind drift
+  const bob = Math.sin(phase * 1.5 + p.x * 0.7 + p.y * 0.9) * 1.4;
+  const driftX = Math.cos(phase * 1.0 + p.x * 0.6) * 0.8;
+  const cx = wx + driftX;
+  const cy = wy - 8 + bob;
 
-  // Shaded base mist stratum (silver-slate cloud shadow)
-  g.ellipse(wx, cy + 4, hw * 0.88, hh * 0.75);
+  // 3. Ethereal atmospheric sky-mist aura & base stratum (cool celestial azure undertone)
+  // Outer translucent mist boundary spreading across the diamond footprint
+  g.ellipse(cx, cy + 4.5, hw * 0.96, hh * 0.88);
+  g.fill({ color: 0x38bdf8, alpha: 0.18 });
+
+  // Deep atmospheric underside shadow (distinct from rock/ashlar stone)
+  g.ellipse(cx, cy + 3.5, hw * 0.92, hh * 0.8);
+  g.fill({ color: 0x475569, alpha: 0.45 });
+
+  // Cool silver-slate vapor bed
+  g.ellipse(cx, cy + 1.5, hw * 0.94, hh * 0.82);
   g.fill({ color: 0x94a3b8, alpha: 0.65 });
-  g.ellipse(wx, cy + 2, hw * 0.92, hh * 0.8);
-  g.fill({ color: 0xcbd5e1, alpha: 0.8 });
+  g.ellipse(cx, cy, hw * 0.9, hh * 0.75);
+  g.fill({ color: 0xcbd5e1, alpha: 0.85 });
 
-  // Puffy overlapping cloud lobes in crisp white & pearl
-  g.circle(wx - 10, cy - 1, 7.5); g.fill({ color: 0xf1f5f9 });
-  g.circle(wx + 10, cy - 1, 7.5); g.fill({ color: 0xf1f5f9 });
-  g.circle(wx - 1, cy - 6, 8.5); g.fill({ color: 0xf8fafc });
-  g.circle(wx + 1, cy + 1, 8.0); g.fill({ color: 0xffffff });
-  g.circle(wx - 6, cy + 2, 6.5); g.fill({ color: 0xf8fafc });
-  g.circle(wx + 7, cy + 2, 6.5); g.fill({ color: 0xf8fafc });
+  // 4. Multi-tiered billowing cumulus cloud lobes spanning the diamond
+  // Lateral flanks and perimeter cloud lobes
+  g.circle(cx - 13, cy - 1, 6.8); g.fill({ color: 0xdbeafe }); // cool celestial tint
+  g.circle(cx + 13, cy - 1, 6.8); g.fill({ color: 0xdbeafe });
+  g.circle(cx - 16, cy + 1, 5.0); g.fill({ color: 0xe2e8f0 });
+  g.circle(cx + 16, cy + 1, 5.0); g.fill({ color: 0xe2e8f0 });
+  g.circle(cx, cy - 6, 8.2); g.fill({ color: 0xe0f2fe });
+  g.circle(cx, cy + 3.2, 7.8); g.fill({ color: 0xcbd5e1 });
 
-  // Sunlit crest highlights on top of the billowing puffs
-  g.ellipse(wx - 2, cy - 8, 5, 2.5); g.fill({ color: 0xffffff });
-  g.circle(wx + 8, cy - 3, 2.8); g.fill({ color: 0xffffff });
-  g.circle(wx - 8, cy - 3, 2.8); g.fill({ color: 0xffffff });
+  // Main volumetric cumulus mounds (pearl & soft white)
+  g.circle(cx - 8, cy - 2, 8.2); g.fill({ color: 0xf1f5f9 });
+  g.circle(cx + 8, cy - 2, 8.2); g.fill({ color: 0xf1f5f9 });
+  g.circle(cx - 1, cy - 5, 9.0); g.fill({ color: 0xf8fafc });
+  g.circle(cx + 1, cy + 1, 8.6); g.fill({ color: 0xffffff });
+  g.circle(cx - 6, cy + 2.5, 6.8); g.fill({ color: 0xf8fafc });
+  g.circle(cx + 7, cy + 2.5, 6.8); g.fill({ color: 0xf8fafc });
 
-  // Antique brass compass star glinting subtly through the cloud vapor
+  // 5. Sunlit rounded crest highlights on billowing puffs (pure white 0xffffff)
+  g.ellipse(cx - 2, cy - 8, 6.2, 3.2); g.fill({ color: 0xffffff });
+  g.circle(cx - 7, cy - 4.5, 4.4); g.fill({ color: 0xffffff });
+  g.circle(cx + 7, cy - 4.5, 4.4); g.fill({ color: 0xffffff });
+  g.ellipse(cx + 1, cy - 0.5, 5.8, 3.2); g.fill({ color: 0xffffff });
+  g.circle(cx + 13, cy - 2.5, 3.0); g.fill({ color: 0xffffff });
+  g.circle(cx - 13, cy - 2.5, 3.0); g.fill({ color: 0xffffff });
+
+  // 6. Curving vapor wisps and wind tendrils (unmistakable living mist trails)
+  g.moveTo(cx - 15, cy - 4);
+  g.quadraticCurveTo(cx - 19, cy - 6.5, cx - 22, cy - 4.5);
+  g.stroke({ width: 0.9, color: 0xe0f2fe, alpha: 0.85 });
+
+  g.moveTo(cx + 14, cy + 2.5);
+  g.quadraticCurveTo(cx + 18, cy + 5, cx + 22, cy + 3);
+  g.stroke({ width: 0.9, color: 0xe0f2fe, alpha: 0.85 });
+
+  g.moveTo(cx - 6, cy - 9.5);
+  g.quadraticCurveTo(cx, cy - 11.5, cx + 6, cy - 9.5);
+  g.stroke({ width: 1.0, color: 0xffffff, alpha: 0.9 });
+
+  // 7. Antique cartographer brass compass star & warm golden glint
+  // 8-point compass rose glinting through the clouds
   g.poly([
-    wx, cy - 5,
-    wx + 1.2, cy - 1.5,
-    wx + 4.5, cy,
-    wx + 1.2, cy + 1.5,
-    wx, cy + 5,
-    wx - 1.2, cy + 1.5,
-    wx - 4.5, cy,
-    wx - 1.2, cy - 1.5,
+    cx, cy - 6,
+    cx + 1.4, cy - 1.6,
+    cx + 5.5, cy,
+    cx + 1.4, cy + 1.6,
+    cx, cy + 6,
+    cx - 1.4, cy + 1.6,
+    cx - 5.5, cy,
+    cx - 1.4, cy - 1.6,
   ]);
-  g.fill({ color: 0xd4a359, alpha: 0.6 });
-  g.circle(wx, cy, 1.2);
-  g.fill({ color: 0xfef08a, alpha: 0.8 });
+  g.fill({ color: 0xd4a359, alpha: 0.75 });
+  g.stroke({ width: 0.4, color: 0x78350f, alpha: 0.6 });
+
+  // Diagonal star points (ordinal pips)
+  g.poly([
+    cx - 2.8, cy - 2.8,
+    cx, cy - 0.8,
+    cx + 2.8, cy - 2.8,
+    cx + 0.8, cy,
+    cx + 2.8, cy + 2.8,
+    cx, cy + 0.8,
+    cx - 2.8, cy + 2.8,
+    cx - 0.8, cy,
+  ]);
+  g.fill({ color: 0xb45309, alpha: 0.65 });
+
+  // Center golden star glint
+  g.circle(cx, cy, 1.4);
+  g.fill({ color: 0xfef08a, alpha: 0.9 });
+  g.circle(cx, cy, 0.6);
+  g.fill({ color: 0xffffff, alpha: 0.95 });
 }
 
 // -------------------------------------------------------------

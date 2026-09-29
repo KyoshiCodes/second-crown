@@ -2,9 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-28 — Inspect card says Seen or Unseen
+## 2026-09-29 — Unseen tiles cloud veil & clear seen tiles
 
-- Click any tile: the card now has a **Sight** line. Green **Seen** means you can see it now or have scouted it. Grey **Unseen** means it is still in fog — send a scout column to reveal it.
+- Unseen, unscouted provinces are now shrouded in a rich, billowy cloud veil that is unmistakable from normal terrain:
+  - **Easier to Tell Apart from Terrain**: The cloud veil floats high above the map table with soft aerial shadows, cool celestial sky-mist undertones, multi-tiered billowing cumulus cloud mounds, sunlit white crests, and curving wind wisps, making it impossible to confuse with rocky peaks, snowy mountains, or plain terrain.
+  - **Uncharted Compass Rose**: An antique brass cartographer compass rose with a warm golden star glints subtly at the center of each cloud bank, marking uncharted lands.
+  - **Seen Tiles Stay Clear**: Provinces you have scouted or settled stay completely clear with their full terrain textures, cliff faces, resource piles, camps, and keeps.
+  - **Kingdom Atlas**: The world atlas map now also blankets unexplored provinces in the same handsome cloud veil while letting you click to inspect and scout them.
 
 ## 2026-09-28 — Keep-yard annexes and construction scaffolding on home tile
 

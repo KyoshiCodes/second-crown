@@ -13,9 +13,23 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Open wave (wave/hud-fog)
+## Active Bakeoff (bakeoff/gemini-fog)
 
-- Inspect card has a **Sight** row: `Seen` / `Unseen` from `isProvinceSeen`. UI + `inspect-card.css` only; no sim, fog, or theme change.
+- **Cloud Veil on Unseen Tiles & Clear Seen Tiles (`packages/render/src/tiles.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - Unseen provinces render as an unmistakable volumetric cloud veil, while seen provinces stay 100% clear with their full terrain, 3D cliff height faces, resource piles, camps, and keeps.
+  - **High-Distinction Cloud Mass (`paintFogHeightVeil`)**:
+    - Floating aerial shadow on the tabletop plane (`0x000000`, `0x0f172a`), clearly separating the airborne cloud blanket from solid ground.
+    - Translucent sky-mist base stratum with cool celestial azure undertone (`0x38bdf8`, `0xdbeafe`) and soft underside shading, distinctly different from rock ashlar or terrain cliffs.
+    - Multi-tiered billowing cumulus lobes spanning the full tile with brilliant sunlit crests (`0xffffff`).
+    - Dynamic windblown curving vapor wisps (`0xe0f2fe`, `0xffffff`) signaling living mist in motion.
+    - Antique cartographer 8-point brass compass rose with center golden star glint (`0xd4a359`, `0xfef08a`), marking uncharted lands.
+    - Continuous airy floating hover animation.
+  - **Kingdom Atlas (`packages/app/src/OverworldAtlas.tsx`)**:
+    - Uses `isProvinceSeen(state, p.id)`: unseen provinces render `<MiniCloudVeil>` with matching atmospheric styling, while seen provinces stay clear.
+  - **Invariants**:
+    - Hit-test math (`hitTestProvince`) and camera math in `camera.ts` remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
 
 ## Active Bakeoff (bakeoff/gemini-yard)
 
