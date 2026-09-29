@@ -1833,4 +1833,11 @@ button:disabled {
   user-select: none !important;
 }
 
+/* --- Rival Realm Crest: small heraldic shield strictly pointer-events: none --- */
+.sc-atlas-realm-crest,
+.sc-atlas-realm-crest * {
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
 

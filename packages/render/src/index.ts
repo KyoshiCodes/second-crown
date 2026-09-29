@@ -78,6 +78,7 @@ import {
   MARCH_ETA_GLYPHS_3X5,
   resolveBoardThemeVisuals,
   resolveBoardSeasonTint,
+  drawRealmCrestAboveKeep,
 } from "./tokens.js";
 
 import {
@@ -860,5 +861,6 @@ export {
   MARCH_ETA_GLYPHS_3X5,
   resolveBoardThemeVisuals,
   resolveBoardSeasonTint,
+  drawRealmCrestAboveKeep,
 };
 

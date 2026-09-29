@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## 2026-09-29 — Gemini Rival Home Keeps Realm Crests (bakeoff/gemini-capitals)
+
+- **Rival Home Keeps Show Small Realm Crest Above Keep (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:
+  - **Heraldic Escutcheon Crest Floating Above Keep (`drawRealmCrestAboveKeep`)**:
+    - Rival and foreign NPC home holds show a distinct heraldic escutcheon crest floating above the keep apex (`cx`, `cy - 23.5`).
+    - Tactile drop shadow onto keep air (`0x050403`), faction rim plaque (`pal.plaqueColor`, `pal.borderColor`), and inner faction pennant field (`pal.pennantColor`).
+    - Faction-specific heraldic charge / sigil:
+      - Iron March (`rival`): Crossed white blades with crimson central rivet and golden boss.
+      - Silk Coast (`k_silk`): Golden nautical anchor and trident flukes.
+      - Ash Nomads (`k_ash`): Steppe nomad arrowhead with amber core.
+      - Veil Theocracy (`k_veil`): Radiant dawn star with deep violet center.
+      - Glass Cities (`k_glass`): Faceted cyan prism diamond with white core.
+      - Frost Holds (`k_frost`): Six-pointed crystalline snowflake.
+      - Tide Princes (`k_tide`): Twin ocean surf waves.
+      - Ember Concord (`k_ember`): Rising flame comet with golden ember core.
+      - Bronze League (`k_bronze`): Classical bronze arch & anvil.
+      - Custom / other realms: Heraldic chevron and realm stud.
+    - Finial crown stud atop the shield rim and subtle animated breathing glint (`Math.sin(phase * 3 + cx)`).
+  - **Player Home Retains Golden Coronet**:
+    - The player's home keep retains its sovereign triple-peaked golden coronet (`0xfacc15`, `0xfde047`) and gilded royal frame.
+    - Player home is 100% unchanged.
+  - **Kingdom Atlas SVG Integration (`packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:
+    - `<MiniRealmCrest>` renders corresponding SVG escutcheons on the kingdom map for foreign and rival keeps.
+    - Non-interactive pointer events (`pointerEvents: "none"` and `.sc-atlas-realm-crest { pointer-events: none !important; }`), ensuring clicks fall through to tile selections.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Full test suite passing (221 sim tests, 201 render tests; clean app build).
+
 ## 2026-09-29 — Gemini Board Tiles Seasonal & Holiday Tint (bakeoff/gemini-season-tint)
 
 - **Light Seasonal & Holiday Tint on Board Tiles (`packages/render/src/tokens.ts`, `packages/render/src/buildings.ts`, `packages/render/src/tiles.ts`, `packages/app/src/OverworldAtlas.tsx`)**:

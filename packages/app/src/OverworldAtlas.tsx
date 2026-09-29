@@ -131,17 +131,95 @@ function MiniYardBuilding(props: { cx: number; cy: number; info: KeepYardBuildin
   );
 }
 
+function MiniRealmCrest(props: { cx: number; cy: number; realmId: string }) {
+  const { cx, cy, realmId } = props;
+  const pal = realmTokenPalette(realmId);
+  const border = cssColor(pal.borderColor, "#71717a");
+  const pennant = cssColor(pal.pennantColor, "#991b1b");
+  const accent = cssColor(pal.accentColor, "#ef4444");
+  const stud = cssColor(pal.studColor, "#fde047");
+
+  return (
+    <g className="sc-atlas-realm-crest" style={{ pointerEvents: "none" }}>
+      {/* Drop shadow */}
+      <polygon
+        points={`${cx - 4.5},${cy - 3.5} ${cx + 4.5},${cy - 3.5} ${cx + 4.5},${cy + 1} ${cx},${cy + 5.5} ${cx - 4.5},${cy + 1}`}
+        fill="#000000"
+        opacity={0.45}
+      />
+      {/* Outer shield rim */}
+      <polygon
+        points={`${cx - 4.5},${cy - 4} ${cx + 4.5},${cy - 4} ${cx + 4.5},${cy + 0.5} ${cx},${cy + 5} ${cx - 4.5},${cy + 0.5}`}
+        fill={pennant}
+        stroke={border}
+        strokeWidth={0.7}
+      />
+      {/* Finial topper */}
+      <polygon
+        points={`${cx - 1.8},${cy - 4} ${cx},${cy - 5.5} ${cx + 1.8},${cy - 4}`}
+        fill={stud}
+        stroke={border}
+        strokeWidth={0.4}
+      />
+      <circle cx={cx} cy={cy - 5.5} r={0.6} fill="#ffffff" />
+      {/* Faction Sigil / Charge */}
+      {realmId === "rival" ? (
+        <>
+          <line x1={cx - 2} y1={cy - 2} x2={cx + 2} y2={cy + 2} stroke="#ffffff" strokeWidth={0.6} />
+          <line x1={cx + 2} y1={cy - 2} x2={cx - 2} y2={cy + 2} stroke="#ffffff" strokeWidth={0.6} />
+          <circle cx={cx} cy={cy} r={0.7} fill={accent} />
+        </>
+      ) : realmId === "k_silk" ? (
+        <>
+          <line x1={cx} y1={cy - 2.5} x2={cx} y2={cy + 2.5} stroke={accent} strokeWidth={0.6} />
+          <path d={`M ${cx - 1.6} ${cy + 1.2} A 1.6 1.6 0 0 0 ${cx + 1.6} ${cy + 1.2}`} fill="none" stroke={accent} strokeWidth={0.6} />
+          <circle cx={cx} cy={cy - 2.5} r={0.5} fill={stud} />
+        </>
+      ) : realmId === "k_ash" ? (
+        <polygon points={`${cx},${cy - 2.5} ${cx + 2},${cy + 1.5} ${cx - 2},${cy + 1.5}`} fill={accent} />
+      ) : realmId === "k_veil" ? (
+        <polygon points={`${cx},${cy - 2.8} ${cx + 0.8},${cy - 0.6} ${cx + 2.5},${cy} ${cx + 0.8},${cy + 0.6} ${cx},${cy + 2.8} ${cx - 0.8},${cy + 0.6} ${cx - 2.8},${cy} ${cx - 0.8},${cy - 0.6}`} fill="#ffffff" />
+      ) : realmId === "k_glass" ? (
+        <polygon points={`${cx},${cy - 2.5} ${cx + 2},${cy} ${cx},${cy + 2.5} ${cx - 2},${cy}`} fill={accent} stroke="#ffffff" strokeWidth={0.3} />
+      ) : realmId === "k_frost" ? (
+        <>
+          <line x1={cx} y1={cy - 2.4} x2={cx} y2={cy + 2.4} stroke="#ffffff" strokeWidth={0.6} />
+          <line x1={cx - 2} y1={cy - 1.2} x2={cx + 2} y2={cy + 1.2} stroke="#ffffff" strokeWidth={0.6} />
+          <line x1={cx - 2} y1={cy + 1.2} x2={cx + 2} y2={cy - 1.2} stroke="#ffffff" strokeWidth={0.6} />
+        </>
+      ) : realmId === "k_tide" ? (
+        <>
+          <path d={`M ${cx - 2} ${cy - 0.8} Q ${cx} ${cy - 2.2} ${cx + 2} ${cy - 0.8}`} fill="none" stroke={accent} strokeWidth={0.6} />
+          <path d={`M ${cx - 2} ${cy + 1.2} Q ${cx} ${cy - 0.2} ${cx + 2} ${cy + 1.2}`} fill="none" stroke={accent} strokeWidth={0.6} />
+        </>
+      ) : realmId === "k_ember" ? (
+        <>
+          <polygon points={`${cx - 1.2},${cy + 1.2} ${cx},${cy - 2.5} ${cx + 1.2},${cy + 1.2}`} fill={accent} />
+          <circle cx={cx} cy={cy + 1} r={0.9} fill="#f97316" />
+        </>
+      ) : (
+        <>
+          <polygon points={`${cx - 1.8},${cy + 1.5} ${cx},${cy - 1} ${cx + 1.8},${cy + 1.5}`} fill="none" stroke={accent} strokeWidth={0.6} />
+          <circle cx={cx} cy={cy - 0.5} r={0.6} fill={stud} />
+        </>
+      )}
+    </g>
+  );
+}
+
 function MiniKeep(props: {
   cx: number;
   cy: number;
   fill: string;
   roof: string;
   home: boolean;
+  occupantRealmId?: string | null;
   yardBuildings?: KeepYardBuildingInfo[];
 }) {
-  const { cx, cy, fill, roof, home, yardBuildings = [] } = props;
+  const { cx, cy, fill, roof, home, occupantRealmId, yardBuildings = [] } = props;
   const rearAnnexes = yardBuildings.filter((a) => a.slot === "west" || a.slot === "north");
   const frontAnnexes = yardBuildings.filter((a) => a.slot === "south" || a.slot === "east");
+  const showRivalCrest = !home && Boolean(occupantRealmId && occupantRealmId !== "player");
 
   return (
     <g>
@@ -157,6 +235,7 @@ function MiniKeep(props: {
       <polygon points={`${cx - 8},${cy - 16} ${cx},${cy - 26} ${cx + 8},${cy - 16}`} fill={roof} stroke="#111" strokeWidth={0.4} />
       <rect x={cx - 1.5} y={cy - 8} width={3} height={4} fill="#111" />
       {home ? <circle cx={cx + 5} cy={cy - 22} r={1.6} fill="#fde047" /> : null}
+      {showRivalCrest ? <MiniRealmCrest cx={cx} cy={cy - 28} realmId={occupantRealmId!} /> : null}
       {/* Front yard annexes / scaffolding */}
       {frontAnnexes.map((info) => (
         <MiniYardBuilding key={info.id ?? info.slot} cx={cx} cy={cy} info={info} />
@@ -657,6 +736,7 @@ export function OverworldAtlas(props: {
                       fill={wall}
                       roof={isHome ? "#ca8a04" : accent}
                       home={isHome}
+                      occupantRealmId={p.occupantRealmId}
                       yardBuildings={isHome && state ? listKeepYardBuildings(state) : undefined}
                     />
                   ) : p.node === "woodcut" && nodeStock(state, p.id) > 0 ? (

@@ -5226,6 +5226,196 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           }
         });
       });
+
+      describe("bakeoff/gemini-capitals: rival home keeps show small realm crest above keep", () => {
+        function createMockGraphics() {
+          const calls: { method: string; args: any[] }[] = [];
+          const g: any = {
+            calls,
+            clear: () => { calls.push({ method: "clear", args: [] }); },
+            poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+            fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+            stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+            rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+            circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+            ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+            moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+            lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+            bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+            quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          };
+          return g;
+        }
+
+        it("drawRealmCrestAboveKeep renders distinct heraldic escutcheons and sigils for all realms", async () => {
+          const { drawRealmCrestAboveKeep, realmTokenPalette } = await import("./tokens.js");
+
+          // 1. Rival Iron March ("rival"): crossed blades (0xf4f4f5 = 16053493) and crimson rivet (0xef4444 = 15680580)
+          const gRival = createMockGraphics();
+          const palRival = realmTokenPalette("rival");
+          drawRealmCrestAboveKeep(gRival, 100, 100, palRival, 0);
+          expect(gRival.calls.length).toBeGreaterThan(10);
+          const rivalJson = JSON.stringify(gRival.calls);
+          expect(rivalJson).toContain("16053493"); // 0xf4f4f5 crossed blades
+          expect(rivalJson).toContain("15680580"); // 0xef4444 crimson rivet
+
+          // 2. Silk Coast ("k_silk"): golden anchor / trident (0xf1c40f = 15844367)
+          const gSilk = createMockGraphics();
+          const palSilk = realmTokenPalette("k_silk");
+          drawRealmCrestAboveKeep(gSilk, 100, 100, palSilk, 0);
+          expect(JSON.stringify(gSilk.calls)).toContain("15844367"); // 0xf1c40f
+
+          // 3. Ash Nomads ("k_ash"): peaked steppe arrowhead (0xe67e22 = 15105570)
+          const gAsh = createMockGraphics();
+          const palAsh = realmTokenPalette("k_ash");
+          drawRealmCrestAboveKeep(gAsh, 100, 100, palAsh, 0);
+          expect(JSON.stringify(gAsh.calls)).toContain("15105570"); // 0xe67e22
+
+          // 4. Veil Theocracy ("k_veil"): holy dawn star (0xa78bfa = 10980346)
+          const gVeil = createMockGraphics();
+          const palVeil = realmTokenPalette("k_veil");
+          drawRealmCrestAboveKeep(gVeil, 100, 100, palVeil, 0);
+          expect(JSON.stringify(gVeil.calls)).toContain("10980346"); // 0xa78bfa
+
+          // 5. Glass Cities ("k_glass"): cyan prism diamond (0x06b6d4 = 440020, 0x38bdf8 = 3718648)
+          const gGlass = createMockGraphics();
+          const palGlass = realmTokenPalette("k_glass");
+          drawRealmCrestAboveKeep(gGlass, 100, 100, palGlass, 0);
+          expect(JSON.stringify(gGlass.calls)).toContain("440020"); // 0x06b6d4
+
+          // 6. Frost Holds ("k_frost"): frost snowflake crystal (0x7dd3fc = 8246268)
+          const gFrost = createMockGraphics();
+          const palFrost = realmTokenPalette("k_frost");
+          drawRealmCrestAboveKeep(gFrost, 100, 100, palFrost, 0);
+          expect(JSON.stringify(gFrost.calls)).toContain("8246268"); // 0x7dd3fc
+
+          // 7. Tide Princes ("k_tide"): ocean surf waves (0x2dd4bf = 3003583)
+          const gTide = createMockGraphics();
+          const palTide = realmTokenPalette("k_tide");
+          drawRealmCrestAboveKeep(gTide, 100, 100, palTide, 0);
+          expect(JSON.stringify(gTide.calls)).toContain("3003583"); // 0x2dd4bf
+
+          // 8. Ember Concord ("k_ember"): flame comet (0xf97316 = 16347926)
+          const gEmber = createMockGraphics();
+          const palEmber = realmTokenPalette("k_ember");
+          drawRealmCrestAboveKeep(gEmber, 100, 100, palEmber, 0);
+          expect(JSON.stringify(gEmber.calls)).toContain("16347926"); // 0xf97316
+
+          // 9. Bronze League ("k_bronze"): bronze arch (0xfbbf24 = 16498468)
+          const gBronze = createMockGraphics();
+          const palBronze = realmTokenPalette("k_bronze");
+          drawRealmCrestAboveKeep(gBronze, 100, 100, palBronze, 0);
+          expect(JSON.stringify(gBronze.calls)).toContain("16498468"); // 0xfbbf24
+
+          // 10. Fallback / custom dynamic kingdom
+          const gCustom = createMockGraphics();
+          const palCustom = realmTokenPalette("k_free_city");
+          drawRealmCrestAboveKeep(gCustom, 100, 100, palCustom, 0);
+          expect(gCustom.calls.length).toBeGreaterThan(8);
+        });
+
+        it("drawMiniatureKeep renders crest above keep for rival holds, while player home is unchanged", async () => {
+          const { drawMiniatureKeep, realmTokenPalette } = await import("./tokens.js");
+
+          // Rival hold keep (Iron March)
+          const gRival = createMockGraphics();
+          const palRival = realmTokenPalette("rival");
+          drawMiniatureKeep(gRival, 50, 50, "western", palRival, false, 0);
+          const rivalCalls = JSON.stringify(gRival.calls);
+          // Contains crossed blades and crimson rivet from drawRealmCrestAboveKeep
+          expect(rivalCalls).toContain("16053493"); // blades
+          expect(rivalCalls).toContain("15680580"); // crimson
+
+          // NPC hold keep (Silk Coast)
+          const gSilk = createMockGraphics();
+          const palSilk = realmTokenPalette("k_silk");
+          drawMiniatureKeep(gSilk, 50, 50, "sand", palSilk, false, 0);
+          const silkCalls = JSON.stringify(gSilk.calls);
+          expect(silkCalls).toContain("15844367"); // golden anchor
+
+          // Player home keep: isHome = true
+          const gHome = createMockGraphics();
+          drawMiniatureKeep(gHome, 50, 50, "western", undefined, true, 0);
+          const homeCalls = JSON.stringify(gHome.calls);
+          // Player home retains its golden coronet (0xfacc15 = 16436245, 0xfde047 = 16638023)
+          expect(homeCalls).toContain("16436245");
+          expect(homeCalls).toContain("16638023");
+          // Does NOT contain rival crossed blades or anchor
+          expect(homeCalls).not.toContain("16053493");
+          expect(homeCalls).not.toContain("15844367");
+        });
+
+        it("paintBoardProvinces displays realm crest on rival home keep, while player home keep remains unchanged", async () => {
+          const { paintBoardProvinces } = await import("./tokens.js");
+
+          const state: any = {
+            season: "Spring",
+            buildings: [],
+            fog: { explored: { p_home: true, p_rival: true } },
+            board: {
+              homeProvinceId: "p_home",
+              provinces: [
+                { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                { id: "p_rival", x: 5, y: 2, terrain: "peak", node: "hold", occupantRealmId: "rival" },
+              ],
+            },
+            flags: {
+              fog_seen: JSON.stringify(["p_home", "p_rival"]),
+            },
+          };
+
+          const g = createMockGraphics();
+          paintBoardProvinces(g, state, 0);
+
+          expect(g.calls.length).toBeGreaterThan(40);
+          const json = JSON.stringify(g.calls);
+
+          // Rival hold keeps show their realm crest above the keep (crossed blades 16053493 and crimson 15680580)
+          expect(json).toContain("16053493");
+          expect(json).toContain("15680580");
+
+          // Player home keep retains gilded royal frame (0xfacc15 = 16436245)
+          expect(json).toContain("16436245");
+        });
+
+        it("OverworldAtlas renders MiniRealmCrest on rival keeps with pointerEvents: none, leaving player home unchanged", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+
+          const atlasCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx"), "utf-8");
+          expect(atlasCode).toContain("MiniRealmCrest");
+          expect(atlasCode).toContain("sc-atlas-realm-crest");
+          expect(atlasCode).toContain("pointerEvents: \"none\"");
+          expect(atlasCode).toContain("showRivalCrest");
+          expect(atlasCode).toContain("occupantRealmId={p.occupantRealmId}");
+
+          const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+          expect(themeCss).toContain(".sc-atlas-realm-crest");
+          expect(themeCss).toContain("pointer-events: none !important;");
+        });
+
+        it("preserves camera and hit-test invariants with zero conflict markers", async () => {
+          const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+          expect(typeof hitTestProvince).toBe("function");
+          expect(typeof boardGridToWorld).toBe("function");
+          expect(bandForZoom(1.0)).toBe("hold");
+
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const filesToCheck = [
+            "./tokens.ts",
+            "./tiles.ts",
+            "./buildings.ts",
+            "./index.ts",
+            "../../app/src/OverworldAtlas.tsx",
+            "../../app/src/theme.css",
+          ];
+          for (const rel of filesToCheck) {
+            const code = fs.readFileSync(path.resolve(__dirname, rel), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+          }
+        });
+      });
     });
   });
 });
