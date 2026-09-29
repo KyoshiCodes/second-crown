@@ -13,10 +13,29 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/hud-gate)
+## Active Bakeoff (bakeoff/gemini-gate)
 
-- Home hold inspect card shows **Gate**: Closed (ring sealed), Open (gate on rim but rim has gaps) or None. Derived from `gateOnRim` + `hasClosedWallRing`; no new state.
-- Styles only in `hud/inspect-card.css`. `git diff main -- packages/sim server` empty.
+- **Hold Gatehouse Open vs Shut Doors (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`)**:
+  - The hold gatehouse dynamically reflects the fortification perimeter closure state using existing state:
+    - **Closed Wall Ring (`isRingClosed === true` / `hasClosedWallRing(state)` is true)**:
+      - Double doors meet flush and shut tight at the center portal seam.
+      - Reinforced with horizontal blackened iron hinge straps and iron rivets.
+      - Heavy iron drop bar / lock hasp spans the door center.
+      - Iron lattice portcullis lowered above the doors.
+      - Across all 5 culture kits: Western (oak + iron drop bar), Cedar (split-cedar + blackened iron straps & portcullis), Sand (brass-studded cedar + bronze lattice portcullis), Steppe (cross-braced timber gates + pylon bars), Islands (weathered driftwood double doors + bamboo portcullis).
+    - **Open Wall Ring (`isRingClosed === false` / `hasClosedWallRing(state)` is false)**:
+      - Double-door leaves are swung inward in perspective against the door jambs/reveals, showing door thickness and inner edges.
+      - Gateway passage is open with visible cobblestone threshold pavers and stone road lines.
+      - Warm golden amber lantern glow (`0xfbbf24` / `0xfacc15` / `0xea580c` / `0x06b6d4`) casts outward from the interior courtyard onto the threshold.
+      - Portcullis is raised high into the vault ceiling lintel.
+    - **Wall Ring Detection (`isWallRingClosed`)**:
+      - Leverages canonical sim state evaluator `sim.hasClosedWallRing(state, realmId)` (checking `>= 8` edge walls and completed rim gate).
+      - Supports explicit overrides for testing or state flags (`state.flags.isRingClosed` / `state.isRingClosed`).
+      - Works seamlessly when `options.state` or `options.isRingClosed` is passed to `drawIsometricBuilding`.
+  - **Invariants**:
+    - Hit-test math (`hitTestProvince`) and camera math in `camera.ts` remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
 
 ## Active Bakeoff (bakeoff/gemini-wall-scar)
 

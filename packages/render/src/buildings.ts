@@ -2346,7 +2346,8 @@ function drawGateCulture(
   gx: number,
   gy: number,
   rimNeighbors?: RimNeighbors,
-  isDamaged: boolean = false
+  isDamaged: boolean = false,
+  isRingClosed: boolean = false
 ): void {
   if (kit === "cedar") {
     // Cedar Kin: Log Blockhouse Gatehouse with Wolf/Bear Totem Lintel
@@ -2395,20 +2396,48 @@ function drawGateCulture(
     g.fill({ color: 0x1c1917, alpha: a });
 
     if (isRim) {
-      // Split cedar double doors with blackened iron straps
-      g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x78350f, alpha: a });
-      g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x5c3818, alpha: a });
-      g.moveTo(0, 6.5); g.lineTo(0, 0.5); g.stroke({ width: 1, color: 0x3f220c, alpha: a });
+      if (isRingClosed) {
+        // Split cedar double doors with blackened iron straps (shut)
+        g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x78350f, alpha: a });
+        g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x5c3818, alpha: a });
+        g.moveTo(0, 6.5); g.lineTo(0, 0.5); g.stroke({ width: 1, color: 0x3f220c, alpha: a });
 
-      for (const dy of [-0.5, 2.5]) {
-        g.moveTo(-4, dy); g.lineTo(0, dy + 2); g.lineTo(4, dy);
-        g.stroke({ width: 1.4, color: 0x18181b, alpha: a });
+        for (const dy of [-0.5, 2.5]) {
+          g.moveTo(-4, dy); g.lineTo(0, dy + 2); g.lineTo(4, dy);
+          g.stroke({ width: 1.4, color: 0x18181b, alpha: a });
+        }
+        for (const tx of [-3, -1, 1, 3]) {
+          const ty = 0.5 - Math.abs(tx) * 0.25;
+          g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
+          g.stroke({ width: 1.2, color: 0x3f220c, alpha: a });
+        }
+      } else {
+        // Open double doors: timber leaves swung inward against door posts with clear threshold
+        g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
+        g.fill({ color: 0x44403c, alpha: a * 0.9 });
+        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x292524, alpha: a * 0.7 });
+        g.circle(0, 3.2, 1.6); g.fill({ color: 0xea580c, alpha: 0.35 * a });
+
+        // Left split-cedar door leaf swung open against left post
+        g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
+        g.fill({ color: 0x78350f, alpha: a });
+        g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
+        g.fill({ color: 0x451a03, alpha: a });
+        g.moveTo(-4.2, 0.4); g.lineTo(-2.2, -0.9); g.stroke({ width: 1.2, color: 0x18181b, alpha: a });
+        g.moveTo(-4.2, 3.2); g.lineTo(-2.2, 1.9); g.stroke({ width: 1.2, color: 0x18181b, alpha: a });
+
+        // Right split-cedar door leaf swung open against right post
+        g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
+        g.fill({ color: 0x5c3818, alpha: a });
+        g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
+        g.fill({ color: 0x271507, alpha: a });
+        g.moveTo(2.2, -0.9); g.lineTo(4.2, 0.4); g.stroke({ width: 1.2, color: 0x18181b, alpha: a });
+        g.moveTo(2.2, 1.9); g.lineTo(4.2, 3.2); g.stroke({ width: 1.2, color: 0x18181b, alpha: a });
+
+        // Portcullis raised high above doorway
+        g.moveTo(-4, 0); g.lineTo(4, 0); g.stroke({ width: 1, color: 0x27272a, alpha: a * 0.8 });
       }
-      for (const tx of [-3, -1, 1, 3]) {
-        const ty = 0.5 - Math.abs(tx) * 0.25;
-        g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
-        g.stroke({ width: 1.2, color: 0x3f220c, alpha: a });
-      }
+
       const gPennant = Math.sin(phase * 4) * 2;
       g.moveTo(0, -h); g.lineTo(0, -h - 10);
       g.stroke({ width: 1.2, color: 0xd4a359, alpha: a });
@@ -2468,17 +2497,42 @@ function drawGateCulture(
     g.stroke({ width: 1.8, color: 0xfde68a, alpha: a });
 
     if (isRim) {
-      // Brass-studded cedar double doors
-      g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x854d0e, alpha: a });
-      g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x78350f, alpha: a });
-      g.circle(-2, 2.5, 0.6); g.fill({ color: 0xfacc15, alpha: a });
-      g.circle(2, 2.5, 0.6); g.fill({ color: 0xfacc15, alpha: a });
+      if (isRingClosed) {
+        // Brass-studded cedar double doors shut tight
+        g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x854d0e, alpha: a });
+        g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x78350f, alpha: a });
+        g.circle(-2, 2.5, 0.6); g.fill({ color: 0xfacc15, alpha: a });
+        g.circle(2, 2.5, 0.6); g.fill({ color: 0xfacc15, alpha: a });
 
-      // Bronze lattice portcullis
-      for (const tx of [-3, -1, 1, 3]) {
-        const ty = 0.5 - Math.abs(tx) * 0.25;
-        g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
-        g.stroke({ width: 1, color: 0xd97706, alpha: a });
+        // Bronze lattice portcullis lowered
+        for (const tx of [-3, -1, 1, 3]) {
+          const ty = 0.5 - Math.abs(tx) * 0.25;
+          g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
+          g.stroke({ width: 1, color: 0xd97706, alpha: a });
+        }
+      } else {
+        // Open double doors: courtyard threshold path
+        g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
+        g.fill({ color: 0xa16207, alpha: a * 0.85 });
+        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x78350f, alpha: a * 0.7 });
+        g.circle(0, 3.2, 1.5); g.fill({ color: 0xfacc15, alpha: 0.35 * a });
+
+        // Raised bronze portcullis
+        g.moveTo(-4, 0); g.lineTo(4, 0); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+
+        // Left cedar door leaf swung open against reveal
+        g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
+        g.fill({ color: 0x854d0e, alpha: a });
+        g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
+        g.fill({ color: 0x543007, alpha: a });
+        g.circle(-3.2, 1.5, 0.5); g.fill({ color: 0xfacc15, alpha: a });
+
+        // Right cedar door leaf swung open against reveal
+        g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
+        g.fill({ color: 0x78350f, alpha: a });
+        g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
+        g.fill({ color: 0x451a03, alpha: a });
+        g.circle(3.2, 1.5, 0.5); g.fill({ color: 0xfacc15, alpha: a });
       }
 
       const gPennant = Math.sin(phase * 4) * 2;
@@ -2529,10 +2583,32 @@ function drawGateCulture(
     g.fill({ color: 0x18181b, alpha: a });
 
     if (isRim) {
-      g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x854d0e, alpha: a });
-      g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x713f12, alpha: a });
-      g.moveTo(-3, 1); g.lineTo(3, 4); g.stroke({ width: 1, color: 0xd97706, alpha: a });
-      g.moveTo(-3, 4); g.lineTo(3, 1); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+      if (isRingClosed) {
+        // Cross-braced double gates shut tight
+        g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x854d0e, alpha: a });
+        g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x713f12, alpha: a });
+        g.moveTo(-3, 1); g.lineTo(3, 4); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+        g.moveTo(-3, 4); g.lineTo(3, 1); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+      } else {
+        // Open nomadic gates: beaten earth path through threshold
+        g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
+        g.fill({ color: 0x57534e, alpha: a * 0.85 });
+        g.circle(0, 3.2, 1.5); g.fill({ color: 0xf97316, alpha: 0.35 * a });
+
+        // Left timber gate swung open against left pylon
+        g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
+        g.fill({ color: 0x854d0e, alpha: a });
+        g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
+        g.fill({ color: 0x44403c, alpha: a });
+        g.moveTo(-4.2, 1.5); g.lineTo(-2.2, 0.2); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+
+        // Right timber gate swung open against right pylon
+        g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
+        g.fill({ color: 0x713f12, alpha: a });
+        g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
+        g.fill({ color: 0x292524, alpha: a });
+        g.moveTo(2.2, 0.2); g.lineTo(4.2, 1.5); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+      }
 
       const gPennant = Math.sin(phase * 4) * 2;
       g.moveTo(0, -h); g.lineTo(0, -h - 10);
@@ -2582,13 +2658,40 @@ function drawGateCulture(
     g.fill({ color: 0x0f172a, alpha: a });
 
     if (isRim) {
-      g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x78716c, alpha: a });
-      g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x57534e, alpha: a });
+      if (isRingClosed) {
+        // Weathered driftwood double doors shut tight
+        g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]); g.fill({ color: 0x78716c, alpha: a });
+        g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x57534e, alpha: a });
 
-      for (const tx of [-3, -1, 1, 3]) {
-        const ty = 0.5 - Math.abs(tx) * 0.25;
-        g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
-        g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+        // Bamboo portcullis lowered
+        for (const tx of [-3, -1, 1, 3]) {
+          const ty = 0.5 - Math.abs(tx) * 0.25;
+          g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
+          g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+        }
+      } else {
+        // Open dock / boardwalk portal into stilt village
+        g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
+        g.fill({ color: 0x475569, alpha: a * 0.85 });
+        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x334155, alpha: a * 0.7 });
+        g.circle(0, 3.2, 1.5); g.fill({ color: 0x06b6d4, alpha: a * 0.35 });
+
+        // Bamboo portcullis raised high in ceiling
+        g.moveTo(-4, 0); g.lineTo(4, 0); g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+
+        // Left driftwood door swung open against left pier post
+        g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
+        g.fill({ color: 0x78716c, alpha: a });
+        g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
+        g.fill({ color: 0x44403c, alpha: a });
+        g.moveTo(-4.2, 1.5); g.lineTo(-2.2, 0.2); g.stroke({ width: 1, color: 0xca8a04, alpha: a });
+
+        // Right driftwood door swung open against right pier post
+        g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
+        g.fill({ color: 0x57534e, alpha: a });
+        g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
+        g.fill({ color: 0x292524, alpha: a });
+        g.moveTo(2.2, 0.2); g.lineTo(4.2, 1.5); g.stroke({ width: 1, color: 0xca8a04, alpha: a });
       }
 
       const gPennant = Math.sin(phase * 4) * 2;
@@ -3889,10 +3992,55 @@ export function isWallHpLow(state?: GameState | null): boolean {
   return status.hasWallHp && status.isLow;
 }
 
+export function isWallRingClosed(state?: GameState | null, realmId = "player"): boolean {
+  if (!state) return false;
+  const anyState = state as unknown as Record<string, unknown>;
+  const flags = state.flags as Record<string, unknown> | undefined;
+
+  if (typeof anyState.isRingClosed === "boolean") return anyState.isRingClosed;
+  if (typeof anyState.ringClosed === "boolean") return anyState.ringClosed;
+  if (typeof anyState.hasClosedWallRing === "boolean") return anyState.hasClosedWallRing;
+  if (typeof anyState.wallRingClosed === "boolean") return anyState.wallRingClosed;
+  if (flags) {
+    if (typeof flags.isRingClosed === "boolean") return flags.isRingClosed;
+    if (typeof flags.ringClosed === "boolean") return flags.ringClosed;
+    if (typeof flags.hasClosedWallRing === "boolean") return flags.hasClosedWallRing;
+    if (typeof flags.wallRingClosed === "boolean") return flags.wallRingClosed;
+  }
+
+  if (Array.isArray(state.buildings)) {
+    try {
+      if (typeof sim.hasClosedWallRing === "function") {
+        return sim.hasClosedWallRing(state, realmId);
+      }
+    } catch {
+      // Fallback manual evaluation if sim function throws on partial mocks
+      const edgeWalls = state.buildings.filter(
+        (b) =>
+          b.realmId === realmId &&
+          b.typeId === "walls" &&
+          (b.completesAtTick === null || b.completesAtTick === undefined) &&
+          (b.x === 0 || b.y === 0 || b.x === GRID_W - 1 || b.y === GRID_H - 1)
+      ).length;
+      const hasRimGate = state.buildings.some(
+        (b) =>
+          b.realmId === realmId &&
+          b.typeId === "gate" &&
+          (b.completesAtTick === null || b.completesAtTick === undefined) &&
+          (b.x === 0 || b.y === 0 || b.x === GRID_W - 1 || b.y === GRID_H - 1)
+      );
+      return edgeWalls >= 8 && hasRimGate;
+    }
+  }
+
+  return false;
+}
+
 export interface BuildingDrawOptions {
   wallHpRatio?: number;
   isDamaged?: boolean;
   isWallLow?: boolean;
+  isRingClosed?: boolean;
   state?: GameState;
 }
 
@@ -3917,6 +4065,11 @@ export function drawIsometricBuilding(
     options?.isDamaged ||
     (options?.wallHpRatio !== undefined && options.wallHpRatio < 0.6) ||
     (options?.state && isWallHpLow(options.state))
+  );
+
+  const isRingClosed = Boolean(
+    options?.isRingClosed ??
+    (options?.state ? isWallRingClosed(options.state) : false)
   );
 
   const a = 1.0;
@@ -4978,7 +5131,7 @@ export function drawIsometricBuilding(
     case "gate": {
       const isRim = isRimTile(gx, gy);
       if (kit !== "western") {
-        drawGateCulture(g, 24 + heightBoost, a, phase, kit, cult, isRim, gx, gy, rimNeighbors, isWallDamaged);
+        drawGateCulture(g, 24 + heightBoost, a, phase, kit, cult, isRim, gx, gy, rimNeighbors, isWallDamaged, isRingClosed);
         break;
       }
       // Fortified Ashlar Stone Gatehouse + Twin Bastion Towers + Crenellations + Archway
@@ -5038,36 +5191,71 @@ export function drawIsometricBuilding(
       g.stroke({ width: 1.8, color: 0x94a3b8, alpha: a });
 
       if (isRim) {
-        // Fortified Rim Gate: Heavy oak double-doors with iron cross-straps & studs
-        // Left Door leaf
-        g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]);
-        g.fill({ color: 0x5c3818, alpha: a });
-        // Right Door leaf
-        g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]);
-        g.fill({ color: 0x45220a, alpha: a });
+        if (isRingClosed) {
+          // Fortified Rim Gate: Heavy oak double-doors with iron cross-straps & studs & drop bar (Shut)
+          // Left Door leaf
+          g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]);
+          g.fill({ color: 0x5c3818, alpha: a });
+          // Right Door leaf
+          g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]);
+          g.fill({ color: 0x45220a, alpha: a });
 
-        // Vertical plank seam
-        g.moveTo(0, 6.5); g.lineTo(0, 0.5);
-        g.stroke({ width: 1, color: 0x271507, alpha: a });
+          // Vertical plank seam
+          g.moveTo(0, 6.5); g.lineTo(0, 0.5);
+          g.stroke({ width: 1, color: 0x271507, alpha: a });
 
-        // Heavy Blackened Iron Hinge Straps
-        for (const dy of [-0.5, 2.5]) {
-          g.moveTo(-4, dy); g.lineTo(0, dy + 2); g.lineTo(4, dy);
-          g.stroke({ width: 1.4, color: 0x1e293b, alpha: a });
-          // Iron rivets on the straps
-          g.circle(-2.5, dy + 0.8, 0.6); g.fill({ color: 0x94a3b8, alpha: a });
-          g.circle(2.5, dy + 0.8, 0.6); g.fill({ color: 0x94a3b8, alpha: a });
-        }
+          // Heavy Blackened Iron Hinge Straps
+          for (const dy of [-0.5, 2.5]) {
+            g.moveTo(-4, dy); g.lineTo(0, dy + 2); g.lineTo(4, dy);
+            g.stroke({ width: 1.4, color: 0x1e293b, alpha: a });
+            // Iron rivets on the straps
+            g.circle(-2.5, dy + 0.8, 0.6); g.fill({ color: 0x94a3b8, alpha: a });
+            g.circle(2.5, dy + 0.8, 0.6); g.fill({ color: 0x94a3b8, alpha: a });
+          }
 
-        // Heavy iron drop bar / lock hasp across the center
-        g.moveTo(-3, 3.5); g.lineTo(3, 3.5);
-        g.stroke({ width: 1.6, color: 0x0f172a, alpha: a });
+          // Heavy iron drop bar / lock hasp across the center
+          g.moveTo(-3, 3.5); g.lineTo(3, 3.5);
+          g.stroke({ width: 1.6, color: 0x0f172a, alpha: a });
 
-        // Portcullis iron teeth lowered above the doors
-        for (const tx of [-3, -1, 1, 3]) {
-          const ty = 0.5 - Math.abs(tx) * 0.25;
-          g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
-          g.stroke({ width: 1, color: 0x64748b, alpha: a });
+          // Portcullis iron teeth lowered above the doors
+          for (const tx of [-3, -1, 1, 3]) {
+            const ty = 0.5 - Math.abs(tx) * 0.25;
+            g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
+            g.stroke({ width: 1, color: 0x64748b, alpha: a });
+          }
+        } else {
+          // Open Rim Gate: oak double doors swung open inward against stone jambs, open cobblestone threshold, amber lantern glow, raised portcullis
+          // Open passage / cobblestone threshold pavers through portal
+          g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
+          g.fill({ color: 0x334155, alpha: a * 0.85 });
+          // Cobble road lines
+          g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x1e293b, alpha: a * 0.7 });
+          // Interior warm lantern glow cast on passage
+          g.circle(0, 3.2, 1.8); g.fill({ color: 0xfbbf24, alpha: 0.35 * a });
+
+          // Raised portcullis tucked up under lintel
+          g.moveTo(-4, 0); g.lineTo(4, 0);
+          g.stroke({ width: 1.2, color: 0x64748b, alpha: a * 0.8 });
+
+          // Left oak door leaf swung inward open against left stone jamb
+          g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
+          g.fill({ color: 0x5c3818, alpha: a });
+          // Door thickness / inner edge
+          g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
+          g.fill({ color: 0x2e1908, alpha: a });
+          // Iron strap hinges on open door
+          g.moveTo(-4.2, 0.4); g.lineTo(-2.2, -0.9); g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
+          g.moveTo(-4.2, 3.2); g.lineTo(-2.2, 1.9); g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
+
+          // Right oak door leaf swung inward open against right stone jamb
+          g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
+          g.fill({ color: 0x45220a, alpha: a });
+          // Door thickness / inner edge
+          g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
+          g.fill({ color: 0x1c0c04, alpha: a });
+          // Iron strap hinges on open door
+          g.moveTo(2.2, -0.9); g.lineTo(4.2, 0.4); g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
+          g.moveTo(2.2, 1.9); g.lineTo(4.2, 3.2); g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
         }
 
         // Defensive Rim Pennant atop gatehouse

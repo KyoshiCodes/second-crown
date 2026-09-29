@@ -61,6 +61,7 @@ import {
   drawPlayerCampTentAndFlag,
   getWallHpStatus,
   isWallHpLow,
+  isWallRingClosed,
   drawRimWallCurtain,
   drawGatehouseCurtainWings,
 } from "./index.js";
@@ -4362,6 +4363,172 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       });
 
       it("preserves hit-test and camera invariants without conflict markers", async () => {
+        const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+        expect(typeof hitTestProvince).toBe("function");
+        expect(typeof boardGridToWorld).toBe("function");
+        expect(bandForZoom(1.0)).toBe("hold");
+
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const buildingsCode = fs.readFileSync(path.resolve(__dirname, "./buildings.ts"), "utf-8");
+        expect(buildingsCode).not.toContain("<<<<<<<");
+        const indexCode = fs.readFileSync(path.resolve(__dirname, "./index.ts"), "utf-8");
+        expect(indexCode).not.toContain("<<<<<<<");
+      });
+    });
+
+    describe("bakeoff/gemini-gate: hold gatehouse open vs shut doors", () => {
+      function createMockGraphics() {
+        const calls: { method: string; args: any[] }[] = [];
+        const g: any = {
+          calls,
+          clear: () => { calls.push({ method: "clear", args: [] }); },
+          poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+          fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+          stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+          rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+          circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+          ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+          moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+          lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+          quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+        };
+        return g;
+      }
+
+      it("isWallRingClosed correctly detects closed wall ring from sim state and flag overrides", () => {
+        expect(isWallRingClosed(null)).toBe(false);
+        expect(isWallRingClosed(undefined)).toBe(false);
+
+        const state = createMockState();
+        expect(isWallRingClosed(state)).toBe(false);
+
+        // Add 7 rim walls and 1 rim gate -> still open
+        for (let i = 0; i < 7; i++) {
+          state.buildings.push({
+            id: `w_${i}`,
+            realmId: "player",
+            typeId: "walls",
+            level: 1,
+            x: i,
+            y: 0,
+            completesAtTick: null,
+          });
+        }
+        state.buildings.push({
+          id: "g_rim",
+          realmId: "player",
+          typeId: "gate",
+          level: 1,
+          x: 7,
+          y: 0,
+          completesAtTick: null,
+        });
+        expect(isWallRingClosed(state)).toBe(false);
+
+        // Add 8th rim wall -> closed!
+        state.buildings.push({
+          id: "w_7",
+          realmId: "player",
+          typeId: "walls",
+          level: 1,
+          x: 8,
+          y: 0,
+          completesAtTick: null,
+        });
+        expect(isWallRingClosed(state)).toBe(true);
+
+        // Explicit flag override tests
+        expect(isWallRingClosed({ ...state, flags: { isRingClosed: false } })).toBe(false);
+        expect(isWallRingClosed({ ...state, flags: { isRingClosed: true } })).toBe(true);
+        expect(isWallRingClosed({ ...state, isRingClosed: false } as any)).toBe(false);
+        expect(isWallRingClosed({ ...state, isRingClosed: true } as any)).toBe(true);
+      });
+
+      it("drawIsometricBuilding renders shut doors when closed and open doors when open (Western)", () => {
+        const visuals = getThemeVisuals("summer");
+        const rimNeighbors: RimNeighbors = { hasPrev: true, hasNext: true };
+
+        const gClosed = createMockGraphics();
+        drawIsometricBuilding(gClosed, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, "western", { isRingClosed: true });
+
+        const gOpen = createMockGraphics();
+        drawIsometricBuilding(gOpen, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, "western", { isRingClosed: false });
+
+        expect(gClosed.calls.length).toBeGreaterThan(0);
+        expect(gOpen.calls.length).toBeGreaterThan(0);
+
+        // Closed doors have center drop bar and shut portcullis teeth
+        // Open doors have inward-swung door leaves, clear cobblestone threshold, and interior lantern glow
+        const closedJson = JSON.stringify(gClosed.calls);
+        const openJson = JSON.stringify(gOpen.calls);
+        expect(closedJson).not.toEqual(openJson);
+
+        // Verify open door threshold cobblestone & glow in openJson
+        expect(openJson).toContain("16498468"); // 0xfbbf24 lantern glow
+        // Verify drop bar stroke in closedJson
+        expect(closedJson).toContain("988970"); // 0x0f172a drop bar stroke
+      });
+
+      it("drawIsometricBuilding renders distinct gate states across all 5 cultures", () => {
+        const visuals = getThemeVisuals("summer");
+        const rimNeighbors: RimNeighbors = { hasPrev: true, hasNext: true };
+        const cultures = ["western", "cedar", "sand", "steppe", "islands"] as const;
+
+        for (const cult of cultures) {
+          const gClosed = createMockGraphics();
+          drawIsometricBuilding(gClosed, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, cult, { isRingClosed: true });
+
+          const gOpen = createMockGraphics();
+          drawIsometricBuilding(gOpen, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, cult, { isRingClosed: false });
+
+          expect(gClosed.calls.length).toBeGreaterThan(0);
+          expect(gOpen.calls.length).toBeGreaterThan(0);
+
+          const closedJson = JSON.stringify(gClosed.calls);
+          const openJson = JSON.stringify(gOpen.calls);
+          expect(closedJson).not.toEqual(openJson);
+        }
+      });
+
+      it("derives isRingClosed automatically from GameState when option is omitted", () => {
+        const visuals = getThemeVisuals("summer");
+        const rimNeighbors: RimNeighbors = { hasPrev: true, hasNext: true };
+
+        const openState = createMockState();
+        const gOpen = createMockGraphics();
+        drawIsometricBuilding(gOpen, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, "western", { state: openState });
+
+        const closedState = createMockState();
+        for (let i = 0; i < 8; i++) {
+          closedState.buildings.push({
+            id: `w_${i}`,
+            realmId: "player",
+            typeId: "walls",
+            level: 1,
+            x: i,
+            y: 0,
+            completesAtTick: null,
+          });
+        }
+        closedState.buildings.push({
+          id: "g_rim",
+          realmId: "player",
+          typeId: "gate",
+          level: 1,
+          x: 8,
+          y: 0,
+          completesAtTick: null,
+        });
+
+        const gClosed = createMockGraphics();
+        drawIsometricBuilding(gClosed, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, "western", { state: closedState });
+
+        expect(JSON.stringify(gOpen.calls)).not.toEqual(JSON.stringify(gClosed.calls));
+      });
+
+      it("preserves camera and hit-test invariants with zero conflict markers", async () => {
         const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
         expect(typeof hitTestProvince).toBe("function");
         expect(typeof boardGridToWorld).toBe("function");

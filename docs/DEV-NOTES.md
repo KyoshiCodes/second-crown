@@ -1,10 +1,21 @@
 # Dev notes
 
-## 2026-09-28 — hud / gate open or closed on inspect card (wave/hud-gate)
+## 2026-09-28 — render / hold gatehouse open vs shut doors (bakeoff/gemini-gate)
 
-- The sim has no gate open/closed flag. The card derives it read-only: `!gateOnRim` → none; `hasClosedWallRing` (>= 8 rim walls + gate on rim) → closed; else open. `gateHp` still shown in its own row.
-- New row sits after Gate HP inside the existing `home` block of `ProvinceInspect.tsx`.
-- CSS: `.sc-inspect-gate` + `.is-none` / `.is-closed` / `.is-open` in `hud/inspect-card.css`.
+- `isWallRingClosed(state?: GameState | null, realmId = "player"): boolean`:
+  - Exported from `packages/render/src/buildings.ts` and re-exported by `packages/render/src/index.ts`.
+  - Checks `state.flags.isRingClosed` / `state.isRingClosed` flag overrides if present.
+  - Calls `sim.hasClosedWallRing(state, realmId)` (or fallback counts on mocks: `>= 8` edge walls and `gateOnRim`).
+- `BuildingDrawOptions`:
+  - Added optional property `isRingClosed?: boolean`.
+- `drawIsometricBuilding`:
+  - Evaluates `isRingClosed = Boolean(options?.isRingClosed ?? (options?.state ? isWallRingClosed(options.state) : false))`.
+  - In `case "gate"`:
+    - Passes `isRingClosed` to `drawGateCulture(..., isWallDamaged, isRingClosed)` for Cedar, Sand, Steppe, and Islands.
+    - In Western gate branch: when `isRim && isRingClosed`, renders shut double doors with vertical plank seam, blackened iron hinge straps, rivets, heavy iron drop bar, and lowered portcullis. When `isRim && !isRingClosed`, renders open doorway with inward-swung door leaves against stone jambs, cobblestone threshold pavers, interior amber lantern glow (`0xfbbf24`), and raised portcullis.
+- `paintBuildings` in `packages/render/src/index.ts`:
+  - Computes `const isRingClosed = isWallRingClosed(state);` and passes it in `buildingOptions`.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-28 — render / damaged rim wall scars & missing merlons (bakeoff/gemini-wall-scar)
 

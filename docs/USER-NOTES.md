@@ -2,10 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-28 — Gate open or closed on your hold
+## 2026-09-28 — Hold gatehouse open vs shut doors
 
-- Click your home hold on the board. The card now says whether your gate is **Closed** (green: 8 rim walls plus a gate seal the ring), **Open** (amber: you have a gate but the rim still has gaps) or **None**.
-- Nothing about sieges changed.
+- Your hold's gatehouse now dynamically shows whether your perimeter defenses are open or securely shut:
+  - **Shut Doors When Ring is Closed**: Once your kingdom encloses the hold with a complete wall ring (8 or more rim walls plus a rim gate), the gatehouse double doors shut tight with heavy iron straps, rivets, a center drop bar, and a lowered protective portcullis.
+  - **Open Doors When Ring is Open**: Before the ring is closed (or if walls are unbuilt), the gatehouse doors are swung wide open inward against the stone jambs, revealing an open cobblestone threshold and warm lantern glow pouring from the courtyard within, with the portcullis hoisted high overhead.
+  - **All 5 Cultures Styled**: Customized door carpentry and ironwork across Western ashlar stone, Cedar split-timber, Sand desert brass, Steppe barred wood, and Islands driftwood styles.
 
 ## 2026-09-28 — Rim wall battle scars & missing merlons on low wall HP
 

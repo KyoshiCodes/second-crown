@@ -1,10 +1,29 @@
 # CHANGELOG
 
-## 2026-09-28 — Gate open / closed on home inspect card (wave/hud-gate)
+## 2026-09-28 — Gemini Hold Gatehouse Open vs Shut Doors (bakeoff/gemini-gate)
 
-- `ProvinceInspect.tsx`: home hold card adds a **Gate** fact: "Closed · ring sealed" when `hasClosedWallRing`, "Open · rim has gaps" when `gateOnRim` but the ring is not closed, "None" when no gate is on the rim. Existing Gate HP row unchanged.
-- `hud/inspect-card.css`: `.sc-inspect-gate` value styles (green closed, amber open, dim none).
-- No sim, gate math, server or theme changes.
+- **Hold Gatehouse Open vs Shut Doors (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`)**:
+  - **Wall Ring Closed Detection (`isWallRingClosed`)**:
+    - Automatically evaluates whether the hold's defensive wall ring is closed using existing state via `sim.hasClosedWallRing(state, realmId)` (requiring `>= 8` rim walls and a rim gate).
+    - Also supports explicit test or flag overrides (`state.flags.isRingClosed`, `state.isRingClosed`).
+    - Added `isRingClosed?: boolean` to `BuildingDrawOptions` and exported `isWallRingClosed` from `@second-crown/render`.
+  - **Shut Doors on Closed Ring (`isRingClosed === true`)**:
+    - Western gatehouse: Heavy oak double-doors shut tight meeting at the center with vertical plank seam, heavy blackened iron hinge straps with rivets, central iron drop bar / lock hasp, and lowered portcullis teeth.
+    - Cedar Kin: Split-cedar double doors shut tight with cross-straps and lowered log portcullis.
+    - Sand Banner: Brass-studded cedar double doors shut tight with bronze lattice portcullis.
+    - Wind Host: Heavy cross-braced timber double gates barred shut against pylons.
+    - Tide Clans: Weathered driftwood double doors shut tight with lowered bamboo portcullis.
+  - **Open Doors on Open Ring (`isRingClosed === false`)**:
+    - Double doors swing open inward in perspective against the door jambs/reveals, displaying 3D door leaf thickness and iron strap hinges.
+    - Open vaulted portal reveals courtyard threshold road pavers and warm amber/golden lantern glow cast from within.
+    - Portcullis is drawn raised high tucked under the archway lintel.
+    - Applied across all 5 cultures: Western, Cedar, Sand, Steppe, and Islands.
+  - **Interior / Non-Rim Gatehouses**: Un-hung open vaulted passage preserved as before.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Tests pass: 221 sim tests pass, 169 render tests pass (+5 new tests verifying ring detection, open vs shut gate graphics across all cultures, state inference, and invariants); app build clean.
 
 ## 2026-09-28 — Gemini Damaged Rim Wall Art Presentation with Low wallHp (bakeoff/gemini-wall-scar)
 
