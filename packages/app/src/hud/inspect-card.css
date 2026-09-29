@@ -159,3 +159,34 @@
 .sc-inspect-sight dd { font-weight: 600; }
 .sc-inspect-sight.is-seen dd { color: #86efac; }
 .sc-inspect-sight.is-unseen dd { color: #8b949e; font-style: italic; }
+
+/* Marches on or bound for this tile: who and seconds left, from existing March fields. */
+.sc-inspect-marches {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+
+.sc-inspect-march {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sc-inspect-march-who {
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-inspect-march-what { opacity: 0.6; }
+.sc-inspect-march-eta { margin-left: auto; font-variant-numeric: tabular-nums; }
+.sc-inspect-march.is-mine .sc-inspect-march-who { color: #86efac; }
+.sc-inspect-march.is-rival .sc-inspect-march-who { color: #fca5a5; }

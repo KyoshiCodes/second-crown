@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-29 — Inspect card shows columns heading to a tile
+
+- Click a tile: if any column is marching to it (or has just arrived), the card lists **who** it is and **how many seconds** until it lands. Your columns are green, rival columns red. Rival columns on fogged tiles stay hidden.
+
 ## 2026-09-29 — Unseen tiles cloud veil & clear seen tiles
 
 - Unseen, unscouted provinces are now shrouded in a rich, billowy cloud veil that is unmistakable from normal terrain:
