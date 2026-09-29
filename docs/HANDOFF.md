@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hud-yard)
+
+- Home hold inspect card lists **Keep yard** works: finished works touching a keep edge (the ones `keepBonus` lifts +10%). Names match Standing works cards. No new state.
+- Styles only in `hud/inspect-card.css`. `git diff main -- packages/sim server` empty.
+
 ## Active Bakeoff (bakeoff/gemini-gate)
 
 - **Hold Gatehouse Open vs Shut Doors (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`)**:

@@ -6,6 +6,7 @@ import {
   campThreat,
   edgeWallCount,
   gateHp,
+  getBuildingType,
   gateOnRim,
   garrisonAt,
   garrisonPower,
@@ -13,6 +14,7 @@ import {
   hasClosedWallRing,
   incomingOnProvince,
   isProvinceSeen,
+  keepBonus,
   listGathers,
   listMarches,
   listOutposts,
@@ -76,6 +78,13 @@ function siteOf(state: GameState, id: string, seen: boolean): Site {
   return { kind: "rival", label: `${who} outpost` };
 }
 
+/** Finished player works on a keep edge (keepBonus lifts them). Names as WorkCard shows them. */
+function keepYardWorks(state: GameState): string[] {
+  return state.buildings
+    .filter((b) => b.realmId === "player" && b.completesAtTick === null && keepBonus(state, b) > 1)
+    .map((b) => getBuildingType(b.typeId)?.name ?? b.typeId);
+}
+
 function owned(state: GameState, typeId: string): number {
   const u = state.units.find((x) => x.realmId === "player" && x.typeId === typeId);
   return Number(u?.count ?? 0);
@@ -125,6 +134,7 @@ export function ProvinceInspect(props: {
     !seen && gold >= cost && !full && (owned(state, "skirmisher") >= 1 || owned(state, "militia") >= 1);
   const name = home ? settlementName(state) : seen ? NODE[p.node] ?? p.node : "Unscouted province";
   const site = siteOf(state, selectedId, seen);
+  const yard = home ? keepYardWorks(state) : [];
   const terrain = seen ? TERRAIN[p.terrain] ?? p.terrain : "Unknown";
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
@@ -177,6 +187,10 @@ export function ProvinceInspect(props: {
               <dd>
                 {edgeWallCount(state, "player")}/8 · {hasClosedWallRing(state) ? "closed" : "open"}
               </dd>
+            </div>
+            <div className={`sc-inspect-yard${yard.length > 0 ? "" : " is-none"}`}>
+              <dt>Keep yard ({yard.length})</dt>
+              <dd>{yard.length > 0 ? yard.join(" · ") : "No works on the keep edge"}</dd>
             </div>
           </>
         ) : null}
