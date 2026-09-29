@@ -1,10 +1,25 @@
 # CHANGELOG
 
-## 2026-09-28 — Wall / gate HP on home inspect card (wave/hud-wall-hp)
+## 2026-09-28 — Gemini Damaged Rim Wall Art Presentation with Low wallHp (bakeoff/gemini-wall-scar)
 
-- `ProvinceInspect.tsx`: home hold card adds Wall HP, Gate HP (or "No gate on rim") and Rim ring facts from existing `wallHp` / `gateHp` / `gateOnRim` / `edgeWallCount` / `hasClosedWallRing`. Replaces the inline `WallLine` sentence on this card.
-- `hud/inspect-card.css`: `.sc-inspect-wall` value styles (gold HP, green closed ring, amber open ring, dim when no gate).
-- No sim, siege math, server or theme changes. 221 tests pass; app build clean.
+- **Damaged Rim Wall Art Presentation with Low wallHp (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`)**:
+  - **Wall HP Status Detection (`getWallHpStatus`, `isWallHpLow`)**:
+    - Automatically checks `state.wallHp` (number or `{ cur, max }`), `state.wall_hp`, or `state.flags.wallHp` / `wall_hp` / `wallHpCur` / `wall_hp_cur`.
+    - Returns `hasWallHp: false, isLow: false` when `wallHp` is not on state (undefined / null), ensuring full HP walls stay untouched.
+    - Accurately computes `ratio = cur / max` against nominal intact wall ring baseline (~96–146 HP) or explicit `maxHp`, detecting low wall HP when `ratio < 0.60` or `cur <= 0`.
+  - **Battle Scars & Missing Merlons Presentation**:
+    - **Straight Rim Wall Curtain Spans (`drawCurtainSpan`)**:
+      - Deep shadow fissure paths descending jaggedly down the vertical ashlar wall face with secondary branch cracks, sunlight highlight ridge accents, and fallen masonry rubble chunks at the plinth base.
+      - Dynamic parapet crenellation damage: deterministic PRNG per merlon drops ~45% of merlons into missing gaps with crumbled mortar stumps, chips ~25% down to partial fractured height, and leaves remaining merlons intact with cultural coping stones.
+    - **Corner Bastion Towers (`drawRimWallCurtain`)**: Shears away the front center merlon into an open jagged gap with a crumbled mortar stump, chips the sunlit merlon, and draws vertical stress fractures with fallen stone chips at the base.
+    - **Pilaster Wall Buttresses**: Draws stress fracture lines across visible center wall buttresses.
+    - **Gatehouse Curtain Wings (`drawGatehouseCurtainWings`)**: Adjacent connecting curtain wings display matching cracked masonry and battlement gaps across all 5 cultures.
+  - **Full HP Walls Stay As They Are**: When walls are at full HP or when `wallHp` is absent from state, 100% full-height merlons and pristine stone curtain faces are rendered exactly as before.
+  - **Strict Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+    - Tests pass: 221 sim tests pass, 164 render tests pass (+6 new tests verifying wallHp detection, low vs high HP thresholds, missing merlons, corner bastion cracks, gatehouse wings, and invariant preservation); app build clean.
 
 ## 2026-09-28 — Gemini Player Camps and Outposts Clearer Tent + Flag (bakeoff/gemini-camps)
 

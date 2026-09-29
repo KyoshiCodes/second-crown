@@ -13,11 +13,26 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/hud-wall-hp)
+## Active Bakeoff (bakeoff/gemini-wall-scar)
 
-- Home hold inspect card (`packages/app/src/ProvinceInspect.tsx`) shows **Wall HP**, **Gate HP** and **Rim ring** (rim walls x/8, closed/open) as facts. Numbers come from existing sim selectors `wallHp`, `gateHp`, `gateOnRim`, `edgeWallCount`, `hasClosedWallRing`. The old one-line `WallLine` is no longer on the inspect card (still on Kingdom tab).
-- Rim wall tiles live on the settlement grid, not the board, so they never open this card. Not covered.
-- Styles only in `hud/inspect-card.css`. `git diff main -- packages/sim server` empty.
+- **Damaged Rim Wall Art Presentation on Low wallHp (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`)**:
+  - When `wallHp` is present on `state` (or `state.flags`) and is low (`ratio < 0.60` or `cur <= 0`), the rim fort wall art now dynamically renders battle scars, impact fissures, and missing merlons:
+    - **Straight Rim Wall Curtain Spans (`drawCurtainSpan`)**:
+      - Structural jagged fissures and impact cracks descending down the vertical ashlar stone face with shadow crevice strokes, secondary branch fractures, and sunlight highlight catch edges.
+      - Dislodged masonry rubble chips fallen at the plinth base.
+      - Crenellated merlons dynamically break down based on deterministic PRNG per merlon: ~45% missing merlon gaps (revealing jagged crumbled mortar rubble stumps and open gaps in the battlements), ~25% shattered/chipped merlons at partial height, with remainder intact.
+      - Terminal caps show cleaved stone notches.
+    - **Corner Bastion Towers (`drawRimWallCurtain`)**:
+      - Front-center merlon knocked out / sheared away, leaving a crumbled mortar stump.
+      - Left merlon chipped down to partial height.
+      - Vertical stress crack stroke descending across the tower facet with fallen stone chip at plinth base.
+    - **Pilaster Wall Buttresses**: Stress fracture splitting across the central visible pilaster face.
+    - **Gatehouse Curtain Wings (`drawGatehouseCurtainWings`)**: Adjacent connecting curtain wings display matching cracked stone and battlement gaps.
+    - **Full HP Walls Stay As They Are**: When `wallHp` is at or near full HP (`ratio >= 0.60`) or when `wallHp` is not set on state (`undefined`), rim walls remain 100% intact with pristine merlons, clean stone faces, and zero cracks.
+  - **Invariants**:
+    - Hit-test math (`hitTestProvince`) and camera math in `camera.ts` remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
 
 ## Active Bakeoff (bakeoff/gemini-camps)
 
