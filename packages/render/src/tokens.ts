@@ -33,6 +33,7 @@ import {
   terrainElevation,
   paintTileHeightFace,
   paintFogHeightVeil,
+  type ThemeVisuals,
 } from "./tiles.js";
 import {
   type CultureKit,
@@ -41,6 +42,7 @@ import {
   type CultureVisualPalette,
   blendDark,
   blendLight,
+  getThemeVisuals,
 } from "./buildings.js";
 import { isFoodStoresEmptyOrLow } from "./walkers.js";
 
@@ -1710,16 +1712,75 @@ export function drawResourceNode(
 
 
 // -------------------------------------------------------------
+// Seasonal & Holiday Board Tinting Helpers
+// -------------------------------------------------------------
+export interface BoardSeasonTint {
+  color: number;
+  alpha: number;
+  hex: string;
+  season: string;
+  holiday: string;
+  decorations: string;
+}
+
+function getSeasonFromState(state?: GameState | null): string {
+  if (!state) return "Spring";
+  if (typeof (state as any).season === "string") return (state as any).season;
+  if (state.meta && typeof state.meta.tick === "number") {
+    try {
+      return sim.currentSeason(state);
+    } catch {
+      return "Spring";
+    }
+  }
+  return "Spring";
+}
+
+export function resolveBoardThemeVisuals(
+  state?: GameState | null,
+  visuals?: ThemeVisuals | null
+): ThemeVisuals {
+  if (visuals && typeof visuals === "object" && "tintColor" in visuals && typeof (visuals as any).tintColor === "number") {
+    return visuals;
+  }
+  const season = getSeasonFromState(state);
+  const holiday = (state as any)?.flags?.holiday || (state as any)?.flags?.theme || "none";
+  return getThemeVisuals(season, holiday);
+}
+
+export function resolveBoardSeasonTint(
+  state?: GameState | null,
+  visuals?: ThemeVisuals | null
+): BoardSeasonTint {
+  const season = getSeasonFromState(state);
+  const holiday = (state as any)?.flags?.holiday || (state as any)?.flags?.theme || "none";
+  const v = resolveBoardThemeVisuals(state, visuals);
+  const hex = `#${(v.tintColor >>> 0).toString(16).padStart(6, "0")}`;
+  return {
+    color: v.tintColor,
+    alpha: v.tintAlpha,
+    hex,
+    season,
+    holiday,
+    decorations: v.decorations,
+  };
+}
+
+// -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
 // -------------------------------------------------------------
 export function paintBoardProvinces(
   g: Graphics,
   state: GameState,
-  phase: number,
-  selectedProvinceId?: string | null
+  phase: number = 0,
+  selectedProvinceId?: string | null,
+  visuals?: ThemeVisuals | null
 ): void {
   g.clear();
   if (!state?.board?.provinces) return;
+
+  const animPhase = typeof phase === "number" ? phase : 0;
+  const theme = resolveBoardThemeVisuals(state, visuals);
 
   // Sort back-to-front by depth (y * 20 + x) so foreground isometric tiles and cliff faces layer on top
   const sortedProvinces = [...state.board.provinces].sort((a, b) => (a.y * 20 + a.x) - (b.y * 20 + b.x));
@@ -1730,7 +1791,7 @@ export function paintBoardProvinces(
 
     if (!seen) {
       // Unseen Province: Raised Volumetric Cumulus Cloud Mass (NOT purple squares)
-      paintFogHeightVeil(g, b, p, phase);
+      paintFogHeightVeil(g, b, p, animPhase);
       continue;
     }
 
@@ -1752,7 +1813,7 @@ export function paintBoardProvinces(
 
     // 2. 3D Height Faces (Front-left & Front-right vertical cliffs based on Terrain)
     if (elev > 0) {
-      paintTileHeightFace(g, b, p.terrain, pal, phase);
+      paintTileHeightFace(g, b, p.terrain, pal, animPhase, theme);
     }
 
     // 3. Raised Top Diamond Plateau
@@ -1765,6 +1826,12 @@ export function paintBoardProvinces(
     ];
     g.poly(topDiamond);
     g.fill({ color: pal.fill });
+
+    // Seasonal / Holiday light tint over top diamond plateau (translucent wash; does not hide terrain)
+    if (theme.tintColor && theme.tintAlpha > 0) {
+      g.poly(topDiamond);
+      g.fill({ color: theme.tintColor, alpha: theme.tintAlpha });
+    }
 
     // Top subtle highlight rim along rear two facets
     g.moveTo(wx - hw, cy);

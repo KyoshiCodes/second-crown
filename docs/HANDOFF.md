@@ -13,6 +13,32 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active Bakeoff (bakeoff/gemini-season-tint)
+
+- **Light Seasonal & Holiday Tint on Board Tiles (`packages/render/src/tokens.ts`, `packages/render/src/buildings.ts`, `packages/render/src/tiles.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - Board tiles pick up a light seasonal tint wash from existing season/holiday state without hiding underlying terrain colors or terrain relief art.
+  - **Seasonal & Holiday Color Mapping (`getThemeVisuals`, `resolveBoardThemeVisuals`, `resolveBoardSeasonTint`)**:
+    - Spring: Light pastel spring green (`0x86efac`, alpha 0.10).
+    - Summer: Warm sunbeam gold (`0xfef08a`, alpha 0.10).
+    - Autumn: Rich autumn gold (`0xf59e0b`, alpha 0.14).
+    - Winter: Crisp winter cool frost cyan (`0xbae6fd`, alpha 0.14).
+    - Holiday packs (when selected or active):
+      - Halloween: Spectral shadow purple (`0x581c87`, alpha 0.18).
+      - Midwinter: Glacial ice cyan (`0x38bdf8`, alpha 0.16).
+      - Easter: Dawn lilac violet (`0xc084fc`, alpha 0.12).
+      - Harvest: Harvest gold (`0xf59e0b`, alpha 0.16).
+      - Midsummer: Solar yellow (`0xfde047`, alpha 0.14).
+  - **Non-Obscuring Visual Layering ("Do Not Hide Terrain")**:
+    - On the tabletop board, the base terrain color (`pal.fill`) is drawn first, followed by the translucent tint glaze (`0.08` to `0.18` alpha).
+    - All relief art (trees, knoll lines, wildflowers, grass tufts, mountain crags, fissures, waves, surf) is painted *after* the tint wash, ensuring full prominent visibility.
+    - 3D cliff height faces (`paintTileHeightFace`) receive subtle matching glazes on the front-left (`alpha * 0.55`) and front-right (`alpha * 0.40`) facets.
+  - **Kingdom Atlas Integration (`packages/app/src/OverworldAtlas.tsx`)**:
+    - Seen provinces render matching seasonal tint overlays on top diamonds and cliff faces with `style={{ pointerEvents: "none" }}`.
+  - **Invariants**:
+    - Hit-test math (`hitTestProvince` in `camera.ts`) and camera projection remain 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+
 ## Active Bakeoff (bakeoff/gemini-eta)
 
 - **Tiny Seconds Badge on Board March Meeples (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`)**:

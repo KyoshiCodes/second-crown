@@ -87,8 +87,11 @@ export function culturePalette(cultureId?: string): CultureVisualPalette {
 }
 
 
-export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
-  if (holiday === "halloween") {
+export function getThemeVisuals(season: string = "Spring", holiday: string = "none"): ThemeVisuals {
+  const normHoliday = (holiday || "none").toLowerCase();
+  const normSeason = (season || "Spring").toLowerCase();
+
+  if (normHoliday === "halloween") {
     return {
       groundA: 0x1c1026,
       groundB: 0x160a20,
@@ -98,11 +101,11 @@ export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
       cliffColor: 0x1f142b,
       cliffDark: 0x0f0817,
       tintColor: 0x581c87,
-      tintAlpha: 0.2,
+      tintAlpha: 0.18,
       decorations: "halloween",
     };
   }
-  if (holiday === "midwinter") {
+  if (normHoliday === "midwinter") {
     return {
       groundA: 0x2b3b4d,
       groundB: 0x223141,
@@ -116,7 +119,7 @@ export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
       decorations: "midwinter",
     };
   }
-  if (holiday === "easter") {
+  if (normHoliday === "easter") {
     return {
       groundA: 0x1e3624,
       groundB: 0x172b1c,
@@ -130,7 +133,7 @@ export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
       decorations: "easter",
     };
   }
-  if (holiday === "harvest") {
+  if (normHoliday === "harvest") {
     return {
       groundA: 0x342416,
       groundB: 0x2c1d11,
@@ -144,7 +147,7 @@ export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
       decorations: "harvest",
     };
   }
-  if (holiday === "midsummer") {
+  if (normHoliday === "midsummer") {
     return {
       groundA: 0x253618,
       groundB: 0x1e2c13,
@@ -160,7 +163,7 @@ export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
   }
 
   // Standard seasons
-  if (season === "Summer") {
+  if (normSeason === "summer") {
     return {
       groundA: 0x2a3818,
       groundB: 0x222d13,
@@ -170,11 +173,11 @@ export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
       cliffColor: 0x2b2e1a,
       cliffDark: 0x15170d,
       tintColor: 0xfef08a,
-      tintAlpha: 0.1,
+      tintAlpha: 0.10,
       decorations: "summer",
     };
   }
-  if (season === "Autumn") {
+  if (normSeason === "autumn") {
     return {
       groundA: 0x352316,
       groundB: 0x2d1d12,
@@ -183,12 +186,12 @@ export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
       roadCobble: 0x5c422f,
       cliffColor: 0x2e2016,
       cliffDark: 0x17100b,
-      tintColor: 0xf97316,
-      tintAlpha: 0.12,
+      tintColor: 0xf59e0b,
+      tintAlpha: 0.14,
       decorations: "autumn",
     };
   }
-  if (season === "Winter") {
+  if (normSeason === "winter") {
     return {
       groundA: 0x24303c,
       groundB: 0x1d2732,
@@ -213,7 +216,7 @@ export function getThemeVisuals(season: string, holiday: string): ThemeVisuals {
     cliffColor: 0x222a1e,
     cliffDark: 0x11160f,
     tintColor: 0x86efac,
-    tintAlpha: 0.08,
+    tintAlpha: 0.10,
     decorations: "spring",
   };
 }
