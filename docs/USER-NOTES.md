@@ -28,6 +28,14 @@ Newest first. Plain language for playtesters.
 - The primer banner now points at the screens you actually see: the resource strip, work cards, People job cards, unit cards, the tile inspect card, War's force cards and Last battle, and the World log.
 - Same nine steps, same order. Your saved primer progress carries over.
 
+## 2026-09-30 — Seasonal weather particles (rain in autumn, snow in winter, clear otherwise)
+
+- The world diorama and kingdom map now reflect dynamic seasonal precipitation based on your realm's current season and holiday:
+  - **Autumn Rain**: During autumn and harvest/halloween seasons, gentle diagonal rain showers fall across the realm with subtle splash ripples on the ground.
+  - **Winter Snow**: During winter and midwinter festivals, soft, crystalline snowflakes drift gently through the air with a soft cyan winter glow.
+  - **Clear Skies**: In spring, summer, and clear seasons, the skies remain bright and clear with zero precipitation clutter.
+  - **Non-Interfering & Click-Through**: All weather particles are purely visual and completely non-interactive (`pointer-events: none`), ensuring every tile, building, army, and button remains instantly clickable and responsive.
+
 ## 2026-09-29 — Tiles that are already a march destination get a faint ring
 
 - Any map tile that is currently the destination of an active marching force now receives a faint, animated ring around the tile perimeter:
