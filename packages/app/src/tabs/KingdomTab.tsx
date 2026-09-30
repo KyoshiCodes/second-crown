@@ -48,7 +48,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { PeoplePanel } from "../PeoplePanel";
 import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
-import { wallsStoneHint } from "../buildHints";
+import { quarryHintPlot, wallsStoneHint } from "../buildHints";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
 import { isScarred, WorkCard } from "../hud/WorkCard";
@@ -87,6 +87,7 @@ export function KingdomTab(props: {
   const tithe = state ? outpostTithePerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const labor = state ? laborPerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const wallsHint = wallsStoneHint(state);
+  const hintPlot = quarryHintPlot(state);
   const misses = state ? unpairedWorks(state) : [];
   const packed = state ? fullStores(state) : [];
   const idle = state ? emptyStaffWorks(state) : [];
@@ -119,7 +120,12 @@ export function KingdomTab(props: {
         {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more).
       </p>
       <WallLine state={state} />
-      {wallsHint ? <p style={{ fontSize: 12, color: "#d29922" }}>{wallsHint}</p> : null}
+      {wallsHint ? (
+        <p style={{ fontSize: 12, color: "#d29922" }}>
+          {wallsHint}
+          {hintPlot ? ` Plot ${hintPlot.x},${hintPlot.y} is free and marked in the Keep.` : ""}
+        </p>
+      ) : null}
       <VisionLine state={state} />
       {!room ? (
         <p style={{ fontSize: 12, color: "#d29922" }}>Beds full. Raise a Cottage (or the Keep) before more people will stay.</p>

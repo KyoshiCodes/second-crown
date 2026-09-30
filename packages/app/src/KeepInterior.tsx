@@ -22,6 +22,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
+import { quarryHintPlot } from "./buildHints";
 import { HallChip } from "./hud/HallChip";
 import { RoomBackdrop } from "./RoomBackdrop";
 import "./keep-interior.css";
@@ -69,6 +70,7 @@ export function KeepInterior(props: {
   const types = listBuildableTypes();
   const picked = selectedBuild ? getBuildingType(selectedBuild) : undefined;
   const tick = state.meta.tick;
+  const hintPlot = quarryHintPlot(state);
 
   const cells: React.ReactNode[] = [];
   for (let y = 0; y < HOLD_H; y++) {
@@ -83,6 +85,7 @@ export function KeepInterior(props: {
           b={b}
           tick={tick}
           pickedName={picked?.name}
+          hinted={hintPlot?.x === x && hintPlot?.y === y}
           onTap={onTap}
         />
       );
@@ -139,6 +142,7 @@ export function KeepInterior(props: {
               <span className="sc-keepin-key is-yard">Keep yard bonus</span>
               <span className="sc-keepin-key is-raising">Raising</span>
               <span className="sc-keepin-key is-improving">Improving</span>
+              {hintPlot ? <span className="sc-keepin-key is-hint">Quarry here</span> : null}
             </div>
             <p className="sc-keepin-hint">
               Tap an empty plot to raise {picked ? <strong>{picked.name}</strong> : "the chosen work"}. Tap a work to improve it.
@@ -249,9 +253,10 @@ function PlotCell(props: {
   b: Building | undefined;
   tick: number;
   pickedName: string | undefined;
+  hinted: boolean;
   onTap: (x: number, y: number) => void;
 }) {
-  const { state, x, y, b, tick, pickedName, onTap } = props;
+  const { state, x, y, b, tick, pickedName, hinted, onTap } = props;
   const rim = isHoldRim(x, y);
   const cls = ["sc-keepin-plot", rim ? "is-rim" : ""];
   let label = "";
@@ -260,6 +265,10 @@ function PlotCell(props: {
   if (!b) {
     cls.push("is-empty");
     tip = pickedName ? `Plot ${x},${y} · raise ${pickedName}` : `Plot ${x},${y} · empty`;
+    if (hinted) {
+      cls.push("is-hint");
+      tip += " · a Quarry here would give stone for Walls";
+    }
   } else {
     const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
     const mine = b.realmId === "player";
