@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-09-30 — Gemini Soft Gold Ground Ring Hint Glow (bakeoff/gemini-hint-glow)
+
+- **Render Only: Soft Gold Ground Ring Hint Glow on Empty Work Plots (`packages/render/src/tiles.ts`, `packages/render/src/index.ts`)**:
+  - **App Hint Glow**: When the app passes a plot id (e.g. `{ x, y }` or `"x,y"`), that empty plot receives a radiant **soft gold ground ring** (`drawPlotGlowRing`) rendered as an isometric 2:1 ground ellipse on the turf with ambient diffused gold light pool (`0xfde047`, `0xfacc15`), warm amber glow stroke (`0xf59e0b`), radiant core ring (`0xfef08a`), specular rim (`0xffffff`), breathing pulse animation, and shimmering cardinal nodal pips.
+  - **Other Empty Stakes Stay Plain**: For all other empty plots, `glowAlpha = 0` so other empty stakes remain plain without gold rings.
+  - **Low Opacity Fallback**: If the app does not pass a plot id (`hintPlot` is `null` or `undefined`), every empty hold plot glows at low opacity instead (`glowAlpha = 0.22`), inviting construction across the courtyard without overwhelming the diorama.
+  - **Built Plots Stay Untouched**: Occupied plots (buildings, scaffolding, keep) render zero stakes and zero empty plot rings.
+  - **API Additions**:
+    - `parsePlotCoord(plot)`: parses `{ x, y }` or string coordinates (`"4,2"`, `"plot_4_2"`, `"4-2"`).
+    - `drawPlotGlowRing(g, wx, wy, phase, alpha)`: renders the 2:1 isometric gold ground ring.
+    - `drawPlotStake(..., glowAlpha)`: accepts optional `glowAlpha` parameter.
+    - `paintEmptyPlotStakes(..., hintPlot)`: accepts optional `hintPlot` identifier.
+    - `MapRenderer`: updated `sync(state, selectedProvinceId, hintPlot)` and added `setHintPlot(hintPlot)`, `getHintPlot()`, and `"sc-hint-plot-change"` window event listener.
+  - **Invariants**: Strictly non-blocking (`plotStakesLayer.eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. No invented sim fields. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — Gemini Empty Work Plots Wooden Survey Stake (bakeoff/gemini-plot-stake)
 
 - **Render Only: Empty Work Plots on the Player Hold Get a Small Wooden Stake (`packages/render/src/tiles.ts`, `packages/render/src/index.ts`)**:

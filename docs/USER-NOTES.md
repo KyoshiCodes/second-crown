@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Soft gold ground ring hint glow on empty work plots (bakeoff/gemini-hint-glow)
+
+- Recommended building plots in your settlement now receive a **soft gold ground ring**:
+  - **Hinted Empty Plot**: When the application suggests a building plot, that specific open plot is highlighted with a glowing 2:1 isometric golden ground circle with a breathing ambient light pool and shimmering cardinal pips.
+  - **Other Empty Stakes Stay Plain**: Other open plots keep their plain wooden surveyor's stake with no gold ring.
+  - **Low Opacity Courtyard Glow (Fallback)**: When no specific plot is targeted by the application, all open courtyard plots receive a subtle, low-opacity warm ground glow—softly signaling available building ground across the hold without visual clutter.
+  - **Built Plots**: Built buildings and structures remain completely untouched with zero stakes and zero empty rings.
+- Purely cosmetic visual update; strictly `pointer-events: none` and never interferes with map clicks, zooming, or building placement.
+
 ## 2026-09-30 — Wooden surveyor stakes on empty work plots (bakeoff/gemini-plot-stake)
 
 - Open building plots in your settlement now receive a small **wooden surveyor's stake**:

@@ -759,8 +759,92 @@ export function listEmptyWorkPlots(
 }
 
 /**
+ * Parses a plot identifier into grid coordinates { x, y } or null.
+ * Accepts objects { x, y } or strings like "4,2", "plot_4_2", "4-2".
+ */
+export function parsePlotCoord(
+  plot: string | { x: number; y: number } | null | undefined
+): { x: number; y: number } | null {
+  if (!plot) return null;
+  if (typeof plot === "object") {
+    const obj = plot as { x?: unknown; y?: unknown };
+    if (typeof obj.x === "number" && typeof obj.y === "number") {
+      return { x: obj.x, y: obj.y };
+    }
+    return null;
+  }
+  if (typeof plot === "string") {
+    const trimmed = plot.trim();
+    if (!trimmed) return null;
+    const match = trimmed.match(/(\d+)[\s,_-]+(\d+)/);
+    if (match) {
+      return { x: parseInt(match[1], 10), y: parseInt(match[2], 10) };
+    }
+  }
+  return null;
+}
+
+/**
+ * Draws a soft radiant gold ground ring on the isometric turf centered around an empty plot stake.
+ * - In isometric projection, circles on the ground are 2:1 ellipses matching the diamond tile.
+ * - Multi-tiered soft radiant gold glow with amber rim, radiant gold core, and pale gold highlight.
+ * - Breathing pulse with phase.
+ * - 4 subtle gold nodal glimmer pips at the cardinal points of the ring.
+ */
+export function drawPlotGlowRing(
+  g: Graphics,
+  wx: number,
+  wy: number,
+  phase: number = 0,
+  alpha: number = 0.85
+): void {
+  if (alpha <= 0) return;
+
+  const pulse = Math.sin(phase * 2.8 + wx * 0.15 + wy * 0.15) * 0.08 + 1.0;
+  const ringRx = 11.5 * pulse;
+  const ringRy = 5.75 * pulse;
+
+  // 1. Soft diffused ambient ground glow fill (soft gold light pool on turf)
+  g.ellipse(wx, wy + 0.5, ringRx * 1.35, ringRy * 1.35);
+  g.fill({ color: 0xfde047, alpha: alpha * 0.18 });
+
+  g.ellipse(wx, wy + 0.5, ringRx * 1.1, ringRy * 1.1);
+  g.fill({ color: 0xfacc15, alpha: alpha * 0.22 });
+
+  // 2. Outer warm amber glow stroke
+  g.ellipse(wx, wy + 0.5, ringRx, ringRy);
+  g.stroke({ width: 2.4, color: 0xf59e0b, alpha: alpha * 0.5 });
+
+  // 3. Core radiant gold ground ring
+  g.ellipse(wx, wy + 0.5, ringRx, ringRy);
+  g.stroke({ width: 1.3, color: 0xfef08a, alpha: alpha * 0.88 });
+
+  // 4. Inner sharp bright specular rim
+  g.ellipse(wx, wy + 0.5, ringRx * 0.92, ringRy * 0.92);
+  g.stroke({ width: 0.6, color: 0xffffff, alpha: alpha * 0.55 });
+
+  // 5. Four subtle shimmering gold nodal glimmer pips along the ring
+  const pipPulse = 0.75 + Math.sin(phase * 3.5 + wx * 0.3) * 0.25;
+  const pipAlpha = alpha * pipPulse;
+
+  // East & West pips
+  g.circle(wx - ringRx, wy + 0.5, 1.1);
+  g.fill({ color: 0xfef08a, alpha: pipAlpha });
+  g.circle(wx + ringRx, wy + 0.5, 1.1);
+  g.fill({ color: 0xfef08a, alpha: pipAlpha });
+
+  // North & South pips
+  g.circle(wx, wy + 0.5 - ringRy, 0.9);
+  g.fill({ color: 0xfef08a, alpha: pipAlpha });
+  g.circle(wx, wy + 0.5 + ringRy, 0.9);
+  g.fill({ color: 0xfef08a, alpha: pipAlpha });
+}
+
+/**
  * Draws a small wooden surveyor stake driven into the turf of an empty work plot.
+ * If glowAlpha > 0, renders a soft gold ground ring on the turf around the stake.
  * Features:
+ * - Optional soft gold ground ring with ambient light pool, dual-tone stroke, and pips
  * - Soft ground contact shadow and dark soil indent where driven into turf
  * - Freshly displaced loam soil clod at base
  * - Chiseled hardwood timber shaft with left sunlit wood grain highlight
@@ -775,8 +859,14 @@ export function drawPlotStake(
   wx: number,
   wy: number,
   phase: number = 0,
-  visuals?: ThemeVisuals
+  visuals?: ThemeVisuals,
+  glowAlpha: number = 0
 ): void {
+  // If soft gold ground ring is requested, draw it on the turf underneath the stake
+  if (glowAlpha > 0) {
+    drawPlotGlowRing(g, wx, wy, phase, glowAlpha);
+  }
+
   // 1. Soft elliptical contact shadow on the turf
   g.ellipse(wx, wy + 2, 3.2, 1.4);
   g.fill({ color: 0x000000, alpha: 0.28 });
@@ -858,19 +948,39 @@ export function drawPlotStake(
  * Paints small wooden surveyor stakes on all empty work plots on the player hold.
  * Built plots stay as they are (no stakes drawn on occupied plots).
  * Rim tiles and cobblestone road network do not receive stakes.
+ *
+ * Hint Glow Behavior:
+ * - If hintPlot is passed pointing at an empty plot:
+ *   That empty plot gets a soft gold ground ring (full glow).
+ *   Other empty stakes stay plain (glowAlpha = 0).
+ * - If the app does not pass a plot id:
+ *   Every empty hold plot glows at low opacity instead (glowAlpha = 0.22).
  */
 export function paintEmptyPlotStakes(
   g: Graphics,
   state: GameState | null | undefined,
   phase: number = 0,
   visuals?: ThemeVisuals,
-  includeRoads = false
+  includeRoads = false,
+  hintPlot?: string | { x: number; y: number } | null
 ): void {
   g.clear();
   const plots = listEmptyWorkPlots(state, includeRoads);
+  const target = parsePlotCoord(hintPlot);
+
   for (const { x, y } of plots) {
     const { wx, wy } = gridToWorld(x, y);
-    drawPlotStake(g, wx, wy, phase, visuals);
+    let glowAlpha = 0;
+    if (target) {
+      if (x === target.x && y === target.y) {
+        glowAlpha = 0.85;
+      } else {
+        glowAlpha = 0;
+      }
+    } else {
+      glowAlpha = 0.22;
+    }
+    drawPlotStake(g, wx, wy, phase, visuals, glowAlpha);
   }
 }
 
