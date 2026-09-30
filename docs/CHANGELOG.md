@@ -21,6 +21,27 @@
 - Primer step text now names live UI: resource strip, work cards, People job cards, Market offer cards, unit cards, inspect card groups (Tile / Owner / Forces / Hold), gold select rim, Scout column, Column box, War force cards / Last battle / diplomacy cards, World log, decrees, Latest event.
 - Step ids, order, count (9) and advance checks unchanged. No economy / combat / win math touched.
 
+## 2026-09-30 — Gemini Seasonal Weather Particles (bakeoff/gemini-weather)
+
+- **Seasonal Weather Precipitation Particles (`packages/render/src/weather.ts`, `packages/render/src/index.ts`, `packages/app/src/seasons/WeatherOverlay.tsx`, `packages/app/src/theme.css`)**:
+  - **Weather Resolution (`resolveWeatherKind`, `resolveWeatherFromState`)**:
+    - Light rain in autumn-ish wet seasons (`Autumn`, `Fall`, `Harvest`, `Halloween`).
+    - Light snow in winter seasons (`Winter`, `Midwinter`).
+    - Clear sky otherwise (`Spring`, `Summer`, `Easter`, `Midsummer`, default) with 0 precipitation particles.
+  - **PixiJS Map Particles (`paintWeatherParticles`, `createWeatherParticles`)**:
+    - Rain: slanted downward streaks with wind drift and subtle ground splash ripples at lower elevation.
+    - Snow: soft crystalline circular snowflakes with cyan halo and gentle horizontal flutter.
+    - Clear: graphics buffer cleanly cleared with 0 particles drawn.
+    - Non-interactive: `particlesGraphic.eventMode = "none"` in hold view and `boardWeatherGraphic.eventMode = "none"` in board view.
+  - **React WeatherOverlay & CSS**:
+    - Updated `WeatherOverlay.tsx` to use `resolveWeatherKind`, rendering rain in autumn wet seasons, snow in winter, clear otherwise.
+    - Added pointer-events isolation in `theme.css`: `.sc-weather-container, .sc-weather-container * { pointer-events: none !important; user-select: none !important; }`.
+  - **Strict Invariants**:
+    - Hit-test and camera math (`camera.ts`) 100% untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere in the repository.
+    - All tests passing (221 sim tests, 212 render tests; clean app build).
+
 ## 2026-09-29 — Gemini March Destination Tile Faint Rings (bakeoff/gemini-dest)
 
 - **Tiles That Are a March Destination Get a Faint Ring (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:

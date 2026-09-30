@@ -29,6 +29,25 @@
 - `march` step tab moved army → board: the Column box and "Send raid column" live on the inspect card, not Army.
 - Not covered: quests (`QuestPanel.tsx` unmounted), People as its own tab (it is a section of Kingdom), market stalls (MarketPanel says stalls are not live yet).
 
+## 2026-09-30 — render / seasonal weather precipitation particles (bakeoff/gemini-weather)
+
+- `resolveWeatherKind` & `resolveWeatherFromState` in `packages/render/src/weather.ts`:
+  - Determines precipitation mode from state season and holiday:
+    - `"rain"`: Autumn seasons (`"autumn"`, `"fall"`) and wet holidays (`"harvest"`, `"halloween"`).
+    - `"snow"`: Winter season (`"winter"`) and winter holiday (`"midwinter"`).
+    - `"clear"`: All other seasons/holidays (`"spring"`, `"summer"`, `"easter"`, `"midsummer"`, etc.).
+  - Re-exported in `packages/render/src/index.ts`.
+- `paintWeatherParticles` & `createWeatherParticles` in `packages/render/src/weather.ts`:
+  - Rain: slanted falling streaks (`lineTo(p.x - 1.4, p.y + len)`), `0x93c5fd` at alpha 0.6, with subtle ground splash ripples (`0x60a5fa`) near the bottom of the viewport.
+  - Snow: gentle downward drift with sinusoidal flutter (`Math.sin(t * 1.5 + p.phase) * 0.45`), crystalline white core (`0xf8fafc`) and cyan halo (`0xbae6fd`).
+  - Clear: executes `g.clear()` and returns immediately without emitting draw calls.
+  - Interactive safety: both `particlesGraphic.eventMode = "none"` (hold view) and `boardWeatherGraphic.eventMode = "none"` (board view) ensure Pixi pointer events are never captured.
+- `packages/app/src/seasons/WeatherOverlay.tsx`:
+  - Canvas 2D precipitation updated to use `resolveWeatherKind(season, holiday)`:
+    - Rain in autumn-ish wet seasons, snow in winter, clear (count = 0) otherwise.
+    - Inline style and `.sc-weather-container, .sc-weather-container * { pointer-events: none !important; user-select: none !important; }` in `packages/app/src/theme.css` ensure clicks always penetrate through to interactive UI and tiles.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-29 — render / tiles that are march destinations get faint ring (bakeoff/gemini-dest)
 
 - `buildMarchDestinationMap` & `getTileMarchDestination` in `packages/render/src/tokens.ts`:

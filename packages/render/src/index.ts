@@ -18,6 +18,18 @@ export * from "./tokens.js";
 // Re-export Walkers & Citizen Roles
 export * from "./walkers.js";
 
+// Re-export Weather & Precipitation Particles
+export * from "./weather.js";
+
+import {
+  type WeatherKind,
+  type WeatherParticle,
+  resolveWeatherKind,
+  resolveWeatherFromState,
+  createWeatherParticles,
+  paintWeatherParticles,
+} from "./weather.js";
+
 import {
   type CameraBand,
   ZOOM_THRESHOLD,
@@ -167,6 +179,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   holdContainer.addChild(ambientOverlay);
 
   const particlesGraphic = new Graphics();
+  particlesGraphic.eventMode = "none";
   holdContainer.addChild(particlesGraphic);
 
   const hoverGraphic = new Graphics();
@@ -198,6 +211,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   const boardPawnsLayer = new Graphics();
   boardPawnsLayer.eventMode = "none";
   boardContainer.addChild(boardPawnsLayer);
+
+  const boardWeatherGraphic = new Graphics();
+  boardWeatherGraphic.eventMode = "none";
+  boardContainer.addChild(boardWeatherGraphic);
 
   const boardHighlightLayer = new Graphics();
   boardHighlightLayer.visible = false;
@@ -324,17 +341,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     phase: i * 1.2,
   }));
 
-  // Floating ambient particle pool
-  const PARTICLE_COUNT = 24;
-  const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
-    x: Math.random() * CANVAS_W,
-    y: Math.random() * CANVAS_H,
-    vx: (Math.random() - 0.5) * 0.6,
-    vy: 0.3 + Math.random() * 0.7,
-    size: 1 + Math.random() * 2,
-    alpha: 0.2 + Math.random() * 0.6,
-    phase: Math.random() * Math.PI * 2,
-  }));
+  // Weather precipitation particle pools (rain in autumn-ish wet seasons, snow in winter, clear otherwise)
+  const PARTICLE_COUNT = 32;
+  const particles = createWeatherParticles(PARTICLE_COUNT, CANVAS_W, CANVAS_H);
+  const boardParticles = createWeatherParticles(PARTICLE_COUNT, CANVAS_W, CANVAS_H);
 
   app.canvas.style.cursor = "grab";
 
@@ -621,35 +631,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   }
 
   function updateParticles(t: number): void {
-    particlesGraphic.clear();
-    const dec = visuals.decorations;
+    const weather = resolveWeatherFromState(lastState, visuals);
+    paintWeatherParticles(particlesGraphic, weather, particles, t, CANVAS_W, CANVAS_H);
+  }
 
-    for (const p of particles) {
-      p.y += p.vy;
-      p.x += p.vx + Math.sin(t + p.phase) * 0.3;
-
-      if (p.y > CANVAS_H + 10) { p.y = -10; p.x = Math.random() * CANVAS_W; }
-      if (p.x > CANVAS_W + 10) p.x = -10;
-      if (p.x < -10) p.x = CANVAS_W + 10;
-
-      if (dec === "midwinter" || dec === "winter") {
-        particlesGraphic.circle(p.x, p.y, p.size * 0.9);
-        particlesGraphic.fill({ color: 0xf8fafc, alpha: p.alpha });
-      } else if (dec === "halloween") {
-        particlesGraphic.circle(p.x, p.y, p.size);
-        particlesGraphic.fill({ color: 0xf97316, alpha: p.alpha * 0.75 });
-      } else if (dec === "midsummer") {
-        const glow = Math.sin(t * 3 + p.phase) * 0.4 + 0.6;
-        particlesGraphic.circle(p.x, p.y, p.size * 1.2);
-        particlesGraphic.fill({ color: 0xfacc15, alpha: p.alpha * glow });
-      } else if (dec === "autumn" || dec === "harvest") {
-        particlesGraphic.ellipse(p.x, p.y, p.size * 1.5, p.size);
-        particlesGraphic.fill({ color: 0xd97706, alpha: p.alpha * 0.8 });
-      } else if (dec === "spring" || dec === "easter") {
-        particlesGraphic.circle(p.x, p.y, p.size);
-        particlesGraphic.fill({ color: 0xf472b6, alpha: p.alpha * 0.6 });
-      }
-    }
+  function updateBoardWeather(t: number): void {
+    const weather = resolveWeatherFromState(lastState, visuals);
+    paintWeatherParticles(boardWeatherGraphic, weather, boardParticles, t, CANVAS_W, CANVAS_H);
   }
 
   function paintAmbientLighting(): void {
@@ -768,6 +756,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     paintIsometricGround(groundLayer, visuals);
     paintAmbientLighting();
     paintBoardBackdrop(boardBackdropLayer, visuals);
+    updateParticles(phase);
+    updateBoardWeather(phase);
     if (lastState) {
       paintBuildings(lastState, phase);
       paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
@@ -793,6 +783,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBuildings(lastState, phase);
       }
     } else {
+      updateBoardWeather(phase);
       if (lastState) {
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
@@ -868,5 +859,9 @@ export {
   buildMarchDestinationMap,
   getTileMarchDestination,
   paintBoardDestinationRing,
+  resolveWeatherKind,
+  resolveWeatherFromState,
+  createWeatherParticles,
+  paintWeatherParticles,
 };
 

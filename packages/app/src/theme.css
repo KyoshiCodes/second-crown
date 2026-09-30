@@ -1847,5 +1847,9 @@ button:disabled {
   user-select: none !important;
 }
 
-
-
+/* --- Weather precipitation particles strictly pointer-events: none --- */
+.sc-weather-container,
+.sc-weather-container * {
+  pointer-events: none !important;
+  user-select: none !important;
+}

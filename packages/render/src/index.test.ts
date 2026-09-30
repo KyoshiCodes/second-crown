@@ -5573,6 +5573,164 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           }
         });
       });
+
+      describe("bakeoff/gemini-weather: seasonal precipitation particles (rain in autumn, snow in winter, clear otherwise)", () => {
+        function createMockGraphics() {
+          const calls: { method: string; args: any[] }[] = [];
+          const g: any = {
+            calls,
+            clear: () => { calls.push({ method: "clear", args: [] }); },
+            poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+            fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+            stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+            rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+            circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+            ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+            moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+            lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+            bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); },
+            quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); },
+          };
+          return g;
+        }
+
+        it("resolveWeatherKind classifies wet autumn vs winter snow vs clear otherwise", async () => {
+          const { resolveWeatherKind } = await import("./weather.js");
+
+          // Rain in autumn-ish wet seasons & holidays
+          expect(resolveWeatherKind("Autumn", "none")).toBe("rain");
+          expect(resolveWeatherKind("autumn", "none")).toBe("rain");
+          expect(resolveWeatherKind("Fall", "none")).toBe("rain");
+          expect(resolveWeatherKind("fall", "none")).toBe("rain");
+          expect(resolveWeatherKind("Spring", "harvest")).toBe("rain");
+          expect(resolveWeatherKind("Summer", "halloween")).toBe("rain");
+
+          // Snow in winter seasons & holidays
+          expect(resolveWeatherKind("Winter", "none")).toBe("snow");
+          expect(resolveWeatherKind("winter", "none")).toBe("snow");
+          expect(resolveWeatherKind("Spring", "midwinter")).toBe("snow");
+          expect(resolveWeatherKind("Summer", "midwinter")).toBe("snow");
+
+          // Clear otherwise
+          expect(resolveWeatherKind("Spring", "none")).toBe("clear");
+          expect(resolveWeatherKind("spring", "none")).toBe("clear");
+          expect(resolveWeatherKind("Summer", "none")).toBe("clear");
+          expect(resolveWeatherKind("summer", "none")).toBe("clear");
+          expect(resolveWeatherKind("Spring", "easter")).toBe("clear");
+          expect(resolveWeatherKind("Summer", "midsummer")).toBe("clear");
+          expect(resolveWeatherKind(undefined, undefined)).toBe("clear");
+        });
+
+        it("resolveWeatherFromState correctly inspects GameState and visuals", async () => {
+          const { resolveWeatherFromState } = await import("./weather.js");
+
+          // 1. From visuals decorations override
+          expect(resolveWeatherFromState(null, { decorations: "autumn" } as any)).toBe("rain");
+          expect(resolveWeatherFromState(null, { decorations: "winter" } as any)).toBe("snow");
+          expect(resolveWeatherFromState(null, { decorations: "midwinter" } as any)).toBe("snow");
+          expect(resolveWeatherFromState(null, { decorations: "spring" } as any)).toBe("clear");
+
+          // 2. From GameState season property
+          const s1: any = { season: "Autumn", flags: {} };
+          expect(resolveWeatherFromState(s1, null)).toBe("rain");
+
+          const s2: any = { season: "Winter", flags: {} };
+          expect(resolveWeatherFromState(s2, null)).toBe("snow");
+
+          const s3: any = { season: "Spring", flags: {} };
+          expect(resolveWeatherFromState(s3, null)).toBe("clear");
+
+          const s4: any = { season: "Summer", flags: {} };
+          expect(resolveWeatherFromState(s4, null)).toBe("clear");
+
+          // 3. From holiday flag
+          const s5: any = { season: "Spring", flags: { holiday: "harvest" } };
+          expect(resolveWeatherFromState(s5, null)).toBe("rain");
+
+          const s6: any = { season: "Summer", flags: { holiday: "midwinter" } };
+          expect(resolveWeatherFromState(s6, null)).toBe("snow");
+        });
+
+        it("createWeatherParticles initializes particle pool", async () => {
+          const { createWeatherParticles } = await import("./weather.js");
+          const particles = createWeatherParticles(16, 800, 600);
+          expect(particles).toHaveLength(16);
+          for (const p of particles) {
+            expect(typeof p.x).toBe("number");
+            expect(typeof p.y).toBe("number");
+            expect(typeof p.vx).toBe("number");
+            expect(typeof p.vy).toBe("number");
+            expect(p.size).toBeGreaterThan(0);
+            expect(p.alpha).toBeGreaterThan(0);
+          }
+        });
+
+        it("paintWeatherParticles renders distinct graphics for rain, snow, and clear", async () => {
+          const { createWeatherParticles, paintWeatherParticles } = await import("./weather.js");
+          const particles = createWeatherParticles(10, 800, 600);
+
+          // 1. Clear: clears buffer and renders 0 shapes
+          const gClear = createMockGraphics();
+          paintWeatherParticles(gClear, "clear", particles, 0, 800, 600);
+          expect(gClear.calls.some((c: any) => c.method === "clear")).toBe(true);
+          expect(gClear.calls.some((c: any) => c.method === "stroke" || c.method === "fill")).toBe(false);
+
+          // 2. Rain: renders slanted line strokes
+          const gRain = createMockGraphics();
+          paintWeatherParticles(gRain, "rain", particles, 0, 800, 600);
+          expect(gRain.calls.some((c: any) => c.method === "clear")).toBe(true);
+          expect(gRain.calls.some((c: any) => c.method === "moveTo")).toBe(true);
+          expect(gRain.calls.some((c: any) => c.method === "lineTo")).toBe(true);
+          expect(gRain.calls.some((c: any) => c.method === "stroke")).toBe(true);
+
+          // 3. Snow: renders soft circles and halo fills
+          const gSnow = createMockGraphics();
+          paintWeatherParticles(gSnow, "snow", particles, 0, 800, 600);
+          expect(gSnow.calls.some((c: any) => c.method === "clear")).toBe(true);
+          expect(gSnow.calls.some((c: any) => c.method === "circle")).toBe(true);
+          expect(gSnow.calls.some((c: any) => c.method === "fill")).toBe(true);
+        });
+
+        it("verifies pointer-events: none and non-blocking invariants in App and CSS", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+
+          const overlayCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/seasons/WeatherOverlay.tsx"), "utf-8");
+          expect(overlayCode).toContain("resolveWeatherKind");
+          expect(overlayCode).toContain("pointerEvents: \"none\"");
+
+          const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+          expect(themeCss).toContain(".sc-weather-container");
+          expect(themeCss).toContain("pointer-events: none !important;");
+
+          const renderIndexCode = fs.readFileSync(path.resolve(__dirname, "./index.ts"), "utf-8");
+          expect(renderIndexCode).toContain("particlesGraphic.eventMode = \"none\"");
+          expect(renderIndexCode).toContain("boardWeatherGraphic.eventMode = \"none\"");
+        });
+
+        it("preserves camera and hit-test invariants with zero conflict markers", async () => {
+          const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+          expect(typeof hitTestProvince).toBe("function");
+          expect(typeof boardGridToWorld).toBe("function");
+          expect(bandForZoom(1.0)).toBe("hold");
+
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const filesToCheck = [
+            "./weather.ts",
+            "./tokens.ts",
+            "./tiles.ts",
+            "./buildings.ts",
+            "./index.ts",
+            "../../app/src/seasons/WeatherOverlay.tsx",
+            "../../app/src/theme.css",
+          ];
+          for (const rel of filesToCheck) {
+            const code = fs.readFileSync(path.resolve(__dirname, rel), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+          }
+        });
+      });
     });
   });
 });

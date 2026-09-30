@@ -34,6 +34,26 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - Same 9 step ids in the same order; advance checks untouched. Only `text`, two `tab` hints (march → board), and a new `"world"` PrimerTab / hint.
 - Quests are not mentioned: `QuestPanel.tsx` exists but is not mounted anywhere.
 
+## Active Bakeoff (bakeoff/gemini-weather)
+
+- **Seasonal Weather Particles (`packages/render/src/weather.ts`, `packages/render/src/index.ts`, `packages/app/src/seasons/WeatherOverlay.tsx`, `packages/app/src/theme.css`)**:
+  - **Weather Classification (`resolveWeatherKind`, `resolveWeatherFromState`)**:
+    - **Rain ("rain")**: Light rain in autumn-ish wet seasons (`"autumn"`, `"fall"`) and wet holidays (`"harvest"`, `"halloween"`).
+    - **Snow ("snow")**: Light snow in winter seasons (`"winter"`) and winter holiday (`"midwinter"`).
+    - **Clear ("clear")**: Clear sky otherwise (`"spring"`, `"summer"`, `"easter"`, `"midsummer"`, default). Zero precipitation particles rendered.
+  - **PixiJS Map Precipitation Rendering (`paintWeatherParticles`, `createWeatherParticles`)**:
+    - Light rain: slender slanted falling raindrops (`0x93c5fd`, alpha 0.6) with delicate ground splash ripples (`0x60a5fa`).
+    - Light snow: soft crystalline snowflakes (`0xf8fafc`, alpha 0.85) with gentle cyan halo glow (`0xbae6fd`) and graceful flutter.
+    - Clear: cleanly clears the graphics buffer, drawing zero precipitation particles.
+    - Rendered in both camera bands: `holdContainer` (`particlesGraphic.eventMode = "none"`) and `boardContainer` (`boardWeatherGraphic.eventMode = "none"`).
+  - **React DOM Overlay (`packages/app/src/seasons/WeatherOverlay.tsx`, `packages/app/src/theme.css`)**:
+    - Renders matching HTML5 2D canvas precipitation (rain streaks with ripples, snow flakes with drift, clear empty sky).
+    - Guaranteed non-interactive: `pointerEvents: "none"` inline style and `.sc-weather-container, .sc-weather-container * { pointer-events: none !important; user-select: none !important; }`.
+  - **Strict Invariants**:
+    - `packages/render/src/camera.ts` (hit-test and projection math) completely untouched.
+    - `git diff main -- packages/sim server` strictly empty.
+    - Zero `<<<<<<<` merge conflict markers anywhere.
+
 ## Active Bakeoff (bakeoff/gemini-dest)
 
 - **Faint Ring for March Destination Tiles (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:
