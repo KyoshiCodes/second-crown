@@ -76,6 +76,8 @@ import {
   listEmptyWorkPlots,
   drawPlotStake,
   paintEmptyPlotStakes,
+  parsePlotCoord,
+  drawPlotGlowRing,
   ROAD_TILES,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
@@ -6796,6 +6798,154 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           });
 
           it("verifies pointer-events none and zero conflict markers for plot stakes", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+            expect(indexCode).toContain('plotStakesLayer.eventMode = "none"');
+            expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+
+            const files = ["buildings.ts", "tokens.ts", "tiles.ts", "index.ts"];
+            for (const f of files) {
+              const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+              expect(code).not.toContain("<<<<<<<");
+              expect(code).not.toContain("=======");
+              expect(code).not.toContain(">>>>>>>");
+            }
+          });
+        });
+
+        describe("Soft Gold Ground Ring Hint Glow", () => {
+          it("parsePlotCoord parses coordinate objects, strings, and handles null/undefined/invalid values", () => {
+            expect(parsePlotCoord({ x: 4, y: 2 })).toEqual({ x: 4, y: 2 });
+            expect(parsePlotCoord({ x: 0, y: 0 })).toEqual({ x: 0, y: 0 });
+            expect(parsePlotCoord("4,2")).toEqual({ x: 4, y: 2 });
+            expect(parsePlotCoord("4, 2")).toEqual({ x: 4, y: 2 });
+            expect(parsePlotCoord("plot_4_2")).toEqual({ x: 4, y: 2 });
+            expect(parsePlotCoord("plot-4-2")).toEqual({ x: 4, y: 2 });
+            expect(parsePlotCoord("4-2")).toEqual({ x: 4, y: 2 });
+
+            expect(parsePlotCoord(null)).toBeNull();
+            expect(parsePlotCoord(undefined)).toBeNull();
+            expect(parsePlotCoord("")).toBeNull();
+            expect(parsePlotCoord("   ")).toBeNull();
+            expect(parsePlotCoord("invalid")).toBeNull();
+            expect(parsePlotCoord({} as any)).toBeNull();
+          });
+
+          it("drawPlotGlowRing renders radiant soft gold ground ring with 2:1 isometric ellipses and cardinal pips", () => {
+            const g = createMockGraphics();
+            drawPlotGlowRing(g, 100, 100, 0, 0.85);
+
+            const json = JSON.stringify(g.calls);
+
+            // Ambient diffused ground light pool
+            expect(json).toContain(String(0xfde047));
+            expect(json).toContain(String(0xfacc15));
+
+            // Outer warm amber glow stroke
+            expect(json).toContain(String(0xf59e0b));
+
+            // Core radiant gold ring
+            expect(json).toContain(String(0xfef08a));
+
+            // White specular highlight
+            expect(json).toContain(String(0xffffff));
+
+            // Cardinal glimmer pips
+            expect(g.calls.some((c) => c.method === "circle")).toBe(true);
+
+            // Alpha <= 0 renders nothing
+            const gZero = createMockGraphics();
+            drawPlotGlowRing(gZero, 100, 100, 0, 0);
+            expect(gZero.calls.length).toBe(0);
+          });
+
+          it("drawPlotStake renders gold ground ring when glowAlpha > 0 and stays plain when glowAlpha === 0", () => {
+            const gPlain = createMockGraphics();
+            drawPlotStake(gPlain, 100, 100, 0, visuals, 0);
+            const plainJson = JSON.stringify(gPlain.calls);
+
+            const gGlowing = createMockGraphics();
+            drawPlotStake(gGlowing, 100, 100, 0, visuals, 0.85);
+            const glowJson = JSON.stringify(gGlowing.calls);
+
+            // Glowing stake contains ambient gold pool and amber glow
+            expect(glowJson).toContain(String(0xfde047));
+            expect(glowJson).toContain(String(0xf59e0b));
+
+            // Plain stake does NOT contain gold ring colors
+            expect(plainJson).not.toContain(String(0xfde047));
+            expect(plainJson).not.toContain(String(0xf59e0b));
+          });
+
+          it("when the app hint points to an empty plot: that plot gets soft gold ground ring, other empty stakes stay plain", () => {
+            const state = createMockState();
+            state.buildings = [
+              { id: "k", typeId: "keep", realmId: "player", x: 3, y: 3, level: 1, completesAtTick: null },
+            ];
+
+            // Point app hint at empty plot (2, 2)
+            const g = createMockGraphics();
+            paintEmptyPlotStakes(g, state, 0, visuals, false, { x: 2, y: 2 });
+
+            const json = JSON.stringify(g.calls);
+
+            // Targeted plot has soft gold ring
+            expect(json).toContain(String(0xfde047));
+            expect(json).toContain(String(0xf59e0b));
+
+            // Verify by isolating calls: plot (2, 2) stake has glow, plot (1, 1) stake is plain
+            const gTargetOnly = createMockGraphics();
+            drawPlotStake(gTargetOnly, 100, 100, 0, visuals, 0.85);
+
+            const gOtherOnly = createMockGraphics();
+            drawPlotStake(gOtherOnly, 100, 100, 0, visuals, 0);
+
+            expect(JSON.stringify(gTargetOnly.calls)).toContain(String(0xfde047));
+            expect(JSON.stringify(gOtherOnly.calls)).not.toContain(String(0xfde047));
+          });
+
+          it("when the app does not pass a plot id: glow every empty hold plot at low opacity instead", () => {
+            const state = createMockState();
+            state.buildings = [
+              { id: "k", typeId: "keep", realmId: "player", x: 3, y: 3, level: 1, completesAtTick: null },
+            ];
+
+            // No plot id passed (null or undefined)
+            const gNull = createMockGraphics();
+            paintEmptyPlotStakes(gNull, state, 0, visuals, false, null);
+            const nullJson = JSON.stringify(gNull.calls);
+
+            // Low opacity glow appears across empty plots
+            expect(nullJson).toContain(String(0xfde047));
+            expect(nullJson).toContain(String(0xf59e0b));
+
+            const gUndef = createMockGraphics();
+            paintEmptyPlotStakes(gUndef, state, 0, visuals, false, undefined);
+            const undefJson = JSON.stringify(gUndef.calls);
+            expect(undefJson).toContain(String(0xfde047));
+            expect(undefJson).toContain(String(0xf59e0b));
+          });
+
+          it("when the app hint points to an occupied built plot: other empty stakes stay plain and occupied plot gets no stake", () => {
+            const state = createMockState();
+            state.buildings = [
+              { id: "k", typeId: "keep", realmId: "player", x: 3, y: 3, level: 1, completesAtTick: null },
+            ];
+
+            // Point app hint at occupied keep tile (3, 3)
+            const g = createMockGraphics();
+            paintEmptyPlotStakes(g, state, 0, visuals, false, { x: 3, y: 3 });
+
+            const json = JSON.stringify(g.calls);
+
+            // Since target is occupied, no empty plot matches target.x, target.y -> other empty stakes stay plain
+            expect(json).not.toContain(String(0xfde047));
+            expect(json).not.toContain(String(0xf59e0b));
+          });
+
+          it("verifies pointer-events none and zero conflict markers for hint glow", async () => {
             const fs = await import("node:fs");
             const path = await import("node:path");
             const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");

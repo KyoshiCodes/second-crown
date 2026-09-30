@@ -1,3 +1,35 @@
+## 2026-09-30 — render / soft gold ground ring hint glow on empty work plots (bakeoff/gemini-hint-glow)
+
+- `packages/render/src/tiles.ts`:
+  - `export function parsePlotCoord(plot: string | { x: number; y: number } | null | undefined): { x: number; y: number } | null`:
+    - Safely parses plot coordinate objects (`{ x: number, y: number }`) or coordinate strings (`"4,2"`, `"plot_4_2"`, `"4-2"`, `"4_2"`). Returns `null` if invalid, non-empty, or unparseable.
+  - `export function drawPlotGlowRing(g: Graphics, wx: number, wy: number, phase: number = 0, alpha: number = 0.85): void`:
+    - Renders a soft gold 2:1 isometric ground ring on the hold turf:
+      - Diffused ambient gold light pool (`0xfde047`, `0xfacc15`) with subtle breathing pulse.
+      - Outer warm amber glow ring stroke (`0xf59e0b`, width 2.6).
+      - Radiant primary gold core ring (`0xfef08a`, width 1.4).
+      - Crisp specular highlight rim arc (`0xffffff`, alpha 0.40) on the front curve.
+      - Four shimmering cardinal nodal pips (`0xfffbeb`, `0xfde047`) at top, bottom, left, and right of the ellipse.
+      - Early return guard if `alpha <= 0`.
+  - `export function drawPlotStake(g: Graphics, wx: number, wy: number, phase: number = 0, visuals?: ThemeVisuals, glowAlpha: number = 0): void`:
+    - Added optional `glowAlpha = 0` parameter. When `glowAlpha > 0`, invokes `drawPlotGlowRing(g, wx, wy, phase, glowAlpha)` directly beneath the surveyor stake.
+  - `export function paintEmptyPlotStakes(g: Graphics, state: GameState | null | undefined, phase = 0, visuals?: ThemeVisuals, includeRoads = false, hintPlot?: string | { x: number; y: number } | null): void`:
+    - Added optional `hintPlot` argument.
+    - If `hintPlot` points to a valid empty plot `(x, y)`: renders `glowAlpha = 0.85` on that specific targeted plot, and `glowAlpha = 0` on all other empty plots (other empty stakes stay plain).
+    - If `hintPlot` is not provided (`null` or `undefined`): renders low-opacity fallback glow `glowAlpha = 0.22` across every empty hold plot.
+    - If `hintPlot` points to an occupied built plot: other empty plots stay plain (`glowAlpha = 0`), occupied plot gets no stake.
+- `packages/render/src/index.ts`:
+  - `MapRenderer` interface additions:
+    - `sync(state: GameState, selectedProvinceId?: string | null, hintPlot?: string | { x: number; y: number } | null): void`
+    - `setHintPlot(hintPlot: string | { x: number; y: number } | null): void`
+    - `getHintPlot(): string | { x: number; y: number } | null`
+  - Implementation:
+    - Maintains `currentHintPlot: string | { x: number; y: number } | null = null`.
+    - Listens to `"sc-hint-plot-change"` CustomEvent on `window` for app communication without direct coupling.
+    - Re-renders `plotStakesLayer` on hint updates and during hold animation ticker with `currentHintPlot`.
+    - Cleans up window listener in `destroy()`.
+- Invariants: Sim and server unchanged (`git diff origin/main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. No `theme.css` changes. Non-blocking `eventMode = "none"`. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — render / empty work plots wooden survey stake (bakeoff/gemini-plot-stake)
 
 - `packages/render/src/tiles.ts`:

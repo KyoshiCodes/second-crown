@@ -114,13 +114,19 @@ import {
 } from "./walkers.js";
 
 export interface MapRenderer {
-  sync(state: GameState, selectedProvinceId?: string | null): void;
+  sync(
+    state: GameState,
+    selectedProvinceId?: string | null,
+    hintPlot?: string | { x: number; y: number } | null
+  ): void;
   setTheme(themeId: string, holidayId: string): void;
   destroy(): void;
   onTileClick(cb: (x: number, y: number) => void): void;
   onProvinceClick(cb: (provinceId: string) => void): void;
   setSelectedProvince(provinceId: string | null): void;
   getSelectedProvince(): string | null;
+  setHintPlot(hintPlot: string | { x: number; y: number } | null): void;
+  getHintPlot(): string | { x: number; y: number } | null;
   zoomIn(): void;
   zoomOut(): void;
   resetView(): void;
@@ -249,6 +255,24 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   let hoveredProvinceCoord: { bx: number; by: number } | null = null;
   let selectedProvinceCoord: { bx: number; by: number } | null = null;
   let selectedProvinceId: string | null = null;
+  let currentHintPlot: string | { x: number; y: number } | null = null;
+
+  function setHintPlot(hintPlot: string | { x: number; y: number } | null): void {
+    currentHintPlot = hintPlot;
+    if (lastState && currentBand === "hold") {
+      paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals, false, currentHintPlot);
+    }
+  }
+
+  function getHintPlot(): string | { x: number; y: number } | null {
+    return currentHintPlot;
+  }
+
+  const onHintPlotChange = (ev: Event) => {
+    const custom = ev as CustomEvent<string | { x: number; y: number } | null>;
+    setHintPlot(custom.detail);
+  };
+  window.addEventListener("sc-hint-plot-change", onHintPlotChange);
 
   function renderBoardSelection(state: GameState | null): void {
     if (!selectedProvinceCoord || !state) {
@@ -328,7 +352,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   // Paint ground and board backdrop initially
   paintIsometricGround(groundLayer, visuals);
-  paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals);
+  paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals, false, currentHintPlot);
   paintBoardBackdrop(boardBackdropLayer, visuals);
 
   // Living Walkers presentation pool (8 citizens)
@@ -745,10 +769,17 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     }
   }
 
-  function sync(state: GameState, selectId?: string | null): void {
+  function sync(
+    state: GameState,
+    selectId?: string | null,
+    hintPlot?: string | { x: number; y: number } | null
+  ): void {
     lastState = state;
     if (selectId !== undefined) {
       selectedProvinceId = selectId;
+    }
+    if (hintPlot !== undefined) {
+      currentHintPlot = hintPlot;
     }
     if (selectedProvinceId && state.board?.provinces) {
       const p = state.board.provinces.find((pr) => pr.id === selectedProvinceId);
@@ -762,7 +793,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintAmbientLighting();
       paintBoardBackdrop(boardBackdropLayer, visuals);
     }
-    paintEmptyPlotStakes(plotStakesLayer, state, phase, visuals);
+    paintEmptyPlotStakes(plotStakesLayer, state, phase, visuals, false, currentHintPlot);
     paintBuildings(state, phase);
     paintBoardProvinces(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
     paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
@@ -781,7 +812,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     updateParticles(phase);
     updateBoardWeather(phase);
     if (lastState) {
-      paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals);
+      paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals, false, currentHintPlot);
       paintBuildings(lastState, phase);
       paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
       paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
@@ -804,7 +835,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       updateParticles(phase);
       if (lastState) {
         paintBuildings(lastState, phase);
-        paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals);
+        paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals, false, currentHintPlot);
       }
     } else {
       updateBoardWeather(phase);
@@ -818,7 +849,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   return {
     sync,
     setTheme,
+    setHintPlot,
+    getHintPlot,
     destroy() {
+      window.removeEventListener("sc-hint-plot-change", onHintPlotChange);
       app.destroy(true);
       buildingGraphics.clear();
       walkers.length = 0;
