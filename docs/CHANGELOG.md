@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-30 — Gemini Finished Quarry Cut Stone, Crane & Piles, Unfinished Scaffolding (bakeoff/gemini-quarry-yard)
+
+- **Render Only: Finished Quarry Cut Stone, Crane & Piles, Unfinished Scaffolding (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
+  - **Finished Quarry**: Displays excavated granite quarry pit bedrock, terraced rock shelves with chiseled face fractures, cut stone ashlar stacks on pallets (`0xcbd5e1`, `0x94a3b8`, `0xe2e8f0`) with carved mortar seams, a wooden A-frame crane with brass pulley wheel (`0xf59e0b`), steel cable, hoisted stone block, quarried rubble piles on that tile (`0x64748b`, `0x52525b`), wooden wheelbarrow loaded with stone chunks, and a steel mason pickaxe. Fully supported in both hold isometric tiles and keep-yard annexes.
+  - **Unfinished Quarry**: Under construction, strictly renders authentic timber scaffolding (`drawQuarryScaffolding`) with corner uprights, ledger beams, diagonal X-braces with lashings, work staging plank deck, and hoist rope with dangling builder stone. Excluded from cracked stone damage overlay so it remains clean construction scaffolding.
+  - **Invariants**: Strictly non-blocking (`eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — Gemini Finished Watchtower Clear Beacon & Gold Glint (bakeoff/gemini-tower-beacon)
 
 - **Render Only: Finished Watchtower Clear Beacon & Gold Glint (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:

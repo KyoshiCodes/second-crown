@@ -31,6 +31,13 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
 - Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
 
+## Active Bakeoff (bakeoff/gemini-quarry-yard)
+
+- **Render Only: Finished Quarry Shows Cut Stone, Crane & Piles; Unfinished Stays Scaffolding (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
+  - **Finished Quarry**: Rendered with chiseled cut stone (neatly stacked ashlar blocks on pallets `0xcbd5e1`, `0x94a3b8`, `0xe2e8f0` with mortar seams), an A-frame timber hoisting crane derrick (`0x78350f`, `0x5c2b09`) with a brass pulley wheel (`0xf59e0b`), steel cable (`0xd1d5db`), and hoisted cut granite block dangling on the hook, piles on that tile (foreground pyramidal stone rubble mound `0x64748b`, `0x52525b`, rear terrace ledge cut stone piles, wooden wheelbarrow loaded with stone chunks, and steel mason pickaxe), and stepped granite quarry bedrock strata (`0x27272a`, `0x71717a`, `0x52525b`, `0x3f3f46`). Supported in hold diorama and keep-yard annex tokens.
+  - **Unfinished Quarry**: Strictly preserves authentic timber construction scaffolding (`drawQuarryScaffolding`) featuring excavated pit footprint, turf spoils/dirt chips, corner upright scaffold standards, horizontal ledger beams, diagonal X-braces with joint lashings, work staging planks deck, and hoist tripod beam with suspended builder stone. Zero crane pulley, zero chiseled ashlar stacks, and excluded from cracked stone damage overlay.
+  - **Strictly Non-Blocking Invariant**: All graphics use `eventMode = "none"` (`pointer-events: none`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. Zero conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-tower-beacon)
 
 - **Render Only: Finished Watchtower Clear Beacon & Gold Glint (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:

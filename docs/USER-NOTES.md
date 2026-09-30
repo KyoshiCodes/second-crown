@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Finished quarry cut stone, crane and piles (bakeoff/gemini-quarry-yard)
+
+- Finished **Quarries** now clearly showcase an active masonry workyard:
+  - Deep granite quarry pit with stepped stone ledges and chiseled rock shelves.
+  - Pallets of cut stone ashlar blocks neatly stacked with mortar seams.
+  - A heavy wooden A-frame crane with a brass pulley and steel cable hoisting a cut granite block into the air.
+  - Freshly quarried rubble piles on that tile, a wooden wheelbarrow full of stone, and a steel mason pickaxe.
+  - Unfinished quarries under construction strictly show wooden timber scaffolding with staging decks and corner posts until finished.
+- Purely visual update; never interferes with map clicks, camera, or tile interactions.
+
 ## 2026-09-30 — Watchtower beacon fire & gold glint (bakeoff/gemini-tower-beacon)
 
 - Finished **Watchtowers** now clearly signal their presence and gold production across your hold:

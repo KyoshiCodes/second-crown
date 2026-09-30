@@ -724,12 +724,84 @@ export function drawKeepYardAnnex(
     return;
   }
 
+  // -------------------------------------------------------------
+  // Bespoke Silhouette for Finished Quarry: Excavated Pit + Cut Stone Ashlar Stacks + Crane Derrick + Rubble Piles
+  // -------------------------------------------------------------
+  if (typeId === "quarry") {
+    // 1. Excavated granite quarry pit bedrock floor
+    g.poly([ax - 5.5, ay + 0.5, ax, ay + 2.8, ax + 5.5, ay + 0.5, ax, ay - 1.8]);
+    g.fill({ color: 0x27272a });
+
+    // Terraced granite quarry shelves / stepped rock strata
+    g.poly([ax - 4.8, ay + 0.8, ax, ay + 2.4, ax, ay + 0.4, ax - 4.8, ay - 1.2]);
+    g.fill({ color: 0x71717a });
+    g.poly([ax, ay + 2.4, ax + 4.8, ay + 0.8, ax + 4.8, ay - 1.2, ax, ay + 0.4]);
+    g.fill({ color: 0x52525b });
+
+    // Chiseled strata seam
+    g.moveTo(ax - 4.0, ay - 0.2); g.lineTo(ax - 0.8, ay + 1.2);
+    g.stroke({ width: 0.5, color: 0x18181b, alpha: 0.75 });
+
+    // 2. Cut Stone / Ashlar Masonry Blocks on that tile
+    // Stack of neatly chiseled ashlar blocks
+    g.rect(ax - 4.2, ay - 0.2, 2.8, 2.2); g.fill({ color: 0xcbd5e1 });
+    g.stroke({ width: 0.4, color: 0x334155 });
+    g.rect(ax - 3.2, ay - 2.0, 2.6, 1.8); g.fill({ color: 0x94a3b8 });
+    g.stroke({ width: 0.4, color: 0x334155 });
+    g.rect(ax - 2.2, ay + 0.6, 2.2, 1.6); g.fill({ color: 0xe2e8f0 });
+    g.stroke({ width: 0.35, color: 0x334155 });
+
+    // Mortar / chisel seams
+    g.moveTo(ax - 4.2, ay + 0.9); g.lineTo(ax - 1.4, ay + 0.9);
+    g.stroke({ width: 0.35, color: 0x475569 });
+
+    // 3. Piles on that tile: quarried rubble mounds & cut stone piles
+    // Foreground pyramidal stone rubble pile
+    g.poly([ax - 1.4, ay + 1.2, ax + 0.8, ay + 2.4, ax + 0.2, ay + 0.8]);
+    g.fill({ color: 0x64748b });
+    g.circle(ax - 0.3, ay + 1.5, 0.8); g.fill({ color: 0x94a3b8 });
+    g.circle(ax + 0.8, ay + 1.7, 0.9); g.fill({ color: 0x71717a });
+    g.circle(ax + 0.3, ay + 0.9, 0.6); g.fill({ color: 0xcbd5e1 });
+
+    // Cut stone blocks pile on rear right ledge
+    g.rect(ax + 2.2, ay - 1.2, 2.4, 1.8); g.fill({ color: 0x94a3b8 });
+    g.stroke({ width: 0.3, color: 0x1e293b });
+    g.rect(ax + 3.0, ay - 2.7, 2.0, 1.5); g.fill({ color: 0xcbd5e1 });
+    g.stroke({ width: 0.3, color: 0x1e293b });
+
+    // 4. Wooden A-Frame Crane Derrick with Brass Pulley, Cable & Hoisted Stone Block
+    const craneSwing = Math.sin(phase * 3 + ax) * 0.4;
+    g.moveTo(ax - 1.5, ay + 0.5); g.lineTo(ax - 1.5, ay - 8.5); g.lineTo(ax + 3.2, ay - 5.5);
+    g.stroke({ width: 1.2, color: 0x78350f });
+    g.moveTo(ax - 1.5, ay - 8.5); g.lineTo(ax + 0.8, ay + 1.2);
+    g.stroke({ width: 0.8, color: 0x5c2b09 });
+
+    // Brass pulley wheel at crane mast tip
+    g.circle(ax + 3.2, ay - 5.5, 0.7);
+    g.fill({ color: 0xf59e0b });
+    g.stroke({ width: 0.3, color: 0x78350f });
+
+    // Steel cable line & hoisted cut ashlar stone block
+    g.moveTo(ax + 3.2, ay - 5.0); g.lineTo(ax + 3.2 + craneSwing, ay - 2.2);
+    g.stroke({ width: 0.5, color: 0xd1d5db });
+    g.rect(ax + 2.2 + craneSwing, ay - 2.2, 2.2, 1.8);
+    g.fill({ color: 0xa1a1aa });
+    g.stroke({ width: 0.35, color: 0x334155 });
+
+    // 5. Quarry pickaxe
+    g.moveTo(ax - 0.4, ay + 1.2); g.lineTo(ax - 1.6, ay + 2.6);
+    g.stroke({ width: 0.5, color: 0x451a03 });
+    g.moveTo(-2.0 + ax, ay + 2.2); g.lineTo(-1.2 + ax, ay + 3.0);
+    g.stroke({ width: 0.7, color: 0x94a3b8 });
+    return;
+  }
+
   // Type-specific adjustments
   const isMilitary = typeId === "barracks" || typeId === "archery_range" || typeId === "siege_workshop";
   const isReligious = typeId === "chapel" || typeId === "infirmary";
   const isIndustry = typeId === "sawmill" || typeId === "lumber" || typeId === "lumber_camp";
   const isStore = typeId === "granary" || typeId === "farm";
-  const isStone = typeId === "mason" || typeId === "quarry";
+  const isStone = typeId === "mason";
 
   if (isMilitary && kit === "western") {
     roofLight = 0x94a3b8;

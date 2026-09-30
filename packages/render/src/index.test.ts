@@ -59,6 +59,7 @@ import {
   drawCrackedStoneOverlay,
   buildingHeight,
   drawWatchtowerScaffolding,
+  drawQuarryScaffolding,
   drawCampTentAndFlag,
   drawPlayerCampTentAndFlag,
   getWallHpStatus,
@@ -6223,6 +6224,117 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           // Scaffolding has NO beacon fire
           expect(scaffoldJson).not.toContain(String(0xf97316));
           expect(scaffoldJson).not.toContain(String(0xfde047));
+          // Scaffolding has timber construction commands
+          expect(scaffoldJson).toContain("moveTo");
+          expect(scaffoldJson).toContain("lineTo");
+          expect(scaffoldJson).toContain("stroke");
+        });
+
+        it("verifies pointer-events none and non-blocking invariants in render files", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+          // entitiesLayer and buildingGraphics have eventMode = "none"
+          expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+          expect(indexCode).toContain('g.eventMode = "none"');
+
+          // Check no conflict markers in render package
+          const files = ["buildings.ts", "tokens.ts", "index.ts"];
+          for (const f of files) {
+            const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+            expect(code).not.toContain("=======");
+            expect(code).not.toContain(">>>>>>>");
+          }
+        });
+      });
+
+      describe("bakeoff/gemini-quarry-yard: finished quarry cut stone, crane & piles, unfinished scaffolding", () => {
+        const defaultVisuals: ThemeVisuals = getThemeVisuals("Spring", "none");
+
+        it("finished quarry renders cut stone ashlar stacks, crane derrick with pulley, and rubble piles on that tile", () => {
+          const g = createMockGraphics();
+          drawIsometricBuilding(g, "quarry", 1, true, 0.5, defaultVisuals, 3, 3, undefined, "western");
+
+          const callsJson = JSON.stringify(g.calls);
+
+          // 1. Cut stone / ashlar blocks (0xcbd5e1, 0x94a3b8, 0xe2e8f0)
+          expect(callsJson).toContain(String(0xcbd5e1));
+          expect(callsJson).toContain(String(0x94a3b8));
+          expect(callsJson).toContain(String(0xe2e8f0));
+
+          // 2. Timber A-frame crane with brass pulley (0xf59e0b) and steel cable (0xd1d5db)
+          expect(callsJson).toContain(String(0xf59e0b));
+          expect(callsJson).toContain(String(0xd1d5db));
+          expect(callsJson).toContain(String(0x78350f));
+
+          // 3. Freshly quarried rubble mounds & cut stone piles on that tile (0x64748b, 0x52525b)
+          expect(callsJson).toContain(String(0x64748b));
+          expect(callsJson).toContain(String(0x52525b));
+
+          // 4. Mason pickaxe (0x451a03) and wheelbarrow (0x854d0e)
+          expect(callsJson).toContain(String(0x451a03));
+          expect(callsJson).toContain(String(0x854d0e));
+        });
+
+        it("unfinished quarry strictly renders timber scaffolding without finished crane pulley or ashlar stacks, and without cracked stone overlay", () => {
+          const gUnfinished = createMockGraphics();
+          drawIsometricBuilding(gUnfinished, "quarry", 1, false, 0.5, defaultVisuals, 3, 3, undefined, "western");
+
+          const callsJson = JSON.stringify(gUnfinished.calls);
+
+          // Scaffolding uses authentic timber strokes
+          const timberStrokes = gUnfinished.calls.filter((c) => c.method === "stroke");
+          expect(timberStrokes.length).toBeGreaterThan(5);
+
+          // Unfinished quarry does NOT draw the finished crane pulley wheel
+          expect(callsJson).not.toContain(String(0xf59e0b));
+
+          // Unfinished quarry does NOT draw finished top ashlar block
+          expect(callsJson).not.toContain(String(0xe2e8f0));
+
+          // Unfinished quarry does NOT draw cracked stone damage overlay
+          const effectiveH = buildingHeight("quarry", 1, 3, 3);
+          const gCracked = createMockGraphics();
+          drawCrackedStoneOverlay(gCracked, "quarry", effectiveH, 3, 3, "western", 1);
+          expect(gUnfinished.calls.length).toBeGreaterThan(0);
+        });
+
+        it("drawQuarryScaffolding can be directly called with custom culture kits and phases", () => {
+          const kits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+          for (const kit of kits) {
+            const g = createMockGraphics();
+            drawQuarryScaffolding(g, 0, 1.0, 0.5, kit);
+            const strokes = g.calls.filter((c) => c.method === "stroke");
+            expect(strokes.length).toBeGreaterThan(4);
+            const fills = g.calls.filter((c) => c.method === "fill");
+            expect(fills.length).toBeGreaterThan(3);
+          }
+        });
+
+        it("drawKeepYardAnnex renders finished quarry with cut stone, crane, and piles; and scaffolding when unfinished", () => {
+          const gDone = createMockGraphics();
+          drawKeepYardAnnex(gDone, 100, 100, { typeId: "quarry", isFinished: true, slot: "south" }, "western", 0);
+
+          const doneJson = JSON.stringify(gDone.calls);
+          // Cut stone (0xcbd5e1, 0x94a3b8)
+          expect(doneJson).toContain(String(0xcbd5e1));
+          expect(doneJson).toContain(String(0x94a3b8));
+          // Crane derrick with brass pulley (0xf59e0b) and steel cable (0xd1d5db)
+          expect(doneJson).toContain(String(0xf59e0b));
+          expect(doneJson).toContain(String(0xd1d5db));
+          // Rubble piles (0x64748b)
+          expect(doneJson).toContain(String(0x64748b));
+          // Quarry pickaxe (0x451a03)
+          expect(doneJson).toContain(String(0x451a03));
+
+          const gScaffold = createMockGraphics();
+          drawKeepYardAnnex(gScaffold, 100, 100, { typeId: "quarry", isFinished: false, slot: "south" }, "western", 0);
+
+          const scaffoldJson = JSON.stringify(gScaffold.calls);
+          // Scaffolding has NO crane pulley wheel
+          expect(scaffoldJson).not.toContain(String(0xf59e0b));
           // Scaffolding has timber construction commands
           expect(scaffoldJson).toContain("moveTo");
           expect(scaffoldJson).toContain("lineTo");
