@@ -67,6 +67,13 @@ export interface PlaytestReport {
     windows: RaidWindow[];
   };
   primer: { reached: number; total: number; stuckOn: string | null; log: { tick: number; step: string }[] };
+  /** Tower path: first tick each happened, or null if it never did. */
+  milestones: {
+    quarryBuilt: number | null;
+    watchtowerBuilt: number | null;
+    goldReached: number | null;
+    scoutLaunched: number | null;
+  };
   final: {
     resources: Record<string, string>;
     peakResources: Record<string, number>;
@@ -91,6 +98,7 @@ const FARM_TARGET = 3;
 const COTTAGE_TARGET = 2;
 const QUARRY_TARGET = 1;
 const WALLS_TARGET = 1;
+const WATCHTOWER_TARGET = 1;
 
 class Recorder {
   actions: Record<string, ActionStat> = {};
@@ -264,7 +272,8 @@ function botTurn(rec: Recorder, state: GameState, memo: BotMemo): void {
   const unseen = state.board.provinces.filter((p) => p.id !== homeId && !isProvinceSeen(state, p.id) && dist(p) >= 2);
 
   // Scout column (needs gold + one militia/skirmisher), then the instant gold scout as a fallback.
-  if (!memo.scouted && unseen.length > 0) {
+  // Only tried once gold covers the cost: the watchtower is the hold's gold source.
+  if (!memo.scouted && unseen.length > 0 && num(state.resources.gold) >= scoutCost(state)) {
     const target = nearest(unseen)!;
     const ok = rec.attempt(
       "scout column",
@@ -334,6 +343,11 @@ function botTurn(rec: Recorder, state: GameState, memo: BotMemo): void {
   if (allOfType(state, "walls") < WALLS_TARGET && (num(state.resources.stone) > 0 || step === "walls")) {
     tryBuildType(rec, state, "walls", true);
   }
+  // Watchtower once walls stand and stone allows: rim tile first (extra vision), else inside.
+  if (allOfType(state, "walls") >= WALLS_TARGET && allOfType(state, "watchtower") < WATCHTOWER_TARGET && canAfford(state, "watchtower")) {
+    const rim = freeSlot(state, "watchtower", true) !== null;
+    tryBuildType(rec, state, "watchtower", rim);
+  }
   if (step === "lectern" && !memo.studied) {
     const ok = rec.attempt(
       "study husbandry",
@@ -377,6 +391,7 @@ export function runPlaytest(options: PlaytestOptions = {}): PlaytestReport {
   let ticksRun = 0;
   let firstStarve: number | null = null;
   const peak: Record<string, number> = {};
+  let goldReached: number | null = null;
 
   while (ticksRun < totalTicks) {
     try {
@@ -400,6 +415,7 @@ export function runPlaytest(options: PlaytestOptions = {}): PlaytestReport {
       }
       ticksRun += 1;
       for (const [k, v] of Object.entries(state.resources)) peak[k] = Math.max(peak[k] ?? 0, Math.floor(num(v)));
+      if (goldReached === null && num(state.resources.gold) >= scoutCost(state)) goldReached = state.meta.tick;
       for (const m of listMarches(state)) {
         if (m.realmId === "player" || m.toId !== state.board.homeProvinceId || raidIds.has(m.id)) continue;
         raidIds.add(m.id);
@@ -469,6 +485,12 @@ export function runPlaytest(options: PlaytestOptions = {}): PlaytestReport {
       stuckOn: currentTutorial(state)?.id ?? null,
       log: primerLog,
     },
+    milestones: {
+      quarryBuilt: rec.actions["build quarry"]?.firstOkTick ?? null,
+      watchtowerBuilt: rec.actions["build watchtower"]?.firstOkTick ?? null,
+      goldReached,
+      scoutLaunched: rec.actions["scout column"]?.firstOkTick ?? rec.actions["scout (instant, gold)"]?.firstOkTick ?? null,
+    },
     final: {
       resources: { ...state.resources },
       peakResources: peak,
@@ -491,10 +513,10 @@ function autoNotes(r: PlaytestReport, state: GameState, firstStarve: number | nu
   if (never.length) notes.push(`Never succeeded: ${never.join(", ")}.`);
   if (r.primer.stuckOn) notes.push(`Primer stopped at step "${r.primer.stuckOn}" (${r.primer.reached}/${r.primer.total}).`);
   const scout = r.actions["scout column"];
-  if (scout && scout.ok === 0 && Object.keys(scout.fails).some((k) => k.startsWith("gold"))) {
-    notes.push("A fresh game starts with 0 gold and no gold income, so the primer's scout step is gated on finding gold elsewhere.");
+  if (r.milestones.goldReached === null) {
+    notes.push("Gold never reached the scout cost, so the bot never tried a scout.");
   }
-  if (scout && scout.ok === 0 && r.primer.log.some((l) => l.step === "scout")) {
+  if (!scout?.ok && r.primer.log.some((l) => l.step === "scout")) {
     notes.push("The primer's scout step still completed without a scout: a gather/march column's vision revealed a tile 2+ away.");
   }
   if (r.raids.list.length) {
@@ -541,6 +563,22 @@ export function playtestMarkdown(r: PlaytestReport): string {
   out.push(`- Errors thrown: **${r.errors.length}**`);
   out.push(`- Failed asserts: **${r.failedAsserts.length}**`);
   out.push(`- Primer: ${r.primer.reached}/${r.primer.total} steps${r.primer.stuckOn ? `, stuck on \`${r.primer.stuckOn}\`` : ", done"}`);
+  out.push("");
+  out.push("### Tower path");
+  out.push("");
+  const m = r.milestones;
+  const yes = (t: number | null) => (t === null ? "no" : `yes (tick ${t})`);
+  out.push(
+    table([
+      ["Check", "Result"],
+      ["Quarry built?", yes(m.quarryBuilt)],
+      ["Watchtower built?", yes(m.watchtowerBuilt)],
+      ["Gold reached scout cost?", yes(m.goldReached)],
+      ["Scout launched?", yes(m.scoutLaunched)],
+    ])
+  );
+  out.push("");
+  out.push("Build ticks are when the order was placed; the tower then stands under scaffolding before it yields gold.");
   out.push("");
   out.push("### Primer steps");
   out.push("");

@@ -17,6 +17,17 @@ describe("playtest harness", () => {
     for (const w of r.raids.windows) expect(w.result).not.toBe("unknown");
   });
 
+  it("builds a watchtower on stone, then scouts once gold exists", () => {
+    const m = runPlaytest({ seed: 7, ticks: 1500 }).milestones;
+    expect(m.quarryBuilt).not.toBeNull();
+    expect(m.watchtowerBuilt).not.toBeNull();
+    expect(m.goldReached).not.toBeNull();
+    expect(m.scoutLaunched).not.toBeNull();
+    expect(m.goldReached!).toBeGreaterThan(m.watchtowerBuilt!);
+    expect(m.scoutLaunched!).toBeGreaterThanOrEqual(m.goldReached!);
+    expect(runPlaytest({ seed: 7, ticks: 1500 }).milestones).toEqual(m);
+  });
+
   it("same seed gives the same report and markdown", () => {
     const a = runPlaytest({ seed: 7, ticks: 1500 });
     const b = runPlaytest({ seed: 7, ticks: 1500 });
