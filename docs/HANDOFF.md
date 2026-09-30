@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hint-quarry-tower, not merged)
+
+- App-only hints for the two opening walls the playtest bot hit. Kingdom tab: when stone is short for Walls, one line says to build a Quarry (cost read from building data). Province inspect: when gold is short for Scout column, one line says a Watchtower produces gold.
+- Files: `packages/app/src/buildHints.ts` (new), `tabs/KingdomTab.tsx`, `ProvinceInspect.tsx`. No sim, server or theme.css changes.
+
 ## Active wave (wave/playtest-harness, not merged)
 
 - Sim-only bot playtest: `npm run playtest` plays a fresh game for 12,000 ticks and rewrites the marked block at the top of `docs/PLAYTEST.md`. `npm test` runs a shorter copy of it and never writes files.

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Where do I get stone and gold?
+
+- Kingdom tab: if you can't afford Walls because of stone, a line tells you to build a Quarry and what it costs.
+- Clicking an unscouted tile: if you're short on gold for a scout, a line tells you a Watchtower produces gold.
+
 ## 2026-09-30 — A robot played the opening (dev only)
 
 - Nothing changed in the game. We added a bot that plays the first 20 minutes and writes what happened to `docs/PLAYTEST.md`.

@@ -1,3 +1,9 @@
+## 2026-09-30 — app / quarry and watchtower hints (wave/hint-quarry-tower)
+
+- `buildHints.ts` reads all numbers from sim data. If the Quarry or Watchtower type goes away, or Watchtower stops producing gold, the hint returns `null` and nothing renders.
+- Stone check compares raw `state.resources.stone` to ceil(cost × multiplier), matching `canAfford`. It ignores wood, so the line shows only when stone is the blocker (possibly alongside wood).
+- Scout hint sits inside `.sc-inspect-actions` with `flexBasis: 100%` so it drops below the buttons.
+
 ## 2026-09-30 — sim / playtest harness (wave/playtest-harness)
 
 - The bot calls only exported `try*` actions plus `TickEngine.tick()`, with the same starting state as the app's `freshState` (wood 40, food 50, starter farm + lumber camp) but without `setPlayerCulture` (browser-only pick).
