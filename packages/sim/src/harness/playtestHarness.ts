@@ -37,6 +37,18 @@ export interface ActionStat {
   fails: Record<string, number>;
 }
 
+export interface RaidWindow {
+  launchedTick: number;
+  resolvedTick: number;
+  realmId: string;
+  levy: number;
+  militiaBefore: number;
+  militiaAfter: number;
+  walls: number;
+  /** "held" when the siege battle went to the player, "breached" when it did not, "unknown" if no battle was found. */
+  result: "held" | "breached" | "unknown";
+}
+
 export interface PlaytestReport {
   seed: number;
   ticksRun: number;
@@ -51,6 +63,8 @@ export interface PlaytestReport {
     militiaTrained: number;
     /** Home + queued + out in columns. */
     militiaAtEnd: number;
+    /** One row per column that reached the hold: militia at home before and after, and the siege result. */
+    windows: RaidWindow[];
   };
   primer: { reached: number; total: number; stuckOn: string | null; log: { tick: number; step: string }[] };
   final: {
@@ -68,7 +82,11 @@ export interface PlaytestReport {
 
 const HOME_X = 2;
 const HOME_Y = 2;
-const MILITIA_TARGET = 8;
+/** Militia kept at the hold (home + queued). Home defense is the test, so this is well above a scouting levy. */
+const HOME_MILITIA_TARGET = 24;
+/** Columns only leave if at least this many militia stay home. */
+const HOME_RESERVE = 8;
+const TRAIN_BATCH = 4;
 const FARM_TARGET = 3;
 const COTTAGE_TARGET = 2;
 const QUARRY_TARGET = 1;
@@ -230,16 +248,17 @@ function botTurn(rec: Recorder, state: GameState, memo: BotMemo): void {
   if (allOfType(state, "quarry") < QUARRY_TARGET && allOfType(state, "farm") >= 1) tryBuildType(rec, state, "quarry");
   if (allOfType(state, "farm") < FARM_TARGET) tryBuildType(rec, state, "farm");
 
-  // Militia: a little levy, two at a time.
+  // Militia: keep a standing stock at the hold, four at a time.
   const militia = playerUnitCount(state, "militia") + queuedCount(state, "militia");
-  if (militia < MILITIA_TARGET) {
+  if (militia < HOME_MILITIA_TARGET) {
     const trained = rec.attempt(
-      "train militia x2",
-      () => (canAffordTrain(state, "militia", 2) ? null : "cannot afford or queue full"),
-      () => tryTrain(state, { typeId: "militia", count: 2 })
+      `train militia x${TRAIN_BATCH}`,
+      () => (canAffordTrain(state, "militia", TRAIN_BATCH) ? null : "cannot afford or queue full"),
+      () => tryTrain(state, { typeId: "militia", count: TRAIN_BATCH })
     );
-    if (trained) memo.militiaTrained += 2;
+    if (trained) memo.militiaTrained += TRAIN_BATCH;
   }
+  const canSpare = (n: number) => playerUnitCount(state, "militia") - n >= HOME_RESERVE;
 
   const homeId = state.board.homeProvinceId;
   const unseen = state.board.provinces.filter((p) => p.id !== homeId && !isProvinceSeen(state, p.id) && dist(p) >= 2);
@@ -270,7 +289,7 @@ function botTurn(rec: Recorder, state: GameState, memo: BotMemo): void {
   // Gather: keep one column working. Nearest seen open node with stock; a quarry first while stone is short for walls.
   const gathering = listGathers(state).some((g) => g.realmId === "player");
   // After the first gather, hold the slot free until the one march has gone out.
-  if (!gathering && (!memo.gathered || memo.marched) && playerUnitCount(state, "militia") >= 3) {
+  if (!gathering && (!memo.gathered || memo.marched) && canSpare(2)) {
     const nodes = state.board.provinces.filter(
       (p) => p.node in GATHER_NODES && !p.occupantRealmId && isProvinceSeen(state, p.id)
     );
@@ -293,7 +312,7 @@ function botTurn(rec: Recorder, state: GameState, memo: BotMemo): void {
   }
 
   // One short march: nearest seen camp or ruins, three militia.
-  if (!memo.marched && memo.gathered && !gathering && playerUnitCount(state, "militia") >= 3) {
+  if (!memo.marched && memo.gathered && !gathering && canSpare(3)) {
     const targets = state.board.provinces.filter(
       (p) => (p.node === "camp" || p.node === "ruins") && isProvinceSeen(state, p.id)
     );
@@ -348,6 +367,9 @@ export function runPlaytest(options: PlaytestOptions = {}): PlaytestReport {
   const memo: BotMemo = { scouted: false, gathered: false, marched: false, studied: false, militiaTrained: 0 };
   const raidIds = new Set<string>();
   const raids: PlaytestReport["raids"]["list"] = [];
+  const pending = new Map<string, { tick: number; realmId: string; levy: number }>();
+  const claimedWars = new Set<string>();
+  const windows: RaidWindow[] = [];
   let firstWarTick: number | null = null;
   const primerLog: PlaytestReport["primer"]["log"] = [];
   let lastPrimer = tutorialIndex(state);
@@ -370,6 +392,7 @@ export function runPlaytest(options: PlaytestOptions = {}): PlaytestReport {
     const n = Math.min(turnEvery, totalTicks - ticksRun);
     const expect = state.meta.tick + n;
     for (let i = 0; i < n; i++) {
+      const homeBefore = playerUnitCount(state, "militia");
       try {
         engine.tick();
       } catch (e) {
@@ -381,6 +404,33 @@ export function runPlaytest(options: PlaytestOptions = {}): PlaytestReport {
         if (m.realmId === "player" || m.toId !== state.board.homeProvinceId || raidIds.has(m.id)) continue;
         raidIds.add(m.id);
         raids.push({ tick: state.meta.tick, realmId: m.realmId, levy: m.levy, arrivesTick: m.arrivesTick });
+        pending.set(m.id, { tick: state.meta.tick, realmId: m.realmId, levy: m.levy });
+      }
+      if (pending.size) {
+        const live = new Set(listMarches(state).map((m) => m.id));
+        for (const [id, p] of pending) {
+          if (live.has(id)) continue;
+          pending.delete(id);
+          const war = state.wars.find(
+            (w) =>
+              !claimedWars.has(w.id) &&
+              w.id.startsWith("w_siege_") &&
+              w.attackerRealmId === p.realmId &&
+              w.defenderRealmId === "player" &&
+              w.startedTick >= p.tick
+          );
+          if (war) claimedWars.add(war.id);
+          windows.push({
+            launchedTick: p.tick,
+            resolvedTick: state.meta.tick,
+            realmId: p.realmId,
+            levy: p.levy,
+            militiaBefore: homeBefore,
+            militiaAfter: playerUnitCount(state, "militia"),
+            walls: allOfType(state, "walls"),
+            result: !war ? "unknown" : war.status === "defender_won" ? "held" : "breached",
+          });
+        }
       }
       if (firstWarTick === null && state.wars.some((w) => w.defenderRealmId === "player" || w.attackerRealmId === "player")) {
         firstWarTick = state.meta.tick;
@@ -406,6 +456,7 @@ export function runPlaytest(options: PlaytestOptions = {}): PlaytestReport {
       list: raids,
       militiaTrained: memo.militiaTrained,
       militiaAtEnd: playerUnitCount(state, "militia") + queuedCount(state, "militia") + militiaOut,
+      windows,
     },
     ticksRun,
     turns,
@@ -450,6 +501,13 @@ function autoNotes(r: PlaytestReport, state: GameState, firstStarve: number | nu
     const lost = r.raids.militiaTrained - r.raids.militiaAtEnd;
     notes.push(
       `Home was marched on ${r.raids.list.length} time(s) (first launched at tick ${r.raids.list[0].tick}; war on the player first seen at tick ${r.raids.firstWarTick ?? "—"}). Militia trained ${r.raids.militiaTrained}, alive at end ${r.raids.militiaAtEnd} (${lost} lost). Balance question: can a fresh crown hold any levy?`
+    );
+  }
+  if (r.raids.windows.length) {
+    const held = r.raids.windows.filter((w) => w.result === "held").length;
+    const last = r.raids.windows[r.raids.windows.length - 1];
+    notes.push(
+      `Hold defense: ${held}/${r.raids.windows.length} raid(s) held. After the last raid (tick ${last.resolvedTick}) ${last.militiaAfter} militia were home and the hold ${last.result === "held" ? "still stands" : last.result === "breached" ? "was breached" : "result unknown"}.`
     );
   }
   const walls = r.actions["build walls"];
@@ -497,6 +555,30 @@ export function playtestMarkdown(r: PlaytestReport): string {
   );
   out.push("");
   out.push(`Militia trained by the bot: ${r.raids.militiaTrained}. Alive at end (home + queued + out): ${r.raids.militiaAtEnd}.`);
+  out.push("");
+  out.push("### Hold defense (after each raid)");
+  out.push("");
+  out.push(
+    `The bot keeps up to ${HOME_MILITIA_TARGET} militia at the hold (home + queued) and only sends columns out while ${HOME_RESERVE}+ stay home.`
+  );
+  out.push("");
+  out.push(
+    r.raids.windows.length
+      ? table([
+          ["Launched", "Resolved", "Realm", "Levy", "Militia before", "Militia after", "Walls", "Hold"],
+          ...r.raids.windows.slice(0, 30).map((w) => [
+            String(w.launchedTick),
+            String(w.resolvedTick),
+            w.realmId,
+            String(w.levy),
+            String(w.militiaBefore),
+            String(w.militiaAfter),
+            String(w.walls),
+            w.result === "held" ? "stands" : w.result === "breached" ? "breached" : "unknown",
+          ]),
+        ])
+      : "No raid reached the hold."
+  );
   out.push("");
   out.push("### Actions tried");
   out.push("");
