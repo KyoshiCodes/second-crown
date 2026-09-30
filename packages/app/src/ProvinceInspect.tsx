@@ -123,8 +123,10 @@ export function ProvinceInspect(props: {
   selectedId: string | null;
   onClear: () => void;
   act: ActFn;
+  /** Opens the keep interior. Shown only on the home hold. */
+  onEnterKeep?: () => void;
 }) {
-  const { state, selectedId, onClear, act } = props;
+  const { state, selectedId, onClear, act, onEnterKeep } = props;
   const [force, setForce] = React.useState<Record<string, number>>({ militia: 5 });
   if (!state || !selectedId) return null;
   const p = getProvince(state, selectedId);
@@ -312,6 +314,11 @@ export function ProvinceInspect(props: {
             </div>
           </dl>
           <div className="sc-inspect-hint">This is your hold. Zoom in to build.</div>
+          {onEnterKeep ? (
+            <button type="button" className="sc-inspect-enter-keep" onClick={onEnterKeep}>
+              Enter the keep
+            </button>
+          ) : null}
         </section>
       ) : (
         <>

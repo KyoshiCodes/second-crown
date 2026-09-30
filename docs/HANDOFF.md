@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/keep-interior)
+
+- Selecting the home hold on the Kingdom tab now shows **Enter the keep** in the Hold section of the inspect card. It opens a courtyard view of the 16×10 hold drawn from `state.buildings` (rim, keep-yard bonus, raising, improving marked).
+- Tapping a plot does exactly what tapping the hold on the map does: the canvas click handler moved into `tapHoldTile` in `useGameEngine.ts`, and both use it. No new build rules, no sim changes.
+- The overworld board and hold canvas are unchanged. Close with **Leave the keep**, Escape, or a click outside.
+- Styles only in `packages/app/src/keep-interior.css`. No theme.css changes.
+
 ## Active wave (wave/security-gate)
 
 - The browser is treated as untrusted. `PUT /save` now goes through `server/savegate.mjs` before anything is written. A refused save gets a 4xx with a short reason; the stored save is left alone.

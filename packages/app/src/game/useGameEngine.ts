@@ -173,6 +173,51 @@ export function useGameEngine() {
     }
   }, []);
 
+  /** One tap on a hold tile: the map canvas and the keep interior share this, so both follow the same build rules. */
+  const tapHoldTile = React.useCallback((x: number, y: number) => {
+    const eng = engineRef.current;
+    if (!eng) return;
+    const st = eng.getState();
+    const existing = st.buildings.find((b) => b.x === x && b.y === y);
+    if (existing) {
+      const nm = getBuildingType(existing.typeId)?.name ?? existing.typeId;
+      if (existing.completesAtTick !== null) {
+        const ok = tryCancelBuild(st, existing.id);
+        setStatus(ok ? `Struck the ${nm} scaffolding. Unused stores returned.` : `Cannot cancel ${nm}.`);
+        if (ok) { syncUi(eng); persist(st); }
+        return;
+      }
+      if (upgradeJobFor(st, existing.id)) {
+        const ok = tryCancelUpgrade(st, existing.id);
+        setStatus(ok ? `Stopped improving the ${nm}. Unused stores returned.` : `Cannot cancel ${nm}.`);
+        if (ok) { syncUi(eng); persist(st); }
+        return;
+      }
+      const ok = tryUpgrade(st, existing.id);
+      setStatus(ok ? `Improving ${nm} toward level ${existing.level + 1}.` : "Cannot upgrade that building.");
+      if (ok) { syncUi(eng); persist(st); }
+      return;
+    }
+    const typeId = selectedBuildRef.current;
+    if (!typeId) return;
+    const nm = getBuildingType(typeId)?.name ?? typeId;
+    if (!canPlaceType(st, typeId, x, y)) {
+      setStatus(
+        typeId === "walls" || typeId === "gate"
+          ? "Walls and gates belong on the rim."
+          : isUniqueBuilding(typeId) && realmOwnsType(st, typeId)
+            ? `You already have a ${nm}. Upgrade that one.`
+            : WORK_PLOTS.has(typeId) && !canRaiseWork(st)
+              ? "No free work plots. Raise or improve a cottage, or upgrade the keep."
+              : "That plot is taken or outside the hold."
+      );
+      return;
+    }
+    const ok = tryBuild(st, { typeId, x, y });
+    setStatus(ok ? `Built ${nm}.` : canAfford(st, typeId) ? `Cannot place ${nm}.` : `Cannot afford ${nm}.`);
+    if (ok) { syncUi(eng); persist(st); }
+  }, [syncUi, persist]);
+
   React.useEffect(() => {
     let cancelled = false;
     let intervalId: number | undefined;
@@ -202,49 +247,7 @@ export function useGameEngine() {
           if (cancelled) { map.destroy(); return; }
           mapRef.current = map;
           map.sync(state);
-          map.onTileClick((x, y) => {
-            const eng = engineRef.current;
-            if (!eng) return;
-            const st = eng.getState();
-            const existing = st.buildings.find((b) => b.x === x && b.y === y);
-            if (existing) {
-              const nm = getBuildingType(existing.typeId)?.name ?? existing.typeId;
-              if (existing.completesAtTick !== null) {
-                const ok = tryCancelBuild(st, existing.id);
-                setStatus(ok ? `Struck the ${nm} scaffolding. Unused stores returned.` : `Cannot cancel ${nm}.`);
-                if (ok) { syncUi(eng); persist(st); }
-                return;
-              }
-              if (upgradeJobFor(st, existing.id)) {
-                const ok = tryCancelUpgrade(st, existing.id);
-                setStatus(ok ? `Stopped improving the ${nm}. Unused stores returned.` : `Cannot cancel ${nm}.`);
-                if (ok) { syncUi(eng); persist(st); }
-                return;
-              }
-              const ok = tryUpgrade(st, existing.id);
-              setStatus(ok ? `Improving ${nm} toward level ${existing.level + 1}.` : "Cannot upgrade that building.");
-              if (ok) { syncUi(eng); persist(st); }
-              return;
-            }
-            const typeId = selectedBuildRef.current;
-            if (!typeId) return;
-            const nm = getBuildingType(typeId)?.name ?? typeId;
-            if (!canPlaceType(st, typeId, x, y)) {
-              setStatus(
-                typeId === "walls" || typeId === "gate"
-                  ? "Walls and gates belong on the rim."
-                  : isUniqueBuilding(typeId) && realmOwnsType(st, typeId)
-                    ? `You already have a ${nm}. Upgrade that one.`
-                    : WORK_PLOTS.has(typeId) && !canRaiseWork(st)
-                      ? "No free work plots. Raise or improve a cottage, or upgrade the keep."
-                      : "That plot is taken or outside the hold."
-              );
-              return;
-            }
-            const ok = tryBuild(st, { typeId, x, y });
-            setStatus(ok ? `Built ${nm}.` : canAfford(st, typeId) ? `Cannot place ${nm}.` : `Cannot afford ${nm}.`);
-            if (ok) { syncUi(eng); persist(st); }
-          });
+          map.onTileClick(tapHoldTile);
           map.onProvinceClick((provinceId) => {
             const eng = engineRef.current;
             if (!eng) return;
@@ -283,7 +286,7 @@ export function useGameEngine() {
       mapRef.current?.destroy();
       mapRef.current = null;
     };
-  }, [syncUi, persist]);
+  }, [syncUi, persist, tapHoldTile]);
 
   const act: ActFn = React.useCallback((fn) => {
     const eng = engineRef.current;
@@ -406,6 +409,7 @@ export function useGameEngine() {
     toggleCameraBand,
     state: engineRef.current?.getState(),
     act,
+    tapHoldTile,
     saveNow, exportSave, importSaveFile, newGame,
   };
 }

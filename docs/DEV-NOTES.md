@@ -1,5 +1,12 @@
 # Dev notes
 
+## 2026-09-30 — app / keep interior (wave/keep-interior)
+
+- `useGameEngine.tapHoldTile(x, y)` is the single hold-tile action path (cancel build → cancel upgrade → upgrade → place `selectedBuildRef`). `map.onTileClick(tapHoldTile)`; `KeepInterior` gets it as `onTap`. Change build/tap behaviour there, not in the component.
+- `KeepInterior.tsx` mirrors `HOLD_W = 16` / `HOLD_H = 10` from `packages/sim/src/actions/build.ts` (not exported). If the hold size changes, update both.
+- Keep-yard highlight uses `keepBonus(state, b) > 1` (same test as the inspect card's "Keep yard" line). Chip staffed = `staffBonus > 1`, like `WorkCard`.
+- Open state lives in `AppShell` (`keepOpen`), rendered only while `tab === "kingdom"`. Styles: `keep-interior.css`, classes `sc-keepin*` and `sc-inspect-enter-keep`.
+
 ## 2026-09-29 — server / save gate (wave/security-gate)
 
 - The client cannot set resources. `server/savegate.mjs` `gateSave(raw, prevSave, elapsedMs)` runs on every `PUT /save` in `server/index.mjs`; throws `SaveGateError(status, message)`, and the handler returns that as `{ error }`. Nothing is written on a throw.
