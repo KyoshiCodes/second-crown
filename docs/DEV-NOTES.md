@@ -1,8 +1,12 @@
-## 2026-09-30 — sim / primer scout copy (wave/primer-scout-copy)
+## 2026-09-30 — render / closed home gate lit lamp & warm slot, open gate dark & raised (bakeoff/gemini-gate-lamp)
 
-- `TUTORIAL_STEPS` scout `text` rewritten to match `tryAdvanceTutorial`: any non-home province seen with Manhattan distance >= 2 from (2,2). That check was already satisfied by watchtower/surveying vision and column vision, so the old "press Scout column" copy over-promised a requirement.
-- Step ids, order, tabs and advance logic unchanged; saves carry over.
-- `playtestHarness.ts` `autoNotes` still phrases scout-without-column as a surprise; left as is to keep the change minimal.
+- `packages/render/src/buildings.ts`:
+  - `case "gate":` in `drawIsometricBuilding`:
+    - Closed gate (`isRingClosed === true`): rendered with flush closed oak double doors, iron hinge straps, center drop bar, lowered portcullis teeth, a warm viewing slot (`0xfef08a`, `0xf59e0b`) casting golden light spill (`0xfde047`, `0xfbbf24`) across the cobblestone threshold, and an exterior wall lantern sconce on the bastion with glowing glass (`0xfacc15`), flame core (`0xffffff`), and radiant ambient warm halo (`0xfde047`, `0xf59e0b`).
+    - Open gate (`isRingClosed === false`): rendered with deep dark passage shadow (`0x09090b`, `0x050507`), unlit cold lantern glass (`0x3f3f46`), zero warm light spill or glow, and a heavy portcullis hoisted high into the archway vault with horizontal crossbars (`0x475569`), vertical bars (`0x64748b`), spiked arrow teeth (`0x334155`), and hoist chains (`0x94a3b8`).
+  - `drawGateCulture`:
+    - Supported across all 4 culture kits (`cedar`, `sand`, `steppe`, `islands`), giving closed gates the warm slot and lit lantern with radiant halo, and giving open gates deep dark shadow passages with raised portcullis / timber gate teeth and unlit cold lantern frames.
+- Invariants: Sim and server unchanged (`git diff origin/main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. No `theme.css` changes. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-30 — render / finished quarry cut stone, crane & piles, unfinished scaffolding (bakeoff/gemini-quarry-yard)
 

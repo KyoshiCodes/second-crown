@@ -1,10 +1,12 @@
 # CHANGELOG
 
-## 2026-09-30 — Primer scout copy (wave/primer-scout-copy)
+## 2026-09-30 — Gemini Closed Home Gate Lit Lamp & Warm Slot, Open Gate Dark & Raised (bakeoff/gemini-gate-lamp)
 
-- `packages/sim/src/systems/tutorial.ts`: scout step `text` now says reveal a tile two or more steps from the hold, and lists Watchtower, gather/march column vision and Scout column as ways. Advance check unchanged.
-- `tutorial.test.ts`: scout step advances from a revealed far tile with no Scout column; text does not demand "press Scout column".
-- No cost, raid, server or UI changes.
+- **Render Only: Closed Home Gate Reads as Lit Lamp / Warm Slot; Open Gate is Dark / Raised (`packages/render/src/buildings.ts`)**:
+  - **Closed Home Gate**: Features an exterior wall sconce lantern with glowing glass (`0xfacc15`), white-hot flame core (`0xffffff`), and radiant warm amber halo (`0xfde047`, `0xf59e0b`), along with a horizontal viewing slot glowing with warm interior golden light (`0xfef08a`, `0xf59e0b`) casting an ambient light spill (`0xfde047`, `0xfbbf24`) across the doorstep.
+  - **Open Home Gate**: Portal passage reads as deep dark cavernous shadow (`0x09090b`, `0x050507`), cold unlit lantern glass, zero warm amber glow, and a raised heavy iron portcullis with crossbars and spiked arrow teeth hoisted high into the ceiling vault.
+  - Implemented across Western gatehouse and all 4 culture kits (`cedar`, `sand`, `steppe`, `islands`).
+  - **Invariants**: Strictly non-blocking (`eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-30 — Gemini Finished Quarry Cut Stone, Crane & Piles, Unfinished Scaffolding (bakeoff/gemini-quarry-yard)
 

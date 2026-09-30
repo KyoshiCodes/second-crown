@@ -2414,31 +2414,64 @@ function drawGateCulture(
           g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
           g.stroke({ width: 1.2, color: 0x3f220c, alpha: a });
         }
+
+        // Warm Slot: horizontal viewing slit glowing with warm interior light
+        const slotFlicker = 0.88 + Math.sin(phase * 4 + gx * 2) * 0.12;
+        g.rect(-2.4, 1.6, 4.8, 1.2); g.fill({ color: 0x1c1917, alpha: a });
+        g.rect(-2.1, 1.8, 4.2, 0.8); g.fill({ color: 0xfef08a, alpha: a * slotFlicker });
+        g.rect(-1.4, 1.9, 2.8, 0.6); g.fill({ color: 0xf59e0b, alpha: a * slotFlicker });
+        g.poly([-2.2, 2.8, 2.2, 2.8, 3.6, 6.4, -3.6, 6.4]); g.fill({ color: 0xfde047, alpha: 0.18 * a * slotFlicker });
+        g.ellipse(0, 5.8, 3.5, 1.5); g.fill({ color: 0xfbbf24, alpha: 0.22 * a * slotFlicker });
+
+        // Lit Lamp: exterior wall lantern sconce beside portal arch with radiant glow
+        const lampFlicker = 0.85 + Math.sin(phase * 5 + gx * 3) * 0.15;
+        g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+        g.stroke({ width: 1.0, color: 0x18181b, alpha: a });
+        g.circle(-8.5, 1.8, 4.2); g.fill({ color: 0xfde047, alpha: 0.25 * a * lampFlicker });
+        g.circle(-8.5, 1.8, 6.8); g.fill({ color: 0xf59e0b, alpha: 0.12 * a * lampFlicker });
+        g.rect(-9.8, 0.2, 2.6, 3.4); g.fill({ color: 0x451a03, alpha: a }); g.stroke({ width: 0.6, color: 0x18181b, alpha: a });
+        g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]); g.fill({ color: 0x27272a, alpha: a });
+        g.rect(-9.3, 0.8, 1.6, 2.1); g.fill({ color: 0xfacc15, alpha: a * lampFlicker });
+        g.circle(-8.5, 1.8, 0.6); g.fill({ color: 0xffffff, alpha: 0.95 * a });
       } else {
-        // Open double doors: timber leaves swung inward against door posts with clear threshold
-        g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
-        g.fill({ color: 0x44403c, alpha: a * 0.9 });
-        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x292524, alpha: a * 0.7 });
-        g.circle(0, 3.2, 1.6); g.fill({ color: 0xea580c, alpha: 0.35 * a });
+        // Open double doors: timber leaves swung inward against door posts with dark threshold
+        g.poly([-3.5, 4.2, 0, 6.0, 3.5, 4.2, 0, 2.4]);
+        g.fill({ color: 0x0c0a09, alpha: 0.95 * a });
+        g.poly([-3, 3.2, 0, 4.8, 3, 3.2, 0, 1.5]);
+        g.fill({ color: 0x050507, alpha: a });
+        g.poly([-2.8, 4.6, 0, 5.8, 2.8, 4.6, 0, 3.4]);
+        g.fill({ color: 0x292524, alpha: 0.5 * a });
+        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x1c1917, alpha: a * 0.7 });
+
+        // Raised portcullis: heavy log teeth tucked high
+        g.moveTo(-4.2, -1.8); g.lineTo(4.2, -1.8); g.stroke({ width: 1.2, color: 0x44403c, alpha: a });
+        for (const tx of [-3.5, -2, -0.5, 1, 2.5]) {
+          g.moveTo(tx, -3.2); g.lineTo(tx, 0.5); g.stroke({ width: 1.1, color: 0x57534e, alpha: a });
+          g.moveTo(tx - 0.5, 0.5); g.lineTo(tx, 1.2); g.lineTo(tx + 0.5, 0.5); g.fill({ color: 0x292524, alpha: a });
+        }
 
         // Left split-cedar door leaf swung open against left post
         g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
-        g.fill({ color: 0x78350f, alpha: a });
-        g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
         g.fill({ color: 0x451a03, alpha: a });
+        g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
+        g.fill({ color: 0x241002, alpha: a });
         g.moveTo(-4.2, 0.4); g.lineTo(-2.2, -0.9); g.stroke({ width: 1.2, color: 0x18181b, alpha: a });
         g.moveTo(-4.2, 3.2); g.lineTo(-2.2, 1.9); g.stroke({ width: 1.2, color: 0x18181b, alpha: a });
 
         // Right split-cedar door leaf swung open against right post
         g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
-        g.fill({ color: 0x5c3818, alpha: a });
+        g.fill({ color: 0x3f220c, alpha: a });
         g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
-        g.fill({ color: 0x271507, alpha: a });
+        g.fill({ color: 0x1f0e04, alpha: a });
         g.moveTo(2.2, -0.9); g.lineTo(4.2, 0.4); g.stroke({ width: 1.2, color: 0x18181b, alpha: a });
         g.moveTo(2.2, 1.9); g.lineTo(4.2, 3.2); g.stroke({ width: 1.2, color: 0x18181b, alpha: a });
 
-        // Portcullis raised high above doorway
-        g.moveTo(-4, 0); g.lineTo(4, 0); g.stroke({ width: 1, color: 0x27272a, alpha: a * 0.8 });
+        // Unlit cold lantern
+        g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+        g.stroke({ width: 1.0, color: 0x18181b, alpha: a });
+        g.rect(-9.8, 0.2, 2.6, 3.4); g.fill({ color: 0x27272a, alpha: a }); g.stroke({ width: 0.6, color: 0x18181b, alpha: a });
+        g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]); g.fill({ color: 0x1c1917, alpha: a });
+        g.rect(-9.3, 0.8, 1.6, 2.1); g.fill({ color: 0x3f3f46, alpha: a });
       }
 
       const gPennant = Math.sin(phase * 4) * 2;
@@ -2513,29 +2546,62 @@ function drawGateCulture(
           g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
           g.stroke({ width: 1, color: 0xd97706, alpha: a });
         }
-      } else {
-        // Open double doors: courtyard threshold path
-        g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
-        g.fill({ color: 0xa16207, alpha: a * 0.85 });
-        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x78350f, alpha: a * 0.7 });
-        g.circle(0, 3.2, 1.5); g.fill({ color: 0xfacc15, alpha: 0.35 * a });
 
-        // Raised bronze portcullis
-        g.moveTo(-4, 0); g.lineTo(4, 0); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+        // Warm Slot: horizontal viewing slit glowing with warm interior light
+        const slotFlicker = 0.88 + Math.sin(phase * 4 + gx * 2) * 0.12;
+        g.rect(-2.4, 1.6, 4.8, 1.2); g.fill({ color: 0x271507, alpha: a });
+        g.rect(-2.1, 1.8, 4.2, 0.8); g.fill({ color: 0xfef08a, alpha: a * slotFlicker });
+        g.rect(-1.4, 1.9, 2.8, 0.6); g.fill({ color: 0xf59e0b, alpha: a * slotFlicker });
+        g.poly([-2.2, 2.8, 2.2, 2.8, 3.6, 6.4, -3.6, 6.4]); g.fill({ color: 0xfde047, alpha: 0.18 * a * slotFlicker });
+        g.ellipse(0, 5.8, 3.5, 1.5); g.fill({ color: 0xfbbf24, alpha: 0.22 * a * slotFlicker });
+
+        // Lit Lamp: pierced brass hanging lantern with glowing golden halo
+        const lampFlicker = 0.85 + Math.sin(phase * 5 + gx * 3) * 0.15;
+        g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+        g.stroke({ width: 1.0, color: 0x78350f, alpha: a });
+        g.circle(-8.5, 1.8, 4.2); g.fill({ color: 0xfde047, alpha: 0.25 * a * lampFlicker });
+        g.circle(-8.5, 1.8, 6.8); g.fill({ color: 0xf59e0b, alpha: 0.12 * a * lampFlicker });
+        g.rect(-9.8, 0.2, 2.6, 3.4); g.fill({ color: 0xd97706, alpha: a }); g.stroke({ width: 0.6, color: 0x78350f, alpha: a });
+        g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]); g.fill({ color: 0x92400e, alpha: a });
+        g.rect(-9.3, 0.8, 1.6, 2.1); g.fill({ color: 0xfacc15, alpha: a * lampFlicker });
+        g.circle(-8.5, 1.8, 0.6); g.fill({ color: 0xffffff, alpha: 0.95 * a });
+      } else {
+        // Open double doors: courtyard threshold path in deep shadow
+        g.poly([-3.5, 4.2, 0, 6.0, 3.5, 4.2, 0, 2.4]);
+        g.fill({ color: 0x18181b, alpha: 0.95 * a });
+        g.poly([-3, 3.2, 0, 4.8, 3, 3.2, 0, 1.5]);
+        g.fill({ color: 0x0f0c08, alpha: a });
+        g.poly([-2.8, 4.6, 0, 5.8, 2.8, 4.6, 0, 3.4]);
+        g.fill({ color: 0x78350f, alpha: 0.5 * a });
+        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x451a03, alpha: a * 0.7 });
+
+        // Raised bronze portcullis tucked high under lintel
+        g.moveTo(-4.2, -1.8); g.lineTo(4.2, -1.8); g.stroke({ width: 1.2, color: 0xb45309, alpha: a });
+        for (const tx of [-3.5, -2, -0.5, 1, 2.5]) {
+          g.moveTo(tx, -3.2); g.lineTo(tx, 0.5); g.stroke({ width: 1.1, color: 0xd97706, alpha: a });
+          g.moveTo(tx - 0.5, 0.5); g.lineTo(tx, 1.2); g.lineTo(tx + 0.5, 0.5); g.fill({ color: 0x92400e, alpha: a });
+        }
 
         // Left cedar door leaf swung open against reveal
         g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
-        g.fill({ color: 0x854d0e, alpha: a });
-        g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
         g.fill({ color: 0x543007, alpha: a });
-        g.circle(-3.2, 1.5, 0.5); g.fill({ color: 0xfacc15, alpha: a });
+        g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
+        g.fill({ color: 0x2e1802, alpha: a });
+        g.circle(-3.2, 1.5, 0.5); g.fill({ color: 0xb45309, alpha: a });
 
         // Right cedar door leaf swung open against reveal
         g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
-        g.fill({ color: 0x78350f, alpha: a });
-        g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
         g.fill({ color: 0x451a03, alpha: a });
-        g.circle(3.2, 1.5, 0.5); g.fill({ color: 0xfacc15, alpha: a });
+        g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
+        g.fill({ color: 0x270d01, alpha: a });
+        g.circle(3.2, 1.5, 0.5); g.fill({ color: 0xb45309, alpha: a });
+
+        // Unlit cold lantern
+        g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+        g.stroke({ width: 1.0, color: 0x78350f, alpha: a });
+        g.rect(-9.8, 0.2, 2.6, 3.4); g.fill({ color: 0x451a03, alpha: a }); g.stroke({ width: 0.6, color: 0x78350f, alpha: a });
+        g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]); g.fill({ color: 0x291405, alpha: a });
+        g.rect(-9.3, 0.8, 1.6, 2.1); g.fill({ color: 0x52525b, alpha: a });
       }
 
       const gPennant = Math.sin(phase * 4) * 2;
@@ -2592,25 +2658,62 @@ function drawGateCulture(
         g.poly([0, 6.5, 4, 4.5, 4, -1.5, 0, 0.5]); g.fill({ color: 0x713f12, alpha: a });
         g.moveTo(-3, 1); g.lineTo(3, 4); g.stroke({ width: 1, color: 0xd97706, alpha: a });
         g.moveTo(-3, 4); g.lineTo(3, 1); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+
+        // Warm Slot: horizontal viewing slit glowing with warm interior light
+        const slotFlicker = 0.88 + Math.sin(phase * 4 + gx * 2) * 0.12;
+        g.rect(-2.4, 1.6, 4.8, 1.2); g.fill({ color: 0x18181b, alpha: a });
+        g.rect(-2.1, 1.8, 4.2, 0.8); g.fill({ color: 0xfef08a, alpha: a * slotFlicker });
+        g.rect(-1.4, 1.9, 2.8, 0.6); g.fill({ color: 0xf59e0b, alpha: a * slotFlicker });
+        g.poly([-2.2, 2.8, 2.2, 2.8, 3.6, 6.4, -3.6, 6.4]); g.fill({ color: 0xfde047, alpha: 0.18 * a * slotFlicker });
+        g.ellipse(0, 5.8, 3.5, 1.5); g.fill({ color: 0xfbbf24, alpha: 0.22 * a * slotFlicker });
+
+        // Lit Lamp: tallow oil lantern on timber post with radiant warm halo
+        const lampFlicker = 0.85 + Math.sin(phase * 5 + gx * 3) * 0.15;
+        g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+        g.stroke({ width: 1.0, color: 0x291807, alpha: a });
+        g.circle(-8.5, 1.8, 4.2); g.fill({ color: 0xfde047, alpha: 0.25 * a * lampFlicker });
+        g.circle(-8.5, 1.8, 6.8); g.fill({ color: 0xf59e0b, alpha: 0.12 * a * lampFlicker });
+        g.rect(-9.8, 0.2, 2.6, 3.4); g.fill({ color: 0x543007, alpha: a }); g.stroke({ width: 0.6, color: 0x291807, alpha: a });
+        g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]); g.fill({ color: 0x1c1917, alpha: a });
+        g.rect(-9.3, 0.8, 1.6, 2.1); g.fill({ color: 0xfacc15, alpha: a * lampFlicker });
+        g.circle(-8.5, 1.8, 0.6); g.fill({ color: 0xffffff, alpha: 0.95 * a });
       } else {
-        // Open nomadic gates: beaten earth path through threshold
-        g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
-        g.fill({ color: 0x57534e, alpha: a * 0.85 });
-        g.circle(0, 3.2, 1.5); g.fill({ color: 0xf97316, alpha: 0.35 * a });
+        // Open nomadic gates: beaten earth path through threshold in deep shadow
+        g.poly([-3.5, 4.2, 0, 6.0, 3.5, 4.2, 0, 2.4]);
+        g.fill({ color: 0x09090b, alpha: 0.95 * a });
+        g.poly([-3, 3.2, 0, 4.8, 3, 3.2, 0, 1.5]);
+        g.fill({ color: 0x050507, alpha: a });
+        g.poly([-2.8, 4.6, 0, 5.8, 2.8, 4.6, 0, 3.4]);
+        g.fill({ color: 0x44403c, alpha: 0.5 * a });
+        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x1c1917, alpha: a * 0.7 });
+
+        // Raised timber portcullis hoisted high
+        g.moveTo(-4.2, -1.8); g.lineTo(4.2, -1.8); g.stroke({ width: 1.2, color: 0x78350f, alpha: a });
+        for (const tx of [-3.5, -2, -0.5, 1, 2.5]) {
+          g.moveTo(tx, -3.2); g.lineTo(tx, 0.5); g.stroke({ width: 1.1, color: 0x5c3818, alpha: a });
+          g.moveTo(tx - 0.5, 0.5); g.lineTo(tx, 1.2); g.lineTo(tx + 0.5, 0.5); g.fill({ color: 0x291807, alpha: a });
+        }
 
         // Left timber gate swung open against left pylon
         g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
-        g.fill({ color: 0x854d0e, alpha: a });
+        g.fill({ color: 0x543007, alpha: a });
         g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
-        g.fill({ color: 0x44403c, alpha: a });
-        g.moveTo(-4.2, 1.5); g.lineTo(-2.2, 0.2); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+        g.fill({ color: 0x2c1704, alpha: a });
+        g.moveTo(-4.2, 1.5); g.lineTo(-2.2, 0.2); g.stroke({ width: 1, color: 0x1c1917, alpha: a });
 
         // Right timber gate swung open against right pylon
         g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
-        g.fill({ color: 0x713f12, alpha: a });
+        g.fill({ color: 0x3f220c, alpha: a });
         g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
-        g.fill({ color: 0x292524, alpha: a });
-        g.moveTo(2.2, 0.2); g.lineTo(4.2, 1.5); g.stroke({ width: 1, color: 0xd97706, alpha: a });
+        g.fill({ color: 0x1f0e04, alpha: a });
+        g.moveTo(2.2, 0.2); g.lineTo(4.2, 1.5); g.stroke({ width: 1, color: 0x1c1917, alpha: a });
+
+        // Unlit cold lantern
+        g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+        g.stroke({ width: 1.0, color: 0x291807, alpha: a });
+        g.rect(-9.8, 0.2, 2.6, 3.4); g.fill({ color: 0x292524, alpha: a }); g.stroke({ width: 0.6, color: 0x291807, alpha: a });
+        g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]); g.fill({ color: 0x1c1917, alpha: a });
+        g.rect(-9.3, 0.8, 1.6, 2.1); g.fill({ color: 0x44403c, alpha: a });
       }
 
       const gPennant = Math.sin(phase * 4) * 2;
@@ -2672,29 +2775,62 @@ function drawGateCulture(
           g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
           g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
         }
+
+        // Warm Slot: horizontal viewing slit glowing with warm interior light
+        const slotFlicker = 0.88 + Math.sin(phase * 4 + gx * 2) * 0.12;
+        g.rect(-2.4, 1.6, 4.8, 1.2); g.fill({ color: 0x0f172a, alpha: a });
+        g.rect(-2.1, 1.8, 4.2, 0.8); g.fill({ color: 0xfef08a, alpha: a * slotFlicker });
+        g.rect(-1.4, 1.9, 2.8, 0.6); g.fill({ color: 0xf59e0b, alpha: a * slotFlicker });
+        g.poly([-2.2, 2.8, 2.2, 2.8, 3.6, 6.4, -3.6, 6.4]); g.fill({ color: 0xfde047, alpha: 0.18 * a * slotFlicker });
+        g.ellipse(0, 5.8, 3.5, 1.5); g.fill({ color: 0xfbbf24, alpha: 0.22 * a * slotFlicker });
+
+        // Lit Lamp: copper storm lantern on post with radiant warm halo
+        const lampFlicker = 0.85 + Math.sin(phase * 5 + gx * 3) * 0.15;
+        g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+        g.stroke({ width: 1.0, color: 0x1e293b, alpha: a });
+        g.circle(-8.5, 1.8, 4.2); g.fill({ color: 0xfde047, alpha: 0.25 * a * lampFlicker });
+        g.circle(-8.5, 1.8, 6.8); g.fill({ color: 0xf59e0b, alpha: 0.12 * a * lampFlicker });
+        g.rect(-9.8, 0.2, 2.6, 3.4); g.fill({ color: 0xb45309, alpha: a }); g.stroke({ width: 0.6, color: 0x1e293b, alpha: a });
+        g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]); g.fill({ color: 0x0f172a, alpha: a });
+        g.rect(-9.3, 0.8, 1.6, 2.1); g.fill({ color: 0xfacc15, alpha: a * lampFlicker });
+        g.circle(-8.5, 1.8, 0.6); g.fill({ color: 0xffffff, alpha: 0.95 * a });
       } else {
-        // Open dock / boardwalk portal into stilt village
-        g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
-        g.fill({ color: 0x475569, alpha: a * 0.85 });
-        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x334155, alpha: a * 0.7 });
-        g.circle(0, 3.2, 1.5); g.fill({ color: 0x06b6d4, alpha: a * 0.35 });
+        // Open dock / boardwalk portal into stilt village in deep shadow
+        g.poly([-3.5, 4.2, 0, 6.0, 3.5, 4.2, 0, 2.4]);
+        g.fill({ color: 0x09090b, alpha: 0.95 * a });
+        g.poly([-3, 3.2, 0, 4.8, 3, 3.2, 0, 1.5]);
+        g.fill({ color: 0x0f172a, alpha: a });
+        g.poly([-2.8, 4.6, 0, 5.8, 2.8, 4.6, 0, 3.4]);
+        g.fill({ color: 0x334155, alpha: 0.5 * a });
+        g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x0f172a, alpha: a * 0.7 });
 
         // Bamboo portcullis raised high in ceiling
-        g.moveTo(-4, 0); g.lineTo(4, 0); g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+        g.moveTo(-4.2, -1.8); g.lineTo(4.2, -1.8); g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+        for (const tx of [-3.5, -2, -0.5, 1, 2.5]) {
+          g.moveTo(tx, -3.2); g.lineTo(tx, 0.5); g.stroke({ width: 1.1, color: 0xeab308, alpha: a });
+          g.moveTo(tx - 0.5, 0.5); g.lineTo(tx, 1.2); g.lineTo(tx + 0.5, 0.5); g.fill({ color: 0x854d0e, alpha: a });
+        }
 
         // Left driftwood door swung open against left pier post
         g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
-        g.fill({ color: 0x78716c, alpha: a });
+        g.fill({ color: 0x57534e, alpha: a });
         g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
-        g.fill({ color: 0x44403c, alpha: a });
+        g.fill({ color: 0x292524, alpha: a });
         g.moveTo(-4.2, 1.5); g.lineTo(-2.2, 0.2); g.stroke({ width: 1, color: 0xca8a04, alpha: a });
 
         // Right driftwood door swung open against right pier post
         g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
-        g.fill({ color: 0x57534e, alpha: a });
+        g.fill({ color: 0x44403c, alpha: a });
         g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
-        g.fill({ color: 0x292524, alpha: a });
+        g.fill({ color: 0x1c1917, alpha: a });
         g.moveTo(2.2, 0.2); g.lineTo(4.2, 1.5); g.stroke({ width: 1, color: 0xca8a04, alpha: a });
+
+        // Unlit cold lantern
+        g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+        g.stroke({ width: 1.0, color: 0x1e293b, alpha: a });
+        g.rect(-9.8, 0.2, 2.6, 3.4); g.fill({ color: 0x1e293b, alpha: a }); g.stroke({ width: 0.6, color: 0x0f172a, alpha: a });
+        g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]); g.fill({ color: 0x0f172a, alpha: a });
+        g.rect(-9.3, 0.8, 1.6, 2.1); g.fill({ color: 0x334155, alpha: a });
       }
 
       const gPennant = Math.sin(phase * 4) * 2;
@@ -5477,7 +5613,8 @@ export function drawIsometricBuilding(
 
       if (isRim) {
         if (isRingClosed) {
-          // Fortified Rim Gate: Heavy oak double-doors with iron cross-straps & studs & drop bar (Shut)
+          // Closed home gate: reads as a lit lamp / warm slot
+          // 1. Heavy reinforced oak & iron double doors (Shut flush in portal)
           // Left Door leaf
           g.poly([-4, 4.5, 0, 6.5, 0, 0.5, -4, -1.5]);
           g.fill({ color: 0x5c3818, alpha: a });
@@ -5508,39 +5645,111 @@ export function drawIsometricBuilding(
             g.moveTo(tx, ty - 3); g.lineTo(tx, ty);
             g.stroke({ width: 1, color: 0x64748b, alpha: a });
           }
+
+          // 2. Warm Slot: horizontal viewing slit glowing with warm interior light
+          const slotFlicker = 0.88 + Math.sin(phase * 4 + gx * 2) * 0.12;
+          // Slot recess frame
+          g.rect(-2.5, 1.6, 5, 1.2);
+          g.fill({ color: 0x18181b, alpha: a });
+          // Warm slot golden light
+          g.rect(-2.2, 1.8, 4.4, 0.8);
+          g.fill({ color: 0xfef08a, alpha: a * slotFlicker });
+          // Amber core glow in slot
+          g.rect(-1.4, 1.9, 2.8, 0.6);
+          g.fill({ color: 0xf59e0b, alpha: a * slotFlicker });
+
+          // Warm light spill / beam cast down from slot onto doorstep & cobbles
+          g.poly([-2.5, 2.8, 2.5, 2.8, 3.8, 6.2, -3.8, 6.2]);
+          g.fill({ color: 0xfde047, alpha: 0.18 * a * slotFlicker });
+          g.ellipse(0, 5.6, 3.5, 1.5);
+          g.fill({ color: 0xfbbf24, alpha: 0.22 * a * slotFlicker });
+
+          // 3. Lit Lamp: exterior wall lantern sconce beside portal arch with radiant glow
+          const lampFlicker = 0.85 + Math.sin(phase * 5 + gx * 3) * 0.15;
+          // Iron wall bracket arm extending from left bastion
+          g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+          g.stroke({ width: 1.0, color: 0x1e293b, alpha: a });
+
+          // Radiant warm light halo cast by lit lamp
+          g.circle(-8.5, 1.8, 4.2);
+          g.fill({ color: 0xfde047, alpha: 0.25 * a * lampFlicker });
+          g.circle(-8.5, 1.8, 6.8);
+          g.fill({ color: 0xf59e0b, alpha: 0.12 * a * lampFlicker });
+
+          // Lantern iron housing & pyramidal cap
+          g.rect(-9.8, 0.2, 2.6, 3.4);
+          g.fill({ color: 0x78350f, alpha: a });
+          g.stroke({ width: 0.6, color: 0x1e293b, alpha: a });
+          g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]);
+          g.fill({ color: 0x1e293b, alpha: a });
+
+          // Lit lamp glowing glass pane & white-hot flame core
+          g.rect(-9.3, 0.8, 1.6, 2.1);
+          g.fill({ color: 0xfacc15, alpha: a * lampFlicker });
+          g.circle(-8.5, 1.8, 0.6);
+          g.fill({ color: 0xffffff, alpha: 0.95 * a });
+
         } else {
-          // Open Rim Gate: oak double doors swung open inward against stone jambs, open cobblestone threshold, amber lantern glow, raised portcullis
-          // Open passage / cobblestone threshold pavers through portal
-          g.poly([-3, 4.2, 0, 5.8, 3, 4.2, 0, 2.8]);
-          g.fill({ color: 0x334155, alpha: a * 0.85 });
-          // Cobble road lines
-          g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8); g.stroke({ width: 0.6, color: 0x1e293b, alpha: a * 0.7 });
-          // Interior warm lantern glow cast on passage
-          g.circle(0, 3.2, 1.8); g.fill({ color: 0xfbbf24, alpha: 0.35 * a });
+          // Open Rim Gate: dark passage, raised portcullis, doors swung inward against jambs
+          // 1. Dark passage: deep shadows in vaulted portal (no warm lantern glow)
+          g.poly([-3.5, 4.2, 0, 6.0, 3.5, 4.2, 0, 2.4]);
+          g.fill({ color: 0x09090b, alpha: 0.95 * a });
+          g.poly([-3, 3.2, 0, 4.8, 3, 3.2, 0, 1.5]);
+          g.fill({ color: 0x050507, alpha: a });
 
-          // Raised portcullis tucked up under lintel
-          g.moveTo(-4, 0); g.lineTo(4, 0);
-          g.stroke({ width: 1.2, color: 0x64748b, alpha: a * 0.8 });
+          // Dark cobblestone threshold pavers in shadow
+          g.poly([-2.8, 4.6, 0, 5.8, 2.8, 4.6, 0, 3.4]);
+          g.fill({ color: 0x1e293b, alpha: 0.5 * a });
+          g.moveTo(-1.8, 4.8); g.lineTo(1.8, 4.8);
+          g.stroke({ width: 0.6, color: 0x0f172a, alpha: a * 0.7 });
 
-          // Left oak door leaf swung inward open against left stone jamb
+          // 2. Raised Portcullis: heavy iron portcullis hoisted high into archway ceiling vault
+          // Raised horizontal crossbars
+          g.moveTo(-4.2, -1.8); g.lineTo(4.2, -1.8);
+          g.stroke({ width: 1.2, color: 0x475569, alpha: a });
+          g.moveTo(-4.2, -0.6); g.lineTo(4.2, -0.6);
+          g.stroke({ width: 1.2, color: 0x475569, alpha: a });
+
+          // Raised vertical iron bars & downward spiked teeth
+          for (const tx of [-3.5, -2, -0.5, 1, 2.5]) {
+            g.moveTo(tx, -3.2); g.lineTo(tx, 0.5);
+            g.stroke({ width: 1.1, color: 0x64748b, alpha: a });
+            // Spiked arrow teeth points visible at the bottom of the raised portcullis
+            g.moveTo(tx - 0.5, 0.5); g.lineTo(tx, 1.2); g.lineTo(tx + 0.5, 0.5);
+            g.fill({ color: 0x334155, alpha: a });
+          }
+
+          // Hoist chains leading into ceiling winch
+          g.moveTo(-2.5, -3.2); g.lineTo(-2.5, -5.2);
+          g.stroke({ width: 0.8, color: 0x94a3b8, alpha: a * 0.7 });
+          g.moveTo(2.5, -3.2); g.lineTo(2.5, -5.2);
+          g.stroke({ width: 0.8, color: 0x94a3b8, alpha: a * 0.7 });
+
+          // 3. Oak door leaves swung open inward flat against stone jambs into shadows
           g.poly([-4.2, 4.5, -2.2, 3.2, -2.2, -2.5, -4.2, -1.2]);
-          g.fill({ color: 0x5c3818, alpha: a });
-          // Door thickness / inner edge
+          g.fill({ color: 0x3f220c, alpha: a });
           g.poly([-4.2, 4.5, -3.8, 4.8, -3.8, -0.9, -4.2, -1.2]);
-          g.fill({ color: 0x2e1908, alpha: a });
-          // Iron strap hinges on open door
-          g.moveTo(-4.2, 0.4); g.lineTo(-2.2, -0.9); g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
-          g.moveTo(-4.2, 3.2); g.lineTo(-2.2, 1.9); g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
+          g.fill({ color: 0x241206, alpha: a });
+          g.moveTo(-4.2, 0.4); g.lineTo(-2.2, -0.9); g.stroke({ width: 1.2, color: 0x0f172a, alpha: a });
+          g.moveTo(-4.2, 3.2); g.lineTo(-2.2, 1.9); g.stroke({ width: 1.2, color: 0x0f172a, alpha: a });
 
-          // Right oak door leaf swung inward open against right stone jamb
           g.poly([2.2, 3.2, 4.2, 4.5, 4.2, -1.2, 2.2, -2.5]);
-          g.fill({ color: 0x45220a, alpha: a });
-          // Door thickness / inner edge
+          g.fill({ color: 0x2e1908, alpha: a });
           g.poly([3.8, 4.8, 4.2, 4.5, 4.2, -1.2, 3.8, -0.9]);
-          g.fill({ color: 0x1c0c04, alpha: a });
-          // Iron strap hinges on open door
-          g.moveTo(2.2, -0.9); g.lineTo(4.2, 0.4); g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
-          g.moveTo(2.2, 1.9); g.lineTo(4.2, 3.2); g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
+          g.fill({ color: 0x140a04, alpha: a });
+          g.moveTo(2.2, -0.9); g.lineTo(4.2, 0.4); g.stroke({ width: 1.2, color: 0x0f172a, alpha: a });
+          g.moveTo(2.2, 1.9); g.lineTo(4.2, 3.2); g.stroke({ width: 1.2, color: 0x0f172a, alpha: a });
+
+          // 4. Extinguished / dark cold wall lantern (no flame, no light halo)
+          g.moveTo(-5.5, -0.5); g.lineTo(-8.5, -0.5); g.lineTo(-8.5, 1.4);
+          g.stroke({ width: 1.0, color: 0x1e293b, alpha: a });
+          g.rect(-9.8, 0.2, 2.6, 3.4);
+          g.fill({ color: 0x27272a, alpha: a });
+          g.stroke({ width: 0.6, color: 0x1e293b, alpha: a });
+          g.poly([-10.2, 0.2, -8.5, -1.2, -6.8, 0.2]);
+          g.fill({ color: 0x18181b, alpha: a });
+          g.rect(-9.3, 0.8, 1.6, 2.1);
+          g.fill({ color: 0x3f3f46, alpha: a }); // Cold unlit glass
         }
 
         // Defensive Rim Pennant atop gatehouse
