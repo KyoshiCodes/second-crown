@@ -1,3 +1,11 @@
+## 2026-09-30 — sim / playtest harness (wave/playtest-harness)
+
+- The bot calls only exported `try*` actions plus `TickEngine.tick()`, with the same starting state as the app's `freshState` (wood 40, food 50, starter farm + lumber camp) but without `setPlayerCulture` (browser-only pick).
+- `try*` returns only a boolean, so each attempt runs a readable precheck first (`cannot afford`, `no free work plot`, `gold < 22`, `march slots full`). "sim said no (precheck passed)" means the precheck missed a rule.
+- `playtestHarness.ts` does no I/O (INVARIANTS 6). Only `playtest.report.ts` touches `node:fs`, and it is excluded from `npm test`, so the server's `npm test` never dirties `docs/PLAYTEST.md` before a `git pull`.
+- Soft asserts (per turn): tick advanced by exactly N, resources finite and ≥ 0, unit counts sane, population ≤ beds, `marches_json`/`gathers_json`/`fog_seen` parse. They are reported, not thrown.
+- Known bot limits: one gather column at a time, one raid march, no trade/market, no keep. Extend `botTurn` for new goals.
+
 ## 2026-09-30 — render + app / board-only seasonal wash (bakeoff/gemini-season-wash)
 
 - `resolveBoardSeasonWash(state, province?, visuals?)` in `packages/render/src/tokens.ts`:
