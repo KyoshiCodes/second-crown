@@ -2,9 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-30 — Primer scout step reworded
+## 2026-09-30 — Closed gate lamp and warm slot (bakeoff/gemini-gate-lamp)
 
-- The primer's scout step now asks you to reveal any tile two or more steps from your hold. A Watchtower, a gather or march column, or a Scout column all count. You no longer need gold for a Scout column to finish it.
+- Your hold's **Gate** now clearly signals whether your walls are secure:
+  - **Closed Gate** (when your wall ring is complete): The gatehouse displays a lit wall lantern with a warm golden flame and ambient glow by the portal, along with a warm horizontal viewing slot in the closed double doors casting a cozy hearthlight spill onto the cobblestones.
+  - **Open Gate** (when your wall ring is open or broken): The gateway is deep in shadow with the heavy portcullis raised high into the stone ceiling archway and no warm light, showing a clear entryway.
+- Purely cosmetic visual update; never interferes with map clicks or interactions.
 
 ## 2026-09-30 — Finished quarry cut stone, crane and piles (bakeoff/gemini-quarry-yard)
 

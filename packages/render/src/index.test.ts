@@ -4466,14 +4466,16 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(gClosed.calls.length).toBeGreaterThan(0);
         expect(gOpen.calls.length).toBeGreaterThan(0);
 
-        // Closed doors have center drop bar and shut portcullis teeth
-        // Open doors have inward-swung door leaves, clear cobblestone threshold, and interior lantern glow
+        // Closed doors have center drop bar, shut portcullis teeth, lit lamp and warm slot
+        // Open doors have dark passage, raised portcullis, inward-swung door leaves
         const closedJson = JSON.stringify(gClosed.calls);
         const openJson = JSON.stringify(gOpen.calls);
         expect(closedJson).not.toEqual(openJson);
 
-        // Verify open door threshold cobblestone & glow in openJson
-        expect(openJson).toContain("16498468"); // 0xfbbf24 lantern glow
+        // Verify lit lamp & warm slot in closedJson (0xfbbf24 = 16498468 warm light spill)
+        expect(closedJson).toContain("16498468");
+        // Verify open door is dark with NO warm lantern glow
+        expect(openJson).not.toContain("16498468");
         // Verify drop bar stroke in closedJson
         expect(closedJson).toContain("988970"); // 0x0f172a drop bar stroke
       });
@@ -6339,6 +6341,97 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           expect(scaffoldJson).toContain("moveTo");
           expect(scaffoldJson).toContain("lineTo");
           expect(scaffoldJson).toContain("stroke");
+        });
+
+        it("verifies pointer-events none and non-blocking invariants in render files", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+          // entitiesLayer and buildingGraphics have eventMode = "none"
+          expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+          expect(indexCode).toContain('g.eventMode = "none"');
+
+          // Check no conflict markers in render package
+          const files = ["buildings.ts", "tokens.ts", "index.ts"];
+          for (const f of files) {
+            const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+            expect(code).not.toContain("=======");
+            expect(code).not.toContain(">>>>>>>");
+          }
+        });
+      });
+
+      describe("bakeoff/gemini-gate-lamp: closed home gate reads as lit lamp / warm slot, open gate is dark / raised", () => {
+        const visuals = getThemeVisuals("summer");
+        const rimNeighbors: RimNeighbors = { hasPrev: true, hasNext: true };
+
+        it("closed Western gate renders lit lamp with radiant halo and warm slot with golden threshold spill", () => {
+          const gClosed = createMockGraphics();
+          drawIsometricBuilding(gClosed, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, "western", { isRingClosed: true });
+
+          const closedJson = JSON.stringify(gClosed.calls);
+
+          // 1. Lit lamp: mounting bracket arm, lantern housing (0x78350f), glowing glass (0xfacc15), flame core (0xffffff), radiant warm halo (0xfde047, 0xf59e0b)
+          expect(closedJson).toContain(String(0xfacc15));
+          expect(closedJson).toContain(String(0xffffff));
+          expect(closedJson).toContain(String(0xfde047));
+          expect(closedJson).toContain(String(0xf59e0b));
+
+          // 2. Warm slot: viewing slit with warm interior light (0xfef08a, 0xf59e0b) and threshold spill (0xfde047, 0xfbbf24)
+          expect(closedJson).toContain(String(0xfef08a));
+          expect(closedJson).toContain(String(0xfbbf24));
+
+          // 3. Closed gate doors: heavy oak leaves and center drop bar (0x0f172a)
+          expect(closedJson).toContain(String(0x0f172a));
+        });
+
+        it("open Western gate renders deep dark passage and raised portcullis without warm lamp glow", () => {
+          const gOpen = createMockGraphics();
+          drawIsometricBuilding(gOpen, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, "western", { isRingClosed: false });
+
+          const openJson = JSON.stringify(gOpen.calls);
+
+          // 1. Dark passage: deep shadow fills (0x09090b, 0x050507), cold unlit glass (0x3f3f46)
+          expect(openJson).toContain(String(0x09090b));
+          expect(openJson).toContain(String(0x050507));
+          expect(openJson).toContain(String(0x3f3f46));
+
+          // 2. Raised portcullis: heavy iron portcullis crossbars and spiked arrow teeth hoisted high
+          expect(openJson).toContain(String(0x475569)); // crossbars
+          expect(openJson).toContain(String(0x64748b)); // vertical bars
+          expect(openJson).toContain(String(0x334155)); // spiked teeth
+
+          // 3. Dark open gate does NOT contain warm glowing lamp halo or radiant amber light spill
+          expect(openJson).not.toContain(String(0xfbbf24)); // warm light spill
+          const haloCircles = gOpen.calls.filter((c) => c.method === "circle" && c.args[0] === -8.5 && c.args[1] === 1.8);
+          expect(haloCircles.length).toBe(0);
+        });
+
+        it("all 5 culture kits render lit lamp and warm slot when closed, and dark passage with raised portcullis when open", () => {
+          const cultures = ["western", "cedar", "sand", "steppe", "islands"] as const;
+
+          for (const cult of cultures) {
+            const gClosed = createMockGraphics();
+            drawIsometricBuilding(gClosed, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, cult, { isRingClosed: true });
+            const closedJson = JSON.stringify(gClosed.calls);
+
+            // Lit lamp & warm slot elements present on closed gate across all kits
+            expect(closedJson).toContain(String(0xfde047)); // radiant halo
+            expect(closedJson).toContain(String(0xfbbf24)); // threshold light spill
+            expect(closedJson).toContain(String(0xffffff)); // white-hot flame core
+
+            const gOpen = createMockGraphics();
+            drawIsometricBuilding(gOpen, "gate", 1, true, 0, visuals, 0, 4, rimNeighbors, cult, { isRingClosed: false });
+            const openJson = JSON.stringify(gOpen.calls);
+
+            // Open gate has dark passage and raised portcullis without warm light spill
+            expect(openJson).not.toContain(String(0xfbbf24)); // no warm threshold spill
+            const openHalos = gOpen.calls.filter((c) => c.method === "circle" && c.args[0] === -8.5 && c.args[1] === 1.8);
+            expect(openHalos.length).toBe(0); // no lit lamp halo
+            expect(openJson).not.toEqual(closedJson);
+          }
         });
 
         it("verifies pointer-events none and non-blocking invariants in render files", async () => {

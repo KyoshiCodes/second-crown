@@ -37,6 +37,14 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
 - Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
 
+## Active Bakeoff (bakeoff/gemini-gate-lamp)
+
+- **Render Only: Closed Home Gate Reads as Lit Lamp / Warm Slot; Open Gate is Dark / Raised (`packages/render/src/buildings.ts`)**:
+  - **Closed Home Gate**: When the fortress perimeter ring is closed (`isRingClosed === true`), the gatehouse reads with cozy warmth and vigilance: an exterior sconce wall lantern with forged iron bracket arm, glowing amber glass (`0xfacc15`), white flame core (`0xffffff`), and a radiant ambient warm light halo (`0xfde047`, `0xf59e0b`); plus a horizontal viewing slot / arrow slit glowing with warm interior golden hearthlight (`0xfef08a`, `0xf59e0b`) casting a soft light spill beam (`0xfde047`, `0xfbbf24`) across the doorstep and cobblestone threshold.
+  - **Open Home Gate**: When the perimeter ring is broken / open (`isRingClosed === false`), the gatehouse portal is deep dark shadow (`0x09090b`, `0x050507`), with cold unlit lantern glass (`0x3f3f46`, `0x52525b`, `0x44403c`, `0x334155`), zero warm light spill or glow, and the heavy portcullis is hoisted high into the archway vault with visible raised crossbars, vertical bars, and downward spiked arrow teeth hanging under the lintel.
+  - Supported across Western and all 4 culture kits (`cedar`, `sand`, `steppe`, `islands`).
+  - **Strictly Non-Blocking Invariant**: `eventMode = "none"` (`pointer-events: none`). Camera math and hit testing (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. Zero conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-quarry-yard)
 
 - **Render Only: Finished Quarry Shows Cut Stone, Crane & Piles; Unfinished Stays Scaffolding (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
