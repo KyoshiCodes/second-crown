@@ -5,7 +5,7 @@ import { D } from "../core/decimal.js";
 import { canAfford, canPlaceType, isHoldRim, listWorksInProgress, tryBuild } from "../actions/build.js";
 import { canAffordTrain, tryTrain } from "../actions/train.js";
 import { listTraining } from "../systems/training.js";
-import { canRaiseWork, housingCap, population } from "../systems/housing.js";
+import { canRaiseWork, housingCap, population, WORK_PLOTS } from "../systems/housing.js";
 import { currentTutorial, tryAdvanceTutorial, tutorialIndex, TUTORIAL_STEPS } from "../systems/tutorial.js";
 import { isProvinceSeen, scoutCost, tryScoutProvince } from "../systems/fog.js";
 import { tryDispatchScout } from "../systems/scoutColumn.js";
@@ -15,6 +15,7 @@ import { maxMarches } from "../systems/labor.js";
 import { getProvince } from "../systems/board.js";
 import { nodeStock } from "../systems/nodeStock.js";
 import { tryStartResearch } from "../systems/research.js";
+import { storageCap } from "../systems/storage.js";
 
 /**
  * Sim-only playtest bot. Plays a fresh game through the public sim actions,
@@ -70,6 +71,8 @@ const HOME_Y = 2;
 const MILITIA_TARGET = 8;
 const FARM_TARGET = 3;
 const COTTAGE_TARGET = 2;
+const QUARRY_TARGET = 1;
+const WALLS_TARGET = 1;
 
 class Recorder {
   actions: Record<string, ActionStat> = {};
@@ -163,9 +166,14 @@ function busySlots(state: GameState): number {
   return listMarches(state).filter((m) => m.realmId === "player").length + listGathers(state).filter((g) => g.realmId === "player").length;
 }
 
+/** True when a gain of `res` would be clamped away by the warehouse. */
+function atCap(state: GameState, res: string): boolean {
+  return num(state.resources[res]) >= storageCap(state, res) - 1e-9;
+}
+
 function buildWhy(state: GameState, typeId: string, rim = false): string | null {
   if (!canAfford(state, typeId)) return "cannot afford";
-  if ((typeId === "farm" || typeId === "lumber_camp") && !canRaiseWork(state)) return "no free work plot";
+  if (WORK_PLOTS.has(typeId) && !canRaiseWork(state)) return "no free work plot";
   if (!freeSlot(state, typeId, rim)) return "no legal tile";
   return null;
 }
@@ -218,6 +226,8 @@ function botTurn(rec: Recorder, state: GameState, memo: BotMemo): void {
   if (allOfType(state, "cottage") < COTTAGE_TARGET && (!canRaiseWork(state) || allOfType(state, "cottage") === 0)) {
     tryBuildType(rec, state, "cottage");
   }
+  // Quarry once one farm stands: the hold's own stone source for walls.
+  if (allOfType(state, "quarry") < QUARRY_TARGET && allOfType(state, "farm") >= 1) tryBuildType(rec, state, "quarry");
   if (allOfType(state, "farm") < FARM_TARGET) tryBuildType(rec, state, "farm");
 
   // Militia: a little levy, two at a time.
@@ -264,13 +274,16 @@ function botTurn(rec: Recorder, state: GameState, memo: BotMemo): void {
     const nodes = state.board.provinces.filter(
       (p) => p.node in GATHER_NODES && !p.occupantRealmId && isProvinceSeen(state, p.id)
     );
-    const stocked = nodes.filter((p) => nodeStock(state, p.id) > 0);
+    // Skip nodes whose resource is already at the warehouse cap: the haul would be lost.
+    const stocked = nodes.filter(
+      (p) => nodeStock(state, p.id) > 0 && !atCap(state, GATHER_NODES[p.node as keyof typeof GATHER_NODES].resource)
+    );
     const wantStone = num(state.resources.stone) < 24;
     const target = (wantStone ? nearest(stocked.filter((p) => p.node === "quarry")) : undefined) ?? nearest(stocked);
     const ok = rec.attempt(
       `gather ${target?.node ?? "node"} x2 militia`,
       () => {
-        if (!target) return nodes.length ? "all seen nodes empty" : "no seen gather node";
+        if (!target) return nodes.length ? "all seen nodes empty or at cap" : "no seen gather node";
         if (busySlots(state) >= maxMarches(state)) return "march slots full";
         return null;
       },
@@ -297,9 +310,9 @@ function botTurn(rec: Recorder, state: GameState, memo: BotMemo): void {
     if (ok) memo.marched = true;
   }
 
-  // Primer: walls step and lectern step.
+  // Walls: once any stone exists (quarry, gather, or march), or when the primer asks.
   const step = currentTutorial(state)?.id;
-  if (step === "walls" && allOfType(state, "walls") === 0) {
+  if (allOfType(state, "walls") < WALLS_TARGET && (num(state.resources.stone) > 0 || step === "walls")) {
     tryBuildType(rec, state, "walls", true);
   }
   if (step === "lectern" && !memo.studied) {
@@ -441,12 +454,11 @@ function autoNotes(r: PlaytestReport, state: GameState, firstStarve: number | nu
   }
   const walls = r.actions["build walls"];
   if (walls && walls.ok === 0) {
-    const quarry = r.actions["gather quarry x2 militia"]?.ok ?? 0;
+    const quarryGathers = r.actions["gather quarry x2 militia"]?.ok ?? 0;
+    const quarryBuilt = r.actions["build quarry"]?.ok ?? 0;
     notes.push(
-      `Walls (24 stone, 12 wood) never affordable: peak stone was ${r.final.peakResources.stone ?? 0}. ` +
-        (quarry
-          ? `The bot got ${quarry} quarry gather(s) off; after that no stocked quarry was in sight (it prefers a quarry while stone < 24), so it gathered other nodes. A fresh hold has no stone source of its own.`
-          : "The bot never reached a seen quarry, and a fresh hold has no stone source of its own.")
+      `Walls (24 stone, 12 wood) never built: peak stone was ${r.final.peakResources.stone ?? 0}. ` +
+        `Quarry built ${quarryBuilt} time(s); quarry gathers ${quarryGathers}.`
     );
   }
   if (firstStarve !== null) notes.push(`Food first hit 0 at tick ${firstStarve}.`);

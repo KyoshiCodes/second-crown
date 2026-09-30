@@ -8,6 +8,9 @@ describe("playtest harness", () => {
     expect(r.errors).toEqual([]);
     expect(r.actions["build cottage"]?.ok).toBeGreaterThan(0);
     expect(r.actions["train militia x2"]?.ok).toBeGreaterThan(0);
+    expect(r.actions["build quarry"]?.ok).toBeGreaterThan(0);
+    expect(r.actions["build walls"]?.ok).toBeGreaterThan(0);
+    expect(r.actions["march x3 militia"]?.ok).toBe(1);
     expect(r.primer.reached).toBeGreaterThanOrEqual(2);
   });
 
