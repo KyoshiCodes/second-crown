@@ -164,6 +164,7 @@ export function ProvinceInspect(props: {
   const terrain = seen ? TERRAIN[p.terrain] ?? p.terrain : "Unknown";
   const season = currentSeason(state);
   const owner = ownerOf(state, selectedId, seen);
+  const hasForces = Boolean(incoming) || onTile.length > 0 || Boolean(march) || Boolean(here);
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
       <div className="sc-inspect-head">
@@ -173,35 +174,116 @@ export function ProvinceInspect(props: {
           Close
         </button>
       </div>
-      <dl className="sc-inspect-facts">
-        <div>
-          <dt>Terrain</dt>
-          <dd>{terrain}</dd>
-        </div>
-        <div className={`sc-inspect-owner is-${owner.kind}`}>
-          <dt>Owner</dt>
-          <dd>{owner.label}</dd>
-        </div>
-        <div className={`sc-inspect-sight${seen ? " is-seen" : " is-unseen"}`}>
-          <dt>Sight</dt>
-          <dd>{seen ? "Seen" : "Unseen"}</dd>
-        </div>
-        <div>
-          <dt>Tile</dt>
-          <dd>
-            {p.x},{p.y}
-          </dd>
-        </div>
-        <div className={`sc-inspect-season is-${season.toLowerCase()}`}>
-          <dt>Season</dt>
-          <dd>{season}</dd>
-        </div>
-        <div>
-          <dt>Gold</dt>
-          <dd>{gold}</dd>
-        </div>
-        {home ? (
-          <>
+      <section className="sc-inspect-group is-tile">
+        <div className="sc-inspect-group-head">Tile</div>
+        <dl className="sc-inspect-facts">
+          <div>
+            <dt>Terrain</dt>
+            <dd>{terrain}</dd>
+          </div>
+          <div className={`sc-inspect-sight${seen ? " is-seen" : " is-unseen"}`}>
+            <dt>Sight</dt>
+            <dd>{seen ? "Seen" : "Unseen"}</dd>
+          </div>
+          <div>
+            <dt>Tile</dt>
+            <dd>
+              {p.x},{p.y}
+            </dd>
+          </div>
+          <div className={`sc-inspect-season is-${season.toLowerCase()}`}>
+            <dt>Season</dt>
+            <dd>{season}</dd>
+          </div>
+          <div>
+            <dt>Gold</dt>
+            <dd>{gold}</dd>
+          </div>
+          {stored !== null ? (
+            <div>
+              <dt>{RESOURCE[stockRes] ?? stockRes} left</dt>
+              <dd>{stored}</dd>
+            </div>
+          ) : null}
+        </dl>
+        {!seen ? <div className="sc-inspect-line">Fog hides the token.</div> : null}
+        {canGather ? (
+          <div className="sc-inspect-line">
+            {NODE[p.node] ?? p.node} {stock}/{stockMax}
+            {stock < stockMax ? ` · refills +1 / ${NODE_REGEN_PERIOD / 10}s` : ""}
+            {stock <= 0 ? " · dry" : ""}
+          </div>
+        ) : null}
+        {seen && p.node === "camp" ? <div className="sc-inspect-line">Camp threat {campThreat(state, p)}</div> : null}
+      </section>
+      <section className="sc-inspect-group is-owner">
+        <div className="sc-inspect-group-head">Owner</div>
+        <dl className="sc-inspect-facts">
+          <div className={`sc-inspect-owner is-${owner.kind}`}>
+            <dt>Owner</dt>
+            <dd>{owner.label}</dd>
+          </div>
+        </dl>
+        {flagged ? (
+          <div className="sc-inspect-line is-good">
+            Your flag. Tithe / tick — food {tithe?.food ?? 0} wood {tithe?.wood ?? 0} stone {tithe?.stone ?? 0} gold{" "}
+            {tithe?.gold ?? 0}
+            {posted ? ` · Garrison power ${garrisonPower(state, selectedId)}` : " · No garrison"}
+          </div>
+        ) : null}
+      </section>
+      {hasForces ? (
+        <section className="sc-inspect-group is-forces">
+          <div className="sc-inspect-group-head">Forces</div>
+          {incoming ? (
+            <div className="sc-inspect-line is-bad">
+              Incoming contest · {incomingName} · {Math.max(0, incoming.arrivesTick - state.meta.tick)} ticks
+            </div>
+          ) : null}
+          {soonest !== null ? (
+            <div className="sc-inspect-dest">
+              <span className="sc-inspect-dest-label">Incoming to this tile</span>
+              <span className="sc-inspect-dest-eta">
+                {inbound.length > 1 ? `${inbound.length} columns · first in ` : ""}
+                {soonest}s
+              </span>
+            </div>
+          ) : null}
+          {onTile.length > 0 ? (
+            <ul className="sc-inspect-marches">
+              {onTile.map((m) => (
+                <li key={m.key} className={`sc-inspect-march${m.mine ? " is-mine" : " is-rival"}`}>
+                  <span className="sc-inspect-march-who">{m.who}</span>
+                  <span className="sc-inspect-march-what">{m.what}</span>
+                  <span className="sc-inspect-march-eta">{m.secs > 0 ? `${m.secs}s left` : "on tile"}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {march ? (
+            <div className="sc-inspect-line is-warn">
+              Column · {march.purpose ?? "raid"} · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
+              {march.arrivesTick > state.meta.tick ? (
+                <button type="button" className="sc-inspect-inline-btn" onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}>
+                  Recall column
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+          {here ? (
+            <div className="sc-inspect-line">
+              Gathering {here.node} · load {here.load}/{here.capacity} · {here.phase}
+              <button type="button" className="sc-inspect-inline-btn" onClick={() => act((s) => (tryRecallGather(s, here.id) ? "Column recalled." : "Cannot recall."))}>
+                Recall gather
+              </button>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+      {home ? (
+        <section className="sc-inspect-group is-hold sc-inspect-home">
+          <div className="sc-inspect-group-head">Hold</div>
+          <dl className="sc-inspect-facts">
             <div className="sc-inspect-wall">
               <dt>Wall HP</dt>
               <dd>{wallHp(state)}</dd>
@@ -228,78 +310,9 @@ export function ProvinceInspect(props: {
               <dt>Keep yard ({yard.length})</dt>
               <dd>{yard.length > 0 ? yard.join(" · ") : "No works on the keep edge"}</dd>
             </div>
-          </>
-        ) : null}
-        {stored !== null ? (
-          <div>
-            <dt>{RESOURCE[stockRes] ?? stockRes} left</dt>
-            <dd>{stored}</dd>
-          </div>
-        ) : null}
-      </dl>
-      {!seen ? <div className="sc-inspect-line">Fog hides the token.</div> : null}
-      {canGather ? (
-        <div className="sc-inspect-line">
-          {NODE[p.node] ?? p.node} {stock}/{stockMax}
-          {stock < stockMax ? ` · refills +1 / ${NODE_REGEN_PERIOD / 10}s` : ""}
-          {stock <= 0 ? " · dry" : ""}
-        </div>
-      ) : null}
-      {seen && p.node === "camp" ? <div className="sc-inspect-line">Camp threat {campThreat(state, p)}</div> : null}
-      {flagged ? (
-        <div className="sc-inspect-line is-good">
-          Your flag. Tithe / tick — food {tithe?.food ?? 0} wood {tithe?.wood ?? 0} stone {tithe?.stone ?? 0} gold{" "}
-          {tithe?.gold ?? 0}
-          {posted ? ` · Garrison power ${garrisonPower(state, selectedId)}` : " · No garrison"}
-        </div>
-      ) : null}
-      {incoming ? (
-        <div className="sc-inspect-line is-bad">
-          Incoming contest · {incomingName} · {Math.max(0, incoming.arrivesTick - state.meta.tick)} ticks
-        </div>
-      ) : null}
-      {soonest !== null ? (
-        <div className="sc-inspect-dest">
-          <span className="sc-inspect-dest-label">Incoming to this tile</span>
-          <span className="sc-inspect-dest-eta">
-            {inbound.length > 1 ? `${inbound.length} columns · first in ` : ""}
-            {soonest}s
-          </span>
-        </div>
-      ) : null}
-      {onTile.length > 0 ? (
-        <ul className="sc-inspect-marches">
-          {onTile.map((m) => (
-            <li key={m.key} className={`sc-inspect-march${m.mine ? " is-mine" : " is-rival"}`}>
-              <span className="sc-inspect-march-who">{m.who}</span>
-              <span className="sc-inspect-march-what">{m.what}</span>
-              <span className="sc-inspect-march-eta">{m.secs > 0 ? `${m.secs}s left` : "on tile"}</span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      {march ? (
-        <div className="sc-inspect-line is-warn">
-          Column · {march.purpose ?? "raid"} · {Math.max(0, march.arrivesTick - state.meta.tick)} ticks left
-          {march.arrivesTick > state.meta.tick ? (
-            <button type="button" className="sc-inspect-inline-btn" onClick={() => act((s) => (tryRecallMarch(s) ? "Column recalled." : "Cannot recall."))}>
-              Recall column
-            </button>
-          ) : null}
-        </div>
-      ) : null}
-      {here ? (
-        <div className="sc-inspect-line">
-          Gathering {here.node} · load {here.load}/{here.capacity} · {here.phase}
-          <button type="button" className="sc-inspect-inline-btn" onClick={() => act((s) => (tryRecallGather(s, here.id) ? "Column recalled." : "Cannot recall."))}>
-            Recall gather
-          </button>
-        </div>
-      ) : null}
-      {home ? (
-        <div className="sc-inspect-home">
+          </dl>
           <div className="sc-inspect-hint">This is your hold. Zoom in to build.</div>
-        </div>
+        </section>
       ) : (
         <>
           <div className="sc-inspect-actions">
