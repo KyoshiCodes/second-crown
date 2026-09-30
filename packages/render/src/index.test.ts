@@ -5921,6 +5921,110 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           }
         });
       });
+
+      describe("bakeoff/gemini-rooms: distinct 2D backdrops for Hall, Wall, and Yard with pointer-events none", () => {
+        it("RoomBackdrop exports ThroneDaisBackdrop, WallWalkBackdrop, and MuddyYardBackdrop", async () => {
+          const {
+            RoomBackdrop,
+            ThroneDaisBackdrop,
+            WallWalkBackdrop,
+            MuddyYardBackdrop,
+          } = await import("../../app/src/RoomBackdrop.tsx");
+          expect(typeof RoomBackdrop).toBe("function");
+          expect(typeof ThroneDaisBackdrop).toBe("function");
+          expect(typeof WallWalkBackdrop).toBe("function");
+          expect(typeof MuddyYardBackdrop).toBe("function");
+        });
+
+        it("verifies Hall, Wall, and Yard SVG art features and pointer-events none in RoomBackdrop.tsx", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+
+          const backdropFile = path.resolve(__dirname, "../../app/src/RoomBackdrop.tsx");
+          expect(fs.existsSync(backdropFile)).toBe(true);
+          const code = fs.readFileSync(backdropFile, "utf-8");
+
+          // 1. Hall: Throne dais features
+          expect(code).toContain("ThroneDaisBackdrop");
+          expect(code).toContain("Throne Dais");
+          expect(code).toContain("daisStepGrad");
+          expect(code).toContain("canopyVelvet");
+          expect(code).toContain("goldTrim");
+          expect(code).toContain("sc-keepin-backdrop-throne-dais");
+
+          // 2. Wall: Wall walk features
+          expect(code).toContain("WallWalkBackdrop");
+          expect(code).toContain("Wall Walk");
+          expect(code).toContain("twilightSky");
+          expect(code).toContain("wallStone");
+          expect(code).toContain("walkwayTimber");
+          expect(code).toContain("sc-keepin-backdrop-wall-walk");
+
+          // 3. Yard: Muddy yard features
+          expect(code).toContain("MuddyYardBackdrop");
+          expect(code).toContain("Muddy Yard");
+          expect(code).toContain("yardSky");
+          expect(code).toContain("mudEarth");
+          expect(code).toContain("puddleReflect");
+          expect(code).toContain("barrelWood");
+          expect(code).toContain("sc-keepin-backdrop-muddy-yard");
+
+          // 4. Pointer-events none on art and aria-hidden
+          expect(code).toContain('pointerEvents: "none"');
+          expect(code).toContain('aria-hidden="true"');
+        });
+
+        it("verifies KeepInterior mounts RoomBackdrop for Hall, Wall, and Yard rooms", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+
+          const interiorFile = path.resolve(__dirname, "../../app/src/KeepInterior.tsx");
+          expect(fs.existsSync(interiorFile)).toBe(true);
+          const code = fs.readFileSync(interiorFile, "utf-8");
+
+          expect(code).toContain('import { RoomBackdrop } from "./RoomBackdrop"');
+          expect(code).toContain('<RoomBackdrop room="hall" />');
+          expect(code).toContain('<RoomBackdrop room="wall" />');
+          expect(code).toContain('<RoomBackdrop room="yard" />');
+        });
+
+        it("verifies keep-interior.css strictly enforces pointer-events: none on backdrop art", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+
+          const cssFile = path.resolve(__dirname, "../../app/src/keep-interior.css");
+          expect(fs.existsSync(cssFile)).toBe(true);
+          const css = fs.readFileSync(cssFile, "utf-8");
+
+          expect(css).toContain(".sc-keepin-backdrop-wrap");
+          expect(css).toContain(".sc-keepin-backdrop-wrap.is-hall");
+          expect(css).toContain(".sc-keepin-backdrop-wrap.is-wall");
+          expect(css).toContain(".sc-keepin-backdrop-wrap.is-yard");
+          expect(css).toContain(".sc-keepin-backdrop-art");
+          expect(css).toContain(".sc-keepin-backdrop-art *");
+          expect(css).toContain(".sc-keepin-backdrop-badge");
+          expect(css).toContain("pointer-events: none !important;");
+        });
+
+        it("preserves camera, projection, and zero conflict markers invariant", async () => {
+          const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+          expect(typeof hitTestProvince).toBe("function");
+          expect(typeof boardGridToWorld).toBe("function");
+          expect(bandForZoom(1.0)).toBe("hold");
+
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const filesToCheck = [
+            "../../app/src/RoomBackdrop.tsx",
+            "../../app/src/KeepInterior.tsx",
+            "../../app/src/keep-interior.css",
+          ];
+          for (const rel of filesToCheck) {
+            const code = fs.readFileSync(path.resolve(__dirname, rel), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+          }
+        });
+      });
     });
   });
 });

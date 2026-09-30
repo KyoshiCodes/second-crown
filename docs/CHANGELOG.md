@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-09-30 — Gemini Keep Room 2D Backdrops (bakeoff/gemini-rooms)
+
+- **Distinct 2D Room Backdrops (`packages/app/src/RoomBackdrop.tsx`, `packages/app/src/KeepInterior.tsx`, `packages/app/src/keep-interior.css`)**:
+  - `RoomBackdrop`: renders a tailored 2D backdrop banner and ambient background for each keep interior room:
+    - **Hall**: **Throne dais** (`ThroneDaisBackdrop`) with a 3-tier elevated stone dais platform, ornate carved hardwood monarch throne with golden finials and royal tufted crimson velvet upholstery, Romanesque stone alcove arch, torch sconces casting ambient radial glows, and hanging heraldic wall tapestries.
+    - **Wall**: **Wall walk** (`WallWalkBackdrop`) with stone curtain wall battlements, merlons with cruciform arrow slits, weathered timber sentry duckboards, iron tripod braziers with burning coals and rising embers, leaning sentry kite shield, and crossed halberds overlooking a twilight sky.
+    - **Yard**: **Muddy yard** (`MuddyYardBackdrop`) with churned dark muddy soil, deep curved wagon wheel ruts, reflective rainwater puddles, weathered timber palisade fence, stacked barrels & crates, and soldier training quintain dummy.
+  - **Invariants**: All art strictly enforces `pointer-events: none !important;` (`aria-hidden="true"`). Interactive plots, facts, and buttons remain 100% interactive. Hit-test and camera math (`camera.ts`) 100% untouched. `git diff main -- packages/sim server` strictly empty. Zero conflict markers.
+
 ## 2026-09-30 — Keep rooms (wave/keep-rooms)
 
 - `KeepInterior.tsx`: Hall / Wall / Yard tabs (`role="tablist"`), local `useState<Room>`, default Hall.
