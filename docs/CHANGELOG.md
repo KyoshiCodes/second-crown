@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-09-30 — Gemini Board-Only Seasonal Wash (bakeoff/gemini-season-wash)
+
+- **Board-Only Seasonal Wash (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - `resolveBoardSeasonWash(state, province, visuals)`: determines seasonal wash characteristics reading `currentSeason(state)`:
+    - **Winter**: Light snow / frost wash (`0xbae6fd` / `0xe0f2fe`, alpha 0.22) across all board tiles, delicate white frost rime (`0xffffff`), and subtle snow dusting flecks.
+    - **Harvest** (`Autumn` or `harvest` holiday): Warm gold wash (`0xf59e0b`, alpha 0.22) restricted strictly to farms (`p.node === "field"`) and plains (`p.terrain === "plain"`), featuring golden rim highlights (`0xfde047`) and wheat glints (`0xfef08a`). Other terrain retains its natural look.
+    - **Spring / Summer**: Zero wash (`hasWash: false`, alpha 0), leaving the base terrain artwork completely untouched.
+  - `paintBoardProvinces`: applies tile-specific wash to the plateau, cliffs, and borders.
+  - `OverworldAtlas.tsx`: SVG overworld map applies the tile-specific wash, frost rime, and harvest gold glow with `pointer-events: none`.
+  - Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. March speed and farm yield untouched. No `theme.css` changes. Zero conflict markers.
+
 ## 2026-09-30 — Lofi dock stable (wave/lofi-stable)
 
 - `music.ts`: removed the `lofiErrors` skip-ahead. The audio `error` event now sets `LofiStatus` `"missing"` and stops; no index change.

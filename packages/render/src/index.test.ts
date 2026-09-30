@@ -5149,18 +5149,19 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           expect(resolved.tintAlpha).toBe(0.15);
         });
 
-        it("paintBoardProvinces glazes seen tile plateau with seasonal tint without hiding terrain", async () => {
+        it("paintBoardProvinces applies board seasonal wash (winter frost on tiles, harvest gold on farms/plains, spring/summer untouched)", async () => {
           const { paintBoardProvinces } = await import("./tokens.js");
           const { terrainChipPalette } = await import("./tiles.js");
 
           const state: any = {
             season: "Autumn",
-            fog: { explored: { p_hill: true } },
+            fog: { explored: { p_plain: true, p_hill: true } },
             buildings: [],
             board: {
               homeProvinceId: "p_home",
               provinces: [
-                { id: "p_hill", x: 2, y: 3, terrain: "hill" },
+                { id: "p_plain", x: 2, y: 3, terrain: "plain", node: "field" },
+                { id: "p_hill", x: 3, y: 3, terrain: "hill" },
               ],
             },
             flags: {},
@@ -5172,21 +5173,21 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           expect(g.calls.length).toBeGreaterThan(15);
           const json = JSON.stringify(g.calls);
 
-          // Base terrain color for hill is drawn first (0x6b7a4a = 7043658)
-          const pal = terrainChipPalette("hill");
-          expect(json).toContain(String(pal.fill));
+          // Base terrain color for plain is drawn (0x2d5a27 = 2972199)
+          const palPlain = terrainChipPalette("plain");
+          expect(json).toContain(String(palPlain.fill));
 
-          // Autumn gold tint wash is applied to the plateau (0xf59e0b = 16096779)
+          // Autumn harvest warm gold wash is applied to the plain/farm plateau (0xf59e0b = 16096779)
           expect(json).toContain("16096779");
 
-          // Test Spring green tint wash (0x86efac = 8843180)
+          // Test Spring leaves current look untouched (no green wash 8843180)
           const springState: any = { ...state, season: "Spring" };
           const gSpring = createMockGraphics();
           paintBoardProvinces(gSpring, springState, 0);
           const springJson = JSON.stringify(gSpring.calls);
-          expect(springJson).toContain("8843180");
+          expect(springJson).not.toContain("8843180");
 
-          // Test Winter cool tint wash (0xbae6fd = 12248829)
+          // Test Winter light snow / frost wash (0xbae6fd = 12248829)
           const winterState: any = { ...state, season: "Winter" };
           const gWinter = createMockGraphics();
           paintBoardProvinces(gWinter, winterState, 0);
@@ -5194,15 +5195,120 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           expect(winterJson).toContain("12248829");
         });
 
-        it("OverworldAtlas renders seasonal tint with pointer-events: none and does not hide terrain", async () => {
+        it("OverworldAtlas renders seasonal wash with pointer-events: none and does not hide terrain", async () => {
           const fs = await import("node:fs");
           const path = await import("node:path");
 
           const atlasCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx"), "utf-8");
-          expect(atlasCode).toContain("seasonTint");
+          expect(atlasCode).toContain("resolveBoardSeasonWash");
           expect(atlasCode).toContain("currentSeason(state)");
           expect(atlasCode).toContain("getThemeVisuals");
           expect(atlasCode).toContain("pointerEvents: \"none\"");
+        });
+
+        describe("bakeoff/gemini-season-wash: board-only seasonal wash", () => {
+          it("resolveBoardSeasonWash resolves winter frost on all tiles, harvest gold on farms/plains, and leaves spring/summer untouched", async () => {
+            const { resolveBoardSeasonWash } = await import("./tokens.js");
+
+            const springState: any = { season: "Spring", flags: {} };
+            const summerState: any = { season: "Summer", flags: {} };
+            const autumnState: any = { season: "Autumn", flags: {} };
+            const winterState: any = { season: "Winter", flags: {} };
+
+            const plainProv = { terrain: "plain" };
+            const farmProv = { terrain: "wood", node: "field" };
+            const hillProv = { terrain: "hill" };
+            const woodProv = { terrain: "wood" };
+
+            // Spring & Summer: leave current look (zero wash)
+            const springPlain = resolveBoardSeasonWash(springState, plainProv);
+            expect(springPlain.hasWash).toBe(false);
+            expect(springPlain.washColor).toBeNull();
+            expect(springPlain.washAlpha).toBe(0);
+            expect(springPlain.kind).toBe("none");
+
+            const summerHill = resolveBoardSeasonWash(summerState, hillProv);
+            expect(summerHill.hasWash).toBe(false);
+            expect(summerHill.washColor).toBeNull();
+
+            // Winter: light snow / frost on all tiles
+            const winterPlain = resolveBoardSeasonWash(winterState, plainProv);
+            expect(winterPlain.hasWash).toBe(true);
+            expect(winterPlain.washColor).toBe(0xbae6fd);
+            expect(winterPlain.washAlpha).toBe(0.22);
+            expect(winterPlain.kind).toBe("winter-frost");
+            expect(winterPlain.isWinter).toBe(true);
+
+            const winterHill = resolveBoardSeasonWash(winterState, hillProv);
+            expect(winterHill.hasWash).toBe(true);
+            expect(winterHill.washColor).toBe(0xbae6fd);
+            expect(winterHill.kind).toBe("winter-frost");
+
+            // Harvest: warm gold wash on farms & plains
+            const autumnPlain = resolveBoardSeasonWash(autumnState, plainProv);
+            expect(autumnPlain.hasWash).toBe(true);
+            expect(autumnPlain.washColor).toBe(0xf59e0b);
+            expect(autumnPlain.washAlpha).toBe(0.22);
+            expect(autumnPlain.kind).toBe("harvest-gold");
+            expect(autumnPlain.isHarvest).toBe(true);
+
+            const autumnFarm = resolveBoardSeasonWash(autumnState, farmProv);
+            expect(autumnFarm.hasWash).toBe(true);
+            expect(autumnFarm.washColor).toBe(0xf59e0b);
+            expect(autumnFarm.kind).toBe("harvest-gold");
+
+            // Harvest on non-farm/plain tiles: leaves current look (zero wash)
+            const autumnHill = resolveBoardSeasonWash(autumnState, hillProv);
+            expect(autumnHill.hasWash).toBe(false);
+            expect(autumnHill.washColor).toBeNull();
+            expect(autumnHill.kind).toBe("none");
+
+            const autumnWood = resolveBoardSeasonWash(autumnState, woodProv);
+            expect(autumnWood.hasWash).toBe(false);
+            expect(autumnWood.washColor).toBeNull();
+          });
+
+          it("paintBoardProvinces paints frost rime and snow flecks in winter, and harvest gold on farms/plains", async () => {
+            const { paintBoardProvinces } = await import("./tokens.js");
+
+            const farmState: any = {
+              season: "Autumn",
+              flags: { fog_seen: JSON.stringify(["p_farm"]) },
+              buildings: [],
+              board: {
+                homeProvinceId: "p_farm",
+                provinces: [
+                  { id: "p_farm", x: 1, y: 1, terrain: "plain", node: "field" },
+                ],
+              },
+            };
+
+            const gFarm = createMockGraphics();
+            paintBoardProvinces(gFarm, farmState, 0);
+            const farmJson = JSON.stringify(gFarm.calls);
+            // 0xf59e0b = 16096779 (gold wash) and 0xfde047 = 16638023 (harvest golden rim)
+            expect(farmJson).toContain("16096779");
+            expect(farmJson).toContain("16638023");
+
+            const winterState: any = {
+              season: "Winter",
+              flags: { fog_seen: JSON.stringify(["p_plain"]) },
+              buildings: [],
+              board: {
+                homeProvinceId: "p_plain",
+                provinces: [
+                  { id: "p_plain", x: 1, y: 1, terrain: "plain" },
+                ],
+              },
+            };
+
+            const gWinter = createMockGraphics();
+            paintBoardProvinces(gWinter, winterState, 0);
+            const winterJson = JSON.stringify(gWinter.calls);
+            // 0xbae6fd = 12248829 (frost wash) and 0xffffff = 16777215 (frost rime / snow flecks)
+            expect(winterJson).toContain("12248829");
+            expect(winterJson).toContain("16777215");
+          });
         });
 
         it("preserves camera and hit-test invariants with zero conflict markers", async () => {

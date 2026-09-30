@@ -20,6 +20,15 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
 - Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
 
+## Active Bakeoff (bakeoff/gemini-season-wash)
+
+- **Board-Only Seasonal Wash (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
+  - Pure board-level seasonal wash reading `currentSeason(state)` (and holiday overrides).
+  - **Winter**: Light snow and frost wash (`0xbae6fd` / `0xe0f2fe`) applied to all board tiles, with crisp white frost rime along facets and subtle snow dusting crystals.
+  - **Harvest**: Warm golden wash (`0xf59e0b` / `0xfde047`) applied strictly to farms (`p.node === "field"`) and plains (`p.terrain === "plain"`), with warm golden rim highlights and wheat glints. Non-farm/plain terrain remains un-tinted.
+  - **Spring/Summer**: Untouched natural terrain look (zero wash / un-tinted).
+  - **Strictly Non-Blocking Invariant**: `pointer-events: none` on all overlay elements. Hit-test and camera math (`camera.ts`) 100% untouched. March speed and farm yield untouched. `git diff main -- packages/sim server` strictly empty. No `theme.css` changes. Zero conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-rooms)
 
 - **Distinct 2D Room Backdrops for Keep Interior (`packages/app/src/RoomBackdrop.tsx`, `packages/app/src/KeepInterior.tsx`, `packages/app/src/keep-interior.css`)**:

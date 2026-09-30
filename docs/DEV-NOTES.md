@@ -1,3 +1,14 @@
+## 2026-09-30 — render + app / board-only seasonal wash (bakeoff/gemini-season-wash)
+
+- `resolveBoardSeasonWash(state, province?, visuals?)` in `packages/render/src/tokens.ts`:
+  - Reads `currentSeason(state)` (and holiday overrides).
+  - Winter (`season === "Winter"` or holiday `"midwinter"`): `hasWash: true, washColor: 0xbae6fd, washAlpha: 0.22, kind: "winter-frost"` for all tiles.
+  - Harvest (`season === "Autumn"` or holiday `"harvest"`): `hasWash: true, washColor: 0xf59e0b, washAlpha: 0.22, kind: "harvest-gold"` only when `p.terrain === "plain" || p.node === "field"`. Other terrain receives `hasWash: false`.
+  - Spring / Summer: `hasWash: false, washColor: null, washAlpha: 0, kind: "none"`.
+- `paintBoardProvinces`: applies `resolveBoardSeasonWash`. Winter draws rear/front frost rime strokes and snow dusting flecks. Harvest draws golden rim highlight and wheat glints.
+- `OverworldAtlas.tsx`: mounts SVG polygons/polylines matching `resolveBoardSeasonWash` with `pointerEvents: "none"`.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. March speed and farm yield untouched. No `theme.css` changes. Zero conflict markers.
+
 ## 2026-09-30 — app / lofi dock stable (wave/lofi-stable)
 
 - Lofi playback never changes `lofiIndex` on failure. Only the player (list, prev, next) or a clean `ended` on unpinned play moves it.

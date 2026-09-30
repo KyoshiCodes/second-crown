@@ -16,6 +16,7 @@ import {
   calculateMarchProgress,
   getThemeVisuals,
   getTileMarchDestination,
+  resolveBoardSeasonWash,
 } from "@second-crown/render";
 import { detectCurrentHoliday } from "./seasons/holidays";
 
@@ -482,8 +483,9 @@ export function OverworldAtlas(props: {
   const season = state ? currentSeason(state) : "Spring";
   const holiday = typeof detectCurrentHoliday === "function" ? detectCurrentHoliday() : "none";
   const visuals = getThemeVisuals(season, holiday);
-  const seasonTint = visuals.tintColor && visuals.tintAlpha > 0
-    ? { color: cssColor(visuals.tintColor, "#86efac"), alpha: visuals.tintAlpha }
+  const globalWash = resolveBoardSeasonWash(state, null, visuals);
+  const seasonTint = globalWash.hasWash && globalWash.hex
+    ? { color: globalWash.hex, alpha: globalWash.washAlpha }
     : null;
 
   const sorted = [...provinces].sort((a, b) => a.x + a.y - (b.x + b.y));
@@ -627,6 +629,8 @@ export function OverworldAtlas(props: {
           const hh = TILE_H / 2;
           const lift = paint.lift;
           const destKind = getTileMarchDestination(state, p.id);
+          const wash = resolveBoardSeasonWash(state, p, visuals);
+          const washColor = wash.hex ?? (wash.washColor !== null ? cssColor(wash.washColor, "#bae6fd") : null);
           return (
             <g
               key={p.id}
@@ -644,18 +648,18 @@ export function OverworldAtlas(props: {
                     points={`${cx + hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx + hw},${cy + lift}`}
                     fill={paint.right}
                   />
-                  {seasonTint ? (
+                  {wash.hasWash && washColor ? (
                     <>
                       <polygon
                         points={`${cx - hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx - hw},${cy + lift}`}
-                        fill={seasonTint.color}
-                        opacity={seasonTint.alpha * 0.55}
+                        fill={washColor}
+                        opacity={wash.washAlpha * 0.55}
                         style={{ pointerEvents: "none" }}
                       />
                       <polygon
                         points={`${cx + hw},${cy} ${cx},${cy + hh} ${cx},${cy + hh + lift} ${cx + hw},${cy + lift}`}
-                        fill={seasonTint.color}
-                        opacity={seasonTint.alpha * 0.4}
+                        fill={washColor}
+                        opacity={wash.washAlpha * 0.4}
                         style={{ pointerEvents: "none" }}
                       />
                     </>
@@ -667,13 +671,45 @@ export function OverworldAtlas(props: {
                     strokeWidth={selected ? 2.2 : isHome ? 1.6 : 0.6}
                     opacity={0.95}
                   />
-                  {seasonTint ? (
+                  {wash.hasWash && washColor ? (
                     <polygon
                       points={diamond(cx, cy)}
-                      fill={seasonTint.color}
-                      opacity={seasonTint.alpha}
+                      fill={washColor}
+                      opacity={wash.washAlpha}
                       style={{ pointerEvents: "none" }}
                     />
+                  ) : null}
+                  {wash.kind === "winter-frost" ? (
+                    <>
+                      {/* Delicate frost rime line along rear facets */}
+                      <polyline
+                        points={`${cx - hw},${cy} ${cx},${cy - hh} ${cx + hw},${cy}`}
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeWidth={1.2}
+                        opacity={0.65}
+                        style={{ pointerEvents: "none" }}
+                      />
+                      {/* Subtle snow dusting flecks */}
+                      <circle cx={cx - 7} cy={cy - 2} r={1} fill="#ffffff" opacity={0.7} style={{ pointerEvents: "none" }} />
+                      <circle cx={cx + 6} cy={cy + 3} r={0.9} fill="#ffffff" opacity={0.7} style={{ pointerEvents: "none" }} />
+                    </>
+                  ) : null}
+                  {wash.kind === "harvest-gold" ? (
+                    <>
+                      {/* Golden harvest rim line along rear facets */}
+                      <polyline
+                        points={`${cx - hw},${cy} ${cx},${cy - hh} ${cx + hw},${cy}`}
+                        fill="none"
+                        stroke="#fde047"
+                        strokeWidth={1.2}
+                        opacity={0.55}
+                        style={{ pointerEvents: "none" }}
+                      />
+                      {/* Warm golden glints on harvested ground */}
+                      <circle cx={cx - 5} cy={cy - 1} r={1} fill="#fef08a" opacity={0.6} style={{ pointerEvents: "none" }} />
+                      <circle cx={cx + 5} cy={cy + 2} r={0.9} fill="#fde047" opacity={0.6} style={{ pointerEvents: "none" }} />
+                    </>
                   ) : null}
                 </>
               ) : (

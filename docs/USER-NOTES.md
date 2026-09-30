@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Seasonal board washes (bakeoff/gemini-season-wash)
+
+- The overworld board now shifts with the cycle of seasons:
+  - **Winter**: All provinces across the map are dusted with light frost and snow flecks, with delicate white frost rime along the ridges.
+  - **Harvest**: Grain farms and open plains take on a rich, warm golden glow and golden wheat glints under the autumn sun, while rugged peaks and forests maintain their natural hues.
+  - **Spring & Summer**: Preserves the clean, natural landscape look.
+- Visuals are purely cosmetic and never block clicks or interactions on the map.
+
 ## 2026-09-30 — Lofi player stays put
 
 - Pick a lofi track and it plays that track, and keeps playing it on repeat. It no longer jumps down the list.

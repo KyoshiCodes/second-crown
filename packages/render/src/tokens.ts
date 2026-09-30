@@ -1950,6 +1950,102 @@ export function resolveBoardSeasonTint(
   };
 }
 
+export interface BoardSeasonWash {
+  season: string;
+  holiday: string;
+  hasWash: boolean;
+  washColor: number | null;
+  washAlpha: number;
+  hex: string | null;
+  kind: "winter-frost" | "harvest-gold" | "none";
+  isWinter: boolean;
+  isHarvest: boolean;
+  isFarmOrPlain: boolean;
+}
+
+/**
+ * Resolves board-only seasonal wash settings:
+ * - Winter: light snow / frost on tiles (0xbae6fd / 0xe0f2fe translucent wash, frost rime, snow flecks).
+ * - Harvest: warm gold wash on farms (node === "field") and plains (terrain === "plain").
+ * - Spring/Summer: leave current look (zero wash / un-tinted natural terrain).
+ */
+export function resolveBoardSeasonWash(
+  state?: GameState | null,
+  province?: { terrain?: string; node?: string | null } | null,
+  visuals?: ThemeVisuals | null
+): BoardSeasonWash {
+  const season = getSeasonFromState(state);
+  const holiday = String((state as any)?.flags?.holiday || (state as any)?.flags?.theme || "none");
+  const normSeason = season.toLowerCase();
+  const normHoliday = holiday.toLowerCase();
+
+  const isWinter =
+    normSeason === "winter" ||
+    normHoliday === "midwinter" ||
+    visuals?.decorations === "winter" ||
+    visuals?.decorations === "midwinter";
+
+  const isHarvest =
+    !isWinter &&
+    (normSeason === "autumn" ||
+      normSeason === "harvest" ||
+      normHoliday === "harvest" ||
+      visuals?.decorations === "autumn" ||
+      visuals?.decorations === "harvest");
+
+  const isFarmOrPlain = province
+    ? province.terrain === "plain" || province.node === "field"
+    : true;
+
+  if (isWinter) {
+    const washColor = 0xbae6fd;
+    const washAlpha = 0.22;
+    return {
+      season,
+      holiday,
+      hasWash: true,
+      washColor,
+      washAlpha,
+      hex: "#bae6fd",
+      kind: "winter-frost",
+      isWinter: true,
+      isHarvest: false,
+      isFarmOrPlain: Boolean(province && (province.terrain === "plain" || province.node === "field")),
+    };
+  }
+
+  if (isHarvest && isFarmOrPlain) {
+    const washColor = 0xf59e0b;
+    const washAlpha = 0.22;
+    return {
+      season,
+      holiday,
+      hasWash: true,
+      washColor,
+      washAlpha,
+      hex: "#f59e0b",
+      kind: "harvest-gold",
+      isWinter: false,
+      isHarvest: true,
+      isFarmOrPlain: true,
+    };
+  }
+
+  // Spring, Summer, or Harvest on non-farm/plain: leave current look
+  return {
+    season,
+    holiday,
+    hasWash: false,
+    washColor: null,
+    washAlpha: 0,
+    hex: null,
+    kind: "none",
+    isWinter: false,
+    isHarvest,
+    isFarmOrPlain: Boolean(province && (province.terrain === "plain" || province.node === "field")),
+  };
+}
+
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
 // -------------------------------------------------------------
@@ -2000,9 +2096,15 @@ export function paintBoardProvinces(
     ]);
     g.fill({ color: 0x000000, alpha: 0.32 });
 
+    // Resolve Board-Only Seasonal Wash (Winter frost on all tiles, Harvest gold on farms/plains, Spring/Summer untouched)
+    const wash = resolveBoardSeasonWash(state, p, visuals);
+    const tileTheme: ThemeVisuals = wash.hasWash && wash.washColor !== null
+      ? { ...theme, tintColor: wash.washColor, tintAlpha: wash.washAlpha }
+      : { ...theme, tintColor: 0, tintAlpha: 0 };
+
     // 2. 3D Height Faces (Front-left & Front-right vertical cliffs based on Terrain)
     if (elev > 0) {
-      paintTileHeightFace(g, b, p.terrain, pal, animPhase, theme);
+      paintTileHeightFace(g, b, p.terrain, pal, animPhase, tileTheme);
     }
 
     // 3. Raised Top Diamond Plateau
@@ -2016,17 +2118,50 @@ export function paintBoardProvinces(
     g.poly(topDiamond);
     g.fill({ color: pal.fill });
 
-    // Seasonal / Holiday light tint over top diamond plateau (translucent wash; does not hide terrain)
-    if (theme.tintColor && theme.tintAlpha > 0) {
+    // Board-only seasonal wash over top diamond plateau (translucent wash; does not hide terrain)
+    if (wash.hasWash && wash.washColor !== null && wash.washAlpha > 0) {
       g.poly(topDiamond);
-      g.fill({ color: theme.tintColor, alpha: theme.tintAlpha });
+      g.fill({ color: wash.washColor, alpha: wash.washAlpha });
     }
 
-    // Top subtle highlight rim along rear two facets
-    g.moveTo(wx - hw, cy);
-    g.lineTo(wx, cy - hh);
-    g.lineTo(wx + hw, cy);
-    g.stroke({ width: 1, color: 0xffffff, alpha: 0.22 });
+    // Seasonal accent rims and dusting:
+    if (wash.kind === "winter-frost") {
+      // Crisp white frost rime along rear facets
+      g.moveTo(wx - hw, cy);
+      g.lineTo(wx, cy - hh);
+      g.lineTo(wx + hw, cy);
+      g.stroke({ width: 1.2, color: 0xffffff, alpha: 0.45 });
+
+      // Subtle frost rime on front facet edge
+      g.moveTo(wx - hw, cy);
+      g.lineTo(wx, cy + hh);
+      g.lineTo(wx + hw, cy);
+      g.stroke({ width: 0.8, color: 0xe0f2fe, alpha: 0.35 });
+
+      // Light snow / frost dusting crystals on top plateau
+      const cx = wx;
+      g.circle(cx - 8, cy - 3, 0.8); g.fill({ color: 0xffffff, alpha: 0.65 });
+      g.circle(cx + 7, cy + 2, 0.7); g.fill({ color: 0xffffff, alpha: 0.65 });
+      g.circle(cx + 2, cy - 5, 0.6); g.fill({ color: 0xffffff, alpha: 0.55 });
+      g.circle(cx - 3, cy + 4, 0.7); g.fill({ color: 0xffffff, alpha: 0.55 });
+    } else if (wash.kind === "harvest-gold") {
+      // Harvest: warm golden rim highlight along top facets
+      g.moveTo(wx - hw, cy);
+      g.lineTo(wx, cy - hh);
+      g.lineTo(wx + hw, cy);
+      g.stroke({ width: 1.2, color: 0xfde047, alpha: 0.4 });
+
+      // Subtle warm wheat glints on harvested ground
+      const cx = wx;
+      g.circle(cx - 6, cy - 2, 0.8); g.fill({ color: 0xfef08a, alpha: 0.55 });
+      g.circle(cx + 5, cy + 3, 0.8); g.fill({ color: 0xfde047, alpha: 0.55 });
+    } else {
+      // Top subtle highlight rim along rear two facets (standard natural look)
+      g.moveTo(wx - hw, cy);
+      g.lineTo(wx, cy - hh);
+      g.lineTo(wx + hw, cy);
+      g.stroke({ width: 1, color: 0xffffff, alpha: 0.22 });
+    }
 
     // Outer diamond border
     g.poly(topDiamond);
