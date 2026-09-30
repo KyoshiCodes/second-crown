@@ -36,6 +36,7 @@ import {
   resourceLedger,
   settlementName,
   tryAbandonOutpost,
+  tryAssignCitizen,
   tryCancelBuild,
   tryCancelUpgrade,
   unpairedWorks,
@@ -48,7 +49,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { PeoplePanel } from "../PeoplePanel";
 import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
-import { quarryHintPlot, wallsStoneHint } from "../buildHints";
+import { quarryHintPlot, staffQuarryHint, wallsStoneHint } from "../buildHints";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
 import { isScarred, WorkCard } from "../hud/WorkCard";
@@ -88,6 +89,7 @@ export function KingdomTab(props: {
   const labor = state ? laborPerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const wallsHint = wallsStoneHint(state);
   const hintPlot = quarryHintPlot(state);
+  const quarryStaff = staffQuarryHint(state);
   const misses = state ? unpairedWorks(state) : [];
   const packed = state ? fullStores(state) : [];
   const idle = state ? emptyStaffWorks(state) : [];
@@ -124,6 +126,26 @@ export function KingdomTab(props: {
         <p style={{ fontSize: 12, color: "#d29922" }}>
           {wallsHint}
           {hintPlot ? ` Plot ${hintPlot.x},${hintPlot.y} is free and marked in the Keep.` : ""}
+        </p>
+      ) : null}
+      {quarryStaff ? (
+        <p style={{ fontSize: 12, color: "#d29922", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <span>
+            Staff the {quarryStaff.name} at {quarryStaff.x},{quarryStaff.y} — no miner yet.
+            {quarryStaff.idleId ? "" : " No idle hands; move someone with Post at… on People."}
+          </span>
+          {quarryStaff.idleId ? (
+            <button
+              type="button"
+              onClick={() => {
+                const cid = quarryStaff.idleId;
+                const bid = quarryStaff.buildingId;
+                if (cid) act((st) => (tryAssignCitizen(st, cid, bid) ? "Worker posted." : "Cannot post there."));
+              }}
+            >
+              Post an idle worker
+            </button>
+          ) : null}
         </p>
       ) : null}
       <VisionLine state={state} />
