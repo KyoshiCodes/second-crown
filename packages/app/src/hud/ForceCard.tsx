@@ -12,9 +12,11 @@ export function ForceCard(props: {
   /** Seconds to arrival. Omit for forces that are not on the road. */
   seconds?: number;
   detail?: string;
+  /** Display-only captain, derived from the march id. */
+  captain?: string;
   action?: { label: string; disabled?: boolean; onClick: () => void };
 }) {
-  const { tone, name, dest, seconds, detail, action } = props;
+  const { tone, name, dest, seconds, detail, captain, action } = props;
   return (
     <div className={`sc-force-card is-${tone}`}>
       <span className="sc-force-head">
@@ -24,6 +26,7 @@ export function ForceCard(props: {
         </span>
         <span className="sc-force-eta">{seconds === undefined ? "posted" : `${seconds}s`}</span>
       </span>
+      {captain ? <span className="sc-force-captain">Capt. {captain}</span> : null}
       <span className="sc-force-dest">→ {dest}</span>
       {detail ? <span className="sc-force-detail">{detail}</span> : null}
       {action ? (

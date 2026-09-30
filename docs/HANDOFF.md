@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/hud-captains)
+
+- Scout, gather and incoming-host force cards on the War tab now show a captain name (**Capt. Aldric** etc.) under the title.
+- The name is picked in the app from the march/gather id with a stable hash (`packages/app/src/hud/captainName.ts`), so the same force always shows the same captain. Display only: no new sim fields, nothing saved.
+- Garrison cards have no march id, so they show no captain. Recall and sally are unchanged. Styles only in `force-card.css`; no theme.css changes.
+
 ## Active wave (wave/save-lock)
 
 - One live cloud save is no longer silently overwritten. If the cloud already holds a newer copy of the hold (higher tick or save version, or actions the upload is missing), `PUT /save` refuses with 409 `{ conflict: true, save }` and returns the cloud save.
