@@ -1,3 +1,17 @@
+## 2026-09-30 — render / finished quarry cut stone, crane & piles, unfinished scaffolding (bakeoff/gemini-quarry-yard)
+
+- `packages/render/src/buildings.ts`:
+  - `export function drawQuarryScaffolding`: renders timber scaffolding for unfinished quarries with ground pit footprint, turf spoils/dirt chips, corner upright scaffold standards, horizontal ledger beams, diagonal X-braces with joint lashings, work staging planks deck, and hoist tripod beam with suspended builder stone.
+  - `case "quarry":` in `drawIsometricBuilding`:
+    - Unfinished (`!complete`): routes directly to `drawQuarryScaffolding(g, heightBoost, a, phase, kit, cult)`.
+    - Finished (`complete`): renders excavated granite bedrock floor (`0x27272a`), stepped rock strata (`0x71717a`, `0x52525b`, `0x3f3f46`), cut stone ashlar block stacks on pallets (`0xcbd5e1`, `0x94a3b8`, `0xe2e8f0`) with mortar seams, fresh pyramidal rubble rock piles (`0x64748b`, `0x52525b`, `0x71717a`), rear ledge stone block piles, wooden A-frame crane with brass pulley (`0xf59e0b`), steel cable line (`0xd1d5db`), hoisted granite block (`0xa1a1aa`), mason pickaxe (`0x451a03`, `0x94a3b8`), and wooden wheelbarrow (`0x854d0e`).
+  - Cracked stone overlay check (~line 5982): added `&& typeId !== "quarry"` so unfinished quarries do not receive battle damage scars.
+- `packages/render/src/tokens.ts`:
+  - `drawKeepYardAnnex`: added bespoke silhouette for finished quarry (`typeId === "quarry"`) with excavated pit bedrock, stepped rock strata, cut stone ashlar stacks, rubble piles on that tile, wooden A-frame crane with brass pulley and hoisted block, and pickaxe. Updated `const isStone = typeId === "mason";` so finished quarry does not fall through to the cottage renderer. Unfinished keep-yard quarry preserves timber scaffolding.
+- `packages/render/src/index.ts`:
+  - `entitiesLayer.eventMode = "none"` and `g.eventMode = "none"` ensure all building graphics remain strictly non-blocking (`pointer-events: none`).
+- Invariants: Sim and server unchanged (`git diff origin/main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. No `theme.css` changes. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — render / finished watchtower clear beacon & gold glint (bakeoff/gemini-tower-beacon)
 
 - `packages/render/src/buildings.ts`:

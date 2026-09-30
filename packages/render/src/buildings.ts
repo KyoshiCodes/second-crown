@@ -3279,6 +3279,142 @@ export function drawWatchtowerScaffolding(
   g.fill({ color: 0x475569, alpha: a });
 }
 
+/**
+ * Unfinished quarry presentation: authentic timber construction scaffolding.
+ * Replaces finished quarry excavation pit, stonecutter derrick crane, and cut ashlar stacks
+ * with ground excavation markers, timber upright standards, ledger cross-beams, diagonal X-braces,
+ * work staging platform, ladder, and a builder's hoist lifting stone blocks.
+ */
+export function drawQuarryScaffolding(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  // Scaffolding wood & stone palette adapted by culture kit
+  let woodMain = 0x78350f;     // Warm oak timber
+  let woodLedger = 0x854d0e;   // Medium ledger planks
+  let woodPlank = 0xb45309;    // Platform decking
+  let woodDark = 0x451a03;     // Shadowed uprights & lashings
+  let stoneFoot = 0x64748b;    // Cut foundation stone
+  let stoneLit = 0x94a3b8;     // Lit stone face
+  let pitColor = 0x27272a;     // Ground pit outline
+
+  if (kit === "cedar") {
+    woodMain = 0x5c3818;
+    woodLedger = 0x78350f;
+    woodPlank = 0x854d0e;
+    woodDark = 0x291807;
+    stoneFoot = 0x52525b;
+    stoneLit = 0x71717a;
+    pitColor = 0x1c1917;
+  } else if (kit === "sand") {
+    woodMain = 0x92400e;
+    woodLedger = 0xb45309;
+    woodPlank = 0xd97706;
+    woodDark = 0x451a03;
+    stoneFoot = 0xa16207;
+    stoneLit = 0xd4a373;
+    pitColor = 0x451a03;
+  } else if (kit === "steppe") {
+    woodMain = 0x44403c;
+    woodLedger = 0x57534e;
+    woodPlank = 0x78716c;
+    woodDark = 0x1c1917;
+    stoneFoot = 0x27272a;
+    stoneLit = 0x3f3f46;
+    pitColor = 0x18181b;
+  } else if (kit === "islands") {
+    woodMain = 0xca8a04;
+    woodLedger = 0xa16207;
+    woodPlank = 0xeab308;
+    woodDark = 0x713f12;
+    stoneFoot = 0x78716c;
+    stoneLit = 0xa8a29e;
+    pitColor = 0x1e293b;
+  }
+
+  // 1. Initial Excavation Outline & Spoils
+  g.poly([-15, 0, 0, 7.5, 15, 0, 0, -7.5]);
+  g.fill({ color: pitColor, alpha: 0.5 * a });
+
+  // Fresh dirt spoils / turf chips around excavation edge
+  g.circle(-11, 2, 1.3); g.fill({ color: 0x854d0e, alpha: 0.8 * a });
+  g.circle(10, -2, 1.4); g.fill({ color: 0xa16207, alpha: 0.8 * a });
+  g.circle(-6, 5, 1.1); g.fill({ color: 0x713f12, alpha: 0.7 * a });
+  g.circle(7, 4, 1.2); g.fill({ color: 0x854d0e, alpha: 0.75 * a });
+
+  // Partial stone footing / bedrock ledge
+  g.poly([-11, 1, -2, 5.5, -2, 3, -11, -1.5]);
+  g.fill({ color: stoneFoot, alpha: a });
+
+  // 2. Corner Upright Scaffold Standards (Timber Posts)
+  const scaffoldH = 20 + h * 0.4;
+  // Back uprights
+  g.moveTo(-8, -4); g.lineTo(-8, -scaffoldH);
+  g.stroke({ width: 2.0, color: woodDark, alpha: a * 0.85 });
+  g.moveTo(8, -4); g.lineTo(8, -scaffoldH);
+  g.stroke({ width: 2.0, color: woodDark, alpha: a * 0.85 });
+  // Front uprights
+  g.moveTo(-8, 3); g.lineTo(-8, -scaffoldH + 3);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+  g.moveTo(8, 3); g.lineTo(8, -scaffoldH + 3);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+
+  // Center support standard
+  g.moveTo(0, 5.5); g.lineTo(0, -scaffoldH + 1);
+  g.stroke({ width: 2.0, color: woodMain, alpha: a });
+
+  // 3. Horizontal Ledger Beams
+  const midY = -scaffoldH * 0.48;
+  const topY = -scaffoldH * 0.88;
+
+  g.moveTo(-8, midY); g.lineTo(8, midY);
+  g.stroke({ width: 1.6, color: woodLedger, alpha: a });
+  g.moveTo(-8, topY); g.lineTo(8, topY);
+  g.stroke({ width: 1.6, color: woodLedger, alpha: a });
+
+  // 4. Diagonal X-Braces
+  g.moveTo(-8, 2); g.lineTo(0, midY);
+  g.stroke({ width: 1.1, color: woodLedger, alpha: 0.9 * a });
+  g.moveTo(0, 2); g.lineTo(-8, midY);
+  g.stroke({ width: 1.1, color: woodLedger, alpha: 0.9 * a });
+
+  g.moveTo(0, 2); g.lineTo(8, midY);
+  g.stroke({ width: 1.1, color: woodLedger, alpha: 0.9 * a });
+  g.moveTo(8, 2); g.lineTo(0, midY);
+  g.stroke({ width: 1.1, color: woodLedger, alpha: 0.9 * a });
+
+  // Joint lashings
+  g.circle(-8, midY, 0.9); g.fill({ color: 0x1e293b, alpha: a });
+  g.circle(0, midY, 0.9); g.fill({ color: 0x1e293b, alpha: a });
+  g.circle(8, midY, 0.9); g.fill({ color: 0x1e293b, alpha: a });
+
+  // 5. Work Staging Planks Deck
+  g.poly([
+    -9, midY,
+    0, midY + 4,
+    9, midY,
+    0, midY - 3,
+  ]);
+  g.fill({ color: woodPlank, alpha: a });
+  g.stroke({ width: 0.8, color: woodDark, alpha: a });
+
+  // 6. Hoist Tripod Beam & Suspended Builder's Stone
+  g.moveTo(-2, -scaffoldH); g.lineTo(4, -scaffoldH - 6);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+  g.moveTo(4, -scaffoldH - 6); g.lineTo(4, midY - 2);
+  g.stroke({ width: 0.8, color: 0xd4a373, alpha: a }); // Hemp hoist rope
+
+  // Suspended stone block dangling on rope
+  const swing = Math.sin(phase * 3) * 0.8;
+  g.rect(2.5 + swing, midY - 2, 3.5, 3.5);
+  g.fill({ color: stoneLit, alpha: a });
+  g.stroke({ width: 0.5, color: 0x334155, alpha: a });
+}
+
 function drawWatchtowerCulture(
   g: Graphics,
   h: number,
@@ -4360,33 +4496,90 @@ export function drawIsometricBuilding(
     }
 
     case "quarry": {
-      // Denser Granite Quarry Pit + A-Frame Crane + Stone Blocks + Wheelbarrow
+      if (!complete) {
+        drawQuarryScaffolding(g, heightBoost, a, phase, kit, cult);
+        break;
+      }
+
+      // Denser Granite Quarry Pit + A-Frame Crane + Cut Stone Blocks + Piles on that tile + Wheelbarrow
+      // 1. Excavated granite quarry pit bedrock floor
       g.poly([-16, 0, 0, 8, 16, 0, 0, -8]);
       g.fill({ color: 0x27272a, alpha: a });
 
-      // Terraced granite quarry shelf
-      g.poly([-12, 1, 0, 7, 0, 1, -12, -5]);
+      // Terraced granite quarry shelves / stepped rock strata
+      g.poly([-13, 1, 0, 7.5, 0, 1, -13, -5]);
       g.fill({ color: 0x71717a, alpha: a });
-      g.poly([0, 7, 12, 1, 12, -5, 0, 1]);
+      g.poly([0, 7.5, 13, 1, 13, -5, 0, 1]);
       g.fill({ color: 0x52525b, alpha: a });
+      g.poly([-13, -5, 0, 1, 13, -5, 0, -8]);
+      g.fill({ color: 0x3f3f46, alpha: a });
 
-      // Wooden A-Frame Crane with cable & hoisted block
-      g.moveTo(-4, 0); g.lineTo(-4, -22); g.lineTo(8, -14);
-      g.stroke({ width: 2.2, color: 0x78350f, alpha: a });
-      g.moveTo(-4, -22); g.lineTo(2, 2);
-      g.stroke({ width: 1.5, color: 0x5c2b09, alpha: a });
-      g.moveTo(8, -14); g.lineTo(8, -5);
-      g.stroke({ width: 0.8, color: 0xd1d5db, alpha: a }); // Hoist line
-      g.rect(6, -5, 4.5, 4);
+      // Chiseled quarry face fractures / horizontal strata lines
+      g.moveTo(-11, -1); g.lineTo(-2, 3.5);
+      g.stroke({ width: 0.8, color: 0x18181b, alpha: 0.7 * a });
+      g.moveTo(2, 3.5); g.lineTo(11, -1);
+      g.stroke({ width: 0.8, color: 0x18181b, alpha: 0.7 * a });
+
+      // 2. Cut Stone / Ashlar Masonry Blocks on that tile
+      // Main cut ashlar block stack (neatly chiseled stone blocks on pallet)
+      g.rect(-11, 2, 5.5, 4.2); g.fill({ color: 0xcbd5e1, alpha: a });
+      g.stroke({ width: 0.6, color: 0x334155, alpha: a });
+      g.rect(-9, -1.5, 5.5, 3.8); g.fill({ color: 0x94a3b8, alpha: a });
+      g.stroke({ width: 0.6, color: 0x334155, alpha: a });
+      g.rect(-6, 3.5, 4.5, 3.5); g.fill({ color: 0xe2e8f0, alpha: a });
+      g.stroke({ width: 0.5, color: 0x334155, alpha: a });
+
+      // Masonry mortar / chisel seams
+      g.moveTo(-11, 4.1); g.lineTo(-5.5, 4.1);
+      g.stroke({ width: 0.5, color: 0x475569, alpha: a });
+      g.moveTo(-9, 0.4); g.lineTo(-3.5, 0.4);
+      g.stroke({ width: 0.5, color: 0x475569, alpha: a });
+
+      // 3. Piles on that tile: freshly quarried rubble mounds & cut stone piles
+      // Foreground rubble rock pile (pyramidal stone rubble pile)
+      g.poly([-4, 5, 2, 7.5, 1, 3.5]);
+      g.fill({ color: 0x64748b, alpha: a });
+      g.poly([1, 3.5, 2, 7.5, 7, 5]);
+      g.fill({ color: 0x52525b, alpha: a });
+      g.circle(-1, 5, 1.4); g.fill({ color: 0x94a3b8, alpha: a });
+      g.circle(3, 5.5, 1.6); g.fill({ color: 0x71717a, alpha: a });
+      g.circle(1, 3.5, 1.2); g.fill({ color: 0xcbd5e1, alpha: a });
+
+      // Cut stone blocks pile on rear right ledge
+      g.rect(7, -3, 4, 3); g.fill({ color: 0x94a3b8, alpha: a });
+      g.stroke({ width: 0.4, color: 0x1e293b, alpha: a });
+      g.rect(9, -5.5, 3.5, 2.8); g.fill({ color: 0xcbd5e1, alpha: a });
+      g.stroke({ width: 0.4, color: 0x1e293b, alpha: a });
+
+      // 4. Wooden A-Frame Crane with Pulley, Cable & Hoisted Block
+      const craneSwing = Math.sin(phase * 3) * 0.6;
+      g.moveTo(-4, 0); g.lineTo(-4, -23); g.lineTo(8, -15);
+      g.stroke({ width: 2.4, color: 0x78350f, alpha: a });
+      g.moveTo(-4, -23); g.lineTo(2, 2);
+      g.stroke({ width: 1.6, color: 0x5c2b09, alpha: a });
+
+      // Brass pulley wheel at crane mast tip
+      g.circle(8, -15, 1.3);
+      g.fill({ color: 0xf59e0b, alpha: a });
+      g.stroke({ width: 0.5, color: 0x78350f, alpha: a });
+
+      // Steel cable line & hoisted cut ashlar stone block
+      g.moveTo(8, -14); g.lineTo(8 + craneSwing, -6);
+      g.stroke({ width: 0.9, color: 0xd1d5db, alpha: a }); // Hoist cable
+      g.rect(5.8 + craneSwing, -6, 5, 4.2);
       g.fill({ color: 0xa1a1aa, alpha: a }); // Hoisted granite block
+      g.stroke({ width: 0.5, color: 0x334155, alpha: a });
 
-      // Stack of cut ashlar blocks
-      g.rect(-10, 3, 5, 4); g.fill({ color: 0x94a3b8, alpha: a });
-      g.rect(-8, 0, 5, 3.5); g.fill({ color: 0x64748b, alpha: a });
+      // 5. Heavy quarry pickaxe leaning against stone ledge
+      g.moveTo(-1, 2); g.lineTo(-3.5, 6);
+      g.stroke({ width: 1.0, color: 0x451a03, alpha: a }); // Handle
+      g.moveTo(-4.5, 4.8); g.lineTo(-2.5, 6.8);
+      g.stroke({ width: 1.3, color: 0x94a3b8, alpha: a }); // Pick blade
 
-      // Wooden wheelbarrow
-      g.rect(9, 4, 4.5, 3); g.fill({ color: 0x854d0e, alpha: a });
-      g.circle(8, 6, 1.5); g.fill({ color: 0x18181b, alpha: a });
+      // 6. Wooden wheelbarrow loaded with cut stone rubble
+      g.rect(9, 4, 5, 3.5); g.fill({ color: 0x854d0e, alpha: a });
+      g.circle(8, 6.2, 1.6); g.fill({ color: 0x18181b, alpha: a }); // Wheel
+      g.circle(11.5, 4.5, 1.2); g.fill({ color: 0xcbd5e1, alpha: a }); // Stone in barrow
       break;
     }
 
@@ -5785,8 +5978,8 @@ export function drawIsometricBuilding(
   }
 
   // Scarred / knocked-out building presentation: cracked stone & rubble overlay
-  // Unfinished towers stay scaffolding, while scarred buildings draw cracked stone
-  if (!complete && typeId !== "watchtower") {
+  // Unfinished towers and quarries stay scaffolding, while scarred buildings draw cracked stone
+  if (!complete && typeId !== "watchtower" && typeId !== "quarry") {
     const effectiveH = buildingHeight(typeId, lvl, gx, gy);
     drawCrackedStoneOverlay(g, typeId, effectiveH, gx, gy, kit, lvl);
   }
