@@ -1,13 +1,3 @@
-## 2026-09-30 — app / keep rooms 2D backdrops (bakeoff/gemini-rooms)
-
-- `RoomBackdrop.tsx`: exports `RoomBackdrop`, `ThroneDaisBackdrop`, `WallWalkBackdrop`, and `MuddyYardBackdrop`.
-  - Hall: Throne dais (`sc-keepin-backdrop-throne-dais`) featuring 3-tier elevated stone dais platform (`daisStepGrad`), high-backed carved monarch throne with golden finials and royal crimson tufted cushion, overhead draped canopy (`canopyVelvet`), vaulted alcove arch, torch sconces with warm radial glows (`torchGlowLeft`, `torchGlowRight`), and heraldic tapestries.
-  - Wall: Wall walk (`sc-keepin-backdrop-wall-walk`) featuring stone battlements (`wallStone`) with merlons and cruciform arrow slits, weathered timber duckboards (`walkwayTimber`), iron tripod braziers with burning coals and rising embers (`brazierGlowLeft`, `brazierGlowRight`), leaning sentry shield, and crossed halberds overlooking a twilight sky (`twilightSky`).
-  - Yard: Muddy yard (`sc-keepin-backdrop-muddy-yard`) featuring heavy churned earth (`mudEarth`) with deep curved wheel ruts, standing rainwater puddles with sky reflections (`puddleReflect`), bailey palisade fence, stacked barrels (`barrelWood`) & crates, and soldier training quintain dummy.
-- `KeepInterior.tsx`: mounts `<RoomBackdrop room={room} />` in each room tabpanel (`is-hall`, `is-wall`, `is-yard`).
-- `keep-interior.css`: scoped styles for `.sc-keepin-backdrop-wrap`, `.sc-keepin-backdrop-art`, `.sc-keepin-backdrop-badge`. Strictly enforces `pointer-events: none !important;` so all plot clicks, facts, tabs, and buttons are unimpeded.
-- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
-
 ## 2026-09-30 — app / keep rooms (wave/keep-rooms)
 
 - Room is view state in `KeepInterior` (`useState<Room>("hall")`), reset to Hall each time the keep opens because the component unmounts on close. Not in `GameState`, not saved, never passed to the sim.

@@ -2,14 +2,6 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-30 — Illustrated backdrops for keep rooms (bakeoff/gemini-rooms)
-
-- The rooms inside your keep now each feature an illustrated 2D scene backdrop:
-  - **Hall**: The grand **Throne Dais**, with elevated stone platform steps, a carved monarch throne with gold finials and crimson velvet cushion, warm torch sconces, and hanging royal tapestries.
-  - **Wall**: The windy **Wall Walk**, showing stone rampart battlements with arrow slits, weathered timber sentry duckboards, burning iron braziers with rising embers, a sentry shield, and crossed spears overlooking a twilight horizon.
-  - **Yard**: The bustling **Muddy Yard**, showing churned muddy earth with deep wagon wheel ruts, standing rainwater puddles with sky reflections, wooden bailey palisades, stacked barrels & crates, and a soldier training dummy.
-- All backdrops sit cleanly behind your plots and buttons, without interfering with clicks or taps.
-
 ## 2026-09-30 — Rooms inside your keep
 
 - Inside the keep there are now three tabs: **Hall**, **Wall** and **Yard**.
