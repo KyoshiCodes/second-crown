@@ -6,6 +6,7 @@ import {
   getBuildingType,
   isHoldRim,
   scoutCost,
+  staffBonus,
   type GameState,
 } from "@second-crown/sim";
 
@@ -71,6 +72,23 @@ export function staffQuarryHint(
   return { buildingId: b.id, name: empty.name, x: b.x, y: b.y, idleId: idle?.id ?? null };
 }
 
+/**
+ * A finished player Watchtower with no guard, plus one idle citizen who could take the post (if any).
+ * emptyStaffWorks skips towers, so this reads staffBonus directly. Posting goes through tryAssignCitizen.
+ */
+export function staffTowerHint(
+  state: GameState | undefined
+): { buildingId: string; name: string; x: number; y: number; idleId: string | null } | null {
+  if (!state) return null;
+  const b = state.buildings.find(
+    (t) => t.realmId === "player" && t.typeId === "watchtower" && t.completesAtTick === null && staffBonus(state, t) <= 1
+  );
+  if (!b) return null;
+  const name = getBuildingType("watchtower")?.name ?? "Watchtower";
+  const idle = citizensByRealm(state, "player").find((c) => c.job === "unassigned" || !c.tile);
+  return { buildingId: b.id, name, x: b.x, y: b.y, idleId: idle?.id ?? null };
+}
+
 /** One line when the scout column is short on gold. */
 export function scoutGoldHint(state: GameState | undefined): string | null {
   if (!state) return null;
@@ -78,5 +96,7 @@ export function scoutGoldHint(state: GameState | undefined): string | null {
   if (Number(state.resources.gold ?? "0") >= cost) return null;
   const tower = getBuildingType("watchtower");
   if (!tower || !tower.productionPerTick.gold) return null;
+  const unstaffed = staffTowerHint(state);
+  if (unstaffed) return `Scout needs ${cost} gold. Staff the ${unstaffed.name} at ${unstaffed.x},${unstaffed.y} for gold.`;
   return `Scout needs ${cost} gold. A ${tower.name} produces gold (${costText(state, "watchtower")}).`;
 }
