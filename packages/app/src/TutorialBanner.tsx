@@ -14,8 +14,9 @@ const TAB_HINT: Record<string, string> = {
   kingdom: "Open Kingdom.",
   army: "Open Army.",
   war: "Open War.",
+  world: "Open World.",
   crown: "Open Crown.",
-  board: "Use the map / Board.",
+  board: "Kingdom tab, map on Board.",
 };
 
 export function TutorialBanner(props: { state: GameState | undefined; act: ActFn }) {

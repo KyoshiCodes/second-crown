@@ -7,43 +7,43 @@ import { listGathers } from "./gather.js";
 import { listTraining } from "./training.js";
 import { researchDone, researchTicksLeft } from "./research.js";
 
-export type PrimerTab = "kingdom" | "army" | "war" | "crown" | "board";
+export type PrimerTab = "kingdom" | "army" | "war" | "world" | "crown" | "board";
 
 export const TUTORIAL_STEPS = [
   {
     id: "farm",
     tab: "kingdom" as PrimerTab,
-    text: "Kingdom: place a Farm on the hold. Food feeds people and the host. Watch the income line.",
+    text: "Kingdom: the strip up top shows Food, Wood, Stone and Gold with income per tick. Place a Farm. Once it stands it gets a work card under Standing works.",
   },
   {
     id: "cottage",
     tab: "kingdom" as PrimerTab,
-    text: "Kingdom: place a Cottage. Beds let more citizens spawn. The beds line turns amber when full.",
+    text: "Kingdom: place a Cottage for beds and another work plot. Below, People sorts citizens onto job cards. Market offer cards open once a Market stands.",
   },
   {
     id: "board",
     tab: "board" as PrimerTab,
-    text: "Zoom the map out to the Board. Diamonds are provinces. Your keep is home, not a second city.",
+    text: "Press Board on the map. Click a tile: a gold rim marks it, and the inspect card groups it under Tile, Owner, Forces and Hold.",
   },
   {
     id: "scout",
     tab: "board" as PrimerTab,
-    text: "Click a far tile and Scout it (gold). Fog hides other crowns until you scout or raise Watchtowers.",
+    text: "Click a far tile and press Scout column on its inspect card (gold plus one skirmisher or militia). Fog hides other crowns until you scout or raise Watchtowers.",
   },
   {
     id: "train",
     tab: "army" as PrimerTab,
-    text: "Army: queue militia (or any unlocked unit). Barracks cheapen the levy. Watch food upkeep.",
+    text: "Army: each unit card shows cost and food upkeep. Queue militia or any unlocked unit. Barracks cheapen the levy.",
   },
   {
     id: "march",
-    tab: "army" as PrimerTab,
-    text: "Send a column from the composer. Fights use the column, not the whole home army.",
+    tab: "board" as PrimerTab,
+    text: "Fill the Column box on a tile's inspect card and send it. Then open War: force cards track your columns, Last battle shows the latest fight, diplomacy cards show each crown's stance.",
   },
   {
     id: "flag",
     tab: "board" as PrimerTab,
-    text: "Break a camp, gather a node, or storm a tile to plant a flag. Garrison it if you want it to hold.",
+    text: "Gather a node or raid a tile to plant a flag. Station a garrison if you want it to hold. World: the log marks claims, trades and raids.",
   },
   {
     id: "walls",
@@ -53,7 +53,7 @@ export const TUTORIAL_STEPS = [
   {
     id: "lectern",
     tab: "crown" as PrimerTab,
-    text: "Crown: start a study when a hall and Keep allow it. An Academy shortens new studies. One study at a time.",
+    text: "Crown: start a study when a hall and Keep allow it (an Academy speeds it up). Swear decrees here; War lists the ones running. Latest event shows here too.",
   },
 ] as const;
 

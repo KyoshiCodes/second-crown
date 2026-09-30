@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-29 — Primer rewritten
+
+- The primer banner now points at the screens you actually see: the resource strip, work cards, People job cards, unit cards, the tile inspect card, War's force cards and Last battle, and the World log.
+- Same nine steps, same order. Your saved primer progress carries over.
+
 ## 2026-09-29 — Tiles that are already a march destination get a faint ring
 
 - Any map tile that is currently the destination of an active marching force now receives a faint, animated ring around the tile perimeter:

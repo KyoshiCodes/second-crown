@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/primer-v3)
+
+- Primer text rewritten to match the live UI (`packages/sim/src/systems/tutorial.ts`, `packages/app/src/TutorialBanner.tsx`).
+- Same 9 step ids in the same order; advance checks untouched. Only `text`, two `tab` hints (march → board), and a new `"world"` PrimerTab / hint.
+- Quests are not mentioned: `QuestPanel.tsx` exists but is not mounted anywhere.
+
 ## Active Bakeoff (bakeoff/gemini-dest)
 
 - **Faint Ring for March Destination Tiles (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:

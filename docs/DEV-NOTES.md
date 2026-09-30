@@ -1,5 +1,12 @@
 # Dev notes
 
+## 2026-09-29 — sim / primer v3 text (wave/primer-v3)
+
+- `TUTORIAL_STEPS` in `packages/sim/src/systems/tutorial.ts`: text rewritten only. Ids pinned by `tutorial.test.ts` kept. `tryAdvanceTutorial` untouched.
+- `PrimerTab` gains `"world"`; `TAB_HINT` in `TutorialBanner.tsx` gains `world` and the board hint now says the inspect card lives on the Kingdom tab (it only renders there, see `AppShell.tsx`).
+- `march` step tab moved army → board: the Column box and "Send raid column" live on the inspect card, not Army.
+- Not covered: quests (`QuestPanel.tsx` unmounted), People as its own tab (it is a section of Kingdom), market stalls (MarketPanel says stalls are not live yet).
+
 ## 2026-09-29 — render / tiles that are march destinations get faint ring (bakeoff/gemini-dest)
 
 - `buildMarchDestinationMap` & `getTileMarchDestination` in `packages/render/src/tokens.ts`:

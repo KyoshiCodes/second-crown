@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-09-29 — Primer v3 (wave/primer-v3)
+
+- Primer step text now names live UI: resource strip, work cards, People job cards, Market offer cards, unit cards, inspect card groups (Tile / Owner / Forces / Hold), gold select rim, Scout column, Column box, War force cards / Last battle / diplomacy cards, World log, decrees, Latest event.
+- Step ids, order, count (9) and advance checks unchanged. No economy / combat / win math touched.
+
 ## 2026-09-29 — Gemini March Destination Tile Faint Rings (bakeoff/gemini-dest)
 
 - **Tiles That Are a March Destination Get a Faint Ring (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/theme.css`)**:
