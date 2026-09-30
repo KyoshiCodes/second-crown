@@ -43,6 +43,17 @@
 - Primer step text now names live UI: resource strip, work cards, People job cards, Market offer cards, unit cards, inspect card groups (Tile / Owner / Forces / Hold), gold select rim, Scout column, Column box, War force cards / Last battle / diplomacy cards, World log, decrees, Latest event.
 - Step ids, order, count (9) and advance checks unchanged. No economy / combat / win math touched.
 
+## 2026-09-30 — Gemini Supply Cart Art & Load Silhouettes (bakeoff/gemini-supply)
+
+- **Clearer Supply Cart with Draft Yoke, Timber Crates, and Load Silhouettes (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/hud/WarChip.tsx`, `packages/app/src/hud/ForceCard.tsx`, `packages/app/src/WarRoom.tsx`)**:
+  - **Draft Yoke & Hitch Assembly**: Added arched hardwood yoke beam (`0x92400e`), under-neck iron yoke bow (`0x27272a`), central brass hitch ring (`0xd4a359`), and dual timber draft shafts connecting directly from yoke to wagon bolster.
+  - **Timber Supply Crates**: Sturdy crates with plank slat seams, iron corner straps (`0x27272a`), and diagonal X-braces.
+  - **Cargo Load Awareness (`resolveGatherLoadInfo`)**:
+    - Full loaded haul: Stacked crates, bulging burlap sacks with golden twine ties, hooped barrels, node-specific resource cargo (logs, stone ashlars, gold coffers, wheat sheaves), heavy tie-down lashings, and green/gold load badge (`0x22c55e`).
+    - Empty return: Light unburdened wagon silhouette with bare floorboard plank lines (`0x543007`), open side stakes (`0x27272a`), folded drop cloth, and slate badge (`0x64748b`) with empty cart icon.
+    - WarChip & ForceCard: 24px cart icon updated with forward draft yoke and loaded/empty variants for gather cards.
+  - **Invariants**: War, scout, and garrison art completely untouched. Hit-test and camera math (`camera.ts`) 100% untouched. All chips strictly `pointer-events: none !important;`. `git diff main -- packages/sim server` strictly empty. Zero conflict markers.
+
 ## 2026-09-30 — Gemini Seasonal Weather Particles (bakeoff/gemini-weather)
 
 - **Seasonal Weather Precipitation Particles (`packages/render/src/weather.ts`, `packages/render/src/index.ts`, `packages/app/src/seasons/WeatherOverlay.tsx`, `packages/app/src/theme.css`)**:

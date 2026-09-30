@@ -18,13 +18,17 @@ export interface WarChipProps {
   /** Optional custom CSS class */
   className?: string;
   style?: React.CSSProperties;
+  /** Optional loaded status for supply carts */
+  loaded?: boolean;
+  /** Optional empty status for supply carts */
+  empty?: boolean;
 }
 
 /**
  * Normalizes tone or name to the 4 canonical war chips:
  * - hostile / warband -> warband (red warband pip)
  * - scout / cloak -> cloak (reconnaissance stealth cloak)
- * - gather / cart -> cart (timber cargo cart with bulging sacks)
+ * - gather / cart -> cart (timber cargo cart with yoke and crates)
  * - garrison / tent -> tent (pavilion military encampment tent)
  */
 export function normalizeWarChipKind(kind: WarChipKind | string): "warband" | "cloak" | "cart" | "tent" {
@@ -50,7 +54,7 @@ export function normalizeWarChipKind(kind: WarChipKind | string): "warband" | "c
  * WarChip: 24px iconic military force chip for War tab cards.
  * - incoming: red warband pip (horned iron helm, blood-red tabard, spiked morningstar)
  * - scouts: the cloak (twilight-navy stealth mantle, cyan moonlit rim, brass spyglass)
- * - gathers: the cart (sturdy timber cargo wagon, bulging burlap sacks, spoke wheels)
+ * - gathers: the cart (sturdy timber cargo wagon, forward draft yoke, wooden crates & sacks)
  * - garrisons: the tent (pavilion ridgepole tent, warm hearth lantern, leaning shield & spear)
  * GUARANTEE: strictly `pointer-events: none` so cards and Recall/Sally buttons receive clicks cleanly!
  */
@@ -59,8 +63,12 @@ export function WarChip({
   size = 24,
   className = "",
   style,
+  loaded,
+  empty,
 }: WarChipProps) {
   const normKind = normalizeWarChipKind(kind);
+  const isLoaded = loaded !== undefined ? loaded : !empty;
+  const isEmpty = empty !== undefined ? empty : (loaded === false);
 
   return (
     <div
@@ -87,7 +95,7 @@ export function WarChip({
       >
         {normKind === "warband" && <WarbandSvg />}
         {normKind === "cloak" && <CloakSvg />}
-        {normKind === "cart" && <CartSvg />}
+        {normKind === "cart" && <CartSvg isLoaded={isLoaded} isEmpty={isEmpty} />}
         {normKind === "tent" && <TentSvg />}
       </svg>
     </div>
@@ -191,48 +199,74 @@ function CloakSvg() {
    3. The Cart (Gathers / Supply Wagon)
    ========================================================================= */
 
-function CartSvg() {
+function CartSvg({ isLoaded = true, isEmpty = false }: { isLoaded?: boolean; isEmpty?: boolean }) {
   return (
     <g>
       {/* Ground contact shadow */}
-      <ellipse cx="12" cy="22" rx="8" ry="1.6" fill="#000000" opacity="0.32" />
+      <ellipse cx="12" cy="22" rx={isEmpty ? "6.5" : "8"} ry="1.6" fill="#000000" opacity={isEmpty ? "0.24" : "0.36"} />
+
+      {/* Draft Yoke forward */}
+      <path d="M18.5 15.5 C19.5 13.5, 21.5 13.5, 22.5 15.5" stroke="#92400e" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+      <circle cx="20.5" cy="14" r="0.8" fill="#d4a359" stroke="#78350f" strokeWidth="0.4" />
+      {/* Draft Shaft / trace poles */}
+      <line x1="16.5" y1="16" x2="20.5" y2="14.5" stroke="#78350f" strokeWidth="1.1" strokeLinecap="round" />
 
       {/* Timber Cargo Wagon Bed */}
-      <rect x="4" y="13" width="14" height="4.5" rx="0.5" fill="#78350f" stroke="#451a03" strokeWidth="0.7" />
-      <line x1="4" y1="15.2" x2="18" y2="15.2" stroke="#b45309" strokeWidth="0.6" />
-      <rect x="3.5" y="11" width="1.5" height="5" fill="#451a03" />
-      <rect x="17" y="11" width="1.5" height="5" fill="#451a03" />
+      <rect x="3.5" y="13" width="13.5" height="4.5" rx="0.5" fill="#78350f" stroke="#451a03" strokeWidth="0.7" />
+      <line x1="3.5" y1="15.2" x2="17" y2="15.2" stroke="#b45309" strokeWidth="0.6" />
+      <rect x="3" y="10.8" width="1.4" height="5.2" fill="#27272a" />
+      <rect x="15.8" y="10.8" width="1.4" height="5.2" fill="#27272a" />
 
-      {/* High Bulging Cargo Burlap Sacks */}
-      <ellipse cx="7.5" cy="11.5" rx="3.5" ry="3" fill="#d97706" stroke="#92400e" strokeWidth="0.5" />
-      <rect x="6.8" y="8" width="1.4" height="1.2" fill="#b45309" />
+      {isEmpty ? (
+        /* Empty Return: open timber bed, bare floor slats, light silhouette */
+        <g>
+          <rect x="4.5" y="13.5" width="11.5" height="3" fill="#451a03" />
+          <line x1="5" y1="14.5" x2="15.5" y2="14.5" stroke="#3f220c" strokeWidth="0.5" />
+          {/* Small folded drop cloth / empty crate outline */}
+          <rect x="8" y="14" width="4.5" height="1.8" fill="#a16207" opacity="0.6" />
+          <rect x="7.5" y="13" width="5.5" height="2.5" stroke="#92400e" strokeWidth="0.5" fill="none" />
+        </g>
+      ) : (
+        /* Full Loaded Cart: timber supply crates, bulging sacks, barrels, lashings */
+        <g>
+          {/* Primary Center Supply Crate with iron corner straps & X-brace */}
+          <rect x="6.5" y="7.8" width="7" height="5.5" rx="0.3" fill="#b45309" stroke="#451a03" strokeWidth="0.6" />
+          <line x1="6.5" y1="10.5" x2="13.5" y2="10.5" stroke="#78350f" strokeWidth="0.5" />
+          <rect x="6.5" y="7.8" width="1" height="5.5" fill="#27272a" />
+          <rect x="12.5" y="7.8" width="1" height="5.5" fill="#27272a" />
+          <line x1="7.5" y1="8.5" x2="12.5" y2="12.5" stroke="#78350f" strokeWidth="0.5" />
+          <line x1="12.5" y1="8.5" x2="7.5" y2="12.5" stroke="#78350f" strokeWidth="0.5" />
 
-      <ellipse cx="14" cy="11" rx="3.5" ry="3" fill="#f59e0b" stroke="#b45309" strokeWidth="0.5" />
-      <rect x="13.3" y="7.5" width="1.4" height="1.2" fill="#92400e" />
+          {/* Forward small crate */}
+          <rect x="12.5" y="9.2" width="3.5" height="4.2" rx="0.3" fill="#92400e" stroke="#451a03" strokeWidth="0.5" />
+          <line x1="12.5" y1="11.2" x2="16" y2="11.2" stroke="#78350f" strokeWidth="0.4" />
 
-      <ellipse cx="10.5" cy="8.5" rx="3" ry="2.5" fill="#fbbf24" stroke="#d97706" strokeWidth="0.5" />
-      <rect x="9.8" y="5.5" width="1.4" height="1.2" fill="#b45309" />
+          {/* High Bulging Cargo Burlap Sacks atop crates */}
+          <ellipse cx="9.5" cy="6.8" rx="3.2" ry="2.4" fill="#f59e0b" stroke="#b45309" strokeWidth="0.5" />
+          <rect x="8.8" y="4.2" width="1.4" height="1.2" fill="#92400e" />
+          <circle cx="9.5" cy="4.2" r="0.6" fill="#fef08a" />
 
-      {/* Cargo grain glints */}
-      <circle cx="10.5" cy="8.5" r="0.6" fill="#fef08a" />
-      <circle cx="13.5" cy="11" r="0.6" fill="#ffffff" />
+          {/* Trailing burlap sack / barrel */}
+          <ellipse cx="5.2" cy="11.2" rx="2.4" ry="2.6" fill="#d97706" stroke="#92400e" strokeWidth="0.5" />
+
+          {/* Tie-down ropes across crates */}
+          <path d="M4 14.5 Q10 7, 16 14.5" stroke="#fde047" strokeWidth="0.5" fill="none" opacity="0.75" />
+        </g>
+      )}
 
       {/* Spoke Wheel Left */}
-      <circle cx="7" cy="18.5" r="3.2" fill="#451a03" stroke="#64748b" strokeWidth="0.8" />
-      <circle cx="7" cy="18.5" r="1.5" fill="#78350f" />
-      <circle cx="7" cy="18.5" r="0.6" fill="#cbd5e1" />
-      <line x1="7" y1="15.3" x2="7" y2="21.7" stroke="#b45309" strokeWidth="0.5" />
-      <line x1="3.8" y1="18.5" x2="10.2" y2="18.5" stroke="#b45309" strokeWidth="0.5" />
+      <circle cx="6.5" cy="18.5" r="3.2" fill="#27272a" stroke="#64748b" strokeWidth="0.7" />
+      <circle cx="6.5" cy="18.5" r="2.2" fill="#78350f" />
+      <circle cx="6.5" cy="18.5" r="0.8" fill="#d4a359" />
+      <line x1="6.5" y1="15.5" x2="6.5" y2="21.5" stroke="#451a03" strokeWidth="0.5" />
+      <line x1="3.5" y1="18.5" x2="9.5" y2="18.5" stroke="#451a03" strokeWidth="0.5" />
 
       {/* Spoke Wheel Right */}
-      <circle cx="15" cy="18.5" r="3.2" fill="#451a03" stroke="#64748b" strokeWidth="0.8" />
-      <circle cx="15" cy="18.5" r="1.5" fill="#78350f" />
-      <circle cx="15" cy="18.5" r="0.6" fill="#cbd5e1" />
-      <line x1="15" y1="15.3" x2="15" y2="21.7" stroke="#b45309" strokeWidth="0.5" />
-      <line x1="11.8" y1="18.5" x2="18.2" y2="18.5" stroke="#b45309" strokeWidth="0.5" />
-
-      {/* Hitch shaft pole */}
-      <line x1="18" y1="16" x2="22.5" y2="14" stroke="#78350f" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="14" cy="18.5" r="3.2" fill="#27272a" stroke="#64748b" strokeWidth="0.7" />
+      <circle cx="14" cy="18.5" r="2.2" fill="#78350f" />
+      <circle cx="14" cy="18.5" r="0.8" fill="#d4a359" />
+      <line x1="14" y1="15.5" x2="14" y2="21.5" stroke="#451a03" strokeWidth="0.5" />
+      <line x1="11" y1="18.5" x2="17" y2="18.5" stroke="#451a03" strokeWidth="0.5" />
     </g>
   );
 }

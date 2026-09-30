@@ -241,6 +241,7 @@ export function WarRoom(props: {
           {gathers.length === 0 ? (
             <p style={{ margin: 0, opacity: 0.7 }}>No gather party out.</p>
           ) : (
+<<<<<<< HEAD
             <div className="sc-force-grid">
               {gathers.map((g) => (
                 <ForceCard
@@ -259,6 +260,32 @@ export function WarRoom(props: {
                 />
               ))}
             </div>
+=======
+              <div className="sc-force-grid">
+                {gathers.map((g) => {
+                  const numLoad = parseFloat(String(g.load ?? 0));
+                  const isLoaded = !isNaN(numLoad) ? numLoad > 0 : Boolean(g.load && g.load !== "0");
+                  const isEmptyReturn = g.phase === "returning" && !isLoaded;
+                  return (
+                    <ForceCard
+                      key={g.id}
+                      tone="gather"
+                      name={`Gather ${g.node}`}
+                      dest={provinceLabel(g.toId)}
+                      seconds={etaOf(g.arrivesTick)}
+                      detail={g.phase !== "outbound" ? `${g.phase} · load ${g.load}` : g.phase}
+                      loaded={isLoaded}
+                      empty={isEmptyReturn}
+                      action={{
+                        label: "Recall",
+                        disabled: g.phase === "returning",
+                        onClick: () => act((st) => (tryRecallGather(st, g.id) ? "Gather party recalled." : "Already returning.")),
+                      }}
+                    />
+                  );
+                })}
+              </div>
+>>>>>>> 14b80ac (feat(render): clearer supply cart with yoke, crates, loaded and empty return states)
           )}
         </div>
         <div style={{ marginTop: 8 }}>

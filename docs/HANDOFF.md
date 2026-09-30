@@ -54,6 +54,17 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - Same 9 step ids in the same order; advance checks untouched. Only `text`, two `tab` hints (march → board), and a new `"world"` PrimerTab / hint.
 - Quests are not mentioned: `QuestPanel.tsx` exists but is not mounted anywhere.
 
+## Active Bakeoff (bakeoff/gemini-supply)
+
+- **Clearer Supply Cart with Draft Yoke, Timber Crates, and Load Silhouettes (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/hud/WarChip.tsx`, `packages/app/src/hud/ForceCard.tsx`, `packages/app/src/WarRoom.tsx`)**:
+  - **Draft Yoke**: Forward arched seasoned hardwood yoke beam (`0x92400e`), under-neck iron yoke bow (`0x27272a`), forged brass hitch ring (`0xd4a359`), and dual timber trace shafts connecting to the cart bolster.
+  - **Timber Supply Crates**: Sturdy crates with horizontal plank grooves, blackened iron corner straps (`0x27272a`), diagonal X-braces, and tied lashings.
+  - **Stock & Cargo Awareness (`resolveGatherLoadInfo`)**:
+    - **Loaded Haul**: Full carts with stacked crates, bulging burlap sacks with golden twine ties, hooped barrels, node-specific resource cargo (woodcut logs, quarry stone blocks, ruins gold coffers, farm wheat sheaves), tie-down ropes, and bright green/gold cargo badges (`0x22c55e`).
+    - **Empty Return**: Open wagon bed with bare floorboard plank lines (`0x543007`), light open side stakes (`0x27272a`), folded drop cloth, and dim slate badge (`0x64748b`) with empty cart icon.
+    - **WarChip & ForceCard Integration**: 24px cart SVG reflects draft yoke, crates, loaded haul vs light open return bed.
+  - **Non-blocking Invariants**: Strictly `pointer-events: none !important;` on all chips, pawns layer `eventMode = "none"`, no camera or hit-test changes, `git diff main -- packages/sim server` strictly empty, zero conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-weather)
 
 - **Seasonal Weather Particles (`packages/render/src/weather.ts`, `packages/render/src/index.ts`, `packages/app/src/seasons/WeatherOverlay.tsx`, `packages/app/src/theme.css`)**:

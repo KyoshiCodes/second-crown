@@ -39,6 +39,14 @@ Newest first. Plain language for playtesters.
 - The primer banner now points at the screens you actually see: the resource strip, work cards, People job cards, unit cards, the tile inspect card, War's force cards and Last battle, and the World log.
 - Same nine steps, same order. Your saved primer progress carries over.
 
+## 2026-09-30 — Clearer supply cart and haul silhouettes (bakeoff/gemini-supply)
+
+- **Clearer Supply Cart**: Gather columns on the kingdom map now pull a distinct supply cart featuring a visible wooden draft yoke with brass hitch ring and reinforced timber draft shafts.
+- **Supply Crates & Cargo**:
+  - **Loaded Haul**: When returning with gathered resources or transporting goods, the cart appears fully loaded with sturdy timber crates, iron corner brackets, bulging burlap sacks, barrels, and strapped node materials (logs, quarry stone, gold, or wheat).
+  - **Empty Return**: When heading back without cargo or recalled empty, the cart appears light and unburdened with bare floorboards, open timber side stakes, and an empty slate indicator.
+- Warbands, scout cloaks, and garrison tents remain completely unchanged.
+
 ## 2026-09-30 — Seasonal weather particles (rain in autumn, snow in winter, clear otherwise)
 
 - The world diorama and kingdom map now reflect dynamic seasonal precipitation based on your realm's current season and holiday:

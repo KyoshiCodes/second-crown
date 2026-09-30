@@ -5731,6 +5731,196 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           }
         });
       });
+
+      describe("bakeoff/gemini-supply: clearer supply cart (yoke, crates, loaded haul vs light empty return)", () => {
+        function createMockGraphics() {
+          const calls: Array<{ method: string; args: any[] }> = [];
+          const g: any = {
+            calls,
+            clear: () => { calls.push({ method: "clear", args: [] }); return g; },
+            poly: (pts: any) => { calls.push({ method: "poly", args: [pts] }); return g; },
+            rect: (x: number, y: number, w: number, h: number) => { calls.push({ method: "rect", args: [x, y, w, h] }); return g; },
+            circle: (x: number, y: number, r: number) => { calls.push({ method: "circle", args: [x, y, r] }); return g; },
+            ellipse: (x: number, y: number, rx: number, ry: number) => { calls.push({ method: "ellipse", args: [x, y, rx, ry] }); return g; },
+            moveTo: (x: number, y: number) => { calls.push({ method: "moveTo", args: [x, y] }); return g; },
+            lineTo: (x: number, y: number) => { calls.push({ method: "lineTo", args: [x, y] }); return g; },
+            fill: (style: any) => { calls.push({ method: "fill", args: [style] }); return g; },
+            stroke: (style: any) => { calls.push({ method: "stroke", args: [style] }); return g; },
+          };
+          return g;
+        }
+
+        it("resolveGatherLoadInfo resolves full loaded vs light empty return states accurately", async () => {
+          const { resolveGatherLoadInfo } = await import("./tokens.js");
+          expect(typeof resolveGatherLoadInfo).toBe("function");
+
+          // 1. Explicit positive stockCount -> loaded
+          const fullInfo = resolveGatherLoadInfo({ stockCount: 50, capacity: 50, phase: "returning" });
+          expect(fullInfo.hasStock).toBe(true);
+          expect(fullInfo.stockCount).toBe(50);
+          expect(fullInfo.ratio).toBe(1);
+          expect(fullInfo.isLoaded).toBe(true);
+          expect(fullInfo.isEmptyReturn).toBe(false);
+
+          // 2. Explicit zero stockCount -> empty return / light
+          const emptyInfo = resolveGatherLoadInfo({ stockCount: 0, capacity: 50, phase: "returning" });
+          expect(emptyInfo.hasStock).toBe(true);
+          expect(emptyInfo.stockCount).toBe(0);
+          expect(emptyInfo.ratio).toBe(0);
+          expect(emptyInfo.isLoaded).toBe(false);
+          expect(emptyInfo.isEmptyReturn).toBe(true);
+
+          // 3. String load "0"
+          const zeroLoad = resolveGatherLoadInfo({ load: "0", phase: "returning" });
+          expect(zeroLoad.hasStock).toBe(true);
+          expect(zeroLoad.isEmptyReturn).toBe(true);
+          expect(zeroLoad.isLoaded).toBe(false);
+
+          // 4. Positive cargo/stock/load
+          const cargoInfo = resolveGatherLoadInfo({ cargo: 30, capacity: 60 });
+          expect(cargoInfo.hasStock).toBe(true);
+          expect(cargoInfo.stockCount).toBe(30);
+          expect(cargoInfo.ratio).toBe(0.5);
+          expect(cargoInfo.isLoaded).toBe(true);
+          expect(cargoInfo.isEmptyReturn).toBe(false);
+
+          // 5. Default outbound / unstaged stock -> active loaded supply cart
+          const outboundInfo = resolveGatherLoadInfo({ phase: "outbound" });
+          expect(outboundInfo.hasStock).toBe(false);
+          expect(outboundInfo.isLoaded).toBe(true);
+          expect(outboundInfo.isEmptyReturn).toBe(false);
+        });
+
+        it("drawGatherColumnMeeple renders clearer draft yoke, wooden crates, and distinct loaded vs empty return silhouettes", async () => {
+          const { drawGatherColumnMeeple } = await import("./tokens.js");
+          const cult = { stone: 0x94a3b8, timber: 0x78350f, gold: 0xfacc15, iron: 0x27272a, banner: 0xd97706 };
+
+          // 1. Loaded Cart: draws draft yoke, timber supply crates with iron corner straps, diagonal X-brace, and green load badge
+          const gLoaded = createMockGraphics();
+          drawGatherColumnMeeple(
+            gLoaded,
+            100, 100,
+            1, 0, 0,
+            "sand",
+            cult,
+            "woodcut",
+            0,
+            0.8,
+            { isLoaded: true, isEmptyReturn: false, ratio: 1, stockCount: 50 }
+          );
+
+          // Draft yoke features
+          const hasYokeBeam = gLoaded.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0x92400e);
+          const hasHitchRing = gLoaded.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0xd4a359);
+          const hasShafts = gLoaded.calls.some((c: any) => c.method === "stroke" && (c.args[0]?.color === 0x78350f || c.args[0]?.color === 0x451a03));
+          expect(hasYokeBeam).toBe(true);
+          expect(hasHitchRing).toBe(true);
+          expect(hasShafts).toBe(true);
+
+          // Crate features (aged timber crate 0xb45309, iron straps 0x27272a, tie-down ropes 0xfef08a)
+          const hasCrateTimber = gLoaded.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0xb45309);
+          const hasIronStraps = gLoaded.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0x27272a);
+          const hasRopes = gLoaded.calls.some((c: any) => c.method === "stroke" && c.args[0]?.color === 0xfef08a);
+          const hasGreenBadge = gLoaded.calls.some((c: any) => c.method === "stroke" && c.args[0]?.color === 0x22c55e);
+          expect(hasCrateTimber).toBe(true);
+          expect(hasIronStraps).toBe(true);
+          expect(hasRopes).toBe(true);
+          expect(hasGreenBadge).toBe(true);
+
+          // 2. Empty Return Cart: open floorboards (0x543007), side stakes, bare bed, slate badge (0x64748b)
+          const gEmpty = createMockGraphics();
+          drawGatherColumnMeeple(
+            gEmpty,
+            100, 100,
+            1, 0, 0,
+            "sand",
+            cult,
+            "woodcut",
+            0,
+            0.2,
+            { isLoaded: false, isEmptyReturn: true, ratio: 0, stockCount: 0 }
+          );
+
+          // Yoke is still present on empty cart
+          expect(gEmpty.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0xd4a359)).toBe(true);
+          // Bare floorboards
+          const hasFloorboards = gEmpty.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0x543007);
+          // Slate empty badge border
+          const hasSlateBadge = gEmpty.calls.some((c: any) => c.method === "stroke" && c.args[0]?.color === 0x64748b);
+          expect(hasFloorboards).toBe(true);
+          expect(hasSlateBadge).toBe(true);
+          // Does NOT draw tie-down cargo ropes
+          expect(gEmpty.calls.some((c: any) => c.method === "stroke" && c.args[0]?.color === 0xfef08a)).toBe(false);
+        });
+
+        it("leaves warband, scout cloak, and garrison tent art untouched", async () => {
+          const {
+            drawWarbandMeeple,
+            drawRedWarbandMeeple,
+            drawScoutColumnMeeple,
+            drawGarrisonMeeple,
+          } = await import("./tokens.js");
+          expect(typeof drawWarbandMeeple).toBe("function");
+          expect(typeof drawRedWarbandMeeple).toBe("function");
+          expect(typeof drawScoutColumnMeeple).toBe("function");
+          expect(typeof drawGarrisonMeeple).toBe("function");
+
+          const cult = { stone: 0x94a3b8, timber: 0x78350f, gold: 0xfacc15, iron: 0x27272a, banner: 0xd97706 };
+          const gWar = createMockGraphics();
+          drawWarbandMeeple(gWar, 50, 50, 1, 0, "sand", cult);
+          expect(gWar.calls.length).toBeGreaterThan(0);
+
+          const gScout = createMockGraphics();
+          drawScoutColumnMeeple(gScout, 50, 50, 1, 0, "sand", cult, 0);
+          expect(gScout.calls.length).toBeGreaterThan(0);
+
+          const gGarrison = createMockGraphics();
+          drawGarrisonMeeple(gGarrison, 50, 50, "sand", cult, 10);
+          expect(gGarrison.calls.length).toBeGreaterThan(0);
+        });
+
+        it("verifies WarChip cart SVG yoke/crates/loaded/empty features and pointer-events: none", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+
+          const warChipCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/hud/WarChip.tsx"), "utf-8");
+          expect(warChipCode).toContain("CartSvg");
+          expect(warChipCode).toContain("isLoaded");
+          expect(warChipCode).toContain("isEmpty");
+          expect(warChipCode).toContain("pointerEvents: \"none\"");
+
+          const forceCardCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/hud/ForceCard.tsx"), "utf-8");
+          expect(forceCardCode).toContain("loaded?: boolean");
+          expect(forceCardCode).toContain("empty?: boolean");
+          expect(forceCardCode).toContain("<WarChip kind={tone} size={24} loaded={loaded} empty={empty} />");
+
+          const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+          expect(themeCss).toContain(".sc-war-chip-wrapper");
+          expect(themeCss).toContain("pointer-events: none !important;");
+        });
+
+        it("preserves camera, projection, and zero conflict markers invariant", async () => {
+          const { hitTestProvince, boardGridToWorld, bandForZoom } = await import("./camera.js");
+          expect(typeof hitTestProvince).toBe("function");
+          expect(typeof boardGridToWorld).toBe("function");
+          expect(bandForZoom(1.0)).toBe("hold");
+
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const filesToCheck = [
+            "./tokens.ts",
+            "./index.ts",
+            "../../app/src/hud/WarChip.tsx",
+            "../../app/src/hud/ForceCard.tsx",
+            "../../app/src/WarRoom.tsx",
+            "../../app/src/theme.css",
+          ];
+          for (const rel of filesToCheck) {
+            const code = fs.readFileSync(path.resolve(__dirname, rel), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+          }
+        });
+      });
     });
   });
 });
