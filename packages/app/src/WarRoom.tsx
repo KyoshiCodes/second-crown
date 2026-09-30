@@ -67,7 +67,6 @@ export function WarRoom(props: {
   const incoming = state ? incomingOnHome(state) : [];
   const incomingFlags = state ? incomingOnPlayerFlags(state) : [];
   const hostileColumns = [...incoming, ...incomingFlags];
-  // trySally always meets the first column on the home gate.
   const sallyTargetId = incoming[0]?.id;
   const seen = state ? watchtowerWarning(state) : undefined;
   const scarred = state ? listScarred(state) : [];
@@ -241,51 +240,31 @@ export function WarRoom(props: {
           {gathers.length === 0 ? (
             <p style={{ margin: 0, opacity: 0.7 }}>No gather party out.</p>
           ) : (
-<<<<<<< HEAD
             <div className="sc-force-grid">
-              {gathers.map((g) => (
-                <ForceCard
-                  key={g.id}
-                  tone="gather"
-                  captain={captainName(g.id)}
-                  name={`Gather ${g.node}`}
-                  dest={provinceLabel(g.toId)}
-                  seconds={etaOf(g.arrivesTick)}
-                  detail={g.phase !== "outbound" ? `${g.phase} · load ${g.load}` : g.phase}
-                  action={{
-                    label: "Recall",
-                    disabled: g.phase === "returning",
-                    onClick: () => act((st) => (tryRecallGather(st, g.id) ? "Gather party recalled." : "Already returning.")),
-                  }}
-                />
-              ))}
+              {gathers.map((g) => {
+                const numLoad = parseFloat(String(g.load ?? 0));
+                const isLoaded = !isNaN(numLoad) ? numLoad > 0 : Boolean(g.load && g.load !== "0");
+                const isEmptyReturn = g.phase === "returning" && !isLoaded;
+                return (
+                  <ForceCard
+                    key={g.id}
+                    tone="gather"
+                    captain={captainName(g.id)}
+                    name={`Gather ${g.node}`}
+                    dest={provinceLabel(g.toId)}
+                    seconds={etaOf(g.arrivesTick)}
+                    detail={g.phase !== "outbound" ? `${g.phase} · load ${g.load}` : g.phase}
+                    loaded={isLoaded}
+                    empty={isEmptyReturn}
+                    action={{
+                      label: "Recall",
+                      disabled: g.phase === "returning",
+                      onClick: () => act((st) => (tryRecallGather(st, g.id) ? "Gather party recalled." : "Already returning.")),
+                    }}
+                  />
+                );
+              })}
             </div>
-=======
-              <div className="sc-force-grid">
-                {gathers.map((g) => {
-                  const numLoad = parseFloat(String(g.load ?? 0));
-                  const isLoaded = !isNaN(numLoad) ? numLoad > 0 : Boolean(g.load && g.load !== "0");
-                  const isEmptyReturn = g.phase === "returning" && !isLoaded;
-                  return (
-                    <ForceCard
-                      key={g.id}
-                      tone="gather"
-                      name={`Gather ${g.node}`}
-                      dest={provinceLabel(g.toId)}
-                      seconds={etaOf(g.arrivesTick)}
-                      detail={g.phase !== "outbound" ? `${g.phase} · load ${g.load}` : g.phase}
-                      loaded={isLoaded}
-                      empty={isEmptyReturn}
-                      action={{
-                        label: "Recall",
-                        disabled: g.phase === "returning",
-                        onClick: () => act((st) => (tryRecallGather(st, g.id) ? "Gather party recalled." : "Already returning.")),
-                      }}
-                    />
-                  );
-                })}
-              </div>
->>>>>>> 14b80ac (feat(render): clearer supply cart with yoke, crates, loaded and empty return states)
           )}
         </div>
         <div style={{ marginTop: 8 }}>
