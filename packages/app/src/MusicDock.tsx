@@ -1,11 +1,12 @@
 import React from "react";
 import {
+  getLofiError,
   getLofiIndex,
   getLofiStatus,
   getMusicMode,
   lofiTrackName,
   nextLofiTrack,
-  playLofiTrack,
+  pickLofiTrack,
   prevLofiTrack,
   setMusicMode,
   startMusicBed,
@@ -56,26 +57,23 @@ function useLofiStatus(): LofiStatus {
 }
 
 const STATUS_TEXT: Partial<Record<LofiStatus, string>> = {
-  blocked: "Autoplay blocked. Click to play.",
-  missing: "Track not found. Pick another.",
+  blocked: "Autoplay blocked. Click a track to play.",
+  missing: "Track failed to load. Pick another.",
 };
 
 /** Now playing, prev / next, and a pick-any-track list. Lofi mode only. */
 function LofiDock() {
   const index = useLofiIndex();
   const status = useLofiStatus();
-  const statusText = STATUS_TEXT[status];
-  const pick = (go: () => void) => {
-    startMusicBed();
-    go();
-  };
+  // Re-read on every status event so a new error message shows.
+  const statusText = STATUS_TEXT[status] ? getLofiError() || STATUS_TEXT[status] : undefined;
   return (
     <div className="lofi-dock">
       <button
         type="button"
         className="lofi-dock__btn"
         title="Previous track"
-        onClick={() => pick(prevLofiTrack)}
+        onClick={prevLofiTrack}
       >
         ‹
       </button>
@@ -84,7 +82,7 @@ function LofiDock() {
         value={index}
         title={`Now playing: ${lofiTrackName(index)}`}
         aria-label="Lofi track"
-        onChange={(e) => pick(() => playLofiTrack(Number(e.target.value)))}
+        onChange={(e) => pickLofiTrack(Number(e.target.value))}
       >
         {LOFI_TRACKS.map((_, i) => (
           <option key={i} value={i}>
@@ -96,12 +94,12 @@ function LofiDock() {
         type="button"
         className="lofi-dock__btn"
         title="Next track"
-        onClick={() => pick(nextLofiTrack)}
+        onClick={nextLofiTrack}
       >
         ›
       </button>
       {statusText ? (
-        <span className="lofi-dock__status" role="status">
+        <span className="lofi-dock__status" role="status" title={statusText}>
           {statusText}
         </span>
       ) : (

@@ -3,6 +3,7 @@
  * Music mode (key sc-music): off (default), lofi (LOFI_TRACKS in order, synth lofi fallback),
  * or bed (the seasonal / holiday bed above).
  * Lofi never skips on a failed file: a 404 or autoplay block stops and sets LofiStatus.
+ * A dock pick (pickLofiTrack) loads the file, sets volume 0.7, and calls play() inside the click.
  */
 
 export type SeasonName = "Spring" | "Summer" | "Autumn" | "Winter";
@@ -72,6 +73,10 @@ let lofiEl: HTMLAudioElement | null = null;
 let lofiIndex = 0;
 let lofiSrc: string | null = null;
 let lofiStatus: LofiStatus = "idle";
+/** One-line reason for the last blocked / missing status, shown by the dock. */
+let lofiError = "";
+/** Bumped on every dock pick so a superseded play() rejection is ignored. */
+let lofiPickId = 0;
 /** True once the player picks a track: that track repeats instead of advancing. */
 let lofiPinned = false;
 let lofiRecordingPlaying = false;
@@ -229,8 +234,10 @@ export function setSynthMelodySuppressed(suppressed: boolean): void {
   if (started && !muted) runBed();
 }
 
-function setLofiStatus(next: LofiStatus) {
-  if (lofiStatus === next) return;
+function setLofiStatus(next: LofiStatus, error = "") {
+  if (next === "blocked" || next === "missing") lofiError = error;
+  else lofiError = "";
+  if (lofiStatus === next && !error) return;
   lofiStatus = next;
   try {
     window.dispatchEvent(new CustomEvent(LOFI_STATUS_EVENT, { detail: next }));
@@ -241,6 +248,23 @@ function setLofiStatus(next: LofiStatus) {
 
 export function getLofiStatus(): LofiStatus {
   return lofiStatus;
+}
+
+export function getLofiError(): string {
+  return lofiError;
+}
+
+function mediaErrorText(el: HTMLAudioElement): string {
+  const e = el.error;
+  const codes = ["", "MEDIA_ERR_ABORTED", "MEDIA_ERR_NETWORK", "MEDIA_ERR_DECODE", "MEDIA_ERR_SRC_NOT_SUPPORTED"];
+  const code = e ? codes[e.code] ?? `code ${e.code}` : "unknown";
+  const detail = e?.message ? ` ${e.message}` : "";
+  return `Could not load "${lofiTrackName(lofiIndex)}": ${code}${detail} (404 or bad file)`;
+}
+
+function playErrorText(err: unknown): string {
+  if (err instanceof DOMException || err instanceof Error) return `play() failed: ${err.name}: ${err.message}`;
+  return `play() failed: ${String(err)}`;
 }
 
 function lofi(): HTMLAudioElement | null {
@@ -258,15 +282,17 @@ function lofi(): HTMLAudioElement | null {
       runBed();
     }
   });
-  // Unpicked: list in order after a track finishes cleanly. Picked: el.loop repeats it.
+  // Unpicked: list in order after a track finishes cleanly. Picked: el.loop repeats it, never advances.
   lofiEl.addEventListener("ended", () => {
+    if (lofiPinned) return;
     lofiIndex = (lofiIndex + 1) % LOFI_TRACKS.length;
     playLofi();
   });
   // A bad file stops here. No skipping; the dock shows the status line.
   lofiEl.addEventListener("error", () => {
+    if (!lofiEl?.getAttribute("src")) return;
     lofiRecordingPlaying = false;
-    setLofiStatus("missing");
+    setLofiStatus("missing", mediaErrorText(lofiEl));
     runBed();
   });
   return lofiEl;
@@ -289,8 +315,8 @@ function playLofi() {
   el.loop = lofiPinned;
   void el.play().then(() => setLofiStatus("playing")).catch((err: unknown) => {
     const name = err instanceof DOMException ? err.name : "";
-    if (name === "NotAllowedError") setLofiStatus("blocked");
-    else if (name === "NotSupportedError") setLofiStatus("missing");
+    if (name === "NotAllowedError") setLofiStatus("blocked", playErrorText(err));
+    else if (name === "NotSupportedError") setLofiStatus("missing", playErrorText(err));
     // AbortError: a newer pick replaced this src. Ignore.
   });
 }
@@ -315,12 +341,64 @@ function retryAfterFailure() {
   setLofiStatus("idle");
 }
 
+/**
+ * Dock pick: call straight from the click handler so play() runs inside the user gesture.
+ * Always reloads the file, volume 0.7, repeats this track. A rejection or load error
+ * sets the status line; it never moves on to another track.
+ */
+export function pickLofiTrack(i: number): void {
+  const n = LOFI_TRACKS.length;
+  lofiIndex = ((i % n) + n) % n;
+  lofiPinned = true;
+  started = true;
+  if (mode !== "lofi") return;
+  const el = lofi();
+  if (!el) {
+    setLofiStatus("missing", "Audio is not available in this browser.");
+    return;
+  }
+  const pickId = ++lofiPickId;
+  const src = LOFI_TRACKS[lofiIndex];
+  lofiSrc = src;
+  lofiRecordingPlaying = false;
+  setLofiStatus("idle");
+  el.loop = true;
+  el.volume = 0.7;
+  el.src = src;
+  el.load();
+  try {
+    window.dispatchEvent(new CustomEvent(LOFI_TRACK_EVENT, { detail: lofiIndex }));
+  } catch {
+    /* ignore */
+  }
+  let playing: Promise<void> | undefined;
+  try {
+    playing = el.play();
+  } catch (err) {
+    setLofiStatus("missing", playErrorText(err));
+    return;
+  }
+  void playing?.then(
+    () => {
+      if (pickId === lofiPickId) setLofiStatus("playing");
+    },
+    (err: unknown) => {
+      // A newer pick replaced this one; its own play() reports.
+      if (pickId !== lofiPickId) return;
+      // A 404 already set a clearer message from the error event.
+      if (lofiStatus === "missing" && lofiError) return;
+      const name = err instanceof DOMException ? err.name : "";
+      setLofiStatus(name === "NotAllowedError" ? "blocked" : "missing", playErrorText(err));
+    },
+  );
+}
+
 export function nextLofiTrack(): void {
-  playLofiTrack(lofiIndex + 1);
+  pickLofiTrack(lofiIndex + 1);
 }
 
 export function prevLofiTrack(): void {
-  playLofiTrack(lofiIndex - 1);
+  pickLofiTrack(lofiIndex - 1);
 }
 
 function stopLofi() {
