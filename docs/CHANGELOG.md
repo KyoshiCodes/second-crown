@@ -1,9 +1,22 @@
 # CHANGELOG
 
-## 2026-09-30 — Playtest note in docs (wave/docs-playtest-note)
+## 2026-09-30 — Gemini Player Keep Chimney/Hearth Smoke When Hold Has People, Quieter If Empty (bakeoff/gemini-keep-hearth)
 
-- Docs only. `docs/USER-NOTES.md` gets a player-facing summary of the latest `docs/PLAYTEST.md` bot run (seed `20260930`, 12,000 ticks): Quarry (tick 25) → Watchtower (tick 100) → Scout (tick 200); Walls need stone; home raided 23 times, 0/22 held; primer scout step = reveal a tile 2+ steps from the hold.
-- No `packages/sim`, `packages/app`, `packages/render` or `server` changes.
+- **Render Only: Player Keep Chimney/Hearth Smoke When Hold Has People; Quieter If Empty (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
+  - **Western Keep**:
+    - Built an Ashlar stone chimney stack on the hold roof terrace (`0x64748b`, `0x475569`, `0x334155`) with masonry course line, coping cap, and dark flue cavity (`0x09090b`).
+    - When hold has people (`hasPeople: true`): warm golden hearth glow (`0xfef08a`) at the chimney flue, and 4 animated billowing hearth smoke puffs rising and expanding (`0xe2e8f0`, `0xf1f5f9`, `0xf8fafc`, `0xffffff`) with radii expanding up to 5.0 and wind drift.
+    - When hold is empty (`hasPeople: false`): "quieter if empty" — chimney stack stands cold with a faint, thin quiet wisp (`0xd1d5db`, `0xe5e7eb`, radius <= 1.6, alpha 0.12–0.18).
+  - **Culture Keeps**:
+    - `cedar`: active billowing hearth smoke with warm hearth glow at louvers when populated, single quiet wisp when empty.
+    - `sand`: mudbrick hearth chimney pot on flat terrace with warm golden flue glow and drifting spice smoke when populated, faint wisp when empty.
+    - `steppe`: warm central hearth fire glow at the toono crown ring with billowing nomad hearth smoke when populated, single quiet wisp when empty.
+    - `islands`: driftwood hearth smoke rising from roof smoke cowl with warm ember glow when populated, faint wisp when empty.
+  - **Miniature Home Keep**:
+    - Board map home keep displays warm ember glint and billowing smoke puffs when populated, quieter faint wisp when empty.
+  - **Population Detection**:
+    - Added `holdHasPeople(state, realmId)` checking `state.citizens` (`c.realmId === realmId`), `sim.population(state, realmId)`, or garrisoned `state.units`. Also supported via `hasPeople` flag in `BuildingDrawOptions` and `MiniatureKeepOptions`.
+  - **Invariants**: Strictly non-blocking (`eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-30 — Gemini Closed Home Gate Lit Lamp & Warm Slot, Open Gate Dark & Raised (bakeoff/gemini-gate-lamp)
 

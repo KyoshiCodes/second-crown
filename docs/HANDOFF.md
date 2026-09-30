@@ -37,6 +37,18 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
 - Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
 
+## Active Bakeoff (bakeoff/gemini-keep-hearth)
+
+- **Render Only: Player Keep Chimney/Hearth Smoke When Hold Has People; Quieter If Empty (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
+  - **Hold Has People (`holdHasPeople(state)` is true)**:
+    - **Western Keep**: Ashlar stone chimney stack on the hold roof (`0x64748b`, `0x475569`, `0x334155`) with dark flue opening (`0x09090b`), warm golden hearth glow (`0xfef08a`) at the chimney flue, and lively billowing hearth smoke plumes rising and expanding into the sky (`0xe2e8f0`, `0xf1f5f9`, `0xf8fafc`, `0xffffff`) with radii expanding from 2.4 to 5.0 and gentle wind drift.
+    - **Culture Keeps**: All 4 culture kits (`cedar`, `sand`, `steppe`, `islands`) display active billowing hearth smoke with warm hearth glow at their flue, louvers, or toono crown.
+    - **Miniature Home Keep**: Strategic board map home keep displays warm ember glint and miniature smoke puffs.
+  - **Hold is Empty (`holdHasPeople(state)` is false)**:
+    - **Quieter If Empty**: Chimney stack remains, but chimney smoke is noticeably quieter—a faint, thin, lazy wisp (`0xd1d5db`, `0xe5e7eb`) with small radius (<= 1.6) and low alpha (0.12–0.18), without bright warm hearth glow or large billowing clouds.
+  - **Hold Population Detection (`holdHasPeople`)**: Reads `state.citizens` (populated if `c.realmId === realmId`), `sim.population(state, realmId)`, or stationed militia `state.units`, as well as explicit `hasPeople` draw option override.
+  - **Strictly Non-Blocking Invariant**: `eventMode = "none"` (`pointer-events: none`). Camera math and hit testing (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. Zero conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-gate-lamp)
 
 - **Render Only: Closed Home Gate Reads as Lit Lamp / Warm Slot; Open Gate is Dark / Raised (`packages/render/src/buildings.ts`)**:

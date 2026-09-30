@@ -1590,7 +1590,8 @@ function drawKeepCulture(
   phase: number,
   kit: CultureKit,
   cult: CultureVisualPalette,
-  complete: boolean = true
+  complete: boolean = true,
+  hasPeople: boolean = true
 ): void {
   if (kit === "cedar") {
     // Cedar Kin: Monumental Timber Longhouse Keep + Cedar-Shake Roof + Eagle Finials + Watch Scaffolds
@@ -1633,15 +1634,27 @@ function drawKeepCulture(
     g.moveTo(12, -h - 1); g.lineTo(18, -h - 4);
     g.stroke({ width: 1.2, color: 0x3f220c, alpha: a });
 
-    // Smoke Louvers & Plume
+    // Smoke Louvers & Hearth Smoke Plume
     g.rect(-4, -h - 16, 8, 4);
     g.fill({ color: 0x3f220c, alpha: a });
     if (complete) {
-      const kSmoke = Math.sin(phase * 2.2) * 2;
-      g.circle(0, -h - 20 + kSmoke, 2.8);
-      g.fill({ color: 0xe2e8f0, alpha: 0.5 * a });
-      g.circle(2, -h - 25 + kSmoke, 3.6);
-      g.fill({ color: 0xf1f5f9, alpha: a * 0.35 });
+      if (hasPeople) {
+        // Active billowing cedar hearth smoke when hold has people
+        const kSmoke = Math.sin(phase * 2.2) * 2;
+        // Warm hearth ember glow at louvers
+        g.circle(0, -h - 17, 1.8);
+        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+        // Billowing smoke puffs rising and expanding
+        g.circle(0, -h - 20 + kSmoke, 2.8);
+        g.fill({ color: 0xe2e8f0, alpha: 0.5 * a });
+        g.circle(2, -h - 25 + kSmoke, 3.6);
+        g.fill({ color: 0xf1f5f9, alpha: a * 0.35 });
+      } else {
+        // Quieter faint hearth wisp when empty
+        const q1 = Math.sin(phase * 1.4);
+        g.circle(0, -h - 19 + q1 * 0.8, 1.3);
+        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+      }
     }
 
     // Grand Timber Portal & Lintel
@@ -1692,6 +1705,40 @@ function drawKeepCulture(
       const my = mx <= 0 ? -h + (mx + 15) * 0.5 : -h + 7.5 - mx * 0.45;
       g.rect(mx, my - 3.5, 3.5, 3.5);
       g.fill({ color: 0xd6c7a1, alpha: a });
+    }
+
+    // Mudbrick Hearth Chimney Pot & Hearth Smoke
+    const chimX = -7.5;
+    const chimY = -h - 3;
+    g.rect(chimX - 1.5, chimY - 4, 3, 4);
+    g.fill({ color: 0x8c7954, alpha: a });
+    g.poly([chimX - 2.2, chimY - 4, chimX, chimY - 3.2, chimX + 2.2, chimY - 4, chimX, chimY - 4.8]);
+    g.fill({ color: 0xb8a77d, alpha: a });
+    g.ellipse(chimX, chimY - 4, 1.2, 0.6);
+    g.fill({ color: 0x09090b, alpha: a });
+    if (complete) {
+      if (hasPeople) {
+        const wind = Math.sin(phase * 1.8) * 1.5;
+        const p1 = Math.sin(phase * 2.2);
+        // Warm hearth glow at flue opening
+        g.circle(chimX, chimY - 4.5, 1.4);
+        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+        // Billowing desert spice hearth smoke
+        g.circle(chimX + wind * 0.3, chimY - 7 + p1 * 1.2, 2.5);
+        g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
+        g.circle(chimX + 1.8 + wind * 0.7, chimY - 11.5 + p1 * 1.4, 3.4);
+        g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
+        g.circle(chimX + 3.8 + wind * 1.1, chimY - 16.5 + p1 * 1.6, 4.2);
+        g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+      } else {
+        // Quieter faint wisp if empty
+        const lazyWind = Math.sin(phase * 1.2) * 0.8;
+        const q1 = Math.sin(phase * 1.4);
+        g.circle(chimX + lazyWind * 0.4, chimY - 6.5 + q1 * 0.8, 1.3);
+        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 10 + q1 * 1.0, 1.5);
+        g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+      }
     }
 
     // Square Mirador Tower
@@ -1756,11 +1803,22 @@ function drawKeepCulture(
     g.ellipse(0, -gh - 14, 3.4, 1.8);
     g.fill({ color: 0xca8a04, alpha: a });
     if (complete) {
-      const sPuff = Math.sin(phase * 2.2) * 2;
-      g.circle(0, -gh - 19 + sPuff, 2.8);
-      g.fill({ color: 0xe2e8f0, alpha: a * 0.5 });
-      g.circle(2, -gh - 24 + sPuff, 3.8);
-      g.fill({ color: 0xf1f5f9, alpha: a * 0.35 });
+      if (hasPeople) {
+        const sPuff = Math.sin(phase * 2.2) * 2;
+        // Warm central hearth fire glow at toono opening
+        g.ellipse(0, -gh - 14, 2.2, 1.2);
+        g.fill({ color: 0xfef08a, alpha: a * 0.5 * (0.8 + Math.sin(phase * 4) * 0.2) });
+        // Active billowing nomad hearth smoke (2 primary puffs at x=0, x=2)
+        g.circle(0, -gh - 19 + sPuff, 2.8);
+        g.fill({ color: 0xe2e8f0, alpha: a * 0.5 });
+        g.circle(2, -gh - 24 + sPuff, 3.8);
+        g.fill({ color: 0xf1f5f9, alpha: a * 0.35 });
+      } else {
+        // Quieter faint wisp if empty (single smaller puff at x=0)
+        const q1 = Math.sin(phase * 1.4);
+        g.circle(0, -gh - 18 + q1 * 0.8, 1.3);
+        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+      }
     }
 
     // Entrance Portal
@@ -1811,6 +1869,38 @@ function drawKeepCulture(
     g.fill({ color: 0x0e7490, alpha: a });
     g.moveTo(-19, -2 - h * 0.82); g.lineTo(0, 8 - h * 0.82 - 14); g.lineTo(19, -2 - h * 0.82);
     g.stroke({ width: 1.8, color: 0x155e75, alpha: a });
+
+    // Boat-Keel Roof Smoke Cowl & Driftwood Hearth Smoke
+    const cowlX = 0;
+    const cowlY = -h - 22;
+    g.rect(cowlX - 2.5, cowlY, 5, 2.5);
+    g.fill({ color: 0x44403c, alpha: a });
+    g.ellipse(cowlX, cowlY, 2, 1);
+    g.fill({ color: 0x09090b, alpha: a });
+    if (complete) {
+      if (hasPeople) {
+        const wind = Math.sin(phase * 1.8) * 1.5;
+        const p1 = Math.sin(phase * 2.2);
+        // Warm hearth ember glow at roof vent
+        g.circle(cowlX, cowlY - 0.5, 1.4);
+        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+        // Billowing driftwood smoke puffs
+        g.circle(cowlX + wind * 0.3, cowlY - 3.5 + p1 * 1.2, 2.6);
+        g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
+        g.circle(cowlX + 2.0 + wind * 0.7, cowlY - 8.5 + p1 * 1.4, 3.6);
+        g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
+        g.circle(cowlX + 4.2 + wind * 1.1, cowlY - 14.0 + p1 * 1.6, 4.4);
+        g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+      } else {
+        // Quieter faint wisp if empty
+        const lazyWind = Math.sin(phase * 1.2) * 0.8;
+        const q1 = Math.sin(phase * 1.4);
+        g.circle(cowlX + lazyWind * 0.4, cowlY - 3 + q1 * 0.8, 1.3);
+        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        g.circle(cowlX + 0.8 + lazyWind * 0.8, cowlY - 6.5 + q1 * 1.0, 1.5);
+        g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+      }
+    }
 
     // Elevated Wrap-Around Catwalk
     g.poly([-17, 3, 0, 10, 17, 3, 17, 1, 0, 8, -17, 1]);
@@ -4351,12 +4441,45 @@ export function isWallRingClosed(state?: GameState | null, realmId = "player"): 
   return false;
 }
 
+/**
+ * Determines whether a realm's hold (e.g. player keep) has people residing in it.
+ * Checks citizens, population count, or stationed units in the state.
+ */
+export function holdHasPeople(state?: GameState | null, realmId = "player"): boolean {
+  if (!state) return false;
+  const anyState = state as unknown as Record<string, unknown>;
+  if (typeof anyState.hasPeople === "boolean") {
+    return anyState.hasPeople;
+  }
+  if (typeof anyState.population === "number") {
+    return anyState.population > 0;
+  }
+  if (Array.isArray(state.citizens)) {
+    const count = state.citizens.filter((c) => !realmId || c.realmId === realmId).length;
+    if (count > 0) return true;
+  }
+  if (typeof sim.population === "function") {
+    try {
+      const pop = sim.population(state, realmId);
+      if (typeof pop === "number" && pop > 0) return true;
+    } catch {
+      // Ignore errors on mock states
+    }
+  }
+  if (Array.isArray(state.units)) {
+    const armed = state.units.filter((u) => (!realmId || u.realmId === realmId) && Number(u.count) > 0).length;
+    if (armed > 0) return true;
+  }
+  return false;
+}
+
 export interface BuildingDrawOptions {
   wallHpRatio?: number;
   isDamaged?: boolean;
   isWallLow?: boolean;
   isRingClosed?: boolean;
   state?: GameState;
+  hasPeople?: boolean;
 }
 
 // -------------------------------------------------------------
@@ -4385,6 +4508,11 @@ export function drawIsometricBuilding(
   const isRingClosed = Boolean(
     options?.isRingClosed ??
     (options?.state ? isWallRingClosed(options.state) : false)
+  );
+
+  const hasPeople = Boolean(
+    options?.hasPeople ??
+    (options?.state ? holdHasPeople(options.state) : true)
   );
 
   const a = 1.0;
@@ -5776,7 +5904,7 @@ export function drawIsometricBuilding(
 
     case "keep": {
       if (kit !== "western") {
-        drawKeepCulture(g, 30 + heightBoost, a, phase, kit, cult, complete);
+        drawKeepCulture(g, 30 + heightBoost, a, phase, kit, cult, complete, hasPeople);
         break;
       }
       // Taller Stone Hold (Seat of the Realm) + Corner Bartizans + Crenellations + Portcullis + Royal Banner
@@ -5926,6 +6054,68 @@ export function drawIsometricBuilding(
       g.fill({ color: bannerTabard, alpha: a });
       g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
       g.fill({ color: bannerGold, alpha: a });
+
+      // 10. Ashlar Stone Chimney Stack & Hearth Smoke
+      const chimX = 6.5;
+      const chimY = -h - 4;
+      // Left light face of stone chimney
+      g.poly([chimX - 2.5, chimY + 0.5, chimX, chimY + 1.8, chimX, chimY - 6.5, chimX - 2.5, chimY - 7.8]);
+      g.fill({ color: stoneLight, alpha: a });
+      // Right shaded face of stone chimney
+      g.poly([chimX, chimY + 1.8, chimX + 2.5, chimY + 0.5, chimX + 2.5, chimY - 7.8, chimX, chimY - 6.5]);
+      g.fill({ color: stoneDark, alpha: a });
+      // Mortar course line
+      g.moveTo(chimX - 2.5, chimY - 3.5); g.lineTo(chimX, chimY - 2.2); g.lineTo(chimX + 2.5, chimY - 3.5);
+      g.stroke({ width: 0.6, color: stonePlinth, alpha: a * 0.7 });
+      // Chimney coping cap
+      g.poly([chimX - 3.2, chimY - 7.8, chimX, chimY - 6.2, chimX + 3.2, chimY - 7.8, chimX, chimY - 9.4]);
+      g.fill({ color: stonePlinth, alpha: a });
+      // Dark flue cavity
+      g.ellipse(chimX, chimY - 7.8, 1.8, 0.9);
+      g.fill({ color: 0x09090b, alpha: a });
+
+      if (complete) {
+        if (hasPeople) {
+          // Lively billowing hearth smoke when hold has people
+          const wind = Math.sin(phase * 1.8) * 1.5;
+          const p1 = Math.sin(phase * 2.2);
+          const p2 = Math.sin(phase * 2.2 + 1.2);
+          const p3 = Math.sin(phase * 2.2 + 2.4);
+          const p4 = Math.sin(phase * 2.2 + 3.6);
+
+          // Warm golden hearth glow at chimney flue
+          g.circle(chimX, chimY - 9, 1.4);
+          g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+
+          // Puff 1: fresh warm puff rising from flue
+          g.circle(chimX + wind * 0.3, chimY - 11.5 + p1 * 1.2, 2.4);
+          g.fill({ color: 0xe2e8f0, alpha: a * 0.45 });
+
+          // Puff 2: expanding mid-altitude smoke puff
+          g.circle(chimX + 1.8 + wind * 0.7, chimY - 16.5 + p2 * 1.5, 3.4);
+          g.fill({ color: 0xf1f5f9, alpha: a * 0.38 });
+
+          // Puff 3: large drifting plume cloud
+          g.circle(chimX + 3.6 + wind * 1.2, chimY - 22 + p3 * 1.8, 4.4);
+          g.fill({ color: 0xf8fafc, alpha: a * 0.26 });
+
+          // Puff 4: high dispersed wisp
+          g.circle(chimX + 5.5 + wind * 1.6, chimY - 27.5 + p4 * 2.0, 5.0);
+          g.fill({ color: 0xffffff, alpha: a * 0.16 });
+        } else {
+          // Quieter faint hearth wisp when hold is empty
+          const lazyWind = Math.sin(phase * 1.2) * 0.8;
+          const q1 = Math.sin(phase * 1.4);
+          const q2 = Math.sin(phase * 1.4 + 1.5);
+
+          // Faint, thin quiet wisp with reduced radius and low alpha
+          g.circle(chimX + lazyWind * 0.4, chimY - 10.5 + q1 * 0.8, 1.3);
+          g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+
+          g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 14.5 + q2 * 1.0, 1.6);
+          g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+        }
+      }
       break;
     }
 

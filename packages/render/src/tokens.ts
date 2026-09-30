@@ -43,6 +43,7 @@ import {
   blendDark,
   blendLight,
   getThemeVisuals,
+  holdHasPeople,
 } from "./buildings.js";
 import { isFoodStoresEmptyOrLow } from "./walkers.js";
 
@@ -437,6 +438,7 @@ export interface KeepYardBuildingInfo {
 export interface MiniatureKeepOptions {
   state?: GameState | null;
   yardBuildings?: KeepYardBuildingInfo[];
+  hasPeople?: boolean;
 }
 
 /**
@@ -1541,8 +1543,27 @@ export function drawMiniatureKeep(
     drawRealmCrestAboveKeep(g, cx, cy, realmPal, phase);
   }
 
-  // Majestic Golden Coronet Crest for Player Capital Home Keep
+  // Majestic Golden Coronet Crest & Hearth Smoke for Player Capital Home Keep
   if (isHome) {
+    const hasPeople = options?.hasPeople ?? (options?.state ? holdHasPeople(options.state) : true);
+    const mcX = cx + 4.5;
+    const mcY = cy - 13;
+    if (hasPeople) {
+      const mWind = Math.sin(phase * 2 + cx) * 0.8;
+      // Warm hearth ember glint
+      g.circle(mcX, mcY, 0.7);
+      g.fill({ color: 0xfef08a, alpha: 0.85 });
+      // Billowing tiny puffs
+      g.circle(mcX + mWind * 0.4, mcY - 2.5, 1.2);
+      g.fill({ color: 0xe2e8f0, alpha: 0.65 });
+      g.circle(mcX + 1.2 + mWind * 0.8, mcY - 5.5, 1.6);
+      g.fill({ color: 0xf1f5f9, alpha: 0.45 });
+    } else {
+      // Quieter faint wisp
+      g.circle(mcX, mcY - 2.2, 0.7);
+      g.fill({ color: 0xd1d5db, alpha: 0.2 });
+    }
+
     g.poly([
       cx - 5.5, cy - 19,
       cx - 4.5, cy - 23.5,
