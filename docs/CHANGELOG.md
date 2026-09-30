@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-09-30 — Playtest note in docs (wave/docs-playtest-note)
+
+- Docs only. `docs/USER-NOTES.md` gets a player-facing summary of the latest `docs/PLAYTEST.md` bot run (seed `20260930`, 12,000 ticks): Quarry (tick 25) → Watchtower (tick 100) → Scout (tick 200); Walls need stone; home raided 23 times, 0/22 held; primer scout step = reveal a tile 2+ steps from the hold.
+- No `packages/sim`, `packages/app`, `packages/render` or `server` changes.
+
 ## 2026-09-30 — Gemini Closed Home Gate Lit Lamp & Warm Slot, Open Gate Dark & Raised (bakeoff/gemini-gate-lamp)
 
 - **Render Only: Closed Home Gate Reads as Lit Lamp / Warm Slot; Open Gate is Dark / Raised (`packages/render/src/buildings.ts`)**:
