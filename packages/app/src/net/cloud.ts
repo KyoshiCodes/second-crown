@@ -99,7 +99,10 @@ export function discordLoginUrl(): string {
 
 export async function pushSave(json: string): Promise<void> {
   const res = await req("/save", { method: "PUT", body: json });
-  if (!res.ok) throw new Error("push failed");
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(typeof body?.error === "string" ? body.error : "push failed");
+  }
 }
 
 export async function pullSave(): Promise<string> {

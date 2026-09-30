@@ -114,7 +114,7 @@ export function CloudPanel() {
         <button type="button" disabled={!token} onClick={async () => {
           const raw = await loadFromIndexedDb();
           if (!raw) { setStatus("No local save to push."); return; }
-          try { await pushSave(raw); setStatus("Pushed local save to cloud."); } catch { setStatus("Push failed."); }
+          try { await pushSave(raw); setStatus("Pushed local save to cloud."); } catch (e) { setStatus(`Push failed: ${e instanceof Error ? e.message : "unknown"}`); }
         }}>Push save</button>
         <button type="button" disabled={!token} onClick={async () => {
           try {

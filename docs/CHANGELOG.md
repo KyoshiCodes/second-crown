@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-09-29 — Security gate (wave/security-gate)
+
+- New `server/savegate.mjs`: every cloud save upload is checked before it is stored. Partial saves and resource-only patches are refused (400). Saves whose time or history does not line up with the last accepted save are refused (409). Oversized bodies are refused (413).
+- `/save` accepts only whole-save `PUT` (and `GET`); other methods get 405. Invalid JSON returns 400 instead of throwing.
+- `pushSave` surfaces the server's error text; the Cloud panel shows it on manual push.
+- Tests: `server/savegate.test.mjs`; `server/ledger-http.test.mjs` now uploads a full save and checks a partial one is refused.
+- No sim, economy, combat or theme.css changes. The server still does not run the sim.
+
 ## 2026-09-29 — Lofi radio (wave/lofi-radio)
 
 - Music select (Off / Lofi / Realm) next to Holiday and Chrome. Persists in `sc-music`, default Off.

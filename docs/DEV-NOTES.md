@@ -1,5 +1,15 @@
 # Dev notes
 
+## 2026-09-29 — server / save gate (wave/security-gate)
+
+- The client cannot set resources. `server/savegate.mjs` `gateSave(raw, prevSave, elapsedMs)` runs on every `PUT /save` in `server/index.mjs`; throws `SaveGateError(status, message)`, and the handler returns that as `{ error }`. Nothing is written on a throw.
+- `parseSave`: whole `GameState` shape required (all top-level objects/arrays), `meta.version` 1..`SAVE_VERSION`, integer `meta.tick`, resources and unit counts as number strings, input log entries with `tick <= meta.tick`.
+- Against the previous accepted save: tick advance bounded by server wall time since the last accepted push (`saveAt` on the user record, file mtime for older records) at the fastest client speed plus a small clock slack; input log append-only and not back-dated; no resource/building/unit change at the same tick unless the input log grew; a lower tick is accepted only as a new game.
+- Mirrored constants (`SAVE_VERSION`, `TICKS_PER_SECOND`, `MAX_SPEED`) are asserted against `packages/shared` and `HudControls.tsx` in `savegate.test.mjs`. If you add a faster speed button or bump the save version, update `savegate.mjs`.
+- Some sim actions change resources without logging to `inputLog` (invariant 3 gap). A paused-game push after one of them is refused until time moves. Logging those actions would remove the false refusals.
+- Run server tests: `cd server && node --test savegate.test.mjs ledger.test.mjs ledger-http.test.mjs` (root `npm test` only covers `packages/sim`).
+- Full cost checking of each action would need the sim on the server, which DECISIONS.md rules out; changing that is an owner decision.
+
 ## 2026-09-29 — app / music mode + lofi (wave/lofi-radio)
 
 - `packages/app/src/music.ts`: `mode: "off" | "lofi" | "bed"` (key `sc-music`, default `off`; old `sc-music-muted` is no longer read). Internal `muted` = mode off. `isMusicMuted()` now means "Realm bed silent" (mode !== bed) so `audioManager` pauses holiday/battle recordings in Lofi too.

@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-29 — Safer cloud saves
+
+- The cloud server now checks every save you push before keeping it. Normal play is not affected.
+- If a push is refused, **Push save** tells you why. The most common one: "Cloud save is newer. Pull it before pushing." That means another device pushed more progress. Pull first so you don't overwrite it.
+- If you push while the game is paused, the push can be refused. Unpause for a moment and push again.
+- Your local save is never touched by a refused push.
+
 ## 2026-09-29 — Chill music option
 
 - The top bar has a new **Music** picker: **Off**, **Lofi**, or **Realm** (the seasonal and holiday music).

@@ -46,7 +46,12 @@ test("real routes: Discord auth, concurrent purchases, request validation, uncha
   assert.equal((await request("/pvp", "wrong")).status, 401);
   const guest = await (await request("/guest?name=Guest", "", {}, "POST")).json();
   assert.equal((await request("/auction", guest.token)).status, 403);
-  const rawSave = JSON.stringify({ meta: { tick: 42 }, resources: { gold: "1000" } });
+  const rawSave = JSON.stringify({
+    meta: { version: 1, seed: 1, tick: 42, lastRealTime: 0, playTimeMs: 0 }, resources: { gold: "1000" },
+    buildings: [], units: [], citizens: [], realms: [], characters: [], opinions: [], wars: [], factions: [],
+    inputLog: [], flags: {}, unlocks: [], board: {},
+  });
+  assert.equal((await request("/save", "alice", JSON.stringify({ meta: { tick: 42 }, resources: { gold: "1000" } }), "PUT")).status, 400);
   for (const token of ["alice", "bob", guest.token]) {
     assert.equal((await request("/save", token, rawSave, "PUT")).status, 200);
     assert.equal(await (await request("/save", token)).text(), rawSave);
