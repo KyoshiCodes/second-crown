@@ -11,6 +11,7 @@ import { WorldTab } from "./tabs/WorldTab";
 import { CrownTab } from "./tabs/CrownTab";
 import { TutorialBanner } from "./TutorialBanner";
 import { ProvinceInspect } from "./ProvinceInspect";
+import { KeepInterior } from "./KeepInterior";
 import { OverworldAtlas } from "./OverworldAtlas";
 import { detectCurrentHoliday, getHolidayMeta, type HolidayId } from "./seasons/holidays";
 import { resolveActiveThemePack } from "./themes/packs";
@@ -59,6 +60,7 @@ export function AppShell() {
     toggleCameraBand,
     state,
     act,
+    tapHoldTile,
     saveNow, exportSave, importSaveFile, newGame,
   } = engine;
 
@@ -69,6 +71,8 @@ export function AppShell() {
   const holiday = holidayId !== "none" ? getHolidayMeta(holidayId) : null;
   const activePack = resolveActiveThemePack(season, holidayId);
   const prevSeasonRef = React.useRef(season);
+  const [keepOpen, setKeepOpen] = React.useState(false);
+  const closeKeep = React.useCallback(() => setKeepOpen(false), []);
 
   React.useEffect(() => {
     document.title = hold + " - Second Crown";
@@ -120,6 +124,16 @@ export function AppShell() {
             selectedId={selectedProvinceId}
             onClear={() => setSelectedProvinceId(null)}
             act={act}
+            onEnterKeep={() => setKeepOpen(true)}
+          />
+        ) : null}
+        {keepOpen && tab === "kingdom" ? (
+          <KeepInterior
+            state={state}
+            selectedBuild={selectedBuild}
+            setSelectedBuild={setSelectedBuild}
+            onTap={tapHoldTile}
+            onClose={closeKeep}
           />
         ) : null}
         <div className="sc-tabs-bar" style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>

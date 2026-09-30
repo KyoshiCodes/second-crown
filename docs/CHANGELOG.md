@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-30 — Keep interior (wave/keep-interior)
+
+- New `KeepInterior.tsx`: courtyard grid of the home hold (16×10) from `state.buildings`, with HallChip, level, and rim / keep-yard / raising / improving markers, plus the build picker.
+- Home hold inspect card gains an **Enter the keep** button; `AppShell` mounts the view on the Kingdom tab.
+- `useGameEngine` exposes `tapHoldTile(x, y)`, the old map tile-click body unchanged; the canvas and the interior both call it.
+- Styles in new `keep-interior.css`. No sim, render, server or theme.css changes.
+
 ## 2026-09-29 — Security gate (wave/security-gate)
 
 - New `server/savegate.mjs`: every cloud save upload is checked before it is stored. Partial saves and resource-only patches are refused (400). Saves whose time or history does not line up with the last accepted save are refused (409). Oversized bodies are refused (413).

@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Step inside your keep
+
+- Click your home hold on the map, then **Enter the keep** on the card that opens. You get a close-up of your yard with every building on its plot.
+- Tapping in there works just like tapping the map: an empty plot builds what you've picked, a building gets improved, and scaffolding gets cancelled. Pick what to build from the buttons at the bottom.
+- Gold edges mean the building gets the keep-yard bonus. Grey plots on the edge are the rim, for walls and the gate.
+- Leave with **Leave the keep**, Escape, or a click outside. The map is still there as before.
+
 ## 2026-09-29 — Safer cloud saves
 
 - The cloud server now checks every save you push before keeping it. Normal play is not affected.
