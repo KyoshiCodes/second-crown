@@ -1,5 +1,11 @@
 # Dev notes
 
+## 2026-09-30 — app / HUD captains (wave/hud-captains)
+
+- `captainName(id)` in `packages/app/src/hud/captainName.ts` is pure and display-only: FNV-1a over the id string, `% CAPTAINS.length`. Not sim state, not saved; do not read it from the sim.
+- Reordering or resizing `CAPTAINS` renames every force on screen. Append-only is not enough either (the modulus changes), so treat the list as fixed once players have seen it.
+- Used for `March.id` (scout, hostile) and `Gather.id`. Garrisons have only `provinceId`, so no captain; add one only if garrisons gain a real id.
+
 ## 2026-09-30 — server + app / save lock (wave/save-lock)
 
 - `gateSave(raw, prev, elapsedMs, replace = false)`. Conflict cases throw `SaveGateError(409, NEWER_HOLD, true)`: `prev.meta.version > next.meta.version`; `next.tick < prev.tick` unless `replace` and the tick fits the fresh-game window; input log shorter than or diverging from the stored one. Other 409s (faster than real time, back-dated, state change without time) stay `conflict: false`: those are cheat checks, not stale copies.

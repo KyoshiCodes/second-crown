@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Captains on the War tab
+
+- Scouts, gather parties and enemy hosts coming at you now have a captain named on their card, like **Capt. Sigrun**.
+- The same force keeps the same captain the whole time it's on the road, even after a reload. Just flavor: captains don't change any fight.
+
 ## 2026-09-30 — Cloud won't overwrite your newer game
 
 - If you play on two browsers or tabs, an older one can no longer quietly wipe out newer progress in the cloud.

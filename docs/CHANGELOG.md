@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-30 — HUD captains (wave/hud-captains)
+
+- New `packages/app/src/hud/captainName.ts`: `captainName(id)` hashes the id (FNV-1a) into a 24-name list.
+- `ForceCard` gains an optional `captain` prop, shown as a `sc-force-captain` line under the title.
+- `WarRoom` passes `captainName(m.id)` / `captainName(g.id)` for scout, gather and hostile cards. Garrisons (keyed by province) get none.
+- No sim, recall, sally or theme.css changes.
+
 ## 2026-09-30 — Save lock (wave/save-lock)
 
 - `server/savegate.mjs`: stale uploads (lower tick, lower save version, or an input log missing the cloud's actions) throw `SaveGateError` with `conflict: true` and the message "Cloud has a newer hold." A lower-tick fresh game passes only with `replace`.

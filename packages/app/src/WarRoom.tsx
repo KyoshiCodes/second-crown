@@ -43,6 +43,7 @@ import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
 import { ForceCard } from "./hud/ForceCard";
+import { captainName } from "./hud/captainName";
 import { BattleCard } from "./hud/BattleCard";
 import type { ActFn } from "./game/useGameEngine";
 import { getGiftThanks, getWarTaunt } from "./content/flavor";
@@ -221,6 +222,7 @@ export function WarRoom(props: {
                 <ForceCard
                   key={m.id}
                   tone="scout"
+                  captain={captainName(m.id)}
                   name="Scout"
                   dest={provinceLabel(m.toId)}
                   seconds={etaOf(m.arrivesTick)}
@@ -244,6 +246,7 @@ export function WarRoom(props: {
                 <ForceCard
                   key={g.id}
                   tone="gather"
+                  captain={captainName(g.id)}
                   name={`Gather ${g.node}`}
                   dest={provinceLabel(g.toId)}
                   seconds={etaOf(g.arrivesTick)}
@@ -292,6 +295,7 @@ export function WarRoom(props: {
               <ForceCard
                 key={m.id}
                 tone="hostile"
+                captain={captainName(m.id)}
                 name={seen ? nameOf(m.realmId) : "Unknown host"}
                 dest={provinceLabel(m.toId)}
                 seconds={etaOf(m.arrivesTick)}
