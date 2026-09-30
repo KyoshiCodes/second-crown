@@ -1,0 +1,39 @@
+.lofi-dock {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lofi-dock__btn,
+.lofi-dock__list {
+  background: var(--chrome-btn-bg);
+  color: var(--chrome-btn-text);
+  border: 1px solid var(--chrome-btn-border);
+  border-radius: 4px;
+}
+
+.lofi-dock__btn {
+  padding: 1px 8px;
+  font-size: 14px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.lofi-dock__btn:hover {
+  background: var(--chrome-btn-bg-hover);
+}
+
+.lofi-dock__list {
+  padding: 3px 6px;
+  max-width: 180px;
+}
+
+.lofi-dock__now {
+  font-size: 12px;
+  opacity: 0.85;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

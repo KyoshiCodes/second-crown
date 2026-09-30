@@ -3,6 +3,7 @@ import { TesterBar } from "./TesterBar";
 import { CloudPanel } from "./CloudPanel";
 import { BoardPanel } from "./BoardPanel";
 import { ThemeDock } from "./ThemeDock";
+import { MusicDock } from "./MusicDock";
 import { getHolidayOverride, setHolidayOverride } from "./seasons/holidays";
 
 const KEY = "sc-chrome-open";
@@ -118,6 +119,7 @@ export function ChromeDock() {
             <option value="none">Off</option>
           </select>
         </label>
+        <MusicDock />
         <ThemeDock />
         {lastWorld ? (
           <div

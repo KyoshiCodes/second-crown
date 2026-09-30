@@ -1,5 +1,6 @@
 import React from "react";
-import { isMusicMuted, setMusicMuted, startMusicBed } from "./music";
+import { setMusicMuted, startMusicBed } from "./music";
+import { useMusicMode } from "./MusicDock";
 
 export function SpeedControls(props: {
   paused: boolean;
@@ -7,7 +8,7 @@ export function SpeedControls(props: {
   onPauseToggle: () => void;
   onSpeed: (n: number) => void;
 }) {
-  const [muted, setMuted] = React.useState(isMusicMuted);
+  const muted = useMusicMode() === "off";
   return (
     <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
       <button type="button" onClick={props.onPauseToggle}>
@@ -34,13 +35,7 @@ export function SpeedControls(props: {
         type="button"
         onClick={() => {
           startMusicBed();
-          if (muted) {
-            setMusicMuted(false);
-            setMuted(false);
-          } else {
-            setMusicMuted(true);
-            setMuted(true);
-          }
+          setMusicMuted(!muted);
         }}
       >
         {muted ? "Music off" : "Music on"}
