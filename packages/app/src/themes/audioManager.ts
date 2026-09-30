@@ -5,6 +5,7 @@ import {
   setMusicBattle,
   isMusicMuted,
   setMusicMuted,
+  MUSIC_CHANGE_EVENT,
   setSynthMelodySuppressed,
   startMusicBed,
   type SeasonName,
@@ -24,6 +25,9 @@ class AudioManager {
     if (typeof window === "undefined") return;
     try {
       if (!this.musicEl) {
+        // Off / Lofi silence the themed recordings; Bed brings them back.
+        window.addEventListener(MUSIC_CHANGE_EVENT, () => this.applyMuted(isMusicMuted()));
+
         this.musicEl = new Audio();
         this.musicEl.loop = true;
         this.musicEl.volume = 0.42;
@@ -143,6 +147,9 @@ class AudioManager {
 
   public setMuted(muted: boolean): void {
     setMusicMuted(muted);
+  }
+
+  private applyMuted(muted: boolean): void {
     if (muted) {
       this.musicEl?.pause();
       this.battleEl?.pause();

@@ -1,5 +1,14 @@
 # Dev notes
 
+## 2026-09-29 — app / music mode + lofi (wave/lofi-radio)
+
+- `packages/app/src/music.ts`: `mode: "off" | "lofi" | "bed"` (key `sc-music`, default `off`; old `sc-music-muted` is no longer read). Internal `muted` = mode off. `isMusicMuted()` now means "Realm bed silent" (mode !== bed) so `audioManager` pauses holiday/battle recordings in Lofi too.
+- `setMusicMode` persists, clears timers, starts/stops lofi, reruns the bed and fires `window` event `sc-music-change`. `setMusicMuted(bool)` kept as a toggle between off and the last non-off mode.
+- Lofi player: one `HTMLAudioElement`, `LOFI_TRACKS = ["/audio/lofi-a.ogg", "/audio/lofi-b.ogg"]`, not looped; `ended` advances a→b→a. `error` skips to the other file; after both fail it gives up and `runBed` plays the `LOFI` synth pattern (0.7s step, sine, no battle pulse). While a file is `playing`, the synth hushes.
+- To add real tracks: drop CC0/CC-BY loops named exactly `lofi-a.ogg` and `lofi-b.ogg` into `packages/app/public/audio/`, credit them in `CREDITS.md`, rebuild. Either file alone works.
+- `MusicDock.tsx` (`MusicDock`, `useMusicMode`) mounted in `ChromeDock.tsx` before `<ThemeDock />`; `HudControls.tsx` reads the same hook.
+- `audioManager.setMuted` now only calls `setMusicMuted`; the pause/resume body moved to private `applyMuted`, driven by the `sc-music-change` listener registered in `init()`.
+
 ## 2026-09-29 — sim / primer v3 text (wave/primer-v3)
 
 - `TUTORIAL_STEPS` in `packages/sim/src/systems/tutorial.ts`: text rewritten only. Ids pinned by `tutorial.test.ts` kept. `tryAdvanceTutorial` untouched.

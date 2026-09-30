@@ -1,14 +1,28 @@
 /** Layered procedural bed: pad + phrase + optional battle pulse.
  * Recorded holiday tracks mute the whole synth, including the 520ms battle bounce.
+ * Music mode (key sc-music): off (default), lofi (lofi-a/b.ogg, synth lofi fallback),
+ * or bed (the seasonal / holiday bed above).
  */
 
 export type SeasonName = "Spring" | "Summer" | "Autumn" | "Winter";
+export type MusicMode = "off" | "lofi" | "bed";
+
+export const MUSIC_KEY = "sc-music";
+export const MUSIC_MODES: readonly MusicMode[] = ["off", "lofi", "bed"];
+export const MUSIC_CHANGE_EVENT = "sc-music-change";
+export const LOFI_TRACKS = ["/audio/lofi-a.ogg", "/audio/lofi-b.ogg"];
 
 let ctx: AudioContext | null = null;
 let melodyTimer: number | null = null;
 let padTimer: number | null = null;
 let battleTimer: number | null = null;
-let muted = false;
+let mode: MusicMode = "off";
+let muted = true;
+let lastOnMode: MusicMode = "lofi";
+let lofiEl: HTMLAudioElement | null = null;
+let lofiIndex = 0;
+let lofiErrors = 0;
+let lofiRecordingPlaying = false;
 let step = 0;
 let currentSeasonName: SeasonName = "Spring";
 let currentHolidayId: string | null = null;
@@ -43,6 +57,14 @@ const SEASON: Record<SeasonName, { melody: number[]; bass: number; intervalMs: n
     intervalMs: 560,
     osc: "sine",
   },
+};
+
+/** Synth fallback when no lofi files are present: slow, soft maj7 / min7 arpeggios. */
+const LOFI = {
+  melody: [262, 330, 392, 494, 440, 392, 330, 294, 220, 262, 330, 392, 349, 330, 262, 247],
+  bass: 65.4,
+  intervalMs: 700,
+  osc: "sine" as OscillatorType,
 };
 
 const HOLIDAY: Record<string, { melody: number[]; bass: number; intervalMs: number; osc: OscillatorType }> = {
@@ -103,6 +125,7 @@ function tone(freq: number, type: OscillatorType, dur: number, gain: number) {
 }
 
 function pattern() {
+  if (mode === "lofi") return LOFI;
   if (currentHolidayId && HOLIDAY[currentHolidayId]) return HOLIDAY[currentHolidayId];
   return SEASON[currentSeasonName] ?? SEASON.Spring;
 }
@@ -121,7 +144,7 @@ function recordedHolidayOn(): boolean {
 function runBed() {
   if (!started || muted) return;
   clearTimers();
-  const hush = synthMelodySuppressed || recordedHolidayOn();
+  const hush = mode === "lofi" ? lofiRecordingPlaying : synthMelodySuppressed || recordedHolidayOn();
   if (!hush) {
     const p = pattern();
     melodyTimer = window.setInterval(() => {
@@ -136,7 +159,7 @@ function runBed() {
     }, p.intervalMs * 4);
   }
   // Battle bounce stays off while a recorded holiday owns the speakers.
-  if (battleOn && !hush) {
+  if (battleOn && !hush && mode === "bed") {
     battleTimer = window.setInterval(() => {
       tone(70, "sawtooth", 0.18, 0.05);
       setTimeout(() => tone(90, "square", 0.08, 0.02), 90);
@@ -151,10 +174,60 @@ export function setSynthMelodySuppressed(suppressed: boolean): void {
   if (started && !muted) runBed();
 }
 
+function lofi(): HTMLAudioElement | null {
+  if (lofiEl) return lofiEl;
+  try {
+    lofiEl = new Audio();
+  } catch {
+    return null;
+  }
+  lofiEl.volume = 0.38;
+  lofiEl.addEventListener("playing", () => {
+    lofiErrors = 0;
+    if (!lofiRecordingPlaying) {
+      lofiRecordingPlaying = true;
+      runBed();
+    }
+  });
+  // a -> b -> a ... one file each, so either can be dropped in alone.
+  lofiEl.addEventListener("ended", () => {
+    lofiIndex = (lofiIndex + 1) % LOFI_TRACKS.length;
+    playLofi();
+  });
+  lofiEl.addEventListener("error", () => {
+    lofiErrors += 1;
+    lofiIndex = (lofiIndex + 1) % LOFI_TRACKS.length;
+    if (lofiErrors < LOFI_TRACKS.length) {
+      playLofi();
+    } else if (lofiRecordingPlaying) {
+      lofiRecordingPlaying = false;
+      runBed();
+    }
+  });
+  return lofiEl;
+}
+
+function playLofi() {
+  if (!started || mode !== "lofi" || lofiErrors >= LOFI_TRACKS.length) return;
+  const el = lofi();
+  if (!el) return;
+  const src = LOFI_TRACKS[lofiIndex];
+  if (!el.src.endsWith(src)) el.src = src;
+  void el.play().catch(() => {
+    /* autoplay block or missing file; the error listener handles files */
+  });
+}
+
+function stopLofi() {
+  if (lofiEl && !lofiEl.paused) lofiEl.pause();
+  lofiRecordingPlaying = false;
+}
+
 export function startMusicBed(): void {
   started = true;
   audio();
   if (!muted) runBed();
+  if (mode === "lofi" && lofiEl?.paused !== false) playLofi();
 }
 
 export function setMusicSeason(season: SeasonName): void {
@@ -176,28 +249,63 @@ export function setMusicBattle(on: boolean): void {
   if (started && !muted) runBed();
 }
 
+/** True when the seasonal / holiday bed (and its recorded tracks) should be silent. */
 export function isMusicMuted(): boolean {
-  return muted;
+  return mode !== "bed";
 }
 
-export function setMusicMuted(next: boolean): void {
-  muted = next;
+export function getMusicMode(): MusicMode {
+  return mode;
+}
+
+export function setMusicMode(next: MusicMode, persist = true): void {
+  mode = next;
+  muted = next === "off";
+  if (next !== "off") lastOnMode = next;
+  if (persist) {
+    try {
+      localStorage.setItem(MUSIC_KEY, next);
+    } catch {
+      /* ignore */
+    }
+  }
+  clearTimers();
+  if (next === "lofi") {
+    lofiErrors = 0;
+    playLofi();
+  } else {
+    stopLofi();
+  }
+  if (started && !muted) runBed();
   try {
-    localStorage.setItem("sc-music-muted", next ? "1" : "0");
+    window.dispatchEvent(new CustomEvent(MUSIC_CHANGE_EVENT, { detail: next }));
   } catch {
     /* ignore */
   }
-  if (next) clearTimers();
-  else if (started) runBed();
+}
+
+/** Legacy on/off toggle: off, or back to the last non-off mode. */
+export function setMusicMuted(next: boolean): void {
+  setMusicMode(next ? "off" : lastOnMode);
+}
+
+export function loadMusicMode(): MusicMode {
+  let stored: string | null = null;
+  try {
+    stored = localStorage.getItem(MUSIC_KEY);
+  } catch {
+    /* ignore */
+  }
+  // Default Off: nothing plays until the player picks a mode.
+  mode = stored && (MUSIC_MODES as readonly string[]).includes(stored) ? (stored as MusicMode) : "off";
+  muted = mode === "off";
+  if (mode !== "off") lastOnMode = mode;
+  return mode;
 }
 
 export function loadMusicMuted(): boolean {
-  try {
-    muted = localStorage.getItem("sc-music-muted") === "1";
-  } catch {
-    muted = false;
-  }
+  loadMusicMode();
   return muted;
 }
 
-loadMusicMuted();
+loadMusicMode();

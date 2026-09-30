@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-29 — Lofi radio (wave/lofi-radio)
+
+- Music select (Off / Lofi / Realm) next to Holiday and Chrome. Persists in `sc-music`, default Off.
+- `music.ts` gains `MusicMode`, `getMusicMode`, `setMusicMode`, `loadMusicMode`, a lofi `<audio>` player for `/audio/lofi-a.ogg` + `/audio/lofi-b.ogg`, and a slow synth lofi fallback when those files are missing.
+- The HUD "Music on/off" button toggles Off and the last picked mode. Holiday / battle recordings only play in Realm.
+- No audio files added. No sim, combat, gold or theme.css changes.
+
 ## 2026-09-29 — Primer v3 (wave/primer-v3)
 
 - Primer step text now names live UI: resource strip, work cards, People job cards, Market offer cards, unit cards, inspect card groups (Tile / Owner / Forces / Hold), gold select rim, Scout column, Column box, War force cards / Last battle / diplomacy cards, World log, decrees, Latest event.

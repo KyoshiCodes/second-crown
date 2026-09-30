@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/lofi-radio)
+
+- New **Music** select in the top chrome bar, between Holiday and Chrome: Off / Lofi / Realm. Saved in localStorage `sc-music`. Default Off.
+- Realm = the existing seasonal / holiday score (synth bed + recorded holiday `.ogg`). Lofi = `/audio/lofi-a.ogg` then `/audio/lofi-b.ogg`, alternating. **No lofi files are committed**; until they are dropped into `packages/app/public/audio/`, Lofi plays a soft synth fallback.
+- All in `packages/app/src/music.ts` (no second engine). `MusicDock.tsx` is the control; `audioManager.ts` listens for `sc-music-change`. No sim / combat / gold changes.
+
 ## Active wave (wave/primer-v3)
 
 - Primer text rewritten to match the live UI (`packages/sim/src/systems/tutorial.ts`, `packages/app/src/TutorialBanner.tsx`).

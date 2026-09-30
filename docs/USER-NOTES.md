@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-29 — Chill music option
+
+- The top bar has a new **Music** picker: **Off**, **Lofi**, or **Realm** (the seasonal and holiday music).
+- It starts on Off. Your pick is remembered on this browser.
+- Lofi is a soft, slow tune for now; real lofi tracks will slot in later.
+
 ## 2026-09-29 — Primer rewritten
 
 - The primer banner now points at the screens you actually see: the resource strip, work cards, People job cards, unit cards, the tile inspect card, War's force cards and Last battle, and the World log.
