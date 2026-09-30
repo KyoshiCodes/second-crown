@@ -645,12 +645,115 @@ export function drawKeepYardAnnex(
     strokeCol = 0x155e75;
   }
 
-  // Type-specific adjustments
+  // -------------------------------------------------------------
+  // Bespoke Silhouettes for Distinctive Keep-Yard Works
+  // -------------------------------------------------------------
+
+  // 1. Finished Watchtower: Soaring Stone Shaft + Parapet Battlements + Beacon Fire
+  if (typeId === "watchtower") {
+    // Foundation plinth
+    g.poly([ax - 4, ay + 0.8, ax, ay + 2.6, ax + 4, ay + 0.8, ax, ay - 1.0]);
+    g.fill({ color: plinthCol });
+    g.stroke({ width: 0.6, color: strokeCol });
+
+    // Tall vertical stone tower shaft (soars above standard cottage roof)
+    g.poly([ax - 3.2, ay + 0.4, ax, ay + 2.0, ax, ay - 8.5, ax - 3.2, ay - 10.0]);
+    g.fill({ color: wallLight });
+    g.stroke({ width: 0.6, color: strokeCol });
+    g.poly([ax, ay + 2.0, ax + 3.2, ay + 0.4, ax + 3.2, ay - 10.0, ax, ay - 8.5]);
+    g.fill({ color: wallDark });
+    g.stroke({ width: 0.6, color: strokeCol });
+
+    // Center dividing corner seam
+    g.moveTo(ax, ay - 8.5); g.lineTo(ax, ay + 2.0);
+    g.stroke({ width: 0.7, color: strokeCol });
+
+    // Dark arrow loop slits along shaft
+    g.rect(ax - 2.0, ay - 4.5, 0.9, 2.5); g.fill({ color: 0x0f172a });
+    g.rect(ax + 1.1, ay - 6.0, 0.9, 2.5); g.fill({ color: 0x0f172a });
+
+    // Projecting corbels & crenellated parapet / hoarding
+    g.poly([
+      ax - 4.2, ay - 9.5,
+      ax, ay - 8.0,
+      ax + 4.2, ay - 9.5,
+      ax, ay - 11.2,
+    ]);
+    g.fill({ color: 0x334155 });
+    g.stroke({ width: 0.6, color: strokeCol });
+
+    // Parapet battlements (crenellations)
+    g.rect(ax - 4.0, ay - 11.8, 1.6, 2.0); g.fill({ color: wallLight }); g.stroke({ width: 0.4, color: strokeCol });
+    g.rect(ax + 2.4, ay - 11.8, 1.6, 2.0); g.fill({ color: wallDark }); g.stroke({ width: 0.4, color: strokeCol });
+
+    // Elevated iron brazier basket & active sentry beacon fire
+    g.rect(ax - 1.2, ay - 11.2, 2.4, 1.4);
+    g.fill({ color: 0x18181b });
+
+    const flamePuff = Math.sin(phase * 5 + ax) * 0.4;
+    g.circle(ax, ay - 12.2, 1.6 + flamePuff);
+    g.fill({ color: 0xf97316 });
+    g.circle(ax, ay - 12.8, 0.9);
+    g.fill({ color: 0xfef08a });
+    g.circle(ax + 0.3, ay - 14.5, 0.4);
+    g.fill({ color: 0xffffff, alpha: 0.85 });
+    return;
+  }
+
+  // 2. Finished Quarry: Stone Pit Bedrock + Terraced Granite + Crane Derrick + Ashlar Blocks
+  if (typeId === "quarry") {
+    // Excavated stone pit bedrock
+    g.poly([ax - 5.5, ay + 0.8, ax, ay + 3.2, ax + 5.5, ay + 0.8, ax, ay - 1.8]);
+    g.fill({ color: 0x18181b });
+    g.stroke({ width: 0.6, color: strokeCol });
+
+    // Terraced granite rock shelves
+    g.poly([ax - 4.5, ay + 0.5, ax - 0.5, ay + 2.2, ax - 0.5, ay - 1.2, ax - 4.5, ay - 2.8]);
+    g.fill({ color: 0x52525b });
+    g.poly([ax - 0.5, ay + 2.2, ax + 4.5, ay + 0.5, ax + 4.5, ay - 2.8, ax - 0.5, ay - 1.2]);
+    g.fill({ color: 0x71717a });
+    g.poly([ax - 4.5, ay - 2.8, ax - 0.5, ay - 1.2, ax + 4.5, ay - 2.8, ax - 0.5, ay - 4.2]);
+    g.fill({ color: 0x94a3b8 });
+
+    // Stacks of cut ashlar blocks on quarry floor
+    g.rect(ax - 3.8, ay + 0.2, 2.4, 2);
+    g.fill({ color: 0xcbd5e1 });
+    g.stroke({ width: 0.4, color: 0x334155 });
+    g.rect(ax - 2.2, ay - 1.2, 2.2, 1.8);
+    g.fill({ color: 0xe2e8f0 });
+    g.stroke({ width: 0.4, color: 0x334155 });
+
+    // Timber A-Frame Hoisting Derrick Crane
+    const poleCol = kit === "steppe" ? 0x44403c : 0x78350f;
+    g.moveTo(ax, ay + 0.5); g.lineTo(ax + 3.5, ay - 9.5);
+    g.stroke({ width: 1.3, color: poleCol });
+    g.moveTo(ax - 2.5, ay - 0.5); g.lineTo(ax + 2, ay - 6);
+    g.stroke({ width: 0.9, color: 0x451a03 });
+
+    // Brass pulley wheel
+    g.circle(ax + 3.5, ay - 9.5, 0.8);
+    g.fill({ color: 0xf59e0b });
+
+    // Steel hoist cable & suspended cut ashlar block
+    g.moveTo(ax + 3.5, ay - 9); g.lineTo(ax + 3.5, ay - 4.5);
+    g.stroke({ width: 0.6, color: 0xd1d5db });
+    g.rect(ax + 2.4, ay - 4.5, 2.2, 2.2);
+    g.fill({ color: 0x94a3b8 });
+    g.stroke({ width: 0.4, color: 0x1e293b });
+
+    // Steel chisel pick leaning on ledge
+    g.moveTo(ax - 1, ay + 1.8); g.lineTo(ax - 3, ay + 3.2);
+    g.stroke({ width: 0.7, color: 0x94a3b8 });
+    return;
+  }
+
+  // Type-specific adjustments for standard gabled annexes
   const isMilitary = typeId === "barracks" || typeId === "archery_range" || typeId === "siege_workshop";
   const isReligious = typeId === "chapel" || typeId === "infirmary";
   const isIndustry = typeId === "sawmill" || typeId === "lumber" || typeId === "lumber_camp";
   const isStore = typeId === "granary" || typeId === "farm";
-  const isStone = typeId === "mason" || typeId === "quarry";
+  const isStone = typeId === "mason";
+  const isCottage = typeId === "cottage";
 
   if (isMilitary && kit === "western") {
     roofLight = 0x94a3b8;
@@ -722,6 +825,15 @@ export function drawKeepYardAnnex(
     // Tiny golden cross atop gable
     g.moveTo(ax, ay - 11); g.lineTo(ax, ay - 9.5);
     g.stroke({ width: 0.7, color: 0xfacc15 });
+  } else if (isCottage) {
+    // Stone chimney with rising hearth smoke puffs
+    g.rect(ax - 3.2, ay - 9.2, 1.4, 3);
+    g.fill({ color: 0x64748b });
+    const cPuff = Math.sin(phase * 2.5 + ax) * 0.8;
+    g.circle(ax - 2.5, ay - 10.5 + cPuff, 1);
+    g.fill({ color: 0xe2e8f0, alpha: 0.7 });
+    g.circle(ax - 1.8, ay - 12 + cPuff, 1.3);
+    g.fill({ color: 0xf1f5f9, alpha: 0.5 });
   }
 }
 

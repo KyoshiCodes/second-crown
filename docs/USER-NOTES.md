@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Clearer finished Quarry and Watchtower art (bakeoff/gemini-works-quarry)
+
+- Finished **Quarries** and **Watchtowers** now have distinct visual silhouettes that make them immediately tellable apart from farms and cottages:
+  - **Quarry**: An excavated open rock pit with terraced granite shelves, cut ashlar block stacks, a tall timber A-frame hoisting derrick crane with a dangling stone block, and a mason pickaxe.
+  - **Watchtower**: A soaring stone tower shaft with dark arrow loops, a projecting crenellated parapet, and an active blazing beacon fire on top.
+  - **Farm**: Distinct barn red walls with a gambrel thatch roof, grain silo, and golden hay bundle.
+  - **Cottage**: Half-timbered residential house with a thatched gable roof and rising hearth chimney smoke.
+- Enhanced across keep-yard isometric tokens, overworld atlas annexes, and Hall chip icons.
+- All visual updates are purely decorative and never block clicks or interactions (`pointer-events: none`).
+
 ## 2026-09-30 — Where do I get stone and gold?
 
 - Kingdom tab: if you can't afford Walls because of stone, a line tells you to build a Quarry and what it costs.

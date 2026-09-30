@@ -112,20 +112,94 @@ function MiniYardBuilding(props: { cx: number; cy: number; info: KeepYardBuildin
     );
   }
 
-  // Finished annex
+  // 1. Finished Quarry Annex: Excavation pit + terraced stone + timber crane derrick + ashlar blocks
+  if (info.typeId === "quarry") {
+    return (
+      <g className="sc-atlas-yard-annex is-quarry" style={{ pointerEvents: "none" }}>
+        {/* Excavation pit footprint */}
+        <ellipse cx={ax} cy={ay + 1.8} rx={5} ry={2.2} fill="#18181b" opacity={0.55} />
+        {/* Terraced stone shelves */}
+        <polygon points={`${ax - 4.5},${ay + 0.5} ${ax},${ay + 2} ${ax},${ay - 1.2} ${ax - 4.5},${ay - 2.5}`} fill="#52525b" stroke="#1e293b" strokeWidth={0.4} />
+        <polygon points={`${ax},${ay + 2} ${ax + 4.5},${ay + 0.5} ${ax + 4.5},${ay - 2.5} ${ax},${ay - 1.2}`} fill="#71717a" stroke="#1e293b" strokeWidth={0.4} />
+        <polygon points={`${ax - 4.5},${ay - 2.5} ${ax},${ay - 1.2} ${ax + 4.5},${ay - 2.5} ${ax},${ay - 3.8}`} fill="#94a3b8" />
+        {/* Cut ashlar stone block stack */}
+        <rect x={ax - 3.6} y={ay + 0.2} width={2.2} height={1.8} fill="#cbd5e1" stroke="#334155" strokeWidth={0.3} />
+        <rect x={ax - 2.2} y={ay - 1.2} width={2} height={1.6} fill="#e2e8f0" stroke="#334155" strokeWidth={0.3} />
+        {/* Timber A-frame crane derrick boom */}
+        <line x1={ax} y1={ay + 0.5} x2={ax + 3.2} y2={ay - 8.5} stroke="#78350f" strokeWidth={1.2} strokeLinecap="round" />
+        <line x1={ax - 2} y1={ay - 0.5} x2={ax + 1.8} y2={ay - 5.5} stroke="#92400e" strokeWidth={0.8} />
+        {/* Pulley wheel */}
+        <circle cx={ax + 3.2} cy={ay - 8.5} r={0.7} fill="#f59e0b" />
+        {/* Hoist cable & suspended ashlar block */}
+        <line x1={ax + 3.2} y1={ay - 8} x2={ax + 3.2} y2={ay - 4} stroke="#cbd5e1" strokeWidth={0.5} />
+        <rect x={ax + 2.2} y={ay - 4} width={2} height={2} fill="#94a3b8" stroke="#1e293b" strokeWidth={0.3} />
+      </g>
+    );
+  }
+
+  // 2. Finished Watchtower Annex: Tall stone shaft + parapet battlements + beacon fire
+  if (info.typeId === "watchtower") {
+    return (
+      <g className="sc-atlas-yard-annex is-watchtower" style={{ pointerEvents: "none" }}>
+        {/* Tower footprint shadow */}
+        <ellipse cx={ax} cy={ay + 2} rx={4.2} ry={1.8} fill="#1a120c" opacity={0.5} />
+        {/* Foundation plinth */}
+        <polygon points={`${ax - 3.8},${ay + 0.8} ${ax},${ay + 2.2} ${ax + 3.8},${ay + 0.8} ${ax},${ay - 0.8}`} fill="#1e293b" />
+        {/* Tall vertical stone shaft */}
+        <polygon points={`${ax - 3},${ay + 0.4} ${ax},${ay + 1.8} ${ax},${ay - 8} ${ax - 3},${ay - 9.2}`} fill="#94a3b8" stroke="#0f172a" strokeWidth={0.4} />
+        <polygon points={`${ax},${ay + 1.8} ${ax + 3},${ay + 0.4} ${ax + 3},${ay - 9.2} ${ax},${ay - 8}`} fill="#64748b" stroke="#0f172a" strokeWidth={0.4} />
+        {/* Arrow slit */}
+        <rect x={ax - 1.8} y={ay - 4.5} width={0.8} height={2.2} fill="#0f172a" />
+        {/* Projecting parapet / battlements */}
+        <polygon points={`${ax - 3.8},${ay - 8.8} ${ax},${ay - 7.5} ${ax + 3.8},${ay - 8.8} ${ax},${ay - 10.2}`} fill="#334155" stroke="#0f172a" strokeWidth={0.4} />
+        <rect x={ax - 3.6} y={ay - 10.8} width={1.4} height={1.8} fill="#94a3b8" />
+        <rect x={ax + 2.2} y={ay - 10.8} width={1.4} height={1.8} fill="#64748b" />
+        {/* Iron brazier & beacon flame */}
+        <rect x={ax - 1} y={ay - 10.2} width={2} height={1.2} fill="#18181b" />
+        <circle cx={ax} cy={ay - 11.2} r={1.5} fill="#f97316" />
+        <circle cx={ax} cy={ay - 11.6} r={0.8} fill="#fef08a" />
+      </g>
+    );
+  }
+
+  // 3. Finished Farm Annex: Barn red walls + gambrel thatch roof + stone silo + golden hay
+  if (info.typeId === "farm") {
+    return (
+      <g className="sc-atlas-yard-annex is-farm" style={{ pointerEvents: "none" }}>
+        {/* Footprint shadow */}
+        <ellipse cx={ax} cy={ay + 2} rx={4.5} ry={2} fill="#1a120c" opacity={0.45} />
+        {/* Barn walls */}
+        <polygon points={`${ax - 3.5},${ay + 0.5} ${ax},${ay + 2} ${ax},${ay - 3} ${ax - 3.5},${ay - 4.5}`} fill="#881337" stroke="#4c0519" strokeWidth={0.4} />
+        <polygon points={`${ax},${ay + 2} ${ax + 3.5},${ay + 0.5} ${ax + 3.5},${ay - 4.5} ${ax},${ay - 3}`} fill="#9f1239" stroke="#4c0519" strokeWidth={0.4} />
+        {/* Gambrel thatch roof */}
+        <polygon points={`${ax - 4.5},${ay - 4} ${ax},${ay - 7.5} ${ax + 4.5},${ay - 4} ${ax},${ay - 2.5}`} fill="#b45309" stroke="#4c0519" strokeWidth={0.4} />
+        <polygon points={`${ax - 4.5},${ay - 4} ${ax},${ay - 7.5} ${ax},${ay - 2.5}`} fill="#d97706" />
+        {/* Round silo on flank */}
+        <rect x={ax + 2.5} y={ay - 4} width={1.8} height={4} fill="#64748b" stroke="#334155" strokeWidth={0.3} />
+        <polygon points={`${ax + 2.2},${ay - 4} ${ax + 3.4},${ay - 6} ${ax + 4.6},${ay - 4}`} fill="#ca8a04" />
+        {/* Hay bundle */}
+        <circle cx={ax - 1.8} cy={ay + 1.2} r={0.8} fill="#facc15" />
+      </g>
+    );
+  }
+
+  // 4. Finished Cottage / Standard Residential Work: Timber plaster walls + thatch roof + chimney smoke
   return (
-    <g className="sc-atlas-yard-annex" style={{ pointerEvents: "none" }}>
+    <g className="sc-atlas-yard-annex is-cottage" style={{ pointerEvents: "none" }}>
       {/* Footprint shadow */}
       <ellipse cx={ax} cy={ay + 2} rx={4.5} ry={2} fill="#1a120c" opacity={0.45} />
       {/* Plinth */}
       <polygon points={`${ax - 4},${ay + 0.5} ${ax},${ay + 2} ${ax + 4},${ay + 0.5} ${ax},${ay - 1}`} fill="#1e293b" />
-      {/* Sunlit left facet */}
-      <polygon points={`${ax - 3.5},${ay + 0.5} ${ax},${ay + 2} ${ax},${ay - 3} ${ax - 3.5},${ay - 4.5}`} fill="#94a3b8" stroke="#0f172a" strokeWidth={0.4} />
+      {/* Sunlit left facet (half-timbered plaster) */}
+      <polygon points={`${ax - 3.5},${ay + 0.5} ${ax},${ay + 2} ${ax},${ay - 3} ${ax - 3.5},${ay - 4.5}`} fill="#d8c8b0" stroke="#5c3818" strokeWidth={0.4} />
       {/* Shaded right facet */}
-      <polygon points={`${ax},${ay + 2} ${ax + 3.5},${ay + 0.5} ${ax + 3.5},${ay - 4.5} ${ax},${ay - 3}`} fill="#475569" stroke="#0f172a" strokeWidth={0.4} />
-      {/* Gabled roof */}
-      <polygon points={`${ax - 4.5},${ay - 4} ${ax},${ay - 7.5} ${ax + 4.5},${ay - 4} ${ax},${ay - 2.5}`} fill="#5c3818" stroke="#0f172a" strokeWidth={0.4} />
-      <polygon points={`${ax - 4.5},${ay - 4} ${ax},${ay - 7.5} ${ax},${ay - 2.5}`} fill="#854d0e" />
+      <polygon points={`${ax},${ay + 2} ${ax + 3.5},${ay + 0.5} ${ax + 3.5},${ay - 4.5} ${ax},${ay - 3}`} fill="#b5a38c" stroke="#5c3818" strokeWidth={0.4} />
+      {/* Steep thatched gable roof */}
+      <polygon points={`${ax - 4.5},${ay - 4} ${ax},${ay - 7.5} ${ax + 4.5},${ay - 4} ${ax},${ay - 2.5}`} fill="#966835" stroke="#38200d" strokeWidth={0.4} />
+      <polygon points={`${ax - 4.5},${ay - 4} ${ax},${ay - 7.5} ${ax},${ay - 2.5}`} fill="#c49352" />
+      {/* Stone chimney with smoke */}
+      <rect x={ax - 3} y={ay - 7} width={1.2} height={2.5} fill="#64748b" />
+      <circle cx={ax - 2.4} cy={ay - 8} r={0.6} fill="#e2e8f0" opacity={0.7} />
       {/* Warm door / hearth */}
       <rect x={ax - 1} y={ay - 0.5} width={2} height={2} fill="#18181b" />
       <circle cx={ax} cy={ay + 0.5} r={0.6} fill="#fef08a" />

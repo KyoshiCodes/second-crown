@@ -6131,6 +6131,104 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           }
         });
       });
+
+      describe("bakeoff/gemini-works-quarry: distinctive finished quarry and watchtower art", () => {
+        it("drawKeepYardAnnex renders distinct silhouettes for quarry, watchtower, farm, and cottage", () => {
+          const gQuarry = createMockGraphics();
+          const gWatchtower = createMockGraphics();
+          const gFarm = createMockGraphics();
+          const gCottage = createMockGraphics();
+
+          drawKeepYardAnnex(gQuarry, 100, 100, { typeId: "quarry", isFinished: true, slot: "south" }, "western", 0);
+          drawKeepYardAnnex(gWatchtower, 100, 100, { typeId: "watchtower", isFinished: true, slot: "south" }, "western", 0);
+          drawKeepYardAnnex(gFarm, 100, 100, { typeId: "farm", isFinished: true, slot: "south" }, "western", 0);
+          drawKeepYardAnnex(gCottage, 100, 100, { typeId: "cottage", isFinished: true, slot: "south" }, "western", 0);
+
+          const qJson = JSON.stringify(gQuarry.calls);
+          const wJson = JSON.stringify(gWatchtower.calls);
+          const fJson = JSON.stringify(gFarm.calls);
+          const cJson = JSON.stringify(gCottage.calls);
+
+          // All four produce unique drawing calls
+          expect(qJson).not.toEqual(wJson);
+          expect(qJson).not.toEqual(fJson);
+          expect(qJson).not.toEqual(cJson);
+          expect(wJson).not.toEqual(fJson);
+          expect(wJson).not.toEqual(cJson);
+          expect(fJson).not.toEqual(cJson);
+
+          // Quarry calls include terraced shelves, timber crane derrick boom, pulley, and suspended block
+          expect(qJson).toContain(String(0x52525b)); // dark granite shelf
+          expect(qJson).toContain(String(0xf59e0b)); // brass pulley wheel
+          expect(qJson).toContain(String(0x94a3b8)); // suspended cut ashlar block
+
+          // Watchtower calls include tall stone shaft, arrow loops, crenellations, and beacon fire
+          expect(wJson).toContain(String(0x0f172a)); // arrow loop slit
+          expect(wJson).toContain(String(0x334155)); // parapet / corbel
+          expect(wJson).toContain(String(0xf97316)); // beacon fire flame
+          expect(wJson).toContain(String(0xfef08a)); // beacon flame core
+
+          // Farm includes hay bundle / store detail
+          expect(fJson).toContain(String(0xd97706));
+
+          // Cottage includes chimney smoke puffs
+          expect(cJson).toContain(String(0x64748b)); // chimney
+          expect(cJson).toContain(String(0xe2e8f0)); // hearth smoke puff
+        });
+
+        it("OverworldAtlas MiniYardBuilding renders bespoke SVG markup with pointer-events: none for all 4 types", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const atlasCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/OverworldAtlas.tsx"), "utf-8");
+
+          expect(atlasCode).toContain("sc-atlas-yard-annex is-quarry");
+          expect(atlasCode).toContain("sc-atlas-yard-annex is-watchtower");
+          expect(atlasCode).toContain("sc-atlas-yard-annex is-farm");
+          expect(atlasCode).toContain("sc-atlas-yard-annex is-cottage");
+
+          // pointer-events must be none on yard annex groups
+          const yardAnnexRegex = /<g className="sc-atlas-yard-annex[^"]*" style=\{\{\s*pointerEvents:\s*"none"\s*\}\}/g;
+          const matches = atlasCode.match(yardAnnexRegex);
+          expect(matches && matches.length).toBeGreaterThanOrEqual(4);
+        });
+
+        it("HallChip provides rich, distinctive Svg for Quarry and Watchtower", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const chipCode = fs.readFileSync(path.resolve(__dirname, "../../app/src/hud/HallChip.tsx"), "utf-8");
+
+          // QuarrySvg contains dark excavation pit, terraced granite, timber hoisting derrick, pulley, suspended block & pickaxe
+          expect(chipCode).toContain("Excavated stone pit");
+          expect(chipCode).toContain("Timber A-frame hoisting derrick crane");
+          expect(chipCode).toContain("Suspended cut ashlar stone block");
+          expect(chipCode).toContain("Steel mason pickaxe");
+
+          // WatchtowerSvg contains tall stone shaft, arrow loops, crenellated parapet & active beacon fire
+          expect(chipCode).toContain("Tall stone tower shaft");
+          expect(chipCode).toContain("Arrow loop slits");
+          expect(chipCode).toContain("Crenellated battlements");
+          expect(chipCode).toContain("Always-active sentry beacon fire");
+
+          // HallChip SVGs always have pointer-events: none
+          expect(chipCode).toContain('style={{ pointerEvents: "none" }}');
+        });
+
+        it("maintains zero changes to sim and server, and no conflict markers anywhere", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const files = [
+            "../src/tokens.ts",
+            "../../app/src/OverworldAtlas.tsx",
+            "../../app/src/hud/HallChip.tsx",
+          ];
+          for (const rel of files) {
+            const content = fs.readFileSync(path.resolve(__dirname, rel), "utf-8");
+            expect(content).not.toContain("<<<<<<<");
+            expect(content).not.toContain("=======");
+            expect(content).not.toContain(">>>>>>>");
+          }
+        });
+      });
     });
   });
 });

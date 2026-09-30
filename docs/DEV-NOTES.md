@@ -1,3 +1,18 @@
+## 2026-09-30 — render + app / distinctive finished quarry and watchtower art (bakeoff/gemini-works-quarry)
+
+- `drawKeepYardAnnex` in `packages/render/src/tokens.ts`:
+  - Added dedicated silhouette render paths for finished `watchtower` and `quarry`, preventing them from falling into default gabled cottages.
+  - `watchtower`: tall vertical stone tower shaft (`wallLight`, `wallDark`), center dividing corner seam, dark arrow loop slits (`0x0f172a`), projecting corbels and crenellated parapet / battlements, iron brazier basket, and animated beacon fire (`0xf97316`, `0xfef08a`, `0xffffff`).
+  - `quarry`: excavated dark bedrock pit floor (`0x18181b`), multi-tier stepped granite rock shelves (`0x52525b`, `0x71717a`, `0x94a3b8`), cut ashlar block stacks, timber A-frame hoisting derrick crane with mast boom and diagonal brace, brass pulley wheel (`0xf59e0b`), steel hoist cable, suspended cut ashlar block, and steel mason pickaxe.
+  - `farm`: maintained gabled annex with grain sack / hayrick bundle (`0xd97706`).
+  - `cottage`: fieldstone chimney (`0x64748b`) with rising animated hearth smoke puffs (`0xe2e8f0`, `0xf1f5f9`).
+- `OverworldAtlas.tsx`:
+  - `MiniYardBuilding` updated to render bespoke SVG elements with `pointer-events: none` for `.is-quarry` (excavation pit, terraced stone shelves, ashlar blocks, timber crane derrick, pulley wheel, suspended stone block), `.is-watchtower` (footprint, talus plinth, tall stone tower shaft, arrow slit, parapet battlements, iron brazier, and beacon flame), `.is-farm` (barn walls, gambrel thatch roof, round silo, golden hay bundle), and `.is-cottage` (half-timbered plaster walls, thatched gable roof, stone chimney with smoke, warm hearth door).
+- `HallChip.tsx`:
+  - `QuarrySvg` updated with dark excavated pit base, terraced granite layers, cut ashlar block stack, timber A-frame derrick crane, brass pulley wheel, steel cable, dangling suspended stone block, and steel mason pickaxe.
+  - `WatchtowerSvg` updated with talus plinth foundation, tall stone tower shaft, arrow loop slits, projecting machicolated parapet gallery, crenellated battlements, iron brazier basket, and active burning beacon fire (active sentry flame even when unstaffed, extra sparks when staffed).
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. No `theme.css` changes. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — app / quarry and watchtower hints (wave/hint-quarry-tower)
 
 - `buildHints.ts` reads all numbers from sim data. If the Quarry or Watchtower type goes away, or Watchtower stops producing gold, the hint returns `null` and nothing renders.

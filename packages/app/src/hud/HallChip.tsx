@@ -205,24 +205,38 @@ function LumberCampSvg({ staffed }: { staffed: boolean }) {
   );
 }
 
-/* 4. Quarry & Mason: Dressed ashlar masonry, hoist crane derrick boom */
+/* 4. Quarry & Mason: Excavated stone pit, terraced granite, hoisting derrick, ashlar blocks & pickaxe */
 function QuarrySvg({ staffed }: { staffed: boolean }) {
   return (
     <g>
-      {/* Stepped quarry rockface & blocks */}
-      <path d="M3 13 L10 16 L10 21 L3 18 Z" fill="#64748b" stroke="#334155" strokeWidth="0.7" />
-      <path d="M10 16 L16 13 L16 18 L10 21 Z" fill="#94a3b8" stroke="#334155" strokeWidth="0.7" />
-      <path d="M3 13 L10 10 L16 13 L10 16 Z" fill="#cbd5e1" stroke="#334155" strokeWidth="0.6" />
-      {/* Chiseled ashlar blocks */}
-      <path d="M6 15 H14 M4 17 H12" stroke="#334155" strokeWidth="0.5" />
-      {/* Timber crane boom */}
-      <path d="M10 16 L18 5" stroke="#78350f" strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M14 14 L18 5" stroke="#92400e" strokeWidth="0.8" />
-      {/* Pulley wheel & hoist line */}
-      <circle cx="18" cy="5" r="1.2" fill="#f59e0b" stroke="#78350f" strokeWidth="0.6" />
-      <path d="M18 6 V10" stroke="#cbd5e1" strokeWidth="0.6" />
-      <rect x="16.5" y="10" width="3" height="3" fill="#64748b" stroke="#334155" strokeWidth="0.5" />
-      {staffed && <circle cx="18" cy="4" r="0.6" fill="#ffffff" />}
+      {/* Dark excavated pit floor */}
+      <path d="M2 16 L12 21 L22 16 L12 12 Z" fill="#18181b" stroke="#09090b" strokeWidth="0.6" />
+      {/* Stepped terraced granite rockfaces */}
+      <path d="M3 14 L9 17 L9 20 L3 17 Z" fill="#52525b" stroke="#27272a" strokeWidth="0.6" />
+      <path d="M9 17 L15 14 L15 18 L9 20 Z" fill="#71717a" stroke="#27272a" strokeWidth="0.6" />
+      <path d="M3 14 L9 11 L15 14 L9 17 Z" fill="#94a3b8" stroke="#27272a" strokeWidth="0.5" />
+      {/* Cut ashlar block stack on quarry floor */}
+      <rect x="4" y="16.5" width="3.2" height="2.2" fill="#cbd5e1" stroke="#334155" strokeWidth="0.5" />
+      <rect x="5.5" y="14.8" width="3" height="2" fill="#e2e8f0" stroke="#334155" strokeWidth="0.5" />
+      {/* Chiseled block seams */}
+      <line x1="4" y1="17.6" x2="7.2" y2="17.6" stroke="#475569" strokeWidth="0.4" />
+      {/* Timber A-frame hoisting derrick crane */}
+      <line x1="11" y1="17" x2="19" y2="4" stroke="#78350f" strokeWidth="1.3" strokeLinecap="round" />
+      <line x1="14" y1="15" x2="18.5" y2="4.5" stroke="#92400e" strokeWidth="0.9" />
+      {/* Brass pulley wheel & hoist line */}
+      <circle cx="19" cy="4" r="1.3" fill="#f59e0b" stroke="#78350f" strokeWidth="0.5" />
+      <line x1="19" y1="5.3" x2="19" y2="9.5" stroke="#cbd5e1" strokeWidth="0.7" />
+      {/* Suspended cut ashlar stone block dangling in air */}
+      <rect x="17.5" y="9.5" width="3" height="3" fill="#94a3b8" stroke="#334155" strokeWidth="0.5" />
+      {/* Steel mason pickaxe resting on stone shelf */}
+      <line x1="7" y1="13" x2="10.5" y2="10" stroke="#451a03" strokeWidth="0.8" strokeLinecap="round" />
+      <path d="M6 12 L7.5 13.5 L8.5 12.5 Z" fill="#cbd5e1" stroke="#334155" strokeWidth="0.4" />
+      {staffed && (
+        <>
+          <circle cx="19" cy="3" r="0.8" fill="#ffffff" />
+          <circle cx="16.5" cy="11" r="0.5" fill="#facc15" />
+        </>
+      )}
     </g>
   );
 }
@@ -338,25 +352,34 @@ function InfirmarySvg({ staffed }: { staffed: boolean }) {
   );
 }
 
-/* 10. Watchtower: Tall stone tower shaft, projecting corbels, beacon fire */
+/* 10. Watchtower: Tall stone tower shaft, arrow loops, crenellated parapet & active beacon fire */
 function WatchtowerSvg({ staffed }: { staffed: boolean }) {
   return (
     <g>
-      {/* Tower shaft */}
-      <path d="M8 10 L12 13 L12 21 L8 19 Z" fill="#64748b" stroke="#334155" strokeWidth="0.7" />
-      <path d="M12 13 L16 10 L16 19 L12 21 Z" fill="#94a3b8" stroke="#334155" strokeWidth="0.7" />
-      {/* Parapet walkway */}
-      <path d="M7 9 L12 11 L17 9 L12 7 Z" fill="#cbd5e1" stroke="#334155" strokeWidth="0.6" />
-      <path d="M7 7 V9 H17 V7" stroke="#334155" strokeWidth="0.8" fill="none" />
+      {/* Talus base plinth */}
+      <path d="M7 19 L12 22 L17 19 L12 16 Z" fill="#1e293b" stroke="#0f172a" strokeWidth="0.6" />
+      {/* Tall stone tower shaft */}
+      <path d="M8 8 L12 10.5 L12 21 L8 19 Z" fill="#64748b" stroke="#334155" strokeWidth="0.7" />
+      <path d="M12 10.5 L16 8 L16 19 L12 21 Z" fill="#94a3b8" stroke="#334155" strokeWidth="0.7" />
+      <line x1="12" y1="10.5" x2="12" y2="21" stroke="#334155" strokeWidth="0.7" />
+      {/* Arrow loop slits */}
+      <line x1="10" y1="12" x2="10" y2="15" stroke="#0f172a" strokeWidth="0.9" strokeLinecap="round" />
+      <line x1="14" y1="12" x2="14" y2="15" stroke="#0f172a" strokeWidth="0.9" strokeLinecap="round" />
+      {/* Projecting machicolated parapet gallery */}
+      <path d="M6.5 7.5 L12 9.5 L17.5 7.5 L12 5.5 Z" fill="#334155" stroke="#1e293b" strokeWidth="0.6" />
+      {/* Crenellated battlements */}
+      <path d="M6.5 5.5 V7.5 H8 V5.5 H9.5 V7.5 H14.5 V5.5 H16 V7.5 H17.5 V5.5" stroke="#1e293b" strokeWidth="0.7" fill="none" />
       {/* Iron brazier basket */}
-      <path d="M10 6 H14 L13 8 H11 Z" fill="#1e293b" />
-      {/* Beacon fire */}
-      {staffed ? (
-        <circle cx="12" cy="5" r="1.8" fill="#f97316" />
-      ) : (
-        <circle cx="12" cy="5.5" r="0.8" fill="#4b5563" />
+      <path d="M10 4.5 H14 L13 6.5 H11 Z" fill="#18181b" stroke="#09090b" strokeWidth="0.5" />
+      {/* Always-active sentry beacon fire (embers/flame; brilliant glow when staffed) */}
+      <circle cx="12" cy="3.8" r={staffed ? 2.2 : 1.4} fill="#ea580c" />
+      <circle cx="12" cy="3.2" r={staffed ? 1.3 : 0.8} fill="#f97316" />
+      {staffed && (
+        <>
+          <circle cx="12" cy="2.5" r="0.7" fill="#fef08a" />
+          <circle cx="12.6" cy="1.2" r="0.4" fill="#ffffff" />
+        </>
       )}
-      {staffed && <circle cx="12" cy="4.5" r="0.9" fill="#fef08a" />}
     </g>
   );
 }

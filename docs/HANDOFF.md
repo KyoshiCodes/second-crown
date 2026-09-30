@@ -31,6 +31,16 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
 - Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
 
+## Active Bakeoff (bakeoff/gemini-works-quarry)
+
+- **Distinct Finished Quarry and Watchtower Art (`packages/render/src/tokens.ts`, `packages/app/src/OverworldAtlas.tsx`, `packages/app/src/hud/HallChip.tsx`)**:
+  - Distinguishes finished **Quarry** and **Watchtower** from farm and cottage across keep-yard isometric tokens, overworld atlas SVG annexes, and HUD HallChips:
+    - **Finished Quarry**: Excavated dark bedrock pit floor, multi-tiered stepped granite rock shelves (`0x52525b`, `0x71717a`, `0x94a3b8`), cut ashlar block stacks, timber A-frame hoisting derrick crane with mast boom and diagonal brace, brass pulley wheel, steel cable line, suspended cut ashlar block dangling in mid-air, and steel mason chisel pickaxe.
+    - **Finished Watchtower**: Flared talus plinth foundation, tall soaring vertical stone tower shaft (`wallLight`, `wallDark`), center dividing seam, dark arrow loop slits, projecting machicolated corbels & crenellated battlements parapet, elevated iron brazier basket, and active burning beacon fire (active sentry flame even when unstaffed, brilliant flame sparks when staffed).
+    - **Finished Farm**: Barn walls, gambrel thatch roof, round stone silo, golden grain sack / hayrick bundle.
+    - **Finished Cottage**: Half-timbered plaster walls, steep thatch gable roof, fieldstone chimney with rising animated hearth smoke puffs.
+  - **Strictly Non-Blocking Invariant**: `pointer-events: none` on all art layers. Hit-test and camera math (`camera.ts`) 100% untouched. `git diff main -- packages/sim server` strictly empty. No `theme.css` changes. Zero conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-season-wash)
 
 - **Board-Only Seasonal Wash (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
