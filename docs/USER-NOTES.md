@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Rooms inside your keep
+
+- Inside the keep there are now three tabs: **Hall**, **Wall** and **Yard**.
+- **Hall** is the plot grid you already know: build, improve and cancel from here.
+- **Wall** shows how tough your defences are: wall HP, how many walls sit on the edge, whether the ring is closed, and whether your gate is up.
+- **Yard** lists the buildings touching your keep, the ones getting the keep-yard bonus.
+- Switching tabs is just looking. It never changes your game.
+
 ## 2026-09-30 — Captains on the War tab
 
 - Scouts, gather parties and enemy hosts coming at you now have a captain named on their card, like **Capt. Sigrun**.
