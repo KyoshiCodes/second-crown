@@ -16,11 +16,11 @@ import { absorbWounded } from "./ward.js";
 import { detachGarrison, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
+import { marchTicks } from "./age.js";
 import { pairClashingMarches, resolveCampRaid, resolveHoldStorm, resolveOutpostAssault } from "./engagement.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
-const TICKS_PER_STEP = 15;
 const LEVY = 5;
 const RESPAWN = 400;
 
@@ -30,6 +30,8 @@ export interface March {
   fromId: string;
   toId: string;
   arrivesTick: number;
+  /** Tick the column set out. Older saves lack it. */
+  departedTick?: number;
   kind: "camp" | "node" | "hold";
   levy: number;
   force?: Record<string, number>;
@@ -167,7 +169,8 @@ function enqueueMarch(
       realmId: "player",
       fromId: home.id,
       toId: dest.id,
-      arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
+      departedTick: state.meta.tick,
+      arrivesTick: state.meta.tick + marchTicks(state, dist),
       kind,
       levy,
       force,
@@ -266,7 +269,8 @@ export function tryNpcMarch(state: GameState, realmId: string, destId: string): 
       realmId,
       fromId: from.id,
       toId: dest.id,
-      arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
+      departedTick: state.meta.tick,
+      arrivesTick: state.meta.tick + marchTicks(state, dist),
       kind: dest.node === "hold" ? "hold" : dest.node === "camp" ? "camp" : "node",
       levy,
       force,

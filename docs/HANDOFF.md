@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/season-rules)
+
+- **Winter:** new marches (raids, garrison moves, scouts, rival columns) take 18 ticks per step instead of 15 (+20%). `marchTicks(state, dist)` in `packages/sim/src/systems/age.ts`. The season at departure decides; a march already on the road is not changed. Gather parties are unchanged.
+- **Autumn:** farm food ×1.15 via `harvestMult(state, typeId, res)` in the same file, applied in `economy.ts` `rateFor`. Other buildings and resources unchanged.
+- Marches now store `departedTick`; the map pawn and column fog use it so winter columns move smoothly. Old saves without it fall back to the 15-per-step guess.
+- Combat untouched. Tests: `packages/sim/src/systems/seasonRules.test.ts`.
+
 ## Active wave (wave/hud-captains)
 
 - Scout, gather and incoming-host force cards on the War tab now show a captain name (**Capt. Aldric** etc.) under the title.

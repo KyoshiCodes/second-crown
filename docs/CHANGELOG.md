@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-09-30 — Season rules (wave/season-rules)
+
+- `age.ts`: `marchTicks(state, dist)` = `max(1, dist) × (Winter ? 18 : 15)`; `harvestMult(state, typeId, res)` = 1.15 for `farm`/`food` in Autumn, else 1. Both exported from `@second-crown/sim`.
+- `march.ts` (player + NPC marches) and `scoutColumn.ts` use `marchTicks` and set a new optional `March.departedTick`. Local `TICKS_PER_STEP` constants removed from those two files.
+- `economy.ts` `rateFor` multiplies by `harvestMult`.
+- `columnVision.ts` and render `calculateMarchProgress(tick, arrivesTick, dist, departedTick?)` prefer `departedTick` when present.
+- New `seasonRules.test.ts`. Combat, gathers and server unchanged.
+
 ## 2026-09-30 — HUD captains (wave/hud-captains)
 
 - New `packages/app/src/hud/captainName.ts`: `captainName(id)` hashes the id (FNV-1a) into a 24-name list.

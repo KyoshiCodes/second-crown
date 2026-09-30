@@ -139,6 +139,8 @@ export {
 export {
   SEASONS,
   currentSeason,
+  marchTicks,
+  harvestMult,
   tryHireChampion,
   tryNameChampion,
   championName,

@@ -1,3 +1,10 @@
+## 2026-09-30 — sim / season rules (wave/season-rules)
+
+- Season is `floor(tick / 2000) % 4` (Spring, Summer, Autumn, Winter). Both new rules read `currentSeason(state)` at the moment they run, so they are deterministic from tick alone.
+- March time is fixed at departure (`arrivesTick = tick + marchTicks`). Do not recompute ETAs when the season flips: a march that crosses into Winter keeps its time. Anything that needs the start of a march should read `March.departedTick`, not `arrivesTick - dist × 15`; the old formula stays only as a fallback for saves from before this change.
+- Gathers still use their own `× 15` in `gather.ts`. Route them through `marchTicks` only if gathers should feel winter too.
+- Autumn harvest stacks on top of the flat Spring/Autumn `seasonProductionBonus` (+1 → +4%), so Autumn farms are ~1.15 × Spring farms. `harvestMult` is the one place to tune it.
+
 ## 2026-09-30 — render + app / supply cart art & load silhouettes (bakeoff/gemini-supply)
 
 - `resolveGatherLoadInfo(item, state?)` in `packages/render/src/tokens.ts`: inspects item and state presentation gathers to classify `stockCount`, `capacity`, `ratio`, `isLoaded`, and `isEmptyReturn`. When `stockCount <= 0` or returning with empty load, `isEmptyReturn` is set to true.

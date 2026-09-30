@@ -4126,7 +4126,7 @@ export function paintBoardMarches(
 
     // 2. March Progress Calculation
     const dist = Math.max(1, Math.abs(toProv.x - fromProv.x) + Math.abs(toProv.y - fromProv.y));
-    const progress = calculateMarchProgress(state.meta.tick, m.arrivesTick, dist);
+    const progress = calculateMarchProgress(state.meta.tick, m.arrivesTick, dist, m.departedTick);
     const pawnX = fromB.cx + dx * progress;
     const pawnY = fromB.cy + dy * progress;
 

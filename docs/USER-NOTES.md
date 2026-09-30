@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Seasons matter a little more
+
+- **Winter:** armies march slower through the snow. Any march you send in Winter takes about 20% longer to arrive. Marches sent before Winter keep their original arrival time.
+- **Autumn:** harvest time. Farms make 15% more food.
+- Battles are not affected.
+
 ## 2026-09-30 — Captains on the War tab
 
 - Scouts, gather parties and enemy hosts coming at you now have a captain named on their card, like **Capt. Sigrun**.

@@ -5,7 +5,7 @@ import Decimal from "break_infinity.js";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { flagNum } from "./wave.js";
 import { decreeActive } from "./decree.js";
-import { routeGoldPerTick, seasonProductionBonus } from "./age.js";
+import { harvestMult, routeGoldPerTick, seasonProductionBonus } from "./age.js";
 import { hireCitizenForBuilding, jobForBuildingType } from "./citizens.js";
 import { addCapped } from "./storage.js";
 import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
@@ -96,7 +96,8 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(staffBonus(state, building))
     .mul(adjacencyBonus(state, building))
     .mul(pairBonus(state, building))
-    .mul(keepBonus(state, building));
+    .mul(keepBonus(state, building))
+    .mul(harvestMult(state, building.typeId, res));
 }
 
 export const EconomySystem = {

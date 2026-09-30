@@ -6,8 +6,7 @@ import { isProvinceSeen, scoutCost } from "./fog.js";
 import { listGathers } from "./gather.js";
 import { listMarches, tryRecallMarch, type March } from "./march.js";
 import { maxMarches } from "./labor.js";
-
-const TICKS_PER_STEP = 15;
+import { marchTicks } from "./age.js";
 
 function save(state: GameState, list: March[]): void {
   state.flags["marches_json"] = JSON.stringify(list);
@@ -48,7 +47,8 @@ export function tryDispatchScout(state: GameState, destId: string): boolean {
       realmId: "player",
       fromId: home.id,
       toId: dest.id,
-      arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
+      departedTick: state.meta.tick,
+      arrivesTick: state.meta.tick + marchTicks(state, dist),
       kind: dest.node === "hold" ? "hold" : dest.node === "camp" ? "camp" : "node",
       levy,
       force,

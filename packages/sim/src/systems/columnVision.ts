@@ -38,7 +38,7 @@ export function revealActiveColumns(state: GameState, atTick = state.meta.tick):
     const to = getProvince(state, m.toId);
     if (!from || !to) continue;
     const travel = Math.max(1, (Math.abs(from.x - to.x) + Math.abs(from.y - to.y)) * TICKS_PER_STEP);
-    const departed = m.arrivesTick - travel;
+    const departed = m.departedTick ?? m.arrivesTick - travel;
     const span = Math.max(1, m.arrivesTick - departed);
     revealProgress(state, m.fromId, m.toId, (atTick - departed) / span);
   }

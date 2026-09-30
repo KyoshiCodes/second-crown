@@ -19,6 +19,17 @@ export function seasonProductionBonus(state: GameState): number {
   return 0;
 }
 
+/** March travel: 15 ticks per step, 18 in Winter (+20%). Fixed at departure. */
+export function marchTicks(state: GameState, dist: number): number {
+  const perStep = currentSeason(state) === "Winter" ? 18 : 15;
+  return Math.max(1, dist) * perStep;
+}
+
+/** Autumn harvest: farm food ×1.15. Everything else ×1. */
+export function harvestMult(state: GameState, typeId: string, res: string): number {
+  return currentSeason(state) === "Autumn" && typeId === "farm" && res === "food" ? 1.15 : 1;
+}
+
 export function tryHireChampion(state: GameState): boolean {
   if (state.units.some((u) => u.realmId === "player" && u.typeId === "champion")) return false;
   if (D(state.resources.gold ?? "0").lt(80) || D(state.resources.food ?? "0").lt(40)) return false;

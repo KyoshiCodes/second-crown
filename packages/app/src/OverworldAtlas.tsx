@@ -806,7 +806,7 @@ export function OverworldAtlas(props: {
           const stroke = cssColor(pal.accentColor, "#fbbf24");
           const dist = Math.max(1, Math.abs(to.x - from.x) + Math.abs(to.y - from.y));
           const progress = typeof m.arrivesTick === "number"
-            ? calculateMarchProgress(state.meta.tick, m.arrivesTick, dist)
+            ? calculateMarchProgress(state.meta.tick, m.arrivesTick, dist, m.departedTick)
             : 0.5;
           const mx = x1 + (x2 - x1) * progress;
           const my = y1 + (y2 - y1) * progress;

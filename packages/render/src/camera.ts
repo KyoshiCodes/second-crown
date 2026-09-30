@@ -116,9 +116,10 @@ export function hitTestProvince(boardX: number, boardY: number): { bx: number; b
   return null;
 }
 
-export function calculateMarchProgress(tick: number, arrivesTick: number, dist: number): number {
-  const totalTicks = Math.max(1, dist * 15);
-  const startTick = arrivesTick - totalTicks;
+export function calculateMarchProgress(tick: number, arrivesTick: number, dist: number, departedTick?: number): number {
+  // Winter marches are slower; prefer the stored departure over the 15-per-step guess.
+  const startTick = typeof departedTick === "number" ? departedTick : arrivesTick - Math.max(1, dist * 15);
+  const totalTicks = Math.max(1, arrivesTick - startTick);
   if (tick <= startTick) return 0;
   if (tick >= arrivesTick) return 1;
   return (tick - startTick) / totalTicks;
