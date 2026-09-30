@@ -2495,9 +2495,111 @@ export function isGatherMarch(m: any, state: GameState | null): boolean {
   return false;
 }
 
+export interface GatherCartOptions {
+  stockCount?: number;
+  capacity?: number;
+  ratio?: number;
+  isLoaded?: boolean;
+  isEmptyReturn?: boolean;
+  phase?: "outbound" | "gathering" | "returning" | "transit";
+}
+
+export interface GatherLoadInfo extends GatherCartOptions {
+  hasStock: boolean;
+  stockCount: number;
+  capacity: number;
+  ratio: number;
+  isLoaded: boolean;
+  isEmptyReturn: boolean;
+  phase: "outbound" | "gathering" | "returning" | "transit";
+}
+
 /**
- * Draws a distinct 2-3 frame pixel gather column meeple (cargo cart / bulging sacks / draft mule)
- * clearly distinguishing gather expeditions from military war marches.
+ * Resolves stock count and load status for gather marches and presentation gathers:
+ * - If the march or gather already carries a stock count (e.g. load, stock, cargo, stockCount):
+ *   classifies whether the cart is full / loaded or an empty return.
+ * - Outbound / transit carts default to active loaded carts.
+ * - Returning carts with 0 stock/load are tagged as empty returns.
+ */
+export function resolveGatherLoadInfo(
+  item: any,
+  state?: GameState | null
+): GatherLoadInfo {
+  let stockCount: number | null = null;
+  let capacity = 50;
+  let phase: "outbound" | "gathering" | "returning" | "transit" = "transit";
+
+  if (item) {
+    if (typeof item.stockCount === "number") {
+      stockCount = item.stockCount;
+    } else if (typeof item.stock === "number") {
+      stockCount = item.stock;
+    } else if (typeof item.cargo === "number") {
+      stockCount = item.cargo;
+    } else if (typeof item.load === "string" || typeof item.load === "number") {
+      const parsed = parseFloat(String(item.load));
+      if (!isNaN(parsed)) stockCount = parsed;
+    }
+
+    if (typeof item.capacity === "string" || typeof item.capacity === "number") {
+      const parsed = parseFloat(String(item.capacity));
+      if (!isNaN(parsed) && parsed > 0) capacity = parsed;
+    }
+
+    if (item.phase === "outbound" || item.phase === "gathering" || item.phase === "returning") {
+      phase = item.phase;
+    } else if (state?.board?.homeProvinceId) {
+      if (item.toId === state.board.homeProvinceId) {
+        phase = "returning";
+      } else if (item.fromId === state.board.homeProvinceId) {
+        phase = "outbound";
+      }
+    }
+
+    // If stockCount wasn't directly present, look up matching gather in state
+    if (stockCount === null && state) {
+      const gathers = listGathersPresentation(state);
+      const match = gathers.find(
+        (g: any) => g.id === item.id || (g.toId === item.toId && g.fromId === item.fromId)
+      );
+      if (match) {
+        if (typeof match.load === "string" || typeof match.load === "number") {
+          const parsed = parseFloat(String(match.load));
+          if (!isNaN(parsed)) stockCount = parsed;
+        }
+        if (typeof match.capacity === "string" || typeof match.capacity === "number") {
+          const parsed = parseFloat(String(match.capacity));
+          if (!isNaN(parsed) && parsed > 0) capacity = parsed;
+        }
+        if (match.phase) phase = match.phase;
+      }
+    }
+  }
+
+  const hasStock = stockCount !== null;
+  const numStock = stockCount ?? (phase === "returning" ? 50 : 25);
+  const ratio = capacity > 0 ? Math.min(1, Math.max(0, numStock / capacity)) : (numStock > 0 ? 1 : 0);
+
+  // An empty return is explicitly in returning phase with 0 stock/load, or any march carrying 0 stock count
+  const isReturnPhase = phase === "returning" || Boolean(state?.board?.homeProvinceId && item?.toId === state.board.homeProvinceId);
+  const isEmptyReturn = hasStock ? numStock <= 0 : isReturnPhase && numStock <= 0;
+  // A loaded cart has positive stock count (> 0), or default active supply cart when stock is unstated
+  const isLoaded = hasStock ? numStock > 0 : !isEmptyReturn;
+
+  return {
+    hasStock,
+    stockCount: numStock,
+    capacity,
+    ratio,
+    isLoaded,
+    isEmptyReturn,
+    phase,
+  };
+}
+
+/**
+ * Draws a distinct 2-3 frame pixel gather column meeple with a clear supply cart (yoke, crates)
+ * and cargo load awareness: full carts look loaded with crates and sacks, while empty returns look light and open.
  */
 export function drawGatherColumnMeeple(
   pawnsG: Graphics,
@@ -2510,11 +2612,53 @@ export function drawGatherColumnMeeple(
   cult: CultureVisualPalette,
   nodeType?: string,
   phase: number = 0,
-  progress: number = 0.5
+  progress: number = 0.5,
+  loadInput?: number | boolean | GatherCartOptions
 ): void {
+  // Parse loadInput
+  let isLoaded = true;
+  let isEmptyReturn = false;
+  let ratio = 1.0;
+  let stockCount: number | undefined;
+
+  if (typeof loadInput === "number") {
+    if (loadInput <= 1 && loadInput >= 0) {
+      ratio = loadInput;
+      stockCount = Math.round(ratio * 50);
+    } else {
+      stockCount = loadInput;
+      ratio = Math.min(1, Math.max(0, stockCount / 50));
+    }
+    isLoaded = ratio >= 0.25;
+    isEmptyReturn = ratio === 0;
+  } else if (typeof loadInput === "boolean") {
+    isLoaded = loadInput;
+    isEmptyReturn = !loadInput;
+    ratio = isLoaded ? 1.0 : 0.0;
+    stockCount = isLoaded ? 50 : 0;
+  } else if (loadInput && typeof loadInput === "object") {
+    if (typeof loadInput.ratio === "number") ratio = Math.min(1, Math.max(0, loadInput.ratio));
+    if (typeof loadInput.stockCount === "number") stockCount = loadInput.stockCount;
+    if (typeof loadInput.isEmptyReturn === "boolean") {
+      isEmptyReturn = loadInput.isEmptyReturn;
+      isLoaded = !isEmptyReturn;
+    } else if (typeof loadInput.isLoaded === "boolean") {
+      isLoaded = loadInput.isLoaded;
+      isEmptyReturn = !isLoaded;
+    } else if (stockCount !== undefined && stockCount <= 0) {
+      isEmptyReturn = true;
+      isLoaded = false;
+    } else {
+      isLoaded = stockCount !== undefined ? stockCount > 0 : ratio >= 0.25;
+      isEmptyReturn = ratio === 0 && loadInput.phase === "returning";
+    }
+  }
+
   // 1. Dual Ground Contact Shadows (cart wheelbase + draft animal)
-  pawnsG.ellipse(pawnX, pawnY + 5.5, 12, 4);
-  pawnsG.fill({ color: 0x000000, alpha: 0.45 });
+  const shadowW = isEmptyReturn ? 10 : 13;
+  const shadowAlpha = isEmptyReturn ? 0.32 : 0.48;
+  pawnsG.ellipse(pawnX, pawnY + 5.5, shadowW, 4);
+  pawnsG.fill({ color: 0x000000, alpha: shadowAlpha });
 
   pawnsG.ellipse(pawnX + facing * 8, pawnY + 5, 6, 2.8);
   pawnsG.fill({ color: 0x000000, alpha: 0.38 });
@@ -2572,14 +2716,47 @@ export function drawGatherColumnMeeple(
   pawnsG.lineTo(muleX + facing * 5, muleY - 7 - bob * 0.5);
   pawnsG.stroke({ width: 0.6, color: 0x18181b });
 
-  // Connecting draft shafts / traces
-  pawnsG.moveTo(pawnX, pawnY - 0.5 - bob);
-  pawnsG.lineTo(muleX - facing * 1, muleY - 2 - bob * 0.5);
-  pawnsG.stroke({ width: 1.2, color: 0x78350f });
+  // 3. Clear Wooden Draft Yoke & Reinforced Traces
+  const yokeX = muleX - facing * 1.5;
+  const yokeY = muleY - 4.5 - bob * 0.5;
 
-  // 3. The Cargo Cart
+  // Arched wooden yoke beam resting on withers
+  pawnsG.poly([
+    yokeX - facing * 2.5, yokeY - 2.5,
+    yokeX, yokeY - 4.0,
+    yokeX + facing * 2.5, yokeY - 2.5,
+    yokeX + facing * 2.5, yokeY - 1.2,
+    yokeX, yokeY - 2.5,
+    yokeX - facing * 2.5, yokeY - 1.2,
+  ]);
+  pawnsG.fill({ color: 0x92400e }); // Rich seasoned hardwood yoke
+  pawnsG.stroke({ width: 0.6, color: 0x451a03 });
+
+  // Iron under-neck yoke bow & collar straps
+  pawnsG.rect(yokeX - 1.2, yokeY - 1.2, 2.4, 2.6);
+  pawnsG.stroke({ width: 0.7, color: 0x27272a });
+
+  // Forged brass hitch ring & coupling pin
+  pawnsG.circle(yokeX, yokeY - 2.2, 1.1);
+  pawnsG.fill({ color: 0xd4a359 });
+  pawnsG.circle(yokeX, yokeY - 2.2, 0.4);
+  pawnsG.fill({ color: 0x18181b });
+
+  // Cart position: empty return rides lighter/higher, loaded sits firm
+  const cartYOffset = isEmptyReturn ? -0.8 : 0;
   const cartX = pawnX;
-  const cartY = pawnY;
+  const cartY = pawnY + cartYOffset;
+
+  // Dual timber draft shafts from yoke to cart hitch
+  pawnsG.moveTo(yokeX, yokeY - 1.5);
+  pawnsG.lineTo(cartX + facing * 5, cartY - 0.5 - bob);
+  pawnsG.stroke({ width: 1.4, color: 0x78350f });
+
+  pawnsG.moveTo(yokeX, yokeY - 0.5);
+  pawnsG.lineTo(cartX + facing * 5, cartY + 1.2 - bob);
+  pawnsG.stroke({ width: 1.0, color: 0x451a03 });
+
+  // 4. The Supply Cart Chassis
   const cartTimber =
     kit === "sand"
       ? cult.stone
@@ -2587,33 +2764,27 @@ export function drawGatherColumnMeeple(
       ? cult.timber
       : 0x78350f;
 
-  // Timber bed
-  pawnsG.rect(cartX - 6.5, cartY - 3.5 - bob, 13, 5);
+  const bedW = 14;
+  const bedH = 5;
+  const bedX = cartX - 7;
+  const bedY = cartY - 3.5 - bob;
+
+  // Timber bed & side framing
+  pawnsG.rect(bedX, bedY, bedW, bedH);
   pawnsG.fill({ color: cartTimber });
   pawnsG.stroke({ width: 0.8, color: 0x3f220c });
-
-  // Side plank groove
-  pawnsG.moveTo(cartX - 6.5, cartY - 1 - bob);
-  pawnsG.lineTo(cartX + 6.5, cartY - 1 - bob);
-  pawnsG.stroke({ width: 0.6, color: 0x451a03 });
-
-  // Corner stakes & iron brackets
-  pawnsG.rect(cartX - 6.5, cartY - 4 - bob, 1.8, 5.5);
-  pawnsG.fill({ color: 0x27272a });
-  pawnsG.rect(cartX + 4.7, cartY - 4 - bob, 1.8, 5.5);
-  pawnsG.fill({ color: 0x27272a });
 
   // Axle beam
   pawnsG.rect(cartX - 5.5, cartY + 1.5 - bob, 11, 1.8);
   pawnsG.fill({ color: 0x271406 });
 
-  // Two Spoked Rotating Wheels
+  // Spoked Rotating Wheels with Iron Tire & Brass Hub
   for (const wx of [cartX - 4.5, cartX + 4.5]) {
     const wy = cartY + 2.5;
     pawnsG.circle(wx, wy, 3.5);
-    pawnsG.fill({ color: 0x27272a });
+    pawnsG.fill({ color: 0x27272a }); // Iron rim
     pawnsG.circle(wx, wy, 2.7);
-    pawnsG.fill({ color: 0x854d0e });
+    pawnsG.fill({ color: 0x854d0e }); // Wood felloe
 
     // Rotating spokes across frames
     if (frame === 0) {
@@ -2635,87 +2806,155 @@ export function drawGatherColumnMeeple(
     pawnsG.fill({ color: 0x18181b });
   }
 
-  // 4. Piled High Bulging Burlap Cargo Sacks
-  // Center large sack
-  pawnsG.ellipse(cartX - facing * 0.5, cartY - 6.5 - bob, 4.5, 3.8);
-  pawnsG.fill({ color: 0xd97706 });
-  pawnsG.stroke({ width: 0.6, color: 0xb45309 });
-  // Tied sack neck
-  pawnsG.rect(cartX - facing * 0.5 - 1.2, cartY - 11 - bob, 2.4, 2);
-  pawnsG.fill({ color: 0xb45309 });
-  pawnsG.rect(cartX - facing * 0.5 - 1.8, cartY - 9.5 - bob, 3.6, 1);
-  pawnsG.fill({ color: 0x78350f });
-  pawnsG.circle(cartX - facing * 0.5, cartY - 11.5 - bob, 1.2);
-  pawnsG.fill({ color: 0xfde047 });
-
-  // Forward sack
-  pawnsG.ellipse(cartX + facing * 3.2, cartY - 4.5 - bob, 3.2, 2.8);
-  pawnsG.fill({ color: 0xb45309 });
-  pawnsG.rect(cartX + facing * 3.2 - 0.8, cartY - 8 - bob, 1.6, 1.5);
-  pawnsG.fill({ color: 0x92400e });
-  pawnsG.rect(cartX + facing * 3.2 - 1.2, cartY - 7 - bob, 2.4, 0.8);
-  pawnsG.fill({ color: 0x78350f });
-
-  // Trailing sack
-  pawnsG.ellipse(cartX - facing * 3.5, cartY - 4.5 - bob, 3.4, 2.8);
-  pawnsG.fill({ color: 0xc2410c });
-  pawnsG.rect(cartX - facing * 3.5 - 0.8, cartY - 8 - bob, 1.6, 1.5);
-  pawnsG.fill({ color: 0x9a3412 });
-
-  // Resource-specific cargo
-  if (nodeType === "woodcut" || nodeType === "wood") {
-    // Stack of logs
-    pawnsG.rect(cartX - 5, cartY - 7 - bob, 10, 2.8);
-    pawnsG.fill({ color: 0x713f12 });
-    pawnsG.ellipse(cartX + (facing > 0 ? 5 : -5), cartY - 5.6 - bob, 1.2, 1.4);
-    pawnsG.fill({ color: 0xfde047 });
-    pawnsG.rect(cartX - 4, cartY - 9.5 - bob, 8, 2.6);
+  // 5. Cargo Presentation: Full Loaded Cart vs Empty Return Cart
+  if (isEmptyReturn) {
+    // --- EMPTY RETURN: Bare timber slats, open bed interior, light unburdened frame ---
+    // Recessed dark interior floor
+    pawnsG.rect(bedX + 0.8, bedY + 0.8, bedW - 1.6, bedH - 1.6);
     pawnsG.fill({ color: 0x543007 });
-    pawnsG.ellipse(cartX + (facing > 0 ? 4 : -4), cartY - 8.2 - bob, 1, 1.3);
-    pawnsG.fill({ color: 0xfacc15 });
-  } else if (nodeType === "quarry" || nodeType === "stone") {
-    // Ashlar stone block
-    pawnsG.rect(cartX - 4, cartY - 7 - bob, 8, 4);
-    pawnsG.fill({ color: 0x64748b });
-    pawnsG.stroke({ width: 0.7, color: 0xcbd5e1 });
-    pawnsG.moveTo(cartX - 1.5, cartY - 7 - bob);
-    pawnsG.lineTo(cartX - 1.5, cartY - 3 - bob);
-    pawnsG.stroke({ width: 0.8, color: 0x78350f });
-  } else if (nodeType === "ruins" || nodeType === "gold") {
-    // Gold chest & nuggets
-    pawnsG.rect(cartX - 4, cartY - 8 - bob, 8, 4.5);
-    pawnsG.fill({ color: 0x451a03 });
-    pawnsG.stroke({ width: 0.8, color: 0xfacc15 });
-    pawnsG.circle(cartX + facing * 1.5, cartY - 9 - bob, 1.2);
-    pawnsG.fill({ color: 0xfef08a });
+
+    // Visible bare floorboard plank lines
+    pawnsG.moveTo(bedX + 1.5, bedY + 2.2); pawnsG.lineTo(bedX + bedW - 1.5, bedY + 2.2);
+    pawnsG.moveTo(bedX + 1.5, bedY + 3.6); pawnsG.lineTo(bedX + bedW - 1.5, bedY + 3.6);
+    pawnsG.stroke({ width: 0.5, color: 0x3f220c });
+
+    // Open timber side stakes / light cage uprights
+    pawnsG.rect(bedX, bedY - 2.5, 1.4, 6.5); pawnsG.fill({ color: 0x27272a });
+    pawnsG.rect(bedX + bedW - 1.4, bedY - 2.5, 1.4, 6.5); pawnsG.fill({ color: 0x27272a });
+    pawnsG.rect(cartX - 0.7, bedY - 2.2, 1.4, 6.2); pawnsG.fill({ color: 0x27272a });
+
+    // Folded burlap drop-cloth resting flat on the floor (empty)
+    pawnsG.rect(cartX - 3.5, bedY + 2.4, 7, 1.4);
+    pawnsG.fill({ color: 0xa16207, alpha: 0.55 });
+    pawnsG.stroke({ width: 0.4, color: 0x78350f });
+
+    // Small empty open crate outline at floor
+    pawnsG.rect(cartX - 2.5, bedY + 1.2, 5, 2.4);
+    pawnsG.stroke({ width: 0.6, color: 0x92400e });
   } else {
-    // Field / food: wheat ears
-    pawnsG.circle(cartX - facing * 0.5 - 1.8, cartY - 9 - bob, 1.3);
-    pawnsG.fill({ color: 0xfacc15 });
-    pawnsG.circle(cartX - facing * 0.5 + 1.8, cartY - 8.5 - bob, 1.1);
-    pawnsG.fill({ color: 0xfef08a });
+    // --- FULL LOADED CART: Timber Supply Crates, Iron Straps, Cargo Sacks & Lashings ---
+    // Timber side plank groove & corner iron brackets
+    pawnsG.moveTo(bedX, bedY + 2.5); pawnsG.lineTo(bedX + bedW, bedY + 2.5);
+    pawnsG.stroke({ width: 0.6, color: 0x451a03 });
+    pawnsG.rect(bedX, bedY - 2.5, 1.8, 7.5); pawnsG.fill({ color: 0x27272a });
+    pawnsG.rect(bedX + bedW - 1.8, bedY - 2.5, 1.8, 7.5); pawnsG.fill({ color: 0x27272a });
+
+    // 1. Primary Center Supply Crate
+    const crate1X = cartX - facing * 0.5 - 4.2;
+    const crate1Y = bedY - 6.5;
+    pawnsG.rect(crate1X, crate1Y, 8.5, 6.5);
+    pawnsG.fill({ color: 0xb45309 }); // Rich aged timber crate
+    pawnsG.stroke({ width: 0.8, color: 0x451a03 });
+
+    // Horizontal crate plank slat grooves
+    pawnsG.moveTo(crate1X, crate1Y + 2.2); pawnsG.lineTo(crate1X + 8.5, crate1Y + 2.2);
+    pawnsG.moveTo(crate1X, crate1Y + 4.4); pawnsG.lineTo(crate1X + 8.5, crate1Y + 4.4);
+    pawnsG.stroke({ width: 0.6, color: 0x78350f });
+
+    // Iron corner straps on crate
+    pawnsG.rect(crate1X, crate1Y, 1.2, 6.5); pawnsG.fill({ color: 0x27272a });
+    pawnsG.rect(crate1X + 7.3, crate1Y, 1.2, 6.5); pawnsG.fill({ color: 0x27272a });
+
+    // Crate diagonal X-brace
+    pawnsG.moveTo(crate1X + 1.2, crate1Y + 1); pawnsG.lineTo(crate1X + 7.3, crate1Y + 5.5);
+    pawnsG.moveTo(crate1X + 7.3, crate1Y + 1); pawnsG.lineTo(crate1X + 1.2, crate1Y + 5.5);
+    pawnsG.stroke({ width: 0.6, color: 0x78350f });
+
+    // 2. Secondary Forward Crate
+    const crate2X = cartX + facing * 3.5 - 2.2;
+    const crate2Y = bedY - 4.8;
+    pawnsG.rect(crate2X, crate2Y, 5.2, 4.8);
+    pawnsG.fill({ color: 0x92400e });
+    pawnsG.stroke({ width: 0.7, color: 0x451a03 });
+    pawnsG.moveTo(crate2X, crate2Y + 2.4); pawnsG.lineTo(crate2X + 5.2, crate2Y + 2.4);
+    pawnsG.stroke({ width: 0.5, color: 0x78350f });
+    pawnsG.rect(crate2X, crate2Y, 1, 4.8); pawnsG.fill({ color: 0x27272a });
+    pawnsG.rect(crate2X + 4.2, crate2Y, 1, 4.8); pawnsG.fill({ color: 0x27272a });
+
+    // 3. Bulging Cargo Sacks atop the crates
+    pawnsG.ellipse(cartX - facing * 0.5, crate1Y - 2.2, 4.2, 3.2);
+    pawnsG.fill({ color: 0xd97706 });
+    pawnsG.stroke({ width: 0.6, color: 0x92400e });
+    pawnsG.rect(cartX - facing * 0.5 - 1.2, crate1Y - 5.8, 2.4, 1.8);
+    pawnsG.fill({ color: 0xb45309 });
+    pawnsG.circle(cartX - facing * 0.5, crate1Y - 6.2, 1.0);
+    pawnsG.fill({ color: 0xfde047 }); // Golden tie
+
+    // Trailing barrel or secondary sack
+    pawnsG.ellipse(cartX - facing * 4.2, bedY - 3.8, 3.2, 3.8);
+    pawnsG.fill({ color: 0x78350f }); // Timber barrel
+    pawnsG.stroke({ width: 0.6, color: 0x27272a });
+    pawnsG.moveTo(cartX - facing * 4.2 - 2.8, bedY - 4.5); pawnsG.lineTo(cartX - facing * 4.2 + 2.8, bedY - 4.5);
+    pawnsG.moveTo(cartX - facing * 4.2 - 2.8, bedY - 2.2); pawnsG.lineTo(cartX - facing * 4.2 + 2.8, bedY - 2.2);
+    pawnsG.stroke({ width: 0.6, color: 0x27272a }); // Iron barrel hoops
+
+    // Resource-specific cargo stacked on/in the crates
+    if (nodeType === "woodcut" || nodeType === "wood") {
+      pawnsG.rect(cartX - 5.5, crate1Y - 4.2, 11, 2.6);
+      pawnsG.fill({ color: 0x713f12 });
+      pawnsG.ellipse(cartX + (facing > 0 ? 5.5 : -5.5), crate1Y - 2.9, 1.2, 1.3);
+      pawnsG.fill({ color: 0xfde047 });
+      pawnsG.rect(cartX - 4.5, crate1Y - 6.5, 9, 2.4);
+      pawnsG.fill({ color: 0x543007 });
+      pawnsG.ellipse(cartX + (facing > 0 ? 4.5 : -4.5), crate1Y - 5.3, 1.0, 1.2);
+      pawnsG.fill({ color: 0xfacc15 });
+    } else if (nodeType === "quarry" || nodeType === "stone") {
+      pawnsG.rect(cartX - 3.5, crate1Y - 4.5, 7, 3.8);
+      pawnsG.fill({ color: 0x64748b });
+      pawnsG.stroke({ width: 0.7, color: 0xcbd5e1 });
+      pawnsG.moveTo(cartX - 0.5, crate1Y - 4.5); pawnsG.lineTo(cartX - 0.5, crate1Y - 0.7);
+      pawnsG.stroke({ width: 0.6, color: 0x334155 });
+    } else if (nodeType === "ruins" || nodeType === "gold") {
+      pawnsG.rect(cartX - 3.5, crate1Y - 4.8, 7, 4.2);
+      pawnsG.fill({ color: 0x451a03 });
+      pawnsG.stroke({ width: 0.8, color: 0xfacc15 });
+      pawnsG.circle(cartX + facing * 1.5, crate1Y - 5.5, 1.2);
+      pawnsG.fill({ color: 0xfef08a });
+    } else {
+      // Food: golden wheat sheaves & bushel grain in crates
+      pawnsG.circle(cartX - facing * 0.5 - 1.8, crate1Y - 4.2, 1.4);
+      pawnsG.fill({ color: 0xfacc15 });
+      pawnsG.circle(cartX - facing * 0.5 + 1.8, crate1Y - 3.8, 1.2);
+      pawnsG.fill({ color: 0xfef08a });
+      pawnsG.circle(cartX - facing * 0.5, crate1Y - 5.2, 1.0);
+      pawnsG.fill({ color: 0xfde047 });
+    }
+
+    // Heavy tie-down ropes strapping the crates to the cart
+    pawnsG.moveTo(bedX + 1.5, bedY + 1);
+    pawnsG.lineTo(cartX - facing * 0.5, crate1Y - 2);
+    pawnsG.lineTo(bedX + bedW - 1.5, bedY + 1);
+    pawnsG.stroke({ width: 0.7, color: 0xfef08a, alpha: 0.65 });
   }
 
-  // 5. Floating Harvest Cargo Badge / Load Pill
+  // 6. Floating Harvest Cargo Badge / Load Pill
+  const badgeBorderColor = isEmptyReturn ? 0x64748b : 0x22c55e;
+  const badgeBgColor = isEmptyReturn ? 0x0f172a : 0x142e1b;
   pawnsG.rect(cartX - 14, cartY - 19 - bob, 28, 8);
   pawnsG.fill({ color: 0x000000, alpha: 0.45 });
   pawnsG.rect(cartX - 14, cartY - 20 - bob, 28, 8);
-  pawnsG.fill({ color: 0x142e1b, alpha: 0.95 });
-  pawnsG.stroke({ width: 1, color: 0x22c55e, alpha: 0.85 });
+  pawnsG.fill({ color: badgeBgColor, alpha: 0.95 });
+  pawnsG.stroke({ width: 1, color: badgeBorderColor, alpha: 0.85 });
 
-  // Mini sack icon
-  pawnsG.circle(cartX - 8, cartY - 16 - bob, 1.8);
-  pawnsG.fill({ color: 0xf59e0b });
-  pawnsG.rect(cartX - 8.6, cartY - 18 - bob, 1.2, 0.8);
-  pawnsG.fill({ color: 0x92400e });
+  if (isEmptyReturn) {
+    // Mini empty cart outline
+    pawnsG.rect(cartX - 10, cartY - 17.5 - bob, 3.8, 2.4);
+    pawnsG.stroke({ width: 0.7, color: 0x94a3b8 });
+  } else {
+    // Mini wooden crate icon
+    pawnsG.rect(cartX - 10, cartY - 18 - bob, 3.4, 3.4);
+    pawnsG.fill({ color: 0xb45309 });
+    pawnsG.stroke({ width: 0.6, color: 0xfacc15 });
+  }
 
   // Load progress pips
   const pips = 3;
   for (let p = 0; p < pips; p++) {
     const pipX = cartX - 2 + p * 4.5;
-    const filled = progress >= (p + 1) / (pips + 1);
+    const filled = !isEmptyReturn && (ratio >= (p + 1) / (pips + 1) || (isLoaded && ratio >= 0.25));
+    const pipColor = filled ? (ratio >= 0.8 ? 0x4ade80 : 0xfacc15) : 0x1e293b;
     pawnsG.circle(pipX, cartY - 16 - bob, 1.3);
-    pawnsG.fill({ color: filled ? 0x4ade80 : 0x1e3a29 });
+    pawnsG.fill({ color: pipColor });
   }
 }
 
@@ -3924,6 +4163,7 @@ export function paintBoardMarches(
     } else if (isGather) {
       renderedGatherIds.add(m.id);
       if (m.toId) renderedGatherIds.add(m.toId);
+      const gatherLoad = resolveGatherLoadInfo(m, state);
       drawGatherColumnMeeple(
         pawnsG,
         pawnX,
@@ -3935,7 +4175,8 @@ export function paintBoardMarches(
         cult,
         toProv.node,
         phase,
-        progress
+        progress,
+        gatherLoad
       );
       if (hasArrival) {
         drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x22c55e, bob);
@@ -4498,6 +4739,7 @@ export function paintBoardGathers(
     const frame: 0 | 1 | 2 = stepIdx === 1 ? 1 : stepIdx === 3 ? 2 : 0;
     const bob = frame === 0 ? 0 : 2;
 
+    const gatherLoad = resolveGatherLoadInfo(g, state);
     drawGatherColumnMeeple(
       pawnsG,
       pawnX,
@@ -4509,7 +4751,8 @@ export function paintBoardGathers(
       cult,
       g.node ?? toProv.node,
       phase,
-      progress
+      progress,
+      gatherLoad
     );
 
     const hasArrival = typeof g.arrivesTick === "number";

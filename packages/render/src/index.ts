@@ -94,6 +94,8 @@ import {
   buildMarchDestinationMap,
   getTileMarchDestination,
   paintBoardDestinationRing,
+  resolveGatherLoadInfo,
+  drawGatherColumnMeeple,
 } from "./tokens.js";
 
 import {
@@ -863,5 +865,7 @@ export {
   resolveWeatherFromState,
   createWeatherParticles,
   paintWeatherParticles,
+  resolveGatherLoadInfo,
+  drawGatherColumnMeeple,
 };
 

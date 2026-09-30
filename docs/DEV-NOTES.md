@@ -1,4 +1,12 @@
-# Dev notes
+## 2026-09-30 — render + app / supply cart art & load silhouettes (bakeoff/gemini-supply)
+
+- `resolveGatherLoadInfo(item, state?)` in `packages/render/src/tokens.ts`: inspects item and state presentation gathers to classify `stockCount`, `capacity`, `ratio`, `isLoaded`, and `isEmptyReturn`. When `stockCount <= 0` or returning with empty load, `isEmptyReturn` is set to true.
+- `drawGatherColumnMeeple` in `packages/render/src/tokens.ts`:
+  - Draft yoke: forward arched hardwood yoke beam (`0x92400e`), under-neck iron yoke bow (`0x27272a`), central brass hitch ring (`0xd4a359`), and dual timber draft trace shafts (`0x78350f` / `0x451a03`).
+  - Crate stack & load: timber crates (`0xb45309`), iron corner straps (`0x27272a`), diagonal X-braces, bulging burlap sacks, barrels, node cargo (wood logs, stone blocks, gold coffers, grain sheaves), and tie-down ropes (`0xfef08a`).
+  - Empty return: bare floorboard lines (`0x543007`), open timber side stakes (`0x27272a`), folded drop cloth (`0xa16207`), and slate empty badge (`0x64748b`).
+- `WarChip.tsx` & `ForceCard.tsx`: `CartSvg` updated with forward draft yoke and loaded/empty variants; gather cards in `WarRoom.tsx` compute and pass `loaded` and `empty` props.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. All chips strictly `pointer-events: none !important;`. Zero `<<<<<<<` conflict markers.
 
 ## 2026-09-30 — app / HUD captains (wave/hud-captains)
 
