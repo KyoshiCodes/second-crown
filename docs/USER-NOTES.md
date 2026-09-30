@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Primer scout step reworded
+
+- The primer's scout step now asks you to reveal any tile two or more steps from your hold. A Watchtower, a gather or march column, or a Scout column all count. You no longer need gold for a Scout column to finish it.
+
 ## 2026-09-30 — Finished quarry cut stone, crane and piles (bakeoff/gemini-quarry-yard)
 
 - Finished **Quarries** now clearly showcase an active masonry workyard:
