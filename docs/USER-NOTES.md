@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Watchtower beacon fire & gold glint (bakeoff/gemini-tower-beacon)
+
+- Finished **Watchtowers** now clearly signal their presence and gold production across your hold:
+  - An active, radiant **beacon fire** burns atop the tower brazier with leaping flames, a warm ambient glow, and rising embers.
+  - A crisp **gold glint** star flashes on the beacon spire finial, catching the light and reinforcing its gold-yielding role.
+  - Unfinished towers under construction strictly stay authentic wooden scaffolding with corner posts and hoists, with no fire or gold until completed.
+- Purely visual update; never interferes with map clicks or interactions.
+
 ## 2026-09-30 — Where do I get stone and gold?
 
 - Kingdom tab: if you can't afford Walls because of stone, a line tells you to build a Quarry and what it costs.

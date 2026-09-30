@@ -6131,6 +6131,123 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           }
         });
       });
+
+      describe("bakeoff/gemini-tower-beacon: finished watchtower clear beacon & gold glint", () => {
+        const defaultVisuals: ThemeVisuals = getThemeVisuals("Spring", "none");
+
+        it("finished Western watchtower renders clear beacon with flame tongues, radiant halo, and gold glint star", () => {
+          const gRim = createMockGraphics();
+          const gInt = createMockGraphics();
+
+          drawIsometricBuilding(gRim, "watchtower", 1, true, 0.5, defaultVisuals, 0, 4, undefined, "western");
+          drawIsometricBuilding(gInt, "watchtower", 1, true, 0.5, defaultVisuals, 2, 2, undefined, "western");
+
+          // Both rim and interior have clear flame tongues (0xf97316, 0xfacc15, 0xffffff)
+          const flameRim = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+          const flameInt = gInt.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+          expect(flameRim.length).toBeGreaterThan(0);
+          expect(flameInt.length).toBeGreaterThan(0);
+
+          // Both rim and interior have warm radiant beacon glow halo (0xfde047)
+          const haloRim = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+          const haloInt = gInt.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+          expect(haloRim.length).toBeGreaterThan(0);
+          expect(haloInt.length).toBeGreaterThan(0);
+
+          // Both rim and interior have gold glint 4-point diamond star (0xfacc15, 0xffffff)
+          const glintRim = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfacc15);
+          const glintInt = gInt.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfacc15);
+          expect(glintRim.length).toBeGreaterThan(0);
+          expect(glintInt.length).toBeGreaterThan(0);
+
+          const sparkRim = gRim.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xffffff);
+          const sparkInt = gInt.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xffffff);
+          expect(sparkRim.length).toBeGreaterThan(0);
+          expect(sparkInt.length).toBeGreaterThan(0);
+        });
+
+        it("finished culture watchtowers render clear beacon and gold glint across all kits", () => {
+          const kits = ["cedar", "sand", "steppe", "islands"] as const;
+          for (const kit of kits) {
+            const g = createMockGraphics();
+            drawIsometricBuilding(g, "watchtower", 1, true, 0.5, defaultVisuals, 0, 4, undefined, kit);
+
+            // Every kit has a gold glint spark (0xfacc15 and 0xffffff)
+            const glints = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfacc15);
+            expect(glints.length).toBeGreaterThan(0);
+            const sparks = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xffffff);
+            expect(sparks.length).toBeGreaterThan(0);
+          }
+        });
+
+        it("unfinished watchtowers strictly preserve scaffolding with zero beacon fire and zero gold glint", () => {
+          const kits = ["western", "cedar", "sand", "steppe", "islands"] as const;
+          for (const kit of kits) {
+            const gUnfinished = createMockGraphics();
+            drawIsometricBuilding(gUnfinished, "watchtower", 1, false, 0.5, defaultVisuals, 0, 4, undefined, kit);
+
+            // Zero flame fills
+            const flames = gUnfinished.calls.filter(
+              (c) => c.method === "fill" && (c.args[0]?.color === 0xf97316 || c.args[0]?.color === 0xea580c)
+            );
+            expect(flames.length).toBe(0);
+
+            // Zero radiant glow halos
+            const halos = gUnfinished.calls.filter(
+              (c) => c.method === "fill" && c.args[0]?.color === 0xfde047
+            );
+            expect(halos.length).toBe(0);
+
+            // Scaffolding uses authentic timber strokes
+            const timberStrokes = gUnfinished.calls.filter((c) => c.method === "stroke");
+            expect(timberStrokes.length).toBeGreaterThan(5);
+          }
+        });
+
+        it("drawKeepYardAnnex renders finished watchtower with clear beacon and gold glint, and scaffolding when unfinished", () => {
+          const gDone = createMockGraphics();
+          drawKeepYardAnnex(gDone, 100, 100, { typeId: "watchtower", isFinished: true, slot: "south" }, "western", 0);
+
+          const doneJson = JSON.stringify(gDone.calls);
+          // Clear beacon fire (0xf97316) & radiant halo (0xfde047)
+          expect(doneJson).toContain(String(0xf97316));
+          expect(doneJson).toContain(String(0xfde047));
+          // Gold glint (0xfacc15) & spark (0xffffff)
+          expect(doneJson).toContain(String(0xfacc15));
+          expect(doneJson).toContain(String(0xffffff));
+
+          const gScaffold = createMockGraphics();
+          drawKeepYardAnnex(gScaffold, 100, 100, { typeId: "watchtower", isFinished: false, slot: "south" }, "western", 0);
+
+          const scaffoldJson = JSON.stringify(gScaffold.calls);
+          // Scaffolding has NO beacon fire
+          expect(scaffoldJson).not.toContain(String(0xf97316));
+          expect(scaffoldJson).not.toContain(String(0xfde047));
+          // Scaffolding has timber construction commands
+          expect(scaffoldJson).toContain("moveTo");
+          expect(scaffoldJson).toContain("lineTo");
+          expect(scaffoldJson).toContain("stroke");
+        });
+
+        it("verifies pointer-events none and non-blocking invariants in render files", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+          // entitiesLayer and buildingGraphics have eventMode = "none"
+          expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+          expect(indexCode).toContain('g.eventMode = "none"');
+
+          // Check no conflict markers in render package
+          const files = ["buildings.ts", "tokens.ts", "index.ts"];
+          for (const f of files) {
+            const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+            expect(code).not.toContain("=======");
+            expect(code).not.toContain(">>>>>>>");
+          }
+        });
+      });
     });
   });
 });

@@ -31,6 +31,13 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
 - Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
 
+## Active Bakeoff (bakeoff/gemini-tower-beacon)
+
+- **Render Only: Finished Watchtower Clear Beacon & Gold Glint (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
+  - **Finished Watchtower**: Rendered with an active, brilliant beacon fire (vibrant orange/yellow flame tongues `0xf97316`, `0xfacc15`, white-hot core `0xffffff`, radiant warm halo `0xfde047`, and rising ember sparks `0xfef08a`), and a gleaming 4-point diamond star **gold glint** (`0xfacc15`, `0xffffff`) atop the beacon spire finial. Supported across Western and all culture kits (`cedar`, `sand`, `steppe`, `islands`) and keep-yard annex tokens.
+  - **Unfinished Watchtower**: Strictly preserves authentic timber construction scaffolding (`drawWatchtowerScaffolding`) with upright corner posts, ledger cross-beams, diagonal X-braces, staging deck, and suspended building block. Zero beacon flames, zero radiant glow, zero gold glints.
+  - **Strictly Non-Blocking Invariant**: All graphics use `eventMode = "none"` (`pointer-events: none`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff main -- packages/sim server` strictly empty. No `theme.css` changes. Zero conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-season-wash)
 
 - **Board-Only Seasonal Wash (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
