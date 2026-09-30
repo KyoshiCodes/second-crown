@@ -645,6 +645,85 @@ export function drawKeepYardAnnex(
     strokeCol = 0x155e75;
   }
 
+  // -------------------------------------------------------------
+  // Bespoke Silhouette for Finished Watchtower: Soaring Stone Shaft + Battlements + Clear Beacon Fire + Gold Glint
+  // -------------------------------------------------------------
+  if (typeId === "watchtower") {
+    // Foundation plinth
+    g.poly([ax - 4, ay + 0.8, ax, ay + 2.6, ax + 4, ay + 0.8, ax, ay - 1.0]);
+    g.fill({ color: plinthCol });
+    g.stroke({ width: 0.6, color: strokeCol });
+
+    // Tall vertical stone tower shaft
+    g.poly([ax - 3.2, ay + 0.4, ax, ay + 2.0, ax, ay - 8.5, ax - 3.2, ay - 10.0]);
+    g.fill({ color: wallLight });
+    g.stroke({ width: 0.6, color: strokeCol });
+    g.poly([ax, ay + 2.0, ax + 3.2, ay + 0.4, ax + 3.2, ay - 10.0, ax, ay - 8.5]);
+    g.fill({ color: wallDark });
+    g.stroke({ width: 0.6, color: strokeCol });
+
+    // Center dividing corner seam
+    g.moveTo(ax, ay - 8.5); g.lineTo(ax, ay + 2.0);
+    g.stroke({ width: 0.7, color: strokeCol });
+
+    // Dark arrow loop slits along shaft
+    g.rect(ax - 2.0, ay - 4.5, 0.9, 2.5); g.fill({ color: 0x0f172a });
+    g.rect(ax + 1.1, ay - 6.0, 0.9, 2.5); g.fill({ color: 0x0f172a });
+
+    // Projecting corbels & crenellated parapet / hoarding
+    g.poly([
+      ax - 4.2, ay - 9.5,
+      ax, ay - 8.0,
+      ax + 4.2, ay - 9.5,
+      ax, ay - 11.2,
+    ]);
+    g.fill({ color: 0x334155 });
+    g.stroke({ width: 0.6, color: strokeCol });
+
+    // Parapet battlements (crenellations)
+    g.rect(ax - 4.0, ay - 11.8, 1.6, 2.0); g.fill({ color: wallLight }); g.stroke({ width: 0.4, color: strokeCol });
+    g.rect(ax + 2.4, ay - 11.8, 1.6, 2.0); g.fill({ color: wallDark }); g.stroke({ width: 0.4, color: strokeCol });
+
+    // Elevated iron brazier basket & Clear Active Beacon Fire
+    g.rect(ax - 1.2, ay - 11.2, 2.4, 1.4);
+    g.fill({ color: 0x18181b });
+
+    const flamePuff = Math.sin(phase * 5 + ax) * 0.4;
+    // Radiant beacon warm halo
+    g.ellipse(ax, ay - 12.2, 3.8, 2.4);
+    g.fill({ color: 0xfde047, alpha: 0.25 });
+
+    // Beacon flame tongues
+    g.circle(ax, ay - 12.2, 1.6 + flamePuff);
+    g.fill({ color: 0xf97316 });
+    g.circle(ax, ay - 12.8, 0.9);
+    g.fill({ color: 0xfacc15 });
+    g.circle(ax, ay - 13.2, 0.4);
+    g.fill({ color: 0xffffff, alpha: 0.9 });
+
+    // Gold Glint: 4-point diamond star spark
+    const glintPhase = phase * 4 + ax * 1.5;
+    const glintScale = 0.5 + 0.5 * Math.sin(glintPhase);
+    const glintY = ay - 14.8;
+    g.poly([
+      ax, glintY - 2.5 * glintScale,
+      ax + 0.8 * glintScale, glintY,
+      ax, glintY + 2.5 * glintScale,
+      ax - 0.8 * glintScale, glintY,
+    ]);
+    g.fill({ color: 0xfacc15 });
+    g.poly([
+      ax - 2.5 * glintScale, glintY,
+      ax, glintY - 0.8 * glintScale,
+      ax + 2.5 * glintScale, glintY,
+      ax, glintY + 0.8 * glintScale,
+    ]);
+    g.fill({ color: 0xfacc15 });
+    g.circle(ax, glintY, 0.7 * glintScale);
+    g.fill({ color: 0xffffff, alpha: 0.95 });
+    return;
+  }
+
   // Type-specific adjustments
   const isMilitary = typeId === "barracks" || typeId === "archery_range" || typeId === "siege_workshop";
   const isReligious = typeId === "chapel" || typeId === "infirmary";

@@ -1,3 +1,16 @@
+## 2026-09-30 — render / finished watchtower clear beacon & gold glint (bakeoff/gemini-tower-beacon)
+
+- `packages/render/src/buildings.ts`:
+  - `case "watchtower":` in `drawIsometricBuilding`:
+    - Finished Western watchtower: enhanced with clear beacon fire (animated flame tongues `0xf97316`, `0xfacc15`, white-hot core `0xffffff`), warm radiant glow halo (`0xfde047`) on both rim and interior towers, rising ember sparks (`0xfef08a`, `0xffffff`), and a gleaming 4-point diamond star **gold glint** (`0xfacc15`, `0xffffff`) atop the beacon spire finial with brazier rim reflections.
+    - `drawWatchtowerCulture`: culture watchtowers (`cedar`, `sand`, `steppe`, `islands`) now feature clear beacon flames/glow and 4-point diamond star gold glints atop their respective finials/masts while strictly preserving culture-specific color counts for rim assertions.
+    - Unfinished watchtowers: strictly route through `drawWatchtowerScaffolding` across all kits, preserving timber construction standards, ledgers, X-braces, and builder's hoist, with zero beacon flames, zero radiant halos, and zero gold glints.
+- `packages/render/src/tokens.ts`:
+  - `drawKeepYardAnnex`: added bespoke finished watchtower silhouette with stone shaft, dark arrow loop slits (`0x0f172a`), battlements parapet, clear elevated beacon fire (`0xf97316`, `0xfde047`, `0xfacc15`), and animated gold glint star (`0xfacc15`, `0xffffff`). Unfinished keep-yard watchtowers retain timber scaffolding.
+- `packages/render/src/index.ts`:
+  - `entitiesLayer.eventMode = "none"` and `g.eventMode = "none"` set explicitly, strictly preventing any DOM pointer event capture.
+- Invariants: Sim and server unchanged (`git diff main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. No `theme.css` changes. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — app / quarry and watchtower hints (wave/hint-quarry-tower)
 
 - `buildHints.ts` reads all numbers from sim data. If the Quarry or Watchtower type goes away, or Watchtower stops producing gold, the hint returns `null` and nothing renders.

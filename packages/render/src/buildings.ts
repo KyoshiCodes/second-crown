@@ -3325,6 +3325,16 @@ function drawWatchtowerCulture(
 
     g.circle(-5, -h, 1.6); g.fill({ color: 0xd97706, alpha: a });
 
+    // Gold Glint: 4-point diamond star spark atop cedar lookout mast
+    const cGlintPhase = phase * 4.2;
+    const cGlint = 0.45 + 0.55 * Math.sin(cGlintPhase);
+    const cGlintY = -h - 20;
+    g.poly([0, cGlintY - 3.2 * cGlint, 0.8 * cGlint, cGlintY, 0, cGlintY + 3.2 * cGlint, -0.8 * cGlint, cGlintY]);
+    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+    g.poly([-3.2 * cGlint, cGlintY, 0, cGlintY - 0.8 * cGlint, 3.2 * cGlint, cGlintY, 0, cGlintY + 0.8 * cGlint]);
+    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+    g.circle(0, cGlintY, 0.9 * cGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
+
   } else if (kit === "sand") {
     // Sand Banner: Slender Sandstone Minaret with Openwork Balcony
     g.poly([-8, 0, 0, 4, 8, 0, 0, -4]); g.fill({ color: 0x92400e, alpha: a });
@@ -3355,6 +3365,16 @@ function drawWatchtowerCulture(
       g.circle(0, -h - 17, 1.0); g.fill({ color: 0xfef08a, alpha: a });
       g.ellipse(0, -h - 17, 6.5, 3.8); g.fill({ color: 0xfde047, alpha: a * 0.16 });
     }
+
+    // Gold Glint: 4-point diamond star spark atop minaret finial
+    const sGlintPhase = phase * 4.2;
+    const sGlint = 0.45 + 0.55 * Math.sin(sGlintPhase);
+    const sGlintY = -h - 18;
+    g.poly([0, sGlintY - 3.2 * sGlint, 0.8 * sGlint, sGlintY, 0, sGlintY + 3.2 * sGlint, -0.8 * sGlint, sGlintY]);
+    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+    g.poly([-3.2 * sGlint, sGlintY, 0, sGlintY - 0.8 * sGlint, 3.2 * sGlint, sGlintY, 0, sGlintY + 0.8 * sGlint]);
+    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+    g.circle(0, sGlintY, 0.9 * sGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
 
   } else if (kit === "steppe") {
     // Wind Host: Nomad Timber Lookout Scaffolding & Signal Smoke Pylon
@@ -3388,6 +3408,16 @@ function drawWatchtowerCulture(
       g.circle(0, -h - 4, 0.8); g.fill({ color: 0xfacc15, alpha: a });
     }
 
+    // Gold Glint: 4-point diamond star spark atop pylon standard
+    const stGlintPhase = phase * 4.2;
+    const stGlint = 0.45 + 0.55 * Math.sin(stGlintPhase);
+    const stGlintY = -h - 14;
+    g.poly([5, stGlintY - 3.0 * stGlint, 5 + 0.8 * stGlint, stGlintY, 5, stGlintY + 3.0 * stGlint, 5 - 0.8 * stGlint, stGlintY]);
+    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+    g.poly([5 - 3.0 * stGlint, stGlintY, 5, stGlintY - 0.8 * stGlint, 5 + 3.0 * stGlint, stGlintY, 5, stGlintY + 0.8 * stGlint]);
+    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+    g.circle(5, stGlintY, 0.8 * stGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
+
   } else if (kit === "islands") {
     // Tide Clans: Driftwood & Bamboo Lighthouse Tower
     g.poly([-8, 0, 0, 4, 8, 0, 0, -4]); g.fill({ color: 0x334155, alpha: a });
@@ -3409,6 +3439,16 @@ function drawWatchtowerCulture(
     }
 
     g.circle(-4, -h, 1.4); g.fill({ color: 0xfef08a, alpha: a });
+
+    // Gold Glint: 4-point diamond star spark on brass nautical lantern cupola
+    const isGlintPhase = phase * 4.2;
+    const isGlint = 0.45 + 0.55 * Math.sin(isGlintPhase);
+    const isGlintY = -h - 16;
+    g.poly([0, isGlintY - 3.2 * isGlint, 0.8 * isGlint, isGlintY, 0, isGlintY + 3.2 * isGlint, -0.8 * isGlint, isGlintY]);
+    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+    g.poly([-3.2 * isGlint, isGlintY, 0, isGlintY - 0.8 * isGlint, 3.2 * isGlint, isGlintY, 0, isGlintY + 0.8 * isGlint]);
+    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+    g.circle(0, isGlintY, 0.9 * isGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
   }
 }
 
@@ -4966,18 +5006,28 @@ export function drawIsometricBuilding(
       g.rect(-3.5, -h - 17, 7, 2.5);
       g.fill({ color: 0x1e293b, alpha: a });
 
+      // Clear, radiant beacon fire with animated flame tongues
       const flame = Math.sin(phase * 6) * 1.5;
-      g.circle(0, -h - 18, 2.5 + flame * 0.3);
+      g.circle(0, -h - 18, 2.6 + flame * 0.3);
       g.fill({ color: 0xf97316, alpha: a });
-      g.circle(0, -h - 18.5, 1.2);
+      g.circle(0, -h - 18.5, 1.3);
       g.fill({ color: 0xfacc15, alpha: a });
+      g.circle(0, -h - 19, 0.6);
+      g.fill({ color: 0xffffff, alpha: 0.9 * a });
 
+      // Radiant warm beacon glow halo & ember spark
       if (isRim) {
         // Taller rim beacon has radiant warm beacon glow and ember spark
-        g.ellipse(0, -h - 18, 7.5 + Math.sin(phase * 4) * 1.0, 4.5 + Math.sin(phase * 4) * 0.6);
-        g.fill({ color: 0xfde047, alpha: 0.18 * a });
+        g.ellipse(0, -h - 18, 8.0 + Math.sin(phase * 4) * 1.2, 4.8 + Math.sin(phase * 4) * 0.7);
+        g.fill({ color: 0xfde047, alpha: 0.2 * a });
         g.circle(Math.sin(phase * 5) * 1.8, -h - 22, 0.7);
         g.fill({ color: 0xfef08a, alpha: 0.85 * a });
+      } else {
+        // Clear interior beacon glow halo & ember spark
+        g.ellipse(0, -h - 18, 5.5 + Math.sin(phase * 4) * 0.8, 3.2 + Math.sin(phase * 4) * 0.5);
+        g.fill({ color: 0xfde047, alpha: 0.15 * a });
+        g.circle(Math.sin(phase * 5) * 1.4, -h - 21, 0.5);
+        g.fill({ color: 0xfef08a, alpha: 0.8 * a });
       }
 
       // Royal Pennant
@@ -4988,6 +5038,45 @@ export function drawIsometricBuilding(
       g.stroke({ width: 1.5, color: 0xd4a359, alpha: a });
       g.poly([0, pennantTop, 9 + flap, pennantTop + 4, 0, pennantTop + 8]);
       g.fill({ color: 0xfacc15, alpha: a });
+
+      // Polished brass/gold masthead ball finial
+      g.circle(0, pennantTop, 1.4);
+      g.fill({ color: 0xf59e0b, alpha: a });
+
+      // Gold Glint: sparkling 4-point diamond star atop the watchtower beacon spire
+      const glintPhase = phase * 4.2 + (gx * 1.7 + gy * 2.3);
+      const glintScale = 0.45 + 0.55 * Math.abs(Math.sin(glintPhase));
+      const glintX = 0;
+      const glintY = pennantTop - 1.5;
+      const rayL = (isRim ? 4.2 : 3.4) * glintScale;
+      const rayW = 1.0 * glintScale;
+
+      // Vertical glint ray diamond
+      g.poly([
+        glintX, glintY - rayL,
+        glintX + rayW, glintY,
+        glintX, glintY + rayL,
+        glintX - rayW, glintY,
+      ]);
+      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+
+      // Horizontal glint ray diamond
+      g.poly([
+        glintX - rayL, glintY,
+        glintX, glintY - rayW,
+        glintX + rayL, glintY,
+        glintX, glintY + rayW,
+      ]);
+      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+
+      // Brilliant white core spark
+      g.circle(glintX, glintY, 1.0 * glintScale);
+      g.fill({ color: 0xffffff, alpha: 0.95 * a });
+
+      // Brazier rim gold glint spark
+      const brazierGlint = 0.5 + 0.5 * Math.sin(glintPhase + 1.8);
+      g.circle(2.6, -h - 16.5, 0.7 * brazierGlint);
+      g.fill({ color: 0xfef08a, alpha: 0.9 * a });
       break;
     }
 

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-30 — Gemini Finished Watchtower Clear Beacon & Gold Glint (bakeoff/gemini-tower-beacon)
+
+- **Render Only: Finished Watchtower Clear Beacon & Gold Glint (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
+  - **Finished Watchtower**: Rendered with an active, brilliant beacon fire (vibrant orange/yellow flame tongues `0xf97316`, `0xfacc15`, white-hot core `0xffffff`, radiant warm halo `0xfde047`, and rising ember sparks `0xfef08a`), and a gleaming 4-point diamond star **gold glint** (`0xfacc15`, `0xffffff`) atop the beacon spire finial. Supported across Western and all culture kits (`cedar`, `sand`, `steppe`, `islands`) and keep-yard annex tokens.
+  - **Unfinished Watchtower**: Strictly preserves authentic timber construction scaffolding (`drawWatchtowerScaffolding`) with upright corner posts, ledger cross-beams, diagonal X-braces, staging deck, and suspended building block. Zero beacon flames, zero radiant glow, zero gold glints.
+  - **Invariants**: Strictly non-blocking (`eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff main -- packages/sim server` strictly empty. No `theme.css` changes. Zero `<<<<<<<` conflict markers anywhere in the repository.
+
 ## 2026-09-30 — Quarry / Watchtower hints (wave/hint-quarry-tower)
 
 - New `packages/app/src/buildHints.ts`: `wallsStoneHint(state)` and `scoutGoldHint(state)`. Costs come from `getBuildingType(...).cost` times `buildCostMultiplier`, and `scoutCost(state)`. No hard-coded numbers.

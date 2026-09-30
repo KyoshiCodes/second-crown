@@ -174,6 +174,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   const entitiesLayer = new Container();
   entitiesLayer.sortableChildren = true;
+  entitiesLayer.eventMode = "none";
   holdContainer.addChild(entitiesLayer);
 
   const fogLayer = new Graphics();
@@ -676,6 +677,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       let g = buildingGraphics.get(b.id);
       if (!g) {
         g = new Graphics();
+        g.eventMode = "none";
         buildingGraphics.set(b.id, g);
         entitiesLayer.addChild(g);
       }
