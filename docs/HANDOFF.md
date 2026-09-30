@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/playtest-harness, not merged)
+
+- Sim-only bot playtest: `npm run playtest` plays a fresh game for 12,000 ticks and rewrites the marked block at the top of `docs/PLAYTEST.md`. `npm test` runs a shorter copy of it and never writes files.
+- Latest run: 0 errors, 0 failed asserts, primer 7/9 (stuck on walls). Iron March marches on the hold every 500 ticks from tick 500 and the levy is lost each time. There is no gold for scouting and no stone for walls.
+- Files: `packages/sim/src/harness/playtestHarness.ts` (+ `.test.ts`), `playtest.report.ts`, `packages/sim/vitest.playtest.config.ts`. No sim rule, server or UI changes.
+
 ## Active wave (wave/lofi-stable)
 
 - Lofi dock: picking a track (list, ‹, ›) plays it and repeats it. Only an unpicked, cleanly finished track advances to the next.

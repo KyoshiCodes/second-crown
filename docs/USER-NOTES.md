@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — A robot played the opening (dev only)
+
+- Nothing changed in the game. We added a bot that plays the first 20 minutes and writes what happened to `docs/PLAYTEST.md`.
+- What it found: the rival raids your hold every ~50 seconds from the start. You start with no gold to scout and no stone for walls.
+
 ## 2026-09-30 — Seasonal board washes (bakeoff/gemini-season-wash)
 
 - The overworld board now shifts with the cycle of seasons:

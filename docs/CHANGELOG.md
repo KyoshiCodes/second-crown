@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-30 — Sim playtest harness (wave/playtest-harness)
+
+- `packages/sim/src/harness/playtestHarness.ts`: `runPlaytest({ seed, ticks, turnEvery })` bot that builds cottage/farm, trains militia, scouts, gathers, marches once, builds walls/studies for the primer, and presses primer advance. Records tries/refusals per action, thrown errors, soft invariant failures, home raids, and peak resources. `playtestMarkdown(report)` gives deterministic output.
+- `playtestHarness.test.ts` (in `npm test`): 3,000-tick run with no throws, and the same seed gives an identical report.
+- `playtest.report.ts` + `vitest.playtest.config.ts`: `npm run playtest` writes the `<!-- sim-playtest -->` block in `docs/PLAYTEST.md` (the friends guide below it is kept).
+- No `packages/sim` rule changes, no server or app changes.
+
 ## 2026-09-30 — Gemini Board-Only Seasonal Wash (bakeoff/gemini-season-wash)
 
 - **Board-Only Seasonal Wash (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/app/src/OverworldAtlas.tsx`)**:
