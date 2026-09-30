@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-30 — Primer scout copy (wave/primer-scout-copy)
+
+- `packages/sim/src/systems/tutorial.ts`: scout step `text` now says reveal a tile two or more steps from the hold, and lists Watchtower, gather/march column vision and Scout column as ways. Advance check unchanged.
+- `tutorial.test.ts`: scout step advances from a revealed far tile with no Scout column; text does not demand "press Scout column".
+- No cost, raid, server or UI changes.
+
 ## 2026-09-30 — Gemini Finished Quarry Cut Stone, Crane & Piles, Unfinished Scaffolding (bakeoff/gemini-quarry-yard)
 
 - **Render Only: Finished Quarry Cut Stone, Crane & Piles, Unfinished Scaffolding (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:

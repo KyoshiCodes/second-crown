@@ -1,3 +1,9 @@
+## 2026-09-30 — sim / primer scout copy (wave/primer-scout-copy)
+
+- `TUTORIAL_STEPS` scout `text` rewritten to match `tryAdvanceTutorial`: any non-home province seen with Manhattan distance >= 2 from (2,2). That check was already satisfied by watchtower/surveying vision and column vision, so the old "press Scout column" copy over-promised a requirement.
+- Step ids, order, tabs and advance logic unchanged; saves carry over.
+- `playtestHarness.ts` `autoNotes` still phrases scout-without-column as a surprise; left as is to keep the change minimal.
+
 ## 2026-09-30 — render / finished quarry cut stone, crane & piles, unfinished scaffolding (bakeoff/gemini-quarry-yard)
 
 - `packages/render/src/buildings.ts`:

@@ -28,7 +28,7 @@ export const TUTORIAL_STEPS = [
   {
     id: "scout",
     tab: "board" as PrimerTab,
-    text: "Click a far tile and press Scout column on its inspect card (gold plus one skirmisher or militia). Fog hides other crowns until you scout or raise Watchtowers.",
+    text: "Reveal a tile two or more steps from your hold. Any sight counts: a Watchtower, a gather or march column's vision, or Scout column on a far tile's inspect card. Fog hides other crowns until you see past it.",
   },
   {
     id: "train",

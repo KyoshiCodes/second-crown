@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/primer-scout-copy, not merged)
+
+- Primer scout step text now matches its advance check: reveal any tile 2+ steps from the hold (Watchtower, gather/march column vision, or Scout column all count). It no longer tells players to press a paid Scout column.
+- Files: `packages/sim/src/systems/tutorial.ts` (text only), `tutorial.test.ts` (+2 tests). Advance check, costs, raids, server untouched.
+- Follow-up (not done): the playtest harness note "scout step still completed without a scout" reads like a bug; that path is now intended.
+
 ## Active wave (wave/hint-quarry-tower, not merged)
 
 - App-only hints for the two opening walls the playtest bot hit. Kingdom tab: when stone is short for Walls, one line says to build a Quarry (cost read from building data). Province inspect: when gold is short for Scout column, one line says a Watchtower produces gold.
