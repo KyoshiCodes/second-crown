@@ -78,6 +78,7 @@ import {
   getWallHpStatus,
   isWallHpLow,
   isWallRingClosed,
+  holdHasPeople,
 } from "./buildings.js";
 
 import {
@@ -665,11 +666,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     const wallStatus = getWallHpStatus(state);
     const isWallLow = wallStatus.hasWallHp && wallStatus.isLow;
     const isRingClosed = isWallRingClosed(state);
+    const hasPeople = holdHasPeople(state);
     const buildingOptions = {
       isWallLow,
       wallHpRatio: wallStatus.ratio,
       isRingClosed,
       state,
+      hasPeople,
     };
 
     for (const b of state.buildings) {
@@ -706,6 +709,12 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         };
       }
 
+      const bRealm = b.realmId || "player";
+      const bHasPeople = holdHasPeople(state, bRealm);
+      const bOptions = bRealm !== "player"
+        ? { ...buildingOptions, hasPeople: bHasPeople }
+        : buildingOptions;
+
       drawIsometricBuilding(
         g,
         b.typeId,
@@ -717,7 +726,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         gy,
         rimNeighbors,
         cultId,
-        buildingOptions
+        bOptions
       );
     }
 

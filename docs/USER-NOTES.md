@@ -2,12 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-30 — Opening tips from the bot playtest
+## 2026-09-30 — Player keep chimney smoke and quiet hearth (bakeoff/gemini-keep-hearth)
 
-- Good opening order: build a **Quarry**, then a **Watchtower**, then send a **Scout**. In the latest bot run the Quarry went up at tick 25, the Watchtower at tick 100, and the Scout left at tick 200.
-- **Walls need stone.** You start short, so build the Quarry first.
-- **Raids come often.** The rival marched on the bot's hold 23 times in 20 minutes, about every 50 seconds, starting early. None of those raids were held yet, so expect to lose militia.
-- The primer's **scout** step means reveal any tile two or more steps from your hold. A Watchtower or a column's vision counts. You don't have to pay for a Scout column.
+- Your **Keep** now visually reflects whether people reside in your hold:
+  - **Hold Has People**: When citizens or garrisoned troops are in your settlement, the keep's hearth chimney burns bright with a warm golden hearth glow and lively, billowing smoke plumes rising and drifting across the roofline.
+  - **Empty Hold**: When your hold has no people, the chimney fires die down to a quiet, faint lazy wisp—signaling an empty hold at a glance.
+  - Supported across all cultural styles (Western ashlar chimney, Cedar Kin roof louvers, Sand Banner mudbrick chimney pot, Wind Host toono ring, and Tide Clans driftwood smoke cowl).
+- Purely cosmetic visual update; never interferes with map clicks or interactions.
 
 ## 2026-09-30 — Closed gate lamp and warm slot (bakeoff/gemini-gate-lamp)
 

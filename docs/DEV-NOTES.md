@@ -1,3 +1,23 @@
+## 2026-09-30 — render / player keep chimney hearth smoke when hold has people, quieter if empty (bakeoff/gemini-keep-hearth)
+
+- `packages/render/src/buildings.ts`:
+  - `export function holdHasPeople(state?: GameState | null, realmId = "player"): boolean`:
+    - Checks boolean flag `state.hasPeople`, number `state.population > 0`, citizens in realm `state.citizens.filter(c => c.realmId === realmId).length > 0`, `sim.population(state, realmId) > 0`, and armed units `state.units.filter(u => u.realmId === realmId && Number(u.count) > 0).length > 0`.
+  - `export interface BuildingDrawOptions`:
+    - Added optional `hasPeople?: boolean` property. In `drawIsometricBuilding`: resolved as `options?.hasPeople ?? (options?.state ? holdHasPeople(options.state) : true)`.
+  - `case "keep":` in `drawIsometricBuilding`:
+    - Western keep: Added Ashlar stone chimney stack on the hold roof terrace (`0x64748b`, `0x475569`, `0x334155`) with masonry course line and dark flue cavity (`0x09090b`).
+    - When `complete` and `hasPeople`: draws golden hearth ember glow at the flue opening (`0xfef08a`, alpha up to 0.45), and 4 rising billowing smoke puffs (`0xe2e8f0`, `0xf1f5f9`, `0xf8fafc`, `0xffffff`) with radii expanding from 2.4 to 5.0 and wind drift.
+    - When `complete` and `!hasPeople`: "quieter if empty" — draws faint, thin lazy wisp (`0xd1d5db`, `0xe5e7eb`, radius <= 1.6, alpha 0.12–0.18).
+    - When `!complete`: construction scaffolding suppresses live hearth smoke.
+  - `drawKeepCulture`:
+    - Added `hasPeople = true` parameter. Updated all 4 kits (`cedar`, `sand`, `steppe`, `islands`) to draw active billowing hearth smoke with warm flue glow when `hasPeople` is true, and quieter faint wisps when `hasPeople` is false.
+- `packages/render/src/tokens.ts`:
+  - `drawMiniatureKeep`: added `hasPeople` check for player home keep (`isHome === true`), drawing warm ember glint and billowing miniature puffs when populated, and quieter faint wisp when empty. Added `hasPeople?: boolean` to `MiniatureKeepOptions`.
+- `packages/render/src/index.ts`:
+  - `paintBuildings`: derives `hasPeople = holdHasPeople(state)` and passes `hasPeople` to `buildingOptions` and per-building `bOptions`.
+- Invariants: Sim and server unchanged (`git diff origin/main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. No `theme.css` changes. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — render / closed home gate lit lamp & warm slot, open gate dark & raised (bakeoff/gemini-gate-lamp)
 
 - `packages/render/src/buildings.ts`:

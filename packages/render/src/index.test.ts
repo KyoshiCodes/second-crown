@@ -71,6 +71,7 @@ import {
   drawKeepYardAnnex,
   type KeepYardBuildingInfo,
   type KeepYardSlot,
+  holdHasPeople,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -6444,6 +6445,180 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           expect(indexCode).toContain('g.eventMode = "none"');
 
           // Check no conflict markers in render package
+          const files = ["buildings.ts", "tokens.ts", "index.ts"];
+          for (const f of files) {
+            const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+            expect(code).not.toContain("<<<<<<<");
+            expect(code).not.toContain("=======");
+            expect(code).not.toContain(">>>>>>>");
+          }
+        });
+      });
+
+      describe("bakeoff/gemini-keep-hearth: Player keep chimney/hearth smoke when hold has people, quieter if empty", () => {
+        const visuals = getThemeVisuals("summer");
+
+        it("holdHasPeople accurately checks population, citizens, units, and flags", () => {
+          expect(holdHasPeople(undefined)).toBe(false);
+          expect(holdHasPeople(null)).toBe(false);
+
+          // Boolean flag
+          expect(holdHasPeople({ hasPeople: true } as any)).toBe(true);
+          expect(holdHasPeople({ hasPeople: false } as any)).toBe(false);
+
+          // Population number
+          expect(holdHasPeople({ population: 5 } as any)).toBe(true);
+          expect(holdHasPeople({ population: 0 } as any)).toBe(false);
+
+          // Citizens array
+          const emptyState = createMockState();
+          emptyState.citizens = [];
+          emptyState.units = [];
+          expect(holdHasPeople(emptyState)).toBe(false);
+
+          const populatedState = createMockState();
+          populatedState.citizens = [
+            { id: "c1", realmId: "player", job: "farmer", tile: { x: 1, y: 1 } },
+          ];
+          expect(holdHasPeople(populatedState)).toBe(true);
+          expect(holdHasPeople(populatedState, "player")).toBe(true);
+          expect(holdHasPeople(populatedState, "rival")).toBe(false);
+
+          // Armed units in hold
+          const garrisonState = createMockState();
+          garrisonState.citizens = [];
+          garrisonState.units = [
+            { id: "u1", typeId: "militia", realmId: "player", count: "12", armyId: null },
+          ];
+          expect(holdHasPeople(garrisonState)).toBe(true);
+        });
+
+        it("Western keep renders Ashlar stone chimney stack, warm hearth glow, and billowing smoke when hold has people", () => {
+          const gPopulated = createMockGraphics();
+          drawIsometricBuilding(gPopulated, "keep", 1, true, 0, visuals, 0, 0, undefined, "western", { hasPeople: true });
+
+          const populatedJson = JSON.stringify(gPopulated.calls);
+
+          // 1. Ashlar Stone Chimney Stack on roof
+          expect(populatedJson).toContain(String(0x64748b)); // stoneLight face
+          expect(populatedJson).toContain(String(0x475569)); // stoneDark face
+          expect(populatedJson).toContain(String(0x334155)); // stonePlinth coping
+          expect(populatedJson).toContain(String(0x09090b)); // dark flue opening
+
+          // 2. Warm golden hearth glow at chimney flue
+          expect(populatedJson).toContain(String(0xfef08a));
+
+          // 3. Billowing smoke puffs rising and expanding
+          expect(populatedJson).toContain(String(0xe2e8f0)); // fresh warm puff
+          expect(populatedJson).toContain(String(0xf1f5f9)); // expanding puff
+          expect(populatedJson).toContain(String(0xf8fafc)); // large drifting plume
+          expect(populatedJson).toContain(String(0xffffff)); // high dispersed wisp
+
+          // Check smoke puff radii: expanding up to ~5.0
+          const puffs = gPopulated.calls.filter((c) => c.method === "circle" && c.args[0] > 4 && c.args[1] < -35 && c.args[2] >= 2.0);
+          expect(puffs.length).toBeGreaterThanOrEqual(4);
+          const maxRadius = Math.max(...puffs.map((p) => p.args[2]));
+          expect(maxRadius).toBeGreaterThanOrEqual(4.5);
+        });
+
+        it("Western keep renders quieter, faint smoke wisp when hold is empty", () => {
+          const gEmpty = createMockGraphics();
+          drawIsometricBuilding(gEmpty, "keep", 1, true, 0, visuals, 0, 0, undefined, "western", { hasPeople: false });
+
+          const emptyJson = JSON.stringify(gEmpty.calls);
+
+          // 1. Chimney stack is still physically present
+          expect(emptyJson).toContain(String(0x64748b));
+          expect(emptyJson).toContain(String(0x09090b));
+
+          // 2. Smoke is noticeably quieter: faint small wisps (0xd1d5db, 0xe5e7eb)
+          expect(emptyJson).toContain(String(0xd1d5db));
+          expect(emptyJson).toContain(String(0xe5e7eb));
+
+          // 3. Does NOT contain large billowing white clouds (0xf8fafc, 0xffffff)
+          expect(emptyJson).not.toContain(String(0xf8fafc));
+          expect(emptyJson).not.toContain(String(0xffffff));
+
+          // 4. All chimney smoke circles have small radius (<= 1.6)
+          const emptyPuffs = gEmpty.calls.filter((c) => c.method === "circle" && c.args[0] > 4 && c.args[1] < -35);
+          expect(emptyPuffs.length).toBeGreaterThanOrEqual(1);
+          for (const puff of emptyPuffs) {
+            expect(puff.args[2]).toBeLessThanOrEqual(1.6);
+          }
+        });
+
+        it("populated keep and empty keep visual signatures are clearly distinct", () => {
+          const gPopulated = createMockGraphics();
+          drawIsometricBuilding(gPopulated, "keep", 1, true, 0, visuals, 0, 0, undefined, "western", { hasPeople: true });
+
+          const gEmpty = createMockGraphics();
+          drawIsometricBuilding(gEmpty, "keep", 1, true, 0, visuals, 0, 0, undefined, "western", { hasPeople: false });
+
+          expect(JSON.stringify(gPopulated.calls)).not.toEqual(JSON.stringify(gEmpty.calls));
+        });
+
+        it("unfinished keep (complete = false) suppresses chimney hearth smoke", () => {
+          const gUnfinished = createMockGraphics();
+          drawIsometricBuilding(gUnfinished, "keep", 1, false, 0, visuals, 0, 0, undefined, "western", { hasPeople: true });
+
+          const unfinJson = JSON.stringify(gUnfinished.calls);
+          // Chimney smoke colors are absent
+          expect(unfinJson).not.toContain(String(0xe2e8f0));
+          expect(unfinJson).not.toContain(String(0xf8fafc));
+          expect(unfinJson).not.toContain(String(0xffffff));
+        });
+
+        it("all 4 culture keeps render active smoke when hold has people, and quieter smoke when empty", () => {
+          const kits = ["cedar", "sand", "steppe", "islands"] as const;
+
+          for (const kit of kits) {
+            const gPop = createMockGraphics();
+            drawIsometricBuilding(gPop, "keep", 1, true, 0, visuals, 0, 0, undefined, kit, { hasPeople: true });
+            const popJson = JSON.stringify(gPop.calls);
+
+            const gEmpty = createMockGraphics();
+            drawIsometricBuilding(gEmpty, "keep", 1, true, 0, visuals, 0, 0, undefined, kit, { hasPeople: false });
+            const emptyJson = JSON.stringify(gEmpty.calls);
+
+            // Populated hold has active warm smoke
+            expect(popJson).toContain(String(0xe2e8f0)); // active smoke
+            expect(popJson).toContain(String(0xfef08a)); // warm hearth glow
+
+            // Empty hold has faint wisp (0xd1d5db)
+            expect(emptyJson).toContain(String(0xd1d5db));
+
+            // Populated and empty states differ
+            expect(popJson).not.toEqual(emptyJson);
+          }
+        });
+
+        it("drawMiniatureKeep renders warm ember glint and puffs for populated home hold, quieter wisp for empty hold", () => {
+          const gHomePop = createMockGraphics();
+          drawMiniatureKeep(gHomePop, 50, 50, "western", undefined, true, 0, { hasPeople: true });
+          const homePopJson = JSON.stringify(gHomePop.calls);
+
+          const gHomeEmpty = createMockGraphics();
+          drawMiniatureKeep(gHomeEmpty, 50, 50, "western", undefined, true, 0, { hasPeople: false });
+          const homeEmptyJson = JSON.stringify(gHomeEmpty.calls);
+
+          // Populated home keep has warm ember glint and puffs
+          expect(homePopJson).toContain(String(0xfef08a));
+          expect(homePopJson).toContain(String(0xe2e8f0));
+
+          // Empty home keep has quieter faint wisp
+          expect(homeEmptyJson).toContain(String(0xd1d5db));
+          expect(homeEmptyJson).not.toContain(String(0xe2e8f0));
+          expect(homePopJson).not.toEqual(homeEmptyJson);
+        });
+
+        it("verifies pointer-events none and zero conflict markers in render package", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+          expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+          expect(indexCode).toContain('g.eventMode = "none"');
+
           const files = ["buildings.ts", "tokens.ts", "index.ts"];
           for (const f of files) {
             const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
