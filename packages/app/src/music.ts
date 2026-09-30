@@ -47,6 +47,14 @@ const LOFI_FILES = [
   "lofi-b.ogg",
 ];
 export const LOFI_TRACKS = LOFI_FILES.map((f) => `/audio/${encodeURIComponent(f)}`);
+/** Fired when the lofi track index changes (detail: index). */
+export const LOFI_TRACK_EVENT = "sc-lofi-track";
+
+/** "01 HoliznaCC0 - Clouds.mp3.ogg" -> "Clouds". */
+export function lofiTrackName(i: number): string {
+  const f = LOFI_FILES[i] ?? "";
+  return f.replace(/^\d+\s+HoliznaCC0\s+-\s+/, "").replace(/(\.mp3)?\.ogg$/, "");
+}
 
 let ctx: AudioContext | null = null;
 let melodyTimer: number | null = null;
@@ -252,10 +260,36 @@ function playLofi() {
   if (lofiSrc !== src) {
     lofiSrc = src;
     el.src = src;
+    try {
+      window.dispatchEvent(new CustomEvent(LOFI_TRACK_EVENT, { detail: lofiIndex }));
+    } catch {
+      /* ignore */
+    }
   }
   void el.play().catch(() => {
     /* autoplay block or missing file; the error listener handles files */
   });
+}
+
+export function getLofiIndex(): number {
+  return lofiIndex;
+}
+
+/** Jump to track i (wraps). Plays now if Lofi mode is on. */
+export function playLofiTrack(i: number): void {
+  const n = LOFI_TRACKS.length;
+  lofiIndex = ((i % n) + n) % n;
+  lofiErrors = 0;
+  if (mode !== "lofi") return;
+  playLofi();
+}
+
+export function nextLofiTrack(): void {
+  playLofiTrack(lofiIndex + 1);
+}
+
+export function prevLofiTrack(): void {
+  playLofiTrack(lofiIndex - 1);
 }
 
 function stopLofi() {

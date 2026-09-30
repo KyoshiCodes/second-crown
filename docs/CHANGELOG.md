@@ -5,6 +5,7 @@
 - Music select (Off / Lofi / Realm) next to Holiday and Chrome. Persists in `sc-music`, default Off.
 - `music.ts` gains `MusicMode`, `getMusicMode`, `setMusicMode`, `loadMusicMode`, a lofi `<audio>` player that plays all 33 lofi tracks in `public/audio/` (HoliznaCC0 `03`–`33`, `lofi-a`, `lofi-b`) in filename order and loops, skipping any that 404, and a slow synth lofi fallback when none load.
 - The HUD "Music on/off" button toggles Off and the last picked mode. Holiday / battle recordings only play in Realm.
+- Lofi dock (shown only in Lofi mode): Now playing (cleaned name), ‹ / › prev/next (wrap), and a select of every track; picking one plays it. Styles in `lofi-dock.css`.
 - Audio files not committed yet. No sim, combat, gold or theme.css changes.
 
 ## 2026-09-29 — Primer v3 (wave/primer-v3)
