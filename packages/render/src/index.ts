@@ -70,6 +70,7 @@ import {
   listRimFortsPresentation,
   paintIsometricGround,
   paintBoardBackdrop,
+  paintEmptyPlotStakes,
 } from "./tiles.js";
 
 import {
@@ -172,6 +173,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   // Hold layers inside holdContainer
   const groundLayer = new Graphics();
   holdContainer.addChild(groundLayer);
+
+  const plotStakesLayer = new Graphics();
+  plotStakesLayer.eventMode = "none";
+  holdContainer.addChild(plotStakesLayer);
 
   const entitiesLayer = new Container();
   entitiesLayer.sortableChildren = true;
@@ -323,6 +328,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   // Paint ground and board backdrop initially
   paintIsometricGround(groundLayer, visuals);
+  paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals);
   paintBoardBackdrop(boardBackdropLayer, visuals);
 
   // Living Walkers presentation pool (8 citizens)
@@ -756,6 +762,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintAmbientLighting();
       paintBoardBackdrop(boardBackdropLayer, visuals);
     }
+    paintEmptyPlotStakes(plotStakesLayer, state, phase, visuals);
     paintBuildings(state, phase);
     paintBoardProvinces(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
     paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
@@ -774,6 +781,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     updateParticles(phase);
     updateBoardWeather(phase);
     if (lastState) {
+      paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals);
       paintBuildings(lastState, phase);
       paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
       paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
@@ -796,6 +804,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       updateParticles(phase);
       if (lastState) {
         paintBuildings(lastState, phase);
+        paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals);
       }
     } else {
       updateBoardWeather(phase);

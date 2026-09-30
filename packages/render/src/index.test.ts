@@ -72,6 +72,11 @@ import {
   type KeepYardBuildingInfo,
   type KeepYardSlot,
   holdHasPeople,
+  isEmptyWorkPlot,
+  listEmptyWorkPlots,
+  drawPlotStake,
+  paintEmptyPlotStakes,
+  ROAD_TILES,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -6627,14 +6632,189 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
             expect(code).not.toContain(">>>>>>>");
           }
         });
+
+        describe("Hold Empty Work Plot Survey Stakes", () => {
+          it("isEmptyWorkPlot identifies valid empty interior work plots and rejects out-of-bounds, rim, roads, and built plots", () => {
+            const state = createMockState();
+            state.buildings = [
+              { id: "k1", typeId: "keep", realmId: "player", x: 3, y: 3, level: 1, completesAtTick: null },
+              { id: "f1", typeId: "farm", realmId: "player", x: 2, y: 2, level: 1, completesAtTick: null },
+              { id: "scaff1", typeId: "quarry", realmId: "player", x: 4, y: 2, level: 1, completesAtTick: 50 },
+            ];
+
+            // Out-of-bounds
+            expect(isEmptyWorkPlot(state, -1, 0)).toBe(false);
+            expect(isEmptyWorkPlot(state, 16, 5)).toBe(false);
+            expect(isEmptyWorkPlot(state, 5, 10)).toBe(false);
+
+            // Rim tiles (fortification perimeter for walls/gate)
+            expect(isEmptyWorkPlot(state, 0, 0)).toBe(false);
+            expect(isEmptyWorkPlot(state, 0, 5)).toBe(false);
+            expect(isEmptyWorkPlot(state, 15, 4)).toBe(false);
+            expect(isEmptyWorkPlot(state, 7, 9)).toBe(false);
+
+            // Road tiles (cobblestone thoroughfares)
+            expect(isEmptyWorkPlot(state, 4, 4)).toBe(false);
+            expect(isEmptyWorkPlot(state, 6, 4)).toBe(false);
+            expect(isEmptyWorkPlot(state, 9, 3)).toBe(false);
+            expect(isEmptyWorkPlot(state, 4, 4, true)).toBe(true); // includeRoads allows roads if explicitly requested
+
+            // Built plots (occupied by finished building or scaffolding)
+            expect(isEmptyWorkPlot(state, 3, 3)).toBe(false); // keep
+            expect(isEmptyWorkPlot(state, 2, 2)).toBe(false); // farm
+            expect(isEmptyWorkPlot(state, 4, 2)).toBe(false); // quarry scaffolding
+
+            // Empty interior non-road plots
+            expect(isEmptyWorkPlot(state, 1, 1)).toBe(true);
+            expect(isEmptyWorkPlot(state, 5, 2)).toBe(true);
+            expect(isEmptyWorkPlot(state, 8, 2)).toBe(true);
+            expect(isEmptyWorkPlot(state, 13, 7)).toBe(true);
+          });
+
+          it("listEmptyWorkPlots returns all open work plots and updates when plots are built", () => {
+            const state = createMockState();
+            state.buildings = [];
+
+            const initialPlots = listEmptyWorkPlots(state);
+            expect(initialPlots.length).toBeGreaterThan(50);
+
+            // Verify no plots are on the rim or on roads
+            for (const p of initialPlots) {
+              expect(isRimTile(p.x, p.y)).toBe(false);
+              expect(ROAD_TILES.has(`${p.x},${p.y}`)).toBe(false);
+            }
+
+            // Place a building at (1, 1) and (5, 2)
+            state.buildings.push(
+              { id: "b_1_1", typeId: "farm", realmId: "player", x: 1, y: 1, level: 1, completesAtTick: null },
+              { id: "b_5_2", typeId: "cottage", realmId: "player", x: 5, y: 2, level: 1, completesAtTick: null }
+            );
+
+            const updatedPlots = listEmptyWorkPlots(state);
+            expect(updatedPlots.length).toBe(initialPlots.length - 2);
+            expect(updatedPlots.some((p) => p.x === 1 && p.y === 1)).toBe(false);
+            expect(updatedPlots.some((p) => p.x === 5 && p.y === 2)).toBe(false);
+          });
+
+          it("drawPlotStake renders authentic wooden surveyor stake with peg, highlight, twine, and fluttering ribbon", () => {
+            const g = createMockGraphics();
+            drawPlotStake(g, 100, 100, 0, visuals);
+
+            const json = JSON.stringify(g.calls);
+
+            // Ground contact shadow and soil indent
+            expect(json).toContain(String(0x000000));
+            expect(json).toContain(String(0x271708));
+
+            // Displaced loam soil clods at base
+            expect(json).toContain(String(0x3f220c));
+            expect(json).toContain(String(0x2e1908));
+
+            // Chiseled timber stake shaft and sunlit highlight
+            expect(json).toContain(String(0x78350f));
+            expect(json).toContain(String(0xb45309));
+
+            // Chamfered top cut pale heartwood
+            expect(json).toContain(String(0xd97706));
+
+            // Fine vertical grain split
+            expect(json).toContain(String(0x451a03));
+
+            // Hemp twine neck wrapping
+            expect(json).toContain(String(0xfef08a));
+
+            // Fluttering red surveyor marker ribbon and knot
+            expect(json).toContain(String(0xef4444));
+            expect(json).toContain(String(0xb91c1c));
+            expect(json).toContain(String(0xfacc15));
+          });
+
+          it("drawPlotStake animates ribbon flutter across different phases", () => {
+            const g0 = createMockGraphics();
+            drawPlotStake(g0, 100, 100, 0, visuals);
+
+            const g1 = createMockGraphics();
+            drawPlotStake(g1, 100, 100, 2.5, visuals);
+
+            expect(JSON.stringify(g0.calls)).not.toEqual(JSON.stringify(g1.calls));
+          });
+
+          it("drawPlotStake adds winter snow/frost cap in winter theme", () => {
+            const winterVisuals: ThemeVisuals = { ...visuals, decorations: "winter" };
+            const gWinter = createMockGraphics();
+            drawPlotStake(gWinter, 100, 100, 0, winterVisuals);
+
+            const jsonWinter = JSON.stringify(gWinter.calls);
+            expect(jsonWinter).toContain(String(0xf8fafc));
+
+            const springVisuals: ThemeVisuals = { ...visuals, decorations: "spring" };
+            const gSpring = createMockGraphics();
+            drawPlotStake(gSpring, 100, 100, 0, springVisuals);
+            const jsonSpring = JSON.stringify(gSpring.calls);
+            expect(jsonSpring).not.toContain(String(0xf8fafc));
+          });
+
+          it("paintEmptyPlotStakes clears and renders stakes on empty plots, skipping built plots and rim", () => {
+            const state = createMockState();
+            state.buildings = [
+              { id: "k", typeId: "keep", realmId: "player", x: 3, y: 3, level: 1, completesAtTick: null },
+              { id: "f", typeId: "farm", realmId: "player", x: 2, y: 2, level: 1, completesAtTick: null },
+            ];
+
+            const g = createMockGraphics();
+            paintEmptyPlotStakes(g, state, 0, visuals);
+
+            // Calls clear initially
+            expect(g.calls[0].method).toBe("clear");
+
+            // Stakes are rendered (contains timber shaft color)
+            const json = JSON.stringify(g.calls);
+            expect(json).toContain(String(0x78350f));
+            expect(json).toContain(String(0xef4444));
+
+            // Verify built plots stay as they are: when all plots are filled, no stakes are rendered
+            const fullState = createMockState();
+            fullState.buildings = [];
+            for (let y = 1; y < GRID_H - 1; y++) {
+              for (let x = 1; x < GRID_W - 1; x++) {
+                fullState.buildings.push({
+                  id: `b_${x}_${y}`,
+                  typeId: "farm",
+                  realmId: "player",
+                  x,
+                  y,
+                  level: 1,
+                  completesAtTick: null,
+                });
+              }
+            }
+
+            const gFull = createMockGraphics();
+            paintEmptyPlotStakes(gFull, fullState, 0, visuals);
+            expect(gFull.calls.length).toBe(1);
+            expect(gFull.calls[0].method).toBe("clear");
+          });
+
+          it("verifies pointer-events none and zero conflict markers for plot stakes", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+            expect(indexCode).toContain('plotStakesLayer.eventMode = "none"');
+            expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+
+            const files = ["buildings.ts", "tokens.ts", "tiles.ts", "index.ts"];
+            for (const f of files) {
+              const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+              expect(code).not.toContain("<<<<<<<");
+              expect(code).not.toContain("=======");
+              expect(code).not.toContain(">>>>>>>");
+            }
+          });
+        });
       });
     });
   });
 });
-
-
-
-
-
 
 

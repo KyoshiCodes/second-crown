@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 2026-09-30 — Gemini Empty Work Plots Wooden Survey Stake (bakeoff/gemini-plot-stake)
+
+- **Render Only: Empty Work Plots on the Player Hold Get a Small Wooden Stake (`packages/render/src/tiles.ts`, `packages/render/src/index.ts`)**:
+  - **Surveyor Stakes on Empty Work Plots**: Every open interior plot on the player hold (`!isRimTile` and `!ROAD_TILES.has(...)` not occupied by a building) receives a small authentic wooden surveyor's stake.
+  - **Visual Anatomy (`drawPlotStake`)**:
+    - **Contact Shadow & Loam Turf Indent**: Soft ground contact shadow (`0x000000`, `0x271708`) with dark turf indent where the peg was struck into the earth.
+    - **Fresh Soil Clods**: Small displaced dark loam soil clods (`0x3f220c`, `0x2e1908`) around the base.
+    - **Chiseled Timber Stake**: Hand-hewn aged oak timber peg (`0x78350f`) with left sunlit wood grain highlight (`0xb45309`), chamfered mallet-struck heartwood top cut (`0xd97706`), and fine vertical wood grain split (`0x451a03`).
+    - **Hemp Twine Neck Wrap**: Pale straw hemp twine cord (`0xfef08a`) tightly bound around the stake's upper neck.
+    - **Fluttering Surveyor Ribbon**: Bright vermilion red marker ribbon (`0xef4444`, `0xb91c1c`) with golden tie knot bead (`0xfacc15`) fluttering dynamically in the breeze with `phase`.
+    - **Seasonal Adaptation**: In winter / midwinter themes, a soft pale dusting of snow and frost (`0xf8fafc`) caps the top of the stake.
+  - **Built Plots Stay As They Are**: Occupied plots (buildings, scaffolding, keep, cottage, farm, quarry, lumber camp, etc.) render zero stakes; existing structures render untouched.
+  - **Rim Forts & Cobblestone Streets Excluded**: Rim tiles (reserved for perimeter walls and gate) and cobblestone road network remain clean and unobstructed.
+  - **Helpers Exported**: `isEmptyWorkPlot`, `listEmptyWorkPlots`, `drawPlotStake`, `paintEmptyPlotStakes`.
+  - **Dedicated Layer**: `plotStakesLayer = new Graphics()` added to `holdContainer` with `eventMode = "none"` (`pointer-events: none`), ensuring 100% unimpeded tile click and hover interactions.
+  - **Invariants**: Strictly non-blocking (`eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — Gemini Player Keep Chimney/Hearth Smoke When Hold Has People, Quieter If Empty (bakeoff/gemini-keep-hearth)
 
 - **Render Only: Player Keep Chimney/Hearth Smoke When Hold Has People; Quieter If Empty (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:

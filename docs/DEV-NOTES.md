@@ -1,3 +1,26 @@
+## 2026-09-30 — render / empty work plots wooden survey stake (bakeoff/gemini-plot-stake)
+
+- `packages/render/src/tiles.ts`:
+  - `export function isEmptyWorkPlot(state: GameState | null | undefined, gx: number, gy: number, includeRoads = false): boolean`:
+    - Checks bounds (`gx >= 0 && gy >= 0 && gx < GRID_W && gy < GRID_H`), excludes rim tiles (`isRimTile(gx, gy)`), excludes cobblestone roads (`ROAD_TILES.has(...)` unless `includeRoads`), and returns false if occupied by any building in `state.buildings`.
+  - `export function listEmptyWorkPlots(state: GameState | null | undefined, includeRoads = false): Array<{ x: number; y: number }>`:
+    - Iterates interior grid plots and collects all coordinates satisfying `isEmptyWorkPlot`.
+  - `export function drawPlotStake(g: Graphics, wx: number, wy: number, phase: number = 0, visuals?: ThemeVisuals): void`:
+    - Renders an authentic wooden surveyor's stake:
+      - Soft elliptical turf contact shadow (`0x000000`, alpha 0.28) and dark soil indent (`0x271708`, alpha 0.45).
+      - Displaced loam soil turf clods (`0x3f220c`, `0x2e1908`) around the base.
+      - Chiseled hardwood timber stake shaft (`0x78350f`) with left sunlit wood grain highlight (`0xb45309`), chamfered mallet-struck heartwood top cut (`0xd97706`), and fine vertical wood grain split line (`0x451a03`).
+      - Hemp twine neck wrapping (`0xfef08a`) binding the upper peg.
+      - Fluttering surveyor marker ribbon in vermilion red (`0xef4444`, `0xb91c1c`) with golden tie knot bead (`0xfacc15`) animated with `phase`.
+      - Seasonal winter frost cap (`0xf8fafc`) in winter/midwinter themes.
+  - `export function paintEmptyPlotStakes(g: Graphics, state: GameState | null | undefined, phase = 0, visuals?: ThemeVisuals, includeRoads = false): void`:
+    - Clears the graphics and iterates `listEmptyWorkPlots`, drawing a stake at `gridToWorld(x, y)` for each open plot.
+- `packages/render/src/index.ts`:
+  - Added `plotStakesLayer = new Graphics()` to `holdContainer` right after `groundLayer` and before `entitiesLayer`.
+  - `plotStakesLayer.eventMode = "none"` strictly guarantees `pointer-events: none`, preserving 100% unimpeded tile hovering and clicking.
+  - Integrated `paintEmptyPlotStakes(plotStakesLayer, ...)` in initial setup, `sync()`, `setTheme()`, and the animation ticker under `currentBand === "hold"`.
+- Invariants: Sim and server unchanged (`git diff origin/main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. No `theme.css` changes. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — render / player keep chimney hearth smoke when hold has people, quieter if empty (bakeoff/gemini-keep-hearth)
 
 - `packages/render/src/buildings.ts`:

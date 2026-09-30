@@ -37,6 +37,23 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
 - Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
 
+## Active Bakeoff (bakeoff/gemini-plot-stake)
+
+- **Render Only: Empty Work Plots on the Player Hold Get a Small Wooden Stake (`packages/render/src/tiles.ts`, `packages/render/src/index.ts`)**:
+  - **Empty Work Plots Marked with Survey Stake**: Every open interior plot on the player hold (`!isRimTile` and `!ROAD_TILES.has(...)` without an existing building) displays an authentic medieval wooden surveyor's stake.
+  - **Authentic Visual Details (`drawPlotStake`)**:
+    - **Contact Shadow & Soil Indent**: Soft ground contact shadow (`0x000000`, `0x271708`) with dark recessed turf indent where the peg is hammered in.
+    - **Displaced Loam Soil Clods**: Small fresh earthen soil turf clods (`0x3f220c`, `0x2e1908`) at the base.
+    - **Chiseled Timber Stake**: Hand-carved hardwood stake shaft (`0x78350f`) with left sunlit wood grain highlight (`0xb45309`), chamfered mallet-struck heartwood top cut (`0xd97706`), and fine vertical wood grain slit (`0x451a03`).
+    - **Hemp Twine Wrap**: Natural straw-colored hemp twine wrapping (`0xfef08a`) binding the upper neck.
+    - **Fluttering Surveyor Marker Ribbon**: Bright vermilion red marker ribbon (`0xef4444`, `0xb91c1c`) with golden knot bead (`0xfacc15`) fluttering dynamically in the breeze with `phase`.
+    - **Seasonal Adaptation**: Winter/midwinter decoration adds a soft pale snow/frost cap dusting (`0xf8fafc`) atop the stake.
+  - **Built Plots Stay As They Are**: Occupied plots (buildings, scaffolding, keep, cottage, farm, quarry, lumber camp, etc.) display zero stakes; existing structures render untouched.
+  - **Rim Forts & Cobblestone Streets Excluded**: Rim tiles (reserved for walls and gate) and cobblestone road network remain clean and unobstructed.
+  - **Helpers Exported**: `isEmptyWorkPlot`, `listEmptyWorkPlots`, `drawPlotStake`, `paintEmptyPlotStakes`.
+  - **Dedicated Layer**: `plotStakesLayer = new Graphics()` in `holdContainer` with `eventMode = "none"` (`pointer-events none`), ensuring 100% unimpeded tile click and hover interactions.
+  - **Strictly Non-Blocking Invariant**: Camera math and projection (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. Zero conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-keep-hearth)
 
 - **Render Only: Player Keep Chimney/Hearth Smoke When Hold Has People; Quieter If Empty (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:

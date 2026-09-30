@@ -2,7 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-30 — Player keep chimney smoke and quiet hearth (bakeoff/gemini-keep-hearth)
+## 2026-09-30 — Wooden surveyor stakes on empty work plots (bakeoff/gemini-plot-stake)
+
+- Open building plots in your settlement now receive a small **wooden surveyor's stake**:
+  - **Empty Work Plots**: Every open, unbuilt plot in your courtyard turf has a small hand-carved oak peg driven into the ground, tied with hemp twine and a bright vermilion red surveyor's marker ribbon fluttering in the wind.
+  - **Built Plots**: Once a building (or scaffolding) is placed on a plot, the stake is replaced by your construction, leaving existing buildings untouched.
+  - **Rim & Cobblestone Streets**: The perimeter wall/gate rim and cobblestone roads remain completely clear and unblocked.
+  - In winter, a delicate dusting of frost and snow rests on the head of each stake.
+- Purely cosmetic visual update; strictly `pointer-events: none` and never interferes with map clicks, zooming, or building placement.
 
 - Your **Keep** now visually reflects whether people reside in your hold:
   - **Hold Has People**: When citizens or garrisoned troops are in your settlement, the keep's hearth chimney burns bright with a warm golden hearth glow and lively, billowing smoke plumes rising and drifting across the roofline.
