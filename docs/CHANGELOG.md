@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-30 — Keep rooms (wave/keep-rooms)
+
+- `KeepInterior.tsx`: Hall / Wall / Yard tabs (`role="tablist"`), local `useState<Room>`, default Hall.
+- Hall: existing plot grid, legend, hint and build picker. Wall: `WallRoom` fact tiles (Wall HP, rim walls, ring, gate) plus the player's walls/gate list. Yard: `YardRoom` lists finished player works with `keepBonus > 1`.
+- Shared `WorkList` shows HallChip, name, level or raising time, and plot.
+- Header title now reads "· Keep". New `sc-keepin-room*`, `sc-keepin-facts`, `sc-keepin-list*`, `sc-keepin-empty` classes in `keep-interior.css`. No sim, render, server or theme.css changes.
+
 ## 2026-09-30 — HUD captains (wave/hud-captains)
 
 - New `packages/app/src/hud/captainName.ts`: `captainName(id)` hashes the id (FNV-1a) into a 24-name list.

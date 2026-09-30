@@ -208,6 +208,108 @@
 .sc-keepin-pick.is-afford { background: #2d5a27; }
 .sc-keepin-pick.is-on { background: #3d6b30; border-color: #fcd34d; }
 
+/* Rooms: Hall (plots + picker), Wall (HP / ring / gate), Yard (works on the keep edge). */
+.sc-keepin-rooms {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #4a3620;
+}
+
+.sc-keepin-room {
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #c4b8a4;
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+}
+
+.sc-keepin-room:hover,
+.sc-keepin-room:focus-visible {
+  color: #fef08a;
+  outline: none;
+}
+
+.sc-keepin-room.is-on {
+  color: #fcd34d;
+  background: #2a1a10;
+  border-color: #8a6424;
+}
+
+.sc-keepin-room-body {
+  min-height: 180px;
+}
+
+.sc-keepin-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.sc-keepin-facts > div {
+  padding: 8px 10px;
+  background: rgba(30, 22, 14, 0.6);
+  border: 1px solid #4a3620;
+  border-radius: 6px;
+}
+
+.sc-keepin-facts dt {
+  font-size: 11px;
+  color: #c9a227;
+}
+
+.sc-keepin-facts dd {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sc-keepin-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.sc-keepin-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: linear-gradient(180deg, #4a3522 0%, #2e2116 100%);
+  border: 1px solid #6b4e24;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.sc-keepin-list li.is-raising {
+  background: repeating-linear-gradient(45deg, #3a2c1d 0 5px, #5a4128 5px 10px);
+  border-style: dashed;
+  border-color: #c8963e;
+}
+
+.sc-keepin-list-name {
+  font-weight: 600;
+}
+
+.sc-keepin-list-meta {
+  margin-left: auto;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.sc-keepin-empty {
+  margin: 8px 0;
+  font-size: 12px;
+  opacity: 0.65;
+}
+
 @media (max-width: 640px) {
   .sc-keepin-backdrop { padding: 8px; }
   .sc-keepin { padding: 12px; }

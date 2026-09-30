@@ -212,6 +212,9 @@ export function AppShell() {
               <button type="button" onClick={toggleCameraBand} title="Toggle Board / Hold" style={{ padding: "1px 8px", fontSize: 12, fontWeight: 600, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>
                 {cameraBand === "board" ? "🏰 Hold" : "🗺️ Board"}
               </button>
+              <button type="button" onClick={() => setKeepOpen(true)} title="Enter the keep" style={{ padding: "1px 8px", fontSize: 12, fontWeight: 600, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>
+                Enter the keep
+              </button>
             </div>
           </div>
         </div>

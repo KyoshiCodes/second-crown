@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/keep-rooms)
+
+- The keep interior now has three rooms, picked by tabs under the header: **Hall** (the plot grid and build picker, unchanged), **Wall** (wall HP, rim walls, ring open/closed, gate up/down with HP, and the wall/gate works), **Yard** (finished works on the keep edge, same rule as the inspect card).
+- Every number comes from existing sim helpers (`wallHp`, `edgeWallCount`, `hasClosedWallRing`, `gateOnRim`, `gateHp`, `keepBonus`). The room choice is React state only; switching rooms does not touch the sim or the save.
+- Styles only in `keep-interior.css`. No theme.css, sim, render or server changes.
+
 ## Active wave (wave/hud-captains)
 
 - Scout, gather and incoming-host force cards on the War tab now show a captain name (**Capt. Aldric** etc.) under the title.

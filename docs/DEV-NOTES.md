@@ -1,3 +1,10 @@
+## 2026-09-30 — app / keep rooms (wave/keep-rooms)
+
+- Room is view state in `KeepInterior` (`useState<Room>("hall")`), reset to Hall each time the keep opens because the component unmounts on close. Not in `GameState`, not saved, never passed to the sim.
+- Wall and Yard rooms read only: `wallHp`, `edgeWallCount(state, "player")`, `hasClosedWallRing`, `gateOnRim`, `gateHp`, `countBuilding(state, "walls")`, `keepBonus`. Yard rule matches `keepYardWorks` in `ProvinceInspect.tsx`; if one changes, change both.
+- Wall room deliberately does not print the ring threshold (8 rim walls lives in `hasClosedWallRing`), so the UI cannot drift from the sim rule.
+- Only the Hall room renders the plot grid; taps still go through `tapHoldTile`.
+
 ## 2026-09-30 — render + app / supply cart art & load silhouettes (bakeoff/gemini-supply)
 
 - `resolveGatherLoadInfo(item, state?)` in `packages/render/src/tokens.ts`: inspects item and state presentation gathers to classify `stockCount`, `capacity`, `ratio`, `isLoaded`, and `isEmptyReturn`. When `stockCount <= 0` or returning with empty load, `isEmptyReturn` is set to true.
