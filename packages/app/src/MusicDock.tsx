@@ -1,6 +1,7 @@
 import React from "react";
 import {
   getLofiIndex,
+  getLofiStatus,
   getMusicMode,
   lofiTrackName,
   nextLofiTrack,
@@ -9,8 +10,10 @@ import {
   setMusicMode,
   startMusicBed,
   LOFI_TRACKS,
+  LOFI_STATUS_EVENT,
   LOFI_TRACK_EVENT,
   MUSIC_CHANGE_EVENT,
+  type LofiStatus,
   type MusicMode,
 } from "./music";
 import "./lofi-dock.css";
@@ -42,9 +45,26 @@ function useLofiIndex(): number {
   return index;
 }
 
+function useLofiStatus(): LofiStatus {
+  const [status, setStatus] = React.useState<LofiStatus>(getLofiStatus);
+  React.useEffect(() => {
+    const onStatus = () => setStatus(getLofiStatus());
+    window.addEventListener(LOFI_STATUS_EVENT, onStatus);
+    return () => window.removeEventListener(LOFI_STATUS_EVENT, onStatus);
+  }, []);
+  return status;
+}
+
+const STATUS_TEXT: Partial<Record<LofiStatus, string>> = {
+  blocked: "Autoplay blocked. Click to play.",
+  missing: "Track not found. Pick another.",
+};
+
 /** Now playing, prev / next, and a pick-any-track list. Lofi mode only. */
 function LofiDock() {
   const index = useLofiIndex();
+  const status = useLofiStatus();
+  const statusText = STATUS_TEXT[status];
   const pick = (go: () => void) => {
     startMusicBed();
     go();
@@ -80,9 +100,15 @@ function LofiDock() {
       >
         ›
       </button>
-      <span className="lofi-dock__now" title={lofiTrackName(index)}>
-        Now playing: {lofiTrackName(index)}
-      </span>
+      {statusText ? (
+        <span className="lofi-dock__status" role="status">
+          {statusText}
+        </span>
+      ) : (
+        <span className="lofi-dock__now" title={lofiTrackName(index)}>
+          Now playing: {lofiTrackName(index)}
+        </span>
+      )}
     </div>
   );
 }

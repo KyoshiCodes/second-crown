@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/lofi-stable)
+
+- Lofi dock: picking a track (list, ‹, ›) plays it and repeats it. Only an unpicked, cleanly finished track advances to the next.
+- A failed file no longer skips down the whole list. It stops and the dock shows **Track not found. Pick another.** A blocked autoplay shows **Autoplay blocked. Click to play.** and the next click retries.
+- The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
+- Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
+
 ## Active Bakeoff (bakeoff/gemini-rooms)
 
 - **Distinct 2D Room Backdrops for Keep Interior (`packages/app/src/RoomBackdrop.tsx`, `packages/app/src/KeepInterior.tsx`, `packages/app/src/keep-interior.css`)**:

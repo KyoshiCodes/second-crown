@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-09-30 — Lofi dock stable (wave/lofi-stable)
+
+- `music.ts`: removed the `lofiErrors` skip-ahead. The audio `error` event now sets `LofiStatus` `"missing"` and stops; no index change.
+- New `LofiStatus` (`idle | playing | blocked | missing`), `getLofiStatus()`, `LOFI_STATUS_EVENT`. `play()` rejection `NotAllowedError` → `blocked`, `NotSupportedError` → `missing`, `AbortError` ignored.
+- `playLofiTrack` pins the pick (`el.loop = true`); `ended` only advances unpinned play. A missing file is reloaded only on a new pick or mode switch; the global click `startMusicBed` retries `blocked` but not `missing`.
+- Synth lofi fallback is silent while status is `missing`.
+- `MusicDock.tsx`: `useLofiStatus`; status line `lofi-dock__status` replaces "Now playing" when blocked or missing.
+
 ## 2026-09-30 — Gemini Keep Room 2D Backdrops (bakeoff/gemini-rooms)
 
 - **Distinct 2D Room Backdrops (`packages/app/src/RoomBackdrop.tsx`, `packages/app/src/KeepInterior.tsx`, `packages/app/src/keep-interior.css`)**:

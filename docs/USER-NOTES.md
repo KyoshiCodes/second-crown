@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Lofi player stays put
+
+- Pick a lofi track and it plays that track, and keeps playing it on repeat. It no longer jumps down the list.
+- If a track can't be found, the music stops and says **Track not found. Pick another.**
+- If your browser blocks sound until you click, it says **Autoplay blocked. Click to play.** Click anywhere and it starts.
+
 ## 2026-09-30 — Illustrated backdrops for keep rooms (bakeoff/gemini-rooms)
 
 - The rooms inside your keep now each feature an illustrated 2D scene backdrop:
