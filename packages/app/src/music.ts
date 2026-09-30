@@ -2,6 +2,7 @@
  * Recorded holiday tracks mute the whole synth, including the 520ms battle bounce.
  * Music mode (key sc-music): off (default), lofi (LOFI_TRACKS in order, synth lofi fallback),
  * or bed (the seasonal / holiday bed above).
+ * Lofi never skips on a failed file: a 404 or autoplay block stops and sets LofiStatus.
  */
 
 export type SeasonName = "Spring" | "Summer" | "Autumn" | "Winter";
@@ -10,7 +11,7 @@ export type MusicMode = "off" | "lofi" | "bed";
 export const MUSIC_KEY = "sc-music";
 export const MUSIC_MODES: readonly MusicMode[] = ["off", "lofi", "bed"];
 export const MUSIC_CHANGE_EVENT = "sc-music-change";
-/** Every lofi .ogg in public/audio (holiday beds excluded), in filename order. Loops. */
+/** Every lofi .ogg in public/audio (holiday beds excluded), in filename order. */
 const LOFI_FILES = [
   "03 HoliznaCC0 - Something In the Air.ogg",
   "04 HoliznaCC0 - Small Towns Smaller Lives.ogg",
@@ -49,6 +50,10 @@ const LOFI_FILES = [
 export const LOFI_TRACKS = LOFI_FILES.map((f) => `/audio/${encodeURIComponent(f)}`);
 /** Fired when the lofi track index changes (detail: index). */
 export const LOFI_TRACK_EVENT = "sc-lofi-track";
+/** Fired when the lofi status changes (detail: LofiStatus). */
+export const LOFI_STATUS_EVENT = "sc-lofi-status";
+/** idle: nothing tried yet. blocked: browser refused autoplay. missing: file failed to load. */
+export type LofiStatus = "idle" | "playing" | "blocked" | "missing";
 
 /** "01 HoliznaCC0 - Clouds.mp3.ogg" -> "Clouds". */
 export function lofiTrackName(i: number): string {
@@ -66,7 +71,9 @@ let lastOnMode: MusicMode = "lofi";
 let lofiEl: HTMLAudioElement | null = null;
 let lofiIndex = 0;
 let lofiSrc: string | null = null;
-let lofiErrors = 0;
+let lofiStatus: LofiStatus = "idle";
+/** True once the player picks a track: that track repeats instead of advancing. */
+let lofiPinned = false;
 let lofiRecordingPlaying = false;
 let step = 0;
 let currentSeasonName: SeasonName = "Spring";
@@ -189,7 +196,10 @@ function recordedHolidayOn(): boolean {
 function runBed() {
   if (!started || muted) return;
   clearTimers();
-  const hush = mode === "lofi" ? lofiRecordingPlaying : synthMelodySuppressed || recordedHolidayOn();
+  const hush =
+    mode === "lofi"
+      ? lofiRecordingPlaying || lofiStatus === "missing"
+      : synthMelodySuppressed || recordedHolidayOn();
   if (!hush) {
     const p = pattern();
     melodyTimer = window.setInterval(() => {
@@ -219,6 +229,20 @@ export function setSynthMelodySuppressed(suppressed: boolean): void {
   if (started && !muted) runBed();
 }
 
+function setLofiStatus(next: LofiStatus) {
+  if (lofiStatus === next) return;
+  lofiStatus = next;
+  try {
+    window.dispatchEvent(new CustomEvent(LOFI_STATUS_EVENT, { detail: next }));
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getLofiStatus(): LofiStatus {
+  return lofiStatus;
+}
+
 function lofi(): HTMLAudioElement | null {
   if (lofiEl) return lofiEl;
   try {
@@ -228,32 +252,28 @@ function lofi(): HTMLAudioElement | null {
   }
   lofiEl.volume = 0.38;
   lofiEl.addEventListener("playing", () => {
-    lofiErrors = 0;
+    setLofiStatus("playing");
     if (!lofiRecordingPlaying) {
       lofiRecordingPlaying = true;
       runBed();
     }
   });
-  // Track list in order, then back to the first. A 404 skips to the next.
+  // Unpicked: list in order after a track finishes cleanly. Picked: el.loop repeats it.
   lofiEl.addEventListener("ended", () => {
     lofiIndex = (lofiIndex + 1) % LOFI_TRACKS.length;
     playLofi();
   });
+  // A bad file stops here. No skipping; the dock shows the status line.
   lofiEl.addEventListener("error", () => {
-    lofiErrors += 1;
-    lofiIndex = (lofiIndex + 1) % LOFI_TRACKS.length;
-    if (lofiErrors < LOFI_TRACKS.length) {
-      playLofi();
-    } else if (lofiRecordingPlaying) {
-      lofiRecordingPlaying = false;
-      runBed();
-    }
+    lofiRecordingPlaying = false;
+    setLofiStatus("missing");
+    runBed();
   });
   return lofiEl;
 }
 
 function playLofi() {
-  if (!started || mode !== "lofi" || lofiErrors >= LOFI_TRACKS.length) return;
+  if (!started || mode !== "lofi") return;
   const el = lofi();
   if (!el) return;
   const src = LOFI_TRACKS[lofiIndex];
@@ -266,8 +286,12 @@ function playLofi() {
       /* ignore */
     }
   }
-  void el.play().catch(() => {
-    /* autoplay block or missing file; the error listener handles files */
+  el.loop = lofiPinned;
+  void el.play().then(() => setLofiStatus("playing")).catch((err: unknown) => {
+    const name = err instanceof DOMException ? err.name : "";
+    if (name === "NotAllowedError") setLofiStatus("blocked");
+    else if (name === "NotSupportedError") setLofiStatus("missing");
+    // AbortError: a newer pick replaced this src. Ignore.
   });
 }
 
@@ -275,13 +299,20 @@ export function getLofiIndex(): number {
   return lofiIndex;
 }
 
-/** Jump to track i (wraps). Plays now if Lofi mode is on. */
+/** Jump to track i (wraps) and stay on it. Plays now if Lofi mode is on. */
 export function playLofiTrack(i: number): void {
   const n = LOFI_TRACKS.length;
   lofiIndex = ((i % n) + n) % n;
-  lofiErrors = 0;
+  lofiPinned = true;
+  retryAfterFailure();
   if (mode !== "lofi") return;
   playLofi();
+}
+
+/** Clear a failed status so the next playLofi reloads the file instead of reusing the errored one. */
+function retryAfterFailure() {
+  if (lofiStatus === "missing") lofiSrc = null;
+  setLofiStatus("idle");
 }
 
 export function nextLofiTrack(): void {
@@ -295,13 +326,15 @@ export function prevLofiTrack(): void {
 function stopLofi() {
   if (lofiEl && !lofiEl.paused) lofiEl.pause();
   lofiRecordingPlaying = false;
+  setLofiStatus("idle");
 }
 
 export function startMusicBed(): void {
   started = true;
   audio();
   if (!muted) runBed();
-  if (mode === "lofi" && lofiEl?.paused !== false) playLofi();
+  // Any click retries a blocked autoplay. A missing file waits for the player to pick again.
+  if (mode === "lofi" && lofiEl?.paused !== false && lofiStatus !== "missing") playLofi();
 }
 
 export function setMusicSeason(season: SeasonName): void {
@@ -345,7 +378,7 @@ export function setMusicMode(next: MusicMode, persist = true): void {
   }
   clearTimers();
   if (next === "lofi") {
-    lofiErrors = 0;
+    retryAfterFailure();
     playLofi();
   } else {
     stopLofi();

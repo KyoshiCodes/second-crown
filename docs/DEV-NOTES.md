@@ -1,3 +1,11 @@
+## 2026-09-30 — app / lofi dock stable (wave/lofi-stable)
+
+- Lofi playback never changes `lofiIndex` on failure. Only the player (list, prev, next) or a clean `ended` on unpinned play moves it.
+- `lofiPinned` becomes true on any `playLofiTrack` call and is applied as `el.loop` in `playLofi`. There is no unpin besides reload; add one if a "play through" toggle is wanted.
+- Retrying a `missing` src needs `lofiSrc = null` (see `retryAfterFailure`), otherwise `playLofi` reuses the errored element and `play()` rejects without reloading.
+- `main.tsx` calls `startMusicBed()` on every document click. It deliberately skips `playLofi` while `missing`, so clicks do not hammer a 404.
+- In `runBed`, lofi `hush` includes `lofiStatus === "missing"`, so a failed file is silence, not the synth arpeggio.
+
 ## 2026-09-30 — app / keep rooms 2D backdrops (bakeoff/gemini-rooms)
 
 - `RoomBackdrop.tsx`: exports `RoomBackdrop`, `ThroneDaisBackdrop`, `WallWalkBackdrop`, and `MuddyYardBackdrop`.
