@@ -715,6 +715,166 @@ export function paintIsometricGround(g: Graphics, visuals: ThemeVisuals): void {
 }
 
 // -------------------------------------------------------------
+// Hold Work Plot Survey Stakes
+// -------------------------------------------------------------
+
+/**
+ * Checks whether a hold tile (gx, gy) is an empty work plot on the player hold.
+ * - Out of bounds tiles (< 0 or >= GRID_W/GRID_H) are not valid plots.
+ * - Rim tiles (gx === 0 || gy === 0 || gx === GRID_W - 1 || gy === GRID_H - 1) are rim fort plots (walls/gate), not work plots.
+ * - Tiles occupied by any player building (or scaffolding) in state.buildings are built plots, not empty.
+ * - Road tiles (ROAD_TILES) are cobblestone thoroughfares (excluded unless includeRoads is true).
+ */
+export function isEmptyWorkPlot(
+  state: GameState | null | undefined,
+  gx: number,
+  gy: number,
+  includeRoads = false
+): boolean {
+  if (gx < 0 || gy < 0 || gx >= GRID_W || gy >= GRID_H) return false;
+  if (isRimTile(gx, gy)) return false;
+  if (!includeRoads && ROAD_TILES.has(`${gx},${gy}`)) return false;
+  if (!state?.buildings) return true;
+  return !state.buildings.some(
+    (b) => (b.realmId ?? "player") === "player" && b.x === gx && b.y === gy
+  );
+}
+
+/**
+ * Lists all empty work plot grid coordinates on the player hold.
+ */
+export function listEmptyWorkPlots(
+  state: GameState | null | undefined,
+  includeRoads = false
+): Array<{ x: number; y: number }> {
+  const plots: Array<{ x: number; y: number }> = [];
+  for (let y = 1; y < GRID_H - 1; y++) {
+    for (let x = 1; x < GRID_W - 1; x++) {
+      if (isEmptyWorkPlot(state, x, y, includeRoads)) {
+        plots.push({ x, y });
+      }
+    }
+  }
+  return plots;
+}
+
+/**
+ * Draws a small wooden surveyor stake driven into the turf of an empty work plot.
+ * Features:
+ * - Soft ground contact shadow and dark soil indent where driven into turf
+ * - Freshly displaced loam soil clod at base
+ * - Chiseled hardwood timber shaft with left sunlit wood grain highlight
+ * - Chamfered mallet-struck heartwood top
+ * - Fine vertical grain slit
+ * - Natural hemp twine wrapped around neck
+ * - Fluttering surveyor marker ribbon (vermilion/gold) animated with phase
+ * - Seasonal winter frost cap
+ */
+export function drawPlotStake(
+  g: Graphics,
+  wx: number,
+  wy: number,
+  phase: number = 0,
+  visuals?: ThemeVisuals
+): void {
+  // 1. Soft elliptical contact shadow on the turf
+  g.ellipse(wx, wy + 2, 3.2, 1.4);
+  g.fill({ color: 0x000000, alpha: 0.28 });
+  g.ellipse(wx, wy + 1.2, 1.8, 0.8);
+  g.fill({ color: 0x271708, alpha: 0.45 });
+
+  // 2. Displaced loam soil turf clods
+  g.ellipse(wx - 1.2, wy + 1.5, 1.1, 0.6);
+  g.fill({ color: 0x3f220c, alpha: 0.85 });
+  g.ellipse(wx + 1.1, wy + 1.6, 0.9, 0.5);
+  g.fill({ color: 0x2e1908, alpha: 0.8 });
+
+  // 3. Chiseled timber stake shaft (aged oak peg)
+  g.poly([
+    wx - 1, wy - 7,
+    wx + 1, wy - 7,
+    wx + 0.9, wy + 1,
+    wx, wy + 2.2,
+    wx - 0.9, wy + 1,
+  ]);
+  g.fill({ color: 0x78350f });
+
+  // Sunlit wood grain highlight facet (left edge)
+  g.poly([
+    wx - 1, wy - 7,
+    wx, wy - 7,
+    wx, wy + 1.6,
+    wx - 0.9, wy + 1,
+  ]);
+  g.fill({ color: 0xb45309 });
+
+  // Chamfered mallet-struck top cut (pale heartwood)
+  g.ellipse(wx, wy - 7, 1.1, 0.5);
+  g.fill({ color: 0xd97706 });
+
+  // Fine vertical grain split
+  g.moveTo(wx, wy - 6.8);
+  g.lineTo(wx, wy + 1);
+  g.stroke({ width: 0.5, color: 0x451a03, alpha: 0.65 });
+
+  // 4. Hemp twine neck wrapping
+  g.rect(wx - 1.1, wy - 5.2, 2.2, 1.0);
+  g.fill({ color: 0xfef08a, alpha: 0.9 });
+
+  // 5. Fluttering surveyor marker ribbon
+  const flutter = Math.sin(phase * 3 + wx * 0.4 + wy * 0.25) * 1.2;
+  const lift = Math.cos(phase * 2.5 + wx * 0.3) * 0.6;
+
+  // Main red marker ribbon tail fluttering to the right
+  g.poly([
+    wx + 0.8, wy - 5.2,
+    wx + 4.2 + flutter, wy - 5.8 + lift,
+    wx + 3.6 + flutter * 0.7, wy - 3.8 + lift * 0.5,
+    wx + 0.8, wy - 4.2,
+  ]);
+  g.fill({ color: 0xef4444 });
+
+  // Inner ribbon shadow fold
+  g.poly([
+    wx + 0.8, wy - 4.7,
+    wx + 2.8 + flutter * 0.6, wy - 4.2 + lift * 0.4,
+    wx + 0.8, wy - 3.8,
+  ]);
+  g.fill({ color: 0xb91c1c, alpha: 0.85 });
+
+  // Twine knot bead at neck
+  g.circle(wx + 0.8, wy - 4.7, 0.7);
+  g.fill({ color: 0xfacc15 });
+
+  // 6. Seasonal winter frost cap
+  const dec = visuals?.decorations;
+  if (dec === "winter" || dec === "midwinter") {
+    g.ellipse(wx, wy - 7.2, 1.2, 0.6);
+    g.fill({ color: 0xf8fafc, alpha: 0.95 });
+  }
+}
+
+/**
+ * Paints small wooden surveyor stakes on all empty work plots on the player hold.
+ * Built plots stay as they are (no stakes drawn on occupied plots).
+ * Rim tiles and cobblestone road network do not receive stakes.
+ */
+export function paintEmptyPlotStakes(
+  g: Graphics,
+  state: GameState | null | undefined,
+  phase: number = 0,
+  visuals?: ThemeVisuals,
+  includeRoads = false
+): void {
+  g.clear();
+  const plots = listEmptyWorkPlots(state, includeRoads);
+  for (const { x, y } of plots) {
+    const { wx, wy } = gridToWorld(x, y);
+    drawPlotStake(g, wx, wy, phase, visuals);
+  }
+}
+
+// -------------------------------------------------------------
 // Tabletop Board Diorama Backdrop
 // -------------------------------------------------------------
 export function paintBoardBackdrop(g: Graphics, visuals: ThemeVisuals): void {
