@@ -13,6 +13,14 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active Bakeoff (bakeoff/gemini-rooms)
+
+- **Distinct 2D Room Backdrops for Keep Interior (`packages/app/src/RoomBackdrop.tsx`, `packages/app/src/KeepInterior.tsx`, `packages/app/src/keep-interior.css`)**:
+  - **Hall (Throne Dais)**: Elevated 3-tier stone dais steps, carved hardwood monarch throne with golden finials and tufted crimson velvet upholstery, Romanesque alcove arch, torch sconces with warm ambient radial glows, and hanging heraldic banners.
+  - **Wall (Wall Walk)**: Dressed stone battlements with merlons and cruciform arrow slits, weathered timber sentry duckboards, iron tripod braziers with glowing coals and rising embers, leaning sentry kite shield, and crossed halberds overlooking a twilight sky.
+  - **Yard (Muddy Yard)**: Churned muddy earth with deep wagon wheel ruts, standing rainwater puddles with sky reflections, weathered timber palisade fence, stacked barrels & crates, training quintain dummy, and trampled straw.
+  - **Strictly Non-Blocking Invariant**: `pointer-events: none !important;` on all art layers and SVGs (`aria-hidden="true"`). Plot cells, buttons, cards, and facts receive 100% clean interactions. Hit-test and camera math (`camera.ts`) untouched, `git diff main -- packages/sim server` strictly empty, zero conflict markers.
+
 ## Active wave (wave/keep-rooms)
 
 - The keep interior now has three rooms, picked by tabs under the header: **Hall** (the plot grid and build picker, unchanged), **Wall** (wall HP, rim walls, ring open/closed, gate up/down with HP, and the wall/gate works), **Yard** (finished works on the keep edge, same rule as the inspect card).

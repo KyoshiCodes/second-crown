@@ -23,6 +23,7 @@ import {
 } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { HallChip } from "./hud/HallChip";
+import { RoomBackdrop } from "./RoomBackdrop";
 import "./keep-interior.css";
 
 /** Hold grid size. Mirrors HOLD_W / HOLD_H in packages/sim/src/actions/build.ts. */
@@ -125,7 +126,8 @@ export function KeepInterior(props: {
         </div>
 
         {room === "hall" ? (
-          <div role="tabpanel" aria-label="Hall">
+          <div role="tabpanel" aria-label="Hall" className="sc-keepin-room-panel is-hall">
+            <RoomBackdrop room="hall" />
             <div className="sc-keepin-yard-wrap">
               <div className="sc-keepin-yard" style={{ gridTemplateColumns: `repeat(${HOLD_W}, 1fr)` }}>
                 {cells}
@@ -172,7 +174,8 @@ function WallRoom(props: { state: GameState }) {
   const gateUp = gateOnRim(state);
   const edge = edgeWallCount(state, "player");
   return (
-    <div role="tabpanel" aria-label="Wall" className="sc-keepin-room-body">
+    <div role="tabpanel" aria-label="Wall" className="sc-keepin-room-body is-wall">
+      <RoomBackdrop room="wall" />
       <dl className="sc-keepin-facts">
         <div>
           <dt>Wall HP</dt>
@@ -206,7 +209,8 @@ function YardRoom(props: { state: GameState }) {
     (b) => b.realmId === "player" && b.completesAtTick === null && keepBonus(state, b) > 1
   );
   return (
-    <div role="tabpanel" aria-label="Yard" className="sc-keepin-room-body">
+    <div role="tabpanel" aria-label="Yard" className="sc-keepin-room-body is-yard">
+      <RoomBackdrop room="yard" />
       <p className="sc-keepin-hint">Works touching the keep ({yard.length}).</p>
       <WorkList state={state} works={yard} empty="No works on the keep edge." />
     </div>
