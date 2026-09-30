@@ -14,7 +14,12 @@ const OBJECTS = ["meta", "resources", "flags", "board"];
 const AMOUNT = /^-?\d+(\.\d+)?(e[+-]?\d+)?$/i;
 
 export class SaveGateError extends Error {
-  constructor(status, message) { super(message); this.status = status; }
+  constructor(status, message, conflict = false) { super(message); this.status = status; this.conflict = conflict; }
+}
+// The cloud already holds a newer copy of this hold. The handler returns the cloud save with it.
+export const NEWER_HOLD = "Cloud has a newer hold.";
+function conflictIf(condition) {
+  if (condition) throw new SaveGateError(409, NEWER_HOLD, true);
 }
 function check(condition, status, message) {
   if (!condition) throw new SaveGateError(status, message);
@@ -49,27 +54,31 @@ export function parseSave(raw) {
 /**
  * Check an upload against the last accepted save.
  * prev: parsed previous save or null. elapsedMs: server time since prev was accepted.
+ * replace: the player explicitly chose to replace the cloud hold with a fresh game.
  * Returns the parsed next save.
  */
-export function gateSave(raw, prev, elapsedMs) {
+export function gateSave(raw, prev, elapsedMs, replace = false) {
   const next = parseSave(raw);
   if (!prev || !isObject(prev.meta) || !isTick(prev.meta.tick)) return next;
+
+  conflictIf(Number.isSafeInteger(prev.meta.version) && prev.meta.version > next.meta.version);
 
   const allowed = Math.floor((Math.max(0, elapsedMs) / 1000) * TICKS_PER_SECOND * MAX_SPEED) + CLOCK_SLACK_TICKS;
   const from = prev.meta.tick;
   const to = next.meta.tick;
 
   if (to < from) {
-    // A new game is allowed; an old copy of this game is not.
-    check(to <= allowed, 409, "Cloud save is newer. Pull it before pushing.");
+    // Never silently. A fresh game replaces the hold only when the player asks; an old copy never does.
+    conflictIf(!replace || to > allowed);
     return next;
   }
   check(to - from <= allowed, 409, "Save advanced faster than real time.");
 
   const before = Array.isArray(prev.inputLog) ? prev.inputLog : [];
-  check(next.inputLog.length >= before.length, 409, "Input log was rewritten.");
+  conflictIf(next.inputLog.length < before.length);
   for (let i = 0; i < before.length; i++) {
-    check(same(before[i], next.inputLog[i]), 409, "Input log was rewritten.");
+    // A second tab that played on from an older copy: the cloud holds actions this upload lacks.
+    conflictIf(!same(before[i], next.inputLog[i]));
   }
   for (let i = before.length; i < next.inputLog.length; i++) {
     check(next.inputLog[i].tick >= from, 409, "Input log has back-dated actions.");

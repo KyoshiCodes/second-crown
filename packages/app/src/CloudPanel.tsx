@@ -1,6 +1,7 @@
 import React from "react";
 import {
   absorbHashSession,
+  CloudConflictError,
   cloudName,
   cloudToken,
   cloudUrl,
@@ -26,6 +27,44 @@ export function CloudPanel() {
   const [code, setCode] = React.useState("");
   const [showCode, setShowCode] = React.useState(false);
   const [watchUrl, setWatchUrl] = React.useState("");
+  // Set when the cloud refused a push because it holds a newer hold. Holds the cloud save.
+  const [newer, setNewer] = React.useState<string | null>(null);
+
+  /** Push the local save; on a newer cloud hold, show the choice instead of overwriting. */
+  async function push(raw: string, replace = false) {
+    try {
+      await pushSave(raw, replace);
+      setNewer(null);
+      return true;
+    } catch (e) {
+      if (e instanceof CloudConflictError) {
+        setNewer(e.save ?? "");
+        return false;
+      }
+      throw e;
+    }
+  }
+
+  async function loadCloud() {
+    try {
+      const raw = newer || (await pullSave());
+      await saveToIndexedDb(raw);
+      window.location.reload();
+    } catch {
+      setStatus("Could not load the cloud hold.");
+    }
+  }
+
+  async function keepLocal() {
+    if (!window.confirm("Replace the cloud hold with the game on this browser? The cloud hold will be lost.")) return;
+    const raw = await loadFromIndexedDb();
+    if (!raw) return;
+    try {
+      if (await push(raw, true)) setStatus("Cloud now holds this game.");
+    } catch (e) {
+      setStatus(`Push failed: ${e instanceof Error ? e.message : "unknown"}`);
+    }
+  }
 
   async function refreshMe() {
     const token = cloudToken();
@@ -52,7 +91,7 @@ export function CloudPanel() {
     const raw = await loadFromIndexedDb();
     if (!raw) return;
     try {
-      await pushSave(raw);
+      await push(raw);
     } catch {
       /* ignore */
     }
@@ -114,7 +153,7 @@ export function CloudPanel() {
         <button type="button" disabled={!token} onClick={async () => {
           const raw = await loadFromIndexedDb();
           if (!raw) { setStatus("No local save to push."); return; }
-          try { await pushSave(raw); setStatus("Pushed local save to cloud."); } catch (e) { setStatus(`Push failed: ${e instanceof Error ? e.message : "unknown"}`); }
+          try { if (await push(raw)) setStatus("Pushed local save to cloud."); } catch (e) { setStatus(`Push failed: ${e instanceof Error ? e.message : "unknown"}`); }
         }}>Push save</button>
         <button type="button" disabled={!token} onClick={async () => {
           try {
@@ -126,7 +165,7 @@ export function CloudPanel() {
         <button type="button" disabled={!token} onClick={async () => {
           try {
             const raw = await loadFromIndexedDb();
-            if (raw) await pushSave(raw);
+            if (raw) await push(raw);
             const w = await openWatch();
             setWatchUrl(w.url);
             setStatus("Watch link ready.");
@@ -134,6 +173,13 @@ export function CloudPanel() {
           } catch { setStatus("Could not open a watch room. Sign in first."); }
         }}>Share watch link</button>
       </div>
+      {newer !== null ? (
+        <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap", alignItems: "center", fontSize: 12 }}>
+          <span>Cloud has a newer hold.</span>
+          <button type="button" onClick={() => void loadCloud()}>Load cloud</button>
+          <button type="button" onClick={() => void keepLocal()}>Keep this game</button>
+        </div>
+      ) : null}
       {watchUrl ? <div style={{ fontSize: 12, marginTop: 8 }}>Watch: <code>{watchUrl}</code></div> : null}
       {token ? (
         <div style={{ fontSize: 12, marginTop: 8 }}>

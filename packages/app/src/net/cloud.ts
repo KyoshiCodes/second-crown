@@ -97,11 +97,23 @@ export function discordLoginUrl(): string {
   return `${cloudUrl()}/auth/discord`;
 }
 
-export async function pushSave(json: string): Promise<void> {
-  const res = await req("/save", { method: "PUT", body: json });
+/** The cloud holds a newer copy of this hold. `save` is that cloud save, ready to load. */
+export class CloudConflictError extends Error {
+  constructor(message: string, readonly save: string | null) {
+    super(message);
+  }
+}
+
+/** replace: the player chose to overwrite the cloud hold with a fresh game. */
+export async function pushSave(json: string, replace = false): Promise<void> {
+  const res = await req(replace ? "/save?replace=1" : "/save", { method: "PUT", body: json });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
-    throw new Error(typeof body?.error === "string" ? body.error : "push failed");
+    const message = typeof body?.error === "string" ? body.error : "push failed";
+    if (res.status === 409 && body?.conflict) {
+      throw new CloudConflictError(message, typeof body.save === "string" ? body.save : null);
+    }
+    throw new Error(message);
   }
 }
 

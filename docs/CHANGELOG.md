@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-09-30 — Save lock (wave/save-lock)
+
+- `server/savegate.mjs`: stale uploads (lower tick, lower save version, or an input log missing the cloud's actions) throw `SaveGateError` with `conflict: true` and the message "Cloud has a newer hold." A lower-tick fresh game passes only with `replace`.
+- `PUT /save?replace=1` passes `replace` to the gate. On a conflict the handler returns 409 `{ error, conflict: true, save }` with the stored save.
+- `net/cloud.ts`: `CloudConflictError` (carries the cloud save); `pushSave(json, replace?)`.
+- `CloudPanel`: auto-push, Push save and Share watch link all route conflicts to a **Cloud has a newer hold.** line with **Load cloud** and **Keep this game**.
+- Tests in `server/savegate.test.mjs` for stale tabs, forked logs, version downgrades, and cheat checks staying non-conflict.
+
 ## 2026-09-30 — Keep interior (wave/keep-interior)
 
 - New `KeepInterior.tsx`: courtyard grid of the home hold (16×10) from `state.buildings`, with HallChip, level, and rim / keep-yard / raising / improving markers, plus the build picker.

@@ -72,8 +72,30 @@ test("input log is append-only and not back-dated", () => {
   assert.ok(gateSave(raw(save(150, { inputLog: [...prev.inputLog, { tick: 120, type: "trade" }] })), prev, 60_000));
 });
 
-test("older copies are refused but a fresh game is allowed", () => {
+function conflicts(fn) {
+  assert.throws(fn, (e) => e instanceof SaveGateError && e.status === 409 && e.conflict === true);
+}
+
+test("older copies are refused but a fresh game is allowed when asked", () => {
   const prev = save(500_000);
-  rejects(() => gateSave(raw(save(400_000)), prev, 60_000), 409);
-  assert.ok(gateSave(raw(save(5, { inputLog: [] })), prev, 60_000));
+  conflicts(() => gateSave(raw(save(400_000)), prev, 60_000));
+  conflicts(() => gateSave(raw(save(400_000)), prev, 60_000, true));
+  conflicts(() => gateSave(raw(save(5, { inputLog: [] })), prev, 60_000));
+  assert.ok(gateSave(raw(save(5, { inputLog: [] })), prev, 60_000, true));
+});
+
+test("a stale tab cannot overwrite a newer cloud hold", () => {
+  const prev = save(1_000, { inputLog: [{ tick: 10, type: "build" }, { tick: 900, type: "trade" }] });
+  // Same game, fewer ticks, well inside the real-time window: still refused.
+  conflicts(() => gateSave(raw(save(900)), prev, 30_000));
+  // Played on from an older copy: more ticks but missing the cloud's actions.
+  conflicts(() => gateSave(raw(save(1_050, { inputLog: [{ tick: 10, type: "build" }, { tick: 1_020, type: "raid" }] })), prev, 30_000));
+  conflicts(() => gateSave(raw(save(1_050)), prev, 30_000));
+  // A newer save version in the cloud is never downgraded.
+  conflicts(() => gateSave(raw(save(1_050)), { ...prev, meta: { ...prev.meta, version: 2 } }, 30_000));
+});
+
+test("cheat checks are not reported as a newer hold", () => {
+  const prev = save(100);
+  assert.throws(() => gateSave(raw(save(100_000)), prev, 1_000), (e) => e.status === 409 && !e.conflict);
 });
