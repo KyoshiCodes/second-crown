@@ -1,4 +1,13 @@
-import { buildCostMultiplier, canPlaceType, getBuildingType, isHoldRim, scoutCost, type GameState } from "@second-crown/sim";
+import {
+  buildCostMultiplier,
+  canPlaceType,
+  citizensByRealm,
+  emptyStaffWorks,
+  getBuildingType,
+  isHoldRim,
+  scoutCost,
+  type GameState,
+} from "@second-crown/sim";
 
 /** Hold grid size. Mirrors HOLD_W / HOLD_H in packages/sim/src/actions/build.ts. */
 const HOLD_W = 16;
@@ -44,6 +53,22 @@ export function quarryHintPlot(state: GameState | undefined): { x: number; y: nu
     }
   }
   return rim;
+}
+
+/**
+ * A finished player Quarry with no worker, plus one idle citizen who could take the post (if any).
+ * Read-only: uses the sim's own staff check; posting goes through tryAssignCitizen like People → Post at.
+ */
+export function staffQuarryHint(
+  state: GameState | undefined
+): { buildingId: string; name: string; x: number; y: number; idleId: string | null } | null {
+  if (!state) return null;
+  const empty = emptyStaffWorks(state).find((w) => w.typeId === "quarry");
+  if (!empty) return null;
+  const b = state.buildings.find((q) => q.id === empty.id);
+  if (!b) return null;
+  const idle = citizensByRealm(state, "player").find((c) => c.job === "unassigned" || !c.tile);
+  return { buildingId: b.id, name: empty.name, x: b.x, y: b.y, idleId: idle?.id ?? null };
 }
 
 /** One line when the scout column is short on gold. */
