@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/save-lock)
+
+- One live cloud save is no longer silently overwritten. If the cloud already holds a newer copy of the hold (higher tick or save version, or actions the upload is missing), `PUT /save` refuses with 409 `{ conflict: true, save }` and returns the cloud save.
+- The Cloud panel then shows **Cloud has a newer hold.** with **Load cloud** (writes the cloud save locally and reloads) and **Keep this game** (asks first, then replaces the cloud hold; allowed only for a fresh game, as before).
+- A fresh game no longer replaces the cloud hold by auto-push. It needs **Keep this game**.
+- Same cloud session/token as before; no login changes. No sim, economy, combat or theme.css changes. Deploy: usual pull / test / build / `pm2 restart sc-cloud`.
+
 ## Active wave (wave/keep-interior)
 
 - Selecting the home hold on the Kingdom tab now shows **Enter the keep** in the Hold section of the inspect card. It opens a courtyard view of the 16×10 hold drawn from `state.buildings` (rim, keep-yard bonus, raising, improving marked).

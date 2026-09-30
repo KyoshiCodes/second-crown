@@ -1,5 +1,12 @@
 # Dev notes
 
+## 2026-09-30 — server + app / save lock (wave/save-lock)
+
+- `gateSave(raw, prev, elapsedMs, replace = false)`. Conflict cases throw `SaveGateError(409, NEWER_HOLD, true)`: `prev.meta.version > next.meta.version`; `next.tick < prev.tick` unless `replace` and the tick fits the fresh-game window; input log shorter than or diverging from the stored one. Other 409s (faster than real time, back-dated, state change without time) stay `conflict: false`: those are cheat checks, not stale copies.
+- `/save` handler: on `e.conflict`, returns `{ error, conflict: true, save: <stored file as string> }`. `replace` comes from the `?replace=1` query (no new CORS headers).
+- Client: `pushSave` throws `CloudConflictError(message, save)`. `CloudPanel.push()` catches it and sets `newer`; **Load cloud** writes `newer` (or a fresh `pullSave`) to IndexedDB and reloads. **Keep this game** confirms and pushes with `replace`.
+- Load cloud reloads right after the IndexedDB write; the pagehide auto-push then sends the cloud save back unchanged, which the gate accepts.
+
 ## 2026-09-30 — app / keep interior (wave/keep-interior)
 
 - `useGameEngine.tapHoldTile(x, y)` is the single hold-tile action path (cancel build → cancel upgrade → upgrade → place `selectedBuildRef`). `map.onTileClick(tapHoldTile)`; `KeepInterior` gets it as `onTap`. Change build/tap behaviour there, not in the component.

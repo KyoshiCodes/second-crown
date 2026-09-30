@@ -326,8 +326,13 @@ const server = http.createServer(async (req, res) => {
           try { prev = JSON.parse(fs.readFileSync(file, "utf8")); } catch { prev = null; }
           prevAt = Number.isFinite(rec.saveAt) ? rec.saveAt : fs.statSync(file).mtimeMs;
         }
-        gateSave(body, prev, now - prevAt);
+        gateSave(body, prev, now - prevAt, url.searchParams.get("replace") === "1");
       } catch (e) {
+        if (e instanceof SaveGateError && e.conflict) {
+          // Hand back the cloud hold so the client can load it instead of overwriting it.
+          const cloud = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
+          return json(res, 409, { error: e.message, conflict: true, save: cloud });
+        }
         if (e instanceof SaveGateError) return json(res, e.status, { error: e.message });
         return json(res, 400, { error: "bad save" });
       }

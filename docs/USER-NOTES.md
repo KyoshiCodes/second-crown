@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Cloud won't overwrite your newer game
+
+- If you play on two browsers or tabs, an older one can no longer quietly wipe out newer progress in the cloud.
+- When that happens, the Cloud panel says **Cloud has a newer hold.** Press **Load cloud** to switch to the newer game (the page reloads).
+- Started a new game on purpose and want it in the cloud instead? Press **Keep this game**. It asks first, because the old cloud game will be gone.
+
 ## 2026-09-30 — Step inside your keep
 
 - Click your home hold on the map, then **Enter the keep** on the card that opens. You get a close-up of your yard with every building on its plot.
