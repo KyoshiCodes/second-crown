@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Opening tips from the bot playtest
+
+- Good opening order: build a **Quarry**, then a **Watchtower**, then send a **Scout**. In the latest bot run the Quarry went up at tick 25, the Watchtower at tick 100, and the Scout left at tick 200.
+- **Walls need stone.** You start short, so build the Quarry first.
+- **Raids come often.** The rival marched on the bot's hold 23 times in 20 minutes, about every 50 seconds, starting early. None of those raids were held yet, so expect to lose militia.
+- The primer's **scout** step means reveal any tile two or more steps from your hold. A Watchtower or a column's vision counts. You don't have to pay for a Scout column.
+
 ## 2026-09-30 — Closed gate lamp and warm slot (bakeoff/gemini-gate-lamp)
 
 - Your hold's **Gate** now clearly signals whether your walls are secure:
