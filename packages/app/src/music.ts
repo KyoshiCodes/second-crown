@@ -1,6 +1,6 @@
 /** Layered procedural bed: pad + phrase + optional battle pulse.
  * Recorded holiday tracks mute the whole synth, including the 520ms battle bounce.
- * Music mode (key sc-music): off (default), lofi (lofi-a/b.ogg, synth lofi fallback),
+ * Music mode (key sc-music): off (default), lofi (LOFI_TRACKS in order, synth lofi fallback),
  * or bed (the seasonal / holiday bed above).
  */
 
@@ -10,7 +10,43 @@ export type MusicMode = "off" | "lofi" | "bed";
 export const MUSIC_KEY = "sc-music";
 export const MUSIC_MODES: readonly MusicMode[] = ["off", "lofi", "bed"];
 export const MUSIC_CHANGE_EVENT = "sc-music-change";
-export const LOFI_TRACKS = ["/audio/lofi-a.ogg", "/audio/lofi-b.ogg"];
+/** Every lofi .ogg in public/audio (holiday beds excluded), in filename order. Loops. */
+const LOFI_FILES = [
+  "03 HoliznaCC0 - Something In the Air.ogg",
+  "04 HoliznaCC0 - Small Towns Smaller Lives.ogg",
+  "05 HoliznaCC0 - Mundane.ogg",
+  "06 HoliznaCC0 - Glad To Be Stuck Inside.mp3.ogg",
+  "07 HoliznaCC0 - Vintage.mp3.ogg",
+  "08 HoliznaCC0 - Morning Coffee.ogg",
+  "09 HoliznaCC0 - A Little Shade.ogg",
+  "10 HoliznaCC0 - All The Way Sad.ogg",
+  "11 HoliznaCC0 - Ghosts.ogg",
+  "12 HoliznaCC0 - Shut up, or shut in.ogg",
+  "13 HoliznaCC0 - Whatever.ogg",
+  "14 HoliznaCC0 - Yesterday.ogg",
+  "15 HoliznaCC0 - Letting Go Of The Past.ogg",
+  "16 HoliznaCC0 - Cellar Door.ogg",
+  "17 HoliznaCC0 - You Loved Me Once.ogg",
+  "18 HoliznaCC0 - Puppy Love.ogg",
+  "19 HoliznaCC0 - Clouds.ogg",
+  "20 HoliznaCC0 - Busted Jazz.ogg",
+  "21 HoliznaCC0 - Busted Jazz.ogg",
+  "22 HoliznaCC0 - Autumn.ogg",
+  "23 HoliznaCC0 - Clouds.ogg",
+  "24 HoliznaCC0 - Mixed Signals.ogg",
+  "25 HoliznaCC0 - New Shoes.ogg",
+  "26 HoliznaCC0 - Foggy Headed.ogg",
+  "27 HoliznaCC0 - Ramen.mp3.ogg",
+  "28 HoliznaCC0 - Happy, but a little off.ogg",
+  "29 HoliznaCC0 - Static.ogg",
+  "30 HoliznaCC0 - Creature Comforts.ogg",
+  "31 HoliznaCC0 - Not It (Lofi).mp3.ogg",
+  "32 HoliznaCC0 - Plants.mp3.ogg",
+  "33 HoliznaCC0 - Seasons Change.ogg",
+  "lofi-a.ogg",
+  "lofi-b.ogg",
+];
+export const LOFI_TRACKS = LOFI_FILES.map((f) => `/audio/${encodeURIComponent(f)}`);
 
 let ctx: AudioContext | null = null;
 let melodyTimer: number | null = null;
@@ -21,6 +57,7 @@ let muted = true;
 let lastOnMode: MusicMode = "lofi";
 let lofiEl: HTMLAudioElement | null = null;
 let lofiIndex = 0;
+let lofiSrc: string | null = null;
 let lofiErrors = 0;
 let lofiRecordingPlaying = false;
 let step = 0;
@@ -189,7 +226,7 @@ function lofi(): HTMLAudioElement | null {
       runBed();
     }
   });
-  // a -> b -> a ... one file each, so either can be dropped in alone.
+  // Track list in order, then back to the first. A 404 skips to the next.
   lofiEl.addEventListener("ended", () => {
     lofiIndex = (lofiIndex + 1) % LOFI_TRACKS.length;
     playLofi();
@@ -212,7 +249,10 @@ function playLofi() {
   const el = lofi();
   if (!el) return;
   const src = LOFI_TRACKS[lofiIndex];
-  if (!el.src.endsWith(src)) el.src = src;
+  if (lofiSrc !== src) {
+    lofiSrc = src;
+    el.src = src;
+  }
   void el.play().catch(() => {
     /* autoplay block or missing file; the error listener handles files */
   });

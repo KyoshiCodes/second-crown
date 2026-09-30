@@ -16,7 +16,7 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 ## Active wave (wave/lofi-radio)
 
 - New **Music** select in the top chrome bar, between Holiday and Chrome: Off / Lofi / Realm. Saved in localStorage `sc-music`. Default Off.
-- Realm = the existing seasonal / holiday score (synth bed + recorded holiday `.ogg`). Lofi = `/audio/lofi-a.ogg` then `/audio/lofi-b.ogg`, alternating. **No lofi files are committed**; until they are dropped into `packages/app/public/audio/`, Lofi plays a soft synth fallback.
+- Realm = the existing seasonal / holiday score (synth bed + recorded holiday `.ogg`). Lofi = every lofi `.ogg` in `packages/app/public/audio/` (31 HoliznaCC0 tracks `03`–`33`, then `lofi-a.ogg`, `lofi-b.ogg`), filename order, looping. A 404 skips to the next track; if every file fails, Lofi plays a soft synth fallback. **The `.ogg` files are not committed in this change** (~114 MB); the server needs them copied into `packages/app/public/audio/` before building.
 - All in `packages/app/src/music.ts` (no second engine). `MusicDock.tsx` is the control; `audioManager.ts` listens for `sc-music-change`. No sim / combat / gold changes.
 
 ## Active wave (wave/primer-v3)

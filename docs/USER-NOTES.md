@@ -6,7 +6,7 @@ Newest first. Plain language for playtesters.
 
 - The top bar has a new **Music** picker: **Off**, **Lofi**, or **Realm** (the seasonal and holiday music).
 - It starts on Off. Your pick is remembered on this browser.
-- Lofi is a soft, slow tune for now; real lofi tracks will slot in later.
+- Lofi plays a playlist of 33 chill tracks (HoliznaCC0, CC0) one after another and starts over at the end. If a track can't load it jumps to the next one.
 
 ## 2026-09-29 — Primer rewritten
 
