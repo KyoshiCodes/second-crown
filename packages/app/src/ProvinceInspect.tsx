@@ -38,6 +38,7 @@ import {
   wallHp,
   type GameState,
 } from "@second-crown/sim";
+import { scoutGoldHint } from "./buildHints";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
@@ -139,6 +140,7 @@ export function ProvinceInspect(props: {
   const seen = isProvinceSeen(state, selectedId);
   const cost = scoutCost(state);
   const gold = Number(state.resources.gold ?? 0);
+  const goldHint = scoutGoldHint(state);
   const canGather = seen && p.node in GATHER_NODES;
   const stock = canGather ? nodeStock(state, selectedId) : 0;
   const stockMax = canGather ? nodeStockMax(p.node) : 0;
@@ -337,6 +339,11 @@ export function ProvinceInspect(props: {
               >
                 Scout column ({cost} gold)
               </button>
+            ) : null}
+            {!seen && goldHint ? (
+              <div className="sc-inspect-hint" style={{ flexBasis: "100%" }}>
+                {goldHint}
+              </div>
             ) : null}
             {canGather ? (
               <button

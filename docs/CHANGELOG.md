@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-09-30 — Quarry / Watchtower hints (wave/hint-quarry-tower)
+
+- New `packages/app/src/buildHints.ts`: `wallsStoneHint(state)` and `scoutGoldHint(state)`. Costs come from `getBuildingType(...).cost` times `buildCostMultiplier`, and `scoutCost(state)`. No hard-coded numbers.
+- `KingdomTab.tsx`: amber hint line under the wall line when stone < Walls stone cost.
+- `ProvinceInspect.tsx`: `sc-inspect-hint` line under Scout column when gold < scout cost (unscouted tiles only).
+- No sim, server or theme.css changes.
+
 ## 2026-09-30 — Sim playtest harness (wave/playtest-harness)
 
 - `packages/sim/src/harness/playtestHarness.ts`: `runPlaytest({ seed, ticks, turnEvery })` bot that builds cottage/farm, trains militia, scouts, gathers, marches once, builds walls/studies for the primer, and presses primer advance. Records tries/refusals per action, thrown errors, soft invariant failures, home raids, and peak resources. `playtestMarkdown(report)` gives deterministic output.
