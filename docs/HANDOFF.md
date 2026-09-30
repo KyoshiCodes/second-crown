@@ -13,6 +13,14 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/security-gate)
+
+- The browser is treated as untrusted. `PUT /save` now goes through `server/savegate.mjs` before anything is written. A refused save gets a 4xx with a short reason; the stored save is left alone.
+- The server still does not run the sim (DECISIONS: "Server never ticks the sim"). The owner chose this narrow gate over a server-authoritative rewrite.
+- Other methods on `/save` get 405. Bad JSON no longer throws inside the request handler.
+- The manual **Push save** button shows the server's reason. Auto-push still fails quietly and retries later.
+- Deploy: the usual pull / test / build / `pm2 restart sc-cloud`. No new env vars. `users.json` records gain `saveAt`.
+
 ## Active wave (wave/lofi-radio)
 
 - New **Music** select in the top chrome bar, between Holiday and Chrome: Off / Lofi / Realm. Saved in localStorage `sc-music`. Default Off.

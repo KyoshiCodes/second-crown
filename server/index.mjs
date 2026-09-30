@@ -4,6 +4,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { createLedgerHandler } from "./ledger.mjs";
+import { gateSave, SaveGateError, MAX_SAVE_BYTES } from "./savegate.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -71,10 +72,19 @@ function newToken() {
 function newCode() {
   return crypto.randomBytes(3).toString("hex");
 }
-function readBody(req) {
+function readBody(req, limit = MAX_SAVE_BYTES) {
   return new Promise((resolve, reject) => {
     const chunks = [];
-    req.on("data", (c) => chunks.push(c));
+    let size = 0;
+    req.on("data", (c) => {
+      size += c.length;
+      if (size > limit) {
+        reject(new SaveGateError(413, "Request is too large."));
+        req.destroy();
+        return;
+      }
+      chunks.push(c);
+    });
     req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
     req.on("error", reject);
   });
@@ -304,17 +314,32 @@ const server = http.createServer(async (req, res) => {
       return text(res, 200, fs.readFileSync(file, "utf8"), "application/json");
     }
     if (req.method === "PUT") {
-      const body = await readBody(req);
-      JSON.parse(body);
-      fs.writeFileSync(file, body);
       const users = readUsers();
       const rec = users[u.id] || u;
+      const now = Date.now();
+      let body;
+      try {
+        body = await readBody(req);
+        let prev = null;
+        let prevAt = now;
+        if (fs.existsSync(file)) {
+          try { prev = JSON.parse(fs.readFileSync(file, "utf8")); } catch { prev = null; }
+          prevAt = Number.isFinite(rec.saveAt) ? rec.saveAt : fs.statSync(file).mtimeMs;
+        }
+        gateSave(body, prev, now - prevAt);
+      } catch (e) {
+        if (e instanceof SaveGateError) return json(res, e.status, { error: e.message });
+        return json(res, 400, { error: "bad save" });
+      }
+      fs.writeFileSync(file, body);
       rec.stats = statsFromSave(body);
+      rec.saveAt = now;
       users[u.id] = rec;
       writeUsers(users);
       mirrorWatch(rec, body);
       return json(res, 200, { ok: true });
     }
+    return json(res, 405, { error: "Saves are replaced whole with PUT." });
   }
 
   if (req.method === "GET") {
