@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-01 — 28px Realm Crest Pips across the World tab (bakeoff/gemini-world-crests)
+
+- Heraldic crests are now displayed consistently across the entire World view:
+  - **Player Banner**: Your crown displays your personal heraldic crest shield at 28px.
+  - **Known Crowns**: Every rival and foreign kingdom card displays its official 28px crest pip with its current diplomatic stance (glowing cyan frost aura when hostile or at war; warm gold when friendly or peaceful).
+  - **Factions**: Faction leaders and member realms now display their 28px heraldic shields alongside their faction titles.
+  - **Watchtower Warnings**: When an incoming enemy host is spotted marching on your gates, their 28px war crest appears directly beside the warning countdown.
+  - **Foreign Wars**: When two foreign crowns clash in a world war, both kingdoms display their 28px crest pips in the battle header and directly inside the levy dispatch buttons (`Send levy to ...`).
+  - **Holds on the Board**: Every captured or occupied hold across the board displays the governing realm's 28px heraldic crest pip, making board ownership instantly recognizable.
+  - Strictly non-interactive overlays (`pointer-events: none`); buttons, cards, and tabs remain fully responsive.
+
 ## 2026-10-01 — Distinct chips for Granary, Mint, Sawmill, and Mason Yard (bakeoff/gemini-stores)
 
 - The four resource store buildings (the cap buildings) now have distinct, detailed architectural chips instead of generic boxes:

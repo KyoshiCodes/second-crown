@@ -10,6 +10,8 @@ import {
   tryScout,
   incomingOnHome,
   watchtowerWarning,
+  peaceTicksRemaining,
+  opinionOfPlayerFromRealm,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -17,6 +19,8 @@ import { realmTokenPalette } from "@second-crown/render";
 import { WorldPanel } from "../WorldPanel";
 import { MarketPanel } from "../MarketPanel";
 import { AuctionPanel } from "../AuctionPanel";
+import { RealmCrestPip } from "../hud/RealmCrestPip";
+import { realmStance, type RealmStance } from "../hud/RealmCard";
 import type { ActFn } from "../game/useGameEngine";
 import { getGiftThanks } from "../content/flavor";
 
@@ -77,13 +81,16 @@ export function WorldTab(props: {
   return (
     <>
       {incoming.length > 0 ? (
-        <div className="sc-realm-card" style={{ marginBottom: 12, border: "1px solid #dc2626" }}>
-          <strong style={{ color: "#f87171" }}>{seen ? "Watchtower Warning" : "Dust on the road"}</strong>
-          <p style={{ fontSize: 13, margin: "4px 0 0" }}>
-            {seen
-              ? `${nameOf(seen.realmId)} is ${Math.max(0, Math.ceil((seen.arrivesTick - (state?.meta.tick ?? 0)) / 10))}s from the gates.`
-              : "A host is moving. Build a Watchtower to name them."}
-          </p>
+        <div className="sc-realm-card" style={{ marginBottom: 12, border: "1px solid #dc2626", display: "flex", alignItems: "center", gap: 10 }}>
+          {seen ? <RealmCrestPip realmId={seen.realmId} size={28} stance="war" /> : null}
+          <div style={{ flex: 1 }}>
+            <strong style={{ color: "#f87171" }}>{seen ? "Watchtower Warning" : "Dust on the road"}</strong>
+            <p style={{ fontSize: 13, margin: "4px 0 0" }}>
+              {seen
+                ? `${nameOf(seen.realmId)} is ${Math.max(0, Math.ceil((seen.arrivesTick - (state?.meta.tick ?? 0)) / 10))}s from the gates.`
+                : "A host is moving. Build a Watchtower to name them."}
+            </p>
+          </div>
         </div>
       ) : null}
 
@@ -250,7 +257,17 @@ export function WorldTab(props: {
 
       {clash ? (
         <div className="sc-realm-card" style={{ marginBottom: 12, border: "1px solid #b45309" }}>
-          <strong style={{ color: "#fbbf24" }}>⚔️ Foreign War: {nameOf(clash.a)} vs {nameOf(clash.b)}</strong>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <RealmCrestPip realmId={clash.a} size={28} stance="war" />
+              <strong style={{ color: "#fbbf24" }}>{nameOf(clash.a)}</strong>
+            </span>
+            <span style={{ fontSize: 13, color: "#f87171", fontWeight: 700 }}>⚔️ vs ⚔️</span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <RealmCrestPip realmId={clash.b} size={28} stance="war" />
+              <strong style={{ color: "#fbbf24" }}>{nameOf(clash.b)}</strong>
+            </span>
+          </div>
           <p style={{ fontSize: 13, margin: "4px 0 8px" }}>
             War rages on the board — {Math.ceil((clash.until - (state?.meta.tick ?? 0)) / 10)}s until decisive clash.
           </p>
@@ -258,15 +275,19 @@ export function WorldTab(props: {
             <button
               type="button"
               disabled={Boolean(state?.flags.world_side)}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
               onClick={() => act((st) => (tryJoinClash(st, clash.a) ? `Levy sent to ${nameOf(clash.a)}.` : "Need 20 gold or already pledged."))}
             >
-              Send levy to {nameOf(clash.a)} (20 gold)
+              <RealmCrestPip realmId={clash.a} size={28} stance="war" />
+              <span>Send levy to {nameOf(clash.a)} (20 gold)</span>
             </button>
             <button
               type="button"
               disabled={Boolean(state?.flags.world_side)}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
               onClick={() => act((st) => (tryJoinClash(st, clash.b) ? `Levy sent to ${nameOf(clash.b)}.` : "Need 20 gold or already pledged."))}>
-              Send levy to {nameOf(clash.b)} (20 gold)
+              <RealmCrestPip realmId={clash.b} size={28} stance="war" />
+              <span>Send levy to {nameOf(clash.b)} (20 gold)</span>
             </button>
           </div>
         </div>
@@ -281,10 +302,20 @@ export function WorldTab(props: {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
           {holds.map((p) => {
             const occupantId = p.occupantRealmId;
-            const pal = occupantId ? realmTokenPalette(occupantId) : null;
             const isPlayer = occupantId === "player" || p.id === state?.board.homeProvinceId;
+            const targetRealmId = isPlayer ? "player" : occupantId;
+            const pal = targetRealmId ? realmTokenPalette(targetRealmId) : null;
             const borderCol = isPlayer ? "#ca8a04" : pal ? pal.accentColor : "#3a3228";
             const bgCol = isPlayer ? "rgba(35, 28, 15, 0.8)" : pal ? "rgba(22, 18, 14, 0.8)" : "rgba(18, 14, 10, 0.5)";
+            const atWar = targetRealmId && targetRealmId !== "player" && state
+              ? Boolean(state.wars.find((w) => w.status === "active" && ((w.attackerRealmId === targetRealmId && w.defenderRealmId === "player") || (w.attackerRealmId === "player" && w.defenderRealmId === targetRealmId))))
+              : false;
+            const left = targetRealmId && targetRealmId !== "player" && state ? peaceTicksRemaining(state, "player", targetRealmId) : 0;
+            const isRival = targetRealmId === "rival";
+            const op = targetRealmId && targetRealmId !== "player" && state
+              ? (isRival ? (state.opinions.find((o) => o.from === "char_rival" && o.to === "char_player")?.value ?? 0) : opinionOfPlayerFromRealm(state, targetRealmId))
+              : 0;
+            const stance: RealmStance | undefined = targetRealmId && targetRealmId !== "player" ? realmStance(atWar, left, op) : undefined;
             return (
               <div
                 key={p.id}
@@ -299,17 +330,27 @@ export function WorldTab(props: {
                   fontSize: 12,
                 }}
               >
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: 10,
-                    height: 10,
-                    borderRadius: "50%",
-                    background: pal?.accentColor ?? (isPlayer ? "#ca8a04" : "#666"),
-                    border: "1px solid #111",
-                    flexShrink: 0,
-                  }}
-                />
+                {targetRealmId ? (
+                  <RealmCrestPip realmId={targetRealmId} stance={stance} size={28} />
+                ) : (
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 28,
+                      height: 28,
+                      borderRadius: 4,
+                      background: "rgba(100, 116, 139, 0.2)",
+                      border: "1px dashed #64748b",
+                      fontSize: 12,
+                      flexShrink: 0,
+                      pointerEvents: "none",
+                    }}
+                  >
+                    🏰
+                  </span>
+                )}
                 <div style={{ overflow: "hidden" }}>
                   <div style={{ fontWeight: 600, color: isPlayer ? "#fef08a" : "#e8dcc8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {isPlayer ? "Your Hold" : occupantId ? nameOf(occupantId) : "Empty Keep"}

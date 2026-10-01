@@ -1,3 +1,22 @@
+## 2026-10-01 — app / 28px RealmCrestPip across World view (bakeoff/gemini-world-crests)
+
+- `packages/app/src/WorldPanel.tsx`:
+  - Imported `RealmCrestPip` from `./hud/RealmCrestPip` and `realmStance` from `./hud/RealmCard`.
+  - Replaced legacy `Crest` with `<RealmCrestPip realmId="player" size={28} />` in player banner.
+  - Replaced legacy `Crest` in known crown cards with `<RealmCrestPip realmId={r.id} stance={stance} size={28} />` using dynamic stance computed via `realmStance(atWar, left, op)`.
+  - Added `<RealmCrestPip realmId={f.leaderRealmId} size={28} />` for faction leaders and `<RealmCrestPip realmId={mId} size={28} />` for member realms.
+- `packages/app/src/tabs/WorldTab.tsx`:
+  - Imported `RealmCrestPip`, `realmStance`, `peaceTicksRemaining`, and `opinionOfPlayerFromRealm`.
+  - Watchtower Warning / Dust on the Road: added `<RealmCrestPip realmId={seen.realmId} size={28} stance="war" />` next to warning text when incoming host is sighted.
+  - Foreign War (Clash): added `<RealmCrestPip realmId={clash.a} size={28} stance="war" />` and `<RealmCrestPip realmId={clash.b} size={28} stance="war" />` in clash header, and directly on both `tryJoinClash` action buttons ("Send levy to ...").
+  - Holds on the Board: replaced generic 10px dot with `<RealmCrestPip realmId={targetRealmId} stance={stance} size={28} />` for occupied holds, showing an empty keep placeholder only when unoccupied.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-world-crests: 28px RealmCrestPip across World view")`.
+- Invariants:
+  - No changes to `packages/sim`, `server`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
+  - No new kingdoms added.
+  - Strictly `pointer-events: none` on all crest elements.
+
 ## 2026-10-01 — render / distinct store buildings chips (bakeoff/gemini-stores)
 
 - `packages/render/src/buildings.ts`:
