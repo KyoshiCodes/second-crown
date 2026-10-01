@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-01 — Small heraldic pips on the Kingdom map strip (bakeoff/gemini-map-pips)
+
+- The strip under the kingdom board now gathers your hold status, walls, and vision into a clean work-card row with small heraldic indicator pips:
+  - **Your Crown Crest**: Your personal 20px heraldic shield sits proudly beside your hold's name.
+  - **Wall & Gate Pip**: A 20px crenellated stone bastion pip marks your defensive walls. An emerald green gemstone glows when your wall ring is fully closed; warm amber indicates an open breach or missing segments.
+  - **Vision & Watchtower Pip**: A 20px watchtower beacon pip marks your scouting reach, glowing with radiant vision rays and beacon fire as your vision range expands with watchtowers and surveying.
+  - **Shared Hint Drawer**: Important kingdom alerts (walls ready, idle workers, cottage bed warnings) are tucked neatly beneath the strip.
+  - Strictly non-interactive overlays (`pointer-events: none`); clicking plots, buildings, and hint buttons remains completely uninterrupted.
+
 ## 2026-10-01 — 28px Realm Crest Pips across the World tab (bakeoff/gemini-world-crests)
 
 - Heraldic crests are now displayed consistently across the entire World view:

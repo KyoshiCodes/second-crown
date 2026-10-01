@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-01 — Gemini Map Strip Pips (bakeoff/gemini-map-pips)
+
+- **App/Render HUD: Map Strip Under the Board with Small Heraldic Pips (`packages/app/src/hud/map-strip.css`, `packages/app/src/hud/WallPip.tsx`, `packages/app/src/hud/VisionPip.tsx`, `packages/app/src/WallLine.tsx`, `packages/app/src/VisionLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`, `packages/render/src/index.test.ts`)**:
+  - **Single Work-Card Strip**: Groups the hold summary line, `WallLine`, and `VisionLine` into a unified `.sc-work-card.sc-map-strip` under the kingdom board with distinct cells and a shared hints drawer.
+  - **Keep Crest Pip (`RealmCrestPip`)**: 20px player crown heraldic shield displayed alongside the hold name.
+  - **Wall Pip (`WallPip`)**: 20px crenellated ashlar stone wall with battlements, wall-walk terrace, gatehouse arch, and status stud (emerald green `#3fb950` when wall ring closed, warm amber `#d29922` when open).
+  - **Vision Pip (`VisionPip`)**: 20px stone watchtower spire with projecting parapet walkway, iron beacon brazier, burning flame, and radiant vision glints when vision range expands beyond base.
+  - **Slot Pips**: Preserves the strict "No new facts" invariant by not adding slot counters to the kingdom map strip where slots are not shown in plain text.
+  - **Strictly Non-Blocking**: `pointer-events: none` on all pips and wrappers.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/map-strip.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 302 render tests pass; 239 sim tests pass; app builds cleanly.
+
 ## 2026-10-01 — Gemini World Crest Pips (bakeoff/gemini-world-crests)
 
 - **App/Render HUD: 28px RealmCrestPip Heraldic Pips Across World View (`packages/app/src/WorldPanel.tsx`, `packages/app/src/tabs/WorldTab.tsx`, `packages/render/src/index.test.ts`)**:
