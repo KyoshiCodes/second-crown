@@ -98,6 +98,9 @@ const FARM_TARGET = 3;
 const COTTAGE_TARGET = 2;
 const QUARRY_TARGET = 1;
 const WALLS_TARGET = 1;
+/** One storehouse wing each once the warehouse fills: granary lifts the food cap, mint lifts the gold cap. */
+const GRANARY_TARGET = 1;
+const MINT_TARGET = 1;
 const WATCHTOWER_TARGET = 1;
 
 class Recorder {
@@ -195,6 +198,11 @@ function busySlots(state: GameState): number {
 /** True when a gain of `res` would be clamped away by the warehouse. */
 function atCap(state: GameState, res: string): boolean {
   return num(state.resources[res]) >= storageCap(state, res) - 1e-9;
+}
+
+/** True when a resource is at 90%+ of its warehouse cap. */
+function nearCap(state: GameState, res: string): boolean {
+  return num(state.resources[res]) >= storageCap(state, res) * 0.9;
 }
 
 function buildWhy(state: GameState, typeId: string, rim = false): string | null {
@@ -348,6 +356,10 @@ function botTurn(rec: Recorder, state: GameState, memo: BotMemo): void {
     const rim = freeSlot(state, "watchtower", true) !== null;
     tryBuildType(rec, state, "watchtower", rim);
   }
+  // Storehouse wings: once food or gold nears the warehouse cap, raise the building that lifts that cap.
+  // "Near" (90%) because upkeep keeps food just under its cap (playtest sat at 199 / 200).
+  if (allOfType(state, "granary") < GRANARY_TARGET && nearCap(state, "food")) tryBuildType(rec, state, "granary");
+  if (allOfType(state, "mint") < MINT_TARGET && nearCap(state, "gold")) tryBuildType(rec, state, "mint");
   if (step === "lectern" && !memo.studied) {
     const ok = rec.attempt(
       "study husbandry",

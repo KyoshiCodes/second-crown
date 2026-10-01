@@ -45,6 +45,28 @@ describe("storageCap", () => {
     expect(storageCap(s, "food")).toBe(200 + 300);
   });
 
+  it.each([
+    ["food", "granary", 200, 500],
+    ["wood", "sawmill", 150, 400],
+    ["stone", "mason", 150, 400],
+    ["gold", "mint", 100, 250],
+  ] as const)("%s cap rises only once its %s is finished", (res, typeId, before, after) => {
+    const s = createGameState({ seed: 1 });
+    s.buildings.push({ id: "w1", typeId, realmId: "player", x: 0, y: 0, level: 1, completesAtTick: 500 });
+    expect(storageCap(s, res)).toBe(before);
+    s.buildings[s.buildings.length - 1].completesAtTick = null;
+    expect(storageCap(s, res)).toBe(after);
+  });
+
+  it("finished Keep II lifts every cap by 20%", () => {
+    const s = createGameState({ seed: 1 });
+    keepAt(s, 2);
+    expect(storageCap(s, "food")).toBe(240);
+    expect(storageCap(s, "wood")).toBe(180);
+    expect(storageCap(s, "stone")).toBe(180);
+    expect(storageCap(s, "gold")).toBe(120);
+  });
+
   it("Keep II stretches the default floor and the granary wing", () => {
     const s = createGameState({ seed: 1 });
     const base = storageCap(s, "food");

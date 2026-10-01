@@ -74,12 +74,14 @@ The bot keeps up to 24 militia at the hold (home + queued) and only sends column
 | primer advance | 21 | 9 | 0 | sim said no (precheck passed) ×12 |
 | build walls | 2 | 1 | 100 | cannot afford ×1 |
 | build watchtower | 1 | 1 | 100 | — |
+| build granary | 1 | 1 | 125 | — |
 | scout column | 1 | 1 | 200 | — |
 | gather quarry x2 militia | 1 | 0 | — | march slots full ×1 |
 | gather field x2 militia | 147 | 145 | 275 | march slots full ×2 |
 | gather woodcut x2 militia | 1 | 0 | — | march slots full ×1 |
 | march x3 militia | 2 | 1 | 425 | march slots full ×1 |
 | study husbandry | 1 | 1 | 300 | — |
+| build mint | 1 | 1 | 400 | — |
 
 ### Errors thrown
 
@@ -91,9 +93,9 @@ None. Checked each turn: tick advances, resources finite and ≥ 0, unit counts 
 
 ### End state
 
-- Resources: gold 100, food 199, wood 150, stone 150
-- Peak during run: gold 100, food 199, wood 150, stone 150
-- Buildings: farm ×3, lumber_camp ×1, cottage ×2, quarry ×1, walls ×1, watchtower ×1
+- Resources: gold 250, food 499, wood 150, stone 150
+- Peak during run: gold 250, food 499, wood 150, stone 150
+- Buildings: farm ×3, lumber_camp ×1, cottage ×2, quarry ×1, walls ×1, watchtower ×1, granary ×1, mint ×1
 - Player units: militia ×28
 - Population 6 / beds 6; columns out: 0 marches, 0 gathers
 
