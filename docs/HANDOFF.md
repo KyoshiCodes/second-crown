@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/crown-factions, not merged)
+
+- App only. Crown Spoils crafts and Achievements as work cards; Save row is one card; World faction rows are cards with stance + Join/Leave (no new factions); Army Treat label uses `healTicks` (4s with Barracks, 5s without).
+  - Styles only in `packages/app/src/hud/crown-card.css`. `packages/sim`, `server`, `theme.css` untouched. 239 tests pass; app builds.
+  - Files: `packages/app/src/hud/crown-card.css`, `tabs/CrownTab.tsx`, `WorldPanel.tsx`, `tabs/ArmyTab.tsx`.
+
 ## Active wave (bakeoff/gemini-button-pips, not merged)
 
 - App HUD only. Added 16px icon pips to leftover action buttons where an icon already exists elsewhere in the app (build, study, holiday):

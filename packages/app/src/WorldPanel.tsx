@@ -5,6 +5,7 @@ import { Crest } from "./Crest";
 import { crestFor } from "./crests";
 import { getRealmFlavor } from "./content/flavor";
 import { RealmCardHead, playerStanceToward } from "./hud/RealmCard";
+import "./hud/crown-card.css";
 
 function hostLine(state: GameState, realmId: string): string {
   const parts = state.units
@@ -93,22 +94,33 @@ export function WorldPanel(props: {
       })}
       </div>
       <h3>Factions</h3>
+      <div className="sc-crown-grid">
       {(state.factions ?? []).map((f) => {
         const mine = f.memberRealmIds.includes("player");
+        const cold = f.stance < -10;
+        const tone = mine ? "is-member" : cold ? "is-cold" : "is-empty";
         return (
-          <div key={f.id} className={`sc-faction-card ${mine ? "sc-faction-member" : ""}`}>
-            <strong>{f.name}</strong> ({f.kind}) stance {f.stance}
-            {mine ? " · member" : ""}
-            <div>
+          <div key={f.id} className={`sc-work-card sc-faction-card sc-crown-faction ${tone} ${mine ? "sc-faction-member" : ""}`}>
+            <div className="sc-work-head">
+              <span className="sc-work-name">{f.name}</span>
+              {f.kind ? <span className="sc-work-level">{f.kind}</span> : null}
+            </div>
+            <div className="sc-work-status">
+              Stance {f.stance}
+              {mine ? " · member" : ""}
+            </div>
+            <div className="sc-work-foot">
+              <span className="sc-work-where">{f.memberRealmIds.length} sworn</span>
               {mine ? (
-                <button type="button" onClick={() => props.onLeave(f.id)}>Leave</button>
+                <button type="button" className="sc-work-btn" onClick={() => props.onLeave(f.id)}>Leave</button>
               ) : (
-                <button type="button" onClick={() => props.onJoin(f.id)} disabled={f.stance < -10}>Join</button>
+                <button type="button" className="sc-work-btn" onClick={() => props.onJoin(f.id)} disabled={cold} title={cold ? "Stance too cold to join (below -10)." : undefined}>Join</button>
               )}
             </div>
           </div>
         );
       })}
+      </div>
       {!state.factions?.some((f) => f.leaderRealmId === "player") && (
         <button type="button" className="sc-btn sc-btn-primary" onClick={props.onFoundGuild}>Found Your Guild</button>
       )}
