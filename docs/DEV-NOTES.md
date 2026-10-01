@@ -1,3 +1,26 @@
+## 2026-10-01 — app / map strip with small heraldic pips (bakeoff/gemini-map-pips)
+
+- `packages/app/src/hud/map-strip.css`:
+  - Styles `.sc-work-card.sc-map-strip` as a unified work card under the kingdom board.
+  - `.sc-map-strip-row`, `.sc-map-strip-cell`, `.sc-map-strip-pip` (with `pointer-events: none !important`), `.sc-map-strip-hints`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/WallPip.tsx`:
+  - 20px wall & gatehouse heraldic pip with ashlar stone flanks, wall-walk terrace, central gate arch, and ring status stud (green `#3fb950` closed, amber `#d29922` open).
+  - Strictly `pointerEvents: "none"`, `aria-hidden="true"`.
+- `packages/app/src/hud/VisionPip.tsx`:
+  - 20px watchtower spire & beacon flame pip with projecting corbel parapet, iron brazier, and radiating vision glints.
+  - Strictly `pointerEvents: "none"`, `aria-hidden="true"`.
+- `packages/app/src/WallLine.tsx` & `packages/app/src/VisionLine.tsx`:
+  - Mount `<WallPip />` and `<VisionPip />` directly inline before plain text facts.
+- `packages/app/src/tabs/KingdomTab.tsx`:
+  - Groups hold summary line, `WallLine`, and `VisionLine` into `.sc-map-strip`.
+  - Mounts 20px `<RealmCrestPip realmId="player" size={20} />` in `.is-hold` cell.
+  - Does not add slot pips to the kingdom map strip because column slots are not part of the plain text facts on that strip, respecting the "No new facts" rule.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-map-pips: Map strip under the board with small pips")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
+
 ## 2026-10-01 — app / 28px RealmCrestPip across World view (bakeoff/gemini-world-crests)
 
 - `packages/app/src/WorldPanel.tsx`:

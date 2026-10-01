@@ -13,6 +13,19 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (bakeoff/gemini-map-pips, not merged)
+
+- App/render HUD only. On the kingdom map strip under the board, added small existing heraldic pips for facts already shown as plain text:
+  - **Map strip**: Groups hold/season/people/plots, `WallLine`, and `VisionLine` into a single `.sc-work-card.sc-map-strip` row (`.sc-map-strip-row`) with shared hint drawer (`.sc-map-strip-hints`).
+  - **Keep Crest Pip** (`RealmCrestPip`): 20px heraldic crest pip for player hold banner in the hold cell.
+  - **Wall Pip** (`WallPip`): 20px crenellated ashlar stone wall with battlements, wall-walk terrace, central gate arch, and status stud (emerald green `#3fb950` when ring closed, warm amber `#d29922` when open).
+  - **Vision Pip** (`VisionPip`): 20px stone watchtower spire with parapet walkway, iron brazier, dancing beacon flame, and radiant vision glints when vision extends past base range.
+  - **Slot Pips**: Not added to the kingdom map strip because column slots are not part of the plain text facts on that strip (preserving the strict "No new facts" rule).
+  - **Strictly Non-Blocking**: `pointer-events: none` on all pips and wrappers.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/map-strip.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 302 render tests pass; 239 sim tests pass; app builds cleanly.
+  - Files: `packages/app/src/hud/map-strip.css`, `packages/app/src/hud/WallPip.tsx`, `packages/app/src/hud/VisionPip.tsx`, `packages/app/src/WallLine.tsx`, `packages/app/src/VisionLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`, `packages/render/src/index.test.ts`.
+
 ## Active wave (bakeoff/gemini-world-crests, not merged)
 
 - App/render HUD only. Added existing 28px `RealmCrestPip` across all World view components where realms are displayed:

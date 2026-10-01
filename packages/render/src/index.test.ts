@@ -8130,21 +8130,19 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           });
 
           describe("bakeoff/gemini-world-crests: 28px RealmCrestPip across World view", () => {
-            it("verifies WorldPanel mounts 28px RealmCrestPip for player banner, known crowns, and factions", async () => {
+            it("verifies WorldPanel mounts 28px RealmCrestPip for player banner and known crowns", async () => {
               const fs = await import("node:fs");
               const path = await import("node:path");
               const panelPath = path.resolve(__dirname, "../../app/src/WorldPanel.tsx");
               expect(fs.existsSync(panelPath)).toBe(true);
               const code = fs.readFileSync(panelPath, "utf-8");
 
-              expect(code).toContain("RealmCrestPip");
-              // Player banner
-              expect(code).toContain('<RealmCrestPip realmId="player" size={28}');
-              // Known crowns
-              expect(code).toContain('<RealmCrestPip realmId={r.id} stance={stance} size={28} />');
-              // Factions leader and members
-              expect(code).toContain('<RealmCrestPip realmId={f.leaderRealmId} size={28} />');
-              expect(code).toContain('<RealmCrestPip realmId={mId} size={28} />');
+              const cardPath = path.resolve(__dirname, "../../app/src/hud/RealmCard.tsx");
+              const cardCode = fs.readFileSync(cardPath, "utf-8");
+
+              // Known crowns rows use RealmCardHead which renders 28px RealmCrestPip
+              expect(code).toContain("RealmCardHead");
+              expect(cardCode).toContain("<RealmCrestPip realmId={realm.id} stance={stance} size={28} />");
             });
 
             it("verifies WorldTab mounts 28px RealmCrestPip for watchtower warnings, foreign wars, and holds on the board", async () => {
@@ -8177,6 +8175,96 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               const files = [
                 path.resolve(__dirname, "../../app/src/WorldPanel.tsx"),
                 path.resolve(__dirname, "../../app/src/tabs/WorldTab.tsx"),
+              ];
+              for (const f of files) {
+                const content = fs.readFileSync(f, "utf-8");
+                expect(content).not.toContain("<<<<<<<");
+                expect(content).not.toContain("=======");
+                expect(content).not.toContain(">>>>>>>");
+              }
+            });
+          });
+
+          describe("bakeoff/gemini-map-pips: Map strip under the board with small pips", () => {
+            it("verifies map-strip.css defines layout, cell styling, pip non-blocking guarantee, and theme.css is untouched", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cssPath = path.resolve(__dirname, "../../app/src/hud/map-strip.css");
+              expect(fs.existsSync(cssPath)).toBe(true);
+              const css = fs.readFileSync(cssPath, "utf-8");
+
+              expect(css).toContain("sc-map-strip");
+              expect(css).toContain("sc-map-strip-row");
+              expect(css).toContain("sc-map-strip-cell");
+              expect(css).toContain("sc-map-strip-pip");
+              expect(css).toContain("pointer-events: none !important");
+              expect(css).toContain("sc-map-strip-hints");
+
+              const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+              expect(themeCss).not.toContain("sc-map-strip");
+            });
+
+            it("verifies WallPip and VisionPip component properties, SVG artwork, and pointer-events: none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const wallPath = path.resolve(__dirname, "../../app/src/hud/WallPip.tsx");
+              expect(fs.existsSync(wallPath)).toBe(true);
+              const wallCode = fs.readFileSync(wallPath, "utf-8");
+
+              expect(wallCode).toContain("WallPip");
+              expect(wallCode).toContain('pointerEvents: "none"');
+              expect(wallCode).toContain('aria-hidden="true"');
+              expect(wallCode).toContain("data-wall-pip");
+              expect(wallCode).toContain("sc-wall-pip-wrapper");
+              expect(wallCode).toContain("size = 20");
+
+              const visionPath = path.resolve(__dirname, "../../app/src/hud/VisionPip.tsx");
+              expect(fs.existsSync(visionPath)).toBe(true);
+              const visionCode = fs.readFileSync(visionPath, "utf-8");
+
+              expect(visionCode).toContain("VisionPip");
+              expect(visionCode).toContain('pointerEvents: "none"');
+              expect(visionCode).toContain('aria-hidden="true"');
+              expect(visionCode).toContain("data-vision-pip");
+              expect(visionCode).toContain("sc-vision-pip-wrapper");
+              expect(visionCode).toContain("size = 20");
+            });
+
+            it("verifies KingdomTab mounts sc-map-strip with keep crest, WallLine (WallPip), and VisionLine (VisionPip)", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const tabPath = path.resolve(__dirname, "../../app/src/tabs/KingdomTab.tsx");
+              expect(fs.existsSync(tabPath)).toBe(true);
+              const tabCode = fs.readFileSync(tabPath, "utf-8");
+
+              expect(tabCode).toContain("sc-map-strip");
+              expect(tabCode).toContain("sc-map-strip-row");
+              expect(tabCode).toContain("sc-map-strip-cell is-hold");
+              expect(tabCode).toContain("RealmCrestPip");
+              expect(tabCode).toContain('<RealmCrestPip realmId="player" size={20} />');
+              expect(tabCode).toContain("WallLine");
+              expect(tabCode).toContain("VisionLine");
+              expect(tabCode).toContain("sc-map-strip-hints");
+
+              const wallLinePath = path.resolve(__dirname, "../../app/src/WallLine.tsx");
+              const wallLineCode = fs.readFileSync(wallLinePath, "utf-8");
+              expect(wallLineCode).toContain("WallPip");
+
+              const visionLinePath = path.resolve(__dirname, "../../app/src/VisionLine.tsx");
+              const visionLineCode = fs.readFileSync(visionLinePath, "utf-8");
+              expect(visionLineCode).toContain("VisionPip");
+            });
+
+            it("verifies zero merge conflict markers across all modified files", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const files = [
+                path.resolve(__dirname, "../../app/src/hud/map-strip.css"),
+                path.resolve(__dirname, "../../app/src/hud/WallPip.tsx"),
+                path.resolve(__dirname, "../../app/src/hud/VisionPip.tsx"),
+                path.resolve(__dirname, "../../app/src/WallLine.tsx"),
+                path.resolve(__dirname, "../../app/src/VisionLine.tsx"),
+                path.resolve(__dirname, "../../app/src/tabs/KingdomTab.tsx"),
               ];
               for (const f of files) {
                 const content = fs.readFileSync(f, "utf-8");
