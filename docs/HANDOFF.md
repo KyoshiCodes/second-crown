@@ -1,4 +1,4 @@
-# Handoff (2026-10-01)
+# Handoff (2026-09-30)
 
 Read `AGENTS.md` then this file.
 
@@ -13,14 +13,14 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/storage-cap, not merged)
+## Active wave (wave/hall-bonus, not merged)
 
-- No new cap system. The warehouse caps already live in `packages/sim/src/systems/storage.ts` (`storageCap`). This wave documents them, tests them, and teaches the playtest bot to build the cap buildings.
-- Base caps: food 200, wood 150, stone 150, gold 100. Each **finished** building adds: Granary +300 food, Sawmill +250 wood, Mason Yard +250 stone, Mint +150 gold (Mint is one per hold). Keep II..V multiply the total by 1.2 / 1.4 / 1.6 / 1.8. Logistics research adds +50 flat after that.
-- Why the playtest sat at gold 100 / food 199: the bot never built a Granary or a Mint. It now builds one Granary when food is 90%+ of its cap and one Mint when gold is 90%+ of its cap.
-- `npm run playtest`, seed 20260930: Granary is ordered at tick 125, Mint at tick 400. Peak is now gold 250, food 499 (was 100 / 199). Walls and raid results are unchanged.
-- Known gap: `storageCap` counts these buildings for every realm, not just the player. Rivals build nothing today, so it has no effect yet.
-- Files: `packages/sim/src/harness/playtestHarness.ts`, `packages/sim/src/systems/storage.test.ts`, `docs/PLAYTEST.md` (regenerated), plus the four docs. No server or theme.css changes.
+- Each finished Hall room (player-owned, not under construction) grants one small bonus. Missing room, no bonus.
+  - Yard (Barracks): treated wounded come back as militia in 40 ticks (4s) instead of 50. New sim rule; same food cost, no new units.
+  - Lectern (Academy): the existing 20% shorter studies (`researchDuration`). Shown only, not retuned.
+  - Gate (Gate): the existing gate HP in the wall soak (`gateHp` inside `wallHp`). Shown only, not retuned.
+- Raid timing, train costs and train times are unchanged.
+- Hall panel shows "Room bonus: ..." for the open room. Files: `packages/sim/src/systems/hallBonus.ts` (+test), `ward.ts`, `index.ts`, `packages/app/src/KeepHall.tsx`.
 
 ## Active wave (bakeoff/gemini-cottage-bunk, not merged)
 

@@ -1,6 +1,7 @@
 import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
+import { hallRoomBuilt, YARD_HEAL_TICKS } from "./hallBonus.js";
 
 const REPAIR_STONE = 8;
 const TREAT_FOOD = 4;
@@ -25,6 +26,11 @@ export function woundedCount(state: GameState): number {
 
 export function infirmaryBeds(state: GameState): number {
   return countBuilding(state, "infirmary") * 10;
+}
+
+/** Ticks for one treat. A finished player Barracks (Hall Yard) trims it. */
+export function healTicks(state: GameState): number {
+  return hallRoomBuilt(state, "yard") ? YARD_HEAL_TICKS : HEAL_TICKS;
 }
 
 export function healTicksLeft(state: GameState): number {
@@ -87,7 +93,7 @@ export function tryTreatWounded(state: GameState): boolean {
   state.flags.wounded_player = n - 1;
   const jobs = readHeals(state);
   const start = jobs.reduce((t, j) => Math.max(t, j.doneTick), state.meta.tick);
-  saveHeals(state, [...jobs, { doneTick: start + HEAL_TICKS }]);
+  saveHeals(state, [...jobs, { doneTick: start + healTicks(state) }]);
   state.inputLog.push({ tick: state.meta.tick, type: "treat", issuerId: "player" });
   return true;
 }
