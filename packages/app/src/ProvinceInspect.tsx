@@ -147,9 +147,10 @@ export function ProvinceInspect(props: {
   const stockMax = canGather ? nodeStockMax(p.node) : 0;
   const stored = canGather ? storedNodeStock(state, selectedId) : null;
   const stockRes = canGather ? GATHER_NODES[p.node as keyof typeof GATHER_NODES].resource : "";
+  // Same count the sim refuses on: every player column, returning gathers included.
   const slotsUsed =
     listMarches(state).filter((m) => m.realmId === "player").length +
-    gathers.filter((g) => g.phase !== "returning").length;
+    gathers.filter((g) => g.realmId === "player").length;
   const full = slotsUsed >= maxMarches(state);
   const flagged = listOutposts(state).some((o) => o.id === selectedId);
   const tithe = flagged ? outpostTithePerTick(state) : null;
@@ -396,6 +397,11 @@ export function ProvinceInspect(props: {
                 </button>
               </>
             ) : null}
+            {full ? (
+              <div className="sc-inspect-hint sc-inspect-slot-hint" style={{ flexBasis: "100%" }}>
+                Recall a column to free a slot (War tab).
+              </div>
+            ) : null}
           </div>
           <div className="sc-inspect-column">
             <div className="sc-inspect-column-label">Column</div>
@@ -426,7 +432,7 @@ export function ProvinceInspect(props: {
           <button
             type="button"
             className="sc-inspect-raid"
-            disabled={Boolean(march) || roster.every((u) => !(force[u.id] > 0))}
+            disabled={Boolean(march) || full || roster.every((u) => !(force[u.id] > 0))}
             onClick={() =>
               act((s) => {
                 if (activePlayerMarch(s)) return "Company already on the board.";

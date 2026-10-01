@@ -1,3 +1,8 @@
+## 2026-09-30 — app / slot hint (wave/slot-hint)
+
+- `ProvinceInspect.tsx`: `slotsUsed` = player `listMarches` + player `listGathers` (all phases), same as `tryGather`'s refusal. Scout/march in the sim count `listGathers(state).length` without a realm filter, so NPC gathers can still make those refuse with no hint; left as-is (sim out of scope).
+- Hint is a `sc-inspect-hint sc-inspect-slot-hint` div at the end of `sc-inspect-actions`, `flexBasis: 100%` like the gold hint. No CSS file changes.
+
 ## 2026-09-30 — app / keep hall (wave/keep-hall)
 
 - `packages/app/src/KeepHall.tsx`: `KeepHall({ state, act })`, rendered at the end of the `is-hold` section in `ProvinceInspect` (home province only). `ROOMS` maps `yard → barracks`, `lectern → academy`, `gate → gate`; `hasBuilt` checks a finished player building (not `countBuilding`, which counts every realm).

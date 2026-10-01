@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/slot-hint, not merged)
+
+- When every column slot is busy, the province inspect card shows one line under its buttons: "Recall a column to free a slot (War tab)." War already lists Recall for scouts, gathers and garrisons.
+- The card's "full" check now counts what the sim counts in `tryGather`: all player marches plus all player gathers, returning ones included (it used to skip returning gathers, so buttons could look enabled and then refuse). Send raid column is now also disabled when full.
+- Files: `packages/app/src/ProvinceInspect.tsx` only. No sim, server or theme.css changes.
+
 ## Active wave (wave/keep-hall, not merged)
 
 - Clicking your home hold on the board (the inspect card) now shows a **Hall** panel under the Hold facts with three rooms: **Yard**, **Lectern**, **Gate**. Room choice is local view state.

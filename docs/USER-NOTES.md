@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Full columns explained (wave/slot-hint)
+
+- If Scout, Gather, Garrison or Raid is greyed out because all your columns are out, the card now says: "Recall a column to free a slot (War tab)." The War tab has a Recall button for each column.
+- Gather parties walking home still take a slot; the buttons now show that instead of failing when clicked.
+
 ## 2026-09-30 — The Hall in your keep (wave/keep-hall)
 
 - Click your own hold on the board. Under the hold facts there is now a **Hall** with three rooms:
