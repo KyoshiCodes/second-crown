@@ -49,7 +49,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { PeoplePanel } from "../PeoplePanel";
 import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
-import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsStoneHint } from "../buildHints";
+import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
 import { isScarred, WorkCard } from "../hud/WorkCard";
@@ -88,6 +88,7 @@ export function KingdomTab(props: {
   const tithe = state ? outpostTithePerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const labor = state ? laborPerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const wallsHint = wallsStoneHint(state);
+  const wallsReady = wallsReadyHint(state);
   const hintPlot = quarryHintPlot(state);
   const quarryStaff = staffQuarryHint(state);
   const towerStaff = staffTowerHint(state);
@@ -123,6 +124,7 @@ export function KingdomTab(props: {
         {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more).
       </p>
       <WallLine state={state} />
+      {wallsReady ? <p style={{ fontSize: 12, color: "#3fb950" }}>{wallsReady}</p> : null}
       {wallsHint ? (
         <p style={{ fontSize: 12, color: "#d29922" }}>
           {wallsHint}

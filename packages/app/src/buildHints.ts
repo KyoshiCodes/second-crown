@@ -1,9 +1,11 @@
 import {
   buildCostMultiplier,
+  canAfford,
   canPlaceType,
   citizensByRealm,
   emptyStaffWorks,
   getBuildingType,
+  hasClosedWallRing,
   isHoldRim,
   scoutCost,
   staffBonus,
@@ -37,6 +39,13 @@ export function wallsStoneHint(state: GameState | undefined): string | null {
   const quarry = getBuildingType("quarry");
   if (!quarry) return null;
   return `Walls need ${need} stone. Build a ${quarry.name} (${costText(state, "quarry")}) for stone.`;
+}
+
+/** One line when Walls are affordable and the ring is still open. Same canAfford check as the Walls button. */
+export function wallsReadyHint(state: GameState | undefined): string | null {
+  if (!state || !canAfford(state, "walls") || hasClosedWallRing(state)) return null;
+  const name = getBuildingType("walls")?.name ?? "Walls";
+  return `You can afford ${name}. Raise the walls on the rim to close the ring.`;
 }
 
 /**
