@@ -1591,7 +1591,8 @@ function drawKeepCulture(
   kit: CultureKit,
   cult: CultureVisualPalette,
   complete: boolean = true,
-  hasPeople: boolean = true
+  hasPeople: boolean = true,
+  isBreached: boolean = false
 ): void {
   if (kit === "cedar") {
     // Cedar Kin: Monumental Timber Longhouse Keep + Cedar-Shake Roof + Eagle Finials + Watch Scaffolds
@@ -1612,16 +1613,30 @@ function drawKeepCulture(
       g.stroke({ width: 1.4, color: 0x3f220c, alpha: a * 0.85 });
     }
 
+    if (isBreached) {
+      // Jagged fracture cracks across timber faces
+      g.moveTo(-8, -h + 8); g.lineTo(-5, -h + 16); g.lineTo(-9, -h + 24);
+      g.stroke({ width: 1.2, color: 0x1f1005, alpha: a * 0.9 });
+      g.moveTo(6, -h + 10); g.lineTo(8, -h + 18); g.lineTo(5, -h + 26);
+      g.stroke({ width: 1.2, color: 0x1f1005, alpha: a * 0.9 });
+    }
+
     g.poly([-19, -h + 2, 0, 8.5 - h - 14, 19, -h + 2, 0, -h - 22]);
     g.fill({ color: 0x6d3d0c, alpha: a });
     g.moveTo(-19, -h + 2); g.lineTo(0, 8.5 - h - 14); g.lineTo(19, -h + 2);
     g.stroke({ width: 1.8, color: 0x3f220c, alpha: a });
 
     // Eagle/Animal Ridgepole Finials
-    g.poly([0, 8.5 - h - 14, -3, 8.5 - h - 20, 0, 8.5 - h - 18, 3, 8.5 - h - 20]);
-    g.fill({ color: 0xfacc15, alpha: a });
-    g.poly([0, -h - 22, -2.5, -h - 27, 0, -h - 25, 2.5, -h - 27]);
-    g.fill({ color: 0xfacc15, alpha: a });
+    if (!isBreached) {
+      g.poly([0, 8.5 - h - 14, -3, 8.5 - h - 20, 0, 8.5 - h - 18, 3, 8.5 - h - 20]);
+      g.fill({ color: 0xfacc15, alpha: a });
+      g.poly([0, -h - 22, -2.5, -h - 27, 0, -h - 25, 2.5, -h - 27]);
+      g.fill({ color: 0xfacc15, alpha: a });
+    } else {
+      // Snapped ridgepole timbers, broken finials
+      g.moveTo(0, 8.5 - h - 14); g.lineTo(0, 8.5 - h - 17);
+      g.stroke({ width: 1.4, color: 0x3f220c, alpha: a });
+    }
 
     // Corner Watch Scaffolds
     g.poly([-18, -h + 4, -12, -h + 7, -12, -h - 4, -18, -h - 7]);
@@ -1638,22 +1653,29 @@ function drawKeepCulture(
     g.rect(-4, -h - 16, 8, 4);
     g.fill({ color: 0x3f220c, alpha: a });
     if (complete) {
-      if (hasPeople) {
-        // Active billowing cedar hearth smoke when hold has people
-        const kSmoke = Math.sin(phase * 2.2) * 2;
-        // Warm hearth ember glow at louvers
-        g.circle(0, -h - 17, 1.8);
-        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
-        // Billowing smoke puffs rising and expanding
-        g.circle(0, -h - 20 + kSmoke, 2.8);
-        g.fill({ color: 0xe2e8f0, alpha: 0.5 * a });
-        g.circle(2, -h - 25 + kSmoke, 3.6);
-        g.fill({ color: 0xf1f5f9, alpha: a * 0.35 });
+      if (!isBreached) {
+        if (hasPeople) {
+          // Active billowing cedar hearth smoke when hold has people
+          const kSmoke = Math.sin(phase * 2.2) * 2;
+          // Warm hearth ember glow at louvers
+          g.circle(0, -h - 17, 1.8);
+          g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+          // Billowing smoke puffs rising and expanding
+          g.circle(0, -h - 20 + kSmoke, 2.8);
+          g.fill({ color: 0xe2e8f0, alpha: 0.5 * a });
+          g.circle(2, -h - 25 + kSmoke, 3.6);
+          g.fill({ color: 0xf1f5f9, alpha: a * 0.35 });
+        } else {
+          // Quieter faint hearth wisp when empty
+          const q1 = Math.sin(phase * 1.4);
+          g.circle(0, -h - 19 + q1 * 0.8, 1.3);
+          g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        }
       } else {
-        // Quieter faint hearth wisp when empty
-        const q1 = Math.sin(phase * 1.4);
-        g.circle(0, -h - 19 + q1 * 0.8, 1.3);
-        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        // Cold hearth: faint dead ash wisp (no warm golden glow)
+        const dSmoke = Math.sin(phase * 1.2) * 0.6;
+        g.circle(0, -h - 19 + dSmoke, 1.0);
+        g.fill({ color: 0x475569, alpha: a * 0.15 });
       }
     }
 
@@ -1674,17 +1696,27 @@ function drawKeepCulture(
     g.fill({ color: 0xca8a04, alpha: a });
 
     g.rect(8, 4, 3, 3); g.fill({ color: 0x3f220c, alpha: a });
-    const kFlame = Math.sin(phase * 6) * 1.5;
-    g.circle(9.5, 3, 2 + kFlame * 0.3); g.fill({ color: 0xf97316, alpha: a });
+    if (!isBreached) {
+      const kFlame = Math.sin(phase * 6) * 1.5;
+      g.circle(9.5, 3, 2 + kFlame * 0.3); g.fill({ color: 0xf97316, alpha: a });
+    } else {
+      g.circle(9.5, 3.5, 1.0); g.fill({ color: 0x18181b, alpha: a * 0.8 });
+    }
 
     // Clan Banner
-    const bannerWave = Math.sin(phase * 3.5) * 3;
-    g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
-    g.stroke({ width: 1.8, color: 0x854d0e, alpha: a });
-    g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
-    g.fill({ color: 0x14532d, alpha: a });
-    g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
-    g.fill({ color: 0xca8a04, alpha: a });
+    if (!isBreached) {
+      const bannerWave = Math.sin(phase * 3.5) * 3;
+      g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
+      g.stroke({ width: 1.8, color: 0x854d0e, alpha: a });
+      g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
+      g.fill({ color: 0x14532d, alpha: a });
+      g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
+      g.fill({ color: 0xca8a04, alpha: a });
+    } else {
+      // Snapped banner mast stump (no proud banner)
+      g.moveTo(0, -h + 2); g.lineTo(0, -h - 5);
+      g.stroke({ width: 1.8, color: 0x3f220c, alpha: a });
+    }
 
   } else if (kit === "sand") {
     // Sand Banner: Courtyard Keep with Flat Roofs + Colonnaded Inner Courtyard + Fountain + Mirador Tower
@@ -1697,6 +1729,13 @@ function drawKeepCulture(
     g.fill({ color: 0xd6c7a1, alpha: a });
     g.poly([0, 5.5, 16, -2, 16, -2 - h, 0, 5.5 - h]);
     g.fill({ color: 0xb8a77d, alpha: a });
+
+    if (isBreached) {
+      g.moveTo(-7, -h + 6); g.lineTo(-4, -h + 14); g.lineTo(-8, -h + 22);
+      g.stroke({ width: 1.1, color: 0x574a32, alpha: a * 0.9 });
+      g.moveTo(5, -h + 8); g.lineTo(8, -h + 16); g.lineTo(4, -h + 24);
+      g.stroke({ width: 1.1, color: 0x574a32, alpha: a * 0.9 });
+    }
 
     // Flat Roof Terrace with Stepped Mudbrick Crenellations
     g.poly([-17, -h, 0, 7.5 - h, 17, -h, 0, -h - 8]);
@@ -1717,27 +1756,33 @@ function drawKeepCulture(
     g.ellipse(chimX, chimY - 4, 1.2, 0.6);
     g.fill({ color: 0x09090b, alpha: a });
     if (complete) {
-      if (hasPeople) {
-        const wind = Math.sin(phase * 1.8) * 1.5;
-        const p1 = Math.sin(phase * 2.2);
-        // Warm hearth glow at flue opening
-        g.circle(chimX, chimY - 4.5, 1.4);
-        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
-        // Billowing desert spice hearth smoke
-        g.circle(chimX + wind * 0.3, chimY - 7 + p1 * 1.2, 2.5);
-        g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
-        g.circle(chimX + 1.8 + wind * 0.7, chimY - 11.5 + p1 * 1.4, 3.4);
-        g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
-        g.circle(chimX + 3.8 + wind * 1.1, chimY - 16.5 + p1 * 1.6, 4.2);
-        g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+      if (!isBreached) {
+        if (hasPeople) {
+          const wind = Math.sin(phase * 1.8) * 1.5;
+          const p1 = Math.sin(phase * 2.2);
+          // Warm hearth glow at flue opening
+          g.circle(chimX, chimY - 4.5, 1.4);
+          g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+          // Billowing desert spice hearth smoke
+          g.circle(chimX + wind * 0.3, chimY - 7 + p1 * 1.2, 2.5);
+          g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
+          g.circle(chimX + 1.8 + wind * 0.7, chimY - 11.5 + p1 * 1.4, 3.4);
+          g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
+          g.circle(chimX + 3.8 + wind * 1.1, chimY - 16.5 + p1 * 1.6, 4.2);
+          g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+        } else {
+          // Quieter faint wisp if empty
+          const lazyWind = Math.sin(phase * 1.2) * 0.8;
+          const q1 = Math.sin(phase * 1.4);
+          g.circle(chimX + lazyWind * 0.4, chimY - 6.5 + q1 * 0.8, 1.3);
+          g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+          g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 10 + q1 * 1.0, 1.5);
+          g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+        }
       } else {
-        // Quieter faint wisp if empty
-        const lazyWind = Math.sin(phase * 1.2) * 0.8;
-        const q1 = Math.sin(phase * 1.4);
-        g.circle(chimX + lazyWind * 0.4, chimY - 6.5 + q1 * 0.8, 1.3);
-        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
-        g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 10 + q1 * 1.0, 1.5);
-        g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+        // Cold hearth ash wisp
+        g.circle(chimX, chimY - 6.5, 1.0);
+        g.fill({ color: 0x574a32, alpha: a * 0.16 });
       }
     }
 
@@ -1748,30 +1793,49 @@ function drawKeepCulture(
     g.fill({ color: 0xd6c7a1, alpha: a });
     g.poly([0, -h - 9, 3, -h - 7.5, 3, -h - 4, 0, -h - 5.5]);
     g.fill({ color: 0x09090b, alpha: a });
-    g.circle(4, -h - 17, 1.8); g.fill({ color: 0xfacc15, alpha: a });
+    if (!isBreached) {
+      g.circle(4, -h - 17, 1.8); g.fill({ color: 0xfacc15, alpha: a });
+    }
 
     // Horseshoe Arched Gateway & Courtyard Fountain
     g.poly([-5, 5, 5, 1.5, 5, -5.5, -5, -2]);
     g.fill({ color: 0x09090b, alpha: a });
     g.ellipse(0, 1.5, 3.5, 1.8);
     g.fill({ color: 0x0284c7, alpha: a });
-    g.poly([-4, -1, 4, -4.5, 2, -7.5, -6, -4]);
-    g.fill({ color: 0xb45309, alpha: a * 0.9 });
-    g.moveTo(-4, -1); g.lineTo(4, -4.5);
-    g.stroke({ width: 0.8, color: 0xfacc15, alpha: a });
+    if (!isBreached) {
+      g.poly([-4, -1, 4, -4.5, 2, -7.5, -6, -4]);
+      g.fill({ color: 0xb45309, alpha: a * 0.9 });
+      g.moveTo(-4, -1); g.lineTo(4, -4.5);
+      g.stroke({ width: 0.8, color: 0xfacc15, alpha: a });
+    } else {
+      g.poly([-4, -1, 4, -4.5, 2, -7.5, -6, -4]);
+      g.fill({ color: 0x574a32, alpha: a * 0.9 });
+      g.moveTo(-4, -1); g.lineTo(4, -4.5);
+      g.stroke({ width: 0.8, color: 0x27272a, alpha: a });
+    }
 
     g.rect(-11, 4, 3, 3); g.fill({ color: 0x78350f, alpha: a });
-    const kFlame = Math.sin(phase * 6) * 1.5;
-    g.circle(-9.5, 3, 2 + kFlame * 0.3); g.fill({ color: 0xf59e0b, alpha: a });
+    if (!isBreached) {
+      const kFlame = Math.sin(phase * 6) * 1.5;
+      g.circle(-9.5, 3, 2 + kFlame * 0.3); g.fill({ color: 0xf59e0b, alpha: a });
+    } else {
+      g.circle(-9.5, 3.5, 1.0); g.fill({ color: 0x27272a, alpha: a * 0.8 });
+    }
 
     // Desert Silk Standard
-    const bannerWave = Math.sin(phase * 3.5) * 3;
-    g.moveTo(0, -h + 2); g.lineTo(0, -h - 16);
-    g.stroke({ width: 1.8, color: 0xa16207, alpha: a });
-    g.poly([0, -h - 16, 12 + bannerWave, -h - 12, 0, -h - 8]);
-    g.fill({ color: 0xb45309, alpha: a });
-    g.poly([0, -h - 14, 7 + bannerWave * 0.6, -h - 12, 0, -h - 10]);
-    g.fill({ color: 0xf59e0b, alpha: a });
+    if (!isBreached) {
+      const bannerWave = Math.sin(phase * 3.5) * 3;
+      g.moveTo(0, -h + 2); g.lineTo(0, -h - 16);
+      g.stroke({ width: 1.8, color: 0xa16207, alpha: a });
+      g.poly([0, -h - 16, 12 + bannerWave, -h - 12, 0, -h - 8]);
+      g.fill({ color: 0xb45309, alpha: a });
+      g.poly([0, -h - 14, 7 + bannerWave * 0.6, -h - 12, 0, -h - 10]);
+      g.fill({ color: 0xf59e0b, alpha: a });
+    } else {
+      // Snapped flagpole stump (no proud banner)
+      g.moveTo(0, -h + 2); g.lineTo(0, -h - 4);
+      g.stroke({ width: 1.8, color: 0x78350f, alpha: a });
+    }
 
   } else if (kit === "steppe") {
     // Wind Host: Felt-Roof Hall (Great Ger) + Wagon Yard + Toono Crown + Horsehair Standards
@@ -1785,6 +1849,11 @@ function drawKeepCulture(
     g.stroke({ width: 1.6, color: 0x9f1239, alpha: a });
     g.moveTo(-16, -1 - gh * 0.38); g.lineTo(0, 6.5 - gh * 0.38); g.lineTo(16, -1 - gh * 0.38);
     g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+
+    if (isBreached) {
+      g.moveTo(-7, -gh * 0.5 + 2); g.lineTo(-4, -gh * 0.5 + 8); g.lineTo(-8, 3);
+      g.stroke({ width: 1.2, color: 0x5c1d24, alpha: a * 0.9 });
+    }
 
     // Domed Felt Roof
     g.poly([-18, -1 - gh * 0.5, 0, 8 - gh * 0.5, 18, -1 - gh * 0.5, 0, -gh - 14]);
@@ -1803,21 +1872,27 @@ function drawKeepCulture(
     g.ellipse(0, -gh - 14, 3.4, 1.8);
     g.fill({ color: 0xca8a04, alpha: a });
     if (complete) {
-      if (hasPeople) {
-        const sPuff = Math.sin(phase * 2.2) * 2;
-        // Warm central hearth fire glow at toono opening
-        g.ellipse(0, -gh - 14, 2.2, 1.2);
-        g.fill({ color: 0xfef08a, alpha: a * 0.5 * (0.8 + Math.sin(phase * 4) * 0.2) });
-        // Active billowing nomad hearth smoke (2 primary puffs at x=0, x=2)
-        g.circle(0, -gh - 19 + sPuff, 2.8);
-        g.fill({ color: 0xe2e8f0, alpha: a * 0.5 });
-        g.circle(2, -gh - 24 + sPuff, 3.8);
-        g.fill({ color: 0xf1f5f9, alpha: a * 0.35 });
+      if (!isBreached) {
+        if (hasPeople) {
+          const sPuff = Math.sin(phase * 2.2) * 2;
+          // Warm central hearth fire glow at toono opening
+          g.ellipse(0, -gh - 14, 2.2, 1.2);
+          g.fill({ color: 0xfef08a, alpha: a * 0.5 * (0.8 + Math.sin(phase * 4) * 0.2) });
+          // Active billowing nomad hearth smoke (2 primary puffs at x=0, x=2)
+          g.circle(0, -gh - 19 + sPuff, 2.8);
+          g.fill({ color: 0xe2e8f0, alpha: a * 0.5 });
+          g.circle(2, -gh - 24 + sPuff, 3.8);
+          g.fill({ color: 0xf1f5f9, alpha: a * 0.35 });
+        } else {
+          // Quieter faint wisp if empty (single smaller puff at x=0)
+          const q1 = Math.sin(phase * 1.4);
+          g.circle(0, -gh - 18 + q1 * 0.8, 1.3);
+          g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        }
       } else {
-        // Quieter faint wisp if empty (single smaller puff at x=0)
-        const q1 = Math.sin(phase * 1.4);
-        g.circle(0, -gh - 18 + q1 * 0.8, 1.3);
-        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        // Cold hearth ash wisp
+        g.circle(0, -gh - 18, 1.0);
+        g.fill({ color: 0x4b5563, alpha: a * 0.15 });
       }
     }
 
@@ -1836,17 +1911,27 @@ function drawKeepCulture(
 
     // Bronze Cauldron
     g.rect(9, 4, 3.5, 3.5); g.fill({ color: 0x7c2d12, alpha: a });
-    const kFlame = Math.sin(phase * 6) * 1.5;
-    g.circle(10.7, 3, 2 + kFlame * 0.3); g.fill({ color: 0xf97316, alpha: a });
+    if (!isBreached) {
+      const kFlame = Math.sin(phase * 6) * 1.5;
+      g.circle(10.7, 3, 2 + kFlame * 0.3); g.fill({ color: 0xf97316, alpha: a });
+    } else {
+      g.circle(10.7, 3.5, 1.0); g.fill({ color: 0x18181b, alpha: a * 0.8 });
+    }
 
     // Khan's Battle Standard
-    const bannerWave = Math.sin(phase * 3.5) * 3;
-    g.moveTo(0, -gh - 14); g.lineTo(0, -gh - 26);
-    g.stroke({ width: 1.8, color: 0x7c2d12, alpha: a });
-    g.poly([0, -gh - 26, 12 + bannerWave, -gh - 21, 0, -gh - 16]);
-    g.fill({ color: 0x9f1239, alpha: a });
-    g.poly([0, -gh - 24, 7 + bannerWave * 0.6, -gh - 21, 0, -gh - 18]);
-    g.fill({ color: 0xca8a04, alpha: a });
+    if (!isBreached) {
+      const bannerWave = Math.sin(phase * 3.5) * 3;
+      g.moveTo(0, -gh - 14); g.lineTo(0, -gh - 26);
+      g.stroke({ width: 1.8, color: 0x7c2d12, alpha: a });
+      g.poly([0, -gh - 26, 12 + bannerWave, -gh - 21, 0, -gh - 16]);
+      g.fill({ color: 0x9f1239, alpha: a });
+      g.poly([0, -gh - 24, 7 + bannerWave * 0.6, -gh - 21, 0, -gh - 18]);
+      g.fill({ color: 0xca8a04, alpha: a });
+    } else {
+      // Snapped flagpole stump (no proud banner)
+      g.moveTo(0, -gh - 14); g.lineTo(0, -gh - 20);
+      g.stroke({ width: 1.8, color: 0x7c2d12, alpha: a });
+    }
 
   } else {
     // Tide Clans: Pile-House Keep on Pilings + Boat-Keel Roof + Net Racks + Catwalk
@@ -1864,6 +1949,11 @@ function drawKeepCulture(
     g.poly([0, 5, 16, -3, 16, -3 - h * 0.82, 0, 5 - h * 0.82]);
     g.fill({ color: 0x64748b, alpha: a });
 
+    if (isBreached) {
+      g.moveTo(-7, -h * 0.5); g.lineTo(-4, 0);
+      g.stroke({ width: 1.1, color: 0x1c1917, alpha: a * 0.9 });
+    }
+
     // Sweeping Inverted-Boat-Keel Thatched Palm Roof
     g.poly([-19, -2 - h * 0.82, 0, 8 - h * 0.82 - 14, 19, -2 - h * 0.82, 0, -h - 22]);
     g.fill({ color: 0x0e7490, alpha: a });
@@ -1878,27 +1968,33 @@ function drawKeepCulture(
     g.ellipse(cowlX, cowlY, 2, 1);
     g.fill({ color: 0x09090b, alpha: a });
     if (complete) {
-      if (hasPeople) {
-        const wind = Math.sin(phase * 1.8) * 1.5;
-        const p1 = Math.sin(phase * 2.2);
-        // Warm hearth ember glow at roof vent
-        g.circle(cowlX, cowlY - 0.5, 1.4);
-        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
-        // Billowing driftwood smoke puffs
-        g.circle(cowlX + wind * 0.3, cowlY - 3.5 + p1 * 1.2, 2.6);
-        g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
-        g.circle(cowlX + 2.0 + wind * 0.7, cowlY - 8.5 + p1 * 1.4, 3.6);
-        g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
-        g.circle(cowlX + 4.2 + wind * 1.1, cowlY - 14.0 + p1 * 1.6, 4.4);
-        g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+      if (!isBreached) {
+        if (hasPeople) {
+          const wind = Math.sin(phase * 1.8) * 1.5;
+          const p1 = Math.sin(phase * 2.2);
+          // Warm hearth ember glow at roof vent
+          g.circle(cowlX, cowlY - 0.5, 1.4);
+          g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+          // Billowing driftwood smoke puffs
+          g.circle(cowlX + wind * 0.3, cowlY - 3.5 + p1 * 1.2, 2.6);
+          g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
+          g.circle(cowlX + 2.0 + wind * 0.7, cowlY - 8.5 + p1 * 1.4, 3.6);
+          g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
+          g.circle(cowlX + 4.2 + wind * 1.1, cowlY - 14.0 + p1 * 1.6, 4.4);
+          g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+        } else {
+          // Quieter faint wisp if empty
+          const lazyWind = Math.sin(phase * 1.2) * 0.8;
+          const q1 = Math.sin(phase * 1.4);
+          g.circle(cowlX + lazyWind * 0.4, cowlY - 3 + q1 * 0.8, 1.3);
+          g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+          g.circle(cowlX + 0.8 + lazyWind * 0.8, cowlY - 6.5 + q1 * 1.0, 1.5);
+          g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+        }
       } else {
-        // Quieter faint wisp if empty
-        const lazyWind = Math.sin(phase * 1.2) * 0.8;
-        const q1 = Math.sin(phase * 1.4);
-        g.circle(cowlX + lazyWind * 0.4, cowlY - 3 + q1 * 0.8, 1.3);
-        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
-        g.circle(cowlX + 0.8 + lazyWind * 0.8, cowlY - 6.5 + q1 * 1.0, 1.5);
-        g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+        // Cold hearth ash wisp
+        g.circle(cowlX, cowlY - 2.5, 1.0);
+        g.fill({ color: 0x44403c, alpha: a * 0.15 });
       }
     }
 
@@ -1918,16 +2014,26 @@ function drawKeepCulture(
 
     g.poly([-14, 4, -4, 9, -5, 12, -15, 7]);
     g.fill({ color: 0x64748b, alpha: a * 0.5 });
-    g.circle(-9, 8, 1); g.fill({ color: 0xfef08a, alpha: a });
+    if (!isBreached) {
+      g.circle(-9, 8, 1); g.fill({ color: 0xfef08a, alpha: a });
+    } else {
+      g.circle(-9, 8, 0.8); g.fill({ color: 0x334155, alpha: a });
+    }
 
     // Sea-Green Sailcloth Standard
-    const bannerWave = Math.sin(phase * 3.5) * 3;
-    g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
-    g.stroke({ width: 1.8, color: 0x44403c, alpha: a });
-    g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
-    g.fill({ color: 0x0e7490, alpha: a });
-    g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
-    g.fill({ color: 0x67e8f9, alpha: a });
+    if (!isBreached) {
+      const bannerWave = Math.sin(phase * 3.5) * 3;
+      g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
+      g.stroke({ width: 1.8, color: 0x44403c, alpha: a });
+      g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
+      g.fill({ color: 0x0e7490, alpha: a });
+      g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
+      g.fill({ color: 0x67e8f9, alpha: a });
+    } else {
+      // Snapped flagpole stump (no proud banner)
+      g.moveTo(0, -h + 2); g.lineTo(0, -h - 5);
+      g.stroke({ width: 1.8, color: 0x44403c, alpha: a });
+    }
   }
 }
 
@@ -4575,6 +4681,82 @@ export function isBuildingStaffed(
   return false;
 }
 
+/**
+ * Determines whether a hold (e.g. player keep) has been breached.
+ * When the hold stands: returns false (keep is intact with warm hearth).
+ * When breached: returns true (keep shows cracked stone, dark windows, no proud banner).
+ * Checks options, state.flags, state properties, and state.wars siege battle outcomes.
+ */
+export function isHoldBreached(
+  state?: GameState | null,
+  options?: { isBreached?: boolean; breached?: boolean; stands?: boolean },
+  realmId = "player"
+): boolean {
+  if (options?.isBreached !== undefined) return options.isBreached;
+  if (options?.breached !== undefined) return options.breached;
+  if (options?.stands !== undefined) return !options.stands;
+
+  if (!state) return false;
+
+  const anyState = state as unknown as Record<string, unknown>;
+  const flags = state.flags as Record<string, unknown> | undefined;
+
+  // Direct boolean flags on state.flags
+  if (typeof flags?.isBreached === "boolean") return flags.isBreached;
+  if (typeof flags?.breached === "boolean") return flags.breached;
+  if (typeof flags?.holdBreached === "boolean") return flags.holdBreached;
+  if (typeof flags?.hold_breached === "boolean") return flags.hold_breached;
+  if (typeof flags?.is_breached === "boolean") return flags.is_breached;
+  if (typeof flags?.stands === "boolean") return !flags.stands;
+  if (typeof flags?.hold_stands === "boolean") return !flags.hold_stands;
+
+  // Direct boolean flags on state
+  if (typeof anyState.isBreached === "boolean") return anyState.isBreached;
+  if (typeof anyState.breached === "boolean") return anyState.breached;
+  if (typeof anyState.holdBreached === "boolean") return anyState.holdBreached;
+  if (typeof anyState.hold_breached === "boolean") return anyState.hold_breached;
+  if (typeof anyState.stands === "boolean") return !anyState.stands;
+
+  // String status values
+  if (typeof flags?.hold === "string") {
+    const lower = flags.hold.toLowerCase();
+    if (lower === "breached" || lower === "fallen") return true;
+    if (lower === "stands" || lower === "held") return false;
+  }
+  if (typeof flags?.hold_status === "string") {
+    const lower = flags.hold_status.toLowerCase();
+    if (lower === "breached" || lower === "fallen") return true;
+    if (lower === "stands" || lower === "held") return false;
+  }
+  if (typeof flags?.defense === "string") {
+    const lower = flags.defense.toLowerCase();
+    if (lower === "breached" || lower === "fallen") return true;
+    if (lower === "stands" || lower === "held") return false;
+  }
+  if (typeof flags?.last_siege === "string") {
+    const lower = flags.last_siege.toLowerCase();
+    if (lower === "breached" || lower === "fallen") return true;
+    if (lower === "stands" || lower === "held") return false;
+  }
+  if (typeof anyState.holdStatus === "string") {
+    const lower = anyState.holdStatus.toLowerCase();
+    if (lower === "breached" || lower === "fallen") return true;
+    if (lower === "stands" || lower === "held") return false;
+  }
+
+  // Check state.wars for recent siege outcome on the hold
+  if (Array.isArray(state.wars)) {
+    const lastSiege = [...state.wars]
+      .reverse()
+      .find((w) => w.id?.startsWith("w_siege_") && (w.defenderRealmId === realmId || (!w.defenderRealmId && realmId === "player")));
+    if (lastSiege && lastSiege.status && lastSiege.status !== "active") {
+      if (lastSiege.status !== "defender_won") return true;
+    }
+  }
+
+  return false;
+}
+
 export interface BuildingDrawOptions {
   wallHpRatio?: number;
   isDamaged?: boolean;
@@ -4585,6 +4767,9 @@ export interface BuildingDrawOptions {
   isStaffed?: boolean;
   hasWorker?: boolean;
   staffed?: boolean;
+  isBreached?: boolean;
+  breached?: boolean;
+  stands?: boolean;
 }
 
 // -------------------------------------------------------------
@@ -4613,6 +4798,13 @@ export function drawIsometricBuilding(
   const isRingClosed = Boolean(
     options?.isRingClosed ??
     (options?.state ? isWallRingClosed(options.state) : false)
+  );
+
+  const isBreached = Boolean(
+    options?.isBreached ??
+    options?.breached ??
+    (options?.stands !== undefined ? !options.stands : undefined) ??
+    (options?.state ? isHoldBreached(options.state, options) : false)
   );
 
   const hasPeople = Boolean(
@@ -6031,7 +6223,7 @@ export function drawIsometricBuilding(
 
     case "keep": {
       if (kit !== "western") {
-        drawKeepCulture(g, 30 + heightBoost, a, phase, kit, cult, complete, hasPeople);
+        drawKeepCulture(g, 30 + heightBoost, a, phase, kit, cult, complete, hasPeople, isBreached);
         break;
       }
       // Taller Stone Hold (Seat of the Realm) + Corner Bartizans + Crenellations + Portcullis + Royal Banner
@@ -6054,6 +6246,13 @@ export function drawIsometricBuilding(
       g.fill({ color: stoneDark, alpha: a });
       g.poly([0, 9.5, 17, 1, 17, -3.5, 0, 5]);
       g.fill({ color: stonePlinth, alpha: a });
+      if (isBreached) {
+        // Foundation fracture fissures
+        g.moveTo(-10, 0); g.lineTo(-8, 4); g.lineTo(-6, 6);
+        g.stroke({ width: 0.9, color: 0x09090b, alpha: a * 0.9 });
+        g.moveTo(6, 6.5); g.lineTo(9, 4.5); g.lineTo(12, 1);
+        g.stroke({ width: 0.9, color: 0x09090b, alpha: a * 0.9 });
+      }
 
       // 2. Main Stone Hold Tower Walls (Dressed Ashlar Granite)
       // Left Facet (Light face)
@@ -6072,6 +6271,38 @@ export function drawIsometricBuilding(
         g.stroke({ width: 0.8, color: stonePlinth, alpha: a * 0.65 });
       }
 
+      if (isBreached) {
+        // Deep jagged structural fracture fissure descending down left facet
+        g.moveTo(-6, -h + 6);
+        g.lineTo(-7.5, -h + 12);
+        g.lineTo(-5, -h + 17);
+        g.lineTo(-8, -h + 23);
+        g.lineTo(-6.5, -2);
+        g.stroke({ width: 1.2, color: 0x0f172a, alpha: a * 0.9 });
+        // Branch crack
+        g.moveTo(-7.5, -h + 12);
+        g.lineTo(-11, -h + 14);
+        g.stroke({ width: 0.8, color: 0x1e293b, alpha: a * 0.85 });
+
+        // Deep jagged structural fracture fissure on right facet
+        g.moveTo(5, -h + 8);
+        g.lineTo(7, -h + 14);
+        g.lineTo(4.5, -h + 20);
+        g.lineTo(8, -h + 26);
+        g.lineTo(6, 1);
+        g.stroke({ width: 1.2, color: 0x09090b, alpha: a * 0.95 });
+        // Branch crack
+        g.moveTo(7, -h + 14);
+        g.lineTo(11, -h + 16);
+        g.stroke({ width: 0.8, color: 0x0f172a, alpha: a * 0.85 });
+
+        // Chipped masonry rubble scars / impact divots
+        g.poly([-9, -h + 18, -7, -h + 17, -8, -h + 20]);
+        g.fill({ color: 0x1e293b, alpha: a * 0.85 });
+        g.poly([9, -h + 21, 11, -h + 20, 10, -h + 23]);
+        g.fill({ color: 0x09090b, alpha: a * 0.9 });
+      }
+
       // 3. Flanking Corner Bartizans (Stone Watch Turrets)
       // Left Bartizan
       g.poly([-17, -h + 2, -12, -h + 4.5, -12, -h - 5, -17, -h - 7.5]);
@@ -6088,6 +6319,15 @@ export function drawIsometricBuilding(
       g.fill({ color: stonePlinth, alpha: a });
       g.poly([9, -h - 6.5, 12, -h - 5, 17, -h - 7.5, 14, -h - 11]);
       g.fill({ color: stonePlinth, alpha: a }); // Turret roof cap
+
+      if (isBreached) {
+        // Crack across left bartizan turret
+        g.moveTo(-14, -h - 8); g.lineTo(-11, -h - 3);
+        g.stroke({ width: 0.9, color: 0x09090b, alpha: a * 0.85 });
+        // Broken / crumbling chunk from right bartizan roof cap
+        g.moveTo(11, -h - 7); g.lineTo(15, -h - 5);
+        g.stroke({ width: 0.9, color: 0x09090b, alpha: a * 0.85 });
+      }
 
       // 4. Machicolations & Parapet Battlements
       // Machicolation corbel ledge
@@ -6114,6 +6354,12 @@ export function drawIsometricBuilding(
         g.stroke({ width: 0.6, color: stonePlinth, alpha: a });
       }
 
+      if (isBreached) {
+        // Chipped crenel fissure
+        g.moveTo(-3, -h - 3); g.lineTo(0, -h + 1);
+        g.stroke({ width: 0.9, color: 0x09090b, alpha: a * 0.9 });
+      }
+
       // 5. Arched Gateway & Iron Portcullis
       g.poly([-4, 5, 4, 1.5, 4, -5.5, -4, -2]);
       g.fill({ color: 0x09090b, alpha: a });
@@ -6128,59 +6374,98 @@ export function drawIsometricBuilding(
       g.moveTo(-4, -2); g.lineTo(4, -5.5);
       g.stroke({ width: 1.8, color: lintelColor, alpha: a });
 
-      // 6. Defensive Arrow Slits & Warm Royal Window
+      if (isBreached) {
+        // Buckled portcullis bars
+        g.moveTo(-1, 3); g.lineTo(1, 0);
+        g.stroke({ width: 1.1, color: 0x475569, alpha: a * 0.85 });
+      }
+
+      // 6. Defensive Arrow Slits & Royal High Window
       // Arrow slits
       g.rect(-10, -h * 0.35, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
       g.rect(-10, -h * 0.62, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
       g.rect(8, -h * 0.4, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
       g.rect(8, -h * 0.65, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
-      // Arched Royal High Window with warm candlelight
-      const keepCandle = 0.85 + Math.sin(phase * 4) * 0.12;
-      g.rect(-3, -h * 0.55, 4, 5.5);
-      g.fill({ color: 0xfef08a, alpha: a * 0.95 * keepCandle });
-      g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
-      // Stained glass mullion cross
-      g.moveTo(-1, -h * 0.55); g.lineTo(-1, -h * 0.55 + 5.5);
-      g.moveTo(-3, -h * 0.55 + 2.5); g.lineTo(1, -h * 0.55 + 2.5);
-      g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+
+      if (!isBreached) {
+        // Arched Royal High Window with warm candlelight when hold stands
+        const keepCandle = 0.85 + Math.sin(phase * 4) * 0.12;
+        g.rect(-3, -h * 0.55, 4, 5.5);
+        g.fill({ color: 0xfef08a, alpha: a * 0.95 * keepCandle });
+        g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
+        // Stained glass mullion cross
+        g.moveTo(-1, -h * 0.55); g.lineTo(-1, -h * 0.55 + 5.5);
+        g.moveTo(-3, -h * 0.55 + 2.5); g.lineTo(1, -h * 0.55 + 2.5);
+        g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+      } else {
+        // Dark, shattered royal high window when breached (no warm candlelight)
+        g.rect(-3, -h * 0.55, 4, 5.5);
+        g.fill({ color: 0x09090b, alpha: a });
+        g.stroke({ width: 0.8, color: 0x1e293b, alpha: a });
+        // Broken / shattered glass fractures
+        g.moveTo(-3, -h * 0.55 + 1.5); g.lineTo(-1, -h * 0.55 + 3.5); g.lineTo(1, -h * 0.55 + 2);
+        g.stroke({ width: 0.6, color: 0x334155, alpha: a * 0.8 });
+        g.moveTo(-1, -h * 0.55 + 3.5); g.lineTo(-1.5, -h * 0.55 + 5.5);
+        g.stroke({ width: 0.6, color: 0x334155, alpha: a * 0.8 });
+      }
 
       // 7. Royal Heraldic Shield above the gate
-      g.poly([0, -5, 3, -3.5, 2.5, 0, 0, 2.5, -2.5, 0, -3, -3.5]);
-      g.fill({ color: shieldTabard, alpha: a });
-      g.poly([0, -5, 3, -3.5, 2.5, 0, 0, 2.5]);
-      g.fill({ color: shieldGold, alpha: a });
-      g.stroke({ width: 0.6, color: 0x78350f, alpha: a });
+      if (!isBreached) {
+        g.poly([0, -5, 3, -3.5, 2.5, 0, 0, 2.5, -2.5, 0, -3, -3.5]);
+        g.fill({ color: shieldTabard, alpha: a });
+        g.poly([0, -5, 3, -3.5, 2.5, 0, 0, 2.5]);
+        g.fill({ color: shieldGold, alpha: a });
+        g.stroke({ width: 0.6, color: 0x78350f, alpha: a });
+      } else {
+        // Charred, shattered heraldic shield
+        g.poly([0, -5, 3, -3.5, 2.5, 0, 0, 2.5, -2.5, 0, -3, -3.5]);
+        g.fill({ color: 0x1e293b, alpha: a });
+        g.stroke({ width: 0.8, color: 0x09090b, alpha: a * 0.9 });
+        // Scar crack across heraldic shield
+        g.moveTo(-2, -4); g.lineTo(2, 1);
+        g.stroke({ width: 0.8, color: 0x09090b, alpha: a * 0.9 });
+      }
 
       // 8. Courtyard Details: Stone Steps & Iron Brazier
       // Steps in front of gate
       g.poly([-6, 6, 0, 8.8, 6, 6, 0, 3.2]);
       g.fill({ color: 0x71717a, alpha: a });
-      // Iron Brazier with lively fire
+      // Iron Brazier
       g.rect(-11, 4, 3, 3);
       g.fill({ color: 0x27272a, alpha: a });
-      if (complete) {
+      if (complete && !isBreached) {
+        // Lively brazier fire when hold stands
         const kFlame = Math.sin(phase * 6) * 1.5;
         g.circle(-9.5, 3, 2.2 + kFlame * 0.3);
         g.fill({ color: 0xf97316, alpha: a });
         g.circle(-9.5, 2.5, 1.2);
         g.fill({ color: 0xfef08a, alpha: a });
       } else {
-        // Cold dormant coals
+        // Cold dormant coals / spent ash
         g.circle(-9.5, 3.5, 1.0);
         g.fill({ color: 0x1e293b, alpha: a * 0.8 });
       }
 
-      // 9. Soaring Royal Standard
-      const bannerWave = Math.sin(phase * 3.5) * 3;
-      g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
-      g.stroke({ width: 1.8, color: lintelColor, alpha: a });
-      g.circle(0, -h - 19, 1.8);
-      g.fill({ color: 0xfacc15, alpha: a });
-      // Royal standard (tabard & accent)
-      g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
-      g.fill({ color: bannerTabard, alpha: a });
-      g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
-      g.fill({ color: bannerGold, alpha: a });
+      // 9. Standard / Mast
+      if (!isBreached) {
+        // Soaring Proud Royal Standard when hold stands
+        const bannerWave = Math.sin(phase * 3.5) * 3;
+        g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
+        g.stroke({ width: 1.8, color: lintelColor, alpha: a });
+        g.circle(0, -h - 19, 1.8);
+        g.fill({ color: 0xfacc15, alpha: a });
+        // Royal standard (tabard & accent)
+        g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
+        g.fill({ color: bannerTabard, alpha: a });
+        g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
+        g.fill({ color: bannerGold, alpha: a });
+      } else {
+        // Snapped / splintered mast stump when breached (no proud banner, no golden finial)
+        g.moveTo(0, -h + 2); g.lineTo(0, -h - 5);
+        g.stroke({ width: 1.8, color: 0x5c3818, alpha: a });
+        g.moveTo(-0.8, -h - 5); g.lineTo(0.2, -h - 6.5); g.lineTo(0.9, -h - 4.5);
+        g.stroke({ width: 1.0, color: 0x78350f, alpha: a });
+      }
 
       // 10. Ashlar Stone Chimney Stack & Hearth Smoke
       const chimX = 6.5;
@@ -6202,45 +6487,53 @@ export function drawIsometricBuilding(
       g.fill({ color: 0x09090b, alpha: a });
 
       if (complete) {
-        if (hasPeople) {
-          // Lively billowing hearth smoke when hold has people
-          const wind = Math.sin(phase * 1.8) * 1.5;
-          const p1 = Math.sin(phase * 2.2);
-          const p2 = Math.sin(phase * 2.2 + 1.2);
-          const p3 = Math.sin(phase * 2.2 + 2.4);
-          const p4 = Math.sin(phase * 2.2 + 3.6);
+        if (!isBreached) {
+          if (hasPeople) {
+            // Lively billowing hearth smoke when hold has people
+            const wind = Math.sin(phase * 1.8) * 1.5;
+            const p1 = Math.sin(phase * 2.2);
+            const p2 = Math.sin(phase * 2.2 + 1.2);
+            const p3 = Math.sin(phase * 2.2 + 2.4);
+            const p4 = Math.sin(phase * 2.2 + 3.6);
 
-          // Warm golden hearth glow at chimney flue
-          g.circle(chimX, chimY - 9, 1.4);
-          g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+            // Warm golden hearth glow at chimney flue
+            g.circle(chimX, chimY - 9, 1.4);
+            g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
 
-          // Puff 1: fresh warm puff rising from flue
-          g.circle(chimX + wind * 0.3, chimY - 11.5 + p1 * 1.2, 2.4);
-          g.fill({ color: 0xe2e8f0, alpha: a * 0.45 });
+            // Puff 1: fresh warm puff rising from flue
+            g.circle(chimX + wind * 0.3, chimY - 11.5 + p1 * 1.2, 2.4);
+            g.fill({ color: 0xe2e8f0, alpha: a * 0.45 });
 
-          // Puff 2: expanding mid-altitude smoke puff
-          g.circle(chimX + 1.8 + wind * 0.7, chimY - 16.5 + p2 * 1.5, 3.4);
-          g.fill({ color: 0xf1f5f9, alpha: a * 0.38 });
+            // Puff 2: expanding mid-altitude smoke puff
+            g.circle(chimX + 1.8 + wind * 0.7, chimY - 16.5 + p2 * 1.5, 3.4);
+            g.fill({ color: 0xf1f5f9, alpha: a * 0.38 });
 
-          // Puff 3: large drifting plume cloud
-          g.circle(chimX + 3.6 + wind * 1.2, chimY - 22 + p3 * 1.8, 4.4);
-          g.fill({ color: 0xf8fafc, alpha: a * 0.26 });
+            // Puff 3: large drifting plume cloud
+            g.circle(chimX + 3.6 + wind * 1.2, chimY - 22 + p3 * 1.8, 4.4);
+            g.fill({ color: 0xf8fafc, alpha: a * 0.26 });
 
-          // Puff 4: high dispersed wisp
-          g.circle(chimX + 5.5 + wind * 1.6, chimY - 27.5 + p4 * 2.0, 5.0);
-          g.fill({ color: 0xffffff, alpha: a * 0.16 });
+            // Puff 4: high dispersed wisp
+            g.circle(chimX + 5.5 + wind * 1.6, chimY - 27.5 + p4 * 2.0, 5.0);
+            g.fill({ color: 0xffffff, alpha: a * 0.16 });
+          } else {
+            // Quieter faint hearth wisp when hold is empty
+            const lazyWind = Math.sin(phase * 1.2) * 0.8;
+            const q1 = Math.sin(phase * 1.4);
+            const q2 = Math.sin(phase * 1.4 + 1.5);
+
+            // Faint, thin quiet wisp with reduced radius and low alpha
+            g.circle(chimX + lazyWind * 0.4, chimY - 10.5 + q1 * 0.8, 1.3);
+            g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+
+            g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 14.5 + q2 * 1.0, 1.6);
+            g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+          }
         } else {
-          // Quieter faint hearth wisp when hold is empty
-          const lazyWind = Math.sin(phase * 1.2) * 0.8;
-          const q1 = Math.sin(phase * 1.4);
-          const q2 = Math.sin(phase * 1.4 + 1.5);
-
-          // Faint, thin quiet wisp with reduced radius and low alpha
-          g.circle(chimX + lazyWind * 0.4, chimY - 10.5 + q1 * 0.8, 1.3);
-          g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
-
-          g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 14.5 + q2 * 1.0, 1.6);
-          g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+          // Breached: cold dead hearth with faint spent soot wisp (no golden glow)
+          const dyingWind = Math.sin(phase * 1.0) * 0.6;
+          const d1 = Math.sin(phase * 1.2);
+          g.circle(chimX + dyingWind * 0.3, chimY - 10 + d1 * 0.6, 1.0);
+          g.fill({ color: 0x475569, alpha: a * 0.15 });
         }
       }
       break;
@@ -6266,7 +6559,7 @@ export function drawIsometricBuilding(
   // -------------------------------------------------------------
   // Holiday & Seasonal Building Dressing & Light Sources
   // -------------------------------------------------------------
-  if (complete) {
+  if (complete && !(isBreached && typeId === "keep")) {
     if (dec === "halloween") {
       // Keep Halloween as-is: Carved Jack-o'-Lantern on doorstep + witchfire halo
       g.ellipse(8, 4, 3.8, 3);
@@ -6514,8 +6807,8 @@ export function drawIsometricBuilding(
   for (let i = 0; i < lvl; i++) {
     const px = -8 + i * 4.5;
     g.rect(px, HALF_H - 4, 3, 2.5);
-    g.fill({ color: 0xfef08a, alpha: 0.9 });
-    g.stroke({ width: 0.5, color: 0x78350f, alpha: 0.8 });
+    g.fill({ color: isBreached ? 0x64748b : 0xfef08a, alpha: 0.9 });
+    g.stroke({ width: 0.5, color: isBreached ? 0x1e293b : 0x78350f, alpha: 0.8 });
   }
 }
 

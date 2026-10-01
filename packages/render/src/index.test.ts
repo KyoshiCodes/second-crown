@@ -84,6 +84,7 @@ import {
   listMissingRimSegments,
   drawRimGapMark,
   paintMissingRimSegments,
+  isHoldBreached,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -7339,6 +7340,234 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
             expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
 
             const files = ["buildings.ts", "tokens.ts", "tiles.ts", "index.ts"];
+            for (const f of files) {
+              const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+              expect(code).not.toContain("<<<<<<<");
+              expect(code).not.toContain("=======");
+              expect(code).not.toContain(">>>>>>>");
+            }
+          });
+        });
+
+        describe("bakeoff/gemini-keep-breach: Player keep intact vs cracked stone/dark windows/no proud banner when breached", () => {
+          it("isHoldBreached correctly detects breach status across options, flags, and wars", () => {
+            expect(isHoldBreached(null)).toBe(false);
+            expect(isHoldBreached(undefined)).toBe(false);
+
+            const state = createMockState();
+            expect(isHoldBreached(state)).toBe(false);
+
+            // Options overrides
+            expect(isHoldBreached(state, { isBreached: true })).toBe(true);
+            expect(isHoldBreached(state, { breached: true })).toBe(true);
+            expect(isHoldBreached(state, { stands: false })).toBe(true);
+            expect(isHoldBreached(state, { isBreached: false })).toBe(false);
+            expect(isHoldBreached(state, { stands: true })).toBe(false);
+
+            // Boolean flags on state.flags
+            state.flags = { isBreached: true };
+            expect(isHoldBreached(state)).toBe(true);
+            state.flags = { breached: true };
+            expect(isHoldBreached(state)).toBe(true);
+            state.flags = { holdBreached: true };
+            expect(isHoldBreached(state)).toBe(true);
+            state.flags = { stands: false };
+            expect(isHoldBreached(state)).toBe(true);
+            state.flags = { hold_stands: false };
+            expect(isHoldBreached(state)).toBe(true);
+
+            // String flags on state.flags
+            state.flags = { hold: "breached" };
+            expect(isHoldBreached(state)).toBe(true);
+            state.flags = { hold: "stands" };
+            expect(isHoldBreached(state)).toBe(false);
+            state.flags = { hold_status: "fallen" };
+            expect(isHoldBreached(state)).toBe(true);
+            state.flags = { defense: "breached" };
+            expect(isHoldBreached(state)).toBe(true);
+            state.flags = { last_siege: "breached" };
+            expect(isHoldBreached(state)).toBe(true);
+
+            // Direct flags on state
+            delete state.flags;
+            const anyState = state as unknown as Record<string, unknown>;
+            anyState.isBreached = true;
+            expect(isHoldBreached(state)).toBe(true);
+            delete anyState.isBreached;
+            anyState.breached = true;
+            expect(isHoldBreached(state)).toBe(true);
+            delete anyState.breached;
+            anyState.stands = false;
+            expect(isHoldBreached(state)).toBe(true);
+            delete anyState.stands;
+
+            // state.wars siege resolution
+            state.wars = [
+              {
+                id: "w_siege_100",
+                attackerRealmId: "rival",
+                defenderRealmId: "player",
+                startedTick: 100,
+                status: "defender_won",
+              },
+            ];
+            expect(isHoldBreached(state)).toBe(false); // Player held
+
+            state.wars[0].status = "attacker_won";
+            expect(isHoldBreached(state)).toBe(true); // Player lost / breached
+
+            state.wars[0].status = "active";
+            expect(isHoldBreached(state)).toBe(false); // In progress
+          });
+
+          it("Western keep renders intact dressed stone, warm candlelight, proud royal banner, and warm hearth when hold stands", () => {
+            const g = createMockGraphics();
+            drawIsometricBuilding(g, "keep", 1, true, 0.5, visuals, 0, 0, undefined, "western", {
+              isBreached: false,
+              hasPeople: true,
+            });
+
+            const json = JSON.stringify(g.calls);
+
+            // Intact warm royal candlelight window (0xfef08a)
+            expect(json).toContain(String(0xfef08a));
+
+            // Soaring proud royal standard: mast, golden finial (0xfacc15), and banner tabard (0xb91c1c)
+            expect(json).toContain(String(0xfacc15)); // gold finial
+            expect(json).toContain(String(0xb91c1c)); // banner tabard
+
+            // Courtyard brazier with lively flame (0xf97316)
+            expect(json).toContain(String(0xf97316));
+
+            // Foundation & walls intact without fracture lines
+            expect(json).not.toContain(JSON.stringify([-10, 0])); // foundation crack absent
+          });
+
+          it("Western keep renders cracked stone, dark windows, no proud banner, and cold hearth when breached", () => {
+            const g = createMockGraphics();
+            drawIsometricBuilding(g, "keep", 1, true, 0.5, visuals, 0, 0, undefined, "western", {
+              isBreached: true,
+              hasPeople: true,
+            });
+
+            const json = JSON.stringify(g.calls);
+
+            // 1. Cracked stone: structural fracture lines on walls & foundation
+            const cracks = g.calls.filter(
+              (c) =>
+                (c.method === "stroke" && (c.args[0]?.color === 0x0f172a || c.args[0]?.color === 0x09090b || c.args[0]?.color === 0x1e293b)) ||
+                (c.method === "fill" && (c.args[0]?.color === 0x1e293b || c.args[0]?.color === 0x09090b))
+            );
+            expect(cracks.length).toBeGreaterThanOrEqual(4);
+
+            // Broken glass fractures (0x334155)
+            expect(json).toContain(String(0x334155));
+
+            // 2. Dark windows: zero warm yellow window/hearth candlelight (0xfef08a)
+            expect(json).not.toContain(String(0xfef08a));
+
+            // 3. No proud banner: zero royal standard tabard (0xb91c1c), zero golden finial (0xfacc15)
+            expect(json).not.toContain(String(0xb91c1c)); // no proud banner tabard
+            expect(json).not.toContain(String(0xfacc15)); // no golden finial ball
+
+            // Snapped mast stump present (0x5c3818 / 0x78350f)
+            expect(json).toContain(String(0x5c3818));
+            expect(json).toContain(String(0x78350f));
+
+            // 4. Cold hearth: zero brazier flame (0xf97316), cold dormant ash (0x1e293b)
+            expect(json).not.toContain(String(0xf97316));
+            expect(json).toContain(String(0x1e293b));
+          });
+
+          it("culture keeps render distinct standing vs breached visual states across all 4 kits", () => {
+            const kits = ["cedar", "sand", "steppe", "islands"] as const;
+
+            for (const kit of kits) {
+              const gStands = createMockGraphics();
+              drawIsometricBuilding(gStands, "keep", 1, true, 0.5, visuals, 0, 0, undefined, kit, {
+                isBreached: false,
+                hasPeople: true,
+              });
+
+              const gBreached = createMockGraphics();
+              drawIsometricBuilding(gBreached, "keep", 1, true, 0.5, visuals, 0, 0, undefined, kit, {
+                isBreached: true,
+                hasPeople: true,
+              });
+
+              const standsJson = JSON.stringify(gStands.calls);
+              const breachedJson = JSON.stringify(gBreached.calls);
+
+              // Standing keep has warm yellow hearth/window glow (0xfef08a)
+              expect(standsJson).toContain(String(0xfef08a));
+
+              // Breached keep completely extinguishes warm yellow glow (0xfef08a)
+              expect(breachedJson).not.toContain(String(0xfef08a));
+
+              // Standing and breached signatures are clearly distinct
+              expect(standsJson).not.toEqual(breachedJson);
+
+              // Proud banners are suppressed when breached:
+              if (kit === "cedar") {
+                expect(standsJson).toContain(String(0x14532d)); // cedar green banner
+                expect(breachedJson).not.toContain(String(0x14532d));
+              } else if (kit === "sand") {
+                expect(standsJson).toContain(String(0xf59e0b)); // sand silk banner accent
+                expect(breachedJson).not.toContain(String(0xf59e0b));
+              } else if (kit === "steppe") {
+                // Steppe Khan's battle standard polygon at top of mast
+                const bannerPolys = gStands.calls.filter(
+                  (c) => c.method === "poly" && c.args[0]?.length === 6 && c.args[0][1] < -35
+                );
+                expect(bannerPolys.length).toBeGreaterThanOrEqual(1);
+                const breachedBannerPolys = gBreached.calls.filter(
+                  (c) => c.method === "poly" && c.args[0]?.length === 6 && c.args[0][1] < -35
+                );
+                expect(breachedBannerPolys.length).toBe(0);
+              } else if (kit === "islands") {
+                expect(standsJson).toContain(String(0x67e8f9)); // cyan sailcloth banner accent
+                expect(breachedJson).not.toContain(String(0x67e8f9));
+              }
+            }
+          });
+
+          it("drawMiniatureKeep renders intact keep with banner and coronet when stands, cracked/dark/stump when breached", () => {
+            const gStands = createMockGraphics();
+            drawMiniatureKeep(gStands, 40, 40, "western", undefined, true, 0.5, {
+              isBreached: false,
+              hasPeople: true,
+            });
+
+            const gBreached = createMockGraphics();
+            drawMiniatureKeep(gBreached, 40, 40, "western", undefined, true, 0.5, {
+              isBreached: true,
+              hasPeople: true,
+            });
+
+            const standsJson = JSON.stringify(gStands.calls);
+            const breachedJson = JSON.stringify(gBreached.calls);
+
+            // Standing miniature keep:
+            expect(standsJson).toContain(String(0xfef08a)); // warm window / hearth glint
+            expect(standsJson).toContain(String(0xfacc15)); // golden coronet / finial
+
+            // Breached miniature keep:
+            expect(breachedJson).not.toContain(String(0xfef08a)); // dark window, no candle/hearth
+            expect(breachedJson).not.toContain(String(0xfacc15)); // no golden coronet
+            expect(breachedJson).toContain(String(0x0f172a)); // crack fissure on wall
+
+            expect(standsJson).not.toEqual(breachedJson);
+          });
+
+          it("verifies pointer-events none and zero conflict markers for keep breach", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+            expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+            expect(indexCode).toContain('g.eventMode = "none"');
+
+            const files = ["buildings.ts", "tokens.ts", "index.ts"];
             for (const f of files) {
               const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
               expect(code).not.toContain("<<<<<<<");

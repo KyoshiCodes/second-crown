@@ -45,6 +45,7 @@ import {
   getThemeVisuals,
   holdHasPeople,
   isBuildingStaffed,
+  isHoldBreached,
 } from "./buildings.js";
 import { isFoodStoresEmptyOrLow } from "./walkers.js";
 
@@ -442,6 +443,9 @@ export interface MiniatureKeepOptions {
   state?: GameState | null;
   yardBuildings?: KeepYardBuildingInfo[];
   hasPeople?: boolean;
+  isBreached?: boolean;
+  breached?: boolean;
+  stands?: boolean;
 }
 
 /**
@@ -1088,6 +1092,13 @@ export function drawMiniatureKeep(
   phase = 0,
   options?: MiniatureKeepOptions
 ): void {
+  const isBreached = Boolean(
+    options?.isBreached ??
+    options?.breached ??
+    (options?.stands !== undefined ? !options.stands : undefined) ??
+    (options?.state ? isHoldBreached(options.state, options, isHome ? "player" : realmPal?.realmId ?? "player") : false)
+  );
+
   // 0. Ambient ground contact shadow (detaches keep from busy terrain relief)
   g.ellipse(cx, cy + 4, 11, 4.5);
   g.fill({ color: 0x050403, alpha: 0.62 });
@@ -1482,20 +1493,30 @@ export function drawMiniatureKeep(
       g.moveTo(cx - 7, cy - 1); g.lineTo(cx, cy + 1.5); g.lineTo(cx + 7, cy - 1);
       g.stroke({ width: 0.8, color: 0x1e293b, alpha: 0.75 });
 
+      if (isBreached) {
+        // Crack fissure across tower wall
+        g.moveTo(cx - 4, cy - 10); g.lineTo(cx - 2, cy - 5); g.lineTo(cx - 5, cy);
+        g.stroke({ width: 0.9, color: 0x0f172a });
+      }
+
       // 3. Corner Watch Bartizans
       g.poly([cx - 8, cy - 10, cx - 5.5, cy - 8.5, cx - 5.5, cy - 14, cx - 8, cy - 15]);
       g.fill({ color: bartizanLight });
       g.stroke({ width: 0.6, color: 0x1e293b });
       g.poly([cx - 8, cy - 15, cx - 5.5, cy - 14, cx - 6.8, cy - 17.5]);
       g.fill({ color: stonePlinth });
-      g.circle(cx - 6.8, cy - 17.5, 0.6); g.fill({ color: 0xfacc15 });
+      if (!isBreached) {
+        g.circle(cx - 6.8, cy - 17.5, 0.6); g.fill({ color: 0xfacc15 });
+      }
 
       g.poly([cx + 5.5, cy - 8.5, cx + 8, cy - 10, cx + 8, cy - 15, cx + 5.5, cy - 14]);
       g.fill({ color: bartizanDark });
       g.stroke({ width: 0.6, color: 0x0f172a });
       g.poly([cx + 5.5, cy - 14, cx + 8, cy - 15, cx + 6.8, cy - 17.5]);
       g.fill({ color: 0x0f172a });
-      g.circle(cx + 6.8, cy - 17.5, 0.6); g.fill({ color: 0xfacc15 });
+      if (!isBreached) {
+        g.circle(cx + 6.8, cy - 17.5, 0.6); g.fill({ color: 0xfacc15 });
+      }
 
       // 4. Parapet battlements (3 crenellations)
       g.rect(cx - 5, cy - 14, 2.5, 2.8); g.fill({ color: bartizanLight }); g.stroke({ width: 0.6, color: 0x1e293b });
@@ -1509,28 +1530,43 @@ export function drawMiniatureKeep(
       g.moveTo(cx + 1, cy + 1); g.lineTo(cx + 1, cy + 4.5);
       g.stroke({ width: 0.8, color: 0x94a3b8, alpha: 0.85 });
 
-      // 6. Warm Royal Candlelit Window with ambient glow
-      const candle = 0.85 + Math.sin(phase * 4 + cx) * 0.15;
-      g.circle(cx, cy - 5, 2.5);
-      g.fill({ color: 0xfef08a, alpha: candle * 0.35 });
-      g.rect(cx - 1.2, cy - 6.5, 2.4, 3.2);
-      g.fill({ color: 0xfef08a, alpha: candle });
-      g.stroke({ width: 0.6, color: 0x78350f });
+      // 6. Royal High Window
+      if (!isBreached) {
+        // Warm Royal Candlelit Window with ambient glow when hold stands
+        const candle = 0.85 + Math.sin(phase * 4 + cx) * 0.15;
+        g.circle(cx, cy - 5, 2.5);
+        g.fill({ color: 0xfef08a, alpha: candle * 0.35 });
+        g.rect(cx - 1.2, cy - 6.5, 2.4, 3.2);
+        g.fill({ color: 0xfef08a, alpha: candle });
+        g.stroke({ width: 0.6, color: 0x78350f });
+      } else {
+        // Dark shattered window aperture when breached (no candlelit glow)
+        g.rect(cx - 1.2, cy - 6.5, 2.4, 3.2);
+        g.fill({ color: 0x09090b });
+        g.stroke({ width: 0.6, color: 0x1e293b });
+      }
 
-      // 7. Waving Swallowtail Pennant on Mast
-      const wWave = Math.sin(phase * 4 + cx) * 1.8;
-      g.moveTo(cx, cy - 11); g.lineTo(cx, cy - 20);
-      g.stroke({ width: 1.3, color: 0x1e293b });
-      g.circle(cx, cy - 20.5, 1); g.fill({ color: 0xfacc15 });
-      g.poly([
-        cx, cy - 20,
-        cx + 8 + wWave, cy - 17,
-        cx + 5 + wWave * 0.6, cy - 14.8,
-        cx + 8 + wWave, cy - 12.5,
-        cx, cy - 12.5,
-      ]);
-      g.fill({ color: flagCol });
-      g.stroke({ width: 0.6, color: 0x0f172a });
+      // 7. Standard / Pennant on Mast
+      if (!isBreached) {
+        // Waving Swallowtail Pennant on Mast when hold stands
+        const wWave = Math.sin(phase * 4 + cx) * 1.8;
+        g.moveTo(cx, cy - 11); g.lineTo(cx, cy - 20);
+        g.stroke({ width: 1.3, color: 0x1e293b });
+        g.circle(cx, cy - 20.5, 1); g.fill({ color: 0xfacc15 });
+        g.poly([
+          cx, cy - 20,
+          cx + 8 + wWave, cy - 17,
+          cx + 5 + wWave * 0.6, cy - 14.8,
+          cx + 8 + wWave, cy - 12.5,
+          cx, cy - 12.5,
+        ]);
+        g.fill({ color: flagCol });
+        g.stroke({ width: 0.6, color: 0x0f172a });
+      } else {
+        // Snapped splintered mast stump when breached (no proud banner, no golden finial)
+        g.moveTo(cx, cy - 11); g.lineTo(cx, cy - 14);
+        g.stroke({ width: 1.3, color: 0x1e293b });
+      }
       break;
     }
   }
@@ -1565,36 +1601,42 @@ export function drawMiniatureKeep(
     const hasPeople = options?.hasPeople ?? (options?.state ? holdHasPeople(options.state) : true);
     const mcX = cx + 4.5;
     const mcY = cy - 13;
-    if (hasPeople) {
-      const mWind = Math.sin(phase * 2 + cx) * 0.8;
-      // Warm hearth ember glint
-      g.circle(mcX, mcY, 0.7);
-      g.fill({ color: 0xfef08a, alpha: 0.85 });
-      // Billowing tiny puffs
-      g.circle(mcX + mWind * 0.4, mcY - 2.5, 1.2);
-      g.fill({ color: 0xe2e8f0, alpha: 0.65 });
-      g.circle(mcX + 1.2 + mWind * 0.8, mcY - 5.5, 1.6);
-      g.fill({ color: 0xf1f5f9, alpha: 0.45 });
-    } else {
-      // Quieter faint wisp
-      g.circle(mcX, mcY - 2.2, 0.7);
-      g.fill({ color: 0xd1d5db, alpha: 0.2 });
-    }
+    if (!isBreached) {
+      if (hasPeople) {
+        const mWind = Math.sin(phase * 2 + cx) * 0.8;
+        // Warm hearth ember glint
+        g.circle(mcX, mcY, 0.7);
+        g.fill({ color: 0xfef08a, alpha: 0.85 });
+        // Billowing tiny puffs
+        g.circle(mcX + mWind * 0.4, mcY - 2.5, 1.2);
+        g.fill({ color: 0xe2e8f0, alpha: 0.65 });
+        g.circle(mcX + 1.2 + mWind * 0.8, mcY - 5.5, 1.6);
+        g.fill({ color: 0xf1f5f9, alpha: 0.45 });
+      } else {
+        // Quieter faint wisp
+        g.circle(mcX, mcY - 2.2, 0.7);
+        g.fill({ color: 0xd1d5db, alpha: 0.2 });
+      }
 
-    g.poly([
-      cx - 5.5, cy - 19,
-      cx - 4.5, cy - 23.5,
-      cx - 2, cy - 20.5,
-      cx, cy - 24.5,
-      cx + 2, cy - 20.5,
-      cx + 4.5, cy - 23.5,
-      cx + 5.5, cy - 19,
-    ]);
-    g.fill({ color: 0xfacc15 });
-    g.stroke({ width: 0.8, color: 0x78350f });
-    g.circle(cx - 4.5, cy - 23.5, 0.7); g.fill({ color: 0xffffff });
-    g.circle(cx, cy - 24.5, 0.8); g.fill({ color: 0xfde047 });
-    g.circle(cx + 4.5, cy - 23.5, 0.7); g.fill({ color: 0xffffff });
+      g.poly([
+        cx - 5.5, cy - 19,
+        cx - 4.5, cy - 23.5,
+        cx - 2, cy - 20.5,
+        cx, cy - 24.5,
+        cx + 2, cy - 20.5,
+        cx + 4.5, cy - 23.5,
+        cx + 5.5, cy - 19,
+      ]);
+      g.fill({ color: 0xfacc15 });
+      g.stroke({ width: 0.8, color: 0x78350f });
+      g.circle(cx - 4.5, cy - 23.5, 0.7); g.fill({ color: 0xffffff });
+      g.circle(cx, cy - 24.5, 0.8); g.fill({ color: 0xfde047 });
+      g.circle(cx + 4.5, cy - 23.5, 0.7); g.fill({ color: 0xffffff });
+    } else {
+      // Breached: faint spent ash wisp (no warm golden glow, no proud golden coronet)
+      g.circle(mcX, mcY - 2.2, 0.6);
+      g.fill({ color: 0x475569, alpha: 0.2 });
+    }
   }
 }
 

@@ -52,6 +52,25 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - Lofi dock: picking a track (list, ‹, ›) plays it and repeats it. Only an unpicked, cleanly finished track advances to the next.
 - A failed file no longer skips down the whole list. It stops and the dock shows **Track not found. Pick another.** A blocked autoplay shows **Autoplay blocked. Click to play.** and the next click retries.
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
+## Active Bakeoff (bakeoff/gemini-keep-breach)
+
+- **Render Only: Player Keep Intact vs Cracked Stone / Dark Windows / No Proud Banner When Breached (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
+  - **Breached Flag Resolution (`isHoldBreached`)**: Checks explicit overrides (`options.isBreached`, `options.breached`, `options.stands === false`), state flags (`state.flags.isBreached`, `state.flags.breached`, `state.flags.holdBreached`, `state.flags.stands === false`, `flags.hold === "breached"`, `flags.defense === "breached"`, `flags.last_siege === "breached"`), direct state properties, and `state.wars` siege battle outcomes where `defenderRealmId === "player"` and `status !== "defender_won"`.
+  - **When Hold Stands (`isHoldBreached === false`)**:
+    - Intact dressed ashlar granite stone tower and foundation.
+    - Warm royal high window with flickering golden candlelight (`0xfef08a`).
+    - Soaring proud royal standard waving on mast with golden finial ball (`0xfacc15`) and tabard/gold (`0xb91c1c`, `0xfacc15`).
+    - Courtyard brazier with lively leaping fire (`0xf97316`, `0xfef08a`).
+    - Warm golden chimney flue glow (`0xfef08a`) and lively billowing hearth smoke puffs.
+  - **When Breached (`isHoldBreached === true`)**:
+    - **Cracked stone**: Structural fracture fissure lines descending through left and right tower faces (`0x0f172a`, `0x09090b`), branching mortar cracks (`0x1e293b`), chipped masonry rubble divots (`0x1e293b`, `0x09090b`), foundation plinth fracture lines (`0x09090b`), chipped crenel fissure (`0x09090b`), and buckled portcullis bars (`0x475569`).
+    - **Dark windows**: Zero warm candlelight (`0xfef08a`), dark shattered void (`0x09090b`), broken glass fractures (`0x334155`).
+    - **No proud banner**: Snapped / splintered flagpole stump (`0x5c3818`, `0x78350f`), zero golden finial ball (`0xfacc15`), zero waving royal standard poly (`0xb91c1c`, `0xfacc15`). Charred slate heraldic shield above archway (`0x1e293b`) split by fracture fissure.
+    - **Cold hearth**: Zero warm golden flue glow (`0xfef08a`), cold extinguished brazier (cold ash `0x1e293b`, zero `0xf97316` flame), faint dying spent soot wisp (`0x475569`, low alpha). Subdued stone level pips (`0x64748b`).
+  - **All Culture Kits Supported**: Cedar Kin longhouse, Sand Banner courtyard keep, Wind Host felt ger, and Tide Clans pile-house keep all reflect cracked timbers/mudbrick/lattice/stilts, dark louvers/toono/vents with zero `0xfef08a` warm glow, extinguished braziers/cauldrons, and snapped mast stumps without proud standards.
+  - **Miniature Keep Supported (`drawMiniatureKeep`)**: Overworld and band keeps reflect intact banner, window candle, and coronet crest when hold stands; wall fracture crack, dark window void, and snapped mast stump without banner/coronet when breached.
+  - **Invariants**: Strictly non-blocking (`entitiesLayer.eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. No invented sim fields. Zero `<<<<<<<` conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-wall-gap)
 
 - **Render Only: Missing Rim Wall Segments Faint Timber Stake / Gap Mark (`packages/render/src/tiles.ts`, `packages/render/src/index.ts`)**:
