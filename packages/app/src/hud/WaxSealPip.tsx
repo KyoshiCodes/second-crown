@@ -1,12 +1,14 @@
 import React from "react";
 
 export interface WaxSealPipProps {
-  /** Whether the royal decree is currently active (when true, seal is lit!) */
+  /** Whether the royal decree or craft is currently active / owned (when true, seal is lit!) */
   active?: boolean;
   /** Size in pixels (default: 24) */
   size?: number;
   /** Optional decree ID to specialize emblem ("muster", "rite", "envoys") */
   decreeId?: string;
+  /** Optional craft ID to specialize emblem ("harvest_charm", "drill_manual", "silk_seal", "steel_bit", "war_horn") */
+  craftId?: string;
   className?: string;
   style?: React.CSSProperties;
   title?: string;
@@ -23,15 +25,18 @@ export function WaxSealPip({
   active = false,
   size = 24,
   decreeId,
+  craftId,
   className = "",
   style,
   title,
 }: WaxSealPipProps) {
   const litClass = active ? "is-lit" : "is-dormant";
+  const decreeClass = decreeId ? `sc-decree-seal-${decreeId}` : "";
+  const craftClass = craftId ? `sc-craft-seal sc-craft-seal-${craftId}` : "";
 
   return (
     <span
-      className={`sc-wax-seal-pip-wrapper ${litClass} ${decreeId ? `sc-decree-seal-${decreeId}` : ""}`}
+      className={`sc-wax-seal-pip-wrapper ${litClass} ${decreeClass} ${craftClass} ${className}`}
       style={{
         width: size,
         height: size,
@@ -44,6 +49,9 @@ export function WaxSealPip({
       }}
       aria-hidden="true"
       title={title}
+      data-wax-seal
+      data-active={active}
+      data-craft={craftId}
     >
       <svg
         viewBox="0 0 24 24"
@@ -53,6 +61,7 @@ export function WaxSealPip({
         style={{ pointerEvents: "none" }}
         data-active={active}
         data-decree={decreeId}
+        data-craft={craftId}
       >
         {/* 1. Hanging royal ribbon tails underneath seal */}
         {active ? (

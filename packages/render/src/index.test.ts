@@ -8414,6 +8414,124 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               }
             });
           });
+
+          describe("bakeoff/gemini-faction-seals: 24px faction seal pips (order, pact, guild) and spoils craft wax seals", () => {
+            it("verifies faction-seals.css defines layout, non-blocking guarantee, and theme.css is untouched", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cssPath = path.resolve(__dirname, "../../app/src/hud/faction-seals.css");
+              expect(fs.existsSync(cssPath)).toBe(true);
+              const css = fs.readFileSync(cssPath, "utf-8");
+
+              expect(css).toContain("sc-faction-seal-wrapper");
+              expect(css).toContain("sc-faction-seal");
+              expect(css).toContain("pointer-events: none !important");
+              expect(css).toContain("sc-craft-seal");
+
+              const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+              expect(themeCss).not.toContain("sc-faction-seal-wrapper");
+              expect(themeCss).not.toContain("sc-craft-seal");
+            });
+
+            it("verifies FactionSealPip resolves order, pact, and guild with distinct 24px artwork and non-blocking guarantee", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const pipPath = path.resolve(__dirname, "../../app/src/hud/FactionSealPip.tsx");
+              expect(fs.existsSync(pipPath)).toBe(true);
+              const pipCode = fs.readFileSync(pipPath, "utf-8");
+
+              expect(pipCode).toContain("FactionSealPip");
+              expect(pipCode).toContain("resolveFactionKind");
+              expect(pipCode).toContain('pointerEvents: "none"');
+              expect(pipCode).toContain('aria-hidden="true"');
+              expect(pipCode).toContain("data-faction-seal");
+              expect(pipCode).toContain("size = 24");
+
+              // Verify Order artwork (Amber chivalric sun sword)
+              expect(pipCode).toContain("sc-seal-order");
+              expect(pipCode).toContain("sc-faction-seal-order");
+
+              // Verify Pact artwork (Carmine & silver salt covenant crossed stilettos)
+              expect(pipCode).toContain("sc-seal-pact");
+              expect(pipCode).toContain("sc-faction-seal-pact");
+
+              // Verify Guild artwork (Emerald & bronze craftsman hammer and drafting calipers)
+              expect(pipCode).toContain("sc-seal-guild");
+              expect(pipCode).toContain("sc-faction-seal-guild");
+
+              // Verify sworn member ring
+              expect(pipCode).toContain("sc-seal-member-ring");
+            });
+
+            it("verifies resolveFactionKind correctly identifies order, pact, and guild instances", async () => {
+              const { resolveFactionKind } = await import("../../app/src/hud/FactionSealPip");
+              expect(resolveFactionKind("order")).toBe("order");
+              expect(resolveFactionKind("pact")).toBe("pact");
+              expect(resolveFactionKind("guild")).toBe("guild");
+
+              expect(resolveFactionKind(undefined, { id: "order_amber", name: "Amber Compact", kind: "order" })).toBe("order");
+              expect(resolveFactionKind(undefined, { id: "order_salt", name: "Salt Road Pact", kind: "order" })).toBe("pact");
+              expect(resolveFactionKind(undefined, { id: "guild_player_999", name: "Iron Brotherhood", kind: "guild" })).toBe("guild");
+            });
+
+            it("verifies WaxSealPip supports craftId and non-blocking guarantee for spoils crafts", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const waxPath = path.resolve(__dirname, "../../app/src/hud/WaxSealPip.tsx");
+              expect(fs.existsSync(waxPath)).toBe(true);
+              const waxCode = fs.readFileSync(waxPath, "utf-8");
+
+              expect(waxCode).toContain("craftId?: string");
+              expect(waxCode).toContain("data-craft");
+              expect(waxCode).toContain('pointerEvents: "none"');
+            });
+
+            it("verifies WorldPanel mounts 24px FactionSealPip on each faction card", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const panelPath = path.resolve(__dirname, "../../app/src/WorldPanel.tsx");
+              expect(fs.existsSync(panelPath)).toBe(true);
+              const panelCode = fs.readFileSync(panelPath, "utf-8");
+
+              expect(panelCode).toContain("FactionSealPip");
+              expect(panelCode).toContain("faction-seals.css");
+              expect(panelCode).toContain("<FactionSealPip");
+              expect(panelCode).toContain("size={24}");
+            });
+
+            it("verifies CrownTab mounts small WaxSealPip on each Spoils craft card", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const tabPath = path.resolve(__dirname, "../../app/src/tabs/CrownTab.tsx");
+              expect(fs.existsSync(tabPath)).toBe(true);
+              const tabCode = fs.readFileSync(tabPath, "utf-8");
+
+              expect(tabCode).toContain("WaxSealPip");
+              expect(tabCode).toContain("faction-seals.css");
+              expect(tabCode).toContain("<WaxSealPip");
+              expect(tabCode).toContain("size={16}");
+              expect(tabCode).toContain("active={owned}");
+              expect(tabCode).toContain("craftId={c.id}");
+            });
+
+            it("verifies zero merge conflict markers across all modified files", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const files = [
+                path.resolve(__dirname, "../../app/src/hud/faction-seals.css"),
+                path.resolve(__dirname, "../../app/src/hud/FactionSealPip.tsx"),
+                path.resolve(__dirname, "../../app/src/hud/WaxSealPip.tsx"),
+                path.resolve(__dirname, "../../app/src/WorldPanel.tsx"),
+                path.resolve(__dirname, "../../app/src/tabs/CrownTab.tsx"),
+              ];
+              for (const f of files) {
+                const content = fs.readFileSync(f, "utf-8");
+                expect(content).not.toContain("<<<<<<<");
+                expect(content).not.toContain("=======");
+                expect(content).not.toContain(">>>>>>>");
+              }
+            });
+          });
         });
       });
     });
