@@ -1,3 +1,14 @@
+## 2026-10-01 — sim / storage caps and the playtest bot (wave/storage-cap)
+
+- Single cap system: `storageCap(state, res)` in `packages/sim/src/systems/storage.ts`. Formula: `floor((BASE_CAP[res] + countBuilding(state, CAP_BUILDING[res]) * CAP_PER_BUILDING[res]) * keepGate.storeMult) + (research_logistics ? 50 : 0)`. Gains go through `addCapped`; spends do not clamp.
+  - `BASE_CAP`: food 200, wood 150, stone 150, gold 100.
+  - `CAP_BUILDING` / `CAP_PER_BUILDING`: granary +300 food, sawmill +250 wood, mason +250 stone, mint +150 gold. `countBuilding` counts only finished buildings (`completesAtTick === null`). Building level does not matter. `mint` is in `UNIQUE` (`actions/build.ts`), so gold tops out at `floor(250 * 1.8) + 50 = 500`.
+  - `storeMult` from `KEEP_GATES` (`systems/keepGate.ts`): 1 / 1 / 1.2 / 1.4 / 1.6 / 1.8 for keep 0..5.
+  - None of the four cap buildings is in `WORK_PLOTS`, and none is gated by research or keep level.
+- Caveat: `countBuilding` is not realm-scoped, so a rival granary would raise the player's food cap. No AI calls `tryBuild` today, so this has no effect yet. Scope it to `"player"` if rivals start building.
+- `harness/playtestHarness.ts`: `GRANARY_TARGET = 1`, `MINT_TARGET = 1`. New `nearCap(state, res)` (>= 90% of cap) triggers them. The trigger is 90%, not `atCap`, because upkeep held food at 199 / 200, so `atCap` never fired. Seed 20260930: granary ordered at tick 125, mint at tick 400. Peak is now gold 250, food 499.
+- `systems/storage.test.ts`: a parameterized test covers every cap building (scaffolding does not count, finished does), plus a test that finished Keep II lifts all four caps by 20%.
+
 ## 2026-10-01 — render / cottage bunk and bedrolls (bakeoff/gemini-cottage-bunk)
 
 - `packages/render/src/buildings.ts`:

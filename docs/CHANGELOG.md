@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-01 — Storage caps rise with storehouse buildings (wave/storage-cap)
+
+- No new cap system. `storageCap` (`packages/sim/src/systems/storage.ts`) already raised caps per finished Granary (+300 food), Sawmill (+250 wood), Mason Yard (+250 stone) and Mint (+150 gold), multiplied by Keep II..V (x1.2..x1.8), plus +50 from Logistics.
+- Playtest bot (`playtestHarness.ts`) now builds one Granary when food reaches 90% of its cap and one Mint when gold reaches 90% of its cap. Peak went from gold 100 / food 199 to gold 250 / food 499. Walls and raid results unchanged.
+- `storage.test.ts`: each cap building raises only its own cap, and only once finished; finished Keep II lifts all four caps by 20%.
+
 ## 2026-10-01 — Gemini Cottage Bunk and Bedrolls (bakeoff/gemini-cottage-bunk)
 
 - **Render Only: Cottages Show a Small Bunk / Bed Pip (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`, `packages/render/src/index.test.ts`)**:
