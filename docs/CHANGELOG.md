@@ -1,8 +1,15 @@
 # CHANGELOG
 
-## 2026-10-01 — Plain buttons as work cards (wave/plain-buttons)
+## 2026-10-01 — Gemini Button Pips (bakeoff/gemini-button-pips)
 
-- **App HUD**: Kingdom build list, Raising/Improving/Flags rows, keep notices, every Crown action row (marshal, courts, ascend, doctrine, crafts, shield, guild, save row, court/route/tithe), Crown style picker, Holiday chip, and tools drawer rows now use `.sc-work-card` chrome. Click handlers unchanged. Styles in `packages/app/src/hud/plain-buttons.css`; `theme.css`, `packages/sim`, `server` untouched. Files: `packages/app/src/hud/plain-buttons.css`, `tabs/KingdomTab.tsx`, `tabs/CrownTab.tsx`, `DecreesPanel.tsx`, `CulturePicker.tsx`, `ChromeDock.tsx`, `TesterBar.tsx`, `CloudPanel.tsx`, `BoardPanel.tsx`.
+- **App HUD: 16px Icon Pips on Leftover Buttons for Build, Study, and Holiday (`packages/app/src/hud/button-pips.css`, `packages/app/src/hud/HolidayPip.tsx`, `packages/app/src/hud/HallChip.tsx`, `packages/app/src/hud/ScrollPip.tsx`, `packages/app/src/tabs/KingdomTab.tsx`, `packages/app/src/KeepInterior.tsx`, `packages/app/src/ResearchBar.tsx`, `packages/app/src/ChromeDock.tsx`, `packages/app/src/TesterBar.tsx`, `packages/render/src/index.test.ts`)**:
+  - **Build Pips (`HallChip`)**: Adds 16px isometric building chips to the Kingdom tab building picker palette, the Cottage hint button, Raising works items, Improving upgrades items, and the Keep Interior building palette.
+  - **Study Pips (`ScrollPip`)**: Adds 16px parchment scroll pips with sepia script lines and wax seal to lectern study research buttons (`ResearchBar.tsx`), active studying progress rows (`status="ready"`), and mastered study rows (`status="claimed"`).
+  - **Holiday Pips (`HolidayPip`)**: Adds 16px holiday emblem pips (`packages/app/src/hud/HolidayPip.tsx`) rendering established holiday prop emblems (🎃 All Hallows, 🎄 Midwinter, 🪺 Dawn Feast, 🌕 Harvest Moon, ☀️ Midsummer, ⚔️ Common Days) to the Holiday selector in `ChromeDock.tsx` and `TesterBar.tsx`.
+  - **Button-Safe Nesting**: Enhanced `HallChip` with `as?: "div" | "span"` (defaults to `"div"`), allowing clean inline button content.
+  - **Strictly Non-Blocking**: `pointer-events: none` on all pips and wrappers.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/button-pips.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 311 render tests pass; 239 sim tests pass; app builds cleanly.
 
 ## 2026-10-01 — Gemini Map Strip Pips (bakeoff/gemini-map-pips)
 

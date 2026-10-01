@@ -2,13 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-01 — Buttons become cards (wave/plain-buttons)
+## 2026-10-01 — 16px pips on build, study, and holiday buttons (bakeoff/gemini-button-pips)
 
-- The build list on Kingdom is now a grid of cards. Each card says if it is picked, affordable, or short on stores.
-- Raising, Improving, and Flags rows are cards with their Cancel / Abandon button inside.
-- On Crown, every action (marshal, daily and season court, ascend, doctrine, crafts, shield, guild, banquet, fortify, routes, tithe, save) sits in its own card.
-- The Holiday picker and the tools drawer (name, cloud, board) use the same card look.
-- Nothing plays differently. Same buttons, same results.
+- Buttons that perform actions with existing icons now display a crisp 16px visual pip:
+  - **Building Picker & Scaffolding**: Buttons in the Kingdom tab building list, the Cottage hint button, and active construction rows for Raising and Improving now feature a 16px isometric architectural chip representing the building being raised.
+  - **Scriptorium Study Buttons**: Study research buttons at the lectern now show a 16px parchment scroll with script lines and wax seal, illuminating while research is underway.
+  - **Holiday Selector**: The Holiday controls in the top tools bar and playtester bar now show the 16px emblem of the active or selected holiday (🎃 All Hallows, 🎄 Midwinter, 🪺 Dawn Feast, 🌕 Harvest Moon, ☀️ Midsummer, ⚔️ Common Days).
+  - Strictly non-interactive overlays (`pointer-events: none`); clicking and tapping buttons remains completely uninterrupted.
 
 ## 2026-10-01 — Small heraldic pips on the Kingdom map strip (bakeoff/gemini-map-pips)
 

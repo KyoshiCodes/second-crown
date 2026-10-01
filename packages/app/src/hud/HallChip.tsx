@@ -11,6 +11,8 @@ export interface HallChipProps {
   className?: string;
   /** Chip size in pixels (default 24) */
   size?: number;
+  /** Element container to render: 'div' (default) or 'span' (for inline button chips) */
+  as?: "div" | "span";
 }
 
 /**
@@ -25,12 +27,14 @@ export function HallChip({
   scarred = false,
   className = "",
   size = 24,
+  as = "div",
 }: HallChipProps) {
   const normType = normalizeBuildingType(typeId);
   const statusCls = scarred ? "is-scarred" : staffed ? "is-staffed" : "is-unstaffed";
+  const Tag = as;
 
   return (
-    <div
+    <Tag
       className={`sc-chip-wrapper ${statusCls} ${className}`}
       style={{
         width: size,
@@ -56,7 +60,7 @@ export function HallChip({
         {renderBuildingSvg(normType, staffed, scarred)}
         {scarred && <CrackedOverlay />}
       </svg>
-    </div>
+    </Tag>
   );
 }
 

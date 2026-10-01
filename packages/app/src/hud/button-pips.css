@@ -1,0 +1,39 @@
+/* --- Button pips: 16px icon pips for leftover buttons (build, study, holiday) --- */
+
+.sc-btn-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sc-holiday-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+  flex-shrink: 0;
+  user-select: none;
+  vertical-align: middle;
+}
+
+/* Ensure buttons with pips align cleanly without disrupting surrounding layout */
+.sc-btn-with-pip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sc-study-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sc-study-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

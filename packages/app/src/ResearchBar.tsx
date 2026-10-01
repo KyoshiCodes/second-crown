@@ -14,6 +14,8 @@ import {
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import { InhabitedOverlay } from "./hud/InhabitedOverlay";
+import { ScrollPip } from "./hud/ScrollPip";
+import "./hud/button-pips.css";
 
 function needList(def: { needs?: string; needsAny?: readonly string[] }): string[] {
   if (def.needsAny && def.needsAny.length) return [...def.needsAny];
@@ -32,11 +34,19 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
   const keepNeed = researchKeepMin(id);
   const label = def.name;
   const effect = "effect" in def ? String(def.effect) : "";
-  if (done) return <div title={effect}>{label} known.{effect ? ` ${effect}` : ""}</div>;
+  if (done) {
+    return (
+      <div title={effect} className="sc-study-row">
+        <ScrollPip size={16} status="claimed" />
+        <span>{label} known.{effect ? ` ${effect}` : ""}</span>
+      </div>
+    );
+  }
   if (left > 0) {
     return (
-      <div>
-        Studying {label.toLowerCase()} · {Math.ceil(left / 10)}s left{" "}
+      <div className="sc-study-row">
+        <ScrollPip size={16} status="ready" />
+        <span>Studying {label.toLowerCase()} · {Math.ceil(left / 10)}s left{" "}</span>
         <button
           type="button"
           onClick={() =>
@@ -63,8 +73,10 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
             : `Need ${buildings.join(" or ")}${keepNeed ? `, Keep ${keepNeed}` : ""}, ${cost}, and a free study slot.`
         )
       }
+      className="sc-btn-with-pip sc-study-btn"
     >
-      Study {label.toLowerCase()} ({cost}; {buildings.join(" or ")}{gate}; {seconds}s)
+      <ScrollPip size={16} status="open" />
+      <span>Study {label.toLowerCase()} ({cost}; {buildings.join(" or ")}{gate}; {seconds}s)</span>
     </button>
   );
 }

@@ -13,16 +13,17 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/plain-buttons, not merged)
+## Active wave (bakeoff/gemini-button-pips, not merged)
 
-- App only. Remaining plain text-button rows now wear `.sc-work-card` chrome. Same click handlers; no new facts.
-  - **Kingdom**: keep-notice row; build list (whole-card pick buttons: picked / can afford / short); Raising, Improving, Flags rows (card grid, Cancel/Abandon as `.sc-work-btn`).
-  - **Crown**: keep-notice row; Crown style picker; marshal court rows + Promote; Daily/Season court; Ascend; Doctrine and Craft picks (whole-card buttons); Offline shield; Guild kit; Save/Export/Import/New Game row; DecreesPanel Banquet/Fortify/Trade routes/Chapel tithe.
-  - **Holiday** select in the top chrome bar is a compact card chip.
-  - **Tools drawer**: TesterBar name + holiday overlay, CloudPanel button rows, BoardPanel profile row.
-  - Untouched: anything already a card (WorkCard, DecreeCard, OfferCard, map strip hints, etc.).
-  - Styles only in `packages/app/src/hud/plain-buttons.css`. `packages/sim`, `server`, `theme.css` untouched. 239 tests pass; app builds.
-  - Files: `packages/app/src/hud/plain-buttons.css`, `tabs/KingdomTab.tsx`, `tabs/CrownTab.tsx`, `DecreesPanel.tsx`, `CulturePicker.tsx`, `ChromeDock.tsx`, `TesterBar.tsx`, `CloudPanel.tsx`, `BoardPanel.tsx`.
+- App HUD only. Added 16px icon pips to leftover action buttons where an icon already exists elsewhere in the app (build, study, holiday):
+  - **Build Pips** (`HallChip`): 16px isometric building chips mounted on Kingdom tab building picker buttons (`types.map`), the Cottage hint button, Raising works items (`works.map`), Improving upgrades items (`upgrades.map`), and Keep Interior building palette (`KeepInterior.tsx`).
+  - **Study Pips** (`ScrollPip`): 16px parchment scroll pips with sepia script lines and wax seal mounted on study research buttons (`ResearchBar.tsx`), active studying progress rows (`status="ready"`), and mastered study rows (`status="claimed"`).
+  - **Holiday Pips** (`HolidayPip`): 16px holiday emblem pips (`packages/app/src/hud/HolidayPip.tsx`) displaying the established holiday prop emblem (🎃 All Hallows, 🎄 Midwinter, 🪺 Dawn Feast, 🌕 Harvest Moon, ☀️ Midsummer, ⚔️ Common Days) mounted beside the Holiday selector in `ChromeDock.tsx` and `TesterBar.tsx`.
+  - **Button-Safe Nesting**: Enhanced `HallChip` with `as?: "div" | "span"` (defaults to `"div"`), allowing clean inline phrasing content inside buttons without DOM nesting or hydration issues.
+  - **Strictly Non-Blocking**: `pointer-events: none` on all pips and wrappers prevents any click disruption.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/button-pips.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 311 render tests pass; 239 sim tests pass; app builds cleanly.
+  - Files: `packages/app/src/hud/HolidayPip.tsx`, `packages/app/src/hud/button-pips.css`, `packages/app/src/hud/HallChip.tsx`, `packages/app/src/tabs/KingdomTab.tsx`, `packages/app/src/KeepInterior.tsx`, `packages/app/src/ResearchBar.tsx`, `packages/app/src/ChromeDock.tsx`, `packages/app/src/TesterBar.tsx`, `packages/render/src/index.test.ts`.
 
 ## Active wave (bakeoff/gemini-map-pips, not merged)
 

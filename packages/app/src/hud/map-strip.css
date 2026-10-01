@@ -46,6 +46,15 @@
   border-top: 1px dashed var(--chrome-btn-border);
 }
 
+.sc-map-strip-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
 @media (max-width: 520px) {
   .sc-map-strip-cell + .sc-map-strip-cell {
     padding-left: 0;
