@@ -61,7 +61,7 @@ export function ArmyTab(props: {
   const beds = halls * 10;
   const healing = state ? listHealing(state).length : 0;
   const healLeft = state ? healTicksLeft(state) : 0;
-  const healSec = state ? healTicks(state) / 10 : 5;
+  const healSec = state ? healTicks(state) / 10 : undefined;
 
   return (
     <>
@@ -167,7 +167,7 @@ export function ArmyTab(props: {
             <div className="sc-work-perks">Raise an Infirmary on Kingdom. Half of home losses go to beds instead of the grave.</div>
           ) : null}
           <div className="sc-work-foot">
-            <span className="sc-work-where">4 food · {healSec}s</span>
+            <span className="sc-work-where">4 food{healSec !== undefined ? ` · ${healSec}s` : ""}</span>
             <button
               type="button"
               className="sc-work-btn"
@@ -182,7 +182,7 @@ export function ArmyTab(props: {
                 )
               }
             >
-              {wounded < 1 ? "Treat (need wounded)" : "Treat 1"}
+              {wounded < 1 ? "Treat (need wounded)" : healSec !== undefined ? `Treat 1 (${healSec}s)` : "Treat 1"}
             </button>
           </div>
         </div>

@@ -1,0 +1,74 @@
+/* --- Crown tab (Spoils crafts, Achievements, Save row) and World tab faction rows as work cards.
+   The card look comes from .sc-work-card in theme.css; this file adds layout and state tints only. --- */
+
+.sc-crown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+.sc-crown-grid > .sc-work-card {
+  margin: 0;
+}
+
+.sc-work-card.sc-crown-card .sc-work-status,
+.sc-work-card.sc-crown-faction .sc-work-status {
+  white-space: normal;
+}
+
+/* Crafts */
+.sc-work-card.sc-crown-card.is-owned {
+  border-left-color: #c8963e;
+}
+.sc-work-card.sc-crown-card.is-owned .sc-work-level {
+  color: #e8c36a;
+}
+
+/* Achievements */
+.sc-work-card.sc-crown-card.is-done {
+  border-left-color: #4ade80;
+}
+.sc-work-card.sc-crown-card.is-done .sc-work-status {
+  color: #86efac;
+  opacity: 1;
+}
+
+/* Factions: keep .sc-faction-card for holiday glows, but drop its old panel padding. */
+.sc-work-card.sc-faction-card.sc-crown-faction {
+  padding: 6px 8px;
+  border-radius: 5px;
+  border-left-width: 3px;
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+}
+.sc-work-card.sc-crown-faction.is-empty {
+  border-color: var(--chrome-btn-border);
+  border-left-color: var(--chrome-bar-border);
+}
+.sc-work-card.sc-crown-faction.is-member {
+  border-color: var(--chrome-btn-border);
+  border-left-color: #4ade80;
+}
+.sc-work-card.sc-crown-faction.is-member .sc-work-status {
+  color: #86efac;
+  opacity: 1;
+}
+.sc-work-card.sc-crown-faction.is-cold {
+  border-color: var(--chrome-btn-border);
+  border-left-color: #38bdf8;
+}
+.sc-work-card.sc-crown-faction.is-cold .sc-work-status {
+  color: #7dd3fc;
+  opacity: 1;
+}
+
+/* Save / Export / Import / New Game: one card, one row. */
+.sc-work-card.sc-crown-save {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 12px 0 8px;
+}
+.sc-work-card.sc-crown-save .sc-work-name {
+  margin-right: auto;
+}

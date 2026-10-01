@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-01 — Crown and faction cards (wave/crown-factions)
+
+- **App HUD**: Crown Spoils crafts and Achievements are now `.sc-work-card` cards (same craft and achievement text). Save/Export/Import/New Game stay buttons in one card row. World faction rows are cards with stance and Join/Leave. Army Treat label reads heal seconds from sim `healTicks` (4s with Barracks yard, 5s without); no hardcoded 5s fallback. Styles only in `crown-card.css`; `theme.css`, `packages/sim`, `server` untouched. Files: `packages/app/src/hud/crown-card.css`, `tabs/CrownTab.tsx`, `WorldPanel.tsx`, `tabs/ArmyTab.tsx`.
+
 ## 2026-10-01 — Gemini Button Pips (bakeoff/gemini-button-pips)
 
 - **App HUD: 16px Icon Pips on Leftover Buttons for Build, Study, and Holiday (`packages/app/src/hud/button-pips.css`, `packages/app/src/hud/HolidayPip.tsx`, `packages/app/src/hud/HallChip.tsx`, `packages/app/src/hud/ScrollPip.tsx`, `packages/app/src/tabs/KingdomTab.tsx`, `packages/app/src/KeepInterior.tsx`, `packages/app/src/ResearchBar.tsx`, `packages/app/src/ChromeDock.tsx`, `packages/app/src/TesterBar.tsx`, `packages/render/src/index.test.ts`)**:

@@ -39,6 +39,7 @@ import { CulturePicker } from "../CulturePicker";
 import { LedgerPanel } from "../LedgerPanel";
 import type { ActFn } from "../game/useGameEngine";
 import "../hud/plain-buttons.css";
+import "../hud/crown-card.css";
 
 export function CrownTab(props: {
   state: GameState | undefined;
@@ -201,22 +202,29 @@ export function CrownTab(props: {
       <h3>Spoils</h3>
       <p style={{ fontSize: 13 }}>Iron {iron} · Banners {banners} · Relics {relics}</p>
       <p style={{ fontSize: 12, opacity: 0.7 }}>Win battles to earn spoils. Spend them on crafts.</p>
-      <div className="sc-plain-grid">
+      <div className="sc-crown-grid">
         {CRAFTS.map((c) => {
           const owned = state ? flagNum(state, c.flag) > 0 : false;
+          const cost = Object.entries(c.cost).map(([k, v]) => `${v} ${k}`).join(" · ");
           return (
-            <button
-              key={c.id}
-              type="button"
-              className={`sc-work-card sc-plain-pick ${owned ? "is-owned" : ""}`}
-              disabled={owned || !state}
-              onClick={() => act((st) => (tryCraft(st, c.id) ? `Crafted ${c.name}.` : "Need more spoils."))}
-            >
-              <span className="sc-work-head">
-                <span className="sc-work-name">{owned ? `${c.name} owned` : `Craft ${c.name}`}</span>
-              </span>
-              <span className="sc-work-status">{c.blurb}</span>
-            </button>
+            <div key={c.id} className={`sc-work-card sc-crown-card ${owned ? "is-owned" : "is-empty"}`}>
+              <div className="sc-work-head">
+                <span className="sc-work-name">{c.name}</span>
+                {owned ? <span className="sc-work-level">owned</span> : null}
+              </div>
+              <div className="sc-work-status">{c.blurb}</div>
+              <div className="sc-work-foot">
+                <span className="sc-work-where">{cost}</span>
+                <button
+                  type="button"
+                  className="sc-work-btn"
+                  disabled={owned || !state}
+                  onClick={() => act((st) => (tryCraft(st, c.id) ? `Crafted ${c.name}.` : "Need more spoils."))}
+                >
+                  {owned ? `${c.name} owned` : `Craft ${c.name}`}
+                </button>
+              </div>
+            </div>
           );
         })}
       </div>
@@ -250,13 +258,19 @@ export function CrownTab(props: {
       )}
 
       <h3>Achievements</h3>
-      <ul style={{ fontSize: 13 }}>
+      <div className="sc-crown-grid">
         {(state ? listAchievements(state) : []).map((a) => (
-          <li key={a.def.id}>{a.done ? "[x]" : "[ ]"} {a.def.name} - {a.def.hint}</li>
+          <div key={a.def.id} className={`sc-work-card sc-crown-card ${a.done ? "is-done" : "is-empty"}`}>
+            <div className="sc-work-head">
+              <span className="sc-work-name">{a.def.name}</span>
+              <span className="sc-work-level">{a.done ? "[x]" : "[ ]"}</span>
+            </div>
+            <div className="sc-work-status">{a.def.hint}</div>
+          </div>
         ))}
-      </ul>
+      </div>
 
-      <div className="sc-work-card sc-plain-card sc-plain-inline" style={{ marginTop: 12 }}>
+      <div className="sc-work-card sc-crown-save">
         <span className="sc-work-name">Save file</span>
         <button type="button" className="sc-work-btn" onClick={() => state && saveNow()}>Save</button>
         <button type="button" className="sc-work-btn" onClick={() => state && exportSave()}>Export</button>

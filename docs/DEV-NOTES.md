@@ -1,3 +1,14 @@
+## 2026-10-01 — app / crown and faction cards (wave/crown-factions)
+
+- `packages/app/src/hud/crown-card.css` (imported by `CrownTab.tsx` and `WorldPanel.tsx`):
+  - `.sc-crown-grid`: card grid (minmax 180px).
+  - `.sc-work-card.sc-crown-card`: craft / achievement card; `is-owned` (gold edge), `is-done` (green edge), `is-empty`.
+  - `.sc-work-card.sc-crown-faction`: faction card; keeps `.sc-faction-card` so holiday glows in `theme.css` still apply, but overrides its old padding/background. Tones `is-member`, `is-cold` (stance < -10, Join disabled), `is-empty`.
+  - `.sc-work-card.sc-crown-save`: Save/Export/Import/New Game on one card row.
+- Army Treat: `healSec` is `healTicks(state) / 10` (same as KeepHall), `undefined` before state loads, so no literal 5. Button reads `Treat 1 (4s)` / `Treat 1 (5s)`.
+- Note: `WarRoom.tsx` still has a `: 5` fallback for its Treat label before state loads (not in this wave's scope).
+- Files: `packages/app/src/hud/crown-card.css`, `tabs/CrownTab.tsx`, `WorldPanel.tsx`, `tabs/ArmyTab.tsx`.
+
 ## 2026-10-01 — app / 16px pips on leftover buttons (bakeoff/gemini-button-pips)
 
 - `packages/app/src/hud/button-pips.css`:

@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-01 — Crown and faction cards (wave/crown-factions)
+
+- On Crown, each Spoils craft is a card with its cost and a Craft button. Achievements are cards too; finished ones glow green.
+- Save, Export, Import, and New Game sit together in one card.
+- On World, each faction is a card showing its stance and a Join or Leave button. Factions too cold toward you (below -10) show blue and cannot be joined.
+- On Army, the Treat button shows how long healing takes: 4s once you have a Barracks, 5s without.
+
 ## 2026-10-01 — 16px pips on build, study, and holiday buttons (bakeoff/gemini-button-pips)
 
 - Buttons that perform actions with existing icons now display a crisp 16px visual pip:
