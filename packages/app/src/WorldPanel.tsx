@@ -4,6 +4,7 @@ import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType, isScouted } from 
 import { Crest } from "./Crest";
 import { crestFor } from "./crests";
 import { getRealmFlavor } from "./content/flavor";
+import { RealmCardHead, playerStanceToward } from "./hud/RealmCard";
 
 function hostLine(state: GameState, realmId: string): string {
   const parts = state.units
@@ -50,49 +51,47 @@ export function WorldPanel(props: {
         </div>
       </div>
       <h3>Known Crowns</h3>
+      <div className="sc-world-realms" style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
       {others.map((r) => {
         const ruler = state.characters.find((c) => c.id === r.rulerId);
-        const op = state.opinions.find((o) => o.from === r.rulerId && o.to === "char_player")?.value ?? 0;
+        const { stance, peaceLeft, opinion } = playerStanceToward(state, r.id);
         const flavor = getRealmFlavor(r.id);
         const power = realmPower(state, r.id);
         const seen = isScouted(state, r.id);
-        const opLabel = op >= 20 ? "Friendly" : op <= -40 ? "Hostile" : "Neutral";
-        const opClass = op >= 20 ? "op-friendly" : op <= -40 ? "op-hostile" : "op-neutral";
         const offers = KINGDOM_OFFERS[r.id] ?? [];
         return (
-          <div key={r.id} className="sc-realm-card">
-            <div className="sc-realm-card-header">
-              <Crest realmId={r.id} size={38} />
-              <div style={{ flex: 1 }}>
-                <strong>{r.name}</strong> {flavor.title} · {ruler?.name ?? flavor.rulerName}
-                <div className="sc-realm-meta">
-                  {r.era} · {r.lifestyle} · {seen ? `power ${power}` : "power ?"} ·{" "}
-                  <span className={`sc-op-tag ${opClass}`}>{op} ({opLabel})</span>
-                </div>
-                <div className="sc-charge-pill">{crestFor(r.id).chargeName}</div>
-                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
-                  Scout: {seen ? hostLine(state, r.id) : "unknown host"}
-                </div>
-              </div>
-            </div>
-            <p className="sc-realm-blurb">{flavor.blurb}</p>
+          <div key={r.id} className={`sc-realm-dip is-${stance}`} data-realm={r.id}>
+            <RealmCardHead realm={r} stance={stance} peaceLeft={peaceLeft} />
+            <span className="sc-realm-dip-line">
+              {flavor.title} · {ruler?.name ?? flavor.rulerName} · {crestFor(r.id).chargeName}
+            </span>
+            <span className="sc-realm-dip-line">
+              {r.era} · {r.lifestyle} · {seen ? `power ${power}` : "power ?"} · opinion of you <strong>{opinion}</strong>
+            </span>
+            <span className="sc-realm-dip-line">
+              Scout: {seen ? hostLine(state, r.id) : "unknown host"}
+            </span>
+            <p className="sc-realm-blurb" style={{ margin: "2px 0 0" }}>{flavor.blurb}</p>
             <div className="sc-realm-taunt"><em>"{flavor.warTaunt}"</em></div>
-            {!seen && props.onScout ? (
-              <button type="button" className="sc-btn" onClick={() => props.onScout?.(r.id)}>Scout host (10 gold)</button>
-            ) : null}
-            {props.onGift ? (
-              <button type="button" className="sc-btn sc-btn-gift" onClick={() => props.onGift?.(r.id)}>
-                Send 15 Gold Tribute to {ruler?.name ?? r.name}
-              </button>
-            ) : null}
-            {props.onTrade && offers.map((o) => (
-              <button key={o.id} type="button" className="sc-btn" onClick={() => props.onTrade?.(r.id, o.id)}>
-                Trade: {o.label}
-              </button>
-            ))}
+            <span className="sc-realm-dip-actions">
+              {!seen && props.onScout ? (
+                <button type="button" className="sc-realm-dip-btn" onClick={() => props.onScout?.(r.id)}>Scout host (10 gold)</button>
+              ) : null}
+              {props.onGift ? (
+                <button type="button" className="sc-realm-dip-btn" onClick={() => props.onGift?.(r.id)}>
+                  Send 15 Gold Tribute to {ruler?.name ?? r.name}
+                </button>
+              ) : null}
+              {props.onTrade && offers.map((o) => (
+                <button key={o.id} type="button" className="sc-realm-dip-btn" onClick={() => props.onTrade?.(r.id, o.id)}>
+                  Trade: {o.label}
+                </button>
+              ))}
+            </span>
           </div>
         );
       })}
+      </div>
       <h3>Factions</h3>
       {(state.factions ?? []).map((f) => {
         const mine = f.memberRealmIds.includes("player");
