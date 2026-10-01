@@ -54,6 +54,7 @@ import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
 import { isScarred, WorkCard } from "../hud/WorkCard";
 import { OfferCard } from "../hud/OfferCard";
+import "../hud/map-strip.css";
 
 export function KingdomTab(props: {
   state: GameState | undefined;
@@ -120,69 +121,80 @@ export function KingdomTab(props: {
           </button>
         </p>
       ) : null}
-      <p style={{ fontSize: 13 }}>
-        {hold} · {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more).
-      </p>
-      <WallLine state={state} />
-      {wallsReady ? <p style={{ fontSize: 12, color: "#3fb950" }}>{wallsReady}</p> : null}
-      {wallsHint ? (
-        <p style={{ fontSize: 12, color: "#d29922" }}>
-          {wallsHint}
-          {hintPlot ? ` Plot ${hintPlot.x},${hintPlot.y} is free and marked in the Keep.` : ""}
-        </p>
-      ) : null}
-      {quarryStaff ? (
-        <p style={{ fontSize: 12, color: "#d29922", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <span>
-            Staff the {quarryStaff.name} at {quarryStaff.x},{quarryStaff.y} — no miner yet.
-            {quarryStaff.idleId ? "" : " No idle hands; move someone with Post at… on People."}
-          </span>
-          {quarryStaff.idleId ? (
-            <button
-              type="button"
-              onClick={() => {
-                const cid = quarryStaff.idleId;
-                const bid = quarryStaff.buildingId;
-                if (cid) act((st) => (tryAssignCitizen(st, cid, bid) ? "Worker posted." : "Cannot post there."));
-              }}
-            >
-              Post an idle worker
-            </button>
+      <div className="sc-work-card sc-map-strip">
+        <div className="sc-map-strip-row">
+          <div className="sc-map-strip-cell is-hold">
+            <span className="sc-work-name">{hold}</span>
+            <span>{season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more).</span>
+          </div>
+          <div className="sc-map-strip-cell">
+            <WallLine state={state} />
+          </div>
+          <div className="sc-map-strip-cell">
+            <VisionLine state={state} />
+          </div>
+        </div>
+        <div className="sc-map-strip-hints">
+          {wallsReady ? <p style={{ fontSize: 12, color: "#3fb950" }}>{wallsReady}</p> : null}
+          {wallsHint ? (
+            <p style={{ fontSize: 12, color: "#d29922" }}>
+              {wallsHint}
+              {hintPlot ? ` Plot ${hintPlot.x},${hintPlot.y} is free and marked in the Keep.` : ""}
+            </p>
           ) : null}
-        </p>
-      ) : null}
-      {towerStaff ? (
-        <p style={{ fontSize: 12, color: "#d29922", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <span>
-            Staff the {towerStaff.name} at {towerStaff.x},{towerStaff.y} for gold — no guard yet.
-            {towerStaff.idleId ? "" : " No idle hands; move someone with Post at… on People."}
-          </span>
-          {towerStaff.idleId ? (
-            <button
-              type="button"
-              onClick={() => {
-                const cid = towerStaff.idleId;
-                const bid = towerStaff.buildingId;
-                if (cid) act((st) => (tryAssignCitizen(st, cid, bid) ? "Guard posted." : "Cannot post there."));
-              }}
-            >
-              Post an idle guard
-            </button>
+          {quarryStaff ? (
+            <p style={{ fontSize: 12, color: "#d29922", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <span>
+                Staff the {quarryStaff.name} at {quarryStaff.x},{quarryStaff.y} — no miner yet.
+                {quarryStaff.idleId ? "" : " No idle hands; move someone with Post at… on People."}
+              </span>
+              {quarryStaff.idleId ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const cid = quarryStaff.idleId;
+                    const bid = quarryStaff.buildingId;
+                    if (cid) act((st) => (tryAssignCitizen(st, cid, bid) ? "Worker posted." : "Cannot post there."));
+                  }}
+                >
+                  Post an idle worker
+                </button>
+              ) : null}
+            </p>
           ) : null}
-        </p>
-      ) : null}
-      <VisionLine state={state} />
-      {!room ? (
-        <p style={{ fontSize: 12, color: "#d29922", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <span>People {pop}/{beds}. Raise a Cottage for beds.</span>
-          <button type="button" onClick={() => setSelectedBuild("cottage")}>
-            {selectedBuild === "cottage" ? "Cottage picked — tap a plot" : "Pick Cottage"}
-          </button>
-        </p>
-      ) : null}
-      {!plotRoom ? (
-        <p style={{ fontSize: 12, color: "#d29922" }}>Work plots full. Raise a Cottage before you place another farm or camp.</p>
-      ) : null}
+          {towerStaff ? (
+            <p style={{ fontSize: 12, color: "#d29922", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <span>
+                Staff the {towerStaff.name} at {towerStaff.x},{towerStaff.y} for gold — no guard yet.
+                {towerStaff.idleId ? "" : " No idle hands; move someone with Post at… on People."}
+              </span>
+              {towerStaff.idleId ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const cid = towerStaff.idleId;
+                    const bid = towerStaff.buildingId;
+                    if (cid) act((st) => (tryAssignCitizen(st, cid, bid) ? "Guard posted." : "Cannot post there."));
+                  }}
+                >
+                  Post an idle guard
+                </button>
+              ) : null}
+            </p>
+          ) : null}
+          {!room ? (
+            <p style={{ fontSize: 12, color: "#d29922", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <span>People {pop}/{beds}. Raise a Cottage for beds.</span>
+              <button type="button" onClick={() => setSelectedBuild("cottage")}>
+                {selectedBuild === "cottage" ? "Cottage picked — tap a plot" : "Pick Cottage"}
+              </button>
+            </p>
+          ) : null}
+          {!plotRoom ? (
+            <p style={{ fontSize: 12, color: "#d29922" }}>Work plots full. Raise a Cottage before you place another farm or camp.</p>
+          ) : null}
+        </div>
+      </div>
       <p style={{ fontSize: 12, opacity: 0.85 }}>
         Income /s · food {formatLetterSuffix(income.food ?? "0")} · wood {formatLetterSuffix(income.wood ?? "0")} · stone{" "}
         {formatLetterSuffix(income.stone ?? "0")} · gold {formatLetterSuffix(income.gold ?? "0")}. Flag tithe /tick · food{" "}

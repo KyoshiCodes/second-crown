@@ -1,0 +1,54 @@
+/* --- Map strip: the hold / walls / vision line under the kingdom board, as one work-card row. --- */
+.sc-work-card.sc-map-strip {
+  gap: 4px;
+  margin: 6px 0 10px;
+  border-left-color: #c8963e;
+}
+
+.sc-map-strip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+}
+
+.sc-map-strip-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sc-map-strip-cell + .sc-map-strip-cell {
+  padding-left: 14px;
+  border-left: 1px solid var(--chrome-btn-border);
+}
+
+.sc-map-strip-cell.is-hold .sc-work-name {
+  color: var(--chrome-accent);
+}
+
+/* WallLine / VisionLine render their own <p>; flatten it into the cell. */
+.sc-map-strip-cell > p,
+.sc-map-strip-hints > p {
+  margin: 0;
+}
+
+.sc-map-strip-hints:empty {
+  display: none;
+}
+
+.sc-map-strip-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--chrome-btn-border);
+}
+
+@media (max-width: 520px) {
+  .sc-map-strip-cell + .sc-map-strip-cell {
+    padding-left: 0;
+    border-left: none;
+  }
+}
