@@ -1,0 +1,54 @@
+/* Keep Hall: three rooms inside the home-hold inspect card. Reuses chrome tokens; no theme.css changes. */
+.sc-keephall {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--chrome-btn-border);
+}
+
+.sc-keephall-head {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e3b341;
+  opacity: 0.85;
+}
+
+.sc-keephall-rooms,
+.sc-keephall-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.sc-keephall-room.is-on,
+.sc-keephall-row button.is-on {
+  border-color: #e3b341;
+  color: #fef08a;
+}
+
+.sc-keephall-room.is-unbuilt {
+  opacity: 0.6;
+}
+
+.sc-keephall-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.sc-keephall-note {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.sc-keephall-empty {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.7;
+}

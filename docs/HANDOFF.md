@@ -13,6 +13,14 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/keep-hall, not merged)
+
+- Clicking your home hold on the board (the inspect card) now shows a **Hall** panel under the Hold facts with three rooms: **Yard**, **Lectern**, **Gate**. Room choice is local view state.
+- Each room only calls actions that already exist: Yard = `tryTrain` (x1/x5/x10, unlocked units) and `tryTreatWounded` (same messages as Army); Lectern = the existing `ResearchBar` (same as the bar under the primer); Gate = `WallLine` plus `canSally`/`trySally` (same message as War).
+- A room shows "Not built. Raise a <building> in the hold." until its building is finished: Yard needs Barracks, Lectern needs Academy, Gate needs Gate. The tabs still have every control, so nothing is lost before those are built.
+- The keep interior modal (Hall / Wall / Yard) is unchanged and separate.
+- Files: `packages/app/src/KeepHall.tsx` (new), `keep-hall.css` (new), `ProvinceInspect.tsx` (+import, +1 line). No sim, server or theme.css changes. No new rooms, costs or ticks.
+
 ## Active wave (wave/raid-mercy, not merged)
 
 - Home raids are gentler. No rival column marches on the hold before tick 3000 (~5 game minutes), then at most one home raid per 1500 ticks across all rivals (was every 500 from tick 500).

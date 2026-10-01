@@ -39,6 +39,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { scoutGoldHint } from "./buildHints";
+import { KeepHall } from "./KeepHall";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
@@ -321,6 +322,7 @@ export function ProvinceInspect(props: {
               Enter the keep
             </button>
           ) : null}
+          <KeepHall state={state} act={act} />
         </section>
       ) : (
         <>
