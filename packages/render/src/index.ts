@@ -85,6 +85,7 @@ import {
   isWallRingClosed,
   holdHasPeople,
   isBuildingStaffed,
+  isHoldBreached,
 } from "./buildings.js";
 
 import {
@@ -707,12 +708,15 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     const isWallLow = wallStatus.hasWallHp && wallStatus.isLow;
     const isRingClosed = isWallRingClosed(state);
     const hasPeople = holdHasPeople(state);
+    const isBreached = isHoldBreached(state);
     const buildingOptions = {
       isWallLow,
       wallHpRatio: wallStatus.ratio,
       isRingClosed,
       state,
       hasPeople,
+      isBreached,
+      breached: isBreached,
     };
 
     for (const b of state.buildings) {
@@ -752,9 +756,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       const bRealm = b.realmId || "player";
       const bHasPeople = holdHasPeople(state, bRealm);
       const bIsStaffed = isBuildingStaffed(state, b, gx, gy);
+      const bIsBreached = isHoldBreached(state, buildingOptions, bRealm);
       const bOptions = bRealm !== "player"
-        ? { ...buildingOptions, hasPeople: bHasPeople, isStaffed: bIsStaffed, hasWorker: bIsStaffed }
-        : { ...buildingOptions, isStaffed: bIsStaffed, hasWorker: bIsStaffed };
+        ? { ...buildingOptions, hasPeople: bHasPeople, isStaffed: bIsStaffed, hasWorker: bIsStaffed, isBreached: bIsBreached, breached: bIsBreached }
+        : { ...buildingOptions, isStaffed: bIsStaffed, hasWorker: bIsStaffed, isBreached: bIsBreached, breached: bIsBreached };
 
       drawIsometricBuilding(
         g,

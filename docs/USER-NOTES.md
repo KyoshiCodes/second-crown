@@ -8,6 +8,15 @@ Newest first. Plain language for playtesters.
 - A raid now fights only the soldiers who actually marched, not the rival's entire army. A small raid can be beaten by a stocked hold.
 - Finished walls absorb part of the attack before it reaches your troops. One wall on the rim can be the difference between holding and being breached.
 
+## 2026-09-30 — Player keep shows proud banner and warm hearth when standing, cracked stone and dark windows when breached (bakeoff/gemini-keep-breach)
+
+- The condition of your **Keep** now immediately reflects whether your hold stands or has been breached:
+  - **When the Hold Stands**: Your keep rises proud and defiant: dressed ashlar stone walls, warm golden candlelight flickering in the royal arched window, a roaring courtyard brazier fire, warm hearth smoke billowing from the chimney flue, and your proud royal standard waving high in the wind on a tall flagpole with a golden finial ball.
+  - **When the Hold is Breached**: If hostile sieges breach your hold, the keep visibly bears the scars of defeat: deep structural fracture fissures tearing across the stone tower, cracked bartizan turrets, broken crenels, dark shattered windows with no candlelight, a cold dead hearth flue, extinguished brazier coals with no flame, a charred heraldic shield, and a snapped, splintered flagpole stump with no proud banner flying.
+  - Supported across all cultural styles (Western stone keep, Cedar Kin monumental timber longhouse, Sand Banner courtyard mirador keep, Wind Host nomad felt ger, and Tide Clans pile-house keep).
+  - Also visible on the regional map: miniature keeps show full pennants and golden coronet crests when standing, and fracture cracks, dark windows, and broken mast stumps when breached.
+- Purely cosmetic visual update; strictly `pointer-events: none` and never interferes with map clicks, camera movement, or building interactions.
+
 ## 2026-09-30 — Missing rim wall segments marked with timber stakes and trench lines (bakeoff/gemini-wall-gap)
 
 - Open gaps in your perimeter **Wall Ring** are now visually obvious at a glance:

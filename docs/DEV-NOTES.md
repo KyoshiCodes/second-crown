@@ -7,6 +7,33 @@
 - Note: NPC columns never deducted units from the realm at launch (`npcColumnForce` is a view); that is unchanged.
 - Tests: `raidMercy.test.ts` (wall soak flips 20 militia vs 6 militia + 6 spearman, seed 1; siege column-only losses), `raidMarch.test.ts` gap test, harness test 3000 → 3100 ticks.
 
+## 2026-09-30 — render / player keep intact vs cracked stone / dark windows / no proud banner when breached (bakeoff/gemini-keep-breach)
+
+- `packages/render/src/buildings.ts`:
+  - `export function isHoldBreached(state?: GameState | null, options?: { isBreached?: boolean; breached?: boolean; stands?: boolean }, realmId = "player"): boolean`:
+    - Safely determines breach status without mutating or requiring sim changes.
+    - Evaluates explicit caller options: `options.isBreached`, `options.breached`, `options.stands === false`.
+    - Evaluates `state.flags` booleans: `isBreached`, `breached`, `holdBreached`, `hold_breached`, `is_breached`, `stands === false`, `hold_stands === false`.
+    - Evaluates direct state booleans: `isBreached`, `breached`, `holdBreached`, `hold_breached`, `stands === false`.
+    - Evaluates string flags: `hold`, `hold_status`, `defense`, `last_siege` matching `"breached"` / `"fallen"`.
+    - Evaluates `state.wars` siege outcome for the defender hold (`w_siege_...` non-active where `status !== "defender_won"`).
+  - `export interface BuildingDrawOptions`:
+    - Added `isBreached?: boolean; breached?: boolean; stands?: boolean;`.
+  - `drawIsometricBuilding`:
+    - Derived `const isBreached = Boolean(options?.isBreached ?? options?.breached ?? (options?.stands !== undefined ? !options.stands : undefined) ?? (options?.state ? isHoldBreached(options.state, options) : false))`.
+    - `case "keep"`:
+      - When `!isBreached`: intact dressed ashlar stone, warm flickering golden royal high window (`0xfef08a`), soaring royal standard with gold finial ball (`0xfacc15`) and tabard/gold (`0xb91c1c`, `0xfacc15`), leaping brazier flame (`0xf97316`), and golden hearth chimney flue glow (`0xfef08a`).
+      - When `isBreached`: structural fracture fissures (`0x0f172a`, `0x09090b`, `0x1e293b`), rubble divots, cracked bartizans and crenel, buckled portcullis bars (`0x475569`), dark shattered window void (`0x09090b`) with broken glass fracture lines (`0x334155`), snapped splintered flagpole stump (`0x5c3818`, `0x78350f`) without banner or finial, charred slate heraldic shield (`0x1e293b`), cold brazier coals (`0x1e293b`), cold dead hearth flue without `0xfef08a` glow, and stone level pips (`0x64748b`).
+    - `drawKeepCulture`: updated signature to accept `isBreached: boolean = false`, supporting cracked walls/timbers/lattice/stilts, dark louvers/toono/vents (no `0xfef08a` glow), cold cauldrons/braziers, and broken mast stumps across `cedar`, `sand`, `steppe`, and `islands`.
+    - Suppressed seasonal/holiday porch dressing and glowing lanterns on breached keep.
+- `packages/render/src/tokens.ts`:
+  - `MiniatureKeepOptions`: added `isBreached?: boolean; breached?: boolean; stands?: boolean;`.
+  - `drawMiniatureKeep`: derives `isBreached` via `isHoldBreached`. Renders masonry crack fissure, dark window void, snapped mast stump (no pennant, no gold finial), and suppresses player coronet crest when breached.
+- `packages/render/src/index.ts`:
+  - Exported `isHoldBreached`.
+  - Wired `isHoldBreached` into `buildingOptions` and per-realm `bOptions` in `paintBuildings`.
+- Invariants: Sim and server unchanged (`git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty). Non-blocking `pointer-events: none` (`eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — render / missing rim wall segments faint timber stake & gap mark (bakeoff/gemini-wall-gap)
 
 - `packages/render/src/tiles.ts`:
