@@ -1,4 +1,4 @@
-# Handoff (2026-09-28)
+# Handoff (2026-09-30)
 
 Read `AGENTS.md` then this file.
 
@@ -12,6 +12,15 @@ Last docs+upkeep merge includes PRs through **#77**.
 Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
+
+## Active wave (wave/raid-mercy, not merged)
+
+- Home raids are gentler. No rival column marches on the hold before tick 3000 (~5 game minutes), then at most one home raid per 1500 ticks across all rivals (was every 500 from tick 500).
+- Home sieges now fight only the column that marched (its `force`), not the rival's whole realm. Before this, a "12-levy" raid actually fought the rival's entire army (60 to 170 units), so every raid breached. Column losses come off the rival's units; the rest of the realm stays home.
+- Finished walls soak blows: `wallHp` is a damage pool the attacker must chew through before hits land on defending stacks. One rim wall (12) lets 20 militia hold a 12-levy that would beat them bare.
+- Playtest (12000 ticks): first launch 3000, 7 columns (was 23), 6/6 sieges held (was 0/22). Mostly from the column fix; the bot keeps ~26 militia home, which holds even without walls.
+- Files: `packages/sim/src/systems/raidMarch.ts`, `march.ts`, `combat.ts`, `resolver.ts`; tests `raidMarch.test.ts`, `raidMercy.test.ts` (new), `harness/playtestHarness.test.ts` (runs 3100 ticks now). No costs, primer, train math, server or theme.css changes.
+- Balance watch: 6/6 held may be too merciful. Knobs: `HOME_RAID_FIRST_TICK`, `HOME_RAID_GAP` in `raidMarch.ts`; column size is `npcColumnForce` (up to 6 per unit type).
 
 ## Active wave (wave/primer-scout-copy, not merged)
 

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-09-30 — Raid mercy (wave/raid-mercy)
+
+- **Sim: home raid timing** (`packages/sim/src/systems/raidMarch.ts`): `HOME_RAID_FIRST_TICK = 3000`, `HOME_RAID_GAP = 1500`. `maybeNpcRaid` refuses before the first tick or within the gap of the last launch (`flags.home_raid_last`). Rival AI still checks every 500 ticks.
+- **Sim: sieges fight the column** (`march.ts`, `combat.ts`): home-hold arrivals call `resolveBattle(..., { attackerForce: march.force, wallSoak: wallHp })`. Attacker stacks are capped to the column; only column losses are written back to the rival's units.
+- **Sim: wall soak** (`resolver.ts`): `resolveRounds` takes an optional `wallSoak` pool that absorbs damage aimed at the defender before it reaches stacks. Logs "The walls give way." when spent.
+- **Playtest**: first home launch 3000 (was 1000), 7 columns in 12000 ticks (was 23), 6/6 held (was 0/22).
+- **Tests**: `raidMercy.test.ts` (new), `raidMarch.test.ts` (+gap test), harness test runs 3100 ticks and asserts first raid ≥ 3000 and at least one hold. 229 tests pass.
+
 ## 2026-09-30 — Gemini Missing Rim Wall Segments Faint Timber Stake / Gap Mark (bakeoff/gemini-wall-gap)
 
 - **Render Only: Missing Rim Wall Segments Faint Timber Stake / Gap Mark (`packages/render/src/tiles.ts`, `packages/render/src/index.ts`)**:

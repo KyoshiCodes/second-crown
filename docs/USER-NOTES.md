@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Rival raids ease off (wave/raid-mercy)
+
+- Rivals no longer march on your hold in the first ~5 minutes. After that, at most one raid on your hold every ~2.5 minutes (it was every ~50 seconds).
+- A raid now fights only the soldiers who actually marched, not the rival's entire army. A small raid can be beaten by a stocked hold.
+- Finished walls absorb part of the attack before it reaches your troops. One wall on the rim can be the difference between holding and being breached.
+
 ## 2026-09-30 — Missing rim wall segments marked with timber stakes and trench lines (bakeoff/gemini-wall-gap)
 
 - Open gaps in your perimeter **Wall Ring** are now visually obvious at a glance:
