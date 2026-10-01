@@ -1,0 +1,37 @@
+name: Verify Lofi Audio
+
+on:
+  push:
+    paths:
+      - ".gitattributes"
+      - "packages/app/public/audio/**"
+      - "tools/audio/verify-lofi-assets.mjs"
+      - ".github/workflows/verify-lofi-audio.yml"
+  pull_request:
+    paths:
+      - ".gitattributes"
+      - "packages/app/public/audio/**"
+      - "tools/audio/verify-lofi-assets.mjs"
+      - ".github/workflows/verify-lofi-audio.yml"
+
+jobs:
+  verify-lofi-audio:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout with Git LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Verify Git LFS
+        run: git lfs version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build application
+        run: npm run build
+
+      - name: Verify lofi assets
+        run: node tools/audio/verify-lofi-assets.mjs
