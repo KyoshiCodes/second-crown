@@ -1,3 +1,10 @@
+## 2026-10-01 — app / army hud (wave/army-hud)
+
+- Treat copy reads `healTicks(state)` (exported from sim). Toasts call it on the post-treat state; that is fine because it only checks for a finished Barracks.
+- `UpkeepLine` now renders a full `sc-work-card` (Upkeep + vault floor). Only `ArmyTab` uses it.
+- Army cards reuse the Kingdom `sc-work-*` classes from theme.css: `is-staffed` = active (queue running, healing, mouths > 0), `is-empty` = idle, `is-scarred` = wounded with no Infirmary.
+- Resolves the "ArmyTab treat copy still says 5s" note below.
+
 ## 2026-10-01 — sim / hall bonus (wave/hall-bonus)
 
 - `systems/hallBonus.ts`: `hallRoomBuilt(state, room, realmId = "player")` checks a finished building owned by that realm, the same rule as `hasBuilt` in `KeepHall.tsx` (not `countBuilding`, which counts every realm). `HALL_ROOM_NEEDS` mirrors KeepHall's `ROOMS`; if one changes, change both.

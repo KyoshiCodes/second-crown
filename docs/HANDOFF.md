@@ -13,6 +13,12 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/army-hud, not merged)
+
+- App only. Treat wounded text in Army tab, War room and Hall reads `healTicks(state)` (4s with a finished Barracks, 5s without). No hardcoded 5s left.
+- Army tab: Barracks queue, Posts, Wounded/Treat, Upkeep (+ vault floor) and Quick levies (food levy, champion, mercs) are now `sc-work-card` cards in an `sc-work-grid`, same chrome as Kingdom standing works. Unit cards and chips unchanged. No new units, no sim/server/theme.css changes.
+- Files: `packages/app/src/tabs/ArmyTab.tsx`, `UpkeepLine.tsx`, `WarRoom.tsx`, `KeepHall.tsx`.
+
 ## Active wave (wave/hall-bonus, not merged)
 
 - Each finished Hall room (player-owned, not under construction) grants one small bonus. Missing room, no bonus.

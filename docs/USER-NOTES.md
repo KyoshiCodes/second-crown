@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-01 — Army tab tidied into cards (wave/army-hud)
+
+- The Treat button now shows the real heal time everywhere: 4s with a finished Barracks, 5s without.
+- The Army tab's barracks queue, posts, wounded, upkeep and quick levies (food levy, champion, mercenaries) now sit in cards like the Kingdom works.
+
 ## 2026-10-01 — Hall rooms give a small bonus (wave/hall-bonus)
 
 - Each finished room in your keep's Hall now gives one small bonus. The Hall shows it at the top of the room.
@@ -9,7 +14,6 @@ Newest first. Plain language for playtesters.
   - **Lectern** (needs a finished Academy): new studies take 20% less time. This was already true; the Hall now says so.
   - **Gate** (needs a finished Gate on the rim): the gate adds its HP to your walls when a raid hits. This was already true; the Hall now says so.
 - No room, no bonus. Raids and training costs are unchanged.
-- Note: the Army tab's Treat button still says "5s". The Hall shows the real time.
 
 ## 2026-10-01 — Cottages show bunks and packed bedrolls (bakeoff/gemini-cottage-bunk)
 

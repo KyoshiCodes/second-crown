@@ -2,6 +2,7 @@ import React from "react";
 import {
   canAffordTrain,
   countBuilding,
+  healTicks,
   healTicksLeft,
   listHealing,
   listTroopPosts,
@@ -21,7 +22,6 @@ import {
   tryFoodLevy,
   levyTicksLeft,
   unitUnlocked,
-  vaultProtects,
   type GameState,
 } from "@second-crown/sim";
 import { ArmyVisual } from "../ArmyVisual";
@@ -61,6 +61,7 @@ export function ArmyTab(props: {
   const beds = halls * 10;
   const healing = state ? listHealing(state).length : 0;
   const healLeft = state ? healTicksLeft(state) : 0;
+  const healSec = state ? healTicks(state) / 10 : 5;
 
   return (
     <>
@@ -107,75 +108,115 @@ export function ArmyTab(props: {
       <p style={{ fontSize: 12, opacity: 0.75, marginTop: 6 }}>
         Cavalry and knights need Horse lore. Siege needs Siege craft. Both start on the Crown lectern.
       </p>
-      <div style={{ fontSize: 12, marginTop: 8 }}>
-        <strong>Barracks queue {queue.length}/{cap}</strong>
-        {queue.length === 0 ? <div>No companies drilling. Keep I holds two slots; Keep II opens a third.</div> : null}
-        {queue.map((job) => {
-          const left = state ? Math.max(0, job.doneTick - state.meta.tick) : 0;
-          const waiting = state ? job.startedTick > state.meta.tick : false;
-          return (
-            <div key={job.id} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <span>
-                {job.count} {job.typeId} · {waiting ? "waiting" : `${Math.ceil(left / 10)}s left`}
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  act((st) => (tryCancelTraining(st, job.id) ? "Levy dismissed. Unused stores returned." : "That order already left the yard."))
-                }
-              >
-                Cancel
-              </button>
-            </div>
-          );
-        })}
-      </div>
       <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for its role. Costs shown are per unit, before discounts. Cancel refunds the unused fraction. Food levy and mercenaries still arrive at once.</p>
-      <div style={{ fontSize: 13, margin: "10px 0" }}>
-        <strong>Posts</strong>
-        {posts.length === 0 ? <div>No companies raised.</div> : null}
-        {posts.map((p) => (
-          <div key={p.typeId}>
-            {p.typeId}: home {p.home} · marching {p.marching} · gathering {p.gathering}
+      <div className="sc-work-grid">
+        <div className={["sc-work-card", queue.length > 0 ? "is-staffed" : "is-empty"].join(" ")}>
+          <div className="sc-work-head">
+            <span className="sc-work-name">Barracks queue</span>
+            <span className="sc-work-level">
+              {queue.length}/{cap}
+            </span>
           </div>
-        ))}
-        <UpkeepLine state={state} />
-        <div>
-          Wounded {wounded}
-          {halls > 0 ? ` · Infirmary ${halls} (${beds} beds)` : ""}
-          {healing > 0 ? ` · treating ${healing} · next in ${Math.ceil(healLeft / 10)}s` : ""}
+          {queue.length === 0 ? (
+            <div className="sc-work-status">No companies drilling.</div>
+          ) : null}
+          {queue.map((job) => {
+            const left = state ? Math.max(0, job.doneTick - state.meta.tick) : 0;
+            const waiting = state ? job.startedTick > state.meta.tick : false;
+            return (
+              <div key={job.id} className="sc-work-foot">
+                <span className="sc-work-status">
+                  {job.count} {job.typeId} · {waiting ? "waiting" : `${Math.ceil(left / 10)}s left`}
+                </span>
+                <button
+                  type="button"
+                  className="sc-work-btn"
+                  onClick={() =>
+                    act((st) => (tryCancelTraining(st, job.id) ? "Levy dismissed. Unused stores returned." : "That order already left the yard."))
+                  }
+                >
+                  Cancel
+                </button>
+              </div>
+            );
+          })}
+          <div className="sc-work-perks">Keep I holds two slots; Keep II opens a third.</div>
         </div>
-        {wounded > 0 && halls < 1 ? (
-          <div style={{ color: "#d29922", fontSize: 12 }}>Raise an Infirmary on Kingdom. Half of home losses go to beds instead of the grave.</div>
-        ) : null}
-        <button
-          type="button"
-          disabled={!state || wounded < 1}
-          onClick={() =>
-            act((st) =>
-              tryTreatWounded(st)
-                ? "One wounded taken to a cot. 4 food. Back as militia in 5s."
-                : wounded < 1
-                  ? "No wounded."
-                  : "Need 4 food."
-            )
-          }
-        >
-          {wounded < 1 ? "Treat wounded (need wounded)" : "Treat 1 wounded (4 food → militia in 5s)"}
-        </button>
-        {state ? (
-          <div style={{ opacity: 0.75, marginTop: 4 }}>
-            Vault floor · food {vaultProtects(state, "food")} · wood {vaultProtects(state, "wood")} · stone{" "}
-            {vaultProtects(state, "stone")} · gold {vaultProtects(state, "gold")}
+        <div className={["sc-work-card", posts.length > 0 ? "is-staffed" : "is-empty"].join(" ")}>
+          <div className="sc-work-head">
+            <span className="sc-work-name">Posts</span>
+            <span className="sc-work-level">{posts.length} kinds</span>
           </div>
-        ) : null}
+          {posts.length === 0 ? <div className="sc-work-status">No companies raised.</div> : null}
+          {posts.map((p) => (
+            <div key={p.typeId} className="sc-work-perks">
+              {p.typeId}: home {p.home} · marching {p.marching} · gathering {p.gathering}
+            </div>
+          ))}
+        </div>
+        <div className={["sc-work-card", wounded > 0 && halls < 1 ? "is-scarred" : healing > 0 ? "is-staffed" : "is-empty"].join(" ")}>
+          <div className="sc-work-head">
+            <span className="sc-work-name">Wounded</span>
+            <span className="sc-work-level">{wounded}</span>
+          </div>
+          <div className="sc-work-status">
+            {halls > 0 ? `Infirmary ${halls} (${beds} beds)` : "No Infirmary"}
+            {healing > 0 ? ` · treating ${healing} · next in ${Math.ceil(healLeft / 10)}s` : ""}
+          </div>
+          {wounded > 0 && halls < 1 ? (
+            <div className="sc-work-perks">Raise an Infirmary on Kingdom. Half of home losses go to beds instead of the grave.</div>
+          ) : null}
+          <div className="sc-work-foot">
+            <span className="sc-work-where">4 food · {healSec}s</span>
+            <button
+              type="button"
+              className="sc-work-btn"
+              disabled={!state || wounded < 1}
+              onClick={() =>
+                act((st) =>
+                  tryTreatWounded(st)
+                    ? `One wounded taken to a cot. 4 food. Back as militia in ${healTicks(st) / 10}s.`
+                    : wounded < 1
+                      ? "No wounded."
+                      : "Need 4 food."
+                )
+              }
+            >
+              {wounded < 1 ? "Treat (need wounded)" : "Treat 1"}
+            </button>
+          </div>
+        </div>
+        <UpkeepLine state={state} />
+        <div className="sc-work-card is-empty">
+          <div className="sc-work-head">
+            <span className="sc-work-name">Quick levies</span>
+            <span className="sc-work-level">arrive at once</span>
+          </div>
+          <button
+            type="button"
+            className="sc-work-btn"
+            disabled={!state || levyWait > 0}
+            onClick={() => act((st) => (tryFoodLevy(st) ? "Four militia raised from the stores." : "Need 20 food, or the levy is tired."))}
+          >
+            {levyWait > 0 ? `Food levy in ${Math.ceil(levyWait / 10)}s` : "Food levy (20 food, +4 militia)"}
+          </button>
+          <button
+            type="button"
+            className="sc-work-btn"
+            disabled={!state || hasChamp}
+            onClick={() => act((st) => (tryHireChampion(st) ? "A champion takes your coin." : "Need 80 gold and 40 food, or you already have one."))}
+          >
+            {hasChamp ? `Champion: ${state ? championName(state) : ""}` : "Hire champion (80 gold, 40 food, pwr 18)"}
+          </button>
+          <button
+            type="button"
+            className="sc-work-btn"
+            onClick={() => act((st) => (tryHireMercs(st) ? "Eight mercenaries join the line." : "Need 30 gold."))}
+          >
+            Hire mercenaries (30 gold, +8 militia)
+          </button>
+        </div>
       </div>
-      <button type="button" disabled={!state || levyWait > 0} onClick={() => act((st) => (tryFoodLevy(st) ? "Four militia raised from the stores." : "Need 20 food, or the levy is tired."))}>
-        {levyWait > 0 ? `Food levy in ${Math.ceil(levyWait / 10)}s` : "Food levy (20 food, +4 militia)"}
-      </button>
-      <button type="button" disabled={!state || hasChamp} onClick={() => act((st) => (tryHireChampion(st) ? "A champion takes your coin." : "Need 80 gold and 40 food, or you already have one."))}>
-        {hasChamp ? `Champion: ${state ? championName(state) : ""}` : "Hire champion (80 gold, 40 food, pwr 18)"}
-      </button>
       {hasChamp ? (
         <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
           <input value={cname} maxLength={24} onChange={(e) => setCname(e.target.value)} />
@@ -184,9 +225,6 @@ export function ArmyTab(props: {
           </button>
         </div>
       ) : null}
-      <button type="button" onClick={() => act((st) => (tryHireMercs(st) ? "Eight mercenaries join the line." : "Need 30 gold."))}>
-        Hire mercenaries (30 gold, +8 militia)
-      </button>
       <MarshalCard state={state} act={act} />
       <h3>Your Host</h3>
       <ArmyVisual state={state} realmId="player" />

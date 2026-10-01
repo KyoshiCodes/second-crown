@@ -149,7 +149,7 @@ function YardRoom(props: { state: GameState; act: ActFn }) {
             )
           }
         >
-          {wounded < 1 ? "Treat wounded (need wounded)" : "Treat 1 wounded (4 food → militia in 5s)"}
+          {wounded < 1 ? "Treat wounded (need wounded)" : `Treat 1 wounded (4 food → militia in ${healTicks(state) / 10}s)`}
         </button>
       </div>
     </>
