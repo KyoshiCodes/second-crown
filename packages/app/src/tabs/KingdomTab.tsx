@@ -49,7 +49,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { PeoplePanel } from "../PeoplePanel";
 import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
-import { quarryHintPlot, staffQuarryHint, wallsStoneHint } from "../buildHints";
+import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsStoneHint } from "../buildHints";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
 import { isScarred, WorkCard } from "../hud/WorkCard";
@@ -90,6 +90,7 @@ export function KingdomTab(props: {
   const wallsHint = wallsStoneHint(state);
   const hintPlot = quarryHintPlot(state);
   const quarryStaff = staffQuarryHint(state);
+  const towerStaff = staffTowerHint(state);
   const misses = state ? unpairedWorks(state) : [];
   const packed = state ? fullStores(state) : [];
   const idle = state ? emptyStaffWorks(state) : [];
@@ -144,6 +145,26 @@ export function KingdomTab(props: {
               }}
             >
               Post an idle worker
+            </button>
+          ) : null}
+        </p>
+      ) : null}
+      {towerStaff ? (
+        <p style={{ fontSize: 12, color: "#d29922", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <span>
+            Staff the {towerStaff.name} at {towerStaff.x},{towerStaff.y} for gold — no guard yet.
+            {towerStaff.idleId ? "" : " No idle hands; move someone with Post at… on People."}
+          </span>
+          {towerStaff.idleId ? (
+            <button
+              type="button"
+              onClick={() => {
+                const cid = towerStaff.idleId;
+                const bid = towerStaff.buildingId;
+                if (cid) act((st) => (tryAssignCitizen(st, cid, bid) ? "Guard posted." : "Cannot post there."));
+              }}
+            >
+              Post an idle guard
             </button>
           ) : null}
         </p>
