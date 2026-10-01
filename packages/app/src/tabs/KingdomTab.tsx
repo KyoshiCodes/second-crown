@@ -173,7 +173,12 @@ export function KingdomTab(props: {
       ) : null}
       <VisionLine state={state} />
       {!room ? (
-        <p style={{ fontSize: 12, color: "#d29922" }}>Beds full. Raise a Cottage (or the Keep) before more people will stay.</p>
+        <p style={{ fontSize: 12, color: "#d29922", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <span>People {pop}/{beds}. Raise a Cottage for beds.</span>
+          <button type="button" onClick={() => setSelectedBuild("cottage")}>
+            {selectedBuild === "cottage" ? "Cottage picked — tap a plot" : "Pick Cottage"}
+          </button>
+        </p>
       ) : null}
       {!plotRoom ? (
         <p style={{ fontSize: 12, color: "#d29922" }}>Work plots full. Raise a Cottage before you place another farm or camp.</p>
