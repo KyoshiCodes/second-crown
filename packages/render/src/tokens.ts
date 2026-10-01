@@ -44,6 +44,7 @@ import {
   blendLight,
   getThemeVisuals,
   holdHasPeople,
+  isBuildingStaffed,
 } from "./buildings.js";
 import { isFoodStoresEmptyOrLow } from "./walkers.js";
 
@@ -433,6 +434,8 @@ export interface KeepYardBuildingInfo {
   isFinished: boolean;
   level?: number;
   slot: KeepYardSlot;
+  isStaffed?: boolean;
+  hasWorker?: boolean;
 }
 
 export interface MiniatureKeepOptions {
@@ -491,12 +494,15 @@ export function listKeepYardBuildings(
 
         if (!usedSlots.has(slot)) {
           usedSlots.add(slot);
+          const staffed = isBuildingStaffed(state, b);
           results.push({
             id: b.id,
             typeId: b.typeId,
             isFinished: b.completesAtTick === null || b.completesAtTick === undefined,
             level: b.level ?? 1,
             slot,
+            isStaffed: staffed,
+            hasWorker: staffed,
           });
         }
       }
@@ -510,12 +516,15 @@ export function listKeepYardBuildings(
     let slotIdx = 0;
     for (const b of candidateBuildings.slice(0, 4)) {
       const slot = slots[slotIdx++];
+      const staffed = isBuildingStaffed(state, b);
       results.push({
         id: b.id,
         typeId: b.typeId,
         isFinished: b.completesAtTick === null || b.completesAtTick === undefined,
         level: b.level ?? 1,
         slot,
+        isStaffed: staffed,
+        hasWorker: staffed,
       });
     }
   }
@@ -686,43 +695,51 @@ export function drawKeepYardAnnex(
     g.rect(ax - 4.0, ay - 11.8, 1.6, 2.0); g.fill({ color: wallLight }); g.stroke({ width: 0.4, color: strokeCol });
     g.rect(ax + 2.4, ay - 11.8, 1.6, 2.0); g.fill({ color: wallDark }); g.stroke({ width: 0.4, color: strokeCol });
 
-    // Elevated iron brazier basket & Clear Active Beacon Fire
+    // Elevated iron brazier basket
     g.rect(ax - 1.2, ay - 11.2, 2.4, 1.4);
     g.fill({ color: 0x18181b });
 
-    const flamePuff = Math.sin(phase * 5 + ax) * 0.4;
-    // Radiant beacon warm halo
-    g.ellipse(ax, ay - 12.2, 3.8, 2.4);
-    g.fill({ color: 0xfde047, alpha: 0.25 });
+    const isStaffed = info.isStaffed !== false && info.hasWorker !== false;
 
-    // Beacon flame tongues
-    g.circle(ax, ay - 12.2, 1.6 + flamePuff);
-    g.fill({ color: 0xf97316 });
-    g.circle(ax, ay - 12.8, 0.9);
-    g.fill({ color: 0xfacc15 });
-    g.circle(ax, ay - 13.2, 0.4);
-    g.fill({ color: 0xffffff, alpha: 0.9 });
+    if (isStaffed) {
+      const flamePuff = Math.sin(phase * 5 + ax) * 0.4;
+      // Radiant beacon warm halo
+      g.ellipse(ax, ay - 12.2, 3.8, 2.4);
+      g.fill({ color: 0xfde047, alpha: 0.25 });
 
-    // Gold Glint: 4-point diamond star spark
-    const glintPhase = phase * 4 + ax * 1.5;
-    const glintScale = 0.5 + 0.5 * Math.sin(glintPhase);
-    const glintY = ay - 14.8;
-    g.poly([
-      ax, glintY - 2.5 * glintScale,
-      ax + 0.8 * glintScale, glintY,
-      ax, glintY + 2.5 * glintScale,
-      ax - 0.8 * glintScale, glintY,
-    ]);
-    g.fill({ color: 0xfacc15 });
-    g.poly([
-      ax - 2.5 * glintScale, glintY,
-      ax, glintY - 0.8 * glintScale,
-      ax + 2.5 * glintScale, glintY,
-      ax, glintY + 0.8 * glintScale,
-    ]);
-    g.fill({ color: 0xfacc15 });
-    g.circle(ax, glintY, 0.7 * glintScale);
-    g.fill({ color: 0xffffff, alpha: 0.95 });
+      // Beacon flame tongues
+      g.circle(ax, ay - 12.2, 1.6 + flamePuff);
+      g.fill({ color: 0xf97316 });
+      g.circle(ax, ay - 12.8, 0.9);
+      g.fill({ color: 0xfacc15 });
+      g.circle(ax, ay - 13.2, 0.4);
+      g.fill({ color: 0xffffff, alpha: 0.9 });
+
+      // Gold Glint: 4-point diamond star spark
+      const glintPhase = phase * 4 + ax * 1.5;
+      const glintScale = 0.5 + 0.5 * Math.sin(glintPhase);
+      const glintY = ay - 14.8;
+      g.poly([
+        ax, glintY - 2.5 * glintScale,
+        ax + 0.8 * glintScale, glintY,
+        ax, glintY + 2.5 * glintScale,
+        ax - 0.8 * glintScale, glintY,
+      ]);
+      g.fill({ color: 0xfacc15 });
+      g.poly([
+        ax - 2.5 * glintScale, glintY,
+        ax, glintY - 0.8 * glintScale,
+        ax + 2.5 * glintScale, glintY,
+        ax, glintY + 0.8 * glintScale,
+      ]);
+      g.fill({ color: 0xfacc15 });
+      g.circle(ax, glintY, 0.7 * glintScale);
+      g.fill({ color: 0xffffff, alpha: 0.95 });
+    } else {
+      // Unstaffed / No worker: beacon unlit / cold. Cold dark charcoal ash bed
+      g.rect(ax - 1.0, ay - 11.6, 2.0, 0.8);
+      g.fill({ color: 0x0f172a });
+    }
     return;
   }
 

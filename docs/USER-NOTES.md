@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Watchtower beacon lit when staffed, unlit and cold when empty (bakeoff/gemini-tower-unlit)
+
+- Your **Watchtowers** now clearly signal whether a worker is stationed on lookout:
+  - **Staffed Watchtower**: When a citizen or guard is assigned to the watchtower, its beacon fire burns bright with leaping orange flames, a radiant golden ambient halo, rising ember sparks, and a sparkling gold glint star atop the masthead.
+  - **No Worker (Unstaffed)**: When no worker is stationed at the tower, the beacon fire is cold and unlit, showing only a quiet bed of dark charcoal and spent ash in the iron brazier basket with no flames, no glow, and no glint.
+  - Supported across all cultural styles (Western stone lookout, Cedar Kin trestle cage, Sand Banner minaret cupola, Wind Host nomad pylon, and Tide Clans bamboo lighthouse).
+- Purely cosmetic visual update; strictly `pointer-events: none` and never interferes with map clicks, zooming, or interactions.
+
 ## 2026-09-30 — Soft gold ground ring hint glow on empty work plots (bakeoff/gemini-hint-glow)
 
 - Recommended building plots in your settlement now receive a **soft gold ground ring**:

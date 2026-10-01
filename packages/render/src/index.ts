@@ -80,6 +80,7 @@ import {
   isWallHpLow,
   isWallRingClosed,
   holdHasPeople,
+  isBuildingStaffed,
 } from "./buildings.js";
 
 import {
@@ -741,9 +742,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
       const bRealm = b.realmId || "player";
       const bHasPeople = holdHasPeople(state, bRealm);
+      const bIsStaffed = isBuildingStaffed(state, b, gx, gy);
       const bOptions = bRealm !== "player"
-        ? { ...buildingOptions, hasPeople: bHasPeople }
-        : buildingOptions;
+        ? { ...buildingOptions, hasPeople: bHasPeople, isStaffed: bIsStaffed, hasWorker: bIsStaffed }
+        : { ...buildingOptions, isStaffed: bIsStaffed, hasWorker: bIsStaffed };
 
       drawIsometricBuilding(
         g,

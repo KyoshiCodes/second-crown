@@ -1,3 +1,31 @@
+## 2026-09-30 — render / finished watchtower unlit beacon when no worker, staffed beacon on (bakeoff/gemini-tower-unlit)
+
+- `packages/render/src/buildings.ts`:
+  - `export function isBuildingStaffed(state?: GameState | null, buildingOrCoords?: ..., gx?: number, gy?: number): boolean`:
+    - Checks whether a building has assigned workers or staff.
+    - Inspects explicit building properties (`isStaffed`, `hasWorker`, `staffed`, `workers > 0`, `workerCount > 0`).
+    - Checks `state.citizens` for any citizen assigned to `(x, y)` with a valid job (`c.job !== "unassigned"`).
+    - Checks `sim.staffBonus(state, b) > 1` if available.
+  - `export interface BuildingDrawOptions`:
+    - Added `isStaffed?: boolean; hasWorker?: boolean; staffed?: boolean;`.
+  - `drawIsometricBuilding`:
+    - Derives `isStaffed = Boolean(options?.isStaffed ?? options?.hasWorker ?? options?.staffed ?? (options?.state ? isBuildingStaffed(options.state, { x: gx, y: gy, typeId }, gx, gy) : true));`.
+    - Defaults to `true` when options are omitted (preserving legacy standalone tests without regressions).
+    - In `case "watchtower":`:
+      - Western watchtower: when `isStaffed === true`, renders active leaping flame tongues (`0xf97316`, `0xfacc15`, `0xffffff`), radiant warm beacon glow halo (`0xfde047`), ember spark, and gold glint star.
+      - When `isStaffed === false` (no worker): beacon brazier displays cold charcoal bed and grey ash (`0x0f172a`, `0x334155`, `0x475569`), with zero flame tongues, zero radiant halo, and zero gold glint star.
+      - Passes `isStaffed` to `drawWatchtowerCulture`.
+  - `drawWatchtowerCulture`:
+    - Added `isStaffed: boolean = true` parameter.
+    - Updated all 4 culture kits (`cedar`, `sand`, `steppe`, `islands`) to render active beacon fire/cyan light/smoke and gold glint when staffed, and cold unlit dark charcoal/lantern glass with zero flames/smoke/glint when unstaffed.
+- `packages/render/src/tokens.ts`:
+  - `KeepYardBuildingInfo`: added `isStaffed?: boolean; hasWorker?: boolean;`.
+  - `listKeepYardBuildings`: derives `isStaffed` and `hasWorker` via `isBuildingStaffed(state, b)`.
+  - `drawKeepYardAnnex`: checks `info.isStaffed !== false && info.hasWorker !== false` for `"watchtower"`, rendering cold unlit charcoal ash when unstaffed.
+- `packages/render/src/index.ts`:
+  - `paintBuildings`: derives `bIsStaffed = isBuildingStaffed(state, b, gx, gy)` and passes `isStaffed` & `hasWorker` to `bOptions`.
+- Invariants: Sim and server unchanged (`git diff origin/main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. Non-blocking `eventMode = "none"`. Zero `theme.css` changes. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — render / soft gold ground ring hint glow on empty work plots (bakeoff/gemini-hint-glow)
 
 - `packages/render/src/tiles.ts`:
