@@ -222,6 +222,8 @@ export { resolveSiegeHold, yardPower, keepPower } from "./systems/siege.js";
 export type { SiegeReport } from "./systems/siege.js";
 export { forcePower, takeForce, returnForce } from "./systems/column.js";
 export { gateOnRim, gateHp } from "./systems/gate.js";
+export { hallBonuses, hallRoomBuilt, HALL_ROOM_NEEDS, YARD_HEAL_TICKS, LECTERN_STUDY_MULT } from "./systems/hallBonus.js";
+export type { HallBonus, HallRoom } from "./systems/hallBonus.js";
 export { campThreat } from "./systems/camp.js";
 
 export {
@@ -231,6 +233,7 @@ export {
   tryRepair,
   listScarred,
   healTicksLeft,
+  healTicks,
   listHealing,
   absorbBattleCasualties,
 } from "./systems/ward.js";

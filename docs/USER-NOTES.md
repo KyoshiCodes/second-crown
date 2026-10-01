@@ -2,16 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-01 — How to store more (wave/storage-cap)
+## 2026-10-01 — Hall rooms give a small bonus (wave/hall-bonus)
 
-- Stuck at 100 gold or 200 food? That is your storage limit. Anything you make past it is lost.
-- Build these to store more (each one counts once it is finished):
-  - **Granary**: +300 food.
-  - **Sawmill**: +250 wood.
-  - **Mason Yard**: +250 stone.
-  - **Mint**: +150 gold (one per hold).
-- Upgrading your **Keep** to level II or higher stretches every limit (+20% at Keep II, up to +80% at Keep V).
-- No rules changed in this update. These buildings already did this; now it is written down.
+- Each finished room in your keep's Hall now gives one small bonus. The Hall shows it at the top of the room.
+  - **Yard** (needs a finished Barracks): a treated wounded soldier is back as militia in 4s instead of 5s.
+  - **Lectern** (needs a finished Academy): new studies take 20% less time. This was already true; the Hall now says so.
+  - **Gate** (needs a finished Gate on the rim): the gate adds its HP to your walls when a raid hits. This was already true; the Hall now says so.
+- No room, no bonus. Raids and training costs are unchanged.
+- Note: the Army tab's Treat button still says "5s". The Hall shows the real time.
 
 ## 2026-10-01 — Cottages show bunks and packed bedrolls (bakeoff/gemini-cottage-bunk)
 

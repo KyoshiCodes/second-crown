@@ -1,10 +1,12 @@
 # CHANGELOG
 
-## 2026-10-01 — Storage caps rise with storehouse buildings (wave/storage-cap)
+## 2026-10-01 — Hall room bonus (wave/hall-bonus)
 
-- No new cap system. `storageCap` (`packages/sim/src/systems/storage.ts`) already raised caps per finished Granary (+300 food), Sawmill (+250 wood), Mason Yard (+250 stone) and Mint (+150 gold), multiplied by Keep II..V (x1.2..x1.8), plus +50 from Logistics.
-- Playtest bot (`playtestHarness.ts`) now builds one Granary when food reaches 90% of its cap and one Mint when gold reaches 90% of its cap. Peak went from gold 100 / food 199 to gold 250 / food 499. Walls and raid results unchanged.
-- `storage.test.ts`: each cap building raises only its own cap, and only once finished; finished Keep II lifts all four caps by 20%.
+- **Sim: `systems/hallBonus.ts`** (new): `hallRoomBuilt`, `hallBonuses`, `HALL_ROOM_NEEDS`, `YARD_HEAL_TICKS` (40), `LECTERN_STUDY_MULT` (0.8).
+- **Sim: Yard bonus** (`systems/ward.ts`): `healTicks(state)` returns 40 with a finished player Barracks, else `HEAL_TICKS` (50). `tryTreatWounded` uses it.
+- Lectern and Gate report effects that already exist (Academy -20% study time; gate HP in the wall soak). No retune.
+- **App: Hall panel** (`KeepHall.tsx`): "Room bonus: ..." line for the open room; Yard treat text reads the real heal time.
+- No raid timing, train cost, server or theme.css changes. 234 tests pass (+5); app build clean.
 
 ## 2026-10-01 — Gemini Cottage Bunk and Bedrolls (bakeoff/gemini-cottage-bunk)
 

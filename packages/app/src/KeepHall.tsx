@@ -3,6 +3,8 @@ import {
   canAffordTrain,
   canSally,
   getBuildingType,
+  hallBonuses,
+  healTicks,
   healTicksLeft,
   incomingOnHome,
   infirmaryBeds,
@@ -47,6 +49,7 @@ export function KeepHall(props: { state: GameState; act: ActFn }) {
   const cur = ROOMS.find((r) => r.id === room) ?? ROOMS[0];
   const built = hasBuilt(state, cur.needs);
   const needName = getBuildingType(cur.needs)?.name ?? cur.needs;
+  const bonus = hallBonuses(state).find((b) => b.room === room);
 
   return (
     <div className="sc-keephall" aria-label="Hall">
@@ -66,6 +69,7 @@ export function KeepHall(props: { state: GameState; act: ActFn }) {
         ))}
       </div>
       <div role="tabpanel" aria-label={cur.label} className="sc-keephall-body">
+        {bonus?.on ? <p className="sc-keephall-note">Room bonus: {bonus.text}.</p> : null}
         {!built ? (
           <p className="sc-keephall-empty">Not built. Raise a {needName} in the hold.</p>
         ) : room === "yard" ? (
@@ -138,7 +142,7 @@ function YardRoom(props: { state: GameState; act: ActFn }) {
           onClick={() =>
             act((st) =>
               tryTreatWounded(st)
-                ? "One wounded taken to a cot. 4 food. Back as militia in 5s."
+                ? `One wounded taken to a cot. 4 food. Back as militia in ${healTicks(st) / 10}s.`
                 : woundedCount(st) < 1
                   ? "No wounded."
                   : "Need 4 food."
