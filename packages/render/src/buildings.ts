@@ -1271,6 +1271,175 @@ function drawFarmCulture(
   }
 }
 
+// -------------------------------------------------------------
+// Cottage Bunk / Bed Pip:
+// - Free bed (pop < beds): One empty bunk (neat timber frame, clean white linen mattress, empty pillow, green pip).
+// - Full hold (pop === beds): Packed cottage (ruffled quilt, extra bedrolls 1/2/3 tied with straps, red pip).
+// GUARANTEE: pointer-events none (inherited from parent layer eventMode = "none").
+// -------------------------------------------------------------
+export function drawCottageBunk(
+  g: Graphics,
+  bx: number,
+  by: number,
+  a: number,
+  isFull: boolean,
+  kit: CultureKit = "western"
+): void {
+  // Ground footprint shadow under bunk / bedrolls
+  g.ellipse(bx, by + 1.8, 5.2, 2.4);
+  g.fill({ color: 0x050403, alpha: a * 0.4 });
+
+  // Culture-specific timber post coloring
+  let frameDark = 0x5c2b09;
+  let postCol = 0x78350f;
+  let finialCol = 0x92400e;
+  if (kit === "cedar") {
+    frameDark = 0x451a03;
+    postCol = 0x854d0e;
+    finialCol = 0xa16207;
+  } else if (kit === "sand") {
+    frameDark = 0x78531e;
+    postCol = 0xa16207;
+    finialCol = 0xd97706;
+  } else if (kit === "steppe") {
+    frameDark = 0x44403c;
+    postCol = 0x78716c;
+    finialCol = 0xca8a04;
+  } else if (kit === "islands") {
+    frameDark = 0x292524;
+    postCol = 0x57534e;
+    finialCol = 0x0e7490;
+  }
+
+  // 1. Timber Bunk Bed Frame
+  // Headboard at rear left
+  g.poly([bx - 3.8, by - 0.8, bx - 1.2, by + 0.4, bx - 1.2, by - 3.4, bx - 3.8, by - 4.6]);
+  g.fill({ color: frameDark, alpha: a });
+  g.stroke({ width: 0.6, color: 0x27180e, alpha: a });
+
+  // Headboard corner posts
+  g.rect(bx - 4.2, by - 5.0, 0.9, 4.6);
+  g.fill({ color: postCol, alpha: a });
+  g.circle(bx - 3.75, by - 5.2, 0.6);
+  g.fill({ color: finialCol, alpha: a });
+
+  g.rect(bx - 1.5, by - 3.8, 0.8, 4.4);
+  g.fill({ color: postCol, alpha: a });
+  g.circle(bx - 1.1, by - 4.0, 0.5);
+  g.fill({ color: finialCol, alpha: a });
+
+  // Footboard at front right
+  g.poly([bx + 1.2, by + 1.6, bx + 3.8, by + 0.4, bx + 3.8, by - 1.4, bx + 1.2, by - 0.2]);
+  g.fill({ color: frameDark, alpha: a });
+  g.stroke({ width: 0.6, color: 0x27180e, alpha: a });
+
+  // Footboard corner posts
+  g.rect(bx + 3.4, by - 2.0, 0.8, 3.2);
+  g.fill({ color: postCol, alpha: a });
+  g.circle(bx + 3.8, by - 2.2, 0.5);
+  g.fill({ color: finialCol, alpha: a });
+
+  g.rect(bx + 0.9, by - 0.6, 0.8, 3.0);
+  g.fill({ color: postCol, alpha: a });
+
+  // Side rails connecting headboard and footboard
+  g.moveTo(bx - 1.2, by + 0.4);
+  g.lineTo(bx + 1.2, by + 1.6);
+  g.stroke({ width: 1.0, color: postCol, alpha: a });
+  g.moveTo(bx - 3.8, by - 0.8);
+  g.lineTo(bx + 3.8, by + 0.4);
+  g.stroke({ width: 0.8, color: finialCol, alpha: a });
+
+  if (!isFull) {
+    // -------------------------------------------------------------
+    // Free bed: "one empty bunk"
+    // Neat clean vacant mattress, smooth white sheet, plump empty pillow
+    // -------------------------------------------------------------
+    // Clean straw/linen mattress surface
+    g.poly([bx - 3.2, by - 1.0, bx - 1.0, by + 0.1, bx + 2.8, by - 0.7, bx + 0.6, by - 1.8]);
+    g.fill({ color: 0xf8fafc, alpha: a });
+    g.stroke({ width: 0.5, color: 0xcbd5e1, alpha: a });
+
+    // Plump empty white/cream pillow at headboard
+    g.poly([bx - 2.8, by - 1.2, bx - 1.4, by - 0.5, bx - 0.6, by - 1.0, bx - 2.0, by - 1.7]);
+    g.fill({ color: 0xffffff, alpha: a });
+    g.stroke({ width: 0.4, color: 0xe2e8f0, alpha: a });
+
+    // Neat folded top sheet turn-down edge
+    g.moveTo(bx - 1.0, by + 0.1);
+    g.lineTo(bx + 2.8, by - 0.7);
+    g.stroke({ width: 0.6, color: 0x94a3b8, alpha: a * 0.7 });
+
+    // Free bed vacant indicator pip (soft green/gold dot)
+    g.circle(bx + 4.8, by - 0.6, 1.0);
+    g.fill({ color: 0x4ade80, alpha: a * 0.9 });
+    g.circle(bx + 4.8, by - 0.6, 0.4);
+    g.fill({ color: 0xffffff, alpha: a });
+  } else {
+    // -------------------------------------------------------------
+    // Full hold (pop === beds): "cottages look packed (extra bedrolls)"
+    // Occupied bunk + stacked rolled blankets + travel rolls + packed duffle
+    // -------------------------------------------------------------
+    // Occupied ruffled wool quilt on the bunk bed
+    g.poly([bx - 3.2, by - 1.0, bx - 1.0, by + 0.1, bx + 2.8, by - 0.7, bx + 0.6, by - 1.8]);
+    g.fill({ color: 0x991b1b, alpha: a }); // deep crimson wool blanket
+    g.stroke({ width: 0.5, color: 0x7f1d1d, alpha: a });
+
+    // Quilt fold creases
+    g.moveTo(bx - 1.4, by - 0.3);
+    g.lineTo(bx + 1.2, by - 0.9);
+    g.stroke({ width: 0.6, color: 0xb91c1c, alpha: a });
+
+    // Indented occupied pillow
+    g.poly([bx - 2.8, by - 1.2, bx - 1.4, by - 0.5, bx - 0.6, by - 1.0, bx - 2.0, by - 1.7]);
+    g.fill({ color: 0xd6d3d1, alpha: a });
+    g.stroke({ width: 0.4, color: 0xa8a29e, alpha: a });
+
+    // EXTRA BEDROLL 1: Rolled deep emerald wool canvas roll tied with twin leather straps
+    g.rect(bx - 4.6, by + 1.2, 4.4, 1.9);
+    g.fill({ color: 0x065f46, alpha: a });
+    g.stroke({ width: 0.4, color: 0x064e3b, alpha: a });
+    // Twin amber leather binding straps
+    g.moveTo(bx - 3.6, by + 1.2); g.lineTo(bx - 3.6, by + 3.1);
+    g.moveTo(bx - 1.6, by + 1.2); g.lineTo(bx - 1.6, by + 3.1);
+    g.stroke({ width: 0.6, color: 0xb45309, alpha: a });
+    // Spiral roll end
+    g.circle(bx - 4.3, by + 2.1, 0.6);
+    g.fill({ color: 0x059669, alpha: a });
+
+    // EXTRA BEDROLL 2: Thick rust / terracotta wool roll stacked crosswise with gold cord
+    g.rect(bx - 3.2, by + 2.5, 4.6, 1.9);
+    g.fill({ color: 0x9a3412, alpha: a });
+    g.stroke({ width: 0.4, color: 0x7c2d12, alpha: a });
+    // Gold binding cords & buckle
+    g.moveTo(bx - 2.0, by + 2.5); g.lineTo(bx - 2.0, by + 4.4);
+    g.moveTo(bx + 0.2, by + 2.5); g.lineTo(bx + 0.2, by + 4.4);
+    g.stroke({ width: 0.6, color: 0xfacc15, alpha: a });
+    // Spiral roll end
+    g.circle(bx + 1.2, by + 3.4, 0.6);
+    g.fill({ color: 0xea580c, alpha: a });
+
+    // EXTRA BEDROLL 3: Compact navy travel roll tucked at the footboard
+    g.rect(bx + 1.8, by + 0.8, 3.8, 1.7);
+    g.fill({ color: 0x1e3a8a, alpha: a });
+    g.stroke({ width: 0.4, color: 0x172554, alpha: a });
+    g.moveTo(bx + 3.2, by + 0.8); g.lineTo(bx + 3.2, by + 2.5);
+    g.stroke({ width: 0.6, color: 0x78350f, alpha: a });
+
+    // Canvas travel duffle / bedding sack packed beside the pile
+    g.circle(bx - 1.0, by + 4.2, 1.3);
+    g.fill({ color: 0x713f12, alpha: a });
+    g.circle(bx - 0.8, by + 3.9, 0.5);
+    g.fill({ color: 0xa16207, alpha: a });
+
+    // Full hold packed indicator pip (amber/red dot)
+    g.circle(bx + 4.8, by - 0.6, 1.0);
+    g.fill({ color: 0xef4444, alpha: a * 0.9 });
+    g.circle(bx + 4.8, by - 0.6, 0.4);
+    g.fill({ color: 0xfecaca, alpha: a });
+  }
+}
+
 function drawCottageCulture(
   g: Graphics,
   h: number,
@@ -1278,7 +1447,8 @@ function drawCottageCulture(
   phase: number,
   kit: CultureKit,
   cult: CultureVisualPalette,
-  complete: boolean = true
+  complete: boolean = true,
+  isFull: boolean = false
 ): void {
   if (kit === "cedar") {
     // Cedar Kin: Log Cabin with Notched Corners + Split-Shake Roof + Porch + Antler Latch
@@ -1450,6 +1620,11 @@ function drawCottageCulture(
     const candle = 0.88 + Math.sin(phase * 3.2) * 0.1;
     g.rect(3, -1 - sh * 0.45, 3.5, 3.5);
     g.fill({ color: 0xfef08a, alpha: a * 0.95 * candle });
+  }
+
+  // Cottage Bunk / Bed Pip for culture kits
+  if (complete) {
+    drawCottageBunk(g, 2.5, 6.2, a, isFull, kit);
   }
 }
 
@@ -4757,6 +4932,81 @@ export function isHoldBreached(
   return false;
 }
 
+/**
+ * Evaluates whether the hold is full (pop === beds or pop >= beds):
+ * - Checks caller options: isFull, isHoldFull, isPacked, hasFreeBed, pop/beds
+ * - Checks state.flags for test overrides: isHoldFull, isFull, isPacked, hasFreeBed
+ * - Computes from sim: population(state, realmId) >= housingCap(state, realmId)
+ */
+export function isHoldFull(
+  state?: GameState | null,
+  options?: {
+    isFull?: boolean;
+    isHoldFull?: boolean;
+    isPacked?: boolean;
+    hasFreeBed?: boolean;
+    pop?: number;
+    beds?: number;
+  },
+  realmId = "player"
+): boolean {
+  if (options?.isFull !== undefined) return options.isFull;
+  if (options?.isHoldFull !== undefined) return options.isHoldFull;
+  if (options?.isPacked !== undefined) return options.isPacked;
+  if (options?.hasFreeBed !== undefined) return !options.hasFreeBed;
+  if (options?.pop !== undefined && options?.beds !== undefined) {
+    return options.pop >= options.beds;
+  }
+
+  if (!state) return false;
+
+  const anyState = state as unknown as Record<string, unknown>;
+  const flags = state.flags as Record<string, unknown> | undefined;
+
+  // Direct boolean flags on state.flags
+  if (typeof flags?.isHoldFull === "boolean") return flags.isHoldFull;
+  if (typeof flags?.isFull === "boolean") return flags.isFull;
+  if (typeof flags?.isPacked === "boolean") return flags.isPacked;
+  if (typeof flags?.fullHold === "boolean") return flags.fullHold;
+  if (typeof flags?.holdFull === "boolean") return flags.holdFull;
+  if (typeof flags?.hasFreeBed === "boolean") return !flags.hasFreeBed;
+  if (typeof flags?.freeBed === "boolean") return !flags.freeBed;
+
+  // Direct boolean flags on state
+  if (typeof anyState.isHoldFull === "boolean") return anyState.isHoldFull;
+  if (typeof anyState.isFull === "boolean") return anyState.isFull;
+  if (typeof anyState.isPacked === "boolean") return anyState.isPacked;
+  if (typeof anyState.hasFreeBed === "boolean") return !anyState.hasFreeBed;
+
+  // Explicit pop and beds in flags or state
+  if (typeof flags?.pop === "number" && typeof flags?.beds === "number") {
+    return flags.pop >= flags.beds;
+  }
+  if (typeof anyState.pop === "number" && typeof anyState.beds === "number") {
+    return anyState.pop >= anyState.beds;
+  }
+
+  // Derive from sim helpers if available
+  const pop = sim.population ? sim.population(state, realmId) : (state.citizens ? state.citizens.filter((c) => c.realmId === realmId).length : 0);
+  const beds = sim.housingCap ? sim.housingCap(state, realmId) : 2;
+  return pop >= beds;
+}
+
+export function hasFreeBed(
+  state?: GameState | null,
+  options?: {
+    isFull?: boolean;
+    isHoldFull?: boolean;
+    isPacked?: boolean;
+    hasFreeBed?: boolean;
+    pop?: number;
+    beds?: number;
+  },
+  realmId = "player"
+): boolean {
+  return !isHoldFull(state, options, realmId);
+}
+
 export interface BuildingDrawOptions {
   wallHpRatio?: number;
   isDamaged?: boolean;
@@ -4770,6 +5020,12 @@ export interface BuildingDrawOptions {
   isBreached?: boolean;
   breached?: boolean;
   stands?: boolean;
+  isFull?: boolean;
+  isHoldFull?: boolean;
+  isPacked?: boolean;
+  hasFreeBed?: boolean;
+  pop?: number;
+  beds?: number;
 }
 
 // -------------------------------------------------------------
@@ -4819,6 +5075,15 @@ export function drawIsometricBuilding(
     (options?.state
       ? isBuildingStaffed(options.state, { x: gx, y: gy, typeId }, gx, gy)
       : true)
+  );
+
+  const isFull = Boolean(
+    options?.isFull ??
+    options?.isHoldFull ??
+    options?.isPacked ??
+    (options?.hasFreeBed !== undefined ? !options.hasFreeBed : undefined) ??
+    (options?.pop !== undefined && options?.beds !== undefined ? options.pop >= options.beds : undefined) ??
+    (options?.state ? isHoldFull(options.state, options) : false)
   );
 
   const a = 1.0;
@@ -4932,7 +5197,7 @@ export function drawIsometricBuilding(
 
     case "cottage": {
       if (kit !== "western") {
-        drawCottageCulture(g, 16 + heightBoost, a, phase, kit, cult, complete);
+        drawCottageCulture(g, 16 + heightBoost, a, phase, kit, cult, complete, isFull);
         break;
       }
       // Distinct Thatched Residential Cottage + Plaster/Timber Walls + Chimney Smoke + Leaded Window + Flowerbed
@@ -5016,6 +5281,13 @@ export function drawIsometricBuilding(
       g.fill({ color: 0x78350f, alpha: a });
       g.moveTo(9, 4.5); g.lineTo(13.5, 4.5);
       g.stroke({ width: 0.8, color: 0x3f1d0b, alpha: a });
+
+      // Cottage Bunk / Bed Pip:
+      // Full hold (pop === beds): cottages look packed (extra bedrolls)
+      // Free bed: one empty bunk
+      if (complete) {
+        drawCottageBunk(g, 2.5, 6.2, a, isFull, kit);
+      }
 
       break;
     }

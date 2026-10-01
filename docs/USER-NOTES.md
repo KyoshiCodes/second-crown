@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-01 — Cottages show bunks and packed bedrolls (bakeoff/gemini-cottage-bunk)
+
+- Cottages now visually show your settlement's housing capacity and occupancy directly on the hold map:
+  - **Free Bed (Open Capacity)**: When your hold has room for more settlers (`pop < beds`), cottages display **one neat, empty bunk** with clean white linen, a plump pillow, and a gentle green bed pip, showing room for new citizens.
+  - **Full Hold (Packed Bedrolls)**: When your hold reaches full capacity (`pop === beds` or `pop >= beds`), cottages appear bustling and **packed with extra bedrolls**: an occupied crimson quilt on the bed, stacked rolled wool bedrolls (emerald, rust terracotta, and navy) tied with leather straps and cords, a canvas travel sack, and a red bed pip showing every bed is taken.
+  - Supported across all cultural styles (Western wood-and-thatch cottages, Cedar Kin cedar-shake cabins, Sand Banner adobe flat-roof dwellings, Wind Host nomad yurts, and Tide Clans pile stilt cottages).
+  - Unfinished cottages undergoing construction show clean scaffolding without bunks until completed.
+- Purely visual update; strictly non-blocking (`pointer-events: none`) and never interferes with building clicks or kingdom actions.
+
 ## 2026-09-30 — War shows column slots as stall/post pips (bakeoff/gemini-slot-pips)
 
 - Your active military and gathering columns are now clearly tracked with **Column Slot Pips**:

@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 2026-10-01 — Gemini Cottage Bunk and Bedrolls (bakeoff/gemini-cottage-bunk)
+
+- **Render Only: Cottages Show a Small Bunk / Bed Pip (`packages/render/src/buildings.ts`, `packages/render/src/index.ts`, `packages/render/src/index.test.ts`)**:
+  - **Hold Capacity Detection (`isHoldFull`, `hasFreeBed`)**: Reads caller overrides (`options.isFull`, `options.isHoldFull`, `options.isPacked`, `options.hasFreeBed`, `options.pop`, `options.beds`), test flags in `state.flags`, and derives live occupancy from `population(state, realmId) >= housingCap(state, realmId)`.
+  - **Free Bed State (`pop < beds` / `hasFreeBed`)**:
+    - "One empty bunk" rendered inside/alongside the cottage doorway.
+    - Clean white/cream linen mattress (`0xf8fafc`) with neat folded sheet crease (`0x94a3b8`).
+    - Smooth, plump empty pillow (`0xffffff`).
+    - Vacant green indicator pip (`0x4ade80`) showing open housing capacity.
+    - Suppresses occupied blankets, extra bedrolls, and packed duffle bags.
+  - **Full Hold State (`pop === beds` / `pop >= beds` / `isFull`)**:
+    - "Cottages look packed (extra bedrolls)":
+    - Occupied bunk with deep crimson wool quilt (`0x991b1b`) and indented pillow (`0xd6d3d1`).
+    - Extra Bedroll 1: rolled deep emerald wool roll (`0x065f46`) bound with twin amber leather straps (`0xb45309`) and roll spiral (`0x059669`).
+    - Extra Bedroll 2: thick rust terracotta wool roll (`0x9a3412`) stacked crosswise with gold cord & buckle (`0xfacc15`) and roll spiral (`0xea580c`).
+    - Extra Bedroll 3: compact navy blue travel roll (`0x1e3a8a`) tucked at the footboard with tie cord (`0x78350f`).
+    - Packed canvas bedding duffle sack (`0x713f12`, `0xa16207`).
+    - Packed red indicator pip (`0xef4444`) signaling full hold capacity.
+    - Suppresses vacant white linen and green pip.
+  - **All Cultures Supported**: Western cottages as well as Cedar Kin, Sand Banner, Wind Host, and Tide Clans all render cultural timber frames and proper free vs packed bedroll states.
+  - **Construction Gating**: Scaffolding (`completesAtTick !== null`) suppresses bunks and bedrolls until the cottage is finished.
+  - **Strictly Non-Blocking**: `pointer-events: none` on all graphics layers.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 290 render tests pass; 229 sim tests pass; app builds cleanly.
+
 ## 2026-09-30 — Gemini Stall/Post Column Slot Pips on War (bakeoff/gemini-slot-pips)
 
 - **HUD: N/max Column Slots as Stall/Post Pips on War (`packages/app/src/hud/SlotPip.tsx`, `packages/app/src/hud/slot-pip.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/AppShell.tsx`)**:
