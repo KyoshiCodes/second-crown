@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — The Hall in your keep (wave/keep-hall)
+
+- Click your own hold on the board. Under the hold facts there is now a **Hall** with three rooms:
+  - **Yard**: train troops and treat wounded, same as the Army tab. Needs a Barracks.
+  - **Lectern**: start or cancel studies, same as the study bar. Needs an Academy.
+  - **Gate**: your wall line and the Sally button, same as the War tab. Needs a Gate.
+- A room you have not built yet says "Not built". The tabs still work as before.
+
 ## 2026-09-30 — Rival raids ease off (wave/raid-mercy)
 
 - Rivals no longer march on your hold in the first ~5 minutes. After that, at most one raid on your hold every ~2.5 minutes (it was every ~50 seconds).

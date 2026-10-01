@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-09-30 — Keep Hall (wave/keep-hall)
+
+- **App: Hall panel on the home inspect card** (`packages/app/src/KeepHall.tsx`, `keep-hall.css`, `ProvinceInspect.tsx`): three rooms, Yard / Lectern / Gate.
+  - Yard: train buttons (x1/x5/x10, unlocked units, `tryTrain`), barracks queue count, wounded/beds and Treat (`tryTreatWounded`). Messages copied from Army.
+  - Lectern: renders the existing `ResearchBar`.
+  - Gate: `WallLine`, first incoming column (name only if `watchtowerWarning`), Sally (`canSally`/`trySally`). Message copied from War.
+  - Room shows "Not built" until its finished building exists for the player: Barracks / Academy / Gate.
+- No sim, server or theme.css changes. 229 tests pass; app build clean.
+
 ## 2026-09-30 — Raid mercy (wave/raid-mercy)
 
 - **Sim: home raid timing** (`packages/sim/src/systems/raidMarch.ts`): `HOME_RAID_FIRST_TICK = 3000`, `HOME_RAID_GAP = 1500`. `maybeNpcRaid` refuses before the first tick or within the gap of the last launch (`flags.home_raid_last`). Rival AI still checks every 500 ticks.

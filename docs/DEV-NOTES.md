@@ -1,3 +1,10 @@
+## 2026-09-30 — app / keep hall (wave/keep-hall)
+
+- `packages/app/src/KeepHall.tsx`: `KeepHall({ state, act })`, rendered at the end of the `is-hold` section in `ProvinceInspect` (home province only). `ROOMS` maps `yard → barracks`, `lectern → academy`, `gate → gate`; `hasBuilt` checks a finished player building (not `countBuilding`, which counts every realm).
+- Yard copies ArmyTab's train/treat handlers but keeps its own local `qty` (does not touch the engine's `trainQty`). Wounded uses `woundedCount` (what `tryTreatWounded` checks) and `infirmaryBeds`.
+- Lectern is `<ResearchBar>` as-is. Gate is `<WallLine>` plus WarRoom's sally handler; the foe name is hidden behind `watchtowerWarning` like WarRoom.
+- Styling in `keep-hall.css` (imported by the component), uses `--chrome-btn-border`. theme.css untouched.
+
 ## 2026-09-30 — sim / raid mercy (wave/raid-mercy)
 
 - `systems/raidMarch.ts`: exported `HOME_RAID_FIRST_TICK` (3000), `HOME_RAID_GAP` (1500), `homeRaidAllowed(state, atTick)`. Gate uses `atTick` (the AI pulse tick, also correct under `advanceAnalytic`) and a numeric `flags.home_raid_last` set only on a successful launch. The gap is global across rivals, not per realm.
