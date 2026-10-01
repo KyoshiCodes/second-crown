@@ -5,6 +5,7 @@ import {
   garrisonPower,
   gateOnRim,
   getProvince,
+  healTicks,
   healTicksLeft,
   housingCap,
   incomingOnHome,
@@ -77,6 +78,7 @@ export function WarRoom(props: {
   const beds = state ? infirmaryBeds(state) : 0;
   const healing = state ? listHealing(state).length : 0;
   const healLeft = state ? healTicksLeft(state) : 0;
+  const healSec = state ? healTicks(state) / 10 : 5;
   const pop = state ? population(state) : 0;
   const cap = state ? housingCap(state) : 0;
   const tick = state?.meta.tick ?? 0;
@@ -338,7 +340,7 @@ export function WarRoom(props: {
             disabled={wounded <= 0}
             onClick={() => act((st) => (tryTreatWounded(st) ? "Sent 1 wounded to the ward." : "Need 4 food."))}
           >
-            Treat (4 food, 5s)
+            Treat (4 food, {healSec}s)
           </button>
         </p>
         <p style={{ margin: "4px 0" }}>

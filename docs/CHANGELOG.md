@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-01 — Army HUD cards (wave/army-hud)
+
+- **App: treat time** (`ArmyTab.tsx`, `WarRoom.tsx`, `KeepHall.tsx`): labels and toasts use `healTicks(state) / 10` instead of a hardcoded 5s.
+- **App: Army tab cards** (`ArmyTab.tsx`, `UpkeepLine.tsx`): queue, posts, wounded, upkeep and quick levies render as `sc-work-card` (Kingdom work-card chrome). Buttons use `sc-work-btn`.
+- No sim, server or theme.css changes. 239 tests pass; app build clean.
+
 ## 2026-10-01 — Hall room bonus (wave/hall-bonus)
 
 - **Sim: `systems/hallBonus.ts`** (new): `hallRoomBuilt`, `hallBonuses`, `HALL_ROOM_NEEDS`, `YARD_HEAL_TICKS` (40), `LECTERN_STUDY_MULT` (0.8).
