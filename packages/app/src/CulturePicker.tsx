@@ -1,6 +1,7 @@
 import React from "react";
 import { CULTURES, playerCultureId, setPlayerCulture, type GameState } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
+import "./hud/plain-buttons.css";
 
 export const CULTURE_KEY = "sc-culture";
 
@@ -27,13 +28,14 @@ export function CulturePicker(props: { state: GameState | undefined; act: ActFn 
   return (
     <div style={{ margin: "8px 0", fontSize: 13 }}>
       <div style={{ opacity: 0.8, marginBottom: 6 }}>Crown style — New Game keeps this pick on this browser</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+      <div className="sc-plain-grid">
         {CULTURES.map((c) => (
           <button
             key={c.id}
             type="button"
+            className={`sc-work-card sc-plain-pick ${current === c.id ? "is-picked" : ""}`}
             style={{
-              borderColor: current === c.id ? c.palette.tabard : undefined,
+              borderLeftColor: c.palette.tabard,
               outline: current === c.id ? `2px solid ${c.palette.tabard}` : undefined,
             }}
             title={c.blurb}
@@ -45,7 +47,10 @@ export function CulturePicker(props: { state: GameState | undefined; act: ActFn 
               })
             }
           >
-            {c.name}
+            <span className="sc-work-head">
+              <span className="sc-work-name">{c.name}</span>
+            </span>
+            <span className="sc-work-status">{current === c.id ? "Your style" : c.blurb}</span>
           </button>
         ))}
       </div>

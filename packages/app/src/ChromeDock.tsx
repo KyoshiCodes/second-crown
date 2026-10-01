@@ -5,6 +5,7 @@ import { BoardPanel } from "./BoardPanel";
 import { ThemeDock } from "./ThemeDock";
 import { MusicDock } from "./MusicDock";
 import { getHolidayOverride, setHolidayOverride } from "./seasons/holidays";
+import "./hud/plain-buttons.css";
 
 const KEY = "sc-chrome-open";
 
@@ -93,7 +94,7 @@ export function ChromeDock() {
         >
           {band === "board" ? "🗺️ Board (Switch to Hold 🏰)" : "🏰 Hold (Switch to Board 🗺️)"}
         </button>
-        <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <label className="sc-work-card sc-plain-card sc-plain-inline sc-plain-chip">
           Holiday
           <select
             value={holiday}

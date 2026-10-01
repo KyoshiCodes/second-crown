@@ -1,3 +1,14 @@
+## 2026-10-01 — app / plain buttons as work cards (wave/plain-buttons)
+
+- `packages/app/src/hud/plain-buttons.css` (imported by each touched component):
+  - `.sc-plain-grid`: card grid (minmax 170px).
+  - `.sc-work-card.sc-plain-card`: row card; modifiers `is-notice`, `is-ready`, `is-done`, `is-warn` set the left edge.
+  - `.sc-plain-inline`: text + buttons on one line. `.sc-plain-chip`: compact card for the top chrome bar.
+  - `.sc-plain-actions`: button row inside a card. Buttons use existing `.sc-work-btn`.
+  - `button.sc-work-card.sc-plain-pick`: whole-card pick button (`is-picked`, `is-afford`, `is-short`, `is-owned`). Replaces the inline background colors on the Kingdom build list.
+- Click handlers and disabled logic unchanged. Zero edits to `theme.css`, `packages/sim`, `server`.
+- Files: `packages/app/src/hud/plain-buttons.css`, `tabs/KingdomTab.tsx`, `tabs/CrownTab.tsx`, `DecreesPanel.tsx`, `CulturePicker.tsx`, `ChromeDock.tsx`, `TesterBar.tsx`, `CloudPanel.tsx`, `BoardPanel.tsx`.
+
 ## 2026-10-01 — app / map strip with small heraldic pips (bakeoff/gemini-map-pips)
 
 - `packages/app/src/hud/map-strip.css`:
