@@ -1,3 +1,12 @@
+## 2026-09-30 — sim / raid mercy (wave/raid-mercy)
+
+- `systems/raidMarch.ts`: exported `HOME_RAID_FIRST_TICK` (3000), `HOME_RAID_GAP` (1500), `homeRaidAllowed(state, atTick)`. Gate uses `atTick` (the AI pulse tick, also correct under `advanceAnalytic`) and a numeric `flags.home_raid_last` set only on a successful launch. The gap is global across rivals, not per realm.
+- `systems/combat.ts`: `resolveBattle(state, war, rng, opts?: BattleOptions)`. `BattleOptions = { wallSoak?: number; attackerForce?: Record<string, number> }`. With `attackerForce`, attacker stacks are `stacksFor` capped per type to the force (types missing from the realm drop out), Muster power is the column's unit power, the defender is written back with `writeStacks`, and attacker losses are subtracted from realm units (`writeColumnLosses`) instead of overwriting counts. Callers without opts (`actions/war.ts`, `battleHarness.ts`) behave exactly as before.
+- `systems/resolver.ts`: `resolveRounds(atk, def, rng, wallSoak = 0)`. A wall pool absorbs damage on hits targeting the defender side; the remainder (if any) lands normally. No extra RNG draws, so determinism and existing seeds are unchanged when `wallSoak = 0`.
+- `systems/march.ts`: home-hold arrival passes `wallSoak: wallHp(state, "player")` (finished walls only; read after `applySiegeBlow`, so a wall scarred by that blow does not soak) and `attackerForce: march.force ?? { militia: levy }`.
+- Note: NPC columns never deducted units from the realm at launch (`npcColumnForce` is a view); that is unchanged.
+- Tests: `raidMercy.test.ts` (wall soak flips 20 militia vs 6 militia + 6 spearman, seed 1; siege column-only losses), `raidMarch.test.ts` gap test, harness test 3000 → 3100 ticks.
+
 ## 2026-09-30 — render / missing rim wall segments faint timber stake & gap mark (bakeoff/gemini-wall-gap)
 
 - `packages/render/src/tiles.ts`:

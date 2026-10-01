@@ -40,31 +40,15 @@ Build ticks are when the order was placed; the tower then stands under scaffoldi
 
 | Launched tick | Arrives tick | Realm | Levy |
 | --- | --- | --- | --- |
-| 1000 | 1045 | rival | 12 |
-| 1500 | 1545 | rival | 12 |
-| 2000 | 2045 | rival | 12 |
-| 2500 | 2545 | rival | 12 |
 | 3000 | 3045 | rival | 12 |
-| 3500 | 3545 | rival | 12 |
-| 4000 | 4045 | rival | 12 |
 | 4500 | 4545 | rival | 12 |
-| 5000 | 5045 | rival | 12 |
-| 5500 | 5545 | rival | 12 |
 | 6000 | 6045 | rival | 12 |
-| 6500 | 6545 | rival | 12 |
-| 7000 | 7045 | rival | 12 |
 | 7500 | 7545 | rival | 12 |
-| 8000 | 8045 | rival | 12 |
-| 8500 | 8545 | rival | 12 |
 | 9000 | 9045 | rival | 12 |
-| 9500 | 9545 | rival | 12 |
-| 10000 | 10045 | rival | 12 |
 | 10500 | 10545 | rival | 12 |
-| 11000 | 11045 | rival | 12 |
-| 11500 | 11545 | rival | 12 |
 | 12000 | 12045 | rival | 12 |
 
-Militia trained by the bot: 320. Alive at end (home + queued + out): 28.
+Militia trained by the bot: 44. Alive at end (home + queued + out): 28.
 
 ### Hold defense (after each raid)
 
@@ -72,28 +56,12 @@ The bot keeps up to 24 militia at the hold (home + queued) and only sends column
 
 | Launched | Resolved | Realm | Levy | Militia before | Militia after | Walls | Hold |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1000 | 1045 | rival | 12 | 26 | 16 | 1 | breached |
-| 1500 | 1545 | rival | 12 | 24 | 14 | 1 | breached |
-| 2000 | 2045 | rival | 12 | 26 | 17 | 1 | breached |
-| 2500 | 2545 | rival | 12 | 25 | 14 | 1 | breached |
-| 3000 | 3045 | rival | 12 | 28 | 16 | 1 | breached |
-| 3500 | 3545 | rival | 12 | 26 | 16 | 1 | breached |
-| 4000 | 4045 | rival | 12 | 26 | 14 | 1 | breached |
-| 4500 | 4545 | rival | 12 | 24 | 15 | 1 | breached |
-| 5000 | 5045 | rival | 12 | 29 | 17 | 1 | breached |
-| 5500 | 5545 | rival | 12 | 27 | 18 | 1 | breached |
-| 6000 | 6045 | rival | 12 | 26 | 15 | 1 | breached |
-| 6500 | 6545 | rival | 12 | 29 | 19 | 1 | breached |
-| 7000 | 7045 | rival | 12 | 25 | 13 | 1 | breached |
-| 7500 | 7545 | rival | 12 | 27 | 15 | 1 | breached |
-| 8000 | 8045 | rival | 12 | 25 | 10 | 1 | breached |
-| 8500 | 8545 | rival | 12 | 28 | 14 | 1 | breached |
-| 9000 | 9045 | rival | 12 | 24 | 6 | 1 | breached |
-| 9500 | 9545 | rival | 12 | 26 | 9 | 1 | breached |
-| 10000 | 10045 | rival | 12 | 25 | 6 | 1 | breached |
-| 10500 | 10545 | rival | 12 | 26 | 7 | 1 | breached |
-| 11000 | 11045 | rival | 12 | 27 | 7 | 1 | breached |
-| 11500 | 11545 | rival | 12 | 27 | 6 | 1 | breached |
+| 3000 | 3045 | rival | 12 | 26 | 23 | 1 | stands |
+| 4500 | 4545 | rival | 12 | 27 | 25 | 1 | stands |
+| 6000 | 6045 | rival | 12 | 25 | 22 | 1 | stands |
+| 7500 | 7545 | rival | 12 | 26 | 24 | 1 | stands |
+| 9000 | 9045 | rival | 12 | 24 | 21 | 1 | stands |
+| 10500 | 10545 | rival | 12 | 25 | 22 | 1 | stands |
 
 ### Actions tried
 
@@ -102,14 +70,14 @@ The bot keeps up to 24 militia at the hold (home + queued) and only sends column
 | build cottage | 2 | 2 | 0 | — |
 | build quarry | 2 | 1 | 25 | no free work plot ×1 |
 | build farm | 4 | 2 | 25 | no free work plot ×2 |
-| train militia x4 | 118 | 80 | 0 | cannot afford or queue full ×38 |
+| train militia x4 | 16 | 11 | 0 | cannot afford or queue full ×5 |
 | primer advance | 21 | 9 | 0 | sim said no (precheck passed) ×12 |
 | build walls | 2 | 1 | 100 | cannot afford ×1 |
 | build watchtower | 1 | 1 | 100 | — |
 | scout column | 1 | 1 | 200 | — |
-| gather quarry x2 militia | 7 | 6 | 3050 | march slots full ×1 |
-| gather field x2 militia | 99 | 97 | 275 | march slots full ×2 |
-| gather woodcut x2 militia | 13 | 12 | 1075 | march slots full ×1 |
+| gather quarry x2 militia | 1 | 0 | — | march slots full ×1 |
+| gather field x2 militia | 147 | 145 | 275 | march slots full ×2 |
+| gather woodcut x2 militia | 1 | 0 | — | march slots full ×1 |
 | march x3 militia | 2 | 1 | 425 | march slots full ×1 |
 | study husbandry | 1 | 1 | 300 | — |
 
@@ -126,13 +94,14 @@ None. Checked each turn: tick advances, resources finite and ≥ 0, unit counts 
 - Resources: gold 100, food 199, wood 150, stone 150
 - Peak during run: gold 100, food 199, wood 150, stone 150
 - Buildings: farm ×3, lumber_camp ×1, cottage ×2, quarry ×1, walls ×1, watchtower ×1
-- Player units: militia ×26
-- Population 6 / beds 6; columns out: 0 marches, 1 gathers
+- Player units: militia ×28
+- Population 6 / beds 6; columns out: 0 marches, 0 gathers
 
 ### Notes for later
 
-- Home was marched on 23 time(s) (first launched at tick 1000; war on the player first seen at tick 100). Militia trained 320, alive at end 28 (292 lost). Balance question: can a fresh crown hold any levy?
-- Hold defense: 0/22 raid(s) held. After the last raid (tick 11545) 6 militia were home and the hold was breached.
+- Never succeeded: gather quarry x2 militia, gather woodcut x2 militia.
+- Home was marched on 7 time(s) (first launched at tick 3000; war on the player first seen at tick 100). Militia trained 44, alive at end 28 (16 lost). Balance question: can a fresh crown hold any levy?
+- Hold defense: 6/6 raid(s) held. After the last raid (tick 10545) 22 militia were home and the hold still stands.
 - Out of scope for this bot: UI, audio, keep rooms, map render. Those still need a human pass.
 <!-- sim-playtest:end -->
 

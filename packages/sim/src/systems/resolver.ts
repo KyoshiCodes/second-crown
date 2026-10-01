@@ -67,10 +67,12 @@ function pickTarget(attacker: Stack, foes: Stack[], roll: number): Stack {
   return pool[Math.min(pool.length - 1, Math.floor(roll * pool.length))] ?? live[0];
 }
 
+/** `wallSoak`: damage the defender's walls absorb before blows reach the defending stacks. */
 export function resolveRounds(
   atk: Stack[],
   def: Stack[],
-  rng: RngStreams
+  rng: RngStreams,
+  wallSoak = 0
 ): { attackerWins: boolean; events: BattleEvent[]; rounds: number } {
   const events: BattleEvent[] = [{ round: 0, kind: "open", text: "Lines close." }];
   if (living(atk).length === 0 && living(def).length === 0) {
@@ -86,6 +88,7 @@ export function resolveRounds(
     return { attackerWins: true, events, rounds: 0 };
   }
 
+  let wall = Math.max(0, wallSoak);
   let rounds = 0;
   for (let r = 1; r <= MAX_ROUNDS; r++) {
     rounds = r;
@@ -101,7 +104,14 @@ export function resolveRounds(
       const match = matchupModifier(s.role, target.role);
       const raw = s.attack * s.count * match * swing;
       const soak = Math.max(1, target.defense * Math.max(1, target.count) * 0.35);
-      const dmg = Math.max(1, raw / soak) * 4;
+      let dmg = Math.max(1, raw / soak) * 4;
+      if (wall > 0 && foes === def) {
+        const taken = Math.min(wall, dmg);
+        wall -= taken;
+        dmg -= taken;
+        if (wall <= 0) events.push({ round: r, kind: "hit", text: "The walls give way." });
+        if (dmg <= 0) continue;
+      }
       const before = target.count;
       target.hp = Math.max(0, target.hp - dmg);
       target.count = target.hpEach > 0 ? Math.ceil(target.hp / target.hpEach) : 0;

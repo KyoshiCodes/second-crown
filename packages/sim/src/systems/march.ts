@@ -337,7 +337,10 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       status: "active" as const,
     };
     state.wars.push(war);
-    const result = resolveBattle(state, war, rng);
+    const result = resolveBattle(state, war, rng, {
+      wallSoak: wallHp(state, "player"),
+      attackerForce: march.force ?? { militia: levy },
+    });
     return noteMarch(state, result.winnerId === "player" ? "Siege broken." : "The hold is breached.");
   }
   if (dest.occupantRealmId && dest.occupantRealmId !== march.realmId && dest.node !== "camp") {

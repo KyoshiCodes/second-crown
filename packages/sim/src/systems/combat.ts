@@ -8,7 +8,7 @@ import { fortifyPower } from "./court.js";
 import { absorbBattleCasualties } from "./ward.js";
 import { takePlunder } from "./vault.js";
 import { masonryWallBonus } from "./research.js";
-import { resolveRounds, stacksFor, writeStacks, type BattleEvent } from "./resolver.js";
+import { resolveRounds, stacksFor, writeStacks, type BattleEvent, type Stack } from "./resolver.js";
 import { applyMarshalBonuses, playerMarshal } from "./marshal.js";
 import { recordCrown } from "./ledger.js";
 import { writeLastBattle } from "./lastBattle.js";
@@ -73,18 +73,57 @@ function realmName(state: GameState, id: string): string {
   return state.realms.find((r) => r.id === id)?.name ?? id;
 }
 
-export function resolveBattle(state: GameState, war: War, rng: RngStreams): BattleResult {
-  const atk = realmPower(state, war.attackerRealmId);
-  const def = realmPower(state, war.defenderRealmId) + defenseBonus(state, war.defenderRealmId);
+export interface BattleOptions {
+  /** Wall HP that absorbs blows meant for the defender before they reach its stacks (home sieges). */
+  wallSoak?: number;
+  /** Fight only this column of the attacker (by unit type), not the attacker's whole realm. */
+  attackerForce?: Record<string, number>;
+}
 
+function columnStacks(stacks: Stack[], force: Record<string, number>): Stack[] {
+  const out: Stack[] = [];
+  for (const s of stacks) {
+    const count = Math.min(s.count, Math.max(0, Math.floor(force[s.typeId] ?? 0)));
+    if (count > 0) out.push({ ...s, count, hp: count * s.hpEach });
+  }
+  return out;
+}
+
+function stacksPower(stacks: Stack[]): number {
+  return stacks.reduce((n, s) => n + (getUnitType(s.typeId)?.power ?? 0) * s.count, 0);
+}
+
+/** Column losses come off the realm's units; the rest of the realm stays home. */
+function writeColumnLosses(state: GameState, before: Stack[], after: Stack[]): void {
+  for (const s of after) {
+    const start = before.find((b) => b.typeId === s.typeId)?.count ?? s.count;
+    const lost = Math.max(0, start - s.count);
+    const u = state.units.find((x) => x.realmId === s.realmId && x.typeId === s.typeId);
+    if (u && lost > 0) u.count = String(Math.max(0, Math.floor(D(u.count).toNumber()) - lost));
+  }
+  state.units = state.units.filter((x) => D(x.count).gt(0));
+}
+
+export function resolveBattle(state: GameState, war: War, rng: RngStreams, opts: BattleOptions = {}): BattleResult {
+  const column = opts.attackerForce;
   const beforePlayer = countRealm(state, "player");
-  const atkStacks = stacksFor(state, war.attackerRealmId);
+  const atkStacks = column
+    ? columnStacks(stacksFor(state, war.attackerRealmId), column)
+    : stacksFor(state, war.attackerRealmId);
+  const atkStart = atkStacks.map((s) => ({ ...s }));
+  const atk = column ? stacksPower(atkStacks) : realmPower(state, war.attackerRealmId);
+  const def = realmPower(state, war.defenderRealmId) + defenseBonus(state, war.defenderRealmId);
   const defStacks = stacksFor(state, war.defenderRealmId);
   const marshal = playerMarshal(state);
   if (war.attackerRealmId === "player") applyMarshalBonuses(atkStacks, marshal);
   if (war.defenderRealmId === "player") applyMarshalBonuses(defStacks, marshal);
-  const fought = resolveRounds(atkStacks, defStacks, rng);
-  writeStacks(state, [...atkStacks, ...defStacks]);
+  const fought = resolveRounds(atkStacks, defStacks, rng, opts.wallSoak ?? 0);
+  if (column) {
+    writeStacks(state, defStacks);
+    writeColumnLosses(state, atkStart, atkStacks);
+  } else {
+    writeStacks(state, [...atkStacks, ...defStacks]);
+  }
 
   const attackerWins = fought.attackerWins;
   const winnerId = attackerWins ? war.attackerRealmId : war.defenderRealmId;
