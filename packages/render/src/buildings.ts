@@ -3649,7 +3649,8 @@ function drawWatchtowerCulture(
   kit: CultureKit,
   cult: CultureVisualPalette,
   complete: boolean = true,
-  isRim: boolean = false
+  isRim: boolean = false,
+  isStaffed: boolean = true
 ): void {
   if (!complete) {
     drawWatchtowerScaffolding(g, h, a, phase, kit, cult, isRim);
@@ -3676,26 +3677,35 @@ function drawWatchtowerCulture(
     g.poly([-8, -h - 2, 0, -h - 16, 8, -h - 2]);
     g.fill({ color: 0x654321, alpha: a });
 
-    // Cedar Beacon Cage & Signal Fire
-    const fPuff = Math.sin(phase * 6) * 1.2;
+    // Cedar Beacon Cage
     g.rect(-3.5, -h - 17, 7, 2); g.fill({ color: 0x27272a, alpha: a });
-    g.circle(0, -h - 18, 2.5 + fPuff * 0.2); g.fill({ color: 0xea580c, alpha: a });
-    g.circle(0, -h - 18, 1.2); g.fill({ color: 0xfacc15, alpha: a });
-    if (isRim) {
-      g.ellipse(0, -h - 18, 7.5, 4.2); g.fill({ color: 0xfde047, alpha: 0.18 * a });
+
+    if (isStaffed) {
+      // Clear, radiant beacon fire with animated flame tongues
+      const fPuff = Math.sin(phase * 6) * 1.2;
+      g.circle(0, -h - 18, 2.5 + fPuff * 0.2); g.fill({ color: 0xea580c, alpha: a });
+      g.circle(0, -h - 18, 1.2); g.fill({ color: 0xfacc15, alpha: a });
+      if (isRim) {
+        g.ellipse(0, -h - 18, 7.5, 4.2); g.fill({ color: 0xfde047, alpha: 0.18 * a });
+      }
+
+      g.circle(-5, -h, 1.6); g.fill({ color: 0xd97706, alpha: a });
+
+      // Gold Glint: 4-point diamond star spark atop cedar lookout mast
+      const cGlintPhase = phase * 4.2;
+      const cGlint = 0.45 + 0.55 * Math.sin(cGlintPhase);
+      const cGlintY = -h - 20;
+      g.poly([0, cGlintY - 3.2 * cGlint, 0.8 * cGlint, cGlintY, 0, cGlintY + 3.2 * cGlint, -0.8 * cGlint, cGlintY]);
+      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+      g.poly([-3.2 * cGlint, cGlintY, 0, cGlintY - 0.8 * cGlint, 3.2 * cGlint, cGlintY, 0, cGlintY + 0.8 * cGlint]);
+      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+      g.circle(0, cGlintY, 0.9 * cGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
+    } else {
+      // Unstaffed / No worker: beacon unlit / cold. Cold charcoal bed & grey ash in cedar cage
+      g.rect(-2.8, -h - 17.5, 5.6, 1.4); g.fill({ color: 0x18181b, alpha: 0.9 * a });
+      g.ellipse(0, -h - 17.2, 2.0, 0.8); g.fill({ color: 0x3f3f46, alpha: 0.7 * a });
+      g.circle(-5, -h, 1.6); g.fill({ color: 0xd97706, alpha: a });
     }
-
-    g.circle(-5, -h, 1.6); g.fill({ color: 0xd97706, alpha: a });
-
-    // Gold Glint: 4-point diamond star spark atop cedar lookout mast
-    const cGlintPhase = phase * 4.2;
-    const cGlint = 0.45 + 0.55 * Math.sin(cGlintPhase);
-    const cGlintY = -h - 20;
-    g.poly([0, cGlintY - 3.2 * cGlint, 0.8 * cGlint, cGlintY, 0, cGlintY + 3.2 * cGlint, -0.8 * cGlint, cGlintY]);
-    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
-    g.poly([-3.2 * cGlint, cGlintY, 0, cGlintY - 0.8 * cGlint, 3.2 * cGlint, cGlintY, 0, cGlintY + 0.8 * cGlint]);
-    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
-    g.circle(0, cGlintY, 0.9 * cGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
 
   } else if (kit === "sand") {
     // Sand Banner: Slender Sandstone Minaret with Openwork Balcony
@@ -3721,22 +3731,30 @@ function drawWatchtowerCulture(
     const sWave = Math.sin(phase * 4) * 2;
     g.moveTo(0, -h - 15); g.lineTo(8 + sWave, -h - 11);
     g.stroke({ width: 1.2, color: 0xdc2626, alpha: a });
-    if (isRim) {
-      const flame = Math.sin(phase * 6) * 1.2;
-      g.circle(0, -h - 17, 2.2 + flame * 0.25); g.fill({ color: 0xf97316, alpha: a });
-      g.circle(0, -h - 17, 1.0); g.fill({ color: 0xfef08a, alpha: a });
-      g.ellipse(0, -h - 17, 6.5, 3.8); g.fill({ color: 0xfde047, alpha: a * 0.16 });
-    }
 
-    // Gold Glint: 4-point diamond star spark atop minaret finial
-    const sGlintPhase = phase * 4.2;
-    const sGlint = 0.45 + 0.55 * Math.sin(sGlintPhase);
-    const sGlintY = -h - 18;
-    g.poly([0, sGlintY - 3.2 * sGlint, 0.8 * sGlint, sGlintY, 0, sGlintY + 3.2 * sGlint, -0.8 * sGlint, sGlintY]);
-    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
-    g.poly([-3.2 * sGlint, sGlintY, 0, sGlintY - 0.8 * sGlint, 3.2 * sGlint, sGlintY, 0, sGlintY + 0.8 * sGlint]);
-    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
-    g.circle(0, sGlintY, 0.9 * sGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
+    if (isStaffed) {
+      if (isRim) {
+        const flame = Math.sin(phase * 6) * 1.2;
+        g.circle(0, -h - 17, 2.2 + flame * 0.25); g.fill({ color: 0xf97316, alpha: a });
+        g.circle(0, -h - 17, 1.0); g.fill({ color: 0xfef08a, alpha: a });
+        g.ellipse(0, -h - 17, 6.5, 3.8); g.fill({ color: 0xfde047, alpha: a * 0.16 });
+      }
+
+      // Gold Glint: 4-point diamond star spark atop minaret finial
+      const sGlintPhase = phase * 4.2;
+      const sGlint = 0.45 + 0.55 * Math.sin(sGlintPhase);
+      const sGlintY = -h - 18;
+      g.poly([0, sGlintY - 3.2 * sGlint, 0.8 * sGlint, sGlintY, 0, sGlintY + 3.2 * sGlint, -0.8 * sGlint, sGlintY]);
+      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+      g.poly([-3.2 * sGlint, sGlintY, 0, sGlintY - 0.8 * sGlint, 3.2 * sGlint, sGlintY, 0, sGlintY + 0.8 * sGlint]);
+      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+      g.circle(0, sGlintY, 0.9 * sGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
+    } else {
+      if (isRim) {
+        // Unstaffed / No worker: beacon unlit / cold. Cold dark unlit lantern cupola
+        g.circle(0, -h - 17, 1.8); g.fill({ color: 0x291405, alpha: 0.85 * a });
+      }
+    }
 
   } else if (kit === "steppe") {
     // Wind Host: Nomad Timber Lookout Scaffolding & Signal Smoke Pylon
@@ -3754,31 +3772,44 @@ function drawWatchtowerCulture(
     g.rect(-6, -h - 2, 12, 6); g.fill({ color: 0x854d0e, alpha: a });
     g.stroke({ width: 1, color: 0x291807, alpha: a });
 
-    // Signal Beacon Coals & Billowing Signal Smoke
-    const sPuff = Math.sin(phase * 3) * 2;
-    g.circle(0, -h - 8 + sPuff, 3); g.fill({ color: 0x3f3f46, alpha: 0.5 * a });
-    g.circle(2, -h - 14 + sPuff, 4); g.fill({ color: 0x27272a, alpha: 0.35 * a });
+    if (isStaffed) {
+      // Signal Beacon Coals & Billowing Signal Smoke
+      const sPuff = Math.sin(phase * 3) * 2;
+      g.circle(0, -h - 8 + sPuff, 3); g.fill({ color: 0x3f3f46, alpha: 0.5 * a });
+      g.circle(2, -h - 14 + sPuff, 4); g.fill({ color: 0x27272a, alpha: 0.35 * a });
 
-    g.moveTo(5, -h - 2); g.lineTo(5, -h - 12);
-    g.stroke({ width: 1.2, color: 0x291807, alpha: a });
-    g.circle(5, -h - 12, 1.4); g.fill({ color: 0xdc2626, alpha: a });
+      g.moveTo(5, -h - 2); g.lineTo(5, -h - 12);
+      g.stroke({ width: 1.2, color: 0x291807, alpha: a });
+      g.circle(5, -h - 12, 1.4); g.fill({ color: 0xdc2626, alpha: a });
 
-    if (isRim) {
-      // Elevated beacon brazier on rim
-      g.rect(-2.5, -h - 4, 5, 2.5); g.fill({ color: 0x1c1917, alpha: a });
-      g.circle(0, -h - 4, 1.6); g.fill({ color: 0xea580c, alpha: a });
-      g.circle(0, -h - 4, 0.8); g.fill({ color: 0xfacc15, alpha: a });
+      if (isRim) {
+        // Elevated beacon brazier on rim
+        g.rect(-2.5, -h - 4, 5, 2.5); g.fill({ color: 0x1c1917, alpha: a });
+        g.circle(0, -h - 4, 1.6); g.fill({ color: 0xea580c, alpha: a });
+        g.circle(0, -h - 4, 0.8); g.fill({ color: 0xfacc15, alpha: a });
+      }
+
+      // Gold Glint: 4-point diamond star spark atop pylon standard
+      const stGlintPhase = phase * 4.2;
+      const stGlint = 0.45 + 0.55 * Math.sin(stGlintPhase);
+      const stGlintY = -h - 14;
+      g.poly([5, stGlintY - 3.0 * stGlint, 5 + 0.8 * stGlint, stGlintY, 5, stGlintY + 3.0 * stGlint, 5 - 0.8 * stGlint, stGlintY]);
+      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+      g.poly([5 - 3.0 * stGlint, stGlintY, 5, stGlintY - 0.8 * stGlint, 5 + 3.0 * stGlint, stGlintY, 5, stGlintY + 0.8 * stGlint]);
+      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+      g.circle(5, stGlintY, 0.8 * stGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
+    } else {
+      // Unstaffed / No worker: beacon unlit / cold. Cold dark hearth pit on pylon platform
+      g.ellipse(0, -h - 2, 2.5, 1.2); g.fill({ color: 0x1c1917, alpha: 0.85 * a });
+      g.moveTo(5, -h - 2); g.lineTo(5, -h - 12);
+      g.stroke({ width: 1.2, color: 0x291807, alpha: a });
+      g.circle(5, -h - 12, 1.4); g.fill({ color: 0x78716c, alpha: a });
+
+      if (isRim) {
+        g.rect(-2.5, -h - 4, 5, 2.5); g.fill({ color: 0x1c1917, alpha: a });
+        g.ellipse(0, -h - 4.5, 2.0, 0.8); g.fill({ color: 0x292524, alpha: a });
+      }
     }
-
-    // Gold Glint: 4-point diamond star spark atop pylon standard
-    const stGlintPhase = phase * 4.2;
-    const stGlint = 0.45 + 0.55 * Math.sin(stGlintPhase);
-    const stGlintY = -h - 14;
-    g.poly([5, stGlintY - 3.0 * stGlint, 5 + 0.8 * stGlint, stGlintY, 5, stGlintY + 3.0 * stGlint, 5 - 0.8 * stGlint, stGlintY]);
-    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
-    g.poly([5 - 3.0 * stGlint, stGlintY, 5, stGlintY - 0.8 * stGlint, 5 + 3.0 * stGlint, stGlintY, 5, stGlintY + 0.8 * stGlint]);
-    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
-    g.circle(5, stGlintY, 0.8 * stGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
 
   } else if (kit === "islands") {
     // Tide Clans: Driftwood & Bamboo Lighthouse Tower
@@ -3793,24 +3824,31 @@ function drawWatchtowerCulture(
     g.poly([-7, -h - 2, 0, -h - 14, 7, -h - 2]);
     g.fill({ color: 0xd97706, alpha: a });
 
-    // Nautical Beacon Light
-    g.circle(0, -h - 4, 2.8); g.fill({ color: 0x06b6d4, alpha: a * 0.9 });
-    g.circle(0, -h - 4, 1.4); g.fill({ color: 0xffffff, alpha: a });
-    if (isRim) {
-      g.ellipse(0, -h - 4, 8, 4.5); g.fill({ color: 0x38bdf8, alpha: 0.22 * a });
+    if (isStaffed) {
+      // Nautical Beacon Light
+      g.circle(0, -h - 4, 2.8); g.fill({ color: 0x06b6d4, alpha: a * 0.9 });
+      g.circle(0, -h - 4, 1.4); g.fill({ color: 0xffffff, alpha: a });
+      if (isRim) {
+        g.ellipse(0, -h - 4, 8, 4.5); g.fill({ color: 0x38bdf8, alpha: 0.22 * a });
+      }
+
+      g.circle(-4, -h, 1.4); g.fill({ color: 0xfef08a, alpha: a });
+
+      // Gold Glint: 4-point diamond star spark on brass nautical lantern cupola
+      const isGlintPhase = phase * 4.2;
+      const isGlint = 0.45 + 0.55 * Math.sin(isGlintPhase);
+      const isGlintY = -h - 16;
+      g.poly([0, isGlintY - 3.2 * isGlint, 0.8 * isGlint, isGlintY, 0, isGlintY + 3.2 * isGlint, -0.8 * isGlint, isGlintY]);
+      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+      g.poly([-3.2 * isGlint, isGlintY, 0, isGlintY - 0.8 * isGlint, 3.2 * isGlint, isGlintY, 0, isGlintY + 0.8 * isGlint]);
+      g.circle(0, isGlintY, 0.9 * isGlint);
+      g.fill({ color: 0xffffff, alpha: 0.95 * a });
+    } else {
+      // Unstaffed / No worker: beacon unlit / cold. Cold dark nautical lantern glass
+      g.circle(0, -h - 4, 2.2); g.fill({ color: 0x0f172a, alpha: 0.85 * a });
+      g.circle(0, -h - 4, 1.0); g.fill({ color: 0x1e293b, alpha: 0.7 * a });
+      g.circle(-4, -h, 1.4); g.fill({ color: 0x64748b, alpha: a });
     }
-
-    g.circle(-4, -h, 1.4); g.fill({ color: 0xfef08a, alpha: a });
-
-    // Gold Glint: 4-point diamond star spark on brass nautical lantern cupola
-    const isGlintPhase = phase * 4.2;
-    const isGlint = 0.45 + 0.55 * Math.sin(isGlintPhase);
-    const isGlintY = -h - 16;
-    g.poly([0, isGlintY - 3.2 * isGlint, 0.8 * isGlint, isGlintY, 0, isGlintY + 3.2 * isGlint, -0.8 * isGlint, isGlintY]);
-    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
-    g.poly([-3.2 * isGlint, isGlintY, 0, isGlintY - 0.8 * isGlint, 3.2 * isGlint, isGlintY, 0, isGlintY + 0.8 * isGlint]);
-    g.fill({ color: 0xfacc15, alpha: 0.95 * a });
-    g.circle(0, isGlintY, 0.9 * isGlint); g.fill({ color: 0xffffff, alpha: 0.95 * a });
   }
 }
 
@@ -4473,6 +4511,70 @@ export function holdHasPeople(state?: GameState | null, realmId = "player"): boo
   return false;
 }
 
+/**
+ * Determines whether a building has assigned workers / staff.
+ * Checks explicit flags on the building object, assigned citizens in state.citizens,
+ * or sim.staffBonus.
+ */
+export function isBuildingStaffed(
+  state?: GameState | null,
+  buildingOrCoords?: { x?: number; y?: number; id?: string; realmId?: string; typeId?: string; completesAtTick?: number | null } | { x: number; y: number } | null,
+  gx?: number,
+  gy?: number
+): boolean {
+  if (!state) return false;
+
+  let x = gx ?? 0;
+  let y = gy ?? 0;
+  let realmId: string | undefined = undefined;
+  let bObj: any = null;
+
+  if (buildingOrCoords) {
+    x = buildingOrCoords.x ?? x;
+    y = buildingOrCoords.y ?? y;
+    realmId = (buildingOrCoords as any).realmId;
+    bObj = buildingOrCoords;
+  }
+
+  // If bObj has no ID, look up building in state.buildings by coordinates
+  if ((!bObj || !bObj.id) && Array.isArray(state.buildings)) {
+    const found = state.buildings.find((b) => b.x === x && b.y === y);
+    if (found) {
+      bObj = found;
+      realmId = realmId ?? found.realmId;
+    }
+  }
+
+  if (bObj) {
+    if (typeof bObj.isStaffed === "boolean") return bObj.isStaffed;
+    if (typeof bObj.hasWorker === "boolean") return bObj.hasWorker;
+    if (typeof bObj.staffed === "boolean") return bObj.staffed;
+    if (typeof bObj.workers === "number") return bObj.workers > 0;
+    if (typeof bObj.workerCount === "number") return bObj.workerCount > 0;
+  }
+
+  // Check state.citizens: any citizen assigned to this tile
+  if (Array.isArray(state.citizens)) {
+    const citizen = state.citizens.find((c) => {
+      if (realmId && c.realmId && c.realmId !== realmId) return false;
+      if (!c.tile || c.tile.x !== x || c.tile.y !== y) return false;
+      return c.job && c.job !== "unassigned";
+    });
+    if (citizen) return true;
+  }
+
+  // Check sim.staffBonus if available
+  if (bObj && typeof sim.staffBonus === "function") {
+    try {
+      if (sim.staffBonus(state, bObj) > 1) return true;
+    } catch {
+      // Ignore errors on mock states
+    }
+  }
+
+  return false;
+}
+
 export interface BuildingDrawOptions {
   wallHpRatio?: number;
   isDamaged?: boolean;
@@ -4480,6 +4582,9 @@ export interface BuildingDrawOptions {
   isRingClosed?: boolean;
   state?: GameState;
   hasPeople?: boolean;
+  isStaffed?: boolean;
+  hasWorker?: boolean;
+  staffed?: boolean;
 }
 
 // -------------------------------------------------------------
@@ -4513,6 +4618,15 @@ export function drawIsometricBuilding(
   const hasPeople = Boolean(
     options?.hasPeople ??
     (options?.state ? holdHasPeople(options.state) : true)
+  );
+
+  const isStaffed = Boolean(
+    options?.isStaffed ??
+    options?.hasWorker ??
+    options?.staffed ??
+    (options?.state
+      ? isBuildingStaffed(options.state, { x: gx, y: gy, typeId }, gx, gy)
+      : true)
   );
 
   const a = 1.0;
@@ -5426,7 +5540,7 @@ export function drawIsometricBuilding(
       }
 
       if (kit !== "western") {
-        drawWatchtowerCulture(g, h, a, phase, kit, cult, complete, isRim);
+        drawWatchtowerCulture(g, h, a, phase, kit, cult, complete, isRim, isStaffed);
         break;
       }
 
@@ -5463,28 +5577,39 @@ export function drawIsometricBuilding(
       g.rect(-3.5, -h - 17, 7, 2.5);
       g.fill({ color: 0x1e293b, alpha: a });
 
-      // Clear, radiant beacon fire with animated flame tongues
-      const flame = Math.sin(phase * 6) * 1.5;
-      g.circle(0, -h - 18, 2.6 + flame * 0.3);
-      g.fill({ color: 0xf97316, alpha: a });
-      g.circle(0, -h - 18.5, 1.3);
-      g.fill({ color: 0xfacc15, alpha: a });
-      g.circle(0, -h - 19, 0.6);
-      g.fill({ color: 0xffffff, alpha: 0.9 * a });
+      if (isStaffed) {
+        // Clear, radiant beacon fire with animated flame tongues
+        const flame = Math.sin(phase * 6) * 1.5;
+        g.circle(0, -h - 18, 2.6 + flame * 0.3);
+        g.fill({ color: 0xf97316, alpha: a });
+        g.circle(0, -h - 18.5, 1.3);
+        g.fill({ color: 0xfacc15, alpha: a });
+        g.circle(0, -h - 19, 0.6);
+        g.fill({ color: 0xffffff, alpha: 0.9 * a });
 
-      // Radiant warm beacon glow halo & ember spark
-      if (isRim) {
-        // Taller rim beacon has radiant warm beacon glow and ember spark
-        g.ellipse(0, -h - 18, 8.0 + Math.sin(phase * 4) * 1.2, 4.8 + Math.sin(phase * 4) * 0.7);
-        g.fill({ color: 0xfde047, alpha: 0.2 * a });
-        g.circle(Math.sin(phase * 5) * 1.8, -h - 22, 0.7);
-        g.fill({ color: 0xfef08a, alpha: 0.85 * a });
+        // Radiant warm beacon glow halo & ember spark
+        if (isRim) {
+          // Taller rim beacon has radiant warm beacon glow and ember spark
+          g.ellipse(0, -h - 18, 8.0 + Math.sin(phase * 4) * 1.2, 4.8 + Math.sin(phase * 4) * 0.7);
+          g.fill({ color: 0xfde047, alpha: 0.2 * a });
+          g.circle(Math.sin(phase * 5) * 1.8, -h - 22, 0.7);
+          g.fill({ color: 0xfef08a, alpha: 0.85 * a });
+        } else {
+          // Clear interior beacon glow halo & ember spark
+          g.ellipse(0, -h - 18, 5.5 + Math.sin(phase * 4) * 0.8, 3.2 + Math.sin(phase * 4) * 0.5);
+          g.fill({ color: 0xfde047, alpha: 0.15 * a });
+          g.circle(Math.sin(phase * 5) * 1.4, -h - 21, 0.5);
+          g.fill({ color: 0xfef08a, alpha: 0.8 * a });
+        }
       } else {
-        // Clear interior beacon glow halo & ember spark
-        g.ellipse(0, -h - 18, 5.5 + Math.sin(phase * 4) * 0.8, 3.2 + Math.sin(phase * 4) * 0.5);
-        g.fill({ color: 0xfde047, alpha: 0.15 * a });
-        g.circle(Math.sin(phase * 5) * 1.4, -h - 21, 0.5);
-        g.fill({ color: 0xfef08a, alpha: 0.8 * a });
+        // Unstaffed / No worker: beacon unlit / cold. Cold dark charcoal & grey ash in brazier basket.
+        g.rect(-2.8, -h - 17.5, 5.6, 1.6);
+        g.fill({ color: 0x0f172a, alpha: 0.9 * a });
+        g.ellipse(0, -h - 17.2, 2.2, 1.0);
+        g.fill({ color: 0x334155, alpha: 0.8 * a });
+        // Faint cold charcoal/ash fleck
+        g.circle(-0.8, -h - 17.5, 0.5);
+        g.fill({ color: 0x475569, alpha: 0.7 * a });
       }
 
       // Royal Pennant
@@ -5500,40 +5625,42 @@ export function drawIsometricBuilding(
       g.circle(0, pennantTop, 1.4);
       g.fill({ color: 0xf59e0b, alpha: a });
 
-      // Gold Glint: sparkling 4-point diamond star atop the watchtower beacon spire
-      const glintPhase = phase * 4.2 + (gx * 1.7 + gy * 2.3);
-      const glintScale = 0.45 + 0.55 * Math.abs(Math.sin(glintPhase));
-      const glintX = 0;
-      const glintY = pennantTop - 1.5;
-      const rayL = (isRim ? 4.2 : 3.4) * glintScale;
-      const rayW = 1.0 * glintScale;
+      if (isStaffed) {
+        // Gold Glint: sparkling 4-point diamond star atop the watchtower beacon spire
+        const glintPhase = phase * 4.2 + (gx * 1.7 + gy * 2.3);
+        const glintScale = 0.45 + 0.55 * Math.abs(Math.sin(glintPhase));
+        const glintX = 0;
+        const glintY = pennantTop - 1.5;
+        const rayL = (isRim ? 4.2 : 3.4) * glintScale;
+        const rayW = 1.0 * glintScale;
 
-      // Vertical glint ray diamond
-      g.poly([
-        glintX, glintY - rayL,
-        glintX + rayW, glintY,
-        glintX, glintY + rayL,
-        glintX - rayW, glintY,
-      ]);
-      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+        // Vertical glint ray diamond
+        g.poly([
+          glintX, glintY - rayL,
+          glintX + rayW, glintY,
+          glintX, glintY + rayL,
+          glintX - rayW, glintY,
+        ]);
+        g.fill({ color: 0xfacc15, alpha: 0.95 * a });
 
-      // Horizontal glint ray diamond
-      g.poly([
-        glintX - rayL, glintY,
-        glintX, glintY - rayW,
-        glintX + rayL, glintY,
-        glintX, glintY + rayW,
-      ]);
-      g.fill({ color: 0xfacc15, alpha: 0.95 * a });
+        // Horizontal glint ray diamond
+        g.poly([
+          glintX - rayL, glintY,
+          glintX, glintY - rayW,
+          glintX + rayL, glintY,
+          glintX, glintY + rayW,
+        ]);
+        g.fill({ color: 0xfacc15, alpha: 0.95 * a });
 
-      // Brilliant white core spark
-      g.circle(glintX, glintY, 1.0 * glintScale);
-      g.fill({ color: 0xffffff, alpha: 0.95 * a });
+        // Brilliant white core spark
+        g.circle(glintX, glintY, 1.0 * glintScale);
+        g.fill({ color: 0xffffff, alpha: 0.95 * a });
 
-      // Brazier rim gold glint spark
-      const brazierGlint = 0.5 + 0.5 * Math.sin(glintPhase + 1.8);
-      g.circle(2.6, -h - 16.5, 0.7 * brazierGlint);
-      g.fill({ color: 0xfef08a, alpha: 0.9 * a });
+        // Brazier rim gold glint spark
+        const brazierGlint = 0.5 + 0.5 * Math.sin(glintPhase + 1.8);
+        g.circle(2.6, -h - 16.5, 0.7 * brazierGlint);
+        g.fill({ color: 0xfef08a, alpha: 0.9 * a });
+      }
       break;
     }
 

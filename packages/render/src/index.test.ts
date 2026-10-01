@@ -79,6 +79,7 @@ import {
   parsePlotCoord,
   drawPlotGlowRing,
   ROAD_TILES,
+  isBuildingStaffed,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -6951,6 +6952,193 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
             const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
 
             expect(indexCode).toContain('plotStakesLayer.eventMode = "none"');
+            expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+
+            const files = ["buildings.ts", "tokens.ts", "tiles.ts", "index.ts"];
+            for (const f of files) {
+              const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+              expect(code).not.toContain("<<<<<<<");
+              expect(code).not.toContain("=======");
+              expect(code).not.toContain(">>>>>>>");
+            }
+          });
+        });
+
+        describe("bakeoff/gemini-tower-unlit: finished watchtower unlit/cold beacon when no worker, beacon on when staffed", () => {
+          const visuals = getThemeVisuals("spring");
+
+          it("isBuildingStaffed correctly identifies worker assignment across states, citizens, and flags", () => {
+            expect(isBuildingStaffed(null, { x: 0, y: 0 })).toBe(false);
+            expect(isBuildingStaffed(undefined, { x: 0, y: 0 })).toBe(false);
+
+            const state = createMockState();
+            state.buildings = [
+              { id: "wt1", typeId: "watchtower", realmId: "player", x: 2, y: 2, level: 1, completesAtTick: null },
+              { id: "wt2", typeId: "watchtower", realmId: "player", x: 0, y: 4, level: 1, completesAtTick: null },
+            ];
+
+            // Initially no citizens -> unstaffed
+            expect(isBuildingStaffed(state, state.buildings[0])).toBe(false);
+            expect(isBuildingStaffed(state, { x: 2, y: 2 })).toBe(false);
+
+            // Citizen with matching tile and guard job
+            state.citizens = [
+              { id: "c1", realmId: "player", job: "guard", tile: { x: 2, y: 2 } },
+            ];
+            expect(isBuildingStaffed(state, state.buildings[0])).toBe(true);
+            expect(isBuildingStaffed(state, { x: 2, y: 2 })).toBe(true);
+            expect(isBuildingStaffed(state, state.buildings[1])).toBe(false);
+
+            // Unassigned citizen or null tile does not staff
+            state.citizens = [
+              { id: "c2", realmId: "player", job: "unassigned", tile: { x: 0, y: 4 } },
+              { id: "c3", realmId: "player", job: "guard", tile: null },
+            ];
+            expect(isBuildingStaffed(state, state.buildings[1])).toBe(false);
+
+            // Explicit flags on building object override
+            expect(isBuildingStaffed(state, { x: 5, y: 5, isStaffed: true })).toBe(true);
+            expect(isBuildingStaffed(state, { x: 5, y: 5, hasWorker: true })).toBe(true);
+            expect(isBuildingStaffed(state, { x: 5, y: 5, staffed: true })).toBe(true);
+            expect(isBuildingStaffed(state, { x: 5, y: 5, workers: 1 })).toBe(true);
+            expect(isBuildingStaffed(state, { x: 5, y: 5, isStaffed: false })).toBe(false);
+          });
+
+          it("finished Western watchtower renders clear beacon fire, halo, and gold glint when staffed", () => {
+            const g = createMockGraphics();
+            drawIsometricBuilding(g, "watchtower", 1, true, 0.5, visuals, 0, 4, undefined, "western", {
+              isStaffed: true,
+            });
+
+            // Active beacon fire tongues (0xf97316, 0xfacc15, 0xffffff)
+            const flames = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+            expect(flames.length).toBeGreaterThan(0);
+
+            // Radiant warm beacon glow halo (0xfde047)
+            const halos = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+            expect(halos.length).toBeGreaterThan(0);
+
+            // Gold glint diamond star (0xfacc15, 0xffffff)
+            const glints = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfacc15);
+            expect(glints.length).toBeGreaterThan(0);
+            const sparks = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xffffff);
+            expect(sparks.length).toBeGreaterThan(0);
+          });
+
+          it("finished Western watchtower renders cold unlit beacon when unstaffed (no worker)", () => {
+            const g = createMockGraphics();
+            drawIsometricBuilding(g, "watchtower", 1, true, 0.5, visuals, 0, 4, undefined, "western", {
+              isStaffed: false,
+            });
+
+            // Zero active beacon fire tongues
+            const flames = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+            expect(flames.length).toBe(0);
+
+            // Zero radiant warm beacon glow halo
+            const halos = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+            expect(halos.length).toBe(0);
+
+            // Cold charcoal & ash fills present in brazier basket (0x0f172a, 0x334155, 0x475569)
+            const coldAsh = g.calls.filter(
+              (c) =>
+                c.method === "fill" &&
+                (c.args[0]?.color === 0x0f172a || c.args[0]?.color === 0x334155 || c.args[0]?.color === 0x475569)
+            );
+            expect(coldAsh.length).toBeGreaterThan(0);
+          });
+
+          it("evaluates staffing dynamically from GameState when passed in options", () => {
+            const state = createMockState();
+            state.buildings = [
+              { id: "wt1", typeId: "watchtower", realmId: "player", x: 0, y: 4, level: 1, completesAtTick: null },
+              { id: "wt2", typeId: "watchtower", realmId: "player", x: 2, y: 2, level: 1, completesAtTick: null },
+            ];
+            // Assign worker only to wt1 at (0, 4)
+            state.citizens = [
+              { id: "c1", realmId: "player", job: "guard", tile: { x: 0, y: 4 } },
+            ];
+
+            const gStaffed = createMockGraphics();
+            drawIsometricBuilding(gStaffed, "watchtower", 1, true, 0.5, visuals, 0, 4, undefined, "western", {
+              state,
+            });
+
+            const gUnstaffed = createMockGraphics();
+            drawIsometricBuilding(gUnstaffed, "watchtower", 1, true, 0.5, visuals, 2, 2, undefined, "western", {
+              state,
+            });
+
+            // Staffed watchtower has flame tongues
+            const flamesStaffed = gStaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+            expect(flamesStaffed.length).toBeGreaterThan(0);
+
+            // Unstaffed watchtower has zero flames and zero halo
+            const flamesUnstaffed = gUnstaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+            expect(flamesUnstaffed.length).toBe(0);
+            const haloUnstaffed = gUnstaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+            expect(haloUnstaffed.length).toBe(0);
+          });
+
+          it("finished culture watchtowers render active beacon when staffed and cold unlit beacon when unstaffed", () => {
+            const kits = ["cedar", "sand", "steppe", "islands"] as const;
+            for (const kit of kits) {
+              const gStaffed = createMockGraphics();
+              drawIsometricBuilding(gStaffed, "watchtower", 1, true, 0.5, visuals, 0, 4, undefined, kit, {
+                isStaffed: true,
+              });
+
+              const gUnstaffed = createMockGraphics();
+              drawIsometricBuilding(gUnstaffed, "watchtower", 1, true, 0.5, visuals, 0, 4, undefined, kit, {
+                isStaffed: false,
+              });
+
+              // Staffed has gold glint / spark (0xfacc15)
+              const glintsStaffed = gStaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfacc15);
+              expect(glintsStaffed.length).toBeGreaterThan(0);
+
+              // Unstaffed suppresses active flame / cyan light / glowing coals
+              if (kit === "cedar") {
+                const flames = gUnstaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xea580c);
+                expect(flames.length).toBe(0);
+              } else if (kit === "sand") {
+                const flames = gUnstaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+                expect(flames.length).toBe(0);
+              } else if (kit === "steppe") {
+                const coals = gUnstaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xea580c);
+                expect(coals.length).toBe(0);
+              } else if (kit === "islands") {
+                const cyan = gUnstaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x06b6d4);
+                expect(cyan.length).toBe(0);
+              }
+            }
+          });
+
+          it("drawKeepYardAnnex respects staffing for watchtower annexes", () => {
+            const gStaffed = createMockGraphics();
+            drawKeepYardAnnex(gStaffed, 100, 100, { typeId: "watchtower", isFinished: true, slot: "south", isStaffed: true }, "western", 0);
+
+            const gUnstaffed = createMockGraphics();
+            drawKeepYardAnnex(gUnstaffed, 100, 100, { typeId: "watchtower", isFinished: true, slot: "south", isStaffed: false }, "western", 0);
+
+            // Staffed annex has flames and halo
+            const flames = gStaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+            expect(flames.length).toBeGreaterThan(0);
+            const halos = gStaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+            expect(halos.length).toBeGreaterThan(0);
+
+            // Unstaffed annex has zero flames and zero halos
+            const unstaffedFlames = gUnstaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf97316);
+            expect(unstaffedFlames.length).toBe(0);
+            const unstaffedHalos = gUnstaffed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+            expect(unstaffedHalos.length).toBe(0);
+          });
+
+          it("verifies pointer-events none and zero conflict markers for tower unlit", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
             expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
 
             const files = ["buildings.ts", "tokens.ts", "tiles.ts", "index.ts"];

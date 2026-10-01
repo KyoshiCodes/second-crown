@@ -37,6 +37,16 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
 - Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
 
+## Active Bakeoff (bakeoff/gemini-tower-unlit)
+
+- **Render Only: Finished Watchtower Unlit / Cold Beacon When No Worker, Staffed Beacon On (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
+  - **Finished Watchtower With No Worker**: When a finished watchtower is unstaffed (no worker assigned to its tile), its beacon brazier is cold and unlit (`0x0f172a`, `0x334155`, `0x475569` charcoal & spent ash bed), with zero active fire flames, zero radiant glow halo, and zero gold glint.
+  - **Staffed Watchtower**: When a worker/guard is assigned (`isBuildingStaffed(state, b)` is true, or `isStaffed: true`), the beacon burns bright with leaping animated fire tongues (`0xf97316`, `0xfacc15`, `0xffffff`), radiant warm glow halo (`0xfde047`), ember sparks, and gold glint diamond star.
+  - **Culture Kits Supported**: Western stone tower, Cedar Kin lookout cage, Sand Banner minaret cupola, Wind Host nomad pylon, and Tide Clans lighthouse all reflect active beacon flames/cyan light/smoke when staffed, and cold unlit dark charcoal/lantern glass when unstaffed.
+  - **Keep-Yard Annexes Supported**: Miniature watchtowers in keep-yard annexes also check staffing and extinguish to cold charcoal ash when unstaffed.
+  - **Helper Exported**: `isBuildingStaffed(state, buildingOrCoords, gx, gy)`.
+  - **Invariants**: Strictly non-blocking (`entitiesLayer.eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. No invented sim fields. Zero conflict markers.
+
 ## Active Bakeoff (bakeoff/gemini-hint-glow)
 
 - **Render Only: Soft Gold Ground Ring Hint Glow on Empty Work Plots (`packages/render/src/tiles.ts`, `packages/render/src/index.ts`)**:

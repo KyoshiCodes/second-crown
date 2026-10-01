@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-09-30 — Gemini Watchtower Unlit Beacon When No Worker, Staffed Beacon On (bakeoff/gemini-tower-unlit)
+
+- **Render Only: Finished Watchtower Unlit / Cold Beacon When No Worker, Staffed Beacon On (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:
+  - **Finished Watchtower With No Worker**: When a finished watchtower is unstaffed, its beacon brazier is cold and unlit (`0x0f172a`, `0x334155`, `0x475569` dark charcoal & grey ash bed), with zero active fire flames, zero radiant glow halo, and zero gold glint.
+  - **Staffed Watchtower**: When a worker/guard is assigned (`isBuildingStaffed(state, b)` is true, or `isStaffed: true`), the beacon burns bright with lively leaping fire tongues (`0xf97316`, `0xfacc15`, `0xffffff`), radiant warm glow halo (`0xfde047`), ember sparks, and gold glint diamond star atop the masthead.
+  - **All Culture Kits Supported**: Western stone tower, Cedar Kin lookout cage, Sand Banner minaret cupola, Wind Host nomad pylon, and Tide Clans lighthouse all reflect active beacon flames/cyan light/smoke when staffed, and cold unlit dark charcoal/lantern glass when unstaffed.
+  - **Keep-Yard Annexes Supported**: Miniature watchtowers in keep-yard annexes also check staffing and extinguish to cold charcoal ash when unstaffed.
+  - **Helper Exported**: `isBuildingStaffed(state, buildingOrCoords, gx, gy)` safely resolves staffing from building flags, `state.citizens` tile assignments, and `sim.staffBonus`.
+  - **Invariants**: Strictly non-blocking (`entitiesLayer.eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. No invented sim fields. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — Gemini Soft Gold Ground Ring Hint Glow (bakeoff/gemini-hint-glow)
 
 - **Render Only: Soft Gold Ground Ring Hint Glow on Empty Work Plots (`packages/render/src/tiles.ts`, `packages/render/src/index.ts`)**:
