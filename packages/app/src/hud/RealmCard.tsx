@@ -1,5 +1,5 @@
 import React from "react";
-import type { GameState } from "@second-crown/sim";
+import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState } from "@second-crown/sim";
 import { RealmCrestPip } from "./RealmCrestPip";
 import "./realm-card.css";
 
@@ -15,6 +15,15 @@ export function realmStance(atWar: boolean, peaceLeft: number, opinion: number):
   return "wary";
 }
 
+/** Player's stance toward a realm, same inputs the diplomacy grid uses. */
+export function playerStanceToward(state: GameState, realmId: string): { stance: RealmStance; peaceLeft: number; opinion: number } {
+  const war = state.wars.find((w) => w.status === "active");
+  const atWar = !!war && [war.attackerRealmId, war.defenderRealmId].includes(realmId);
+  const peaceLeft = peaceTicksRemaining(state, "player", realmId);
+  const opinion = opinionOfPlayerFromRealm(state, realmId);
+  return { stance: realmStance(atWar, peaceLeft, opinion), peaceLeft, opinion };
+}
+
 const STANCE_LABEL: Record<RealmStance, string> = {
   war: "At war",
   truce: "Truce",
@@ -22,6 +31,23 @@ const STANCE_LABEL: Record<RealmStance, string> = {
   wary: "Wary",
   hostile: "Hostile",
 };
+
+/** Crest + name + stance header shared by the diplomacy grid and the World tab. */
+export function RealmCardHead(props: { realm: Realm; stance: RealmStance; peaceLeft: number }) {
+  const { realm, stance, peaceLeft } = props;
+  return (
+    <span className="sc-realm-dip-head">
+      <span className="sc-realm-dip-title-group">
+        <RealmCrestPip realmId={realm.id} stance={stance} size={28} />
+        <span className="sc-realm-dip-name">{realm.name}</span>
+      </span>
+      <span className={`sc-realm-dip-stance is-${stance}`}>
+        {STANCE_LABEL[stance]}
+        {stance === "truce" ? ` ${Math.ceil(peaceLeft / 10)}s` : ""}
+      </span>
+    </span>
+  );
+}
 
 export function RealmCard(props: {
   realm: Realm;
@@ -41,16 +67,7 @@ export function RealmCard(props: {
 
   return (
     <div className={`sc-realm-dip is-${stance}`} data-realm={realm.id}>
-      <span className="sc-realm-dip-head">
-        <span className="sc-realm-dip-title-group">
-          <RealmCrestPip realmId={realm.id} stance={stance} size={28} />
-          <span className="sc-realm-dip-name">{realm.name}</span>
-        </span>
-        <span className={`sc-realm-dip-stance is-${stance}`}>
-          {STANCE_LABEL[stance]}
-          {stance === "truce" ? ` ${Math.ceil(peaceLeft / 10)}s` : ""}
-        </span>
-      </span>
+      <RealmCardHead realm={realm} stance={stance} peaceLeft={peaceLeft} />
       <span className="sc-realm-dip-line">
         Opinion of you <strong>{opinion}</strong>
         {myOpinion !== undefined ? <> · yours of them {myOpinion}</> : null}
