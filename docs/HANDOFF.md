@@ -13,6 +13,17 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (bakeoff/gemini-cottage-bunk, not merged)
+
+- Render only: Cottages show a small bunk / bed pip.
+  - **Free Bed (`pop < beds` or `hasFreeBed: true`)**: One empty bunk: tidy timber bed frame, clean white/cream linen mattress (`0xf8fafc`), plump empty pillow (`0xffffff`), folded sheet turn-down line, and a small green vacant bed pip (`0x4ade80`). Extra bedrolls and occupied quilt are suppressed.
+  - **Full Hold (`pop === beds` / `pop >= beds` or `isFull: true` / `isPacked: true`)**: Cottages look packed with extra bedrolls: occupied deep crimson wool quilt (`0x991b1b`), indented pillow, Extra Bedroll 1 in deep emerald wool (`0x065f46`) with twin leather straps (`0xb45309`), Extra Bedroll 2 in rust terracotta wool (`0x9a3412`) with gold cord (`0xfacc15`), Extra Bedroll 3 in navy travel wool (`0x1e3a8a`), canvas duffle sack (`0x713f12`), and a small red full bed pip (`0xef4444`). Empty linen is suppressed.
+- `isHoldFull(state?, options?, realmId = "player")` and `hasFreeBed(state?, options?, realmId = "player")` helper functions exported from `packages/render/src/buildings.ts`.
+- Gated behind `complete === true` (unfinished scaffolding cottages suppress the bunk/bedrolls).
+- Strictly `pointer-events: none` on all graphics layers.
+- Supported across Western cottages and all 4 culture kits (`cedar`, `sand`, `steppe`, `islands`).
+- Files: `packages/render/src/buildings.ts`, `packages/render/src/index.ts`, `packages/render/src/index.test.ts`. Zero changes to `packages/sim`, `server`, or `packages/app/src/theme.css`.
+
 ## Active wave (wave/slot-hint, not merged)
 
 - When every column slot is busy, the province inspect card shows one line under its buttons: "Recall a column to free a slot (War tab)." War already lists Recall for scouts, gathers and garrisons.

@@ -7741,6 +7741,228 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
             expect(themeCss).not.toContain("sc-slot-pip");
           });
         });
+
+        describe("bakeoff/gemini-cottage-bunk: cottages show a small bunk / bed pip (full hold: packed extra bedrolls; free bed: one empty bunk)", () => {
+          const visuals = getThemeVisuals("spring");
+
+          it("isHoldFull and hasFreeBed correctly detect full hold (pop === beds) vs free bed", async () => {
+            const { isHoldFull, hasFreeBed } = await import("./buildings.js");
+            expect(typeof isHoldFull).toBe("function");
+            expect(typeof hasFreeBed).toBe("function");
+
+            // Explicit options overrides
+            expect(isHoldFull(null, { isFull: true })).toBe(true);
+            expect(isHoldFull(null, { isHoldFull: true })).toBe(true);
+            expect(isHoldFull(null, { isPacked: true })).toBe(true);
+            expect(isHoldFull(null, { hasFreeBed: false })).toBe(true);
+            expect(isHoldFull(null, { pop: 4, beds: 4 })).toBe(true);
+            expect(isHoldFull(null, { pop: 5, beds: 4 })).toBe(true);
+
+            expect(isHoldFull(null, { isFull: false })).toBe(false);
+            expect(isHoldFull(null, { isHoldFull: false })).toBe(false);
+            expect(isHoldFull(null, { isPacked: false })).toBe(false);
+            expect(isHoldFull(null, { hasFreeBed: true })).toBe(false);
+            expect(isHoldFull(null, { pop: 3, beds: 4 })).toBe(false);
+
+            expect(hasFreeBed(null, { isFull: false })).toBe(true);
+            expect(hasFreeBed(null, { isFull: true })).toBe(false);
+
+            // Sim state evaluation:
+            // Base state has 0 citizens, 2 base beds from Keep 0
+            const state = createMockState();
+            state.citizens = [];
+            state.buildings = [];
+            expect(isHoldFull(state)).toBe(false);
+            expect(hasFreeBed(state)).toBe(true);
+
+            // Add 2 citizens: pop (2) === beds (2) -> full hold
+            state.citizens = [
+              { id: "c1", realmId: "player", job: "unassigned", tile: null },
+              { id: "c2", realmId: "player", job: "unassigned", tile: null },
+            ];
+            expect(isHoldFull(state)).toBe(true);
+            expect(hasFreeBed(state)).toBe(false);
+
+            // Build a cottage (level 1): +2 beds -> total beds = 4. Pop (2) < beds (4) -> free bed!
+            state.buildings = [
+              { id: "cot1", typeId: "cottage", realmId: "player", x: 2, y: 3, level: 1, completesAtTick: null },
+            ];
+            expect(isHoldFull(state)).toBe(false);
+            expect(hasFreeBed(state)).toBe(true);
+
+            // Add 2 more citizens: pop (4) === beds (4) -> full hold!
+            state.citizens.push(
+              { id: "c3", realmId: "player", job: "farmer", tile: { x: 2, y: 3 } },
+              { id: "c4", realmId: "player", job: "farmer", tile: { x: 2, y: 3 } }
+            );
+            expect(isHoldFull(state)).toBe(true);
+            expect(hasFreeBed(state)).toBe(false);
+
+            // Flag overrides
+            state.flags = { isHoldFull: false };
+            expect(isHoldFull(state)).toBe(false);
+            state.flags = { isHoldFull: true };
+            expect(isHoldFull(state)).toBe(true);
+          });
+
+          it("Western cottage renders one empty bunk with clean white linen when hold has free bed", () => {
+            const g = createMockGraphics();
+            drawIsometricBuilding(g, "cottage", 1, true, 0.5, visuals, 2, 2, undefined, "western", {
+              isFull: false,
+            });
+
+            // 1. One empty bunk features:
+            // Clean white/cream linen mattress surface (0xf8fafc)
+            const cleanLinen = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf8fafc);
+            expect(cleanLinen.length).toBeGreaterThan(0);
+
+            // Plump empty white pillow at headboard (0xffffff)
+            const whitePillow = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xffffff);
+            expect(whitePillow.length).toBeGreaterThan(0);
+
+            // Free bed vacant green pip indicator (0x4ade80)
+            const freePip = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x4ade80);
+            expect(freePip.length).toBeGreaterThan(0);
+
+            // 2. Suppresses packed elements:
+            // Zero occupied crimson quilt (0x991b1b)
+            const crimsonQuilt = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x991b1b);
+            expect(crimsonQuilt.length).toBe(0);
+
+            // Zero forest green extra bedroll (0x166534)
+            const greenRoll = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x166534);
+            expect(greenRoll.length).toBe(0);
+
+            // Zero terracotta / rust extra bedroll (0xc2410c)
+            const rustRoll = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xc2410c);
+            expect(rustRoll.length).toBe(0);
+
+            // Zero navy travel roll (0x1e3a8a)
+            const navyRoll = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x1e3a8a);
+            expect(navyRoll.length).toBe(0);
+
+            // Zero full hold red pip (0xef4444)
+            const fullPip = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xef4444);
+            expect(fullPip.length).toBe(0);
+          });
+
+          it("Western cottage renders packed cottage with extra bedrolls when hold is full (pop === beds)", () => {
+            const g = createMockGraphics();
+            drawIsometricBuilding(g, "cottage", 1, true, 0.5, visuals, 2, 2, undefined, "western", {
+              isFull: true,
+            });
+
+            // 1. Packed cottage with extra bedrolls:
+            // Occupied crimson quilt on bunk (0x991b1b)
+            const crimsonQuilt = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x991b1b);
+            expect(crimsonQuilt.length).toBeGreaterThan(0);
+
+            // Extra bedroll 1: deep emerald wool roll (0x065f46)
+            const greenRoll = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x065f46);
+            expect(greenRoll.length).toBeGreaterThan(0);
+
+            // Extra bedroll 2: rust terracotta roll (0x9a3412)
+            const rustRoll = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x9a3412);
+            expect(rustRoll.length).toBeGreaterThan(0);
+
+            // Extra bedroll 3: navy blue travel roll (0x1e3a8a)
+            const navyRoll = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x1e3a8a);
+            expect(navyRoll.length).toBeGreaterThan(0);
+
+            // Amber leather binding straps on bedroll (0xb45309)
+            const leatherStraps = g.calls.filter((c) => c.method === "stroke" && c.args[0]?.color === 0xb45309);
+            expect(leatherStraps.length).toBeGreaterThan(0);
+
+            // Gold cord & buckle on rust roll (0xfacc15)
+            const goldCord = g.calls.filter((c) => c.method === "stroke" && c.args[0]?.color === 0xfacc15);
+            expect(goldCord.length).toBeGreaterThan(0);
+
+            // Packed red pip indicator (0xef4444)
+            const fullPip = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xef4444);
+            expect(fullPip.length).toBeGreaterThan(0);
+
+            // 2. Suppresses empty mattress and free bed pip:
+            const cleanLinen = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf8fafc);
+            expect(cleanLinen.length).toBe(0);
+
+            const freePip = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x4ade80);
+            expect(freePip.length).toBe(0);
+          });
+
+          it("all 4 culture cottages (cedar, sand, steppe, islands) render empty bunk vs packed extra bedrolls", () => {
+            const cultureKits = ["cedar", "sand", "steppe", "islands"] as const;
+
+            for (const kit of cultureKits) {
+              const gFree = createMockGraphics();
+              drawIsometricBuilding(gFree, "cottage", 1, true, 0.5, visuals, 2, 2, undefined, kit, {
+                isFull: false,
+              });
+
+              const gFull = createMockGraphics();
+              drawIsometricBuilding(gFull, "cottage", 1, true, 0.5, visuals, 2, 2, undefined, kit, {
+                isFull: true,
+              });
+
+              const freeCalls = JSON.stringify(gFree.calls);
+              const fullCalls = JSON.stringify(gFull.calls);
+
+              // Free bed state across all cultures has clean white linen and green pip
+              expect(freeCalls).toContain(String(0xf8fafc)); // clean linen
+              expect(freeCalls).toContain(String(0x4ade80)); // green free bed pip
+              expect(freeCalls).not.toContain(String(0x065f46)); // no green bedroll
+              expect(freeCalls).not.toContain(String(0x9a3412)); // no rust bedroll
+
+              // Full hold state across all cultures has crimson quilt, extra bedrolls, and red pip
+              expect(fullCalls).toContain(String(0x991b1b)); // crimson quilt
+              expect(fullCalls).toContain(String(0x065f46)); // extra green bedroll
+              expect(fullCalls).toContain(String(0x9a3412)); // extra rust bedroll
+              expect(fullCalls).toContain(String(0xef4444)); // red full pip
+              expect(fullCalls).not.toContain(String(0xf8fafc)); // no empty clean linen
+              expect(fullCalls).not.toContain(String(0x4ade80)); // no green free pip
+            }
+          });
+
+          it("suppresses cottage bunk and bedrolls when completesAtTick is set (complete = false)", () => {
+            const gDone = createMockGraphics();
+            drawIsometricBuilding(gDone, "cottage", 1, true, 0.5, visuals, 2, 2, undefined, "western", {
+              isFull: true,
+            });
+
+            const gScaffold = createMockGraphics();
+            drawIsometricBuilding(gScaffold, "cottage", 1, false, 0.5, visuals, 2, 2, undefined, "western", {
+              isFull: true,
+            });
+
+            const doneJson = JSON.stringify(gDone.calls);
+            const scaffoldJson = JSON.stringify(gScaffold.calls);
+
+            // Finished cottage renders packed bedrolls
+            expect(doneJson).toContain(String(0x065f46));
+            expect(doneJson).toContain(String(0x9a3412));
+
+            // Scaffolding suppresses bunk and bedrolls
+            expect(scaffoldJson).not.toContain(String(0x065f46));
+            expect(scaffoldJson).not.toContain(String(0x9a3412));
+            expect(scaffoldJson).not.toContain(String(0x991b1b));
+          });
+
+          it("verifies pointer-events none and zero conflict markers for cottage bunk", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+            expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+            expect(indexCode).toContain('g.eventMode = "none"');
+
+            const files = ["buildings.ts", "tokens.ts", "index.ts"];
+            for (const f of files) {
+              const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+              expect(code).not.toContain("<<<<<<<");
+              expect(code).not.toContain("=======");
+              expect(code).not.toContain(">>>>>>>");
+            }
+          });
+        });
       });
     });
   });

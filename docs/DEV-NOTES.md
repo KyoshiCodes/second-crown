@@ -1,3 +1,29 @@
+## 2026-10-01 — render / cottage bunk and bedrolls (bakeoff/gemini-cottage-bunk)
+
+- `packages/render/src/buildings.ts`:
+  - `export function isHoldFull(state?: GameState | null, options?: BuildingDrawOptions, realmId = "player"): boolean`:
+    - Checks explicit overrides: `options?.isFull`, `options?.isHoldFull`, `options?.isPacked`, `options?.hasFreeBed === false`.
+    - Checks explicit numeric overrides: `pop !== undefined && beds !== undefined && pop >= beds`.
+    - Checks `state?.flags` booleans: `isFull`, `isHoldFull`, `isPacked`, `holdFull`, `hold_full`, `hasFreeBed === false`.
+    - Calculates live capacity: `population(state, realmId) >= housingCap(state, realmId)`.
+  - `export function hasFreeBed(state?: GameState | null, options?: BuildingDrawOptions, realmId = "player"): boolean`:
+    - Inverse of `isHoldFull`.
+  - `export function drawCottageBunk(g: Graphics, bx: number, by: number, a: number, isFull: boolean, kit: CultureKit = "western"): void`:
+    - Renders timber bed frame with headboard, footboard, posts, finials, side rails, and ground shadow.
+    - Culture kit alters timber post and finial palette (`cedar`, `sand`, `steppe`, `islands`, `western`).
+    - Free bed (`!isFull`): Clean linen polygon (`0xf8fafc`), white pillow (`0xffffff`), turn-down crease (`0x94a3b8`), green indicator pip (`0x4ade80`).
+    - Full hold (`isFull`): Occupied quilt polygon (`0x991b1b`), indented pillow (`0xd6d3d1`), extra emerald roll (`0x065f46`) with straps (`0xb45309`), extra rust roll (`0x9a3412`) with cord (`0xfacc15`), navy roll (`0x1e3a8a`), canvas duffle (`0x713f12`), red indicator pip (`0xef4444`).
+    - Uses `g.rect` for rolls to stay compatible with unit test `MockGraphics`.
+  - Wired into `drawIsometricBuilding` under `case "cottage":` and `drawCottageCulture` for all 4 cultures when `complete === true`.
+- `packages/render/src/index.ts`:
+  - Imported `isHoldFull` and `hasFreeBed` from `./buildings.js`.
+  - Computed `isFull = isHoldFull(state)` and populated `buildingOptions` with `isFull`, `isHoldFull`, `isPacked`, `hasFreeBed`.
+  - Computed per-realm `bIsFull = isHoldFull(state, buildingOptions, bRealm)` and passed in `bOptions`.
+- `packages/render/src/index.test.ts`:
+  - Unit tests verify helper functions, Western cottage free vs packed rendering, all 4 culture cottages free vs packed rendering, scaffolding suppression when `complete === false`, and `pointer-events: none` non-blocking guarantee.
+- Invariants:
+  - `packages/sim`, `server`, and `packages/app/src/theme.css` remain strictly untouched (0 diff against `origin/main`).
+
 ## 2026-09-30 — hud / stall/post column slot pips on War (bakeoff/gemini-slot-pips)
 
 - `packages/app/src/hud/SlotPip.tsx` & `slot-pip.css`:
