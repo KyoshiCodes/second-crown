@@ -1,13 +1,28 @@
-## 2026-10-01 — app / crown and faction cards (wave/crown-factions)
+## 2026-10-01 — app / 24px faction seal pips & spoils craft wax seals (bakeoff/gemini-faction-seals)
 
-- `packages/app/src/hud/crown-card.css` (imported by `CrownTab.tsx` and `WorldPanel.tsx`):
-  - `.sc-crown-grid`: card grid (minmax 180px).
-  - `.sc-work-card.sc-crown-card`: craft / achievement card; `is-owned` (gold edge), `is-done` (green edge), `is-empty`.
-  - `.sc-work-card.sc-crown-faction`: faction card; keeps `.sc-faction-card` so holiday glows in `theme.css` still apply, but overrides its old padding/background. Tones `is-member`, `is-cold` (stance < -10, Join disabled), `is-empty`.
-  - `.sc-work-card.sc-crown-save`: Save/Export/Import/New Game on one card row.
-- Army Treat: `healSec` is `healTicks(state) / 10` (same as KeepHall), `undefined` before state loads, so no literal 5. Button reads `Treat 1 (4s)` / `Treat 1 (5s)`.
-- Note: `WarRoom.tsx` still has a `: 5` fallback for its Treat label before state loads (not in this wave's scope).
-- Files: `packages/app/src/hud/crown-card.css`, `tabs/CrownTab.tsx`, `WorldPanel.tsx`, `tabs/ArmyTab.tsx`.
+- `packages/app/src/hud/faction-seals.css`:
+  - Dedicated stylesheet for `.sc-faction-seal-wrapper`, `.sc-faction-seal`, `.sc-faction-row`, and `.sc-craft-seal`.
+  - Enforces `pointer-events: none !important`, `flex-shrink: 0`, and `vertical-align: middle`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/FactionSealPip.tsx`:
+  - 24px SVG seal component resolving kind ("order", "pact", "guild") via `resolveFactionKind()`.
+  - Hand-crafted SVG vectors:
+    - Order: Amber silk ribbons, poured wax puddle, golden matrix bed, knightly sword cross sigil.
+    - Pact: Crimson ribbons, blood-wax puddle, crossed stilettos, faceted silver salt diamond.
+    - Guild: Verdigris bronze ribbons, emerald wax puddle, master hammer, drafting compass calipers, bullion coin boss.
+    - Sworn Member: Green laurel ring (`#4ade80`) and apex emerald stud.
+  - `data-faction-seal`, `data-kind`, `data-member`, `aria-hidden="true"`, `pointerEvents: "none"`.
+- `packages/app/src/hud/WaxSealPip.tsx`:
+  - Added optional `craftId?: string` prop and `data-craft` attribute.
+  - Wrapped with `.sc-craft-seal` class and guaranteed `pointerEvents: "none"`.
+- `packages/app/src/WorldPanel.tsx`:
+  - Mounted `<FactionSealPip kind={f.kind} faction={f} isMember={mine} size={24} />` inside each faction card row.
+- `packages/app/src/tabs/CrownTab.tsx`:
+  - Mounted `<WaxSealPip size={16} active={owned} craftId={c.id} />` in `.sc-work-head` of each Spoils craft card.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-faction-seals: 24px faction seal pips (order, pact, guild) and spoils craft wax seals")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
 
 ## 2026-10-01 — app / 16px pips on leftover buttons (bakeoff/gemini-button-pips)
 

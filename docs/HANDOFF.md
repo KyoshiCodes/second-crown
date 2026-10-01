@@ -13,11 +13,20 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/crown-factions, not merged)
+## Active wave (bakeoff/gemini-faction-seals, not merged)
 
-- App only. Crown Spoils crafts and Achievements as work cards; Save row is one card; World faction rows are cards with stance + Join/Leave (no new factions); Army Treat label uses `healTicks` (4s with Barracks, 5s without).
-  - Styles only in `packages/app/src/hud/crown-card.css`. `packages/sim`, `server`, `theme.css` untouched. 239 tests pass; app builds.
-  - Files: `packages/app/src/hud/crown-card.css`, `tabs/CrownTab.tsx`, `WorldPanel.tsx`, `tabs/ArmyTab.tsx`.
+- App HUD only. Added 24px seal pips on the three faction cards (order, pact, guild) and a small wax seal on each Spoils craft card:
+  - **Faction Seals** (`FactionSealPip`): 24px distinct heraldic wax seal component (`packages/app/src/hud/FactionSealPip.tsx`) with ribbon tails, molten wax pool, engraved metallic matrix bed, and faction-specific sigils:
+    - **Order** (`Amber Compact`): Amber poured wax (`#d97706`), chivalric knightly cruciform sword, sunburst beaded ring, and side diamond studs.
+    - **Pact** (`Salt Road Pact`): Carmine crimson wax (`#991b1b`), crossed treaty stilettos, faceted silver salt diamond covenant sigil, and crystalline gleam.
+    - **Guild** (`Player Artisan Guild`): Emerald bronze wax (`#047857`), blacksmith master hammer, drafting compass/caliper legs, and central bullion coin boss.
+    - **Sworn Member Insignia**: Radiant green laurel ring (`#4ade80`) and emerald jewel stud when the player is a sworn member (`isMember={mine}`).
+    - **Auto-Resolution**: `resolveFactionKind(kind, faction)` correctly maps faction instances (`kind: "order" | "pact" | "guild"`, id, name) using word boundary checks.
+  - **Spoils Craft Wax Seals** (`WaxSealPip`): Enhanced existing `WaxSealPip` with `craftId?: string` and mounted a small 16px wax seal (`<WaxSealPip size={16} active={owned} craftId={c.id} />`) beside each craft card title in Crown Tab Spoils (`CrownTab.tsx`).
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on all seal wrappers and SVG elements guarantees zero click disruption to card buttons, member toggles, or craft actions.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/faction-seals.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new factions or crafts. 239 sim tests pass; app builds cleanly.
+  - Files: `packages/app/src/hud/FactionSealPip.tsx`, `packages/app/src/hud/faction-seals.css`, `packages/app/src/hud/WaxSealPip.tsx`, `packages/app/src/WorldPanel.tsx`, `packages/app/src/tabs/CrownTab.tsx`, `packages/render/src/index.test.ts`.
 
 ## Active wave (bakeoff/gemini-button-pips, not merged)
 

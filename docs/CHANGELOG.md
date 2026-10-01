@@ -1,4 +1,17 @@
 # CHANGELOG
+ 
+## 2026-10-01 — Gemini Faction Seals & Spoils Wax Seals (bakeoff/gemini-faction-seals)
+
+- **App HUD: 24px Faction Seal Pips (Order, Pact, Guild) and Spoils Craft Wax Seals (`packages/app/src/hud/FactionSealPip.tsx`, `packages/app/src/hud/faction-seals.css`, `packages/app/src/hud/WaxSealPip.tsx`, `packages/app/src/WorldPanel.tsx`, `packages/app/src/tabs/CrownTab.tsx`, `packages/render/src/index.test.ts`)**:
+  - **24px Faction Seal Pips (`FactionSealPip`)**: Distinct signet seals on the three faction cards in WorldPanel:
+    - **Order (Amber Compact)**: Sunburst beaded amber wax seal with knightly cruciform blade and golden studs.
+    - **Pact (Salt Road Pact)**: Crimson blood-wax seal with crossed treaty stilettos and faceted salt diamond covenant emblem.
+    - **Guild (Free Artisans Guild)**: Imperial emerald bronze wax seal with master craftsman hammer, drafting compass calipers, and bullion coin boss.
+    - **Sworn Member Insignia**: Glowing green laurel insignia ring with crown emerald stud when the player has sworn into the faction.
+  - **Spoils Craft Wax Seals (`WaxSealPip`)**: 16px red wax seal with ribbon tails and imperial crown insignia mounted on each Spoils craft card in Crown Tab (`CrownTab.tsx`), illuminating when crafted/owned.
+  - **Strictly Non-Blocking**: `pointer-events: none` on all seals and wrappers; card buttons, join/leave faction actions, and craft actions work unobstructed.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/faction-seals.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new factions or crafts.
 
 ## 2026-10-01 — Crown and faction cards (wave/crown-factions)
 

@@ -1,0 +1,58 @@
+/* --- Faction Seal Pips (Order, Pact, Guild) & Spoils Wax Seals --- */
+
+.sc-faction-seal-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+  flex-shrink: 0;
+  vertical-align: middle;
+  position: relative;
+}
+
+.sc-faction-seal {
+  display: block;
+  pointer-events: none !important;
+}
+
+.sc-faction-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Radiant aura when player is an active member of the faction */
+.sc-faction-seal-wrapper.is-member {
+  filter: drop-shadow(0 0 6px rgba(74, 222, 128, 0.45));
+}
+
+.sc-faction-seal-wrapper.is-order {
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.35));
+}
+.sc-faction-seal-wrapper.is-order.is-member {
+  filter: drop-shadow(0 0 7px rgba(251, 191, 36, 0.55));
+}
+
+.sc-faction-seal-wrapper.is-pact {
+  filter: drop-shadow(0 0 4px rgba(220, 38, 38, 0.35));
+}
+.sc-faction-seal-wrapper.is-pact.is-member {
+  filter: drop-shadow(0 0 7px rgba(239, 68, 68, 0.55));
+}
+
+.sc-faction-seal-wrapper.is-guild {
+  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.35));
+}
+.sc-faction-seal-wrapper.is-guild.is-member {
+  filter: drop-shadow(0 0 7px rgba(52, 211, 153, 0.55));
+}
+
+/* Spoils craft wax seal alignment */
+.sc-craft-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none !important;
+  flex-shrink: 0;
+  vertical-align: middle;
+}

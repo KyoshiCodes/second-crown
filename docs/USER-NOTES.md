@@ -2,12 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-01 — Crown and faction cards (wave/crown-factions)
+## 2026-10-01 — 24px Faction Seal Pips and Spoils Craft Wax Seals (bakeoff/gemini-faction-seals)
 
-- On Crown, each Spoils craft is a card with its cost and a Craft button. Achievements are cards too; finished ones glow green.
-- Save, Export, Import, and New Game sit together in one card.
-- On World, each faction is a card showing its stance and a Join or Leave button. Factions too cold toward you (below -10) show blue and cannot be joined.
-- On Army, the Treat button shows how long healing takes: 4s once you have a Barracks, 5s without.
+- The three faction cards and Crown Spoils crafts now display ornate heraldic wax seals:
+  - **Amber Compact (Order)**: A warm amber signet seal stamped with the chivalric sunburst and knightly cross-sword.
+  - **Salt Road Pact (Pact)**: A crimson blood-wax seal stamped with crossed treaty stilettos and the faceted salt diamond covenant.
+  - **Artisan Guild (Guild)**: A verdigris emerald wax seal stamped with the master builder's hammer, drafting calipers, and bullion gold coin.
+  - **Sworn Member Ring**: When you swear allegiance to a faction, your seal gains a glowing green laurel ring and emerald crest jewel.
+  - **Spoils Craft Seals**: Each special craft card in the Crown Tab's Spoils section now features a small wax seal that burns bright once crafted.
+  - Strictly non-interactive overlays (`pointer-events: none`); joining factions, leaving factions, and crafting spoils items remains completely uninterrupted.
 
 ## 2026-10-01 — 16px pips on build, study, and holiday buttons (bakeoff/gemini-button-pips)
 
