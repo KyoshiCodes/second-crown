@@ -985,6 +985,184 @@ export function paintEmptyPlotStakes(
 }
 
 // -------------------------------------------------------------
+// Hold Rim Wall Gap Marks & Perimeter Timber Stakes
+// -------------------------------------------------------------
+
+/**
+ * Checks whether a hold tile (gx, gy) is a missing rim wall segment on the player hold.
+ * - Out of bounds or non-rim tiles return false.
+ * - If state has a finished wall, gate, or other building at (gx, gy), it is a finished segment (returns false).
+ * - If requireEmpty is true and an unfinished building is present, returns false.
+ * - Otherwise returns true (the rim segment is missing, indicating an open ring).
+ */
+export function isMissingRimSegment(
+  state: GameState | null | undefined,
+  gx: number,
+  gy: number,
+  realmId = "player",
+  requireEmpty = false
+): boolean {
+  if (gx < 0 || gy < 0 || gx >= GRID_W || gy >= GRID_H) return false;
+  if (!isRimTile(gx, gy)) return false;
+  if (!state?.buildings) return true;
+  if (requireEmpty) {
+    return !state.buildings.some(
+      (b) => (b.realmId ?? "player") === realmId && b.x === gx && b.y === gy
+    );
+  }
+  return !state.buildings.some(
+    (b) =>
+      (b.realmId ?? "player") === realmId &&
+      b.x === gx &&
+      b.y === gy &&
+      (b.completesAtTick === null || b.completesAtTick === undefined)
+  );
+}
+
+/**
+ * Lists all missing rim wall segment grid coordinates on the player hold,
+ * ordered clockwise starting from (0, 0).
+ * Returns an empty array if all rim wall segments are finished (closed wall ring).
+ */
+export function listMissingRimSegments(
+  state: GameState | null | undefined,
+  realmId = "player",
+  requireEmpty = false
+): Array<{ x: number; y: number }> {
+  const missing: Array<{ x: number; y: number }> = [];
+  for (let idx = 0; idx < 48; idx++) {
+    const { x, y } = getRimTileAt(idx);
+    if (isMissingRimSegment(state, x, y, realmId, requireEmpty)) {
+      missing.push({ x, y });
+    }
+  }
+  return missing;
+}
+
+/**
+ * Draws a faint timber stake and perimeter foundation gap mark on a missing rim wall segment.
+ * Features:
+ * - Faint dashed / scored foundation trench notch and chalk alignment line tracing the perimeter wall footing
+ * - Soft ground contact shadow on turf
+ * - Loam soil clods where driven into ground
+ * - Slender chiseled wooden timber stake (aged cedar / oak timber peg)
+ * - Sunlit woodgrain highlight facet
+ * - Chamfered heartwood top
+ * - Fine vertical grain split
+ * - Weathered cord / chalk binding around neck
+ * - Seasonal winter frost cap
+ * - Faint and distinct from courtyard work plot stakes (no red ribbon, no gold glow)
+ */
+export function drawRimGapMark(
+  g: Graphics,
+  wx: number,
+  wy: number,
+  gx: number,
+  gy: number,
+  phase: number = 0,
+  visuals?: ThemeVisuals
+): void {
+  // 1. Foundation trench alignment mark tracing the missing wall segment between adjacent rim tiles
+  const idx = rimWalkIndex(gx, gy);
+  const prevTile = getRimTileAt((idx - 1 + 48) % 48);
+  const nextTile = getRimTileAt((idx + 1) % 48);
+  const prevW = gridToWorld(prevTile.x, prevTile.y);
+  const nextW = gridToWorld(nextTile.x, nextTile.y);
+
+  const dxPrev = (prevW.wx - wx) * 0.44;
+  const dyPrev = (prevW.wy - wy) * 0.44;
+  const dxNext = (nextW.wx - wx) * 0.44;
+  const dyNext = (nextW.wy - wy) * 0.44;
+
+  // Faint ground trench notch along rim wall alignment
+  g.moveTo(wx + dxPrev, wy + dyPrev);
+  g.lineTo(wx, wy);
+  g.lineTo(wx + dxNext, wy + dyNext);
+  g.stroke({ width: 1.4, color: 0x52525b, alpha: 0.35 });
+
+  // Faint mason's lime chalk alignment line
+  g.moveTo(wx + dxPrev * 0.9, wy + dyPrev * 0.9);
+  g.lineTo(wx, wy);
+  g.lineTo(wx + dxNext * 0.9, wy + dyNext * 0.9);
+  g.stroke({ width: 0.7, color: 0xa8a29e, alpha: 0.42 });
+
+  // 2. Soft elliptical contact shadow on the turf
+  g.ellipse(wx, wy + 1.2, 2.6, 1.2);
+  g.fill({ color: 0x000000, alpha: 0.24 });
+  g.ellipse(wx, wy + 0.8, 1.4, 0.7);
+  g.fill({ color: 0x271708, alpha: 0.38 });
+
+  // 3. Displaced loam soil turf clods
+  g.ellipse(wx - 0.9, wy + 1.0, 0.9, 0.5);
+  g.fill({ color: 0x3f220c, alpha: 0.75 });
+  g.ellipse(wx + 0.8, wy + 1.1, 0.8, 0.45);
+  g.fill({ color: 0x2e1908, alpha: 0.7 });
+
+  // 4. Slender chiseled wooden timber stake (aged peg)
+  g.poly([
+    wx - 0.9, wy - 6.2,
+    wx + 0.9, wy - 6.2,
+    wx + 0.8, wy + 0.8,
+    wx, wy + 1.8,
+    wx - 0.8, wy + 0.8,
+  ]);
+  g.fill({ color: 0x78350f, alpha: 0.92 });
+
+  // Sunlit wood grain highlight facet (left edge)
+  g.poly([
+    wx - 0.9, wy - 6.2,
+    wx, wy - 6.2,
+    wx, wy + 1.2,
+    wx - 0.8, wy + 0.8,
+  ]);
+  g.fill({ color: 0xa16207, alpha: 0.85 });
+
+  // Chamfered mallet-struck top cut (pale heartwood)
+  g.ellipse(wx, wy - 6.2, 0.9, 0.45);
+  g.fill({ color: 0xc29d62, alpha: 0.92 });
+
+  // Fine vertical grain split
+  g.moveTo(wx, wy - 6.0);
+  g.lineTo(wx, wy + 0.6);
+  g.stroke({ width: 0.5, color: 0x451a03, alpha: 0.55 });
+
+  // 5. Weathered cord / chalk binding around the neck
+  g.rect(wx - 1.0, wy - 4.8, 2.0, 0.9);
+  g.fill({ color: 0xa8a29e, alpha: 0.65 });
+
+  // Cord knot
+  g.circle(wx + 0.8, wy - 4.3, 0.5);
+  g.fill({ color: 0x78716c, alpha: 0.7 });
+
+  // 6. Seasonal winter frost cap
+  const dec = visuals?.decorations;
+  if (dec === "winter" || dec === "midwinter") {
+    g.ellipse(wx, wy - 6.4, 1.0, 0.5);
+    g.fill({ color: 0xf1f5f9, alpha: 0.9 });
+  }
+}
+
+/**
+ * Paints faint timber boundary stakes and gap marks on all missing rim wall segments of the player hold.
+ * Finished segments stay as they are (no gap marks drawn).
+ * Fully closed wall rings render zero gap marks (g.clear()).
+ */
+export function paintMissingRimSegments(
+  g: Graphics,
+  state: GameState | null | undefined,
+  phase: number = 0,
+  visuals?: ThemeVisuals,
+  realmId = "player"
+): void {
+  g.clear();
+  const missing = listMissingRimSegments(state, realmId);
+  for (const { x, y } of missing) {
+    const { wx, wy } = gridToWorld(x, y);
+    drawRimGapMark(g, wx, wy, x, y, phase, visuals);
+  }
+}
+
+// -------------------------------------------------------------
 // Tabletop Board Diorama Backdrop
 // -------------------------------------------------------------
 export function paintBoardBackdrop(g: Graphics, visuals: ThemeVisuals): void {

@@ -71,6 +71,10 @@ import {
   paintIsometricGround,
   paintBoardBackdrop,
   paintEmptyPlotStakes,
+  paintMissingRimSegments,
+  drawRimGapMark,
+  isMissingRimSegment,
+  listMissingRimSegments,
 } from "./tiles.js";
 
 import {
@@ -180,6 +184,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   // Hold layers inside holdContainer
   const groundLayer = new Graphics();
   holdContainer.addChild(groundLayer);
+
+  const rimGapLayer = new Graphics();
+  rimGapLayer.eventMode = "none";
+  holdContainer.addChild(rimGapLayer);
 
   const plotStakesLayer = new Graphics();
   plotStakesLayer.eventMode = "none";
@@ -353,6 +361,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   // Paint ground and board backdrop initially
   paintIsometricGround(groundLayer, visuals);
+  paintMissingRimSegments(rimGapLayer, lastState, phase, visuals);
   paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals, false, currentHintPlot);
   paintBoardBackdrop(boardBackdropLayer, visuals);
 
@@ -795,6 +804,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintAmbientLighting();
       paintBoardBackdrop(boardBackdropLayer, visuals);
     }
+    paintMissingRimSegments(rimGapLayer, state, phase, visuals);
     paintEmptyPlotStakes(plotStakesLayer, state, phase, visuals, false, currentHintPlot);
     paintBuildings(state, phase);
     paintBoardProvinces(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
@@ -814,6 +824,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     updateParticles(phase);
     updateBoardWeather(phase);
     if (lastState) {
+      paintMissingRimSegments(rimGapLayer, lastState, phase, visuals);
       paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals, false, currentHintPlot);
       paintBuildings(lastState, phase);
       paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
@@ -837,6 +848,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       updateParticles(phase);
       if (lastState) {
         paintBuildings(lastState, phase);
+        paintMissingRimSegments(rimGapLayer, lastState, phase, visuals);
         paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals, false, currentHintPlot);
       }
     } else {
@@ -927,5 +939,9 @@ export {
   paintWeatherParticles,
   resolveGatherLoadInfo,
   drawGatherColumnMeeple,
+  isMissingRimSegment,
+  listMissingRimSegments,
+  drawRimGapMark,
+  paintMissingRimSegments,
 };
 

@@ -80,6 +80,10 @@ import {
   drawPlotGlowRing,
   ROAD_TILES,
   isBuildingStaffed,
+  isMissingRimSegment,
+  listMissingRimSegments,
+  drawRimGapMark,
+  paintMissingRimSegments,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -7139,6 +7143,199 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
             const path = await import("node:path");
             const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
 
+            expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+
+            const files = ["buildings.ts", "tokens.ts", "tiles.ts", "index.ts"];
+            for (const f of files) {
+              const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+              expect(code).not.toContain("<<<<<<<");
+              expect(code).not.toContain("=======");
+              expect(code).not.toContain(">>>>>>>");
+            }
+          });
+        });
+
+        describe("bakeoff/gemini-wall-gap: missing rim wall segments faint timber stake / gap mark", () => {
+          const visuals = getThemeVisuals("spring");
+
+          it("isMissingRimSegment correctly identifies missing vs finished rim wall segments", () => {
+            // Non-rim tiles (inner courtyard or OOB) are never rim wall segments
+            expect(isMissingRimSegment(null, 5, 5)).toBe(false);
+            expect(isMissingRimSegment(null, -1, 0)).toBe(false);
+            expect(isMissingRimSegment(null, 16, 0)).toBe(false);
+
+            // Empty rim tiles are missing segments
+            expect(isMissingRimSegment(null, 0, 0)).toBe(true);
+            expect(isMissingRimSegment(undefined, 15, 0)).toBe(true);
+
+            const state = createMockState();
+            expect(isMissingRimSegment(state, 0, 1)).toBe(true);
+            expect(isMissingRimSegment(state, 15, 9)).toBe(true);
+
+            // Add finished wall at (0, 1) and finished gate at (8, 9)
+            state.buildings = [
+              { id: "w1", typeId: "walls", realmId: "player", x: 0, y: 1, level: 1, completesAtTick: null },
+              { id: "g1", typeId: "gate", realmId: "player", x: 8, y: 9, level: 1, completesAtTick: null },
+              { id: "w_other", typeId: "walls", realmId: "rival", x: 0, y: 2, level: 1, completesAtTick: null },
+            ];
+
+            // Finished segments return false (not missing)
+            expect(isMissingRimSegment(state, 0, 1)).toBe(false);
+            expect(isMissingRimSegment(state, 8, 9)).toBe(false);
+
+            // Rival realm wall does not finish player hold rim
+            expect(isMissingRimSegment(state, 0, 2)).toBe(true);
+
+            // Empty rim tile returns true
+            expect(isMissingRimSegment(state, 0, 3)).toBe(true);
+
+            // Unfinished wall (scaffolding)
+            state.buildings.push({
+              id: "w_scaffold",
+              typeId: "walls",
+              realmId: "player",
+              x: 0,
+              y: 4,
+              level: 1,
+              completesAtTick: 120,
+            });
+            // By default (requireEmpty = false), unfinished wall is still a missing finished segment
+            expect(isMissingRimSegment(state, 0, 4)).toBe(true);
+            // With requireEmpty = true, it is not an empty plot
+            expect(isMissingRimSegment(state, 0, 4, "player", true)).toBe(false);
+          });
+
+          it("listMissingRimSegments lists all missing coordinates ordered clockwise, and returns empty array when ring is closed", () => {
+            const state = createMockState();
+            // Fresh state: all 48 rim segments are missing
+            const allMissing = listMissingRimSegments(state);
+            expect(allMissing.length).toBe(48);
+            expect(allMissing[0]).toEqual({ x: 0, y: 0 });
+            expect(allMissing[15]).toEqual({ x: 15, y: 0 });
+            expect(allMissing[24]).toEqual({ x: 15, y: 9 });
+            expect(allMissing[39]).toEqual({ x: 0, y: 9 });
+
+            // Finish 1 wall at (0, 0)
+            state.buildings = [
+              { id: "w0", typeId: "walls", realmId: "player", x: 0, y: 0, level: 1, completesAtTick: null },
+            ];
+            const partial = listMissingRimSegments(state);
+            expect(partial.length).toBe(47);
+            expect(partial.some((p) => p.x === 0 && p.y === 0)).toBe(false);
+
+            // Close the entire ring: all 48 rim tiles finished
+            state.buildings = [];
+            for (let i = 0; i < 48; i++) {
+              const tile = getRimTileAt(i);
+              state.buildings.push({
+                id: `wall_${i}`,
+                typeId: i === 10 ? "gate" : "walls",
+                realmId: "player",
+                x: tile.x,
+                y: tile.y,
+                level: 1,
+                completesAtTick: null,
+              });
+            }
+            const closed = listMissingRimSegments(state);
+            expect(closed.length).toBe(0);
+            expect(closed).toEqual([]);
+          });
+
+          it("drawRimGapMark renders faint timber stake, foundation trench alignment line, and contact shadow", () => {
+            const g = createMockGraphics();
+            drawRimGapMark(g, 200, 100, 0, 2, 0, visuals);
+
+            // Foundation trench alignment strokes present (0x52525b, 0xa8a29e)
+            const trenchStrokes = g.calls.filter(
+              (c) =>
+                c.method === "stroke" &&
+                (c.args[0]?.color === 0x52525b || c.args[0]?.color === 0xa8a29e)
+            );
+            expect(trenchStrokes.length).toBeGreaterThanOrEqual(2);
+
+            // Soft contact shadow (0x000000, 0x271708)
+            const shadows = g.calls.filter(
+              (c) =>
+                c.method === "fill" &&
+                (c.args[0]?.color === 0x000000 || c.args[0]?.color === 0x271708)
+            );
+            expect(shadows.length).toBeGreaterThanOrEqual(1);
+
+            // Timber stake shaft (0x78350f), sunlit highlight (0xa16207), heartwood top (0xc29d62)
+            const shaft = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x78350f);
+            expect(shaft.length).toBeGreaterThan(0);
+            const highlight = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xa16207);
+            expect(highlight.length).toBeGreaterThan(0);
+            const heartwood = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xc29d62);
+            expect(heartwood.length).toBeGreaterThan(0);
+
+            // Slender peg grain split stroke (0x451a03)
+            const grain = g.calls.filter((c) => c.method === "stroke" && c.args[0]?.color === 0x451a03);
+            expect(grain.length).toBeGreaterThan(0);
+
+            // Does NOT draw courtyard work plot red ribbon (0xef4444) or gold hint glow (0xfde047)
+            const redRibbon = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xef4444);
+            expect(redRibbon.length).toBe(0);
+            const goldGlow = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xfde047);
+            expect(goldGlow.length).toBe(0);
+          });
+
+          it("drawRimGapMark renders winter frost cap when winter decoration is active", () => {
+            const gSpring = createMockGraphics();
+            drawRimGapMark(gSpring, 200, 100, 0, 2, 0, getThemeVisuals("spring"));
+            const frostSpring = gSpring.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf1f5f9);
+            expect(frostSpring.length).toBe(0);
+
+            const gWinter = createMockGraphics();
+            drawRimGapMark(gWinter, 200, 100, 0, 2, 0, getThemeVisuals("winter"));
+            const frostWinter = gWinter.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0xf1f5f9);
+            expect(frostWinter.length).toBeGreaterThan(0);
+          });
+
+          it("paintMissingRimSegments paints gap marks for missing segments and clears when wall ring is closed", () => {
+            const state = createMockState();
+            state.buildings = [
+              { id: "w1", typeId: "walls", realmId: "player", x: 0, y: 1, level: 1, completesAtTick: null },
+            ];
+
+            const g = createMockGraphics();
+            paintMissingRimSegments(g, state, 0, visuals);
+
+            // g.clear was called
+            const clearCalls = g.calls.filter((c) => c.method === "clear");
+            expect(clearCalls.length).toBe(1);
+
+            // Timber stakes and trench lines drawn across the 47 missing rim segments
+            const shaftCalls = g.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x78350f);
+            expect(shaftCalls.length).toBe(47);
+
+            // When closed:
+            for (let i = 0; i < 48; i++) {
+              const tile = getRimTileAt(i);
+              state.buildings.push({
+                id: `wall_${i}`,
+                typeId: "walls",
+                realmId: "player",
+                x: tile.x,
+                y: tile.y,
+                level: 1,
+                completesAtTick: null,
+              });
+            }
+            const gClosed = createMockGraphics();
+            paintMissingRimSegments(gClosed, state, 0, visuals);
+            const closedShafts = gClosed.calls.filter((c) => c.method === "fill" && c.args[0]?.color === 0x78350f);
+            expect(closedShafts.length).toBe(0);
+          });
+
+          it("verifies pointer-events none and zero conflict markers for wall gap", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+            expect(indexCode).toContain('rimGapLayer.eventMode = "none"');
+            expect(indexCode).toContain('plotStakesLayer.eventMode = "none"');
             expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
 
             const files = ["buildings.ts", "tokens.ts", "tiles.ts", "index.ts"];

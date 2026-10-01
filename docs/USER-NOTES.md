@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-09-30 — Missing rim wall segments marked with timber stakes and trench lines (bakeoff/gemini-wall-gap)
+
+- Open gaps in your perimeter **Wall Ring** are now visually obvious at a glance:
+  - **Missing Rim Segments**: Every unbuilt perimeter tile along the outer rim of your settlement now shows a faint wooden boundary stake driven into the turf and a scored chalk/trench line tracing where the wall footing will run.
+  - **Finished Walls & Gates**: Finished wall curtains and gates stay exactly as they are—no gap marks or stakes appear on completed segments.
+  - **Closed Wall Ring**: Once every rim segment is complete and your wall ring is fully closed, all gap marks disappear completely.
+  - Distinct from courtyard work plots: rim gap stakes are subtle, weathered timber pegs with no red ribbons and no gold hint rings, giving an immediate, intuitive read of where your defenses still need stone.
+  - In winter, each stake top receives a gentle dusting of snow and frost.
+- Purely cosmetic visual update; strictly `pointer-events: none` and never interferes with map clicks, camera movement, or building interactions.
+
 ## 2026-09-30 — Watchtower beacon lit when staffed, unlit and cold when empty (bakeoff/gemini-tower-unlit)
 
 - Your **Watchtowers** now clearly signal whether a worker is stationed on lookout:
