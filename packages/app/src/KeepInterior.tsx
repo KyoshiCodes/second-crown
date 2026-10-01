@@ -7,11 +7,15 @@ import {
   gateOnRim,
   getBuildingType,
   hasClosedWallRing,
+  healTicks,
+  healTicksLeft,
   housingCap,
+  infirmaryBeds,
   isHoldRim,
   keepBonus,
   keepLevel,
   listBuildableTypes,
+  listHealing,
   population,
   settlementName,
   staffBonus,
@@ -19,6 +23,7 @@ import {
   wallHp,
   workPlotCap,
   workPlotsUsed,
+  woundedCount,
   type GameState,
 } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
@@ -27,6 +32,7 @@ import { HallChip } from "./hud/HallChip";
 import { RoomBackdrop } from "./RoomBackdrop";
 import "./keep-interior.css";
 import "./hud/button-pips.css";
+import "./hud/keep-room.css";
 
 /** Hold grid size. Mirrors HOLD_W / HOLD_H in packages/sim/src/actions/build.ts. */
 const HOLD_W = 16;
@@ -132,6 +138,7 @@ export function KeepInterior(props: {
         {room === "hall" ? (
           <div role="tabpanel" aria-label="Hall" className="sc-keepin-room-panel is-hall">
             <RoomBackdrop room="hall" />
+            <HallCards state={state} />
             <div className="sc-keepin-yard-wrap">
               <div className="sc-keepin-yard" style={{ gridTemplateColumns: `repeat(${HOLD_W}, 1fr)` }}>
                 {cells}
@@ -175,78 +182,144 @@ export function KeepInterior(props: {
   );
 }
 
+/** One fact as a work card: name, tag, status line, optional foot. Read-only, no sim calls. */
+function FactCard(props: {
+  name: string;
+  tag?: string;
+  status: string;
+  foot?: string;
+  tone: "good" | "warn" | "bad" | "idle";
+}) {
+  const { name, tag, status, foot, tone } = props;
+  return (
+    <div className={`sc-work-card sc-keeproom-card is-${tone}`}>
+      <div className="sc-work-head">
+        <span className="sc-work-name">{name}</span>
+        {tag ? <span className="sc-work-level">{tag}</span> : null}
+      </div>
+      <div className="sc-work-status">{status}</div>
+      {foot ? (
+        <div className="sc-work-foot">
+          <span className="sc-work-where">{foot}</span>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Keep level, people and plot slots: the same numbers as the keep header. */
+function HallCards(props: { state: GameState }) {
+  const { state } = props;
+  const lv = keepLevel(state);
+  const pop = population(state);
+  const cap = housingCap(state);
+  const used = workPlotsUsed(state);
+  const plots = workPlotCap(state);
+  return (
+    <div className="sc-keeproom-grid">
+      <FactCard name="Keep" tag={lv ? `lv ${lv}` : "none"} status={lv ? `Keep ${lv}` : "No Keep"} tone={lv ? "good" : "bad"} />
+      <FactCard name="People" tag={`${pop}/${cap}`} status={pop >= cap ? "Housing full" : `Room for ${cap - pop} more`} tone={pop >= cap ? "warn" : "idle"} />
+      <FactCard name="Plots" tag={`${used}/${plots}`} status={used >= plots ? "All slots used" : `${plots - used} slots free`} tone={used >= plots ? "warn" : "idle"} />
+    </div>
+  );
+}
+
 /** Wall HP, ring and gate, read from the same sim helpers the War room uses. */
 function WallRoom(props: { state: GameState }) {
   const { state } = props;
   const mine = state.buildings.filter((b) => b.realmId === "player" && (b.typeId === "walls" || b.typeId === "gate"));
   const gateUp = gateOnRim(state);
   const edge = edgeWallCount(state, "player");
+  const ring = hasClosedWallRing(state);
   return (
     <div role="tabpanel" aria-label="Wall" className="sc-keepin-room-body is-wall">
       <RoomBackdrop room="wall" />
-      <dl className="sc-keepin-facts">
-        <div>
-          <dt>Wall HP</dt>
-          <dd>{wallHp(state)}</dd>
-        </div>
-        <div>
-          <dt>Rim walls</dt>
-          <dd>
-            {edge} on the rim · {countBuilding(state, "walls")} total
-          </dd>
-        </div>
-        <div>
-          <dt>Ring</dt>
-          <dd>{hasClosedWallRing(state) ? "Closed" : "Open"}</dd>
-        </div>
-        <div>
-          <dt>Gate</dt>
-          <dd>{gateUp ? `Up · ${gateHp(state)} HP` : "Down"}</dd>
-        </div>
-      </dl>
+      <div className="sc-keeproom-grid">
+        <FactCard
+          name="Walls"
+          tag={`${wallHp(state)} HP`}
+          status={`${edge} on the rim · ${countBuilding(state, "walls")} total`}
+          tone={edge > 0 ? "good" : "idle"}
+        />
+        <FactCard name="Ring" tag={ring ? "closed" : "open"} status={ring ? "Closed" : "Open"} tone={ring ? "good" : "warn"} />
+        <FactCard
+          name="Gate"
+          tag={gateUp ? `${gateHp(state)} HP` : "down"}
+          status={gateUp ? `Up · ${gateHp(state)} HP` : "Down"}
+          tone={gateUp ? "good" : "bad"}
+        />
+      </div>
       <p className="sc-keepin-hint">Siege hits walls first, then the yard, then the keep.</p>
       <WorkList state={state} works={mine} empty="No walls or gate raised." />
     </div>
   );
 }
 
-/** Finished works on a keep edge (keepBonus lifts them), same rule as the inspect card's keep yard line. */
+/** Beds and heal time (same reads as the Hall's Yard room), then finished works on a keep edge. */
 function YardRoom(props: { state: GameState }) {
   const { state } = props;
   const yard = state.buildings.filter(
     (b) => b.realmId === "player" && b.completesAtTick === null && keepBonus(state, b) > 1
   );
+  const wounded = woundedCount(state);
+  const beds = infirmaryBeds(state);
+  const healing = listHealing(state).length;
+  const healLeft = Math.ceil(healTicksLeft(state) / TICKS_PER_SECOND);
+  const healSec = healTicks(state) / TICKS_PER_SECOND;
   return (
     <div role="tabpanel" aria-label="Yard" className="sc-keepin-room-body is-yard">
       <RoomBackdrop room="yard" />
-      <p className="sc-keepin-hint">Works touching the keep ({yard.length}).</p>
+      <div className="sc-keeproom-grid">
+        <FactCard
+          name="Beds"
+          tag={`${wounded}/${beds}`}
+          status={beds < 1 ? "No Infirmary" : `Wounded ${wounded} / ${beds} beds`}
+          foot={`4 food · ${healSec}s per treat`}
+          tone={beds < 1 ? "idle" : wounded >= beds ? "warn" : "good"}
+        />
+        <FactCard
+          name="Healing"
+          tag={healing > 0 ? `${healLeft}s` : "idle"}
+          status={healing > 0 ? `Treating ${healing} (${healLeft}s)` : "No one on a cot"}
+          tone={healing > 0 ? "good" : "idle"}
+        />
+        <FactCard name="Keep edge" tag={`${yard.length}`} status={`Works touching the keep (${yard.length})`} tone={yard.length > 0 ? "good" : "idle"} />
+      </div>
       <WorkList state={state} works={yard} empty="No works on the keep edge." />
     </div>
   );
 }
 
+/** Works as read-only work cards: same head / status / foot as Kingdom works, no buttons. */
 function WorkList(props: { state: GameState; works: Building[]; empty: string }) {
   const { state, works, empty } = props;
   if (works.length === 0) return <p className="sc-keepin-empty">{empty}</p>;
   const tick = state.meta.tick;
   return (
-    <ul className="sc-keepin-list">
+    <div className="sc-keeproom-grid">
       {works.map((b) => {
         const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
         const done = b.completesAtTick;
         const raising = done !== null;
         const secs = raising ? Math.max(0, Math.ceil((done - tick) / TICKS_PER_SECOND)) : 0;
+        const staffed = !raising && staffBonus(state, b) > 1;
         return (
-          <li key={b.id} className={raising ? "is-raising" : ""}>
-            <HallChip typeId={b.typeId} staffed={!raising && staffBonus(state, b) > 1} size={20} />
-            <span className="sc-keepin-list-name">{nm}</span>
-            <span className="sc-keepin-list-meta">
-              {raising ? `raising, ${secs}s left` : `lv ${b.level}`} · plot {b.x},{b.y}
-            </span>
-          </li>
+          <div key={b.id} className={`sc-work-card sc-keeproom-card ${raising ? "is-raising" : staffed ? "is-staffed" : "is-empty"}`}>
+            <div className="sc-work-head">
+              <span className="sc-work-title-group">
+                <HallChip typeId={b.typeId} staffed={staffed} size={20} />
+                <span className="sc-work-name">{nm}</span>
+              </span>
+              <span className="sc-work-level">lv {b.level}</span>
+            </div>
+            <div className="sc-work-status">{raising ? `Raising, ${secs}s left` : staffed ? "Staffed" : "Empty"}</div>
+            <div className="sc-work-foot">
+              <span className="sc-work-where">plot {b.x},{b.y}</span>
+            </div>
+          </div>
         );
       })}
-    </ul>
+    </div>
   );
 }
 

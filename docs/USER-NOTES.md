@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-01 — Keep room cards (wave/keep-rooms)
+
+- Inside the keep, each room now shows cards. Hall: your Keep level, people, and free plots. Wall: wall HP, whether the ring is closed, and whether the gate is up. Yard: wounded vs. beds, how long a treat takes, and who is healing now.
+- Walls, gate, and keep-edge works show as cards too. Green is good, gold needs a look, red is a problem.
+
 ## 2026-10-01 — 24px Faction Seal Pips and Spoils Craft Wax Seals (bakeoff/gemini-faction-seals)
 
 - The three faction cards and Crown Spoils crafts now display ornate heraldic wax seals:
