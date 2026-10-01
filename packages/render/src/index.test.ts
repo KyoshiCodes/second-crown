@@ -7963,6 +7963,172 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
             }
           });
         });
+
+        describe("bakeoff/gemini-stores: Distinct isometric chips for Granary, Mint, Sawmill, Mason Yard (Finished vs Scaffolding)", () => {
+          function createMockGraphics() {
+            const calls: { method: string; args: any[] }[] = [];
+            const mock: any = {
+              calls,
+              clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+              poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+              fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+              stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+              moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+              lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+              circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+              rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+              ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+            };
+            return mock;
+          }
+
+          const defaultVisuals: ThemeVisuals = {
+            groundLight: 0x2d4a22,
+            groundDark: 0x22381a,
+            gridLine: 0x3d5e30,
+            wallColor: 0x64748b,
+            wallTrim: 0x475569,
+            parapet: 0x334155,
+            decorations: "none",
+            season: "summer",
+            seasonName: "Verdant Sun",
+          };
+
+          it("renders distinct finished Western isometric chips for all four store buildings", () => {
+            // 1. Granary: staddle stone mushroom caps, wheat finial, suspended flour sack, grain barrels
+            const gGranary = createMockGraphics();
+            drawIsometricBuilding(gGranary, "granary", 1, true, 0.5, defaultVisuals, 2, 2, undefined, "western");
+            const granaryJson = JSON.stringify(gGranary.calls);
+            expect(granaryJson).toContain(String(0xd4a359)); // Thatch roof
+            expect(granaryJson).toContain(String(0xfef08a)); // Suspended flour sack
+            expect(granaryJson).toContain(String(0xfacc15)); // Golden grain in barrels
+            expect(granaryJson).toContain(String(0x94a3b8)); // Staddle stone caps
+
+            // 2. Mint: Romanesque arch, padlock, gilded crown medallion, flywheel press, bullion ingots
+            const gMint = createMockGraphics();
+            drawIsometricBuilding(gMint, "mint", 1, true, 0.5, defaultVisuals, 2, 2, undefined, "western");
+            const mintJson = JSON.stringify(gMint.calls);
+            expect(mintJson).toContain(String(0xfacc15)); // Gilded crown & bullion ingots
+            expect(mintJson).toContain(String(0xd97706)); // Flywheel coin press
+            expect(mintJson).toContain(String(0xf97316)); // Smelting crucible coals
+            expect(mintJson).toContain(String(0xd4a359)); // Brass padlock & scale
+
+            // 3. Sawmill: timber millhouse, turning waterwheel, splashing foam, log on carriage, circular saw, sawdust
+            const gSawmill = createMockGraphics();
+            drawIsometricBuilding(gSawmill, "sawmill", 1, true, 0.5, defaultVisuals, 2, 2, undefined, "western");
+            const sawmillJson = JSON.stringify(gSawmill.calls);
+            expect(sawmillJson).toContain(String(0xe0f2fe)); // Water churn foam
+            expect(sawmillJson).toContain(String(0x38bdf8)); // Flume water flow
+            expect(sawmillJson).toContain(String(0xcbd5e1)); // Steel circular saw blade
+            expect(sawmillJson).toContain(String(0xfef08a)); // Fresh sawdust mound
+
+            // 4. Mason Yard: stonecutter lodge, banker workbench with chisel & mallet, high derrick shear-legs, cut ashlar stack
+            const gMason = createMockGraphics();
+            drawIsometricBuilding(gMason, "mason", 1, true, 0.5, defaultVisuals, 2, 2, undefined, "western");
+            const masonJson = JSON.stringify(gMason.calls);
+            expect(masonJson).toContain(String(0x94a3b8)); // Dressed ashlar blocks
+            expect(masonJson).toContain(String(0x334155)); // Slate roof & tongs
+            expect(masonJson).toContain(String(0xf8fafc)); // Displayed carved column
+            expect(masonJson).toContain(String(0xe2e8f0)); // Marble urn
+          });
+
+          it("renders distinct scaffolding timber chips for all four store buildings when complete = false", () => {
+            // 1. Granary Scaffolding: staddle bases, exposed floor joists, A-frame hoist, peg bucket
+            const gGranaryScaffold = createMockGraphics();
+            drawIsometricBuilding(gGranaryScaffold, "granary", 1, false, 0.5, defaultVisuals, 2, 2, undefined, "western");
+            const granaryScaffoldJson = JSON.stringify(gGranaryScaffold.calls);
+            expect(granaryScaffoldJson).toContain(String(0xe2e8f0)); // Chalk boundary
+            expect(granaryScaffoldJson).toContain(String(0x94a3b8)); // Hook
+            // Suppresses finished thatch roof, dormer, flour sack
+            expect(granaryScaffoldJson).not.toContain(String(0xd4a359)); // no thatch roof
+
+            // 2. Mint Scaffolding: foundation trench, low stone plinth courses, wooden vault centering arch former, derrick lifting lintel
+            const gMintScaffold = createMockGraphics();
+            drawIsometricBuilding(gMintScaffold, "mint", 1, false, 0.5, defaultVisuals, 2, 2, undefined, "western");
+            const mintScaffoldJson = JSON.stringify(gMintScaffold.calls);
+            expect(mintScaffoldJson).toContain(String(0x1e293b)); // Foundation trench
+            expect(mintScaffoldJson).toContain(String(0xe2e8f0)); // Lime mortar in trough
+            // Suppresses finished crown medallion, coin press, bullion ingots
+            expect(mintScaffoldJson).not.toContain(String(0xfacc15)); // no gold bullion or crown
+            expect(mintScaffoldJson).not.toContain(String(0xf97316)); // no smelting coals
+
+            // 3. Sawmill Scaffolding: excavated millrace flume channel, wheel bearing posts (no wheel), King-post open trusses
+            const gSawmillScaffold = createMockGraphics();
+            drawIsometricBuilding(gSawmillScaffold, "sawmill", 1, false, 0.5, defaultVisuals, 2, 2, undefined, "western");
+            const sawmillScaffoldJson = JSON.stringify(gSawmillScaffold.calls);
+            expect(sawmillScaffoldJson).toContain(String(0x1e293b)); // Channel ditch
+            expect(sawmillScaffoldJson).toContain(String(0x64748b)); // Spindle
+            // Suppresses finished waterwheel spray, foam, finished walls
+            expect(sawmillScaffoldJson).not.toContain(String(0xe0f2fe)); // no foam spray
+            expect(sawmillScaffoldJson).not.toContain(String(0x38bdf8)); // no flume water
+            expect(sawmillScaffoldJson).not.toContain(String(0xbae6fd)); // no foam bubbles
+            expect(sawmillScaffoldJson).not.toContain(String(0x5b2609)); // no finished wall facet
+
+            // 4. Mason Scaffolding: chalk grid, red corner boundary pegs, high derrick shear-legs, rough boulders with splitting wedges
+            const gMasonScaffold = createMockGraphics();
+            drawIsometricBuilding(gMasonScaffold, "mason", 1, false, 0.5, defaultVisuals, 2, 2, undefined, "western");
+            const masonScaffoldJson = JSON.stringify(gMasonScaffold.calls);
+            expect(masonScaffoldJson).toContain(String(0xdc2626)); // Red boundary stakes
+            expect(masonScaffoldJson).toContain(String(0x475569)); // Sledgehammer
+            // Suppresses finished carved column and arched workshop door
+            expect(masonScaffoldJson).not.toContain(String(0xf8fafc)); // no carved column
+            expect(masonScaffoldJson).not.toContain(String(0x1e293b)); // no arched workshop door
+          });
+
+          it("renders cultural chips across all 4 kits (cedar, sand, steppe, islands) for each store building", () => {
+            const cultureKits = ["cedar", "sand", "steppe", "islands"] as const;
+            const storeTypes = ["granary", "mint", "sawmill", "mason"] as const;
+
+            for (const typeId of storeTypes) {
+              for (const kit of cultureKits) {
+                const g = createMockGraphics();
+                drawIsometricBuilding(g, typeId, 1, true, 0.5, defaultVisuals, 2, 2, undefined, kit);
+                expect(g.calls.length).toBeGreaterThan(10);
+
+                const gScaffold = createMockGraphics();
+                drawIsometricBuilding(gScaffold, typeId, 1, false, 0.5, defaultVisuals, 2, 2, undefined, kit);
+                expect(gScaffold.calls.length).toBeGreaterThan(10);
+              }
+            }
+          });
+
+          it("verifies direct exported scaffolding functions exist and execute cleanly", async () => {
+            const buildingsModule = await import("./buildings.js");
+            expect(typeof buildingsModule.drawGranaryScaffolding).toBe("function");
+            expect(typeof buildingsModule.drawMintScaffolding).toBe("function");
+            expect(typeof buildingsModule.drawSawmillScaffolding).toBe("function");
+            expect(typeof buildingsModule.drawMasonScaffolding).toBe("function");
+
+            const cult = buildingsModule.culturePalette("western");
+            for (const fn of [
+              buildingsModule.drawGranaryScaffolding,
+              buildingsModule.drawMintScaffolding,
+              buildingsModule.drawSawmillScaffolding,
+              buildingsModule.drawMasonScaffolding,
+            ]) {
+              const g = createMockGraphics();
+              fn(g, 20, 1.0, 0.5, "western", cult);
+              expect(g.calls.length).toBeGreaterThan(5);
+            }
+          });
+
+          it("verifies pointer-events none and zero conflict markers for store buildings", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const indexCode = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+
+            expect(indexCode).toContain('entitiesLayer.eventMode = "none"');
+            expect(indexCode).toContain('g.eventMode = "none"');
+
+            const files = ["buildings.ts", "tokens.ts", "index.ts"];
+            for (const f of files) {
+              const code = fs.readFileSync(path.resolve(__dirname, f), "utf-8");
+              expect(code).not.toContain("<<<<<<<");
+              expect(code).not.toContain("=======");
+              expect(code).not.toContain(">>>>>>>");
+            }
+          });
+        });
       });
     });
   });

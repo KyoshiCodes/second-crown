@@ -1,10 +1,26 @@
 # CHANGELOG
 
-## 2026-10-01 — Army HUD cards (wave/army-hud)
+## 2026-10-01 — Gemini Store Buildings Isometric Chips (bakeoff/gemini-stores)
 
-- **App: treat time** (`ArmyTab.tsx`, `WarRoom.tsx`, `KeepHall.tsx`): labels and toasts use `healTicks(state) / 10` instead of a hardcoded 5s.
-- **App: Army tab cards** (`ArmyTab.tsx`, `UpkeepLine.tsx`): queue, posts, wounded, upkeep and quick levies render as `sc-work-card` (Kingdom work-card chrome). Buttons use `sc-work-btn`.
-- No sim, server or theme.css changes. 239 tests pass; app build clean.
+- **Render Only: Distinct Isometric Chips for Granary, Mint, Sawmill, Mason Yard (`packages/render/src/buildings.ts`, `packages/render/src/index.test.ts`)**:
+  - **Four Store Buildings Distinct Identity**: Replaces generic boxes with four uniquely tailored architectural profiles for the four cap buildings, both finished and unfinished scaffolding:
+    - **Granary (Food Cap)**:
+      - *Finished*: Elevated on stone mushroom staddle piers (`0x64748b`, `0x94a3b8`) to deter vermin, horizontal louvered timber walls (`0x854d0e`), steep thatched gable roof with dormer vent and wheat ear finial (`0xd4a359`, `0xfacc15`), hoist gantry beam with suspended flour sack (`0xfef08a`), and loading dock props (golden grain barrels, flour sack stacks, wooden grain crates).
+      - *Scaffolding*: Staddle stone piers, sill framing with exposed floor joists, partial floor planking, scaffolding standards/cross-braces, A-frame hoist with dangling hook rope, timber framing stacks, and peg bucket.
+    - **Mint (Gold Cap)**:
+      - *Finished*: Heavy rusticated ashlar plinth courses (`0x64748b`), iron-studded security door with brass padlock (`0x1e293b`, `0xd4a359`), pedimented stone niche with gilded royal crown medallion (`0xfacc15`), sloped slate roof (`0x334155`), rotating flywheel coin press with active smelting crucible (`0xf97316`, `0xfef08a`), and bullion props (gold ingot stacks, open brass coin chests, balance scale).
+      - *Scaffolding*: Excavated foundation ditch trench, low stone masonry plinth courses with mortar scoring, wooden vault centering arch former, multi-tier scaffold platforms with ladders, timber derrick crane hoisting stone lintel block, and mortar mixing trough with lime and trowel.
+    - **Sawmill (Wood Cap)**:
+      - *Finished*: River timber millhouse with mossy shake roof (`0x78350f`, `0x451a03`), excavated millrace flume channel with rushing stream (`0x38bdf8`), active rotating waterwheel with foaming spray droplets (`0xe0f2fe`, `0xbae6fd`), log carriage track with timber log and spinning circular steel saw blade (`0xcbd5e1`), fresh golden sawdust mounds (`0xfef08a`), and stacked lumber cords.
+      - *Scaffolding*: Excavated millrace flume channel with shoring stakes, wheel bearing posts and axle spindle (waterwheel unmounted), open timber framing with exposed King-post roof trusses open to sky, saw carriage track under construction, carpenter sawhorses, and crosscut saw.
+    - **Mason Yard (Stone Cap)**:
+      - *Finished*: Stonecutter atelier with slate shed roof (`0x334155`), heavy banker workbench with half-dressed stone block, steel chisels and wooden mallets (`0x475569`, `0xcbd5e1`, `0x78350f`), high wooden tripod derrick shear-legs crane with hoist tackle lifting ashlar block (`0x78350f`, `0x94a3b8`), finished ashlar stone pallet stacks, displayed carved classical column (`0xf8fafc`), and marble urn (`0xe2e8f0`).
+      - *Scaffolding*: Chalked ground grid layout with red corner boundary pegs, high wooden derrick tripod shear-legs crane with hoist tackle and rough boulder, partial stonecutter shed framing, raw unquarried stone boulders with steel splitting wedges, and mason sledgehammer.
+  - **All Culture Kits Supported**: Cedar Kin (log crib granary, boulder vault mint, fir flume sawmill, megalithic mason lodge), Sand Banner (whitewashed mudbrick granary, horseshoe arch mint, donkey drive sawmill, open-air marble atelier), Wind Host (grain wagon, armored cart-yurt mint, tripod log crane sawmill, balbal stele mason), Tide Clans (stilt palafito granary, sunken coral vault mint, tidal paddle sawmill, coral-stone lodge).
+  - **Untouched Existing Kits**: Farm, Cottage, Quarry, and Watchtower remain strictly untouched.
+  - **Construction Scaffolding Invariant**: Store buildings in progress skip cracked stone overlay and display authentic timber scaffolding structures.
+  - **Strictly Non-Blocking**: `pointer-events: none` on all graphics layers.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 295 render tests pass; 239 sim tests pass; app builds cleanly.
 
 ## 2026-10-01 — Hall room bonus (wave/hall-bonus)
 

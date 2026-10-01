@@ -2,10 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-01 — Army tab tidied into cards (wave/army-hud)
+## 2026-10-01 — Distinct chips for Granary, Mint, Sawmill, and Mason Yard (bakeoff/gemini-stores)
 
-- The Treat button now shows the real heal time everywhere: 4s with a finished Barracks, 5s without.
-- The Army tab's barracks queue, posts, wounded, upkeep and quick levies (food levy, champion, mercenaries) now sit in cards like the Kingdom works.
+- The four resource store buildings (the cap buildings) now have distinct, detailed architectural chips instead of generic boxes:
+  - **Granary (Food Cap)**: An elevated staddle-stone timber granary raised on mushroom-capped stone stilts to keep grain dry and safe from mice, featuring horizontal timber louvers, a steep thatched gable roof with a dormer and golden wheat ear finial, an overhanging attic hoist with a suspended flour sack swinging in the breeze, and grain barrels and flour bags stacked on the loading dock. While under construction, you see staddle stone piers, exposed floor joists, partial floor decking, scaffold poles, and an A-frame hoist.
+  - **Mint (Gold Cap)**: A fortified stone treasury with rusticated granite walls, heavy iron-banded vault doors with a brass padlock, a gilded royal crown medallion set into the stone pediment, a sloped slate roof, a turning flywheel coin-stamping screw press with a glowing smelting crucible, and stacks of gold bullion ingots and open coin chests. Under construction, it reveals excavated foundation trenches, low stone plinth courses, wooden vault centering formers, scaffolding ladders, and a mortar mixing trough.
+  - **Sawmill (Wood Cap)**: A river timber mill with mossy wood shakes, a running water flume channel driving a turning waterwheel with splashing foam, a timber carriage carrying a raw fir log into a spinning circular steel saw blade, fresh golden sawdust piles, and neatly stacked lumber cords. Under construction, you see the excavated millrace channel, wheel bearing posts with a bare axle, open King-post roof trusses open to the sky, and carpenter sawhorses with a crosscut saw.
+  - **Mason Yard (Stone Cap)**: A stonecutter's atelier with a slate shed roof, a heavy stone banker workbench with partially dressed ashlar blocks, chisels, and mallets, a tall wooden tripod derrick crane lifting a dressed stone block on a hoist line, ashlar block pallets, a classical carved marble column on display, and a chiseled urn. Under construction, you see a chalked ground layout grid with red boundary pegs, shear-legs derrick crane with rough boulder tackle, and raw stone boulders with steel splitting wedges.
+- Supported across all cultural styles (Western kingdoms, Cedar Kin, Sand Banner, Wind Host, and Tide Clans).
+- Existing kits for Farm, Cottage, Quarry, and Watchtower were left untouched.
+- Purely cosmetic visual update; strictly `pointer-events: none` and never interferes with clicking buildings, map panning, or game interactions.
 
 ## 2026-10-01 — Hall rooms give a small bonus (wave/hall-bonus)
 
@@ -14,6 +20,7 @@ Newest first. Plain language for playtesters.
   - **Lectern** (needs a finished Academy): new studies take 20% less time. This was already true; the Hall now says so.
   - **Gate** (needs a finished Gate on the rim): the gate adds its HP to your walls when a raid hits. This was already true; the Hall now says so.
 - No room, no bonus. Raids and training costs are unchanged.
+- Note: the Army tab's Treat button still says "5s". The Hall shows the real time.
 
 ## 2026-10-01 — Cottages show bunks and packed bedrolls (bakeoff/gemini-cottage-bunk)
 
