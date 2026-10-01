@@ -8274,6 +8274,146 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               }
             });
           });
+
+          describe("bakeoff/gemini-button-pips: 16px pips on leftover buttons (build, study, holiday)", () => {
+            it("verifies button-pips.css defines layout, pip non-blocking guarantee, and theme.css is untouched", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cssPath = path.resolve(__dirname, "../../app/src/hud/button-pips.css");
+              expect(fs.existsSync(cssPath)).toBe(true);
+              const css = fs.readFileSync(cssPath, "utf-8");
+
+              expect(css).toContain("sc-btn-pip");
+              expect(css).toContain("sc-holiday-pip");
+              expect(css).toContain("pointer-events: none !important");
+              expect(css).toContain("sc-btn-with-pip");
+
+              const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+              expect(themeCss).not.toContain("sc-btn-pip");
+              expect(themeCss).not.toContain("sc-holiday-pip");
+            });
+
+            it("verifies HolidayPip component properties, prop emoji emblems, and pointer-events: none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const holidayPath = path.resolve(__dirname, "../../app/src/hud/HolidayPip.tsx");
+              expect(fs.existsSync(holidayPath)).toBe(true);
+              const holidayCode = fs.readFileSync(holidayPath, "utf-8");
+
+              expect(holidayCode).toContain("HolidayPip");
+              expect(holidayCode).toContain('pointerEvents: "none"');
+              expect(holidayCode).toContain('aria-hidden="true"');
+              expect(holidayCode).toContain("data-holiday-pip");
+              expect(holidayCode).toContain("size = 16");
+              expect(holidayCode).toContain("detectCurrentHoliday");
+              expect(holidayCode).toContain("getHolidayMeta");
+            });
+
+            it("verifies HallChip supports inline as='span' with 16px size and pointer-events: none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const chipPath = path.resolve(__dirname, "../../app/src/hud/HallChip.tsx");
+              expect(fs.existsSync(chipPath)).toBe(true);
+              const chipCode = fs.readFileSync(chipPath, "utf-8");
+
+              expect(chipCode).toContain("HallChip");
+              expect(chipCode).toContain('pointerEvents: "none"');
+              expect(chipCode).toContain('aria-hidden="true"');
+              expect(chipCode).toContain("as?: \"div\" | \"span\"");
+              expect(chipCode).toContain("as = \"div\"");
+            });
+
+            it("verifies ScrollPip supports 16px size and pointer-events: none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const scrollPath = path.resolve(__dirname, "../../app/src/hud/ScrollPip.tsx");
+              expect(fs.existsSync(scrollPath)).toBe(true);
+              const scrollCode = fs.readFileSync(scrollPath, "utf-8");
+
+              expect(scrollCode).toContain("ScrollPip");
+              expect(scrollCode).toContain('pointerEvents: "none"');
+              expect(scrollCode).toContain('aria-hidden="true"');
+              expect(scrollCode).toContain("size?: number");
+            });
+
+            it("verifies KingdomTab mounts 16px HallChip pips on build buttons, Raising works, and Improving upgrades", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const tabPath = path.resolve(__dirname, "../../app/src/tabs/KingdomTab.tsx");
+              expect(fs.existsSync(tabPath)).toBe(true);
+              const tabCode = fs.readFileSync(tabPath, "utf-8");
+
+              expect(tabCode).toContain("HallChip");
+              expect(tabCode).toContain("button-pips.css");
+              expect(tabCode).toContain('<HallChip typeId={t.id} size={16} as="span" />');
+              expect(tabCode).toContain('<HallChip typeId="cottage" size={16} as="span" />');
+              expect(tabCode).toContain('<HallChip typeId={b.typeId} size={16} as="span" />');
+              expect(tabCode).toContain('<HallChip typeId={b?.typeId ?? ""} size={16} as="span" />');
+            });
+
+            it("verifies KeepInterior mounts 16px HallChip pips on building palette buttons", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const keepPath = path.resolve(__dirname, "../../app/src/KeepInterior.tsx");
+              expect(fs.existsSync(keepPath)).toBe(true);
+              const keepCode = fs.readFileSync(keepPath, "utf-8");
+
+              expect(keepCode).toContain("HallChip");
+              expect(keepCode).toContain('<HallChip typeId={t.id} size={16} as="span" />');
+            });
+
+            it("verifies ResearchBar mounts 16px ScrollPip pips on study buttons and active study rows", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const resPath = path.resolve(__dirname, "../../app/src/ResearchBar.tsx");
+              expect(fs.existsSync(resPath)).toBe(true);
+              const resCode = fs.readFileSync(resPath, "utf-8");
+
+              expect(resCode).toContain("ScrollPip");
+              expect(resCode).toContain("button-pips.css");
+              expect(resCode).toContain('<ScrollPip size={16} status="open" />');
+              expect(resCode).toContain('<ScrollPip size={16} status="ready" />');
+              expect(resCode).toContain('<ScrollPip size={16} status="claimed" />');
+            });
+
+            it("verifies ChromeDock and TesterBar mount 16px HolidayPip pips on holiday controls", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const dockPath = path.resolve(__dirname, "../../app/src/ChromeDock.tsx");
+              expect(fs.existsSync(dockPath)).toBe(true);
+              const dockCode = fs.readFileSync(dockPath, "utf-8");
+              expect(dockCode).toContain("HolidayPip");
+              expect(dockCode).toContain('<HolidayPip holiday={holiday} size={16} />');
+
+              const testerPath = path.resolve(__dirname, "../../app/src/TesterBar.tsx");
+              expect(fs.existsSync(testerPath)).toBe(true);
+              const testerCode = fs.readFileSync(testerPath, "utf-8");
+              expect(testerCode).toContain("HolidayPip");
+              expect(testerCode).toContain('<HolidayPip holiday={holidayPreview} size={16} />');
+            });
+
+            it("verifies zero merge conflict markers across all modified files", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const files = [
+                path.resolve(__dirname, "../../app/src/hud/button-pips.css"),
+                path.resolve(__dirname, "../../app/src/hud/HolidayPip.tsx"),
+                path.resolve(__dirname, "../../app/src/hud/HallChip.tsx"),
+                path.resolve(__dirname, "../../app/src/hud/ScrollPip.tsx"),
+                path.resolve(__dirname, "../../app/src/tabs/KingdomTab.tsx"),
+                path.resolve(__dirname, "../../app/src/KeepInterior.tsx"),
+                path.resolve(__dirname, "../../app/src/ResearchBar.tsx"),
+                path.resolve(__dirname, "../../app/src/ChromeDock.tsx"),
+                path.resolve(__dirname, "../../app/src/TesterBar.tsx"),
+              ];
+              for (const f of files) {
+                const content = fs.readFileSync(f, "utf-8");
+                expect(content).not.toContain("<<<<<<<");
+                expect(content).not.toContain("=======");
+                expect(content).not.toContain(">>>>>>>");
+              }
+            });
+          });
         });
       });
     });

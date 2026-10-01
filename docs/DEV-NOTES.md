@@ -1,13 +1,32 @@
-## 2026-10-01 — app / plain buttons as work cards (wave/plain-buttons)
+## 2026-10-01 — app / 16px pips on leftover buttons (bakeoff/gemini-button-pips)
 
-- `packages/app/src/hud/plain-buttons.css` (imported by each touched component):
-  - `.sc-plain-grid`: card grid (minmax 170px).
-  - `.sc-work-card.sc-plain-card`: row card; modifiers `is-notice`, `is-ready`, `is-done`, `is-warn` set the left edge.
-  - `.sc-plain-inline`: text + buttons on one line. `.sc-plain-chip`: compact card for the top chrome bar.
-  - `.sc-plain-actions`: button row inside a card. Buttons use existing `.sc-work-btn`.
-  - `button.sc-work-card.sc-plain-pick`: whole-card pick button (`is-picked`, `is-afford`, `is-short`, `is-owned`). Replaces the inline background colors on the Kingdom build list.
-- Click handlers and disabled logic unchanged. Zero edits to `theme.css`, `packages/sim`, `server`.
-- Files: `packages/app/src/hud/plain-buttons.css`, `tabs/KingdomTab.tsx`, `tabs/CrownTab.tsx`, `DecreesPanel.tsx`, `CulturePicker.tsx`, `ChromeDock.tsx`, `TesterBar.tsx`, `CloudPanel.tsx`, `BoardPanel.tsx`.
+- `packages/app/src/hud/button-pips.css`:
+  - Styles `.sc-btn-pip`, `.sc-holiday-pip` (with `pointer-events: none !important`, `flex-shrink: 0`, `vertical-align: middle`), `.sc-btn-with-pip`, `.sc-study-btn`, and `.sc-study-row`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/HolidayPip.tsx`:
+  - 16px holiday emblem pip rendering `meta.propEmoji` (🎃 All Hallows, 🎄 Midwinter, 🪺 Dawn Feast, 🌕 Harvest Moon, ☀️ Midsummer, ⚔️ Common Days) resolved via `detectCurrentHoliday()` and `getHolidayMeta()`.
+  - Strictly `pointerEvents: "none"`, `aria-hidden="true"`, `data-holiday-pip`.
+- `packages/app/src/hud/HallChip.tsx`:
+  - Added `as?: "div" | "span"` (defaults to `"div"`), allowing clean inline button nesting without nested block DOM issues.
+- `packages/app/src/hud/ScrollPip.tsx`:
+  - Existing 24px scroll pip supports `size={16}` directly with `pointerEvents: "none"` and `aria-hidden="true"`.
+- `packages/app/src/tabs/KingdomTab.tsx`:
+  - Mounts `<HallChip typeId={t.id} size={16} as="span" />` on building picker buttons.
+  - Mounts `<HallChip typeId="cottage" size={16} as="span" />` on Cottage hint button.
+  - Mounts `<HallChip typeId={b.typeId} size={16} as="span" />` on Raising works rows.
+  - Mounts `<HallChip typeId={b?.typeId ?? ""} size={16} as="span" />` on Improving upgrades rows.
+- `packages/app/src/KeepInterior.tsx`:
+  - Mounts `<HallChip typeId={t.id} size={16} as="span" />` on building palette buttons.
+- `packages/app/src/ResearchBar.tsx`:
+  - Mounts `<ScrollPip size={16} status="open" />` on study research buttons.
+  - Mounts `<ScrollPip size={16} status="ready" />` on active studying rows.
+  - Mounts `<ScrollPip size={16} status="claimed" />` on mastered study rows.
+- `packages/app/src/ChromeDock.tsx` & `packages/app/src/TesterBar.tsx`:
+  - Mount `<HolidayPip holiday={holiday} size={16} />` beside Holiday controls.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-button-pips: 16px pips on leftover buttons (build, study, holiday)")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
 
 ## 2026-10-01 — app / map strip with small heraldic pips (bakeoff/gemini-map-pips)
 

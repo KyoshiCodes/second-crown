@@ -26,6 +26,7 @@ import { quarryHintPlot } from "./buildHints";
 import { HallChip } from "./hud/HallChip";
 import { RoomBackdrop } from "./RoomBackdrop";
 import "./keep-interior.css";
+import "./hud/button-pips.css";
 
 /** Hold grid size. Mirrors HOLD_W / HOLD_H in packages/sim/src/actions/build.ts. */
 const HOLD_W = 16;
@@ -155,9 +156,12 @@ export function KeepInterior(props: {
                 const on = selectedBuild === t.id;
                 const cls = ["sc-keepin-pick", on ? "is-on" : "", canAfford(state, t.id) ? "is-afford" : ""].join(" ");
                 return (
-                  <button key={t.id} type="button" className={cls} title={t.blurb} onClick={() => setSelectedBuild(t.id)}>
-                    {t.name}
-                    {n ? ` x${n}` : ""}
+                  <button key={t.id} type="button" className={`${cls} sc-btn-with-pip`} title={t.blurb} onClick={() => setSelectedBuild(t.id)}>
+                    <HallChip typeId={t.id} size={16} as="span" />
+                    <span>
+                      {t.name}
+                      {n ? ` x${n}` : ""}
+                    </span>
                   </button>
                 );
               })}
