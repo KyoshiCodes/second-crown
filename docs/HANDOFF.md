@@ -13,6 +13,17 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/plain-buttons, not merged)
+
+- App only. Remaining plain text-button rows now wear `.sc-work-card` chrome. Same click handlers; no new facts.
+  - **Kingdom**: keep-notice row; build list (whole-card pick buttons: picked / can afford / short); Raising, Improving, Flags rows (card grid, Cancel/Abandon as `.sc-work-btn`).
+  - **Crown**: keep-notice row; Crown style picker; marshal court rows + Promote; Daily/Season court; Ascend; Doctrine and Craft picks (whole-card buttons); Offline shield; Guild kit; Save/Export/Import/New Game row; DecreesPanel Banquet/Fortify/Trade routes/Chapel tithe.
+  - **Holiday** select in the top chrome bar is a compact card chip.
+  - **Tools drawer**: TesterBar name + holiday overlay, CloudPanel button rows, BoardPanel profile row.
+  - Untouched: anything already a card (WorkCard, DecreeCard, OfferCard, map strip hints, etc.).
+  - Styles only in `packages/app/src/hud/plain-buttons.css`. `packages/sim`, `server`, `theme.css` untouched. 239 tests pass; app builds.
+  - Files: `packages/app/src/hud/plain-buttons.css`, `tabs/KingdomTab.tsx`, `tabs/CrownTab.tsx`, `DecreesPanel.tsx`, `CulturePicker.tsx`, `ChromeDock.tsx`, `TesterBar.tsx`, `CloudPanel.tsx`, `BoardPanel.tsx`.
+
 ## Active wave (bakeoff/gemini-map-pips, not merged)
 
 - App/render HUD only. On the kingdom map strip under the board, added small existing heraldic pips for facts already shown as plain text:

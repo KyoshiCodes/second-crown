@@ -1,5 +1,6 @@
 import React from "react";
 import { getHolidayMeta, getHolidayOverride, setHolidayOverride } from "./seasons/holidays";
+import "./hud/plain-buttons.css";
 
 const KEY = "sc-tester-name";
 
@@ -31,8 +32,8 @@ export function TesterBar() {
         gap: 12,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span>Playtester name</span>
+      <div className="sc-work-card sc-plain-card sc-plain-inline">
+        <span className="sc-work-name">Playtester name</span>
         <input
           value={name}
           placeholder="your Discord name"
@@ -53,8 +54,8 @@ export function TesterBar() {
           }}
         />
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span>Holiday overlay</span>
+      <div className="sc-work-card sc-plain-card sc-plain-inline">
+        <span className="sc-work-name">Holiday overlay</span>
         <select
           value={holidayPreview}
           onChange={(e) => {

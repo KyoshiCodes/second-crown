@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-01 — Buttons become cards (wave/plain-buttons)
+
+- The build list on Kingdom is now a grid of cards. Each card says if it is picked, affordable, or short on stores.
+- Raising, Improving, and Flags rows are cards with their Cancel / Abandon button inside.
+- On Crown, every action (marshal, daily and season court, ascend, doctrine, crafts, shield, guild, banquet, fortify, routes, tithe, save) sits in its own card.
+- The Holiday picker and the tools drawer (name, cloud, board) use the same card look.
+- Nothing plays differently. Same buttons, same results.
+
 ## 2026-10-01 — Small heraldic pips on the Kingdom map strip (bakeoff/gemini-map-pips)
 
 - The strip under the kingdom board now gathers your hold status, walls, and vision into a clean work-card row with small heraldic indicator pips:

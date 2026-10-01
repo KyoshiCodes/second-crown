@@ -17,6 +17,7 @@ import {
 } from "./net/cloud";
 import { loadFromIndexedDb, saveToIndexedDb } from "./save/indexedDb";
 import { getTesterName } from "./TesterBar";
+import "./hud/plain-buttons.css";
 
 export function CloudPanel() {
   const [url, setUrl] = React.useState(() => cloudUrl() || defaultCloudUrl());
@@ -137,9 +138,9 @@ export function CloudPanel() {
       <div style={{ fontSize: 12, opacity: 0.75, margin: "6px 0 8px" }}>
         Signed-in saves auto-push. Share a watch link so a friend can spectate (read-only).
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+      <div className="sc-work-card sc-plain-card sc-plain-inline">
         <input value={url} onChange={(e) => setUrl(e.target.value)} onBlur={() => setCloudUrl(url)} placeholder={defaultCloudUrl()} style={{ minWidth: 220, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" }} />
-        <button type="button" onClick={async () => {
+        <button type="button" className="sc-work-btn" onClick={async () => {
           setCloudUrl(url);
           try {
             const g = await createGuest(getTesterName() || "Guest");
@@ -149,20 +150,20 @@ export function CloudPanel() {
             setShowCode(true);
           } catch { setStatus("Could not create guest."); }
         }}>Guest session</button>
-        <button type="button" disabled={!discord} onClick={() => { setCloudUrl(url); window.location.href = discordLoginUrl(); }}>Log in with Discord</button>
-        <button type="button" disabled={!token} onClick={async () => {
+        <button type="button" className="sc-work-btn" disabled={!discord} onClick={() => { setCloudUrl(url); window.location.href = discordLoginUrl(); }}>Log in with Discord</button>
+        <button type="button" className="sc-work-btn" disabled={!token} onClick={async () => {
           const raw = await loadFromIndexedDb();
           if (!raw) { setStatus("No local save to push."); return; }
           try { if (await push(raw)) setStatus("Pushed local save to cloud."); } catch (e) { setStatus(`Push failed: ${e instanceof Error ? e.message : "unknown"}`); }
         }}>Push save</button>
-        <button type="button" disabled={!token} onClick={async () => {
+        <button type="button" className="sc-work-btn" disabled={!token} onClick={async () => {
           try {
             const raw = await pullSave();
             await saveToIndexedDb(raw);
             setStatus("Pulled cloud save. Reload the page to play it.");
           } catch { setStatus("No cloud save yet."); }
         }}>Pull save</button>
-        <button type="button" disabled={!token} onClick={async () => {
+        <button type="button" className="sc-work-btn" disabled={!token} onClick={async () => {
           try {
             const raw = await loadFromIndexedDb();
             if (raw) await push(raw);
@@ -174,22 +175,22 @@ export function CloudPanel() {
         }}>Share watch link</button>
       </div>
       {newer !== null ? (
-        <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap", alignItems: "center", fontSize: 12 }}>
-          <span>Cloud has a newer hold.</span>
-          <button type="button" onClick={() => void loadCloud()}>Load cloud</button>
-          <button type="button" onClick={() => void keepLocal()}>Keep this game</button>
+        <div className="sc-work-card sc-plain-card sc-plain-inline is-notice">
+          <span className="sc-work-status">Cloud has a newer hold.</span>
+          <button type="button" className="sc-work-btn" onClick={() => void loadCloud()}>Load cloud</button>
+          <button type="button" className="sc-work-btn" onClick={() => void keepLocal()}>Keep this game</button>
         </div>
       ) : null}
       {watchUrl ? <div style={{ fontSize: 12, marginTop: 8 }}>Watch: <code>{watchUrl}</code></div> : null}
       {token ? (
-        <div style={{ fontSize: 12, marginTop: 8 }}>
-          <button type="button" onClick={() => setShowCode((v) => !v)}>{showCode ? "Hide recovery code" : "Show recovery code"}</button>
+        <div className="sc-work-card sc-plain-card sc-plain-inline">
+          <button type="button" className="sc-work-btn" onClick={() => setShowCode((v) => !v)}>{showCode ? "Hide recovery code" : "Show recovery code"}</button>
           {showCode ? <div style={{ marginTop: 6 }}><code style={{ wordBreak: "break-all" }}>{token}</code></div> : null}
         </div>
       ) : null}
-      <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap", alignItems: "center" }}>
+      <div className="sc-work-card sc-plain-card sc-plain-inline">
         <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Paste recovery code" style={{ minWidth: 220, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" }} />
-        <button type="button" onClick={async () => {
+        <button type="button" className="sc-work-btn" onClick={async () => {
           setCloudUrl(url);
           try {
             const me = await restoreToken(code);

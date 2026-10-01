@@ -55,6 +55,7 @@ import { VisionLine } from "../VisionLine";
 import { isScarred, WorkCard } from "../hud/WorkCard";
 import { OfferCard } from "../hud/OfferCard";
 import "../hud/map-strip.css";
+import "../hud/plain-buttons.css";
 
 export function KingdomTab(props: {
   state: GameState | undefined;
@@ -114,12 +115,12 @@ export function KingdomTab(props: {
   return (
     <>
       {notice ? (
-        <p style={{ fontSize: 13, color: "#e8c36a", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <span>{notice}</span>
-          <button type="button" onClick={() => act((st) => { clearKeepNotice(st); return "Noted."; })}>
+        <div className="sc-work-card sc-plain-card sc-plain-inline is-notice">
+          <span className="sc-work-status">{notice}</span>
+          <button type="button" className="sc-work-btn" onClick={() => act((st) => { clearKeepNotice(st); return "Noted."; })}>
             Dismiss
           </button>
-        </p>
+        </div>
       ) : null}
       <div className="sc-work-card sc-map-strip">
         <div className="sc-map-strip-row">
@@ -255,19 +256,24 @@ export function KingdomTab(props: {
         </p>
       ) : null}
       {selected ? <p style={{ fontSize: 12, opacity: 0.8 }}>{selected.name}: {selected.blurb}</p> : null}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+      <div className="sc-plain-grid">
         {types.map((t) => {
           const n = state ? countBuilding(state, t.id) : 0;
           const afford = state ? canAfford(state, t.id) : false;
+          const picked = selectedBuild === t.id;
           return (
             <button
               key={t.id}
               type="button"
               title={t.blurb}
               onClick={() => setSelectedBuild(t.id)}
-              style={{ background: selectedBuild === t.id ? "#3d6b30" : afford ? "#2d5a27" : "#2a221c", color: "#eee" }}
+              className={`sc-work-card sc-plain-pick ${picked ? "is-picked" : afford ? "is-afford" : "is-short"}`}
             >
-              {t.name}{n ? ` x${n}` : ""}{selectedBuild === t.id ? " *" : ""}
+              <span className="sc-work-head">
+                <span className="sc-work-name">{t.name}</span>
+                {n ? <span className="sc-work-level">x{n}</span> : null}
+              </span>
+              <span className="sc-work-status">{picked ? "Picked — tap a plot" : afford ? "Can afford" : "Short on stores"}</span>
             </button>
           );
         })}
@@ -275,42 +281,59 @@ export function KingdomTab(props: {
       {works.length > 0 ? (
         <>
           <h3>Raising</h3>
+          <div className="sc-plain-grid">
           {works.map((b) => {
             const left = state ? buildTicksLeft(state, b.id) : 0;
             const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
             return (
-              <div key={b.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
-                <span>{nm} · {Math.ceil(left / 10)}s left</span>
+              <div key={b.id} className="sc-work-card sc-plain-card is-ready">
+                <div className="sc-work-head">
+                  <span className="sc-work-name">{nm}</span>
+                </div>
+                <div className="sc-work-status">{Math.ceil(left / 10)}s left</div>
+                <div className="sc-plain-actions">
                 <button
                   type="button"
+                  className="sc-work-btn"
                   onClick={() => act((st) => (tryCancelBuild(st, b.id) ? `Struck the ${nm} scaffolding.` : "That work already stands."))}
                 >
                   Cancel
                 </button>
+                </div>
               </div>
             );
           })}
+          </div>
         </>
       ) : null}
       {upgrades.length > 0 ? (
         <>
           <h3>Improving</h3>
+          <div className="sc-plain-grid">
           {upgrades.map((job) => {
             const b = state?.buildings.find((x) => x.id === job.buildingId);
             const nm = getBuildingType(b?.typeId ?? "")?.name ?? job.buildingId;
             const left = state ? Math.max(0, job.doneTick - state.meta.tick) : 0;
             return (
-              <div key={job.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
-                <span>{nm} → lv {job.fromLevel + 1} · {Math.ceil(left / 10)}s left</span>
+              <div key={job.id} className="sc-work-card sc-plain-card is-ready">
+                <div className="sc-work-head">
+                  <span className="sc-work-name">{nm}</span>
+                  <span className="sc-work-level">→ lv {job.fromLevel + 1}</span>
+                </div>
+                <div className="sc-work-status">{Math.ceil(left / 10)}s left</div>
+                <div className="sc-plain-actions">
                 <button
                   type="button"
+                  className="sc-work-btn"
                   onClick={() => act((st) => (tryCancelUpgrade(st, job.buildingId) ? `Stopped improving the ${nm}.` : "That work already finished."))}
                 >
                   Cancel
                 </button>
+                </div>
               </div>
             );
           })}
+          </div>
         </>
       ) : null}
       {state && standing.length + scarred.length > 0 ? (
@@ -329,27 +352,35 @@ export function KingdomTab(props: {
       {flags.length > 0 ? (
         <>
           <h3>Flags</h3>
+          <div className="sc-plain-grid">
           {flags.map((p) => {
             const posted = state ? garrisonAt(state, p.id) : undefined;
             const power = state && posted ? garrisonPower(state, p.id) : 0;
             const hit = state ? incomingOnProvince(state, p.id) : undefined;
             const eta = hit ? Math.max(0, Math.ceil((hit.arrivesTick - tick) / 10)) : 0;
             return (
-              <div key={p.id} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, flexWrap: "wrap" }}>
-                <span>
-                  {p.node} {p.x},{p.y}
-                  {posted ? ` · garrison ${power}` : " · unguarded"}
+              <div key={p.id} className={`sc-work-card sc-plain-card ${hit ? "is-warn" : posted ? "is-done" : ""}`}>
+                <div className="sc-work-head">
+                  <span className="sc-work-name">{p.node}</span>
+                  <span className="sc-work-level">{p.x},{p.y}</span>
+                </div>
+                <div className="sc-work-status">
+                  {posted ? `Garrison ${power}` : "Unguarded"}
                   {hit ? ` · ${nameOf(hit.realmId)} in ${eta}s` : ""}
-                </span>
+                </div>
+                <div className="sc-plain-actions">
                 <button
                   type="button"
+                  className="sc-work-btn"
                   onClick={() => act((st) => (tryAbandonOutpost(st, p.id) ? "Banner pulled. Garrison home." : "Cannot abandon."))}
                 >
                   Abandon
                 </button>
+                </div>
               </div>
             );
           })}
+          </div>
         </>
       ) : null}
       <PeoplePanel state={state} act={act} />

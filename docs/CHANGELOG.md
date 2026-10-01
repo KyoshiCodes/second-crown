@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-01 — Plain buttons as work cards (wave/plain-buttons)
+
+- **App HUD**: Kingdom build list, Raising/Improving/Flags rows, keep notices, every Crown action row (marshal, courts, ascend, doctrine, crafts, shield, guild, save row, court/route/tithe), Crown style picker, Holiday chip, and tools drawer rows now use `.sc-work-card` chrome. Click handlers unchanged. Styles in `packages/app/src/hud/plain-buttons.css`; `theme.css`, `packages/sim`, `server` untouched. Files: `packages/app/src/hud/plain-buttons.css`, `tabs/KingdomTab.tsx`, `tabs/CrownTab.tsx`, `DecreesPanel.tsx`, `CulturePicker.tsx`, `ChromeDock.tsx`, `TesterBar.tsx`, `CloudPanel.tsx`, `BoardPanel.tsx`.
+
 ## 2026-10-01 — Gemini Map Strip Pips (bakeoff/gemini-map-pips)
 
 - **App/Render HUD: Map Strip Under the Board with Small Heraldic Pips (`packages/app/src/hud/map-strip.css`, `packages/app/src/hud/WallPip.tsx`, `packages/app/src/hud/VisionPip.tsx`, `packages/app/src/WallLine.tsx`, `packages/app/src/VisionLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`, `packages/render/src/index.test.ts`)**:

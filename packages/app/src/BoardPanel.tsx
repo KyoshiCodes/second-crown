@@ -1,5 +1,6 @@
 import React from "react";
 import { cloudToken, fetchBoard, saveProfile, type BoardRow } from "./net/cloud";
+import "./hud/plain-buttons.css";
 
 export function BoardPanel() {
   const [rows, setRows] = React.useState<BoardRow[]>([]);
@@ -18,14 +19,14 @@ export function BoardPanel() {
       <summary style={{ cursor: "pointer", fontWeight: 600 }}>Board ({rows.length})</summary>
       <p style={{ fontSize: 12, opacity: 0.75 }}>Honor-system ranks from the last pushed save.</p>
       {cloudToken() ? (
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+        <div className="sc-work-card sc-plain-card sc-plain-inline">
           <input value={motto} onChange={(e) => setMotto(e.target.value)} maxLength={80} placeholder="Motto" style={{ minWidth: 200, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" }} />
           <select value={crest} onChange={(e) => setCrest(e.target.value)} style={{ background: "#1a1410", color: "#e8dcc8" }}>
             {"sun keep ship stag eye helm".split(" ").map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-          <button type="button" onClick={async () => {
+          <button type="button" className="sc-work-btn" onClick={async () => {
             try {
               await saveProfile({ motto, crest });
               setNote("Profile saved.");

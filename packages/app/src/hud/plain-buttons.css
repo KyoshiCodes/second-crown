@@ -1,0 +1,96 @@
+/* --- Plain buttons as work cards: rows that were bare text + buttons now wear .sc-work-card chrome.
+   Layout only here; the card look itself comes from .sc-work-card in theme.css. --- */
+
+/* Grid of row cards (Raising, Improving, Flags, Crown court rows). */
+.sc-plain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+
+/* One card that holds a line of text plus its buttons. */
+.sc-work-card.sc-plain-card {
+  margin: 4px 0 8px;
+}
+.sc-plain-grid > .sc-work-card.sc-plain-card {
+  margin: 0;
+}
+.sc-work-card.sc-plain-card > p {
+  margin: 0;
+}
+.sc-work-card.sc-plain-card.is-notice {
+  border-left-color: #e8c36a;
+}
+.sc-work-card.sc-plain-card.is-ready {
+  border-left-color: #d29922;
+}
+.sc-work-card.sc-plain-card.is-done {
+  border-left-color: #4ade80;
+}
+.sc-work-card.sc-plain-card.is-warn {
+  border-left-color: #f85149;
+}
+
+/* A row of action buttons inside a card. */
+.sc-plain-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 3px;
+}
+
+/* Inline card: text and buttons on one line (notices, holiday picker, drawer rows). */
+.sc-work-card.sc-plain-inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+/* Compact chip in the top chrome bar. */
+.sc-work-card.sc-plain-chip {
+  padding: 2px 8px;
+  margin: 0;
+  font-size: 13px;
+}
+
+/* Whole-card buttons (build list, doctrines, crafts, crown styles). */
+button.sc-work-card.sc-plain-pick {
+  margin: 0;
+  text-align: left;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover), var(--chrome-btn-bg));
+}
+button.sc-work-card.sc-plain-pick:hover:not(:disabled) {
+  background: var(--chrome-btn-bg-hover);
+  border-color: var(--chrome-btn-border-hover);
+}
+button.sc-work-card.sc-plain-pick:disabled {
+  opacity: 0.55;
+}
+button.sc-work-card.sc-plain-pick.is-afford {
+  border-left-color: #4ade80;
+}
+button.sc-work-card.sc-plain-pick.is-short {
+  border-left-color: var(--chrome-bar-border);
+}
+button.sc-work-card.sc-plain-pick.is-picked {
+  border-color: #4ade80;
+  border-left-color: #86efac;
+  background: linear-gradient(180deg, rgba(74, 222, 128, 0.18), var(--chrome-btn-bg));
+}
+button.sc-work-card.sc-plain-pick.is-picked .sc-work-status {
+  color: #86efac;
+  opacity: 1;
+}
+button.sc-work-card.sc-plain-pick.is-owned {
+  border-left-color: #c8963e;
+}
+.sc-plain-pick .sc-work-status {
+  white-space: normal;
+}
