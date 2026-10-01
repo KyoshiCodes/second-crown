@@ -43,6 +43,7 @@ import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
 import { ForceCard } from "./hud/ForceCard";
+import { SlotPips } from "./hud/SlotPip";
 import { captainName } from "./hud/captainName";
 import { BattleCard } from "./hud/BattleCard";
 import type { ActFn } from "./game/useGameEngine";
@@ -192,7 +193,10 @@ export function WarRoom(props: {
       </section>
 
       <section className="sc-realm-card" style={card}>
-        <strong style={h}>Columns</strong>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <strong style={{ margin: 0 }}>Columns</strong>
+          <SlotPips state={state} />
+        </div>
         {columns.length === 0 ? (
           <p style={{ margin: "0 0 6px", opacity: 0.7 }}>No column on the road. March from the map.</p>
         ) : (

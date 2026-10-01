@@ -58,6 +58,18 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - Lofi dock: picking a track (list, ‹, ›) plays it and repeats it. Only an unpicked, cleanly finished track advances to the next.
 - A failed file no longer skips down the whole list. It stops and the dock shows **Track not found. Pick another.** A blocked autoplay shows **Autoplay blocked. Click to play.** and the next click retries.
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
+## Active Bakeoff (bakeoff/gemini-slot-pips)
+
+- **App/Render HUD Only: N/max Column Slots as Stall/Post Pips on War (`packages/app/src/hud/SlotPip.tsx`, `packages/app/src/hud/slot-pip.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/AppShell.tsx`)**:
+  - **Muster Post / Stall Pips**: Visualizes available vs deployed military column capacity using medieval hitching stall & muster post pips:
+    - **Empty Stall/Post (`filled = false`)**: Column is at home in the hold yard; sturdy dormant timber post (`#3b2314`), horizontal stall hitching rail (`#4a2e1b`), cold iron tie ring (`#475569`), flat timber post cap, subdued opacity (0.42).
+    - **Filled Stall/Post (`filled = true`, a column out)**: Column has departed and is actively deployed on the road; hoisted lance with fluttering swallowtail crimson-and-gold war pennant (`#dc2626`, `#facc15`), polished golden spearhead finial (`#facc15`), radiant warm beacon flame spark (`#fef08a`, `#f59e0b`), active tether strap, and warm amber timber highlights (`#f59e0b`).
+  - **Dual Display on War**:
+    - **War Tab Button (`AppShell.tsx`)**: Displays compact `N/max` and stall/post pips inline on the War tab button (`id === "war"`), giving an instant overview of active expeditions from any tab.
+    - **War Screen Columns Section (`WarRoom.tsx`)**: Prominently mounted at the header of the Columns card next to `Columns` with `N/max` count and full-size stall/post pips.
+  - **Calculations (`getFilledSlots`, `getMaxSlots`, `getColumnSlots`)**: Reads player active marches (`listMarches`) and gathers (`listGathers`), accurately capped against `maxMarches(state)`.
+  - **Non-Negotiables**: Strictly `pointer-events: none` on all wrappers, text, and SVGs. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. 284 render tests pass, 229 sim tests pass, app builds clean.
+
 ## Active Bakeoff (bakeoff/gemini-keep-breach)
 
 - **Render Only: Player Keep Intact vs Cracked Stone / Dark Windows / No Proud Banner When Breached (`packages/render/src/buildings.ts`, `packages/render/src/tokens.ts`, `packages/render/src/index.ts`)**:

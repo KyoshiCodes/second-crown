@@ -2,10 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-09-30 — Full columns explained (wave/slot-hint)
+## 2026-09-30 — War shows column slots as stall/post pips (bakeoff/gemini-slot-pips)
 
-- If Scout, Gather, Garrison or Raid is greyed out because all your columns are out, the card now says: "Recall a column to free a slot (War tab)." The War tab has a Recall button for each column.
-- Gather parties walking home still take a slot; the buttons now show that instead of failing when clicked.
+- Your active military and gathering columns are now clearly tracked with **Column Slot Pips**:
+  - **Stall & Post Pips**: Each available column slot is represented as a medieval muster post / stable stall.
+  - **Empty Slot**: When a column is at home, the stall post stands quiet and dormant with a cold iron ring and empty rail, showing that you have an open slot to march, scout, or gather.
+  - **Filled Slot (Column Out)**: When a column is dispatched on the road, its slot pip flies a bright crimson-and-gold swallowtail war standard with a gleaming spearhead finial, warm beacon torch spark, and active tether.
+  - **Visible from Anywhere**: The **War** tab button in the top navigation bar displays your `N/max` column slots and pips directly, so you always know at a glance whether you have troops out marching even while building in Kingdom or recruiting in Army.
+  - **In the War Room**: The `Columns` card header also shows your current slots and pips alongside your active forces.
+- Purely informational visual update; strictly `pointer-events: none` and never interferes with clicking tabs or taking actions.
 
 ## 2026-09-30 — The Hall in your keep (wave/keep-hall)
 

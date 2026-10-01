@@ -7576,6 +7576,171 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
             }
           });
         });
+
+        describe("bakeoff/gemini-slot-pips: stall/post column slot pips on War", () => {
+          it("exports SlotPip, StallSlotPip, SlotPips, ColumnSlotPips and calculation helpers", async () => {
+            const {
+              SlotPip,
+              StallSlotPip,
+              SlotPips,
+              ColumnSlotPips,
+              getFilledSlots,
+              getMaxSlots,
+              getColumnSlots,
+            } = await import("../../app/src/hud/SlotPip.js");
+
+            expect(typeof SlotPip).toBe("function");
+            expect(typeof StallSlotPip).toBe("function");
+            expect(typeof SlotPips).toBe("function");
+            expect(typeof ColumnSlotPips).toBe("function");
+            expect(typeof getFilledSlots).toBe("function");
+            expect(typeof getMaxSlots).toBe("function");
+            expect(typeof getColumnSlots).toBe("function");
+          });
+
+          it("correctly derives filled and max column slots from sim state", async () => {
+            const { createGameState } = await import("@second-crown/sim");
+            const { getFilledSlots, getMaxSlots, getColumnSlots } = await import("../../app/src/hud/SlotPip.js");
+
+            const state = createGameState();
+            // Fresh state: 0 active player columns out, base maxMarches is 1 (or 2 depending on gate)
+            expect(getFilledSlots(state)).toBe(0);
+            const baseMax = getMaxSlots(state);
+            expect(baseMax).toBeGreaterThanOrEqual(1);
+
+            const slots = getColumnSlots(state);
+            expect(slots.filled).toBe(0);
+            expect(slots.max).toBe(baseMax);
+
+            // Simulate an active player march
+            state.flags["marches_json"] = JSON.stringify([
+              {
+                id: "m_1",
+                realmId: "player",
+                fromId: "p_0",
+                toId: "p_1",
+                arrivesTick: 100,
+                kind: "node",
+                levy: 5,
+                purpose: "raid",
+              },
+            ]);
+            expect(getFilledSlots(state)).toBe(1);
+            expect(getColumnSlots(state).filled).toBe(1);
+
+            // Add an NPC march (should NOT count toward player filled slots)
+            state.flags["marches_json"] = JSON.stringify([
+              {
+                id: "m_1",
+                realmId: "player",
+                fromId: "p_0",
+                toId: "p_1",
+                arrivesTick: 100,
+                kind: "node",
+                levy: 5,
+                purpose: "raid",
+              },
+              {
+                id: "m_npc",
+                realmId: "rival",
+                fromId: "p_3",
+                toId: "p_4",
+                arrivesTick: 120,
+                kind: "node",
+                levy: 5,
+                purpose: "raid",
+              },
+            ]);
+            expect(getFilledSlots(state)).toBe(1);
+
+            // Add an active player gather (shares march slot)
+            state.flags["gathers_json"] = JSON.stringify([
+              {
+                id: "g_1",
+                realmId: "player",
+                toId: "p_2",
+                node: "quarry",
+                phase: "outbound",
+                arrivesTick: 150,
+                gatherStartedTick: 0,
+                capacity: 20,
+                load: "0",
+              },
+            ]);
+            expect(getFilledSlots(state)).toBe(2);
+            expect(getColumnSlots(state).filled).toBe(2);
+          });
+
+          it("verifies SlotPip component source code structure, SVG artwork, and pointer-events: none", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const pipPath = path.resolve(__dirname, "../../app/src/hud/SlotPip.tsx");
+            expect(fs.existsSync(pipPath)).toBe(true);
+
+            const code = fs.readFileSync(pipPath, "utf-8");
+
+            // Strictly pointer-events: none
+            expect(code).toContain('pointerEvents: "none"');
+            expect(code).toContain('aria-hidden="true"');
+
+            // Data attributes for testing & inspection
+            expect(code).toContain('data-slot-kind="stall-post"');
+            expect(code).toContain("data-slot-pips");
+
+            // Empty stall/post elements (dormant timber, cold iron ring, flat timber cap)
+            expect(code).toContain("EmptyStallPostSvg");
+            expect(code).toContain("#475569"); // cold iron hitching ring
+            expect(code).toContain("#3b2314"); // dormant timber
+            expect(code).toContain("sc-stall-post-empty");
+
+            // Filled stall/post elements (war pennant, gold spearhead, beacon flame, active harness)
+            expect(code).toContain("FilledStallPostSvg");
+            expect(code).toContain("#dc2626"); // crimson column pennant
+            expect(code).toContain("#facc15"); // gold finial
+            expect(code).toContain("#fef08a"); // warm flame core
+            expect(code).toContain("#f59e0b"); // amber halo / highlight
+            expect(code).toContain("sc-stall-post-filled");
+          });
+
+          it("verifies slot-pip.css styling and pointer-events non-blocking guarantee", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+            const cssPath = path.resolve(__dirname, "../../app/src/hud/slot-pip.css");
+            expect(fs.existsSync(cssPath)).toBe(true);
+
+            const css = fs.readFileSync(cssPath, "utf-8");
+
+            expect(css).toContain("sc-slot-pips");
+            expect(css).toContain("sc-slot-pip-wrapper");
+            expect(css).toContain("sc-slot-pip-label");
+            expect(css).toContain("pointer-events: none");
+            expect(css).toContain("is-filled");
+            expect(css).toContain("is-empty");
+            expect(css).toContain("is-compact");
+          });
+
+          it("verifies SlotPips mounting in WarRoom under Columns and on AppShell War tab button", async () => {
+            const fs = await import("node:fs");
+            const path = await import("node:path");
+
+            // 1. WarRoom Columns section
+            const warRoomPath = path.resolve(__dirname, "../../app/src/WarRoom.tsx");
+            const warRoomCode = fs.readFileSync(warRoomPath, "utf-8");
+            expect(warRoomCode).toContain("SlotPips");
+            expect(warRoomCode).toContain("<SlotPips state={state} />");
+
+            // 2. AppShell War tab button
+            const appShellPath = path.resolve(__dirname, "../../app/src/AppShell.tsx");
+            const appShellCode = fs.readFileSync(appShellPath, "utf-8");
+            expect(appShellCode).toContain("SlotPips");
+            expect(appShellCode).toContain('id === "war" && <SlotPips state={state} compact />');
+
+            // 3. Invariants: theme.css strictly untouched!
+            const themeCssPath = path.resolve(__dirname, "../../app/src/theme.css");
+            const themeCss = fs.readFileSync(themeCssPath, "utf-8");
+            expect(themeCss).not.toContain("sc-slot-pip");
+          });
+        });
       });
     });
   });

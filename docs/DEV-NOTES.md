@@ -1,7 +1,21 @@
-## 2026-09-30 — app / slot hint (wave/slot-hint)
+## 2026-09-30 — hud / stall/post column slot pips on War (bakeoff/gemini-slot-pips)
 
-- `ProvinceInspect.tsx`: `slotsUsed` = player `listMarches` + player `listGathers` (all phases), same as `tryGather`'s refusal. Scout/march in the sim count `listGathers(state).length` without a realm filter, so NPC gathers can still make those refuse with no hint; left as-is (sim out of scope).
-- Hint is a `sc-inspect-hint sc-inspect-slot-hint` div at the end of `sc-inspect-actions`, `flexBasis: 100%` like the gold hint. No CSS file changes.
+- `packages/app/src/hud/SlotPip.tsx` & `slot-pip.css`:
+  - `SlotPip` (`StallSlotPip`): renders 16px SVG representing a muster post / stable stall:
+    - `EmptyStallPostSvg` (`filled = false`): dormant timber frame (`#3b2314`), stall hitch rail (`#4a2e1b`), cold iron ring (`#475569`), flat timber cap, stone footing, `is-empty` (opacity: 0.42).
+    - `FilledStallPostSvg` (`filled = true`): active column on the road; hoisted standard with swallowtail red/gold war pennant (`#dc2626`, `#facc15`), golden spearhead finial (`#facc15`), beacon flame spark (`#fef08a`), active tether, amber timber highlights (`#f59e0b`), `is-filled`.
+    - Both states strictly enforce `pointerEvents: "none"` and `aria-hidden="true"`.
+  - `SlotPips` (`ColumnSlotPips`): container rendering `N/max` label and row of individual stall/post pips.
+    - Props: `state?: GameState`, `filled?: number`, `max?: number`, `compact?: boolean`, `size?: number`.
+    - `getFilledSlots(state)`: derives `activeMarches + activeGathers` for player realm (`listMarches`, `listGathers`).
+    - `getMaxSlots(state)`: derives `maxMarches(state)`.
+    - `getColumnSlots(state)`: returns `{ filled, max }`.
+- Mounted in:
+  - `packages/app/src/AppShell.tsx`: on the War tab button (`id === "war"`), renders `<SlotPips state={state} compact />`.
+  - `packages/app/src/WarRoom.tsx`: in the Columns card header alongside `<strong style={{ margin: 0 }}>Columns</strong>`, renders `<SlotPips state={state} />`.
+- Invariants:
+  - `packages/sim`, `server`, and `packages/app/src/theme.css` remain strictly untouched (0 diff against `origin/main`).
+  - Unit tests in `packages/render/src/index.test.ts` verify component imports, slot calculations, SVG artwork structure, CSS classes, and mounting locations.
 
 ## 2026-09-30 — app / keep hall (wave/keep-hall)
 
