@@ -14,6 +14,9 @@ on:
       - "tools/audio/verify-lofi-assets.mjs"
       - ".github/workflows/verify-lofi-audio.yml"
 
+permissions:
+  contents: read
+
 jobs:
   verify-lofi-audio:
     runs-on: ubuntu-latest
@@ -24,8 +27,13 @@ jobs:
         with:
           lfs: true
 
-      - name: Verify Git LFS
+      - name: Verify Git LFS checkout
         run: git lfs version
+
+      - name: Show LFS inventory
+        run: |
+          git lfs ls-files --name-only
+          git lfs status
 
       - name: Install dependencies
         run: npm install
