@@ -8128,6 +8128,64 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               expect(code).not.toContain(">>>>>>>");
             }
           });
+
+          describe("bakeoff/gemini-world-crests: 28px RealmCrestPip across World view", () => {
+            it("verifies WorldPanel mounts 28px RealmCrestPip for player banner, known crowns, and factions", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const panelPath = path.resolve(__dirname, "../../app/src/WorldPanel.tsx");
+              expect(fs.existsSync(panelPath)).toBe(true);
+              const code = fs.readFileSync(panelPath, "utf-8");
+
+              expect(code).toContain("RealmCrestPip");
+              // Player banner
+              expect(code).toContain('<RealmCrestPip realmId="player" size={28}');
+              // Known crowns
+              expect(code).toContain('<RealmCrestPip realmId={r.id} stance={stance} size={28} />');
+              // Factions leader and members
+              expect(code).toContain('<RealmCrestPip realmId={f.leaderRealmId} size={28} />');
+              expect(code).toContain('<RealmCrestPip realmId={mId} size={28} />');
+            });
+
+            it("verifies WorldTab mounts 28px RealmCrestPip for watchtower warnings, foreign wars, and holds on the board", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const tabPath = path.resolve(__dirname, "../../app/src/tabs/WorldTab.tsx");
+              expect(fs.existsSync(tabPath)).toBe(true);
+              const code = fs.readFileSync(tabPath, "utf-8");
+
+              expect(code).toContain("RealmCrestPip");
+              // Watchtower warning
+              expect(code).toContain('<RealmCrestPip realmId={seen.realmId} size={28} stance="war" />');
+              // Foreign war clash header
+              expect(code).toContain('<RealmCrestPip realmId={clash.a} size={28} stance="war" />');
+              expect(code).toContain('<RealmCrestPip realmId={clash.b} size={28} stance="war" />');
+              // Holds on the board
+              expect(code).toContain('<RealmCrestPip realmId={targetRealmId} stance={stance} size={28} />');
+            });
+
+            it("verifies RealmCrestPip enforces pointer-events none and zero conflict markers", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const pipPath = path.resolve(__dirname, "../../app/src/hud/RealmCrestPip.tsx");
+              expect(fs.existsSync(pipPath)).toBe(true);
+              const pipCode = fs.readFileSync(pipPath, "utf-8");
+
+              expect(pipCode).toContain('pointerEvents: "none"');
+              expect(pipCode).toContain('aria-hidden="true"');
+
+              const files = [
+                path.resolve(__dirname, "../../app/src/WorldPanel.tsx"),
+                path.resolve(__dirname, "../../app/src/tabs/WorldTab.tsx"),
+              ];
+              for (const f of files) {
+                const content = fs.readFileSync(f, "utf-8");
+                expect(content).not.toContain("<<<<<<<");
+                expect(content).not.toContain("=======");
+                expect(content).not.toContain(">>>>>>>");
+              }
+            });
+          });
         });
       });
     });

@@ -13,6 +13,20 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (bakeoff/gemini-world-crests, not merged)
+
+- App/render HUD only. Added existing 28px `RealmCrestPip` across all World view components where realms are displayed:
+  - **Player Banner** (`WorldPanel.tsx`): 28px `RealmCrestPip` for `realmId="player"`.
+  - **Known Crowns** (`WorldPanel.tsx`): 28px `RealmCrestPip` for each kingdom (`r.id`) with dynamic stance (`realmStance(atWar, left, op)`: friendly/hostile/wary/war/truce).
+  - **Factions** (`WorldPanel.tsx`): 28px `RealmCrestPip` for faction leaders (`f.leaderRealmId`) and member realms (`mId`).
+  - **Watchtower Warning / Dust on the Road** (`WorldTab.tsx`): 28px `RealmCrestPip` with `stance="war"` for incoming hostile hosts (`seen.realmId`).
+  - **Foreign War (Clash Header & Levy Action Buttons)** (`WorldTab.tsx`): 28px `RealmCrestPip` with `stance="war"` for both clashing crowns (`clash.a` and `clash.b`) in the header and on both dispatch levy action buttons.
+  - **Holds on the Board** (`WorldTab.tsx`): 28px `RealmCrestPip` with dynamic stance for player and foreign hold keeps (unoccupied keeps display empty keep placeholder).
+  - Strictly `pointer-events: none` on all crest wrappers and SVGs; non-blocking click-through on buttons and cards.
+  - No new kingdoms.
+  - Invariants: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 298 render tests pass; 239 sim tests pass; app builds cleanly.
+  - Files: `packages/app/src/WorldPanel.tsx`, `packages/app/src/tabs/WorldTab.tsx`, `packages/render/src/index.test.ts`.
+
 ## Active wave (bakeoff/gemini-stores, not merged)
 
 - Render only: Distinct isometric chips for Granary, Mint, Sawmill, Mason Yard (the four cap buildings). Finished vs scaffolding.

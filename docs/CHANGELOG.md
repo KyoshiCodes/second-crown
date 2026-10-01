@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-01 — Gemini World Crest Pips (bakeoff/gemini-world-crests)
+
+- **App/Render HUD: 28px RealmCrestPip Heraldic Pips Across World View (`packages/app/src/WorldPanel.tsx`, `packages/app/src/tabs/WorldTab.tsx`, `packages/render/src/index.test.ts`)**:
+  - **Player Banner**: Integrates 28px `RealmCrestPip` for `player` crown banner.
+  - **Known Crowns**: Replaces legacy raw crests with 28px `RealmCrestPip` displaying live diplomatic stances (friendly, wary, hostile, war, truce) with cold frost aura effects during conflict.
+  - **Factions**: Displays 28px `RealmCrestPip` for faction leader realms and all member kingdoms.
+  - **Watchtower Warning / Dust on the Road**: Adds 28px `RealmCrestPip` with `stance="war"` immediately identifying incoming hostile hosts.
+  - **Foreign War (Clash Header & Action Buttons)**: Displays 28px `RealmCrestPip` with `stance="war"` for both clashing realms in the header and within each "Send levy" dispatch button.
+  - **Holds on the Board**: Displays 28px `RealmCrestPip` with stance indicators for every occupied hold across the board (and styled keep placeholder for unoccupied keeps).
+  - **Strictly Non-Blocking**: `pointer-events: none` on all crest elements ensures click-through on all buttons and cards.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 298 render tests pass; 239 sim tests pass; app builds cleanly.
+
 ## 2026-10-01 — Gemini Store Buildings Isometric Chips (bakeoff/gemini-stores)
 
 - **Render Only: Distinct Isometric Chips for Granary, Mint, Sawmill, Mason Yard (`packages/render/src/buildings.ts`, `packages/render/src/index.test.ts`)**:
