@@ -13,11 +13,24 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/army-hud, not merged)
+## Active wave (bakeoff/gemini-stores, not merged)
 
-- App only. Treat wounded text in Army tab, War room and Hall reads `healTicks(state)` (4s with a finished Barracks, 5s without). No hardcoded 5s left.
-- Army tab: Barracks queue, Posts, Wounded/Treat, Upkeep (+ vault floor) and Quick levies (food levy, champion, mercs) are now `sc-work-card` cards in an `sc-work-grid`, same chrome as Kingdom standing works. Unit cards and chips unchanged. No new units, no sim/server/theme.css changes.
-- Files: `packages/app/src/tabs/ArmyTab.tsx`, `UpkeepLine.tsx`, `WarRoom.tsx`, `KeepHall.tsx`.
+- Render only: Distinct isometric chips for Granary, Mint, Sawmill, Mason Yard (the four cap buildings). Finished vs scaffolding.
+  - **Finished presentation**:
+    - **Granary**: Staddle stone piers with mushroom caps (`0x64748b`, `0x94a3b8`), elevated horizontal timber ventilation louvers (`0x854d0e`, `0x6e431f`), high thatched roof with dormer vent and golden wheat ear finial (`0xd4a359`, `0xfacc15`), overhanging gantry hoist with suspended flour sack (`0xfef08a`), and loading dock props (golden grain barrels, flour sack stacks, wooden grain crates).
+    - **Mint**: Heavy rusticated granite ashlar plinth courses (`0x64748b`, `0x475569`), iron-studded security door with brass padlock (`0x1e293b`, `0xd4a359`), pedimented stone niche with gilded royal crown medallion (`0xfacc15`), sloped slate roof (`0x334155`), rotating flywheel screw press with active smelting crucible (`0xf97316`, `0xfef08a`), and treasury props (stacked gold bullion ingots, open brass coin chests, balance scale).
+    - **Sawmill**: River timber millhouse with mossy shake roof (`0x78350f`, `0x451a03`), excavated millrace flume channel with rushing stream (`0x38bdf8`), active rotating waterwheel with foaming spray droplets (`0xe0f2fe`, `0xbae6fd`), log carriage track with timber log and spinning circular steel saw blade (`0xcbd5e1`), fresh golden sawdust mounds (`0xfef08a`), and stacked lumber cords.
+    - **Mason Yard**: Stonecutter atelier with slate shed roof (`0x334155`), heavy banker workbench with half-dressed stone block, steel chisels and wooden mallets (`0x475569`, `0xcbd5e1`, `0x78350f`), high wooden tripod derrick shear-legs crane with hoist tackle lifting ashlar block (`0x78350f`, `0x94a3b8`), finished ashlar stone pallet stacks, displayed carved classical column (`0xf8fafc`), and marble urn (`0xe2e8f0`).
+  - **Scaffolding presentation (`complete === false`)**:
+    - **Granary Scaffolding**: Elevated staddle stone bases without superstructure, heavy sill framing with exposed floor joists, partial floor planking, scaffold standards with diagonal cross-braces, A-frame gantry hoist swinging hook rope, framing timber plank stack, and peg bucket.
+    - **Mint Scaffolding**: Excavated foundation ditch trench, low stone masonry plinth courses with mortar scoring, wooden vault centering arch former, multi-tier scaffold platforms with ladders, timber derrick crane hoisting stone lintel block, and mortar mixing trough with lime and trowel.
+    - **Sawmill Scaffolding**: Excavated millrace flume channel with shoring stakes, wheel bearing posts and axle spindle (waterwheel unmounted), open timber framing with exposed King-post roof trusses open to sky, saw carriage track under construction, carpenter sawhorses, and crosscut saw.
+    - **Mason Yard Scaffolding**: Chalked ground grid layout with red corner boundary pegs, high wooden derrick tripod shear-legs crane with hoist tackle and rough boulder, partial stonecutter shed framing, raw unquarried stone boulders with steel splitting wedges, and mason sledgehammer.
+  - **All Cultures Supported**: Western kits and all 4 culture kits (`cedar`, `sand`, `steppe`, `islands`) have distinct finished and scaffolding styles for all 4 stores.
+  - **Untouched Buildings**: Farm, Cottage, Quarry, and Watchtower kits were left completely untouched.
+  - **Strictly Non-Blocking**: `pointer-events: none` on all graphics layers.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 295 render tests pass; 239 sim tests pass; app builds cleanly.
+  - Files: `packages/render/src/buildings.ts`, `packages/render/src/index.test.ts`.
 
 ## Active wave (wave/hall-bonus, not merged)
 

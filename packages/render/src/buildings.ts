@@ -3922,6 +3922,762 @@ export function drawQuarryScaffolding(
   g.stroke({ width: 0.5, color: 0x334155, alpha: a });
 }
 
+/**
+ * Unfinished granary presentation: authentic timber scaffolding, staddle stone footings,
+ * exposed platform floor joists, gantry hoist arm, and carpenter's materials.
+ */
+export function drawGranaryScaffolding(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  let woodMain = 0x78350f;
+  let woodLedger = 0x854d0e;
+  let woodPlank = 0xb45309;
+  let woodDark = 0x451a03;
+  let stoneFoot = 0x64748b;
+  let stoneLit = 0x94a3b8;
+  let chalkColor = 0xe2e8f0;
+
+  if (kit === "cedar") {
+    woodMain = 0x5c3818;
+    woodLedger = 0x78350f;
+    woodPlank = 0x854d0e;
+    woodDark = 0x291807;
+    stoneFoot = 0x52525b;
+    stoneLit = 0x71717a;
+  } else if (kit === "sand") {
+    woodMain = 0x92400e;
+    woodLedger = 0xb45309;
+    woodPlank = 0xd97706;
+    woodDark = 0x451a03;
+    stoneFoot = 0xa16207;
+    stoneLit = 0xd4a373;
+  } else if (kit === "steppe") {
+    woodMain = 0x44403c;
+    woodLedger = 0x57534e;
+    woodPlank = 0x78716c;
+    woodDark = 0x1c1917;
+    stoneFoot = 0x27272a;
+    stoneLit = 0x3f3f46;
+  } else if (kit === "islands") {
+    woodMain = 0xca8a04;
+    woodLedger = 0xa16207;
+    woodPlank = 0xeab308;
+    woodDark = 0x713f12;
+    stoneFoot = 0x78716c;
+    stoneLit = 0xa8a29e;
+  }
+
+  // 1. Chalk boundary line & ground corner stakes
+  g.poly([-12, 1, 0, 7.5, 12, 1, 0, -5.5]);
+  g.stroke({ width: 0.8, color: chalkColor, alpha: a * 0.45 });
+
+  // 2. Staddle stone bases / foundation piles
+  g.rect(-9, -4.5, 2.5, 2.5); g.fill({ color: stoneFoot, alpha: a });
+  g.ellipse(-7.75, -5, 2, 1); g.fill({ color: stoneLit, alpha: a });
+  g.rect(6.5, -4.5, 2.5, 2.5); g.fill({ color: stoneFoot, alpha: a });
+  g.ellipse(7.75, -5, 2, 1); g.fill({ color: stoneLit, alpha: a });
+
+  g.rect(-10, 2.5, 3, 3); g.fill({ color: stoneFoot, alpha: a });
+  g.ellipse(-8.5, 2, 2.4, 1.2); g.fill({ color: stoneLit, alpha: a });
+  g.rect(7, 2.5, 3, 3); g.fill({ color: stoneFoot, alpha: a });
+  g.ellipse(8.5, 2, 2.4, 1.2); g.fill({ color: stoneLit, alpha: a });
+
+  // 3. Elevated sill beam framing & exposed joists
+  g.poly([-8.5, 1.8, 0, 6, 8.5, 1.8, 0, -2.4]);
+  g.stroke({ width: 1.8, color: woodDark, alpha: a });
+  for (let f = 0.25; f <= 0.75; f += 0.25) {
+    const lx = -8.5 + 8.5 * f;
+    const ly = 1.8 + 4.2 * f;
+    const rx = 0 + 8.5 * f;
+    const ry = -2.4 + 4.2 * f;
+    g.moveTo(lx, ly); g.lineTo(rx, ry);
+    g.stroke({ width: 1.0, color: woodLedger, alpha: a * 0.85 });
+  }
+
+  // Partial floor decking planks (left side)
+  g.poly([-8, 1.5, -3, 4, -1, 1.5, -6, -1]);
+  g.fill({ color: woodPlank, alpha: a * 0.9 });
+  g.stroke({ width: 0.6, color: woodDark, alpha: a });
+
+  // 4. Vertical timber scaffolding uprights / standards
+  g.moveTo(-8.5, 1.8); g.lineTo(-8.5, -h * 0.75);
+  g.stroke({ width: 2.0, color: woodMain, alpha: a });
+  g.moveTo(8.5, 1.8); g.lineTo(8.5, -h * 0.75);
+  g.stroke({ width: 2.0, color: woodMain, alpha: a });
+  g.moveTo(0, 6); g.lineTo(0, -h * 0.75 + 4);
+  g.stroke({ width: 2.0, color: woodMain, alpha: a });
+  g.moveTo(0, -2.4); g.lineTo(0, -h * 0.75 - 4);
+  g.stroke({ width: 1.8, color: woodDark, alpha: a * 0.8 });
+
+  // 5. Horizontal ledger rail & diagonal cross-braces
+  const topY = -h * 0.7;
+  g.moveTo(-8.5, topY); g.lineTo(0, topY + 4); g.lineTo(8.5, topY);
+  g.stroke({ width: 1.5, color: woodLedger, alpha: a });
+  g.moveTo(-8.5, 1.8); g.lineTo(0, topY + 4);
+  g.stroke({ width: 1.0, color: woodLedger, alpha: a * 0.75 });
+
+  // 6. Builder's A-frame gantry hoist arm & swinging empty rope hook
+  g.moveTo(-2, topY + 4); g.lineTo(0, topY - 3); g.lineTo(2, topY + 4);
+  g.stroke({ width: 1.6, color: woodDark, alpha: a });
+  const sway = Math.sin(phase * 2) * 1.5;
+  g.moveTo(0, topY - 3); g.lineTo(sway, -3);
+  g.stroke({ width: 0.8, color: 0xd4a373, alpha: a * 0.9 });
+  g.circle(sway, -2.5, 1.0); g.stroke({ width: 0.6, color: 0x94a3b8, alpha: a });
+
+  // 7. Ground materials: timber plank stack & carpenter's peg bucket
+  g.rect(-13, 2, 5, 2.5); g.fill({ color: woodMain, alpha: a });
+  g.stroke({ width: 0.5, color: woodDark, alpha: a });
+  g.moveTo(-13, 3.2); g.lineTo(-8, 3.2); g.stroke({ width: 0.5, color: woodPlank, alpha: a });
+
+  g.rect(9, 4, 3.5, 3.5); g.fill({ color: 0x78350f, alpha: a });
+  g.circle(10.5, 4.5, 1.2); g.fill({ color: 0xd4a373, alpha: a });
+}
+
+/**
+ * Unfinished mint presentation: heavy stone vault foundation courses,
+ * timber vault centering arch formwork, staging platforms, mortar mixing trough,
+ * and builder's derrick crane lifting a stone lintel block.
+ */
+export function drawMintScaffolding(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  let woodMain = 0x78350f;
+  let woodLedger = 0x854d0e;
+  let woodDark = 0x451a03;
+  let stoneFoot = 0x64748b;
+  let stoneLit = 0x94a3b8;
+  let trenchColor = 0x1e293b;
+
+  if (kit === "cedar") {
+    woodMain = 0x5c3818;
+    woodLedger = 0x78350f;
+    woodDark = 0x291807;
+    stoneFoot = 0x52525b;
+    stoneLit = 0x71717a;
+  } else if (kit === "sand") {
+    woodMain = 0x92400e;
+    woodLedger = 0xb45309;
+    woodDark = 0x451a03;
+    stoneFoot = 0xa16207;
+    stoneLit = 0xd4a373;
+  } else if (kit === "steppe") {
+    woodMain = 0x44403c;
+    woodLedger = 0x57534e;
+    woodDark = 0x1c1917;
+    stoneFoot = 0x27272a;
+    stoneLit = 0x3f3f46;
+  } else if (kit === "islands") {
+    woodMain = 0xca8a04;
+    woodLedger = 0xa16207;
+    woodDark = 0x713f12;
+    stoneFoot = 0x78716c;
+    stoneLit = 0xa8a29e;
+  }
+
+  // 1. Excavated foundation trench
+  g.poly([-16, 0, 0, 8, 14, 1, 0, -6]);
+  g.stroke({ width: 1.2, color: trenchColor, alpha: a * 0.7 });
+
+  // 2. Partial low stone masonry courses
+  const baseH = h * 0.38;
+  g.poly([-15, 0, 0, 7.5, 0, 7.5 - baseH, -15, 0 - baseH]);
+  g.fill({ color: stoneLit, alpha: a });
+  g.poly([0, 7.5, 13, 1, 13, 1 - baseH, 0, 7.5 - baseH]);
+  g.fill({ color: stoneFoot, alpha: a });
+
+  // Masonry course lines
+  for (const f of [0.33, 0.66]) {
+    g.moveTo(-15, 0 - baseH * f); g.lineTo(0, 7.5 - baseH * f);
+    g.moveTo(0, 7.5 - baseH * f); g.lineTo(13, 1 - baseH * f);
+    g.stroke({ width: 0.8, color: 0x334155, alpha: a * 0.7 });
+  }
+
+  // 3. Semicircular wooden vault centering arch former
+  g.poly([-6, 4 - baseH * 0.5, 0, 7 - baseH * 0.5, 0, 1 - baseH, -6, -2 - baseH]);
+  g.fill({ color: 0x09090b, alpha: a });
+  g.moveTo(-6, 4 - baseH * 0.5);
+  g.lineTo(-3, -baseH - 3);
+  g.lineTo(0, 7 - baseH * 0.5);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+  g.moveTo(-3, 5.5 - baseH * 0.5); g.lineTo(-3, -baseH * 0.8);
+  g.stroke({ width: 1.2, color: woodDark, alpha: a });
+
+  // 4. Scaffolding standards & multi-tier ledger frames
+  g.moveTo(-16, 0); g.lineTo(-16, -h * 0.85);
+  g.stroke({ width: 2.0, color: woodMain, alpha: a });
+  g.moveTo(0, 7.5); g.lineTo(0, -h * 0.85 + 4);
+  g.stroke({ width: 2.0, color: woodMain, alpha: a });
+  g.moveTo(13, 1); g.lineTo(13, -h * 0.85);
+  g.stroke({ width: 2.0, color: woodMain, alpha: a });
+
+  // Scaffold platform decking
+  const platY = -baseH - 2;
+  g.poly([-16, platY, 0, platY + 4, 13, platY, 0, platY - 4]);
+  g.stroke({ width: 1.4, color: woodLedger, alpha: a });
+  g.poly([-14, platY, -2, platY + 3.5, 1, platY + 1, -11, platY - 2.5]);
+  g.fill({ color: woodMain, alpha: a * 0.85 });
+
+  // 5. Timber derrick lifting heavy stone lintel block
+  g.moveTo(6, platY); g.lineTo(4, -h - 2); g.lineTo(2, platY);
+  g.stroke({ width: 1.6, color: woodDark, alpha: a });
+  g.moveTo(4, -h - 2); g.lineTo(4, platY + 2);
+  g.stroke({ width: 0.8, color: 0xd4a373, alpha: a });
+  g.rect(2, platY + 1, 4.5, 2.5); g.fill({ color: stoneLit, alpha: a });
+  g.stroke({ width: 0.5, color: 0x334155, alpha: a });
+
+  // 6. Ground mortar mixing trough & trowel
+  g.rect(-13, 3, 5, 2.8); g.fill({ color: 0x78350f, alpha: a });
+  g.rect(-12, 3.5, 3, 1.8); g.fill({ color: 0xe2e8f0, alpha: a * 0.9 });
+  g.moveTo(-8.5, 4); g.lineTo(-6.5, 5); g.stroke({ width: 0.8, color: 0x94a3b8, alpha: a });
+}
+
+/**
+ * Unfinished sawmill presentation: excavated millrace flume channel,
+ * wheelhouse bearing axle mounts (wheel not yet installed), exposed King-post
+ * roof trusses open to sky, carpenter's sawhorses, and pit saw.
+ */
+export function drawSawmillScaffolding(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  let woodMain = 0x78350f;
+  let woodLedger = 0x854d0e;
+  let woodPlank = 0xb45309;
+  let woodDark = 0x451a03;
+  let waterBed = 0x1e293b;
+
+  if (kit === "cedar") {
+    woodMain = 0x5c3818;
+    woodLedger = 0x78350f;
+    woodPlank = 0x854d0e;
+    woodDark = 0x291807;
+  } else if (kit === "sand") {
+    woodMain = 0x92400e;
+    woodLedger = 0xb45309;
+    woodPlank = 0xd97706;
+    woodDark = 0x451a03;
+  } else if (kit === "steppe") {
+    woodMain = 0x44403c;
+    woodLedger = 0x57534e;
+    woodPlank = 0x78716c;
+    woodDark = 0x1c1917;
+  } else if (kit === "islands") {
+    woodMain = 0xca8a04;
+    woodLedger = 0xa16207;
+    woodPlank = 0xeab308;
+    woodDark = 0x713f12;
+  }
+
+  // 1. Excavated millrace flume channel on the right
+  g.poly([7, -3, 16, 1, 14, 8, 5, 4]);
+  g.fill({ color: waterBed, alpha: a * 0.75 });
+  g.stroke({ width: 1.0, color: 0x09090b, alpha: a * 0.8 });
+  g.moveTo(7, -3); g.lineTo(5, 4); g.stroke({ width: 1.2, color: woodDark, alpha: a });
+  g.moveTo(16, 1); g.lineTo(14, 8); g.stroke({ width: 1.2, color: woodDark, alpha: a });
+
+  // 2. Framed timber waterwheel bearing posts & axle mount
+  g.rect(10, -2, 2.2, 7); g.fill({ color: woodMain, alpha: a });
+  g.stroke({ width: 0.5, color: woodDark, alpha: a });
+  g.circle(11.1, 0, 1.4); g.fill({ color: 0x64748b, alpha: a });
+
+  // 3. Open timber frame structure
+  g.moveTo(-15, 0); g.lineTo(-15, -h * 0.75);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+  g.moveTo(-1, 7); g.lineTo(-1, -h * 0.75 + 4);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+  g.moveTo(11, 1); g.lineTo(11, -h * 0.75);
+  g.stroke({ width: 2.0, color: woodMain, alpha: a });
+  g.moveTo(-3, -6); g.lineTo(-3, -h * 0.75 - 4);
+  g.stroke({ width: 1.8, color: woodDark, alpha: a * 0.8 });
+
+  const roofY = -h * 0.75;
+  g.moveTo(-15, roofY); g.lineTo(-1, roofY + 4); g.lineTo(11, roofY);
+  g.stroke({ width: 1.8, color: woodLedger, alpha: a });
+
+  // 4. Exposed wooden roof trusses standing open to the sky
+  g.moveTo(-15, roofY); g.lineTo(-8, roofY - 8); g.lineTo(-1, roofY + 4);
+  g.stroke({ width: 1.4, color: woodMain, alpha: a });
+  g.moveTo(-8, roofY - 8); g.lineTo(-8, roofY + 2);
+  g.stroke({ width: 1.0, color: woodDark, alpha: a });
+
+  g.moveTo(-1, roofY + 4); g.lineTo(5, roofY - 4); g.lineTo(11, roofY);
+  g.stroke({ width: 1.4, color: woodMain, alpha: a });
+  g.moveTo(5, roofY - 4); g.lineTo(5, roofY + 2);
+  g.stroke({ width: 1.0, color: woodDark, alpha: a });
+
+  g.moveTo(-8, roofY - 8); g.lineTo(5, roofY - 4);
+  g.stroke({ width: 1.2, color: woodDark, alpha: a });
+
+  // 5. Saw carriage track under construction
+  g.moveTo(-12, 2.5); g.lineTo(2, 6.5);
+  g.stroke({ width: 1.6, color: 0x64748b, alpha: a });
+  g.moveTo(-11, 1.0); g.lineTo(3, 5.0);
+  g.stroke({ width: 1.6, color: 0x64748b, alpha: a });
+
+  // 6. Carpenter's sawhorses & crosscut saw
+  g.moveTo(-10, 4); g.lineTo(-5, 5.5);
+  g.stroke({ width: 1.8, color: woodPlank, alpha: a });
+  g.moveTo(-10, 4); g.lineTo(-11, 6.5); g.stroke({ width: 1.0, color: woodDark, alpha: a });
+  g.moveTo(-5, 5.5); g.lineTo(-4, 8); g.stroke({ width: 1.0, color: woodDark, alpha: a });
+
+  g.moveTo(-11, 3.5); g.lineTo(-3, 6);
+  g.stroke({ width: 0.8, color: 0xcbd5e1, alpha: a });
+}
+
+/**
+ * Unfinished mason yard presentation: chalked grid layout, red boundary pegs,
+ * tripod derrick shear-legs crane with tackle, partial shelter posts, raw boulders,
+ * and splitting wedges.
+ */
+export function drawMasonScaffolding(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  let woodMain = 0x78350f;
+  let woodLedger = 0x854d0e;
+  let woodDark = 0x451a03;
+  let stoneFoot = 0x64748b;
+  let stoneLit = 0x94a3b8;
+  let chalkColor = 0xe2e8f0;
+
+  if (kit === "cedar") {
+    woodMain = 0x5c3818;
+    woodLedger = 0x78350f;
+    woodDark = 0x291807;
+    stoneFoot = 0x52525b;
+    stoneLit = 0x71717a;
+  } else if (kit === "sand") {
+    woodMain = 0x92400e;
+    woodLedger = 0xb45309;
+    woodDark = 0x451a03;
+    stoneFoot = 0xa16207;
+    stoneLit = 0xd4a373;
+  } else if (kit === "steppe") {
+    woodMain = 0x44403c;
+    woodLedger = 0x57534e;
+    woodDark = 0x1c1917;
+    stoneFoot = 0x27272a;
+    stoneLit = 0x3f3f46;
+  } else if (kit === "islands") {
+    woodMain = 0xca8a04;
+    woodLedger = 0xa16207;
+    woodDark = 0x713f12;
+    stoneFoot = 0x78716c;
+    stoneLit = 0xa8a29e;
+  }
+
+  // 1. Chalked ground grid layout & red boundary pegs
+  g.poly([-15, 0, 0, 7.5, 14, 1, 0, -6]);
+  g.stroke({ width: 0.8, color: chalkColor, alpha: a * 0.45 });
+  g.rect(-15.5, -0.5, 1.2, 2.5); g.fill({ color: 0xdc2626, alpha: a });
+  g.rect(13.5, 0.5, 1.2, 2.5); g.fill({ color: 0xdc2626, alpha: a });
+
+  // 2. High wooden derrick tripod crane (shear-legs)
+  const apexY = -h - 4;
+  g.moveTo(-7, 3); g.lineTo(0, apexY);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+  g.moveTo(7, 3); g.lineTo(0, apexY);
+  g.stroke({ width: 2.2, color: woodMain, alpha: a });
+  g.moveTo(0, -4); g.lineTo(0, apexY);
+  g.stroke({ width: 1.8, color: woodDark, alpha: a * 0.85 });
+  g.circle(0, apexY, 1.5); g.fill({ color: woodDark, alpha: a });
+
+  // Hoist rope and suspended rough stone block
+  const hoistSway = Math.sin(phase * 1.8) * 1.2;
+  g.moveTo(0, apexY); g.lineTo(hoistSway, -4);
+  g.stroke({ width: 0.9, color: 0xd4a373, alpha: a });
+  g.rect(hoistSway - 2.5, -4, 5, 3.5);
+  g.fill({ color: stoneLit, alpha: a });
+  g.stroke({ width: 0.5, color: 0x334155, alpha: a });
+
+  // 3. Partial stonecutter shed framing
+  g.moveTo(-14, -1); g.lineTo(-14, -h * 0.6);
+  g.stroke({ width: 1.8, color: woodMain, alpha: a });
+  g.moveTo(-2, 5); g.lineTo(-2, -h * 0.6 + 4);
+  g.stroke({ width: 1.8, color: woodMain, alpha: a });
+  g.moveTo(-14, -h * 0.6); g.lineTo(-2, -h * 0.6 + 4);
+  g.stroke({ width: 1.4, color: woodLedger, alpha: a });
+
+  // 4. Staging area: raw rough stone boulders awaiting dressing
+  g.poly([-12, 1, -8, 3.5, -6, 0.5, -10, -2]);
+  g.fill({ color: stoneFoot, alpha: a });
+  g.poly([-6, 2, -2, 4, -1, 1.5, -4, -0.5]);
+  g.fill({ color: stoneLit, alpha: a });
+
+  // Steel splitting wedges driven into stone fissure
+  g.moveTo(-9, 1); g.lineTo(-8.5, -1);
+  g.stroke({ width: 1.2, color: 0xcbd5e1, alpha: a });
+  g.moveTo(-7.5, 1.5); g.lineTo(-7, -0.5);
+  g.stroke({ width: 1.2, color: 0xcbd5e1, alpha: a });
+
+  // Mason's heavy sledgehammer on ground
+  g.rect(9, 3, 3.5, 2); g.fill({ color: 0x475569, alpha: a });
+  g.moveTo(11, 4); g.lineTo(13, 6); g.stroke({ width: 1.0, color: woodMain, alpha: a });
+}
+
+function drawGranaryCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Monumental Log Granary on Glacial Boulder Piers + Split-Rail Crib + Totemic Finial
+    g.rect(-10, 2.5, 3.2, 3.5); g.fill({ color: 0x52525b, alpha: a });
+    g.ellipse(-8.4, 2, 2.8, 1.4); g.fill({ color: 0x71717a, alpha: a });
+    g.rect(7, 2.5, 3.2, 3.5); g.fill({ color: 0x52525b, alpha: a });
+    g.ellipse(8.6, 2, 2.8, 1.4); g.fill({ color: 0x71717a, alpha: a });
+
+    g.poly([-14, 0, -1, 6.5, -1, 6.5 - h, -14, 0 - h]);
+    g.fill({ color: 0x5c3818, alpha: a });
+    g.poly([-1, 6.5, 12, 1, 12, 1 - h, -1, 6.5 - h]);
+    g.fill({ color: 0x3f220c, alpha: a });
+
+    for (const f of [0.2, 0.4, 0.6, 0.8]) {
+      g.moveTo(-14, -h * f); g.lineTo(-1, 6.5 - h * f);
+      g.moveTo(-1, 6.5 - h * f); g.lineTo(12, 1 - h * f);
+      g.stroke({ width: 1.2, color: 0x27180e, alpha: a });
+      g.circle(-14.5, -h * f, 1.2); g.fill({ color: 0x78350f, alpha: a });
+      g.circle(12.5, 1 - h * f, 1.2); g.fill({ color: 0x78350f, alpha: a });
+    }
+
+    g.poly([-16, -h, -1, 8.5 - h - 12, 14, 1 - h, -2, -h - 18]);
+    g.fill({ color: 0x451a03, alpha: a });
+    g.stroke({ width: 1.4, color: 0x27180e, alpha: a });
+
+    g.poly([-2, -h - 18, 0, -h - 23, 2, -h - 18]);
+    g.fill({ color: 0x854d0e, alpha: a });
+
+    g.moveTo(-2, -h - 14); g.lineTo(-1, -h - 6);
+    g.stroke({ width: 2.0, color: 0x291807, alpha: a });
+    g.moveTo(-1, -h - 6); g.lineTo(-1, -4);
+    g.stroke({ width: 0.8, color: 0xb45309, alpha: a });
+    const sway = Math.sin(phase * 2) * 1.2;
+    g.rect(-2.5 + sway, -4, 3.5, 3); g.fill({ color: 0x92400e, alpha: a });
+
+    g.circle(-8, 3, 1.8); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(-6, 4, 1.6); g.fill({ color: 0xea580c, alpha: a });
+    g.rect(6, 4, 4.5, 3.5); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(8.25, 4, 1.4); g.fill({ color: 0xfacc15, alpha: a });
+  } else if (kit === "sand") {
+    // Sand Banner: Whitewashed Adobe Mudbrick Qasba Granary + Domed Silo + Terracotta Amphorae
+    g.poly([-14, 1, 0, 7.5, 12, 1, 0, -5.5]);
+    g.fill({ color: 0x78531e, alpha: a });
+
+    g.poly([-13, 0, -1, 6, -1, 6 - h, -13, 0 - h]);
+    g.fill({ color: 0xfef3c7, alpha: a });
+    g.poly([-1, 6, 11, 1, 11, 1 - h, -1, 6 - h]);
+    g.fill({ color: 0xfde68a, alpha: a });
+
+    for (const f of [0.3, 0.6]) {
+      g.rect(-8, 3 - h * f, 2, 4); g.fill({ color: 0x451a03, alpha: a });
+      g.rect(4, 3 - h * f, 2, 4); g.fill({ color: 0x451a03, alpha: a });
+    }
+
+    g.poly([-15, -h, -1, 8 - h - 10, 13, 1 - h, -1, -h - 14]);
+    g.fill({ color: 0xd97706, alpha: a });
+
+    g.circle(-1, -h - 13, 5); g.fill({ color: 0xfef3c7, alpha: a });
+    g.circle(-1, -h - 17.5, 1.5); g.fill({ color: 0x0d9488, alpha: a });
+
+    g.ellipse(-9, 4, 2.2, 3.2); g.fill({ color: 0xc2410c, alpha: a });
+    g.ellipse(-6, 5, 2.0, 3.0); g.fill({ color: 0xea580c, alpha: a });
+    g.rect(5, 3.5, 4.5, 3.5); g.fill({ color: 0x92400e, alpha: a });
+    g.circle(7.25, 3.2, 1.5); g.fill({ color: 0xfacc15, alpha: a });
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad Raised Grain Wagon-Crib + Spoked Wheels + Leather Grain Panniers
+    g.circle(-9, 6, 3.5); g.stroke({ width: 1.8, color: 0x291807, alpha: a });
+    g.circle(-9, 6, 1.2); g.fill({ color: 0x78716c, alpha: a });
+    g.circle(8, 5, 3.5); g.stroke({ width: 1.8, color: 0x291807, alpha: a });
+    g.circle(8, 5, 1.2); g.fill({ color: 0x78716c, alpha: a });
+
+    g.poly([-12, 1, 0, 6.5, 11, 1, 0, -4.5]);
+    g.fill({ color: 0x44403c, alpha: a });
+    g.stroke({ width: 1.2, color: 0x1c1917, alpha: a });
+
+    g.poly([-11, 0, -1, 5, -1, 5 - h * 0.85, -11, 0 - h * 0.85]);
+    g.fill({ color: 0xe7e5df, alpha: a });
+    g.poly([-1, 5, 10, 0.5, 10, 0.5 - h * 0.85, -1, 5 - h * 0.85]);
+    g.fill({ color: 0xc8c6bd, alpha: a });
+
+    g.poly([-13, -h * 0.85, -1, 7 - h * 0.85 - 8, 12, 0.5 - h * 0.85, -1, -h * 0.85 - 12]);
+    g.fill({ color: 0x78716c, alpha: a });
+    g.stroke({ width: 1.2, color: 0x291807, alpha: a });
+
+    g.circle(-5, 4.5, 2.2); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(3, 4.5, 2.0); g.fill({ color: 0xb45309, alpha: a });
+    g.circle(5, 3.5, 1.6); g.fill({ color: 0xfef08a, alpha: a });
+  } else {
+    // Tide Clans: Stilt-Raised Palafito Granary + Bamboo Slats + Nipa Thatch + Salt Fish & Grain
+    for (const px of [-9, -2, 6]) {
+      g.moveTo(px, 1); g.lineTo(px, 7);
+      g.stroke({ width: 2.0, color: 0x57534e, alpha: a });
+      g.circle(px, 4, 1.4); g.fill({ color: 0x0e7490, alpha: a });
+    }
+
+    g.poly([-12, 0, -1, 5.5, -1, 5.5 - h, -12, 0 - h]);
+    g.fill({ color: 0xa16207, alpha: a });
+    g.poly([-1, 5.5, 11, 0.5, 11, 0.5 - h, -1, 5.5 - h]);
+    g.fill({ color: 0x854d0e, alpha: a });
+
+    g.poly([-15, -h, -1, 7.5 - h - 13, 13, 0.5 - h, -2, -h - 19]);
+    g.fill({ color: 0xca8a04, alpha: a });
+    g.stroke({ width: 1.3, color: 0x713f12, alpha: a });
+
+    g.rect(-8, 3.5, 4, 3.5); g.fill({ color: 0x292524, alpha: a });
+    g.circle(-6, 3.5, 1.4); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(4, 4.5, 2.0); g.fill({ color: 0x0284c7, alpha: a });
+  }
+}
+
+function drawMintCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: River-Boulder Treasury Vault + Monumental Fir Lintel + Bronze Ingots
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0x52525b, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
+    g.fill({ color: 0x3f3f46, alpha: a });
+
+    g.rect(-11, 2 - h * 0.45, 6, 2.5); g.fill({ color: 0x291807, alpha: a });
+    g.poly([-10, 4.5 - h * 0.45, -5, 7 - h * 0.45, -5, 2, -10, 0]);
+    g.fill({ color: 0x18181b, alpha: a });
+
+    g.poly([-18, -h, 0, 9 - h - 10, 16, 1 - h, 0, -h - 15]);
+    g.fill({ color: 0x27272a, alpha: a });
+
+    g.circle(-8, -h * 0.55, 2.5); g.fill({ color: 0xb45309, alpha: a });
+
+    g.rect(6, 4, 4.5, 2.5); g.fill({ color: 0xd97706, alpha: a });
+    g.rect(7, 2.5, 3.5, 2.0); g.fill({ color: 0xfacc15, alpha: a });
+    g.rect(-13, 3, 4, 2.5); g.fill({ color: 0x78350f, alpha: a });
+  } else if (kit === "sand") {
+    // Sand Banner: Gilded Desert Treasury + Horseshoe Arch + Turquoise Tile Frieze + Dinar Hearth
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0xd97706, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
+    g.fill({ color: 0xb45309, alpha: a });
+
+    g.poly([-16, -h * 0.7, 0, 8 - h * 0.7, 14, 1 - h * 0.7, 0, -h * 0.7]);
+    g.stroke({ width: 2.2, color: 0x0d9488, alpha: a });
+
+    g.poly([-10, 3, -4, 6, -4, 6 - h * 0.48, -10, 3 - h * 0.48]);
+    g.fill({ color: 0x451a03, alpha: a });
+    g.moveTo(-10, 3 - h * 0.48); g.lineTo(-7, -h * 0.48 - 4); g.lineTo(-4, 6 - h * 0.48);
+    g.stroke({ width: 1.8, color: 0xfacc15, alpha: a });
+
+    g.circle(0, -h - 10, 6); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(0, -h - 17, 1.8); g.fill({ color: 0x0d9488, alpha: a });
+
+    g.rect(6, 5, 4, 3); g.fill({ color: 0xfacc15, alpha: a });
+    g.rect(10, 4, 3.5, 4); g.fill({ color: 0xfef08a, alpha: a });
+  } else if (kit === "steppe") {
+    // Wind Host: Khaganate Iron-Armored Treasury Cart-Yurt + Gold Finials + Ingot Molds
+    g.poly([-15, 0, 0, 7.5, 0, 7.5 - h, -15, 0 - h]);
+    g.fill({ color: 0x44403c, alpha: a });
+    g.poly([0, 7.5, 13, 0.5, 13, 0.5 - h, 0, 7.5 - h]);
+    g.fill({ color: 0x292524, alpha: a });
+
+    for (const f of [0.3, 0.6]) {
+      g.moveTo(-15, -h * f); g.lineTo(0, 7.5 - h * f); g.lineTo(13, 0.5 - h * f);
+      g.stroke({ width: 1.4, color: 0x1c1917, alpha: a });
+    }
+
+    g.rect(-9, 3 - h * 0.4, 5, 6); g.fill({ color: 0x1c1917, alpha: a });
+    g.circle(-6.5, 6 - h * 0.4, 1.4); g.fill({ color: 0xfacc15, alpha: a });
+
+    g.poly([-1, -h - 14, 1, -h - 18, 3, -h - 13]);
+    g.fill({ color: 0xfacc15, alpha: a });
+
+    g.rect(5, 4, 5, 2.5); g.fill({ color: 0xfacc15, alpha: a });
+    g.circle(11, 4, 2); g.fill({ color: 0xf97316, alpha: a });
+  } else {
+    // Tide Clans: Sunken Coral-Stone Vault + Nautilus Medallion + Pearl Inlay + Coin Chest
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0x57534e, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
+    g.fill({ color: 0x44403c, alpha: a });
+
+    g.circle(-7, -h * 0.5, 3.2); g.fill({ color: 0xca8a04, alpha: a });
+    g.circle(-7, -h * 0.5, 1.4); g.fill({ color: 0x06b6d4, alpha: a });
+
+    g.rect(-9.5, 3.5 - h * 0.42, 5, 7); g.fill({ color: 0x1c1917, alpha: a });
+
+    g.circle(8, 2, 3.5); g.stroke({ width: 1.4, color: 0x0e7490, alpha: a });
+    g.rect(6, 5, 4.5, 3.2); g.fill({ color: 0xfacc15, alpha: a });
+  }
+}
+
+function drawSawmillCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Giant Fir Flume River Mill + Monumental Waterwheel + Totem Shingle Roof
+    g.poly([-15, 0, -1, 7, -1, 7 - h, -15, 0 - h]);
+    g.fill({ color: 0x5c3818, alpha: a });
+    g.poly([-1, 7, 11, 1, 11, 1 - h, -1, 7 - h]);
+    g.fill({ color: 0x3f220c, alpha: a });
+
+    g.rect(8, -h * 0.6, 8, 3); g.fill({ color: 0x78350f, alpha: a });
+    g.rect(8, -h * 0.6 + 0.5, 8, 2); g.fill({ color: 0x38bdf8, alpha: a * 0.85 });
+
+    const spin = phase * 4;
+    g.circle(14, 1, 7.5); g.stroke({ width: 2.2, color: 0x78350f, alpha: a });
+    g.circle(14, 1, 2.5); g.fill({ color: 0x291807, alpha: a });
+    g.moveTo(14, 1); g.lineTo(14 + Math.cos(spin) * 7, 1 + Math.sin(spin) * 7);
+    g.stroke({ width: 1.8, color: 0x451a03, alpha: a });
+    g.circle(14, 8, 2.4); g.fill({ color: 0xe0f2fe, alpha: a * 0.85 });
+
+    g.poly([-10, 3, -3, 6.5, -3, 4, -10, 0.5]); g.fill({ color: 0x451a03, alpha: a });
+    g.circle(-3, 4, 3.4); g.fill({ color: 0xcbd5e1, alpha: a });
+
+    g.rect(-14, 2, 5, 4); g.fill({ color: 0x854d0e, alpha: a });
+    g.ellipse(-4, 6.5, 4, 2); g.fill({ color: 0xfef08a, alpha: a * 0.85 });
+  } else if (kit === "sand") {
+    // Sand Banner: Palm-wood atelier with sun canopy, donkey drive, date-palm timbers
+    g.poly([-14, 0, -1, 6.5, -1, 6.5 - h, -14, 0 - h]);
+    g.fill({ color: 0x92400e, alpha: a });
+    g.poly([-1, 6.5, 11, 1, 11, 1 - h, -1, 6.5 - h]);
+    g.fill({ color: 0x78350f, alpha: a });
+
+    g.poly([-16, -h, -1, 8 - h - 8, 13, 1 - h, -1, -h - 12]);
+    g.fill({ color: 0xd97706, alpha: a });
+
+    g.circle(13, 1, 6); g.stroke({ width: 2.0, color: 0xb45309, alpha: a });
+    g.circle(13, 1, 2); g.fill({ color: 0x451a03, alpha: a });
+
+    g.rect(-10, 3.5, 7, 3); g.fill({ color: 0x78350f, alpha: a });
+    g.circle(-3, 4, 3.2); g.fill({ color: 0xd97706, alpha: a });
+    g.ellipse(-4, 6.5, 4, 2); g.fill({ color: 0xfde047, alpha: a * 0.85 });
+  } else if (kit === "steppe") {
+    // Wind Host: Open-air timber-hewing yard with tripod log crane, birch & larch poles
+    g.poly([-14, 0, -1, 6, -1, 6 - h, -14, 0 - h]);
+    g.fill({ color: 0x44403c, alpha: a });
+    g.poly([-1, 6, 10, 1, 10, 1 - h, -1, 6 - h]);
+    g.fill({ color: 0x292524, alpha: a });
+
+    g.moveTo(-8, 3); g.lineTo(2, -h - 4); g.lineTo(10, 2);
+    g.stroke({ width: 2.0, color: 0x1c1917, alpha: a });
+
+    g.rect(-12, 2, 6, 3.5); g.fill({ color: 0x57534e, alpha: a });
+    g.rect(-5, 4, 6, 2.5); g.fill({ color: 0x78716c, alpha: a });
+    g.ellipse(-3, 6.5, 4, 1.8); g.fill({ color: 0xfef08a, alpha: a * 0.8 });
+  } else {
+    // Tide Clans: Tidal sawmill on pilings, drift booms, curved ship ribs
+    g.poly([-15, 0, -1, 7, -1, 7 - h, -15, 0 - h]);
+    g.fill({ color: 0x57534e, alpha: a });
+    g.poly([-1, 7, 11, 1, 11, 1 - h, -1, 7 - h]);
+    g.fill({ color: 0x44403c, alpha: a });
+
+    const spin = phase * 4;
+    g.circle(14, 1, 7); g.stroke({ width: 2.0, color: 0x0e7490, alpha: a });
+    g.moveTo(14, 1); g.lineTo(14 + Math.cos(spin) * 6, 1 + Math.sin(spin) * 6);
+    g.stroke({ width: 1.6, color: 0x0284c7, alpha: a });
+    g.circle(14, 8, 2.4); g.fill({ color: 0xe0f2fe, alpha: a * 0.85 });
+
+    g.moveTo(-11, 2); g.lineTo(-7, 6); g.lineTo(-3, 2);
+    g.stroke({ width: 2.2, color: 0x713f12, alpha: a });
+    g.ellipse(-4, 6.5, 4, 2); g.fill({ color: 0xfde68a, alpha: a * 0.8 });
+  }
+}
+
+function drawMasonCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  kit: CultureKit,
+  cult: CultureVisualPalette
+): void {
+  if (kit === "cedar") {
+    // Cedar Kin: Megalithic Stonehewer Lodge + Basalt Splitting Wedges + Petroglyph Marker
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0x52525b, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
+    g.fill({ color: 0x3f3f46, alpha: a });
+
+    g.poly([-18, -h, 0, 9 - h - 11, 16, 1 - h, 0, -h - 15]);
+    g.fill({ color: 0x451a03, alpha: a });
+
+    g.moveTo(3, 4); g.lineTo(7, -h * 0.8); g.lineTo(11, 1);
+    g.stroke({ width: 2.0, color: 0x291807, alpha: a });
+    g.rect(5, -2, 4, 3); g.fill({ color: 0x27272a, alpha: a });
+
+    g.rect(-13, 1, 3.5, 6.5); g.fill({ color: 0x71717a, alpha: a });
+    g.moveTo(-12, 3); g.lineTo(-10.5, 5); g.stroke({ width: 0.8, color: 0x18181b, alpha: a });
+    g.circle(-3, 6, 1.4); g.fill({ color: 0x71717a, alpha: a });
+  } else if (kit === "sand") {
+    // Sand Banner: Open-air limestone atelier, shade awning, geometric lattice, marble bench
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0xd97706, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
+    g.fill({ color: 0xb45309, alpha: a });
+
+    g.poly([-18, -h, 0, 9 - h - 10, 16, 1 - h, 0, -h - 14]);
+    g.fill({ color: 0xfef3c7, alpha: a });
+
+    g.poly([-11, 1, -5, 4.5, -5, 1.5, -11, -2]); g.fill({ color: 0xf8fafc, alpha: a });
+    g.rect(6, 3, 5, 4); g.fill({ color: 0xfef3c7, alpha: a });
+    g.stroke({ width: 0.6, color: 0xd97706, alpha: a });
+    g.ellipse(8, 2, 2.5, 3.5); g.fill({ color: 0xe2e8f0, alpha: a });
+  } else if (kit === "steppe") {
+    // Wind Host: Nomad stone-carver encampment, balbal stelae, boundary cairns
+    g.poly([-15, 0, 0, 7.5, 0, 7.5 - h, -15, 0 - h]);
+    g.fill({ color: 0x44403c, alpha: a });
+    g.poly([0, 7.5, 13, 0.5, 13, 0.5 - h, 0, 7.5 - h]);
+    g.fill({ color: 0x292524, alpha: a });
+
+    g.rect(-12, 1, 3.5, 7.5); g.fill({ color: 0x78716c, alpha: a });
+    g.circle(-10.25, 0.5, 1.6); g.fill({ color: 0x57534e, alpha: a });
+
+    g.circle(8, 4, 2.5); g.fill({ color: 0x57534e, alpha: a });
+    g.circle(8, 2, 1.8); g.fill({ color: 0x78716c, alpha: a });
+    g.circle(8, 0.5, 1.2); g.fill({ color: 0xa8a29e, alpha: a });
+  } else {
+    // Tide Clans: Coral-stone quarry lodge, cross-saws, shell-lime mortar pit
+    g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
+    g.fill({ color: 0x57534e, alpha: a });
+    g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
+    g.fill({ color: 0x44403c, alpha: a });
+
+    g.poly([-12, 1, -5, 4.5, -5, 1.5, -12, -2]); g.fill({ color: 0x78716c, alpha: a });
+    g.rect(6, 4, 5, 3.5); g.fill({ color: 0xe0f2fe, alpha: a });
+    g.stroke({ width: 0.6, color: 0x0e7490, alpha: a });
+    g.circle(0, -h - 15, 2.2); g.fill({ color: 0x06b6d4, alpha: a });
+  }
+}
+
 function drawWatchtowerCulture(
   g: Graphics,
   h: number,
@@ -5426,14 +6182,26 @@ export function drawIsometricBuilding(
     }
 
     case "mason": {
-      // Denser Stonecutter Atelier + Sculpted Pillars + Urns + Chisel Bench
       const h = 20 + heightBoost;
-
-      // Masonry walls with stone blocks
+      if (!complete) {
+        drawMasonScaffolding(g, h, a, phase, kit, cult);
+        break;
+      }
+      if (kit !== "western") {
+        drawMasonCulture(g, h, a, phase, kit, cult);
+        break;
+      }
+      // Western Stonecutter Lodge + Banker Benches + Derrick Shear-Legs + Cut Ashlar Stacks
       g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
       g.fill({ color: 0x94a3b8, alpha: a });
       g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
       g.fill({ color: 0x64748b, alpha: a });
+
+      for (const f of [0.33, 0.66]) {
+        g.moveTo(-16, 0 - h * f); g.lineTo(0, 8 - h * f);
+        g.moveTo(0, 8 - h * f); g.lineTo(14, 1 - h * f);
+        g.stroke({ width: 0.8, color: 0x334155, alpha: a * 0.75 });
+      }
 
       // Arched workshop door
       g.poly([-8, 4, -2, 7, -2, -h * 0.4, -8, -h * 0.4 - 3]);
@@ -5442,11 +6210,43 @@ export function drawIsometricBuilding(
       // Slate Gable Roof with carved gargoyle finial
       g.poly([-18, -h, 0, 9 - h - 11, 16, 1 - h, 0, -h - 15]);
       g.fill({ color: 0x334155, alpha: a });
+      g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
       g.circle(0, -h - 16, 2.5); g.fill({ color: 0xcbd5e1, alpha: a });
 
-      // Displayed carved column & marble urn
-      g.rect(-13, 2, 3.5, 7); g.fill({ color: 0xf8fafc, alpha: a });
+      // Mason's Banker Workbench (heavy stone bench with partially dressed block & tools)
+      g.poly([-12, 1, -5, 4.5, -5, 1.5, -12, -2]);
+      g.fill({ color: 0x475569, alpha: a });
+      g.poly([-10, 0.5, -7, 2, -7, 0, -10, -1.5]);
+      g.fill({ color: 0x94a3b8, alpha: a });
+      g.moveTo(-6.5, 2.5); g.lineTo(-5.5, 3.5);
+      g.stroke({ width: 0.8, color: 0xcbd5e1, alpha: a });
+      g.circle(-5, 4, 1.2); g.fill({ color: 0x78350f, alpha: a });
+
+      // High Stone Derrick Shear-Legs Crane
+      g.moveTo(2, 4); g.lineTo(7, -h * 0.85);
+      g.stroke({ width: 2.0, color: 0x78350f, alpha: a });
+      g.moveTo(12, 0); g.lineTo(7, -h * 0.85);
+      g.stroke({ width: 2.0, color: 0x78350f, alpha: a });
+      g.circle(7, -h * 0.85, 1.4); g.fill({ color: 0x451a03, alpha: a });
+      g.moveTo(7, -h * 0.85); g.lineTo(7, -3);
+      g.stroke({ width: 0.8, color: 0xd4a373, alpha: a });
+      g.rect(5, -1.5, 4.5, 3.5); g.fill({ color: 0x94a3b8, alpha: a });
+      g.stroke({ width: 0.5, color: 0x334155, alpha: a });
+
+      // Stacks of finished cut ashlar blocks on pallet
+      g.rect(-14, 3, 5, 4); g.fill({ color: 0x94a3b8, alpha: a });
+      g.moveTo(-14, 5); g.lineTo(-9, 5); g.stroke({ width: 0.6, color: 0x475569, alpha: a });
+      g.moveTo(-11.5, 3); g.lineTo(-11.5, 5); g.stroke({ width: 0.6, color: 0x475569, alpha: a });
+
+      // Displayed classical carved column & marble urn
+      g.rect(-13, -1, 3.5, 5.5); g.fill({ color: 0xf8fafc, alpha: a });
       g.ellipse(8, 4, 2.5, 3.5); g.fill({ color: 0xe2e8f0, alpha: a });
+
+      // Chiseled stone spalls & heavy stone handbarrow
+      g.circle(-3, 6, 1.2); g.fill({ color: 0xcbd5e1, alpha: a });
+      g.circle(-1.5, 7, 1.5); g.fill({ color: 0x94a3b8, alpha: a });
+      g.rect(1, 4.5, 4.5, 2.5); g.fill({ color: 0x854d0e, alpha: a });
+      g.rect(1.8, 4.8, 3.0, 1.8); g.fill({ color: 0xcbd5e1, alpha: a });
       break;
     }
 
@@ -5485,87 +6285,213 @@ export function drawIsometricBuilding(
     }
 
     case "mint": {
-      // Denser Royal Treasury Vault + Coin Press + Bullion Stacks
       const h = 22 + heightBoost;
+      if (!complete) {
+        drawMintScaffolding(g, h, a, phase, kit, cult);
+        break;
+      }
+      if (kit !== "western") {
+        drawMintCulture(g, h, a, phase, kit, cult);
+        break;
+      }
+      // Western Royal Treasury Vault + Romanesque Arch + Coin Flywheel Press + Bullion Stacks
       g.poly([-16, 0, 0, 8, 0, 8 - h, -16, 0 - h]);
       g.fill({ color: 0x64748b, alpha: a });
       g.poly([0, 8, 14, 1, 14, 1 - h, 0, 8 - h]);
       g.fill({ color: 0x475569, alpha: a });
 
-      // Gilded Vaulted Roof with Royal Crown Medallion
-      g.poly([-18, -h, 0, 9 - h - 10, 16, 1 - h, 0, -h - 16]);
-      g.fill({ color: 0x854d0e, alpha: a });
-      g.circle(0, -h * 0.45, 4); g.fill({ color: 0xfacc15, alpha: a });
+      for (const f of [0.25, 0.5, 0.75]) {
+        g.moveTo(-16, 0 - h * f); g.lineTo(0, 8 - h * f);
+        g.moveTo(0, 8 - h * f); g.lineTo(14, 1 - h * f);
+        g.stroke({ width: 0.8, color: 0x334155, alpha: a * 0.75 });
+      }
 
-      // Double iron-studded security doors
-      g.rect(-10, 3 - h * 0.4, 6, 7);
+      // Vaulted doorway with iron-studded security doors
+      g.poly([-10, 3, -4, 6, -4, 6 - h * 0.5, -10, 3 - h * 0.5]);
+      g.fill({ color: 0x0f172a, alpha: a });
+      g.rect(-9.5, 3.5 - h * 0.45, 5, 7.5);
       g.fill({ color: 0x1e293b, alpha: a });
-      g.rect(-9, 4 - h * 0.4, 1.5, 1.5); g.fill({ color: 0xd4a359, alpha: a });
+      g.moveTo(-9.5, 5 - h * 0.45); g.lineTo(-4.5, 5 - h * 0.45);
+      g.stroke({ width: 1.0, color: 0x475569, alpha: a });
+      g.moveTo(-9.5, 8.5 - h * 0.45); g.lineTo(-4.5, 8.5 - h * 0.45);
+      g.stroke({ width: 1.0, color: 0x475569, alpha: a });
+      g.rect(-7.5, 6 - h * 0.45, 1.6, 2);
+      g.fill({ color: 0xd4a359, alpha: a });
 
-      // Turning Flywheel Coin Press on right platform
-      g.circle(8, 2, 4);
-      g.stroke({ width: 1.5, color: 0xd97706, alpha: a });
-      // Shimmering Gold Coin Stacks
-      g.rect(6, 6, 3, 3); g.fill({ color: 0xfacc15, alpha: a });
-      g.rect(10, 5, 3, 4); g.fill({ color: 0xfef08a, alpha: a });
+      // Gilded Crown Medallion in stone pediment
+      g.circle(-7, -h * 0.55, 3.2); g.fill({ color: 0x334155, alpha: a });
+      g.poly([-9, -h * 0.55 + 1.2, -5, -h * 0.55 + 1.2, -5.5, -h * 0.55 - 1.2, -7, -h * 0.55, -8.5, -h * 0.55 - 1.2]);
+      g.fill({ color: 0xfacc15, alpha: a });
+
+      // Sloped Slate Roof with stone battlements & gargoyle
+      g.poly([-18, -h, 0, 9 - h - 10, 16, 1 - h, 0, -h - 16]);
+      g.fill({ color: 0x334155, alpha: a });
+      g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
+      g.circle(0, -h - 16.5, 2.2); g.fill({ color: 0x94a3b8, alpha: a });
+
+      // Flywheel Coin Press on right platform with smelting crucible
+      g.poly([3, 5, 13, 0, 13, -3, 3, 2]); g.fill({ color: 0x334155, alpha: a });
+      g.rect(4, 1, 3.5, 3.5); g.fill({ color: 0x1e293b, alpha: a });
+      g.circle(5.75, 1.8, 1.4); g.fill({ color: 0xf97316, alpha: a });
+      g.circle(5.75, 1.8, 0.7); g.fill({ color: 0xfef08a, alpha: a });
+
+      g.rect(8.5, -1, 2, 5); g.fill({ color: 0x1e293b, alpha: a });
+      g.circle(9.5, -2, 3.8); g.stroke({ width: 1.6, color: 0xd97706, alpha: a });
+      g.circle(9.5 + Math.cos(phase * 3) * 3, -2 + Math.sin(phase * 3) * 3, 1.2);
+      g.fill({ color: 0xfacc15, alpha: a });
+
+      // Shimmering Gold Bullion Ingot Stacks & Open Chest of Coins
+      g.rect(6, 5.5, 4.5, 2); g.fill({ color: 0xfacc15, alpha: a });
+      g.stroke({ width: 0.4, color: 0xb45309, alpha: a });
+      g.rect(7, 3.8, 2.8, 1.8); g.fill({ color: 0xfde047, alpha: a });
+      g.stroke({ width: 0.4, color: 0xb45309, alpha: a });
+
+      g.rect(10.5, 3, 4.5, 3.5); g.fill({ color: 0x78350f, alpha: a });
+      g.stroke({ width: 0.6, color: 0xd4a359, alpha: a });
+      g.poly([10.5, 3, 15, 3, 15.5, 0.5, 11, 0.5]); g.fill({ color: 0x5c2b09, alpha: a });
+      g.circle(12.5, 2.8, 1.8); g.fill({ color: 0xfef08a, alpha: a });
+
+      // Brass balance scale
+      g.moveTo(-13, 5); g.lineTo(-10, 5); g.stroke({ width: 0.8, color: 0xd4a359, alpha: a });
+      g.moveTo(-11.5, 5); g.lineTo(-11.5, 7.5); g.stroke({ width: 1.0, color: 0x78350f, alpha: a });
+      g.circle(-13, 6, 0.8); g.fill({ color: 0xfacc15, alpha: a });
+      g.circle(-10, 6, 0.8); g.fill({ color: 0xfacc15, alpha: a });
       break;
     }
 
     case "granary": {
-      // Denser Twin Grain Silos + Central Hoist Gantry + Flour Sacks
       const h = 24 + heightBoost;
+      if (!complete) {
+        drawGranaryScaffolding(g, h, a, phase, kit, cult);
+        break;
+      }
+      if (kit !== "western") {
+        drawGranaryCulture(g, h, a, phase, kit, cult);
+        break;
+      }
+      // Western Staddle-Stone Granary + Louvered Loft + Hoist Gantry + Grain Barrels
+      g.rect(-10, 2.5, 2.8, 3.5); g.fill({ color: 0x64748b, alpha: a });
+      g.ellipse(-8.6, 2, 2.6, 1.3); g.fill({ color: 0x94a3b8, alpha: a });
+      g.rect(7, 2.5, 2.8, 3.5); g.fill({ color: 0x64748b, alpha: a });
+      g.ellipse(8.4, 2, 2.6, 1.3); g.fill({ color: 0x94a3b8, alpha: a });
+      g.rect(-1.5, 4.5, 3, 3); g.fill({ color: 0x64748b, alpha: a });
+      g.ellipse(0, 4, 2.8, 1.4); g.fill({ color: 0x94a3b8, alpha: a });
+      g.rect(-1.5, -3.5, 3, 3); g.fill({ color: 0x475569, alpha: a });
 
-      // Silo 1 (Left Tower)
-      g.rect(-14, -h + 8, 9, h);
-      g.fill({ color: 0xd4b36a, alpha: a });
-      g.poly([-16, -h + 8, -9.5, -h - 10, -3, -h + 8]);
+      // Elevated timber walls with horizontal ventilation louvers
+      g.poly([-14, 0, -1, 6.5, -1, 6.5 - h, -14, 0 - h]);
+      g.fill({ color: 0x854d0e, alpha: a });
+      g.poly([-1, 6.5, 12, 1, 12, 1 - h, -1, 6.5 - h]);
+      g.fill({ color: 0x6e431f, alpha: a });
+
+      for (const f of [0.2, 0.4, 0.6, 0.8]) {
+        g.moveTo(-14, 0 - h * f); g.lineTo(-1, 6.5 - h * f);
+        g.moveTo(-1, 6.5 - h * f); g.lineTo(12, 1 - h * f);
+        g.stroke({ width: 0.9, color: 0x3f220c, alpha: a * 0.85 });
+      }
+
+      // Elevated door & timber access steps
+      g.poly([-4, 7, 2, 9.5, 2, 8.5, -4, 6]); g.fill({ color: 0x78350f, alpha: a });
+      g.poly([-7, 3 - h * 0.45, -2, 5.5 - h * 0.45, -2, -h * 0.45 - 2, -7, -h * 0.45 - 4]);
+      g.fill({ color: 0x27180e, alpha: a });
+      g.moveTo(-7, 1 - h * 0.45); g.lineTo(-4, 2.5 - h * 0.45);
+      g.stroke({ width: 0.8, color: 0x94a3b8, alpha: a });
+
+      // Steep thatched hipped roof with dormer vent and wheat finial
+      g.poly([-16, -h, -1, 8.5 - h - 12, 14, 1 - h, -2, -h - 18]);
+      g.fill({ color: 0xd4a359, alpha: a });
+      g.moveTo(-16, -h); g.lineTo(-1, 8.5 - h - 12); g.lineTo(14, 1 - h);
+      g.stroke({ width: 1.2, color: 0xca8a04, alpha: a });
+      g.poly([-5, -h - 10, -1, -h - 6, 2, -h - 9, -2, -h - 14]);
       g.fill({ color: 0x991b1b, alpha: a });
+      g.circle(-2, -h - 19, 1.8); g.fill({ color: 0xfacc15, alpha: a });
 
-      // Silo 2 (Right Tower)
-      g.rect(2, -h + 8, 9, h);
-      g.fill({ color: 0xb59247, alpha: a });
-      g.poly([0, -h + 8, 6.5, -h - 10, 13, -h + 8]);
-      g.fill({ color: 0x7f1d1d, alpha: a });
+      // Overhanging attic hoist gantry with suspended flour sack
+      g.moveTo(-2, -h - 14); g.lineTo(-1, -h - 6);
+      g.stroke({ width: 2.0, color: 0x5c2b09, alpha: a });
+      g.circle(-1, -h - 6, 1.2); g.fill({ color: 0x475569, alpha: a });
+      g.moveTo(-1, -h - 6); g.lineTo(-1, -4);
+      g.stroke({ width: 0.8, color: 0xd4a373, alpha: a });
+      const sackSway = Math.sin(phase * 2) * 1.0;
+      g.circle(-1 + sackSway, -3, 2.2); g.fill({ color: 0xfef08a, alpha: a });
+      g.rect(-1.8 + sackSway, -4.5, 1.6, 1.0); g.fill({ color: 0xb45309, alpha: a });
 
-      // Connecting timber gantry & pulley hoist
-      g.rect(-5, -h + 10, 8, 3);
-      g.fill({ color: 0x78350f, alpha: a });
-      g.moveTo(-1, -h + 10); g.lineTo(-1, -h + 20);
-      g.stroke({ width: 1, color: 0xd1d5db, alpha: a });
-      g.circle(-1, -h + 20, 2.5); g.fill({ color: 0xfef08a, alpha: a }); // Grain sack
+      // Storage props on ground & loading dock
+      g.rect(-10, 4.5, 4.5, 4); g.fill({ color: 0x78350f, alpha: a });
+      g.moveTo(-10, 5.8); g.lineTo(-5.5, 5.8); g.stroke({ width: 0.6, color: 0x475569, alpha: a });
+      g.circle(-7.75, 4.2, 1.5); g.fill({ color: 0xfacc15, alpha: a });
 
-      // Grain barrels & flour sacks on ground
-      g.rect(-6, 3, 4.5, 4); g.fill({ color: 0x78350f, alpha: a });
-      g.circle(1, 4, 2.2); g.fill({ color: 0xfef08a, alpha: a });
+      g.rect(5, 4, 4, 3.8); g.fill({ color: 0x78350f, alpha: a });
+      g.circle(7, 3.8, 1.3); g.fill({ color: 0xfde047, alpha: a });
+
+      g.poly([8, 1.5, 12, 3, 11, 4.8, 7, 3.2]); g.fill({ color: 0xfef08a, alpha: a });
+      g.poly([8.5, 0.2, 11.5, 1.4, 11, 2.6, 8, 1.5]); g.fill({ color: 0xfef08a, alpha: a * 0.95 });
+
+      g.circle(-12, 2.5, 2.0); g.fill({ color: 0xa16207, alpha: a });
+      g.circle(-12, 2.2, 1.4); g.fill({ color: 0xfacc15, alpha: a });
       break;
     }
 
     case "sawmill": {
-      // Denser River Mill + Oversized Spinning Waterwheel + Log Carriage Track
       const h = 18 + heightBoost;
+      if (!complete) {
+        drawSawmillScaffolding(g, h, a, phase, kit, cult);
+        break;
+      }
+      if (kit !== "western") {
+        drawSawmillCulture(g, h, a, phase, kit, cult);
+        break;
+      }
+      // Western River Sawmill + Turning Waterwheel + Log Carriage + Sawdust
       g.poly([-15, 0, -1, 7, -1, 7 - h, -15, 0 - h]);
       g.fill({ color: 0x78350f, alpha: a });
       g.poly([-1, 7, 11, 1, 11, 1 - h, -1, 7 - h]);
       g.fill({ color: 0x5b2609, alpha: a });
 
-      // Cedar Shingle Roof
       g.poly([-17, -h, -1, 8 - h - 9, 13, 1 - h, -1, -h - 13]);
       g.fill({ color: 0x451a03, alpha: a });
+      g.stroke({ width: 1.2, color: 0x27180e, alpha: a });
+      g.moveTo(-17, -h); g.lineTo(-9, 3 - h - 4);
+      g.stroke({ width: 1.4, color: 0x166534, alpha: a * 0.85 });
 
-      // Spinning Waterwheel with paddle blades & spray
+      // Turning Waterwheel on right millrace
+      g.rect(9, -h * 0.5, 7, 2.5); g.fill({ color: 0x78350f, alpha: a });
+      g.rect(9, -h * 0.5 + 0.5, 7, 1.5); g.fill({ color: 0x38bdf8, alpha: a * 0.85 });
+
       const spin = phase * 4;
-      g.circle(14, 1, 7);
-      g.fill({ color: 0x854d0e, alpha: a });
-      g.moveTo(14, 1);
-      g.lineTo(14 + Math.cos(spin) * 6, 1 + Math.sin(spin) * 6);
-      g.stroke({ width: 1.8, color: 0x451a03, alpha: a });
-      // Water churn foam
-      g.circle(14, 8, 2.2);
-      g.fill({ color: 0xe0f2fe, alpha: a * 0.8 });
+      g.circle(14, 1, 7.5); g.stroke({ width: 2.0, color: 0x854d0e, alpha: a });
+      g.circle(14, 1, 2.2); g.fill({ color: 0x451a03, alpha: a });
+      for (let s = 0; s < 4; s++) {
+        const ang = spin + s * (Math.PI / 4);
+        g.moveTo(14 - Math.cos(ang) * 6.5, 1 - Math.sin(ang) * 6.5);
+        g.lineTo(14 + Math.cos(ang) * 6.5, 1 + Math.sin(ang) * 6.5);
+        g.stroke({ width: 1.2, color: 0x5c2b09, alpha: a });
+      }
 
-      // Log carriage & spinning circular saw blade
-      g.rect(-10, 4, 7, 3); g.fill({ color: 0x5c3d28, alpha: a }); // Tree log
-      g.circle(-3, 4, 3); g.fill({ color: 0xcbd5e1, alpha: a }); // Circular blade
+      g.circle(14, 8, 2.5); g.fill({ color: 0xe0f2fe, alpha: a * 0.85 });
+      g.circle(16, 7, 1.8); g.fill({ color: 0xbae6fd, alpha: a * 0.75 });
+      g.circle(12.5, 7.5, 1.5); g.fill({ color: 0xbae6fd, alpha: a * 0.75 });
+
+      // Saw carriage & spinning steel circular blade
+      g.moveTo(-11, 2.5); g.lineTo(2, 6.5); g.stroke({ width: 1.6, color: 0x64748b, alpha: a });
+      g.poly([-10, 3, -3, 6.5, -3, 3.8, -10, 0.3]); g.fill({ color: 0x5c3818, alpha: a });
+      g.circle(-3, 5.1, 1.4); g.fill({ color: 0xd4a359, alpha: a });
+
+      g.circle(-3, 4, 3.4); g.fill({ color: 0xcbd5e1, alpha: a });
+      g.stroke({ width: 0.6, color: 0x64748b, alpha: a });
+      g.circle(-3, 4, 0.8); g.fill({ color: 0x1e293b, alpha: a });
+
+      // Sawdust mound & stacked lumber cords
+      g.ellipse(-4, 6.5, 4.5, 2.2); g.fill({ color: 0xfef08a, alpha: a * 0.9 });
+      g.ellipse(-4, 6.2, 3.0, 1.4); g.fill({ color: 0xf59e0b, alpha: a * 0.6 });
+
+      g.rect(-14, 2, 6, 4.5); g.fill({ color: 0x854d0e, alpha: a });
+      g.moveTo(-14, 3.5); g.lineTo(-8, 3.5); g.stroke({ width: 0.6, color: 0x3f220c, alpha: a });
+      g.moveTo(-14, 5.0); g.lineTo(-8, 5.0); g.stroke({ width: 0.6, color: 0x3f220c, alpha: a });
+
+      g.circle(4, 5.5, 1.8); g.fill({ color: 0x78350f, alpha: a });
+      g.rect(3.5, 3.8, 1.8, 2.2); g.fill({ color: 0xd1d5db, alpha: a });
+      g.moveTo(4.4, 4); g.lineTo(6, 2.5); g.stroke({ width: 0.9, color: 0xd4a373, alpha: a });
       break;
     }
 
@@ -7069,8 +7995,15 @@ export function drawIsometricBuilding(
   }
 
   // Scarred / knocked-out building presentation: cracked stone & rubble overlay
-  // Unfinished towers and quarries stay scaffolding, while scarred buildings draw cracked stone
-  if (!complete && typeId !== "watchtower" && typeId !== "quarry") {
+  // Unfinished towers, quarries, and store buildings stay scaffolding, while scarred buildings draw cracked stone
+  const isScaffolding =
+    typeId === "watchtower" ||
+    typeId === "quarry" ||
+    typeId === "granary" ||
+    typeId === "mint" ||
+    typeId === "sawmill" ||
+    typeId === "mason";
+  if (!complete && !isScaffolding) {
     const effectiveH = buildingHeight(typeId, lvl, gx, gy);
     drawCrackedStoneOverlay(g, typeId, effectiveH, gx, gy, kit, lvl);
   }

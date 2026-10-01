@@ -1,9 +1,26 @@
-## 2026-10-01 — app / army hud (wave/army-hud)
+## 2026-10-01 — render / distinct store buildings chips (bakeoff/gemini-stores)
 
-- Treat copy reads `healTicks(state)` (exported from sim). Toasts call it on the post-treat state; that is fine because it only checks for a finished Barracks.
-- `UpkeepLine` now renders a full `sc-work-card` (Upkeep + vault floor). Only `ArmyTab` uses it.
-- Army cards reuse the Kingdom `sc-work-*` classes from theme.css: `is-staffed` = active (queue running, healing, mouths > 0), `is-empty` = idle, `is-scarred` = wounded with no Infirmary.
-- Resolves the "ArmyTab treat copy still says 5s" note below.
+- `packages/render/src/buildings.ts`:
+  - Implemented 4 dedicated scaffolding functions for the store buildings:
+    - `export function drawGranaryScaffolding(g: Graphics, h: number, a: number, phase: number, kit: CultureKit, cult: CultureVisualPalette): void`: Staddle stone piers, sill framing with exposed joists, partial floor decking, scaffold poles and ledgers, A-frame gantry hoist with dangling hook rope, framing plank stack, and peg bucket.
+    - `export function drawMintScaffolding(g: Graphics, h: number, a: number, phase: number, kit: CultureKit, cult: CultureVisualPalette): void`: Excavated foundation trench, low stone masonry plinth courses with course scoring, wooden vault centering arch former, scaffold standards/platforms with ladder rungs, timber derrick crane hoisting stone lintel block, mortar mixing trough with lime and trowel.
+    - `export function drawSawmillScaffolding(g: Graphics, h: number, a: number, phase: number, kit: CultureKit, cult: CultureVisualPalette): void`: Excavated millrace flume channel with shoring stakes, wheel bearing posts and axle spindle (wheel unmounted), open timber framing with exposed King-post roof trusses open to sky, saw carriage track under construction, carpenter's sawhorses, and crosscut saw.
+    - `export function drawMasonScaffolding(g: Graphics, h: number, a: number, phase: number, kit: CultureKit, cult: CultureVisualPalette): void`: Chalked ground grid layout with red corner boundary pegs, high wooden derrick tripod shear-legs crane with hoist tackle and rough boulder, partial stonecutter shed framing, raw unquarried stone boulders with steel splitting wedges, and mason sledgehammer.
+  - Implemented 4 culture painters for the store buildings:
+    - `drawGranaryCulture(g, h, a, phase, kit, cult)`: Cedar log crib with totem finial; Sand whitewashed mudbrick qasba with domed silo; Steppe spoked grain wagon with leather panniers; Islands stilt palafito with bamboo slats and salt barrels.
+    - `drawMintCulture(g, h, a, phase, kit, cult)`: Cedar boulder vault with ironwood lintel; Sand horseshoe arch with turquoise frieze; Steppe armored cart-yurt with gold finials; Islands sunken coral vault with nautilus seal.
+    - `drawSawmillCulture(g, h, a, phase, kit, cult)`: Cedar fir flume river mill; Sand sun canopy awning with donkey drive wheel; Steppe tripod log crane with broadaxes; Islands tidal paddlewheel with driftwood booms.
+    - `drawMasonCulture(g, h, a, phase, kit, cult)`: Cedar megalithic stonehewer lodge; Sand open-air atelier with shade awning; Steppe balbal stele with stone cairns; Islands coral-stone quarry lodge with cyan finial.
+  - Updated `drawIsometricBuilding`:
+    - Updated `case "granary":`, `case "mint":`, `case "sawmill":`, `case "mason":` to branch on `if (!complete) { draw...Scaffolding(); break; }` and `if (kit !== "western") { draw...Culture(); break; }`.
+    - Western finished implementations feature rich thematic storage and production props (staddle stones, wheat finials, flour sacks, Romanesque arches, gilded crown medallions, flywheel presses, bullion ingots, turning waterwheels with foam spray, spinning circular saw blades, sawdust mounds, banker workbenches, derrick cranes, ashlar pallets, carved columns, and marble urns).
+    - Updated `isScaffolding` guard check before `drawCrackedStoneOverlay` to include `granary`, `mint`, `sawmill`, and `mason`, ensuring unfinished store buildings render authentic scaffolding without cracked stone rubble overlays.
+  - Farm, Cottage, Quarry, and Watchtower implementations left completely untouched.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-stores: Distinct isometric chips for Granary, Mint, Sawmill, Mason Yard (Finished vs Scaffolding)")`.
+  - Verifies finished Western chips, distinct scaffolding structures and props, all 4 culture kits across all 4 store types, exported scaffolding functions, and zero conflict markers.
+- Invariants:
+  - `packages/sim`, `server`, and `packages/app/src/theme.css` remain strictly untouched (0 diff against `origin/main`).
 
 ## 2026-10-01 — sim / hall bonus (wave/hall-bonus)
 
