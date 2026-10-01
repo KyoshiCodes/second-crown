@@ -1,3 +1,29 @@
+## 2026-09-30 — render / missing rim wall segments faint timber stake & gap mark (bakeoff/gemini-wall-gap)
+
+- `packages/render/src/tiles.ts`:
+  - `export function isMissingRimSegment(state: GameState | null | undefined, gx: number, gy: number, realmId = "player", requireEmpty = false): boolean`:
+    - Validates grid bounds (`0 <= gx < GRID_W` and `0 <= gy < GRID_H`).
+    - Checks `isRimTile(gx, gy)` (`gx === 0 || gy === 0 || gx === GRID_W - 1 || gy === GRID_H - 1`).
+    - Checks whether a finished wall, gate, or other building for `realmId` occupies `(gx, gy)` (`completesAtTick === null || completesAtTick === undefined`).
+    - Returns `false` for finished segments. Returns `true` for missing segments. If `requireEmpty = true`, also returns `false` if an unfinished building is present.
+  - `export function listMissingRimSegments(state: GameState | null | undefined, realmId = "player", requireEmpty = false): Array<{ x: number; y: number }>`:
+    - Iterates all 48 rim tiles in clockwise order (`getRimTileAt(0..47)`).
+    - Returns an array of `{ x, y }` coordinates for all missing rim wall segments. Returns `[]` when the wall ring is closed.
+  - `export function drawRimGapMark(g: Graphics, wx: number, wy: number, gx: number, gy: number, phase = 0, visuals?: ThemeVisuals): void`:
+    - Renders faint foundation trench alignment notch (`0x52525b`, width 1.4, alpha 0.35) and mason's lime chalk alignment mark (`0xa8a29e`, width 0.7, alpha 0.42) tracing the wall footing between adjacent rim tiles.
+    - Soft elliptical turf contact shadow (`0x000000`, `0x271708`).
+    - Displaced dark loam soil clods at the peg base (`0x3f220c`, `0x2e1908`).
+    - Slender aged timber stake (`0x78350f`) with sunlit highlight (`0xa16207`), chamfered heartwood top cut (`0xc29d62`), and vertical grain split (`0x451a03`).
+    - Weathered neck cord binding (`0xa8a29e`, knot bead `0x78716c`).
+    - Seasonal frost cap on stake head during winter/midwinter themes (`0xf1f5f9`).
+  - `export function paintMissingRimSegments(g: Graphics, state: GameState | null | undefined, phase = 0, visuals?: ThemeVisuals, realmId = "player"): void`:
+    - Clears graphics and iterates `listMissingRimSegments(state, realmId)`. Renders zero marks when the wall ring is closed.
+- `packages/render/src/index.ts`:
+  - Layer added to `holdContainer`: `rimGapLayer = new Graphics(); rimGapLayer.eventMode = "none"; holdContainer.addChild(rimGapLayer);` placed directly above `groundLayer` and below `entitiesLayer`.
+  - Refreshes `rimGapLayer` in initial render, `sync()`, `setTheme()`, and the animation ticker loop (during `"hold"` camera band).
+  - Exported `isMissingRimSegment`, `listMissingRimSegments`, `drawRimGapMark`, and `paintMissingRimSegments`.
+- Invariants: Sim and server unchanged (`git diff origin/main -- packages/sim server` strictly empty). Hit-test and camera math (`camera.ts`) 100% untouched. No `theme.css` changes. Non-blocking `rimGapLayer.eventMode = "none"`. Zero `<<<<<<<` conflict markers.
+
 ## 2026-09-30 — render / finished watchtower unlit beacon when no worker, staffed beacon on (bakeoff/gemini-tower-unlit)
 
 - `packages/render/src/buildings.ts`:

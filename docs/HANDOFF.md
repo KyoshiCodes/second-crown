@@ -35,7 +35,23 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
 - Lofi dock: picking a track (list, ‹, ›) plays it and repeats it. Only an unpicked, cleanly finished track advances to the next.
 - A failed file no longer skips down the whole list. It stops and the dock shows **Track not found. Pick another.** A blocked autoplay shows **Autoplay blocked. Click to play.** and the next click retries.
 - The lofi `.ogg` files (03–33, `lofi-a`, `lofi-b`) are still untracked in git, so on the server every lofi track 404s and shows the not-found line until they are committed or copied over.
-- Only `music.ts`, `MusicDock.tsx`, `lofi-dock.css`. No sim, server, KeepInterior, AppShell or theme.css changes.
+## Active Bakeoff (bakeoff/gemini-wall-gap)
+
+- **Render Only: Missing Rim Wall Segments Faint Timber Stake / Gap Mark (`packages/render/src/tiles.ts`, `packages/render/src/index.ts`)**:
+  - **Missing Rim Wall Segments**: Along the 48 hold perimeter rim tiles (`isRimTile(gx, gy)`), missing wall segments receive a faint timber stake / gap mark so an open ring is immediately obvious to the player.
+  - **Finished Segments Stay As They Are**: Tiles with finished walls or gates (`completesAtTick === null`) remain completely untouched; no gap mark or stake is drawn over finished segments.
+  - **Closed Wall Ring Detection**: When all 48 rim segments are finished (or the ring is closed), `listMissingRimSegments` returns `[]` and `paintMissingRimSegments` clears the layer, rendering zero gap marks.
+  - **Visual Anatomy (`drawRimGapMark`)**:
+    - **Foundation Trench Alignment Line**: Faint scored foundation trench notch (`0x52525b`, alpha 0.35) and mason's lime chalk alignment mark (`0xa8a29e`, alpha 0.42) tracing the perimeter wall footing between adjacent rim tiles.
+    - **Soft Contact Shadow**: Soft elliptical contact shadow on the turf (`0x000000`, `0x271708`).
+    - **Loam Turf Clods**: Small displaced loam soil clods at the base of the stake (`0x3f220c`, `0x2e1908`).
+    - **Slender Timber Stake**: Aged oak/cedar peg (`0x78350f`) with sunlit highlight (`0xa16207`), chamfered heartwood top cut (`0xc29d62`), and vertical woodgrain split (`0x451a03`).
+    - **Perimeter Cord Binding**: Weathered cord/chalk binding around the neck (`0xa8a29e`, knot `0x78716c`).
+    - **Distinct from Courtyard Stakes**: No bright red ribbon and no gold hint glow. Faint and non-intrusive.
+    - **Winter Frost Cap**: In winter / midwinter themes, a delicate frost dusting (`0xf1f5f9`) caps the top of the stake.
+  - **Dedicated Layer**: `rimGapLayer = new Graphics()` added to `holdContainer` directly above `groundLayer` with `eventMode = "none"` (`pointer-events: none`).
+  - **Helpers Exported**: `isMissingRimSegment`, `listMissingRimSegments`, `drawRimGapMark`, `paintMissingRimSegments`.
+  - **Invariants**: Strictly non-blocking (`rimGapLayer.eventMode = "none"`). Hit-test and camera math (`camera.ts`) 100% untouched. `git diff origin/main -- packages/sim server packages/app/src/theme.css` strictly empty. No invented sim fields. Zero `<<<<<<<` conflict markers.
 
 ## Active Bakeoff (bakeoff/gemini-tower-unlit)
 
