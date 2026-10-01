@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-09-30 — Slot hint (wave/slot-hint)
+
+- **App: column-slot hint** (`packages/app/src/ProvinceInspect.tsx`): when `full`, show "Recall a column to free a slot (War tab)." in the inspect actions.
+- `full` now matches the sim's `tryGather` count (player marches + player gathers incl. returning). Raid button also disabled when `full`.
+- No sim, server or theme.css changes. 229 tests pass; app build clean.
+
 ## 2026-09-30 — Keep Hall (wave/keep-hall)
 
 - **App: Hall panel on the home inspect card** (`packages/app/src/KeepHall.tsx`, `keep-hall.css`, `ProvinceInspect.tsx`): three rooms, Yard / Lectern / Gate.
