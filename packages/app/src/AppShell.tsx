@@ -3,6 +3,7 @@ import { formatLetterSuffix, settlementName, currentSeason, playerCultureId } fr
 import { useGameEngine, type Tab } from "./game/useGameEngine";
 import { CultureContext } from "./UnitIcon";
 import { ResourceHud } from "./hud/ResourceHud";
+import { SlotPips } from "./hud/SlotPip";
 import { SpeedControls } from "./HudControls";
 import { KingdomTab } from "./tabs/KingdomTab";
 import { ArmyTab } from "./tabs/ArmyTab";
@@ -148,6 +149,7 @@ export function AppShell() {
               >
                 <span className="sc-tab-icon">{TAB_ICON[id]}</span>
                 <span>{TAB_LABEL[id]}</span>
+                {id === "war" && <SlotPips state={state} compact />}
                 {isActive && (
                   <span className="sc-tab-lantern" title="Active lantern tick" aria-hidden="true">
                     <svg

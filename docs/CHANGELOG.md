@@ -1,10 +1,16 @@
 # CHANGELOG
 
-## 2026-09-30 — Slot hint (wave/slot-hint)
+## 2026-09-30 — Gemini Stall/Post Column Slot Pips on War (bakeoff/gemini-slot-pips)
 
-- **App: column-slot hint** (`packages/app/src/ProvinceInspect.tsx`): when `full`, show "Recall a column to free a slot (War tab)." in the inspect actions.
-- `full` now matches the sim's `tryGather` count (player marches + player gathers incl. returning). Raid button also disabled when `full`.
-- No sim, server or theme.css changes. 229 tests pass; app build clean.
+- **HUD: N/max Column Slots as Stall/Post Pips on War (`packages/app/src/hud/SlotPip.tsx`, `packages/app/src/hud/slot-pip.css`, `packages/app/src/WarRoom.tsx`, `packages/app/src/AppShell.tsx`)**:
+  - **Column Slots Visualization**: Renders `N/max` column capacity as small medieval muster stall/post pips where `filled = a column out`:
+    - **Empty Pip (`filled = false`)**: Column is at home; dormant dark timber post, stall hitch rail, cold iron ring, flat timber post cap, subdued opacity (0.42).
+    - **Filled Pip (`filled = true`)**: Column is deployed on the road; hoisted standard with red-and-gold swallowtail war pennant (`#dc2626`, `#facc15`), golden spearhead finial (`#facc15`), glowing amber beacon spark (`#fef08a`), and active harness.
+  - **Mounted on War**:
+    - **War Tab Button (`AppShell.tsx`)**: Compact `N/max` and stall/post pips rendered directly on the `War` tab button, allowing instant monitoring of marching columns from any game screen.
+    - **War Tab Screen (`WarRoom.tsx`)**: Mounted alongside the `Columns` card header with `N/max` count and full-size stall/post pips.
+  - **Strictly Non-Blocking**: `pointer-events: none` on all wrappers, text, and SVGs.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). 284 render tests pass; 229 sim tests pass; app builds cleanly.
 
 ## 2026-09-30 — Keep Hall (wave/keep-hall)
 
