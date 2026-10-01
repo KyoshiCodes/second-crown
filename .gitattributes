@@ -1,0 +1,33 @@
+# Only the 31 approved HoliznaCC0 lofi runtime assets use Git LFS.
+# Existing holiday audio remains ordinary Git content.
+/packages/app/public/audio/03\\ HoliznaCC0\\ -\\ Something\\ In\\ The\\ Air.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/04\\ HoliznaCC0\\ -\\ Small\\ Towns\\ Smaller\\ Lives.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/05\\ HoliznaCC0\\ -\\ Mundane.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/06\\ HoliznaCC0\\ -\\ Glad\\ To\\ Be\\ Stuck\\ Inside.mp3.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/07\\ HoliznaCC0\\ -\\ Vintage.mp3.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/08\\ HoliznaCC0\\ -\\ Morning\\ Coffee.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/09\\ HoliznaCC0\\ -\\ A\\ Little\\ Shade.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/10\\ HoliznaCC0\\ -\\ All\\ The\\ Way\\ Sad.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/11\\ HoliznaCC0\\ -\\ Ghosts.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/12\\ HoliznaCC0\\ -\\ Shut\\ up,\\ or\\ shut\\ in.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/13\\ HoliznaCC0\\ -\\ Whatever.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/14\\ HoliznaCC0\\ -\\ Yesterday.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/15\\ HoliznaCC0\\ -\\ Letting\\ Go\\ Of\\ The\\ Past.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/16\\ HoliznaCC0\\ -\\ Cellar\\ Door.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/17\\ HoliznaCC0\\ -\\ You\\ Loved\\ Me\\ Once.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/18\\ HoliznaCC0\\ -\\ Puppy\\ Love.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/19\\ HoliznaCC0\\ -\\ Clouds.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/20\\ HoliznaCC0\\ -\\ Busted\\ Jazz.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/21\\ HoliznaCC0\\ -\\ Busted\\ Jazz.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/22\\ HoliznaCC0\\ -\\ Autumn.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/23\\ HoliznaCC0\\ -\\ Clouds.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/24\\ HoliznaCC0\\ -\\ Mixed\\ Signals.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/25\\ HoliznaCC0\\ -\\ New\\ Shoes.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/26\\ HoliznaCC0\\ -\\ Foggy\\ Headed.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/27\\ HoliznaCC0\\ -\\ Ramen.mp3.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/28\\ HoliznaCC0\\ -\\ Happy,\\ but\\ a\\ little\\ off.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/29\\ HoliznaCC0\\ -\\ Static.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/30\\ HoliznaCC0\\ -\\ Creature\\ Comforts.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/31\\ HoliznaCC0\\ -\\ Not\\ It\\ (Lofi).mp3.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/32\\ HoliznaCC0\\ -\\ Plants.mp3.ogg filter=lfs diff=lfs merge=lfs -text
+/packages/app/public/audio/33\\ HoliznaCC0\\ -\\ Seasons\\ Change.ogg filter=lfs diff=lfs merge=lfs -text
