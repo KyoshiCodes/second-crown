@@ -1,0 +1,37 @@
+/* --- Crown tab Second Dawn card. Read-only facts from the save.
+   The card look comes from .sc-work-card in theme.css; this file adds layout and state tints only. --- */
+
+.sc-work-card.sc-dawn-card {
+  margin: 4px 0 10px;
+}
+.sc-work-card.sc-dawn-card.is-dawned {
+  border-left-color: #e8c36a;
+}
+.sc-work-card.sc-dawn-card.is-dawned .sc-work-level {
+  color: #e8c36a;
+}
+
+.sc-dawn-facts {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.sc-dawn-facts > li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  opacity: 0.75;
+}
+.sc-dawn-facts > li.is-met {
+  opacity: 1;
+}
+.sc-dawn-facts > li.is-met .sc-dawn-value {
+  color: #86efac;
+}
+.sc-dawn-value {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
