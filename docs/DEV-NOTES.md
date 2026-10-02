@@ -1,3 +1,29 @@
+## 2026-10-02 — app / living pips on keep room cards (bakeoff/gemini-keep-rooms)
+
+- `packages/app/src/hud/keep-room-pips.css`:
+  - Styles `.sc-room-pip-wrapper`, `.sc-bed-pip-wrapper`, `.sc-anvil-pip-wrapper`, and `.sc-wall-pip-wrapper`.
+  - Enforces `pointer-events: none !important`, `flex-shrink: 0`, and `vertical-align: middle`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/BedPip.tsx`:
+  - 16px living bed SVG with oak posts, bolster pillow, quilt, and reactive candlelight / medical cross states.
+  - `data-bed-pip`, `data-active`, `data-full`, `data-wounded`, `aria-hidden="true"`, `pointerEvents: "none"`.
+- `packages/app/src/hud/AnvilPip.tsx`:
+  - 16px living anvil SVG with oak stump, forged steel face, horn, hammer, and reactive glowing hot billet with flying sparks.
+  - `data-anvil-pip`, `data-active`, `data-count`, `aria-hidden="true"`, `pointerEvents: "none"`.
+- `packages/app/src/hud/KeepRoomPip.tsx`:
+  - Unifies resolution of `room` ("hall", "wall", "yard") or `kind` ("bed", "wall", "anvil").
+  - Re-exports `BedPip`, `WallPip`, `AnvilPip`.
+- `packages/app/src/KeepInterior.tsx`:
+  - Mounted `<BedPip size={16} />`, `<WallPip size={16} />`, and `<AnvilPip size={16} />` directly on room tab buttons (`.sc-keepin-room`).
+  - Added `pip?: React.ReactNode` to `FactCard` rendering in `.sc-work-title-group`.
+  - Mounted `BedPip` on Hall cards (`Keep`, `People`, `Plots`) and Yard cards (`Beds`, `Healing`).
+  - Mounted `WallPip` on Wall cards (`Walls`, `Ring`, `Gate`).
+  - Mounted `AnvilPip` on Yard card (`Keep edge`).
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-keep-rooms: small living pips on Hall, Wall, and Yard cards (bed, wall, anvil)")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
+
 ## 2026-10-01 — app / keep room cards (wave/keep-rooms)
 
 - `packages/app/src/hud/keep-room.css` (imported by `KeepInterior.tsx`):

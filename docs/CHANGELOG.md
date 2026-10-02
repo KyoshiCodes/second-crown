@@ -1,5 +1,16 @@
 # CHANGELOG
  
+## 2026-10-02 — Gemini Keep Room Living Pips (bakeoff/gemini-keep-rooms)
+
+- **App HUD: Small Living Pips on Hall, Wall, and Yard Cards (Bed, Wall, Anvil) (`packages/app/src/hud/BedPip.tsx`, `packages/app/src/hud/AnvilPip.tsx`, `packages/app/src/hud/KeepRoomPip.tsx`, `packages/app/src/hud/keep-room-pips.css`, `packages/app/src/KeepInterior.tsx`, `packages/render/src/index.test.ts`)**:
+  - **Living Bed Pip (`BedPip`)**: 16px medieval timber cot with carved oak posts, linen bolster pillow, and folded blanket. Features living reactive state: warm bedside candlelight flame when occupied or housing full (`pop >= cap`), red medic cross when wounded are resting on cots. Mounted on Hall room tab and Hall fact cards (Keep, People, Plots), and Yard Beds/Healing cards.
+  - **Living Wall Pip (`WallPip`)**: 16px ashlar stone curtain wall with battlements, gatehouse arch with portcullis, and emerald green ring status jewel stud (warm amber when open). Mounted on Wall room tab and Wall fact cards (Walls, Ring, Gate).
+  - **Living Anvil Pip (`AnvilPip`)**: 16px forged steel blacksmith anvil on iron-banded oak stump with conical bick, striking face, and hammer. Features living reactive state: cherry-red heated iron billet with radiant flying sparks when works are active. Mounted on Yard room tab and Yard Keep edge card.
+  - **Unified Component (`KeepRoomPip`)**: Resolves room kind ("hall", "wall", "yard") or symbol ("bed", "wall", "anvil").
+  - **Strictly Non-Blocking**: `pointer-events: none` on all pips and SVGs.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/keep-room-pips.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new rooms.
+
 ## 2026-10-01 — Keep room cards (wave/keep-rooms)
 
 - **App HUD**: Keep interior Hall, Wall, and Yard rooms show their facts as `.sc-work-card` cards. Hall: Keep level, People, Plots (slot counts, same numbers as the keep header). Wall: Walls (HP, rim/total), Ring (closed/open), Gate (up + HP / down). Yard: Beds (wounded/beds, seconds per treat from `healTicks`), Healing (treating count + seconds left), Keep edge count. Wall and Yard work lists are read-only work cards. No new rooms, no heal math change. Styles only in `keep-room.css`; `theme.css`, `packages/sim`, `server` untouched. Files: `packages/app/src/hud/keep-room.css`, `KeepInterior.tsx`.

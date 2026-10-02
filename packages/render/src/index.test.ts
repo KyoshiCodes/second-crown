@@ -8532,6 +8532,128 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               }
             });
           });
+
+          describe("bakeoff/gemini-keep-rooms: small living pips on Hall, Wall, and Yard cards (bed, wall, anvil)", () => {
+            it("verifies keep-room-pips.css defines layout, non-blocking guarantee, and theme.css is untouched", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cssPath = path.resolve(__dirname, "../../app/src/hud/keep-room-pips.css");
+              expect(fs.existsSync(cssPath)).toBe(true);
+              const css = fs.readFileSync(cssPath, "utf-8");
+
+              expect(css).toContain("sc-room-pip-wrapper");
+              expect(css).toContain("sc-bed-pip-wrapper");
+              expect(css).toContain("sc-anvil-pip-wrapper");
+              expect(css).toContain("sc-wall-pip-wrapper");
+              expect(css).toContain("pointer-events: none !important");
+
+              const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+              expect(themeCss).not.toContain("sc-bed-pip-wrapper");
+              expect(themeCss).not.toContain("sc-anvil-pip-wrapper");
+            });
+
+            it("verifies BedPip exports component with carved posts, bolster, blanket, candlelight, and pointerEvents none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const bedPath = path.resolve(__dirname, "../../app/src/hud/BedPip.tsx");
+              expect(fs.existsSync(bedPath)).toBe(true);
+              const bedCode = fs.readFileSync(bedPath, "utf-8");
+
+              expect(bedCode).toContain("BedPip");
+              expect(bedCode).toContain('pointerEvents: "none"');
+              expect(bedCode).toContain('aria-hidden="true"');
+              expect(bedCode).toContain("data-bed-pip");
+              expect(bedCode).toContain("size = 16");
+              expect(bedCode).toContain("sc-bed-candle-glow");
+              expect(bedCode).toContain("sc-bed-cross");
+            });
+
+            it("verifies AnvilPip exports component with oak stump, forged steel face, hot billet, sparks, and pointerEvents none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const anvilPath = path.resolve(__dirname, "../../app/src/hud/AnvilPip.tsx");
+              expect(fs.existsSync(anvilPath)).toBe(true);
+              const anvilCode = fs.readFileSync(anvilPath, "utf-8");
+
+              expect(anvilCode).toContain("AnvilPip");
+              expect(anvilCode).toContain('pointerEvents: "none"');
+              expect(anvilCode).toContain('aria-hidden="true"');
+              expect(anvilCode).toContain("data-anvil-pip");
+              expect(anvilCode).toContain("size = 16");
+              expect(anvilCode).toContain("sc-anvil-hot-billet");
+              expect(anvilCode).toContain("sc-anvil-spark");
+            });
+
+            it("verifies WallPip exports component with battlements, gate arch, ring jewel, and pointerEvents none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const wallPath = path.resolve(__dirname, "../../app/src/hud/WallPip.tsx");
+              expect(fs.existsSync(wallPath)).toBe(true);
+              const wallCode = fs.readFileSync(wallPath, "utf-8");
+
+              expect(wallCode).toContain("WallPip");
+              expect(wallCode).toContain('pointerEvents: "none"');
+              expect(wallCode).toContain('aria-hidden="true"');
+              expect(wallCode).toContain("data-wall-pip");
+              expect(wallCode).toContain("sc-wall-pip-wrapper");
+            });
+
+            it("verifies KeepRoomPip unifies bed, wall, and anvil symbols with non-blocking guarantee", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const roomPipPath = path.resolve(__dirname, "../../app/src/hud/KeepRoomPip.tsx");
+              expect(fs.existsSync(roomPipPath)).toBe(true);
+              const pipCode = fs.readFileSync(roomPipPath, "utf-8");
+
+              expect(pipCode).toContain("KeepRoomPip");
+              expect(pipCode).toContain("BedPip");
+              expect(pipCode).toContain("WallPip");
+              expect(pipCode).toContain("AnvilPip");
+              expect(pipCode).toContain('pointer-events: none');
+            });
+
+            it("verifies KeepInterior mounts living pips on room tabs and FactCards for Hall, Wall, and Yard", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const interiorPath = path.resolve(__dirname, "../../app/src/KeepInterior.tsx");
+              expect(fs.existsSync(interiorPath)).toBe(true);
+              const interiorCode = fs.readFileSync(interiorPath, "utf-8");
+
+              // Imports
+              expect(interiorCode).toContain("BedPip");
+              expect(interiorCode).toContain("WallPip");
+              expect(interiorCode).toContain("AnvilPip");
+              expect(interiorCode).toContain("keep-room-pips.css");
+
+              // Room tabs
+              expect(interiorCode).toContain('r.id === "hall" && <BedPip');
+              expect(interiorCode).toContain('r.id === "wall" && <WallPip');
+              expect(interiorCode).toContain('r.id === "yard" && <AnvilPip');
+
+              // FactCards
+              expect(interiorCode).toContain('pip={<BedPip');
+              expect(interiorCode).toContain('pip={<WallPip');
+              expect(interiorCode).toContain('pip={<AnvilPip');
+            });
+
+            it("verifies zero merge conflict markers across all modified files", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const files = [
+                path.resolve(__dirname, "../../app/src/hud/keep-room-pips.css"),
+                path.resolve(__dirname, "../../app/src/hud/BedPip.tsx"),
+                path.resolve(__dirname, "../../app/src/hud/AnvilPip.tsx"),
+                path.resolve(__dirname, "../../app/src/hud/KeepRoomPip.tsx"),
+                path.resolve(__dirname, "../../app/src/KeepInterior.tsx"),
+              ];
+              for (const f of files) {
+                const content = fs.readFileSync(f, "utf-8");
+                expect(content).not.toContain("<<<<<<<");
+                expect(content).not.toContain("=======");
+                expect(content).not.toContain(">>>>>>>");
+              }
+            });
+          });
         });
       });
     });
