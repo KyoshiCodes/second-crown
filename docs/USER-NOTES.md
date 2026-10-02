@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — 28px Ranger Chip on Ranger Card (bakeoff/gemini-ranger)
+
+- On the Army tab, the **Ranger** card now displays a dedicated 28px heraldic ranger chip:
+  - **Hood & Bow**: A deep ranger cowl hood with keen gleaming eyes and a strung recurve woodland longbow with nocked bodkin arrow.
+  - **Mist-Blue Cloak**: A flowing, billowing mist-blue mantle pinned by a golden leaf brooch clasp with wisps of morning fog.
+  - **States**: Glows with a vibrant mist-blue aura when unlocked; rests in shrouded cold fog tones while Fieldcraft remains to be studied.
+  - Strictly non-interactive overlay (`pointer-events: none`); clicking to train or viewing tooltips remains completely smooth.
+
 ## 2026-10-02 — Rangers on the Army tab (wave/culture-unit-ui)
 
 - **Mist Reach** sits beside the other crown styles on the Crown tab. Pick it, then start a New Game.

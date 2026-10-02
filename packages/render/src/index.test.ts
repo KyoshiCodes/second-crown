@@ -8722,11 +8722,88 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               }
             });
           });
+
+          describe("bakeoff/gemini-ranger: 28px ranger chip on Ranger card (hood, bow, mist-blue cloak)", () => {
+            it("verifies ranger-chip.css defines 28px layout, non-blocking guarantee, and theme.css is untouched", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cssPath = path.resolve(__dirname, "../../app/src/hud/ranger-chip.css");
+              expect(fs.existsSync(cssPath)).toBe(true);
+              const css = fs.readFileSync(cssPath, "utf-8");
+
+              expect(css).toContain("sc-ranger-chip-wrapper");
+              expect(css).toContain("pointer-events: none !important");
+              expect(css).toContain("is-open");
+              expect(css).toContain("is-locked");
+
+              const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+              expect(themeCss).not.toContain("sc-ranger-chip");
+            });
+
+            it("verifies RangerChip exports 28px component with hood, bow, mist-blue cloak, and pointerEvents none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const chipPath = path.resolve(__dirname, "../../app/src/hud/RangerChip.tsx");
+              expect(fs.existsSync(chipPath)).toBe(true);
+              const chipCode = fs.readFileSync(chipPath, "utf-8");
+
+              expect(chipCode).toContain("RangerChip");
+              expect(chipCode).toContain("size = 28");
+              expect(chipCode).toContain('pointerEvents: "none"');
+              expect(chipCode).toContain('aria-hidden="true"');
+              expect(chipCode).toContain("data-ranger-chip");
+              expect(chipCode).toContain("data-open");
+              expect(chipCode).toContain("sc-ranger-cloak");
+              expect(chipCode).toContain("sc-ranger-hood");
+              expect(chipCode).toContain("sc-ranger-bow");
+            });
+
+            it("verifies UnitCard mounts 28px RangerChip on Ranger card", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cardPath = path.resolve(__dirname, "../../app/src/hud/UnitCard.tsx");
+              expect(fs.existsSync(cardPath)).toBe(true);
+              const cardCode = fs.readFileSync(cardPath, "utf-8");
+
+              expect(cardCode).toContain("RangerChip");
+              expect(cardCode).toContain('typeId === "ranger" ? (');
+              expect(cardCode).toContain("<RangerChip size={28} open={open} />");
+            });
+
+            it("verifies UnitIcon has dedicated ranger art with hood, bow, and mist-blue cloak", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const iconPath = path.resolve(__dirname, "../../app/src/UnitIcon.tsx");
+              expect(fs.existsSync(iconPath)).toBe(true);
+              const iconCode = fs.readFileSync(iconPath, "utf-8");
+
+              expect(iconCode).toContain('case "ranger":');
+              expect(iconCode).toContain("Mist ranger");
+            });
+
+            it("verifies zero merge conflict markers across all modified and created files", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const files = [
+                path.resolve(__dirname, "../../app/src/hud/ranger-chip.css"),
+                path.resolve(__dirname, "../../app/src/hud/RangerChip.tsx"),
+                path.resolve(__dirname, "../../app/src/hud/UnitCard.tsx"),
+                path.resolve(__dirname, "../../app/src/UnitIcon.tsx"),
+              ];
+              for (const f of files) {
+                const content = fs.readFileSync(f, "utf-8");
+                expect(content).not.toContain("<<<<<<<");
+                expect(content).not.toContain("=======");
+                expect(content).not.toContain(">>>>>>>");
+              }
+            });
+          });
         });
       });
     });
   });
 });
+
 
 
 

@@ -71,8 +71,87 @@ export function UnitIcon(props: UnitIconProps) {
 
   const renderContent = () => {
     switch (typeId) {
-      case "archer":
       case "ranger": {
+        // Mist ranger: cowl hood, recurve longbow, mist-blue cloak
+        return (
+          <g>
+            <ellipse cx="18" cy="30" rx="7" ry="2.2" fill="#000000" fillOpacity="0.35" />
+            <rect x={18 + legL * facing} y={26 - bob} width="2.5" height="4" fill="#1e293b" />
+            <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#0f172a" />
+            {/* Billowing mist-blue cloak */}
+            <path
+              d={`M18,${10 - bob} C13,${13 - bob} 9,${18 - bob} 9,${28 - bob} C12,${29 - bob} 15,${28.5 - bob} 18,${29 - bob} C21,${28.5 - bob} 24,${29 - bob} 27,${28 - bob} C27,${18 - bob} 23,${13 - bob} 18,${10 - bob} Z`}
+              fill="#0284c7"
+              stroke="#0369a1"
+              strokeWidth="0.8"
+            />
+            <path
+              d={`M9,${28 - bob} C9,${18 - bob} 13,${13 - bob} 18,${10 - bob}`}
+              stroke="#38bdf8"
+              strokeWidth="1.2"
+              fill="none"
+              opacity="0.9"
+            />
+            {/* Ranger cowl hood with peaked tip */}
+            <path
+              d={`M14,${14 - bob} C14,${8 - bob} 22,${8 - bob} 22,${14 - bob} C22,${18 - bob} 14,${18 - bob} 14,${14 - bob} Z`}
+              fill="#0369a1"
+              stroke="#075985"
+              strokeWidth="0.8"
+            />
+            <polygon
+              points={`16,${9 - bob} 18,${4 - bob} 20,${9 - bob}`}
+              fill="#0284c7"
+              stroke="#0369a1"
+              strokeWidth="0.6"
+            />
+            {/* Shrouded face with gleaming mist-blue eyes */}
+            <ellipse cx="18" cy={14 - bob} rx="3" ry="2.4" fill="#0f172a" />
+            <circle cx="16.5" cy={13.6 - bob} r="0.6" fill="#38bdf8" />
+            <circle cx="19.5" cy={13.6 - bob} r="0.6" fill="#38bdf8" />
+            {/* Golden leaf cloak clasp */}
+            <polygon
+              points={`18,${16 - bob} 19.2,${17.2 - bob} 18,${18.4 - bob} 16.8,${17.2 - bob}`}
+              fill="#facc15"
+              stroke="#b45309"
+              strokeWidth="0.4"
+            />
+            {/* Quiver of arrows on back */}
+            <rect x={18 - facing * 5} y={15 - bob} width="3.2" height="9" fill="#78350f" rx="0.8" />
+            <line x1={18 - facing * 4} y1={15 - bob} x2={18 - facing * 4} y2={9 - bob} stroke="#38bdf8" strokeWidth="1.5" strokeLinecap="round" />
+            {/* Recurve longbow */}
+            <path
+              d={`M${18 + facing * 5} ${5 - bob + armSwing} Q${18 + facing * 9.5} ${18 - bob + armSwing} ${18 + facing * 5} ${31 - bob + armSwing}`}
+              stroke="#854d0e"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <line
+              x1={18 + facing * 4.5}
+              y1={5 - bob + armSwing}
+              x2={18 + facing * 4.5}
+              y2={31 - bob + armSwing}
+              stroke="#f8fafc"
+              strokeWidth="0.8"
+            />
+            {/* Nocked arrow */}
+            <line
+              x1={18 - facing * 1}
+              y1={18 - bob + armSwing}
+              x2={18 + facing * 8.5}
+              y2={18 - bob + armSwing}
+              stroke="#f8fafc"
+              strokeWidth="1.2"
+            />
+            <polygon
+              points={`${18 + facing * 8.5},${17 - bob + armSwing} ${18 + facing * 10.5},${18 - bob + armSwing} ${18 + facing * 8.5},${19 - bob + armSwing}`}
+              fill="#cbd5e1"
+            />
+          </g>
+        );
+      }
+      case "archer": {
         if (!isDefaultCulture) {
           switch (kit) {
             case "cedar": {

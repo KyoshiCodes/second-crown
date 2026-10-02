@@ -1,3 +1,23 @@
+## 2026-10-02 — app / 28px ranger chip on Ranger card (bakeoff/gemini-ranger)
+
+- `packages/app/src/hud/ranger-chip.css`:
+  - Styles `.sc-ranger-chip-wrapper`, `.sc-ranger-chip`, and living aura states (`.is-open`, `.is-locked`).
+  - Strictly enforces `pointer-events: none !important`, `flex-shrink: 0`, and `vertical-align: middle`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/RangerChip.tsx`:
+  - 28px living unit chip component with cowl hood, peaked liripipe, shadowed face with keen gleaming eyes, recurve woodland composite longbow with taut string and nocked bodkin arrow, billowing mist-blue cloak with golden leaf brooch clasp, and swirling morning mist wisps.
+  - Reactive states: `open = true` (unlocked) displays vibrant mist-blue cloak, golden brooch, and drop-shadow halo; `open = false` (locked) displays desaturated cold morning fog tones.
+  - `data-ranger-chip`, `data-open`, `aria-hidden="true"`, `pointerEvents: "none"`.
+- `packages/app/src/hud/UnitCard.tsx`:
+  - Directly mounts `<RangerChip size={28} open={open} />` on the Ranger card (`typeId === "ranger"`).
+- `packages/app/src/UnitIcon.tsx`:
+  - Added dedicated `case "ranger":` rendering the hooded, bow-wielding, mist-blue cloaked ranger silhouette.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-ranger: 28px ranger chip on Ranger card (hood, bow, mist-blue cloak)")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
+  - No new unit stats.
+
 ## 2026-10-02 — app / mist and ranger UI (wave/culture-unit-ui)
 
 - There was no list to extend. `CulturePicker` and the Army unit grid both map sim data, so Mist and Ranger showed up as soon as the sim merged. This wave only fixes what the app had wrong: the ranger lock note (it was blank, so the card said just "Locked"), the ranger art (it fell through to the militia `default`), and the discount and footnote copy.

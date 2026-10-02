@@ -1,5 +1,6 @@
 import React from "react";
 import { UnitIcon } from "../UnitIcon";
+import { RangerChip } from "./RangerChip";
 
 export type UnitCardProps = {
   typeId: string;
@@ -28,7 +29,11 @@ export function UnitCard(props: UnitCardProps) {
     >
       <span className="sc-unit-head">
         <span className="sc-unit-art sc-unit-art-wrapper" style={{ pointerEvents: "none", display: "inline-flex" }}>
-          <UnitIcon typeId={typeId} size={28} animated={open} />
+          {typeId === "ranger" ? (
+            <RangerChip size={28} open={open} />
+          ) : (
+            <UnitIcon typeId={typeId} size={28} animated={open} />
+          )}
         </span>
         <span className="sc-unit-name">{name}</span>
         <span className="sc-unit-power">pwr {power}</span>

@@ -13,6 +13,19 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (bakeoff/gemini-ranger, not merged)
+
+- App HUD only. Added 28px ranger chip on the Ranger card on the Army tab:
+  - **Living Ranger Chip** (`RangerChip`): 28px heraldic unit chip (`packages/app/src/hud/RangerChip.tsx`) with cowl hood, peaked liripipe, shadowed face with keen gleaming eyes, recurve woodland composite longbow with taut string and nocked bodkin arrow, billowing mist-blue cloak with golden leaf brooch clasp, and swirling morning mist wisps.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Vibrant mist-blue cloak (`#0284c7` / `#38bdf8`), golden leaf brooch clasp, warm seasoned ash bow, and subtle mist-blue drop-shadow aura.
+    - **Locked** (`open = false`): Muted dusk fog tones (`#475569` / `#64748b`) indicating the ranger is shrouded in cold morning mist awaiting Fieldcraft study.
+  - **Card Integration**: Mounted directly on the Ranger card in `UnitCard.tsx` via `<RangerChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `typeId === "ranger"` has dedicated hood, bow, and mist-blue cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on wrapper, SVG, and all child elements guarantees zero interference with card clicking, training, or tooltips.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/ranger-chip.css`; `theme.css` strictly untouched (0 diff against `origin/main`).
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats. 248 sim tests pass, 334 render tests pass, app builds cleanly.
+  - Files: `packages/app/src/hud/RangerChip.tsx`, `packages/app/src/hud/ranger-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`.
+
 ## Active wave (wave/culture-unit-ui, not merged)
 
 - App only. Finishes the UI side of wave/culture-unit. No sim, server, or theme.css changes.
