@@ -1,4 +1,4 @@
-/* --- Crown tab Second Dawn card. Read-only facts from the save.
+/* --- Crown tab Second Dawn card. Facts from the save plus the one Ascend button.
    The card look comes from .sc-work-card in theme.css; this file adds layout and state tints only. --- */
 
 .sc-work-card.sc-dawn-card {
@@ -45,4 +45,21 @@
 .sc-dawn-value {
   font-variant-numeric: tabular-nums;
   text-align: right;
+}
+
+/* The one Ascend button. It only calls tryAscend; the note shows why it is locked or what happened. */
+.sc-dawn-ascend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+.sc-dawn-ascend-note {
+  font-size: 12px;
+  opacity: 0.85;
+  min-width: 0;
+}
+.sc-dawn-ascend .sc-work-btn {
+  flex-shrink: 0;
 }
