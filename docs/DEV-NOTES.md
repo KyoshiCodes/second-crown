@@ -1,3 +1,16 @@
+## 2026-10-02 — sim / Second Dawn keep-wipe rules (wave/ascend-rules)
+
+`tryAscend` (`packages/sim/src/actions/prestige.ts`) already existed, so this wave left it alone and only added `prestige.test.ts`. Its real behavior:
+
+- **Gate:** `canAscend`, meaning all resources added together must reach `ascendThreshold` (30,000 + 25,000 × `prestige_level`). The gate is not the "Second Dawn" achievement (`ach_ascend`). That achievement's hint is "Ascend once", so gating on it would be circular.
+- **Keeps:** every flag except the ones listed below. That covers culture (`flags.culture`), achievements (`flags.ach_*`), the primer (`tutorial_index`, `tutorial_done`), marches and gathers (`marches_json`, `gathers_json`), the doctrine pick, and spoils. It also keeps `factions` (the guild name), realms, characters, opinions, the board, citizens, fog and `meta.tick`.
+- **Dawn count:** `prestige_level` and `prestige_total` each go up by 1.
+- **Wipes:** resources become `{gold 0, food 25, wood 35, stone 0}`. This is not the new-game start, which is all zeros. Buildings become one finished farm and one finished lumber camp. Every unit whose `realmId` is not `"rival"` is removed, which also removes NPC kingdom units added by `seedWorldActors`. `wars` becomes `[]`, and the `peace_*` and `doctrine_lock` flags are deleted.
+- **Gaps against the brief (not fixed; they need an owner call):**
+  - Nothing ever calls `unlock(state, "ach_ascend")`, so the Second Dawn achievement can never be earned and the DawnCard seal stays dormant.
+  - Marches and the primer are not reset.
+  - Resources and buildings don't match the new-game start.
+  - NPC kingdom units get removed.
 ## 2026-10-02 — app / 28px dawn seal pip on Second Dawn card (bakeoff/gemini-dawn-seal)
 
 - `packages/app/src/hud/dawn-seal.css`:
