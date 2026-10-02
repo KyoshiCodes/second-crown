@@ -1,5 +1,9 @@
 # CHANGELOG
  
+## 2026-10-01 — Keep room cards (wave/keep-rooms)
+
+- **App HUD**: Keep interior Hall, Wall, and Yard rooms show their facts as `.sc-work-card` cards. Hall: Keep level, People, Plots (slot counts, same numbers as the keep header). Wall: Walls (HP, rim/total), Ring (closed/open), Gate (up + HP / down). Yard: Beds (wounded/beds, seconds per treat from `healTicks`), Healing (treating count + seconds left), Keep edge count. Wall and Yard work lists are read-only work cards. No new rooms, no heal math change. Styles only in `keep-room.css`; `theme.css`, `packages/sim`, `server` untouched. Files: `packages/app/src/hud/keep-room.css`, `KeepInterior.tsx`.
+
 ## 2026-10-01 — Gemini Faction Seals & Spoils Wax Seals (bakeoff/gemini-faction-seals)
 
 - **App HUD: 24px Faction Seal Pips (Order, Pact, Guild) and Spoils Craft Wax Seals (`packages/app/src/hud/FactionSealPip.tsx`, `packages/app/src/hud/faction-seals.css`, `packages/app/src/hud/WaxSealPip.tsx`, `packages/app/src/WorldPanel.tsx`, `packages/app/src/tabs/CrownTab.tsx`, `packages/render/src/index.test.ts`)**:

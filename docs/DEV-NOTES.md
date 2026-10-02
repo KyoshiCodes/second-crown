@@ -1,3 +1,12 @@
+## 2026-10-01 — app / keep room cards (wave/keep-rooms)
+
+- `packages/app/src/hud/keep-room.css` (imported by `KeepInterior.tsx`):
+  - `.sc-keeproom-grid`: card grid (minmax 150px), `position: relative` so it sits above the room backdrop.
+  - `.sc-work-card.sc-keeproom-card`: fact or work card; tones `is-good` (green), `is-warn` (gold), `is-bad` (red), `is-idle`; works use `is-staffed`, `is-empty`, `is-raising` (dashed).
+- `KeepInterior.tsx`: new local `FactCard` and `HallCards`; `WallRoom`'s `<dl>` facts and `WorkList`'s `<ul>` became cards. Yard reads `woundedCount`, `infirmaryBeds`, `listHealing`, `healTicks`, `healTicksLeft` (same reads as `KeepHall` Yard room), divided by `TICKS_PER_SECOND`.
+- `.sc-keepin-facts` / `.sc-keepin-list*` in `keep-interior.css` are now unused (left in place; brief kept styles to `keep-room.css`).
+- Files: `packages/app/src/hud/keep-room.css`, `KeepInterior.tsx`.
+
 ## 2026-10-01 — app / 24px faction seal pips & spoils craft wax seals (bakeoff/gemini-faction-seals)
 
 - `packages/app/src/hud/faction-seals.css`:

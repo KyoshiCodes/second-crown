@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/keep-rooms, not merged)
+
+- App only. Keep interior Hall / Wall / Yard facts and work lists are work cards (beds, heal seconds, wall ring, gate, plot slots). No new rooms, no heal math change.
+  - Styles only in `packages/app/src/hud/keep-room.css`. `packages/sim`, `server`, `theme.css` untouched. 239 tests pass; app builds.
+  - Branch was reset onto `origin/main` (its old two commits were already in main) and force-pushed.
+  - Files: `packages/app/src/hud/keep-room.css`, `KeepInterior.tsx`.
+
 ## Active wave (bakeoff/gemini-faction-seals, not merged)
 
 - App HUD only. Added 24px seal pips on the three faction cards (order, pact, guild) and a small wax seal on each Spoils craft card:
