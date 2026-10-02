@@ -36,7 +36,7 @@ export function trainCostMultiplier(state: GameState, typeId?: string): number {
   if (typeId === "cavalry" || typeId === "knight") {
     if (countBuilding(state, "stables") > 0) m *= 0.9;
   }
-  if (typeId === "archer" || typeId === "skirmisher") {
+  if (typeId === "archer" || typeId === "ranger" || typeId === "skirmisher") {
     if (countBuilding(state, "archery_range") > 0) m *= 0.9;
   }
   if (typeId === "siege") {

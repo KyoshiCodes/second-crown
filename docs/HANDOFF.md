@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/culture-unit, not merged)
+
+- Sim only. One new culture (**mist**, "Mist Reach") and one new unit (**ranger**).
+- Mist builds the same as western. Its one difference: each finished farm gives a flat +1 food per tick, added after multipliers. A new game can pick it through `setPlayerCulture(s, "mist")`. Saves with no culture flag stay western. NPCs are never seeded mist (`NPC_CULTURE_IDS`), so old NPC seeds don't change.
+- Ranger: same cost as an archer, power 4, `trainTicks` 40 (4s), and the archery range discount applies. It unlocks from a new Crown study, **Fieldcraft** (needs an archery range or academy, no Keep minimum). Archers stay unlocked from the start, as before.
+- No app files changed. The app reads these from the sim, so mist shows in `CulturePicker`, Fieldcraft in `ResearchBar`, and ranger on the Army tab. Ranger has no dedicated icon or crest yet.
+
 ## Active wave (bakeoff/gemini-dawn-seal, not merged)
 
 - App HUD only. Added 28px dawn seal pip on the Crown tab Second Dawn card (`DawnCard.tsx`):

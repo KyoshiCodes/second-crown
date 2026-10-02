@@ -11,6 +11,7 @@ import { addCapped } from "./storage.js";
 import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
+import { farmCultureBonus } from "./culture.js";
 
 const PAIR: Record<string, string> = {
   farm: "granary",
@@ -89,6 +90,7 @@ export function keepBonus(state: GameState, building: GameState["buildings"][num
 
 function rateFor(state: GameState, building: GameState["buildings"][number], res: string, rateStr: string) {
   const scarce = res === "gold" ? 0.35 : 1;
+  const flat = building.typeId === "farm" && res === "food" ? farmCultureBonus(state, building.realmId) : 0;
   return D(rateStr)
     .mul(Math.max(1, building.level))
     .mul(1 + productionBonus(state) * 0.04 + researchYield(state, res))
@@ -96,7 +98,8 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(staffBonus(state, building))
     .mul(adjacencyBonus(state, building))
     .mul(pairBonus(state, building))
-    .mul(keepBonus(state, building));
+    .mul(keepBonus(state, building))
+    .add(flat);
 }
 
 export const EconomySystem = {

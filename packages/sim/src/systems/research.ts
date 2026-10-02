@@ -55,6 +55,16 @@ export const RESEARCH = {
     unlocks: [] as const,
     effect: "Hold vision reaches one tile farther. Needs Keep II.",
   },
+  fieldcraft: {
+    id: "fieldcraft",
+    name: "Fieldcraft",
+    ticks: 180,
+    cost: { food: "20", wood: "12" },
+    needsAny: ["archery_range", "academy"],
+    keepMin: 0,
+    unlocks: ["ranger"],
+    effect: "Unlocks rangers. Archers stay open.",
+  },
   horse: {
     id: "horse",
     name: "Horse lore",
@@ -129,6 +139,7 @@ export function researchTicksLeft(state: GameState, id: string): number {
 export function unitUnlocked(state: GameState, typeId: string): boolean {
   if (typeId === "cavalry" || typeId === "knight") return researchDone(state, "horse");
   if (typeId === "siege") return researchDone(state, "siege");
+  if (typeId === "ranger") return researchDone(state, "fieldcraft");
   return true;
 }
 
