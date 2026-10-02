@@ -71,7 +71,8 @@ export function UnitIcon(props: UnitIconProps) {
 
   const renderContent = () => {
     switch (typeId) {
-      case "archer": {
+      case "archer":
+      case "ranger": {
         if (!isDefaultCulture) {
           switch (kit) {
             case "cedar": {
