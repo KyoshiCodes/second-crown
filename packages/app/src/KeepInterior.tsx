@@ -30,9 +30,14 @@ import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { quarryHintPlot } from "./buildHints";
 import { HallChip } from "./hud/HallChip";
 import { RoomBackdrop } from "./RoomBackdrop";
+import { BedPip } from "./hud/BedPip";
+import { WallPip } from "./hud/WallPip";
+import { AnvilPip } from "./hud/AnvilPip";
+import { KeepRoomPip } from "./hud/KeepRoomPip";
 import "./keep-interior.css";
 import "./hud/button-pips.css";
 import "./hud/keep-room.css";
+import "./hud/keep-room-pips.css";
 
 /** Hold grid size. Mirrors HOLD_W / HOLD_H in packages/sim/src/actions/build.ts. */
 const HOLD_W = 16;
@@ -130,7 +135,10 @@ export function KeepInterior(props: {
               className={`sc-keepin-room${room === r.id ? " is-on" : ""}`}
               onClick={() => setRoom(r.id)}
             >
-              {r.label}
+              {r.id === "hall" && <BedPip size={16} active={room === "hall"} />}
+              {r.id === "wall" && <WallPip size={16} closed={hasClosedWallRing(state)} hp={wallHp(state)} />}
+              {r.id === "yard" && <AnvilPip size={16} active={room === "yard"} />}
+              <span>{r.label}</span>
             </button>
           ))}
         </div>
@@ -189,12 +197,16 @@ function FactCard(props: {
   status: string;
   foot?: string;
   tone: "good" | "warn" | "bad" | "idle";
+  pip?: React.ReactNode;
 }) {
-  const { name, tag, status, foot, tone } = props;
+  const { name, tag, status, foot, tone, pip } = props;
   return (
     <div className={`sc-work-card sc-keeproom-card is-${tone}`}>
       <div className="sc-work-head">
-        <span className="sc-work-name">{name}</span>
+        <span className="sc-work-title-group" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+          {pip}
+          <span className="sc-work-name">{name}</span>
+        </span>
         {tag ? <span className="sc-work-level">{tag}</span> : null}
       </div>
       <div className="sc-work-status">{status}</div>
@@ -217,9 +229,27 @@ function HallCards(props: { state: GameState }) {
   const plots = workPlotCap(state);
   return (
     <div className="sc-keeproom-grid">
-      <FactCard name="Keep" tag={lv ? `lv ${lv}` : "none"} status={lv ? `Keep ${lv}` : "No Keep"} tone={lv ? "good" : "bad"} />
-      <FactCard name="People" tag={`${pop}/${cap}`} status={pop >= cap ? "Housing full" : `Room for ${cap - pop} more`} tone={pop >= cap ? "warn" : "idle"} />
-      <FactCard name="Plots" tag={`${used}/${plots}`} status={used >= plots ? "All slots used" : `${plots - used} slots free`} tone={used >= plots ? "warn" : "idle"} />
+      <FactCard
+        name="Keep"
+        tag={lv ? `lv ${lv}` : "none"}
+        status={lv ? `Keep ${lv}` : "No Keep"}
+        tone={lv ? "good" : "bad"}
+        pip={<BedPip size={16} active={lv > 0} />}
+      />
+      <FactCard
+        name="People"
+        tag={`${pop}/${cap}`}
+        status={pop >= cap ? "Housing full" : `Room for ${cap - pop} more`}
+        tone={pop >= cap ? "warn" : "idle"}
+        pip={<BedPip size={16} active={pop >= cap} full={pop >= cap} pop={pop} cap={cap} />}
+      />
+      <FactCard
+        name="Plots"
+        tag={`${used}/${plots}`}
+        status={used >= plots ? "All slots used" : `${plots - used} slots free`}
+        tone={used >= plots ? "warn" : "idle"}
+        pip={<BedPip size={16} active={used > 0} />}
+      />
     </div>
   );
 }
@@ -240,13 +270,21 @@ function WallRoom(props: { state: GameState }) {
           tag={`${wallHp(state)} HP`}
           status={`${edge} on the rim · ${countBuilding(state, "walls")} total`}
           tone={edge > 0 ? "good" : "idle"}
+          pip={<WallPip size={16} rim={edge} closed={ring} hp={wallHp(state)} />}
         />
-        <FactCard name="Ring" tag={ring ? "closed" : "open"} status={ring ? "Closed" : "Open"} tone={ring ? "good" : "warn"} />
+        <FactCard
+          name="Ring"
+          tag={ring ? "closed" : "open"}
+          status={ring ? "Closed" : "Open"}
+          tone={ring ? "good" : "warn"}
+          pip={<WallPip size={16} closed={ring} rim={edge} />}
+        />
         <FactCard
           name="Gate"
           tag={gateUp ? `${gateHp(state)} HP` : "down"}
           status={gateUp ? `Up · ${gateHp(state)} HP` : "Down"}
           tone={gateUp ? "good" : "bad"}
+          pip={<WallPip size={16} gate={gateUp} closed={ring} />}
         />
       </div>
       <p className="sc-keepin-hint">Siege hits walls first, then the yard, then the keep.</p>
@@ -276,14 +314,22 @@ function YardRoom(props: { state: GameState }) {
           status={beds < 1 ? "No Infirmary" : `Wounded ${wounded} / ${beds} beds`}
           foot={`4 food · ${healSec}s per treat`}
           tone={beds < 1 ? "idle" : wounded >= beds ? "warn" : "good"}
+          pip={<BedPip size={16} active={wounded > 0} wounded={wounded > 0} />}
         />
         <FactCard
           name="Healing"
           tag={healing > 0 ? `${healLeft}s` : "idle"}
           status={healing > 0 ? `Treating ${healing} (${healLeft}s)` : "No one on a cot"}
           tone={healing > 0 ? "good" : "idle"}
+          pip={<BedPip size={16} active={healing > 0} />}
         />
-        <FactCard name="Keep edge" tag={`${yard.length}`} status={`Works touching the keep (${yard.length})`} tone={yard.length > 0 ? "good" : "idle"} />
+        <FactCard
+          name="Keep edge"
+          tag={`${yard.length}`}
+          status={`Works touching the keep (${yard.length})`}
+          tone={yard.length > 0 ? "good" : "idle"}
+          pip={<AnvilPip size={16} active={yard.length > 0} count={yard.length} />}
+        />
       </div>
       <WorkList state={state} works={yard} empty="No works on the keep edge." />
     </div>

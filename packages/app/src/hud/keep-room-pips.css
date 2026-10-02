@@ -1,0 +1,53 @@
+/* Keep Room Pips (Hall bed, Wall wall, Yard anvil).
+   Living heraldic pips for keep interior rooms and cards.
+   Strictly pointer-events: none to ensure cards and buttons remain 100% interactive.
+   No theme.css edits. */
+
+.sc-room-pip-wrapper,
+.sc-bed-pip-wrapper,
+.sc-anvil-pip-wrapper,
+.sc-wall-pip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  user-select: none;
+  vertical-align: middle;
+  position: relative;
+  line-height: 1;
+}
+
+.sc-room-pip-wrapper svg,
+.sc-bed-pip-wrapper svg,
+.sc-anvil-pip-wrapper svg,
+.sc-wall-pip-wrapper svg {
+  display: block;
+  pointer-events: none !important;
+}
+
+/* Subtle living glow effects on active pips */
+.sc-bed-pip-wrapper.is-occupied .sc-bed-candle-glow,
+.sc-bed-pip-wrapper.is-full .sc-bed-candle-glow {
+  filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.7));
+}
+
+.sc-bed-pip-wrapper.is-wounded .sc-bed-cross {
+  filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.7));
+}
+
+.sc-anvil-pip-wrapper.is-active .sc-anvil-hot-billet,
+.sc-anvil-pip-wrapper.is-active .sc-anvil-spark {
+  filter: drop-shadow(0 0 3px rgba(249, 115, 22, 0.8));
+}
+
+.sc-wall-pip-wrapper.is-closed {
+  filter: drop-shadow(0 0 2px rgba(74, 222, 128, 0.5));
+}
+
+/* Tab button layout with pip */
+.sc-keepin-room {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

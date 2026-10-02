@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — Small living pips on Keep Hall, Wall, and Yard cards (bakeoff/gemini-keep-rooms)
+
+- Inside the Keep, each room and its fact cards now display small living heraldic pips:
+  - **Hall (Bed)**: A small medieval timber cot with carved oak posts and bolster pillow. A warm bedside candle illuminates when your hold's housing is full, and a red medical cross marks infirmary cots when wounded troops are resting.
+  - **Wall (Wall)**: A crenellated stone bastion with battlements and central portcullis gate. An emerald gemstone glows when your outer wall ring is closed, and warm amber warns if there is an open breach.
+  - **Yard (Anvil)**: A forged steel blacksmith anvil resting on an iron-banded oak stump. Glowing red-hot iron and flying hammer sparks ignite when works or forge improvements are active.
+  - Strictly non-interactive overlays (`pointer-events: none`); tapping plots, room tabs, and building cards remains completely uninterrupted.
+
 ## 2026-10-01 — Keep room cards (wave/keep-rooms)
 
 - Inside the keep, each room now shows cards. Hall: your Keep level, people, and free plots. Wall: wall HP, whether the ring is closed, and whether the gate is up. Yard: wounded vs. beds, how long a treat takes, and who is healing now.

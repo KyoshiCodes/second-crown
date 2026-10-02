@@ -13,6 +13,18 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (bakeoff/gemini-keep-rooms, not merged)
+
+- App HUD only. Added small living pips on the Hall, Wall, and Yard cards (bed, wall, anvil):
+  - **Living Bed Pip** (`BedPip`): 16px timber cot with carved oak posts, straw mattress, bolster pillow, and wool quilt. Living reactive states: warm bedside candlelight flame when occupied or housing full (`pop >= cap`), red medical cross when wounded troops are resting on the cot. Mounted on Hall room tab and Hall fact cards (Keep, People housing beds, Plots), and Yard Beds/Healing cards.
+  - **Living Wall Pip** (`WallPip`): 16px ashlar stone curtain wall with crenellated battlements, wall-walk terrace, central gate archway with portcullis bars, and emerald status jewel stud when ring is closed (amber warning when open). Mounted on Wall room tab and Wall fact cards (Walls, Ring, Gate).
+  - **Living Anvil Pip** (`AnvilPip`): 16px blacksmith forged cast-steel anvil on an iron-banded oak stump with conical horn, flat striking table, and cross-peen hammer. Living reactive states: cherry-red glowing hot iron billet and flying forging spark glints when active. Mounted on Yard room tab and Yard Keep edge works card.
+  - **Unified Component** (`KeepRoomPip`): Automatically maps room kind ("hall", "wall", "yard") or symbol ("bed", "wall", "anvil") to the appropriate living pip.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on all pips, wrappers, and SVGs ensures all card buttons, plot taps, and room tabs work unobstructed.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/keep-room-pips.css`; `theme.css` strictly untouched (0 diff).
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new rooms. 325 render tests pass; 239 sim tests pass; app builds cleanly.
+  - Files: `packages/app/src/hud/BedPip.tsx`, `packages/app/src/hud/AnvilPip.tsx`, `packages/app/src/hud/KeepRoomPip.tsx`, `packages/app/src/hud/keep-room-pips.css`, `packages/app/src/KeepInterior.tsx`, `packages/render/src/index.test.ts`.
+
 ## Active wave (wave/keep-rooms, not merged)
 
 - App only. Keep interior Hall / Wall / Yard facts and work lists are work cards (beds, heal seconds, wall ring, gate, plot slots). No new rooms, no heal math change.
