@@ -1,3 +1,11 @@
+## 2026-10-02 — sim / mist culture and ranger (wave/culture-unit)
+
+- **Archers had no lectern study.** The brief said to unlock ranger "from the same Crown lectern path as archers", but `unitUnlocked` never gated archers. The owner chose to add a new study, `fieldcraft` (180 ticks, food 20 / wood 12, needs `archery_range` or `academy`, keepMin 0). It unlocks ranger only.
+- **Mist farm bonus is flat.** If the +1 were added to the base rate, the multipliers would scale it (+1.08 at game start, because of the season bonus). It is added after all multipliers, so a mist farm always out-feeds a western farm by exactly 1 food per tick. Only `farm`/`food` gets it.
+- **`farmCultureBonus` only reads.** For NPC realms it reads `culture_<id>` without seeding it, so the economy tick never writes flags.
+- **NPC seed pool is fixed** to `NPC_CULTURE_IDS`. Adding mist to `CULTURES` would otherwise change `% CULTURES.length` and reshuffle unseeded NPC cultures.
+- **App picks these up on its own.** `CulturePicker` maps `CULTURES`, and `ResearchBar` maps `RESEARCH`. Follow-up: a ranger glyph in `crests.ts` and art in `UnitIcon.tsx`.
+
 ## 2026-10-02 — sim / dawn bonus (wave/dawn-bonus)
 
 The brief asked for "+1 starting militia per dawn, capped at 1". A dawn bonus already exists, so this wave did not add militia. It only added tests to `prestige.test.ts`. The real bonus:

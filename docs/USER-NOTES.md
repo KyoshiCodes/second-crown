@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — Mist Reach culture and rangers (wave/culture-unit)
+
+- A new culture, **Mist Reach**, can be picked for a new game. It builds like the Crown Marches, but every farm feeds +1 more food. Existing saves keep their culture.
+- A new unit, the **Ranger**, costs the same as an archer and hits as hard, and drills in 4 seconds. To unlock it, study **Fieldcraft** on the Crown tab (you need an Archery Range or an Academy). Archers are still open from the start.
+- Rangers use a plain placeholder icon for now.
+
 ## 2026-10-02 — 28px Dawn Seal Pip on Second Dawn Card (bakeoff/gemini-dawn-seal)
 
 - On the Crown tab, the **Second Dawn** card now bears an ornate 28px royal solar wax seal:

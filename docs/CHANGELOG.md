@@ -1,4 +1,10 @@
 # CHANGELOG
+
+## 2026-10-02 — Mist culture and ranger unit (wave/culture-unit)
+
+- **Sim:** added the `mist` culture (`content/cultures.ts`). It gives each farm a flat +1 food per tick through `farmCultureBonus` (`systems/culture.ts`), which `rateFor` in `systems/economy.ts` adds. NPC seeding now draws from `NPC_CULTURE_IDS` (the original five), so existing seeds don't change.
+- **Sim:** added the `ranger` unit (`content/units.ts`): archer cost, power 4, `trainTicks` 40. Added the `fieldcraft` study (`systems/research.ts`). `unitUnlocked("ranger")` waits on it. Ranger gets the archery range discount (`actions/train.ts`).
+- Tests: `systems/cultureUnit.test.ts`. No change to raid math, ascend, or existing unit costs.
  
 ## 2026-10-02 — Gemini 28px Dawn Seal Pip on Second Dawn Card (bakeoff/gemini-dawn-seal)
 

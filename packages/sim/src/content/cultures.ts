@@ -36,7 +36,19 @@ export const CULTURES: CultureDef[] = [
     blurb: "Stilt halls, salt timber, and sea-green sails.",
     palette: { tabard: "#0e7490", timber: "#44403c", stone: "#94a3b8" },
   },
+  {
+    id: "mist",
+    name: "Mist Reach",
+    blurb: "Western halls on wet ground. Farms feed +1.",
+    palette: { tabard: "#475569", timber: "#5c3818", stone: "#64748b" },
+  },
 ];
+
+/** Cultures an NPC crown can be seeded with. Mist is player-pick only, so old seeds do not shift. */
+export const NPC_CULTURE_IDS = ["western", "woodland", "desert", "steppe", "tide"] as const;
+
+/** Mist builds as western. Its one difference: each finished farm feeds a flat +1 food per tick, after multipliers. */
+export const MIST_FARM_BONUS = 1;
 
 export function getCulture(id: string | undefined): CultureDef {
   return CULTURES.find((c) => c.id === id) ?? CULTURES[0];
