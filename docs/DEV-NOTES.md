@@ -1,3 +1,8 @@
+## 2026-10-02 — app / mist and ranger UI (wave/culture-unit-ui)
+
+- There was no list to extend. `CulturePicker` and the Army unit grid both map sim data, so Mist and Ranger showed up as soon as the sim merged. This wave only fixes what the app had wrong: the ranger lock note (it was blank, so the card said just "Locked"), the ranger art (it fell through to the militia `default`), and the discount and footnote copy.
+- No CSS added. Ranger uses the existing `.sc-unit-card` states and Mist uses `.sc-plain-pick`. A ranger glyph in `crests.ts` `UNIT_VIS` is still open. Only militia, spearman, archer, and knight have one there.
+
 ## 2026-10-02 — sim / mist culture and ranger (wave/culture-unit)
 
 - **Archers had no lectern study.** The brief said to unlock ranger "from the same Crown lectern path as archers", but `unitUnlocked` never gated archers. The owner chose to add a new study, `fieldcraft` (180 ticks, food 20 / wood 12, needs `archery_range` or `academy`, keepMin 0). It unlocks ranger only.

@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/culture-unit-ui, not merged)
+
+- App only. Finishes the UI side of wave/culture-unit. No sim, server, or theme.css changes.
+- New Game: `CulturePicker` already maps `CULTURES`, so Mist Reach sits beside the other five picks and uses the same `setPlayerCulture` call. Western is unchanged.
+- Army tab: Ranger is one more `UnitCard` with the same train button as Archer. While Fieldcraft isn't done, the card is locked and reads "Study Fieldcraft on Crown (Archery Range or Academy)." (`lockNote` in `ArmyTab.tsx`). The range discount line now says archers/rangers.
+- `UnitIcon.tsx`: `ranger` uses the archer bow art (shared case label) instead of falling through to militia. Archer art is unchanged.
+
 ## Active wave (wave/culture-unit, not merged)
 
 - Sim only. One new culture (**mist**, "Mist Reach") and one new unit (**ranger**).

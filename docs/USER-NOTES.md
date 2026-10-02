@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — Rangers on the Army tab (wave/culture-unit-ui)
+
+- **Mist Reach** sits beside the other crown styles on the Crown tab. Pick it, then start a New Game.
+- The **Ranger** card on the Army tab stays greyed out with "Study Fieldcraft on Crown" until that study is done. After that, it trains like the Archer.
+- Rangers carry a bow now instead of the militia placeholder.
+
 ## 2026-10-02 — Mist Reach culture and rangers (wave/culture-unit)
 
 - A new culture, **Mist Reach**, can be picked for a new game. It builds like the Crown Marches, but every farm feeds +1 more food. Existing saves keep their culture.

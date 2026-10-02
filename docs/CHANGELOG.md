@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-02 — Mist and ranger in the UI (wave/culture-unit-ui)
+
+- **App:** `ArmyTab.tsx` gets a ranger lock note (Fieldcraft), the footnote names Fieldcraft, and the range discount line says archers/rangers.
+- **App:** `UnitIcon.tsx` draws ranger with the archer bow art. Mist was already in `CulturePicker` from `CULTURES`.
+
 ## 2026-10-02 — Mist culture and ranger unit (wave/culture-unit)
 
 - **Sim:** added the `mist` culture (`content/cultures.ts`). It gives each farm a flat +1 food per tick through `farmCultureBonus` (`systems/culture.ts`), which `rateFor` in `systems/economy.ts` adds. NPC seeding now draws from `NPC_CULTURE_IDS` (the original five), so existing seeds don't change.
