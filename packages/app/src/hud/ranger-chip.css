@@ -1,0 +1,32 @@
+/* Ranger Chip (28px).
+   Living ranger unit chip for the Ranger card in the Army tab.
+   Displays ranger with cowl hood, recurve bow, and billowing mist-blue cloak.
+   Strictly pointer-events: none to guarantee card clicks and training are never blocked.
+   No theme.css edits. */
+
+.sc-ranger-chip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  user-select: none;
+  vertical-align: middle;
+  position: relative;
+  line-height: 1;
+}
+
+.sc-ranger-chip-wrapper svg {
+  display: block;
+  pointer-events: none !important;
+}
+
+/* Subtle mist-blue aura when the ranger is unlocked and ready to drill */
+.sc-ranger-chip-wrapper.is-open {
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.45));
+}
+
+.sc-ranger-chip-wrapper.is-locked {
+  opacity: 0.65;
+  filter: grayscale(0.4);
+}

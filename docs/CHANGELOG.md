@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-02 — Gemini 28px Ranger Chip on Ranger Card (bakeoff/gemini-ranger)
+
+- **App HUD: 28px Ranger Chip on Ranger Card (`packages/app/src/hud/RangerChip.tsx`, `packages/app/src/hud/ranger-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:
+  - **Living Ranger Chip (`RangerChip`)**: 28px iconic unit chip for the Ranger card. Features cowl hood with peaked liripipe, shadowed face with keen gleaming eyes, recurve woodland composite longbow with taut string and nocked bodkin arrow, billowing mist-blue cloak with golden leaf brooch clasp, and swirling morning mist wisps.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Vibrant mist-blue cloak (`#0284c7` / `#38bdf8`), golden leaf brooch clasp, warm seasoned ash bow, and subtle mist-blue drop-shadow aura.
+    - **Locked** (`open = false`): Muted dusk fog tones (`#475569` / `#64748b`) indicating the ranger is shrouded in cold morning mist awaiting Fieldcraft study.
+  - **Card Integration**: Mounted directly on the Ranger card in `UnitCard.tsx` via `<RangerChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `case "ranger":` renders dedicated hood, bow, and mist-blue cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on all pips, wrappers, and SVGs.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/ranger-chip.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats.
+
 ## 2026-10-02 — Mist and ranger in the UI (wave/culture-unit-ui)
 
 - **App:** `ArmyTab.tsx` gets a ranger lock note (Fieldcraft), the footnote names Fieldcraft, and the range discount line says archers/rangers.
