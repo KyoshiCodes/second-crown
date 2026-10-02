@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — 28px Dawn Seal Pip on Second Dawn Card (bakeoff/gemini-dawn-seal)
+
+- On the Crown tab, the **Second Dawn** card now bears an ornate 28px royal solar wax seal:
+  - **Dormant State**: Before ascension, the seal rests in deep antique slate/bronze, displaying the sleeping horizon and morning sun awaiting dawn.
+  - **Risen State**: Once you ascend and the Second Dawn rises, the seal ignites into luminous molten gold with bright morning sunburst rays, the Second Crown crest, silk ceremonial ribbons, and a radiant solar halo.
+  - Strictly non-interactive overlay (`pointer-events: none`); reading facts and using surrounding Crown controls remains completely unobstructed.
+
 ## 2026-10-02 — Small living pips on Keep Hall, Wall, and Yard cards (bakeoff/gemini-keep-rooms)
 
 - Inside the Keep, each room and its fact cards now display small living heraldic pips:

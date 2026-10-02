@@ -1,5 +1,16 @@
 # CHANGELOG
  
+## 2026-10-02 — Gemini 28px Dawn Seal Pip on Second Dawn Card (bakeoff/gemini-dawn-seal)
+
+- **App HUD: 28px Dawn Seal Pip on Second Dawn Card (`packages/app/src/hud/DawnSealPip.tsx`, `packages/app/src/hud/dawn-seal.css`, `packages/app/src/hud/DawnCard.tsx`, `packages/app/src/hud/dawn-card.css`, `packages/render/src/index.test.ts`)**:
+  - **Living Dawn Seal Pip (`DawnSealPip`)**: 28px stamped royal solar wax seal celebrating the Second Dawn. Features dual hanging silk ribbons with swallowtails, scalloped poured wax pool, raised bezel ring, milled matrix rim, and stamped sigil of the rising sun above the horizon with celestial sunburst rays, crowned by the Second Crown crest and morning star glint.
+  - **Living Reactive States**:
+    - **Risen/Active** (`dawned = true` / `ach_ascend` completed): Rich molten gold wax (`#d97706`), bright golden bezel (`#f59e0b`), celestial white dawn sun (`#ffffff`), glowing morning rays (`#fef08a`), and radiant solar aura.
+    - **Dormant** (`dawned = false` / "not yet"): Antique dusk slate/bronze seal (`#334155` / `#475569`) with cool pewter horizon and dormant sun awaiting ascension.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on all pips, wrappers, and SVGs.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/dawn-seal.css` and `packages/app/src/hud/dawn-card.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new actions.
+
 ## 2026-10-02 — Gemini Keep Room Living Pips (bakeoff/gemini-keep-rooms)
 
 - **App HUD: Small Living Pips on Hall, Wall, and Yard Cards (Bed, Wall, Anvil) (`packages/app/src/hud/BedPip.tsx`, `packages/app/src/hud/AnvilPip.tsx`, `packages/app/src/hud/KeepRoomPip.tsx`, `packages/app/src/hud/keep-room-pips.css`, `packages/app/src/KeepInterior.tsx`, `packages/render/src/index.test.ts`)**:

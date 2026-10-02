@@ -8654,10 +8654,79 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               }
             });
           });
+
+          describe("bakeoff/gemini-dawn-seal: 28px dawn seal pip on Second Dawn card", () => {
+            it("verifies dawn-seal.css defines 28px pip layout, non-blocking guarantee, and theme.css is untouched", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cssPath = path.resolve(__dirname, "../../app/src/hud/dawn-seal.css");
+              expect(fs.existsSync(cssPath)).toBe(true);
+              const css = fs.readFileSync(cssPath, "utf-8");
+
+              expect(css).toContain("sc-dawn-seal-wrapper");
+              expect(css).toContain("pointer-events: none !important");
+              expect(css).toContain("is-risen");
+              expect(css).toContain("is-dormant");
+
+              const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+              expect(themeCss).not.toContain("sc-dawn-seal");
+            });
+
+            it("verifies DawnSealPip exports 28px component with ribbons, scalloped wax, sunburst rays, second crown, and pointerEvents none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const pipPath = path.resolve(__dirname, "../../app/src/hud/DawnSealPip.tsx");
+              expect(fs.existsSync(pipPath)).toBe(true);
+              const pipCode = fs.readFileSync(pipPath, "utf-8");
+
+              expect(pipCode).toContain("DawnSealPip");
+              expect(pipCode).toContain("size = 28");
+              expect(pipCode).toContain('pointerEvents: "none"');
+              expect(pipCode).toContain('aria-hidden="true"');
+              expect(pipCode).toContain("data-dawn-seal");
+              expect(pipCode).toContain("data-risen");
+              expect(pipCode).toContain("sc-dawn-ribbons");
+              expect(pipCode).toContain("sc-dawn-rays");
+              expect(pipCode).toContain("sc-dawn-sigil");
+              expect(pipCode).toContain("sc-dawn-glint");
+            });
+
+            it("verifies DawnCard mounts 28px DawnSealPip with active state tied to dawned (ach_ascend)", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cardPath = path.resolve(__dirname, "../../app/src/hud/DawnCard.tsx");
+              expect(fs.existsSync(cardPath)).toBe(true);
+              const cardCode = fs.readFileSync(cardPath, "utf-8");
+
+              expect(cardCode).toContain("DawnSealPip");
+              expect(cardCode).toContain("<DawnSealPip");
+              expect(cardCode).toContain("size={28}");
+              expect(cardCode).toContain("active={dawned}");
+              expect(cardCode).toContain("sc-dawn-title-group");
+            });
+
+            it("verifies zero merge conflict markers across all modified and created files", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const files = [
+                path.resolve(__dirname, "../../app/src/hud/dawn-seal.css"),
+                path.resolve(__dirname, "../../app/src/hud/dawn-card.css"),
+                path.resolve(__dirname, "../../app/src/hud/DawnSealPip.tsx"),
+                path.resolve(__dirname, "../../app/src/hud/DawnCard.tsx"),
+              ];
+              for (const f of files) {
+                const content = fs.readFileSync(f, "utf-8");
+                expect(content).not.toContain("<<<<<<<");
+                expect(content).not.toContain("=======");
+                expect(content).not.toContain(">>>>>>>");
+              }
+            });
+          });
         });
       });
     });
   });
 });
+
 
 

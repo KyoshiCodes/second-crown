@@ -13,6 +13,18 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (bakeoff/gemini-dawn-seal, not merged)
+
+- App HUD only. Added 28px dawn seal pip on the Crown tab Second Dawn card (`DawnCard.tsx`):
+  - **Living Dawn Seal Pip** (`DawnSealPip`): 28px stamped royal solar wax seal celebrating the Second Dawn. Dual hanging amber silk ribbons with swallowtail ends, organic scalloped poured wax disk, raised golden bezel ring, beaded milled matrix rim, and stamped sigil featuring the rising sun above the horizon line with morning rays, crowned by the Second Crown crest and morning star glint.
+  - **Living Reactive States**:
+    - **Risen/Active** (`dawned = true` / `ach_ascend` completed): Rich molten gold wax (`#d97706`), bright golden bezel (`#f59e0b`), celestial white dawn sun (`#ffffff`), glowing morning rays (`#fef08a`), and a soft radiant solar aura (`filter: drop-shadow(...)`).
+    - **Dormant** (`dawned = false` / "not yet"): Antique dusk slate/bronze seal (`#334155` / `#475569`) with cool pewter horizon and dormant sun awaiting ascension.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on wrapper, SVG, and all child elements guarantees zero interference with card text, facts, or actions.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/dawn-seal.css`; `theme.css` strictly untouched (0 diff against `origin/main`).
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new actions. 239 sim tests pass, 329 render tests pass, app builds cleanly.
+  - Files: `packages/app/src/hud/DawnSealPip.tsx`, `packages/app/src/hud/dawn-seal.css`, `packages/app/src/hud/DawnCard.tsx`, `packages/app/src/hud/dawn-card.css`, `packages/render/src/index.test.ts`.
+
 ## Active wave (bakeoff/gemini-keep-rooms, not merged)
 
 - App HUD only. Added small living pips on the Hall, Wall, and Yard cards (bed, wall, anvil):

@@ -1,3 +1,22 @@
+## 2026-10-02 — app / 28px dawn seal pip on Second Dawn card (bakeoff/gemini-dawn-seal)
+
+- `packages/app/src/hud/dawn-seal.css`:
+  - Styles `.sc-dawn-seal-wrapper`, `.sc-dawn-seal`, and radiant aura filters (`is-risen`, `is-active`, `is-dormant`).
+  - Enforces `pointer-events: none !important`, `flex-shrink: 0`, and `vertical-align: middle`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/DawnSealPip.tsx`:
+  - 28px living royal solar wax seal SVG with swallowtail silk ribbons, scalloped poured wax pool, raised bezel, milled pearled rim, rising sun, sunburst rays, Second Crown crest, and morning star glint.
+  - Reactive states: `active = true` (risen) renders molten gold wax, celestial white sun, glowing rays, and drop-shadow halo; `active = false` (dormant) renders antique slate/bronze with pewter horizon.
+  - `data-dawn-seal`, `data-active`, `data-risen`, `aria-hidden="true"`, `pointerEvents: "none"`.
+- `packages/app/src/hud/DawnCard.tsx` & `dawn-card.css`:
+  - Mounts `<DawnSealPip active={dawned} size={28} />` within `.sc-dawn-title-group`.
+  - `.sc-dawn-card .sc-work-head` aligns items center to frame the 28px seal beside "Second Dawn".
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-dawn-seal: 28px dawn seal pip on Second Dawn card")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
+  - Read-only card: no new actions.
+
 ## 2026-10-02 — app / living pips on keep room cards (bakeoff/gemini-keep-rooms)
 
 - `packages/app/src/hud/keep-room-pips.css`:

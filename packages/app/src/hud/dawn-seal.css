@@ -1,0 +1,32 @@
+/* Dawn Seal Pip (28px).
+   Living solar seal on the Crown tab Second Dawn card.
+   Strictly pointer-events: none to guarantee card clicks and buttons are never blocked.
+   No theme.css edits. */
+
+.sc-dawn-seal-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  user-select: none;
+  vertical-align: middle;
+  position: relative;
+  line-height: 1;
+}
+
+.sc-dawn-seal-wrapper svg {
+  display: block;
+  pointer-events: none !important;
+}
+
+/* Radiant solar aura when the Second Dawn is risen */
+.sc-dawn-seal-wrapper.is-risen,
+.sc-dawn-seal-wrapper.is-active {
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.65)) drop-shadow(0 0 10px rgba(245, 158, 11, 0.35));
+}
+
+.sc-dawn-seal-wrapper.is-dormant {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  opacity: 0.85;
+}
