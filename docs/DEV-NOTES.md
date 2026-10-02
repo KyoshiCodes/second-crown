@@ -1,3 +1,12 @@
+## 2026-10-02 — sim / dawn bonus (wave/dawn-bonus)
+
+The brief asked for "+1 starting militia per dawn, capped at 1". A dawn bonus already exists, so this wave did not add militia. It only added tests to `prestige.test.ts`. The real bonus:
+
+- **What it is:** `productionBonus()` in `packages/sim/src/systems/economy.ts` adds `prestige_level`, so each dawn is +1 production bonus. Income is multiplied by `1 + productionBonus × 0.04`, so each dawn adds +4% income.
+- **It stacks:** dawn 1 gives +1 and dawn 2 gives +2, with no cap. That differs from the brief's "does not stack past 1". It is left as is and needs an owner call.
+- **No militia:** `tryAscend` still removes every player unit, so a new crown starts with 0 player militia.
+- **Cosmetic only:** `playerTitle()` in `content/world.ts` reads `prestige_level` for the title text (Crown-Claimant at 1 or more, High Sovereign at 3 or more). It has no gameplay effect.
+
 ## 2026-10-02 — sim / Second Dawn keep-wipe rules (wave/ascend-rules)
 
 `tryAscend` (`packages/sim/src/actions/prestige.ts`) already existed, so this wave left it alone and only added `prestige.test.ts`. Its real behavior:

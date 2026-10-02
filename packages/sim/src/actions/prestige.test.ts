@@ -4,6 +4,7 @@ import { tryAscend, canAscend, ascendThreshold } from "./prestige.js";
 import { tryFoundGuild } from "./faction.js";
 import { setPlayerCulture, playerCultureId } from "../systems/culture.js";
 import { unlock } from "../systems/wave.js";
+import { productionBonus } from "../systems/economy.js";
 
 describe("Second Dawn (tryAscend)", () => {
   it("refuses an early crown below the ascend threshold", () => {
@@ -48,5 +49,30 @@ describe("Second Dawn (tryAscend)", () => {
 
     // the second dawn raises the bar
     expect(ascendThreshold(s)).toBe(55_000);
+  });
+});
+
+describe("Dawn bonus (existing: +1 production bonus per dawn)", () => {
+  function ascendOnce(s: ReturnType<typeof createGameState>) {
+    s.resources = { gold: String(ascendThreshold(s)), food: "0", wood: "0", stone: "0" };
+    expect(tryAscend(s)).toBe(true);
+  }
+
+  it("the first dawn adds +1 to productionBonus and grants no militia", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    const before = productionBonus(s);
+    ascendOnce(s);
+    expect(productionBonus(s)).toBe(before + 1);
+    expect(s.units.some((u) => u.realmId === "player" && u.typeId === "militia")).toBe(false);
+  });
+
+  it("a second dawn stacks: +2 over a crown that never ascended", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    const before = productionBonus(s);
+    ascendOnce(s);
+    ascendOnce(s);
+    expect(s.flags.prestige_level).toBe(2);
+    expect(productionBonus(s)).toBe(before + 2);
+    expect(s.units.some((u) => u.realmId === "player" && u.typeId === "militia")).toBe(false);
   });
 });
