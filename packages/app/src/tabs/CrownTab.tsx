@@ -1,7 +1,5 @@
 import React from "react";
 import {
-  formatLetterSuffix,
-  tryAscend,
   listAchievements,
   flagNum,
   shieldTicksLeft,
@@ -168,11 +166,7 @@ export function CrownTab(props: {
         </div>
       </div>
       <LedgerPanel state={state} />
-      <DawnCard state={state} />
-      <div className={`sc-work-card sc-plain-card sc-plain-inline ${ascendReady ? "is-ready" : ""}`}>
-        <span className="sc-work-status">Ascend at {formatLetterSuffix(ascendNeed)} total resources.</span>
-        <button type="button" className="sc-work-btn" disabled={!ascendReady} onClick={() => act((st) => (tryAscend(st) ? "Ascended. Pick a doctrine." : "Not ready."))}>Ascend</button>
-      </div>
+      <DawnCard state={state} act={act} ascendReady={ascendReady} ascendNeed={ascendNeed} />
 
       <h3>Doctrine</h3>
       {prestige < 1 ? (

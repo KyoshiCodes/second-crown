@@ -1,15 +1,19 @@
-import { listAchievements, type GameState } from "@second-crown/sim";
+import React from "react";
+import { listAchievements, formatLetterSuffix, tryAscend, type GameState } from "@second-crown/sim";
+import type { ActFn } from "../game/useGameEngine";
 import { DawnSealPip } from "./DawnSealPip";
 import "./dawn-card.css";
 
 /**
- * Second Dawn card on the Crown tab. Read-only: it shows facts already in the save
- * (achievements done, sieges the hold stood, offline shield bought). It has no buttons;
- * the Second Dawn action itself stays on the Ascend row (tryAscend).
+ * Second Dawn card on the Crown tab. Shows facts already in the save
+ * (achievements done, sieges the hold stood, offline shield bought) and holds the one
+ * Ascend button. The button only calls tryAscend; all wipe/keep rules live in the sim.
  * Displays a 28px living Dawn Seal Pip (pointer-events none).
  */
-export function DawnCard(props: { state: GameState | undefined }) {
-  const { state } = props;
+export function DawnCard(props: { state: GameState | undefined; act: ActFn; ascendReady: boolean; ascendNeed: number }) {
+  const { state, act, ascendReady, ascendNeed } = props;
+  const [note, setNote] = React.useState("");
+  const refusal = `Ascend at ${formatLetterSuffix(ascendNeed)} total resources.`;
   const achievements = state ? listAchievements(state) : [];
   const done = achievements.filter((a) => a.done).length;
   const dawned = achievements.some((a) => a.def.id === "ach_ascend" && a.done);
@@ -43,6 +47,24 @@ export function DawnCard(props: { state: GameState | undefined }) {
           <span className="sc-dawn-value">{shieldBought ? "bought" : "never bought"}</span>
         </li>
       </ul>
+      <div className="sc-dawn-ascend">
+        <span className="sc-dawn-ascend-note">{ascendReady ? note || "The crown is ready." : refusal}</span>
+        <button
+          type="button"
+          className="sc-work-btn"
+          disabled={!state || !ascendReady}
+          title={ascendReady ? undefined : refusal}
+          onClick={() =>
+            act((st) => {
+              const msg = tryAscend(st) ? "Ascended. Pick a doctrine." : "Not ready.";
+              setNote(msg);
+              return msg;
+            })
+          }
+        >
+          Ascend
+        </button>
+      </div>
     </div>
   );
 }
