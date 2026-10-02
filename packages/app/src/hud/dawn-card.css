@@ -63,3 +63,11 @@
 .sc-dawn-ascend .sc-work-btn {
   flex-shrink: 0;
 }
+
+/* One line under the Ascend button: dawn count from the save and the real stacking production bonus. */
+.sc-dawn-bonus {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
