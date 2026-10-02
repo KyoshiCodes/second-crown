@@ -1,10 +1,12 @@
 import { listAchievements, type GameState } from "@second-crown/sim";
+import { DawnSealPip } from "./DawnSealPip";
 import "./dawn-card.css";
 
 /**
  * Second Dawn card on the Crown tab. Read-only: it shows facts already in the save
  * (achievements done, sieges the hold stood, offline shield bought). It has no buttons;
  * the Second Dawn action itself stays on the Ascend row (tryAscend).
+ * Displays a 28px living Dawn Seal Pip (pointer-events none).
  */
 export function DawnCard(props: { state: GameState | undefined }) {
   const { state } = props;
@@ -21,7 +23,10 @@ export function DawnCard(props: { state: GameState | undefined }) {
   return (
     <div className={`sc-work-card sc-dawn-card ${dawned ? "is-dawned" : ""}`}>
       <div className="sc-work-head">
-        <span className="sc-work-name">Second Dawn</span>
+        <span className="sc-dawn-title-group">
+          <DawnSealPip active={dawned} size={28} />
+          <span className="sc-work-name">Second Dawn</span>
+        </span>
         <span className="sc-work-level">{dawned ? "risen" : "not yet"}</span>
       </div>
       <ul className="sc-dawn-facts">
