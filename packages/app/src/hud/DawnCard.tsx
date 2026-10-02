@@ -23,6 +23,13 @@ export function DawnCard(props: { state: GameState | undefined; act: ActFn; asce
   const holdStood = state
     ? state.wars.filter((w) => w.id.startsWith("w_siege_") && w.defenderRealmId === "player" && w.status === "defender_won").length
     : 0;
+  // Dawn count is prestige_level in the save. The sim's only dawn bonus is +1 production per dawn
+  // (each point is +4% income) and it stacks; a new crown starts with no militia.
+  const dawnCount = state ? Number(state.flags["prestige_level"] ?? 0) : 0;
+  const bonusLine =
+    dawnCount === 0
+      ? "Dawn 0 · next crown starts with +1 production (+4% income)"
+      : `Dawn ${dawnCount} · +${dawnCount} production kept; next crown stacks to +${dawnCount + 1} (+${(dawnCount + 1) * 4}% income)`;
 
   return (
     <div className={`sc-work-card sc-dawn-card ${dawned ? "is-dawned" : ""}`}>
@@ -65,6 +72,7 @@ export function DawnCard(props: { state: GameState | undefined; act: ActFn; asce
           Ascend
         </button>
       </div>
+      <div className="sc-dawn-bonus">{bonusLine}</div>
     </div>
   );
 }
