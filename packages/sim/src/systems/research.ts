@@ -82,8 +82,8 @@ export const RESEARCH = {
     cost: { gold: "40", wood: "24" },
     needsAny: ["academy", "barracks"],
     keepMin: 2,
-    unlocks: ["cavalry", "knight"],
-    effect: "Unlocks cavalry and knights. Needs Keep II.",
+    unlocks: ["cavalry", "knight", "outrider"],
+    effect: "Unlocks cavalry, knights, and outriders. Needs Keep II.",
   },
   siege: {
     id: "siege",
@@ -147,7 +147,7 @@ export function researchTicksLeft(state: GameState, id: string): number {
 }
 
 export function unitUnlocked(state: GameState, typeId: string): boolean {
-  if (typeId === "cavalry" || typeId === "knight") return researchDone(state, "horse");
+  if (typeId === "cavalry" || typeId === "knight" || typeId === "outrider") return researchDone(state, "horse");
   if (typeId === "siege") return researchDone(state, "siege");
   if (typeId === "ranger") return researchDone(state, "fieldcraft");
   if (typeId === "banner") return researchDone(state, "drill");
