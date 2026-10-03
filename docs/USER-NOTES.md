@@ -10,6 +10,12 @@ Newest first. Plain language for playtesters.
   - **States**: Glows with a radiant fen-reed green aura when unlocked; rests in muted cold marsh dusk tones while Screening remains to be studied.
   - Strictly non-interactive overlay (`pointer-events: none`); clicking to train or viewing tooltips remains completely smooth.
 
+## 2026-10-03 — Peak Holds culture and lancers (wave/culture-unit-5)
+
+- A new culture, **Peak Holds**, can be picked for a new game. It builds like the Crown Marches, but once your keep is finished your hold sees one tile farther. Existing saves keep their culture.
+- A new unit, the **Lancer**, costs the same as a knight, has power 6, and drills in 6 seconds. It unlocks with **Horse lore** on the Crown tab, the same study as knights. Knights are still there.
+- Lancers use a plain placeholder icon for now.
+
 ## 2026-10-02 — Fen Steads culture and wardens (wave/culture-unit-4)
 
 - A new culture, **Fen Steads**, can be picked for a new game. It builds like the Crown Marches, but every cottage houses one more citizen. Existing saves keep their culture.

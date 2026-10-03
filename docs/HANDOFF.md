@@ -26,6 +26,13 @@ Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the
   - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats. 260 sim tests pass, 349 render tests pass, app builds cleanly.
   - Files: `packages/app/src/hud/WardenChip.tsx`, `packages/app/src/hud/warden-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`.
 
+## Active wave (wave/culture-unit-5, not merged)
+
+- Sim only. One new culture (**peak**, "Peak Holds") and one new unit (**lancer**). Mist, ranger, glen, banner, salt, outrider, fen, and warden are unchanged.
+- Peak builds the same as western. Its one difference: once the keep is finished, hold vision is +1 (`keepVisionCultureBonus` in `visionRange`). A new game can pick it through `setPlayerCulture(s, "peak")`. Saves with no culture flag stay western. NPCs are never seeded peak.
+- Lancer: same cost as knight, power 6, `trainTicks` 60 (6s). It unlocks with **Horse lore**, the same study as knight. Knight is not replaced.
+- No app files changed. Lancer has no dedicated icon or crest yet.
+
 ## Active wave (wave/culture-unit-4, not merged)
 
 - Sim only. One new culture (**fen**, "Fen Steads") and one new unit (**warden**). Mist, ranger, glen, banner, salt, and outrider are unchanged.
