@@ -1,8 +1,22 @@
-## 2026-10-02 — app / glen and banner UI (wave/culture-unit-2-ui)
+## 2026-10-02 — app / 28px banner chip on Banner card (bakeoff/gemini-banner)
 
-- Didn't need new code for the picker or the card: `CulturePicker` maps `CULTURES` and `ArmyTab` maps `listUnitTypes()`. Both already use the existing `.sc-plain-pick` / `.sc-unit-card` styles.
-- `UnitIcon` has `case "banner"` falling through to `case "spearman"`, the same as ranger→archer. The spearman branch itself is unchanged.
-- Skipped a `crests.ts` `UNIT_VIS` entry because nothing in the app reads `unitVis` right now.
+- `packages/app/src/hud/banner-chip.css`:
+  - Styles `.sc-banner-chip-wrapper`, `.sc-banner-chip`, and living aura states (`.is-open`, `.is-locked`).
+  - Strictly enforces `pointer-events: none !important`, `flex-shrink: 0`, and `vertical-align: middle`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/BannerChip.tsx`:
+  - 28px living unit chip component with tall ash wood spear, leaf-shaped forged steel spearhead, flying swallowtail heraldic pennant with scarlet stripe, billowing glen-green cloak fastened with a stone/bronze ring brooch clasp, iron kettle helm, and highland round targe shield.
+  - Reactive states: `open = true` (unlocked) displays vibrant glen-green cloak, golden swallowtail pennant, and drop-shadow halo; `open = false` (locked) displays desaturated stony-glen dusk tones.
+  - `data-banner-chip`, `data-open`, `aria-hidden="true"`, `pointerEvents: "none"`.
+- `packages/app/src/hud/UnitCard.tsx`:
+  - Directly mounts `<BannerChip size={28} open={open} />` on the Banner card (`typeId === "banner"`).
+- `packages/app/src/UnitIcon.tsx`:
+  - Added dedicated `case "banner":` rendering the warrior with spear, flying heraldic pennant, and glen-green cloak.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-banner: 28px banner chip on Banner card (spear, small pennant, glen-green cloak)")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
+  - No new unit stats.
 
 ## 2026-10-02 — sim / glen culture and banner (wave/culture-unit-2)
 

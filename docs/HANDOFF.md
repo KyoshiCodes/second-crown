@@ -13,10 +13,18 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/culture-unit-2-ui, not merged)
+## Active wave (bakeoff/gemini-banner, not merged)
 
-- App only. The Banner card on the Army tab shows "Study Drill on Crown (Barracks or Academy)." until Drill is done, then trains with the same button as Spearman. Banner uses the spearman art.
-- Glen Holds sits in the Crown style picker with the other cultures and uses the same `setPlayerCulture` pick.
+- App HUD only. Added 28px banner chip on the Banner card on the Army tab:
+  - **Living Banner Chip** (`BannerChip`): 28px heraldic unit chip (`packages/app/src/hud/BannerChip.tsx`) with tall ash wood spear, leaf-shaped forged steel spearhead, flying swallowtail heraldic pennant, billowing glen-green cloak fastened with a stone/bronze ring brooch clasp, iron nasal kettle helm, and highland targe buckler shield.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Vibrant glen-green cloak (`#4d7c0f` / `#65a30d`), bright golden swallowtail pennant with scarlet stripe, and subtle glen-green drop-shadow aura.
+    - **Locked** (`open = false`): Muted stony-glen dusk tones (`#475569` / `#52525b`) indicating the banner warrior is in drill preparation awaiting Drill study.
+  - **Card Integration**: Mounted directly on the Banner card in `UnitCard.tsx` via `<BannerChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `case "banner":` renders dedicated spear, small pennant, and glen-green cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on wrapper, SVG, and all child elements guarantees zero interference with card clicking, training, or tooltips.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/banner-chip.css`; `theme.css` strictly untouched (0 diff against `origin/main`).
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats. 254 sim tests pass, 339 render tests pass, app builds cleanly.
+  - Files: `packages/app/src/hud/BannerChip.tsx`, `packages/app/src/hud/banner-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`.
 
 ## Active wave (wave/culture-unit-2, not merged)
 

@@ -1,0 +1,32 @@
+/* Banner Chip (28px).
+   Living banner unit chip for the Banner card in the Army tab.
+   Displays warrior with tall ash spear, flying heraldic pennant, and glen-green cloak.
+   Strictly pointer-events: none to guarantee card clicks and training are never blocked.
+   No theme.css edits. */
+
+.sc-banner-chip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  user-select: none;
+  vertical-align: middle;
+  position: relative;
+  line-height: 1;
+}
+
+.sc-banner-chip-wrapper svg {
+  display: block;
+  pointer-events: none !important;
+}
+
+/* Subtle glen-green aura when the banner is unlocked and ready to drill */
+.sc-banner-chip-wrapper.is-open {
+  filter: drop-shadow(0 0 4px rgba(101, 163, 13, 0.45));
+}
+
+.sc-banner-chip-wrapper.is-locked {
+  opacity: 0.65;
+  filter: grayscale(0.4);
+}
