@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — Banner card and Glen pick (wave/culture-unit-2-ui)
+
+- The Banner card on the Army tab tells you to study **Drill** on the Crown tab (you need a Barracks or an Academy). Once Drill is done, you can train banners like spearmen.
+- Banners now show the spearman figure, not the plain militia one.
+- **Glen Holds** is in the Crown style list with the other cultures.
+
 ## 2026-10-02 — Glen Holds culture and banners (wave/culture-unit-2)
 
 - A new culture, **Glen Holds**, can be picked for a new game. It builds like the Crown Marches, but every quarry cuts +1 more stone. Existing saves keep their culture.

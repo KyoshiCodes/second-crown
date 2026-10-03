@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/culture-unit-2-ui, not merged)
+
+- App only. The Banner card on the Army tab shows "Study Drill on Crown (Barracks or Academy)." until Drill is done, then trains with the same button as Spearman. Banner uses the spearman art.
+- Glen Holds sits in the Crown style picker with the other cultures and uses the same `setPlayerCulture` pick.
+
 ## Active wave (wave/culture-unit-2, not merged)
 
 - Sim only. One new culture (**glen**, "Glen Holds") and one new unit (**banner**). Mist and ranger are unchanged.

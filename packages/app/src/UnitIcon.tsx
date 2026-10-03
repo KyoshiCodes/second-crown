@@ -305,7 +305,8 @@ export function UnitIcon(props: UnitIconProps) {
         );
       }
 
-      case "spearman": {
+      case "spearman":
+      case "banner": {
         if (!isDefaultCulture) {
           switch (kit) {
             case "cedar": {

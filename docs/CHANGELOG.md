@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-02 — Glen and banner in the UI (wave/culture-unit-2-ui)
+
+- **App:** the Army tab now shows a Drill lock note on the Banner card (`lockNote` in `tabs/ArmyTab.tsx`), and the footnote says banners need Drill. `UnitIcon.tsx` reuses the spearman art for `banner`, where it used to fall back to militia.
+- Glen already shows in `CulturePicker` from `CULTURES`, and Banner already uses the shared `UnitCard` train button. No sim, server, or theme.css changes. Spearman, Mist, and Western are unchanged.
+
 ## 2026-10-02 — Glen culture and banner unit (wave/culture-unit-2)
 
 - **Sim:** added the `glen` culture (`content/cultures.ts`). It gives each quarry a flat +1 stone per tick through `quarryCultureBonus` (`systems/culture.ts`), which `rateFor` in `systems/economy.ts` adds. `NPC_CULTURE_IDS` is unchanged, so existing seeds don't shift.

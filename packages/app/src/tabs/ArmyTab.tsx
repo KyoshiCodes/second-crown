@@ -35,6 +35,7 @@ function lockNote(id: string): string {
   if (id === "cavalry" || id === "knight") return "Study Horse lore on Crown (Keep II).";
   if (id === "siege") return "Study Siege craft on Crown (Keep III + workshop).";
   if (id === "ranger") return "Study Fieldcraft on Crown (Archery Range or Academy).";
+  if (id === "banner") return "Study Drill on Crown (Barracks or Academy).";
   return "";
 }
 
@@ -107,7 +108,7 @@ export function ArmyTab(props: {
         })}
       </div>
       <p style={{ fontSize: 12, opacity: 0.75, marginTop: 6 }}>
-        Cavalry and knights need Horse lore. Siege needs Siege craft. Rangers need Fieldcraft. All start on the Crown lectern.
+        Cavalry and knights need Horse lore. Siege needs Siege craft. Rangers need Fieldcraft. Banners need Drill. All start on the Crown lectern.
       </p>
       <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for its role. Costs shown are per unit, before discounts. Cancel refunds the unused fraction. Food levy and mercenaries still arrive at once.</p>
       <div className="sc-work-grid">
