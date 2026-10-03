@@ -1,5 +1,5 @@
 import type { GameState } from "@second-crown/shared";
-import { CULTURES, NPC_CULTURE_IDS, MIST_FARM_BONUS, getCulture } from "../content/cultures.js";
+import { CULTURES, NPC_CULTURE_IDS, MIST_FARM_BONUS, GLEN_QUARRY_BONUS, getCulture } from "../content/cultures.js";
 
 export function playerCultureId(state: GameState): string {
   return String(state.flags.culture ?? "western");
@@ -30,6 +30,12 @@ export function cultureOfRealm(state: GameState, realmId: string): string {
 export function farmCultureBonus(state: GameState, realmId: string): number {
   const id = realmId === "player" ? playerCultureId(state) : state.flags[`culture_${realmId}`];
   return id === "mist" ? MIST_FARM_BONUS : 0;
+}
+
+/** Extra base stone per quarry for this realm. Reads only; never seeds an NPC culture flag. */
+export function quarryCultureBonus(state: GameState, realmId: string): number {
+  const id = realmId === "player" ? playerCultureId(state) : state.flags[`culture_${realmId}`];
+  return id === "glen" ? GLEN_QUARRY_BONUS : 0;
 }
 
 export { getCulture, CULTURES };

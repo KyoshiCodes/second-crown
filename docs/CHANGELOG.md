@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-02 — Glen culture and banner unit (wave/culture-unit-2)
+
+- **Sim:** added the `glen` culture (`content/cultures.ts`). It gives each quarry a flat +1 stone per tick through `quarryCultureBonus` (`systems/culture.ts`), which `rateFor` in `systems/economy.ts` adds. `NPC_CULTURE_IDS` is unchanged, so existing seeds don't shift.
+- **Sim:** added the `banner` unit (`content/units.ts`): spearman cost and stats, power 3, `trainTicks` 30. Added the `drill` study (`systems/research.ts`). `unitUnlocked("banner")` waits on it.
+- Tests: `systems/cultureUnit2.test.ts`. No change to raid math, ascend, mist, ranger, or existing costs.
+
 ## 2026-10-02 — Gemini 28px Ranger Chip on Ranger Card (bakeoff/gemini-ranger)
 
 - **App HUD: 28px Ranger Chip on Ranger Card (`packages/app/src/hud/RangerChip.tsx`, `packages/app/src/hud/ranger-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:
