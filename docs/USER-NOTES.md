@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-03 — Player Culture Keeps (bakeoff/gemini-culture-keeps)
+
+- On the isometric board and world view, your home keep now reflects the culture you chose:
+  - **Mist Reach**: A low reed thatch roof and an ethereal pale mist veil drifting around the low wet-stone walls.
+  - **Glen Holds**: A heavy stone quarry keep flanked by a lush green turf slope and a timber quarry crane.
+  - **Salt Reaches**: A timber yard keep of squared notched logs, stacked lumber flanking the door, and a steep grey salt-crusted shingle roof.
+  - **Fen Steads**: A stilt cottage keep rising on sturdy wooden pilings over dark water with animated ripples, wetland reeds, and an amber lantern glowing over the water.
+  - **Peak Holds**: A soaring white limestone keep crowned with a sculptured alpine snow cap and hanging crystalline icicles.
+- The Crown Marches (Western) and older cultures (Cedar, Sand, Steppe, Islands) remain unchanged.
+
 ## 2026-10-03 — First-dawn stores (wave/dawn-stores)
 
 - Your **first** Second Dawn now starts the new crown with a small gift: **1 militia, +20 food and +10 wood** (45 food / 45 wood instead of 25 / 35).

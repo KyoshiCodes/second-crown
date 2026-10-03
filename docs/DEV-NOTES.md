@@ -1,3 +1,28 @@
+## 2026-10-03 — render / culture keeps (bakeoff/gemini-culture-keeps)
+
+- `packages/render/src/tokens.ts`:
+  - `drawMiniatureKeep`: extended signature with `kit: CultureKit | string` and `options?: MiniatureKeepOptions` (which accepts `cultureId?: string`).
+  - Added dedicated miniature silhouettes for the 5 player cultures:
+    - **Mist**: Low reed roof (`0xca8a04`/`0x92400e`, sod ridge `0x4d7c0f`), low wet-stone walls (`cy - 7`), peat smoke wisp, and an ethereal drifting pale mist veil (`0xe2e8f0`/`0xf1f5f9`).
+    - **Glen**: Cyclopean quarry plinth, rough-hewn granite blocks (`0x78716c`/`0x57534e`), quarry courses, green turf slope (`0x4d7c0f`/`0x65a30d`/`0x365314`) hugging the southwest flank, and timber quarry crane with suspended stone block.
+    - **Salt**: Fortified squared timber log walls (`0x854d0e`/`0x5c3818`) with dovetail notches, stacked lumber logs flanking entry, and a steep grey salt-crusted shingle roof (`0xd6d3d1`/`0xa8a29e`, salt frost ridge `0xf1f5f9`).
+    - **Fen**: Stilt cottage keep (heavy wooden pilings `0x292524` with cross-bracing, stilt cottage walls `0x6b7280`, mossy reed thatch `0x4d7c0f`) over a dark water pool (`0x090d16`/`0x0f172a` with animated ripples and wetland bulrushes), with warm amber lantern glowing over dark water.
+    - **Peak**: Soaring dressed limestone walls (`0xf8fafc`/`0xcbd5e1` reaching `cy - 16`) crowned with an alpine sculpted snow cap (`0xffffff`/`0xe0f2fe`), crystalline icicles hanging from corbels (`0xbae6fd`), and high alpine mast.
+  - `paintBoardProvinces`: passes player culture ID `cultId` to `drawMiniatureKeep` for the player's home province.
+  - Older kits (`cedar`, `sand`, `steppe`, `islands`, `western`) strictly preserved and rendered via existing pathways.
+- `packages/render/src/buildings.ts`:
+  - Added and exported `drawKeepPlayerCulture`, `drawKeepMist`, `drawKeepGlen`, `drawKeepSalt`, `drawKeepFen`, and `drawKeepPeak`.
+  - Dispatched in `case "keep":` when `cultureId` is mist, glen, salt, fen, or peak.
+- `packages/render/src/index.ts`:
+  - `paintBuildings`: computes `bCultId` for player and foreign holds and passes it to `drawIsometricBuilding`.
+  - Exported `drawIsometricBuilding`, `drawMiniatureKeep`, `drawKeepPlayerCulture`, `drawKeepMist`, `drawKeepGlen`, `drawKeepSalt`, `drawKeepFen`, and `drawKeepPeak`.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-culture-keeps: player home miniature keep silhouettes and isometric keeps")` covering all 5 cultures, intact vs breached states, options fallback, direct exports, camera math invariants, and zero merge conflicts.
+- Invariants:
+  - Zero changes to `packages/sim`, `server`, `packages/app/src/tabs/*`, or `theme.css`.
+  - Camera math, zoom, and tile click hit-testing untouched.
+  - Ranger, Banner, Outrider, Warden, and Lancer marches untouched.
+
 ## 2026-10-03 — sim / first-dawn stores (wave/dawn-stores)
 
 - `packages/sim/src/actions/prestige.ts` `tryAscend`: after the wipe, if `!flags.dawn_gift`, set `flags.dawn_gift = 1`, add 20 food and 10 wood via `D()`/`toDecimalString`, and push one player militia (`id: "u_dawn_militia"`, `count: "1"`, `armyId: null`).

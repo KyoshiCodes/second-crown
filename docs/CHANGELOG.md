@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-10-03 — Gemini Culture Keeps (bakeoff/gemini-culture-keeps)
+
+- **Render: miniature keep silhouettes & isometric keeps for Mist, Glen, Salt, Fen, Peak (`packages/render/src/tokens.ts`, `packages/render/src/buildings.ts`, `packages/render/src/index.ts`, `packages/render/src/index.test.ts`)**:
+  - **Dedicated Miniature Silhouettes (`drawMiniatureKeep`)**: On the board and world view, the player home keep renders the culture they picked:
+    - **Mist**: Low reed roof (wide low-pitched reed thatch `0xca8a04`/`0x92400e`, sod ridge `0x4d7c0f`), low wet-stone walls (`cy - 7`), peat smoke wisp, and an ethereal drifting pale mist veil (`0xe2e8f0`/`0xf1f5f9`).
+    - **Glen**: Stone quarry keep (cyclopean quarry plinth, rough-hewn granite blocks `0x78716c`/`0x57534e`, quarry courses) with a green turf slope (`0x4d7c0f`/`0x65a30d`/`0x365314`) hugging the southwest flank, and timber quarry crane with suspended stone block.
+    - **Salt**: Timber yard keep (fortified squared timber log walls `0x854d0e`/`0x5c3818` with dovetail notches, stacked lumber logs flanking entry) with a steep grey salt-crusted shingle roof (`0xd6d3d1`/`0xa8a29e`, salt frost ridge `0xf1f5f9`).
+    - **Fen**: Stilt cottage keep (heavy wooden pilings `0x292524` with cross-bracing, stilt cottage walls `0x6b7280`, mossy reed thatch `0x4d7c0f`) over a dark water pool (`0x090d16`/`0x0f172a` with animated ripples and wetland bulrushes), with warm amber lantern glowing over the dark water.
+    - **Peak**: Tall white keep (soaring dressed limestone walls `0xf8fafc`/`0xcbd5e1` reaching `cy - 16`) crowned with an alpine sculpted snow cap (`0xffffff`/`0xe0f2fe`), crystalline icicles hanging from corbels (`0xbae6fd`), and high alpine mast.
+  - **Isometric Hold Grid Keep (`drawIsometricBuilding`, `drawKeepPlayerCulture`)**: The hold keep on the isometric board also renders the full-fidelity cultural architecture matching these exact silhouettes.
+  - **Western & Older Kits Preserved**: Cedar, sand, steppe, islands, and western keeps remain completely unchanged.
+  - **Non-Negotiables**: Camera math, zoom, and tile click hit-testing untouched. Ranger, Banner, Outrider, Warden, and Lancer marches untouched. Zero changes to `packages/sim`, `server`, `packages/app/src/tabs/*`, or `theme.css`.
+
 ## 2026-10-03 — First-dawn stores (wave/dawn-stores)
 
 - **Sim: first-dawn gift (`packages/sim/src/actions/prestige.ts`)**: the first Second Dawn now grants +1 militia, +20 food and +10 wood on the new crown. Once per save, tracked by `flags.dawn_gift`. Later ascends reset to the plain 25 food / 35 wood with no units.

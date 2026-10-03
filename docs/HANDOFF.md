@@ -13,6 +13,20 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (bakeoff/gemini-culture-keeps, not merged)
+
+- Render only. On the isometric board, the player home keep reads as the culture they picked.
+- Dedicated miniature keep silhouettes added in `packages/render/src/tokens.ts` (`drawMiniatureKeep`):
+  - **Mist**: Low reed roof (wide low-pitched reed thatch `0xca8a04`/`0x92400e`, sod ridge `0x4d7c0f`), low wet-stone walls (`cy - 7`), peat smoke wisp, and living pale mist veil (`0xe2e8f0`/`0xf1f5f9` with alpha drift).
+  - **Glen**: Stone quarry keep (cyclopean quarry plinth, rough-hewn granite blocks `0x78716c`/`0x57534e`, quarry courses) with a green turf slope (`0x4d7c0f`/`0x65a30d`/`0x365314`) hugging the southwest flank, and timber quarry crane with suspended stone block.
+  - **Salt**: Timber yard keep (fortified squared timber log walls `0x854d0e`/`0x5c3818` with dovetail notches, stacked lumber logs flanking entry) with a steep grey salt-crusted shingle roof (`0xd6d3d1`/`0xa8a29e`, salt frost ridge `0xf1f5f9`).
+  - **Fen**: Stilt cottage keep (heavy wooden pilings `0x292524` with cross-bracing, stilt cottage walls `0x6b7280`, mossy reed thatch `0x4d7c0f`) over a dark water pool (`0x090d16`/`0x0f172a` with animated ripples and wetland bulrushes), with warm amber lantern glowing over dark water.
+  - **Peak**: Tall white keep (soaring dressed limestone walls `0xf8fafc`/`0xcbd5e1` reaching `cy - 16`) crowned with an alpine sculpted snow cap (`0xffffff`/`0xe0f2fe`), crystalline icicles hanging from corbels (`0xbae6fd`), and high alpine mast.
+- Isometric hold grid keep (`packages/render/src/buildings.ts`) updated via `drawKeepPlayerCulture` to render the matching full-fidelity keep architecture.
+- Western and older kits (`cedar`, `sand`, `steppe`, `islands`) strictly preserved.
+- Non-negotiables: camera math, zoom, and tile click hit-testing untouched. Ranger, Banner, Outrider, Warden, and Lancer marches untouched. Zero changes to `packages/sim`, `server`, `packages/app/src/tabs/*`, or `theme.css`.
+- Tests: 371 render tests pass (`packages/render/src/index.test.ts`), 274 sim tests pass, app builds cleanly.
+
 ## Active wave (wave/dawn-stores, not merged)
 
 - Sim only. First-dawn gift in `tryAscend` (`packages/sim/src/actions/prestige.ts`): on the first legal ascend the new crown gets **+1 militia, +20 food, +10 wood** (starts at food 45 / wood 45 instead of 25 / 35).
