@@ -441,7 +441,8 @@ export function UnitIcon(props: UnitIconProps) {
         );
       }
 
-      case "skirmisher": {
+      case "skirmisher":
+      case "warden": {
         if (!isDefaultCulture) {
           switch (kit) {
             case "cedar": {

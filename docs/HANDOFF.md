@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/culture-unit-4-ui, not merged)
+
+- App only. The Warden card on the Army tab shows "Study Screening on Crown (Barracks or Academy)." until Screening is done, then trains with the same button as Skirmisher. Warden uses the skirmisher art.
+- Fen Steads sits in the Crown style picker with the other cultures and uses the same `setPlayerCulture` pick.
+
 ## Active wave (wave/culture-unit-4, not merged)
 
 - Sim only. One new culture (**fen**, "Fen Steads") and one new unit (**warden**). Mist, ranger, glen, banner, salt, and outrider are unchanged.
