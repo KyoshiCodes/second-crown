@@ -1,3 +1,9 @@
+## 2026-10-02 — app / glen and banner UI (wave/culture-unit-2-ui)
+
+- Didn't need new code for the picker or the card: `CulturePicker` maps `CULTURES` and `ArmyTab` maps `listUnitTypes()`. Both already use the existing `.sc-plain-pick` / `.sc-unit-card` styles.
+- `UnitIcon` has `case "banner"` falling through to `case "spearman"`, the same as ranger→archer. The spearman branch itself is unchanged.
+- Skipped a `crests.ts` `UNIT_VIS` entry because nothing in the app reads `unitVis` right now.
+
 ## 2026-10-02 — sim / glen culture and banner (wave/culture-unit-2)
 
 - **Spearmen had no lectern study either.** The brief said to unlock banner "from the same Crown lectern path as spearman", but `unitUnlocked` never gated spearmen. Following the fieldcraft precedent from wave/culture-unit, this wave added a new study, `drill` (180 ticks, food 20 / wood 12, needs `barracks` or `academy`, keepMin 0). It unlocks banner only. Owner: say if you'd rather gate it differently.
