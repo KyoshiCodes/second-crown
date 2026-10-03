@@ -1,5 +1,5 @@
 import type { GameState, InputRecord } from "@second-crown/shared";
-import { D } from "../core/decimal.js";
+import { D, toDecimalString } from "../core/decimal.js";
 
 export const DOCTRINES = [
   { id: "harvest", name: "Harvest Law", blurb: "+2 production on every completed building" },
@@ -53,6 +53,20 @@ export function tryAscend(state: GameState): boolean {
   state.wars = [];
   for (const k of Object.keys(state.flags)) {
     if (k.startsWith("peace_")) delete state.flags[k];
+  }
+
+  // First-dawn gift: one militia and a small store, once per crown.
+  if (!state.flags.dawn_gift) {
+    state.flags.dawn_gift = 1;
+    state.resources.food = toDecimalString(D(state.resources.food ?? "0").add(20));
+    state.resources.wood = toDecimalString(D(state.resources.wood ?? "0").add(10));
+    state.units.push({
+      id: "u_dawn_militia",
+      typeId: "militia",
+      realmId: "player",
+      count: "1",
+      armyId: null,
+    });
   }
 
   state.inputLog.push({

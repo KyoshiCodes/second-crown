@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-03 — First-dawn stores (wave/dawn-stores)
+
+- **Sim: first-dawn gift (`packages/sim/src/actions/prestige.ts`)**: the first Second Dawn now grants +1 militia, +20 food and +10 wood on the new crown. Once per save, tracked by `flags.dawn_gift`. Later ascends reset to the plain 25 food / 35 wood with no units.
+- Tests in `packages/sim/src/actions/prestige.test.ts`: first dawn has the gift, second dawn does not repeat it, a refused ascend grants nothing.
+
 ## 2026-10-03 — Gemini 28px Lancer Chip on Lancer Card (bakeoff/gemini-lancer)
 
 - **App HUD: 28px Lancer Chip on Lancer Card (`packages/app/src/hud/LancerChip.tsx`, `packages/app/src/hud/lancer-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:

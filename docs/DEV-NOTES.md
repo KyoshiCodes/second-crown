@@ -1,3 +1,11 @@
+## 2026-10-03 — sim / first-dawn stores (wave/dawn-stores)
+
+- `packages/sim/src/actions/prestige.ts` `tryAscend`: after the wipe, if `!flags.dawn_gift`, set `flags.dawn_gift = 1`, add 20 food and 10 wood via `D()`/`toDecimalString`, and push one player militia (`id: "u_dawn_militia"`, `count: "1"`, `armyId: null`).
+- `dawn_gift` is not wiped by ascend (only `peace_*` and `doctrine_lock` are), so the gift fires exactly once per save. Deterministic: no RNG, no tick dependence.
+- Old saves that already ascended before this change have no `dawn_gift` flag, so their next ascend will grant the gift once.
+- `prestige.test.ts`: keep/wipe test now expects food 45 / wood 45 and one militia; the "no militia" asserts in the dawn-bonus tests were removed; new "First-dawn gift" describe block (3 tests).
+- Untouched: raid math, culture yields, unit costs, `ascendThreshold`/`canAscend`, app, render, server.
+
 ## 2026-10-03 — app / 28px lancer chip on Lancer card (bakeoff/gemini-lancer)
 
 - `packages/app/src/hud/lancer-chip.css`:
