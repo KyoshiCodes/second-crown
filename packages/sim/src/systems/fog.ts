@@ -5,6 +5,8 @@ import { isHoldRim } from "../actions/build.js";
 import { getProvince, neighbors } from "./board.js";
 import { listOutposts } from "./outpost.js";
 import { surveyingVisionBonus } from "./research.js";
+import { keepVisionCultureBonus } from "./culture.js";
+import { keepLevel } from "../actions/upgrade.js";
 
 export function rimWatchtowers(state: GameState, realmId = "player"): number {
   return state.buildings.filter(
@@ -17,7 +19,8 @@ export function rimWatchtowers(state: GameState, realmId = "player"): number {
 }
 
 export function visionRange(state: GameState): number {
-  return 1 + countBuilding(state, "watchtower") + rimWatchtowers(state) + surveyingVisionBonus(state);
+  const keepBonus = keepLevel(state) > 0 ? keepVisionCultureBonus(state, "player") : 0;
+  return 1 + countBuilding(state, "watchtower") + rimWatchtowers(state) + surveyingVisionBonus(state) + keepBonus;
 }
 
 function homeCoord(state: GameState): { x: number; y: number } {

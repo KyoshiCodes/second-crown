@@ -60,9 +60,15 @@ export const CULTURES: CultureDef[] = [
     blurb: "Western halls on the fens. Cottages hold +1.",
     palette: { tabard: "#3f6212", timber: "#5c3818", stone: "#6b7280" },
   },
+  {
+    id: "peak",
+    name: "Peak Holds",
+    blurb: "Western halls on the peaks. A finished keep sees +1.",
+    palette: { tabard: "#475569", timber: "#5c3818", stone: "#e2e8f0" },
+  },
 ];
 
-/** Cultures an NPC crown can be seeded with. Mist, glen, salt, and fen are player-pick only, so old seeds do not shift. */
+/** Cultures an NPC crown can be seeded with. Mist, glen, salt, fen, and peak are player-pick only, so old seeds do not shift. */
 export const NPC_CULTURE_IDS = ["western", "woodland", "desert", "steppe", "tide"] as const;
 
 /** Mist builds as western. Its one difference: each finished farm feeds a flat +1 food per tick, after multipliers. */
@@ -76,6 +82,9 @@ export const SALT_WOOD_BONUS = 1;
 
 /** Fen builds as western. Its one difference: each finished cottage holds +1 citizen. */
 export const FEN_COTTAGE_BONUS = 1;
+
+/** Peak builds as western. Its one difference: a finished keep adds +1 hold vision. */
+export const PEAK_KEEP_VISION_BONUS = 1;
 
 export function getCulture(id: string | undefined): CultureDef {
   return CULTURES.find((c) => c.id === id) ?? CULTURES[0];

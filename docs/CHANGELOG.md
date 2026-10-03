@@ -12,6 +12,12 @@
   - **Dedicated Styles**: Stored in `packages/app/src/hud/warden-chip.css`; `theme.css` strictly untouched.
   - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats.
 
+## 2026-10-03 — Peak culture and lancer unit (wave/culture-unit-5)
+
+- **Sim:** added the `peak` culture (`content/cultures.ts`). Once the player has a finished keep, `visionRange` in `systems/fog.ts` adds +1 through `keepVisionCultureBonus` (`systems/culture.ts`). It is a flat +1, not +1 per keep level. `NPC_CULTURE_IDS` is unchanged, so existing seeds don't shift.
+- **Sim:** added the `lancer` unit (`content/units.ts`): knight cost, power 6, `trainTicks` 60. It is unlocked by the existing **Horse lore** study, the same one knights use, and gets the same stables discount in `trainCostMultiplier`. Knight is unchanged.
+- Tests: `systems/cultureUnit5.test.ts`. No change to raid math, ascend, mist, ranger, glen, banner, salt, outrider, fen, warden, or existing costs.
+
 ## 2026-10-02 — Fen culture and warden unit (wave/culture-unit-4)
 
 - **Sim:** added the `fen` culture (`content/cultures.ts`). Each finished cottage holds +1 citizen through `cottageCultureBonus` (`systems/culture.ts`), which `housingCap` in `systems/housing.ts` adds. Work plots are unchanged. `NPC_CULTURE_IDS` is unchanged, so existing seeds don't shift.

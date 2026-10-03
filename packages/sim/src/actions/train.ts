@@ -33,7 +33,7 @@ export function trainCostMultiplier(state: GameState, typeId?: string): number {
   if (flagNum(state, "craft_train")) m *= 0.9;
   if (state.flags.doctrine === "host") m *= 0.92;
   if (decreeActive(state, "muster")) m *= 0.9;
-  if (typeId === "cavalry" || typeId === "knight") {
+  if (typeId === "cavalry" || typeId === "knight" || typeId === "lancer") {
     if (countBuilding(state, "stables") > 0) m *= 0.9;
   }
   if (typeId === "archer" || typeId === "ranger" || typeId === "skirmisher" || typeId === "warden") {

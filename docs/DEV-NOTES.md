@@ -38,6 +38,15 @@
   - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
   - No new unit stats.
 
+## 2026-10-03 — sim / peak culture and lancer (wave/culture-unit-5)
+
+- **"A finished keep adds +1 vision" is a flat +1** once any player keep has `completesAtTick === null` (`keepLevel(state) > 0`). It does not scale with keep level. A new game has no keep, so peak and western start with the same vision.
+- **Only the player's hold vision changes.** `visionRange` is player-only today. `keepVisionCultureBonus(state, realmId)` takes a realm id like the other culture bonuses, so NPC use stays possible later.
+- **Lancer uses the existing Horse lore study** (keepMin 2), the same one as knight. No new study was needed, unlike warden and banner.
+- **Lancer also gets the stables 10% discount**, so it always costs exactly what a knight costs.
+- **Lancer stats** (attack 13, defense 10, hp 20, speed 6, shock, tier 3) sit between outrider and knight. The brief only fixed cost, power, and drill time.
+- Follow-up for app: peak in `CulturePicker` needs no code. A lancer glyph in `crests.ts` and art in `UnitIcon.tsx` are still to do. Lancer is already listed under Horse lore's `unlocks`.
+
 ## 2026-10-02 — sim / fen culture and warden (wave/culture-unit-4)
 
 - **Skirmishers had no lectern study.** The brief said to unlock warden "from the same Crown lectern path as skirmisher", but `unitUnlocked` never gated skirmishers. Following the fieldcraft and drill precedent, this wave added a new study, `screening` (180 ticks, food 20 / wood 12, needs `barracks` or `academy`, keepMin 0). It unlocks warden only. Owner: say if you'd rather gate it differently.
