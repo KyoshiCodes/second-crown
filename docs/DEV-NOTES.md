@@ -1,8 +1,22 @@
-## 2026-10-02 — app / fen and warden UI (wave/culture-unit-4-ui)
+## 2026-10-03 — app / 28px warden chip on Warden card (bakeoff/gemini-warden)
 
-- No new code for the picker or the card: `CulturePicker` maps `CULTURES` and `ArmyTab` maps `listUnitTypes()`, both on the existing `.sc-plain-pick` / `.sc-unit-card` styles.
-- `UnitIcon` has `case "warden"` falling through to `case "skirmisher"`, the same pattern as outrider→cavalry. The skirmisher branch itself is unchanged. Fen resolves to the western kit in `resolveCultureKit`, like Mist, Glen, and Salt.
-- The Range discount line still says archers/rangers only. The sim gives skirmishers and wardens that discount too, but the line already left out skirmishers, so I didn't change it in this wave.
+- `packages/app/src/hud/warden-chip.css`:
+  - Styles `.sc-warden-chip-wrapper`, `.sc-warden-chip`, and living aura states (`.is-open`, `.is-locked`).
+  - Strictly enforces `pointer-events: none !important`, `flex-shrink: 0`, and `vertical-align: middle`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/WardenChip.tsx`:
+  - 28px living unit chip component with hold guard defender, sturdy short spear (leaf-shaped steel head and reed bindings), wicker-reed woven round boss shield on off-arm, layered fen-reed cloak with rush frills and carved bone toggle clasp, and conical iron kettle helm.
+  - Reactive states: `open = true` (unlocked) displays radiant fen-reed moss green and golden reed tassels, gleaming spear point, and drop-shadow halo; `open = false` (locked) displays desaturated cold marsh dusk tones.
+  - `data-warden-chip`, `data-open`, `aria-hidden="true"`, `pointerEvents: "none"`.
+- `packages/app/src/hud/UnitCard.tsx`:
+  - Directly mounts `<WardenChip size={28} open={open} />` on the Warden card (`typeId === "warden"`).
+- `packages/app/src/UnitIcon.tsx`:
+  - Added dedicated `case "warden":` rendering hold guard, short spear, round reed shield, and fen-reed cloak.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-warden: 28px warden chip on Warden card (short spear, round shield, fen-reed cloak)")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
+  - No new unit stats.
 
 ## 2026-10-02 — app / 28px outrider chip on Outrider card (bakeoff/gemini-outrider)
 

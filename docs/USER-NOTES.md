@@ -2,11 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-02 — Warden card and Fen pick (wave/culture-unit-4-ui)
+## 2026-10-03 — 28px Warden Chip on Warden Card (bakeoff/gemini-warden)
 
-- The Warden card on the Army tab tells you to study **Screening** on the Crown tab (you need a Barracks or Academy). Once Screening is done, you can train wardens like skirmishers.
-- Wardens now show the skirmisher figure, not the plain militia one.
-- **Fen Steads** is in the Crown style list with the other cultures.
+- On the Army tab, the **Warden** card now displays a dedicated 28px hold guard chip:
+  - **Short Spear & Round Shield**: A sturdy marsh-wood short spear and wicker-reed round boss shield ready for hold defense.
+  - **Fen-Reed Cloak**: A layered marsh-reed mantle with rush frills and golden dried reed tips, pinned with a carved bone toggle.
+  - **States**: Glows with a radiant fen-reed green aura when unlocked; rests in muted cold marsh dusk tones while Screening remains to be studied.
+  - Strictly non-interactive overlay (`pointer-events: none`); clicking to train or viewing tooltips remains completely smooth.
 
 ## 2026-10-02 — Fen Steads culture and wardens (wave/culture-unit-4)
 
