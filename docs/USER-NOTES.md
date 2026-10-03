@@ -2,11 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-02 — Outrider card and Salt pick (wave/culture-unit-3-ui)
+## 2026-10-02 — 28px Outrider Chip on Outrider Card (bakeoff/gemini-outrider)
 
-- The Outrider card on the Army tab tells you to study **Horse lore** on the Crown tab (you need Keep II). Once Horse lore is done, you can train outriders like cavalry.
-- Outriders now show the cavalry figure, not the plain militia one.
-- **Salt Reaches** is in the Crown style list with the other cultures.
+- On the Army tab, the **Outrider** card now displays a dedicated 28px scout cavalry chip:
+  - **Horse & Short Lance**: An agile scout steed in charging gallop with salt-frosted mane and flowing tail, bearing a rider with couched short lance.
+  - **Salt-Grey Cloak**: A billowing salt-grey mantle with sea-mist highlights pinned by a salt-silver brooch clasp.
+  - **States**: Glows with a radiant salt-silver aura when unlocked; rests in muted dusk tones while Horse lore remains to be studied.
+  - Strictly non-interactive overlay (`pointer-events: none`); clicking to train or viewing tooltips remains completely smooth.
 
 ## 2026-10-02 — Salt Reaches culture and outriders (wave/culture-unit-3)
 

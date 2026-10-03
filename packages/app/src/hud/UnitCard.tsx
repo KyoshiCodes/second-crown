@@ -2,6 +2,7 @@ import React from "react";
 import { UnitIcon } from "../UnitIcon";
 import { RangerChip } from "./RangerChip";
 import { BannerChip } from "./BannerChip";
+import { OutriderChip } from "./OutriderChip";
 
 export type UnitCardProps = {
   typeId: string;
@@ -34,6 +35,8 @@ export function UnitCard(props: UnitCardProps) {
             <RangerChip size={28} open={open} />
           ) : typeId === "banner" ? (
             <BannerChip size={28} open={open} />
+          ) : typeId === "outrider" ? (
+            <OutriderChip size={28} open={open} />
           ) : (
             <UnitIcon typeId={typeId} size={28} animated={open} />
           )}

@@ -1,0 +1,32 @@
+/* Outrider Chip (28px).
+   Living outrider unit chip for the Outrider card in the Army tab.
+   Displays scout cavalry on horse with short lance and salt-grey cloak.
+   Strictly pointer-events: none to guarantee card clicks and training are never blocked.
+   No theme.css edits. */
+
+.sc-outrider-chip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  user-select: none;
+  vertical-align: middle;
+  position: relative;
+  line-height: 1;
+}
+
+.sc-outrider-chip-wrapper svg {
+  display: block;
+  pointer-events: none !important;
+}
+
+/* Subtle salt-silver aura when the outrider is unlocked and ready to train */
+.sc-outrider-chip-wrapper.is-open {
+  filter: drop-shadow(0 0 4px rgba(148, 163, 184, 0.5));
+}
+
+.sc-outrider-chip-wrapper.is-locked {
+  opacity: 0.65;
+  filter: grayscale(0.4);
+}
