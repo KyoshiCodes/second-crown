@@ -1,9 +1,16 @@
 # CHANGELOG
 
-## 2026-10-02 — Salt and outrider in the UI (wave/culture-unit-3-ui)
+## 2026-10-02 — Gemini 28px Outrider Chip on Outrider Card (bakeoff/gemini-outrider)
 
-- **App:** the Army tab now shows a Horse lore lock note on the Outrider card (`lockNote` in `tabs/ArmyTab.tsx`), and the footnote says outriders need Horse lore. `UnitIcon.tsx` reuses the cavalry art for `outrider`, where it used to fall back to militia.
-- Salt already shows in `CulturePicker` from `CULTURES`, and Outrider already uses the shared `UnitCard` train button. No sim, server, or theme.css changes. Cavalry, Mist, Glen, and Western are unchanged.
+- **App HUD: 28px Outrider Chip on Outrider Card (`packages/app/src/hud/OutriderChip.tsx`, `packages/app/src/hud/outrider-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:
+  - **Living Outrider Chip (`OutriderChip`)**: 28px iconic unit chip for the Outrider card in the Army tab. Features an agile scout horse in forward charging gallop with salt-frosted mane and flowing tail, short couched scout lance with forged leaf point and pennon, and a billowing salt-grey cloak with sea-mist highlights pinned by a salt-silver brooch clasp, with a conical iron scout helm.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Radiant salt-grey mantle highlights (`#cbd5e1` / `#94a3b8`), gleaming lance point, and subtle salt-silver aura drop-shadow (`rgba(148, 163, 184, 0.5)`).
+    - **Locked** (`open = false`): Muted dusk tones (`grayscale(0.4)`, `opacity: 0.65`) indicating the outrider awaits Horse lore study.
+  - **Card Integration**: Mounted directly on the Outrider card in `UnitCard.tsx` via `<OutriderChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `case "outrider":` renders dedicated scout steed, short couched lance, and salt-grey cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on all pips, wrappers, and SVGs.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/outrider-chip.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats.
 
 ## 2026-10-02 — Salt culture and outrider unit (wave/culture-unit-3)
 

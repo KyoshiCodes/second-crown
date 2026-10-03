@@ -13,10 +13,18 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/culture-unit-3-ui, not merged)
+## Active wave (bakeoff/gemini-outrider, not merged)
 
-- App only. The Outrider card on the Army tab shows "Study Horse lore on Crown (Keep II)." until Horse lore is done, then trains with the same button as Cavalry. Outrider uses the cavalry art.
-- Salt Reaches sits in the Crown style picker with the other cultures and uses the same `setPlayerCulture` pick.
+- App HUD only. Added 28px outrider chip on the Outrider card on the Army tab:
+  - **Living Outrider Chip** (`OutriderChip`): 28px scout cavalry chip (`packages/app/src/hud/OutriderChip.tsx`) with an agile scout horse in charging gallop, salt-frosted mane and streaming tail, short couched scout lance with forged leaf point and pennon, and a billowing salt-grey cloak with sea-mist highlights pinned by a salt-silver brooch clasp, with conical iron scout helm.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Radiant salt-grey mantle highlights (`#cbd5e1` / `#94a3b8`), gleaming lance point, and subtle salt-silver aura drop-shadow (`rgba(148, 163, 184, 0.5)`).
+    - **Locked** (`open = false`): Muted dusk tones (`grayscale(0.4)`, `opacity: 0.65`) indicating the outrider awaits Horse lore study.
+  - **Card Integration**: Mounted directly on the Outrider card in `UnitCard.tsx` via `<OutriderChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `case "outrider":` renders dedicated scout steed, short couched lance, and salt-grey cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on wrapper, SVG, and all child elements guarantees zero interference with card clicking, training, or tooltips.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/outrider-chip.css`; `theme.css` strictly untouched (0 diff against `origin/main`).
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats. 254 sim tests pass, 344 render tests pass, app builds cleanly.
+  - Files: `packages/app/src/hud/OutriderChip.tsx`, `packages/app/src/hud/outrider-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`.
 
 ## Active wave (wave/culture-unit-3, not merged)
 

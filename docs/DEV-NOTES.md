@@ -1,8 +1,22 @@
-## 2026-10-02 — app / salt and outrider UI (wave/culture-unit-3-ui)
+## 2026-10-02 — app / 28px outrider chip on Outrider card (bakeoff/gemini-outrider)
 
-- No new code for the picker or the card: `CulturePicker` maps `CULTURES` and `ArmyTab` maps `listUnitTypes()`, both on the existing `.sc-plain-pick` / `.sc-unit-card` styles.
-- `UnitIcon` has `case "outrider"` falling through to `case "cavalry"`, the same pattern as banner→spearman. The cavalry branch itself is unchanged. Salt resolves to the western kit in `resolveCultureKit`, like Mist and Glen.
-- Outrider gets its own `lockNote` line instead of joining the cavalry/knight condition, so the cavalry line stays untouched. The Stables discount line still says cavalry/knights only, which matches `trainCostMultiplier` in the sim (outriders get no Stables discount).
+- `packages/app/src/hud/outrider-chip.css`:
+  - Styles `.sc-outrider-chip-wrapper`, `.sc-outrider-chip`, and living aura states (`.is-open`, `.is-locked`).
+  - Strictly enforces `pointer-events: none !important`, `flex-shrink: 0`, and `vertical-align: middle`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/OutriderChip.tsx`:
+  - 28px living unit chip component with agile scout horse in charging gallop, salt-frosted mane and streaming tail, short couched scout lance with forged leaf point and pennon, and billowing salt-grey cloak with sea-mist highlights pinned by a salt-silver brooch clasp, with conical iron scout helm.
+  - Reactive states: `open = true` (unlocked) displays radiant salt-grey cloak highlights, gleaming lance point, and drop-shadow halo; `open = false` (locked) displays desaturated dusk tones.
+  - `data-outrider-chip`, `data-open`, `aria-hidden="true"`, `pointerEvents: "none"`.
+- `packages/app/src/hud/UnitCard.tsx`:
+  - Directly mounts `<OutriderChip size={28} open={open} />` on the Outrider card (`typeId === "outrider"`).
+- `packages/app/src/UnitIcon.tsx`:
+  - Added dedicated `case "outrider":` rendering scout courser, short couched lance, and salt-grey cloak.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-outrider: 28px outrider chip on Outrider card (horse, short lance, salt-grey cloak)")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
+  - No new unit stats.
 
 ## 2026-10-02 — sim / salt culture and outrider (wave/culture-unit-3)
 
