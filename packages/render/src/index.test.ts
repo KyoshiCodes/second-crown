@@ -8798,11 +8798,88 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               }
             });
           });
+
+          describe("bakeoff/gemini-banner: 28px banner chip on Banner card (spear, small pennant, glen-green cloak)", () => {
+            it("verifies banner-chip.css defines 28px layout, non-blocking guarantee, and theme.css is untouched", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cssPath = path.resolve(__dirname, "../../app/src/hud/banner-chip.css");
+              expect(fs.existsSync(cssPath)).toBe(true);
+              const css = fs.readFileSync(cssPath, "utf-8");
+
+              expect(css).toContain("sc-banner-chip-wrapper");
+              expect(css).toContain("pointer-events: none !important");
+              expect(css).toContain("is-open");
+              expect(css).toContain("is-locked");
+
+              const themeCss = fs.readFileSync(path.resolve(__dirname, "../../app/src/theme.css"), "utf-8");
+              expect(themeCss).not.toContain("sc-banner-chip");
+            });
+
+            it("verifies BannerChip exports 28px component with spear, small pennant, glen-green cloak, and pointerEvents none", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const chipPath = path.resolve(__dirname, "../../app/src/hud/BannerChip.tsx");
+              expect(fs.existsSync(chipPath)).toBe(true);
+              const chipCode = fs.readFileSync(chipPath, "utf-8");
+
+              expect(chipCode).toContain("BannerChip");
+              expect(chipCode).toContain("size = 28");
+              expect(chipCode).toContain('pointerEvents: "none"');
+              expect(chipCode).toContain('aria-hidden="true"');
+              expect(chipCode).toContain("data-banner-chip");
+              expect(chipCode).toContain("data-open");
+              expect(chipCode).toContain("sc-banner-cloak");
+              expect(chipCode).toContain("sc-banner-spear");
+              expect(chipCode).toContain("sc-banner-pennant");
+            });
+
+            it("verifies UnitCard mounts 28px BannerChip on Banner card", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const cardPath = path.resolve(__dirname, "../../app/src/hud/UnitCard.tsx");
+              expect(fs.existsSync(cardPath)).toBe(true);
+              const cardCode = fs.readFileSync(cardPath, "utf-8");
+
+              expect(cardCode).toContain("BannerChip");
+              expect(cardCode).toContain('typeId === "banner" ? (');
+              expect(cardCode).toContain("<BannerChip size={28} open={open} />");
+            });
+
+            it("verifies UnitIcon has dedicated banner art with spear, small pennant, and glen-green cloak", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const iconPath = path.resolve(__dirname, "../../app/src/UnitIcon.tsx");
+              expect(fs.existsSync(iconPath)).toBe(true);
+              const iconCode = fs.readFileSync(iconPath, "utf-8");
+
+              expect(iconCode).toContain('case "banner":');
+              expect(iconCode).toContain("Glen Holds banner unit");
+            });
+
+            it("verifies zero merge conflict markers across all modified and created files", async () => {
+              const fs = await import("node:fs");
+              const path = await import("node:path");
+              const files = [
+                path.resolve(__dirname, "../../app/src/hud/banner-chip.css"),
+                path.resolve(__dirname, "../../app/src/hud/BannerChip.tsx"),
+                path.resolve(__dirname, "../../app/src/hud/UnitCard.tsx"),
+                path.resolve(__dirname, "../../app/src/UnitIcon.tsx"),
+              ];
+              for (const f of files) {
+                const content = fs.readFileSync(f, "utf-8");
+                expect(content).not.toContain("<<<<<<<");
+                expect(content).not.toContain("=======");
+                expect(content).not.toContain(">>>>>>>");
+              }
+            });
+          });
         });
       });
     });
   });
 });
+
 
 
 

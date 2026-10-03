@@ -2,11 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-02 — Banner card and Glen pick (wave/culture-unit-2-ui)
+## 2026-10-02 — 28px Banner Chip on Banner Card (bakeoff/gemini-banner)
 
-- The Banner card on the Army tab tells you to study **Drill** on the Crown tab (you need a Barracks or an Academy). Once Drill is done, you can train banners like spearmen.
-- Banners now show the spearman figure, not the plain militia one.
-- **Glen Holds** is in the Crown style list with the other cultures.
+- On the Army tab, the **Banner** card now displays a dedicated 28px heraldic banner chip:
+  - **Spear & Pennant**: A tall ash wood spear tipped with a leaf-shaped steel point and a fluttering swallowtail pennant with scarlet stripe.
+  - **Glen-Green Cloak**: A rich highland glen-green mantle pinned with an ancient stone/bronze ring clasp.
+  - **States**: Glows with a vibrant glen-green aura when unlocked; rests in muted stony-glen dusk tones while Drill remains to be studied.
+  - Strictly non-interactive overlay (`pointer-events: none`); clicking to train or viewing tooltips remains completely smooth.
 
 ## 2026-10-02 — Glen Holds culture and banners (wave/culture-unit-2)
 

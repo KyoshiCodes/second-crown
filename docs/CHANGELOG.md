@@ -1,9 +1,16 @@
 # CHANGELOG
 
-## 2026-10-02 — Glen and banner in the UI (wave/culture-unit-2-ui)
+## 2026-10-02 — Gemini 28px Banner Chip on Banner Card (bakeoff/gemini-banner)
 
-- **App:** the Army tab now shows a Drill lock note on the Banner card (`lockNote` in `tabs/ArmyTab.tsx`), and the footnote says banners need Drill. `UnitIcon.tsx` reuses the spearman art for `banner`, where it used to fall back to militia.
-- Glen already shows in `CulturePicker` from `CULTURES`, and Banner already uses the shared `UnitCard` train button. No sim, server, or theme.css changes. Spearman, Mist, and Western are unchanged.
+- **App HUD: 28px Banner Chip on Banner Card (`packages/app/src/hud/BannerChip.tsx`, `packages/app/src/hud/banner-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:
+  - **Living Banner Chip (`BannerChip`)**: 28px iconic unit chip for the Banner card. Features tall ash wood spear, leaf-shaped forged steel spearhead, flying swallowtail heraldic pennant with scarlet stripe, billowing glen-green cloak fastened with a stone/bronze ring brooch clasp, iron kettle helm, and highland round targe shield.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Vibrant glen-green cloak (`#4d7c0f` / `#65a30d`), bright golden swallowtail pennant with scarlet stripe, and subtle glen-green drop-shadow aura.
+    - **Locked** (`open = false`): Muted stony-glen dusk tones (`#475569` / `#52525b`) indicating the banner warrior is in drill preparation awaiting Drill study.
+  - **Card Integration**: Mounted directly on the Banner card in `UnitCard.tsx` via `<BannerChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `case "banner":` renders dedicated spear, small pennant, and glen-green cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on all pips, wrappers, and SVGs.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/banner-chip.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats.
 
 ## 2026-10-02 — Glen culture and banner unit (wave/culture-unit-2)
 
