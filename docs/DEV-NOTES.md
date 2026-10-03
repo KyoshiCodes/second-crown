@@ -1,3 +1,9 @@
+## 2026-10-03 — app / peak and lancer UI (wave/culture-unit-5-ui)
+
+- No new code for the picker or the card: `CulturePicker` maps `CULTURES` and `ArmyTab` maps `listUnitTypes()`, both on the existing `.sc-plain-pick` / `.sc-unit-card` styles. No CSS changed.
+- `UnitIcon` has `case "lancer"` falling through to `case "knight"`, the same pattern as warden→skirmisher. The knight branch itself is unchanged. Peak resolves to the western kit in `resolveCultureKit`, like Fen.
+- Lancer has no dedicated chip or crest glyph yet; a bakeoff chip can slot into `UnitCard` like the others.
+
 ## 2026-10-03 — app / 28px warden chip on Warden card (bakeoff/gemini-warden)
 
 - `packages/app/src/hud/warden-chip.css`:

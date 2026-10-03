@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-03 — Lancer card and Peak pick (wave/culture-unit-5-ui)
+
+- The Lancer card on the Army tab tells you to study **Horse lore** on the Crown tab (you need Keep II). Once Horse lore is done, you can train lancers like knights.
+- Lancers now show the knight figure, not the plain militia one.
+- **Peak Holds** is in the Crown style list with the other cultures.
+
 ## 2026-10-03 — 28px Warden Chip on Warden Card (bakeoff/gemini-warden)
 
 - On the Army tab, the **Warden** card now displays a dedicated 28px hold guard chip:
