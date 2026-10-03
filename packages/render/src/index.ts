@@ -80,6 +80,12 @@ import {
 import {
   getThemeVisuals,
   drawIsometricBuilding,
+  drawKeepPlayerCulture,
+  drawKeepMist,
+  drawKeepGlen,
+  drawKeepSalt,
+  drawKeepFen,
+  drawKeepPeak,
   getWallHpStatus,
   isWallHpLow,
   isWallRingClosed,
@@ -761,6 +767,9 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       }
 
       const bRealm = b.realmId || "player";
+      const bCultId = (bRealm !== "player" && sim.cultureOfRealm)
+        ? sim.cultureOfRealm(state, bRealm)
+        : cultId;
       const bHasPeople = holdHasPeople(state, bRealm);
       const bIsStaffed = isBuildingStaffed(state, b, gx, gy);
       const bIsBreached = isHoldBreached(state, buildingOptions, bRealm);
@@ -779,7 +788,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         gx,
         gy,
         rimNeighbors,
-        cultId,
+        bCultId,
         bOptions
       );
     }
@@ -956,5 +965,13 @@ export {
   listMissingRimSegments,
   drawRimGapMark,
   paintMissingRimSegments,
+  drawIsometricBuilding,
+  drawMiniatureKeep,
+  drawKeepPlayerCulture,
+  drawKeepMist,
+  drawKeepGlen,
+  drawKeepSalt,
+  drawKeepFen,
+  drawKeepPeak,
 };
 

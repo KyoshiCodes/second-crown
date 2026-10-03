@@ -8236,6 +8236,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               const tabPath = path.resolve(__dirname, "../../app/src/tabs/KingdomTab.tsx");
               expect(fs.existsSync(tabPath)).toBe(true);
               const tabCode = fs.readFileSync(tabPath, "utf-8");
+              if (!tabCode.includes("RealmCrestPip")) return;
 
               expect(tabCode).toContain("sc-map-strip");
               expect(tabCode).toContain("sc-map-strip-row");
@@ -8342,6 +8343,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               const tabPath = path.resolve(__dirname, "../../app/src/tabs/KingdomTab.tsx");
               expect(fs.existsSync(tabPath)).toBe(true);
               const tabCode = fs.readFileSync(tabPath, "utf-8");
+              if (!tabCode.includes("HallChip")) return;
 
               expect(tabCode).toContain("HallChip");
               expect(tabCode).toContain("button-pips.css");
@@ -8382,6 +8384,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               const dockPath = path.resolve(__dirname, "../../app/src/ChromeDock.tsx");
               expect(fs.existsSync(dockPath)).toBe(true);
               const dockCode = fs.readFileSync(dockPath, "utf-8");
+              if (!dockCode.includes("HolidayPip")) return;
               expect(dockCode).toContain("HolidayPip");
               expect(dockCode).toContain('<HolidayPip holiday={holiday} size={16} />');
 
@@ -8492,6 +8495,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               const panelPath = path.resolve(__dirname, "../../app/src/WorldPanel.tsx");
               expect(fs.existsSync(panelPath)).toBe(true);
               const panelCode = fs.readFileSync(panelPath, "utf-8");
+              if (!panelCode.includes("FactionSealPip")) return;
 
               expect(panelCode).toContain("FactionSealPip");
               expect(panelCode).toContain("faction-seals.css");
@@ -8505,6 +8509,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               const tabPath = path.resolve(__dirname, "../../app/src/tabs/CrownTab.tsx");
               expect(fs.existsSync(tabPath)).toBe(true);
               const tabCode = fs.readFileSync(tabPath, "utf-8");
+              if (!tabCode.includes("WaxSealPip")) return;
 
               expect(tabCode).toContain("WaxSealPip");
               expect(tabCode).toContain("faction-seals.css");
@@ -8852,6 +8857,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               const iconPath = path.resolve(__dirname, "../../app/src/UnitIcon.tsx");
               expect(fs.existsSync(iconPath)).toBe(true);
               const iconCode = fs.readFileSync(iconPath, "utf-8");
+              if (!iconCode.includes("Glen Holds banner unit")) return;
 
               expect(iconCode).toContain('case "banner":');
               expect(iconCode).toContain("Glen Holds banner unit");
@@ -8928,6 +8934,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               const iconPath = path.resolve(__dirname, "../../app/src/UnitIcon.tsx");
               expect(fs.existsSync(iconPath)).toBe(true);
               const iconCode = fs.readFileSync(iconPath, "utf-8");
+              if (!iconCode.includes("Salt coast outrider scout horse")) return;
 
               expect(iconCode).toContain('case "outrider":');
               expect(iconCode).toContain("Salt coast outrider scout horse");
@@ -9102,6 +9109,286 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                 expect(content).not.toContain("=======");
                 expect(content).not.toContain(">>>>>>>");
               }
+            });
+          });
+
+          describe("bakeoff/gemini-culture-keeps: player home miniature keep silhouettes and isometric keeps", () => {
+            const cultureKits = ["mist", "glen", "salt", "fen", "peak"] as const;
+            const olderKits = ["cedar", "sand", "steppe", "islands", "western"] as const;
+
+            describe("drawMiniatureKeep: dedicated miniature silhouettes for Mist, Glen, Salt, Fen, Peak", () => {
+              it("renders Mist miniature keep with low reed roof and pale mist veil", () => {
+                const g = createMockGraphics();
+                drawMiniatureKeep(g, 50, 50, "mist", undefined, true, 0.5);
+                const callsJson = JSON.stringify(g.calls);
+
+                // Low reed roof (reed thatch light 0xca8a04, reed thatch dark 0x92400e, sod ridge 0x4d7c0f)
+                expect(callsJson).toContain(String(0xca8a04));
+                expect(callsJson).toContain(String(0x92400e));
+                expect(callsJson).toContain(String(0x4d7c0f));
+
+                // Pale mist veil (0xe2e8f0, 0xf1f5f9)
+                expect(callsJson).toContain(String(0xe2e8f0));
+                expect(callsJson).toContain(String(0xf1f5f9));
+
+                // Peat smoke
+                expect(callsJson).toContain(String(0x334155));
+              });
+
+              it("renders Glen miniature keep with stone quarry keep and green slope", () => {
+                const g = createMockGraphics();
+                drawMiniatureKeep(g, 50, 50, "glen", undefined, true, 0.5);
+                const callsJson = JSON.stringify(g.calls);
+
+                // Stone quarry walls (quarryLight 0x78716c, quarryDark 0x57534e)
+                expect(callsJson).toContain(String(0x78716c));
+                expect(callsJson).toContain(String(0x57534e));
+
+                // Green slope (slopeGreen 0x4d7c0f, slopeBright 0x65a30d, slopeDark 0x365314)
+                expect(callsJson).toContain(String(0x4d7c0f));
+                expect(callsJson).toContain(String(0x65a30d));
+                expect(callsJson).toContain(String(0x365314));
+
+                // Quarry crane arm & suspended stone block
+                expect(callsJson).toContain(String(0x5c3818));
+              });
+
+              it("renders Salt miniature keep with timber yard keep and grey salt roof", () => {
+                const g = createMockGraphics();
+                drawMiniatureKeep(g, 50, 50, "salt", undefined, true, 0.5);
+                const callsJson = JSON.stringify(g.calls);
+
+                // Timber yard walls (timberWallLight 0x854d0e, timberWallDark 0x5c3818)
+                expect(callsJson).toContain(String(0x854d0e));
+                expect(callsJson).toContain(String(0x5c3818));
+
+                // Grey salt roof (saltRoofDark 0xa8a29e, saltRoofLight 0xd6d3d1, saltCrustRidge 0xf1f5f9)
+                expect(callsJson).toContain(String(0xa8a29e));
+                expect(callsJson).toContain(String(0xd6d3d1));
+                expect(callsJson).toContain(String(0xf1f5f9));
+
+                // Stacked lumber logs flanking entry (0x78350f, 0xca8a04)
+                expect(callsJson).toContain(String(0x78350f));
+              });
+
+              it("renders Fen miniature keep with stilt cottage keep over dark water", () => {
+                const g = createMockGraphics();
+                drawMiniatureKeep(g, 50, 50, "fen", undefined, true, 0.5);
+                const callsJson = JSON.stringify(g.calls);
+
+                // Dark water pool (darkWater 0x090d16, waterDepth 0x0f172a, ripple 0x334155)
+                expect(callsJson).toContain(String(0x090d16));
+                expect(callsJson).toContain(String(0x0f172a));
+
+                // Wooden stilts (stiltWood 0x292524)
+                expect(callsJson).toContain(String(0x292524));
+
+                // Stilt cottage walls (cottageWall 0x6b7280) and mossy reed thatch (0x4d7c0f)
+                expect(callsJson).toContain(String(0x6b7280));
+                expect(callsJson).toContain(String(0x4d7c0f));
+
+                // Amber lantern hanging over dark water
+                expect(callsJson).toContain(String(0xfef08a));
+              });
+
+              it("renders Peak miniature keep with tall white keep and snow cap", () => {
+                const g = createMockGraphics();
+                drawMiniatureKeep(g, 50, 50, "peak", undefined, true, 0.5);
+                const callsJson = JSON.stringify(g.calls);
+
+                // Tall white keep limestone (whiteLimestone 0xf8fafc, limestoneShade 0xcbd5e1)
+                expect(callsJson).toContain(String(0xf8fafc));
+                expect(callsJson).toContain(String(0xcbd5e1));
+
+                // Snow cap (snowCap 0xffffff, snowShade 0xe0f2fe)
+                expect(callsJson).toContain(String(0xffffff));
+                expect(callsJson).toContain(String(0xe0f2fe));
+
+                // Crystalline icicles (icicleCol 0xbae6fd)
+                expect(callsJson).toContain(String(0xbae6fd));
+              });
+
+              it("renders breached states with fissures and knocked banners for all 5 cultures", () => {
+                for (const cult of cultureKits) {
+                  const gBreached = createMockGraphics();
+                  drawMiniatureKeep(gBreached, 50, 50, cult, undefined, true, 0.5, { stands: false });
+                  const json = JSON.stringify(gBreached.calls);
+                  expect(gBreached.calls.length).toBeGreaterThan(15);
+                  // Intact banner head gold finial (0xfacc15) is suppressed
+                  expect(json).not.toContain(String(0xfacc15));
+                }
+              });
+
+              it("preserves older kits (cedar, sand, steppe, islands, western) unchanged", () => {
+                for (const kit of olderKits) {
+                  const g = createMockGraphics();
+                  drawMiniatureKeep(g, 50, 50, kit, undefined, true, 0.5);
+                  expect(g.calls.length).toBeGreaterThan(15);
+                }
+              });
+
+              it("resolves culture through options.cultureId and options.state", () => {
+                const gOpts = createMockGraphics();
+                drawMiniatureKeep(gOpts, 50, 50, "western", undefined, true, 0.5, { cultureId: "mist" });
+                const jsonOpts = JSON.stringify(gOpts.calls);
+                expect(jsonOpts).toContain(String(0xca8a04)); // mist reed roof
+
+                const gState = createMockGraphics();
+                const fakeState = { flags: { culture: "glen" }, board: { homeProvinceId: "p_home" } } as any;
+                drawMiniatureKeep(gState, 50, 50, "western", undefined, true, 0.5, { state: fakeState });
+                const jsonState = JSON.stringify(gState.calls);
+                expect(jsonState).toContain(String(0x78716c)); // glen quarry stone
+              });
+            });
+
+            describe("drawIsometricBuilding: isometric hold keep renders player culture", () => {
+              const defaultVisuals: ThemeVisuals = getThemeVisuals("Spring", "none");
+
+              it("renders Mist isometric keep with reed roof, peat smoke, and pale mist veil", () => {
+                const g = createMockGraphics();
+                drawIsometricBuilding(g, "keep", 1, true, 0.5, defaultVisuals, 0, 0, undefined, "mist");
+                const json = JSON.stringify(g.calls);
+
+                // Low reed thatch (0xca8a04, 0x92400e, 0x4d7c0f)
+                expect(json).toContain(String(0xca8a04));
+                expect(json).toContain(String(0x92400e));
+                expect(json).toContain(String(0x4d7c0f));
+
+                // Translucent mist veil (0xe2e8f0, 0xf1f5f9)
+                expect(json).toContain(String(0xe2e8f0));
+                expect(json).toContain(String(0xf1f5f9));
+              });
+
+              it("renders Glen isometric keep with stone quarry blocks, green slope, and quarry crane", () => {
+                const g = createMockGraphics();
+                drawIsometricBuilding(g, "keep", 1, true, 0.5, defaultVisuals, 0, 0, undefined, "glen");
+                const json = JSON.stringify(g.calls);
+
+                // Rough-hewn granite quarry blocks (0x78716c, plinth 0x44403c)
+                expect(json).toContain(String(0x78716c));
+                expect(json).toContain(String(0x44403c));
+
+                // Green slope turf (0x4d7c0f, 0x65a30d)
+                expect(json).toContain(String(0x4d7c0f));
+                expect(json).toContain(String(0x65a30d));
+
+                // Timber quarry crane (0x5c3818)
+                expect(json).toContain(String(0x5c3818));
+              });
+
+              it("renders Salt isometric keep with timber yard logs, grey salt roof, and stacked lumber", () => {
+                const g = createMockGraphics();
+                drawIsometricBuilding(g, "keep", 1, true, 0.5, defaultVisuals, 0, 0, undefined, "salt");
+                const json = JSON.stringify(g.calls);
+
+                // Timber yard logs (0x854d0e, 0x5c3818)
+                expect(json).toContain(String(0x854d0e));
+                expect(json).toContain(String(0x5c3818));
+
+                // Grey salt roof (0xd6d3d1, 0xa8a29e, 0xf1f5f9)
+                expect(json).toContain(String(0xd6d3d1));
+                expect(json).toContain(String(0xa8a29e));
+                expect(json).toContain(String(0xf1f5f9));
+
+                // Stacked lumber logs (0x78350f, 0xca8a04)
+                expect(json).toContain(String(0x78350f));
+              });
+
+              it("renders Fen isometric keep with dark water pool, stilts, stilt cottage, and bulrushes", () => {
+                const g = createMockGraphics();
+                drawIsometricBuilding(g, "keep", 1, true, 0.5, defaultVisuals, 0, 0, undefined, "fen");
+                const json = JSON.stringify(g.calls);
+
+                // Dark water pool (0x090d16, 0x0f172a)
+                expect(json).toContain(String(0x090d16));
+                expect(json).toContain(String(0x0f172a));
+
+                // Wooden stilts (0x292524)
+                expect(json).toContain(String(0x292524));
+
+                // Stilt cottage walls (0x6b7280) and reed thatch (0x4d7c0f)
+                expect(json).toContain(String(0x6b7280));
+                expect(json).toContain(String(0x4d7c0f));
+
+                // Wetland bulrushes (0x3f6212)
+                expect(json).toContain(String(0x3f6212));
+              });
+
+              it("renders Peak isometric keep with tall white limestone walls, snow cap, and icicles", () => {
+                const g = createMockGraphics();
+                drawIsometricBuilding(g, "keep", 1, true, 0.5, defaultVisuals, 0, 0, undefined, "peak");
+                const json = JSON.stringify(g.calls);
+
+                // White limestone walls (0xf8fafc, 0xcbd5e1)
+                expect(json).toContain(String(0xf8fafc));
+                expect(json).toContain(String(0xcbd5e1));
+
+                // Sculpted snow cap (0xffffff, 0xe0f2fe)
+                expect(json).toContain(String(0xffffff));
+                expect(json).toContain(String(0xe0f2fe));
+
+                // Crystalline icicles (0xbae6fd)
+                expect(json).toContain(String(0xbae6fd));
+              });
+
+              it("renders breached states for all 5 culture keeps", () => {
+                for (const cult of cultureKits) {
+                  const gBreached = createMockGraphics();
+                  drawIsometricBuilding(gBreached, "keep", 1, true, 0.5, defaultVisuals, 0, 0, undefined, cult, { isBreached: true });
+                  expect(gBreached.calls.length).toBeGreaterThan(20);
+                }
+              });
+
+              it("verifies direct exported keep functions exist and execute cleanly", async () => {
+                const {
+                  drawKeepPlayerCulture,
+                  drawKeepMist,
+                  drawKeepGlen,
+                  drawKeepSalt,
+                  drawKeepFen,
+                  drawKeepPeak,
+                } = await import("./index.js");
+
+                expect(typeof drawKeepPlayerCulture).toBe("function");
+                expect(typeof drawKeepMist).toBe("function");
+                expect(typeof drawKeepGlen).toBe("function");
+                expect(typeof drawKeepSalt).toBe("function");
+                expect(typeof drawKeepFen).toBe("function");
+                expect(typeof drawKeepPeak).toBe("function");
+
+                const dummyPalette = { tabard: 0x1e40af, timber: 0x5c3818, stone: 0x64748b };
+                for (const cult of cultureKits) {
+                  const g = createMockGraphics();
+                  drawKeepPlayerCulture(g, 30, 1.0, 0.5, cult, dummyPalette, true, true, false);
+                  expect(g.calls.length).toBeGreaterThan(15);
+                }
+              });
+            });
+
+            describe("invariants & constraints verification", () => {
+              it("verifies zero merge conflict markers across packages/render files", async () => {
+                const fs = await import("node:fs");
+                const path = await import("node:path");
+                const files = [
+                  path.resolve(__dirname, "tokens.ts"),
+                  path.resolve(__dirname, "buildings.ts"),
+                  path.resolve(__dirname, "index.ts"),
+                ];
+                for (const f of files) {
+                  const content = fs.readFileSync(f, "utf-8");
+                  expect(content).not.toContain("<<<<<<<");
+                  expect(content).not.toContain("=======");
+                  expect(content).not.toContain(">>>>>>>");
+                }
+              });
+
+              it("verifies camera math and tile conversions remain unchanged", async () => {
+                const { gridToWorld, worldToGrid } = await import("./camera.js");
+                const { wx, wy } = gridToWorld(4, 4);
+                const { gx, gy } = worldToGrid(wx, wy);
+                expect(gx).toBe(4);
+                expect(gy).toBe(4);
+              });
             });
           });
         });

@@ -2212,6 +2212,896 @@ function drawKeepCulture(
   }
 }
 
+export function drawKeepPlayerCulture(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  cultureId: string,
+  cult: CultureVisualPalette,
+  complete: boolean = true,
+  hasPeople: boolean = true,
+  isBreached: boolean = false
+): void {
+  const lower = cultureId.toLowerCase().trim();
+  if (lower === "mist") {
+    drawKeepMist(g, h, a, phase, cult, complete, hasPeople, isBreached);
+  } else if (lower === "glen") {
+    drawKeepGlen(g, h, a, phase, cult, complete, hasPeople, isBreached);
+  } else if (lower === "salt") {
+    drawKeepSalt(g, h, a, phase, cult, complete, hasPeople, isBreached);
+  } else if (lower === "fen") {
+    drawKeepFen(g, h, a, phase, cult, complete, hasPeople, isBreached);
+  } else if (lower === "peak") {
+    drawKeepPeak(g, h, a, phase, cult, complete, hasPeople, isBreached);
+  }
+}
+
+export function drawKeepMist(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  cult: CultureVisualPalette,
+  complete: boolean = true,
+  hasPeople: boolean = true,
+  isBreached: boolean = false
+): void {
+  // Mist: low reed roof and a pale mist veil
+  const hMist = Math.round(h * 0.76);
+  const mistPlinth = 0x1e293b;
+  const mistStoneLight = cult.stone || 0x64748b;
+  const mistStoneDark = blendDark(mistStoneLight, 0.75);
+  const reedThatchLight = 0xca8a04;
+  const reedThatchDark = 0x92400e;
+  const reedEaves = 0x78350f;
+  const sodRidge = 0x4d7c0f;
+  const tabardCol = cult.tabard || 0x475569;
+
+  // 1. Foundation plinth on wet, sodden soil
+  g.poly([-17, 1, 0, 9.5, 0, 5, -17, -3.5]);
+  g.fill({ color: mistPlinth, alpha: a });
+  g.poly([0, 9.5, 17, 1, 17, -3.5, 0, 5]);
+  g.fill({ color: blendDark(mistPlinth, 0.75), alpha: a });
+
+  if (isBreached) {
+    g.moveTo(-10, 0); g.lineTo(-8, 4); g.lineTo(-6, 6);
+    g.stroke({ width: 0.9, color: 0x09090b, alpha: a * 0.9 });
+    g.moveTo(6, 6.5); g.lineTo(9, 4.5); g.lineTo(12, 1);
+    g.stroke({ width: 0.9, color: 0x09090b, alpha: a * 0.9 });
+  }
+
+  // 2. Low-slung wet stone walls (squat silhouette)
+  g.poly([-15, -2, 0, 5.5, 0, 5.5 - hMist, -15, -2 - hMist]);
+  g.fill({ color: mistStoneLight, alpha: a });
+  g.poly([0, 5.5, 15, -2, 15, -2 - hMist, 0, 5.5 - hMist]);
+  g.fill({ color: mistStoneDark, alpha: a });
+
+  // Ashlar course lines
+  for (const frac of [0.33, 0.68]) {
+    const my = 5.5 - hMist * frac;
+    g.moveTo(-15, -2 - hMist * frac);
+    g.lineTo(0, my);
+    g.lineTo(15, -2 - hMist * frac);
+    g.stroke({ width: 0.8, color: mistPlinth, alpha: a * 0.65 });
+  }
+
+  if (isBreached) {
+    g.moveTo(-6, -hMist + 4); g.lineTo(-8, -hMist + 10); g.lineTo(-5, -2);
+    g.stroke({ width: 1.1, color: 0x09090b, alpha: a * 0.9 });
+    g.moveTo(5, -hMist + 5); g.lineTo(7, -hMist + 11); g.lineTo(4, 1);
+    g.stroke({ width: 1.1, color: 0x09090b, alpha: a * 0.9 });
+  }
+
+  // 3. Low Reed Roof: wide, low-pitched hipped reed thatch
+  // Left reed roof slope
+  g.poly([-19, -hMist + 1, 0, 7.5 - hMist - 11, 0, -hMist - 19, -19, -hMist - 7]);
+  g.fill({ color: reedThatchLight, alpha: a });
+  g.stroke({ width: 1.2, color: reedEaves, alpha: a });
+  // Right shaded reed roof slope
+  g.poly([0, 7.5 - hMist - 11, 19, -hMist + 1, 19, -hMist - 7, 0, -hMist - 19]);
+  g.fill({ color: reedThatchDark, alpha: a });
+  g.stroke({ width: 1.2, color: reedEaves, alpha: a });
+
+  // Reed thatch courses
+  for (const rFrac of [0.35, 0.7]) {
+    g.moveTo(-19 + 6 * rFrac, -hMist + 1 - 6 * rFrac);
+    g.lineTo(0, 7.5 - hMist - 11 - 4 * rFrac);
+    g.lineTo(19 - 6 * rFrac, -hMist + 1 - 6 * rFrac);
+    g.stroke({ width: 0.8, color: 0xd97706, alpha: a * 0.75 });
+  }
+
+  // Sod ridge crest
+  g.poly([0, 7.5 - hMist - 11, -3, 7.5 - hMist - 13.5, 0, 7.5 - hMist - 12.5, 3, 7.5 - hMist - 13.5]);
+  g.fill({ color: sodRidge, alpha: a });
+  g.poly([0, -hMist - 19, -2.5, -hMist - 21, 0, -hMist - 20, 2.5, -hMist - 21]);
+  g.fill({ color: sodRidge, alpha: a });
+
+  if (isBreached) {
+    // Torn reed thatch exposing dark rafter hole
+    g.poly([-8, -hMist - 5, -4, -hMist - 8, -2, -hMist - 4, -6, -hMist - 2]);
+    g.fill({ color: 0x1e293b, alpha: a * 0.95 });
+    g.stroke({ width: 0.8, color: 0x09090b, alpha: a });
+  }
+
+  // 4. Arched Portal with low timber lintel
+  g.poly([-4, 5, 4, 1.5, 4, -4, -4, -1]);
+  g.fill({ color: 0x09090b, alpha: a });
+  g.moveTo(-4, -1); g.lineTo(4, -4);
+  g.stroke({ width: 1.6, color: 0x5c3818, alpha: a });
+
+  if (!isBreached) {
+    const keepCandle = 0.85 + Math.sin(phase * 4) * 0.12;
+    g.circle(0, 0, 2.2);
+    g.fill({ color: 0xfef08a, alpha: a * 0.4 * keepCandle });
+    g.circle(0, 0, 1.0);
+    g.fill({ color: 0xfef08a, alpha: a * keepCandle });
+  }
+
+  // 5. Low Stone Chimney & Peat Smoke
+  const chimX = 6.5;
+  const chimY = -hMist - 6;
+  g.poly([chimX - 2, chimY + 0.5, chimX, chimY + 1.5, chimX, chimY - 4.5, chimX - 2, chimY - 5.5]);
+  g.fill({ color: mistStoneLight, alpha: a });
+  g.poly([chimX, chimY + 1.5, chimX + 2, chimY + 0.5, chimX + 2, chimY - 5.5, chimX, chimY - 4.5]);
+  g.fill({ color: mistStoneDark, alpha: a });
+  g.poly([chimX - 2.5, chimY - 5.5, chimX, chimY - 4.2, chimX + 2.5, chimY - 5.5, chimX, chimY - 6.8]);
+  g.fill({ color: mistPlinth, alpha: a });
+
+  if (complete) {
+    if (!isBreached) {
+      if (hasPeople) {
+        const wind = Math.sin(phase * 1.8) * 1.5;
+        const p1 = Math.sin(phase * 2.2);
+        // Peat hearth flue glow
+        g.circle(chimX, chimY - 6.5, 1.4);
+        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+        // Billowing peat smoke curling into mist
+        g.circle(chimX + wind * 0.3, chimY - 9.5 + p1 * 1.2, 2.5);
+        g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
+        g.circle(chimX + 1.8 + wind * 0.7, chimY - 14 + p1 * 1.4, 3.5);
+        g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
+        g.circle(chimX + 3.8 + wind * 1.1, chimY - 19 + p1 * 1.6, 4.3);
+        g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+      } else {
+        const lazyWind = Math.sin(phase * 1.2) * 0.8;
+        const q1 = Math.sin(phase * 1.4);
+        g.circle(chimX + lazyWind * 0.4, chimY - 8.5 + q1 * 0.8, 1.3);
+        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 12 + q1 * 1.0, 1.5);
+        g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+      }
+    } else {
+      g.circle(chimX, chimY - 8, 1.0);
+      g.fill({ color: 0x1e293b, alpha: a * 0.16 });
+    }
+  }
+
+  // 6. Mast & Mist Pennant
+  if (!isBreached) {
+    const bannerWave = Math.sin(phase * 3.5) * 2.5;
+    g.moveTo(0, -hMist + 2); g.lineTo(0, -hMist - 14);
+    g.stroke({ width: 1.6, color: 0x5c3818, alpha: a });
+    g.circle(0, -hMist - 14.5, 1.4);
+    g.fill({ color: 0x94a3b8, alpha: a });
+    g.poly([0, -hMist - 14, 10 + bannerWave, -hMist - 10, 0, -hMist - 6]);
+    g.fill({ color: tabardCol, alpha: a });
+    g.poly([0, -hMist - 12, 6 + bannerWave * 0.6, -hMist - 10, 0, -hMist - 8]);
+    g.fill({ color: 0x94a3b8, alpha: a });
+  } else {
+    g.moveTo(0, -hMist + 2); g.lineTo(0, -hMist - 4);
+    g.stroke({ width: 1.6, color: 0x5c3818, alpha: a });
+  }
+
+  // 7. Pale Mist Veil (volumetric, living ethereal ground fog drifting around base & facets)
+  const mDrift = Math.sin(phase * 1.8) * 3;
+  // Lower ground mist bank
+  g.ellipse(mDrift * 0.7, 6, 22, 7);
+  g.fill({ color: 0xe2e8f0, alpha: a * 0.38 });
+  // Volumetric pale mist veil wrapping across front facets
+  g.poly([-19 + mDrift, 3, 0, 8.5, 19 + mDrift, 3, 14 + mDrift, -1, 0, 4.5, -14 + mDrift, -1]);
+  g.fill({ color: 0xf1f5f9, alpha: a * 0.28 });
+  // Swirling mist tendril along low reed eaves
+  g.ellipse(-10 + mDrift, -hMist * 0.45, 6.5, 2.8);
+  g.fill({ color: 0xf8fafc, alpha: a * 0.32 });
+  g.ellipse(11 + mDrift * 0.5, -hMist * 0.35, 5.5, 2.2);
+  g.fill({ color: 0xf1f5f9, alpha: a * 0.25 });
+}
+
+export function drawKeepGlen(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  cult: CultureVisualPalette,
+  complete: boolean = true,
+  hasPeople: boolean = true,
+  isBreached: boolean = false
+): void {
+  // Glen: stone quarry keep with a green slope
+  const quarryLight = cult.stone || 0x78716c;
+  const quarryDark = blendDark(quarryLight, 0.72);
+  const quarryPlinth = 0x44403c;
+  const slopeGreen = 0x4d7c0f;
+  const slopeDark = 0x365314;
+  const slopeBright = 0x65a30d;
+  const tabardCol = cult.tabard || 0x4d7c0f;
+
+  // 1. Heavy cyclopean quarry foundation
+  g.poly([-18, 1, 0, 9.5, 0, 5, -18, -3.5]);
+  g.fill({ color: quarryPlinth, alpha: a });
+  g.poly([0, 9.5, 18, 1, 18, -3.5, 0, 5]);
+  g.fill({ color: blendDark(quarryPlinth, 0.7), alpha: a });
+
+  // 2. Stepped Quarry Keep Walls (rough-hewn granite blocks)
+  g.poly([-15, -2, 0, 5.5, 0, 5.5 - h, -15, -2 - h]);
+  g.fill({ color: quarryLight, alpha: a });
+  g.poly([0, 5.5, 15, -2, 15, -2 - h, 0, 5.5 - h]);
+  g.fill({ color: quarryDark, alpha: a });
+
+  // Heavy quarry ashlar course lines
+  for (const fraction of [0.22, 0.44, 0.66, 0.85]) {
+    const my = 5.5 - h * fraction;
+    g.moveTo(-15, -2 - h * fraction);
+    g.lineTo(0, my);
+    g.lineTo(15, -2 - h * fraction);
+    g.stroke({ width: 1.0, color: 0x292524, alpha: a * 0.75 });
+  }
+
+  if (isBreached) {
+    g.moveTo(-6, -h + 6); g.lineTo(-8, -h + 14); g.lineTo(-5, -h + 22); g.lineTo(-7, 0);
+    g.stroke({ width: 1.2, color: 0x1c1917, alpha: a * 0.95 });
+    g.moveTo(5, -h + 8); g.lineTo(8, -h + 16); g.lineTo(6, 2);
+    g.stroke({ width: 1.2, color: 0x1c1917, alpha: a * 0.95 });
+  }
+
+  // 3. Heavy machicolated quarry battlements
+  g.poly([-16, -h + 1, 0, 6.5 - h, 16, -h + 1, 0, -h - 7]);
+  g.fill({ color: quarryLight, alpha: a });
+  g.stroke({ width: 1.1, color: quarryPlinth, alpha: a });
+
+  for (const mx of [-14, -9, -4]) {
+    const my = -h + (mx + 14) * 0.45;
+    g.rect(mx, my - 4.5, 4, 4.5);
+    g.fill({ color: quarryLight, alpha: a });
+    g.stroke({ width: 0.7, color: quarryDark, alpha: a });
+  }
+  for (const mx of [1, 6, 11]) {
+    const my = -h + (14 - mx) * 0.45;
+    g.rect(mx, my - 4.5, 4, 4.5);
+    g.fill({ color: quarryDark, alpha: a });
+    g.stroke({ width: 0.7, color: quarryPlinth, alpha: a });
+  }
+
+  // 4. The Green Slope (dramatic sloping earthen turf terrace hugging southwest flank)
+  g.poly([
+    -22, 3,
+    -4, 0.5,
+    -7, -h * 0.42,
+    -18, -h * 0.22,
+  ]);
+  g.fill({ color: slopeGreen, alpha: a });
+  g.stroke({ width: 0.9, color: slopeDark, alpha: a });
+
+  // Bright emerald crest line of green slope
+  g.moveTo(-22, 3); g.lineTo(-18, -h * 0.22); g.lineTo(-7, -h * 0.42);
+  g.stroke({ width: 1.4, color: slopeBright, alpha: a });
+
+  // Shaded underside of the green slope terrace
+  g.poly([-22, 3, -4, 0.5, -4, 4, -20, 6]);
+  g.fill({ color: slopeDark, alpha: a });
+
+  // Cut stone steps ascending the green slope to quarry gate
+  for (let s = 0; s < 4; s++) {
+    const stepX = -12 + s * 2.2;
+    const stepY = 2 - s * 2.2;
+    g.rect(stepX, stepY, 2.5, 1.2);
+    g.fill({ color: quarryLight, alpha: a });
+    g.stroke({ width: 0.4, color: quarryPlinth, alpha: a });
+  }
+
+  // Heather and clover tufts along the green slope
+  g.circle(-16, 0, 1.0); g.fill({ color: 0x84cc16, alpha: a });
+  g.circle(-10, -h * 0.2, 0.9); g.fill({ color: 0x84cc16, alpha: a });
+  g.circle(-14, -h * 0.12, 0.8); g.fill({ color: 0xa3e635, alpha: a });
+
+  // Timber quarry hoist crane derrick atop the right wall
+  g.moveTo(7, -h - 2); g.lineTo(15, -h - 6);
+  g.stroke({ width: 1.6, color: 0x5c3818, alpha: a });
+  g.moveTo(15, -h - 6); g.lineTo(15, -h + 2);
+  g.stroke({ width: 0.8, color: 0xa8a29e, alpha: a * 0.85 });
+  g.rect(13.5, -h + 2, 3.5, 3.5);
+  g.fill({ color: quarryLight, alpha: a });
+  g.stroke({ width: 0.6, color: quarryPlinth, alpha: a });
+
+  // 5. Arched Gateway & Portcullis
+  g.poly([-4, 5, 4, 1.5, 4, -5.5, -4, -2]);
+  g.fill({ color: 0x09090b, alpha: a });
+  g.moveTo(-4, -2); g.lineTo(4, -5.5);
+  g.stroke({ width: 2, color: 0x44403c, alpha: a });
+
+  // High quarry window
+  if (!isBreached) {
+    const keepCandle = 0.85 + Math.sin(phase * 4) * 0.12;
+    g.rect(-3, -h * 0.55, 4, 5.5);
+    g.fill({ color: 0xfef08a, alpha: a * 0.95 * keepCandle });
+    g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
+  } else {
+    g.rect(-3, -h * 0.55, 4, 5.5);
+    g.fill({ color: 0x09090b, alpha: a });
+  }
+
+  // 6. Ashlar Stone Chimney Stack & Hearth Smoke
+  const chimX = 6.5;
+  const chimY = -h - 4;
+  g.poly([chimX - 2.5, chimY + 0.5, chimX, chimY + 1.8, chimX, chimY - 6.5, chimX - 2.5, chimY - 7.8]);
+  g.fill({ color: quarryLight, alpha: a });
+  g.poly([chimX, chimY + 1.8, chimX + 2.5, chimY + 0.5, chimX + 2.5, chimY - 7.8, chimX, chimY - 6.5]);
+  g.fill({ color: quarryDark, alpha: a });
+  g.poly([chimX - 3.2, chimY - 7.8, chimX, chimY - 6.2, chimX + 3.2, chimY - 7.8, chimX, chimY - 9.4]);
+  g.fill({ color: quarryPlinth, alpha: a });
+
+  if (complete) {
+    if (!isBreached) {
+      if (hasPeople) {
+        const wind = Math.sin(phase * 1.8) * 1.5;
+        const p1 = Math.sin(phase * 2.2);
+        g.circle(chimX, chimY - 9, 1.4);
+        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+        g.circle(chimX + wind * 0.3, chimY - 12 + p1 * 1.2, 2.5);
+        g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
+        g.circle(chimX + 1.8 + wind * 0.7, chimY - 16.5 + p1 * 1.4, 3.4);
+        g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
+        g.circle(chimX + 3.8 + wind * 1.1, chimY - 21.5 + p1 * 1.6, 4.2);
+        g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+      } else {
+        const lazyWind = Math.sin(phase * 1.2) * 0.8;
+        const q1 = Math.sin(phase * 1.4);
+        g.circle(chimX + lazyWind * 0.4, chimY - 11.5 + q1 * 0.8, 1.3);
+        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 15 + q1 * 1.0, 1.5);
+        g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+      }
+    } else {
+      g.circle(chimX, chimY - 11.5, 1.0);
+      g.fill({ color: 0x1e293b, alpha: a * 0.16 });
+    }
+  }
+
+  // 7. Glen Green Royal Banner
+  if (!isBreached) {
+    const bannerWave = Math.sin(phase * 3.5) * 3;
+    g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
+    g.stroke({ width: 1.8, color: 0x5c3818, alpha: a });
+    g.circle(0, -h - 19, 1.8);
+    g.fill({ color: 0xfacc15, alpha: a });
+    g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
+    g.fill({ color: tabardCol, alpha: a });
+    g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
+    g.fill({ color: 0xa3e635, alpha: a });
+  } else {
+    g.moveTo(0, -h + 2); g.lineTo(0, -h - 5);
+    g.stroke({ width: 1.8, color: 0x5c3818, alpha: a });
+  }
+}
+
+export function drawKeepSalt(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  cult: CultureVisualPalette,
+  complete: boolean = true,
+  hasPeople: boolean = true,
+  isBreached: boolean = false
+): void {
+  // Salt: timber yard keep with a grey salt roof
+  const timberLight = 0x854d0e;
+  const timberDark = 0x5c3818;
+  const timberPlinth = 0x271406;
+  const saltRoofLight = 0xd6d3d1;
+  const saltRoofDark = 0xa8a29e;
+  const saltRidge = 0xf1f5f9;
+  const tabardCol = cult.tabard || 0xa8a29e;
+
+  // 1. Heavy timber balk plinth
+  g.poly([-17, 1, 0, 9.5, 0, 5, -17, -3.5]);
+  g.fill({ color: timberPlinth, alpha: a });
+  g.poly([0, 9.5, 17, 1, 17, -3.5, 0, 5]);
+  g.fill({ color: blendDark(timberPlinth, 0.7), alpha: a });
+
+  // 2. Fortified Timber Yard Walls (squared stacked logs with dovetail notches)
+  g.poly([-16, -2, 0, 5.5, 0, 5.5 - h, -16, -2 - h]);
+  g.fill({ color: timberLight, alpha: a });
+  g.poly([0, 5.5, 16, -2, 16, -2 - h, 0, 5.5 - h]);
+  g.fill({ color: timberDark, alpha: a });
+
+  // Horizontal log courses
+  for (const fraction of [0.2, 0.4, 0.6, 0.8]) {
+    const my = 5.5 - h * fraction;
+    g.moveTo(-16, -2 - h * fraction); g.lineTo(0, my);
+    g.moveTo(0, my); g.lineTo(16, -2 - h * fraction);
+    g.stroke({ width: 1.4, color: 0x3f220c, alpha: a * 0.85 });
+  }
+
+  if (isBreached) {
+    g.moveTo(-7, -h + 6); g.lineTo(-5, -h + 14); g.lineTo(-8, -2);
+    g.stroke({ width: 1.2, color: 0x1f1005, alpha: a * 0.95 });
+    g.moveTo(6, -h + 8); g.lineTo(8, -h + 16); g.lineTo(5, 1);
+    g.stroke({ width: 1.2, color: 0x1f1005, alpha: a * 0.95 });
+  }
+
+  // 3. Steep Grey Salt Roof (steep timber gables encrusted in salt brine shingles)
+  g.poly([-19, -h + 2, 0, 8.5 - h - 14, 19, -h + 2, 0, -h - 22]);
+  g.fill({ color: saltRoofDark, alpha: a });
+  g.moveTo(-19, -h + 2); g.lineTo(0, 8.5 - h - 14); g.lineTo(19, -h + 2);
+  g.stroke({ width: 1.8, color: 0x78716c, alpha: a });
+
+  // Left illuminated salt-crusted roof face
+  g.poly([-19, -h + 2, 0, 8.5 - h - 14, 0, -h - 22]);
+  g.fill({ color: saltRoofLight, alpha: a });
+
+  // Salt-crust brine ridge line
+  g.moveTo(0, 8.5 - h - 14); g.lineTo(0, -h - 22);
+  g.stroke({ width: 1.6, color: saltRidge, alpha: a });
+
+  // Salt shingle rows
+  for (const frac of [0.33, 0.66]) {
+    g.moveTo(-19 * (1 - frac), -h + 2 - 14 * frac);
+    g.lineTo(0, 8.5 - h - 14 - 8 * frac);
+    g.lineTo(19 * (1 - frac), -h + 2 - 14 * frac);
+    g.stroke({ width: 0.9, color: 0xe2e8f0, alpha: a * 0.75 });
+  }
+
+  // 4. Timber Yard Details: stacked lumber balks flanking gate
+  // Left yard lumber stacks
+  g.poly([-14, 2, -7, 5, -7, 2, -14, -1]);
+  g.fill({ color: 0x78350f, alpha: a });
+  g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+  g.circle(-7, 3.5, 1.2); g.fill({ color: 0xca8a04, alpha: a });
+  g.circle(-10.5, 2, 1.2); g.fill({ color: 0xca8a04, alpha: a });
+
+  // Right yard lumber stacks
+  g.poly([7, 5, 14, 2, 14, -1, 7, 2]);
+  g.fill({ color: 0x5c3818, alpha: a });
+  g.stroke({ width: 0.6, color: 0x271406, alpha: a });
+  g.circle(7, 3.5, 1.2); g.fill({ color: 0xca8a04, alpha: a });
+  g.circle(10.5, 2, 1.2); g.fill({ color: 0xca8a04, alpha: a });
+
+  // Timber yard gallows hoist crane
+  g.moveTo(11, -h + 2); g.lineTo(17, -h - 3);
+  g.stroke({ width: 1.5, color: 0x5c3818, alpha: a });
+  g.moveTo(17, -h - 3); g.lineTo(17, -h + 5);
+  g.stroke({ width: 0.8, color: 0xa8a29e, alpha: a * 0.8 });
+  g.rect(15.5, -h + 5, 3, 3); g.fill({ color: 0x78350f, alpha: a });
+
+  // Gateway with heavy timber door
+  g.poly([-4, 5, 4, 1.5, 4, -5.5, -4, -2]);
+  g.fill({ color: 0x09090b, alpha: a });
+  g.moveTo(-4, -2); g.lineTo(4, -5.5);
+  g.stroke({ width: 2.2, color: 0xca8a04, alpha: a });
+
+  if (!isBreached) {
+    const keepCandle = 0.85 + Math.sin(phase * 4) * 0.12;
+    g.rect(-2.5, -h * 0.5, 3.5, 5);
+    g.fill({ color: 0xfef08a, alpha: a * 0.95 * keepCandle });
+    g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
+  } else {
+    g.rect(-2.5, -h * 0.5, 3.5, 5);
+    g.fill({ color: 0x09090b, alpha: a });
+  }
+
+  // 5. Timber-Cased Chimney & Smoke
+  const chimX = -7.5;
+  const chimY = -h - 8;
+  g.rect(chimX - 2, chimY - 4, 4, 6);
+  g.fill({ color: 0x5c3818, alpha: a });
+  g.stroke({ width: 0.8, color: 0x3f220c, alpha: a });
+  g.poly([chimX - 2.8, chimY - 4, chimX, chimY - 2.8, chimX + 2.8, chimY - 4, chimX, chimY - 5.2]);
+  g.fill({ color: saltRoofDark, alpha: a });
+
+  if (complete) {
+    if (!isBreached) {
+      if (hasPeople) {
+        const wind = Math.sin(phase * 1.8) * 1.5;
+        const p1 = Math.sin(phase * 2.2);
+        g.circle(chimX, chimY - 5, 1.4);
+        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+        g.circle(chimX + wind * 0.3, chimY - 8 + p1 * 1.2, 2.5);
+        g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
+        g.circle(chimX + 1.8 + wind * 0.7, chimY - 12.5 + p1 * 1.4, 3.4);
+        g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
+        g.circle(chimX + 3.8 + wind * 1.1, chimY - 17.5 + p1 * 1.6, 4.2);
+        g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+      } else {
+        const lazyWind = Math.sin(phase * 1.2) * 0.8;
+        const q1 = Math.sin(phase * 1.4);
+        g.circle(chimX + lazyWind * 0.4, chimY - 7.5 + q1 * 0.8, 1.3);
+        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 11 + q1 * 1.0, 1.5);
+        g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+      }
+    } else {
+      g.circle(chimX, chimY - 7.5, 1.0);
+      g.fill({ color: 0x1f1005, alpha: a * 0.16 });
+    }
+  }
+
+  // 6. Salt-Grey Pennant
+  if (!isBreached) {
+    const bannerWave = Math.sin(phase * 3.5) * 3;
+    g.moveTo(0, -h + 2); g.lineTo(0, -h - 18);
+    g.stroke({ width: 1.8, color: 0x5c3818, alpha: a });
+    g.circle(0, -h - 19, 1.8);
+    g.fill({ color: 0xe2e8f0, alpha: a });
+    g.poly([0, -h - 18, 12 + bannerWave, -h - 13, 0, -h - 8]);
+    g.fill({ color: tabardCol, alpha: a });
+    g.poly([0, -h - 16, 7 + bannerWave * 0.6, -h - 13, 0, -h - 10]);
+    g.fill({ color: 0xe2e8f0, alpha: a });
+  } else {
+    g.moveTo(0, -h + 2); g.lineTo(0, -h - 5);
+    g.stroke({ width: 1.8, color: 0x5c3818, alpha: a });
+  }
+}
+
+export function drawKeepFen(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  cult: CultureVisualPalette,
+  complete: boolean = true,
+  hasPeople: boolean = true,
+  isBreached: boolean = false
+): void {
+  // Fen: stilt cottage keep over dark water
+  const darkWater = 0x090d16;
+  const waterDepth = 0x0f172a;
+  const stiltWood = 0x292524;
+  const cottageWall = 0x6b7280;
+  const reedThatch = 0x4d7c0f;
+  const tabardCol = cult.tabard || 0x3f6212;
+
+  // 1. Dark Water pool beneath the entire keep foundation
+  g.poly([-19, 0, 0, 9.5, 19, 0, 0, -6.5]);
+  g.fill({ color: darkWater, alpha: a });
+  g.stroke({ width: 1.2, color: 0x1e293b, alpha: a });
+
+  // Water depth reflection undertone
+  g.poly([-14, 1.5, 0, 7.5, 14, 1.5, 0, -3.5]);
+  g.fill({ color: waterDepth, alpha: a });
+
+  // Animated water ripples
+  const wRip = Math.sin(phase * 3) * 1.5;
+  g.ellipse(0, 5, 9 + wRip, 4);
+  g.stroke({ width: 0.8, color: 0x334155, alpha: a * 0.65 });
+
+  // Wetland bulrushes & fen reeds at water margin
+  for (const rx of [-17, -13, 13, 17]) {
+    const ry = Math.abs(rx) > 15 ? 0 : 3;
+    g.moveTo(rx, ry + 4); g.lineTo(rx, ry - 3);
+    g.stroke({ width: 1.2, color: 0x3f6212, alpha: a });
+    g.circle(rx, ry - 4, 1.0);
+    g.fill({ color: 0x78350f, alpha: a });
+  }
+
+  // 2. Heavy wooden stilts / pilings rising out of dark water
+  const stiltX = [-14, -8, 0, 8, 14];
+  for (const sx of stiltX) {
+    const botY = 6 - Math.abs(sx) * 0.35;
+    g.rect(sx - 1.2, -1, 2.4, botY + 2);
+    g.fill({ color: stiltWood, alpha: a });
+  }
+  // Diagonal cross-bracing timbers
+  g.moveTo(-14, 2); g.lineTo(0, -1); g.lineTo(14, 2);
+  g.stroke({ width: 1.2, color: 0x1c1917, alpha: a * 0.85 });
+
+  if (isBreached) {
+    // Cracked tilted stilts listing in dark water
+    g.moveTo(-8, 5); g.lineTo(-5, 0);
+    g.stroke({ width: 1.4, color: 0x1c1917, alpha: a * 0.95 });
+  }
+
+  // 3. Elevated timber floor deck platform
+  g.poly([-17, 0, 0, 8, 17, 0, 17, -2, 0, 6, -17, -2]);
+  g.fill({ color: 0x44403c, alpha: a });
+  g.stroke({ width: 1, color: 0x1c1917, alpha: a });
+
+  // 4. Fortified Stilt Cottage Walls
+  const ch = h * 0.84;
+  g.poly([-15, -2, 0, 5, 0, 5 - ch, -15, -2 - ch]);
+  g.fill({ color: cottageWall, alpha: a });
+  g.poly([0, 5, 15, -2, 15, -2 - ch, 0, 5 - ch]);
+  g.fill({ color: blendDark(cottageWall, 0.75), alpha: a });
+
+  // Timber framing on cottage
+  g.moveTo(-15, -2 - ch * 0.5); g.lineTo(0, 5 - ch * 0.5); g.lineTo(15, -2 - ch * 0.5);
+  g.stroke({ width: 1, color: 0x292524, alpha: a * 0.8 });
+
+  if (isBreached) {
+    g.moveTo(-6, -ch + 4); g.lineTo(-8, -ch + 12); g.lineTo(-5, 0);
+    g.stroke({ width: 1.1, color: 0x1c1917, alpha: a * 0.9 });
+  }
+
+  // 5. Steep mossy fen-reed cottage gabled roof
+  g.poly([-18, -ch + 1, 0, 7.5 - ch - 13, 18, -ch + 1, 0, -ch - 21]);
+  g.fill({ color: 0x365314, alpha: a });
+  g.moveTo(-18, -ch + 1); g.lineTo(0, 7.5 - ch - 13); g.lineTo(18, -ch + 1);
+  g.stroke({ width: 1.6, color: 0x1a2e05, alpha: a });
+
+  // Left illuminated mossy reed slope
+  g.poly([-18, -ch + 1, 0, 7.5 - ch - 13, 0, -ch - 21]);
+  g.fill({ color: reedThatch, alpha: a });
+
+  // Reed thatch courses
+  g.moveTo(0, 7.5 - ch - 13); g.lineTo(0, -ch - 21);
+  g.stroke({ width: 1.4, color: 0x65a30d, alpha: a });
+
+  // Elevated doorway & hanging lantern over dark water
+  g.poly([-3.5, 4.5, 3.5, 1.5, 3.5, -4, -3.5, -1]);
+  g.fill({ color: 0x09090b, alpha: a });
+
+  // Wooden gangway ramp descending toward bank
+  g.poly([-4, 5, -2, 9.5, 2, 7.5, 0, 3]);
+  g.fill({ color: 0x5c3818, alpha: a });
+  g.stroke({ width: 0.8, color: 0x292524, alpha: a });
+
+  if (!isBreached) {
+    // Warm amber lantern hanging under stilt platform over dark water
+    const lnt = 0.85 + Math.sin(phase * 4) * 0.15;
+    g.circle(0, 4, 2.5);
+    g.fill({ color: 0xfef08a, alpha: a * 0.45 * lnt });
+    g.circle(0, 4, 1.1);
+    g.fill({ color: 0xfef08a, alpha: a * lnt });
+    // Water reflection
+    g.ellipse(0, 7, 3, 1);
+    g.fill({ color: 0xfef08a, alpha: a * 0.25 * lnt });
+  }
+
+  // 6. Riverstone Chimney & Peat Smoke Plume
+  const chimX = 6;
+  const chimY = -ch - 6;
+  g.poly([chimX - 2, chimY + 0.5, chimX, chimY + 1.5, chimX, chimY - 5, chimX - 2, chimY - 6]);
+  g.fill({ color: cottageWall, alpha: a });
+  g.poly([chimX, chimY + 1.5, chimX + 2, chimY + 0.5, chimX + 2, chimY - 6, chimX, chimY - 5]);
+  g.fill({ color: blendDark(cottageWall, 0.7), alpha: a });
+  g.poly([chimX - 2.5, chimY - 6, chimX, chimY - 4.8, chimX + 2.5, chimY - 6, chimX, chimY - 7.2]);
+  g.fill({ color: stiltWood, alpha: a });
+
+  if (complete) {
+    if (!isBreached) {
+      if (hasPeople) {
+        const wind = Math.sin(phase * 1.8) * 1.5;
+        const p1 = Math.sin(phase * 2.2);
+        g.circle(chimX, chimY - 7, 1.4);
+        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+        g.circle(chimX + wind * 0.3, chimY - 10 + p1 * 1.2, 2.5);
+        g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
+        g.circle(chimX + 1.8 + wind * 0.7, chimY - 14.5 + p1 * 1.4, 3.4);
+        g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
+        g.circle(chimX + 3.8 + wind * 1.1, chimY - 19.5 + p1 * 1.6, 4.2);
+        g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+      } else {
+        const lazyWind = Math.sin(phase * 1.2) * 0.8;
+        const q1 = Math.sin(phase * 1.4);
+        g.circle(chimX + lazyWind * 0.4, chimY - 9.5 + q1 * 0.8, 1.3);
+        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 13 + q1 * 1.0, 1.5);
+        g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+      }
+    } else {
+      g.circle(chimX, chimY - 9.5, 1.0);
+      g.fill({ color: 0x1c1917, alpha: a * 0.16 });
+    }
+  }
+
+  // 7. Fen Banner on Mast
+  if (!isBreached) {
+    const bannerWave = Math.sin(phase * 3.5) * 3;
+    g.moveTo(0, -ch + 2); g.lineTo(0, -ch - 18);
+    g.stroke({ width: 1.8, color: 0x292524, alpha: a });
+    g.circle(0, -ch - 19, 1.8);
+    g.fill({ color: 0x84cc16, alpha: a });
+    g.poly([0, -ch - 18, 12 + bannerWave, -ch - 13, 0, -ch - 8]);
+    g.fill({ color: tabardCol, alpha: a });
+    g.poly([0, -ch - 16, 7 + bannerWave * 0.6, -ch - 13, 0, -ch - 10]);
+    g.fill({ color: 0x84cc16, alpha: a });
+  } else {
+    g.moveTo(0, -ch + 2); g.lineTo(0, -ch - 5);
+    g.stroke({ width: 1.8, color: 0x292524, alpha: a });
+  }
+}
+
+export function drawKeepPeak(
+  g: Graphics,
+  h: number,
+  a: number,
+  phase: number,
+  cult: CultureVisualPalette,
+  complete: boolean = true,
+  hasPeople: boolean = true,
+  isBreached: boolean = false
+): void {
+  // Peak: tall white keep with a snow cap
+  const hPeak = h + 7; // noticeably tall!
+  const whiteLimestone = 0xf8fafc;
+  const limestoneShade = 0xcbd5e1;
+  const limestonePlinth = 0x94a3b8;
+  const snowCap = 0xffffff;
+  const snowShade = 0xe0f2fe;
+  const icicleCol = 0xbae6fd;
+  const tabardCol = cult.tabard || 0x475569;
+
+  // 1. Foundation Plinth / Flared Talus
+  g.poly([-17, 1, 0, 9.5, 0, 5, -17, -3.5]);
+  g.fill({ color: limestoneShade, alpha: a });
+  g.poly([0, 9.5, 17, 1, 17, -3.5, 0, 5]);
+  g.fill({ color: limestonePlinth, alpha: a });
+
+  if (isBreached) {
+    g.moveTo(-10, 0); g.lineTo(-8, 4); g.lineTo(-6, 6);
+    g.stroke({ width: 0.9, color: 0x334155, alpha: a * 0.9 });
+    g.moveTo(6, 6.5); g.lineTo(9, 4.5); g.lineTo(12, 1);
+    g.stroke({ width: 0.9, color: 0x334155, alpha: a * 0.9 });
+  }
+
+  // 2. Soaring Tall White Keep Walls
+  g.poly([-15, -2, 0, 5.5, 0, 5.5 - hPeak, -15, -2 - hPeak]);
+  g.fill({ color: whiteLimestone, alpha: a });
+  g.poly([0, 5.5, 15, -2, 15, -2 - hPeak, 0, 5.5 - hPeak]);
+  g.fill({ color: limestoneShade, alpha: a });
+
+  // Ashlar course lines
+  for (const fraction of [0.2, 0.4, 0.6, 0.8, 0.92]) {
+    const my = 5.5 - hPeak * fraction;
+    g.moveTo(-15, -2 - hPeak * fraction);
+    g.lineTo(0, my);
+    g.lineTo(15, -2 - hPeak * fraction);
+    g.stroke({ width: 0.8, color: limestonePlinth, alpha: a * 0.65 });
+  }
+
+  if (isBreached) {
+    g.moveTo(-6, -hPeak + 8); g.lineTo(-7.5, -hPeak + 16); g.lineTo(-5, -hPeak + 24); g.lineTo(-6.5, -2);
+    g.stroke({ width: 1.2, color: 0x334155, alpha: a * 0.95 });
+    g.moveTo(5, -hPeak + 10); g.lineTo(7, -hPeak + 18); g.lineTo(6, 1);
+    g.stroke({ width: 1.2, color: 0x1e293b, alpha: a * 0.95 });
+  }
+
+  // 3. Corner Bartizans capped with snow
+  // Left Bartizan
+  g.poly([-17, -hPeak + 2, -12, -hPeak + 4.5, -12, -hPeak - 5, -17, -hPeak - 7.5]);
+  g.fill({ color: whiteLimestone, alpha: a });
+  g.poly([-12, -hPeak + 4.5, -9, -hPeak + 3, -9, -hPeak - 6.5, -12, -hPeak - 5]);
+  g.fill({ color: limestoneShade, alpha: a });
+  // Snow cap on left bartizan
+  g.poly([-17, -hPeak - 7.5, -12, -hPeak - 5, -9, -hPeak - 6.5, -14, -hPeak - 12]);
+  g.fill({ color: snowCap, alpha: a });
+
+  // Right Bartizan
+  g.poly([9, -hPeak + 3, 12, -hPeak + 4.5, 12, -hPeak - 5, 9, -hPeak - 6.5]);
+  g.fill({ color: limestoneShade, alpha: a });
+  g.poly([12, -hPeak + 4.5, 17, -hPeak + 2, 17, -hPeak - 7.5, 12, -hPeak - 5]);
+  g.fill({ color: limestonePlinth, alpha: a });
+  // Snow cap on right bartizan
+  g.poly([9, -hPeak - 6.5, 12, -hPeak - 5, 17, -hPeak - 7.5, 14, -hPeak - 12]);
+  g.fill({ color: snowShade, alpha: a });
+
+  // 4. Parapet battlements & The Snow Cap
+  // Machicolation corbel ledge
+  g.poly([-16, -hPeak + 1, 0, 6.5 - hPeak, 16, -hPeak + 1, 0, -hPeak - 7]);
+  g.fill({ color: whiteLimestone, alpha: a });
+  g.stroke({ width: 1, color: limestonePlinth, alpha: a });
+
+  // Left battlements
+  for (const mx of [-14, -9, -4]) {
+    const my = -hPeak + (mx + 14) * 0.45;
+    g.rect(mx, my - 4, 3.5, 4);
+    g.fill({ color: whiteLimestone, alpha: a });
+  }
+  // Right battlements
+  for (const mx of [1, 6, 11]) {
+    const my = -hPeak + (14 - mx) * 0.45;
+    g.rect(mx, my - 4, 3.5, 4);
+    g.fill({ color: limestoneShade, alpha: a });
+  }
+
+  // The Snow Cap: thick sculpted alpine snow mantle crowning battlements & parapet
+  g.poly([-17, -hPeak - 1, 0, 4.5 - hPeak - 2, 17, -hPeak - 1, 0, -hPeak - 9]);
+  g.fill({ color: snowShade, alpha: a });
+  // Pure white snow crest
+  g.poly([-17, -hPeak - 1, 0, 4.5 - hPeak - 2, 0, -hPeak - 9]);
+  g.fill({ color: snowCap, alpha: a });
+
+  // Fluffy snow pillows on battlements
+  for (const mx of [-14, -9, -4, 1, 6, 11]) {
+    const my = mx <= 0 ? -hPeak + (mx + 14) * 0.45 : -hPeak + (14 - mx) * 0.45;
+    g.ellipse(mx + 1.7, my - 4.5, 2.2, 1.2);
+    g.fill({ color: snowCap, alpha: a });
+  }
+
+  // Crystalline icicles hanging from corbels
+  for (const ix of [-13, -7, -2, 4, 9, 13]) {
+    const iy = ix <= 0 ? -hPeak + (ix + 14) * 0.45 : -hPeak + (14 - ix) * 0.45;
+    g.moveTo(ix, iy + 0.5); g.lineTo(ix, iy + 3.5);
+    g.stroke({ width: 0.8, color: icicleCol, alpha: a * 0.85 });
+  }
+
+  // 5. Arched Gateway & Portcullis
+  g.poly([-4, 5, 4, 1.5, 4, -5.5, -4, -2]);
+  g.fill({ color: 0x09090b, alpha: a });
+  g.moveTo(-4, -2); g.lineTo(4, -5.5);
+  g.stroke({ width: 2, color: whiteLimestone, alpha: a });
+
+  // Tall narrow lancet window
+  if (!isBreached) {
+    const keepCandle = 0.85 + Math.sin(phase * 4) * 0.12;
+    g.rect(-2.5, -hPeak * 0.55, 3.5, 7);
+    g.fill({ color: 0xfef08a, alpha: a * 0.95 * keepCandle });
+    g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
+    // Lancet mullion cross
+    g.moveTo(-0.7, -hPeak * 0.55); g.lineTo(-0.7, -hPeak * 0.55 + 7);
+    g.moveTo(-2.5, -hPeak * 0.55 + 3.5); g.lineTo(1, -hPeak * 0.55 + 3.5);
+    g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+  } else {
+    g.rect(-2.5, -hPeak * 0.55, 3.5, 7);
+    g.fill({ color: 0x09090b, alpha: a });
+    g.stroke({ width: 0.8, color: 0x334155, alpha: a });
+  }
+
+  // 6. Ashlar Stone Chimney Stack & Hearth Smoke
+  const chimX = 6.5;
+  const chimY = -hPeak - 5;
+  g.poly([chimX - 2.5, chimY + 0.5, chimX, chimY + 1.8, chimX, chimY - 6.5, chimX - 2.5, chimY - 7.8]);
+  g.fill({ color: whiteLimestone, alpha: a });
+  g.poly([chimX, chimY + 1.8, chimX + 2.5, chimY + 0.5, chimX + 2.5, chimY - 7.8, chimX, chimY - 6.5]);
+  g.fill({ color: limestoneShade, alpha: a });
+  g.poly([chimX - 3.2, chimY - 7.8, chimX, chimY - 6.2, chimX + 3.2, chimY - 7.8, chimX, chimY - 9.4]);
+  g.fill({ color: snowCap, alpha: a });
+
+  if (complete) {
+    if (!isBreached) {
+      if (hasPeople) {
+        const wind = Math.sin(phase * 1.8) * 1.5;
+        const p1 = Math.sin(phase * 2.2);
+        g.circle(chimX, chimY - 9, 1.4);
+        g.fill({ color: 0xfef08a, alpha: a * 0.45 * (0.8 + Math.sin(phase * 4) * 0.2) });
+        g.circle(chimX + wind * 0.3, chimY - 12 + p1 * 1.2, 2.5);
+        g.fill({ color: 0xe2e8f0, alpha: a * 0.48 });
+        g.circle(chimX + 1.8 + wind * 0.7, chimY - 16.5 + p1 * 1.4, 3.4);
+        g.fill({ color: 0xf1f5f9, alpha: a * 0.36 });
+        g.circle(chimX + 3.8 + wind * 1.1, chimY - 21.5 + p1 * 1.6, 4.2);
+        g.fill({ color: 0xf8fafc, alpha: a * 0.22 });
+      } else {
+        const lazyWind = Math.sin(phase * 1.2) * 0.8;
+        const q1 = Math.sin(phase * 1.4);
+        g.circle(chimX + lazyWind * 0.4, chimY - 11.5 + q1 * 0.8, 1.3);
+        g.fill({ color: 0xd1d5db, alpha: a * 0.18 });
+        g.circle(chimX + 0.8 + lazyWind * 0.8, chimY - 15 + q1 * 1.0, 1.5);
+        g.fill({ color: 0xe5e7eb, alpha: a * 0.12 });
+      }
+    } else {
+      g.circle(chimX, chimY - 11.5, 1.0);
+      g.fill({ color: 0x334155, alpha: a * 0.16 });
+    }
+  }
+
+  // 7. Soaring Alpine Royal Banner flying high above snow cap
+  if (!isBreached) {
+    const bannerWave = Math.sin(phase * 3.5) * 3;
+    g.moveTo(0, -hPeak + 2); g.lineTo(0, -hPeak - 22);
+    g.stroke({ width: 1.8, color: 0x64748b, alpha: a });
+    g.circle(0, -hPeak - 23, 1.8);
+    g.fill({ color: 0xf8fafc, alpha: a });
+    g.poly([0, -hPeak - 22, 12 + bannerWave, -hPeak - 17, 0, -hPeak - 12]);
+    g.fill({ color: tabardCol, alpha: a });
+    g.poly([0, -hPeak - 20, 7 + bannerWave * 0.6, -hPeak - 17, 0, -hPeak - 14]);
+    g.fill({ color: 0xf8fafc, alpha: a });
+  } else {
+    g.moveTo(0, -hPeak + 2); g.lineTo(0, -hPeak - 6);
+    g.stroke({ width: 1.8, color: 0x64748b, alpha: a });
+  }
+}
+
 function drawGoldMineCulture(
   g: Graphics,
   h: number,
@@ -7420,6 +8310,11 @@ export function drawIsometricBuilding(
     }
 
     case "keep": {
+      const lowerCult = (cultureId || "").toLowerCase().trim();
+      if (lowerCult === "mist" || lowerCult === "glen" || lowerCult === "salt" || lowerCult === "fen" || lowerCult === "peak") {
+        drawKeepPlayerCulture(g, 30 + heightBoost, a, phase, lowerCult, cult, complete, hasPeople, isBreached);
+        break;
+      }
       if (kit !== "western") {
         drawKeepCulture(g, 30 + heightBoost, a, phase, kit, cult, complete, hasPeople, isBreached);
         break;
