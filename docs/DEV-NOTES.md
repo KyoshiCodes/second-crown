@@ -18,6 +18,14 @@
   - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
   - No new unit stats.
 
+## 2026-10-02 — sim / fen culture and warden (wave/culture-unit-4)
+
+- **Skirmishers had no lectern study.** The brief said to unlock warden "from the same Crown lectern path as skirmisher", but `unitUnlocked` never gated skirmishers. Following the fieldcraft and drill precedent, this wave added a new study, `screening` (180 ticks, food 20 / wood 12, needs `barracks` or `academy`, keepMin 0). It unlocks warden only. Owner: say if you'd rather gate it differently.
+- **"+1 citizen per cottage" is per finished cottage, not per cottage level.** This matches the flat +1 per building used by mist, glen, and salt. Only `housingCap` changes; `workPlotCap` does not.
+- **Warden also gets the archery-range 10% discount** in `trainCostMultiplier`, so it always costs exactly what a skirmisher costs.
+- **Warden stats** (attack 5, defense 7, hp 12, speed 3, line, tier 2) are a defensive take on the skirmisher. The brief only fixed cost, power, and drill time.
+- Follow-up for app: fen in `CulturePicker` needs no code. A warden glyph in `crests.ts`, art in `UnitIcon.tsx`, and the `screening` row in `ResearchBar` (check it lists from `RESEARCH`) are still to do.
+
 ## 2026-10-02 — sim / salt culture and outrider (wave/culture-unit-3)
 
 - **"Woodcutters" means the `lumber_camp` building.** I didn't use the woodcutter citizen job (`labor.ts`) or the sawmill. This matches the mist (farm) and glen (quarry) pattern: a flat +1 added after multipliers, only for `lumber_camp`/`wood`. Owner: say if you meant posted woodcutter citizens instead.

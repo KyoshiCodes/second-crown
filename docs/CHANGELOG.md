@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-02 — Fen culture and warden unit (wave/culture-unit-4)
+
+- **Sim:** added the `fen` culture (`content/cultures.ts`). Each finished cottage holds +1 citizen through `cottageCultureBonus` (`systems/culture.ts`), which `housingCap` in `systems/housing.ts` adds. Work plots are unchanged. `NPC_CULTURE_IDS` is unchanged, so existing seeds don't shift.
+- **Sim:** added the `warden` unit (`content/units.ts`): skirmisher cost, power 3, `trainTicks` 30. It gets the same archery-range discount as skirmisher in `trainCostMultiplier`. New lectern study `screening` (180 ticks, food 20 / wood 12, barracks or academy, keepMin 0) unlocks it. Skirmisher is unchanged and still needs no study.
+- Tests: `systems/cultureUnit4.test.ts`. No change to raid math, ascend, mist, ranger, glen, banner, salt, outrider, or existing costs.
+
 ## 2026-10-02 — Gemini 28px Outrider Chip on Outrider Card (bakeoff/gemini-outrider)
 
 - **App HUD: 28px Outrider Chip on Outrider Card (`packages/app/src/hud/OutriderChip.tsx`, `packages/app/src/hud/outrider-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:

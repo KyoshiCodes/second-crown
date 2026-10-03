@@ -1,4 +1,5 @@
 import type { GameState } from "@second-crown/shared";
+import { cottageCultureBonus } from "./culture.js";
 
 export const WORK_PLOTS = new Set(["farm", "lumber_camp", "quarry", "gold_mine"]);
 
@@ -19,7 +20,8 @@ function keepLv(state: GameState, realmId: string): number {
 }
 
 export function housingCap(state: GameState, realmId = "player"): number {
-  return 2 + levelsOf(state, "cottage", realmId) * 2 + keepLv(state, realmId) * 3;
+  const cottageBonus = finishedOf(state, "cottage", realmId).length * cottageCultureBonus(state, realmId);
+  return 2 + levelsOf(state, "cottage", realmId) * 2 + keepLv(state, realmId) * 3 + cottageBonus;
 }
 
 export function population(state: GameState, realmId = "player"): number {

@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/culture-unit-4, not merged)
+
+- Sim only. One new culture (**fen**, "Fen Steads") and one new unit (**warden**). Mist, ranger, glen, banner, salt, and outrider are unchanged.
+- Fen builds the same as western. Its one difference: each finished cottage holds +1 citizen (`cottageCultureBonus` in `housingCap`). A new game can pick it through `setPlayerCulture(s, "fen")`. Saves with no culture flag stay western. NPCs are never seeded fen.
+- Warden: same cost as skirmisher, power 3, `trainTicks` 30 (3s). Skirmisher had no study, so a new **Screening** study unlocks warden. Skirmisher is not replaced and stays open.
+- No app files changed. Warden has no dedicated icon or crest yet.
+
 ## Active wave (bakeoff/gemini-outrider, not merged)
 
 - App HUD only. Added 28px outrider chip on the Outrider card on the Army tab:
