@@ -1,3 +1,9 @@
+## 2026-10-02 — app / fen and warden UI (wave/culture-unit-4-ui)
+
+- No new code for the picker or the card: `CulturePicker` maps `CULTURES` and `ArmyTab` maps `listUnitTypes()`, both on the existing `.sc-plain-pick` / `.sc-unit-card` styles.
+- `UnitIcon` has `case "warden"` falling through to `case "skirmisher"`, the same pattern as outrider→cavalry. The skirmisher branch itself is unchanged. Fen resolves to the western kit in `resolveCultureKit`, like Mist, Glen, and Salt.
+- The Range discount line still says archers/rangers only. The sim gives skirmishers and wardens that discount too, but the line already left out skirmishers, so I didn't change it in this wave.
+
 ## 2026-10-02 — app / 28px outrider chip on Outrider card (bakeoff/gemini-outrider)
 
 - `packages/app/src/hud/outrider-chip.css`:

@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — Warden card and Fen pick (wave/culture-unit-4-ui)
+
+- The Warden card on the Army tab tells you to study **Screening** on the Crown tab (you need a Barracks or Academy). Once Screening is done, you can train wardens like skirmishers.
+- Wardens now show the skirmisher figure, not the plain militia one.
+- **Fen Steads** is in the Crown style list with the other cultures.
+
 ## 2026-10-02 — Fen Steads culture and wardens (wave/culture-unit-4)
 
 - A new culture, **Fen Steads**, can be picked for a new game. It builds like the Crown Marches, but every cottage houses one more citizen. Existing saves keep their culture.

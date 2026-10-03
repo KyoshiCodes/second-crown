@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-02 — Fen and warden in the UI (wave/culture-unit-4-ui)
+
+- **App:** the Army tab now shows a Screening lock note on the Warden card (`lockNote` in `tabs/ArmyTab.tsx`), and the footnote says wardens need Screening. `UnitIcon.tsx` reuses the skirmisher art for `warden`, where it used to fall back to militia.
+- Fen already shows in `CulturePicker` from `CULTURES`, and Warden already uses the shared `UnitCard` train button. No sim, server, or theme.css changes. Skirmisher, Mist, Glen, Salt, and Western are unchanged.
+
 ## 2026-10-02 — Fen culture and warden unit (wave/culture-unit-4)
 
 - **Sim:** added the `fen` culture (`content/cultures.ts`). Each finished cottage holds +1 citizen through `cottageCultureBonus` (`systems/culture.ts`), which `housingCap` in `systems/housing.ts` adds. Work plots are unchanged. `NPC_CULTURE_IDS` is unchanged, so existing seeds don't shift.
