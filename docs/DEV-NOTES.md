@@ -1,8 +1,22 @@
-## 2026-10-03 — app / peak and lancer UI (wave/culture-unit-5-ui)
+## 2026-10-03 — app / 28px lancer chip on Lancer card (bakeoff/gemini-lancer)
 
-- No new code for the picker or the card: `CulturePicker` maps `CULTURES` and `ArmyTab` maps `listUnitTypes()`, both on the existing `.sc-plain-pick` / `.sc-unit-card` styles. No CSS changed.
-- `UnitIcon` has `case "lancer"` falling through to `case "knight"`, the same pattern as warden→skirmisher. The knight branch itself is unchanged. Peak resolves to the western kit in `resolveCultureKit`, like Fen.
-- Lancer has no dedicated chip or crest glyph yet; a bakeoff chip can slot into `UnitCard` like the others.
+- `packages/app/src/hud/lancer-chip.css`:
+  - Styles `.sc-lancer-chip-wrapper`, `.sc-lancer-chip`, and living aura states (`.is-open`, `.is-locked`).
+  - Strictly enforces `pointer-events: none !important`, `flex-shrink: 0`, and `vertical-align: middle`.
+  - Zero edits to `theme.css`.
+- `packages/app/src/hud/LancerChip.tsx`:
+  - 28px living unit chip component with mountain warhorse in charging gallop with steel chanfron armor, armored lancer knight in visored greathelm, heavy couched long lance with circular vamplate handguard disc and diamond-forged steel point with fluttering pennon, and billowing peak-white cloak with alpine frost highlights and silver mountain peak brooch clasp.
+  - Reactive states: `open = true` (unlocked) displays gleaming peak-white mantle highlights, shining steel lance point, and drop-shadow halo; `open = false` (locked) displays desaturated dusk tones.
+  - `data-lancer-chip`, `data-open`, `aria-hidden="true"`, `pointerEvents: "none"`.
+- `packages/app/src/hud/UnitCard.tsx`:
+  - Directly mounts `<LancerChip size={28} open={open} />` on the Lancer card (`typeId === "lancer"`).
+- `packages/app/src/UnitIcon.tsx`:
+  - Added dedicated `case "lancer":` rendering mountain warhorse, armored lancer knight, heavy long lance, and peak-white cloak.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-lancer: 28px lancer chip on Lancer card (horse, long lance, peak-white cloak)")`.
+- Invariants:
+  - Zero changes to `packages/sim`, `server/`, or `packages/app/src/theme.css` (0 diff against `origin/main`).
+  - No new unit stats.
 
 ## 2026-10-03 — app / 28px warden chip on Warden card (bakeoff/gemini-warden)
 

@@ -2,11 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-03 — Lancer card and Peak pick (wave/culture-unit-5-ui)
+## 2026-10-03 — 28px Lancer Chip on Lancer Card (bakeoff/gemini-lancer)
 
-- The Lancer card on the Army tab tells you to study **Horse lore** on the Crown tab (you need Keep II). Once Horse lore is done, you can train lancers like knights.
-- Lancers now show the knight figure, not the plain militia one.
-- **Peak Holds** is in the Crown style list with the other cultures.
+- On the Army tab, the **Lancer** card now displays a dedicated 28px heavy shock cavalry chip:
+  - **Horse & Long Lance**: A powerful mountain warhorse bearing an armored knight with a heavy couched long lance and vamplate guard.
+  - **Peak-White Cloak**: A flowing snow-white mantle with alpine frost highlights, pinned with a silver mountain peak brooch.
+  - **States**: Glows with a radiant peak-frost silver aura when unlocked; rests in muted dusk tones while Horse lore remains to be studied.
+  - Strictly non-interactive overlay (`pointer-events: none`); clicking to train or viewing tooltips remains completely smooth.
 
 ## 2026-10-03 — 28px Warden Chip on Warden Card (bakeoff/gemini-warden)
 

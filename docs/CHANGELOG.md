@@ -1,9 +1,16 @@
 # CHANGELOG
 
-## 2026-10-03 — Peak and lancer in the UI (wave/culture-unit-5-ui)
+## 2026-10-03 — Gemini 28px Lancer Chip on Lancer Card (bakeoff/gemini-lancer)
 
-- **App:** the Lancer card on the Army tab shows a Horse lore lock note (`lockNote` in `tabs/ArmyTab.tsx`), the footnote says lancers need Horse lore, and the Stables line names lancers. `UnitIcon.tsx` reuses the knight art for `lancer`, where it used to fall back to militia.
-- Peak already shows in `CulturePicker` from `CULTURES`, and Lancer already uses the shared `UnitCard` train button. No sim, server, or theme.css changes. Knight, Mist, Glen, Salt, Fen, and Western are unchanged.
+- **App HUD: 28px Lancer Chip on Lancer Card (`packages/app/src/hud/LancerChip.tsx`, `packages/app/src/hud/lancer-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:
+  - **Living Lancer Chip (`LancerChip`)**: 28px iconic heavy shock cavalry chip for the Lancer card in the Army tab. Features mountain warhorse in charging gallop with steel chanfron armor, armored lancer knight in visored greathelm, heavy couched long lance with circular vamplate handguard disc and diamond-forged steel point with fluttering pennon, and a billowing peak-white cloak with alpine frost highlights and silver mountain peak brooch clasp.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Gleaming peak-white mantle highlights (`#f8fafc` / `#cbd5e1`), shining steel lance point, and subtle peak-frost silver aura drop-shadow (`rgba(226, 232, 240, 0.55)`).
+    - **Locked** (`open = false`): Muted dusk tones (`grayscale(0.4)`, `opacity: 0.65`) indicating the lancer awaits Horse lore study.
+  - **Card Integration**: Mounted directly on the Lancer card in `UnitCard.tsx` via `<LancerChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `case "lancer":` renders dedicated mountain warhorse, armored lancer knight, heavy long lance, and peak-white cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on all pips, wrappers, and SVGs.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/lancer-chip.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats.
 
 ## 2026-10-03 — Gemini 28px Warden Chip on Warden Card (bakeoff/gemini-warden)
 
