@@ -656,6 +656,63 @@ export function UnitIcon(props: UnitIconProps) {
         );
       }
 
+      case "lancer": {
+        // Peak shock cavalry: mountain warhorse, armored lancer knight, heavy long lance, peak-white cloak
+        const hLeg1 = frame === 1 ? 1 : frame === 2 ? -1 : 0;
+        const hLeg2 = frame === 1 ? -1 : frame === 2 ? 1 : 0;
+        return (
+          <g>
+            <ellipse cx="18" cy="31" rx="13" ry="3" fill="#000000" fillOpacity="0.35" />
+            {/* Warhorse legs */}
+            <rect x={facing >= 0 ? 10 : 23} y={24 - bob + hLeg1} width="3" height="6" fill="#1e293b" />
+            <rect x={facing >= 0 ? 23 : 10} y={24 - bob + hLeg2} width="3" height="6" fill="#334155" />
+            {/* Warhorse body */}
+            <rect x="9" y={19 - bob} width="18" height="6.5" rx="2" fill="#334155" />
+            {/* Warhorse neck & head */}
+            <polygon points={`${18 + facing * 3},${19 - bob} ${18 + facing * 10},${12 - bob} ${18 + facing * 13},${14 - bob} ${18 + facing * 6},${23 - bob}`} fill="#334155" />
+            <rect x={18 + facing * 9} y={10 - bob} width="2.5" height="3" fill="#1e293b" />
+            {/* Steel chanfron armor */}
+            <polygon points={`${18 + facing * 10},${10.5 - bob} ${18 + facing * 13},${12.5 - bob} ${18 + facing * 12},${14.5 - bob} ${18 + facing * 9.5},${12 - bob}`} fill="#94a3b8" stroke="#475569" strokeWidth="0.4" />
+            {/* Dark mane */}
+            <path d={`M${18 + facing * 4} ${18 - bob} L${18 + facing * 10} ${11 - bob} L${18 + facing * 11} ${13 - bob} Z`} fill="#0f172a" />
+            {/* Streaming tail */}
+            <path d={`M${18 - facing * 8} ${19 - bob} C${18 - facing * 12} ${21 - bob}, ${18 - facing * 14} ${24 - bob}, ${18 - facing * 15} ${27 - bob}`} stroke="#1e293b" strokeWidth="2.4" fill="none" />
+            {/* Saddle & caparison */}
+            <rect x="14" y={18 - bob} width="8" height="3.5" rx="1" fill="#0f172a" />
+            <rect x="15" y={17 - bob} width="6" height="2" fill="#78350f" />
+            {/* Billowing peak-white cloak behind knight */}
+            <path
+              d={`M${18 - facing * 1} ${12 - bob} C${18 - facing * 6} ${13 - bob}, ${18 - facing * 10} ${16 - bob}, ${18 - facing * 13} ${23 - bob} C${18 - facing * 9} ${21 - bob}, ${18 - facing * 4} ${19 - bob}, ${18 - facing * 1} ${18 - bob} Z`}
+              fill="#f8fafc"
+              stroke="#cbd5e1"
+              strokeWidth="0.8"
+            />
+            <path
+              d={`M${18 - facing * 1} ${12 - bob} C${18 - facing * 6} ${13 - bob}, ${18 - facing * 10} ${16 - bob}, ${18 - facing * 13} ${23 - bob}`}
+              stroke="#ffffff"
+              strokeWidth="1.2"
+              fill="none"
+            />
+            {/* Silver peak brooch clasp */}
+            <polygon points={`${18 - facing * 0.5},${12 - bob} ${18 - facing * 0.5 + 1.2},${13.5 - bob} ${18 - facing * 0.5 - 1.2},${13.5 - bob}`} fill="#e2e8f0" stroke="#64748b" strokeWidth="0.3" />
+            {/* Armored knight in plate */}
+            <rect x="15" y={12 - bob} width="6" height="6.5" rx="1" fill="#64748b" />
+            <circle cx="18" cy={9 - bob} r="2.8" fill="#94a3b8" />
+            {/* Visored bascinet greathelm */}
+            <polygon points={`15,${9.5 - bob} 18,${4 - bob} 21,${9.5 - bob}`} fill="#cbd5e1" stroke="#475569" strokeWidth="0.5" />
+            <line x1="18" y1={4 - bob} x2="18" y2={9 - bob} stroke="#ffffff" strokeWidth="0.6" />
+            <line x1="16" y1={7.5 - bob} x2="20" y2={7.5 - bob} stroke="#0f172a" strokeWidth="0.8" />
+            {/* Heavy long lance with vamplate */}
+            <line x1={18 - facing * 10} y1={17 - bob} x2={18 + facing * 17} y2={6 - bob} stroke="#78350f" strokeWidth="1.8" strokeLinecap="round" />
+            <ellipse cx={18 + facing * 1} cy={12.5 - bob} rx="1.4" ry="2.8" fill="#cbd5e1" stroke="#475569" strokeWidth="0.4" />
+            <polygon points={`${18 + facing * 17},${6 - bob} ${18 + facing * 20.5},${4.8 - bob} ${18 + facing * 17},${8 - bob}`} fill="#ffffff" stroke="#475569" strokeWidth="0.4" />
+            <line x1={18 + facing * 17} y1={6 - bob} x2={18 + facing * 20} y2={5.2 - bob} stroke="#93c5fd" strokeWidth="0.5" />
+            {/* Peak-white pennon */}
+            <polygon points={`${18 + facing * 13},${7.5 - bob} ${18 + facing * 17},${5.8 - bob} ${18 + facing * 13},${10.5 - bob}`} fill="#f8fafc" stroke="#94a3b8" strokeWidth="0.4" />
+          </g>
+        );
+      }
+
       case "cavalry":
       case "outrider": {
         // Warhorse with animated legs + mounted rider with lance

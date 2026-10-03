@@ -1,0 +1,32 @@
+/* Lancer Chip (28px).
+   Living lancer unit chip for the Lancer card in the Army tab.
+   Displays heavy shock knight on warhorse with long lance and peak-white cloak.
+   Strictly pointer-events: none to guarantee card clicks and training are never blocked.
+   No theme.css edits. */
+
+.sc-lancer-chip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  user-select: none;
+  vertical-align: middle;
+  position: relative;
+  line-height: 1;
+}
+
+.sc-lancer-chip-wrapper svg {
+  display: block;
+  pointer-events: none !important;
+}
+
+/* Subtle peak-frost silver aura when the lancer is unlocked and ready to drill */
+.sc-lancer-chip-wrapper.is-open {
+  filter: drop-shadow(0 0 4px rgba(226, 232, 240, 0.55));
+}
+
+.sc-lancer-chip-wrapper.is-locked {
+  opacity: 0.65;
+  filter: grayscale(0.4);
+}

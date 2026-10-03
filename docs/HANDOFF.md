@@ -13,10 +13,18 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/culture-unit-5-ui, not merged)
+## Active wave (bakeoff/gemini-lancer, not merged)
 
-- App only. The Lancer card on the Army tab shows "Study Horse lore on Crown (Keep II)." until Horse lore is done, then trains with the same button as Knight. Lancer uses the knight art.
-- Peak Holds sits in the Crown style picker with the other cultures and uses the same `setPlayerCulture` pick.
+- App HUD only. Added 28px lancer chip on the Lancer card on the Army tab:
+  - **Living Lancer Chip** (`LancerChip`): 28px heavy shock cavalry chip (`packages/app/src/hud/LancerChip.tsx`) with mountain warhorse in charging gallop with steel chanfron armor, armored lancer knight in visored greathelm, heavy couched long lance with circular vamplate handguard disc and diamond-forged steel point with fluttering pennon, and a billowing peak-white cloak with alpine frost highlights and silver mountain peak brooch clasp.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Gleaming peak-white mantle highlights (`#f8fafc` / `#cbd5e1`), shining steel lance point, and subtle peak-frost silver aura drop-shadow (`rgba(226, 232, 240, 0.55)`).
+    - **Locked** (`open = false`): Muted dusk tones (`grayscale(0.4)`, `opacity: 0.65`) indicating the lancer awaits Horse lore study.
+  - **Card Integration**: Mounted directly on the Lancer card in `UnitCard.tsx` via `<LancerChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `case "lancer":` renders dedicated mountain warhorse, armored lancer knight, heavy long lance, and peak-white cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on wrapper, SVG, and all child elements guarantees zero interference with card clicking, training, or tooltips.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/lancer-chip.css`; `theme.css` strictly untouched (0 diff against `origin/main`).
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats. 266 sim tests pass, 354 render tests pass, app builds cleanly.
+  - Files: `packages/app/src/hud/LancerChip.tsx`, `packages/app/src/hud/lancer-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`.
 
 ## Active wave (bakeoff/gemini-warden, not merged)
 
