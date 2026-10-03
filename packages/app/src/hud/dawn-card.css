@@ -71,3 +71,10 @@
   opacity: 0.7;
   font-variant-numeric: tabular-nums;
 }
+
+/* One line under the bonus line: the one-time first-dawn store (+20 food, +10 wood) the sim grants in tryAscend. */
+.sc-dawn-stores {
+  margin-top: 2px;
+  font-size: 11px;
+  opacity: 0.7;
+}

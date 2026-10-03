@@ -23,8 +23,9 @@ export function DawnCard(props: { state: GameState | undefined; act: ActFn; asce
   const holdStood = state
     ? state.wars.filter((w) => w.id.startsWith("w_siege_") && w.defenderRealmId === "player" && w.status === "defender_won").length
     : 0;
-  // Dawn count is prestige_level in the save. The sim's only dawn bonus is +1 production per dawn
-  // (each point is +4% income) and it stacks; a new crown starts with no militia.
+  // Dawn count is prestige_level in the save. The sim's stacking dawn bonus is +1 production per dawn
+  // (each point is +4% income) and it stacks. The first dawn also grants 1 militia, +20 food and
+  // +10 wood once per crown (flags.dawn_gift in tryAscend); that gift does not stack.
   const dawnCount = state ? Number(state.flags["prestige_level"] ?? 0) : 0;
   const bonusLine =
     dawnCount === 0
@@ -73,6 +74,7 @@ export function DawnCard(props: { state: GameState | undefined; act: ActFn; asce
         </button>
       </div>
       <div className="sc-dawn-bonus">{bonusLine}</div>
+      <div className="sc-dawn-stores">First dawn also starts with +20 food and +10 wood. It does not stack.</div>
     </div>
   );
 }
