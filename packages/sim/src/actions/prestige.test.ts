@@ -39,9 +39,10 @@ describe("Second Dawn (tryAscend)", () => {
     expect(s.flags.prestige_total).toBe(1);
 
     // wipes
-    expect(s.resources).toEqual({ gold: "0", food: "25", wood: "35", stone: "0" });
+    // (food/wood and the lone militia are the first-dawn gift)
+    expect(s.resources).toEqual({ gold: "0", food: "45", wood: "45", stone: "0" });
     expect(s.buildings.map((b) => b.typeId)).toEqual(["farm", "lumber_camp"]);
-    expect(s.units.some((u) => u.realmId === "player")).toBe(false);
+    expect(s.units.filter((u) => u.realmId === "player").map((u) => [u.typeId, u.count])).toEqual([["militia", "1"]]);
     expect(s.units.some((u) => u.realmId === "rival")).toBe(true);
     expect(s.wars).toEqual([]);
     expect(s.flags.peace_rival).toBeUndefined();
@@ -58,12 +59,11 @@ describe("Dawn bonus (existing: +1 production bonus per dawn)", () => {
     expect(tryAscend(s)).toBe(true);
   }
 
-  it("the first dawn adds +1 to productionBonus and grants no militia", () => {
+  it("the first dawn adds +1 to productionBonus", () => {
     const s = createGameState({ seed: 1, withStarterBuildings: true });
     const before = productionBonus(s);
     ascendOnce(s);
     expect(productionBonus(s)).toBe(before + 1);
-    expect(s.units.some((u) => u.realmId === "player" && u.typeId === "militia")).toBe(false);
   });
 
   it("a second dawn stacks: +2 over a crown that never ascended", () => {
@@ -73,6 +73,42 @@ describe("Dawn bonus (existing: +1 production bonus per dawn)", () => {
     ascendOnce(s);
     expect(s.flags.prestige_level).toBe(2);
     expect(productionBonus(s)).toBe(before + 2);
-    expect(s.units.some((u) => u.realmId === "player" && u.typeId === "militia")).toBe(false);
+  });
+});
+
+describe("First-dawn gift (+1 militia, +20 food, +10 wood, once)", () => {
+  function ascendOnce(s: ReturnType<typeof createGameState>) {
+    s.resources = { gold: String(ascendThreshold(s)), food: "0", wood: "0", stone: "0" };
+    expect(tryAscend(s)).toBe(true);
+  }
+  const playerMilitia = (s: ReturnType<typeof createGameState>) =>
+    s.units.filter((u) => u.realmId === "player" && u.typeId === "militia").reduce((n, u) => n + Number(u.count), 0);
+
+  it("a first dawn has the extra food, wood, and one militia", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    ascendOnce(s);
+    expect(s.resources.food).toBe("45");
+    expect(s.resources.wood).toBe("45");
+    expect(playerMilitia(s)).toBe(1);
+    expect(s.flags.dawn_gift).toBe(1);
+  });
+
+  it("a second dawn does not add them again", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    ascendOnce(s);
+    ascendOnce(s);
+    expect(s.flags.prestige_level).toBe(2);
+    expect(s.resources.food).toBe("25");
+    expect(s.resources.wood).toBe("35");
+    expect(playerMilitia(s)).toBe(0);
+  });
+
+  it("a crown that never ascended has neither gift", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    s.resources = { gold: "100", food: "100", wood: "100", stone: "100" };
+    expect(tryAscend(s)).toBe(false);
+    expect(s.flags.dawn_gift).toBeUndefined();
+    expect(s.units.some((u) => u.id === "u_dawn_militia")).toBe(false);
+    expect(s.resources).toEqual({ gold: "100", food: "100", wood: "100", stone: "100" });
   });
 });

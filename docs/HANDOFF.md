@@ -13,6 +13,14 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/dawn-stores, not merged)
+
+- Sim only. First-dawn gift in `tryAscend` (`packages/sim/src/actions/prestige.ts`): on the first legal ascend the new crown gets **+1 militia, +20 food, +10 wood** (starts at food 45 / wood 45 instead of 25 / 35).
+- Guarded by `flags.dawn_gift` (set to 1 on first ascend, kept across later ascends), so a second dawn adds nothing extra.
+- Note: the brief called the +1 militia "existing", but `origin/main` had none (a test pinned "no militia"). Owner chose to add it here alongside the stores.
+- Raid math, culture yields, unit costs, ascend threshold/button rules untouched. App, render, server untouched.
+- Tests: `packages/sim/src/actions/prestige.test.ts` ("First-dawn gift" block; keep/wipe test updated for the gift).
+
 ## Active wave (bakeoff/gemini-lancer, not merged)
 
 - App HUD only. Added 28px lancer chip on the Lancer card on the Army tab:

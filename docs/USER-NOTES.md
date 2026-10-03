@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-03 — First-dawn stores (wave/dawn-stores)
+
+- Your **first** Second Dawn now starts the new crown with a small gift: **1 militia, +20 food and +10 wood** (45 food / 45 wood instead of 25 / 35).
+- It only happens once. Ascending again later starts you with the normal stores and no militia.
+
 ## 2026-10-03 — 28px Lancer Chip on Lancer Card (bakeoff/gemini-lancer)
 
 - On the Army tab, the **Lancer** card now displays a dedicated 28px heavy shock cavalry chip:
