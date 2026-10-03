@@ -35,9 +35,9 @@ export {
   tryIdleCitizen,
 } from "./systems/citizens.js";
 
-export { CULTURES, getCulture, NPC_CULTURE_IDS, MIST_FARM_BONUS } from "./content/cultures.js";
+export { CULTURES, getCulture, NPC_CULTURE_IDS, MIST_FARM_BONUS, GLEN_QUARRY_BONUS } from "./content/cultures.js";
 export type { CultureDef } from "./content/cultures.js";
-export { setPlayerCulture, playerCultureId, cultureOfRealm, farmCultureBonus } from "./systems/culture.js";
+export { setPlayerCulture, playerCultureId, cultureOfRealm, farmCultureBonus, quarryCultureBonus } from "./systems/culture.js";
 
 export { playerTitle, extraArchetypes } from "./content/world.js";
 

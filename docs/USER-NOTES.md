@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — Glen Holds culture and banners (wave/culture-unit-2)
+
+- A new culture, **Glen Holds**, can be picked for a new game. It builds like the Crown Marches, but every quarry cuts +1 more stone. Existing saves keep their culture.
+- A new unit, the **Banner**, costs the same as a spearman, hits as hard, and drills in 3 seconds. To unlock it, study **Drill** on the Crown tab (you need a Barracks or an Academy). Spearmen are still open from the start.
+- Banners use a plain placeholder icon for now.
+
 ## 2026-10-02 — 28px Ranger Chip on Ranger Card (bakeoff/gemini-ranger)
 
 - On the Army tab, the **Ranger** card now displays a dedicated 28px heraldic ranger chip:

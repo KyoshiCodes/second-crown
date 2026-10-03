@@ -42,13 +42,22 @@ export const CULTURES: CultureDef[] = [
     blurb: "Western halls on wet ground. Farms feed +1.",
     palette: { tabard: "#475569", timber: "#5c3818", stone: "#64748b" },
   },
+  {
+    id: "glen",
+    name: "Glen Holds",
+    blurb: "Western halls in stony glens. Quarries cut +1.",
+    palette: { tabard: "#4d7c0f", timber: "#5c3818", stone: "#78716c" },
+  },
 ];
 
-/** Cultures an NPC crown can be seeded with. Mist is player-pick only, so old seeds do not shift. */
+/** Cultures an NPC crown can be seeded with. Mist and glen are player-pick only, so old seeds do not shift. */
 export const NPC_CULTURE_IDS = ["western", "woodland", "desert", "steppe", "tide"] as const;
 
 /** Mist builds as western. Its one difference: each finished farm feeds a flat +1 food per tick, after multipliers. */
 export const MIST_FARM_BONUS = 1;
+
+/** Glen builds as western. Its one difference: each finished quarry cuts a flat +1 stone per tick, after multipliers. */
+export const GLEN_QUARRY_BONUS = 1;
 
 export function getCulture(id: string | undefined): CultureDef {
   return CULTURES.find((c) => c.id === id) ?? CULTURES[0];

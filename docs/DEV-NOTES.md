@@ -1,3 +1,10 @@
+## 2026-10-02 — sim / glen culture and banner (wave/culture-unit-2)
+
+- **Spearmen had no lectern study either.** The brief said to unlock banner "from the same Crown lectern path as spearman", but `unitUnlocked` never gated spearmen. Following the fieldcraft precedent from wave/culture-unit, this wave added a new study, `drill` (180 ticks, food 20 / wood 12, needs `barracks` or `academy`, keepMin 0). It unlocks banner only. Owner: say if you'd rather gate it differently.
+- **Glen quarry bonus is flat**, same pattern as mist: added after all multipliers, only for `quarry`/`stone`, so a glen quarry always out-cuts a western quarry by exactly 1 stone per tick. `quarryCultureBonus` only reads flags.
+- **Banner stats copy spearman** (attack 8, defense 10, hp 16, speed 3, line, tier 2). The brief only fixed cost, power, and drill time.
+- Follow-up for app: a banner glyph in `crests.ts` and art in `UnitIcon.tsx`.
+
 ## 2026-10-02 — app / 28px ranger chip on Ranger card (bakeoff/gemini-ranger)
 
 - `packages/app/src/hud/ranger-chip.css`:

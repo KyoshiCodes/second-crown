@@ -65,6 +65,16 @@ export const RESEARCH = {
     unlocks: ["ranger"],
     effect: "Unlocks rangers. Archers stay open.",
   },
+  drill: {
+    id: "drill",
+    name: "Drill",
+    ticks: 180,
+    cost: { food: "20", wood: "12" },
+    needsAny: ["barracks", "academy"],
+    keepMin: 0,
+    unlocks: ["banner"],
+    effect: "Unlocks banners. Spearmen stay open.",
+  },
   horse: {
     id: "horse",
     name: "Horse lore",
@@ -140,6 +150,7 @@ export function unitUnlocked(state: GameState, typeId: string): boolean {
   if (typeId === "cavalry" || typeId === "knight") return researchDone(state, "horse");
   if (typeId === "siege") return researchDone(state, "siege");
   if (typeId === "ranger") return researchDone(state, "fieldcraft");
+  if (typeId === "banner") return researchDone(state, "drill");
   return true;
 }
 

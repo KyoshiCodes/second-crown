@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/culture-unit-2, not merged)
+
+- Sim only. One new culture (**glen**, "Glen Holds") and one new unit (**banner**). Mist and ranger are unchanged.
+- Glen builds the same as western. Its one difference: each finished quarry gives a flat +1 stone per tick, added after multipliers (`quarryCultureBonus`). A new game can pick it through `setPlayerCulture(s, "glen")`. Saves with no culture flag stay western. NPCs are never seeded glen (`NPC_CULTURE_IDS` unchanged).
+- Banner: same cost as a spearman, power 3, `trainTicks` 30 (3s). It unlocks from a new Crown study, **Drill** (needs a barracks or academy, no Keep minimum). Spearmen stay unlocked from the start, as before.
+- No app files changed. Glen shows in `CulturePicker`, Drill in `ResearchBar`, and banner on the Army tab. Banner has no dedicated icon or crest yet.
+
 ## Active wave (bakeoff/gemini-ranger, not merged)
 
 - App HUD only. Added 28px ranger chip on the Ranger card on the Army tab:
