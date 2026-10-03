@@ -13,10 +13,18 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
-## Active wave (wave/culture-unit-4-ui, not merged)
+## Active wave (bakeoff/gemini-warden, not merged)
 
-- App only. The Warden card on the Army tab shows "Study Screening on Crown (Barracks or Academy)." until Screening is done, then trains with the same button as Skirmisher. Warden uses the skirmisher art.
-- Fen Steads sits in the Crown style picker with the other cultures and uses the same `setPlayerCulture` pick.
+- App HUD only. Added 28px warden chip on the Warden card on the Army tab:
+  - **Living Warden Chip** (`WardenChip`): 28px hold guard chip (`packages/app/src/hud/WardenChip.tsx`) with sturdy short spear (marsh-wood shaft, leaf-shaped forged steel head, and golden reed bindings), wicker-reed woven round boss shield with reinforced iron rim on off-arm, layered fen-reed cloak with rush frills and carved bone toggle clasp, and conical iron kettle helm.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Radiant fen-reed moss green and golden reed tassels (`#65a30d` / `#84cc16` / `#eab308`), gleaming spear point, and subtle fen-reed aura drop-shadow (`rgba(101, 163, 13, 0.45)`).
+    - **Locked** (`open = false`): Muted cold marsh dusk tones (`grayscale(0.4)`, `opacity: 0.65`) indicating the warden awaits Screening study.
+  - **Card Integration**: Mounted directly on the Warden card in `UnitCard.tsx` via `<WardenChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `case "warden":` renders dedicated hold guard, short spear, round shield, and fen-reed cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on wrapper, SVG, and all child elements guarantees zero interference with card clicking, training, or tooltips.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/warden-chip.css`; `theme.css` strictly untouched (0 diff against `origin/main`).
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats. 260 sim tests pass, 349 render tests pass, app builds cleanly.
+  - Files: `packages/app/src/hud/WardenChip.tsx`, `packages/app/src/hud/warden-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`.
 
 ## Active wave (wave/culture-unit-4, not merged)
 

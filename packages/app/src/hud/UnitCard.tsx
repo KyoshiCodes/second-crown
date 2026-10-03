@@ -3,6 +3,7 @@ import { UnitIcon } from "../UnitIcon";
 import { RangerChip } from "./RangerChip";
 import { BannerChip } from "./BannerChip";
 import { OutriderChip } from "./OutriderChip";
+import { WardenChip } from "./WardenChip";
 
 export type UnitCardProps = {
   typeId: string;
@@ -37,6 +38,8 @@ export function UnitCard(props: UnitCardProps) {
             <BannerChip size={28} open={open} />
           ) : typeId === "outrider" ? (
             <OutriderChip size={28} open={open} />
+          ) : typeId === "warden" ? (
+            <WardenChip size={28} open={open} />
           ) : (
             <UnitIcon typeId={typeId} size={28} animated={open} />
           )}

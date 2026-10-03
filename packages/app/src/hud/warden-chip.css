@@ -1,0 +1,32 @@
+/* Warden Chip (28px).
+   Living warden unit chip for the Warden card in the Army tab.
+   Displays hold guard with short spear, round shield, and fen-reed cloak.
+   Strictly pointer-events: none to guarantee card clicks and training are never blocked.
+   No theme.css edits. */
+
+.sc-warden-chip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  user-select: none;
+  vertical-align: middle;
+  position: relative;
+  line-height: 1;
+}
+
+.sc-warden-chip-wrapper svg {
+  display: block;
+  pointer-events: none !important;
+}
+
+/* Subtle fen-reed aura when the warden is unlocked and ready to drill */
+.sc-warden-chip-wrapper.is-open {
+  filter: drop-shadow(0 0 4px rgba(101, 163, 13, 0.45));
+}
+
+.sc-warden-chip-wrapper.is-locked {
+  opacity: 0.65;
+  filter: grayscale(0.4);
+}

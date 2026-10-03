@@ -1,9 +1,16 @@
 # CHANGELOG
 
-## 2026-10-02 — Fen and warden in the UI (wave/culture-unit-4-ui)
+## 2026-10-03 — Gemini 28px Warden Chip on Warden Card (bakeoff/gemini-warden)
 
-- **App:** the Army tab now shows a Screening lock note on the Warden card (`lockNote` in `tabs/ArmyTab.tsx`), and the footnote says wardens need Screening. `UnitIcon.tsx` reuses the skirmisher art for `warden`, where it used to fall back to militia.
-- Fen already shows in `CulturePicker` from `CULTURES`, and Warden already uses the shared `UnitCard` train button. No sim, server, or theme.css changes. Skirmisher, Mist, Glen, Salt, and Western are unchanged.
+- **App HUD: 28px Warden Chip on Warden Card (`packages/app/src/hud/WardenChip.tsx`, `packages/app/src/hud/warden-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:
+  - **Living Warden Chip (`WardenChip`)**: 28px iconic unit chip for the Warden card in the Army tab. Features hold guard defender with sturdy short spear (marsh-wood shaft, leaf-shaped forged steel head, and golden reed bindings), wicker-reed woven round boss shield with reinforced iron rim on off-arm, layered fen-reed cloak with rush frills and carved bone toggle clasp, and conical iron kettle helm.
+  - **Living Reactive States**:
+    - **Unlocked/Open** (`open = true`): Radiant fen-reed moss green and golden reed tassels (`#65a30d` / `#84cc16` / `#eab308`), gleaming spear point, and subtle fen-reed aura drop-shadow (`rgba(101, 163, 13, 0.45)`).
+    - **Locked** (`open = false`): Muted cold marsh dusk tones (`grayscale(0.4)`, `opacity: 0.65`) indicating the warden awaits Screening study.
+  - **Card Integration**: Mounted directly on the Warden card in `UnitCard.tsx` via `<WardenChip size={28} open={open} />`. Additionally, `UnitIcon.tsx`'s `case "warden":` renders dedicated hold guard, short spear, round shield, and fen-reed cloak art.
+  - **Strictly Non-Blocking**: `pointer-events: none !important` on all pips, wrappers, and SVGs.
+  - **Dedicated Styles**: Stored in `packages/app/src/hud/warden-chip.css`; `theme.css` strictly untouched.
+  - **Invariants**: `packages/sim`, `server`, and `packages/app/src/theme.css` strictly untouched (0 diff against `origin/main`). No new unit stats.
 
 ## 2026-10-02 — Fen culture and warden unit (wave/culture-unit-4)
 

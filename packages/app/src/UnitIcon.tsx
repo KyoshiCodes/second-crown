@@ -305,6 +305,83 @@ export function UnitIcon(props: UnitIconProps) {
         );
       }
 
+      case "warden": {
+        // Fen hold guard warden: short spear, round reed shield, fen-reed cloak with rush frills
+        return (
+          <g>
+            {/* Contact shadow */}
+            <ellipse cx="18" cy="30" rx="7.5" ry="2.2" fill="#000000" fillOpacity="0.35" />
+
+            {/* Marsh boots & leggings */}
+            <rect x={18 + legL * facing} y={26 - bob} width="2.5" height="4" fill="#1c1917" />
+            <rect x={18 + legR * facing} y={26 - bob} width="2.5" height="4" fill="#292524" />
+
+            {/* Layered fen-reed cloak / mantle */}
+            <path
+              d={`M18,${10 - bob} C13,${13 - bob} 9,${18 - bob} 9,${28 - bob} C12,${29 - bob} 15,${28.5 - bob} 18,${29 - bob} C21,${28.5 - bob} 24,${29 - bob} 27,${28 - bob} C27,${18 - bob} 23,${13 - bob} 18,${10 - bob} Z`}
+              fill="#365314"
+              stroke="#1a2e05"
+              strokeWidth="0.8"
+            />
+            <path
+              d={`M9,${28 - bob} C9,${18 - bob} 13,${13 - bob} 18,${10 - bob}`}
+              stroke="#65a30d"
+              strokeWidth="1.1"
+              fill="none"
+              opacity="0.9"
+            />
+            {/* Reed fringes & golden tips */}
+            <line x1="12" y1={20 - bob} x2="11" y2={28 - bob} stroke="#84cc16" strokeWidth="0.8" />
+            <line x1="24" y1={20 - bob} x2="25" y2={28 - bob} stroke="#84cc16" strokeWidth="0.8" />
+            <line x1="10" y1={26 - bob} x2="9.5" y2={28.5 - bob} stroke="#eab308" strokeWidth="0.8" />
+            <line x1="26" y1={26 - bob} x2="26.5" y2={28.5 - bob} stroke="#eab308" strokeWidth="0.8" />
+
+            {/* Bone toggle clasp at collar */}
+            <rect x="16.5" y={13.5 - bob} width="3" height="1.2" rx="0.5" fill="#fef08a" stroke="#44403c" strokeWidth="0.3" />
+            <circle cx="18" cy={14 - bob} r="0.4" fill="#78350f" />
+
+            {/* Head & face */}
+            <circle cx="18" cy={13 - bob} r="2.8" fill="#fbcfe8" />
+
+            {/* Conical kettle helm */}
+            <ellipse cx="18" cy={11.5 - bob} rx="4.8" ry="1.4" fill="#64748b" stroke="#334155" strokeWidth="0.4" />
+            <path
+              d={`M14.5,${11.5 - bob} C14.5,${6.5 - bob} 21.5,${6.5 - bob} 21.5,${11.5 - bob} Z`}
+              fill="#94a3b8"
+              stroke="#475569"
+              strokeWidth="0.5"
+            />
+            <line x1="18" y1={6.5 - bob} x2="18" y2={10 - bob} stroke="#f1f5f9" strokeWidth="0.6" />
+
+            {/* Round shield on off-arm */}
+            <circle cx={18 - facing * 3.5} y={20 - bob + armSwing} r="5.2" fill="#3f6212" stroke="#65a30d" strokeWidth="1" />
+            <line x1={18 - facing * 3.5 - 4.5} y1={20 - bob + armSwing} x2={18 - facing * 3.5 + 4.5} y2={20 - bob + armSwing} stroke="#a16207" strokeWidth="0.8" />
+            <line x1={18 - facing * 3.5} y1={20 - bob + armSwing - 4.5} x2={18 - facing * 3.5} y2={20 - bob + armSwing + 4.5} stroke="#a16207" strokeWidth="0.8" />
+            <circle cx={18 - facing * 3.5} y={20 - bob + armSwing} r="1.8" fill="#facc15" stroke="#44403c" strokeWidth="0.4" />
+            <circle cx={18 - facing * 3.5} y={20 - bob + armSwing} r="0.6" fill="#fef08a" />
+
+            {/* Short spear */}
+            <line
+              x1={18 + facing * 5}
+              y1={30 - bob}
+              x2={18 + facing * 5}
+              y2={6 - bob + armSwing}
+              stroke="#78350f"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+            <polygon
+              points={`${18 + facing * 5},${3 - bob + armSwing} ${18 + facing * 5 - 2.5},${7 - bob + armSwing} ${18 + facing * 5 + 2.5},${7 - bob + armSwing}`}
+              fill="#f1f5f9"
+              stroke="#475569"
+              strokeWidth="0.4"
+            />
+            <line x1={18 + facing * 5} y1={3 - bob + armSwing} x2={18 + facing * 5} y2={7 - bob + armSwing} stroke="#ffffff" strokeWidth="0.5" />
+            <rect x={18 + facing * 5 - 1.2} y={7.2 - bob + armSwing} width="2.4" height="1.4" rx="0.3" fill="#ca8a04" />
+          </g>
+        );
+      }
+
       case "spearman":
       case "banner": {
         if (!isDefaultCulture) {
