@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-02 — Salt and outrider in the UI (wave/culture-unit-3-ui)
+
+- **App:** the Army tab now shows a Horse lore lock note on the Outrider card (`lockNote` in `tabs/ArmyTab.tsx`), and the footnote says outriders need Horse lore. `UnitIcon.tsx` reuses the cavalry art for `outrider`, where it used to fall back to militia.
+- Salt already shows in `CulturePicker` from `CULTURES`, and Outrider already uses the shared `UnitCard` train button. No sim, server, or theme.css changes. Cavalry, Mist, Glen, and Western are unchanged.
+
 ## 2026-10-02 — Salt culture and outrider unit (wave/culture-unit-3)
 
 - **Sim:** added the `salt` culture (`content/cultures.ts`). It gives each lumber camp a flat +1 wood per tick through `woodCultureBonus` (`systems/culture.ts`), which `rateFor` in `systems/economy.ts` adds. `NPC_CULTURE_IDS` is unchanged, so existing seeds don't shift.

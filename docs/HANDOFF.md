@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/culture-unit-3-ui, not merged)
+
+- App only. The Outrider card on the Army tab shows "Study Horse lore on Crown (Keep II)." until Horse lore is done, then trains with the same button as Cavalry. Outrider uses the cavalry art.
+- Salt Reaches sits in the Crown style picker with the other cultures and uses the same `setPlayerCulture` pick.
+
 ## Active wave (wave/culture-unit-3, not merged)
 
 - Sim only. One new culture (**salt**, "Salt Reaches") and one new unit (**outrider**). Mist, ranger, glen, and banner are unchanged.
