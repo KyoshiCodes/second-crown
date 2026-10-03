@@ -828,7 +828,8 @@ export function UnitIcon(props: UnitIconProps) {
         );
       }
 
-      case "knight": {
+      case "knight":
+      case "lancer": {
         if (!isDefaultCulture) {
           switch (kit) {
             case "cedar": {

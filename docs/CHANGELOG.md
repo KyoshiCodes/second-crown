@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-03 — Peak and lancer in the UI (wave/culture-unit-5-ui)
+
+- **App:** the Lancer card on the Army tab shows a Horse lore lock note (`lockNote` in `tabs/ArmyTab.tsx`), the footnote says lancers need Horse lore, and the Stables line names lancers. `UnitIcon.tsx` reuses the knight art for `lancer`, where it used to fall back to militia.
+- Peak already shows in `CulturePicker` from `CULTURES`, and Lancer already uses the shared `UnitCard` train button. No sim, server, or theme.css changes. Knight, Mist, Glen, Salt, Fen, and Western are unchanged.
+
 ## 2026-10-03 — Gemini 28px Warden Chip on Warden Card (bakeoff/gemini-warden)
 
 - **App HUD: 28px Warden Chip on Warden Card (`packages/app/src/hud/WardenChip.tsx`, `packages/app/src/hud/warden-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:

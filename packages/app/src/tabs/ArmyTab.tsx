@@ -38,6 +38,7 @@ function lockNote(id: string): string {
   if (id === "banner") return "Study Drill on Crown (Barracks or Academy).";
   if (id === "outrider") return "Study Horse lore on Crown (Keep II).";
   if (id === "warden") return "Study Screening on Crown (Barracks or Academy).";
+  if (id === "lancer") return "Study Horse lore on Crown (Keep II).";
   return "";
 }
 
@@ -76,7 +77,7 @@ export function ArmyTab(props: {
       ))}
       <span style={{ fontSize: 12 }}>
         {barracksN ? ` Barracks −5% each (now ${Math.round((1 - trainMult) * 100)}% off base)` : " Raise Barracks on Kingdom for cheaper levies."}
-        {stablesN ? " · Stables −10% cavalry/knights" : ""}
+        {stablesN ? " · Stables −10% cavalry/knights/lancers" : ""}
         {rangeN ? " · Range −10% archers/rangers" : ""}
         {shopN ? " · Workshop −15% siege" : ""}
       </span>
@@ -110,7 +111,7 @@ export function ArmyTab(props: {
         })}
       </div>
       <p style={{ fontSize: 12, opacity: 0.75, marginTop: 6 }}>
-        Cavalry, knights, and outriders need Horse lore. Siege needs Siege craft. Rangers need Fieldcraft. Banners need Drill. Wardens need Screening. All start on the Crown lectern.
+        Cavalry, knights, outriders, and lancers need Horse lore. Siege needs Siege craft. Rangers need Fieldcraft. Banners need Drill. Wardens need Screening. All start on the Crown lectern.
       </p>
       <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for its role. Costs shown are per unit, before discounts. Cancel refunds the unused fraction. Food levy and mercenaries still arrive at once.</p>
       <div className="sc-work-grid">

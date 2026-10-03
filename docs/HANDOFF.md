@@ -13,6 +13,11 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/culture-unit-5-ui, not merged)
+
+- App only. The Lancer card on the Army tab shows "Study Horse lore on Crown (Keep II)." until Horse lore is done, then trains with the same button as Knight. Lancer uses the knight art.
+- Peak Holds sits in the Crown style picker with the other cultures and uses the same `setPlayerCulture` pick.
+
 ## Active wave (bakeoff/gemini-warden, not merged)
 
 - App HUD only. Added 28px warden chip on the Warden card on the Army tab:
