@@ -578,7 +578,8 @@ export function UnitIcon(props: UnitIconProps) {
         );
       }
 
-      case "cavalry": {
+      case "cavalry":
+      case "outrider": {
         // Warhorse with animated legs + mounted rider with lance
         const hLeg1 = frame === 1 ? 1 : frame === 2 ? -1 : 0;
         const hLeg2 = frame === 1 ? -1 : frame === 2 ? 1 : 0;

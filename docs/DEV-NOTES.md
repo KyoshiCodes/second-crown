@@ -1,3 +1,9 @@
+## 2026-10-02 — app / salt and outrider UI (wave/culture-unit-3-ui)
+
+- No new code for the picker or the card: `CulturePicker` maps `CULTURES` and `ArmyTab` maps `listUnitTypes()`, both on the existing `.sc-plain-pick` / `.sc-unit-card` styles.
+- `UnitIcon` has `case "outrider"` falling through to `case "cavalry"`, the same pattern as banner→spearman. The cavalry branch itself is unchanged. Salt resolves to the western kit in `resolveCultureKit`, like Mist and Glen.
+- Outrider gets its own `lockNote` line instead of joining the cavalry/knight condition, so the cavalry line stays untouched. The Stables discount line still says cavalry/knights only, which matches `trainCostMultiplier` in the sim (outriders get no Stables discount).
+
 ## 2026-10-02 — sim / salt culture and outrider (wave/culture-unit-3)
 
 - **"Woodcutters" means the `lumber_camp` building.** I didn't use the woodcutter citizen job (`labor.ts`) or the sawmill. This matches the mist (farm) and glen (quarry) pattern: a flat +1 added after multipliers, only for `lumber_camp`/`wood`. Owner: say if you meant posted woodcutter citizens instead.
