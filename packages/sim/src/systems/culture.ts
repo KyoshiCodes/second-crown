@@ -1,5 +1,5 @@
 import type { GameState } from "@second-crown/shared";
-import { CULTURES, NPC_CULTURE_IDS, MIST_FARM_BONUS, GLEN_QUARRY_BONUS, getCulture } from "../content/cultures.js";
+import { CULTURES, NPC_CULTURE_IDS, MIST_FARM_BONUS, GLEN_QUARRY_BONUS, SALT_WOOD_BONUS, getCulture } from "../content/cultures.js";
 
 export function playerCultureId(state: GameState): string {
   return String(state.flags.culture ?? "western");
@@ -36,6 +36,12 @@ export function farmCultureBonus(state: GameState, realmId: string): number {
 export function quarryCultureBonus(state: GameState, realmId: string): number {
   const id = realmId === "player" ? playerCultureId(state) : state.flags[`culture_${realmId}`];
   return id === "glen" ? GLEN_QUARRY_BONUS : 0;
+}
+
+/** Extra base wood per lumber camp for this realm. Reads only; never seeds an NPC culture flag. */
+export function woodCultureBonus(state: GameState, realmId: string): number {
+  const id = realmId === "player" ? playerCultureId(state) : state.flags[`culture_${realmId}`];
+  return id === "salt" ? SALT_WOOD_BONUS : 0;
 }
 
 export { getCulture, CULTURES };

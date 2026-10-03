@@ -13,6 +13,13 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (wave/culture-unit-3, not merged)
+
+- Sim only. One new culture (**salt**, "Salt Reaches") and one new unit (**outrider**). Mist, ranger, glen, and banner are unchanged.
+- Salt builds the same as western. Its one difference: each finished lumber camp gives a flat +1 wood per tick, added after multipliers (`woodCultureBonus`). A new game can pick it through `setPlayerCulture(s, "salt")`. Saves with no culture flag stay western. NPCs are never seeded salt.
+- Outrider: same cost as cavalry, power 5, `trainTicks` 50 (5s). It unlocks from the existing **Horse lore** study, alongside cavalry and knights. Cavalry is not replaced.
+- No app files changed. Outrider has no dedicated icon or crest yet.
+
 ## Active wave (bakeoff/gemini-banner, not merged)
 
 - App HUD only. Added 28px banner chip on the Banner card on the Army tab:

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-02 — Salt culture and outrider unit (wave/culture-unit-3)
+
+- **Sim:** added the `salt` culture (`content/cultures.ts`). It gives each lumber camp a flat +1 wood per tick through `woodCultureBonus` (`systems/culture.ts`), which `rateFor` in `systems/economy.ts` adds. `NPC_CULTURE_IDS` is unchanged, so existing seeds don't shift.
+- **Sim:** added the `outrider` unit (`content/units.ts`): cavalry cost and stats, power 5, `trainTicks` 50. `unitUnlocked("outrider")` waits on the existing `horse` study, same as cavalry. Cavalry is unchanged.
+- Tests: `systems/cultureUnit3.test.ts`. No change to raid math, ascend, mist, ranger, glen, banner, or existing costs.
+
 ## 2026-10-02 — Gemini 28px Banner Chip on Banner Card (bakeoff/gemini-banner)
 
 - **App HUD: 28px Banner Chip on Banner Card (`packages/app/src/hud/BannerChip.tsx`, `packages/app/src/hud/banner-chip.css`, `packages/app/src/hud/UnitCard.tsx`, `packages/app/src/UnitIcon.tsx`, `packages/render/src/index.test.ts`)**:

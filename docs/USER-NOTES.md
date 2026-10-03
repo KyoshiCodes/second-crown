@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — Salt Reaches culture and outriders (wave/culture-unit-3)
+
+- A new culture, **Salt Reaches**, can be picked for a new game. It builds like the Crown Marches, but every lumber camp fells +1 more wood. Existing saves keep their culture.
+- A new unit, the **Outrider**, costs the same as cavalry, hits a little softer (power 5), and drills in 5 seconds. It unlocks with **Horse lore** on the Crown tab, at the same time as cavalry. Cavalry is still there.
+- Outriders use a plain placeholder icon for now.
+
 ## 2026-10-02 — 28px Banner Chip on Banner Card (bakeoff/gemini-banner)
 
 - On the Army tab, the **Banner** card now displays a dedicated 28px heraldic banner chip:

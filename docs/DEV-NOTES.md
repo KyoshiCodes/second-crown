@@ -1,3 +1,10 @@
+## 2026-10-02 — sim / salt culture and outrider (wave/culture-unit-3)
+
+- **"Woodcutters" means the `lumber_camp` building.** I didn't use the woodcutter citizen job (`labor.ts`) or the sawmill. This matches the mist (farm) and glen (quarry) pattern: a flat +1 added after multipliers, only for `lumber_camp`/`wood`. Owner: say if you meant posted woodcutter citizens instead.
+- **Outrider uses the real cavalry path.** Unlike spearman and archer, cavalry already had a lectern study (`horse`: Horse lore, Keep II, barracks or academy). Outrider was added to `horse.unlocks`, and the effect text now names it. No new study.
+- **Outrider stats copy cavalry** (attack 14, defense 8, hp 18, speed 7, shock, tier 3). The brief only fixed cost, power, and drill time.
+- Follow-up for app: salt in `CulturePicker` needs no code. An outrider glyph in `crests.ts` and art in `UnitIcon.tsx` are still to do.
+
 ## 2026-10-02 — app / 28px banner chip on Banner card (bakeoff/gemini-banner)
 
 - `packages/app/src/hud/banner-chip.css`:
