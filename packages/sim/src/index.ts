@@ -35,9 +35,9 @@ export {
   tryIdleCitizen,
 } from "./systems/citizens.js";
 
-export { CULTURES, getCulture, NPC_CULTURE_IDS, MIST_FARM_BONUS, GLEN_QUARRY_BONUS, SALT_WOOD_BONUS } from "./content/cultures.js";
+export { CULTURES, getCulture, NPC_CULTURE_IDS, MIST_FARM_BONUS, GLEN_QUARRY_BONUS, SALT_WOOD_BONUS, FEN_COTTAGE_BONUS } from "./content/cultures.js";
 export type { CultureDef } from "./content/cultures.js";
-export { setPlayerCulture, playerCultureId, cultureOfRealm, farmCultureBonus, quarryCultureBonus, woodCultureBonus } from "./systems/culture.js";
+export { setPlayerCulture, playerCultureId, cultureOfRealm, farmCultureBonus, quarryCultureBonus, woodCultureBonus, cottageCultureBonus } from "./systems/culture.js";
 
 export { playerTitle, extraArchetypes } from "./content/world.js";
 

@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-02 — Fen Steads culture and wardens (wave/culture-unit-4)
+
+- A new culture, **Fen Steads**, can be picked for a new game. It builds like the Crown Marches, but every cottage houses one more citizen. Existing saves keep their culture.
+- A new unit, the **Warden**, costs the same as a skirmisher, has power 3, and drills in 3 seconds. It unlocks with a new **Screening** study on the Crown tab. Skirmishers are still there and need no study.
+- Wardens use a plain placeholder icon for now.
+
 ## 2026-10-02 — 28px Outrider Chip on Outrider Card (bakeoff/gemini-outrider)
 
 - On the Army tab, the **Outrider** card now displays a dedicated 28px scout cavalry chip:
