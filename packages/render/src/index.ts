@@ -114,6 +114,11 @@ import {
   paintBoardDestinationRing,
   resolveGatherLoadInfo,
   drawGatherColumnMeeple,
+  drawRangerMeeple,
+  drawBannerMeeple,
+  drawOutriderMeeple,
+  drawWardenMeeple,
+  drawLancerMeeple,
 } from "./tokens.js";
 
 import {
@@ -973,5 +978,10 @@ export {
   drawKeepSalt,
   drawKeepFen,
   drawKeepPeak,
+  drawRangerMeeple,
+  drawBannerMeeple,
+  drawOutriderMeeple,
+  drawWardenMeeple,
+  drawLancerMeeple,
 };
 

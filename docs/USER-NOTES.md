@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Culture Unit March Silhouettes (bakeoff/gemini-culture-marches)
+
+- On the isometric board, your marching armies now display distinct meeple silhouettes when mostly composed of the culture units:
+  - **Ranger**: A hooded runner carrying a compact hunting recurve short bow, back quiver, and nocked bodkin arrow, with a keen scout cyan glint.
+  - **Banner**: An armored marcher with granite kettle helm, glen-green cloak, and a tall spear waving a swallowtail pennant.
+  - **Outrider**: A swift galloping scout horse bearing a rider with a billowing salt-grey cloak and couched short lance.
+  - **Warden**: A stalwart guard with a fen-reed cloak, kettle helm, sturdy marsh spear, and prominent round wicker-reed boss shield.
+  - **Lancer**: A heavy armored mountain warhorse with steel forehead chanfron armor bearing a knight in visored greathelm, billowing peak-white cloak, and an exceptionally long couched shock lance with circular vamplate guard.
+- Marches mostly composed of militia, spearmen, archers, cavalry, or siege engines continue to use their familiar standard meeples.
+- Cultural keep silhouettes (Mist, Glen, Salt, Fen, Peak) and older culture styles remain untouched.
+
 ## 2026-10-03 — Player Culture Keeps (bakeoff/gemini-culture-keeps)
 
 - On the isometric board and world view, your home keep now reflects the culture you chose:

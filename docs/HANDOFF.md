@@ -13,6 +13,22 @@ Windows clone: `C:\Projects\second-crown-claude`
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 Gemini doc branches often conflict; rebase onto `origin/main`, `--theirs` on the four doc files during rebase, `git push --force-with-lease`.
 
+## Active wave (bakeoff/gemini-culture-marches, not merged)
+
+- Render only. No `packages/sim`, no `server`, no app tabs (`packages/app/src/tabs/*`).
+- On the isometric board, a player march that is mostly one of the new units uses that unit's meeple silhouette:
+  - **Ranger**: hood and short bow (`drawRangerMeeple`). Runner stride, mist-blue cloak cowl (`0x475569`/`0x1e293b`) with pointed peak, shadowed face with keen cyan scout eye glint (`0x38bdf8`), back quiver, and hunting recurve short bow (`0xca8a04`) with taut string (`0xf8fafc`) and nocked bodkin arrow (`0xd4a359`/`0xffffff`).
+  - **Banner**: spear with a small pennant (`drawBannerMeeple`). Disciplined marching stride, glen-green cloak (`0x4d7c0f`/`0x365314`), granite kettle helm (`0x78716c`), tall upright spear shaft (`0x5c3818`) with steel head (`0xffffff`), and small waving swallowtail pennant (`0xa3e635`/`0xfacc15`).
+  - **Outrider**: horse and short lance (`drawOutriderMeeple`). Fast galloping scout horse in dun/salt coat (`0x78716c`), salt-white mane and bridle, rider with billowing salt-grey cloak (`0xa8a29e`/`0x57534e`), and couched compact short lance (`0xd4a359`) with sharp steel tip (`0xf1f5f9`).
+  - **Warden**: spear and round shield (`drawWardenMeeple`). Heavy marsh guard stride, fen-reed cloak (`0x3f6212`/`0x1a2e05`) with bone toggle clasp (`0xfef08a`), conical iron kettle helm (`0x4b5563`), prominent round wicker-reed boss shield (`0x292524` rim, `0x65a30d` reed face, `0xd1d5db` iron boss), and sturdy marsh-wood thrusting spear (`0x5c3818`/`0xf8fafc`).
+  - **Lancer**: horse and long lance (`drawLancerMeeple`). Heavy mountain warhorse (`0x334155`) with galloping legs and steel chanfron forehead armor (`0xcbd5e1`), visored greathelm knight in billowing peak-white cloak (`0xf8fafc`/`0xffffff`) with silver brooch, and exceptionally long tournament shock lance (`0x64748b`) with circular vamplate handguard disc (`0x94a3b8`) reaching `+facing * 18` with diamond-forged steel point (`0xffffff`).
+- `primaryUnitTypeForMarch`: Added `lancer: 8, outrider: 7, ranger: 6, warden: 4, banner: 4` to `tierPriority` map so marches whose plurality/majority count is one of these units resolve directly to `ranger`, `banner`, `outrider`, `warden`, or `lancer`.
+- `unitPalette`: Added dedicated gear configurations (`shortbow`/`hood`, `pennant`, `shortlance`, `roundshield`, `longlance`).
+- `paintBoardMarches`: Dispatches player marches to the 5 dedicated drawers when `unitType` is ranger, banner, outrider, warden, or lancer.
+- Older units (militia, spearman, archer, cavalry, siege) and cultural keeps (Mist, Glen, Salt, Fen, Peak) strictly preserved.
+- Non-negotiables: Camera math, zoom, and tile click hit-testing untouched. Zero changes to `packages/sim`, `server`, `packages/app/src/tabs/*`, or `theme.css`.
+- Verification: 395 render tests pass (`packages/render/src/index.test.ts`), 274 sim tests pass, app builds cleanly.
+
 ## Active wave (bakeoff/gemini-culture-keeps, not merged)
 
 - Render only. On the isometric board, the player home keep reads as the culture they picked.
