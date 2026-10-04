@@ -85,6 +85,11 @@ import {
   drawRimGapMark,
   paintMissingRimSegments,
   isHoldBreached,
+  drawRangerMeeple,
+  drawBannerMeeple,
+  drawOutriderMeeple,
+  drawWardenMeeple,
+  drawLancerMeeple,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -9391,11 +9396,367 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               });
             });
           });
+
+          describe("bakeoff/gemini-culture-marches: silhouettes for Ranger, Banner, Outrider, Warden, Lancer", () => {
+            function createMockGraphics() {
+              const calls: { method: string; args: any[] }[] = [];
+              const mock: any = {
+                calls,
+                clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+                poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+                fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+                stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+                moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+                lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+                circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+                rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+                ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+              };
+              return mock;
+            }
+
+            describe("primaryUnitTypeForMarch: majority resolution for new unit types", () => {
+              it("resolves mono-unit marches to their respective culture unit types", () => {
+                expect(primaryUnitTypeForMarch({ force: { ranger: 12 } } as any)).toBe("ranger");
+                expect(primaryUnitTypeForMarch({ force: { banner: 10 } } as any)).toBe("banner");
+                expect(primaryUnitTypeForMarch({ force: { outrider: 8 } } as any)).toBe("outrider");
+                expect(primaryUnitTypeForMarch({ force: { warden: 15 } } as any)).toBe("warden");
+                expect(primaryUnitTypeForMarch({ force: { lancer: 14 } } as any)).toBe("lancer");
+              });
+
+              it("resolves majority/plurality marches correctly when new units outnumber others", () => {
+                expect(primaryUnitTypeForMarch({ force: { ranger: 20, spearman: 5, militia: 2 } } as any)).toBe("ranger");
+                expect(primaryUnitTypeForMarch({ force: { banner: 15, militia: 10, archer: 4 } } as any)).toBe("banner");
+                expect(primaryUnitTypeForMarch({ force: { outrider: 18, cavalry: 6 } } as any)).toBe("outrider");
+                expect(primaryUnitTypeForMarch({ force: { warden: 25, spearman: 10 } } as any)).toBe("warden");
+                expect(primaryUnitTypeForMarch({ force: { lancer: 30, cavalry: 12 } } as any)).toBe("lancer");
+              });
+
+              it("breaks ties using tier priority: lancer (8) > outrider (7) > ranger (6) > cavalry (5) > warden (4) = banner (4)", () => {
+                // Lancer tier 8 vs cavalry tier 5 with equal counts
+                expect(primaryUnitTypeForMarch({ force: { lancer: 10, cavalry: 10 } } as any)).toBe("lancer");
+                // Outrider tier 7 vs cavalry tier 5 with equal counts
+                expect(primaryUnitTypeForMarch({ force: { outrider: 10, cavalry: 10 } } as any)).toBe("outrider");
+                // Ranger tier 6 vs archer tier 3 with equal counts
+                expect(primaryUnitTypeForMarch({ force: { ranger: 10, archer: 10 } } as any)).toBe("ranger");
+                // Warden tier 4 vs spearman tier 2 with equal counts
+                expect(primaryUnitTypeForMarch({ force: { warden: 10, spearman: 10 } } as any)).toBe("warden");
+                // Banner tier 4 vs spearman tier 2 with equal counts
+                expect(primaryUnitTypeForMarch({ force: { banner: 10, spearman: 10 } } as any)).toBe("banner");
+              });
+
+              it("preserves standard legacy unit resolution when older units form the majority", () => {
+                expect(primaryUnitTypeForMarch({ force: { spearman: 20, ranger: 2 } } as any)).toBe("spearman");
+                expect(primaryUnitTypeForMarch({ force: { cavalry: 15, outrider: 1 } } as any)).toBe("cavalry");
+                expect(primaryUnitTypeForMarch({ force: { archer: 25, banner: 3 } } as any)).toBe("archer");
+                expect(primaryUnitTypeForMarch({ force: { militia: 10, warden: 2 } } as any)).toBe("militia");
+                expect(primaryUnitTypeForMarch({ force: { trebuchet: 5, lancer: 1 } } as any)).toBe("trebuchet");
+              });
+            });
+
+            describe("unitPalette: visual gear configurations for new units", () => {
+              it("provides distinct gear kinds and mount flags for all 5 units", () => {
+                const rangerPal = unitPalette("ranger");
+                expect(rangerPal.hasMount).toBe(false);
+                expect(rangerPal.weaponKind).toBe("shortbow");
+                expect(rangerPal.helmKind).toBe("hood");
+
+                const bannerPal = unitPalette("banner");
+                expect(bannerPal.hasMount).toBe(false);
+                expect(bannerPal.weaponKind).toBe("pennant");
+
+                const outriderPal = unitPalette("outrider");
+                expect(outriderPal.hasMount).toBe(true);
+                expect(outriderPal.weaponKind).toBe("shortlance");
+
+                const wardenPal = unitPalette("warden");
+                expect(wardenPal.hasMount).toBe(false);
+                expect(wardenPal.weaponKind).toBe("roundshield");
+
+                const lancerPal = unitPalette("lancer");
+                expect(lancerPal.hasMount).toBe(true);
+                expect(lancerPal.weaponKind).toBe("longlance");
+              });
+            });
+
+            describe("drawRangerMeeple: silhouette with hood and short bow", () => {
+              it("draws ranger meeple with mist hood, short bow, arrow, and cyan scout glint", () => {
+                const g = createMockGraphics();
+                drawRangerMeeple(g, 100, 100, 1, 0, 0, "mist", 0, { withPedestal: true });
+                const json = JSON.stringify(g.calls);
+
+                // Pedestal
+                expect(g.calls.some(c => c.method === "ellipse")).toBe(true);
+                // Mist blue hood / cloak cowl (0x475569, 0x1e293b)
+                expect(json).toContain(String(0x475569));
+                expect(json).toContain(String(0x1e293b));
+                // Arrow shaft (0xd4a359) & bodkin tip (0xffffff)
+                expect(json).toContain(String(0xd4a359));
+                expect(json).toContain(String(0xffffff));
+                // Scout cyan eye glint (0x38bdf8)
+                expect(json).toContain(String(0x38bdf8));
+                // Stride legs
+                expect(g.calls.some(c => c.method === "rect")).toBe(true);
+              });
+
+              it("handles left-facing and walking animation frames without error", () => {
+                const g = createMockGraphics();
+                drawRangerMeeple(g, 50, 50, -1, 1, 1.2, "western", 0.5);
+                expect(g.calls.length).toBeGreaterThan(15);
+              });
+            });
+
+            describe("drawBannerMeeple: silhouette with spear and small pennant", () => {
+              it("draws banner meeple with glen cloak, granite kettle helm, spear, and swallowtail pennant", () => {
+                const g = createMockGraphics();
+                drawBannerMeeple(g, 100, 100, 1, 0, 0, "glen", 0, { withPedestal: true });
+                const json = JSON.stringify(g.calls);
+
+                // Glen-green cloak (0x4d7c0f)
+                expect(json).toContain(String(0x4d7c0f));
+                // Granite kettle helm (0x78716c)
+                expect(json).toContain(String(0x78716c));
+                // Upright spear shaft (0x5c3818) & steel head (0xffffff)
+                expect(json).toContain(String(0x5c3818));
+                expect(json).toContain(String(0xffffff));
+                // Swallowtail pennant (0xa3e635 or 0xfacc15)
+                expect(json).toContain(String(0xa3e635));
+                expect(json).toContain(String(0xfacc15));
+              });
+
+              it("handles left-facing and bobbing animation frames without error", () => {
+                const g = createMockGraphics();
+                drawBannerMeeple(g, 60, 60, -1, 2, 0.8, "mist", 1.0);
+                expect(g.calls.length).toBeGreaterThan(15);
+              });
+            });
+
+            describe("drawOutriderMeeple: silhouette with horse and short lance", () => {
+              it("draws outrider meeple with galloping scout horse, billowing salt-grey cloak, and short lance", () => {
+                const g = createMockGraphics();
+                drawOutriderMeeple(g, 100, 100, 1, 0, 0, "salt", 0, { withPedestal: true });
+                const json = JSON.stringify(g.calls);
+
+                // Scout horse coat (0x78716c or 0x57534e)
+                expect(json).toContain(String(0x78716c));
+                // Billowing salt-grey cloak (0xa8a29e)
+                expect(json).toContain(String(0xa8a29e));
+                // Couched short lance (0xd4a359) with steel tip (0xf1f5f9)
+                expect(json).toContain(String(0xd4a359));
+                expect(json).toContain(String(0xf1f5f9));
+              });
+
+              it("handles left-facing and gallop animation frames without error", () => {
+                const g = createMockGraphics();
+                drawOutriderMeeple(g, 40, 40, -1, 1, 0.5, "peak", 0.7);
+                expect(g.calls.length).toBeGreaterThan(15);
+              });
+            });
+
+            describe("drawWardenMeeple: silhouette with spear and round shield", () => {
+              it("draws warden meeple with fen-reed cloak, round wicker shield, and sturdy marsh spear", () => {
+                const g = createMockGraphics();
+                drawWardenMeeple(g, 100, 100, 1, 0, 0, "fen", 0, { withPedestal: true });
+                const json = JSON.stringify(g.calls);
+
+                // Fen-reed cloak (0x3f6212)
+                expect(json).toContain(String(0x3f6212));
+                // Iron kettle helm (0x4b5563)
+                expect(json).toContain(String(0x4b5563));
+                // Round shield rim (0x292524) and reed face (0x65a30d) with iron boss (0xd1d5db)
+                expect(json).toContain(String(0x292524));
+                expect(json).toContain(String(0x65a30d));
+                expect(json).toContain(String(0xd1d5db));
+                // Marsh-wood spear (0x5c3818) with steel leaf blade (0xf8fafc)
+                expect(json).toContain(String(0x5c3818));
+                expect(json).toContain(String(0xf8fafc));
+              });
+
+              it("handles left-facing and march animation frames without error", () => {
+                const g = createMockGraphics();
+                drawWardenMeeple(g, 70, 70, -1, 2, 1.0, "western", 0.3);
+                expect(g.calls.length).toBeGreaterThan(15);
+              });
+            });
+
+            describe("drawLancerMeeple: silhouette with horse and long lance", () => {
+              it("draws lancer meeple with mountain warhorse, long couched lance, peak-white cloak, and vamplate", () => {
+                const g = createMockGraphics();
+                drawLancerMeeple(g, 100, 100, 1, 0, 0, "peak", 0, { withPedestal: true });
+                const json = JSON.stringify(g.calls);
+
+                // Mountain warhorse coat (0x334155) & chanfron armor (0xcbd5e1)
+                expect(json).toContain(String(0x334155));
+                expect(json).toContain(String(0xcbd5e1));
+                // Billowing peak-white cloak (0xf8fafc) & silver brooch (0xffffff)
+                expect(json).toContain(String(0xf8fafc));
+                expect(json).toContain(String(0xffffff));
+                // Circular vamplate handguard disc (0x94a3b8)
+                expect(json).toContain(String(0x94a3b8));
+                // Long shock lance shaft (0x64748b)
+                expect(json).toContain(String(0x64748b));
+              });
+
+              it("handles left-facing and gallop animation frames without error", () => {
+                const g = createMockGraphics();
+                drawLancerMeeple(g, 80, 80, -1, 1, 0.4, "glen", 0.9);
+                expect(g.calls.length).toBeGreaterThan(15);
+              });
+            });
+
+            describe("paintBoardMarches: dispatching majority culture units", () => {
+              function createMarchState(force: Record<string, number>, isPlayer = true): GameState {
+                const state = createMockState();
+                state.board = {
+                  homeProvinceId: "p_home",
+                  provinces: [
+                    { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                    { id: "p_target", x: 3, y: 3, terrain: "hill", node: "hold", occupantRealmId: "k_enemy" },
+                  ],
+                };
+                state.flags = {
+                  "seen:p_home": true,
+                  "seen:p_target": true,
+                  culture: "mist",
+                  marches_json: JSON.stringify([
+                    {
+                      id: "m_test",
+                      realmId: isPlayer ? "player" : "k_enemy",
+                      fromId: "p_home",
+                      toId: "p_target",
+                      arrivesTick: 100,
+                      force,
+                    },
+                  ]),
+                };
+                return state;
+              }
+
+              it("renders ranger meeple when march is predominantly rangers", () => {
+                const routeG = createMockGraphics();
+                const pawnsG = createMockGraphics();
+                const state = createMarchState({ ranger: 15, spearman: 2 });
+                paintBoardMarches(routeG, pawnsG, state, 1.0);
+
+                const json = JSON.stringify(pawnsG.calls);
+                // Contains short bow wood (0xca8a04) and cyan glint (0x38bdf8)
+                expect(json).toContain(String(0xca8a04));
+                expect(json).toContain(String(0x38bdf8));
+              });
+
+              it("renders banner meeple when march is predominantly banners", () => {
+                const routeG = createMockGraphics();
+                const pawnsG = createMockGraphics();
+                const state = createMarchState({ banner: 12, militia: 1 });
+                paintBoardMarches(routeG, pawnsG, state, 1.0);
+
+                const json = JSON.stringify(pawnsG.calls);
+                // Contains swallowtail pennant colors (0xa3e635, 0xfacc15) and spear shaft (0x5c3818)
+                expect(json).toContain(String(0xa3e635));
+                expect(json).toContain(String(0x5c3818));
+              });
+
+              it("renders outrider meeple when march is predominantly outriders", () => {
+                const routeG = createMockGraphics();
+                const pawnsG = createMockGraphics();
+                const state = createMarchState({ outrider: 10, cavalry: 2 });
+                paintBoardMarches(routeG, pawnsG, state, 1.0);
+
+                const json = JSON.stringify(pawnsG.calls);
+                // Contains salt-grey cloak (0xa8a29e) and short lance (0xd4a359)
+                expect(json).toContain(String(0xa8a29e));
+                expect(json).toContain(String(0xd4a359));
+              });
+
+              it("renders warden meeple when march is predominantly wardens", () => {
+                const routeG = createMockGraphics();
+                const pawnsG = createMockGraphics();
+                const state = createMarchState({ warden: 14, spearman: 3 });
+                paintBoardMarches(routeG, pawnsG, state, 1.0);
+
+                const json = JSON.stringify(pawnsG.calls);
+                // Contains round shield rim (0x292524) and reed face (0x65a30d)
+                expect(json).toContain(String(0x292524));
+                expect(json).toContain(String(0x65a30d));
+              });
+
+              it("renders lancer meeple when march is predominantly lancers", () => {
+                const routeG = createMockGraphics();
+                const pawnsG = createMockGraphics();
+                const state = createMarchState({ lancer: 16, cavalry: 2 });
+                paintBoardMarches(routeG, pawnsG, state, 1.0);
+
+                const json = JSON.stringify(pawnsG.calls);
+                // Contains long lance (0x64748b) and peak-white cloak (0xf8fafc)
+                expect(json).toContain(String(0x64748b));
+                expect(json).toContain(String(0xf8fafc));
+              });
+
+              it("preserves standard legacy meeples when march is predominantly standard units", () => {
+                const routeG = createMockGraphics();
+                const pawnsG = createMockGraphics();
+                const state = createMarchState({ spearman: 20 });
+                paintBoardMarches(routeG, pawnsG, state, 1.0);
+                expect(pawnsG.calls.length).toBeGreaterThan(15);
+              });
+            });
+
+            describe("exports and code integrity", () => {
+              it("verifies direct exported meeple functions exist and execute cleanly", async () => {
+                const {
+                  drawRangerMeeple,
+                  drawBannerMeeple,
+                  drawOutriderMeeple,
+                  drawWardenMeeple,
+                  drawLancerMeeple,
+                } = await import("./index.js");
+
+                expect(typeof drawRangerMeeple).toBe("function");
+                expect(typeof drawBannerMeeple).toBe("function");
+                expect(typeof drawOutriderMeeple).toBe("function");
+                expect(typeof drawWardenMeeple).toBe("function");
+                expect(typeof drawLancerMeeple).toBe("function");
+
+                const g = createMockGraphics();
+                drawRangerMeeple(g, 0, 0);
+                drawBannerMeeple(g, 0, 0);
+                drawOutriderMeeple(g, 0, 0);
+                drawWardenMeeple(g, 0, 0);
+                drawLancerMeeple(g, 0, 0);
+                expect(g.calls.length).toBeGreaterThan(50);
+              });
+
+              it("verifies zero merge conflict markers across packages/render files", async () => {
+                const fs = await import("node:fs");
+                const path = await import("node:path");
+                const files = [
+                  path.resolve(__dirname, "tokens.ts"),
+                  path.resolve(__dirname, "buildings.ts"),
+                  path.resolve(__dirname, "index.ts"),
+                ];
+                for (const f of files) {
+                  const content = fs.readFileSync(f, "utf-8");
+                  expect(content).not.toContain("<<<<<<<");
+                  expect(content).not.toContain("=======");
+                  expect(content).not.toContain(">>>>>>>");
+                }
+              });
+
+              it("verifies camera math and tile conversions remain unchanged", async () => {
+                const { gridToWorld, worldToGrid } = await import("./camera.js");
+                const { wx, wy } = gridToWorld(4, 4);
+                const { gx, gy } = worldToGrid(wx, wy);
+                expect(gx).toBe(4);
+                expect(gy).toBe(4);
+              });
+            });
+          });
         });
       });
     });
   });
 });
+
 
 
 

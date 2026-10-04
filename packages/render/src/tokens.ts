@@ -66,9 +66,14 @@ export function primaryUnitTypeForMarch(march: { force?: Record<string, number>;
       champion: 10,
       siege: 9,
       knight: 8,
+      lancer: 8,
       cavalry: 7,
+      outrider: 7,
       archer: 6,
+      ranger: 6,
       skirmisher: 5,
+      warden: 4,
+      banner: 4,
       spearman: 4,
       militia: 1,
     };
@@ -92,8 +97,8 @@ export interface UnitVisualPalette {
   armorColor: number;
   weaponColor: number;
   accentColor: number;
-  weaponKind: "spear" | "bow" | "horse" | "heater" | "siege" | "club" | "javelin" | "greatsword";
-  helmKind: "none" | "kettle" | "cap" | "plate" | "crown";
+  weaponKind: "spear" | "bow" | "horse" | "heater" | "siege" | "club" | "javelin" | "greatsword" | "shortbow" | "pennant" | "shortlance" | "roundshield" | "longlance";
+  helmKind: "none" | "kettle" | "cap" | "plate" | "crown" | "hood";
   hasMount: boolean;
   isChassis: boolean;
 }
@@ -203,6 +208,81 @@ export function unitPalette(typeId: string, cultureId?: string): UnitVisualPalet
         weaponKind: "greatsword",
         helmKind: "crown",
         hasMount: false,
+        isChassis: false,
+      };
+      break;
+    case "ranger":
+      pal = {
+        id: "ranger",
+        name: "Ranger",
+        tabardColor: 0x475569, // mist-blue slate
+        tabardDark: 0x1e293b,
+        armorColor: 0x5c3818, // leather
+        weaponColor: 0xca8a04, // short bow
+        accentColor: 0x38bdf8, // mist cyan
+        weaponKind: "shortbow",
+        helmKind: "hood",
+        hasMount: false,
+        isChassis: false,
+      };
+      break;
+    case "banner":
+      pal = {
+        id: "banner",
+        name: "Banner",
+        tabardColor: 0x4d7c0f, // glen-green
+        tabardDark: 0x365314,
+        armorColor: 0x78716c, // quarry granite
+        weaponColor: 0xffffff, // spearhead
+        accentColor: 0xa3e635, // small pennant green
+        weaponKind: "pennant",
+        helmKind: "kettle",
+        hasMount: false,
+        isChassis: false,
+      };
+      break;
+    case "outrider":
+      pal = {
+        id: "outrider",
+        name: "Outrider",
+        tabardColor: 0xa8a29e, // salt-grey
+        tabardDark: 0x78716c,
+        armorColor: 0x5c3818, // timber saddle
+        weaponColor: 0xf1f5f9, // short lance tip
+        accentColor: 0xe2e8f0, // salt frost
+        weaponKind: "shortlance",
+        helmKind: "none",
+        hasMount: true,
+        isChassis: false,
+      };
+      break;
+    case "warden":
+      pal = {
+        id: "warden",
+        name: "Warden",
+        tabardColor: 0x3f6212, // fen-reed
+        tabardDark: 0x1a2e05,
+        armorColor: 0x44403c, // round shield rim
+        weaponColor: 0xf8fafc, // spearhead
+        accentColor: 0x65a30d, // reed boss
+        weaponKind: "roundshield",
+        helmKind: "kettle",
+        hasMount: false,
+        isChassis: false,
+      };
+      break;
+    case "lancer":
+      pal = {
+        id: "lancer",
+        name: "Lancer",
+        tabardColor: 0xf8fafc, // peak-white cloak
+        tabardDark: 0xcbd5e1,
+        armorColor: 0x94a3b8, // mountain plate
+        weaponColor: 0xffffff, // diamond steel lance
+        accentColor: 0x38bdf8, // alpine frost
+        weaponKind: "longlance",
+        helmKind: "plate",
+        hasMount: true,
         isChassis: false,
       };
       break;
@@ -4952,6 +5032,620 @@ export function drawRedWarbandMeeple(
 
 export const drawWarbandMeeple = drawRedWarbandMeeple;
 
+/**
+ * Draws the Ranger unit meeple:
+ * Silhouette: Hood, mist-blue cloak, and short bow.
+ */
+export function drawRangerMeeple(
+  pawnsG: Graphics,
+  pawnX: number,
+  pawnY: number,
+  facing: number = 1,
+  frame: 0 | 1 | 2 = 0,
+  bob: number = 0,
+  cultId?: string,
+  phase: number = 0,
+  options?: { withPedestal?: boolean }
+): void {
+  if (options?.withPedestal) {
+    pawnsG.ellipse(pawnX, pawnY + 6.5, 9.5, 4);
+    pawnsG.fill({ color: 0x000000, alpha: 0.55 });
+    pawnsG.rect(pawnX - 7, pawnY + 2 - bob, 14, 4.5);
+    pawnsG.fill({ color: 0x451a03 });
+    pawnsG.stroke({ width: 0.8, color: 0x271302 });
+    pawnsG.rect(pawnX - 6, pawnY + 1.2 - bob, 12, 1.8);
+    pawnsG.fill({ color: 0xfacc15 });
+    pawnsG.rect(pawnX - 4, pawnY + 1.5 - bob, 8, 1.2);
+    pawnsG.fill({ color: 0x2563eb });
+    pawnsG.circle(pawnX - 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+    pawnsG.circle(pawnX + 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+  }
+
+  const armSwing = frame === 1 ? -1 : frame === 2 ? 1 : 0;
+  const legL = frame === 1 ? -2.2 : frame === 2 ? 1.2 : -1;
+  const legR = frame === 1 ? 1.2 : frame === 2 ? -2.2 : 1;
+
+  const mistBlue = 0x475569;
+  const mistDark = 0x1e293b;
+  const leatherWood = 0x5c3818;
+  const bowWood = 0xca8a04;
+
+  // 1. Billowing Mist-Blue Cloak trailing behind runner
+  const cDrift = Math.sin(phase * 4 + pawnX) * 1.5;
+  pawnsG.poly([
+    pawnX - facing * 2, pawnY - 9 - bob,
+    pawnX - facing * (7 + cDrift), pawnY + 1 - bob,
+    pawnX - facing * 4.5, pawnY + 2.5 - bob,
+    pawnX - facing * 1, pawnY - 1 - bob,
+  ]);
+  pawnsG.fill({ color: mistBlue });
+  pawnsG.stroke({ width: 0.6, color: mistDark });
+
+  // Translucent mist trim on hem
+  pawnsG.poly([
+    pawnX - facing * (7 + cDrift), pawnY + 1 - bob,
+    pawnX - facing * (5.5 + cDrift * 0.5), pawnY + 2.5 - bob,
+    pawnX - facing * 4.5, pawnY + 2.5 - bob,
+  ]);
+  pawnsG.fill({ color: 0xe2e8f0, alpha: 0.45 });
+
+  // 2. Nimble Ranger Legs with soft leather boots
+  pawnsG.rect(pawnX + legL, pawnY - 2 - bob, 2.2, 4.5);
+  pawnsG.fill({ color: 0x292524 });
+  pawnsG.rect(pawnX + legR, pawnY - 2 - bob, 2.2, 4.5);
+  pawnsG.fill({ color: 0x1c1917 });
+
+  // 3. Tapered Torso with Peat-Leather Jerkin & Belt
+  pawnsG.poly([
+    pawnX - 4, pawnY + 1 - bob,
+    pawnX - 3.2, pawnY - 7 - bob,
+    pawnX + 3.2, pawnY - 7 - bob,
+    pawnX + 4, pawnY + 1 - bob,
+  ]);
+  pawnsG.fill({ color: mistBlue });
+  pawnsG.stroke({ width: 0.7, color: mistDark });
+
+  // Leather cross-straps and belt with pouch
+  pawnsG.rect(pawnX - 3.2, pawnY - 2 - bob, 6.4, 1.4);
+  pawnsG.fill({ color: leatherWood });
+  pawnsG.circle(pawnX, pawnY - 1.3 - bob, 0.7);
+  pawnsG.fill({ color: 0xd4a359 });
+  // Quiver strap
+  pawnsG.moveTo(pawnX - 2.5, pawnY - 6.5 - bob);
+  pawnsG.lineTo(pawnX + 2.5, pawnY - 2 - bob);
+  pawnsG.stroke({ width: 0.8, color: leatherWood });
+
+  // 4. Head and The Ranger Hood
+  pawnsG.circle(pawnX, pawnY - 10 - bob, 2.8);
+  pawnsG.fill({ color: 0x18181b }); // shadowed cowl depth
+
+  // Pulled-up hood cowl with pointed peak trailing back
+  pawnsG.poly([
+    pawnX - 4, pawnY - 8.5 - bob,
+    pawnX, pawnY - 15 - bob,
+    pawnX + 4, pawnY - 8.5 - bob,
+  ]);
+  pawnsG.fill({ color: mistBlue });
+  pawnsG.stroke({ width: 0.7, color: mistDark });
+
+  // Hood point trailing back
+  pawnsG.poly([
+    pawnX - facing * 0.5, pawnY - 15 - bob,
+    pawnX - facing * 4.5, pawnY - 17 - bob,
+    pawnX - facing * 2.5, pawnY - 13 - bob,
+  ]);
+  pawnsG.fill({ color: mistDark });
+
+  // Shadowed cowl interior with keen scout glint
+  pawnsG.circle(pawnX + facing * 0.8, pawnY - 11 - bob, 1.8);
+  pawnsG.fill({ color: 0x09090b });
+  pawnsG.circle(pawnX + facing * 1.4, pawnY - 11 - bob, 0.6);
+  pawnsG.fill({ color: 0x38bdf8 }); // keen mist cyan eye
+
+  // Back Quiver with arrows
+  pawnsG.rect(pawnX - facing * 3.5, pawnY - 11 - bob, 2.4, 5.5);
+  pawnsG.fill({ color: leatherWood });
+  pawnsG.moveTo(pawnX - facing * 3.5, pawnY - 14 - bob);
+  pawnsG.lineTo(pawnX - facing * 3.5, pawnY - 11 - bob);
+  pawnsG.stroke({ width: 1, color: 0xf1f5f9 });
+  pawnsG.moveTo(pawnX - facing * 2.2, pawnY - 13.5 - bob);
+  pawnsG.lineTo(pawnX - facing * 2.2, pawnY - 11 - bob);
+  pawnsG.stroke({ width: 1, color: 0xca8a04 });
+
+  // 5. The Short Bow
+  // Compact hunting recurve bow (noticeably smaller than archer longbow)
+  pawnsG.poly([
+    pawnX + facing * 3.5, pawnY - 12 - bob + armSwing,
+    pawnX + facing * 6.2, pawnY - 7 - bob + armSwing,
+    pawnX + facing * 3.5, pawnY - 2 - bob + armSwing,
+  ]);
+  pawnsG.stroke({ width: 1.8, color: bowWood });
+
+  // Taut bowstring
+  pawnsG.moveTo(pawnX + facing * 3.5, pawnY - 12 - bob + armSwing);
+  pawnsG.lineTo(pawnX + facing * 3.5, pawnY - 2 - bob + armSwing);
+  pawnsG.stroke({ width: 0.8, color: 0xf8fafc });
+
+  // Nocked bodkin arrow ready to loose
+  pawnsG.moveTo(pawnX + facing * 0.5, pawnY - 7 - bob + armSwing);
+  pawnsG.lineTo(pawnX + facing * 7, pawnY - 7 - bob + armSwing);
+  pawnsG.stroke({ width: 1.0, color: 0xd4a359 });
+  pawnsG.poly([
+    pawnX + facing * 7, pawnY - 8 - bob + armSwing,
+    pawnX + facing * 8.5, pawnY - 7 - bob + armSwing,
+    pawnX + facing * 7, pawnY - 6 - bob + armSwing,
+  ]);
+  pawnsG.fill({ color: 0xffffff });
+}
+
+/**
+ * Draws the Banner unit meeple:
+ * Silhouette: Spear with a small pennant, and glen-green cloak.
+ */
+export function drawBannerMeeple(
+  pawnsG: Graphics,
+  pawnX: number,
+  pawnY: number,
+  facing: number = 1,
+  frame: 0 | 1 | 2 = 0,
+  bob: number = 0,
+  cultId?: string,
+  phase: number = 0,
+  options?: { withPedestal?: boolean }
+): void {
+  if (options?.withPedestal) {
+    pawnsG.ellipse(pawnX, pawnY + 6.5, 9.5, 4);
+    pawnsG.fill({ color: 0x000000, alpha: 0.55 });
+    pawnsG.rect(pawnX - 7, pawnY + 2 - bob, 14, 4.5);
+    pawnsG.fill({ color: 0x451a03 });
+    pawnsG.stroke({ width: 0.8, color: 0x271302 });
+    pawnsG.rect(pawnX - 6, pawnY + 1.2 - bob, 12, 1.8);
+    pawnsG.fill({ color: 0xfacc15 });
+    pawnsG.rect(pawnX - 4, pawnY + 1.5 - bob, 8, 1.2);
+    pawnsG.fill({ color: 0x2563eb });
+    pawnsG.circle(pawnX - 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+    pawnsG.circle(pawnX + 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+  }
+
+  const armSwing = frame === 1 ? -1 : frame === 2 ? 1 : 0;
+  const legL = frame === 1 ? -2.2 : frame === 2 ? 1.2 : -1;
+  const legR = frame === 1 ? 1.2 : frame === 2 ? -2.2 : 1;
+
+  const glenGreen = 0x4d7c0f;
+  const glenDark = 0x365314;
+  const pennantBright = 0xa3e635;
+  const graniteStone = 0x78716c;
+
+  // 1. Glen-Green Cloak pinned neatly at collar
+  pawnsG.poly([
+    pawnX - facing * 2, pawnY - 8 - bob,
+    pawnX - facing * 6, pawnY + 2 - bob,
+    pawnX - facing * 1.5, pawnY + 1.5 - bob,
+  ]);
+  pawnsG.fill({ color: glenGreen });
+  pawnsG.stroke({ width: 0.6, color: glenDark });
+
+  // 2. Disciplined Marching Legs
+  pawnsG.rect(pawnX + legL, pawnY - 2 - bob, 2.4, 4.5);
+  pawnsG.fill({ color: graniteStone });
+  pawnsG.rect(pawnX + legR, pawnY - 2 - bob, 2.4, 4.5);
+  pawnsG.fill({ color: 0x44403c });
+
+  // 3. Torso with Glen Tabard & Brass Livery
+  pawnsG.poly([
+    pawnX - 4.5, pawnY + 1 - bob,
+    pawnX - 3.5, pawnY - 7 - bob,
+    pawnX + 3.5, pawnY - 7 - bob,
+    pawnX + 4.5, pawnY + 1 - bob,
+  ]);
+  pawnsG.fill({ color: glenGreen });
+  pawnsG.stroke({ width: 0.7, color: glenDark });
+
+  // Gold livery belt
+  pawnsG.rect(pawnX - 3.5, pawnY - 2 - bob, 7, 1.5);
+  pawnsG.fill({ color: 0xfacc15 });
+
+  // 4. Head and Kettle Helm
+  pawnsG.circle(pawnX, pawnY - 10 - bob, 2.8);
+  pawnsG.fill({ color: 0xfbcfe8 });
+
+  // Polished granite kettle helm
+  pawnsG.rect(pawnX - 4.5, pawnY - 12 - bob, 9, 2);
+  pawnsG.fill({ color: graniteStone });
+  pawnsG.circle(pawnX, pawnY - 12.5 - bob, 2.6);
+  pawnsG.fill({ color: 0xd6d3d1 });
+  pawnsG.stroke({ width: 0.6, color: 0x44403c });
+
+  // 5. The Spear with a Small Pennant
+  // Spear shaft held aloft
+  pawnsG.moveTo(pawnX + facing * 4, pawnY + 3 - bob);
+  pawnsG.lineTo(pawnX + facing * 4, pawnY - 23 - bob + armSwing);
+  pawnsG.stroke({ width: 1.5, color: 0x5c3818 });
+
+  // Spear leaf head
+  pawnsG.poly([
+    pawnX + facing * 4, pawnY - 25 - bob + armSwing,
+    pawnX + facing * 4 - 2, pawnY - 21 - bob + armSwing,
+    pawnX + facing * 4 + 2, pawnY - 21 - bob + armSwing,
+  ]);
+  pawnsG.fill({ color: 0xffffff });
+  pawnsG.stroke({ width: 0.6, color: 0x475569 });
+
+  // Gold ferrule / pennant attachment ring
+  pawnsG.circle(pawnX + facing * 4, pawnY - 20 - bob + armSwing, 1.0);
+  pawnsG.fill({ color: 0xfacc15 });
+
+  // The Small Pennant waving from spearhead
+  const bWave = Math.sin(phase * 4 + pawnX) * 1.8;
+  pawnsG.poly([
+    pawnX + facing * 4, pawnY - 21 - bob + armSwing,
+    pawnX + facing * (12 + bWave), pawnY - 18.5 - bob + armSwing,
+    pawnX + facing * (8 + bWave * 0.5), pawnY - 16.5 - bob + armSwing,
+    pawnX + facing * (12 + bWave), pawnY - 14.5 - bob + armSwing,
+    pawnX + facing * 4, pawnY - 14.5 - bob + armSwing,
+  ]);
+  pawnsG.fill({ color: pennantBright });
+  pawnsG.stroke({ width: 0.6, color: glenDark });
+
+  // Inner heraldic stripe on pennant
+  pawnsG.poly([
+    pawnX + facing * 4, pawnY - 18.5 - bob + armSwing,
+    pawnX + facing * (7 + bWave * 0.5), pawnY - 16.5 - bob + armSwing,
+    pawnX + facing * 4, pawnY - 16.5 - bob + armSwing,
+  ]);
+  pawnsG.fill({ color: 0xfacc15 });
+}
+
+/**
+ * Draws the Outrider unit meeple:
+ * Silhouette: Horse and short lance, with salt-grey cloak.
+ */
+export function drawOutriderMeeple(
+  pawnsG: Graphics,
+  pawnX: number,
+  pawnY: number,
+  facing: number = 1,
+  frame: 0 | 1 | 2 = 0,
+  bob: number = 0,
+  cultId?: string,
+  phase: number = 0,
+  options?: { withPedestal?: boolean }
+): void {
+  if (options?.withPedestal) {
+    pawnsG.ellipse(pawnX, pawnY + 6.5, 9.5, 4);
+    pawnsG.fill({ color: 0x000000, alpha: 0.55 });
+    pawnsG.rect(pawnX - 7, pawnY + 2 - bob, 14, 4.5);
+    pawnsG.fill({ color: 0x451a03 });
+    pawnsG.stroke({ width: 0.8, color: 0x271302 });
+    pawnsG.rect(pawnX - 6, pawnY + 1.2 - bob, 12, 1.8);
+    pawnsG.fill({ color: 0xfacc15 });
+    pawnsG.rect(pawnX - 4, pawnY + 1.5 - bob, 8, 1.2);
+    pawnsG.fill({ color: 0x2563eb });
+    pawnsG.circle(pawnX - 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+    pawnsG.circle(pawnX + 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+  }
+
+  const hLeg1 = frame === 1 ? 2 : frame === 2 ? -2 : 0;
+  const hLeg2 = frame === 1 ? -2 : frame === 2 ? 2 : 0;
+
+  const saltGrey = 0xa8a29e;
+  const saltDark = 0x57534e;
+  const horseDun = 0x78716c;
+
+  // 1. Agile Galloping Scout Horse Legs with hooves
+  pawnsG.rect(pawnX - 5.5, pawnY - 1 - bob + hLeg1, 2.2, 4.5);
+  pawnsG.fill({ color: 0x44403c });
+  pawnsG.rect(pawnX - 5.5, pawnY + 2.5 - bob + hLeg1, 2.2, 1.2);
+  pawnsG.fill({ color: 0x18181b });
+
+  pawnsG.rect(pawnX + 4, pawnY - 1 - bob + hLeg2, 2.2, 4.5);
+  pawnsG.fill({ color: horseDun });
+  pawnsG.rect(pawnX + 4, pawnY + 2.5 - bob + hLeg2, 2.2, 1.2);
+  pawnsG.fill({ color: 0x18181b });
+
+  // 2. Scout Horse Body
+  pawnsG.rect(pawnX - 6.5, pawnY - 5.5 - bob, 13, 5.5);
+  pawnsG.fill({ color: horseDun });
+
+  // Timber yard leather saddle & salt-grey blanket
+  pawnsG.rect(pawnX - 3.5, pawnY - 6.5 - bob, 7, 4.5);
+  pawnsG.fill({ color: saltGrey });
+  pawnsG.stroke({ width: 0.6, color: saltDark });
+
+  // 3. Swift Horse Neck and Head
+  pawnsG.poly([
+    pawnX + facing * 3, pawnY - 5.5 - bob,
+    pawnX + facing * 7, pawnY - 11.5 - bob,
+    pawnX + facing * 10, pawnY - 9.5 - bob,
+    pawnX + facing * 5, pawnY - 3.5 - bob,
+  ]);
+  pawnsG.fill({ color: horseDun });
+
+  // Salt-white mane and bridle
+  pawnsG.rect(pawnX + facing * 6.5, pawnY - 12.5 - bob, 2, 3);
+  pawnsG.fill({ color: 0xf1f5f9 });
+  pawnsG.moveTo(pawnX + facing * 9, pawnY - 9 - bob);
+  pawnsG.lineTo(pawnX + facing * 2, pawnY - 8.5 - bob);
+  pawnsG.stroke({ width: 0.6, color: 0x292524 });
+
+  // 4. Rider with Salt-Grey Cloak
+  // Flowing salt-grey cloak streaming behind rider
+  const oWave = Math.sin(phase * 4 + pawnX) * 1.5;
+  pawnsG.poly([
+    pawnX - facing * 2.5, pawnY - 11 - bob,
+    pawnX - facing * (8.5 + oWave), pawnY - 7 - bob,
+    pawnX - facing * 3, pawnY - 5 - bob,
+  ]);
+  pawnsG.fill({ color: saltGrey });
+  pawnsG.stroke({ width: 0.6, color: saltDark });
+
+  // Rider body & coif
+  pawnsG.rect(pawnX - 2.5, pawnY - 11.5 - bob, 5, 5.5);
+  pawnsG.fill({ color: saltGrey });
+  pawnsG.circle(pawnX, pawnY - 13.5 - bob, 2.6);
+  pawnsG.fill({ color: 0xd6d3d1 });
+  pawnsG.stroke({ width: 0.6, color: saltDark });
+
+  // 5. The Short Lance
+  // Agile, light scouting short lance (noticeably more compact than cavalry lance)
+  pawnsG.moveTo(pawnX - facing * 2, pawnY - 8 - bob);
+  pawnsG.lineTo(pawnX + facing * 10.5, pawnY - 12.5 - bob);
+  pawnsG.stroke({ width: 1.3, color: 0xd4a359 });
+
+  // Short lance steel point
+  pawnsG.poly([
+    pawnX + facing * 9.5, pawnY - 12 - bob,
+    pawnX + facing * 12, pawnY - 13 - bob,
+    pawnX + facing * 9.5, pawnY - 14 - bob,
+  ]);
+  pawnsG.fill({ color: 0xf1f5f9 });
+}
+
+/**
+ * Draws the Warden unit meeple:
+ * Silhouette: Spear and round shield, with fen-reed cloak.
+ */
+export function drawWardenMeeple(
+  pawnsG: Graphics,
+  pawnX: number,
+  pawnY: number,
+  facing: number = 1,
+  frame: 0 | 1 | 2 = 0,
+  bob: number = 0,
+  cultId?: string,
+  phase: number = 0,
+  options?: { withPedestal?: boolean }
+): void {
+  if (options?.withPedestal) {
+    pawnsG.ellipse(pawnX, pawnY + 6.5, 9.5, 4);
+    pawnsG.fill({ color: 0x000000, alpha: 0.55 });
+    pawnsG.rect(pawnX - 7, pawnY + 2 - bob, 14, 4.5);
+    pawnsG.fill({ color: 0x451a03 });
+    pawnsG.stroke({ width: 0.8, color: 0x271302 });
+    pawnsG.rect(pawnX - 6, pawnY + 1.2 - bob, 12, 1.8);
+    pawnsG.fill({ color: 0xfacc15 });
+    pawnsG.rect(pawnX - 4, pawnY + 1.5 - bob, 8, 1.2);
+    pawnsG.fill({ color: 0x2563eb });
+    pawnsG.circle(pawnX - 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+    pawnsG.circle(pawnX + 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+  }
+
+  const armSwing = frame === 1 ? -1 : frame === 2 ? 1 : 0;
+  const legL = frame === 1 ? -2.2 : frame === 2 ? 1.2 : -1;
+  const legR = frame === 1 ? 1.2 : frame === 2 ? -2.2 : 1;
+
+  const fenGreen = 0x3f6212;
+  const fenDark = 0x1a2e05;
+  const reedBright = 0x65a30d;
+
+  // 1. Fen-Reed Cloak with rush frills
+  pawnsG.poly([
+    pawnX - facing * 2, pawnY - 8 - bob,
+    pawnX - facing * 6.5, pawnY + 2 - bob,
+    pawnX - facing * 1.5, pawnY + 1 - bob,
+  ]);
+  pawnsG.fill({ color: fenGreen });
+  pawnsG.stroke({ width: 0.6, color: fenDark });
+  // Bone toggle clasp
+  pawnsG.rect(pawnX - facing * 1.5, pawnY - 7.5 - bob, 1.2, 1.8);
+  pawnsG.fill({ color: 0xfef08a });
+
+  // 2. Heavy Marsh Guard Boots & Stride
+  pawnsG.rect(pawnX + legL, pawnY - 2 - bob, 2.4, 4.5);
+  pawnsG.fill({ color: 0x292524 });
+  pawnsG.rect(pawnX + legR, pawnY - 2 - bob, 2.4, 4.5);
+  pawnsG.fill({ color: 0x1c1917 });
+
+  // 3. Sturdy Torso with Gambeson
+  pawnsG.poly([
+    pawnX - 4.5, pawnY + 1 - bob,
+    pawnX - 3.5, pawnY - 7 - bob,
+    pawnX + 3.5, pawnY - 7 - bob,
+    pawnX + 4.5, pawnY + 1 - bob,
+  ]);
+  pawnsG.fill({ color: fenGreen });
+  pawnsG.stroke({ width: 0.7, color: fenDark });
+
+  // Belt with leather pouch
+  pawnsG.rect(pawnX - 3.5, pawnY - 2 - bob, 7, 1.5);
+  pawnsG.fill({ color: 0x44403c });
+
+  // 4. Head and Kettle Helm
+  pawnsG.circle(pawnX, pawnY - 10 - bob, 2.8);
+  pawnsG.fill({ color: 0xfbcfe8 });
+
+  // Conical iron kettle helm with brim
+  pawnsG.rect(pawnX - 4.5, pawnY - 12 - bob, 9, 2);
+  pawnsG.fill({ color: 0x4b5563 });
+  pawnsG.circle(pawnX, pawnY - 12.5 - bob, 2.6);
+  pawnsG.fill({ color: 0x6b7280 });
+  pawnsG.stroke({ width: 0.6, color: 0x1f2937 });
+
+  // 5. The Prominent Round Shield on off-arm
+  // Outer reinforced rim
+  pawnsG.circle(pawnX - facing * 3.5, pawnY - 5 - bob + armSwing, 4.6);
+  pawnsG.fill({ color: 0x292524 });
+  pawnsG.stroke({ width: 0.8, color: 0x1c1917 });
+  // Wicker-reed shield face
+  pawnsG.circle(pawnX - facing * 3.5, pawnY - 5 - bob + armSwing, 3.8);
+  pawnsG.fill({ color: reedBright });
+  // Central iron boss
+  pawnsG.circle(pawnX - facing * 3.5, pawnY - 5 - bob + armSwing, 1.6);
+  pawnsG.fill({ color: 0xd1d5db });
+  pawnsG.circle(pawnX - facing * 3.5, pawnY - 5 - bob + armSwing, 0.7);
+  pawnsG.fill({ color: 0xffffff });
+
+  // 6. The Spear
+  // Marsh-wood short spear held in main arm
+  pawnsG.moveTo(pawnX + facing * 4, pawnY + 2 - bob);
+  pawnsG.lineTo(pawnX + facing * 4, pawnY - 18 - bob + armSwing);
+  pawnsG.stroke({ width: 1.4, color: 0x5c3818 });
+
+  // Leaf-shaped forged steel head
+  pawnsG.poly([
+    pawnX + facing * 4, pawnY - 20 - bob + armSwing,
+    pawnX + facing * 4 - 2, pawnY - 16 - bob + armSwing,
+    pawnX + facing * 4 + 2, pawnY - 16 - bob + armSwing,
+  ]);
+  pawnsG.fill({ color: 0xf8fafc });
+  pawnsG.stroke({ width: 0.6, color: 0x334155 });
+
+  // Reed binding beneath spearhead
+  pawnsG.rect(pawnX + facing * 3.2, pawnY - 16 - bob + armSwing, 1.6, 2);
+  pawnsG.fill({ color: 0xca8a04 });
+}
+
+/**
+ * Draws the Lancer unit meeple:
+ * Silhouette: Mountain warhorse and long lance, with peak-white cloak.
+ */
+export function drawLancerMeeple(
+  pawnsG: Graphics,
+  pawnX: number,
+  pawnY: number,
+  facing: number = 1,
+  frame: 0 | 1 | 2 = 0,
+  bob: number = 0,
+  cultId?: string,
+  phase: number = 0,
+  options?: { withPedestal?: boolean }
+): void {
+  if (options?.withPedestal) {
+    pawnsG.ellipse(pawnX, pawnY + 6.5, 9.5, 4);
+    pawnsG.fill({ color: 0x000000, alpha: 0.55 });
+    pawnsG.rect(pawnX - 7, pawnY + 2 - bob, 14, 4.5);
+    pawnsG.fill({ color: 0x451a03 });
+    pawnsG.stroke({ width: 0.8, color: 0x271302 });
+    pawnsG.rect(pawnX - 6, pawnY + 1.2 - bob, 12, 1.8);
+    pawnsG.fill({ color: 0xfacc15 });
+    pawnsG.rect(pawnX - 4, pawnY + 1.5 - bob, 8, 1.2);
+    pawnsG.fill({ color: 0x2563eb });
+    pawnsG.circle(pawnX - 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+    pawnsG.circle(pawnX + 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
+  }
+
+  const hLeg1 = frame === 1 ? 2 : frame === 2 ? -2 : 0;
+  const hLeg2 = frame === 1 ? -2 : frame === 2 ? 2 : 0;
+
+  const peakWhite = 0xf8fafc;
+  const steelShade = 0xcbd5e1;
+  const warhorseCoat = 0x334155;
+
+  // 1. Heavy Mountain Warhorse Galloping Legs
+  pawnsG.rect(pawnX - 5.5, pawnY - 1 - bob + hLeg1, 2.5, 4.5);
+  pawnsG.fill({ color: 0x1e293b });
+  pawnsG.rect(pawnX - 5.5, pawnY + 2.5 - bob + hLeg1, 2.5, 1.2);
+  pawnsG.fill({ color: 0x0f172a });
+
+  pawnsG.rect(pawnX + 4, pawnY - 1 - bob + hLeg2, 2.5, 4.5);
+  pawnsG.fill({ color: warhorseCoat });
+  pawnsG.rect(pawnX + 4, pawnY + 2.5 - bob + hLeg2, 2.5, 1.2);
+  pawnsG.fill({ color: 0x0f172a });
+
+  // 2. Powerful Armored Horse Body
+  pawnsG.rect(pawnX - 6.5, pawnY - 5.5 - bob, 13, 5.5);
+  pawnsG.fill({ color: warhorseCoat });
+
+  // Saddle & Peak-White Trapper caparison
+  pawnsG.rect(pawnX - 3.5, pawnY - 6.5 - bob, 7, 4.5);
+  pawnsG.fill({ color: peakWhite });
+  pawnsG.stroke({ width: 0.6, color: steelShade });
+
+  // 3. Horse Neck & Head with Steel Chanfron Armor
+  pawnsG.poly([
+    pawnX + facing * 3.5, pawnY - 5.5 - bob,
+    pawnX + facing * 7.5, pawnY - 12 - bob,
+    pawnX + facing * 11, pawnY - 10 - bob,
+    pawnX + facing * 5.5, pawnY - 3.5 - bob,
+  ]);
+  pawnsG.fill({ color: warhorseCoat });
+
+  // Steel chanfron plate on forehead
+  pawnsG.poly([
+    pawnX + facing * 7.5, pawnY - 12.5 - bob,
+    pawnX + facing * 10.5, pawnY - 10.5 - bob,
+    pawnX + facing * 9.5, pawnY - 9 - bob,
+    pawnX + facing * 7, pawnY - 10.5 - bob,
+  ]);
+  pawnsG.fill({ color: steelShade });
+
+  // 4. Armored Lancer Knight with Billowing Peak-White Cloak
+  const lWave = Math.sin(phase * 4 + pawnX) * 1.8;
+  pawnsG.poly([
+    pawnX - facing * 3, pawnY - 12 - bob,
+    pawnX - facing * (9 + lWave), pawnY - 6 - bob,
+    pawnX - facing * 2.5, pawnY - 4 - bob,
+  ]);
+  pawnsG.fill({ color: peakWhite });
+  pawnsG.stroke({ width: 0.6, color: steelShade });
+
+  // Silver mountain peak brooch
+  pawnsG.circle(pawnX - facing * 2.5, pawnY - 11.5 - bob, 0.8);
+  pawnsG.fill({ color: 0xffffff });
+
+  // Knight in visored helm
+  pawnsG.rect(pawnX - 2.5, pawnY - 12 - bob, 5.5, 6);
+  pawnsG.fill({ color: steelShade });
+  pawnsG.circle(pawnX, pawnY - 14 - bob, 3);
+  pawnsG.fill({ color: 0xe2e8f0 });
+  pawnsG.stroke({ width: 0.7, color: 0x475569 });
+  // Visor eye-slit
+  pawnsG.rect(pawnX + facing * 0.5, pawnY - 14 - bob, 2.5, 1.0);
+  pawnsG.fill({ color: 0x0f172a });
+
+  // 5. The Long Lance
+  // Exceptionally long, heavy couched tournament/shock lance reaching far forward (reaches +facing * 18!)
+  pawnsG.moveTo(pawnX - facing * 4.5, pawnY - 8.5 - bob);
+  pawnsG.lineTo(pawnX + facing * 18, pawnY - 17.5 - bob);
+  pawnsG.stroke({ width: 1.8, color: 0x64748b });
+
+  // Heavy counterweight butt
+  pawnsG.moveTo(pawnX - facing * 2, pawnY - 9 - bob);
+  pawnsG.lineTo(pawnX - facing * 4.5, pawnY - 8.5 - bob);
+  pawnsG.stroke({ width: 2.5, color: 0x334155 });
+
+  // Circular vamplate handguard disc
+  pawnsG.ellipse(pawnX + facing * 1.5, pawnY - 10.5 - bob, 1.8, 3.2);
+  pawnsG.fill({ color: 0x94a3b8 });
+  pawnsG.stroke({ width: 0.6, color: 0x334155 });
+
+  // Diamond-forged armor-piercing steel lance point
+  pawnsG.poly([
+    pawnX + facing * 17, pawnY - 16.5 - bob,
+    pawnX + facing * 20.5, pawnY - 17.5 - bob,
+    pawnX + facing * 17, pawnY - 18.5 - bob,
+  ]);
+  pawnsG.fill({ color: 0xffffff });
+
+  // Alpine flutter on lance tip
+  pawnsG.poly([
+    pawnX + facing * 15, pawnY - 17.5 - bob,
+    pawnX + facing * 18, pawnY - 15 - bob,
+    pawnX + facing * 15, pawnY - 14.5 - bob,
+  ]);
+  pawnsG.fill({ color: 0x38bdf8 });
+}
+
 export function paintBoardMarches(
   routeG: Graphics,
   pawnsG: Graphics,
@@ -5181,7 +5875,17 @@ export function paintBoardMarches(
       pawnsG.circle(pawnX - 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
       pawnsG.circle(pawnX + 5.5, pawnY + 4.2 - bob, 0.7); pawnsG.fill({ color: 0xfde047 });
 
-      if (pal.isChassis) {
+      if (unitType === "ranger") {
+        drawRangerMeeple(pawnsG, pawnX, pawnY, facing, frame, bob, cultId, phase);
+      } else if (unitType === "banner") {
+        drawBannerMeeple(pawnsG, pawnX, pawnY, facing, frame, bob, cultId, phase);
+      } else if (unitType === "outrider") {
+        drawOutriderMeeple(pawnsG, pawnX, pawnY, facing, frame, bob, cultId, phase);
+      } else if (unitType === "warden") {
+        drawWardenMeeple(pawnsG, pawnX, pawnY, facing, frame, bob, cultId, phase);
+      } else if (unitType === "lancer") {
+        drawLancerMeeple(pawnsG, pawnX, pawnY, facing, frame, bob, cultId, phase);
+      } else if (pal.isChassis) {
         // Siege Engine: wheeled chassis, upright A-frame, throwing beam
         // Large spiked wooden wheels with iron rims & bronze hubs
         pawnsG.circle(pawnX - 6, pawnY + 2 - bob, 3.5);

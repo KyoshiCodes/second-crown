@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-10-04 — Gemini Culture Marches (bakeoff/gemini-culture-marches)
+
+- **Render: dedicated march meeple silhouettes for Ranger, Banner, Outrider, Warden, Lancer (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/render/src/index.test.ts`)**:
+  - **Unit Resolution (`primaryUnitTypeForMarch`)**: Marches consisting predominantly of `ranger`, `banner`, `outrider`, `warden`, or `lancer` now resolve directly to their specific unit type (with tier priority `lancer: 8, outrider: 7, ranger: 6, warden: 4, banner: 4`).
+  - **Visual Gear Palettes (`unitPalette`)**: Defined dedicated configurations for `ranger` (hood, shortbow), `banner` (pennant), `outrider` (shortlance, mounted), `warden` (roundshield), and `lancer` (longlance, mounted).
+  - **5 Dedicated Meeple Drawers**:
+    - **Ranger** (`drawRangerMeeple`): Nimble runner stride, mist-blue cloak cowl (`0x475569`/`0x1e293b`) with pointed peak, shadowed face with keen cyan scout eye glint (`0x38bdf8`), back quiver, and hunting recurve short bow (`0xca8a04`) with taut string (`0xf8fafc`) and nocked bodkin arrow (`0xd4a359`/`0xffffff`).
+    - **Banner** (`drawBannerMeeple`): Disciplined marching stride, glen-green cloak (`0x4d7c0f`/`0x365314`), granite kettle helm (`0x78716c`), tall upright spear shaft (`0x5c3818`) with steel leaf head (`0xffffff`), and small waving swallowtail pennant (`0xa3e635`/`0xfacc15`).
+    - **Outrider** (`drawOutriderMeeple`): Fast galloping scout horse in dun/salt coat (`0x78716c`), salt-white mane and bridle, rider with billowing salt-grey cloak (`0xa8a29e`/`0x57534e`), and couched compact short lance (`0xd4a359`) with sharp steel tip (`0xf1f5f9`).
+    - **Warden** (`drawWardenMeeple`): Heavy marsh guard stride, fen-reed cloak (`0x3f6212`/`0x1a2e05`) with bone toggle clasp (`0xfef08a`), conical iron kettle helm (`0x4b5563`), prominent round wicker-reed boss shield (`0x292524` rim, `0x65a30d` reed face, `0xd1d5db` iron boss), and sturdy marsh-wood thrusting spear (`0x5c3818`/`0xf8fafc`).
+    - **Lancer** (`drawLancerMeeple`): Heavy mountain warhorse (`0x334155`) with galloping legs and steel chanfron forehead armor (`0xcbd5e1`), visored greathelm knight in billowing peak-white cloak (`0xf8fafc`/`0xffffff`) with silver mountain peak brooch, and exceptionally long tournament shock lance (`0x64748b`) with circular vamplate handguard disc (`0x94a3b8`) reaching `+facing * 18` with diamond-forged steel point (`0xffffff`).
+  - **Board March Painting (`paintBoardMarches`)**: Dispatches player marches composed predominantly of any of these 5 units to their respective silhouette drawers.
+  - **Legacy Preservation**: Militia, spearman, archer, cavalry, and older march meeples strictly preserved. Mist, Glen, Salt, Fen, and Peak keep silhouettes strictly preserved.
+  - **Invariants**: Camera math, zoom, and tile click hit-testing untouched. Zero changes to `packages/sim`, `server`, `packages/app/src/tabs/*`, or `theme.css`.
+
 ## 2026-10-03 — Gemini Culture Keeps (bakeoff/gemini-culture-keeps)
 
 - **Render: miniature keep silhouettes & isometric keeps for Mist, Glen, Salt, Fen, Peak (`packages/render/src/tokens.ts`, `packages/render/src/buildings.ts`, `packages/render/src/index.ts`, `packages/render/src/index.test.ts`)**:

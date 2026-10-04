@@ -1,3 +1,31 @@
+## 2026-10-04 — render / culture marches (bakeoff/gemini-culture-marches)
+
+- `packages/render/src/tokens.ts`:
+  - `primaryUnitTypeForMarch`: added `lancer: 8, outrider: 7, ranger: 6, warden: 4, banner: 4` into `tierPriority` table. When marches have counts where these units are plurality or majority, it resolves directly to the matching unit type string.
+  - `UnitVisualPalette`: extended `weaponKind` to support `"shortbow" | "pennant" | "shortlance" | "roundshield" | "longlance"`, and `helmKind` to include `"hood"`.
+  - `unitPalette`: added dedicated entries for `"ranger"`, `"banner"`, `"outrider"`, `"warden"`, and `"lancer"` providing distinct weaponKind, helmKind, mount flags, and culture tabard/accent colors.
+  - Added and exported 5 dedicated unit meeple drawer functions:
+    - `drawRangerMeeple`: Hooded cowl (`0x475569`/`0x1e293b`), shadowed face with cyan scout eye glint (`0x38bdf8`), back quiver with bodkin arrows, and compact hunting recurve short bow (`0xca8a04`) with taut string (`0xf8fafc`) and nocked arrow (`0xd4a359`/`0xffffff`).
+    - `drawBannerMeeple`: Disciplined marching stride, glen-green cloak (`0x4d7c0f`/`0x365314`), granite kettle helm (`0x78716c`), tall upright spear shaft (`0x5c3818`) with steel leaf head (`0xffffff`), and small waving swallowtail pennant (`0xa3e635`/`0xfacc15`).
+    - `drawOutriderMeeple`: Fast galloping scout horse in dun/salt coat (`0x78716c`), salt-white mane and bridle, rider with billowing salt-grey cloak (`0xa8a29e`/`0x57534e`), and couched compact short lance (`0xd4a359`) with sharp steel tip (`0xf1f5f9`).
+    - `drawWardenMeeple`: Heavy marsh guard boots, fen-reed cloak (`0x3f6212`/`0x1a2e05`) with bone toggle clasp (`0xfef08a`), conical iron kettle helm (`0x4b5563`), prominent round wicker-reed boss shield (`0x292524` rim, `0x65a30d` reed face, `0xd1d5db` iron boss), and sturdy marsh-wood thrusting spear (`0x5c3818`/`0xf8fafc`).
+    - `drawLancerMeeple`: Heavy mountain warhorse (`0x334155`) with galloping legs and steel chanfron forehead armor (`0xcbd5e1`), visored greathelm knight in billowing peak-white cloak (`0xf8fafc`/`0xffffff`) with silver mountain peak brooch, and exceptionally long tournament shock lance (`0x64748b`) with circular vamplate handguard disc (`0x94a3b8`) reaching `+facing * 18` with diamond-forged steel point (`0xffffff`).
+  - `paintBoardMarches`: dispatches player marches when `unitType` is ranger, banner, outrider, warden, or lancer. Preserves chassis/mount/standard human dispatch for all other units.
+- `packages/render/src/index.ts`:
+  - Imported and re-exported `drawRangerMeeple`, `drawBannerMeeple`, `drawOutriderMeeple`, `drawWardenMeeple`, and `drawLancerMeeple`.
+- `packages/render/src/index.test.ts`:
+  - Added test suite `describe("bakeoff/gemini-culture-marches: silhouettes for Ranger, Banner, Outrider, Warden, Lancer")` covering:
+    - `primaryUnitTypeForMarch` majority and mono-unit resolution, tier priority, and legacy unit preservation.
+    - `unitPalette` gear configurations for each of the 5 units.
+    - Dedicated meeple drawers testing colors, facings, bobbing, and optional pedestals.
+    - `paintBoardMarches` integration tests verifying each culture unit meeple is dispatched on predominantly composed player marches.
+    - Direct export checks, camera math invariance, and conflict marker checks.
+- Invariants:
+  - Zero changes to `packages/sim`, `server`, `packages/app/src/tabs/*`, or `theme.css`.
+  - Camera math, zoom, and tile click hit-testing untouched.
+  - Militia, spearman, archer, cavalry, and older march meeples stay as they are.
+  - Mist, Glen, Salt, Fen, and Peak keep silhouettes stay as they are.
+
 ## 2026-10-03 — render / culture keeps (bakeoff/gemini-culture-keeps)
 
 - `packages/render/src/tokens.ts`:
