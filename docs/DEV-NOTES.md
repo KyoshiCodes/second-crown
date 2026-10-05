@@ -1,3 +1,11 @@
+## 2026-10-04 — docs / real-time spec (wave/realtime-spec)
+
+- No code changed. `docs/REALTIME.md` is the spec for three phases, in order: Clock, Save, Shared hold. Read it before any real-time work.
+- Clock: ticks stay the unit of time; a server clock would only produce the tick count. No `Date.now()` in tick math (`INVARIANTS.md` §1). Shared realms do not fast-forward on tab close; solo crowns keep offline catch-up.
+- Save: server save is the source of truth; local save is a cache.
+- Shared hold: browsers send intents, server applies them on a tick boundary. This requires running `packages/sim` on the server, which breaks the current "no sim on the server" rule. Owner decision plus `INVARIANTS.md` / `DECISIONS.md` update before any code.
+- Rebase recipe in `HANDOFF.md` changed to the owner's steps: `git checkout --theirs` on the four doc files. Note: during a rebase, `--theirs` is the commit being replayed (your branch's copy), so check afterwards that main's newer entries are still in those files.
+
 ## 2026-10-04 — docs / current handoff (wave/docs-current)
 
 - No code changed. `HANDOFF.md` is now a single current snapshot, not a log; per-wave detail lives in `CHANGELOG.md` and `DEV-NOTES.md` only.

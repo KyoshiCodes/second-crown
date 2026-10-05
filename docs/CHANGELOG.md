@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-04 — Real-time spec (wave/realtime-spec)
+
+- Docs only. New `docs/REALTIME.md`: a three-phase plan (Clock, Save, Shared hold). Not started; no code or endpoints.
+- `HANDOFF.md`, `ROADMAP.md`, `docs/obsidian/03 Roadmap.md`: the parked real-time item points at `docs/REALTIME.md`, still parked.
+- `HANDOFF.md` rebase recipe now matches the owner's steps (`git checkout --theirs` on the four doc files, `git add`, `git rebase --continue`).
+
 ## 2026-10-04 — Docs current (wave/docs-current)
 
 - Docs only. `HANDOFF.md` rewritten as one current handoff: all "Active wave (... not merged)" sections removed (those slices are live), culture/unit table, first-dawn gift, both owner folders, short rebase recipe.
