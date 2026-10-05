@@ -1,6 +1,6 @@
 # DECISIONS — architecture decision records
 
-Last updated: 2026-09-06
+Last updated: 2026-10-04
 
 Records 001–007 are the original locked design ADRs (free placement, hybrid themes, Watch before Report, intrigue later, two themes at 1.0, web stack, license deferred). They stay in git history on this file’s earlier revision if you need the long form. Summary of 001–007: see repo history before this date, or the 2026-09-05 commit.
 
@@ -49,6 +49,22 @@ This file now appends playtest-era ADRs. Never delete; supersede.
 **Consequences.** Delay, no live ticks, no co-op commands.
 
 **Mitigation.** Good enough for playtest. A later ADR may add lockstep; it must not change `resolveBattle` RNG order.
+
+---
+
+## ADR-011 — A shared hold may run the sim on the server
+
+**Date:** 2026-10-04 · **Status:** Accepted · **Decided by:** owner
+
+**Context.** docs/REALTIME.md Phase 3: two browsers on one hold must see the same tick and each other's actions. Actions are intents, applied on a tick boundary. ADR-008 said the server never ticks the sim, and `AGENTS.md` said "no sim on the server". Applying intents on the server needs the sim there.
+
+**Options.** (a) Keep the rule and let browsers trade states (cheatable, two sources of truth). (b) Copy the rules into `server/` (two rule sets drift). (c) Let the server call `packages/sim` for a shared hold only.
+
+**Decision.** (c). A shared hold may run `packages/sim` on the server. Solo play does not. The server loads the sim as-is (Vite `runnerImport` of `packages/sim/src/index.ts`) and calls it; no rule is copied into `server/`. The hold is in memory, keyed by realm id, timed by the Phase 1 clock. It takes intents, never a full client state, and never reads or writes the solo save.
+
+**Consequences.** Supersedes ADR-008's "server never ticks the sim" for shared holds only. The server now depends on `vite` being installed when a hold is touched. A restart forgets every hold. Determinism is same-build only (INVARIANTS §5), so the server copy is the authority for a shared hold.
+
+**Mitigation.** No realm is shared: the server's shared set is empty and the app's `sharedRealmId` returns null, so the sim is never loaded on the live server and the live game is unchanged. Marking a realm shared is a separate owner decision. INVARIANTS §17.
 
 ---
 
