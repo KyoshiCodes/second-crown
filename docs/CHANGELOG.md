@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-04 — Docs current (wave/docs-current)
+
+- Docs only. `HANDOFF.md` rewritten as one current handoff: all "Active wave (... not merged)" sections removed (those slices are live), culture/unit table, first-dawn gift, both owner folders, short rebase recipe.
+- `ROADMAP.md` and `docs/obsidian/03 Roadmap.md` match the live set. People job counts and keep-gate cards dropped from near-term (shipped). Parked: another dawn gift, real-time spec (server clock, server save, shared hold).
+- `USER-NOTES.md`: placeholder-icon lines for Ranger, Banner, Outrider, Warden, Lancer corrected.
+- `AGENTS.md`: slice rule — the four doc files update in the same commit as any player-visible or sim change.
+
 ## 2026-10-04 — Gemini Culture Marches (bakeoff/gemini-culture-marches)
 
 - **Render: dedicated march meeple silhouettes for Ranger, Banner, Outrider, Warden, Lancer (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`, `packages/render/src/index.test.ts`)**:

@@ -1,3 +1,9 @@
+## 2026-10-04 — docs / current handoff (wave/docs-current)
+
+- No code changed. `HANDOFF.md` is now a single current snapshot, not a log; per-wave detail lives in `CHANGELOG.md` and `DEV-NOTES.md` only.
+- When a wave merges, delete its "not merged" text from `HANDOFF.md` in that same change (see the slice rule in `AGENTS.md`).
+- Rebase footgun: during `git rebase`, `--ours` is `origin/main` and `--theirs` is your branch. The old recipe said `--theirs`, which keeps your copy and can drop main's newer entries.
+
 ## 2026-10-04 — render / culture marches (bakeoff/gemini-culture-marches)
 
 - `packages/render/src/tokens.ts`:

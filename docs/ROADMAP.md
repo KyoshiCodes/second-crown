@@ -1,16 +1,26 @@
 # Roadmap
 
-## Now (playtest-ready)
+Updated 2026-10-04. Matches `docs/HANDOFF.md`.
+
+## Live now
+
+- Five player cultures, each with one unit: **Mist / Ranger**, **Glen / Banner**, **Salt / Outrider**, **Fen / Warden**, **Peak / Lancer**. Each has its Army-tab chip, its culture keep, and its march meeple.
+- First Second Dawn gives +1 militia, +20 food, +10 wood, once (does not stack).
+- Already shipped, no longer on the list: People job cards with counts, keep-gate studies and barracks queue, Last battle card, keep room work cards.
+
+## Near-term (next 2–4 pairs)
 
 Keep shipping **one Claude slice + one Gemini slice**. Owner tests locally, Grok merges, Oracle deploy.
 
-Near-term (next 2–4 pairs):
-
-- People tab job counts that match labor line
-- Last-battle kind labels (column / camp / hold / sally)
-- Keep-gate checklist that matches `keepGateFor`
-- Fog tile "unseen" copy that matches `visionRange`
+- Playtest the five cultures and log balance notes (is each one difference worth picking?)
+- Culture picker line that also names each culture's unit (the blurb already names its one difference)
+- Fog tile "unseen" copy that matches `visionRange` (Peak's +1 vision included)
 - Stop stacking one-line hints; prefer one new verb (button) per wave
+
+## Parked (do not implement)
+
+- Another dawn gift beyond the first-dawn stores
+- Real-time spec: server clock, server save, shared hold. Spec only when the owner asks; never put the sim on the server
 
 ## Next systems (need a written spec first)
 
@@ -28,8 +38,8 @@ Near-term (next 2–4 pairs):
 
 ## Agent split (standing)
 
-| Agent | Owns | Never |
-|---|---|---|
-| Claude | `packages/app`, small `packages/sim` helpers + tests | `packages/render`, `server/` |
-| Gemini | `packages/render`, flavor CSS | `packages/sim`, `server/` |
-| Grok | docs, PRs, merge, briefs | drive-by sim rewrites |
+| Agent | Folder | Owns | Never |
+|---|---|---|---|
+| Claude | `C:\Projects\second-crown-claude` | `packages/app`, small `packages/sim` helpers + tests | `packages/render`, `server/` |
+| Gemini | `C:\Projects\second-crown-gemini` | `packages/render`, flavor CSS | `packages/sim`, `server/` |
+| Grok | — | docs, PRs, merge, briefs | drive-by sim rewrites |
