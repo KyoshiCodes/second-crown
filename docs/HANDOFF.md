@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#209**. Waiting: `wave/realtime-wire` (**not merged**, see Real time below).
+Merged through PR **#210**. Waiting: `wave/realtime-save` (**not merged**, see Real time below).
 
 ### Cultures and units (all merged)
 
@@ -46,7 +46,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 ## Parked (do not implement)
 
 - Another dawn gift beyond the first-dawn stores.
-- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md`. Phase 1 clock (`server/clock.mjs`) is merged. Phase 1 wiring is on branch `wave/realtime-wire` (**not merged**): `GET /realm/:id/tick` starts a memory-only clock per realm id on first ask and returns its tick count; the app reads it (`packages/app/src/game/settleOnLoad.ts`) only for a realm marked shared, and no realm is marked shared (`sharedRealmId` returns null). Solo load still runs `applyOfflineProgress`; live game unchanged. Phase 2 (save) and Phase 3 (shared hold) not started. Phase 3 (shared hold) would break the "no sim on the server" rule; that needs an owner decision first.
+- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md`. Phase 1 is merged: `server/clock.mjs`, and `GET /realm/:id/tick` (memory-only clock per realm id) read by `packages/app/src/game/settleOnLoad.ts` only for a shared realm. Phase 2 (save) is on branch `wave/realtime-save` (**not merged**): the save gate refuses every browser upload to a shared realm (409, server copy handed back), and a shared reload reads the server save and overwrites the browser cache (`packages/app/src/game/loadSaved.ts`). No realm is marked shared (server `SHARED_SAVES` is empty, app `sharedRealmId` returns null), so solo load and the live game are unchanged. Phase 3 (shared hold) not started. Phase 3 (shared hold) would break the "no sim on the server" rule; that needs an owner decision first.
 
 ## Verify
 

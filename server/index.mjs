@@ -185,6 +185,9 @@ const handleLedger = createLedgerHandler(DATA, {
   },
 });
 const realmClocks = createRealmClocks();
+// REALTIME.md Phase 2: account ids whose save is a shared realm. The browser cannot replace
+// a shared save; GET /save still serves it. Empty: no realm is shared. Owner decision to add one.
+const SHARED_SAVES = new Set();
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
   if (req.method === "OPTIONS") return json(res, 204, {});
@@ -337,7 +340,7 @@ const server = http.createServer(async (req, res) => {
           try { prev = JSON.parse(fs.readFileSync(file, "utf8")); } catch { prev = null; }
           prevAt = Number.isFinite(rec.saveAt) ? rec.saveAt : fs.statSync(file).mtimeMs;
         }
-        gateSave(body, prev, now - prevAt, url.searchParams.get("replace") === "1");
+        gateSave(body, prev, now - prevAt, url.searchParams.get("replace") === "1", SHARED_SAVES.has(u.id));
       } catch (e) {
         if (e instanceof SaveGateError && e.conflict) {
           // Hand back the cloud hold so the client can load it instead of overwriting it.

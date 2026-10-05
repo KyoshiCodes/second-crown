@@ -1,3 +1,12 @@
+## 2026-10-04 — server + app / realm save, real-time Phase 2 (wave/realtime-save)
+
+- `server/savegate.mjs`: fifth argument `shared` on `gateSave`. When true it throws `SaveGateError(409, SHARED_REALM, conflict=true)` right after `parseSave`, before any prev/time/log check, so no upload can replace a shared save (tampered, `replace=1`, gate-valid, or first upload with no server copy). Bad JSON still gets its 400.
+- `server/index.mjs`: `SHARED_SAVES = new Set()` of account ids; `PUT /save` passes `SHARED_SAVES.has(u.id)`. The existing conflict branch returns `{ conflict: true, save: <server copy or null> }`, which `CloudPanel` already offers to load. `GET /save` is unchanged. Adding an id is an owner decision; how a shared save is first seeded is not built (Phase 3 writes it).
+- `packages/app/src/game/loadSaved.ts`: `loadSaved(local, deps?)` → `{ state, source: "local" | "server" | "cache" }`. `sharedRealmId(local) === null` → returns `local` itself (solo path identical). Shared → `pullServerSave(realmId)` (default `pullSave()`; Phase 2 keeps the realm in its owner's `/save`, so the id is not sent), `deserializeState`, then `writeCache(raw)` (IndexedDB). Pull or parse failure → the local cache, not a fresh realm. A cache-write failure is ignored.
+- `useGameEngine.ts`: autosave load is `loadSaved(deserializeState(saved))` then `settleOnLoad` as before. `importSaveFile`, the tick loop and `persist` are unchanged; on a shared realm an imported or edited file only lives in that browser until reload, and `pushSave` gets the 409.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs`; app vitest `src/game/loadSaved.test.ts` runs under root `npm test`.
+- Not done: marking any realm shared, a realm-keyed server save, Phase 3 shared hold.
+
 ## 2026-10-04 — server + app / realm clock wire, real-time Phase 1 (wave/realtime-wire)
 
 - `server/realmclock.mjs`: `createRealmClocks(now = Date.now)` → `{ tick(realmId), size }`. A `Map` of `createClock` instances, memory only (a pm2 restart resets every realm to 0). First `tick(id)` starts the clock and returns 0; later calls return the clock's high-water tick. `null` for an id not matching `REALM_ID_RE` or once `MAX_REALM_CLOCKS` (10,000) exist.

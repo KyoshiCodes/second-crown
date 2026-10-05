@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-04 — Real-time save, Phase 2 (wave/realtime-save)
+
+- `server/savegate.mjs`: `gateSave(raw, prev, elapsedMs, replace, shared)`. With `shared`, every upload is refused with 409 `Shared realm: the server copy wins.` (`SHARED_REALM`, `conflict: true`), with or without `replace=1`, even with no server copy yet. The `PUT /save` handler already returns the server save on a conflict.
+- `server/index.mjs`: `SHARED_SAVES` (empty `Set` of account ids) feeds that flag. No realm is shared. No sim on the server; no shared hold.
+- App: new `packages/app/src/game/loadSaved.ts`. On autosave load, a shared realm pulls the server save (`pullSave`), loads it instead of the local copy, and writes it over the IndexedDB cache; server unreachable → the cache is shown. Solo returns the local state object untouched, then `settleOnLoad` / `applyOfflineProgress` as before.
+- Live game unchanged: `sharedRealmId` still returns null and `SHARED_SAVES` is empty.
+- Tests: `server/savegate.test.mjs` (tampered, replace, solo-valid and first uploads all refused on a shared realm; solo default unchanged); `packages/app/src/game/loadSaved.test.ts` (shared reload returns the server save after a local edit and rewrites the cache; solo reload returns the local save with no server read; server down shows the cache).
+
 ## 2026-10-04 — Real-time wire, Phase 1 (wave/realtime-wire)
 
 - New `server/realmclock.mjs`: `createRealmClocks(now)`, one `createClock` per realm id, kept in memory. First ask starts that realm's clock at 0; later asks never restart it. Bad ids (not `[a-zA-Z0-9_-]{1,64}`) and a full table (10,000 clocks) return null.

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { gateSave, parseSave, SaveGateError, SAVE_VERSION, TICKS_PER_SECOND, MAX_SPEED } from "./savegate.mjs";
+import { gateSave, parseSave, SaveGateError, SAVE_VERSION, TICKS_PER_SECOND, MAX_SPEED, SHARED_REALM } from "./savegate.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -98,4 +98,20 @@ test("a stale tab cannot overwrite a newer cloud hold", () => {
 test("cheat checks are not reported as a newer hold", () => {
   const prev = save(100);
   assert.throws(() => gateSave(raw(save(100_000)), prev, 1_000), (e) => e.status === 409 && !e.conflict);
+});
+
+test("a tampered local save cannot replace a shared realm", () => {
+  const prev = save(1_000);
+  const sharedConflict = (e) => e instanceof SaveGateError && e.status === 409 && e.conflict && e.message === SHARED_REALM;
+  const tampered = save(1_000, { resources: { gold: "999999", food: "1.5e+3" }, inputLog: [...prev.inputLog, { tick: 1_000, type: "trade" }] });
+  assert.throws(() => gateSave(raw(tampered), prev, 30_000, false, true), sharedConflict);
+  assert.throws(() => gateSave(raw(tampered), prev, 30_000, true, true), sharedConflict);
+  // Even a save the solo gate would pass, and a first upload with no server copy.
+  assert.ok(gateSave(raw(save(1_050)), prev, 30_000));
+  assert.throws(() => gateSave(raw(save(1_050)), prev, 30_000, false, true), sharedConflict);
+  assert.throws(() => gateSave(raw(save(50)), null, 0, false, true), sharedConflict);
+});
+
+test("solo saves are not treated as shared by default", () => {
+  assert.ok(gateSave(raw(save(1_050)), save(1_000), 30_000));
 });
