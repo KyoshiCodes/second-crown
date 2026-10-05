@@ -20,7 +20,7 @@ Keep shipping **one Claude slice + one Gemini slice**. Owner tests locally, Grok
 ## Parked (do not implement)
 
 - Another dawn gift beyond the first-dawn stores
-- Real-time spec: server clock, server save, shared hold. Spec only when the owner asks; never put the sim on the server
+- Real time: server clock, server save, shared hold. Plan in `docs/REALTIME.md` (spec only, not started). Phase 3 would put the sim on the server; owner decision first
 
 ## Next systems (need a written spec first)
 

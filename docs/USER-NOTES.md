@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Real-time plan (wave/realtime-spec)
+
+- This is a written plan only. We wrote down how a shared, always-running realm might work later (a server clock, saves kept on the server, two people on one hold).
+- The live game is unchanged. Nothing new to try yet.
+
 ## 2026-10-04 — Notes cleanup (wave/docs-current)
 
 - Older notes said Rangers, Banners, Outriders, Wardens, and Lancers used a plain placeholder icon. That is out of date: all five have their own Army-tab chip and march figure. Those lines are corrected below.

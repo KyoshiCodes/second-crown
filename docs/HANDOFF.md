@@ -41,12 +41,12 @@ Two Windows clones, one per agent:
 Do not point two agents at the same folder or the same files.
 Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout -- docs/HANDOFF.md`.
 
-**Rebase recipe.** Doc branches often conflict on the four doc files. Run `git fetch origin && git rebase origin/main`; on each conflict in `HANDOFF.md`, `CHANGELOG.md`, `USER-NOTES.md`, or `DEV-NOTES.md`, take main's copy (`git checkout --ours <file>`; during a rebase "ours" is main and "theirs" is your branch), re-add your own entry on top by hand, `git add` and `git rebase --continue`, then `git push --force-with-lease`.
+**Rebase recipe.** Doc branches often conflict on the four doc files. During a rebase onto `origin/main` (`git fetch origin && git rebase origin/main`), on a conflict in `HANDOFF.md`, `CHANGELOG.md`, `USER-NOTES.md`, or `DEV-NOTES.md`, run `git checkout --theirs docs/HANDOFF.md docs/CHANGELOG.md docs/USER-NOTES.md docs/DEV-NOTES.md`, then `git add docs/HANDOFF.md docs/CHANGELOG.md docs/USER-NOTES.md docs/DEV-NOTES.md` and `git rebase --continue`.
 
 ## Parked (do not implement)
 
 - Another dawn gift beyond the first-dawn stores.
-- A real-time spec: server clock, server save, shared hold. Needs a written spec first and must not put the sim on the server.
+- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md` (spec only, not started). Phase 3 (shared hold) would break the "no sim on the server" rule; that needs an owner decision first.
 
 ## Verify
 
