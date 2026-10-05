@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-04 — Real-time wire, Phase 1 (wave/realtime-wire)
+
+- New `server/realmclock.mjs`: `createRealmClocks(now)`, one `createClock` per realm id, kept in memory. First ask starts that realm's clock at 0; later asks never restart it. Bad ids (not `[a-zA-Z0-9_-]{1,64}`) and a full table (10,000 clocks) return null.
+- New route `GET /realm/:id/tick` → `{ realmId, tick }`, 400 `bad realm` on a bad id. No auth, no save read or write, no sim on the server.
+- App: `packages/app/src/net/realmClock.ts` (`fetchRealmTick`) and `packages/app/src/game/settleOnLoad.ts`. On autosave load, a shared realm reads the server tick and skips offline catch-up; a solo realm runs `applyOfflineProgress` as before. `sharedRealmId` returns null, so no realm is shared and the live game is unchanged. Solo tick loop and file import untouched.
+- Root `npm test` now also runs `packages/app` vitest (new `test` script and `vitest.config.ts` in the app).
+- Tests: `server/realmclock.test.mjs` (first ask 0, +250 ms → 2, no restart, separate ids, bad ids); `packages/app/src/game/settleOnLoad.test.ts` (solo calls `applyOfflineProgress` and never fetches; shared reads the tick and skips catch-up).
+
 ## 2026-10-04 — Real-time clock, Phase 1 (wave/realtime-clock)
 
 - New `server/clock.mjs`: `TICK_MS` (100 ms, from `TICKS_PER_SECOND`), `ticksBetween(startMs, nowMs)`, and `createClock(now)` with `start()` / `tick()`.

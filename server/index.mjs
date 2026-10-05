@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { createLedgerHandler } from "./ledger.mjs";
 import { gateSave, SaveGateError, MAX_SAVE_BYTES } from "./savegate.mjs";
+import { createRealmClocks } from "./realmclock.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -183,6 +184,7 @@ const handleLedger = createLedgerHandler(DATA, {
     return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
   },
 });
+const realmClocks = createRealmClocks();
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
   if (req.method === "OPTIONS") return json(res, 204, {});
@@ -296,6 +298,15 @@ const server = http.createServer(async (req, res) => {
       code: rec.watchCode,
       url: `${PUBLIC_APP}/#watch=${rec.watchCode}`,
     });
+  }
+
+  // REALTIME.md Phase 1: memory-only tick count per realm. Never touches a save.
+  const realmTick = /^\/realm\/([^/]+)\/tick$/.exec(url.pathname);
+  if (req.method === "GET" && realmTick) {
+    const realmId = realmTick[1];
+    const tick = realmClocks.tick(realmId);
+    if (tick === null) return json(res, 400, { error: "bad realm" });
+    return json(res, 200, { realmId, tick });
   }
 
   if (req.method === "GET" && url.pathname.startsWith("/watch/")) {

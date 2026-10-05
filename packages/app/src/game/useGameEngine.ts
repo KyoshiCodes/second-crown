@@ -38,6 +38,7 @@ import {
 import { createMapRenderer, type MapRenderer, type CameraBand } from "@second-crown/render";
 import { saveToIndexedDb, loadFromIndexedDb, clearIndexedDbSave } from "../save/indexedDb";
 import { downloadSave, pickSaveFile } from "../save/fileIo";
+import { settleOnLoad } from "./settleOnLoad";
 import type { BattleSnap } from "../BattleVisual";
 import { getWarTaunt } from "../content/flavor";
 import { sfx } from "../sfx";
@@ -227,7 +228,8 @@ export function useGameEngine() {
         const saved = await loadFromIndexedDb();
         if (saved) {
           state = deserializeState(saved);
-          const settled = applyOfflineProgress(state);
+          const result = await settleOnLoad(state);
+          const settled = result.mode === "solo" ? result.settled : 0;
           setOfflineNote(settled > 0 ? `Welcome back — settled ${settled} ticks.` : "");
           setStatus("Loaded autosave.");
         } else {

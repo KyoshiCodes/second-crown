@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Real-time clock hooked up (wave/realtime-wire)
+
+- The live game is unchanged because no realm is shared yet. Nothing new to try.
+- Behind the scenes, the server can now keep a running clock for a shared realm, and the game knows how to ask for it. Your realm is solo, so it still keeps its own time and offline catch-up works as before.
+
 ## 2026-10-04 — Real-time clock groundwork (wave/realtime-clock)
 
 - The live game is unchanged. Nothing new to try.
