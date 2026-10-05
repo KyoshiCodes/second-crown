@@ -2,6 +2,7 @@
 // per realm id, so a joined hold survives a process restart. Only hold.mjs calls this, and only for a
 // shared realm id: a solo save is never read, written, or marked shared here.
 // No game rule lives in this file. The state is the sim's own serializeState text, stored as-is.
+// keyHash is the SHA-256 of the hold key (join.mjs); the key itself is never written.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -37,11 +38,11 @@ export function createHoldStore(dir) {
       return rec;
     },
     /** Write whole, through a temp file, so a crash mid-write leaves the last good copy. */
-    save(realmId, { savedAt, state, pending }) {
+    save(realmId, { savedAt, state, pending, keyHash = null }) {
       const file = fileFor(realmId);
       fs.mkdirSync(dir, { recursive: true });
       const tmp = `${file}.tmp`;
-      fs.writeFileSync(tmp, JSON.stringify({ kind: KEEP_KIND, realmId, savedAt, pending, state }));
+      fs.writeFileSync(tmp, JSON.stringify({ kind: KEEP_KIND, realmId, savedAt, keyHash, pending, state }));
       fs.renameSync(tmp, file);
     },
   };

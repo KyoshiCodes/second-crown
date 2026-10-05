@@ -49,7 +49,7 @@ function json(res, code, body) {
   res.writeHead(code, {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": ORIGIN,
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Hold-Key",
     "Access-Control-Allow-Methods": "GET,POST,PUT,OPTIONS",
   });
   res.end(data);
@@ -72,6 +72,10 @@ function userFromToken(token) {
 }
 function newToken() {
   return crypto.randomBytes(16).toString("hex");
+}
+function holdKey(req) {
+  const k = req.headers["x-hold-key"];
+  return typeof k === "string" ? k.trim() : "";
 }
 function newCode() {
   return crypto.randomBytes(3).toString("hex");
@@ -196,8 +200,9 @@ const SHARED_SAVES = new Set();
 const SHARED_REALMS = new Set();
 // Opt-in joins: a player types a realm id and gets a hold under "join-<id>". The hold is kept in
 // SAVES as "<realmId>.json" (never an account id), so it survives a restart.
+// The first join hands back a hold key once; later joins, reads, and intents send it as X-Hold-Key.
 // A join never touches SHARED_SAVES, a solo save, or applyOfflineProgress.
-const { holds, join: joinHold } = createJoinableHolds({
+const joinable = createJoinableHolds({
   clocks: realmClocks,
   isShared: (id) => SHARED_REALMS.has(id),
   store: createHoldStore(SAVES),
@@ -326,7 +331,8 @@ const server = http.createServer(async (req, res) => {
     return json(res, 200, { realmId, tick });
   }
 
-  // Opt-in join: body is exactly { realm: "<typed id>" }. Answers with the shared hold view.
+  // Opt-in join: body is exactly { realm: "<typed id>" }, key in X-Hold-Key. Answers with the shared
+  // hold view, plus { key } the one time a first join makes the hold.
   if (url.pathname === "/join") {
     if (req.method !== "POST") return json(res, 405, { error: "method not allowed" });
     const u = userFromToken(bearer(req));
@@ -334,7 +340,7 @@ const server = http.createServer(async (req, res) => {
     try {
       let body;
       try { body = JSON.parse(await readBody(req, 1024)); } catch { return json(res, 400, { error: "Send a realm id to join, not a state." }); }
-      return json(res, 200, await joinHold(body));
+      return json(res, 200, await joinable.join(body, holdKey(req), u.id));
     } catch (e) {
       if (e instanceof HoldError) return json(res, e.status, { error: e.message });
       return json(res, 500, { error: "join failed" });
@@ -347,7 +353,8 @@ const server = http.createServer(async (req, res) => {
     const realmId = realmHold[1];
     try {
       if (req.method === "GET" && realmHold[2] === "hold") {
-        const view = await holds.read(realmId);
+        const u = userFromToken(bearer(req));
+        const view = await joinable.read(realmId, holdKey(req), u?.id);
         return view ? json(res, 200, view) : json(res, 404, { error: "not a shared realm" });
       }
       if (req.method === "POST" && realmHold[2] === "intent") {
@@ -355,7 +362,7 @@ const server = http.createServer(async (req, res) => {
         if (!u) return json(res, 401, { error: "unauthorized" });
         let body;
         try { body = JSON.parse(await readBody(req, 1024)); } catch { return json(res, 400, { error: "Send one intent, not a state." }); }
-        const view = await holds.intent(realmId, u.id, body);
+        const view = await joinable.intent(realmId, u.id, body, holdKey(req), u.id);
         return view ? json(res, 200, view) : json(res, 404, { error: "not a shared realm" });
       }
       return json(res, 405, { error: "method not allowed" });

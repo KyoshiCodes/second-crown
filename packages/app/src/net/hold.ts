@@ -21,7 +21,30 @@ export type HoldView = {
   pending: number;
 };
 
+/** A first join's answer: the view, plus the hold key the one time the join made the hold. */
+export type JoinResult = HoldView & { key?: string };
+
 const STORE_KEYS = ["food", "wood", "stone", "gold"] as const;
+
+/** Auth and, for a joined hold, its key. The key goes in a header, never in an intent body. */
+function holdHeaders(key?: string, json = false): Headers {
+  const headers = new Headers();
+  if (json) headers.set("Content-Type", "application/json");
+  const token = cloudToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const clean = key?.trim();
+  if (clean) headers.set("X-Hold-Key", clean);
+  return headers;
+}
+
+/** The server's reason for a refusal, in words a player can act on. */
+async function refusal(response: Response, fallback: string): Promise<Error> {
+  if (response.status === 401) return new Error("Sign in first");
+  if (response.status === 403) return new Error("Wrong or missing hold key. Ask the friend who made the hold for its key");
+  if (response.status === 429) return new Error("Too many wrong hold keys. Try again later");
+  const body = (await response.json().catch(() => null)) as { error?: unknown } | null;
+  return new Error(typeof body?.error === "string" ? body.error : fallback);
+}
 
 function count(n: unknown): number {
   return typeof n === "number" && Number.isFinite(n) && n >= 0 ? n : 0;
@@ -49,55 +72,50 @@ function parseHold(body: unknown): HoldView {
   };
 }
 
-/** Join (read) the shared hold for a realm. Only call this for a realm marked shared. */
-export async function readHold(realmId: string): Promise<HoldView> {
+/** Read the shared hold for a realm. Only call this for a realm marked shared. A joined hold needs its key. */
+export async function readHold(realmId: string, key?: string): Promise<HoldView> {
   const response = await fetch(cloudUrl() + "/realm/" + encodeURIComponent(realmId) + "/hold", {
+    headers: holdHeaders(key),
     signal: AbortSignal.timeout(15000),
   });
-  if (!response.ok) throw new Error("Hold request failed");
+  if (!response.ok) throw await refusal(response, "Hold request failed");
   return parseHold(await response.json());
 }
 
-async function sendIntent(realmId: string, type: "stamp" | "train" | "build" | "cottage" | "lumber"): Promise<HoldView> {
-  const headers = new Headers({ "Content-Type": "application/json" });
-  const token = cloudToken();
-  if (token) headers.set("Authorization", `Bearer ${token}`);
+async function sendIntent(realmId: string, type: "stamp" | "train" | "build" | "cottage" | "lumber", key?: string): Promise<HoldView> {
   const response = await fetch(cloudUrl() + "/realm/" + encodeURIComponent(realmId) + "/intent", {
     method: "POST",
-    headers,
+    headers: holdHeaders(key, true),
     body: JSON.stringify({ type }),
     signal: AbortSignal.timeout(15000),
   });
-  if (!response.ok) {
-    const body = (await response.json().catch(() => null)) as { error?: unknown } | null;
-    throw new Error(typeof body?.error === "string" ? body.error : "Intent request failed");
-  }
+  if (!response.ok) throw await refusal(response, "Intent request failed");
   return parseHold(await response.json());
 }
 
 /** Send one stamp intent. The server applies it on the next tick boundary. */
-export function sendStamp(realmId: string): Promise<HoldView> {
-  return sendIntent(realmId, "stamp");
+export function sendStamp(realmId: string, key?: string): Promise<HoldView> {
+  return sendIntent(realmId, "stamp", key);
 }
 
 /** Ask the hold to train one militia. The server's sim pays for it or refuses with a reason. */
-export function sendTrain(realmId: string): Promise<HoldView> {
-  return sendIntent(realmId, "train");
+export function sendTrain(realmId: string, key?: string): Promise<HoldView> {
+  return sendIntent(realmId, "train", key);
 }
 
 /** Ask the hold to build one farm. The server's sim picks the first free tile and pays, or refuses with a reason. */
-export function sendBuild(realmId: string): Promise<HoldView> {
-  return sendIntent(realmId, "build");
+export function sendBuild(realmId: string, key?: string): Promise<HoldView> {
+  return sendIntent(realmId, "build", key);
 }
 
 /** Ask the hold to build one cottage. The server's sim picks the first open tile and pays, or refuses with a reason. */
-export function sendCottage(realmId: string): Promise<HoldView> {
-  return sendIntent(realmId, "cottage");
+export function sendCottage(realmId: string, key?: string): Promise<HoldView> {
+  return sendIntent(realmId, "cottage", key);
 }
 
 /** Ask the hold to build one lumber camp. The server's sim picks the first free tile and pays, or refuses with a reason. */
-export function sendLumber(realmId: string): Promise<HoldView> {
-  return sendIntent(realmId, "lumber");
+export function sendLumber(realmId: string, key?: string): Promise<HoldView> {
+  return sendIntent(realmId, "lumber", key);
 }
 
 /** A typed realm id, trimmed and lowercased, or null when blank or bad. Matches server/join.mjs. */
@@ -107,21 +125,21 @@ export function cleanJoinCode(code: string): string | null {
 }
 
 /**
- * Opt-in: join the shared hold for a typed realm id. Everyone who types the same id reads one
- * hold. A blank id returns null and sends nothing. Sends only the id, never a save.
+ * Opt-in: join the shared hold for a typed realm id. The first join of an id makes the hold and
+ * returns its key once; every later join sends that key. A blank id returns null and sends
+ * nothing. Sends only the id (and the key in a header), never a save.
  */
-export async function joinRealm(code: string): Promise<HoldView | null> {
+export async function joinRealm(code: string, key?: string): Promise<JoinResult | null> {
   const realm = cleanJoinCode(code);
   if (realm === null) return null;
-  const headers = new Headers({ "Content-Type": "application/json" });
-  const token = cloudToken();
-  if (token) headers.set("Authorization", `Bearer ${token}`);
   const response = await fetch(cloudUrl() + "/join", {
     method: "POST",
-    headers,
+    headers: holdHeaders(key, true),
     body: JSON.stringify({ realm }),
     signal: AbortSignal.timeout(15000),
   });
-  if (!response.ok) throw new Error(response.status === 401 ? "Sign in first" : "Join failed");
-  return parseHold(await response.json());
+  if (!response.ok) throw await refusal(response, "Join failed");
+  const body = (await response.json()) as { key?: unknown };
+  const view = parseHold(body);
+  return typeof body.key === "string" ? { ...view, key: body.key } : view;
 }

@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { createRealmClocks } from "./realmclock.mjs";
 import { loadSimFromSource, HoldError, CANNOT_LUMBER, NO_LUMBER_TILE, INTENT_ONLY } from "./hold.mjs";
 import { createJoinableHolds } from "./join.mjs";
+import { keyedJoin } from "./testkeys.mjs";
 import { createHoldStore } from "./keep.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -17,12 +18,13 @@ function boot(dir = null, wall = { ms: 100_000 }) {
   let loads = 0;
   const clocks = createRealmClocks(() => wall.ms);
   const store = dir ? createHoldStore(dir) : null;
-  const { holds, join } = createJoinableHolds({
+  const { holds, join: rawJoin } = createJoinableHolds({
     clocks,
     loadSim: async () => { loads++; return sim; },
     store,
     now: () => wall.ms,
   });
+  const join = keyedJoin(rawJoin, wall.ring ??= new Map());
   return { holds, join, step: (ms) => { wall.ms += ms; }, loads: () => loads };
 }
 
@@ -65,7 +67,8 @@ test("a lumber camp the hold cannot afford is rejected and does not spend", asyn
     },
   };
   const clocks = createRealmClocks(() => 100_000);
-  const { holds, join } = createJoinableHolds({ clocks, loadSim: async () => simWithCottage });
+  const { holds, join: rawJoin } = createJoinableHolds({ clocks, loadSim: async () => simWithCottage });
+  const join = keyedJoin(rawJoin);
   const view = await join({ realm: "oak-hill" });
   assert.equal(view.stores.wood, "0");
   await assert.rejects(
