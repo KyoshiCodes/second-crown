@@ -1,3 +1,12 @@
+## 2026-10-04 — server + app / shared hold Build farm (wave/realtime-build)
+
+- `parseIntent` accepts exactly `{ type: "stamp" | "train" | "build" }`. `build` runs at once after the clock sync (like `train`, not queued like a stamp): `freeFarmTile()` scans `y, x` in `0..TILE_SCAN-1` (64, only a loop bound) and returns the first tile where `sim.canPlaceType(state, "farm", x, y)` holds; the sim owns the grid size, occupancy, and the work-plot cap. Then `sim.tryBuild(state, { typeId: "farm", x, y })`. `HoldError(409, NO_TILE)` or `HoldError(409, CANNOT_BUILD)`; `tryBuild` checks cost before it spends, so a refusal changes nothing. Issuer is the hold (`player`).
+- `view()` adds `farms` = count of player `farm` buildings including scaffolding.
+- Fresh-hold catch: starter buildings fill both work plots (`workPlotCap` = 2 with no cottage or keep), so a live Build farm returns `NO_TILE` today. Solo has the same rule but can build a cottage. A cottage (or keep) intent is the next step if the owner wants farms to work in a fresh hold. `build.test.mjs` wraps the real sim so its new game has one finished cottage, for the success cases only.
+- App: `sendIntent` type union adds `"build"`; `sendBuild()`; `parseHold` defaults `farms` to 0. `JoinHoldCard` still keeps the view in React state only.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs`; root `npm test` covers `net/hold.test.ts` and `settleOnLoad.test.ts`.
+- Not done: other buildings (cottage, keep), choosing a tile, showing the hold on the map, persisting holds, push instead of polling.
+
 ## 2026-10-04 — server + app / playable shared hold (wave/realtime-play)
 
 - `hold.mjs` new-hold state now passes `withStarterBuildings: true`, matching the app's New Game (`useGameEngine.ts`), so the farm and lumber camp make stores. Still seeded by `seedForRealm(id)`, never from a save.

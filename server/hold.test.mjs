@@ -65,7 +65,7 @@ test("the stamp goes through the sim: it lands on the boundary even after a long
 test("a full client state is refused", async () => {
   const { holds } = setup();
   const save = sim.createGameState({ seed: 1, now: 0 });
-  for (const body of [save, JSON.parse(sim.serializeState(save)), { type: "stamp", state: save }, { type: "build" }, null, [], "stamp"]) {
+  for (const body of [save, JSON.parse(sim.serializeState(save)), { type: "stamp", state: save }, { type: "build", typeId: "keep" }, null, [], "stamp"]) {
     await assert.rejects(holds.intent("realm-a", "guest_alice", body), (e) => e instanceof HoldError && e.status === 400 && e.message === INTENT_ONLY);
   }
   assert.deepEqual((await holds.read("realm-a")).stamps, []);

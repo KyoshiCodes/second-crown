@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanJoinCode, joinRealm, readHold, sendStamp, sendTrain } from "./hold";
+import { cleanJoinCode, joinRealm, readHold, sendBuild, sendStamp, sendTrain } from "./hold";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -19,6 +19,7 @@ const view = {
   stores: { food: "12.5", wood: "3", stone: "0", gold: "1" },
   militia: 2,
   training: 1,
+  farms: 2,
   stamps: [{ tick: 6, by: "guest_a" }],
   pending: 0,
 };
@@ -52,11 +53,25 @@ describe("shared hold client", () => {
     await expect(sendTrain("join-oak-hill")).rejects.toThrow(/cannot afford a militia/);
   });
 
+  it("sendBuild sends only { type: build }, never a building, tile, or state", async () => {
+    const fetchSpy = stubServer(view);
+    expect(await sendBuild("join-oak-hill")).toEqual(view);
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(String(url)).toMatch(/\/realm\/join-oak-hill\/intent$/);
+    expect(JSON.parse(String(init?.body))).toEqual({ type: "build" });
+  });
+
+  it("a refused build shows the server's reason", async () => {
+    stubServer({ error: "The hold cannot afford a farm." }, 409);
+    await expect(sendBuild("join-oak-hill")).rejects.toThrow(/cannot afford a farm/);
+  });
+
   it("an older view without stores reads as zeros", async () => {
     stubServer({ realmId: "realm-a", tick: 1, stamps: [], pending: 0 });
     const read = await readHold("realm-a");
     expect(read.stores).toEqual({ food: "0", wood: "0", stone: "0", gold: "0" });
     expect(read.militia).toBe(0);
+    expect(read.farms).toBe(0);
   });
 
   it("a bad view is refused", async () => {
