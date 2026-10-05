@@ -1,3 +1,14 @@
+## 2026-10-04 — server + app / realm clock wire, real-time Phase 1 (wave/realtime-wire)
+
+- `server/realmclock.mjs`: `createRealmClocks(now = Date.now)` → `{ tick(realmId), size }`. A `Map` of `createClock` instances, memory only (a pm2 restart resets every realm to 0). First `tick(id)` starts the clock and returns 0; later calls return the clock's high-water tick. `null` for an id not matching `REALM_ID_RE` or once `MAX_REALM_CLOCKS` (10,000) exist.
+- `server/index.mjs`: `GET /realm/:id/tick` → `{ realmId, tick }` or 400. Unauthenticated; it never reads or writes `saves/` and does not import `packages/sim`.
+- `packages/app/src/net/realmClock.ts`: `fetchRealmTick(realmId)` against `cloudUrl()`; rejects a non-integer or negative tick.
+- `packages/app/src/game/settleOnLoad.ts`: `sharedRealmId(state)` (always null for now: do not mark a realm shared without the owner) and `settleOnLoad(state, deps?)`. Solo → `applyOfflineProgress`. Shared → `fetchRealmTick`, no catch-up; a failed read gives `serverTick: null` instead of throwing, so `useGameEngine`'s load `catch` never swaps in a fresh realm. Phase 1 only reads the count; nothing applies it to state yet.
+- `useGameEngine.ts`: only the autosave load calls `settleOnLoad`. The 100 ms tick loop and `importSaveFile` (still `applyOfflineProgress`) are unchanged.
+- Root `npm test` = sim vitest then app vitest. `packages/app/vitest.config.ts` keeps vitest 2 off the app's Vite 8 / plugin-react config.
+- Run server tests: `node --test server/clock.test.mjs server/realmclock.test.mjs` (plus `savegate`, `ledger`, `ledger-http` from `server/`).
+- Not done: applying the server tick to a shared realm, marking any realm shared, Phase 2 save, Phase 3 shared hold.
+
 ## 2026-10-04 — server / clock, real-time Phase 1 (wave/realtime-clock)
 
 - `server/clock.mjs` (`docs/REALTIME.md` Phase 1 only). `TICK_MS = 1000 / TICKS_PER_SECOND` (100), imported from `savegate.mjs` so the existing mirror test covers it.

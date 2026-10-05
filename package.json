@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "npm run dev -w @second-crown/app",
     "build": "npm run build -w @second-crown/app",
-    "test": "npm run test -w @second-crown/sim",
+    "test": "npm run test -w @second-crown/sim && npm run test -w @second-crown/app",
     "playtest": "npm run playtest -w @second-crown/sim",
     "test:all": "npm run test --workspaces --if-present"
   },

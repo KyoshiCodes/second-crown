@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#206**. Nothing is waiting on an unmerged wave.
+Merged through PR **#209**. Waiting: `wave/realtime-wire` (**not merged**, see Real time below).
 
 ### Cultures and units (all merged)
 
@@ -46,7 +46,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 ## Parked (do not implement)
 
 - Another dawn gift beyond the first-dawn stores.
-- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md`. Phase 1 clock code is on branch `wave/realtime-clock` (**not merged**): `server/clock.mjs` turns elapsed time into ticks, nothing calls it yet, live game unchanged. Phase 2 (save) and Phase 3 (shared hold) not started. Phase 3 (shared hold) would break the "no sim on the server" rule; that needs an owner decision first.
+- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md`. Phase 1 clock (`server/clock.mjs`) is merged. Phase 1 wiring is on branch `wave/realtime-wire` (**not merged**): `GET /realm/:id/tick` starts a memory-only clock per realm id on first ask and returns its tick count; the app reads it (`packages/app/src/game/settleOnLoad.ts`) only for a realm marked shared, and no realm is marked shared (`sharedRealmId` returns null). Solo load still runs `applyOfflineProgress`; live game unchanged. Phase 2 (save) and Phase 3 (shared hold) not started. Phase 3 (shared hold) would break the "no sim on the server" rule; that needs an owner decision first.
 
 ## Verify
 

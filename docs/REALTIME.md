@@ -1,6 +1,6 @@
 # Real-time spec (plan only)
 
-Status: **Phase 1 clock started** (`server/clock.mjs`, not wired into any endpoint). Phases 2 and 3 not started. The live game is unchanged.
+Status: **Phase 1 clock wired** (`server/clock.mjs`; `GET /realm/:id/tick` in `server/realmclock.mjs`, memory only; app reads it only for a shared realm, and none is shared yet). Phases 2 and 3 not started. The live game is unchanged.
 
 Three phases, in this order. Each phase must be finished and merged before the next one starts.
 
