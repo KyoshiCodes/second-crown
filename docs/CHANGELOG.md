@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-04 — Shared hold: Build lumber camp (wave/realtime-lumber)
+
+- Still opt-in. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged. No rule copied into `server/`; no client state accepted as the realm.
+- `server/hold.mjs`: new intent, exactly `{ "type": "lumber" }` (one lumber camp). Same path as Build farm and Build cottage, now one `BUILDS` table: first tile where `sim.canPlaceType(state, "lumber_camp", x, y)` is true, then `sim.tryBuild(state, { typeId: "lumber_camp", x, y })`, the same call a solo lumber camp makes. No tile or no free work plot → 409 `NO_LUMBER_TILE`; cannot pay → 409 `CANNOT_LUMBER`; nothing is spent in either case. Any extra key is 400. The view adds `lumberCamps` (player lumber camps, finished or building; the starter camp counts). Written through the hold store after the intent, so it survives a restart. Train, Build farm, Build cottage, and Stamp unchanged.
+- App: `net/hold.ts` `HoldView` gains `lumberCamps` (missing reads as zero); new `sendLumber(realmId)`. `JoinHoldCard.tsx` adds a **Build lumber camp** button next to Build farm and **Lumber camps** beside the numbers. Leave unchanged; nothing is written to the local save.
+- Tests: new `server/lumber.test.mjs` (starter camp shows; a camp on one id shows on the other; an unaffordable camp is rejected and does not spend; a fresh hold with no free work plot is rejected and does not spend; a camp built before a restart is there after the in-memory hold is dropped; a different id does not see it; extra keys refused; train, cottage, and farm still work; a solo load does not join; source calls `sim.tryBuild` and copies no rules). `net/hold.test.ts` (lumber sends only `{ type: "lumber" }`; 409 reason shown; old view reads zero). `settleOnLoad.test.ts` fixtures gain `lumberCamps`. Run: `node --test server/clock.test.mjs server/savegate.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs`.
+
 ## 2026-10-04 — Shared hold survives a restart (wave/realtime-keep)
 
 - Only the shared hold is kept. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged and not called. No rule copied into `server/`; no client state accepted as the realm.
