@@ -1,6 +1,6 @@
 # Real-time spec (plan only)
 
-Status: **written plan, not started.** No code, no endpoints, and no server changes ship with this file. The live game is unchanged.
+Status: **Phase 1 clock started** (`server/clock.mjs`, not wired into any endpoint). Phases 2 and 3 not started. The live game is unchanged.
 
 Three phases, in this order. Each phase must be finished and merged before the next one starts.
 

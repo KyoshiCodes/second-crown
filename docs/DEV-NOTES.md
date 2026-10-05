@@ -1,3 +1,12 @@
+## 2026-10-04 — server / clock, real-time Phase 1 (wave/realtime-clock)
+
+- `server/clock.mjs` (`docs/REALTIME.md` Phase 1 only). `TICK_MS = 1000 / TICKS_PER_SECOND` (100), imported from `savegate.mjs` so the existing mirror test covers it.
+- `ticksBetween(startMs, nowMs)`: `floor((now - start) / TICK_MS)`, 0 when `now <= start` or either input is not finite.
+- `createClock(now = Date.now)`: `start(atMs?)`, `started`, `tick(atMs?)`. Unstarted → 0. `tick` keeps a high-water mark, so a wall clock stepping back never lowers the count.
+- Does not import `packages/sim`, does not touch saves, and is not called from `index.mjs`. The client does not use it. `Date.now` stays out of the sim (INVARIANTS §1); this only produces a tick count for later phases.
+- Run: `cd server && node --test clock.test.mjs savegate.test.mjs ledger.test.mjs ledger-http.test.mjs` (root `npm test` still covers `packages/sim` only).
+- Not done: Phase 2 save, Phase 3 shared hold.
+
 ## 2026-10-04 — docs / real-time spec (wave/realtime-spec)
 
 - No code changed. `docs/REALTIME.md` is the spec for three phases, in order: Clock, Save, Shared hold. Read it before any real-time work.

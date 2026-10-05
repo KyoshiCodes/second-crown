@@ -46,7 +46,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 ## Parked (do not implement)
 
 - Another dawn gift beyond the first-dawn stores.
-- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md` (spec only, not started). Phase 3 (shared hold) would break the "no sim on the server" rule; that needs an owner decision first.
+- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md`. Phase 1 clock code is on branch `wave/realtime-clock` (**not merged**): `server/clock.mjs` turns elapsed time into ticks, nothing calls it yet, live game unchanged. Phase 2 (save) and Phase 3 (shared hold) not started. Phase 3 (shared hold) would break the "no sim on the server" rule; that needs an owner decision first.
 
 ## Verify
 
