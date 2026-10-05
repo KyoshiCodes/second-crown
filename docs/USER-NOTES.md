@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-05 — Sign-in links from someone else are ignored (wave/realtime-nonce)
+
+- **A sign-in link from someone else is ignored.** If someone sends you a game link with a sign-in in it, opening it does not sign you in as them, does not sign you out, and does not upload your save to their account. The **Cloud** panel says "Ignored a sign-in link this browser did not start."
+- **Log in with Discord** and **Guest session** work as before when you click them yourself. A Discord login only finishes in the same browser tab that started it. If one is refused, just click **Log in with Discord** again.
+- A sign-in only works once. Reopening an old sign-in link does nothing.
+- **Restore code** is unchanged: pasting your own recovery code still signs you back in.
+- **The solo crown is unchanged.** Your game, its saves, and offline catch-up work exactly as before. Hold keys work as before.
+
 ## 2026-10-04 — A shared hold now has a key (wave/realtime-key)
 
 - **A friend needs the key, not just the id.** The first time anyone joins a new id, the **Cloud** panel shows a **hold key** once, with a **Copy key** button. Copy it and send it to your friends along with the id. Without the key, typing the id is not enough to get in.

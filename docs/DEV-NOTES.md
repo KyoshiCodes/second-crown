@@ -1,3 +1,14 @@
+## 2026-10-05 — server + app / login nonce (wave/realtime-nonce)
+
+- Two checks. Server: Discord OAuth `state` = nonce, bound to the browser by an HttpOnly cookie (`sc_login`, `Path=/auth/discord`, `SameSite=Lax` so it rides the top-level redirect back from discord.com, `Max-Age=600`, no `Secure` because the playtest is plain HTTP). Callback compares with `timingSafeEqual` and always sends `Max-Age=0`. Client: `sessionStorage` `sc-login-nonce`, compared with `cloud_nonce` in the hash. The client check is what stops a pasted `#cloud_token=` link, since that never touches the server.
+- `NONCE_RE` (`/^[A-Za-z0-9_-]{22,64}$/`) lives in both `server/nonce.mjs` and `packages/app/src/net/login.ts`; `nonce.test.mjs` fails if they drift. Client nonces are 32 characters.
+- `sessionStorage` is per tab: a Discord login must come back to the tab that started it (it does, it is a same-tab redirect). A link opened in a new tab has no nonce and is refused.
+- Guest: the nonce is started and taken around one fetch. It only rejects an answer when another login started in between; there is no URL for a guest result to come in through.
+- `restoreToken` (typed recovery code) is not nonce-gated: the player pastes it on purpose into the panel.
+- `absorbHashSession` return type changed from `boolean` to `"none" | "signed-in" | "refused"`; only `CloudPanel.tsx` calls it. The refused path writes nothing to `localStorage` and makes no request; `autoPush` keeps using the existing token.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs`; app `src/net/login.test.ts` in `npm test`.
+- Not done: nonce for the typed restore code, `Secure` cookie once the site has HTTPS.
+
 ## 2026-10-04 — server + app / shared hold key (wave/realtime-key)
 
 - Gate lives in `join.mjs` `createJoinableHolds`: `join(body, key, session)`, `read(id, key, session)`, `intent(id, by, body, key, session)`. Ids starting `join-` go through `unlock`; others fall through to `holds.read/intent` unchanged (owner-marked realms, none today). The raw `holds` table is still returned for tests; `index.mjs` never calls it directly (asserted in `key.test.mjs`).
