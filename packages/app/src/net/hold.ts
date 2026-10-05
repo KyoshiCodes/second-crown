@@ -1,14 +1,44 @@
 import { cloudToken, cloudUrl } from "./cloud";
 
-/** What every reader of a shared hold sees (docs/REALTIME.md Phase 3). */
-export type HoldView = { realmId: string; tick: number; stamps: { tick: number; by: string }[]; pending: number };
+export type HoldStores = { food: string; wood: string; stone: string; gold: string };
+
+/**
+ * What every reader of a shared hold sees (docs/REALTIME.md Phase 3). Stores are the sim's own
+ * decimal strings; militia counts trained militia, training counts militia still in the queue.
+ */
+export type HoldView = {
+  realmId: string;
+  tick: number;
+  stores: HoldStores;
+  militia: number;
+  training: number;
+  stamps: { tick: number; by: string }[];
+  pending: number;
+};
+
+const STORE_KEYS = ["food", "wood", "stone", "gold"] as const;
+
+function count(n: unknown): number {
+  return typeof n === "number" && Number.isFinite(n) && n >= 0 ? n : 0;
+}
 
 function parseHold(body: unknown): HoldView {
   const v = body as Partial<HoldView> | null;
   if (!v || typeof v.realmId !== "string" || typeof v.tick !== "number" || !Number.isInteger(v.tick) || v.tick < 0 || !Array.isArray(v.stamps)) {
     throw new Error("Hold sent a bad view");
   }
-  return { realmId: v.realmId, tick: v.tick, stamps: v.stamps, pending: typeof v.pending === "number" ? v.pending : 0 };
+  const raw = (v.stores ?? {}) as Partial<Record<string, unknown>>;
+  const stores = {} as HoldStores;
+  for (const key of STORE_KEYS) stores[key] = typeof raw[key] === "string" ? (raw[key] as string) : "0";
+  return {
+    realmId: v.realmId,
+    tick: v.tick,
+    stores,
+    militia: count(v.militia),
+    training: count(v.training),
+    stamps: v.stamps,
+    pending: count(v.pending),
+  };
 }
 
 /** Join (read) the shared hold for a realm. Only call this for a realm marked shared. */
@@ -20,19 +50,31 @@ export async function readHold(realmId: string): Promise<HoldView> {
   return parseHold(await response.json());
 }
 
-/** Send one stamp intent. The server applies it on the next tick boundary. */
-export async function sendStamp(realmId: string): Promise<HoldView> {
+async function sendIntent(realmId: string, type: "stamp" | "train"): Promise<HoldView> {
   const headers = new Headers({ "Content-Type": "application/json" });
   const token = cloudToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
   const response = await fetch(cloudUrl() + "/realm/" + encodeURIComponent(realmId) + "/intent", {
     method: "POST",
     headers,
-    body: JSON.stringify({ type: "stamp" }),
+    body: JSON.stringify({ type }),
     signal: AbortSignal.timeout(15000),
   });
-  if (!response.ok) throw new Error("Stamp request failed");
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as { error?: unknown } | null;
+    throw new Error(typeof body?.error === "string" ? body.error : "Intent request failed");
+  }
   return parseHold(await response.json());
+}
+
+/** Send one stamp intent. The server applies it on the next tick boundary. */
+export function sendStamp(realmId: string): Promise<HoldView> {
+  return sendIntent(realmId, "stamp");
+}
+
+/** Ask the hold to train one militia. The server's sim pays for it or refuses with a reason. */
+export function sendTrain(realmId: string): Promise<HoldView> {
+  return sendIntent(realmId, "train");
 }
 
 /** A typed realm id, trimmed and lowercased, or null when blank or bad. Matches server/join.mjs. */

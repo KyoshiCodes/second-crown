@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#212**. Waiting: `wave/realtime-join` (**not merged**, see Real time below).
+Merged through PR **#213**. Waiting: `wave/realtime-play` (**not merged**, see Real time below).
 
 ### Cultures and units (all merged)
 
@@ -46,14 +46,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 ## Parked (do not implement)
 
 - Another dawn gift beyond the first-dawn stores.
-- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md`. Phase 1 is merged: `server/clock.mjs`, and `GET /realm/:id/tick` (memory-only clock per realm id) read by `packages/app/src/game/settleOnLoad.ts` only for a shared realm. Phase 2 (save) is merged (#211): the save gate refuses every browser upload to a shared realm (409, server copy handed back), and a shared reload reads the server save and overwrites the browser cache (`packages/app/src/game/loadSaved.ts`). Phase 3 (shared hold) is merged (#212): the owner approved the rule change (ADR-011, INVARIANTS §17: a shared hold may call `packages/sim` on the server, solo play never does). `server/hold.mjs` keeps an in-memory hold per shared realm id, timed by the Phase 1 clock, takes one intent (a stamp) and applies it through the sim on the next tick boundary; routes `GET /realm/:id/hold` and `POST /realm/:id/intent`. No realm is marked shared (server `SHARED_SAVES` and `SHARED_REALMS` are empty, app `sharedRealmId` returns null), so the server never loads the sim, a solo load joins no hold, and the live game is unchanged. **Opt-in join** is on branch `wave/realtime-join` (**not merged**): `server/join.mjs` and `POST /join` let a signed-in player type a short id and join the in-memory hold `join-<id>`; two browsers on the same id see one tick and each other's stamps. App control: `packages/app/src/JoinHoldCard.tsx` in the Cloud panel (Join hold / Stamp / Leave). It never touches the solo save or offline catch-up; a blank id does not join; no full state is accepted.
+- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md`. Phase 1 is merged: `server/clock.mjs`, and `GET /realm/:id/tick` (memory-only clock per realm id) read by `packages/app/src/game/settleOnLoad.ts` only for a shared realm. Phase 2 (save) is merged (#211): the save gate refuses every browser upload to a shared realm (409, server copy handed back), and a shared reload reads the server save and overwrites the browser cache (`packages/app/src/game/loadSaved.ts`). Phase 3 (shared hold) is merged (#212): the owner approved the rule change (ADR-011, INVARIANTS §17: a shared hold may call `packages/sim` on the server, solo play never does). `server/hold.mjs` keeps an in-memory hold per shared realm id, timed by the Phase 1 clock, takes one intent (a stamp) and applies it through the sim on the next tick boundary; routes `GET /realm/:id/hold` and `POST /realm/:id/intent`. No realm is marked shared (server `SHARED_SAVES` and `SHARED_REALMS` are empty, app `sharedRealmId` returns null), so the server never loads the sim, a solo load joins no hold, and the live game is unchanged. **Opt-in join** is merged (#213): `server/join.mjs` and `POST /join` let a signed-in player type a short id and join the in-memory hold `join-<id>`; two browsers on the same id see one tick and each other's stamps. App control: `packages/app/src/JoinHoldCard.tsx` in the Cloud panel (Join hold / Stamp / Leave). It never touches the solo save or offline catch-up; a blank id does not join; no full state is accepted. **Playable hold** is on branch `wave/realtime-play` (**not merged**): a joined hold is the sim's new game with starter buildings (fresh, never a client save), settled to the Phase 1 clock on each read; the view adds food, wood, stone, gold, militia (and militia still training). New intent `{ "type": "train" }` calls the sim's `tryTrain` for one militia at the settled tick; a hold that cannot pay gets 409. The card shows the five numbers and a **Train militia** button. Leave still drops only the view; the hold is never written to the local save. A server restart clears every hold.
 
 ## Verify
 
 ```
 npm test
 npm run test -w @second-crown/render
-node --test server/clock.test.mjs server/savegate.test.mjs server/hold.test.mjs server/join.test.mjs
+node --test server/clock.test.mjs server/savegate.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs
 npm run build -w @second-crown/app
 ```
 

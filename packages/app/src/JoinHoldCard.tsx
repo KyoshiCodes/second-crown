@@ -1,9 +1,16 @@
 import React from "react";
-import { joinRealm, readHold, sendStamp, type HoldView } from "./net/hold";
+import { joinRealm, readHold, sendStamp, sendTrain, type HoldView } from "./net/hold";
+
+/** Whole units for display. The hold keeps the sim's exact decimal strings. */
+function whole(value: string): string {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.floor(n).toLocaleString() : value;
+}
 
 /**
- * Opt-in shared hold. Type a realm id and join; everyone on the same id reads one server hold.
- * This card never loads, saves, or marks the solo crown. Leave returns to the solo crown as it was.
+ * Opt-in shared hold. Type a realm id and join; everyone on the same id reads one server hold,
+ * a fresh kingdom the server runs through packages/sim. This card never loads, saves, or marks
+ * the solo crown, and never writes the hold into the local save. Leave returns to the solo crown.
  */
 export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
   const [code, setCode] = React.useState("");
@@ -48,6 +55,16 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
     }
   }
 
+  async function train() {
+    if (realmId === null) return;
+    try {
+      setView(await sendTrain(realmId));
+      setStatus("");
+    } catch (e) {
+      setStatus(`Train refused: ${e instanceof Error ? e.message : "unknown"}`);
+    }
+  }
+
   function leave() {
     setView(null);
     setStatus("Left the hold. Your solo crown is unchanged.");
@@ -57,7 +74,7 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
   return (
     <div className="sc-work-card sc-plain-card">
       <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>
-        Join hold (opt-in, test): friends who type the same id share one server tick and see each other's stamps. Your solo crown is not touched.
+        Join hold (opt-in, test): friends who type the same id share one fresh server kingdom. It is not your solo crown, which is not touched. A server restart clears the hold.
       </div>
       {view === null ? (
         <div className="sc-plain-inline">
@@ -71,8 +88,16 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
             <span className="sc-work-status">
               Hold <code>{view.realmId.replace(/^join-/, "")}</code> · tick {view.tick}{view.pending > 0 ? ` · ${view.pending} pending` : ""}
             </span>
+            <button type="button" className="sc-work-btn" onClick={() => void train()}>Train militia</button>
             <button type="button" className="sc-work-btn" onClick={() => void stamp()}>Stamp</button>
             <button type="button" className="sc-work-btn" onClick={leave}>Leave</button>
+          </div>
+          <div className="sc-plain-inline" style={{ fontSize: 13, marginTop: 6, gap: 12, flexWrap: "wrap" }} aria-label="Hold stores">
+            <span>Food {whole(view.stores.food)}</span>
+            <span>Wood {whole(view.stores.wood)}</span>
+            <span>Stone {whole(view.stores.stone)}</span>
+            <span>Gold {whole(view.stores.gold)}</span>
+            <span>Militia {view.militia}{view.training > 0 ? ` (+${view.training} training)` : ""}</span>
           </div>
           <div style={{ fontSize: 12, marginTop: 6 }}>
             {view.stamps.length === 0
