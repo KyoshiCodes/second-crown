@@ -41,6 +41,8 @@ After every **meaningful** merge to `main` (new system, live behavior change, or
 
 Skip only for throwaway local experiments that never leave the machine. Do not “do docs later.”
 
+**Slice rule.** After any slice that changes what a player sees or what the sim does, update `HANDOFF.md`, `CHANGELOG.md`, `USER-NOTES.md`, and `DEV-NOTES.md` in the **same commit**. Skip only for a comment, a rename, or a test-only tweak that does not change behavior. A slice is not done while any of those four files still describes it as unmerged.
+
 ---
 
 ## Non-negotiables (short)

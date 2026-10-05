@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Notes cleanup (wave/docs-current)
+
+- Older notes said Rangers, Banners, Outriders, Wardens, and Lancers used a plain placeholder icon. That is out of date: all five have their own Army-tab chip and march figure. Those lines are corrected below.
+
 ## 2026-10-04 — Culture Unit March Silhouettes (bakeoff/gemini-culture-marches)
 
 - On the isometric board, your marching armies now display distinct meeple silhouettes when mostly composed of the culture units:
@@ -48,13 +52,13 @@ Newest first. Plain language for playtesters.
 
 - A new culture, **Peak Holds**, can be picked for a new game. It builds like the Crown Marches, but once your keep is finished your hold sees one tile farther. Existing saves keep their culture.
 - A new unit, the **Lancer**, costs the same as a knight, has power 6, and drills in 6 seconds. It unlocks with **Horse lore** on the Crown tab, the same study as knights. Knights are still there.
-- Lancers use a plain placeholder icon for now.
+- Lancers now have their own chip on the Army tab and their own march figure on the board (see the 2026-10-03 and 2026-10-04 notes above).
 
 ## 2026-10-02 — Fen Steads culture and wardens (wave/culture-unit-4)
 
 - A new culture, **Fen Steads**, can be picked for a new game. It builds like the Crown Marches, but every cottage houses one more citizen. Existing saves keep their culture.
 - A new unit, the **Warden**, costs the same as a skirmisher, has power 3, and drills in 3 seconds. It unlocks with a new **Screening** study on the Crown tab. Skirmishers are still there and need no study.
-- Wardens use a plain placeholder icon for now.
+- Wardens now have their own chip on the Army tab and their own march figure on the board (see the notes above).
 
 ## 2026-10-02 — 28px Outrider Chip on Outrider Card (bakeoff/gemini-outrider)
 
@@ -68,7 +72,7 @@ Newest first. Plain language for playtesters.
 
 - A new culture, **Salt Reaches**, can be picked for a new game. It builds like the Crown Marches, but every lumber camp fells +1 more wood. Existing saves keep their culture.
 - A new unit, the **Outrider**, costs the same as cavalry, hits a little softer (power 5), and drills in 5 seconds. It unlocks with **Horse lore** on the Crown tab, at the same time as cavalry. Cavalry is still there.
-- Outriders use a plain placeholder icon for now.
+- Outriders now have their own chip on the Army tab and their own march figure on the board (see the notes above).
 
 ## 2026-10-02 — 28px Banner Chip on Banner Card (bakeoff/gemini-banner)
 
@@ -82,7 +86,7 @@ Newest first. Plain language for playtesters.
 
 - A new culture, **Glen Holds**, can be picked for a new game. It builds like the Crown Marches, but every quarry cuts +1 more stone. Existing saves keep their culture.
 - A new unit, the **Banner**, costs the same as a spearman, hits as hard, and drills in 3 seconds. To unlock it, study **Drill** on the Crown tab (you need a Barracks or an Academy). Spearmen are still open from the start.
-- Banners use a plain placeholder icon for now.
+- Banners now have their own chip on the Army tab and their own march figure on the board (see the notes above).
 
 ## 2026-10-02 — 28px Ranger Chip on Ranger Card (bakeoff/gemini-ranger)
 
@@ -102,7 +106,7 @@ Newest first. Plain language for playtesters.
 
 - A new culture, **Mist Reach**, can be picked for a new game. It builds like the Crown Marches, but every farm feeds +1 more food. Existing saves keep their culture.
 - A new unit, the **Ranger**, costs the same as an archer and hits as hard, and drills in 4 seconds. To unlock it, study **Fieldcraft** on the Crown tab (you need an Archery Range or an Academy). Archers are still open from the start.
-- Rangers use a plain placeholder icon for now.
+- Rangers now have their own chip on the Army tab and their own march figure on the board (see the notes above).
 
 ## 2026-10-02 — 28px Dawn Seal Pip on Second Dawn Card (bakeoff/gemini-dawn-seal)
 
