@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Join a shared hold (wave/realtime-join)
+
+- New, **opt-in**, and only a test: open the **Cloud** panel, sign in (a guest session is fine), type a short realm id like `oak-hill`, and press **Join hold**.
+- A friend who types the same id joins the same hold. You both see the same tick count, and when one of you presses **Stamp**, the other sees it a moment later. A different id is a different hold.
+- **Your old crown is unchanged until you join, and joining does not change it either.** It still saves in your browser and catches up offline time as before. Press **Leave** to go back to it.
+- A blank id does nothing. Holds live only in the server's memory, so a server restart clears them.
+
 ## 2026-10-04 — Shared hold groundwork (wave/realtime-hold)
 
 - The live game is unchanged because no realm is shared yet. Nothing new to try.

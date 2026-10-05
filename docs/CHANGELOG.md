@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-04 — Join a shared hold by realm id (wave/realtime-join)
+
+- Opt-in only. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `sharedRealmId` still returns null; `applyOfflineProgress` for a solo crown is unchanged.
+- New `server/join.mjs`: `createJoinableHolds({ clocks, isShared, loadSim })` wraps the Phase 3 `createHolds` and adds `join(body)`. Body must be exactly `{ "realm": "<id>" }`; the id is trimmed and lowercased and must match `[a-z0-9-]{1,24}`. The hold lives under `join-<id>` (memory only, max 100). A blank or bad id, a full save, or any extra key is refused (400) and loads no sim. No rule copied into `server/`.
+- `server/index.mjs`: new route `POST /join` (sign-in required, 1 KB body) returns the hold view. A joined hold then answers the existing `GET /realm/join-<id>/hold` and `POST /realm/join-<id>/intent`.
+- App: `joinRealm(code)` and `cleanJoinCode` in `packages/app/src/net/hold.ts` (blank id sends nothing). New `packages/app/src/JoinHoldCard.tsx` in the Cloud panel: type an id, **Join hold**, see the tick and stamps (polled every second), **Stamp**, **Leave**. It never loads or saves the solo crown; Leave returns to it unchanged.
+- Tests: new `server/join.test.mjs` (two joins on one id see the same tick and stamp; a different id does not; blank id does not join; full state refused; solo ids never shared by a join; source copies no rules). `net/hold.test.ts` (join sends only the id; blank does not fetch). `settleOnLoad.test.ts` (a solo load still uses the local save and does not join).
+
 ## 2026-10-04 — Real-time shared hold, Phase 3 (wave/realtime-hold)
 
 - Rule change, owner approved: ADR-011 in `docs/DECISIONS.md` and new INVARIANTS §17. A shared hold may run `packages/sim` on the server; solo play does not. `AGENTS.md` non-negotiables updated to match. Committed before the code.

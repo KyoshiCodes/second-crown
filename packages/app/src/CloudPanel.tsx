@@ -17,6 +17,7 @@ import {
 } from "./net/cloud";
 import { loadFromIndexedDb, saveToIndexedDb } from "./save/indexedDb";
 import { getTesterName } from "./TesterBar";
+import { JoinHoldCard } from "./JoinHoldCard";
 import "./hud/plain-buttons.css";
 
 export function CloudPanel() {
@@ -201,6 +202,7 @@ export function CloudPanel() {
           } catch { setStatus("That recovery code is not valid on this server."); }
         }}>Restore code</button>
       </div>
+      <JoinHoldCard signedIn={Boolean(token)} />
       <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8 }}>{status}</div>
     </details>
   );

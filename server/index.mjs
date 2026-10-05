@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 import { createLedgerHandler } from "./ledger.mjs";
 import { gateSave, SaveGateError, MAX_SAVE_BYTES } from "./savegate.mjs";
 import { createRealmClocks } from "./realmclock.mjs";
-import { createHolds, HoldError } from "./hold.mjs";
+import { HoldError } from "./hold.mjs";
+import { createJoinableHolds } from "./join.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -192,7 +193,9 @@ const SHARED_SAVES = new Set();
 // REALTIME.md Phase 3 (ADR-011): realm ids that get a shared hold, the only place the server runs
 // packages/sim. Empty: no realm is shared, so the sim is never loaded. Owner decision to add one.
 const SHARED_REALMS = new Set();
-const holds = createHolds({ clocks: realmClocks, isShared: (id) => SHARED_REALMS.has(id) });
+// Opt-in joins: a player types a realm id and gets a hold under "join-<id>". Memory only.
+// A join never touches SHARED_SAVES, a solo save, or applyOfflineProgress.
+const { holds, join: joinHold } = createJoinableHolds({ clocks: realmClocks, isShared: (id) => SHARED_REALMS.has(id) });
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
   if (req.method === "OPTIONS") return json(res, 204, {});
@@ -315,6 +318,21 @@ const server = http.createServer(async (req, res) => {
     const tick = realmClocks.tick(realmId);
     if (tick === null) return json(res, 400, { error: "bad realm" });
     return json(res, 200, { realmId, tick });
+  }
+
+  // Opt-in join: body is exactly { realm: "<typed id>" }. Answers with the shared hold view.
+  if (url.pathname === "/join") {
+    if (req.method !== "POST") return json(res, 405, { error: "method not allowed" });
+    const u = userFromToken(bearer(req));
+    if (!u) return json(res, 401, { error: "unauthorized" });
+    try {
+      let body;
+      try { body = JSON.parse(await readBody(req, 1024)); } catch { return json(res, 400, { error: "Send a realm id to join, not a state." }); }
+      return json(res, 200, await joinHold(body));
+    } catch (e) {
+      if (e instanceof HoldError) return json(res, e.status, { error: e.message });
+      return json(res, 500, { error: "join failed" });
+    }
   }
 
   // REALTIME.md Phase 3: a shared hold. Readers see one tick; intents land on a tick boundary.
