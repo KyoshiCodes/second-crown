@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Build a cottage in a shared hold (wave/realtime-cottage)
+
+- After you **Join hold** in the **Cloud** panel there is a **Build cottage** button next to **Build farm**, and a **Cottages** count beside the other numbers. A cottage either friend builds shows up for both of you on the same id. A different id does not see it.
+- A cottage costs the same as in your solo crown (wood and food) and follows the same rules. If the hold cannot pay, the button says why and nothing is spent.
+- Once the cottage is **finished** (a few seconds), the hold has room for more work buildings, so **Build farm** can work. While the cottage is still being built, Build farm still says there is no free tile.
+- **The joined hold is still a fresh kingdom, not your old crown.** Nothing from your solo crown comes with you, and nothing you do in the hold goes back to it.
+- **A server restart clears the hold.** It starts over from a new kingdom, with no cottages.
+- **Leave** takes you back to your solo crown exactly as it was.
+
 ## 2026-10-04 — Build a farm in a shared hold (wave/realtime-build)
 
 - After you **Join hold** in the **Cloud** panel there is a **Build farm** button next to **Train militia**, and a **Farms** count beside Food, Wood, Stone, Gold, and Militia. A farm either friend builds shows up for both of you on the same id. A different id does not see it.
