@@ -11,7 +11,15 @@ function deps(realmId: string | null): SettleDeps {
     sharedRealmId: () => realmId,
     applyOfflineProgress: vi.fn(() => 7),
     fetchRealmTick: vi.fn(async () => 42),
-    joinHold: vi.fn(async (id: string) => ({ realmId: id, tick: 42, stamps: [{ tick: 40, by: "guest_a" }], pending: 0 })),
+    joinHold: vi.fn(async (id: string) => ({
+      realmId: id,
+      tick: 42,
+      stores: { food: "0", wood: "0", stone: "0", gold: "0" },
+      militia: 0,
+      training: 0,
+      stamps: [{ tick: 40, by: "guest_a" }],
+      pending: 0,
+    })),
   };
 }
 
@@ -56,7 +64,15 @@ describe("settleOnLoad", () => {
       mode: "shared",
       realmId: "realm-a",
       serverTick: 42,
-      hold: { realmId: "realm-a", tick: 42, stamps: [{ tick: 40, by: "guest_a" }], pending: 0 },
+      hold: {
+        realmId: "realm-a",
+        tick: 42,
+        stores: { food: "0", wood: "0", stone: "0", gold: "0" },
+        militia: 0,
+        training: 0,
+        stamps: [{ tick: 40, by: "guest_a" }],
+        pending: 0,
+      },
     });
     expect(d.fetchRealmTick).toHaveBeenCalledWith("realm-a");
     expect(d.joinHold).toHaveBeenCalledWith("realm-a");

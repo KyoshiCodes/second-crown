@@ -1,3 +1,12 @@
+## 2026-10-04 — server + app / playable shared hold (wave/realtime-play)
+
+- `hold.mjs` new-hold state now passes `withStarterBuildings: true`, matching the app's New Game (`useGameEngine.ts`), so the farm and lumber camp make stores. Still seeded by `seedForRealm(id)`, never from a save.
+- `view()` reads only: `stores` = `state.resources[food|wood|stone|gold]` as the sim's strings (no Decimal in `server/`; the app floors for display), `militia` = sum of `count` of player `militia` units, `training` = sum of `count` over `sim.listTraining(state, "player")` militia jobs. Both readers get identical strings because one state backs them.
+- Train intent: `parseIntent` accepts exactly `{ type: "stamp" | "train" }`. `intent()` syncs to the clock, then for `train` calls `sim.tryTrain(state, { typeId: "militia", count: 1 })` right away (not queued like a stamp) so it can answer `HoldError(409, CANNOT_TRAIN)` when the sim refuses. The train lands in the input log at the settled tick; units arrive when the sim's training queue finishes (~15 ticks at keep 0). Issuer is the hold (`player`), not the account.
+- App: `parseHold` defaults missing `stores`/`militia`/`training` to zero; `sendIntent` throws the server's `error` text on a non-2xx. `JoinHoldCard` keeps the view in React state only; it does not import `persist`, `loadSaved`, or IndexedDB.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs`; root `npm test` covers `net/hold.test.ts` and `settleOnLoad.test.ts`.
+- Not done: other units, building in the hold, showing the hold on the map, persisting holds, push instead of polling.
+
 ## 2026-10-04 — server + app / opt-in join, real-time (wave/realtime-join)
 
 - `server/join.mjs`: `createJoinableHolds({ clocks, isShared, loadSim, maxJoins })` → `{ holds, join(body), isJoined(id) }`. It builds the Phase 3 `createHolds` with `isShared = id => isShared(id) || joined.has(id)`, so all hold logic (tick boundary, intents, sim load) stays in `hold.mjs`. A failed first read un-joins the id.

@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Play in a shared hold (wave/realtime-play)
+
+- After you **Join hold** in the **Cloud** panel you now see the hold's **Food, Wood, Stone, Gold, and Militia**, and a **Train militia** button. A friend on the same id sees the same numbers, and a militia either of you trains shows up for both.
+- **The joined hold is a fresh kingdom, not your old crown.** It starts like a new game. Nothing from your solo crown comes with you, and nothing you do in the hold goes back to it.
+- If the hold cannot pay for a militia yet, the button says so and nothing is spent. Wait for the farm and lumber camp to fill the stores, then try again.
+- **A server restart clears the hold.** Holds live only in the server's memory, so after a restart the same id starts over from a new kingdom.
+- **Leave** takes you back to your solo crown exactly as it was.
+
 ## 2026-10-04 — Join a shared hold (wave/realtime-join)
 
 - New, **opt-in**, and only a test: open the **Cloud** panel, sign in (a guest session is fine), type a short realm id like `oak-hill`, and press **Join hold**.

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-04 — Playable shared hold: stores and Train militia (wave/realtime-play)
+
+- Still opt-in. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged. No rule copied into `server/`.
+- `server/hold.mjs`: a new hold is `createGameState({ seed: seedForRealm(id), now: 0, withStarterBuildings: true })`, the same new game a solo player gets, never a client state. Each read still settles to the Phase 1 clock through `TickEngine`. The view adds `stores` (`food`, `wood`, `stone`, `gold`, the sim's decimal strings), `militia` (trained player militia) and `training` (militia still queued).
+- New intent, exactly `{ "type": "train" }`: one militia through the sim's `tryTrain` at the settled tick. If the sim refuses (cannot pay, or queue full) the server answers 409 `CANNOT_TRAIN` and nothing changes. Any extra key (unit, count, state) is 400. Stamps work as before.
+- App: `net/hold.ts` `HoldView` gains `stores`, `militia`, `training` (missing fields read as zero); new `sendTrain(realmId)`; a refused intent surfaces the server's reason. `JoinHoldCard.tsx` shows Food / Wood / Stone / Gold / Militia and a **Train militia** button. Stamp and Leave unchanged; nothing is written to the local save.
+- Tests: new `server/play.test.mjs` (fresh new-game stores; two readers on one id see the same stores; a train on one id shows on the other, then becomes a militia; an unaffordable train is rejected with no change; a different id does not see the militia; extra keys refused; a solo load does not join; source calls `sim.tryTrain` and copies no rules). `net/hold.test.ts` (train sends only `{ type: "train" }`; 409 reason shown; old view reads as zeros). `settleOnLoad.test.ts` updated for the new view shape.
+
 ## 2026-10-04 — Join a shared hold by realm id (wave/realtime-join)
 
 - Opt-in only. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `sharedRealmId` still returns null; `applyOfflineProgress` for a solo crown is unchanged.

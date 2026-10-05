@@ -9,6 +9,9 @@ import { REALM_ID_RE } from "./realmclock.mjs";
 export const MAX_HOLDS = 100;
 export const MAX_PENDING = 64;
 export const INTENT_ONLY = "Send one intent, not a state.";
+export const CANNOT_TRAIN = "The hold cannot afford a militia, or its training queue is full.";
+export const STORES = ["food", "wood", "stone", "gold"];
+const INTENT_TYPES = new Set(["stamp", "train"]);
 
 export class HoldError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -32,12 +35,15 @@ export function seedForRealm(realmId) {
   return h;
 }
 
-/** The only intent shape accepted: exactly { type: "stamp" }. Anything else, a save included, is refused. */
+/**
+ * The only intent shapes accepted: exactly { type: "stamp" } or { type: "train" } (one militia).
+ * Anything else, a save included, is refused.
+ */
 export function parseIntent(body) {
   const ok = body !== null && typeof body === "object" && !Array.isArray(body)
-    && Object.keys(body).length === 1 && body.type === "stamp";
+    && Object.keys(body).length === 1 && INTENT_TYPES.has(body.type);
   if (!ok) throw new HoldError(400, INTENT_ONLY);
-  return { type: "stamp" };
+  return { type: body.type };
 }
 
 /**
@@ -61,7 +67,8 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
     const sim = await simPromise;
     hold = holds.get(realmId); // another reader may have made it while the sim loaded
     if (hold) return hold;
-    const state = sim.createGameState({ seed: seedForRealm(realmId), now: 0 });
+    // The same new game a solo player starts with, but fresh: never a client's save.
+    const state = sim.createGameState({ seed: seedForRealm(realmId), now: 0, withStarterBuildings: true });
     hold = { sim, state, engine: new sim.TickEngine(state), pending: [] };
     holds.set(realmId, hold);
     return hold;
@@ -79,11 +86,24 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
     engine.settleTicks(target - state.meta.tick);
   }
 
+  // Read-only: what the sim already holds. Counts are summed, nothing is computed from rules.
   function view(realmId, hold) {
+    const { sim, state } = hold;
+    const stores = {};
+    for (const res of STORES) stores[res] = state.resources[res] ?? "0";
+    const militia = state.units
+      .filter((u) => u.realmId === "player" && u.typeId === "militia")
+      .reduce((n, u) => n + Number(u.count), 0);
+    const training = sim.listTraining(state, "player")
+      .filter((j) => j.typeId === "militia")
+      .reduce((n, j) => n + j.count, 0);
     return {
       realmId,
-      tick: hold.state.meta.tick,
-      stamps: hold.sim.listStamps(hold.state),
+      tick: state.meta.tick,
+      stores,
+      militia,
+      training,
+      stamps: sim.listStamps(state),
       pending: hold.pending.length,
     };
   }
@@ -102,12 +122,20 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
       if (!sharedId(realmId)) return null;
       return view(realmId, await sync(realmId));
     },
-    /** Queue one intent from `by`; it lands on the next tick boundary. null when the realm is not shared. */
+    /**
+     * One intent from `by`. A stamp is queued and lands on the next tick boundary. A train goes
+     * through the sim's tryTrain at the settled tick, so a hold that cannot pay is refused at once.
+     * null when the realm is not shared.
+     */
     async intent(realmId, by, body) {
       if (!sharedId(realmId)) return null;
       const intent = parseIntent(body);
       if (typeof by !== "string" || !REALM_ID_RE.test(by)) throw new HoldError(400, "Bad issuer.");
       const hold = await sync(realmId);
+      if (intent.type === "train") {
+        if (!hold.sim.tryTrain(hold.state, { typeId: "militia", count: 1 })) throw new HoldError(409, CANNOT_TRAIN);
+        return view(realmId, hold);
+      }
       if (hold.pending.length >= MAX_PENDING) throw new HoldError(429, "Too many intents this tick.");
       hold.pending.push({ ...intent, by });
       return view(realmId, hold);
