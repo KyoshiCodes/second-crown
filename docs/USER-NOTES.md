@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — A shared hold now has a key (wave/realtime-key)
+
+- **A friend needs the key, not just the id.** The first time anyone joins a new id, the **Cloud** panel shows a **hold key** once, with a **Copy key** button. Copy it and send it to your friends along with the id. Without the key, typing the id is not enough to get in.
+- To join a friend's hold, type the id **and** paste the key into the **Hold key** box next to it, then **Join hold**. Leave the key box blank only when you are making a brand-new hold.
+- Keep the key somewhere safe. It is only shown that one time, and the hold needs it after a server restart too. A different id has a different key.
+- A wrong key gets "Wrong or missing hold key" and does nothing: nothing is spent and no second hold is made. After a few wrong tries in a row you are refused for a while.
+- A hold made before this change gets a key the next time someone joins it, and that person sees the key.
+- **The solo crown is unchanged.** It needs no key, is not part of any hold, and **Leave** still takes you back to it exactly as it was. The hold and its key are never written into your solo save.
+
 ## 2026-10-04 — Build a lumber camp in a shared hold (wave/realtime-lumber)
 
 - After you **Join hold** in the **Cloud** panel there is a **Build lumber camp** button next to **Build farm**, and a **Lumber camps** count beside the other numbers. A new hold already shows 1 (the starter camp). A camp either friend builds shows up for both of you on the same id. A different id does not see it.

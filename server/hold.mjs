@@ -97,12 +97,13 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
       // plus the time the process was down, capped like solo offline catch-up.
       const state = sim.deserializeState(kept.state);
       const pending = Array.isArray(kept.pending) ? kept.pending.slice(0, MAX_PENDING) : [];
-      hold = { sim, state, engine: new sim.TickEngine(state), pending, savedTick: state.meta.tick, savedAt: kept.savedAt };
+      const keyHash = typeof kept.keyHash === "string" ? kept.keyHash : null;
+      hold = { sim, state, engine: new sim.TickEngine(state), pending, keyHash, savedTick: state.meta.tick, savedAt: kept.savedAt };
       clocks.resume(realmId, state.meta.tick + downTicks(kept.savedAt, now()));
     } else {
       // The same new game a solo player starts with, but fresh: never a client's save.
       const state = sim.createGameState({ seed: seedForRealm(realmId), now: 0, withStarterBuildings: true });
-      hold = { sim, state, engine: new sim.TickEngine(state), pending: [], savedTick: -1, savedAt: -Infinity };
+      hold = { sim, state, engine: new sim.TickEngine(state), pending: [], keyHash: null, savedTick: -1, savedAt: -Infinity };
     }
     holds.set(realmId, hold);
     return hold;
@@ -113,7 +114,7 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
     if (!store) return;
     const at = now();
     if (!force && (hold.state.meta.tick === hold.savedTick || at - hold.savedAt < SETTLE_SAVE_MS)) return;
-    store.save(realmId, { savedAt: at, state: hold.sim.serializeState(hold.state), pending: hold.pending });
+    store.save(realmId, { savedAt: at, state: hold.sim.serializeState(hold.state), pending: hold.pending, keyHash: hold.keyHash });
     hold.savedTick = hold.state.meta.tick;
     hold.savedAt = at;
   }
@@ -215,6 +216,27 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
       }
       if (hold.pending.length >= MAX_PENDING) throw new HoldError(429, "Too many intents this tick.");
       hold.pending.push({ ...intent, by });
+      keep(realmId, hold, true);
+      return view(realmId, hold);
+    },
+    /**
+     * The hold key hash (join.mjs) for this id without loading the sim: a string when the hold has a
+     * key, null for a hold kept before keys, undefined when there is no hold in memory or on disk.
+     */
+    keyHashOf(realmId) {
+      if (typeof realmId !== "string" || !REALM_ID_RE.test(realmId)) return undefined;
+      const hold = holds.get(realmId);
+      if (hold) return hold.keyHash;
+      const kept = store ? store.load(realmId) : null;
+      if (!kept) return undefined;
+      return typeof kept.keyHash === "string" ? kept.keyHash : null;
+    },
+    /** Give a shared hold with no key its key hash, write it at once, and return the view. A hold that has one is refused. */
+    async claim(realmId, keyHash) {
+      if (!sharedId(realmId)) return null;
+      const hold = await sync(realmId);
+      if (hold.keyHash !== null) throw new HoldError(409, "This hold already has a key.");
+      hold.keyHash = keyHash;
       keep(realmId, hold, true);
       return view(realmId, hold);
     },

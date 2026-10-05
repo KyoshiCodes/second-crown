@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { createRealmClocks } from "./realmclock.mjs";
 import { loadSimFromSource, SETTLE_SAVE_MS } from "./hold.mjs";
 import { createJoinableHolds } from "./join.mjs";
+import { keyedJoin } from "./testkeys.mjs";
 import { createHoldStore, downTicks, MAX_OFFLINE_MS } from "./keep.mjs";
 import { TICK_MS } from "./clock.mjs";
 
@@ -32,7 +33,9 @@ function spyStore(dir) {
 function boot(dir, wall) {
   const clocks = createRealmClocks(() => wall.ms);
   const store = spyStore(dir);
-  const { holds, join } = createJoinableHolds({ clocks, loadSim: async () => sim, store, now: () => wall.ms });
+  const { holds, join: rawJoin } = createJoinableHolds({ clocks, loadSim: async () => sim, store, now: () => wall.ms });
+  // The ring lives on the wall, so the friend still has the key after a restart.
+  const join = keyedJoin(rawJoin, wall.ring ??= new Map());
   return { holds, join, clocks, store };
 }
 

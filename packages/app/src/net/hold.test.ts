@@ -119,6 +119,42 @@ describe("shared hold client", () => {
     expect(JSON.parse(String(init?.body))).toEqual({ realm: "oak-hill" });
   });
 
+  it("a first join returns the hold key once, apart from the view", async () => {
+    const joined = { ...view, realmId: "join-oak-hill" };
+    stubServer({ ...joined, key: "AbCdEfGh12345678" });
+    const result = await joinRealm("oak-hill");
+    expect(result?.key).toBe("AbCdEfGh12345678");
+    expect({ ...result, key: undefined }).toEqual({ ...joined, key: undefined });
+  });
+
+  it("a later join sends the key in a header, and the body is still only the id", async () => {
+    const fetchSpy = stubServer({ ...view, realmId: "join-oak-hill" });
+    const result = await joinRealm("oak-hill", " AbCdEfGh12345678 ");
+    expect(result?.key).toBeUndefined();
+    const [, init] = fetchSpy.mock.calls[0];
+    expect(new Headers(init?.headers).get("X-Hold-Key")).toBe("AbCdEfGh12345678");
+    expect(JSON.parse(String(init?.body))).toEqual({ realm: "oak-hill" });
+  });
+
+  it("reads and intents send the key in a header, never in the body", async () => {
+    const fetchSpy = stubServer(view);
+    await readHold("join-oak-hill", "AbCdEfGh12345678");
+    await sendTrain("join-oak-hill", "AbCdEfGh12345678");
+    const [, readInit] = fetchSpy.mock.calls[0];
+    const [, trainInit] = fetchSpy.mock.calls[1];
+    expect(new Headers(readInit?.headers).get("X-Hold-Key")).toBe("AbCdEfGh12345678");
+    expect(new Headers(readInit?.headers).get("Authorization")).toBe("Bearer tok");
+    expect(new Headers(trainInit?.headers).get("X-Hold-Key")).toBe("AbCdEfGh12345678");
+    expect(JSON.parse(String(trainInit?.body))).toEqual({ type: "train" });
+  });
+
+  it("a wrong key or too many tries reads as a plain reason", async () => {
+    stubServer({ error: "Wrong or missing hold key." }, 403);
+    await expect(joinRealm("oak-hill")).rejects.toThrow(/hold key/);
+    stubServer({ error: "too many" }, 429);
+    await expect(sendBuild("join-oak-hill", "wrong-key-123")).rejects.toThrow(/Too many wrong hold keys/);
+  });
+
   it("a blank id does not join", async () => {
     const fetchSpy = stubServer(view);
     expect(await joinRealm("")).toBeNull();

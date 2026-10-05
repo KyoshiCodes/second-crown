@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { createRealmClocks } from "./realmclock.mjs";
 import { loadSimFromSource, HoldError } from "./hold.mjs";
 import { createJoinableHolds, joinRealmId, JOIN_ONLY } from "./join.mjs";
+import { keyedJoin } from "./testkeys.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const sim = await loadSimFromSource();
@@ -14,7 +15,8 @@ function setup() {
   let wall = 100_000;
   let loads = 0;
   const clocks = createRealmClocks(() => wall);
-  const { holds, join, isJoined } = createJoinableHolds({ clocks, loadSim: async () => { loads++; return sim; } });
+  const { holds, join: rawJoin, isJoined } = createJoinableHolds({ clocks, loadSim: async () => { loads++; return sim; } });
+  const join = keyedJoin(rawJoin);
   return { holds, join, isJoined, step: (ms) => { wall += ms; }, loads: () => loads };
 }
 

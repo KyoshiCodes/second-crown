@@ -1,3 +1,14 @@
+## 2026-10-04 — server + app / shared hold key (wave/realtime-key)
+
+- Gate lives in `join.mjs` `createJoinableHolds`: `join(body, key, session)`, `read(id, key, session)`, `intent(id, by, body, key, session)`. Ids starting `join-` go through `unlock`; others fall through to `holds.read/intent` unchanged (owner-marked realms, none today). The raw `holds` table is still returned for tests; `index.mjs` never calls it directly (asserted in `key.test.mjs`).
+- `unlock` compares `sha256(key)` with the kept hash via `timingSafeEqual`. The hash comes from a `keys` Map (set synchronously when a first join claims, so a racing keyless join is refused) or `holds.keyHashOf(id)` (memory hold, else `store.load`, no sim). `undefined` (no hold), `null` (pre-key file), and a mismatch all give the same 403. A right key adds the id to `joined`, so a keyed read after a restart opens the kept hold with no join.
+- First join: `markJoined`, `newKey()`, `keys.set`, then `holds.claim(id, hash)`, which syncs or creates the hold, refuses one that already has a hash, sets `hold.keyHash`, and force-writes. On failure the key and `joined` entry are rolled back. The key is returned only in that response.
+- Try cap: `fails` Map, session → count, `MAX_KEY_TRIES` = 5, memory only and never reset by a right key. Session is the account id, so a new guest account gets a fresh count; with 96-bit keys that does not make guessing practical. A missing key counts as a try.
+- `index.mjs` reads `X-Hold-Key` (trimmed). `GET /realm/:id/hold` now looks up the bearer; a `join-*` read without one is 401. Bad JSON on an intent is still 400 before the key check (no existence leak, nothing spent).
+- Older server tests use `server/testkeys.mjs` `keyedJoin(join, ring, session)`; `keep` and `lumber` keep the ring on the `wall` object so it survives a simulated restart.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs`.
+- Not done: rotating or revoking a key, a key per player, persisting the try count, deleting old hold files.
+
 ## 2026-10-04 — server + app / shared hold Build lumber camp (wave/realtime-lumber)
 
 - `parseIntent` accepts exactly `{ type: "stamp" | "train" | "build" | "cottage" | "lumber" }`. The build branch is now a `BUILDS` table (intent type → `[typeId, noTile, cannot]`) checked with `Object.hasOwn`; `lumber` → `["lumber_camp", NO_LUMBER_TILE, CANNOT_LUMBER]`. Same `freeTile` + `sim.tryBuild` + `keep(..., true)` path as farm and cottage. Cost, build time, and the work-plot cap stay in the sim (`lumber_camp` is in `WORK_PLOTS`).
