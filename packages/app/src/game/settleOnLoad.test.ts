@@ -11,6 +11,7 @@ function deps(realmId: string | null): SettleDeps {
     sharedRealmId: () => realmId,
     applyOfflineProgress: vi.fn(() => 7),
     fetchRealmTick: vi.fn(async () => 42),
+    joinHold: vi.fn(async (id: string) => ({ realmId: id, tick: 42, stamps: [{ tick: 40, by: "guest_a" }], pending: 0 })),
   };
 }
 
@@ -19,12 +20,13 @@ describe("settleOnLoad", () => {
     expect(sharedRealmId(createGameState())).toBeNull();
   });
 
-  it("solo calls applyOfflineProgress and never asks the server", async () => {
+  it("solo calls applyOfflineProgress, never asks the server, and never joins a hold", async () => {
     const d = deps(null);
     const state = createGameState();
     expect(await settleOnLoad(state, d)).toEqual({ mode: "solo", settled: 7 });
     expect(d.applyOfflineProgress).toHaveBeenCalledWith(state);
     expect(d.fetchRealmTick).not.toHaveBeenCalled();
+    expect(d.joinHold).not.toHaveBeenCalled();
   });
 
   it("the default solo path settles offline time without any fetch", async () => {
@@ -40,15 +42,22 @@ describe("settleOnLoad", () => {
 
   it("a shared realm reads the server tick and skips offline catch-up", async () => {
     const d = deps("realm-a");
-    expect(await settleOnLoad(createGameState(), d)).toEqual({ mode: "shared", realmId: "realm-a", serverTick: 42 });
+    expect(await settleOnLoad(createGameState(), d)).toEqual({
+      mode: "shared",
+      realmId: "realm-a",
+      serverTick: 42,
+      hold: { realmId: "realm-a", tick: 42, stamps: [{ tick: 40, by: "guest_a" }], pending: 0 },
+    });
     expect(d.fetchRealmTick).toHaveBeenCalledWith("realm-a");
+    expect(d.joinHold).toHaveBeenCalledWith("realm-a");
     expect(d.applyOfflineProgress).not.toHaveBeenCalled();
   });
 
   it("a failed server read leaves the shared realm alone", async () => {
     const d = deps("realm-a");
     d.fetchRealmTick = vi.fn(async () => { throw new Error("down"); });
-    expect(await settleOnLoad(createGameState(), d)).toEqual({ mode: "shared", realmId: "realm-a", serverTick: null });
+    d.joinHold = vi.fn(async () => { throw new Error("down"); });
+    expect(await settleOnLoad(createGameState(), d)).toEqual({ mode: "shared", realmId: "realm-a", serverTick: null, hold: null });
     expect(d.applyOfflineProgress).not.toHaveBeenCalled();
   });
 });

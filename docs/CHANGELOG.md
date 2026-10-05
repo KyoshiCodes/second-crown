@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-04 — Real-time shared hold, Phase 3 (wave/realtime-hold)
+
+- Rule change, owner approved: ADR-011 in `docs/DECISIONS.md` and new INVARIANTS §17. A shared hold may run `packages/sim` on the server; solo play does not. `AGENTS.md` non-negotiables updated to match. Committed before the code.
+- Sim: new `packages/sim/src/actions/stamp.ts`, `tryStamp(state, by)` (one `stamp` record in the input log at the current tick, nothing else changes) and `listStamps(state)`. Exported from the sim index.
+- New `server/hold.mjs`: `createHolds({ clocks, isShared, loadSim })`. In memory, one hold per shared realm id (max 100). Loads the sim as-is with Vite `runnerImport` of `packages/sim/src/index.ts`, only on the first touch of a shared hold. Tick comes from the Phase 1 realm clock. Accepts one intent, exactly `{ "type": "stamp" }`; anything else, a full save included, is refused (400). Pending intents go in on the next tick boundary through `tryStamp`, then `TickEngine.settleTicks` runs to the clock tick. Never reads or writes a solo save; no rule copied into `server/`.
+- `server/index.mjs`: `SHARED_REALMS` (empty `Set`), `GET /realm/:id/hold` and `POST /realm/:id/intent` (auth required, 1 KB body). Both return 404 `not a shared realm` for every realm today, so the live server never loads the sim.
+- App: new `packages/app/src/net/hold.ts` (`readHold`, `sendStamp`). `settleOnLoad` joins the hold (`joinHold`) only for a shared realm; solo never calls it. `sharedRealmId` still returns null. Solo catch-up and the local save unchanged. No UI.
+- Live game unchanged: no realm is shared.
+- Tests: `server/hold.test.mjs` (two readers same tick; a stamp from one is visible to the other after the next tick boundary; full client state refused; unshared realm gets no hold and loads no sim; live server shares nothing; hold source copies no rules and touches no saves); `packages/sim/src/actions/stamp.test.ts`; `packages/app/src/net/hold.test.ts`; `settleOnLoad.test.ts` (solo never joins a hold).
+
 ## 2026-10-04 — Real-time save, Phase 2 (wave/realtime-save)
 
 - `server/savegate.mjs`: `gateSave(raw, prev, elapsedMs, replace, shared)`. With `shared`, every upload is refused with 409 `Shared realm: the server copy wins.` (`SHARED_REALM`, `conflict: true`), with or without `replace=1`, even with no server copy yet. The `PUT /save` handler already returns the server save on a conflict.

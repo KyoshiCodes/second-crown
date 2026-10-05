@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#210**. Waiting: `wave/realtime-save` (**not merged**, see Real time below).
+Merged through PR **#211**. Waiting: `wave/realtime-hold` (**not merged**, see Real time below).
 
 ### Cultures and units (all merged)
 
@@ -46,13 +46,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 ## Parked (do not implement)
 
 - Another dawn gift beyond the first-dawn stores.
-- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md`. Phase 1 is merged: `server/clock.mjs`, and `GET /realm/:id/tick` (memory-only clock per realm id) read by `packages/app/src/game/settleOnLoad.ts` only for a shared realm. Phase 2 (save) is on branch `wave/realtime-save` (**not merged**): the save gate refuses every browser upload to a shared realm (409, server copy handed back), and a shared reload reads the server save and overwrites the browser cache (`packages/app/src/game/loadSaved.ts`). No realm is marked shared (server `SHARED_SAVES` is empty, app `sharedRealmId` returns null), so solo load and the live game are unchanged. Phase 3 (shared hold) not started. Phase 3 (shared hold) would break the "no sim on the server" rule; that needs an owner decision first.
+- Real time: server clock, server save, shared hold. The written plan is `docs/REALTIME.md`. Phase 1 is merged: `server/clock.mjs`, and `GET /realm/:id/tick` (memory-only clock per realm id) read by `packages/app/src/game/settleOnLoad.ts` only for a shared realm. Phase 2 (save) is merged (#211): the save gate refuses every browser upload to a shared realm (409, server copy handed back), and a shared reload reads the server save and overwrites the browser cache (`packages/app/src/game/loadSaved.ts`). Phase 3 (shared hold) is on branch `wave/realtime-hold` (**not merged**): the owner approved the rule change (ADR-011, INVARIANTS §17: a shared hold may call `packages/sim` on the server, solo play never does). `server/hold.mjs` keeps an in-memory hold per shared realm id, timed by the Phase 1 clock, takes one intent (a stamp) and applies it through the sim on the next tick boundary; routes `GET /realm/:id/hold` and `POST /realm/:id/intent`. No realm is marked shared (server `SHARED_SAVES` and `SHARED_REALMS` are empty, app `sharedRealmId` returns null), so the server never loads the sim, a solo load joins no hold, and the live game is unchanged.
 
 ## Verify
 
 ```
 npm test
 npm run test -w @second-crown/render
+node --test server/clock.test.mjs server/savegate.test.mjs server/hold.test.mjs
 npm run build -w @second-crown/app
 ```
 
@@ -64,7 +65,7 @@ cd ~/second-crown && git pull && npm test && npm run build -w @second-crown/app 
 
 ## Invariants that still bite
 
-- Sim is 10 Hz, deterministic, offline catch-up. No sim on `server/`.
+- Sim is 10 Hz, deterministic, offline catch-up. No sim on `server/` for solo play; a shared hold may call `packages/sim` (ADR-011), never copy its rules.
 - Presentation branches must leave `git diff main -- packages/sim server` empty.
 - HUD chrome palette: `<html data-chrome>` via `ThemeDock.tsx`, key `sc-chrome`. Buttons default dark from `theme.css`.
 - World atlas pans by drag. 6px slop keeps clicks working. Recenter resets.

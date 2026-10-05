@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Shared hold groundwork (wave/realtime-hold)
+
+- The live game is unchanged because no realm is shared yet. Nothing new to try.
+- Behind the scenes, the server can now run one shared hold that two players look at together: both see the same game second, and when one of them stamps the hold, the other sees the stamp a moment later. Your realm is solo, so it never joins a hold, still saves in your browser, and offline catch-up works as before.
+
 ## 2026-10-04 — Server saves for shared realms (wave/realtime-save)
 
 - The live game is unchanged because no realm is shared yet. Nothing new to try.

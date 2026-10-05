@@ -1,3 +1,16 @@
+## 2026-10-04 — server + sim + app / shared hold, real-time Phase 3 (wave/realtime-hold)
+
+- Rule: ADR-011 / INVARIANTS §17. `server/` may call `packages/sim` for a **shared** hold only. Never copy a rule into `server/`; `hold.test.mjs` greps `hold.mjs` for `resolveBattle`, `realmPower`, `matchup`, `Decimal`, `break_infinity`, `node:fs`, `saves`.
+- How the server loads TS: `loadSimFromSource()` does `await import("vite")` then `runnerImport(packages/sim/src/index.ts, { configFile: false })` (about 0.4 s, once). Node's own type stripping cannot load the sim (`.js` specifiers pointing at `.ts` files, `constructor(private ...)`). Needs `vite` in root `node_modules` (it is, via the app workspace; plain `npm install` on Oracle keeps dev deps). Lazy: never imported unless a shared hold is touched.
+- `createHolds({ clocks, isShared, loadSim })` returns `{ read(id), intent(id, by, body), size }`. Both return `null` when `isShared(id)` is not true or the id fails `REALM_ID_RE`; no sim load, no hold made. Pass the same `realmClocks` instance as `GET /realm/:id/tick` so the hold and the tick route agree.
+- Hold state: `createGameState({ seed: seedForRealm(id), now: 0 })` (FNV-1a of the id) plus a `TickEngine`. Not seeded from any save (Phase 3 brief: never read the solo save). A pm2 restart forgets every hold.
+- Tick boundary: `intent` syncs the hold to the clock, then queues `{ type: "stamp", by }` (max 64 pending). The next `read` or `intent` whose clock tick is past the hold's tick does `settleTicks(1)`, applies every pending stamp with `tryStamp` (so the stamp's tick is that boundary), then `settleTicks` to the clock. A read in the same tick shows `pending: 1` and no stamp yet.
+- `parseIntent` accepts only an object with exactly one key, `type: "stamp"`. A save, `{ type, state }`, other types, arrays, strings: `HoldError(400, INTENT_ONLY)`.
+- Routes: `GET /realm/:id/hold` returns `{ realmId, tick, stamps: [{ tick, by }], pending }`; `POST /realm/:id/intent` returns the same view, with `by` = the authenticated account id (401 without a token). Both 404 `not a shared realm` today (`SHARED_REALMS` empty).
+- App: `net/hold.ts` `readHold` / `sendStamp`; `settleOnLoad` has a `joinHold` dep, called only on the shared path; the `Settled` shared variant gains `hold: HoldView | null`. Nothing calls `sendStamp` yet.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/hold.test.mjs` (the hold test loads the real sim through Vite); root `npm test` covers `stamp.test.ts`, `net/hold.test.ts`, `settleOnLoad.test.ts`.
+- Not done: marking any realm shared, pushing hold state to browsers, a UI to stamp, any intent besides a stamp, persisting a hold.
+
 ## 2026-10-04 — server + app / realm save, real-time Phase 2 (wave/realtime-save)
 
 - `server/savegate.mjs`: fifth argument `shared` on `gateSave`. When true it throws `SaveGateError(409, SHARED_REALM, conflict=true)` right after `parseSave`, before any prev/time/log check, so no upload can replace a shared save (tampered, `replace=1`, gate-valid, or first upload with no server copy). Bad JSON still gets its 400.
