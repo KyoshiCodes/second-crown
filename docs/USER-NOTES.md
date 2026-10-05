@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Build a lumber camp in a shared hold (wave/realtime-lumber)
+
+- After you **Join hold** in the **Cloud** panel there is a **Build lumber camp** button next to **Build farm**, and a **Lumber camps** count beside the other numbers. A new hold already shows 1 (the starter camp). A camp either friend builds shows up for both of you on the same id. A different id does not see it.
+- A lumber camp costs the same as in your solo crown (wood and food) and follows the same rules. Like a farm it needs a free work plot, so build a cottage first and wait for it to finish. If the hold cannot pay or has no room, the button says why and nothing is spent.
+- **A lumber camp survives a server restart.** Join the same id again and it is still there, with everything else in the hold.
+- **The joined hold is still not your old crown.** It is a separate kingdom. Nothing from your solo crown comes with you, and nothing you do in the hold goes back to it.
+- **Leave** takes you back to your solo crown exactly as it was.
+
 ## 2026-10-04 — A joined hold survives a server restart (wave/realtime-keep)
 
 - **A joined hold now survives a server restart.** When you and a friend join the same id again after the server comes back, you see the same farms, cottages, and militia you left.

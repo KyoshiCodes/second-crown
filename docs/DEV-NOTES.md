@@ -1,3 +1,13 @@
+## 2026-10-04 — server + app / shared hold Build lumber camp (wave/realtime-lumber)
+
+- `parseIntent` accepts exactly `{ type: "stamp" | "train" | "build" | "cottage" | "lumber" }`. The build branch is now a `BUILDS` table (intent type → `[typeId, noTile, cannot]`) checked with `Object.hasOwn`; `lumber` → `["lumber_camp", NO_LUMBER_TILE, CANNOT_LUMBER]`. Same `freeTile` + `sim.tryBuild` + `keep(..., true)` path as farm and cottage. Cost, build time, and the work-plot cap stay in the sim (`lumber_camp` is in `WORK_PLOTS`).
+- The intent name is `lumber`, not `lumber_camp`; `{ type: "lumber_camp" }` is a 400 (tested), so no sim type id is taken from the client.
+- `view()` adds `lumberCamps` = count of player `lumber_camp` buildings including scaffolding. A fresh hold reads 1 (starter `b2`).
+- `lumber.test.mjs` uses the real sim: join, 10 s, cottage, 10 s (cottage finished, cap 4), then lumber. The cannot-afford case seeds one finished cottage in a test-only wrapper (as `build.test.mjs` does), because at 0 wood a plain fresh hold is refused for no tile first. The restart case uses a real `createHoldStore` in a temp dir.
+- App: `sendIntent` union adds `"lumber"`; `sendLumber()`; `parseHold` defaults `lumberCamps` to 0.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs`.
+- Not done: keep intent, other buildings, choosing a tile, showing the hold on the map, push instead of polling, deleting old hold files.
+
 ## 2026-10-04 — server / shared hold keep (wave/realtime-keep)
 
 - Store: `server/keep.mjs` `createHoldStore(SAVES)`. File `<SAVES>/<realmId>.json`, written via `<file>.tmp` + rename. Account saves are `guest_*` / `discord_*`, joined holds `join-*`, so they never share a file. `buildBoard`, `/save`, `/profile`, and the ledger only read account ids. `load` returns null for a missing file or one whose `kind`/`realmId` does not match; corrupt JSON throws (the join answers 500 rather than overwriting it with a new game).

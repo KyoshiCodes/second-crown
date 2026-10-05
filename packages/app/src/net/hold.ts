@@ -5,7 +5,8 @@ export type HoldStores = { food: string; wood: string; stone: string; gold: stri
 /**
  * What every reader of a shared hold sees (docs/REALTIME.md Phase 3). Stores are the sim's own
  * decimal strings; militia counts trained militia, training counts militia still in the queue,
- * farms and cottages count the hold's farms and cottages, finished or still building.
+ * farms, cottages, and lumberCamps count the hold's farms, cottages, and lumber camps, finished or
+ * still building.
  */
 export type HoldView = {
   realmId: string;
@@ -15,6 +16,7 @@ export type HoldView = {
   training: number;
   farms: number;
   cottages: number;
+  lumberCamps: number;
   stamps: { tick: number; by: string }[];
   pending: number;
 };
@@ -41,6 +43,7 @@ function parseHold(body: unknown): HoldView {
     training: count(v.training),
     farms: count(v.farms),
     cottages: count(v.cottages),
+    lumberCamps: count(v.lumberCamps),
     stamps: v.stamps,
     pending: count(v.pending),
   };
@@ -55,7 +58,7 @@ export async function readHold(realmId: string): Promise<HoldView> {
   return parseHold(await response.json());
 }
 
-async function sendIntent(realmId: string, type: "stamp" | "train" | "build" | "cottage"): Promise<HoldView> {
+async function sendIntent(realmId: string, type: "stamp" | "train" | "build" | "cottage" | "lumber"): Promise<HoldView> {
   const headers = new Headers({ "Content-Type": "application/json" });
   const token = cloudToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -90,6 +93,11 @@ export function sendBuild(realmId: string): Promise<HoldView> {
 /** Ask the hold to build one cottage. The server's sim picks the first open tile and pays, or refuses with a reason. */
 export function sendCottage(realmId: string): Promise<HoldView> {
   return sendIntent(realmId, "cottage");
+}
+
+/** Ask the hold to build one lumber camp. The server's sim picks the first free tile and pays, or refuses with a reason. */
+export function sendLumber(realmId: string): Promise<HoldView> {
+  return sendIntent(realmId, "lumber");
 }
 
 /** A typed realm id, trimmed and lowercased, or null when blank or bad. Matches server/join.mjs. */

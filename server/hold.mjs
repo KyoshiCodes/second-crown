@@ -16,8 +16,16 @@ export const CANNOT_BUILD = "The hold cannot afford a farm.";
 export const NO_TILE = "The hold has no free tile for a farm: no open plot, or no free work plot (a cottage or keep adds plots).";
 export const CANNOT_COTTAGE = "The hold cannot afford a cottage.";
 export const NO_COTTAGE_TILE = "The hold has no open plot for a cottage.";
+export const CANNOT_LUMBER = "The hold cannot afford a lumber camp.";
+export const NO_LUMBER_TILE = "The hold has no free tile for a lumber camp: no open plot, or no free work plot (a cottage or keep adds plots).";
 export const STORES = ["food", "wood", "stone", "gold"];
-const INTENT_TYPES = new Set(["stamp", "train", "build", "cottage"]);
+const INTENT_TYPES = new Set(["stamp", "train", "build", "cottage", "lumber"]);
+// Build intents: the sim building each places, and the reasons for a refusal. Cost and plot rules stay in the sim.
+const BUILDS = {
+  build: ["farm", NO_TILE, CANNOT_BUILD],
+  cottage: ["cottage", NO_COTTAGE_TILE, CANNOT_COTTAGE],
+  lumber: ["lumber_camp", NO_LUMBER_TILE, CANNOT_LUMBER],
+};
 // Scan range for a free tile. Only a bound on the loop: the sim's canPlaceType says which tiles
 // are inside the hold and open, so the grid size is not copied here.
 const TILE_SCAN = 64;
@@ -49,8 +57,8 @@ export function seedForRealm(realmId) {
 
 /**
  * The only intent shapes accepted: exactly { type: "stamp" }, { type: "train" } (one militia),
- * { type: "build" } (one farm), or { type: "cottage" } (one cottage). No tile, type, or count is
- * taken from the client.
+ * { type: "build" } (one farm), { type: "cottage" } (one cottage), or { type: "lumber" } (one lumber
+ * camp). No tile, type, or count is taken from the client.
  * Anything else, a save included, is refused.
  */
 export function parseIntent(body) {
@@ -133,10 +141,11 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
     const training = sim.listTraining(state, "player")
       .filter((j) => j.typeId === "militia")
       .reduce((n, j) => n + j.count, 0);
-    // Every player farm or cottage, finished or still building.
+    // Every player farm, cottage, or lumber camp, finished or still building.
     const count = (typeId) => state.buildings.filter((b) => b.realmId === "player" && b.typeId === typeId).length;
     const farms = count("farm");
     const cottages = count("cottage");
+    const lumberCamps = count("lumber_camp");
     return {
       realmId,
       tick: state.meta.tick,
@@ -145,6 +154,7 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
       training,
       farms,
       cottages,
+      lumberCamps,
       stamps: sim.listStamps(state),
       pending: hold.pending.length,
     };
@@ -182,6 +192,7 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
      * A build places one farm on the first free tile through the sim's tryBuild, the same call a
      * solo build makes: refused with 409 when there is no tile or the hold cannot pay. A cottage
      * goes the same way; once the sim finishes it, the sim's work-plot cap rises and a farm can land.
+     * A lumber camp goes the same way and, like a farm, needs a free work plot.
      * null when the realm is not shared.
      */
     async intent(realmId, by, body) {
@@ -194,10 +205,8 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
         keep(realmId, hold, true);
         return view(realmId, hold);
       }
-      if (intent.type === "build" || intent.type === "cottage") {
-        const [typeId, noTile, cannot] = intent.type === "build"
-          ? ["farm", NO_TILE, CANNOT_BUILD]
-          : ["cottage", NO_COTTAGE_TILE, CANNOT_COTTAGE];
+      if (Object.hasOwn(BUILDS, intent.type)) {
+        const [typeId, noTile, cannot] = BUILDS[intent.type];
         const tile = freeTile(hold, typeId);
         if (tile === null) throw new HoldError(409, noTile);
         if (!hold.sim.tryBuild(hold.state, { typeId, x: tile.x, y: tile.y })) throw new HoldError(409, cannot);
