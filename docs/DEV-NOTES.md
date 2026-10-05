@@ -1,3 +1,13 @@
+## 2026-10-04 — server + app / shared hold Build cottage (wave/realtime-cottage)
+
+- `parseIntent` accepts exactly `{ type: "stamp" | "train" | "build" | "cottage" }`. `cottage` runs at once after the clock sync, like `build`. `freeFarmTile` became `freeTile(hold, typeId)`; the build branch picks `["farm", NO_TILE, CANNOT_BUILD]` or `["cottage", NO_COTTAGE_TILE, CANNOT_COTTAGE]` and calls `sim.tryBuild(state, { typeId, x, y })`. Cost, build time, and the plot rule all stay in the sim (`content/buildings.ts`, `actions/build.ts`, `systems/housing.ts`).
+- The sim counts plots only from **finished** cottages (`levelsOf` → `finishedOf`, `completesAtTick === null`), so a farm stays `NO_TILE` until `TickEngine` completes the cottage on a later read. `cottage.test.mjs` checks both sides.
+- `view()` adds `cottages` = count of player `cottage` buildings including scaffolding (same shape as `farms`).
+- `cottage.test.mjs` uses the real sim with no wrapper: a fresh hold has 0 wood, and 100 ticks (10 s) of the starter camp and farm pay for a cottage.
+- App: `sendIntent` union adds `"cottage"`; `sendCottage()`; `parseHold` defaults `cottages` to 0. `JoinHoldCard` still keeps the view in React state only.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs`.
+- Not done: keep, other buildings, choosing a tile, showing the hold on the map, persisting holds, push instead of polling.
+
 ## 2026-10-04 — server + app / shared hold Build farm (wave/realtime-build)
 
 - `parseIntent` accepts exactly `{ type: "stamp" | "train" | "build" }`. `build` runs at once after the clock sync (like `train`, not queued like a stamp): `freeFarmTile()` scans `y, x` in `0..TILE_SCAN-1` (64, only a loop bound) and returns the first tile where `sim.canPlaceType(state, "farm", x, y)` holds; the sim owns the grid size, occupancy, and the work-plot cap. Then `sim.tryBuild(state, { typeId: "farm", x, y })`. `HoldError(409, NO_TILE)` or `HoldError(409, CANNOT_BUILD)`; `tryBuild` checks cost before it spends, so a refusal changes nothing. Issuer is the hold (`player`).

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-04 — Shared hold: Build cottage (wave/realtime-cottage)
+
+- Still opt-in. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged. No rule copied into `server/`; no client state accepted.
+- `server/hold.mjs`: new intent, exactly `{ "type": "cottage" }` (one cottage). Same path as Build farm, now shared as `freeTile(hold, typeId)`: first tile where `sim.canPlaceType(state, "cottage", x, y)` is true, then `sim.tryBuild(state, { typeId: "cottage", x, y })`, the same call a solo cottage makes. No tile → 409 `NO_COTTAGE_TILE`; cannot pay → 409 `CANNOT_COTTAGE`; nothing is spent in either case. Any extra key is 400. When the sim finishes the cottage its work-plot cap rises, so a farm that was refused as no tile can land. The view adds `cottages` (player cottages, finished or building). Train, Build farm, and Stamp unchanged.
+- App: `net/hold.ts` `HoldView` gains `cottages` (missing reads as zero); new `sendCottage(realmId)`. `JoinHoldCard.tsx` adds a **Build cottage** button next to Build farm and **Cottages** beside the numbers. Leave unchanged; nothing is written to the local save.
+- Tests: new `server/cottage.test.mjs` (fresh hold has none; a cottage on one id shows on the other; an unaffordable cottage is rejected and does not spend; after a cottage finishes a farm refused for no free tile lands, and not while it is still scaffolding; a different id does not see it; extra keys refused; train and farm still work; a solo load does not join; source calls `sim.tryBuild` and copies no rules). `net/hold.test.ts` (cottage sends only `{ type: "cottage" }`; 409 reason shown; old view reads zero cottages). `settleOnLoad.test.ts` fixtures gain `cottages`.
+
 ## 2026-10-04 — Shared hold: Build farm (wave/realtime-build)
 
 - Still opt-in. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged. No rule copied into `server/`; no client state accepted.

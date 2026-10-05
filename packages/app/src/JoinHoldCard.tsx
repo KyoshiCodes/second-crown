@@ -1,5 +1,5 @@
 import React from "react";
-import { joinRealm, readHold, sendBuild, sendStamp, sendTrain, type HoldView } from "./net/hold";
+import { joinRealm, readHold, sendBuild, sendCottage, sendStamp, sendTrain, type HoldView } from "./net/hold";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -75,6 +75,16 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
     }
   }
 
+  async function cottage() {
+    if (realmId === null) return;
+    try {
+      setView(await sendCottage(realmId));
+      setStatus("");
+    } catch (e) {
+      setStatus(`Cottage refused: ${e instanceof Error ? e.message : "unknown"}`);
+    }
+  }
+
   function leave() {
     setView(null);
     setStatus("Left the hold. Your solo crown is unchanged.");
@@ -100,6 +110,7 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
             </span>
             <button type="button" className="sc-work-btn" onClick={() => void train()}>Train militia</button>
             <button type="button" className="sc-work-btn" onClick={() => void build()}>Build farm</button>
+            <button type="button" className="sc-work-btn" onClick={() => void cottage()}>Build cottage</button>
             <button type="button" className="sc-work-btn" onClick={() => void stamp()}>Stamp</button>
             <button type="button" className="sc-work-btn" onClick={leave}>Leave</button>
           </div>
@@ -110,6 +121,7 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
             <span>Gold {whole(view.stores.gold)}</span>
             <span>Militia {view.militia}{view.training > 0 ? ` (+${view.training} training)` : ""}</span>
             <span>Farms {view.farms}</span>
+            <span>Cottages {view.cottages}</span>
           </div>
           <div style={{ fontSize: 12, marginTop: 6 }}>
             {view.stamps.length === 0
