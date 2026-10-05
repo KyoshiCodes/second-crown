@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Real-time clock groundwork (wave/realtime-clock)
+
+- The live game is unchanged. Nothing new to try.
+- Behind the scenes, the server now has a clock that can count game seconds. Nothing uses it yet; your game still keeps its own time and offline catch-up works as before.
+
 ## 2026-10-04 — Real-time plan (wave/realtime-spec)
 
 - This is a written plan only. We wrote down how a shared, always-running realm might work later (a server clock, saves kept on the server, two people on one hold).

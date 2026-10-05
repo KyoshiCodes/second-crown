@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-04 — Real-time clock, Phase 1 (wave/realtime-clock)
+
+- New `server/clock.mjs`: `TICK_MS` (100 ms, from `TICKS_PER_SECOND`), `ticksBetween(startMs, nowMs)`, and `createClock(now)` with `start()` / `tick()`.
+- Unstarted clock stays at 0; time going backward never gives a negative tick, and a started clock never counts down.
+- No sim on the server, no save read or write. Not wired into `server/index.mjs`. Browser, offline catch-up, and live solo game unchanged.
+- Tests: `server/clock.test.mjs` (0 ms → 0, 100 ms → 1, 250 ms → 2, unstarted, backward).
+
 ## 2026-10-04 — Real-time spec (wave/realtime-spec)
 
 - Docs only. New `docs/REALTIME.md`: a three-phase plan (Clock, Save, Shared hold). Not started; no code or endpoints.
