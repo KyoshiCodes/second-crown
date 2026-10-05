@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { createLedgerHandler } from "./ledger.mjs";
 import { gateSave, SaveGateError, MAX_SAVE_BYTES } from "./savegate.mjs";
 import { createRealmClocks } from "./realmclock.mjs";
+import { createHolds, HoldError } from "./hold.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -188,6 +189,10 @@ const realmClocks = createRealmClocks();
 // REALTIME.md Phase 2: account ids whose save is a shared realm. The browser cannot replace
 // a shared save; GET /save still serves it. Empty: no realm is shared. Owner decision to add one.
 const SHARED_SAVES = new Set();
+// REALTIME.md Phase 3 (ADR-011): realm ids that get a shared hold, the only place the server runs
+// packages/sim. Empty: no realm is shared, so the sim is never loaded. Owner decision to add one.
+const SHARED_REALMS = new Set();
+const holds = createHolds({ clocks: realmClocks, isShared: (id) => SHARED_REALMS.has(id) });
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
   if (req.method === "OPTIONS") return json(res, 204, {});
@@ -310,6 +315,30 @@ const server = http.createServer(async (req, res) => {
     const tick = realmClocks.tick(realmId);
     if (tick === null) return json(res, 400, { error: "bad realm" });
     return json(res, 200, { realmId, tick });
+  }
+
+  // REALTIME.md Phase 3: a shared hold. Readers see one tick; intents land on a tick boundary.
+  const realmHold = /^\/realm\/([^/]+)\/(hold|intent)$/.exec(url.pathname);
+  if (realmHold) {
+    const realmId = realmHold[1];
+    try {
+      if (req.method === "GET" && realmHold[2] === "hold") {
+        const view = await holds.read(realmId);
+        return view ? json(res, 200, view) : json(res, 404, { error: "not a shared realm" });
+      }
+      if (req.method === "POST" && realmHold[2] === "intent") {
+        const u = userFromToken(bearer(req));
+        if (!u) return json(res, 401, { error: "unauthorized" });
+        let body;
+        try { body = JSON.parse(await readBody(req, 1024)); } catch { return json(res, 400, { error: "Send one intent, not a state." }); }
+        const view = await holds.intent(realmId, u.id, body);
+        return view ? json(res, 200, view) : json(res, 404, { error: "not a shared realm" });
+      }
+      return json(res, 405, { error: "method not allowed" });
+    } catch (e) {
+      if (e instanceof HoldError) return json(res, e.status, { error: e.message });
+      return json(res, 500, { error: "hold failed" });
+    }
   }
 
   if (req.method === "GET" && url.pathname.startsWith("/watch/")) {

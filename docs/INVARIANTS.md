@@ -1,8 +1,8 @@
 # INVARIANTS
 
-Last updated: 2026-09-05 | Version: pre-0.1.0 | Updated by: project bootstrap
+Last updated: 2026-10-04 | Version: playtest-0.3 | Updated by: owner-approved ADR-011 (shared hold)
 
-Sixteen rules. Violating one is a project-level failure, not a bug. If a task appears to
+Seventeen rules. Violating one is a project-level failure, not a bug. If a task appears to
 require violating one, stop and escalate to the owner instead of proceeding.
 
 The **Enforced by** column is aspirational until the phase noted. Each row must be filled in
@@ -95,6 +95,20 @@ Full intrigue lands at 0.9.0 and is impossible to retrofit onto realms modeled a
 numbers. This costs almost nothing now and prevents a catastrophic rewrite later.
 
 **Enforced by:** `_TBD — schema test, phase C_`
+
+### 17. The server runs the sim only for a shared hold
+`server/` never runs `packages/sim` for a solo crown. Solo play stays on the client: the
+browser ticks, offline catch-up runs in the browser, and the server stores the save as a blob.
+
+A **shared hold** (docs/REALTIME.md Phase 3) may run `packages/sim` on the server, and only
+through calls into `packages/sim`. No game rule (combat, economy, costs) is copied into
+`server/`. The server applies player **intents** on a tick boundary; it never accepts a full
+client state as the new realm. A shared hold never reads or writes a solo save. Owner
+approved 2026-10-04 (ADR-011).
+
+**Enforced by:** `server/hold.test.mjs` ("an unshared realm gets no hold and loads no sim",
+"hold source copies no rules and touches no saves", "a full client state is refused");
+`packages/app/src/game/settleOnLoad.test.ts` ("solo ... never joins a hold").
 
 ---
 

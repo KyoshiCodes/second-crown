@@ -1,6 +1,6 @@
 # Real-time spec (plan only)
 
-Status: **Phase 1 clock wired** (`server/clock.mjs`; `GET /realm/:id/tick` in `server/realmclock.mjs`, memory only; app reads it only for a shared realm). **Phase 2 save** on `wave/realtime-save`, not merged (`gateSave` refuses browser uploads to a shared realm; `packages/app/src/game/loadSaved.ts` reads the server save on a shared reload). No realm is shared yet. Phase 3 not started. The live game is unchanged.
+Status: **Phase 1 clock wired** (`server/clock.mjs`; `GET /realm/:id/tick` in `server/realmclock.mjs`, memory only; app reads it only for a shared realm). **Phase 2 save** merged (`gateSave` refuses browser uploads to a shared realm; `packages/app/src/game/loadSaved.ts` reads the server save on a shared reload). **Phase 3 shared hold** on `wave/realtime-hold`, not merged (`server/hold.mjs`, one stamp intent; rule change in ADR-011 / INVARIANTS §17). No realm is shared yet. The live game is unchanged.
 
 Three phases, in this order. Each phase must be finished and merged before the next one starts.
 
@@ -29,7 +29,7 @@ Three phases, in this order. Each phase must be finished and merged before the n
 - The **server applies intents on a tick boundary** and sends the new state back to every browser on that hold.
 - **Combat rules stay in the sim** (`packages/sim`). No second copy of the rules on the server.
 
-**This phase breaks today's rule "no sim on the server."** Today `server/index.mjs` stores JSON saves, Discord and the board, and does not run the sim (`AGENTS.md`). Applying intents on the server means the server must run `packages/sim`. That rule change is an owner decision and must be written into `INVARIANTS.md` and `DECISIONS.md` before any Phase 3 code. **Do not implement it in this branch.**
+**This phase breaks today's rule "no sim on the server."** Today `server/index.mjs` stores JSON saves, Discord and the board, and does not run the sim (`AGENTS.md`). Applying intents on the server means the server must run `packages/sim`. That rule change is an owner decision and must be written into `INVARIANTS.md` and `DECISIONS.md` before any Phase 3 code. The owner approved it on 2026-10-04 (ADR-011, INVARIANTS §17).
 
 ---
 

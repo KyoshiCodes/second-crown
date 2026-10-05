@@ -186,6 +186,8 @@ export type { ResourceLedger } from "./systems/storage.js";
 export { tryBuyBazaar, ITEMS, ITEM_TIERS } from "./systems/loot.js";
 
 export { settlementName, tryRenameSettlement } from "./actions/settlement.js";
+export { tryStamp, listStamps } from "./actions/stamp.js";
+export type { Stamp } from "./actions/stamp.js";
 
 export {
   seedBoard,

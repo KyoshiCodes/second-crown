@@ -25,7 +25,7 @@ packages/sim      pure TS rules. no DOM, no React, no I/O.
 packages/render   PixiJS map.
 packages/app      Vite + React shell, cloud UI.
 packages/shared   types.
-server/index.mjs  JSON saves, Discord, board. Does not run the sim.
+server/index.mjs  JSON saves, Discord, board. Runs the sim only for a shared hold (none yet).
 ```
 
 ---
@@ -47,7 +47,7 @@ Skip only for throwaway local experiments that never leave the machine. Do not â
 
 ## Non-negotiables (short)
 
-Full text in `docs/INVARIANTS.md`. Especially: determinism (2), sim independent of React (6), no sim on the server.
+Full text in `docs/INVARIANTS.md`. Especially: determinism (2), sim independent of React (6), no sim on the server for solo play (17). A shared hold may call `packages/sim` on the server (ADR-011); never copy rules into `server/`.
 
 ---
 
