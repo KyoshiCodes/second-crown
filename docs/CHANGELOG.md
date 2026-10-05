@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-05 — Login nonce (wave/realtime-nonce)
+
+- Login nonce only. No solo save is marked shared; `applyOfflineProgress`, hold keys, and the join path are unchanged. No rule copied into `server/`; no client state accepted as a realm.
+- App: new `packages/app/src/net/login.ts`. `startLogin()` makes a 24-byte random nonce (base64url) in `sessionStorage`; `takeLogin(nonce)` returns true only for that nonce and removes it, match or not. `createGuest` starts a nonce before `POST /guest` and takes it before saving the session. `discordLoginUrl()` is replaced by `startDiscordLogin()` → `/auth/discord?state=<nonce>`. `absorbHashSession()` now returns `"none" | "signed-in" | "refused"`; a `cloud_token` hash without this browser's nonce is refused, the hash is cleared, and the session is not replaced. `CloudPanel.tsx` shows "Ignored a sign-in link this browser did not start."
+- Server: new `server/nonce.mjs`. `GET /auth/discord` needs a `state` nonce (400 without), sets it in an HttpOnly, SameSite=Lax cookie on `/auth/discord` (10 minutes) and passes it to Discord as `state`. `GET /auth/discord/callback` refuses (400) a `state` that does not equal that cookie (constant-time compare) and clears the cookie on every callback. The redirect hash adds `cloud_nonce`.
+- Tests: new `server/nonce.test.mjs` (pattern mirrors the client; matching state accepted; someone else's state or no stored nonce refused; a used nonce refused after the clear; cookie flags; hash carries the nonce; index wires both routes; a hold join still needs the hold key; a solo load does not join). New `packages/app/src/net/login.test.ts` (a foreign token in the URL does not replace the session and does not upload; a made-up nonce refused; a used nonce refused; a Discord login this browser started signs in; guest signs in; only the newest nonce counts; a solo load does not join and a join still sends `X-Hold-Key`). Run: `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs`.
+
 ## 2026-10-04 — Shared hold key (wave/realtime-key)
 
 - Hold key only. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged. No rule copied into `server/`; no client state accepted as the realm.

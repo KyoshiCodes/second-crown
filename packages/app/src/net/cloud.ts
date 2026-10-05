@@ -1,3 +1,5 @@
+import { startLogin, takeLogin } from "./login";
+
 const TOKEN_KEY = "sc-cloud-token";
 const NAME_KEY = "sc-cloud-name";
 const URL_KEY = "sc-cloud-url";
@@ -46,15 +48,25 @@ export function clearSession(): void {
   localStorage.removeItem(NAME_KEY);
 }
 
-export function absorbHashSession(): boolean {
+export type HashLogin = "none" | "signed-in" | "refused";
+
+/**
+ * Read a Discord login result from the URL hash. cloud_token becomes the session only if
+ * cloud_nonce is the one-use nonce this browser stored before it left for Discord.
+ * Anything else (a pasted link, someone else's token, a reused nonce) is dropped:
+ * the current session stays and nothing is uploaded. The hash is cleared either way.
+ */
+export function absorbHashSession(): HashLogin {
   const hash = window.location.hash.replace(/^#/, "");
-  if (!hash.includes("cloud_token=")) return false;
+  if (!hash.includes("cloud_token=")) return "none";
   const p = new URLSearchParams(hash);
   const token = p.get("cloud_token");
   const name = p.get("cloud_name") || "Discord";
-  if (token) setSession(token, name);
+  const ok = takeLogin(p.get("cloud_nonce"));
   history.replaceState(null, "", window.location.pathname + window.location.search);
-  return Boolean(token);
+  if (!ok || !token) return "refused";
+  setSession(token, name);
+  return "signed-in";
 }
 
 async function req(path: string, init: RequestInit = {}) {
@@ -72,9 +84,12 @@ export async function health(): Promise<{ ok: boolean; discord: boolean }> {
 }
 
 export async function createGuest(name: string) {
+  const nonce = startLogin();
   const res = await req(`/guest?name=${encodeURIComponent(name || "Guest")}`, { method: "POST" });
   if (!res.ok) throw new Error("guest failed");
   const body = await res.json();
+  // A second sign-in started meanwhile owns the session now; this answer is stale.
+  if (!takeLogin(nonce)) throw new Error("guest login superseded");
   setSession(body.token, body.name);
   return body;
 }
@@ -93,8 +108,9 @@ export async function restoreToken(token: string) {
   return me;
 }
 
-export function discordLoginUrl(): string {
-  return `${cloudUrl()}/auth/discord`;
+/** Makes this browser's one-use nonce, so call it only right before leaving for Discord. */
+export function startDiscordLogin(): string {
+  return `${cloudUrl()}/auth/discord?state=${startLogin()}`;
 }
 
 /** The cloud holds a newer copy of this hold. `save` is that cloud save, ready to load. */

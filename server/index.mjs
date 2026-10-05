@@ -9,6 +9,7 @@ import { createRealmClocks } from "./realmclock.mjs";
 import { HoldError } from "./hold.mjs";
 import { createJoinableHolds } from "./join.mjs";
 import { createHoldStore } from "./keep.mjs";
+import { isNonce, nonceCookie, clearNonceCookie, stateMatches, callbackHash, BAD_STATE } from "./nonce.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -260,18 +261,28 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "GET" && url.pathname === "/auth/discord") {
     if (!DISCORD_CLIENT_ID) return text(res, 501, "Discord is not configured on this server.");
+    // The app makes the nonce before it leaves. No nonce, no login.
+    const state = url.searchParams.get("state");
+    if (!isNonce(state)) return text(res, 400, "Start Discord login from the game.");
     const qs = new URLSearchParams({
       client_id: DISCORD_CLIENT_ID,
       redirect_uri: DISCORD_REDIRECT,
       response_type: "code",
       scope: "identify",
+      state,
     });
-    res.writeHead(302, { Location: `https://discord.com/oauth2/authorize?${qs}` });
+    res.writeHead(302, { Location: `https://discord.com/oauth2/authorize?${qs}`, "Set-Cookie": nonceCookie(state) });
     return res.end();
   }
 
   if (req.method === "GET" && url.pathname === "/auth/discord/callback") {
     try {
+      // Refuse a callback whose state is not the nonce this browser stored. Drop the nonce either way.
+      const state = url.searchParams.get("state");
+      if (!stateMatches(state, req.headers.cookie)) {
+        res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8", "Set-Cookie": clearNonceCookie() });
+        return res.end(BAD_STATE);
+      }
       const code = url.searchParams.get("code");
       if (!code) return text(res, 400, "missing code");
       const tok = await discordToken(code);
@@ -290,8 +301,8 @@ const server = http.createServer(async (req, res) => {
       };
       writeUsers(users);
       const back = new URL(PUBLIC_APP);
-      back.hash = `cloud_token=${token}&cloud_name=${encodeURIComponent(users[id].name)}`;
-      res.writeHead(302, { Location: back.toString() });
+      back.hash = callbackHash(token, users[id].name, state);
+      res.writeHead(302, { Location: back.toString(), "Set-Cookie": clearNonceCookie() });
       return res.end();
     } catch (e) {
       return text(res, 500, String(e));

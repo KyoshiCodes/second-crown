@@ -7,13 +7,13 @@ import {
   cloudUrl,
   createGuest,
   defaultCloudUrl,
-  discordLoginUrl,
   health,
   openWatch,
   pullSave,
   pushSave,
   restoreToken,
   setCloudUrl,
+  startDiscordLogin,
 } from "./net/cloud";
 import { loadFromIndexedDb, saveToIndexedDb } from "./save/indexedDb";
 import { getTesterName } from "./TesterBar";
@@ -106,11 +106,12 @@ export function CloudPanel() {
       setCloudUrl(defaultCloudUrl());
       setUrl(defaultCloudUrl());
     }
-    if (fromHash) setStatus("Discord login saved on this browser.");
+    if (fromHash === "signed-in") setStatus("Discord login saved on this browser.");
+    if (fromHash === "refused") setStatus("Ignored a sign-in link this browser did not start.");
     health()
       .then((h) => {
         setDiscord(h.discord);
-        if (!fromHash) setStatus(h.ok ? "Cloud reachable. Auto-save is on." : "Cloud down.");
+        if (fromHash === "none") setStatus(h.ok ? "Cloud reachable. Auto-save is on." : "Cloud down.");
       })
       .catch(() => setStatus("Cloud unreachable — check the URL."));
     void refreshMe();
@@ -151,7 +152,7 @@ export function CloudPanel() {
             setShowCode(true);
           } catch { setStatus("Could not create guest."); }
         }}>Guest session</button>
-        <button type="button" className="sc-work-btn" disabled={!discord} onClick={() => { setCloudUrl(url); window.location.href = discordLoginUrl(); }}>Log in with Discord</button>
+        <button type="button" className="sc-work-btn" disabled={!discord} onClick={() => { setCloudUrl(url); window.location.href = startDiscordLogin(); }}>Log in with Discord</button>
         <button type="button" className="sc-work-btn" disabled={!token} onClick={async () => {
           const raw = await loadFromIndexedDb();
           if (!raw) { setStatus("No local save to push."); return; }
