@@ -1,6 +1,6 @@
 # Real-time spec (plan only)
 
-Status: **Phase 1 clock wired** (`server/clock.mjs`; `GET /realm/:id/tick` in `server/realmclock.mjs`, memory only; app reads it only for a shared realm, and none is shared yet). Phases 2 and 3 not started. The live game is unchanged.
+Status: **Phase 1 clock wired** (`server/clock.mjs`; `GET /realm/:id/tick` in `server/realmclock.mjs`, memory only; app reads it only for a shared realm). **Phase 2 save** on `wave/realtime-save`, not merged (`gateSave` refuses browser uploads to a shared realm; `packages/app/src/game/loadSaved.ts` reads the server save on a shared reload). No realm is shared yet. Phase 3 not started. The live game is unchanged.
 
 Three phases, in this order. Each phase must be finished and merged before the next one starts.
 

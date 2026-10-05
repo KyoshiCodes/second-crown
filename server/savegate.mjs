@@ -18,6 +18,8 @@ export class SaveGateError extends Error {
 }
 // The cloud already holds a newer copy of this hold. The handler returns the cloud save with it.
 export const NEWER_HOLD = "Cloud has a newer hold.";
+// REALTIME.md Phase 2: a shared realm's server copy is the source of truth. The browser cannot replace it.
+export const SHARED_REALM = "Shared realm: the server copy wins.";
 function conflictIf(condition) {
   if (condition) throw new SaveGateError(409, NEWER_HOLD, true);
 }
@@ -55,10 +57,13 @@ export function parseSave(raw) {
  * Check an upload against the last accepted save.
  * prev: parsed previous save or null. elapsedMs: server time since prev was accepted.
  * replace: the player explicitly chose to replace the cloud hold with a fresh game.
+ * shared: the server marks this save as a shared realm. Every browser upload is refused,
+ * replace or not, and the handler hands back the server copy. No realm is shared yet.
  * Returns the parsed next save.
  */
-export function gateSave(raw, prev, elapsedMs, replace = false) {
+export function gateSave(raw, prev, elapsedMs, replace = false, shared = false) {
   const next = parseSave(raw);
+  if (shared) throw new SaveGateError(409, SHARED_REALM, true);
   if (!prev || !isObject(prev.meta) || !isTick(prev.meta.tick)) return next;
 
   conflictIf(Number.isSafeInteger(prev.meta.version) && prev.meta.version > next.meta.version);

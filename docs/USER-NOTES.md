@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Server saves for shared realms (wave/realtime-save)
+
+- The live game is unchanged because no realm is shared yet. Nothing new to try.
+- Behind the scenes, a shared realm will keep its true save on the server. Reloading will load the server copy, and editing your browser's save or a downloaded save file cannot change it. Your realm is solo, so it still saves in your browser and offline catch-up works as before.
+
 ## 2026-10-04 — Real-time clock hooked up (wave/realtime-wire)
 
 - The live game is unchanged because no realm is shared yet. Nothing new to try.
