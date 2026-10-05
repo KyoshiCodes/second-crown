@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-04 — Shared hold survives a restart (wave/realtime-keep)
+
+- Only the shared hold is kept. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged and not called. No rule copied into `server/`; no client state accepted as the realm.
+- New `server/keep.mjs`: `createHoldStore(dir)` writes one file per realm id, `<SAVES>/<realmId>.json` (joined ids are `join-<id>`, never an account id), whole through a temp file. The record is `{ kind: "shared-hold", realmId, savedAt, pending, state }`, `state` being the sim's own `serializeState` text. A file whose `realmId` is not the asked id is not loaded. `downTicks(savedAt, now)` = real ticks since the write, capped at `MAX_OFFLINE_MS` (30 days, mirrored from `packages/shared`, drift-tested), the same cap as solo offline catch-up.
+- `server/hold.mjs`: `createHolds` takes an optional `store` and `now`. A hold is written after a train, farm, cottage, or stamp intent, and after settled ticks (at most every `SETTLE_SAVE_MS`, 5 s). On first touch after a restart it loads that id's kept hold through `sim.deserializeState` instead of a new game, and puts the Phase 1 clock back at the kept tick plus the down time (`realmclock.mjs` `resume`). The sim settles the gap through `TickEngine` on the next read.
+- `server/index.mjs`: the join table gets `store: createHoldStore(SAVES)`.
+- App: no new button. `JoinHoldCard.tsx` copy now says a joined hold survives a server restart and the solo crown is not kept with it. Leave unchanged; nothing is written to the local save.
+- Tests: new `server/keep.test.mjs` (a cottage survives dropping the in-memory hold; farms, cottages, and militia come back; the clock counts the down time; the cap; a different id starts empty; a copied file under another id is not loaded; a solo load does not read or write the hold file; settled ticks throttled, intents written at once; index uses the save folder and never marks a solo save shared). `realmclock.test.mjs` adds `resume`. Run: `node --test server/clock.test.mjs server/savegate.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs`.
+
 ## 2026-10-04 — Shared hold: Build cottage (wave/realtime-cottage)
 
 - Still opt-in. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged. No rule copied into `server/`; no client state accepted.

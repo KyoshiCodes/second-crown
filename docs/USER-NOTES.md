@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — A joined hold survives a server restart (wave/realtime-keep)
+
+- **A joined hold now survives a server restart.** When you and a friend join the same id again after the server comes back, you see the same farms, cottages, and militia you left.
+- Time keeps passing while the server is down: the hold catches up when someone joins again, up to 30 days, the same limit as your solo crown's offline catch-up.
+- **The solo crown does not.** It is not kept with the hold and the server does not run it. Your solo crown still saves in your browser (and to the cloud if you use cloud saves) exactly as before.
+- A different id is still a different hold and starts from a new kingdom.
+- No new button. **Leave** still takes you back to your solo crown, and nothing from the hold is written into it.
+
 ## 2026-10-04 — Build a cottage in a shared hold (wave/realtime-cottage)
 
 - After you **Join hold** in the **Cloud** panel there is a **Build cottage** button next to **Build farm**, and a **Cottages** count beside the other numbers. A cottage either friend builds shows up for both of you on the same id. A different id does not see it.

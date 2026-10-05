@@ -94,7 +94,7 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
   return (
     <div className="sc-work-card sc-plain-card">
       <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>
-        Join hold (opt-in, test): friends who type the same id share one fresh server kingdom. It is not your solo crown, which is not touched. A server restart clears the hold.
+        Join hold (opt-in, test): friends who type the same id share one fresh server kingdom. It is not your solo crown, which is not touched. A joined hold survives a server restart; the solo crown is not kept with it.
       </div>
       {view === null ? (
         <div className="sc-plain-inline">
