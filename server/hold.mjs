@@ -10,8 +10,13 @@ export const MAX_HOLDS = 100;
 export const MAX_PENDING = 64;
 export const INTENT_ONLY = "Send one intent, not a state.";
 export const CANNOT_TRAIN = "The hold cannot afford a militia, or its training queue is full.";
+export const CANNOT_BUILD = "The hold cannot afford a farm.";
+export const NO_TILE = "The hold has no free tile for a farm: no open plot, or no free work plot (a cottage or keep adds plots).";
 export const STORES = ["food", "wood", "stone", "gold"];
-const INTENT_TYPES = new Set(["stamp", "train"]);
+const INTENT_TYPES = new Set(["stamp", "train", "build"]);
+// Scan range for a free tile. Only a bound on the loop: the sim's canPlaceType says which tiles
+// are inside the hold and open, so the grid size is not copied here.
+const TILE_SCAN = 64;
 
 export class HoldError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -36,7 +41,8 @@ export function seedForRealm(realmId) {
 }
 
 /**
- * The only intent shapes accepted: exactly { type: "stamp" } or { type: "train" } (one militia).
+ * The only intent shapes accepted: exactly { type: "stamp" }, { type: "train" } (one militia),
+ * or { type: "build" } (one farm). No tile, type, or count is taken from the client.
  * Anything else, a save included, is refused.
  */
 export function parseIntent(body) {
@@ -97,15 +103,29 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
     const training = sim.listTraining(state, "player")
       .filter((j) => j.typeId === "militia")
       .reduce((n, j) => n + j.count, 0);
+    // Every player farm, finished or still building.
+    const farms = state.buildings.filter((b) => b.realmId === "player" && b.typeId === "farm").length;
     return {
       realmId,
       tick: state.meta.tick,
       stores,
       militia,
       training,
+      farms,
       stamps: sim.listStamps(state),
       pending: hold.pending.length,
     };
+  }
+
+  // The first tile, row by row, where the sim says a farm may go. null when there is none.
+  function freeFarmTile(hold) {
+    const { sim, state } = hold;
+    for (let y = 0; y < TILE_SCAN; y++) {
+      for (let x = 0; x < TILE_SCAN; x++) {
+        if (sim.canPlaceType(state, "farm", x, y)) return { x, y };
+      }
+    }
+    return null;
   }
 
   async function sync(realmId) {
@@ -125,6 +145,8 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
     /**
      * One intent from `by`. A stamp is queued and lands on the next tick boundary. A train goes
      * through the sim's tryTrain at the settled tick, so a hold that cannot pay is refused at once.
+     * A build places one farm on the first free tile through the sim's tryBuild, the same call a
+     * solo build makes: refused with 409 when there is no tile or the hold cannot pay.
      * null when the realm is not shared.
      */
     async intent(realmId, by, body) {
@@ -134,6 +156,12 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
       const hold = await sync(realmId);
       if (intent.type === "train") {
         if (!hold.sim.tryTrain(hold.state, { typeId: "militia", count: 1 })) throw new HoldError(409, CANNOT_TRAIN);
+        return view(realmId, hold);
+      }
+      if (intent.type === "build") {
+        const tile = freeFarmTile(hold);
+        if (tile === null) throw new HoldError(409, NO_TILE);
+        if (!hold.sim.tryBuild(hold.state, { typeId: "farm", x: tile.x, y: tile.y })) throw new HoldError(409, CANNOT_BUILD);
         return view(realmId, hold);
       }
       if (hold.pending.length >= MAX_PENDING) throw new HoldError(429, "Too many intents this tick.");

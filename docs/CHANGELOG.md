@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-04 — Shared hold: Build farm (wave/realtime-build)
+
+- Still opt-in. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged. No rule copied into `server/`; no client state accepted.
+- `server/hold.mjs`: new intent, exactly `{ "type": "build" }` (one farm). The server scans tiles row by row and takes the first where `sim.canPlaceType(state, "farm", x, y)` is true, then calls `sim.tryBuild(state, { typeId: "farm", x, y })`, the same call a solo build makes. No tile → 409 `NO_TILE`; sim refuses (cannot pay) → 409 `CANNOT_BUILD`; nothing is spent in either case. Any extra key (type, tile, state) is 400. The view adds `farms` (player farms, finished or building). Train and Stamp unchanged.
+- A fresh hold has both starter work plots in use (cap 2), like a solo new game, so a farm build is refused as no tile until the hold has a cottage or keep. There is no intent for those yet.
+- App: `net/hold.ts` `HoldView` gains `farms` (missing reads as zero); new `sendBuild(realmId)`. `JoinHoldCard.tsx` adds a **Build farm** button next to Train militia and **Farms** beside the five numbers. Leave unchanged; nothing is written to the local save.
+- Tests: new `server/build.test.mjs` (starter farm shows; a build on one id shows on the other; an unaffordable build is rejected and does not spend; no free tile is rejected and does not spend; a different id does not see the farm; extra keys refused; train still works; a solo load does not join; source calls `sim.tryBuild`/`sim.canPlaceType` and copies no rules). Success cases seed one finished cottage in test setup only. `hold.test.mjs` refused-body list now uses `{ type: "build", typeId: "keep" }`. `net/hold.test.ts` (build sends only `{ type: "build" }`; 409 reason shown). `settleOnLoad.test.ts` fixtures gain `farms`.
+
 ## 2026-10-04 — Playable shared hold: stores and Train militia (wave/realtime-play)
 
 - Still opt-in. No solo save is marked shared; `SHARED_SAVES` and `SHARED_REALMS` stay empty; `applyOfflineProgress` is unchanged. No rule copied into `server/`.

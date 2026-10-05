@@ -4,7 +4,8 @@ export type HoldStores = { food: string; wood: string; stone: string; gold: stri
 
 /**
  * What every reader of a shared hold sees (docs/REALTIME.md Phase 3). Stores are the sim's own
- * decimal strings; militia counts trained militia, training counts militia still in the queue.
+ * decimal strings; militia counts trained militia, training counts militia still in the queue,
+ * farms counts the hold's farms, finished or still building.
  */
 export type HoldView = {
   realmId: string;
@@ -12,6 +13,7 @@ export type HoldView = {
   stores: HoldStores;
   militia: number;
   training: number;
+  farms: number;
   stamps: { tick: number; by: string }[];
   pending: number;
 };
@@ -36,6 +38,7 @@ function parseHold(body: unknown): HoldView {
     stores,
     militia: count(v.militia),
     training: count(v.training),
+    farms: count(v.farms),
     stamps: v.stamps,
     pending: count(v.pending),
   };
@@ -50,7 +53,7 @@ export async function readHold(realmId: string): Promise<HoldView> {
   return parseHold(await response.json());
 }
 
-async function sendIntent(realmId: string, type: "stamp" | "train"): Promise<HoldView> {
+async function sendIntent(realmId: string, type: "stamp" | "train" | "build"): Promise<HoldView> {
   const headers = new Headers({ "Content-Type": "application/json" });
   const token = cloudToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -75,6 +78,11 @@ export function sendStamp(realmId: string): Promise<HoldView> {
 /** Ask the hold to train one militia. The server's sim pays for it or refuses with a reason. */
 export function sendTrain(realmId: string): Promise<HoldView> {
   return sendIntent(realmId, "train");
+}
+
+/** Ask the hold to build one farm. The server's sim picks the first free tile and pays, or refuses with a reason. */
+export function sendBuild(realmId: string): Promise<HoldView> {
+  return sendIntent(realmId, "build");
 }
 
 /** A typed realm id, trimmed and lowercased, or null when blank or bad. Matches server/join.mjs. */

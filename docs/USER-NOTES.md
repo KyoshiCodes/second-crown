@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-04 — Build a farm in a shared hold (wave/realtime-build)
+
+- After you **Join hold** in the **Cloud** panel there is a **Build farm** button next to **Train militia**, and a **Farms** count beside Food, Wood, Stone, Gold, and Militia. A farm either friend builds shows up for both of you on the same id. A different id does not see it.
+- A farm costs the same as in your solo crown and follows the same rules. If the hold cannot pay, or has no free spot for a farm, the button says why and nothing is spent.
+- Heads-up: a brand-new hold already uses both of its work plots (the starter farm and lumber camp), just like a new solo game. Until the hold can build a cottage, **Build farm** will say there is no free tile. That is expected for now.
+- **The joined hold is still a fresh kingdom, not your old crown.** Nothing from your solo crown comes with you, and nothing you do in the hold goes back to it.
+- **A server restart clears the hold.** It starts over from a new kingdom.
+- **Leave** takes you back to your solo crown exactly as it was.
+
 ## 2026-10-04 — Play in a shared hold (wave/realtime-play)
 
 - After you **Join hold** in the **Cloud** panel you now see the hold's **Food, Wood, Stone, Gold, and Militia**, and a **Train militia** button. A friend on the same id sees the same numbers, and a militia either of you trains shows up for both.
