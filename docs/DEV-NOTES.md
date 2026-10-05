@@ -1,3 +1,13 @@
+## 2026-10-04 — server / shared hold keep (wave/realtime-keep)
+
+- Store: `server/keep.mjs` `createHoldStore(SAVES)`. File `<SAVES>/<realmId>.json`, written via `<file>.tmp` + rename. Account saves are `guest_*` / `discord_*`, joined holds `join-*`, so they never share a file. `buildBoard`, `/save`, `/profile`, and the ledger only read account ids. `load` returns null for a missing file or one whose `kind`/`realmId` does not match; corrupt JSON throws (the join answers 500 rather than overwriting it with a new game).
+- `hold.mjs` has no `node:fs`; the store is injected (`createHolds({ store, now })`, passed through `createJoinableHolds`). Without a store a hold is memory-only, as before (all older server tests).
+- When it writes: `keep(realmId, hold, force)`. `force` after `tryTrain` / `tryBuild` succeed and after a stamp is queued (pending is kept too). From `sync` only when the tick moved and `SETTLE_SAVE_MS` (5 s) passed since the last write. A lost unwritten stretch is harmless: on load the clock re-counts from `savedAt`.
+- Load: `holdFor` checks the store before `createGameState`. `sim.deserializeState(kept.state)`, then `clocks.resume(realmId, state.meta.tick + downTicks(savedAt, now()))`. `resume` builds a clock started at `now - tick * TICK_MS`; it never moves an already-higher clock back. `downTicks` caps at `MAX_OFFLINE_MS`, a server mirror of `packages/shared` (drift test in `keep.test.mjs`, like `savegate.mjs` mirrors). A 30-day gap settles ~26M ticks on that first read, same cost as a solo catch-up.
+- A hold is still only loaded on `POST /join` (or a read of an already-joined id). After a restart `GET /realm/join-x/hold` is 404 until someone joins x again, as before.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs`.
+- Not done: keep intent, other buildings, choosing a tile, showing the hold on the map, push instead of polling, deleting old hold files.
+
 ## 2026-10-04 — server + app / shared hold Build cottage (wave/realtime-cottage)
 
 - `parseIntent` accepts exactly `{ type: "stamp" | "train" | "build" | "cottage" }`. `cottage` runs at once after the clock sync, like `build`. `freeFarmTile` became `freeTile(hold, typeId)`; the build branch picks `["farm", NO_TILE, CANNOT_BUILD]` or `["cottage", NO_COTTAGE_TILE, CANNOT_COTTAGE]` and calls `sim.tryBuild(state, { typeId, x, y })`. Cost, build time, and the plot rule all stay in the sim (`content/buildings.ts`, `actions/build.ts`, `systems/housing.ts`).

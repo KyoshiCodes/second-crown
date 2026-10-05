@@ -52,3 +52,17 @@ test("realm clocks do not touch the sim or saves", () => {
   const src = fs.readFileSync(path.join(here, "realmclock.mjs"), "utf8");
   assert.doesNotMatch(src, /packages\/sim|@second-crown\/sim|node:fs|from "fs"|saves/);
 });
+
+test("resume seats a clock at a kept tick and never moves a running one back", () => {
+  let wall = 5_000;
+  const clocks = createRealmClocks(() => wall);
+  assert.equal(clocks.resume("join-oak", 400), true);
+  assert.equal(clocks.tick("join-oak"), 400);
+  wall += 1000;
+  assert.equal(clocks.tick("join-oak"), 410);
+  assert.equal(clocks.resume("join-oak", 5), true);
+  assert.equal(clocks.tick("join-oak"), 410);
+  assert.equal(clocks.resume("../x", 1), false);
+  assert.equal(clocks.resume("join-elm", -1), false);
+  assert.equal(clocks.tick("join-elm"), 0);
+});

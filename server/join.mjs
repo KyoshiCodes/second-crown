@@ -1,6 +1,7 @@
 // Opt-in shared hold (docs/REALTIME.md, after Phase 3). A player types a short realm id and joins.
-// Everyone who types the same id reads the same in-memory hold from hold.mjs. Memory only: a
-// restart forgets every join. It never marks a solo save shared and never takes a client state.
+// Everyone who types the same id reads the same hold from hold.mjs. With a hold store the hold is
+// kept on disk: after a restart, the next join on that id loads it. It never marks a solo save
+// shared and never takes a client state.
 
 import { createHolds, HoldError, MAX_HOLDS } from "./hold.mjs";
 
@@ -29,12 +30,14 @@ export function parseJoin(body) {
  * The hold table plus opt-in joins. isShared: the owner-marked realms (none today).
  * A joined realm id always starts with JOIN_PREFIX, so a join never names an owner-marked realm.
  */
-export function createJoinableHolds({ clocks, isShared = () => false, loadSim, maxJoins = MAX_HOLDS }) {
+export function createJoinableHolds({ clocks, isShared = () => false, loadSim, store, now, maxJoins = MAX_HOLDS }) {
   const joined = new Set();
   const holds = createHolds({
     clocks,
     isShared: (id) => isShared(id) === true || joined.has(id),
     ...(loadSim ? { loadSim } : {}),
+    ...(store ? { store } : {}),
+    ...(now ? { now } : {}),
   });
   return {
     holds,

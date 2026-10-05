@@ -1,10 +1,12 @@
-// Shared hold (docs/REALTIME.md Phase 3, ADR-011, INVARIANTS 17). Memory only: a restart forgets it.
+// Shared hold (docs/REALTIME.md Phase 3, ADR-011, INVARIANTS 17). Kept in memory, and written
+// through a hold store (keep.mjs) when one is given, so it survives a restart.
 // The server runs packages/sim here and nowhere else, and only for a realm marked shared.
 // No game rule lives in this file: every change to the realm is a call into the sim.
 // It never reads or writes a solo save and never takes a client state as the realm.
 
 import { fileURLToPath } from "node:url";
 import { REALM_ID_RE } from "./realmclock.mjs";
+import { downTicks } from "./keep.mjs";
 
 export const MAX_HOLDS = 100;
 export const MAX_PENDING = 64;
@@ -19,6 +21,9 @@ const INTENT_TYPES = new Set(["stamp", "train", "build", "cottage"]);
 // Scan range for a free tile. Only a bound on the loop: the sim's canPlaceType says which tiles
 // are inside the hold and open, so the grid size is not copied here.
 const TILE_SCAN = 64;
+// Ticks that only settled are written at most this often. An intent is written at once. Losing the
+// last few settled ticks costs nothing: on load the clock counts them again from savedAt.
+export const SETTLE_SAVE_MS = 5000;
 
 export class HoldError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -59,8 +64,10 @@ export function parseIntent(body) {
  * clocks: the Phase 1 realm clocks (createRealmClocks), so the hold and GET /realm/:id/tick agree.
  * isShared(realmId): true only for a realm the owner marked shared. None is today.
  * loadSim(): resolves to the packages/sim module.
+ * store: optional hold store (keep.mjs createHoldStore). Without one, a restart forgets every hold.
+ * now(): wall clock in ms, the same one the realm clocks use.
  */
-export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
+export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, store = null, now = Date.now }) {
   const holds = new Map();
   let simPromise = null;
 
@@ -76,11 +83,31 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
     const sim = await simPromise;
     hold = holds.get(realmId); // another reader may have made it while the sim loaded
     if (hold) return hold;
-    // The same new game a solo player starts with, but fresh: never a client's save.
-    const state = sim.createGameState({ seed: seedForRealm(realmId), now: 0, withStarterBuildings: true });
-    hold = { sim, state, engine: new sim.TickEngine(state), pending: [] };
+    const kept = store ? store.load(realmId) : null;
+    if (kept) {
+      // This id's own kept hold, written by this server. The clock counts on from where it stopped,
+      // plus the time the process was down, capped like solo offline catch-up.
+      const state = sim.deserializeState(kept.state);
+      const pending = Array.isArray(kept.pending) ? kept.pending.slice(0, MAX_PENDING) : [];
+      hold = { sim, state, engine: new sim.TickEngine(state), pending, savedTick: state.meta.tick, savedAt: kept.savedAt };
+      clocks.resume(realmId, state.meta.tick + downTicks(kept.savedAt, now()));
+    } else {
+      // The same new game a solo player starts with, but fresh: never a client's save.
+      const state = sim.createGameState({ seed: seedForRealm(realmId), now: 0, withStarterBuildings: true });
+      hold = { sim, state, engine: new sim.TickEngine(state), pending: [], savedTick: -1, savedAt: -Infinity };
+    }
     holds.set(realmId, hold);
     return hold;
+  }
+
+  // Write the hold through the store. force: an intent changed it. Otherwise only settled ticks, throttled.
+  function keep(realmId, hold, force) {
+    if (!store) return;
+    const at = now();
+    if (!force && (hold.state.meta.tick === hold.savedTick || at - hold.savedAt < SETTLE_SAVE_MS)) return;
+    store.save(realmId, { savedAt: at, state: hold.sim.serializeState(hold.state), pending: hold.pending });
+    hold.savedTick = hold.state.meta.tick;
+    hold.savedAt = at;
   }
 
   // Bring the hold up to the clock. Pending intents go in at the first tick boundary crossed.
@@ -139,6 +166,7 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
     const tick = clocks.tick(realmId);
     if (tick === null) throw new HoldError(503, "No clock for this realm.");
     advance(hold, tick);
+    keep(realmId, hold, false);
     return hold;
   }
 
@@ -163,6 +191,7 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
       const hold = await sync(realmId);
       if (intent.type === "train") {
         if (!hold.sim.tryTrain(hold.state, { typeId: "militia", count: 1 })) throw new HoldError(409, CANNOT_TRAIN);
+        keep(realmId, hold, true);
         return view(realmId, hold);
       }
       if (intent.type === "build" || intent.type === "cottage") {
@@ -172,10 +201,12 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource }) {
         const tile = freeTile(hold, typeId);
         if (tile === null) throw new HoldError(409, noTile);
         if (!hold.sim.tryBuild(hold.state, { typeId, x: tile.x, y: tile.y })) throw new HoldError(409, cannot);
+        keep(realmId, hold, true);
         return view(realmId, hold);
       }
       if (hold.pending.length >= MAX_PENDING) throw new HoldError(429, "Too many intents this tick.");
       hold.pending.push({ ...intent, by });
+      keep(realmId, hold, true);
       return view(realmId, hold);
     },
     get size() {

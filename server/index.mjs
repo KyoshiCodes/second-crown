@@ -8,6 +8,7 @@ import { gateSave, SaveGateError, MAX_SAVE_BYTES } from "./savegate.mjs";
 import { createRealmClocks } from "./realmclock.mjs";
 import { HoldError } from "./hold.mjs";
 import { createJoinableHolds } from "./join.mjs";
+import { createHoldStore } from "./keep.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -193,9 +194,14 @@ const SHARED_SAVES = new Set();
 // REALTIME.md Phase 3 (ADR-011): realm ids that get a shared hold, the only place the server runs
 // packages/sim. Empty: no realm is shared, so the sim is never loaded. Owner decision to add one.
 const SHARED_REALMS = new Set();
-// Opt-in joins: a player types a realm id and gets a hold under "join-<id>". Memory only.
+// Opt-in joins: a player types a realm id and gets a hold under "join-<id>". The hold is kept in
+// SAVES as "<realmId>.json" (never an account id), so it survives a restart.
 // A join never touches SHARED_SAVES, a solo save, or applyOfflineProgress.
-const { holds, join: joinHold } = createJoinableHolds({ clocks: realmClocks, isShared: (id) => SHARED_REALMS.has(id) });
+const { holds, join: joinHold } = createJoinableHolds({
+  clocks: realmClocks,
+  isShared: (id) => SHARED_REALMS.has(id),
+  store: createHoldStore(SAVES),
+});
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
   if (req.method === "OPTIONS") return json(res, 204, {});

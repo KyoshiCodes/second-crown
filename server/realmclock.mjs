@@ -1,7 +1,8 @@
 // Per-realm server clocks (docs/REALTIME.md Phase 1). Memory only: a restart forgets them.
+// A kept shared hold (keep.mjs) puts its clock back with resume() when it is loaded.
 // It does not run the sim and never reads or writes a realm save.
 
-import { createClock } from "./clock.mjs";
+import { createClock, TICK_MS } from "./clock.mjs";
 
 export const REALM_ID_RE = /^[a-zA-Z0-9_-]{1,64}$/;
 export const MAX_REALM_CLOCKS = 10_000;
@@ -21,6 +22,20 @@ export function createRealmClocks(now = Date.now) {
         clocks.set(realmId, clock);
       }
       return clock.tick();
+    },
+    /**
+     * Seat a realm's clock so it reads `tick` now and counts on from there. Used only when a kept
+     * hold is loaded after a restart. Never moves a running clock back. false for a bad id or tick.
+     */
+    resume(realmId, tick) {
+      if (typeof realmId !== "string" || !REALM_ID_RE.test(realmId) || !Number.isSafeInteger(tick) || tick < 0) return false;
+      const running = clocks.get(realmId);
+      if (running && running.tick() >= tick) return true;
+      if (!running && clocks.size >= MAX_REALM_CLOCKS) return false;
+      const clock = createClock(now);
+      clock.start(now() - tick * TICK_MS);
+      clocks.set(realmId, clock);
+      return true;
     },
     get size() {
       return clocks.size;
