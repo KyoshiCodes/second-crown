@@ -34,3 +34,29 @@ export async function sendStamp(realmId: string): Promise<HoldView> {
   if (!response.ok) throw new Error("Stamp request failed");
   return parseHold(await response.json());
 }
+
+/** A typed realm id, trimmed and lowercased, or null when blank or bad. Matches server/join.mjs. */
+export function cleanJoinCode(code: string): string | null {
+  const clean = code.trim().toLowerCase();
+  return /^[a-z0-9-]{1,24}$/.test(clean) ? clean : null;
+}
+
+/**
+ * Opt-in: join the shared hold for a typed realm id. Everyone who types the same id reads one
+ * hold. A blank id returns null and sends nothing. Sends only the id, never a save.
+ */
+export async function joinRealm(code: string): Promise<HoldView | null> {
+  const realm = cleanJoinCode(code);
+  if (realm === null) return null;
+  const headers = new Headers({ "Content-Type": "application/json" });
+  const token = cloudToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const response = await fetch(cloudUrl() + "/join", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ realm }),
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!response.ok) throw new Error(response.status === 401 ? "Sign in first" : "Join failed");
+  return parseHold(await response.json());
+}

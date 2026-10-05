@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { readHold, sendStamp } from "./hold";
+import { cleanJoinCode, joinRealm, readHold, sendStamp } from "./hold";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -34,5 +34,23 @@ describe("shared hold client", () => {
   it("a bad view is refused", async () => {
     stubServer({ realmId: "realm-a", tick: -1, stamps: [] });
     await expect(readHold("realm-a")).rejects.toThrow();
+  });
+
+  it("joinRealm sends only the typed id and returns the shared view", async () => {
+    const joined = { ...view, realmId: "join-oak-hill" };
+    const fetchSpy = stubServer(joined);
+    expect(await joinRealm("  Oak-Hill ")).toEqual(joined);
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(String(url)).toMatch(/\/join$/);
+    expect(init?.method).toBe("POST");
+    expect(JSON.parse(String(init?.body))).toEqual({ realm: "oak-hill" });
+  });
+
+  it("a blank id does not join", async () => {
+    const fetchSpy = stubServer(view);
+    expect(await joinRealm("")).toBeNull();
+    expect(await joinRealm("   ")).toBeNull();
+    expect(cleanJoinCode("a b")).toBeNull();
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

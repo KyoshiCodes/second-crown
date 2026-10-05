@@ -29,6 +29,16 @@ describe("settleOnLoad", () => {
     expect(d.joinHold).not.toHaveBeenCalled();
   });
 
+  it("a solo load after a join still uses the local save and does not join", async () => {
+    const state = createGameState();
+    // Joining is a separate opt-in control; it never marks the crown shared.
+    expect(sharedRealmId(state)).toBeNull();
+    const d = deps(sharedRealmId(state));
+    expect((await settleOnLoad(state, d)).mode).toBe("solo");
+    expect(d.joinHold).not.toHaveBeenCalled();
+    expect(d.fetchRealmTick).not.toHaveBeenCalled();
+  });
+
   it("the default solo path settles offline time without any fetch", async () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);

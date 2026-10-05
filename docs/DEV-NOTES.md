@@ -1,3 +1,12 @@
+## 2026-10-04 — server + app / opt-in join, real-time (wave/realtime-join)
+
+- `server/join.mjs`: `createJoinableHolds({ clocks, isShared, loadSim, maxJoins })` → `{ holds, join(body), isJoined(id) }`. It builds the Phase 3 `createHolds` with `isShared = id => isShared(id) || joined.has(id)`, so all hold logic (tick boundary, intents, sim load) stays in `hold.mjs`. A failed first read un-joins the id.
+- Ids: `joinRealmId(code)` trims, lowercases, checks `JOIN_CODE_RE` (`[a-z0-9-]{1,24}`), returns `join-<code>` or null. The `join-` prefix means a join can never name an account id (`guest_…`, `discord_…`) or an owner-marked realm. `parseJoin` accepts exactly `{ realm: string }`; otherwise `HoldError(400, JOIN_ONLY)`.
+- Route: `POST /join` (401 without a token, 1 KB body) → hold view. The view's `realmId` (`join-<code>`) is what the client uses for `GET /realm/:id/hold` and `POST /realm/:id/intent`. A `join-` id nobody joined is still 404.
+- App: `net/hold.ts` `cleanJoinCode` (mirrors `JOIN_CODE_RE`) and `joinRealm(code)`; null with no fetch for a blank id. `JoinHoldCard.tsx`, mounted at the bottom of `CloudPanel`, keeps the view in React state only, polls `readHold` every 1 s while joined, and `Leave` just drops the view. It never calls `loadSaved`, `settleOnLoad`, `persist`, or IndexedDB, so the solo crown and its offline catch-up are untouched.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/hold.test.mjs server/join.test.mjs`; root `npm test` covers `net/hold.test.ts` and `settleOnLoad.test.ts`.
+- Not done: putting the hold's realm into the game view (it shows tick and stamps only), any intent besides a stamp, persisting holds, push instead of polling.
+
 ## 2026-10-04 — server + sim + app / shared hold, real-time Phase 3 (wave/realtime-hold)
 
 - Rule: ADR-011 / INVARIANTS §17. `server/` may call `packages/sim` for a **shared** hold only. Never copy a rule into `server/`; `hold.test.mjs` greps `hold.mjs` for `resolveBattle`, `realmPower`, `matchup`, `Decimal`, `break_infinity`, `node:fs`, `saves`.
