@@ -1,3 +1,12 @@
+## 2026-10-08 — server / crash guard (wave/realtime-guard)
+
+- Root cause: `http.createServer(async (req, res) => ...)`. Node ignores the returned promise, so any throw inside (here `decodeURIComponent` on `/profile/%` or a static path) was an unhandled rejection, which ends the process on Node 15+. pm2 would restart it, but every open hold in memory was lost to its last write.
+- Fix in two layers: `safeDecode` at the two decode sites (400, expected bad input), and `guardRoute` around the whole handler (500, unexpected bugs). `guardRoute` also catches a synchronous throw from a non-async route. It writes its own 500 body (no CORS header) so it does not depend on `json()`.
+- After headers are sent, `guardRoute` calls `res.destroy()`; the client sees an aborted response rather than a hang.
+- `tryStatic` decodes before `fs.existsSync(DIST)` so the answer to a bad escape does not depend on whether the app is built.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs server/guard.test.mjs`. `guard.test.mjs` spawns `index.mjs` with a temp `APP_DIST` holding a one-line `index.html`, and sends raw paths with `http.request` (fetch would re-encode them).
+- Not done: a `process.on("unhandledRejection")` net for timers or event handlers outside a request; `/watch/:code` and the ledger routes were already safe (no decode).
+
 ## 2026-10-08 — server + app / hold-table cap (wave/realtime-cap)
 
 - Clocks: only `hold.mjs` `sync` calls `clocks.tick` (creates). The public route calls `peek` (never creates, 0 for none). The Phase 1 client (`net/realmClock.ts`) already accepts 0. `cap.test.mjs` asserts `index.mjs` never calls `realmClocks.tick(`.

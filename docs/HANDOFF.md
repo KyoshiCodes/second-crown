@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#220**. Waiting: `wave/realtime-cap` (**not merged**, see Hold-table cap below).
+Merged through PR **#221**. Waiting: `wave/realtime-guard` (**not merged**, see Crash guard below).
 
 ### Cultures and units (all merged)
 
@@ -55,7 +55,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A link with `#cloud_token=…` that this browser did not start (someone else's token, no nonce, a wrong nonce, or a nonce already used) is ignored: the hash is cleared, the current session stays, and nothing is uploaded. The Cloud panel says "Ignored a sign-in link this browser did not start."
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the join path, and the typed **Restore code** box (a code the player pastes on purpose).
 
-## Hold-table cap (branch `wave/realtime-cap`, **not merged**)
+## Hold-table cap (merged, #221)
 
 - `GET /realm/:id/tick` no longer starts a clock. It answers the running tick, or 0 when no clock runs (`realmclock.mjs` `peek`). Only a hold that is actually joined with its key (or made by a first join) starts a clock. A stranger reading made-up ids cannot fill the clock table or block a later join.
 - Per address (the socket address; forwarded headers are not trusted), memory only, per day: at most **10 new guest accounts** (`POST /guest` -> 429 `GUEST_CAP`, nothing written to `users.json`) and **3 new holds** (a first keyless join of an id nobody has used -> 429 `HOLD_CAP`). Joining, reading, or acting in a hold you already have the key for is never counted. Code: `server/cap.mjs`.
@@ -63,12 +63,19 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - App: `net/hold.ts` shows the server's 429 hold-cap reason (other 429s stay "Too many wrong hold keys"); `createGuest` and the Cloud panel show the guest-cap reason.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, no client state as a realm, no rules in `server/`.
 
+## Crash guard (branch `wave/realtime-guard`, **not merged**)
+
+- A bad percent-escape in an address (for example `/profile/%E0%A4%A` or `/%zz`) used to throw out of `decodeURIComponent` inside the async handler. That rejection was unhandled, and Node ends the process on an unhandled rejection, so one bad link could stop `sc-cloud`. It now answers **400** `That address is not readable.` A request URL `new URL` cannot parse also answers 400.
+- `server/guard.mjs`: `safeDecode(s)` (null instead of a throw) and `guardRoute(route)`. `index.mjs` wraps the whole handler in `guardRoute`: any throw or rejection is logged and answered **500** `The server hit a snag. Try again.`, or the half-sent answer is cut. The process keeps running.
+- `index.mjs` has no bare `decodeURIComponent` left (asserted in `guard.test.mjs`).
+- Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold and guest caps, no client state as a realm, no rules in `server/`. No app change.
+
 ## Verify
 
 ```
 npm test
 npm run test -w @second-crown/render
-node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs server/cap.test.mjs
+node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs server/cap.test.mjs server/guard.test.mjs
 npm run build -w @second-crown/app
 ```
 

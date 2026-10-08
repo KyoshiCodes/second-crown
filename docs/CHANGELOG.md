@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-08 — Crash guard (wave/realtime-guard)
+
+- Crash guard only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, and the hold and guest caps are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app change.
+- New `server/guard.mjs`: `safeDecode(s)` returns null for a bad percent-escape; `guardRoute(route, log)` wraps an async `(req, res)` route so a throw or rejection is logged and answered 500 `ROUTE_FAILED` (or a half-sent answer is destroyed), never an unhandled rejection.
+- `server/index.mjs`: the HTTP handler is wrapped in `guardRoute`. `GET /profile/:id` and static files use `safeDecode`; a bad escape -> 400 `BAD_ADDRESS`. The static decode now runs before the dist check, so it answers 400 even with no build. An unparseable request URL -> 400.
+- Tests: new `server/guard.test.mjs` (bad escapes decode to null; a rejecting, throwing, or half-sent route is answered and no unhandled rejection is seen, and the server still answers after; a tick read creates no clock; a wrong hold key does not spend; a foreign sign-in link is ignored; a solo load does not join and no save is marked shared; live server: four bad escapes answer 400, the process stays up, `/health`, the page, a tick read, a guest, a profile, a keyed hold join, a wrong-key join (403), and a solo save PUT/GET all still work). Run: `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs server/guard.test.mjs`.
+
 ## 2026-10-08 — Hold-table cap (wave/realtime-cap)
 
 - Hold-table cap only. No solo save is marked shared; `applyOfflineProgress`, hold keys, and the login nonce are unchanged. No rule copied into `server/`; no client state accepted as a realm.

@@ -11,6 +11,7 @@ import { createJoinableHolds } from "./join.mjs";
 import { createHoldStore } from "./keep.mjs";
 import { createAddressCap, MAX_GUESTS_PER_ADDRESS, MAX_NEW_HOLDS_PER_ADDRESS, GUEST_CAP } from "./cap.mjs";
 import { isNonce, nonceCookie, clearNonceCookie, stateMatches, callbackHash, BAD_STATE } from "./nonce.mjs";
+import { safeDecode, guardRoute, BAD_ADDRESS } from "./guard.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -104,8 +105,12 @@ function readBody(req, limit = MAX_SAVE_BYTES) {
   });
 }
 function tryStatic(urlPath, res) {
+  let rel = safeDecode(urlPath.split("?")[0]);
+  if (rel === null) {
+    json(res, 400, { error: BAD_ADDRESS });
+    return true;
+  }
   if (!fs.existsSync(DIST)) return false;
-  let rel = decodeURIComponent(urlPath.split("?")[0]);
   if (rel === "/") rel = "/index.html";
   const file = path.normalize(path.join(DIST, rel));
   if (!file.startsWith(path.normalize(DIST))) return false;
@@ -217,8 +222,10 @@ const joinable = createJoinableHolds({
   store: createHoldStore(SAVES),
   holdCap: createAddressCap({ max: MAX_NEW_HOLDS_PER_ADDRESS }),
 });
-const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url || "/", `http://localhost:${PORT}`);
+// wave/realtime-guard: a route that throws or rejects is answered 500 by guardRoute, not left to end the process.
+const server = http.createServer(guardRoute(async (req, res) => {
+  let url;
+  try { url = new URL(req.url || "/", `http://localhost:${PORT}`); } catch { return json(res, 400, { error: BAD_ADDRESS }); }
   if (req.method === "OPTIONS") return json(res, 204, {});
 
   if (req.method === "GET" && url.pathname === "/health") {
@@ -233,7 +240,8 @@ const server = http.createServer(async (req, res) => {
     return handleLedger(req, res, url.pathname.slice(1), userFromToken(bearer(req)), json);
   }
   if (req.method === "GET" && url.pathname.startsWith("/profile/")) {
-    const id = decodeURIComponent(url.pathname.slice("/profile/".length));
+    const id = safeDecode(url.pathname.slice("/profile/".length));
+    if (id === null) return json(res, 400, { error: BAD_ADDRESS });
     const users = readUsers();
     const u = users[id];
     if (!u) return json(res, 404, { error: "no profile" });
@@ -448,7 +456,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   return json(res, 404, { error: "not found" });
-});
+}));
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`second-crown cloud on :${PORT} discord=${Boolean(DISCORD_CLIENT_ID)} dist=${fs.existsSync(DIST)}`);

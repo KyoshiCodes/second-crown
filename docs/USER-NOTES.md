@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-08 — A bad address no longer stops the server (wave/realtime-guard)
+
+- **A bad address no longer stops the server.** Before, opening a broken link (for example a profile link with a stray `%` in it) could shut the whole game server down for everyone until it was restarted. Now that link just gets "That address is not readable." and everyone else keeps playing.
+- If something else goes wrong while the server answers you, you get "The server hit a snag. Try again." instead of the server going down.
+- **The solo crown is unchanged.** Your game, its saves, and offline catch-up work exactly as before. Hold keys, sign-in, and the daily limits work as before.
+
 ## 2026-10-08 — A full server pauses new holds (wave/realtime-cap)
 
 - **A full server pauses new holds. It does not wipe one you already have.** If the server has too many holds open, making a brand-new hold says "The server is full. New holds are paused; a hold you already have still opens." Your hold is kept: type its id and key and it opens as before, with time caught up.
