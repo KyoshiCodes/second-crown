@@ -125,23 +125,7 @@ export const EconomySystem = {
   advanceAnalytic(state: GameState, fromTick: number, toTick: number): void {
     const ticks = toTick - fromTick;
     if (ticks <= 0) return;
-    const totals: Record<string, Decimal> = {};
-    for (const b of state.buildings) {
-      if (b.completesAtTick !== null) continue;
-      const def = getBuildingType(b.typeId);
-      if (!def) continue;
-      for (const [res, rateStr] of Object.entries(def.productionPerTick)) {
-        const amount = rateFor(state, b, res, rateStr ?? "0").mul(ticks);
-        totals[res] = (totals[res] ?? D(0)).add(amount);
-      }
-    }
-    const routes = routeGoldPerTick(state);
-    if (routes > 0) totals.gold = (totals.gold ?? D(0)).add(D(routes).mul(0.15).mul(ticks));
-    const labor = laborPerTick(state);
-    for (const [res, n] of Object.entries(labor)) {
-      if (n > 0) totals[res] = (totals[res] ?? D(0)).add(D(n).mul(ticks));
-    }
-    for (const [res, amount] of Object.entries(totals)) {
+    for (const [res, amount] of Object.entries(economyGain(state, ticks, false))) {
       addCapped(state, res, amount);
     }
     applyOutpostTithe(state, ticks);
@@ -160,6 +144,33 @@ export const EconomySystem = {
     this.advanceAnalytic(state, state.meta.tick - 1, state.meta.tick);
   },
 };
+
+/**
+ * What the economy would add over `ticks` before any store cap, with the outpost tithe
+ * unless `tithe` is false. Reads state, changes nothing.
+ */
+export function economyGain(state: GameState, ticks: number, tithe = true): Record<string, Decimal> {
+  const totals: Record<string, Decimal> = {};
+  for (const b of state.buildings) {
+    if (b.completesAtTick !== null) continue;
+    const def = getBuildingType(b.typeId);
+    if (!def) continue;
+    for (const [res, rateStr] of Object.entries(def.productionPerTick)) {
+      const amount = rateFor(state, b, res, rateStr ?? "0").mul(ticks);
+      totals[res] = (totals[res] ?? D(0)).add(amount);
+    }
+  }
+  const routes = routeGoldPerTick(state);
+  if (routes > 0) totals.gold = (totals.gold ?? D(0)).add(D(routes).mul(0.15).mul(ticks));
+  const labor = laborPerTick(state);
+  for (const [res, n] of Object.entries(labor)) {
+    if (n > 0) totals[res] = (totals[res] ?? D(0)).add(D(n).mul(ticks));
+  }
+  for (const [res, n] of Object.entries(tithe ? outpostTithePerTick(state) : {})) {
+    if (n > 0) totals[res] = (totals[res] ?? D(0)).add(D(n).mul(ticks));
+  }
+  return totals;
+}
 
 export function computeIncomePerSecond(state: GameState): Record<string, string> {
   const perTick: Record<string, Decimal> = {};

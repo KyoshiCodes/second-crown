@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#221**. Waiting: `wave/realtime-guard` (**not merged**, see Crash guard below).
+Merged through PR **#222**. Waiting: `wave/settle-match` (**not merged**, see Catch-up matches ticks below).
 
 ### Cultures and units (all merged)
 
@@ -63,12 +63,20 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - App: `net/hold.ts` shows the server's 429 hold-cap reason (other 429s stay "Too many wrong hold keys"); `createGuest` and the Cloud panel show the guest-cap reason.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, no client state as a realm, no rules in `server/`.
 
-## Crash guard (branch `wave/realtime-guard`, **not merged**)
+## Crash guard (merged, #222)
 
 - A bad percent-escape in an address (for example `/profile/%E0%A4%A` or `/%zz`) used to throw out of `decodeURIComponent` inside the async handler. That rejection was unhandled, and Node ends the process on an unhandled rejection, so one bad link could stop `sc-cloud`. It now answers **400** `That address is not readable.` A request URL `new URL` cannot parse also answers 400.
 - `server/guard.mjs`: `safeDecode(s)` (null instead of a throw) and `guardRoute(route)`. `index.mjs` wraps the whole handler in `guardRoute`: any throw or rejection is logged and answered **500** `The server hit a snag. Try again.`, or the half-sent answer is cut. The process keeps running.
 - `index.mjs` has no bare `decodeURIComponent` left (asserted in `guard.test.mjs`).
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold and guest caps, no client state as a realm, no rules in `server/`. No app change.
+
+## Catch-up matches ticks (branch `wave/settle-match`, **not merged**)
+
+- `TickEngine.settleTicks` (offline catch-up for solo, and the shared hold's `advance`) used to batch every quiet stretch in one analytic step. Two places made that wrong: starvation took **one** militia per batch instead of one per tick, and a full store clipped once per batch, so food that tick-by-tick would sit at its cap ran down (or starved) instead.
+- Now each stretch is batched only as far as no unpinned store reaches its cap and food covers upkeep (`safeTicks`); the ticks across a store filling or food running out are ordinary fine ticks. A store that held still on the last fine tick (or ended it full) is pinned: the batch runs and the store is put back to that value; with food pinned and the roster still, unit counts are put back too.
+- `EconomySystem` gained `economyGain(state, ticks, tithe?)`, the same totals `advanceAnalytic` adds, read-only.
+- A 30-day catch-up from the starter state takes about 25 s on the owner box (was about 20 s). The 30-day cap is unchanged.
+- Not touched: `applyOfflineProgress`, solo saves are not marked shared, hold keys, the login nonce, the hold and guest caps, the crash guard, no client state as a realm, no rules in `server/`. No app change.
 
 ## Verify
 

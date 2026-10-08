@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-08 — A long catch-up now matches playing it (wave/settle-match)
+
+- **A long catch-up now matches playing those ticks.** When you come back after time away, your realm ends up the same as if you had left the game open the whole time.
+- Before, two things came out wrong after a long break. If your army was starving, only one militia left for the whole break instead of one per hungry moment. And if a store was full, the catch-up could spend food (or wood, stone, gold) that a full store would really have kept topped up, so you could come back short, or even starving, with a full granary's worth of farms.
+- A shared hold catches up the same way.
+- **The solo crown is otherwise unchanged.** Your saves, the 30-day limit on offline time, hold keys, sign-in, and the server limits work exactly as before. A very long catch-up may take a few seconds longer to load.
+
 ## 2026-10-08 — A bad address no longer stops the server (wave/realtime-guard)
 
 - **A bad address no longer stops the server.** Before, opening a broken link (for example a profile link with a stray `%` in it) could shut the whole game server down for everyone until it was restarted. Now that link just gets "That address is not readable." and everyone else keeps playing.
