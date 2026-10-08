@@ -1,3 +1,13 @@
+## 2026-10-08 — sim / catch-up matches ticks (wave/settle-match)
+
+- Root cause: `advanceAnalytic` is linear, but two rules are not. `applyUpkeep` zeroes food and removes at most **one** militia per call, so a batch of N starving ticks took 1 militia instead of N. `addCapped` clips once per call, so a full store took `min(cap, v + p*N) - u*N` instead of tick-by-tick's steady `cap - u`.
+- Fix stays in `TickEngine` (no rule change in any system). `settleStretch` asks `safeTicks` how far one batch is still linear, from `economyGain(state, 1)` per tick: `floor((cap - v) / g)` for each unpinned capped store with gain, `floor(food / (upkeep - foodGain))` while upkeep outruns food. Fewer than 5 safe ticks -> one `fineTick` and ask again.
+- Pinning: `StoreWatch` tracks, per store, whether the last fine tick left it unchanged (`still`, `STEADY_TICKS` = 1) or at its cap (`full`), and whether unit counts held still. Pinned stores are restored after `batch`; that is exact while rates are flat inside a stretch, the same assumption the analytic step already makes. Food is only pinned with a still roster, and then `batch` restores every unit count it held (units added by the batch are kept). After a batch, unpinned stores reset their watch.
+- Without pinning, a full wood store (the starter state) would fine-tick all 30 days (~260 s). With it, 30 days from the starter state is ~25 s vs ~20 s before; the extra is fine ticks across each fill.
+- `economyGain` includes the outpost tithe by default; `advanceAnalytic` calls it with `tithe = false` and still calls `applyOutpostTithe` separately, so the store order is as before.
+- A stretch of 4 or fewer ticks is now always fine-ticked (the last stretch used to batch even at 1-4).
+- Not done: other conditional spenders (if a system ever spends a capped store only when it can) are only covered by pinning; `safeTicks` reads economy gain only.
+
 ## 2026-10-08 — server / crash guard (wave/realtime-guard)
 
 - Root cause: `http.createServer(async (req, res) => ...)`. Node ignores the returned promise, so any throw inside (here `decodeURIComponent` on `/profile/%` or a static path) was an unhandled rejection, which ends the process on Node 15+. pm2 would restart it, but every open hold in memory was lost to its last write.

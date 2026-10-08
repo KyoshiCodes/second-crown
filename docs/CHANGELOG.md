@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-08 — Catch-up matches ticks (wave/settle-match)
+
+- Offline catch-up only. `applyOfflineProgress` and the 30-day cap are unchanged; no solo save is marked shared; hold keys, the login nonce, the hold caps, and the crash guard are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app change.
+- `packages/sim/src/core/tickEngine.ts`: `settleTicks` now ends like the same number of ordinary ticks when food is starving the host or a store is full. A batch stops before any store would clip at its cap or food would run short of upkeep (`safeTicks`), and those ticks run one at a time (`fineTick`). A store that held still, or ended full, on the last fine tick is pinned through the batch; with food pinned and the roster still, unit counts are kept too. Both solo catch-up and the shared hold use this path.
+- `packages/sim/src/systems/economy.ts`: new `economyGain(state, ticks, tithe = true)`, the totals `advanceAnalytic` adds, read-only.
+- Tests: new `packages/sim/src/core/settleMatch.test.ts` (20 starving ticks and one 20-tick batch end with the same militia; 2,000 starving ticks match; a full-store batch matches tick-by-tick stores; a store filling partway through 5,000 ticks matches; a 50-tick catch-up with room in every store is the same single analytic step as before; the 30-day cap is unchanged and a day from full stores ends full). Wrong-key and solo-load checks stay in `server/key.test.mjs` and `settleOnLoad.test.ts`. Run: `npm test` and `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs`.
+
 ## 2026-10-08 — Crash guard (wave/realtime-guard)
 
 - Crash guard only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, and the hold and guest caps are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app change.
