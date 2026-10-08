@@ -150,7 +150,7 @@ export function CloudPanel() {
             setKind("guest");
             setStatus(`Guest session ${g.id}.`);
             setShowCode(true);
-          } catch { setStatus("Could not create guest."); }
+          } catch (e) { setStatus(e instanceof Error && e.message.startsWith("Too many") ? e.message : "Could not create guest."); }
         }}>Guest session</button>
         <button type="button" className="sc-work-btn" disabled={!discord} onClick={() => { setCloudUrl(url); window.location.href = startDiscordLogin(); }}>Log in with Discord</button>
         <button type="button" className="sc-work-btn" disabled={!token} onClick={async () => {

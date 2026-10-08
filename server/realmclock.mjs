@@ -1,5 +1,6 @@
 // Per-realm server clocks (docs/REALTIME.md Phase 1). Memory only: a restart forgets them.
 // A kept shared hold (keep.mjs) puts its clock back with resume() when it is loaded.
+// Only a hold calls tick(), which starts a clock. The public tick read uses peek(), which never does.
 // It does not run the sim and never reads or writes a realm save.
 
 import { createClock, TICK_MS } from "./clock.mjs";
@@ -22,6 +23,19 @@ export function createRealmClocks(now = Date.now) {
         clocks.set(realmId, clock);
       }
       return clock.tick();
+    },
+    /**
+     * Tick count without starting a clock: 0 for an id with no clock, null for a bad id.
+     * GET /realm/:id/tick uses this, so a stranger's reads cannot fill the table.
+     */
+    peek(realmId) {
+      if (typeof realmId !== "string" || !REALM_ID_RE.test(realmId)) return null;
+      const clock = clocks.get(realmId);
+      return clock ? clock.tick() : 0;
+    },
+    /** Forget a realm's clock. A dropped hold puts it back with resume() when it is opened again. */
+    drop(realmId) {
+      return clocks.delete(realmId);
     },
     /**
      * Seat a realm's clock so it reads `tick` now and counts on from there. Used only when a kept

@@ -1,3 +1,13 @@
+## 2026-10-08 — server + app / hold-table cap (wave/realtime-cap)
+
+- Clocks: only `hold.mjs` `sync` calls `clocks.tick` (creates). The public route calls `peek` (never creates, 0 for none). The Phase 1 client (`net/realmClock.ts`) already accepts 0. `cap.test.mjs` asserts `index.mjs` never calls `realmClocks.tick(`.
+- Eviction lives in `hold.mjs` `dropIdle()`, used by both `holdFor` (holds map full) and `join.mjs` `markJoined` (joined set full); both caps are `maxJoins` (default `MAX_HOLDS` = 100). It picks the smallest `usedAt` older than `idleMs`, `advance`s to `clocks.tick(id)`, `keep(..., true)`, deletes the hold and its clock, then `onDrop` clears `joined` and `keys`. Reopen goes through the normal path: `keyHashOf` reads the file hash, `holdFor` loads it, `clocks.resume` adds `downTicks(savedAt, now)`. Because it is settled before the write, the dropped time is not lost. No store -> never drops (it would lose the hold).
+- In-flight safety: every caller uses the hold synchronously after `sync` returns, so a drop cannot pull it out from under an intent. A hold mid-first-join is not in the map yet and cannot be dropped.
+- Address caps (`cap.mjs`): fixed window, memory only, reset by a restart. Address is `req.socket.remoteAddress`; the server listens directly on 8787, so `X-Forwarded-For` is ignored on purpose. If a proxy is put in front, every player shares one address and the caps must move to the proxy's header. The hold cap is taken after `markJoined` succeeds, so a full server does not burn a count; `joined` is rolled back on refusal. Only `had === undefined` (no hold in memory or on disk) counts; a pre-key claim does not.
+- Status codes: guest cap 429 `GUEST_CAP`; hold cap 429 `HOLD_CAP` (the client tells it apart from `TOO_MANY_TRIES` by the `Too many new holds` prefix); full 503 `FULL`.
+- Tests: `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs`. `cap.test.mjs` spawns `index.mjs` like `ledger-http.test.mjs`.
+- Not done: deleting old hold files, a cap on hold files on disk, persisting address counts, a per-account hold cap.
+
 ## 2026-10-05 — server + app / login nonce (wave/realtime-nonce)
 
 - Two checks. Server: Discord OAuth `state` = nonce, bound to the browser by an HttpOnly cookie (`sc_login`, `Path=/auth/discord`, `SameSite=Lax` so it rides the top-level redirect back from discord.com, `Max-Age=600`, no `Secure` because the playtest is plain HTTP). Callback compares with `timingSafeEqual` and always sends `Max-Age=0`. Client: `sessionStorage` `sc-login-nonce`, compared with `cloud_nonce` in the hash. The client check is what stops a pasted `#cloud_token=` link, since that never touches the server.

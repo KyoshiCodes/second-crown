@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-08 — Hold-table cap (wave/realtime-cap)
+
+- Hold-table cap only. No solo save is marked shared; `applyOfflineProgress`, hold keys, and the login nonce are unchanged. No rule copied into `server/`; no client state accepted as a realm.
+- `server/realmclock.mjs`: new `peek(id)` (running tick, 0 when none, null for a bad id; never creates) and `drop(id)`. `GET /realm/:id/tick` uses `peek`, so a public tick read creates no clock. Holds still start clocks through `tick(id)`, which only runs after a key check or a first join.
+- New `server/cap.mjs`: `createAddressCap({ max, windowMs })`, a fixed one-day window per address (at most 10,000 addresses tracked; when full and none expired, a new address is refused). `MAX_GUESTS_PER_ADDRESS` = 10, `MAX_NEW_HOLDS_PER_ADDRESS` = 3. `POST /guest` over the cap -> 429 `GUEST_CAP`. A first keyless join of an unused id over the cap -> 429 `HOLD_CAP`; a claim of a pre-key hold file and every keyed open are not counted.
+- `server/hold.mjs`: `createHolds` takes `maxHolds`, `idleMs` (`HOLD_IDLE_MS`, 15 min), `onDrop`. Every touch stamps `usedAt`. When full, `dropIdle()` settles the longest-idle hold to its clock, force-writes it, removes it and its clock from memory, and calls `onDrop`; with no idle hold or no store, a new hold is 503 `FULL`. `server/join.mjs` uses the same drop when its joined set is full and forgets the dropped id's `joined` entry and cached key hash, so the next open reads the hash from the file. `join(body, key, session, address)` gains the address.
+- `server/index.mjs`: `clientAddress(req)` = socket address; guest cap and hold cap wired.
+- App: `net/hold.ts` shows the server's hold-cap reason on 429; `createGuest` / `CloudPanel.tsx` show the guest-cap reason.
+- Tests: new `server/cap.test.mjs` (a tick read for an unknown id creates no clock and does not block a later join; address cap per address and per day; after the hold cap a further create is refused and an existing keyed hold still opens; a full table with nothing idle refuses a new hold and still opens a joined one; dropping an idle hold keeps its save, the same key reopens it with its clock caught up, a different id cannot read it, a wrong key does not spend; no drop without a store; a foreign sign-in link is still ignored; a solo load does not join; live server: guest and hold caps refuse, the refused guest is not written, a tick read gives 0, a keyed hold still opens). `key.test.mjs` source check updated for the address argument. `net/hold.test.ts` adds the hold-cap reason. Run: `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs`.
+
 ## 2026-10-05 — Login nonce (wave/realtime-nonce)
 
 - Login nonce only. No solo save is marked shared; `applyOfflineProgress`, hold keys, and the join path are unchanged. No rule copied into `server/`; no client state accepted as a realm.

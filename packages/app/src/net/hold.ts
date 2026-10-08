@@ -41,8 +41,12 @@ function holdHeaders(key?: string, json = false): Headers {
 async function refusal(response: Response, fallback: string): Promise<Error> {
   if (response.status === 401) return new Error("Sign in first");
   if (response.status === 403) return new Error("Wrong or missing hold key. Ask the friend who made the hold for its key");
-  if (response.status === 429) return new Error("Too many wrong hold keys. Try again later");
   const body = (await response.json().catch(() => null)) as { error?: unknown } | null;
+  // 429 is wrong key tries, or too many new holds from one address (server/cap.mjs HOLD_CAP).
+  if (response.status === 429) {
+    const capped = typeof body?.error === "string" && body.error.startsWith("Too many new holds");
+    return new Error(capped ? (body.error as string) : "Too many wrong hold keys. Try again later");
+  }
   return new Error(typeof body?.error === "string" ? body.error : fallback);
 }
 
