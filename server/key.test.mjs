@@ -205,7 +205,7 @@ test("a solo load does not join: no hold, no sim, no key asked", async () => {
 test("the live server sends the key header through the gate and marks no save shared", () => {
   const src = fs.readFileSync(path.join(here, "index.mjs"), "utf8");
   assert.match(src, /X-Hold-Key/);
-  assert.match(src, /joinable\.join\(body, holdKey\(req\), u\.id\)/);
+  assert.match(src, /joinable\.join\(body, holdKey\(req\), u\.id, clientAddress\(req\)\)/);
   assert.match(src, /joinable\.read\(/);
   assert.match(src, /joinable\.intent\(/);
   assert.doesNotMatch(src, /holds\.(read|intent)\(/, "no route skips the key");

@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-08 — A full server pauses new holds (wave/realtime-cap)
+
+- **A full server pauses new holds. It does not wipe one you already have.** If the server has too many holds open, making a brand-new hold says "The server is full. New holds are paused; a hold you already have still opens." Your hold is kept: type its id and key and it opens as before, with time caught up.
+- A hold nobody has used for a while may be set aside to make room. Nothing in it is lost. The next time you join it with its key, it comes back where it was, and it kept counting time while it was set aside.
+- One network address can make only a few new guest accounts and a few new holds per day. If you hit that, the **Cloud** panel says so. Use the guest token or hold key you already have, or try tomorrow. Joining a hold you already have the key for is never limited this way.
+- **The solo crown is unchanged.** Your game, its saves, and offline catch-up work exactly as before. Hold keys and sign-in work as before.
+
 ## 2026-10-05 — Sign-in links from someone else are ignored (wave/realtime-nonce)
 
 - **A sign-in link from someone else is ignored.** If someone sends you a game link with a sign-in in it, opening it does not sign you in as them, does not sign you out, and does not upload your save to their account. The **Cloud** panel says "Ignored a sign-in link this browser did not start."

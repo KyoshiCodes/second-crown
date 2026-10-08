@@ -9,6 +9,7 @@ import { createRealmClocks } from "./realmclock.mjs";
 import { HoldError } from "./hold.mjs";
 import { createJoinableHolds } from "./join.mjs";
 import { createHoldStore } from "./keep.mjs";
+import { createAddressCap, MAX_GUESTS_PER_ADDRESS, MAX_NEW_HOLDS_PER_ADDRESS, GUEST_CAP } from "./cap.mjs";
 import { isNonce, nonceCookie, clearNonceCookie, stateMatches, callbackHash, BAD_STATE } from "./nonce.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -77,6 +78,10 @@ function newToken() {
 function holdKey(req) {
   const k = req.headers["x-hold-key"];
   return typeof k === "string" ? k.trim() : "";
+}
+// The network address of the caller. The server faces the internet directly, so a forwarded header is not trusted.
+function clientAddress(req) {
+  return req.socket.remoteAddress || "";
 }
 function newCode() {
   return crypto.randomBytes(3).toString("hex");
@@ -203,10 +208,14 @@ const SHARED_REALMS = new Set();
 // SAVES as "<realmId>.json" (never an account id), so it survives a restart.
 // The first join hands back a hold key once; later joins, reads, and intents send it as X-Hold-Key.
 // A join never touches SHARED_SAVES, a solo save, or applyOfflineProgress.
+// wave/realtime-cap: one address may make only a few guests and new holds a day. When the hold table
+// is full an idle hold is dropped from memory only; its file stays and its key opens it again.
+const guestCap = createAddressCap({ max: MAX_GUESTS_PER_ADDRESS });
 const joinable = createJoinableHolds({
   clocks: realmClocks,
   isShared: (id) => SHARED_REALMS.has(id),
   store: createHoldStore(SAVES),
+  holdCap: createAddressCap({ max: MAX_NEW_HOLDS_PER_ADDRESS }),
 });
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${PORT}`);
@@ -251,6 +260,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && url.pathname === "/guest") {
+    if (!guestCap.take(clientAddress(req))) return json(res, 429, { error: GUEST_CAP });
     const users = readUsers();
     const id = `guest_${newCode()}`;
     const token = newToken();
@@ -334,10 +344,11 @@ const server = http.createServer(async (req, res) => {
   }
 
   // REALTIME.md Phase 1: memory-only tick count per realm. Never touches a save.
+  // A read never starts a clock (0 when none runs); only a keyed hold that is joined does.
   const realmTick = /^\/realm\/([^/]+)\/tick$/.exec(url.pathname);
   if (req.method === "GET" && realmTick) {
     const realmId = realmTick[1];
-    const tick = realmClocks.tick(realmId);
+    const tick = realmClocks.peek(realmId);
     if (tick === null) return json(res, 400, { error: "bad realm" });
     return json(res, 200, { realmId, tick });
   }
@@ -351,7 +362,7 @@ const server = http.createServer(async (req, res) => {
     try {
       let body;
       try { body = JSON.parse(await readBody(req, 1024)); } catch { return json(res, 400, { error: "Send a realm id to join, not a state." }); }
-      return json(res, 200, await joinable.join(body, holdKey(req), u.id));
+      return json(res, 200, await joinable.join(body, holdKey(req), u.id, clientAddress(req)));
     } catch (e) {
       if (e instanceof HoldError) return json(res, e.status, { error: e.message });
       return json(res, 500, { error: "join failed" });

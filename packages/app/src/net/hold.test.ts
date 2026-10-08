@@ -153,6 +153,8 @@ describe("shared hold client", () => {
     await expect(joinRealm("oak-hill")).rejects.toThrow(/hold key/);
     stubServer({ error: "too many" }, 429);
     await expect(sendBuild("join-oak-hill", "wrong-key-123")).rejects.toThrow(/Too many wrong hold keys/);
+    stubServer({ error: "Too many new holds from this address today. Join a hold you already have, or try tomorrow." }, 429);
+    await expect(joinRealm("oak-hill")).rejects.toThrow(/Too many new holds/);
   });
 
   it("a blank id does not join", async () => {

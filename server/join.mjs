@@ -3,9 +3,11 @@
 // read, and intent on that id must send the key (wave/realtime-key). With a hold store the hold and
 // the key's hash are kept on disk: after a restart, the same key opens the same hold.
 // It never marks a solo save shared and never takes a client state.
+// When the table is full an idle hold is dropped from memory only (wave/realtime-cap); its file stays.
 
 import crypto from "node:crypto";
-import { createHolds, HoldError, MAX_HOLDS } from "./hold.mjs";
+import { createHolds, HoldError, MAX_HOLDS, FULL } from "./hold.mjs";
+import { HOLD_CAP } from "./cap.mjs";
 
 export const JOIN_PREFIX = "join-";
 export const JOIN_CODE_RE = /^[a-z0-9-]{1,24}$/;
@@ -55,8 +57,9 @@ export function parseJoin(body) {
  * The hold table plus opt-in joins. isShared: the owner-marked realms (none today).
  * A joined realm id always starts with JOIN_PREFIX, so a join never names an owner-marked realm.
  * session: who is asking (the account id). Wrong key tries are counted per session.
+ * holdCap: optional per-address cap (cap.mjs createAddressCap) on making a new hold. address: who is asking, by network address.
  */
-export function createJoinableHolds({ clocks, isShared = () => false, loadSim, store, now, maxJoins = MAX_HOLDS, maxKeyTries = MAX_KEY_TRIES, newKey = newHoldKey }) {
+export function createJoinableHolds({ clocks, isShared = () => false, loadSim, store, now, maxJoins = MAX_HOLDS, idleMs, maxKeyTries = MAX_KEY_TRIES, newKey = newHoldKey, holdCap = null }) {
   const joined = new Set();
   const keys = new Map(); // realm id -> key hash, set the moment a first join claims the id
   const fails = new Map(); // session -> wrong or missing keys sent
@@ -66,6 +69,10 @@ export function createJoinableHolds({ clocks, isShared = () => false, loadSim, s
     ...(loadSim ? { loadSim } : {}),
     ...(store ? { store } : {}),
     ...(now ? { now } : {}),
+    ...(idleMs !== undefined ? { idleMs } : {}),
+    maxHolds: maxJoins,
+    // Dropped from memory only. The key hash is read back from the kept file on the next open.
+    onDrop: (realmId) => { joined.delete(realmId); keys.delete(realmId); },
   });
 
   function sessionOf(session) {
@@ -86,7 +93,7 @@ export function createJoinableHolds({ clocks, isShared = () => false, loadSim, s
 
   function markJoined(realmId) {
     if (joined.has(realmId)) return false;
-    if (joined.size >= maxJoins) throw new HoldError(503, "Too many holds.");
+    if (joined.size >= maxJoins && holds.dropIdle() === null) throw new HoldError(503, FULL);
     joined.add(realmId);
     return true;
   }
@@ -107,15 +114,21 @@ export function createJoinableHolds({ clocks, isShared = () => false, loadSim, s
      * Join a realm by typed code. With no key: the first join makes the hold and returns
      * { ...view, key } once; a hold that has a key is refused. With a key: the view, if the key is right.
      */
-    async join(body, key, session) {
+    async join(body, key, session, address = "") {
       const realmId = parseJoin(body);
       const who = sessionOf(session);
       if (key !== undefined && key !== null && key !== "") {
         unlock(realmId, key, who);
         return holds.read(realmId);
       }
-      if (typeof keyHashOf(realmId) === "string") refuse(who);
+      const had = keyHashOf(realmId);
+      if (typeof had === "string") refuse(who);
       const fresh = markJoined(realmId);
+      // Only a brand-new id counts against the address. A hold kept before keys is claimed, not made.
+      if (fresh && had === undefined && holdCap && !holdCap.take(address)) {
+        joined.delete(realmId);
+        throw new HoldError(429, HOLD_CAP);
+      }
       const made = newKey();
       const hash = hashKey(made);
       keys.set(realmId, hash); // set before any await, so a second keyless join is refused

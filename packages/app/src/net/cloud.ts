@@ -86,7 +86,11 @@ export async function health(): Promise<{ ok: boolean; discord: boolean }> {
 export async function createGuest(name: string) {
   const nonce = startLogin();
   const res = await req(`/guest?name=${encodeURIComponent(name || "Guest")}`, { method: "POST" });
-  if (!res.ok) throw new Error("guest failed");
+  if (!res.ok) {
+    // 429: this address made too many guests today (server/cap.mjs). Say so instead of a bare failure.
+    const err = (await res.json().catch(() => null)) as { error?: unknown } | null;
+    throw new Error(res.status === 429 && typeof err?.error === "string" ? err.error : "guest failed");
+  }
   const body = await res.json();
   // A second sign-in started meanwhile owns the session now; this answer is stale.
   if (!takeLogin(nonce)) throw new Error("guest login superseded");

@@ -32,6 +32,10 @@ const TILE_SCAN = 64;
 // Ticks that only settled are written at most this often. An intent is written at once. Losing the
 // last few settled ticks costs nothing: on load the clock counts them again from savedAt.
 export const SETTLE_SAVE_MS = 5000;
+// A hold nobody has read or sent an intent to for this long may be dropped from memory when the table
+// is full. Its kept file stays, and the same key opens it again.
+export const HOLD_IDLE_MS = 15 * 60 * 1000;
+export const FULL = "The server is full. New holds are paused; a hold you already have still opens.";
 
 export class HoldError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -74,8 +78,10 @@ export function parseIntent(body) {
  * loadSim(): resolves to the packages/sim module.
  * store: optional hold store (keep.mjs createHoldStore). Without one, a restart forgets every hold.
  * now(): wall clock in ms, the same one the realm clocks use.
+ * maxHolds: holds in memory at once. idleMs: how long unused before a hold may be dropped from memory.
+ * onDrop(realmId): told when a hold is dropped from memory.
  */
-export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, store = null, now = Date.now }) {
+export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, store = null, now = Date.now, maxHolds = MAX_HOLDS, idleMs = HOLD_IDLE_MS, onDrop = () => {} }) {
   const holds = new Map();
   let simPromise = null;
 
@@ -85,12 +91,12 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
 
   async function holdFor(realmId) {
     let hold = holds.get(realmId);
-    if (hold) return hold;
-    if (holds.size >= MAX_HOLDS) throw new HoldError(503, "Too many holds.");
+    if (hold) return touch(hold);
+    if (holds.size >= maxHolds && dropIdle() === null) throw new HoldError(503, FULL);
     simPromise ??= Promise.resolve().then(loadSim).catch((e) => { simPromise = null; throw e; });
     const sim = await simPromise;
     hold = holds.get(realmId); // another reader may have made it while the sim loaded
-    if (hold) return hold;
+    if (hold) return touch(hold);
     const kept = store ? store.load(realmId) : null;
     if (kept) {
       // This id's own kept hold, written by this server. The clock counts on from where it stopped,
@@ -105,8 +111,34 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
       const state = sim.createGameState({ seed: seedForRealm(realmId), now: 0, withStarterBuildings: true });
       hold = { sim, state, engine: new sim.TickEngine(state), pending: [], keyHash: null, savedTick: -1, savedAt: -Infinity };
     }
-    holds.set(realmId, hold);
+    holds.set(realmId, touch(hold));
     return hold;
+  }
+
+  function touch(hold) {
+    hold.usedAt = now();
+    return hold;
+  }
+
+  // Drop the longest-unused hold that has been idle for idleMs, from memory only. It is brought up to
+  // its clock and written first, so its kept file is whole and the same key opens it later. Never
+  // without a store: that would lose the hold. Returns the dropped id, or null when none may go.
+  function dropIdle() {
+    if (!store) return null;
+    const at = now();
+    let oldest = null;
+    for (const [id, hold] of holds) {
+      if (at - hold.usedAt >= idleMs && (oldest === null || hold.usedAt < holds.get(oldest).usedAt)) oldest = id;
+    }
+    if (oldest === null) return null;
+    const hold = holds.get(oldest);
+    const tick = clocks.tick(oldest);
+    if (tick !== null) advance(hold, tick);
+    keep(oldest, hold, true);
+    holds.delete(oldest);
+    clocks.drop(oldest);
+    onDrop(oldest);
+    return oldest;
   }
 
   // Write the hold through the store. force: an intent changed it. Otherwise only settled ticks, throttled.
@@ -240,6 +272,9 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
       keep(realmId, hold, true);
       return view(realmId, hold);
     },
+    /** Drop one idle hold from memory, its file kept. The id, or null when none may go. */
+    dropIdle,
+    has: (realmId) => holds.has(realmId),
     get size() {
       return holds.size;
     },
