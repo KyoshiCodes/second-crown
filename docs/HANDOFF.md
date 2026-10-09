@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#225**. Waiting: `wave/reload-empty` (**not merged**, see A reload keeps an empty army below).
+Merged through PR **#226**. Waiting: `wave/dawn-clear` (**not merged**, see Second Dawn clears unfinished jobs below).
 
 ### Cultures and units (all merged)
 
@@ -95,11 +95,18 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A settled-ticks-only write that fails is skipped and tried on the next read (it used to throw out of the read). A hold leaving memory (`dropIdle`) still must be written, or it stays in memory.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair (no Repair on the hold), no client state as a realm, no rules in `server/`. No app change.
 
-## A reload keeps an empty army (branch `wave/reload-empty`, **not merged**)
+## A reload keeps an empty army (PR #226, merged)
 
 - Before, every load (`deserializeState` -> `ensureWorldStubs`) refilled an empty army or worker list: the rival got 15 militia if it had no units, an NPC realm with no units got its starting troops, and an empty citizen list was reseeded with one worker per finished building. A solo reload brought back troops and workers you had dismissed or lost. A fresh shared hold (starter farm finished, lumber camp still building, no citizens yet) gained a farm worker on every restart, and on every hold action, since `commit` round-trips the state too.
 - Now `ensureWorldStubs` notes whether `units` and `citizens` were present in the save before it defaults them. The old fill runs only when the field is missing: rival militia and NPC troops when `units` is missing, worker seeding when `citizens` is missing. A present, empty list stays empty. `seedWorldActors(state, { fillUnits })` still gives a realm it adds for the first time its starting army.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, no client state as a realm, no rules in `server/`. No app change.
+
+## Second Dawn clears unfinished jobs (branch `wave/dawn-clear`, **not merged**)
+
+- Before, `tryAscend` wiped stores, buildings, player units and wars but left the job queues in `flags`. A militia in training, a wounded soldier being treated, a march, a gather column or a posted garrison could hand troops to the new crown after the dawn. An upgrade queued on the dawn farm (`b_prestige_farm`) finished on the next crown's farm of the same id.
+- Now `clearRunJobs` in `packages/sim/src/actions/prestige.ts` runs inside `tryAscend`: player training (`training_json`), all treating (`heal_json`) and the wounded count (`wounded_player`), all upgrades (`upgrades_json`), player marches (`marches_json`), player gathers (`gathers_json`), and garrisons on player land (`garrisons_json`) are dropped, with no refund. Rival and NPC jobs stay. Kept: culture, guild, achievements, dawn count and its production bonus, doctrine choice, and the once-per-crown first-dawn gift (`dawn_gift`, does not stack).
+- App: `DawnCard` does not draw the Ascend button when `sharedRealmId(state)` is set ("A shared hold has no Second Dawn."). No realm is shared yet, so the solo card is unchanged apart from one line naming what the dawn clears.
+- Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, no client state as a realm, no rules in `server/`.
 
 ## Verify
 

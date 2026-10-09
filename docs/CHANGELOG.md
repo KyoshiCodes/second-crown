@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-09 — Second Dawn clears unfinished jobs (wave/dawn-clear)
+
+- Second Dawn only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, and the empty-list reload are unchanged. No rule copied into `server/`; no client state accepted as a realm.
+- `packages/sim/src/actions/prestige.ts`: `tryAscend` calls new `clearRunJobs`, which drops player training, all heal jobs and `wounded_player`, all upgrade jobs, player marches and gathers, and garrisons on player-held provinces. Rival / NPC entries are kept. Permanent progress and the once-per-crown first-dawn gift are unchanged.
+- `packages/app/src/hud/DawnCard.tsx`: no Ascend button for a shared realm (`sharedRealmId`); one line says unfinished training, treating, upgrades and marches end at the dawn.
+- Tests: `packages/sim/src/actions/prestige.test.ts` (a pending train, heal, upgrade, march, gather and garrison end with the dawn and no troops land over the next 2,000 ticks; an upgrade queued on the dawn farm does not finish on the next crown's farm; a second ascend clears jobs and does not grant the gift again; an ascended empty army stays empty on reload; rival training is kept). `packages/app/src/game/settleOnLoad.test.ts` (an ascended crown still loads solo and joins no hold). Run: `npm test` and `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs`.
+
 ## 2026-10-09 — A reload keeps an empty army (wave/reload-empty)
 
 - Reload only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, and the hold write are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app change.

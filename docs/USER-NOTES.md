@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-09 — Second Dawn clears unfinished jobs (wave/dawn-clear)
+
+- **Second Dawn clears unfinished jobs.** When you ascend, troops still in training, wounded still being treated, building upgrades still going, and armies, gatherers and garrisons still out in the field all end with the old crown. Nothing you queued before the dawn turns up after it. They are not refunded.
+- You keep what the dawn always kept: culture, guild, achievements, your dawn count and its production bonus. The first-dawn gift (1 militia, +20 food, +10 wood) still comes once per crown and does not stack.
+- A shared hold has no Second Dawn button.
+- **The solo crown is otherwise unchanged.** Your game, offline catch-up, Repair, hold keys, sign-in, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-09 — A reload keeps what you dismissed (wave/reload-empty)
 
 - **A reload no longer adds troops or workers you dismissed.** If your army or your worker list is empty when you save, it is still empty when you load. Rival and neighbour armies you wiped out stay wiped out too.
