@@ -1,3 +1,11 @@
+## 2026-10-09 — tooling / server checks in npm test (wave/server-check)
+
+- Root cause: root `test` ran only `-w @second-crown/sim` and `-w @second-crown/app`. `server/` is not a workspace (`workspaces: packages/*`) and its `package.json` has no `test` script, so `npm test` and the deploy line never ran `server/*.test.mjs`. The HANDOFF Verify `node --test` line had to be extended by hand each wave.
+- Fix: `server/test.mjs` reads the directory and passes explicit file paths to `node --test`. Not a shell glob (npm runs scripts under cmd.exe on Windows, which does not expand `*`) and not a node `--test` glob (needs Node 21+; `engines` allows 20.19). `--test-reporter=spec` is set so the output names each test, not only a TAP stream under CI. `spawnSync(process.execPath, ...)` with `cwd` at the repo root, as the hand-typed line ran.
+- Order: sim, app, then server; `&&` stops at the first failing suite. Server run is about 3 s.
+- Checked: a throwaway failing `server/*.test.mjs` made `npm run test:server` exit 1.
+- Determinism: no sim change.
+
 ## 2026-10-09 — server / guest ids never repeat (wave/guest-id)
 
 - Root cause: `/guest` used `guest_${newCode()}` (`crypto.randomBytes(3)`, 2^24 ids) and assigned `users[id] = {...}` unconditionally. Birthday odds pass 1% near 600 guests. A repeat replaced the stored token, so `userFromToken` gave the new guest the old id and `saves/<id>.json`; the old token stopped working.
