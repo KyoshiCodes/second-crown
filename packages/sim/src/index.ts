@@ -234,6 +234,7 @@ export {
   tryTreatWounded,
   tryRepair,
   listScarred,
+  isScarred,
   healTicksLeft,
   healTicks,
   listHealing,

@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-09 — Repair only fixes a damaged building (wave/repair-scar)
+
+- **Repair only fixes a damaged building.** A building a siege knocked down shows as **Scarred** with a **Repair (8 stone)** button, the same as before.
+- **A building still going up is unchanged.** It is no longer shown as scarred, and there is no Repair button on it, so you cannot pay 8 stone to skip its build time. That includes the lumber camp you start with: it finishes when its own timer runs out.
+- A repaired building keeps its level and its worker. Nothing else about it changes.
+- If a building was damaged before this update, it now shows as under construction and fixes itself when its timer runs out.
+- The shared hold has no Repair button. **The solo crown is otherwise unchanged.** Saves, offline catch-up, hold keys, sign-in, and the server limits work as before.
+
 ## 2026-10-08 — A long catch-up now matches playing it (wave/settle-match)
 
 - **A long catch-up now matches playing those ticks.** When you come back after time away, your realm ends up the same as if you had left the game open the whole time.

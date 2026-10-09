@@ -1,11 +1,11 @@
-# Handoff (2026-10-08)
+# Handoff (2026-10-09)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#222**. Waiting: `wave/settle-match` (**not merged**, see Catch-up matches ticks below).
+Merged through PR **#223**. Waiting: `wave/repair-scar` (**not merged**, see Repair only fixes damage below).
 
 ### Cultures and units (all merged)
 
@@ -70,13 +70,22 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `index.mjs` has no bare `decodeURIComponent` left (asserted in `guard.test.mjs`).
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold and guest caps, no client state as a realm, no rules in `server/`. No app change.
 
-## Catch-up matches ticks (branch `wave/settle-match`, **not merged**)
+## Catch-up matches ticks (merged, #223)
 
 - `TickEngine.settleTicks` (offline catch-up for solo, and the shared hold's `advance`) used to batch every quiet stretch in one analytic step. Two places made that wrong: starvation took **one** militia per batch instead of one per tick, and a full store clipped once per batch, so food that tick-by-tick would sit at its cap ran down (or starved) instead.
 - Now each stretch is batched only as far as no unpinned store reaches its cap and food covers upkeep (`safeTicks`); the ticks across a store filling or food running out are ordinary fine ticks. A store that held still on the last fine tick (or ended it full) is pinned: the batch runs and the store is put back to that value; with food pinned and the roster still, unit counts are put back too.
 - `EconomySystem` gained `economyGain(state, ticks, tithe?)`, the same totals `advanceAnalytic` adds, read-only.
 - A 30-day catch-up from the starter state takes about 25 s on the owner box (was about 20 s). The 30-day cap is unchanged.
 - Not touched: `applyOfflineProgress`, solo saves are not marked shared, hold keys, the login nonce, the hold and guest caps, the crash guard, no client state as a realm, no rules in `server/`. No app change.
+
+## Repair only fixes damage (branch `wave/repair-scar`, **not merged**)
+
+- Before, the sim treated **any** unfinished player building as scarred. `listScarred` offered a building still going up (including the starter lumber camp, `completesAtTick: 30`), and `tryRepair` would finish it at once for 8 stone, skipping its timer and its completion citizen. The app hid some of this with an id/timer guess (`isScarred` in `WorkCard.tsx`), but the starter camp (id `b2`) failed that guess and showed as scarred.
+- Now the sim records damage. `damageHoldBuilding` (siege blow, `march.ts`) calls `markScarred`, which adds the building id to `flags.scar_json`. `isScarred(state, b)` = still on a timer **and** in that list. `listScarred` and `tryRepair` use it, so Repair refuses a building that is only under construction and leaves its timer alone.
+- `tryRepair` (still 8 stone) clears the timer and the mark and logs `{ type: "repair", issuerId: "player", payload: { buildingId } }` in `inputLog`. It does not re-run completion, so the building keeps the citizen it was hired with and its level.
+- App: the guess in `WorkCard.tsx` is gone; `KingdomTab.tsx` uses the sim's `isScarred`. `WarRoom.tsx` already reads `listScarred`. No Repair button was added to the shared hold.
+- A save scarred before this branch has no mark: that building is shown as under construction and heals on its own 40-tick timer.
+- Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, no client state as a realm, no rules in `server/`.
 
 ## Verify
 
