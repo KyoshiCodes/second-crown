@@ -1,3 +1,13 @@
+## 2026-10-09 — server / hold writes before it spends (wave/hold-write)
+
+- Root cause: `intent()` mutated `hold.state` (via `tryTrain` / `tryBuild` / `pending.push`) and then called `keep(..., true)`. A throw from `store.save` left memory spent and disk unspent; the next intent spent again, and a restart rolled the extra spends back. `claim()` had the same shape for `keyHash`, which could leave a hold locked with a key no one was given.
+- Fix: `commit(realmId, hold, act)`. The draft is `deserializeState(serializeState(hold.state))` (the same round trip a restart does, so no new copy rule), `pending.slice()`, and `keyHash`. `act` runs the sim on the draft and throws `HoldError` on a refusal. The draft is serialized and saved, then `hold.state`, `hold.engine` (new `TickEngine(draft.state)`; the engine only holds the state and seed-derived rng, same as a restart), `pending`, `keyHash`, `savedTick`, `savedAt` are swapped in. A `store.save` throw is mapped to 503 `NOT_SAVED`; without a store the draft is published directly.
+- `freeTile(sim, state, typeId)` now takes the draft state, so the tile scan sees the copy.
+- `keep(force=false)` swallows a save error and leaves `savedTick` / `savedAt` as they were, so the throttle retries on the next read. Without this, a new hold (`savedAt: -Infinity`) threw from `sync` before the claim could answer `NOT_SAVED`. `keep(force=true)` (only `dropIdle`) still throws, so a hold is never dropped unwritten.
+- Cost: one extra serialize + deserialize per intent. Reads are unchanged.
+- Tests: `server/write.test.mjs`, with a store whose `save` throws while `broken` is set. Added to the node:test run in `HANDOFF.md` Verify.
+- Not done: no retry or alert on a failing disk; settled ticks lost to a failed write are counted again from `savedAt` on load, as before.
+
 ## 2026-10-09 — sim + app / repair only fixes damage (wave/repair-scar)
 
 - Root cause: "scarred" was never stored. A siege blow (`damageHoldBuilding`) just put a finished building back on a 40-tick timer, so a scar and a build looked the same (`completesAtTick !== null`). `listScarred` / `tryRepair` keyed on that alone; the app's `isScarred` tried to tell them apart by parsing `b_<tick>_<n>` ids against `buildTicks`, which failed for the starter camp (`b2`) and for anything else with a non-standard id.

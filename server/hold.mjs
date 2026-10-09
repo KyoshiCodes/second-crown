@@ -36,6 +36,7 @@ export const SETTLE_SAVE_MS = 5000;
 // is full. Its kept file stays, and the same key opens it again.
 export const HOLD_IDLE_MS = 15 * 60 * 1000;
 export const FULL = "The server is full. New holds are paused; a hold you already have still opens.";
+export const NOT_SAVED = "The hold could not be saved. Nothing was spent; try again.";
 
 export class HoldError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -141,14 +142,51 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
     return oldest;
   }
 
-  // Write the hold through the store. force: an intent changed it. Otherwise only settled ticks, throttled.
+  // Write the hold through the store. force: write now (a hold leaving memory). Otherwise only settled
+  // ticks, throttled. A hold action is written by commit, before it goes live.
   function keep(realmId, hold, force) {
     if (!store) return;
     const at = now();
     if (!force && (hold.state.meta.tick === hold.savedTick || at - hold.savedAt < SETTLE_SAVE_MS)) return;
-    store.save(realmId, { savedAt: at, state: hold.sim.serializeState(hold.state), pending: hold.pending, keyHash: hold.keyHash });
+    try {
+      store.save(realmId, { savedAt: at, state: hold.sim.serializeState(hold.state), pending: hold.pending, keyHash: hold.keyHash });
+    } catch (e) {
+      // A hold leaving memory must be written. Settled ticks may wait: the next read tries again.
+      if (force) throw e;
+      return;
+    }
     hold.savedTick = hold.state.meta.tick;
     hold.savedAt = at;
+  }
+
+  // One hold action (wave/hold-write). act(draft) changes a copy of the hold, or throws a refusal.
+  // The copy is written whole; only then is it made the live hold. A refusal or a failed write leaves
+  // the live hold, its stores, and its kept file as they were, so the same intent can be sent again
+  // and spends once.
+  function commit(realmId, hold, act) {
+    const { sim } = hold;
+    const draft = {
+      state: sim.deserializeState(sim.serializeState(hold.state)),
+      pending: hold.pending.slice(),
+      keyHash: hold.keyHash,
+    };
+    act(draft);
+    const at = now();
+    if (store) {
+      try {
+        store.save(realmId, { savedAt: at, state: sim.serializeState(draft.state), pending: draft.pending, keyHash: draft.keyHash });
+      } catch {
+        throw new HoldError(503, NOT_SAVED);
+      }
+    }
+    hold.state = draft.state;
+    hold.engine = new sim.TickEngine(draft.state);
+    hold.pending = draft.pending;
+    hold.keyHash = draft.keyHash;
+    if (store) {
+      hold.savedTick = draft.state.meta.tick;
+      hold.savedAt = at;
+    }
   }
 
   // Bring the hold up to the clock. Pending intents go in at the first tick boundary crossed.
@@ -194,8 +232,7 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
   }
 
   // The first tile, row by row, where the sim says this building may go. null when there is none.
-  function freeTile(hold, typeId) {
-    const { sim, state } = hold;
+  function freeTile(sim, state, typeId) {
     for (let y = 0; y < TILE_SCAN; y++) {
       for (let x = 0; x < TILE_SCAN; x++) {
         if (sim.canPlaceType(state, typeId, x, y)) return { x, y };
@@ -233,22 +270,20 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
       const intent = parseIntent(body);
       if (typeof by !== "string" || !REALM_ID_RE.test(by)) throw new HoldError(400, "Bad issuer.");
       const hold = await sync(realmId);
-      if (intent.type === "train") {
-        if (!hold.sim.tryTrain(hold.state, { typeId: "militia", count: 1 })) throw new HoldError(409, CANNOT_TRAIN);
-        keep(realmId, hold, true);
-        return view(realmId, hold);
-      }
-      if (Object.hasOwn(BUILDS, intent.type)) {
-        const [typeId, noTile, cannot] = BUILDS[intent.type];
-        const tile = freeTile(hold, typeId);
-        if (tile === null) throw new HoldError(409, noTile);
-        if (!hold.sim.tryBuild(hold.state, { typeId, x: tile.x, y: tile.y })) throw new HoldError(409, cannot);
-        keep(realmId, hold, true);
-        return view(realmId, hold);
-      }
-      if (hold.pending.length >= MAX_PENDING) throw new HoldError(429, "Too many intents this tick.");
-      hold.pending.push({ ...intent, by });
-      keep(realmId, hold, true);
+      const { sim } = hold;
+      commit(realmId, hold, (draft) => {
+        if (intent.type === "train") {
+          if (!sim.tryTrain(draft.state, { typeId: "militia", count: 1 })) throw new HoldError(409, CANNOT_TRAIN);
+        } else if (Object.hasOwn(BUILDS, intent.type)) {
+          const [typeId, noTile, cannot] = BUILDS[intent.type];
+          const tile = freeTile(sim, draft.state, typeId);
+          if (tile === null) throw new HoldError(409, noTile);
+          if (!sim.tryBuild(draft.state, { typeId, x: tile.x, y: tile.y })) throw new HoldError(409, cannot);
+        } else {
+          if (draft.pending.length >= MAX_PENDING) throw new HoldError(429, "Too many intents this tick.");
+          draft.pending.push({ ...intent, by });
+        }
+      });
       return view(realmId, hold);
     },
     /**
@@ -268,8 +303,7 @@ export function createHolds({ clocks, isShared, loadSim = loadSimFromSource, sto
       if (!sharedId(realmId)) return null;
       const hold = await sync(realmId);
       if (hold.keyHash !== null) throw new HoldError(409, "This hold already has a key.");
-      hold.keyHash = keyHash;
-      keep(realmId, hold, true);
+      commit(realmId, hold, (draft) => { draft.keyHash = keyHash; });
       return view(realmId, hold);
     },
     /** Drop one idle hold from memory, its file kept. The id, or null when none may go. */

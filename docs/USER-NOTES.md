@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-09 — A failed hold save does not spend (wave/hold-write)
+
+- **A failed save does not spend.** On a shared hold, if the server cannot save your action (say its disk is full), you see "The hold could not be saved. Nothing was spent; try again." Your militia, farms, cottages, lumber camps, and stores stay exactly as they were, so pressing the button again spends only once.
+- When a save works, your friends see the new stores the next time they join with the key, and the hold comes back the same after a server restart.
+- A refusal (not enough stores, no free plot) still spends nothing, as before.
+- **The solo crown is unchanged.** Your game, its saves, offline catch-up, Repair, hold keys, sign-in, and the server limits work exactly as before.
+
 ## 2026-10-09 — Repair only fixes a damaged building (wave/repair-scar)
 
 - **Repair only fixes a damaged building.** A building a siege knocked down shows as **Scarred** with a **Repair (8 stone)** button, the same as before.

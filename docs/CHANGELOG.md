@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-09 — Hold writes before it spends (wave/hold-write)
+
+- Hold save only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, and Repair are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app change.
+- `server/hold.mjs`: new `commit(realmId, hold, act)`. A hold intent (train, build, cottage, lumber, stamp) and the first-join key claim run on a copy of the hold (state via the sim's `serializeState` / `deserializeState`, plus pending and key hash). The copy is written through the hold store, then published as the live hold with a new `TickEngine`. A failed write -> 503 `NOT_SAVED`; the live hold, its stores, and its kept file are unchanged, so a retry spends once. A refusal throws before the write and writes nothing.
+- `keep()`: a settled-ticks write that fails is skipped and retried on the next read; a forced write (a hold leaving memory) still throws.
+- Tests: new `server/write.test.mjs` (a failed write leaves militia, training, farms, cottages, lumber camps, pending, stores, and the kept file unchanged; after the disk recovers the same intents spend once, matching a server whose disk never failed; a refusal spends and writes nothing; a written hold survives a restart and the next keyed join sees the new stores; a failed first join leaves no key and the id joins again; a wrong hold key does not spend or write; Repair still does not finish the hold's cottage under construction; a solo load does not join). Run: `npm test` and `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs server/write.test.mjs`.
+
 ## 2026-10-09 — Repair only fixes damage (wave/repair-scar)
 
 - Repair only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, and the catch-up match are unchanged. No rule copied into `server/`; no client state accepted as a realm. No Repair button on the shared hold.
