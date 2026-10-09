@@ -194,12 +194,17 @@ function addNpcUnit(state: GameState, realmId: string, typeId: string, amount: n
   });
 }
 
-export function seedWorldActors(state: GameState): void {
+/**
+ * Adds any missing world realm. A realm added here gets its starting army. fillUnits: the save had no
+ * units field at all, so every realm without troops gets one too; otherwise an empty army stays empty.
+ */
+export function seedWorldActors(state: GameState, { fillUnits = false }: { fillUnits?: boolean } = {}): void {
   const extras = extraArchetypes(state.meta.seed);
   for (const a of extras) {
     const realmId = `k_${a.key}`;
     const charId = `char_${a.key}`;
-    if (!state.realms.some((r) => r.id === realmId)) {
+    const newRealm = !state.realms.some((r) => r.id === realmId);
+    if (newRealm) {
       state.realms.push({
         id: realmId,
         name: a.realmName,
@@ -224,7 +229,7 @@ export function seedWorldActors(state: GameState): void {
       state.opinions.push({ from: charId, to: "char_player", value: v, expiresTick: null });
       state.opinions.push({ from: "char_player", to: charId, value: Math.floor(v / 2), expiresTick: null });
     }
-    if (!state.units.some((u) => u.realmId === realmId)) {
+    if ((newRealm || fillUnits) && !state.units.some((u) => u.realmId === realmId)) {
       addNpcUnit(state, realmId, "militia", a.startMilitia);
       addNpcUnit(state, realmId, a.eliteType, a.startElite);
     }
