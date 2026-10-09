@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#226**. Waiting: `wave/dawn-clear` (**not merged**, see Second Dawn clears unfinished jobs below).
+Merged through PR **#227**. Waiting: `wave/pull-hold` (**not merged**, see Pull save waits for reload below).
 
 ### Cultures and units (all merged)
 
@@ -101,12 +101,19 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - Now `ensureWorldStubs` notes whether `units` and `citizens` were present in the save before it defaults them. The old fill runs only when the field is missing: rival militia and NPC troops when `units` is missing, worker seeding when `citizens` is missing. A present, empty list stays empty. `seedWorldActors(state, { fillUnits })` still gives a realm it adds for the first time its starting army.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, no client state as a realm, no rules in `server/`. No app change.
 
-## Second Dawn clears unfinished jobs (branch `wave/dawn-clear`, **not merged**)
+## Second Dawn clears unfinished jobs (PR #227, merged)
 
 - Before, `tryAscend` wiped stores, buildings, player units and wars but left the job queues in `flags`. A militia in training, a wounded soldier being treated, a march, a gather column or a posted garrison could hand troops to the new crown after the dawn. An upgrade queued on the dawn farm (`b_prestige_farm`) finished on the next crown's farm of the same id.
 - Now `clearRunJobs` in `packages/sim/src/actions/prestige.ts` runs inside `tryAscend`: player training (`training_json`), all treating (`heal_json`) and the wounded count (`wounded_player`), all upgrades (`upgrades_json`), player marches (`marches_json`), player gathers (`gathers_json`), and garrisons on player land (`garrisons_json`) are dropped, with no refund. Rival and NPC jobs stay. Kept: culture, guild, achievements, dawn count and its production bonus, doctrine choice, and the once-per-crown first-dawn gift (`dawn_gift`, does not stack).
 - App: `DawnCard` does not draw the Ascend button when `sharedRealmId(state)` is set ("A shared hold has no Second Dawn."). No realm is shared yet, so the solo card is unchanged apart from one line naming what the dawn clears.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, no client state as a realm, no rules in `server/`.
+
+## Pull save waits for reload (branch `wave/pull-hold`, **not merged**)
+
+- Before, Pull save wrote the cloud copy over the browser autosave while the crown on screen kept running. The running crown autosaves every 50 ticks, so the pulled copy could be overwritten before the reload, and what loaded depended on timing.
+- Now Pull save (`pullCloudCopy` in `packages/app/src/game/pullCloud.ts`) fetches the cloud copy, checks it parses (`deserializeState`), and stores it in its own IndexedDB slot (`pulled`). The crown on screen and its autosave are not touched. On the next page load `startSave` takes the pulled copy once: it becomes the autosave and the slot is cleared. A failed pull, or a copy that does not parse, writes nothing. The status still says "Pulled cloud save. Reload the page to play it."
+- The "Load cloud" choice after a push conflict uses the same slot and then reloads.
+- Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, no client state as a realm, no rules in `server/`.
 
 ## Verify
 

@@ -9,13 +9,14 @@ import {
   defaultCloudUrl,
   health,
   openWatch,
-  pullSave,
   pushSave,
   restoreToken,
   setCloudUrl,
   startDiscordLogin,
 } from "./net/cloud";
-import { loadFromIndexedDb, saveToIndexedDb } from "./save/indexedDb";
+import { deserializeState } from "@second-crown/sim";
+import { loadFromIndexedDb, savePulledToIndexedDb } from "./save/indexedDb";
+import { pullCloudCopy } from "./game/pullCloud";
 import { getTesterName } from "./TesterBar";
 import { JoinHoldCard } from "./JoinHoldCard";
 import "./hud/plain-buttons.css";
@@ -49,8 +50,12 @@ export function CloudPanel() {
 
   async function loadCloud() {
     try {
-      const raw = newer || (await pullSave());
-      await saveToIndexedDb(raw);
+      if (newer) {
+        deserializeState(newer);
+        await savePulledToIndexedDb(newer);
+      } else {
+        await pullCloudCopy();
+      }
       window.location.reload();
     } catch {
       setStatus("Could not load the cloud hold.");
@@ -160,8 +165,7 @@ export function CloudPanel() {
         }}>Push save</button>
         <button type="button" className="sc-work-btn" disabled={!token} onClick={async () => {
           try {
-            const raw = await pullSave();
-            await saveToIndexedDb(raw);
+            await pullCloudCopy();
             setStatus("Pulled cloud save. Reload the page to play it.");
           } catch { setStatus("No cloud save yet."); }
         }}>Pull save</button>

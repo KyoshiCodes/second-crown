@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-09 — Pull save waits for reload (wave/pull-hold)
+
+- **Pull save no longer replaces the crown until you reload.** Pressing Pull save downloads your cloud copy and keeps it aside. The game on screen keeps going, untouched. When you reload the page (or choose Load cloud), the cloud copy becomes your crown.
+- After a pull you still see "Pulled cloud save. Reload the page to play it."
+- If the pull fails (no cloud save, or the server is down), nothing on this browser changes.
+- **The solo crown is otherwise unchanged.** Your game, offline catch-up, Second Dawn, Repair, hold keys, sign-in, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-09 — Second Dawn clears unfinished jobs (wave/dawn-clear)
 
 - **Second Dawn clears unfinished jobs.** When you ascend, troops still in training, wounded still being treated, building upgrades still going, and armies, gatherers and garrisons still out in the field all end with the old crown. Nothing you queued before the dawn turns up after it. They are not refunded.

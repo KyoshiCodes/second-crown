@@ -1,3 +1,11 @@
+## 2026-10-09 — app / Pull save waits for reload (wave/pull-hold)
+
+- Root cause: `CloudPanel` Pull save called `saveToIndexedDb(raw)`, the same `autosave` key the running `TickEngine` persists to every 50 ticks and on every action. The pulled copy raced the live crown; a reload could load either.
+- Fix: a separate `pulled` key in the same object store (no DB version bump; keys are free-form). `pullCloudCopy` parses before it writes, so a garbled copy is never parked. `startSave` runs once at engine start: pulled copy -> `writeLocal` -> `clearPulled` (a failed clear only means the same copy loads again). Then `loadSaved` / `settleOnLoad` run as before, so a pulled crown is solo and joins nothing.
+- The conflict "Load cloud" path now also writes `pulled` then reloads, so a persist between the write and the reload cannot clobber it.
+- Determinism: no sim change.
+- Tests: `pullCloud.test.ts`, deps injected (no IndexedDB in vitest).
+
 ## 2026-10-09 — sim / Second Dawn clears unfinished jobs (wave/dawn-clear)
 
 - Root cause: run jobs live in `flags` (`training_json`, `heal_json`, `upgrades_json`, `marches_json`, `gathers_json`, `garrisons_json`), and `tryAscend` only reset `resources`, `buildings`, `units`, `wars` and `peace_*`. The tick systems kept delivering: `TrainingSystem` / `WardSystem` push units, march and gather returns call `returnLevy` / `returnForce`, a fallen garrison returns 40%. Upgrade jobs key on `buildingId`, and the dawn reuses fixed ids (`b_prestige_farm`, `b_prestige_lumber`), so a job from one crown landed on the next.
