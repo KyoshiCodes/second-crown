@@ -98,16 +98,42 @@ export function tryTreatWounded(state: GameState): boolean {
   return true;
 }
 
-export function listScarred(state: GameState) {
-  return state.buildings.filter((b) => b.realmId === "player" && b.completesAtTick !== null && b.level >= 1);
+function readScars(state: GameState): string[] {
+  const raw = state.flags["scar_json"];
+  return typeof raw === "string" ? (JSON.parse(raw) as string[]) : [];
 }
 
+function saveScars(state: GameState, ids: string[]): void {
+  state.flags["scar_json"] = JSON.stringify(ids);
+}
+
+/** A finished building a siege blow knocked down. Only these are scarred; a work still going up never is. */
+export function isScarred(state: GameState, b: GameState["buildings"][number]): boolean {
+  return b.completesAtTick !== null && readScars(state).includes(b.id);
+}
+
+/** Siege damage marks the building. Stale marks for buildings back on their feet drop off here. */
+export function markScarred(state: GameState, buildingId: string): void {
+  const keep = readScars(state).filter((id) =>
+    state.buildings.some((b) => b.id === id && b.completesAtTick !== null)
+  );
+  if (!keep.includes(buildingId)) keep.push(buildingId);
+  saveScars(state, keep);
+}
+
+export function listScarred(state: GameState) {
+  return state.buildings.filter((b) => b.realmId === "player" && isScarred(state, b));
+}
+
+/** Repair a scarred building for stone. A work still going up is refused and keeps its timer. */
 export function tryRepair(state: GameState, buildingId: string): boolean {
   const b = state.buildings.find((x) => x.id === buildingId && x.realmId === "player");
-  if (!b || b.completesAtTick === null) return false;
+  if (!b || !isScarred(state, b)) return false;
   if (D(state.resources.stone ?? "0").lt(REPAIR_STONE)) return false;
   state.resources.stone = toDecimalString(D(state.resources.stone ?? "0").sub(REPAIR_STONE));
   b.completesAtTick = null;
+  saveScars(state, readScars(state).filter((id) => id !== buildingId));
+  state.inputLog.push({ tick: state.meta.tick, type: "repair", issuerId: "player", payload: { buildingId } });
   return true;
 }
 

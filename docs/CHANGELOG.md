@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-09 — Repair only fixes damage (wave/repair-scar)
+
+- Repair only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, and the catch-up match are unchanged. No rule copied into `server/`; no client state accepted as a realm. No Repair button on the shared hold.
+- `packages/sim/src/systems/ward.ts`: new `isScarred(state, b)` and `markScarred(state, id)`, backed by `flags.scar_json` (building ids). `listScarred` returns only marked buildings still on a timer; `tryRepair` refuses anything not marked (a building under construction, including the starter lumber camp), so it no longer finishes a build early. A repair spends 8 stone, clears the timer and the mark, and logs `type: "repair"` with `payload.buildingId` in `inputLog`. It does not re-run completion. `isScarred` is exported from `@second-crown/sim`.
+- `packages/sim/src/systems/march.ts`: `damageHoldBuilding` marks the building it knocks down.
+- App: `hud/WorkCard.tsx` drops its id/timer `isScarred` guess; `tabs/KingdomTab.tsx` uses the sim's `isScarred(state, b)`.
+- Tests: new `packages/sim/src/systems/repair.test.ts` (the starter lumber camp is not scarred, Repair refuses it and it finishes at tick 30; a newly placed farm is not scarred, Repair does not complete it, and it finishes on its timer; a damaged farm repairs for 8 stone, is logged, keeps its level and citizens, and cannot be repaired twice; Repair needs 8 stone; a 3,000-tick catch-up with a scar matches ordinary ticks). Catch-up match and solo-load checks stay in `settleMatch.test.ts` and `settleOnLoad.test.ts`. Run: `npm test` and `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs`.
+
 ## 2026-10-08 — Catch-up matches ticks (wave/settle-match)
 
 - Offline catch-up only. `applyOfflineProgress` and the 30-day cap are unchanged; no solo save is marked shared; hold keys, the login nonce, the hold caps, and the crash guard are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app change.

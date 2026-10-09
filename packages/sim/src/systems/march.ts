@@ -12,7 +12,7 @@ import { listGathers } from "./gather.js";
 import { plantOutpost, listOutposts } from "./outpost.js";
 import { addCapped } from "./storage.js";
 import { campThreat } from "./camp.js";
-import { absorbWounded } from "./ward.js";
+import { absorbWounded, markScarred } from "./ward.js";
 import { detachGarrison, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
@@ -293,6 +293,7 @@ function damageHoldBuilding(state: GameState): string | null {
   );
   if (!target) return null;
   target.completesAtTick = state.meta.tick + 40;
+  markScarred(state, target.id);
   return target.typeId;
 }
 

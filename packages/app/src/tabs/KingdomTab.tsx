@@ -27,6 +27,7 @@ import {
   listBuildableTypes,
   listOutposts,
   listScarred,
+  isScarred,
   listUpgrades,
   listWorksInProgress,
   MARKET_OFFERS,
@@ -52,7 +53,7 @@ import { StudyLine } from "../StudyLine";
 import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
-import { isScarred, WorkCard } from "../hud/WorkCard";
+import { WorkCard } from "../hud/WorkCard";
 import { OfferCard } from "../hud/OfferCard";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
@@ -69,8 +70,8 @@ export function KingdomTab(props: {
   const selected = selectedBuild ? getBuildingType(selectedBuild) : undefined;
   const hold = state ? settlementName(state) : "Your Hold";
   const season = state ? currentSeason(state) : "Spring";
-  const scarred = state ? listScarred(state).filter(isScarred) : [];
-  const works = state ? listWorksInProgress(state).filter((b) => !isScarred(b)) : [];
+  const scarred = state ? listScarred(state) : [];
+  const works = state ? listWorksInProgress(state).filter((b) => !isScarred(state, b)) : [];
   const upgrades = state ? listUpgrades(state) : [];
   const flags = state ? listOutposts(state) : [];
   const standing =

@@ -63,11 +63,3 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
     </div>
   );
 }
-
-export function isScarred(b: Building): boolean {
-  if (b.completesAtTick === null || b.level < 1) return false;
-  const m = /^b_(\d+)_\d+$/.exec(b.id);
-  const def = getBuildingType(b.typeId);
-  if (!m || !def) return true;
-  return b.completesAtTick !== Number(m[1]) + def.buildTicks;
-}

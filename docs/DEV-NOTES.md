@@ -1,3 +1,12 @@
+## 2026-10-09 — sim + app / repair only fixes damage (wave/repair-scar)
+
+- Root cause: "scarred" was never stored. A siege blow (`damageHoldBuilding`) just put a finished building back on a 40-tick timer, so a scar and a build looked the same (`completesAtTick !== null`). `listScarred` / `tryRepair` keyed on that alone; the app's `isScarred` tried to tell them apart by parsing `b_<tick>_<n>` ids against `buildTicks`, which failed for the starter camp (`b2`) and for anything else with a non-standard id.
+- Fix: a mark in `flags.scar_json` (JSON array of ids, same pattern as `heal_json`). Chose a flag over a new `BuildingInstance` field so `packages/shared` and old saves need no migration. `markScarred` prunes ids no longer on a timer before adding, so marks left by a scar that healed on its own timer do not pile up; `isScarred` also requires `completesAtTick !== null`, so a stale mark is never read as a scar.
+- `tryRepair` does not call `hireCitizenForBuilding`; the building already had its citizen from first completion. Natural healing still goes through `EconomySystem.processEventsAt`, which hires on every completion, scar or not; that is unchanged here.
+- Determinism: the mark is ordinary state, written only by sim code at a sim tick; the `repair` input record carries `buildingId`.
+- Tests: `packages/sim/src/systems/repair.test.ts`. Existing `ward.test.ts` "repairs a scarred building" still passes through `applySiegeBlow`.
+- Not done: a migration for saves scarred before this branch (they heal on their timer); the double hire on natural healing.
+
 ## 2026-10-08 — sim / catch-up matches ticks (wave/settle-match)
 
 - Root cause: `advanceAnalytic` is linear, but two rules are not. `applyUpkeep` zeroes food and removes at most **one** militia per call, so a batch of N starving ticks took 1 militia instead of N. `addCapped` clips once per call, so a full store took `min(cap, v + p*N) - u*N` instead of tick-by-tick's steady `cap - u`.
