@@ -12,6 +12,7 @@ import { createHoldStore } from "./keep.mjs";
 import { createAddressCap, MAX_GUESTS_PER_ADDRESS, MAX_NEW_HOLDS_PER_ADDRESS, GUEST_CAP } from "./cap.mjs";
 import { isNonce, nonceCookie, clearNonceCookie, stateMatches, callbackHash, BAD_STATE } from "./nonce.mjs";
 import { safeDecode, guardRoute, BAD_ADDRESS } from "./guard.mjs";
+import { claimGuestId, GUEST_ID_TAKEN } from "./guestid.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -270,7 +271,9 @@ const server = http.createServer(guardRoute(async (req, res) => {
   if (req.method === "POST" && url.pathname === "/guest") {
     if (!guestCap.take(clientAddress(req))) return json(res, 429, { error: GUEST_CAP });
     const users = readUsers();
-    const id = `guest_${newCode()}`;
+    // An id already issued, or one with a save file, is refused: a new guest never opens another's save.
+    const id = claimGuestId((taken) => Object.hasOwn(users, taken) || fs.existsSync(path.join(SAVES, `${taken}.json`)));
+    if (!id) return json(res, 503, { error: GUEST_ID_TAKEN });
     const token = newToken();
     users[id] = { id, name: url.searchParams.get("name") || "Guest", token, kind: "guest" };
     writeUsers(users);

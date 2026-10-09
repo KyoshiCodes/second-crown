@@ -1,3 +1,12 @@
+## 2026-10-09 — server / guest ids never repeat (wave/guest-id)
+
+- Root cause: `/guest` used `guest_${newCode()}` (`crypto.randomBytes(3)`, 2^24 ids) and assigned `users[id] = {...}` unconditionally. Birthday odds pass 1% near 600 guests. A repeat replaced the stored token, so `userFromToken` gave the new guest the old id and `saves/<id>.json`; the old token stopped working.
+- Fix: `server/guestid.mjs`. `newGuestId(draw)` is `guest_` + `randomBytes(16)` hex (the `guest_` prefix keeps hold files, `join-*.json`, apart from account saves; see `keep.mjs`). `claimGuestId(isTaken, draw)` tries 3 draws and returns null if all are taken; `index.mjs` passes `Object.hasOwn(users, id) || existsSync(saves/id.json)` and answers 503 on null. An orphan save file with no user record is also never inherited.
+- `newCode()` is still 3 bytes and still used for watch codes; out of scope here.
+- Old 6-hex guest ids stay valid; ids are opaque everywhere (`/profile`, ledger `readSave` regex `[a-zA-Z0-9_-]+`).
+- Determinism: no sim change.
+- Tests: `guestid.test.mjs` spawns `index.mjs` with a pre-seeded `users.json` and two old saves, like `cap.test.mjs`. The guest cap (10/address/day) bounds the live part to 5 new guests; uniqueness at scale is the unit test.
+
 ## 2026-10-09 — app / Pull save waits for reload (wave/pull-hold)
 
 - Root cause: `CloudPanel` Pull save called `saveToIndexedDb(raw)`, the same `autosave` key the running `TickEngine` persists to every 50 ticks and on every action. The pulled copy raced the live crown; a reload could load either.
