@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-09 — Shared-hold sim load (wave/sim-load)
+
+- Shared-hold sim load only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, and guest ids are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app or sim change.
+- `server/hold.mjs` `loadSimFromSource(vite?)`: still uses `runnerImport` when the installed Vite exports it. Otherwise it uses `createServer` (`configFile: false`, `appType: "custom"`, middleware mode, no HMR or websocket), then `ssrLoadModule` on `packages/sim/src/index.ts`, and closes the server. The export and its no-argument call are unchanged.
+- Note: Vite 8.3.0 and 8.3.4 still export `runnerImport`, so on this machine the old path was not broken. The fallback covers an install with an older Vite.
+- Tests: new `server/simload.test.mjs` (both paths give the same sim exports; a shared hold loaded through the fallback can train and build; a solo id on the fallback path gets no hold and loads no sim). The 13 existing server test files that call `loadSimFromSource` are unchanged and pass. `npm test`: 20 server files, 147 server tests. Run: `npm test`.
+
 ## 2026-10-09 — Server checks in npm test (wave/server-check)
 
 - Test command only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, and guest ids are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app, sim, or server code change.

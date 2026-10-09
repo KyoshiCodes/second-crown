@@ -1,3 +1,12 @@
+## 2026-10-09 — server / shared-hold sim load (wave/sim-load)
+
+- Reported cause: "Vite 8 does not export `runnerImport`." Not reproduced. `node_modules/vite` is 8.3.0 and exports it (`dist/node/index.d.ts`, `src/node/ssr/runnerImport.d.ts`), and so does the 8.3.4 tarball (`npm pack vite@8.3.4`). On `main`, all 144 server tests passed, including the 13 files that call `loadSimFromSource()`. `runnerImport` is marked experimental and only arrived in Vite 6.1. `package-lock.json` is untracked, so the deploy box resolves `^8.3.0` (or an older leftover tree) on its own.
+- Fix: feature-detect. `typeof v.runnerImport === "function"` keeps the old path. Otherwise `createServer({ configFile: false, logLevel: "silent", appType: "custom", server: { middlewareMode: true, hmr: false, ws: false } })`, then `ssrLoadModule(entry)` and `close()` in `finally`. `ssrLoadModule` is deprecated in 6+ but still present in 8.3.x. `createServerModuleRunner` was not used because it needs `server.environments` (6+), which the fallback is meant to cover.
+- The loaded module outlives the closed server. The hold keeps the module object, not the server.
+- Injectable `vite` parameter for tests only. `createHolds` default `loadSim = loadSimFromSource` is unchanged (called with no args).
+- `hold.test.mjs` "copies no rules" regex still passes: no `fs`, `Decimal`, or combat names added.
+- Determinism: no sim change. Same source file, transformed by the same Vite either way.
+
 ## 2026-10-09 — tooling / server checks in npm test (wave/server-check)
 
 - Root cause: root `test` ran only `-w @second-crown/sim` and `-w @second-crown/app`. `server/` is not a workspace (`workspaces: packages/*`) and its `package.json` has no `test` script, so `npm test` and the deploy line never ran `server/*.test.mjs`. The HANDOFF Verify `node --test` line had to be extended by hand each wave.
