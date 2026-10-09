@@ -36,10 +36,11 @@ import {
   type WorldEvent,
 } from "@second-crown/sim";
 import { createMapRenderer, type MapRenderer, type CameraBand } from "@second-crown/render";
-import { saveToIndexedDb, loadFromIndexedDb, clearIndexedDbSave } from "../save/indexedDb";
+import { saveToIndexedDb, clearIndexedDbSave } from "../save/indexedDb";
 import { downloadSave, pickSaveFile } from "../save/fileIo";
 import { settleOnLoad } from "./settleOnLoad";
 import { loadSaved } from "./loadSaved";
+import { startSave } from "./pullCloud";
 import type { BattleSnap } from "../BattleVisual";
 import { getWarTaunt } from "../content/flavor";
 import { sfx } from "../sfx";
@@ -226,7 +227,8 @@ export function useGameEngine() {
     (async () => {
       let state: GameState;
       try {
-        const saved = await loadFromIndexedDb();
+        // A copy from Pull save is picked up here, on reload, never under the running crown.
+        const saved = await startSave();
         if (saved) {
           // Solo returns this same state; a shared realm reads the server save (REALTIME.md Phase 2).
           state = (await loadSaved(deserializeState(saved))).state;

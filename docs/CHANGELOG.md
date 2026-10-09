@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-09 — Pull save waits for reload (wave/pull-hold)
+
+- Pull save only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, and Second Dawn are unchanged. No rule copied into `server/`; no client state accepted as a realm. No server change.
+- `packages/app/src/save/indexedDb.ts`: a second key `pulled` beside `autosave` (`savePulledToIndexedDb`, `loadPulledFromIndexedDb`, `clearPulledFromIndexedDb`).
+- `packages/app/src/game/pullCloud.ts` (new): `pullCloudCopy` fetches, parses, then writes only the `pulled` slot; `startSave` promotes a pulled copy to the autosave once on load, else reads the autosave.
+- `packages/app/src/game/useGameEngine.ts`: startup reads `startSave()` instead of `loadFromIndexedDb()`. `packages/app/src/CloudPanel.tsx`: Pull save and the conflict "Load cloud" write the `pulled` slot, never the autosave.
+- Tests: `packages/app/src/game/pullCloud.test.ts` (pull stores the cloud copy and the on-screen tick, stores and buildings and the autosave are unchanged until load; a failed or garbled pull leaves the local save unchanged; a pulled crown loads solo and joins no hold; Second Dawn on a pulled crown still clears unfinished jobs). Run: `npm test` and `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs`.
+
 ## 2026-10-09 — Second Dawn clears unfinished jobs (wave/dawn-clear)
 
 - Second Dawn only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, and the empty-list reload are unchanged. No rule copied into `server/`; no client state accepted as a realm.
