@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-09 — Shared hold can load again (wave/sim-load)
+
+- **A shared hold can load again.** The server loads the game rules for a shared hold in a way that also works on older setups, so a shared hold can still train and build. No realm is shared on the live server yet, so you will not see a difference today.
+- **Solo play is unchanged.** Your game, offline catch-up, Second Dawn, Repair, Pull save, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before. A solo save never joins a hold.
+
 ## 2026-10-09 — Server checks in the usual test (wave/server-check)
 
 - **The usual test now includes the server checks.** `npm test` also runs the server's own tests (sign-in, guest ids, hold keys, hold saves, server limits, and the rest) and lists them by name. If any of them fails, `npm test` fails, so a broken server is not deployed.

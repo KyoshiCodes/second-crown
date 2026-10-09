@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#229**. Waiting: `wave/server-check` (**not merged**, see Server checks in npm test below).
+Merged through PR **#230**. Waiting: `wave/sim-load` (**not merged**, see Shared-hold sim load below).
 
 ### Cultures and units (all merged)
 
@@ -122,12 +122,19 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - Old guests keep their short ids and tokens; a token still opens only its own save. Discord login is unchanged (`discord_<id>`).
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps (the guest cap still runs first), the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, no client state as a realm, no rules in `server/`. No app or sim change.
 
-## Server checks in npm test (branch `wave/server-check`, **not merged**)
+## Server checks in npm test (PR #230, merged)
 
 - Before, root `npm test` ran only the sim and app vitest suites. The server tests (`server/*.test.mjs`, node:test) ran only from a long hand-typed `node --test ...` line, so a deploy (`git pull && npm test && ...`) never ran them.
 - Now root `npm test` ends with `npm run test:server` = `node server/test.mjs`. That runner lists every `server/*.test.mjs` file, prints their names, and runs them all in one `node --test --test-reporter=spec` call: clock, save gate, key, cap, guest id, hold write, and the rest (19 files, 144 tests today). A failing server test exits non-zero, so `npm test` fails and the deploy line stops before `pm2 restart`. A new `server/*.test.mjs` is picked up with no edit.
 - The server tests start `index.mjs` on a free port with a temp `DATA_DIR`, so running them on Oracle does not touch `sc-cloud` (port 8787) or its saves.
 - Not touched: no test was changed or skipped; solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, no client state as a realm, no rules in `server/`. No app, sim, or server code change.
+
+## Shared-hold sim load (branch `wave/sim-load`, **not merged**)
+
+- `loadSimFromSource` in `server/hold.mjs` loads `packages/sim` for a shared hold through Vite's `runnerImport`. The brief said Vite 8 does not export it. Checked here: Vite 8.3.0 (installed) and 8.3.4 (current `latest`) both still export it, and all 144 server tests passed on `main` before this change. It would break only on an install whose Vite has no `runnerImport` (Vites before 6.1). `package-lock.json` is not committed, so the Oracle box could have a different Vite from this machine.
+- Now: if the installed Vite has `runnerImport`, it is used as before. If not, the loader starts a short-lived Vite server in middleware mode (`createServer`, no config file, no HMR, no websocket), loads the sim with `ssrLoadModule`, and closes the server. It is the same export (`loadSimFromSource()`). An optional `vite` argument exists only so the tests can make it take the fallback.
+- A solo save still never reaches this loader: a realm that is not shared gets no hold and loads no sim.
+- Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, no client state as a realm, no rules in `server/`. No app or sim change.
 
 ## Verify
 

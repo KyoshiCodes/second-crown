@@ -42,12 +42,29 @@ export class HoldError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
 
-/** Load packages/sim as-is through Vite. Called only when a shared hold is first touched. */
-export async function loadSimFromSource() {
-  const { runnerImport } = await import("vite");
+/**
+ * Load packages/sim as-is through Vite. Called only when a shared hold is first touched.
+ * Uses runnerImport when the installed Vite has it; otherwise a short-lived middleware-mode
+ * server and ssrLoadModule, which every Vite since 3 has. `vite` is injectable for tests.
+ */
+export async function loadSimFromSource(vite = null) {
+  const v = vite ?? await import("vite");
   const entry = fileURLToPath(new URL("../packages/sim/src/index.ts", import.meta.url));
-  const { module } = await runnerImport(entry, { configFile: false, logLevel: "silent" });
-  return module;
+  if (typeof v.runnerImport === "function") {
+    const { module } = await v.runnerImport(entry, { configFile: false, logLevel: "silent" });
+    return module;
+  }
+  const server = await v.createServer({
+    configFile: false,
+    logLevel: "silent",
+    appType: "custom",
+    server: { middlewareMode: true, hmr: false, ws: false },
+  });
+  try {
+    return await server.ssrLoadModule(entry);
+  } finally {
+    await server.close();
+  }
 }
 
 /** Same realm id, same seed. FNV-1a, 32 bit. */
