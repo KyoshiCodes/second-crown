@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#227**. Waiting: `wave/pull-hold` (**not merged**, see Pull save waits for reload below).
+Merged through PR **#228**. Waiting: `wave/guest-id` (**not merged**, see Guest ids never repeat below).
 
 ### Cultures and units (all merged)
 
@@ -108,19 +108,26 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - App: `DawnCard` does not draw the Ascend button when `sharedRealmId(state)` is set ("A shared hold has no Second Dawn."). No realm is shared yet, so the solo card is unchanged apart from one line naming what the dawn clears.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, no client state as a realm, no rules in `server/`.
 
-## Pull save waits for reload (branch `wave/pull-hold`, **not merged**)
+## Pull save waits for reload (PR #228, merged)
 
 - Before, Pull save wrote the cloud copy over the browser autosave while the crown on screen kept running. The running crown autosaves every 50 ticks, so the pulled copy could be overwritten before the reload, and what loaded depended on timing.
 - Now Pull save (`pullCloudCopy` in `packages/app/src/game/pullCloud.ts`) fetches the cloud copy, checks it parses (`deserializeState`), and stores it in its own IndexedDB slot (`pulled`). The crown on screen and its autosave are not touched. On the next page load `startSave` takes the pulled copy once: it becomes the autosave and the slot is cleared. A failed pull, or a copy that does not parse, writes nothing. The status still says "Pulled cloud save. Reload the page to play it."
 - The "Load cloud" choice after a push conflict uses the same slot and then reloads.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, no client state as a realm, no rules in `server/`.
 
+## Guest ids never repeat (branch `wave/guest-id`, **not merged**)
+
+- Before, `POST /guest` made `guest_` + 3 random bytes (about 16.7 million ids) and wrote `users[id]` without checking. A repeat replaced the old account's token, so the new guest opened the old guest's cloud save and the old guest was locked out.
+- Now `server/guestid.mjs` makes `guest_` + 16 random bytes (32 hex). `claimGuestId` refuses an id already in `users.json` or with a file in `saves/`; it draws again up to 3 times, then `/guest` answers 503 (`GUEST_ID_TAKEN`) and writes nothing. An existing account is never written over.
+- Old guests keep their short ids and tokens; a token still opens only its own save. Discord login is unchanged (`discord_<id>`).
+- Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps (the guest cap still runs first), the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, no client state as a realm, no rules in `server/`. No app or sim change.
+
 ## Verify
 
 ```
 npm test
 npm run test -w @second-crown/render
-node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs server/cap.test.mjs server/guard.test.mjs server/write.test.mjs server/reload.test.mjs
+node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs server/cap.test.mjs server/guard.test.mjs server/write.test.mjs server/reload.test.mjs server/guestid.test.mjs
 npm run build -w @second-crown/app
 ```
 

@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-09 — Guest ids never repeat (wave/guest-id)
+
+- **A new guest cannot land on someone else's cloud save.** Each new guest gets a long random id, and the server refuses any id it has already handed out. Before, two guests could rarely get the same short id, and the newer one would open the older one's cloud save.
+- If you already play as a guest, nothing changes: your token still opens your own save, and only yours.
+- Discord login is unchanged.
+- **The solo crown is unchanged.** Your game, offline catch-up, Second Dawn, Repair, Pull save, hold keys, sign-in, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-09 — Pull save waits for reload (wave/pull-hold)
 
 - **Pull save no longer replaces the crown until you reload.** Pressing Pull save downloads your cloud copy and keeps it aside. The game on screen keeps going, untouched. When you reload the page (or choose Load cloud), the cloud copy becomes your crown.

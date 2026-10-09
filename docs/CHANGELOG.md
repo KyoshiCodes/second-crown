@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-09 — Guest ids never repeat (wave/guest-id)
+
+- Guest sign-in only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, and Discord login are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app or sim change.
+- `server/guestid.mjs` (new): `newGuestId` is `guest_` + 16 random bytes in hex; `claimGuestId(isTaken)` refuses an id already issued and draws again up to `GUEST_ID_TRIES` (3) times, else returns null.
+- `server/index.mjs` `POST /guest`: an id counts as taken if it is in `users.json` or has a `saves/<id>.json`. If no free id is found it answers 503 `GUEST_ID_TAKEN` and writes nothing. Before, a 3-byte id that repeated wrote over the old account and handed its save to the new guest.
+- Tests: new `server/guestid.test.mjs` (50,000 new guest ids are unique; a repeated id is refused and a repeat draw is thrown away; the module names no combat rule and no shared save; live server: new guests do not take the old short ids, start with no cloud save, and do not change old accounts; an old guest token still loads its own save and not another guest's; one new guest's save is not another's). Pull save and solo-load checks stay in `pullCloud.test.ts` and `settleOnLoad.test.ts`. Run: `npm test` and `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs server/guestid.test.mjs`.
+
 ## 2026-10-09 — Pull save waits for reload (wave/pull-hold)
 
 - Pull save only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, and Second Dawn are unchanged. No rule copied into `server/`; no client state accepted as a realm. No server change.
