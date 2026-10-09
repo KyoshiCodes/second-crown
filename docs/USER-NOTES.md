@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-09 — Server checks in the usual test (wave/server-check)
+
+- **The usual test now includes the server checks.** `npm test` also runs the server's own tests (sign-in, guest ids, hold keys, hold saves, server limits, and the rest) and lists them by name. If any of them fails, `npm test` fails, so a broken server is not deployed.
+- **Play is unchanged.** Your game, offline catch-up, Second Dawn, Repair, Pull save, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-09 — Guest ids never repeat (wave/guest-id)
 
 - **A new guest cannot land on someone else's cloud save.** Each new guest gets a long random id, and the server refuses any id it has already handed out. Before, two guests could rarely get the same short id, and the newer one would open the older one's cloud save.

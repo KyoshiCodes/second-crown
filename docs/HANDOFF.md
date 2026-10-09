@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#228**. Waiting: `wave/guest-id` (**not merged**, see Guest ids never repeat below).
+Merged through PR **#229**. Waiting: `wave/server-check` (**not merged**, see Server checks in npm test below).
 
 ### Cultures and units (all merged)
 
@@ -115,21 +115,29 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - The "Load cloud" choice after a push conflict uses the same slot and then reloads.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, no client state as a realm, no rules in `server/`.
 
-## Guest ids never repeat (branch `wave/guest-id`, **not merged**)
+## Guest ids never repeat (PR #229, merged)
 
 - Before, `POST /guest` made `guest_` + 3 random bytes (about 16.7 million ids) and wrote `users[id]` without checking. A repeat replaced the old account's token, so the new guest opened the old guest's cloud save and the old guest was locked out.
 - Now `server/guestid.mjs` makes `guest_` + 16 random bytes (32 hex). `claimGuestId` refuses an id already in `users.json` or with a file in `saves/`; it draws again up to 3 times, then `/guest` answers 503 (`GUEST_ID_TAKEN`) and writes nothing. An existing account is never written over.
 - Old guests keep their short ids and tokens; a token still opens only its own save. Discord login is unchanged (`discord_<id>`).
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps (the guest cap still runs first), the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, no client state as a realm, no rules in `server/`. No app or sim change.
 
+## Server checks in npm test (branch `wave/server-check`, **not merged**)
+
+- Before, root `npm test` ran only the sim and app vitest suites. The server tests (`server/*.test.mjs`, node:test) ran only from a long hand-typed `node --test ...` line, so a deploy (`git pull && npm test && ...`) never ran them.
+- Now root `npm test` ends with `npm run test:server` = `node server/test.mjs`. That runner lists every `server/*.test.mjs` file, prints their names, and runs them all in one `node --test --test-reporter=spec` call: clock, save gate, key, cap, guest id, hold write, and the rest (19 files, 144 tests today). A failing server test exits non-zero, so `npm test` fails and the deploy line stops before `pm2 restart`. A new `server/*.test.mjs` is picked up with no edit.
+- The server tests start `index.mjs` on a free port with a temp `DATA_DIR`, so running them on Oracle does not touch `sc-cloud` (port 8787) or its saves.
+- Not touched: no test was changed or skipped; solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, no client state as a realm, no rules in `server/`. No app, sim, or server code change.
+
 ## Verify
 
 ```
 npm test
 npm run test -w @second-crown/render
-node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs server/cap.test.mjs server/guard.test.mjs server/write.test.mjs server/reload.test.mjs server/guestid.test.mjs
 npm run build -w @second-crown/app
 ```
+
+`npm test` runs the sim, app, and server tests (`npm run test:server` runs only the server ones). No separate `node --test` line is needed.
 
 Deploy (on Oracle over SSH):
 

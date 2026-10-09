@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-09 — Server checks in npm test (wave/server-check)
+
+- Test command only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, and guest ids are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app, sim, or server code change.
+- `package.json`: `test` now ends with `npm run test:server`; new script `test:server` = `node server/test.mjs`.
+- `server/test.mjs` (new): finds every `server/*.test.mjs`, prints the file names, and runs them in one `node --test --test-reporter=spec` call; exits with node's status, so a failing server test fails `npm test`. Exits 1 if no server test file is found.
+- Tests: no test changed or skipped. `npm test` now also runs all 19 server test files (144 tests), including clock, save gate, key, cap, guest id, hold write, and `write.test.mjs` "a solo load does not join". Run: `npm test`.
+
 ## 2026-10-09 — Guest ids never repeat (wave/guest-id)
 
 - Guest sign-in only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, and Discord login are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app or sim change.
