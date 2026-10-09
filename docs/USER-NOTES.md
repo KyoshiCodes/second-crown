@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-09 — A reload keeps what you dismissed (wave/reload-empty)
+
+- **A reload no longer adds troops or workers you dismissed.** If your army or your worker list is empty when you save, it is still empty when you load. Rival and neighbour armies you wiped out stay wiped out too.
+- **A new shared hold no longer gains a farm worker on a server restart.** Workers come when buildings finish, as they should.
+- A very old save from before armies and workers were saved still loads and gets its starting troops and workers, as before.
+- **The solo crown is otherwise unchanged.** Your game, offline catch-up, Repair, hold keys, sign-in, hold saves, and the server limits work exactly as before.
+
 ## 2026-10-09 — A failed hold save does not spend (wave/hold-write)
 
 - **A failed save does not spend.** On a shared hold, if the server cannot save your action (say its disk is full), you see "The hold could not be saved. Nothing was spent; try again." Your militia, farms, cottages, lumber camps, and stores stay exactly as they were, so pressing the button again spends only once.

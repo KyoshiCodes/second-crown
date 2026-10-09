@@ -9,6 +9,9 @@ export function serializeState(state: GameState): string {
 }
 
 export function ensureWorldStubs(state: GameState): void {
+  // An empty army or worker list is a real choice; only a save that lacks the field gets the old fill.
+  const unitsMissing = !Array.isArray(state.units);
+  const citizensMissing = !Array.isArray(state.citizens);
   if (!Array.isArray(state.realms)) state.realms = [];
   if (!Array.isArray(state.characters)) state.characters = [];
   if (!Array.isArray(state.opinions)) state.opinions = [];
@@ -67,8 +70,7 @@ export function ensureWorldStubs(state: GameState): void {
     });
   }
 
-  const rivalUnits = state.units.filter((u) => u.realmId === "rival");
-  if (rivalUnits.length === 0) {
+  if (unitsMissing) {
     state.units.push({
       id: "u_rival_migrated",
       typeId: "militia",
@@ -78,8 +80,8 @@ export function ensureWorldStubs(state: GameState): void {
     });
   }
 
-  seedWorldActors(state);
-  seedCitizensFromBuildings(state);
+  seedWorldActors(state, { fillUnits: unitsMissing });
+  if (citizensMissing) seedCitizensFromBuildings(state);
   ensureBoard(state);
 }
 

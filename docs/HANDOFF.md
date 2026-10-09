@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#224**. Waiting: `wave/hold-write` (**not merged**, see Hold writes before it spends below).
+Merged through PR **#225**. Waiting: `wave/reload-empty` (**not merged**, see A reload keeps an empty army below).
 
 ### Cultures and units (all merged)
 
@@ -87,7 +87,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A save scarred before this branch has no mark: that building is shown as under construction and heals on its own 40-tick timer.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, no client state as a realm, no rules in `server/`.
 
-## Hold writes before it spends (branch `wave/hold-write`, **not merged**)
+## Hold writes before it spends (PR #225, merged)
 
 - Before, a hold intent (train, build, cottage, lumber, stamp) changed the live hold in memory first and wrote it to disk after. If that write failed (full or read-only disk), the stores were already spent in memory but not on disk: the player saw an error, and a retry spent again. A restart then brought back the old file.
 - Now `commit` in `server/hold.mjs` copies the hold (`deserializeState(serializeState(...))` plus a copy of the pending list), runs the intent through the sim on the copy, writes the copy, and only then makes it the live hold (new `TickEngine` on the copy). A write that fails answers 503 `NOT_SAVED` ("The hold could not be saved. Nothing was spent; try again."); the live hold, its stores, and its kept file stay as they were, so the same intent can be sent again and spends once. A normal refusal (409 / 429) throws before the write, so it spends nothing and writes nothing.
@@ -95,12 +95,18 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A settled-ticks-only write that fails is skipped and tried on the next read (it used to throw out of the read). A hold leaving memory (`dropIdle`) still must be written, or it stays in memory.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair (no Repair on the hold), no client state as a realm, no rules in `server/`. No app change.
 
+## A reload keeps an empty army (branch `wave/reload-empty`, **not merged**)
+
+- Before, every load (`deserializeState` -> `ensureWorldStubs`) refilled an empty army or worker list: the rival got 15 militia if it had no units, an NPC realm with no units got its starting troops, and an empty citizen list was reseeded with one worker per finished building. A solo reload brought back troops and workers you had dismissed or lost. A fresh shared hold (starter farm finished, lumber camp still building, no citizens yet) gained a farm worker on every restart, and on every hold action, since `commit` round-trips the state too.
+- Now `ensureWorldStubs` notes whether `units` and `citizens` were present in the save before it defaults them. The old fill runs only when the field is missing: rival militia and NPC troops when `units` is missing, worker seeding when `citizens` is missing. A present, empty list stays empty. `seedWorldActors(state, { fillUnits })` still gives a realm it adds for the first time its starting army.
+- Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, no client state as a realm, no rules in `server/`. No app change.
+
 ## Verify
 
 ```
 npm test
 npm run test -w @second-crown/render
-node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs server/cap.test.mjs server/guard.test.mjs server/write.test.mjs
+node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs server/cap.test.mjs server/guard.test.mjs server/write.test.mjs server/reload.test.mjs
 npm run build -w @second-crown/app
 ```
 

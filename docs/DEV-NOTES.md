@@ -1,3 +1,11 @@
+## 2026-10-09 — sim / reload keeps an empty army (wave/reload-empty)
+
+- Root cause: `ensureWorldStubs` treated "empty" as "missing". It defaulted `units` / `citizens` to `[]`, then refilled on emptiness: `u_rival_migrated` (15 militia) when the rival had no units, `seedWorldActors` NPC troops when a `k_*` realm had none, and `seedCitizensFromBuildings` (returns early only on `citizens.length > 0`). `createGameState({ withStarterBuildings })` leaves `citizens` empty with a finished farm, so any round trip (hold restart, and every `commit` draft since wave/hold-write) hired a farmer.
+- Fix: capture `unitsMissing = !Array.isArray(state.units)` and `citizensMissing` before defaulting; gate the rival fill and `seedCitizensFromBuildings` on them. `seedWorldActors` takes `{ fillUnits }` and adds troops only to a realm it creates in this call or, with `fillUnits`, to any troop-less realm. `createGameState` creates all `k_*` realms in that call, so new games are unchanged.
+- Behaviour change for a save that has a `units` array but no rival units (never written by current code): it no longer gets `u_rival_migrated`. Same for a `k_*` realm whose army was destroyed: it stays empty.
+- Determinism: load is still a pure function of the save; a round trip is now idempotent for empty lists.
+- Tests: `serialize.test.ts`, `server/reload.test.mjs`. Both server tests fail on main.
+
 ## 2026-10-09 — server / hold writes before it spends (wave/hold-write)
 
 - Root cause: `intent()` mutated `hold.state` (via `tryTrain` / `tryBuild` / `pending.push`) and then called `keep(..., true)`. A throw from `store.save` left memory spent and disk unspent; the next intent spent again, and a restart rolled the extra spends back. `claim()` had the same shape for `keyHash`, which could leave a hold locked with a key no one was given.

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-09 — A reload keeps an empty army (wave/reload-empty)
+
+- Reload only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, and the hold write are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app change.
+- `packages/sim/src/save/serialize.ts`: `ensureWorldStubs` runs the old-save fill only when `units` / `citizens` are missing from the save. The rival's migrated militia and NPC starting troops need `units` missing; `seedCitizensFromBuildings` needs `citizens` missing. An empty army or worker list loads empty.
+- `packages/sim/src/content/world.ts`: `seedWorldActors(state, { fillUnits })` gives starting troops to a realm it adds now, or to every troop-less realm when `fillUnits` is set; an existing realm with no units stays empty.
+- Tests: `packages/sim/src/save/serialize.test.ts` (a saved empty army stays empty; a saved empty worker list stays empty beside a finished farm; a fresh starter game gains no farm worker over repeated reloads; a save that omits units and citizens still loads and gets the old fill). New `server/reload.test.mjs` (a fresh hold restart adds no farm worker while its lumber camp is building; a hold's empty army and worker list survive a restart). Failed-write and solo-load checks stay in `server/write.test.mjs`. Run: `npm test` and `node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/cap.test.mjs server/write.test.mjs server/reload.test.mjs`.
+
 ## 2026-10-09 — Hold writes before it spends (wave/hold-write)
 
 - Hold save only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, and Repair are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app change.
