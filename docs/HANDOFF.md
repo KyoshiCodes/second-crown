@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#223**. Waiting: `wave/repair-scar` (**not merged**, see Repair only fixes damage below).
+Merged through PR **#224**. Waiting: `wave/hold-write` (**not merged**, see Hold writes before it spends below).
 
 ### Cultures and units (all merged)
 
@@ -78,7 +78,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A 30-day catch-up from the starter state takes about 25 s on the owner box (was about 20 s). The 30-day cap is unchanged.
 - Not touched: `applyOfflineProgress`, solo saves are not marked shared, hold keys, the login nonce, the hold and guest caps, the crash guard, no client state as a realm, no rules in `server/`. No app change.
 
-## Repair only fixes damage (branch `wave/repair-scar`, **not merged**)
+## Repair only fixes damage (merged, #224)
 
 - Before, the sim treated **any** unfinished player building as scarred. `listScarred` offered a building still going up (including the starter lumber camp, `completesAtTick: 30`), and `tryRepair` would finish it at once for 8 stone, skipping its timer and its completion citizen. The app hid some of this with an id/timer guess (`isScarred` in `WorkCard.tsx`), but the starter camp (id `b2`) failed that guess and showed as scarred.
 - Now the sim records damage. `damageHoldBuilding` (siege blow, `march.ts`) calls `markScarred`, which adds the building id to `flags.scar_json`. `isScarred(state, b)` = still on a timer **and** in that list. `listScarred` and `tryRepair` use it, so Repair refuses a building that is only under construction and leaves its timer alone.
@@ -87,12 +87,20 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A save scarred before this branch has no mark: that building is shown as under construction and heals on its own 40-tick timer.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, no client state as a realm, no rules in `server/`.
 
+## Hold writes before it spends (branch `wave/hold-write`, **not merged**)
+
+- Before, a hold intent (train, build, cottage, lumber, stamp) changed the live hold in memory first and wrote it to disk after. If that write failed (full or read-only disk), the stores were already spent in memory but not on disk: the player saw an error, and a retry spent again. A restart then brought back the old file.
+- Now `commit` in `server/hold.mjs` copies the hold (`deserializeState(serializeState(...))` plus a copy of the pending list), runs the intent through the sim on the copy, writes the copy, and only then makes it the live hold (new `TickEngine` on the copy). A write that fails answers 503 `NOT_SAVED` ("The hold could not be saved. Nothing was spent; try again."); the live hold, its stores, and its kept file stay as they were, so the same intent can be sent again and spends once. A normal refusal (409 / 429) throws before the write, so it spends nothing and writes nothing.
+- The first-join key claim goes through the same `commit`, so a failed first write leaves no key behind and the id can be joined again.
+- A settled-ticks-only write that fails is skipped and tried on the next read (it used to throw out of the read). A hold leaving memory (`dropIdle`) still must be written, or it stays in memory.
+- Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair (no Repair on the hold), no client state as a realm, no rules in `server/`. No app change.
+
 ## Verify
 
 ```
 npm test
 npm run test -w @second-crown/render
-node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs server/cap.test.mjs server/guard.test.mjs
+node --test server/clock.test.mjs server/savegate.test.mjs server/key.test.mjs server/nonce.test.mjs server/keep.test.mjs server/realmclock.test.mjs server/hold.test.mjs server/join.test.mjs server/play.test.mjs server/build.test.mjs server/cottage.test.mjs server/lumber.test.mjs server/cap.test.mjs server/guard.test.mjs server/write.test.mjs
 npm run build -w @second-crown/app
 ```
 
