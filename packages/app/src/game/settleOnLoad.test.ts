@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createGameState } from "@second-crown/sim";
+import { ascendThreshold, createGameState, tryAscend } from "@second-crown/sim";
 import { settleOnLoad, sharedRealmId, type SettleDeps } from "./settleOnLoad";
 
 afterEach(() => {
@@ -43,6 +43,17 @@ describe("settleOnLoad", () => {
   it("a solo load after a join still uses the local save and does not join", async () => {
     const state = createGameState();
     // Joining is a separate opt-in control; it never marks the crown shared.
+    expect(sharedRealmId(state)).toBeNull();
+    const d = deps(sharedRealmId(state));
+    expect((await settleOnLoad(state, d)).mode).toBe("solo");
+    expect(d.joinHold).not.toHaveBeenCalled();
+    expect(d.fetchRealmTick).not.toHaveBeenCalled();
+  });
+
+  it("an ascended crown is still solo: the dawn never marks it shared or joins a hold", async () => {
+    const state = createGameState({ seed: 1, withStarterBuildings: true });
+    state.resources = { gold: String(ascendThreshold(state)), food: "0", wood: "0", stone: "0" };
+    expect(tryAscend(state)).toBe(true);
     expect(sharedRealmId(state)).toBeNull();
     const d = deps(sharedRealmId(state));
     expect((await settleOnLoad(state, d)).mode).toBe("solo");

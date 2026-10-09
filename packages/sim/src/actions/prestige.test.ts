@@ -5,6 +5,14 @@ import { tryFoundGuild } from "./faction.js";
 import { setPlayerCulture, playerCultureId } from "../systems/culture.js";
 import { unlock } from "../systems/wave.js";
 import { productionBonus } from "../systems/economy.js";
+import { TickEngine } from "../core/tickEngine.js";
+import { enqueueTraining, listTraining } from "../systems/training.js";
+import { listHealing, tryTreatWounded, woundedCount } from "../systems/ward.js";
+import { listUpgrades, tryUpgrade } from "./upgrade.js";
+import { listMarches } from "../systems/march.js";
+import { listGathers } from "../systems/gather.js";
+import { listGarrisons } from "../systems/garrison.js";
+import { deserializeState, serializeState } from "../save/serialize.js";
 
 describe("Second Dawn (tryAscend)", () => {
   it("refuses an early crown below the ascend threshold", () => {
@@ -110,5 +118,100 @@ describe("First-dawn gift (+1 militia, +20 food, +10 wood, once)", () => {
     expect(s.flags.dawn_gift).toBeUndefined();
     expect(s.units.some((u) => u.id === "u_dawn_militia")).toBe(false);
     expect(s.resources).toEqual({ gold: "100", food: "100", wood: "100", stone: "100" });
+  });
+});
+
+describe("Second Dawn clears unfinished jobs", () => {
+  const playerTroops = (s: ReturnType<typeof createGameState>) =>
+    s.units.filter((u) => u.realmId === "player").reduce((n, u) => n + Number(u.count), 0);
+
+  function ascendOnce(s: ReturnType<typeof createGameState>) {
+    s.resources = { gold: String(ascendThreshold(s)), food: "0", wood: "0", stone: "0" };
+    expect(tryAscend(s)).toBe(true);
+  }
+
+  /** A pending train, heal, upgrade, march, gather and garrison, all player-owned. */
+  function queueEverything(s: ReturnType<typeof createGameState>) {
+    s.resources = { gold: "9999", food: "9999", wood: "9999", stone: "9999" };
+    expect(enqueueTraining(s, "militia", 5, "player")).not.toBeNull();
+    s.flags.wounded_player = 3;
+    expect(tryTreatWounded(s)).toBe(true);
+    const farm = s.buildings.find((b) => b.realmId === "player" && b.typeId === "farm" && b.completesAtTick === null);
+    expect(farm && tryUpgrade(s, farm.id)).toBe(true);
+    const home = s.board.homeProvinceId;
+    s.flags.marches_json = JSON.stringify([
+      { id: "m_p", realmId: "player", fromId: home, toId: home, arrivesTick: s.meta.tick + 30, kind: "camp", levy: 0, force: { militia: 6 } },
+    ]);
+    s.flags.gathers_json = JSON.stringify([
+      {
+        id: "g_p", realmId: "player", fromId: home, toId: home, node: "field", force: { militia: 4 },
+        phase: "returning", departedTick: s.meta.tick, arrivesTick: s.meta.tick + 20, travelTicks: 20,
+        gatherStartedTick: s.meta.tick, capacity: "0", load: "0",
+      },
+    ]);
+    s.flags.garrisons_json = JSON.stringify([{ provinceId: home, force: { militia: 2 } }]);
+  }
+
+  it("a pending train, heal, upgrade and march end with the dawn, and no troops land later", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    queueEverything(s);
+    expect(listTraining(s, "player")).toHaveLength(1);
+    expect(listHealing(s)).toHaveLength(1);
+    expect(listUpgrades(s)).toHaveLength(1);
+
+    ascendOnce(s);
+
+    expect(listTraining(s, "player")).toEqual([]);
+    expect(listHealing(s)).toEqual([]);
+    expect(woundedCount(s)).toBe(0);
+    expect(listUpgrades(s)).toEqual([]);
+    expect(listMarches(s).filter((m) => m.realmId === "player")).toEqual([]);
+    expect(listGathers(s).filter((g) => g.realmId === "player")).toEqual([]);
+    expect(listGarrisons(s)).toEqual([]);
+
+    // Only the first-dawn militia; nothing queued before the dawn arrives after it.
+    expect(playerTroops(s)).toBe(1);
+    new TickEngine(s).settleTicks(2_000);
+    expect(playerTroops(s)).toBe(1);
+    expect(s.buildings.every((b) => b.level === 1)).toBe(true);
+  });
+
+  it("an upgrade queued on the dawn farm does not finish on the next crown's farm", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    ascendOnce(s);
+    s.resources = { gold: "9999", food: "9999", wood: "9999", stone: "9999" };
+    expect(tryUpgrade(s, "b_prestige_farm")).toBe(true);
+    ascendOnce(s);
+    new TickEngine(s).settleTicks(2_000);
+    expect(s.buildings.find((b) => b.id === "b_prestige_farm")?.level).toBe(1);
+  });
+
+  it("a second ascend clears jobs again and does not grant the gift again", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    ascendOnce(s);
+    queueEverything(s);
+    ascendOnce(s);
+    expect(s.flags.prestige_level).toBe(2);
+    expect(s.resources).toEqual({ gold: "0", food: "25", wood: "35", stone: "0" });
+    expect(playerTroops(s)).toBe(0);
+    new TickEngine(s).settleTicks(2_000);
+    expect(playerTroops(s)).toBe(0);
+  });
+
+  it("an ascended crown with an empty army stays empty on reload", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    ascendOnce(s);
+    ascendOnce(s);
+    s.units = s.units.filter((u) => u.realmId !== "player");
+    const loaded = deserializeState(serializeState(s));
+    expect(loaded.units.filter((u) => u.realmId === "player")).toEqual([]);
+    expect(listTraining(loaded, "player")).toEqual([]);
+  });
+
+  it("leaves rival training alone", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    expect(enqueueTraining(s, "militia", 2, "rival")).not.toBeNull();
+    ascendOnce(s);
+    expect(listTraining(s, "rival")).toHaveLength(1);
   });
 });

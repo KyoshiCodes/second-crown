@@ -54,6 +54,7 @@ export function tryAscend(state: GameState): boolean {
   for (const k of Object.keys(state.flags)) {
     if (k.startsWith("peace_")) delete state.flags[k];
   }
+  clearRunJobs(state);
 
   // First-dawn gift: one militia and a small store, once per crown.
   if (!state.flags.dawn_gift) {
@@ -77,6 +78,35 @@ export function tryAscend(state: GameState): boolean {
   } satisfies InputRecord);
 
   return true;
+}
+
+function readList<T>(state: GameState, key: string): T[] {
+  const raw = state.flags[key];
+  if (typeof raw !== "string" || !raw) return [];
+  try {
+    return JSON.parse(raw) as T[];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Unfinished player work belongs to the old crown. Training, treating, upgrades, and every
+ * column out (marches, gathers, posted garrisons) end here, unpaid and unrefunded, so no
+ * soldier queued before the dawn can land after it. Rival and NPC jobs are left alone.
+ */
+function clearRunJobs(state: GameState): void {
+  const notPlayer = (j: { realmId?: string }) => j.realmId !== "player";
+  state.flags["training_json"] = JSON.stringify(readList<{ realmId: string }>(state, "training_json").filter(notPlayer));
+  state.flags["heal_json"] = JSON.stringify([]);
+  delete state.flags.wounded_player;
+  state.flags.upgrades_json = [];
+  state.flags["marches_json"] = JSON.stringify(readList<{ realmId: string }>(state, "marches_json").filter(notPlayer));
+  state.flags["gathers_json"] = JSON.stringify(readList<{ realmId: string }>(state, "gathers_json").filter(notPlayer));
+  const playerLand = new Set(state.board.provinces.filter((p) => p.occupantRealmId === "player").map((p) => p.id));
+  state.flags["garrisons_json"] = JSON.stringify(
+    readList<{ provinceId: string }>(state, "garrisons_json").filter((g) => !playerLand.has(g.provinceId))
+  );
 }
 
 export function tryPickDoctrine(state: GameState, id: string): boolean {

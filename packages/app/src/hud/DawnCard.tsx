@@ -2,6 +2,7 @@ import React from "react";
 import { listAchievements, formatLetterSuffix, tryAscend, type GameState } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
 import { DawnSealPip } from "./DawnSealPip";
+import { sharedRealmId } from "../game/settleOnLoad";
 import "./dawn-card.css";
 
 /**
@@ -9,11 +10,13 @@ import "./dawn-card.css";
  * (achievements done, sieges the hold stood, offline shield bought) and holds the one
  * Ascend button. The button only calls tryAscend; all wipe/keep rules live in the sim.
  * Displays a 28px living Dawn Seal Pip (pointer-events none).
+ * A shared hold has no Second Dawn: the Ascend button is not drawn for a shared realm.
  */
 export function DawnCard(props: { state: GameState | undefined; act: ActFn; ascendReady: boolean; ascendNeed: number }) {
   const { state, act, ascendReady, ascendNeed } = props;
   const [note, setNote] = React.useState("");
   const refusal = `Ascend at ${formatLetterSuffix(ascendNeed)} total resources.`;
+  const shared = state ? sharedRealmId(state) !== null : false;
   const achievements = state ? listAchievements(state) : [];
   const done = achievements.filter((a) => a.done).length;
   const dawned = achievements.some((a) => a.def.id === "ach_ascend" && a.done);
@@ -55,26 +58,33 @@ export function DawnCard(props: { state: GameState | undefined; act: ActFn; asce
           <span className="sc-dawn-value">{shieldBought ? "bought" : "never bought"}</span>
         </li>
       </ul>
-      <div className="sc-dawn-ascend">
-        <span className="sc-dawn-ascend-note">{ascendReady ? note || "The crown is ready." : refusal}</span>
-        <button
-          type="button"
-          className="sc-work-btn"
-          disabled={!state || !ascendReady}
-          title={ascendReady ? undefined : refusal}
-          onClick={() =>
-            act((st) => {
-              const msg = tryAscend(st) ? "Ascended. Pick a doctrine." : "Not ready.";
-              setNote(msg);
-              return msg;
-            })
-          }
-        >
-          Ascend
-        </button>
-      </div>
+      {shared ? (
+        <div className="sc-dawn-ascend">
+          <span className="sc-dawn-ascend-note">A shared hold has no Second Dawn.</span>
+        </div>
+      ) : (
+        <div className="sc-dawn-ascend">
+          <span className="sc-dawn-ascend-note">{ascendReady ? note || "The crown is ready." : refusal}</span>
+          <button
+            type="button"
+            className="sc-work-btn"
+            disabled={!state || !ascendReady}
+            title={ascendReady ? undefined : refusal}
+            onClick={() =>
+              act((st) => {
+                const msg = tryAscend(st) ? "Ascended. Pick a doctrine." : "Not ready.";
+                setNote(msg);
+                return msg;
+              })
+            }
+          >
+            Ascend
+          </button>
+        </div>
+      )}
       <div className="sc-dawn-bonus">{bonusLine}</div>
       <div className="sc-dawn-stores">First dawn also starts with +20 food and +10 wood. It does not stack.</div>
+      <div className="sc-dawn-stores">Unfinished training, treating, upgrades and marches end at the dawn.</div>
     </div>
   );
 }

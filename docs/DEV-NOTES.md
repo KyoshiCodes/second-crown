@@ -1,3 +1,11 @@
+## 2026-10-09 — sim / Second Dawn clears unfinished jobs (wave/dawn-clear)
+
+- Root cause: run jobs live in `flags` (`training_json`, `heal_json`, `upgrades_json`, `marches_json`, `gathers_json`, `garrisons_json`), and `tryAscend` only reset `resources`, `buildings`, `units`, `wars` and `peace_*`. The tick systems kept delivering: `TrainingSystem` / `WardSystem` push units, march and gather returns call `returnLevy` / `returnForce`, a fallen garrison returns 40%. Upgrade jobs key on `buildingId`, and the dawn reuses fixed ids (`b_prestige_farm`, `b_prestige_lumber`), so a job from one crown landed on the next.
+- Fix: `clearRunJobs(state)` after the peace wipe and before the first-dawn gift. Player-only filters on `realmId` for training, marches and gathers; heals and upgrades are player-only queues today, so they are emptied; garrisons have no `realmId`, so they are filtered by `occupantRealmId === "player"` on the board. No refund: the dawn already zeroes stores. `respawn_json` (node regrowth) and `scar_json` are untouched.
+- Determinism: pure function of state; no rng, no clock.
+- Shared hold: `DawnCard` hides Ascend when `sharedRealmId(state) !== null` (always null today). The server never calls `tryAscend`.
+- Tests: `prestige.test.ts` (three of the new tests fail with `clearRunJobs` removed), `settleOnLoad.test.ts`.
+
 ## 2026-10-09 — sim / reload keeps an empty army (wave/reload-empty)
 
 - Root cause: `ensureWorldStubs` treated "empty" as "missing". It defaulted `units` / `citizens` to `[]`, then refilled on emptiness: `u_rival_migrated` (15 militia) when the rival had no units, `seedWorldActors` NPC troops when a `k_*` realm had none, and `seedCitizensFromBuildings` (returns early only on `citizens.length > 0`). `createGameState({ withStarterBuildings })` leaves `citizens` empty with a finished farm, so any round trip (hold restart, and every `commit` draft since wave/hold-write) hired a farmer.
