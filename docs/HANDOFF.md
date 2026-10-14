@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#238**. Waiting: `wave/hud-wood` (**not merged**, see Wood line below).
+Merged through PR **#240**. Waiting: `wave/hud-peak` (**not merged**, see Peak line below).
 
 ### Cultures and units (all merged)
 
@@ -187,12 +187,23 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 
 - Render only (`packages/render/src/tokens.ts`): a seen shore tile draws water on the diamond (sea shelf, wave, wet sand edge). Tests in `packages/render/src/index.test.ts`. No sim, server, or app change.
 
-## Wood line (branch `wave/hud-wood`, **not merged**)
+## Wood line (PR #239, merged)
 
 - The province inspect card shows one line, `Wood · trees`, on a seen tile whose terrain is `wood`. Code: `woodLine(seen, terrain)` in `packages/app/src/hud/woodLine.ts`, rendered in `packages/app/src/ProvinceInspect.tsx` under the Tile group (after the shore line). Style: `.sc-inspect-wood` in `packages/app/src/hud/inspect-card.css`.
 - Reads the existing `terrain` field only; no new sim field. An unseen wood tile still shows fog and no wood line.
 - Tests: `packages/app/src/hud/woodLine.test.ts` (shows for a seen wood tile; hidden when unseen; hidden on every other terrain).
 - Not touched: `packages/sim`, `server/`, `theme.css`, scout / gather / garrison / march / abandon actions, the home, ruins, shore, camp, outpost, and resource lines.
+
+## Trees on diamond (PR #240, merged)
+
+- Render only (`packages/render`): a seen wood tile draws a stand of pines with trunks and ground shadows on the diamond. No sim, server, or app change.
+
+## Peak line (branch `wave/hud-peak`, **not merged**)
+
+- The province inspect card shows one line, `Peak · mountain`, on a seen tile whose terrain is `peak`. Code: `peakLine(seen, terrain)` in `packages/app/src/hud/peakLine.ts`, rendered in `packages/app/src/ProvinceInspect.tsx` under the Tile group (after the wood line). Style: `.sc-inspect-peak` in `packages/app/src/hud/inspect-card.css`.
+- Reads the existing `terrain` field only; no new sim field. An unseen peak tile still shows fog and no peak line.
+- Tests: `packages/app/src/hud/peakLine.test.ts` (shows for a seen peak tile; hidden when unseen; hidden on every other terrain).
+- Not touched: `packages/sim`, `server/`, `theme.css`, scout / gather / garrison / march / abandon actions, the home, ruins, shore, wood, camp, outpost, and resource lines.
 
 ## Verify
 

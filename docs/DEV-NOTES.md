@@ -1,3 +1,9 @@
+## 2026-10-14 — app / peak line (wave/hud-peak)
+
+- Peak is a `TerrainId` (`packages/shared`), like shore and wood, so the line keys off `p.terrain`.
+- `peakLine(seen, terrain)` (pure, `hud/peakLine.ts`) mirrors `woodLine` so it can be unit tested. `seen` is the card's existing `isProvinceSeen`, so fog keeps the line hidden.
+- Determinism: no sim change. Display only.
+
 ## 2026-10-14 — app / wood line (wave/hud-wood)
 
 - Wood is a `TerrainId` (`packages/shared`), like shore, so the line keys off `p.terrain`. Not to be confused with the `woodcut` node ("Timber stand") or the wood resource; this line is terrain only.
