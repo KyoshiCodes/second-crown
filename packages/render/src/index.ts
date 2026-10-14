@@ -121,6 +121,7 @@ import {
   drawLancerMeeple,
   drawRuinedKeep,
   drawShoreTile,
+  drawWoodTile,
 } from "./tokens.js";
 
 import {
@@ -987,5 +988,6 @@ export {
   drawLancerMeeple,
   drawRuinedKeep,
   drawShoreTile,
+  drawWoodTile,
 };
 

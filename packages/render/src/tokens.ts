@@ -3313,6 +3313,132 @@ export function drawShoreTile(
   }
 }
 
+/**
+ * Draws trees on an isometric wood terrain diamond tile:
+ * - Forest floor woodland duff & needle bed across the diamond plateau
+ * - Ground shadows (soft contact ellipses cast southeast under each pine tree)
+ * - Timber trunks with dark bark shading, sunlit bark highlights, and root flare
+ * - Small stand of evergreen pines (depth-sorted rear-to-front) with multi-tiered boughs
+ * - Sunlit needle crest highlights along the apex of pine foliage
+ * - Forest undergrowth tufts (ferns, seedlings, fallen pinecones)
+ */
+export function drawWoodTile(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  hw: number,
+  hh: number,
+  phase: number = 0,
+  options?: { px?: number; py?: number }
+): void {
+  // 1. Forest floor woodland duff & needle bed
+  g.ellipse(cx, cy + 0.5, hw * 0.72, hh * 0.56);
+  g.fill({ color: 0x14532d, alpha: 0.28 });
+  g.ellipse(cx + 0.8, cy + 0.8, hw * 0.50, hh * 0.38);
+  g.fill({ color: 0x064e3b, alpha: 0.22 });
+
+  // 2. Small stand of evergreen pines across the diamond plateau
+  // Arranged in depth order (back-to-front by ty)
+  const trees = [
+    { tx: cx + 7.5, ty: cy - 3.2, s: 0.80, dark: true },
+    { tx: cx - 8.5, ty: cy - 2.8, s: 0.85, dark: true },
+    { tx: cx + 0.5, ty: cy - 0.5, s: 1.15, dark: false },
+    { tx: cx + 6.0, ty: cy + 2.5, s: 0.95, dark: false },
+    { tx: cx - 5.5, ty: cy + 3.2, s: 1.00, dark: false },
+  ];
+
+  // Render ground contact shadows for each pine tree
+  for (const tr of trees) {
+    const s = tr.s;
+    const x = tr.tx;
+    const y = tr.ty;
+
+    // Outer soft contact ground shadow (cast southeast onto forest floor)
+    g.ellipse(x + 1.2 * s, y + 2.6 * s, 5.2 * s, 2.2 * s);
+    g.fill({ color: 0x000000, alpha: 0.36 });
+
+    // Inner contact shadow under trunk base
+    g.ellipse(x + 0.4 * s, y + 2.2 * s, 2.6 * s, 1.2 * s);
+    g.fill({ color: 0x0a1c13, alpha: 0.65 });
+  }
+
+  // Render each pine tree (trunk + tiered foliage + sunlit crests)
+  for (const tr of trees) {
+    const s = tr.s;
+    const x = tr.tx;
+    const y = tr.ty;
+
+    // Timber trunk
+    // Dark timber bark
+    g.rect(x - 1.1 * s, y - 1.8 * s, 2.2 * s, 4.4 * s);
+    g.fill({ color: 0x451a03 });
+
+    // Sunlit bark highlight (western light facet)
+    g.rect(x - 1.1 * s, y - 1.8 * s, 0.9 * s, 4.4 * s);
+    g.fill({ color: 0x5c3818 });
+
+    // Root flare grounded into forest soil
+    g.poly([
+      x - 1.8 * s, y + 2.6 * s,
+      x - 1.1 * s, y + 1.0 * s,
+      x + 1.1 * s, y + 1.0 * s,
+      x + 1.8 * s, y + 2.6 * s,
+    ]);
+    g.fill({ color: 0x271101 });
+
+    // Conical evergreen foliage boughs (3 tiers)
+    const leafDark = tr.dark ? 0x064e3b : 0x14532d;
+    const leafMid = tr.dark ? 0x047857 : 0x16a34a;
+    const leafLight = tr.dark ? 0x10b981 : 0x22c55e;
+
+    // Tier 1 (Lowest broad skirt)
+    g.poly([x - 5.6 * s, y + 0.6 * s, x, y - 4.8 * s, x + 5.6 * s, y + 0.6 * s]);
+    g.fill({ color: leafDark });
+    g.poly([x - 5.6 * s, y + 0.6 * s, x, y - 4.8 * s, x, y + 0.6 * s]);
+    g.fill({ color: tr.dark ? 0x0f5132 : 0x15803d, alpha: 0.55 });
+
+    // Tier 2 (Middle bough skirt)
+    g.poly([x - 4.6 * s, y - 2.8 * s, x, y - 8.2 * s, x + 4.6 * s, y - 2.8 * s]);
+    g.fill({ color: leafMid });
+    g.poly([x - 4.6 * s, y - 2.8 * s, x, y - 8.2 * s, x, y - 2.8 * s]);
+    g.fill({ color: tr.dark ? 0x16a34a : 0x22c55e, alpha: 0.5 });
+
+    // Tier 3 (Crown bough spire)
+    g.poly([x - 3.2 * s, y - 6.2 * s, x, y - 11.8 * s, x + 3.2 * s, y - 6.2 * s]);
+    g.fill({ color: leafLight });
+
+    // Sunlit needle crest along spire ridge
+    g.moveTo(x - 2.2 * s, y - 6.2 * s);
+    g.lineTo(x, y - 11.8 * s);
+    g.stroke({ width: 0.9 * s, color: 0x34d399, alpha: 0.85 });
+  }
+
+  // 3. Forest undergrowth tufts (ferns, seedlings)
+  const undergrowth = [
+    { ux: cx - 10.5, uy: cy + 0.8 },
+    { ux: cx + 11.0, uy: cy - 0.5 },
+    { ux: cx - 1.5, uy: cy + 5.0 },
+    { ux: cx + 4.0, uy: cy + 5.2 },
+  ];
+  for (const u of undergrowth) {
+    g.moveTo(u.ux, u.uy + 1.5);
+    g.lineTo(u.ux - 1.8, u.uy - 1.5);
+    g.moveTo(u.ux, u.uy + 1.5);
+    g.lineTo(u.ux, u.uy - 2.2);
+    g.moveTo(u.ux, u.uy + 1.5);
+    g.lineTo(u.ux + 1.8, u.uy - 1.5);
+    g.stroke({ width: 0.8, color: 0x16a34a, alpha: 0.85 });
+  }
+
+  // Fallen pinecones and needle litter specks
+  g.circle(cx - 3.5, cy + 1.2, 0.7);
+  g.fill({ color: 0x78350f, alpha: 0.75 });
+  g.circle(cx + 3.8, cy + 0.8, 0.6);
+  g.fill({ color: 0x78350f, alpha: 0.7 });
+  g.circle(cx - 7.0, cy + 3.5, 0.65);
+  g.fill({ color: 0x451a03, alpha: 0.65 });
+}
+
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
 // -------------------------------------------------------------
@@ -3478,33 +3604,8 @@ export function paintBoardProvinces(
       }
 
       case "wood": {
-        // Deep forest pine grove with small evergreen spires standing on diamond
-        const trees = [
-          { tx: cx - 10, ty: cy - 2, s: 0.85, dark: true },
-          { tx: cx + 9, ty: cy - 3, s: 0.9, dark: true },
-          { tx: cx - 4, ty: cy + 4, s: 1.1, dark: false },
-          { tx: cx + 5, ty: cy + 3, s: 1.05, dark: false },
-        ];
-
-        for (const tr of trees) {
-          const s = tr.s;
-          const x = tr.tx;
-          const y = tr.ty;
-          const trunkColor = 0x451a03;
-          const leafDark = tr.dark ? 0x064e3b : 0x14532d;
-          const leafMid = tr.dark ? 0x047857 : 0x16a34a;
-          const leafLight = tr.dark ? 0x10b981 : 0x22c55e;
-
-          g.rect(x - 1 * s, y - 2 * s, 2 * s, 4 * s);
-          g.fill({ color: trunkColor });
-
-          g.poly([x - 5.5 * s, y - 1 * s, x, y - 6 * s, x + 5.5 * s, y - 1 * s]);
-          g.fill({ color: leafDark });
-          g.poly([x - 4.5 * s, y - 4 * s, x, y - 9 * s, x + 4.5 * s, y - 4 * s]);
-          g.fill({ color: leafMid });
-          g.poly([x - 3.5 * s, y - 7 * s, x, y - 12 * s, x + 3.5 * s, y - 7 * s]);
-          g.fill({ color: leafLight });
-        }
+        // Trees on the diamond: small stand of pines, trunk, and ground shadow
+        drawWoodTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
         break;
       }
 
