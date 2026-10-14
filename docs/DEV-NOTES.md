@@ -1,8 +1,11 @@
-## 2026-10-14 — app / ruins line (wave/hud-ruins)
+## 2026-10-14 — render / ruins tile shows broken keep on diamond (bakeoff/gemini-ruins)
 
-- Ruins were the one seen node with no Tile line: not in `GATHER_NODES` (no stock line) and not `camp` (no threat line), so the card only showed the name "Ruins". Raids on ruins still pay gold and stone (`camp.ts`, `march.ts`); "no stock" means no gather stock, matching `nodeStock`, which only tracks woodcut / quarry / field.
-- The condition lives in `ruinsLine(seen, node)` (pure, `hud/ruinsLine.ts`) so it can be unit tested; the app has no React render tests. `seen` is the same `isProvinceSeen` the card already uses, so fog keeps the line hidden.
-- Determinism: no sim change. Display only.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim` or `server/`. No changes to `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Visual design: `drawRuinedKeep(g, cx, cy, phase, options)` creates a miniature broken keep silhouette sized proportionally for the isometric diamond tile (radius ~11px base). Crumbled foundation plinth/talus (`0x292524`, border `0x1c1917`), standing left wall stub with battlements sheared off (`0x78716c`), lower crumbled right stub (`0x44403c`), exposed inner rubble core along jagged breaklines (`0xa8a29e`), deep structural fissures (`0x18181b`), fractured arched doorway opening with wedged fallen lintel stone (`0x57534e`), loose ashlar blocks and tumbled stones strewn across the talus (`0xd6d3d1`, `0xa8a29e`, `0x78716c`), and wild creeping moss/lichen highlights (`0x3f6212`, `0x4d7c0f`). Explicitly no banner, flag, or cloth tent canvas.
+- Integrated into `drawResourceNode` under `case "ruins"`, preserving stock pile rendering (`drawNodeStockPile`) when stock exists on the province.
+- In `paintBoardProvinces`, player outposts and NPC territory overlays are guarded with `if (p.node !== "ruins")` so claiming a ruins node retains the ruined keep rather than overriding it with a camp tent or faction flag.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test` and `npm run test -w @second-crown/render` pass.
 
 ## 2026-10-14 — server / static gate (wave/static-gate)
 

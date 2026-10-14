@@ -119,6 +119,7 @@ import {
   drawOutriderMeeple,
   drawWardenMeeple,
   drawLancerMeeple,
+  drawRuinedKeep,
 } from "./tokens.js";
 
 import {
@@ -983,5 +984,6 @@ export {
   drawOutriderMeeple,
   drawWardenMeeple,
   drawLancerMeeple,
+  drawRuinedKeep,
 };
 

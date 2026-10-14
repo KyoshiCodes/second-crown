@@ -2629,9 +2629,197 @@ export function drawNodeStockPile(
 }
 
 /**
+ * Draws a small ruined keep on the diamond tile:
+ * - Broken wall: crumbled, cracked, uneven masonry courses with deep fissures and jagged breaches
+ * - Fallen stone: tumbled ashlar blocks and rubble heaps scattered across the plinth and ground
+ * - Empty breached gateway
+ * - No flag / banner
+ * - No tent
+ */
+export function drawRuinedKeep(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0,
+  options?: { withShadow?: boolean }
+): void {
+  // 1. Ambient ground contact shadow (detaches keep and rubble from busy terrain relief)
+  g.ellipse(cx, cy + 4, 11, 4.5);
+  g.fill({ color: 0x050403, alpha: 0.58 });
+  g.ellipse(cx - 5.5, cy + 4.5, 4.5, 2.2);
+  g.fill({ color: 0x050403, alpha: 0.35 });
+  g.ellipse(cx + 5.5, cy + 4.5, 4.5, 2.2);
+  g.fill({ color: 0x050403, alpha: 0.35 });
+
+  const plinthDark = 0x292524;
+  const plinthBorder = 0x1c1917;
+  const stoneLight = 0x78716c; // weathered light ashlar wall
+  const stoneDark = 0x44403c;  // shadowed dark ashlar wall
+  const stoneCore = 0xa8a29e;  // exposed inner rubble core
+  const stoneCrack = 0x18181b;
+  const mossGreen = 0x3f6212;
+  const mossLight = 0x4d7c0f;
+
+  // 2. Crumbled Foundation Talus Plinth with dark border
+  g.poly([
+    cx - 8.5, cy + 2.5,
+    cx, cy + 6.5,
+    cx + 8.5, cy + 2.5,
+    cx, cy - 0.5,
+  ]);
+  g.fill({ color: plinthDark });
+  g.stroke({ width: 0.8, color: plinthBorder });
+
+  // 3. Broken Wall: Left Standing Stub (sunlit, jagged fracture line at top)
+  g.poly([
+    cx - 7, cy + 1,
+    cx, cy + 3.8,
+    cx, cy - 5.5,
+    cx - 2, cy - 8.5,
+    cx - 4, cy - 6.5,
+    cx - 5.5, cy - 9,
+    cx - 7, cy - 6,
+  ]);
+  g.fill({ color: stoneLight });
+  g.stroke({ width: 0.8, color: plinthBorder });
+
+  // 4. Broken Wall: Right Collapsed Stub (heavily tumbled, lower profile)
+  g.poly([
+    cx, cy + 3.8,
+    cx + 7, cy + 1,
+    cx + 7, cy - 3.5,
+    cx + 5, cy - 5,
+    cx + 3, cy - 3,
+    cx + 1.5, cy - 4.5,
+    cx, cy - 5.5,
+  ]);
+  g.fill({ color: stoneDark });
+  g.stroke({ width: 0.8, color: plinthBorder });
+
+  // 5. Exposed Inner Rubble Core along broken top edges
+  g.poly([
+    cx - 5.5, cy - 9,
+    cx - 4, cy - 6.5,
+    cx - 2, cy - 8.5,
+    cx, cy - 5.5,
+    cx + 1.5, cy - 4.5,
+    cx + 3, cy - 3,
+    cx + 5, cy - 5,
+    cx + 7, cy - 3.5,
+    cx + 6, cy - 2.5,
+    cx + 2, cy - 2,
+    cx - 2, cy - 4.5,
+    cx - 7, cy - 5,
+  ]);
+  g.fill({ color: stoneCore });
+  g.stroke({ width: 0.6, color: 0x27272a });
+
+  // 6. Wall Seams, Weathered Courses, and Deep Fissures
+  // Center corner seam
+  g.moveTo(cx, cy - 5.5);
+  g.lineTo(cx, cy + 3.8);
+  g.stroke({ width: 1.0, color: plinthBorder });
+
+  // Deep structural crack on left tower face
+  g.moveTo(cx - 4, cy - 6.5);
+  g.lineTo(cx - 3, cy - 3);
+  g.lineTo(cx - 5, cy - 0.5);
+  g.lineTo(cx - 4, cy + 1.8);
+  g.stroke({ width: 0.9, color: stoneCrack });
+
+  // Structural fracture on right wall
+  g.moveTo(cx + 3, cy - 3);
+  g.lineTo(cx + 4.5, cy - 0.5);
+  g.lineTo(cx + 3.5, cy + 1.5);
+  g.stroke({ width: 0.8, color: stoneCrack });
+
+  // Weathered horizontal masonry courses
+  g.moveTo(cx - 7, cy - 2); g.lineTo(cx, cy + 0.5); g.lineTo(cx + 7, cy - 1);
+  g.stroke({ width: 0.7, color: 0x292524, alpha: 0.7 });
+
+  // 7. Empty Breached Gateway (shattered portal, fallen lintel stone)
+  g.poly([
+    cx - 2, cy + 3.5,
+    cx - 2, cy + 0.8,
+    cx, cy - 0.2,
+    cx + 2, cy + 0.8,
+    cx + 2, cy + 3.5,
+  ]);
+  g.fill({ color: 0x0c0a09 });
+  // Slanted fallen lintel stone wedged in entrance
+  g.poly([
+    cx - 2.8, cy + 0.2,
+    cx + 2.2, cy + 1.2,
+    cx + 1.8, cy + 2.2,
+    cx - 3.2, cy + 1.2,
+  ]);
+  g.fill({ color: 0x57534e });
+  g.stroke({ width: 0.6, color: plinthBorder });
+
+  // 8. Fallen Stone: Tumbled Masonry Blocks and Rubble Piles on Diamond Ground
+  // Fallen stone block 1 (southwest rubble block)
+  g.poly([
+    cx - 9, cy + 2.5,
+    cx - 6.5, cy + 1,
+    cx - 5, cy + 2.5,
+    cx - 7.5, cy + 4,
+  ]);
+  g.fill({ color: 0xa8a29e });
+  g.stroke({ width: 0.6, color: 0x27272a });
+  g.poly([
+    cx - 7.5, cy + 4,
+    cx - 5, cy + 2.5,
+    cx - 5, cy + 3.5,
+    cx - 7.5, cy + 5,
+  ]);
+  g.fill({ color: 0x57534e });
+
+  // Fallen stone block 2 (southeast crumbled block)
+  g.poly([
+    cx + 4.5, cy + 3,
+    cx + 7.5, cy + 1.5,
+    cx + 9, cy + 3,
+    cx + 6, cy + 4.5,
+  ]);
+  g.fill({ color: 0x78716c });
+  g.stroke({ width: 0.6, color: plinthBorder });
+  g.poly([
+    cx + 6, cy + 4.5,
+    cx + 9, cy + 3,
+    cx + 9, cy + 4,
+    cx + 6, cy + 5.5,
+  ]);
+  g.fill({ color: 0x44403c });
+
+  // Fallen stone block 3 (dislodged stone in foreground center)
+  g.poly([
+    cx - 1.5, cy + 4.5,
+    cx + 1, cy + 3.2,
+    cx + 2.8, cy + 4.8,
+    cx + 0.3, cy + 6.1,
+  ]);
+  g.fill({ color: 0xd6d3d1 });
+  g.stroke({ width: 0.6, color: 0x27272a });
+
+  // Loose stone chunks and gravel debris
+  g.rect(cx - 5.5, cy + 4.5, 1.8, 1.2); g.fill({ color: 0x78716c });
+  g.rect(cx + 3, cy + 5, 1.6, 1.2); g.fill({ color: 0x57534e });
+  g.rect(cx - 3.5, cy + 5.5, 1.4, 1.0); g.fill({ color: 0xa8a29e });
+  g.rect(cx + 7.5, cy + 0.5, 1.6, 1.3); g.fill({ color: 0x78716c });
+  g.rect(cx - 8, cy + 0.2, 1.5, 1.2); g.fill({ color: 0x57534e });
+
+  // 9. Wild Overgrowth: Creeping Moss and Lichen
+  g.circle(cx - 6, cy + 1.5, 0.8); g.fill({ color: mossGreen });
+  g.circle(cx - 5.2, cy + 2, 0.6); g.fill({ color: mossLight });
+  g.circle(cx + 5, cy + 2.2, 0.8); g.fill({ color: mossGreen });
+  g.circle(cx + 2, cy - 2, 0.7); g.fill({ color: mossLight });
+  g.circle(cx - 2, cy - 5, 0.7); g.fill({ color: mossGreen });
+}
+
+/**
  * Draws the complete resource node on an isometric diamond tile:
- * 1. Facility / work station landmark on the left (stump+axe, quarry face+pick, wheat stook+sickle, or ruins columns)
- * 2. Small stock pile on the right (stacked logs, ashlar blocks, grain sacks) when the province already has node stock.
+ * 1. Facility / work station landmark on the left (stump+axe, quarry face+pick, wheat stook+sickle, or small ruined keep)
+ * 2. Small stock pile on the right (stacked logs, ashlar blocks, grain sacks, treasure cache) when the province already has node stock.
  * When the node is empty (stock <= 0), no pile is drawn on the diamond and empty nodes stay as they are.
  */
 export function drawResourceNode(
@@ -2763,19 +2951,8 @@ export function drawResourceNode(
     }
 
     case "ruins": {
-      // Crumbling classical stone column & archway
-      g.rect(cx - 8, cy + 2, 5, 2);
-      g.fill({ color: 0x52525b });
-      g.rect(cx - 7.5, cy - 5, 4, 7);
-      g.fill({ color: 0xa1a1aa });
-      g.moveTo(cx - 6.5, cy - 5); g.lineTo(cx - 6.5, cy + 2);
-      g.stroke({ width: 0.6, color: 0x71717a });
-      g.moveTo(cx - 4.5, cy - 5); g.lineTo(cx - 4.5, cy + 2);
-      g.stroke({ width: 0.6, color: 0x71717a });
-      g.poly([cx - 8, cy - 5, cx - 6, cy - 7, cx - 4, cy - 5.5, cx - 3, cy - 5]);
-      g.fill({ color: 0xd4d4d8 });
-      g.moveTo(cx - 4, cy - 6); g.lineTo(cx, cy - 3);
-      g.stroke({ width: 1.4, color: 0x71717a });
+      // Small ruined keep on the diamond: broken wall, fallen stone, no flag, no tent
+      drawRuinedKeep(g, cx, cy - 2, phase);
       break;
     }
   }
@@ -3393,13 +3570,15 @@ export function paintBoardProvinces(
         g.circle(wx, cy + hh, 1.2); g.fill({ color: 0xfde047 });
         g.circle(wx - hw, cy, 1.2); g.fill({ color: 0xfde047 });
 
-        const garrison = getPostedGarrison(state, p.id);
-        if (garrison.posted) {
-          // Posted Garrison Encampment: small tent + banner meeple with armaments & power crest
-          drawGarrisonMeeple(g, cx, cy, kit, cult, garrison.power, phase);
-        } else {
-          // Player Camp / Outpost: clearer tent + flag
-          drawPlayerCampTentAndFlag(g, cx, cy, kit, cult, phase, { node: p.node, flagColor: playerTabardCol });
+        if (p.node !== "ruins") {
+          const garrison = getPostedGarrison(state, p.id);
+          if (garrison.posted) {
+            // Posted Garrison Encampment: small tent + banner meeple with armaments & power crest
+            drawGarrisonMeeple(g, cx, cy, kit, cult, garrison.power, phase);
+          } else {
+            // Player Camp / Outpost: clearer tent + flag
+            drawPlayerCampTentAndFlag(g, cx, cy, kit, cult, phase, { node: p.node, flagColor: playerTabardCol });
+          }
         }
       }
     } else if (p.occupantRealmId) {
@@ -3424,32 +3603,34 @@ export function paintBoardProvinces(
         g.circle(wx, cy + hh, 1.1); g.fill({ color: pal.studColor });
         g.circle(wx - hw, cy, 1.1); g.fill({ color: pal.studColor });
 
-        // Ground shadow under crate & flag
-        g.ellipse(cx + 4.5, cy + 5, 4.5, 2);
-        g.fill({ color: 0x000000, alpha: 0.45 });
+        if (p.node !== "ruins") {
+          // Ground shadow under crate & flag
+          g.ellipse(cx + 4.5, cy + 5, 4.5, 2);
+          g.fill({ color: 0x000000, alpha: 0.45 });
 
-        // Territory flag
-        g.moveTo(cx - 3, cy + 4); g.lineTo(cx - 3, cy - 14);
-        g.stroke({ width: 1.3, color: pal.rimColor });
-        g.circle(cx - 3, cy - 14.5, 1.3); g.fill({ color: pal.studColor });
+          // Territory flag
+          g.moveTo(cx - 3, cy + 4); g.lineTo(cx - 3, cy - 14);
+          g.stroke({ width: 1.3, color: pal.rimColor });
+          g.circle(cx - 3, cy - 14.5, 1.3); g.fill({ color: pal.studColor });
 
-        const flagWave = Math.sin(phase * 4 + p.x * 2) * 1.8;
-        g.poly([
-          cx - 3, cy - 14,
-          cx + 5 + flagWave, cy - 11.5,
-          cx + 3 + flagWave * 0.6, cy - 9.5,
-          cx + 5 + flagWave, cy - 7.5,
-          cx - 3, cy - 7.5,
-        ]);
-        g.fill({ color: pal.pennantColor });
-        g.stroke({ width: 0.6, color: pal.borderColor });
+          const flagWave = Math.sin(phase * 4 + p.x * 2) * 1.8;
+          g.poly([
+            cx - 3, cy - 14,
+            cx + 5 + flagWave, cy - 11.5,
+            cx + 3 + flagWave * 0.6, cy - 9.5,
+            cx + 5 + flagWave, cy - 7.5,
+            cx - 3, cy - 7.5,
+          ]);
+          g.fill({ color: pal.pennantColor });
+          g.stroke({ width: 0.6, color: pal.borderColor });
 
-        // Reinforced supply crate with iron banding
-        g.rect(cx + 2, cy + 1, 5.5, 4.5);
-        g.fill({ color: pal.keepWallColor });
-        g.stroke({ width: 0.8, color: pal.borderColor });
-        g.moveTo(cx + 2, cy + 1); g.lineTo(cx + 7.5, cy + 5.5);
-        g.stroke({ width: 0.6, color: pal.borderColor });
+          // Reinforced supply crate with iron banding
+          g.rect(cx + 2, cy + 1, 5.5, 4.5);
+          g.fill({ color: pal.keepWallColor });
+          g.stroke({ width: 0.8, color: pal.borderColor });
+          g.moveTo(cx + 2, cy + 1); g.lineTo(cx + 7.5, cy + 5.5);
+          g.stroke({ width: 0.6, color: pal.borderColor });
+        }
       }
     }
 

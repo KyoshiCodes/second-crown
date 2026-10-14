@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-14 — Ruins line (wave/hud-ruins)
+## 2026-10-14 — Ruins tile shows broken keep on diamond (bakeoff/gemini-ruins)
 
-- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, outpost, camp, and resource lines, fog.
-- `packages/app/src/hud/ruinsLine.ts` (new): `ruinsLine(seen, node)` gives `"Ruins · no stock"` for a seen ruins tile, else `null`.
-- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the camp threat line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-ruins` (muted grey, italic).
-- Tests: new `packages/app/src/hud/ruinsLine.test.ts` (seen ruins shows the line; unseen ruins does not; no other node does). Run: `npm test`.
+- Board tile only in `packages/render`. No changes to `packages/sim` or `server/`. No changes to `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `drawRuinedKeep(g, cx, cy, phase, options)`: miniature broken keep silhouette designed specifically for the isometric diamond tile. Features dark cracked foundation plinth/talus (`0x292524`), fractured left standing wall stub with sunlit stone (`0x78716c`), lower crumbled right stub (`0x44403c`), exposed inner rubble core along jagged breaklines (`0xa8a29e`), deep structural fissures (`0x18181b`), collapsed arched gateway with wedged fallen lintel stone (`0x57534e`), loose ashlar blocks and tumbled gravel debris strewn across the foundation (`0xa8a29e`, `0x78716c`, `0xd6d3d1`), and wild creeping moss/lichen (`0x3f6212`, `0x4d7c0f`). Explicitly no flag, banner, or cloth tent.
+  - `drawResourceNode`: dispatches `case "ruins": drawRuinedKeep(g, cx, cy - 2, phase); break;`. Stock piles (`drawNodeStockPile`) continue to render alongside when `hasStock && ratio > 0`.
+  - `paintBoardProvinces`: player outpost tent/flag and NPC territory overlays are guarded with `if (p.node !== "ruins")`, ensuring ruins tiles retain the ruined keep without tent or flag intrusion even when claimed or occupied.
+  - Unseen tiles stay shrouded in fog (`paintFogHeightVeil`). Camps, outposts, resource piles, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawRuinedKeep`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains fully functional.
+- Tests: `packages/render/src/index.test.ts` (10 tests in `bakeoff/gemini-ruins` suite; 405/405 render tests pass; `npm test` passes).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-14 — Static gate (wave/static-gate)
 
