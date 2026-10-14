@@ -1,3 +1,9 @@
+## 2026-10-14 — app / shore line (wave/hud-shore)
+
+- Shore is a `TerrainId` (`packages/shared`), not a node, so the line keys off `p.terrain`, not `p.node`. The Terrain fact already read "Shore"; the extra line says what it means (water edge) the same way the ruins line does.
+- The condition lives in `shoreLine(seen, terrain)` (pure, `hud/shoreLine.ts`), mirroring `ruinsLine`, so it can be unit tested; the app has no React render tests. `seen` is the same `isProvinceSeen` the card already uses, so fog keeps the line hidden.
+- Determinism: no sim change. Display only.
+
 ## 2026-10-14 — render / ruins tile shows broken keep on diamond (bakeoff/gemini-ruins)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim` or `server/`. No changes to `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

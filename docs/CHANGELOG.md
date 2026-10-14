@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-14 — Shore line (wave/hud-shore)
+
+- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, camp, outpost, and resource lines, fog.
+- `packages/app/src/hud/shoreLine.ts` (new): `shoreLine(seen, terrain)` gives `"Shore · water"` for a seen shore tile, else `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the ruins line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-shore` (soft blue, italic).
+- `docs/HANDOFF.md`: also marks the static gate (#234), ruins line (#235), and ruins tile (#236) as merged.
+- Tests: new `packages/app/src/hud/shoreLine.test.ts` (seen shore shows the line; unseen shore does not; no other terrain does). Run: `npm test`.
+
 ## 2026-10-14 — Ruins tile shows broken keep on diamond (bakeoff/gemini-ruins)
 
 - Board tile only in `packages/render`. No changes to `packages/sim` or `server/`. No changes to `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
