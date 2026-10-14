@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#231**. Waiting: `wave/sim-clock` (**not merged**, see Sim clock below).
+Merged through PR **#232**. Waiting: `wave/save-gate` (**not merged**, see Save gate below).
 
 ### Cultures and units (all merged)
 
@@ -136,13 +136,21 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A solo save still never reaches this loader: a realm that is not shared gets no hold and loads no sim.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, no client state as a realm, no rules in `server/`. No app or sim change.
 
-## Sim clock (branch `wave/sim-clock`, **not merged**)
+## Sim clock (PR #232, merged)
 
 - `packages/sim` no longer reads `Date.now()` anywhere. Before, three places fell back to the wall clock when no time was passed: `applyOfflineProgress`, `createGameState` (`meta.lastRealTime`), and the daily court (`utcDay`, `dailyClaimed`, `dailyMsLeft`, `tryClaimDaily`).
 - Now the caller passes the clock. `applyOfflineProgress(state, now)` and the four daily functions require `now`; a missing or non-finite `now` throws (`requireClock` in `packages/sim/src/core/clock.ts`), it never falls back to the wall clock. `createGameState` with no `now` stamps `lastRealTime: 0`.
 - The app owns the wall clock: `useGameEngine` (new game, import), `settleOnLoad` default deps, and `CrownTab` pass `Date.now()`. Solo play behaves as before.
 - Same seed, same actions, same tick count give the same serialized state on two machines.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress` catch-up math, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, no client state as a realm, no rules in `server/`. No server change.
+
+## Save gate (branch `wave/save-gate`, **not merged**)
+
+- A client cannot send a full game state and have the server take it as the realm. A shared hold takes only an intent: `POST /join` takes exactly `{ realm }` and `POST /realm/:id/intent` takes exactly one of `stamp`, `train`, `build`, `cottage`, `lumber`. A body shaped like a solo save, like the server's own kept hold record (`kind: "shared-hold"`), or like an intent with a state glued on is refused with 400. A state over 1 KB is cut off before it is read (the connection closes). The kept hold file stays byte for byte, and the allowed intents still work afterwards.
+- This was already true in `server/join.mjs` (`parseJoin`) and `server/hold.mjs` (`parseIntent`). This branch adds a live-server test that proves it end to end: `server/stategate.test.mjs`. No server code changed.
+- Owner choice (2026-10-14): solo cloud saves are **not** gated to intents. `PUT /save` still takes a whole solo save through `gateSave` (shape, real-time, append-only log), because the server does not run the sim for solo play (INVARIANTS §17) and so cannot build a solo crown from intents. A kept hold record sent to `PUT /save` is refused and the solo save stays.
+- A solo load does not join: a solo push and pull make no hold file, start no realm clock, and `/realm/<account id>/hold` is 404.
+- Not touched: solo saves are not marked shared, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, no rules in `server/`. No app or sim change.
 
 ## Verify
 

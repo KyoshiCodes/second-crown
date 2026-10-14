@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-14 — Save gate (wave/save-gate)
+
+- Save gate only. Not changed: solo saves are not marked shared, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, no rules in `server/`. No app, sim, or server code change.
+- Already in place and now proven against the live server: `POST /join` (`parseJoin`) and `POST /realm/:id/intent` (`parseIntent`) refuse any full state with 400; bodies over 1 KB are cut off before they are read. The kept hold file is unchanged after a refusal.
+- Solo `PUT /save` still takes a whole solo save through `gateSave` (owner choice: the server does not run the sim for solo play, so it cannot accept solo intents). A kept hold record sent there is refused (400).
+- Tests: new `server/stategate.test.mjs` (live server). A solo save, a forged kept hold record with richer stores, an intent with a state glued on, a join with a state, and an oversized save are all refused on intent and join, with and without the key; the stored hold file and the stored solo save are byte for byte unchanged; a stamp still lands before and after. A solo push and pull make no hold file, start no clock, and the account id is not a shared realm. `npm test`: 21 server files, 149 server tests. Run: `npm test`.
+
 ## 2026-10-14 — Sim clock (wave/sim-clock)
 
 - Sim clock only. Not changed: solo saves are not marked shared, `applyOfflineProgress` catch-up math, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, no client state as a realm, no rules in `server/`. No server change.
