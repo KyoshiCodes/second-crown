@@ -1,3 +1,11 @@
+## 2026-10-14 — server / save gate (wave/save-gate)
+
+- Brief: "the server accepts only an intent; a full state body leaves the stored save as is." Audit of every write route: `/join` and `/realm/:id/intent` already reject anything but an exact one-key body (`parseJoin`, `parseIntent`, before any `sync`, so nothing settles or writes). `readBody(req, 1024)` rejects larger bodies and `req.destroy()`s the socket, so the client sees a closed connection, not a 400. Left as is (changing `readBody` would also touch `PUT /save` 413 handling). `keep.mjs` loads only `kind: "shared-hold"` records with a matching `realmId`, written only by the server.
+- `PUT /save` is the one route that takes a whole state. Asked the owner: gating it to intents would end solo Push save, since INVARIANTS §17 forbids running the sim for solo. Owner chose "gate shared paths only". It stays on `gateSave`; a hold record fails `parseSave` (no `meta`, arrays), and solo ids (`guest_`, `discord_`) never collide with `join-*.json`.
+- Intent-before-key order was not changed: `joinable.intent` checks the key first, then `parseIntent`. Moving the state check ahead of the key would change wrong-key counting, which is out of scope (hold keys).
+- Test note: a stamp sits in `pending` until the next tick boundary, so the test counts `stamps.length + pending`.
+- Determinism: no sim change.
+
 ## 2026-10-14 — sim / sim clock (wave/sim-clock)
 
 - Root cause: Invariant 2 forbids wall-clock reads in sim logic, but three sim entry points defaulted `now = Date.now()`: `applyOfflineProgress`, the daily court (`utcDay`, `dailyClaimed`, `dailyMsLeft`, `tryClaimDaily`), and `createGameState` (`options.now ?? Date.now()`). A caller that forgot the clock got the local machine's time silently, so `meta.lastRealTime`, `flags.daily_claim_day`, and the `daily_claim` input-log payload could differ between two machines replaying the same actions.
