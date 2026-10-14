@@ -247,3 +247,6 @@
 
 /* Ruins: seen tile with node "ruins"; no stock to gather. */
 .sc-inspect-ruins { color: #8b949e; font-style: italic; }
+
+/* Shore: seen tile with terrain "shore"; water edge. */
+.sc-inspect-shore { color: #79c0ff; font-style: italic; }
