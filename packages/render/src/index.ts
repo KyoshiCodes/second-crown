@@ -120,6 +120,7 @@ import {
   drawWardenMeeple,
   drawLancerMeeple,
   drawRuinedKeep,
+  drawShoreTile,
 } from "./tokens.js";
 
 import {
@@ -985,5 +986,6 @@ export {
   drawWardenMeeple,
   drawLancerMeeple,
   drawRuinedKeep,
+  drawShoreTile,
 };
 
