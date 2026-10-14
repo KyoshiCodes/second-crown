@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-14 — Peak says so (wave/hud-peak)
+
+- **A peak tile now says it is peak with a mountain.** Click a peak tile you have seen, and the tile card shows "Peak · mountain".
+- A peak tile you have not scouted still sits under fog and shows nothing new.
+- **Play is unchanged.** Scouting, gathering, garrisons, marches, abandoning a flag, and every other tile line work exactly as before.
+
 ## 2026-10-14 — Wood says so (wave/hud-wood)
 
 - **A wood tile now says it is wood with trees.** Click a wood tile you have seen, and the tile card shows "Wood · trees".

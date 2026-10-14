@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-14 — Peak line (wave/hud-peak)
+
+- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, wood, camp, outpost, and resource lines, fog.
+- `packages/app/src/hud/peakLine.ts` (new): `peakLine(seen, terrain)` gives `"Peak · mountain"` for a seen peak tile, else `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the wood line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-peak` (pale stone grey, italic).
+- `docs/HANDOFF.md`: also marks the wood line (#239) and trees on the diamond (#240) as merged.
+- Tests: new `packages/app/src/hud/peakLine.test.ts` (seen peak shows the line; unseen peak does not; no other terrain does). Run: `npm test`.
+
 ## 2026-10-14 — Wood line (wave/hud-wood)
 
 - Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, camp, outpost, and resource lines, fog.

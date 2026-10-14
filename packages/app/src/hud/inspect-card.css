@@ -253,3 +253,6 @@
 
 /* Wood: seen tile with terrain "wood"; trees. */
 .sc-inspect-wood { color: #7ee787; font-style: italic; }
+
+/* Peak: seen tile with terrain "peak"; mountain. */
+.sc-inspect-peak { color: #c9d1d9; font-style: italic; }
