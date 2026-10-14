@@ -3439,6 +3439,149 @@ export function drawWoodTile(
   g.fill({ color: 0x451a03, alpha: 0.65 });
 }
 
+/**
+ * Draws an alpine mountain on an isometric peak terrain diamond tile:
+ * - Rock shadow: soft contact shadow (0x000000, alpha 0.38) and dense base shadow (0x0f172a) cast southeast across the diamond
+ * - Mountain base scree & boulder talus debris (0x475569, 0x334155, 0x64748b)
+ * - Tall peak: towering monarch summit crag (cy - 15), shadowed eastern slopes (0x1e293b, 0x0f172a), sunlit western slopes (0x475569, 0x64748b), and sharp central arête ridge (0x334155, 0x94a3b8)
+ * - Snow cap: permanent monarch glacier snowcap (0xffffff / 0xe2e8f0) with couloir drifts, and western & eastern sub-peak horn snowcaps (0xffffff, 0xf1f5f9)
+ */
+export function drawPeakTile(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  hw: number,
+  hh: number,
+  phase: number = 0,
+  options?: { px?: number; py?: number }
+): void {
+  // 1. Rock Shadow cast onto the diamond plateau
+  // Soft elliptical contact rock shadow cast southeast across the diorama floor
+  g.ellipse(cx + 2.5, cy + 3.2, 10.5, 4.2);
+  g.fill({ color: 0x000000, alpha: 0.38 });
+
+  // Dense contact shadow along the base of the eastern and southern rock walls
+  g.poly([
+    cx - 2, cy + 3.5,
+    cx + 8, cy + 4.5,
+    cx + hw - 1, cy + 1,
+    cx + 11, cy - 1,
+    cx, cy + 4,
+  ]);
+  g.fill({ color: 0x0f172a, alpha: 0.55 });
+
+  // Scree and boulder talus skirting the mountain base
+  g.rect(cx - 7, cy + 3.8, 2.2, 1.4);
+  g.fill({ color: 0x475569 });
+  g.rect(cx + 5, cy + 3.5, 2.0, 1.2);
+  g.fill({ color: 0x334155 });
+  g.circle(cx - 3, cy + 4.5, 0.7);
+  g.fill({ color: 0x64748b });
+  g.circle(cx + 2, cy + 4.2, 0.65);
+  g.fill({ color: 0x475569 });
+
+  // 2. A Tall Peak: Towering alpine mountain massif
+  // Shadowed eastern slopes (deep navy/slate rock)
+  g.poly([
+    cx, cy - 15,
+    cx + 11, cy - 1,
+    cx + 13, cy - 7,
+    cx + hw - 2, cy + 0.5,
+    cx, cy + 4,
+  ]);
+  g.fill({ color: 0x1e293b });
+
+  // Secondary eastern shadow facet / gully
+  g.poly([
+    cx, cy - 15,
+    cx + 5, cy - 5,
+    cx + 7, cy + 1,
+    cx, cy + 4,
+  ]);
+  g.fill({ color: 0x0f172a, alpha: 0.6 });
+
+  // Illuminated western slopes (sunlit slate rock)
+  g.poly([
+    cx - hw + 2, cy,
+    cx - 12, cy - 5,
+    cx - 7, cy + 1,
+    cx, cy - 15,
+    cx, cy + 4,
+  ]);
+  g.fill({ color: 0x475569 });
+
+  // Sunlit western buttress / crag highlight facet
+  g.poly([
+    cx - 6, cy - 8,
+    cx, cy - 15,
+    cx - 1, cy - 4,
+    cx - 7, cy + 1,
+  ]);
+  g.fill({ color: 0x64748b, alpha: 0.85 });
+
+  // Central arête ridge line from towering monarch summit to base
+  g.moveTo(cx, cy - 15);
+  g.lineTo(cx, cy + 4);
+  g.stroke({ width: 1.4, color: 0x334155, alpha: 0.95 });
+
+  // High-contrast sun edge along arête ridge
+  g.moveTo(cx - 0.5, cy - 15);
+  g.lineTo(cx - 0.5, cy + 4);
+  g.stroke({ width: 0.7, color: 0x94a3b8, alpha: 0.7 });
+
+  // 3. A Snow Cap: Alpine glacier snowcaps & high couloirs
+  // Monarch summit snowcap (sunlit western flank)
+  g.poly([
+    cx - 4.5, cy - 8.5,
+    cx, cy - 15,
+    cx, cy - 6,
+    cx - 2, cy - 5,
+  ]);
+  g.fill({ color: 0xffffff });
+
+  // Monarch summit snowcap (shadowed eastern flank)
+  g.poly([
+    cx, cy - 15,
+    cx + 4.5, cy - 8.5,
+    cx + 2, cy - 5,
+    cx, cy - 6,
+  ]);
+  g.fill({ color: 0xe2e8f0 });
+
+  // Glacier couloir snow tongues spilling down mountain crevices
+  g.moveTo(cx, cy - 6);
+  g.lineTo(cx - 0.5, cy - 2);
+  g.stroke({ width: 1.0, color: 0xffffff, alpha: 0.9 });
+
+  g.moveTo(cx + 1, cy - 5);
+  g.lineTo(cx + 2.5, cy - 1);
+  g.stroke({ width: 0.8, color: 0xcbd5e1, alpha: 0.85 });
+
+  // Western horn sub-peak snowcap
+  g.poly([
+    cx - 14, cy - 2,
+    cx - 12, cy - 6,
+    cx - 9, cy - 2,
+    cx - 11, cy - 1,
+  ]);
+  g.fill({ color: 0xffffff });
+
+  // Eastern horn sub-peak snowcap
+  g.poly([
+    cx + 10, cy - 4,
+    cx + 13, cy - 8,
+    cx + 15, cy - 3,
+    cx + 13, cy - 2,
+  ]);
+  g.fill({ color: 0xf1f5f9 });
+
+  // Alpine snow dusting on high crags
+  g.circle(cx - 6, cy - 2, 0.7);
+  g.fill({ color: 0xffffff, alpha: 0.85 });
+  g.circle(cx + 7, cy - 2.5, 0.65);
+  g.fill({ color: 0xe2e8f0, alpha: 0.85 });
+}
+
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
 // -------------------------------------------------------------
@@ -3676,58 +3819,8 @@ export function paintBoardProvinces(
       }
 
       case "peak": {
-        // Towering alpine mountain peak: twin snowcapped rocky crags
-        // Shadowed eastern slopes
-        g.poly([
-          cx, cy - 14,
-          cx + 11, cy - 1,
-          cx + 13, cy - 7,
-          cx + hw - 3, cy,
-          cx, cy + 4,
-        ]);
-        g.fill({ color: 0x1e293b });
-
-        // Illuminated western slopes
-        g.poly([
-          cx - hw + 3, cy,
-          cx - 12, cy - 5,
-          cx - 7, cy + 1,
-          cx, cy - 14,
-          cx, cy + 4,
-        ]);
-        g.fill({ color: 0x475569 });
-
-        // Central arête ridge line
-        g.moveTo(cx, cy - 14);
-        g.lineTo(cx, cy + 4);
-        g.stroke({ width: 1.2, color: 0x334155 });
-
-        // Monarch summit snowcap
-        g.poly([
-          cx - 4, cy - 8,
-          cx, cy - 14,
-          cx + 4, cy - 8,
-          cx, cy - 6,
-        ]);
-        g.fill({ color: 0xffffff });
-
-        // Western horn snowcap
-        g.poly([
-          cx - 14, cy - 2,
-          cx - 12, cy - 5,
-          cx - 9, cy - 2,
-          cx - 11, cy - 1,
-        ]);
-        g.fill({ color: 0xf8fafc });
-
-        // Eastern horn snowcap
-        g.poly([
-          cx + 10, cy - 4,
-          cx + 13, cy - 7,
-          cx + 15, cy - 3,
-          cx + 13, cy - 2,
-        ]);
-        g.fill({ color: 0xf8fafc });
+        // Mountain on the diamond: tall peak, snow cap, and rock shadow
+        drawPeakTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
         break;
       }
     }

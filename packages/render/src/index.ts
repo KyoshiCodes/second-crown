@@ -122,6 +122,7 @@ import {
   drawRuinedKeep,
   drawShoreTile,
   drawWoodTile,
+  drawPeakTile,
 } from "./tokens.js";
 
 import {
@@ -989,5 +990,6 @@ export {
   drawRuinedKeep,
   drawShoreTile,
   drawWoodTile,
+  drawPeakTile,
 };
 
