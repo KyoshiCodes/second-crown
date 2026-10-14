@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-14 — Ruins say so (wave/hud-ruins)
+## 2026-10-14 — Ruins tile shows a broken keep (bakeoff/gemini-ruins)
 
-- **A ruins tile now says it is ruins with no stock.** Click a ruins tile you have seen, and the tile card shows "Ruins · no stock", so you know there is nothing to gather there.
-- A ruins tile you have not scouted still sits under fog and shows nothing new.
-- **Play is unchanged.** Scouting, gathering, garrisons, raids, abandoning a flag, and every other tile line work exactly as before.
+- **A ruins tile now shows a broken keep, and play is unchanged.** A seen province whose node is ruins gets a small ruined keep on the diamond: broken wall, fallen stone, no flag, and no tent.
+- **Unseen tiles stay fog.** Camps, outposts, resource piles, and keeps stay as they are.
+- Clicking or interacting with the tile works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-14 — The server only serves the game (wave/static-gate)
 

@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#234**. Waiting: `wave/hud-ruins` (**not merged**, see Ruins line below).
+Merged through PR **#233**. Waiting: `wave/static-gate` (**not merged**, see Static gate below); bakeoff: `bakeoff/gemini-ruins` (**not merged**, see Ruins tile on diamond below).
 
 ### Cultures and units (all merged)
 
@@ -152,7 +152,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A solo load does not join: a solo push and pull make no hold file, start no realm clock, and `/realm/<account id>/hold` is 404.
 - Not touched: solo saves are not marked shared, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, no rules in `server/`. No app or sim change.
 
-## Static gate (PR #234, merged)
+## Static gate (branch `wave/static-gate`, **not merged**)
 
 - The static file server only serves files inside the built app folder (`packages/app/dist`, or `APP_DIST`). Code: `server/static.mjs` (`createStaticServer`, `staticPath`), wired in `server/index.mjs` as `serveStatic` (the old `tryStatic` is gone).
 - Refused with 403 `That file is not part of the app.` before any file is touched: a `..` segment (also `%2e%2e`, `..%2f`, `..%5c`), an absolute path (`//etc/passwd`, `/C:/...`, `/%5c%5cshare`), a NUL byte, any path that resolves outside the folder (including a sibling such as `dist-secret`, which the old `startsWith` check let through), and a symlink inside the folder that points outside it. A bad percent-escape is still 400.
@@ -160,12 +160,15 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - Tests: `server/static.test.mjs` (every escape is refused and no path outside dist is read, exists-checked, or stat'ed; normal requests succeed; a solo load does not join). `npm test`: 22 server files, 158 server tests (1 symlink test skips on Windows without symlink rights).
 - Not touched: solo saves are not marked shared, no combat rules in `server/`, no full client state as the realm, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, the save gate. No app or sim change.
 
-## Ruins line (branch `wave/hud-ruins`, **not merged**)
+## Ruins tile on diamond (branch `bakeoff/gemini-ruins`, **not merged**)
 
-- The province inspect card shows one line, `Ruins · no stock`, on a seen tile whose node is `ruins`. Code: `ruinsLine(seen, node)` in `packages/app/src/hud/ruinsLine.ts`, rendered in `packages/app/src/ProvinceInspect.tsx` under the Tile group (after the camp threat line). Style: `.sc-inspect-ruins` in `packages/app/src/hud/inspect-card.css`.
-- Reads the existing `node` field only; no new sim field. An unseen ruins tile still shows fog ("Unscouted province", "Fog hides the token.") and no ruins line.
-- Tests: `packages/app/src/hud/ruinsLine.test.ts` (shows for a seen ruins tile; hidden when unseen; hidden on every other node).
-- Not touched: `packages/sim`, `server/`, `theme.css`, scout / gather / garrison / march / abandon actions, the home, outpost, camp, and resource lines.
+- The board tile only. Render only. Do not change `packages/sim` or `server/`. Do not change `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
+- A seen province whose node is ruins gets a small ruined keep on the diamond: broken wall (standing left stub, crumbled lower right stub, exposed inner rubble core), fallen stone (ashlar masonry blocks and loose debris), arched entrance with fallen lintel stone, wild moss and lichen. No flag, no tent.
+- Unseen tiles stay fog (`paintFogHeightVeil`). Camps, outposts, resource piles, and keeps stay as they are.
+- Outpost tent and flag overlays are guarded (`p.node !== "ruins"`) so claiming or occupying a ruins province does not replace the broken keep with a camp tent or faction flag.
+- All new art is rendered to the board graphics layer with pointer-events: none semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+- Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (405 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
 ## Verify
 

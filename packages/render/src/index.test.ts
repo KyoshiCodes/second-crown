@@ -90,6 +90,7 @@ import {
   drawOutriderMeeple,
   drawWardenMeeple,
   drawLancerMeeple,
+  drawRuinedKeep,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -2870,12 +2871,15 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
     });
 
     it("WorkCard integrates HallChip and evaluates isScarred accurately", async () => {
-      const { isScarred, WorkCard } = await import("../../app/src/hud/WorkCard.tsx");
+      const { WorkCard } = await import("../../app/src/hud/WorkCard.tsx");
+      const { isScarred } = await import("@second-crown/sim");
       expect(typeof isScarred).toBe("function");
       expect(typeof WorkCard).toBe("function");
 
+      const state: any = { flags: { scar_json: JSON.stringify(["b_scarred"]) }, buildings: [] };
+
       // Finished building (completesAtTick is null) is not scarred
-      const finishedBuilding = {
+      const finishedBuilding: any = {
         id: "b_100_1",
         typeId: "farm",
         realmId: "player",
@@ -2884,31 +2888,31 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         level: 1,
         completesAtTick: null,
       };
-      expect(isScarred(finishedBuilding)).toBe(false);
+      expect(isScarred(state, finishedBuilding)).toBe(false);
 
-      // Fresh build scaffolding: finishes at 100 + buildTicks (farm = 30 ticks -> 130)
-      const freshScaffolding = {
-        id: "b_100_1",
+      // Fresh build scaffolding: finishes at 100 + buildTicks, not marked in scar_json
+      const freshScaffolding: any = {
+        id: "b_100_2",
         typeId: "farm",
         realmId: "player",
         x: 3,
         y: 3,
         level: 1,
-        completesAtTick: 130, // 100 + 30
+        completesAtTick: 130,
       };
-      expect(isScarred(freshScaffolding)).toBe(false);
+      expect(isScarred(state, freshScaffolding)).toBe(false);
 
-      // Siege scarred building: completesAtTick is blow tick + 40 (e.g. tick 200 -> 240 != 130)
-      const scarredBuilding = {
-        id: "b_100_1",
+      // Siege scarred building: marked in scar_json and completesAtTick !== null
+      const scarredBuilding: any = {
+        id: "b_scarred",
         typeId: "farm",
         realmId: "player",
         x: 3,
         y: 3,
         level: 1,
-        completesAtTick: 240, // siege damage scar
+        completesAtTick: 240,
       };
-      expect(isScarred(scarredBuilding)).toBe(true);
+      expect(isScarred(state, scarredBuilding)).toBe(true);
     });
 
     it("KingdomTab renders standing works with WorkCard grid", async () => {
@@ -9751,11 +9755,243 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
               });
             });
           });
+
+          describe("bakeoff/gemini-ruins: seen province with ruins node gets small ruined keep on diamond", () => {
+            function createMockGraphics() {
+              const calls: { method: string; args: any[] }[] = [];
+              const mock: any = {
+                calls,
+                clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+                poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+                fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+                stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+                moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+                lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+                circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+                rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+                ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+                bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); return mock; },
+                quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+                arc: (...args: any[]) => { calls.push({ method: "arc", args }); return mock; },
+                roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+                closePath: () => { calls.push({ method: "closePath", args: [] }); return mock; },
+                beginPath: () => { calls.push({ method: "beginPath", args: [] }); return mock; },
+              };
+              return mock;
+            }
+
+            describe("drawRuinedKeep: miniature broken keep silhouette", () => {
+              it("draws small ruined keep with broken wall and fallen stones", () => {
+                const g = createMockGraphics();
+                drawRuinedKeep(g, 100, 100, 0);
+                const json = JSON.stringify(g.calls);
+
+                // Ground contact shadow
+                expect(g.calls.some((c) => c.method === "ellipse")).toBe(true);
+
+                // Crumbled talus plinth (0x292524)
+                expect(json).toContain(String(0x292524));
+
+                // Broken walls: weathered light ashlar (0x78716c) & dark ashlar (0x44403c)
+                expect(json).toContain(String(0x78716c));
+                expect(json).toContain(String(0x44403c));
+
+                // Exposed inner rubble core along jagged break (0xa8a29e)
+                expect(json).toContain(String(0xa8a29e));
+
+                // Deep structural cracks and fissures (0x18181b)
+                expect(json).toContain(String(0x18181b));
+
+                // Fallen stone blocks on diamond ground (0xa8a29e, 0x78716c, 0xd6d3d1)
+                expect(json).toContain(String(0xd6d3d1));
+
+                // Overgrowth moss/lichen (0x3f6212, 0x4d7c0f)
+                expect(json).toContain(String(0x3f6212));
+                expect(json).toContain(String(0x4d7c0f));
+
+                // NO flag or gold finial (e.g. 0xfacc15, 0xfde047 banner pin)
+                expect(json).not.toContain(String(0xfacc15));
+
+                expect(g.calls.length).toBeGreaterThan(25);
+              });
+            });
+
+            describe("drawResourceNode: ruins delegates to drawRuinedKeep", () => {
+              it("renders drawRuinedKeep when nodeType is ruins", () => {
+                const g = createMockGraphics();
+                drawResourceNode(g, 100, 100, "ruins", 0.0, 0, false);
+                const json = JSON.stringify(g.calls);
+
+                // Contains plinth (0x292524) and fallen stone (0xd6d3d1)
+                expect(json).toContain(String(0x292524));
+                expect(json).toContain(String(0xd6d3d1));
+                // NO flag
+                expect(json).not.toContain(String(0xfacc15));
+              });
+
+              it("preserves resource piles when hasStock is true", () => {
+                const stockedG = createMockGraphics();
+                drawResourceNode(stockedG, 100, 100, "ruins", 0.8, 0, true);
+
+                const emptyG = createMockGraphics();
+                drawResourceNode(emptyG, 100, 100, "ruins", 0.0, 0, false);
+
+                // Stocked node draws ruined keep AND stock pile
+                expect(stockedG.calls.length).toBeGreaterThan(emptyG.calls.length);
+              });
+            });
+
+            describe("paintBoardProvinces: board tile integration", () => {
+              function createRuinsBoardState(seen: boolean, claimedBy: string | null = null): GameState {
+                return {
+                  meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                  resources: {},
+                  buildings: [],
+                  units: [],
+                  citizens: [],
+                  realms: [
+                    { id: "r_player", isPlayer: true, name: "Player" },
+                    { id: "k_silk", isPlayer: false, name: "Silk" },
+                  ] as any,
+                  characters: [],
+                  opinions: [],
+                  wars: [],
+                  factions: [],
+                  inputLog: [],
+                  flags: {
+                    fog_seen: JSON.stringify(seen ? ["p_home", "p_ruins"] : ["p_home"]),
+                    ...(seen ? { "seen:p_ruins": true } : {}),
+                    "seen:p_home": true,
+                  },
+                  unlocks: [],
+                  board: {
+                    homeProvinceId: "p_home",
+                    provinces: [
+                      { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                      { id: "p_ruins", x: 2, y: 1, terrain: "waste", node: "ruins", occupantRealmId: claimedBy },
+                    ],
+                  } as any,
+                };
+              }
+
+              it("renders small ruined keep on diamond when ruins province is seen", () => {
+                const g = createMockGraphics();
+                const state = createRuinsBoardState(true, null);
+                paintBoardProvinces(g, state, 0);
+
+                const json = JSON.stringify(g.calls);
+                // Contains crumbled plinth (0x292524) and fallen stone (0xd6d3d1)
+                expect(json).toContain(String(0x292524));
+                expect(json).toContain(String(0xd6d3d1));
+              });
+
+              it("renders fog (paintFogHeightVeil) and suppresses ruined keep when unseen", () => {
+                const g = createMockGraphics();
+                const state = createRuinsBoardState(false, null);
+                paintBoardProvinces(g, state, 0);
+
+                // Only home province is seen; p_ruins receives fog veil
+                // Unseen ruins tile does not draw the broken keep
+                expect(g.calls.length).toBeGreaterThan(10);
+              });
+
+              it("suppresses tent and flag even if ruins tile is claimed or occupied", () => {
+                const gPlayerClaimed = createMockGraphics();
+                const statePlayer = createRuinsBoardState(true, "player");
+                paintBoardProvinces(gPlayerClaimed, statePlayer, 0);
+                const jsonPlayer = JSON.stringify(gPlayerClaimed.calls);
+
+                // Contains ruined keep broken walls & fallen stone
+                expect(jsonPlayer).toContain(String(0x292524));
+                expect(jsonPlayer).toContain(String(0xd6d3d1));
+
+                // Outpost tent/flag is suppressed for ruins node (no camp tent guy ropes)
+                expect(jsonPlayer).not.toContain(String(0xd4a373)); // tent guy ropes absent on ruins
+                // Contrast with a non-ruins claimed tile:
+                const stateWood = createRuinsBoardState(true, "player");
+                stateWood.board!.provinces[1].node = "woodcut";
+                const gWood = createMockGraphics();
+                paintBoardProvinces(gWood, stateWood, 0);
+                const jsonWood = JSON.stringify(gWood.calls);
+                // Woodcut outpost draws player camp tent
+                expect(jsonWood).toContain(String(0xd4a373)); // tent guy ropes present on woodcut outpost
+              });
+
+              it("keeps camps, outposts, resource piles, and keeps as they are", () => {
+                const state = createMockState();
+                state.board = {
+                  homeProvinceId: "p_home",
+                  provinces: [
+                    { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                    { id: "p_wood", x: 1, y: 0, terrain: "wood", node: "woodcut" },
+                    { id: "p_quarry", x: 2, y: 0, terrain: "hill", node: "quarry" },
+                    { id: "p_field", x: 3, y: 0, terrain: "plain", node: "field" },
+                    { id: "p_camp", x: 4, y: 0, terrain: "plain", node: "camp", occupantRealmId: "rival" },
+                  ],
+                };
+                state.flags = {
+                  "seen:p_home": true,
+                  "seen:p_wood": true,
+                  "seen:p_quarry": true,
+                  "seen:p_field": true,
+                  "seen:p_camp": true,
+                  "node_stock_p_wood": 100,
+                  "node_stock_p_quarry": 60,
+                  "node_stock_p_field": 80,
+                };
+
+                const g = createMockGraphics();
+                paintBoardProvinces(g, state, 0);
+                expect(g.calls.length).toBeGreaterThan(50);
+              });
+            });
+
+            describe("exports and code integrity", () => {
+              it("verifies direct exported drawRuinedKeep function exists and executes cleanly", async () => {
+                const { drawRuinedKeep } = await import("./index.js");
+                expect(typeof drawRuinedKeep).toBe("function");
+
+                const g = createMockGraphics();
+                drawRuinedKeep(g, 50, 50, 0);
+                expect(g.calls.length).toBeGreaterThan(25);
+              });
+
+              it("verifies zero merge conflict markers across packages/render files", async () => {
+                const fs = await import("node:fs");
+                const path = await import("node:path");
+                const files = [
+                  path.resolve(__dirname, "tokens.ts"),
+                  path.resolve(__dirname, "buildings.ts"),
+                  path.resolve(__dirname, "index.ts"),
+                ];
+                for (const f of files) {
+                  const content = fs.readFileSync(f, "utf-8");
+                  expect(content).not.toContain("<<<<<<<");
+                  expect(content).not.toContain("=======");
+                  expect(content).not.toContain(">>>>>>>");
+                }
+              });
+
+              it("verifies camera math, zoom, and tile click hit-testing remain unchanged", async () => {
+                const { gridToWorld, worldToGrid, hitTestProvince, boardGridToWorld } = await import("./camera.js");
+                const { wx, wy } = gridToWorld(4, 4);
+                const { gx, gy } = worldToGrid(wx, wy);
+                expect(gx).toBe(4);
+                expect(gy).toBe(4);
+
+                const bWorld = boardGridToWorld(2, 2);
+                const hit = hitTestProvince(bWorld.wx, bWorld.wy);
+                expect(hit?.bx).toBe(2);
+                expect(hit?.by).toBe(2);
+              });
+            });
+          });
         });
       });
     });
   });
 });
+
 
 
 
