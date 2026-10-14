@@ -1,3 +1,13 @@
+## 2026-10-14 — sim / sim clock (wave/sim-clock)
+
+- Root cause: Invariant 2 forbids wall-clock reads in sim logic, but three sim entry points defaulted `now = Date.now()`: `applyOfflineProgress`, the daily court (`utcDay`, `dailyClaimed`, `dailyMsLeft`, `tryClaimDaily`), and `createGameState` (`options.now ?? Date.now()`). A caller that forgot the clock got the local machine's time silently, so `meta.lastRealTime`, `flags.daily_claim_day`, and the `daily_claim` input-log payload could differ between two machines replaying the same actions.
+- Fix: no defaults. `now: number` is required in the type, and `requireClock` throws at runtime for `undefined`/`NaN`/non-number (JS callers, `server/` via Vite SSR). `createGameState` keeps `now` optional because ~all tests and the server call it without; it stamps 0. Every app caller passes `Date.now()`, so a new game still gets a real stamp and no 30-day catch-up.
+- `settleOnLoad` keeps its `SettleDeps.applyOfflineProgress: (state) => number` shape; the default dep closes over `Date.now()`. So existing mocks and the catch-up match are untouched. The import path now calls `applyOfflineProgress(st, Date.now())` and drops the redundant `lastRealTime = Date.now()` line (the function already sets it to `now`).
+- The tick loop's `meta.lastRealTime = Date.now()` in `useGameEngine` stays: it is app code stamping the save, not sim logic.
+- `createGameState` still uses `Math.random()` for a missing seed. Out of scope (not a clock); every determinism test passes a seed.
+- Guard test: `clock.test.ts` scans `packages/sim/src/**/*.ts` (not `*.test.ts`) for `Date.now(`, `new Date(`, `performance.now(`.
+- Server: no change. `hold.mjs` already passes `now: 0`; it calls no daily or offline function.
+
 ## 2026-10-09 — server / shared-hold sim load (wave/sim-load)
 
 - Reported cause: "Vite 8 does not export `runnerImport`." Not reproduced. `node_modules/vite` is 8.3.0 and exports it (`dist/node/index.d.ts`, `src/node/ssr/runnerImport.d.ts`), and so does the 8.3.4 tarball (`npm pack vite@8.3.4`). On `main`, all 144 server tests passed, including the 13 files that call `loadSimFromSource()`. `runnerImport` is marked experimental and only arrived in Vite 6.1. `package-lock.json` is untracked, so the deploy box resolves `^8.3.0` (or an older leftover tree) on its own.

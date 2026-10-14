@@ -40,6 +40,32 @@ describe("settleOnLoad", () => {
     expect(d.joinHold).not.toHaveBeenCalled();
   });
 
+  it("a solo load with the real deps settles from the app clock and does not join", async () => {
+    const fetchSpy = vi.fn(async () => {
+      throw new Error("solo load must not call the server");
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+    const state = createGameState({ seed: 1, now: Date.now() - 1_000, withStarterBuildings: true });
+    const before = Date.now();
+    const res = await settleOnLoad(state);
+    expect(res.mode).toBe("solo");
+    expect(state.meta.lastRealTime).toBeGreaterThanOrEqual(before);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("a solo load with the real deps settles from the app clock and does not join", async () => {
+    const fetchSpy = vi.fn(async () => {
+      throw new Error("solo load must not call the server");
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+    const state = createGameState({ seed: 1, now: Date.now() - 1_000, withStarterBuildings: true });
+    const before = Date.now();
+    const res = await settleOnLoad(state);
+    expect(res.mode).toBe("solo");
+    expect(state.meta.lastRealTime).toBeGreaterThanOrEqual(before);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it("a solo load after a join still uses the local save and does not join", async () => {
     const state = createGameState();
     // Joining is a separate opt-in control; it never marks the crown shared.
