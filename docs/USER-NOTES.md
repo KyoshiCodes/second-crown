@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-14 — The server only serves the game (wave/static-gate)
+
+- **The server only serves the built app.** A web address can only open the game's own built files. An address that tries to climb out of that folder (to source code, docs, server files, or anything else) is refused, and nothing outside the folder is read.
+- Opening the game works as before: the main page, its files, and any page link inside the game still load the app.
+- **Solo play is otherwise unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before. A solo save never joins a hold.
+
 ## 2026-10-14 — The server keeps the crown (wave/save-gate)
 
 - **A full client state cannot replace the crown on the server.** A shared hold only takes a single order (stamp, train, build farm, build cottage, build lumber camp). If a browser sends a whole game state instead, the server refuses it and the hold stays exactly as it was. Joining a hold works the same way: it only takes the realm id.

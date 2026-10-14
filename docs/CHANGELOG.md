@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-14 — Static gate (wave/static-gate)
+
+- Static file server only. Not changed: solo saves are not marked shared, no combat rules in `server/`, no full client state as the realm, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, the save gate. No app or sim change.
+- `server/static.mjs` (new): `staticPath(dist, urlPath)` refuses `..` segments (decoded, either slash), absolute paths (POSIX, Windows drive, UNC), NUL bytes, and anything whose `path.relative` from dist leaves it. `createStaticServer({ dist, fs })` answers 403 `OUTSIDE_APP` for those before any disk access, refuses a symlink whose real path leaves dist, and otherwise serves the file or falls back to `index.html`. `MIME` moved here.
+- `server/index.mjs`: `tryStatic` and its `startsWith(path.normalize(DIST))` check removed (that check let a sibling folder such as `dist-secret` through); `GET` falls through to `serveStatic`.
+- Tests: new `server/static.test.mjs` (16 escape paths are refused with 403 and touch no file; `staticPath` refuses them all; a bad escape is 400; a symlink out of dist is refused; `/`, `/index.html`, `/?x=1`, `/assets/main.js`, and page routes succeed; no built app gives 404 while escapes are still refused; a solo load does not join; `index.mjs` uses the gate). `npm test`: 22 server files, 158 server tests. Run: `npm test`.
+
 ## 2026-10-14 — Save gate (wave/save-gate)
 
 - Save gate only. Not changed: solo saves are not marked shared, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, no rules in `server/`. No app, sim, or server code change.

@@ -13,6 +13,7 @@ import { createAddressCap, MAX_GUESTS_PER_ADDRESS, MAX_NEW_HOLDS_PER_ADDRESS, GU
 import { isNonce, nonceCookie, clearNonceCookie, stateMatches, callbackHash, BAD_STATE } from "./nonce.mjs";
 import { safeDecode, guardRoute, BAD_ADDRESS } from "./guard.mjs";
 import { claimGuestId, GUEST_ID_TAKEN } from "./guestid.mjs";
+import { createStaticServer } from "./static.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
@@ -32,15 +33,7 @@ fs.mkdirSync(SAVES, { recursive: true });
 fs.mkdirSync(WATCH, { recursive: true });
 if (!fs.existsSync(USERS)) fs.writeFileSync(USERS, "{}");
 
-const MIME = {
-  ".html": "text/html; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".json": "application/json",
-  ".svg": "image/svg+xml",
-  ".png": "image/png",
-  ".ico": "image/x-icon",
-};
+const serveStatic = createStaticServer({ dist: DIST });
 
 function readUsers() {
   return JSON.parse(fs.readFileSync(USERS, "utf8"));
@@ -104,28 +97,6 @@ function readBody(req, limit = MAX_SAVE_BYTES) {
     req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
     req.on("error", reject);
   });
-}
-function tryStatic(urlPath, res) {
-  let rel = safeDecode(urlPath.split("?")[0]);
-  if (rel === null) {
-    json(res, 400, { error: BAD_ADDRESS });
-    return true;
-  }
-  if (!fs.existsSync(DIST)) return false;
-  if (rel === "/") rel = "/index.html";
-  const file = path.normalize(path.join(DIST, rel));
-  if (!file.startsWith(path.normalize(DIST))) return false;
-  if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) {
-    const fallback = path.join(DIST, "index.html");
-    if (!fs.existsSync(fallback)) return false;
-    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end(fs.readFileSync(fallback));
-    return true;
-  }
-  const ext = path.extname(file);
-  res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
-  res.end(fs.readFileSync(file));
-  return true;
 }
 function mirrorWatch(u, body) {
   if (u.watchCode) fs.writeFileSync(path.join(WATCH, `${u.watchCode}.json`), body);
@@ -455,7 +426,7 @@ const server = http.createServer(guardRoute(async (req, res) => {
   }
 
   if (req.method === "GET") {
-    if (tryStatic(url.pathname, res)) return;
+    if (serveStatic(url.pathname, res, json)) return;
   }
 
   return json(res, 404, { error: "not found" });

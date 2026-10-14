@@ -1,3 +1,12 @@
+## 2026-10-14 — server / static gate (wave/static-gate)
+
+- Root cause: `tryStatic` checked `path.normalize(path.join(DIST, rel)).startsWith(path.normalize(DIST))`. A string prefix, not a folder check: `/..%2fdist-secret/x` resolves to a sibling `.../app/dist-secret/x`, which starts with `.../app/dist` and was served. On Windows `%5c` (`\`) is a separator, so `..%5c` also climbed. `new URL()` already folds literal and `%2e%2e` dot segments, but not encoded slashes, which is why the decode-then-join path was open.
+- Fix: `server/static.mjs`. `staticPath` works on the decoded path with string checks only: must start with `/`; no NUL; the rest must not be absolute under posix or win32 (or start with a drive letter); no segment equal to `..` split on `/` and `\`; then `path.relative(root, path.resolve(root, rel))` must not start with `..` or be absolute. The server refuses before `existsSync`, so a refused path never touches disk. For an existing file, `realpathSync(file)` must be inside `realpathSync(root)` (symlinks).
+- 403 + JSON `OUTSIDE_APP` instead of the old silent `return false` (which gave 404). A missing file inside dist still falls back to `index.html` for client routes.
+- `fs` is injectable (`createStaticServer({ dist, fs })`) only so the test can record every path passed to `existsSync`, `statSync`, `readFileSync`, `realpathSync`.
+- Escape order unchanged: `/health`, `/board`, `/auction`, `/save`, `/realm/...`, etc. are still matched first; the static server is the last `GET` step before 404.
+- Determinism: no sim change. No route other than static changed.
+
 ## 2026-10-14 — server / save gate (wave/save-gate)
 
 - Brief: "the server accepts only an intent; a full state body leaves the stored save as is." Audit of every write route: `/join` and `/realm/:id/intent` already reject anything but an exact one-key body (`parseJoin`, `parseIntent`, before any `sync`, so nothing settles or writes). `readBody(req, 1024)` rejects larger bodies and `req.destroy()`s the socket, so the client sees a closed connection, not a 400. Left as is (changing `readBody` would also touch `PUT /save` 413 handling). `keep.mjs` loads only `kind: "shared-hold"` records with a matching `realmId`, written only by the server.

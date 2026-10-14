@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#232**. Waiting: `wave/save-gate` (**not merged**, see Save gate below).
+Merged through PR **#233**. Waiting: `wave/static-gate` (**not merged**, see Static gate below).
 
 ### Cultures and units (all merged)
 
@@ -144,13 +144,21 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - Same seed, same actions, same tick count give the same serialized state on two machines.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress` catch-up math, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, no client state as a realm, no rules in `server/`. No server change.
 
-## Save gate (branch `wave/save-gate`, **not merged**)
+## Save gate (PR #233, merged)
 
 - A client cannot send a full game state and have the server take it as the realm. A shared hold takes only an intent: `POST /join` takes exactly `{ realm }` and `POST /realm/:id/intent` takes exactly one of `stamp`, `train`, `build`, `cottage`, `lumber`. A body shaped like a solo save, like the server's own kept hold record (`kind: "shared-hold"`), or like an intent with a state glued on is refused with 400. A state over 1 KB is cut off before it is read (the connection closes). The kept hold file stays byte for byte, and the allowed intents still work afterwards.
 - This was already true in `server/join.mjs` (`parseJoin`) and `server/hold.mjs` (`parseIntent`). This branch adds a live-server test that proves it end to end: `server/stategate.test.mjs`. No server code changed.
 - Owner choice (2026-10-14): solo cloud saves are **not** gated to intents. `PUT /save` still takes a whole solo save through `gateSave` (shape, real-time, append-only log), because the server does not run the sim for solo play (INVARIANTS §17) and so cannot build a solo crown from intents. A kept hold record sent to `PUT /save` is refused and the solo save stays.
 - A solo load does not join: a solo push and pull make no hold file, start no realm clock, and `/realm/<account id>/hold` is 404.
 - Not touched: solo saves are not marked shared, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, no rules in `server/`. No app or sim change.
+
+## Static gate (branch `wave/static-gate`, **not merged**)
+
+- The static file server only serves files inside the built app folder (`packages/app/dist`, or `APP_DIST`). Code: `server/static.mjs` (`createStaticServer`, `staticPath`), wired in `server/index.mjs` as `serveStatic` (the old `tryStatic` is gone).
+- Refused with 403 `That file is not part of the app.` before any file is touched: a `..` segment (also `%2e%2e`, `..%2f`, `..%5c`), an absolute path (`//etc/passwd`, `/C:/...`, `/%5c%5cshare`), a NUL byte, any path that resolves outside the folder (including a sibling such as `dist-secret`, which the old `startsWith` check let through), and a symlink inside the folder that points outside it. A bad percent-escape is still 400.
+- A normal page request still returns the app: `/` and `/index.html` give `index.html`, `/assets/*` give the built files, and an unknown page inside the app (for example `/realm/oak-hill`) still gets `index.html`. API routes are matched before the static server, as before.
+- Tests: `server/static.test.mjs` (every escape is refused and no path outside dist is read, exists-checked, or stat'ed; normal requests succeed; a solo load does not join). `npm test`: 22 server files, 158 server tests (1 symlink test skips on Windows without symlink rights).
+- Not touched: solo saves are not marked shared, no combat rules in `server/`, no full client state as the realm, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, the save gate. No app or sim change.
 
 ## Verify
 
