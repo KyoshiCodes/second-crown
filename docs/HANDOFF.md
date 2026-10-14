@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#233**. Waiting: `wave/static-gate` (**not merged**, see Static gate below).
+Merged through PR **#234**. Waiting: `wave/hud-ruins` (**not merged**, see Ruins line below).
 
 ### Cultures and units (all merged)
 
@@ -152,13 +152,20 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A solo load does not join: a solo push and pull make no hold file, start no realm clock, and `/realm/<account id>/hold` is 404.
 - Not touched: solo saves are not marked shared, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, no rules in `server/`. No app or sim change.
 
-## Static gate (branch `wave/static-gate`, **not merged**)
+## Static gate (PR #234, merged)
 
 - The static file server only serves files inside the built app folder (`packages/app/dist`, or `APP_DIST`). Code: `server/static.mjs` (`createStaticServer`, `staticPath`), wired in `server/index.mjs` as `serveStatic` (the old `tryStatic` is gone).
 - Refused with 403 `That file is not part of the app.` before any file is touched: a `..` segment (also `%2e%2e`, `..%2f`, `..%5c`), an absolute path (`//etc/passwd`, `/C:/...`, `/%5c%5cshare`), a NUL byte, any path that resolves outside the folder (including a sibling such as `dist-secret`, which the old `startsWith` check let through), and a symlink inside the folder that points outside it. A bad percent-escape is still 400.
 - A normal page request still returns the app: `/` and `/index.html` give `index.html`, `/assets/*` give the built files, and an unknown page inside the app (for example `/realm/oak-hill`) still gets `index.html`. API routes are matched before the static server, as before.
 - Tests: `server/static.test.mjs` (every escape is refused and no path outside dist is read, exists-checked, or stat'ed; normal requests succeed; a solo load does not join). `npm test`: 22 server files, 158 server tests (1 symlink test skips on Windows without symlink rights).
 - Not touched: solo saves are not marked shared, no combat rules in `server/`, no full client state as the realm, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, the save gate. No app or sim change.
+
+## Ruins line (branch `wave/hud-ruins`, **not merged**)
+
+- The province inspect card shows one line, `Ruins · no stock`, on a seen tile whose node is `ruins`. Code: `ruinsLine(seen, node)` in `packages/app/src/hud/ruinsLine.ts`, rendered in `packages/app/src/ProvinceInspect.tsx` under the Tile group (after the camp threat line). Style: `.sc-inspect-ruins` in `packages/app/src/hud/inspect-card.css`.
+- Reads the existing `node` field only; no new sim field. An unseen ruins tile still shows fog ("Unscouted province", "Fog hides the token.") and no ruins line.
+- Tests: `packages/app/src/hud/ruinsLine.test.ts` (shows for a seen ruins tile; hidden when unseen; hidden on every other node).
+- Not touched: `packages/sim`, `server/`, `theme.css`, scout / gather / garrison / march / abandon actions, the home, outpost, camp, and resource lines.
 
 ## Verify
 

@@ -1,3 +1,9 @@
+## 2026-10-14 — app / ruins line (wave/hud-ruins)
+
+- Ruins were the one seen node with no Tile line: not in `GATHER_NODES` (no stock line) and not `camp` (no threat line), so the card only showed the name "Ruins". Raids on ruins still pay gold and stone (`camp.ts`, `march.ts`); "no stock" means no gather stock, matching `nodeStock`, which only tracks woodcut / quarry / field.
+- The condition lives in `ruinsLine(seen, node)` (pure, `hud/ruinsLine.ts`) so it can be unit tested; the app has no React render tests. `seen` is the same `isProvinceSeen` the card already uses, so fog keeps the line hidden.
+- Determinism: no sim change. Display only.
+
 ## 2026-10-14 — server / static gate (wave/static-gate)
 
 - Root cause: `tryStatic` checked `path.normalize(path.join(DIST, rel)).startsWith(path.normalize(DIST))`. A string prefix, not a folder check: `/..%2fdist-secret/x` resolves to a sibling `.../app/dist-secret/x`, which starts with `.../app/dist` and was served. On Windows `%5c` (`\`) is a separator, so `..%5c` also climbed. `new URL()` already folds literal and `%2e%2e` dot segments, but not encoded slashes, which is why the decode-then-join path was open.

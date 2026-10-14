@@ -244,3 +244,6 @@
 
 .sc-inspect-group.is-hold .sc-inspect-group-head { color: #e3b341; }
 .sc-inspect-group.is-forces .sc-inspect-group-head { color: #fef08a; }
+
+/* Ruins: seen tile with node "ruins"; no stock to gather. */
+.sc-inspect-ruins { color: #8b949e; font-style: italic; }

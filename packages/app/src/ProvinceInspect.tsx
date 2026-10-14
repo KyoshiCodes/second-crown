@@ -40,6 +40,7 @@ import {
 } from "@second-crown/sim";
 import { scoutGoldHint } from "./buildHints";
 import { KeepHall } from "./KeepHall";
+import { ruinsLine } from "./hud/ruinsLine";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
@@ -170,6 +171,7 @@ export function ProvinceInspect(props: {
   const terrain = seen ? TERRAIN[p.terrain] ?? p.terrain : "Unknown";
   const season = currentSeason(state);
   const owner = ownerOf(state, selectedId, seen);
+  const ruins = ruinsLine(seen, p.node);
   const hasForces = Boolean(incoming) || onTile.length > 0 || Boolean(march) || Boolean(here);
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
@@ -221,6 +223,7 @@ export function ProvinceInspect(props: {
           </div>
         ) : null}
         {seen && p.node === "camp" ? <div className="sc-inspect-line">Camp threat {campThreat(state, p)}</div> : null}
+        {ruins ? <div className="sc-inspect-line sc-inspect-ruins">{ruins}</div> : null}
       </section>
       <section className="sc-inspect-group is-owner">
         <div className="sc-inspect-group-head">Owner</div>
