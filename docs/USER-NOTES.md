@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-14 — Ruins say so (wave/hud-ruins)
+
+- **A ruins tile now says it is ruins with no stock.** Click a ruins tile you have seen, and the tile card shows "Ruins · no stock", so you know there is nothing to gather there.
+- A ruins tile you have not scouted still sits under fog and shows nothing new.
+- **Play is unchanged.** Scouting, gathering, garrisons, raids, abandoning a flag, and every other tile line work exactly as before.
+
 ## 2026-10-14 — The server only serves the game (wave/static-gate)
 
 - **The server only serves the built app.** A web address can only open the game's own built files. An address that tries to climb out of that folder (to source code, docs, server files, or anything else) is refused, and nothing outside the folder is read.

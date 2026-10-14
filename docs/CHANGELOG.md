@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-14 — Ruins line (wave/hud-ruins)
+
+- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, outpost, camp, and resource lines, fog.
+- `packages/app/src/hud/ruinsLine.ts` (new): `ruinsLine(seen, node)` gives `"Ruins · no stock"` for a seen ruins tile, else `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the camp threat line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-ruins` (muted grey, italic).
+- Tests: new `packages/app/src/hud/ruinsLine.test.ts` (seen ruins shows the line; unseen ruins does not; no other node does). Run: `npm test`.
+
 ## 2026-10-14 — Static gate (wave/static-gate)
 
 - Static file server only. Not changed: solo saves are not marked shared, no combat rules in `server/`, no full client state as the realm, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, the sim clock, the save gate. No app or sim change.
