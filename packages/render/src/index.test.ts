@@ -92,6 +92,7 @@ import {
   drawLancerMeeple,
   drawRuinedKeep,
   drawShoreTile,
+  drawWoodTile,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -10162,6 +10163,238 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
 
                   const g = createMockGraphics();
                   drawShoreTile(g, 50, 50, 16, 8, 0);
+                  expect(g.calls.length).toBeGreaterThan(25);
+                });
+
+                it("verifies zero merge conflict markers across packages/render files", async () => {
+                  const fs = await import("node:fs");
+                  const path = await import("node:path");
+                  const files = [
+                    path.resolve(__dirname, "tokens.ts"),
+                    path.resolve(__dirname, "buildings.ts"),
+                    path.resolve(__dirname, "index.ts"),
+                  ];
+                  for (const f of files) {
+                    const content = fs.readFileSync(f, "utf-8");
+                    expect(content).not.toContain("<<<<<<<");
+                    expect(content).not.toContain("=======");
+                    expect(content).not.toContain(">>>>>>>");
+                  }
+                });
+
+                it("verifies camera math, zoom, and tile click hit-testing remain unchanged", async () => {
+                  const { gridToWorld, worldToGrid, hitTestProvince, boardGridToWorld } = await import("./camera.js");
+                  const { wx, wy } = gridToWorld(4, 4);
+                  const { gx, gy } = worldToGrid(wx, wy);
+                  expect(gx).toBe(4);
+                  expect(gy).toBe(4);
+
+                  const bWorld = boardGridToWorld(2, 2);
+                  const hit = hitTestProvince(bWorld.wx, bWorld.wy);
+                  expect(hit?.bx).toBe(2);
+                  expect(hit?.by).toBe(2);
+                });
+              });
+            });
+
+            describe("bakeoff/gemini-wood: seen province with wood terrain gets trees on diamond", () => {
+              function createMockGraphics() {
+                const calls: { method: string; args: any[] }[] = [];
+                const mock: any = {
+                  calls,
+                  clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+                  poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+                  fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+                  stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+                  moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+                  lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+                  circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+                  rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+                  ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+                  bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); return mock; },
+                  quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+                  arc: (...args: any[]) => { calls.push({ method: "arc", args }); return mock; },
+                  roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+                  closePath: () => { calls.push({ method: "closePath", args: [] }); return mock; },
+                  beginPath: () => { calls.push({ method: "beginPath", args: [] }); return mock; },
+                };
+                return mock;
+              }
+
+              describe("drawWoodTile: trees on diamond with stand of pines, trunk, and ground shadow", () => {
+                it("renders ground contact shadow, timber trunks, multi-tiered pines, needle crests, and undergrowth", () => {
+                  const g = createMockGraphics();
+                  drawWoodTile(g, 100, 100, 16, 8, 0, { px: 1, py: 2 });
+                  const json = JSON.stringify(g.calls);
+
+                  // 1. Forest floor duff bed (0x14532d, 0x064e3b)
+                  expect(json).toContain(String(0x14532d));
+                  expect(json).toContain(String(0x064e3b));
+
+                  // 2. Ground shadows: outer soft shadow (0x000000 with alpha 0.36) and dense contact shadow (0x0a1c13)
+                  expect(json).toContain(String(0x000000));
+                  expect(json).toContain(String(0x0a1c13));
+                  const shadowCalls = g.calls.filter((c: any) => c.method === "fill" && c.args[0]?.color === 0x000000);
+                  expect(shadowCalls.length).toBe(5); // Ground shadow for each of the 5 pines in the stand
+
+                  // 3. Timber trunks: dark bark (0x451a03), sunlit bark highlight (0x5c3818), root flare (0x271101)
+                  expect(json).toContain(String(0x451a03));
+                  expect(json).toContain(String(0x5c3818));
+                  expect(json).toContain(String(0x271101));
+
+                  // 4. Conical evergreen foliage (3 tiers): leafDark (0x064e3b, 0x14532d), leafMid (0x047857, 0x16a34a), leafLight (0x10b981, 0x22c55e)
+                  expect(json).toContain(String(0x047857));
+                  expect(json).toContain(String(0x16a34a));
+                  expect(json).toContain(String(0x10b981));
+                  expect(json).toContain(String(0x22c55e));
+
+                  // 5. Sunlit needle crest highlights along spire ridge (0x34d399)
+                  expect(json).toContain(String(0x34d399));
+
+                  // 6. Forest floor undergrowth tufts (0x16a34a) and fallen pinecones (0x78350f)
+                  expect(json).toContain(String(0x78350f));
+
+                  expect(g.calls.length).toBeGreaterThan(40);
+                });
+
+                it("renders clean geometry across multiple phases without errors", () => {
+                  const g0 = createMockGraphics();
+                  drawWoodTile(g0, 80, 80, 16, 8, 0.0);
+
+                  const g1 = createMockGraphics();
+                  drawWoodTile(g1, 80, 80, 16, 8, 1.5);
+
+                  expect(g0.calls.length).toBeGreaterThan(35);
+                  expect(g1.calls.length).toBeGreaterThan(35);
+                });
+              });
+
+              describe("paintBoardProvinces: wood tile board integration", () => {
+                function createWoodBoardState(seen: boolean, overrides?: Partial<any>): GameState {
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "k_glen", isPlayer: false, name: "Glen" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags: {
+                      fog_seen: JSON.stringify(seen ? ["p_home", "p_wood"] : ["p_home"]),
+                      ...(seen ? { "seen:p_wood": true } : {}),
+                      "seen:p_home": true,
+                    },
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_wood", x: 2, y: 1, terrain: "wood", node: "field", ...(overrides ?? {}) },
+                      ],
+                    } as any,
+                  };
+                }
+
+                it("renders stand of pines, trunk, and ground shadow on diamond when wood province is seen", () => {
+                  const g = createMockGraphics();
+                  const state = createWoodBoardState(true);
+                  paintBoardProvinces(g, state, 0);
+
+                  const json = JSON.stringify(g.calls);
+                  // Contains ground shadow (0x000000, 0x0a1c13)
+                  expect(json).toContain(String(0x000000));
+                  expect(json).toContain(String(0x0a1c13));
+                  // Contains timber trunk and highlight (0x451a03, 0x5c3818)
+                  expect(json).toContain(String(0x451a03));
+                  expect(json).toContain(String(0x5c3818));
+                  // Contains pine foliage & needle crests (0x10b981, 0x22c55e, 0x34d399)
+                  expect(json).toContain(String(0x34d399));
+                });
+
+                it("renders fog (paintFogHeightVeil) and suppresses tree relief when unseen", () => {
+                  const g = createMockGraphics();
+                  const state = createWoodBoardState(false);
+                  paintBoardProvinces(g, state, 0);
+
+                  // p_wood is unseen, only p_home is seen
+                  expect(g.calls.length).toBeGreaterThan(10);
+                  const json = JSON.stringify(g.calls);
+                  // Needle crest highlight should not be present on diamond when wood tile is unseen
+                  expect(json).not.toContain(String(0x34d399));
+                });
+
+                it("keeps ruins, shore water, camps, outposts, resource piles, and keeps as they are on wood tiles", () => {
+                  // 1. Wood tile with ruins: renders trees AND ruined keep broken walls & fallen stone
+                  const gRuins = createMockGraphics();
+                  const stateRuins = createWoodBoardState(true, { node: "ruins" });
+                  paintBoardProvinces(gRuins, stateRuins, 0);
+                  const jsonRuins = JSON.stringify(gRuins.calls);
+                  expect(jsonRuins).toContain(String(0x000000)); // tree ground shadow
+                  expect(jsonRuins).toContain(String(0x451a03)); // tree trunk
+                  expect(jsonRuins).toContain(String(0x292524)); // ruined keep plinth
+
+                  // 2. Wood tile with hold: renders trees AND miniature keep
+                  const gHold = createMockGraphics();
+                  const stateHold = createWoodBoardState(true, { node: "hold", occupantRealmId: "k_glen" });
+                  paintBoardProvinces(gHold, stateHold, 0);
+                  const jsonHold = JSON.stringify(gHold.calls);
+                  expect(jsonHold).toContain(String(0x000000)); // tree ground shadow
+                  expect(jsonHold).toContain(String(0x451a03)); // tree trunk
+
+                  // 3. Wood tile with camp: renders trees AND camp tent
+                  const gCamp = createMockGraphics();
+                  const stateCamp = createWoodBoardState(true, { node: "camp", occupantRealmId: "rival" });
+                  paintBoardProvinces(gCamp, stateCamp, 0);
+                  const jsonCamp = JSON.stringify(gCamp.calls);
+                  expect(jsonCamp).toContain(String(0x000000)); // tree ground shadow
+                  expect(jsonCamp).toContain(String(0xd4a373)); // camp guy ropes
+
+                  // 4. Wood tile with player outpost: renders trees AND player outpost tent
+                  const gOutpost = createMockGraphics();
+                  const stateOutpost = createWoodBoardState(true, { node: "woodcut", occupantRealmId: "player" });
+                  paintBoardProvinces(gOutpost, stateOutpost, 0);
+                  const jsonOutpost = JSON.stringify(gOutpost.calls);
+                  expect(jsonOutpost).toContain(String(0x000000)); // tree ground shadow
+                  expect(jsonOutpost).toContain(String(0xd4a373)); // outpost guy ropes
+
+                  // 5. Shore water tile remains intact
+                  const gShore = createMockGraphics();
+                  const stateShore: GameState = {
+                    ...createWoodBoardState(true),
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_shore", x: 2, y: 1, terrain: "shore", node: "field" },
+                      ],
+                    } as any,
+                    flags: {
+                      fog_seen: JSON.stringify(["p_home", "p_shore"]),
+                      "seen:p_shore": true,
+                      "seen:p_home": true,
+                    },
+                  };
+                  paintBoardProvinces(gShore, stateShore, 0);
+                  const jsonShore = JSON.stringify(gShore.calls);
+                  expect(jsonShore).toContain(String(0x06b6d4)); // shallow sea shelf
+                  expect(jsonShore).toContain(String(0x92400e)); // wet sand edge
+                });
+              });
+
+              describe("exports and code integrity", () => {
+                it("verifies direct exported drawWoodTile function exists and executes cleanly", async () => {
+                  const { drawWoodTile } = await import("./index.js");
+                  expect(typeof drawWoodTile).toBe("function");
+
+                  const g = createMockGraphics();
+                  drawWoodTile(g, 50, 50, 16, 8, 0);
                   expect(g.calls.length).toBeGreaterThan(25);
                 });
 
