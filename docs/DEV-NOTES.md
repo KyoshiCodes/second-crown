@@ -1,3 +1,9 @@
+## 2026-10-14 — app / wood line (wave/hud-wood)
+
+- Wood is a `TerrainId` (`packages/shared`), like shore, so the line keys off `p.terrain`. Not to be confused with the `woodcut` node ("Timber stand") or the wood resource; this line is terrain only.
+- `woodLine(seen, terrain)` (pure, `hud/woodLine.ts`) mirrors `shoreLine` so it can be unit tested. `seen` is the card's existing `isProvinceSeen`, so fog keeps the line hidden.
+- Determinism: no sim change. Display only.
+
 ## 2026-10-14 — app / shore line (wave/hud-shore)
 
 - Shore is a `TerrainId` (`packages/shared`), not a node, so the line keys off `p.terrain`, not `p.node`. The Terrain fact already read "Shore"; the extra line says what it means (water edge) the same way the ruins line does.

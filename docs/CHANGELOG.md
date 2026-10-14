@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-14 — Wood line (wave/hud-wood)
+
+- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, camp, outpost, and resource lines, fog.
+- `packages/app/src/hud/woodLine.ts` (new): `woodLine(seen, terrain)` gives `"Wood · trees"` for a seen wood tile, else `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the shore line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-wood` (soft green, italic).
+- `docs/HANDOFF.md`: also marks the shore line (#237) and shore water tile (#238) as merged.
+- Tests: new `packages/app/src/hud/woodLine.test.ts` (seen wood shows the line; unseen wood does not; no other terrain does). Run: `npm test`.
+
 ## 2026-10-14 — Shore line (wave/hud-shore)
 
 - Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, camp, outpost, and resource lines, fog.
