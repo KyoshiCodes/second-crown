@@ -3115,6 +3115,204 @@ export function resolveBoardSeasonWash(
   };
 }
 
+/**
+ * Draws coastal water, shallow sea shelf, wave surf, and wet sand edge
+ * on an isometric shore terrain diamond tile.
+ *
+ * Distinct features:
+ * - Deep ocean basin (northwest sea) in rich oceanic blue with surface ripples
+ * - Luminous shallow sea shelf with sunlit underwater caustics
+ * - Wet sand edge with damp watermark saturation and glossy sheen
+ * - Dry golden sand beach margin (southeast)
+ * - Animated small cresting wave with curled breaker lip and frothing surf bubbles
+ */
+export function drawShoreTile(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  hw: number,
+  hh: number,
+  phase: number = 0,
+  options?: { px?: number; py?: number }
+): void {
+  const px = options?.px ?? 0;
+  const py = options?.py ?? 0;
+
+  // Coastline control vertices crossing the diamond from SW to NE
+  const cSwX = cx - hw * 0.42;
+  const cSwY = cy + hh * 0.58;
+  const cMid1X = cx - 3;
+  const cMid1Y = cy + 2.2;
+  const cMid2X = cx + 2.5;
+  const cMid2Y = cy - 0.8;
+  const cNeX = cx + hw * 0.52;
+  const cNeY = cy - hh * 0.48;
+
+  // 1. Dry Golden Sand Beach (Southeast landmass)
+  g.poly([
+    cSwX, cSwY,
+    cMid1X, cMid1Y,
+    cMid2X, cMid2Y,
+    cNeX, cNeY,
+    cx + hw, cy,
+    cx, cy + hh,
+  ]);
+  g.fill({ color: 0xd4a359 });
+
+  // Warm beach sand shading along South vertex
+  g.poly([
+    cx - hw * 0.15, cy + hh * 0.85,
+    cx + hw * 0.35, cy + hh * 0.65,
+    cx + hw, cy,
+    cx, cy + hh,
+  ]);
+  g.fill({ color: 0xca8a04, alpha: 0.45 });
+
+  // Beach sand granules and dried sea shell specks
+  g.circle(cx + 6, cy + 3.5, 0.75); g.fill({ color: 0xfde047, alpha: 0.85 });
+  g.circle(cx + 10, cy + 1.2, 0.65); g.fill({ color: 0xb45309, alpha: 0.75 });
+  g.circle(cx + 1.5, cy + 5.2, 0.7); g.fill({ color: 0xfde047, alpha: 0.8 });
+  g.circle(cx + 4.5, cy + 5.8, 0.6); g.fill({ color: 0x78350f, alpha: 0.65 });
+  g.circle(cx + 8, cy + 2.5, 0.55); g.fill({ color: 0xfef08a, alpha: 0.9 });
+
+  // 2. Wet Sand Edge (Saturated damp sand margin with glossy tidal sheen)
+  // Saturated dark wet sand band along the receding waterline
+  g.moveTo(cSwX, cSwY);
+  g.bezierCurveTo(cMid1X, cMid1Y, cMid2X, cMid2Y, cNeX, cNeY);
+  g.stroke({ width: 3.2, color: 0x92400e, alpha: 0.92 });
+
+  // Second layer of wet amber sand
+  g.moveTo(cSwX, cSwY);
+  g.bezierCurveTo(cMid1X, cMid1Y, cMid2X, cMid2Y, cNeX, cNeY);
+  g.stroke({ width: 1.8, color: 0xa16207, alpha: 0.85 });
+
+  // Glossy wet watermark sheen catching ambient light
+  g.moveTo(cSwX + 0.5, cSwY + 0.3);
+  g.bezierCurveTo(cMid1X + 0.5, cMid1Y + 0.3, cMid2X + 0.5, cMid2Y + 0.3, cNeX + 0.5, cNeY + 0.3);
+  g.stroke({ width: 0.9, color: 0xd97706, alpha: 0.95 });
+  g.moveTo(cSwX + 0.3, cSwY + 0.2);
+  g.bezierCurveTo(cMid1X + 0.3, cMid1Y + 0.2, cMid2X + 0.3, cMid2Y + 0.2, cNeX + 0.3, cNeY + 0.2);
+  g.stroke({ width: 0.5, color: 0xfef08a, alpha: 0.65 });
+
+  // 3. Water on the Diamond: Deep Ocean Shelf (Northwest sea)
+  // Deep oceanic basin
+  g.poly([
+    cx - hw, cy,
+    cx, cy - hh,
+    cx + hw * 0.18, cy - hh * 0.82,
+    cx - 4, cy - 3.5,
+    cx - hw * 0.72, cy + hh * 0.28,
+  ]);
+  g.fill({ color: 0x0284c7 });
+
+  // Deep oceanic undertone
+  g.poly([
+    cx - hw, cy,
+    cx, cy - hh,
+    cx - hw * 0.25, cy - hh * 0.5,
+    cx - hw * 0.85, cy - hh * 0.1,
+  ]);
+  g.fill({ color: 0x0369a1 });
+
+  // Deep water swell ripple lines
+  g.moveTo(cx - 11, cy - 2.5);
+  g.lineTo(cx - 5, cy - 5.5);
+  g.stroke({ width: 1.0, color: 0x0ea5e9, alpha: 0.65 });
+
+  g.moveTo(cx - 8, cy - 1);
+  g.lineTo(cx - 2, cy - 4);
+  g.stroke({ width: 0.8, color: 0x38bdf8, alpha: 0.55 });
+
+  // 4. Shallow Sea Shelf (Submerged coastal reef / shallows)
+  // Coastal turquoise / cyan shelf between deep water and wet sand edge
+  g.poly([
+    cx - hw * 0.72, cy + hh * 0.28,
+    cx - 4, cy - 3.5,
+    cx + hw * 0.18, cy - hh * 0.82,
+    cNeX, cNeY,
+    cMid2X, cMid2Y,
+    cMid1X, cMid1Y,
+    cSwX, cSwY,
+  ]);
+  g.fill({ color: 0x06b6d4 });
+
+  // Luminous turquoise shelf upper layer
+  g.poly([
+    cx - hw * 0.58, cy + hh * 0.38,
+    cx - 2, cy - 2,
+    cx + hw * 0.32, cy - hh * 0.68,
+    cNeX, cNeY,
+    cMid2X, cMid2Y,
+    cMid1X, cMid1Y,
+    cSwX, cSwY,
+  ]);
+  g.fill({ color: 0x22d3ee, alpha: 0.82 });
+
+  // Sunlit caustic streaks on the shallow seabed
+  g.moveTo(cx - 8, cy + 1);
+  g.bezierCurveTo(cx - 5, cy - 1, cx - 2, cy + 1.5, cx + 1, cy - 1.5);
+  g.stroke({ width: 0.9, color: 0xa5f3fc, alpha: 0.85 });
+
+  g.moveTo(cx - 4, cy + 2);
+  g.bezierCurveTo(cx - 1, cy + 0.2, cx + 2, cy + 1, cx + 5, cy - 0.5);
+  g.stroke({ width: 0.8, color: 0x67e8f9, alpha: 0.8 });
+
+  g.circle(cx - 3, cy - 0.5, 0.75); g.fill({ color: 0xe0f2fe, alpha: 0.85 });
+  g.circle(cx + 3, cy - 1.5, 0.7); g.fill({ color: 0xa5f3fc, alpha: 0.85 });
+
+  // 5. Small Wave (Curled wave swell, pure white breaker crest, and frothing surf)
+  const waveCycle = phase * 2.5 + px * 0.85 + py * 0.45;
+  const waveSurge = Math.sin(waveCycle) * 1.4;
+  const waveLift = Math.cos(waveCycle) * 0.45;
+
+  // Wave swell body (curling azure water)
+  g.moveTo(cSwX + 1.2 + waveSurge * 0.7, cSwY - 0.8 - waveLift);
+  g.bezierCurveTo(
+    cMid1X + waveSurge * 0.9, cMid1Y - 1.2 - waveLift,
+    cMid2X + waveSurge * 0.9, cMid2Y - 1.2 - waveLift,
+    cNeX - 0.8 + waveSurge * 0.7, cNeY + 1.0 - waveLift
+  );
+  g.stroke({ width: 2.2, color: 0x0284c7, alpha: 0.88 });
+
+  // Crisp white breaker crest along wave front
+  g.moveTo(cSwX + 1.5 + waveSurge * 0.8, cSwY - 0.6 - waveLift);
+  g.bezierCurveTo(
+    cMid1X + 0.2 + waveSurge, cMid1Y - 1.0 - waveLift,
+    cMid2X + 0.2 + waveSurge, cMid2Y - 1.0 - waveLift,
+    cNeX - 0.5 + waveSurge * 0.8, cNeY + 1.2 - waveLift
+  );
+  g.stroke({ width: 1.6, color: 0xffffff, alpha: 0.98 });
+
+  // Trailing wash ripple
+  g.moveTo(cSwX - 1.5 + waveSurge * 0.4, cSwY - 2.5);
+  g.bezierCurveTo(
+    cMid1X - 2.0 + waveSurge * 0.5, cMid1Y - 3.0,
+    cMid2X - 2.0 + waveSurge * 0.5, cMid2Y - 3.0,
+    cNeX - 3.0 + waveSurge * 0.4, cNeY - 1.0
+  );
+  g.stroke({ width: 0.8, color: 0x7dd3fc, alpha: 0.65 });
+
+  // Frothing surf foam bubbles washing along wave front & wet sand edge
+  const foamSpots = [
+    { ox: -6, oy: 2.2, r: 1.1 },
+    { ox: -3.5, oy: 3.2, r: 0.9 },
+    { ox: -1.0, oy: 1.2, r: 1.2 },
+    { ox: 1.8, oy: -0.2, r: 1.0 },
+    { ox: 4.5, oy: -1.5, r: 0.85 },
+    { ox: 6.5, oy: -2.8, r: 0.75 },
+    { ox: -4.5, oy: 1.0, r: 0.85 },
+    { ox: 3.2, oy: 1.0, r: 0.9 },
+  ];
+  for (const f of foamSpots) {
+    const fx = cx + f.ox + Math.sin(waveCycle + f.ox) * 0.7;
+    const fy = cy + f.oy + Math.cos(waveCycle + f.oy) * 0.35;
+    g.circle(fx, fy, f.r);
+    g.fill({ color: 0xf0fdfa, alpha: 0.95 });
+    g.circle(fx - 0.2, fy - 0.2, f.r * 0.5);
+    g.fill({ color: 0xffffff, alpha: 0.9 });
+  }
+}
+
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
 // -------------------------------------------------------------
@@ -3371,37 +3569,8 @@ export function paintBoardProvinces(
       }
 
       case "shore": {
-        // Coastline: northwest sea, southeast beach, and frothing wave surf
-        g.poly([
-          cx - hw, cy,
-          cx, cy - hh,
-          cx + hw * 0.3, cy - hh * 0.7,
-          cx - hw * 0.3, cy + hh * 0.7,
-        ]);
-        g.fill({ color: 0x0284c7 });
-
-        g.poly([
-          cx - hw * 0.3, cy + hh * 0.7,
-          cx + hw * 0.3, cy - hh * 0.7,
-          cx + hw, cy,
-          cx, cy + hh,
-        ]);
-        g.fill({ color: 0xd4a359 });
-
-        const waveShift = Math.sin(phase * 2.5 + p.x) * 1.2;
-        g.moveTo(cx - hw * 0.5, cy + hh * 0.5);
-        g.bezierCurveTo(
-          cx - 4, cy - 2 + waveShift,
-          cx + 4, cy + 2 - waveShift,
-          cx + hw * 0.5, cy - hh * 0.5
-        );
-        g.stroke({ width: 2.2, color: 0xffffff, alpha: 0.95 });
-
-        for (let fx = cx - 8; fx <= cx + 8; fx += 5) {
-          const fy = cy + Math.sin(fx * 0.8 + phase * 2) * 1.2;
-          g.circle(fx, fy, 1.1);
-          g.fill({ color: 0xf0fdfa, alpha: 0.95 });
-        }
+        // Water on the diamond: shallow sea shelf, small wave, and wet sand edge
+        drawShoreTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
         break;
       }
 
