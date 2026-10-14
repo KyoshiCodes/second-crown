@@ -250,3 +250,6 @@
 
 /* Shore: seen tile with terrain "shore"; water edge. */
 .sc-inspect-shore { color: #79c0ff; font-style: italic; }
+
+/* Wood: seen tile with terrain "wood"; trees. */
+.sc-inspect-wood { color: #7ee787; font-style: italic; }

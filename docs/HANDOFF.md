@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#236**. Waiting: `wave/hud-shore` (**not merged**, see Shore line below).
+Merged through PR **#238**. Waiting: `wave/hud-wood` (**not merged**, see Wood line below).
 
 ### Cultures and units (all merged)
 
@@ -176,12 +176,23 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (405 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Shore line (branch `wave/hud-shore`, **not merged**)
+## Shore line (PR #237, merged)
 
 - The province inspect card shows one line, `Shore · water`, on a seen tile whose terrain is `shore`. Code: `shoreLine(seen, terrain)` in `packages/app/src/hud/shoreLine.ts`, rendered in `packages/app/src/ProvinceInspect.tsx` under the Tile group (after the ruins line). Style: `.sc-inspect-shore` in `packages/app/src/hud/inspect-card.css`.
 - Reads the existing `terrain` field only; no new sim field. An unseen shore tile still shows fog ("Unscouted province", "Fog hides the token.", Terrain "Unknown") and no shore line.
 - Tests: `packages/app/src/hud/shoreLine.test.ts` (shows for a seen shore tile; hidden when unseen; hidden on every other terrain).
 - Not touched: `packages/sim`, `server/`, `theme.css`, scout / gather / garrison / march / abandon actions, the home, ruins, camp, outpost, and resource lines.
+
+## Shore water on diamond (PR #238, merged)
+
+- Render only (`packages/render/src/tokens.ts`): a seen shore tile draws water on the diamond (sea shelf, wave, wet sand edge). Tests in `packages/render/src/index.test.ts`. No sim, server, or app change.
+
+## Wood line (branch `wave/hud-wood`, **not merged**)
+
+- The province inspect card shows one line, `Wood · trees`, on a seen tile whose terrain is `wood`. Code: `woodLine(seen, terrain)` in `packages/app/src/hud/woodLine.ts`, rendered in `packages/app/src/ProvinceInspect.tsx` under the Tile group (after the shore line). Style: `.sc-inspect-wood` in `packages/app/src/hud/inspect-card.css`.
+- Reads the existing `terrain` field only; no new sim field. An unseen wood tile still shows fog and no wood line.
+- Tests: `packages/app/src/hud/woodLine.test.ts` (shows for a seen wood tile; hidden when unseen; hidden on every other terrain).
+- Not touched: `packages/sim`, `server/`, `theme.css`, scout / gather / garrison / march / abandon actions, the home, ruins, shore, camp, outpost, and resource lines.
 
 ## Verify
 
