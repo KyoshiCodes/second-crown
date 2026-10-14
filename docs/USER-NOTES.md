@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-14 — Music plays on the live site again (wave/audio-mime)
+
+- **Lofi and realm tracks play on the live site again.** The server now tells the browser the music files are audio, the same way the local build always did.
+- **Play is unchanged.** Your game, saves, scouting, marches, and every other rule work exactly as before.
+
 ## 2026-10-14 — Peak says so (wave/hud-peak)
 
 - **A peak tile now says it is peak with a mountain.** Click a peak tile you have seen, and the tile card shows "Peak · mountain".

@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#240**. Waiting: `wave/hud-peak` (**not merged**, see Peak line below).
+Merged through PR **#242**. Waiting: `wave/audio-mime` (**not merged**, see Audio MIME below).
 
 ### Cultures and units (all merged)
 
@@ -198,12 +198,23 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 
 - Render only (`packages/render`): a seen wood tile draws a stand of pines with trunks and ground shadows on the diamond. No sim, server, or app change.
 
-## Peak line (branch `wave/hud-peak`, **not merged**)
+## Peak line (PR #241, merged)
 
 - The province inspect card shows one line, `Peak · mountain`, on a seen tile whose terrain is `peak`. Code: `peakLine(seen, terrain)` in `packages/app/src/hud/peakLine.ts`, rendered in `packages/app/src/ProvinceInspect.tsx` under the Tile group (after the wood line). Style: `.sc-inspect-peak` in `packages/app/src/hud/inspect-card.css`.
 - Reads the existing `terrain` field only; no new sim field. An unseen peak tile still shows fog and no peak line.
 - Tests: `packages/app/src/hud/peakLine.test.ts` (shows for a seen peak tile; hidden when unseen; hidden on every other terrain).
 - Not touched: `packages/sim`, `server/`, `theme.css`, scout / gather / garrison / march / abandon actions, the home, ruins, shore, wood, camp, outpost, and resource lines.
+
+## Mountain on diamond (PR #242, merged)
+
+- Render only (`packages/render`): a seen peak tile draws a tall peak with a snow cap and rock shadow on the diamond. No sim, server, or app change.
+
+## Audio MIME (branch `wave/audio-mime`, **not merged**)
+
+- The live server sent `.ogg` / `.mp3` / `.wav` as `application/octet-stream`, so lofi and realm tracks did not play on the live site (local Vite was fine). `server/static.mjs` `MIME` now maps `.ogg` → `audio/ogg`, `.mp3` → `audio/mpeg`, `.wav` → `audio/wav`.
+- Static gate unchanged: a path leaving `packages/app/dist` is still refused (403); a missing page still falls back to `index.html`.
+- Tests: `server/static.test.mjs` adds "an .ogg inside dist is answered as audio/ogg".
+- Not touched: `packages/sim`, game rules, `theme.css`, the app.
 
 ## Verify
 

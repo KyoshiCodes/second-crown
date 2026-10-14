@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-14 — Audio MIME (wave/audio-mime)
+
+- Server only. Not changed: `packages/sim`, game rules, the app, the static gate (escapes still 403; missing pages still get `index.html`).
+- `server/static.mjs`: `MIME` adds `.ogg` → `audio/ogg`, `.mp3` → `audio/mpeg`, `.wav` → `audio/wav`, so the live server serves music the same way local Vite does.
+- `docs/HANDOFF.md`: also marks the peak line (#241) and mountain on the diamond (#242) as merged.
+- Tests: `server/static.test.mjs` adds an `.ogg` inside dist answered as `audio/ogg`. Run: `npm test`.
+
 ## 2026-10-14 — Peak line (wave/hud-peak)
 
 - Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, wood, camp, outpost, and resource lines, fog.
