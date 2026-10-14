@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-14 — Sim clock (wave/sim-clock)
+
+- Sim clock only. Not changed: solo saves are not marked shared, `applyOfflineProgress` catch-up math, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, no client state as a realm, no rules in `server/`. No server change.
+- `packages/sim/src/core/clock.ts` (new): `requireClock(now, where)` throws on a missing or non-finite clock.
+- `packages/sim/src/offline.ts`: `applyOfflineProgress(state, now)`, `now` required (was `now = Date.now()`).
+- `packages/sim/src/systems/daily.ts`: `utcDay`, `dailyClaimed`, `dailyMsLeft`, `tryClaimDaily` require `now` (were `now = Date.now()`).
+- `packages/sim/src/state/createGameState.ts`: no `now` gives `lastRealTime: 0` (was `Date.now()`).
+- App passes `Date.now()`: `useGameEngine.ts` (`freshState`, import save), `settleOnLoad.ts` default deps, `CrownTab.tsx` (daily court).
+- Tests: new `packages/sim/src/core/clock.test.ts` (same seed, actions, and tick count give the same serialized state twice with `Date.now` set to throw; a missing clock throws and changes nothing; a new state without a clock stamps 0; no sim source file names `Date.now(`, `new Date(`, or `performance.now(`). `packages/app/src/game/settleOnLoad.test.ts`: a solo load with the real deps settles from the app clock, calls no server, and does not join. Run: `npm test`.
+
 ## 2026-10-09 — Shared-hold sim load (wave/sim-load)
 
 - Shared-hold sim load only. No solo save is marked shared; `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, and guest ids are unchanged. No rule copied into `server/`; no client state accepted as a realm. No app or sim change.

@@ -17,7 +17,13 @@ export type SettleDeps = {
   joinHold: (realmId: string) => Promise<HoldView>;
 };
 
-const defaultDeps: SettleDeps = { sharedRealmId, applyOfflineProgress, fetchRealmTick, joinHold: readHold };
+// The app owns the wall clock; the sim only sees the time it is handed.
+const defaultDeps: SettleDeps = {
+  sharedRealmId,
+  applyOfflineProgress: (state) => applyOfflineProgress(state, Date.now()),
+  fetchRealmTick,
+  joinHold: readHold,
+};
 
 export type Settled =
   | { mode: "solo"; settled: number }

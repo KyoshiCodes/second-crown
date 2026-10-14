@@ -1,11 +1,11 @@
-# Handoff (2026-10-09)
+# Handoff (2026-10-14)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#230**. Waiting: `wave/sim-load` (**not merged**, see Shared-hold sim load below).
+Merged through PR **#231**. Waiting: `wave/sim-clock` (**not merged**, see Sim clock below).
 
 ### Cultures and units (all merged)
 
@@ -129,12 +129,20 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - The server tests start `index.mjs` on a free port with a temp `DATA_DIR`, so running them on Oracle does not touch `sc-cloud` (port 8787) or its saves.
 - Not touched: no test was changed or skipped; solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, no client state as a realm, no rules in `server/`. No app, sim, or server code change.
 
-## Shared-hold sim load (branch `wave/sim-load`, **not merged**)
+## Shared-hold sim load (PR #231, merged)
 
 - `loadSimFromSource` in `server/hold.mjs` loads `packages/sim` for a shared hold through Vite's `runnerImport`. The brief said Vite 8 does not export it. Checked here: Vite 8.3.0 (installed) and 8.3.4 (current `latest`) both still export it, and all 144 server tests passed on `main` before this change. It would break only on an install whose Vite has no `runnerImport` (Vites before 6.1). `package-lock.json` is not committed, so the Oracle box could have a different Vite from this machine.
 - Now: if the installed Vite has `runnerImport`, it is used as before. If not, the loader starts a short-lived Vite server in middleware mode (`createServer`, no config file, no HMR, no websocket), loads the sim with `ssrLoadModule`, and closes the server. It is the same export (`loadSimFromSource()`). An optional `vite` argument exists only so the tests can make it take the fallback.
 - A solo save still never reaches this loader: a realm that is not shared gets no hold and loads no sim.
 - Not touched: solo saves are not marked shared, `applyOfflineProgress`, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, no client state as a realm, no rules in `server/`. No app or sim change.
+
+## Sim clock (branch `wave/sim-clock`, **not merged**)
+
+- `packages/sim` no longer reads `Date.now()` anywhere. Before, three places fell back to the wall clock when no time was passed: `applyOfflineProgress`, `createGameState` (`meta.lastRealTime`), and the daily court (`utcDay`, `dailyClaimed`, `dailyMsLeft`, `tryClaimDaily`).
+- Now the caller passes the clock. `applyOfflineProgress(state, now)` and the four daily functions require `now`; a missing or non-finite `now` throws (`requireClock` in `packages/sim/src/core/clock.ts`), it never falls back to the wall clock. `createGameState` with no `now` stamps `lastRealTime: 0`.
+- The app owns the wall clock: `useGameEngine` (new game, import), `settleOnLoad` default deps, and `CrownTab` pass `Date.now()`. Solo play behaves as before.
+- Same seed, same actions, same tick count give the same serialized state on two machines.
+- Not touched: solo saves are not marked shared, `applyOfflineProgress` catch-up math, hold keys, the login nonce, the hold caps, the crash guard, the catch-up match, Repair, the hold write, the empty-list reload, Second Dawn, Pull save, guest ids, how a shared hold loads the sim, no client state as a realm, no rules in `server/`. No server change.
 
 ## Verify
 

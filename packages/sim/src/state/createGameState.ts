@@ -6,13 +6,14 @@ import { ensureFog } from "../systems/fog.js";
 
 export interface CreateGameStateOptions {
   seed?: number;
+  /** Real-time stamp for meta.lastRealTime. Omitted → 0; the sim never reads the wall clock. */
   now?: number;
   withStarterBuildings?: boolean;
 }
 
 export function createGameState(options: CreateGameStateOptions = {}): GameState {
   const seed = options.seed ?? (Math.random() * 0xffffffff) >>> 0;
-  const now = options.now ?? Date.now();
+  const now = options.now ?? 0;
 
   const state: GameState = {
     meta: {

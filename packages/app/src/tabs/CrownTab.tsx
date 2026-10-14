@@ -67,8 +67,8 @@ export function CrownTab(props: {
   const court = state?.characters.filter((c) => c.realmId === "player") ?? [];
   const boon = state ? seasonBoonPreview(state) : null;
   const claimed = state ? seasonClaimed(state) : true;
-  const dailyDone = state ? dailyClaimed(state) : true;
-  const dailyWait = state ? dailyMsLeft(state) : 0;
+  const dailyDone = state ? dailyClaimed(state, Date.now()) : true;
+  const dailyWait = state ? dailyMsLeft(state, Date.now()) : 0;
   const rank = marshal?.marshalRank ?? 0;
   const keep = state ? keepLevel(state) : 0;
   const canPromo = state ? canPromoteMarshal(state) : false;
@@ -140,7 +140,7 @@ export function CrownTab(props: {
               type="button"
               className="sc-work-btn"
               disabled={!state || dailyDone}
-              onClick={() => act((st) => (tryClaimDaily(st) ? "Daily court collected." : "Already claimed today."))}
+              onClick={() => act((st) => (tryClaimDaily(st, Date.now()) ? "Daily court collected." : "Already claimed today."))}
             >
               {dailyDone ? `Returns in ${Math.ceil(dailyWait / 3_600_000)}h` : "Claim daily court"}
             </button>

@@ -50,7 +50,7 @@ export type Tab = "kingdom" | "army" | "war" | "world" | "crown";
 export type ActFn = (fn: (st: GameState, eng: TickEngine) => string) => void;
 
 function freshState(seed: number): GameState {
-  const state = createGameState({ seed, withStarterBuildings: true });
+  const state = createGameState({ seed, now: Date.now(), withStarterBuildings: true });
   state.resources.wood = "40";
   state.resources.food = "50";
   setPlayerCulture(state, rememberedCulture());
@@ -317,8 +317,7 @@ export function useGameEngine() {
     try {
       const json = await pickSaveFile();
       const st = deserializeState(json);
-      applyOfflineProgress(st);
-      st.meta.lastRealTime = Date.now();
+      applyOfflineProgress(st, Date.now());
       engineRef.current = new TickEngine(st);
       lastRivalWar.current = null;
       lastIncoming.current = null;
