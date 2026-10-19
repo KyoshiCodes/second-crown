@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-19 — A tile with a hostile column inbound says so on the inspect card (wave/hud-incoming)
+
+- **A tile with a hostile column inbound now says "Incoming · hostile" on the inspect card, and play is unchanged.** Click a seen tile that a rival column is heading for, and the Tile section shows a short amber line: "Incoming · hostile". Your own columns do not trigger it.
+- **Unseen tiles still show nothing.** Fog is the same.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-19 — Fighting tile shows a clash mark on the diamond (bakeoff/gemini-clash)
 
 - **A fighting tile now shows a clash mark on the diamond and play is unchanged.** A seen tile with an active fight (a column clash where columns of two or more realms meet, or an active engagement on a held tile or outpost) gets a small crossed-swords and impact burst clash mark on the isometric diamond.
