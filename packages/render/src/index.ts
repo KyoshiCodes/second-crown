@@ -136,6 +136,8 @@ import {
   hasProvinceClash,
   drawIncomingMark,
   hasProvinceIncoming,
+  drawTrailMark,
+  hasProvinceTrail,
 } from "./tokens.js";
 
 import {
@@ -1017,5 +1019,7 @@ export {
   hasProvinceClash,
   drawIncomingMark,
   hasProvinceIncoming,
+  drawTrailMark,
+  hasProvinceTrail,
 };
 

@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-19 — Inspect card shows a trail line on a tile your column is on or heading to (wave/hud-trail)
+## 2026-10-19 — Tile with your column on or heading to it shows trail mark on diamond (bakeoff/gemini-trail)
 
-- Inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/trailLine.ts`: `trailLine(state, provinceId)` returns `"Your column · out"` when a player march from `listMarches` has `toId` equal to a seen tile. Else `null`. Uses existing sim helpers only.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the incoming line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-trail` (soft gold `#d4b062`, italic).
-- Tests: `packages/app/src/hud/trailLine.test.ts` (4 tests: your column shows, quiet tile null, hostile column null, unseen tile null).
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceTrail(state, provinceId)`: uses only existing march data the board already reads (`isProvinceSeen`, `listMarches`) to detect when a seen province has a player march on or heading to it. No new sim math.
+  - `drawTrailMark(g, cx, cy, phase)`: paints a small soft-gold footprint and trail pip (`0x19160d` dark bronze-charcoal roundel with `0x85682a` / `0xa68438` rim, `0xc49e48` / `0xd4b062` / `0xe6c87a` stepping boot footprints, and `0xf5e6b3` trailing breadcrumb pips) on a seen province with a player march on or heading to it.
+  - `paintBoardProvinces`: calls `drawTrailMark(g, cx - 8, cy - 8, animPhase)` when `hasProvinceTrail(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, piles, ruins, camps, outposts, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawTrailMark` and `hasProvinceTrail`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (5 new tests in `bakeoff/gemini-trail` suite; 479/479 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-19 — Tile with hostile column inbound shows incoming mark on diamond (bakeoff/gemini-incoming-mark)
 
