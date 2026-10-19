@@ -1,3 +1,9 @@
+## 2026-10-14 — server / audio MIME (wave/audio-mime)
+
+- Root cause: `MIME` in `server/static.mjs` had no audio types, so `.ogg` / `.mp3` / `.wav` fell through to `application/octet-stream`. Some browsers refuse to decode an `<audio>` source with that type; Vite's dev server sends the right type, so it only broke live.
+- Fix is three map entries. `staticPath` and the symlink check are untouched, so the gate tests still cover every escape.
+- Determinism: no sim change. Server display path only.
+
 ## 2026-10-14 — app / peak line (wave/hud-peak)
 
 - Peak is a `TerrainId` (`packages/shared`), like shore and wood, so the line keys off `p.terrain`.

@@ -13,6 +13,8 @@ const dist = path.join(tmp, "dist");
 fs.mkdirSync(path.join(dist, "assets"), { recursive: true });
 fs.writeFileSync(path.join(dist, "index.html"), "<html>app</html>");
 fs.writeFileSync(path.join(dist, "assets", "main.js"), "console.log('app')");
+fs.mkdirSync(path.join(dist, "audio"));
+fs.writeFileSync(path.join(dist, "audio", "track.ogg"), "OggS");
 fs.mkdirSync(path.join(tmp, "dist-secret"));
 fs.writeFileSync(path.join(tmp, "dist-secret", "x.txt"), "sibling secret");
 fs.mkdirSync(path.join(tmp, "server"));
@@ -111,6 +113,14 @@ test("a normal app request still succeeds", () => {
   assert.match(js.res.headers["Content-Type"], /javascript/);
   assert.equal(js.res.body, "console.log('app')");
   assert.ok(js.touched.every(insideDist));
+});
+
+test("an .ogg inside dist is answered as audio/ogg", () => {
+  const { res, touched } = request("/audio/track.ogg");
+  assert.equal(res.status, 200);
+  assert.equal(res.headers["Content-Type"], "audio/ogg");
+  assert.equal(res.body, "OggS");
+  assert.ok(touched.every(insideDist));
 });
 
 test("a page route inside the app still gets index.html", () => {
