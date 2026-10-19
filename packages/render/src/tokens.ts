@@ -3971,6 +3971,116 @@ export function drawWasteCrag(
 
 export const drawWasteTile = drawWasteCrag;
 
+/**
+ * Paints a low pastoral meadow on an isometric plain terrain diamond tile:
+ * - Gentle shadow: soft contact ground shadow (0x000000, alpha 0.24) cast southeast under the rolling meadow knolls, plus rich dark turf base shadow (0x14532d, alpha 0.42)
+ * - Soft grass: layered pastoral meadow turf swells (0x365314, 0x3f6212, 0x4d7c0f), sunlit velvet grass crown (0x65a30d, 0x84cc16), and rolling pastoral knoll contour lines (0x4d7c0f, 0x3f6212, 0xa3e635)
+ * - A few low tufts: 5 low clustered pastoral grass tufts with gentle base shadows (0x1a2e05), fanning grass blades (0x84cc16), sunlit blade tips (0xa3e635, 0xbef264), and soft meadow clover/dew specks (0xd9f99d, 0xecfccb)
+ * - No keep, no flag, no tent.
+ */
+export function drawPlainMeadow(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  hw: number = BOARD_HALF_W,
+  hh: number = BOARD_HALF_H,
+  phase: number = 0,
+  options?: { px?: number; py?: number }
+): void {
+  const px = options?.px ?? 0;
+  const py = options?.py ?? 0;
+  const sway = Math.sin(phase * 2.2 + px + py) * 0.4;
+
+  // 1. Gentle Shadow cast onto the diamond plateau under the rolling meadow knolls
+  g.ellipse(cx + 1.4, cy + 2.2, 10.8, 4.4);
+  g.fill({ color: 0x000000, alpha: 0.24 });
+
+  g.ellipse(cx + 0.8, cy + 1.6, 9.2, 3.6);
+  g.fill({ color: 0x14532d, alpha: 0.42 });
+
+  // 2. Soft Grass — Low Pastoral Meadow Swells & Rolling Knolls
+  // Broad lower pastoral turf cushion
+  g.ellipse(cx, cy + 0.4, Math.min(11.6, hw * 0.72), Math.min(5.2, hh * 0.65));
+  g.fill({ color: 0x365314, alpha: 0.88 });
+
+  // Western sunlit pastoral meadow knoll
+  g.ellipse(cx - 1.2, cy - 0.6, Math.min(8.8, hw * 0.55), Math.min(3.8, hh * 0.48));
+  g.fill({ color: 0x3f6212, alpha: 0.90 });
+
+  // Eastern gentle pasture hollow
+  g.ellipse(cx + 2.2, cy + 0.8, Math.min(7.4, hw * 0.46), Math.min(3.1, hh * 0.39));
+  g.fill({ color: 0x4d7c0f, alpha: 0.85 });
+
+  // Soft sunlit velvet grass crown
+  g.ellipse(cx - 0.6, cy - 1.0, Math.min(6.4, hw * 0.40), Math.min(2.7, hh * 0.34));
+  g.fill({ color: 0x65a30d, alpha: 0.85 });
+
+  // Dewy sunlit grass highlight patch on the upper-left swell
+  g.ellipse(cx - 1.8, cy - 1.5, Math.min(4.2, hw * 0.26), Math.min(1.8, hh * 0.22));
+  g.fill({ color: 0x84cc16, alpha: 0.72 });
+
+  // Rolling pastoral knoll contour lines sweeping across the diamond
+  g.moveTo(cx - 13.5, cy - 0.2);
+  g.bezierCurveTo(cx - 5, cy - 3.2, cx + 5, cy + 2.8, cx + 13.5, cy - 0.2);
+  g.stroke({ width: 1.3, color: 0x4d7c0f, alpha: 0.85 });
+
+  g.moveTo(cx - 10.0, cy + 2.6);
+  g.bezierCurveTo(cx - 3, cy + 0.6, cx + 5.5, cy + 4.4, cx + 10.5, cy + 2.4);
+  g.stroke({ width: 1.1, color: 0x3f6212, alpha: 0.78 });
+
+  // Sunlit grass crest contour along the upper knoll
+  g.moveTo(cx - 8.5, cy - 1.6);
+  g.bezierCurveTo(cx - 3.5, cy - 3.4, cx + 2.5, cy - 1.2, cx + 7.5, cy - 2.0);
+  g.stroke({ width: 0.8, color: 0xa3e635, alpha: 0.65 });
+
+  // 3. A Few Low Tufts — Clustered Pastoral Grass Tufts & Soft Clover Specks
+  const tufts = [
+    { gx: cx - 8.5, gy: cy - 2.0, s: 1.0 },
+    { gx: cx + 7.5, gy: cy - 1.6, s: 0.95 },
+    { gx: cx + 0.8, gy: cy - 3.0, s: 0.90 },
+    { gx: cx - 2.8, gy: cy + 3.2, s: 1.05 },
+    { gx: cx + 5.6, gy: cy + 2.8, s: 0.95 },
+  ];
+
+  for (const t of tufts) {
+    const gx = t.gx;
+    const gy = t.gy;
+    const s = t.s;
+
+    // Gentle shadow under each low grass tuft
+    g.ellipse(gx + 0.4, gy + 1.6 * s, 2.2 * s, 0.9 * s);
+    g.fill({ color: 0x1a2e05, alpha: 0.55 });
+
+    // Low fanning grass blades (3 blades per tuft)
+    g.moveTo(gx, gy + 1.5 * s);
+    g.lineTo(gx - 1.8 * s + sway * 0.5, gy - 1.6 * s);
+    g.moveTo(gx, gy + 1.5 * s);
+    g.lineTo(gx + sway * 0.7, gy - 2.4 * s);
+    g.moveTo(gx, gy + 1.5 * s);
+    g.lineTo(gx + 1.8 * s + sway * 0.5, gy - 1.5 * s);
+    g.stroke({ width: 1.0, color: 0x84cc16, alpha: 0.92 });
+
+    // Sunlit center blade tip highlight
+    g.moveTo(gx + sway * 0.3, gy - 0.4 * s);
+    g.lineTo(gx + sway * 0.7, gy - 2.4 * s);
+    g.stroke({ width: 0.7, color: 0xbef264, alpha: 0.85 });
+  }
+
+  // Soft pastoral clover / meadow dew specks nestled in the grass
+  g.circle(cx - 5.2, cy - 2.8, 0.75);
+  g.fill({ color: 0xd9f99d, alpha: 0.88 });
+  g.circle(cx + 3.8, cy - 2.4, 0.7);
+  g.fill({ color: 0xecfccb, alpha: 0.85 });
+  g.circle(cx - 0.8, cy + 1.4, 0.75);
+  g.fill({ color: 0xd9f99d, alpha: 0.85 });
+  g.circle(cx + 8.6, cy + 1.2, 0.65);
+  g.fill({ color: 0xecfccb, alpha: 0.82 });
+  g.circle(cx - 6.4, cy + 2.6, 0.7);
+  g.fill({ color: 0xa3e635, alpha: 0.85 });
+}
+
+export const drawPlainTile = drawPlainMeadow;
+
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
 // -------------------------------------------------------------
@@ -4097,41 +4207,8 @@ export function paintBoardProvinces(
     // 4. Terrain Details (Isometric Relief Artwork)
     switch (p.terrain) {
       case "plain": {
-        // Lush pastoral meadow with rolling knoll lines, grass tufts, and daisy blossoms
-        g.moveTo(cx - 14, cy);
-        g.bezierCurveTo(cx - 5, cy - 3, cx + 5, cy + 3, cx + 14, cy);
-        g.stroke({ width: 1.4, color: 0x4d7c0f, alpha: 0.85 });
-
-        g.moveTo(cx - 10, cy + 3);
-        g.bezierCurveTo(cx - 3, cy + 1, cx + 6, cy + 5, cx + 11, cy + 3);
-        g.stroke({ width: 1.1, color: 0x3f6212, alpha: 0.75 });
-
-        // Grass tufts
-        for (const [gx, gy] of [
-          [cx - 9, cy - 3],
-          [cx + 8, cy - 2],
-          [cx - 3, cy + 4],
-          [cx + 6, cy + 4],
-        ]) {
-          g.moveTo(gx, gy + 3); g.lineTo(gx - 2, gy - 2);
-          g.moveTo(gx, gy + 3); g.lineTo(gx, gy - 3.5);
-          g.moveTo(gx, gy + 3); g.lineTo(gx + 2, gy - 2);
-          g.stroke({ width: 1.1, color: 0x84cc16, alpha: 0.9 });
-        }
-
-        // Wildflowers
-        for (const [fx, fy, col] of [
-          [cx - 6, cy - 4, 0xffffff],
-          [cx + 4, cy - 4, 0xfacc15],
-          [cx - 1, cy + 2, 0x60a5fa],
-          [cx + 10, cy + 2, 0xffffff],
-          [cx - 7, cy + 5, 0xfacc15],
-        ]) {
-          g.circle(fx, fy, 1.3);
-          g.fill({ color: col, alpha: 0.95 });
-          g.circle(fx, fy, 0.6);
-          g.fill({ color: 0xeab308, alpha: 0.9 });
-        }
+        // Low pastoral meadow on the diamond: soft grass, a few low tufts, gentle shadow
+        drawPlainMeadow(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
         break;
       }
 

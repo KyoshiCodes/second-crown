@@ -127,6 +127,8 @@ import {
   drawHillTile,
   drawWasteCrag,
   drawWasteTile,
+  drawPlainMeadow,
+  drawPlainTile,
 } from "./tokens.js";
 
 import {

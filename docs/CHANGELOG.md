@@ -1,13 +1,16 @@
 # CHANGELOG
 
-## 2026-10-19 — Plain line (wave/hud-plain)
+## 2026-10-19 — Plain tile shows pastoral meadow on diamond (bakeoff/gemini-plain)
 
-- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, wood, peak, hill, waste, camp, outpost, and resource lines, fog.
-- `packages/app/src/hud/plainLine.ts` (new): `plainLine(seen, terrain)` gives `"Plain · meadow"` for a seen plain tile, else `null`.
-- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the waste line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-plain` (soft green, italic).
-- `docs/HANDOFF.md`: marks the waste line (#246) and waste crag on diamond (#247) as merged, and restores the hill line (#244) and waste line sections dropped in the #247 merge.
-- Tests: new `packages/app/src/hud/plainLine.test.ts` (seen plain shows the line; unseen plain does not; no other terrain does). Run: `npm test`.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `drawPlainMeadow(g, cx, cy, hw, hh, phase, options)` (and alias `drawPlainTile`): paints a low green meadow on a plain tile with soft grass (`0x365314`, `0x3f6212`, `0x4d7c0f`, `0x65a30d`, `0x84cc16`, `0xa3e635`), a few low tufts (`0x1a2e05`, `0x84cc16`, `0xbef264`, `0xd9f99d`, `0xecfccb`), a gentle shadow (`0x000000` alpha 0.24 contact shadow and `0x14532d` alpha 0.42 base shadow), no keep, no flag, and no tent.
+  - `paintBoardProvinces`: `case "plain"` dispatches to `drawPlainMeadow(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y })`.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Peaks, hills, wastes, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawPlainMeadow` and `drawPlainTile`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (8 new tests in `bakeoff/gemini-plain` suite; 453/453 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-19 — Waste tile shows scorched basalt crag on diamond (bakeoff/gemini-waste)
 
