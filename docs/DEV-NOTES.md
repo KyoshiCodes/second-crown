@@ -1,3 +1,9 @@
+## 2026-10-19 — app / waste line (wave/hud-waste)
+
+- Waste is a `TerrainId` (`packages/shared`), like hill and peak, so the line keys off `p.terrain`.
+- `wasteLine(seen, terrain)` (pure, `hud/wasteLine.ts`) mirrors `hillLine` so it can be unit tested. `seen` is the card's existing `isProvinceSeen`, so fog keeps the line hidden.
+- Determinism: no sim change. Display only.
+
 ## 2026-10-19 — render / hill tile shows stepped rise on diamond (bakeoff/gemini-hill)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

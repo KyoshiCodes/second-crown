@@ -259,3 +259,6 @@
 
 /* Hill: seen tile with terrain "hill"; rise. */
 .sc-inspect-hill { color: #d4a359; font-style: italic; }
+
+/* Waste: seen tile with terrain "waste"; scorched. */
+.sc-inspect-waste { color: #9a9a96; font-style: italic; }

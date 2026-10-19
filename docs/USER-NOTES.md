@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-19 — Waste says so (wave/hud-waste)
+
+- **A seen waste tile now says "Waste · scorched" and play is unchanged.** Click a waste tile you have seen, and the tile card shows "Waste · scorched".
+- A waste tile you have not scouted still sits under fog and shows nothing new.
+- **Play is unchanged.** Scouting, gathering, garrisons, marches, abandoning, saves, and every other rule work exactly as before.
+
 ## 2026-10-19 — Hill tile shows a stepped rise (bakeoff/gemini-hill)
 
 - **A seen hill tile now shows a stepped rise and play is unchanged.** A seen hill tile on the isometric diamond gets a small stepped rise: a low stepped plateau in warm ochre and stone, three tiers, a soft shadow, no keep, no flag, and no tent.
