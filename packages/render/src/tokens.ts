@@ -2963,6 +2963,111 @@ export function drawResourceNode(
   }
 }
 
+/**
+ * 3x5 Pixel Bitmap Font for numeric digits 0-9 and '/' ratio separator.
+ * Bit 2 (4) is x=0, Bit 1 (2) is x=1, Bit 0 (1) is x=2.
+ */
+export const STOCK_BADGE_GLYPHS_3X5: Record<string, number[]> = {
+  "0": [7, 5, 5, 5, 7],
+  "1": [2, 6, 2, 2, 7],
+  "2": [7, 1, 7, 4, 7],
+  "3": [7, 1, 7, 1, 7],
+  "4": [5, 5, 7, 1, 1],
+  "5": [7, 4, 7, 1, 7],
+  "6": [7, 4, 7, 5, 7],
+  "7": [7, 1, 1, 1, 1],
+  "8": [7, 5, 7, 5, 7],
+  "9": [7, 5, 7, 1, 7],
+  "/": [1, 1, 2, 4, 4],
+};
+
+/**
+ * Formats the stock ratio text for a gather node badge (e.g. "12/40" or "0/40").
+ * Returns null when stockMax <= 0.
+ */
+export function formatStockBadgeText(stock: number, stockMax: number): string | null {
+  if (!Number.isFinite(stockMax) || stockMax <= 0) return null;
+  const safeMax = Math.max(0, Math.floor(stockMax));
+  if (safeMax <= 0) return null;
+  const safeStock = Math.max(0, Math.floor(Number.isFinite(stock) ? stock : 0));
+  return `${safeStock}/${safeMax}`;
+}
+
+/**
+ * Paints a small dark pill with the stock ratio (e.g. 12/40) in light text,
+ * tucked beside the resource pile on an isometric gather tile.
+ * - Stocked tile (stock > 0): dark pill (0x090d16, border 0x475569) with light text (0xf8fafc).
+ * - Dry tile (stock <= 0): shows 0/N in muted grey (0x94a3b8) with muted border (0x3f3f46).
+ * - No badge when stockMax is 0 (or <= 0).
+ * - Strictly non-interactive (rendered on board graphics layer with pointer-events: none).
+ */
+export function drawStockBadge(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  stock: number,
+  stockMax: number
+): void {
+  const text = formatStockBadgeText(stock, stockMax);
+  if (!text) return;
+
+  const safeStock = Math.max(0, Math.floor(Number.isFinite(stock) ? stock : 0));
+  const isDry = safeStock <= 0;
+
+  // Compute compact pill dimensions for 3x5 bitmap glyphs (3px wide, 1px gap, 2px horizontal pad, 1px vertical pad)
+  const pillW = Math.max(15, 4 * text.length + 3);
+  const pillH = 7;
+  // Tucked beside/below-right of the stock pile (which sits at cx + 5, cy + 1)
+  const pillX = Math.round(cx + 5 - pillW / 2);
+  const pillY = Math.round(cy + 4);
+
+  // 1. Subtle drop shadow under the pill
+  g.rect(pillX, pillY + 1, pillW, pillH);
+  g.fill({ color: 0x000000, alpha: 0.42 });
+
+  // 2. Small dark pill container
+  const pillFill = 0x090d16;
+  const pillBorder = isDry ? 0x3f3f46 : 0x475569;
+  g.rect(pillX, pillY, pillW, pillH);
+  g.fill({ color: pillFill, alpha: isDry ? 0.86 : 0.94 });
+  g.stroke({ width: 0.8, color: pillBorder, alpha: isDry ? 0.78 : 0.92 });
+
+  // 3. Ratio text (e.g. "12/40" in light text 0xf8fafc, or "0/N" in muted grey 0x94a3b8 when dry)
+  const textColor = isDry ? 0x94a3b8 : 0xf8fafc;
+  const textAlpha = isDry ? 0.85 : 0.96;
+
+  let charX = pillX + 2;
+  const charY = pillY + 1;
+
+  for (let c = 0; c < text.length; c++) {
+    const ch = text[c];
+    const glyph = STOCK_BADGE_GLYPHS_3X5[ch];
+    if (glyph) {
+      for (let r = 0; r < 5; r++) {
+        const bits = glyph[r];
+        if (bits === 7) {
+          g.rect(charX, charY + r, 3, 1);
+        } else if (bits === 6) {
+          g.rect(charX, charY + r, 2, 1);
+        } else if (bits === 5) {
+          g.rect(charX, charY + r, 1, 1);
+          g.rect(charX + 2, charY + r, 1, 1);
+        } else if (bits === 4) {
+          g.rect(charX, charY + r, 1, 1);
+        } else if (bits === 3) {
+          g.rect(charX + 1, charY + r, 2, 1);
+        } else if (bits === 2) {
+          g.rect(charX + 1, charY + r, 1, 1);
+        } else if (bits === 1) {
+          g.rect(charX + 2, charY + r, 1, 1);
+        }
+      }
+    }
+    charX += 4;
+  }
+  g.fill({ color: textColor, alpha: textAlpha });
+}
+
 
 // -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
@@ -4295,8 +4400,11 @@ export function paintBoardProvinces(
         case "quarry":
         case "field":
         case "ruins": {
-          const { ratio, hasStock } = getNodeStockInfo(state, p.id, p.node);
+          const { stock, max, ratio, hasStock } = getNodeStockInfo(state, p.id, p.node);
           drawResourceNode(g, cx, cy, p.node, ratio, phase, hasStock);
+          if (p.node === "woodcut" || p.node === "quarry" || p.node === "field") {
+            drawStockBadge(g, cx, cy, stock, max);
+          }
           break;
         }
       }

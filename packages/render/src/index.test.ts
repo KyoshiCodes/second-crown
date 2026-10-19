@@ -100,6 +100,9 @@ import {
   drawWasteTile,
   drawPlainMeadow,
   drawPlainTile,
+  drawStockBadge,
+  formatStockBadgeText,
+  STOCK_BADGE_GLYPHS_3X5,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -11461,12 +11464,288 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                 });
               });
             });
+
+            describe("bakeoff/gemini-stock-badge: seen gather tile on isometric diamond gets stock number badge next to pile", () => {
+              function createMockGraphics() {
+                const calls: { method: string; args: any[] }[] = [];
+                const mock: any = {
+                  calls,
+                  clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+                  poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+                  fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+                  stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+                  moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+                  lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+                  circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+                  rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+                  ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+                  bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); return mock; },
+                  quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+                  arc: (...args: any[]) => { calls.push({ method: "arc", args }); return mock; },
+                  roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+                  closePath: () => { calls.push({ method: "closePath", args: [] }); return mock; },
+                  beginPath: () => { calls.push({ method: "beginPath", args: [] }); return mock; },
+                };
+                return mock;
+              }
+
+              describe("drawStockBadge: small dark pill with ratio in light text, 0/N in muted grey when dry, no badge when stockMax is 0", () => {
+                it("paints a small dark pill with the ratio (e.g. 12/40) in light text tucked beside the pile", () => {
+                  const g = createMockGraphics();
+                  drawStockBadge(g, 100, 100, 12, 40);
+                  const json = JSON.stringify(g.calls);
+
+                  expect(formatStockBadgeText(12, 40)).toBe("12/40");
+
+                  // 1. Drop shadow (0x000000) and small dark pill (0x090d16, border 0x475569)
+                  expect(json).toContain(String(0x000000));
+                  expect(json).toContain(String(0x090d16));
+                  expect(json).toContain(String(0x475569));
+
+                  // 2. Light text (0xf8fafc) for stocked tile (not muted grey 0x94a3b8)
+                  expect(json).toContain(String(0xf8fafc));
+                  expect(json).not.toContain(String(0x94a3b8));
+
+                  // 3. Tucked beside the pile (pillY = cy + 4 = 104, pillH = 7, pillW = 4 * 5 + 3 = 23)
+                  const pillContainer = g.calls.find(
+                    (c: any) => c.method === "rect" && c.args[1] === 104 && c.args[2] === 23 && c.args[3] === 7
+                  );
+                  expect(pillContainer).toBeDefined();
+                  expect(g.calls.length).toBeGreaterThan(25);
+                });
+
+                it("shows 0/N in muted grey on a dry tile", () => {
+                  const g = createMockGraphics();
+                  drawStockBadge(g, 100, 100, 0, 40);
+                  const json = JSON.stringify(g.calls);
+
+                  expect(formatStockBadgeText(0, 40)).toBe("0/40");
+
+                  // Dark pill (0x090d16) with muted border (0x3f3f46) and muted grey text (0x94a3b8)
+                  expect(json).toContain(String(0x090d16));
+                  expect(json).toContain(String(0x3f3f46));
+                  expect(json).toContain(String(0x94a3b8));
+                  expect(json).not.toContain(String(0xf8fafc));
+
+                  // Pill width for 4 chars ("0/40") is 4 * 4 + 3 = 19
+                  const pillContainer = g.calls.find(
+                    (c: any) => c.method === "rect" && c.args[1] === 104 && c.args[2] === 19 && c.args[3] === 7
+                  );
+                  expect(pillContainer).toBeDefined();
+                });
+
+                it("draws no badge when stockMax is 0 or negative", () => {
+                  expect(formatStockBadgeText(0, 0)).toBeNull();
+                  expect(formatStockBadgeText(12, 0)).toBeNull();
+                  expect(formatStockBadgeText(10, -5)).toBeNull();
+
+                  const gZero = createMockGraphics();
+                  drawStockBadge(gZero, 100, 100, 0, 0);
+                  expect(gZero.calls.length).toBe(0);
+
+                  const gZeroWithStock = createMockGraphics();
+                  drawStockBadge(gZeroWithStock, 100, 100, 15, 0);
+                  expect(gZeroWithStock.calls.length).toBe(0);
+                });
+              });
+
+              describe("paintBoardProvinces: gather tile stock badge integration", () => {
+                function createGatherBoardState(seen: boolean, node: "woodcut" | "quarry" | "field" = "woodcut", stock?: number): GameState {
+                  const flags: Record<string, any> = {
+                    fog_seen: JSON.stringify(seen ? ["p_home", "p_gather"] : ["p_home"]),
+                    ...(seen ? { "seen:p_gather": true } : {}),
+                    "seen:p_home": true,
+                  };
+                  if (typeof stock === "number") {
+                    flags["node_stock_p_gather"] = stock;
+                  }
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "k_glen", isPlayer: false, name: "Glen" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags,
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_gather", x: 2, y: 1, terrain: "wood", node },
+                      ],
+                    } as any,
+                  };
+                }
+
+                it("renders stock number badge next to existing pile on seen woodcut, quarry, and field tiles", () => {
+                  for (const [node, stockVal] of [
+                    ["woodcut", 75],
+                    ["quarry", 45],
+                    ["field", 110],
+                  ] as const) {
+                    const g = createMockGraphics();
+                    const state = createGatherBoardState(true, node, stockVal);
+                    paintBoardProvinces(g, state, 0);
+
+                    const json = JSON.stringify(g.calls);
+                    // Small dark pill (0x090d16) and light text (0xf8fafc)
+                    expect(json).toContain(String(0x090d16));
+                    expect(json).toContain(String(0xf8fafc));
+                  }
+                });
+
+                it("renders dry gather tile stock badge (0/N) in muted grey when stock is 0", () => {
+                  const g = createMockGraphics();
+                  const state = createGatherBoardState(true, "quarry", 0);
+                  state.board!.provinces[0].terrain = "hill";
+                  state.board!.provinces[1].terrain = "hill";
+                  paintBoardProvinces(g, state, 0);
+
+                  const json = JSON.stringify(g.calls);
+                  // Dark pill (0x090d16) with muted grey text (0x94a3b8)
+                  expect(json).toContain(String(0x090d16));
+                  expect(json).toContain(String(0x94a3b8));
+                });
+
+                it("renders fog (paintFogHeightVeil) and suppresses stock badge when gather tile is unseen", () => {
+                  const g = createMockGraphics();
+                  const state = createGatherBoardState(false, "woodcut", 75);
+                  paintBoardProvinces(g, state, 0);
+
+                  const json = JSON.stringify(g.calls);
+                  // Dark stock badge pill (0x090d16) is not drawn when gather tile is unseen
+                  expect(json).not.toContain(String(0x090d16));
+                });
+
+                it("keeps peaks, hills, wastes, woods, plains, shores, ruins, camps, outposts, and keeps as they are, with no stock badge on ruins or non-gather tiles", () => {
+                  // 1. Ruins tile has stockMax = 0 and draws ruined keep without stock badge pill (0x090d16)
+                  const gRuins = createMockGraphics();
+                  const stateRuins: GameState = {
+                    ...createGatherBoardState(true),
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_ruins", x: 2, y: 1, terrain: "waste", node: "ruins" },
+                        { id: "p_camp", x: 3, y: 1, terrain: "hill", node: "camp", occupantRealmId: "rival" },
+                      ],
+                    } as any,
+                    flags: {
+                      fog_seen: JSON.stringify(["p_home", "p_ruins", "p_camp"]),
+                      "seen:p_home": true,
+                      "seen:p_ruins": true,
+                      "seen:p_camp": true,
+                    },
+                  };
+                  paintBoardProvinces(gRuins, stateRuins, 0);
+                  const jsonRuins = JSON.stringify(gRuins.calls);
+                  expect(jsonRuins).not.toContain(String(0x090d16)); // no stock badge on hold, ruins, or camp
+                  expect(jsonRuins).toContain(String(0xd6d3d1)); // ruined keep fallen stone intact
+                  expect(jsonRuins).toContain(String(0xd4a373)); // camp tent guy ropes intact
+
+                  // 2. All terrains (peak, hill, waste, wood, plain, shore) and player outpost on gather tile remain intact alongside badge
+                  const gMulti = createMockGraphics();
+                  const stateMulti: GameState = {
+                    ...createGatherBoardState(true),
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_peak", x: 1, y: 0, terrain: "peak", node: "quarry", occupantRealmId: "player" },
+                        { id: "p_hill", x: 2, y: 0, terrain: "hill", node: "quarry" },
+                        { id: "p_waste", x: 3, y: 0, terrain: "waste", node: "none" },
+                        { id: "p_wood", x: 4, y: 0, terrain: "wood", node: "woodcut" },
+                        { id: "p_shore", x: 5, y: 0, terrain: "shore", node: "field" },
+                        { id: "p_plain", x: 6, y: 0, terrain: "plain", node: "field" },
+                      ],
+                    } as any,
+                    flags: {
+                      fog_seen: JSON.stringify(["p_home", "p_peak", "p_hill", "p_waste", "p_wood", "p_shore", "p_plain"]),
+                      "seen:p_home": true,
+                      "seen:p_peak": true,
+                      "seen:p_hill": true,
+                      "seen:p_waste": true,
+                      "seen:p_wood": true,
+                      "seen:p_shore": true,
+                      "seen:p_plain": true,
+                      "node_stock_p_peak": 45,
+                      "node_stock_p_hill": 0,
+                      "node_stock_p_wood": 120,
+                    },
+                  };
+                  paintBoardProvinces(gMulti, stateMulti, 0);
+                  const jsonMulti = JSON.stringify(gMulti.calls);
+                  expect(jsonMulti).toContain(String(0xe2e8f0)); // peak snow cap
+                  expect(jsonMulti).toContain(String(0xb45309)); // hill stepped rise
+                  expect(jsonMulti).toContain(String(0x140e0a)); // waste scorched crag
+                  expect(jsonMulti).toContain(String(0x34d399)); // wood trees
+                  expect(jsonMulti).toContain(String(0x06b6d4)); // shore water
+                  expect(jsonMulti).toContain(String(0xbef264)); // plain meadow
+                  expect(jsonMulti).toContain(String(0xd4a373)); // outpost tent guy ropes
+                  expect(jsonMulti).toContain(String(0x090d16)); // stock badge dark pill
+                  expect(jsonMulti).toContain(String(0xf8fafc)); // stocked light text
+                  expect(jsonMulti).toContain(String(0x94a3b8)); // dry 0/N muted grey text
+                });
+              });
+
+              describe("exports and code integrity", () => {
+                it("verifies direct exported drawStockBadge, formatStockBadgeText, and STOCK_BADGE_GLYPHS_3X5 exist and execute cleanly", async () => {
+                  const { drawStockBadge, formatStockBadgeText, STOCK_BADGE_GLYPHS_3X5 } = await import("./index.js");
+                  expect(typeof drawStockBadge).toBe("function");
+                  expect(typeof formatStockBadgeText).toBe("function");
+                  expect(typeof STOCK_BADGE_GLYPHS_3X5).toBe("object");
+
+                  const g = createMockGraphics();
+                  drawStockBadge(g, 50, 50, 12, 40);
+                  expect(g.calls.length).toBeGreaterThan(25);
+                });
+
+                it("verifies zero merge conflict markers across packages/render files", async () => {
+                  const fs = await import("node:fs");
+                  const path = await import("node:path");
+                  const files = [
+                    path.resolve(__dirname, "tokens.ts"),
+                    path.resolve(__dirname, "buildings.ts"),
+                    path.resolve(__dirname, "index.ts"),
+                  ];
+                  for (const f of files) {
+                    const content = fs.readFileSync(f, "utf-8");
+                    expect(content).not.toContain("<<<<<<<");
+                    expect(content).not.toContain("=======");
+                    expect(content).not.toContain(">>>>>>>");
+                  }
+                });
+
+                it("verifies camera math, zoom, and tile click hit-testing remain unchanged", async () => {
+                  const { gridToWorld, worldToGrid, hitTestProvince, boardGridToWorld } = await import("./camera.js");
+                  const { wx, wy } = gridToWorld(4, 4);
+                  const { gx, gy } = worldToGrid(wx, wy);
+                  expect(gx).toBe(4);
+                  expect(gy).toBe(4);
+
+                  const bWorld = boardGridToWorld(2, 2);
+                  const hit = hitTestProvince(bWorld.wx, bWorld.wy);
+                  expect(hit?.bx).toBe(2);
+                  expect(hit?.by).toBe(2);
+                });
+              });
+            });
           });
         });
       });
     });
   });
 });
+
 
 
 
