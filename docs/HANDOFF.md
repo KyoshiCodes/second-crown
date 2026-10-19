@@ -1,11 +1,11 @@
-# Handoff (2026-10-14)
+# Handoff (2026-10-19)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#249** (plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-stock-badge` (**not merged**, see Stock badge on diamond below).
+Merged through PR **#251** (stock badge on diamond, #251; stock badge on inspect card, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hud-clash` (**not merged**, see Clash line on inspect card below).
 
 ### Cultures and units (all merged)
 
@@ -234,7 +234,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A seen plain tile on the isometric diamond gets a low pastoral meadow (`drawPlainMeadow` in `packages/render/src/tokens.ts`): a low green meadow with soft grass (`0x365314`, `0x3f6212`, `0x4d7c0f`, `0x65a30d`, `0x84cc16`, `0xa3e635`), a few low tufts (`0x1a2e05`, `0x84cc16`, `0xbef264`, `0xd9f99d`, `0xecfccb`), a gentle shadow (`0x000000` alpha 0.24 contact shadow and `0x14532d` alpha 0.42 base shadow), no keep, no flag, no tent.
 - Unseen tiles stay fog (`paintFogHeightVeil`). Peaks, hills, wastes, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are.
 
-## Stock badge on diamond (branch `bakeoff/gemini-stock-badge`, **not merged**)
+## Stock badge on diamond (PR #251, merged)
 
 - The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - A seen gather tile (`woodcut`, `quarry`, `field`) on the isometric diamond gets a small stock number badge next to the existing pile (`drawStockBadge(g, cx, cy, stock, stockMax)` in `packages/render/src/tokens.ts`): a small dark pill (`0x090d16`, border `0x475569` or `0x3f3f46`) with the ratio (e.g. `12/40`) in light text (`0xf8fafc`), tucked beside the pile. A dry tile shows `0/N` in muted grey (`0x94a3b8`). No badge when `stockMax` is `0`.
@@ -242,6 +242,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (463 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
+
+## Clash line on inspect card (branch `wave/hud-clash`, **not merged**)
+
+- Inspect card only. Do not change `packages/sim`, `server/`, `theme.css`, or any action.
+- `clashLine(state, provinceId)` in `packages/app/src/hud/clashLine.ts` returns `"Clash · fighting"` when columns of two or more realms are bound for the tile (the column clash `pairClashingMarches` resolves), or a rival column (`incomingOnProvince`) is bound for a tile the player holds (home or outpost). Else `null`. Reads `listMarches`, `incomingOnProvince`, `getProvince`, `isProvinceSeen` only; no new sim math.
+- Unseen tiles return `null` (fog unchanged).
+- `ProvinceInspect.tsx` renders it in the Tile group right after the stock badge, class `sc-inspect-line sc-inspect-clash` (deep red `#b91c1c`, italic, in `hud/inspect-card.css`).
+- Tests: `packages/app/src/hud/clashLine.test.ts` (4 tests). `npm test` and `npm run build -w @second-crown/app` pass.
 
 ## Verify
 

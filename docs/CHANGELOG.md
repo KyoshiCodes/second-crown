@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-19 — Inspect card shows a clash line on a tile with a fight (wave/hud-clash)
+
+- Inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/clashLine.ts`: `clashLine(state, provinceId)` returns `"Clash · fighting"` when columns of two or more realms are bound for a seen tile, or a rival column (`incomingOnProvince`) is bound for a seen tile the player holds. Else `null`. Uses existing sim helpers only.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the stock badge.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-clash` (deep red `#b91c1c`, italic).
+- Tests: `packages/app/src/hud/clashLine.test.ts` (4 tests: clash shows, quiet tile null, lone column null, unseen tile null).
+
 ## 2026-10-19 — Seen gather tile shows stock number badge on diamond (bakeoff/gemini-stock-badge)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

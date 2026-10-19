@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-19 — A tile with a fight says so on the inspect card (wave/hud-clash)
+
+- **A tile with a fight now says "Clash · fighting" on the inspect card, and play is unchanged.** Click a seen tile where two realms' columns are heading in, or where a rival column is coming for your hold or outpost, and the Tile section shows a short red line: "Clash · fighting".
+- **Unseen tiles still show nothing.** Fog is the same.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-19 — Seen gather tile shows a stock number on the diamond (bakeoff/gemini-stock-badge)
 
 - **A seen gather tile now shows a stock number on the diamond and play is unchanged.** A seen gather tile (woodcut, quarry, field) on the isometric diamond gets a small stock number badge next to the existing pile: a small dark pill with the ratio (e.g. `12/40`) in light text, tucked beside the pile. A dry tile shows `0/N` in muted grey. No badge is shown when `stockMax` is `0`.
