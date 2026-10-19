@@ -11,6 +11,7 @@ import {
   garrisonAt,
   garrisonPower,
   listGarrisons,
+  incomingOnProvince,
 } from "@second-crown/sim";
 import * as sim from "@second-crown/sim";
 import type { March } from "@second-crown/sim";
@@ -3068,6 +3069,208 @@ export function drawStockBadge(
   g.fill({ color: textColor, alpha: textAlpha });
 }
 
+// -------------------------------------------------------------
+// Active Column Clash & Engagement Mark (drawClashMark)
+// -------------------------------------------------------------
+
+/**
+ * Determines whether a seen province on the board currently has an active
+ * column clash (columns of two or more realms bound for the tile) or an
+ * active engagement (a rival column bound for a player-held tile/outpost, or
+ * a non-scout column bound for a tile occupied by a different realm).
+ * Uses only existing board/march/garrison/incoming data already read by the board.
+ * Unseen tiles always return false (stay fog).
+ */
+export function hasProvinceClash(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+
+  const simMarches = listMarches(state);
+  const boardMarches = Array.isArray((state.board as any).marches)
+    ? ((state.board as any).marches as March[])
+    : [];
+  const allMarches = simMarches.length > 0 ? simMarches : boardMarches;
+  const marchesToTile = allMarches.filter(
+    (m) => m && m.toId === provinceId
+  );
+
+  // 1. Column clash: columns of two or more realms bound for the same tile
+  const realms = new Set(marchesToTile.map((m) => m.realmId));
+  if (realms.size >= 2) return true;
+
+  // 2. Engagement: rival column bound for a tile the player holds or garrisons
+  const p = getProvince(state, provinceId);
+  const incoming =
+    incomingOnProvince(state, provinceId) ??
+    marchesToTile.find((m) => m.realmId !== "player" && !isScoutMarch(m));
+  const playerHolds =
+    p?.occupantRealmId === "player" ||
+    provinceId === state.board.homeProvinceId ||
+    Boolean(garrisonAt(state, provinceId));
+  if (incoming && playerHolds) return true;
+
+  // Or a non-scout column bound for a tile occupied by a different realm
+  if (
+    p?.occupantRealmId &&
+    marchesToTile.some((m) => m.realmId !== p.occupantRealmId && !isScoutMarch(m))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Paints a small crossed-swords and impact burst clash mark on a province
+ * that has an active column clash or engagement on the isometric diamond.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the mark so it reads crisply over any terrain or token
+ * - Dark iron shield roundel backing (0x1a0b0e) with crimson warning rim (0x991b1b)
+ * - Jagged 8-point crimson-amber impact burst (0xdc2626 / 0xef4444 / 0xf97316)
+ * - Pair of crossed steel broadswords (0xe2e8f0 / 0xcbd5e1 / 0xf8fafc / 0x475569)
+ *   with brass crossguards & pommels (0xd97706) and leather grips (0x78350f)
+ * - Bright white-gold clash spark at the blade intersection (0xfef08a / 0xffffff)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawClashMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const pulse = 1 + Math.sin(phase * 3.2) * 0.06;
+  const mx = cx;
+  const my = cy;
+
+  // 1. Soft drop shadow beneath the clash emblem
+  g.ellipse(mx, my + 1.8, 7.6, 4.4);
+  g.fill({ color: 0x000000, alpha: 0.45 });
+
+  // 2. Dark obsidian roundel backing for crisp contrast over keeps, piles, and terrain
+  g.circle(mx, my, 6.4);
+  g.fill({ color: 0x1a0b0e, alpha: 0.88 });
+  g.circle(mx, my, 6.4);
+  g.stroke({ width: 0.9, color: 0x991b1b, alpha: 0.92 });
+
+  // 3. Outer 8-point crimson-orange impact burst star
+  const rOuter = 7.4 * pulse;
+  const rDiag = 6.2 * pulse;
+  const rInner = 3.1;
+  g.poly([
+    mx, my - rOuter,
+    mx + rInner * 0.55, my - rInner * 0.55,
+    mx + rDiag, my - rDiag * 0.72,
+    mx + rInner, my,
+    mx + rDiag, my + rDiag * 0.72,
+    mx + rInner * 0.55, my + rInner * 0.55,
+    mx, my + rOuter * 0.88,
+    mx - rInner * 0.55, my + rInner * 0.55,
+    mx - rDiag, my + rDiag * 0.72,
+    mx - rInner, my,
+    mx - rDiag, my - rDiag * 0.72,
+    mx - rInner * 0.55, my - rInner * 0.55,
+  ]);
+  g.fill({ color: 0xdc2626, alpha: 0.94 });
+  g.stroke({ width: 0.7, color: 0x7f1d1d, alpha: 0.95 });
+
+  // Inner fiery orange-amber impact burst core
+  const rCoreOuter = 4.8 * pulse;
+  const rCoreInner = 1.9;
+  g.poly([
+    mx, my - rCoreOuter,
+    mx + rCoreInner, my - rCoreInner,
+    mx + rCoreOuter, my,
+    mx + rCoreInner, my + rCoreInner,
+    mx, my + rCoreOuter,
+    mx - rCoreInner, my + rCoreInner,
+    mx - rCoreOuter, my,
+    mx - rCoreInner, my - rCoreInner,
+  ]);
+  g.fill({ color: 0xf97316, alpha: 0.95 });
+
+  // 4. Left-to-Right Sword (hilt bottom-left -> tip top-right)
+  // Tapered steel blade polygon
+  g.poly([
+    mx - 2.6, my + 1.8,
+    mx - 1.8, my + 2.6,
+    mx + 4.4, my - 3.6,
+    mx + 4.8, my - 4.8,
+    mx + 3.6, my - 4.4,
+  ]);
+  g.fill({ color: 0xcbd5e1 });
+  g.stroke({ width: 0.55, color: 0x475569 });
+
+  // Blade fuller highlight
+  g.moveTo(mx - 2.0, my + 2.0);
+  g.lineTo(mx + 4.3, my - 4.3);
+  g.stroke({ width: 0.7, color: 0xf8fafc, alpha: 0.95 });
+
+  // Leather grip & brass crossguard + pommel (bottom-left)
+  g.moveTo(mx - 2.2, my + 2.2);
+  g.lineTo(mx - 4.2, my + 4.2);
+  g.stroke({ width: 1.5, color: 0x78350f });
+
+  g.moveTo(mx - 3.6, my + 0.8);
+  g.lineTo(mx - 0.8, my + 3.6);
+  g.stroke({ width: 1.3, color: 0xd97706 });
+
+  g.circle(mx - 4.5, my + 4.5, 1.05);
+  g.fill({ color: 0xd97706 });
+  g.stroke({ width: 0.45, color: 0x78350f });
+
+  // 5. Right-to-Left Sword (hilt bottom-right -> tip top-left)
+  // Tapered steel blade polygon
+  g.poly([
+    mx + 1.8, my + 2.6,
+    mx + 2.6, my + 1.8,
+    mx - 3.6, my - 4.4,
+    mx - 4.8, my - 4.8,
+    mx - 4.4, my - 3.6,
+  ]);
+  g.fill({ color: 0xe2e8f0 });
+  g.stroke({ width: 0.55, color: 0x475569 });
+
+  // Blade fuller highlight
+  g.moveTo(mx + 2.0, my + 2.0);
+  g.lineTo(mx - 4.3, my - 4.3);
+  g.stroke({ width: 0.7, color: 0xffffff, alpha: 0.95 });
+
+  // Leather grip & brass crossguard + pommel (bottom-right)
+  g.moveTo(mx + 2.2, my + 2.2);
+  g.lineTo(mx + 4.2, my + 4.2);
+  g.stroke({ width: 1.5, color: 0x78350f });
+
+  g.moveTo(mx + 0.8, my + 3.6);
+  g.lineTo(mx + 3.6, my + 0.8);
+  g.stroke({ width: 1.3, color: 0xd97706 });
+
+  g.circle(mx + 4.5, my + 4.5, 1.05);
+  g.fill({ color: 0xd97706 });
+  g.stroke({ width: 0.45, color: 0x78350f });
+
+  // 6. Central Blade-Intersection Impact Spark
+  g.poly([
+    mx, my - 2.5 * pulse,
+    mx + 0.7, my - 0.7,
+    mx + 2.5 * pulse, my,
+    mx + 0.7, my + 0.7,
+    mx, my + 2.5 * pulse,
+    mx - 0.7, my + 0.7,
+    mx - 2.5 * pulse, my,
+    mx - 0.7, my - 0.7,
+  ]);
+  g.fill({ color: 0xfef08a, alpha: 0.96 });
+
+  g.circle(mx, my, 0.95);
+  g.fill({ color: 0xffffff, alpha: 0.98 });
+}
+
 
 // -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
@@ -4527,6 +4730,11 @@ export function paintBoardProvinces(
     const destKind = marchDestMap.get(p.id);
     if (destKind) {
       paintBoardDestinationRing(g, p, destKind, animPhase);
+    }
+
+    // 6.6 Active Fight / Column Clash or Engagement Mark on Seen Tiles
+    if (hasProvinceClash(state, p.id)) {
+      drawClashMark(g, cx, cy - 6, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

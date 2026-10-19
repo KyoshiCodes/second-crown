@@ -1,10 +1,11 @@
-## 2026-10-19 — app / inspect card clash line (wave/hud-clash)
+## 2026-10-19 — render / fighting tile shows clash mark on diamond (bakeoff/gemini-clash)
 
-- Slice constraints: app HUD only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
-- `clashLine(state, provinceId)` (`packages/app/src/hud/clashLine.ts`): unlike the terrain lines it takes `state`, since it reads marches. Returns `null` when `!isProvinceSeen`. Otherwise "fighting" means either (a) the set of `realmId`s across `listMarches(state)` with `toId === provinceId` has size ≥ 2 — the same pairing `pairClashingMarches` resolves on arrival — or (b) the tile is player-held (home or `occupantRealmId === "player"`) and `incomingOnProvince` finds a rival column (outpost assault / hold storm).
-- Column clashes resolve in one tick on arrival; there is no lasting engagement state in the sim and `engagement.ts` is not exported from the index. So "fighting" covers the window while the meeting columns are on the road. `activeClash` (the world clash between NPC realms) has no province and is not used.
-- Tests build state with `createGameState()` and write `state.flags.marches_json` directly (the march store).
-- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` and `npm run build -w @second-crown/app` pass.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Engagement detection: `hasProvinceClash(state, provinceId)` reads only existing board and march helpers (`isProvinceSeen`, `listMarches`, `incomingOnProvince`, `garrisonAt`, `getProvince`) with zero new sim math. Returns `false` if the tile is unseen (so unseen tiles stay fog). Returns `true` when columns of two or more realms target the tile (column clash), when a rival column targets a player-held tile or garrisoned outpost, or when a non-scout column targets a tile occupied by another realm.
+- Visual design: `drawClashMark(g, cx, cy, phase)` paints a compact crossed-swords and impact burst emblem (`0x1a0b0e` dark blood-iron roundel with `0x991b1b` crimson rim, `0xdc2626` / `0xf97316` 8-point starburst, `0xcbd5e1` / `0xe2e8f0` crossed steel broadswords with `0xd97706` brass crossguards/pommels and `0x78350f` leather grips, and a `0xfef08a` / `0xffffff` central clash spark). Uses `0x1a0b0e` for the roundel backing so it does not collide with `0x18181b` (used in basalt crag fissures) or `0x090d16` (used in stock badges), and avoids `0xfacc15` and `0xd4a373`.
+- Integrated into `paintBoardProvinces` after `paintBoardDestinationRing`, preserving terrain, stock badges, piles, ruins, camps, outposts, and keeps.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-19 — render / seen gather tile shows stock number badge on diamond (bakeoff/gemini-stock-badge)
 

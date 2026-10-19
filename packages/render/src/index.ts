@@ -132,6 +132,8 @@ import {
   drawStockBadge,
   formatStockBadgeText,
   STOCK_BADGE_GLYPHS_3X5,
+  drawClashMark,
+  hasProvinceClash,
 } from "./tokens.js";
 
 import {
@@ -1004,5 +1006,12 @@ export {
   drawHillTile,
   drawWasteCrag,
   drawWasteTile,
+  drawPlainMeadow,
+  drawPlainTile,
+  drawStockBadge,
+  formatStockBadgeText,
+  STOCK_BADGE_GLYPHS_3X5,
+  drawClashMark,
+  hasProvinceClash,
 };
 

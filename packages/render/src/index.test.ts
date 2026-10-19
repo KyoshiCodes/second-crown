@@ -11738,6 +11738,233 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   expect(hit?.by).toBe(2);
                 });
               });
+
+              // ============================================================================
+              // bakeoff/gemini-clash: Active Fight Clash Mark on the Isometric Diamond
+              // ============================================================================
+              describe("bakeoff/gemini-clash: Active Fight Clash Mark on the Isometric Diamond (drawClashMark & hasProvinceClash)", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const g: any = {
+                    calls,
+                    clear: () => calls.push({ method: "clear", args: [] }),
+                    poly: (pts: number[]) => calls.push({ method: "poly", args: [pts] }),
+                    fill: (opts: any) => calls.push({ method: "fill", args: [opts] }),
+                    stroke: (opts: any) => calls.push({ method: "stroke", args: [opts] }),
+                    rect: (x: number, y: number, w: number, h: number) =>
+                      calls.push({ method: "rect", args: [x, y, w, h] }),
+                    roundRect: (x: number, y: number, w: number, h: number, r: number) =>
+                      calls.push({ method: "roundRect", args: [x, y, w, h, r] }),
+                    circle: (x: number, y: number, r: number) =>
+                      calls.push({ method: "circle", args: [x, y, r] }),
+                    ellipse: (x: number, y: number, rx: number, ry: number) =>
+                      calls.push({ method: "ellipse", args: [x, y, rx, ry] }),
+                    moveTo: (x: number, y: number) => calls.push({ method: "moveTo", args: [x, y] }),
+                    lineTo: (x: number, y: number) => calls.push({ method: "lineTo", args: [x, y] }),
+                    arc: (...args: any[]) => calls.push({ method: "arc", args }),
+                    bezierCurveTo: (...args: any[]) => calls.push({ method: "bezierCurveTo", args }),
+                    quadraticCurveTo: (...args: any[]) =>
+                      calls.push({ method: "quadraticCurveTo", args }),
+                    closePath: () => calls.push({ method: "closePath", args: [] }),
+                  };
+                  return g;
+                }
+
+                describe("drawClashMark direct unit tests", () => {
+                  it("paints crossed steel swords and a crimson-amber impact burst over a dark roundel", async () => {
+                    const { drawClashMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawClashMark(g, 120, 80, 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Dark roundel & drop shadow
+                    expect(fillColors).toContain(0x000000);
+                    expect(fillColors).toContain(0x1a0b0e);
+                    expect(strokeColors).toContain(0x991b1b);
+
+                    // Impact burst (crimson outer star + amber-orange inner star)
+                    expect(fillColors).toContain(0xdc2626);
+                    expect(fillColors).toContain(0xf97316);
+
+                    // Crossed steel blades, brass guards/pommels, leather grips, and clash spark
+                    expect(fillColors).toContain(0xcbd5e1);
+                    expect(fillColors).toContain(0xe2e8f0);
+                    expect(fillColors).toContain(0xd97706);
+                    expect(strokeColors).toContain(0x78350f);
+                    expect(fillColors).toContain(0xfef08a);
+                    expect(fillColors).toContain(0xffffff);
+                  });
+
+                  it("handles null graphics safely and supports animated phase pulse", async () => {
+                    const { drawClashMark } = await import("./tokens.js");
+                    expect(() => drawClashMark(null as any, 0, 0)).not.toThrow();
+
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawClashMark(g0, 100, 100, 0);
+                    drawClashMark(g1, 100, 100, 0.5);
+                    expect(g0.calls.length).toBe(g1.calls.length);
+                  });
+                });
+
+                describe("hasProvinceClash engagement & column clash detection", () => {
+                  it("returns true when columns of two realms are bound for a seen province (column clash)", async () => {
+                    const { hasProvinceClash } = await import("./tokens.js");
+                    const { createGameState, revealProvince } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const targetId = state.board.provinces[2]!.id;
+                    revealProvince(state, targetId);
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_p1",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: targetId,
+                        kind: "camp",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                      {
+                        id: "m_r1",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: targetId,
+                        kind: "camp",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+
+                    expect(hasProvinceClash(state, targetId)).toBe(true);
+                  });
+
+                  it("returns true when a rival column targets a seen player-held province or garrisoned outpost (engagement)", async () => {
+                    const { hasProvinceClash } = await import("./tokens.js");
+                    const { createGameState } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const homeId = state.board.homeProvinceId;
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_in_1",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: homeId,
+                        kind: "hold",
+                        purpose: "raid",
+                        arrivesTick: 20,
+                        levy: 8,
+                      },
+                    ]);
+
+                    expect(hasProvinceClash(state, homeId)).toBe(true);
+                  });
+
+                  it("returns false on a quiet tile, a lone column to an unoccupied tile, or an unseen tile", async () => {
+                    const { hasProvinceClash } = await import("./tokens.js");
+                    const { createGameState, getProvince, revealProvince, isProvinceSeen } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+
+                    // Quiet home tile with no marches
+                    expect(hasProvinceClash(state, state.board.homeProvinceId)).toBe(false);
+
+                    // Lone march to a seen unoccupied tile
+                    const emptyProv = state.board.provinces.find(
+                      (p) => !p.occupantRealmId && p.id !== state.board.homeProvinceId
+                    )!;
+                    revealProvince(state, emptyProv.id);
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_lone",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: emptyProv.id,
+                        kind: "camp",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+                    expect(hasProvinceClash(state, emptyProv.id)).toBe(false);
+
+                    // Unseen tile with two clashing columns stays false (fog)
+                    const unseenProv = state.board.provinces.find(
+                      (p) => !isProvinceSeen(state, p.id)
+                    )!;
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_u1",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: unseenProv.id,
+                        kind: "camp",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                      {
+                        id: "m_u2",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: unseenProv.id,
+                        kind: "camp",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+                    expect(hasProvinceClash(state, unseenProv.id)).toBe(false);
+                    expect(getProvince(state, unseenProv.id)).toBeDefined();
+                  });
+                });
+
+                describe("paintBoardProvinces integration & fog preservation", () => {
+                  it("paints the clash mark on a seen fighting province while keeping unseen tiles in fog", async () => {
+                    const { paintBoardProvinces, drawClashMark, hasProvinceClash } = await import("./index.js");
+                    const { createGameState } = await import("@second-crown/sim");
+                    expect(typeof drawClashMark).toBe("function");
+                    expect(typeof hasProvinceClash).toBe("function");
+
+                    const state = createGameState({ seed: 42 });
+                    const homeId = state.board.homeProvinceId;
+
+                    // Quiet board: no clash mark drawn
+                    const gQuiet = createMockGraphics();
+                    paintBoardProvinces(gQuiet, state, 0);
+                    const quietFills = gQuiet.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(quietFills).not.toContain(0x1a0b0e);
+
+                    // Active raid on player home province: clash mark drawn
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_raid_home",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: homeId,
+                        kind: "hold",
+                        purpose: "raid",
+                        arrivesTick: 20,
+                        levy: 12,
+                      },
+                    ]);
+
+                    const gFight = createMockGraphics();
+                    paintBoardProvinces(gFight, state, 0);
+                    const fightFills = gFight.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(fightFills).toContain(0x1a0b0e);
+                    expect(fightFills).toContain(0xdc2626);
+                    expect(fightFills).toContain(0xf97316);
+                    // Fog tiles still rendered in fog (0x0f172a)
+                    expect(fightFills).toContain(0x0f172a);
+                  });
+                });
+              });
             });
           });
         });

@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-19 — Inspect card shows a clash line on a tile with a fight (wave/hud-clash)
+## 2026-10-19 — Fighting tile shows clash mark on diamond (bakeoff/gemini-clash)
 
-- Inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/clashLine.ts`: `clashLine(state, provinceId)` returns `"Clash · fighting"` when columns of two or more realms are bound for a seen tile, or a rival column (`incomingOnProvince`) is bound for a seen tile the player holds. Else `null`. Uses existing sim helpers only.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the stock badge.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-clash` (deep red `#b91c1c`, italic).
-- Tests: `packages/app/src/hud/clashLine.test.ts` (4 tests: clash shows, quiet tile null, lone column null, unseen tile null).
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceClash(state, provinceId)`: uses only existing engagement data the board already reads (`isProvinceSeen`, `listMarches`, `incomingOnProvince`, `garrisonAt`, `getProvince`) to detect when a seen province has an active column clash (columns of two or more realms bound for the tile) or an active engagement (a rival column bound for a player-held tile/outpost, or a non-scout column bound for a tile occupied by a different realm). No new sim math.
+  - `drawClashMark(g, cx, cy, phase)`: paints a small crossed-swords and crimson-amber impact burst emblem (`0x1a0b0e` dark roundel with `0x991b1b` rim, `0xdc2626` / `0xf97316` 8-point impact burst star, `0xcbd5e1` / `0xe2e8f0` crossed steel blades, `0xd97706` brass crossguards and pommels, `0x78350f` leather grips, and `0xfef08a` / `0xffffff` central clash spark) on a seen fighting province.
+  - `paintBoardProvinces`: calls `drawClashMark(g, cx, cy - 6, animPhase)` when `hasProvinceClash(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, piles, ruins, camps, outposts, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawClashMark` and `hasProvinceClash`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (6 new tests in `bakeoff/gemini-clash` suite; 469/469 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-19 — Seen gather tile shows stock number badge on diamond (bakeoff/gemini-stock-badge)
 
