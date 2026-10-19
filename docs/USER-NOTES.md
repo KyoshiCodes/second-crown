@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-19 — A tile with a hostile column inbound says so on the inspect card (wave/hud-incoming)
+## 2026-10-19 — Tile with a hostile column inbound shows an incoming mark on the diamond (bakeoff/gemini-incoming-mark)
 
-- **A tile with a hostile column inbound now says "Incoming · hostile" on the inspect card, and play is unchanged.** Click a seen tile that a rival column is heading for, and the Tile section shows a short amber line: "Incoming · hostile". Your own columns do not trigger it.
-- **Unseen tiles still show nothing.** Fog is the same.
+- **A tile with a hostile column inbound now shows an incoming mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a non-player march heading to it gets a small amber arrow and threat pip incoming mark.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, piles, ruins, camps, outposts, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
 - **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-19 — Fighting tile shows a clash mark on the diamond (bakeoff/gemini-clash)

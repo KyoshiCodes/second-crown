@@ -3271,6 +3271,112 @@ export function drawClashMark(
   g.fill({ color: 0xffffff, alpha: 0.98 });
 }
 
+// -------------------------------------------------------------
+// Hostile Column Inbound Mark (drawIncomingMark)
+// -------------------------------------------------------------
+
+/**
+ * Determines whether a seen province on the board currently has a hostile
+ * (non-player) march heading to it.
+ * Uses only existing march data the board already reads (isProvinceSeen,
+ * incomingOnProvince, listMarches). Unseen tiles always return false (stay fog).
+ */
+export function hasProvinceIncoming(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+
+  if (incomingOnProvince(state, provinceId)) return true;
+
+  const boardMarches = Array.isArray((state.board as any).marches)
+    ? ((state.board as any).marches as March[])
+    : [];
+  return boardMarches.some(
+    (m) => m && m.toId === provinceId && m.realmId !== "player"
+  );
+}
+
+/**
+ * Paints a small amber arrow and threat pip on a seen province that has a
+ * non-player march heading to it on the isometric diamond.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the pip (0x000000)
+ * - Dark amber-obsidian threat pip roundel backing (0x1c1206) with burnt-amber rim (0x92400e)
+ * - Inner amber threat diamond ring (0xb45309 / 0x78350f)
+ * - Crisp downward-pointing amber chevron arrow and shaft (0xd97706 / 0xf59e0b / 0xfbbf24)
+ * - Luminous pale-amber threat pip point at the arrow tip (0xfef3c7)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawIncomingMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const bob = Math.sin(phase * 3.0) * 0.45;
+  const mx = cx;
+  const my = cy + bob;
+
+  // 1. Soft drop shadow beneath the incoming mark
+  g.ellipse(cx, cy + 2.0, 5.8, 3.4);
+  g.fill({ color: 0x000000, alpha: 0.42 });
+
+  // 2. Dark amber-obsidian threat pip roundel backing
+  g.circle(mx, my, 5.2);
+  g.fill({ color: 0x1c1206, alpha: 0.90 });
+  g.circle(mx, my, 5.2);
+  g.stroke({ width: 0.85, color: 0x92400e, alpha: 0.94 });
+
+  // 3. Amber threat pip diamond frame
+  g.poly([
+    mx, my - 4.4,
+    mx + 4.4, my,
+    mx, my + 4.4,
+    mx - 4.4, my,
+  ]);
+  g.fill({ color: 0xb45309, alpha: 0.92 });
+  g.stroke({ width: 0.6, color: 0x78350f, alpha: 0.95 });
+
+  // 4. Downward-pointing amber arrow (tail shaft + broad chevron arrowhead)
+  // Upper tail feather / notch
+  g.poly([
+    mx - 1.3, my - 3.6,
+    mx + 1.3, my - 3.6,
+    mx + 1.0, my - 0.6,
+    mx - 1.0, my - 0.6,
+  ]);
+  g.fill({ color: 0xd97706 });
+
+  // Broad downward amber arrowhead chevron
+  g.poly([
+    mx - 3.2, my - 1.0,
+    mx + 3.2, my - 1.0,
+    mx, my + 3.2,
+  ]);
+  g.fill({ color: 0xf59e0b });
+  g.stroke({ width: 0.55, color: 0x78350f });
+
+  // Sunlit left bevel highlight on the amber arrow
+  g.poly([
+    mx - 2.3, my - 0.7,
+    mx, my - 0.7,
+    mx, my + 2.4,
+  ]);
+  g.fill({ color: 0xfbbf24, alpha: 0.95 });
+
+  // 5. Threat pip core glint at the arrow tip and crown
+  g.circle(mx, my - 2.3, 0.75);
+  g.fill({ color: 0xfef3c7, alpha: 0.95 });
+
+  g.circle(mx, my + 2.2, 0.65);
+  g.fill({ color: 0xfef3c7, alpha: 0.98 });
+}
+
 
 // -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
@@ -4735,6 +4841,11 @@ export function paintBoardProvinces(
     // 6.6 Active Fight / Column Clash or Engagement Mark on Seen Tiles
     if (hasProvinceClash(state, p.id)) {
       drawClashMark(g, cx, cy - 6, animPhase);
+    }
+
+    // 6.7 Hostile Column Inbound Mark on Seen Tiles
+    if (hasProvinceIncoming(state, p.id)) {
+      drawIncomingMark(g, cx + 8, cy - 8, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province
