@@ -268,3 +268,6 @@
 
 /* Stock badge: the stock/max badge the board shows on a gather tile. */
 .sc-inspect-stock-badge { font-size: 0.85em; font-variant-numeric: tabular-nums; opacity: 0.7; }
+
+/* Clash: seen tile where two realms' columns meet, or a rival column hits your tile. */
+.sc-inspect-clash { color: #b91c1c; font-style: italic; }

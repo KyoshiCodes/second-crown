@@ -1,3 +1,11 @@
+## 2026-10-19 — app / inspect card clash line (wave/hud-clash)
+
+- Slice constraints: app HUD only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
+- `clashLine(state, provinceId)` (`packages/app/src/hud/clashLine.ts`): unlike the terrain lines it takes `state`, since it reads marches. Returns `null` when `!isProvinceSeen`. Otherwise "fighting" means either (a) the set of `realmId`s across `listMarches(state)` with `toId === provinceId` has size ≥ 2 — the same pairing `pairClashingMarches` resolves on arrival — or (b) the tile is player-held (home or `occupantRealmId === "player"`) and `incomingOnProvince` finds a rival column (outpost assault / hold storm).
+- Column clashes resolve in one tick on arrival; there is no lasting engagement state in the sim and `engagement.ts` is not exported from the index. So "fighting" covers the window while the meeting columns are on the road. `activeClash` (the world clash between NPC realms) has no province and is not used.
+- Tests build state with `createGameState()` and write `state.flags.marches_json` directly (the march store).
+- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-19 — render / seen gather tile shows stock number badge on diamond (bakeoff/gemini-stock-badge)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
