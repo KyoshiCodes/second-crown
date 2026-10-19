@@ -1,8 +1,10 @@
-## 2026-10-19 — app / hill line (wave/hud-hill)
+## 2026-10-19 — render / hill tile shows stepped rise on diamond (bakeoff/gemini-hill)
 
-- Hill is a `TerrainId` (`packages/shared`), like shore, wood, and peak, so the line keys off `p.terrain`.
-- `hillLine(seen, terrain)` (pure, `hud/hillLine.ts`) mirrors `peakLine` so it can be unit tested. `seen` is the card's existing `isProvinceSeen`, so fog keeps the line hidden.
-- Determinism: no sim change. Display only.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Visual design: `drawHillRise(g, cx, cy, hw, hh, phase, options)` (and alias `drawHillTile`) paints a low stepped plateau on the hill diamond plateau (`hw = 16`, `hh = 8`). Features a soft shadow (`0x000000` alpha 0.34 contact ellipse cast southeast; `0x292524` alpha 0.45 base shadow), three stepped tiers of warm ochre (`0xb45309`, `0x92400e` on Tier 1; `0xd97706` on Tier 2; `0xca8a04`, `0xf59e0b` on Tier 3) and stone (`0x78716c`, `0x44403c` risers on Tier 1; `0xa8a29e`, `0x57534e` risers on Tier 2; `0xd6d3d1`, `0x78716c` risers on Tier 3; contour rims `0xa8a29e`, `0xd6d3d1`, `0xe7e5e4`), and weathered stone outcrops (`0x78716c`, `0x57534e`, `0x92400e`). No keep, no flag, no tent.
+- Integrated into `paintBoardProvinces` under `case "hill"`, ensuring peaks, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are. Unseen tiles continue to stay fog (`paintFogHeightVeil`).
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-14 — server / audio MIME (wave/audio-mime)
 

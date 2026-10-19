@@ -3582,6 +3582,197 @@ export function drawPeakTile(
   g.fill({ color: 0xe2e8f0, alpha: 0.85 });
 }
 
+/**
+ * Paints a low stepped plateau on an isometric hill terrain diamond tile:
+ * - Soft shadow: soft elliptical contact shadow (0x000000, alpha 0.34) cast southeast across the diamond floor, plus warm dark earth base shadow (0x292524, alpha 0.45)
+ * - Three stepped tiers of warm ochre and stone:
+ *   - Tier 1 (broad lower terrace): sunlit warm stone left riser (0x78716c), shadowed stone right riser (0x44403c), warm ochre terrace plateau (0xb45309, 0x92400e), and contour rim (0xa8a29e)
+ *   - Tier 2 (middle stepped rise): soft step shadow (0x000000, alpha 0.22), sunlit stone left riser (0xa8a29e), shaded stone right riser (0x57534e), golden-ochre terrace plateau (0xd97706), and contour rim (0xd6d3d1)
+ *   - Tier 3 (upper crown plateau): soft step shadow (0x000000, alpha 0.20), sunlit limestone left riser (0xd6d3d1), stone right riser (0x78716c), sunlit warm ochre crown tableland (0xca8a04, 0xf59e0b), and bright rim edge (0xe7e5e4)
+ * - Weathered stone outcrops and ochre scree along the terrace ledges (0x78716c, 0x57534e, 0x92400e)
+ * - No keep, no flag, no tent.
+ */
+export function drawHillRise(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  hw: number = BOARD_HALF_W,
+  hh: number = BOARD_HALF_H,
+  phase: number = 0,
+  options?: { px?: number; py?: number }
+): void {
+  // 1. Soft Shadow cast onto the diamond plateau
+  // Soft elliptical contact shadow cast southeast across the hill floor
+  g.ellipse(cx + 2.0, cy + 2.6, 11.2, 4.6);
+  g.fill({ color: 0x000000, alpha: 0.34 });
+
+  // Warm dark earth contact shadow along the southern and eastern base of the rise
+  g.ellipse(cx + 1.2, cy + 2.0, 9.6, 3.8);
+  g.fill({ color: 0x292524, alpha: 0.45 });
+
+  // 2. Tier 1: Broad Lower Stepped Terrace (Warm Ochre & Stone)
+  const t1x = cx;
+  const t1y = cy + 1.6;
+  const w1 = Math.min(11.5, hw * 0.72);
+  const h1 = Math.min(5.2, hh * 0.65);
+  const r1 = 2.4;
+
+  // Tier 1 front-left stone riser (sunlit warm stone)
+  g.poly([
+    t1x - w1, t1y - r1,
+    t1x, t1y + h1 - r1,
+    t1x, t1y + h1,
+    t1x - w1, t1y,
+  ]);
+  g.fill({ color: 0x78716c });
+
+  // Tier 1 front-right stone riser (shadowed stone)
+  g.poly([
+    t1x, t1y + h1 - r1,
+    t1x + w1, t1y - r1,
+    t1x + w1, t1y,
+    t1x, t1y + h1,
+  ]);
+  g.fill({ color: 0x44403c });
+
+  // Tier 1 flat stepped top plateau (warm deep ochre)
+  g.poly([
+    t1x, t1y - h1 - r1,
+    t1x + w1, t1y - r1,
+    t1x, t1y + h1 - r1,
+    t1x - w1, t1y - r1,
+  ]);
+  g.fill({ color: 0xb45309 });
+
+  // Tier 1 warm ochre rear shading & stone rim contour
+  g.poly([
+    t1x, t1y - h1 - r1,
+    t1x + w1, t1y - r1,
+    t1x, t1y - r1,
+    t1x - w1 * 0.5, t1y - h1 * 0.5 - r1,
+  ]);
+  g.fill({ color: 0x92400e, alpha: 0.45 });
+
+  g.moveTo(t1x - w1, t1y - r1);
+  g.lineTo(t1x, t1y + h1 - r1);
+  g.lineTo(t1x + w1, t1y - r1);
+  g.stroke({ width: 1.0, color: 0xa8a29e, alpha: 0.85 });
+
+  // 3. Tier 2: Middle Stepped Rise (Warm Golden Ochre & Dressed Stone)
+  const t2x = cx - 0.4;
+  const t2y = cy - 1.0;
+  const w2 = Math.min(8.0, hw * 0.50);
+  const h2 = Math.min(3.6, hh * 0.45);
+  const r2 = 2.2;
+
+  // Soft step shadow cast by Tier 2 onto Tier 1 plateau
+  g.ellipse(t2x + 1.0, t2y + 0.5, w2 * 0.95, h2 * 0.88);
+  g.fill({ color: 0x000000, alpha: 0.22 });
+
+  // Tier 2 front-left stone riser (sunlit warm ashlar stone)
+  g.poly([
+    t2x - w2, t2y - r2,
+    t2x, t2y + h2 - r2,
+    t2x, t2y + h2,
+    t2x - w2, t2y,
+  ]);
+  g.fill({ color: 0xa8a29e });
+
+  // Tier 2 front-right stone riser (shaded weathered stone)
+  g.poly([
+    t2x, t2y + h2 - r2,
+    t2x + w2, t2y - r2,
+    t2x + w2, t2y,
+    t2x, t2y + h2,
+  ]);
+  g.fill({ color: 0x57534e });
+
+  // Tier 2 flat stepped top plateau (warm amber-ochre)
+  g.poly([
+    t2x, t2y - h2 - r2,
+    t2x + w2, t2y - r2,
+    t2x, t2y + h2 - r2,
+    t2x - w2, t2y - r2,
+  ]);
+  g.fill({ color: 0xd97706 });
+
+  // Tier 2 stone lip contour ridge
+  g.moveTo(t2x - w2, t2y - r2);
+  g.lineTo(t2x, t2y + h2 - r2);
+  g.lineTo(t2x + w2, t2y - r2);
+  g.stroke({ width: 1.1, color: 0xd6d3d1, alpha: 0.9 });
+
+  // 4. Tier 3: Upper Crown Stepped Plateau (Sunlit Ochre & Pale Stone)
+  const t3x = cx - 0.8;
+  const t3y = cy - 3.4;
+  const w3 = Math.min(4.6, hw * 0.29);
+  const h3 = Math.min(2.1, hh * 0.26);
+  const r3 = 1.8;
+
+  // Soft step shadow cast by Tier 3 onto Tier 2 plateau
+  g.ellipse(t3x + 0.7, t3y + 0.4, w3 * 0.95, h3 * 0.88);
+  g.fill({ color: 0x000000, alpha: 0.20 });
+
+  // Tier 3 front-left stone riser (sunlit pale stone)
+  g.poly([
+    t3x - w3, t3y - r3,
+    t3x, t3y + h3 - r3,
+    t3x, t3y + h3,
+    t3x - w3, t3y,
+  ]);
+  g.fill({ color: 0xd6d3d1 });
+
+  // Tier 3 front-right stone riser (warm stone shade)
+  g.poly([
+    t3x, t3y + h3 - r3,
+    t3x + w3, t3y - r3,
+    t3x + w3, t3y,
+    t3x, t3y + h3,
+  ]);
+  g.fill({ color: 0x78716c });
+
+  // Tier 3 flat crown plateau (warm sunlit ochre & golden sandstone)
+  g.poly([
+    t3x, t3y - h3 - r3,
+    t3x + w3, t3y - r3,
+    t3x, t3y + h3 - r3,
+    t3x - w3, t3y - r3,
+  ]);
+  g.fill({ color: 0xca8a04 });
+
+  // Sunlit western crown facet on Tier 3 plateau
+  g.poly([
+    t3x, t3y - h3 - r3,
+    t3x, t3y + h3 - r3,
+    t3x - w3, t3y - r3,
+  ]);
+  g.fill({ color: 0xf59e0b, alpha: 0.75 });
+
+  // Crisp sunlit rim along the crown plateau
+  g.moveTo(t3x - w3, t3y - r3);
+  g.lineTo(t3x, t3y - h3 - r3);
+  g.lineTo(t3x + w3, t3y - r3);
+  g.stroke({ width: 0.9, color: 0xe7e5e4, alpha: 0.85 });
+
+  // Center vertical stone prow seams on the 3 risers
+  g.moveTo(t1x, t1y + h1 - r1); g.lineTo(t1x, t1y + h1);
+  g.moveTo(t2x, t2y + h2 - r2); g.lineTo(t2x, t2y + h2);
+  g.moveTo(t3x, t3y + h3 - r3); g.lineTo(t3x, t3y + h3);
+  g.stroke({ width: 0.8, color: 0x292524, alpha: 0.65 });
+
+  // 5. Weathered Stone Outcrops & Ochre Scree along the Stepped Ledges
+  g.rect(cx - 7.5, cy + 0.5, 2.4, 1.4);
+  g.fill({ color: 0x78716c });
+  g.rect(cx + 4.5, cy + 0.2, 2.6, 1.5);
+  g.fill({ color: 0x57534e });
+  g.circle(cx - 3.2, cy + 2.8, 0.7);
+  g.fill({ color: 0xd97706 });
+  g.circle(cx + 2.8, cy + 2.4, 0.65);
+  g.fill({ color: 0x92400e });
+}
+
+export const drawHillTile = drawHillRise;
+
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
 // -------------------------------------------------------------
@@ -3753,27 +3944,8 @@ export function paintBoardProvinces(
       }
 
       case "hill": {
-        // High stepped contour terraces on diamond
-        g.ellipse(cx - 4, cy - 2, 11, 5.5);
-        g.fill({ color: 0x57534e });
-        g.ellipse(cx + 4, cy + 2, 10, 5);
-        g.fill({ color: 0x44403c });
-        g.ellipse(cx, cy, 7, 3.5);
-        g.fill({ color: 0x57534e });
-
-        // Highlighted contour ridges
-        g.moveTo(cx - 12, cy - 2);
-        g.bezierCurveTo(cx - 4, cy - 6, cx + 4, cy - 5, cx + 11, cy - 1);
-        g.stroke({ width: 1.4, color: 0xd6d3d1, alpha: 0.9 });
-
-        g.moveTo(cx - 10, cy + 2);
-        g.bezierCurveTo(cx - 2, cy + 5, cx + 6, cy + 4, cx + 12, cy + 1);
-        g.stroke({ width: 1.2, color: 0xa8a29e, alpha: 0.85 });
-
-        // Granite stone boulders
-        g.rect(cx - 5, cy - 3, 3.5, 2); g.fill({ color: 0x78716c });
-        g.rect(cx + 4, cy - 1, 4, 2.5); g.fill({ color: 0x78716c });
-        g.rect(cx - 1, cy + 2, 3, 2); g.fill({ color: 0x78716c });
+        // Low stepped plateau on the diamond: warm ochre and stone, three tiers, soft shadow
+        drawHillRise(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
         break;
       }
 

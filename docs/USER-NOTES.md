@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-19 — Hill says so (wave/hud-hill)
+## 2026-10-19 — Hill tile shows a stepped rise (bakeoff/gemini-hill)
 
-- **A seen hill tile now says "Hill · rise".** Click a hill tile you have seen, and the tile card shows "Hill · rise".
-- A hill tile you have not scouted still sits under fog and shows nothing new.
-- **Play is unchanged.** Scouting, gathering, garrisons, marches, abandoning a flag, and every other tile line work exactly as before.
+- **A seen hill tile now shows a stepped rise and play is unchanged.** A seen hill tile on the isometric diamond gets a small stepped rise: a low stepped plateau in warm ochre and stone, three tiers, a soft shadow, no keep, no flag, and no tent.
+- **Unseen tiles stay fog.** Peaks, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-14 — Music plays on the live site again (wave/audio-mime)
 
