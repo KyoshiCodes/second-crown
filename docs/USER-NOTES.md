@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-19 — Waste says so (wave/hud-waste)
+## 2026-10-19 — Waste tile shows a scorched crag (bakeoff/gemini-waste)
 
-- **A seen waste tile now says "Waste · scorched" and play is unchanged.** Click a waste tile you have seen, and the tile card shows "Waste · scorched".
-- A waste tile you have not scouted still sits under fog and shows nothing new.
-- **Play is unchanged.** Scouting, gathering, garrisons, marches, abandoning, saves, and every other rule work exactly as before.
+- **A seen waste tile now shows a scorched crag and play is unchanged.** A seen waste tile on the isometric diamond gets a scorched basalt crag: a low scorched rise in dark basalt, cracked ash, a faint heat glow, no keep, no flag, and no tent.
+- **Unseen tiles stay fog.** Peaks, hills, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-19 — Hill tile shows a stepped rise (bakeoff/gemini-hill)
 

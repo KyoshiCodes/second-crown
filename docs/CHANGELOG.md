@@ -1,13 +1,16 @@
 # CHANGELOG
 
-## 2026-10-19 — Waste line (wave/hud-waste)
+## 2026-10-19 — Waste tile shows scorched basalt crag on diamond (bakeoff/gemini-waste)
 
-- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, wood, peak, hill, camp, outpost, and resource lines, fog.
-- `packages/app/src/hud/wasteLine.ts` (new): `wasteLine(seen, terrain)` gives `"Waste · scorched"` for a seen waste tile, else `null`.
-- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the hill line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-waste` (ash grey, italic).
-- `docs/HANDOFF.md`: also marks the hill line (#244) and hill rise on the diamond (#245) as merged.
-- Tests: new `packages/app/src/hud/wasteLine.test.ts` (seen waste shows the line; unseen waste does not; no other terrain does). Run: `npm test`.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `drawWasteCrag(g, cx, cy, hw, hh, phase, options)` (and alias `drawWasteTile`): paints a low scorched rise on a waste tile with dark basalt (`0x09090b`, `0x18181b`, `0x27272a`, `0x292524`, `0x3f3f46`, `0x52525b`, `0x71717a`), cracked ash (`0x140e0a`, `0x1c1917`, `0x44403c`, `0x57534e`, `0x78716c`, `0xa8a29e`), a faint heat glow (`0x7f1d1d`, `0x991b1b`, `0xea580c`, `0xef4444`, `0xf97316`, `0xfdba74`, `0xfef08a`), a soft shadow (`0x000000` alpha 0.36 contact shadow), no keep, no flag, and no tent.
+  - `paintBoardProvinces`: `case "waste"` dispatches to `drawWasteCrag(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y })`.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Peaks, hills, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawWasteCrag` and `drawWasteTile`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (8 new tests in `bakeoff/gemini-waste` suite; 445/445 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-19 — Hill tile shows stepped rise on diamond (bakeoff/gemini-hill)
 
