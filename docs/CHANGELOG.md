@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-19 — Inspect card shows a trail line on a tile your column is on or heading to (wave/hud-trail)
+
+- Inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/trailLine.ts`: `trailLine(state, provinceId)` returns `"Your column · out"` when a player march from `listMarches` has `toId` equal to a seen tile. Else `null`. Uses existing sim helpers only.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the incoming line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-trail` (soft gold `#d4b062`, italic).
+- Tests: `packages/app/src/hud/trailLine.test.ts` (4 tests: your column shows, quiet tile null, hostile column null, unseen tile null).
+
 ## 2026-10-19 — Tile with hostile column inbound shows incoming mark on diamond (bakeoff/gemini-incoming-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

@@ -1,3 +1,12 @@
+## 2026-10-19 — app / inspect card trail line (wave/hud-trail)
+
+- Slice constraints: app HUD only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
+- `trailLine(state, provinceId)` (`packages/app/src/hud/trailLine.ts`): returns `null` when `!isProvinceSeen`, else `"Your column · out"` if any `listMarches` entry has `realmId === "player" && toId === provinceId`. Uses `listMarches` rather than `activePlayerMarch` because the latter returns only the first player column, and a player can have several out at once.
+- "On or heading to" both mean `toId === provinceId`: a march stays in `listMarches` with its destination until the sim resolves it on its arrival tick and removes it, so there is no separate "on tile" state to read.
+- Mirror of `incomingLine` with the realm test flipped. It can show alongside the clash line when your column meets a rival's.
+- Tests build state with `createGameState()` and write `state.flags.marches_json` directly, same as `incomingLine.test.ts`.
+- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-19 — render / tile with hostile column inbound shows incoming mark on diamond (bakeoff/gemini-incoming-mark)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

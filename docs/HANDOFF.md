@@ -1,11 +1,11 @@
-# Handoff (2026-10-14)
+# Handoff (2026-10-19)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#253** (clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-incoming-mark` (**not merged**, see Incoming mark on diamond below).
+Merged through PR **#255** (incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hud-trail` (**not merged**, see Trail line on inspect card below).
 
 ### Cultures and units (all merged)
 
@@ -246,7 +246,11 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A seen tile with an active fight on the isometric diamond gets a small clash mark (`drawClashMark(g, cx, cy, phase)` and `hasProvinceClash(state, provinceId)` in `packages/render/src/tokens.ts`): a small crossed-swords and crimson-amber impact burst emblem (`0x1a0b0e` dark roundel, `0xdc2626` / `0xf97316` impact burst, `0xcbd5e1` / `0xe2e8f0` crossed steel blades, `0xd97706` brass crossguards/pommels, `0x78350f` leather grips, and `0xfef08a` / `0xffffff` clash spark) on a province that has an active column clash or engagement, using only existing engagement data the board already reads (`listMarches`, `incomingOnProvince`, `garrisonAt`, `getProvince`, `isProvinceSeen`).
 - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, piles, ruins, camps, outposts, and keeps stay as they are.
 
-## Incoming mark on diamond (branch `bakeoff/gemini-incoming-mark`, **not merged**)
+## Incoming line on inspect card (PR #254, merged)
+
+- Inspect card only. `incomingLine(state, provinceId)` in `packages/app/src/hud/incomingLine.ts` returns `"Incoming · hostile"` when a non-player column is bound for a seen tile. Class `sc-inspect-incoming` (amber, italic).
+
+## Incoming mark on diamond (PR #255, merged)
 
 - The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - A seen tile with a hostile column inbound on the isometric diamond gets a small incoming mark (`drawIncomingMark(g, cx, cy, phase)` and `hasProvinceIncoming(state, provinceId)` in `packages/render/src/tokens.ts`): a small amber arrow and threat pip (`0x1c1206` dark amber-obsidian roundel with `0x92400e` rim, `0xb45309` / `0x78350f` amber threat diamond, `0xd97706` / `0xf59e0b` / `0xfbbf24` downward amber chevron arrow, and `0xfef3c7` threat pip core glint) on a province that has a non-player march heading to it, using only existing march data the board already reads (`isProvinceSeen`, `incomingOnProvince`, `listMarches`).
@@ -254,6 +258,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (474 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
+
+## Trail line on inspect card (branch `wave/hud-trail`, **not merged**)
+
+- Inspect card only. Do not change `packages/sim`, `server/`, `theme.css`, or any action.
+- `trailLine(state, provinceId)` in `packages/app/src/hud/trailLine.ts` returns `"Your column · out"` when a player march (`listMarches`, `realmId === "player"`) is on or heading to the tile (`toId === provinceId`). Else `null`. No new sim math. Rival columns do not count.
+- Unseen tiles return `null` (fog unchanged).
+- `ProvinceInspect.tsx` renders it in the Tile group right after the incoming line, class `sc-inspect-line sc-inspect-trail` (soft gold `#d4b062`, italic, in `hud/inspect-card.css`).
+- Tests: `packages/app/src/hud/trailLine.test.ts` (4 tests). `npm test` and `npm run build -w @second-crown/app` pass.
 
 ## Verify
 
