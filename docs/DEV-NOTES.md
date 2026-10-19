@@ -1,11 +1,11 @@
-## 2026-10-19 — app / inspect card trail line (wave/hud-trail)
+## 2026-10-19 — render / tile with your column on or heading to it shows trail mark on diamond (bakeoff/gemini-trail)
 
-- Slice constraints: app HUD only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
-- `trailLine(state, provinceId)` (`packages/app/src/hud/trailLine.ts`): returns `null` when `!isProvinceSeen`, else `"Your column · out"` if any `listMarches` entry has `realmId === "player" && toId === provinceId`. Uses `listMarches` rather than `activePlayerMarch` because the latter returns only the first player column, and a player can have several out at once.
-- "On or heading to" both mean `toId === provinceId`: a march stays in `listMarches` with its destination until the sim resolves it on its arrival tick and removes it, so there is no separate "on tile" state to read.
-- Mirror of `incomingLine` with the realm test flipped. It can show alongside the clash line when your column meets a rival's.
-- Tests build state with `createGameState()` and write `state.flags.marches_json` directly, same as `incomingLine.test.ts`.
-- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` and `npm run build -w @second-crown/app` pass.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Player march detection: `hasProvinceTrail(state, provinceId)` reads only existing board and march helpers (`isProvinceSeen`, `listMarches`) with zero new sim math. Returns `false` if the tile is unseen (so unseen tiles stay fog). Returns `true` when any player march (`m.realmId === "player"`) is on or heading to `provinceId`.
+- Visual design: `drawTrailMark(g, cx, cy, phase)` paints a compact soft-gold footprint and trail pip emblem (`0x19160d` dark bronze-charcoal roundel with `0x85682a` / `0xa68438` rim, `0xc49e48` / `0xd4b062` / `0xe6c87a` stepping boot footprints, and `0xf5e6b3` trailing breadcrumb pips). Uses `0x19160d` for the roundel backing so it does not collide with `0x1c1206` (incoming mark roundel), `0x1a0b0e` (clash mark roundel), `0x18181b` (basalt crag fissures), or `0x090d16` (stock badge pill), and avoids `0xfacc15` and `0xd4a373`.
+- Integrated into `paintBoardProvinces` at `(cx - 8, cy - 8)` right after `drawIncomingMark`, so a tile with a player column, a hostile column, and an active clash displays all three marks cleanly without overlapping, and terrain, stock badges, clash marks, incoming marks, piles, ruins, camps, outposts, and keeps stay as they are.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-19 — render / tile with hostile column inbound shows incoming mark on diamond (bakeoff/gemini-incoming-mark)
 

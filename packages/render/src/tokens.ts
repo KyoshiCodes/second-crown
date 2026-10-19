@@ -3377,6 +3377,104 @@ export function drawIncomingMark(
   g.fill({ color: 0xfef3c7, alpha: 0.98 });
 }
 
+// -------------------------------------------------------------
+// Player Column Trail Mark (drawTrailMark)
+// -------------------------------------------------------------
+
+/**
+ * Determines whether a seen province on the board currently has a player
+ * march on or heading to it.
+ * Uses only existing march data the board already reads (isProvinceSeen,
+ * listMarches). Unseen tiles always return false (stay fog).
+ */
+export function hasProvinceTrail(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+
+  const simMarches = listMarches(state);
+  if (simMarches.some((m) => m && m.realmId === "player" && m.toId === provinceId)) {
+    return true;
+  }
+
+  const boardMarches = Array.isArray((state.board as any).marches)
+    ? ((state.board as any).marches as March[])
+    : [];
+  return boardMarches.some(
+    (m) => m && m.realmId === "player" && m.toId === provinceId
+  );
+}
+
+/**
+ * Paints a small soft-gold footprint and trail pip on a seen province that has
+ * a player march on or heading to it on the isometric diamond.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the pip (0x000000)
+ * - Dark bronze-charcoal trail pip roundel backing (0x19160d) with antique-gold rim (0x85682a / 0xa68438)
+ * - Pair of stepping soft-gold boot footprints (sole + heel in 0xd4b062 / 0xc49e48, sunlit toe highlight 0xe6c87a)
+ * - Trailing soft-gold breadcrumb trail pips (0xf5e6b3)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawTrailMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const step = Math.sin(phase * 2.8) * 0.35;
+  const mx = cx;
+  const my = cy + step;
+
+  // 1. Soft drop shadow beneath the trail mark
+  g.ellipse(cx, cy + 1.9, 5.6, 3.2);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark bronze-charcoal trail pip roundel backing
+  g.circle(mx, my, 5.0);
+  g.fill({ color: 0x19160d, alpha: 0.88 });
+  g.circle(mx, my, 5.0);
+  g.stroke({ width: 0.8, color: 0x85682a, alpha: 0.92 });
+
+  // Subtle inner soft-gold compass ring
+  g.circle(mx, my, 4.1);
+  g.stroke({ width: 0.5, color: 0xa68438, alpha: 0.78 });
+
+  // 3. Left Boot Footprint (stepping lower-left -> upper-left)
+  // Left boot sole (forefoot)
+  g.ellipse(mx - 1.5, my - 0.5, 1.15, 1.55);
+  g.fill({ color: 0xc49e48 });
+  g.ellipse(mx - 1.5, my - 0.6, 0.95, 1.3);
+  g.fill({ color: 0xd4b062 });
+  // Left boot heel
+  g.circle(mx - 1.6, my + 1.6, 0.78);
+  g.fill({ color: 0xd4b062 });
+
+  // 4. Right Boot Footprint (stepping slightly ahead on the right)
+  // Right boot sole (forefoot)
+  g.ellipse(mx + 1.4, my - 1.4, 1.15, 1.55);
+  g.fill({ color: 0xc49e48 });
+  g.ellipse(mx + 1.4, my - 1.5, 0.95, 1.3);
+  g.fill({ color: 0xd4b062 });
+  // Sunlit toe highlight on lead footprint
+  g.ellipse(mx + 1.4, my - 2.0, 0.65, 0.75);
+  g.fill({ color: 0xe6c87a, alpha: 0.95 });
+  // Right boot heel
+  g.circle(mx + 1.3, my + 0.7, 0.78);
+  g.fill({ color: 0xd4b062 });
+
+  // 5. Soft-gold trail pips (leading & trailing step breadcrumbs)
+  g.circle(mx - 0.2, my + 2.9, 0.6);
+  g.fill({ color: 0xf5e6b3, alpha: 0.92 });
+
+  g.circle(mx + 0.2, my - 3.3, 0.65);
+  g.fill({ color: 0xf5e6b3, alpha: 0.96 });
+}
+
 
 // -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
@@ -4846,6 +4944,11 @@ export function paintBoardProvinces(
     // 6.7 Hostile Column Inbound Mark on Seen Tiles
     if (hasProvinceIncoming(state, p.id)) {
       drawIncomingMark(g, cx + 8, cy - 8, animPhase);
+    }
+
+    // 6.8 Player Column Trail Mark on Seen Tiles
+    if (hasProvinceTrail(state, p.id)) {
+      drawTrailMark(g, cx - 8, cy - 8, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

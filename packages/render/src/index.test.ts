@@ -12174,6 +12174,223 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // ============================================================================
+              // bakeoff/gemini-trail: Player Column Trail Mark on the Isometric Diamond
+              // ============================================================================
+              describe("bakeoff/gemini-trail: Player Column Trail Mark on the Isometric Diamond (drawTrailMark & hasProvinceTrail)", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const g: any = {
+                    calls,
+                    clear: () => calls.push({ method: "clear", args: [] }),
+                    poly: (pts: number[]) => calls.push({ method: "poly", args: [pts] }),
+                    fill: (opts: any) => calls.push({ method: "fill", args: [opts] }),
+                    stroke: (opts: any) => calls.push({ method: "stroke", args: [opts] }),
+                    rect: (x: number, y: number, w: number, h: number) =>
+                      calls.push({ method: "rect", args: [x, y, w, h] }),
+                    roundRect: (x: number, y: number, w: number, h: number, r: number) =>
+                      calls.push({ method: "roundRect", args: [x, y, w, h, r] }),
+                    circle: (x: number, y: number, r: number) =>
+                      calls.push({ method: "circle", args: [x, y, r] }),
+                    ellipse: (x: number, y: number, rx: number, ry: number) =>
+                      calls.push({ method: "ellipse", args: [x, y, rx, ry] }),
+                    moveTo: (x: number, y: number) => calls.push({ method: "moveTo", args: [x, y] }),
+                    lineTo: (x: number, y: number) => calls.push({ method: "lineTo", args: [x, y] }),
+                    arc: (...args: any[]) => calls.push({ method: "arc", args }),
+                    bezierCurveTo: (...args: any[]) => calls.push({ method: "bezierCurveTo", args }),
+                    quadraticCurveTo: (...args: any[]) =>
+                      calls.push({ method: "quadraticCurveTo", args }),
+                    closePath: () => calls.push({ method: "closePath", args: [] }),
+                  };
+                  return g;
+                }
+
+                describe("drawTrailMark direct unit tests", () => {
+                  it("paints a small soft-gold footprint and trail pip over a dark bronze-charcoal roundel", async () => {
+                    const { drawTrailMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawTrailMark(g, 120, 80, 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow & dark bronze-charcoal trail pip roundel
+                    expect(fillColors).toContain(0x000000);
+                    expect(fillColors).toContain(0x19160d);
+                    expect(strokeColors).toContain(0x85682a);
+                    expect(strokeColors).toContain(0xa68438);
+
+                    // Soft-gold stepping footprints & trail pips
+                    expect(fillColors).toContain(0xc49e48);
+                    expect(fillColors).toContain(0xd4b062);
+                    expect(fillColors).toContain(0xe6c87a);
+                    expect(fillColors).toContain(0xf5e6b3);
+                  });
+
+                  it("handles null graphics safely and supports animated phase step", async () => {
+                    const { drawTrailMark } = await import("./tokens.js");
+                    expect(() => drawTrailMark(null as any, 0, 0)).not.toThrow();
+
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawTrailMark(g0, 100, 100, 0);
+                    drawTrailMark(g1, 100, 100, 0.5);
+                    expect(g0.calls.length).toBe(g1.calls.length);
+                  });
+                });
+
+                describe("hasProvinceTrail player march detection", () => {
+                  it("returns true when a player march is on or heading to a seen province", async () => {
+                    const { hasProvinceTrail } = await import("./tokens.js");
+                    const { createGameState, revealProvince } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const targetId = state.board.provinces[2]!.id;
+                    revealProvince(state, targetId);
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_player_1",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: targetId,
+                        kind: "node",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+
+                    expect(hasProvinceTrail(state, targetId)).toBe(true);
+                  });
+
+                  it("returns false on a quiet tile, for a hostile march, or on an unseen tile", async () => {
+                    const { hasProvinceTrail } = await import("./tokens.js");
+                    const { createGameState, revealProvince, isProvinceSeen } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const seenTile = state.board.provinces[2]!.id;
+                    revealProvince(state, seenTile);
+
+                    // Quiet tile
+                    expect(hasProvinceTrail(state, seenTile)).toBe(false);
+
+                    // Hostile march only
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_rival_only",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: seenTile,
+                        kind: "node",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+                    expect(hasProvinceTrail(state, seenTile)).toBe(false);
+
+                    // Unseen tile with a player march stays false (fog)
+                    const unseenProv = state.board.provinces.find(
+                      (p) => !isProvinceSeen(state, p.id)
+                    )!;
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_player_unseen",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: unseenProv.id,
+                        kind: "node",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+                    expect(hasProvinceTrail(state, unseenProv.id)).toBe(false);
+                  });
+                });
+
+                describe("paintBoardProvinces integration & fog/clash/incoming preservation", () => {
+                  it("paints the trail mark on a seen tile with a player column while preserving fog, incoming, and clash marks", async () => {
+                    const { paintBoardProvinces, drawTrailMark, hasProvinceTrail } = await import("./index.js");
+                    const { createGameState, revealProvince } = await import("@second-crown/sim");
+                    expect(typeof drawTrailMark).toBe("function");
+                    expect(typeof hasProvinceTrail).toBe("function");
+
+                    const state = createGameState({ seed: 42 });
+                    const emptySeenProv = state.board.provinces.find(
+                      (p) => !p.occupantRealmId && p.id !== state.board.homeProvinceId
+                    )!;
+                    revealProvince(state, emptySeenProv.id);
+
+                    // Quiet board: no trail mark (0x19160d), incoming mark (0x1c1206), or clash mark (0x1a0b0e) drawn
+                    const gQuiet = createMockGraphics();
+                    paintBoardProvinces(gQuiet, state, 0);
+                    const quietFills = gQuiet.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(quietFills).not.toContain(0x19160d);
+                    expect(quietFills).not.toContain(0x1c1206);
+                    expect(quietFills).not.toContain(0x1a0b0e);
+
+                    // Player column heading to an unoccupied seen tile: trail mark drawn, no incoming or clash mark
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_player_trail",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: emptySeenProv.id,
+                        kind: "node",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+
+                    const gTrail = createMockGraphics();
+                    paintBoardProvinces(gTrail, state, 0);
+                    const trailFills = gTrail.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(trailFills).toContain(0x19160d);
+                    expect(trailFills).toContain(0xd4b062);
+                    expect(trailFills).toContain(0xf5e6b3);
+                    expect(trailFills).not.toContain(0x1c1206);
+                    expect(trailFills).not.toContain(0x1a0b0e);
+                    // Fog tiles still rendered in fog (0x0f172a)
+                    expect(trailFills).toContain(0x0f172a);
+
+                    // Both player and hostile columns heading to the same seen tile: trail, incoming, and clash marks all drawn
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_player_clash",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: emptySeenProv.id,
+                        kind: "camp",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                      {
+                        id: "m_hostile_clash",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: emptySeenProv.id,
+                        kind: "camp",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+
+                    const gAllThree = createMockGraphics();
+                    paintBoardProvinces(gAllThree, state, 0);
+                    const allFills = gAllThree.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(allFills).toContain(0x19160d);
+                    expect(allFills).toContain(0x1c1206);
+                    expect(allFills).toContain(0x1a0b0e);
+                  });
+                });
+              });
             });
           });
         });
