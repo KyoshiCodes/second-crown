@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-19 — A tile your column is on or heading to says so on the inspect card (wave/hud-trail)
+
+- **A tile with your column on or heading to it now says "Your column · out" on the inspect card, and play is unchanged.** Click a seen tile your own column is marching to, and the Tile section shows a short soft-gold line: "Your column · out". Rival columns do not trigger it.
+- **Unseen tiles still show nothing.** Fog is the same.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-19 — Tile with a hostile column inbound shows an incoming mark on the diamond (bakeoff/gemini-incoming-mark)
 
 - **A tile with a hostile column inbound now shows an incoming mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a non-player march heading to it gets a small amber arrow and threat pip incoming mark.
