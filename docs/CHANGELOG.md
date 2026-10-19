@@ -1,12 +1,16 @@
 # CHANGELOG
 
-## 2026-10-19 — Stock badge on the inspect card (wave/hud-stock-badge)
+## 2026-10-19 — Seen gather tile shows stock number badge on diamond (bakeoff/gemini-stock-badge)
 
-- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/stockBadge.ts`: `stockBadge(stock, stockMax)` returns `"stock/max"` when `stockMax > 0`, else `null`.
-- `packages/app/src/ProvinceInspect.tsx`: when `canGather`, renders `<span class="sc-inspect-stock-badge">Board badge 12/40</span>` after the existing stock line. Existing stock line text unchanged.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-stock-badge` (tabular nums, muted).
-- Tests: new `packages/app/src/hud/stockBadge.test.ts` (12/40, 0/40, null when stockMax is 0).
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `drawStockBadge(g, cx, cy, stock, stockMax)` (and `formatStockBadgeText`, `STOCK_BADGE_GLYPHS_3X5`): paints a small dark pill (`0x090d16`, drop shadow `0x000000` alpha 0.42, border `0x475569` when stocked or `0x3f3f46` when dry) with the ratio (e.g. `12/40`) in light text (`0xf8fafc`), tucked beside the pile. A dry tile shows `0/N` in muted grey (`0x94a3b8`). Draws nothing when `stockMax` is `0`.
+  - `paintBoardProvinces`: calls `drawStockBadge(g, cx, cy, stock, max)` on seen gather tiles (`woodcut`, `quarry`, `field`) right after `drawResourceNode`.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Peaks, hills, wastes, woods, plains, shores, ruins, camps, outposts, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawStockBadge`, `formatStockBadgeText`, and `STOCK_BADGE_GLYPHS_3X5`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (10 new tests in `bakeoff/gemini-stock-badge` suite; 463/463 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-19 — Plain tile shows pastoral meadow on diamond (bakeoff/gemini-plain)
 

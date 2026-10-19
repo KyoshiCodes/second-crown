@@ -129,6 +129,9 @@ import {
   drawWasteTile,
   drawPlainMeadow,
   drawPlainTile,
+  drawStockBadge,
+  formatStockBadgeText,
+  STOCK_BADGE_GLYPHS_3X5,
 } from "./tokens.js";
 
 import {

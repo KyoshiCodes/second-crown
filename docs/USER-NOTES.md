@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-19 — Gather tile shows a stock badge (wave/hud-stock-badge)
+## 2026-10-19 — Seen gather tile shows a stock number on the diamond (bakeoff/gemini-stock-badge)
 
-- **A gather tile now shows a small stock badge and play is unchanged.** Click a seen tile you can gather from. Under the stock line, a small muted line reads like `Board badge 12/40`: what is left over the most it can hold. A dry tile shows `0/40`.
-- The stock line itself reads the same as before. Fog is unchanged.
-- **Play is unchanged.** Gathering, refills, your save, Push save, Pull save, offline catch-up, and the server work exactly as before.
+- **A seen gather tile now shows a stock number on the diamond and play is unchanged.** A seen gather tile (woodcut, quarry, field) on the isometric diamond gets a small stock number badge next to the existing pile: a small dark pill with the ratio (e.g. `12/40`) in light text, tucked beside the pile. A dry tile shows `0/N` in muted grey. No badge is shown when `stockMax` is `0`.
+- **Unseen tiles stay fog.** Peaks, hills, wastes, woods, plains, shores, ruins, camps, outposts, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-19 — Plain tile shows a meadow (bakeoff/gemini-plain)
 

@@ -1,11 +1,10 @@
-## 2026-10-19 — app / stock badge on the inspect card (wave/hud-stock-badge)
+## 2026-10-19 — render / seen gather tile shows stock number badge on diamond (bakeoff/gemini-stock-badge)
 
-- Slice constraints: app only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- `hud/stockBadge.ts` is a pure helper like `plainLine.ts`: `stockBadge(stock, stockMax)` → `` `${stock}/${stockMax}` `` when `stockMax > 0`, else `null`. It reads the `nodeStock` / `nodeStockMax` values `ProvinceInspect` already computes; no new sim reads.
-- `ProvinceInspect.tsx`: `const badge = canGather ? stockBadge(stock, stockMax) : null;` and a sibling `<span className="sc-inspect-stock-badge">Board badge {badge}</span>` right after the stock `.sc-inspect-line`. It is a sibling, not a child, so the existing stock line's text content is untouched.
-- `hud/inspect-card.css`: `.sc-inspect-stock-badge { font-size: 0.85em; font-variant-numeric: tabular-nums; opacity: 0.7; }`. `theme.css` untouched.
-- The board itself does not draw a badge yet; this names the text it will use.
-- Tests: `hud/stockBadge.test.ts` (12/40, 0/40, null when stockMax is 0).
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Visual design: `drawStockBadge(g, cx, cy, stock, stockMax)` paints a compact dark pill (`0x090d16` fill, `0x000000` alpha 0.42 drop shadow, `0x475569` border when stocked or `0x3f3f46` when dry) tucked beside the existing resource pile (`pillX = Math.round(cx + 5 - pillW / 2)`, `pillY = Math.round(cy + 4)`, `pillH = 7`). Uses a 3x5 pixel bitmap glyph table (`STOCK_BADGE_GLYPHS_3X5`) to render the ratio `stock/stockMax` (e.g. `12/40`) in crisp light text (`0xf8fafc`, alpha 0.96) when `stock > 0`, and `0/N` in muted grey (`0x94a3b8`, alpha 0.85) when dry (`stock <= 0`). Returns immediately with zero drawing calls when `stockMax <= 0`. Uses `g.rect` rather than `roundRect` so lightweight mock graphics objects across all test suites work seamlessly, and avoids reserved terrain/structure test colors (`0xfacc15`, `0xd4a373`, `0x34d399`, `0x140e0a`, `0xe7e5e4`).
+- Integrated into `paintBoardProvinces` right after `drawResourceNode` when `p.node === "woodcut" || p.node === "quarry" || p.node === "field"`, ensuring unseen tiles stay fog (`paintFogHeightVeil`) and peaks, hills, wastes, woods, plains, shores, ruins, camps, outposts, and keeps stay as they are.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-19 — render / plain tile shows pastoral meadow on diamond (bakeoff/gemini-plain)
 
