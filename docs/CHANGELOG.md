@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-19 — Waste line (wave/hud-waste)
+
+- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, wood, peak, hill, camp, outpost, and resource lines, fog.
+- `packages/app/src/hud/wasteLine.ts` (new): `wasteLine(seen, terrain)` gives `"Waste · scorched"` for a seen waste tile, else `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the hill line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-waste` (ash grey, italic).
+- `docs/HANDOFF.md`: also marks the hill line (#244) and hill rise on the diamond (#245) as merged.
+- Tests: new `packages/app/src/hud/wasteLine.test.ts` (seen waste shows the line; unseen waste does not; no other terrain does). Run: `npm test`.
+
 ## 2026-10-19 — Hill tile shows stepped rise on diamond (bakeoff/gemini-hill)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
