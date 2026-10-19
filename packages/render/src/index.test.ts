@@ -11965,6 +11965,215 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // ============================================================================
+              // bakeoff/gemini-incoming-mark: Hostile Column Inbound Mark on the Isometric Diamond
+              // ============================================================================
+              describe("bakeoff/gemini-incoming-mark: Hostile Column Inbound Mark on the Isometric Diamond (drawIncomingMark & hasProvinceIncoming)", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const g: any = {
+                    calls,
+                    clear: () => calls.push({ method: "clear", args: [] }),
+                    poly: (pts: number[]) => calls.push({ method: "poly", args: [pts] }),
+                    fill: (opts: any) => calls.push({ method: "fill", args: [opts] }),
+                    stroke: (opts: any) => calls.push({ method: "stroke", args: [opts] }),
+                    rect: (x: number, y: number, w: number, h: number) =>
+                      calls.push({ method: "rect", args: [x, y, w, h] }),
+                    roundRect: (x: number, y: number, w: number, h: number, r: number) =>
+                      calls.push({ method: "roundRect", args: [x, y, w, h, r] }),
+                    circle: (x: number, y: number, r: number) =>
+                      calls.push({ method: "circle", args: [x, y, r] }),
+                    ellipse: (x: number, y: number, rx: number, ry: number) =>
+                      calls.push({ method: "ellipse", args: [x, y, rx, ry] }),
+                    moveTo: (x: number, y: number) => calls.push({ method: "moveTo", args: [x, y] }),
+                    lineTo: (x: number, y: number) => calls.push({ method: "lineTo", args: [x, y] }),
+                    arc: (...args: any[]) => calls.push({ method: "arc", args }),
+                    bezierCurveTo: (...args: any[]) => calls.push({ method: "bezierCurveTo", args }),
+                    quadraticCurveTo: (...args: any[]) =>
+                      calls.push({ method: "quadraticCurveTo", args }),
+                    closePath: () => calls.push({ method: "closePath", args: [] }),
+                  };
+                  return g;
+                }
+
+                describe("drawIncomingMark direct unit tests", () => {
+                  it("paints a small amber arrow and threat pip over a dark amber-obsidian roundel", async () => {
+                    const { drawIncomingMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawIncomingMark(g, 120, 80, 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow & dark amber-obsidian threat pip roundel
+                    expect(fillColors).toContain(0x000000);
+                    expect(fillColors).toContain(0x1c1206);
+                    expect(strokeColors).toContain(0x92400e);
+
+                    // Amber threat pip diamond frame
+                    expect(fillColors).toContain(0xb45309);
+                    expect(strokeColors).toContain(0x78350f);
+
+                    // Downward amber arrow shaft, chevron head, bevel highlight, and tip glint
+                    expect(fillColors).toContain(0xd97706);
+                    expect(fillColors).toContain(0xf59e0b);
+                    expect(fillColors).toContain(0xfbbf24);
+                    expect(fillColors).toContain(0xfef3c7);
+                  });
+
+                  it("handles null graphics safely and supports animated phase bob", async () => {
+                    const { drawIncomingMark } = await import("./tokens.js");
+                    expect(() => drawIncomingMark(null as any, 0, 0)).not.toThrow();
+
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawIncomingMark(g0, 100, 100, 0);
+                    drawIncomingMark(g1, 100, 100, 0.5);
+                    expect(g0.calls.length).toBe(g1.calls.length);
+                  });
+                });
+
+                describe("hasProvinceIncoming hostile march detection", () => {
+                  it("returns true when a non-player march is heading to a seen province", async () => {
+                    const { hasProvinceIncoming } = await import("./tokens.js");
+                    const { createGameState, revealProvince } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const targetId = state.board.provinces[2]!.id;
+                    revealProvince(state, targetId);
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_hostile_1",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: targetId,
+                        kind: "node",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+
+                    expect(hasProvinceIncoming(state, targetId)).toBe(true);
+                  });
+
+                  it("returns false on a quiet tile, for a player march, or on an unseen tile", async () => {
+                    const { hasProvinceIncoming } = await import("./tokens.js");
+                    const { createGameState, revealProvince, isProvinceSeen } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const seenTile = state.board.provinces[2]!.id;
+                    revealProvince(state, seenTile);
+
+                    // Quiet tile
+                    expect(hasProvinceIncoming(state, seenTile)).toBe(false);
+
+                    // Player march only
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_player_only",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: seenTile,
+                        kind: "node",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+                    expect(hasProvinceIncoming(state, seenTile)).toBe(false);
+
+                    // Unseen tile with a hostile march stays false (fog)
+                    const unseenProv = state.board.provinces.find(
+                      (p) => !isProvinceSeen(state, p.id)
+                    )!;
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_hostile_unseen",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: unseenProv.id,
+                        kind: "node",
+                        arrivesTick: 20,
+                        levy: 5,
+                      },
+                    ]);
+                    expect(hasProvinceIncoming(state, unseenProv.id)).toBe(false);
+                  });
+                });
+
+                describe("paintBoardProvinces integration & fog/clash preservation", () => {
+                  it("paints the incoming mark on a seen tile with a hostile column inbound while preserving fog and clash marks", async () => {
+                    const { paintBoardProvinces, drawIncomingMark, hasProvinceIncoming } = await import("./index.js");
+                    const { createGameState, revealProvince } = await import("@second-crown/sim");
+                    expect(typeof drawIncomingMark).toBe("function");
+                    expect(typeof hasProvinceIncoming).toBe("function");
+
+                    const state = createGameState({ seed: 42 });
+                    const emptySeenProv = state.board.provinces.find(
+                      (p) => !p.occupantRealmId && p.id !== state.board.homeProvinceId
+                    )!;
+                    revealProvince(state, emptySeenProv.id);
+
+                    // Quiet board: neither incoming mark (0x1c1206) nor clash mark (0x1a0b0e) drawn
+                    const gQuiet = createMockGraphics();
+                    paintBoardProvinces(gQuiet, state, 0);
+                    const quietFills = gQuiet.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(quietFills).not.toContain(0x1c1206);
+                    expect(quietFills).not.toContain(0x1a0b0e);
+
+                    // Hostile column inbound to an unoccupied seen tile: incoming mark drawn, no clash mark
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_hostile_inbound",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: emptySeenProv.id,
+                        kind: "node",
+                        arrivesTick: 20,
+                        levy: 6,
+                      },
+                    ]);
+
+                    const gInbound = createMockGraphics();
+                    paintBoardProvinces(gInbound, state, 0);
+                    const inboundFills = gInbound.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(inboundFills).toContain(0x1c1206);
+                    expect(inboundFills).toContain(0xb45309);
+                    expect(inboundFills).toContain(0xf59e0b);
+                    expect(inboundFills).not.toContain(0x1a0b0e);
+                    // Fog tiles still rendered in fog (0x0f172a)
+                    expect(inboundFills).toContain(0x0f172a);
+
+                    // Hostile column inbound to player home tile: BOTH incoming mark and clash mark drawn
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_hostile_home",
+                        realmId: "r_mist",
+                        fromId: state.board.provinces[0]!.id,
+                        toId: state.board.homeProvinceId,
+                        kind: "hold",
+                        purpose: "raid",
+                        arrivesTick: 20,
+                        levy: 10,
+                      },
+                    ]);
+
+                    const gBoth = createMockGraphics();
+                    paintBoardProvinces(gBoth, state, 0);
+                    const bothFills = gBoth.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(bothFills).toContain(0x1c1206);
+                    expect(bothFills).toContain(0x1a0b0e);
+                  });
+                });
+              });
             });
           });
         });

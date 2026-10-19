@@ -134,6 +134,8 @@ import {
   STOCK_BADGE_GLYPHS_3X5,
   drawClashMark,
   hasProvinceClash,
+  drawIncomingMark,
+  hasProvinceIncoming,
 } from "./tokens.js";
 
 import {
@@ -1013,5 +1015,7 @@ export {
   STOCK_BADGE_GLYPHS_3X5,
   drawClashMark,
   hasProvinceClash,
+  drawIncomingMark,
+  hasProvinceIncoming,
 };
 

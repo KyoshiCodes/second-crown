@@ -1,10 +1,11 @@
-## 2026-10-19 — app / inspect card incoming line (wave/hud-incoming)
+## 2026-10-19 — render / tile with hostile column inbound shows incoming mark on diamond (bakeoff/gemini-incoming-mark)
 
-- Slice constraints: app HUD only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
-- `incomingLine(state, provinceId)` (`packages/app/src/hud/incomingLine.ts`): returns `null` when `!isProvinceSeen`, else `"Incoming · hostile"` if `incomingOnProvince(state, provinceId)` (first `listMarches` entry with `toId === provinceId && realmId !== "player"`) is defined. Unlike `clashLine` it does not require the tile to be player-held or two realms to meet, so it can show alongside the clash line.
-- `ProvinceInspect.tsx` already had a local `incoming` (the March, used by the Forces group's "Incoming contest" line); the new value is named `incomingNote` to avoid the clash. The Forces line is untouched.
-- Tests build state with `createGameState()` and write `state.flags.marches_json` directly, same as `clashLine.test.ts`.
-- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` and `npm run build -w @second-crown/app` pass.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Hostile march detection: `hasProvinceIncoming(state, provinceId)` reads only existing board and march helpers (`isProvinceSeen`, `incomingOnProvince`, `listMarches`) with zero new sim math. Returns `false` if the tile is unseen (so unseen tiles stay fog). Returns `true` when any non-player march (`m.realmId !== "player"`) is heading to `provinceId`.
+- Visual design: `drawIncomingMark(g, cx, cy, phase)` paints a compact amber arrow and threat pip emblem (`0x1c1206` dark amber-obsidian roundel with `0x92400e` rim, `0xb45309` / `0x78350f` amber threat diamond, `0xd97706` / `0xf59e0b` / `0xfbbf24` downward amber chevron arrow and shaft, and `0xfef3c7` threat pip core glint). Uses `0x1c1206` for the roundel backing so it does not collide with `0x1a0b0e` (clash mark roundel), `0x18181b` (basalt crag fissures), or `0x090d16` (stock badge pill), and avoids `0xfacc15` and `0xd4a373`.
+- Integrated into `paintBoardProvinces` at `(cx + 8, cy - 8)` right after `drawClashMark`, so a tile with both a hostile column inbound and an active clash displays both marks cleanly without overlapping, and terrain, stock badges, clash marks, piles, ruins, camps, outposts, and keeps stay as they are.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-19 — render / fighting tile shows clash mark on diamond (bakeoff/gemini-clash)
 

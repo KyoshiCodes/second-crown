@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-19 — Inspect card shows an incoming line on a tile with a hostile column inbound (wave/hud-incoming)
+## 2026-10-19 — Tile with hostile column inbound shows incoming mark on diamond (bakeoff/gemini-incoming-mark)
 
-- Inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/incomingLine.ts`: `incomingLine(state, provinceId)` returns `"Incoming · hostile"` when `incomingOnProvince` finds a non-player column bound for a seen tile. Else `null`. Uses existing sim helpers only.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the clash line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-incoming` (amber `#b45309`, italic).
-- Tests: `packages/app/src/hud/incomingLine.test.ts` (4 tests: hostile inbound shows, quiet tile null, player column null, unseen tile null).
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceIncoming(state, provinceId)`: uses only existing march data the board already reads (`isProvinceSeen`, `incomingOnProvince`, `listMarches`) to detect when a seen province has a non-player march heading to it. No new sim math.
+  - `drawIncomingMark(g, cx, cy, phase)`: paints a small amber arrow and threat pip (`0x1c1206` dark amber-obsidian roundel with `0x92400e` rim, `0xb45309` / `0x78350f` amber threat pip diamond frame, `0xd97706` / `0xf59e0b` / `0xfbbf24` downward amber chevron arrow and shaft, and `0xfef3c7` threat pip core glint) on a seen province with a hostile column inbound.
+  - `paintBoardProvinces`: calls `drawIncomingMark(g, cx + 8, cy - 8, animPhase)` when `hasProvinceIncoming(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, piles, ruins, camps, outposts, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawIncomingMark` and `hasProvinceIncoming`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (5 new tests in `bakeoff/gemini-incoming-mark` suite; 474/474 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-19 — Fighting tile shows clash mark on diamond (bakeoff/gemini-clash)
 
