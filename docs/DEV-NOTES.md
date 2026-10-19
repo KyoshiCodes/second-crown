@@ -1,3 +1,9 @@
+## 2026-10-19 — app / hill line (wave/hud-hill)
+
+- Hill is a `TerrainId` (`packages/shared`), like shore, wood, and peak, so the line keys off `p.terrain`.
+- `hillLine(seen, terrain)` (pure, `hud/hillLine.ts`) mirrors `peakLine` so it can be unit tested. `seen` is the card's existing `isProvinceSeen`, so fog keeps the line hidden.
+- Determinism: no sim change. Display only.
+
 ## 2026-10-14 — server / audio MIME (wave/audio-mime)
 
 - Root cause: `MIME` in `server/static.mjs` had no audio types, so `.ogg` / `.mp3` / `.wav` fell through to `application/octet-stream`. Some browsers refuse to decode an `<audio>` source with that type; Vite's dev server sends the right type, so it only broke live.
