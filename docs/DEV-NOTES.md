@@ -1,3 +1,12 @@
+## 2026-10-19 — app / stock badge on the inspect card (wave/hud-stock-badge)
+
+- Slice constraints: app only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `hud/stockBadge.ts` is a pure helper like `plainLine.ts`: `stockBadge(stock, stockMax)` → `` `${stock}/${stockMax}` `` when `stockMax > 0`, else `null`. It reads the `nodeStock` / `nodeStockMax` values `ProvinceInspect` already computes; no new sim reads.
+- `ProvinceInspect.tsx`: `const badge = canGather ? stockBadge(stock, stockMax) : null;` and a sibling `<span className="sc-inspect-stock-badge">Board badge {badge}</span>` right after the stock `.sc-inspect-line`. It is a sibling, not a child, so the existing stock line's text content is untouched.
+- `hud/inspect-card.css`: `.sc-inspect-stock-badge { font-size: 0.85em; font-variant-numeric: tabular-nums; opacity: 0.7; }`. `theme.css` untouched.
+- The board itself does not draw a badge yet; this names the text it will use.
+- Tests: `hud/stockBadge.test.ts` (12/40, 0/40, null when stockMax is 0).
+
 ## 2026-10-19 — render / plain tile shows pastoral meadow on diamond (bakeoff/gemini-plain)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
