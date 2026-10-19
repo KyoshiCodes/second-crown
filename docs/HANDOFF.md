@@ -1,11 +1,11 @@
-# Handoff (2026-10-14)
+# Handoff (2026-10-19)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#247** (waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-plain` (**not merged**, see Plain meadow on diamond below).
+Merged through PR **#249** (plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hud-stock-badge` (**not merged**, see Stock badge on the inspect card below).
 
 ### Cultures and units (all merged)
 
@@ -228,7 +228,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A seen waste tile on the isometric diamond gets a scorched basalt crag (`drawWasteCrag` in `packages/render/src/tokens.ts`): a low scorched rise in dark basalt (`0x09090b`, `0x18181b`, `0x27272a`, `0x292524`, `0x3f3f46`, `0x52525b`, `0x71717a`), cracked ash (`0x140e0a`, `0x1c1917`, `0x44403c`, `0x57534e`, `0x78716c`, `0xa8a29e`), a faint heat glow (`0x7f1d1d`, `0x991b1b`, `0xea580c`, `0xef4444`, `0xf97316`, `0xfdba74`, `0xfef08a`), no keep, no flag, no tent.
 - Unseen tiles stay fog (`paintFogHeightVeil`). Peaks, hills, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are.
 
-## Plain meadow on diamond (branch `bakeoff/gemini-plain`, **not merged**)
+## Plain meadow on diamond (PR #249, merged)
 
 - The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - A seen plain tile on the isometric diamond gets a low pastoral meadow (`drawPlainMeadow` in `packages/render/src/tokens.ts`): a low green meadow with soft grass (`0x365314`, `0x3f6212`, `0x4d7c0f`, `0x65a30d`, `0x84cc16`, `0xa3e635`), a few low tufts (`0x1a2e05`, `0x84cc16`, `0xbef264`, `0xd9f99d`, `0xecfccb`), a gentle shadow (`0x000000` alpha 0.24 contact shadow and `0x14532d` alpha 0.42 base shadow), no keep, no flag, no tent.
@@ -236,6 +236,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (453 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
+
+## Stock badge on the inspect card (branch `wave/hud-stock-badge`, **not merged**)
+
+- App only. Do not change `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `packages/app/src/hud/stockBadge.ts`: `stockBadge(stock, stockMax)` returns `"12/40"` when `stockMax > 0`, else `null`. A dry tile gives `"0/40"`.
+- `ProvinceInspect.tsx`: when `canGather`, a small `.sc-inspect-stock-badge` span reads `Board badge 12/40` right after the existing stock line. The stock line text is unchanged.
+- `hud/inspect-card.css`: `.sc-inspect-stock-badge` (tabular nums, muted).
+- Tests: `packages/app/src/hud/stockBadge.test.ts` (12/40, 0/40, null at max 0).
 
 ## Verify
 

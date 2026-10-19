@@ -47,6 +47,7 @@ import { peakLine } from "./hud/peakLine";
 import { hillLine } from "./hud/hillLine";
 import { wasteLine } from "./hud/wasteLine";
 import { plainLine } from "./hud/plainLine";
+import { stockBadge } from "./hud/stockBadge";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
@@ -184,6 +185,7 @@ export function ProvinceInspect(props: {
   const hill = hillLine(seen, p.terrain);
   const waste = wasteLine(seen, p.terrain);
   const plain = plainLine(seen, p.terrain);
+  const badge = canGather ? stockBadge(stock, stockMax) : null;
   const hasForces = Boolean(incoming) || onTile.length > 0 || Boolean(march) || Boolean(here);
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
@@ -234,6 +236,7 @@ export function ProvinceInspect(props: {
             {stock <= 0 ? " · dry" : ""}
           </div>
         ) : null}
+        {badge ? <span className="sc-inspect-stock-badge">Board badge {badge}</span> : null}
         {seen && p.node === "camp" ? <div className="sc-inspect-line">Camp threat {campThreat(state, p)}</div> : null}
         {ruins ? <div className="sc-inspect-line sc-inspect-ruins">{ruins}</div> : null}
         {shore ? <div className="sc-inspect-line sc-inspect-shore">{shore}</div> : null}

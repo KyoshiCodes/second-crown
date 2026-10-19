@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-19 — Gather tile shows a stock badge (wave/hud-stock-badge)
+
+- **A gather tile now shows a small stock badge and play is unchanged.** Click a seen tile you can gather from. Under the stock line, a small muted line reads like `Board badge 12/40`: what is left over the most it can hold. A dry tile shows `0/40`.
+- The stock line itself reads the same as before. Fog is unchanged.
+- **Play is unchanged.** Gathering, refills, your save, Push save, Pull save, offline catch-up, and the server work exactly as before.
+
 ## 2026-10-19 — Plain tile shows a meadow (bakeoff/gemini-plain)
 
 - **A seen plain tile now shows a meadow and play is unchanged.** A seen plain tile on the isometric diamond gets a low pastoral meadow: a low green meadow in soft grass, a few low tufts, a gentle shadow, no keep, no flag, and no tent.
