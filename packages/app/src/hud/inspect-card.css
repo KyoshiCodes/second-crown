@@ -262,3 +262,6 @@
 
 /* Waste: seen tile with terrain "waste"; scorched. */
 .sc-inspect-waste { color: #9a9a96; font-style: italic; }
+
+/* Plain: seen tile with terrain "plain"; meadow. */
+.sc-inspect-plain { color: #a3c98a; font-style: italic; }

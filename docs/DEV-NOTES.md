@@ -1,3 +1,9 @@
+## 2026-10-19 — app / plain line (wave/hud-plain)
+
+- Plain is a `TerrainId` (`packages/shared`), like waste and hill, so the line keys off `p.terrain`.
+- `plainLine(seen, terrain)` (pure, `hud/plainLine.ts`) mirrors `wasteLine` so it can be unit tested. `seen` is the card's existing `isProvinceSeen`, so fog keeps the line hidden.
+- Determinism: no sim change. Display only.
+
 ## 2026-10-19 — render / waste tile shows scorched basalt crag on diamond (bakeoff/gemini-waste)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

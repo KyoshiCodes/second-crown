@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-19 — Plain says so (wave/hud-plain)
+
+- **A seen plain tile now says "Plain · meadow" and play is unchanged.** Click a plain tile you have seen, and the tile card shows "Plain · meadow".
+- A plain tile you have not scouted still sits under fog and shows nothing new.
+- **Play is unchanged.** Scouting, gathering, garrisons, marches, abandoning, saves, and every other rule work exactly as before.
+
 ## 2026-10-19 — Waste tile shows a scorched crag (bakeoff/gemini-waste)
 
 - **A seen waste tile now shows a scorched crag and play is unchanged.** A seen waste tile on the isometric diamond gets a scorched basalt crag: a low scorched rise in dark basalt, cracked ash, a faint heat glow, no keep, no flag, and no tent.
