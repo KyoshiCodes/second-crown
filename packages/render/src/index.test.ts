@@ -94,6 +94,8 @@ import {
   drawShoreTile,
   drawWoodTile,
   drawPeakTile,
+  drawHillRise,
+  drawHillTile,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -10652,6 +10654,258 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   const g = createMockGraphics();
                   drawPeakTile(g, 50, 50, 16, 8, 0);
                   expect(g.calls.length).toBeGreaterThan(20);
+                });
+
+                it("verifies zero merge conflict markers across packages/render files", async () => {
+                  const fs = await import("node:fs");
+                  const path = await import("node:path");
+                  const files = [
+                    path.resolve(__dirname, "tokens.ts"),
+                    path.resolve(__dirname, "buildings.ts"),
+                    path.resolve(__dirname, "index.ts"),
+                  ];
+                  for (const f of files) {
+                    const content = fs.readFileSync(f, "utf-8");
+                    expect(content).not.toContain("<<<<<<<");
+                    expect(content).not.toContain("=======");
+                    expect(content).not.toContain(">>>>>>>");
+                  }
+                });
+
+                it("verifies camera math, zoom, and tile click hit-testing remain unchanged", async () => {
+                  const { gridToWorld, worldToGrid, hitTestProvince, boardGridToWorld } = await import("./camera.js");
+                  const { wx, wy } = gridToWorld(4, 4);
+                  const { gx, gy } = worldToGrid(wx, wy);
+                  expect(gx).toBe(4);
+                  expect(gy).toBe(4);
+
+                  const bWorld = boardGridToWorld(2, 2);
+                  const hit = hitTestProvince(bWorld.wx, bWorld.wy);
+                  expect(hit?.bx).toBe(2);
+                  expect(hit?.by).toBe(2);
+                });
+              });
+            });
+
+            describe("bakeoff/gemini-hill: seen hill tile on isometric diamond gets small stepped rise", () => {
+              function createMockGraphics() {
+                const calls: { method: string; args: any[] }[] = [];
+                const mock: any = {
+                  calls,
+                  clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+                  poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+                  fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+                  stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+                  moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+                  lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+                  circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+                  rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+                  ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+                  bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); return mock; },
+                  quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+                  arc: (...args: any[]) => { calls.push({ method: "arc", args }); return mock; },
+                  roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+                  closePath: () => { calls.push({ method: "closePath", args: [] }); return mock; },
+                  beginPath: () => { calls.push({ method: "beginPath", args: [] }); return mock; },
+                };
+                return mock;
+              }
+
+              describe("drawHillRise: low stepped plateau on hill tile with warm ochre and stone, three tiers, soft shadow", () => {
+                it("renders soft shadow, three stepped tiers of warm ochre and stone, and no keep, no flag, no tent", () => {
+                  const g = createMockGraphics();
+                  drawHillRise(g, 100, 100, 16, 8, 0, { px: 2, py: 1 });
+                  const json = JSON.stringify(g.calls);
+
+                  // 1. Soft shadow: contact shadow (0x000000 with alpha 0.34) and dark earth base shadow (0x292524)
+                  expect(json).toContain(String(0x000000));
+                  expect(json).toContain(String(0x292524));
+                  const shadowCalls = g.calls.filter((c: any) => c.method === "fill" && c.args[0]?.color === 0x000000);
+                  expect(shadowCalls.length).toBeGreaterThanOrEqual(3); // base soft shadow + step shadows on tier 1 & tier 2
+
+                  // 2. Three stepped tiers of warm ochre (0xb45309, 0x92400e, 0xd97706, 0xca8a04, 0xf59e0b)
+                  expect(json).toContain(String(0xb45309));
+                  expect(json).toContain(String(0x92400e));
+                  expect(json).toContain(String(0xd97706));
+                  expect(json).toContain(String(0xca8a04));
+                  expect(json).toContain(String(0xf59e0b));
+
+                  // 3. Stone risers, rims, and outcrops (0x78716c, 0x44403c, 0xa8a29e, 0x57534e, 0xd6d3d1, 0xe7e5e4)
+                  expect(json).toContain(String(0x78716c));
+                  expect(json).toContain(String(0x44403c));
+                  expect(json).toContain(String(0xa8a29e));
+                  expect(json).toContain(String(0x57534e));
+                  expect(json).toContain(String(0xd6d3d1));
+                  expect(json).toContain(String(0xe7e5e4));
+
+                  // 4. No keep, no flag (0xfacc15), no tent (0xd4a373)
+                  expect(json).not.toContain(String(0xfacc15));
+                  expect(json).not.toContain(String(0xd4a373));
+
+                  expect(g.calls.length).toBeGreaterThan(25);
+                });
+
+                it("renders clean geometry across multiple phases and default arguments without errors", () => {
+                  const g0 = createMockGraphics();
+                  drawHillRise(g0, 80, 80);
+
+                  const g1 = createMockGraphics();
+                  drawHillTile(g1, 80, 80, 16, 8, 1.5);
+
+                  expect(g0.calls.length).toBeGreaterThan(25);
+                  expect(g1.calls.length).toBeGreaterThan(25);
+                });
+              });
+
+              describe("paintBoardProvinces: hill tile board integration", () => {
+                function createHillBoardState(seen: boolean, overrides?: Partial<any>): GameState {
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "k_glen", isPlayer: false, name: "Glen" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags: {
+                      fog_seen: JSON.stringify(seen ? ["p_home", "p_hill"] : ["p_home"]),
+                      ...(seen ? { "seen:p_hill": true } : {}),
+                      "seen:p_home": true,
+                    },
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_hill", x: 2, y: 1, terrain: "hill", node: "none", ...(overrides ?? {}) },
+                      ],
+                    } as any,
+                  };
+                }
+
+                it("renders stepped rise (warm ochre, stone, three tiers, soft shadow) on diamond when hill province is seen", () => {
+                  const g = createMockGraphics();
+                  const state = createHillBoardState(true);
+                  paintBoardProvinces(g, state, 0);
+
+                  const json = JSON.stringify(g.calls);
+                  // Soft shadow ellipse (11.2, 4.6)
+                  const hasHillShadow = g.calls.some((c: any) => c.method === "ellipse" && c.args[2] === 11.2 && c.args[3] === 4.6);
+                  expect(hasHillShadow).toBe(true);
+
+                  // Warm ochre tiers (0xb45309, 0xd97706, 0xca8a04, 0xf59e0b)
+                  expect(json).toContain(String(0xb45309));
+                  expect(json).toContain(String(0xd97706));
+                  expect(json).toContain(String(0xca8a04));
+                  expect(json).toContain(String(0xf59e0b));
+
+                  // Stone risers and rims (0x78716c, 0x44403c, 0xa8a29e, 0xd6d3d1)
+                  expect(json).toContain(String(0x78716c));
+                  expect(json).toContain(String(0x44403c));
+                  expect(json).toContain(String(0xa8a29e));
+                  expect(json).toContain(String(0xd6d3d1));
+
+                  // Unclaimed node: "none" hill tile has no camp tent guy ropes (0xd4a373)
+                  expect(json).not.toContain(String(0xd4a373));
+                });
+
+                it("renders fog (paintFogHeightVeil) and suppresses stepped rise when unseen", () => {
+                  const g = createMockGraphics();
+                  const state = createHillBoardState(false);
+                  paintBoardProvinces(g, state, 0);
+
+                  expect(g.calls.length).toBeGreaterThan(10);
+
+                  // Stepped rise soft shadow and crown rim are suppressed when hill tile is unseen
+                  const hasHillShadow = g.calls.some((c: any) => c.method === "ellipse" && c.args[2] === 11.2 && c.args[3] === 4.6);
+                  expect(hasHillShadow).toBe(false);
+
+                  const hasCrownRim = g.calls.some((c: any) => c.method === "stroke" && c.args[0]?.color === 0xe7e5e4);
+                  expect(hasCrownRim).toBe(false);
+                });
+
+                it("keeps peaks, woods, shores, ruins, camps, outposts, resource piles, and keeps as they are", () => {
+                  // 1. Hill tile with ruins: renders stepped rise AND ruined keep broken walls & fallen stone
+                  const gRuins = createMockGraphics();
+                  const stateRuins = createHillBoardState(true, { node: "ruins" });
+                  paintBoardProvinces(gRuins, stateRuins, 0);
+                  const jsonRuins = JSON.stringify(gRuins.calls);
+                  expect(jsonRuins).toContain(String(0xb45309)); // hill warm ochre
+                  expect(jsonRuins).toContain(String(0x292524)); // ruined keep plinth
+
+                  // 2. Hill tile with hold: renders stepped rise AND miniature keep
+                  const gHold = createMockGraphics();
+                  const stateHold = createHillBoardState(true, { node: "hold", occupantRealmId: "k_glen" });
+                  paintBoardProvinces(gHold, stateHold, 0);
+                  const jsonHold = JSON.stringify(gHold.calls);
+                  expect(jsonHold).toContain(String(0xb45309)); // hill warm ochre
+                  expect(jsonHold).toContain(String(0xd97706)); // hill tier 2 ochre
+
+                  // 3. Hill tile with camp: renders stepped rise AND camp tent
+                  const gCamp = createMockGraphics();
+                  const stateCamp = createHillBoardState(true, { node: "camp", occupantRealmId: "rival" });
+                  paintBoardProvinces(gCamp, stateCamp, 0);
+                  const jsonCamp = JSON.stringify(gCamp.calls);
+                  expect(jsonCamp).toContain(String(0xb45309)); // hill warm ochre
+                  expect(jsonCamp).toContain(String(0xd4a373)); // camp guy ropes
+
+                  // 4. Hill tile with player outpost & quarry resource pile: renders stepped rise, quarry pile, and outpost tent
+                  const gOutpost = createMockGraphics();
+                  const stateOutpost = createHillBoardState(true, { node: "quarry", occupantRealmId: "player" });
+                  stateOutpost.flags["node_stock_p_hill"] = 70;
+                  paintBoardProvinces(gOutpost, stateOutpost, 0);
+                  const jsonOutpost = JSON.stringify(gOutpost.calls);
+                  expect(jsonOutpost).toContain(String(0xb45309)); // hill warm ochre
+                  expect(jsonOutpost).toContain(String(0xd4a373)); // outpost guy ropes
+
+                  // 5. Peak mountain, wood trees, and shore water tiles remain intact
+                  const gMulti = createMockGraphics();
+                  const stateMulti: GameState = {
+                    ...createHillBoardState(true),
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_peak", x: 1, y: 0, terrain: "peak", node: "quarry" },
+                        { id: "p_wood", x: 2, y: 0, terrain: "wood", node: "woodcut" },
+                        { id: "p_shore", x: 3, y: 0, terrain: "shore", node: "field" },
+                        { id: "p_hill", x: 4, y: 0, terrain: "hill", node: "none" },
+                      ],
+                    } as any,
+                    flags: {
+                      fog_seen: JSON.stringify(["p_home", "p_peak", "p_wood", "p_shore", "p_hill"]),
+                      "seen:p_home": true,
+                      "seen:p_peak": true,
+                      "seen:p_wood": true,
+                      "seen:p_shore": true,
+                      "seen:p_hill": true,
+                    },
+                  };
+                  paintBoardProvinces(gMulti, stateMulti, 0);
+                  const jsonMulti = JSON.stringify(gMulti.calls);
+                  expect(jsonMulti).toContain(String(0xe2e8f0)); // peak snow cap
+                  expect(jsonMulti).toContain(String(0x34d399)); // wood needle crest
+                  expect(jsonMulti).toContain(String(0x06b6d4)); // shore sea shelf
+                  expect(jsonMulti).toContain(String(0xb45309)); // hill stepped rise ochre
+                });
+              });
+
+              describe("exports and code integrity", () => {
+                it("verifies direct exported drawHillRise and drawHillTile functions exist and execute cleanly", async () => {
+                  const { drawHillRise, drawHillTile } = await import("./index.js");
+                  expect(typeof drawHillRise).toBe("function");
+                  expect(typeof drawHillTile).toBe("function");
+
+                  const g = createMockGraphics();
+                  drawHillRise(g, 50, 50, 16, 8, 0);
+                  expect(g.calls.length).toBeGreaterThan(25);
                 });
 
                 it("verifies zero merge conflict markers across packages/render files", async () => {

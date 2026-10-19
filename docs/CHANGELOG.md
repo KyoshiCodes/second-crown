@@ -1,13 +1,16 @@
 # CHANGELOG
 
-## 2026-10-19 — Hill line (wave/hud-hill)
+## 2026-10-19 — Hill tile shows stepped rise on diamond (bakeoff/gemini-hill)
 
-- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, wood, peak, camp, outpost, and resource lines, fog.
-- `packages/app/src/hud/hillLine.ts` (new): `hillLine(seen, terrain)` gives `"Hill · rise"` for a seen hill tile, else `null`.
-- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the peak line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-hill` (warm ochre, italic).
-- `docs/HANDOFF.md`: also marks audio MIME (#243) as merged.
-- Tests: new `packages/app/src/hud/hillLine.test.ts` (seen hill shows the line; unseen hill does not; no other terrain does). Run: `npm test`.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `drawHillRise(g, cx, cy, hw, hh, phase, options)` (and alias `drawHillTile`): paints a low stepped plateau on a hill tile with warm ochre (`0xb45309`, `0x92400e`, `0xd97706`, `0xca8a04`, `0xf59e0b`) and stone (`0x78716c`, `0x44403c`, `0xa8a29e`, `0x57534e`, `0xd6d3d1`, `0xe7e5e4`), three stepped tiers, a soft shadow (`0x000000` alpha 0.34 contact shadow and `0x292524` alpha 0.45 base shadow), no keep, no flag, and no tent.
+  - `paintBoardProvinces`: `case "hill"` dispatches to `drawHillRise(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y })`.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Peaks, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawHillRise` and `drawHillTile`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (8 new tests in `bakeoff/gemini-hill` suite; 437/437 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-14 — Audio MIME (wave/audio-mime)
 

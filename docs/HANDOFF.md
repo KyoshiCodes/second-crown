@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#242**. Waiting: `wave/audio-mime` (**not merged**, see Audio MIME below).
+Merged through PR **#243** (audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-hill` (**not merged**, see Hill rise on diamond below).
 
 ### Cultures and units (all merged)
 
@@ -216,12 +216,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - Tests: `server/static.test.mjs` adds "an .ogg inside dist is answered as audio/ogg".
 - Not touched: `packages/sim`, game rules, `theme.css`, the app.
 
-## Hill line (branch `wave/hud-hill`, **not merged**)
+## Hill rise on diamond (branch `bakeoff/gemini-hill`, **not merged**)
 
-- The province inspect card shows one line, `Hill · rise`, on a seen tile whose terrain is `hill`. Code: `hillLine(seen, terrain)` in `packages/app/src/hud/hillLine.ts`, rendered in `packages/app/src/ProvinceInspect.tsx` under the Tile group (after the peak line). Style: `.sc-inspect-hill` in `packages/app/src/hud/inspect-card.css`.
-- Reads the existing `terrain` field only; no new sim field. An unseen hill tile still shows fog and no hill line.
-- Tests: `packages/app/src/hud/hillLine.test.ts` (shows for a seen hill tile; hidden when unseen; hidden on every other terrain).
-- Not touched: `packages/sim`, `server/`, `theme.css`, scout / gather / garrison / march / abandon actions, the home, ruins, shore, wood, peak, camp, outpost, and resource lines.
+- The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
+- A seen hill tile on the isometric diamond gets a small stepped rise (`drawHillRise` in `packages/render/src/tokens.ts`): a low stepped plateau in warm ochre (`0xb45309`, `0x92400e`, `0xd97706`, `0xca8a04`, `0xf59e0b`) and stone (`0x78716c`, `0x44403c`, `0xa8a29e`, `0x57534e`, `0xd6d3d1`, `0xe7e5e4`), three tiers, a soft shadow (`0x000000` alpha 0.34 contact shadow and `0x292524` alpha 0.45 base shadow), no keep, no flag, no tent.
+- Unseen tiles stay fog (`paintFogHeightVeil`). Peaks, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+- Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (437 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
 ## Verify
 
