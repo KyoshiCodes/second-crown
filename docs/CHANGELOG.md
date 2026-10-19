@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-19 — Inspect card shows an incoming line on a tile with a hostile column inbound (wave/hud-incoming)
+
+- Inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/incomingLine.ts`: `incomingLine(state, provinceId)` returns `"Incoming · hostile"` when `incomingOnProvince` finds a non-player column bound for a seen tile. Else `null`. Uses existing sim helpers only.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the clash line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-incoming` (amber `#b45309`, italic).
+- Tests: `packages/app/src/hud/incomingLine.test.ts` (4 tests: hostile inbound shows, quiet tile null, player column null, unseen tile null).
+
 ## 2026-10-19 — Fighting tile shows clash mark on diamond (bakeoff/gemini-clash)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

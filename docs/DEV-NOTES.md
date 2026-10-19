@@ -1,3 +1,11 @@
+## 2026-10-19 — app / inspect card incoming line (wave/hud-incoming)
+
+- Slice constraints: app HUD only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
+- `incomingLine(state, provinceId)` (`packages/app/src/hud/incomingLine.ts`): returns `null` when `!isProvinceSeen`, else `"Incoming · hostile"` if `incomingOnProvince(state, provinceId)` (first `listMarches` entry with `toId === provinceId && realmId !== "player"`) is defined. Unlike `clashLine` it does not require the tile to be player-held or two realms to meet, so it can show alongside the clash line.
+- `ProvinceInspect.tsx` already had a local `incoming` (the March, used by the Forces group's "Incoming contest" line); the new value is named `incomingNote` to avoid the clash. The Forces line is untouched.
+- Tests build state with `createGameState()` and write `state.flags.marches_json` directly, same as `clashLine.test.ts`.
+- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-19 — render / fighting tile shows clash mark on diamond (bakeoff/gemini-clash)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

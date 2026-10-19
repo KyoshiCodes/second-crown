@@ -271,3 +271,4 @@
 
 /* Clash: seen tile where two realms' columns meet, or a rival column hits your tile. */
 .sc-inspect-clash { color: #b91c1c; font-style: italic; }
+.sc-inspect-incoming { color: #b45309; font-style: italic; }
