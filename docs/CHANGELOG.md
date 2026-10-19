@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-19 — Plain line (wave/hud-plain)
+
+- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, wood, peak, hill, waste, camp, outpost, and resource lines, fog.
+- `packages/app/src/hud/plainLine.ts` (new): `plainLine(seen, terrain)` gives `"Plain · meadow"` for a seen plain tile, else `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the waste line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-plain` (soft green, italic).
+- `docs/HANDOFF.md`: marks the waste line (#246) and waste crag on diamond (#247) as merged, and restores the hill line (#244) and waste line sections dropped in the #247 merge.
+- Tests: new `packages/app/src/hud/plainLine.test.ts` (seen plain shows the line; unseen plain does not; no other terrain does). Run: `npm test`.
+
 ## 2026-10-19 — Waste tile shows scorched basalt crag on diamond (bakeoff/gemini-waste)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
