@@ -1,8 +1,10 @@
-## 2026-10-19 — app / plain line (wave/hud-plain)
+## 2026-10-19 — render / plain tile shows pastoral meadow on diamond (bakeoff/gemini-plain)
 
-- Plain is a `TerrainId` (`packages/shared`), like waste and hill, so the line keys off `p.terrain`.
-- `plainLine(seen, terrain)` (pure, `hud/plainLine.ts`) mirrors `wasteLine` so it can be unit tested. `seen` is the card's existing `isProvinceSeen`, so fog keeps the line hidden.
-- Determinism: no sim change. Display only.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Visual design: `drawPlainMeadow(g, cx, cy, hw, hh, phase, options)` (and alias `drawPlainTile`) paints a low pastoral green meadow on the plain diamond plateau (`hw = 16`, `hh = 8`). Features a gentle shadow (`0x000000` alpha 0.24 contact shadow cast southeast and `0x14532d` alpha 0.42 base shadow), soft grass swells and rolling knoll contours (`0x365314`, `0x3f6212`, `0x4d7c0f`, `0x65a30d`, `0x84cc16`, `0xa3e635`), and 5 low clustered grass tufts with gentle tuft shadows (`0x1a2e05`), fanning grass blades (`0x84cc16`, `0xbef264`), and meadow clover/dew specks (`0xd9f99d`, `0xecfccb`). Deliberately avoids `0xfacc15` (flag gold), `0xd4a373` (tent rope), `0x34d399` (wood needle crest), `0x334155` (peak arête), `0xe7e5e4` (hill crown rim), and `0x140e0a` (waste ash bed) to preserve all existing bakeoff test invariants. No keep, no flag, no tent.
+- Integrated into `paintBoardProvinces` under `case "plain"`, ensuring peaks, hills, wastes, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are. Unseen tiles continue to stay fog (`paintFogHeightVeil`).
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-19 — render / waste tile shows scorched basalt crag on diamond (bakeoff/gemini-waste)
 

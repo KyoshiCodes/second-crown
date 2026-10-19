@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-19 — Plain says so (wave/hud-plain)
+## 2026-10-19 — Plain tile shows a meadow (bakeoff/gemini-plain)
 
-- **A seen plain tile now says "Plain · meadow" and play is unchanged.** Click a plain tile you have seen, and the tile card shows "Plain · meadow".
-- A plain tile you have not scouted still sits under fog and shows nothing new.
-- **Play is unchanged.** Scouting, gathering, garrisons, marches, abandoning, saves, and every other rule work exactly as before.
+- **A seen plain tile now shows a meadow and play is unchanged.** A seen plain tile on the isometric diamond gets a low pastoral meadow: a low green meadow in soft grass, a few low tufts, a gentle shadow, no keep, no flag, and no tent.
+- **Unseen tiles stay fog.** Peaks, hills, wastes, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-19 — Waste tile shows a scorched crag (bakeoff/gemini-waste)
 

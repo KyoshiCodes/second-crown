@@ -98,6 +98,8 @@ import {
   drawHillTile,
   drawWasteCrag,
   drawWasteTile,
+  drawPlainMeadow,
+  drawPlainTile,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -11204,12 +11206,268 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                 });
               });
             });
+
+            describe("bakeoff/gemini-plain: seen plain tile on isometric diamond gets low pastoral meadow", () => {
+              function createMockGraphics() {
+                const calls: { method: string; args: any[] }[] = [];
+                const mock: any = {
+                  calls,
+                  clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+                  poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+                  fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+                  stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+                  moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+                  lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+                  circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+                  rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+                  ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+                  bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); return mock; },
+                  quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+                  arc: (...args: any[]) => { calls.push({ method: "arc", args }); return mock; },
+                  roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+                  closePath: () => { calls.push({ method: "closePath", args: [] }); return mock; },
+                  beginPath: () => { calls.push({ method: "beginPath", args: [] }); return mock; },
+                };
+                return mock;
+              }
+
+              describe("drawPlainMeadow: low green meadow on plain tile with soft grass, a few low tufts, and gentle shadow", () => {
+                it("renders gentle shadow, soft grass swells, low grass tufts, and no keep, no flag, no tent", () => {
+                  const g = createMockGraphics();
+                  drawPlainMeadow(g, 100, 100, 16, 8, 0, { px: 2, py: 1 });
+                  const json = JSON.stringify(g.calls);
+
+                  // 1. Gentle shadow: soft contact shadow (0x000000 with alpha 0.24) and rich dark turf base shadow (0x14532d)
+                  expect(json).toContain(String(0x000000));
+                  expect(json).toContain(String(0x14532d));
+
+                  // 2. Soft grass: pastoral meadow swells (0x365314, 0x3f6212, 0x4d7c0f, 0x65a30d, 0x84cc16, 0xa3e635)
+                  expect(json).toContain(String(0x365314));
+                  expect(json).toContain(String(0x3f6212));
+                  expect(json).toContain(String(0x4d7c0f));
+                  expect(json).toContain(String(0x65a30d));
+                  expect(json).toContain(String(0x84cc16));
+                  expect(json).toContain(String(0xa3e635));
+
+                  // 3. A few low tufts: tuft shadows (0x1a2e05), fanning grass blades (0x84cc16, 0xbef264), and clover/dew specks (0xd9f99d, 0xecfccb)
+                  expect(json).toContain(String(0x1a2e05));
+                  expect(json).toContain(String(0xbef264));
+                  expect(json).toContain(String(0xd9f99d));
+                  expect(json).toContain(String(0xecfccb));
+                  const tuftShadowCalls = g.calls.filter((c: any) => c.method === "fill" && c.args[0]?.color === 0x1a2e05);
+                  expect(tuftShadowCalls.length).toBe(5);
+
+                  // 4. No keep, no flag (0xfacc15), no tent (0xd4a373)
+                  expect(json).not.toContain(String(0xfacc15));
+                  expect(json).not.toContain(String(0xd4a373));
+
+                  expect(g.calls.length).toBeGreaterThan(25);
+                });
+
+                it("renders clean geometry across multiple phases and default arguments without errors", () => {
+                  const g0 = createMockGraphics();
+                  drawPlainMeadow(g0, 80, 80);
+
+                  const g1 = createMockGraphics();
+                  drawPlainTile(g1, 80, 80, 16, 8, 1.5);
+
+                  expect(g0.calls.length).toBeGreaterThan(25);
+                  expect(g1.calls.length).toBeGreaterThan(25);
+                });
+              });
+
+              describe("paintBoardProvinces: plain tile board integration", () => {
+                function createPlainBoardState(seen: boolean, overrides?: Partial<any>): GameState {
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "k_glen", isPlayer: false, name: "Glen" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags: {
+                      fog_seen: JSON.stringify(seen ? ["p_home", "p_plain"] : ["p_home"]),
+                      ...(seen ? { "seen:p_plain": true } : {}),
+                      "seen:p_home": true,
+                    },
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "hill", node: "hold", occupantRealmId: "player" },
+                        { id: "p_plain", x: 2, y: 1, terrain: "plain", node: "none", ...(overrides ?? {}) },
+                      ],
+                    } as any,
+                  };
+                }
+
+                it("renders low green meadow (soft grass, low tufts, gentle shadow) on diamond when plain province is seen", () => {
+                  const g = createMockGraphics();
+                  const state = createPlainBoardState(true);
+                  paintBoardProvinces(g, state, 0);
+
+                  const json = JSON.stringify(g.calls);
+                  // Gentle shadow ellipse (10.8, 4.4)
+                  const hasMeadowShadow = g.calls.some((c: any) => c.method === "ellipse" && c.args[2] === 10.8 && c.args[3] === 4.4);
+                  expect(hasMeadowShadow).toBe(true);
+
+                  // Soft grass swells & low tufts (0x365314, 0x3f6212, 0x4d7c0f, 0x65a30d, 0x84cc16, 0xbef264, 0xd9f99d)
+                  expect(json).toContain(String(0x365314));
+                  expect(json).toContain(String(0x3f6212));
+                  expect(json).toContain(String(0x4d7c0f));
+                  expect(json).toContain(String(0x65a30d));
+                  expect(json).toContain(String(0x84cc16));
+                  expect(json).toContain(String(0xbef264));
+                  expect(json).toContain(String(0xd9f99d));
+
+                  // Unclaimed node: "none" plain tile has no camp tent guy ropes (0xd4a373)
+                  expect(json).not.toContain(String(0xd4a373));
+                });
+
+                it("renders fog (paintFogHeightVeil) and suppresses pastoral meadow when unseen", () => {
+                  const g = createMockGraphics();
+                  const state = createPlainBoardState(false);
+                  paintBoardProvinces(g, state, 0);
+
+                  expect(g.calls.length).toBeGreaterThan(10);
+
+                  // Pastoral meadow gentle shadow and low grass tuft tips are suppressed when plain tile is unseen
+                  const hasMeadowShadow = g.calls.some((c: any) => c.method === "ellipse" && c.args[2] === 10.8 && c.args[3] === 4.4);
+                  expect(hasMeadowShadow).toBe(false);
+
+                  const hasTuftHighlight = g.calls.some((c: any) => c.method === "stroke" && c.args[0]?.color === 0xbef264);
+                  expect(hasTuftHighlight).toBe(false);
+                });
+
+                it("keeps peaks, hills, wastes, woods, shores, ruins, camps, outposts, resource piles, and keeps as they are", () => {
+                  // 1. Plain tile with ruins: renders pastoral meadow AND ruined keep broken walls & fallen stone
+                  const gRuins = createMockGraphics();
+                  const stateRuins = createPlainBoardState(true, { node: "ruins" });
+                  paintBoardProvinces(gRuins, stateRuins, 0);
+                  const jsonRuins = JSON.stringify(gRuins.calls);
+                  expect(jsonRuins).toContain(String(0xbef264)); // meadow grass tuft highlight
+                  expect(jsonRuins).toContain(String(0xd6d3d1)); // ruined keep fallen stone
+
+                  // 2. Plain tile with hold: renders pastoral meadow AND miniature keep
+                  const gHold = createMockGraphics();
+                  const stateHold = createPlainBoardState(true, { node: "hold", occupantRealmId: "k_glen" });
+                  paintBoardProvinces(gHold, stateHold, 0);
+                  const jsonHold = JSON.stringify(gHold.calls);
+                  expect(jsonHold).toContain(String(0xbef264)); // meadow grass tuft highlight
+                  expect(jsonHold).toContain(String(0x65a30d)); // meadow soft grass crown
+
+                  // 3. Plain tile with camp: renders pastoral meadow AND camp tent
+                  const gCamp = createMockGraphics();
+                  const stateCamp = createPlainBoardState(true, { node: "camp", occupantRealmId: "rival" });
+                  paintBoardProvinces(gCamp, stateCamp, 0);
+                  const jsonCamp = JSON.stringify(gCamp.calls);
+                  expect(jsonCamp).toContain(String(0xbef264)); // meadow grass tuft highlight
+                  expect(jsonCamp).toContain(String(0xd4a373)); // camp guy ropes
+
+                  // 4. Plain tile with player outpost & field resource pile: renders pastoral meadow, field pile, and outpost tent
+                  const gOutpost = createMockGraphics();
+                  const stateOutpost = createPlainBoardState(true, { node: "field", occupantRealmId: "player" });
+                  stateOutpost.flags["node_stock_p_plain"] = 70;
+                  paintBoardProvinces(gOutpost, stateOutpost, 0);
+                  const jsonOutpost = JSON.stringify(gOutpost.calls);
+                  expect(jsonOutpost).toContain(String(0xbef264)); // meadow grass tuft highlight
+                  expect(jsonOutpost).toContain(String(0xd4a373)); // outpost guy ropes
+
+                  // 5. Peak mountain, hill stepped rise, waste scorched crag, wood trees, and shore water tiles remain intact
+                  const gMulti = createMockGraphics();
+                  const stateMulti: GameState = {
+                    ...createPlainBoardState(true),
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_peak", x: 1, y: 0, terrain: "peak", node: "quarry" },
+                        { id: "p_hill", x: 2, y: 0, terrain: "hill", node: "quarry" },
+                        { id: "p_waste", x: 3, y: 0, terrain: "waste", node: "none" },
+                        { id: "p_wood", x: 4, y: 0, terrain: "wood", node: "woodcut" },
+                        { id: "p_shore", x: 5, y: 0, terrain: "shore", node: "field" },
+                        { id: "p_plain", x: 6, y: 0, terrain: "plain", node: "none" },
+                      ],
+                    } as any,
+                    flags: {
+                      fog_seen: JSON.stringify(["p_home", "p_peak", "p_hill", "p_waste", "p_wood", "p_shore", "p_plain"]),
+                      "seen:p_home": true,
+                      "seen:p_peak": true,
+                      "seen:p_hill": true,
+                      "seen:p_waste": true,
+                      "seen:p_wood": true,
+                      "seen:p_shore": true,
+                      "seen:p_plain": true,
+                    },
+                  };
+                  paintBoardProvinces(gMulti, stateMulti, 0);
+                  const jsonMulti = JSON.stringify(gMulti.calls);
+                  expect(jsonMulti).toContain(String(0xe2e8f0)); // peak snow cap
+                  expect(jsonMulti).toContain(String(0xb45309)); // hill stepped rise ochre
+                  expect(jsonMulti).toContain(String(0x140e0a)); // waste scorched ash bed
+                  expect(jsonMulti).toContain(String(0x34d399)); // wood needle crest
+                  expect(jsonMulti).toContain(String(0x06b6d4)); // shore sea shelf
+                  expect(jsonMulti).toContain(String(0xbef264)); // plain meadow grass tuft highlight
+                  expect(jsonMulti).toContain(String(0xd9f99d)); // plain meadow clover speck
+                });
+              });
+
+              describe("exports and code integrity", () => {
+                it("verifies direct exported drawPlainMeadow and drawPlainTile functions exist and execute cleanly", async () => {
+                  const { drawPlainMeadow, drawPlainTile } = await import("./index.js");
+                  expect(typeof drawPlainMeadow).toBe("function");
+                  expect(typeof drawPlainTile).toBe("function");
+
+                  const g = createMockGraphics();
+                  drawPlainMeadow(g, 50, 50, 16, 8, 0);
+                  expect(g.calls.length).toBeGreaterThan(25);
+                });
+
+                it("verifies zero merge conflict markers across packages/render files", async () => {
+                  const fs = await import("node:fs");
+                  const path = await import("node:path");
+                  const files = [
+                    path.resolve(__dirname, "tokens.ts"),
+                    path.resolve(__dirname, "buildings.ts"),
+                    path.resolve(__dirname, "index.ts"),
+                  ];
+                  for (const f of files) {
+                    const content = fs.readFileSync(f, "utf-8");
+                    expect(content).not.toContain("<<<<<<<");
+                    expect(content).not.toContain("=======");
+                    expect(content).not.toContain(">>>>>>>");
+                  }
+                });
+
+                it("verifies camera math, zoom, and tile click hit-testing remain unchanged", async () => {
+                  const { gridToWorld, worldToGrid, hitTestProvince, boardGridToWorld } = await import("./camera.js");
+                  const { wx, wy } = gridToWorld(4, 4);
+                  const { gx, gy } = worldToGrid(wx, wy);
+                  expect(gx).toBe(4);
+                  expect(gy).toBe(4);
+
+                  const bWorld = boardGridToWorld(2, 2);
+                  const hit = hitTestProvince(bWorld.wx, bWorld.wy);
+                  expect(hit?.bx).toBe(2);
+                  expect(hit?.by).toBe(2);
+                });
+              });
+            });
           });
         });
       });
     });
   });
 });
+
 
 
 
