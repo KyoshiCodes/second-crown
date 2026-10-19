@@ -3773,6 +3773,204 @@ export function drawHillRise(
 
 export const drawHillTile = drawHillRise;
 
+/**
+ * Paints a low scorched basalt crag on an isometric waste terrain diamond tile:
+ * - Soft contact shadow (0x000000, alpha 0.36) and scorched ash caldera bed (0x140e0a, 0x1c1917)
+ * - Cracked ash crust plates and grey ash drifts (0x44403c, 0x57534e, 0x78716c, 0xa8a29e)
+ * - Dark basalt low scorched rise: stepped lower basalt shelf (0x27272a, 0x18181b, 0x292524) and jagged angular basalt crag outcrops (0x3f3f46, 0x52525b, 0x18181b, 0x09090b, rim 0x71717a)
+ * - Faint heat glow: pulsing subterranean ember aura and branching magma/heat fissures (0x7f1d1d, 0x991b1b, 0xea580c, 0xf97316, 0xef4444, 0xfdba74, 0xfef08a)
+ * - No keep, no flag, no tent.
+ */
+export function drawWasteCrag(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  hw: number = BOARD_HALF_W,
+  hh: number = BOARD_HALF_H,
+  phase: number = 0,
+  options?: { px?: number; py?: number }
+): void {
+  const px = options?.px ?? 0;
+  const py = options?.py ?? 0;
+  const pulse = Math.sin(phase * 3 + px + py) * 0.18 + 0.82;
+
+  // 1. Soft Contact Shadow & Scorched Cracked Ash Bed
+  g.ellipse(cx + 1.8, cy + 2.4, 11.4, 4.8);
+  g.fill({ color: 0x000000, alpha: 0.36 });
+
+  g.ellipse(cx, cy + 0.6, 11.8, 5.6);
+  g.fill({ color: 0x140e0a });
+
+  g.ellipse(cx - 0.4, cy + 0.4, 9.6, 4.4);
+  g.fill({ color: 0x1c1917, alpha: 0.9 });
+
+  // Cracked ash plates around the scorched perimeter
+  g.poly([
+    cx - 11.5, cy + 0.5,
+    cx - 6.5, cy - 2.2,
+    cx - 3.5, cy - 0.5,
+    cx - 8.5, cy + 2.4,
+  ]);
+  g.fill({ color: 0x44403c, alpha: 0.75 });
+
+  g.poly([
+    cx + 4.0, cy + 1.2,
+    cx + 9.5, cy - 1.2,
+    cx + 11.2, cy + 0.8,
+    cx + 5.8, cy + 3.2,
+  ]);
+  g.fill({ color: 0x57534e, alpha: 0.65 });
+
+  // Cracked ash fracture lines across the outer ash crust
+  g.moveTo(cx - 12.5, cy - 0.5);
+  g.lineTo(cx - 7.5, cy + 1.2);
+  g.lineTo(cx - 4.0, cy + 3.8);
+  g.moveTo(cx + 5.5, cy - 3.2);
+  g.lineTo(cx + 9.0, cy - 1.0);
+  g.lineTo(cx + 12.0, cy + 0.5);
+  g.stroke({ width: 0.8, color: 0x78716c, alpha: 0.6 });
+
+  // 2. Faint Subterranean Heat Glow Aura at the Crag Cleft
+  g.ellipse(cx + 0.4, cy - 0.2, 7.2, 3.2);
+  g.fill({ color: 0x7f1d1d, alpha: 0.28 * pulse });
+
+  // 3. Low Scorched Basalt Rise — Lower Basalt Shelf (Tier 1)
+  const b1x = cx;
+  const b1y = cy + 1.4;
+  const w1 = Math.min(10.5, hw * 0.66);
+  const h1 = Math.min(4.6, hh * 0.58);
+  const r1 = 2.2;
+
+  // Lower shelf front-left basalt face (charcoal basalt)
+  g.poly([
+    b1x - w1, b1y - r1,
+    b1x, b1y + h1 - r1,
+    b1x, b1y + h1,
+    b1x - w1, b1y,
+  ]);
+  g.fill({ color: 0x27272a });
+
+  // Lower shelf front-right basalt face (deep obsidian shadow)
+  g.poly([
+    b1x, b1y + h1 - r1,
+    b1x + w1, b1y - r1,
+    b1x + w1, b1y,
+    b1x, b1y + h1,
+  ]);
+  g.fill({ color: 0x18181b });
+
+  // Lower shelf scorched basalt & ash top table
+  g.poly([
+    b1x, b1y - h1 - r1,
+    b1x + w1, b1y - r1,
+    b1x, b1y + h1 - r1,
+    b1x - w1, b1y - r1,
+  ]);
+  g.fill({ color: 0x292524 });
+
+  // Lower shelf jagged basalt rim edge
+  g.moveTo(b1x - w1, b1y - r1);
+  g.lineTo(b1x, b1y + h1 - r1);
+  g.lineTo(b1x + w1, b1y - r1);
+  g.stroke({ width: 0.9, color: 0x52525b, alpha: 0.85 });
+
+  // 4. Faint Heat Glow Fissures Cracking Through the Ash & Basalt Shelf
+  const drawHeatFissures = (w: number, col: number, a: number) => {
+    g.moveTo(cx - 11.5, cy - 0.8);
+    g.lineTo(cx - 4.5, cy + 0.8);
+    g.lineTo(cx + 0.8, cy - 1.6);
+    g.lineTo(cx + 6.8, cy + 1.4);
+    g.lineTo(cx + 11.5, cy - 0.6);
+    g.stroke({ width: w, color: col, alpha: a });
+
+    g.moveTo(cx - 1.8, cy - 4.8);
+    g.lineTo(cx + 0.8, cy - 1.6);
+    g.lineTo(cx + 2.4, cy + 3.8);
+    g.stroke({ width: w * 0.8, color: col, alpha: a });
+
+    g.moveTo(cx - 4.5, cy + 0.8);
+    g.lineTo(cx - 7.0, cy + 4.0);
+    g.stroke({ width: w * 0.7, color: col, alpha: a });
+  };
+
+  drawHeatFissures(2.4, 0x991b1b, 0.55 * pulse);
+  drawHeatFissures(1.3, 0xea580c, 0.72 * pulse);
+  drawHeatFissures(0.6, 0xfdba74, 0.65 * pulse);
+
+  // 5. Jagged Dark Basalt Crag Outcrops (Upper Scorched Rise)
+  // Shadow underneath the upper basalt crags
+  g.ellipse(cx + 0.6, cy - 1.2, 6.8, 2.8);
+  g.fill({ color: 0x09090b, alpha: 0.55 });
+
+  // Western angular basalt crag (left of thermal cleft)
+  // Sunlit western basalt facet
+  g.poly([
+    cx - 6.8, cy - 0.8,
+    cx - 5.2, cy - 5.8,
+    cx - 1.4, cy - 7.2,
+    cx - 1.0, cy - 1.2,
+    cx - 3.8, cy + 0.4,
+  ]);
+  g.fill({ color: 0x3f3f46 });
+
+  // Shadowed inner/eastern facet of western basalt crag
+  g.poly([
+    cx - 1.4, cy - 7.2,
+    cx + 0.2, cy - 5.0,
+    cx - 0.2, cy - 0.8,
+    cx - 1.0, cy - 1.2,
+  ]);
+  g.fill({ color: 0x18181b });
+
+  // Eastern angular basalt crag (right of thermal cleft)
+  // Sunlit left facet
+  g.poly([
+    cx + 1.2, cy - 1.0,
+    cx + 1.8, cy - 5.6,
+    cx + 3.6, cy - 6.4,
+    cx + 3.2, cy - 0.6,
+  ]);
+  g.fill({ color: 0x52525b });
+
+  // Shadowed eastern slope of eastern basalt crag
+  g.poly([
+    cx + 3.6, cy - 6.4,
+    cx + 7.2, cy - 1.4,
+    cx + 5.6, cy + 0.6,
+    cx + 3.2, cy - 0.6,
+  ]);
+  g.fill({ color: 0x09090b });
+
+  // Crisp fractured basalt ridge highlights & ash dusting on crag shoulders
+  g.moveTo(cx - 5.2, cy - 5.8);
+  g.lineTo(cx - 1.4, cy - 7.2);
+  g.lineTo(cx - 1.0, cy - 1.2);
+  g.moveTo(cx + 1.8, cy - 5.6);
+  g.lineTo(cx + 3.6, cy - 6.4);
+  g.lineTo(cx + 3.2, cy - 0.6);
+  g.stroke({ width: 0.8, color: 0x71717a, alpha: 0.85 });
+
+  // Faint heat glow in the central cleft between the basalt crags
+  g.circle(cx + 0.5, cy - 2.0, 1.8);
+  g.fill({ color: 0xef4444, alpha: 0.55 * pulse });
+  g.circle(cx + 0.5, cy - 2.0, 1.0);
+  g.fill({ color: 0xf97316, alpha: 0.75 * pulse });
+  g.circle(cx + 0.5, cy - 2.0, 0.55);
+  g.fill({ color: 0xfef08a, alpha: 0.7 * pulse });
+
+  // Basal basalt shards and pale grey ash flakes
+  g.rect(cx - 8.2, cy + 0.6, 2.2, 1.3);
+  g.fill({ color: 0x27272a });
+  g.rect(cx + 5.8, cy + 0.4, 2.0, 1.2);
+  g.fill({ color: 0x18181b });
+  g.circle(cx - 3.0, cy + 2.2, 0.65);
+  g.fill({ color: 0xa8a29e, alpha: 0.7 });
+  g.circle(cx + 3.4, cy + 2.0, 0.6);
+  g.fill({ color: 0x78716c, alpha: 0.75 });
+}
+
+export const drawWasteTile = drawWasteCrag;
+
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
 // -------------------------------------------------------------
@@ -3950,37 +4148,8 @@ export function paintBoardProvinces(
       }
 
       case "waste": {
-        // Scorched basalt caldera with glowing magma fissures
-        const pulse = Math.sin(phase * 3 + p.x + p.y) * 0.2 + 0.8;
-        g.ellipse(cx, cy, 12, 6);
-        g.fill({ color: 0x140e0a });
-
-        const drawFissures = (w: number, col: number, a: number) => {
-          g.moveTo(cx - 14, cy - 1);
-          g.lineTo(cx - 5, cy + 1);
-          g.lineTo(cx + 1, cy - 2);
-          g.lineTo(cx + 8, cy + 2);
-          g.lineTo(cx + 14, cy - 1);
-          g.stroke({ width: w, color: col, alpha: a });
-
-          g.moveTo(cx - 2, cy - 6);
-          g.lineTo(cx + 1, cy - 2);
-          g.lineTo(cx + 3, cy + 5);
-          g.stroke({ width: w * 0.8, color: col, alpha: a });
-
-          g.moveTo(cx - 5, cy + 1);
-          g.lineTo(cx - 8, cy + 5);
-          g.stroke({ width: w * 0.7, color: col, alpha: a });
-        };
-
-        drawFissures(3.2, 0x991b1b, 0.75 * pulse);
-        drawFissures(1.8, 0xf97316, 0.95);
-        drawFissures(0.8, 0xfef08a, 0.95 * pulse);
-
-        g.circle(cx + 1, cy - 2, 2.2);
-        g.fill({ color: 0xef4444, alpha: 0.9 });
-        g.circle(cx + 1, cy - 2, 1.2);
-        g.fill({ color: 0xfef08a, alpha: pulse });
+        // Low scorched basalt crag on the diamond: dark basalt, cracked ash, faint heat glow
+        drawWasteCrag(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
         break;
       }
 

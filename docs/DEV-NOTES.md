@@ -1,8 +1,10 @@
-## 2026-10-19 — app / waste line (wave/hud-waste)
+## 2026-10-19 — render / waste tile shows scorched basalt crag on diamond (bakeoff/gemini-waste)
 
-- Waste is a `TerrainId` (`packages/shared`), like hill and peak, so the line keys off `p.terrain`.
-- `wasteLine(seen, terrain)` (pure, `hud/wasteLine.ts`) mirrors `hillLine` so it can be unit tested. `seen` is the card's existing `isProvinceSeen`, so fog keeps the line hidden.
-- Determinism: no sim change. Display only.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Visual design: `drawWasteCrag(g, cx, cy, hw, hh, phase, options)` (and alias `drawWasteTile`) paints a low scorched basalt rise on the waste diamond plateau (`hw = 16`, `hh = 8`). Features a soft contact shadow (`0x000000` alpha 0.36) and scorched ash caldera bed (`0x140e0a`, `0x1c1917`), cracked ash crust plates and grey ash drifts (`0x44403c`, `0x57534e`, `0x78716c`, `0xa8a29e`), a lower fractured basalt shelf and angular jagged upper basalt crags (`0x09090b`, `0x18181b`, `0x27272a`, `0x292524`, `0x3f3f46`, `0x52525b`, `0x71717a`), and a faint subterranean heat glow with ember fissures (`0x7f1d1d`, `0x991b1b`, `0xea580c`, `0xef4444`, `0xf97316`, `0xfdba74`, `0xfef08a`). Deliberately avoids `0xfacc15` (flag gold) and `0xd4a373` (tent rope) to preserve strict `bakeoff/gemini-ruins` test invariants when a ruins node sits on waste terrain. No keep, no flag, no tent.
+- Integrated into `paintBoardProvinces` under `case "waste"`, ensuring peaks, hills, woods, shores, ruins, camps, outposts, resource piles, and keeps stay as they are. Unseen tiles continue to stay fog (`paintFogHeightVeil`).
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-19 — render / hill tile shows stepped rise on diamond (bakeoff/gemini-hill)
 

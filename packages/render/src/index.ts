@@ -125,6 +125,8 @@ import {
   drawPeakTile,
   drawHillRise,
   drawHillTile,
+  drawWasteCrag,
+  drawWasteTile,
 } from "./tokens.js";
 
 import {
@@ -995,5 +997,7 @@ export {
   drawPeakTile,
   drawHillRise,
   drawHillTile,
+  drawWasteCrag,
+  drawWasteTile,
 };
 

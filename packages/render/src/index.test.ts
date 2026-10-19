@@ -96,6 +96,8 @@ import {
   drawPeakTile,
   drawHillRise,
   drawHillTile,
+  drawWasteCrag,
+  drawWasteTile,
 } from "./index.js";
 import type { GameState } from "@second-crown/shared";
 import { BUILDING_TYPES } from "@second-crown/sim";
@@ -10905,6 +10907,270 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
 
                   const g = createMockGraphics();
                   drawHillRise(g, 50, 50, 16, 8, 0);
+                  expect(g.calls.length).toBeGreaterThan(25);
+                });
+
+                it("verifies zero merge conflict markers across packages/render files", async () => {
+                  const fs = await import("node:fs");
+                  const path = await import("node:path");
+                  const files = [
+                    path.resolve(__dirname, "tokens.ts"),
+                    path.resolve(__dirname, "buildings.ts"),
+                    path.resolve(__dirname, "index.ts"),
+                  ];
+                  for (const f of files) {
+                    const content = fs.readFileSync(f, "utf-8");
+                    expect(content).not.toContain("<<<<<<<");
+                    expect(content).not.toContain("=======");
+                    expect(content).not.toContain(">>>>>>>");
+                  }
+                });
+
+                it("verifies camera math, zoom, and tile click hit-testing remain unchanged", async () => {
+                  const { gridToWorld, worldToGrid, hitTestProvince, boardGridToWorld } = await import("./camera.js");
+                  const { wx, wy } = gridToWorld(4, 4);
+                  const { gx, gy } = worldToGrid(wx, wy);
+                  expect(gx).toBe(4);
+                  expect(gy).toBe(4);
+
+                  const bWorld = boardGridToWorld(2, 2);
+                  const hit = hitTestProvince(bWorld.wx, bWorld.wy);
+                  expect(hit?.bx).toBe(2);
+                  expect(hit?.by).toBe(2);
+                });
+              });
+            });
+
+            describe("bakeoff/gemini-waste: seen waste tile on isometric diamond gets scorched basalt crag", () => {
+              function createMockGraphics() {
+                const calls: { method: string; args: any[] }[] = [];
+                const mock: any = {
+                  calls,
+                  clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+                  poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+                  fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+                  stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+                  moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+                  lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+                  circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+                  rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+                  ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+                  bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); return mock; },
+                  quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+                  arc: (...args: any[]) => { calls.push({ method: "arc", args }); return mock; },
+                  roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+                  closePath: () => { calls.push({ method: "closePath", args: [] }); return mock; },
+                  beginPath: () => { calls.push({ method: "beginPath", args: [] }); return mock; },
+                };
+                return mock;
+              }
+
+              describe("drawWasteCrag: low scorched rise on waste tile with dark basalt, cracked ash, and faint heat glow", () => {
+                it("renders dark basalt crag, cracked ash bed, faint heat glow, and no keep, no flag, no tent", () => {
+                  const g = createMockGraphics();
+                  drawWasteCrag(g, 100, 100, 16, 8, 0, { px: 2, py: 1 });
+                  const json = JSON.stringify(g.calls);
+
+                  // 1. Soft shadow & scorched cracked ash bed (0x000000, 0x140e0a, 0x1c1917, 0x44403c, 0x57534e, 0x78716c, 0xa8a29e)
+                  expect(json).toContain(String(0x000000));
+                  expect(json).toContain(String(0x140e0a));
+                  expect(json).toContain(String(0x1c1917));
+                  expect(json).toContain(String(0x44403c));
+                  expect(json).toContain(String(0x57534e));
+                  expect(json).toContain(String(0x78716c));
+                  expect(json).toContain(String(0xa8a29e));
+
+                  // 2. Dark basalt low scorched rise & angular crags (0x27272a, 0x18181b, 0x292524, 0x3f3f46, 0x52525b, 0x09090b, 0x71717a)
+                  expect(json).toContain(String(0x27272a));
+                  expect(json).toContain(String(0x18181b));
+                  expect(json).toContain(String(0x292524));
+                  expect(json).toContain(String(0x3f3f46));
+                  expect(json).toContain(String(0x52525b));
+                  expect(json).toContain(String(0x09090b));
+                  expect(json).toContain(String(0x71717a));
+
+                  // 3. Faint heat glow (0x7f1d1d, 0x991b1b, 0xea580c, 0xfdba74, 0xef4444, 0xf97316, 0xfef08a)
+                  expect(json).toContain(String(0x7f1d1d));
+                  expect(json).toContain(String(0x991b1b));
+                  expect(json).toContain(String(0xea580c));
+                  expect(json).toContain(String(0xfdba74));
+                  expect(json).toContain(String(0xef4444));
+                  expect(json).toContain(String(0xf97316));
+                  expect(json).toContain(String(0xfef08a));
+
+                  // 4. No keep, no flag (0xfacc15), no tent (0xd4a373)
+                  expect(json).not.toContain(String(0xfacc15));
+                  expect(json).not.toContain(String(0xd4a373));
+
+                  expect(g.calls.length).toBeGreaterThan(25);
+                });
+
+                it("renders clean geometry across multiple phases and default arguments without errors", () => {
+                  const g0 = createMockGraphics();
+                  drawWasteCrag(g0, 80, 80);
+
+                  const g1 = createMockGraphics();
+                  drawWasteTile(g1, 80, 80, 16, 8, 1.5);
+
+                  expect(g0.calls.length).toBeGreaterThan(25);
+                  expect(g1.calls.length).toBeGreaterThan(25);
+                });
+              });
+
+              describe("paintBoardProvinces: waste tile board integration", () => {
+                function createWasteBoardState(seen: boolean, overrides?: Partial<any>): GameState {
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "k_ash", isPlayer: false, name: "Ash" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags: {
+                      fog_seen: JSON.stringify(seen ? ["p_home", "p_waste"] : ["p_home"]),
+                      ...(seen ? { "seen:p_waste": true } : {}),
+                      "seen:p_home": true,
+                    },
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_waste", x: 2, y: 1, terrain: "waste", node: "none", ...(overrides ?? {}) },
+                      ],
+                    } as any,
+                  };
+                }
+
+                it("renders scorched basalt crag (dark basalt, cracked ash, faint heat glow) on diamond when waste province is seen", () => {
+                  const g = createMockGraphics();
+                  const state = createWasteBoardState(true);
+                  paintBoardProvinces(g, state, 0);
+
+                  const json = JSON.stringify(g.calls);
+                  // Soft shadow ellipse (11.4, 4.8) & scorched ash caldera bed (11.8, 5.6)
+                  const hasWasteShadow = g.calls.some((c: any) => c.method === "ellipse" && c.args[2] === 11.4 && c.args[3] === 4.8);
+                  expect(hasWasteShadow).toBe(true);
+
+                  // Dark basalt crags & cracked ash (0x140e0a, 0x27272a, 0x3f3f46, 0x52525b, 0x71717a)
+                  expect(json).toContain(String(0x140e0a));
+                  expect(json).toContain(String(0x27272a));
+                  expect(json).toContain(String(0x3f3f46));
+                  expect(json).toContain(String(0x52525b));
+                  expect(json).toContain(String(0x71717a));
+
+                  // Faint heat glow (0x7f1d1d, 0x991b1b, 0xea580c, 0xfdba74)
+                  expect(json).toContain(String(0x7f1d1d));
+                  expect(json).toContain(String(0x991b1b));
+                  expect(json).toContain(String(0xea580c));
+                  expect(json).toContain(String(0xfdba74));
+
+                  // Unclaimed node: "none" waste tile has no camp tent guy ropes (0xd4a373)
+                  expect(json).not.toContain(String(0xd4a373));
+                });
+
+                it("renders fog (paintFogHeightVeil) and suppresses scorched crag when unseen", () => {
+                  const g = createMockGraphics();
+                  const state = createWasteBoardState(false);
+                  paintBoardProvinces(g, state, 0);
+
+                  expect(g.calls.length).toBeGreaterThan(10);
+
+                  // Scorched crag shadow and ash bed are suppressed when waste tile is unseen
+                  const hasWasteShadow = g.calls.some((c: any) => c.method === "ellipse" && c.args[2] === 11.4 && c.args[3] === 4.8);
+                  expect(hasWasteShadow).toBe(false);
+
+                  const hasAshBed = g.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0x140e0a);
+                  expect(hasAshBed).toBe(false);
+                });
+
+                it("keeps peaks, hills, woods, shores, ruins, camps, outposts, resource piles, and keeps as they are", () => {
+                  // 1. Waste tile with ruins: renders scorched crag AND ruined keep broken walls & fallen stone
+                  const gRuins = createMockGraphics();
+                  const stateRuins = createWasteBoardState(true, { node: "ruins" });
+                  paintBoardProvinces(gRuins, stateRuins, 0);
+                  const jsonRuins = JSON.stringify(gRuins.calls);
+                  expect(jsonRuins).toContain(String(0x140e0a)); // waste scorched ash bed
+                  expect(jsonRuins).toContain(String(0x3f3f46)); // waste basalt crag
+                  expect(jsonRuins).toContain(String(0xd6d3d1)); // ruined keep fallen stone
+
+                  // 2. Waste tile with hold: renders scorched crag AND miniature keep
+                  const gHold = createMockGraphics();
+                  const stateHold = createWasteBoardState(true, { node: "hold", occupantRealmId: "k_ash" });
+                  paintBoardProvinces(gHold, stateHold, 0);
+                  const jsonHold = JSON.stringify(gHold.calls);
+                  expect(jsonHold).toContain(String(0x140e0a)); // waste scorched ash bed
+                  expect(jsonHold).toContain(String(0x3f3f46)); // waste basalt crag
+
+                  // 3. Waste tile with camp: renders scorched crag AND camp tent
+                  const gCamp = createMockGraphics();
+                  const stateCamp = createWasteBoardState(true, { node: "camp", occupantRealmId: "rival" });
+                  paintBoardProvinces(gCamp, stateCamp, 0);
+                  const jsonCamp = JSON.stringify(gCamp.calls);
+                  expect(jsonCamp).toContain(String(0x140e0a)); // waste scorched ash bed
+                  expect(jsonCamp).toContain(String(0xd4a373)); // camp guy ropes
+
+                  // 4. Waste tile with player outpost & quarry resource pile: renders scorched crag, quarry pile, and outpost tent
+                  const gOutpost = createMockGraphics();
+                  const stateOutpost = createWasteBoardState(true, { node: "quarry", occupantRealmId: "player" });
+                  stateOutpost.flags["node_stock_p_waste"] = 70;
+                  paintBoardProvinces(gOutpost, stateOutpost, 0);
+                  const jsonOutpost = JSON.stringify(gOutpost.calls);
+                  expect(jsonOutpost).toContain(String(0x140e0a)); // waste scorched ash bed
+                  expect(jsonOutpost).toContain(String(0xd4a373)); // outpost guy ropes
+
+                  // 5. Peak mountain, hill stepped rise, wood trees, and shore water tiles remain intact
+                  const gMulti = createMockGraphics();
+                  const stateMulti: GameState = {
+                    ...createWasteBoardState(true),
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_peak", x: 1, y: 0, terrain: "peak", node: "quarry" },
+                        { id: "p_hill", x: 2, y: 0, terrain: "hill", node: "quarry" },
+                        { id: "p_wood", x: 3, y: 0, terrain: "wood", node: "woodcut" },
+                        { id: "p_shore", x: 4, y: 0, terrain: "shore", node: "field" },
+                        { id: "p_waste", x: 5, y: 0, terrain: "waste", node: "none" },
+                      ],
+                    } as any,
+                    flags: {
+                      fog_seen: JSON.stringify(["p_home", "p_peak", "p_hill", "p_wood", "p_shore", "p_waste"]),
+                      "seen:p_home": true,
+                      "seen:p_peak": true,
+                      "seen:p_hill": true,
+                      "seen:p_wood": true,
+                      "seen:p_shore": true,
+                      "seen:p_waste": true,
+                    },
+                  };
+                  paintBoardProvinces(gMulti, stateMulti, 0);
+                  const jsonMulti = JSON.stringify(gMulti.calls);
+                  expect(jsonMulti).toContain(String(0xe2e8f0)); // peak snow cap
+                  expect(jsonMulti).toContain(String(0xb45309)); // hill stepped rise ochre
+                  expect(jsonMulti).toContain(String(0x34d399)); // wood needle crest
+                  expect(jsonMulti).toContain(String(0x06b6d4)); // shore sea shelf
+                  expect(jsonMulti).toContain(String(0x140e0a)); // waste scorched ash bed
+                  expect(jsonMulti).toContain(String(0xfdba74)); // waste faint heat glow
+                });
+              });
+
+              describe("exports and code integrity", () => {
+                it("verifies direct exported drawWasteCrag and drawWasteTile functions exist and execute cleanly", async () => {
+                  const { drawWasteCrag, drawWasteTile } = await import("./index.js");
+                  expect(typeof drawWasteCrag).toBe("function");
+                  expect(typeof drawWasteTile).toBe("function");
+
+                  const g = createMockGraphics();
+                  drawWasteCrag(g, 50, 50, 16, 8, 0);
                   expect(g.calls.length).toBeGreaterThan(25);
                 });
 
