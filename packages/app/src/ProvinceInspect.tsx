@@ -44,6 +44,7 @@ import { ruinsLine } from "./hud/ruinsLine";
 import { shoreLine } from "./hud/shoreLine";
 import { woodLine } from "./hud/woodLine";
 import { peakLine } from "./hud/peakLine";
+import { hillLine } from "./hud/hillLine";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
@@ -178,6 +179,7 @@ export function ProvinceInspect(props: {
   const shore = shoreLine(seen, p.terrain);
   const wood = woodLine(seen, p.terrain);
   const peak = peakLine(seen, p.terrain);
+  const hill = hillLine(seen, p.terrain);
   const hasForces = Boolean(incoming) || onTile.length > 0 || Boolean(march) || Boolean(here);
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
@@ -233,6 +235,7 @@ export function ProvinceInspect(props: {
         {shore ? <div className="sc-inspect-line sc-inspect-shore">{shore}</div> : null}
         {wood ? <div className="sc-inspect-line sc-inspect-wood">{wood}</div> : null}
         {peak ? <div className="sc-inspect-line sc-inspect-peak">{peak}</div> : null}
+        {hill ? <div className="sc-inspect-line sc-inspect-hill">{hill}</div> : null}
       </section>
       <section className="sc-inspect-group is-owner">
         <div className="sc-inspect-group-head">Owner</div>

@@ -256,3 +256,6 @@
 
 /* Peak: seen tile with terrain "peak"; mountain. */
 .sc-inspect-peak { color: #c9d1d9; font-style: italic; }
+
+/* Hill: seen tile with terrain "hill"; rise. */
+.sc-inspect-hill { color: #d4a359; font-style: italic; }

@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-19 — Hill says so (wave/hud-hill)
+
+- **A seen hill tile now says "Hill · rise".** Click a hill tile you have seen, and the tile card shows "Hill · rise".
+- A hill tile you have not scouted still sits under fog and shows nothing new.
+- **Play is unchanged.** Scouting, gathering, garrisons, marches, abandoning a flag, and every other tile line work exactly as before.
+
 ## 2026-10-14 — Music plays on the live site again (wave/audio-mime)
 
 - **Lofi and realm tracks play on the live site again.** The server now tells the browser the music files are audio, the same way the local build always did.

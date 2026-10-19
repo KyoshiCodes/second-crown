@@ -209,12 +209,19 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 
 - Render only (`packages/render`): a seen peak tile draws a tall peak with a snow cap and rock shadow on the diamond. No sim, server, or app change.
 
-## Audio MIME (branch `wave/audio-mime`, **not merged**)
+## Audio MIME (PR #243, merged)
 
 - The live server sent `.ogg` / `.mp3` / `.wav` as `application/octet-stream`, so lofi and realm tracks did not play on the live site (local Vite was fine). `server/static.mjs` `MIME` now maps `.ogg` → `audio/ogg`, `.mp3` → `audio/mpeg`, `.wav` → `audio/wav`.
 - Static gate unchanged: a path leaving `packages/app/dist` is still refused (403); a missing page still falls back to `index.html`.
 - Tests: `server/static.test.mjs` adds "an .ogg inside dist is answered as audio/ogg".
 - Not touched: `packages/sim`, game rules, `theme.css`, the app.
+
+## Hill line (branch `wave/hud-hill`, **not merged**)
+
+- The province inspect card shows one line, `Hill · rise`, on a seen tile whose terrain is `hill`. Code: `hillLine(seen, terrain)` in `packages/app/src/hud/hillLine.ts`, rendered in `packages/app/src/ProvinceInspect.tsx` under the Tile group (after the peak line). Style: `.sc-inspect-hill` in `packages/app/src/hud/inspect-card.css`.
+- Reads the existing `terrain` field only; no new sim field. An unseen hill tile still shows fog and no hill line.
+- Tests: `packages/app/src/hud/hillLine.test.ts` (shows for a seen hill tile; hidden when unseen; hidden on every other terrain).
+- Not touched: `packages/sim`, `server/`, `theme.css`, scout / gather / garrison / march / abandon actions, the home, ruins, shore, wood, peak, camp, outpost, and resource lines.
 
 ## Verify
 

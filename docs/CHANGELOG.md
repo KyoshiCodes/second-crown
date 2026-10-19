@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-19 — Hill line (wave/hud-hill)
+
+- Inspect card only. Not changed: `packages/sim`, `server/`, `theme.css`, scout, gather, garrison, march, and abandon actions, the home, ruins, shore, wood, peak, camp, outpost, and resource lines, fog.
+- `packages/app/src/hud/hillLine.ts` (new): `hillLine(seen, terrain)` gives `"Hill · rise"` for a seen hill tile, else `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders that line in the Tile group, after the peak line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-hill` (warm ochre, italic).
+- `docs/HANDOFF.md`: also marks audio MIME (#243) as merged.
+- Tests: new `packages/app/src/hud/hillLine.test.ts` (seen hill shows the line; unseen hill does not; no other terrain does). Run: `npm test`.
+
 ## 2026-10-14 — Audio MIME (wave/audio-mime)
 
 - Server only. Not changed: `packages/sim`, game rules, the app, the static gate (escapes still 403; missing pages still get `index.html`).
