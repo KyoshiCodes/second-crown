@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-19 — A tile with a fight says so on the inspect card (wave/hud-clash)
+## 2026-10-19 — Fighting tile shows a clash mark on the diamond (bakeoff/gemini-clash)
 
-- **A tile with a fight now says "Clash · fighting" on the inspect card, and play is unchanged.** Click a seen tile where two realms' columns are heading in, or where a rival column is coming for your hold or outpost, and the Tile section shows a short red line: "Clash · fighting".
-- **Unseen tiles still show nothing.** Fog is the same.
+- **A fighting tile now shows a clash mark on the diamond and play is unchanged.** A seen tile with an active fight (a column clash where columns of two or more realms meet, or an active engagement on a held tile or outpost) gets a small crossed-swords and impact burst clash mark on the isometric diamond.
+- **Unseen tiles stay fog.** Terrain, stock badges, piles, ruins, camps, outposts, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
 - **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-19 — Seen gather tile shows a stock number on the diamond (bakeoff/gemini-stock-badge)
