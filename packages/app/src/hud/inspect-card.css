@@ -273,3 +273,6 @@
 .sc-inspect-clash { color: #b91c1c; font-style: italic; }
 .sc-inspect-incoming { color: #b45309; font-style: italic; }
 .sc-inspect-trail { color: #d4b062; font-style: italic; }
+.sc-inspect-outpost { font-style: italic; }
+.sc-inspect-outpost.is-yours { color: #059669; }
+.sc-inspect-outpost.is-rival { color: #991b1b; }

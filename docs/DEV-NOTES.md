@@ -1,3 +1,11 @@
+## 2026-10-23 — app / outpost line on the inspect card (wave/hud-outpost)
+
+- Slice constraints: app only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
+- `outpostLine(state, provinceId)` in `packages/app/src/hud/outpostLine.ts` mirrors `trailLine` / `incomingLine`: returns `null` when `!isProvinceSeen`, when the tile is missing, or when it is the home tile. `"Your outpost"` when the id is in `listOutposts(state)` (player-occupied, non-home, non-hold). `"Rival camp"` when `node === "camp"` and `occupantRealmId !== "player"`. No sim math.
+- Rendered in `ProvinceInspect.tsx` after the trail line. Class picks `is-yours` / `is-rival` from the returned string. Styles in `hud/inspect-card.css` only.
+- Overlap: the header `siteOf` badge (#109) shows the same "Your outpost" text, and it says "Camp" where this line says "Rival camp". Both read the same state, so they cannot disagree. If the repeat feels noisy, dropping the badge is a one-line change.
+- Tests: `outpostLine.test.ts` covers outpost, camp, quiet tile, home, unseen.
+
 ## 2026-10-19 — render / tile with your column on or heading to it shows trail mark on diamond (bakeoff/gemini-trail)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

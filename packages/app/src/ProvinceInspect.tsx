@@ -51,6 +51,7 @@ import { stockBadge } from "./hud/stockBadge";
 import { clashLine } from "./hud/clashLine";
 import { incomingLine } from "./hud/incomingLine";
 import { trailLine } from "./hud/trailLine";
+import { outpostLine } from "./hud/outpostLine";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
@@ -192,6 +193,7 @@ export function ProvinceInspect(props: {
   const clash = clashLine(state, selectedId);
   const incomingNote = incomingLine(state, selectedId);
   const trail = trailLine(state, selectedId);
+  const outpost = outpostLine(state, selectedId);
   const hasForces = Boolean(incoming) || onTile.length > 0 || Boolean(march) || Boolean(here);
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
@@ -246,6 +248,9 @@ export function ProvinceInspect(props: {
         {clash ? <div className="sc-inspect-line sc-inspect-clash">{clash}</div> : null}
         {incomingNote ? <div className="sc-inspect-line sc-inspect-incoming">{incomingNote}</div> : null}
         {trail ? <div className="sc-inspect-line sc-inspect-trail">{trail}</div> : null}
+        {outpost ? (
+          <div className={`sc-inspect-line sc-inspect-outpost ${outpost === "Your outpost" ? "is-yours" : "is-rival"}`}>{outpost}</div>
+        ) : null}
         {seen && p.node === "camp" ? <div className="sc-inspect-line">Camp threat {campThreat(state, p)}</div> : null}
         {ruins ? <div className="sc-inspect-line sc-inspect-ruins">{ruins}</div> : null}
         {shore ? <div className="sc-inspect-line sc-inspect-shore">{shore}</div> : null}

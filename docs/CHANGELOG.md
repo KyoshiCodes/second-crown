@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-23 — Outpost line on the inspect card (wave/hud-outpost)
+
+- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/outpostLine.ts`: `outpostLine(state, provinceId)` returns `"Your outpost"` for a seen player outpost, `"Rival camp"` for a seen hostile camp, else `null`. Uses only `isProvinceSeen`, `getProvince`, `listOutposts`, `occupantRealmId`.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the trail line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-outpost` (`.is-yours` emerald `#059669`, `.is-rival` deep red `#991b1b`).
+- Tests: `packages/app/src/hud/outpostLine.test.ts` (5 tests). `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-19 — Tile with your column on or heading to it shows trail mark on diamond (bakeoff/gemini-trail)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
