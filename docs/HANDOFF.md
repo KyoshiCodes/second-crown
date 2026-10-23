@@ -1,11 +1,11 @@
-# Handoff (2026-10-23)
+# Handoff (2026-10-14)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#257** (trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hud-outpost` (**not merged**, see Outpost line below).
+Merged through PR **#257** (trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-outpost-mark` (**not merged**, see Outpost and camp marks on diamond below).
 
 ### Cultures and units (all merged)
 
@@ -252,14 +252,20 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A seen tile with a hostile column inbound on the isometric diamond gets a small incoming mark (`drawIncomingMark(g, cx, cy, phase)` and `hasProvinceIncoming(state, provinceId)` in `packages/render/src/tokens.ts`): a small amber arrow and threat pip (`0x1c1206` dark amber-obsidian roundel with `0x92400e` rim, `0xb45309` / `0x78350f` amber threat diamond, `0xd97706` / `0xf59e0b` / `0xfbbf24` downward amber chevron arrow, and `0xfef3c7` threat pip core glint) on a province that has a non-player march heading to it, using only existing march data the board already reads (`isProvinceSeen`, `incomingOnProvince`, `listMarches`).
 - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, piles, ruins, camps, outposts, and keeps stay as they are.
 
-## Trail mark on diamond (merged, #257)
+## Trail mark on diamond (PR #257, merged)
 
 - The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - A seen tile with your own column on or heading to it on the isometric diamond gets a small trail mark (`drawTrailMark(g, cx, cy, phase)` and `hasProvinceTrail(state, provinceId)` in `packages/render/src/tokens.ts`): a small soft-gold footprint and trail pip (`0x19160d` dark bronze-charcoal roundel with `0x85682a` / `0xa68438` rim, `0xc49e48` / `0xd4b062` / `0xe6c87a` stepping boot footprints, and `0xf5e6b3` trailing breadcrumb pips) on a province that has a player march on or heading to it, using only existing march data the board already reads (`isProvinceSeen`, `listMarches`).
 - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, piles, ruins, camps, outposts, and keeps stay as they are.
+
+## Outpost and camp marks on diamond (branch `bakeoff/gemini-outpost-mark`, **not merged**)
+
+- The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
+- A seen player outpost or rival camp on the isometric diamond gets a small status mark (`drawOutpostMark(g, cx, cy, kind, phase)` and `resolveProvinceOutpostMark(state, provinceId)` in `packages/render/src/tokens.ts`): a small emerald flag pip (`0x042619` dark emerald roundel, `0x047857` rim, `0x059669` emerald disk, `0xe2e8f0` flagpole mast, and `0x10b981` / `0x6ee7b7` / `0xa7f3d0` swallowtail emerald flag) on a player outpost, and a small deep-red camp pip (`0x2a0808` dark garnet roundel, `0x7f1d1d` rim, `0x991b1b` deep-red disk, and `0xb91c1c` / `0xdc2626` / `0x450a0a` / `0xfca5a5` pitched war-camp tent) on a rival camp, using only existing outpost and province data the board already reads (`isProvinceSeen`, `getProvince`, `listOutposts`).
+- Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, piles, ruins, and keeps stay as they are.
 - All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
-- Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (479 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
+- Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (485 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
 ## Verify
 
@@ -301,12 +307,3 @@ cd ~/second-crown && git pull && npm test && npm run build -w @second-crown/app 
 | INVARIANTS.md | law |
 | CONCEPT-BIBLE.md | fantasy |
 | obsidian/ | vault seed |
-
-## Outpost line (branch `wave/hud-outpost`, **not merged**)
-
-- App only. Inspect card only. Do not change `packages/sim`, `server/`, `theme.css`, or any action.
-- New `packages/app/src/hud/outpostLine.ts`: `outpostLine(state, provinceId)` returns `"Your outpost"` for a seen player outpost (a non-home, non-hold tile in `listOutposts`), `"Rival camp"` for a seen hostile camp (`node === "camp"`, not held by you), else `null`. Reads only `isProvinceSeen`, `getProvince`, `listOutposts`, and `occupantRealmId`. No sim math.
-- `ProvinceInspect.tsx` renders it in the Tile group, right after the trail line, as `.sc-inspect-outpost` (`.is-yours` emerald `#059669`, `.is-rival` deep red `#991b1b`) in `hud/inspect-card.css`.
-- Fog unchanged. Unseen tiles and your home show nothing.
-- Note: the header site badge (#109) already shows "Your outpost" / "Camp"; this line repeats it inside the Tile group to match the trail and incoming lines.
-- Tests: `packages/app/src/hud/outpostLine.test.ts` (5 tests). `npm test` and `npm run build -w @second-crown/app` pass.

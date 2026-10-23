@@ -1,10 +1,11 @@
-## 2026-10-23 — app / outpost line on the inspect card (wave/hud-outpost)
+## 2026-10-23 — render / player outpost and rival camp show status marks on diamond (bakeoff/gemini-outpost-mark)
 
-- Slice constraints: app only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
-- `outpostLine(state, provinceId)` in `packages/app/src/hud/outpostLine.ts` mirrors `trailLine` / `incomingLine`: returns `null` when `!isProvinceSeen`, when the tile is missing, or when it is the home tile. `"Your outpost"` when the id is in `listOutposts(state)` (player-occupied, non-home, non-hold). `"Rival camp"` when `node === "camp"` and `occupantRealmId !== "player"`. No sim math.
-- Rendered in `ProvinceInspect.tsx` after the trail line. Class picks `is-yours` / `is-rival` from the returned string. Styles in `hud/inspect-card.css` only.
-- Overlap: the header `siteOf` badge (#109) shows the same "Your outpost" text, and it says "Camp" where this line says "Rival camp". Both read the same state, so they cannot disagree. If the repeat feels noisy, dropping the badge is a one-line change.
-- Tests: `outpostLine.test.ts` covers outpost, camp, quiet tile, home, unseen.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Outpost & camp detection: `resolveProvinceOutpostMark(state, provinceId)` reads only existing board and outpost helpers (`isProvinceSeen`, `getProvince`, `listOutposts`) with zero new sim math. Returns `null` if the tile is unseen (so unseen tiles stay fog) or is the player's home keep (`homeProvinceId`). Returns `"outpost"` when the tile is a player outpost (`listOutposts`) and `"camp"` when `p.node === "camp" && p.occupantRealmId !== "player"`.
+- Visual design: `drawOutpostMark(g, cx, cy, kind, phase)` paints a compact emerald flag pip (`0x042619` dark emerald roundel with `0x047857` rim, `0x059669` emerald disk, `0xe2e8f0` flagpole mast, and `0x10b981` / `0x6ee7b7` / `0xa7f3d0` swallowtail emerald flag) for `"outpost"`, and a compact deep-red camp pip (`0x2a0808` dark garnet roundel with `0x7f1d1d` rim, `0x991b1b` deep-red disk, and `0xb91c1c` / `0xdc2626` / `0x450a0a` / `0xfca5a5` pitched war-camp tent) for `"camp"`. Uses `0x042619` and `0x2a0808` for the roundel backings so they do not collide with `0x19160d` (trail mark), `0x1c1206` (incoming mark), `0x1a0b0e` (clash mark), `0x18181b` (basalt crag fissures), or `0x090d16` (stock badge pill), and avoids `0xfacc15` and `0xd4a373`.
+- Integrated into `paintBoardProvinces` at `(cx - 7, cy + 4)` right after `drawTrailMark`, preserving terrain, stock badges, clash marks, incoming marks, trail marks, piles, ruins, and keeps.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-19 — render / tile with your column on or heading to it shows trail mark on diamond (bakeoff/gemini-trail)
 

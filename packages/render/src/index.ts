@@ -138,6 +138,9 @@ import {
   hasProvinceIncoming,
   drawTrailMark,
   hasProvinceTrail,
+  drawOutpostMark,
+  resolveProvinceOutpostMark,
+  type OutpostMarkKind,
 } from "./tokens.js";
 
 import {
@@ -1021,5 +1024,8 @@ export {
   hasProvinceIncoming,
   drawTrailMark,
   hasProvinceTrail,
+  drawOutpostMark,
+  resolveProvinceOutpostMark,
+  type OutpostMarkKind,
 };
 

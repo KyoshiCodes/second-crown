@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-23 — Outpost line on the inspect card (wave/hud-outpost)
+## 2026-10-23 — Player outpost and rival camp show status marks on diamond (bakeoff/gemini-outpost-mark)
 
-- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/outpostLine.ts`: `outpostLine(state, provinceId)` returns `"Your outpost"` for a seen player outpost, `"Rival camp"` for a seen hostile camp, else `null`. Uses only `isProvinceSeen`, `getProvince`, `listOutposts`, `occupantRealmId`.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the trail line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-outpost` (`.is-yours` emerald `#059669`, `.is-rival` deep red `#991b1b`).
-- Tests: `packages/app/src/hud/outpostLine.test.ts` (5 tests). `npm test` and `npm run build -w @second-crown/app` pass.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `resolveProvinceOutpostMark(state, provinceId)`: uses only existing outpost and province data the board already reads (`isProvinceSeen`, `getProvince`, `listOutposts`) to return `"outpost"` on a seen player outpost and `"camp"` on a seen rival camp (`null` on unseen tiles, quiet tiles, or the player's home keep). No new sim math.
+  - `drawOutpostMark(g, cx, cy, kind, phase)`: paints a small emerald flag pip (`0x042619` dark emerald roundel with `0x047857` rim, `0x059669` emerald disk, `0xe2e8f0` flagpole mast, and `0x10b981` / `0x6ee7b7` / `0xa7f3d0` swallowtail emerald flag) on a player outpost and a small deep-red camp pip (`0x2a0808` dark garnet roundel with `0x7f1d1d` rim, `0x991b1b` deep-red disk, and `0xb91c1c` / `0xdc2626` / `0x450a0a` / `0xfca5a5` pitched war-camp tent) on a rival camp.
+  - `paintBoardProvinces`: calls `drawOutpostMark(g, cx - 7, cy + 4, outpostMarkKind, animPhase)` when `resolveProvinceOutpostMark(state, p.id)` is non-null.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, piles, ruins, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawOutpostMark`, `resolveProvinceOutpostMark`, and `type OutpostMarkKind`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (6 new tests in `bakeoff/gemini-outpost-mark` suite; 485/485 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-19 — Tile with your column on or heading to it shows trail mark on diamond (bakeoff/gemini-trail)
 

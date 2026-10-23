@@ -12391,6 +12391,189 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // ============================================================================
+              // bakeoff/gemini-outpost-mark: Player Outpost Flag Mark & Rival Camp Mark on the Isometric Diamond
+              // ============================================================================
+              describe("bakeoff/gemini-outpost-mark: Player Outpost Flag Mark & Rival Camp Mark on the Isometric Diamond (drawOutpostMark & resolveProvinceOutpostMark)", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const g: any = {
+                    calls,
+                    clear: () => calls.push({ method: "clear", args: [] }),
+                    poly: (pts: number[]) => calls.push({ method: "poly", args: [pts] }),
+                    fill: (opts: any) => calls.push({ method: "fill", args: [opts] }),
+                    stroke: (opts: any) => calls.push({ method: "stroke", args: [opts] }),
+                    rect: (x: number, y: number, w: number, h: number) =>
+                      calls.push({ method: "rect", args: [x, y, w, h] }),
+                    roundRect: (x: number, y: number, w: number, h: number, r: number) =>
+                      calls.push({ method: "roundRect", args: [x, y, w, h, r] }),
+                    circle: (x: number, y: number, r: number) =>
+                      calls.push({ method: "circle", args: [x, y, r] }),
+                    ellipse: (x: number, y: number, rx: number, ry: number) =>
+                      calls.push({ method: "ellipse", args: [x, y, rx, ry] }),
+                    moveTo: (x: number, y: number) => calls.push({ method: "moveTo", args: [x, y] }),
+                    lineTo: (x: number, y: number) => calls.push({ method: "lineTo", args: [x, y] }),
+                    arc: (...args: any[]) => calls.push({ method: "arc", args }),
+                    bezierCurveTo: (...args: any[]) => calls.push({ method: "bezierCurveTo", args }),
+                    quadraticCurveTo: (...args: any[]) =>
+                      calls.push({ method: "quadraticCurveTo", args }),
+                    closePath: () => calls.push({ method: "closePath", args: [] }),
+                  };
+                  return g;
+                }
+
+                describe("drawOutpostMark direct unit tests", () => {
+                  it("paints a small emerald flag pip for a player outpost", async () => {
+                    const { drawOutpostMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawOutpostMark(g, 120, 80, "outpost", 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow, dark emerald roundel, emerald rim, and emerald pip disk (#059669)
+                    expect(fillColors).toContain(0x000000);
+                    expect(fillColors).toContain(0x042619);
+                    expect(strokeColors).toContain(0x047857);
+                    expect(fillColors).toContain(0x059669);
+
+                    // Silver flagpole, swallowtail emerald flag, and finial pip
+                    expect(strokeColors).toContain(0xe2e8f0);
+                    expect(fillColors).toContain(0x10b981);
+                    expect(fillColors).toContain(0x6ee7b7);
+                    expect(fillColors).toContain(0xa7f3d0);
+                  });
+
+                  it("paints a small deep-red camp pip for a rival camp", async () => {
+                    const { drawOutpostMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawOutpostMark(g, 120, 80, "camp", 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow, dark garnet roundel, crimson rim, and deep-red camp disk (#991b1b)
+                    expect(fillColors).toContain(0x000000);
+                    expect(fillColors).toContain(0x2a0808);
+                    expect(strokeColors).toContain(0x7f1d1d);
+                    expect(fillColors).toContain(0x991b1b);
+
+                    // Pitched camp tent slopes, dark entrance flap, and apex pip
+                    expect(fillColors).toContain(0xb91c1c);
+                    expect(fillColors).toContain(0xdc2626);
+                    expect(fillColors).toContain(0x450a0a);
+                    expect(fillColors).toContain(0xfca5a5);
+                  });
+
+                  it("handles null graphics safely", async () => {
+                    const { drawOutpostMark } = await import("./tokens.js");
+                    expect(() => drawOutpostMark(null as any, 0, 0, "outpost")).not.toThrow();
+                    expect(() => drawOutpostMark(null as any, 0, 0, "camp")).not.toThrow();
+                  });
+                });
+
+                describe("resolveProvinceOutpostMark detection", () => {
+                  it("returns 'outpost' on a seen player outpost and 'camp' on a seen rival camp", async () => {
+                    const { resolveProvinceOutpostMark } = await import("./tokens.js");
+                    const { createGameState, neighbors } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const [tileA, tileB] = neighbors(state, state.board.homeProvinceId);
+
+                    tileA!.node = "field";
+                    tileA!.occupantRealmId = "player";
+                    expect(resolveProvinceOutpostMark(state, tileA!.id)).toBe("outpost");
+
+                    tileB!.node = "camp";
+                    tileB!.occupantRealmId = undefined;
+                    expect(resolveProvinceOutpostMark(state, tileB!.id)).toBe("camp");
+                  });
+
+                  it("returns null on a quiet tile, on the player's home keep, or on an unseen tile", async () => {
+                    const { resolveProvinceOutpostMark } = await import("./tokens.js");
+                    const { createGameState, neighbors, isProvinceSeen } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+
+                    // Quiet tile
+                    tile.node = "none";
+                    tile.occupantRealmId = undefined;
+                    expect(resolveProvinceOutpostMark(state, tile.id)).toBeNull();
+
+                    // Player home keep
+                    expect(resolveProvinceOutpostMark(state, state.board.homeProvinceId)).toBeNull();
+
+                    // Unseen tile with a camp stays null (fog)
+                    const unseen = state.board.provinces.find((p) => !isProvinceSeen(state, p.id))!;
+                    unseen.node = "camp";
+                    expect(resolveProvinceOutpostMark(state, unseen.id)).toBeNull();
+                  });
+                });
+
+                describe("paintBoardProvinces integration & fog/marks preservation", () => {
+                  it("paints the emerald flag pip on a seen player outpost and deep-red camp pip on a seen rival camp while preserving fog", async () => {
+                    const { paintBoardProvinces, drawOutpostMark, resolveProvinceOutpostMark } = await import("./index.js");
+                    const { createGameState, neighbors } = await import("@second-crown/sim");
+                    expect(typeof drawOutpostMark).toBe("function");
+                    expect(typeof resolveProvinceOutpostMark).toBe("function");
+
+                    const state = createGameState({ seed: 42 });
+                    // Clear any seen camps initially so we can test each mark cleanly
+                    for (const p of state.board.provinces) {
+                      if (p.id !== state.board.homeProvinceId && p.node === "camp") {
+                        p.node = "none";
+                      }
+                    }
+
+                    const gQuiet = createMockGraphics();
+                    paintBoardProvinces(gQuiet, state, 0);
+                    const quietFills = gQuiet.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(quietFills).not.toContain(0x042619);
+                    expect(quietFills).not.toContain(0x2a0808);
+
+                    // Seen player outpost -> emerald flag pip drawn (0x042619, 0x059669, 0x10b981)
+                    const [tileOutpost, tileCamp] = neighbors(state, state.board.homeProvinceId);
+                    tileOutpost!.node = "field";
+                    tileOutpost!.occupantRealmId = "player";
+
+                    const gOutpost = createMockGraphics();
+                    paintBoardProvinces(gOutpost, state, 0);
+                    const outpostFills = gOutpost.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(outpostFills).toContain(0x042619);
+                    expect(outpostFills).toContain(0x059669);
+                    expect(outpostFills).toContain(0x10b981);
+                    expect(outpostFills).not.toContain(0x2a0808);
+
+                    // Seen rival camp -> deep-red camp pip drawn (0x2a0808, 0x991b1b, 0xb91c1c) alongside player outpost
+                    tileCamp!.node = "camp";
+                    tileCamp!.occupantRealmId = undefined;
+
+                    const gBoth = createMockGraphics();
+                    paintBoardProvinces(gBoth, state, 0);
+                    const bothFills = gBoth.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(bothFills).toContain(0x042619);
+                    expect(bothFills).toContain(0x2a0808);
+                    expect(bothFills).toContain(0x991b1b);
+                    expect(bothFills).toContain(0xb91c1c);
+                    // Fog tiles still rendered in fog (0x0f172a)
+                    expect(bothFills).toContain(0x0f172a);
+                  });
+                });
+              });
             });
           });
         });
