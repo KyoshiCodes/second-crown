@@ -12785,6 +12785,148 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // ============================================================================
+              // bakeoff/gemini-garrison-mark: Posted Garrison Mark on the Isometric Diamond
+              // ============================================================================
+              describe("bakeoff/gemini-garrison-mark: Posted Garrison Mark on the Isometric Diamond (drawGarrisonMark & hasProvinceGarrison)", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const g: any = {
+                    calls,
+                    clear: () => calls.push({ method: "clear", args: [] }),
+                    poly: (pts: number[]) => calls.push({ method: "poly", args: [pts] }),
+                    fill: (opts: any) => calls.push({ method: "fill", args: [opts] }),
+                    stroke: (opts: any) => calls.push({ method: "stroke", args: [opts] }),
+                    rect: (x: number, y: number, w: number, h: number) =>
+                      calls.push({ method: "rect", args: [x, y, w, h] }),
+                    roundRect: (x: number, y: number, w: number, h: number, r: number) =>
+                      calls.push({ method: "roundRect", args: [x, y, w, h, r] }),
+                    circle: (x: number, y: number, r: number) =>
+                      calls.push({ method: "circle", args: [x, y, r] }),
+                    ellipse: (x: number, y: number, rx: number, ry: number) =>
+                      calls.push({ method: "ellipse", args: [x, y, rx, ry] }),
+                    moveTo: (x: number, y: number) => calls.push({ method: "moveTo", args: [x, y] }),
+                    lineTo: (x: number, y: number) => calls.push({ method: "lineTo", args: [x, y] }),
+                    arc: (...args: any[]) => calls.push({ method: "arc", args }),
+                    bezierCurveTo: (...args: any[]) => calls.push({ method: "bezierCurveTo", args }),
+                    quadraticCurveTo: (...args: any[]) =>
+                      calls.push({ method: "quadraticCurveTo", args }),
+                    closePath: () => calls.push({ method: "closePath", args: [] }),
+                  };
+                  return g;
+                }
+
+                describe("drawGarrisonMark direct unit tests", () => {
+                  it("paints a small emerald shield and tent pip over a dark emerald-iron roundel", async () => {
+                    const { drawGarrisonMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawGarrisonMark(g, 120, 80, 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow, dark emerald-iron roundel (0x062c1e), and emerald rim (0x047857)
+                    expect(fillColors).toContain(0x000000);
+                    expect(fillColors).toContain(0x062c1e);
+                    expect(strokeColors).toContain(0x047857);
+
+                    // Emerald heater-shield facets (#059669 & #10b981) and bevel rim (#6ee7b7)
+                    expect(fillColors).toContain(0x059669);
+                    expect(fillColors).toContain(0x10b981);
+                    expect(strokeColors).toContain(0x6ee7b7);
+
+                    // Pitched garrison tent emblem (0xd1fae5), dark doorway (0x064e3b), and crest rivet (0xa7f3d0)
+                    expect(fillColors).toContain(0xd1fae5);
+                    expect(fillColors).toContain(0x064e3b);
+                    expect(fillColors).toContain(0xa7f3d0);
+                  });
+
+                  it("handles null graphics safely and supports animated phase pulse", async () => {
+                    const { drawGarrisonMark } = await import("./tokens.js");
+                    expect(() => drawGarrisonMark(null as any, 0, 0)).not.toThrow();
+
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawGarrisonMark(g0, 100, 100, 0);
+                    drawGarrisonMark(g1, 100, 100, 0.5);
+                    expect(g0.calls.length).toBe(g1.calls.length);
+                  });
+                });
+
+                describe("hasProvinceGarrison detection", () => {
+                  it("returns true on a seen province with a posted player garrison", async () => {
+                    const { hasProvinceGarrison } = await import("./tokens.js");
+                    const { createGameState, neighbors } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+                    state.flags["garrisons_json"] = JSON.stringify([
+                      { provinceId: tile.id, force: { militia: 3 } },
+                    ]);
+
+                    expect(hasProvinceGarrison(state, tile.id)).toBe(true);
+                  });
+
+                  it("returns false on a quiet province or on an unseen tile", async () => {
+                    const { hasProvinceGarrison } = await import("./tokens.js");
+                    const { createGameState, neighbors, isProvinceSeen } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+
+                    // Quiet province
+                    expect(hasProvinceGarrison(state, tile.id)).toBe(false);
+
+                    // Unseen tile with a posted garrison stays false (fog)
+                    const unseen = state.board.provinces.find((p) => !isProvinceSeen(state, p.id))!;
+                    state.flags["garrisons_json"] = JSON.stringify([
+                      { provinceId: unseen.id, force: { militia: 3 } },
+                    ]);
+                    expect(hasProvinceGarrison(state, unseen.id)).toBe(false);
+                  });
+                });
+
+                describe("paintBoardProvinces integration & fog/marks preservation", () => {
+                  it("paints the garrison mark on a seen province with a posted garrison while preserving fog and existing marks", async () => {
+                    const { paintBoardProvinces, drawGarrisonMark, hasProvinceGarrison } = await import("./index.js");
+                    const { createGameState, neighbors } = await import("@second-crown/sim");
+                    expect(typeof drawGarrisonMark).toBe("function");
+                    expect(typeof hasProvinceGarrison).toBe("function");
+
+                    const state = createGameState({ seed: 42 });
+
+                    // Quiet board: no garrison mark (0x062c1e) drawn
+                    const gQuiet = createMockGraphics();
+                    paintBoardProvinces(gQuiet, state, 0);
+                    const quietFills = gQuiet.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(quietFills).not.toContain(0x062c1e);
+
+                    // Posted garrison on a seen neighbor province: garrison mark drawn alongside season mark and fog
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+                    state.flags["garrisons_json"] = JSON.stringify([
+                      { provinceId: tile.id, force: { militia: 3 } },
+                    ]);
+
+                    const gGarrison = createMockGraphics();
+                    paintBoardProvinces(gGarrison, state, 0);
+                    const garrisonFills = gGarrison.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(garrisonFills).toContain(0x062c1e);
+                    expect(garrisonFills).toContain(0x059669);
+                    expect(garrisonFills).toContain(0xd1fae5);
+                    expect(garrisonFills).toContain(0x064e3b);
+                    // Season mark on home tile (0x0d1520) and fog on unseen tiles (0x0f172a) preserved
+                    expect(garrisonFills).toContain(0x0d1520);
+                    expect(garrisonFills).toContain(0x0f172a);
+                  });
+                });
+              });
             });
           });
         });
