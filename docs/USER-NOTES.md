@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-23 — Your outposts and rival camps get a line on the inspect card (wave/hud-outpost)
+## 2026-10-23 — Player outpost shows a flag mark and rival camp shows a camp mark on the diamond (bakeoff/gemini-outpost-mark)
 
-- **A player outpost now says "Your outpost" and a rival camp says "Rival camp" on the inspect card, and play is unchanged.** The line sits in the Tile group under the trail line: emerald for yours, deep red for a rival camp.
-- **Unseen tiles still show nothing.** Fog is unchanged. Your home tile shows no line.
+- **A player outpost now shows a flag mark and a rival camp shows a camp mark on the diamond and play is unchanged.** A seen player outpost on the isometric diamond gets a small emerald flag pip, and a seen rival camp gets a small deep-red camp pip.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, incoming marks, trail marks, piles, ruins, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
 - **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-19 — Tile with your column on or heading to it shows a trail mark on the diamond (bakeoff/gemini-trail)

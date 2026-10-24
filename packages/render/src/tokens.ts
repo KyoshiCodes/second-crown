@@ -12,6 +12,7 @@ import {
   garrisonPower,
   listGarrisons,
   incomingOnProvince,
+  listOutposts,
 } from "@second-crown/sim";
 import * as sim from "@second-crown/sim";
 import type { March } from "@second-crown/sim";
@@ -3475,6 +3476,159 @@ export function drawTrailMark(
   g.fill({ color: 0xf5e6b3, alpha: 0.96 });
 }
 
+// -------------------------------------------------------------
+// Player Outpost Flag Pip & Rival Camp Pip (drawOutpostMark)
+// -------------------------------------------------------------
+
+export type OutpostMarkKind = "outpost" | "camp" | "player" | "rival";
+
+/**
+ * Resolves whether a seen province on the board should show a player outpost
+ * flag mark ("outpost") or a rival camp mark ("camp").
+ * Uses only existing outpost and province data the board already reads
+ * (isProvinceSeen, getProvince, listOutposts). Unseen tiles and the player's
+ * home province always return null.
+ */
+export function resolveProvinceOutpostMark(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): "outpost" | "camp" | null {
+  if (!state?.board?.provinces || !provinceId) return null;
+  if (!isProvinceSeen(state, provinceId)) return null;
+  if (provinceId === state.board.homeProvinceId) return null;
+
+  const p = getProvince(state, provinceId);
+  if (!p) return null;
+
+  if (
+    listOutposts(state).some((o) => o.id === provinceId) ||
+    (p.occupantRealmId === "player" && p.node !== "hold")
+  ) {
+    return "outpost";
+  }
+
+  if (p.node === "camp" && p.occupantRealmId !== "player") {
+    return "camp";
+  }
+
+  return null;
+}
+
+/**
+ * Paints a small emerald flag pip on a seen player outpost or a small deep-red
+ * camp pip on a seen rival camp on the isometric diamond.
+ *
+ * Visual anatomy:
+ * - Player Outpost ("outpost" / "player" / true):
+ *   - Soft ground/drop shadow beneath the pip (0x000000)
+ *   - Dark emerald-forest roundel backing (0x042619) with emerald rim (0x047857)
+ *   - Emerald pip bezel (0x059669)
+ *   - Crisp silver mast (0xe2e8f0) and fluttering emerald swallowtail flag (0x10b981 / 0x6ee7b7)
+ * - Rival Camp ("camp" / "rival" / false):
+ *   - Soft ground/drop shadow beneath the pip (0x000000)
+ *   - Dark blood-garnet roundel backing (0x2a0808) with crimson rim (0x7f1d1d)
+ *   - Deep-red camp pip bezel (0x991b1b)
+ *   - Miniature pitched war-camp tent silhouette (0xb91c1c / 0xdc2626, dark flap 0x450a0a, apex pip 0xfca5a5)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawOutpostMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  kind: OutpostMarkKind | boolean = "outpost",
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const isPlayerOutpost =
+    kind === "outpost" || kind === "player" || kind === true;
+  const mx = cx;
+  const my = cy;
+
+  // 1. Soft drop shadow beneath the status mark
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  if (isPlayerOutpost) {
+    // 2A. Dark emerald roundel backing + emerald rim
+    g.circle(mx, my, 4.8);
+    g.fill({ color: 0x042619, alpha: 0.90 });
+    g.circle(mx, my, 4.8);
+    g.stroke({ width: 0.85, color: 0x047857, alpha: 0.94 });
+
+    // Inner emerald pip disk (#059669)
+    g.circle(mx, my, 3.8);
+    g.fill({ color: 0x059669, alpha: 0.92 });
+
+    // Fluttering miniature emerald flag pip
+    const wave = Math.sin(phase * 3.2) * 0.35;
+    // Flagpole mast
+    g.moveTo(mx - 1.8, my + 2.5);
+    g.lineTo(mx - 1.8, my - 2.6);
+    g.stroke({ width: 0.95, color: 0xe2e8f0 });
+
+    // Swallowtail emerald flag cloth
+    g.poly([
+      mx - 1.5, my - 2.4,
+      mx + 2.5, my - 1.6 + wave,
+      mx + 1.4, my - 0.5 + wave * 0.5,
+      mx + 2.5, my + 0.6 + wave,
+      mx - 1.5, my + 0.5,
+    ]);
+    g.fill({ color: 0x10b981 });
+
+    // Pale-emerald upper fold & finial pip
+    g.poly([
+      mx - 1.5, my - 2.4,
+      mx + 2.2, my - 1.6 + wave,
+      mx - 1.5, my - 0.9,
+    ]);
+    g.fill({ color: 0x6ee7b7, alpha: 0.95 });
+
+    g.circle(mx - 1.8, my - 2.8, 0.6);
+    g.fill({ color: 0xa7f3d0 });
+  } else {
+    // 2B. Dark blood-garnet roundel backing + deep-red rim
+    g.circle(mx, my, 4.8);
+    g.fill({ color: 0x2a0808, alpha: 0.90 });
+    g.circle(mx, my, 4.8);
+    g.stroke({ width: 0.85, color: 0x7f1d1d, alpha: 0.94 });
+
+    // Inner deep-red camp pip disk (#991b1b)
+    g.circle(mx, my, 3.8);
+    g.fill({ color: 0x991b1b, alpha: 0.92 });
+
+    // Miniature pitched war-camp tent pip
+    // Left shaded tent slope
+    g.poly([
+      mx - 2.7, my + 2.0,
+      mx, my - 2.3,
+      mx, my + 2.0,
+    ]);
+    g.fill({ color: 0xb91c1c });
+
+    // Right sunlit tent slope
+    g.poly([
+      mx, my - 2.3,
+      mx + 2.7, my + 2.0,
+      mx, my + 2.0,
+    ]);
+    g.fill({ color: 0xdc2626 });
+
+    // Dark arched tent entrance flap
+    g.poly([
+      mx - 1.0, my + 2.0,
+      mx, my - 0.1,
+      mx + 1.0, my + 2.0,
+    ]);
+    g.fill({ color: 0x450a0a });
+
+    // Ridgepole apex pip
+    g.circle(mx, my - 2.4, 0.6);
+    g.fill({ color: 0xfca5a5, alpha: 0.95 });
+  }
+}
+
 
 // -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
@@ -4949,6 +5103,12 @@ export function paintBoardProvinces(
     // 6.8 Player Column Trail Mark on Seen Tiles
     if (hasProvinceTrail(state, p.id)) {
       drawTrailMark(g, cx - 8, cy - 8, animPhase);
+    }
+
+    // 6.9 Player Outpost Flag Mark or Rival Camp Mark on Seen Tiles
+    const outpostMarkKind = resolveProvinceOutpostMark(state, p.id);
+    if (outpostMarkKind) {
+      drawOutpostMark(g, cx - 7, cy + 4, outpostMarkKind, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province
