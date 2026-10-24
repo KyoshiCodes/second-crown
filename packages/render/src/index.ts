@@ -141,6 +141,10 @@ import {
   drawOutpostMark,
   resolveProvinceOutpostMark,
   type OutpostMarkKind,
+  drawSeasonMark,
+  resolveBoardSeasonMark,
+  resolveProvinceSeasonMark,
+  type SeasonMarkKind,
 } from "./tokens.js";
 
 import {
@@ -1027,5 +1031,9 @@ export {
   drawOutpostMark,
   resolveProvinceOutpostMark,
   type OutpostMarkKind,
+  drawSeasonMark,
+  resolveBoardSeasonMark,
+  resolveProvinceSeasonMark,
+  type SeasonMarkKind,
 };
 

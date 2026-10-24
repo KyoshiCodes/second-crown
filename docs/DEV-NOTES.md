@@ -1,11 +1,15 @@
-## 2026-10-23 — app / season line on the inspect card (wave/hud-season)
+## 2026-10-23 — render / season mark on diamond (bakeoff/gemini-season)
 
-- Slice constraints: app only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
-- `seasonLine(state)` in `packages/app/src/hud/seasonLine.ts` lowercases `currentSeason(state)` (sim `SEASONS` is `"Spring"…"Winter"`, 2000 ticks each). No sim math.
-- Unlike the other Tile-group lines it takes no `provinceId`, because the season is the same on every tile. The fog gate lives in `ProvinceInspect.tsx` instead: `const seasonNote = seen ? seasonLine(state) : null;` (named `seasonNote` because `season` is already the facts-row value). Keep that gate if you move the line, or unseen tiles start showing text.
-- Styles in `hud/inspect-card.css` only: `.sc-inspect-line.sc-inspect-season` (`#7dd3fc` italic). Scoped to `.sc-inspect-line` because the older Season facts row (`3d0f02e`) already uses `.sc-inspect-season` with per-season `dd` colors; a bare selector would restyle that row.
-- Overlap: the card now shows the season twice, once in the Tile facts row and once as this line. Both read `currentSeason`, so they cannot disagree. Dropping either one is a one-line change.
-- Tests: `seasonLine.test.ts` sets `state.meta.tick` to 0 / 2000 / 4000 / 6000 and checks each season's line.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Season detection: `resolveBoardSeasonMark(stateOrSeason)` and `resolveProvinceSeasonMark(state, provinceId)` read only existing season and visibility helpers (`getSeasonFromState` / `currentSeason(state)`, `isProvinceSeen`) with zero new sim math. `resolveProvinceSeasonMark` returns `null` if the tile is unseen (so unseen tiles stay fog) or is not `state.board.homeProvinceId`, and returns `"spring"`, `"summer"`, `"autumn"`, or `"winter"` on the seen home tile.
+- Visual design: `drawSeasonMark(g, cx, cy, seasonOrState, phase)` paints a compact season pip (`0x0d1520` outer roundel backing) with four distinct seasonal emblems:
+  - `"spring"`: soft green leaf (`0x132a1c` inner disk, `0x15803d` rim, `0x4ade80` / `0x16a34a` leaf blade, `0xbbf7d0` vein & dewdrop). Avoids `0x86efac` (`8843180`) and `0x34d399` so existing Spring terrain/wash negative color assertions remain untouched.
+  - `"summer"`: gold sun (`0x2b1f07` inner disk, `0xca8a04` rim, `0xfbbf24` 8-point starburst rays, `0xfacc15` sun disk, `0xfef08a` core).
+  - `"autumn"`: amber leaf (`0x2c1608` inner disk, `0x9a3412` rim, `0xf59e0b` / `0xd97706` lobed leaf, `0xfcd34d` vein & tip).
+  - `"winter"`: pale blue flake (`0x0c2233` inner disk, `0x0284c7` rim, `0x7dd3fc` crystal diamond core, `0xbae6fd` 6-point snowflake arms, `0xe0f2fe` crystal tips).
+- Integrated into `paintBoardProvinces` at `(cx + 7, cy + 4)` on the seen home tile right after `drawOutpostMark`, preserving terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, piles, ruins, camps, and keeps.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-23 — render / player outpost and rival camp show status marks on diamond (bakeoff/gemini-outpost-mark)
 

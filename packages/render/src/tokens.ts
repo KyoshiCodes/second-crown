@@ -3631,6 +3631,224 @@ export function drawOutpostMark(
 
 
 // -------------------------------------------------------------
+// Season Pip on Home Tile / Isometric Diamond (drawSeasonMark)
+// -------------------------------------------------------------
+
+export type SeasonMarkKind = "spring" | "summer" | "autumn" | "winter";
+
+/**
+ * Resolves the normalized season mark kind ("spring" | "summer" | "autumn" | "winter")
+ * using only existing season data the board already reads (currentSeason(state) or state.season).
+ * Does not add sim math.
+ */
+export function resolveBoardSeasonMark(
+  stateOrSeason?: GameState | SeasonMarkKind | string | null
+): SeasonMarkKind {
+  const raw =
+    typeof stateOrSeason === "string"
+      ? stateOrSeason
+      : getSeasonFromState(stateOrSeason);
+  const norm = String(raw || "spring").trim().toLowerCase();
+  if (norm === "summer") return "summer";
+  if (norm === "autumn" || norm === "fall" || norm === "harvest") return "autumn";
+  if (norm === "winter" || norm === "midwinter") return "winter";
+  return "spring";
+}
+
+/**
+ * Resolves the season mark kind to paint on a province tile on the isometric diamond.
+ * Paints on the seen home tile; unseen tiles stay fog (return null), and non-home tiles
+ * return null so each diamond stays uncluttered.
+ */
+export function resolveProvinceSeasonMark(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): SeasonMarkKind | null {
+  if (!state?.board?.provinces || !provinceId) return null;
+  if (!isProvinceSeen(state, provinceId)) return null;
+  if (provinceId !== state.board.homeProvinceId) return null;
+  return resolveBoardSeasonMark(state);
+}
+
+/**
+ * Paints a small season pip on the home tile of the isometric diamond that
+ * changes with the current season:
+ * - "spring": soft green leaf (0x4ade80 / 0x16a34a leaf with 0xbbf7d0 vein over 0x132a1c disk)
+ * - "summer": gold sun (0xfbbf24 starburst rays, 0xfacc15 sun disk, 0xfef08a core over 0x2b1f07 disk)
+ * - "autumn": amber leaf (0xf59e0b / 0xd97706 lobed leaf with 0xfcd34d vein over 0x2c1608 disk)
+ * - "winter": pale blue flake (0x7dd3fc crystal core, 0xbae6fd 6-point arms, 0xe0f2fe tips over 0x0c2233 disk)
+ *
+ * Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched).
+ */
+export function drawSeasonMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  seasonOrState: SeasonMarkKind | string | GameState | null | undefined = "spring",
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const kind = resolveBoardSeasonMark(seasonOrState);
+  const mx = cx;
+  const my = cy;
+
+  // 1. Soft drop shadow beneath the season pip
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark slate-indigo season roundel backing
+  g.circle(mx, my, 4.8);
+  g.fill({ color: 0x0d1520, alpha: 0.90 });
+
+  if (kind === "spring") {
+    // Spring: soft green leaf pip
+    g.circle(mx, my, 4.8);
+    g.stroke({ width: 0.85, color: 0x15803d, alpha: 0.94 });
+
+    g.circle(mx, my, 3.8);
+    g.fill({ color: 0x132a1c, alpha: 0.92 });
+
+    // Upper sunlit soft-green leaf blade
+    g.poly([
+      mx - 2.3, my + 1.9,
+      mx - 1.1, my - 1.4,
+      mx + 2.3, my - 2.2,
+      mx + 0.5, my + 0.2,
+    ]);
+    g.fill({ color: 0x4ade80 });
+
+    // Lower shaded leaf facet
+    g.poly([
+      mx - 2.3, my + 1.9,
+      mx + 0.5, my + 0.2,
+      mx + 2.3, my - 2.2,
+      mx + 1.2, my + 1.2,
+    ]);
+    g.fill({ color: 0x16a34a });
+
+    // Pale mint midrib vein & tip dewdrop
+    g.moveTo(mx - 2.5, my + 2.2);
+    g.lineTo(mx + 1.7, my - 1.6);
+    g.stroke({ width: 0.75, color: 0xbbf7d0, alpha: 0.95 });
+
+    g.circle(mx + 2.0, my - 1.9, 0.55);
+    g.fill({ color: 0xbbf7d0 });
+  } else if (kind === "summer") {
+    // Summer: gold sun pip
+    g.circle(mx, my, 4.8);
+    g.stroke({ width: 0.85, color: 0xca8a04, alpha: 0.94 });
+
+    g.circle(mx, my, 3.8);
+    g.fill({ color: 0x2b1f07, alpha: 0.92 });
+
+    // 8-point gold sun starburst rays
+    const pulse = Math.sin(phase * 3.0) * 0.2;
+    const rOuter = 3.1 + pulse;
+    const rInner = 1.6;
+    const dOuter = rOuter * 0.707;
+    const dInner = rInner * 0.383;
+    const dMid = rInner * 0.924;
+    g.poly([
+      mx, my - rOuter,
+      mx + dInner, my - dMid,
+      mx + dOuter, my - dOuter,
+      mx + dMid, my - dInner,
+      mx + rOuter, my,
+      mx + dMid, my + dInner,
+      mx + dOuter, my + dOuter,
+      mx + dInner, my + dMid,
+      mx, my + rOuter,
+      mx - dInner, my + dMid,
+      mx - dOuter, my + dOuter,
+      mx - dMid, my + dInner,
+      mx - rOuter, my,
+      mx - dMid, my - dInner,
+      mx - dOuter, my - dOuter,
+      mx - dInner, my - dMid,
+    ]);
+    g.fill({ color: 0xfbbf24 });
+
+    // Gold sun disk & warm core glint
+    g.circle(mx, my, 1.75);
+    g.fill({ color: 0xfacc15 });
+
+    g.circle(mx - 0.35, my - 0.35, 0.75);
+    g.fill({ color: 0xfef08a });
+  } else if (kind === "autumn") {
+    // Autumn: amber leaf pip
+    g.circle(mx, my, 4.8);
+    g.stroke({ width: 0.85, color: 0x9a3412, alpha: 0.94 });
+
+    g.circle(mx, my, 3.8);
+    g.fill({ color: 0x2c1608, alpha: 0.92 });
+
+    // Warm amber lobed autumn leaf blade
+    g.poly([
+      mx - 2.1, my + 1.8,
+      mx - 2.3, my - 0.4,
+      mx - 0.8, my - 0.8,
+      mx - 0.3, my - 2.4,
+      mx + 0.9, my - 1.1,
+      mx + 2.4, my - 1.5,
+      mx + 0.3, my + 0.3,
+    ]);
+    g.fill({ color: 0xf59e0b });
+
+    // Deep russet-amber lower leaf lobe
+    g.poly([
+      mx - 2.1, my + 1.8,
+      mx + 0.3, my + 0.3,
+      mx + 2.4, my - 1.5,
+      mx + 1.8, my + 0.6,
+      mx + 0.4, my + 2.0,
+    ]);
+    g.fill({ color: 0xd97706 });
+
+    // Golden-amber central vein & tip pip
+    g.moveTo(mx - 2.4, my + 2.2);
+    g.lineTo(mx + 1.6, my - 1.2);
+    g.stroke({ width: 0.75, color: 0xfcd34d, alpha: 0.95 });
+
+    g.circle(mx + 1.9, my - 1.4, 0.55);
+    g.fill({ color: 0xfcd34d });
+  } else {
+    // Winter: pale blue flake pip
+    g.circle(mx, my, 4.8);
+    g.stroke({ width: 0.85, color: 0x0284c7, alpha: 0.94 });
+
+    g.circle(mx, my, 3.8);
+    g.fill({ color: 0x0c2233, alpha: 0.92 });
+
+    // Pale blue crystalline snowflake diamond core
+    g.poly([
+      mx, my - 1.7,
+      mx + 1.7, my,
+      mx, my + 1.7,
+      mx - 1.7, my,
+    ]);
+    g.fill({ color: 0x7dd3fc });
+
+    // Six-pointed pale blue snowflake crystal arms
+    g.moveTo(mx, my - 2.8);
+    g.lineTo(mx, my + 2.8);
+    g.moveTo(mx - 2.4, my - 1.4);
+    g.lineTo(mx + 2.4, my + 1.4);
+    g.moveTo(mx - 2.4, my + 1.4);
+    g.lineTo(mx + 2.4, my - 1.4);
+    g.stroke({ width: 0.85, color: 0xbae6fd, alpha: 0.96 });
+
+    // Crisp ice-blue center & crystal tip pips
+    g.circle(mx, my, 0.75);
+    g.fill({ color: 0xe0f2fe });
+    g.circle(mx, my - 2.8, 0.5);
+    g.fill({ color: 0xe0f2fe });
+    g.circle(mx, my + 2.8, 0.5);
+    g.fill({ color: 0xe0f2fe });
+  }
+}
+
+// -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
 // -------------------------------------------------------------
 export interface BoardSeasonTint {
@@ -5109,6 +5327,12 @@ export function paintBoardProvinces(
     const outpostMarkKind = resolveProvinceOutpostMark(state, p.id);
     if (outpostMarkKind) {
       drawOutpostMark(g, cx - 7, cy + 4, outpostMarkKind, animPhase);
+    }
+
+    // 6.10 Season Pip on Seen Home Tile
+    const seasonMarkKind = resolveProvinceSeasonMark(state, p.id);
+    if (seasonMarkKind) {
+      drawSeasonMark(g, cx + 7, cy + 4, seasonMarkKind, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

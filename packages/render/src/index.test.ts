@@ -12574,6 +12574,217 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // ============================================================================
+              // bakeoff/gemini-season: Season Mark on the Isometric Diamond
+              // ============================================================================
+              describe("bakeoff/gemini-season: Season Mark on the Isometric Diamond (drawSeasonMark, resolveBoardSeasonMark & resolveProvinceSeasonMark)", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const g: any = {
+                    calls,
+                    clear: () => calls.push({ method: "clear", args: [] }),
+                    poly: (pts: number[]) => calls.push({ method: "poly", args: [pts] }),
+                    fill: (opts: any) => calls.push({ method: "fill", args: [opts] }),
+                    stroke: (opts: any) => calls.push({ method: "stroke", args: [opts] }),
+                    rect: (x: number, y: number, w: number, h: number) =>
+                      calls.push({ method: "rect", args: [x, y, w, h] }),
+                    roundRect: (x: number, y: number, w: number, h: number, r: number) =>
+                      calls.push({ method: "roundRect", args: [x, y, w, h, r] }),
+                    circle: (x: number, y: number, r: number) =>
+                      calls.push({ method: "circle", args: [x, y, r] }),
+                    ellipse: (x: number, y: number, rx: number, ry: number) =>
+                      calls.push({ method: "ellipse", args: [x, y, rx, ry] }),
+                    moveTo: (x: number, y: number) => calls.push({ method: "moveTo", args: [x, y] }),
+                    lineTo: (x: number, y: number) => calls.push({ method: "lineTo", args: [x, y] }),
+                    arc: (...args: any[]) => calls.push({ method: "arc", args }),
+                    bezierCurveTo: (...args: any[]) => calls.push({ method: "bezierCurveTo", args }),
+                    quadraticCurveTo: (...args: any[]) =>
+                      calls.push({ method: "quadraticCurveTo", args }),
+                    closePath: () => calls.push({ method: "closePath", args: [] }),
+                  };
+                  return g;
+                }
+
+                describe("drawSeasonMark direct unit tests", () => {
+                  it("paints a soft green leaf for spring", async () => {
+                    const { drawSeasonMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawSeasonMark(g, 120, 80, "spring", 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    expect(fillColors).toContain(0x000000);
+                    expect(fillColors).toContain(0x0d1520);
+                    expect(strokeColors).toContain(0x15803d);
+                    expect(fillColors).toContain(0x132a1c);
+                    expect(fillColors).toContain(0x4ade80);
+                    expect(fillColors).toContain(0x16a34a);
+                    expect(fillColors).toContain(0xbbf7d0);
+                  });
+
+                  it("paints a gold sun for summer", async () => {
+                    const { drawSeasonMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawSeasonMark(g, 120, 80, "summer", 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    expect(fillColors).toContain(0x0d1520);
+                    expect(strokeColors).toContain(0xca8a04);
+                    expect(fillColors).toContain(0x2b1f07);
+                    expect(fillColors).toContain(0xfbbf24);
+                    expect(fillColors).toContain(0xfacc15);
+                    expect(fillColors).toContain(0xfef08a);
+                  });
+
+                  it("paints an amber leaf for autumn", async () => {
+                    const { drawSeasonMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawSeasonMark(g, 120, 80, "autumn", 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    expect(fillColors).toContain(0x0d1520);
+                    expect(strokeColors).toContain(0x9a3412);
+                    expect(fillColors).toContain(0x2c1608);
+                    expect(fillColors).toContain(0xf59e0b);
+                    expect(fillColors).toContain(0xd97706);
+                    expect(fillColors).toContain(0xfcd34d);
+                  });
+
+                  it("paints a pale blue flake for winter", async () => {
+                    const { drawSeasonMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawSeasonMark(g, 120, 80, "winter", 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    expect(fillColors).toContain(0x0d1520);
+                    expect(strokeColors).toContain(0x0284c7);
+                    expect(fillColors).toContain(0x0c2233);
+                    expect(fillColors).toContain(0x7dd3fc);
+                    expect(strokeColors).toContain(0xbae6fd);
+                    expect(fillColors).toContain(0xe0f2fe);
+                  });
+
+                  it("handles null graphics safely", async () => {
+                    const { drawSeasonMark } = await import("./tokens.js");
+                    expect(() => drawSeasonMark(null as any, 0, 0, "spring")).not.toThrow();
+                    expect(() => drawSeasonMark(null as any, 0, 0, "winter")).not.toThrow();
+                  });
+                });
+
+                describe("resolveBoardSeasonMark & resolveProvinceSeasonMark detection", () => {
+                  it("resolves spring, summer, autumn, and winter from currentSeason(state) on the seen home tile", async () => {
+                    const { resolveBoardSeasonMark, resolveProvinceSeasonMark } = await import("./tokens.js");
+                    const { createGameState, neighbors, isProvinceSeen } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const homeId = state.board.homeProvinceId;
+
+                    state.meta.tick = 0;
+                    expect(resolveBoardSeasonMark(state)).toBe("spring");
+                    expect(resolveProvinceSeasonMark(state, homeId)).toBe("spring");
+
+                    state.meta.tick = 2000;
+                    expect(resolveBoardSeasonMark(state)).toBe("summer");
+                    expect(resolveProvinceSeasonMark(state, homeId)).toBe("summer");
+
+                    state.meta.tick = 4000;
+                    expect(resolveBoardSeasonMark(state)).toBe("autumn");
+                    expect(resolveProvinceSeasonMark(state, homeId)).toBe("autumn");
+
+                    state.meta.tick = 6000;
+                    expect(resolveBoardSeasonMark(state)).toBe("winter");
+                    expect(resolveProvinceSeasonMark(state, homeId)).toBe("winter");
+
+                    // Non-home seen tile returns null
+                    const adj = neighbors(state, homeId)[0]!;
+                    expect(resolveProvinceSeasonMark(state, adj.id)).toBeNull();
+
+                    // Unseen tile returns null
+                    const unseen = state.board.provinces.find((p) => !isProvinceSeen(state, p.id))!;
+                    expect(resolveProvinceSeasonMark(state, unseen.id)).toBeNull();
+                  });
+                });
+
+                describe("paintBoardProvinces integration & fog/marks preservation", () => {
+                  it("paints the season pip on the seen home tile across all four seasons while preserving fog", async () => {
+                    const {
+                      paintBoardProvinces,
+                      drawSeasonMark,
+                      resolveBoardSeasonMark,
+                      resolveProvinceSeasonMark,
+                    } = await import("./index.js");
+                    const { createGameState } = await import("@second-crown/sim");
+                    expect(typeof drawSeasonMark).toBe("function");
+                    expect(typeof resolveBoardSeasonMark).toBe("function");
+                    expect(typeof resolveProvinceSeasonMark).toBe("function");
+
+                    const state = createGameState({ seed: 42 });
+
+                    // Spring (tick 0) -> 0x132a1c & 0x4ade80
+                    state.meta.tick = 0;
+                    const gSpring = createMockGraphics();
+                    paintBoardProvinces(gSpring, state, 0);
+                    const springFills = gSpring.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(springFills).toContain(0x0d1520);
+                    expect(springFills).toContain(0x132a1c);
+                    expect(springFills).toContain(0x4ade80);
+                    expect(springFills).not.toContain(0x2b1f07);
+                    expect(springFills).toContain(0x0f172a); // fog preserved
+
+                    // Summer (tick 2000) -> 0x2b1f07 & 0xfbbf24
+                    state.meta.tick = 2000;
+                    const gSummer = createMockGraphics();
+                    paintBoardProvinces(gSummer, state, 0);
+                    const summerFills = gSummer.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(summerFills).toContain(0x0d1520);
+                    expect(summerFills).toContain(0x2b1f07);
+                    expect(summerFills).not.toContain(0x132a1c);
+
+                    // Autumn (tick 4000) -> 0x2c1608 & 0xfcd34d
+                    state.meta.tick = 4000;
+                    const gAutumn = createMockGraphics();
+                    paintBoardProvinces(gAutumn, state, 0);
+                    const autumnFills = gAutumn.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(autumnFills).toContain(0x0d1520);
+                    expect(autumnFills).toContain(0x2c1608);
+                    expect(autumnFills).toContain(0xfcd34d);
+                    expect(autumnFills).not.toContain(0x2b1f07);
+
+                    // Winter (tick 6000) -> 0x0c2233 & 0x7dd3fc
+                    state.meta.tick = 6000;
+                    const gWinter = createMockGraphics();
+                    paintBoardProvinces(gWinter, state, 0);
+                    const winterFills = gWinter.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(winterFills).toContain(0x0d1520);
+                    expect(winterFills).toContain(0x0c2233);
+                    expect(winterFills).toContain(0x7dd3fc);
+                    expect(winterFills).not.toContain(0x2c1608);
+                  });
+                });
+              });
             });
           });
         });
