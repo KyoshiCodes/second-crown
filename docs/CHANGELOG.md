@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-24 — Inspect card shows scout line (wave/hud-scout)
+## 2026-10-24 — Tile with scout shows scout mark on diamond (bakeoff/gemini-scout-mark)
 
-- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- `packages/app/src/hud/scoutLine.ts`: `scoutLine(state, provinceId)` returns `"Scout · here"` when a player scout march to the tile has reached it (`arrivesTick <= state.meta.tick`), `"Scout · inbound"` when one is still on the way, else `null`. Reads only `listMarches` and `isProvinceSeen`; unseen tiles return `null`. No new sim math.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the garrison line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-scout` (sky `#38bdf8`, italic).
-- Tests: `packages/app/src/hud/scoutLine.test.ts` (4 tests: here, inbound, quiet, unseen). `npm test` passes.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceScout(state, provinceId)`: uses only existing march, scout, and visibility data the board already reads (`isProvinceSeen`, `listMarches`, `isScoutMarch`) to detect when a seen province has a player scout on or heading to it. No new sim math.
+  - `drawScoutMark(g, cx, cy, phase)`: paints a small sky cloak and spyglass pip (`0x071e2e` dark sky-slate roundel with `0x0284c7` rim, `0x0c4a6e` deep-sky disk, `0x0ea5e9` / `0x38bdf8` swept sky-blue cloak & hood, and `0x7dd3fc` / `0xe0f2fe` spyglass barrel & gleaming objective lens) on a seen province with a player scout on or heading to it.
+  - `paintBoardProvinces`: calls `drawScoutMark(g, cx + 11, cy - 1, animPhase)` when `hasProvinceScout(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, piles, ruins, camps, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawScoutMark` and `hasProvinceScout`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (5 new tests in `bakeoff/gemini-scout-mark` suite; 502/502 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-24 — Tile with posted garrison shows garrison mark on diamond (bakeoff/gemini-garrison-mark)
 

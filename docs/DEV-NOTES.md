@@ -1,10 +1,11 @@
-## 2026-10-24 — app / inspect card scout line (wave/hud-scout)
+## 2026-10-24 — render / tile with scout shows scout mark on diamond (bakeoff/gemini-scout-mark)
 
-- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- `scoutLine(state, provinceId)` filters `listMarches(state)` to `realmId === "player"`, `purpose === "scout"`, `toId === provinceId`. Any with `arrivesTick <= state.meta.tick` gives `"Scout · here"`; otherwise `"Scout · inbound"`. Returns `null` on unseen tiles (`isProvinceSeen`) and when no scout matches. No new sim math.
-- Why gated on sight: `tryDispatchScout` only targets unseen tiles, but `revealActiveColumns` reveals the route as the column walks and `revealProvince` also reveals neighbours, so the destination turns seen about one step out. The line shows for that last leg. A scout march resolves (reveals, returns force) on its arrival tick, so `here` is brief.
-- Rendered in `ProvinceInspect.tsx` Tile group right after the garrison line as `.sc-inspect-line.sc-inspect-scout` (`#38bdf8`, italic, in `hud/inspect-card.css`).
-- Tests: `hud/scoutLine.test.ts` seeds `flags.marches_json` with a scout march (same pattern as `garrisonLine.test.ts` seeding `garrisons_json`).
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Scout detection: `hasProvinceScout(state, provinceId)` reads only existing march, scout, and visibility helpers (`isProvinceSeen`, `listMarches`, `isScoutMarch`) with zero new sim math. Returns `false` if the tile is unseen (so unseen tiles stay fog). Returns `true` when any player scout march (`m.realmId === "player" && isScoutMarch(m)`) has `m.toId === provinceId` (covering both inbound and arrived scouts).
+- Visual design: `drawScoutMark(g, cx, cy, phase)` paints a compact sky cloak and spyglass pip (`0x071e2e` dark sky-slate roundel with `0x0284c7` rim, `0x0c4a6e` deep-sky disk, `0x0ea5e9` / `0x38bdf8` swept sky-blue cloak & hood, and `0x7dd3fc` / `0xe0f2fe` spyglass barrel & gleaming objective lens). Uses `0x071e2e` for the roundel backing so it does not collide with `0x062c1e` (garrison mark), `0x042619` (outpost mark), `0x2a0808` (camp mark), `0x0d1520` (season mark), `0x19160d` (trail mark), `0x1c1206` (incoming mark), `0x1a0b0e` (clash mark), or `0x090d16` (stock badge), and avoids `0xfacc15` and `0xd4a373`.
+- Integrated into `paintBoardProvinces` at `(cx + 11, cy - 1)` right after `drawGarrisonMark`, preserving terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, piles, ruins, camps, and keeps.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-24 — render / tile with posted garrison shows garrison mark on diamond (bakeoff/gemini-garrison-mark)
 

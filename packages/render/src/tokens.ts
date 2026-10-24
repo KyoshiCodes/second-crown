@@ -3947,6 +3947,95 @@ export function drawGarrisonMark(
 }
 
 // -------------------------------------------------------------
+// Player Scout Cloak & Spyglass Pip on Isometric Diamond (drawScoutMark)
+// -------------------------------------------------------------
+
+/**
+ * Resolves whether a seen province on the board has a player scout on or heading to it.
+ * Uses only existing march, scout, and visibility data the board already reads
+ * (isProvinceSeen, listMarches, isScoutMarch). Unseen tiles always return false (stay fog).
+ */
+export function hasProvinceScout(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+
+  const marches = listMarches(state);
+  return marches.some(
+    (m) => m.realmId === "player" && isScoutMarch(m) && m.toId === provinceId
+  );
+}
+
+/**
+ * Paints a small sky cloak and spyglass pip on a seen province that has a
+ * player scout on or heading to it on the isometric diamond.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the pip (0x000000)
+ * - Dark sky-slate roundel backing (0x071e2e) with sky-azure rim (0x0284c7)
+ * - Inner deep-sky disk (0x0c4a6e)
+ * - Swept sky-blue scout cloak & hood silhouette (0x0ea5e9 shaded fold, 0x38bdf8 sky cloak)
+ * - Angled spyglass barrel & gleaming crystal objective lens (0x7dd3fc barrel, 0xe0f2fe lens glint)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawScoutMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const mx = cx;
+  const my = cy;
+  const sway = Math.sin(phase * 3.0) * 0.25;
+
+  // 1. Soft drop shadow beneath the scout mark
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark sky-slate roundel backing + sky-azure rim
+  g.circle(mx, my, 4.8);
+  g.fill({ color: 0x071e2e, alpha: 0.90 });
+  g.circle(mx, my, 4.8);
+  g.stroke({ width: 0.85, color: 0x0284c7, alpha: 0.94 });
+
+  // 3. Inner deep-sky disk
+  g.circle(mx, my, 3.8);
+  g.fill({ color: 0x0c4a6e, alpha: 0.92 });
+
+  // 4. Swept sky-blue scout cloak & hood (#0ea5e9 & #38bdf8)
+  g.poly([
+    mx - 2.6, my + 2.2,
+    mx - 1.8, my - 1.5,
+    mx - 0.3, my - 2.6,
+    mx + 1.4, my - 1.2,
+    mx + 2.3 + sway, my + 2.1,
+  ]);
+  g.fill({ color: 0x0ea5e9 });
+
+  g.poly([
+    mx - 0.3, my - 2.6,
+    mx + 1.4, my - 1.2,
+    mx + 2.3 + sway, my + 2.1,
+    mx - 0.2, my + 2.1,
+  ]);
+  g.fill({ color: 0x38bdf8 });
+
+  // 5. Angled spyglass barrel & gleaming objective lens
+  g.moveTo(mx - 1.6, my + 1.0);
+  g.lineTo(mx + 2.2, my - 1.5);
+  g.stroke({ width: 1.25, color: 0x7dd3fc, alpha: 0.96 });
+
+  g.circle(mx + 2.3, my - 1.6, 0.95);
+  g.fill({ color: 0x38bdf8 });
+  g.circle(mx + 2.3, my - 1.6, 0.55);
+  g.fill({ color: 0xe0f2fe });
+}
+
+// -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
 // -------------------------------------------------------------
 export interface BoardSeasonTint {
@@ -5436,6 +5525,11 @@ export function paintBoardProvinces(
     // 6.11 Posted Player Garrison Mark on Seen Tiles
     if (hasProvinceGarrison(state, p.id)) {
       drawGarrisonMark(g, cx, cy + 6, animPhase);
+    }
+
+    // 6.12 Player Scout Mark on Seen Tiles
+    if (hasProvinceScout(state, p.id)) {
+      drawScoutMark(g, cx + 11, cy - 1, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-24 — A tile with a scout shows a scout line (wave/hud-scout)
+## 2026-10-24 — Tile with a scout shows a scout mark on the diamond (bakeoff/gemini-scout-mark)
 
-- **A tile with a scout now says "Scout · here" or "Scout · inbound" on the inspect card and play is unchanged.** "Scout · inbound" means your scout is on the way; "Scout · here" means it has reached the tile. The line sits under the garrison line, in sky blue.
-- **Unseen tiles still show nothing.** Fog is the same. Your scout's tile shows the line once the scout's own sight reaches it, near the end of the trip.
+- **A tile with a scout now shows a scout mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a player scout on or heading to it gets a small sky cloak and spyglass pip mark.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
 - **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-24 — Tile with a posted garrison shows a garrison mark on the diamond (bakeoff/gemini-garrison-mark)
