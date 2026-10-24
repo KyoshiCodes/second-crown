@@ -282,3 +282,5 @@
 .sc-inspect-gather { color: #f59e0b; font-style: italic; }
 /* Owner line: seen tile a rival realm holds. Scoped to the line so the Owner fact row keeps its look. */
 .sc-inspect-line.sc-inspect-owner { color: #94a3b8; font-style: italic; }
+/* Hold line: seen tile that is part of your hold. */
+.sc-inspect-hold { color: #d4b062; font-style: italic; }

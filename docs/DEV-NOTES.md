@@ -1,3 +1,11 @@
+## 2026-10-24 — app / inspect card hold line (wave/hud-hold)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `holdLine(state, provinceId)` (`packages/app/src/hud/holdLine.ts`) follows the `ownerLine` / `gatherLine` pattern: `isProvinceSeen` guard, then "Your hold" when `provinceId === state.board.homeProvinceId`, else `null`.
+- Why only home: `BuildingInstance` (`packages/shared/src/index.ts`) has `x, y` on the hold grid and no province id, so player buildings can only be on the home province. If buildings ever get a province id, extend `holdLine` there. Outposts are not part of the hold; they keep `outpostLine` ("Your outpost").
+- Rendered in `ProvinceInspect.tsx` Tile group right after the owner line; `.sc-inspect-hold` uses `#d4b062` (same gold as the trail line), italic.
+- Tests: `holdLine.test.ts` covers home, home with a pushed player building, an empty wild neighbour, and an unseen tile.
+
 ## 2026-10-24 — render / tile held by rival shows owner mark on diamond (bakeoff/gemini-owner-mark)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

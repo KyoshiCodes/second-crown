@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-24 — Inspect card says "Your hold" (wave/hud-hold)
+
+- Inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/holdLine.ts`: `holdLine(state, provinceId)` returns "Your hold" on the seen home province, else `null`. Uses only `isProvinceSeen` and `state.board.homeProvinceId`; no sim math. Player buildings sit on the hold grid at the home province (no province id on `BuildingInstance`), so that covers tiles with a player building.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the owner line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-hold` (gold, italic).
+- Tests: `packages/app/src/hud/holdLine.test.ts` (4 new). `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-24 — Tile held by rival shows owner mark on diamond (bakeoff/gemini-owner-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
