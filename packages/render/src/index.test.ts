@@ -13129,6 +13129,230 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // ============================================================================
+              // bakeoff/gemini-gather-mark: Player Gather Mark on the Isometric Diamond
+              // ============================================================================
+              describe("bakeoff/gemini-gather-mark: Player Gather Mark on the Isometric Diamond (drawGatherMark & hasProvinceGather)", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const g: any = {
+                    calls,
+                    clear: () => calls.push({ method: "clear", args: [] }),
+                    poly: (pts: number[]) => calls.push({ method: "poly", args: [pts] }),
+                    fill: (opts: any) => calls.push({ method: "fill", args: [opts] }),
+                    stroke: (opts: any) => calls.push({ method: "stroke", args: [opts] }),
+                    rect: (x: number, y: number, w: number, h: number) =>
+                      calls.push({ method: "rect", args: [x, y, w, h] }),
+                    roundRect: (x: number, y: number, w: number, h: number, r: number) =>
+                      calls.push({ method: "roundRect", args: [x, y, w, h, r] }),
+                    circle: (x: number, y: number, r: number) =>
+                      calls.push({ method: "circle", args: [x, y, r] }),
+                    ellipse: (x: number, y: number, rx: number, ry: number) =>
+                      calls.push({ method: "ellipse", args: [x, y, rx, ry] }),
+                    moveTo: (x: number, y: number) => calls.push({ method: "moveTo", args: [x, y] }),
+                    lineTo: (x: number, y: number) => calls.push({ method: "lineTo", args: [x, y] }),
+                    arc: (...args: any[]) => calls.push({ method: "arc", args }),
+                    bezierCurveTo: (...args: any[]) => calls.push({ method: "bezierCurveTo", args }),
+                    quadraticCurveTo: (...args: any[]) =>
+                      calls.push({ method: "quadraticCurveTo", args }),
+                    closePath: () => calls.push({ method: "closePath", args: [] }),
+                  };
+                  return g;
+                }
+
+                describe("drawGatherMark direct unit tests", () => {
+                  it("paints a small amber cart and sack pip over a dark amber-chestnut roundel", async () => {
+                    const { drawGatherMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawGatherMark(g, 120, 80, 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow, dark amber-chestnut roundel (0x211508), warm bronze rim (0xb45309), and deep-ochre disk (0x45270d)
+                    expect(fillColors).toContain(0x000000);
+                    expect(fillColors).toContain(0x211508);
+                    expect(strokeColors).toContain(0xb45309);
+                    expect(fillColors).toContain(0x45270d);
+
+                    // Amber handcart bed (#d97706), plump amber gather sack (#f59e0b), tied sack crown & wheel (#fbbf24 & #fef3c7)
+                    expect(fillColors).toContain(0xd97706);
+                    expect(fillColors).toContain(0xf59e0b);
+                    expect(fillColors).toContain(0xfbbf24);
+                    expect(strokeColors).toContain(0xfbbf24);
+                    expect(fillColors).toContain(0xfef3c7);
+                  });
+
+                  it("handles null graphics safely and supports animated phase bob", async () => {
+                    const { drawGatherMark } = await import("./tokens.js");
+                    expect(() => drawGatherMark(null as any, 0, 0)).not.toThrow();
+
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawGatherMark(g0, 100, 100, 0);
+                    drawGatherMark(g1, 100, 100, 0.5);
+                    expect(g0.calls.length).toBe(g1.calls.length);
+                  });
+                });
+
+                describe("hasProvinceGather detection", () => {
+                  it("returns true on a seen province with a player gather working or heading to it", async () => {
+                    const { hasProvinceGather } = await import("./tokens.js");
+                    const { createGameState, neighbors } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+
+                    // Working ("gathering") player gather
+                    state.flags["gathers_json"] = JSON.stringify([
+                      {
+                        id: "g_1",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: tile.id,
+                        node: "woodcut",
+                        force: { militia: 1 },
+                        phase: "gathering",
+                        departedTick: state.meta.tick,
+                        arrivesTick: state.meta.tick + 30,
+                        travelTicks: 30,
+                        gatherStartedTick: state.meta.tick,
+                        capacity: "6",
+                        load: "0",
+                      },
+                    ]);
+                    expect(hasProvinceGather(state, tile.id)).toBe(true);
+
+                    // Inbound ("outbound") player gather
+                    state.flags["gathers_json"] = JSON.stringify([
+                      {
+                        id: "g_2",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: tile.id,
+                        node: "woodcut",
+                        force: { militia: 1 },
+                        phase: "outbound",
+                        departedTick: state.meta.tick,
+                        arrivesTick: state.meta.tick + 30,
+                        travelTicks: 30,
+                        gatherStartedTick: state.meta.tick,
+                        capacity: "6",
+                        load: "0",
+                      },
+                    ]);
+                    expect(hasProvinceGather(state, tile.id)).toBe(true);
+                  });
+
+                  it("returns false on a quiet province, for a returning gather, or on an unseen tile", async () => {
+                    const { hasProvinceGather } = await import("./tokens.js");
+                    const { createGameState, neighbors, isProvinceSeen } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+
+                    // Quiet province
+                    expect(hasProvinceGather(state, tile.id)).toBe(false);
+
+                    // Returning gather (has left the tile)
+                    state.flags["gathers_json"] = JSON.stringify([
+                      {
+                        id: "g_ret",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: tile.id,
+                        node: "woodcut",
+                        force: { militia: 1 },
+                        phase: "returning",
+                        departedTick: state.meta.tick,
+                        arrivesTick: state.meta.tick + 30,
+                        travelTicks: 30,
+                        gatherStartedTick: state.meta.tick,
+                        capacity: "6",
+                        load: "6",
+                      },
+                    ]);
+                    expect(hasProvinceGather(state, tile.id)).toBe(false);
+
+                    // Unseen tile with an outbound player gather stays false (fog)
+                    const unseen = state.board.provinces.find((p) => !isProvinceSeen(state, p.id))!;
+                    state.flags["gathers_json"] = JSON.stringify([
+                      {
+                        id: "g_unseen",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: unseen.id,
+                        node: "woodcut",
+                        force: { militia: 1 },
+                        phase: "outbound",
+                        departedTick: state.meta.tick,
+                        arrivesTick: state.meta.tick + 30,
+                        travelTicks: 30,
+                        gatherStartedTick: state.meta.tick,
+                        capacity: "6",
+                        load: "0",
+                      },
+                    ]);
+                    expect(hasProvinceGather(state, unseen.id)).toBe(false);
+                  });
+                });
+
+                describe("paintBoardProvinces integration & fog/marks preservation", () => {
+                  it("paints the gather mark on a seen province with a player gather while preserving fog and existing marks", async () => {
+                    const { paintBoardProvinces, drawGatherMark, hasProvinceGather } = await import("./index.js");
+                    const { createGameState, neighbors } = await import("@second-crown/sim");
+                    expect(typeof drawGatherMark).toBe("function");
+                    expect(typeof hasProvinceGather).toBe("function");
+
+                    const state = createGameState({ seed: 42 });
+
+                    // Quiet board: no gather mark (0x211508) drawn
+                    const gQuiet = createMockGraphics();
+                    paintBoardProvinces(gQuiet, state, 0);
+                    const quietFills = gQuiet.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(quietFills).not.toContain(0x211508);
+
+                    // Player gather on a seen neighbor province: gather mark drawn alongside season mark and fog
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+                    state.flags["gathers_json"] = JSON.stringify([
+                      {
+                        id: "g_active",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: tile.id,
+                        node: "woodcut",
+                        force: { militia: 1 },
+                        phase: "gathering",
+                        departedTick: state.meta.tick,
+                        arrivesTick: state.meta.tick + 30,
+                        travelTicks: 30,
+                        gatherStartedTick: state.meta.tick,
+                        capacity: "6",
+                        load: "2",
+                      },
+                    ]);
+
+                    const gGather = createMockGraphics();
+                    paintBoardProvinces(gGather, state, 0);
+                    const gatherFills = gGather.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(gatherFills).toContain(0x211508);
+                    expect(gatherFills).toContain(0x45270d);
+                    expect(gatherFills).toContain(0xd97706);
+                    expect(gatherFills).toContain(0xf59e0b);
+                    expect(gatherFills).toContain(0xfbbf24);
+                    // Season mark on home tile (0x0d1520) and fog on unseen tiles (0x0f172a) preserved
+                    expect(gatherFills).toContain(0x0d1520);
+                    expect(gatherFills).toContain(0x0f172a);
+                  });
+                });
+              });
             });
           });
         });
