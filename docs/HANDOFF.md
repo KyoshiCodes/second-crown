@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#267** (gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hud-owner` (**not merged**, see Owner line on inspect below).
+Merged through PR **#267** (gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-owner-mark` (**not merged**, see Owner mark on diamond below).
 
 ### Cultures and units (all merged)
 
@@ -282,7 +282,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - A seen tile with a player scout on or heading to it on the isometric diamond gets a small scout mark (`drawScoutMark(g, cx, cy, phase)` and `hasProvinceScout(state, provinceId)` in `packages/render/src/tokens.ts`): a small sky cloak and spyglass pip (`0x071e2e` dark sky-slate roundel, `0x0284c7` rim, `0x0c4a6e` deep-sky disk, `0x0ea5e9` / `0x38bdf8` swept sky-blue cloak & hood, and `0x7dd3fc` / `0xe0f2fe` spyglass barrel & gleaming objective lens) using only existing march, scout, and visibility data the board already reads (`isProvinceSeen`, `listMarches`, `isScoutMarch`).
 - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, piles, ruins, camps, and keeps stay as they are.
 
-## Gather mark on diamond (PR #267, merged)
+## Gather mark on diamond (branch `bakeoff/gemini-gather-mark`, **merged as PR #267**)
 
 - The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - A seen tile with a player gather on or heading to it on the isometric diamond gets a small gather mark (`drawGatherMark(g, cx, cy, phase)` and `hasProvinceGather(state, provinceId)` in `packages/render/src/tokens.ts`): a small amber cart and sack pip (`0x211508` dark amber-chestnut roundel, `0xb45309` rim, `0x45270d` deep-ochre disk, `0xd97706` handcart bed, `0xf59e0b` plump amber gather sack, `0xfbbf24` tied sack crown & wheel rim, and `0xfef3c7` wheel hub pip) using only existing gather, march, and visibility data the board already reads (`isProvinceSeen`, `listGathers`, `listMarches`).
@@ -291,13 +291,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (507 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Owner line on inspect (branch `wave/hud-owner`, **not merged**)
+## Owner mark on diamond (branch `bakeoff/gemini-owner-mark`, **not merged**)
 
-- Province inspect card only. Do not change `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- `ownerLine(state, provinceId)` in `packages/app/src/hud/ownerLine.ts` returns `Held by <realm name>` (e.g. `Held by Silk Coast`) when a rival realm holds a seen tile. Reads `isProvinceSeen`, `getProvince(...).occupantRealmId`, and `state.realms` only. No sim math.
-- Player-owned, empty, and unseen tiles show nothing.
-- `ProvinceInspect.tsx` renders it in the Tile group right after the gather line, as `.sc-inspect-line.sc-inspect-owner` (slate `#94a3b8`, italic) in `hud/inspect-card.css`.
-- Tests: `packages/app/src/hud/ownerLine.test.ts` (4 tests). `npm test` passes.
+- The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
+- A seen tile owned by a rival realm on the isometric diamond gets a small owner mark (`drawOwnerMark(g, cx, cy, realmIdOrPal, phase)`, `resolveProvinceOwnerMark(state, provinceId)`, and `hasProvinceOwner(state, provinceId)` in `packages/render/src/tokens.ts`): a small realm crest or banner pip (`0x141419` dark iron-slate roundel, `pal.borderColor` rim, `pal.rimColor` inner disk, `pal.studColor` vertical flagpole, `pal.pennantColor` fluttering swallowtail banner, and `pal.accentColor` crest finial pip) using only existing owner and visibility data the board already reads (`isProvinceSeen`, `p.occupantRealmId`). Player-owned tiles get no mark.
+- Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+- Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (518 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
 ## Verify
 
