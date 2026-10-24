@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-24 — Inspect card shows a posted garrison (wave/hud-garrison)
+
+- **A tile with a posted garrison now says "Garrison · posted" and play is unchanged.** Open the inspect card on a tile where you stationed a garrison and you will see a short emerald line under the season line.
+- **Unseen tiles still show nothing.** Fog works the same.
+- **Play is unchanged.** Garrisons, marches, outposts, saves, and every button work exactly as before.
+
 ## 2026-10-23 — Diamond shows a season mark (bakeoff/gemini-season)
 
 - **The diamond now shows a season mark and play is unchanged.** The home tile on the isometric diamond gets a small season pip that changes with the current season: a soft green leaf for spring, a gold sun for summer, an amber leaf for autumn, and a pale blue flake for winter.
