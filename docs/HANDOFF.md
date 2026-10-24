@@ -1,11 +1,11 @@
-# Handoff (2026-10-24)
+# Handoff (2026-10-14)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#269** (owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hud-hold` (**not merged**, see Hold line below).
+Merged through PR **#269** (owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-hold-mark` (**not merged**, see Hold mark on diamond below).
 
 ### Cultures and units (all merged)
 
@@ -300,13 +300,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (518 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Hold line (branch `wave/hud-hold`, **not merged**)
+## Hold mark on diamond (branch `bakeoff/gemini-hold-mark`, **not merged**)
 
-- Inspect card only. Do not change `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- `holdLine(state, provinceId)` in `packages/app/src/hud/holdLine.ts` returns "Your hold" on the seen home province (`state.board.homeProvinceId`), else `null`. Unseen tiles show nothing.
-- Player buildings (`BuildingInstance`) carry hold-grid `x, y` and no province id, so every player building is in the home hold. The "has a player building" case is therefore the home tile. Outposts keep their own "Your outpost" line.
-- `ProvinceInspect.tsx` renders it in the Tile group right after the owner line, class `.sc-inspect-hold` (gold, italic) in `hud/inspect-card.css`.
-- Tests: `packages/app/src/hud/holdLine.test.ts` (4). `npm test` and `npm run build -w @second-crown/app` pass.
+- The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
+- A seen tile that is part of the player's hold on the isometric diamond gets a small hold mark (`drawHoldMark(g, cx, cy, phase)` and `hasProvinceHold(state, provinceId)` in `packages/render/src/tokens.ts`): a small gold crown pip (`0x251a06` dark imperial gold roundel, `0xd97706` rim, `0x422d08` deep-bronze disk, `0xf59e0b` crown base, `0xfbbf24` gold crown peaks, `0xfef08a` peak jewels, and `0xef4444` ruby glint) using only existing hold, building, and visibility data the board already reads (`isProvinceSeen`, `state.board.homeProvinceId`, `state.buildings`).
+- Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+- Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (528 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
 ## Verify
 

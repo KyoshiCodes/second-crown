@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-24 — Your hold on the inspect card (wave/hud-hold)
+## 2026-10-24 — Tile that is part of your hold shows a hold mark on the diamond (bakeoff/gemini-hold-mark)
 
-- **A tile that is part of your hold now says "Your hold" on the inspect card and play is unchanged.** Click your home tile to see the gold line under the Tile facts.
-- **Unseen tiles still show nothing.** Fog is the same.
+- **A tile that is part of your hold now shows a hold mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that is the player's home or has a player building on it gets a small gold crown pip mark.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
 - **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-24 — Tile held by rival shows owner mark on the diamond (bakeoff/gemini-owner-mark)

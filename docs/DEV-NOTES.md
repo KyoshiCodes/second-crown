@@ -1,12 +1,11 @@
-## 2026-10-24 — app / inspect card hold line (wave/hud-hold)
+## 2026-10-24 — render / tile that is part of player hold shows hold mark on diamond (bakeoff/gemini-hold-mark)
 
-- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- `holdLine(state, provinceId)` (`packages/app/src/hud/holdLine.ts`) follows the `ownerLine` / `gatherLine` pattern: `isProvinceSeen` guard, then "Your hold" when `provinceId === state.board.homeProvinceId`, else `null`.
-- Why only home: `BuildingInstance` (`packages/shared/src/index.ts`) has `x, y` on the hold grid and no province id, so player buildings can only be on the home province. If buildings ever get a province id, extend `holdLine` there. Outposts are not part of the hold; they keep `outpostLine` ("Your outpost").
-- Rendered in `ProvinceInspect.tsx` Tile group right after the owner line; `.sc-inspect-hold` uses `#d4b062` (same gold as the trail line), italic.
-- Tests: `holdLine.test.ts` covers home, home with a pushed player building, an empty wild neighbour, and an unseen tile.
-
-## 2026-10-24 — render / tile held by rival shows owner mark on diamond (bakeoff/gemini-owner-mark)
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Hold detection: `hasProvinceHold(state, provinceId)` reads only existing hold, building, and visibility helpers (`isProvinceSeen`, `state.board.homeProvinceId`, `state.buildings`) with zero new sim math. Returns `false` if the tile is unseen (so unseen tiles stay fog). Returns `true` when `provinceId === state.board.homeProvinceId` or when any player building in `state.buildings` resides on or targets `provinceId`.
+- Visual design: `drawHoldMark(g, cx, cy, phase)` paints a compact gold crown pip (`0x251a06` dark imperial gold roundel with `0xd97706` warm amber rim, `0x422d08` deep-bronze disk, `0xf59e0b` crown base band, `0xfbbf24` 3-pointed gold crown peaks, `0xfef08a` peak finial pips, and `0xef4444` headband ruby glint). Uses `0x251a06` for the roundel backing so it does not collide with `0x141419` (owner mark), `0x211508` (gather mark), `0x071e2e` (scout mark), `0x062c1e` (garrison mark), `0x042619` (outpost mark), `0x2a0808` (camp mark), `0x0d1520` (season mark), `0x19160d` (trail mark), `0x1c1206` (incoming mark), `0x1a0b0e` (clash mark), or `0x090d16` (stock badge), and avoids `0xfacc15` and `0xd4a373`.
+- Integrated into `paintBoardProvinces` at `(cx - 7, cy + 4)` right after `drawOwnerMark`, preserving terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, piles, ruins, camps, and keeps. On the player's home tile, this location is open (as outpost mark is excluded from home tile) and balances the season mark at `(cx + 7, cy + 4)`.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
 - Rival owner detection: `resolveProvinceOwnerMark(state, provinceId)` and `hasProvinceOwner(state, provinceId)` read only existing province ownership and visibility helpers (`isProvinceSeen`, `p.occupantRealmId`) with zero new sim math. Returns `null` if the tile is unseen (so unseen tiles stay fog), unowned, or held by the player (`p.occupantRealmId === "player"`, player-owned tiles get no mark). Returns the rival `realmId` string when `p.occupantRealmId` is a rival realm.
