@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-23 — The inspect card now shows the current season (wave/hud-season)
+
+- **The inspect card now shows the current season, and play is unchanged.** A short line such as "Season · winter" sits in the Tile group under the outpost line, in soft sky-blue italics.
+- **Unseen tiles still show nothing.** Fog is unchanged.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-23 — Player outpost shows a flag mark and rival camp shows a camp mark on the diamond (bakeoff/gemini-outpost-mark)
 
 - **A player outpost now shows a flag mark and a rival camp shows a camp mark on the diamond and play is unchanged.** A seen player outpost on the isometric diamond gets a small emerald flag pip, and a seen rival camp gets a small deep-red camp pip.

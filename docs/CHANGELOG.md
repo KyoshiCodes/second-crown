@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-23 — Season line on the inspect card (wave/hud-season)
+
+- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/seasonLine.ts`: `seasonLine(state)` returns `"Season · spring"` / `"Season · summer"` / `"Season · autumn"` / `"Season · winter"` from `currentSeason(state)`.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the outpost line, on seen tiles only.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-line.sc-inspect-season` (soft sky `#7dd3fc`, italic), scoped so the existing Season facts row keeps its look.
+- Tests: `packages/app/src/hud/seasonLine.test.ts` (4 tests). `npm test` passes.
+
 ## 2026-10-23 — Player outpost and rival camp show status marks on diamond (bakeoff/gemini-outpost-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

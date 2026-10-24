@@ -276,3 +276,4 @@
 .sc-inspect-outpost { font-style: italic; }
 .sc-inspect-outpost.is-yours { color: #059669; }
 .sc-inspect-outpost.is-rival { color: #991b1b; }
+.sc-inspect-line.sc-inspect-season { color: #7dd3fc; font-style: italic; }
