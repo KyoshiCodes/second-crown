@@ -4146,6 +4146,111 @@ export function drawGatherMark(
 }
 
 // -------------------------------------------------------------
+// Rival Realm Owner Mark on Isometric Diamond (drawOwnerMark)
+// -------------------------------------------------------------
+
+/**
+ * Resolves whether a seen province on the board is owned by a rival realm.
+ * Uses only existing province ownership and visibility data the board already reads
+ * (isProvinceSeen, p.occupantRealmId).
+ * Unseen tiles always return null (stay fog), unowned tiles return null,
+ * and player-owned tiles return null (player-owned tiles get no mark).
+ * Returns the rival realmId string (e.g. "rival", "k_silk", etc.) if owned by a rival.
+ */
+export function resolveProvinceOwnerMark(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): string | null {
+  if (!state?.board?.provinces || !provinceId) return null;
+  if (!isProvinceSeen(state, provinceId)) return null;
+
+  const p = state.board.provinces.find((pr) => pr.id === provinceId);
+  if (!p || !p.occupantRealmId) return null;
+  if (p.occupantRealmId === "player" || p.occupantRealmId === "none") return null;
+
+  return p.occupantRealmId;
+}
+
+/**
+ * Returns true if the province is seen and owned by a rival realm.
+ */
+export function hasProvinceOwner(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  return resolveProvinceOwnerMark(state, provinceId) !== null;
+}
+
+/**
+ * Paints a small realm crest or banner pip on a seen province that is owned by a rival realm.
+ * Player-owned tiles get no mark.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the pip (0x000000)
+ * - Dark iron-slate roundel backing (0x141419) with realm border rim (pal.borderColor)
+ * - Inner disk tinted with pal.rimColor (alpha: 0.25)
+ * - Vertical flagpole / spear staff in pal.studColor
+ * - Fluttering realm pennant / banner in pal.pennantColor
+ * - Crest finial pip at top of staff in pal.accentColor
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawOwnerMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  realmIdOrPal?: string | RealmTokenPalette,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const pal: RealmTokenPalette =
+    typeof realmIdOrPal === "object" && realmIdOrPal !== null
+      ? realmIdOrPal
+      : realmTokenPalette(typeof realmIdOrPal === "string" ? realmIdOrPal : "rival");
+
+  const mx = cx;
+  const my = cy;
+  const flutter = Math.sin(phase * 3.5) * 0.3;
+
+  // 1. Soft drop shadow beneath the owner mark
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark iron-slate roundel backing + realm border rim
+  g.circle(mx, my, 4.8);
+  g.fill({ color: 0x141419, alpha: 0.90 });
+  g.circle(mx, my, 4.8);
+  g.stroke({ width: 0.85, color: pal.borderColor, alpha: 0.94 });
+
+  // 3. Inner disk tinted with realm rim color
+  g.circle(mx, my, 3.8);
+  g.fill({ color: pal.rimColor, alpha: 0.25 });
+
+  // 4. Vertical flagpole / spear staff (pal.studColor)
+  g.poly([
+    mx - 2.2, my - 2.5,
+    mx - 1.4, my - 2.5,
+    mx - 1.4, my + 2.5,
+    mx - 2.2, my + 2.5,
+  ]);
+  g.fill({ color: pal.studColor });
+
+  // 5. Fluttering realm pennant / swallowtail banner (pal.pennantColor)
+  g.poly([
+    mx - 1.4, my - 2.3,
+    mx + 2.4, my - 2.0 + flutter,
+    mx + 1.4, my - 0.7 + flutter * 0.5,
+    mx + 2.4, my + 0.5,
+    mx - 1.4, my + 0.3,
+  ]);
+  g.fill({ color: pal.pennantColor });
+
+  // 6. Finial crest pip atop the flagpole (pal.accentColor)
+  g.circle(mx - 1.8, my - 2.8, 0.9);
+  g.fill({ color: pal.accentColor });
+}
+
+// -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
 // -------------------------------------------------------------
 export interface BoardSeasonTint {
@@ -5645,6 +5750,12 @@ export function paintBoardProvinces(
     // 6.13 Player Gather Mark on Seen Tiles
     if (hasProvinceGather(state, p.id)) {
       drawGatherMark(g, cx - 11, cy - 1, animPhase);
+    }
+
+    // 6.14 Rival Realm Owner Mark on Seen Tiles
+    const ownerRealmId = resolveProvinceOwnerMark(state, p.id);
+    if (ownerRealmId) {
+      drawOwnerMark(g, cx + 7, cy + 4, ownerRealmId, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

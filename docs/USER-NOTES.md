@@ -2,11 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-24 — A rival tile says who holds it (wave/hud-owner)
+## 2026-10-24 — Tile held by rival shows owner mark on the diamond (bakeoff/gemini-owner-mark)
 
-- **A tile held by a rival now says "Held by [realm]" on the inspect card, and play is unchanged.** For example: "Held by Silk Coast".
-- Your own tiles and empty tiles show nothing new.
-- **Unseen tiles still show nothing.** Fog works the same.
+- **A tile held by a rival now shows an owner mark on the diamond and play is unchanged.** A seen tile on the isometric diamond owned by a rival realm gets a small realm crest or banner pip mark. Player-owned tiles get no mark.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
 - **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-24 — Tile with a gather shows a gather mark on the diamond (bakeoff/gemini-gather-mark)

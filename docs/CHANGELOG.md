@@ -1,12 +1,18 @@
 # CHANGELOG
 
-## 2026-10-24 — Inspect card says who holds a rival tile (wave/hud-owner)
+## 2026-10-24 — Tile held by rival shows owner mark on diamond (bakeoff/gemini-owner-mark)
 
-- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/ownerLine.ts`: `ownerLine(state, provinceId)` returns `Held by <realm>` when a rival realm holds a seen province, else `null`. Uses `isProvinceSeen`, `getProvince` (`occupantRealmId`), and `state.realms` only. No new sim math.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the gather line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-line.sc-inspect-owner` (slate, italic). Scoped to the line so the existing Owner fact row keeps its look.
-- Tests: `packages/app/src/hud/ownerLine.test.ts` (4 tests: rival, player, empty, unseen). `npm test` passes.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `resolveProvinceOwnerMark(state, provinceId)`: uses only existing province ownership and visibility data the board already reads (`isProvinceSeen`, `p.occupantRealmId`) to detect when a seen province is held by a rival realm (`p.occupantRealmId && p.occupantRealmId !== "player" && p.occupantRealmId !== "none"`). Unseen tiles stay fog and return `null`. Player-owned tiles get no mark and return `null`. Unowned tiles return `null`. Returns the rival `realmId` string.
+  - `hasProvinceOwner(state, provinceId)`: returns `true` when `resolveProvinceOwnerMark(state, provinceId)` is non-null.
+  - `drawOwnerMark(g, cx, cy, realmIdOrPal, phase)`: paints a small realm crest or banner pip (`0x141419` dark iron-slate roundel with `pal.borderColor` rim, `pal.rimColor` inner disk, `pal.studColor` vertical flagpole, `pal.pennantColor` fluttering swallowtail banner, and `pal.accentColor` crest finial pip) on a seen province owned by a rival.
+  - `paintBoardProvinces`: calls `drawOwnerMark(g, cx + 7, cy + 4, ownerRealmId, animPhase)` when `resolveProvinceOwnerMark(state, p.id)` returns a rival realm id.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, piles, ruins, camps, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawOwnerMark`, `resolveProvinceOwnerMark`, and `hasProvinceOwner`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (6 new tests in `bakeoff/gemini-owner-mark` suite; 518/518 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-24 — Tile with gather shows gather mark on diamond (bakeoff/gemini-gather-mark)
 

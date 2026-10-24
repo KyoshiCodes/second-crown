@@ -13353,6 +13353,233 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // bakeoff/gemini-owner-mark: Rival Realm Owner Mark on the Isometric Diamond
+              describe("bakeoff/gemini-owner-mark: Rival Realm Owner Mark on the Isometric Diamond (drawOwnerMark & resolveProvinceOwnerMark)", () => {
+                const createOwnerBoardState = (
+                  seenRival: boolean = true,
+                  occupant: string | null = "rival"
+                ): GameState => {
+                  const flags: Record<string, any> = {
+                    fog_seen: JSON.stringify(seenRival ? ["p_home", "p_rival"] : ["p_home"]),
+                    "seen:p_home": true,
+                    ...(seenRival ? { "seen:p_rival": true } : {}),
+                  };
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "rival", isPlayer: false, name: "Rival" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags,
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        {
+                          id: "p_home",
+                          name: "Home",
+                          realmId: "player",
+                          occupantRealmId: "player",
+                          node: "none",
+                          terrain: "plains",
+                          x: 0,
+                          y: 0,
+                          elevation: 0,
+                        },
+                        {
+                          id: "p_rival",
+                          name: "Rival Hold",
+                          realmId: occupant ?? undefined,
+                          occupantRealmId: occupant ?? undefined,
+                          node: "none",
+                          terrain: "woods",
+                          x: 3,
+                          y: 3,
+                          elevation: 0,
+                        },
+                        {
+                          id: "p_unseen_rival",
+                          name: "Unseen Rival",
+                          realmId: occupant ? "rival" : undefined,
+                          occupantRealmId: occupant ? "rival" : undefined,
+                          node: "none",
+                          terrain: "hills",
+                          x: 4,
+                          y: 4,
+                          elevation: 0,
+                        },
+                      ],
+                    },
+                  } as unknown as GameState;
+                };
+
+                describe("drawOwnerMark direct unit tests", () => {
+                  it("paints drop shadow, iron-slate roundel backing (0x141419), border rim, disk, flagpole, pennant, and finial pip", async () => {
+                    const { drawOwnerMark, realmTokenPalette } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawOwnerMark(g, 100, 80, "rival", 0);
+
+                    const pal = realmTokenPalette("rival");
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokes = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow (0x000000)
+                    expect(fills).toContain(0x000000);
+                    // Dark iron-slate roundel backing (0x141419)
+                    expect(fills).toContain(0x141419);
+                    // Rim stroke (pal.borderColor)
+                    expect(strokes).toContain(pal.borderColor);
+                    // Staff (pal.studColor)
+                    expect(fills).toContain(pal.studColor);
+                    // Fluttering pennant (pal.pennantColor)
+                    expect(fills).toContain(pal.pennantColor);
+                    // Finial crest pip (pal.accentColor)
+                    expect(fills).toContain(pal.accentColor);
+                  });
+
+                  it("accepts a custom RealmTokenPalette or default fallback gracefully", async () => {
+                    const { drawOwnerMark } = await import("./tokens.js");
+                    const customPal = {
+                      realmId: "custom",
+                      name: "Custom",
+                      glyph: "✦",
+                      borderColor: 0x123456,
+                      rimColor: 0x654321,
+                      studColor: 0xabcdef,
+                      keepWallColor: 0x333333,
+                      keepWallDark: 0x222222,
+                      battlementColor: 0x444444,
+                      pennantColor: 0x987654,
+                      accentColor: 0xfedcba,
+                      plaqueColor: 0x111111,
+                      plaqueBorder: 0x555555,
+                    };
+                    const g = createMockGraphics();
+                    drawOwnerMark(g, 50, 50, customPal, 0);
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(fills).toContain(0x987654); // pennantColor
+                    expect(fills).toContain(0xfedcba); // accentColor
+                  });
+
+                  it("safely handles null graphics without throwing", async () => {
+                    const { drawOwnerMark } = await import("./tokens.js");
+                    expect(() => drawOwnerMark(null as any, 0, 0)).not.toThrow();
+                  });
+
+                  it("varies pennant flutter with animation phase", async () => {
+                    const { drawOwnerMark } = await import("./tokens.js");
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawOwnerMark(g0, 100, 100, "rival", 0);
+                    drawOwnerMark(g1, 100, 100, "rival", 0.5);
+
+                    const poly0 = g0.calls.filter((c: any) => c.method === "poly");
+                    const poly1 = g1.calls.filter((c: any) => c.method === "poly");
+                    expect(poly0).not.toEqual(poly1);
+                  });
+                });
+
+                describe("resolveProvinceOwnerMark and hasProvinceOwner detection", () => {
+                  it("returns rival realmId on a seen province held by a rival realm", async () => {
+                    const { resolveProvinceOwnerMark, hasProvinceOwner } = await import("./tokens.js");
+                    const state = createOwnerBoardState(true, "rival");
+                    expect(resolveProvinceOwnerMark(state, "p_rival")).toBe("rival");
+                    expect(hasProvinceOwner(state, "p_rival")).toBe(true);
+                  });
+
+                  it("returns null and false on player-owned tiles (player-owned tiles get no mark)", async () => {
+                    const { resolveProvinceOwnerMark, hasProvinceOwner } = await import("./tokens.js");
+                    const state = createOwnerBoardState(true, "rival");
+                    expect(resolveProvinceOwnerMark(state, "p_home")).toBeNull();
+                    expect(hasProvinceOwner(state, "p_home")).toBe(false);
+                  });
+
+                  it("returns null and false on unowned tiles", async () => {
+                    const { resolveProvinceOwnerMark, hasProvinceOwner } = await import("./tokens.js");
+                    const state = createOwnerBoardState(true, null);
+                    expect(resolveProvinceOwnerMark(state, "p_rival")).toBeNull();
+                    expect(hasProvinceOwner(state, "p_rival")).toBe(false);
+                  });
+
+                  it("returns null and false on unseen tiles (unseen tiles stay fog)", async () => {
+                    const { resolveProvinceOwnerMark, hasProvinceOwner } = await import("./tokens.js");
+                    const state = createOwnerBoardState(false, "rival");
+                    // p_rival is unseen in this state
+                    expect(resolveProvinceOwnerMark(state, "p_rival")).toBeNull();
+                    expect(hasProvinceOwner(state, "p_rival")).toBe(false);
+
+                    // p_unseen_rival is always unseen
+                    expect(resolveProvinceOwnerMark(state, "p_unseen_rival")).toBeNull();
+                    expect(hasProvinceOwner(state, "p_unseen_rival")).toBe(false);
+                  });
+
+                  it("safely handles null/undefined state or missing provinceId", async () => {
+                    const { resolveProvinceOwnerMark, hasProvinceOwner } = await import("./tokens.js");
+                    expect(resolveProvinceOwnerMark(null, "p_rival")).toBeNull();
+                    expect(resolveProvinceOwnerMark(undefined, "p_rival")).toBeNull();
+                    expect(hasProvinceOwner(null, "p_rival")).toBe(false);
+                  });
+                });
+
+                describe("paintBoardProvinces integration with owner mark", () => {
+                  it("paints the owner mark on a seen province owned by a rival while preserving fog and existing marks", async () => {
+                    const { paintBoardProvinces, drawOwnerMark, resolveProvinceOwnerMark, hasProvinceOwner, realmTokenPalette } = await import("./index.js");
+                    expect(typeof drawOwnerMark).toBe("function");
+                    expect(typeof resolveProvinceOwnerMark).toBe("function");
+                    expect(typeof hasProvinceOwner).toBe("function");
+
+                    const state = createOwnerBoardState(true, "rival");
+                    const pal = realmTokenPalette("rival");
+
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Rival owner mark roundel backing (0x141419), pennant, and finial pip
+                    expect(fills).toContain(0x141419);
+                    expect(fills).toContain(pal.pennantColor);
+                    expect(fills).toContain(pal.accentColor);
+
+                    // Season mark on home tile (0x0d1520) and fog on unseen tiles (0x0f172a) preserved
+                    expect(fills).toContain(0x0d1520);
+                    expect(fills).toContain(0x0f172a);
+                  });
+
+                  it("does not paint owner mark on player home tile or unowned tiles", async () => {
+                    const { paintBoardProvinces } = await import("./index.js");
+                    // State where neither province has rival occupant
+                    const state = createOwnerBoardState(true, null);
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // 0x141419 is exclusively the rival owner mark backing color
+                    expect(fills).not.toContain(0x141419);
+                  });
+                });
+              });
             });
           });
         });

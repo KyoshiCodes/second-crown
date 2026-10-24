@@ -151,6 +151,9 @@ import {
   hasProvinceScout,
   drawGatherMark,
   hasProvinceGather,
+  drawOwnerMark,
+  resolveProvinceOwnerMark,
+  hasProvinceOwner,
 } from "./tokens.js";
 
 import {
@@ -1047,5 +1050,8 @@ export {
   hasProvinceScout,
   drawGatherMark,
   hasProvinceGather,
+  drawOwnerMark,
+  resolveProvinceOwnerMark,
+  hasProvinceOwner,
 };
 

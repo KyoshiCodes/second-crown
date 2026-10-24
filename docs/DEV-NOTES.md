@@ -1,10 +1,11 @@
-## 2026-10-24 — app / inspect card owner line (wave/hud-owner)
+## 2026-10-24 — render / tile held by rival shows owner mark on diamond (bakeoff/gemini-owner-mark)
 
-- Slice constraints: app only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- `ownerLine(state, provinceId)` mirrors `ownerOf` in `ProvinceInspect.tsx` (same `occupantRealmId` + `state.realms` lookup, falls back to the raw realm id) but only speaks for rivals: `null` when unseen, unowned, or `occupantRealmId === "player"`. The home tile is player-held, so it shows nothing.
-- CSS: the class `.sc-inspect-owner` was already used by the Owner fact row (`<div class="sc-inspect-owner is-...">` in the facts `dl`). A bare `.sc-inspect-owner { ... }` rule would have turned that row's label italic slate, so the new rule is `.sc-inspect-line.sc-inspect-owner`.
-- The line sits after the gather line in the Tile group, matching the scout and gather lines.
-- Tests: `packages/app/src/hud/ownerLine.test.ts` sets `occupantRealmId` directly on a neighbour of home (rival / player / null) and on an unseen province.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Rival owner detection: `resolveProvinceOwnerMark(state, provinceId)` and `hasProvinceOwner(state, provinceId)` read only existing province ownership and visibility helpers (`isProvinceSeen`, `p.occupantRealmId`) with zero new sim math. Returns `null` if the tile is unseen (so unseen tiles stay fog), unowned, or held by the player (`p.occupantRealmId === "player"`, player-owned tiles get no mark). Returns the rival `realmId` string when `p.occupantRealmId` is a rival realm.
+- Visual design: `drawOwnerMark(g, cx, cy, realmIdOrPal, phase)` paints a compact realm crest or banner pip (`0x141419` dark iron-slate roundel with `pal.borderColor` rim, `pal.rimColor` inner disk, `pal.studColor` vertical flagpole, `pal.pennantColor` fluttering swallowtail banner, and `pal.accentColor` crest finial pip). Uses `0x141419` for the roundel backing so it does not collide with `0x211508` (gather mark), `0x071e2e` (scout mark), `0x062c1e` (garrison mark), `0x042619` (outpost mark), `0x2a0808` (camp mark), `0x0d1520` (season mark), `0x19160d` (trail mark), `0x1c1206` (incoming mark), `0x1a0b0e` (clash mark), or `0x090d16` (stock badge), and avoids `0xfacc15` and `0xd4a373`.
+- Integrated into `paintBoardProvinces` at `(cx + 7, cy + 4)` right after `drawGatherMark`, preserving terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, piles, ruins, camps, and keeps. On rival-owned tiles, this location is open (as season mark is only on player home keep) and balances the camp mark at `(cx - 7, cy + 4)`.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-24 — render / tile with gather shows gather mark on diamond (bakeoff/gemini-gather-mark)
 
