@@ -1,9 +1,11 @@
-## 2026-10-24 — app / gather line on the inspect card (wave/hud-gather)
+## 2026-10-24 — render / tile with gather shows gather mark on diamond (bakeoff/gemini-gather-mark)
 
-- Slice constraints: app UI only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
-- `gatherLine(state, provinceId)` in `packages/app/src/hud/gatherLine.ts` mirrors `scoutLine`: returns `null` when `!isProvinceSeen`, then filters `listGathers(state)` to `realmId === "player" && toId === provinceId`. Any `phase === "gathering"` → `"Gather · here"`; else any `"outbound"` → `"Gather · inbound"`; `"returning"` → `null` (the column has left the tile). Gathers live in `flags.gathers_json`, not in `listMarches`, so the scout helper's march filter would never see them.
-- Rendered after the scout line in the Tile group of `ProvinceInspect.tsx`; style `.sc-inspect-gather { color: #f59e0b; font-style: italic; }` next to `.sc-inspect-scout`.
-- Tests: `gatherLine.test.ts` seeds `flags.gathers_json` directly (gathering / outbound / quiet / unseen). `npm test` passes.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Gather detection: `hasProvinceGather(state, provinceId)` reads only existing gather, march, and visibility helpers (`isProvinceSeen`, `listGathers`, `listMarches`) with zero new sim math. Returns `false` if the tile is unseen (so unseen tiles stay fog) or if a gather has `phase === "returning"` (already left the tile). Returns `true` when any player gather in `listGathers(state)` has `toId === provinceId` and `phase === "gathering"` or `phase === "outbound"`, or when an explicit player gather march (`purpose === "gather"`) targets `provinceId`.
+- Visual design: `drawGatherMark(g, cx, cy, phase)` paints a compact amber cart and sack pip (`0x211508` dark amber-chestnut roundel with `0xb45309` rim, `0x45270d` deep-ochre disk, `0xd97706` handcart bed, `0xf59e0b` plump amber gather sack, `0xfbbf24` tied sack crown & wheel rim, and `0xfef3c7` wheel hub pip). Uses `0x211508` for the roundel backing so it does not collide with `0x071e2e` (scout mark), `0x062c1e` (garrison mark), `0x042619` (outpost mark), `0x2a0808` (camp mark), `0x0d1520` (season mark), `0x19160d` (trail mark), `0x1c1206` (incoming mark), `0x1a0b0e` (clash mark), or `0x090d16` (stock badge), and avoids `0xfacc15` and `0xd4a373`.
+- Integrated into `paintBoardProvinces` at `(cx - 11, cy - 1)` right after `drawScoutMark`, preserving terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, piles, ruins, camps, and keeps.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-24 — render / tile with scout shows scout mark on diamond (bakeoff/gemini-scout-mark)
 

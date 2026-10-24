@@ -13,6 +13,7 @@ import {
   listGarrisons,
   incomingOnProvince,
   listOutposts,
+  listGathers,
 } from "@second-crown/sim";
 import * as sim from "@second-crown/sim";
 import type { March } from "@second-crown/sim";
@@ -4036,6 +4037,115 @@ export function drawScoutMark(
 }
 
 // -------------------------------------------------------------
+// Player Gather Cart & Sack Pip on Isometric Diamond (drawGatherMark)
+// -------------------------------------------------------------
+
+/**
+ * Resolves whether a seen province on the board has a player gather on or heading to it.
+ * Uses only existing gather, march, and visibility data the board already reads
+ * (isProvinceSeen, listGathers, listMarches). Unseen tiles always return false (stay fog),
+ * and returning gathers that have already left the tile return false.
+ */
+export function hasProvinceGather(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+
+  if (typeof listGathers === "function") {
+    const gathers = listGathers(state).filter(
+      (g) => g.realmId === "player" && g.toId === provinceId
+    );
+    if (
+      gathers.some(
+        (g) => g.phase === "gathering" || g.phase === "outbound" || !g.phase
+      )
+    ) {
+      return true;
+    }
+  }
+
+  const marches = listMarches(state);
+  return marches.some(
+    (m) => m.realmId === "player" && (m as any).purpose === "gather" && m.toId === provinceId
+  );
+}
+
+/**
+ * Paints a small amber cart and sack pip on a seen province that has a
+ * player gather on or heading to it on the isometric diamond.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the pip (0x000000)
+ * - Dark amber-chestnut roundel backing (0x211508) with warm bronze rim (0xb45309)
+ * - Inner deep-ochre disk (0x45270d)
+ * - Amber handcart bed (0xd97706), plump amber gather sack (0xf59e0b), tied sack crown (0xfbbf24)
+ * - Spoked cart wheel rim & hub glint (0xfbbf24 & 0xfef3c7)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawGatherMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const mx = cx;
+  const my = cy;
+  const bob = Math.sin(phase * 3.2) * 0.2;
+
+  // 1. Soft drop shadow beneath the gather mark
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark amber-chestnut roundel backing + warm bronze rim
+  g.circle(mx, my, 4.8);
+  g.fill({ color: 0x211508, alpha: 0.90 });
+  g.circle(mx, my, 4.8);
+  g.stroke({ width: 0.85, color: 0xb45309, alpha: 0.94 });
+
+  // 3. Inner deep-ochre disk
+  g.circle(mx, my, 3.8);
+  g.fill({ color: 0x45270d, alpha: 0.92 });
+
+  // 4. Amber handcart bed & shafts (#d97706)
+  g.poly([
+    mx - 2.6, my + 0.4 + bob,
+    mx + 1.8, my + 0.4 + bob,
+    mx + 1.3, my + 1.7 + bob,
+    mx - 2.2, my + 1.7 + bob,
+  ]);
+  g.fill({ color: 0xd97706 });
+
+  // 5. Plump amber gather sack resting in the cart (#f59e0b) & tied sack crown (#fbbf24)
+  g.poly([
+    mx - 1.9, my + 0.5 + bob,
+    mx - 2.1, my - 1.1 + bob,
+    mx - 0.8, my - 2.0 + bob,
+    mx + 0.8, my - 1.9 + bob,
+    mx + 1.4, my - 0.8 + bob,
+    mx + 1.1, my + 0.5 + bob,
+  ]);
+  g.fill({ color: 0xf59e0b });
+
+  g.poly([
+    mx - 0.9, my - 2.6 + bob,
+    mx + 0.7, my - 2.6 + bob,
+    mx + 0.4, my - 1.8 + bob,
+    mx - 0.6, my - 1.8 + bob,
+  ]);
+  g.fill({ color: 0xfbbf24 });
+
+  // 6. Cart wheel rim & bright hub pip (#fbbf24 & #fef3c7)
+  g.circle(mx - 0.4, my + 1.9, 1.15);
+  g.stroke({ width: 0.75, color: 0xfbbf24, alpha: 0.95 });
+  g.circle(mx - 0.4, my + 1.9, 0.5);
+  g.fill({ color: 0xfef3c7 });
+}
+
+// -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
 // -------------------------------------------------------------
 export interface BoardSeasonTint {
@@ -5530,6 +5640,11 @@ export function paintBoardProvinces(
     // 6.12 Player Scout Mark on Seen Tiles
     if (hasProvinceScout(state, p.id)) {
       drawScoutMark(g, cx + 11, cy - 1, animPhase);
+    }
+
+    // 6.13 Player Gather Mark on Seen Tiles
+    if (hasProvinceGather(state, p.id)) {
+      drawGatherMark(g, cx - 11, cy - 1, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

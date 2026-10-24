@@ -149,6 +149,8 @@ import {
   hasProvinceGarrison,
   drawScoutMark,
   hasProvinceScout,
+  drawGatherMark,
+  hasProvinceGather,
 } from "./tokens.js";
 
 import {
@@ -1043,5 +1045,7 @@ export {
   hasProvinceGarrison,
   drawScoutMark,
   hasProvinceScout,
+  drawGatherMark,
+  hasProvinceGather,
 };
 

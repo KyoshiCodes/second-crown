@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-24 — Gather line on the inspect card (wave/hud-gather)
+## 2026-10-24 — Tile with gather shows gather mark on diamond (bakeoff/gemini-gather-mark)
 
-- App UI only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/gatherLine.ts`: `gatherLine(state, provinceId)` returns `"Gather · here"` when a player gather is working the tile (`phase === "gathering"`), `"Gather · inbound"` when one is heading to it (`phase === "outbound"`), else `null`. Uses only `listGathers` and `isProvinceSeen`; unseen tiles return `null`.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group, after the scout line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-gather` (`#f59e0b`, italic).
-- Tests: new `packages/app/src/hud/gatherLine.test.ts` (4 tests). `npm test` passes.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceGather(state, provinceId)`: uses only existing gather, march, and visibility data the board already reads (`isProvinceSeen`, `listGathers`, `listMarches`) to detect when a seen province has a player gather working or heading to it. No new sim math.
+  - `drawGatherMark(g, cx, cy, phase)`: paints a small amber cart and sack pip (`0x211508` dark amber-chestnut roundel with `0xb45309` rim, `0x45270d` deep-ochre disk, `0xd97706` handcart bed, `0xf59e0b` plump amber gather sack, `0xfbbf24` tied sack crown & wheel rim, and `0xfef3c7` wheel hub pip) on a seen province with a player gather on or heading to it.
+  - `paintBoardProvinces`: calls `drawGatherMark(g, cx - 11, cy - 1, animPhase)` when `hasProvinceGather(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, piles, ruins, camps, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawGatherMark` and `hasProvinceGather`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (5 new tests in `bakeoff/gemini-gather-mark` suite; 507/507 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-24 — Tile with scout shows scout mark on diamond (bakeoff/gemini-scout-mark)
 

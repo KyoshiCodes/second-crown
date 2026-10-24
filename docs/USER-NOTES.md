@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-24 — Tile with a gather says so on the inspect card (wave/hud-gather)
+## 2026-10-24 — Tile with a gather shows a gather mark on the diamond (bakeoff/gemini-gather-mark)
 
-- **A tile with a gather now says "Gather · here" or "Gather · inbound" and play is unchanged.** Click a tile your gather column is working and the card reads "Gather · here"; click one a gather column is still walking to and it reads "Gather · inbound". A column on its way home shows nothing.
-- **Unseen tiles still show nothing.** Fog works the same.
-- **Play is unchanged.** Scouting, gathering, garrisons, marches, abandoning a flag, and every other tile line work exactly as before.
+- **A tile with a gather now shows a gather mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a player gather on or heading to it gets a small amber cart and sack pip mark.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-24 — Tile with a scout shows a scout mark on the diamond (bakeoff/gemini-scout-mark)
 
