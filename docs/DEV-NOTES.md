@@ -1,3 +1,12 @@
+## 2026-10-23 — app / season line on the inspect card (wave/hud-season)
+
+- Slice constraints: app only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
+- `seasonLine(state)` in `packages/app/src/hud/seasonLine.ts` lowercases `currentSeason(state)` (sim `SEASONS` is `"Spring"…"Winter"`, 2000 ticks each). No sim math.
+- Unlike the other Tile-group lines it takes no `provinceId`, because the season is the same on every tile. The fog gate lives in `ProvinceInspect.tsx` instead: `const seasonNote = seen ? seasonLine(state) : null;` (named `seasonNote` because `season` is already the facts-row value). Keep that gate if you move the line, or unseen tiles start showing text.
+- Styles in `hud/inspect-card.css` only: `.sc-inspect-line.sc-inspect-season` (`#7dd3fc` italic). Scoped to `.sc-inspect-line` because the older Season facts row (`3d0f02e`) already uses `.sc-inspect-season` with per-season `dd` colors; a bare selector would restyle that row.
+- Overlap: the card now shows the season twice, once in the Tile facts row and once as this line. Both read `currentSeason`, so they cannot disagree. Dropping either one is a one-line change.
+- Tests: `seasonLine.test.ts` sets `state.meta.tick` to 0 / 2000 / 4000 / 6000 and checks each season's line.
+
 ## 2026-10-23 — render / player outpost and rival camp show status marks on diamond (bakeoff/gemini-outpost-mark)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
