@@ -280,3 +280,5 @@
 .sc-inspect-garrison { color: #059669; font-style: italic; }
 .sc-inspect-scout { color: #38bdf8; font-style: italic; }
 .sc-inspect-gather { color: #f59e0b; font-style: italic; }
+/* Owner line: seen tile a rival realm holds. Scoped to the line so the Owner fact row keeps its look. */
+.sc-inspect-line.sc-inspect-owner { color: #94a3b8; font-style: italic; }

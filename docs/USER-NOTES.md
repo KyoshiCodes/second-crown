@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-24 — A rival tile says who holds it (wave/hud-owner)
+
+- **A tile held by a rival now says "Held by [realm]" on the inspect card, and play is unchanged.** For example: "Held by Silk Coast".
+- Your own tiles and empty tiles show nothing new.
+- **Unseen tiles still show nothing.** Fog works the same.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-24 — Tile with a gather shows a gather mark on the diamond (bakeoff/gemini-gather-mark)
 
 - **A tile with a gather now shows a gather mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a player gather on or heading to it gets a small amber cart and sack pip mark.
