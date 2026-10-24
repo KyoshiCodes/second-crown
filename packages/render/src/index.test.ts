@@ -12927,6 +12927,208 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // ============================================================================
+              // bakeoff/gemini-scout-mark: Player Scout Mark on the Isometric Diamond
+              // ============================================================================
+              describe("bakeoff/gemini-scout-mark: Player Scout Mark on the Isometric Diamond (drawScoutMark & hasProvinceScout)", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const g: any = {
+                    calls,
+                    clear: () => calls.push({ method: "clear", args: [] }),
+                    poly: (pts: number[]) => calls.push({ method: "poly", args: [pts] }),
+                    fill: (opts: any) => calls.push({ method: "fill", args: [opts] }),
+                    stroke: (opts: any) => calls.push({ method: "stroke", args: [opts] }),
+                    rect: (x: number, y: number, w: number, h: number) =>
+                      calls.push({ method: "rect", args: [x, y, w, h] }),
+                    roundRect: (x: number, y: number, w: number, h: number, r: number) =>
+                      calls.push({ method: "roundRect", args: [x, y, w, h, r] }),
+                    circle: (x: number, y: number, r: number) =>
+                      calls.push({ method: "circle", args: [x, y, r] }),
+                    ellipse: (x: number, y: number, rx: number, ry: number) =>
+                      calls.push({ method: "ellipse", args: [x, y, rx, ry] }),
+                    moveTo: (x: number, y: number) => calls.push({ method: "moveTo", args: [x, y] }),
+                    lineTo: (x: number, y: number) => calls.push({ method: "lineTo", args: [x, y] }),
+                    arc: (...args: any[]) => calls.push({ method: "arc", args }),
+                    bezierCurveTo: (...args: any[]) => calls.push({ method: "bezierCurveTo", args }),
+                    quadraticCurveTo: (...args: any[]) =>
+                      calls.push({ method: "quadraticCurveTo", args }),
+                    closePath: () => calls.push({ method: "closePath", args: [] }),
+                  };
+                  return g;
+                }
+
+                describe("drawScoutMark direct unit tests", () => {
+                  it("paints a small sky cloak and spyglass pip over a dark sky-slate roundel", async () => {
+                    const { drawScoutMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawScoutMark(g, 120, 80, 0);
+
+                    const fillColors = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokeColors = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow, dark sky-slate roundel (0x071e2e), sky-azure rim (0x0284c7), and deep-sky disk (0x0c4a6e)
+                    expect(fillColors).toContain(0x000000);
+                    expect(fillColors).toContain(0x071e2e);
+                    expect(strokeColors).toContain(0x0284c7);
+                    expect(fillColors).toContain(0x0c4a6e);
+
+                    // Sky cloak & hood (#0ea5e9 & #38bdf8) and spyglass barrel & lens (#7dd3fc & #e0f2fe)
+                    expect(fillColors).toContain(0x0ea5e9);
+                    expect(fillColors).toContain(0x38bdf8);
+                    expect(strokeColors).toContain(0x7dd3fc);
+                    expect(fillColors).toContain(0xe0f2fe);
+                  });
+
+                  it("handles null graphics safely and supports animated phase sway", async () => {
+                    const { drawScoutMark } = await import("./tokens.js");
+                    expect(() => drawScoutMark(null as any, 0, 0)).not.toThrow();
+
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawScoutMark(g0, 100, 100, 0);
+                    drawScoutMark(g1, 100, 100, 0.5);
+                    expect(g0.calls.length).toBe(g1.calls.length);
+                  });
+                });
+
+                describe("hasProvinceScout detection", () => {
+                  it("returns true on a seen province with a player scout on or heading to it", async () => {
+                    const { hasProvinceScout } = await import("./tokens.js");
+                    const { createGameState, neighbors } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+
+                    // Inbound player scout
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: `m_scout_0_${tile.id}`,
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: tile.id,
+                        arrivesTick: state.meta.tick + 30,
+                        kind: "node",
+                        levy: 1,
+                        force: { militia: 1 },
+                        purpose: "scout",
+                      },
+                    ]);
+                    expect(hasProvinceScout(state, tile.id)).toBe(true);
+
+                    // Arrived ("here") player scout
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: `m_scout_1_${tile.id}`,
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: tile.id,
+                        arrivesTick: state.meta.tick,
+                        kind: "node",
+                        levy: 1,
+                        force: { militia: 1 },
+                        purpose: "scout",
+                      },
+                    ]);
+                    expect(hasProvinceScout(state, tile.id)).toBe(true);
+                  });
+
+                  it("returns false on a quiet province, for a non-scout march, or on an unseen tile", async () => {
+                    const { hasProvinceScout } = await import("./tokens.js");
+                    const { createGameState, neighbors, isProvinceSeen } = await import("@second-crown/sim");
+                    const state = createGameState({ seed: 42 });
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+
+                    // Quiet province
+                    expect(hasProvinceScout(state, tile.id)).toBe(false);
+
+                    // Regular non-scout player march
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: "m_raid_1",
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: tile.id,
+                        arrivesTick: state.meta.tick + 20,
+                        kind: "camp",
+                        levy: 5,
+                        purpose: "raid",
+                      },
+                    ]);
+                    expect(hasProvinceScout(state, tile.id)).toBe(false);
+
+                    // Unseen tile with a player scout stays false (fog)
+                    const unseen = state.board.provinces.find((p) => !isProvinceSeen(state, p.id))!;
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: `m_scout_0_${unseen.id}`,
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: unseen.id,
+                        arrivesTick: state.meta.tick + 30,
+                        kind: "node",
+                        levy: 1,
+                        force: { militia: 1 },
+                        purpose: "scout",
+                      },
+                    ]);
+                    expect(hasProvinceScout(state, unseen.id)).toBe(false);
+                  });
+                });
+
+                describe("paintBoardProvinces integration & fog/marks preservation", () => {
+                  it("paints the scout mark on a seen province with a player scout while preserving fog and existing marks", async () => {
+                    const { paintBoardProvinces, drawScoutMark, hasProvinceScout } = await import("./index.js");
+                    const { createGameState, neighbors } = await import("@second-crown/sim");
+                    expect(typeof drawScoutMark).toBe("function");
+                    expect(typeof hasProvinceScout).toBe("function");
+
+                    const state = createGameState({ seed: 42 });
+
+                    // Quiet board: no scout mark (0x071e2e) drawn
+                    const gQuiet = createMockGraphics();
+                    paintBoardProvinces(gQuiet, state, 0);
+                    const quietFills = gQuiet.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(quietFills).not.toContain(0x071e2e);
+
+                    // Player scout heading to a seen neighbor province: scout mark drawn alongside trail mark, season mark, and fog
+                    const tile = neighbors(state, state.board.homeProvinceId)[0]!;
+                    state.flags["marches_json"] = JSON.stringify([
+                      {
+                        id: `m_scout_0_${tile.id}`,
+                        realmId: "player",
+                        fromId: state.board.homeProvinceId,
+                        toId: tile.id,
+                        arrivesTick: state.meta.tick + 30,
+                        kind: "node",
+                        levy: 1,
+                        force: { militia: 1 },
+                        purpose: "scout",
+                      },
+                    ]);
+
+                    const gScout = createMockGraphics();
+                    paintBoardProvinces(gScout, state, 0);
+                    const scoutFills = gScout.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    expect(scoutFills).toContain(0x071e2e);
+                    expect(scoutFills).toContain(0x0c4a6e);
+                    expect(scoutFills).toContain(0x0ea5e9);
+                    expect(scoutFills).toContain(0x38bdf8);
+                    // Trail mark (0x19160d), season mark on home tile (0x0d1520), and fog on unseen tiles (0x0f172a) preserved
+                    expect(scoutFills).toContain(0x19160d);
+                    expect(scoutFills).toContain(0x0d1520);
+                    expect(scoutFills).toContain(0x0f172a);
+                  });
+                });
+              });
             });
           });
         });

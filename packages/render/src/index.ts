@@ -147,6 +147,8 @@ import {
   type SeasonMarkKind,
   drawGarrisonMark,
   hasProvinceGarrison,
+  drawScoutMark,
+  hasProvinceScout,
 } from "./tokens.js";
 
 import {
@@ -1039,5 +1041,7 @@ export {
   type SeasonMarkKind,
   drawGarrisonMark,
   hasProvinceGarrison,
+  drawScoutMark,
+  hasProvinceScout,
 };
 
