@@ -1,10 +1,11 @@
-## 2026-10-24 — app / garrison line on inspect card (wave/hud-garrison)
+## 2026-10-24 — render / tile with posted garrison shows garrison mark on diamond (bakeoff/gemini-garrison-mark)
 
-- Slice constraints: inspect card only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- `garrisonLine(state, provinceId)` reads only `isProvinceSeen` and `garrisonAt` (the same helper `ProvinceInspect` already uses for the power readout). Returns `"Garrison · posted"` or `null`. No sim math.
-- Rendered in the Tile group right after the season line as `.sc-inspect-line.sc-inspect-garrison` (`#059669`, italic — same emerald as `.sc-inspect-outpost.is-yours`).
-- Tests seed `state.flags["garrisons_json"]` directly (the store `garrisonAt` reads) rather than walking a full outpost + dispatch + march flow.
-- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` passes.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Garrison detection: `hasProvinceGarrison(state, provinceId)` reads only existing garrison and visibility helpers (`isProvinceSeen`, `garrisonAt`) with zero new sim math. Returns `false` if the tile is unseen (so unseen tiles stay fog). Returns `true` when `garrisonAt(state, provinceId)` is truthy.
+- Visual design: `drawGarrisonMark(g, cx, cy, phase)` paints a compact emerald heater-shield and tent pip (`0x062c1e` dark emerald-iron roundel with `0x047857` rim, `0x059669` / `0x10b981` emerald shield body with `0x6ee7b7` bevel rim, and `0xd1fae5` / `0x064e3b` / `0xa7f3d0` pitched garrison tent emblem). Uses `0x062c1e` for the roundel backing so it does not collide with `0x042619` (outpost mark), `0x2a0808` (camp mark), `0x0d1520` (season mark), `0x19160d` (trail mark), `0x1c1206` (incoming mark), `0x1a0b0e` (clash mark), or `0x090d16` (stock badge), and avoids `0xfacc15` and `0xd4a373`.
+- Integrated into `paintBoardProvinces` at `(cx, cy + 6)` right after `drawSeasonMark`, preserving terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, piles, ruins, camps, and keeps.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-23 — render / season mark on diamond (bakeoff/gemini-season)
 

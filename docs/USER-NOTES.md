@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-24 — Inspect card shows a posted garrison (wave/hud-garrison)
+## 2026-10-24 — Tile with a posted garrison shows a garrison mark on the diamond (bakeoff/gemini-garrison-mark)
 
-- **A tile with a posted garrison now says "Garrison · posted" and play is unchanged.** Open the inspect card on a tile where you stationed a garrison and you will see a short emerald line under the season line.
-- **Unseen tiles still show nothing.** Fog works the same.
-- **Play is unchanged.** Garrisons, marches, outposts, saves, and every button work exactly as before.
+- **A tile with a posted garrison now shows a garrison mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a posted player garrison gets a small emerald shield and tent pip mark.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-23 — Diamond shows a season mark (bakeoff/gemini-season)
 

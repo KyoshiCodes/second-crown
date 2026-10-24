@@ -145,6 +145,8 @@ import {
   resolveBoardSeasonMark,
   resolveProvinceSeasonMark,
   type SeasonMarkKind,
+  drawGarrisonMark,
+  hasProvinceGarrison,
 } from "./tokens.js";
 
 import {
@@ -1035,5 +1037,7 @@ export {
   resolveBoardSeasonMark,
   resolveProvinceSeasonMark,
   type SeasonMarkKind,
+  drawGarrisonMark,
+  hasProvinceGarrison,
 };
 

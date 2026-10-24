@@ -3849,6 +3849,104 @@ export function drawSeasonMark(
 }
 
 // -------------------------------------------------------------
+// Posted Garrison Pip on Isometric Diamond (drawGarrisonMark)
+// -------------------------------------------------------------
+
+/**
+ * Resolves whether a seen province on the board has a posted player garrison.
+ * Uses only existing garrison and visibility data the board already reads
+ * (isProvinceSeen, garrisonAt). Unseen tiles always return false (stay fog).
+ */
+export function hasProvinceGarrison(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+  return Boolean(garrisonAt(state, provinceId));
+}
+
+/**
+ * Paints a small emerald shield and tent pip on a seen province that has a
+ * posted player garrison on the isometric diamond.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the pip (0x000000)
+ * - Dark emerald-iron roundel backing (0x062c1e) with emerald rim (0x047857)
+ * - Emerald heater-shield body (0x059669 left facet, 0x10b981 sunlit right facet, 0x6ee7b7 bevel rim)
+ * - Miniature pitched garrison tent chevron emblem (0xd1fae5 tent, 0x064e3b tent doorway, 0xa7f3d0 crest pip)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawGarrisonMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const mx = cx;
+  const my = cy;
+  const pulse = Math.sin(phase * 3.0) * 0.15;
+
+  // 1. Soft drop shadow beneath the garrison mark
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark emerald-iron roundel backing + emerald rim
+  g.circle(mx, my, 4.8);
+  g.fill({ color: 0x062c1e, alpha: 0.90 });
+  g.circle(mx, my, 4.8);
+  g.stroke({ width: 0.85, color: 0x047857, alpha: 0.94 });
+
+  // 3. Emerald heater-shield body (#059669 & #10b981) with bevel rim (#6ee7b7)
+  g.poly([
+    mx - 2.6, my - 2.4,
+    mx + 2.6, my - 2.4,
+    mx + 2.6, my + 0.2,
+    mx, my + 3.0 + pulse,
+    mx - 2.6, my + 0.2,
+  ]);
+  g.fill({ color: 0x059669 });
+
+  g.poly([
+    mx, my - 2.4,
+    mx + 2.6, my - 2.4,
+    mx + 2.6, my + 0.2,
+    mx, my + 3.0 + pulse,
+  ]);
+  g.fill({ color: 0x10b981 });
+
+  g.poly([
+    mx - 2.6, my - 2.4,
+    mx + 2.6, my - 2.4,
+    mx + 2.6, my + 0.2,
+    mx, my + 3.0 + pulse,
+    mx - 2.6, my + 0.2,
+  ]);
+  g.stroke({ width: 0.75, color: 0x6ee7b7, alpha: 0.95 });
+
+  // 4. Miniature pitched garrison tent emblem on the shield face
+  g.poly([
+    mx - 1.7, my + 1.0,
+    mx, my - 1.4,
+    mx + 1.7, my + 1.0,
+  ]);
+  g.fill({ color: 0xd1fae5 });
+
+  g.poly([
+    mx - 0.65, my + 1.0,
+    mx, my - 0.1,
+    mx + 0.65, my + 1.0,
+  ]);
+  g.fill({ color: 0x064e3b });
+
+  // 5. Shield crest rivet pip
+  g.circle(mx, my - 1.7, 0.5);
+  g.fill({ color: 0xa7f3d0 });
+}
+
+// -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
 // -------------------------------------------------------------
 export interface BoardSeasonTint {
@@ -5333,6 +5431,11 @@ export function paintBoardProvinces(
     const seasonMarkKind = resolveProvinceSeasonMark(state, p.id);
     if (seasonMarkKind) {
       drawSeasonMark(g, cx + 7, cy + 4, seasonMarkKind, animPhase);
+    }
+
+    // 6.11 Posted Player Garrison Mark on Seen Tiles
+    if (hasProvinceGarrison(state, p.id)) {
+      drawGarrisonMark(g, cx, cy + 6, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

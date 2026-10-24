@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-24 — Garrison line on inspect card (wave/hud-garrison)
+## 2026-10-24 — Tile with posted garrison shows garrison mark on diamond (bakeoff/gemini-garrison-mark)
 
-- Province inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/garrisonLine.ts`: `garrisonLine(state, provinceId)` returns `"Garrison · posted"` when a player garrison is on that seen province (existing `garrisonAt`, `isProvinceSeen`), else `null`.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the season line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-garrison` (emerald `#059669`, italic).
-- New `packages/app/src/hud/garrisonLine.test.ts`: posted garrison shows the line; quiet province and unseen tile do not.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceGarrison(state, provinceId)`: uses only existing garrison and visibility data the board already reads (`isProvinceSeen`, `garrisonAt`) to detect when a seen province has a posted player garrison. No new sim math.
+  - `drawGarrisonMark(g, cx, cy, phase)`: paints a small emerald heater-shield and tent pip (`0x062c1e` dark emerald-iron roundel with `0x047857` rim, `0x059669` / `0x10b981` emerald shield body with `0x6ee7b7` bevel rim, and `0xd1fae5` / `0x064e3b` / `0xa7f3d0` pitched garrison tent emblem) on a seen province with a posted player garrison.
+  - `paintBoardProvinces`: calls `drawGarrisonMark(g, cx, cy + 6, animPhase)` when `hasProvinceGarrison(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, piles, ruins, camps, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawGarrisonMark` and `hasProvinceGarrison`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (5 new tests in `bakeoff/gemini-garrison-mark` suite; 497/497 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-23 — Season mark on diamond (bakeoff/gemini-season)
 
