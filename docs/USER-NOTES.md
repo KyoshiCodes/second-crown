@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-23 — The inspect card now shows the current season (wave/hud-season)
+## 2026-10-23 — Diamond shows a season mark (bakeoff/gemini-season)
 
-- **The inspect card now shows the current season, and play is unchanged.** A short line such as "Season · winter" sits in the Tile group under the outpost line, in soft sky-blue italics.
-- **Unseen tiles still show nothing.** Fog is unchanged.
+- **The diamond now shows a season mark and play is unchanged.** The home tile on the isometric diamond gets a small season pip that changes with the current season: a soft green leaf for spring, a gold sun for summer, an amber leaf for autumn, and a pale blue flake for winter.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
 - **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-23 — Player outpost shows a flag mark and rival camp shows a camp mark on the diamond (bakeoff/gemini-outpost-mark)
