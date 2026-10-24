@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-24 — Inspect card says who holds a rival tile (wave/hud-owner)
+
+- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/ownerLine.ts`: `ownerLine(state, provinceId)` returns `Held by <realm>` when a rival realm holds a seen province, else `null`. Uses `isProvinceSeen`, `getProvince` (`occupantRealmId`), and `state.realms` only. No new sim math.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the gather line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-line.sc-inspect-owner` (slate, italic). Scoped to the line so the existing Owner fact row keeps its look.
+- Tests: `packages/app/src/hud/ownerLine.test.ts` (4 tests: rival, player, empty, unseen). `npm test` passes.
+
 ## 2026-10-24 — Tile with gather shows gather mark on diamond (bakeoff/gemini-gather-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

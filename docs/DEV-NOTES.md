@@ -1,3 +1,11 @@
+## 2026-10-24 — app / inspect card owner line (wave/hud-owner)
+
+- Slice constraints: app only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `ownerLine(state, provinceId)` mirrors `ownerOf` in `ProvinceInspect.tsx` (same `occupantRealmId` + `state.realms` lookup, falls back to the raw realm id) but only speaks for rivals: `null` when unseen, unowned, or `occupantRealmId === "player"`. The home tile is player-held, so it shows nothing.
+- CSS: the class `.sc-inspect-owner` was already used by the Owner fact row (`<div class="sc-inspect-owner is-...">` in the facts `dl`). A bare `.sc-inspect-owner { ... }` rule would have turned that row's label italic slate, so the new rule is `.sc-inspect-line.sc-inspect-owner`.
+- The line sits after the gather line in the Tile group, matching the scout and gather lines.
+- Tests: `packages/app/src/hud/ownerLine.test.ts` sets `occupantRealmId` directly on a neighbour of home (rival / player / null) and on an unseen province.
+
 ## 2026-10-24 — render / tile with gather shows gather mark on diamond (bakeoff/gemini-gather-mark)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
