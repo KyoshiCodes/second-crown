@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-24 — Tile with a gather says so on the inspect card (wave/hud-gather)
+
+- **A tile with a gather now says "Gather · here" or "Gather · inbound" and play is unchanged.** Click a tile your gather column is working and the card reads "Gather · here"; click one a gather column is still walking to and it reads "Gather · inbound". A column on its way home shows nothing.
+- **Unseen tiles still show nothing.** Fog works the same.
+- **Play is unchanged.** Scouting, gathering, garrisons, marches, abandoning a flag, and every other tile line work exactly as before.
+
 ## 2026-10-24 — Tile with a scout shows a scout mark on the diamond (bakeoff/gemini-scout-mark)
 
 - **A tile with a scout now shows a scout mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a player scout on or heading to it gets a small sky cloak and spyglass pip mark.

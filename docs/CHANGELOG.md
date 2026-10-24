@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-24 — Gather line on the inspect card (wave/hud-gather)
+
+- App UI only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/gatherLine.ts`: `gatherLine(state, provinceId)` returns `"Gather · here"` when a player gather is working the tile (`phase === "gathering"`), `"Gather · inbound"` when one is heading to it (`phase === "outbound"`), else `null`. Uses only `listGathers` and `isProvinceSeen`; unseen tiles return `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group, after the scout line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-gather` (`#f59e0b`, italic).
+- Tests: new `packages/app/src/hud/gatherLine.test.ts` (4 tests). `npm test` passes.
+
 ## 2026-10-24 — Tile with scout shows scout mark on diamond (bakeoff/gemini-scout-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

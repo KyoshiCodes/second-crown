@@ -54,6 +54,7 @@ import { trailLine } from "./hud/trailLine";
 import { garrisonLine } from "./hud/garrisonLine";
 import { outpostLine } from "./hud/outpostLine";
 import { scoutLine } from "./hud/scoutLine";
+import { gatherLine } from "./hud/gatherLine";
 import { seasonLine } from "./hud/seasonLine";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
@@ -200,6 +201,7 @@ export function ProvinceInspect(props: {
   const seasonNote = seen ? seasonLine(state) : null;
   const garrisonNote = garrisonLine(state, selectedId);
   const scoutNote = scoutLine(state, selectedId);
+  const gatherNote = gatherLine(state, selectedId);
   const hasForces = Boolean(incoming) || onTile.length > 0 || Boolean(march) || Boolean(here);
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
@@ -260,6 +262,7 @@ export function ProvinceInspect(props: {
         {seasonNote ? <div className="sc-inspect-line sc-inspect-season">{seasonNote}</div> : null}
         {garrisonNote ? <div className="sc-inspect-line sc-inspect-garrison">{garrisonNote}</div> : null}
         {scoutNote ? <div className="sc-inspect-line sc-inspect-scout">{scoutNote}</div> : null}
+        {gatherNote ? <div className="sc-inspect-line sc-inspect-gather">{gatherNote}</div> : null}
         {seen && p.node === "camp" ? <div className="sc-inspect-line">Camp threat {campThreat(state, p)}</div> : null}
         {ruins ? <div className="sc-inspect-line sc-inspect-ruins">{ruins}</div> : null}
         {shore ? <div className="sc-inspect-line sc-inspect-shore">{shore}</div> : null}

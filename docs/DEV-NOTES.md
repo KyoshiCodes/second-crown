@@ -1,3 +1,10 @@
+## 2026-10-24 — app / gather line on the inspect card (wave/hud-gather)
+
+- Slice constraints: app UI only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action.
+- `gatherLine(state, provinceId)` in `packages/app/src/hud/gatherLine.ts` mirrors `scoutLine`: returns `null` when `!isProvinceSeen`, then filters `listGathers(state)` to `realmId === "player" && toId === provinceId`. Any `phase === "gathering"` → `"Gather · here"`; else any `"outbound"` → `"Gather · inbound"`; `"returning"` → `null` (the column has left the tile). Gathers live in `flags.gathers_json`, not in `listMarches`, so the scout helper's march filter would never see them.
+- Rendered after the scout line in the Tile group of `ProvinceInspect.tsx`; style `.sc-inspect-gather { color: #f59e0b; font-style: italic; }` next to `.sc-inspect-scout`.
+- Tests: `gatherLine.test.ts` seeds `flags.gathers_json` directly (gathering / outbound / quiet / unseen). `npm test` passes.
+
 ## 2026-10-24 — render / tile with scout shows scout mark on diamond (bakeoff/gemini-scout-mark)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
