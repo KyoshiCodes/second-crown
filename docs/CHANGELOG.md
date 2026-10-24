@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-24 — Inspect card shows scout line (wave/hud-scout)
+
+- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `packages/app/src/hud/scoutLine.ts`: `scoutLine(state, provinceId)` returns `"Scout · here"` when a player scout march to the tile has reached it (`arrivesTick <= state.meta.tick`), `"Scout · inbound"` when one is still on the way, else `null`. Reads only `listMarches` and `isProvinceSeen`; unseen tiles return `null`. No new sim math.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the garrison line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-scout` (sky `#38bdf8`, italic).
+- Tests: `packages/app/src/hud/scoutLine.test.ts` (4 tests: here, inbound, quiet, unseen). `npm test` passes.
+
 ## 2026-10-24 — Tile with posted garrison shows garrison mark on diamond (bakeoff/gemini-garrison-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

@@ -1,3 +1,11 @@
+## 2026-10-24 — app / inspect card scout line (wave/hud-scout)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `scoutLine(state, provinceId)` filters `listMarches(state)` to `realmId === "player"`, `purpose === "scout"`, `toId === provinceId`. Any with `arrivesTick <= state.meta.tick` gives `"Scout · here"`; otherwise `"Scout · inbound"`. Returns `null` on unseen tiles (`isProvinceSeen`) and when no scout matches. No new sim math.
+- Why gated on sight: `tryDispatchScout` only targets unseen tiles, but `revealActiveColumns` reveals the route as the column walks and `revealProvince` also reveals neighbours, so the destination turns seen about one step out. The line shows for that last leg. A scout march resolves (reveals, returns force) on its arrival tick, so `here` is brief.
+- Rendered in `ProvinceInspect.tsx` Tile group right after the garrison line as `.sc-inspect-line.sc-inspect-scout` (`#38bdf8`, italic, in `hud/inspect-card.css`).
+- Tests: `hud/scoutLine.test.ts` seeds `flags.marches_json` with a scout march (same pattern as `garrisonLine.test.ts` seeding `garrisons_json`).
+
 ## 2026-10-24 — render / tile with posted garrison shows garrison mark on diamond (bakeoff/gemini-garrison-mark)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

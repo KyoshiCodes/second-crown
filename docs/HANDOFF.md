@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#261** (season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-garrison-mark` (**not merged**, see Garrison mark on diamond below).
+Merged through PR **#263** (garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hud-scout` (**not merged**, see Scout line below).
 
 ### Cultures and units (all merged)
 
@@ -270,7 +270,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - The isometric diamond gets a small season mark on the seen home tile (`drawSeasonMark(g, cx, cy, seasonOrState, phase)`, `resolveBoardSeasonMark(stateOrSeason)`, and `resolveProvinceSeasonMark(state, provinceId)` in `packages/render/src/tokens.ts`) that changes with the current season using only existing season data the board already reads (`currentSeason(state)` / `state.season`): soft green leaf (`0x4ade80` / `0x16a34a` / `0xbbf7d0` over `0x132a1c`) for spring, gold sun (`0xfbbf24` / `0xfacc15` / `0xfef08a` over `0x2b1f07`) for summer, amber leaf (`0xf59e0b` / `0xd97706` / `0xfcd34d` over `0x2c1608`) for autumn, and pale blue flake (`0x7dd3fc` / `0xbae6fd` / `0xe0f2fe` over `0x0c2233`) for winter.
 - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, piles, ruins, camps, and keeps stay as they are.
 
-## Garrison mark on diamond (branch `bakeoff/gemini-garrison-mark`, **not merged**)
+## Garrison mark on diamond (PR #263, merged)
 
 - The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - A seen tile with a posted player garrison on the isometric diamond gets a small garrison mark (`drawGarrisonMark(g, cx, cy, phase)` and `hasProvinceGarrison(state, provinceId)` in `packages/render/src/tokens.ts`): a small emerald heater-shield and tent pip (`0x062c1e` dark emerald-iron roundel, `0x047857` rim, `0x059669` / `0x10b981` emerald shield facets with `0x6ee7b7` bevel rim, and `0xd1fae5` / `0x064e3b` / `0xa7f3d0` pitched garrison tent emblem) using only existing garrison and visibility data the board already reads (`isProvinceSeen`, `garrisonAt`).
@@ -278,6 +278,13 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (497 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
+
+## Scout line (branch `wave/hud-scout`, **not merged**)
+
+- App only. Do not change `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- The province inspect card's Tile group shows `Scout · here` when a player scout has reached the tile, or `Scout · inbound` when one is heading to it, right after the garrison line (`scoutLine(state, provinceId)` in `packages/app/src/hud/scoutLine.ts`). Reads only `listMarches` (player marches with `purpose: "scout"` and `toId` equal to the tile; here when `arrivesTick <= tick`). Sky italic `.sc-inspect-scout` (`#38bdf8`) in `hud/inspect-card.css`.
+- Unseen tiles show nothing. Scouts go to unseen tiles, so the line appears once column vision reveals the destination (the last step of the trip).
+- Tests: `packages/app/src/hud/scoutLine.test.ts` (here, inbound, quiet, unseen). `npm test` passes.
 
 ## Verify
 
