@@ -4251,6 +4251,129 @@ export function drawOwnerMark(
 }
 
 // -------------------------------------------------------------
+// Player Hold Crown Pip on Isometric Diamond (drawHoldMark)
+// -------------------------------------------------------------
+
+/**
+ * Resolves whether a seen province on the board is part of the player's hold
+ * (either the player's home province or has a player building on it).
+ * Uses only existing hold, building, and visibility data the board already reads
+ * (isProvinceSeen, state.board.homeProvinceId, state.buildings).
+ * Unseen tiles always return false (stay fog).
+ */
+export function hasProvinceHold(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+
+  // 1. Home province is the player's hold
+  if (state.board.homeProvinceId && provinceId === state.board.homeProvinceId) {
+    return true;
+  }
+
+  // 2. Any province that has a player building on it
+  if (Array.isArray(state.buildings)) {
+    const hasBuilding = state.buildings.some(
+      (b) =>
+        (b.realmId === "player" || !b.realmId) &&
+        ((b as any).provinceId === provinceId || (b as any).toId === provinceId)
+    );
+    if (hasBuilding) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Paints a small gold crown or banner pip on a seen province that is part of the player's hold
+ * (player's home or has a player building on it).
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the crown pip (0x000000)
+ * - Dark imperial gold roundel backing (0x251a06) with warm amber rim (0xd97706)
+ * - Inner deep-bronze disk (0x422d08)
+ * - Golden crown base band (0xf59e0b)
+ * - Three-pointed gold crown peaks (0xfbbf24)
+ * - Crown jewels / finial pips on the 3 peaks (0xfef08a)
+ * - Center crown band jewel (0xef4444 ruby glint)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawHoldMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const mx = cx;
+  const my = cy;
+  const bob = Math.sin(phase * 2.8) * 0.2;
+
+  // 1. Soft drop shadow beneath the hold mark
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark imperial gold roundel backing + warm amber rim
+  g.circle(mx, my, 4.8);
+  g.fill({ color: 0x251a06, alpha: 0.90 });
+  g.circle(mx, my, 4.8);
+  g.stroke({ width: 0.85, color: 0xd97706, alpha: 0.94 });
+
+  // 3. Inner deep-bronze disk
+  g.circle(mx, my, 3.8);
+  g.fill({ color: 0x422d08, alpha: 0.92 });
+
+  // 4. Gold crown headband / base band (0xf59e0b)
+  g.poly([
+    mx - 2.5, my + 0.8 + bob,
+    mx + 2.5, my + 0.8 + bob,
+    mx + 2.1, my + 1.8 + bob,
+    mx - 2.1, my + 1.8 + bob,
+  ]);
+  g.fill({ color: 0xf59e0b });
+
+  // 5. Three-pointed gold crown peaks (0xfbbf24)
+  // Left spike
+  g.poly([
+    mx - 2.4, my + 0.8 + bob,
+    mx - 1.2, my + 0.8 + bob,
+    mx - 1.9, my - 1.4 + bob,
+  ]);
+  g.fill({ color: 0xfbbf24 });
+
+  // Center spike (taller)
+  g.poly([
+    mx - 0.8, my + 0.8 + bob,
+    mx + 0.8, my + 0.8 + bob,
+    mx, my - 2.2 + bob,
+  ]);
+  g.fill({ color: 0xfbbf24 });
+
+  // Right spike
+  g.poly([
+    mx + 1.2, my + 0.8 + bob,
+    mx + 2.4, my + 0.8 + bob,
+    mx + 1.9, my - 1.4 + bob,
+  ]);
+  g.fill({ color: 0xfbbf24 });
+
+  // 6. Crown finial pips on the 3 peaks (0xfef08a)
+  g.circle(mx, my - 2.3 + bob, 0.75);
+  g.fill({ color: 0xfef08a });
+  g.circle(mx - 1.9, my - 1.5 + bob, 0.6);
+  g.fill({ color: 0xfef08a });
+  g.circle(mx + 1.9, my - 1.5 + bob, 0.6);
+  g.fill({ color: 0xfef08a });
+
+  // 7. Center crown ruby glint on headband (0xef4444)
+  g.circle(mx, my + 1.3 + bob, 0.5);
+  g.fill({ color: 0xef4444 });
+}
+
+// -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
 // -------------------------------------------------------------
 export interface BoardSeasonTint {
@@ -5727,7 +5850,7 @@ export function paintBoardProvinces(
 
     // 6.9 Player Outpost Flag Mark or Rival Camp Mark on Seen Tiles
     const outpostMarkKind = resolveProvinceOutpostMark(state, p.id);
-    if (outpostMarkKind) {
+    if (outpostMarkKind && !hasProvinceHold(state, p.id)) {
       drawOutpostMark(g, cx - 7, cy + 4, outpostMarkKind, animPhase);
     }
 
@@ -5756,6 +5879,11 @@ export function paintBoardProvinces(
     const ownerRealmId = resolveProvinceOwnerMark(state, p.id);
     if (ownerRealmId) {
       drawOwnerMark(g, cx + 7, cy + 4, ownerRealmId, animPhase);
+    }
+
+    // 6.15 Player Hold Crown Mark on Seen Tiles
+    if (hasProvinceHold(state, p.id)) {
+      drawHoldMark(g, cx - 7, cy + 4, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

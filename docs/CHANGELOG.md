@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-24 — Inspect card says "Your hold" (wave/hud-hold)
+## 2026-10-24 — Tile that is part of player hold shows hold mark on diamond (bakeoff/gemini-hold-mark)
 
-- Inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/holdLine.ts`: `holdLine(state, provinceId)` returns "Your hold" on the seen home province, else `null`. Uses only `isProvinceSeen` and `state.board.homeProvinceId`; no sim math. Player buildings sit on the hold grid at the home province (no province id on `BuildingInstance`), so that covers tiles with a player building.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the owner line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-hold` (gold, italic).
-- Tests: `packages/app/src/hud/holdLine.test.ts` (4 new). `npm test` and `npm run build -w @second-crown/app` pass.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceHold(state, provinceId)`: uses only existing hold, building, and visibility data the board already reads (`isProvinceSeen`, `state.board.homeProvinceId`, `state.buildings`) to detect when a seen province is part of the player's hold (is the player's home province or has a player building on it). Unseen tiles stay fog and return `false`.
+  - `drawHoldMark(g, cx, cy, phase)`: paints a small gold crown pip (`0x251a06` dark imperial gold roundel with `0xd97706` warm amber rim, `0x422d08` deep-bronze disk, `0xf59e0b` crown base band, `0xfbbf24` 3-pointed gold crown peaks, `0xfef08a` peak finial pips, and `0xef4444` headband ruby glint) on a seen province that is part of the player's hold.
+  - `paintBoardProvinces`: calls `drawHoldMark(g, cx - 7, cy + 4, animPhase)` when `hasProvinceHold(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, piles, ruins, camps, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawHoldMark` and `hasProvinceHold`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (6 new tests in `bakeoff/gemini-hold-mark` suite; 528/528 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-24 — Tile held by rival shows owner mark on diamond (bakeoff/gemini-owner-mark)
 

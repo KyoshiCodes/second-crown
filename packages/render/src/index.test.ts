@@ -13580,6 +13580,231 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // bakeoff/gemini-hold-mark: Player Hold Mark on the Isometric Diamond
+              describe("bakeoff/gemini-hold-mark: Player Hold Mark on the Isometric Diamond (drawHoldMark & hasProvinceHold)", () => {
+                const createHoldBoardState = (
+                  seenHome: boolean = true,
+                  withBuildingOnOtherTile: boolean = false
+                ): GameState => {
+                  const flags: Record<string, any> = {
+                    fog_seen: JSON.stringify(seenHome ? ["p_home", "p_building"] : []),
+                    ...(seenHome ? { "seen:p_home": true, "seen:p_building": true } : {}),
+                  };
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: withBuildingOnOtherTile
+                      ? [
+                          {
+                            id: "b_1",
+                            typeId: "farm" as any,
+                            realmId: "player",
+                            provinceId: "p_building",
+                            x: 0,
+                            y: 0,
+                            level: 1,
+                            completesAtTick: null,
+                          } as any,
+                        ]
+                      : [],
+                    units: [],
+                    citizens: [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "rival", isPlayer: false, name: "Rival" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags,
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        {
+                          id: "p_home",
+                          name: "Home",
+                          realmId: "player",
+                          occupantRealmId: "player",
+                          node: "none",
+                          terrain: "plains",
+                          x: 0,
+                          y: 0,
+                          elevation: 0,
+                        },
+                        {
+                          id: "p_building",
+                          name: "Building Tile",
+                          realmId: "player",
+                          occupantRealmId: undefined,
+                          node: "none",
+                          terrain: "plains",
+                          x: 3,
+                          y: 3,
+                          elevation: 0,
+                        },
+                        {
+                          id: "p_rival",
+                          name: "Rival Hold",
+                          realmId: "rival",
+                          occupantRealmId: "rival",
+                          node: "none",
+                          terrain: "woods",
+                          x: 3,
+                          y: 0,
+                          elevation: 0,
+                        },
+                        {
+                          id: "p_unseen_home",
+                          name: "Unseen Home Alternate",
+                          realmId: "player",
+                          occupantRealmId: "player",
+                          node: "none",
+                          terrain: "hills",
+                          x: 4,
+                          y: 4,
+                          elevation: 0,
+                        },
+                      ],
+                    },
+                  } as unknown as GameState;
+                };
+
+                describe("drawHoldMark direct unit tests", () => {
+                  it("paints drop shadow, dark imperial gold roundel backing (0x251a06), warm amber rim, deep-bronze disk, gold crown base, peaks, finials, and ruby glint", async () => {
+                    const { drawHoldMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawHoldMark(g, 100, 80, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokes = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow (0x000000)
+                    expect(fills).toContain(0x000000);
+                    // Dark imperial gold roundel backing (0x251a06)
+                    expect(fills).toContain(0x251a06);
+                    // Warm amber rim stroke (0xd97706)
+                    expect(strokes).toContain(0xd97706);
+                    // Inner deep-bronze disk (0x422d08)
+                    expect(fills).toContain(0x422d08);
+                    // Gold crown headband (0xf59e0b)
+                    expect(fills).toContain(0xf59e0b);
+                    // Three-pointed gold crown peaks (0xfbbf24)
+                    expect(fills).toContain(0xfbbf24);
+                    // Crown finial pips on the 3 peaks (0xfef08a)
+                    expect(fills).toContain(0xfef08a);
+                    // Center crown ruby glint on headband (0xef4444)
+                    expect(fills).toContain(0xef4444);
+                  });
+
+                  it("safely handles null graphics without throwing", async () => {
+                    const { drawHoldMark } = await import("./tokens.js");
+                    expect(() => drawHoldMark(null as any, 0, 0)).not.toThrow();
+                  });
+
+                  it("varies crown animation with animation phase", async () => {
+                    const { drawHoldMark } = await import("./tokens.js");
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawHoldMark(g0, 100, 100, 0);
+                    drawHoldMark(g1, 100, 100, 0.5);
+
+                    const poly0 = g0.calls.filter((c: any) => c.method === "poly");
+                    const poly1 = g1.calls.filter((c: any) => c.method === "poly");
+                    expect(poly0).not.toEqual(poly1);
+                  });
+                });
+
+                describe("hasProvinceHold detection", () => {
+                  it("returns true on a seen province that is the player's home province", async () => {
+                    const { hasProvinceHold } = await import("./tokens.js");
+                    const state = createHoldBoardState(true, false);
+                    expect(hasProvinceHold(state, "p_home")).toBe(true);
+                  });
+
+                  it("returns true on a seen province that has a player building on it", async () => {
+                    const { hasProvinceHold } = await import("./tokens.js");
+                    const state = createHoldBoardState(true, true);
+                    expect(hasProvinceHold(state, "p_building")).toBe(true);
+                  });
+
+                  it("returns false on a quiet province without player home or building", async () => {
+                    const { hasProvinceHold } = await import("./tokens.js");
+                    const state = createHoldBoardState(true, false);
+                    // p_building has no building in this state
+                    expect(hasProvinceHold(state, "p_building")).toBe(false);
+                    expect(hasProvinceHold(state, "p_rival")).toBe(false);
+                  });
+
+                  it("returns false on an unseen province with a building (unseen tiles stay fog)", async () => {
+                    const { hasProvinceHold } = await import("./tokens.js");
+                    const state = createHoldBoardState(true, true);
+                    // Make p_building unseen (not in fog_seen, far from home)
+                    state.flags.fog_seen = JSON.stringify(["p_home"]);
+                    delete state.flags["seen:p_building"];
+                    expect(hasProvinceHold(state, "p_building")).toBe(false);
+                  });
+
+                  it("safely handles null/undefined state or missing provinceId", async () => {
+                    const { hasProvinceHold } = await import("./tokens.js");
+                    expect(hasProvinceHold(null, "p_home")).toBe(false);
+                    expect(hasProvinceHold(undefined, "p_home")).toBe(false);
+                    expect(hasProvinceHold(createHoldBoardState(true), null)).toBe(false);
+                  });
+                });
+
+                describe("paintBoardProvinces integration with hold mark", () => {
+                  it("paints the hold mark on a seen player home province alongside season mark and preserves fog", async () => {
+                    const { paintBoardProvinces, drawHoldMark, hasProvinceHold } = await import("./index.js");
+                    expect(typeof drawHoldMark).toBe("function");
+                    expect(typeof hasProvinceHold).toBe("function");
+
+                    const state = createHoldBoardState(true, false);
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Player hold mark roundel backing (0x251a06), crown peaks (0xfbbf24), finials (0xfef08a), ruby (0xef4444)
+                    expect(fills).toContain(0x251a06);
+                    expect(fills).toContain(0x422d08);
+                    expect(fills).toContain(0xf59e0b);
+                    expect(fills).toContain(0xfbbf24);
+                    expect(fills).toContain(0xfef08a);
+                    expect(fills).toContain(0xef4444);
+
+                    // Season mark on home tile (0x0d1520) preserved alongside hold mark
+                    expect(fills).toContain(0x0d1520);
+                    // Fog on unseen tiles (0x0f172a) preserved
+                    expect(fills).toContain(0x0f172a);
+                  });
+
+                  it("does not paint hold mark on rival or quiet provinces", async () => {
+                    const { paintBoardProvinces } = await import("./index.js");
+                    const state = createHoldBoardState(true, false);
+                    // Remove homeProvinceId so no province is home
+                    state.board.homeProvinceId = "";
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // 0x251a06 is exclusively the hold mark backing color
+                    expect(fills).not.toContain(0x251a06);
+                  });
+                });
+              });
             });
           });
         });
