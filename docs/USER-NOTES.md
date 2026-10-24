@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-24 — Your hold on the inspect card (wave/hud-hold)
+
+- **A tile that is part of your hold now says "Your hold" on the inspect card and play is unchanged.** Click your home tile to see the gold line under the Tile facts.
+- **Unseen tiles still show nothing.** Fog is the same.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-24 — Tile held by rival shows owner mark on the diamond (bakeoff/gemini-owner-mark)
 
 - **A tile held by a rival now shows an owner mark on the diamond and play is unchanged.** A seen tile on the isometric diamond owned by a rival realm gets a small realm crest or banner pip mark. Player-owned tiles get no mark.
