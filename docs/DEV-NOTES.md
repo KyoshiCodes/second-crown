@@ -1,3 +1,11 @@
+## 2026-10-24 — app / garrison line on inspect card (wave/hud-garrison)
+
+- Slice constraints: inspect card only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `garrisonLine(state, provinceId)` reads only `isProvinceSeen` and `garrisonAt` (the same helper `ProvinceInspect` already uses for the power readout). Returns `"Garrison · posted"` or `null`. No sim math.
+- Rendered in the Tile group right after the season line as `.sc-inspect-line.sc-inspect-garrison` (`#059669`, italic — same emerald as `.sc-inspect-outpost.is-yours`).
+- Tests seed `state.flags["garrisons_json"]` directly (the store `garrisonAt` reads) rather than walking a full outpost + dispatch + march flow.
+- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` passes.
+
 ## 2026-10-23 — render / season mark on diamond (bakeoff/gemini-season)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

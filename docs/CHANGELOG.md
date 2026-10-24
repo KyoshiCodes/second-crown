@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-24 — Garrison line on inspect card (wave/hud-garrison)
+
+- Province inspect card only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/garrisonLine.ts`: `garrisonLine(state, provinceId)` returns `"Garrison · posted"` when a player garrison is on that seen province (existing `garrisonAt`, `isProvinceSeen`), else `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the season line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-garrison` (emerald `#059669`, italic).
+- New `packages/app/src/hud/garrisonLine.test.ts`: posted garrison shows the line; quiet province and unseen tile do not.
+
 ## 2026-10-23 — Season mark on diamond (bakeoff/gemini-season)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
