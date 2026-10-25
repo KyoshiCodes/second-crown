@@ -4374,6 +4374,120 @@ export function drawHoldMark(
 }
 
 // -------------------------------------------------------------
+// Finished Player Building Pip on Isometric Diamond (drawBuildingMark)
+// -------------------------------------------------------------
+
+/**
+ * Resolves whether a seen province on the board has a finished player building on it.
+ * Uses only existing building and visibility data the board already reads
+ * (isProvinceSeen, state.board.homeProvinceId, state.buildings).
+ * Under-construction buildings (completesAtTick !== null) get no mark.
+ * Unseen tiles always return false (stay fog).
+ */
+export function hasProvinceBuilding(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+  if (!Array.isArray(state.buildings)) return false;
+
+  const isHome = Boolean(state.board.homeProvinceId && provinceId === state.board.homeProvinceId);
+
+  return state.buildings.some((b) => {
+    const isPlayer = b.realmId === "player" || !b.realmId;
+    if (!isPlayer) return false;
+    // Under-construction buildings get no mark
+    if (b.completesAtTick !== null) return false;
+
+    // Player buildings sit on the hold grid at homeProvinceId,
+    // or on explicit provinceId if specified
+    const matchesProvince = isHome || (b as any).provinceId === provinceId || (b as any).toId === provinceId;
+    return matchesProvince;
+  });
+}
+
+/**
+ * Paints a small cream building pip on a seen province that has a finished player building on it.
+ * Under-construction buildings get no mark.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the building pip (0x000000)
+ * - Dark timber-stone roundel backing (0x1f1610) with warm sandstone rim (0xd4a373)
+ * - Inner deep-walnut disk (0x3a281c)
+ * - Cream masonry facade & walls (0xf3e9d2)
+ * - Warm burlywood gabled roof (0xdeb887) with cream apex highlight (0xfff8ee)
+ * - Dark arched entryway timber door (0x2b1810)
+ * - Tiny chimney with warm hearth glint (0xd97706 & 0xfef3c7)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawBuildingMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const mx = cx;
+  const my = cy;
+  const bob = Math.sin(phase * 2.6) * 0.2;
+
+  // 1. Soft drop shadow beneath the building mark
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark timber-stone roundel backing + warm sandstone rim
+  g.circle(mx, my, 4.8);
+  g.fill({ color: 0x1f1610, alpha: 0.90 });
+  g.circle(mx, my, 4.8);
+  g.stroke({ width: 0.85, color: 0xd4a373, alpha: 0.94 });
+
+  // 3. Inner deep-walnut disk
+  g.circle(mx, my, 3.8);
+  g.fill({ color: 0x3a281c, alpha: 0.92 });
+
+  // 4. Cream building masonry facade & walls (0xf3e9d2)
+  g.poly([
+    mx - 2.5, my - 0.2 + bob,
+    mx + 2.5, my - 0.2 + bob,
+    mx + 2.5, my + 2.1 + bob,
+    mx - 2.5, my + 2.1 + bob,
+  ]);
+  g.fill({ color: 0xf3e9d2 });
+
+  // 5. Gabled timber roof (0xdeb887) and cream roof highlight (0xfff8ee)
+  g.poly([
+    mx - 2.8, my - 0.2 + bob,
+    mx, my - 2.5 + bob,
+    mx + 2.8, my - 0.2 + bob,
+  ]);
+  g.fill({ color: 0xdeb887 });
+
+  g.poly([
+    mx - 2.2, my - 0.2 + bob,
+    mx, my - 2.1 + bob,
+    mx + 2.2, my - 0.2 + bob,
+  ]);
+  g.fill({ color: 0xfff8ee });
+
+  // 6. Dark arched timber door (0x2b1810)
+  g.poly([
+    mx - 0.8, my + 2.1 + bob,
+    mx - 0.8, my + 0.6 + bob,
+    mx + 0.8, my + 0.6 + bob,
+    mx + 0.8, my + 2.1 + bob,
+  ]);
+  g.fill({ color: 0x2b1810 });
+
+  // 7. Tiny chimney with warm hearth glint (0xd97706 & 0xfef3c7)
+  g.rect(mx + 1.2, my - 2.4 + bob, 0.9, 1.4);
+  g.fill({ color: 0xd97706 });
+  g.circle(mx + 1.65, my - 2.7 + bob, 0.5);
+  g.fill({ color: 0xfef3c7, alpha: 0.85 });
+}
+
+// -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
 // -------------------------------------------------------------
 export interface BoardSeasonTint {
@@ -5884,6 +5998,11 @@ export function paintBoardProvinces(
     // 6.15 Player Hold Crown Mark on Seen Tiles
     if (hasProvinceHold(state, p.id)) {
       drawHoldMark(g, cx - 7, cy + 4, animPhase);
+    }
+
+    // 6.16 Finished Player Building Mark on Seen Tiles
+    if (hasProvinceBuilding(state, p.id)) {
+      drawBuildingMark(g, cx, cy - 9, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

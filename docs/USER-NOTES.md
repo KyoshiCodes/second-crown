@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-25 — Inspect card names a finished building (wave/hud-building)
+## 2026-10-25 — Tile with a finished building shows a building mark on the diamond (bakeoff/gemini-building-mark)
 
-- **A tile with a finished building now says the building's name on the inspect card and play is unchanged.** Click your hold tile and, once a building such as a Farm is finished, the card shows its name under "Your hold". A building still under construction shows nothing yet.
-- **Unseen tiles still show nothing.** Fog is the same.
+- **A tile with a finished building now shows a building mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a finished player building on it gets a small cream building pip mark. Under-construction buildings get no mark.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, hold marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
 - **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-24 — Tile that is part of your hold shows a hold mark on the diamond (bakeoff/gemini-hold-mark)
