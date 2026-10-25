@@ -13805,6 +13805,224 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // bakeoff/gemini-building-mark: Finished Player Building Mark on the Isometric Diamond
+              describe("bakeoff/gemini-building-mark: Finished Player Building Mark on the Isometric Diamond (drawBuildingMark & hasProvinceBuilding)", () => {
+                const createBuildingBoardState = (
+                  seenHome: boolean = true,
+                  finished: boolean = true,
+                  hasBuilding: boolean = true,
+                  realmId: string = "player"
+                ): GameState => {
+                  const flags: Record<string, any> = {
+                    fog_seen: JSON.stringify(seenHome ? ["p_home"] : []),
+                    ...(seenHome ? { "seen:p_home": true } : {}),
+                  };
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: hasBuilding
+                      ? [
+                          {
+                            id: "b_1",
+                            typeId: "farm" as any,
+                            realmId,
+                            x: 0,
+                            y: 0,
+                            level: 1,
+                            completesAtTick: finished ? null : 100,
+                          } as any,
+                        ]
+                      : [],
+                    units: [],
+                    citizens: [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "rival", isPlayer: false, name: "Rival" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags,
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        {
+                          id: "p_home",
+                          name: "Home",
+                          realmId: "player",
+                          occupantRealmId: "player",
+                          node: "none",
+                          terrain: "plains",
+                          x: 0,
+                          y: 0,
+                          elevation: 0,
+                        },
+                        {
+                          id: "p_far",
+                          name: "Far Unseen Tile",
+                          realmId: "player",
+                          occupantRealmId: undefined,
+                          node: "none",
+                          terrain: "hills",
+                          x: 4,
+                          y: 4,
+                          elevation: 0,
+                        },
+                      ],
+                    },
+                  } as unknown as GameState;
+                };
+
+                describe("drawBuildingMark direct unit tests", () => {
+                  it("paints drop shadow, dark timber-stone roundel backing (0x1f1610), sandstone rim, walnut disk, cream facade, gabled roof, door, and chimney", async () => {
+                    const { drawBuildingMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawBuildingMark(g, 100, 80, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokes = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow (0x000000)
+                    expect(fills).toContain(0x000000);
+                    // Dark timber-stone roundel backing (0x1f1610)
+                    expect(fills).toContain(0x1f1610);
+                    // Warm sandstone rim stroke (0xd4a373)
+                    expect(strokes).toContain(0xd4a373);
+                    // Inner deep-walnut disk (0x3a281c)
+                    expect(fills).toContain(0x3a281c);
+                    // Cream masonry facade & walls (0xf3e9d2)
+                    expect(fills).toContain(0xf3e9d2);
+                    // Gabled timber roof (0xdeb887)
+                    expect(fills).toContain(0xdeb887);
+                    // Cream roof highlight (0xfff8ee)
+                    expect(fills).toContain(0xfff8ee);
+                    // Dark arched timber door (0x2b1810)
+                    expect(fills).toContain(0x2b1810);
+                    // Chimney with hearth warmth (0xd97706 & 0xfef3c7)
+                    expect(fills).toContain(0xd97706);
+                    expect(fills).toContain(0xfef3c7);
+                  });
+
+                  it("safely handles null graphics without throwing", async () => {
+                    const { drawBuildingMark } = await import("./tokens.js");
+                    expect(() => drawBuildingMark(null as any, 0, 0)).not.toThrow();
+                  });
+
+                  it("varies building animation with animation phase", async () => {
+                    const { drawBuildingMark } = await import("./tokens.js");
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawBuildingMark(g0, 100, 100, 0);
+                    drawBuildingMark(g1, 100, 100, 0.5);
+
+                    const poly0 = g0.calls.filter((c: any) => c.method === "poly");
+                    const poly1 = g1.calls.filter((c: any) => c.method === "poly");
+                    expect(poly0).not.toEqual(poly1);
+                  });
+                });
+
+                describe("hasProvinceBuilding detection", () => {
+                  it("returns true on a seen province that has a finished player building", async () => {
+                    const { hasProvinceBuilding } = await import("./tokens.js");
+                    const state = createBuildingBoardState(true, true, true);
+                    expect(hasProvinceBuilding(state, "p_home")).toBe(true);
+                  });
+
+                  it("returns false for an under-construction building (under-construction buildings get no mark)", async () => {
+                    const { hasProvinceBuilding } = await import("./tokens.js");
+                    const state = createBuildingBoardState(true, false, true); // finished = false
+                    expect(hasProvinceBuilding(state, "p_home")).toBe(false);
+                  });
+
+                  it("returns false for buildings belonging to other realms", async () => {
+                    const { hasProvinceBuilding } = await import("./tokens.js");
+                    const state = createBuildingBoardState(true, true, true, "rival");
+                    expect(hasProvinceBuilding(state, "p_home")).toBe(false);
+                  });
+
+                  it("returns false on an empty province with no buildings", async () => {
+                    const { hasProvinceBuilding } = await import("./tokens.js");
+                    const state = createBuildingBoardState(true, true, false); // hasBuilding = false
+                    expect(hasProvinceBuilding(state, "p_home")).toBe(false);
+                  });
+
+                  it("returns false on an unseen province with a finished building (unseen tiles stay fog)", async () => {
+                    const { hasProvinceBuilding } = await import("./tokens.js");
+                    const state = createBuildingBoardState(true, true, true);
+                    // Place building on p_far which is unseen (not in fog_seen, far from home)
+                    state.buildings[0] = {
+                      id: "b_far",
+                      typeId: "farm" as any,
+                      realmId: "player",
+                      provinceId: "p_far",
+                      x: 0,
+                      y: 0,
+                      level: 1,
+                      completesAtTick: null,
+                    } as any;
+                    expect(hasProvinceBuilding(state, "p_far")).toBe(false);
+                  });
+
+                  it("safely handles null/undefined state or missing provinceId", async () => {
+                    const { hasProvinceBuilding } = await import("./tokens.js");
+                    expect(hasProvinceBuilding(null, "p_home")).toBe(false);
+                    expect(hasProvinceBuilding(undefined, "p_home")).toBe(false);
+                    expect(hasProvinceBuilding(createBuildingBoardState(true), null)).toBe(false);
+                  });
+                });
+
+                describe("paintBoardProvinces integration with building mark", () => {
+                  it("paints the building mark on a seen province with a finished building alongside hold mark, season mark, and preserves fog", async () => {
+                    const { paintBoardProvinces, drawBuildingMark, hasProvinceBuilding } = await import("./index.js");
+                    expect(typeof drawBuildingMark).toBe("function");
+                    expect(typeof hasProvinceBuilding).toBe("function");
+
+                    const state = createBuildingBoardState(true, true, true);
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Finished building mark roundel backing (0x1f1610), cream walls (0xf3e9d2), roof (0xdeb887), door (0x2b1810)
+                    expect(fills).toContain(0x1f1610);
+                    expect(fills).toContain(0x3a281c);
+                    expect(fills).toContain(0xf3e9d2);
+                    expect(fills).toContain(0xdeb887);
+                    expect(fills).toContain(0xfff8ee);
+                    expect(fills).toContain(0x2b1810);
+
+                    // Hold mark (0x251a06), season mark (0x0d1520), and fog (0x0f172a) preserved
+                    expect(fills).toContain(0x251a06);
+                    expect(fills).toContain(0x0d1520);
+                    expect(fills).toContain(0x0f172a);
+                  });
+
+                  it("does not paint building mark when building is under construction or absent", async () => {
+                    const { paintBoardProvinces } = await import("./index.js");
+                    // Under-construction building
+                    const state = createBuildingBoardState(true, false, true);
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // 0x1f1610 is exclusively the building mark backing color
+                    expect(fills).not.toContain(0x1f1610);
+                  });
+                });
+              });
             });
           });
         });

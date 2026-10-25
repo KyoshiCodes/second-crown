@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-25 — Inspect card names a finished building (wave/hud-building)
+## 2026-10-25 — Tile with finished building shows building mark on diamond (bakeoff/gemini-building-mark)
 
-- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/buildingLine.ts`: `buildingLine(state, provinceId)` returns the finished player building's name (for example "Farm") on the seen home province, else `null`. Uses only `isProvinceSeen`, `state.board.homeProvinceId`, `state.buildings`, and `getBuildingType`. Under-construction buildings (`completesAtTick` not null) and unseen tiles show nothing.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the hold line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-building` (cream `#f3e9d2`, italic).
-- Tests: new `packages/app/src/hud/buildingLine.test.ts` (finished farm shows "Farm"; under-construction building shows nothing; empty province shows nothing; unseen tile shows nothing). `npm test` and `npm run build -w @second-crown/app` pass.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceBuilding(state, provinceId)`: uses only existing building and visibility data the board already reads (`isProvinceSeen`, `state.board.homeProvinceId`, `state.buildings`) to detect when a seen province has a finished player building on it (`b.completesAtTick === null`). Under-construction buildings get no mark. Unseen tiles stay fog and return `false`.
+  - `drawBuildingMark(g, cx, cy, phase)`: paints a small cream building pip (`0x1f1610` dark timber-stone roundel with `0xd4a373` warm sandstone rim, `0x3a281c` deep-walnut disk, `0xf3e9d2` cream masonry facade, `0xdeb887` gabled roof, `0xfff8ee` cream roof highlights, `0x2b1810` dark arched timber door, and `0xd97706` / `0xfef3c7` chimney with hearth warmth) on a seen province that has a finished player building on it.
+  - `paintBoardProvinces`: calls `drawBuildingMark(g, cx, cy - 9, animPhase)` when `hasProvinceBuilding(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, hold marks, piles, ruins, camps, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawBuildingMark` and `hasProvinceBuilding`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (6 new tests in `bakeoff/gemini-building-mark` suite; 539/539 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-24 — Tile that is part of player hold shows hold mark on diamond (bakeoff/gemini-hold-mark)
 
