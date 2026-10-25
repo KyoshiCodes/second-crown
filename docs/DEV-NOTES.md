@@ -1,3 +1,11 @@
+## 2026-10-25 — app / inspect card names a finished building (wave/hud-building)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `buildingLine(state, provinceId)` mirrors `holdLine`: returns `null` if the tile is unseen (`isProvinceSeen`) or is not `state.board.homeProvinceId` (`BuildingInstance` has no province; player buildings live on the hold grid at the home province). Otherwise names the first player building in `state.buildings` with `completesAtTick === null` (the same finished test `countBuilding` uses) via `getBuildingType(typeId).name`. No new sim math.
+- If the hold has several finished buildings, only the first in `state.buildings` order is named. A list or count would be a follow-up.
+- Rendered after the hold line in the Tile group as `.sc-inspect-line.sc-inspect-building` (cream `#f3e9d2`, italic).
+- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-24 — render / tile that is part of player hold shows hold mark on diamond (bakeoff/gemini-hold-mark)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
