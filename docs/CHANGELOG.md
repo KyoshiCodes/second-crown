@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-25 — Inspect card names a finished building (wave/hud-building)
+
+- App only. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/buildingLine.ts`: `buildingLine(state, provinceId)` returns the finished player building's name (for example "Farm") on the seen home province, else `null`. Uses only `isProvinceSeen`, `state.board.homeProvinceId`, `state.buildings`, and `getBuildingType`. Under-construction buildings (`completesAtTick` not null) and unseen tiles show nothing.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the hold line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-building` (cream `#f3e9d2`, italic).
+- Tests: new `packages/app/src/hud/buildingLine.test.ts` (finished farm shows "Farm"; under-construction building shows nothing; empty province shows nothing; unseen tile shows nothing). `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-24 — Tile that is part of player hold shows hold mark on diamond (bakeoff/gemini-hold-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
