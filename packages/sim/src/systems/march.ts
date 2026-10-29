@@ -17,7 +17,7 @@ import { detachGarrison, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
 import { pairClashingMarches, resolveCampRaid, resolveHoldStorm, resolveOutpostAssault } from "./engagement.js";
-import { marchSpeedFactor, weatherFor } from "./weather.js";
+import { buildingDamageFactor, marchSpeedFactor, weatherFor } from "./weather.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -297,7 +297,8 @@ function damageHoldBuilding(state: GameState): string | null {
     (b) => b.realmId === "player" && b.typeId !== "keep" && b.completesAtTick === null
   );
   if (!target) return null;
-  target.completesAtTick = state.meta.tick + 40;
+  // The blow leaves the building unfinished; a storm halves how long it stays down.
+  target.completesAtTick = state.meta.tick + Math.max(1, Math.round(40 * buildingDamageFactor(weatherFor(state))));
   markScarred(state, target.id);
   return target.typeId;
 }

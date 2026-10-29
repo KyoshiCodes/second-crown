@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-29 — Weather and night now matter (wave/weather-day)
+
+- **Rain and storm now reduce gather yield.** A gather column that gets home in rain brings back 90% of its load; in a storm, 75%.
+- **Storm thickens fog.** In a storm you see less far from your hold. Snow thins your sight a little too.
+- **Storm slows building damage.** When a siege knocks a building down during a storm, it is back up in half the usual time.
+- **Night slows work.** Days run in a cycle of dawn, day, dusk, and night. A gather column that gets home at night brings back 80% of its load (this stacks with weather).
+- **Play is otherwise unchanged.**
+
 ## 2026-10-29 — Board shows weather atmosphere (bakeoff/gemini-atmosphere)
 
 - **The board now shows weather atmosphere and play is unchanged.** A soft day/night ambient tint and living weather overlay (warm gold sunlight for Clear, cool blue tint and drifting rain streaks for Rain, darker blue wash with heavier driving streaks and occasional lightning flashes for Storm, and pale grey tint with drifting snow dots for Snow) drift across the isometric board. Keeps and walls cast deeper ground shadows during storms, and evergreen boughs sway gently in the wind.

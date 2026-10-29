@@ -6,6 +6,8 @@ import { serializeState, deserializeState } from "../save/serialize.js";
 import { tryGather, tryRecallGather, tryNpcGather, listGathers, GATHER_NODES } from "./gather.js";
 import { tryMarch, tryMarchWith } from "./march.js";
 import { nodeStock } from "./nodeStock.js";
+import { gatherYieldFactor, weatherFor } from "./weather.js";
+import { dayPhase, nightWorkFactor } from "./dayNight.js";
 
 function fixture(node: keyof typeof GATHER_NODES = "woodcut") {
   const s = createGameState({ seed: 1, now: 0, withStarterBuildings: false });
@@ -20,6 +22,10 @@ function fixture(node: keyof typeof GATHER_NODES = "woodcut") {
 }
 function advance(s: ReturnType<typeof fixture>["s"]) {
   new TickEngine(s).settleTicks(listGathers(s)[0].arrivesTick - s.meta.tick);
+}
+/** What a load pays at the current tick, after weather and night. */
+function paidFor(s: ReturnType<typeof fixture>["s"], load: number) {
+  return Math.floor(load * gatherYieldFactor(weatherFor(s)) * nightWorkFactor(dayPhase(s)));
 }
 function playerUnit(s: ReturnType<typeof fixture>["s"], typeId: string) {
   return s.units.find((u) => u.realmId === "player" && u.typeId === typeId);
@@ -47,7 +53,7 @@ describe("gather expeditions", () => {
     expect(s.resources[res]).toBe("0");
     advance(s);
     expect(listGathers(s)).toEqual([]);
-    expect(Number(s.resources[res])).toBeCloseTo(Number(capacity) - (res === "food" ? 0.06 : 0), 8);
+    expect(Number(s.resources[res])).toBeCloseTo(paidFor(s, Number(capacity)) - (res === "food" ? 0.06 : 0), 8);
     expect(playerUnit(s, "archer")?.count).toBe("2");
     expect(dest.node).toBe(node);
     const paid = s.resources[res];
@@ -67,7 +73,7 @@ describe("gather expeditions", () => {
     expect(tryRecallGather(s, g.id)).toBe(false);
     expect(tryGather(s, dest.id, { militia: 1 })).toBe(true);
     advance(s);
-    expect(s.resources.wood).toBe("2");
+    expect(s.resources.wood).toBe(String(paidFor(s, 2)));
   });
 
   it("recalls outbound with zero cargo and elapsed outbound travel as return time", () => {
@@ -185,5 +191,28 @@ describe("gather expeditions", () => {
     advance(s);
     expect(nodeStock(s, target)).toBeLessThan(before);
     expect(s.resources.wood).toBe(wood);
+  });
+
+  it("night trims what a column brings home", () => {
+    const { s, dest } = fixture();
+    expect(tryGather(s, dest.id, { militia: 2 })).toBe(true);
+    advance(s);
+    advance(s);
+    const g = listGathers(s)[0];
+    const load = Number(g.load);
+    const day = structuredClone(s);
+    const night = structuredClone(s);
+    // Shift both columns so they land in day and in night of the same season.
+    for (const [st, at] of [[day, 30], [night, 100]] as const) {
+      const shift = Math.floor(g.arrivesTick / 120) * 120 + at + 120 - g.arrivesTick;
+      const list = listGathers(st);
+      list[0].arrivesTick += shift;
+      st.flags["gathers_json"] = JSON.stringify(list);
+      advance(st);
+    }
+    expect(weatherFor(day)).toBe(weatherFor(night));
+    const w = gatherYieldFactor(weatherFor(day));
+    expect(Number(day.resources.wood)).toBe(Math.floor(load * w));
+    expect(Number(night.resources.wood)).toBe(Math.floor(load * w * 0.8));
   });
 });

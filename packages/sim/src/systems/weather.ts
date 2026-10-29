@@ -14,6 +14,11 @@ const ODDS: Record<string, [Weather, number][]> = {
 };
 
 const SPEED: Record<Weather, number> = { clear: 1, rain: 0.8, storm: 0.6, snow: 1 };
+const GATHER: Record<Weather, number> = { clear: 1, rain: 0.9, storm: 0.75, snow: 1 };
+// Higher is thicker fog. Vision range is divided by this.
+const FOG: Record<Weather, number> = { clear: 1, rain: 1, storm: 1.4, snow: 1.2 };
+// Applies to the rebuild timer a siege blow puts on a building.
+const BUILDING_DAMAGE: Record<Weather, number> = { clear: 1, rain: 1, storm: 0.5, snow: 1 };
 
 export function weatherFor(state: GameState): Weather {
   const roll = createRngStreams(state.meta.seed + seasonKey(state)).event();
@@ -24,4 +29,16 @@ export function weatherFor(state: GameState): Weather {
 
 export function marchSpeedFactor(weather: Weather): number {
   return SPEED[weather];
+}
+
+export function gatherYieldFactor(weather: Weather): number {
+  return GATHER[weather];
+}
+
+export function fogThickness(weather: Weather): number {
+  return FOG[weather];
+}
+
+export function buildingDamageFactor(weather: Weather): number {
+  return BUILDING_DAMAGE[weather];
 }

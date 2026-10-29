@@ -1,3 +1,12 @@
+## 2026-10-29 — sim / weather effects and day/night cycle (wave/weather-day)
+
+- Factors are plain lookups on `Weather`, matching `marchSpeedFactor(weather)`. The brief wrote `weatherFor(state).gatherYieldFactor`, but `weatherFor` returns a string and render's atmosphere layer reads that string, so it stays a string.
+- Determinism: weather is one rng roll per season (unchanged); day phase is `tick % 120`, no rng. Gather payout reads both at the event tick (`state.meta.tick === tick` inside `processEventsAt`), so tick-by-tick and `settleTicks` catch-up match.
+- Gather: the factor is applied once at deposit and floored, so node stock drain and `listGathers` load are unchanged. NPC gathers pay nothing, as before.
+- Fog: `distance * thickness <= visionRange` instead of dividing the range, so no rounding. Stored `fog_seen` tiles and outpost vision are not affected; only the live home radius shrinks.
+- Building damage: siege only hits finished buildings (`damageHoldBuilding`), turning them unfinished for 40 ticks. The factor scales that timer (storm: 20). There is no path where an already-unfinished building takes siege damage, so none was added.
+- Night work is wired only into gather payout. Production and build timers do not read it yet.
+
 ## 2026-10-29 — render / living atmosphere effects on isometric board (bakeoff/gemini-atmosphere)
 
 - Slice constraints: Render only. Living board atmosphere only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
