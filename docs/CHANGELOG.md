@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-29 — Inspect card shows "Staffed" on a tile with a staffed building (wave/hud-staffed)
+## 2026-10-29 — Tile with staffed building shows staffed mark on diamond (bakeoff/gemini-staffed-mark)
 
-- Inspect card only in `packages/app`. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/staffedLine.ts`: `staffedLine(state, provinceId)` returns `"Staffed"` when the seen home tile has a finished player building with at least one worker posted (existing `staffBonus(state, b) > 1`), else `null`.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the building line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-staffed` (green `#7ec27a`, italic).
-- New `packages/app/src/hud/staffedLine.test.ts`: staffed farm shows "Staffed"; empty farm, empty province, and unseen tile show nothing.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceStaffed(state, provinceId)`: uses only existing building, citizen, and visibility data the board already reads (`isProvinceSeen`, `state.board.homeProvinceId`, `state.buildings`, `state.citizens`, `isBuildingStaffed`) to detect when a seen province has a finished player building with at least one worker posted to it. Empty buildings and under-construction buildings get no mark. Unseen tiles stay fog and return `false`.
+  - `drawStaffedMark(g, cx, cy, phase)`: paints a small green worker pip (`0x0c2718` dark moss-forest roundel with `0x22c55e` fresh leaf green rim, `0x144026` deep-spruce disk, `0x7ec27a` / `0x4ade80` soft green worker tunic, `0x2b1810` / `0xd97706` leather belt and brass buckle, `0xfde68a` worker head with `0x22c55e` green cap, `0xb45309` timber tool handle with `0xe2e8f0` steel tool head and `0xfef08a` glint) on a seen province that has a finished player building with at least one worker posted.
+  - `paintBoardProvinces`: calls `drawStaffedMark(g, cx - 5, cy - 3, animPhase)` when `hasProvinceStaffed(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, hold marks, building marks, piles, ruins, camps, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawStaffedMark` and `hasProvinceStaffed`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (6 new tests in `bakeoff/gemini-staffed-mark` suite; 551/551 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-25 — Tile with finished building shows building mark on diamond (bakeoff/gemini-building-mark)
 

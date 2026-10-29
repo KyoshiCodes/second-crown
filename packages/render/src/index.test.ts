@@ -14023,6 +14023,240 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // bakeoff/gemini-staffed-mark: Staffed Building Mark on the Isometric Diamond
+              describe("bakeoff/gemini-staffed-mark: Staffed Building Mark on the Isometric Diamond (drawStaffedMark & hasProvinceStaffed)", () => {
+                const createStaffedBoardState = (
+                  seenHome: boolean = true,
+                  finished: boolean = true,
+                  hasBuilding: boolean = true,
+                  isStaffed: boolean = true,
+                  realmId: string = "player"
+                ): GameState => {
+                  const flags: Record<string, any> = {
+                    fog_seen: JSON.stringify(seenHome ? ["p_home"] : []),
+                    ...(seenHome ? { "seen:p_home": true } : {}),
+                  };
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: hasBuilding
+                      ? [
+                          {
+                            id: "b_1",
+                            typeId: "farm" as any,
+                            realmId,
+                            x: 0,
+                            y: 0,
+                            level: 1,
+                            completesAtTick: finished ? null : 100,
+                          } as any,
+                        ]
+                      : [],
+                    units: [],
+                    citizens: isStaffed
+                      ? [
+                          {
+                            id: "c_1",
+                            realmId,
+                            job: "farmer",
+                            tile: { x: 0, y: 0 },
+                          } as any,
+                        ]
+                      : [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "rival", isPlayer: false, name: "Rival" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags,
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        {
+                          id: "p_home",
+                          name: "Home",
+                          realmId: "player",
+                          occupantRealmId: "player",
+                          node: "none",
+                          terrain: "plains",
+                          x: 0,
+                          y: 0,
+                          elevation: 0,
+                        },
+                        {
+                          id: "p_far",
+                          name: "Far Unseen Tile",
+                          realmId: "player",
+                          occupantRealmId: undefined,
+                          node: "none",
+                          terrain: "hills",
+                          x: 4,
+                          y: 4,
+                          elevation: 0,
+                        },
+                      ],
+                    },
+                  } as unknown as GameState;
+                };
+
+                describe("drawStaffedMark direct unit tests", () => {
+                  it("paints drop shadow, dark moss-forest roundel (0x0c2718), fresh leaf green rim (0x22c55e), deep spruce disk, worker tunic, belt, worker head, cap, and tool", async () => {
+                    const { drawStaffedMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawStaffedMark(g, 100, 80, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokes = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow (0x000000)
+                    expect(fills).toContain(0x000000);
+                    // Dark moss-forest roundel backing (0x0c2718)
+                    expect(fills).toContain(0x0c2718);
+                    // Fresh leaf green rim stroke (0x22c55e)
+                    expect(strokes).toContain(0x22c55e);
+                    // Inner deep-spruce disk (0x144026)
+                    expect(fills).toContain(0x144026);
+                    // Soft green worker tunic (#7ec27a) & highlight (#4ade80)
+                    expect(fills).toContain(0x7ec27a);
+                    expect(fills).toContain(0x4ade80);
+                    // Dark leather belt (0x2b1810) & brass buckle (0xd97706)
+                    expect(fills).toContain(0x2b1810);
+                    expect(fills).toContain(0xd97706);
+                    // Worker head (#fde68a) & green cap (0x22c55e)
+                    expect(fills).toContain(0xfde68a);
+                    expect(fills).toContain(0x22c55e);
+                    // Timber tool handle (0xb45309) & steel tool head (0xe2e8f0)
+                    expect(fills).toContain(0xb45309);
+                    expect(fills).toContain(0xe2e8f0);
+                  });
+
+                  it("safely handles null graphics without throwing", async () => {
+                    const { drawStaffedMark } = await import("./tokens.js");
+                    expect(() => drawStaffedMark(null as any, 0, 0)).not.toThrow();
+                  });
+
+                  it("varies worker animation with animation phase", async () => {
+                    const { drawStaffedMark } = await import("./tokens.js");
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawStaffedMark(g0, 100, 100, 0);
+                    drawStaffedMark(g1, 100, 100, 0.5);
+
+                    const poly0 = g0.calls.filter((c: any) => c.method === "poly");
+                    const poly1 = g1.calls.filter((c: any) => c.method === "poly");
+                    expect(poly0).not.toEqual(poly1);
+                  });
+                });
+
+                describe("hasProvinceStaffed detection", () => {
+                  it("returns true on a seen province that has a finished player building with at least one worker", async () => {
+                    const { hasProvinceStaffed } = await import("./tokens.js");
+                    const state = createStaffedBoardState(true, true, true, true);
+                    expect(hasProvinceStaffed(state, "p_home")).toBe(true);
+                  });
+
+                  it("returns false for an empty finished building with no workers", async () => {
+                    const { hasProvinceStaffed } = await import("./tokens.js");
+                    const state = createStaffedBoardState(true, true, true, false); // isStaffed = false
+                    expect(hasProvinceStaffed(state, "p_home")).toBe(false);
+                  });
+
+                  it("returns false for an under-construction building even if citizen assigned", async () => {
+                    const { hasProvinceStaffed } = await import("./tokens.js");
+                    const state = createStaffedBoardState(true, false, true, true); // finished = false
+                    expect(hasProvinceStaffed(state, "p_home")).toBe(false);
+                  });
+
+                  it("returns false for buildings belonging to rival realms", async () => {
+                    const { hasProvinceStaffed } = await import("./tokens.js");
+                    const state = createStaffedBoardState(true, true, true, true, "rival");
+                    expect(hasProvinceStaffed(state, "p_home")).toBe(false);
+                  });
+
+                  it("returns false on an empty province with no buildings", async () => {
+                    const { hasProvinceStaffed } = await import("./tokens.js");
+                    const state = createStaffedBoardState(true, true, false, false);
+                    expect(hasProvinceStaffed(state, "p_home")).toBe(false);
+                  });
+
+                  it("returns false on an unseen province with a staffed building (unseen tiles stay fog)", async () => {
+                    const { hasProvinceStaffed } = await import("./tokens.js");
+                    const state = createStaffedBoardState(true, true, true, true);
+                    state.buildings[0] = {
+                      id: "b_far",
+                      typeId: "farm" as any,
+                      realmId: "player",
+                      provinceId: "p_far",
+                      x: 0,
+                      y: 0,
+                      level: 1,
+                      completesAtTick: null,
+                    } as any;
+                    expect(hasProvinceStaffed(state, "p_far")).toBe(false);
+                  });
+
+                  it("safely handles null/undefined state or missing provinceId", async () => {
+                    const { hasProvinceStaffed } = await import("./tokens.js");
+                    expect(hasProvinceStaffed(null, "p_home")).toBe(false);
+                    expect(hasProvinceStaffed(undefined, "p_home")).toBe(false);
+                    expect(hasProvinceStaffed(createStaffedBoardState(true), null)).toBe(false);
+                  });
+                });
+
+                describe("paintBoardProvinces integration with staffed mark", () => {
+                  it("paints the staffed mark on a seen province with a staffed building alongside building mark, hold mark, and season mark", async () => {
+                    const { paintBoardProvinces, drawStaffedMark, hasProvinceStaffed } = await import("./index.js");
+                    expect(typeof drawStaffedMark).toBe("function");
+                    expect(typeof hasProvinceStaffed).toBe("function");
+
+                    const state = createStaffedBoardState(true, true, true, true);
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Staffed mark roundel backing (0x0c2718), deep spruce disk (0x144026), worker tunic (#7ec27a), head (0xfde68a)
+                    expect(fills).toContain(0x0c2718);
+                    expect(fills).toContain(0x144026);
+                    expect(fills).toContain(0x7ec27a);
+                    expect(fills).toContain(0xfde68a);
+
+                    // Finished building mark (0x1f1610), hold mark (0x251a06), season mark (0x0d1520), and fog (0x0f172a) preserved
+                    expect(fills).toContain(0x1f1610);
+                    expect(fills).toContain(0x251a06);
+                    expect(fills).toContain(0x0d1520);
+                    expect(fills).toContain(0x0f172a);
+                  });
+
+                  it("does not paint staffed mark when building is empty, but still paints building mark", async () => {
+                    const { paintBoardProvinces } = await import("./index.js");
+                    const state = createStaffedBoardState(true, true, true, false); // isStaffed = false
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Staffed mark backing 0x0c2718 must NOT be painted
+                    expect(fills).not.toContain(0x0c2718);
+                    // But building mark backing 0x1f1610 IS painted
+                    expect(fills).toContain(0x1f1610);
+                  });
+                });
+              });
             });
           });
         });

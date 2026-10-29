@@ -4487,6 +4487,133 @@ export function drawBuildingMark(
   g.fill({ color: 0xfef3c7, alpha: 0.85 });
 }
 
+/**
+ * Resolves whether a seen province on the board has a finished player building
+ * with at least one worker posted to it.
+ * Uses only existing building and worker data the board already reads
+ * (isProvinceSeen, state.board.homeProvinceId, state.buildings, state.citizens, isBuildingStaffed).
+ * Empty buildings and under-construction buildings get no mark.
+ * Unseen tiles always return false (stay fog).
+ */
+export function hasProvinceStaffed(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+  if (!Array.isArray(state.buildings)) return false;
+
+  const isHome = Boolean(state.board.homeProvinceId && provinceId === state.board.homeProvinceId);
+
+  return state.buildings.some((b) => {
+    const isPlayer = b.realmId === "player" || !b.realmId;
+    if (!isPlayer) return false;
+    // Under-construction buildings get no mark
+    if (b.completesAtTick !== null) return false;
+
+    // Player buildings sit on the hold grid at homeProvinceId,
+    // or on explicit provinceId if specified
+    const matchesProvince = isHome || (b as any).provinceId === provinceId || (b as any).toId === provinceId;
+    if (!matchesProvince) return false;
+
+    // Must have at least one worker posted to it
+    const staffed = isBuildingStaffed(state, b) || (typeof sim.staffBonus === "function" && sim.staffBonus(state, b) > 1);
+    return Boolean(staffed);
+  });
+}
+
+/**
+ * Paints a small green worker pip on a seen province that has a finished player building
+ * with at least one worker posted to it.
+ * Empty buildings get no mark.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the worker pip (0x000000)
+ * - Dark moss/forest green roundel backing (0x0c2718) with fresh leaf green rim (0x22c55e)
+ * - Inner deep-spruce disk (0x144026)
+ * - Soft green worker tunic (0x7ec27a & 0x4ade80)
+ * - Dark leather belt (0x2b1810) with warm brass buckle (0xd97706)
+ * - Worker head (0xfde68a) with worker cap (0x22c55e)
+ * - Angled timber handle (0xb45309) with steel tool head (0xe2e8f0) and glint (0xfef08a)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawStaffedMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const mx = cx;
+  const my = cy;
+  const bob = Math.sin(phase * 2.8) * 0.2;
+
+  // 1. Soft drop shadow beneath the worker mark
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark moss-forest roundel backing + fresh leaf green rim
+  g.circle(mx, my, 4.8);
+  g.fill({ color: 0x0c2718, alpha: 0.90 });
+  g.circle(mx, my, 4.8);
+  g.stroke({ width: 0.85, color: 0x22c55e, alpha: 0.94 });
+
+  // 3. Inner deep-spruce disk
+  g.circle(mx, my, 3.8);
+  g.fill({ color: 0x144026, alpha: 0.92 });
+
+  // 4. Worker tunic (soft green #7ec27a and bright leaf highlight #4ade80)
+  g.poly([
+    mx - 2.2, my + 2.2 + bob,
+    mx - 1.6, my - 0.2 + bob,
+    mx + 1.6, my - 0.2 + bob,
+    mx + 2.2, my + 2.2 + bob,
+  ]);
+  g.fill({ color: 0x7ec27a });
+
+  g.poly([
+    mx, my - 0.2 + bob,
+    mx + 1.6, my - 0.2 + bob,
+    mx + 2.2, my + 2.2 + bob,
+    mx, my + 2.2 + bob,
+  ]);
+  g.fill({ color: 0x4ade80 });
+
+  // 5. Dark leather belt with warm brass buckle
+  g.rect(mx - 1.8, my + 1.2 + bob, 3.6, 0.7);
+  g.fill({ color: 0x2b1810 });
+  g.rect(mx - 0.4, my + 1.1 + bob, 0.8, 0.9);
+  g.fill({ color: 0xd97706 });
+
+  // 6. Worker head (warm amber-flesh #fde68a)
+  g.circle(mx, my - 1.5 + bob, 1.4);
+  g.fill({ color: 0xfde68a });
+
+  // 7. Green worker cap
+  g.poly([
+    mx - 1.5, my - 1.5 + bob,
+    mx, my - 3.0 + bob,
+    mx + 1.5, my - 1.5 + bob,
+  ]);
+  g.fill({ color: 0x22c55e });
+
+  // 8. Angled worker tool (timber handle + bright steel head + glint)
+  g.poly([
+    mx + 1.5, my + 1.8 + bob,
+    mx + 3.0, my - 1.2 + bob,
+    mx + 2.5, my - 1.4 + bob,
+    mx + 1.0, my + 1.6 + bob,
+  ]);
+  g.fill({ color: 0xb45309 });
+
+  g.circle(mx + 2.8, my - 1.4 + bob, 0.9);
+  g.fill({ color: 0xe2e8f0 });
+
+  g.circle(mx + 3.0, my - 1.6 + bob, 0.5);
+  g.fill({ color: 0xfef08a, alpha: 0.9 });
+}
+
 // -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
 // -------------------------------------------------------------
@@ -6003,6 +6130,11 @@ export function paintBoardProvinces(
     // 6.16 Finished Player Building Mark on Seen Tiles
     if (hasProvinceBuilding(state, p.id)) {
       drawBuildingMark(g, cx, cy - 9, animPhase);
+    }
+
+    // 6.17 Staffed Building Mark on Seen Tiles
+    if (hasProvinceStaffed(state, p.id)) {
+      drawStaffedMark(g, cx - 5, cy - 3, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province
