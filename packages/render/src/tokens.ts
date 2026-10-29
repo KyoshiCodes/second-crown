@@ -50,6 +50,7 @@ import {
   isBuildingStaffed,
   isHoldBreached,
 } from "./buildings.js";
+import { resolveAtmosphereWeather } from "./atmosphere.js";
 import { isFoodStoresEmptyOrLow } from "./walkers.js";
 
 export function isMarchHostile(march: { realmId: string }): boolean {
@@ -1183,9 +1184,11 @@ export function drawMiniatureKeep(
     (options?.state ? isHoldBreached(options.state, options, isHome ? "player" : realmPal?.realmId ?? "player") : false)
   );
 
-  // 0. Ambient ground contact shadow (detaches keep from busy terrain relief)
+  // 0. Ambient ground contact shadow (detaches keep from busy terrain relief, darkens in storm)
+  const isStorm = (options as any)?.weather === "storm" ||
+    (options?.state ? resolveAtmosphereWeather(options.state) === "storm" : false);
   g.ellipse(cx, cy + 4, 11, 4.5);
-  g.fill({ color: 0x050403, alpha: 0.62 });
+  g.fill({ color: 0x050403, alpha: isStorm ? 0.82 : 0.62 });
 
   // If this is a rival (Iron March) hold
   if (realmPal?.realmId === "rival") {
@@ -5137,30 +5140,32 @@ export function drawWoodTile(
     ]);
     g.fill({ color: 0x271101 });
 
-    // Conical evergreen foliage boughs (3 tiers)
+    // Conical evergreen foliage boughs (3 tiers with gentle wind sway)
     const leafDark = tr.dark ? 0x064e3b : 0x14532d;
     const leafMid = tr.dark ? 0x047857 : 0x16a34a;
     const leafLight = tr.dark ? 0x10b981 : 0x22c55e;
+    const sway = Math.sin(phase * 2.2 + tr.tx * 0.1) * 0.7 * s;
+    const swayApex = Math.sin(phase * 2.2 + tr.tx * 0.1) * 1.2 * s;
 
     // Tier 1 (Lowest broad skirt)
-    g.poly([x - 5.6 * s, y + 0.6 * s, x, y - 4.8 * s, x + 5.6 * s, y + 0.6 * s]);
+    g.poly([x - 5.6 * s, y + 0.6 * s, x + sway * 0.5, y - 4.8 * s, x + 5.6 * s, y + 0.6 * s]);
     g.fill({ color: leafDark });
-    g.poly([x - 5.6 * s, y + 0.6 * s, x, y - 4.8 * s, x, y + 0.6 * s]);
+    g.poly([x - 5.6 * s, y + 0.6 * s, x + sway * 0.5, y - 4.8 * s, x, y + 0.6 * s]);
     g.fill({ color: tr.dark ? 0x0f5132 : 0x15803d, alpha: 0.55 });
 
     // Tier 2 (Middle bough skirt)
-    g.poly([x - 4.6 * s, y - 2.8 * s, x, y - 8.2 * s, x + 4.6 * s, y - 2.8 * s]);
+    g.poly([x - 4.6 * s, y - 2.8 * s, x + sway, y - 8.2 * s, x + 4.6 * s, y - 2.8 * s]);
     g.fill({ color: leafMid });
-    g.poly([x - 4.6 * s, y - 2.8 * s, x, y - 8.2 * s, x, y - 2.8 * s]);
+    g.poly([x - 4.6 * s, y - 2.8 * s, x + sway, y - 8.2 * s, x, y - 2.8 * s]);
     g.fill({ color: tr.dark ? 0x16a34a : 0x22c55e, alpha: 0.5 });
 
     // Tier 3 (Crown bough spire)
-    g.poly([x - 3.2 * s, y - 6.2 * s, x, y - 11.8 * s, x + 3.2 * s, y - 6.2 * s]);
+    g.poly([x - 3.2 * s, y - 6.2 * s, x + swayApex, y - 11.8 * s, x + 3.2 * s, y - 6.2 * s]);
     g.fill({ color: leafLight });
 
     // Sunlit needle crest along spire ridge
     g.moveTo(x - 2.2 * s, y - 6.2 * s);
-    g.lineTo(x, y - 11.8 * s);
+    g.lineTo(x + swayApex, y - 11.8 * s);
     g.stroke({ width: 0.9 * s, color: 0x34d399, alpha: 0.85 });
   }
 

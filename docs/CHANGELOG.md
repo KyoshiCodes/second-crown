@@ -1,11 +1,27 @@
 # CHANGELOG
 
-## 2026-10-29 — Weather slows marches (wave/weather)
+## 2026-10-29 — Living atmosphere effects on isometric board (bakeoff/gemini-atmosphere)
 
-- Sim only. No changes to `packages/render`, `server/`, or `theme.css`.
-- New `packages/sim/src/systems/weather.ts`: `weatherFor(state)` (`clear` / `rain` / `storm` / `snow`), with one roll per season from the existing `createRngStreams` event stream, seeded with `state.meta.seed + seasonKey(state)` and weighted by `currentSeason`. `marchSpeedFactor(weather)`: rain 0.8, storm 0.6, clear and snow 1.
-- `packages/sim/src/systems/march.ts`: march ETA (player and NPC) is now `ceil(dist * TICKS_PER_STEP / marchSpeedFactor(weatherFor(state)))`, read at launch. Other march rules are unchanged.
-- Tests: `packages/sim/src/systems/weather.test.ts` (6 tests). `npm test` passes.
+- Board rendering only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/atmosphere.ts`:
+  - `drawAtmosphere(state, g, phase, width, height)`: paints a soft day/night ambient wash and dynamic weather overlay across the viewport.
+  - Resolves weather via `(sim as any).weatherFor?.(state)` if present, with clean fallback to `flags.weather` or `currentSeason(state)` (`"winter"` -> snow, `"autumn"` -> rain, `"summer"` -> clear, `"spring"` -> clear).
+  - Clear: warm gold sunlight tint (`0xfef08a`).
+  - Rain: cool blue rain tint (`0x38bdf8`) + 64 animated drifting rain streaks.
+  - Storm: darker blue storm wash (`0x1e3a8a`, `0x0f172a`) + 96 driving rain streaks + occasional lightning flash.
+  - Snow: pale cool grey tint (`0xe2e8f0`) + 72 drifting snow dots.
+  - Day/night cycle: subtle diurnality wash (`resolveDayNightCycle`) fading from warm daylight to cool midnight slate.
+  - Overlay graphics set `eventMode = "none"` (`pointer-events: none`).
+- `packages/render/src/tokens.ts`:
+  - `drawMiniatureKeep`: ground contact shadow darkens from `0.62` to `0.82` during storms (`isStorm`).
+  - `drawWoodTile`: evergreen foliage boughs sway gently with the wind (`Math.sin(phase * 2.2 + tr.tx * 0.1)`).
+- `packages/render/src/buildings.ts`:
+  - `drawIsometricBuilding`: keep and wall ground contact shadows darken in storms (`baseAlpha: 0.58`, `castAlpha: 0.42`, `rimAlpha: 0.42`).
+- `packages/render/src/index.ts`:
+  - `updateBoardWeather`: calls `drawAtmosphere(lastState, boardWeatherGraphic, t, CANVAS_W, CANVAS_H)` on each render frame.
+  - Re-exports `drawAtmosphere`, `resolveAtmosphereWeather`, `weatherForState`, and `type AtmosphereWeather`.
+- Tests: `packages/render/src/index.test.ts` (11 new tests in `bakeoff/gemini-atmosphere` suite; 572/572 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-29 — Tile at edge of vision shows fog edge mark on diamond (bakeoff/gemini-fog-edge-mark)
 

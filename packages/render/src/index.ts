@@ -31,6 +31,13 @@ import {
 } from "./weather.js";
 
 import {
+  drawAtmosphere,
+  resolveAtmosphereWeather,
+  weatherForState,
+  type AtmosphereWeather,
+} from "./atmosphere.js";
+
+import {
   type CameraBand,
   ZOOM_THRESHOLD,
   BOARD_DEFAULT_ZOOM,
@@ -739,8 +746,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   }
 
   function updateBoardWeather(t: number): void {
-    const weather = resolveWeatherFromState(lastState, visuals);
-    paintWeatherParticles(boardWeatherGraphic, weather, boardParticles, t, CANVAS_W, CANVAS_H);
+    drawAtmosphere(lastState, boardWeatherGraphic, t, CANVAS_W, CANVAS_H);
   }
 
   function paintAmbientLighting(): void {
@@ -880,6 +886,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     paintBoardProvinces(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
     paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
     renderBoardSelection(state);
+    updateBoardWeather(phase);
     if (hoveredProvinceCoord) {
       paintBoardHighlight(boardHighlightLayer, hoveredProvinceCoord.bx, hoveredProvinceCoord.by, state, phase);
     }
@@ -1069,5 +1076,9 @@ export {
   hasProvinceStaffed,
   drawFogEdgeMark,
   hasProvinceFogEdge,
+  drawAtmosphere,
+  resolveAtmosphereWeather,
+  weatherForState,
+  type AtmosphereWeather,
 };
 
