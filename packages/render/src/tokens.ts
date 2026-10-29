@@ -4614,6 +4614,107 @@ export function drawStaffedMark(
   g.fill({ color: 0xfef08a, alpha: 0.9 });
 }
 
+/**
+ * Resolves whether a seen province on the board is at the edge of the player's vision
+ * (has at least one unseen/fog adjacent province).
+ * Uses only existing vision (isProvinceSeen) and adjacency (neighbors) data the board already reads.
+ * Fully surrounded seen tiles get no mark.
+ * Unseen tiles always return false (stay fog).
+ */
+export function hasProvinceFogEdge(
+  state: GameState | null | undefined,
+  provinceId: string | null | undefined
+): boolean {
+  if (!state?.board?.provinces || !provinceId) return false;
+  if (!isProvinceSeen(state, provinceId)) return false;
+
+  let adj: Province[] = [];
+  if (typeof sim.neighbors === "function") {
+    try {
+      adj = sim.neighbors(state, provinceId);
+    } catch {
+      adj = [];
+    }
+  }
+  if (!adj.length) {
+    const cur = state.board.provinces.find((p) => p.id === provinceId);
+    if (cur) {
+      adj = state.board.provinces.filter(
+        (p) => p.id !== provinceId && Math.abs(p.x - cur.x) + Math.abs(p.y - cur.y) === 1
+      );
+    }
+  }
+
+  return adj.some((n) => !isProvinceSeen(state, n.id));
+}
+
+/**
+ * Paints a small slate mist pip on a seen province that is at the edge of the player's vision
+ * (has at least one unseen adjacent province).
+ * Fully surrounded seen tiles get no mark.
+ *
+ * Visual anatomy:
+ * - Soft ground/drop shadow beneath the mist pip (0x000000)
+ * - Dark slate-fog roundel backing (0x131d2e) with slate mist rim (0x64748b)
+ * - Deep twilight-slate inner disk (0x1e293b)
+ * - Swirling slate-blue mist banks (0x64748b & 0x94a3b8)
+ * - Drifting pale cloud puffs (0xcfdbe8 & 0xe2e8f0)
+ * - Bright condensation vapor glint (0xf8fafc)
+ * - Purely non-interactive graphics (pointer-events: none; camera math, zoom, and hit-testing untouched)
+ */
+export function drawFogEdgeMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g) return;
+
+  const mx = cx;
+  const my = cy;
+  const mistDrift = Math.sin(phase * 2.5) * 0.25;
+  const mistPulse = Math.cos(phase * 3.0) * 0.15;
+
+  // 1. Soft drop shadow beneath the mist mark
+  g.ellipse(mx, my + 1.8, 5.4, 3.1);
+  g.fill({ color: 0x000000, alpha: 0.40 });
+
+  // 2. Dark slate-fog roundel backing + slate mist rim
+  g.circle(mx, my, 4.8);
+  g.fill({ color: 0x131d2e, alpha: 0.90 });
+  g.circle(mx, my, 4.8);
+  g.stroke({ width: 0.85, color: 0x64748b, alpha: 0.94 });
+
+  // 3. Inner deep twilight-slate disk
+  g.circle(mx, my, 3.8);
+  g.fill({ color: 0x1e293b, alpha: 0.92 });
+
+  // 4. Lower swirling mist bank (slate 0x64748b and mist 0x94a3b8)
+  g.ellipse(mx - 0.8, my + 1.2 + mistDrift, 2.6, 1.3);
+  g.fill({ color: 0x64748b, alpha: 0.85 });
+
+  g.ellipse(mx + 1.1, my + 0.9 - mistDrift, 2.0, 1.1);
+  g.fill({ color: 0x94a3b8, alpha: 0.90 });
+
+  // 5. Central drifting fog puff (pale slate 0x94a3b8 and cloudy vapor 0xcfdbe8)
+  g.circle(mx - 0.6, my - 0.4 + mistDrift, 1.7);
+  g.fill({ color: 0x94a3b8, alpha: 0.92 });
+
+  g.circle(mx + 0.8, my - 0.2 - mistDrift, 1.4);
+  g.fill({ color: 0xcfdbe8, alpha: 0.94 });
+
+  // 6. Upper cresting mist wisp (frost vapor 0xe2e8f0 and diffuse cloud 0xcfdbe8)
+  g.circle(mx + 0.2, my - 1.4 + mistPulse, 1.3);
+  g.fill({ color: 0xe2e8f0, alpha: 0.95 });
+
+  g.ellipse(mx - 1.1, my - 1.0 + mistDrift, 1.4, 0.8);
+  g.fill({ color: 0xcfdbe8, alpha: 0.80 });
+
+  // 7. Bright vapor condensation glint (0xf8fafc)
+  g.circle(mx + 0.3, my - 1.6 + mistPulse, 0.5);
+  g.fill({ color: 0xf8fafc, alpha: 0.90 });
+}
+
 // -------------------------------------------------------------
 // Seasonal & Holiday Board Tinting Helpers
 // -------------------------------------------------------------
@@ -6135,6 +6236,11 @@ export function paintBoardProvinces(
     // 6.17 Staffed Building Mark on Seen Tiles
     if (hasProvinceStaffed(state, p.id)) {
       drawStaffedMark(g, cx - 5, cy - 3, animPhase);
+    }
+
+    // 6.18 Fog Edge Mark on Seen Tiles at the Edge of Vision
+    if (hasProvinceFogEdge(state, p.id)) {
+      drawFogEdgeMark(g, cx + 5, cy - 3, animPhase);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

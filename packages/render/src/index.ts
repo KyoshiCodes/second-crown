@@ -160,6 +160,8 @@ import {
   hasProvinceBuilding,
   drawStaffedMark,
   hasProvinceStaffed,
+  drawFogEdgeMark,
+  hasProvinceFogEdge,
 } from "./tokens.js";
 
 import {
@@ -1065,5 +1067,7 @@ export {
   hasProvinceBuilding,
   drawStaffedMark,
   hasProvinceStaffed,
+  drawFogEdgeMark,
+  hasProvinceFogEdge,
 };
 

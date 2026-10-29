@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-29 — Tile at the edge of your vision says "Fog edge" (wave/hud-fog-edge)
+## 2026-10-29 — Tile at edge of vision shows a fog edge mark on the diamond (bakeoff/gemini-fog-edge-mark)
 
-- **A tile at the edge of your vision now says "Fog edge" on the inspect card and play is unchanged.** Click a seen tile that touches at least one fogged tile and the Tile group shows a short slate "Fog edge" line under the staffed line.
-- Seen tiles fully surrounded by seen tiles show nothing. **Unseen tiles still show nothing.** Fog itself is unchanged.
+- **A tile at the edge of your vision now shows a fog edge mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has at least one unseen adjacent province gets a small slate mist pip mark. Fully surrounded seen tiles get no mark.
+- **Unseen tiles stay fog.** Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, hold marks, building marks, staffed marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
 - **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-29 — Tile with a staffed building shows a staffed mark on the diamond (bakeoff/gemini-staffed-mark)

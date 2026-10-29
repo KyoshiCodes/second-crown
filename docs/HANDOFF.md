@@ -1,11 +1,11 @@
-# Handoff (2026-10-29)
+# Handoff (2026-10-14)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#275** (staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hud-fog-edge` (**not merged**, see Fog edge line below).
+Merged through PR **#275** (staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-fog-edge-mark` (**not merged**, see Fog edge mark on diamond below).
 
 ### Cultures and units (all merged)
 
@@ -327,13 +327,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (551 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Fog edge line (branch `wave/hud-fog-edge`, **not merged**)
+## Fog edge mark on diamond (branch `bakeoff/gemini-fog-edge-mark`, **not merged**)
 
-- Inspect card only. Do not change `packages/sim`, `server/`, `theme.css`, or any action. Fog is unchanged.
-- `fogEdgeLine(state, provinceId)` in `packages/app/src/hud/fogEdgeLine.ts` returns "Fog edge" when the province is seen and at least one adjacent province is unseen. It uses only the sim's `isProvinceSeen` and `neighbors` helpers (the same ones the board uses). No new sim math.
-- `ProvinceInspect.tsx` renders it in the Tile group right after the staffed line. Style: `.sc-inspect-fog-edge` in `packages/app/src/hud/inspect-card.css` (slate `#94a3b8`, italic).
-- Fully surrounded seen tiles and unseen tiles show nothing.
-- Tests: `packages/app/src/hud/fogEdgeLine.test.ts` (3 tests). `npm test` passes.
+- The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
+- A seen tile at the edge of the player's vision on the isometric diamond gets a small fog edge mark (`drawFogEdgeMark(g, cx, cy, phase)` and `hasProvinceFogEdge(state, provinceId)` in `packages/render/src/tokens.ts`): a small slate mist pip (`0x131d2e` dark slate-fog roundel, `0x64748b` rim, `0x1e293b` deep twilight disk, `0x64748b` & `0x94a3b8` swirling mist banks, `0xcfdbe8` drifting cloud puffs, `0xe2e8f0` cresting mist wisp, and `0xf8fafc` vapor condensation glint) using only existing vision and adjacency data the board already reads (`isProvinceSeen`, `neighbors`). Fully surrounded seen tiles get no mark.
+- Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, hold marks, building marks, staffed marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+- Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (561 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
 ## Verify
 
