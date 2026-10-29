@@ -2,13 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-29 — Weather and night now matter (wave/weather-day)
+## 2026-10-29 — Board shows day/night cycle and weather atmosphere (bakeoff/gemini-day-night)
 
-- **Rain and storm now reduce gather yield.** A gather column that gets home in rain brings back 90% of its load; in a storm, 75%.
-- **Storm thickens fog.** In a storm you see less far from your hold. Snow thins your sight a little too.
-- **Storm slows building damage.** When a siege knocks a building down during a storm, it is back up in half the usual time.
-- **Night slows work.** Days run in a cycle of dawn, day, dusk, and night. A gather column that gets home at night brings back 80% of its load (this stacks with weather).
-- **Play is otherwise unchanged.**
+- **The board now shows a day/night cycle and weather atmosphere, and play is unchanged.** Warm gold rises at dawn, day stays clear and warm, dusk settles in amber, and night brings cool nocturnal blue with lower brightness alongside rain streaks, storm flashes, and drifting snow dots. Soft ground shadows under keeps and walls darken in night and storm, trees and banners sway gently in the wind, and fog edge marks thicken visually in storm and snow.
+- **Unseen tiles stay fog.** Existing marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-29 — Board shows weather atmosphere (bakeoff/gemini-atmosphere)
 

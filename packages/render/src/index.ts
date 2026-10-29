@@ -31,10 +31,17 @@ import {
 } from "./weather.js";
 
 import {
+  DAY_CYCLE_TICKS,
   drawAtmosphere,
   resolveAtmosphereWeather,
   weatherForState,
+  resolveDayPhase,
+  dayPhaseForState,
+  resolveDayNightCycle,
+  resolveWindStrength,
   type AtmosphereWeather,
+  type DayPhase,
+  type DayNightVisuals,
 } from "./atmosphere.js";
 
 import {
@@ -263,9 +270,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   holdContainer.addChild(entitiesLayer);
 
   const fogLayer = new Graphics();
+  fogLayer.eventMode = "none";
   holdContainer.addChild(fogLayer);
 
   const ambientOverlay = new Graphics();
+  ambientOverlay.eventMode = "none";
   holdContainer.addChild(ambientOverlay);
 
   const particlesGraphic = new Graphics();
@@ -273,6 +282,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   holdContainer.addChild(particlesGraphic);
 
   const hoverGraphic = new Graphics();
+  hoverGraphic.eventMode = "none";
   hoverGraphic.poly([
     0, -HALF_H,
     HALF_W, 0,
@@ -286,16 +296,20 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   // Board layers inside boardContainer
   const boardBackdropLayer = new Graphics();
+  boardBackdropLayer.eventMode = "none";
   boardContainer.addChild(boardBackdropLayer);
 
   const boardProvincesLayer = new Graphics();
+  boardProvincesLayer.eventMode = "none";
   boardContainer.addChild(boardProvincesLayer);
 
   const boardSelectionLayer = new Graphics();
+  boardSelectionLayer.eventMode = "none";
   boardSelectionLayer.visible = false;
   boardContainer.addChild(boardSelectionLayer);
 
   const boardRoutesLayer = new Graphics();
+  boardRoutesLayer.eventMode = "none";
   boardContainer.addChild(boardRoutesLayer);
 
   const boardPawnsLayer = new Graphics();
@@ -307,11 +321,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardContainer.addChild(boardWeatherGraphic);
 
   const boardHighlightLayer = new Graphics();
+  boardHighlightLayer.eventMode = "none";
   boardHighlightLayer.visible = false;
   boardContainer.addChild(boardHighlightLayer);
 
   // 3. Tabletop Hardwood Rim (rendered on top of world and mask)
   const tableRimLayer = new Graphics();
+  tableRimLayer.eventMode = "none";
   app.stage.addChild(tableRimLayer);
   paintTableRim(tableRimLayer);
 
@@ -741,8 +757,12 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   }
 
   function updateParticles(t: number): void {
-    const weather = resolveWeatherFromState(lastState, visuals);
-    paintWeatherParticles(particlesGraphic, weather, particles, t, CANVAS_W, CANVAS_H);
+    if (lastState) {
+      drawAtmosphere(lastState, particlesGraphic, t, CANVAS_W, CANVAS_H);
+    } else {
+      const weather = resolveWeatherFromState(lastState, visuals);
+      paintWeatherParticles(particlesGraphic, weather, particles, t, CANVAS_W, CANVAS_H);
+    }
   }
 
   function updateBoardWeather(t: number): void {
@@ -931,6 +951,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     } else {
       updateBoardWeather(phase);
       if (lastState) {
+        paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
       }
@@ -1079,6 +1100,13 @@ export {
   drawAtmosphere,
   resolveAtmosphereWeather,
   weatherForState,
+  DAY_CYCLE_TICKS,
+  resolveDayPhase,
+  dayPhaseForState,
+  resolveDayNightCycle,
+  resolveWindStrength,
   type AtmosphereWeather,
+  type DayPhase,
+  type DayNightVisuals,
 };
 

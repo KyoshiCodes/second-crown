@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#279** (living atmosphere on board, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/weather-day` (**not merged**, see Weather effects and day/night below).
+Merged through PR **#279** (living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-day-night` (**not merged**, see Day/night cycle and weather atmosphere below).
 
 ### Cultures and units (all merged)
 
@@ -26,17 +26,6 @@ Merged through PR **#279** (living atmosphere on board, #279; weather slows marc
 - The first legal Second Dawn gives the new crown **+1 militia, +20 food, +10 wood** (45 food / 45 wood instead of 25 / 35).
 - It does **not** stack: `flags.dawn_gift` is set on the first ascend and kept, so later ascends start with normal stores and no militia. Code: `tryAscend` in `packages/sim/src/actions/prestige.ts`.
 - The Second Dawn card shows one line for it (`packages/app/src/hud/DawnCard.tsx`).
-
-### Weather effects and day/night (`wave/weather-day`, not merged)
-
-Sim only. No render, server, or theme changes.
-
-- `packages/sim/src/systems/weather.ts`: `gatherYieldFactor` (rain 0.9, storm 0.75, clear/snow 1), `fogThickness` (storm 1.4, snow 1.2, clear/rain 1), `buildingDamageFactor` (storm 0.5, others 1). Each takes a `Weather`, like `marchSpeedFactor`. `weatherFor(state)` still returns the weather string (render reads it).
-- `packages/sim/src/systems/dayNight.ts`: `dayPhase(state)` / `dayPhaseAt(tick)` on a 120-tick cycle (dawn 0-19, day 20-69, dusk 70-89, night 90-119). `nightWorkFactor(phase)` is 0.8 at night, 1 otherwise. Pure tick math, no rng.
-- Gather: a player column's load is multiplied by weather yield and night work when it gets home (floored).
-- Fog: home vision checks `distance * fogThickness <= visionRange`. `visionRange` itself is unchanged.
-- Siege: a siege blow sets a finished building unfinished for `round(40 * buildingDamageFactor)` ticks (20 in a storm). Siege never targets a building that is already unfinished, so this is where the factor applies.
-- Not exported from `packages/sim/src/index.ts` (render's dynamic `weatherFor` check stays unchanged).
 
 ### Also live (earlier waves)
 
@@ -347,7 +336,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (561 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Living atmosphere on diamond (branch `bakeoff/gemini-atmosphere`, **not merged**)
+## Living atmosphere on diamond (branch `bakeoff/gemini-atmosphere`, **merged as PR #279**)
 
 - The board only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - Living atmosphere weather overlay and soft day/night ambient tint (`drawAtmosphere(state, g, phase, width, height)` in `packages/render/src/atmosphere.ts`). Resolves current weather via `(sim as any).weatherFor?.(state)` if present, with clean fallback to `flags.weather` or `currentSeason(state)` (Clear = warm gold tint, Rain = cool blue tint + drifting rain streaks, Storm = darker blue wash + heavier driving streaks + lightning flash, Snow = pale grey tint + drifting snow dots).
@@ -357,6 +346,17 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - All new art is rendered to the board weather graphics layer with `pointer-events: none` (`eventMode = "none"`) semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (572 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
+
+## Day/night cycle and weather atmosphere (branch `bakeoff/gemini-day-night`, **not merged**)
+
+- Render only in `packages/render`. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
+- `packages/render/src/atmosphere.ts`: `resolveDayPhase(state, animPhase)` reads `sim.dayPhase(state)` if present, or falls back to a 120-tick cycle (`dawn` 0–19, `day` 20–69, `dusk` 70–89, `night` 90–119). `drawAtmosphere` paints Dawn = warm gold rising, Day = clear warm, Dusk = amber, and Night = cool blue with lower brightness, keeping existing Clear, Rain, Storm, and Snow overlays.
+- Soft ground shadows under keeps (`drawMiniatureKeep`, `drawIsometricBuilding`) and walls/gates (`drawIsometricBuilding`) darken in both night and storm.
+- Wind sway on standing trees (`drawWoodTile`, `lumber_camp` pines, desert palm fronds) and keep banners, scaling brisker in storm wind.
+- Fog edge marks (`drawFogEdgeMark`) thicken visually in storm and snow (higher opacity and denser rolling mist wisps) without changing hit-testing.
+- All overlay graphics enforce `pointer-events: none` (`eventMode = "none"`). Unseen tiles stay fog (`paintFogHeightVeil`). Existing marks, piles, ruins, camps, and keeps stay as they are.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+- Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (585 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
 ## Verify
 
