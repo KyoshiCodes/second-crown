@@ -14257,6 +14257,189 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // bakeoff/gemini-fog-edge-mark: Fog Edge Mark on the Isometric Diamond
+              describe("bakeoff/gemini-fog-edge-mark: Fog Edge Mark on the Isometric Diamond (drawFogEdgeMark & hasProvinceFogEdge)", () => {
+                const createFogBoardState = (unseenFar: boolean = true): GameState => {
+                  const flags: Record<string, any> = {
+                    fog_seen: JSON.stringify(unseenFar ? ["p_home", "p_edge"] : ["p_home", "p_edge", "p_far"]),
+                    "seen:p_home": true,
+                    "seen:p_edge": true,
+                    ...(unseenFar ? {} : { "seen:p_far": true }),
+                  };
+                  return {
+                    meta: { version: 1, seed: 1, tick: 10, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags,
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", name: "Home", realmId: "player", occupantRealmId: "player", node: "none", terrain: "plains", x: 0, y: 0, elevation: 0 },
+                        { id: "p_edge", name: "Edge", realmId: "player", occupantRealmId: undefined, node: "none", terrain: "hills", x: 1, y: 0, elevation: 0 },
+                        { id: "p_far", name: "Far", realmId: "player", occupantRealmId: undefined, node: "none", terrain: "mountains", x: 2, y: 0, elevation: 0 },
+                      ],
+                    },
+                  } as unknown as GameState;
+                };
+
+                describe("drawFogEdgeMark direct unit tests", () => {
+                  it("paints drop shadow, dark slate-fog roundel (0x131d2e), slate rim (0x64748b), twilight disk, mist banks, and condensation glint", async () => {
+                    const { drawFogEdgeMark } = await import("./tokens.js");
+                    const g = createMockGraphics();
+                    drawFogEdgeMark(g, 100, 80, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+                    const strokes = g.calls
+                      .filter((c: any) => c.method === "stroke")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Drop shadow (0x000000)
+                    expect(fills).toContain(0x000000);
+                    // Dark slate-fog roundel backing (0x131d2e)
+                    expect(fills).toContain(0x131d2e);
+                    // Slate mist rim stroke (0x64748b)
+                    expect(strokes).toContain(0x64748b);
+                    // Inner deep twilight-slate disk (0x1e293b)
+                    expect(fills).toContain(0x1e293b);
+                    // Swirling mist banks (0x64748b & 0x94a3b8)
+                    expect(fills).toContain(0x64748b);
+                    expect(fills).toContain(0x94a3b8);
+                    // Drifting pale cloud puffs (0xcfdbe8)
+                    expect(fills).toContain(0xcfdbe8);
+                    // Upper cresting mist wisp (0xe2e8f0)
+                    expect(fills).toContain(0xe2e8f0);
+                    // Bright vapor condensation glint (0xf8fafc)
+                    expect(fills).toContain(0xf8fafc);
+                  });
+
+                  it("safely handles null graphics without throwing", async () => {
+                    const { drawFogEdgeMark } = await import("./tokens.js");
+                    expect(() => drawFogEdgeMark(null as any, 0, 0)).not.toThrow();
+                  });
+
+                  it("varies mist animation with animation phase", async () => {
+                    const { drawFogEdgeMark } = await import("./tokens.js");
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    drawFogEdgeMark(g0, 100, 100, 0);
+                    drawFogEdgeMark(g1, 100, 100, 0.5);
+
+                    const ellipses0 = g0.calls.filter((c: any) => c.method === "ellipse");
+                    const ellipses1 = g1.calls.filter((c: any) => c.method === "ellipse");
+                    expect(ellipses0).not.toEqual(ellipses1);
+                  });
+                });
+
+                describe("hasProvinceFogEdge detection", () => {
+                  it("returns true on a seen province that has at least one unseen neighbor", async () => {
+                    const { hasProvinceFogEdge } = await import("./tokens.js");
+                    // p_edge is seen, its neighbor p_far (distance 2 > 1) is unseen
+                    const state = createFogBoardState(true);
+                    expect(hasProvinceFogEdge(state, "p_edge")).toBe(true);
+                  });
+
+                  it("returns false on a seen province whose neighbors are all seen (fully surrounded)", async () => {
+                    const { hasProvinceFogEdge } = await import("./tokens.js");
+                    // p_home only has p_edge as neighbor, which is seen
+                    const state = createFogBoardState(true);
+                    expect(hasProvinceFogEdge(state, "p_home")).toBe(false);
+
+                    // When p_far is also seen, p_edge has no unseen neighbors
+                    const stateAllSeen = createFogBoardState(false);
+                    expect(hasProvinceFogEdge(stateAllSeen, "p_edge")).toBe(false);
+                  });
+
+                  it("returns false on an unseen tile (unseen tiles stay fog)", async () => {
+                    const { hasProvinceFogEdge } = await import("./tokens.js");
+                    const state = createFogBoardState(true);
+                    expect(hasProvinceFogEdge(state, "p_far")).toBe(false);
+                  });
+
+                  it("safely handles null/undefined state or missing provinceId", async () => {
+                    const { hasProvinceFogEdge } = await import("./tokens.js");
+                    expect(hasProvinceFogEdge(null, "p_edge")).toBe(false);
+                    expect(hasProvinceFogEdge(undefined, "p_edge")).toBe(false);
+                    expect(hasProvinceFogEdge(createFogBoardState(true), null)).toBe(false);
+                  });
+
+                  it("matches the sim board's own vision and neighbor detection from a fresh createGameState", async () => {
+                    const { createGameState, isProvinceSeen, neighbors } = await import("@second-crown/sim");
+                    const { hasProvinceFogEdge } = await import("./tokens.js");
+                    const state = createGameState();
+
+                    // Find an edge tile on the live game state
+                    const edgeTile = state.board.provinces.find(
+                      (p) => isProvinceSeen(state, p.id) && neighbors(state, p.id).some((n) => !isProvinceSeen(state, n.id))
+                    );
+                    if (edgeTile) {
+                      expect(hasProvinceFogEdge(state, edgeTile.id)).toBe(true);
+                    }
+
+                    // Find a fully surrounded inner tile if one exists
+                    const innerTile = state.board.provinces.find(
+                      (p) => isProvinceSeen(state, p.id) && neighbors(state, p.id).every((n) => isProvinceSeen(state, n.id))
+                    );
+                    if (innerTile) {
+                      expect(hasProvinceFogEdge(state, innerTile.id)).toBe(false);
+                    }
+                  });
+                });
+
+                describe("paintBoardProvinces integration with fog edge mark", () => {
+                  it("paints the fog edge mark on an edge tile alongside other marks and preserves fog", async () => {
+                    const { paintBoardProvinces, drawFogEdgeMark, hasProvinceFogEdge } = await import("./index.js");
+                    expect(typeof drawFogEdgeMark).toBe("function");
+                    expect(typeof hasProvinceFogEdge).toBe("function");
+
+                    // p_edge is at edge of vision (p_far is unseen)
+                    const state = createFogBoardState(true);
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // Fog edge mark roundel backing (0x131d2e), mist (0x94a3b8), clouds (0xcfdbe8)
+                    expect(fills).toContain(0x131d2e);
+                    expect(fills).toContain(0x94a3b8);
+                    expect(fills).toContain(0xcfdbe8);
+
+                    // Unseen tile preserves fog veil (0x0f172a)
+                    expect(fills).toContain(0x0f172a);
+                  });
+
+                  it("does not paint fog edge mark on a fully surrounded seen tile", async () => {
+                    const { paintBoardProvinces, hasProvinceFogEdge } = await import("./index.js");
+                    const state = createFogBoardState(false); // all seen
+                    expect(hasProvinceFogEdge(state, "p_home")).toBe(false);
+                    expect(hasProvinceFogEdge(state, "p_edge")).toBe(false);
+
+                    const g = createMockGraphics();
+                    paintBoardProvinces(g, state, 0);
+                    const fills = g.calls
+                      .filter((c: any) => c.method === "fill")
+                      .map((c: any) => c.args[0]?.color);
+
+                    // When no tile is at the edge of fog, 0x131d2e is not painted
+                    expect(fills).not.toContain(0x131d2e);
+                  });
+                });
+              });
             });
           });
         });

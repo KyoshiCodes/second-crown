@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-29 — Fog edge line on the inspect card (wave/hud-fog-edge)
+## 2026-10-29 — Tile at edge of vision shows fog edge mark on diamond (bakeoff/gemini-fog-edge-mark)
 
-- Inspect card only in `packages/app`. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- New `packages/app/src/hud/fogEdgeLine.ts`: `fogEdgeLine(state, provinceId)` returns "Fog edge" when the province is seen (`isProvinceSeen`) and at least one of its `neighbors` is unseen; otherwise `null`. Uses only existing sim helpers.
-- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the staffed line.
-- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-fog-edge` (slate `#94a3b8`, italic).
-- Tests: new `packages/app/src/hud/fogEdgeLine.test.ts` (seen tile with an unseen neighbour shows "Fog edge"; seen tile surrounded by seen tiles shows nothing; unseen tile shows nothing). `npm test` passes.
+- Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `hasProvinceFogEdge(state, provinceId)`: uses only existing vision and adjacency data the board already reads (`isProvinceSeen`, `neighbors`) to detect when a seen province is at the edge of the player's vision (has at least one unseen adjacent province). Fully surrounded seen tiles get no mark. Unseen tiles stay fog and return `false`.
+  - `drawFogEdgeMark(g, cx, cy, phase)`: paints a small slate mist pip (`0x131d2e` dark slate-fog roundel with `0x64748b` slate mist rim, `0x1e293b` deep twilight disk, `0x64748b` & `0x94a3b8` swirling mist banks, `0xcfdbe8` drifting cloud puffs, `0xe2e8f0` cresting mist wisp, and `0xf8fafc` vapor condensation glint) on a seen province at the edge of vision.
+  - `paintBoardProvinces`: calls `drawFogEdgeMark(g, cx + 5, cy - 3, animPhase)` when `hasProvinceFogEdge(state, p.id)` is true.
+  - Unseen tiles stay fog (`paintFogHeightVeil`). Terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, hold marks, building marks, staffed marks, piles, ruins, camps, and keeps stay as they are.
+- `packages/render/src/index.ts`: imported and re-exported `drawFogEdgeMark` and `hasProvinceFogEdge`.
+- All new art is rendered to the board graphics layer with `pointer-events: none` semantics; tile click hit-testing (`hitTestProvince`) remains untouched.
+- Tests: `packages/render/src/index.test.ts` (6 new tests in `bakeoff/gemini-fog-edge-mark` suite; 561/561 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-29 — Tile with staffed building shows staffed mark on diamond (bakeoff/gemini-staffed-mark)
 
