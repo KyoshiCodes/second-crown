@@ -58,6 +58,7 @@ import { gatherLine } from "./hud/gatherLine";
 import { holdLine } from "./hud/holdLine";
 import { buildingLine } from "./hud/buildingLine";
 import { staffedLine } from "./hud/staffedLine";
+import { fogEdgeLine } from "./hud/fogEdgeLine";
 import { ownerLine } from "./hud/ownerLine";
 import { seasonLine } from "./hud/seasonLine";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
@@ -210,6 +211,7 @@ export function ProvinceInspect(props: {
   const holdNote = holdLine(state, selectedId);
   const buildingNote = buildingLine(state, selectedId);
   const staffedNote = staffedLine(state, selectedId);
+  const fogEdgeNote = fogEdgeLine(state, selectedId);
   const hasForces = Boolean(incoming) || onTile.length > 0 || Boolean(march) || Boolean(here);
   return (
     <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
@@ -275,6 +277,7 @@ export function ProvinceInspect(props: {
         {holdNote ? <div className="sc-inspect-line sc-inspect-hold">{holdNote}</div> : null}
         {buildingNote ? <div className="sc-inspect-line sc-inspect-building">{buildingNote}</div> : null}
         {staffedNote ? <div className="sc-inspect-line sc-inspect-staffed">{staffedNote}</div> : null}
+        {fogEdgeNote ? <div className="sc-inspect-line sc-inspect-fog-edge">{fogEdgeNote}</div> : null}
         {seen && p.node === "camp" ? <div className="sc-inspect-line">Camp threat {campThreat(state, p)}</div> : null}
         {ruins ? <div className="sc-inspect-line sc-inspect-ruins">{ruins}</div> : null}
         {shore ? <div className="sc-inspect-line sc-inspect-shore">{shore}</div> : null}

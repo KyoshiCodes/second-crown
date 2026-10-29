@@ -288,3 +288,5 @@
 .sc-inspect-building { color: #f3e9d2; font-style: italic; }
 /* Staffed line: finished player building with a worker posted. */
 .sc-inspect-staffed { color: #7ec27a; font-style: italic; }
+/* Fog edge line: seen tile with at least one unseen neighbour. */
+.sc-inspect-fog-edge { color: #94a3b8; font-style: italic; }
