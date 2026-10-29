@@ -1,3 +1,10 @@
+## 2026-10-29 — app / inspect card staffed line (wave/hud-staffed)
+
+- Slice constraints: Inspect card only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- "Has a worker" reuses `staffBonus(state, b) > 1` (matching-job citizens on the building's tile), the same test `emptyStaffWorks` and `staffTowerHint` use. No new sim math. Like `buildingLine`, it only fires on the seen home tile because `BuildingInstance` has no province.
+- Footgun: `staffBonus` returns 1 for buildings with no job (cottage, gate), so those never read as staffed.
+- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-25 — render / tile with finished building shows building mark on diamond (bakeoff/gemini-building-mark)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

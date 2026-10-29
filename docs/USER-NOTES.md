@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-29 — A tile with a staffed building says "Staffed" (wave/hud-staffed)
+
+- **A tile with a staffed building now says "Staffed" on the inspect card and play is unchanged.** Click your home tile: if a finished building there has at least one worker posted to it, a short green "Staffed" line shows under the building name.
+- Buildings with no workers show nothing. Unseen tiles still show nothing.
+- **Play is unchanged.** Your game, saves, workers, and every button work exactly as before.
+
 ## 2026-10-25 — Tile with a finished building shows a building mark on the diamond (bakeoff/gemini-building-mark)
 
 - **A tile with a finished building now shows a building mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a finished player building on it gets a small cream building pip mark. Under-construction buildings get no mark.

@@ -1,11 +1,11 @@
-# Handoff (2026-10-14)
+# Handoff (2026-10-29)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#271** (hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-building-mark` (**not merged**, see Building mark on diamond below).
+Merged through PR **#273** (building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hud-staffed` (**not merged**, see Staffed line below).
 
 ### Cultures and units (all merged)
 
@@ -309,7 +309,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (528 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Building mark on diamond (branch `bakeoff/gemini-building-mark`, **not merged**)
+## Building mark on diamond (branch `bakeoff/gemini-building-mark`, **merged as PR #273**)
 
 - The board tile only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - A seen tile with a finished player building on it on the isometric diamond gets a small building mark (`drawBuildingMark(g, cx, cy, phase)` and `hasProvinceBuilding(state, provinceId)` in `packages/render/src/tokens.ts`): a small cream building pip (`0x1f1610` dark timber-stone roundel, `0xd4a373` rim, `0x3a281c` deep-walnut disk, `0xf3e9d2` cream walls, `0xdeb887` gabled roof, `0xfff8ee` roof highlights, `0x2b1810` door, and `0xd97706` / `0xfef3c7` chimney with hearth warmth) using only existing building and visibility data the board already reads (`isProvinceSeen`, `state.board.homeProvinceId`, `state.buildings`). Under-construction buildings get no mark.
@@ -317,6 +317,13 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - All new art is rendered to the board graphics layer with `pointer-events: none` semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (539 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
+
+## Staffed line (branch `wave/hud-staffed`, **not merged**)
+
+- Inspect card only. Do not change `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `staffedLine(state, provinceId)` in `packages/app/src/hud/staffedLine.ts` returns `"Staffed"` when the seen home tile has a finished player building with at least one worker posted (`staffBonus(state, b) > 1`, the same check `emptyStaffWorks` uses), else `null`. Empty buildings and unseen tiles show nothing.
+- `ProvinceInspect.tsx` renders it in the Tile group right after the building line, styled `.sc-inspect-staffed` (green, italic) in `hud/inspect-card.css`.
+- Tests: `staffedLine.test.ts` (staffed farm, empty farm, empty province, unseen tile). `npm test` and `npm run build -w @second-crown/app` pass.
 
 ## Verify
 
