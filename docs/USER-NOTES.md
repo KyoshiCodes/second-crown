@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-29 — Bad weather slows marches (wave/weather)
+
+- **Bad weather now slows marches and play is otherwise unchanged.** Each season rolls its weather once: clear, rain, storm, or snow.
+- Rain makes a march take about a quarter longer. A storm makes it take about two-thirds longer. Clear skies and snow do not slow marches.
+- The weather when a march leaves sets how long it takes.
+- **Everything else is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-29 — Tile at edge of vision shows a fog edge mark on the diamond (bakeoff/gemini-fog-edge-mark)
 
 - **A tile at the edge of your vision now shows a fog edge mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has at least one unseen adjacent province gets a small slate mist pip mark. Fully surrounded seen tiles get no mark.
