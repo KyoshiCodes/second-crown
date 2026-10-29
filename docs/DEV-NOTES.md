@@ -1,9 +1,11 @@
-## 2026-10-29 — app / inspect card staffed line (wave/hud-staffed)
+## 2026-10-29 — render / tile with staffed building shows staffed mark on diamond (bakeoff/gemini-staffed-mark)
 
-- Slice constraints: Inspect card only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
-- "Has a worker" reuses `staffBonus(state, b) > 1` (matching-job citizens on the building's tile), the same test `emptyStaffWorks` and `staffTowerHint` use. No new sim math. Like `buildingLine`, it only fires on the seen home tile because `BuildingInstance` has no province.
-- Footgun: `staffBonus` returns 1 for buildings with no job (cottage, gate), so those never read as staffed.
-- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty. `npm test` and `npm run build -w @second-crown/app` pass.
+- Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Staffed detection: `hasProvinceStaffed(state, provinceId)` reads only existing building, citizen, and visibility helpers (`isProvinceSeen`, `state.board.homeProvinceId`, `state.buildings`, `state.citizens`, `isBuildingStaffed`) with zero new sim math. Returns `false` if the tile is unseen (so unseen tiles stay fog). Returns `true` when a finished player building (`completesAtTick === null`) on the tile has at least one worker posted (`isBuildingStaffed(state, b)` or `staffBonus(state, b) > 1`). Empty buildings and under-construction buildings get no mark.
+- Visual design: `drawStaffedMark(g, cx, cy, phase)` paints a compact green worker pip (`0x0c2718` dark moss-forest roundel with `0x22c55e` fresh leaf green rim, `0x144026` deep-spruce disk, `0x7ec27a` / `0x4ade80` soft green worker tunic, `0x2b1810` / `0xd97706` dark belt and brass buckle, `0xfde68a` worker head with `0x22c55e` green cap, `0xb45309` timber tool handle with `0xe2e8f0` steel tool head and `0xfef08a` glint). Uses `0x0c2718` for the roundel backing so it does not collide with `0x1f1610` (building mark), `0x251a06` (hold mark), `0x141419` (owner mark), `0x211508` (gather mark), `0x071e2e` (scout mark), `0x062c1e` (garrison mark), `0x042619` (outpost mark), `0x2a0808` (camp mark), `0x0d1520` (season mark), `0x19160d` (trail mark), `0x1c1206` (incoming mark), `0x1a0b0e` (clash mark), or `0x090d16` (stock badge).
+- Integrated into `paintBoardProvinces` at `(cx - 5, cy - 3)` right after `drawBuildingMark`, preserving terrain, stock badges, clash marks, incoming marks, trail marks, outpost marks, season marks, garrison marks, scout marks, gather marks, owner marks, hold marks, building marks, piles, ruins, camps, and keeps. Centered at the upper-left flank on the isometric diamond with at least 5.8px clearance from all surrounding marks.
+- Hit-testing: Rendered onto the board graphics layer with `pointer-events: none` semantics; diamond click math via `hitTestProvince` is untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-25 — render / tile with finished building shows building mark on diamond (bakeoff/gemini-building-mark)
 

@@ -158,6 +158,8 @@ import {
   hasProvinceHold,
   drawBuildingMark,
   hasProvinceBuilding,
+  drawStaffedMark,
+  hasProvinceStaffed,
 } from "./tokens.js";
 
 import {
@@ -1061,5 +1063,7 @@ export {
   hasProvinceHold,
   drawBuildingMark,
   hasProvinceBuilding,
+  drawStaffedMark,
+  hasProvinceStaffed,
 };
 
