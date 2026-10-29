@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-29 — Fog edge line on the inspect card (wave/hud-fog-edge)
+
+- Inspect card only in `packages/app`. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/fogEdgeLine.ts`: `fogEdgeLine(state, provinceId)` returns "Fog edge" when the province is seen (`isProvinceSeen`) and at least one of its `neighbors` is unseen; otherwise `null`. Uses only existing sim helpers.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the staffed line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-fog-edge` (slate `#94a3b8`, italic).
+- Tests: new `packages/app/src/hud/fogEdgeLine.test.ts` (seen tile with an unseen neighbour shows "Fog edge"; seen tile surrounded by seen tiles shows nothing; unseen tile shows nothing). `npm test` passes.
+
 ## 2026-10-29 — Tile with staffed building shows staffed mark on diamond (bakeoff/gemini-staffed-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

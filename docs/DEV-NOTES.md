@@ -1,3 +1,10 @@
+## 2026-10-29 — app / fog edge line on the inspect card (wave/hud-fog-edge)
+
+- Slice constraints: Inspect card only. Zero changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- `fogEdgeLine(state, provinceId)` (`packages/app/src/hud/fogEdgeLine.ts`) follows the `staffedLine` pattern: takes `GameState` + province id, returns a string or `null`. Returns `null` when `!isProvinceSeen(state, provinceId)`; otherwise "Fog edge" if `neighbors(state, provinceId).some((n) => !isProvinceSeen(state, n.id))`. Same vision and adjacency helpers the board uses; no new sim math.
+- Rendered in `ProvinceInspect.tsx` Tile group directly after the staffed line, class `sc-inspect-line sc-inspect-fog-edge`. CSS lives in `hud/inspect-card.css` (slate `#94a3b8`, italic), same colour family as the owner line.
+- Tests find their provinces from a fresh `createGameState()` (first edge tile, first fully surrounded seen tile, first unseen tile) so they do not depend on map ids.
+
 ## 2026-10-29 — render / tile with staffed building shows staffed mark on diamond (bakeoff/gemini-staffed-mark)
 
 - Slice constraints: Render only. Board tile only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

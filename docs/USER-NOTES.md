@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-29 — Tile at the edge of your vision says "Fog edge" (wave/hud-fog-edge)
+
+- **A tile at the edge of your vision now says "Fog edge" on the inspect card and play is unchanged.** Click a seen tile that touches at least one fogged tile and the Tile group shows a short slate "Fog edge" line under the staffed line.
+- Seen tiles fully surrounded by seen tiles show nothing. **Unseen tiles still show nothing.** Fog itself is unchanged.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-29 — Tile with a staffed building shows a staffed mark on the diamond (bakeoff/gemini-staffed-mark)
 
 - **A tile with a staffed building now shows a staffed mark on the diamond and play is unchanged.** A seen tile on the isometric diamond that has a finished player building with at least one worker posted to it gets a small green worker pip mark. Empty buildings get no mark.
