@@ -6,6 +6,8 @@ import { takeForce, returnForce } from "./column.js";
 import { maxMarches } from "./labor.js";
 import { listMarches } from "./march.js";
 import { drainNodeStock, nodeStock } from "./nodeStock.js";
+import { gatherYieldFactor, weatherFor } from "./weather.js";
+import { dayPhaseAt, nightWorkFactor } from "./dayNight.js";
 
 export const GATHER_NODES = {
   woodcut: { resource: "wood", perTroop: 6, ticksPerLoad: 10 },
@@ -151,7 +153,9 @@ export const GatherSystem = {
         if (g.phase === "returning") {
           if (g.realmId === "player") {
             const res = GATHER_NODES[g.node].resource;
-            state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").add(g.load));
+            // Weather and night are read at the tick the column gets home.
+            const factor = gatherYieldFactor(weatherFor(state)) * nightWorkFactor(dayPhaseAt(tick));
+            state.resources[res] = toDecimalString(D(state.resources[res] ?? "0").add(D(g.load).mul(factor).floor()));
             returnForce(state, g.force);
           }
           continue;

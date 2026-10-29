@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#277** (fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-atmosphere` (**not merged**, see Living atmosphere on diamond below).
+Merged through PR **#279** (living atmosphere on board, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/weather-day` (**not merged**, see Weather effects and day/night below).
 
 ### Cultures and units (all merged)
 
@@ -26,6 +26,17 @@ Merged through PR **#277** (fog edge mark on diamond, #277; fog edge line, #276;
 - The first legal Second Dawn gives the new crown **+1 militia, +20 food, +10 wood** (45 food / 45 wood instead of 25 / 35).
 - It does **not** stack: `flags.dawn_gift` is set on the first ascend and kept, so later ascends start with normal stores and no militia. Code: `tryAscend` in `packages/sim/src/actions/prestige.ts`.
 - The Second Dawn card shows one line for it (`packages/app/src/hud/DawnCard.tsx`).
+
+### Weather effects and day/night (`wave/weather-day`, not merged)
+
+Sim only. No render, server, or theme changes.
+
+- `packages/sim/src/systems/weather.ts`: `gatherYieldFactor` (rain 0.9, storm 0.75, clear/snow 1), `fogThickness` (storm 1.4, snow 1.2, clear/rain 1), `buildingDamageFactor` (storm 0.5, others 1). Each takes a `Weather`, like `marchSpeedFactor`. `weatherFor(state)` still returns the weather string (render reads it).
+- `packages/sim/src/systems/dayNight.ts`: `dayPhase(state)` / `dayPhaseAt(tick)` on a 120-tick cycle (dawn 0-19, day 20-69, dusk 70-89, night 90-119). `nightWorkFactor(phase)` is 0.8 at night, 1 otherwise. Pure tick math, no rng.
+- Gather: a player column's load is multiplied by weather yield and night work when it gets home (floored).
+- Fog: home vision checks `distance * fogThickness <= visionRange`. `visionRange` itself is unchanged.
+- Siege: a siege blow sets a finished building unfinished for `round(40 * buildingDamageFactor)` ticks (20 in a storm). Siege never targets a building that is already unfinished, so this is where the factor applies.
+- Not exported from `packages/sim/src/index.ts` (render's dynamic `weatherFor` check stays unchanged).
 
 ### Also live (earlier waves)
 

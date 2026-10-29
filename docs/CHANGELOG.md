@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-29 — sim / weather effects and day/night cycle (wave/weather-day)
+
+- `weather.ts`: added `gatherYieldFactor`, `fogThickness`, `buildingDamageFactor`. `marchSpeedFactor` unchanged.
+- New `dayNight.ts`: `dayPhase`, `dayPhaseAt`, `nightWorkFactor`, `DAY_CYCLE_TICKS = 120`.
+- `gather.ts`: player gather payout = `floor(load * gatherYieldFactor * nightWorkFactor)` at the return tick.
+- `fog.ts`: `isProvinceSeen` stretches home distance by `fogThickness`.
+- `march.ts`: siege blow rebuild timer is `round(40 * buildingDamageFactor)` ticks.
+- Tests: `weather.test.ts` (new factors, siege timer, storm fog), new `dayNight.test.ts` (four phases, boundaries, determinism), `gather.test.ts` updated for the payout factor plus a night test.
+- No changes to `packages/render`, `server/`, or `theme.css`.
+
 ## 2026-10-29 — Living atmosphere effects on isometric board (bakeoff/gemini-atmosphere)
 
 - Board rendering only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

@@ -7,6 +7,7 @@ import { listOutposts } from "./outpost.js";
 import { surveyingVisionBonus } from "./research.js";
 import { keepVisionCultureBonus } from "./culture.js";
 import { keepLevel } from "../actions/upgrade.js";
+import { fogThickness, weatherFor } from "./weather.js";
 
 export function rimWatchtowers(state: GameState, realmId = "player"): number {
   return state.buildings.filter(
@@ -66,7 +67,8 @@ export function isProvinceSeen(state: GameState, id: string): boolean {
   const p = getProvince(state, id);
   if (!p) return false;
   const h = homeCoord(state);
-  return Math.abs(p.x - h.x) + Math.abs(p.y - h.y) <= visionRange(state);
+  // Thicker fog shortens the reach: distance is stretched by the thickness.
+  return (Math.abs(p.x - h.x) + Math.abs(p.y - h.y)) * fogThickness(weatherFor(state)) <= visionRange(state);
 }
 
 export function revealProvince(state: GameState, id: string): void {
