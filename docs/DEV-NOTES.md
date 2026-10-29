@@ -1,11 +1,14 @@
-## 2026-10-29 — sim / weather slows marches (wave/weather)
+## 2026-10-29 — render / living atmosphere effects on isometric board (bakeoff/gemini-atmosphere)
 
-- Spec mismatch: the brief says `weatherFor(state)` returns a string, and also uses `weatherFor(state).marchSpeedFactor`. Resolved as `weatherFor(state): Weather` plus `marchSpeedFactor(weather)`. March reads `marchSpeedFactor(weatherFor(state))`.
-- Determinism: no new RNG. Uses `createRngStreams(state.meta.seed + seasonKey(state)).event()`, the same seed-plus-offset pattern `MarchSystem.processEventsAt` uses. Because it is keyed on `seasonKey`, the result depends only on seed and tick, and is the same across save, load, and offline catch-up.
-- ETA rounding: travel is `Math.ceil(dist * TICKS_PER_STEP / factor)`, so ticks stay whole and a slowed march never gets faster. Example: 1 step is 15 ticks clear, 19 in rain, 25 in a storm.
-- The factor is read once, when the march is queued (`enqueueMarch`, `tryNpcMarch`). A march does not speed up or slow down if the season turns while it is out.
-- Footgun: `columnVision.ts` still rebuilds departure as `arrivesTick - dist * 15`. With a slowed march, the column's fog reveal starts late and catches up by arrival. To fix it, store `departedTick` on `March` (it is optional, so old saves still load) or share `travelTicks`.
-- Footgun: `WeatherOverlay.tsx` picks its rain/snow visual from the season alone. It does not call `weatherFor` yet.
+- Slice constraints: Render only. Living board atmosphere only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Weather detection & fallback: `resolveAtmosphereWeather(state)` / `weatherForState(state)` dynamically queries `weatherFor(state)` from `@second-crown/sim` if present (e.g. from `wave/weather` when merged), else falls back cleanly to `flags.weather` or `currentSeason(state)` (`"winter"` -> snow, `"autumn"` -> rain, `"summer"` -> clear, `"spring"` -> clear). Zero sim modifications required.
+- Visual layers:
+  - Day/Night cycle: subtle ambient tint calculated by `resolveDayNightCycle(state, phase)` fading from warm daylight (`0xfef08a`) to cool midnight slate (`0x0f172a`).
+  - Precipitation overlay: Clear (warm sunbeam glaze), Rain (translucent blue wash + 64 animated drifting rain streaks), Storm (dense deep-navy atmospheric veil + 96 driving rain streaks + intermittent thunderous lightning flash), Snow (pale frost glaze + 72 drifting snow flakes).
+  - Ground shadows: keeps and walls in `tokens.ts` (`drawMiniatureKeep`) and `buildings.ts` (`drawIsometricBuilding`) darken their contact ambient occlusion shadows when `resolveAtmosphereWeather(state) === "storm"`.
+  - Wind sway: pine tree boughs in `drawWoodTile` sway with phase and coordinate-based phase offsets. Keep banners already possessed wind wave math.
+- Hit-testing & fog: Rendered onto dedicated weather overlay graphics container with `eventMode = "none"` (`pointer-events: none`). Camera math, zoom, and tile click hit-testing (`hitTestProvince`) are untouched. Unseen tiles stay fogged.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-29 — render / tile at edge of vision shows fog edge mark on diamond (bakeoff/gemini-fog-edge-mark)
 

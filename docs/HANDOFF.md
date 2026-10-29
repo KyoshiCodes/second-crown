@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#277** (fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/weather` (**not merged**, see Weather slows marches below).
+Merged through PR **#277** (fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-atmosphere` (**not merged**, see Living atmosphere on diamond below).
 
 ### Cultures and units (all merged)
 
@@ -336,16 +336,16 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (561 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Weather slows marches (branch `wave/weather`, **not merged**)
+## Living atmosphere on diamond (branch `bakeoff/gemini-atmosphere`, **not merged**)
 
-- Sim only. No changes to `packages/render`, `server/`, `theme.css`, or any action besides the march travel read.
-- `packages/sim/src/systems/weather.ts`: `weatherFor(state)` returns `"clear" | "rain" | "storm" | "snow"`. One roll per season from `createRngStreams(state.meta.seed + seasonKey(state)).event()`, weighted by `currentSeason(state)`. The weather holds for the whole season (2000 ticks).
-- `marchSpeedFactor(weather)`: clear 1, rain 0.8, storm 0.6, snow 1.
-- `packages/sim/src/systems/march.ts`: player marches and NPC marches take `ceil(dist * 15 / factor)` ticks. The factor is read once, at launch. Gathers are not touched.
-- Known gaps (not fixed in this slice):
-  - `columnVision.ts` still works out departure as `dist * 15`. A slowed column reveals tiles a little late, then catches up by arrival.
-  - The HUD weather overlay (`packages/app/src/seasons/WeatherOverlay.tsx`) picks rain or snow from the season alone, so it can disagree with the sim roll.
-- Tests: `packages/sim/src/systems/weather.test.ts` (6 tests). `npm test` passes.
+- The board only. Render only. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
+- Living atmosphere weather overlay and soft day/night ambient tint (`drawAtmosphere(state, g, phase, width, height)` in `packages/render/src/atmosphere.ts`). Resolves current weather via `(sim as any).weatherFor?.(state)` if present, with clean fallback to `flags.weather` or `currentSeason(state)` (Clear = warm gold tint, Rain = cool blue tint + drifting rain streaks, Storm = darker blue wash + heavier driving streaks + lightning flash, Snow = pale grey tint + drifting snow dots).
+- Ground shadows under keeps (`drawMiniatureKeep` in `tokens.ts`) and walls/buildings (`drawIsometricBuilding` in `buildings.ts`) darken during storms.
+- Gentle wind sway on pine tree foliage in `drawWoodTile`.
+- Unseen tiles stay fog (`paintFogHeightVeil`). Existing marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is rendered to the board weather graphics layer with `pointer-events: none` (`eventMode = "none"`) semantics, so tile click hit-testing (`hitTestProvince`) continues to work without disruption.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+- Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (572 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
 ## Verify
 

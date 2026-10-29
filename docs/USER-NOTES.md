@@ -2,12 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-29 — Bad weather slows marches (wave/weather)
+## 2026-10-29 — Board shows weather atmosphere (bakeoff/gemini-atmosphere)
 
-- **Bad weather now slows marches and play is otherwise unchanged.** Each season rolls its weather once: clear, rain, storm, or snow.
-- Rain makes a march take about a quarter longer. A storm makes it take about two-thirds longer. Clear skies and snow do not slow marches.
-- The weather when a march leaves sets how long it takes.
-- **Everything else is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+- **The board now shows weather atmosphere and play is unchanged.** A soft day/night ambient tint and living weather overlay (warm gold sunlight for Clear, cool blue tint and drifting rain streaks for Rain, darker blue wash with heavier driving streaks and occasional lightning flashes for Storm, and pale grey tint with drifting snow dots for Snow) drift across the isometric board. Keeps and walls cast deeper ground shadows during storms, and evergreen boughs sway gently in the wind.
+- **Unseen tiles stay fog.** Existing marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-29 — Tile at edge of vision shows a fog edge mark on the diamond (bakeoff/gemini-fog-edge-mark)
 

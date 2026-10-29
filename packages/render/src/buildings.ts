@@ -4,6 +4,7 @@ import { getBuildingType } from "@second-crown/sim";
 import * as sim from "@second-crown/sim";
 import { HALF_W, HALF_H, TILE_W, TILE_H } from "./camera.js";
 import { GRID_W, GRID_H, isRimTile, rimWalkIndex, getRimTileAt, type RimNeighbors, type RimFort, type ThemeVisuals } from "./tiles.js";
+import { resolveAtmosphereWeather } from "./atmosphere.js";
 
 export interface CultureVisualPalette {
   id: string;
@@ -6732,10 +6733,15 @@ export function drawIsometricBuilding(
     (options?.state ? isHoldFull(options.state, options) : false)
   );
 
+  const isStorm = Boolean(
+    (options as any)?.weather === "storm" ||
+    (options?.state ? resolveAtmosphereWeather(options.state) === "storm" : false)
+  );
+
   const a = 1.0;
   g.clear();
 
-  // 1. Isometric Ground Footprint Shadow & Base Foundation
+  // 1. Isometric Ground Footprint Shadow & Base Foundation (darkens slightly in storm)
   const isRimWall = typeId === "walls" && isRimTile(gx, gy);
   const isRimGate = typeId === "gate" && isRimTile(gx, gy);
 
@@ -6746,7 +6752,8 @@ export function drawIsometricBuilding(
       0, HALF_H - 1,
       -HALF_W + 1, 0,
     ]);
-    g.fill({ color: 0x080c09, alpha: 0.4 });
+    const baseAlpha = (typeId === "keep" || typeId === "walls") && isStorm ? 0.58 : 0.4;
+    g.fill({ color: 0x080c09, alpha: baseAlpha });
 
     // Cast shadow to the southeast
     g.poly([
@@ -6755,7 +6762,8 @@ export function drawIsometricBuilding(
       HALF_W + 12, 10,
       2, HALF_H + 4,
     ]);
-    g.fill({ color: 0x000000, alpha: 0.28 });
+    const castAlpha = (typeId === "keep" || typeId === "walls") && isStorm ? 0.42 : 0.28;
+    g.fill({ color: 0x000000, alpha: castAlpha });
   } else {
     // Continuous foundation footprint shadow along the wall perimeter run
     g.poly([
@@ -6764,7 +6772,8 @@ export function drawIsometricBuilding(
       HALF_W - 2, 0,
       0, -HALF_H + 2,
     ]);
-    g.fill({ color: 0x080c09, alpha: 0.25 });
+    const rimAlpha = isStorm ? 0.42 : 0.25;
+    g.fill({ color: 0x080c09, alpha: rimAlpha });
   }
 
   const lvl = Math.max(1, Math.min(5, level));

@@ -14440,6 +14440,185 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // bakeoff/gemini-atmosphere: Living Atmosphere Effects on the Isometric Board
+              describe("bakeoff/gemini-atmosphere: Living Atmosphere Effects on the Isometric Board (drawAtmosphere)", () => {
+                const createAtmosphereState = (weather?: "clear" | "rain" | "storm" | "snow", tick: number = 300): GameState => {
+                  return {
+                    meta: { version: 1, seed: 42, tick, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [{ id: "r_player", isPlayer: true, name: "Player" }] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags: weather ? { weather } : {},
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", name: "Home", realmId: "player", occupantRealmId: "player", node: "none", terrain: "plains", x: 2, y: 2, elevation: 0 },
+                      ],
+                    },
+                  } as unknown as GameState;
+                };
+
+                describe("resolveAtmosphereWeather", () => {
+                  it("reads weather from flags, explicit property, or season fallback", async () => {
+                    const { resolveAtmosphereWeather } = await import("./atmosphere.js");
+                    expect(resolveAtmosphereWeather(createAtmosphereState("clear"))).toBe("clear");
+                    expect(resolveAtmosphereWeather(createAtmosphereState("rain"))).toBe("rain");
+                    expect(resolveAtmosphereWeather(createAtmosphereState("storm"))).toBe("storm");
+                    expect(resolveAtmosphereWeather(createAtmosphereState("snow"))).toBe("snow");
+                    expect(resolveAtmosphereWeather(null)).toBe("clear");
+                  });
+                });
+
+                describe("drawAtmosphere weather overlays and day/night tint", () => {
+                  it("Clear weather paints warm gold tint", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("clear", 300); // 300 = day
+                    const g = createMockGraphics();
+                    drawAtmosphere(state, g, 0);
+
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    // Warm gold tint (0xfde047) and sun haze (0xfef08a)
+                    expect(fills).toContain(0xfde047);
+                    expect(fills).toContain(0xfef08a);
+                  });
+
+                  it("Rain weather paints cool blue tint and drifting rain streaks", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("rain", 300);
+                    const g = createMockGraphics();
+                    drawAtmosphere(state, g, 0.5);
+
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    const strokes = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
+
+                    // Cool blue tint (0x3b82f6)
+                    expect(fills).toContain(0x3b82f6);
+                    // Drifting rain streaks (0x93c5fd)
+                    expect(strokes).toContain(0x93c5fd);
+                  });
+
+                  it("Storm weather paints darker blue, heavier streaks, and occasional lightning flash", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("storm", 300);
+                    const g = createMockGraphics();
+                    // Choose phase that triggers lightning flash cycle (> 9.75)
+                    // cycle = (((phase * 1.5 + seed * 0.1) % 10) + 10) % 10
+                    // with seed 42: seed * 0.1 = 4.2. phase = 3.8 -> 3.8 * 1.5 = 5.7 -> 5.7 + 4.2 = 9.9 (> 9.75)
+                    drawAtmosphere(state, g, 3.8);
+
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    const strokes = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
+
+                    // Darker blue atmospheric wash (0x0f172a)
+                    expect(fills).toContain(0x0f172a);
+                    // Heavier rain streaks (0x60a5fa)
+                    expect(strokes).toContain(0x60a5fa);
+                    // Lightning flash wash (0xe0e7ff)
+                    expect(fills).toContain(0xe0e7ff);
+                  });
+
+                  it("Snow weather paints pale grey tint and small drifting snow dots", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("snow", 300);
+                    const g = createMockGraphics();
+                    drawAtmosphere(state, g, 1.0);
+
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    // Pale grey tint wash (0xe2e8f0), snow dot core (0xf8fafc), soft halo (0xbae6fd)
+                    expect(fills).toContain(0xe2e8f0);
+                    expect(fills).toContain(0xf8fafc);
+                    expect(fills).toContain(0xbae6fd);
+                  });
+
+                  it("paints soft night tint wash during night tick", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    // tick 450 out of 600 -> sin(0.75 * 2pi) = sin(1.5pi) = -1 (deep night)
+                    const state = createAtmosphereState("clear", 450);
+                    const g = createMockGraphics();
+                    drawAtmosphere(state, g, 0);
+
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    // Deep midnight navy wash (0x0f172a)
+                    expect(fills).toContain(0x0f172a);
+                  });
+
+                  it("safely handles null state or null graphics without throwing", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    const g = createMockGraphics();
+                    expect(() => drawAtmosphere(null, g)).not.toThrow();
+                    expect(() => drawAtmosphere(undefined, g)).not.toThrow();
+                    expect(() => drawAtmosphere(createAtmosphereState("clear"), null as any)).not.toThrow();
+                  });
+                });
+
+                describe("Soft ground shadows under keeps and walls darken in storm", () => {
+                  it("drawMiniatureKeep ground contact shadow darkens in storm", async () => {
+                    const { drawMiniatureKeep } = await import("./tokens.js");
+                    const gClear = createMockGraphics();
+                    const gStorm = createMockGraphics();
+
+                    drawMiniatureKeep(gClear, 50, 50, "western", undefined, true, 0, { weather: "clear" as any });
+                    drawMiniatureKeep(gStorm, 50, 50, "western", undefined, true, 0, { weather: "storm" as any });
+
+                    const shadowClear = gClear.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x050403);
+                    const shadowStorm = gStorm.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x050403);
+
+                    expect(shadowClear).toBeDefined();
+                    expect(shadowStorm).toBeDefined();
+                    expect(shadowStorm.args[0].alpha).toBeGreaterThan(shadowClear.args[0].alpha);
+                  });
+
+                  it("drawIsometricBuilding walls shadow darkens in storm", async () => {
+                    const { drawIsometricBuilding, getThemeVisuals } = await import("./buildings.js");
+                    const visuals = getThemeVisuals("Spring");
+
+                    const gClear = createMockGraphics();
+                    const gStorm = createMockGraphics();
+
+                    drawIsometricBuilding(gClear, "walls", 1, true, 0, visuals, 2, 2, undefined, "western", { weather: "clear" as any });
+                    drawIsometricBuilding(gStorm, "walls", 1, true, 0, visuals, 2, 2, undefined, "western", { weather: "storm" as any });
+
+                    const baseClear = gClear.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x080c09);
+                    const baseStorm = gStorm.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x080c09);
+
+                    expect(baseClear).toBeDefined();
+                    expect(baseStorm).toBeDefined();
+                    expect(baseStorm.args[0].alpha).toBeGreaterThan(baseClear.args[0].alpha);
+                  });
+                });
+
+                describe("Gentle wind sway on trees", () => {
+                  it("drawWoodTile foliage points vary with animation phase (wind sway)", async () => {
+                    const { drawWoodTile } = await import("./tokens.js");
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+
+                    drawWoodTile(g0, 100, 100, 16, 8, 0);
+                    drawWoodTile(g1, 100, 100, 16, 8, 1.5);
+
+                    const poly0 = g0.calls.filter((c: any) => c.method === "poly");
+                    const poly1 = g1.calls.filter((c: any) => c.method === "poly");
+                    expect(poly0).not.toEqual(poly1);
+                  });
+                });
+
+                describe("exports from render package index", () => {
+                  it("re-exports drawAtmosphere and resolveAtmosphereWeather", async () => {
+                    const { drawAtmosphere, resolveAtmosphereWeather } = await import("./index.js");
+                    expect(typeof drawAtmosphere).toBe("function");
+                    expect(typeof resolveAtmosphereWeather).toBe("function");
+                  });
+                });
+              });
             });
           });
         });
