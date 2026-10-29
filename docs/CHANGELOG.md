@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-29 — Inspect card shows "Staffed" on a tile with a staffed building (wave/hud-staffed)
+
+- Inspect card only in `packages/app`. No changes to `packages/sim`, `server/`, `theme.css`, or any action. Fog unchanged.
+- New `packages/app/src/hud/staffedLine.ts`: `staffedLine(state, provinceId)` returns `"Staffed"` when the seen home tile has a finished player building with at least one worker posted (existing `staffBonus(state, b) > 1`), else `null`.
+- `packages/app/src/ProvinceInspect.tsx`: renders the line in the Tile group after the building line.
+- `packages/app/src/hud/inspect-card.css`: `.sc-inspect-staffed` (green `#7ec27a`, italic).
+- New `packages/app/src/hud/staffedLine.test.ts`: staffed farm shows "Staffed"; empty farm, empty province, and unseen tile show nothing.
+
 ## 2026-10-25 — Tile with finished building shows building mark on diamond (bakeoff/gemini-building-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

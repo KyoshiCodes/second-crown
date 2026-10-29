@@ -286,3 +286,5 @@
 .sc-inspect-hold { color: #d4b062; font-style: italic; }
 /* Building line: finished player building on a seen tile. */
 .sc-inspect-building { color: #f3e9d2; font-style: italic; }
+/* Staffed line: finished player building with a worker posted. */
+.sc-inspect-staffed { color: #7ec27a; font-style: italic; }
