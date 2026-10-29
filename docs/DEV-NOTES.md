@@ -1,3 +1,11 @@
+## 2026-10-29 — sim / slow day cycle and sun/moon position (wave/day-cycle-slow)
+
+- `DAY_CYCLE_TICKS = 3600`. Phase ends are named constants (`DAWN_END` 540, `DAY_END` 1980, `DUSK_END` 2520) so the ratios stay 15/40/15/30.
+- `sunMoonPositionAt(tick)`: sun arc covers dawn+day+dusk (`0..DUSK_END`), moon arc covers night. `x` is linear progress across that arc, `elevation = sin(pi * x)`, `y = 1 - elevation`. So elevation is exactly 0 at tick 0 (sunrise) and at 2520 (moonrise), and peaks at 1260 (sun) and 3060 (moon). The only jump is at sunset/moonrise, where the body swaps.
+- Exported `sunMoonPosition`, `sunMoonPositionAt`, `SunMoonPosition` from the sim index. Did **not** export `dayPhase`: render's `resolveDayPhase` calls `sim.dayPhase` when it exists, which would change render behaviour and break the render test that pins its 120-tick fallback. Wire that in a render slice.
+- Seasons are 2000 ticks, so a day (3600) now spans two seasons. Day and night of the same season exist at ticks 6000–7999 mod 18000 (night 6120–7199, day 7740–7979); the gather night test uses 6500 and 7800 and compares against an idle clone because the long wait accrues other wood.
+- Pre-existing on `origin/main`: render test `paintBoardProvinces applies board seasonal wash` fails (not part of `npm test`).
+
 ## 2026-10-29 — render / day/night visual cycle and deeper weather atmosphere (bakeoff/gemini-day-night)
 
 - Slice constraints: Render only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-29 — Days are longer; sun and moon coming (wave/day-cycle-slow)
+
+- **A day now lasts about 6 minutes.** Dawn, day, dusk, and night still come in the same order, they just take longer. Night still trims what gather columns bring home.
+- **The board will show a sun and moon** crossing the sky. The game now knows where they are; the art for them comes in a later board update.
+- **Play is otherwise unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-29 — Board shows day/night cycle and weather atmosphere (bakeoff/gemini-day-night)
 
 - **The board now shows a day/night cycle and weather atmosphere, and play is unchanged.** Warm gold rises at dawn, day stays clear and warm, dusk settles in amber, and night brings cool nocturnal blue with lower brightness alongside rain streaks, storm flashes, and drifting snow dots. Soft ground shadows under keeps and walls darken in night and storm, trees and banners sway gently in the wind, and fog edge marks thicken visually in storm and snow.

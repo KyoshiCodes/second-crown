@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-29 — Slow day cycle and sun/moon position (wave/day-cycle-slow)
+
+- `packages/sim/src/systems/dayNight.ts`: `DAY_CYCLE_TICKS` 120 → 3600 (about 6 minutes per day). Phases `dawn` 0–539, `day` 540–1979, `dusk` 1980–2519, `night` 2520–3599 (15/40/15/30%). `dayPhase`, `dayPhaseAt`, `nightWorkFactor` unchanged in shape.
+- New `sunMoonPosition(state)` and `sunMoonPositionAt(tick)` returning `{ kind: "sun" | "moon", x, y, elevation }`; exported from `@second-crown/sim` with `type SunMoonPosition`. Deterministic from tick, no rng.
+- Tests: `dayNight.test.ts` (cycle length, new boundaries, sun by day / moon by night, elevation 0 at dawn and dusk edges, smooth motion, determinism); `gather.test.ts` night-trim test updated for the longer day.
+- No changes to `packages/render`, `server/`, or `theme.css`.
+
 ## 2026-10-29 — Day/night visual cycle and deeper weather atmosphere (bakeoff/gemini-day-night)
 
 - Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
