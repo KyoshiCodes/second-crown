@@ -1,11 +1,18 @@
-## 2026-10-29 — sim / weather effects and day/night cycle (wave/weather-day)
+## 2026-10-29 — render / day/night visual cycle and deeper weather atmosphere (bakeoff/gemini-day-night)
 
-- Factors are plain lookups on `Weather`, matching `marchSpeedFactor(weather)`. The brief wrote `weatherFor(state).gatherYieldFactor`, but `weatherFor` returns a string and render's atmosphere layer reads that string, so it stays a string.
-- Determinism: weather is one rng roll per season (unchanged); day phase is `tick % 120`, no rng. Gather payout reads both at the event tick (`state.meta.tick === tick` inside `processEventsAt`), so tick-by-tick and `settleTicks` catch-up match.
-- Gather: the factor is applied once at deposit and floored, so node stock drain and `listGathers` load are unchanged. NPC gathers pay nothing, as before.
-- Fog: `distance * thickness <= visionRange` instead of dividing the range, so no rounding. Stored `fog_seen` tiles and outpost vision are not affected; only the live home radius shrinks.
-- Building damage: siege only hits finished buildings (`damageHoldBuilding`), turning them unfinished for 40 ticks. The factor scales that timer (storm: 20). There is no path where an already-unfinished building takes siege damage, so none was added.
-- Night work is wired only into gather payout. Production and build timers do not read it yet.
+- Slice constraints: Render only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Day phase & weather resolution: `resolveDayPhase(state, animPhase)` checks explicit state/flag overrides first, then dynamically calls `(sim as Record<string, any>)["dayPhase"](state)` if exported by `@second-crown/sim`, and falls back to the 120-tick cycle (`0..19` dawn, `20..69` day, `70..89` dusk, `90..119` night). `resolveAtmosphereWeather(state)` likewise checks explicit overrides, then `sim["weatherFor"]`, then season fallback.
+- Visual layers:
+  - Dawn: warm gold rising wash (`0xfbbf24`) + eastern sunrise horizon glow (`0xf59e0b`, `0xfef08a`).
+  - Day: clear warm daylight wash (`0xfef08a`).
+  - Dusk: amber sunset wash (`0xd97706`) + western amber-copper horizon glow (`0xf59e0b`, `0xb45309`).
+  - Night: lower-brightness darkening veil (`0x0f172a`, alpha `0.22`) + cool nocturnal blue moonlight wash (`0x1e3a8a`, alpha `0.12`).
+  - Weather overlays preserved across all day phases: Clear gold glaze, Rain cool blue + drifting streaks, Storm dark blue + heavier streaks + lightning flash, Snow pale grey + drifting snow dots.
+  - Shadows: ground contact shadows under keeps (`drawMiniatureKeep`, `drawIsometricBuilding`) and walls/gates (`drawIsometricBuilding`) darken in both `night` and `storm` (and deepest in `night + storm`).
+  - Wind sway: trees (`drawWoodTile`, `lumber_camp` pines, Sand `farm` palm fronds) and banners (`drawMiniatureKeep` pennants) sway with `phase` and scale amplitude via `resolveWindStrength(weather)`.
+  - Thicker fog edge marks: `drawFogEdgeMark` adds a billowing outer mist halo, denser rolling vapor banks, and elevated opacity when weather is `"storm"` or `"snow"`.
+- Hit-testing & fog: All overlay Graphics enforce `eventMode = "none"` (`pointer-events: none`). Unseen tiles stay fog (`paintFogHeightVeil`), and `hitTestProvince` / camera math / zoom remain untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-29 — render / living atmosphere effects on isometric board (bakeoff/gemini-atmosphere)
 

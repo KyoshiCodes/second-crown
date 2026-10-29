@@ -14619,6 +14619,302 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
               });
+
+              // bakeoff/gemini-day-night: Day/Night Visual Cycle & Deeper Atmosphere
+              describe("bakeoff/gemini-day-night: Day/Night Visual Cycle & Deeper Weather Atmosphere", () => {
+                const createDayNightState = (
+                  tick: number = 30,
+                  weather: "clear" | "rain" | "storm" | "snow" = "clear",
+                  explicitDayPhase?: string
+                ): GameState => {
+                  return {
+                    meta: { version: 1, seed: 42, tick, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [{ id: "r_player", isPlayer: true, name: "Player" }] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags: {
+                      weather,
+                      ...(explicitDayPhase ? { dayPhase: explicitDayPhase } : {}),
+                    },
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", name: "Home", realmId: "player", occupantRealmId: "player", node: "hold", terrain: "plain", x: 0, y: 0, elevation: 0 },
+                        { id: "p_edge", name: "Edge", realmId: "player", occupantRealmId: undefined, node: "none", terrain: "wood", x: 1, y: 0, elevation: 0 },
+                        { id: "p_far", name: "Far", realmId: "player", occupantRealmId: undefined, node: "none", terrain: "peak", x: 3, y: 3, elevation: 0 },
+                      ],
+                    },
+                  } as unknown as GameState;
+                };
+
+                describe("resolveDayPhase & DAY_CYCLE_TICKS", () => {
+                  it("walks dawn, day, dusk, night across the 120-tick fallback cycle", async () => {
+                    const { resolveDayPhase, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    expect(DAY_CYCLE_TICKS).toBe(120);
+
+                    const seen: string[] = [];
+                    for (let t = 0; t < DAY_CYCLE_TICKS; t++) {
+                      const p = resolveDayPhase(createDayNightState(t));
+                      if (seen.at(-1) !== p) seen.push(p);
+                    }
+                    expect(seen).toEqual(["dawn", "day", "dusk", "night"]);
+
+                    expect(resolveDayPhase(createDayNightState(0))).toBe("dawn");
+                    expect(resolveDayPhase(createDayNightState(19))).toBe("dawn");
+                    expect(resolveDayPhase(createDayNightState(20))).toBe("day");
+                    expect(resolveDayPhase(createDayNightState(69))).toBe("day");
+                    expect(resolveDayPhase(createDayNightState(70))).toBe("dusk");
+                    expect(resolveDayPhase(createDayNightState(89))).toBe("dusk");
+                    expect(resolveDayPhase(createDayNightState(90))).toBe("night");
+                    expect(resolveDayPhase(createDayNightState(119))).toBe("night");
+                    expect(resolveDayPhase(createDayNightState(120))).toBe("dawn");
+                  });
+
+                  it("handles null/undefined state and explicit dayPhase flags cleanly", async () => {
+                    const { resolveDayPhase } = await import("./atmosphere.js");
+                    expect(resolveDayPhase(null)).toBe("day");
+                    expect(resolveDayPhase(undefined)).toBe("day");
+                    expect(resolveDayPhase(createDayNightState(30, "clear", "dusk"))).toBe("dusk");
+                    expect(resolveDayPhase(createDayNightState(30, "clear", "night"))).toBe("night");
+                  });
+                });
+
+                describe("drawAtmosphere day/night phase tints and weather overlays", () => {
+                  it("Dawn paints warm gold rising wash and sets pointer-events: none", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    const g: any = { ...createMockGraphics(), eventMode: "auto" };
+                    drawAtmosphere(createDayNightState(10, "clear"), g, 0);
+
+                    expect(g.eventMode).toBe("none");
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    // Warm gold rising wash (0xfbbf24) and horizon sunrise glow (0xf59e0b, 0xfef08a)
+                    expect(fills).toContain(0xfbbf24);
+                    expect(fills).toContain(0xf59e0b);
+                    expect(fills).toContain(0xfef08a);
+                  });
+
+                  it("Day paints clear warm daylight wash", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    const g = createMockGraphics();
+                    drawAtmosphere(createDayNightState(40, "clear"), g, 0);
+
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(fills).toContain(0xfef08a);
+                    expect(fills).toContain(0xfde047);
+                  });
+
+                  it("Dusk paints rich amber twilight wash and sunset glow", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    const g = createMockGraphics();
+                    drawAtmosphere(createDayNightState(80, "clear"), g, 0);
+
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    // Amber dusk wash (0xd97706), sunset glow (0xf59e0b, 0xb45309)
+                    expect(fills).toContain(0xd97706);
+                    expect(fills).toContain(0xf59e0b);
+                    expect(fills).toContain(0xb45309);
+                  });
+
+                  it("Night paints cool blue tint with lower-brightness darkening veil while preserving weather overlays", async () => {
+                    const { drawAtmosphere } = await import("./atmosphere.js");
+                    const gClearNight = createMockGraphics();
+                    drawAtmosphere(createDayNightState(100, "clear"), gClearNight, 0);
+
+                    const nightFills = gClearNight.calls.filter((c: any) => c.method === "fill");
+                    const nightColors = nightFills.map((c: any) => c.args[0]?.color);
+                    // Lower brightness darkening veil (0x0f172a) + cool blue night tint (0x1e3a8a)
+                    expect(nightColors).toContain(0x0f172a);
+                    expect(nightColors).toContain(0x1e3a8a);
+
+                    const dimVeil = nightFills.find((c: any) => c.args[0]?.color === 0x0f172a);
+                    expect(dimVeil.args[0].alpha).toBeGreaterThanOrEqual(0.2);
+
+                    // Night + rain keeps drifting rain streaks
+                    const gRainNight = createMockGraphics();
+                    drawAtmosphere(createDayNightState(100, "rain"), gRainNight, 0.4);
+                    const rainStrokes = gRainNight.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
+                    expect(rainStrokes).toContain(0x93c5fd);
+
+                    // Night + snow keeps drifting snow dots
+                    const gSnowNight = createMockGraphics();
+                    drawAtmosphere(createDayNightState(100, "snow"), gSnowNight, 0.4);
+                    const snowColors = gSnowNight.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(snowColors).toContain(0xf8fafc);
+                  });
+                });
+
+                describe("Soft ground shadows under keeps and walls darken in night and storm", () => {
+                  it("drawMiniatureKeep ground shadow darkens in night and storm", async () => {
+                    const { drawMiniatureKeep } = await import("./tokens.js");
+                    const gDay = createMockGraphics();
+                    const gNight = createMockGraphics();
+                    const gStorm = createMockGraphics();
+                    const gNightStorm = createMockGraphics();
+
+                    drawMiniatureKeep(gDay, 50, 50, "western", undefined, true, 0, { weather: "clear", dayPhase: "day" });
+                    drawMiniatureKeep(gNight, 50, 50, "western", undefined, true, 0, { weather: "clear", dayPhase: "night" });
+                    drawMiniatureKeep(gStorm, 50, 50, "western", undefined, true, 0, { weather: "storm", dayPhase: "day" });
+                    drawMiniatureKeep(gNightStorm, 50, 50, "western", undefined, true, 0, { weather: "storm", dayPhase: "night" });
+
+                    const aDay = gDay.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x050403).args[0].alpha;
+                    const aNight = gNight.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x050403).args[0].alpha;
+                    const aStorm = gStorm.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x050403).args[0].alpha;
+                    const aNightStorm = gNightStorm.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x050403).args[0].alpha;
+
+                    expect(aNight).toBeGreaterThan(aDay);
+                    expect(aStorm).toBeGreaterThan(aDay);
+                    expect(aNightStorm).toBeGreaterThan(aNight);
+                    expect(aNightStorm).toBeGreaterThan(aStorm);
+                  });
+
+                  it("drawIsometricBuilding keep and walls ground shadows darken in night and storm", async () => {
+                    const { drawIsometricBuilding, getThemeVisuals } = await import("./buildings.js");
+                    const visuals = getThemeVisuals("Spring");
+
+                    for (const typeId of ["keep", "walls"]) {
+                      const gDay = createMockGraphics();
+                      const gNight = createMockGraphics();
+                      const gStorm = createMockGraphics();
+
+                      drawIsometricBuilding(gDay, typeId, 1, true, 0, visuals, 4, 4, undefined, "western", {
+                        state: createDayNightState(30, "clear"),
+                      });
+                      drawIsometricBuilding(gNight, typeId, 1, true, 0, visuals, 4, 4, undefined, "western", {
+                        state: createDayNightState(100, "clear"),
+                      });
+                      drawIsometricBuilding(gStorm, typeId, 1, true, 0, visuals, 4, 4, undefined, "western", {
+                        state: createDayNightState(30, "storm"),
+                      });
+
+                      const baseDay = gDay.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x080c09).args[0].alpha;
+                      const baseNight = gNight.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x080c09).args[0].alpha;
+                      const baseStorm = gStorm.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x080c09).args[0].alpha;
+
+                      expect(baseNight).toBeGreaterThan(baseDay);
+                      expect(baseStorm).toBeGreaterThan(baseDay);
+                    }
+                  });
+                });
+
+                describe("Wind sway on trees and banners", () => {
+                  it("trees in drawWoodTile and lumber_camp sway with phase, and sway brisker in storm", async () => {
+                    const { drawWoodTile } = await import("./tokens.js");
+                    const { drawIsometricBuilding, getThemeVisuals } = await import("./buildings.js");
+                    const visuals = getThemeVisuals("Spring");
+
+                    const gCalm = createMockGraphics();
+                    const gStorm = createMockGraphics();
+                    drawWoodTile(gCalm, 100, 100, 16, 8, 1.0, { weather: "clear" });
+                    drawWoodTile(gStorm, 100, 100, 16, 8, 1.0, { weather: "storm" });
+                    expect(gCalm.calls.filter((c: any) => c.method === "poly")).not.toEqual(
+                      gStorm.calls.filter((c: any) => c.method === "poly")
+                    );
+
+                    const gLum0 = createMockGraphics();
+                    const gLum1 = createMockGraphics();
+                    drawIsometricBuilding(gLum0, "lumber_camp", 1, true, 0, visuals, 3, 3, undefined, "western");
+                    drawIsometricBuilding(gLum1, "lumber_camp", 1, true, 1.2, visuals, 3, 3, undefined, "western");
+                    expect(gLum0.calls.filter((c: any) => c.method === "poly")).not.toEqual(
+                      gLum1.calls.filter((c: any) => c.method === "poly")
+                    );
+                  });
+
+                  it("keep banners sway with phase and respond to storm wind", async () => {
+                    const { drawMiniatureKeep } = await import("./tokens.js");
+                    const g0 = createMockGraphics();
+                    const g1 = createMockGraphics();
+                    const gStorm = createMockGraphics();
+
+                    drawMiniatureKeep(g0, 50, 50, "western", undefined, true, 0, { weather: "clear" });
+                    drawMiniatureKeep(g1, 50, 50, "western", undefined, true, 0.8, { weather: "clear" });
+                    drawMiniatureKeep(gStorm, 50, 50, "western", undefined, true, 0.8, { weather: "storm" });
+
+                    expect(g0.calls.filter((c: any) => c.method === "poly")).not.toEqual(
+                      g1.calls.filter((c: any) => c.method === "poly")
+                    );
+                    expect(g1.calls.filter((c: any) => c.method === "poly")).not.toEqual(
+                      gStorm.calls.filter((c: any) => c.method === "poly")
+                    );
+                  });
+                });
+
+                describe("Fog edge marks thicken visually in storm and snow without changing hit-testing", () => {
+                  it("drawFogEdgeMark paints denser mist and higher opacity in storm and snow than in clear/rain", async () => {
+                    const { drawFogEdgeMark } = await import("./tokens.js");
+                    const gClear = createMockGraphics();
+                    const gRain = createMockGraphics();
+                    const gSnow = createMockGraphics();
+                    const gStorm = createMockGraphics();
+
+                    drawFogEdgeMark(gClear, 100, 80, 0, "clear");
+                    drawFogEdgeMark(gRain, 100, 80, 0, "rain");
+                    drawFogEdgeMark(gSnow, 100, 80, 0, "snow");
+                    drawFogEdgeMark(gStorm, 100, 80, 0, "storm");
+
+                    // Denser mist: more draw calls in snow and storm than clear/rain
+                    expect(gSnow.calls.length).toBeGreaterThan(gClear.calls.length);
+                    expect(gStorm.calls.length).toBeGreaterThan(gClear.calls.length);
+                    expect(gClear.calls.length).toBe(gRain.calls.length);
+
+                    // Higher opacity on roundel backing (0x131d2e) and mist banks (0x64748b)
+                    const roundelClear = gClear.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x131d2e).args[0].alpha;
+                    const roundelSnow = gSnow.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x131d2e).args[0].alpha;
+                    const roundelStorm = gStorm.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x131d2e).args[0].alpha;
+
+                    expect(roundelSnow).toBeGreaterThan(roundelClear);
+                    expect(roundelStorm).toBeGreaterThan(roundelClear);
+                  });
+
+                  it("preserves fog on unseen tiles and leaves camera math, zoom, and hitTestProvince untouched", async () => {
+                    const { paintBoardProvinces } = await import("./tokens.js");
+                    const { hitTestProvince, boardGridToWorld } = await import("./camera.js");
+
+                    const state = createDayNightState(100, "storm");
+                    state.flags.fog_seen = JSON.stringify(["p_home", "p_edge"]);
+                    state.flags["seen:p_home"] = true;
+                    state.flags["seen:p_edge"] = true;
+
+                    const g: any = { ...createMockGraphics(), eventMode: "auto" };
+                    paintBoardProvinces(g, state, 0);
+                    expect(g.eventMode).toBe("none");
+
+                    // Unseen p_far stays fog (0x0f172a)
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(fills).toContain(0x0f172a);
+
+                    // Hit-testing untouched
+                    const bWorld = boardGridToWorld(1, 0);
+                    const hit = hitTestProvince(bWorld.wx, bWorld.wy);
+                    expect(hit?.bx).toBe(1);
+                    expect(hit?.by).toBe(0);
+                  });
+                });
+
+                describe("exports from render package index", () => {
+                  it("re-exports resolveDayPhase, dayPhaseForState, DAY_CYCLE_TICKS, resolveDayNightCycle, and resolveWindStrength", async () => {
+                    const {
+                      resolveDayPhase,
+                      dayPhaseForState,
+                      DAY_CYCLE_TICKS,
+                      resolveDayNightCycle,
+                      resolveWindStrength,
+                    } = await import("./index.js");
+                    expect(typeof resolveDayPhase).toBe("function");
+                    expect(typeof dayPhaseForState).toBe("function");
+                    expect(DAY_CYCLE_TICKS).toBe(120);
+                    expect(typeof resolveDayNightCycle).toBe("function");
+                    expect(typeof resolveWindStrength).toBe("function");
+                  });
+                });
+              });
             });
           });
         });

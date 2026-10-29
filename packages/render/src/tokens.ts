@@ -50,7 +50,13 @@ import {
   isBuildingStaffed,
   isHoldBreached,
 } from "./buildings.js";
-import { resolveAtmosphereWeather } from "./atmosphere.js";
+import {
+  resolveAtmosphereWeather,
+  resolveDayPhase,
+  resolveWindStrength,
+  type AtmosphereWeather,
+  type DayPhase,
+} from "./atmosphere.js";
 import { isFoodStoresEmptyOrLow } from "./walkers.js";
 
 export function isMarchHostile(march: { realmId: string }): boolean {
@@ -531,6 +537,8 @@ export interface MiniatureKeepOptions {
   breached?: boolean;
   stands?: boolean;
   cultureId?: string;
+  weather?: AtmosphereWeather;
+  dayPhase?: DayPhase;
 }
 
 /**
@@ -1184,11 +1192,19 @@ export function drawMiniatureKeep(
     (options?.state ? isHoldBreached(options.state, options, isHome ? "player" : realmPal?.realmId ?? "player") : false)
   );
 
-  // 0. Ambient ground contact shadow (detaches keep from busy terrain relief, darkens in storm)
-  const isStorm = (options as any)?.weather === "storm" ||
-    (options?.state ? resolveAtmosphereWeather(options.state) === "storm" : false);
+  // 0. Ambient ground contact shadow (detaches keep from busy terrain relief, darkens in night and storm)
+  const resolvedWeather =
+    options?.weather ??
+    (options?.state ? resolveAtmosphereWeather(options.state) : "clear");
+  const resolvedDayPhase =
+    options?.dayPhase ??
+    (options?.state ? resolveDayPhase(options.state, phase) : "day");
+  const isStorm = resolvedWeather === "storm";
+  const isNight = resolvedDayPhase === "night";
+  const wind = resolveWindStrength(resolvedWeather);
+  const keepShadowAlpha = isStorm && isNight ? 0.88 : isStorm ? 0.82 : isNight ? 0.78 : 0.62;
   g.ellipse(cx, cy + 4, 11, 4.5);
-  g.fill({ color: 0x050403, alpha: isStorm ? 0.82 : 0.62 });
+  g.fill({ color: 0x050403, alpha: keepShadowAlpha });
 
   // If this is a rival (Iron March) hold
   if (realmPal?.realmId === "rival") {
@@ -1248,7 +1264,7 @@ export function drawMiniatureKeep(
     g.fill({ color: 0xfef08a });
 
     // Waving blood-red spiked war pennant
-    const wave = Math.sin(phase * 4 + cx) * 1.8;
+    const wave = Math.sin(phase * 4 + cx) * 1.8 * wind;
     g.moveTo(cx, cy - 9); g.lineTo(cx, cy - 20);
     g.stroke({ width: 1.3, color: 0x3f3f46 });
     g.circle(cx, cy - 20.5, 0.9); g.fill({ color: 0x71717a });
@@ -2215,7 +2231,7 @@ export function drawMiniatureKeep(
       // 7. Standard / Pennant on Mast
       if (!isBreached) {
         // Waving Swallowtail Pennant on Mast when hold stands
-        const wWave = Math.sin(phase * 4 + cx) * 1.8;
+        const wWave = Math.sin(phase * 4 + cx) * 1.8 * wind;
         g.moveTo(cx, cy - 11); g.lineTo(cx, cy - 20);
         g.stroke({ width: 1.3, color: 0x1e293b });
         g.circle(cx, cy - 20.5, 1); g.fill({ color: 0xfacc15 });
@@ -4669,53 +4685,98 @@ export function drawFogEdgeMark(
   g: Graphics,
   cx: number,
   cy: number,
-  phase: number = 0
+  phase: number = 0,
+  weatherOrState?:
+    | AtmosphereWeather
+    | GameState
+    | { weather?: AtmosphereWeather; state?: GameState | null }
+    | null
 ): void {
   if (!g) return;
 
+  let weather: AtmosphereWeather = "clear";
+  if (typeof weatherOrState === "string") {
+    weather = weatherOrState;
+  } else if (weatherOrState && typeof weatherOrState === "object") {
+    if ("meta" in weatherOrState) {
+      weather = resolveAtmosphereWeather(weatherOrState as GameState);
+    } else if (typeof (weatherOrState as any).weather === "string") {
+      weather = (weatherOrState as any).weather;
+    } else if ((weatherOrState as any).state) {
+      weather = resolveAtmosphereWeather((weatherOrState as any).state);
+    }
+  }
+
+  const isStorm = weather === "storm";
+  const isSnow = weather === "snow";
+  const isThick = isStorm || isSnow;
+  const spread = isStorm ? 1.25 : isSnow ? 1.18 : 1.0;
+
   const mx = cx;
   const my = cy;
-  const mistDrift = Math.sin(phase * 2.5) * 0.25;
-  const mistPulse = Math.cos(phase * 3.0) * 0.15;
+  const mistDrift = Math.sin(phase * 2.5) * (isThick ? 0.35 : 0.25);
+  const mistPulse = Math.cos(phase * 3.0) * (isThick ? 0.22 : 0.15);
+
+  // 0. Outer billowing mist halo in storm and snow (thicker fog edge)
+  if (isThick) {
+    g.ellipse(mx, my + 0.3, isStorm ? 6.4 : 5.9, isStorm ? 4.2 : 3.8);
+    g.fill({ color: isSnow ? 0xe2e8f0 : 0x94a3b8, alpha: isStorm ? 0.38 : 0.32 });
+  }
 
   // 1. Soft drop shadow beneath the mist mark
   g.ellipse(mx, my + 1.8, 5.4, 3.1);
-  g.fill({ color: 0x000000, alpha: 0.40 });
+  g.fill({ color: 0x000000, alpha: isThick ? 0.50 : 0.40 });
 
   // 2. Dark slate-fog roundel backing + slate mist rim
   g.circle(mx, my, 4.8);
-  g.fill({ color: 0x131d2e, alpha: 0.90 });
+  g.fill({ color: 0x131d2e, alpha: isStorm ? 0.98 : isSnow ? 0.96 : 0.90 });
   g.circle(mx, my, 4.8);
-  g.stroke({ width: 0.85, color: 0x64748b, alpha: 0.94 });
+  g.stroke({
+    width: isThick ? 1.1 : 0.85,
+    color: 0x64748b,
+    alpha: isThick ? 1.0 : 0.94,
+  });
 
   // 3. Inner deep twilight-slate disk
   g.circle(mx, my, 3.8);
-  g.fill({ color: 0x1e293b, alpha: 0.92 });
+  g.fill({ color: 0x1e293b, alpha: isThick ? 0.98 : 0.92 });
 
   // 4. Lower swirling mist bank (slate 0x64748b and mist 0x94a3b8)
-  g.ellipse(mx - 0.8, my + 1.2 + mistDrift, 2.6, 1.3);
-  g.fill({ color: 0x64748b, alpha: 0.85 });
+  g.ellipse(mx - 0.8, my + 1.2 + mistDrift, 2.6 * spread, 1.3 * spread);
+  g.fill({ color: 0x64748b, alpha: isStorm ? 0.96 : isSnow ? 0.94 : 0.85 });
 
-  g.ellipse(mx + 1.1, my + 0.9 - mistDrift, 2.0, 1.1);
-  g.fill({ color: 0x94a3b8, alpha: 0.90 });
+  g.ellipse(mx + 1.1, my + 0.9 - mistDrift, 2.0 * spread, 1.1 * spread);
+  g.fill({ color: 0x94a3b8, alpha: isStorm ? 0.98 : isSnow ? 0.96 : 0.90 });
 
   // 5. Central drifting fog puff (pale slate 0x94a3b8 and cloudy vapor 0xcfdbe8)
-  g.circle(mx - 0.6, my - 0.4 + mistDrift, 1.7);
-  g.fill({ color: 0x94a3b8, alpha: 0.92 });
+  g.circle(mx - 0.6, my - 0.4 + mistDrift, 1.7 * (isThick ? 1.12 : 1.0));
+  g.fill({ color: 0x94a3b8, alpha: isThick ? 0.98 : 0.92 });
 
-  g.circle(mx + 0.8, my - 0.2 - mistDrift, 1.4);
-  g.fill({ color: 0xcfdbe8, alpha: 0.94 });
+  g.circle(mx + 0.8, my - 0.2 - mistDrift, 1.4 * (isThick ? 1.15 : 1.0));
+  g.fill({ color: 0xcfdbe8, alpha: isThick ? 0.99 : 0.94 });
 
   // 6. Upper cresting mist wisp (frost vapor 0xe2e8f0 and diffuse cloud 0xcfdbe8)
-  g.circle(mx + 0.2, my - 1.4 + mistPulse, 1.3);
-  g.fill({ color: 0xe2e8f0, alpha: 0.95 });
+  g.circle(mx + 0.2, my - 1.4 + mistPulse, 1.3 * (isThick ? 1.18 : 1.0));
+  g.fill({ color: 0xe2e8f0, alpha: isThick ? 0.99 : 0.95 });
 
-  g.ellipse(mx - 1.1, my - 1.0 + mistDrift, 1.4, 0.8);
-  g.fill({ color: 0xcfdbe8, alpha: 0.80 });
+  g.ellipse(mx - 1.1, my - 1.0 + mistDrift, 1.4 * spread, 0.8 * spread);
+  g.fill({ color: 0xcfdbe8, alpha: isStorm ? 0.94 : isSnow ? 0.92 : 0.80 });
+
+  // 6b. Extra dense rolling fog banks in storm and snow
+  if (isThick) {
+    g.ellipse(mx - 1.5 - mistDrift, my + 0.4, isStorm ? 2.4 : 2.1, 1.2);
+    g.fill({ color: isSnow ? 0xf1f5f9 : 0xcbd5e1, alpha: isStorm ? 0.92 : 0.88 });
+
+    g.ellipse(mx + 1.4 + mistDrift, my - 0.8, isStorm ? 2.2 : 1.9, 1.1);
+    g.fill({ color: 0xe2e8f0, alpha: isStorm ? 0.94 : 0.90 });
+
+    g.circle(mx - 0.9, my - 1.5 - mistPulse, 0.65);
+    g.fill({ color: 0xf8fafc, alpha: 0.95 });
+  }
 
   // 7. Bright vapor condensation glint (0xf8fafc)
-  g.circle(mx + 0.3, my - 1.6 + mistPulse, 0.5);
-  g.fill({ color: 0xf8fafc, alpha: 0.90 });
+  g.circle(mx + 0.3, my - 1.6 + mistPulse, isThick ? 0.65 : 0.5);
+  g.fill({ color: 0xf8fafc, alpha: isThick ? 0.98 : 0.90 });
 }
 
 // -------------------------------------------------------------
@@ -5083,8 +5144,9 @@ export function drawWoodTile(
   hw: number,
   hh: number,
   phase: number = 0,
-  options?: { px?: number; py?: number }
+  options?: { px?: number; py?: number; weather?: AtmosphereWeather }
 ): void {
+  const wind = resolveWindStrength(options?.weather);
   // 1. Forest floor woodland duff & needle bed
   g.ellipse(cx, cy + 0.5, hw * 0.72, hh * 0.56);
   g.fill({ color: 0x14532d, alpha: 0.28 });
@@ -5144,8 +5206,8 @@ export function drawWoodTile(
     const leafDark = tr.dark ? 0x064e3b : 0x14532d;
     const leafMid = tr.dark ? 0x047857 : 0x16a34a;
     const leafLight = tr.dark ? 0x10b981 : 0x22c55e;
-    const sway = Math.sin(phase * 2.2 + tr.tx * 0.1) * 0.7 * s;
-    const swayApex = Math.sin(phase * 2.2 + tr.tx * 0.1) * 1.2 * s;
+    const sway = Math.sin(phase * 2.2 + tr.tx * 0.1) * 0.7 * s * wind;
+    const swayApex = Math.sin(phase * 2.2 + tr.tx * 0.1) * 1.2 * s * wind;
 
     // Tier 1 (Lowest broad skirt)
     g.poly([x - 5.6 * s, y + 0.6 * s, x + sway * 0.5, y - 4.8 * s, x + 5.6 * s, y + 0.6 * s]);
@@ -5850,8 +5912,14 @@ export function paintBoardProvinces(
   g.clear();
   if (!state?.board?.provinces) return;
 
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+
   const animPhase = typeof phase === "number" ? phase : 0;
   const theme = resolveBoardThemeVisuals(state, visuals);
+  const boardWeather = resolveAtmosphereWeather(state);
+  const boardDayPhase = resolveDayPhase(state, animPhase);
   const marchDestMap = buildMarchDestinationMap(state);
 
   // Sort back-to-front by depth (y * 20 + x) so foreground isometric tiles and cliff faces layer on top
@@ -5970,7 +6038,7 @@ export function paintBoardProvinces(
 
       case "wood": {
         // Trees on the diamond: small stand of pines, trunk, and ground shadow
-        drawWoodTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
+        drawWoodTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y, weather: boardWeather });
         break;
       }
 
@@ -6036,7 +6104,9 @@ export function paintBoardProvinces(
         realmPal,
         isPlayerHome,
         phase,
-        isPlayerHome ? { state, cultureId: cultId } : undefined
+        isPlayerHome
+          ? { state, cultureId: cultId, weather: boardWeather, dayPhase: boardDayPhase }
+          : { weather: boardWeather, dayPhase: boardDayPhase }
       );
     } else {
       switch (p.node) {
@@ -6243,9 +6313,9 @@ export function paintBoardProvinces(
       drawStaffedMark(g, cx - 5, cy - 3, animPhase);
     }
 
-    // 6.18 Fog Edge Mark on Seen Tiles at the Edge of Vision
+    // 6.18 Fog Edge Mark on Seen Tiles at the Edge of Vision (thickens in storm and snow)
     if (hasProvinceFogEdge(state, p.id)) {
-      drawFogEdgeMark(g, cx + 5, cy - 3, animPhase);
+      drawFogEdgeMark(g, cx + 5, cy - 3, animPhase, state);
     }
 
     // 7. Clear Gold Rim & Ground Ring for Currently Selected Province

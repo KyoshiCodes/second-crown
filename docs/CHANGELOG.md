@@ -1,14 +1,21 @@
 # CHANGELOG
 
-## 2026-10-29 — sim / weather effects and day/night cycle (wave/weather-day)
+## 2026-10-29 — Day/night visual cycle and deeper weather atmosphere (bakeoff/gemini-day-night)
 
-- `weather.ts`: added `gatherYieldFactor`, `fogThickness`, `buildingDamageFactor`. `marchSpeedFactor` unchanged.
-- New `dayNight.ts`: `dayPhase`, `dayPhaseAt`, `nightWorkFactor`, `DAY_CYCLE_TICKS = 120`.
-- `gather.ts`: player gather payout = `floor(load * gatherYieldFactor * nightWorkFactor)` at the return tick.
-- `fog.ts`: `isProvinceSeen` stretches home distance by `fogThickness`.
-- `march.ts`: siege blow rebuild timer is `round(40 * buildingDamageFactor)` ticks.
-- Tests: `weather.test.ts` (new factors, siege timer, storm fog), new `dayNight.test.ts` (four phases, boundaries, determinism), `gather.test.ts` updated for the payout factor plus a night test.
-- No changes to `packages/render`, `server/`, or `theme.css`.
+- Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/atmosphere.ts`:
+  - `resolveDayPhase(state, animPhase)` / `dayPhaseForState`: reads `sim.dayPhase(state)` when exported, with a deterministic 120-tick fallback (`DAY_CYCLE_TICKS = 120`: `dawn` 0–19, `day` 20–69, `dusk` 70–89, `night` 90–119).
+  - `resolveDayNightCycle(state, animPhase)` and `drawAtmosphere(state, g, phase, width, height)`: paints Dawn = warm gold rising (`0xfbbf24` wash + `0xf59e0b` / `0xfef08a` sunrise glow), Day = clear warm (`0xfef08a`), Dusk = amber (`0xd97706` + `0xf59e0b` / `0xb45309` sunset glow), and Night = cool blue (`0x1e3a8a`) with lower brightness (`0x0f172a` darkening veil), while keeping all existing Clear, Rain, Storm, and Snow weather overlays.
+  - `resolveWindStrength(weather)`: scales wind sway amplitude brisker in rain and storm.
+- `packages/render/src/tokens.ts` & `packages/render/src/buildings.ts`:
+  - Soft ground shadows under keeps (`drawMiniatureKeep` and `drawIsometricBuilding`) and walls/gates (`drawIsometricBuilding`) darken in both night and storm.
+  - Gentle wind sway on standing trees (`drawWoodTile`, `lumber_camp` pines, desert palm fronds) and banners (`drawMiniatureKeep` pennants), scaling with storm wind.
+  - `drawFogEdgeMark(g, cx, cy, phase, weatherOrState)`: thickens visually in storm and snow (outer billowing mist halo, denser rolling fog wisps, and higher roundel/mist opacity) without changing hit-testing.
+- `packages/render/src/index.ts`:
+  - Sets `eventMode = "none"` (`pointer-events: none`) on all board and hold overlay graphics.
+  - Re-exports `DAY_CYCLE_TICKS`, `resolveDayPhase`, `dayPhaseForState`, `resolveDayNightCycle`, `resolveWindStrength`, `type DayPhase`, and `type DayNightVisuals`.
+- Tests: `packages/render/src/index.test.ts` (13 new tests in `bakeoff/gemini-day-night` suite; 585/585 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-29 — Living atmosphere effects on isometric board (bakeoff/gemini-atmosphere)
 

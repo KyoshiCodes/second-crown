@@ -4,7 +4,7 @@ import { getBuildingType } from "@second-crown/sim";
 import * as sim from "@second-crown/sim";
 import { HALF_W, HALF_H, TILE_W, TILE_H } from "./camera.js";
 import { GRID_W, GRID_H, isRimTile, rimWalkIndex, getRimTileAt, type RimNeighbors, type RimFort, type ThemeVisuals } from "./tiles.js";
-import { resolveAtmosphereWeather } from "./atmosphere.js";
+import { resolveAtmosphereWeather, resolveDayPhase } from "./atmosphere.js";
 
 export interface CultureVisualPalette {
   id: string;
@@ -1140,12 +1140,13 @@ function drawFarmCulture(
       g.moveTo(11, py); g.lineTo(13.5, py);
       g.stroke({ width: 0.8, color: 0x5c3818, alpha: a });
     }
+    const palmSway = Math.sin(phase * 2.4) * 1.1;
     const fronds = [
-      [12, -15, 4, -20],
-      [12, -15, 7, -24],
-      [12, -15, 13, -25],
-      [12, -15, 18, -22],
-      [12, -15, 19, -17],
+      [12, -15, 4 + palmSway, -20],
+      [12, -15, 7 + palmSway, -24],
+      [12, -15, 13 + palmSway * 1.1, -25],
+      [12, -15, 18 + palmSway, -22],
+      [12, -15, 19 + palmSway * 0.8, -17],
     ];
     for (const [x1, y1, x2, y2] of fronds) {
       g.moveTo(x1, y1); g.quadraticCurveTo((x1 + x2) / 2, y1 - 4, x2, y2);
@@ -1646,9 +1647,10 @@ function drawLumberCulture(
     g.poly([-16, -h, 0, 8 - h - 9, 14, 1 - h, 0, -h - 13]);
     g.fill({ color: 0x382214, alpha: a });
 
-    g.poly([-14, 0, -9, -24, -4, 0]);
+    const cedarSway = Math.sin(phase * 2.2) * 0.9;
+    g.poly([-14, 0, -9 + cedarSway * 0.6, -24, -4, 0]);
     g.fill({ color: 0x14532d, alpha: a });
-    g.poly([-13, -10, -9, -30, -5, -10]);
+    g.poly([-13, -10, -9 + cedarSway, -30, -5, -10]);
     g.fill({ color: 0x166534, alpha: a });
 
     g.poly([-15, 2, 7, -6, 8, -2, -14, 6]);
@@ -6737,13 +6739,18 @@ export function drawIsometricBuilding(
     (options as any)?.weather === "storm" ||
     (options?.state ? resolveAtmosphereWeather(options.state) === "storm" : false)
   );
+  const isNight = Boolean(
+    (options as any)?.dayPhase === "night" ||
+    (options?.state ? resolveDayPhase(options.state, phase) === "night" : false)
+  );
 
   const a = 1.0;
   g.clear();
 
-  // 1. Isometric Ground Footprint Shadow & Base Foundation (darkens slightly in storm)
+  // 1. Isometric Ground Footprint Shadow & Base Foundation (darkens in night and storm)
   const isRimWall = typeId === "walls" && isRimTile(gx, gy);
   const isRimGate = typeId === "gate" && isRimTile(gx, gy);
+  const isKeepOrWall = typeId === "keep" || typeId === "walls" || typeId === "gate";
 
   if (!isRimWall && !isRimGate) {
     g.poly([
@@ -6752,7 +6759,15 @@ export function drawIsometricBuilding(
       0, HALF_H - 1,
       -HALF_W + 1, 0,
     ]);
-    const baseAlpha = (typeId === "keep" || typeId === "walls") && isStorm ? 0.58 : 0.4;
+    const baseAlpha = isKeepOrWall
+      ? isStorm && isNight
+        ? 0.68
+        : isStorm
+        ? 0.58
+        : isNight
+        ? 0.54
+        : 0.4
+      : 0.4;
     g.fill({ color: 0x080c09, alpha: baseAlpha });
 
     // Cast shadow to the southeast
@@ -6762,7 +6777,15 @@ export function drawIsometricBuilding(
       HALF_W + 12, 10,
       2, HALF_H + 4,
     ]);
-    const castAlpha = (typeId === "keep" || typeId === "walls") && isStorm ? 0.42 : 0.28;
+    const castAlpha = isKeepOrWall
+      ? isStorm && isNight
+        ? 0.5
+        : isStorm
+        ? 0.42
+        : isNight
+        ? 0.38
+        : 0.28
+      : 0.28;
     g.fill({ color: 0x000000, alpha: castAlpha });
   } else {
     // Continuous foundation footprint shadow along the wall perimeter run
@@ -6772,7 +6795,7 @@ export function drawIsometricBuilding(
       HALF_W - 2, 0,
       0, -HALF_H + 2,
     ]);
-    const rimAlpha = isStorm ? 0.42 : 0.25;
+    const rimAlpha = isStorm && isNight ? 0.5 : isStorm ? 0.42 : isNight ? 0.38 : 0.25;
     g.fill({ color: 0x080c09, alpha: rimAlpha });
   }
 
@@ -6966,10 +6989,11 @@ export function drawIsometricBuilding(
       g.poly([-16, -h, 0, 8 - h - 9, 14, 1 - h, 0, -h - 13]);
       g.fill({ color: 0x382214, alpha: a });
 
-      // Tall Pine Trees on rear flank
-      g.poly([-14, 0, -9, -24, -4, 0]);
+      // Tall Pine Trees on rear flank (gentle wind sway)
+      const pineSway = Math.sin(phase * 2.2) * 0.9;
+      g.poly([-14, 0, -9 + pineSway * 0.6, -24, -4, 0]);
       g.fill({ color: 0x14532d, alpha: a });
-      g.poly([-13, -10, -9, -30, -5, -10]);
+      g.poly([-13, -10, -9 + pineSway, -30, -5, -10]);
       g.fill({ color: 0x166534, alpha: a });
 
       // Woodcutter's Open Shelter & Chopping Block with Steel Axe
