@@ -17,6 +17,7 @@ import { detachGarrison, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
 import { pairClashingMarches, resolveCampRaid, resolveHoldStorm, resolveOutpostAssault } from "./engagement.js";
+import { marchSpeedFactor, weatherFor } from "./weather.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -146,6 +147,10 @@ function manhattan(a: Province, b: Province): number {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
+function travelTicks(state: GameState, dist: number): number {
+  return Math.ceil((dist * TICKS_PER_STEP) / marchSpeedFactor(weatherFor(state)));
+}
+
 function enqueueMarch(
   state: GameState,
   dest: Province,
@@ -167,7 +172,7 @@ function enqueueMarch(
       realmId: "player",
       fromId: home.id,
       toId: dest.id,
-      arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
+      arrivesTick: state.meta.tick + travelTicks(state, dist),
       kind,
       levy,
       force,
@@ -266,7 +271,7 @@ export function tryNpcMarch(state: GameState, realmId: string, destId: string): 
       realmId,
       fromId: from.id,
       toId: dest.id,
-      arrivesTick: state.meta.tick + dist * TICKS_PER_STEP,
+      arrivesTick: state.meta.tick + travelTicks(state, dist),
       kind: dest.node === "hold" ? "hold" : dest.node === "camp" ? "camp" : "node",
       levy,
       force,

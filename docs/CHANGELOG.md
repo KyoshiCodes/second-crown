@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-29 — Weather slows marches (wave/weather)
+
+- Sim only. No changes to `packages/render`, `server/`, or `theme.css`.
+- New `packages/sim/src/systems/weather.ts`: `weatherFor(state)` (`clear` / `rain` / `storm` / `snow`), with one roll per season from the existing `createRngStreams` event stream, seeded with `state.meta.seed + seasonKey(state)` and weighted by `currentSeason`. `marchSpeedFactor(weather)`: rain 0.8, storm 0.6, clear and snow 1.
+- `packages/sim/src/systems/march.ts`: march ETA (player and NPC) is now `ceil(dist * TICKS_PER_STEP / marchSpeedFactor(weatherFor(state)))`, read at launch. Other march rules are unchanged.
+- Tests: `packages/sim/src/systems/weather.test.ts` (6 tests). `npm test` passes.
+
 ## 2026-10-29 — Tile at edge of vision shows fog edge mark on diamond (bakeoff/gemini-fog-edge-mark)
 
 - Board tile only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
