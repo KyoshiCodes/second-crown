@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-29 — Split the app chunk so tabs load separately (wave/chunk-split)
+
+- App only. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No rule or click change.
+- `packages/app/src/AppShell.tsx`: `KingdomTab`, `ArmyTab`, `WarTab`, `WorldTab`, `CrownTab`, and `OverworldAtlas` are now `React.lazy` dynamic imports wrapped in one `React.Suspense` with a small "Loading…" fallback (`.sc-tab-loading`). The board canvas stays in the main chunk.
+- `packages/app/vite.config.ts`: `manualChunks` adds `react` and `sim` chunks next to the existing `pixi` chunk (paths normalized for Windows).
+- Build: main `index` chunk 1,093 kB → 642 kB (gzip 271 → 146 kB); tab chunks 23–37 kB each. The large-chunk warning is gone.
+- `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-29 — Moving sun/moon, tile-plane weather, and night variants (bakeoff/gemini-sun-moon)
 
 - Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

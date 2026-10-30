@@ -1,11 +1,11 @@
-# Handoff (2026-10-14)
+# Handoff (2026-10-29)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#281** (day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-sun-moon` (**not merged**, see Moving sun/moon and tile-plane weather below).
+Merged through PR **#283** (moving sun/moon and tile-plane weather, #283; slow day cycle and sunMoonPosition, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/chunk-split` (**not merged**, see Chunk split below).
 
 ### Cultures and units (all merged)
 
@@ -30,6 +30,13 @@ Merged through PR **#281** (day/night cycle and weather atmosphere on diamond, #
 ### Also live (earlier waves)
 
 Keep interior Hall / Wall / Yard work cards and room pips, People job cards, keep-gated studies and barracks queue, Last battle card, province inspect card, faction and dawn seals, stores, hall bonus, raid mercy, save lock, security gate, lo-fi radio, primer v3, fog cloud veil, weather / season tint. Details per wave are in `CHANGELOG.md`.
+
+## Chunk split (wave/chunk-split, **not merged**)
+
+- App only: `packages/app/src/AppShell.tsx` and `packages/app/vite.config.ts`. No sim, render, server, or `theme.css` change. No rule or click change.
+- The five tab panels (`tabs/KingdomTab` … `tabs/CrownTab`) and `OverworldAtlas` load with `React.lazy`, inside one `React.Suspense` that shows a small "Loading…" line while a chunk downloads. The board canvas, HUD, and tab bar stay in the main chunk, so the board still paints first.
+- `manualChunks` now splits `pixi`, `react` (react, react-dom, scheduler), and `sim` (`packages/sim` + break_infinity) into their own files.
+- Build: main `index` chunk 1,093 kB → 642 kB; each tab 23–37 kB. The "chunks larger than 700 kB" warning is gone.
 
 ## Owner machine
 
