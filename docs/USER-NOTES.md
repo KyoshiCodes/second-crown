@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-29 — Hold card reminds you to share the id and key (wave/hold-key-hint)
+## 2026-10-30 — Small seal marks the hold key (bakeoff/gemini-key-seal)
 
-- **The hold card now reminds you to share the realm id and key.** When you make a new shared hold and its key is shown, a line under the key says "Share the realm id and this key with friends."
-- **Play is otherwise unchanged.** Joining, leaving, stamping, the intent log, your solo crown, and saves work exactly as before.
+- **A small seal now marks the hold key. Play is unchanged.** When you create a new shared hold in the Cloud panel and its one-time hold key is shown, a 16px wax-seal pip appears to the left of the key and pulses once when first shown; when no hold key is visible, no seal is shown.
+- All new art is pointer-events: none so copying the key and clicking buttons work the same as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-29 — Small pip marks the intent log (bakeoff/gemini-intent-pip)
 
