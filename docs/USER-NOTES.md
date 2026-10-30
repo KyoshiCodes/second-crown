@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-30 — Hold card confirms the key copy (wave/hold-copy-hint)
+## 2026-10-30 — Small flash confirms a copied key (bakeoff/gemini-copy-flash)
 
-- **The hold card now confirms when the key is copied.** After you press Copy key on a new hold, a short line under the button says: "Key copied. Share the realm id and the key." It goes away when you leave or join a different hold.
-- **Play is otherwise unchanged.** Joining, leaving, stamping, and the hold itself work exactly as before.
+- **A small flash now confirms a copied key. Play is unchanged.** When you copy a new shared hold's key in the Cloud panel, a 16px golden check flash appears briefly to the left of the Copy button and then hides; when no hold is joined, no flash is shown.
+- All new art is pointer-events: none so clicking Copy key and every other button works the same as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-30 — Hold card explains Leave (wave/hold-leave-hint)
 

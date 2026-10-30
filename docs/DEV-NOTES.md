@@ -1,9 +1,13 @@
-## 2026-10-30 — app / copy hint on the hold card (wave/hold-copy-hint)
+## 2026-10-30 — app / living confirmation flash next to hold Copy button (bakeoff/gemini-copy-flash)
 
-- Slice constraints: App only (`packages/app/src/JoinHoldCard.tsx`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- The hint is a `<span role="status">` with inline `flexBasis: "100%"` placed right after the Copy button inside the `madeKey !== null` row, so it wraps to its own line under the button and only renders while `copied` is true.
-- Clearing: `leave()` never reset `copied`, and the brief forbids touching `join`/`leave`. A `useEffect(() => setCopied(false), [realmId])` covers both Leave (`realmId` → `null`) and joining a different hold. `join()` still resets it too; harmless.
-- `copyKey` is unchanged; a clipboard failure still leaves `copied` false, so the line only shows after a real copy.
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `CopyFlashPip` & CSS isolation (`packages/app/src/hud/CopyFlashPip.tsx`, `packages/app/src/hud/copy-flash.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) golden starburst and emerald check roundel SVG pip, enforcing inline and stylesheet `pointer-events: none` and `user-select: none` (`aria-hidden="true"`).
+  - One-shot animation (`@keyframes sc-copy-flash-pop`) animates only compositor-safe `opacity` and `transform` (`scale`) on `.sc-copy-flash-pip-glyph` (keyed by `flashKey` so repeated copies replay cleanly) and disables animation under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - Keeps `copyFlash` separate from persistent `copied` button state: after `navigator.clipboard.writeText(madeKey)` succeeds, `copyFlash` turns `true` for `COPY_FLASH_MS` (`1400ms`) via `startCopyFlashTimer` and then unmounts `CopyFlashPip` (`setCopyFlash(false)`).
+  - Failed clipboard writes never set `copyFlash`, and `join()`, `leave()`, and unmount cancel any pending timer; when `view === null` (no hold joined), `CopyFlashPip` is never rendered.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-30 — app / leave hint on the hold card (wave/hold-leave-hint)
 
