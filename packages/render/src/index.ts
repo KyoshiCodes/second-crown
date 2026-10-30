@@ -37,11 +37,15 @@ import {
   weatherForState,
   resolveDayPhase,
   dayPhaseForState,
+  resolveSunMoonPosition,
+  sunMoonPositionForState,
+  celestialScreenPoint,
   resolveDayNightCycle,
   resolveWindStrength,
   type AtmosphereWeather,
   type DayPhase,
   type DayNightVisuals,
+  type SunMoonPosition,
 } from "./atmosphere.js";
 
 import {
@@ -176,6 +180,7 @@ import {
   hasProvinceStaffed,
   drawFogEdgeMark,
   hasProvinceFogEdge,
+  drawNightMarchLantern,
 } from "./tokens.js";
 
 import {
@@ -1097,16 +1102,21 @@ export {
   hasProvinceStaffed,
   drawFogEdgeMark,
   hasProvinceFogEdge,
+  drawNightMarchLantern,
   drawAtmosphere,
   resolveAtmosphereWeather,
   weatherForState,
   DAY_CYCLE_TICKS,
   resolveDayPhase,
   dayPhaseForState,
+  resolveSunMoonPosition,
+  sunMoonPositionForState,
+  celestialScreenPoint,
   resolveDayNightCycle,
   resolveWindStrength,
   type AtmosphereWeather,
   type DayPhase,
   type DayNightVisuals,
+  type SunMoonPosition,
 };
 

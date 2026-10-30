@@ -1,11 +1,20 @@
 # CHANGELOG
 
-## 2026-10-29 — Slow day cycle and sun/moon position (wave/day-cycle-slow)
+## 2026-10-29 — Moving sun/moon, tile-plane weather, and night variants (bakeoff/gemini-sun-moon)
 
-- `packages/sim/src/systems/dayNight.ts`: `DAY_CYCLE_TICKS` 120 → 3600 (about 6 minutes per day). Phases `dawn` 0–539, `day` 540–1979, `dusk` 1980–2519, `night` 2520–3599 (15/40/15/30%). `dayPhase`, `dayPhaseAt`, `nightWorkFactor` unchanged in shape.
-- New `sunMoonPosition(state)` and `sunMoonPositionAt(tick)` returning `{ kind: "sun" | "moon", x, y, elevation }`; exported from `@second-crown/sim` with `type SunMoonPosition`. Deterministic from tick, no rng.
-- Tests: `dayNight.test.ts` (cycle length, new boundaries, sun by day / moon by night, elevation 0 at dawn and dusk edges, smooth motion, determinism); `gather.test.ts` night-trim test updated for the longer day.
-- No changes to `packages/render`, `server/`, or `theme.css`.
+- Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/atmosphere.ts`:
+  - Removed all full-canvas `g.rect` color washes so the board is never washed or tinted edge-to-edge.
+  - `resolveSunMoonPosition(state, animPhase)` / `sunMoonPositionForState` and `celestialScreenPoint`: reads `sim.sunMoonPosition(state)` when exported (with a deterministic half-sine sky arc fallback across `DAY_CYCLE_TICKS`) and draws a small sun or moon sprite moving across the top of the board.
+  - At night, draws a soft moonlight glow strictly near the moon (`r <= 21`), never across the whole board.
+  - Soft local lighting: paints a small warm glow on the tile plane directly under the sun during dawn/day/dusk and a small cool glow directly under the moon at night.
+  - Sparse tile-plane weather: rain streaks (`16`), storm streaks (`24` + localized sky-to-board lightning bolt), and snow dots (`16`) start above the board and fall onto `boardGridToWorld` tiles with subtle droplet splashes and settling snow flecks so tiles remain readable.
+- `packages/render/src/tokens.ts` & `packages/render/src/buildings.ts`:
+  - Night variations when `dayPhase` is `night`: unbreached keeps (`drawMiniatureKeep`, `drawIsometricBuilding`), cottages, farms, academies, and infirmaries darken their daytime windows (`0x1e293b`) and light warm amber porch/gatehouse lanterns (`0xf59e0b` / `0xd97706` / `0xfef08a`); marching player army, garrison, and gather columns carry lit night lanterns (`drawNightMarchLantern`). Sprites without night variants (`quarry`, `lumber_camp`, `walls`, `archery_range`, stealth scouts, etc.) are skipped cleanly.
+- `packages/render/src/index.ts`:
+  - Re-exports `resolveSunMoonPosition`, `sunMoonPositionForState`, `celestialScreenPoint`, `drawNightMarchLantern`, and `type SunMoonPosition`.
+- Tests: `packages/render/src/index.test.ts` (590 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-29 — Day/night visual cycle and deeper weather atmosphere (bakeoff/gemini-day-night)
 

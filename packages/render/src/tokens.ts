@@ -3,7 +3,7 @@ import type { GameState, Province, TerrainId, ProvinceNode } from "@second-crown
 import { BOARD_W, BOARD_H } from "@second-crown/shared";
 import {
   listMarches,
-  isProvinceSeen,
+  isProvinceSeen as simIsProvinceSeen,
   getProvince,
   nodeStock,
   nodeStockMax,
@@ -15,6 +15,13 @@ import {
   listOutposts,
   listGathers,
 } from "@second-crown/sim";
+
+function isProvinceSeen(state: GameState, provinceId: string): boolean {
+  const safeState = state?.meta
+    ? state
+    : ({ ...state, meta: { version: 1, seed: 0, tick: 0, lastRealTime: 0, playTimeMs: 0 } } as GameState);
+  return simIsProvinceSeen(safeState, provinceId);
+}
 import * as sim from "@second-crown/sim";
 import type { March } from "@second-crown/sim";
 import {
@@ -2214,13 +2221,20 @@ export function drawMiniatureKeep(
 
       // 6. Royal High Window
       if (!isBreached) {
-        // Warm Royal Candlelit Window with ambient glow when hold stands
-        const candle = 0.85 + Math.sin(phase * 4 + cx) * 0.15;
-        g.circle(cx, cy - 5, 2.5);
-        g.fill({ color: 0xfef08a, alpha: candle * 0.35 });
-        g.rect(cx - 1.2, cy - 6.5, 2.4, 3.2);
-        g.fill({ color: 0xfef08a, alpha: candle });
-        g.stroke({ width: 0.6, color: 0x78350f });
+        if (isNight) {
+          // Night variant: darkened shuttered casement window
+          g.rect(cx - 1.2, cy - 6.5, 2.4, 3.2);
+          g.fill({ color: 0x1e293b });
+          g.stroke({ width: 0.6, color: 0x334155 });
+        } else {
+          // Warm Royal Candlelit Window with ambient glow when hold stands
+          const candle = 0.85 + Math.sin(phase * 4 + cx) * 0.15;
+          g.circle(cx, cy - 5, 2.5);
+          g.fill({ color: 0xfef08a, alpha: candle * 0.35 });
+          g.rect(cx - 1.2, cy - 6.5, 2.4, 3.2);
+          g.fill({ color: 0xfef08a, alpha: candle });
+          g.stroke({ width: 0.6, color: 0x78350f });
+        }
       } else {
         // Dark shattered window aperture when breached (no candlelit glow)
         g.rect(cx - 1.2, cy - 6.5, 2.4, 3.2);
@@ -2257,6 +2271,22 @@ export function drawMiniatureKeep(
   // 2. Draw front annexes / scaffolding (in front of keep)
   for (const annex of frontAnnexes) {
     drawKeepYardAnnex(g, cx, cy, annex, resolvedKit, phase);
+  }
+
+  // Night variant: lit gatehouse lantern sconce beside portal when dayPhase is night
+  if (isNight && !isBreached && realmPal?.realmId !== "rival") {
+    const lanternFlicker = 0.86 + Math.sin(phase * 4.6 + cx) * 0.14;
+    const lx = cx - 4.4;
+    const ly = cy + 1.5;
+    g.moveTo(cx - 2.8, ly - 1.0);
+    g.lineTo(lx, ly - 1.0);
+    g.stroke({ width: 0.7, color: 0x1e293b });
+    g.circle(lx, ly, 2.8);
+    g.fill({ color: 0xf59e0b, alpha: 0.3 * lanternFlicker });
+    g.rect(lx - 0.75, ly - 0.9, 1.5, 1.8);
+    g.fill({ color: 0xd97706 });
+    g.circle(lx, ly, 0.65);
+    g.fill({ color: 0xfef08a, alpha: 0.95 * lanternFlicker });
   }
 
   // Ornamental Heraldic Realm Shield on NPC Keep Wall
@@ -8653,6 +8683,7 @@ export function paintBoardMarches(
     const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
     const kit = resolveCultureKit(cultId);
     const cult = culturePalette(cultId);
+    const isNight = resolveDayPhase(state, phase) === "night";
 
     if (isScout) {
       drawScoutColumnMeeple(
@@ -8688,6 +8719,9 @@ export function paintBoardMarches(
         progress,
         gatherLoad
       );
+      if (isNight) {
+        drawNightMarchLantern(pawnsG, pawnX, pawnY, facing, bob, phase);
+      }
       if (hasArrival) {
         drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x22c55e, bob);
       }
@@ -8707,6 +8741,9 @@ export function paintBoardMarches(
         phase,
         { facing, frame, isColumn: true, tired: isTired }
       );
+      if (isNight) {
+        drawNightMarchLantern(pawnsG, pawnX, pawnY, facing, bob, phase);
+      }
       if (hasArrival) {
         drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x3b82f6, bob);
       }
@@ -9121,6 +9158,10 @@ export function paintBoardMarches(
         }
       }
 
+      if (isNight) {
+        drawNightMarchLantern(pawnsG, pawnX, pawnY, facing, bob, phase);
+      }
+
       if (hasArrival) {
         drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, pal.accentColor, bob);
       } else {
@@ -9196,6 +9237,36 @@ export function listGathersPresentation(state: GameState | null): any[] {
   return [];
 }
 
+/**
+ * Night variant lantern carried by marching player columns and gather carts when dayPhase is night.
+ */
+export function drawNightMarchLantern(
+  g: Graphics,
+  pawnX: number,
+  pawnY: number,
+  facing: number,
+  bob: number,
+  phase: number
+): void {
+  const sway = Math.sin(phase * 4.5 + pawnX * 0.1) * 0.5;
+  const lx = pawnX + facing * 6.2 + sway;
+  const ly = pawnY - 5.5 - bob;
+  const flicker = 0.86 + Math.sin(phase * 5.2 + pawnY * 0.15) * 0.14;
+
+  // Small local amber lantern glow
+  g.circle(lx, ly, 3.2);
+  g.fill({ color: 0xf59e0b, alpha: 0.28 * flicker });
+  // Iron bail & brass lantern cage
+  g.moveTo(pawnX + facing * 4.2, ly - 1.8);
+  g.lineTo(lx, ly - 1.8);
+  g.stroke({ width: 0.7, color: 0x1e293b });
+  g.rect(lx - 0.85, ly - 1.2, 1.7, 2.2);
+  g.fill({ color: 0xd97706 });
+  // Lit flame core
+  g.circle(lx, ly, 0.75);
+  g.fill({ color: 0xfef08a, alpha: 0.95 * flicker });
+}
+
 export function paintBoardGathers(
   routeG: Graphics,
   pawnsG: Graphics,
@@ -9209,6 +9280,7 @@ export function paintBoardGathers(
   const cultId = state && sim.playerCultureId ? sim.playerCultureId(state) : undefined;
   const kit = resolveCultureKit(cultId);
   const cult = culturePalette(cultId);
+  const isNight = resolveDayPhase(state, phase) === "night";
 
   for (const g of gathers) {
     if (renderedGatherIds && (renderedGatherIds.has(g.id) || (g.toId && renderedGatherIds.has(g.toId)))) continue;
@@ -9274,6 +9346,9 @@ export function paintBoardGathers(
       progress,
       gatherLoad
     );
+    if (isNight) {
+      drawNightMarchLantern(pawnsG, pawnX, pawnY, facing, bob, phase);
+    }
 
     const hasArrival = typeof g.arrivesTick === "number";
     if (hasArrival) {

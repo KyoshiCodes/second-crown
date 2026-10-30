@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-29 — Days are longer; sun and moon coming (wave/day-cycle-slow)
+## 2026-10-29 — Board shows moving sun and moon and weather on tiles (bakeoff/gemini-sun-moon)
 
-- **A day now lasts about 6 minutes.** Dawn, day, dusk, and night still come in the same order, they just take longer. Night still trims what gather columns bring home.
-- **The board will show a sun and moon** crossing the sky. The game now knows where they are; the art for them comes in a later board update.
-- **Play is otherwise unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+- **The board now shows a moving sun and moon and weather that lands on the tiles. Play is unchanged.** Full-canvas color washes are gone: a small sun arcs across the top of the board by day with a soft warm glow beneath it, and at night a moon crosses the top of the board with soft moonlight right around the moon and a small cool glow below. Rain streaks and snow dots fall from above the board onto the tiles sparsely enough to keep every tile readable, and keeps, cottages, farms, halls, and marching columns light small night lanterns when night falls.
+- **Unseen tiles stay fog.** Existing marks, piles, ruins, camps, and keeps stay as they are.
+- All new art is pointer-events: none so a click still hits the tile.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-29 — Board shows day/night cycle and weather atmosphere (bakeoff/gemini-day-night)
 
