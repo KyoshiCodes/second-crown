@@ -2,10 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-29 — The game opens faster (wave/chunk-split)
+## 2026-10-29 — Static board art cached so the board redraws less (bakeoff/gemini-board-cache)
 
-- **First paint is faster.** The board now loads before the tab panels, so you see it sooner. Each tab loads its own small piece the first time you open it, and may show "Loading…" for a moment.
-- **Play is unchanged.** Rules, clicks, your game, Push save, Pull save, offline catch-up, Second Dawn, and hold saves work exactly as before.
+- **The board redraws less and play is unchanged.** Static board tile art (terrain, cliff height faces, and unseen fog veils) is now cached on its own layer and only repainted when you switch to the board view or uncover new provinces, while moving marks, piles, ruins, camps, keeps, marches, weather, and the sun and moon continue updating smoothly every frame.
+- **Unseen tiles stay fog.** Existing marks, piles, ruins, camps, and keeps stay as they are.
+- All board layers and overlays remain pointer-events: none so clicking, panning, and zooming tiles work the same as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-29 — Board shows moving sun and moon and weather on tiles (bakeoff/gemini-sun-moon)
 

@@ -116,6 +116,11 @@ import {
 
 import {
   drawMiniatureKeep,
+  computeBoardStaticCacheKey,
+  paintBoardStaticTiles,
+  paintBoardDynamicTokens,
+  createBoardStaticLayerCache,
+  type BoardStaticLayerCache,
   paintBoardProvinces,
   paintBoardMarches,
   paintBoardHighlight,
@@ -304,6 +309,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardBackdropLayer.eventMode = "none";
   boardContainer.addChild(boardBackdropLayer);
 
+  // Cached static tile layer (terrain, height faces, fog veil): only repaints when camera band or seen/unseen set changes
+  const boardStaticTilesLayer = new Graphics();
+  boardStaticTilesLayer.eventMode = "none";
+  boardContainer.addChild(boardStaticTilesLayer);
+  const boardStaticCache = createBoardStaticLayerCache(boardStaticTilesLayer);
+
+  // Dynamic token/mark layer (moving marks, piles, ruins, camps, keeps): redraws every frame
   const boardProvincesLayer = new Graphics();
   boardProvincesLayer.eventMode = "none";
   boardContainer.addChild(boardProvincesLayer);
@@ -388,6 +400,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   function updateBand(nextBand: CameraBand): void {
     if (currentBand !== nextBand) {
       currentBand = nextBand;
+      boardStaticCache.update(lastState, currentBand, visuals);
+      if (currentBand === "board" && lastState) {
+        paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
+        paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
+        renderBoardSelection(lastState);
+        drawAtmosphere(lastState, boardWeatherGraphic, phase, CANVAS_W, CANVAS_H);
+      }
       bandChangeCb?.(currentBand);
       window.dispatchEvent(new CustomEvent("sc-camera-band-change", { detail: currentBand }));
     }
@@ -901,6 +920,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     if (season !== currentSeasonName) {
       currentSeasonName = season;
       visuals = getThemeVisuals(currentSeasonName, currentHolidayId);
+      boardStaticCache.invalidate();
       paintIsometricGround(groundLayer, visuals);
       paintAmbientLighting();
       paintBoardBackdrop(boardBackdropLayer, visuals);
@@ -908,18 +928,22 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     paintMissingRimSegments(rimGapLayer, state, phase, visuals);
     paintEmptyPlotStakes(plotStakesLayer, state, phase, visuals, false, currentHintPlot);
     paintBuildings(state, phase);
-    paintBoardProvinces(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
-    paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
-    renderBoardSelection(state);
-    updateBoardWeather(phase);
-    if (hoveredProvinceCoord) {
-      paintBoardHighlight(boardHighlightLayer, hoveredProvinceCoord.bx, hoveredProvinceCoord.by, state, phase);
+    boardStaticCache.update(state, currentBand, visuals);
+    if (currentBand === "board") {
+      paintBoardDynamicTokens(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
+      paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
+      renderBoardSelection(state);
+      updateBoardWeather(phase);
+      if (hoveredProvinceCoord) {
+        paintBoardHighlight(boardHighlightLayer, hoveredProvinceCoord.bx, hoveredProvinceCoord.by, state, phase);
+      }
     }
   }
 
   function setTheme(themeId: string, holidayId: string): void {
     currentHolidayId = holidayId;
     visuals = getThemeVisuals(currentSeasonName, holidayId);
+    boardStaticCache.invalidate();
     paintIsometricGround(groundLayer, visuals);
     paintAmbientLighting();
     paintBoardBackdrop(boardBackdropLayer, visuals);
@@ -929,9 +953,12 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintMissingRimSegments(rimGapLayer, lastState, phase, visuals);
       paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals, false, currentHintPlot);
       paintBuildings(lastState, phase);
-      paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
-      paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
-      renderBoardSelection(lastState);
+      boardStaticCache.update(lastState, currentBand, visuals);
+      if (currentBand === "board") {
+        paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
+        paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
+        renderBoardSelection(lastState);
+      }
     }
   }
 
@@ -956,7 +983,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     } else {
       updateBoardWeather(phase);
       if (lastState) {
-        paintBoardProvinces(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
+        boardStaticCache.update(lastState, currentBand, visuals);
+        paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
       }
@@ -1022,6 +1050,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 }
 
 export {
+  computeBoardStaticCacheKey,
+  paintBoardStaticTiles,
+  paintBoardDynamicTokens,
+  createBoardStaticLayerCache,
+  type BoardStaticLayerCache,
   paintBoardProvinces,
   paintBoardMarches,
   paintBoardHighlight,

@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-29 — Split the app chunk so tabs load separately (wave/chunk-split)
+## 2026-10-29 — Static board tile cache and dynamic frame layer (bakeoff/gemini-board-cache)
 
-- App only. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No rule or click change.
-- `packages/app/src/AppShell.tsx`: `KingdomTab`, `ArmyTab`, `WarTab`, `WorldTab`, `CrownTab`, and `OverworldAtlas` are now `React.lazy` dynamic imports wrapped in one `React.Suspense` with a small "Loading…" fallback (`.sc-tab-loading`). The board canvas stays in the main chunk.
-- `packages/app/vite.config.ts`: `manualChunks` adds `react` and `sim` chunks next to the existing `pixi` chunk (paths normalized for Windows).
-- Build: main `index` chunk 1,093 kB → 642 kB (gzip 271 → 146 kB); tab chunks 23–37 kB each. The large-chunk warning is gone.
-- `npm test` and `npm run build -w @second-crown/app` pass.
+- Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- `packages/render/src/tokens.ts`:
+  - `computeBoardStaticCacheKey`, `paintBoardStaticTiles`, and `createBoardStaticLayerCache`: caches the static board tile layer (terrain relief, 3D cliff height faces, seasonal plateau wash, and unseen province fog veil `paintFogHeightVeil`) on a dedicated `Graphics` layer that only repaints when the camera band switches to `"board"` or the seen/unseen set changes.
+  - `paintBoardDynamicTokens`: paints moving marks, destination rings, stock badges, resource piles, ruins, camps, keeps, and occupant banners onto a separate dynamic `Graphics` layer that redraws every frame.
+  - Preserves standalone `paintBoardProvinces` composite helper for backward compatibility.
+- `packages/render/src/index.ts`:
+  - Adds `boardStaticTilesLayer` (`eventMode = "none"`) managed by `boardStaticCache` under `boardProvincesLayer` inside `boardContainer`, skipping redundant static tile repaints on every ticker frame and while in `"hold"` band, while keeping dynamic tokens, marches, weather, and the sun/moon redrawing every frame in `"board"` band.
+  - Re-exports `computeBoardStaticCacheKey`, `paintBoardStaticTiles`, `paintBoardDynamicTokens`, `createBoardStaticLayerCache`, and `type BoardStaticLayerCache`.
+- Tests: `packages/render/src/index.test.ts` (593 render tests pass; `npm test` and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-29 — Moving sun/moon, tile-plane weather, and night variants (bakeoff/gemini-sun-moon)
 
