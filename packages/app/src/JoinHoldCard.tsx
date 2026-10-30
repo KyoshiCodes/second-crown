@@ -55,10 +55,12 @@ export function JoinHoldCard({
   const lastIntents = intentLines ?? (realmId === null ? [] : recentIntents(realmId, 3));
 
   React.useEffect(() => {
-    setCopied(false);
-    setFlashOn(false);
-    flashCancel.current?.();
-    flashCancel.current = null;
+    if (realmId === null) {
+      setCopied(false);
+      setFlashOn(false);
+      flashCancel.current?.();
+      flashCancel.current = null;
+    }
   }, [realmId]);
 
   React.useEffect(() => {
