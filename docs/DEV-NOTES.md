@@ -1,3 +1,10 @@
+## 2026-10-30 — app / leave hint on the hold card (wave/hold-leave-hint)
+
+- Slice constraints: App only (`packages/app/src/JoinHoldCard.tsx`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- The hint is a plain `<div>` with inline style (`fontSize: 12, marginTop: 4, opacity: 0.75`) placed right after the `.sc-plain-inline` row that holds the Leave button, inside the joined-hold branch, so it only shows while `view` is set. No new CSS file, no new class.
+- `join`, `leave`, `stamp`, and the intent helpers are untouched.
+- Footgun from #290: it merged `KeySealPip.tsx` and its test but not the `JoinHoldCard` wiring, so `origin/main` failed `npm test` and `tsc -b`. This branch adds `initialView` / `initialMadeKey` (default `null`, used only as `useState` seeds for `renderToStaticMarkup` tests) and renders `KeySealPip` inside `.sc-key-seal-group` before the key. Lesson: run `npm run build -w @second-crown/app` on the merge result, not only the branch.
+
 ## 2026-10-30 — app / living seal next to hold key (bakeoff/gemini-key-seal)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
