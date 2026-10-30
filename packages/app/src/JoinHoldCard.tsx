@@ -1,7 +1,8 @@
-import React from "react";
+﻿import React from "react";
 import { joinRealm, readHold, recentIntents, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain, type HoldView } from "./net/hold";
 import { IntentPip } from "./hud/IntentPip";
 import { KeySealPip } from "./hud/KeySealPip";
+import { CopyFlashPip, startCopyFlashTimer } from "./hud/CopyFlashPip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -32,28 +33,32 @@ export function JoinHoldCard({
   intentPulseKey,
   initialView = null,
   initialMadeKey = null,
+  initialCopyFlash = false,
 }: {
   signedIn: boolean;
   intentLines?: string[];
   intentPulseKey?: number;
-  // Starting state for static render tests; the app never passes these.
   initialView?: HoldView | null;
   initialMadeKey?: string | null;
+  initialCopyFlash?: boolean;
 }) {
   const [code, setCode] = React.useState("");
   const [key, setKey] = React.useState("");
-  // The key this hold was opened with, and the key just made by a first join (shown until Leave).
   const [holdKey, setHoldKey] = React.useState("");
   const [madeKey, setMadeKey] = React.useState<string | null>(initialMadeKey);
   const [copied, setCopied] = React.useState(false);
+  const [flashOn, setFlashOn] = React.useState(initialCopyFlash);
+  const flashCancel = React.useRef<(() => void) | null>(null);
   const [view, setView] = React.useState<HoldView | null>(initialView);
   const [status, setStatus] = React.useState("");
   const realmId = view?.realmId ?? null;
   const lastIntents = intentLines ?? (realmId === null ? [] : recentIntents(realmId, 3));
 
-  // The copy confirmation belongs to one hold; drop it when the hold changes or the player leaves.
   React.useEffect(() => {
     setCopied(false);
+    setFlashOn(false);
+    flashCancel.current?.();
+    flashCancel.current = null;
   }, [realmId]);
 
   React.useEffect(() => {
@@ -118,16 +123,6 @@ export function JoinHoldCard({
     }
   }
 
-  async function cottage() {
-    if (realmId === null) return;
-    try {
-      setView(await sendCottage(realmId, holdKey));
-      setStatus("");
-    } catch (e) {
-      setStatus(`Cottage refused: ${e instanceof Error ? e.message : "unknown"}`);
-    }
-  }
-
   async function lumber() {
     if (realmId === null) return;
     try {
@@ -138,11 +133,24 @@ export function JoinHoldCard({
     }
   }
 
+  async function cottage() {
+    if (realmId === null) return;
+    try {
+      setView(await sendCottage(realmId, holdKey));
+      setStatus("");
+    } catch (e) {
+      setStatus(`Cottage refused: ${e instanceof Error ? e.message : "unknown"}`);
+    }
+  }
+
   async function copyKey() {
     if (madeKey === null) return;
     try {
       await navigator.clipboard.writeText(madeKey);
       setCopied(true);
+      setFlashOn(true);
+      flashCancel.current?.();
+      flashCancel.current = startCopyFlashTimer(() => setFlashOn(false));
     } catch {
       setStatus("Could not copy. Select the key and copy it by hand.");
     }
@@ -163,16 +171,16 @@ export function JoinHoldCard({
       </div>
       {view === null ? (
         <div className="sc-plain-inline">
-          <input value={code} onChange={(e) => setCode(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void join(); }} placeholder="Realm id, e.g. oak-hill" maxLength={24} style={input} aria-label="Realm id" />
-          <input value={key} onChange={(e) => setKey(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void join(); }} placeholder="Hold key (blank for a new hold)" maxLength={64} autoComplete="off" spellCheck={false} style={input} aria-label="Hold key" />
-          <button type="button" className="sc-work-btn" disabled={!signedIn || code.trim() === ""} onClick={() => void join()}>Join hold</button>
-          {!signedIn ? <span className="sc-work-status">Sign in (guest is fine) to join.</span> : null}
+          <input style={input} value={code} onChange={(e) => setCode(e.target.value)} placeholder="realm id" />
+          <input style={input} value={key} onChange={(e) => setKey(e.target.value)} placeholder="hold key (blank = new)" />
+          <button type="button" className="sc-work-btn" onClick={() => void join()} disabled={!signedIn}>Join</button>
         </div>
       ) : (
         <div>
-          {madeKey !== null ? (
+          {madeKey ? (
             <div className="sc-plain-inline" style={{ fontSize: 13, marginBottom: 6, gap: 8, flexWrap: "wrap" }} aria-label="New hold key">
               <span className="sc-key-seal-group"><KeySealPip pulse pulseKey={madeKey} /><span>New hold. Key: <code style={{ userSelect: "all" }}>{madeKey}</code></span></span>
+              {madeKey && flashOn ? <CopyFlashPip flashKey={madeKey} /> : null}
               <button type="button" className="sc-work-btn" onClick={() => void copyKey()}>{copied ? "Copied" : "Copy key"}</button>
               {copied ? <span style={{ flexBasis: "100%", fontSize: 12 }} role="status">Key copied. Share the realm id and the key.</span> : null}
               <span style={{ flexBasis: "100%", fontSize: 12 }}>Share the realm id and this key with friends.</span>
