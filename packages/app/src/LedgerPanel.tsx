@@ -1,10 +1,20 @@
 import React from "react";
-import { listLedger, type GameState } from "@second-crown/sim";
+import type { GameState } from "@second-crown/sim";
 import { LedgerCard } from "./hud/LedgerCard";
+import {
+  getSaveAuditSnapshot,
+  listLedgerWithSaveAudit,
+  subscribeSaveAudit,
+} from "./save";
 import "./hud/ledger-card.css";
 
 export function LedgerPanel(props: { state: GameState | undefined }) {
-  const rows = props.state ? listLedger(props.state) : [];
+  const audit = React.useSyncExternalStore(
+    subscribeSaveAudit,
+    getSaveAuditSnapshot,
+    getSaveAuditSnapshot
+  );
+  const rows = listLedgerWithSaveAudit(props.state, audit);
   return (
     <>
       <h3>Ledger of Crowns</h3>

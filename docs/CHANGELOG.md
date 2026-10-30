@@ -1,12 +1,16 @@
 # CHANGELOG
 
-## 2026-10-29 — Intent rate limit and save-path note (wave/save-rate-limit)
+## 2026-10-29 — Save and load audit log in Ledger of Crowns (bakeoff/gemini-save-audit)
 
-- App only. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
-- `packages/app/src/net/hold.ts`: in-memory limit of `INTENT_LIMIT` (10) shared-hold intents per second per tab. An intent over the limit is dropped without a request and throws "Too many orders at once. Wait a moment". Exports `INTENT_LIMIT` and `resetIntentLimit` (tests). Existing `send*` functions unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: a failed stamp now shows the reason, like train and build.
-- `packages/app/src/save/indexedDb.ts`: comment that the local save is a cache and the server save is the source of truth for a shared hold.
-- Tests: `packages/app/src/net/hold.test.ts` (limit test; limit reset after each test).
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Save format and game rules unchanged.
+- `packages/app/src/save.ts` & `packages/app/src/save/audit.ts`:
+  - `recordSaveWritten`, `recordSaveLoaded`, `listSaveAudit`, `clearSaveAudit`, `subscribeSaveAudit`, `getSaveAuditSnapshot`, and `listLedgerWithSaveAudit`: records bounded client-side `"Save written · tick <N>"` and `"Save loaded · tick <N>"` audit entries (`SAVE_AUDIT_CAP = 24`) without mutating `GameState` or changing serialized save JSON.
+- `packages/app/src/save/indexedDb.ts`, `packages/app/src/save/fileIo.ts`, `packages/app/src/net/cloud.ts`, `packages/app/src/game/pullCloud.ts`, `packages/app/src/game/loadSaved.ts`, `packages/app/src/game/useGameEngine.ts`, & `packages/app/src/CloudPanel.tsx`:
+  - Records `"Save written"` when writing to IndexedDB, exporting a save file, pushing a cloud save, or promoting a pulled save, and `"Save loaded"` when reading a save on startup/reload or importing a save file (`peekFromIndexedDb` keeps cloud push reads from logging as loads).
+- `packages/app/src/LedgerPanel.tsx` & `packages/app/src/hud/ledger-card.css`:
+  - Subscribes via `React.useSyncExternalStore` and merges save/load audit entries into the Ledger of Crowns (`LedgerCard` rows).
+- Tests: `packages/app/src/save.test.tsx` (122 app tests pass; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-29 — Static board tile cache and dynamic frame layer (bakeoff/gemini-board-cache)
 

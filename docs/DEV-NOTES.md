@@ -1,10 +1,14 @@
-## 2026-10-29 — app / intent rate limit and save-path note (wave/save-rate-limit)
+## 2026-10-29 — app / save and load audit log in Ledger of Crowns (bakeoff/gemini-save-audit)
 
-- Slice constraints: App only. Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
-- `packages/app/src/net/hold.ts`: `takeIntentSlot` keeps a module-level array of send times and filters it to the last 1000 ms. At `INTENT_LIMIT` (10) it returns false and `sendIntent` throws before `fetch`, so a dropped intent never reaches the server. It is per tab and in memory; a reload resets it. Client-side only: it is a courtesy against click spam, not a security boundary (the server's own caps in `server/cap.mjs` still apply).
-- `JoinHoldCard.tsx` already shows thrown messages for train, build, cottage, and lumber; stamp now does too.
-- `packages/app/src/save/indexedDb.ts`: header comment. The IndexedDB save is a cache; for a shared hold the server save wins on reload (`game/loadSaved.ts`).
-- Tests: `hold.test.ts` calls `resetIntentLimit()` in `afterEach` so the shared window does not leak across tests, and adds a test that the 11th intent in a burst is refused without a fetch.
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Save format and game rules unchanged.
+- Why client-memory instead of `GameState.flags.world_log`: Mutating `GameState` on save/load would alter `serializeState` output and violate `server/gate.mjs` ("state cannot change without time or a recorded action"). Keeping the bounded 24-entry store in `packages/app/src/save/audit.ts` (re-exported via `packages/app/src/save.ts`) leaves `serializeState(state)` byte-for-byte identical.
+- Audit coverage & upload peek:
+  - `saveToIndexedDb`, `downloadSave`, `pushSave`, and pulled/shared cache writes call `recordSaveWritten` (`"Save written · tick <N>"`).
+  - `loadFromIndexedDb`, `pickSaveFile`, `startSave`, and shared-server `loadSaved` call `recordSaveLoaded` (`"Save loaded · tick <N>"`).
+  - `CloudPanel` uses `peekFromIndexedDb` when reading local bytes solely to upload them to cloud (`Push save`, `autoPush`, `keepLocal`, `Share watch link`), avoiding false `"Save loaded"` entries during uploads.
+  - `newGame` calls `clearSaveAudit()` before persisting the fresh crown at tick 0.
+- React 18 external store integration: `LedgerPanel.tsx` subscribes via `React.useSyncExternalStore(subscribeSaveAudit, getSaveAuditSnapshot, getSaveAuditSnapshot)` with a cached frozen snapshot reference (preventing infinite snapshot loops and supporting `renderToStaticMarkup` in Node tests) and merges entries newest-first via `listLedgerWithSaveAudit`.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-29 — render / static board tile cache and dynamic frame layer (bakeoff/gemini-board-cache)
 
