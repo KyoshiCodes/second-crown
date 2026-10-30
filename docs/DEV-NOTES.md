@@ -1,10 +1,13 @@
-## 2026-10-29 — app / last intents on the hold card (wave/intent-log)
+## 2026-10-29 — app / living pip next to shared-hold intent log (bakeoff/gemini-intent-pip)
 
-- Slice constraints: App only. Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
-- `packages/app/src/net/hold.ts`: `logIntent` runs inside `sendIntent` only after `response.ok` and `parseHold`, so the tick is the hold's tick from the server's answer and a dropped or refused intent never appears. Module-level array, capped at `INTENT_LOG_CAP` (8) with `slice(-cap)`; per tab, cleared by reload. Entries carry `realmId` so leaving one hold and joining another does not show the old hold's lines.
-- `JoinHoldCard.tsx` reads `recentIntents(realmId, 3)` during render. No subscription is needed: every successful intent already calls `setView`, which re-renders the card. Inline styles copy the status line; no new CSS.
-- `resetIntentLimit()` (tests only) now clears the log too, so `afterEach` keeps tests isolated.
-- Build fix: #287 merged with `save.ts` re-exporting `peekFromIndexedDb` from `save/indexedDb.ts`, which never defined it (`tsc -b` TS2305). Vitest does not type-check, so `npm test` stayed green. Added `peekFromIndexedDb = () => get(KEY)`. `loadFromIndexedDb` records nothing in this tree, so the two reads match today. If `loadFromIndexedDb` ever records a load, `peek` must stay silent.
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `IntentPip` & CSS isolation (`packages/app/src/hud/IntentPip.tsx`, `packages/app/src/hud/intent-pip.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) stamped royal wax-seal / quill SVG pip with inline and stylesheet `pointer-events: none` (`aria-hidden="true"`).
+  - One-shot pulse (`animation: sc-intent-pip-pulse 460ms cubic-bezier(0.22, 1, 0.36, 1) 1`) animates only `transform` (`scale`) and `opacity` on `.sc-intent-pip-glyph`, keyed by `pulseKey` so each newly added intent replays a single pulse without timers, and disables animation under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - `HoldIntentLog` returns `null` when `lines.length === 0`, guaranteeing zero `IntentPip` DOM nodes when there are no intent log lines.
+  - `resolveHoldIntentLines` delegates to `recentIntents(realmId, 3)` on `net/hold` when exported (compatible with `wave/intent-log`) and falls back to bounded per-hold local card entries (`LOCAL_INTENT_CAP = 8`, newest 3 shown) on accepted intents (`stamp`, `train`, `build`, `cottage`, `lumber`).
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-29 — app / save and load audit log in Ledger of Crowns (bakeoff/gemini-save-audit)
 
