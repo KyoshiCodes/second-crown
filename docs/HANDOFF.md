@@ -1,11 +1,11 @@
-# Handoff (2026-10-14)
+# Handoff (2026-10-29)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#283** (moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-board-cache` (**not merged**, see Static board tile cache below).
+Merged through PR **#285** (static board tile cache, #285; lazy tab panels and vendor chunks, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/save-rate-limit` (**not merged**, see Intent rate limit below).
 
 ### Cultures and units (all merged)
 
@@ -369,7 +369,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (590 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Static board tile cache (branch `bakeoff/gemini-board-cache`, **not merged**)
+## Static board tile cache (branch `bakeoff/gemini-board-cache`, **merged as PR #285**)
 
 - Render only in `packages/render`. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - `packages/render/src/tokens.ts` & `packages/render/src/index.ts`: splits the board province paint path into a cached static tile `Graphics` layer (`boardStaticTilesLayer` managed by `createBoardStaticLayerCache` / `paintBoardStaticTiles` / `computeBoardStaticCacheKey`) for static terrain, 3D height faces, and unseen fog veils (`paintFogHeightVeil`), and a separate dynamic every-frame layer (`boardProvincesLayer` via `paintBoardDynamicTokens` alongside `boardRoutesLayer`, `boardPawnsLayer`, `boardSelectionLayer`, and `boardWeatherGraphic`).
@@ -378,7 +378,13 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (593 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Verify
+## Intent rate limit (branch `wave/save-rate-limit`, **not merged**)
+
+- App only. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
+- `packages/app/src/net/hold.ts`: `sendIntent` (behind `sendStamp`, `sendTrain`, `sendBuild`, `sendCottage`, `sendLumber`) keeps an in-memory sliding window. Past `INTENT_LIMIT` (10) intents in one second, the intent is dropped before `fetch` and throws "Too many orders at once. Wait a moment". `JoinHoldCard` shows it in the status line (the stamp button now shows the reason too).
+- `packages/app/src/save/indexedDb.ts`: comment only. The browser save is a cache; for a shared hold the server save is the source of truth (`game/loadSaved.ts`).
+- Tests: `packages/app/src/net/hold.test.ts` adds one limit test and resets the limit after each test.
+
 
 ```
 npm test
