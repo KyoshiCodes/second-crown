@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-30 — Hold stores as cards (wave/hud-hold-stores)
+
+- **A shared hold's stores now show as four small cards: Food, Wood, Stone, Gold.** Each card shows the name and the amount. Militia, farms, cottages, and lumber camps are still listed on the line under the cards.
+- **Play is unchanged.** The amounts are the same numbers as before, just easier to read.
+
 ## 2026-10-30 — Small wax seal marks the Leave confirmation (bakeoff/gemini-leave-seal)
 
 - **A small wax seal now marks the Leave button while the leave confirmation is open. Play is unchanged.** When you click Leave on a shared hold in the Cloud panel, a 16px crimson wax-seal pip appears next to the Leave button and pulses once while the confirmation is open, then hides when you stay or leave.

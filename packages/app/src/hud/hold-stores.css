@@ -1,0 +1,37 @@
+/* Styles for the JoinHoldCard hold store cards only. Do not touch theme.css. */
+
+.sc-hold-stores {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sc-hold-store-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #3a3228;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.6);
+}
+
+.sc-hold-store-name {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.sc-hold-store-amount {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+  .sc-hold-stores {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

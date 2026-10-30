@@ -1,3 +1,11 @@
+## 2026-10-30 — app / hold store cards (wave/hud-hold-stores)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: a module-level `HOLD_STORES` tuple (`["food", "Food"]` …) maps over `view.stores` so the card order and labels live in one place; amounts still go through `whole()`. The old single `.sc-plain-inline` row split in two: `.sc-hold-stores` (cards) and the existing inline row for militia / farms / cottages / lumber camps, now `aria-label="Hold works"`.
+- `hud/hold-stores.css` is imported directly by `JoinHoldCard.tsx` (the card has no pip component to carry it). Grid is `repeat(4, minmax(0, 1fr))`, dropping to 2 columns at `max-width: 360px`; amounts use `tabular-nums` and ellipsis so a big number cannot widen the card.
+- Footgun found, not fixed: `hud/leave-confirm.css` (from `6ba3ed7`) is not imported by any module, so `.sc-leave-confirm` styles never load in the app. Its test only reads the file from disk. Fix is one line: `import "./hud/leave-confirm.css";` in `JoinHoldCard.tsx`.
+- Tests: `hud/holdStores.test.tsx` (`renderToStaticMarkup` with `initialView`): four cards in order with whole amounts, works line after the cards, no cards when unjoined, CSS file present.
+
 ## 2026-10-30 — app / living wax-seal pip on Leave confirmation (bakeoff/gemini-leave-seal)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

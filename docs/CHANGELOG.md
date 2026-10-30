@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-30 — Hold store cards (wave/hud-hold-stores)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: replaced the plain Food / Wood / Stone / Gold spans with four `.sc-hold-store-card` cards (name + whole amount) inside `.sc-hold-stores` (`aria-label="Hold stores"`). The militia / farms / cottages / lumber camps line is kept under them as its own row (`aria-label="Hold works"`).
+- `packages/app/src/hud/hold-stores.css` (new): card grid styles, imported from `JoinHoldCard.tsx`.
+- Tests: `packages/app/src/hud/holdStores.test.tsx` (`npm test` and `npm run build -w @second-crown/app` pass).
+
 ## 2026-10-30 — Living wax-seal pip on Leave confirmation (bakeoff/gemini-leave-seal)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
