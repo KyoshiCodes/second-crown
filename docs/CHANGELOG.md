@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-30 — Living mark beside shared-hold Leave button (bakeoff/gemini-leave-mark)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/hud/LeaveMarkPip.tsx` (new):
+  - `LeaveMarkPip`: 16px SVG pip (`viewBox="0 0 16 16"`) depicting a small arched oak postern doorway and golden exit arrow, strictly enforcing `pointer-events: none` (`aria-hidden="true"`).
+- `packages/app/src/hud/leave-mark.css` (new):
+  - Isolated pip styles, `pointer-events: none`, compositor-only `@keyframes sc-leave-mark-glow`, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Places `LeaveMarkPip` to the left of the `Leave` button inside `.sc-leave-mark-group` when a hold is joined (`view !== null`), and renders nothing when no hold is joined.
+- Tests: `packages/app/src/hud/LeaveMarkPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
+
 ## 2026-10-30 — Leave hint on the hold card (wave/hold-leave-hint)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

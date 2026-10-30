@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-30 — Small mark sits beside the Leave button (bakeoff/gemini-leave-mark)
+
+- **A small mark now sits beside the Leave button. Play is unchanged.** When you have joined a shared hold in the Cloud panel, a 16px doorway exit mark appears right to the left of the Leave button; when no hold is joined, no mark is shown.
+- All new art is pointer-events: none so clicking Leave and every other button works the same as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-30 — Hold card explains Leave (wave/hold-leave-hint)
 
 - **The hold card now reminds you that leaving returns to your solo crown.** When you are in a shared hold, a short line under the Leave button says: "Leaving returns you to your solo crown. The hold keeps running."

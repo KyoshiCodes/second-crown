@@ -1,0 +1,45 @@
+/* Styles for LeaveMarkPip only. Do not touch theme.css. */
+
+.sc-leave-mark-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-leave-mark-pip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.sc-leave-mark-pip-wrapper *,
+.sc-leave-mark-pip {
+  pointer-events: none;
+}
+
+@keyframes sc-leave-mark-glow {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(0.45px);
+  }
+}
+
+.sc-leave-mark-arrow {
+  transform-origin: center;
+  animation: sc-leave-mark-glow 2.8s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 0.95;
+    transform: none;
+  }
+}

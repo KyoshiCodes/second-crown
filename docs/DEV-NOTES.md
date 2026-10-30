@@ -1,3 +1,13 @@
+## 2026-10-30 — app / living mark beside shared-hold Leave button (bakeoff/gemini-leave-mark)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `LeaveMarkPip` & CSS isolation (`packages/app/src/hud/LeaveMarkPip.tsx`, `packages/app/src/hud/leave-mark.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) stone-and-oak postern doorway with a golden exit arrow, enforcing inline and stylesheet `pointer-events: none` and `user-select: none` (`aria-hidden="true"`).
+  - Living threshold motion (`@keyframes sc-leave-mark-glow`) animates only compositor-safe `opacity` and `transform` (`translateX`) on `.sc-leave-mark-arrow` and disables animation under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - Renders `<span className="sc-leave-mark-group"><LeaveMarkPip /><button ...>Leave</button></span>` strictly inside the joined-hold (`view !== null`) branch so zero `LeaveMarkPip` DOM nodes exist when no hold is joined, while keeping the pip attached to the left of the `Leave` button across flex wraps.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-30 — app / leave hint on the hold card (wave/hold-leave-hint)
 
 - Slice constraints: App only (`packages/app/src/JoinHoldCard.tsx`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

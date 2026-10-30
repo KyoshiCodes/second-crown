@@ -2,6 +2,7 @@ import React from "react";
 import { joinRealm, readHold, recentIntents, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain, type HoldView } from "./net/hold";
 import { IntentPip } from "./hud/IntentPip";
 import { KeySealPip } from "./hud/KeySealPip";
+import { LeaveMarkPip } from "./hud/LeaveMarkPip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -182,7 +183,7 @@ export function JoinHoldCard({
             <button type="button" className="sc-work-btn" onClick={() => void lumber()}>Build lumber camp</button>
             <button type="button" className="sc-work-btn" onClick={() => void cottage()}>Build cottage</button>
             <button type="button" className="sc-work-btn" onClick={() => void stamp()}>Stamp</button>
-            <button type="button" className="sc-work-btn" onClick={leave}>Leave</button>
+            <span className="sc-leave-mark-group"><LeaveMarkPip /><button type="button" className="sc-work-btn" onClick={leave}>Leave</button></span>
           </div>
           <div style={{ fontSize: 12, marginTop: 4, opacity: 0.75 }}>Leaving returns you to your solo crown. The hold keeps running.</div>
           <div className="sc-plain-inline" style={{ fontSize: 13, marginTop: 6, gap: 12, flexWrap: "wrap" }} aria-label="Hold stores">
