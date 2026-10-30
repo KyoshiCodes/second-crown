@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#287** (save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-intent-pip` (**not merged**, see Intent log living pip below).
+Merged through PR **#289** (intent log living pip, #289; last intents on the hold card, #288; save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hold-key-hint` (**not merged**, see Hold key share hint below).
 
 ### Cultures and units (all merged)
 
@@ -387,13 +387,21 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/save.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
-## Intent log living pip (branch `bakeoff/gemini-intent-pip`, **not merged**)
+## Intent log living pip (branch `bakeoff/gemini-intent-pip`, **merged as PR #289, incomplete**)
+
+- **Broken on main:** only the new pip files and test merged; `JoinHoldCard.tsx` does not render `HoldIntentLog` or export `resolveHoldIntentLines`, so the pip is not shown and the app build fails. See Hold key share hint below.
 
 - App only (`packages/app`). Do not change `packages/sim`, `packages/render`, `server/`, or `theme.css`. Do not change any game rules.
 - `packages/app/src/hud/IntentPip.tsx` & `packages/app/src/hud/intent-pip.css` (new): adds `IntentPip` (16px SVG wax-seal/quill pip with `pointer-events: none` and a single `@keyframes sc-intent-pip-pulse` pulse on newly added intents, respecting `prefers-reduced-motion: reduce`) and `HoldIntentLog`.
 - `packages/app/src/JoinHoldCard.tsx`: places `IntentPip` to the left of the shared-hold intent log lines (`resolveHoldIntentLines`, bridging `recentIntents` from `net/hold` when present with local accepted-intent tracking). When there are no lines, `HoldIntentLog` renders nothing and `IntentPip` is not rendered.
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/hud/IntentPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+
+## Hold key share hint (branch `wave/hold-key-hint`, **not merged**)
+
+- App only (`packages/app`). Do not change `packages/sim`, `packages/render`, `server/`, or `theme.css`. Do not change any game rules.
+- `packages/app/src/JoinHoldCard.tsx`: when a hold is joined and its new key is shown, one line under the key reads "Share the realm id and this key with friends." Inline style only (`flexBasis: "100%"` puts it on its own line). Join, leave, stamp, and the intent log are unchanged.
+- Tests: **origin/main is red before this slice.** PR #289 merged `packages/app/src/hud/IntentPip.test.tsx`, which imports `resolveHoldIntentLines` and `intentLines`/`intentPulseKey` props from `JoinHoldCard.tsx`, but the `JoinHoldCard.tsx` half of that PR was never committed. So `npm run build -w @second-crown/app` fails (TS2305, TS2322) and `npm test` has 2 failures in that file, with or without this slice. This slice adds no new failures. Fix in its own wave (it touches the intent log, which this slice must not change).
 
 ## Verify
 

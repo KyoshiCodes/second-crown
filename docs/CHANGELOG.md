@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-29 — Share hint under the hold key (wave/hold-key-hint)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: when a hold is joined and its key is visible, one line under the key reads "Share the realm id and this key with friends." Inline styles only; no new CSS file. Join, leave, stamp, and the intent log are unchanged.
+- `npm test` (2 failures) and `npm run build -w @second-crown/app` fail on origin/main before this slice: PR #289 merged `IntentPip.test.tsx` without its `JoinHoldCard.tsx` changes. No new failures from this slice.
+
 ## 2026-10-29 — Living pip next to shared-hold intent log (bakeoff/gemini-intent-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

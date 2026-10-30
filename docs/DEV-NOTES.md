@@ -1,3 +1,10 @@
+## 2026-10-29 — app / share hint under the hold key (wave/hold-key-hint)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: the hint is a `<span>` inside the existing `madeKey !== null` row (the only place the key is visible), with inline `flexBasis: "100%"` so it wraps onto its own line under the key inside the `sc-plain-inline` flex row. No new CSS file, no new state. `join`, `leave`, `stamp`, and `HoldIntentLog` untouched.
+- `HANDOFF.md` now lists #288 and #289 as merged (the pip section said "not merged").
+- Tests: **origin/main is red before this slice.** PR #289 merged `packages/app/src/hud/IntentPip.test.tsx`, which imports `resolveHoldIntentLines` and `intentLines`/`intentPulseKey` props from `JoinHoldCard.tsx`, but the `JoinHoldCard.tsx` half of that PR was never committed. So `npm run build -w @second-crown/app` fails (TS2305, TS2322) and `npm test` has 2 failures in that file, with or without this slice. This slice adds no new failures. Fix in its own wave (it touches the intent log, which this slice must not change).
+
 ## 2026-10-29 — app / living pip next to shared-hold intent log (bakeoff/gemini-intent-pip)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

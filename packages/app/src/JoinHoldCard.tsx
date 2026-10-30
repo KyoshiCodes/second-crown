@@ -144,6 +144,7 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
             <div className="sc-plain-inline" style={{ fontSize: 13, marginBottom: 6, gap: 8, flexWrap: "wrap" }} aria-label="New hold key">
               <span>New hold. Key: <code style={{ userSelect: "all" }}>{madeKey}</code></span>
               <button type="button" className="sc-work-btn" onClick={() => void copyKey()}>{copied ? "Copied" : "Copy key"}</button>
+              <span style={{ flexBasis: "100%", fontSize: 12 }}>Share the realm id and this key with friends.</span>
               <span style={{ fontSize: 12, opacity: 0.8 }}>Copy it now and send it to friends with the id. It is shown only this once; without it nobody, you included, can join again.</span>
             </div>
           ) : null}

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-29 — Hold card reminds you to share the id and key (wave/hold-key-hint)
+
+- **The hold card now reminds you to share the realm id and key.** When you make a new shared hold and its key is shown, a line under the key says "Share the realm id and this key with friends."
+- **Play is otherwise unchanged.** Joining, leaving, stamping, the intent log, your solo crown, and saves work exactly as before.
+
 ## 2026-10-29 — Small pip marks the intent log (bakeoff/gemini-intent-pip)
 
 - **A small pip now marks the intent log. Play is unchanged.** On the shared hold card in the Cloud panel, a 16px wax-seal pip sits to the left of the intent log lines and pulses once when a new intent is added; when there are no intent log lines, no pip is shown.
