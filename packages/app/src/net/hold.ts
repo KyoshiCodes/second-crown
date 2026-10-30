@@ -102,9 +102,26 @@ function takeIntentSlot(now = Date.now()): boolean {
 /** Tests only: forget the intents already sent. */
 export function resetIntentLimit(): void {
   intentTimes = [];
+  intentLog = [];
 }
 
-async function sendIntent(realmId: string, type: "stamp" | "train" | "build" | "cottage" | "lumber", key?: string): Promise<HoldView> {
+type IntentType = "stamp" | "train" | "build" | "cottage" | "lumber";
+const INTENT_NAMES: Record<IntentType, string> = { stamp: "stamp", train: "train militia", build: "build farm", cottage: "build cottage", lumber: "build lumber camp" };
+
+/** The last intents the server took from this tab, oldest first. In memory only; a reload clears it. */
+export const INTENT_LOG_CAP = 8;
+let intentLog: { realmId: string; line: string }[] = [];
+
+function logIntent(realmId: string, tick: number, type: IntentType): void {
+  intentLog = [...intentLog, { realmId, line: `Tick ${tick}: ${INTENT_NAMES[type]}` }].slice(-INTENT_LOG_CAP);
+}
+
+/** Up to n of the latest intent lines for one hold, newest first. */
+export function recentIntents(realmId: string, n: number): string[] {
+  return intentLog.filter((e) => e.realmId === realmId).slice(-n).reverse().map((e) => e.line);
+}
+
+async function sendIntent(realmId: string, type: IntentType, key?: string): Promise<HoldView> {
   // A dropped intent never reaches the server. The card shows this message where it shows refusals.
   if (!takeIntentSlot()) throw new Error("Too many orders at once. Wait a moment");
   const response = await fetch(cloudUrl() + "/realm/" + encodeURIComponent(realmId) + "/intent", {
@@ -114,7 +131,10 @@ async function sendIntent(realmId: string, type: "stamp" | "train" | "build" | "
     signal: AbortSignal.timeout(15000),
   });
   if (!response.ok) throw await refusal(response, "Intent request failed");
-  return parseHold(await response.json());
+  const view = parseHold(await response.json());
+  // Only intents the server took are logged; dropped and refused ones show in the status line instead.
+  logIntent(realmId, view.tick, type);
+  return view;
 }
 
 /** Send one stamp intent. The server applies it on the next tick boundary. */

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { INTENT_LIMIT, cleanJoinCode, joinRealm, readHold, resetIntentLimit, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain } from "./hold";
+import { INTENT_LIMIT, INTENT_LOG_CAP, cleanJoinCode, joinRealm, readHold, recentIntents, resetIntentLimit, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain } from "./hold";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -33,6 +33,23 @@ describe("shared hold client", () => {
     for (let i = 0; i < INTENT_LIMIT; i++) await sendStamp("realm-a");
     await expect(sendTrain("realm-a")).rejects.toThrow(/Too many orders/);
     expect(fetchSpy).toHaveBeenCalledTimes(INTENT_LIMIT);
+  });
+
+  it("logs each intent the server took, newest first, capped, per hold", async () => {
+    stubServer(view);
+    expect(recentIntents("realm-a", 3)).toEqual([]);
+    await sendTrain("realm-a");
+    await sendBuild("realm-a");
+    expect(recentIntents("realm-a", 3)).toEqual(["Tick 6: build farm", "Tick 6: train militia"]);
+    expect(recentIntents("realm-b", 3)).toEqual([]);
+    for (let i = 0; i < INTENT_LOG_CAP; i++) await sendStamp("realm-a");
+    expect(recentIntents("realm-a", 99)).toHaveLength(INTENT_LOG_CAP);
+  });
+
+  it("does not log a dropped or refused intent", async () => {
+    stubServer({ error: "Not enough food" }, 400);
+    await expect(sendTrain("realm-a")).rejects.toThrow();
+    expect(recentIntents("realm-a", 3)).toEqual([]);
   });
 
   it("readHold reads the hold for that realm id", async () => {
