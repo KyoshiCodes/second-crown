@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanJoinCode, joinRealm, readHold, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain } from "./hold";
+import { INTENT_LIMIT, cleanJoinCode, joinRealm, readHold, resetIntentLimit, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain } from "./hold";
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  resetIntentLimit();
 });
 
 function stubServer(view: unknown, status = 200) {
@@ -27,6 +28,13 @@ const view = {
 };
 
 describe("shared hold client", () => {
+  it("drops intents past the per-second limit without calling the server", async () => {
+    const fetchSpy = stubServer(view);
+    for (let i = 0; i < INTENT_LIMIT; i++) await sendStamp("realm-a");
+    await expect(sendTrain("realm-a")).rejects.toThrow(/Too many orders/);
+    expect(fetchSpy).toHaveBeenCalledTimes(INTENT_LIMIT);
+  });
+
   it("readHold reads the hold for that realm id", async () => {
     const fetchSpy = stubServer(view);
     expect(await readHold("realm-a")).toEqual(view);

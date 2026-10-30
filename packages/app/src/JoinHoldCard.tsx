@@ -62,8 +62,8 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
     if (realmId === null) return;
     try {
       setView(await sendStamp(realmId, holdKey));
-    } catch {
-      setStatus("Stamp failed.");
+    } catch (e) {
+      setStatus(`Stamp failed: ${e instanceof Error ? e.message : "unknown"}`);
     }
   }
 

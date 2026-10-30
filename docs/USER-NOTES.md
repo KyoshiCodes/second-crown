@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-29 — Shared hold orders are rate-limited (wave/save-rate-limit)
+
+- **Intents are rate-limited and play is otherwise unchanged.** In a shared hold, if you send more than 10 orders (stamp, train, build, cottage, lumber camp) in one second, the extra ones are dropped and the card says "Too many orders at once. Wait a moment". Wait a second and click again.
+- **Play is otherwise unchanged.** Your game, saves, Push save, Pull save, offline catch-up, Second Dawn, hold keys, sign-in, and the board work exactly as before.
+
 ## 2026-10-29 — Static board art cached so the board redraws less (bakeoff/gemini-board-cache)
 
 - **The board redraws less and play is unchanged.** Static board tile art (terrain, cliff height faces, and unseen fog veils) is now cached on its own layer and only repainted when you switch to the board view or uncover new provinces, while moving marks, piles, ruins, camps, keeps, marches, weather, and the sun and moon continue updating smoothly every frame.

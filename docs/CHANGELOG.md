@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-29 — Intent rate limit and save-path note (wave/save-rate-limit)
+
+- App only. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
+- `packages/app/src/net/hold.ts`: in-memory limit of `INTENT_LIMIT` (10) shared-hold intents per second per tab. An intent over the limit is dropped without a request and throws "Too many orders at once. Wait a moment". Exports `INTENT_LIMIT` and `resetIntentLimit` (tests). Existing `send*` functions unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: a failed stamp now shows the reason, like train and build.
+- `packages/app/src/save/indexedDb.ts`: comment that the local save is a cache and the server save is the source of truth for a shared hold.
+- Tests: `packages/app/src/net/hold.test.ts` (limit test; limit reset after each test).
+
 ## 2026-10-29 — Static board tile cache and dynamic frame layer (bakeoff/gemini-board-cache)
 
 - Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

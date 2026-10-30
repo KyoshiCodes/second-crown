@@ -1,3 +1,11 @@
+## 2026-10-29 — app / intent rate limit and save-path note (wave/save-rate-limit)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
+- `packages/app/src/net/hold.ts`: `takeIntentSlot` keeps a module-level array of send times and filters it to the last 1000 ms. At `INTENT_LIMIT` (10) it returns false and `sendIntent` throws before `fetch`, so a dropped intent never reaches the server. It is per tab and in memory; a reload resets it. Client-side only: it is a courtesy against click spam, not a security boundary (the server's own caps in `server/cap.mjs` still apply).
+- `JoinHoldCard.tsx` already shows thrown messages for train, build, cottage, and lumber; stamp now does too.
+- `packages/app/src/save/indexedDb.ts`: header comment. The IndexedDB save is a cache; for a shared hold the server save wins on reload (`game/loadSaved.ts`).
+- Tests: `hold.test.ts` calls `resetIntentLimit()` in `afterEach` so the shared window does not leak across tests, and adds a test that the 11th intent in a burst is refused without a fetch.
+
 ## 2026-10-29 — render / static board tile cache and dynamic frame layer (bakeoff/gemini-board-cache)
 
 - Slice constraints: Render only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

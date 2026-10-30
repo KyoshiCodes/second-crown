@@ -86,7 +86,27 @@ export async function readHold(realmId: string, key?: string): Promise<HoldView>
   return parseHold(await response.json());
 }
 
+/** At most this many intents leave this tab in any one-second window. In memory only; a reload resets it. */
+export const INTENT_LIMIT = 10;
+const INTENT_WINDOW_MS = 1000;
+let intentTimes: number[] = [];
+
+/** True and counted when an intent may go now; false when the tab has hit the limit. */
+function takeIntentSlot(now = Date.now()): boolean {
+  intentTimes = intentTimes.filter((t) => now - t < INTENT_WINDOW_MS);
+  if (intentTimes.length >= INTENT_LIMIT) return false;
+  intentTimes.push(now);
+  return true;
+}
+
+/** Tests only: forget the intents already sent. */
+export function resetIntentLimit(): void {
+  intentTimes = [];
+}
+
 async function sendIntent(realmId: string, type: "stamp" | "train" | "build" | "cottage" | "lumber", key?: string): Promise<HoldView> {
+  // A dropped intent never reaches the server. The card shows this message where it shows refusals.
+  if (!takeIntentSlot()) throw new Error("Too many orders at once. Wait a moment");
   const response = await fetch(cloudUrl() + "/realm/" + encodeURIComponent(realmId) + "/intent", {
     method: "POST",
     headers: holdHeaders(key, true),

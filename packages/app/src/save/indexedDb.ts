@@ -1,3 +1,5 @@
+// The browser save is a cache. For a solo crown it is the only save; for a shared hold the server
+// save is the source of truth, and a reload overwrites this cache with it (game/loadSaved.ts).
 const DB_NAME = "second-crown";
 const STORE = "saves";
 const KEY = "autosave";
