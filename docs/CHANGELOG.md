@@ -1,11 +1,16 @@
 # CHANGELOG
 
-## 2026-10-30 — Copy hint on the hold card (wave/hold-copy-hint)
+## 2026-10-30 — Living confirmation flash next to hold Copy button (bakeoff/gemini-copy-flash)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: after a successful Copy key, one line under the Copy button reads "Key copied. Share the realm id and the key." Inline style (`flexBasis: 100%`, `fontSize: 12`), `role="status"`; no new CSS file.
-- A `useEffect` on `realmId` resets `copied`, so the line clears on Leave or on joining a different hold. Join, leave, stamp, and intent functions unchanged.
-- `npm test` and `npm run build -w @second-crown/app` pass.
+- `packages/app/src/hud/CopyFlashPip.tsx` (new):
+  - `CopyFlashPip`, `COPY_FLASH_MS` (`1400`), & `startCopyFlashTimer`: 16px SVG pip (`viewBox="0 0 16 16"`) showing a brief golden starburst and check mark when the hold key is copied, strictly enforcing `pointer-events: none` (`aria-hidden="true"`).
+- `packages/app/src/hud/copy-flash.css` (new):
+  - Isolated pip styles, `pointer-events: none`, compositor-only `@keyframes sc-copy-flash-pop`, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Places `CopyFlashPip` to the left of the Copy button inside `.sc-copy-flash-group` only for `COPY_FLASH_MS` after a successful key copy, then hides it; renders nothing when no hold is joined.
+- Tests: `packages/app/src/hud/CopyFlashPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-30 — Leave hint on the hold card (wave/hold-leave-hint)
 

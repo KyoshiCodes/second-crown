@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#291** (hold leave hint and KeySealPip wiring fix, #291; hold key living seal, #290; intent log living pip, #289; hold intent log, #288; save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hold-copy-hint` (**not merged**, see Hold copy hint below).
+Merged through PR **#291** (hold leave hint, #291; hold key living seal, #290; intent log living pip, #289; hold intent log, #288; save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-copy-flash` (**not merged**, see Copy button confirmation flash below).
 
 ### Cultures and units (all merged)
 
@@ -403,7 +403,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/hud/KeySealPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
-## Hold leave hint (merged, #291)
+## Hold leave hint (branch `wave/hold-leave-hint`, **merged as PR #291**)
 
 - App only (`packages/app/src/JoinHoldCard.tsx`). No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
 - When a hold is joined, one line sits under the Leave button row: "Leaving returns you to your solo crown. The hold keeps running." Inline style only; no new CSS file.
@@ -411,12 +411,13 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - Also fixes #290 on `main` (test and build were red): `JoinHoldCard` gains optional `initialView` / `initialMadeKey` seed props for tests, and now actually renders `KeySealPip` next to a new hold key.
 - `npm test` and `npm run build -w @second-crown/app` pass.
 
-## Hold copy hint (branch `wave/hold-copy-hint`, **not merged**)
+## Copy button confirmation flash (branch `bakeoff/gemini-copy-flash`, **not merged**)
 
-- App only (`packages/app/src/JoinHoldCard.tsx`). No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- After the new hold key is copied, one line shows under the Copy button: "Key copied. Share the realm id and the key." Inline style only; no new CSS file.
-- The line clears when the player leaves or joins a different hold (an effect on `realmId` resets `copied`). Join, leave, stamp, and intent functions are untouched.
-- `npm test` and `npm run build -w @second-crown/app` pass.
+- App only (`packages/app`). Do not change `packages/sim`, `packages/render`, `server/`, or `theme.css`. Do not change any game rules.
+- `packages/app/src/hud/CopyFlashPip.tsx` & `packages/app/src/hud/copy-flash.css` (new): adds `CopyFlashPip` (16px SVG golden starburst and emerald check pip with `pointer-events: none` and compositor `@keyframes sc-copy-flash-pop` respecting `prefers-reduced-motion: reduce`), `COPY_FLASH_MS` (`1400ms`), and `startCopyFlashTimer`.
+- `packages/app/src/JoinHoldCard.tsx`: places `CopyFlashPip` inside `.sc-copy-flash-group` immediately to the left of the Copy button only for `COPY_FLASH_MS` after a successful `copyKey()`, then hides it; when no hold is joined (`view === null`) or before copying, `CopyFlashPip` is not rendered.
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
+- Tests: `packages/app/src/hud/CopyFlashPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## Verify
 
