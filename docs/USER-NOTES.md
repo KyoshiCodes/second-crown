@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-30 — Hold card explains Leave (wave/hold-leave-hint)
+
+- **The hold card now reminds you that leaving returns to your solo crown.** When you are in a shared hold, a short line under the Leave button says: "Leaving returns you to your solo crown. The hold keeps running."
+- The small wax seal promised last update now really shows next to a brand-new hold key.
+- **Play is otherwise unchanged.** Joining, leaving, stamping, and the hold itself work exactly as before.
+
 ## 2026-10-30 — Small seal marks the hold key (bakeoff/gemini-key-seal)
 
 - **A small seal now marks the hold key. Play is unchanged.** When you create a new shared hold in the Cloud panel and its one-time hold key is shown, a 16px wax-seal pip appears to the left of the key and pulses once when first shown; when no hold key is visible, no seal is shown.

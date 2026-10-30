@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#289** (intent log living pip, #289; hold intent log, #288; save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-key-seal` (**not merged**, see Hold key living seal below).
+Merged through PR **#290** (hold key living seal, #290; intent log living pip, #289; hold intent log, #288; save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/hold-leave-hint` (**not merged**, see Hold leave hint below).
 
 ### Cultures and units (all merged)
 
@@ -395,13 +395,21 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/hud/IntentPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
-## Hold key living seal (branch `bakeoff/gemini-key-seal`, **not merged**)
+## Hold key living seal (branch `bakeoff/gemini-key-seal`, **merged as PR #290**)
 
 - App only (`packages/app`). Do not change `packages/sim`, `packages/render`, `server/`, or `theme.css`. Do not change any game rules.
 - `packages/app/src/hud/KeySealPip.tsx` & `packages/app/src/hud/key-seal.css` (new): adds `KeySealPip` (16px SVG wax-seal pip with `pointer-events: none` and a single `@keyframes sc-key-seal-pulse` pulse when the key is first shown, respecting `prefers-reduced-motion: reduce`).
 - `packages/app/src/JoinHoldCard.tsx`: places `KeySealPip` to the left of the hold key when `madeKey !== null`; when the key is not visible (`madeKey === null`), `KeySealPip` is not rendered.
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/hud/KeySealPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+
+## Hold leave hint (branch `wave/hold-leave-hint`, **not merged**)
+
+- App only (`packages/app/src/JoinHoldCard.tsx`). No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- When a hold is joined, one line sits under the Leave button row: "Leaving returns you to your solo crown. The hold keeps running." Inline style only; no new CSS file.
+- Join, leave, stamp, and intent functions are untouched.
+- Also fixes #290 on `main` (test and build were red): `JoinHoldCard` gains optional `initialView` / `initialMadeKey` seed props for tests, and now actually renders `KeySealPip` next to a new hold key.
+- `npm test` and `npm run build -w @second-crown/app` pass.
 
 ## Verify
 

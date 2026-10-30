@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-30 — Leave hint on the hold card (wave/hold-leave-hint)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: when a hold is joined, one line under the Leave button row reads "Leaving returns you to your solo crown. The hold keeps running." Inline style; no new CSS file. Join, leave, stamp, and intent functions unchanged.
+- Fix for #290 on `main`: `KeySealPip.test.tsx` failed and `tsc` broke the app build because `JoinHoldCard` had no `initialView` / `initialMadeKey` props and never rendered `KeySealPip`. Added both optional props (seed `useState` only; the app never passes them) and placed `<KeySealPip pulse pulseKey={madeKey} />` to the left of the new hold key inside `.sc-key-seal-group`, as the #290 notes describe.
+- `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-30 — Living seal next to hold key (bakeoff/gemini-key-seal)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

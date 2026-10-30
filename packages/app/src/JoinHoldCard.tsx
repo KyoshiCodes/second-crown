@@ -1,6 +1,7 @@
 import React from "react";
 import { joinRealm, readHold, recentIntents, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain, type HoldView } from "./net/hold";
 import { IntentPip } from "./hud/IntentPip";
+import { KeySealPip } from "./hud/KeySealPip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -29,18 +30,23 @@ export function JoinHoldCard({
   signedIn,
   intentLines,
   intentPulseKey,
+  initialView = null,
+  initialMadeKey = null,
 }: {
   signedIn: boolean;
   intentLines?: string[];
   intentPulseKey?: number;
+  // Starting state for static render tests; the app never passes these.
+  initialView?: HoldView | null;
+  initialMadeKey?: string | null;
 }) {
   const [code, setCode] = React.useState("");
   const [key, setKey] = React.useState("");
   // The key this hold was opened with, and the key just made by a first join (shown until Leave).
   const [holdKey, setHoldKey] = React.useState("");
-  const [madeKey, setMadeKey] = React.useState<string | null>(null);
+  const [madeKey, setMadeKey] = React.useState<string | null>(initialMadeKey);
   const [copied, setCopied] = React.useState(false);
-  const [view, setView] = React.useState<HoldView | null>(null);
+  const [view, setView] = React.useState<HoldView | null>(initialView);
   const [status, setStatus] = React.useState("");
   const realmId = view?.realmId ?? null;
   const lastIntents = intentLines ?? (realmId === null ? [] : recentIntents(realmId, 3));
@@ -161,7 +167,7 @@ export function JoinHoldCard({
         <div>
           {madeKey !== null ? (
             <div className="sc-plain-inline" style={{ fontSize: 13, marginBottom: 6, gap: 8, flexWrap: "wrap" }} aria-label="New hold key">
-              <span>New hold. Key: <code style={{ userSelect: "all" }}>{madeKey}</code></span>
+              <span className="sc-key-seal-group"><KeySealPip pulse pulseKey={madeKey} /><span>New hold. Key: <code style={{ userSelect: "all" }}>{madeKey}</code></span></span>
               <button type="button" className="sc-work-btn" onClick={() => void copyKey()}>{copied ? "Copied" : "Copy key"}</button>
               <span style={{ flexBasis: "100%", fontSize: 12 }}>Share the realm id and this key with friends.</span>
               <span style={{ fontSize: 12, opacity: 0.8 }}>Copy it now and send it to friends with the id. It is shown only this once; without it nobody, you included, can join again.</span>
@@ -178,6 +184,7 @@ export function JoinHoldCard({
             <button type="button" className="sc-work-btn" onClick={() => void stamp()}>Stamp</button>
             <button type="button" className="sc-work-btn" onClick={leave}>Leave</button>
           </div>
+          <div style={{ fontSize: 12, marginTop: 4, opacity: 0.75 }}>Leaving returns you to your solo crown. The hold keeps running.</div>
           <div className="sc-plain-inline" style={{ fontSize: 13, marginTop: 6, gap: 12, flexWrap: "wrap" }} aria-label="Hold stores">
             <span>Food {whole(view.stores.food)}</span>
             <span>Wood {whole(view.stores.wood)}</span>
