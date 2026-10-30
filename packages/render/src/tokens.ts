@@ -37,6 +37,7 @@ import {
   BOARD_HALF_W,
   BOARD_HALF_H,
   boardGridToWorld,
+  type CameraBand,
 } from "./camera.js";
 import {
   terrainChipPalette,
@@ -5931,7 +5932,612 @@ export const drawPlainTile = drawPlainMeadow;
 
 // -------------------------------------------------------------
 // Tabletop Board Province Rendering (Height-Mapped Lords Mobile Style)
+// Split into Static Tile Cache Layer + Dynamic Every-Frame Layer
 // -------------------------------------------------------------
+
+function sortBoardProvincesDepth(provinces: Province[]): Province[] {
+  return [...provinces].sort((a, b) => (a.y * 20 + a.x) - (b.y * 20 + b.x));
+}
+
+/**
+ * Deterministic cache key for the static board tile layer (terrain, height faces, fog veil).
+ * Changes only when the camera band or the seen/unseen province set (or board layout) changes.
+ */
+export function computeBoardStaticCacheKey(
+  state: GameState | null | undefined,
+  band: CameraBand = "board"
+): string {
+  if (!state?.board?.provinces) return `${band}|empty`;
+  const provinces = state.board.provinces;
+  const parts: string[] = [band];
+  for (let i = 0; i < provinces.length; i++) {
+    const p = provinces[i]!;
+    const seen = isProvinceSeen(state, p.id) ? "1" : "0";
+    parts.push(`${p.id}:${p.x},${p.y}:${p.terrain}:${p.node === "field" ? "f" : ""}:${seen}`);
+  }
+  return parts.join("|");
+}
+
+function paintProvinceStaticTile(
+  g: Graphics,
+  state: GameState,
+  p: Province,
+  b: ReturnType<typeof provinceTokenBounds>,
+  seen: boolean,
+  animPhase: number,
+  theme: ThemeVisuals,
+  visuals: ThemeVisuals | null | undefined,
+  boardWeather: AtmosphereWeather
+): void {
+  if (!seen) {
+    // Unseen Province: Raised Volumetric Cumulus Cloud Mass (NOT purple squares)
+    paintFogHeightVeil(g, b, p, animPhase);
+    return;
+  }
+
+  const pal = terrainChipPalette(p.terrain);
+  const elev = terrainElevation(p.terrain);
+  const wx = b.cx;
+  const wy = b.cy;
+  const hw = BOARD_HALF_W;
+  const hh = BOARD_HALF_H;
+
+  // 1. 3D Tactile Diamond Drop Shadow onto Tabletop
+  g.poly([
+    wx, wy - hh + 2,
+    wx + hw + 2, wy + 2,
+    wx, wy + hh + 3,
+    wx - hw - 2, wy + 2,
+  ]);
+  g.fill({ color: 0x000000, alpha: 0.32 });
+
+  // Resolve Board-Only Seasonal Wash (Winter frost on all tiles, Harvest gold on farms/plains, Spring/Summer untouched)
+  const wash = resolveBoardSeasonWash(state, p, visuals);
+  const tileTheme: ThemeVisuals = wash.hasWash && wash.washColor !== null
+    ? { ...theme, tintColor: wash.washColor, tintAlpha: wash.washAlpha }
+    : { ...theme, tintColor: 0, tintAlpha: 0 };
+
+  // 2. 3D Height Faces (Front-left & Front-right vertical cliffs based on Terrain)
+  if (elev > 0) {
+    paintTileHeightFace(g, b, p.terrain, pal, animPhase, tileTheme);
+  }
+
+  // 3. Raised Top Diamond Plateau
+  const cy = wy - elev;
+  const topDiamond = [
+    wx, cy - hh,
+    wx + hw, cy,
+    wx, cy + hh,
+    wx - hw, cy,
+  ];
+  g.poly(topDiamond);
+  g.fill({ color: pal.fill });
+
+  // Board-only seasonal wash over top diamond plateau (translucent wash; does not hide terrain)
+  if (wash.hasWash && wash.washColor !== null && wash.washAlpha > 0) {
+    g.poly(topDiamond);
+    g.fill({ color: wash.washColor, alpha: wash.washAlpha });
+  }
+
+  // Seasonal accent rims and dusting:
+  if (wash.kind === "winter-frost") {
+    // Crisp white frost rime along rear facets
+    g.moveTo(wx - hw, cy);
+    g.lineTo(wx, cy - hh);
+    g.lineTo(wx + hw, cy);
+    g.stroke({ width: 1.2, color: 0xffffff, alpha: 0.45 });
+
+    // Subtle frost rime on front facet edge
+    g.moveTo(wx - hw, cy);
+    g.lineTo(wx, cy + hh);
+    g.lineTo(wx + hw, cy);
+    g.stroke({ width: 0.8, color: 0xe0f2fe, alpha: 0.35 });
+
+    // Light snow / frost dusting crystals on top plateau
+    const cx = wx;
+    g.circle(cx - 8, cy - 3, 0.8); g.fill({ color: 0xffffff, alpha: 0.65 });
+    g.circle(cx + 7, cy + 2, 0.7); g.fill({ color: 0xffffff, alpha: 0.65 });
+    g.circle(cx + 2, cy - 5, 0.6); g.fill({ color: 0xffffff, alpha: 0.55 });
+    g.circle(cx - 3, cy + 4, 0.7); g.fill({ color: 0xffffff, alpha: 0.55 });
+  } else if (wash.kind === "harvest-gold") {
+    // Harvest: warm golden rim highlight along top facets
+    g.moveTo(wx - hw, cy);
+    g.lineTo(wx, cy - hh);
+    g.lineTo(wx + hw, cy);
+    g.stroke({ width: 1.2, color: 0xfde047, alpha: 0.4 });
+
+    // Subtle warm wheat glints on harvested ground
+    const cx = wx;
+    g.circle(cx - 6, cy - 2, 0.8); g.fill({ color: 0xfef08a, alpha: 0.55 });
+    g.circle(cx + 5, cy + 3, 0.8); g.fill({ color: 0xfde047, alpha: 0.55 });
+  } else {
+    // Top subtle highlight rim along rear two facets (standard natural look)
+    g.moveTo(wx - hw, cy);
+    g.lineTo(wx, cy - hh);
+    g.lineTo(wx + hw, cy);
+    g.stroke({ width: 1, color: 0xffffff, alpha: 0.22 });
+  }
+
+  // Outer diamond border
+  g.poly(topDiamond);
+  g.stroke({ width: 1, color: pal.border, alpha: 0.85 });
+
+  const cx = wx;
+
+  // 4. Terrain Details (Isometric Relief Artwork)
+  switch (p.terrain) {
+    case "plain": {
+      // Low pastoral meadow on the diamond: soft grass, a few low tufts, gentle shadow
+      drawPlainMeadow(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
+      break;
+    }
+
+    case "wood": {
+      // Trees on the diamond: small stand of pines, trunk, and ground shadow
+      drawWoodTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y, weather: boardWeather });
+      break;
+    }
+
+    case "hill": {
+      // Low stepped plateau on the diamond: warm ochre and stone, three tiers, soft shadow
+      drawHillRise(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
+      break;
+    }
+
+    case "waste": {
+      // Low scorched basalt crag on the diamond: dark basalt, cracked ash, faint heat glow
+      drawWasteCrag(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
+      break;
+    }
+
+    case "shore": {
+      // Water on the diamond: shallow sea shelf, small wave, and wet sand edge
+      drawShoreTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
+      break;
+    }
+
+    case "peak": {
+      // Mountain on the diamond: tall peak, snow cap, and rock shadow
+      drawPeakTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
+      break;
+    }
+  }
+}
+
+function paintProvinceDynamicToken(
+  g: Graphics,
+  state: GameState,
+  p: Province,
+  b: ReturnType<typeof provinceTokenBounds>,
+  seen: boolean,
+  animPhase: number,
+  rawPhase: number,
+  marchDestMap: ReturnType<typeof buildMarchDestinationMap>,
+  boardWeather: AtmosphereWeather,
+  boardDayPhase: DayPhase,
+  selectedProvinceId?: string | null
+): void {
+  if (!seen) {
+    const destKind = marchDestMap.get(p.id);
+    if (destKind) {
+      paintBoardDestinationRing(g, p, destKind, animPhase);
+    }
+    return;
+  }
+
+  const elev = terrainElevation(p.terrain);
+  const wx = b.cx;
+  const wy = b.cy;
+  const hw = BOARD_HALF_W;
+  const hh = BOARD_HALF_H;
+  const cy = wy - elev;
+  const cx = wx;
+  const topDiamond = [
+    wx, cy - hh,
+    wx + hw, cy,
+    wx, cy + hh,
+    wx - hw, cy,
+  ];
+
+  // 5. Node Marks (Hold, Camp, Woodcut, Quarry, Field, Ruins)
+  const isHoldNode = p.node === "hold";
+  const isNpcHold = isNpcHoldProvince(p);
+  const isPlayerHome = p.occupantRealmId === "player" && p.id === state.board.homeProvinceId;
+
+  if (isHoldNode || isNpcHold || (p.occupantRealmId === "player" && isHoldNode)) {
+    // Tiny Pixel Keep sitting squarely on top of the raised diamond tile
+    let kit: CultureKit = "western";
+    let realmPal: RealmTokenPalette | undefined;
+
+    let cultId: string | undefined;
+    if (p.occupantRealmId === "player") {
+      cultId = sim.playerCultureId ? sim.playerCultureId(state) : undefined;
+      kit = resolveCultureKit(cultId);
+    } else if (p.occupantRealmId) {
+      realmPal = realmTokenPalette(p.occupantRealmId);
+      if (p.occupantRealmId === "rival") {
+        kit = "western"; // Iron March spiked keep
+      } else if (p.occupantRealmId === "k_silk") {
+        kit = "sand";
+      } else if (p.occupantRealmId === "k_ash") {
+        kit = "steppe";
+      } else if (p.occupantRealmId === "k_tide") {
+        kit = "islands";
+      } else {
+        kit = "western";
+      }
+    }
+
+    drawMiniatureKeep(
+      g,
+      cx,
+      cy - 2,
+      cultId ?? kit,
+      realmPal,
+      isPlayerHome,
+      rawPhase,
+      isPlayerHome
+        ? { state, cultureId: cultId, weather: boardWeather, dayPhase: boardDayPhase }
+        : { weather: boardWeather, dayPhase: boardDayPhase }
+    );
+  } else {
+    switch (p.node) {
+      case "camp": {
+        if (p.occupantRealmId !== "player") {
+          const campPal = p.occupantRealmId ? realmTokenPalette(p.occupantRealmId) : undefined;
+          drawCampTentAndFlag(g, cx, cy, "western", undefined, rawPhase, false, { flagColor: campPal?.pennantColor });
+        }
+        break;
+      }
+      case "woodcut":
+      case "quarry":
+      case "field":
+      case "ruins": {
+        const { stock, max, ratio, hasStock } = getNodeStockInfo(state, p.id, p.node);
+        drawResourceNode(g, cx, cy, p.node, ratio, rawPhase, hasStock);
+        if (p.node === "woodcut" || p.node === "quarry" || p.node === "field") {
+          drawStockBadge(g, cx, cy, stock, max);
+        }
+        break;
+      }
+    }
+  }
+
+  // 6. Special Realm Occupant Token Overlays
+  if (p.occupantRealmId === "player") {
+    const isHome = p.id === state.board.homeProvinceId;
+    const cultId = sim.playerCultureId ? sim.playerCultureId(state) : undefined;
+    const kit = resolveCultureKit(cultId);
+    const cult = culturePalette(cultId);
+    const playerTabardCol = cult.id === "western" ? 0x1e40af : cult.tabard;
+
+    if (isHome) {
+      // Player Home Hold: Gilded Royal Diamond Frame with corner studs & crown
+      g.poly(topDiamond);
+      g.stroke({ width: 2, color: 0xfacc15 });
+
+      // 4 Corner Golden Studs at the diamond vertices
+      g.circle(wx, cy - hh, 1.6); g.fill({ color: 0xfde047 });
+      g.circle(wx + hw, cy, 1.6); g.fill({ color: 0xfde047 });
+      g.circle(wx, cy + hh, 1.6); g.fill({ color: 0xfde047 });
+      g.circle(wx - hw, cy, 1.6); g.fill({ color: 0xfde047 });
+
+      // Crown emblem above keep
+      g.poly([
+        cx - 6, cy - 15,
+        cx - 4, cy - 19,
+        cx, cy - 16,
+        cx + 4, cy - 19,
+        cx + 6, cy - 15,
+      ]);
+      g.fill({ color: 0xfacc15 });
+
+      // Animated golden halo pulse
+      const haloAlpha = 0.35 + Math.sin(rawPhase * 4) * 0.2;
+      g.poly([
+        wx, cy - hh - 1.5,
+        wx + hw + 1.5, cy,
+        wx, cy + hh + 1.5,
+        wx - hw - 1.5, cy,
+      ]);
+      g.stroke({ width: 1.5, color: 0xfde047, alpha: haloAlpha });
+    } else {
+      // Player Outpost / Flag Token on Player-Occupied Field Tiles & Nodes
+      g.poly(topDiamond);
+      g.stroke({ width: 1.6, color: 0x2563eb });
+
+      // Corner brass pins
+      g.circle(wx, cy - hh, 1.2); g.fill({ color: 0xfde047 });
+      g.circle(wx + hw, cy, 1.2); g.fill({ color: 0xfde047 });
+      g.circle(wx, cy + hh, 1.2); g.fill({ color: 0xfde047 });
+      g.circle(wx - hw, cy, 1.2); g.fill({ color: 0xfde047 });
+
+      if (p.node !== "ruins") {
+        const garrison = getPostedGarrison(state, p.id);
+        if (garrison.posted) {
+          // Posted Garrison Encampment: small tent + banner meeple with armaments & power crest
+          drawGarrisonMeeple(g, cx, cy, kit, cult, garrison.power, rawPhase);
+        } else {
+          // Player Camp / Outpost: clearer tent + flag
+          drawPlayerCampTentAndFlag(g, cx, cy, kit, cult, rawPhase, { node: p.node, flagColor: playerTabardCol });
+        }
+      }
+    }
+  } else if (p.occupantRealmId) {
+    const pal = realmTokenPalette(p.occupantRealmId);
+    if (p.node === "hold") {
+      // Distinct NPC Hold Diamond Rim
+      g.poly(topDiamond);
+      g.stroke({ width: 2, color: pal.borderColor });
+
+      // 4 Corner Studs
+      g.circle(wx, cy - hh, 1.5); g.fill({ color: pal.studColor });
+      g.circle(wx + hw, cy, 1.5); g.fill({ color: pal.studColor });
+      g.circle(wx, cy + hh, 1.5); g.fill({ color: pal.studColor });
+      g.circle(wx - hw, cy, 1.5); g.fill({ color: pal.studColor });
+    } else {
+      // NPC Outpost on claimed province
+      g.poly(topDiamond);
+      g.stroke({ width: 1.5, color: pal.borderColor, alpha: 0.85 });
+
+      g.circle(wx, cy - hh, 1.1); g.fill({ color: pal.studColor });
+      g.circle(wx + hw, cy, 1.1); g.fill({ color: pal.studColor });
+      g.circle(wx, cy + hh, 1.1); g.fill({ color: pal.studColor });
+      g.circle(wx - hw, cy, 1.1); g.fill({ color: pal.studColor });
+
+      if (p.node !== "ruins") {
+        // Ground shadow under crate & flag
+        g.ellipse(cx + 4.5, cy + 5, 4.5, 2);
+        g.fill({ color: 0x000000, alpha: 0.45 });
+
+        // Territory flag
+        g.moveTo(cx - 3, cy + 4); g.lineTo(cx - 3, cy - 14);
+        g.stroke({ width: 1.3, color: pal.rimColor });
+        g.circle(cx - 3, cy - 14.5, 1.3); g.fill({ color: pal.studColor });
+
+        const flagWave = Math.sin(rawPhase * 4 + p.x * 2) * 1.8;
+        g.poly([
+          cx - 3, cy - 14,
+          cx + 5 + flagWave, cy - 11.5,
+          cx + 3 + flagWave * 0.6, cy - 9.5,
+          cx + 5 + flagWave, cy - 7.5,
+          cx - 3, cy - 7.5,
+        ]);
+        g.fill({ color: pal.pennantColor });
+        g.stroke({ width: 0.6, color: pal.borderColor });
+
+        // Reinforced supply crate with iron banding
+        g.rect(cx + 2, cy + 1, 5.5, 4.5);
+        g.fill({ color: pal.keepWallColor });
+        g.stroke({ width: 0.8, color: pal.borderColor });
+        g.moveTo(cx + 2, cy + 1); g.lineTo(cx + 7.5, cy + 5.5);
+        g.stroke({ width: 0.6, color: pal.borderColor });
+      }
+    }
+  }
+
+  // 6.5 Faint Ring for March Destination Tiles (Player Gold / Hostile Red)
+  const destKind = marchDestMap.get(p.id);
+  if (destKind) {
+    paintBoardDestinationRing(g, p, destKind, animPhase);
+  }
+
+  // 6.6 Active Fight / Column Clash or Engagement Mark on Seen Tiles
+  if (hasProvinceClash(state, p.id)) {
+    drawClashMark(g, cx, cy - 6, animPhase);
+  }
+
+  // 6.7 Hostile Column Inbound Mark on Seen Tiles
+  if (hasProvinceIncoming(state, p.id)) {
+    drawIncomingMark(g, cx + 8, cy - 8, animPhase);
+  }
+
+  // 6.8 Player Column Trail Mark on Seen Tiles
+  if (hasProvinceTrail(state, p.id)) {
+    drawTrailMark(g, cx - 8, cy - 8, animPhase);
+  }
+
+  // 6.9 Player Outpost Flag Mark or Rival Camp Mark on Seen Tiles
+  const outpostMarkKind = resolveProvinceOutpostMark(state, p.id);
+  if (outpostMarkKind && !hasProvinceHold(state, p.id)) {
+    drawOutpostMark(g, cx - 7, cy + 4, outpostMarkKind, animPhase);
+  }
+
+  // 6.10 Season Pip on Seen Home Tile
+  const seasonMarkKind = resolveProvinceSeasonMark(state, p.id);
+  if (seasonMarkKind) {
+    drawSeasonMark(g, cx + 7, cy + 4, seasonMarkKind, animPhase);
+  }
+
+  // 6.11 Posted Player Garrison Mark on Seen Tiles
+  if (hasProvinceGarrison(state, p.id)) {
+    drawGarrisonMark(g, cx, cy + 6, animPhase);
+  }
+
+  // 6.12 Player Scout Mark on Seen Tiles
+  if (hasProvinceScout(state, p.id)) {
+    drawScoutMark(g, cx + 11, cy - 1, animPhase);
+  }
+
+  // 6.13 Player Gather Mark on Seen Tiles
+  if (hasProvinceGather(state, p.id)) {
+    drawGatherMark(g, cx - 11, cy - 1, animPhase);
+  }
+
+  // 6.14 Rival Realm Owner Mark on Seen Tiles
+  const ownerRealmId = resolveProvinceOwnerMark(state, p.id);
+  if (ownerRealmId) {
+    drawOwnerMark(g, cx + 7, cy + 4, ownerRealmId, animPhase);
+  }
+
+  // 6.15 Player Hold Crown Mark on Seen Tiles
+  if (hasProvinceHold(state, p.id)) {
+    drawHoldMark(g, cx - 7, cy + 4, animPhase);
+  }
+
+  // 6.16 Finished Player Building Mark on Seen Tiles
+  if (hasProvinceBuilding(state, p.id)) {
+    drawBuildingMark(g, cx, cy - 9, animPhase);
+  }
+
+  // 6.17 Staffed Building Mark on Seen Tiles
+  if (hasProvinceStaffed(state, p.id)) {
+    drawStaffedMark(g, cx - 5, cy - 3, animPhase);
+  }
+
+  // 6.18 Fog Edge Mark on Seen Tiles at the Edge of Vision (thickens in storm and snow)
+  if (hasProvinceFogEdge(state, p.id)) {
+    drawFogEdgeMark(g, cx + 5, cy - 3, animPhase, state);
+  }
+
+  // 7. Clear Gold Rim & Ground Ring for Currently Selected Province
+  if (selectedProvinceId && p.id === selectedProvinceId) {
+    paintBoardSelectionRim(g, p.x, p.y, state, animPhase);
+  }
+}
+
+/**
+ * Paints ONLY the static board tile layer (terrain, height faces, and unseen fog veil).
+ * Used by `BoardStaticLayerCache` so static board art is cached and not redrawn every frame.
+ */
+export function paintBoardStaticTiles(
+  g: Graphics,
+  state: GameState,
+  visuals?: ThemeVisuals | null
+): void {
+  g.clear();
+  if (!state?.board?.provinces) return;
+
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+
+  const theme = resolveBoardThemeVisuals(state, visuals);
+  const sortedProvinces = sortBoardProvincesDepth(state.board.provinces);
+
+  for (const p of sortedProvinces) {
+    const b = provinceTokenBounds(p.x, p.y);
+    const seen = isProvinceSeen(state, p.id);
+    paintProvinceStaticTile(g, state, p, b, seen, 0, theme, visuals, "clear");
+  }
+}
+
+/**
+ * Paints ONLY the dynamic board layer (keeps, camps, resource piles, ruins, stock badges,
+ * garrison/outpost overlays, destination rings, and moving/status marks) that redraws every frame.
+ */
+export function paintBoardDynamicTokens(
+  g: Graphics,
+  state: GameState,
+  phase: number = 0,
+  selectedProvinceId?: string | null,
+  _visuals?: ThemeVisuals | null
+): void {
+  g.clear();
+  if (!state?.board?.provinces) return;
+
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+
+  const animPhase = typeof phase === "number" ? phase : 0;
+  const boardWeather = resolveAtmosphereWeather(state);
+  const boardDayPhase = resolveDayPhase(state, animPhase);
+  const marchDestMap = buildMarchDestinationMap(state);
+  const sortedProvinces = sortBoardProvincesDepth(state.board.provinces);
+
+  for (const p of sortedProvinces) {
+    const b = provinceTokenBounds(p.x, p.y);
+    const seen = isProvinceSeen(state, p.id);
+    paintProvinceDynamicToken(
+      g,
+      state,
+      p,
+      b,
+      seen,
+      animPhase,
+      phase,
+      marchDestMap,
+      boardWeather,
+      boardDayPhase,
+      selectedProvinceId
+    );
+  }
+}
+
+export interface BoardStaticLayerCache {
+  readonly graphics: Graphics;
+  readonly repaintCount: number;
+  readonly lastKey: string | null;
+  readonly lastBand: CameraBand | null;
+  update(
+    state: GameState | null | undefined,
+    band?: CameraBand,
+    visuals?: ThemeVisuals | null
+  ): boolean;
+  invalidate(): void;
+}
+
+/**
+ * Graphics cache controller for the static board tile layer (terrain, height faces, fog veil).
+ * Only repaints `graphics` when the camera band switches to `"board"` or the seen/unseen set changes.
+ */
+export function createBoardStaticLayerCache(
+  graphics: Graphics = new Graphics()
+): BoardStaticLayerCache {
+  if ("eventMode" in graphics) {
+    (graphics as any).eventMode = "none";
+  }
+  let lastKey: string | null = null;
+  let lastBand: CameraBand | null = null;
+  let repaintCount = 0;
+
+  return {
+    get graphics() {
+      return graphics;
+    },
+    get repaintCount() {
+      return repaintCount;
+    },
+    get lastKey() {
+      return lastKey;
+    },
+    get lastBand() {
+      return lastBand;
+    },
+    update(
+      state: GameState | null | undefined,
+      band: CameraBand = "board",
+      visuals?: ThemeVisuals | null
+    ): boolean {
+      if ("eventMode" in graphics) {
+        (graphics as any).eventMode = "none";
+      }
+      if (band !== "board") {
+        lastBand = band;
+        lastKey = null;
+        return false;
+      }
+      if (!state?.board?.provinces) {
+        lastBand = band;
+        return false;
+      }
+      const nextKey = computeBoardStaticCacheKey(state, band);
+      if (lastBand === "board" && nextKey === lastKey) {
+        return false;
+      }
+      paintBoardStaticTiles(graphics, state, visuals);
+      lastBand = "board";
+      lastKey = nextKey;
+      repaintCount += 1;
+      return true;
+    },
+    invalidate(): void {
+      lastKey = null;
+    },
+  };
+}
+
 export function paintBoardProvinces(
   g: Graphics,
   state: GameState,
@@ -5951,407 +6557,25 @@ export function paintBoardProvinces(
   const boardWeather = resolveAtmosphereWeather(state);
   const boardDayPhase = resolveDayPhase(state, animPhase);
   const marchDestMap = buildMarchDestinationMap(state);
-
-  // Sort back-to-front by depth (y * 20 + x) so foreground isometric tiles and cliff faces layer on top
-  const sortedProvinces = [...state.board.provinces].sort((a, b) => (a.y * 20 + a.x) - (b.y * 20 + b.x));
+  const sortedProvinces = sortBoardProvincesDepth(state.board.provinces);
 
   for (const p of sortedProvinces) {
     const b = provinceTokenBounds(p.x, p.y);
     const seen = isProvinceSeen(state, p.id);
-
-    if (!seen) {
-      // Unseen Province: Raised Volumetric Cumulus Cloud Mass (NOT purple squares)
-      paintFogHeightVeil(g, b, p, animPhase);
-      const destKind = marchDestMap.get(p.id);
-      if (destKind) {
-        paintBoardDestinationRing(g, p, destKind, animPhase);
-      }
-      continue;
-    }
-
-    const pal = terrainChipPalette(p.terrain);
-    const elev = terrainElevation(p.terrain);
-    const wx = b.cx;
-    const wy = b.cy;
-    const hw = BOARD_HALF_W;
-    const hh = BOARD_HALF_H;
-
-    // 1. 3D Tactile Diamond Drop Shadow onto Tabletop
-    g.poly([
-      wx, wy - hh + 2,
-      wx + hw + 2, wy + 2,
-      wx, wy + hh + 3,
-      wx - hw - 2, wy + 2,
-    ]);
-    g.fill({ color: 0x000000, alpha: 0.32 });
-
-    // Resolve Board-Only Seasonal Wash (Winter frost on all tiles, Harvest gold on farms/plains, Spring/Summer untouched)
-    const wash = resolveBoardSeasonWash(state, p, visuals);
-    const tileTheme: ThemeVisuals = wash.hasWash && wash.washColor !== null
-      ? { ...theme, tintColor: wash.washColor, tintAlpha: wash.washAlpha }
-      : { ...theme, tintColor: 0, tintAlpha: 0 };
-
-    // 2. 3D Height Faces (Front-left & Front-right vertical cliffs based on Terrain)
-    if (elev > 0) {
-      paintTileHeightFace(g, b, p.terrain, pal, animPhase, tileTheme);
-    }
-
-    // 3. Raised Top Diamond Plateau
-    const cy = wy - elev;
-    const topDiamond = [
-      wx, cy - hh,
-      wx + hw, cy,
-      wx, cy + hh,
-      wx - hw, cy,
-    ];
-    g.poly(topDiamond);
-    g.fill({ color: pal.fill });
-
-    // Board-only seasonal wash over top diamond plateau (translucent wash; does not hide terrain)
-    if (wash.hasWash && wash.washColor !== null && wash.washAlpha > 0) {
-      g.poly(topDiamond);
-      g.fill({ color: wash.washColor, alpha: wash.washAlpha });
-    }
-
-    // Seasonal accent rims and dusting:
-    if (wash.kind === "winter-frost") {
-      // Crisp white frost rime along rear facets
-      g.moveTo(wx - hw, cy);
-      g.lineTo(wx, cy - hh);
-      g.lineTo(wx + hw, cy);
-      g.stroke({ width: 1.2, color: 0xffffff, alpha: 0.45 });
-
-      // Subtle frost rime on front facet edge
-      g.moveTo(wx - hw, cy);
-      g.lineTo(wx, cy + hh);
-      g.lineTo(wx + hw, cy);
-      g.stroke({ width: 0.8, color: 0xe0f2fe, alpha: 0.35 });
-
-      // Light snow / frost dusting crystals on top plateau
-      const cx = wx;
-      g.circle(cx - 8, cy - 3, 0.8); g.fill({ color: 0xffffff, alpha: 0.65 });
-      g.circle(cx + 7, cy + 2, 0.7); g.fill({ color: 0xffffff, alpha: 0.65 });
-      g.circle(cx + 2, cy - 5, 0.6); g.fill({ color: 0xffffff, alpha: 0.55 });
-      g.circle(cx - 3, cy + 4, 0.7); g.fill({ color: 0xffffff, alpha: 0.55 });
-    } else if (wash.kind === "harvest-gold") {
-      // Harvest: warm golden rim highlight along top facets
-      g.moveTo(wx - hw, cy);
-      g.lineTo(wx, cy - hh);
-      g.lineTo(wx + hw, cy);
-      g.stroke({ width: 1.2, color: 0xfde047, alpha: 0.4 });
-
-      // Subtle warm wheat glints on harvested ground
-      const cx = wx;
-      g.circle(cx - 6, cy - 2, 0.8); g.fill({ color: 0xfef08a, alpha: 0.55 });
-      g.circle(cx + 5, cy + 3, 0.8); g.fill({ color: 0xfde047, alpha: 0.55 });
-    } else {
-      // Top subtle highlight rim along rear two facets (standard natural look)
-      g.moveTo(wx - hw, cy);
-      g.lineTo(wx, cy - hh);
-      g.lineTo(wx + hw, cy);
-      g.stroke({ width: 1, color: 0xffffff, alpha: 0.22 });
-    }
-
-    // Outer diamond border
-    g.poly(topDiamond);
-    g.stroke({ width: 1, color: pal.border, alpha: 0.85 });
-
-    const cx = wx;
-
-    // 4. Terrain Details (Isometric Relief Artwork)
-    switch (p.terrain) {
-      case "plain": {
-        // Low pastoral meadow on the diamond: soft grass, a few low tufts, gentle shadow
-        drawPlainMeadow(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
-        break;
-      }
-
-      case "wood": {
-        // Trees on the diamond: small stand of pines, trunk, and ground shadow
-        drawWoodTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y, weather: boardWeather });
-        break;
-      }
-
-      case "hill": {
-        // Low stepped plateau on the diamond: warm ochre and stone, three tiers, soft shadow
-        drawHillRise(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
-        break;
-      }
-
-      case "waste": {
-        // Low scorched basalt crag on the diamond: dark basalt, cracked ash, faint heat glow
-        drawWasteCrag(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
-        break;
-      }
-
-      case "shore": {
-        // Water on the diamond: shallow sea shelf, small wave, and wet sand edge
-        drawShoreTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
-        break;
-      }
-
-      case "peak": {
-        // Mountain on the diamond: tall peak, snow cap, and rock shadow
-        drawPeakTile(g, cx, cy, hw, hh, animPhase, { px: p.x, py: p.y });
-        break;
-      }
-    }
-
-    // 5. Node Marks (Hold, Camp, Woodcut, Quarry, Field)
-    const isHoldNode = p.node === "hold";
-    const isNpcHold = isNpcHoldProvince(p);
-    const isPlayerHome = p.occupantRealmId === "player" && p.id === state.board.homeProvinceId;
-
-    if (isHoldNode || isNpcHold || (p.occupantRealmId === "player" && isHoldNode)) {
-      // Tiny Pixel Keep sitting squarely on top of the raised diamond tile
-      let kit: CultureKit = "western";
-      let realmPal: RealmTokenPalette | undefined;
-
-      let cultId: string | undefined;
-      if (p.occupantRealmId === "player") {
-        cultId = sim.playerCultureId ? sim.playerCultureId(state) : undefined;
-        kit = resolveCultureKit(cultId);
-      } else if (p.occupantRealmId) {
-        realmPal = realmTokenPalette(p.occupantRealmId);
-        if (p.occupantRealmId === "rival") {
-          kit = "western"; // Iron March spiked keep
-        } else if (p.occupantRealmId === "k_silk") {
-          kit = "sand";
-        } else if (p.occupantRealmId === "k_ash") {
-          kit = "steppe";
-        } else if (p.occupantRealmId === "k_tide") {
-          kit = "islands";
-        } else {
-          kit = "western";
-        }
-      }
-
-      drawMiniatureKeep(
-        g,
-        cx,
-        cy - 2,
-        cultId ?? kit,
-        realmPal,
-        isPlayerHome,
-        phase,
-        isPlayerHome
-          ? { state, cultureId: cultId, weather: boardWeather, dayPhase: boardDayPhase }
-          : { weather: boardWeather, dayPhase: boardDayPhase }
-      );
-    } else {
-      switch (p.node) {
-        case "camp": {
-          if (p.occupantRealmId !== "player") {
-            const campPal = p.occupantRealmId ? realmTokenPalette(p.occupantRealmId) : undefined;
-            drawCampTentAndFlag(g, cx, cy, "western", undefined, phase, false, { flagColor: campPal?.pennantColor });
-          }
-          break;
-        }
-        case "woodcut":
-        case "quarry":
-        case "field":
-        case "ruins": {
-          const { stock, max, ratio, hasStock } = getNodeStockInfo(state, p.id, p.node);
-          drawResourceNode(g, cx, cy, p.node, ratio, phase, hasStock);
-          if (p.node === "woodcut" || p.node === "quarry" || p.node === "field") {
-            drawStockBadge(g, cx, cy, stock, max);
-          }
-          break;
-        }
-      }
-    }
-
-    // 6. Special Realm Occupant Token Overlays
-    if (p.occupantRealmId === "player") {
-      const isHome = p.id === state.board.homeProvinceId;
-      const cultId = sim.playerCultureId ? sim.playerCultureId(state) : undefined;
-      const kit = resolveCultureKit(cultId);
-      const cult = culturePalette(cultId);
-      const playerTabardCol = cult.id === "western" ? 0x1e40af : cult.tabard;
-
-      if (isHome) {
-        // Player Home Hold: Gilded Royal Diamond Frame with corner studs & crown
-        g.poly(topDiamond);
-        g.stroke({ width: 2, color: 0xfacc15 });
-
-        // 4 Corner Golden Studs at the diamond vertices
-        g.circle(wx, cy - hh, 1.6); g.fill({ color: 0xfde047 });
-        g.circle(wx + hw, cy, 1.6); g.fill({ color: 0xfde047 });
-        g.circle(wx, cy + hh, 1.6); g.fill({ color: 0xfde047 });
-        g.circle(wx - hw, cy, 1.6); g.fill({ color: 0xfde047 });
-
-        // Crown emblem above keep
-        g.poly([
-          cx - 6, cy - 15,
-          cx - 4, cy - 19,
-          cx, cy - 16,
-          cx + 4, cy - 19,
-          cx + 6, cy - 15,
-        ]);
-        g.fill({ color: 0xfacc15 });
-
-        // Animated golden halo pulse
-        const haloAlpha = 0.35 + Math.sin(phase * 4) * 0.2;
-        g.poly([
-          wx, cy - hh - 1.5,
-          wx + hw + 1.5, cy,
-          wx, cy + hh + 1.5,
-          wx - hw - 1.5, cy,
-        ]);
-        g.stroke({ width: 1.5, color: 0xfde047, alpha: haloAlpha });
-      } else {
-        // Player Outpost / Flag Token on Player-Occupied Field Tiles & Nodes
-        g.poly(topDiamond);
-        g.stroke({ width: 1.6, color: 0x2563eb });
-
-        // Corner brass pins
-        g.circle(wx, cy - hh, 1.2); g.fill({ color: 0xfde047 });
-        g.circle(wx + hw, cy, 1.2); g.fill({ color: 0xfde047 });
-        g.circle(wx, cy + hh, 1.2); g.fill({ color: 0xfde047 });
-        g.circle(wx - hw, cy, 1.2); g.fill({ color: 0xfde047 });
-
-        if (p.node !== "ruins") {
-          const garrison = getPostedGarrison(state, p.id);
-          if (garrison.posted) {
-            // Posted Garrison Encampment: small tent + banner meeple with armaments & power crest
-            drawGarrisonMeeple(g, cx, cy, kit, cult, garrison.power, phase);
-          } else {
-            // Player Camp / Outpost: clearer tent + flag
-            drawPlayerCampTentAndFlag(g, cx, cy, kit, cult, phase, { node: p.node, flagColor: playerTabardCol });
-          }
-        }
-      }
-    } else if (p.occupantRealmId) {
-      const pal = realmTokenPalette(p.occupantRealmId);
-      if (p.node === "hold") {
-        // Distinct NPC Hold Diamond Rim
-        g.poly(topDiamond);
-        g.stroke({ width: 2, color: pal.borderColor });
-
-        // 4 Corner Studs
-        g.circle(wx, cy - hh, 1.5); g.fill({ color: pal.studColor });
-        g.circle(wx + hw, cy, 1.5); g.fill({ color: pal.studColor });
-        g.circle(wx, cy + hh, 1.5); g.fill({ color: pal.studColor });
-        g.circle(wx - hw, cy, 1.5); g.fill({ color: pal.studColor });
-      } else {
-        // NPC Outpost on claimed province
-        g.poly(topDiamond);
-        g.stroke({ width: 1.5, color: pal.borderColor, alpha: 0.85 });
-
-        g.circle(wx, cy - hh, 1.1); g.fill({ color: pal.studColor });
-        g.circle(wx + hw, cy, 1.1); g.fill({ color: pal.studColor });
-        g.circle(wx, cy + hh, 1.1); g.fill({ color: pal.studColor });
-        g.circle(wx - hw, cy, 1.1); g.fill({ color: pal.studColor });
-
-        if (p.node !== "ruins") {
-          // Ground shadow under crate & flag
-          g.ellipse(cx + 4.5, cy + 5, 4.5, 2);
-          g.fill({ color: 0x000000, alpha: 0.45 });
-
-          // Territory flag
-          g.moveTo(cx - 3, cy + 4); g.lineTo(cx - 3, cy - 14);
-          g.stroke({ width: 1.3, color: pal.rimColor });
-          g.circle(cx - 3, cy - 14.5, 1.3); g.fill({ color: pal.studColor });
-
-          const flagWave = Math.sin(phase * 4 + p.x * 2) * 1.8;
-          g.poly([
-            cx - 3, cy - 14,
-            cx + 5 + flagWave, cy - 11.5,
-            cx + 3 + flagWave * 0.6, cy - 9.5,
-            cx + 5 + flagWave, cy - 7.5,
-            cx - 3, cy - 7.5,
-          ]);
-          g.fill({ color: pal.pennantColor });
-          g.stroke({ width: 0.6, color: pal.borderColor });
-
-          // Reinforced supply crate with iron banding
-          g.rect(cx + 2, cy + 1, 5.5, 4.5);
-          g.fill({ color: pal.keepWallColor });
-          g.stroke({ width: 0.8, color: pal.borderColor });
-          g.moveTo(cx + 2, cy + 1); g.lineTo(cx + 7.5, cy + 5.5);
-          g.stroke({ width: 0.6, color: pal.borderColor });
-        }
-      }
-    }
-
-    // 6.5 Faint Ring for March Destination Tiles (Player Gold / Hostile Red)
-    const destKind = marchDestMap.get(p.id);
-    if (destKind) {
-      paintBoardDestinationRing(g, p, destKind, animPhase);
-    }
-
-    // 6.6 Active Fight / Column Clash or Engagement Mark on Seen Tiles
-    if (hasProvinceClash(state, p.id)) {
-      drawClashMark(g, cx, cy - 6, animPhase);
-    }
-
-    // 6.7 Hostile Column Inbound Mark on Seen Tiles
-    if (hasProvinceIncoming(state, p.id)) {
-      drawIncomingMark(g, cx + 8, cy - 8, animPhase);
-    }
-
-    // 6.8 Player Column Trail Mark on Seen Tiles
-    if (hasProvinceTrail(state, p.id)) {
-      drawTrailMark(g, cx - 8, cy - 8, animPhase);
-    }
-
-    // 6.9 Player Outpost Flag Mark or Rival Camp Mark on Seen Tiles
-    const outpostMarkKind = resolveProvinceOutpostMark(state, p.id);
-    if (outpostMarkKind && !hasProvinceHold(state, p.id)) {
-      drawOutpostMark(g, cx - 7, cy + 4, outpostMarkKind, animPhase);
-    }
-
-    // 6.10 Season Pip on Seen Home Tile
-    const seasonMarkKind = resolveProvinceSeasonMark(state, p.id);
-    if (seasonMarkKind) {
-      drawSeasonMark(g, cx + 7, cy + 4, seasonMarkKind, animPhase);
-    }
-
-    // 6.11 Posted Player Garrison Mark on Seen Tiles
-    if (hasProvinceGarrison(state, p.id)) {
-      drawGarrisonMark(g, cx, cy + 6, animPhase);
-    }
-
-    // 6.12 Player Scout Mark on Seen Tiles
-    if (hasProvinceScout(state, p.id)) {
-      drawScoutMark(g, cx + 11, cy - 1, animPhase);
-    }
-
-    // 6.13 Player Gather Mark on Seen Tiles
-    if (hasProvinceGather(state, p.id)) {
-      drawGatherMark(g, cx - 11, cy - 1, animPhase);
-    }
-
-    // 6.14 Rival Realm Owner Mark on Seen Tiles
-    const ownerRealmId = resolveProvinceOwnerMark(state, p.id);
-    if (ownerRealmId) {
-      drawOwnerMark(g, cx + 7, cy + 4, ownerRealmId, animPhase);
-    }
-
-    // 6.15 Player Hold Crown Mark on Seen Tiles
-    if (hasProvinceHold(state, p.id)) {
-      drawHoldMark(g, cx - 7, cy + 4, animPhase);
-    }
-
-    // 6.16 Finished Player Building Mark on Seen Tiles
-    if (hasProvinceBuilding(state, p.id)) {
-      drawBuildingMark(g, cx, cy - 9, animPhase);
-    }
-
-    // 6.17 Staffed Building Mark on Seen Tiles
-    if (hasProvinceStaffed(state, p.id)) {
-      drawStaffedMark(g, cx - 5, cy - 3, animPhase);
-    }
-
-    // 6.18 Fog Edge Mark on Seen Tiles at the Edge of Vision (thickens in storm and snow)
-    if (hasProvinceFogEdge(state, p.id)) {
-      drawFogEdgeMark(g, cx + 5, cy - 3, animPhase, state);
-    }
-
-    // 7. Clear Gold Rim & Ground Ring for Currently Selected Province
-    if (selectedProvinceId && p.id === selectedProvinceId) {
-      paintBoardSelectionRim(g, p.x, p.y, state, animPhase);
-    }
+    paintProvinceStaticTile(g, state, p, b, seen, animPhase, theme, visuals, boardWeather);
+    paintProvinceDynamicToken(
+      g,
+      state,
+      p,
+      b,
+      seen,
+      animPhase,
+      phase,
+      marchDestMap,
+      boardWeather,
+      boardDayPhase,
+      selectedProvinceId
+    );
   }
 }
 

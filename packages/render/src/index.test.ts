@@ -49,6 +49,10 @@ import {
   paintTileHeightFace,
   paintFogHeightVeil,
   drawMiniatureKeep,
+  computeBoardStaticCacheKey,
+  paintBoardStaticTiles,
+  paintBoardDynamicTokens,
+  createBoardStaticLayerCache,
   paintBoardMarches,
   paintBoardProvinces,
   drawMarchEtaBadge,
@@ -15178,6 +15182,204 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   expect(typeof resolveSunMoonPosition).toBe("function");
                   expect(typeof sunMoonPositionForState).toBe("function");
                   expect(typeof celestialScreenPoint).toBe("function");
+                });
+              });
+
+              describe("bakeoff/gemini-board-cache: static board tile cache and dynamic frame layer", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const mock: any = {
+                    calls,
+                    eventMode: "auto",
+                    clear: () => { calls.push({ method: "clear", args: [] }); return mock; },
+                    poly: (...args: any[]) => { calls.push({ method: "poly", args }); return mock; },
+                    fill: (...args: any[]) => { calls.push({ method: "fill", args }); return mock; },
+                    stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); return mock; },
+                    moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); return mock; },
+                    lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); return mock; },
+                    circle: (...args: any[]) => { calls.push({ method: "circle", args }); return mock; },
+                    rect: (...args: any[]) => { calls.push({ method: "rect", args }); return mock; },
+                    ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); return mock; },
+                    bezierCurveTo: (...args: any[]) => { calls.push({ method: "bezierCurveTo", args }); return mock; },
+                    quadraticCurveTo: (...args: any[]) => { calls.push({ method: "quadraticCurveTo", args }); return mock; },
+                    arc: (...args: any[]) => { calls.push({ method: "arc", args }); return mock; },
+                    roundRect: (...args: any[]) => { calls.push({ method: "roundRect", args }); return mock; },
+                    closePath: () => { calls.push({ method: "closePath", args: [] }); return mock; },
+                    beginPath: () => { calls.push({ method: "beginPath", args: [] }); return mock; },
+                  };
+                  return mock;
+                }
+
+                function createCacheBoardState(seenIds: string[] = ["p_home", "p_peak", "p_camp", "p_ruins"], tick = 10): GameState {
+                  const flags: Record<string, any> = {
+                    fog_seen: JSON.stringify(seenIds),
+                    node_stock_p_peak: 35,
+                  };
+                  for (const id of seenIds) {
+                    flags[`seen:${id}`] = true;
+                  }
+                  return {
+                    meta: { version: 1, seed: 7, tick, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [
+                      { id: "b1", typeId: "farm", x: 2, y: 2, level: 1, completesAtTick: null } as any,
+                    ],
+                    units: [],
+                    citizens: [
+                      { id: "c1", job: "farmer", tile: { x: 2, y: 2 } } as any,
+                    ],
+                    realms: [
+                      { id: "r_player", isPlayer: true, name: "Player" },
+                      { id: "rival", isPlayer: false, name: "Rival" },
+                    ] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags,
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", x: 1, y: 1, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                        { id: "p_peak", x: 2, y: 1, terrain: "peak", node: "quarry" },
+                        { id: "p_camp", x: 1, y: 2, terrain: "hill", node: "camp", occupantRealmId: "rival" },
+                        { id: "p_ruins", x: 2, y: 2, terrain: "waste", node: "ruins" },
+                        { id: "p_fog", x: 3, y: 1, terrain: "wood", node: "woodcut" },
+                      ],
+                    } as any,
+                  };
+                }
+
+                it("only repaints the static tile layer when camera band or seen/unseen set changes", () => {
+                  const staticG = createMockGraphics();
+                  const cache = createBoardStaticLayerCache(staticG);
+                  const state = createCacheBoardState();
+
+                  // In hold band: static board layer is not painted
+                  expect(cache.update(state, "hold")).toBe(false);
+                  expect(cache.repaintCount).toBe(0);
+                  expect(staticG.eventMode).toBe("none");
+
+                  // Switching camera band hold -> board triggers initial repaint
+                  expect(cache.update(state, "board")).toBe(true);
+                  expect(cache.repaintCount).toBe(1);
+                  const clearCountAfterFirstPaint = staticG.calls.filter((c: any) => c.method === "clear").length;
+                  expect(clearCountAfterFirstPaint).toBe(1);
+                  const callCountAfterFirstPaint = staticG.calls.length;
+                  expect(callCountAfterFirstPaint).toBeGreaterThan(40);
+
+                  // Subsequent frames/ticks with moving marches, stock changes, weather, and day/night do NOT repaint static layer
+                  for (let frame = 1; frame <= 8; frame++) {
+                    const nextTickState = createCacheBoardState(["p_home", "p_peak", "p_camp", "p_ruins"], 10 + frame * 15);
+                    nextTickState.flags.node_stock_p_peak = 35 - frame;
+                    nextTickState.flags.weather = frame % 2 === 0 ? "storm" : "rain";
+                    nextTickState.flags.marches_json = JSON.stringify([
+                      {
+                        id: "m1",
+                        realmId: "player",
+                        purpose: "scout",
+                        fromId: "p_home",
+                        toId: "p_fog",
+                        departedTick: 10,
+                        arrivesTick: 200,
+                        force: {},
+                      },
+                    ]);
+                    expect(cache.update(nextTickState, "board")).toBe(false);
+                  }
+                  expect(cache.repaintCount).toBe(1);
+                  expect(staticG.calls.length).toBe(callCountAfterFirstPaint);
+
+                  // Scouting a new province changes the seen/unseen set -> triggers repaint
+                  const scoutedState = createCacheBoardState(["p_home", "p_peak", "p_camp", "p_ruins", "p_fog"], 150);
+                  expect(cache.update(scoutedState, "board")).toBe(true);
+                  expect(cache.repaintCount).toBe(2);
+                  expect(staticG.calls.filter((c: any) => c.method === "clear").length).toBe(2);
+
+                  // Staying on board with the new seen set skips repaint
+                  expect(cache.update(scoutedState, "board")).toBe(false);
+                  expect(cache.repaintCount).toBe(2);
+
+                  // Switching camera band board -> hold -> board triggers repaint on band entry
+                  expect(cache.update(scoutedState, "hold")).toBe(false);
+                  expect(cache.update(scoutedState, "board")).toBe(true);
+                  expect(cache.repaintCount).toBe(3);
+                });
+
+                it("keeps terrain, height faces, and unseen fog veil on static layer and redraws marks, piles, ruins, camps, keeps, weather, and sun/moon on dynamic layers", async () => {
+                  const { drawAtmosphere } = await import("./index.js");
+                  const staticG = createMockGraphics();
+                  const dynamicG0 = createMockGraphics();
+                  const dynamicG1 = createMockGraphics();
+                  const weatherG0 = createMockGraphics();
+                  const weatherG1 = createMockGraphics();
+
+                  const state0 = createCacheBoardState(["p_home", "p_peak", "p_camp", "p_ruins"], 10);
+                  state0.flags.weather = "rain";
+                  const state1 = createCacheBoardState(["p_home", "p_peak", "p_camp", "p_ruins"], 25);
+                  state1.flags.weather = "rain";
+
+                  paintBoardStaticTiles(staticG, state0);
+                  paintBoardDynamicTokens(dynamicG0, state0, 0.2);
+                  paintBoardDynamicTokens(dynamicG1, state1, 1.4);
+                  drawAtmosphere(state0, weatherG0, 0.2, 560, 360);
+                  drawAtmosphere(state1, weatherG1, 1.4, 560, 360);
+
+                  expect(staticG.eventMode).toBe("none");
+                  expect(dynamicG0.eventMode).toBe("none");
+                  expect(weatherG0.eventMode).toBe("none");
+
+                  const staticJson = JSON.stringify(staticG.calls);
+                  const dynJson0 = JSON.stringify(dynamicG0.calls);
+
+                  // Static layer includes terrain relief (peak snow 0xe2e8f0, hill ochre 0xb45309, waste ash 0x140e0a), height faces, and unseen fog veil (0xd4a359 brass compass star)
+                  expect(staticJson).toContain(String(0xe2e8f0));
+                  expect(staticJson).toContain(String(0xb45309));
+                  expect(staticJson).toContain(String(0x140e0a));
+                  expect(staticJson).toContain(String(0xd4a359));
+
+                  // Static layer does NOT draw camp guy ropes (0xd4a373) or staffed/hold/building marks
+                  expect(staticJson).not.toContain(String(0xd4a373));
+                  expect(staticJson).not.toContain(String(0x0c2718)); // staffed mark roundel
+                  expect(staticJson).not.toContain(String(0x251a06)); // hold mark roundel
+
+                  // Unseen wood tile stays fog on static layer (no pine needle crest 0x34d399 while p_fog is unseen)
+                  expect(staticJson).not.toContain(String(0x34d399));
+
+                  // Dynamic layer draws keeps, camps (0xd4a373), piles & stock badges (0x090d16), ruins (0x292524), hold/building/staffed/fog-edge/owner/outpost/season marks, and animates across frames
+                  expect(dynJson0).toContain(String(0xd4a373)); // camp tent guy ropes
+                  expect(dynJson0).toContain(String(0x090d16)); // stock badge pill
+                  expect(dynJson0).toContain(String(0x292524)); // ruined keep plinth
+                  expect(dynJson0).toContain(String(0x251a06)); // hold mark
+                  expect(dynJson0).toContain(String(0x1f1610)); // building mark
+                  expect(dynJson0).toContain(String(0x0c2718)); // staffed mark
+                  expect(dynJson0).toContain(String(0x131d2e)); // fog edge mark
+                  expect(dynJson0).toContain(String(0x141419)); // rival owner mark
+                  expect(dynamicG1.calls).not.toEqual(dynamicG0.calls);
+
+                  // Weather & sun/moon layer redraws every frame independently
+                  expect(weatherG0.calls.length).toBeGreaterThan(10);
+                  expect(weatherG1.calls).not.toEqual(weatherG0.calls);
+                });
+
+                it("leaves camera math, zoom, and tile click hit-testing untouched and exports cache helpers", async () => {
+                  const mod = await import("./index.js");
+                  expect(typeof mod.computeBoardStaticCacheKey).toBe("function");
+                  expect(typeof mod.paintBoardStaticTiles).toBe("function");
+                  expect(typeof mod.paintBoardDynamicTokens).toBe("function");
+                  expect(typeof mod.createBoardStaticLayerCache).toBe("function");
+
+                  const { gridToWorld, worldToGrid, boardGridToWorld, hitTestProvince, bandForZoom } = await import("./camera.js");
+                  expect(bandForZoom(0.58)).toBe("board");
+                  expect(bandForZoom(1.0)).toBe("hold");
+
+                  const { wx, wy } = gridToWorld(5, 3);
+                  expect(worldToGrid(wx, wy)).toEqual({ gx: 5, gy: 3 });
+
+                  const bPt = boardGridToWorld(3, 1);
+                  expect(hitTestProvince(bPt.wx, bPt.wy)).toEqual({ bx: 3, by: 1 });
                 });
               });
             });

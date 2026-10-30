@@ -1,11 +1,13 @@
-## 2026-10-29 — app / split the app chunk so tabs load separately (wave/chunk-split)
+## 2026-10-29 — render / static board tile cache and dynamic frame layer (bakeoff/gemini-board-cache)
 
-- Slice constraints: app only (`AppShell.tsx`, `vite.config.ts`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`.
-- Lazy tabs: `React.lazy(() => import("./tabs/X").then((m) => ({ default: m.X })))` because the tabs are named exports. One `React.Suspense` wraps the tab panel block only; the board `<canvas>`, HUD, `ProvinceInspect`, `KeepInterior`, and tab bar render outside it, so the board never waits on a tab chunk. `OverworldAtlas` (World tab only) is lazy too.
-- Nothing else statically imports `tabs/*` or `OverworldAtlas`; a new static import would pull that tab back into the main chunk. Check `dist/assets` after a build.
-- `manualChunks`: ids are normalized (`\` → `/`) before matching so Windows paths hit; `pixi`, `react` (react/react-dom/scheduler), `sim` (`/packages/sim/` + break_infinity). Without the explicit `react` chunk, rolldown named the shared vendor chunk `jsx-runtime`.
-- Sizes after: index 642 kB, pixi 500 kB, react 140 kB, sim 135 kB, tabs 23–37 kB. Under the 700 kB `chunkSizeWarningLimit`.
-- `npm test` and `npm run build -w @second-crown/app` pass.
+- Slice constraints: Render only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.
+- Two-layer board split (`packages/render/src/tokens.ts`, `packages/render/src/index.ts`):
+  - `boardStaticTilesLayer` (`Graphics` managed by `createBoardStaticLayerCache` / `paintBoardStaticTiles`): caches static tile drop shadows, 3D cliff height faces (`paintTileHeightFace`), raised diamond plateaus, terrain relief (`plain`, `wood`, `hill`, `waste`, `shore`, `peak`), and unseen province fog veils (`paintFogHeightVeil`).
+  - `computeBoardStaticCacheKey(state, band)` keys strictly on camera `band` and each province's coordinates/terrain + `seen`/`unseen` status (`isProvinceSeen`). In `"hold"` band, `boardStaticCache.update` skips board painting altogether; in `"board"` band, `boardStaticTilesLayer` only repaints when entering `"board"` band or when the `seen`/`unseen` set changes (plus explicit `invalidate()` on season/holiday theme switch).
+  - `boardProvincesLayer` (`paintBoardDynamicTokens`), `boardRoutesLayer` / `boardPawnsLayer` (`paintBoardMarches`), `boardSelectionLayer`, and `boardWeatherGraphic` (`drawAtmosphere` for weather + sun/moon) stay on separate layers above `boardStaticTilesLayer` and redraw every frame in `"board"` band.
+  - Standalone `paintBoardProvinces` continues to run both per-province passes in depth order for direct unit-test callers.
+- Hit-testing & fog: All board layers enforce `eventMode = "none"` (`pointer-events: none`). Unseen tiles stay fog (`paintFogHeightVeil`), and `hitTestProvince` / camera math / zoom remain untouched.
+- Determinism & verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-29 — render / moving sun/moon, tile-plane weather, and night variants (bakeoff/gemini-sun-moon)
 
