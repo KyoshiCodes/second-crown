@@ -1,11 +1,11 @@
-# Handoff (2026-10-14)
+# Handoff (2026-10-29)
 
 Read `AGENTS.md` then this file.
 
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#285** (static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-save-audit` (**not merged**, see Save and load audit log below).
+Merged through PR **#287** (save and load audit log, #287; intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/intent-log` (**not merged**, see Intent log on the hold card below).
 
 ### Cultures and units (all merged)
 
@@ -378,7 +378,13 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (593 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Save and load audit log (branch `bakeoff/gemini-save-audit`, **not merged**)
+## Intent rate limit (branch `wave/save-rate-limit`, **merged as PR #286**)
+
+- App only. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
+- `packages/app/src/net/hold.ts`: `sendIntent` (behind `sendStamp`, `sendTrain`, `sendBuild`, `sendCottage`, `sendLumber`) keeps an in-memory sliding window. Past `INTENT_LIMIT` (10) intents in one second, the intent is dropped before `fetch` and throws "Too many orders at once. Wait a moment". `JoinHoldCard` shows it in the status line.
+- `packages/app/src/save/indexedDb.ts`: comment only. The browser save is a cache; for a shared hold the server save is the source of truth (`game/loadSaved.ts`).
+
+## Save and load audit log (branch `bakeoff/gemini-save-audit`, **merged as PR #287**)
 
 - App only (`packages/app`). Do not change `packages/sim`, `packages/render`, `server/`, or `theme.css`. Do not change the save format or any game rules.
 - `packages/app/src/save.ts` & `packages/app/src/save/audit.ts`: maintains a bounded in-memory save/load audit array (`SAVE_AUDIT_CAP = 24`) via `recordSaveWritten` and `recordSaveLoaded` (`"Save written · tick <N>"` and `"Save loaded · tick <N>"`), leaving `GameState` and serialized save JSON byte-for-byte unchanged.
@@ -386,6 +392,14 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `packages/app/src/LedgerPanel.tsx` & `packages/app/src/hud/ledger-card.css`: merges client-side save/load audit lines with `listLedger(state)` via `listLedgerWithSaveAudit` and `React.useSyncExternalStore`, surfacing `"Save written"` and `"Save loaded"` entries directly in the Ledger of Crowns.
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/save.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+
+## Intent log on the hold card (branch `wave/intent-log`, **not merged**)
+
+- App only. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
+- `packages/app/src/net/hold.ts`: after the server takes an intent, `sendIntent` pushes `"Tick <N>: <action>"` (tick from the returned view) into an in-memory list capped at `INTENT_LOG_CAP` (8), tagged with the realm id. Dropped (rate limit) and refused intents are not logged. `recentIntents(realmId, n)` returns the newest first. The rate limit and the exported `send*` functions are unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: under the status line (where the rate-limit message shows), lists the last 3 lines for the open hold. Nothing shows when the list is empty. No new CSS.
+- Tests: `packages/app/src/net/hold.test.ts` (log order, cap, per hold; refused intent not logged).
+- Also fixes the `main` build broken by #287: `save/indexedDb.ts` now exports `peekFromIndexedDb` (same read as `loadFromIndexedDb`).
 
 ## Verify
 

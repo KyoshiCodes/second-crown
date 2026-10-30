@@ -1,3 +1,11 @@
+## 2026-10-29 — app / last intents on the hold card (wave/intent-log)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
+- `packages/app/src/net/hold.ts`: `logIntent` runs inside `sendIntent` only after `response.ok` and `parseHold`, so the tick is the hold's tick from the server's answer and a dropped or refused intent never appears. Module-level array, capped at `INTENT_LOG_CAP` (8) with `slice(-cap)`; per tab, cleared by reload. Entries carry `realmId` so leaving one hold and joining another does not show the old hold's lines.
+- `JoinHoldCard.tsx` reads `recentIntents(realmId, 3)` during render. No subscription is needed: every successful intent already calls `setView`, which re-renders the card. Inline styles copy the status line; no new CSS.
+- `resetIntentLimit()` (tests only) now clears the log too, so `afterEach` keeps tests isolated.
+- Build fix: #287 merged with `save.ts` re-exporting `peekFromIndexedDb` from `save/indexedDb.ts`, which never defined it (`tsc -b` TS2305). Vitest does not type-check, so `npm test` stayed green. Added `peekFromIndexedDb = () => get(KEY)`. `loadFromIndexedDb` records nothing in this tree, so the two reads match today. If `loadFromIndexedDb` ever records a load, `peek` must stay silent.
+
 ## 2026-10-29 — app / save and load audit log in Ledger of Crowns (bakeoff/gemini-save-audit)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Save format and game rules unchanged.

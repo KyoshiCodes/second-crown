@@ -70,6 +70,8 @@ async function remove(key: string): Promise<void> {
 
 export const saveToIndexedDb = (json: string) => put(KEY, json);
 export const loadFromIndexedDb = () => get(KEY);
+/** Read the save without counting it as a load (cloud upload reads). Same bytes as loadFromIndexedDb. */
+export const peekFromIndexedDb = () => get(KEY);
 export const clearIndexedDbSave = () => remove(KEY);
 
 export const savePulledToIndexedDb = (json: string) => put(PULLED_KEY, json);

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-29 — Last intents on the hold card (wave/intent-log)
+
+- App only. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
+- `packages/app/src/net/hold.ts`: in-memory intent log (`INTENT_LOG_CAP` = 8, per tab, tagged by realm). Each intent the server takes adds `"Tick <N>: <action>"`. Exports `INTENT_LOG_CAP` and `recentIntents(realmId, n)`. `resetIntentLimit` (tests) also clears the log. Rate limit and `send*` functions unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: shows the last 3 intent lines under the status line; nothing when empty.
+- Tests: `packages/app/src/net/hold.test.ts` (two tests).
+- Build fix: `packages/app/src/save/indexedDb.ts` now exports `peekFromIndexedDb`, which `save.ts` and `CloudPanel.tsx` imported since #287 but which was never added, so `npm run build -w @second-crown/app` failed on `main`. Same read as `loadFromIndexedDb`; no behavior change.
+
 ## 2026-10-29 — Save and load audit log in Ledger of Crowns (bakeoff/gemini-save-audit)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Save format and game rules unchanged.

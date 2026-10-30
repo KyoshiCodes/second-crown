@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-29 — The hold card shows your last few orders (wave/intent-log)
+
+- **The hold card now shows the last few intents.** In a shared hold, under the card's message line, you see your last 3 orders that landed, like "Tick 42: train militia". Orders that were refused or dropped for being too fast are not listed. The list is for this tab only and clears when you reload.
+- **Play is otherwise unchanged.** Your game, saves, Push save, Pull save, offline catch-up, Second Dawn, hold keys, sign-in, the rate limit, and the board work exactly as before.
+
 ## 2026-10-29 — Saves and loads noted in the ledger (bakeoff/gemini-save-audit)
 
 - **Saves and loads are now noted in the ledger. Play is unchanged.** When a save is written or a save is loaded, a short `"Save written · tick N"` or `"Save loaded · tick N"` line appears in the Ledger of Crowns on the Crown tab.

@@ -1,5 +1,5 @@
 import React from "react";
-import { joinRealm, readHold, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain, type HoldView } from "./net/hold";
+import { joinRealm, readHold, recentIntents, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain, type HoldView } from "./net/hold";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -24,6 +24,7 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
   const [view, setView] = React.useState<HoldView | null>(null);
   const [status, setStatus] = React.useState("");
   const realmId = view?.realmId ?? null;
+  const lastIntents = realmId === null ? [] : recentIntents(realmId, 3);
 
   React.useEffect(() => {
     if (realmId === null) return;
@@ -175,6 +176,11 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
         </div>
       )}
       {status ? <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8 }}>{status}</div> : null}
+      {lastIntents.length > 0 ? (
+        <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8 }} aria-label="Last intents">
+          {lastIntents.map((line, i) => <div key={i}>{line}</div>)}
+        </div>
+      ) : null}
     </div>
   );
 }
