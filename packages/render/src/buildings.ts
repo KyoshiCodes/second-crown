@@ -6680,6 +6680,30 @@ export interface BuildingDrawOptions {
 // -------------------------------------------------------------
 // Denser Isometric Pixel Building Painter
 // -------------------------------------------------------------
+function drawBuildingNightLantern(
+  g: Graphics,
+  lx: number,
+  ly: number,
+  phase: number,
+  a: number = 1
+): void {
+  const flicker = 0.86 + Math.sin(phase * 4.8 + lx * 0.4) * 0.14;
+  // Iron wall bracket
+  g.moveTo(lx, ly - 2.2);
+  g.lineTo(lx, ly - 1.0);
+  g.stroke({ width: 0.8, color: 0x1e293b, alpha: a });
+  // Soft warm local lantern halo
+  g.circle(lx, ly, 3.8);
+  g.fill({ color: 0xf59e0b, alpha: 0.28 * a * flicker });
+  // Brass lantern housing
+  g.rect(lx - 1.0, ly - 1.3, 2.0, 2.6);
+  g.fill({ color: 0xd97706, alpha: a });
+  g.stroke({ width: 0.5, color: 0x1e293b, alpha: a });
+  // Glowing lantern core
+  g.circle(lx, ly, 0.8);
+  g.fill({ color: 0xfef08a, alpha: 0.95 * a * flicker });
+}
+
 export function drawIsometricBuilding(
   g: Graphics,
   typeId: string,
@@ -6810,6 +6834,9 @@ export function drawIsometricBuilding(
     case "farm": {
       if (kit !== "western") {
         drawFarmCulture(g, 18 + heightBoost, a, phase, kit, cult, complete);
+        if (isNight && complete) {
+          drawBuildingNightLantern(g, -5.5, -2, phase, a);
+        }
         break;
       }
       // Denser Thatched Farmhouse + Stone Well + Vegetable Patch + Hayrick
@@ -6848,11 +6875,14 @@ export function drawIsometricBuilding(
         g.fill({ color: 0xf4f4f5, alpha: 0.3 * a });
       }
 
-      // Door & glowing window
+      // Door & window (night variant: darker window + lit porch lantern)
       g.rect(-10, 3 - h * 0.45, 4, 6);
       g.fill({ color: 0x3d2410, alpha: a });
       g.rect(2, -h * 0.4, 3.5, 3.5);
-      g.fill({ color: 0xfef08a, alpha: a * 0.85 });
+      g.fill({ color: isNight && complete ? 0x1e293b : 0xfef08a, alpha: a * 0.85 });
+      if (isNight && complete) {
+        drawBuildingNightLantern(g, -5.5, 4 - h * 0.35, phase, a);
+      }
 
       // Outbuilding 1: Stone Well with wooden bucket
       g.ellipse(-11, 4, 3.5, 2.2);
@@ -6876,6 +6906,9 @@ export function drawIsometricBuilding(
     case "cottage": {
       if (kit !== "western") {
         drawCottageCulture(g, 16 + heightBoost, a, phase, kit, cult, complete, isFull);
+        if (isNight && complete) {
+          drawBuildingNightLantern(g, -4.5, -1, phase, a);
+        }
         break;
       }
       // Distinct Thatched Residential Cottage + Plaster/Timber Walls + Chimney Smoke + Leaded Window + Flowerbed
@@ -6935,10 +6968,13 @@ export function drawIsometricBuilding(
       g.rect(-9, 8.5 - h * 0.15, 6, 1.8);
       g.fill({ color: 0x78716c, alpha: a });
 
-      // Leaded Glass Casement Window with warm amber candlelight & shutters
+      // Leaded Glass Casement Window & shutters (night variant: darker window + lit porch lantern)
       const cottageCandle = 0.88 + Math.sin(phase * 3.5) * 0.1;
       g.rect(3, 4 - h * 0.45, 4, 4);
-      g.fill({ color: 0xfef08a, alpha: a * 0.95 * cottageCandle });
+      g.fill({
+        color: isNight && complete ? 0x1e293b : 0xfef08a,
+        alpha: isNight && complete ? a * 0.95 : a * 0.95 * cottageCandle,
+      });
       // Window mullions (cross)
       g.moveTo(5, 4 - h * 0.45); g.lineTo(5, 8 - h * 0.45);
       g.moveTo(3, 6 - h * 0.45); g.lineTo(7, 6 - h * 0.45);
@@ -6946,6 +6982,9 @@ export function drawIsometricBuilding(
       // Wooden shutters on sides
       g.rect(1.5, 4 - h * 0.45, 1.5, 4); g.fill({ color: 0x78350f, alpha: a });
       g.rect(7, 4 - h * 0.45, 1.5, 4); g.fill({ color: 0x78350f, alpha: a });
+      if (isNight && complete) {
+        drawBuildingNightLantern(g, -2.5, 5 - h * 0.35, phase, a);
+      }
 
       // Cottage Yard 1: Stone-lined Flowerbed with blossoms
       g.rect(-14, 2, 5, 3.5);
@@ -7588,11 +7627,14 @@ export function drawIsometricBuilding(
       g.poly([-5, 5.5, 0, 8, 5, 5.5, 0, 6.5]);
       g.fill({ color: 0x64748b, alpha: a });
 
-      // 4. Arched Gothic Library Casement Windows with Warm Honey Candlelight
+      // 4. Arched Gothic Library Casement Windows (night variant: darker windows + lit cloister lanterns)
       const candleFlicker = 0.85 + Math.sin(phase * 4) * 0.12;
       // West library window
       g.rect(-12, -h * 0.45, 4.2, 6.5);
-      g.fill({ color: 0xfef08a, alpha: a * candleFlicker });
+      g.fill({
+        color: isNight && complete ? 0x1e293b : 0xfef08a,
+        alpha: isNight && complete ? a * 0.95 : a * candleFlicker,
+      });
       g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
       // Window mullion cross
       g.moveTo(-10, -h * 0.45); g.lineTo(-10, -h * 0.45 + 6.5);
@@ -7601,11 +7643,19 @@ export function drawIsometricBuilding(
 
       // East library window
       g.rect(7, -h * 0.45, 4.2, 6.5);
-      g.fill({ color: 0xfde047, alpha: a * (0.8 + Math.cos(phase * 3.2) * 0.12) });
+      g.fill({
+        color: isNight && complete ? 0x1e293b : 0xfde047,
+        alpha: isNight && complete ? a * 0.95 : a * (0.8 + Math.cos(phase * 3.2) * 0.12),
+      });
       g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
       g.moveTo(9.1, -h * 0.45); g.lineTo(9.1, -h * 0.45 + 6.5);
       g.moveTo(7, -h * 0.45 + 3.2); g.lineTo(11.2, -h * 0.45 + 3.2);
       g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+
+      if (isNight && complete) {
+        drawBuildingNightLantern(g, -5.8, 2.5, phase, a);
+        drawBuildingNightLantern(g, 5.8, 2.5, phase + 1, a);
+      }
 
       // 5. Steep Royal Sapphire Slate Roof with Overhang & Gilded Ridge Coping
       g.poly([
@@ -8057,9 +8107,12 @@ export function drawIsometricBuilding(
       g.poly([-8, 2.5, -2, 5.5, -2, -h * 0.35, -8, -h * 0.35 - 3]);
       g.fill({ color: 0x1e293b, alpha: a });
 
-      // Glowing candlelit window
+      // Window & night sanctuary lantern
       g.rect(-13, -1 - h * 0.45, 3.5, 3.5);
-      g.fill({ color: 0xfef08a, alpha: a * 0.95 });
+      g.fill({ color: isNight && complete ? 0x1e293b : 0xfef08a, alpha: a * 0.95 });
+      if (isNight && complete) {
+        drawBuildingNightLantern(g, -1.2, 2.2 - h * 0.2, phase, a);
+      }
 
       // 5. Fieldstone Chimney & Medicinal Herbal Hearth Smoke
       g.rect(-12, -h - 14, 4, 9);
@@ -8346,10 +8399,16 @@ export function drawIsometricBuilding(
       const lowerCult = (cultureId || "").toLowerCase().trim();
       if (lowerCult === "mist" || lowerCult === "glen" || lowerCult === "salt" || lowerCult === "fen" || lowerCult === "peak") {
         drawKeepPlayerCulture(g, 30 + heightBoost, a, phase, lowerCult, cult, complete, hasPeople, isBreached);
+        if (isNight && complete && !isBreached) {
+          drawBuildingNightLantern(g, -5.6, 0.5, phase, a);
+        }
         break;
       }
       if (kit !== "western") {
         drawKeepCulture(g, 30 + heightBoost, a, phase, kit, cult, complete, hasPeople, isBreached);
+        if (isNight && complete && !isBreached) {
+          drawBuildingNightLantern(g, -5.6, 0.5, phase, a);
+        }
         break;
       }
       // Taller Stone Hold (Seat of the Realm) + Corner Bartizans + Crenellations + Portcullis + Royal Banner
@@ -8514,15 +8573,22 @@ export function drawIsometricBuilding(
       g.rect(8, -h * 0.65, 1.4, 4); g.fill({ color: 0x0f172a, alpha: a });
 
       if (!isBreached) {
-        // Arched Royal High Window with warm candlelight when hold stands
+        // Arched Royal High Window (night variant: darker window + lit gatehouse lanterns)
         const keepCandle = 0.85 + Math.sin(phase * 4) * 0.12;
         g.rect(-3, -h * 0.55, 4, 5.5);
-        g.fill({ color: 0xfef08a, alpha: a * 0.95 * keepCandle });
+        g.fill({
+          color: isNight && complete ? 0x1e293b : 0xfef08a,
+          alpha: isNight && complete ? a * 0.95 : a * 0.95 * keepCandle,
+        });
         g.stroke({ width: 0.8, color: 0x78350f, alpha: a });
         // Stained glass mullion cross
         g.moveTo(-1, -h * 0.55); g.lineTo(-1, -h * 0.55 + 5.5);
         g.moveTo(-3, -h * 0.55 + 2.5); g.lineTo(1, -h * 0.55 + 2.5);
         g.stroke({ width: 0.6, color: 0x451a03, alpha: a });
+        if (isNight && complete) {
+          drawBuildingNightLantern(g, -5.6, 0.5, phase, a);
+          drawBuildingNightLantern(g, 5.6, -2.8, phase + 1.2, a);
+        }
       } else {
         // Dark, shattered royal high window when breached (no warm candlelight)
         g.rect(-3, -h * 0.55, 4, 5.5);

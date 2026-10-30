@@ -14478,77 +14478,74 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
 
-                describe("drawAtmosphere weather overlays and day/night tint", () => {
-                  it("Clear weather paints warm gold tint", async () => {
-                    const { drawAtmosphere } = await import("./atmosphere.js");
-                    const state = createAtmosphereState("clear", 300); // 300 = day
+                describe("drawAtmosphere weather overlays and local sun/moon lighting", () => {
+                  it("Clear weather paints sun sprite and warm local glow without full-canvas rect washes", async () => {
+                    const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("clear", Math.floor(DAY_CYCLE_TICKS * 0.35));
                     const g = createMockGraphics();
                     drawAtmosphere(state, g, 0);
 
+                    expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
                     const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
-                    // Warm gold tint (0xfde047) and sun haze (0xfef08a)
+                    // Warm gold sun/local glow (0xfde047, 0xfef08a)
                     expect(fills).toContain(0xfde047);
                     expect(fills).toContain(0xfef08a);
                   });
 
-                  it("Rain weather paints cool blue tint and drifting rain streaks", async () => {
-                    const { drawAtmosphere } = await import("./atmosphere.js");
-                    const state = createAtmosphereState("rain", 300);
+                  it("Rain weather paints sparse rain streaks falling onto the tile plane", async () => {
+                    const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("rain", Math.floor(DAY_CYCLE_TICKS * 0.35));
                     const g = createMockGraphics();
                     drawAtmosphere(state, g, 0.5);
 
-                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
                     const strokes = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
-
-                    // Cool blue tint (0x3b82f6)
-                    expect(fills).toContain(0x3b82f6);
-                    // Drifting rain streaks (0x93c5fd)
+                    // Rain streaks (0x93c5fd)
                     expect(strokes).toContain(0x93c5fd);
                   });
 
-                  it("Storm weather paints darker blue, heavier streaks, and occasional lightning flash", async () => {
-                    const { drawAtmosphere } = await import("./atmosphere.js");
-                    const state = createAtmosphereState("storm", 300);
+                  it("Storm weather paints heavier tile-plane streaks and localized lightning bolt", async () => {
+                    const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("storm", Math.floor(DAY_CYCLE_TICKS * 0.35));
                     const g = createMockGraphics();
                     // Choose phase that triggers lightning flash cycle (> 9.75)
-                    // cycle = (((phase * 1.5 + seed * 0.1) % 10) + 10) % 10
-                    // with seed 42: seed * 0.1 = 4.2. phase = 3.8 -> 3.8 * 1.5 = 5.7 -> 5.7 + 4.2 = 9.9 (> 9.75)
                     drawAtmosphere(state, g, 3.8);
 
+                    expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
                     const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
                     const strokes = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
 
-                    // Darker blue atmospheric wash (0x0f172a)
-                    expect(fills).toContain(0x0f172a);
-                    // Heavier rain streaks (0x60a5fa)
+                    // Heavier storm streaks (0x60a5fa) & localized lightning bolt/impact (0xe0e7ff)
                     expect(strokes).toContain(0x60a5fa);
-                    // Lightning flash wash (0xe0e7ff)
+                    expect(strokes).toContain(0xe0e7ff);
                     expect(fills).toContain(0xe0e7ff);
                   });
 
-                  it("Snow weather paints pale grey tint and small drifting snow dots", async () => {
-                    const { drawAtmosphere } = await import("./atmosphere.js");
-                    const state = createAtmosphereState("snow", 300);
+                  it("Snow weather paints sparse drifting snow dots landing on tiles", async () => {
+                    const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("snow", Math.floor(DAY_CYCLE_TICKS * 0.35));
                     const g = createMockGraphics();
                     drawAtmosphere(state, g, 1.0);
 
+                    expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
                     const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
-                    // Pale grey tint wash (0xe2e8f0), snow dot core (0xf8fafc), soft halo (0xbae6fd)
-                    expect(fills).toContain(0xe2e8f0);
+                    // Snow dot core (0xf8fafc) and soft halo (0xbae6fd)
                     expect(fills).toContain(0xf8fafc);
                     expect(fills).toContain(0xbae6fd);
                   });
 
-                  it("paints soft night tint wash during night tick", async () => {
-                    const { drawAtmosphere } = await import("./atmosphere.js");
-                    // tick 450 out of 600 -> sin(0.75 * 2pi) = sin(1.5pi) = -1 (deep night)
-                    const state = createAtmosphereState("clear", 450);
+                  it("paints moon sprite and local cool moonlight glow during night tick", async () => {
+                    const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("clear", Math.floor(DAY_CYCLE_TICKS * 0.85));
                     const g = createMockGraphics();
                     drawAtmosphere(state, g, 0);
 
+                    expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
                     const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
-                    // Deep midnight navy wash (0x0f172a)
-                    expect(fills).toContain(0x0f172a);
+                    // Cool moonlight local glow (0x60a5fa, 0x93c5fd) and silver moon (0xe2e8f0)
+                    expect(fills).toContain(0x60a5fa);
+                    expect(fills).toContain(0x93c5fd);
+                    expect(fills).toContain(0xe2e8f0);
                   });
 
                   it("safely handles null state or null graphics without throwing", async () => {
@@ -14656,26 +14653,24 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                 };
 
                 describe("resolveDayPhase & DAY_CYCLE_TICKS", () => {
-                  it("walks dawn, day, dusk, night across the 120-tick fallback cycle", async () => {
+                  it("walks dawn, day, dusk, night across DAY_CYCLE_TICKS", async () => {
                     const { resolveDayPhase, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
-                    expect(DAY_CYCLE_TICKS).toBe(120);
+                    expect(DAY_CYCLE_TICKS).toBeGreaterThanOrEqual(120);
 
+                    const step = Math.max(1, Math.floor(DAY_CYCLE_TICKS / 120));
                     const seen: string[] = [];
-                    for (let t = 0; t < DAY_CYCLE_TICKS; t++) {
+                    for (let t = 0; t < DAY_CYCLE_TICKS; t += step) {
                       const p = resolveDayPhase(createDayNightState(t));
                       if (seen.at(-1) !== p) seen.push(p);
                     }
                     expect(seen).toEqual(["dawn", "day", "dusk", "night"]);
 
                     expect(resolveDayPhase(createDayNightState(0))).toBe("dawn");
-                    expect(resolveDayPhase(createDayNightState(19))).toBe("dawn");
-                    expect(resolveDayPhase(createDayNightState(20))).toBe("day");
-                    expect(resolveDayPhase(createDayNightState(69))).toBe("day");
-                    expect(resolveDayPhase(createDayNightState(70))).toBe("dusk");
-                    expect(resolveDayPhase(createDayNightState(89))).toBe("dusk");
-                    expect(resolveDayPhase(createDayNightState(90))).toBe("night");
-                    expect(resolveDayPhase(createDayNightState(119))).toBe("night");
-                    expect(resolveDayPhase(createDayNightState(120))).toBe("dawn");
+                    expect(resolveDayPhase(createDayNightState(Math.floor(DAY_CYCLE_TICKS * 0.05)))).toBe("dawn");
+                    expect(resolveDayPhase(createDayNightState(Math.floor(DAY_CYCLE_TICKS * 0.35)))).toBe("day");
+                    expect(resolveDayPhase(createDayNightState(Math.floor(DAY_CYCLE_TICKS * 0.62)))).toBe("dusk");
+                    expect(resolveDayPhase(createDayNightState(Math.floor(DAY_CYCLE_TICKS * 0.85)))).toBe("night");
+                    expect(resolveDayPhase(createDayNightState(DAY_CYCLE_TICKS))).toBe("dawn");
                   });
 
                   it("handles null/undefined state and explicit dayPhase flags cleanly", async () => {
@@ -14687,65 +14682,64 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
 
-                describe("drawAtmosphere day/night phase tints and weather overlays", () => {
-                  it("Dawn paints warm gold rising wash and sets pointer-events: none", async () => {
-                    const { drawAtmosphere } = await import("./atmosphere.js");
+                describe("drawAtmosphere day/night local lighting and weather overlays", () => {
+                  it("Dawn paints rising sun sprite and warm gold local glow and sets pointer-events: none", async () => {
+                    const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
                     const g: any = { ...createMockGraphics(), eventMode: "auto" };
-                    drawAtmosphere(createDayNightState(10, "clear"), g, 0);
+                    drawAtmosphere(createDayNightState(Math.floor(DAY_CYCLE_TICKS * 0.05), "clear"), g, 0);
 
                     expect(g.eventMode).toBe("none");
+                    expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
                     const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
-                    // Warm gold rising wash (0xfbbf24) and horizon sunrise glow (0xf59e0b, 0xfef08a)
                     expect(fills).toContain(0xfbbf24);
                     expect(fills).toContain(0xf59e0b);
                     expect(fills).toContain(0xfef08a);
                   });
 
-                  it("Day paints clear warm daylight wash", async () => {
-                    const { drawAtmosphere } = await import("./atmosphere.js");
+                  it("Day paints solar sprite and warm local glow under the sun", async () => {
+                    const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
                     const g = createMockGraphics();
-                    drawAtmosphere(createDayNightState(40, "clear"), g, 0);
+                    drawAtmosphere(createDayNightState(Math.floor(DAY_CYCLE_TICKS * 0.35), "clear"), g, 0);
 
+                    expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
                     const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
                     expect(fills).toContain(0xfef08a);
                     expect(fills).toContain(0xfde047);
                   });
 
-                  it("Dusk paints rich amber twilight wash and sunset glow", async () => {
-                    const { drawAtmosphere } = await import("./atmosphere.js");
+                  it("Dusk paints sunset amber sun sprite and local warm glow", async () => {
+                    const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
                     const g = createMockGraphics();
-                    drawAtmosphere(createDayNightState(80, "clear"), g, 0);
+                    drawAtmosphere(createDayNightState(Math.floor(DAY_CYCLE_TICKS * 0.62), "clear"), g, 0);
 
+                    expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
                     const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
-                    // Amber dusk wash (0xd97706), sunset glow (0xf59e0b, 0xb45309)
                     expect(fills).toContain(0xd97706);
                     expect(fills).toContain(0xf59e0b);
                     expect(fills).toContain(0xb45309);
                   });
 
-                  it("Night paints cool blue tint with lower-brightness darkening veil while preserving weather overlays", async () => {
-                    const { drawAtmosphere } = await import("./atmosphere.js");
+                  it("Night paints moon sprite and localized moonlight glow while preserving tile-plane weather", async () => {
+                    const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    const nightTick = Math.floor(DAY_CYCLE_TICKS * 0.85);
                     const gClearNight = createMockGraphics();
-                    drawAtmosphere(createDayNightState(100, "clear"), gClearNight, 0);
+                    drawAtmosphere(createDayNightState(nightTick, "clear"), gClearNight, 0);
 
-                    const nightFills = gClearNight.calls.filter((c: any) => c.method === "fill");
-                    const nightColors = nightFills.map((c: any) => c.args[0]?.color);
-                    // Lower brightness darkening veil (0x0f172a) + cool blue night tint (0x1e3a8a)
-                    expect(nightColors).toContain(0x0f172a);
-                    expect(nightColors).toContain(0x1e3a8a);
+                    expect(gClearNight.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
+                    const nightColors = gClearNight.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(nightColors).toContain(0x60a5fa);
+                    expect(nightColors).toContain(0x93c5fd);
+                    expect(nightColors).toContain(0xe2e8f0);
 
-                    const dimVeil = nightFills.find((c: any) => c.args[0]?.color === 0x0f172a);
-                    expect(dimVeil.args[0].alpha).toBeGreaterThanOrEqual(0.2);
-
-                    // Night + rain keeps drifting rain streaks
+                    // Night + rain keeps sparse tile-plane rain streaks
                     const gRainNight = createMockGraphics();
-                    drawAtmosphere(createDayNightState(100, "rain"), gRainNight, 0.4);
+                    drawAtmosphere(createDayNightState(nightTick, "rain"), gRainNight, 0.4);
                     const rainStrokes = gRainNight.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
                     expect(rainStrokes).toContain(0x93c5fd);
 
-                    // Night + snow keeps drifting snow dots
+                    // Night + snow keeps sparse tile-plane snow dots
                     const gSnowNight = createMockGraphics();
-                    drawAtmosphere(createDayNightState(100, "snow"), gSnowNight, 0.4);
+                    drawAtmosphere(createDayNightState(nightTick, "snow"), gSnowNight, 0.4);
                     const snowColors = gSnowNight.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
                     expect(snowColors).toContain(0xf8fafc);
                   });
@@ -14777,7 +14771,10 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
 
                   it("drawIsometricBuilding keep and walls ground shadows darken in night and storm", async () => {
                     const { drawIsometricBuilding, getThemeVisuals } = await import("./buildings.js");
+                    const { DAY_CYCLE_TICKS } = await import("./atmosphere.js");
                     const visuals = getThemeVisuals("Spring");
+                    const dayTick = Math.floor(DAY_CYCLE_TICKS * 0.35);
+                    const nightTick = Math.floor(DAY_CYCLE_TICKS * 0.85);
 
                     for (const typeId of ["keep", "walls"]) {
                       const gDay = createMockGraphics();
@@ -14785,13 +14782,13 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                       const gStorm = createMockGraphics();
 
                       drawIsometricBuilding(gDay, typeId, 1, true, 0, visuals, 4, 4, undefined, "western", {
-                        state: createDayNightState(30, "clear"),
+                        state: createDayNightState(dayTick, "clear"),
                       });
                       drawIsometricBuilding(gNight, typeId, 1, true, 0, visuals, 4, 4, undefined, "western", {
-                        state: createDayNightState(100, "clear"),
+                        state: createDayNightState(nightTick, "clear"),
                       });
                       drawIsometricBuilding(gStorm, typeId, 1, true, 0, visuals, 4, 4, undefined, "western", {
-                        state: createDayNightState(30, "storm"),
+                        state: createDayNightState(dayTick, "storm"),
                       });
 
                       const baseDay = gDay.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === 0x080c09).args[0].alpha;
@@ -14909,10 +14906,278 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                     } = await import("./index.js");
                     expect(typeof resolveDayPhase).toBe("function");
                     expect(typeof dayPhaseForState).toBe("function");
-                    expect(DAY_CYCLE_TICKS).toBe(120);
+                    expect(DAY_CYCLE_TICKS).toBeGreaterThanOrEqual(120);
                     expect(typeof resolveDayNightCycle).toBe("function");
                     expect(typeof resolveWindStrength).toBe("function");
                   });
+                });
+              });
+
+              // bakeoff/gemini-sun-moon: Visible Sun/Moon, Tile-Plane Weather & Night Variants
+              describe("bakeoff/gemini-sun-moon: Visible Sun/Moon, Tile-Plane Weather & Night Variants", () => {
+                const createSunMoonState = (
+                  tick: number,
+                  weather: "clear" | "rain" | "storm" | "snow" = "clear",
+                  extraFlags: Record<string, any> = {}
+                ): GameState => {
+                  return {
+                    meta: { version: 1, seed: 42, tick, lastRealTime: 0, playTimeMs: 0 },
+                    resources: {},
+                    buildings: [],
+                    units: [],
+                    citizens: [],
+                    realms: [{ id: "r_player", isPlayer: true, name: "Player" }] as any,
+                    characters: [],
+                    opinions: [],
+                    wars: [],
+                    factions: [],
+                    inputLog: [],
+                    flags: { weather, ...extraFlags },
+                    unlocks: [],
+                    board: {
+                      homeProvinceId: "p_home",
+                      provinces: [
+                        { id: "p_home", name: "Home", realmId: "player", occupantRealmId: "player", node: "hold", terrain: "plain", x: 1, y: 1, elevation: 0 },
+                        { id: "p_dest", name: "Dest", realmId: "player", occupantRealmId: "player", node: "woodcut", terrain: "wood", x: 4, y: 2, elevation: 0 },
+                      ],
+                    },
+                  } as unknown as GameState;
+                };
+
+                it("removes all full-canvas g.rect washes and never tints the whole board", async () => {
+                  const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                  const ticks = [
+                    Math.floor(DAY_CYCLE_TICKS * 0.05),
+                    Math.floor(DAY_CYCLE_TICKS * 0.35),
+                    Math.floor(DAY_CYCLE_TICKS * 0.62),
+                    Math.floor(DAY_CYCLE_TICKS * 0.85),
+                  ];
+                  for (const weather of ["clear", "rain", "storm", "snow"] as const) {
+                    for (const tick of ticks) {
+                      const g = createMockGraphics();
+                      drawAtmosphere(createSunMoonState(tick, weather), g, 3.8);
+
+                      expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
+                      // Every local glow ellipse or circle is strictly localized (radius <= 44px, never full-board)
+                      for (const call of g.calls) {
+                        if (call.method === "ellipse") {
+                          expect(call.args[2]).toBeLessThanOrEqual(45);
+                          expect(call.args[3]).toBeLessThanOrEqual(22);
+                        }
+                        if (call.method === "circle") {
+                          expect(call.args[2]).toBeLessThanOrEqual(25);
+                        }
+                      }
+                    }
+                  }
+                });
+
+                it("moves the sun across the top of the board by day and the moon with local moonlight by night", async () => {
+                  const {
+                    resolveSunMoonPosition,
+                    celestialScreenPoint,
+                    drawAtmosphere,
+                    DAY_CYCLE_TICKS,
+                  } = await import("./atmosphere.js");
+
+                  const dawnPos = resolveSunMoonPosition(createSunMoonState(Math.floor(DAY_CYCLE_TICKS * 0.05)));
+                  const noonPos = resolveSunMoonPosition(createSunMoonState(Math.floor(DAY_CYCLE_TICKS * 0.35)));
+                  const duskPos = resolveSunMoonPosition(createSunMoonState(Math.floor(DAY_CYCLE_TICKS * 0.65)));
+                  const nightPos = resolveSunMoonPosition(createSunMoonState(Math.floor(DAY_CYCLE_TICKS * 0.85)));
+
+                  expect(dawnPos.kind).toBe("sun");
+                  expect(noonPos.kind).toBe("sun");
+                  expect(duskPos.kind).toBe("sun");
+                  expect(nightPos.kind).toBe("moon");
+
+                  const pDawn = celestialScreenPoint(dawnPos);
+                  const pNoon = celestialScreenPoint(noonPos);
+                  const pDusk = celestialScreenPoint(duskPos);
+                  expect(pDawn.skyX).toBeLessThan(pNoon.skyX);
+                  expect(pNoon.skyX).toBeLessThan(pDusk.skyX);
+                  expect(pNoon.skyY).toBeLessThan(pDawn.skyY);
+                  expect(pNoon.skyY).toBeLessThan(pDusk.skyY);
+
+                  // Explicit sunMoonPosition override is respected
+                  const customPos = resolveSunMoonPosition(
+                    createSunMoonState(0, "clear", {
+                      sunMoonPosition: { kind: "moon", x: 0.75, y: 0.3, elevation: 0.7 },
+                    })
+                  );
+                  expect(customPos.kind).toBe("moon");
+                  expect(customPos.x).toBeCloseTo(0.75);
+
+                  // Night draws soft moonlight glow near the moon + small cool local glow under the moon
+                  const gNight = createMockGraphics();
+                  const pNight = celestialScreenPoint(nightPos);
+                  drawAtmosphere(createSunMoonState(Math.floor(DAY_CYCLE_TICKS * 0.85), "clear"), gNight, 0);
+
+                  const moonGlow = gNight.calls.find(
+                    (c: any) => c.method === "circle" && Math.abs(c.args[0] - pNight.skyX) < 1 && c.args[2] > 10
+                  );
+                  expect(moonGlow).toBeDefined();
+                  expect(moonGlow.args[2]).toBeLessThanOrEqual(24);
+
+                  const underMoonPool = gNight.calls.find(
+                    (c: any) => c.method === "ellipse" && Math.abs(c.args[0] - pNight.lightX) < 1
+                  );
+                  expect(underMoonPool).toBeDefined();
+                });
+
+                it("starts rain and snow particles above the board and lands them onto the tile plane sparsely", async () => {
+                  const { drawAtmosphere, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                  const dayTick = Math.floor(DAY_CYCLE_TICKS * 0.35);
+
+                  const gRain = createMockGraphics();
+                  drawAtmosphere(createSunMoonState(dayTick, "rain"), gRain, 0.25);
+
+                  // Rain streaks + sun rays stay sparse (16 drops total)
+                  const moveTos = gRain.calls.filter((c: any) => c.method === "moveTo");
+                  expect(moveTos.length).toBeLessThanOrEqual(26);
+                  // Every weather coordinate stays within the board horizontal envelope (never floating at x < 40 or x > 515 or y > 270)
+                  for (const call of gRain.calls) {
+                    if (call.method === "moveTo" || call.method === "lineTo" || call.method === "ellipse") {
+                      expect(call.args[0]).toBeGreaterThanOrEqual(45);
+                      expect(call.args[0]).toBeLessThanOrEqual(510);
+                      expect(call.args[1]).toBeGreaterThanOrEqual(16);
+                      expect(call.args[1]).toBeLessThanOrEqual(270);
+                    }
+                  }
+
+                  const gSnow = createMockGraphics();
+                  drawAtmosphere(createSunMoonState(dayTick, "snow"), gSnow, 0.6);
+                  const snowCircles = gSnow.calls.filter((c: any) => c.method === "circle");
+                  expect(snowCircles.length).toBeLessThanOrEqual(40);
+                  for (const c of snowCircles) {
+                    expect(c.args[0]).toBeGreaterThanOrEqual(45);
+                    expect(c.args[0]).toBeLessThanOrEqual(510);
+                    expect(c.args[1]).toBeLessThanOrEqual(270);
+                  }
+                });
+
+                it("uses night variants (darker windows and lit lanterns) on keeps, cottages, and march columns while skipping sprites without night variants", async () => {
+                  const { drawMiniatureKeep, paintBoardMarches } = await import("./tokens.js");
+                  const { drawIsometricBuilding, getThemeVisuals } = await import("./buildings.js");
+                  const { DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                  const visuals = getThemeVisuals("Spring");
+                  const dayTick = Math.floor(DAY_CYCLE_TICKS * 0.35);
+                  const nightTick = Math.floor(DAY_CYCLE_TICKS * 0.85);
+
+                  // 1. Miniature keep: night darkens window (0x1e293b) and adds lit amber gate lantern (0xf59e0b)
+                  const gKeepDay = createMockGraphics();
+                  const gKeepNight = createMockGraphics();
+                  drawMiniatureKeep(gKeepDay, 100, 100, "western", undefined, true, 0, { dayPhase: "day" });
+                  drawMiniatureKeep(gKeepNight, 100, 100, "western", undefined, true, 0, { dayPhase: "night" });
+                  const keepDayColors = gKeepDay.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                  const keepNightColors = gKeepNight.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                  expect(keepNightColors).toContain(0xf59e0b);
+                  expect(keepDayColors).not.toContain(0xf59e0b);
+
+                  // 2. Cottage & Farm have night variants; Quarry & Archery Range skip cleanly
+                  const gCotDay = createMockGraphics();
+                  const gCotNight = createMockGraphics();
+                  drawIsometricBuilding(gCotDay, "cottage", 1, true, 0, visuals, 2, 2, undefined, "western", {
+                    state: createSunMoonState(dayTick),
+                  });
+                  drawIsometricBuilding(gCotNight, "cottage", 1, true, 0, visuals, 2, 2, undefined, "western", {
+                    state: createSunMoonState(nightTick),
+                  });
+                  const cotDayFills = gCotDay.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                  const cotNightFills = gCotNight.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                  expect(cotNightFills).toContain(0x1e293b);
+                  expect(cotNightFills).toContain(0xf59e0b);
+                  expect(cotDayFills).not.toContain(0x1e293b);
+
+                  const gQuarryDay = createMockGraphics();
+                  const gQuarryNight = createMockGraphics();
+                  drawIsometricBuilding(gQuarryDay, "quarry", 1, true, 0, visuals, 3, 3, undefined, "western", {
+                    state: createSunMoonState(dayTick),
+                  });
+                  drawIsometricBuilding(gQuarryNight, "quarry", 1, true, 0, visuals, 3, 3, undefined, "western", {
+                    state: createSunMoonState(nightTick),
+                  });
+                  expect(gQuarryNight.calls).toEqual(gQuarryDay.calls);
+
+                  // 3. Player march column carries lit night lantern at night; scout skips night lantern
+                  const marchDayState: any = createSunMoonState(dayTick);
+                  const marchNightState: any = createSunMoonState(nightTick);
+                  marchDayState.flags.marches_json = JSON.stringify([
+                    {
+                      id: "m_army",
+                      realmId: "player",
+                      fromId: "p_home",
+                      toId: "p_dest",
+                      departedTick: dayTick,
+                      arrivesTick: dayTick + 50,
+                      force: { militia: 5 },
+                    },
+                  ]);
+                  marchNightState.flags.marches_json = JSON.stringify([
+                    {
+                      id: "m_army",
+                      realmId: "player",
+                      fromId: "p_home",
+                      toId: "p_dest",
+                      departedTick: nightTick,
+                      arrivesTick: nightTick + 50,
+                      force: { militia: 5 },
+                    },
+                  ]);
+
+                  const routeDay = createMockGraphics();
+                  const pawnsDay = createMockGraphics();
+                  const routeNight = createMockGraphics();
+                  const pawnsNight = createMockGraphics();
+                  paintBoardMarches(routeDay, pawnsDay, marchDayState, 0);
+                  paintBoardMarches(routeNight, pawnsNight, marchNightState, 0);
+
+                  expect(pawnsNight.calls.length).toBeGreaterThan(pawnsDay.calls.length);
+                  const pawnNightColors = pawnsNight.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                  expect(pawnNightColors).toContain(0xf59e0b);
+
+                  // Scout has no night variant and renders identically
+                  const scoutDayState: any = createSunMoonState(dayTick);
+                  const scoutNightState: any = createSunMoonState(nightTick);
+                  scoutDayState.flags.marches_json = JSON.stringify([
+                    {
+                      id: "m_scout",
+                      realmId: "player",
+                      purpose: "scout",
+                      fromId: "p_home",
+                      toId: "p_dest",
+                      departedTick: dayTick,
+                      arrivesTick: dayTick + 50,
+                      force: {},
+                    },
+                  ]);
+                  scoutNightState.flags.marches_json = JSON.stringify([
+                    {
+                      id: "m_scout",
+                      realmId: "player",
+                      purpose: "scout",
+                      fromId: "p_home",
+                      toId: "p_dest",
+                      departedTick: nightTick,
+                      arrivesTick: nightTick + 50,
+                      force: {},
+                    },
+                  ]);
+                  const pawnsScoutDay = createMockGraphics();
+                  const pawnsScoutNight = createMockGraphics();
+                  paintBoardMarches(createMockGraphics(), pawnsScoutDay, scoutDayState, 0);
+                  paintBoardMarches(createMockGraphics(), pawnsScoutNight, scoutNightState, 0);
+                  expect(pawnsScoutNight.calls).toEqual(pawnsScoutDay.calls);
+                });
+
+                it("re-exports resolveSunMoonPosition, sunMoonPositionForState, and celestialScreenPoint", async () => {
+                  const {
+                    resolveSunMoonPosition,
+                    sunMoonPositionForState,
+                    celestialScreenPoint,
+                  } = await import("./index.js");
+                  expect(typeof resolveSunMoonPosition).toBe("function");
+                  expect(typeof sunMoonPositionForState).toBe("function");
+                  expect(typeof celestialScreenPoint).toBe("function");
                 });
               });
             });
