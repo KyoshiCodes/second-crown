@@ -1,3 +1,12 @@
+## 2026-10-30 — app / leave confirmation on the hold card (wave/hud-hold-leave)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard` gains `confirmLeave` state. The main-row Leave button only sets it `true`; the confirm line's **Leave** calls the unchanged `leave()`, **Stay** sets it `false`.
+- The confirm line renders only inside the joined-hold branch, and the existing `realmId === null` effect also resets `confirmLeave`, so it never survives a leave or a lost hold into the next join.
+- `initialConfirmLeave` (default `false`) follows the `initialView` / `initialMadeKey` / `initialCopyFlash` pattern: a `useState` seed for `renderToStaticMarkup` tests only.
+- Container uses `role="alertdialog"` + `aria-label="Confirm leave"`. Styles in `packages/app/src/hud/leave-confirm.css`, imported by `JoinHoldCard.tsx`.
+- Verification: `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-30 — app / living confirmation flash next to hold Copy button (bakeoff/gemini-copy-flash)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

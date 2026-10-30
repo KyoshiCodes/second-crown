@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-30 — Leave asks first (wave/hud-hold-leave)
+
+- **Leaving a shared hold now asks first.** Pressing Leave on the hold card shows "Leave hold <id>?" with two buttons: **Leave** leaves the hold, **Stay** keeps you in it.
+- **Play is otherwise unchanged.** Joining, stamping, building, and the hold itself work exactly as before. Your solo crown is still untouched when you leave.
+
 ## 2026-10-30 — Small flash confirms a copied key (bakeoff/gemini-copy-flash)
 
 - **A small flash now confirms a copied key. Play is unchanged.** When you copy a new shared hold's key in the Cloud panel, a 16px golden check flash appears briefly to the left of the Copy button and then hides; when no hold is joined, no flash is shown.

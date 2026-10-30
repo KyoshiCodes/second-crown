@@ -1,0 +1,18 @@
+/* Styles for the JoinHoldCard leave confirmation only. Do not touch theme.css. */
+
+.sc-leave-confirm {
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  border: 1px solid #3a3228;
+  border-left: 3px solid #d29922;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.6);
+}
+
+.sc-leave-confirm-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}

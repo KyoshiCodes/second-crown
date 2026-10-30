@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-30 — Confirm before leaving a hold (wave/hud-hold-leave)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: the Leave button on the joined-hold row now opens a "Leave hold <id>?" line with **Leave** (calls the existing `leave()`) and **Stay** (hides the line). New optional `initialConfirmLeave` test seed prop.
+- `packages/app/src/hud/leave-confirm.css` (new): confirmation line styles.
+- Tests: `packages/app/src/hud/leaveConfirm.test.tsx`. `npm test` and `npm run build -w @second-crown/app` pass.
+- Docs: HANDOFF now lists `bakeoff/gemini-copy-flash` as merged (#292).
+
 ## 2026-10-30 — Living confirmation flash next to hold Copy button (bakeoff/gemini-copy-flash)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

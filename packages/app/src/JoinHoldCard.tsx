@@ -3,6 +3,7 @@ import { joinRealm, readHold, recentIntents, sendBuild, sendCottage, sendLumber,
 import { IntentPip } from "./hud/IntentPip";
 import { KeySealPip } from "./hud/KeySealPip";
 import { CopyFlashPip, startCopyFlashTimer } from "./hud/CopyFlashPip";
+import "./hud/leave-confirm.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -34,6 +35,7 @@ export function JoinHoldCard({
   initialView = null,
   initialMadeKey = null,
   initialCopyFlash = false,
+  initialConfirmLeave = false,
 }: {
   signedIn: boolean;
   intentLines?: string[];
@@ -41,6 +43,7 @@ export function JoinHoldCard({
   initialView?: HoldView | null;
   initialMadeKey?: string | null;
   initialCopyFlash?: boolean;
+  initialConfirmLeave?: boolean;
 }) {
   const [code, setCode] = React.useState("");
   const [key, setKey] = React.useState("");
@@ -51,6 +54,7 @@ export function JoinHoldCard({
   const flashCancel = React.useRef<(() => void) | null>(null);
   const [view, setView] = React.useState<HoldView | null>(initialView);
   const [status, setStatus] = React.useState("");
+  const [confirmLeave, setConfirmLeave] = React.useState(initialConfirmLeave);
   const realmId = view?.realmId ?? null;
   const lastIntents = intentLines ?? (realmId === null ? [] : recentIntents(realmId, 3));
 
@@ -58,6 +62,7 @@ export function JoinHoldCard({
     if (realmId === null) {
       setCopied(false);
       setFlashOn(false);
+      setConfirmLeave(false);
       flashCancel.current?.();
       flashCancel.current = null;
     }
@@ -198,8 +203,15 @@ export function JoinHoldCard({
             <button type="button" className="sc-work-btn" onClick={() => void lumber()}>Build lumber camp</button>
             <button type="button" className="sc-work-btn" onClick={() => void cottage()}>Build cottage</button>
             <button type="button" className="sc-work-btn" onClick={() => void stamp()}>Stamp</button>
-            <button type="button" className="sc-work-btn" onClick={leave}>Leave</button>
+            <button type="button" className="sc-work-btn" onClick={() => setConfirmLeave(true)}>Leave</button>
           </div>
+          {confirmLeave ? (
+            <div className="sc-plain-inline sc-leave-confirm" role="alertdialog" aria-label="Confirm leave">
+              <span className="sc-leave-confirm-text">Leave hold <code>{view.realmId.replace(/^join-/, "")}</code>?</span>
+              <button type="button" className="sc-work-btn" onClick={leave}>Leave</button>
+              <button type="button" className="sc-work-btn" onClick={() => setConfirmLeave(false)}>Stay</button>
+            </div>
+          ) : null}
           <div style={{ fontSize: 12, marginTop: 4, opacity: 0.75 }}>Leaving returns you to your solo crown. The hold keeps running.</div>
           <div className="sc-plain-inline" style={{ fontSize: 13, marginTop: 6, gap: 12, flexWrap: "wrap" }} aria-label="Hold stores">
             <span>Food {whole(view.stores.food)}</span>
