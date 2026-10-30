@@ -74,6 +74,10 @@
   border-left-color: #818cf8;
 }
 
+.sc-ledger-card[data-kind*="save"] {
+  border-left-color: #38bdf8;
+}
+
 .sc-ledger-card-time {
   flex: 0 0 auto;
   min-width: 42px;

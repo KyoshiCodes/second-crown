@@ -1,3 +1,5 @@
+import { recordSaveLoaded, recordSaveWritten } from "./audit";
+
 /** Download current save JSON as a file. */
 export function downloadSave(json: string, filename = "second-crown-save.json"): void {
   const blob = new Blob([json], { type: "application/json" });
@@ -7,6 +9,7 @@ export function downloadSave(json: string, filename = "second-crown-save.json"):
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+  recordSaveWritten(json);
 }
 
 /** Open a file picker and read save JSON text. */
@@ -22,7 +25,9 @@ export function pickSaveFile(): Promise<string> {
         return;
       }
       try {
-        resolve(await file.text());
+        const text = await file.text();
+        recordSaveLoaded(text);
+        resolve(text);
       } catch (e) {
         reject(e);
       }

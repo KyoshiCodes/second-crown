@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-29 — Shared hold orders are rate-limited (wave/save-rate-limit)
+## 2026-10-29 — Saves and loads noted in the ledger (bakeoff/gemini-save-audit)
 
-- **Intents are rate-limited and play is otherwise unchanged.** In a shared hold, if you send more than 10 orders (stamp, train, build, cottage, lumber camp) in one second, the extra ones are dropped and the card says "Too many orders at once. Wait a moment". Wait a second and click again.
-- **Play is otherwise unchanged.** Your game, saves, Push save, Pull save, offline catch-up, Second Dawn, hold keys, sign-in, and the board work exactly as before.
+- **Saves and loads are now noted in the ledger. Play is unchanged.** When a save is written or a save is loaded, a short `"Save written · tick N"` or `"Save loaded · tick N"` line appears in the Ledger of Crowns on the Crown tab.
+- **Save files are unchanged.** The audit lines live only in the browser session and never alter your save file format or cloud save.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-29 — Static board art cached so the board redraws less (bakeoff/gemini-board-cache)
 

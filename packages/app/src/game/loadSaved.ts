@@ -1,5 +1,6 @@
 import { deserializeState, type GameState } from "@second-crown/sim";
 import { pullSave } from "../net/cloud";
+import { recordSaveLoaded, recordSaveWritten } from "../save/audit";
 import { saveToIndexedDb } from "../save/indexedDb";
 import { sharedRealmId } from "./settleOnLoad";
 
@@ -32,8 +33,12 @@ export async function loadSaved(local: GameState, deps: LoadDeps = defaultDeps):
   }
   try {
     await deps.writeCache(raw);
+    if (deps.writeCache !== saveToIndexedDb) {
+      recordSaveWritten(raw);
+    }
   } catch {
     /* the next reload reads the server again */
   }
+  recordSaveLoaded(state);
   return { state, source: "server" };
 }

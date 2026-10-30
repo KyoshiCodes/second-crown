@@ -1,5 +1,6 @@
 import { deserializeState } from "@second-crown/sim";
 import { pullSave } from "../net/cloud";
+import { recordSaveLoaded, recordSaveWritten } from "../save/audit";
 import {
   clearPulledFromIndexedDb,
   loadFromIndexedDb,
@@ -51,12 +52,22 @@ export async function startSave(deps: StartDeps = defaultStartDeps): Promise<str
   } catch {
     /* no pulled slot readable: the local save, as before */
   }
-  if (pulled === null) return deps.readLocal();
+  if (pulled === null) {
+    const local = await deps.readLocal();
+    if (local !== null && deps.readLocal !== loadFromIndexedDb) {
+      recordSaveLoaded(local);
+    }
+    return local;
+  }
   await deps.writeLocal(pulled);
+  if (deps.writeLocal !== saveToIndexedDb) {
+    recordSaveWritten(pulled);
+  }
   try {
     await deps.clearPulled();
   } catch {
     /* the next reload loads the same copy again */
   }
+  recordSaveLoaded(pulled);
   return pulled;
 }

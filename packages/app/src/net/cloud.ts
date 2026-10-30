@@ -1,4 +1,5 @@
 import { startLogin, takeLogin } from "./login";
+import { recordSaveWritten } from "../save/audit";
 
 const TOKEN_KEY = "sc-cloud-token";
 const NAME_KEY = "sc-cloud-name";
@@ -135,6 +136,7 @@ export async function pushSave(json: string, replace = false): Promise<void> {
     }
     throw new Error(message);
   }
+  recordSaveWritten(json);
 }
 
 export async function pullSave(): Promise<string> {

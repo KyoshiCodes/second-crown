@@ -36,8 +36,7 @@ import {
   type WorldEvent,
 } from "@second-crown/sim";
 import { createMapRenderer, type MapRenderer, type CameraBand } from "@second-crown/render";
-import { saveToIndexedDb, clearIndexedDbSave } from "../save/indexedDb";
-import { downloadSave, pickSaveFile } from "../save/fileIo";
+import { saveToIndexedDb, clearIndexedDbSave, clearSaveAudit, downloadSave, pickSaveFile } from "../save";
 import { settleOnLoad } from "./settleOnLoad";
 import { loadSaved } from "./loadSaved";
 import { startSave } from "./pullCloud";
@@ -332,6 +331,7 @@ export function useGameEngine() {
 
   const newGame = React.useCallback(async () => {
     await clearIndexedDbSave();
+    clearSaveAudit();
     const st = freshState(Date.now() >>> 0);
     engineRef.current = new TickEngine(st);
     lastRivalWar.current = null;

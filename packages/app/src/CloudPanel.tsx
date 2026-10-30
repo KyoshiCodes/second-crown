@@ -15,7 +15,7 @@ import {
   startDiscordLogin,
 } from "./net/cloud";
 import { deserializeState } from "@second-crown/sim";
-import { loadFromIndexedDb, savePulledToIndexedDb } from "./save/indexedDb";
+import { peekFromIndexedDb, savePulledToIndexedDb } from "./save";
 import { pullCloudCopy } from "./game/pullCloud";
 import { getTesterName } from "./TesterBar";
 import { JoinHoldCard } from "./JoinHoldCard";
@@ -64,7 +64,7 @@ export function CloudPanel() {
 
   async function keepLocal() {
     if (!window.confirm("Replace the cloud hold with the game on this browser? The cloud hold will be lost.")) return;
-    const raw = await loadFromIndexedDb();
+    const raw = await peekFromIndexedDb();
     if (!raw) return;
     try {
       if (await push(raw, true)) setStatus("Cloud now holds this game.");
@@ -95,7 +95,7 @@ export function CloudPanel() {
 
   async function autoPush() {
     if (!cloudToken()) return;
-    const raw = await loadFromIndexedDb();
+    const raw = await peekFromIndexedDb();
     if (!raw) return;
     try {
       await push(raw);
@@ -159,7 +159,7 @@ export function CloudPanel() {
         }}>Guest session</button>
         <button type="button" className="sc-work-btn" disabled={!discord} onClick={() => { setCloudUrl(url); window.location.href = startDiscordLogin(); }}>Log in with Discord</button>
         <button type="button" className="sc-work-btn" disabled={!token} onClick={async () => {
-          const raw = await loadFromIndexedDb();
+          const raw = await peekFromIndexedDb();
           if (!raw) { setStatus("No local save to push."); return; }
           try { if (await push(raw)) setStatus("Pushed local save to cloud."); } catch (e) { setStatus(`Push failed: ${e instanceof Error ? e.message : "unknown"}`); }
         }}>Push save</button>
@@ -171,7 +171,7 @@ export function CloudPanel() {
         }}>Pull save</button>
         <button type="button" className="sc-work-btn" disabled={!token} onClick={async () => {
           try {
-            const raw = await loadFromIndexedDb();
+            const raw = await peekFromIndexedDb();
             if (raw) await push(raw);
             const w = await openWatch();
             setWatchUrl(w.url);
