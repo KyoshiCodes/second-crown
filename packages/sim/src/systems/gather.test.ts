@@ -7,7 +7,7 @@ import { tryGather, tryRecallGather, tryNpcGather, listGathers, GATHER_NODES } f
 import { tryMarch, tryMarchWith } from "./march.js";
 import { nodeStock } from "./nodeStock.js";
 import { gatherYieldFactor, weatherFor } from "./weather.js";
-import { dayPhase, nightWorkFactor } from "./dayNight.js";
+import { DAY_CYCLE_TICKS, dayPhase, nightWorkFactor } from "./dayNight.js";
 
 function fixture(node: keyof typeof GATHER_NODES = "woodcut") {
   const s = createGameState({ seed: 1, now: 0, withStarterBuildings: false });
@@ -203,16 +203,28 @@ describe("gather expeditions", () => {
     const day = structuredClone(s);
     const night = structuredClone(s);
     // Shift both columns so they land in day and in night of the same season.
-    for (const [st, at] of [[day, 30], [night, 100]] as const) {
-      const shift = Math.floor(g.arrivesTick / 120) * 120 + at + 120 - g.arrivesTick;
+    // Seasons are 2000 ticks and days 3600, so the pattern repeats every 18000: ticks 6000-7999 hold night then day.
+    const span = 18_000;
+    expect(span % DAY_CYCLE_TICKS).toBe(0);
+    // The long wait lets other wood trickle in, so measure against the same wait with no column out.
+    const gained: Record<string, number> = {};
+    for (const [name, st, at] of [["day", day, 7800], ["night", night, 6500]] as const) {
+      const shift = Math.floor(g.arrivesTick / span) * span + at + span - g.arrivesTick;
       const list = listGathers(st);
       list[0].arrivesTick += shift;
       st.flags["gathers_json"] = JSON.stringify(list);
-      advance(st);
+      const idle = structuredClone(st);
+      idle.flags["gathers_json"] = "[]";
+      const wait = list[0].arrivesTick - st.meta.tick;
+      new TickEngine(st).settleTicks(wait);
+      new TickEngine(idle).settleTicks(wait);
+      gained[name] = Number(st.resources.wood) - Number(idle.resources.wood);
     }
+    expect(dayPhase(day)).toBe("day");
+    expect(dayPhase(night)).toBe("night");
     expect(weatherFor(day)).toBe(weatherFor(night));
     const w = gatherYieldFactor(weatherFor(day));
-    expect(Number(day.resources.wood)).toBe(Math.floor(load * w));
-    expect(Number(night.resources.wood)).toBe(Math.floor(load * w * 0.8));
+    expect(gained.day).toBe(Math.floor(load * w));
+    expect(gained.night).toBe(Math.floor(load * w * 0.8));
   });
 });

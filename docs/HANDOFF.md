@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#279** (living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-day-night` (**not merged**, see Day/night cycle and weather atmosphere below).
+Merged through PR **#281** (day/night visual cycle, #281; weather in the sim and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `wave/day-cycle-slow` (**not merged**, see Slow day cycle and sun/moon position below).
 
 ### Cultures and units (all merged)
 
@@ -347,7 +347,16 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 - Tests: `npm test` passes, `npm run test -w @second-crown/render` passes (572 tests), and `npm run build -w @second-crown/app` succeeds cleanly.
 
-## Day/night cycle and weather atmosphere (branch `bakeoff/gemini-day-night`, **not merged**)
+## Slow day cycle and sun/moon position (branch `wave/day-cycle-slow`, **not merged**)
+
+- Sim only (`packages/sim/src/systems/dayNight.ts`). No changes to `packages/render`, `server/`, or `theme.css`.
+- `DAY_CYCLE_TICKS` is now **3600** (was 120): about 6 minutes of game time per day. Phases: `dawn` 0–539 (15%), `day` 540–1979 (40%), `dusk` 1980–2519 (15%), `night` 2520–3599 (30%). `dayPhase`, `dayPhaseAt`, `nightWorkFactor` keep the same shape; gather still reads the phase on return (night ×0.8).
+- New `sunMoonPosition(state)` / `sunMoonPositionAt(tick)` → `{ kind: "sun" | "moon", x, y, elevation }`. Sun rises at dawn start and sets at dusk end; moon crosses during night. `x` 0 east → 1 west, `elevation` 0 horizon → 1 zenith (half-sine arc), `y = 1 - elevation` (screen-down). Pure tick math, no rng. Exported from `@second-crown/sim` with `type SunMoonPosition`.
+- `dayPhase` is still **not** exported from the sim index, so the render keeps its own 120-tick fallback tint until a render slice wires it to `sunMoonPosition` / the sim phase (the render test pins `DAY_CYCLE_TICKS === 120`).
+- `gather.test.ts` "night trims" now picks a day tick and a night tick in the same 2000-tick season (18000-tick repeat) and measures against an idle clone.
+- Tests: `npm test` passes; `npm run build -w @second-crown/app` passes. Render suite has 1 failure (`paintBoardProvinces applies board seasonal wash`) that is already on `origin/main`.
+
+## Day/night cycle and weather atmosphere (merged, #281)
 
 - Render only in `packages/render`. Do not change `packages/sim`, `server/`, or `theme.css`. Do not change camera math, zoom, or tile click hit-testing.
 - `packages/render/src/atmosphere.ts`: `resolveDayPhase(state, animPhase)` reads `sim.dayPhase(state)` if present, or falls back to a 120-tick cycle (`dawn` 0–19, `day` 20–69, `dusk` 70–89, `night` 90–119). `drawAtmosphere` paints Dawn = warm gold rising, Day = clear warm, Dusk = amber, and Night = cool blue with lower brightness, keeping existing Clear, Rain, Storm, and Snow overlays.

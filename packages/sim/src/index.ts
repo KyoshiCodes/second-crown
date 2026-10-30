@@ -48,6 +48,8 @@ export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./s
 export type { BattleResult } from "./systems/combat.js";
 export { lastBattleStory } from "./systems/lastBattle.js";
 export type { LastBattleStory } from "./systems/lastBattle.js";
+export { sunMoonPosition, sunMoonPositionAt } from "./systems/dayNight.js";
+export type { SunMoonPosition } from "./systems/dayNight.js";
 export { RivalSystem, tickWorldPulse, maybeContestFlag } from "./systems/rival.js";
 export { EventSystem, EVENT_PERIOD, getEventLog, getWorldLog, pushWorldLog } from "./systems/events.js";
 export type { WorldEvent } from "./systems/events.js";
