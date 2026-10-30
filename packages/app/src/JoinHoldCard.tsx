@@ -1,5 +1,6 @@
 import React from "react";
 import { joinRealm, readHold, recentIntents, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain, type HoldView } from "./net/hold";
+import { IntentPip } from "./hud/IntentPip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -14,7 +15,25 @@ function whole(value: string): string {
  * This card never loads, saves, or marks the solo crown, and never writes the hold or its key into
  * the local save. Leave returns to the solo crown.
  */
-export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
+export type IntentEntry = { realmId: string; line: string };
+/** Newest first, capped at 3, filtered to the active hold. Empty when there is no hold. */
+export function resolveHoldIntentLines(realmId: string | null, entries: IntentEntry[]): string[] {
+  if (realmId === null) return [];
+  return entries
+    .filter((e) => e.realmId === realmId)
+    .map((e) => e.line)
+    .slice(-3)
+    .reverse();
+}
+export function JoinHoldCard({
+  signedIn,
+  intentLines,
+  intentPulseKey,
+}: {
+  signedIn: boolean;
+  intentLines?: string[];
+  intentPulseKey?: number;
+}) {
   const [code, setCode] = React.useState("");
   const [key, setKey] = React.useState("");
   // The key this hold was opened with, and the key just made by a first join (shown until Leave).
@@ -24,7 +43,7 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
   const [view, setView] = React.useState<HoldView | null>(null);
   const [status, setStatus] = React.useState("");
   const realmId = view?.realmId ?? null;
-  const lastIntents = realmId === null ? [] : recentIntents(realmId, 3);
+  const lastIntents = intentLines ?? (realmId === null ? [] : recentIntents(realmId, 3));
 
   React.useEffect(() => {
     if (realmId === null) return;
@@ -178,8 +197,11 @@ export function JoinHoldCard({ signedIn }: { signedIn: boolean }) {
       )}
       {status ? <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8 }}>{status}</div> : null}
       {lastIntents.length > 0 ? (
-        <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8 }} aria-label="Last intents">
-          {lastIntents.map((line, i) => <div key={i}>{line}</div>)}
+        <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8, display: "flex", alignItems: "flex-start", gap: 6 }} aria-label="Last intents">
+          <IntentPip pulse={intentPulseKey !== undefined} pulseKey={intentPulseKey} />
+          <div className="sc-intent-log-lines">
+            {lastIntents.map((line, i) => <div key={i}>{line}</div>)}
+          </div>
         </div>
       ) : null}
     </div>
