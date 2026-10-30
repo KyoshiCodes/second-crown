@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-29 — The game opens faster (wave/chunk-split)
+
+- **First paint is faster.** The board now loads before the tab panels, so you see it sooner. Each tab loads its own small piece the first time you open it, and may show "Loading…" for a moment.
+- **Play is unchanged.** Rules, clicks, your game, Push save, Pull save, offline catch-up, Second Dawn, and hold saves work exactly as before.
+
 ## 2026-10-29 — Board shows moving sun and moon and weather on tiles (bakeoff/gemini-sun-moon)
 
 - **The board now shows a moving sun and moon and weather that lands on the tiles. Play is unchanged.** Full-canvas color washes are gone: a small sun arcs across the top of the board by day with a soft warm glow beneath it, and at night a moon crosses the top of the board with soft moonlight right around the moon and a small cool glow below. Rain streaks and snow dots fall from above the board onto the tiles sparsely enough to keep every tile readable, and keeps, cottages, farms, halls, and marching columns light small night lanterns when night falls.

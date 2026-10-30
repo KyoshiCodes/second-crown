@@ -1,3 +1,12 @@
+## 2026-10-29 — app / split the app chunk so tabs load separately (wave/chunk-split)
+
+- Slice constraints: app only (`AppShell.tsx`, `vite.config.ts`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`.
+- Lazy tabs: `React.lazy(() => import("./tabs/X").then((m) => ({ default: m.X })))` because the tabs are named exports. One `React.Suspense` wraps the tab panel block only; the board `<canvas>`, HUD, `ProvinceInspect`, `KeepInterior`, and tab bar render outside it, so the board never waits on a tab chunk. `OverworldAtlas` (World tab only) is lazy too.
+- Nothing else statically imports `tabs/*` or `OverworldAtlas`; a new static import would pull that tab back into the main chunk. Check `dist/assets` after a build.
+- `manualChunks`: ids are normalized (`\` → `/`) before matching so Windows paths hit; `pixi`, `react` (react/react-dom/scheduler), `sim` (`/packages/sim/` + break_infinity). Without the explicit `react` chunk, rolldown named the shared vendor chunk `jsx-runtime`.
+- Sizes after: index 642 kB, pixi 500 kB, react 140 kB, sim 135 kB, tabs 23–37 kB. Under the 700 kB `chunkSizeWarningLimit`.
+- `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-29 — render / moving sun/moon, tile-plane weather, and night variants (bakeoff/gemini-sun-moon)
 
 - Slice constraints: Render only. Zero changes to `packages/sim`, `server/`, or `theme.css`. Camera math, zoom, and tile click hit-testing unchanged.

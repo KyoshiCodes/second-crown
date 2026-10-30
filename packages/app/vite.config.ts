@@ -14,7 +14,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules/pixi.js") || id.includes("/pixi.js/")) return "pixi";
+          const p = id.replace(/\\/g, "/");
+          if (p.includes("node_modules/pixi.js") || p.includes("/pixi.js/")) return "pixi";
+          if (/node_modules\/(react|react-dom|scheduler)\//.test(p)) return "react";
+          if (p.includes("/packages/sim/") || p.includes("node_modules/break_infinity")) return "sim";
         },
       },
     },

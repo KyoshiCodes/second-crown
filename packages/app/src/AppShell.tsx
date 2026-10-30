@@ -5,15 +5,9 @@ import { CultureContext } from "./UnitIcon";
 import { ResourceHud } from "./hud/ResourceHud";
 import { SlotPips } from "./hud/SlotPip";
 import { SpeedControls } from "./HudControls";
-import { KingdomTab } from "./tabs/KingdomTab";
-import { ArmyTab } from "./tabs/ArmyTab";
-import { WarTab } from "./tabs/WarTab";
-import { WorldTab } from "./tabs/WorldTab";
-import { CrownTab } from "./tabs/CrownTab";
 import { TutorialBanner } from "./TutorialBanner";
 import { ProvinceInspect } from "./ProvinceInspect";
 import { KeepInterior } from "./KeepInterior";
-import { OverworldAtlas } from "./OverworldAtlas";
 import { detectCurrentHoliday, getHolidayMeta, type HolidayId } from "./seasons/holidays";
 import { resolveActiveThemePack } from "./themes/packs";
 import { audioManager } from "./themes/audioManager";
@@ -21,6 +15,16 @@ import { WeatherOverlay } from "./seasons/WeatherOverlay";
 import { ThemeStage } from "./seasons/ThemeStage";
 import { type SeasonName } from "./music";
 import { sfx } from "./sfx";
+
+// Tab panels load in their own chunks so the board paints first.
+const KingdomTab = React.lazy(() => import("./tabs/KingdomTab").then((m) => ({ default: m.KingdomTab })));
+const ArmyTab = React.lazy(() => import("./tabs/ArmyTab").then((m) => ({ default: m.ArmyTab })));
+const WarTab = React.lazy(() => import("./tabs/WarTab").then((m) => ({ default: m.WarTab })));
+const WorldTab = React.lazy(() => import("./tabs/WorldTab").then((m) => ({ default: m.WorldTab })));
+const CrownTab = React.lazy(() => import("./tabs/CrownTab").then((m) => ({ default: m.CrownTab })));
+const OverworldAtlas = React.lazy(() => import("./OverworldAtlas").then((m) => ({ default: m.OverworldAtlas })));
+
+const TabLoading = () => <div className="sc-tab-loading" style={{ padding: 12, opacity: 0.7, fontSize: 13 }}>Loading…</div>;
 
 const TAB_LABEL: Record<Tab, string> = {
   kingdom: "Kingdom",
@@ -220,6 +224,7 @@ export function AppShell() {
             </div>
           </div>
         </div>
+          <React.Suspense fallback={<TabLoading />}>
           {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}
           {tab === "army" && <ArmyTab state={state} act={act} trainQty={trainQty} setTrainQty={setTrainQty} />}
           {tab === "war" && <WarTab state={state} act={act} rivalOp={rivalOp} playerOp={playerOp} battleSnap={battleSnap} setBattleSnap={setBattleSnap} />}
@@ -248,6 +253,7 @@ export function AppShell() {
               newGame={newGame}
             />
           )}
+          </React.Suspense>
         </CultureContext.Provider>
       </div>
     </div>
