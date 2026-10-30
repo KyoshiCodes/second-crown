@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-30 — Hold card confirms the key copy (wave/hold-copy-hint)
+
+- **The hold card now confirms when the key is copied.** After you press Copy key on a new hold, a short line under the button says: "Key copied. Share the realm id and the key." It goes away when you leave or join a different hold.
+- **Play is otherwise unchanged.** Joining, leaving, stamping, and the hold itself work exactly as before.
+
 ## 2026-10-30 — Hold card explains Leave (wave/hold-leave-hint)
 
 - **The hold card now reminds you that leaving returns to your solo crown.** When you are in a shared hold, a short line under the Leave button says: "Leaving returns you to your solo crown. The hold keeps running."

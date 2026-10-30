@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-30 — Copy hint on the hold card (wave/hold-copy-hint)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: after a successful Copy key, one line under the Copy button reads "Key copied. Share the realm id and the key." Inline style (`flexBasis: 100%`, `fontSize: 12`), `role="status"`; no new CSS file.
+- A `useEffect` on `realmId` resets `copied`, so the line clears on Leave or on joining a different hold. Join, leave, stamp, and intent functions unchanged.
+- `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-10-30 — Leave hint on the hold card (wave/hold-leave-hint)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

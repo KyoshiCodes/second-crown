@@ -51,6 +51,11 @@ export function JoinHoldCard({
   const realmId = view?.realmId ?? null;
   const lastIntents = intentLines ?? (realmId === null ? [] : recentIntents(realmId, 3));
 
+  // The copy confirmation belongs to one hold; drop it when the hold changes or the player leaves.
+  React.useEffect(() => {
+    setCopied(false);
+  }, [realmId]);
+
   React.useEffect(() => {
     if (realmId === null) return;
     let live = true;
@@ -169,6 +174,7 @@ export function JoinHoldCard({
             <div className="sc-plain-inline" style={{ fontSize: 13, marginBottom: 6, gap: 8, flexWrap: "wrap" }} aria-label="New hold key">
               <span className="sc-key-seal-group"><KeySealPip pulse pulseKey={madeKey} /><span>New hold. Key: <code style={{ userSelect: "all" }}>{madeKey}</code></span></span>
               <button type="button" className="sc-work-btn" onClick={() => void copyKey()}>{copied ? "Copied" : "Copy key"}</button>
+              {copied ? <span style={{ flexBasis: "100%", fontSize: 12 }} role="status">Key copied. Share the realm id and the key.</span> : null}
               <span style={{ flexBasis: "100%", fontSize: 12 }}>Share the realm id and this key with friends.</span>
               <span style={{ fontSize: 12, opacity: 0.8 }}>Copy it now and send it to friends with the id. It is shown only this once; without it nobody, you included, can join again.</span>
             </div>

@@ -1,3 +1,10 @@
+## 2026-10-30 — app / copy hint on the hold card (wave/hold-copy-hint)
+
+- Slice constraints: App only (`packages/app/src/JoinHoldCard.tsx`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- The hint is a `<span role="status">` with inline `flexBasis: "100%"` placed right after the Copy button inside the `madeKey !== null` row, so it wraps to its own line under the button and only renders while `copied` is true.
+- Clearing: `leave()` never reset `copied`, and the brief forbids touching `join`/`leave`. A `useEffect(() => setCopied(false), [realmId])` covers both Leave (`realmId` → `null`) and joining a different hold. `join()` still resets it too; harmless.
+- `copyKey` is unchanged; a clipboard failure still leaves `copied` false, so the line only shows after a real copy.
+
 ## 2026-10-30 — app / leave hint on the hold card (wave/hold-leave-hint)
 
 - Slice constraints: App only (`packages/app/src/JoinHoldCard.tsx`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
