@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-29 — The hold card shows your last few orders (wave/intent-log)
+## 2026-10-29 — Small pip marks the intent log (bakeoff/gemini-intent-pip)
 
-- **The hold card now shows the last few intents.** In a shared hold, under the card's message line, you see your last 3 orders that landed, like "Tick 42: train militia". Orders that were refused or dropped for being too fast are not listed. The list is for this tab only and clears when you reload.
-- **Play is otherwise unchanged.** Your game, saves, Push save, Pull save, offline catch-up, Second Dawn, hold keys, sign-in, the rate limit, and the board work exactly as before.
+- **A small pip now marks the intent log. Play is unchanged.** On the shared hold card in the Cloud panel, a 16px wax-seal pip sits to the left of the intent log lines and pulses once when a new intent is added; when there are no intent log lines, no pip is shown.
+- All new art is pointer-events: none so buttons and inputs work the same as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-29 — Saves and loads noted in the ledger (bakeoff/gemini-save-audit)
 

@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-10-29 — Last intents on the hold card (wave/intent-log)
+## 2026-10-29 — Living pip next to shared-hold intent log (bakeoff/gemini-intent-pip)
 
-- App only. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. No game rules or save format changed.
-- `packages/app/src/net/hold.ts`: in-memory intent log (`INTENT_LOG_CAP` = 8, per tab, tagged by realm). Each intent the server takes adds `"Tick <N>: <action>"`. Exports `INTENT_LOG_CAP` and `recentIntents(realmId, n)`. `resetIntentLimit` (tests) also clears the log. Rate limit and `send*` functions unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: shows the last 3 intent lines under the status line; nothing when empty.
-- Tests: `packages/app/src/net/hold.test.ts` (two tests).
-- Build fix: `packages/app/src/save/indexedDb.ts` now exports `peekFromIndexedDb`, which `save.ts` and `CloudPanel.tsx` imported since #287 but which was never added, so `npm run build -w @second-crown/app` failed on `main`. Same read as `loadFromIndexedDb`; no behavior change.
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/hud/IntentPip.tsx` (new):
+  - `IntentPip`: 16px SVG pip (`viewBox="0 0 16 16"`, `seal` and `quill` variants) with `pointer-events: none` on wrapper, glyph span, and SVG (`aria-hidden="true"`), pulsing once when a new intent is added.
+  - `HoldIntentLog`: renders `IntentPip` to the left of the intent log lines, and renders nothing (no pip) when there are no lines.
+- `packages/app/src/hud/intent-pip.css` (new):
+  - Isolated pip and intent-log row styles, `pointer-events: none`, compositor-only 1-shot `@keyframes sc-intent-pip-pulse`, and `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - `resolveHoldIntentLines` & `HoldIntentLog`: places the 16px `IntentPip` to the left of the hold card's intent log lines (reading `recentIntents` from `net/hold` when available with local accepted-intent fallback) and pulses once on each accepted intent (`stamp`, `train`, `build`, `cottage`, `lumber`).
+- Tests: `packages/app/src/hud/IntentPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-29 — Save and load audit log in Ledger of Crowns (bakeoff/gemini-save-audit)
 
