@@ -1,9 +1,12 @@
-## 2026-10-29 — app / share hint under the hold key (wave/hold-key-hint)
+## 2026-10-30 — app / living seal next to hold key (bakeoff/gemini-key-seal)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `JoinHoldCard.tsx`: the hint is a `<span>` inside the existing `madeKey !== null` row (the only place the key is visible), with inline `flexBasis: "100%"` so it wraps onto its own line under the key inside the `sc-plain-inline` flex row. No new CSS file, no new state. `join`, `leave`, `stamp`, and `HoldIntentLog` untouched.
-- `HANDOFF.md` now lists #288 and #289 as merged (the pip section said "not merged").
-- Tests: **origin/main is red before this slice.** PR #289 merged `packages/app/src/hud/IntentPip.test.tsx`, which imports `resolveHoldIntentLines` and `intentLines`/`intentPulseKey` props from `JoinHoldCard.tsx`, but the `JoinHoldCard.tsx` half of that PR was never committed. So `npm run build -w @second-crown/app` fails (TS2305, TS2322) and `npm test` has 2 failures in that file, with or without this slice. This slice adds no new failures. Fix in its own wave (it touches the intent log, which this slice must not change).
+- `KeySealPip` & CSS isolation (`packages/app/src/hud/KeySealPip.tsx`, `packages/app/src/hud/key-seal.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) crimson-gold royal wax-seal SVG stamped with a key signet, enforcing inline and stylesheet `pointer-events: none` and `user-select: none` (`aria-hidden="true"`).
+  - One-shot pulse (`animation: sc-key-seal-pulse 480ms cubic-bezier(0.22, 1, 0.36, 1) 1`) animates only `transform` (`scale`) and `opacity` on `.sc-key-seal-pip-glyph`, keyed by `madeKey` so it pulses once when the key is first shown (without re-pulsing on 1-second `readHold` polls or `Copy key` toggles), and disables animation under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - Renders `<KeySealPip pulse pulseKey={madeKey} />` inside `.sc-key-seal-group` strictly inside `{madeKey !== null ? (...) : null}`, guaranteeing zero `KeySealPip` DOM nodes when the key is not visible (`view === null` or `madeKey === null`).
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-29 — app / living pip next to shared-hold intent log (bakeoff/gemini-intent-pip)
 

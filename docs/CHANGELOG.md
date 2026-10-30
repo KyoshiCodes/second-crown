@@ -1,10 +1,16 @@
 # CHANGELOG
 
-## 2026-10-29 — Share hint under the hold key (wave/hold-key-hint)
+## 2026-10-30 — Living seal next to hold key (bakeoff/gemini-key-seal)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: when a hold is joined and its key is visible, one line under the key reads "Share the realm id and this key with friends." Inline styles only; no new CSS file. Join, leave, stamp, and the intent log are unchanged.
-- `npm test` (2 failures) and `npm run build -w @second-crown/app` fail on origin/main before this slice: PR #289 merged `IntentPip.test.tsx` without its `JoinHoldCard.tsx` changes. No new failures from this slice.
+- `packages/app/src/hud/KeySealPip.tsx` (new):
+  - `KeySealPip`: 16px SVG wax-seal pip (`viewBox="0 0 16 16"`) stamped with a golden hold-key signet, enforcing `pointer-events: none` on wrapper, glyph span, and SVG (`aria-hidden="true"`), and pulsing once when the hold key is first shown.
+- `packages/app/src/hud/key-seal.css` (new):
+  - Isolated seal pip styles, `pointer-events: none`, compositor-only 1-shot `@keyframes sc-key-seal-pulse`, and `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Places `KeySealPip` (`pulse pulseKey={madeKey}`) to the left of the hold key when `madeKey !== null`, and omits it completely when the key is not visible.
+- Tests: `packages/app/src/hud/KeySealPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-29 — Living pip next to shared-hold intent log (bakeoff/gemini-intent-pip)
 
