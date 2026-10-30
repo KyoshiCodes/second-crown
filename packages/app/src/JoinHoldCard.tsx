@@ -1,9 +1,9 @@
-﻿import React from "react";
+import React from "react";
 import { joinRealm, readHold, recentIntents, sendBuild, sendCottage, sendLumber, sendStamp, sendTrain, type HoldView } from "./net/hold";
 import { IntentPip } from "./hud/IntentPip";
 import { KeySealPip } from "./hud/KeySealPip";
 import { CopyFlashPip, startCopyFlashTimer } from "./hud/CopyFlashPip";
-import "./hud/leave-confirm.css";
+import { LeaveSealPip } from "./hud/LeaveSealPip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -55,6 +55,7 @@ export function JoinHoldCard({
   const [view, setView] = React.useState<HoldView | null>(initialView);
   const [status, setStatus] = React.useState("");
   const [confirmLeave, setConfirmLeave] = React.useState(initialConfirmLeave);
+  const [confirmLeaveSeq, setConfirmLeaveSeq] = React.useState(initialConfirmLeave ? 1 : 0);
   const realmId = view?.realmId ?? null;
   const lastIntents = intentLines ?? (realmId === null ? [] : recentIntents(realmId, 3));
 
@@ -163,7 +164,15 @@ export function JoinHoldCard({
     }
   }
 
+  function openConfirmLeave() {
+    if (!confirmLeave) {
+      setConfirmLeaveSeq((n) => n + 1);
+    }
+    setConfirmLeave(true);
+  }
+
   function leave() {
+    setConfirmLeave(false);
     setView(null);
     setHoldKey("");
     setMadeKey(null);
@@ -203,12 +212,12 @@ export function JoinHoldCard({
             <button type="button" className="sc-work-btn" onClick={() => void lumber()}>Build lumber camp</button>
             <button type="button" className="sc-work-btn" onClick={() => void cottage()}>Build cottage</button>
             <button type="button" className="sc-work-btn" onClick={() => void stamp()}>Stamp</button>
-            <button type="button" className="sc-work-btn" onClick={() => setConfirmLeave(true)}>Leave</button>
+            <button type="button" className="sc-work-btn" onClick={openConfirmLeave}>Leave</button>
           </div>
           {confirmLeave ? (
             <div className="sc-plain-inline sc-leave-confirm" role="alertdialog" aria-label="Confirm leave">
               <span className="sc-leave-confirm-text">Leave hold <code>{view.realmId.replace(/^join-/, "")}</code>?</span>
-              <button type="button" className="sc-work-btn" onClick={leave}>Leave</button>
+              <span className="sc-leave-seal-group"><LeaveSealPip pulse pulseKey={confirmLeaveSeq} /><button type="button" className="sc-work-btn" onClick={leave}>Leave</button></span>
               <button type="button" className="sc-work-btn" onClick={() => setConfirmLeave(false)}>Stay</button>
             </div>
           ) : null}

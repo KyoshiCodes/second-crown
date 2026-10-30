@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-30 — Leave asks first (wave/hud-hold-leave)
+## 2026-10-30 — Small wax seal marks the Leave confirmation (bakeoff/gemini-leave-seal)
 
-- **Leaving a shared hold now asks first.** Pressing Leave on the hold card shows "Leave hold <id>?" with two buttons: **Leave** leaves the hold, **Stay** keeps you in it.
-- **Play is otherwise unchanged.** Joining, stamping, building, and the hold itself work exactly as before. Your solo crown is still untouched when you leave.
+- **A small wax seal now marks the Leave button while the leave confirmation is open. Play is unchanged.** When you click Leave on a shared hold in the Cloud panel, a 16px crimson wax-seal pip appears next to the Leave button and pulses once while the confirmation is open, then hides when you stay or leave.
+- All new art is pointer-events: none on the seal and all its children so clicking Leave and Stay works the same as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-30 — Small flash confirms a copied key (bakeoff/gemini-copy-flash)
 

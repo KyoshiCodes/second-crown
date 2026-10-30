@@ -1,11 +1,12 @@
-## 2026-10-30 — app / leave confirmation on the hold card (wave/hud-hold-leave)
+## 2026-10-30 — app / living wax-seal pip on Leave confirmation (bakeoff/gemini-leave-seal)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `JoinHoldCard` gains `confirmLeave` state. The main-row Leave button only sets it `true`; the confirm line's **Leave** calls the unchanged `leave()`, **Stay** sets it `false`.
-- The confirm line renders only inside the joined-hold branch, and the existing `realmId === null` effect also resets `confirmLeave`, so it never survives a leave or a lost hold into the next join.
-- `initialConfirmLeave` (default `false`) follows the `initialView` / `initialMadeKey` / `initialCopyFlash` pattern: a `useState` seed for `renderToStaticMarkup` tests only.
-- Container uses `role="alertdialog"` + `aria-label="Confirm leave"`. Styles in `packages/app/src/hud/leave-confirm.css`, imported by `JoinHoldCard.tsx`.
-- Verification: `npm test` and `npm run build -w @second-crown/app` pass.
+- `LeaveSealPip` & CSS isolation (`packages/app/src/hud/LeaveSealPip.tsx`, `packages/app/src/hud/leave-seal.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) crimson-gold royal wax-seal SVG stamped with a postern arch and parting chevron signet, enforcing inline `pointerEvents: "none"` and stylesheet `.sc-leave-seal-pip-wrapper, .sc-leave-seal-pip-wrapper * { pointer-events: none; }` (`aria-hidden="true"`).
+  - One-shot pulse (`animation: sc-leave-seal-pulse 480ms cubic-bezier(0.22, 1, 0.36, 1) 1`) animates only compositor-safe `opacity` and `transform` (`scale`) on `.sc-leave-seal-pip-glyph`, keyed by `confirmLeaveSeq` so opening the confirmation replays the single pulse cleanly, and disables animation under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - Matches `wave/hud-hold-leave`'s `confirmLeave` / `initialConfirmLeave` state and `aria-label="Confirm leave"` structure, placing `<LeaveSealPip pulse pulseKey={confirmLeaveSeq} />` inside `.sc-leave-seal-group` next to the confirm `Leave` button strictly while `confirmLeave` is `true` (and `view !== null`).
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-30 — app / living confirmation flash next to hold Copy button (bakeoff/gemini-copy-flash)
 

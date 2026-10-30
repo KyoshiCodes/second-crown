@@ -1,12 +1,16 @@
 # CHANGELOG
 
-## 2026-10-30 — Confirm before leaving a hold (wave/hud-hold-leave)
+## 2026-10-30 — Living wax-seal pip on Leave confirmation (bakeoff/gemini-leave-seal)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: the Leave button on the joined-hold row now opens a "Leave hold <id>?" line with **Leave** (calls the existing `leave()`) and **Stay** (hides the line). New optional `initialConfirmLeave` test seed prop.
-- `packages/app/src/hud/leave-confirm.css` (new): confirmation line styles.
-- Tests: `packages/app/src/hud/leaveConfirm.test.tsx`. `npm test` and `npm run build -w @second-crown/app` pass.
-- Docs: HANDOFF now lists `bakeoff/gemini-copy-flash` as merged (#292).
+- `packages/app/src/hud/LeaveSealPip.tsx` (new):
+  - `LeaveSealPip`: 16px SVG wax-seal pip (`viewBox="0 0 16 16"`) with `pointer-events: none` on the pip and all children (`aria-hidden="true"`), pulsing once when the leave confirmation opens.
+- `packages/app/src/hud/leave-seal.css` (new):
+  - Isolated seal styles, `pointer-events: none` on `.sc-leave-seal-pip-wrapper` and `.sc-leave-seal-pip-wrapper *`, compositor-only 1-shot `@keyframes sc-leave-seal-pulse`, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders `LeaveSealPip` next to the `Leave` button inside `.sc-leave-seal-group` only while the leave confirmation (`confirmLeave`) is open, pulsing once on open and hiding when closed or unjoined.
+- Tests: `packages/app/src/hud/LeaveSealPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-30 — Living confirmation flash next to hold Copy button (bakeoff/gemini-copy-flash)
 
