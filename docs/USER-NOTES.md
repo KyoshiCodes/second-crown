@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-10-30 — Hold stores as cards (wave/hud-hold-stores)
+## 2026-10-30 — Living resource pips inside hold store cards (bakeoff/gemini-hold-pips)
 
-- **A shared hold's stores now show as four small cards: Food, Wood, Stone, Gold.** Each card shows the name and the amount. Militia, farms, cottages, and lumber camps are still listed on the line under the cards.
-- **Play is unchanged.** The amounts are the same numbers as before, just easier to read.
+- **The four hold-store cards now feature living 16px resource pips. Play is unchanged.** When you view a joined shared hold in the Cloud panel, the Food, Wood, Stone, and Gold cards each display an authentic living resource pip (golden wheat sheaf, timber logs, dressed ashlar stone, and stamped gold coin).
+- All new art is pointer-events: none on every pip and all children so clicking buttons and interacting with the hold works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-30 — Small wax seal marks the Leave confirmation (bakeoff/gemini-leave-seal)
 

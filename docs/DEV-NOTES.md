@@ -1,10 +1,14 @@
-## 2026-10-30 — app / hold store cards (wave/hud-hold-stores)
+## 2026-10-30 — app / living resource pips inside hold store cards (bakeoff/gemini-hold-pips)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `JoinHoldCard.tsx`: a module-level `HOLD_STORES` tuple (`["food", "Food"]` …) maps over `view.stores` so the card order and labels live in one place; amounts still go through `whole()`. The old single `.sc-plain-inline` row split in two: `.sc-hold-stores` (cards) and the existing inline row for militia / farms / cottages / lumber camps, now `aria-label="Hold works"`.
-- `hud/hold-stores.css` is imported directly by `JoinHoldCard.tsx` (the card has no pip component to carry it). Grid is `repeat(4, minmax(0, 1fr))`, dropping to 2 columns at `max-width: 360px`; amounts use `tabular-nums` and ellipsis so a big number cannot widen the card.
-- Footgun found, not fixed: `hud/leave-confirm.css` (from `6ba3ed7`) is not imported by any module, so `.sc-leave-confirm` styles never load in the app. Its test only reads the file from disk. Fix is one line: `import "./hud/leave-confirm.css";` in `JoinHoldCard.tsx`.
-- Tests: `hud/holdStores.test.tsx` (`renderToStaticMarkup` with `initialView`): four cards in order with whole amounts, works line after the cards, no cards when unjoined, CSS file present.
+- `HoldStorePip` & CSS isolation (`packages/app/src/hud/HoldStorePip.tsx`, `packages/app/src/hud/hold-store-pip.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) living SVG resource pip for each resource kind (`food`, `wood`, `stone`, `gold`): golden wheat sheaf for food, stacked bark-and-ring timber logs for wood, beveled dressed ashlar block for stone, and stamped crown coin for gold.
+  - Strictly enforces `pointer-events: none` inline and in stylesheet on `.sc-hold-store-pip-wrapper, .sc-hold-store-pip-wrapper *, .sc-hold-store-pip`.
+  - Gentle living rhythm (`@keyframes sc-hold-pip-breathe`) animates only compositor-safe `transform` and `opacity` on `.sc-hold-store-pip-glyph` with staggered delays per resource (`0s`, `-0.9s`, `-1.8s`, `-2.7s`), disabled under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - In `.sc-hold-stores`, maps `HOLD_STORES` into four `.sc-hold-store-card` cards, rendering `<HoldStorePip resource={id} />` alongside the store name and amount. Direct sibling order preserves any `/sc-hold-store-name">([^<]+)<\/span><span class="sc-hold-store-amount">/` matchers.
+  - Card styles (`.sc-hold-stores`, `.sc-hold-store-card`, `.sc-hold-store-name`, `.sc-hold-store-amount`) are carried in `hold-store-pip.css`, avoiding missing stylesheet build failures while staying harmoniously compatible with parallel branches.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-30 — app / living wax-seal pip on Leave confirmation (bakeoff/gemini-leave-seal)
 

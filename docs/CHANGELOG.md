@@ -1,11 +1,16 @@
 # CHANGELOG
 
-## 2026-10-30 — Hold store cards (wave/hud-hold-stores)
+## 2026-10-30 — Living resource pips in hold store cards (bakeoff/gemini-hold-pips)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: replaced the plain Food / Wood / Stone / Gold spans with four `.sc-hold-store-card` cards (name + whole amount) inside `.sc-hold-stores` (`aria-label="Hold stores"`). The militia / farms / cottages / lumber camps line is kept under them as its own row (`aria-label="Hold works"`).
-- `packages/app/src/hud/hold-stores.css` (new): card grid styles, imported from `JoinHoldCard.tsx`.
-- Tests: `packages/app/src/hud/holdStores.test.tsx` (`npm test` and `npm run build -w @second-crown/app` pass).
+- `packages/app/src/hud/HoldStorePip.tsx` (new):
+  - `HoldStorePip`: 16px living SVG resource pip (`viewBox="0 0 16 16"`) for each of the four hold resources (`food`, `wood`, `stone`, `gold`), with strict `pointer-events: none` on the wrapper, SVG, and all children (`aria-hidden="true"`).
+- `packages/app/src/hud/hold-store-pip.css` (new):
+  - Isolated styles for the hold store cards and pips, strict `pointer-events: none` on `.sc-hold-store-pip-wrapper` and all children, compositor-only `@keyframes sc-hold-pip-breathe`, staggered delays per resource, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders a 16px `HoldStorePip` inside each of the four hold-store cards (`Food`, `Wood`, `Stone`, `Gold`) when a hold is joined, keeping the works row below.
+- Tests: `packages/app/src/hud/HoldStorePip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-30 — Living wax-seal pip on Leave confirmation (bakeoff/gemini-leave-seal)
 

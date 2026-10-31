@@ -4,7 +4,7 @@ import { IntentPip } from "./hud/IntentPip";
 import { KeySealPip } from "./hud/KeySealPip";
 import { CopyFlashPip, startCopyFlashTimer } from "./hud/CopyFlashPip";
 import { LeaveSealPip } from "./hud/LeaveSealPip";
-import "./hud/hold-stores.css";
+import { HoldStorePip } from "./hud/HoldStorePip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -234,6 +234,7 @@ export function JoinHoldCard({
           <div className="sc-hold-stores" aria-label="Hold stores">
             {HOLD_STORES.map(([id, name]) => (
               <div key={id} className="sc-hold-store-card">
+                <HoldStorePip resource={id} />
                 <span className="sc-hold-store-name">{name}</span>
                 <span className="sc-hold-store-amount">{whole(view.stores[id])}</span>
               </div>
