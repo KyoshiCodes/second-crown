@@ -1,0 +1,104 @@
+/* Styles for HoldStorePip and hold store cards only. Do not touch theme.css. */
+
+.sc-hold-stores {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sc-hold-store-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #3a3228;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.6);
+}
+
+.sc-hold-store-name {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.sc-hold-store-amount {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+  .sc-hold-stores {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 16px HoldStorePip: strictly pointer-events: none on every pip and all children */
+.sc-hold-store-pip-wrapper,
+.sc-hold-store-pip-wrapper *,
+.sc-hold-store-pip {
+  pointer-events: none !important;
+}
+
+.sc-hold-store-pip-wrapper {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.sc-hold-store-pip-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  animation: sc-hold-pip-breathe 3.6s ease-in-out infinite;
+}
+
+/* Stagger each resource rhythm so all four don't breathe in lockstep */
+.sc-hold-store-pip-food .sc-hold-store-pip-glyph {
+  animation-delay: 0s;
+}
+
+.sc-hold-store-pip-wood .sc-hold-store-pip-glyph {
+  animation-delay: -0.9s;
+}
+
+.sc-hold-store-pip-stone .sc-hold-store-pip-glyph {
+  animation-delay: -1.8s;
+}
+
+.sc-hold-store-pip-gold .sc-hold-store-pip-glyph {
+  animation-delay: -2.7s;
+}
+
+@keyframes sc-hold-pip-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateY(-1px) scale(1.06);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-hold-store-pip-glyph {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+}

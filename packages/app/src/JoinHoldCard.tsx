@@ -4,12 +4,21 @@ import { IntentPip } from "./hud/IntentPip";
 import { KeySealPip } from "./hud/KeySealPip";
 import { CopyFlashPip, startCopyFlashTimer } from "./hud/CopyFlashPip";
 import { LeaveSealPip } from "./hud/LeaveSealPip";
+import { HoldStorePip } from "./hud/HoldStorePip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
   const n = Number(value);
   return Number.isFinite(n) ? Math.floor(n).toLocaleString() : value;
 }
+
+/** The four hold store cards, in display order. */
+const HOLD_STORES = [
+  ["food", "Food"],
+  ["wood", "Wood"],
+  ["stone", "Stone"],
+  ["gold", "Gold"],
+] as const;
 
 /**
  * Opt-in shared hold. Type a realm id and join; everyone on the same id reads one server hold,
@@ -222,11 +231,16 @@ export function JoinHoldCard({
             </div>
           ) : null}
           <div style={{ fontSize: 12, marginTop: 4, opacity: 0.75 }}>Leaving returns you to your solo crown. The hold keeps running.</div>
-          <div className="sc-plain-inline" style={{ fontSize: 13, marginTop: 6, gap: 12, flexWrap: "wrap" }} aria-label="Hold stores">
-            <span>Food {whole(view.stores.food)}</span>
-            <span>Wood {whole(view.stores.wood)}</span>
-            <span>Stone {whole(view.stores.stone)}</span>
-            <span>Gold {whole(view.stores.gold)}</span>
+          <div className="sc-hold-stores" aria-label="Hold stores">
+            {HOLD_STORES.map(([id, name]) => (
+              <div key={id} className="sc-hold-store-card">
+                <HoldStorePip resource={id} />
+                <span className="sc-hold-store-name">{name}</span>
+                <span className="sc-hold-store-amount">{whole(view.stores[id])}</span>
+              </div>
+            ))}
+          </div>
+          <div className="sc-plain-inline" style={{ fontSize: 13, marginTop: 6, gap: 12, flexWrap: "wrap" }} aria-label="Hold works">
             <span>Militia {view.militia}{view.training > 0 ? ` (+${view.training} training)` : ""}</span>
             <span>Farms {view.farms}</span>
             <span>Cottages {view.cottages}</span>

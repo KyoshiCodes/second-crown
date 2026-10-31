@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-10-30 — Living resource pips inside hold store cards (bakeoff/gemini-hold-pips)
+
+- **The four hold-store cards now feature living 16px resource pips. Play is unchanged.** When you view a joined shared hold in the Cloud panel, the Food, Wood, Stone, and Gold cards each display an authentic living resource pip (golden wheat sheaf, timber logs, dressed ashlar stone, and stamped gold coin).
+- All new art is pointer-events: none on every pip and all children so clicking buttons and interacting with the hold works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-10-30 — Small wax seal marks the Leave confirmation (bakeoff/gemini-leave-seal)
 
 - **A small wax seal now marks the Leave button while the leave confirmation is open. Play is unchanged.** When you click Leave on a shared hold in the Cloud panel, a 16px crimson wax-seal pip appears next to the Leave button and pulses once while the confirmation is open, then hides when you stay or leave.
