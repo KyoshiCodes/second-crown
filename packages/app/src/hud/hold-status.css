@@ -1,0 +1,46 @@
+/* Styles for the JoinHoldCard hold status card only. Do not touch theme.css. */
+
+.sc-hold-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 6px;
+  margin: 2px 0 6px;
+  padding: 4px 8px;
+  border: 1px solid #3a3228;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.6);
+}
+
+.sc-hold-status-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-right: 10px;
+}
+
+.sc-hold-status-field + .sc-hold-status-field {
+  padding-left: 10px;
+  border-left: 1px solid #3a3228;
+}
+
+.sc-hold-status-label {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.sc-hold-status-value {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-hold-status-realm {
+  max-width: 14em;
+}
+
+.sc-hold-status-pending .sc-hold-status-value {
+  color: #e0b860;
+}

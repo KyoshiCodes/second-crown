@@ -1,3 +1,11 @@
+## 2026-11-02 — app / hold status card (wave/hud-hold-status)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: the `.sc-plain-inline` / `.sc-work-status` line is gone. `.sc-hold-status` is a flex row of `.sc-hold-status-field` blocks (label + value). Realm is a `<code>` with the `join-` prefix stripped, same as before and as the leave confirmation. The Pending field is omitted entirely at `pending === 0` (no "0 pending"), matching the old line.
+- `hud/hold-status.css` is imported directly by `JoinHoldCard.tsx`, so it actually loads. Note: `hud/hold-stores.css` and `hud/hold-actions.css` are still not imported by any module (their grids happen to load via the pip CSS files); same footgun as the earlier `leave-confirm.css` note. Not fixed here.
+- Realm value caps at `max-width: 14em` with ellipsis so a long id cannot widen the card; values use `tabular-nums` so the tick does not jitter as it climbs.
+- Tests: `hud/holdStatus.test.tsx` (`renderToStaticMarkup` with `initialView`): Realm + Tick fields, Pending only when > 0, card sits above action and store cards, no card when unjoined, CSS file present.
+
 ## 2026-11-02 — app / living action pips inside hold action cards (bakeoff/gemini-hold-action-pips)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

@@ -6,6 +6,7 @@ import { CopyFlashPip, startCopyFlashTimer } from "./hud/CopyFlashPip";
 import { LeaveSealPip } from "./hud/LeaveSealPip";
 import { HoldStorePip } from "./hud/HoldStorePip";
 import { HoldActionPip } from "./hud/HoldActionPip";
+import "./hud/hold-status.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -213,10 +214,21 @@ export function JoinHoldCard({
               <span style={{ fontSize: 12, opacity: 0.8 }}>Copy it now and send it to friends with the id. It is shown only this once; without it nobody, you included, can join again.</span>
             </div>
           ) : null}
-          <div className="sc-plain-inline">
-            <span className="sc-work-status">
-              Hold <code>{view.realmId.replace(/^join-/, "")}</code> · tick {view.tick}{view.pending > 0 ? ` · ${view.pending} pending` : ""}
-            </span>
+          <div className="sc-hold-status" role="status" aria-label="Hold status">
+            <div className="sc-hold-status-field">
+              <span className="sc-hold-status-label">Realm</span>
+              <code className="sc-hold-status-value sc-hold-status-realm">{view.realmId.replace(/^join-/, "")}</code>
+            </div>
+            <div className="sc-hold-status-field">
+              <span className="sc-hold-status-label">Tick</span>
+              <span className="sc-hold-status-value">{view.tick}</span>
+            </div>
+            {view.pending > 0 ? (
+              <div className="sc-hold-status-field sc-hold-status-pending">
+                <span className="sc-hold-status-label">Pending</span>
+                <span className="sc-hold-status-value">{view.pending}</span>
+              </div>
+            ) : null}
           </div>
           <div className="sc-hold-actions" aria-label="Hold actions">
             <div className="sc-hold-action-card" aria-label="Train">

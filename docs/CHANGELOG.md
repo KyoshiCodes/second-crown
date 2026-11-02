@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Hold status card (wave/hud-hold-status)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: replaced the plain "Hold `<id>` · tick N · M pending" line with a small `.sc-hold-status` card (`role="status"`, `aria-label="Hold status"`) holding Realm, Tick, and (only when `pending > 0`) Pending fields. Store cards and action cards are unchanged and stay below it.
+- `packages/app/src/hud/hold-status.css` (new): card styles, imported from `JoinHoldCard.tsx`.
+- Tests: `packages/app/src/hud/holdStatus.test.tsx` (`npm test` and `npm run build -w @second-crown/app` pass).
+
 ## 2026-11-02 — Living action pips in hold action cards (bakeoff/gemini-hold-action-pips)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

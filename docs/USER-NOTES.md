@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Hold status as a small card (wave/hud-hold-status)
+
+- **The "Hold … · tick …" line in a shared hold is now a small card.** It shows the realm id and the current tick, plus how many actions are pending when there are any. The store cards and action cards are still below it.
+- **Play is unchanged.** Same information as before, easier to read.
+
 ## 2026-11-02 — Living action pips inside hold action cards (bakeoff/gemini-hold-action-pips)
 
 - **The four hold-action cards now feature living 16px action pips. Play is unchanged.** When you view a joined shared hold in the Cloud panel, the Train, Build, Stamp, and Leave cards each display an authentic living action pip (steel broadsword & spear for Train, craftsman mallet & trowel for Build, royal brass signet stamp for Stamp, and sunlit postern archway for Leave).
