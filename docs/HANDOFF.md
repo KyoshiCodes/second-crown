@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#296** (hold action living pips, #296; hold action cards, #296; hold store living resource pips, #295; hold store cards, #295; leave confirmation living seal, #294; hold leave confirmation, #293; copy button confirmation flash, #292; hold leave hint, #291; hold key living seal, #290; intent log living pip, #289; hold intent log, #288; save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Also on `main` without a PR number: hold status card (`8c8672c`) and its living pip (`6220a9d`). Waiting: `wave/hud-hold-stamps` (**not merged**, see Hold stamp cards below).
+Merged through PR **#297** (hold status living pip, #297; hold status card, #297; hold action living pips, #296; hold action cards, #296; hold store living resource pips, #295; hold store cards, #295; leave confirmation living seal, #294; hold leave confirmation, #293; copy button confirmation flash, #292; hold leave hint, #291; hold key living seal, #290; intent log living pip, #289; hold intent log, #288; save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-hold-stamp-pip` (**not merged**, see Hold stamp living pip below).
 
 ### Cultures and units (all merged)
 
@@ -443,7 +443,7 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/hud/HoldActionPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
-## Hold status living pip (branch `bakeoff/gemini-hold-status-pip`, **on `main` as `6220a9d`**)
+## Hold status living pip (PR #297)
 
 - App only (`packages/app`). Do not change `packages/sim`, `packages/render`, `server/`, or `theme.css`. Do not change any game rules.
 - `packages/app/src/hud/HoldStatusPip.tsx` & `packages/app/src/hud/hold-status-pip.css` (new): adds `HoldStatusPip` (16px living SVG status crown pip with live emerald heartbeat jewel and warm amber pending state, `pointer-events: none` on the pip and all children, gentle `@keyframes sc-hold-status-pip-breathe` motion, and `@media (prefers-reduced-motion: reduce)` motion guard).
@@ -451,12 +451,13 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/hud/HoldStatusPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
-## Hold stamp cards (branch `wave/hud-hold-stamps`, **not merged**)
+## Hold stamp living pip (branch `bakeoff/gemini-hold-stamp-pip`, **not merged**)
 
-- App only (`packages/app`). No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: the plain "Tick N: stamped by X" lines are now small stamp cards (tick on top, who stamped below), newest first, last 5, under a small **Stamps** heading. "No stamps yet." stays when there are none.
-- `packages/app/src/hud/hold-stamps.css` (new): stamp card styles, imported from `JoinHoldCard.tsx`.
-- Tests: `packages/app/src/hud/holdStamps.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- App only (`packages/app`). Do not change `packages/sim`, `packages/render`, `server/`, or `theme.css`. Do not change any game rules.
+- `packages/app/src/hud/HoldStampPip.tsx` & `packages/app/src/hud/hold-stamp-pip.css` (new): adds `HoldStampPip` (16px living SVG wax-seal pip with stamped royal signet emblem, `pointer-events: none` on every pip and all children, gentle `@keyframes sc-hold-stamp-pip-breathe` breathing motion, and `@media (prefers-reduced-motion: reduce)` motion guard).
+- `packages/app/src/JoinHoldCard.tsx`: renders living stamp pips inside each hold stamp card (`.sc-hold-stamp-card`), hidden when no hold is joined or when there are no stamps.
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
+- Tests: `packages/app/src/hud/HoldStampPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## Verify
 

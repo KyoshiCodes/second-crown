@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Stamp cards in a joined hold (wave/hud-hold-stamps)
+## 2026-11-02 — Living stamp pip inside each hold stamp card (bakeoff/gemini-hold-stamp-pip)
 
-- **Recent stamps now show as small cards.** In a joined shared hold (Cloud panel), under **Stamps**, each of the last 5 stamps is a little card with its tick and who stamped. Newest is first.
-- **Play is unchanged.** Stamping, your solo crown, saves, hold keys, and sign-in work exactly as before.
+- **Each hold stamp card now features a living 16px stamp pip. Play is unchanged.** When you view a joined shared hold in the Cloud panel, each stamp card displays an authentic living crimson wax-seal stamp pip with a stamped royal signet emblem.
+- All new art is pointer-events: none on every pip and all children so clicking buttons and interacting with the hold works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-11-02 — Living status pip inside hold status card (bakeoff/gemini-hold-status-pip)
 

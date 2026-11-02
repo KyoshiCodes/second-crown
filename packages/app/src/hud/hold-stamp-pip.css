@@ -1,0 +1,95 @@
+/* Styles for HoldStampPip and hold stamp cards only. Do not touch theme.css. */
+
+.sc-hold-stamps {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.sc-hold-stamps-heading {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-bottom: 3px;
+}
+
+.sc-hold-stamps-empty {
+  opacity: 0.8;
+}
+
+.sc-hold-stamps-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sc-hold-stamp-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 12em;
+  padding: 3px 22px 3px 7px;
+  border: 1px solid #3a3228;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.6);
+}
+
+.sc-hold-stamp-tick {
+  font-size: 11px;
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-hold-stamp-by {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 16px HoldStampPip: strictly pointer-events: none on the pip and all children */
+.sc-hold-stamp-pip-wrapper,
+.sc-hold-stamp-pip-wrapper *,
+.sc-hold-stamp-pip {
+  pointer-events: none !important;
+}
+
+.sc-hold-stamp-pip-wrapper {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.sc-hold-stamp-pip-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  animation: sc-hold-stamp-pip-breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes sc-hold-stamp-pip-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateY(-0.5px) scale(1.06);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-hold-stamp-pip-glyph {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+}

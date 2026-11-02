@@ -1,11 +1,16 @@
 # CHANGELOG
 
-## 2026-11-02 — Hold stamp cards (wave/hud-hold-stamps)
+## 2026-11-02 — Living stamp pip in hold stamp cards (bakeoff/gemini-hold-stamp-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: replaced the plain "Tick N: stamped by X" lines with `.sc-hold-stamp-card` cards (tick and who stamped) inside `.sc-hold-stamps` (`aria-label="Hold stamps"`), under a **Stamps** heading. Still newest first, last 5; "No stamps yet." when empty.
-- `packages/app/src/hud/hold-stamps.css` (new): stamp card styles, imported from `JoinHoldCard.tsx`.
-- Tests: `packages/app/src/hud/holdStamps.test.tsx` (`npm test` and `npm run build -w @second-crown/app` pass).
+- `packages/app/src/hud/HoldStampPip.tsx` (new):
+  - `HoldStampPip`: 16px living SVG wax-seal pip (`viewBox="0 0 16 16"`) stamped with royal signet emblem, with strict `pointer-events: none` on the wrapper, SVG, and all children (`aria-hidden="true"`).
+- `packages/app/src/hud/hold-stamp-pip.css` (new):
+  - Isolated styles for the hold stamp cards and pip, strict `pointer-events: none` on `.sc-hold-stamp-pip-wrapper` and all children, compositor-only `@keyframes sc-hold-stamp-pip-breathe`, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders a 16px `HoldStampPip` inside each hold stamp card (`.sc-hold-stamp-card`) under the Stamps heading, newest first up to 5, hidden when no hold is joined or when there are no stamps.
+- Tests: `packages/app/src/hud/HoldStampPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-11-02 — Living status pip in hold status card (bakeoff/gemini-hold-status-pip)
 

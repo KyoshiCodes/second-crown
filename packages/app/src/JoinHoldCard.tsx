@@ -7,7 +7,7 @@ import { LeaveSealPip } from "./hud/LeaveSealPip";
 import { HoldStorePip } from "./hud/HoldStorePip";
 import { HoldActionPip } from "./hud/HoldActionPip";
 import { HoldStatusPip } from "./hud/HoldStatusPip";
-import "./hud/hold-stamps.css";
+import { HoldStampPip } from "./hud/HoldStampPip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -287,6 +287,7 @@ export function JoinHoldCard({
               <div className="sc-hold-stamps-list">
                 {view.stamps.slice(-5).reverse().map((s, i) => (
                   <div key={`${s.tick}-${s.by}-${i}`} className="sc-hold-stamp-card">
+                    <HoldStampPip />
                     <span className="sc-hold-stamp-tick">Tick {s.tick}</span>
                     <span className="sc-hold-stamp-by">{s.by}</span>
                   </div>
