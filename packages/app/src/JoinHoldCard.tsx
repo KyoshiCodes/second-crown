@@ -9,6 +9,7 @@ import { HoldActionPip } from "./hud/HoldActionPip";
 import { HoldStatusPip } from "./hud/HoldStatusPip";
 import { HoldStampPip } from "./hud/HoldStampPip";
 import { HoldLeavePip } from "./hud/HoldLeavePip";
+import { HoldJoinPip } from "./hud/HoldJoinPip";
 import "./hud/hold-leave.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
@@ -193,17 +194,23 @@ export function JoinHoldCard({
     setStatus("Left the hold. Your solo crown is unchanged.");
   }
 
-  const input = { minWidth: 160, background: "#1a1410", color: "#e8dcc8", border: "1px solid #3a3228" };
   return (
     <div className="sc-work-card sc-plain-card">
       <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>
         Join hold (opt-in, test): friends who type the same id and its hold key share one fresh server kingdom. Leave the key blank to make a new hold; you get its key once. It is not your solo crown, which is not touched. A joined hold survives a server restart; the solo crown is not kept with it.
       </div>
       {view === null ? (
-        <div className="sc-plain-inline">
-          <input style={input} value={code} onChange={(e) => setCode(e.target.value)} placeholder="realm id" />
-          <input style={input} value={key} onChange={(e) => setKey(e.target.value)} placeholder="hold key (blank = new)" />
-          <button type="button" className="sc-work-btn" onClick={() => void join()} disabled={!signedIn}>Join</button>
+        <div className="sc-hold-join-card" role="group" aria-label="Join hold">
+          <HoldJoinPip />
+          <label className="sc-hold-join-field">
+            <span className="sc-hold-join-label">Realm id</span>
+            <input className="sc-hold-join-input" value={code} onChange={(e) => setCode(e.target.value)} placeholder="realm id" />
+          </label>
+          <label className="sc-hold-join-field">
+            <span className="sc-hold-join-label">Hold key</span>
+            <input className="sc-hold-join-input" value={key} onChange={(e) => setKey(e.target.value)} placeholder="hold key (blank = new)" />
+          </label>
+          <button type="button" className="sc-work-btn sc-hold-join-btn" onClick={() => void join()} disabled={!signedIn}>Join</button>
         </div>
       ) : (
         <div>

@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Living join pip inside the hold join card (bakeoff/gemini-hold-join-pip)
+
+- **The hold join card now features a living 16px join pip. Play is unchanged.** When you view the unjoined hold form in the Cloud panel, the join card displays an authentic living join pip (depicting two interlocking golden heraldic rings with a radiant center bond jewel).
+- All new art is pointer-events: none on every pip and all children so clicking Join, typing realm ids or keys, and every interaction works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
+
 ## 2026-11-02 — Living leave pip inside the hold leave card (bakeoff/gemini-hold-leave-pip)
 
 - **The hold leave card now features a living 16px leave pip. Play is unchanged.** When you press Leave in a joined shared hold in the Cloud panel, the leave card displays an authentic living leave pip (depicting an arched postern doorway looking out onto a sunlit morning path).

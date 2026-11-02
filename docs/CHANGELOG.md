@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-11-02 — Living join pip in hold join card (bakeoff/gemini-hold-join-pip)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/hud/HoldJoinPip.tsx` (new):
+  - `HoldJoinPip`: 16px living SVG join pip (`viewBox="0 0 16 16"`) depicting two interlocking golden heraldic rings with radiant center bond jewel, with strict `pointer-events: none` on the wrapper, SVG, and all children (`aria-hidden="true"`).
+- `packages/app/src/hud/hold-join-pip.css` (new):
+  - Isolated styles for the hold join card and pip, strict `pointer-events: none` on `.sc-hold-join-pip-wrapper` and all children, compositor-only `@keyframes sc-hold-join-pip-breathe`, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders a 16px `HoldJoinPip` inside the hold join card (`.sc-hold-join-card`), hidden once a hold is joined.
+- Tests: `packages/app/src/hud/HoldJoinPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-02 — Living leave pip in hold leave card (bakeoff/gemini-hold-leave-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

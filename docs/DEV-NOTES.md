@@ -1,3 +1,16 @@
+## 2026-11-02 — app / living join pip inside hold join card (bakeoff/gemini-hold-join-pip)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `HoldJoinPip` & CSS isolation (`packages/app/src/hud/HoldJoinPip.tsx`, `packages/app/src/hud/hold-join-pip.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) living SVG join pip depicting two interlocking golden heraldic rings with radiant center bond jewel.
+  - Strictly enforces `pointer-events: none` inline and in stylesheet on `.sc-hold-join-pip-wrapper, .sc-hold-join-pip-wrapper *, .sc-hold-join-pip`.
+  - Gentle living rhythm (`@keyframes sc-hold-join-pip-breathe`) animates only compositor-safe `transform` and `opacity` on `.sc-hold-join-pip-glyph`, disabled under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - In `.sc-hold-join-card`, renders `<HoldJoinPip />` directly inside the join card when unjoined (`view === null`).
+  - Card styles (`.sc-hold-join-card`, `.sc-hold-join-field`, `.sc-hold-join-label`, `.sc-hold-join-input`, `.sc-hold-join-btn`) are carried in `hold-join-pip.css`, seamlessly harmonizing with parallel branches without touching `theme.css`.
+  - Inner card hierarchy preserves `/placeholder="realm id"/`, `>Realm id<`, `>Hold key<`, and button matchers in `hud/holdJoin.test.tsx`.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-02 — app / living leave pip inside hold leave card (bakeoff/gemini-hold-leave-pip)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
