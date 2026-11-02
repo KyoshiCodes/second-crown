@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Hold action cards (wave/hud-hold-actions)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: the hold's button row is now four action cards, Train / Build / Stamp / Leave, each with a short label and the existing button(s). Build keeps Build farm, Build lumber camp, Build cottage. The leave confirmation opens inside the Leave card.
+- `packages/app/src/hud/hold-actions.css` (new): action card styles, imported by `JoinHoldCard.tsx`.
+- Tests: `packages/app/src/hud/holdActions.test.tsx` (new); `leaveConfirm.test.tsx` counts Leave buttons instead of every `>Leave<`.
+
 ## 2026-10-30 — Living resource pips in hold store cards (bakeoff/gemini-hold-pips)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

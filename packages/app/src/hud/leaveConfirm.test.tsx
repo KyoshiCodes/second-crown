@@ -45,7 +45,7 @@ describe("JoinHoldCard leave confirmation (wave/hud-hold-leave)", () => {
     expect(html).toContain('aria-label="Confirm leave"');
     expect(html).toContain("Leave hold <code>oak-hill</code>?");
     expect(html).toContain(">Stay<");
-    expect(html.match(/>Leave</g)?.length).toBe(2);
+    expect(html.match(/<button[^>]*>Leave<\/button>/g)?.length).toBe(2);
   });
 
   it("never shows the confirmation when no hold is joined", () => {

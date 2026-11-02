@@ -1,3 +1,12 @@
+## 2026-11-02 — app / hold action cards (wave/hud-hold-actions)
+
+- Slice constraints: App only (`packages/app`). No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: new `.sc-hold-actions` wrapper (`aria-label="Hold actions"`) after the hold id / tick line. Four `.sc-hold-action-card` children, each with `aria-label` = its label and a `.sc-hold-action-label` span: Train (`train()`), Build (`.sc-hold-action-card-build`; `build()`, `lumber()`, `cottage()`), Stamp (`stamp()`), Leave (`openConfirmLeave`). Handlers, button text, and state are unchanged.
+- Leave confirmation: the same `.sc-leave-confirm` `role="alertdialog"` block (text, `LeaveSealPip` + Leave, Stay) now renders inside the Leave card, after its Leave button. It dropped `sc-plain-inline`; `hold-actions.css` stacks it in a column.
+- `hud/hold-actions.css` is imported directly by `JoinHoldCard.tsx`. Flex-wrap layout (`flex: 1 1 110px`, Build `2 1 160px`), full width under 360px.
+- Tests: `hud/holdActions.test.tsx` checks card order, labels, which button sits in which card, the confirmation inside Leave, no cards when unjoined, and the CSS file. `hud/leaveConfirm.test.tsx` now matches `<button…>Leave</button>` (2 when open), because the card label adds another `>Leave<`.
+- Found, not fixed: `hud/leave-confirm.css` and `hud/hold-stores.css` have no importer, so they never load (Vite only bundles imported CSS). The store card look currently comes from `hold-store-pip.css`.
+
 ## 2026-10-30 — app / living resource pips inside hold store cards (bakeoff/gemini-hold-pips)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

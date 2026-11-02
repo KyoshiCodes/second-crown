@@ -5,6 +5,7 @@ import { KeySealPip } from "./hud/KeySealPip";
 import { CopyFlashPip, startCopyFlashTimer } from "./hud/CopyFlashPip";
 import { LeaveSealPip } from "./hud/LeaveSealPip";
 import { HoldStorePip } from "./hud/HoldStorePip";
+import "./hud/hold-actions.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -216,20 +217,34 @@ export function JoinHoldCard({
             <span className="sc-work-status">
               Hold <code>{view.realmId.replace(/^join-/, "")}</code> · tick {view.tick}{view.pending > 0 ? ` · ${view.pending} pending` : ""}
             </span>
-            <button type="button" className="sc-work-btn" onClick={() => void train()}>Train militia</button>
-            <button type="button" className="sc-work-btn" onClick={() => void build()}>Build farm</button>
-            <button type="button" className="sc-work-btn" onClick={() => void lumber()}>Build lumber camp</button>
-            <button type="button" className="sc-work-btn" onClick={() => void cottage()}>Build cottage</button>
-            <button type="button" className="sc-work-btn" onClick={() => void stamp()}>Stamp</button>
-            <button type="button" className="sc-work-btn" onClick={openConfirmLeave}>Leave</button>
           </div>
-          {confirmLeave ? (
-            <div className="sc-plain-inline sc-leave-confirm" role="alertdialog" aria-label="Confirm leave">
-              <span className="sc-leave-confirm-text">Leave hold <code>{view.realmId.replace(/^join-/, "")}</code>?</span>
-              <span className="sc-leave-seal-group"><LeaveSealPip pulse pulseKey={confirmLeaveSeq} /><button type="button" className="sc-work-btn" onClick={leave}>Leave</button></span>
-              <button type="button" className="sc-work-btn" onClick={() => setConfirmLeave(false)}>Stay</button>
+          <div className="sc-hold-actions" aria-label="Hold actions">
+            <div className="sc-hold-action-card" aria-label="Train">
+              <span className="sc-hold-action-label">Train</span>
+              <button type="button" className="sc-work-btn" onClick={() => void train()}>Train militia</button>
             </div>
-          ) : null}
+            <div className="sc-hold-action-card sc-hold-action-card-build" aria-label="Build">
+              <span className="sc-hold-action-label">Build</span>
+              <button type="button" className="sc-work-btn" onClick={() => void build()}>Build farm</button>
+              <button type="button" className="sc-work-btn" onClick={() => void lumber()}>Build lumber camp</button>
+              <button type="button" className="sc-work-btn" onClick={() => void cottage()}>Build cottage</button>
+            </div>
+            <div className="sc-hold-action-card" aria-label="Stamp">
+              <span className="sc-hold-action-label">Stamp</span>
+              <button type="button" className="sc-work-btn" onClick={() => void stamp()}>Stamp</button>
+            </div>
+            <div className="sc-hold-action-card" aria-label="Leave">
+              <span className="sc-hold-action-label">Leave</span>
+              <button type="button" className="sc-work-btn" onClick={openConfirmLeave}>Leave</button>
+              {confirmLeave ? (
+                <div className="sc-leave-confirm" role="alertdialog" aria-label="Confirm leave">
+                  <span className="sc-leave-confirm-text">Leave hold <code>{view.realmId.replace(/^join-/, "")}</code>?</span>
+                  <span className="sc-leave-seal-group"><LeaveSealPip pulse pulseKey={confirmLeaveSeq} /><button type="button" className="sc-work-btn" onClick={leave}>Leave</button></span>
+                  <button type="button" className="sc-work-btn" onClick={() => setConfirmLeave(false)}>Stay</button>
+                </div>
+              ) : null}
+            </div>
+          </div>
           <div style={{ fontSize: 12, marginTop: 4, opacity: 0.75 }}>Leaving returns you to your solo crown. The hold keeps running.</div>
           <div className="sc-hold-stores" aria-label="Hold stores">
             {HOLD_STORES.map(([id, name]) => (
