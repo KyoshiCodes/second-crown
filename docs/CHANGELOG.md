@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-11-02 — Living leave pip in hold leave card (bakeoff/gemini-hold-leave-pip)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/hud/HoldLeavePip.tsx` (new):
+  - `HoldLeavePip`: 16px living SVG leave pip (`viewBox="0 0 16 16"`) depicting a sunlit postern departure archway, with strict `pointer-events: none` on the wrapper, SVG, and all children (`aria-hidden="true"`).
+- `packages/app/src/hud/hold-leave-pip.css` (new):
+  - Isolated styles for the hold leave card and pip, strict `pointer-events: none` on `.sc-hold-leave-pip-wrapper` and all children, compositor-only `@keyframes sc-hold-leave-pip-breathe`, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders a 16px `HoldLeavePip` inside the hold leave card (`.sc-hold-leave-card`), hidden when no hold is joined or when the leave card is closed.
+- Tests: `packages/app/src/hud/HoldLeavePip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-02 — Hold leave card (wave/hud-hold-leave)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

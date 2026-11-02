@@ -1,3 +1,16 @@
+## 2026-11-02 — app / living leave pip inside hold leave card (bakeoff/gemini-hold-leave-pip)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `HoldLeavePip` & CSS isolation (`packages/app/src/hud/HoldLeavePip.tsx`, `packages/app/src/hud/hold-leave-pip.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) living SVG leave pip depicting an open postern archway with morning horizon.
+  - Strictly enforces `pointer-events: none` inline and in stylesheet on `.sc-hold-leave-pip-wrapper, .sc-hold-leave-pip-wrapper *, .sc-hold-leave-pip`.
+  - Gentle living rhythm (`@keyframes sc-hold-leave-pip-breathe`) animates only compositor-safe `transform` and `opacity` on `.sc-hold-leave-pip-glyph`, disabled under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - In `.sc-hold-leave-card`, renders `<HoldLeavePip />` directly inside the card when `confirmLeave` is true.
+  - Sibling structure preserves `/Leave hold <code>([^<]+)<\/code>\?/` and button matchers in `hud/leaveConfirm.test.tsx`.
+  - Card positioning adjustments (`position: relative; padding-right: 26px;`) are carried in `hold-leave-pip.css`, giving clean room for the top-right pip without touching `theme.css`.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-02 — app / hold leave card (wave/hud-hold-leave)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

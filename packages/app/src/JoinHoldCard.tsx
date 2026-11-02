@@ -8,6 +8,7 @@ import { HoldStorePip } from "./hud/HoldStorePip";
 import { HoldActionPip } from "./hud/HoldActionPip";
 import { HoldStatusPip } from "./hud/HoldStatusPip";
 import { HoldStampPip } from "./hud/HoldStampPip";
+import { HoldLeavePip } from "./hud/HoldLeavePip";
 import "./hud/hold-leave.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
@@ -257,6 +258,7 @@ export function JoinHoldCard({
               <button type="button" className="sc-work-btn" onClick={openConfirmLeave}>Leave</button>
               {confirmLeave ? (
                 <div className="sc-hold-leave-card" role="alertdialog" aria-label="Confirm leave">
+                  <HoldLeavePip />
                   <span className="sc-hold-leave-title">Leave hold <code>{view.realmId.replace(/^join-/, "")}</code>?</span>
                   <span className="sc-hold-leave-warning">The hold keeps running. To join again you need the realm id and its key.</span>
                   <div className="sc-hold-leave-buttons">
