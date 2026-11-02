@@ -5,7 +5,7 @@ Read `AGENTS.md` then this file.
 ## Live
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
-Merged through PR **#294** (leave confirmation living seal, #294; hold leave confirmation, #293; copy button confirmation flash, #292; hold leave hint, #291; hold key living seal, #290; intent log living pip, #289; hold intent log, #288; save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Hold store cards and their living pips are on `main` (c755bb3, 6831729). Waiting: `wave/hud-hold-actions` (**not merged**, see Hold action cards below).
+Merged through PR **#295** (hold store living resource pips, #295; hold store cards, #295; leave confirmation living seal, #294; hold leave confirmation, #293; copy button confirmation flash, #292; hold leave hint, #291; hold key living seal, #290; intent log living pip, #289; hold intent log, #288; save and load audit log, #287; shared-hold intent rate limit, #286; static board tile cache, #285; tab lazy-load and chunk split, #284; moving sun/moon and tile-plane weather, #283; slower day cycle, #282; day/night cycle and weather atmosphere on diamond, #281; deeper weather and day/night cycle, #280; living atmosphere on diamond, #279; weather slows marches, #278; fog edge mark on diamond, #277; fog edge line, #276; staffed mark on diamond, #275; staffed line, #274; building mark on diamond, #273; building line, #272; hold mark on diamond, #271; hold line, #270; owner mark on diamond, #269; owner line, #268; gather mark on diamond, #267; gather line, #266; scout mark on diamond, #265; scout line, #264; garrison mark on diamond, #263; garrison line, #262; season mark on diamond, #261; season line, #260; outpost and camp marks on diamond, #259; outpost line, #258; trail mark on diamond, #257; trail line, #256; incoming mark on diamond, #255; incoming line, #254; clash mark on diamond, #253; clash line, #252; stock badge on diamond, #251; stock badge line, #250; plain meadow on diamond, #249; plain line, #248; waste crag on diamond, #247; waste line, #246; hill rise on diamond, #245; hill line, #244; audio MIME, #243; mountain on diamond, #242; peak line, #241; trees on diamond, #240; wood line, #239; shore tile, #238; shore line, #237; ruins tile, #236). Waiting: `bakeoff/gemini-hold-action-pips` (**not merged**, see Hold action living pips below).
 
 ### Cultures and units (all merged)
 
@@ -427,21 +427,21 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/hud/LeaveSealPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
-## Hold store living resource pips (branch `bakeoff/gemini-hold-pips`, **on main** as 6831729)
+## Hold store living resource pips (PR #295)
 
 - App only (`packages/app`). Do not change `packages/sim`, `packages/render`, `server/`, or `theme.css`. Do not change any game rules.
-- `packages/app/src/hud/HoldStorePip.tsx` & `packages/app/src/hud/hold-store-pip.css` (new): adds `HoldStorePip` (16px living SVG resource pips for food, wood, stone, and gold with `pointer-events: none` on every pip and all children, staggered gentle `@keyframes sc-hold-pip-breathe` breathing motion, and `@media (prefers-reduced-motion: reduce)` motion guard).
+- `packages/app/src/hud/HoldStorePip.tsx` & `packages/app/src/hud/hold-store-pip.css`: adds `HoldStorePip` (16px living SVG resource pips for food, wood, stone, and gold with `pointer-events: none` on every pip and all children, staggered gentle `@keyframes sc-hold-pip-breathe` breathing motion, and `@media (prefers-reduced-motion: reduce)` motion guard).
 - `packages/app/src/JoinHoldCard.tsx`: renders living resource pips inside the four hold-store cards (`Food`, `Wood`, `Stone`, `Gold`), hidden when no hold is joined.
 - `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 - Tests: `packages/app/src/hud/HoldStorePip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
-## Hold action cards (branch `wave/hud-hold-actions`, **not merged**)
+## Hold action living pips (branch `bakeoff/gemini-hold-action-pips`, **not merged**)
 
-- App only (`packages/app`). No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: the plain row of Train militia / Build farm / Build lumber camp / Build cottage / Stamp / Leave buttons is now four small action cards: **Train**, **Build**, **Stamp**, **Leave**. Each card has a short label and the same button(s). Build holds all three build buttons. The leave confirmation (Leave hold <id>? · seal + Leave · Stay) now opens inside the Leave card. The hold id / tick line stays above the cards.
-- `packages/app/src/hud/hold-actions.css` (new, imported by `JoinHoldCard.tsx`): card styles. Wraps on narrow screens; one card per row under 360px.
-- Tests: `packages/app/src/hud/holdActions.test.tsx` (new). `leaveConfirm.test.tsx` now counts Leave *buttons*, since the Leave card label also reads "Leave".
-- Known gap (not fixed here): `hud/leave-confirm.css` and `hud/hold-stores.css` are not imported anywhere, so their rules never load.
+- App only (`packages/app`). Do not change `packages/sim`, `packages/render`, `server/`, or `theme.css`. Do not change any game rules.
+- `packages/app/src/hud/HoldActionPip.tsx` & `packages/app/src/hud/hold-action-pip.css` (new): adds `HoldActionPip` (16px living SVG action pips for train, build, stamp, and leave with `pointer-events: none` on every pip and all children, staggered gentle `@keyframes sc-hold-action-pip-breathe` breathing motion, and `@media (prefers-reduced-motion: reduce)` motion guard).
+- `packages/app/src/JoinHoldCard.tsx`: renders living action pips inside the four hold-action cards (`Train`, `Build`, `Stamp`, `Leave`), hidden when no hold is joined.
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
+- Tests: `packages/app/src/hud/HoldActionPip.test.tsx`; `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## Verify
 

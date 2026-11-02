@@ -5,7 +5,7 @@ import { KeySealPip } from "./hud/KeySealPip";
 import { CopyFlashPip, startCopyFlashTimer } from "./hud/CopyFlashPip";
 import { LeaveSealPip } from "./hud/LeaveSealPip";
 import { HoldStorePip } from "./hud/HoldStorePip";
-import "./hud/hold-actions.css";
+import { HoldActionPip } from "./hud/HoldActionPip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -220,20 +220,24 @@ export function JoinHoldCard({
           </div>
           <div className="sc-hold-actions" aria-label="Hold actions">
             <div className="sc-hold-action-card" aria-label="Train">
+              <HoldActionPip action="train" />
               <span className="sc-hold-action-label">Train</span>
               <button type="button" className="sc-work-btn" onClick={() => void train()}>Train militia</button>
             </div>
             <div className="sc-hold-action-card sc-hold-action-card-build" aria-label="Build">
+              <HoldActionPip action="build" />
               <span className="sc-hold-action-label">Build</span>
               <button type="button" className="sc-work-btn" onClick={() => void build()}>Build farm</button>
               <button type="button" className="sc-work-btn" onClick={() => void lumber()}>Build lumber camp</button>
               <button type="button" className="sc-work-btn" onClick={() => void cottage()}>Build cottage</button>
             </div>
             <div className="sc-hold-action-card" aria-label="Stamp">
+              <HoldActionPip action="stamp" />
               <span className="sc-hold-action-label">Stamp</span>
               <button type="button" className="sc-work-btn" onClick={() => void stamp()}>Stamp</button>
             </div>
             <div className="sc-hold-action-card" aria-label="Leave">
+              <HoldActionPip action="leave" />
               <span className="sc-hold-action-label">Leave</span>
               <button type="button" className="sc-work-btn" onClick={openConfirmLeave}>Leave</button>
               {confirmLeave ? (

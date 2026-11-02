@@ -1,11 +1,15 @@
-## 2026-11-02 — app / hold action cards (wave/hud-hold-actions)
+## 2026-11-02 — app / living action pips inside hold action cards (bakeoff/gemini-hold-action-pips)
 
-- Slice constraints: App only (`packages/app`). No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `JoinHoldCard.tsx`: new `.sc-hold-actions` wrapper (`aria-label="Hold actions"`) after the hold id / tick line. Four `.sc-hold-action-card` children, each with `aria-label` = its label and a `.sc-hold-action-label` span: Train (`train()`), Build (`.sc-hold-action-card-build`; `build()`, `lumber()`, `cottage()`), Stamp (`stamp()`), Leave (`openConfirmLeave`). Handlers, button text, and state are unchanged.
-- Leave confirmation: the same `.sc-leave-confirm` `role="alertdialog"` block (text, `LeaveSealPip` + Leave, Stay) now renders inside the Leave card, after its Leave button. It dropped `sc-plain-inline`; `hold-actions.css` stacks it in a column.
-- `hud/hold-actions.css` is imported directly by `JoinHoldCard.tsx`. Flex-wrap layout (`flex: 1 1 110px`, Build `2 1 160px`), full width under 360px.
-- Tests: `hud/holdActions.test.tsx` checks card order, labels, which button sits in which card, the confirmation inside Leave, no cards when unjoined, and the CSS file. `hud/leaveConfirm.test.tsx` now matches `<button…>Leave</button>` (2 when open), because the card label adds another `>Leave<`.
-- Found, not fixed: `hud/leave-confirm.css` and `hud/hold-stores.css` have no importer, so they never load (Vite only bundles imported CSS). The store card look currently comes from `hold-store-pip.css`.
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `HoldActionPip` & CSS isolation (`packages/app/src/hud/HoldActionPip.tsx`, `packages/app/src/hud/hold-action-pip.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) living SVG action pip for each action kind (`train`, `build`, `stamp`, `leave`): broadsword & spear for Train, craftsman mallet & trowel for Build, turned brass signet stamp on crimson wax for Stamp, and sunlit postern archway for Leave.
+  - Strictly enforces `pointer-events: none` inline and in stylesheet on `.sc-hold-action-pip-wrapper, .sc-hold-action-pip-wrapper *, .sc-hold-action-pip`.
+  - Gentle living rhythm (`@keyframes sc-hold-action-pip-breathe`) animates only compositor-safe `transform` and `opacity` on `.sc-hold-action-pip-glyph` with staggered delays per action (`0s`, `-0.9s`, `-1.8s`, `-2.7s`), disabled under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - In `.sc-hold-actions`, groups the action buttons into four `.sc-hold-action-card` cards (Train, Build, Stamp, Leave), rendering `<HoldActionPip action={act} />` alongside the label and buttons. The leave confirmation sits inside the Leave card.
+  - Action card styles (`.sc-hold-actions`, `.sc-hold-action-card`, `.sc-hold-action-card-build`, `.sc-hold-action-label`) are carried in `hold-action-pip.css`, avoiding missing stylesheet build failures while staying harmoniously compatible with parallel branches.
+  - `leaveConfirm.test.tsx` updated to count `<button>Leave</button>` matches rather than bare `>Leave<` which appears in the card label.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-10-30 — app / living resource pips inside hold store cards (bakeoff/gemini-hold-pips)
 

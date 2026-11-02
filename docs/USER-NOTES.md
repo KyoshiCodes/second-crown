@@ -2,11 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Hold buttons sorted into four cards (wave/hud-hold-actions)
+## 2026-11-02 — Living action pips inside hold action cards (bakeoff/gemini-hold-action-pips)
 
-- **The shared hold's buttons are now in four small cards: Train, Build, Stamp, Leave.** Build holds Build farm, Build lumber camp, and Build cottage. Every button does the same thing as before.
-- Pressing Leave still asks first. The "Leave hold …?" question with Leave / Stay now shows up inside the Leave card.
-- **Play is unchanged.** Your solo crown, saves, hold keys, and the server work exactly as before.
+- **The four hold-action cards now feature living 16px action pips. Play is unchanged.** When you view a joined shared hold in the Cloud panel, the Train, Build, Stamp, and Leave cards each display an authentic living action pip (steel broadsword & spear for Train, craftsman mallet & trowel for Build, royal brass signet stamp for Stamp, and sunlit postern archway for Leave).
+- All new art is pointer-events: none on every pip and all children so clicking buttons and interacting with the hold works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-10-30 — Living resource pips inside hold store cards (bakeoff/gemini-hold-pips)
 

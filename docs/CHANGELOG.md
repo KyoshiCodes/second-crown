@@ -1,11 +1,16 @@
 # CHANGELOG
 
-## 2026-11-02 — Hold action cards (wave/hud-hold-actions)
+## 2026-11-02 — Living action pips in hold action cards (bakeoff/gemini-hold-action-pips)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: the hold's button row is now four action cards, Train / Build / Stamp / Leave, each with a short label and the existing button(s). Build keeps Build farm, Build lumber camp, Build cottage. The leave confirmation opens inside the Leave card.
-- `packages/app/src/hud/hold-actions.css` (new): action card styles, imported by `JoinHoldCard.tsx`.
-- Tests: `packages/app/src/hud/holdActions.test.tsx` (new); `leaveConfirm.test.tsx` counts Leave buttons instead of every `>Leave<`.
+- `packages/app/src/hud/HoldActionPip.tsx` (new):
+  - `HoldActionPip`: 16px living SVG action pip (`viewBox="0 0 16 16"`) for each of the four hold actions (`train`, `build`, `stamp`, `leave`), with strict `pointer-events: none` on the wrapper, SVG, and all children (`aria-hidden="true"`).
+- `packages/app/src/hud/hold-action-pip.css` (new):
+  - Isolated styles for the hold action cards and pips, strict `pointer-events: none` on `.sc-hold-action-pip-wrapper` and all children, compositor-only `@keyframes sc-hold-action-pip-breathe`, staggered delays per action, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders a 16px `HoldActionPip` inside each of the four hold action cards (`Train`, `Build`, `Stamp`, `Leave`) when a hold is joined, keeping the leave confirmation inside the Leave card.
+- Tests: `packages/app/src/hud/HoldActionPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass); `leaveConfirm.test.tsx` checks button count.
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-10-30 — Living resource pips in hold store cards (bakeoff/gemini-hold-pips)
 

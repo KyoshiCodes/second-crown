@@ -1,0 +1,123 @@
+/* Styles for HoldActionPip and hold action cards only. Do not touch theme.css. */
+
+.sc-hold-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sc-hold-action-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  flex: 1 1 110px;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid #3a3228;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.6);
+}
+
+.sc-hold-action-card-build {
+  flex: 2 1 160px;
+}
+
+.sc-hold-action-label {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.sc-hold-action-card .sc-leave-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+.sc-hold-action-card .sc-leave-seal-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sc-hold-action-card .sc-leave-seal-group .sc-work-btn {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 360px) {
+  .sc-hold-action-card,
+  .sc-hold-action-card-build {
+    flex-basis: 100%;
+  }
+}
+
+/* 16px HoldActionPip: strictly pointer-events: none on every pip and all children */
+.sc-hold-action-pip-wrapper,
+.sc-hold-action-pip-wrapper *,
+.sc-hold-action-pip {
+  pointer-events: none !important;
+}
+
+.sc-hold-action-pip-wrapper {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.sc-hold-action-pip-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  animation: sc-hold-action-pip-breathe 3.6s ease-in-out infinite;
+}
+
+/* Stagger each action rhythm so all four don't breathe in lockstep */
+.sc-hold-action-pip-train .sc-hold-action-pip-glyph {
+  animation-delay: 0s;
+}
+
+.sc-hold-action-pip-build .sc-hold-action-pip-glyph {
+  animation-delay: -0.9s;
+}
+
+.sc-hold-action-pip-stamp .sc-hold-action-pip-glyph {
+  animation-delay: -1.8s;
+}
+
+.sc-hold-action-pip-leave .sc-hold-action-pip-glyph {
+  animation-delay: -2.7s;
+}
+
+@keyframes sc-hold-action-pip-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateY(-1px) scale(1.06);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-hold-action-pip-glyph {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+}
