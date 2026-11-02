@@ -320,11 +320,6 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardProvincesLayer.eventMode = "none";
   boardContainer.addChild(boardProvincesLayer);
 
-  const boardSelectionLayer = new Graphics();
-  boardSelectionLayer.eventMode = "none";
-  boardSelectionLayer.visible = false;
-  boardContainer.addChild(boardSelectionLayer);
-
   const boardRoutesLayer = new Graphics();
   boardRoutesLayer.eventMode = "none";
   boardContainer.addChild(boardRoutesLayer);
@@ -336,6 +331,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   const boardWeatherGraphic = new Graphics();
   boardWeatherGraphic.eventMode = "none";
   boardContainer.addChild(boardWeatherGraphic);
+
+  // Selected-province rim sits ABOVE weather + the static fog veil so rain, snow,
+  // storm dim and sun/moon glow never wash it out. Hover highlight stays on top.
+  const boardSelectionLayer = new Graphics();
+  boardSelectionLayer.eventMode = "none";
+  boardSelectionLayer.visible = false;
+  boardContainer.addChild(boardSelectionLayer);
 
   const boardHighlightLayer = new Graphics();
   boardHighlightLayer.eventMode = "none";

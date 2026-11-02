@@ -9583,6 +9583,11 @@ export function paintBoardGathers(
   }
 }
 
+/** Dark ink underlay for the selected-province rim (contrast under weather + fog). */
+export const SELECT_RIM_INK = 0x1c1208;
+export const SELECT_RIM_INK_ALPHA = 0.72;
+export const SELECT_RIM_INK_WIDTH = 4.5;
+
 export function paintBoardSelectionRim(
   g: Graphics,
   bx: number,
@@ -9601,6 +9606,29 @@ export function paintBoardSelectionRim(
   // Gentle radiant breath
   const pulse = Math.sin(phase * 3) * 0.08;
   const alphaBase = 0.92 + pulse;
+
+  // 0. INK CONTRAST UNDERLAY — a dark, wide, steady (non-pulsing) outline under every
+  // gold stroke so the rim stays readable on pale fog veil, snow, and sun/moon glow.
+  const inkDiamond = (y: number, pad: number) => {
+    g.poly([
+      wx, y - hh - pad,
+      wx + hw + pad, y,
+      wx, y + hh + pad,
+      wx - hw - pad, y,
+    ]);
+    g.stroke({ width: SELECT_RIM_INK_WIDTH, color: SELECT_RIM_INK, alpha: SELECT_RIM_INK_ALPHA });
+  };
+  inkDiamond(wy, 2);
+  if (elev > 0) {
+    g.moveTo(wx - hw - 1, cy);
+    g.lineTo(wx - hw - 1, wy);
+    g.moveTo(wx, cy + hh + 1);
+    g.lineTo(wx, wy + hh + 1);
+    g.moveTo(wx + hw + 1, cy);
+    g.lineTo(wx + hw + 1, wy);
+    g.stroke({ width: SELECT_RIM_INK_WIDTH - 0.5, color: SELECT_RIM_INK, alpha: SELECT_RIM_INK_ALPHA });
+  }
+  inkDiamond(cy, 1);
 
   // 1. CLEAR GOLD GROUND RING (tabletop ground plane at wy)
   // Outer warm amber-gold ground aura

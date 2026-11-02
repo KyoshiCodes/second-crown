@@ -3897,6 +3897,48 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(lineTos.length).toBeGreaterThan(0);
       });
 
+      it("paintBoardSelectionRim lays a steady dark ink underlay before any gold (fog/weather contrast)", async () => {
+        const { paintBoardSelectionRim, SELECT_RIM_INK, SELECT_RIM_INK_ALPHA } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_fog", x: 5, y: 5, terrain: "hill", node: "none" },
+          ],
+        };
+        state.flags["seen:p_home"] = true;
+
+        for (const [bx, by] of [[2, 2], [5, 5]] as const) {
+          for (const phase of [0, 0.5, 1.7]) {
+            const g = createMockGraphics();
+            paintBoardSelectionRim(g, bx, by, state, phase);
+            const strokes = g.calls.filter((c: any) => c.method === "stroke");
+            const firstGold = strokes.findIndex((c: any) => c.args[0]?.color !== SELECT_RIM_INK);
+            const inks = strokes.filter((c: any) => c.args[0]?.color === SELECT_RIM_INK);
+            expect(inks.length).toBeGreaterThanOrEqual(2); // ground ring + top rim
+            expect(firstGold).toBeGreaterThanOrEqual(inks.length); // all ink before gold
+            for (const ink of inks) {
+              expect(ink.args[0].alpha).toBe(SELECT_RIM_INK_ALPHA); // does not pulse
+            }
+          }
+        }
+      });
+
+      it("board selection layer is stacked above the weather layer", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+        const weatherAdd = code.indexOf("boardContainer.addChild(boardWeatherGraphic)");
+        const selectAdd = code.indexOf("boardContainer.addChild(boardSelectionLayer)");
+        const highlightAdd = code.indexOf("boardContainer.addChild(boardHighlightLayer)");
+        const staticAdd = code.indexOf("boardContainer.addChild(boardStaticTilesLayer)");
+        expect(weatherAdd).toBeGreaterThan(0);
+        expect(selectAdd).toBeGreaterThan(weatherAdd);
+        expect(selectAdd).toBeGreaterThan(staticAdd); // above the fog veil
+        expect(highlightAdd).toBeGreaterThan(selectAdd); // hover stays on top
+      });
+
       it("paintBoardHighlight includes paintBoardSelectionRim before plaque", async () => {
         const { paintBoardHighlight } = await import("./tokens.js");
         const state = createMockState();

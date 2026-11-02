@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Board select rim readable under weather and fog (wave/board-select-rim)
+
+- Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/index.ts`: `boardSelectionLayer` moved above `boardWeatherGraphic` (still above the static fog veil, still below `boardHighlightLayer`).
+- `packages/render/src/tokens.ts`: new `SELECT_RIM_INK`, `SELECT_RIM_INK_ALPHA`, `SELECT_RIM_INK_WIDTH`; `paintBoardSelectionRim` draws a steady dark ink underlay under the ground ring, corner struts and top rim before the gold strokes.
+- Tests: `packages/render/src/index.test.ts` (ink underlay before gold on seen and fogged tiles across phases; selection layer stacked above weather and fog, below hover). `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-02 — Living log pips in hold log cards (bakeoff/gemini-hold-log-pips)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

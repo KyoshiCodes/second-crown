@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Selected tile stays clear in bad weather (wave/board-select-rim)
+
+- **The gold rim around the tile you picked on the board is now easy to see in rain, snow, storms, fog and under the sun or moon glow.** It has a dark edge behind the gold and is drawn on top of the weather.
+- **Play is unchanged.** Picking a tile, the inspect card, marches and everything else work exactly as before.
+
 ## 2026-11-02 — Living log pips inside hold log cards (bakeoff/gemini-hold-log-pips)
 
 - **The hold log cards now feature living 16px log pips. Play is unchanged.** When you view a joined shared hold in the Cloud panel with recorded actions, each log card displays an authentic living chronicle parchment pip (an illuminated folio with calligraphic ink lines and heraldic emblems reflecting the logged action, such as crossed swords for training, a reaping sickle for farms, an axe for lumber camps, a cottage for cottages, or a stamped royal wax seal for stamps).

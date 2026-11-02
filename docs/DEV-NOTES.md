@@ -1,3 +1,11 @@
+## 2026-11-02 — render / board select rim under weather and fog (wave/board-select-rim)
+
+- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order in `boardContainer` (bottom to top): backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, routes, pawns, weather, **selection**, hover highlight. Selection used to sit under routes/pawns/weather, so `drawAtmosphere` strokes and dims covered it.
+- `paintBoardSelectionRim` step 0: dark ink diamonds at `wy` (pad 2) and `cy` (pad 1) plus corner struts when `elev > 0`, all `SELECT_RIM_INK` at a fixed alpha so the contrast does not breathe with the gold pulse. Gold strokes then draw on top unchanged. Fogged (unseen) tiles use `elev = 4` as before.
+- `paintBoardHighlight` (hover) also calls `paintBoardSelectionRim`, so the hover rim gets the same underlay.
+- Tests: `index.test.ts` "Selected Board Province Clear Gold Rim" block, two new cases (ink order + steady alpha; source-order check on `addChild` calls).
+
 ## 2026-11-02 — app / living log pips inside hold log cards (bakeoff/gemini-hold-log-pips)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
