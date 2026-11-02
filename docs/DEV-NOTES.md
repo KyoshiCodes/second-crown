@@ -1,3 +1,13 @@
+## 2026-11-02 — render / clearer node stock piles under weather and fog (wave/board-node-piles)
+
+- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order in `boardContainer` (bottom to top): backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, routes, pawns, weather, **node piles**, selection, hover highlight.
+- `paintBoardNodePiles(g, state, phase)` clears, then for each seen woodcut / quarry / field tile (not a hold) calls `drawBoardNodePile` at the same anchor as before (`cx + 5, cy + 1`, `cy` = tile centre minus terrain elevation). Unseen tiles get nothing.
+- `drawBoardNodePile`: when stocked, `drawNodePileInkPlinth` (ellipse `9.5 x 4.4`, `NODE_PILE_INK` `0x1c1208` at fixed `0.62`, rim `0xfde68a` at `0.38`), then the existing `drawNodeStockPile`; always the stock badge. Empty nodes still get no pile, only the `0/N` badge.
+- `paintProvinceDynamicToken` gained a trailing `pilesOnOwnLayer` flag. `paintBoardDynamicTokens` passes `true`; `paintBoardProvinces` keeps the default `false` and draws piles inline. Ruins still go through `drawResourceNode` unchanged.
+- Side effect: piles now draw above routes, pawns and the fog-edge pip at `cx + 5, cy - 3`, which overlaps the top of a full pile. If that reads badly, nudge the fog-edge pip rather than moving the pile layer down.
+- `index.test.ts` on `origin/main` had unresolved conflict markers (around the select-rim ink test) so the render suite could not compile. Kept the HEAD side.
+
 ## 2026-11-02 — render & app / living selected-province rim treatment on diamond board (bakeoff/gemini-select-rim)
 
 - Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim` or `server`. Zero changes to `theme.css`. Game rules unchanged.

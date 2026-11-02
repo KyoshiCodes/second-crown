@@ -3897,7 +3897,6 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(lineTos.length).toBeGreaterThan(0);
       });
 
-<<<<<<< HEAD
       it("paintBoardSelectionRim lays a steady dark ink underlay before any gold (fog/weather contrast)", async () => {
         const { paintBoardSelectionRim, SELECT_RIM_INK, SELECT_RIM_INK_ALPHA } = await import("./tokens.js");
         const state = createMockState();
@@ -3908,11 +3907,6 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
             { id: "p_fog", x: 5, y: 5, terrain: "hill", node: "none" },
           ],
         };
-=======
-      it("paints a dark ink underlay under ground ring and top rim before gold strokes", async () => {
-        const { paintBoardSelectionRim, SELECT_RIM_INK, SELECT_RIM_INK_ALPHA } = await import("./tokens.js");
-        const state = createMockState();
->>>>>>> 8c11c40 (render: add living selected-province rim treatment on diamond board)
         state.flags["seen:p_home"] = true;
 
         for (const [bx, by] of [[2, 2], [5, 5]] as const) {
@@ -4201,6 +4195,86 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         paintBoardProvinces(g, state, 0);
 
         expect(g.calls.length).toBeGreaterThan(20);
+      });
+
+      it("paintBoardNodePiles draws ink plinth + pile only for seen stocked nodes", async () => {
+        const { paintBoardNodePiles, NODE_PILE_INK, NODE_PILE_INK_ALPHA } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_wood", x: 3, y: 2, terrain: "wood", node: "woodcut" },
+            { id: "p_dry", x: 4, y: 2, terrain: "plain", node: "field" },
+            { id: "p_fog", x: 5, y: 2, terrain: "hill", node: "quarry" },
+          ],
+        };
+        state.flags["seen:p_home"] = true;
+        state.flags["seen:p_wood"] = true;
+        state.flags["seen:p_dry"] = true;
+        state.flags["node_stock_p_dry"] = 0;
+
+        const inkFills = (g: any) =>
+          g.calls.filter((c: any) => c.method === "fill" && c.args[0]?.color === NODE_PILE_INK);
+
+        const g = createMockGraphics();
+        paintBoardNodePiles(g, state, 0.5);
+        expect(g.calls[0].method).toBe("clear");
+        const inks = inkFills(g);
+        expect(inks.length).toBe(1); // only p_wood (dry field + unseen quarry get no plinth)
+        expect(inks[0].args[0].alpha).toBe(NODE_PILE_INK_ALPHA);
+
+        // Steady: plinth does not pulse with phase
+        const g2 = createMockGraphics();
+        paintBoardNodePiles(g2, state, 3.3);
+        expect(inkFills(g2)[0].args[0].alpha).toBe(NODE_PILE_INK_ALPHA);
+
+        // Unseen-only board draws nothing but clear
+        const fogState = createMockState();
+        fogState.board = { homeProvinceId: "p_x", provinces: [{ id: "p_q", x: 1, y: 1, terrain: "hill", node: "quarry" }] };
+        const g3 = createMockGraphics();
+        paintBoardNodePiles(g3, fogState, 0);
+        expect(g3.calls.length).toBe(1);
+      });
+
+      it("paintBoardDynamicTokens leaves stock piles to the pile layer; paintBoardProvinces still draws them inline", async () => {
+        const { paintBoardDynamicTokens, paintBoardProvinces, NODE_PILE_INK } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_wood", x: 3, y: 2, terrain: "wood", node: "woodcut" },
+          ],
+        };
+        state.flags["seen:p_home"] = true;
+        state.flags["seen:p_wood"] = true;
+        const hasInk = (g: any) =>
+          g.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === NODE_PILE_INK);
+
+        const dyn = createMockGraphics();
+        paintBoardDynamicTokens(dyn, state, 0);
+        expect(hasInk(dyn)).toBe(false);
+
+        const all = createMockGraphics();
+        paintBoardProvinces(all, state, 0);
+        expect(hasInk(all)).toBe(true);
+      });
+
+      it("board node pile layer is stacked above weather and below the select rim", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+        const weatherAdd = code.indexOf("boardContainer.addChild(boardWeatherGraphic)");
+        const pilesAdd = code.indexOf("boardContainer.addChild(boardNodePilesLayer)");
+        const selectAdd = code.indexOf("boardContainer.addChild(boardSelectionLayer)");
+        const staticAdd = code.indexOf("boardContainer.addChild(boardStaticTilesLayer)");
+        expect(pilesAdd).toBeGreaterThan(weatherAdd);
+        expect(pilesAdd).toBeGreaterThan(staticAdd);
+        expect(selectAdd).toBeGreaterThan(pilesAdd);
+        const dynCalls = code.match(/paintBoardDynamicTokens\(boardProvincesLayer/g)?.length ?? 0;
+        const pileCalls = code.match(/paintBoardNodePiles\(boardNodePilesLayer/g)?.length ?? 0;
+        expect(pileCalls).toBe(dynCalls);
       });
 
       it("OverworldAtlas defines MiniLogs, MiniSacks, MiniBlocks on diamond for stocked provinces", async () => {
@@ -15357,8 +15431,9 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                 });
 
                 it("keeps terrain, height faces, and unseen fog veil on static layer and redraws marks, piles, ruins, camps, keeps, weather, and sun/moon on dynamic layers", async () => {
-                  const { drawAtmosphere } = await import("./index.js");
+                  const { drawAtmosphere, paintBoardNodePiles } = await import("./index.js");
                   const staticG = createMockGraphics();
+                  const pilesG0 = createMockGraphics();
                   const dynamicG0 = createMockGraphics();
                   const dynamicG1 = createMockGraphics();
                   const weatherG0 = createMockGraphics();
@@ -15372,6 +15447,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   paintBoardStaticTiles(staticG, state0);
                   paintBoardDynamicTokens(dynamicG0, state0, 0.2);
                   paintBoardDynamicTokens(dynamicG1, state1, 1.4);
+                  paintBoardNodePiles(pilesG0, state0, 0.2);
                   drawAtmosphere(state0, weatherG0, 0.2, 560, 360);
                   drawAtmosphere(state1, weatherG1, 1.4, 560, 360);
 
@@ -15398,7 +15474,9 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
 
                   // Dynamic layer draws keeps, camps (0xd4a373), piles & stock badges (0x090d16), ruins (0x292524), hold/building/staffed/fog-edge/owner/outpost/season marks, and animates across frames
                   expect(dynJson0).toContain(String(0xd4a373)); // camp tent guy ropes
-                  expect(dynJson0).toContain(String(0x090d16)); // stock badge pill
+                  // Piles & stock badges live on their own layer above weather (paintBoardNodePiles)
+                  expect(JSON.stringify(pilesG0.calls)).toContain(String(0x090d16)); // stock badge pill
+                  expect(dynJson0).not.toContain(String(0x090d16));
                   expect(dynJson0).toContain(String(0x292524)); // ruined keep plinth
                   expect(dynJson0).toContain(String(0x251a06)); // hold mark
                   expect(dynJson0).toContain(String(0x1f1610)); // building mark

@@ -119,6 +119,14 @@ import {
   computeBoardStaticCacheKey,
   paintBoardStaticTiles,
   paintBoardDynamicTokens,
+  paintBoardNodePiles,
+  drawBoardNodePile,
+  drawNodePileInkPlinth,
+  isStockPileNode,
+  NODE_PILE_INK,
+  NODE_PILE_INK_ALPHA,
+  NODE_PILE_RIM,
+  NODE_PILE_RIM_ALPHA,
   createBoardStaticLayerCache,
   type BoardStaticLayerCache,
   paintBoardProvinces,
@@ -332,6 +340,12 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardWeatherGraphic.eventMode = "none";
   boardContainer.addChild(boardWeatherGraphic);
 
+  // Node stock piles (+ stock badges) sit ABOVE weather + the static fog veil so rain,
+  // snow, storm dim and sun/moon glow never wash them out. Select rim + hover stay on top.
+  const boardNodePilesLayer = new Graphics();
+  boardNodePilesLayer.eventMode = "none";
+  boardContainer.addChild(boardNodePilesLayer);
+
   // Selected-province rim sits ABOVE weather + the static fog veil so rain, snow,
   // storm dim and sun/moon glow never wash it out. Hover highlight stays on top.
   const boardSelectionLayer = new Graphics();
@@ -405,6 +419,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       boardStaticCache.update(lastState, currentBand, visuals);
       if (currentBand === "board" && lastState) {
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
+        paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
         drawAtmosphere(lastState, boardWeatherGraphic, phase, CANVAS_W, CANVAS_H);
@@ -933,6 +948,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     boardStaticCache.update(state, currentBand, visuals);
     if (currentBand === "board") {
       paintBoardDynamicTokens(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
+      paintBoardNodePiles(boardNodePilesLayer, state, phase);
       paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
       renderBoardSelection(state);
       updateBoardWeather(phase);
@@ -958,6 +974,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       boardStaticCache.update(lastState, currentBand, visuals);
       if (currentBand === "board") {
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
+        paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
       }
@@ -987,6 +1004,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       if (lastState) {
         boardStaticCache.update(lastState, currentBand, visuals);
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
+        paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
       }
@@ -1055,6 +1073,14 @@ export {
   computeBoardStaticCacheKey,
   paintBoardStaticTiles,
   paintBoardDynamicTokens,
+  paintBoardNodePiles,
+  drawBoardNodePile,
+  drawNodePileInkPlinth,
+  isStockPileNode,
+  NODE_PILE_INK,
+  NODE_PILE_INK_ALPHA,
+  NODE_PILE_RIM,
+  NODE_PILE_RIM_ALPHA,
   createBoardStaticLayerCache,
   type BoardStaticLayerCache,
   paintBoardProvinces,

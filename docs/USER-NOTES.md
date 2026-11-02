@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Clearer resource piles on the board (wave/board-node-piles)
+
+- **The log, stone and grain piles on woodcut, quarry and field tiles are easier to see.** Each stocked pile sits on a small dark base with a faint warm edge, and the piles and their stock numbers are drawn on top of rain, snow, storms, fog and the sun or moon glow.
+- **Play is unchanged.** Stock, gathering and everything else work exactly as before. Empty nodes still show no pile.
+
 ## 2026-11-02 — Living selected-province rim treatment on the diamond board (bakeoff/gemini-select-rim)
 
 - **The gold outline on your selected province now features a living, layered rim that stays sharp and readable in all weather.** Snow, rain, clouds, day, and night no longer dim or wash out the selection ring. A steady dark ink outline beneath the gold keeps the province edge crisp against pale snow and fog, accompanied by a gentle radiant amber-gold glow and corner reticle gems.

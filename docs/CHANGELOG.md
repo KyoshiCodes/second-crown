@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Clearer node stock piles under weather and fog (wave/board-node-piles)
+
+- Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/index.ts`: new `boardNodePilesLayer`, stacked above `boardWeatherGraphic` and the static fog veil, below `boardSelectionLayer` and hover. Painted by `paintBoardNodePiles` everywhere `paintBoardDynamicTokens` runs.
+- `packages/render/src/tokens.ts`: new `paintBoardNodePiles`, `drawBoardNodePile`, `drawNodePileInkPlinth`, `isStockPileNode`, `NODE_PILE_INK` / `NODE_PILE_INK_ALPHA` / `NODE_PILE_RIM` / `NODE_PILE_RIM_ALPHA`. Stocked woodcut / quarry / field piles get a steady dark ink plinth with a faint warm rim. `paintBoardDynamicTokens` now draws only the node landmark; the pile and stock badge move to the pile layer. `paintBoardProvinces` (single-layer painter) still draws them inline, with the plinth.
+- `packages/render/src/index.test.ts`: removed leftover merge-conflict markers from the select-rim merge (kept the HEAD test body). Board-cache test now looks for the stock badge on the pile layer. New tests: plinth only on seen stocked nodes, steady alpha, dynamic layer leaves piles alone, layer order and call parity in `index.ts`. `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-02 — Living selected-province rim treatment on diamond board (bakeoff/gemini-select-rim)
 
 - Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim` or `server`. Game rules unchanged.

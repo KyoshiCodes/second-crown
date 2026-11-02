@@ -3122,6 +3122,87 @@ export function drawStockBadge(
 }
 
 // -------------------------------------------------------------
+// Board Node Stock Piles (own layer, readable under weather + fog)
+// -------------------------------------------------------------
+
+/** Dark ink plinth under a stocked node pile (contrast on snow, fog, rain and sun glow). */
+export const NODE_PILE_INK = 0x1c1208;
+export const NODE_PILE_INK_ALPHA = 0.62;
+/** Faint warm rim around the plinth so the pile still lifts off dark storm / night tiles. */
+export const NODE_PILE_RIM = 0xfde68a;
+export const NODE_PILE_RIM_ALPHA = 0.38;
+
+/** Node kinds that carry a stock pile + stock badge on the board. */
+export function isStockPileNode(node: string | null | undefined): boolean {
+  return node === "woodcut" || node === "quarry" || node === "field";
+}
+
+/**
+ * Steady (non-pulsing) dark ink plinth with a faint warm rim, drawn under a stocked pile.
+ * `px, py` is the pile anchor (same point passed to drawNodeStockPile).
+ */
+export function drawNodePileInkPlinth(g: Graphics, px: number, py: number): void {
+  g.ellipse(px, py + 2, 9.5, 4.4);
+  g.fill({ color: NODE_PILE_INK, alpha: NODE_PILE_INK_ALPHA });
+  g.ellipse(px, py + 2, 9.5, 4.4);
+  g.stroke({ width: 0.8, color: NODE_PILE_RIM, alpha: NODE_PILE_RIM_ALPHA });
+}
+
+/**
+ * Draws one board stock pile for a resource node tile: ink plinth + pile (only when stocked),
+ * then the stock badge (stocked or dry). Empty nodes keep no pile.
+ */
+export function drawBoardNodePile(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  nodeType: string,
+  stock: number,
+  max: number,
+  ratio: number,
+  hasStock: boolean,
+  phase: number = 0
+): void {
+  if (!isStockPileNode(nodeType)) return;
+  const px = cx + 5;
+  const py = cy + 1;
+  if (hasStock && ratio > 0) {
+    drawNodePileInkPlinth(g, px, py);
+    drawNodeStockPile(g, px, py, nodeType, ratio, phase);
+  }
+  drawStockBadge(g, cx, cy, stock, max);
+}
+
+/**
+ * Paints the node stock piles + badges for every seen woodcut / quarry / field tile on its own
+ * Graphics layer. The renderer stacks this layer ABOVE weather (rain, snow, storm dim, sun/moon
+ * glow) and above the static fog veil, so piles stay readable in any weather. Unseen tiles get
+ * nothing (fog stays fog). Non-interactive.
+ */
+export function paintBoardNodePiles(
+  g: Graphics,
+  state: GameState | null | undefined,
+  phase: number = 0
+): void {
+  g.clear();
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+  if (!state?.board?.provinces) return;
+
+  const rawPhase = typeof phase === "number" ? phase : 0;
+  for (const p of sortBoardProvincesDepth(state.board.provinces)) {
+    if (!isStockPileNode(p.node)) continue;
+    if (p.node === "hold" || isNpcHoldProvince(p)) continue;
+    if (!isProvinceSeen(state, p.id)) continue;
+    const b = provinceTokenBounds(p.x, p.y);
+    const cy = b.cy - terrainElevation(p.terrain);
+    const { stock, max, ratio, hasStock } = getNodeStockInfo(state, p.id, p.node);
+    drawBoardNodePile(g, b.cx, cy, p.node, stock, max, ratio, hasStock, rawPhase);
+  }
+}
+
+// -------------------------------------------------------------
 // Active Column Clash & Engagement Mark (drawClashMark)
 // -------------------------------------------------------------
 
@@ -6115,7 +6196,8 @@ function paintProvinceDynamicToken(
   marchDestMap: ReturnType<typeof buildMarchDestinationMap>,
   boardWeather: AtmosphereWeather,
   boardDayPhase: DayPhase,
-  selectedProvinceId?: string | null
+  selectedProvinceId?: string | null,
+  pilesOnOwnLayer: boolean = false
 ): void {
   if (!seen) {
     const destKind = marchDestMap.get(p.id);
@@ -6194,9 +6276,15 @@ function paintProvinceDynamicToken(
       case "field":
       case "ruins": {
         const { stock, max, ratio, hasStock } = getNodeStockInfo(state, p.id, p.node);
-        drawResourceNode(g, cx, cy, p.node, ratio, rawPhase, hasStock);
-        if (p.node === "woodcut" || p.node === "quarry" || p.node === "field") {
-          drawStockBadge(g, cx, cy, stock, max);
+        if (isStockPileNode(p.node)) {
+          // Landmark here; pile + badge go through drawBoardNodePile. In the live renderer
+          // (pilesOnOwnLayer) they are painted by paintBoardNodePiles above the weather layer.
+          drawResourceNode(g, cx, cy, p.node, ratio, rawPhase, false);
+          if (!pilesOnOwnLayer) {
+            drawBoardNodePile(g, cx, cy, p.node, stock, max, ratio, hasStock, rawPhase);
+          }
+        } else {
+          drawResourceNode(g, cx, cy, p.node, ratio, rawPhase, hasStock);
         }
         break;
       }
@@ -6460,7 +6548,8 @@ export function paintBoardDynamicTokens(
       marchDestMap,
       boardWeather,
       boardDayPhase,
-      selectedProvinceId
+      selectedProvinceId,
+      true // node piles + badges are painted on their own layer (paintBoardNodePiles)
     );
   }
 }
