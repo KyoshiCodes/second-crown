@@ -1,0 +1,44 @@
+/* Living outpost and camp treatment on SVG overworld atlas (bakeoff/gemini-camps) */
+
+.sc-atlas-camp {
+  pointer-events: none !important;
+}
+
+.sc-atlas-camp * {
+  pointer-events: none !important;
+}
+
+.sc-atlas-camp-flag {
+  transform-origin: 4.5px 0px;
+  animation: sc-atlas-flag-flutter 3.5s ease-in-out infinite;
+}
+
+.sc-atlas-camp-lantern {
+  animation: sc-atlas-lantern-flicker 2.8s ease-in-out infinite;
+}
+
+@keyframes sc-atlas-flag-flutter {
+  0%, 100% {
+    transform: skewY(0deg) scaleX(1);
+  }
+  50% {
+    transform: skewY(-2.5deg) scaleX(0.96);
+  }
+}
+
+@keyframes sc-atlas-lantern-flicker {
+  0%, 100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 1.2px rgba(254, 240, 138, 0.6));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-camp-flag,
+  .sc-atlas-camp-lantern {
+    animation: none !important;
+  }
+}

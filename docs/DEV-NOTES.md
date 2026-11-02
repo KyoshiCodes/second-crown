@@ -1,13 +1,11 @@
-## 2026-11-02 — render / clearer outpost and camp marks under weather and fog (wave/board-camps)
+## 2026-11-02 — render & app / living outpost and camp treatment on diamond board (bakeoff/gemini-camps)
 
-- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
 - Layer order in `boardContainer` (bottom to top): backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, routes, pawns, weather, node piles, **outpost marks**, selection, hover highlight.
-- `paintBoardOutpostMarks(g, state, phase)` clears, then for each tile where `resolveProvinceOutpostMark` gives `"outpost"` or `"camp"` (already null for unseen and home tiles) and `hasProvinceHold` is false, calls `drawBoardOutpostMark` at the old spot (`cx - 7, cy + 4`, `cy` = tile centre minus terrain elevation).
-- `drawBoardOutpostMark` = `drawOutpostMarkPlinth` (circle `r 6.6`, `0x0e0906` at fixed `0.68`, rim `0x86efac` outpost / `0xfda4af` camp at `0.72`, width `1.1`) then the unchanged `drawOutpostMark` pip (roundel `r 4.8`).
-- `paintProvinceDynamicToken` gained a second trailing flag, `outpostMarksOnOwnLayer`. `paintBoardDynamicTokens` passes `true`; `paintBoardProvinces` keeps the default `false` and draws the mark inline (with the plinth).
-- Only the small status mark moves. The camp tent / player camp tent / garrison meeple / NPC outpost flag art stays on the dynamic layer, under weather.
-- Side effect: the plinth (r 6.6 at `cx - 7, cy + 4`) now sits above the gather pip at `cx - 11, cy - 1` and the garrison pip at `cx, cy + 6`, and can clip their edges when both show on one tile. If that reads badly, nudge those pips rather than moving this layer down.
-- The render suite is not part of `npm test`; run `npx vitest run packages/render` (601 tests pass on this branch).
+- `paintBoardOutpostMarks(g, state, phase)` clears, then for each seen tile with an outpost or camp (and not a hold) calls `drawBoardOutpostMark` at `cx + OUTPOST_MARK_DX, cy + OUTPOST_MARK_DY` (`-7, 4`). Unseen tiles get nothing.
+- `drawBoardOutpostMark`: draws `drawOutpostMarkPlinth` (circle r `6.6`, `OUTPOST_MARK_INK` `0x0e0906` at fixed `0.68`, kind-coloured rim `OUTPOST_MARK_RIM_OUTPOST` `0x86efac` or `OUTPOST_MARK_RIM_CAMP` `0xfda4af` at `0.72`), then the existing `drawOutpostMark` (fluttering flag for outpost, pitched tent with apex pip for camp).
+- `paintProvinceDynamicToken` gained an `outpostMarksOnOwnLayer` flag (passed `true` by `paintBoardDynamicTokens`, `false` by `paintBoardProvinces`).
+- SVG Kingdom Atlas (`OverworldAtlas.tsx`): `MiniCamp` carries steady dark ink plinth underlay (`#0e0906`, opacity 0.68) with emerald (`#86efac`) or rose (`#fda4af`) rim (opacity 0.72), fluttering flag pennant (`sc-atlas-flag-flutter`), and flickering hearth lantern (`sc-atlas-lantern-flicker`) via isolated `atlas-camps.css` (`pointer-events: none !important`, reduced-motion guard).
 
 ## 2026-11-02 — render & app / living node pile treatment on diamond board (bakeoff/gemini-node-piles)
 

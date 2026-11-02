@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Clearer outpost and camp marks on the board (wave/board-camps)
+## 2026-11-02 — Clearer outpost flags and rival camp marks on the diamond board (bakeoff/gemini-camps)
 
-- **The small flag on your outposts and the red tent on rival camps are easier to see.** Each one sits on a small dark base with a coloured edge (green for your outposts, red for rival camps), and they are drawn on top of rain, snow, storms, fog and the sun or moon glow.
-- **Play is unchanged.** Outposts, camps and everything else work exactly as before. Tiles you have not scouted still show nothing.
+- **Outpost flags and rival camp marks are easier to spot in all weather.** Each mark sits on a small dark ink base with an emerald rim (for player outposts) or rose rim (for rival camps). The marks draw on top of rain, snow, storm clouds, fog, and day/night lighting so weather never washes them out.
+- **Kingdom Atlas outposts and camps feature living motion.** On the overworld atlas, outpost and camp markers now feature contrast bases, animated fluttering flags, and flickering hearth lantern glows.
+- **Play is unchanged.** Outposts, camps, territory, and marches work exactly as before.
 
 ## 2026-11-02 — Clearer resource piles on the diamond board (bakeoff/gemini-node-piles)
 

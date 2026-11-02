@@ -21,6 +21,7 @@ import {
 import { detectCurrentHoliday } from "./seasons/holidays";
 import "./hud/atlas-select-rim.css";
 import "./hud/atlas-node-piles.css";
+import "./hud/atlas-camps.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -329,7 +330,31 @@ function MiniBlocks(props: { cx: number; cy: number }) {
 function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor?: string }) {
   const { cx, cy, isPlayer = false, flagColor = "#2563eb" } = props;
   return (
-    <g className="sc-atlas-camp" style={{ pointerEvents: "none" }}>
+    <g
+      className={`sc-atlas-camp ${isPlayer ? "sc-atlas-camp-outpost" : "sc-atlas-camp-rival"}`}
+      style={{ pointerEvents: "none" }}
+    >
+      {/* Dark ink plinth underlay with kind rim for weather/fog contrast */}
+      <ellipse
+        cx={cx - 1}
+        cy={cy + 3.8}
+        rx={8.5}
+        ry={3.8}
+        fill="#0e0906"
+        opacity={0.68}
+        style={{ pointerEvents: "none" }}
+      />
+      <ellipse
+        cx={cx - 1}
+        cy={cy + 3.8}
+        rx={8.5}
+        ry={3.8}
+        fill="none"
+        stroke={isPlayer ? "#86efac" : "#fda4af"}
+        strokeWidth={0.8}
+        opacity={0.72}
+        style={{ pointerEvents: "none" }}
+      />
       {/* Ground contact shadow */}
       <ellipse cx={cx - 1} cy={cy + 3.5} rx={7} ry={2.5} fill="#000000" opacity={0.35} />
       {/* Guy ropes */}
@@ -352,24 +377,28 @@ function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor
       {/* Entrance flap */}
       <polygon points={`${cx - 4},${cy + 3.5} ${cx - 2.5},${cy} ${cx - 1},${cy + 3.5}`} fill="#1c1917" />
       {/* Hearth lantern glow */}
-      <circle cx={cx - 2.5} cy={cy + 2} r={1.2} fill="#fef08a" />
-      <circle cx={cx - 2.5} cy={cy + 2} r={0.5} fill="#ffffff" />
+      <g className="sc-atlas-camp-lantern" style={{ pointerEvents: "none" }}>
+        <circle cx={cx - 2.5} cy={cy + 2} r={1.2} fill="#fef08a" />
+        <circle cx={cx - 2.5} cy={cy + 2} r={0.5} fill="#ffffff" />
+      </g>
       {/* Flagpole */}
       <line x1={cx + 4.5} y1={cy + 4} x2={cx + 4.5} y2={cy - 11} stroke="#78350f" strokeWidth={1} />
       {/* Finial gold ball */}
       <circle cx={cx + 4.5} cy={cy - 11.5} r={1} fill={isPlayer ? "#facc15" : "#a1a1aa"} />
       {/* Flag pennant */}
-      <polygon
-        points={`${cx + 4.5},${cy - 11} ${cx + 12},${cy - 8.5} ${cx + 10},${cy - 6.5} ${cx + 12},${cy - 4.5} ${cx + 4.5},${cy - 4.5}`}
-        fill={flagColor}
-        stroke={isPlayer ? "#facc15" : "#451a03"}
-        strokeWidth={0.5}
-      />
-      {/* Chevron / stripe on flag */}
-      <polygon
-        points={`${cx + 6.5},${cy - 8.5} ${cx + 8.5},${cy - 6.5} ${cx + 6.5},${cy - 5.5} ${cx + 7.5},${cy - 5.5} ${cx + 9.5},${cy - 6.5} ${cx + 7.5},${cy - 8.5}`}
-        fill={isPlayer ? "#fde047" : "#fca5a5"}
-      />
+      <g className="sc-atlas-camp-flag" style={{ pointerEvents: "none" }}>
+        <polygon
+          points={`${cx + 4.5},${cy - 11} ${cx + 12},${cy - 8.5} ${cx + 10},${cy - 6.5} ${cx + 12},${cy - 4.5} ${cx + 4.5},${cy - 4.5}`}
+          fill={flagColor}
+          stroke={isPlayer ? "#facc15" : "#451a03"}
+          strokeWidth={0.5}
+        />
+        {/* Chevron / stripe on flag */}
+        <polygon
+          points={`${cx + 6.5},${cy - 8.5} ${cx + 8.5},${cy - 6.5} ${cx + 6.5},${cy - 5.5} ${cx + 7.5},${cy - 5.5} ${cx + 9.5},${cy - 6.5} ${cx + 7.5},${cy - 8.5}`}
+          fill={isPlayer ? "#fde047" : "#fca5a5"}
+        />
+      </g>
     </g>
   );
 }

@@ -1,11 +1,13 @@
 # CHANGELOG
 
-## 2026-11-02 — Clearer outpost and camp marks under weather and fog (wave/board-camps)
+## 2026-11-02 — Living outpost and camp treatment on diamond board (bakeoff/gemini-camps)
 
-- Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/render/src/index.ts`: new `boardOutpostMarksLayer`, stacked above `boardWeatherGraphic`, the static fog veil and `boardNodePilesLayer`, below `boardSelectionLayer` and hover. Painted by `paintBoardOutpostMarks` everywhere `paintBoardDynamicTokens` runs.
-- `packages/render/src/tokens.ts`: new `paintBoardOutpostMarks`, `drawBoardOutpostMark`, `drawOutpostMarkPlinth`, `OUTPOST_MARK_INK` / `OUTPOST_MARK_INK_ALPHA` / `OUTPOST_MARK_RIM_OUTPOST` / `OUTPOST_MARK_RIM_CAMP` / `OUTPOST_MARK_RIM_ALPHA` / `OUTPOST_MARK_PLINTH_R` / `OUTPOST_MARK_DX` / `OUTPOST_MARK_DY`. Player outpost flag pips and rival camp pips get a steady dark ink plinth with an emerald (outpost) or rose (camp) rim. `paintBoardDynamicTokens` no longer draws the mark; `paintBoardProvinces` (single-layer painter) still draws it inline, with the plinth.
-- `packages/render/src/index.test.ts`: new tests for plinth only on seen outposts and camps (not home, not unseen), steady alpha, plinth before pip, dynamic layer leaves the mark alone, layer order and call parity in `index.ts`. `npm test` and `npm run build -w @second-crown/app` pass.
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/index.ts`: new `boardOutpostMarksLayer`, stacked above `boardWeatherGraphic`, the static fog veil, and `boardNodePilesLayer`, below `boardSelectionLayer` and hover. Painted by `paintBoardOutpostMarks` everywhere `paintBoardDynamicTokens` runs.
+- `packages/render/src/tokens.ts`: new `paintBoardOutpostMarks`, `drawBoardOutpostMark`, `drawOutpostMarkPlinth`, `OUTPOST_MARK_INK` / `OUTPOST_MARK_INK_ALPHA`, `OUTPOST_MARK_RIM_OUTPOST`, `OUTPOST_MARK_RIM_CAMP`, `OUTPOST_MARK_RIM_ALPHA`, `OUTPOST_MARK_PLINTH_R`, `OUTPOST_MARK_DX`, `OUTPOST_MARK_DY`. Outpost and camp marks sit on a steady dark ink plinth with an emerald (outpost) or rose (camp) rim. `paintBoardDynamicTokens` delegates marks to the dedicated layer; `paintBoardProvinces` (single-layer painter) still draws them inline with plinth.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-camps.css` (new): `MiniCamp` on the SVG Kingdom Atlas gains steady dark ink plinths with emerald rim (`#86efac`) for outposts and rose rim (`#fda4af`) for rival camps, fluttering flag pennant (`sc-atlas-flag-flutter`), flickering hearth lantern glow (`sc-atlas-lantern-flicker`), and reduced-motion media query guard. Strict `pointer-events: none` on all decorative overlays with zero changes to `theme.css`.
+- Tests: `packages/render/src/index.test.ts` and `packages/app/src/hud/atlasCamps.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-11-02 — Living node pile treatment on diamond board (bakeoff/gemini-node-piles)
 
