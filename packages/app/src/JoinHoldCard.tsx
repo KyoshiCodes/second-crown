@@ -6,7 +6,7 @@ import { CopyFlashPip, startCopyFlashTimer } from "./hud/CopyFlashPip";
 import { LeaveSealPip } from "./hud/LeaveSealPip";
 import { HoldStorePip } from "./hud/HoldStorePip";
 import { HoldActionPip } from "./hud/HoldActionPip";
-import "./hud/hold-status.css";
+import { HoldStatusPip } from "./hud/HoldStatusPip";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -215,6 +215,7 @@ export function JoinHoldCard({
             </div>
           ) : null}
           <div className="sc-hold-status" role="status" aria-label="Hold status">
+            <HoldStatusPip pending={view.pending > 0} />
             <div className="sc-hold-status-field">
               <span className="sc-hold-status-label">Realm</span>
               <code className="sc-hold-status-value sc-hold-status-realm">{view.realmId.replace(/^join-/, "")}</code>

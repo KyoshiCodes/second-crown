@@ -1,11 +1,16 @@
 # CHANGELOG
 
-## 2026-11-02 — Hold status card (wave/hud-hold-status)
+## 2026-11-02 — Living status pip in hold status card (bakeoff/gemini-hold-status-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: replaced the plain "Hold `<id>` · tick N · M pending" line with a small `.sc-hold-status` card (`role="status"`, `aria-label="Hold status"`) holding Realm, Tick, and (only when `pending > 0`) Pending fields. Store cards and action cards are unchanged and stay below it.
-- `packages/app/src/hud/hold-status.css` (new): card styles, imported from `JoinHoldCard.tsx`.
-- Tests: `packages/app/src/hud/holdStatus.test.tsx` (`npm test` and `npm run build -w @second-crown/app` pass).
+- `packages/app/src/hud/HoldStatusPip.tsx` (new):
+  - `HoldStatusPip`: 16px living SVG crown status pip (`viewBox="0 0 16 16"`) with live emerald heartbeat jewel and warm amber pending state, with strict `pointer-events: none` on the wrapper, SVG, and all children (`aria-hidden="true"`).
+- `packages/app/src/hud/hold-status-pip.css` (new):
+  - Isolated styles for the hold status card and pip, strict `pointer-events: none` on `.sc-hold-status-pip-wrapper` and all children, compositor-only `@keyframes sc-hold-status-pip-breathe`, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders a 16px `HoldStatusPip` inside the hold status card (`.sc-hold-status`) alongside Realm, Tick, and Pending fields.
+- Tests: `packages/app/src/hud/HoldStatusPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-11-02 — Living action pips in hold action cards (bakeoff/gemini-hold-action-pips)
 

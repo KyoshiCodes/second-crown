@@ -1,10 +1,14 @@
-## 2026-11-02 — app / hold status card (wave/hud-hold-status)
+## 2026-11-02 — app / living status pip inside hold status card (bakeoff/gemini-hold-status-pip)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `JoinHoldCard.tsx`: the `.sc-plain-inline` / `.sc-work-status` line is gone. `.sc-hold-status` is a flex row of `.sc-hold-status-field` blocks (label + value). Realm is a `<code>` with the `join-` prefix stripped, same as before and as the leave confirmation. The Pending field is omitted entirely at `pending === 0` (no "0 pending"), matching the old line.
-- `hud/hold-status.css` is imported directly by `JoinHoldCard.tsx`, so it actually loads. Note: `hud/hold-stores.css` and `hud/hold-actions.css` are still not imported by any module (their grids happen to load via the pip CSS files); same footgun as the earlier `leave-confirm.css` note. Not fixed here.
-- Realm value caps at `max-width: 14em` with ellipsis so a long id cannot widen the card; values use `tabular-nums` so the tick does not jitter as it climbs.
-- Tests: `hud/holdStatus.test.tsx` (`renderToStaticMarkup` with `initialView`): Realm + Tick fields, Pending only when > 0, card sits above action and store cards, no card when unjoined, CSS file present.
+- `HoldStatusPip` & CSS isolation (`packages/app/src/hud/HoldStatusPip.tsx`, `packages/app/src/hud/hold-status-pip.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) living SVG royal status crown pip with live emerald heartbeat jewel (or warm amber when pending intents are in flight).
+  - Strictly enforces `pointer-events: none` inline and in stylesheet on `.sc-hold-status-pip-wrapper, .sc-hold-status-pip-wrapper *, .sc-hold-status-pip`.
+  - Gentle living rhythm (`@keyframes sc-hold-status-pip-breathe`) animates only compositor-safe `transform` and `opacity` on `.sc-hold-status-pip-glyph` (accelerating softly when pending), disabled under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - In `.sc-hold-status`, renders `<HoldStatusPip pending={view.pending > 0} />` alongside Realm, Tick, and Pending fields. Direct field order and structure preserves any `/sc-hold-status-label">([^<]+)<\/span><(?:code|span) class="sc-hold-status-value/` regex matchers.
+  - Status card styles (`.sc-hold-status`, `.sc-hold-status-field`, `.sc-hold-status-label`, `.sc-hold-status-value`, etc.) are carried in `hold-status-pip.css`, avoiding missing stylesheet build failures while staying harmoniously compatible with parallel branches.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-11-02 — app / living action pips inside hold action cards (bakeoff/gemini-hold-action-pips)
 

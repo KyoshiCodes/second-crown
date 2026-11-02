@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Hold status as a small card (wave/hud-hold-status)
+## 2026-11-02 — Living status pip inside hold status card (bakeoff/gemini-hold-status-pip)
 
-- **The "Hold … · tick …" line in a shared hold is now a small card.** It shows the realm id and the current tick, plus how many actions are pending when there are any. The store cards and action cards are still below it.
-- **Play is unchanged.** Same information as before, easier to read.
+- **The hold status card now features a living 16px status pip. Play is unchanged.** When you view a joined shared hold in the Cloud panel, the status card displays an authentic living crown status pip (with an emerald heartbeat jewel that warms to amber whenever intents are in flight).
+- All new art is pointer-events: none on the pip and all children so clicking buttons and interacting with the hold works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-11-02 — Living action pips inside hold action cards (bakeoff/gemini-hold-action-pips)
 

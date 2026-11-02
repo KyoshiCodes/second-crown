@@ -1,0 +1,100 @@
+/* Styles for HoldStatusPip and hold status card only. Do not touch theme.css. */
+
+.sc-hold-status {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 6px;
+  margin: 2px 0 6px;
+  padding: 4px 28px 4px 8px;
+  border: 1px solid #3a3228;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.6);
+}
+
+.sc-hold-status-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-right: 10px;
+}
+
+.sc-hold-status-field + .sc-hold-status-field {
+  padding-left: 10px;
+  border-left: 1px solid #3a3228;
+}
+
+.sc-hold-status-label {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.sc-hold-status-value {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-hold-status-realm {
+  max-width: 14em;
+}
+
+.sc-hold-status-pending .sc-hold-status-value {
+  color: #e0b860;
+}
+
+/* 16px HoldStatusPip: strictly pointer-events: none on the pip and all children */
+.sc-hold-status-pip-wrapper,
+.sc-hold-status-pip-wrapper *,
+.sc-hold-status-pip {
+  pointer-events: none !important;
+}
+
+.sc-hold-status-pip-wrapper {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.sc-hold-status-pip-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  animation: sc-hold-status-pip-breathe 3.2s ease-in-out infinite;
+}
+
+.sc-hold-status-pip-wrapper.is-pending .sc-hold-status-pip-glyph {
+  animation-duration: 1.8s;
+}
+
+@keyframes sc-hold-status-pip-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateY(-1px) scale(1.08);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-hold-status-pip-glyph {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+}
