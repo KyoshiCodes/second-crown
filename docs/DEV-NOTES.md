@@ -1,3 +1,11 @@
+## 2026-11-02 — app / hold join card (wave/hud-hold-join)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: when `view === null`, renders `.sc-hold-join-card` with two `<label class="sc-hold-join-field">` wrappers (`.sc-hold-join-label` + `.sc-hold-join-input`) and the Join button (`.sc-work-btn.sc-hold-join-btn`). Wrapping each input in a `<label>` gives it an accessible name ("Realm id", "Hold key"); placeholders are kept so existing copy is unchanged. `code`, `key`, `join()`, and `disabled={!signedIn}` are untouched.
+- The inline `input` style object (`minWidth: 160`, dark background) moved into `hud/hold-join.css` as `.sc-hold-join-input`; fields now flex (`flex: 1 1 140px`) and wrap on narrow panels instead of a fixed 160px min width.
+- `hud/hold-join.css` is imported directly by `JoinHoldCard.tsx` (same pattern as `hold-leave.css`).
+- Tests: `hud/holdJoin.test.tsx`: card contains both fields and Join; Join disabled when signed out; card gone once joined; CSS file present.
+
 ## 2026-11-02 — app / living leave pip inside hold leave card (bakeoff/gemini-hold-leave-pip)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

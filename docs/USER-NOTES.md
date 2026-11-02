@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Join card for shared holds (wave/hud-hold-join)
+
+- **Joining a hold now uses a small join card.** In the Cloud panel, the realm id box, the hold key box, and the **Join** button sit together in one card, each box with a label above it. On a narrow screen the boxes wrap instead of squeezing.
+- **Play is unchanged.** Type the same realm id and key as before; leave the key blank to make a new hold. Your solo crown is not touched.
+
 ## 2026-11-02 — Living leave pip inside the hold leave card (bakeoff/gemini-hold-leave-pip)
 
 - **The hold leave card now features a living 16px leave pip. Play is unchanged.** When you press Leave in a joined shared hold in the Cloud panel, the leave card displays an authentic living leave pip (depicting an arched postern doorway looking out onto a sunlit morning path).

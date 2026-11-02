@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Hold join card (wave/hud-hold-join)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: replaced the plain join row with a small join card (`.sc-hold-join-card`, `role="group"`, `aria-label="Join hold"`) holding the labelled **Realm id** and **Hold key** fields and the **Join** button. Removed the inline `input` style object.
+- `packages/app/src/hud/hold-join.css` (new): join card styles, imported from `JoinHoldCard.tsx`.
+- Tests: `hud/holdJoin.test.tsx` (new). `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-02 — Living leave pip in hold leave card (bakeoff/gemini-hold-leave-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
