@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Work cards in a joined hold (wave/hud-hold-works)
+## 2026-11-02 — Living work pips inside hold work cards (bakeoff/gemini-hold-work-pips)
 
-- **The hold's works are now small cards.** In a joined shared hold (Cloud panel), Militia, Farms, Cottages, and Lumber camps each get their own card with the count. While militia are training, the Militia card also shows "+N training".
-- **Play is unchanged.** Same numbers as before, just easier to read.
+- **The hold work cards now feature living 16px work pips. Play is unchanged.** When you view a joined shared hold in the Cloud panel, each of the four work cards (Militia, Farms, Cottages, and Lumber camps) displays an authentic living work pip (a conical helm with nasal guard and brow band for militia, a reaping sickle with golden wheat ear for farms, a thatched cottage with glowing hearth and smoke plume for cottages, and a felling axe in a timber stump for lumber camps).
+- All new art is pointer-events: none on every pip and all children so clicking buttons and interacting with the hold works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-11-02 — Living key pip inside the hold key card (bakeoff/gemini-hold-key-pip)
 

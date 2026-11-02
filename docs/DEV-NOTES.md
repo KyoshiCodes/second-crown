@@ -1,10 +1,15 @@
-## 2026-11-02 — app / hold work cards (wave/hud-hold-works)
+## 2026-11-02 — app / living work pips inside hold work cards (bakeoff/gemini-hold-work-pips)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `JoinHoldCard.tsx`: `holdWorks(view): HoldWork[]` (exported) returns `{ id, name, count, status }` for militia, farms, cottages, lumberCamps in that order. `status` is `+${training} training` for militia when `view.training > 0`, else `null`. The `aria-label="Hold works"` container is kept (now `.sc-hold-works`), so position checks against "Hold stores" still work.
-- Card markup is `.sc-hold-work-card` > `.sc-hold-work-name`, `.sc-hold-work-count`, optional `.sc-hold-work-status`, as direct siblings so tests can regex-match them. No pip yet; a later art slice can add one.
-- `hud/hold-works.css` is imported directly by `JoinHoldCard.tsx` so it loads (unlike `hold-stores.css` etc., see the hold leave card note below). Layout mirrors the store cards: 4 columns, 2 under 360px.
-- Tests: `hud/holdWorks.test.tsx` covers order, counts, training status shown/hidden, no plain line, no cards when unjoined, CSS file. The "works under stores" tests in `holdStores.test.tsx` and `HoldStorePip.test.tsx` now match card markup instead of "Militia 2 (+1 training)".
+- `HoldWorkPip` & CSS isolation (`packages/app/src/hud/HoldWorkPip.tsx`, `packages/app/src/hud/hold-work-pip.css`):
+  - Renders 16px (`viewBox="0 0 16 16"`) living SVG work pips for `militia` (conical nasal helm with golden brow band), `farms` (reaping sickle with golden wheat ear), `cottages` (thatched cottage with glowing hearth and chimney smoke plume), and `lumberCamps` (felling axe in timber stump).
+  - Strictly enforces `pointer-events: none` inline and in stylesheet on `.sc-hold-work-pip-wrapper, .sc-hold-work-pip-wrapper *, .sc-hold-work-pip`.
+  - Gentle living rhythm (`@keyframes sc-hold-work-pip-breathe`) animates only compositor-safe `transform` and `opacity` on `.sc-hold-work-pip-glyph`, staggered with offsets (`0s`, `-0.9s`, `-1.8s`, `-2.7s`) across the 4 work types, disabled under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - In `.sc-hold-works`, renders `<HoldWorkPip work={w.id} />` in each `.sc-hold-work-card` ahead of `.sc-hold-work-name`.
+  - Preserves adjacent sibling placement between `.sc-hold-work-name` and `.sc-hold-work-count`, satisfying parallel test matchers.
+  - Card layout and grid styles (`.sc-hold-works`, `.sc-hold-work-card`, `.sc-hold-work-name`, `.sc-hold-work-count`, `.sc-hold-work-status`) are carried in `hold-work-pip.css`, harmonizing with parallel branches without modifying `theme.css`.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-11-02 — app / living key pip inside hold key card (bakeoff/gemini-hold-key-pip)
 

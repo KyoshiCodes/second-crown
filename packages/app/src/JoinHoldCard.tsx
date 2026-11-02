@@ -10,8 +10,8 @@ import { HoldStatusPip } from "./hud/HoldStatusPip";
 import { HoldStampPip } from "./hud/HoldStampPip";
 import { HoldLeavePip } from "./hud/HoldLeavePip";
 import { HoldKeyPip } from "./hud/HoldKeyPip";
+import { HoldWorkPip } from "./hud/HoldWorkPip";
 import "./hud/hold-leave.css";
-import "./hud/hold-works.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -300,6 +300,7 @@ export function JoinHoldCard({
           <div className="sc-hold-works" aria-label="Hold works">
             {holdWorks(view).map((w) => (
               <div key={w.id} className="sc-hold-work-card" aria-label={w.name}>
+                <HoldWorkPip work={w.id} />
                 <span className="sc-hold-work-name">{w.name}</span>
                 <span className="sc-hold-work-count">{w.count}</span>
                 {w.status ? <span className="sc-hold-work-status">{w.status}</span> : null}

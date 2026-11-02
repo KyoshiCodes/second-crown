@@ -1,0 +1,111 @@
+/* Styles for HoldWorkPip and hold work cards only. Do not touch theme.css. */
+
+.sc-hold-works {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sc-hold-work-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 4px 24px 4px 8px;
+  border: 1px solid #3a3228;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.6);
+}
+
+.sc-hold-work-name {
+  font-size: 11px;
+  opacity: 0.75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-hold-work-count {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-hold-work-status {
+  font-size: 11px;
+  color: #d9b45a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+  .sc-hold-works {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 16px HoldWorkPip: strictly pointer-events: none on every pip and all children */
+.sc-hold-work-pip-wrapper,
+.sc-hold-work-pip-wrapper *,
+.sc-hold-work-pip {
+  pointer-events: none !important;
+}
+
+.sc-hold-work-pip-wrapper {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.sc-hold-work-pip-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  animation: sc-hold-work-pip-breathe 3.6s ease-in-out infinite;
+}
+
+.sc-hold-work-pip-wrapper[data-work="militia"] .sc-hold-work-pip-glyph {
+  animation-delay: 0s;
+}
+
+.sc-hold-work-pip-wrapper[data-work="farms"] .sc-hold-work-pip-glyph {
+  animation-delay: -0.9s;
+}
+
+.sc-hold-work-pip-wrapper[data-work="cottages"] .sc-hold-work-pip-glyph {
+  animation-delay: -1.8s;
+}
+
+.sc-hold-work-pip-wrapper[data-work="lumberCamps"] .sc-hold-work-pip-glyph {
+  animation-delay: -2.7s;
+}
+
+@keyframes sc-hold-work-pip-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateY(-0.5px) scale(1.06);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-hold-work-pip-glyph {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+}

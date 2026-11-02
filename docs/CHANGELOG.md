@@ -1,11 +1,16 @@
 # CHANGELOG
 
-## 2026-11-02 — Hold work cards (wave/hud-hold-works)
+## 2026-11-02 — Living work pips in hold work cards (bakeoff/gemini-hold-work-pips)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: replaced the plain "Hold works" line (Militia / Farms / Cottages / Lumber camps) with four small work cards (`.sc-hold-works`, `.sc-hold-work-card`). Each card shows the work name and its count; the Militia card adds a status line (`+N training`) only while militia are training. New exported helper `holdWorks(view)` builds the cards in display order.
-- `packages/app/src/hud/hold-works.css` (new): work card styles, imported from `JoinHoldCard.tsx`.
-- Tests: `hud/holdWorks.test.tsx` (new); `hud/holdStores.test.tsx` and `hud/HoldStorePip.test.tsx` updated from the old plain text to the card markup (`npm test` and `npm run build -w @second-crown/app` pass).
+- `packages/app/src/hud/HoldWorkPip.tsx` (new):
+  - `HoldWorkPip`: 16px living SVG work pips (`viewBox="0 0 16 16"`) for `militia` (conical nasal helm with golden brow band), `farms` (reaping sickle with golden wheat ear), `cottages` (thatched cottage with glowing hearth and chimney smoke), and `lumberCamps` (felling axe in timber stump), with strict `pointer-events: none` on the wrapper, SVG, and all children (`aria-hidden="true"`).
+- `packages/app/src/hud/hold-work-pip.css` (new):
+  - Isolated styles for the hold work cards and pips, strict `pointer-events: none` on `.sc-hold-work-pip-wrapper` and all children, compositor-only `@keyframes sc-hold-work-pip-breathe` breathing animation with staggered phase delays per work type, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders 16px living `HoldWorkPip` inside each hold work card (`.sc-hold-work-card`), hidden when no hold is joined.
+- Tests: `packages/app/src/hud/HoldWorkPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-11-02 — Living key pip in hold key card (bakeoff/gemini-hold-key-pip)
 
