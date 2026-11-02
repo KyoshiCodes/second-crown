@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Key card for a new hold (wave/hud-hold-key)
+## 2026-11-02 — Living key pip inside the hold key card (bakeoff/gemini-hold-key-pip)
 
-- **A new hold's key now shows in a small card.** When you make a new shared hold (Cloud panel, key left blank), the key appears in its own box with the **Copy key** button beside it. It is still shown only once, so copy it and send it to friends with the realm id.
-- **Play is unchanged.**
+- **The hold key card now features a living 16px key pip. Play is unchanged.** When you make a new shared hold in the Cloud panel, the new key card displays an authentic living key pip (depicting an antique golden royal skeleton key with trefoil bow and bit teeth).
+- All new art is pointer-events: none on every pip and all children so clicking Copy key and every button works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-11-02 — Living leave pip inside the hold leave card (bakeoff/gemini-hold-leave-pip)
 

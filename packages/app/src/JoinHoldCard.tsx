@@ -9,8 +9,8 @@ import { HoldActionPip } from "./hud/HoldActionPip";
 import { HoldStatusPip } from "./hud/HoldStatusPip";
 import { HoldStampPip } from "./hud/HoldStampPip";
 import { HoldLeavePip } from "./hud/HoldLeavePip";
+import { HoldKeyPip } from "./hud/HoldKeyPip";
 import "./hud/hold-leave.css";
-import "./hud/hold-key.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -210,6 +210,7 @@ export function JoinHoldCard({
         <div>
           {madeKey ? (
             <div className="sc-hold-key-card" aria-label="New hold key">
+              <HoldKeyPip />
               <span className="sc-key-seal-group sc-hold-key-title"><KeySealPip pulse pulseKey={madeKey} /><span>New hold key</span></span>
               <div className="sc-hold-key-row">
                 <code className="sc-hold-key-value">{madeKey}</code>

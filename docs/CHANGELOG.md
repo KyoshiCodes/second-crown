@@ -1,11 +1,16 @@
 # CHANGELOG
 
-## 2026-11-02 — Hold key card (wave/hud-hold-key)
+## 2026-11-02 — Living key pip in hold key card (bakeoff/gemini-hold-key-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: replaced the plain "New hold. Key:" line and Copy key button with a small key card (`.sc-hold-key-card`, `aria-label="New hold key"`): title "New hold key" with `KeySealPip`, the key in `.sc-hold-key-value`, `CopyFlashPip`, and **Copy key**. The copied / share / shown-once lines move inside the card unchanged.
-- `packages/app/src/hud/hold-key.css` (new): key card styles, imported from `JoinHoldCard.tsx`.
-- Tests: `hud/holdKey.test.tsx` (new). `npm test` and `npm run build -w @second-crown/app` pass.
+- `packages/app/src/hud/HoldKeyPip.tsx` (new):
+  - `HoldKeyPip`: 16px living SVG key pip (`viewBox="0 0 16 16"`) depicting an antique golden royal skeleton key with trefoil bow and bit teeth, with strict `pointer-events: none` on the wrapper, SVG, and all children (`aria-hidden="true"`).
+- `packages/app/src/hud/hold-key-pip.css` (new):
+  - Isolated styles for the hold key card and pip, strict `pointer-events: none` on `.sc-hold-key-pip-wrapper` and all children, compositor-only `@keyframes sc-hold-key-pip-breathe`, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders a 16px `HoldKeyPip` inside the hold key card (`.sc-hold-key-card`), hidden when no hold is joined or when `madeKey` is null.
+- Tests: `packages/app/src/hud/HoldKeyPip.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-11-02 — Living leave pip in hold leave card (bakeoff/gemini-hold-leave-pip)
 

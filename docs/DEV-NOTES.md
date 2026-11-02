@@ -1,10 +1,15 @@
-## 2026-11-02 — app / hold key card (wave/hud-hold-key)
+## 2026-11-02 — app / living key pip inside hold key card (bakeoff/gemini-hold-key-pip)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `JoinHoldCard.tsx`: when `madeKey` is set, renders `.sc-hold-key-card` (keeps `aria-label="New hold key"`): `.sc-hold-key-title` (reuses `.sc-key-seal-group` + `KeySealPip`), `.sc-hold-key-row` (`code.sc-hold-key-value`, `CopyFlashPip` when `flashOn`, `.sc-hold-key-copy` button), then `.sc-hold-key-note` / `.sc-hold-key-warning` lines. `copyKey()`, `copied`, and the flash timer are unchanged. Inline styles on that block are gone.
-- DOM order kept: seal before key, key before flash, flash before Copy key, so `KeySealPip.test.tsx` and `CopyFlashPip.test.tsx` still pass unchanged.
-- `hud/hold-key.css` is imported directly by `JoinHoldCard.tsx`.
-- Tests: `hud/holdKey.test.tsx` (card wraps key + button, old "New hold. Key:" text gone, no card without a made key or without a hold, CSS file present).
+- `HoldKeyPip` & CSS isolation (`packages/app/src/hud/HoldKeyPip.tsx`, `packages/app/src/hud/hold-key-pip.css`):
+  - Renders a 16px (`viewBox="0 0 16 16"`) living SVG key pip depicting an antique golden royal skeleton key with trefoil bow and bit teeth.
+  - Strictly enforces `pointer-events: none` inline and in stylesheet on `.sc-hold-key-pip-wrapper, .sc-hold-key-pip-wrapper *, .sc-hold-key-pip`.
+  - Gentle living rhythm (`@keyframes sc-hold-key-pip-breathe`) animates only compositor-safe `transform` and `opacity` on `.sc-hold-key-pip-glyph`, disabled under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - In `.sc-hold-key-card`, renders `<HoldKeyPip />` directly inside the key card when `madeKey !== null`.
+  - Card styles (`.sc-hold-key-card`, `.sc-hold-key-title`, `.sc-hold-key-row`, `.sc-hold-key-value`, `.sc-hold-key-copy`, `.sc-hold-key-note`, `.sc-hold-key-warning`) are carried in `hold-key-pip.css`, seamlessly harmonizing with parallel branches without touching `theme.css`.
+  - Card positioning adjustments (`position: relative; padding-right: 26px;`) give room for the top-right pip while preserving key/seal/button indices tested in `hud/KeySealPip.test.tsx` and `hud/CopyFlashPip.test.tsx`.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-11-02 — app / living leave pip inside hold leave card (bakeoff/gemini-hold-leave-pip)
 
