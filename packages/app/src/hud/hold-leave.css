@@ -1,0 +1,46 @@
+/* Styles for the JoinHoldCard leave card only. Do not touch theme.css. */
+
+.sc-hold-leave-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  margin-top: 2px;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid #3a3228;
+  border-left: 3px solid #d29922;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.85);
+}
+
+.sc-hold-leave-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sc-hold-leave-warning {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.sc-hold-leave-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sc-hold-leave-buttons .sc-leave-seal-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 auto;
+}
+
+.sc-hold-leave-buttons .sc-work-btn {
+  flex: 1 1 auto;
+}
+
+.sc-hold-leave-confirm {
+  border-color: #d29922;
+}

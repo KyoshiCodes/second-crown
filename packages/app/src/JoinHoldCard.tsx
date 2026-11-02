@@ -8,6 +8,7 @@ import { HoldStorePip } from "./hud/HoldStorePip";
 import { HoldActionPip } from "./hud/HoldActionPip";
 import { HoldStatusPip } from "./hud/HoldStatusPip";
 import { HoldStampPip } from "./hud/HoldStampPip";
+import "./hud/hold-leave.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -255,10 +256,13 @@ export function JoinHoldCard({
               <span className="sc-hold-action-label">Leave</span>
               <button type="button" className="sc-work-btn" onClick={openConfirmLeave}>Leave</button>
               {confirmLeave ? (
-                <div className="sc-leave-confirm" role="alertdialog" aria-label="Confirm leave">
-                  <span className="sc-leave-confirm-text">Leave hold <code>{view.realmId.replace(/^join-/, "")}</code>?</span>
-                  <span className="sc-leave-seal-group"><LeaveSealPip pulse pulseKey={confirmLeaveSeq} /><button type="button" className="sc-work-btn" onClick={leave}>Leave</button></span>
-                  <button type="button" className="sc-work-btn" onClick={() => setConfirmLeave(false)}>Stay</button>
+                <div className="sc-hold-leave-card" role="alertdialog" aria-label="Confirm leave">
+                  <span className="sc-hold-leave-title">Leave hold <code>{view.realmId.replace(/^join-/, "")}</code>?</span>
+                  <span className="sc-hold-leave-warning">The hold keeps running. To join again you need the realm id and its key.</span>
+                  <div className="sc-hold-leave-buttons">
+                    <span className="sc-leave-seal-group"><LeaveSealPip pulse pulseKey={confirmLeaveSeq} /><button type="button" className="sc-work-btn sc-hold-leave-confirm" onClick={leave}>Confirm leave</button></span>
+                    <button type="button" className="sc-work-btn" onClick={() => setConfirmLeave(false)}>Cancel</button>
+                  </div>
                 </div>
               ) : null}
             </div>

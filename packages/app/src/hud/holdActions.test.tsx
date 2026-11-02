@@ -64,7 +64,7 @@ describe("JoinHoldCard action cards (wave/hud-hold-actions)", () => {
     );
     const leave = card(html, "Leave");
     expect(leave).toContain('aria-label="Confirm leave"');
-    expect(leave).toContain(">Stay</button>");
+    expect(leave).toContain(">Cancel</button>");
   });
 
   it("shows no action cards when no hold is joined", () => {

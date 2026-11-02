@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Leave card in a joined hold (wave/hud-hold-leave)
+
+- **Leaving a hold now asks with a small card.** In a joined shared hold (Cloud panel), pressing **Leave** opens a card that names the hold and warns you: the hold keeps running, and to join again you need the realm id and its key. Press **Confirm leave** to go, or **Cancel** to stay.
+- **Play is unchanged.** Leaving still returns you to your solo crown, which is not touched.
+
 ## 2026-11-02 — Living stamp pip inside each hold stamp card (bakeoff/gemini-hold-stamp-pip)
 
 - **Each hold stamp card now features a living 16px stamp pip. Play is unchanged.** When you view a joined shared hold in the Cloud panel, each stamp card displays an authentic living crimson wax-seal stamp pip with a stamped royal signet emblem.
