@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Selected tile stays clear in bad weather (wave/board-select-rim)
+## 2026-11-02 — Living selected-province rim treatment on the diamond board (bakeoff/gemini-select-rim)
 
-- **The gold rim around the tile you picked on the board is now easy to see in rain, snow, storms, fog and under the sun or moon glow.** It has a dark edge behind the gold and is drawn on top of the weather.
-- **Play is unchanged.** Picking a tile, the inspect card, marches and everything else work exactly as before.
+- **The gold outline on your selected province now features a living, layered rim that stays sharp and readable in all weather.** Snow, rain, clouds, day, and night no longer dim or wash out the selection ring. A steady dark ink outline beneath the gold keeps the province edge crisp against pale snow and fog, accompanied by a gentle radiant amber-gold glow and corner reticle gems.
+- All new decorative overlay styling is pointer-events: none so panning, zooming, selecting provinces, and clicking buttons work exactly as before.
+- **Play is unchanged.** Selection, marches, scouting, battles, and kingdom management work exactly as before.
 
 ## 2026-11-02 — Living log pips inside hold log cards (bakeoff/gemini-hold-log-pips)
 

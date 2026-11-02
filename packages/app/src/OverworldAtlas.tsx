@@ -19,6 +19,7 @@ import {
   resolveBoardSeasonWash,
 } from "@second-crown/render";
 import { detectCurrentHoliday } from "./seasons/holidays";
+import "./hud/atlas-select-rim.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -671,6 +672,47 @@ export function OverworldAtlas(props: {
                     strokeWidth={selected ? 2.2 : isHome ? 1.6 : 0.6}
                     opacity={0.95}
                   />
+                  {selected ? (
+                    <g className="sc-atlas-select-rim" style={{ pointerEvents: "none" }}>
+                      {/* Dark ink contrast underlay for weather & fog readability */}
+                      <polygon
+                        points={diamond(cx, cy)}
+                        fill="none"
+                        stroke="#1c1208"
+                        strokeWidth={4.5}
+                        opacity={0.72}
+                        style={{ pointerEvents: "none" }}
+                      />
+                      {/* Soft ambient amber-gold living glow */}
+                      <polygon
+                        points={diamond(cx, cy)}
+                        fill="none"
+                        stroke="#d97706"
+                        strokeWidth={3.2}
+                        opacity={0.5}
+                        className="sc-atlas-select-glow"
+                        style={{ pointerEvents: "none" }}
+                      />
+                      {/* Sharp radiant gold core */}
+                      <polygon
+                        points={diamond(cx, cy)}
+                        fill="none"
+                        stroke="#facc15"
+                        strokeWidth={2.0}
+                        opacity={0.98}
+                        style={{ pointerEvents: "none" }}
+                      />
+                      {/* Sunlit top edge highlight along rear facets */}
+                      <polyline
+                        points={`${cx - hw},${cy} ${cx},${cy - hh} ${cx + hw},${cy}`}
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeWidth={1.2}
+                        opacity={0.9}
+                        style={{ pointerEvents: "none" }}
+                      />
+                    </g>
+                  ) : null}
                   {wash.hasWash && washColor ? (
                     <polygon
                       points={diamond(cx, cy)}

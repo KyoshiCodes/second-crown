@@ -1,0 +1,29 @@
+/* Selected-province rim treatment for Kingdom Atlas. Do not touch theme.css. */
+
+.sc-atlas-select-rim,
+.sc-atlas-select-rim * {
+  pointer-events: none !important;
+}
+
+@keyframes sc-atlas-select-pulse {
+  0%, 100% {
+    opacity: 0.42;
+    stroke-width: 3.2px;
+  }
+  50% {
+    opacity: 0.72;
+    stroke-width: 4.0px;
+  }
+}
+
+.sc-atlas-select-glow {
+  animation: sc-atlas-select-pulse 3.2s ease-in-out infinite;
+  will-change: opacity, stroke-width;
+  pointer-events: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-select-glow {
+    animation: none !important;
+  }
+}

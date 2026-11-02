@@ -1,10 +1,15 @@
-## 2026-11-02 — render / board select rim under weather and fog (wave/board-select-rim)
+## 2026-11-02 — render & app / living selected-province rim treatment on diamond board (bakeoff/gemini-select-rim)
 
-- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- Layer order in `boardContainer` (bottom to top): backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, routes, pawns, weather, **selection**, hover highlight. Selection used to sit under routes/pawns/weather, so `drawAtmosphere` strokes and dims covered it.
-- `paintBoardSelectionRim` step 0: dark ink diamonds at `wy` (pad 2) and `cy` (pad 1) plus corner struts when `elev > 0`, all `SELECT_RIM_INK` at a fixed alpha so the contrast does not breathe with the gold pulse. Gold strokes then draw on top unchanged. Fogged (unseen) tiles use `elev = 4` as before.
-- `paintBoardHighlight` (hover) also calls `paintBoardSelectionRim`, so the hover rim gets the same underlay.
-- Tests: `index.test.ts` "Selected Board Province Clear Gold Rim" block, two new cases (ink order + steady alpha; source-order check on `addChild` calls).
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim` or `server`. Zero changes to `theme.css`. Game rules unchanged.
+- Layer order in `boardContainer` (`packages/render/src/index.ts`):
+  - `boardSelectionLayer` is moved above `boardWeatherGraphic` (and static fog veil, below hover `boardHighlightLayer`). Rain, snow, storm clouds, and sun/moon glow no longer wash out the selection rim.
+- Living selection rim on diamond board (`packages/render/src/tokens.ts`):
+  - `paintBoardSelectionRim` step 0: steady dark ink contrast underlay (`SELECT_RIM_INK = 0x1c1208`, `SELECT_RIM_INK_ALPHA = 0.72`, `SELECT_RIM_INK_WIDTH = 4.5`) drawn under ground ring, elevated plateau, and corner cliff struts before gold strokes. Does not pulse with gold to maintain contrast on snow, pale fog, and sun/moon glow.
+  - Step 1 & 3: Living pulse and soft glow (`glowAlpha = 0.45 + breath * 0.12`), brilliant gold core rim (`0xfacc15`), sunlit rear facet highlights (`0xffffff`), elevated corner struts, and cardinal reticle corner bracket gems.
+- Atlas diamond board treatment (`packages/app/src/OverworldAtlas.tsx`, `packages/app/src/hud/atlas-select-rim.css`):
+  - Renders layered selection rim with dark ink underlay, glowing amber aura, and compositor-only living pulse on the Kingdom Atlas diamond board.
+  - Strict `pointer-events: none` on `.sc-atlas-select-rim` and all children. Styles isolated in `hud/atlas-select-rim.css` with `@media (prefers-reduced-motion: reduce)` guard, leaving `theme.css` untouched.
+- Verification: `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-11-02 — app / living log pips inside hold log cards (bakeoff/gemini-hold-log-pips)
 

@@ -1,11 +1,13 @@
 # CHANGELOG
 
-## 2026-11-02 — Board select rim readable under weather and fog (wave/board-select-rim)
+## 2026-11-02 — Living selected-province rim treatment on diamond board (bakeoff/gemini-select-rim)
 
-- Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/render/src/index.ts`: `boardSelectionLayer` moved above `boardWeatherGraphic` (still above the static fog veil, still below `boardHighlightLayer`).
-- `packages/render/src/tokens.ts`: new `SELECT_RIM_INK`, `SELECT_RIM_INK_ALPHA`, `SELECT_RIM_INK_WIDTH`; `paintBoardSelectionRim` draws a steady dark ink underlay under the ground ring, corner struts and top rim before the gold strokes.
-- Tests: `packages/render/src/index.test.ts` (ink underlay before gold on seen and fogged tiles across phases; selection layer stacked above weather and fog, below hover). `npm test` and `npm run build -w @second-crown/app` pass.
+- Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim` or `server`. Game rules unchanged.
+- `packages/render/src/index.ts`: `boardSelectionLayer` moved above `boardWeatherGraphic` (above static fog veil, below hover highlight) so weather atmosphere, rain, snow, and sun/moon glow never dim or wash out the selection rim.
+- `packages/render/src/tokens.ts`: `paintBoardSelectionRim` renders a multi-layered living rim: steady dark ink contrast underlay (`SELECT_RIM_INK = 0x1c1208`, `SELECT_RIM_INK_ALPHA = 0.72`) ensuring sharp contrast on pale snow, fog, and sun/moon glow; breathing amber-gold radiant aura, brilliant core gold strokes, elevated corner cliff struts, sunlit rear facet highlights, and cardinal corner reticle gems.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-select-rim.css` (new): renders layered selection rim with dark ink underlay, glowing amber aura, and living pulse on Kingdom Atlas diamond board. `pointer-events: none` on all decorative overlays, with isolated stylesheet without touching `theme.css`.
+- Tests: `packages/render/src/index.test.ts` and `packages/app/src/hud/atlasSelectRim.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-11-02 — Living log pips in hold log cards (bakeoff/gemini-hold-log-pips)
 

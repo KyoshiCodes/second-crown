@@ -3897,6 +3897,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(lineTos.length).toBeGreaterThan(0);
       });
 
+<<<<<<< HEAD
       it("paintBoardSelectionRim lays a steady dark ink underlay before any gold (fog/weather contrast)", async () => {
         const { paintBoardSelectionRim, SELECT_RIM_INK, SELECT_RIM_INK_ALPHA } = await import("./tokens.js");
         const state = createMockState();
@@ -3907,6 +3908,11 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
             { id: "p_fog", x: 5, y: 5, terrain: "hill", node: "none" },
           ],
         };
+=======
+      it("paints a dark ink underlay under ground ring and top rim before gold strokes", async () => {
+        const { paintBoardSelectionRim, SELECT_RIM_INK, SELECT_RIM_INK_ALPHA } = await import("./tokens.js");
+        const state = createMockState();
+>>>>>>> 8c11c40 (render: add living selected-province rim treatment on diamond board)
         state.flags["seen:p_home"] = true;
 
         for (const [bx, by] of [[2, 2], [5, 5]] as const) {
