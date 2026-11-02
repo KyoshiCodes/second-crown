@@ -3203,6 +3203,91 @@ export function paintBoardNodePiles(
 }
 
 // -------------------------------------------------------------
+// Board Outpost & Camp Marks (own layer, readable under weather + fog)
+// -------------------------------------------------------------
+
+/** Dark ink plinth under an outpost / camp mark (contrast on snow, fog, rain and sun glow). */
+export const OUTPOST_MARK_INK = 0x0e0906;
+export const OUTPOST_MARK_INK_ALPHA = 0.68;
+/** Kind-coloured rim around the plinth so the mark still lifts off dark storm / night tiles. */
+export const OUTPOST_MARK_RIM_OUTPOST = 0x86efac;
+export const OUTPOST_MARK_RIM_CAMP = 0xfda4af;
+export const OUTPOST_MARK_RIM_ALPHA = 0.72;
+/** Plinth radius (the mark roundel is 4.8). */
+export const OUTPOST_MARK_PLINTH_R = 6.6;
+/** Offset of the mark from the tile top centre (same spot the mark has always used). */
+export const OUTPOST_MARK_DX = -7;
+export const OUTPOST_MARK_DY = 4;
+
+/**
+ * Steady (non-pulsing) dark ink plinth with a kind-coloured rim, drawn under an
+ * outpost (emerald rim) or camp (rose rim) mark. `mx, my` is the mark centre.
+ */
+export function drawOutpostMarkPlinth(
+  g: Graphics,
+  mx: number,
+  my: number,
+  kind: "outpost" | "camp"
+): void {
+  if (!g) return;
+  g.circle(mx, my, OUTPOST_MARK_PLINTH_R);
+  g.fill({ color: OUTPOST_MARK_INK, alpha: OUTPOST_MARK_INK_ALPHA });
+  g.circle(mx, my, OUTPOST_MARK_PLINTH_R);
+  g.stroke({
+    width: 1.1,
+    color: kind === "outpost" ? OUTPOST_MARK_RIM_OUTPOST : OUTPOST_MARK_RIM_CAMP,
+    alpha: OUTPOST_MARK_RIM_ALPHA,
+  });
+}
+
+/**
+ * Draws one board outpost / camp mark: ink plinth + rim, then the flag or tent pip.
+ * `cx, cy` is the tile top centre (after elevation); the mark sits at the usual offset.
+ */
+export function drawBoardOutpostMark(
+  g: Graphics,
+  cx: number,
+  cy: number,
+  kind: "outpost" | "camp",
+  phase: number = 0
+): void {
+  if (!g) return;
+  const mx = cx + OUTPOST_MARK_DX;
+  const my = cy + OUTPOST_MARK_DY;
+  drawOutpostMarkPlinth(g, mx, my, kind);
+  drawOutpostMark(g, mx, my, kind, phase);
+}
+
+/**
+ * Paints the outpost / camp marks for every seen tile that has one on its own Graphics
+ * layer. The renderer stacks this layer ABOVE weather (rain, snow, storm dim, sun/moon
+ * glow) and above the static fog veil, so the marks stay readable in any weather.
+ * Unseen tiles get nothing (fog stays fog). Hold tiles keep their crown mark instead.
+ * Non-interactive.
+ */
+export function paintBoardOutpostMarks(
+  g: Graphics,
+  state: GameState | null | undefined,
+  phase: number = 0
+): void {
+  g.clear();
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+  if (!state?.board?.provinces) return;
+
+  const rawPhase = typeof phase === "number" ? phase : 0;
+  for (const p of sortBoardProvincesDepth(state.board.provinces)) {
+    const kind = resolveProvinceOutpostMark(state, p.id);
+    if (!kind) continue;
+    if (hasProvinceHold(state, p.id)) continue;
+    const b = provinceTokenBounds(p.x, p.y);
+    const cy = b.cy - terrainElevation(p.terrain);
+    drawBoardOutpostMark(g, b.cx, cy, kind, rawPhase);
+  }
+}
+
+// -------------------------------------------------------------
 // Active Column Clash & Engagement Mark (drawClashMark)
 // -------------------------------------------------------------
 
@@ -6197,7 +6282,8 @@ function paintProvinceDynamicToken(
   boardWeather: AtmosphereWeather,
   boardDayPhase: DayPhase,
   selectedProvinceId?: string | null,
-  pilesOnOwnLayer: boolean = false
+  pilesOnOwnLayer: boolean = false,
+  outpostMarksOnOwnLayer: boolean = false
 ): void {
   if (!seen) {
     const destKind = marchDestMap.get(p.id);
@@ -6425,10 +6511,14 @@ function paintProvinceDynamicToken(
     drawTrailMark(g, cx - 8, cy - 8, animPhase);
   }
 
-  // 6.9 Player Outpost Flag Mark or Rival Camp Mark on Seen Tiles
-  const outpostMarkKind = resolveProvinceOutpostMark(state, p.id);
-  if (outpostMarkKind && !hasProvinceHold(state, p.id)) {
-    drawOutpostMark(g, cx - 7, cy + 4, outpostMarkKind, animPhase);
+  // 6.9 Player Outpost Flag Mark or Rival Camp Mark on Seen Tiles (ink plinth + pip).
+  // In the live renderer (outpostMarksOnOwnLayer) paintBoardOutpostMarks draws these
+  // above the weather layer and fog veil instead.
+  if (!outpostMarksOnOwnLayer) {
+    const outpostMarkKind = resolveProvinceOutpostMark(state, p.id);
+    if (outpostMarkKind && !hasProvinceHold(state, p.id)) {
+      drawBoardOutpostMark(g, cx, cy, outpostMarkKind, animPhase);
+    }
   }
 
   // 6.10 Season Pip on Seen Home Tile
@@ -6549,7 +6639,8 @@ export function paintBoardDynamicTokens(
       boardWeather,
       boardDayPhase,
       selectedProvinceId,
-      true // node piles + badges are painted on their own layer (paintBoardNodePiles)
+      true, // node piles + badges are painted on their own layer (paintBoardNodePiles)
+      true // outpost + camp marks are painted on their own layer (paintBoardOutpostMarks)
     );
   }
 }

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Clearer outpost and camp marks on the board (wave/board-camps)
+
+- **The small flag on your outposts and the red tent on rival camps are easier to see.** Each one sits on a small dark base with a coloured edge (green for your outposts, red for rival camps), and they are drawn on top of rain, snow, storms, fog and the sun or moon glow.
+- **Play is unchanged.** Outposts, camps and everything else work exactly as before. Tiles you have not scouted still show nothing.
+
 ## 2026-11-02 — Clearer resource piles on the diamond board (bakeoff/gemini-node-piles)
 
 - **The log, stone and grain piles on woodcut, quarry and field tiles are easier to see in all weather.** Each stocked pile sits on a small dark ink base with a faint warm edge, and the piles and their stock numbers are drawn on top of rain, snow, storms, fog and the sun or moon glow so weather never dims them.

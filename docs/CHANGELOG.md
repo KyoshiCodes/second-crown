@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Clearer outpost and camp marks under weather and fog (wave/board-camps)
+
+- Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/index.ts`: new `boardOutpostMarksLayer`, stacked above `boardWeatherGraphic`, the static fog veil and `boardNodePilesLayer`, below `boardSelectionLayer` and hover. Painted by `paintBoardOutpostMarks` everywhere `paintBoardDynamicTokens` runs.
+- `packages/render/src/tokens.ts`: new `paintBoardOutpostMarks`, `drawBoardOutpostMark`, `drawOutpostMarkPlinth`, `OUTPOST_MARK_INK` / `OUTPOST_MARK_INK_ALPHA` / `OUTPOST_MARK_RIM_OUTPOST` / `OUTPOST_MARK_RIM_CAMP` / `OUTPOST_MARK_RIM_ALPHA` / `OUTPOST_MARK_PLINTH_R` / `OUTPOST_MARK_DX` / `OUTPOST_MARK_DY`. Player outpost flag pips and rival camp pips get a steady dark ink plinth with an emerald (outpost) or rose (camp) rim. `paintBoardDynamicTokens` no longer draws the mark; `paintBoardProvinces` (single-layer painter) still draws it inline, with the plinth.
+- `packages/render/src/index.test.ts`: new tests for plinth only on seen outposts and camps (not home, not unseen), steady alpha, plinth before pip, dynamic layer leaves the mark alone, layer order and call parity in `index.ts`. `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-02 — Living node pile treatment on diamond board (bakeoff/gemini-node-piles)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

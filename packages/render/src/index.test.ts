@@ -4277,6 +4277,99 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(pileCalls).toBe(dynCalls);
       });
 
+      it("paintBoardOutpostMarks draws a steady ink plinth + kind rim only for seen outposts and camps", async () => {
+        const {
+          paintBoardOutpostMarks,
+          OUTPOST_MARK_INK,
+          OUTPOST_MARK_INK_ALPHA,
+          OUTPOST_MARK_RIM_OUTPOST,
+          OUTPOST_MARK_RIM_CAMP,
+        } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_out", x: 3, y: 2, terrain: "plain", node: "field", occupantRealmId: "player" },
+            { id: "p_camp", x: 4, y: 2, terrain: "hill", node: "camp", occupantRealmId: "rival" },
+            { id: "p_fogcamp", x: 5, y: 2, terrain: "plain", node: "camp" },
+            { id: "p_plain", x: 6, y: 2, terrain: "plain", node: "none" },
+          ],
+        };
+        for (const id of ["p_home", "p_out", "p_camp", "p_plain"]) state.flags[`seen:${id}`] = true;
+
+        const inkFills = (g: any) =>
+          g.calls.filter((c: any) => c.method === "fill" && c.args[0]?.color === OUTPOST_MARK_INK);
+        const rimColors = (g: any) =>
+          g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
+
+        const g = createMockGraphics();
+        paintBoardOutpostMarks(g, state, 0.5);
+        expect(g.calls[0].method).toBe("clear");
+        const inks = inkFills(g);
+        expect(inks.length).toBe(2); // p_out + p_camp; home, unseen camp and plain get nothing
+        expect(inks[0].args[0].alpha).toBe(OUTPOST_MARK_INK_ALPHA);
+        expect(rimColors(g)).toContain(OUTPOST_MARK_RIM_OUTPOST);
+        expect(rimColors(g)).toContain(OUTPOST_MARK_RIM_CAMP);
+        // The plinth comes before the pip it sits under
+        const firstInk = g.calls.findIndex((c: any) => c.method === "fill" && c.args[0]?.color === OUTPOST_MARK_INK);
+        const firstPip = g.calls.findIndex((c: any) => c.method === "fill" && (c.args[0]?.color === 0x042619 || c.args[0]?.color === 0x2a0808));
+        expect(firstInk).toBeLessThan(firstPip);
+
+        // Steady: plinth does not pulse with phase
+        const g2 = createMockGraphics();
+        paintBoardOutpostMarks(g2, state, 3.3);
+        for (const c of inkFills(g2)) expect(c.args[0].alpha).toBe(OUTPOST_MARK_INK_ALPHA);
+
+        // Unseen-only board draws nothing but clear
+        const fogState = createMockState();
+        fogState.board = { homeProvinceId: "p_x", provinces: [{ id: "p_c", x: 1, y: 1, terrain: "plain", node: "camp" }] };
+        const g3 = createMockGraphics();
+        paintBoardOutpostMarks(g3, fogState, 0);
+        expect(g3.calls.length).toBe(1);
+      });
+
+      it("paintBoardDynamicTokens leaves outpost/camp marks to their own layer; paintBoardProvinces still draws them inline", async () => {
+        const { paintBoardDynamicTokens, paintBoardProvinces, OUTPOST_MARK_INK } = await import("./tokens.js");
+        const state = createMockState();
+        state.board = {
+          homeProvinceId: "p_home",
+          provinces: [
+            { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+            { id: "p_camp", x: 3, y: 2, terrain: "plain", node: "camp", occupantRealmId: "rival" },
+          ],
+        };
+        state.flags["seen:p_home"] = true;
+        state.flags["seen:p_camp"] = true;
+        const hasInk = (g: any) =>
+          g.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === OUTPOST_MARK_INK);
+
+        const dyn = createMockGraphics();
+        paintBoardDynamicTokens(dyn, state, 0);
+        expect(hasInk(dyn)).toBe(false);
+        expect(dyn.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0x2a0808)).toBe(false);
+
+        const all = createMockGraphics();
+        paintBoardProvinces(all, state, 0);
+        expect(hasInk(all)).toBe(true);
+      });
+
+      it("board outpost mark layer is stacked above weather and the pile layer, below the select rim", async () => {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+        const weatherAdd = code.indexOf("boardContainer.addChild(boardWeatherGraphic)");
+        const pilesAdd = code.indexOf("boardContainer.addChild(boardNodePilesLayer)");
+        const marksAdd = code.indexOf("boardContainer.addChild(boardOutpostMarksLayer)");
+        const selectAdd = code.indexOf("boardContainer.addChild(boardSelectionLayer)");
+        expect(marksAdd).toBeGreaterThan(weatherAdd);
+        expect(marksAdd).toBeGreaterThan(pilesAdd);
+        expect(selectAdd).toBeGreaterThan(marksAdd);
+        const dynCalls = code.match(/paintBoardDynamicTokens\(boardProvincesLayer/g)?.length ?? 0;
+        const markCalls = code.match(/paintBoardOutpostMarks\(boardOutpostMarksLayer/g)?.length ?? 0;
+        expect(markCalls).toBe(dynCalls);
+      });
+
       it("OverworldAtlas defines MiniLogs, MiniSacks, MiniBlocks on diamond for stocked provinces", async () => {
         const fs = await import("node:fs");
         const path = await import("node:path");
