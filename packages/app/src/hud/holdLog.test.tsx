@@ -18,7 +18,7 @@ function readCssFile(relativePath: string): string {
 
 function cardsOf(html: string): [string | null, string][] {
   const log = html.slice(html.indexOf('aria-label="Last intents"'));
-  return [...log.matchAll(/<div class="sc-hold-log-card">(?:<span class="sc-hold-log-tick">Tick ([^<]+)<\/span>)?<span class="sc-hold-log-text">([^<]+)<\/span><\/div>/g)]
+  return [...log.matchAll(/class="sc-hold-log-card"[^>]*>.*?(?:<span class="sc-hold-log-tick">Tick ([^<]+)<\/span>)?<span class="sc-hold-log-text">([^<]+)<\/span>/g)]
     .map((m) => [m[1] ?? null, m[2]]);
 }
 

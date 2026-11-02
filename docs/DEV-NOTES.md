@@ -1,10 +1,15 @@
-## 2026-11-02 — app / hold log cards (wave/hud-hold-log)
+## 2026-11-02 — app / living log pips inside hold log cards (bakeoff/gemini-hold-log-pips)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `JoinHoldCard.tsx`: `holdLogCards(lines): HoldLogCard[]` (exported) parses each `Tick N: text` line from `recentIntents` / `intentLines` into `{ tick: "N", text }`. A line that does not match keeps all its text with `tick: null` and its card shows no tick. Order is unchanged (newest first, as given).
-- Card markup is `.sc-hold-log-card` > optional `.sc-hold-log-tick` ("Tick N"), `.sc-hold-log-text`, as direct siblings so tests can regex-match them. The list keeps the `.sc-intent-log-lines` class (now also `.sc-hold-log-list`) so the "pip left of lines" check in `IntentPip.test.tsx` still holds. The intent line format in `net/hold.ts` is unchanged.
-- `hud/hold-log.css` is imported directly by `JoinHoldCard.tsx`. Cards stack in a column, text ellipsizes.
-- Tests: `hud/holdLog.test.tsx` covers parsing, the no-tick fallback, one card per entry in order, no cards with no intents, and the CSS file (not in `theme.css`).
+- `HoldLogPip` & CSS isolation (`packages/app/src/hud/HoldLogPip.tsx`, `packages/app/src/hud/hold-log-pip.css`):
+  - Renders 16px (`viewBox="0 0 16 16"`) living SVG log pips depicting an illuminated chronicle parchment folio with calligraphic ink entries and heraldic emblems tailored to logged intents (`train`, `farm`, `cottage`, `lumber`, `stamp`, `default`).
+  - Strictly enforces `pointer-events: none` inline and in stylesheet on `.sc-hold-log-pip-wrapper, .sc-hold-log-pip-wrapper *, .sc-hold-log-pip`.
+  - Gentle living rhythm (`@keyframes sc-hold-log-pip-breathe`) animates only compositor-safe `transform` and `opacity` on `.sc-hold-log-pip-glyph`, staggered with delays (`0s`, `-1.2s`, `-2.4s`) across cards, disabled under `@media (prefers-reduced-motion: reduce)`.
+- Hold card wiring (`packages/app/src/JoinHoldCard.tsx`):
+  - In `.sc-hold-log-list`, renders `<HoldLogPip intent={c.text} />` inside each `.sc-hold-log-card` ahead of `.sc-hold-log-tick` and `.sc-hold-log-text`.
+  - Preserves adjacent sibling placement between `.sc-hold-log-tick` and `.sc-hold-log-text` for existing test matchers in `hud/IntentPip.test.tsx`.
+  - Card layout and grid styles (`.sc-hold-log-list`, `.sc-hold-log-card`, `.sc-hold-log-tick`, `.sc-hold-log-text`) are carried in `hold-log-pip.css` and `hold-log.css`, harmonizing with parallel branches without modifying `theme.css`.
+- Verification: `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
 ## 2026-11-02 — app / living work pips inside hold work cards (bakeoff/gemini-hold-work-pips)
 

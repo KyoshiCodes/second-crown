@@ -11,6 +11,7 @@ import { HoldStampPip } from "./hud/HoldStampPip";
 import { HoldLeavePip } from "./hud/HoldLeavePip";
 import { HoldKeyPip } from "./hud/HoldKeyPip";
 import { HoldWorkPip } from "./hud/HoldWorkPip";
+import { HoldLogPip } from "./hud/HoldLogPip";
 import "./hud/hold-leave.css";
 import "./hud/hold-log.css";
 
@@ -342,6 +343,7 @@ export function JoinHoldCard({
           <div className="sc-intent-log-lines sc-hold-log-list">
             {holdLogCards(lastIntents).map((c, i) => (
               <div key={i} className="sc-hold-log-card">
+                <HoldLogPip intent={c.text} />
                 {c.tick !== null ? <span className="sc-hold-log-tick">Tick {c.tick}</span> : null}
                 <span className="sc-hold-log-text">{c.text}</span>
               </div>

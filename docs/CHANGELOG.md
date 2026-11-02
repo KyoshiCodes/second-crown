@@ -1,11 +1,16 @@
 # CHANGELOG
 
-## 2026-11-02 — Hold log cards (wave/hud-hold-log)
+## 2026-11-02 — Living log pips in hold log cards (bakeoff/gemini-hold-log-pips)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/app/src/JoinHoldCard.tsx`: replaced the plain intent log lines ("Last intents") with one small log card per entry (`.sc-hold-log-card`). Each card shows the tick and the intent text. New exported helper `holdLogCards(lines)` splits each `Tick N: text` line into `{ tick, text }`.
-- `packages/app/src/hud/hold-log.css` (new): log card styles, imported from `JoinHoldCard.tsx`.
-- Tests: `hud/holdLog.test.tsx` (new); `hud/IntentPip.test.tsx` updated from the old plain text to the card markup (`npm test` and `npm run build -w @second-crown/app` pass).
+- `packages/app/src/hud/HoldLogPip.tsx` (new):
+  - `HoldLogPip`: 16px living SVG log pips (`viewBox="0 0 16 16"`) depicting an illuminated chronicle parchment folio with calligraphic ink entries and heraldic emblems tailored to logged intents (`train`, `farm`, `cottage`, `lumber`, `stamp`, `default`), with strict `pointer-events: none` on the wrapper, SVG, and all children (`aria-hidden="true"`).
+- `packages/app/src/hud/hold-log-pip.css` (new):
+  - Isolated styles for hold log cards and pips, strict `pointer-events: none` on `.sc-hold-log-pip-wrapper` and all descendants, compositor-only `@keyframes sc-hold-log-pip-breathe` breathing animation with staggered card delays, and nested `@media (prefers-reduced-motion: reduce)` guard without touching `theme.css`.
+- `packages/app/src/JoinHoldCard.tsx`:
+  - Renders 16px living `HoldLogPip` inside each hold log card (`.sc-hold-log-card`), hidden when no intents exist.
+- Tests: `packages/app/src/hud/HoldLogPip.test.tsx` and `packages/app/src/hud/holdLog.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim packages/render server packages/app/src/theme.css` is completely empty.
 
 ## 2026-11-02 — Living work pips in hold work cards (bakeoff/gemini-hold-work-pips)
 

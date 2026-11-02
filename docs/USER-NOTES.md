@@ -2,10 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Log cards in a joined hold (wave/hud-hold-log)
+## 2026-11-02 — Living log pips inside hold log cards (bakeoff/gemini-hold-log-pips)
 
-- **The hold's last orders are now small cards.** In a joined shared hold (Cloud panel), each of your last orders gets its own card showing the tick and what you ordered (for example "Tick 9" and "train militia").
-- **Play is unchanged.** Same orders as before, just easier to read.
+- **The hold log cards now feature living 16px log pips. Play is unchanged.** When you view a joined shared hold in the Cloud panel with recorded actions, each log card displays an authentic living chronicle parchment pip (an illuminated folio with calligraphic ink lines and heraldic emblems reflecting the logged action, such as crossed swords for training, a reaping sickle for farms, an axe for lumber camps, a cottage for cottages, or a stamped royal wax seal for stamps).
+- All new art is pointer-events: none on every pip and all children so clicking buttons and interacting with the hold works exactly as before.
+- **Play is unchanged.** Your game, Push save, Pull save, offline catch-up, Second Dawn, Repair, hold keys, sign-in, guest ids, hold saves, reloads, and the server limits work exactly as before.
 
 ## 2026-11-02 — Living work pips inside hold work cards (bakeoff/gemini-hold-work-pips)
 
