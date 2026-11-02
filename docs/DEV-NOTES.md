@@ -1,3 +1,11 @@
+## 2026-11-02 — app / hold work cards (wave/hud-hold-works)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: `holdWorks(view): HoldWork[]` (exported) returns `{ id, name, count, status }` for militia, farms, cottages, lumberCamps in that order. `status` is `+${training} training` for militia when `view.training > 0`, else `null`. The `aria-label="Hold works"` container is kept (now `.sc-hold-works`), so position checks against "Hold stores" still work.
+- Card markup is `.sc-hold-work-card` > `.sc-hold-work-name`, `.sc-hold-work-count`, optional `.sc-hold-work-status`, as direct siblings so tests can regex-match them. No pip yet; a later art slice can add one.
+- `hud/hold-works.css` is imported directly by `JoinHoldCard.tsx` so it loads (unlike `hold-stores.css` etc., see the hold leave card note below). Layout mirrors the store cards: 4 columns, 2 under 360px.
+- Tests: `hud/holdWorks.test.tsx` covers order, counts, training status shown/hidden, no plain line, no cards when unjoined, CSS file. The "works under stores" tests in `holdStores.test.tsx` and `HoldStorePip.test.tsx` now match card markup instead of "Militia 2 (+1 training)".
+
 ## 2026-11-02 — app / living key pip inside hold key card (bakeoff/gemini-hold-key-pip)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

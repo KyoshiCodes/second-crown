@@ -43,17 +43,17 @@ describe("JoinHoldCard hold store cards (wave/hud-hold-stores)", () => {
     ]);
   });
 
-  it("keeps the militia / farms / cottages / lumber camps line under the cards", () => {
+  it("keeps the hold work cards under the cards", () => {
     const html = renderToStaticMarkup(<JoinHoldCard signedIn={true} intentLines={[]} initialView={SAMPLE_VIEW} />);
     const storesAt = html.indexOf('aria-label="Hold stores"');
     const worksAt = html.indexOf('aria-label="Hold works"');
     expect(storesAt).toBeGreaterThan(-1);
     expect(worksAt).toBeGreaterThan(storesAt);
     const works = html.slice(worksAt);
-    expect(works).toContain("Militia 2 (+1 training)");
-    expect(works).toContain("Farms 1");
-    expect(works).toContain("Cottages 0");
-    expect(works).toContain("Lumber camps 1");
+    expect(works).toContain('sc-hold-work-name">Militia</span><span class="sc-hold-work-count">2</span><span class="sc-hold-work-status">+1 training</span>');
+    expect(works).toContain('sc-hold-work-name">Farms</span><span class="sc-hold-work-count">1</span>');
+    expect(works).toContain('sc-hold-work-name">Cottages</span><span class="sc-hold-work-count">0</span>');
+    expect(works).toContain('sc-hold-work-name">Lumber camps</span><span class="sc-hold-work-count">1</span>');
   });
 
   it("shows no store cards when no hold is joined", () => {

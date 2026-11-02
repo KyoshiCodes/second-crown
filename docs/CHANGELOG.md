@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Hold work cards (wave/hud-hold-works)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: replaced the plain "Hold works" line (Militia / Farms / Cottages / Lumber camps) with four small work cards (`.sc-hold-works`, `.sc-hold-work-card`). Each card shows the work name and its count; the Militia card adds a status line (`+N training`) only while militia are training. New exported helper `holdWorks(view)` builds the cards in display order.
+- `packages/app/src/hud/hold-works.css` (new): work card styles, imported from `JoinHoldCard.tsx`.
+- Tests: `hud/holdWorks.test.tsx` (new); `hud/holdStores.test.tsx` and `hud/HoldStorePip.test.tsx` updated from the old plain text to the card markup (`npm test` and `npm run build -w @second-crown/app` pass).
+
 ## 2026-11-02 — Living key pip in hold key card (bakeoff/gemini-hold-key-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

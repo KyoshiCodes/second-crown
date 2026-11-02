@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Work cards in a joined hold (wave/hud-hold-works)
+
+- **The hold's works are now small cards.** In a joined shared hold (Cloud panel), Militia, Farms, Cottages, and Lumber camps each get their own card with the count. While militia are training, the Militia card also shows "+N training".
+- **Play is unchanged.** Same numbers as before, just easier to read.
+
 ## 2026-11-02 — Living key pip inside the hold key card (bakeoff/gemini-hold-key-pip)
 
 - **The hold key card now features a living 16px key pip. Play is unchanged.** When you make a new shared hold in the Cloud panel, the new key card displays an authentic living key pip (depicting an antique golden royal skeleton key with trefoil bow and bit teeth).

@@ -11,6 +11,7 @@ import { HoldStampPip } from "./hud/HoldStampPip";
 import { HoldLeavePip } from "./hud/HoldLeavePip";
 import { HoldKeyPip } from "./hud/HoldKeyPip";
 import "./hud/hold-leave.css";
+import "./hud/hold-works.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -25,6 +26,18 @@ const HOLD_STORES = [
   ["stone", "Stone"],
   ["gold", "Gold"],
 ] as const;
+
+/** One hold work card: name, whole count, and an optional status line (militia in training). */
+export type HoldWork = { id: string; name: string; count: number; status: string | null };
+/** The four hold work cards, in display order. */
+export function holdWorks(view: HoldView): HoldWork[] {
+  return [
+    { id: "militia", name: "Militia", count: view.militia, status: view.training > 0 ? `+${view.training} training` : null },
+    { id: "farms", name: "Farms", count: view.farms, status: null },
+    { id: "cottages", name: "Cottages", count: view.cottages, status: null },
+    { id: "lumberCamps", name: "Lumber camps", count: view.lumberCamps, status: null },
+  ];
+}
 
 /**
  * Opt-in shared hold. Type a realm id and join; everyone on the same id reads one server hold,
@@ -284,11 +297,14 @@ export function JoinHoldCard({
               </div>
             ))}
           </div>
-          <div className="sc-plain-inline" style={{ fontSize: 13, marginTop: 6, gap: 12, flexWrap: "wrap" }} aria-label="Hold works">
-            <span>Militia {view.militia}{view.training > 0 ? ` (+${view.training} training)` : ""}</span>
-            <span>Farms {view.farms}</span>
-            <span>Cottages {view.cottages}</span>
-            <span>Lumber camps {view.lumberCamps}</span>
+          <div className="sc-hold-works" aria-label="Hold works">
+            {holdWorks(view).map((w) => (
+              <div key={w.id} className="sc-hold-work-card" aria-label={w.name}>
+                <span className="sc-hold-work-name">{w.name}</span>
+                <span className="sc-hold-work-count">{w.count}</span>
+                {w.status ? <span className="sc-hold-work-status">{w.status}</span> : null}
+              </div>
+            ))}
           </div>
           <div className="sc-hold-stamps" aria-label="Hold stamps">
             <div className="sc-hold-stamps-heading">Stamps</div>
