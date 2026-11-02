@@ -20,6 +20,7 @@ import {
 } from "@second-crown/render";
 import { detectCurrentHoliday } from "./seasons/holidays";
 import "./hud/atlas-select-rim.css";
+import "./hud/atlas-node-piles.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -251,6 +252,9 @@ function MiniLogs(props: { cx: number; cy: number }) {
   const { cx, cy } = props;
   return (
     <g className="sc-atlas-node-pile sc-atlas-pile-logs" style={{ pointerEvents: "none" }}>
+      {/* Dark ink plinth underlay with warm rim for weather/fog contrast */}
+      <ellipse cx={cx} cy={cy + 1.8} rx={9.5} ry={4.4} fill="#1c1208" opacity={0.62} style={{ pointerEvents: "none" }} />
+      <ellipse cx={cx} cy={cy + 1.8} rx={9.5} ry={4.4} fill="none" stroke="#fde68a" strokeWidth={0.8} opacity={0.38} style={{ pointerEvents: "none" }} />
       {/* Ground contact shadow */}
       <ellipse cx={cx} cy={cy + 1} rx={8} ry={3} fill="#000000" opacity={0.35} />
       {/* Bottom left log */}
@@ -273,6 +277,9 @@ function MiniSacks(props: { cx: number; cy: number }) {
   const { cx, cy } = props;
   return (
     <g className="sc-atlas-node-pile sc-atlas-pile-sacks" style={{ pointerEvents: "none" }}>
+      {/* Dark ink plinth underlay with warm rim for weather/fog contrast */}
+      <ellipse cx={cx} cy={cy + 1.8} rx={9.5} ry={4.4} fill="#1c1208" opacity={0.62} style={{ pointerEvents: "none" }} />
+      <ellipse cx={cx} cy={cy + 1.8} rx={9.5} ry={4.4} fill="none" stroke="#fde68a" strokeWidth={0.8} opacity={0.38} style={{ pointerEvents: "none" }} />
       {/* Ground contact shadow */}
       <ellipse cx={cx} cy={cy + 1} rx={8} ry={3} fill="#000000" opacity={0.35} />
       {/* Bottom left sack */}
@@ -298,6 +305,9 @@ function MiniBlocks(props: { cx: number; cy: number }) {
   const { cx, cy } = props;
   return (
     <g className="sc-atlas-node-pile sc-atlas-pile-blocks" style={{ pointerEvents: "none" }}>
+      {/* Dark ink plinth underlay with warm rim for weather/fog contrast */}
+      <ellipse cx={cx} cy={cy + 1.8} rx={9.5} ry={4.4} fill="#1c1208" opacity={0.62} style={{ pointerEvents: "none" }} />
+      <ellipse cx={cx} cy={cy + 1.8} rx={9.5} ry={4.4} fill="none" stroke="#fde68a" strokeWidth={0.8} opacity={0.38} style={{ pointerEvents: "none" }} />
       {/* Ground contact shadow */}
       <ellipse cx={cx} cy={cy + 1.5} rx={8} ry={3} fill="#000000" opacity={0.35} />
       {/* Bottom left block */}

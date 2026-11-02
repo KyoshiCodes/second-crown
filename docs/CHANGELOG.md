@@ -1,11 +1,14 @@
 # CHANGELOG
 
-## 2026-11-02 — Clearer node stock piles under weather and fog (wave/board-node-piles)
+## 2026-11-02 — Living node pile treatment on diamond board (bakeoff/gemini-node-piles)
 
-- Render only in `packages/render`. No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
 - `packages/render/src/index.ts`: new `boardNodePilesLayer`, stacked above `boardWeatherGraphic` and the static fog veil, below `boardSelectionLayer` and hover. Painted by `paintBoardNodePiles` everywhere `paintBoardDynamicTokens` runs.
-- `packages/render/src/tokens.ts`: new `paintBoardNodePiles`, `drawBoardNodePile`, `drawNodePileInkPlinth`, `isStockPileNode`, `NODE_PILE_INK` / `NODE_PILE_INK_ALPHA` / `NODE_PILE_RIM` / `NODE_PILE_RIM_ALPHA`. Stocked woodcut / quarry / field piles get a steady dark ink plinth with a faint warm rim. `paintBoardDynamicTokens` now draws only the node landmark; the pile and stock badge move to the pile layer. `paintBoardProvinces` (single-layer painter) still draws them inline, with the plinth.
-- `packages/render/src/index.test.ts`: removed leftover merge-conflict markers from the select-rim merge (kept the HEAD test body). Board-cache test now looks for the stock badge on the pile layer. New tests: plinth only on seen stocked nodes, steady alpha, dynamic layer leaves piles alone, layer order and call parity in `index.ts`. `npm test` and `npm run build -w @second-crown/app` pass.
+- `packages/render/src/tokens.ts`: new `paintBoardNodePiles`, `drawBoardNodePile`, `drawNodePileInkPlinth`, `isStockPileNode`, `NODE_PILE_INK` / `NODE_PILE_INK_ALPHA` / `NODE_PILE_RIM` / `NODE_PILE_RIM_ALPHA`. Stocked woodcut / quarry / field piles get a steady dark ink plinth with a faint warm rim. `paintBoardDynamicTokens` draws only the node landmark; the pile and stock badge move to the pile layer. `paintBoardProvinces` (single-layer painter) still draws them inline, with the plinth.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-node-piles.css` (new): `MiniLogs`, `MiniSacks`, and `MiniBlocks` on the SVG Kingdom Atlas gain steady dark ink plinths with faint warm rims, subtle breathing keyframes, and reduced-motion media query guard. Strict `pointer-events: none` on all decorative overlays with zero changes to `theme.css`.
+- `packages/render/src/index.test.ts`: removed leftover merge-conflict markers from the select-rim merge (kept the HEAD test body). Board-cache test now looks for the stock badge on the pile layer. New tests: plinth only on seen stocked nodes, steady alpha, dynamic layer leaves piles alone, layer order and call parity in `index.ts`.
+- `packages/app/src/hud/atlasNodePiles.test.tsx` (new): verifies plinth presence under stocked nodes, omission on dry/depleted nodes, `pointer-events: none`, isolated CSS keyframes and motion guard, and `theme.css` isolation.
+- Verification: `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass. `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-11-02 — Living selected-province rim treatment on diamond board (bakeoff/gemini-select-rim)
 

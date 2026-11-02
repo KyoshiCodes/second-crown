@@ -2,9 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Clearer resource piles on the board (wave/board-node-piles)
+## 2026-11-02 — Clearer resource piles on the diamond board (bakeoff/gemini-node-piles)
 
-- **The log, stone and grain piles on woodcut, quarry and field tiles are easier to see.** Each stocked pile sits on a small dark base with a faint warm edge, and the piles and their stock numbers are drawn on top of rain, snow, storms, fog and the sun or moon glow.
+- **The log, stone and grain piles on woodcut, quarry and field tiles are easier to see in all weather.** Each stocked pile sits on a small dark ink base with a faint warm edge, and the piles and their stock numbers are drawn on top of rain, snow, storms, fog and the sun or moon glow so weather never dims them.
+- **Kingdom Atlas resource piles have been polished.** On the overworld atlas, resource piles now feature steady dark bases and gentle ambient idle breathing.
 - **Play is unchanged.** Stock, gathering and everything else work exactly as before. Empty nodes still show no pile.
 
 ## 2026-11-02 — Living selected-province rim treatment on the diamond board (bakeoff/gemini-select-rim)

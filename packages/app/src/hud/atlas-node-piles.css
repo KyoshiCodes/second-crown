@@ -1,0 +1,26 @@
+/* Living node pile treatment on SVG overworld atlas (bakeoff/gemini-node-piles) */
+
+.sc-atlas-node-pile {
+  pointer-events: none !important;
+  transform-origin: center;
+  animation: sc-atlas-node-pile-breathe 4s ease-in-out infinite;
+}
+
+.sc-atlas-node-pile * {
+  pointer-events: none !important;
+}
+
+@keyframes sc-atlas-node-pile-breathe {
+  0%, 100% {
+    filter: drop-shadow(0 0 0px rgba(253, 230, 138, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 1.5px rgba(253, 230, 138, 0.45));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-node-pile {
+    animation: none !important;
+  }
+}
