@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Hold log cards (wave/hud-hold-log)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: replaced the plain intent log lines ("Last intents") with one small log card per entry (`.sc-hold-log-card`). Each card shows the tick and the intent text. New exported helper `holdLogCards(lines)` splits each `Tick N: text` line into `{ tick, text }`.
+- `packages/app/src/hud/hold-log.css` (new): log card styles, imported from `JoinHoldCard.tsx`.
+- Tests: `hud/holdLog.test.tsx` (new); `hud/IntentPip.test.tsx` updated from the old plain text to the card markup (`npm test` and `npm run build -w @second-crown/app` pass).
+
 ## 2026-11-02 — Living work pips in hold work cards (bakeoff/gemini-hold-work-pips)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

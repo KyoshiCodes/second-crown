@@ -1,3 +1,11 @@
+## 2026-11-02 — app / hold log cards (wave/hud-hold-log)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: `holdLogCards(lines): HoldLogCard[]` (exported) parses each `Tick N: text` line from `recentIntents` / `intentLines` into `{ tick: "N", text }`. A line that does not match keeps all its text with `tick: null` and its card shows no tick. Order is unchanged (newest first, as given).
+- Card markup is `.sc-hold-log-card` > optional `.sc-hold-log-tick` ("Tick N"), `.sc-hold-log-text`, as direct siblings so tests can regex-match them. The list keeps the `.sc-intent-log-lines` class (now also `.sc-hold-log-list`) so the "pip left of lines" check in `IntentPip.test.tsx` still holds. The intent line format in `net/hold.ts` is unchanged.
+- `hud/hold-log.css` is imported directly by `JoinHoldCard.tsx`. Cards stack in a column, text ellipsizes.
+- Tests: `hud/holdLog.test.tsx` covers parsing, the no-tick fallback, one card per entry in order, no cards with no intents, and the CSS file (not in `theme.css`).
+
 ## 2026-11-02 — app / living work pips inside hold work cards (bakeoff/gemini-hold-work-pips)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

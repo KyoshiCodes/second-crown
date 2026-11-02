@@ -12,6 +12,7 @@ import { HoldLeavePip } from "./hud/HoldLeavePip";
 import { HoldKeyPip } from "./hud/HoldKeyPip";
 import { HoldWorkPip } from "./hud/HoldWorkPip";
 import "./hud/hold-leave.css";
+import "./hud/hold-log.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -55,6 +56,15 @@ export function resolveHoldIntentLines(realmId: string | null, entries: IntentEn
     .map((e) => e.line)
     .slice(-3)
     .reverse();
+}
+/** One hold log card: the tick (null when a line has none) and the intent text. */
+export type HoldLogCard = { tick: string | null; text: string };
+/** Splits each "Tick N: text" intent line into a log card. A line without a tick keeps all its text. */
+export function holdLogCards(lines: readonly string[]): HoldLogCard[] {
+  return lines.map((line) => {
+    const m = /^Tick (\d+): (.*)$/.exec(line);
+    return m ? { tick: m[1], text: m[2] } : { tick: null, text: line };
+  });
 }
 export function JoinHoldCard({
   signedIn,
@@ -329,8 +339,13 @@ export function JoinHoldCard({
       {lastIntents.length > 0 ? (
         <div style={{ fontSize: 12, marginTop: 6, opacity: 0.8, display: "flex", alignItems: "flex-start", gap: 6 }} aria-label="Last intents">
           <IntentPip pulse={intentPulseKey !== undefined} pulseKey={intentPulseKey} />
-          <div className="sc-intent-log-lines">
-            {lastIntents.map((line, i) => <div key={i}>{line}</div>)}
+          <div className="sc-intent-log-lines sc-hold-log-list">
+            {holdLogCards(lastIntents).map((c, i) => (
+              <div key={i} className="sc-hold-log-card">
+                {c.tick !== null ? <span className="sc-hold-log-tick">Tick {c.tick}</span> : null}
+                <span className="sc-hold-log-text">{c.text}</span>
+              </div>
+            ))}
           </div>
         </div>
       ) : null}

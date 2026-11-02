@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Log cards in a joined hold (wave/hud-hold-log)
+
+- **The hold's last orders are now small cards.** In a joined shared hold (Cloud panel), each of your last orders gets its own card showing the tick and what you ordered (for example "Tick 9" and "train militia").
+- **Play is unchanged.** Same orders as before, just easier to read.
+
 ## 2026-11-02 — Living work pips inside hold work cards (bakeoff/gemini-hold-work-pips)
 
 - **The hold work cards now feature living 16px work pips. Play is unchanged.** When you view a joined shared hold in the Cloud panel, each of the four work cards (Militia, Farms, Cottages, and Lumber camps) displays an authentic living work pip (a conical helm with nasal guard and brow band for militia, a reaping sickle with golden wheat ear for farms, a thatched cottage with glowing hearth and smoke plume for cottages, and a felling axe in a timber stump for lumber camps).

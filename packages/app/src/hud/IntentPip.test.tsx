@@ -66,8 +66,8 @@ describe("IntentPip and HoldIntentLog (bakeoff/gemini-intent-pip)", () => {
 
     expect(cardHtml).toContain('aria-label="Last intents"');
     expect(cardHtml).toContain("is-pulsing");
-    expect(cardHtml).toContain("Tick 9: stamp");
-    expect(cardHtml).toContain("Tick 6: train militia");
+    expect(cardHtml).toContain('<span class="sc-hold-log-tick">Tick 9</span><span class="sc-hold-log-text">stamp</span>');
+    expect(cardHtml).toContain('<span class="sc-hold-log-tick">Tick 6</span><span class="sc-hold-log-text">train militia</span>');
 
     const pipIndex = cardHtml.indexOf("sc-intent-pip-wrapper");
     const linesIndex = cardHtml.indexOf("sc-intent-log-lines");
