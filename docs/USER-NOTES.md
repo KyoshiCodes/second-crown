@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Stamp cards in a joined hold (wave/hud-hold-stamps)
+
+- **Recent stamps now show as small cards.** In a joined shared hold (Cloud panel), under **Stamps**, each of the last 5 stamps is a little card with its tick and who stamped. Newest is first.
+- **Play is unchanged.** Stamping, your solo crown, saves, hold keys, and sign-in work exactly as before.
+
 ## 2026-11-02 — Living status pip inside hold status card (bakeoff/gemini-hold-status-pip)
 
 - **The hold status card now features a living 16px status pip. Play is unchanged.** When you view a joined shared hold in the Cloud panel, the status card displays an authentic living crown status pip (with an emerald heartbeat jewel that warms to amber whenever intents are in flight).

@@ -7,6 +7,7 @@ import { LeaveSealPip } from "./hud/LeaveSealPip";
 import { HoldStorePip } from "./hud/HoldStorePip";
 import { HoldActionPip } from "./hud/HoldActionPip";
 import { HoldStatusPip } from "./hud/HoldStatusPip";
+import "./hud/hold-stamps.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -278,10 +279,20 @@ export function JoinHoldCard({
             <span>Cottages {view.cottages}</span>
             <span>Lumber camps {view.lumberCamps}</span>
           </div>
-          <div style={{ fontSize: 12, marginTop: 6 }}>
-            {view.stamps.length === 0
-              ? "No stamps yet."
-              : view.stamps.slice(-5).reverse().map((s) => <div key={`${s.tick}-${s.by}`}>Tick {s.tick}: stamped by {s.by}</div>)}
+          <div className="sc-hold-stamps" aria-label="Hold stamps">
+            <div className="sc-hold-stamps-heading">Stamps</div>
+            {view.stamps.length === 0 ? (
+              <div className="sc-hold-stamps-empty">No stamps yet.</div>
+            ) : (
+              <div className="sc-hold-stamps-list">
+                {view.stamps.slice(-5).reverse().map((s, i) => (
+                  <div key={`${s.tick}-${s.by}-${i}`} className="sc-hold-stamp-card">
+                    <span className="sc-hold-stamp-tick">Tick {s.tick}</span>
+                    <span className="sc-hold-stamp-by">{s.by}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

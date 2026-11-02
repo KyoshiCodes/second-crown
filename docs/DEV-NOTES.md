@@ -1,3 +1,12 @@
+## 2026-11-02 — app / hold stamp cards (wave/hud-hold-stamps)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: `.sc-hold-stamps` wraps a `.sc-hold-stamps-heading` ("Stamps"), then either `.sc-hold-stamps-empty` or a wrapping flex `.sc-hold-stamps-list` of `.sc-hold-stamp-card` (`.sc-hold-stamp-tick` + `.sc-hold-stamp-by`). Same data as before: `view.stamps.slice(-5).reverse()`. Key adds the index, since one player can stamp twice in one tick.
+- The brief said "keep the existing Stamps heading", but there was none on `main` (never in history). A small heading was added, styled like the status card labels.
+- `hud/hold-stamps.css` is imported directly by `JoinHoldCard.tsx`. Note: on `main`, `hud/hold-status.css` is no longer imported by any module (the status pip commit carries those styles in `hold-status-pip.css`); same footgun as `hold-stores.css` / `hold-actions.css`. Not fixed here.
+- Who stamped (`by`) is ellipsized at `max-width: 12em` so a long name cannot widen the row.
+- Tests: `hud/holdStamps.test.tsx`: heading + empty line, one card per stamp newest first capped at 5, no section when unjoined, CSS file present.
+
 ## 2026-11-02 — app / living status pip inside hold status card (bakeoff/gemini-hold-status-pip)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

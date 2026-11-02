@@ -1,0 +1,45 @@
+/* Styles for the JoinHoldCard stamp cards only. Do not touch theme.css. */
+
+.sc-hold-stamps {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.sc-hold-stamps-heading {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-bottom: 3px;
+}
+
+.sc-hold-stamps-empty {
+  opacity: 0.8;
+}
+
+.sc-hold-stamps-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sc-hold-stamp-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 12em;
+  padding: 3px 7px;
+  border: 1px solid #3a3228;
+  border-radius: 5px;
+  background: rgba(26, 20, 16, 0.6);
+}
+
+.sc-hold-stamp-tick {
+  font-size: 11px;
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-hold-stamp-by {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

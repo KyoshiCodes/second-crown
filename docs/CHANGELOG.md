@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Hold stamp cards (wave/hud-hold-stamps)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: replaced the plain "Tick N: stamped by X" lines with `.sc-hold-stamp-card` cards (tick and who stamped) inside `.sc-hold-stamps` (`aria-label="Hold stamps"`), under a **Stamps** heading. Still newest first, last 5; "No stamps yet." when empty.
+- `packages/app/src/hud/hold-stamps.css` (new): stamp card styles, imported from `JoinHoldCard.tsx`.
+- Tests: `packages/app/src/hud/holdStamps.test.tsx` (`npm test` and `npm run build -w @second-crown/app` pass).
+
 ## 2026-11-02 — Living status pip in hold status card (bakeoff/gemini-hold-status-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
