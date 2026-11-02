@@ -30,22 +30,28 @@ const SAMPLE_VIEW: HoldView = {
   pending: 0,
 };
 
-describe("JoinHoldCard leave confirmation (wave/hud-hold-leave)", () => {
+describe("JoinHoldCard leave card (wave/hud-hold-leave)", () => {
   it("hides the confirmation until Leave is pressed", () => {
     const html = renderToStaticMarkup(<JoinHoldCard signedIn={true} intentLines={[]} initialView={SAMPLE_VIEW} />);
     expect(html).not.toContain("Leave hold");
-    expect(html).not.toContain(">Stay<");
-    expect(html).toContain(">Leave<");
+    expect(html).not.toContain("sc-hold-leave-card");
+    expect(html).not.toContain(">Confirm leave<");
+    expect(html).not.toContain(">Cancel<");
+    expect(html).toContain(">Leave</button>");
   });
 
-  it("shows Leave hold? with the realm id and Leave / Stay buttons when open", () => {
+  it("shows a leave card with the warning and Confirm leave / Cancel when open", () => {
     const html = renderToStaticMarkup(
       <JoinHoldCard signedIn={true} intentLines={[]} initialView={SAMPLE_VIEW} initialConfirmLeave={true} />,
     );
     expect(html).toContain('aria-label="Confirm leave"');
     expect(html).toContain("Leave hold <code>oak-hill</code>?");
-    expect(html).toContain(">Stay<");
-    expect(html.match(/<button[^>]*>Leave<\/button>/g)?.length).toBe(2);
+    expect(html).toContain('class="sc-hold-leave-card"');
+    expect(html).toContain("The hold keeps running. To join again you need the realm id and its key.");
+    expect(html).toMatch(/<button[^>]*>Confirm leave<\/button>/);
+    expect(html).toMatch(/<button[^>]*>Cancel<\/button>/);
+    // The Leave button that opens the card stays.
+    expect(html.match(/<button[^>]*>Leave<\/button>/g)?.length).toBe(1);
   });
 
   it("never shows the confirmation when no hold is joined", () => {
@@ -55,9 +61,9 @@ describe("JoinHoldCard leave confirmation (wave/hud-hold-leave)", () => {
     expect(html).not.toContain("Confirm leave");
   });
 
-  it("keeps styles in leave-confirm.css", () => {
-    const css = readCssFile("./leave-confirm.css");
-    expect(css).toContain(".sc-leave-confirm");
+  it("keeps styles in hold-leave.css", () => {
+    const css = readCssFile("./hold-leave.css");
+    expect(css).toContain(".sc-hold-leave-card");
     expect(css).toContain("Do not touch theme.css");
   });
 });

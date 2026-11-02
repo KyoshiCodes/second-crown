@@ -74,7 +74,7 @@ describe("LeaveSealPip and JoinHoldCard leave confirmation seal (bakeoff/gemini-
     expect(closedHtml).not.toContain('aria-label="Confirm leave"');
   });
 
-  it("renders LeaveSealPip next to the Leave button and pulses once while the leave confirmation is open", () => {
+  it("renders LeaveSealPip next to the Confirm leave button and pulses once while the leave confirmation is open", () => {
     const openHtml = renderToStaticMarkup(
       <JoinHoldCard signedIn={true} intentLines={[]} initialView={SAMPLE_VIEW} initialConfirmLeave={true} />,
     );
@@ -85,7 +85,7 @@ describe("LeaveSealPip and JoinHoldCard leave confirmation seal (bakeoff/gemini-
 
     const confirmIndex = openHtml.indexOf('aria-label="Confirm leave"');
     const sealIndex = openHtml.indexOf("sc-leave-seal-pip-wrapper", confirmIndex);
-    const confirmLeaveBtnIndex = openHtml.indexOf(">Leave</button>", sealIndex);
+    const confirmLeaveBtnIndex = openHtml.indexOf(">Confirm leave</button>", sealIndex);
     expect(confirmIndex).toBeGreaterThan(-1);
     expect(sealIndex).toBeGreaterThan(confirmIndex);
     expect(confirmLeaveBtnIndex).toBeGreaterThan(sealIndex);

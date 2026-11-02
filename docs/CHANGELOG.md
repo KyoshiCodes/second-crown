@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Hold leave card (wave/hud-hold-leave)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: replaced the plain leave confirmation row (`.sc-leave-confirm`, Leave / Stay) with a small leave card (`.sc-hold-leave-card`, `role="alertdialog"`, `aria-label="Confirm leave"`): title "Leave hold X?", a warning line, and **Confirm leave** / **Cancel** buttons. `LeaveSealPip` now sits beside Confirm leave. The Leave button that opens it is unchanged.
+- `packages/app/src/hud/hold-leave.css` (new): leave card styles, imported from `JoinHoldCard.tsx`.
+- Tests: `hud/leaveConfirm.test.tsx` rewritten for the card; `hud/LeaveSealPip.test.tsx`, `hud/HoldActionPip.test.tsx`, `hud/holdActions.test.tsx` updated for the new button labels (`npm test` and `npm run build -w @second-crown/app` pass).
+
 ## 2026-11-02 — Living stamp pip in hold stamp cards (bakeoff/gemini-hold-stamp-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

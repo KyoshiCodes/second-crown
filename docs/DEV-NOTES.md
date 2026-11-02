@@ -1,3 +1,11 @@
+## 2026-11-02 — app / hold leave card (wave/hud-hold-leave)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: when `confirmLeave` is true, the Leave action card renders `.sc-hold-leave-card` (`.sc-hold-leave-title`, `.sc-hold-leave-warning`, `.sc-hold-leave-buttons`). Confirm leave calls the same `leave()`; Cancel sets `confirmLeave` false. State, `confirmLeaveSeq`, and the `LeaveSealPip` pulse are unchanged; the seal now sits before Confirm leave.
+- `hud/hold-leave.css` is imported directly by `JoinHoldCard.tsx` so it actually loads. Note: `hud/leave-confirm.css` (and `hold-stamps.css`, `hold-status.css`, `hold-stores.css`, `hold-actions.css`) are not imported by any module; the live `.sc-leave-confirm` rules were in `hold-action-pip.css`. Those `.sc-leave-confirm` selectors are now dead. Not cleaned up here.
+- The warning text is new copy: "The hold keeps running. To join again you need the realm id and its key." It matches current behavior (leaving does not stop the hold; rejoining needs the key).
+- Tests: `hud/leaveConfirm.test.tsx`: card hidden until opened, title + warning + Confirm leave / Cancel when open, exactly one plain Leave button, no card when unjoined, CSS file present. Other leave tests switched from `Leave`/`Stay` to `Confirm leave`/`Cancel`.
+
 ## 2026-11-02 — app / living stamp pip inside hold stamp cards (bakeoff/gemini-hold-stamp-pip)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

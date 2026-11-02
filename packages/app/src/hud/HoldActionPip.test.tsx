@@ -111,7 +111,7 @@ describe("HoldActionPip and JoinHoldCard action cards (bakeoff/gemini-hold-actio
     );
     const leaveCard = card(html, "Leave");
     expect(leaveCard).toContain('aria-label="Confirm leave"');
-    expect(leaveCard).toContain(">Stay</button>");
+    expect(leaveCard).toContain(">Cancel</button>");
     expect(leaveCard).toContain('data-hold-action-pip="leave"');
   });
 
