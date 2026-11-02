@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Key card for a new hold (wave/hud-hold-key)
+
+- **A new hold's key now shows in a small card.** When you make a new shared hold (Cloud panel, key left blank), the key appears in its own box with the **Copy key** button beside it. It is still shown only once, so copy it and send it to friends with the realm id.
+- **Play is unchanged.**
+
 ## 2026-11-02 — Living leave pip inside the hold leave card (bakeoff/gemini-hold-leave-pip)
 
 - **The hold leave card now features a living 16px leave pip. Play is unchanged.** When you press Leave in a joined shared hold in the Cloud panel, the leave card displays an authentic living leave pip (depicting an arched postern doorway looking out onto a sunlit morning path).

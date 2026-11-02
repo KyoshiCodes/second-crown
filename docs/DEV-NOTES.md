@@ -1,3 +1,11 @@
+## 2026-11-02 — app / hold key card (wave/hud-hold-key)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `JoinHoldCard.tsx`: when `madeKey` is set, renders `.sc-hold-key-card` (keeps `aria-label="New hold key"`): `.sc-hold-key-title` (reuses `.sc-key-seal-group` + `KeySealPip`), `.sc-hold-key-row` (`code.sc-hold-key-value`, `CopyFlashPip` when `flashOn`, `.sc-hold-key-copy` button), then `.sc-hold-key-note` / `.sc-hold-key-warning` lines. `copyKey()`, `copied`, and the flash timer are unchanged. Inline styles on that block are gone.
+- DOM order kept: seal before key, key before flash, flash before Copy key, so `KeySealPip.test.tsx` and `CopyFlashPip.test.tsx` still pass unchanged.
+- `hud/hold-key.css` is imported directly by `JoinHoldCard.tsx`.
+- Tests: `hud/holdKey.test.tsx` (card wraps key + button, old "New hold. Key:" text gone, no card without a made key or without a hold, CSS file present).
+
 ## 2026-11-02 — app / living leave pip inside hold leave card (bakeoff/gemini-hold-leave-pip)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

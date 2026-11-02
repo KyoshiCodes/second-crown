@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-02 — Hold key card (wave/hud-hold-key)
+
+- App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/app/src/JoinHoldCard.tsx`: replaced the plain "New hold. Key:" line and Copy key button with a small key card (`.sc-hold-key-card`, `aria-label="New hold key"`): title "New hold key" with `KeySealPip`, the key in `.sc-hold-key-value`, `CopyFlashPip`, and **Copy key**. The copied / share / shown-once lines move inside the card unchanged.
+- `packages/app/src/hud/hold-key.css` (new): key card styles, imported from `JoinHoldCard.tsx`.
+- Tests: `hud/holdKey.test.tsx` (new). `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-02 — Living leave pip in hold leave card (bakeoff/gemini-hold-leave-pip)
 
 - App only in `packages/app`. No changes to `packages/sim`, `packages/render`, `server/`, or `theme.css`. Game rules unchanged.

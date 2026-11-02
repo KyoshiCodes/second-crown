@@ -10,6 +10,7 @@ import { HoldStatusPip } from "./hud/HoldStatusPip";
 import { HoldStampPip } from "./hud/HoldStampPip";
 import { HoldLeavePip } from "./hud/HoldLeavePip";
 import "./hud/hold-leave.css";
+import "./hud/hold-key.css";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -208,13 +209,16 @@ export function JoinHoldCard({
       ) : (
         <div>
           {madeKey ? (
-            <div className="sc-plain-inline" style={{ fontSize: 13, marginBottom: 6, gap: 8, flexWrap: "wrap" }} aria-label="New hold key">
-              <span className="sc-key-seal-group"><KeySealPip pulse pulseKey={madeKey} /><span>New hold. Key: <code style={{ userSelect: "all" }}>{madeKey}</code></span></span>
-              {madeKey && flashOn ? <CopyFlashPip flashKey={madeKey} /> : null}
-              <button type="button" className="sc-work-btn" onClick={() => void copyKey()}>{copied ? "Copied" : "Copy key"}</button>
-              {copied ? <span style={{ flexBasis: "100%", fontSize: 12 }} role="status">Key copied. Share the realm id and the key.</span> : null}
-              <span style={{ flexBasis: "100%", fontSize: 12 }}>Share the realm id and this key with friends.</span>
-              <span style={{ fontSize: 12, opacity: 0.8 }}>Copy it now and send it to friends with the id. It is shown only this once; without it nobody, you included, can join again.</span>
+            <div className="sc-hold-key-card" aria-label="New hold key">
+              <span className="sc-key-seal-group sc-hold-key-title"><KeySealPip pulse pulseKey={madeKey} /><span>New hold key</span></span>
+              <div className="sc-hold-key-row">
+                <code className="sc-hold-key-value">{madeKey}</code>
+                {flashOn ? <CopyFlashPip flashKey={madeKey} /> : null}
+                <button type="button" className="sc-work-btn sc-hold-key-copy" onClick={() => void copyKey()}>{copied ? "Copied" : "Copy key"}</button>
+              </div>
+              {copied ? <span className="sc-hold-key-note" role="status">Key copied. Share the realm id and the key.</span> : null}
+              <span className="sc-hold-key-note">Share the realm id and this key with friends.</span>
+              <span className="sc-hold-key-warning">Copy it now and send it to friends with the id. It is shown only this once; without it nobody, you included, can join again.</span>
             </div>
           ) : null}
           <div className="sc-hold-status" role="status" aria-label="Hold status">
