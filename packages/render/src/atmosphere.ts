@@ -454,6 +454,21 @@ function weatherDropTarget(
   return { startX, startY, landX, landY };
 }
 
+/** Dark ink laid under every board weather mark so it reads on light and dark tiles. */
+export const BOARD_WEATHER_INK = 0x0f172a;
+/** Steady ink alpha (never pulses), kept low so marks stay thin and never hide tokens. */
+export const BOARD_WEATHER_INK_ALPHA = 0.34;
+/** Top-left board corner where the weather glyph plaque sits (empty canvas, off the diamond). */
+export const BOARD_WEATHER_GLYPH_X = RIM_SIZE + 10;
+export const BOARD_WEATHER_GLYPH_Y = RIM_SIZE + 8;
+export const BOARD_WEATHER_GLYPH_W = 30;
+export const BOARD_WEATHER_GLYPH_H = 20;
+
+export interface AtmosphereDrawOptions {
+  /** Lay a dark ink stroke/halo under each weather mark (diamond board readability). */
+  ink?: boolean;
+}
+
 /**
  * Draws a visible moving sun or moon across the top of the board, soft local lighting
  * under the sun/moon, and sparse weather particles that start above the board and fall
@@ -464,7 +479,8 @@ export function drawAtmosphere(
   g: Graphics,
   phase: number = 0,
   width: number = CANVAS_W,
-  height: number = CANVAS_H
+  height: number = CANVAS_H,
+  opts: AtmosphereDrawOptions = {}
 ): void {
   if (!g) return;
 
@@ -482,6 +498,17 @@ export function drawAtmosphere(
 
   const weatherDim =
     weather === "storm" ? 0.55 : weather === "rain" || weather === "snow" ? 0.78 : 1.0;
+  const ink = opts.ink === true;
+  // Inked marks can carry a brighter core without adding any area wash.
+  const markBoost = ink ? 1.3 : 1.0;
+
+  // Thin ink stroke laid first, so the colored stroke drawn next sits on top of it.
+  const inkLine = (x0: number, y0: number, x1: number, y1: number, width: number): void => {
+    if (!ink) return;
+    g.moveTo(x0, y0);
+    g.lineTo(x1, y1);
+    g.stroke({ width: width + 1.3, color: BOARD_WEATHER_INK, alpha: BOARD_WEATHER_INK_ALPHA });
+  };
 
   // 1. Soft Local Lighting on the Board Directly Under the Sun or Moon (no full-board wash)
   if (pos.kind === "sun") {
@@ -517,14 +544,20 @@ export function drawAtmosphere(
           const px = startX + (landX - startX) * t;
           const py = startY + (landY - startY) * t;
           const len = 6 + (i % 3) * 1.5;
+          const ey = Math.min(landY, py + len);
+          inkLine(px, py, px - 1.8, ey, 0.85);
           g.moveTo(px, py);
-          g.lineTo(px - 1.8, Math.min(landY, py + len));
-          g.stroke({ width: 0.85, color: 0x93c5fd, alpha: 0.48 });
+          g.lineTo(px - 1.8, ey);
+          g.stroke({ width: 0.85, color: 0x93c5fd, alpha: Math.min(0.9, 0.48 * markBoost) });
         } else {
           // Tiny raindrop splash landing on the isometric tile
           const ripple = (progress - 0.88) / 0.12;
+          if (ink) {
+            g.ellipse(landX, landY, 1.6 + ripple * 1.8, 0.8 + ripple * 0.8);
+            g.stroke({ width: 1.1, color: BOARD_WEATHER_INK, alpha: BOARD_WEATHER_INK_ALPHA * (1 - ripple * 0.6) });
+          }
           g.ellipse(landX, landY, 1.6 + ripple * 1.8, 0.8 + ripple * 0.8);
-          g.fill({ color: 0xbae6fd, alpha: 0.38 * (1 - ripple * 0.6) });
+          g.fill({ color: 0xbae6fd, alpha: 0.38 * markBoost * (1 - ripple * 0.6) });
         }
       }
       break;
@@ -541,13 +574,19 @@ export function drawAtmosphere(
           const px = startX + (landX - startX) * t;
           const py = startY + (landY - startY) * t;
           const len = 8.5 + (i % 4) * 2;
+          const ey = Math.min(landY, py + len);
+          inkLine(px, py, px - 3.2, ey, 1.15);
           g.moveTo(px, py);
-          g.lineTo(px - 3.2, Math.min(landY, py + len));
-          g.stroke({ width: 1.15, color: 0x60a5fa, alpha: 0.58 });
+          g.lineTo(px - 3.2, ey);
+          g.stroke({ width: 1.15, color: 0x60a5fa, alpha: Math.min(0.9, 0.58 * markBoost) });
         } else {
           const ripple = (progress - 0.86) / 0.14;
+          if (ink) {
+            g.ellipse(landX, landY, 2.0 + ripple * 2.2, 0.9 + ripple * 1.0);
+            g.stroke({ width: 1.1, color: BOARD_WEATHER_INK, alpha: BOARD_WEATHER_INK_ALPHA * (1 - ripple * 0.5) });
+          }
           g.ellipse(landX, landY, 2.0 + ripple * 2.2, 0.9 + ripple * 1.0);
-          g.fill({ color: 0x93c5fd, alpha: 0.45 * (1 - ripple * 0.5) });
+          g.fill({ color: 0x93c5fd, alpha: Math.min(0.85, 0.45 * markBoost) * (1 - ripple * 0.5) });
         }
       }
 
@@ -564,6 +603,13 @@ export function drawAtmosphere(
         g.ellipse(bx1, by1, 24, 11);
         g.fill({ color: 0xe0e7ff, alpha: 0.22 });
 
+        if (ink) {
+          g.moveTo(bx0, by0);
+          g.lineTo(bx0 - 6, midY - 4);
+          g.lineTo(bx0 - 1, midY + 2);
+          g.lineTo(bx1, by1);
+          g.stroke({ width: 3.0, color: BOARD_WEATHER_INK, alpha: BOARD_WEATHER_INK_ALPHA });
+        }
         g.moveTo(bx0, by0);
         g.lineTo(bx0 - 6, midY - 4);
         g.lineTo(bx0 - 1, midY + 2);
@@ -584,6 +630,10 @@ export function drawAtmosphere(
           const px = landX + flutter;
           const py = startY + (landY - startY) * t;
           const r = 1.1 + (i % 3) * 0.45;
+          if (ink) {
+            g.circle(px, py, r + 0.6);
+            g.stroke({ width: 0.9, color: BOARD_WEATHER_INK, alpha: BOARD_WEATHER_INK_ALPHA });
+          }
           g.circle(px, py, r * 1.5);
           g.fill({ color: 0xbae6fd, alpha: 0.24 });
           g.circle(px, py, r);
@@ -591,6 +641,10 @@ export function drawAtmosphere(
         } else {
           // Soft snow fleck settling onto the isometric tile
           const settle = (progress - 0.88) / 0.12;
+          if (ink) {
+            g.ellipse(landX, landY, 1.8, 0.85);
+            g.stroke({ width: 0.9, color: BOARD_WEATHER_INK, alpha: BOARD_WEATHER_INK_ALPHA * (1 - settle * 0.5) });
+          }
           g.ellipse(landX, landY, 1.8, 0.85);
           g.fill({ color: 0xf8fafc, alpha: 0.65 * (1 - settle * 0.5) });
         }
@@ -605,4 +659,80 @@ export function drawAtmosphere(
   } else {
     drawMoonSprite(g, skyX, skyY, weather, phase);
   }
+}
+
+/**
+ * Small weather glyph plaque in the empty top-left canvas corner of the diamond board,
+ * so the current weather reads at a glance even between drops. Draws nothing for clear.
+ * Sits well off the diamond, so it never covers tiles, piles, camps, or the select rim.
+ */
+export function paintBoardWeatherGlyph(
+  g: Graphics,
+  weather: AtmosphereWeather,
+  phase: number = 0
+): void {
+  if (!g || weather === "clear") return;
+  const x = BOARD_WEATHER_GLYPH_X;
+  const y = BOARD_WEATHER_GLYPH_Y;
+  const w = BOARD_WEATHER_GLYPH_W;
+  const h = BOARD_WEATHER_GLYPH_H;
+
+  // Dark plaque with a thin bronze edge
+  g.roundRect(x, y, w, h, 4);
+  g.fill({ color: BOARD_WEATHER_INK, alpha: 0.72 });
+  g.roundRect(x, y, w, h, 4);
+  g.stroke({ width: 1, color: 0xb45309, alpha: 0.7 });
+
+  // Cloud
+  const cx = x + w / 2;
+  const cy = y + 7;
+  const cloud = weather === "storm" ? 0x94a3b8 : weather === "snow" ? 0xe2e8f0 : 0xcbd5e1;
+  g.ellipse(cx, cy + 1, 8, 3.2);
+  g.fill({ color: cloud, alpha: 0.95 });
+  g.circle(cx - 3, cy - 0.5, 3);
+  g.fill({ color: cloud, alpha: 0.95 });
+  g.circle(cx + 2.5, cy - 1.2, 3.6);
+  g.fill({ color: cloud, alpha: 0.95 });
+
+  const bob = Math.sin(phase * 3) * 0.8;
+  if (weather === "rain" || weather === "storm") {
+    const col = weather === "storm" ? 0x60a5fa : 0x93c5fd;
+    for (let i = -1; i <= 1; i++) {
+      const dx = cx + i * 4.5;
+      const dy = cy + 6 + bob * (i === 0 ? -1 : 1);
+      g.moveTo(dx, dy);
+      g.lineTo(dx - 1.2, dy + 3.6);
+      g.stroke({ width: 1.1, color: col, alpha: 0.95 });
+    }
+    if (weather === "storm") {
+      g.moveTo(cx + 1.5, cy + 3.5);
+      g.lineTo(cx - 1, cy + 7.5);
+      g.lineTo(cx + 1, cy + 7.5);
+      g.lineTo(cx - 1.5, cy + 11.5);
+      g.stroke({ width: 1.2, color: 0xfacc15, alpha: 0.95 });
+    }
+  } else if (weather === "snow") {
+    for (let i = -1; i <= 1; i++) {
+      g.circle(cx + i * 5, cy + 8 + bob * (i === 0 ? -1 : 1), 1.3);
+      g.fill({ color: 0xf8fafc, alpha: 0.95 });
+    }
+  }
+}
+
+/**
+ * Diamond-board weather overlay: the shared atmosphere pass with ink-backed marks
+ * (thin dark underlay so rain/snow/storm read on any tile) plus the corner weather glyph.
+ * Paint into the board weather layer, which stays BELOW node piles, outpost/camp marks,
+ * the select rim, and the hover highlight.
+ */
+export function drawBoardWeather(
+  state: GameState | null | undefined,
+  g: Graphics,
+  phase: number = 0,
+  width: number = CANVAS_W,
+  height: number = CANVAS_H
+): void {
+  if (!g) return;
+  drawAtmosphere(state, g, phase, width, height, { ink: true });
+  paintBoardWeatherGlyph(g, resolveAtmosphereWeather(state), phase);
 }

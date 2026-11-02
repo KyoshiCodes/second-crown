@@ -33,6 +33,10 @@ import {
 import {
   DAY_CYCLE_TICKS,
   drawAtmosphere,
+  drawBoardWeather,
+  paintBoardWeatherGlyph,
+  BOARD_WEATHER_INK,
+  BOARD_WEATHER_INK_ALPHA,
   resolveAtmosphereWeather,
   weatherForState,
   resolveDayPhase,
@@ -437,7 +441,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
-        drawAtmosphere(lastState, boardWeatherGraphic, phase, CANVAS_W, CANVAS_H);
+        drawBoardWeather(lastState, boardWeatherGraphic, phase, CANVAS_W, CANVAS_H);
       }
       bandChangeCb?.(currentBand);
       window.dispatchEvent(new CustomEvent("sc-camera-band-change", { detail: currentBand }));
@@ -822,7 +826,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   }
 
   function updateBoardWeather(t: number): void {
-    drawAtmosphere(lastState, boardWeatherGraphic, t, CANVAS_W, CANVAS_H);
+    drawBoardWeather(lastState, boardWeatherGraphic, t, CANVAS_W, CANVAS_H);
   }
 
   function paintAmbientLighting(): void {
@@ -1191,6 +1195,10 @@ export {
   hasProvinceFogEdge,
   drawNightMarchLantern,
   drawAtmosphere,
+  drawBoardWeather,
+  paintBoardWeatherGlyph,
+  BOARD_WEATHER_INK,
+  BOARD_WEATHER_INK_ALPHA,
   resolveAtmosphereWeather,
   weatherForState,
   DAY_CYCLE_TICKS,

@@ -14776,6 +14776,101 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
 
+                describe("wave/board-weather: clearer diamond-board weather overlay (drawBoardWeather)", () => {
+                  it("rain, storm and snow lay steady dark ink under each mark, before the colored mark", async () => {
+                    const { drawBoardWeather, drawAtmosphere, BOARD_WEATHER_INK, BOARD_WEATHER_INK_ALPHA, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    for (const weather of ["rain", "storm", "snow"] as const) {
+                      for (const phase of [0, 0.5, 1.7, 3.8]) {
+                        const state = createAtmosphereState(weather, Math.floor(DAY_CYCLE_TICKS * 0.35));
+                        const g = createMockGraphics();
+                        drawBoardWeather(state, g, phase);
+                        expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
+                        const strokes = g.calls.filter((c: any) => c.method === "stroke");
+                        const inks = strokes.filter((c: any) => c.args[0]?.color === BOARD_WEATHER_INK);
+                        expect(inks.length).toBeGreaterThan(0);
+                        for (const ink of inks) {
+                          expect(ink.args[0].alpha).toBeLessThanOrEqual(BOARD_WEATHER_INK_ALPHA);
+                          expect(ink.args[0].width).toBeLessThanOrEqual(3);
+                        }
+                        if (weather !== "snow") {
+                          // Ordering check on the inked atmosphere pass alone (the glyph has its own drops)
+                          const gi = createMockGraphics();
+                          drawAtmosphere(state, gi, phase, undefined, undefined, { ink: true });
+                          const strokes = gi.calls.filter((c: any) => c.method === "stroke");
+                          const streak = weather === "rain" ? 0x93c5fd : 0x60a5fa;
+                          strokes.forEach((c: any, i: number) => {
+                            if (c.args[0]?.color === streak && c.args[0]?.width < 1.2) {
+                              expect(strokes[i - 1]?.args[0]?.color).toBe(BOARD_WEATHER_INK);
+                            }
+                          });
+                        }
+                      }
+                    }
+                  });
+
+                  it("clear weather paints no ink and no corner glyph", async () => {
+                    const { drawBoardWeather, BOARD_WEATHER_INK, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    const g = createMockGraphics();
+                    drawBoardWeather(createAtmosphereState("clear", Math.floor(DAY_CYCLE_TICKS * 0.35)), g, 0.5);
+                    expect(g.calls.filter((c: any) => c.method === "roundRect")).toHaveLength(0);
+                    const colors = g.calls.filter((c: any) => c.method === "stroke" || c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(colors).not.toContain(BOARD_WEATHER_INK);
+                  });
+
+                  it("hold atmosphere (drawAtmosphere default) stays un-inked", async () => {
+                    const { drawAtmosphere, BOARD_WEATHER_INK, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    const g = createMockGraphics();
+                    drawAtmosphere(createAtmosphereState("rain", Math.floor(DAY_CYCLE_TICKS * 0.35)), g, 0.5);
+                    const colors = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
+                    expect(colors).not.toContain(BOARD_WEATHER_INK);
+                  });
+
+                  it("corner weather glyph sits fully off the diamond board and off the sun/moon path", async () => {
+                    const {
+                      paintBoardWeatherGlyph,
+                      BOARD_WEATHER_GLYPH_X: x,
+                      BOARD_WEATHER_GLYPH_Y: y,
+                      BOARD_WEATHER_GLYPH_W: w,
+                      BOARD_WEATHER_GLYPH_H: h,
+                    } = await import("./atmosphere.js");
+                    const { BOARD_ORIGIN_X, BOARD_ORIGIN_Y, BOARD_HALF_W, BOARD_HALF_H, RIM_SIZE } = await import("./camera.js");
+                    const { BOARD_W, BOARD_H } = await import("@second-crown/shared");
+                    for (const [px, py] of [[x, y], [x + w, y], [x, y + h], [x + w, y + h]]) {
+                      const a = (px - BOARD_ORIGIN_X) / BOARD_HALF_W;
+                      const b = (py - BOARD_ORIGIN_Y) / BOARD_HALF_H;
+                      const gx = (a + b) / 2;
+                      const gy = (b - a) / 2;
+                      const inside = gx >= 0 && gy >= 0 && gx <= BOARD_W && gy <= BOARD_H;
+                      expect(inside).toBe(false);
+                    }
+                    expect(x).toBeGreaterThanOrEqual(RIM_SIZE);
+                    expect(y).toBeGreaterThanOrEqual(RIM_SIZE);
+                    expect(x + w).toBeLessThan(RIM_SIZE + 76 - 21); // left of the sun/moon halo range
+
+                    for (const weather of ["rain", "storm", "snow"] as const) {
+                      const g = createMockGraphics();
+                      paintBoardWeatherGlyph(g, weather, 0.3);
+                      expect(g.calls.filter((c: any) => c.method === "roundRect").length).toBeGreaterThan(0);
+                    }
+                    const storm = createMockGraphics();
+                    paintBoardWeatherGlyph(storm, "storm", 0);
+                    expect(storm.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color)).toContain(0xfacc15);
+                  });
+
+                  it("board uses drawBoardWeather on a layer below piles, outpost/camp marks and the select rim", async () => {
+                    const fs = await import("node:fs");
+                    const path = await import("node:path");
+                    const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+                    expect(code).toContain("drawBoardWeather(lastState, boardWeatherGraphic");
+                    expect(code).not.toContain("drawAtmosphere(lastState, boardWeatherGraphic");
+                    const weatherAdd = code.indexOf("boardContainer.addChild(boardWeatherGraphic)");
+                    expect(weatherAdd).toBeGreaterThan(0);
+                    for (const layer of ["boardNodePilesLayer", "boardOutpostMarksLayer", "boardSelectionLayer", "boardHighlightLayer"]) {
+                      expect(code.indexOf(`boardContainer.addChild(${layer})`)).toBeGreaterThan(weatherAdd);
+                    }
+                  });
+                });
+
                 describe("Soft ground shadows under keeps and walls darken in storm", () => {
                   it("drawMiniatureKeep ground contact shadow darkens in storm", async () => {
                     const { drawMiniatureKeep } = await import("./tokens.js");

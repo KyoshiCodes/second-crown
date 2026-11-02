@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-02 — Clearer board weather overlay on diamond board (wave/board-weather)
+
+- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/atmosphere.ts`: `drawAtmosphere(state, g, phase, w, h, opts?)` gains `opts.ink`. Inked marks get a steady dark underlay (`BOARD_WEATHER_INK` `0x0f172a`, `BOARD_WEATHER_INK_ALPHA` `0.34`) and a 1.3x brighter core (capped). New `paintBoardWeatherGlyph` (corner weather plaque) and `drawBoardWeather` (inked atmosphere + glyph). New constants `BOARD_WEATHER_GLYPH_X/Y/W/H`.
+- `packages/render/src/index.ts`: `boardWeatherGraphic` is painted by `drawBoardWeather`. Layer order unchanged (weather under piles, outpost/camp marks, select rim, hover). New exports re-exported from the package.
+- Tests: new `wave/board-weather` block in `packages/render/src/index.test.ts` (ink before each streak, steady thin ink, clear = no ink/no glyph, hold stays un-inked, glyph off the diamond, layer order). `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+
 ## 2026-11-02 — Living outpost and camp treatment on diamond board (bakeoff/gemini-camps)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
