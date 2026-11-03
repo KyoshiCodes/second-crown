@@ -3719,6 +3719,188 @@ export function paintBoardOutpostMarks(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Clearer effect and status markers (wave/board-effects)
+// Clash, incoming, trail, season, garrison, scout, gather, owner, hold, building,
+// staffed and fog-edge marks move off the low token layer onto their own layer near
+// the top of the board (above weather, fog edge, marches, keeps, piles, camps, the
+// select rim and hover; below the unit labels). Each mark gets a steady dark ink
+// plinth with a kind-coloured rim so it reads on snow, rain, storm dim, night and fog.
+// ---------------------------------------------------------------------------
+
+export type BoardStatusMarkKind =
+  | "clash"
+  | "incoming"
+  | "trail"
+  | "season"
+  | "garrison"
+  | "scout"
+  | "gather"
+  | "owner"
+  | "hold"
+  | "building"
+  | "staffed"
+  | "fogEdge";
+
+export interface BoardStatusMark {
+  provinceId: string;
+  kind: BoardStatusMarkKind;
+  /** Mark centre in board world space (tile top centre + the mark's usual offset). */
+  x: number;
+  y: number;
+  /** Season for `season`, realm id for `owner`; otherwise undefined. */
+  detail?: string;
+}
+
+/** Dark ink plinth under every status mark (contrast on snow, fog, rain and sun glow). */
+export const BOARD_STATUS_INK = 0x0b0f17;
+export const BOARD_STATUS_INK_ALPHA = 0.64;
+export const BOARD_STATUS_RIM_WIDTH = 1.1;
+export const BOARD_STATUS_RIM_ALPHA = 0.8;
+/** Plinth radius for the standard 4.8 roundel marks. */
+export const BOARD_STATUS_PLINTH_R = 6.6;
+/** Larger plinths for the marks with bigger emblems (clash burst, incoming arrow). */
+export const BOARD_STATUS_PLINTH_R_BY_KIND: Partial<Record<BoardStatusMarkKind, number>> = {
+  clash: 8.4,
+  incoming: 7.0,
+};
+/** Light kind-coloured rims so a mark still lifts off dark storm / night tiles. */
+export const BOARD_STATUS_RIM_COLORS: Record<BoardStatusMarkKind, number> = {
+  clash: 0xfca5a5,
+  incoming: 0xfdba74,
+  trail: 0xfde68a,
+  season: 0xbbf7d0,
+  garrison: 0x6ee7b7,
+  scout: 0x7dd3fc,
+  gather: 0xfcd34d,
+  owner: 0xcbd5e1,
+  hold: 0xfde047,
+  building: 0xe7c9a0,
+  staffed: 0x86efac,
+  fogEdge: 0xc7d2fe,
+};
+/** Mark offsets from the tile top centre (the same spots the marks have always used). */
+export const BOARD_STATUS_OFFSETS: Record<BoardStatusMarkKind, readonly [number, number]> = {
+  clash: [0, -6],
+  incoming: [8, -8],
+  trail: [-8, -8],
+  season: [7, 4],
+  garrison: [0, 6],
+  scout: [11, -1],
+  gather: [-11, -1],
+  owner: [7, 4],
+  hold: [-7, 4],
+  building: [0, -9],
+  staffed: [-5, -3],
+  fogEdge: [5, -3],
+};
+
+export function boardStatusPlinthRadius(kind: BoardStatusMarkKind): number {
+  return BOARD_STATUS_PLINTH_R_BY_KIND[kind] ?? BOARD_STATUS_PLINTH_R;
+}
+
+/**
+ * Lists every status mark on seen tiles, in board depth order (back to front) and, per
+ * tile, in the order the marks have always been drawn. Unseen tiles get nothing (fog
+ * stays fog). Pure: reads only state, no phase.
+ */
+export function listBoardStatusMarks(state: GameState | null | undefined): BoardStatusMark[] {
+  const out: BoardStatusMark[] = [];
+  if (!state?.board?.provinces) return out;
+  for (const p of sortBoardProvincesDepth(state.board.provinces)) {
+    if (!isProvinceSeen(state, p.id)) continue;
+    const b = provinceTokenBounds(p.x, p.y);
+    const cx = b.cx;
+    const cy = b.cy - terrainElevation(p.terrain);
+    const add = (kind: BoardStatusMarkKind, detail?: string) => {
+      const [dx, dy] = BOARD_STATUS_OFFSETS[kind];
+      out.push({ provinceId: p.id, kind, x: cx + dx, y: cy + dy, detail });
+    };
+    if (hasProvinceClash(state, p.id)) add("clash");
+    if (hasProvinceIncoming(state, p.id)) add("incoming");
+    if (hasProvinceTrail(state, p.id)) add("trail");
+    const season = resolveProvinceSeasonMark(state, p.id);
+    if (season) add("season", season);
+    if (hasProvinceGarrison(state, p.id)) add("garrison");
+    if (hasProvinceScout(state, p.id)) add("scout");
+    if (hasProvinceGather(state, p.id)) add("gather");
+    const owner = resolveProvinceOwnerMark(state, p.id);
+    if (owner) add("owner", owner);
+    if (hasProvinceHold(state, p.id)) add("hold");
+    if (hasProvinceBuilding(state, p.id)) add("building");
+    if (hasProvinceStaffed(state, p.id)) add("staffed");
+    if (hasProvinceFogEdge(state, p.id)) add("fogEdge");
+  }
+  return out;
+}
+
+/** Steady (non-pulsing) ink plinth + kind-coloured rim under one status mark. */
+export function drawBoardStatusPlinth(
+  g: Graphics,
+  mx: number,
+  my: number,
+  kind: BoardStatusMarkKind
+): void {
+  if (!g) return;
+  const r = boardStatusPlinthRadius(kind);
+  g.circle(mx, my, r);
+  g.fill({ color: BOARD_STATUS_INK, alpha: BOARD_STATUS_INK_ALPHA });
+  g.circle(mx, my, r);
+  g.stroke({ width: BOARD_STATUS_RIM_WIDTH, color: BOARD_STATUS_RIM_COLORS[kind], alpha: BOARD_STATUS_RIM_ALPHA });
+}
+
+/** Draws the mark emblem itself (the existing draw*Mark art) at the mark centre. */
+export function drawBoardStatusEmblem(
+  g: Graphics,
+  m: BoardStatusMark,
+  phase: number = 0,
+  state?: GameState | null
+): void {
+  if (!g) return;
+  switch (m.kind) {
+    case "clash": drawClashMark(g, m.x, m.y, phase); break;
+    case "incoming": drawIncomingMark(g, m.x, m.y, phase); break;
+    case "trail": drawTrailMark(g, m.x, m.y, phase); break;
+    case "season": drawSeasonMark(g, m.x, m.y, (m.detail ?? "spring") as SeasonMarkKind, phase); break;
+    case "garrison": drawGarrisonMark(g, m.x, m.y, phase); break;
+    case "scout": drawScoutMark(g, m.x, m.y, phase); break;
+    case "gather": drawGatherMark(g, m.x, m.y, phase); break;
+    case "owner": drawOwnerMark(g, m.x, m.y, m.detail ?? "", phase); break;
+    case "hold": drawHoldMark(g, m.x, m.y, phase); break;
+    case "building": drawBuildingMark(g, m.x, m.y, phase); break;
+    case "staffed": drawStaffedMark(g, m.x, m.y, phase); break;
+    case "fogEdge": drawFogEdgeMark(g, m.x, m.y, phase, state ?? undefined); break;
+  }
+}
+
+/**
+ * Paints every seen tile's status marks on its own Graphics layer. Per tile, all
+ * plinths go down first, then the emblems, so a neighbouring plinth never covers a
+ * mark. The renderer stacks this layer above weather, the fog edge, marches, keeps,
+ * piles, camps, the select rim and hover, and below the unit labels. Non-interactive.
+ */
+export function paintBoardStatusMarks(
+  g: Graphics,
+  state: GameState | null | undefined,
+  phase: number = 0
+): void {
+  g.clear();
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+  const marks = listBoardStatusMarks(state);
+  if (!marks.length) return;
+  const rawPhase = typeof phase === "number" ? phase : 0;
+  let i = 0;
+  while (i < marks.length) {
+    let j = i;
+    while (j < marks.length && marks[j].provinceId === marks[i].provinceId) j++;
+    for (let k = i; k < j; k++) drawBoardStatusPlinth(g, marks[k].x, marks[k].y, marks[k].kind);
+    for (let k = i; k < j; k++) drawBoardStatusEmblem(g, marks[k], rawPhase, state);
+    i = j;
+  }
+}
+
 // -------------------------------------------------------------
 // Active Column Clash & Engagement Mark (drawClashMark)
 // -------------------------------------------------------------
@@ -6717,7 +6899,8 @@ function paintProvinceDynamicToken(
   pilesOnOwnLayer: boolean = false,
   outpostMarksOnOwnLayer: boolean = false,
   keepsOnOwnLayer: boolean = false,
-  selectRimOnOwnLayer: boolean = false
+  selectRimOnOwnLayer: boolean = false,
+  statusMarksOnOwnLayer: boolean = false
 ): void {
   if (!seen) {
     const destKind = marchDestMap.get(p.id);
@@ -6899,19 +7082,23 @@ function paintProvinceDynamicToken(
     paintBoardDestinationRing(g, p, destKind, animPhase);
   }
 
-  // 6.6 Active Fight / Column Clash or Engagement Mark on Seen Tiles
-  if (hasProvinceClash(state, p.id)) {
-    drawClashMark(g, cx, cy - 6, animPhase);
-  }
+  // 6.6-6.8 and 6.10-6.18: status marks. In the live renderer (statusMarksOnOwnLayer)
+  // paintBoardStatusMarks draws them near the top of the board with an ink plinth instead.
+  if (!statusMarksOnOwnLayer) {
+    // 6.6 Active Fight / Column Clash or Engagement Mark on Seen Tiles
+    if (hasProvinceClash(state, p.id)) {
+      drawClashMark(g, cx, cy - 6, animPhase);
+    }
 
-  // 6.7 Hostile Column Inbound Mark on Seen Tiles
-  if (hasProvinceIncoming(state, p.id)) {
-    drawIncomingMark(g, cx + 8, cy - 8, animPhase);
-  }
+    // 6.7 Hostile Column Inbound Mark on Seen Tiles
+    if (hasProvinceIncoming(state, p.id)) {
+      drawIncomingMark(g, cx + 8, cy - 8, animPhase);
+    }
 
-  // 6.8 Player Column Trail Mark on Seen Tiles
-  if (hasProvinceTrail(state, p.id)) {
-    drawTrailMark(g, cx - 8, cy - 8, animPhase);
+    // 6.8 Player Column Trail Mark on Seen Tiles
+    if (hasProvinceTrail(state, p.id)) {
+      drawTrailMark(g, cx - 8, cy - 8, animPhase);
+    }
   }
 
   // 6.9 Player Outpost Flag Mark or Rival Camp Mark on Seen Tiles (ink plinth + pip).
@@ -6924,51 +7111,53 @@ function paintProvinceDynamicToken(
     }
   }
 
-  // 6.10 Season Pip on Seen Home Tile
-  const seasonMarkKind = resolveProvinceSeasonMark(state, p.id);
-  if (seasonMarkKind) {
-    drawSeasonMark(g, cx + 7, cy + 4, seasonMarkKind, animPhase);
-  }
+  if (!statusMarksOnOwnLayer) {
+    // 6.10 Season Pip on Seen Home Tile
+    const seasonMarkKind = resolveProvinceSeasonMark(state, p.id);
+    if (seasonMarkKind) {
+      drawSeasonMark(g, cx + 7, cy + 4, seasonMarkKind, animPhase);
+    }
 
-  // 6.11 Posted Player Garrison Mark on Seen Tiles
-  if (hasProvinceGarrison(state, p.id)) {
-    drawGarrisonMark(g, cx, cy + 6, animPhase);
-  }
+    // 6.11 Posted Player Garrison Mark on Seen Tiles
+    if (hasProvinceGarrison(state, p.id)) {
+      drawGarrisonMark(g, cx, cy + 6, animPhase);
+    }
 
-  // 6.12 Player Scout Mark on Seen Tiles
-  if (hasProvinceScout(state, p.id)) {
-    drawScoutMark(g, cx + 11, cy - 1, animPhase);
-  }
+    // 6.12 Player Scout Mark on Seen Tiles
+    if (hasProvinceScout(state, p.id)) {
+      drawScoutMark(g, cx + 11, cy - 1, animPhase);
+    }
 
-  // 6.13 Player Gather Mark on Seen Tiles
-  if (hasProvinceGather(state, p.id)) {
-    drawGatherMark(g, cx - 11, cy - 1, animPhase);
-  }
+    // 6.13 Player Gather Mark on Seen Tiles
+    if (hasProvinceGather(state, p.id)) {
+      drawGatherMark(g, cx - 11, cy - 1, animPhase);
+    }
 
-  // 6.14 Rival Realm Owner Mark on Seen Tiles
-  const ownerRealmId = resolveProvinceOwnerMark(state, p.id);
-  if (ownerRealmId) {
-    drawOwnerMark(g, cx + 7, cy + 4, ownerRealmId, animPhase);
-  }
+    // 6.14 Rival Realm Owner Mark on Seen Tiles
+    const ownerRealmId = resolveProvinceOwnerMark(state, p.id);
+    if (ownerRealmId) {
+      drawOwnerMark(g, cx + 7, cy + 4, ownerRealmId, animPhase);
+    }
 
-  // 6.15 Player Hold Crown Mark on Seen Tiles
-  if (hasProvinceHold(state, p.id)) {
-    drawHoldMark(g, cx - 7, cy + 4, animPhase);
-  }
+    // 6.15 Player Hold Crown Mark on Seen Tiles
+    if (hasProvinceHold(state, p.id)) {
+      drawHoldMark(g, cx - 7, cy + 4, animPhase);
+    }
 
-  // 6.16 Finished Player Building Mark on Seen Tiles
-  if (hasProvinceBuilding(state, p.id)) {
-    drawBuildingMark(g, cx, cy - 9, animPhase);
-  }
+    // 6.16 Finished Player Building Mark on Seen Tiles
+    if (hasProvinceBuilding(state, p.id)) {
+      drawBuildingMark(g, cx, cy - 9, animPhase);
+    }
 
-  // 6.17 Staffed Building Mark on Seen Tiles
-  if (hasProvinceStaffed(state, p.id)) {
-    drawStaffedMark(g, cx - 5, cy - 3, animPhase);
-  }
+    // 6.17 Staffed Building Mark on Seen Tiles
+    if (hasProvinceStaffed(state, p.id)) {
+      drawStaffedMark(g, cx - 5, cy - 3, animPhase);
+    }
 
-  // 6.18 Fog Edge Mark on Seen Tiles at the Edge of Vision (thickens in storm and snow)
-  if (hasProvinceFogEdge(state, p.id)) {
-    drawFogEdgeMark(g, cx + 5, cy - 3, animPhase, state);
+    // 6.18 Fog Edge Mark on Seen Tiles at the Edge of Vision (thickens in storm and snow)
+    if (hasProvinceFogEdge(state, p.id)) {
+      drawFogEdgeMark(g, cx + 5, cy - 3, animPhase, state);
+    }
   }
 
   // 7. Clear Gold Rim & Ground Ring for Currently Selected Province.
@@ -7174,7 +7363,8 @@ export function paintBoardDynamicTokens(
       true, // node piles + badges are painted on their own layer (paintBoardNodePiles)
       true, // outpost + camp marks are painted on their own layer (paintBoardOutpostMarks)
       true, // miniature keeps are painted on their own layer (paintBoardKeeps)
-      true // the select rim is painted on its own top layer (paintBoardSelectionRim)
+      true, // the select rim is painted on its own top layer (paintBoardSelectionRim)
+      true // effect + status marks are painted on their own layer (paintBoardStatusMarks)
     );
   }
 }

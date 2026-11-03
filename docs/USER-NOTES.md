@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Clearer effect and status markers on the diamond board (wave/board-effects)
+
+- **Status marks are easier to read.** The small marks on board tiles now sit on a dark disc with a coloured ring. That covers fights (red burst), enemy columns on the way (orange), your trails, the season, garrisons, scouts, gatherers, rival owners, your holds, finished buildings, staffed buildings, and the fog edge.
+- **Nothing hides them now.** Rain, snow, storms, night, fog, roads, marching columns, keeps, camps, piles and the gold ring around the selected tile all draw underneath the marks. Only the troop count and arrival time tags float above them.
+- **Same marks, same places.** Each mark keeps its old picture and spot on the tile. The dark disc does not pulse.
+- **Play is unchanged.** Only the look changed. The game rules are the same.
+
 ## 2026-11-03 — Living units and marches on the diamond board (bakeoff/gemini-units)
 
 - **Living marching columns.** As armies, scouts, foragers, and garrisons advance across the diamond board, each column meeple is grounded by a breathing status aura matching its role colour: golden amber for your armies, menacing crimson for enemy warbands, stealth cyan for scouts, pastoral green for gatherers, and royal sapphire for garrisons.

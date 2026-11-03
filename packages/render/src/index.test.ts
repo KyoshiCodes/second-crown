@@ -5036,6 +5036,116 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(markCalls).toBe(dynCalls);
       });
 
+      describe("wave/board-effects: clearer effect and status markers", () => {
+        async function effectsState(): Promise<GameState> {
+          const { createGameState, revealProvince } = await import("@second-crown/sim");
+          const state = createGameState({ seed: 42 });
+          const targetId = state.board.provinces[2]!.id;
+          revealProvince(state, targetId);
+          state.flags["marches_json"] = JSON.stringify([
+            { id: "m_p1", realmId: "player", fromId: state.board.homeProvinceId, toId: targetId, kind: "camp", arrivesTick: 20, levy: 5 },
+            { id: "m_r1", realmId: "r_mist", fromId: state.board.provinces[0]!.id, toId: targetId, kind: "camp", arrivesTick: 20, levy: 5 },
+          ]);
+          return state;
+        }
+
+        it("listBoardStatusMarks lists seen-tile marks only, deterministically, at the usual offsets", async () => {
+          const { listBoardStatusMarks, BOARD_STATUS_OFFSETS, hasProvinceClash } = await import("./tokens.js");
+          const state = await effectsState();
+          const marks = listBoardStatusMarks(state);
+          expect(marks.length).toBeGreaterThan(0);
+          expect(listBoardStatusMarks(state)).toEqual(marks);
+          const targetId = state.board.provinces[2]!.id;
+          expect(hasProvinceClash(state, targetId)).toBe(true);
+          expect(marks.some((m) => m.provinceId === targetId && m.kind === "clash")).toBe(true);
+          for (const m of marks) expect(BOARD_STATUS_OFFSETS[m.kind]).toBeDefined();
+          // Fog stays fog: an unseen tile gets no marks, even when it would qualify
+          const fog = createMockState();
+          fog.board = {
+            homeProvinceId: "p_home",
+            provinces: [
+              { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+              { id: "p_fog", x: 8, y: 8, terrain: "plain", node: "hold", occupantRealmId: "rival" },
+            ],
+          } as any;
+          fog.flags["seen:p_home"] = true;
+          const fogMarks = listBoardStatusMarks(fog);
+          expect(fogMarks.some((m) => m.provinceId === "p_fog")).toBe(false);
+          expect(fogMarks.some((m) => m.provinceId === "p_home" && m.kind === "hold")).toBe(true);
+          expect(listBoardStatusMarks(null)).toEqual([]);
+        });
+
+        it("paintBoardStatusMarks draws a steady ink plinth + kind rim under every mark, plinths before emblems", async () => {
+          const {
+            paintBoardStatusMarks,
+            listBoardStatusMarks,
+            BOARD_STATUS_INK,
+            BOARD_STATUS_INK_ALPHA,
+            BOARD_STATUS_RIM_COLORS,
+          } = await import("./tokens.js");
+          const state = await effectsState();
+          const marks = listBoardStatusMarks(state);
+          const inks = (g: any) => g.calls.filter((c: any) => c.method === "fill" && c.args[0]?.color === BOARD_STATUS_INK);
+
+          const g = createMockGraphics();
+          paintBoardStatusMarks(g, state, 0.4);
+          expect(g.calls[0].method).toBe("clear");
+          expect(inks(g).length).toBe(marks.length);
+          const strokes = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
+          for (const m of marks) expect(strokes).toContain(BOARD_STATUS_RIM_COLORS[m.kind]);
+          // Plinths go down before the clash emblem's obsidian roundel
+          const firstInk = g.calls.findIndex((c: any) => c.method === "fill" && c.args[0]?.color === BOARD_STATUS_INK);
+          const clashRoundel = g.calls.findIndex((c: any) => c.method === "fill" && c.args[0]?.color === 0x1a0b0e);
+          expect(firstInk).toBeGreaterThanOrEqual(0);
+          expect(clashRoundel).toBeGreaterThan(firstInk);
+
+          // Steady in storm and at a different phase: plinths never pulse
+          state.flags["weather"] = "storm";
+          const g2 = createMockGraphics();
+          paintBoardStatusMarks(g2, state, 7.7);
+          expect(inks(g2).length).toBe(marks.length);
+          for (const c of inks(g2)) expect(c.args[0].alpha).toBe(BOARD_STATUS_INK_ALPHA);
+
+          // Empty state draws nothing but clear
+          const g3 = createMockGraphics();
+          paintBoardStatusMarks(g3, null, 0);
+          expect(g3.calls.length).toBe(1);
+        });
+
+        it("paintBoardDynamicTokens leaves status marks to their own layer; paintBoardProvinces still draws them inline", async () => {
+          const { paintBoardDynamicTokens, paintBoardProvinces } = await import("./tokens.js");
+          const state = await effectsState();
+          const hasClash = (g: any) => g.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0x1a0b0e);
+          const dyn = createMockGraphics();
+          paintBoardDynamicTokens(dyn, state, 0);
+          expect(hasClash(dyn)).toBe(false);
+          const all = createMockGraphics();
+          paintBoardProvinces(all, state, 0);
+          expect(hasClash(all)).toBe(true);
+        });
+
+        it("status mark layer sits above weather, fog, roads, marches, keeps, units, piles, camps, rim and hover; below unit labels", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+          const at = (n: string) => code.indexOf(`boardContainer.addChild(${n})`);
+          const marks = at("boardStatusMarksLayer");
+          expect(marks).toBeGreaterThan(0);
+          for (const below of [
+            "boardStaticTilesLayer", "boardRoadsLayer", "boardRoadsTrafficLayer", "boardProvincesLayer", "boardFogEdgeLayer",
+            "boardWeatherGraphic", "boardRoutesLayer", "boardKeepsLayer", "boardPawnsLayer", "boardNodePilesLayer",
+            "boardOutpostMarksLayer", "boardSelectionLayer", "boardHighlightLayer",
+          ]) {
+            expect(marks).toBeGreaterThan(at(below));
+          }
+          expect(at("boardUnitLabelsLayer")).toBeGreaterThan(marks);
+          const dynCalls = code.match(/paintBoardDynamicTokens\(boardProvincesLayer/g)?.length ?? 0;
+          const markCalls = code.match(/paintBoardStatusMarks\(boardStatusMarksLayer/g)?.length ?? 0;
+          expect(markCalls).toBe(dynCalls);
+          expect(code).toMatch(/boardStatusMarksLayer\.eventMode = "none"/);
+        });
+      });
+
       it("OverworldAtlas defines MiniLogs, MiniSacks, MiniBlocks on diamond for stocked provinces", async () => {
         const fs = await import("node:fs");
         const path = await import("node:path");
@@ -16285,8 +16395,9 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                 });
 
                 it("keeps terrain, height faces, and unseen fog veil on static layer and redraws marks, piles, ruins, camps, keeps, weather, and sun/moon on dynamic layers", async () => {
-                  const { drawAtmosphere, paintBoardNodePiles } = await import("./index.js");
+                  const { drawAtmosphere, paintBoardNodePiles, paintBoardStatusMarks } = await import("./index.js");
                   const staticG = createMockGraphics();
+                  const statusG0 = createMockGraphics();
                   const pilesG0 = createMockGraphics();
                   const dynamicG0 = createMockGraphics();
                   const dynamicG1 = createMockGraphics();
@@ -16302,6 +16413,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   paintBoardDynamicTokens(dynamicG0, state0, 0.2);
                   paintBoardDynamicTokens(dynamicG1, state1, 1.4);
                   paintBoardNodePiles(pilesG0, state0, 0.2);
+                  paintBoardStatusMarks(statusG0, state0, 0.2);
                   drawAtmosphere(state0, weatherG0, 0.2, 560, 360);
                   drawAtmosphere(state1, weatherG1, 1.4, 560, 360);
 
@@ -16332,11 +16444,14 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   expect(JSON.stringify(pilesG0.calls)).toContain(String(0x090d16)); // stock badge pill
                   expect(dynJson0).not.toContain(String(0x090d16));
                   expect(dynJson0).toContain(String(0x292524)); // ruined keep plinth
-                  expect(dynJson0).toContain(String(0x251a06)); // hold mark
-                  expect(dynJson0).toContain(String(0x1f1610)); // building mark
-                  expect(dynJson0).toContain(String(0x0c2718)); // staffed mark
-                  expect(dynJson0).toContain(String(0x131d2e)); // fog edge mark
-                  expect(dynJson0).toContain(String(0x141419)); // rival owner mark
+                  // Status marks live on their own layer near the top of the board (paintBoardStatusMarks)
+                  const statusJson0 = JSON.stringify(statusG0.calls);
+                  expect(statusJson0).toContain(String(0x251a06)); // hold mark
+                  expect(statusJson0).toContain(String(0x1f1610)); // building mark
+                  expect(statusJson0).toContain(String(0x0c2718)); // staffed mark
+                  expect(statusJson0).toContain(String(0x131d2e)); // fog edge mark
+                  expect(statusJson0).toContain(String(0x141419)); // rival owner mark
+                  expect(dynJson0).not.toContain(String(0x251a06));
                   expect(dynamicG1.calls).not.toEqual(dynamicG0.calls);
 
                   // Weather & sun/moon layer redraws every frame independently

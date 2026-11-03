@@ -1,3 +1,15 @@
+## 2026-11-03 — render / clearer effect and status markers on diamond board (wave/board-effects)
+
+- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order on the Pixi board: backdrop, static tiles (cached), roads, road traffic, provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, selection rim, hover highlight, **status marks (new)**, unit labels (top).
+- Why its own layer: the status marks used to draw inside `paintProvinceDynamicToken` on `boardProvincesLayer`. That is under the fog edge, weather, routes, keeps, meeples, piles, camps and the select rim, so all of those could cover or wash out a mark. Same fix pattern as piles (`pilesOnOwnLayer`), outpost marks (`outpostMarksOnOwnLayer`) and keeps (`keepsOnOwnLayer`).
+- `listBoardStatusMarks(state)` is the single source of what goes on the layer. It walks provinces in board depth order, skips unseen tiles, and uses the same `has*` / `resolve*` checks and offsets (`BOARD_STATUS_OFFSETS`) as the inline path. It is pure and does not use phase.
+- `paintBoardStatusMarks` groups marks by tile. It draws every plinth for a tile first, then the emblems, so overlapping plinths (for example staffed next to fog edge) never cover a mark. Plinths are steady: `BOARD_STATUS_INK` at `BOARD_STATUS_INK_ALPHA` and a rim from `BOARD_STATUS_RIM_COLORS`. Clash and incoming get bigger plinths (`BOARD_STATUS_PLINTH_R_BY_KIND`).
+- The emblem art itself is unchanged (`drawClashMark`, `drawIncomingMark`, and the rest). `drawBoardStatusEmblem` only dispatches to them.
+- The destination ring (`paintBoardDestinationRing`) stays on the token layer. It is a tile-wide ring, not a mark.
+- Unit labels stay the top board layer, so a count or ETA tag can still sit over a mark.
+- Verification: root `npm test` does not run the render suite. Run `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app`.
+
 ## 2026-11-03 — render & app / living unit and march treatment on diamond board (bakeoff/gemini-units)
 
 - Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

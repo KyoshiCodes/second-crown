@@ -159,6 +159,21 @@ import {
   NODE_PILE_RIM,
   NODE_PILE_RIM_ALPHA,
   paintBoardOutpostMarks,
+  paintBoardStatusMarks,
+  listBoardStatusMarks,
+  drawBoardStatusPlinth,
+  drawBoardStatusEmblem,
+  boardStatusPlinthRadius,
+  BOARD_STATUS_INK,
+  BOARD_STATUS_INK_ALPHA,
+  BOARD_STATUS_RIM_WIDTH,
+  BOARD_STATUS_RIM_ALPHA,
+  BOARD_STATUS_PLINTH_R,
+  BOARD_STATUS_PLINTH_R_BY_KIND,
+  BOARD_STATUS_RIM_COLORS,
+  BOARD_STATUS_OFFSETS,
+  type BoardStatusMark,
+  type BoardStatusMarkKind,
   paintBoardKeeps,
   drawBoardKeep,
   drawBoardKeepPlinth,
@@ -501,6 +516,14 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardHighlightLayer.visible = false;
   boardContainer.addChild(boardHighlightLayer);
 
+  // Effect + status marks (clash, incoming, trail, season, garrison, scout, gather, owner,
+  // hold, building, staffed, fog edge). Each sits on a steady ink plinth with a kind rim.
+  // ABOVE weather, fog edge, roads, marches, keeps, meeples, piles, camps, the select rim and
+  // hover so none of them hide a mark; BELOW the unit labels. Repaints with the outpost marks.
+  const boardStatusMarksLayer = new Graphics();
+  boardStatusMarksLayer.eventMode = "none";
+  boardContainer.addChild(boardStatusMarksLayer);
+
   // Unit + march labels (count, power, ETA). TOP of the board: above weather, fog,
   // roads, marches, keeps, piles, camps, the select rim and hover, so nothing covers them.
   // Repaints every frame next to the marches; the meeples' own ETA pills are off on the board.
@@ -573,6 +596,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
+        paintBoardStatusMarks(boardStatusMarksLayer, lastState, phase);
         paintBoardKeeps(boardKeepsLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase, BOARD_MARCH_PAINT);
         paintBoardUnitLabels(boardUnitLabelsLayer, lastState);
@@ -1106,6 +1130,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintBoardDynamicTokens(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
       paintBoardNodePiles(boardNodePilesLayer, state, phase);
       paintBoardOutpostMarks(boardOutpostMarksLayer, state, phase);
+      paintBoardStatusMarks(boardStatusMarksLayer, state, phase);
       paintBoardKeeps(boardKeepsLayer, state, phase);
       paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase, BOARD_MARCH_PAINT);
       paintBoardUnitLabels(boardUnitLabelsLayer, state);
@@ -1135,6 +1160,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
+        paintBoardStatusMarks(boardStatusMarksLayer, lastState, phase);
         paintBoardKeeps(boardKeepsLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase, BOARD_MARCH_PAINT);
         paintBoardUnitLabels(boardUnitLabelsLayer, lastState);
@@ -1169,6 +1195,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
+        paintBoardStatusMarks(boardStatusMarksLayer, lastState, phase);
         paintBoardKeeps(boardKeepsLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase, BOARD_MARCH_PAINT);
         paintBoardUnitLabels(boardUnitLabelsLayer, lastState);
@@ -1250,6 +1277,21 @@ export {
   NODE_PILE_RIM,
   NODE_PILE_RIM_ALPHA,
   paintBoardOutpostMarks,
+  paintBoardStatusMarks,
+  listBoardStatusMarks,
+  drawBoardStatusPlinth,
+  drawBoardStatusEmblem,
+  boardStatusPlinthRadius,
+  BOARD_STATUS_INK,
+  BOARD_STATUS_INK_ALPHA,
+  BOARD_STATUS_RIM_WIDTH,
+  BOARD_STATUS_RIM_ALPHA,
+  BOARD_STATUS_PLINTH_R,
+  BOARD_STATUS_PLINTH_R_BY_KIND,
+  BOARD_STATUS_RIM_COLORS,
+  BOARD_STATUS_OFFSETS,
+  type BoardStatusMark,
+  type BoardStatusMarkKind,
   paintBoardKeeps,
   drawBoardKeep,
   drawBoardKeepPlinth,

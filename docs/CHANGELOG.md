@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-03 — Clearer effect and status markers on diamond board (wave/board-effects)
+
+- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged (marks are drawn only).
+- `packages/render/src/tokens.ts`: new `listBoardStatusMarks`, `drawBoardStatusPlinth`, `drawBoardStatusEmblem`, `paintBoardStatusMarks`, `boardStatusPlinthRadius`, and `BOARD_STATUS_*` constants (ink, rim colours per kind, plinth radii, offsets).
+  - The twelve effect and status marks (clash, incoming, trail, season, garrison, scout, gather, owner, hold, building, staffed, fog edge) now draw on their own layer. Each sits on a steady dark ink plinth with a light kind-coloured rim. Per tile, all plinths go down before any emblem, so a plinth never covers a neighbouring mark.
+  - `paintProvinceDynamicToken` takes a new `statusMarksOnOwnLayer` flag. `paintBoardDynamicTokens` (live board) sets it, so the marks are no longer drawn on the low token layer. `paintBoardProvinces` still draws them inline as before.
+- `packages/render/src/index.ts`: new `boardStatusMarksLayer`, stacked above weather, fog edge, roads, marches, keeps, meeples, node piles, outpost and camp marks, the select rim and hover, and below the unit labels. It repaints in every place the outpost marks do. The new helpers and constants are re-exported.
+- Tests: four new tests in `packages/render/src/index.test.ts` (mark list, plinth paint, layer split, layer order). The board-cache test now looks for the hold, building, staffed, fog-edge and owner marks on the status layer. `npm test`, `npm run test -w @second-crown/render` (646 tests), and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+
 ## 2026-11-03 — Living unit and march treatment on diamond board (bakeoff/gemini-units)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
