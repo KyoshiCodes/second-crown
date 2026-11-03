@@ -5,7 +5,9 @@
 .sc-atlas-weather-drops,
 .sc-atlas-weather-drops *,
 .sc-atlas-weather-flakes,
-.sc-atlas-weather-flakes * {
+.sc-atlas-weather-flakes *,
+.sc-atlas-weather-leaves,
+.sc-atlas-weather-leaves * {
   pointer-events: none !important;
 }
 
@@ -17,12 +19,20 @@
   animation: sc-atlas-glyph-snow-bob 2.2s ease-in-out infinite;
 }
 
+.sc-atlas-glyph-leaves {
+  animation: sc-atlas-glyph-leaves-sway 2.4s ease-in-out infinite;
+}
+
 .sc-atlas-weather-drops {
   animation: sc-atlas-rain-fall 1.2s linear infinite;
 }
 
 .sc-atlas-weather-flakes {
   animation: sc-atlas-snow-drift 2.5s ease-in-out infinite;
+}
+
+.sc-atlas-weather-leaves {
+  animation: sc-atlas-leaf-flutter 2.8s ease-in-out infinite;
 }
 
 @keyframes sc-atlas-glyph-rain-bounce {
@@ -40,6 +50,15 @@
   }
   50% {
     transform: translateY(0.8px);
+  }
+}
+
+@keyframes sc-atlas-glyph-leaves-sway {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  50% {
+    transform: translateX(1.0px) rotate(6deg);
   }
 }
 
@@ -68,11 +87,24 @@
   }
 }
 
+@keyframes sc-atlas-leaf-flutter {
+  0%, 100% {
+    transform: translateX(0) translateY(-0.8px) rotate(-4deg);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translateX(1.8px) translateY(1.0px) rotate(6deg);
+    opacity: 0.95;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sc-atlas-glyph-rain,
   .sc-atlas-glyph-snow,
+  .sc-atlas-glyph-leaves,
   .sc-atlas-weather-drops,
-  .sc-atlas-weather-flakes {
+  .sc-atlas-weather-flakes,
+  .sc-atlas-weather-leaves {
     animation: none !important;
   }
 }

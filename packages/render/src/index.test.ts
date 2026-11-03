@@ -15776,6 +15776,56 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
 
+                describe("bakeoff/gemini-weather: Living Weather and Leaf Treatment on Diamond Board", () => {
+                  it("paints drifting autumn leaves with ink backing and settled flecks during leaves weather", async () => {
+                    const { drawBoardWeather, BOARD_WEATHER_INK, BOARD_WEATHER_INK_ALPHA, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    const state = createAtmosphereState("leaves" as any, Math.floor(DAY_CYCLE_TICKS * 0.35));
+                    const g = createMockGraphics();
+                    drawBoardWeather(state, g, 0.4);
+
+                    const strokes = g.calls.filter((c: any) => c.method === "stroke");
+                    const fills = g.calls.filter((c: any) => c.method === "fill");
+
+                    // Dark ink outline under leaves
+                    const inks = strokes.filter((c: any) => c.args[0]?.color === BOARD_WEATHER_INK);
+                    expect(inks.length).toBeGreaterThan(0);
+                    for (const ink of inks) {
+                      expect(ink.args[0].alpha).toBeLessThanOrEqual(BOARD_WEATHER_INK_ALPHA);
+                    }
+
+                    // Warm autumn leaf colors (amber, russet, terracotta, gold)
+                    const fillCols = fills.map((c: any) => c.args[0]?.color);
+                    expect(fillCols).toContain(0xf59e0b);
+                    expect(fillCols).toContain(0xd97706);
+
+                    // Leaf veins
+                    const strokeCols = strokes.map((c: any) => c.args[0]?.color);
+                    expect(strokeCols).toContain(0xfef08a);
+                  });
+
+                  it("renders emblem for leaves in drawBoardWeatherEmblem", async () => {
+                    const { drawBoardWeatherEmblem } = await import("./atmosphere.js");
+                    const g = createMockGraphics();
+                    drawBoardWeatherEmblem(g, "leaves" as any, 100, 100, 0.5);
+                    const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
+                    expect(fills).toContain(0xd4a373); // autumn cloud
+                    expect(fills).toContain(0xf59e0b); // amber leaf
+                    expect(fills).toContain(0xd97706); // russet leaf
+                  });
+
+                  it("is deterministic for identical phase and weather", async () => {
+                    const { drawBoardWeather, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    for (const w of ["rain", "storm", "snow", "leaves"] as const) {
+                      const st = createAtmosphereState(w as any, Math.floor(DAY_CYCLE_TICKS * 0.35));
+                      const g1 = createMockGraphics();
+                      const g2 = createMockGraphics();
+                      drawBoardWeather(st, g1, 1.25);
+                      drawBoardWeather(st, g2, 1.25);
+                      expect(JSON.stringify(g1.calls)).toBe(JSON.stringify(g2.calls));
+                    }
+                  });
+                });
+
                 describe("Soft ground shadows under keeps and walls darken in storm", () => {
                   it("drawMiniatureKeep ground contact shadow darkens in storm", async () => {
                     const { drawMiniatureKeep } = await import("./tokens.js");

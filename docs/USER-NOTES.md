@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Living weather treatment on the diamond board (bakeoff/gemini-weather)
+
+- **Living rain, snow, and autumn wind.** Rain now falls with delicate streaks that splash into ripples on the ground tiles; winter brings fluttering crystalline snowflakes that softly settle on the land; and autumn brings tumbling golden-amber leaves dancing across the kingdom on the breeze.
+- **Storms with lightning.** Summer and autumn storms bring heavy driving rain, impact splash rings, and localized lightning bolts flashing across the horizon.
+- **Clear view of what matters.** All rain, snow, and falling leaves draw underneath your keeps, marching armies, outposts, supply piles, and the golden selected province ring, so your units and kingdom borders are never hidden.
+- **Play is unchanged.** Purely visual; weather movement modifiers and game rules are unaffected.
+
 ## 2026-11-03 — Clearer weather and season markers on the diamond board (wave/board-weather)
 
 - **Weather and season at a glance.** The top-left corner of the board now has a small dark plaque. The top half shows the weather: rain, storm, or snow, or a sun by day and a moon at night when the sky is clear. The bottom half shows the season.

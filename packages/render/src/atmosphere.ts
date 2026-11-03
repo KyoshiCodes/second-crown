@@ -3,7 +3,7 @@ import { BOARD_W, BOARD_H, type GameState } from "@second-crown/shared";
 import * as sim from "@second-crown/sim";
 import { CANVAS_W, CANVAS_H, RIM_SIZE, boardGridToWorld } from "./camera.js";
 
-export type AtmosphereWeather = "clear" | "rain" | "storm" | "snow";
+export type AtmosphereWeather = "clear" | "rain" | "storm" | "snow" | "leaves";
 export type DayPhase = "dawn" | "day" | "dusk" | "night";
 
 function readSimExport(name: string): any {
@@ -49,11 +49,11 @@ export function resolveAtmosphereWeather(state?: GameState | null): AtmosphereWe
   // Check explicit state flags or weather property first (supports direct test overrides)
   if (typeof (state as any).flags?.weather === "string") {
     const fw = (state as any).flags.weather.toLowerCase().trim();
-    if (fw === "clear" || fw === "rain" || fw === "storm" || fw === "snow") return fw;
+    if (fw === "clear" || fw === "rain" || fw === "storm" || fw === "snow" || fw === "leaves") return fw;
   }
   if (typeof (state as any).weather === "string") {
     const w = (state as any).weather.toLowerCase().trim();
-    if (w === "clear" || w === "rain" || w === "storm" || w === "snow") return w;
+    if (w === "clear" || w === "rain" || w === "storm" || w === "snow" || w === "leaves") return w;
   }
 
   // Check if sim exports weatherFor(state)
@@ -82,6 +82,7 @@ export function resolveAtmosphereWeather(state?: GameState | null): AtmosphereWe
   const norm = season.toLowerCase().trim();
   if (norm === "winter") return "snow";
   if (norm === "autumn" || norm === "fall") {
+    if ((state as any).flags?.leaves || (state as any).leaves) return "leaves";
     const tick = state.meta?.tick ?? 0;
     return Math.floor(tick / 200) % 5 === 0 ? "storm" : "rain";
   }
@@ -285,6 +286,7 @@ export function celestialScreenPoint(
  * Relative wind sway multiplier for trees and banners based on current weather.
  */
 export function resolveWindStrength(weather?: AtmosphereWeather | string | null): number {
+  if (weather === "leaves") return 1.4;
   if (weather === "storm") return 1.55;
   if (weather === "rain") return 1.25;
   if (weather === "snow") return 1.1;
@@ -353,7 +355,7 @@ function drawSunSprite(
   animPhase: number
 ): void {
   const vis =
-    weather === "storm" ? 0.5 : weather === "rain" || weather === "snow" ? 0.72 : 1.0;
+    weather === "storm" ? 0.5 : weather === "rain" || weather === "snow" ? 0.72 : weather === "leaves" ? 0.88 : 1.0;
   const pulse = 1 + Math.sin(animPhase * 2.2) * 0.06;
 
   const haloOuter =
@@ -387,7 +389,7 @@ function drawSunSprite(
 
   // Small local weather cloud wisp partially veiling the sun in overcast weather
   if (weather !== "clear") {
-    const cloudCol = weather === "storm" ? 0x334155 : weather === "snow" ? 0xcbd5e1 : 0x64748b;
+    const cloudCol = weather === "storm" ? 0x334155 : weather === "snow" ? 0xcbd5e1 : weather === "leaves" ? 0xd4a373 : 0x64748b;
     g.ellipse(skyX + 3.5, skyY + 3.2, 6.5, 2.8);
     g.fill({ color: cloudCol, alpha: 0.65 });
     g.circle(skyX + 1.2, skyY + 2.2, 2.8);
@@ -403,7 +405,7 @@ function drawMoonSprite(
   animPhase: number
 ): void {
   const vis =
-    weather === "storm" ? 0.55 : weather === "rain" || weather === "snow" ? 0.76 : 1.0;
+    weather === "storm" ? 0.55 : weather === "rain" || weather === "snow" ? 0.76 : weather === "leaves" ? 0.9 : 1.0;
   const breath = 1 + Math.sin(animPhase * 1.6) * 0.05;
 
   // Soft moonlight glow strictly localized near the moon (not across the whole board)
@@ -430,7 +432,7 @@ function drawMoonSprite(
     g.circle(skyX + 14, skyY + 2.5, 0.75);
     g.fill({ color: 0xbae6fd, alpha: twinkle * 0.85 });
   } else {
-    const cloudCol = weather === "storm" ? 0x1e293b : 0x475569;
+    const cloudCol = weather === "storm" ? 0x1e293b : weather === "leaves" ? 0x4a3b32 : 0x475569;
     g.ellipse(skyX + 3.5, skyY + 3.0, 6.2, 2.6);
     g.fill({ color: cloudCol, alpha: 0.62 });
   }
@@ -497,7 +499,7 @@ export function drawAtmosphere(
   const { skyX, skyY, lightX, lightY } = celestialScreenPoint(pos, width, height);
 
   const weatherDim =
-    weather === "storm" ? 0.55 : weather === "rain" || weather === "snow" ? 0.78 : 1.0;
+    weather === "storm" ? 0.55 : weather === "rain" || weather === "snow" ? 0.78 : weather === "leaves" ? 0.88 : 1.0;
   const ink = opts.ink === true;
   // Inked marks can carry a brighter core without adding any area wash.
   const markBoost = ink ? 1.3 : 1.0;
@@ -558,6 +560,11 @@ export function drawAtmosphere(
           }
           g.ellipse(landX, landY, 1.6 + ripple * 1.8, 0.8 + ripple * 0.8);
           g.fill({ color: 0xbae6fd, alpha: 0.38 * markBoost * (1 - ripple * 0.6) });
+          if (ripple > 0.25 && ripple < 0.75) {
+            const splashPhase = ripple * Math.PI;
+            g.circle(landX + (i % 2 === 0 ? 1.4 : -1.4) * ripple, landY - Math.sin(splashPhase) * 1.4, 0.45);
+            g.fill({ color: 0xbae6fd, alpha: 0.45 * (1 - ripple) });
+          }
         }
       }
       break;
@@ -651,6 +658,50 @@ export function drawAtmosphere(
       }
       break;
     }
+
+    case "leaves": {
+      const count = 16;
+      const windDx = -12;
+      for (let i = 0; i < count; i++) {
+        const { startX, startY, landX, landY } = weatherDropTarget(i, windDx);
+        const progress = (((phase * 0.42 + i * (1 / count) * 1.5) % 1) + 1) % 1;
+        if (progress < 0.88) {
+          const t = progress / 0.88;
+          const sway = Math.sin(phase * 2.2 + i * 1.8) * 5.5 + Math.cos(phase * 1.1 + i * 2.5) * 2.8;
+          const px = startX + (landX - startX) * t + sway;
+          const py = startY + (landY - startY) * t;
+          const rot = phase * 2.6 + i * 1.4;
+          const leafCols = [0xf59e0b, 0xd97706, 0xc2410c, 0xeab308];
+          const leafCol = leafCols[i % leafCols.length];
+          const rx = 2.4 + (i % 3) * 0.4;
+          const ry = 1.2 + (i % 2) * 0.3;
+
+          if (ink) {
+            g.ellipse(px, py, rx + 0.8, ry + 0.6);
+            g.stroke({ width: 0.9, color: BOARD_WEATHER_INK, alpha: BOARD_WEATHER_INK_ALPHA });
+          }
+          g.ellipse(px, py, rx, ry);
+          g.fill({ color: leafCol, alpha: 0.88 * markBoost });
+
+          const vx = Math.cos(rot) * (rx * 0.85);
+          const vy = Math.sin(rot) * (ry * 0.85);
+          g.moveTo(px - vx, py - vy);
+          g.lineTo(px + vx, py + vy);
+          g.stroke({ width: 0.6, color: 0xfef08a, alpha: 0.75 });
+        } else {
+          const settle = (progress - 0.88) / 0.12;
+          const leafCols = [0xf59e0b, 0xd97706, 0xc2410c, 0xeab308];
+          const leafCol = leafCols[i % leafCols.length];
+          if (ink) {
+            g.ellipse(landX, landY, 2.2, 1.1);
+            g.stroke({ width: 0.8, color: BOARD_WEATHER_INK, alpha: BOARD_WEATHER_INK_ALPHA * (1 - settle * 0.6) });
+          }
+          g.ellipse(landX, landY, 2.0, 1.0);
+          g.fill({ color: leafCol, alpha: 0.75 * (1 - settle * 0.6) });
+        }
+      }
+      break;
+    }
   }
 
   // 3. Moving Sun or Moon Sprite Across the Top of the Board
@@ -698,7 +749,7 @@ export function drawBoardWeatherEmblem(
   phase: number = 0
 ): void {
   if (!g || weather === "clear") return;
-  const cloud = weather === "storm" ? 0x94a3b8 : weather === "snow" ? 0xe2e8f0 : 0xcbd5e1;
+  const cloud = weather === "storm" ? 0x94a3b8 : weather === "snow" ? 0xe2e8f0 : weather === "leaves" ? 0xd4a373 : 0xcbd5e1;
   g.ellipse(cx, cy + 1, 8, 3.2);
   g.fill({ color: cloud, alpha: 0.95 });
   g.circle(cx - 3, cy - 0.5, 3);
@@ -727,6 +778,13 @@ export function drawBoardWeatherEmblem(
     for (let i = -1; i <= 1; i++) {
       g.circle(cx + i * 5, cy + 8 + bob * (i === 0 ? -1 : 1), 1.3);
       g.fill({ color: 0xf8fafc, alpha: 0.95 });
+    }
+  } else if (weather === "leaves") {
+    for (let i = -1; i <= 1; i += 2) {
+      const lx = cx + i * 4.5;
+      const ly = cy + 7.5 + bob * (i === -1 ? 1 : -1);
+      g.ellipse(lx, ly, 2.2, 1.2);
+      g.fill({ color: i === -1 ? 0xf59e0b : 0xd97706, alpha: 0.95 });
     }
   }
 }

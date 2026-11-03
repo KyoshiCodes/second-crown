@@ -528,6 +528,11 @@ function MiniWeatherGlyph(props: { weather: string; x: number; y: number }) {
           <circle cx={cx} cy={cy + 9} r={1.2} fill="#f8fafc" opacity={0.95} />
           <circle cx={cx + 5} cy={cy + 8} r={1.2} fill="#f8fafc" opacity={0.95} />
         </g>
+      ) : weather === "leaves" ? (
+        <g className="sc-atlas-glyph-leaves" style={{ pointerEvents: "none" }}>
+          <ellipse cx={cx - 4.5} cy={cy + 7.5} rx={2.2} ry={1.2} fill="#f59e0b" opacity={0.95} />
+          <ellipse cx={cx + 4.5} cy={cy + 7.5} rx={2.2} ry={1.2} fill="#d97706" opacity={0.95} />
+        </g>
       ) : null}
     </g>
   );
@@ -1201,6 +1206,13 @@ export function OverworldAtlas(props: {
                   <circle cx={cx + 5} cy={cy + 1} r={1.6} stroke="#0f172a" strokeWidth={1.0} fill="none" opacity={0.34} style={{ pointerEvents: "none" }} />
                   <circle cx={cx - 4} cy={cy - 4} r={1.2} fill="#f8fafc" opacity={0.8} style={{ pointerEvents: "none" }} />
                   <circle cx={cx + 5} cy={cy + 1} r={1.2} fill="#f8fafc" opacity={0.8} style={{ pointerEvents: "none" }} />
+                </g>
+              ) : seen && weather === "leaves" ? (
+                <g className="sc-atlas-weather-leaves" style={{ pointerEvents: "none" }}>
+                  <ellipse cx={cx - 4} cy={cy - 4} rx={2.8} ry={1.6} stroke="#0f172a" strokeWidth={1.0} fill="none" opacity={0.34} style={{ pointerEvents: "none" }} />
+                  <ellipse cx={cx + 5} cy={cy + 1} rx={2.8} ry={1.6} stroke="#0f172a" strokeWidth={1.0} fill="none" opacity={0.34} style={{ pointerEvents: "none" }} />
+                  <ellipse cx={cx - 4} cy={cy - 4} rx={2.2} ry={1.1} fill="#f59e0b" opacity={0.88} style={{ pointerEvents: "none" }} />
+                  <ellipse cx={cx + 5} cy={cy + 1} rx={2.2} ry={1.1} fill="#d97706" opacity={0.88} style={{ pointerEvents: "none" }} />
                 </g>
               ) : null}
               {seen ? (

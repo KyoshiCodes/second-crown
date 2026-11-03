@@ -1,3 +1,17 @@
+## 2026-11-03 — render & app / living weather treatment on diamond board (bakeoff/gemini-weather)
+
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order on the Pixi board: backdrop, static tiles (cached), roads, road traffic, provinces/tokens, fog edge, **weather (living rain, storm, snow, leaves)**, routes, keeps, pawns, node piles, outpost marks, selection rim, hover highlight, status marks, almanac, unit labels (top).
+- Visual depth and readability:
+  - Weather particles (rain streaks, snowflakes, fluttering leaves) draw on `boardWeatherGraphic` at layer index 6, so they fall naturally over the landscape and roads, but stay strictly underneath keeps, marching columns, meeples, camps, node piles, status markers, the almanac, and the selected province rim.
+  - Steady dark ink underlays (`BOARD_WEATHER_INK = 0x0f172a`, `BOARD_WEATHER_INK_ALPHA = 0.34`) are laid beneath every droplet, snowflake, and leaf, providing high-contrast readability across bright desert, pale snow, and dark marsh tiles without obscuring any tokens above.
+  - Rain features dynamic splash rings and delicate mist motes upon tile impact; snow features sinusoidal lateral flutter and soft settling ground flecks; autumn leaves feature sinusoidal wind sway, tumbling angular rotation, and ground tile landing settlement.
+- SVG Kingdom Atlas (`OverworldAtlas.tsx` & `atlas-weather.css`):
+  - Renders live animated rain streaks (`.sc-atlas-weather-drops`), fluttering snowflakes (`.sc-atlas-weather-flakes`), and fluttering autumn leaves (`.sc-atlas-weather-leaves`).
+  - Mini weather glyph features weather-appropriate bounce, snow bob, and leaf sway animations.
+- Strict isolation: `pointer-events: none !important;` on all decorative weather overlays; `@media (prefers-reduced-motion: reduce)` disables animations. Zero alterations to `theme.css`.
+- Verification: Root `npm test` does not run render suite. Run `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app`.
+
 ## 2026-11-03 — render / clearer weather and season markers on diamond board (wave/board-weather)
 
 - Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

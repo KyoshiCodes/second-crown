@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 2026-11-03 — Living weather treatment on diamond board (bakeoff/gemini-weather)
+
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/atmosphere.ts`:
+  - Living rain motion: slanted raindrops with wind slant, dark ink underlay, and delicate tile landing splash ripples and mist spray motes.
+  - Living storm motion: heavy angled torrents, impact splash rings, and localized lightning arc strikes with dynamic tile flash.
+  - Living snow motion: soft crystalline flakes drifting down with sinusoidal flutter, glowing cores with pale blue halos, dark ink underlays, and settling snow flecks on isometric tiles.
+  - Living leaf motion: fluttering autumn leaves in amber, russet, terracotta, and gold with dark ink outlines, tumbling rotation, wind-drift sway, and ground landing settlement.
+  - `AtmosphereWeather` supports `"leaves"`, with shared weather emblem art in `drawBoardWeatherEmblem` and wind strength scaling in `resolveWindStrength`.
+  - Layering: `boardWeatherGraphic` stays strictly beneath routes, keeps, pawns, node piles, camps, effects, almanac, unit labels, and the selected province rim, ensuring full readability.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-weather.css`:
+  - SVG Kingdom Atlas animated weather treatments: falling rain streaks (`.sc-atlas-weather-drops`), drifting snowflakes (`.sc-atlas-weather-flakes`), and fluttering autumn leaves (`.sc-atlas-weather-leaves`).
+  - Mini weather glyph animated bob and autumn leaves support (`.sc-atlas-glyph-leaves`).
+  - Isolated stylesheet with strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` motion guard.
+- Tests: added tests for living weather and leaf treatment in `packages/render/src/index.test.ts` (656 tests pass) and updated `packages/app/src/hud/atlasWeather.test.tsx`. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-03 — Clearer weather and season markers on diamond board (wave/board-weather)
 
 - Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged (markers are drawn only).
