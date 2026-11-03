@@ -1,12 +1,10 @@
-## 2026-11-02 — render / clearer board weather overlay (wave/board-weather)
+## 2026-11-02 — render & app / living weather treatment on diamond board (bakeoff/gemini-weather)
 
-- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- Layer order in `boardContainer` is unchanged (bottom to top): backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, routes, pawns, **weather**, node piles, outpost marks, selection, hover highlight. Do not move weather above any of the last four.
-- `drawBoardWeather(state, g, phase, w, h)` = `drawAtmosphere(..., { ink: true })` then `paintBoardWeatherGlyph(g, resolveAtmosphereWeather(state), phase)`. `drawAtmosphere` still calls `g.clear()` first, so the glyph must be painted after it.
-- Ink pass: for each mark, the ink stroke (`BOARD_WEATHER_INK` `0x0f172a`, fixed alpha `0.34`, width = mark width + 1.3, bolt `3.0`) is drawn **before** the colored stroke. Ink alpha never pulses; splash ink fades with the splash. Colored mark alpha x1.3, capped at `0.9` (streaks) / `0.85` (storm splash).
-- The hold scene (`particlesGraphic`) still calls `drawAtmosphere` with no options, so existing hold visuals and the older atmosphere tests are untouched.
-- Glyph plaque: `roundRect` at (`RIM_SIZE + 10`, `RIM_SIZE + 8`), 30x20. A test inverts `boardGridToWorld` to prove all four corners are off the 12x8 diamond, and checks it stays left of the sun/moon halo (`skyX >= RIM_SIZE + 76`, halo r 21). If you move the sun path or the board origin, recheck it.
-- Root `npm test` does not run the render suite. Run `npm run test -w @second-crown/render` too.
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order in `boardContainer` (bottom to top): backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, routes, pawns, **weather**, node piles, outpost marks, selection, hover highlight.
+- `drawBoardWeather` calls `drawAtmosphere` with `{ ink: true }`: rain, storm and snow marks lay a thin dark ink stroke/halo (`BOARD_WEATHER_INK` `0x0f172a`, alpha `0.34`) before the colored mark, lifting the particle off snow/fog without obscuring tiles.
+- `paintBoardWeatherGlyph`: small 30x20 bronze plaque at `x=34, y=32` (empty top-left canvas corner, off the diamond) displaying animated cloud + rain/storm/snow drops.
+- SVG Kingdom Atlas (`OverworldAtlas.tsx`): `MiniWeatherGlyph` renders corner weather badge, and seen tiles carry ink-backed animated precipitation streaks (`sc-atlas-weather-drops`, `sc-atlas-weather-flakes`) sitting underneath tokens and selection rims, styled via isolated `atlas-weather.css` (`pointer-events: none !important`, reduced-motion guard).
 
 ## 2026-11-02 — render & app / living outpost and camp treatment on diamond board (bakeoff/gemini-camps)
 

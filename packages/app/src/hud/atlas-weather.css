@@ -1,0 +1,78 @@
+/* Living weather treatment on SVG overworld atlas (bakeoff/gemini-weather) */
+
+.sc-atlas-weather-glyph,
+.sc-atlas-weather-glyph *,
+.sc-atlas-weather-drops,
+.sc-atlas-weather-drops *,
+.sc-atlas-weather-flakes,
+.sc-atlas-weather-flakes * {
+  pointer-events: none !important;
+}
+
+.sc-atlas-glyph-rain {
+  animation: sc-atlas-glyph-rain-bounce 1.4s ease-in-out infinite;
+}
+
+.sc-atlas-glyph-snow {
+  animation: sc-atlas-glyph-snow-bob 2.2s ease-in-out infinite;
+}
+
+.sc-atlas-weather-drops {
+  animation: sc-atlas-rain-fall 1.2s linear infinite;
+}
+
+.sc-atlas-weather-flakes {
+  animation: sc-atlas-snow-drift 2.5s ease-in-out infinite;
+}
+
+@keyframes sc-atlas-glyph-rain-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(1.2px);
+  }
+}
+
+@keyframes sc-atlas-glyph-snow-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(0.8px);
+  }
+}
+
+@keyframes sc-atlas-rain-fall {
+  0% {
+    opacity: 0.5;
+    transform: translateY(-1.5px) translateX(0.5px);
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0.5;
+    transform: translateY(1.5px) translateX(-0.5px);
+  }
+}
+
+@keyframes sc-atlas-snow-drift {
+  0%, 100% {
+    transform: translateX(0) translateY(-0.8px);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(1.2px) translateY(0.8px);
+    opacity: 0.95;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-glyph-rain,
+  .sc-atlas-glyph-snow,
+  .sc-atlas-weather-drops,
+  .sc-atlas-weather-flakes {
+    animation: none !important;
+  }
+}

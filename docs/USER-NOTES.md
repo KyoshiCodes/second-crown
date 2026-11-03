@@ -2,12 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Clearer weather on the diamond board (wave/board-weather)
+## 2026-11-02 — Clearer weather on the diamond board (bakeoff/gemini-weather)
 
-- **Rain, storms, and snow are easier to see on the diamond board.** Each raindrop, snowflake, and lightning bolt now has a thin dark edge, so it shows up on bright meadows and pale snow alike.
-- **A small weather sign sits in the top-left corner of the board.** It shows a cloud with rain, a storm bolt, or snow. In clear weather it is hidden.
-- **Weather never covers what matters.** Resource piles, outpost flags, rival camps, and the gold outline on your selected province still draw on top of the weather.
-- **Play is unchanged.** Weather effects on marches and everything else work exactly as before.
+- **Rain, snow, storms and lightning are clearer across every tile.** Each falling drop, snowflake and lightning bolt has a faint dark ink underlay so precipitation is easy to see on white snow, gray fog and dark night tiles alike, while sitting neatly underneath node piles, outpost flags, and the golden selection rim.
+- **Corner weather plaque.** A small plaque in the top-left corner of the board displays an animated weather glyph (cloud, rain, storm with lightning, or snow) so you can tell current weather conditions at a glance.
+- **Kingdom Atlas weather.** The overworld atlas now features an animated weather corner glyph and subtle falling rain/snow particles on seen provinces.
+- **Play is unchanged.** March weather slows and storm effects work exactly as before.
 
 ## 2026-11-02 — Clearer outpost flags and rival camp marks on the diamond board (bakeoff/gemini-camps)
 

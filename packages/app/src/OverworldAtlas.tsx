@@ -17,11 +17,13 @@ import {
   getThemeVisuals,
   getTileMarchDestination,
   resolveBoardSeasonWash,
+  resolveAtmosphereWeather,
 } from "@second-crown/render";
 import { detectCurrentHoliday } from "./seasons/holidays";
 import "./hud/atlas-select-rim.css";
 import "./hud/atlas-node-piles.css";
 import "./hud/atlas-camps.css";
+import "./hud/atlas-weather.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -403,6 +405,41 @@ function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor
   );
 }
 
+function MiniWeatherGlyph(props: { weather: string; x: number; y: number }) {
+  const { weather, x, y } = props;
+  if (!weather || weather === "clear") return null;
+  const cloud = weather === "storm" ? "#94a3b8" : weather === "snow" ? "#e2e8f0" : "#cbd5e1";
+  const cx = x + 16;
+  const cy = y + 8;
+  return (
+    <g className={`sc-atlas-weather-glyph sc-atlas-weather-${weather}`} style={{ pointerEvents: "none" }}>
+      {/* Plaque backing */}
+      <rect x={x} y={y} width={32} height={22} rx={4} fill="#0f172a" opacity={0.75} stroke="#b45309" strokeWidth={1} style={{ pointerEvents: "none" }} />
+      {/* Cloud */}
+      <ellipse cx={cx} cy={cy + 1} rx={8} ry={3.2} fill={cloud} opacity={0.95} style={{ pointerEvents: "none" }} />
+      <circle cx={cx - 3} cy={cy - 0.5} r={3} fill={cloud} opacity={0.95} style={{ pointerEvents: "none" }} />
+      <circle cx={cx + 2.5} cy={cy - 1.2} r={3.6} fill={cloud} opacity={0.95} style={{ pointerEvents: "none" }} />
+      {/* Precipitation marks */}
+      {weather === "rain" || weather === "storm" ? (
+        <g className="sc-atlas-glyph-rain" style={{ pointerEvents: "none" }}>
+          <line x1={cx - 4} y1={cy + 6} x2={cx - 5.2} y2={cy + 9.6} stroke={weather === "storm" ? "#60a5fa" : "#93c5fd"} strokeWidth={1.2} opacity={0.95} />
+          <line x1={cx} y1={cy + 6} x2={cx - 1.2} y2={cy + 9.6} stroke={weather === "storm" ? "#60a5fa" : "#93c5fd"} strokeWidth={1.2} opacity={0.95} />
+          <line x1={cx + 4} y1={cy + 6} x2={cx + 2.8} y2={cy + 9.6} stroke={weather === "storm" ? "#60a5fa" : "#93c5fd"} strokeWidth={1.2} opacity={0.95} />
+          {weather === "storm" ? (
+            <polyline points={`${cx + 1.5},${cy + 2.5} ${cx - 1},${cy + 6.5} ${cx + 1},${cy + 6.5} ${cx - 1.5},${cy + 10.5}`} fill="none" stroke="#facc15" strokeWidth={1.2} opacity={0.95} />
+          ) : null}
+        </g>
+      ) : weather === "snow" ? (
+        <g className="sc-atlas-glyph-snow" style={{ pointerEvents: "none" }}>
+          <circle cx={cx - 5} cy={cy + 8} r={1.2} fill="#f8fafc" opacity={0.95} />
+          <circle cx={cx} cy={cy + 9} r={1.2} fill="#f8fafc" opacity={0.95} />
+          <circle cx={cx + 5} cy={cy + 8} r={1.2} fill="#f8fafc" opacity={0.95} />
+        </g>
+      ) : null}
+    </g>
+  );
+}
+
 function MiniCloudVeil(props: { cx: number; cy: number }) {
   const { cx, cy } = props;
   const hw = TILE_W / 2; // 27
@@ -528,6 +565,7 @@ export function OverworldAtlas(props: {
     ? { color: globalWash.hex, alpha: globalWash.washAlpha }
     : null;
 
+  const weather = state ? resolveAtmosphereWeather(state) : "clear";
   const sorted = [...provinces].sort((a, b) => a.x + a.y - (b.x + b.y));
 
   // Fit the viewBox to the tile cloud so it sits centered regardless of board shape.
@@ -874,6 +912,21 @@ export function OverworldAtlas(props: {
                   <circle cx={cx - hw} cy={cy} r={1.6} fill="#fef08a" stroke="#b45309" strokeWidth={0.5} />
                 </g>
               ) : null}
+              {seen && (weather === "rain" || weather === "storm") ? (
+                <g className="sc-atlas-weather-drops" style={{ pointerEvents: "none" }}>
+                  <line x1={cx - 4} y1={cy - 6} x2={cx - 6} y2={cy} stroke="#0f172a" strokeWidth={2.0} opacity={0.34} style={{ pointerEvents: "none" }} />
+                  <line x1={cx + 5} y1={cy - 8} x2={cx + 3} y2={cy - 2} stroke="#0f172a" strokeWidth={2.0} opacity={0.34} style={{ pointerEvents: "none" }} />
+                  <line x1={cx - 4} y1={cy - 6} x2={cx - 6} y2={cy} stroke={weather === "storm" ? "#60a5fa" : "#93c5fd"} strokeWidth={1.0} opacity={0.7} style={{ pointerEvents: "none" }} />
+                  <line x1={cx + 5} y1={cy - 8} x2={cx + 3} y2={cy - 2} stroke={weather === "storm" ? "#60a5fa" : "#93c5fd"} strokeWidth={1.0} opacity={0.7} style={{ pointerEvents: "none" }} />
+                </g>
+              ) : seen && weather === "snow" ? (
+                <g className="sc-atlas-weather-flakes" style={{ pointerEvents: "none" }}>
+                  <circle cx={cx - 4} cy={cy - 4} r={1.6} stroke="#0f172a" strokeWidth={1.0} fill="none" opacity={0.34} style={{ pointerEvents: "none" }} />
+                  <circle cx={cx + 5} cy={cy + 1} r={1.6} stroke="#0f172a" strokeWidth={1.0} fill="none" opacity={0.34} style={{ pointerEvents: "none" }} />
+                  <circle cx={cx - 4} cy={cy - 4} r={1.2} fill="#f8fafc" opacity={0.8} style={{ pointerEvents: "none" }} />
+                  <circle cx={cx + 5} cy={cy + 1} r={1.2} fill="#f8fafc" opacity={0.8} style={{ pointerEvents: "none" }} />
+                </g>
+              ) : null}
               {seen ? (
                 <>
                   {p.node === "hold" ? (
@@ -974,6 +1027,7 @@ export function OverworldAtlas(props: {
           );
         })}
         </g>
+        <MiniWeatherGlyph weather={weather} x={minX - 10} y={minY - 10} />
       </svg>
     </div>
   );

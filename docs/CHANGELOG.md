@@ -1,12 +1,13 @@
 # CHANGELOG
 
-## 2026-11-02 — Clearer board weather overlay on diamond board (wave/board-weather)
+## 2026-11-02 — Living weather treatment on diamond board (bakeoff/gemini-weather)
 
-- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/render/src/atmosphere.ts`: `drawAtmosphere(state, g, phase, w, h, opts?)` gains `opts.ink`. Inked marks get a steady dark underlay (`BOARD_WEATHER_INK` `0x0f172a`, `BOARD_WEATHER_INK_ALPHA` `0.34`) and a 1.3x brighter core (capped). New `paintBoardWeatherGlyph` (corner weather plaque) and `drawBoardWeather` (inked atmosphere + glyph). New constants `BOARD_WEATHER_GLYPH_X/Y/W/H`.
-- `packages/render/src/index.ts`: `boardWeatherGraphic` is painted by `drawBoardWeather`. Layer order unchanged (weather under piles, outpost/camp marks, select rim, hover). New exports re-exported from the package.
-- Tests: new `wave/board-weather` block in `packages/render/src/index.test.ts` (ink before each streak, steady thin ink, clear = no ink/no glyph, hold stays un-inked, glyph off the diamond, layer order). `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
-- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/atmosphere.ts`: `drawBoardWeather`, `paintBoardWeatherGlyph`, `BOARD_WEATHER_INK` (`0x0f172a`), `BOARD_WEATHER_INK_ALPHA` (`0.34`), `BOARD_WEATHER_GLYPH_*`. Rain streaks, storm rain, snow flecks, and lightning arcs carry a thin steady dark ink underlay so they read crisp against pale snow/fog as well as dark tiles. A small bronze-rimmed plaque in the empty top-left canvas corner displays the current weather glyph (off the diamond, never covers tiles). `drawAtmosphere` takes `{ ink?: boolean }` so hold scene atmosphere stays un-inked.
+- `packages/render/src/index.ts`: diamond board updates call `drawBoardWeather` into `boardWeatherGraphic` (stacked below node piles, outpost/camp marks, select rim, and hover highlight).
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-weather.css` (new): SVG Kingdom Atlas renders corner weather glyph plaque (`MiniWeatherGlyph`) with animated rain/snow/lightning, plus seen tiles carry ink-backed rain streaks (`sc-atlas-weather-drops`) and drifting snowflakes (`sc-atlas-weather-flakes`) sitting underneath tokens and selection rims. Strict `pointer-events: none` on all decorative overlays with reduced-motion guard and zero changes to `theme.css`.
+- Tests: `packages/render/src/index.test.ts` and `packages/app/src/hud/atlasWeather.test.tsx` (`npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass).
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
 
 ## 2026-11-02 — Living outpost and camp treatment on diamond board (bakeoff/gemini-camps)
 
