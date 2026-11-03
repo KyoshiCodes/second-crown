@@ -4237,6 +4237,89 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         expect(g3.calls.length).toBe(1);
       });
 
+      describe("board fog edge", () => {
+        // Home sits far away (vision range 1) so only fog_seen decides what is seen.
+        function fogEdgeState(seen: string[] = ["p_home", "p_seen"]): GameState {
+          const state = createMockState();
+          state.board = {
+            homeProvinceId: "p_home",
+            provinces: [
+              { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+              { id: "p_seen", x: 5, y: 5, terrain: "plain", node: "none" },
+              { id: "p_east", x: 6, y: 5, terrain: "hill", node: "none" }, // unseen, touches p_seen on its nw side
+              { id: "p_south", x: 5, y: 6, terrain: "wood", node: "none" }, // unseen, touches p_seen on its ne side
+              { id: "p_far", x: 8, y: 8, terrain: "peak", node: "none" }, // unseen, no seen neighbour
+            ],
+          };
+          state.flags.fog_seen = JSON.stringify(seen);
+          return state;
+        }
+
+        it("listBoardFogEdges returns only seen/unseen borders, on the shared diamond side", async () => {
+          const { listBoardFogEdges } = await import("./tokens.js");
+          const { provinceTokenBounds, BOARD_HALF_W, BOARD_HALF_H } = await import("./camera.js");
+          const edges = listBoardFogEdges(fogEdgeState());
+          expect(edges.map((e) => `${e.provinceId}:${e.side}`).sort()).toEqual(["p_east:nw", "p_south:ne"]);
+
+          // p_east's nw edge is p_seen's se edge (right -> bottom of p_seen)
+          const home = provinceTokenBounds(5, 5);
+          const east = edges.find((e) => e.provinceId === "p_east")!;
+          const pts = [[east.ax, east.ay], [east.bx, east.by]].map((p) => p.join(",")).sort();
+          const homeSe = [[home.cx + BOARD_HALF_W, home.cy], [home.cx, home.cy + BOARD_HALF_H]].map((p) => p.join(",")).sort();
+          expect(pts).toEqual(homeSe);
+        });
+
+        it("listBoardFogEdges is empty with no board, all-seen, or all-unseen", async () => {
+          const { listBoardFogEdges } = await import("./tokens.js");
+          expect(listBoardFogEdges(null)).toEqual([]);
+          expect(listBoardFogEdges(createMockState())).toEqual([]);
+          const allSeen = fogEdgeState(["p_home", "p_seen", "p_east", "p_south", "p_far"]);
+          expect(listBoardFogEdges(allSeen)).toEqual([]);
+          const allFog = fogEdgeState(["p_home"]);
+          expect(listBoardFogEdges(allFog)).toEqual([]);
+        });
+
+        it("paintBoardFogEdge draws a steady ink underlay before the pale line, per edge", async () => {
+          const { paintBoardFogEdge, BOARD_FOG_EDGE_INK, BOARD_FOG_EDGE_INK_ALPHA, BOARD_FOG_EDGE_LINE } =
+            await import("./tokens.js");
+          const g = createMockGraphics();
+          paintBoardFogEdge(g, fogEdgeState());
+          expect(g.calls[0].method).toBe("clear");
+          const strokes = g.calls.filter((c: any) => c.method === "stroke");
+          const inks = strokes.filter((c: any) => c.args[0]?.color === BOARD_FOG_EDGE_INK);
+          expect(inks.length).toBe(2);
+          expect(inks.every((c: any) => c.args[0].alpha === BOARD_FOG_EDGE_INK_ALPHA)).toBe(true);
+          const firstInk = g.calls.findIndex((c: any) => c.method === "stroke" && c.args[0]?.color === BOARD_FOG_EDGE_INK);
+          const firstLine = g.calls.findIndex((c: any) => c.method === "stroke" && c.args[0]?.color === BOARD_FOG_EDGE_LINE);
+          expect(firstInk).toBeLessThan(firstLine);
+
+          // Deterministic: same state paints identical calls
+          const g2 = createMockGraphics();
+          paintBoardFogEdge(g2, fogEdgeState());
+          expect(JSON.stringify(g2.calls)).toBe(JSON.stringify(g.calls));
+
+          // No edges -> only clear
+          const g3 = createMockGraphics();
+          paintBoardFogEdge(g3, null);
+          expect(g3.calls.length).toBe(1);
+        });
+
+        it("fog edge layer sits above the fog veil and below weather, piles, camps, rim and hover", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+          const at = (name: string) => code.indexOf(`boardContainer.addChild(${name})`);
+          const edge = at("boardFogEdgeLayer");
+          expect(edge).toBeGreaterThan(at("boardStaticTilesLayer"));
+          expect(edge).toBeGreaterThan(at("boardPawnsLayer"));
+          expect(edge).toBeLessThan(at("boardWeatherGraphic"));
+          expect(edge).toBeLessThan(at("boardNodePilesLayer"));
+          expect(edge).toBeLessThan(at("boardOutpostMarksLayer"));
+          expect(edge).toBeLessThan(at("boardSelectionLayer"));
+          expect(edge).toBeLessThan(at("boardHighlightLayer"));
+        });
+      });
+
       it("paintBoardDynamicTokens leaves stock piles to the pile layer; paintBoardProvinces still draws them inline", async () => {
         const { paintBoardDynamicTokens, paintBoardProvinces, NODE_PILE_INK } = await import("./tokens.js");
         const state = createMockState();

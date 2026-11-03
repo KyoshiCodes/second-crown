@@ -3203,6 +3203,113 @@ export function paintBoardNodePiles(
 }
 
 // -------------------------------------------------------------
+// Board Fog Edge (own layer, steady line where seen meets unseen)
+// -------------------------------------------------------------
+
+/** Dark ink underlay under the fog edge line (contrast on snow, sun glow and pale cloud). */
+export const BOARD_FOG_EDGE_INK = 0x0f172a;
+export const BOARD_FOG_EDGE_INK_ALPHA = 0.55;
+export const BOARD_FOG_EDGE_INK_WIDTH = 3;
+/** Pale mist line on top of the ink. */
+export const BOARD_FOG_EDGE_LINE = 0xe2e8f0;
+export const BOARD_FOG_EDGE_LINE_ALPHA = 0.85;
+export const BOARD_FOG_EDGE_LINE_WIDTH = 1.2;
+/** Soft slate band that sits just inside the unseen tile, so the edge reads as a fog wall. */
+export const BOARD_FOG_EDGE_BAND = 0x334155;
+export const BOARD_FOG_EDGE_BAND_ALPHA = 0.35;
+/** How far (0..1 of the way to the tile centre) the band reaches into the unseen tile. */
+export const BOARD_FOG_EDGE_BAND_INSET = 0.18;
+
+export type BoardFogEdgeSide = "ne" | "se" | "sw" | "nw";
+
+export interface BoardFogEdge {
+  /** The unseen province that owns this edge. */
+  provinceId: string;
+  side: BoardFogEdgeSide;
+  ax: number;
+  ay: number;
+  bx: number;
+  by: number;
+  /** Centre of the unseen tile (the band leans toward it). */
+  cx: number;
+  cy: number;
+}
+
+/**
+ * Lists every diamond edge where an unseen province touches a seen one.
+ * Edges facing off the board or facing another unseen tile are skipped.
+ * Pure geometry from province coords + the seen set; deterministic order.
+ */
+export function listBoardFogEdges(state: GameState | null | undefined): BoardFogEdge[] {
+  const provinces = state?.board?.provinces;
+  if (!provinces || !state) return [];
+  const seenAt = new Map<string, boolean>();
+  for (const p of provinces) {
+    seenAt.set(`${p.x},${p.y}`, isProvinceSeen(state, p.id));
+  }
+  const hw = BOARD_HALF_W;
+  const hh = BOARD_HALF_H;
+  const edges: BoardFogEdge[] = [];
+  for (const p of sortBoardProvincesDepth(provinces)) {
+    if (seenAt.get(`${p.x},${p.y}`)) continue;
+    const b = provinceTokenBounds(p.x, p.y);
+    const top = { x: b.cx, y: b.cy - hh };
+    const right = { x: b.cx + hw, y: b.cy };
+    const bottom = { x: b.cx, y: b.cy + hh };
+    const left = { x: b.cx - hw, y: b.cy };
+    // Neighbour across each diamond side (see boardGridToWorld).
+    const sides: Array<[BoardFogEdgeSide, number, number, { x: number; y: number }, { x: number; y: number }]> = [
+      ["ne", p.x, p.y - 1, top, right],
+      ["se", p.x + 1, p.y, right, bottom],
+      ["sw", p.x, p.y + 1, bottom, left],
+      ["nw", p.x - 1, p.y, left, top],
+    ];
+    for (const [side, nx, ny, a, z] of sides) {
+      if (seenAt.get(`${nx},${ny}`) !== true) continue;
+      edges.push({ provinceId: p.id, side, ax: a.x, ay: a.y, bx: z.x, by: z.y, cx: b.cx, cy: b.cy });
+    }
+  }
+  return edges;
+}
+
+/** Draws one fog edge: inset slate band, dark ink underlay, then the pale mist line. */
+export function drawBoardFogEdge(g: Graphics, e: BoardFogEdge): void {
+  if (!g) return;
+  const t = BOARD_FOG_EDGE_BAND_INSET;
+  const aix = e.ax + (e.cx - e.ax) * t;
+  const aiy = e.ay + (e.cy - e.ay) * t;
+  const bix = e.bx + (e.cx - e.bx) * t;
+  const biy = e.by + (e.cy - e.by) * t;
+  g.poly([e.ax, e.ay, e.bx, e.by, bix, biy, aix, aiy]);
+  g.fill({ color: BOARD_FOG_EDGE_BAND, alpha: BOARD_FOG_EDGE_BAND_ALPHA });
+  g.moveTo(e.ax, e.ay);
+  g.lineTo(e.bx, e.by);
+  g.stroke({ width: BOARD_FOG_EDGE_INK_WIDTH, color: BOARD_FOG_EDGE_INK, alpha: BOARD_FOG_EDGE_INK_ALPHA });
+  g.moveTo(e.ax, e.ay);
+  g.lineTo(e.bx, e.by);
+  g.stroke({ width: BOARD_FOG_EDGE_LINE_WIDTH, color: BOARD_FOG_EDGE_LINE, alpha: BOARD_FOG_EDGE_LINE_ALPHA });
+  g.moveTo(aix, aiy);
+  g.lineTo(bix, biy);
+  g.stroke({ width: 0.8, color: BOARD_FOG_EDGE_LINE, alpha: 0.35 });
+}
+
+/**
+ * Paints the steady fog edge (no pulse) on its own Graphics layer. The renderer stacks
+ * this layer ABOVE the static fog veil, province tokens and marches, and BELOW weather,
+ * node piles, outpost / camp marks, the select rim and hover, so none of those are hidden.
+ * Only the seen set and board layout change it. Non-interactive.
+ */
+export function paintBoardFogEdge(g: Graphics, state: GameState | null | undefined): void {
+  g.clear();
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+  for (const e of listBoardFogEdges(state)) {
+    drawBoardFogEdge(g, e);
+  }
+}
+
+// -------------------------------------------------------------
 // Board Outpost & Camp Marks (own layer, readable under weather + fog)
 // -------------------------------------------------------------
 

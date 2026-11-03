@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Clearer fog edge on the diamond board (wave/board-fog)
+
+- **You can now see exactly where your map knowledge ends.** Where a province you have seen meets one still under cloud, the board draws a thin pale line with a dark edge and a soft grey band on the fog side.
+- **The line stays still.** It does not pulse or move, so it is easy to read in rain, snow, or at night.
+- **It never covers what matters.** Weather, resource piles, outpost flags, rival camps, and the gold outline on your selected province all draw on top of it.
+- **Play is unchanged.** Scouting and vision work exactly as before.
+
 ## 2026-11-02 — Clearer weather on the diamond board (bakeoff/gemini-weather)
 
 - **Rain, snow, storms and lightning are clearer across every tile.** Each falling drop, snowflake and lightning bolt has a faint dark ink underlay so precipitation is easy to see on white snow, gray fog and dark night tiles alike, while sitting neatly underneath node piles, outpost flags, and the golden selection rim.

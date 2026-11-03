@@ -124,6 +124,7 @@ import {
   paintBoardStaticTiles,
   paintBoardDynamicTokens,
   paintBoardNodePiles,
+  paintBoardFogEdge,
   drawBoardNodePile,
   drawNodePileInkPlinth,
   isStockPileNode,
@@ -335,6 +336,16 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardContainer.addChild(boardStaticTilesLayer);
   const boardStaticCache = createBoardStaticLayerCache(boardStaticTilesLayer);
 
+  // Static tiles + fog edge repaint together, only when the seen set or layout changes.
+  function updateBoardStatic(state: GameState | null): void {
+    boardStaticCache.update(state, currentBand, visuals);
+    if (currentBand !== "board" || !state) return;
+    const key = computeBoardStaticCacheKey(state, "board");
+    if (key === boardFogEdgeKey) return;
+    boardFogEdgeKey = key;
+    paintBoardFogEdge(boardFogEdgeLayer, state);
+  }
+
   // Dynamic token/mark layer (moving marks, piles, ruins, camps, keeps): redraws every frame
   const boardProvincesLayer = new Graphics();
   boardProvincesLayer.eventMode = "none";
@@ -347,6 +358,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   const boardPawnsLayer = new Graphics();
   boardPawnsLayer.eventMode = "none";
   boardContainer.addChild(boardPawnsLayer);
+
+  // Steady fog edge where seen meets unseen. Above the fog veil, tokens and marches;
+  // BELOW weather, node piles, outpost / camp marks, the select rim and hover.
+  const boardFogEdgeLayer = new Graphics();
+  boardFogEdgeLayer.eventMode = "none";
+  boardContainer.addChild(boardFogEdgeLayer);
+  let boardFogEdgeKey: string | null = null;
 
   const boardWeatherGraphic = new Graphics();
   boardWeatherGraphic.eventMode = "none";
@@ -434,7 +452,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   function updateBand(nextBand: CameraBand): void {
     if (currentBand !== nextBand) {
       currentBand = nextBand;
-      boardStaticCache.update(lastState, currentBand, visuals);
+      updateBoardStatic(lastState);
       if (currentBand === "board" && lastState) {
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
@@ -964,7 +982,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     paintMissingRimSegments(rimGapLayer, state, phase, visuals);
     paintEmptyPlotStakes(plotStakesLayer, state, phase, visuals, false, currentHintPlot);
     paintBuildings(state, phase);
-    boardStaticCache.update(state, currentBand, visuals);
+    updateBoardStatic(state);
     if (currentBand === "board") {
       paintBoardDynamicTokens(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
       paintBoardNodePiles(boardNodePilesLayer, state, phase);
@@ -991,7 +1009,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintMissingRimSegments(rimGapLayer, lastState, phase, visuals);
       paintEmptyPlotStakes(plotStakesLayer, lastState, phase, visuals, false, currentHintPlot);
       paintBuildings(lastState, phase);
-      boardStaticCache.update(lastState, currentBand, visuals);
+      updateBoardStatic(lastState);
       if (currentBand === "board") {
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
@@ -1023,7 +1041,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     } else {
       updateBoardWeather(phase);
       if (lastState) {
-        boardStaticCache.update(lastState, currentBand, visuals);
+        updateBoardStatic(lastState);
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
@@ -1096,6 +1114,7 @@ export {
   paintBoardStaticTiles,
   paintBoardDynamicTokens,
   paintBoardNodePiles,
+  paintBoardFogEdge,
   drawBoardNodePile,
   drawNodePileInkPlinth,
   isStockPileNode,

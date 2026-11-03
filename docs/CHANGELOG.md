@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-02 — Clearer fog edge on diamond board (wave/board-fog)
+
+- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/tokens.ts`: new `listBoardFogEdges`, `drawBoardFogEdge`, `paintBoardFogEdge`, type `BoardFogEdge` / `BoardFogEdgeSide`, and constants `BOARD_FOG_EDGE_INK` / `_INK_ALPHA` / `_INK_WIDTH`, `BOARD_FOG_EDGE_LINE` / `_LINE_ALPHA` / `_LINE_WIDTH`, `BOARD_FOG_EDGE_BAND` / `_BAND_ALPHA` / `_BAND_INSET`.
+- `packages/render/src/index.ts`: new `boardFogEdgeLayer` between pawns and weather. New internal `updateBoardStatic(state)` replaces the four direct `boardStaticCache.update` calls and repaints the fog edge only when the static cache key changes.
+- Tests: new `board fog edge` block in `packages/render/src/index.test.ts` (seen/unseen sides only, shared-side geometry, empty cases, ink before line, deterministic, layer order). `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+
 ## 2026-11-02 — Living weather treatment on diamond board (bakeoff/gemini-weather)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
