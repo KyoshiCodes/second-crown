@@ -2,13 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-03 — Roads and paths on the diamond board (wave/board-roads)
+## 2026-11-03 — Living roads and paths on the diamond board (bakeoff/gemini-roads)
 
-- **Roads between provinces.** Neighbouring provinces you can see are now joined by pale earth roads with a dark edge, so you can follow the ways across the board at a glance.
-- **Mountain paths.** Where a road meets a peak it becomes a thinner dashed path.
-- **Trails into the fog.** Next to unexplored land, a dashed trail runs up to the fog line and stops there. Nothing is drawn inside the fog.
-- **Still readable.** Roads show through rain, snow, storms and night. March lines, keeps, marching pieces, piles, camps, province marks and the selected outline all draw on top, and the road still shows around them.
-- **Play is unchanged.** Roads are only drawn. They do not change march speed or which provinces touch.
+- **Living roads between provinces.** Neighbouring provinces you have explored are linked by packed-earth roads with dark ink edges, traversed by travelling merchant carts and soft puffs of road dust.
+- **Mountain paths.** Across rugged peaks, roads transition into dashed trails walked by solitary travelers.
+- **Trails into the fog.** Along the frontier, trails lead up to unexplored lands with subtle drifting frontier dust, stopping cleanly at the fog edge.
+- **Unobscured clarity.** Roads and travelers pass beneath your keeps, marching columns, meeples, resource piles, camps, weather storms, and selection rims, keeping the board legible.
+- **Play is unchanged.** Roads are purely visual and do not change march speeds or province adjacencies.
 
 ## 2026-11-03 — Living selected province on the diamond board (bakeoff/gemini-select)
 

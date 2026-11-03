@@ -27,6 +27,7 @@ import "./hud/atlas-weather.css";
 import "./hud/atlas-fog.css";
 import "./hud/atlas-marches.css";
 import "./hud/atlas-keeps.css";
+import "./hud/atlas-roads.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -647,6 +648,67 @@ export function OverworldAtlas(props: {
   const weather = state ? resolveAtmosphereWeather(state) : "clear";
   const sorted = [...provinces].sort((a, b) => a.x + a.y - (b.x + b.y));
 
+  const atlasRoads = React.useMemo(() => {
+    if (!state?.board?.provinces) return [];
+    const provs = state.board.provinces;
+    const at = new Map<string, Province>();
+    const seenMap = new Map<string, boolean>();
+    const safeState = state ? (state.buildings ? state : ({ ...state, buildings: [] } as unknown as GameState)) : null;
+    for (const p of provs) {
+      at.set(`${p.x},${p.y}`, p);
+      seenMap.set(p.id, safeState ? isProvinceSeen(safeState, p.id) : true);
+    }
+    const result: Array<{
+      id: string;
+      from: Province;
+      to: Province;
+      kind: "road" | "path";
+      intoFog: boolean;
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+      midX: number;
+      midY: number;
+    }> = [];
+
+    for (const p of provs) {
+      for (const [dx, dy] of [[1, 0], [0, 1]] as const) {
+        const n = at.get(`${p.x + dx},${p.y + dy}`);
+        if (!n) continue;
+        const pSeen = seenMap.get(p.id) === true;
+        const nSeen = seenMap.get(n.id) === true;
+        if (!pSeen && !nSeen) continue;
+        const from = pSeen ? p : n;
+        const to = pSeen ? n : p;
+        const p1 = iso(from.x, from.y);
+        const p2 = iso(to.x, to.y);
+        const x1 = ox + p1.x - origin.x;
+        const y1 = oy + p1.y;
+        const x2 = ox + p2.x - origin.x;
+        const y2 = oy + p2.y;
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+        const kind = from.terrain === "peak" || to.terrain === "peak" ? "path" : "road";
+        const intoFog = !(pSeen && nSeen);
+        result.push({
+          id: `${from.id}-${to.id}`,
+          from,
+          to,
+          kind,
+          intoFog,
+          x1,
+          y1,
+          x2: intoFog ? midX : x2,
+          y2: intoFog ? midY : y2,
+          midX,
+          midY,
+        });
+      }
+    }
+    return result;
+  }, [state, ox, oy, origin.x]);
+
   // Fit the viewBox to the tile cloud so it sits centered regardless of board shape.
   let minX = Infinity;
   let maxX = -Infinity;
@@ -769,6 +831,7 @@ export function OverworldAtlas(props: {
         </defs>
         <g transform={`translate(${pan.x} ${pan.y})`}>
         <ellipse cx={midX} cy={midY} rx={width * 0.5} ry={height * 0.46} fill="url(#atlas-water)" opacity={0.55} />
+        {/* Pass 1: Tile Ground Surfaces */}
         {sorted.map((p) => {
           const pos = iso(p.x, p.y);
           const cx = ox + pos.x - origin.x;
@@ -779,18 +842,16 @@ export function OverworldAtlas(props: {
           const isHome = p.id === homeId || occupant === "player";
           const selected = selectedId === p.id;
           const accent = cssColor(pal?.accentColor, paint.top);
-          const wall = cssColor(pal?.keepWallColor, "#3f2a1c");
           const seen = state ? isProvinceSeen(state, p.id) : true;
           const top = selected ? "#d4a72c" : occupant ? accent : paint.top;
           const hw = TILE_W / 2;
           const hh = TILE_H / 2;
           const lift = paint.lift;
-          const destKind = getTileMarchDestination(state, p.id);
           const wash = resolveBoardSeasonWash(state, p, visuals);
           const washColor = wash.hex ?? (wash.washColor !== null ? cssColor(wash.washColor, "#bae6fd") : null);
           return (
             <g
-              key={p.id}
+              key={`ground-${p.id}`}
               filter={seen ? "url(#atlas-shade)" : undefined}
               style={{ cursor: "pointer" }}
               onClick={() => selectProvince(p.id)}
@@ -828,121 +889,9 @@ export function OverworldAtlas(props: {
                     strokeWidth={selected ? 2.2 : isHome ? 1.6 : 0.6}
                     opacity={0.95}
                   />
-                  {selected ? (
-                    <g className="sc-atlas-select-rim" style={{ pointerEvents: "none" }}>
-                      {/* Steady pale halo under the ink for night, storm dim, and dark tile contrast */}
-                      <polygon
-                        points={diamond(cx, cy)}
-                        fill="none"
-                        stroke="#e2e8f0"
-                        strokeWidth={5.8}
-                        opacity={0.45}
-                        className="sc-atlas-select-halo"
-                        style={{ pointerEvents: "none" }}
-                      />
-                      {/* Dark ink contrast underlay for weather & fog readability */}
-                      <polygon
-                        points={diamond(cx, cy)}
-                        fill="none"
-                        stroke="#1c1208"
-                        strokeWidth={4.5}
-                        opacity={0.72}
-                        style={{ pointerEvents: "none" }}
-                      />
-                      {/* Soft ambient amber-gold living glow */}
-                      <polygon
-                        points={diamond(cx, cy)}
-                        fill="none"
-                        stroke="#d97706"
-                        strokeWidth={3.2}
-                        opacity={0.5}
-                        className="sc-atlas-select-glow"
-                        style={{ pointerEvents: "none" }}
-                      />
-                      {/* Sharp radiant gold core */}
-                      <polygon
-                        points={diamond(cx, cy)}
-                        fill="none"
-                        stroke="#facc15"
-                        strokeWidth={2.0}
-                        opacity={0.98}
-                        style={{ pointerEvents: "none" }}
-                      />
-                      {/* Sunlit top edge highlight along rear facets */}
-                      <polyline
-                        points={`${cx - hw},${cy} ${cx},${cy - hh} ${cx + hw},${cy}`}
-                        fill="none"
-                        stroke="#ffffff"
-                        strokeWidth={1.2}
-                        opacity={0.9}
-                        style={{ pointerEvents: "none" }}
-                      />
-                      {/* Four corner bracket chevrons outside the diamond perimeter */}
-                      <path
-                        d={selectionBrackets(cx, cy)}
-                        fill="none"
-                        stroke="#1c1208"
-                        strokeWidth={3.8}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ pointerEvents: "none" }}
-                      />
-                      <path
-                        d={selectionBrackets(cx, cy)}
-                        fill="none"
-                        stroke="#facc15"
-                        strokeWidth={1.8}
-                        className="sc-atlas-select-brackets"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ pointerEvents: "none" }}
-                      />
-                    </g>
-                  ) : null}
-                  {wash.hasWash && washColor ? (
-                    <polygon
-                      points={diamond(cx, cy)}
-                      fill={washColor}
-                      opacity={wash.washAlpha}
-                      style={{ pointerEvents: "none" }}
-                    />
-                  ) : null}
-                  {wash.kind === "winter-frost" ? (
-                    <>
-                      {/* Delicate frost rime line along rear facets */}
-                      <polyline
-                        points={`${cx - hw},${cy} ${cx},${cy - hh} ${cx + hw},${cy}`}
-                        fill="none"
-                        stroke="#ffffff"
-                        strokeWidth={1.2}
-                        opacity={0.65}
-                        style={{ pointerEvents: "none" }}
-                      />
-                      {/* Subtle snow dusting flecks */}
-                      <circle cx={cx - 7} cy={cy - 2} r={1} fill="#ffffff" opacity={0.7} style={{ pointerEvents: "none" }} />
-                      <circle cx={cx + 6} cy={cy + 3} r={0.9} fill="#ffffff" opacity={0.7} style={{ pointerEvents: "none" }} />
-                    </>
-                  ) : null}
-                  {wash.kind === "harvest-gold" ? (
-                    <>
-                      {/* Golden harvest rim line along rear facets */}
-                      <polyline
-                        points={`${cx - hw},${cy} ${cx},${cy - hh} ${cx + hw},${cy}`}
-                        fill="none"
-                        stroke="#fde047"
-                        strokeWidth={1.2}
-                        opacity={0.55}
-                        style={{ pointerEvents: "none" }}
-                      />
-                      {/* Warm golden glints on harvested ground */}
-                      <circle cx={cx - 5} cy={cy - 1} r={1} fill="#fef08a" opacity={0.6} style={{ pointerEvents: "none" }} />
-                      <circle cx={cx + 5} cy={cy + 2} r={0.9} fill="#fde047" opacity={0.6} style={{ pointerEvents: "none" }} />
-                    </>
-                  ) : null}
                 </>
               ) : (
                 <>
-                  {/* Subtle click target diamond beneath cloud veil */}
                   <polygon
                     points={diamond(cx, cy)}
                     fill="#0f172a"
@@ -950,7 +899,6 @@ export function OverworldAtlas(props: {
                     strokeWidth={0.6}
                     opacity={0.35}
                   />
-                  {/* Fog boundary edge underlay and living pale mist contour */}
                   <polygon
                     className="sc-atlas-fog-edge"
                     points={diamond(cx, cy)}
@@ -969,10 +917,191 @@ export function OverworldAtlas(props: {
                     opacity={0.7}
                     style={{ pointerEvents: "none" }}
                   />
-                  {/* Atmospheric cloud veil */}
                   <MiniCloudVeil cx={cx} cy={cy} />
                 </>
               )}
+            </g>
+          );
+        })}
+
+        {/* Pass 2: Living Roads & Paths */}
+        <g className="sc-atlas-roads" style={{ pointerEvents: "none" }}>
+          {atlasRoads.map((r) => (
+            <g
+              key={r.id}
+              className={`sc-atlas-road sc-atlas-road-${r.kind}${r.intoFog ? " sc-atlas-road-fog" : ""}`}
+              style={{ pointerEvents: "none" }}
+            >
+              {/* Steady dark ink underlay */}
+              <line
+                className="sc-atlas-road-ink"
+                x1={r.x1}
+                y1={r.y1}
+                x2={r.x2}
+                y2={r.y2}
+                stroke="#1a120b"
+                strokeWidth={r.kind === "road" ? 4.4 : 3.2}
+                strokeLinecap="round"
+                opacity={0.65}
+                style={{ pointerEvents: "none" }}
+              />
+              {/* Packed-earth bed */}
+              <line
+                className={`sc-atlas-road-bed ${r.kind === "path" ? "sc-atlas-path-dash" : ""}`}
+                x1={r.x1}
+                y1={r.y1}
+                x2={r.x2}
+                y2={r.y2}
+                stroke="#d6b98a"
+                strokeWidth={r.kind === "road" ? 2.4 : 1.6}
+                strokeDasharray={r.kind === "path" ? "3 2.5" : undefined}
+                strokeLinecap="round"
+                opacity={0.92}
+                style={{ pointerEvents: "none" }}
+              />
+              {/* Thin pale crown on roads */}
+              {r.kind === "road" && (
+                <line
+                  className="sc-atlas-road-crown"
+                  x1={r.x1}
+                  y1={r.y1}
+                  x2={r.x2}
+                  y2={r.y2}
+                  stroke="#faf3e0"
+                  strokeWidth={0.8}
+                  strokeLinecap="round"
+                  opacity={0.5}
+                  style={{ pointerEvents: "none" }}
+                />
+              )}
+              {/* Living road traffic and dust puff */}
+              {!r.intoFog && (
+                <g className="sc-atlas-road-traffic-group" style={{ pointerEvents: "none" }}>
+                  <circle
+                    className="sc-atlas-road-traffic"
+                    cx={r.midX}
+                    cy={r.midY}
+                    r={1.2}
+                    fill="#ca8a04"
+                    opacity={0.92}
+                    style={{ pointerEvents: "none" }}
+                  />
+                  <circle
+                    className="sc-atlas-road-dust"
+                    cx={r.midX - 1.6}
+                    cy={r.midY + 0.8}
+                    r={0.9}
+                    fill="#d4bda5"
+                    opacity={0.45}
+                    style={{ pointerEvents: "none" }}
+                  />
+                </g>
+              )}
+            </g>
+          ))}
+        </g>
+
+        {/* Pass 3: Tile Tokens, Keeps, Nodes, Weather, Selection Rim */}
+        {sorted.map((p) => {
+          const pos = iso(p.x, p.y);
+          const cx = ox + pos.x - origin.x;
+          const cy = oy + pos.y;
+          const paint = terrainPaint(p);
+          const occupant = p.occupantRealmId;
+          const pal = occupant ? realmTokenPalette(occupant) : null;
+          const isHome = p.id === homeId || occupant === "player";
+          const selected = selectedId === p.id;
+          const accent = cssColor(pal?.accentColor, paint.top);
+          const wall = cssColor(pal?.keepWallColor, "#3f2a1c");
+          const seen = state ? isProvinceSeen(state, p.id) : true;
+          const hw = TILE_W / 2;
+          const hh = TILE_H / 2;
+          const lift = paint.lift;
+          const destKind = getTileMarchDestination(state, p.id);
+          return (
+            <g
+              key={p.id}
+              style={{ cursor: "pointer", pointerEvents: "none" }}
+            >
+              {seen ? (
+                <>
+                  {selected ? (
+                    <g className="sc-atlas-select-rim" style={{ pointerEvents: "none" }}>
+                      {/* Steady pale halo under the ink for night, storm dim, and dark tile contrast */}
+                      <polygon
+                        className="sc-atlas-select-halo"
+                        points={diamond(cx, cy)}
+                        fill="none"
+                        stroke="#e2e8f0"
+                        strokeWidth={4.5}
+                        opacity={0.55}
+                        style={{ pointerEvents: "none" }}
+                      />
+                      {/* Dark ink underlay */}
+                      <polygon
+                        points={diamond(cx, cy)}
+                        fill="none"
+                        stroke="#1c1208"
+                        strokeWidth={3.2}
+                        opacity={0.9}
+                      />
+                      {/* Soft breathing amber glow */}
+                      <polygon
+                        className="sc-atlas-select-glow"
+                        points={diamond(cx, cy)}
+                        fill="none"
+                        stroke="#d97706"
+                        strokeWidth={2.4}
+                        opacity={0.65}
+                      />
+                      {/* Sharp radiant gold core */}
+                      <polygon
+                        points={diamond(cx, cy)}
+                        fill="none"
+                        stroke="#facc15"
+                        strokeWidth={1.4}
+                        opacity={0.98}
+                      />
+                      {/* Four subtle corner brackets framing the diamond corners */}
+                      <path
+                        className="sc-atlas-select-brackets"
+                        d={selectionBrackets(cx, cy, 6)}
+                        fill="none"
+                        stroke="#1c1208"
+                        strokeWidth={3}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        opacity={0.9}
+                      />
+                      <path
+                        className="sc-atlas-select-brackets"
+                        d={selectionBrackets(cx, cy, 6)}
+                        fill="none"
+                        stroke="#facc15"
+                        strokeWidth={1.4}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        opacity={1}
+                      />
+                      {/* Cardinal target pips */}
+                      <circle cx={cx} cy={cy - hh} r={1.6} fill="#ffffff" stroke="#b45309" strokeWidth={0.5} />
+                      <circle cx={cx + hw} cy={cy} r={1.6} fill="#ffffff" stroke="#b45309" strokeWidth={0.5} />
+                      <circle cx={cx} cy={cy + hh} r={1.6} fill="#ffffff" stroke="#b45309" strokeWidth={0.5} />
+                      <circle cx={cx - hw} cy={cy} r={1.6} fill="#ffffff" stroke="#b45309" strokeWidth={0.5} />
+                    </g>
+                  ) : null}
+                  {/* Subtle elevated facet facet-highlight when selected */}
+                  {selected && lift > 0 ? (
+                    <polyline
+                      points={`${cx - hw},${cy} ${cx},${cy + hh} ${cx + hw},${cy}`}
+                      fill="none"
+                      stroke="#fde047"
+                      strokeWidth={1.5}
+                      opacity={0.8}
+                    />
+                  ) : null}
+                </>
+              ) : null}
               {/* March destination faint ring (player gold, hostile red) */}
               {destKind ? (
                 <g className="sc-atlas-dest-ring" pointerEvents="none">

@@ -1,13 +1,12 @@
-## 2026-11-03 — render / clearer roads and paths on diamond board (wave/board-roads)
+## 2026-11-03 — render & app / living road treatment on diamond board (bakeoff/gemini-roads)
 
-- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- Layer order on Pixi canvas: backdrop, static tiles (cached), **roads**, provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, selection, hover highlight.
-- Why roads sit that low: the status pips on the tokens layer (season, owner, garrison, scout, gather, hold, building, staffed, clash...) sit near the tile centre, where roads run. Roads above the tokens layer would cross every pip. Board weather is particles and a local glow (no full-board dim), so the ink underlay + pale bed are enough to read through rain, snow and storm.
-- Readability rules: ink underlay for pale ground (snow, fog veil, sun glow), pale bed for dark ground (wood, peak, night, storm). Road ink (`6`) is wider than march ink (`4`) so roads still show beside march lines. Keep plinths cover the tile centre, so a road reads as running into the keep. The select rim crosses a road only at the edge midpoint.
-- Fog: nothing is drawn inside an unseen tile. A seen-to-unseen pair gets a dashed trail that ends at the shared edge, under the fog edge line.
-- Caching: `paintBoardRoads` runs inside `updateBoardStatic`, on the same key as the fog edge (`computeBoardStaticCacheKey`). If roads ever depend on anything else (owner, buildings), add it to that key or give roads their own key.
-- Geometry: `listBoardRoads` looks only east (+x) and south (+y) from each province, so each pair is listed once. Points are a flat `[x, y, ...]` polyline on tile tops (`cy - terrainElevation`).
-- Root `npm test` does not run the render suite. Run `npm run test -w @second-crown/render` and `npm run build -w @second-crown/app` too.
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order on Pixi canvas: backdrop, static tiles (cached), **roads (bed)**, **roads (traffic/dust)**, provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, selection, hover highlight.
+- Why roads and road traffic sit below tokens/weather/keeps/marches: status marks and pips sit near tile centers where roads cross. Roads and traffic below tokens/keeps/meeples ensure roads read naturally as running up to and into keeps, beneath march lines, node piles, and camps.
+- Living motion: roads feature continuous deterministic traveler cart and trailing dust motion (`drawBoardRoadTraffic` / `paintBoardRoadTraffic`) on `boardRoadsTrafficLayer`. Mountain paths have solitary wanderers with light dust; trails into fog have subtle drifting edge dust puffs.
+- SVG Kingdom Atlas (`OverworldAtlas.tsx` & `atlas-roads.css`): Layered ink underlay, packed-earth bed, pale crown, and living keyframe animated traffic (`.sc-atlas-road-traffic`), dust (`.sc-atlas-road-dust`), and dashed mountain paths (`.sc-atlas-path-dash`).
+- Strict isolation: `pointer-events: none !important;` on all road overlays; `@media (prefers-reduced-motion: reduce)` motion guard. Zero alterations to `theme.css`.
+- Root `npm test` does not run the render suite. Always run `npm run test -w @second-crown/render` and `npm run build -w @second-crown/app`.
 
 ## 2026-11-03 — render & app / living selected province treatment on diamond board (bakeoff/gemini-select)
 

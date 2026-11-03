@@ -126,6 +126,31 @@ import {
   paintBoardNodePiles,
   paintBoardFogEdge,
   paintBoardRoads,
+  paintBoardRoadTraffic,
+  drawBoardRoadTraffic,
+  listBoardRoads,
+  drawBoardRoad,
+  BOARD_ROAD_TRAFFIC_SHADOW,
+  BOARD_ROAD_TRAFFIC_CART,
+  BOARD_ROAD_TRAFFIC_CROWN,
+  BOARD_ROAD_TRAFFIC_WANDERER,
+  BOARD_ROAD_TRAFFIC_DUST,
+  BOARD_ROAD_TRAFFIC_DUST_ALPHA,
+  BOARD_ROAD_INK,
+  BOARD_ROAD_INK_ALPHA,
+  BOARD_ROAD_INK_WIDTH,
+  BOARD_ROAD_BED,
+  BOARD_ROAD_BED_ALPHA,
+  BOARD_ROAD_BED_WIDTH,
+  BOARD_ROAD_CROWN,
+  BOARD_ROAD_CROWN_ALPHA,
+  BOARD_ROAD_CROWN_WIDTH,
+  BOARD_PATH_INK_WIDTH,
+  BOARD_PATH_BED_WIDTH,
+  BOARD_PATH_DASH,
+  BOARD_PATH_GAP,
+  type BoardRoad,
+  type BoardRoadKind,
   drawBoardNodePile,
   drawNodePileInkPlinth,
   isStockPileNode,
@@ -383,6 +408,12 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardRoadsLayer.eventMode = "none";
   boardContainer.addChild(boardRoadsLayer);
 
+  // Living road traffic & dust layer: sits right on top of the road bed,
+  // below marks, fog edge, weather, marches, keeps, piles, camps, select rim and hover.
+  const boardRoadsTrafficLayer = new Graphics();
+  boardRoadsTrafficLayer.eventMode = "none";
+  boardContainer.addChild(boardRoadsTrafficLayer);
+
   // Static tiles + fog edge repaint together, only when the seen set or layout changes.
   function updateBoardStatic(state: GameState | null): void {
     boardStaticCache.update(state, currentBand, visuals);
@@ -392,6 +423,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     boardFogEdgeKey = key;
     paintBoardFogEdge(boardFogEdgeLayer, state);
     paintBoardRoads(boardRoadsLayer, state);
+    paintBoardRoadTraffic(boardRoadsTrafficLayer, state, phase);
   }
 
   // Dynamic token/mark layer (moving marks, ruins, rims, status marks): redraws every frame. Keeps, piles and camps have their own layers.
@@ -511,6 +543,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       currentBand = nextBand;
       updateBoardStatic(lastState);
       if (currentBand === "board" && lastState) {
+        paintBoardRoadTraffic(boardRoadsTrafficLayer, lastState, phase);
+        paintBoardRoadTraffic(boardRoadsTrafficLayer, lastState, phase);
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
@@ -1042,6 +1076,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     paintBuildings(state, phase);
     updateBoardStatic(state);
     if (currentBand === "board") {
+      paintBoardRoadTraffic(boardRoadsTrafficLayer, state, phase);
       paintBoardDynamicTokens(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
       paintBoardNodePiles(boardNodePilesLayer, state, phase);
       paintBoardOutpostMarks(boardOutpostMarksLayer, state, phase);
@@ -1102,6 +1137,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       updateBoardWeather(phase);
       if (lastState) {
         updateBoardStatic(lastState);
+        paintBoardRoadTraffic(boardRoadsTrafficLayer, lastState, phase);
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);

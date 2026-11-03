@@ -1,0 +1,60 @@
+/* Isolated stylesheet for SVG Kingdom Atlas living road treatments */
+.sc-atlas-road,
+.sc-atlas-road * {
+  pointer-events: none !important;
+}
+
+@keyframes sc-atlas-road-traffic-flow {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translate(1px, -0.6px) scale(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-atlas-road-dust-puff {
+  0%, 100% {
+    opacity: 0.22;
+    transform: scale(0.85) translate(0, 0);
+  }
+  50% {
+    opacity: 0.52;
+    transform: scale(1.25) translate(-0.8px, -0.4px);
+  }
+}
+
+@keyframes sc-atlas-path-dash {
+  0%, 100% {
+    stroke-dashoffset: 0;
+    opacity: 0.75;
+  }
+  50% {
+    stroke-dashoffset: 3;
+    opacity: 0.95;
+  }
+}
+
+.sc-atlas-road-traffic {
+  animation: sc-atlas-road-traffic-flow 3.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.sc-atlas-road-dust {
+  animation: sc-atlas-road-dust-puff 2.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.sc-atlas-path-dash {
+  animation: sc-atlas-path-dash 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-road-traffic,
+  .sc-atlas-road-dust,
+  .sc-atlas-path-dash {
+    animation: none !important;
+  }
+}

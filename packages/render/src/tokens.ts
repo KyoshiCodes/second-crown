@@ -3225,6 +3225,14 @@ export const BOARD_PATH_BED_WIDTH = 2;
 export const BOARD_PATH_DASH = 3.5;
 export const BOARD_PATH_GAP = 2.5;
 
+/** Living road traffic and dust constants */
+export const BOARD_ROAD_TRAFFIC_SHADOW = 0x1a120b;
+export const BOARD_ROAD_TRAFFIC_CART = 0xc8963e;
+export const BOARD_ROAD_TRAFFIC_CROWN = 0xfef08a;
+export const BOARD_ROAD_TRAFFIC_WANDERER = 0x94a3b8;
+export const BOARD_ROAD_TRAFFIC_DUST = 0xd4bda5;
+export const BOARD_ROAD_TRAFFIC_DUST_ALPHA = 0.38;
+
 /**
  * - `road`: both provinces seen, neither is a peak. Solid bed with a pale crown.
  * - `path`: both seen and one is a peak (mountain path), or the far end is unseen
@@ -3366,13 +3374,156 @@ export function drawBoardRoad(g: Graphics, r: BoardRoad): void {
  * The ink underlay + pale bed keep roads readable through all of them.
  * Only the seen set and board layout change it (repaint with the static cache key). Non-interactive.
  */
-export function paintBoardRoads(g: Graphics, state: GameState | null | undefined): void {
+/**
+ * Draws living traffic and trailing dust motes along one road or path.
+ * - Road: warm merchant cart / traveler dot traversing the road with a subtle dust wake.
+ * - Path (mountain): solitary wanderer moving at slower pace with faint dust.
+ * - Trail into fog: subtle edge dust wisp drifting toward the fog boundary.
+ * Fully deterministic based on road polyline, phase, and road index.
+ */
+export function drawBoardRoadTraffic(
+  g: Graphics,
+  r: BoardRoad,
+  phase: number,
+  roadIndex: number = 0
+): void {
+  if (!g || r.points.length < 4) return;
+  const pts = r.points;
+
+  // Calculate polyline segment lengths and total length
+  const segLens: number[] = [];
+  let totalLen = 0;
+  for (let i = 0; i + 3 < pts.length; i += 2) {
+    const sl = Math.hypot(pts[i + 2]! - pts[i]!, pts[i + 3]! - pts[i + 1]!);
+    segLens.push(sl);
+    totalLen += sl;
+  }
+  if (totalLen <= 1e-3) return;
+
+  // Helper to find interpolated point and unit tangent vector at distance d
+  const sampleAt = (dist: number): { x: number; y: number; ux: number; uy: number } => {
+    let rem = Math.max(0, Math.min(totalLen, dist));
+    for (let i = 0; i < segLens.length; i++) {
+      const sl = segLens[i]!;
+      const idx = i * 2;
+      const x1 = pts[idx]!;
+      const y1 = pts[idx + 1]!;
+      const x2 = pts[idx + 2]!;
+      const y2 = pts[idx + 3]!;
+      if (sl <= 1e-4) continue;
+      const ux = (x2 - x1) / sl;
+      const uy = (y2 - y1) / sl;
+      if (rem <= sl || i === segLens.length - 1) {
+        return { x: x1 + ux * rem, y: y1 + uy * rem, ux, uy };
+      }
+      rem -= sl;
+    }
+    return { x: pts[0]!, y: pts[1]!, ux: 1, uy: 0 };
+  };
+
+  // Deterministic seed per road pair so travelers on different roads don't march in lockstep
+  const seed = Math.abs(Math.sin(roadIndex * 12.9898 + 4.13) * 43758.5453) % 1;
+
+  if (r.intoFog) {
+    // Edge motion: a soft dust wisp breathes near the fog threshold (65%-95% of the trail)
+    const fogCycle = (phase * 0.4 + seed) % 1;
+    const d = (0.65 + fogCycle * 0.3) * totalLen;
+    const pt = sampleAt(d);
+    const alpha = (1 - fogCycle) * 0.38;
+    g.circle(pt.x, pt.y, 1.3);
+    g.fill({ color: BOARD_ROAD_TRAFFIC_DUST, alpha });
+    return;
+  }
+
+  if (r.kind === "road") {
+    // Main road: travelling cart / caravan moving along the road
+    const speed = 0.055;
+    const t = ((phase * speed + seed) % 1 + 1) % 1;
+    const d = t * totalLen;
+    const pt = sampleAt(d);
+
+    // 1. Shadow under traveler
+    g.ellipse(pt.x, pt.y + 0.8, 1.5, 0.9);
+    g.fill({ color: BOARD_ROAD_TRAFFIC_SHADOW, alpha: 0.52 });
+
+    // 2. Trailing dust puffs
+    const dustWobble = Math.sin(phase * 3 + roadIndex) * 0.5;
+    const dust1 = { x: pt.x - pt.ux * 3.2 + dustWobble, y: pt.y - pt.uy * 3.2 - 0.4 };
+    const dust2 = { x: pt.x - pt.ux * 5.8, y: pt.y - pt.uy * 5.8 - 0.7 };
+    g.circle(dust1.x, dust1.y, 1.1);
+    g.fill({ color: BOARD_ROAD_TRAFFIC_DUST, alpha: BOARD_ROAD_TRAFFIC_DUST_ALPHA * 0.85 });
+    g.circle(dust2.x, dust2.y, 0.8);
+    g.fill({ color: BOARD_ROAD_TRAFFIC_DUST, alpha: BOARD_ROAD_TRAFFIC_DUST_ALPHA * 0.5 });
+
+    // 3. Traveler cart / dot
+    g.circle(pt.x, pt.y, 1.15);
+    g.fill({ color: BOARD_ROAD_TRAFFIC_CART, alpha: 0.95 });
+
+    // 4. Subtle gold crown specular on top of traveler
+    g.circle(pt.x - 0.3, pt.y - 0.3, 0.5);
+    g.fill({ color: BOARD_ROAD_TRAFFIC_CROWN, alpha: 0.85 });
+  } else {
+    // Mountain path: solitary traveler walking at half-speed
+    const speed = 0.032;
+    const t = ((phase * speed + seed) % 1 + 1) % 1;
+    const d = t * totalLen;
+    const pt = sampleAt(d);
+
+    // Shadow
+    g.ellipse(pt.x, pt.y + 0.6, 1.2, 0.7);
+    g.fill({ color: BOARD_ROAD_TRAFFIC_SHADOW, alpha: 0.45 });
+
+    // Trailing dust
+    const dust = { x: pt.x - pt.ux * 2.6, y: pt.y - pt.uy * 2.6 - 0.3 };
+    g.circle(dust.x, dust.y, 0.75);
+    g.fill({ color: BOARD_ROAD_TRAFFIC_DUST, alpha: BOARD_ROAD_TRAFFIC_DUST_ALPHA * 0.6 });
+
+    // Wanderer dot
+    g.circle(pt.x, pt.y, 0.95);
+    g.fill({ color: BOARD_ROAD_TRAFFIC_WANDERER, alpha: 0.9 });
+  }
+}
+
+/**
+ * Paints living road traffic and dust across all visible roads and paths.
+ * Repainted every frame on boardRoadsTrafficLayer. Non-interactive.
+ */
+export function paintBoardRoadTraffic(
+  g: Graphics,
+  state: GameState | null | undefined,
+  phase: number = 0
+): void {
   g.clear();
   if ("eventMode" in g) {
     (g as any).eventMode = "none";
   }
-  for (const r of listBoardRoads(state)) {
+  const roads = listBoardRoads(state);
+  if (!roads || roads.length === 0) return;
+  for (let i = 0; i < roads.length; i++) {
+    drawBoardRoadTraffic(g, roads[i]!, phase, i);
+  }
+}
+
+/**
+ * Paints every road and path on its own Graphics layer. The renderer stacks this layer
+ * just ABOVE the static terrain + fog veil and BELOW the province marks, fog edge, weather,
+ * marches, keeps, piles, camps, the select rim and hover, so none of those are hidden.
+ * The ink underlay + pale bed keep roads readable through all of them.
+ * If phase is provided, also paints living traffic/dust. Non-interactive.
+ */
+export function paintBoardRoads(g: Graphics, state: GameState | null | undefined, phase?: number): void {
+  g.clear();
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+  const roads = listBoardRoads(state);
+  for (const r of roads) {
     drawBoardRoad(g, r);
+  }
+  if (typeof phase === "number") {
+    for (let i = 0; i < roads.length; i++) {
+      drawBoardRoadTraffic(g, roads[i]!, phase, i);
+    }
   }
 }
 

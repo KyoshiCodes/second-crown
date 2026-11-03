@@ -4512,6 +4512,56 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           // Repaints with the static board key, next to the fog edge
           expect(code).toContain("paintBoardRoads(boardRoadsLayer, state)");
         });
+<<<<<<< HEAD
+=======
+
+        it("paintBoardRoadTraffic draws moving travelers and trailing dust deterministically with phase", async () => {
+          const { paintBoardRoadTraffic, drawBoardRoadTraffic, listBoardRoads, BOARD_ROAD_TRAFFIC_CART, BOARD_ROAD_TRAFFIC_DUST } = await import("./tokens.js");
+          const state = roadState();
+          const roads = listBoardRoads(state);
+
+          const g1 = createMockGraphics();
+          paintBoardRoadTraffic(g1, state, 1.0);
+          expect(g1.calls[0].method).toBe("clear");
+          expect(g1.calls.length).toBeGreaterThan(1);
+
+          // Deterministic for same phase
+          const g2 = createMockGraphics();
+          paintBoardRoadTraffic(g2, state, 1.0);
+          expect(JSON.stringify(g2.calls)).toBe(JSON.stringify(g1.calls));
+
+          // Advances position with different phase
+          const g3 = createMockGraphics();
+          paintBoardRoadTraffic(g3, state, 2.5);
+          expect(JSON.stringify(g3.calls)).not.toBe(JSON.stringify(g1.calls));
+
+          // Individual road traffic draws cart and dust fills
+          const gRoad = createMockGraphics();
+          const road = roads.find((r) => r.kind === "road")!;
+          drawBoardRoadTraffic(gRoad, road, 1.0, 0);
+          const fills = gRoad.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]);
+          expect(fills.some((f: any) => f.color === BOARD_ROAD_TRAFFIC_CART)).toBe(true);
+          expect(fills.some((f: any) => f.color === BOARD_ROAD_TRAFFIC_DUST)).toBe(true);
+        });
+
+        it("boardRoadsTrafficLayer sits right above roads and below provinces, weather, marches, keeps, and rim", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+          const at = (name: string) => code.indexOf(`boardContainer.addChild(${name})`);
+          const traffic = at("boardRoadsTrafficLayer");
+          const roads = at("boardRoadsLayer");
+          expect(traffic).toBeGreaterThan(roads);
+          for (const above of [
+            "boardProvincesLayer", "boardFogEdgeLayer", "boardWeatherGraphic", "boardRoutesLayer",
+            "boardKeepsLayer", "boardPawnsLayer", "boardNodePilesLayer", "boardOutpostMarksLayer",
+            "boardSelectionLayer", "boardHighlightLayer",
+          ]) {
+            expect(traffic).toBeLessThan(at(above));
+          }
+          expect(code).toContain("paintBoardRoadTraffic(boardRoadsTrafficLayer, lastState, phase)");
+        });
+>>>>>>> 90023cc (render: add living road treatment on diamond board)
       });
 
       describe("board march clarity", () => {
