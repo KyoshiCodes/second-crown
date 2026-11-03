@@ -4410,6 +4410,103 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         });
       });
 
+      describe("board keep clarity", () => {
+        function keepState(): GameState {
+          const state = createMockState();
+          state.board = {
+            homeProvinceId: "p_home",
+            provinces: [
+              { id: "p_home", x: 1, y: 1, terrain: "plain", node: "hold", occupantRealmId: "player" },
+              { id: "p_rival", x: 4, y: 3, terrain: "hill", node: "hold", occupantRealmId: "rival" },
+              { id: "p_hidden", x: 6, y: 6, terrain: "plain", node: "hold", occupantRealmId: "k_silk" },
+              { id: "p_wood", x: 2, y: 1, terrain: "wood", node: "woodcut" },
+            ],
+          };
+          // p_hidden sits far outside vision and is never scouted, so it stays fog.
+          state.flags["fog_seen"] = JSON.stringify(["p_home", "p_rival", "p_wood"]);
+          return state;
+        }
+        const rims = (g: any, rx: number) =>
+          g.calls.filter((c: any) => c.method === "ellipse" && c.args[2] === rx);
+
+        it("boardKeepRimColor picks player gold, rival red, realm border, neutral stone", async () => {
+          const { boardKeepRimColor, BOARD_KEEP_RIM_COLORS, realmTokenPalette } = await import("./tokens.js");
+          expect(boardKeepRimColor("player")).toBe(BOARD_KEEP_RIM_COLORS.player);
+          expect(boardKeepRimColor("rival")).toBe(BOARD_KEEP_RIM_COLORS.rival);
+          expect(boardKeepRimColor("k_silk")).toBe(realmTokenPalette("k_silk").borderColor);
+          expect(boardKeepRimColor(undefined)).toBe(BOARD_KEEP_RIM_COLORS.neutral);
+        });
+
+        it("drawBoardKeepPlinth fills the ink plinth before the owner rim", async () => {
+          const { drawBoardKeepPlinth, BOARD_KEEP_INK, BOARD_KEEP_INK_ALPHA, BOARD_KEEP_RIM_ALPHA } = await import("./tokens.js");
+          const g = createMockGraphics();
+          drawBoardKeepPlinth(g, 10, 20, 0xfbbf24);
+          const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]);
+          const strokes = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]);
+          expect(fills[0]).toEqual({ color: BOARD_KEEP_INK, alpha: BOARD_KEEP_INK_ALPHA });
+          expect(strokes[0].color).toBe(0xfbbf24);
+          expect(strokes[0].alpha).toBe(BOARD_KEEP_RIM_ALPHA);
+        });
+
+        it("paintBoardKeeps draws one plinth per seen hold, none for fogged holds, deterministically", async () => {
+          const { paintBoardKeeps, BOARD_KEEP_PLINTH_RX, BOARD_KEEP_RIM_COLORS } = await import("./tokens.js");
+          const g = createMockGraphics();
+          paintBoardKeeps(g, keepState(), 1.25);
+          expect(rims(g, BOARD_KEEP_PLINTH_RX).length).toBe(4); // 2 keeps x (fill + rim)
+          const strokeColors = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]?.color);
+          expect(strokeColors).toContain(BOARD_KEEP_RIM_COLORS.player);
+          expect(strokeColors).toContain(BOARD_KEEP_RIM_COLORS.rival);
+
+          const g2 = createMockGraphics();
+          paintBoardKeeps(g2, keepState(), 1.25);
+          expect(JSON.stringify(g2.calls)).toBe(JSON.stringify(g.calls));
+        });
+
+        it("paintBoardKeeps keeps drawing in storm and at night", async () => {
+          const { paintBoardKeeps, BOARD_KEEP_PLINTH_RX } = await import("./tokens.js");
+          const state = keepState();
+          state.flags["weather"] = "storm";
+          const g = createMockGraphics();
+          paintBoardKeeps(g, state, 3.9);
+          expect(rims(g, BOARD_KEEP_PLINTH_RX).length).toBe(4);
+        });
+
+        it("paintBoardDynamicTokens leaves keeps to the keep layer; paintBoardProvinces still draws them inline", async () => {
+          const { paintBoardDynamicTokens, paintBoardProvinces, paintBoardKeeps } = await import("./tokens.js");
+          const state = keepState();
+          const keepsOnly = createMockGraphics();
+          paintBoardKeeps(keepsOnly, state, 0);
+          const dyn = createMockGraphics();
+          paintBoardDynamicTokens(dyn, state, 0);
+          const all = createMockGraphics();
+          paintBoardProvinces(all, state, 0);
+          const polys = (g: any) => g.calls.filter((c: any) => c.method === "poly").length;
+          // Keep layer carries the keep geometry; the token layer no longer duplicates it.
+          expect(polys(keepsOnly)).toBeGreaterThan(0);
+          expect(polys(all)).toBeGreaterThan(polys(dyn) + polys(keepsOnly) / 2);
+        });
+
+        it("keep layer sits above the fog edge, weather and routes, below meeples, piles, camps, rim and hover", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+          const at = (name: string) => code.indexOf(`boardContainer.addChild(${name})`);
+          const keeps = at("boardKeepsLayer");
+          expect(keeps).toBeGreaterThan(at("boardProvincesLayer"));
+          expect(keeps).toBeGreaterThan(at("boardFogEdgeLayer"));
+          expect(keeps).toBeGreaterThan(at("boardWeatherGraphic"));
+          expect(keeps).toBeGreaterThan(at("boardRoutesLayer"));
+          expect(keeps).toBeLessThan(at("boardPawnsLayer"));
+          expect(keeps).toBeLessThan(at("boardNodePilesLayer"));
+          expect(keeps).toBeLessThan(at("boardOutpostMarksLayer"));
+          expect(keeps).toBeLessThan(at("boardSelectionLayer"));
+          expect(keeps).toBeLessThan(at("boardHighlightLayer"));
+          const dynCalls = code.match(/paintBoardDynamicTokens\(boardProvincesLayer/g)?.length ?? 0;
+          const keepCalls = code.match(/paintBoardKeeps\(boardKeepsLayer/g)?.length ?? 0;
+          expect(keepCalls).toBe(dynCalls);
+        });
+      });
+
       it("paintBoardDynamicTokens leaves stock piles to the pile layer; paintBoardProvinces still draws them inline", async () => {
         const { paintBoardDynamicTokens, paintBoardProvinces, NODE_PILE_INK } = await import("./tokens.js");
         const state = createMockState();

@@ -133,6 +133,19 @@ import {
   NODE_PILE_RIM,
   NODE_PILE_RIM_ALPHA,
   paintBoardOutpostMarks,
+  paintBoardKeeps,
+  drawBoardKeep,
+  drawBoardKeepPlinth,
+  boardKeepRimColor,
+  isBoardKeepProvince,
+  BOARD_KEEP_INK,
+  BOARD_KEEP_INK_ALPHA,
+  BOARD_KEEP_PLINTH_RX,
+  BOARD_KEEP_PLINTH_RY,
+  BOARD_KEEP_PLINTH_DY,
+  BOARD_KEEP_RIM_WIDTH,
+  BOARD_KEEP_RIM_ALPHA,
+  BOARD_KEEP_RIM_COLORS,
   drawBoardOutpostMark,
   drawOutpostMarkPlinth,
   OUTPOST_MARK_INK,
@@ -361,7 +374,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     paintBoardFogEdge(boardFogEdgeLayer, state);
   }
 
-  // Dynamic token/mark layer (moving marks, piles, ruins, camps, keeps): redraws every frame
+  // Dynamic token/mark layer (moving marks, ruins, rims, status marks): redraws every frame. Keeps, piles and camps have their own layers.
   const boardProvincesLayer = new Graphics();
   boardProvincesLayer.eventMode = "none";
   boardContainer.addChild(boardProvincesLayer);
@@ -382,6 +395,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   const boardRoutesLayer = new Graphics();
   boardRoutesLayer.eventMode = "none";
   boardContainer.addChild(boardRoutesLayer);
+
+  // Miniature keeps (ink plinth + owner rim) sit ABOVE the fog edge, weather and march
+  // routes so rain, snow, storm dim, the fog line and route lines never hide a hold.
+  // March meeples, piles, camps, select rim and hover stay on top.
+  const boardKeepsLayer = new Graphics();
+  boardKeepsLayer.eventMode = "none";
+  boardContainer.addChild(boardKeepsLayer);
 
   const boardPawnsLayer = new Graphics();
   boardPawnsLayer.eventMode = "none";
@@ -474,6 +494,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
+        paintBoardKeeps(boardKeepsLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
         drawBoardWeather(lastState, boardWeatherGraphic, phase, CANVAS_W, CANVAS_H);
@@ -1004,6 +1025,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintBoardDynamicTokens(boardProvincesLayer, state, phase, selectedProvinceId, visuals);
       paintBoardNodePiles(boardNodePilesLayer, state, phase);
       paintBoardOutpostMarks(boardOutpostMarksLayer, state, phase);
+      paintBoardKeeps(boardKeepsLayer, state, phase);
       paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
       renderBoardSelection(state);
       updateBoardWeather(phase);
@@ -1031,6 +1053,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
+        paintBoardKeeps(boardKeepsLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
       }
@@ -1062,6 +1085,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardDynamicTokens(boardProvincesLayer, lastState, phase, selectedProvinceId, visuals);
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
+        paintBoardKeeps(boardKeepsLayer, lastState, phase);
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
         renderBoardSelection(lastState);
       }
@@ -1140,6 +1164,19 @@ export {
   NODE_PILE_RIM,
   NODE_PILE_RIM_ALPHA,
   paintBoardOutpostMarks,
+  paintBoardKeeps,
+  drawBoardKeep,
+  drawBoardKeepPlinth,
+  boardKeepRimColor,
+  isBoardKeepProvince,
+  BOARD_KEEP_INK,
+  BOARD_KEEP_INK_ALPHA,
+  BOARD_KEEP_PLINTH_RX,
+  BOARD_KEEP_PLINTH_RY,
+  BOARD_KEEP_PLINTH_DY,
+  BOARD_KEEP_RIM_WIDTH,
+  BOARD_KEEP_RIM_ALPHA,
+  BOARD_KEEP_RIM_COLORS,
   drawBoardOutpostMark,
   drawOutpostMarkPlinth,
   OUTPOST_MARK_INK,

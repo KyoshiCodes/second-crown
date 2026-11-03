@@ -1,3 +1,12 @@
+## 2026-11-02 — render / clearer miniature keeps on diamond board (wave/board-keeps)
+
+- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order in `boardContainer` (bottom to top) on this branch: backdrop, static tiles (cached), provinces/tokens, fog edge, weather, routes, **keeps**, pawns, node piles, outpost marks, selection, hover highlight. Keeps sit above route lines (a route now ends under its target keep) but below meeples, so a column leaving or reaching a hold stays visible.
+- Keep pick logic (culture kit for the player, realm palette and kit for rival / `k_silk` / `k_ash` / `k_tide`) now lives only in `drawBoardKeep`. Add new realms there.
+- The plinth is steady (no `phase` term). The keep itself still animates (pennant, smoke, candles) as before.
+- Test gotcha: seen provinces come from `state.flags.fog_seen` (JSON array) or vision range, not `seen:<id>` flags.
+- Root `npm test` does not run the render suite. Run `npm run test -w @second-crown/render` too.
+
 ## 2026-11-02 — render & app / living march treatment on diamond board (bakeoff/gemini-marches)
 
 - Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

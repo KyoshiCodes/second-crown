@@ -6390,7 +6390,8 @@ function paintProvinceDynamicToken(
   boardDayPhase: DayPhase,
   selectedProvinceId?: string | null,
   pilesOnOwnLayer: boolean = false,
-  outpostMarksOnOwnLayer: boolean = false
+  outpostMarksOnOwnLayer: boolean = false,
+  keepsOnOwnLayer: boolean = false
 ): void {
   if (!seen) {
     const destKind = marchDestMap.get(p.id);
@@ -6417,44 +6418,13 @@ function paintProvinceDynamicToken(
   // 5. Node Marks (Hold, Camp, Woodcut, Quarry, Field, Ruins)
   const isHoldNode = p.node === "hold";
   const isNpcHold = isNpcHoldProvince(p);
-  const isPlayerHome = p.occupantRealmId === "player" && p.id === state.board.homeProvinceId;
 
   if (isHoldNode || isNpcHold || (p.occupantRealmId === "player" && isHoldNode)) {
-    // Tiny Pixel Keep sitting squarely on top of the raised diamond tile
-    let kit: CultureKit = "western";
-    let realmPal: RealmTokenPalette | undefined;
-
-    let cultId: string | undefined;
-    if (p.occupantRealmId === "player") {
-      cultId = sim.playerCultureId ? sim.playerCultureId(state) : undefined;
-      kit = resolveCultureKit(cultId);
-    } else if (p.occupantRealmId) {
-      realmPal = realmTokenPalette(p.occupantRealmId);
-      if (p.occupantRealmId === "rival") {
-        kit = "western"; // Iron March spiked keep
-      } else if (p.occupantRealmId === "k_silk") {
-        kit = "sand";
-      } else if (p.occupantRealmId === "k_ash") {
-        kit = "steppe";
-      } else if (p.occupantRealmId === "k_tide") {
-        kit = "islands";
-      } else {
-        kit = "western";
-      }
+    // Tiny Pixel Keep sitting squarely on top of the raised diamond tile. In the live
+    // renderer (keepsOnOwnLayer) paintBoardKeeps draws it above weather and the fog edge.
+    if (!keepsOnOwnLayer) {
+      drawBoardKeep(g, state, p, cx, cy, rawPhase, boardWeather, boardDayPhase);
     }
-
-    drawMiniatureKeep(
-      g,
-      cx,
-      cy - 2,
-      cultId ?? kit,
-      realmPal,
-      isPlayerHome,
-      rawPhase,
-      isPlayerHome
-        ? { state, cultureId: cultId, weather: boardWeather, dayPhase: boardDayPhase }
-        : { weather: boardWeather, dayPhase: boardDayPhase }
-    );
   } else {
     switch (p.node) {
       case "camp": {
@@ -6685,6 +6655,133 @@ function paintProvinceDynamicToken(
  * Paints ONLY the static board tile layer (terrain, height faces, and unseen fog veil).
  * Used by `BoardStaticLayerCache` so static board art is cached and not redrawn every frame.
  */
+// ---------------------------------------------------------------------------
+// Clearer miniature keeps (wave/board-keeps)
+// Steady (no pulse) ink plinth with an owner-coloured rim under each keep, on its
+// own layer above the fog edge and weather, so holds stay readable in any weather.
+// ---------------------------------------------------------------------------
+
+export const BOARD_KEEP_INK = 0x0f172a;
+export const BOARD_KEEP_INK_ALPHA = 0.6;
+export const BOARD_KEEP_PLINTH_RX = 14;
+export const BOARD_KEEP_PLINTH_RY = 6;
+/** Plinth centre sits this far below the keep anchor (under the foundation talus). */
+export const BOARD_KEEP_PLINTH_DY = 4;
+export const BOARD_KEEP_RIM_WIDTH = 1.4;
+export const BOARD_KEEP_RIM_ALPHA = 0.9;
+/** Owner rim colours: player gold, rival (Iron March) red, unclaimed hold pale stone. */
+export const BOARD_KEEP_RIM_COLORS = {
+  player: 0xfbbf24,
+  rival: 0xef4444,
+  neutral: 0xe2e8f0,
+} as const;
+
+/** Rim colour for a hold tile: player gold, rival red, other realms use their border colour. */
+export function boardKeepRimColor(occupantRealmId: string | null | undefined): number {
+  if (!occupantRealmId) return BOARD_KEEP_RIM_COLORS.neutral;
+  if (occupantRealmId === "player") return BOARD_KEEP_RIM_COLORS.player;
+  if (occupantRealmId === "rival") return BOARD_KEEP_RIM_COLORS.rival;
+  return realmTokenPalette(occupantRealmId).borderColor;
+}
+
+/** True when this province shows a miniature keep on the board. */
+export function isBoardKeepProvince(p: Province): boolean {
+  return p.node === "hold" || isNpcHoldProvince(p);
+}
+
+/** Steady dark ink plinth + owner-coloured rim. `cx, cy` is the keep anchor. */
+export function drawBoardKeepPlinth(g: Graphics, cx: number, cy: number, rimColor: number): void {
+  const py = cy + BOARD_KEEP_PLINTH_DY;
+  g.ellipse(cx, py, BOARD_KEEP_PLINTH_RX, BOARD_KEEP_PLINTH_RY);
+  g.fill({ color: BOARD_KEEP_INK, alpha: BOARD_KEEP_INK_ALPHA });
+  g.ellipse(cx, py, BOARD_KEEP_PLINTH_RX, BOARD_KEEP_PLINTH_RY);
+  g.stroke({ width: BOARD_KEEP_RIM_WIDTH, color: rimColor, alpha: BOARD_KEEP_RIM_ALPHA });
+}
+
+/**
+ * Draws one board keep for a hold province: picks the culture kit / realm palette and
+ * calls drawMiniatureKeep. `cy` is the elevated tile centre (keep sits 2px above it).
+ */
+export function drawBoardKeep(
+  g: Graphics,
+  state: GameState,
+  p: Province,
+  cx: number,
+  cy: number,
+  rawPhase: number,
+  boardWeather: AtmosphereWeather,
+  boardDayPhase: DayPhase,
+  withPlinth: boolean = false
+): void {
+  const isPlayerHome = p.occupantRealmId === "player" && p.id === state.board.homeProvinceId;
+  let kit: CultureKit = "western";
+  let realmPal: RealmTokenPalette | undefined;
+  let cultId: string | undefined;
+  if (p.occupantRealmId === "player") {
+    cultId = sim.playerCultureId ? sim.playerCultureId(state) : undefined;
+    kit = resolveCultureKit(cultId);
+  } else if (p.occupantRealmId) {
+    realmPal = realmTokenPalette(p.occupantRealmId);
+    if (p.occupantRealmId === "rival") {
+      kit = "western"; // Iron March spiked keep
+    } else if (p.occupantRealmId === "k_silk") {
+      kit = "sand";
+    } else if (p.occupantRealmId === "k_ash") {
+      kit = "steppe";
+    } else if (p.occupantRealmId === "k_tide") {
+      kit = "islands";
+    } else {
+      kit = "western";
+    }
+  }
+
+  if (withPlinth) {
+    drawBoardKeepPlinth(g, cx, cy - 2, boardKeepRimColor(p.occupantRealmId));
+  }
+
+  drawMiniatureKeep(
+    g,
+    cx,
+    cy - 2,
+    cultId ?? kit,
+    realmPal,
+    isPlayerHome,
+    rawPhase,
+    isPlayerHome
+      ? { state, cultureId: cultId, weather: boardWeather, dayPhase: boardDayPhase }
+      : { weather: boardWeather, dayPhase: boardDayPhase }
+  );
+}
+
+/**
+ * Paints every seen hold's miniature keep (with its ink plinth) on its own Graphics layer.
+ * The renderer stacks this layer ABOVE the fog edge, weather and march routes, and BELOW
+ * march meeples, node piles, outpost / camp marks, the select rim and hover. Unseen tiles
+ * get nothing (fog stays fog). Non-interactive.
+ */
+export function paintBoardKeeps(
+  g: Graphics,
+  state: GameState | null | undefined,
+  phase: number = 0
+): void {
+  g.clear();
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+  if (!state?.board?.provinces) return;
+
+  const rawPhase = typeof phase === "number" ? phase : 0;
+  const boardWeather = resolveAtmosphereWeather(state);
+  const boardDayPhase = resolveDayPhase(state, rawPhase);
+  for (const p of sortBoardProvincesDepth(state.board.provinces)) {
+    if (!isBoardKeepProvince(p)) continue;
+    if (!isProvinceSeen(state, p.id)) continue;
+    const b = provinceTokenBounds(p.x, p.y);
+    const cy = b.cy - terrainElevation(p.terrain);
+    drawBoardKeep(g, state, p, b.cx, cy, rawPhase, boardWeather, boardDayPhase, true);
+  }
+}
+
 export function paintBoardStaticTiles(
   g: Graphics,
   state: GameState,
@@ -6747,7 +6844,8 @@ export function paintBoardDynamicTokens(
       boardDayPhase,
       selectedProvinceId,
       true, // node piles + badges are painted on their own layer (paintBoardNodePiles)
-      true // outpost + camp marks are painted on their own layer (paintBoardOutpostMarks)
+      true, // outpost + camp marks are painted on their own layer (paintBoardOutpostMarks)
+      true // miniature keeps are painted on their own layer (paintBoardKeeps)
     );
   }
 }
