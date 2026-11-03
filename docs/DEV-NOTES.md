@@ -1,3 +1,14 @@
+## 2026-11-03 — render / clearer province hover tooltip on diamond board (wave/board-hover)
+
+- Slice constraints: Render only. Zero changes to `packages/sim`, `server/`, or `theme.css`.
+- Layer order on the Pixi board: backdrop, static tiles (cached), roads, road traffic, provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, selection rim, hover highlight, status marks, almanac, unit labels, **hover tooltip (new, top)**.
+- New file `hover.ts` (not `tokens.ts`, already 11k lines). It imports from `tokens.ts`, `camera.ts` and `tiles.ts`; nothing imports it except `index.ts`, so the graph stays acyclic.
+- `resolveBoardHoverTooltip(state, bx, by)` is pure and deterministic (layout + rows); `paintBoardHoverTooltip` only draws. Stock uses `getNodeStockInfo` / `formatStockBadgeText` (same numbers as the stock badge). Status reuses `hasProvinceClash`, `hasProvinceIncoming`, `hasProvinceGather`, `getPostedGarrison` and `listMarches`; owner reads `occupantRealmId` + `state.realms[].name`.
+- Fog: `resolveBoardHoverStatus` returns `unscouted` first for unseen tiles, and the rows become `?` — no stock / owner leak.
+- Font: own 3x5 A–Z, 0–9, `/ - ? .` table (`BOARD_HOVER_GLYPHS_3X5`), same bit layout as `MARCH_ETA_GLYPHS_3X5`. `toHoverText` uppercases, drops unknown chars and cuts to 14.
+- Placement: plate bottom 26px above the tile centre (terrain lift applied). If that would sit above the board's top tile, it flips 14px under the tile. X is clamped to the board's corner-tile extents.
+- `paintBoardHighlight` (rim + text-less bottom plaque) is left as is; a later slice may drop the plaque now that the card carries the text.
+
 ## 2026-11-03 — app / living culture crest on the culture picker (bakeoff/gemini-culture)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

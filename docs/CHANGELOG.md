@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-03 — Clearer province hover tooltip on diamond board (wave/board-hover)
+
+- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `packages/render/src/hover.ts`: `resolveBoardHoverTooltip`, `resolveBoardHoverStatus`, `drawBoardHoverTooltip`, `paintBoardHoverTooltip`, `toHoverText`, `hoverTextWidth`, the `BOARD_HOVER_GLYPHS_3X5` font, and `BOARD_HOVER_*` constants.
+  - Card rows: STOCK (ratio + node word), OWNER (YOU / NONE / realm name), STATUS (clash > incoming > marching > home > garrison > gathering > ruins > rival held > dry > open). Unseen tiles: `?`, `?`, UNSCOUTED.
+  - Steady ink plate (0x0b0f17 @ 0.95), pale halo, status-coloured rim, pointer to the tile. Flips under top-row tiles; clamped to the board width.
+- `packages/render/src/index.ts`: new `boardHoverTipLayer`, added last to `boardContainer` (above the unit labels and almanac). Painted on pointer move, on `sync`, and every board frame; cleared on pointer leave, off-tile, and in the hold band. `hover.ts` is re-exported.
+- Tests: new `packages/render/src/hover.test.ts` (10 tests). Render 666 tests, sim 323, app 258, server pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-03 — Living culture crest on the culture picker (bakeoff/gemini-culture)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

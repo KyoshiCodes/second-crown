@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Clearer province hover tooltip on the diamond board (wave/board-hover)
+
+- **Hover a tile to read it.** On the board, pointing at a province now shows a small card above it with three lines: **Stock** (how much wood, stone or grain is left), **Owner** (you, nobody, or the rival's name) and **Status** (for example Clash, Incoming, Marching, Home, Garrison, Gathering, Rival held, Dry or Open).
+- **The edge colour is the status.** Red for a clash, orange for incoming, green for open, and so on.
+- **Nothing covers it.** Rain, snow, fog, roads, marching columns, keeps, unit labels, effects and the selected-tile ring all draw under the card. Tiles at the top edge show the card below instead.
+- **Fog stays fog.** Tiles you have not scouted show only "Unscouted".
+- **Play is unchanged.** Only the look changed. The game rules are the same.
+
 ## 2026-11-03 — Living culture crests on the culture picker (bakeoff/gemini-culture)
 
 - **Living heraldic crests.** Every culture in the Crown tab picker now features its own miniature heraldic crest:

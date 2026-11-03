@@ -23,6 +23,9 @@ export * from "./weather.js";
 // Re-export the board almanac (weather + season corner marker)
 export * from "./almanac.js";
 import { paintBoardAlmanac } from "./almanac.js";
+// Re-export the province hover tooltip (stock / owner / status card)
+export * from "./hover.js";
+import { paintBoardHoverTooltip } from "./hover.js";
 
 import {
   type WeatherKind,
@@ -544,6 +547,24 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardUnitLabelsLayer.eventMode = "none";
   boardContainer.addChild(boardUnitLabelsLayer);
 
+  // Province hover tooltip (stock, owner, status). The VERY TOP board layer: above
+  // weather, fog, roads, marches, keeps, units, piles, camps, effects, the select rim,
+  // the hover rim, the almanac and the unit labels, so nothing can cover the card.
+  const boardHoverTipLayer = new Graphics();
+  boardHoverTipLayer.eventMode = "none";
+  boardHoverTipLayer.visible = false;
+  boardContainer.addChild(boardHoverTipLayer);
+
+  function renderBoardHoverTip(state: GameState | null): void {
+    if (currentBand !== "board" || !hoveredProvinceCoord || !state) {
+      boardHoverTipLayer.clear();
+      boardHoverTipLayer.visible = false;
+      return;
+    }
+    boardHoverTipLayer.visible = true;
+    paintBoardHoverTooltip(boardHoverTipLayer, state, hoveredProvinceCoord);
+  }
+
   // 3. Tabletop Hardwood Rim (rendered on top of world and mask)
   const tableRimLayer = new Graphics();
   tableRimLayer.eventMode = "none";
@@ -776,6 +797,10 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
     if (currentBand === "hold") {
       boardHighlightLayer.visible = false;
+      if (hoveredProvinceCoord) {
+        hoveredProvinceCoord = null;
+        renderBoardHoverTip(null);
+      }
       const { gx, gy } = getGridFromEvent(ev);
       if (
         px >= RIM_SIZE && px <= CANVAS_W - RIM_SIZE &&
@@ -801,9 +826,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         hoveredProvinceCoord = hit;
         boardHighlightLayer.visible = true;
         paintBoardHighlight(boardHighlightLayer, hit.bx, hit.by, lastState);
+        renderBoardHoverTip(lastState);
       } else {
         hoveredProvinceCoord = null;
         boardHighlightLayer.visible = false;
+        renderBoardHoverTip(null);
       }
     }
   });
@@ -850,6 +877,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     hoverGraphic.visible = false;
     boardHighlightLayer.visible = false;
     hoveredProvinceCoord = null;
+    renderBoardHoverTip(null);
   });
 
   // Mouse wheel zoom centered at cursor
@@ -1153,6 +1181,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       if (hoveredProvinceCoord) {
         paintBoardHighlight(boardHighlightLayer, hoveredProvinceCoord.bx, hoveredProvinceCoord.by, state, phase);
       }
+      renderBoardHoverTip(state);
     }
   }
 
@@ -1214,6 +1243,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase, BOARD_MARCH_PAINT);
         paintBoardUnitLabels(boardUnitLabelsLayer, lastState);
         renderBoardSelection(lastState);
+        renderBoardHoverTip(lastState);
       }
     }
   });
