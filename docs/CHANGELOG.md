@@ -1,11 +1,12 @@
 # CHANGELOG
 
-## 2026-11-02 — Clearer fog edge on diamond board (wave/board-fog)
+## 2026-11-02 — Living fog treatment on diamond board (bakeoff/gemini-fog)
 
-- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
 - `packages/render/src/tokens.ts`: new `listBoardFogEdges`, `drawBoardFogEdge`, `paintBoardFogEdge`, type `BoardFogEdge` / `BoardFogEdgeSide`, and constants `BOARD_FOG_EDGE_INK` / `_INK_ALPHA` / `_INK_WIDTH`, `BOARD_FOG_EDGE_LINE` / `_LINE_ALPHA` / `_LINE_WIDTH`, `BOARD_FOG_EDGE_BAND` / `_BAND_ALPHA` / `_BAND_INSET`.
-- `packages/render/src/index.ts`: new `boardFogEdgeLayer` between pawns and weather. New internal `updateBoardStatic(state)` replaces the four direct `boardStaticCache.update` calls and repaints the fog edge only when the static cache key changes.
-- Tests: new `board fog edge` block in `packages/render/src/index.test.ts` (seen/unseen sides only, shared-side geometry, empty cases, ink before line, deterministic, layer order). `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- `packages/render/src/index.ts`: new `boardFogEdgeLayer` between pawns and weather. New internal `updateBoardStatic(state)` repaints the fog edge only when the static cache key changes.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-fog.css`: living cloud drift, pulse, and vapor tendril animations for `MiniCloudVeil` with slate boundary underlay and pale mist contour on unseen tiles. Strict `pointer-events: none !important;` and motion guard.
+- Tests: new `board fog edge` block in `packages/render/src/index.test.ts` and `packages/app/src/hud/atlasFog.test.tsx`. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
 
 ## 2026-11-02 — Living weather treatment on diamond board (bakeoff/gemini-weather)

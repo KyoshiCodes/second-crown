@@ -24,6 +24,7 @@ import "./hud/atlas-select-rim.css";
 import "./hud/atlas-node-piles.css";
 import "./hud/atlas-camps.css";
 import "./hud/atlas-weather.css";
+import "./hud/atlas-fog.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -451,59 +452,65 @@ function MiniCloudVeil(props: { cx: number; cy: number }) {
       <ellipse cx={cx} cy={cy + 4} rx={hw * 0.92} ry={hh * 0.85} fill="#000000" opacity={0.32} />
       <ellipse cx={cx} cy={cy + 3} rx={hw * 0.72} ry={hh * 0.65} fill="#0f172a" opacity={0.25} />
 
-      {/* 2. Ethereal atmospheric sky-mist aura & base stratum */}
-      <ellipse cx={cx} cy={cy + 2} rx={hw * 0.94} ry={hh * 0.84} fill="#38bdf8" opacity={0.18} />
-      <ellipse cx={cx} cy={cy + 1} rx={hw * 0.88} ry={hh * 0.78} fill="#64748b" opacity={0.45} />
-      <ellipse cx={cx} cy={cy - 1} rx={hw * 0.88} ry={hh * 0.76} fill="#94a3b8" opacity={0.65} />
-      <ellipse cx={cx} cy={cy - 2} rx={hw * 0.84} ry={hh * 0.7} fill="#cbd5e1" opacity={0.85} />
+      {/* 2. Ethereal atmospheric sky-mist aura & base stratum with living drift */}
+      <g className="sc-atlas-fog-drift" style={{ pointerEvents: "none" }}>
+        <ellipse cx={cx} cy={cy + 2} rx={hw * 0.94} ry={hh * 0.84} fill="#38bdf8" opacity={0.18} />
+        <ellipse cx={cx} cy={cy + 1} rx={hw * 0.88} ry={hh * 0.78} fill="#64748b" opacity={0.45} />
+        <ellipse cx={cx} cy={cy - 1} rx={hw * 0.88} ry={hh * 0.76} fill="#94a3b8" opacity={0.65} />
+        <ellipse cx={cx} cy={cy - 2} rx={hw * 0.84} ry={hh * 0.7} fill="#cbd5e1" opacity={0.85} />
 
-      {/* 3. Multi-tiered billowing cumulus cloud lobes */}
-      {/* Lateral flanks */}
-      <circle cx={cx - 15} cy={cy - 3} r={8} fill="#dbeafe" opacity={0.9} />
-      <circle cx={cx + 15} cy={cy - 3} r={8} fill="#dbeafe" opacity={0.9} />
-      <circle cx={cx - 19} cy={cy - 1} r={6} fill="#e2e8f0" />
-      <circle cx={cx + 19} cy={cy - 1} r={6} fill="#e2e8f0" />
-      <circle cx={cx} cy={cy - 9} r={9.5} fill="#e0f2fe" />
-      <circle cx={cx} cy={cy + 2} r={9} fill="#cbd5e1" />
+        {/* 3. Multi-tiered billowing cumulus cloud lobes */}
+        {/* Lateral flanks */}
+        <circle cx={cx - 15} cy={cy - 3} r={8} fill="#dbeafe" opacity={0.9} />
+        <circle cx={cx + 15} cy={cy - 3} r={8} fill="#dbeafe" opacity={0.9} />
+        <circle cx={cx - 19} cy={cy - 1} r={6} fill="#e2e8f0" />
+        <circle cx={cx + 19} cy={cy - 1} r={6} fill="#e2e8f0" />
+        <circle cx={cx} cy={cy - 9} r={9.5} fill="#e0f2fe" />
+        <circle cx={cx} cy={cy + 2} r={9} fill="#cbd5e1" />
 
-      {/* Main volumetric cumulus mounds */}
-      <circle cx={cx - 9} cy={cy - 4} r={9.5} fill="#f1f5f9" />
-      <circle cx={cx + 9} cy={cy - 4} r={9.5} fill="#f1f5f9" />
-      <circle cx={cx - 1} cy={cy - 7} r={10.5} fill="#f8fafc" />
-      <circle cx={cx + 1} cy={cy} r={10} fill="#ffffff" />
-      <circle cx={cx - 7} cy={cy + 1} r={8} fill="#f8fafc" />
-      <circle cx={cx + 7} cy={cy + 1} r={8} fill="#f8fafc" />
+        {/* Main volumetric cumulus mounds with living pulse */}
+        <g className="sc-atlas-fog-puff" style={{ pointerEvents: "none" }}>
+          <circle cx={cx - 9} cy={cy - 4} r={9.5} fill="#f1f5f9" />
+          <circle cx={cx + 9} cy={cy - 4} r={9.5} fill="#f1f5f9" />
+          <circle cx={cx - 1} cy={cy - 7} r={10.5} fill="#f8fafc" />
+          <circle cx={cx + 1} cy={cy} r={10} fill="#ffffff" />
+          <circle cx={cx - 7} cy={cy + 1} r={8} fill="#f8fafc" />
+          <circle cx={cx + 7} cy={cy + 1} r={8} fill="#f8fafc" />
+        </g>
 
-      {/* 4. Sunlit rounded crest highlights */}
-      <ellipse cx={cx - 2} cy={cy - 11} rx={7} ry={3.5} fill="#ffffff" />
-      <circle cx={cx - 8} cy={cy - 7} r={5} fill="#ffffff" />
-      <circle cx={cx + 8} cy={cy - 7} r={5} fill="#ffffff" />
-      <ellipse cx={cx + 1} cy={cy - 2} rx={6.5} ry={3.5} fill="#ffffff" />
-      <circle cx={cx + 15} cy={cy - 4.5} r={3.5} fill="#ffffff" />
-      <circle cx={cx - 15} cy={cy - 4.5} r={3.5} fill="#ffffff" />
+        {/* 4. Sunlit rounded crest highlights */}
+        <ellipse cx={cx - 2} cy={cy - 11} rx={7} ry={3.5} fill="#ffffff" />
+        <circle cx={cx - 8} cy={cy - 7} r={5} fill="#ffffff" />
+        <circle cx={cx + 8} cy={cy - 7} r={5} fill="#ffffff" />
+        <ellipse cx={cx + 1} cy={cy - 2} rx={6.5} ry={3.5} fill="#ffffff" />
+        <circle cx={cx + 15} cy={cy - 4.5} r={3.5} fill="#ffffff" />
+        <circle cx={cx - 15} cy={cy - 4.5} r={3.5} fill="#ffffff" />
 
-      {/* 5. Wind wisps & curving vapor tendrils */}
-      <path
-        d={`M ${cx - 18} ${cy - 5} Q ${cx - 22} ${cy - 8} ${cx - 26} ${cy - 5.5}`}
-        stroke="#e0f2fe"
-        strokeWidth={1}
-        fill="none"
-        opacity={0.85}
-      />
-      <path
-        d={`M ${cx + 16} ${cy + 2} Q ${cx + 21} ${cy + 5} ${cx + 25} ${cy + 3}`}
-        stroke="#e0f2fe"
-        strokeWidth={1}
-        fill="none"
-        opacity={0.85}
-      />
-      <path
-        d={`M ${cx - 7} ${cy - 12.5} Q ${cx} ${cy - 15} ${cx + 7} ${cy - 12.5}`}
-        stroke="#ffffff"
-        strokeWidth={1.1}
-        fill="none"
-        opacity={0.9}
-      />
+        {/* 5. Wind wisps & curving vapor tendrils with living wisp animation */}
+        <g className="sc-atlas-fog-tendril" style={{ pointerEvents: "none" }}>
+          <path
+            d={`M ${cx - 18} ${cy - 5} Q ${cx - 22} ${cy - 8} ${cx - 26} ${cy - 5.5}`}
+            stroke="#e0f2fe"
+            strokeWidth={1}
+            fill="none"
+            opacity={0.85}
+          />
+          <path
+            d={`M ${cx + 16} ${cy + 2} Q ${cx + 21} ${cy + 5} ${cx + 25} ${cy + 3}`}
+            stroke="#e0f2fe"
+            strokeWidth={1}
+            fill="none"
+            opacity={0.85}
+          />
+          <path
+            d={`M ${cx - 7} ${cy - 12.5} Q ${cx} ${cy - 15} ${cx + 7} ${cy - 12.5}`}
+            stroke="#ffffff"
+            strokeWidth={1.1}
+            fill="none"
+            opacity={0.9}
+          />
+        </g>
+      </g>
 
       {/* 6. Antique cartographer brass compass star & glint */}
       <polygon
@@ -840,6 +847,25 @@ export function OverworldAtlas(props: {
                     stroke="#1e293b"
                     strokeWidth={0.6}
                     opacity={0.35}
+                  />
+                  {/* Fog boundary edge underlay and living pale mist contour */}
+                  <polygon
+                    className="sc-atlas-fog-edge"
+                    points={diamond(cx, cy)}
+                    fill="none"
+                    stroke="#334155"
+                    strokeWidth={1.2}
+                    opacity={0.5}
+                    style={{ pointerEvents: "none" }}
+                  />
+                  <polygon
+                    className="sc-atlas-fog-mist"
+                    points={diamond(cx, cy)}
+                    fill="none"
+                    stroke="#e2e8f0"
+                    strokeWidth={0.8}
+                    opacity={0.7}
+                    style={{ pointerEvents: "none" }}
                   />
                   {/* Atmospheric cloud veil */}
                   <MiniCloudVeil cx={cx} cy={cy} />

@@ -2,12 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Clearer fog edge on the diamond board (wave/board-fog)
+## 2026-11-02 — Living fog treatment on the diamond board (bakeoff/gemini-fog)
 
-- **You can now see exactly where your map knowledge ends.** Where a province you have seen meets one still under cloud, the board draws a thin pale line with a dark edge and a soft grey band on the fog side.
-- **The line stays still.** It does not pulse or move, so it is easy to read in rain, snow, or at night.
+- **You can now see exactly where your map knowledge ends.** Where a province you have seen meets one still under cloud, the board draws a clear mist line with dark ink underlay and a soft slate band on the fog side.
+- **Living cloud drift on the atlas.** Unseen territory on the Kingdom Atlas features living drifting cloud lobes, gentle volumetric pulsing, wispy vapor tendrils, and a misty perimeter contour.
 - **It never covers what matters.** Weather, resource piles, outpost flags, rival camps, and the gold outline on your selected province all draw on top of it.
-- **Play is unchanged.** Scouting and vision work exactly as before.
+- **Strictly decorative and accessible.** All overlays ignore mouse/pointer clicks and respect prefers-reduced-motion preferences.
+- **Play is unchanged.** Scouting, fog of war, and vision rules work exactly as before.
 
 ## 2026-11-02 — Clearer weather on the diamond board (bakeoff/gemini-weather)
 

@@ -1,0 +1,79 @@
+/* Living fog treatment on SVG overworld atlas (bakeoff/gemini-fog) */
+
+.sc-atlas-fog-veil,
+.sc-atlas-fog-veil *,
+.sc-atlas-fog-drift,
+.sc-atlas-fog-drift *,
+.sc-atlas-fog-puff,
+.sc-atlas-fog-puff *,
+.sc-atlas-fog-tendril,
+.sc-atlas-fog-tendril *,
+.sc-atlas-fog-edge,
+.sc-atlas-fog-mist {
+  pointer-events: none !important;
+}
+
+.sc-atlas-fog-drift {
+  animation: sc-atlas-fog-drift 4.5s ease-in-out infinite;
+}
+
+.sc-atlas-fog-puff {
+  animation: sc-atlas-fog-pulse 3.6s ease-in-out infinite;
+}
+
+.sc-atlas-fog-tendril {
+  animation: sc-atlas-fog-wisp 3s ease-in-out infinite;
+}
+
+.sc-atlas-fog-mist {
+  animation: sc-atlas-fog-mist-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes sc-atlas-fog-drift {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(1px, -0.6px);
+  }
+}
+
+@keyframes sc-atlas-fog-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-atlas-fog-wisp {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateX(1.2px);
+    opacity: 0.65;
+  }
+}
+
+@keyframes sc-atlas-fog-mist-shimmer {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-fog-drift,
+  .sc-atlas-fog-puff,
+  .sc-atlas-fog-tendril,
+  .sc-atlas-fog-mist {
+    animation: none !important;
+  }
+}

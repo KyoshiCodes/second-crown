@@ -1,10 +1,10 @@
-## 2026-11-02 — render / clearer fog edge on diamond board (wave/board-fog)
+## 2026-11-02 — render & app / living fog treatment on diamond board (bakeoff/gemini-fog)
 
-- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
 - Layer order in `boardContainer` (bottom to top): backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, routes, pawns, **fog edge**, weather, node piles, outpost marks, selection, hover highlight. Keep the fog edge below weather and everything after it, or it will cover piles, camps and the rim.
 - Edge geometry follows `boardGridToWorld`: neighbour `(x, y-1)` shares the top→right side (`ne`), `(x+1, y)` right→bottom (`se`), `(x, y+1)` bottom→left (`sw`), `(x-1, y)` left→top (`nw`). The edge is drawn at the tabletop plane (no elevation), on the unseen tile's side.
-- The fog edge is static: `updateBoardStatic` compares `computeBoardStaticCacheKey(state, "board")` to the last painted key, so it costs nothing per frame. Theme/season changes do not repaint it (colors are fixed, not themed). If you add themed colors, clear `boardFogEdgeKey` where `boardStaticCache.invalidate()` is called.
-- Test fixtures: `isProvinceSeen` also counts tiles within vision range of home and builds a default `fog_seen` from home + neighbours. The fog edge tests put home at `(0,0)` and set `flags.fog_seen` explicitly so only that list decides.
+- The fog edge on Pixi is static: `updateBoardStatic` compares `computeBoardStaticCacheKey(state, "board")` to the last painted key, so it costs nothing per frame. Theme/season changes do not repaint it (colors are fixed, not themed).
+- SVG Atlas (`packages/app/src/OverworldAtlas.tsx`): `MiniCloudVeil` includes `.sc-atlas-fog-drift`, `.sc-atlas-fog-puff`, and `.sc-atlas-fog-tendril` with isolated stylesheet `packages/app/src/hud/atlas-fog.css`. Unseen tiles have `.sc-atlas-fog-edge` (slate `#334155`) and `.sc-atlas-fog-mist` (pale `#e2e8f0`). Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` motion guard.
 - Root `npm test` does not run the render suite. Run `npm run test -w @second-crown/render` too.
 
 ## 2026-11-02 — render & app / living weather treatment on diamond board (bakeoff/gemini-weather)
