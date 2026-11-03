@@ -3874,6 +3874,117 @@ export function drawBoardStatusEmblem(
 }
 
 /**
+ * Living effect and status treatment: sparks, pulses, and weather-tied motion on status marks.
+ * Deterministic with phase and mark position.
+ */
+export function drawBoardStatusLivingEffect(
+  g: Graphics,
+  m: BoardStatusMark,
+  phase: number = 0,
+  weather: AtmosphereWeather = "clear"
+): void {
+  if (!g) return;
+  const pulse = Math.sin(phase * 4 + (m.x + m.y) * 0.1) * 0.5 + 0.5;
+
+  switch (m.kind) {
+    case "clash": {
+      // Living martial combat spark motes radiating outward
+      const sparkCount = 3;
+      for (let s = 0; s < sparkCount; s++) {
+        const ang = phase * 5 + (s * Math.PI * 2) / sparkCount;
+        const dist = 7.5 + Math.sin(phase * 6 + s) * 2;
+        const sx = m.x + Math.cos(ang) * dist;
+        const sy = m.y + Math.sin(ang) * (dist * 0.65);
+        // Soft fiery aura
+        g.circle(sx, sy, 1.4);
+        g.fill({ color: 0xef4444, alpha: 0.35 + 0.25 * pulse });
+        // Core spark
+        g.circle(sx, sy, 0.7);
+        g.fill({ color: 0xfef08a, alpha: 0.85 });
+      }
+      break;
+    }
+    case "incoming": {
+      // Threat warning beacon pulse
+      const r = 8.5 + pulse * 2.0;
+      g.ellipse(m.x, m.y, r, r * 0.6);
+      g.stroke({ width: 0.8, color: 0xf97316, alpha: 0.35 + 0.3 * pulse });
+      // Central ember spark
+      g.circle(m.x, m.y - 1, 0.9);
+      g.fill({ color: 0xffedd5, alpha: 0.75 + 0.25 * pulse });
+      break;
+    }
+    case "trail": {
+      // Golden waypoint pulse spark
+      const r = 7.2 + pulse * 1.5;
+      g.ellipse(m.x, m.y, r, r * 0.55);
+      g.stroke({ width: 0.7, color: 0xfde68a, alpha: 0.3 + 0.25 * pulse });
+      break;
+    }
+    case "fogEdge": {
+      // Weather-tied motion at the frontier edge of vision
+      if (weather === "snow") {
+        // Glistening frost crystal glint
+        const frostSpark = Math.sin(phase * 6 + (m.x - m.y) * 0.2) * 0.5 + 0.5;
+        g.circle(m.x + 1, m.y - 1, 1.2);
+        g.fill({ color: 0xf8fafc, alpha: 0.4 + 0.5 * frostSpark });
+        g.circle(m.x - 1.5, m.y + 1, 0.8);
+        g.fill({ color: 0xe0f2fe, alpha: 0.5 * frostSpark });
+      } else if (weather === "rain" || weather === "storm") {
+        // Electric mist droplet shimmer
+        const rainSpark = Math.sin(phase * 7 + (m.x + m.y) * 0.3) * 0.5 + 0.5;
+        g.circle(m.x, m.y, 1.6);
+        g.fill({ color: weather === "storm" ? 0x60a5fa : 0x93c5fd, alpha: 0.3 + 0.3 * rainSpark });
+      } else {
+        // Soft frontier veil pulse
+        g.circle(m.x, m.y, 6.0 + pulse * 1.2);
+        g.stroke({ width: 0.6, color: 0xc7d2fe, alpha: 0.25 + 0.2 * pulse });
+      }
+      break;
+    }
+    case "scout": {
+      // Cyan recon ping pulse
+      g.circle(m.x, m.y, 7.5 + pulse * 1.6);
+      g.stroke({ width: 0.7, color: 0x38bdf8, alpha: 0.3 + 0.25 * pulse });
+      break;
+    }
+    case "garrison": {
+      // Defensive sentry ward pulse
+      g.circle(m.x, m.y, 7.2 + pulse * 1.4);
+      g.stroke({ width: 0.7, color: 0x10b981, alpha: 0.3 + 0.25 * pulse });
+      break;
+    }
+    case "gather": {
+      // Golden harvest sheen
+      g.circle(m.x, m.y, 7.0 + pulse * 1.4);
+      g.stroke({ width: 0.7, color: 0xfbbf24, alpha: 0.3 + 0.25 * pulse });
+      break;
+    }
+    case "season": {
+      // Seasonal vitality halo
+      const seasonColor =
+        m.detail === "winter"
+          ? 0x93c5fd
+          : m.detail === "autumn"
+          ? 0xfb923c
+          : m.detail === "summer"
+          ? 0xfacc15
+          : 0x86efac;
+      g.circle(m.x, m.y, 6.8 + pulse * 1.3);
+      g.stroke({ width: 0.7, color: seasonColor, alpha: 0.3 + 0.2 * pulse });
+      break;
+    }
+    default: {
+      // Default soft status breathing aura
+      const baseCol = BOARD_STATUS_RIM_COLORS[m.kind] ?? 0xfacc15;
+      g.circle(m.x, m.y, 6.8 + pulse * 1.2);
+      g.stroke({ width: 0.6, color: baseCol, alpha: 0.25 + 0.2 * pulse });
+      break;
+    }
+  }
+}
+
+/**
  * Paints every seen tile's status marks on its own Graphics layer. Per tile, all
  * plinths go down first, then the emblems, so a neighbouring plinth never covers a
  * mark. The renderer stacks this layer above weather, the fog edge, marches, keeps,
@@ -3892,11 +4003,13 @@ export function paintBoardStatusMarks(
   if (!marks.length) return;
   const rawPhase = typeof phase === "number" ? phase : 0;
   let i = 0;
+  const weather = state ? resolveAtmosphereWeather(state) : "clear";
   while (i < marks.length) {
     let j = i;
     while (j < marks.length && marks[j].provinceId === marks[i].provinceId) j++;
     for (let k = i; k < j; k++) drawBoardStatusPlinth(g, marks[k].x, marks[k].y, marks[k].kind);
     for (let k = i; k < j; k++) drawBoardStatusEmblem(g, marks[k], rawPhase, state);
+    for (let k = i; k < j; k++) drawBoardStatusLivingEffect(g, marks[k], rawPhase, weather);
     i = j;
   }
 }

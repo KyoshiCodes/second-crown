@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-11-03 — Living effect and status treatment on diamond board (bakeoff/gemini-effects)
+
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/tokens.ts`: new `drawBoardStatusLivingEffect`.
+  - Sparks and pulses for status marks: martial combat sparks radiating outward for `clash`, pulsating warning beacon for `incoming`, golden waypoint pulse for `trail`, cyan recon pulse for `scout`, sentry ward pulse for `garrison`, and harvest sheen for `gather`.
+  - Weather-tied motion: `fogEdge` features ice-crystal frost glints in snow, electric mist droplet shimmers in rain/storm, and soft veil pulses in clear air; `season` features seasonal vitality halos matching current realm season.
+  - `paintBoardStatusMarks` invokes `drawBoardStatusLivingEffect` per mark deterministically with `phase` and atmospheric weather.
+- `packages/render/src/index.ts`: re-exports `drawBoardStatusLivingEffect`.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-effects.css`: SVG Kingdom Atlas renders living martial clash sparks (`.sc-atlas-status-clash`), incoming threat beacon (`.sc-atlas-status-incoming`), and trail waypoint pulses (`.sc-atlas-status-trail`). Isolated stylesheet with strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` motion guard.
+- Tests: added tests for `drawBoardStatusLivingEffect` in `packages/render/src/index.test.ts` and created `packages/app/src/hud/atlasEffects.test.tsx`. `npm test`, `npm run test -w @second-crown/render` (647 tests), and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+
 ## 2026-11-03 — Clearer effect and status markers on diamond board (wave/board-effects)
 
 - Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged (marks are drawn only).

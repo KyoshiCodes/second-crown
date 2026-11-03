@@ -19,6 +19,9 @@ import {
   resolveBoardSeasonWash,
   resolveAtmosphereWeather,
   getPostedGarrison,
+  hasProvinceClash,
+  hasProvinceIncoming,
+  hasProvinceTrail,
 } from "@second-crown/render";
 import { detectCurrentHoliday } from "./seasons/holidays";
 import "./hud/atlas-select-rim.css";
@@ -30,6 +33,7 @@ import "./hud/atlas-marches.css";
 import "./hud/atlas-keeps.css";
 import "./hud/atlas-roads.css";
 import "./hud/atlas-units.css";
+import "./hud/atlas-effects.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -1234,6 +1238,25 @@ export function OverworldAtlas(props: {
                     </>
                   ) : p.terrain === "peak" ? (
                     <polygon points={`${cx - 5},${cy + 2} ${cx},${cy - 10} ${cx + 5},${cy + 2}`} fill="#d6d3d1" opacity={0.85} />
+                  ) : null}
+                  {state && hasProvinceClash(state, p.id) ? (
+                    <g className="sc-atlas-status-clash" style={{ pointerEvents: "none" }}>
+                      <circle cx={cx} cy={cy - 6} r={7.5} fill="#ef4444" fillOpacity={0.25} stroke="#f87171" strokeWidth={0.8} />
+                      <circle cx={cx - 3.5} cy={cy - 8.5} r={1.2} fill="#fef08a" />
+                      <circle cx={cx + 3.5} cy={cy - 4.5} r={1.0} fill="#ffffff" />
+                      <circle cx={cx} cy={cy - 3.5} r={0.8} fill="#fef08a" />
+                    </g>
+                  ) : null}
+                  {state && hasProvinceIncoming(state, p.id) ? (
+                    <g className="sc-atlas-status-incoming" style={{ pointerEvents: "none" }}>
+                      <circle cx={cx + 8} cy={cy - 8} r={6.5} fill="#f97316" fillOpacity={0.25} stroke="#fb923c" strokeWidth={0.8} />
+                      <polygon points={`${cx + 8},${cy - 11} ${cx + 10.5},${cy - 7} ${cx + 5.5},${cy - 7}`} fill="#ffedd5" />
+                    </g>
+                  ) : null}
+                  {state && hasProvinceTrail(state, p.id) ? (
+                    <g className="sc-atlas-status-trail" style={{ pointerEvents: "none" }}>
+                      <circle cx={cx - 8} cy={cy - 8} r={5.5} fill="#fde68a" fillOpacity={0.22} stroke="#fde047" strokeWidth={0.7} />
+                    </g>
                   ) : null}
                 </>
               ) : null}

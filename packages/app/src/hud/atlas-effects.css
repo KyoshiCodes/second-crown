@@ -1,0 +1,71 @@
+/* Living effect and status treatment on diamond board / atlas — isolated styles (do not touch theme.css) */
+
+.sc-atlas-status-effect,
+.sc-atlas-status-effect *,
+.sc-atlas-status-clash,
+.sc-atlas-status-clash *,
+.sc-atlas-status-incoming,
+.sc-atlas-status-incoming *,
+.sc-atlas-status-trail,
+.sc-atlas-status-trail *,
+.sc-atlas-status-weather-spark,
+.sc-atlas-status-weather-spark * {
+  pointer-events: none !important;
+}
+
+.sc-atlas-status-clash {
+  transform-origin: center;
+  animation: sc-atlas-clash-sparkle 1.4s ease-in-out infinite;
+}
+
+@keyframes sc-atlas-clash-sparkle {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+}
+
+.sc-atlas-status-incoming {
+  transform-origin: center;
+  animation: sc-atlas-incoming-beacon 1.8s ease-in-out infinite;
+}
+
+@keyframes sc-atlas-incoming-beacon {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.18);
+  }
+}
+
+.sc-atlas-status-trail {
+  transform-origin: center;
+  animation: sc-atlas-trail-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes sc-atlas-trail-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.14);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-status-clash,
+  .sc-atlas-status-incoming,
+  .sc-atlas-status-trail {
+    animation: none !important;
+    transform: none !important;
+  }
+}

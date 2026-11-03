@@ -1,3 +1,16 @@
+## 2026-11-03 — render & app / living effect and status treatment on diamond board (bakeoff/gemini-effects)
+
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order on the Pixi board: backdrop, static tiles (cached), roads, road traffic, provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, selection rim, hover highlight, status marks (with living effects & sparks), unit labels (top).
+- Visual depth and readability:
+  - Living effect animations (`drawBoardStatusLivingEffect`) run atop the steady status plinths without modifying `BOARD_STATUS_INK` or plinth dimensions, ensuring existing plinth invariants hold while breathing martial sparks, threat beacons, and weather-tied glints animate smoothly at 60 FPS.
+  - Weather integration: `fogEdge` marks dynamically react to `resolveAtmosphereWeather`, glittering with frost crystals in snow and electric mist particles in rain and storm.
+  - Non-interference: All effect marks sit on `boardStatusMarksLayer` with `eventMode = "none"`, below unit labels so troop count and arrival time plates remain perfectly legible.
+- Determinism: `drawBoardStatusLivingEffect` is a pure deterministic function of `phase`, mark coordinates, and atmospheric weather.
+- SVG Kingdom Atlas (`OverworldAtlas.tsx` & `atlas-effects.css`): Living clash sparks (`.sc-atlas-status-clash`), threat beacons (`.sc-atlas-status-incoming`), and trail waypoints (`.sc-atlas-status-trail`).
+- Strict isolation: `pointer-events: none !important;` on all decorative effect styles; `@media (prefers-reduced-motion: reduce)` disables animations. Zero alterations to `theme.css`.
+- Verification: Root `npm test` does not run render suite. Run `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app`.
+
 ## 2026-11-03 — render / clearer effect and status markers on diamond board (wave/board-effects)
 
 - Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

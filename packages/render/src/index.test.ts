@@ -5144,6 +5144,33 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           expect(markCalls).toBe(dynCalls);
           expect(code).toMatch(/boardStatusMarksLayer\.eventMode = "none"/);
         });
+
+        it("drawBoardStatusLivingEffect renders clash spark motes, incoming warning beacon, and weather-tied glints deterministically", async () => {
+          const { drawBoardStatusLivingEffect } = await import("./tokens.js");
+          // 1. Clash spark motes
+          const gClash1 = createMockGraphics();
+          drawBoardStatusLivingEffect(gClash1, { provinceId: "p1", kind: "clash", x: 100, y: 100 }, 1.5, "clear");
+          expect(gClash1.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0xef4444)).toBe(true);
+          expect(gClash1.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0xfef08a)).toBe(true);
+
+          const gClash2 = createMockGraphics();
+          drawBoardStatusLivingEffect(gClash2, { provinceId: "p1", kind: "clash", x: 100, y: 100 }, 1.5, "clear");
+          expect(JSON.stringify(gClash2.calls)).toBe(JSON.stringify(gClash1.calls));
+
+          // 2. Incoming threat beacon pulse
+          const gInc = createMockGraphics();
+          drawBoardStatusLivingEffect(gInc, { provinceId: "p2", kind: "incoming", x: 120, y: 80 }, 2.0, "clear");
+          expect(gInc.calls.some((c: any) => c.method === "stroke" && c.args[0]?.color === 0xf97316)).toBe(true);
+
+          // 3. Fog edge weather-tied motion: snow vs rain vs clear
+          const gSnow = createMockGraphics();
+          drawBoardStatusLivingEffect(gSnow, { provinceId: "p3", kind: "fogEdge", x: 50, y: 50 }, 0.5, "snow");
+          expect(gSnow.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0xf8fafc)).toBe(true);
+
+          const gRain = createMockGraphics();
+          drawBoardStatusLivingEffect(gRain, { provinceId: "p3", kind: "fogEdge", x: 50, y: 50 }, 0.5, "rain");
+          expect(gRain.calls.some((c: any) => c.method === "fill" && c.args[0]?.color === 0x93c5fd)).toBe(true);
+        });
       });
 
       it("OverworldAtlas defines MiniLogs, MiniSacks, MiniBlocks on diamond for stocked provinces", async () => {

@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Living effect and status treatment on the diamond board (bakeoff/gemini-effects)
+
+- **Living battle clashes and threat beacons.** Provinces with active clashes now spark with fiery martial embers, while incoming hostile columns trigger an unmistakable pulsing threat beacon on the target tile.
+- **Weather-tied frontier effects.** Frontier fog-edge markers react to realm weather, glistening with diamond frost crystals during winter snow and shimmering with electric mist droplets during storms and rain.
+- **Pulse and path highlights.** Scouts, garrisons, gatherers, and player column trails feature subtle, living breathing halos that reinforce their status across the realm.
+- **Unobscured clarity.** All living sparks and status effects stay readable beneath keeps, node piles, camps, weather storms, and selection outlines, while unit count and ETA tags remain clearly visible above them.
+- **Play is unchanged.** Purely visual; combat resolution, arrival times, and game rules are unaffected.
+
 ## 2026-11-03 — Clearer effect and status markers on the diamond board (wave/board-effects)
 
 - **Status marks are easier to read.** The small marks on board tiles now sit on a dark disc with a coloured ring. That covers fights (red burst), enemy columns on the way (orange), your trails, the season, garrisons, scouts, gatherers, rival owners, your holds, finished buildings, staffed buildings, and the fog edge.
