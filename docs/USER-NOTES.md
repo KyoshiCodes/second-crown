@@ -2,12 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Clearer marches on the diamond board (wave/board-marches)
+## 2026-11-02 — Living marches on the diamond board (bakeoff/gemini-marches)
 
-- **Marching columns are easier to follow.** Each march now has a solid line with a dark edge from where it left to where it is going, with small arrows pointing the way.
+- **Marching columns are alive and easy to follow.** Each march now has an ink-backed route with direction arrows, an animated marching trail, trailing dust puffs, and a fluttering standard-bearer war banner.
 - **Colour tells you who is marching.** Amber for your armies, red for enemies, green for gatherers, blue for garrisons, and cyan for scouts.
-- **Meeples stand out.** Each marching piece stands on a dark ring in its march colour, so you can spot it on snow, in rain, or at night.
+- **Meeples stand out.** Each marching column meeple stands on an ink ring in its march role colour with active step cadence, making it easy to spot against snow, rain, or night tiles.
 - **Rain, snow and the fog line no longer cover marches.** Resource piles, outpost flags, rival camps, and your selected-province outline still draw on top.
+- **Strictly decorative and accessible.** All overlays ignore mouse clicks and respect prefers-reduced-motion preferences.
 - **Play is unchanged.** March speed and arrival times work exactly as before.
 
 ## 2026-11-02 — Living fog treatment on the diamond board (bakeoff/gemini-fog)

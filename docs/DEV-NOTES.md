@@ -1,10 +1,10 @@
-## 2026-11-02 — render / clearer march paths and meeples on diamond board (wave/board-marches)
+## 2026-11-02 — render & app / living march treatment on diamond board (bakeoff/gemini-marches)
 
-- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- Layer order in `boardContainer` (bottom to top) on this branch: backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, fog edge, weather, **routes, pawns**, node piles, outpost marks, selection, hover highlight. Marches moved above weather on purpose (readability over realism); keep them below piles, camps, rim and hover.
-- The new marks are steady (no `phase` term), so they read the same every frame. The old dotted trail, target rings and meeple drawing are untouched and still animate on top of the new path.
-- `boardMarchRole` mirrors the branch order already in `paintBoardMarches` (scout > gather > garrison > player/hostile). If you add a march type, add it to both.
-- Chevrons are centred on the route and skip short hops (`< 1.5 x spacing`), so neighbouring-tile marches show just the line.
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order in `boardContainer` (bottom to top): backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, fog edge, weather, **routes, pawns**, node piles, outpost marks, selection, hover highlight. Marches sit above fog edge and weather so precipitation and fog boundaries never obscure marching columns; keep them below piles, camps, rim and hover.
+- The new Pixi path marks are steady (ink underlay, role color, direction chevrons), while meeples continue their animated step cadence and dotted trails on top.
+- `boardMarchRole` mirrors the branch order in `paintBoardMarches` (scout > gather > garrison > player/hostile). Chevrons skip short hops (`< 1.5 x spacing`).
+- SVG Atlas (`packages/app/src/OverworldAtlas.tsx`): marches render with high-contrast dark ink underlay, solid role/realm base line, animated marching trail (`.sc-atlas-march-trail`), trailing dust puffs (`.sc-atlas-march-dust`), and fluttering banner standard (`.sc-atlas-march-banner`). Isolated stylesheet in `packages/app/src/hud/atlas-marches.css` with strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guard.
 - Root `npm test` does not run the render suite. Run `npm run test -w @second-crown/render` too.
 
 ## 2026-11-02 — render & app / living fog treatment on diamond board (bakeoff/gemini-fog)

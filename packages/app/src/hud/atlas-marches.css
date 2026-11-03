@@ -1,0 +1,80 @@
+/* Living march treatment on SVG overworld atlas (bakeoff/gemini-marches) */
+
+.sc-atlas-march,
+.sc-atlas-march *,
+.sc-atlas-march-meeple,
+.sc-atlas-march-meeple *,
+.sc-atlas-march-banner,
+.sc-atlas-march-banner *,
+.sc-atlas-march-dust,
+.sc-atlas-march-dust *,
+.sc-atlas-march-trail {
+  pointer-events: none !important;
+}
+
+.sc-atlas-march-meeple {
+  animation: sc-atlas-march-bob 0.8s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+.sc-atlas-march-banner {
+  animation: sc-atlas-march-flutter 1.2s ease-in-out infinite;
+  transform-origin: left bottom;
+}
+
+.sc-atlas-march-dust {
+  animation: sc-atlas-march-dust-puff 1.4s ease-out infinite;
+  transform-origin: center;
+}
+
+.sc-atlas-march-trail {
+  animation: sc-atlas-march-dash 2s linear infinite;
+}
+
+@keyframes sc-atlas-march-bob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.4px);
+  }
+}
+
+@keyframes sc-atlas-march-flutter {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(3deg) skewX(2deg);
+  }
+}
+
+@keyframes sc-atlas-march-dust-puff {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes sc-atlas-march-dash {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-march-meeple,
+  .sc-atlas-march-banner,
+  .sc-atlas-march-dust,
+  .sc-atlas-march-trail {
+    animation: none !important;
+  }
+}

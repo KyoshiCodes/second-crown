@@ -25,6 +25,7 @@ import "./hud/atlas-node-piles.css";
 import "./hud/atlas-camps.css";
 import "./hud/atlas-weather.css";
 import "./hud/atlas-fog.css";
+import "./hud/atlas-marches.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -998,6 +999,11 @@ export function OverworldAtlas(props: {
           const y1 = oy + a.y;
           const x2 = ox + b.x - origin.x;
           const y2 = oy + b.y;
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const len = Math.hypot(dx, dy) || 1;
+          const ux = dx / len;
+          const uy = dy / len;
           const pal = realmTokenPalette(m.realmId);
           const stroke = cssColor(pal.accentColor, "#fbbf24");
           const dist = Math.max(1, Math.abs(to.x - from.x) + Math.abs(to.y - from.y));
@@ -1011,23 +1017,76 @@ export function OverworldAtlas(props: {
             ? Math.max(0, Math.ceil((m.arrivesTick - state.meta.tick) / 10))
             : null;
           return (
-            <g key={m.id}>
+            <g key={m.id} className="sc-atlas-march" style={{ pointerEvents: "none" }}>
+              {/* Steady dark ink underlay so the route reads across snow, dark night and fog */}
+              <line
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke="#0f172a"
+                strokeWidth={4.2}
+                strokeLinecap="round"
+                opacity={0.65}
+              />
+              {/* Role / realm colored solid base path */}
               <line
                 x1={x1}
                 y1={y1}
                 x2={x2}
                 y2={y2}
                 stroke={stroke}
-                strokeWidth={2}
-                strokeDasharray="4 3"
+                strokeWidth={1.8}
+                strokeLinecap="round"
                 opacity={0.85}
               />
-              <circle cx={mx} cy={my} r={4} fill={stroke} stroke="#111" />
+              {/* Animated living marching dashed trail */}
+              <line
+                className="sc-atlas-march-trail"
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke="#ffffff"
+                strokeWidth={1.2}
+                strokeDasharray="3 4"
+                opacity={0.7}
+              />
+              {/* Living trailing dust puffs behind the marching column */}
+              <g className="sc-atlas-march-dust" style={{ pointerEvents: "none" }}>
+                <circle cx={mx - ux * 6} cy={my - uy * 6} r={1.6} fill="#d6d3d1" opacity={0.55} />
+                <circle cx={mx - ux * 10} cy={my - uy * 10 - 0.5} r={1.2} fill="#cbd5e1" opacity={0.4} />
+              </g>
+              {/* Meeple base ink ring with role-colored rim */}
+              <ellipse
+                cx={mx}
+                cy={my + 2.5}
+                rx={6}
+                ry={3}
+                fill="#0f172a"
+                fillOpacity={0.6}
+                stroke={stroke}
+                strokeWidth={0.8}
+              />
+              {/* Living marching meeple with step motion */}
+              <g className="sc-atlas-march-meeple" style={{ pointerEvents: "none" }}>
+                <circle cx={mx} cy={my} r={3.6} fill={stroke} stroke="#0f172a" strokeWidth={1} />
+                {/* Fluttering march banner standard */}
+                <g className="sc-atlas-march-banner" style={{ pointerEvents: "none" }}>
+                  <line x1={mx} y1={my + 1} x2={mx} y2={my - 11} stroke="#78350f" strokeWidth={1} />
+                  <polygon
+                    points={`${mx},${my - 11} ${mx + 6},${my - 9.5} ${mx + 4},${my - 8} ${mx + 6},${my - 6.5} ${mx},${my - 6.5}`}
+                    fill={stroke}
+                    stroke="#0f172a"
+                    strokeWidth={0.4}
+                  />
+                </g>
+              </g>
               {hasEta && secs !== null ? (
                 <g className="sc-atlas-march-eta-badge" style={{ pointerEvents: "none" }}>
                   <rect
                     x={mx - 10}
-                    y={my - 16}
+                    y={my - 18}
                     width={20}
                     height={10}
                     rx={3}
@@ -1037,7 +1096,7 @@ export function OverworldAtlas(props: {
                   />
                   <text
                     x={mx}
-                    y={my - 8.5}
+                    y={my - 10.5}
                     textAnchor="middle"
                     fill="#ffffff"
                     fontSize={7.5}

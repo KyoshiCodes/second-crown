@@ -1,11 +1,12 @@
 # CHANGELOG
 
-## 2026-11-02 — Clearer march paths and meeples on diamond board (wave/board-marches)
+## 2026-11-02 — Living march treatment on diamond board (bakeoff/gemini-marches)
 
-- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
 - `packages/render/src/tokens.ts`: new `boardMarchRole`, `listMarchChevrons`, `drawMarchPathLine`, `drawMarchMeepleRing`, type `BoardMarchRole`, and constants `BOARD_MARCH_ROLE_COLORS`, `BOARD_MARCH_INK` / `_INK_ALPHA` / `_INK_WIDTH`, `BOARD_MARCH_LINE_ALPHA` / `_LINE_WIDTH`, `BOARD_MARCH_CHEVRON_SPACING` / `_CHEVRON_SIZE`, `BOARD_MARCH_RING_RX` / `_RING_RY` / `_RING_FILL_ALPHA`. `paintBoardMarches` draws the steady path + chevrons under the existing dotted trail and a ring under each meeple.
-- `packages/render/src/index.ts`: `boardRoutesLayer` and `boardPawnsLayer` move from below the fog edge to above `boardWeatherGraphic`, below node piles. New helpers re-exported.
-- Tests: new `board march clarity` block in `packages/render/src/index.test.ts`; fog edge layer-order test updated. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- `packages/render/src/index.ts`: `boardRoutesLayer` and `boardPawnsLayer` move from below the fog edge to above `boardWeatherGraphic`, below node piles, camps, select rim, and hover.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-marches.css`: SVG Kingdom Atlas features dark ink route underlay, animated dashed march trail (`.sc-atlas-march-trail`), trailing living dust puffs (`.sc-atlas-march-dust`), meeple ink ring, step motion (`.sc-atlas-march-meeple`), and fluttering standard-bearer banner (`.sc-atlas-march-banner`). Isolated stylesheet with strict `pointer-events: none !important;` and motion guard.
+- Tests: new `board march clarity` block in `packages/render/src/index.test.ts` and `packages/app/src/hud/atlasMarches.test.tsx`. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
 
 ## 2026-11-02 — Living fog treatment on diamond board (bakeoff/gemini-fog)
