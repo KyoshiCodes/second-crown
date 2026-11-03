@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Clearer culture picker (wave/culture-picker)
+
+- **See what each culture gives you.** On the Crown tab, each crown style card now shows its unit (for example, Mist Reach → Ranger) and its one difference (for example, Farm +1 food).
+- **The first five styles change looks only.** Crown Marches, Cedar Kin, Sand Banner, Wind Host, and Tide Clans say "base roster" and "looks only".
+- **Picking works the same.** Click a card to pick it. New Game still keeps your pick on this browser.
+
 ## 2026-11-03 — Living weather treatment on the diamond board (bakeoff/gemini-weather)
 
 - **Living rain, snow, and autumn wind.** Rain now falls with delicate streaks that splash into ripples on the ground tiles; winter brings fluttering crystalline snowflakes that softly settle on the land; and autumn brings tumbling golden-amber leaves dancing across the kingdom on the breeze.

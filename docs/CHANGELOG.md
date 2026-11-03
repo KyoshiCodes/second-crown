@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-03 — Clearer culture line in the culture picker (wave/culture-picker)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `CulturePicker.tsx`: each crown style card now shows a **Unit:** line (Mist → Ranger, Glen → Banner, Salt → Outrider, Fen → Warden, Peak → Lancer; the five base cultures say "base roster") and an **Edge:** line (Farm +1 food, Quarry +1 stone, Lumber camp +1 wood, Cottage +1 citizen, Keep +1 vision; base cultures say "looks only"). Pick, "Your style" mark, and the remembered pick work as before.
+- New `packages/app/src/cultureLines.ts` (copy only; numbers come from the sim's `*_BONUS` constants and unit names from `getUnitType`) and `packages/app/src/hud/culture-picker.css`.
+- Tests: `packages/app/src/cultureLines.test.tsx`. `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-03 — Living weather treatment on diamond board (bakeoff/gemini-weather)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

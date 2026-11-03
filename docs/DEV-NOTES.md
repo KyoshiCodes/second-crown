@@ -1,3 +1,11 @@
+## 2026-11-03 — app / clearer culture line in the culture picker (wave/culture-picker)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`.
+- `cultureLine(id)` in `packages/app/src/cultureLines.ts` maps a culture to `{ unit, difference }`. The culture→unit pairing is UI copy only: the sim does **not** lock rangers, banners, outriders, wardens, or lancers to a culture (`unitUnlocked` checks studies only). The card says "Unit:", not "unique unit", for that reason. If the sim ever adds culture-locked units, move this map into `content/cultures.ts`.
+- Numbers come from `MIST_FARM_BONUS` … `PEAK_KEEP_VISION_BONUS` and names from `getUnitType`, so a balance change shows up in the picker without a UI edit.
+- Selection is unchanged: `setPlayerCulture` + `rememberCulture` on click; `is-picked` and "Your style" on the current card.
+- Styles in `packages/app/src/hud/culture-picker.css` (`.sc-culture-lines`, `.sc-culture-line`, `-key`, `-val`, `.is-plain`).
+
 ## 2026-11-03 — render & app / living weather treatment on diamond board (bakeoff/gemini-weather)
 
 - Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
