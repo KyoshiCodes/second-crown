@@ -3898,7 +3898,7 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
       });
 
       it("paintBoardSelectionRim lays a steady dark ink underlay before any gold (fog/weather contrast)", async () => {
-        const { paintBoardSelectionRim, SELECT_RIM_INK, SELECT_RIM_INK_ALPHA } = await import("./tokens.js");
+        const { paintBoardSelectionRim, SELECT_RIM_INK, SELECT_RIM_INK_ALPHA, SELECT_RIM_HALO } = await import("./tokens.js");
         const state = createMockState();
         state.board = {
           homeProvinceId: "p_home",
@@ -3913,16 +3913,104 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           for (const phase of [0, 0.5, 1.7]) {
             const g = createMockGraphics();
             paintBoardSelectionRim(g, bx, by, state, phase);
-            const strokes = g.calls.filter((c: any) => c.method === "stroke");
+            // The pale halo (wave/board-select) sits under the ink, so skip it here.
+            const strokes = g.calls.filter((c: any) => c.method === "stroke" && c.args[0]?.color !== SELECT_RIM_HALO);
             const firstGold = strokes.findIndex((c: any) => c.args[0]?.color !== SELECT_RIM_INK);
             const inks = strokes.filter((c: any) => c.args[0]?.color === SELECT_RIM_INK);
             expect(inks.length).toBeGreaterThanOrEqual(2); // ground ring + top rim
-            expect(firstGold).toBeGreaterThanOrEqual(inks.length); // all ink before gold
+            expect(firstGold).toBeGreaterThanOrEqual(2); // rim ink (ground + top) before any gold; bracket ink comes later
             for (const ink of inks) {
               expect(ink.args[0].alpha).toBe(SELECT_RIM_INK_ALPHA); // does not pulse
             }
           }
         }
+      });
+
+      describe("board select rim clarity (wave/board-select)", () => {
+        function selectState() {
+          const state = createMockState();
+          state.board = {
+            homeProvinceId: "p_home",
+            provinces: [
+              { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+              { id: "p_hill", x: 3, y: 2, terrain: "hill", node: "quarry" },
+              { id: "p_fog", x: 5, y: 5, terrain: "wood", node: "none" },
+            ],
+          };
+          state.flags["seen:p_home"] = true;
+          state.flags["seen:p_hill"] = true;
+          return state;
+        }
+        const strokesOf = (g: any) => g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]);
+
+        it("lays a steady pale halo first, under the ink", async () => {
+          const { paintBoardSelectionRim, SELECT_RIM_HALO, SELECT_RIM_HALO_ALPHA, SELECT_RIM_INK } = await import("./tokens.js");
+          for (const phase of [0, 0.4, 2.1]) {
+            const g = createMockGraphics();
+            paintBoardSelectionRim(g, 3, 2, selectState(), phase);
+            const s = strokesOf(g);
+            expect(s[0].color).toBe(SELECT_RIM_HALO);
+            expect(s[0].alpha).toBe(SELECT_RIM_HALO_ALPHA);
+            expect(s[1].color).toBe(SELECT_RIM_INK);
+          }
+        });
+
+        it("main gold rim strokes do not pulse", async () => {
+          const { paintBoardSelectionRim, SELECT_RIM_GOLD, SELECT_RIM_GOLD_ALPHA } = await import("./tokens.js");
+          const goldAlphas = (phase: number) => {
+            const g = createMockGraphics();
+            paintBoardSelectionRim(g, 2, 2, selectState(), phase);
+            return strokesOf(g).filter((s: any) => s.color === SELECT_RIM_GOLD && s.width >= 2).map((s: any) => s.alpha);
+          };
+          for (const phase of [0, 0.56, 1.1, 3.3]) {
+            const a = goldAlphas(phase);
+            expect(a.length).toBeGreaterThanOrEqual(3); // ground ring + top rim + brackets
+            for (const alpha of a) expect(alpha).toBe(SELECT_RIM_GOLD_ALPHA);
+          }
+        });
+
+        it("draws four steady corner brackets outside the rim, ink then gold, last", async () => {
+          const { paintBoardSelectionRim, SELECT_RIM_INK, SELECT_RIM_GOLD, SELECT_RIM_BRACKET_PAD } = await import("./tokens.js");
+          const { boardGridToWorld, BOARD_HALF_W } = await import("./camera.js");
+          for (const [bx, by] of [[2, 2], [3, 2], [5, 5]] as const) {
+            const g = createMockGraphics();
+            paintBoardSelectionRim(g, bx, by, selectState(), 0.7);
+            const s = strokesOf(g);
+            expect(s[s.length - 2].color).toBe(SELECT_RIM_INK);
+            expect(s[s.length - 1].color).toBe(SELECT_RIM_GOLD);
+            // Bracket path: last 12 lineTo/moveTo before the ink stroke = 4 chevrons.
+            const idx = g.calls.map((c: any) => c.method).lastIndexOf("stroke");
+            const tail = g.calls.slice(0, idx).filter((c: any) => c.method === "moveTo" || c.method === "lineTo").slice(-12);
+            expect(tail.filter((c: any) => c.method === "moveTo").length).toBe(4);
+            const { wx } = boardGridToWorld(bx, by);
+            const xs = tail.map((c: any) => c.args[0]);
+            expect(Math.max(...xs)).toBeCloseTo(wx + BOARD_HALF_W + SELECT_RIM_BRACKET_PAD, 5);
+            expect(Math.min(...xs)).toBeCloseTo(wx - BOARD_HALF_W - SELECT_RIM_BRACKET_PAD, 5);
+          }
+        });
+
+        it("live board tokens layer no longer paints a second rim under weather", async () => {
+          const { paintBoardDynamicTokens } = await import("./tokens.js");
+          const state = selectState();
+          const a = createMockGraphics();
+          paintBoardDynamicTokens(a, state, 0, null);
+          const b = createMockGraphics();
+          paintBoardDynamicTokens(b, state, 0, "p_hill");
+          expect(b.calls.length).toBe(a.calls.length);
+        });
+
+        it("select rim layer stays above weather, fog edge, routes, keeps, meeples, piles and camps", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+          const at = (n: string) => code.indexOf(`boardContainer.addChild(${n})`);
+          const sel = at("boardSelectionLayer");
+          for (const n of ["boardStaticTilesLayer", "boardProvincesLayer", "boardFogEdgeLayer", "boardWeatherGraphic", "boardRoutesLayer", "boardKeepsLayer", "boardPawnsLayer", "boardNodePilesLayer", "boardOutpostMarksLayer"]) {
+            expect(at(n)).toBeGreaterThan(0);
+            expect(at(n)).toBeLessThan(sel);
+          }
+          expect(at("boardHighlightLayer")).toBeGreaterThan(sel);
+        });
       });
 
       it("board selection layer is stacked above the weather layer", async () => {

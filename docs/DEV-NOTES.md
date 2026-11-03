@@ -1,3 +1,12 @@
+## 2026-11-03 — render / clearer selected province rim on diamond board (wave/board-select)
+
+- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order unchanged: backdrop, static tiles (cached), provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, **selection**, hover highlight. Anything new that must not cover the rim goes below `boardSelectionLayer`.
+- Stroke order inside `paintBoardSelectionRim`: pale halo -> ink underlay -> gold rim (steady) -> amber glow (breathes) -> pips -> corner brackets (ink, then gold). The halo carries the rim on dark boards (night, storm, forest), the ink carries it on pale ones (snow, fog veil, sun glow).
+- Brackets are the selection's unique shape. Player keep plinth rims are also gold (`0xfbbf24`), so don't rely on colour alone to say "selected".
+- The tokens layer used to paint a duplicate rim under weather and keeps. It's gone on the live board (`selectRimOnOwnLayer`). If you call `paintProvinceDynamicToken` from somewhere new, decide whether you want the inline rim.
+- Root `npm test` does not run the render suite. Run `npm run test -w @second-crown/render` too.
+
 ## 2026-11-02 — render & app / living keep treatment on diamond board (bakeoff/gemini-keeps)
 
 - Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

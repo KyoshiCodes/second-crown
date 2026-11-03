@@ -6391,7 +6391,8 @@ function paintProvinceDynamicToken(
   selectedProvinceId?: string | null,
   pilesOnOwnLayer: boolean = false,
   outpostMarksOnOwnLayer: boolean = false,
-  keepsOnOwnLayer: boolean = false
+  keepsOnOwnLayer: boolean = false,
+  selectRimOnOwnLayer: boolean = false
 ): void {
   if (!seen) {
     const destKind = marchDestMap.get(p.id);
@@ -6645,8 +6646,10 @@ function paintProvinceDynamicToken(
     drawFogEdgeMark(g, cx + 5, cy - 3, animPhase, state);
   }
 
-  // 7. Clear Gold Rim & Ground Ring for Currently Selected Province
-  if (selectedProvinceId && p.id === selectedProvinceId) {
+  // 7. Clear Gold Rim & Ground Ring for Currently Selected Province.
+  // Skipped on the live board: the rim has its own top layer (boardSelectionLayer), and a
+  // second copy down here sat under weather / keeps and smeared a doubled glow.
+  if (!selectRimOnOwnLayer && selectedProvinceId && p.id === selectedProvinceId) {
     paintBoardSelectionRim(g, p.x, p.y, state, animPhase);
   }
 }
@@ -6845,7 +6848,8 @@ export function paintBoardDynamicTokens(
       selectedProvinceId,
       true, // node piles + badges are painted on their own layer (paintBoardNodePiles)
       true, // outpost + camp marks are painted on their own layer (paintBoardOutpostMarks)
-      true // miniature keeps are painted on their own layer (paintBoardKeeps)
+      true, // miniature keeps are painted on their own layer (paintBoardKeeps)
+      true // the select rim is painted on its own top layer (paintBoardSelectionRim)
     );
   }
 }
@@ -10085,6 +10089,58 @@ export function paintBoardGathers(
 export const SELECT_RIM_INK = 0x1c1208;
 export const SELECT_RIM_INK_ALPHA = 0.72;
 export const SELECT_RIM_INK_WIDTH = 4.5;
+/** Pale halo laid under the ink so the rim still has a light edge on night / storm boards. */
+export const SELECT_RIM_HALO = 0xfff7d6;
+export const SELECT_RIM_HALO_ALPHA = 0.5;
+export const SELECT_RIM_HALO_WIDTH = 8;
+/** Steady (non-pulsing) alpha for the main gold rim strokes. Only the outer glow breathes. */
+export const SELECT_RIM_GOLD = 0xfacc15;
+export const SELECT_RIM_GOLD_ALPHA = 1;
+/** Corner brackets: drawn outside the plateau rim, so keeps, meeples and piles never cover them. */
+export const SELECT_RIM_BRACKET_PAD = 6;
+/** Bracket arm length as a fraction of a diamond edge. */
+export const SELECT_RIM_BRACKET_ARM = 0.3;
+export const SELECT_RIM_BRACKET_INK_WIDTH = 4.5;
+export const SELECT_RIM_BRACKET_GOLD_WIDTH = 2;
+
+/**
+ * Four steady corner brackets just outside a diamond (center wx, cy). Each bracket is a
+ * chevron at one vertex, with arms running back along its two edges. Ink first, gold on top.
+ * The shape is unique to selection: keep plinth rims, march routes and fog edges are full
+ * lines or ellipses, so the brackets read as "selected" even when the gold colour is shared.
+ */
+export function drawBoardSelectionBrackets(
+  g: Graphics,
+  wx: number,
+  cy: number,
+  hw: number = BOARD_HALF_W,
+  hh: number = BOARD_HALF_H,
+  pad: number = SELECT_RIM_BRACKET_PAD
+): void {
+  const ohw = hw + pad;
+  const ohh = hh + pad;
+  const verts = [
+    { x: wx, y: cy - ohh },
+    { x: wx + ohw, y: cy },
+    { x: wx, y: cy + ohh },
+    { x: wx - ohw, y: cy },
+  ];
+  const t = SELECT_RIM_BRACKET_ARM;
+  const trace = () => {
+    for (let i = 0; i < 4; i++) {
+      const v = verts[i];
+      const prev = verts[(i + 3) % 4];
+      const next = verts[(i + 1) % 4];
+      g.moveTo(v.x + (prev.x - v.x) * t, v.y + (prev.y - v.y) * t);
+      g.lineTo(v.x, v.y);
+      g.lineTo(v.x + (next.x - v.x) * t, v.y + (next.y - v.y) * t);
+    }
+  };
+  trace();
+  g.stroke({ width: SELECT_RIM_BRACKET_INK_WIDTH, color: SELECT_RIM_INK, alpha: SELECT_RIM_INK_ALPHA });
+  trace();
+  g.stroke({ width: SELECT_RIM_BRACKET_GOLD_WIDTH, color: SELECT_RIM_GOLD, alpha: SELECT_RIM_GOLD_ALPHA });
+}
 
 export function paintBoardSelectionRim(
   g: Graphics,
@@ -10107,7 +10163,17 @@ export function paintBoardSelectionRim(
   const alphaBase = 0.92 + pulse;
   const glowAlpha = 0.45 + breath * 0.12;
 
-  // 0. INK CONTRAST UNDERLAY — a dark, wide, steady (non-pulsing) outline under every
+  // 0a. PALE HALO — wider than the ink, steady. Gives the dark ink a light edge so the rim
+  // still separates from the board at night, in storm dim, and on dark forest / peak tiles.
+  g.poly([
+    wx, cy - hh - 2,
+    wx + hw + 2, cy,
+    wx, cy + hh + 2,
+    wx - hw - 2, cy,
+  ]);
+  g.stroke({ width: SELECT_RIM_HALO_WIDTH, color: SELECT_RIM_HALO, alpha: SELECT_RIM_HALO_ALPHA });
+
+  // 0b. INK CONTRAST UNDERLAY — a dark, wide, steady (non-pulsing) outline under every
   // gold stroke so the rim stays readable on pale fog veil, snow, and sun/moon glow.
   const inkDiamond = (y: number, pad: number) => {
     g.poly([
@@ -10130,8 +10196,6 @@ export function paintBoardSelectionRim(
   }
   inkDiamond(cy, 1);
 
-  // 0. INK CONTRAST UNDERLAY — a dark, wide, steady (non-pulsing) outline under every
-  // gold stroke so the rim stays readable on pale fog veil, snow, and sun/moon glow.
   // 1. CLEAR GOLD GROUND RING (tabletop ground plane at wy)
   // Outer warm amber-gold ground aura
   g.poly([
@@ -10149,7 +10213,7 @@ export function paintBoardSelectionRim(
     wx, wy + hh + 2,
     wx - hw - 2, wy,
   ]);
-  g.stroke({ width: 2, color: 0xfacc15, alpha: 0.95 * alphaBase });
+  g.stroke({ width: 2, color: SELECT_RIM_GOLD, alpha: SELECT_RIM_GOLD_ALPHA });
 
   // Inner bright ground shimmer
   g.poly([
@@ -10177,15 +10241,15 @@ export function paintBoardSelectionRim(
   if (elev > 0) {
     g.moveTo(wx - hw - 1, cy);
     g.lineTo(wx - hw - 1, wy);
-    g.stroke({ width: 2, color: 0xfacc15, alpha: 0.85 * alphaBase });
+    g.stroke({ width: 2, color: SELECT_RIM_GOLD, alpha: SELECT_RIM_GOLD_ALPHA });
 
     g.moveTo(wx, cy + hh + 1);
     g.lineTo(wx, wy + hh + 1);
-    g.stroke({ width: 2.2, color: 0xfacc15, alpha: 0.95 * alphaBase });
+    g.stroke({ width: 2.2, color: SELECT_RIM_GOLD, alpha: SELECT_RIM_GOLD_ALPHA });
 
     g.moveTo(wx + hw + 1, cy);
     g.lineTo(wx + hw + 1, wy);
-    g.stroke({ width: 2, color: 0xfacc15, alpha: 0.85 * alphaBase });
+    g.stroke({ width: 2, color: SELECT_RIM_GOLD, alpha: SELECT_RIM_GOLD_ALPHA });
 
     g.moveTo(wx - hw - 1, wy);
     g.lineTo(wx, wy + hh + 1);
@@ -10210,7 +10274,7 @@ export function paintBoardSelectionRim(
     wx, cy + hh + 1,
     wx - hw - 1, cy,
   ]);
-  g.stroke({ width: 2.2, color: 0xfacc15, alpha: 0.98 * alphaBase });
+  g.stroke({ width: 2.4, color: SELECT_RIM_GOLD, alpha: SELECT_RIM_GOLD_ALPHA });
 
   // Sunlit top edge highlight (rear facets)
   g.moveTo(wx - hw - 0.5, cy);
@@ -10230,6 +10294,9 @@ export function paintBoardSelectionRim(
     g.fill({ color: pip.color });
     g.stroke({ width: 0.6, color: 0xb45309 });
   }
+
+  // 4. STEADY CORNER BRACKETS outside the top rim (topmost, never pulse).
+  drawBoardSelectionBrackets(g, wx, cy, hw, hh);
 }
 
 /**

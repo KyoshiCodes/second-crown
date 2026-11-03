@@ -555,6 +555,12 @@ Always `git fetch` before checkout. If `docs/HANDOFF.md` is dirty: `git checkout
 - `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-keeps.css`: SVG Kingdom Atlas features dark ink keep plinth with owner-colored rim (`.sc-atlas-keep-plinth`), living warm hearth glow (`.sc-atlas-keep-light`), watchfire beacon pulse on home keep (`.sc-atlas-keep-beacon`), and fluttering heraldic banner standard (`.sc-atlas-keep-banner`). Isolated stylesheet with strict `pointer-events: none !important;` and motion guard.
 - Tests in `packages/render/src/index.test.ts` (`board keep clarity` block) and `packages/app/src/hud/atlasKeeps.test.tsx`. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 
+## Clearer selected province rim on diamond board (branch `wave/board-select`, **not merged**)
+
+- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/tokens.ts`: `paintBoardSelectionRim` adds a steady pale halo under the ink underlay (`SELECT_RIM_HALO`), makes the main gold strokes steady (`SELECT_RIM_GOLD_ALPHA` `1`; only the amber glow breathes), and ends with four steady ink-backed gold corner brackets outside the plateau rim (`drawBoardSelectionBrackets`). `paintBoardDynamicTokens` no longer paints a duplicate rim under weather and keeps; the rim lives only on `boardSelectionLayer`, which stays above fog edge, weather, routes, keeps, meeples, piles and camps, below hover.
+- Tests in `packages/render/src/index.test.ts` (`board select rim clarity (wave/board-select)` block). `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+
 ## Verify
 
 ```

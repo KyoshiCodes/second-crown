@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Clearer selected province on the diamond board (wave/board-select)
+
+- **Your selected province is easier to see.** The gold outline no longer fades in and out. It has a dark edge and a pale glow behind it, so it shows on snow, fog, night and storms alike.
+- **New corner brackets.** Four small gold brackets frame the selected tile, so you can tell it apart from your own gold-rimmed keeps.
+- **Nothing covers it.** Rain, snow, fog, march lines, keeps, marching pieces, piles and camps all draw underneath the outline. The hover outline still draws on top.
+- **Play is unchanged.**
+
 ## 2026-11-02 — Living keeps on the diamond board (bakeoff/gemini-keeps)
 
 - **Keeps are alive and easy to spot.** Every hold on the board stands on a dark ink base rimmed in its owner's colour: gold for yours, red for the Iron March, and each other realm's border colour.
