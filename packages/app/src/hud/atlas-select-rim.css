@@ -1,7 +1,9 @@
 /* Selected-province rim treatment for Kingdom Atlas. Do not touch theme.css. */
 
 .sc-atlas-select-rim,
-.sc-atlas-select-rim * {
+.sc-atlas-select-rim *,
+.sc-atlas-select-brackets,
+.sc-atlas-select-halo {
   pointer-events: none !important;
 }
 
@@ -16,14 +18,29 @@
   }
 }
 
+@keyframes sc-atlas-bracket-shimmer {
+  0%, 100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .sc-atlas-select-glow {
   animation: sc-atlas-select-pulse 3.2s ease-in-out infinite;
   will-change: opacity, stroke-width;
   pointer-events: none !important;
 }
 
+.sc-atlas-select-brackets {
+  animation: sc-atlas-bracket-shimmer 2.4s ease-in-out infinite;
+  pointer-events: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sc-atlas-select-glow {
+  .sc-atlas-select-glow,
+  .sc-atlas-select-brackets {
     animation: none !important;
   }
 }

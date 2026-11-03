@@ -47,6 +47,30 @@ function iso(x: number, y: number) {
   };
 }
 
+function selectionBrackets(cx: number, cy: number, pad: number = 3): string {
+  const hw = TILE_W / 2 + pad;
+  const hh = TILE_H / 2 + pad * 0.5;
+  const verts = [
+    { x: cx, y: cy - hh },
+    { x: cx + hw, y: cy },
+    { x: cx, y: cy + hh },
+    { x: cx - hw, y: cy },
+  ];
+  const t = 0.32;
+  const segs: string[] = [];
+  for (let i = 0; i < 4; i++) {
+    const v = verts[i];
+    const prev = verts[(i + 3) % 4];
+    const next = verts[(i + 1) % 4];
+    const ax = v.x + (prev.x - v.x) * t;
+    const ay = v.y + (prev.y - v.y) * t;
+    const bx = v.x + (next.x - v.x) * t;
+    const by = v.y + (next.y - v.y) * t;
+    segs.push(`M ${ax} ${ay} L ${v.x} ${v.y} L ${bx} ${by}`);
+  }
+  return segs.join(" ");
+}
+
 function diamond(cx: number, cy: number) {
   const hw = TILE_W / 2;
   const hh = TILE_H / 2;
@@ -806,6 +830,16 @@ export function OverworldAtlas(props: {
                   />
                   {selected ? (
                     <g className="sc-atlas-select-rim" style={{ pointerEvents: "none" }}>
+                      {/* Steady pale halo under the ink for night, storm dim, and dark tile contrast */}
+                      <polygon
+                        points={diamond(cx, cy)}
+                        fill="none"
+                        stroke="#e2e8f0"
+                        strokeWidth={5.8}
+                        opacity={0.45}
+                        className="sc-atlas-select-halo"
+                        style={{ pointerEvents: "none" }}
+                      />
                       {/* Dark ink contrast underlay for weather & fog readability */}
                       <polygon
                         points={diamond(cx, cy)}
@@ -841,6 +875,26 @@ export function OverworldAtlas(props: {
                         stroke="#ffffff"
                         strokeWidth={1.2}
                         opacity={0.9}
+                        style={{ pointerEvents: "none" }}
+                      />
+                      {/* Four corner bracket chevrons outside the diamond perimeter */}
+                      <path
+                        d={selectionBrackets(cx, cy)}
+                        fill="none"
+                        stroke="#1c1208"
+                        strokeWidth={3.8}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ pointerEvents: "none" }}
+                      />
+                      <path
+                        d={selectionBrackets(cx, cy)}
+                        fill="none"
+                        stroke="#facc15"
+                        strokeWidth={1.8}
+                        className="sc-atlas-select-brackets"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         style={{ pointerEvents: "none" }}
                       />
                     </g>

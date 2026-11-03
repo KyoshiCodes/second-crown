@@ -1,11 +1,11 @@
-## 2026-11-03 — render / clearer selected province rim on diamond board (wave/board-select)
+## 2026-11-03 — render & app / living selected province treatment on diamond board (bakeoff/gemini-select)
 
-- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- Layer order unchanged: backdrop, static tiles (cached), provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, **selection**, hover highlight. Anything new that must not cover the rim goes below `boardSelectionLayer`.
-- Stroke order inside `paintBoardSelectionRim`: pale halo -> ink underlay -> gold rim (steady) -> amber glow (breathes) -> pips -> corner brackets (ink, then gold). The halo carries the rim on dark boards (night, storm, forest), the ink carries it on pale ones (snow, fog veil, sun glow).
-- Brackets are the selection's unique shape. Player keep plinth rims are also gold (`0xfbbf24`), so don't rely on colour alone to say "selected".
-- The tokens layer used to paint a duplicate rim under weather and keeps. It's gone on the live board (`selectRimOnOwnLayer`). If you call `paintProvinceDynamicToken` from somewhere new, decide whether you want the inline rim.
-- Root `npm test` does not run the render suite. Run `npm run test -w @second-crown/render` too.
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order on Pixi canvas: backdrop, static tiles (cached), provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, **selection**, hover highlight. Selection rim remains readable and unobscured above weather, fog, routes, keeps, meeples, piles, and camps.
+- Stroke order in `paintBoardSelectionRim`: pale halo (`SELECT_RIM_HALO`) -> ink underlay -> gold rim (steady alpha 1) -> amber glow (breathes) -> pips -> corner brackets (ink, then gold).
+- SVG Kingdom Atlas (`OverworldAtlas.tsx` & `atlas-select-rim.css`): Mirrors the Pixi selection treatment with layered pale halo, dark ink underlay, breathing amber glow, gold core, and living corner brackets (`sc-atlas-bracket-shimmer`).
+- Strict isolation: `pointer-events: none !important;` on all decorative selection overlays; `@media (prefers-reduced-motion: reduce)` disables animations. Zero alterations to `theme.css`.
+- Root `npm test` does not run render suite. Always run `npm run test -w @second-crown/render` and `npm run build -w @second-crown/app`.
 
 ## 2026-11-02 — render & app / living keep treatment on diamond board (bakeoff/gemini-keeps)
 

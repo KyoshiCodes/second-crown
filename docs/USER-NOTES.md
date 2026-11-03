@@ -2,11 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-03 — Clearer selected province on the diamond board (wave/board-select)
+## 2026-11-03 — Living selected province on the diamond board (bakeoff/gemini-select)
 
-- **Your selected province is easier to see.** The gold outline no longer fades in and out. It has a dark edge and a pale glow behind it, so it shows on snow, fog, night and storms alike.
-- **New corner brackets.** Four small gold brackets frame the selected tile, so you can tell it apart from your own gold-rimmed keeps.
-- **Nothing covers it.** Rain, snow, fog, march lines, keeps, marching pieces, piles and camps all draw underneath the outline. The hover outline still draws on top.
+- **Selected provinces are unmistakable and alive.** The gold rim stays crisp and steady, backed by dark ink and a soft pale halo so it remains readable under heavy snow, fog, night, and storms.
+- **Living corner brackets.** Four gold brackets frame the diamond tile corners with a gentle shimmer, distinguishing the selected province from your golden player keeps.
+- **Unobscured clarity.** Rain, snow, fog veil, march routes, army meeples, miniature keeps, resource piles, and outpost camps all sit beneath the selection rim, keeping your focus clear.
 - **Play is unchanged.**
 
 ## 2026-11-02 — Living keeps on the diamond board (bakeoff/gemini-keeps)

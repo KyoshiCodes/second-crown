@@ -1,12 +1,12 @@
 # CHANGELOG
 
-## 2026-11-03 — Clearer selected province rim on diamond board (wave/board-select)
+## 2026-11-03 — Living selected province treatment on diamond board (bakeoff/gemini-select)
 
-- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- `packages/render/src/tokens.ts`: `paintBoardSelectionRim` now lays a steady pale halo (`SELECT_RIM_HALO` `0xfff7d6`, alpha `0.5`, width `8`) under the existing ink underlay, draws the main gold ring, top rim and cliff struts at a steady alpha (`SELECT_RIM_GOLD` / `SELECT_RIM_GOLD_ALPHA` = `1`; only the outer amber glow still breathes), and finishes with four steady corner brackets (`drawBoardSelectionBrackets`, `SELECT_RIM_BRACKET_PAD` `6`, `SELECT_RIM_BRACKET_ARM` `0.3`) just outside the plateau rim.
-- `paintBoardDynamicTokens` no longer paints a second rim copy on the tokens layer (new `selectRimOnOwnLayer` flag on `paintProvinceDynamicToken`). The rim lives only on `boardSelectionLayer`. `paintBoardProvinces` (tests / legacy) still draws it inline.
-- `packages/render/src/index.ts`: re-exports the new helper and `SELECT_RIM_*` constants. Layer order unchanged.
-- Tests: new `board select rim clarity (wave/board-select)` block in `packages/render/src/index.test.ts`; old ink-order test now skips the halo and allows bracket ink after gold. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/tokens.ts`: `paintBoardSelectionRim` lays a pale halo (`SELECT_RIM_HALO` `0xe2e8f0`, alpha `0.55`, width `4.5`) under the ink underlay, draws the steady gold rim plateau and ground (`SELECT_RIM_GOLD` `0xfacc15`, alpha `1`), breathing amber glow (`0xd97706`), and finishes with four corner brackets (`drawBoardSelectionBrackets`, `SELECT_RIM_BRACKET_PAD` `6`, `SELECT_RIM_BRACKET_ARM` `0.3`) outside the diamond rim. Dropped duplicate rim in `paintBoardDynamicTokens` (`selectRimOnOwnLayer`).
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-select-rim.css`: SVG Kingdom Atlas features pale halo (`.sc-atlas-select-halo`), dark ink underlay, breathing amber glow (`.sc-atlas-select-glow`), gold rim, and living shimmering corner brackets (`.sc-atlas-select-brackets` with `sc-atlas-bracket-shimmer` keyframe animation). Isolated stylesheet with strict `pointer-events: none !important;` and motion guard.
+- `packages/render/src/index.ts`: re-exports `drawBoardSelectionBrackets` and `SELECT_RIM_*` constants. Selection layer stays above fog, weather, routes, keeps, meeples, piles, and camps.
+- Tests: `board select rim clarity (wave/board-select)` block in `packages/render/src/index.test.ts` and `packages/app/src/hud/atlasSelectRim.test.tsx`. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
 
 ## 2026-11-02 — Living keep treatment on diamond board (bakeoff/gemini-keeps)
