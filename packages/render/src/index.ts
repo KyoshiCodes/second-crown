@@ -20,6 +20,9 @@ export * from "./walkers.js";
 
 // Re-export Weather & Precipitation Particles
 export * from "./weather.js";
+// Re-export the board almanac (weather + season corner marker)
+export * from "./almanac.js";
+import { paintBoardAlmanac } from "./almanac.js";
 
 import {
   type WeatherKind,
@@ -35,6 +38,7 @@ import {
   drawAtmosphere,
   drawBoardWeather,
   paintBoardWeatherGlyph,
+  drawBoardWeatherEmblem,
   BOARD_WEATHER_INK,
   BOARD_WEATHER_INK_ALPHA,
   resolveAtmosphereWeather,
@@ -525,6 +529,14 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardStatusMarksLayer.eventMode = "none";
   boardContainer.addChild(boardStatusMarksLayer);
 
+  // Weather + season almanac plaque (top-left board corner, off the diamond). Steady ink
+  // plaque with a season rim: weather (sun/moon when clear) over the season pip. ABOVE
+  // weather, fog, roads, marches, keeps, units, piles, camps, effects, the select rim and
+  // hover so none of them can cover it; repaints with the board weather every frame.
+  const boardAlmanacLayer = new Graphics();
+  boardAlmanacLayer.eventMode = "none";
+  boardContainer.addChild(boardAlmanacLayer);
+
   // Unit + march labels (count, power, ETA). TOP of the board: above weather, fog,
   // roads, marches, keeps, piles, camps, the select rim and hover, so nothing covers them.
   // Repaints every frame next to the marches; the meeples' own ETA pills are off on the board.
@@ -602,7 +614,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase, BOARD_MARCH_PAINT);
         paintBoardUnitLabels(boardUnitLabelsLayer, lastState);
         renderBoardSelection(lastState);
-        drawBoardWeather(lastState, boardWeatherGraphic, phase, CANVAS_W, CANVAS_H);
+        updateBoardWeather(phase);
       }
       bandChangeCb?.(currentBand);
       window.dispatchEvent(new CustomEvent("sc-camera-band-change", { detail: currentBand }));
@@ -988,6 +1000,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   function updateBoardWeather(t: number): void {
     drawBoardWeather(lastState, boardWeatherGraphic, t, CANVAS_W, CANVAS_H);
+    paintBoardAlmanac(boardAlmanacLayer, lastState, t);
   }
 
   function paintAmbientLighting(): void {
@@ -1439,6 +1452,7 @@ export {
   drawAtmosphere,
   drawBoardWeather,
   paintBoardWeatherGlyph,
+  drawBoardWeatherEmblem,
   BOARD_WEATHER_INK,
   BOARD_WEATHER_INK_ALPHA,
   resolveAtmosphereWeather,

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-03 — Clearer weather and season markers on diamond board (wave/board-weather)
+
+- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged (markers are drawn only).
+- New `packages/render/src/almanac.ts`: `paintBoardAlmanac`, `resolveBoardAlmanac`, `drawBoardClearSkyEmblem`, and `BOARD_ALMANAC_*` constants (ink, box, season rims).
+  - A small two-slot plaque in the top-left board corner, off the diamond: weather on top (sun by day / moon at night when clear), season pip below. Steady ink box with a season-coloured rim.
+- `packages/render/src/atmosphere.ts`: new `drawBoardWeatherEmblem` (shared cloud / rain / storm / snow art). `paintBoardWeatherGlyph` uses it and looks the same. `drawBoardWeather` no longer paints the corner glyph.
+- `packages/render/src/index.ts`: new `boardAlmanacLayer` above every other board layer except the unit labels. `updateBoardWeather` paints it; the band switch now calls `updateBoardWeather` too. `almanac.ts` is re-exported.
+- Tests: six new tests in `packages/render/src/index.test.ts` (steady ink and season rim, sun / moon / cloud, determinism, off-diamond placement, glyph left the low layer, layer order). `npm test`, `npm run test -w @second-crown/render` (653 tests), and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+
 ## 2026-11-03 — Living effect and status treatment on diamond board (bakeoff/gemini-effects)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

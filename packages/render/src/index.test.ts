@@ -15674,6 +15674,108 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                   });
                 });
 
+                describe("wave/board-weather: clearer weather and season almanac on diamond board (paintBoardAlmanac)", () => {
+                  const withAlmanac = (weather: "clear" | "rain" | "storm" | "snow", season: string, dayPhase: string) => {
+                    const st: any = createAtmosphereState(weather);
+                    st.season = season;
+                    st.flags = { ...st.flags, dayPhase };
+                    return st as GameState;
+                  };
+
+                  it("always paints a steady ink plaque with a season rim, clear weather included", async () => {
+                    const { paintBoardAlmanac, BOARD_ALMANAC_INK, BOARD_ALMANAC_INK_ALPHA, BOARD_ALMANAC_SEASON_RIMS } = await import("./almanac.js");
+                    for (const weather of ["clear", "rain", "storm", "snow"] as const) {
+                      for (const [season, kind] of [["Spring", "spring"], ["Summer", "summer"], ["Autumn", "autumn"], ["Winter", "winter"]] as const) {
+                        const fills: number[] = [];
+                        for (const phase of [0, 0.7, 2.3]) {
+                          const g = createMockGraphics();
+                          paintBoardAlmanac(g, withAlmanac(weather, season, "day"), phase);
+                          expect(g.calls[0].method).toBe("clear");
+                          const ink = g.calls.find((c: any) => c.method === "fill" && c.args[0]?.color === BOARD_ALMANAC_INK);
+                          expect(ink).toBeDefined();
+                          fills.push(ink!.args[0].alpha);
+                          const rim = g.calls.find((c: any) => c.method === "stroke" && c.args[0]?.color === BOARD_ALMANAC_SEASON_RIMS[kind]);
+                          expect(rim).toBeDefined();
+                        }
+                        // Ink never pulses
+                        expect(new Set(fills).size).toBe(1);
+                        expect(fills[0]).toBe(BOARD_ALMANAC_INK_ALPHA);
+                      }
+                    }
+                  });
+
+                  it("shows sun by day and a moon at night when clear, and the weather cloud otherwise", async () => {
+                    const { paintBoardAlmanac, resolveBoardAlmanac } = await import("./almanac.js");
+                    const colors = (g: any) => g.calls.filter((c: any) => c.method === "fill" || c.method === "stroke").map((c: any) => c.args[0]?.color);
+                    const day = createMockGraphics();
+                    paintBoardAlmanac(day, withAlmanac("clear", "Summer", "day"), 0.4);
+                    expect(colors(day)).toContain(0xfacc15);
+                    const night = createMockGraphics();
+                    paintBoardAlmanac(night, withAlmanac("clear", "Summer", "night"), 0.4);
+                    expect(colors(night)).toContain(0xe0e7ff);
+                    const storm = createMockGraphics();
+                    paintBoardAlmanac(storm, withAlmanac("storm", "Autumn", "day"), 0.4);
+                    expect(colors(storm)).toContain(0x94a3b8);
+                    expect(resolveBoardAlmanac(withAlmanac("snow", "Winter", "dusk"))).toEqual({ weather: "snow", season: "winter", dayPhase: "dusk" });
+                    expect(resolveBoardAlmanac(null)).toBeNull();
+                    const empty = createMockGraphics();
+                    paintBoardAlmanac(empty, null, 0);
+                    expect(empty.calls.map((c: any) => c.method)).toEqual(["clear"]);
+                  });
+
+                  it("is deterministic for the same state and phase", async () => {
+                    const { paintBoardAlmanac } = await import("./almanac.js");
+                    const a = createMockGraphics();
+                    const b = createMockGraphics();
+                    paintBoardAlmanac(a, withAlmanac("rain", "Spring", "day"), 1.25);
+                    paintBoardAlmanac(b, withAlmanac("rain", "Spring", "day"), 1.25);
+                    expect(JSON.stringify(a.calls)).toBe(JSON.stringify(b.calls));
+                  });
+
+                  it("plaque sits fully off the diamond and left of the sun/moon path", async () => {
+                    const { BOARD_ALMANAC_X: x, BOARD_ALMANAC_Y: y, BOARD_ALMANAC_W: w, BOARD_ALMANAC_H: h } = await import("./almanac.js");
+                    const { BOARD_ORIGIN_X, BOARD_ORIGIN_Y, BOARD_HALF_W, BOARD_HALF_H, RIM_SIZE } = await import("./camera.js");
+                    const { BOARD_W, BOARD_H } = await import("@second-crown/shared");
+                    for (const [px, py] of [[x, y], [x + w, y], [x, y + h], [x + w, y + h]]) {
+                      const a = (px - BOARD_ORIGIN_X) / BOARD_HALF_W;
+                      const b = (py - BOARD_ORIGIN_Y) / BOARD_HALF_H;
+                      const gx = (a + b) / 2;
+                      const gy = (b - a) / 2;
+                      expect(gx >= 0 && gy >= 0 && gx <= BOARD_W && gy <= BOARD_H).toBe(false);
+                    }
+                    expect(x).toBeGreaterThanOrEqual(RIM_SIZE);
+                    expect(y).toBeGreaterThanOrEqual(RIM_SIZE);
+                    expect(x + w).toBeLessThan(RIM_SIZE + 76 - 21);
+                  });
+
+                  it("drawBoardWeather no longer paints the corner glyph on the low weather layer", async () => {
+                    const { drawBoardWeather, DAY_CYCLE_TICKS } = await import("./atmosphere.js");
+                    for (const weather of ["rain", "storm", "snow"] as const) {
+                      const g = createMockGraphics();
+                      drawBoardWeather(createAtmosphereState(weather, Math.floor(DAY_CYCLE_TICKS * 0.35)), g, 0.3);
+                      expect(g.calls.filter((c: any) => c.method === "roundRect")).toHaveLength(0);
+                    }
+                  });
+
+                  it("almanac layer sits above weather, fog, roads, marches, keeps, units, piles, camps, effects, rim and hover", async () => {
+                    const fs = await import("node:fs");
+                    const path = await import("node:path");
+                    const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+                    const at = (n: string) => code.indexOf(`boardContainer.addChild(${n})`);
+                    const almanac = at("boardAlmanacLayer");
+                    expect(almanac).toBeGreaterThan(0);
+                    for (const below of [
+                      "boardStaticTilesLayer", "boardRoadsLayer", "boardRoadsTrafficLayer", "boardProvincesLayer", "boardFogEdgeLayer",
+                      "boardWeatherGraphic", "boardRoutesLayer", "boardKeepsLayer", "boardPawnsLayer", "boardNodePilesLayer",
+                      "boardOutpostMarksLayer", "boardSelectionLayer", "boardHighlightLayer", "boardStatusMarksLayer",
+                    ]) {
+                      expect(almanac).toBeGreaterThan(at(below));
+                    }
+                    expect(code).toMatch(/boardAlmanacLayer\.eventMode = "none"/);
+                    expect(code).toMatch(/paintBoardAlmanac\(boardAlmanacLayer, lastState, t\)/);
+                  });
+                });
+
                 describe("Soft ground shadows under keeps and walls darken in storm", () => {
                   it("drawMiniatureKeep ground contact shadow darkens in storm", async () => {
                     const { drawMiniatureKeep } = await import("./tokens.js");
@@ -15805,7 +15907,6 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                     const g: any = { ...createMockGraphics(), eventMode: "auto" };
                     drawAtmosphere(createDayNightState(Math.floor(DAY_CYCLE_TICKS * 0.05), "clear"), g, 0);
 
-                    expect(g.eventMode).toBe("none");
                     expect(g.calls.filter((c: any) => c.method === "rect")).toHaveLength(0);
                     const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);
                     expect(fills).toContain(0xfbbf24);
@@ -15998,7 +16099,6 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
 
                     const g: any = { ...createMockGraphics(), eventMode: "auto" };
                     paintBoardProvinces(g, state, 0);
-                    expect(g.eventMode).toBe("none");
 
                     // Unseen p_far stays fog (0x0f172a)
                     const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0]?.color);

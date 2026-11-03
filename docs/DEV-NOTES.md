@@ -1,3 +1,16 @@
+## 2026-11-03 — render / clearer weather and season markers on diamond board (wave/board-weather)
+
+- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order on the Pixi board: backdrop, static tiles (cached), roads, road traffic, provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, selection rim, hover highlight, status marks, **almanac (new)**, unit labels (top).
+- Why its own layer: the corner weather glyph used to draw inside `drawBoardWeather` on `boardWeatherGraphic`, which sits under routes, keeps, pawns, piles, camps, the rim and the status marks. It also drew nothing in clear weather and never showed the season. `boardAlmanacLayer` fixes all three.
+- New file `almanac.ts` (not `atmosphere.ts`) because it needs `drawSeasonMark` from `tokens.ts`, and `tokens.ts` already imports `atmosphere.ts`. This keeps the import graph acyclic.
+- `resolveBoardAlmanac(state, phase)` is the single source: `resolveAtmosphereWeather`, `resolveBoardSeasonMark`, `resolveDayPhase`. No sim math. Null state paints nothing (only `clear()`).
+- Plaque box reuses the old glyph corner (`BOARD_WEATHER_GLYPH_X/Y/W`) but is two 20px slots tall (`BOARD_ALMANAC_H = 40`). A test checks all four corners are off the diamond and left of the sun/moon path.
+- Ink is steady (`BOARD_ALMANAC_INK` at `BOARD_ALMANAC_INK_ALPHA`); only the emblems move (drop bob, sun ray spin, summer pulse).
+- `paintBoardAlmanac` runs inside `updateBoardWeather`, so every place that repaints the board weather repaints the plaque. The band switch now calls `updateBoardWeather` instead of `drawBoardWeather` directly.
+- The home-tile season pip on the status layer is unchanged.
+- Verification: root `npm test` does not run the render suite. Run `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app`.
+
 ## 2026-11-03 — render & app / living effect and status treatment on diamond board (bakeoff/gemini-effects)
 
 - Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

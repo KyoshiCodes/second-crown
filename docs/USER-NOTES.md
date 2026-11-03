@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Clearer weather and season markers on the diamond board (wave/board-weather)
+
+- **Weather and season at a glance.** The top-left corner of the board now has a small dark plaque. The top half shows the weather: rain, storm, or snow, or a sun by day and a moon at night when the sky is clear. The bottom half shows the season.
+- **The ring tells the season too.** The plaque's edge is green in spring, gold in summer, orange in autumn, and pale blue in winter.
+- **Nothing covers it.** Fog, rain, snow, roads, marching columns, keeps, camps, effects and the selected-tile ring all draw underneath it.
+- **Play is unchanged.** Only the look changed. The game rules are the same.
+
 ## 2026-11-03 — Living effect and status treatment on the diamond board (bakeoff/gemini-effects)
 
 - **Living battle clashes and threat beacons.** Provinces with active clashes now spark with fiery martial embers, while incoming hostile columns trigger an unmistakable pulsing threat beacon on the target tile.

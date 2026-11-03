@@ -683,9 +683,21 @@ export function paintBoardWeatherGlyph(
   g.roundRect(x, y, w, h, 4);
   g.stroke({ width: 1, color: 0xb45309, alpha: 0.7 });
 
-  // Cloud
-  const cx = x + w / 2;
-  const cy = y + 7;
+  drawBoardWeatherEmblem(g, weather, x + w / 2, y + 7, phase);
+}
+
+/**
+ * Weather emblem (cloud + drops / flakes / bolt) centred on a cloud at (cx, cy).
+ * Shared by the corner glyph and the board almanac plaque. Draws nothing for clear.
+ */
+export function drawBoardWeatherEmblem(
+  g: Graphics,
+  weather: AtmosphereWeather,
+  cx: number,
+  cy: number,
+  phase: number = 0
+): void {
+  if (!g || weather === "clear") return;
   const cloud = weather === "storm" ? 0x94a3b8 : weather === "snow" ? 0xe2e8f0 : 0xcbd5e1;
   g.ellipse(cx, cy + 1, 8, 3.2);
   g.fill({ color: cloud, alpha: 0.95 });
@@ -721,9 +733,10 @@ export function paintBoardWeatherGlyph(
 
 /**
  * Diamond-board weather overlay: the shared atmosphere pass with ink-backed marks
- * (thin dark underlay so rain/snow/storm read on any tile) plus the corner weather glyph.
- * Paint into the board weather layer, which stays BELOW node piles, outpost/camp marks,
- * the select rim, and the hover highlight.
+ * (thin dark underlay so rain/snow/storm read on any tile). Paint into the board weather
+ * layer, which stays BELOW node piles, outpost/camp marks, the select rim, and the hover
+ * highlight. The corner weather + season marker lives on its own top layer instead
+ * (`paintBoardAlmanac` in almanac.ts), so marches, keeps and effects never cover it.
  */
 export function drawBoardWeather(
   state: GameState | null | undefined,
@@ -734,5 +747,4 @@ export function drawBoardWeather(
 ): void {
   if (!g) return;
   drawAtmosphere(state, g, phase, width, height, { ink: true });
-  paintBoardWeatherGlyph(g, resolveAtmosphereWeather(state), phase);
 }
