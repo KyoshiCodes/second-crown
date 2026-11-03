@@ -2,6 +2,23 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Living culture crests on the culture picker (bakeoff/gemini-culture)
+
+- **Living heraldic crests.** Every culture in the Crown tab picker now features its own miniature heraldic crest:
+  - Crown Marches: royal coronet and cruciform steel sword.
+  - Cedar Kin: sacred evergreen pine and antler glint.
+  - Sand Banner: blazing desert sun and crescent.
+  - Wind Host: recurve steppe bow and crimson horsehair plume.
+  - Tide Clans: cresting sea breaker and triton fork.
+  - Mist Reach: shroud of swirling mist and ranger arrow.
+  - Glen Holds: stone highland crag hold and chivalric standard.
+  - Salt Reaches: faceted salt diamond and outrider couched lance.
+  - Fen Steads: water-reed marsh sheaf and warden spearhead.
+  - Peak Holds: snow pinnacle and mountain watchtower beacon.
+- **Radiant living crown aura.** When you select a culture, its crest glows with a breathing aura washed in the culture's tabard colors and gleams with a sparkling apex star, celebrating your chosen style.
+- **Crisp and unhindered.** Crests sit neatly alongside the culture title without crowding the cards, and clicks remain perfectly responsive.
+- **Play is unchanged.** Visual treatment only; all game mechanics and culture bonuses are untouched.
+
 ## 2026-11-03 — Clearer culture picker (wave/culture-picker)
 
 - **See what each culture gives you.** On the Crown tab, each crown style card now shows its unit (for example, Mist Reach → Ranger) and its one difference (for example, Farm +1 food).

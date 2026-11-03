@@ -1,3 +1,31 @@
+## 2026-11-03 — app / living culture crest on the culture picker (bakeoff/gemini-culture)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Component design:
+  - `CultureCrestPip.tsx` renders a 26x26px heraldic shield/cartouche with drop-shadow, dark ink backer `#0b0f17`, inner culture tabard field, and tailored vector charge for each of the 10 cultures:
+    - `western` (Crown Marches): heater shield, royal coronet, cruciform steel sword.
+    - `woodland` (Cedar Kin): sacred cedar pine, lobed leaf, antler glint.
+    - `desert` (Sand Banner): radiant sunburst, desert crescent.
+    - `steppe` (Wind Host): composite recurve bow, crimson horsehair plume.
+    - `tide` (Tide Clans): curled breaker wave, triton fork, sea pearl.
+    - `mist` (Mist Reach): swirling mist shroud, ranger arrow, brooch.
+    - `glen` (Glen Holds): stone crag hold, chivalric triangular standard.
+    - `salt` (Salt Reaches): faceted salt diamond, outrider couched lance.
+    - `fen` (Fen Steads): water-reed marsh sheaf, warden spearhead, lily bloom.
+    - `peak` (Peak Holds): snow pinnacle, watchtower beacon fire.
+- Living motion & selection dynamics:
+  - When `isSelected={true}`: activates `.sc-culture-crest-aura` (radiant breathing halo pulsing between 0.35 and 0.90 opacity using the culture's tabard gradient) and `.sc-culture-crest-glint` (golden diamond star sparkling atop the crest apex).
+  - When idle: subtle floating translation (`translateY(-1.5px)`) at 4s cycle for soft ambient life.
+- CSS isolation & pointer hygiene:
+  - All styling located in `packages/app/src/hud/culture-picker.css`.
+  - Every decorative element, aura, SVG path, and glint explicitly carries `pointer-events: none !important;`.
+  - No collision with card selection tests: crest wrapper uses `.is-selected` (avoiding `.is-picked` collision with button state assertions in `cultureLines.test.tsx`).
+  - Accessibility: Full `@media (prefers-reduced-motion: reduce)` rule resets transform, animations, and opacity to static readable defaults.
+  - Zero touches to `theme.css`.
+- Verification:
+  - Added unit test suite `packages/app/src/hud/CultureCrestPip.test.tsx` (10 unique charges, selection aura/glint, integration in CulturePicker, pointer-events: none, no theme.css drift).
+  - `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-03 — app / clearer culture line in the culture picker (wave/culture-picker)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`.

@@ -2,6 +2,7 @@ import React from "react";
 import { CULTURES, playerCultureId, setPlayerCulture, type GameState } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
 import { cultureLine } from "./cultureLines";
+import { CultureCrestPip } from "./hud/CultureCrestPip";
 import "./hud/plain-buttons.css";
 import "./hud/culture-picker.css";
 
@@ -33,14 +34,15 @@ export function CulturePicker(props: { state: GameState | undefined; act: ActFn 
       <div className="sc-plain-grid">
         {CULTURES.map((c) => {
           const line = cultureLine(c.id);
+          const isSelected = current === c.id;
           return (
           <button
             key={c.id}
             type="button"
-            className={`sc-work-card sc-plain-pick ${current === c.id ? "is-picked" : ""}`}
+            className={`sc-work-card sc-plain-pick ${isSelected ? "is-picked" : ""}`}
             style={{
               borderLeftColor: c.palette.tabard,
-              outline: current === c.id ? `2px solid ${c.palette.tabard}` : undefined,
+              outline: isSelected ? `2px solid ${c.palette.tabard}` : undefined,
             }}
             title={c.blurb}
             onClick={() =>
@@ -51,7 +53,8 @@ export function CulturePicker(props: { state: GameState | undefined; act: ActFn 
               })
             }
           >
-            <span className="sc-work-head">
+            <span className="sc-work-head sc-culture-picker-head">
+              <CultureCrestPip cultureId={c.id} isSelected={isSelected} />
               <span className="sc-work-name">{c.name}</span>
             </span>
             <span className="sc-culture-lines">
@@ -64,7 +67,7 @@ export function CulturePicker(props: { state: GameState | undefined; act: ActFn 
                 <span className="sc-culture-line-val">{line.difference ?? "looks only"}</span>
               </span>
             </span>
-            <span className="sc-work-status">{current === c.id ? "Your style" : c.blurb}</span>
+            <span className="sc-work-status">{isSelected ? "Your style" : c.blurb}</span>
           </button>
           );
         })}

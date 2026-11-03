@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-03 — Living culture crest on the culture picker (bakeoff/gemini-culture)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `CulturePicker.tsx` & `CultureCrestPip.tsx`: each culture card in the Crown tab culture picker now features an authentic 26x26px living heraldic crest:
+  - Unique vector charges tailored for all 10 cultures: Crown Marches (heater shield, royal coronet, cruciform steel sword), Cedar Kin (sacred cedar pine, lobed leaf, antler glint), Sand Banner (radiant sunburst, desert crescent), Wind Host (composite recurve bow, crimson horsehair plume), Tide Clans (curled breaker wave, triton fork, sea pearl), Mist Reach (swirling mist shroud, ranger arrow, brooch), Glen Holds (stone crag hold, chivalric triangular standard), Salt Reaches (faceted salt diamond, outrider couched lance), Fen Steads (marsh sheaf, warden spearhead, lily bloom), and Peak Holds (snow pinnacle, watchtower beacon fire).
+  - Living breathing aura: When a culture is selected/active (`isSelected={true}`), a radiant breathing aura (`.sc-culture-crest-aura`) pulses with the culture's tabard gradient beneath the shield, accompanied by a glittering golden apex star (`.sc-culture-crest-glint`).
+  - Idle living float: Unselected culture crests carry a very subtle, gentle ambient hover float.
+- Isolated styling in `packages/app/src/hud/culture-picker.css`:
+  - Zero modifications to `theme.css`.
+  - Strict `pointer-events: none !important;` on all decorative shield paths, glints, and aura halos.
+  - `@media (prefers-reduced-motion: reduce)` disables animations cleanly.
+- Tests: added `packages/app/src/hud/CultureCrestPip.test.tsx` (all 10 distinct charges, selection aura and crown sparkle, pointer-events: none, reduced motion guard, and no `theme.css` changes). All 59 app test suites (258 tests), all 82 sim test suites (323 tests), and all 22 server test suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-03 — Clearer culture line in the culture picker (wave/culture-picker)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
