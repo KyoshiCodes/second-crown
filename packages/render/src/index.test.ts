@@ -4773,6 +4773,37 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           }
           expect(at("boardRoutesLayer")).toBeLessThan(at("boardPawnsLayer"));
         });
+
+        it("drawMarchMeepleAura draws role-coloured breathing status glow and rim deterministically", async () => {
+          const { drawMarchMeepleAura } = await import("./tokens.js");
+          const g1 = createMockGraphics();
+          drawMarchMeepleAura(g1, 100, 100, 0xf59e0b, 1.0, 0);
+          expect(g1.calls.some((c: any) => c.method === "ellipse")).toBe(true);
+          expect(g1.calls.some((c: any) => c.method === "fill" && c.args[0].color === 0xf59e0b)).toBe(true);
+          expect(g1.calls.some((c: any) => c.method === "stroke" && c.args[0].color === 0xf59e0b)).toBe(true);
+
+          const g2 = createMockGraphics();
+          drawMarchMeepleAura(g2, 100, 100, 0xf59e0b, 1.0, 0);
+          expect(JSON.stringify(g2.calls)).toBe(JSON.stringify(g1.calls));
+        });
+
+        it("drawMarchWakeTrail renders luminous trailing particles behind advancing column", async () => {
+          const { drawMarchWakeTrail } = await import("./tokens.js");
+          const g = createMockGraphics();
+          drawMarchWakeTrail(g, 0, 0, 100, 100, 0.5, 0xef4444, 2.0);
+          expect(g.calls.some((c: any) => c.method === "circle")).toBe(true);
+          expect(g.calls.some((c: any) => c.method === "fill" && c.args[0].color === 0xef4444)).toBe(true);
+          expect(g.calls.some((c: any) => c.method === "fill" && c.args[0].color === 0xffffff)).toBe(true);
+        });
+
+        it("drawPostedGarrisonAura renders defensive sentry aura under stationed camp", async () => {
+          const { drawPostedGarrisonAura } = await import("./tokens.js");
+          const g = createMockGraphics();
+          drawPostedGarrisonAura(g, 60, 60, 0x2563eb, 0.5, 30);
+          expect(g.calls.some((c: any) => c.method === "ellipse")).toBe(true);
+          expect(g.calls.some((c: any) => c.method === "fill" && c.args[0].color === 0x2563eb)).toBe(true);
+          expect(g.calls.some((c: any) => c.method === "stroke" && c.args[0].color === 0x2563eb)).toBe(true);
+        });
       });
 
       describe("board keep clarity", () => {

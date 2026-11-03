@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Living units and marches on the diamond board (bakeoff/gemini-units)
+
+- **Living marching columns.** As armies, scouts, foragers, and garrisons advance across the diamond board, each column meeple is grounded by a breathing status aura matching its role colour: golden amber for your armies, menacing crimson for enemy warbands, stealth cyan for scouts, pastoral green for gatherers, and royal sapphire for garrisons.
+- **Trailing wake motes.** Moving columns leave a subtle trail of luminous wake sparks along their path, conveying lively forward momentum as they march across the realm.
+- **Defensive sentry aura.** Stationed garrisons guarding outposts feature a rhythmic sentry ward pulse beneath their encampment, signaling vigilant readiness.
+- **Unobscured clarity under weather and fog.** The glowing status rings and wake motes remain readable beneath keeps, node piles, camps, weather storms, fog banks, and selected province rims.
+- **Play is unchanged.** Visual treatment only; march arrival times, combat math, and movement mechanics are untouched.
+
 ## 2026-11-03 — Clearer unit and march labels on the diamond board (wave/board-units)
 
 - **Every marching column has a clear label.** A small dark tag floats above each marching piece. It shows how many troops are in the column and how many seconds until it arrives (hourglass).

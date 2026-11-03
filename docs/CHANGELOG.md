@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-03 — Living unit and march treatment on diamond board (bakeoff/gemini-units)
+
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/tokens.ts`: new `drawMarchMeepleAura`, `drawMarchWakeTrail`, and `drawPostedGarrisonAura`.
+  - `drawMarchMeepleAura` strokes a role-coloured breathing ground status aura (`BOARD_MARCH_ROLE_COLORS`) and fine grounding rim under each column meeple, pulsing smoothly with `phase`.
+  - `drawMarchWakeTrail` draws a trailing wake of luminous motes and spark particles along the march route trailing behind the advancing column.
+  - `drawPostedGarrisonAura` draws a rhythmic defensive sentry ward pulse under stationed garrison encampments on seen provinces.
+  - `paintBoardMarches` and `paintBoardGathers` incorporate the living aura under meeples and trailing wake motes along the route line.
+  - `drawGarrisonMeeple` integrates the living defensive sentry status aura under stationed camps.
+- `packages/render/src/index.ts`: re-exports `drawMarchMeepleAura`, `drawMarchWakeTrail`, `drawPostedGarrisonAura`, and `getPostedGarrison`.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-units.css`: SVG Kingdom Atlas renders breathing status aura (`.sc-atlas-unit-pulse-glow`), trailing wake motes along the march vector (`.sc-atlas-march-wake`), and stationed sentry ward glow on posted outposts (`.sc-atlas-unit-sentry`). Isolated stylesheet with strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` motion guard.
+- Tests: added tests for `drawMarchMeepleAura`, `drawMarchWakeTrail`, `drawPostedGarrisonAura` in `packages/render/src/index.test.ts` and created `packages/app/src/hud/atlasUnits.test.tsx`. `npm test`, `npm run test -w @second-crown/render` (642 tests), and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+
 ## 2026-11-03 — Clearer unit and march labels on diamond board (wave/board-units)
 
 - Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged (labels are drawn only).

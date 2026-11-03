@@ -18,6 +18,7 @@ import {
   getTileMarchDestination,
   resolveBoardSeasonWash,
   resolveAtmosphereWeather,
+  getPostedGarrison,
 } from "@second-crown/render";
 import { detectCurrentHoliday } from "./seasons/holidays";
 import "./hud/atlas-select-rim.css";
@@ -28,6 +29,7 @@ import "./hud/atlas-fog.css";
 import "./hud/atlas-marches.css";
 import "./hud/atlas-keeps.css";
 import "./hud/atlas-roads.css";
+import "./hud/atlas-units.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -403,13 +405,26 @@ function MiniBlocks(props: { cx: number; cy: number }) {
   );
 }
 
-function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor?: string }) {
-  const { cx, cy, isPlayer = false, flagColor = "#2563eb" } = props;
+function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor?: string; isPosted?: boolean }) {
+  const { cx, cy, isPlayer = false, flagColor = "#2563eb", isPosted = false } = props;
   return (
     <g
       className={`sc-atlas-camp ${isPlayer ? "sc-atlas-camp-outpost" : "sc-atlas-camp-rival"}`}
       style={{ pointerEvents: "none" }}
     >
+      {/* Living stationed unit / sentry pulse glow */}
+      <ellipse
+        className={`sc-atlas-unit-pulse-glow ${isPosted ? "sc-atlas-unit-sentry" : ""}`}
+        cx={cx - 1}
+        cy={cy + 3.8}
+        rx={isPosted ? 10.5 : 8.5}
+        ry={isPosted ? 5.0 : 3.8}
+        fill={isPlayer ? "#3b82f6" : "#ef4444"}
+        fillOpacity={0.22}
+        stroke={isPlayer ? "#60a5fa" : "#f87171"}
+        strokeWidth={0.8}
+        style={{ pointerEvents: "none" }}
+      />
       {/* Dark ink plinth underlay with kind rim for weather/fog contrast */}
       <ellipse
         cx={cx - 1}
@@ -1203,7 +1218,13 @@ export function OverworldAtlas(props: {
                   ) : p.node === "quarry" && nodeStock(state, p.id) > 0 ? (
                     <MiniBlocks cx={cx} cy={cy} />
                   ) : p.node === "camp" || (occupant === "player" && p.id !== homeId) ? (
-                    <MiniCamp cx={cx} cy={cy} isPlayer={occupant === "player"} flagColor={occupant === "player" ? "#2563eb" : "#dc2626"} />
+                    <MiniCamp
+                      cx={cx}
+                      cy={cy}
+                      isPlayer={occupant === "player"}
+                      flagColor={occupant === "player" ? "#2563eb" : "#dc2626"}
+                      isPosted={Boolean(state && getPostedGarrison(state, p.id).posted)}
+                    />
                   ) : p.node && p.node !== "none" ? (
                     <circle cx={cx} cy={cy - 2} r={3.2} fill="#fbbf24" stroke="#111" strokeWidth={0.5} />
                   ) : p.terrain === "wood" ? (
@@ -1287,6 +1308,25 @@ export function OverworldAtlas(props: {
                 <circle cx={mx - ux * 6} cy={my - uy * 6} r={1.6} fill="#d6d3d1" opacity={0.55} />
                 <circle cx={mx - ux * 10} cy={my - uy * 10 - 0.5} r={1.2} fill="#cbd5e1" opacity={0.4} />
               </g>
+              {/* Living trailing wake motes along march line */}
+              <g className="sc-atlas-march-wake" style={{ pointerEvents: "none" }}>
+                <circle cx={mx - ux * 4} cy={my - uy * 4} r={1.8} fill={stroke} opacity={0.65} style={{ pointerEvents: "none" }} />
+                <circle cx={mx - ux * 8} cy={my - uy * 8} r={1.3} fill="#ffffff" opacity={0.55} style={{ pointerEvents: "none" }} />
+                <circle cx={mx - ux * 12} cy={my - uy * 12} r={0.9} fill={stroke} opacity={0.35} style={{ pointerEvents: "none" }} />
+              </g>
+              {/* Living status aura breathing under the advancing column */}
+              <ellipse
+                className="sc-atlas-unit-pulse-glow"
+                cx={mx}
+                cy={my + 2.5}
+                rx={8.5}
+                ry={4.2}
+                fill={stroke}
+                fillOpacity={0.22}
+                stroke={stroke}
+                strokeWidth={0.8}
+                style={{ pointerEvents: "none" }}
+              />
               {/* Meeple base ink ring with role-colored rim */}
               <ellipse
                 cx={mx}

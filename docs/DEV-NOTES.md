@@ -1,3 +1,17 @@
+## 2026-11-03 — render & app / living unit and march treatment on diamond board (bakeoff/gemini-units)
+
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order on Pixi canvas: backdrop, static tiles (cached), roads, road traffic, provinces/tokens, fog edge, weather, routes (with trailing wake), keeps, pawns (with living status aura), node piles, outpost marks, selection, hover highlight, unit labels (top).
+- Visual depth and readability:
+  - The living status aura (`drawMarchMeepleAura`) sits directly under each marching meeple on `boardPawnsLayer`, expanding with a gentle breathing pulse (`BOARD_MARCH_ROLE_COLORS`). It grounds the meeple in the diamond grid and remains crisp and vibrant across dark night, white snow, pouring rain, and thick fog.
+  - The living wake motes (`drawMarchWakeTrail`) sit on `boardRoutesLayer` trailing behind the advancing column progress, creating a sense of forward momentum along the march trail.
+  - Stationed garrisons (`drawPostedGarrisonAura`) breathe with a calm defensive sentry ward beneath the tent and armament rack.
+  - Steady unit tags on `boardUnitLabelsLayer` remain on the very top of the stack, untouched by meeple breathing or walk bob.
+- Determinism: `drawMarchMeepleAura` and `drawMarchWakeTrail` are pure deterministic functions of `phase` and the unit index.
+- SVG Kingdom Atlas (`OverworldAtlas.tsx` & `atlas-units.css`): Layered living status aura (`.sc-atlas-unit-pulse-glow`), trailing wake motes (`.sc-atlas-march-wake`), and sentry ward pulse (`.sc-atlas-unit-sentry`).
+- Strict isolation: `pointer-events: none !important;` on all unit and march overlay styles; `@media (prefers-reduced-motion: reduce)` disables animations. Zero alterations to `theme.css`.
+- Verification: Root `npm test` does not run render suite. Run `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app`.
+
 ## 2026-11-03 — render / clearer unit and march labels on diamond board (wave/board-units)
 
 - Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

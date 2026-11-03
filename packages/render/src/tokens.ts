@@ -8286,6 +8286,9 @@ export function drawGarrisonMeeple(
   const bob = (isColumn && !isTired) ? (options?.frame === 0 ? 0 : 2) : 0;
   const cy = y - bob;
 
+  // Living defensive sentry status aura under stationed garrison camp
+  drawPostedGarrisonAura(pawnsG, x, cy, cult.tabard ?? 0x2563eb, phase, power);
+
   // 1. Dual Ground Contact Shadows (encampment footprint + flagpole base)
   pawnsG.ellipse(x - 3.5, cy + 5.5, 9.5, 3.4);
   pawnsG.fill({ color: 0x000000, alpha: 0.45 });
@@ -9583,6 +9586,73 @@ export function drawMarchMeepleRing(g: Graphics, x: number, y: number, color: nu
   g.stroke({ width: 1.4, color, alpha: 0.95 });
 }
 
+/** Living status aura breathing under a marching meeple column. Role-coloured, pulsing smoothly with phase. */
+export function drawMarchMeepleAura(
+  g: Graphics,
+  x: number,
+  y: number,
+  color: number,
+  phase: number = 0,
+  seed: number = 0
+): void {
+  const pulse = Math.sin(phase * 4 + seed * 1.3) * 0.5 + 0.5;
+  const rx = BOARD_MARCH_RING_RX + 2.4 + pulse * 1.8;
+  const ry = BOARD_MARCH_RING_RY + 1.2 + pulse * 0.9;
+  // Soft breathing status aura
+  g.ellipse(x, y + 6.5, rx, ry);
+  g.fill({ color, alpha: 0.22 + 0.16 * pulse });
+  // Fine grounding rim
+  g.ellipse(x, y + 6.5, rx - 0.4, ry - 0.3);
+  g.stroke({ width: 0.9, color, alpha: 0.38 + 0.25 * pulse });
+}
+
+/** Living luminous wake motes trailing behind an advancing marching column along its march line. */
+export function drawMarchWakeTrail(
+  routeG: Graphics,
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  progress: number,
+  roleColor: number,
+  phase: number = 0,
+  seed: number = 0
+): void {
+  const wakeSteps = 4;
+  for (let k = 1; k <= wakeSteps; k++) {
+    const wakeT = progress - (k * 0.042);
+    if (wakeT <= 0 || wakeT >= 1) continue;
+    const wx = fromX + (toX - fromX) * wakeT;
+    const wy = fromY + (toY - fromY) * wakeT;
+    const wakeFade = 1 - k / (wakeSteps + 1);
+    const motePulse = Math.sin(phase * 5 - k * 0.85 + seed) * 0.3 + 0.7;
+    // Soft glowing wake particle
+    routeG.circle(wx, wy, Math.max(0.8, (2.4 - k * 0.38) * motePulse));
+    routeG.fill({ color: roleColor, alpha: 0.28 * wakeFade * motePulse });
+    // Crisp trailing spark
+    routeG.circle(wx, wy, Math.max(0.5, (1.2 - k * 0.22)));
+    routeG.fill({ color: 0xffffff, alpha: 0.65 * wakeFade * motePulse });
+  }
+}
+
+/** Living defensive sentry status aura under stationed garrison camp on the diamond board. */
+export function drawPostedGarrisonAura(
+  pawnsG: Graphics,
+  x: number,
+  y: number,
+  color: number,
+  phase: number = 0,
+  power: number = 0
+): void {
+  const pulse = Math.sin(phase * 3 + (x + y) * 0.08) * 0.5 + 0.5;
+  const extraPower = power >= 25 ? 2.5 : power >= 10 ? 1.5 : 0;
+  const radX = 11 + extraPower + pulse * 1.5;
+  const radY = 5.5 + pulse * 0.8;
+  pawnsG.ellipse(x - 3.5, y + 5.5, radX, radY);
+  pawnsG.fill({ color, alpha: 0.18 + 0.14 * pulse });
+  pawnsG.stroke({ width: 0.8, color, alpha: 0.38 + 0.22 * pulse });
+}
+
 export interface BoardMarchPaintOptions {
   /** Draw the small ETA pills on the meeples (default true). The board passes false: its unit label layer shows them. */
   etaBadges?: boolean;
@@ -9743,6 +9813,11 @@ export function paintBoardMarches(
     const cult = culturePalette(cultId);
     const isNight = resolveDayPhase(state, phase) === "night";
 
+    // Living trailing wake behind advancing column along march route
+    drawMarchWakeTrail(routeG, fromB.cx, fromB.cy, toB.cx, toB.cy, progress, roleColor, phase, marches.indexOf(m));
+
+    // Living unit status aura breathing under the column meeple
+    drawMarchMeepleAura(pawnsG, pawnX, pawnY, roleColor, phase, marches.indexOf(m));
     // Ink ring under the column so the meeple stands out on snow, rain and night tiles.
     drawMarchMeepleRing(pawnsG, pawnX, pawnY, roleColor);
 
@@ -10395,6 +10470,12 @@ export function paintBoardGathers(
     const stepIdx = Math.floor((phase * 6) % 4);
     const frame: 0 | 1 | 2 = stepIdx === 1 ? 1 : stepIdx === 3 ? 2 : 0;
     const bob = frame === 0 ? 0 : 2;
+
+    // Living trailing wake behind gather column
+    drawMarchWakeTrail(routeG, fromB.cx, fromB.cy, toB.cx, toB.cy, progress, BOARD_MARCH_ROLE_COLORS.gather, phase, gathers.indexOf(g));
+
+    // Living unit status aura breathing under gather meeple
+    drawMarchMeepleAura(pawnsG, pawnX, pawnY, BOARD_MARCH_ROLE_COLORS.gather, phase, gathers.indexOf(g));
 
     const gatherLoad = resolveGatherLoadInfo(g, state);
     drawGatherColumnMeeple(
