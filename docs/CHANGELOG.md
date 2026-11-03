@@ -1,11 +1,12 @@
 # CHANGELOG
 
-## 2026-11-02 — Clearer miniature keeps on diamond board (wave/board-keeps)
+## 2026-11-02 — Living keep treatment on diamond board (bakeoff/gemini-keeps)
 
-- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
 - `packages/render/src/tokens.ts`: new `paintBoardKeeps`, `drawBoardKeep`, `drawBoardKeepPlinth`, `boardKeepRimColor`, `isBoardKeepProvince`, and constants `BOARD_KEEP_INK` / `_INK_ALPHA`, `BOARD_KEEP_PLINTH_RX` / `_RY` / `_DY`, `BOARD_KEEP_RIM_WIDTH` / `_RIM_ALPHA`, `BOARD_KEEP_RIM_COLORS`. `paintBoardDynamicTokens` leaves keeps to the new layer.
-- `packages/render/src/index.ts`: new `boardKeepsLayer` above the fog edge, weather and march routes, below march meeples, node piles, camps, select rim, and hover. New helpers re-exported.
-- Tests: new `board keep clarity` block in `packages/render/src/index.test.ts`. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- `packages/render/src/index.ts`: new `boardKeepsLayer` above the fog edge, weather and march routes, below march meeples, node piles, camps, select rim, and hover.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-keeps.css`: SVG Kingdom Atlas features dark ink keep plinth with owner-colored rim (`.sc-atlas-keep-plinth`), living warm hearth glow (`.sc-atlas-keep-light`), watchfire beacon pulse on home keep (`.sc-atlas-keep-beacon`), and fluttering heraldic banner standard (`.sc-atlas-keep-banner`). Isolated stylesheet with strict `pointer-events: none !important;` and motion guard.
+- Tests: new `board keep clarity` block in `packages/render/src/index.test.ts` and `packages/app/src/hud/atlasKeeps.test.tsx`. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
 - `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
 
 ## 2026-11-02 — Living march treatment on diamond board (bakeoff/gemini-marches)

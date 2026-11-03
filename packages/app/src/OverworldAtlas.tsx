@@ -26,6 +26,7 @@ import "./hud/atlas-camps.css";
 import "./hud/atlas-weather.css";
 import "./hud/atlas-fog.css";
 import "./hud/atlas-marches.css";
+import "./hud/atlas-keeps.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -230,21 +231,67 @@ function MiniKeep(props: {
   const frontAnnexes = yardBuildings.filter((a) => a.slot === "south" || a.slot === "east");
   const showRivalCrest = !home && Boolean(occupantRealmId && occupantRealmId !== "player");
 
+  // Determine owner rim color matching boardKeepRimColor
+  let rimColor = "#e2e8f0";
+  if (home || occupantRealmId === "player") {
+    rimColor = "#fbbf24";
+  } else if (occupantRealmId === "rival") {
+    rimColor = "#ef4444";
+  } else if (occupantRealmId) {
+    const pal = realmTokenPalette(occupantRealmId);
+    rimColor = cssColor(pal.borderColor, "#38bdf8");
+  }
+
   return (
-    <g>
+    <g className="sc-atlas-keep" style={{ pointerEvents: "none" }}>
+      {/* 1. Steady dark ink plinth underlay with owner-colored rim */}
+      <g className="sc-atlas-keep-plinth" style={{ pointerEvents: "none" }}>
+        <ellipse cx={cx} cy={cy + 2} rx={12} ry={5.5} fill="#0f172a" opacity={0.65} style={{ pointerEvents: "none" }} />
+        <ellipse cx={cx} cy={cy + 2} rx={12} ry={5.5} fill="none" stroke={rimColor} strokeWidth={1.2} opacity={0.9} style={{ pointerEvents: "none" }} />
+      </g>
+
       {/* Rear yard annexes / scaffolding */}
       {rearAnnexes.map((info) => (
         <MiniYardBuilding key={info.id ?? info.slot} cx={cx} cy={cy} info={info} />
       ))}
+
+      {/* Ground shadow beneath keep building */}
       <rect x={cx - 7} y={cy - 6} width={14} height={8} fill="#1a120c" opacity={0.45} />
+      {/* Stone keep walls */}
       <rect x={cx - 6} y={cy - 14} width={12} height={10} fill={fill} stroke="#e8dcc8" strokeWidth={0.6} />
+      {/* Crenellations */}
       <rect x={cx - 7} y={cy - 16} width={3} height={3} fill={fill} />
       <rect x={cx - 1.5} y={cy - 16} width={3} height={3} fill={fill} />
       <rect x={cx + 4} y={cy - 16} width={3} height={3} fill={fill} />
+      {/* Roof pavilion */}
       <polygon points={`${cx - 8},${cy - 16} ${cx},${cy - 26} ${cx + 8},${cy - 16}`} fill={roof} stroke="#111" strokeWidth={0.4} />
+
+      {/* Living hearth / doorway warm golden light */}
       <rect x={cx - 1.5} y={cy - 8} width={3} height={4} fill="#111" />
-      {home ? <circle cx={cx + 5} cy={cy - 22} r={1.6} fill="#fde047" /> : null}
-      {showRivalCrest ? <MiniRealmCrest cx={cx} cy={cy - 28} realmId={occupantRealmId!} /> : null}
+      <rect className="sc-atlas-keep-light" x={cx - 1} y={cy - 7} width={2} height={3} fill="#fde047" opacity={0.9} style={{ pointerEvents: "none" }} />
+
+      {/* Living watchfire beacon on home keep roof / spire */}
+      {home ? (
+        <g className="sc-atlas-keep-beacon" style={{ pointerEvents: "none" }}>
+          <circle cx={cx + 5} cy={cy - 22} r={2.5} fill="#f59e0b" opacity={0.5} style={{ pointerEvents: "none" }} />
+          <circle cx={cx + 5} cy={cy - 22} r={1.6} fill="#fde047" style={{ pointerEvents: "none" }} />
+          <circle cx={cx + 5} cy={cy - 22} r={0.7} fill="#ffffff" style={{ pointerEvents: "none" }} />
+        </g>
+      ) : null}
+
+      {/* Living fluttering heraldic banner atop the keep roof */}
+      <g className="sc-atlas-keep-banner" style={{ pointerEvents: "none" }}>
+        <line x1={cx} y1={cy - 26} x2={cx} y2={cy - 34} stroke="#78350f" strokeWidth={1} />
+        <polygon
+          points={`${cx},${cy - 34} ${cx + 7},${cy - 32} ${cx + 5},${cy - 30.5} ${cx + 7},${cy - 29} ${cx},${cy - 29}`}
+          fill={rimColor}
+          stroke="#0f172a"
+          strokeWidth={0.4}
+        />
+      </g>
+
+      {showRivalCrest ? <MiniRealmCrest cx={cx} cy={cy - 38} realmId={occupantRealmId!} /> : null}
+
       {/* Front yard annexes / scaffolding */}
       {frontAnnexes.map((info) => (
         <MiniYardBuilding key={info.id ?? info.slot} cx={cx} cy={cy} info={info} />

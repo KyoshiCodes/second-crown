@@ -2,11 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-02 — Clearer keeps on the diamond board (wave/board-keeps)
+## 2026-11-02 — Living keeps on the diamond board (bakeoff/gemini-keeps)
 
-- **Keeps are easier to spot.** Every hold on the board now stands on a dark base with a coloured edge: gold for yours, red for the Iron March, and each other realm's own colour.
-- **Rain, snow, storms and the fog line no longer cover keeps.** Keeps also draw over march lines, so a route now ends right at the keep it is heading for.
-- **Marching pieces still stand in front.** A column leaving or arriving at a keep stays visible, and resource piles, outpost flags, camps and your selected-province outline still draw on top.
+- **Keeps are alive and easy to spot.** Every hold on the board stands on a dark ink base rimmed in its owner's colour: gold for yours, red for the Iron March, and each other realm's border colour.
+- **Living heraldic banners and hearth light.** Each keep features a fluttering heraldic pennant, warm doorway hearth light, and a watchfire beacon pulsing atop your home keep spire.
+- **Rain, snow, storms and the fog line no longer cover keeps.** Keeps draw over march route lines, so columns march directly to the gates, and marching pieces, resource piles, outpost flags, and camps remain in front.
+- **Strictly decorative and accessible.** All overlays ignore mouse clicks and respect prefers-reduced-motion preferences.
 - **Play is unchanged.** Holds, sieges and marches work exactly as before.
 
 ## 2026-11-02 — Living marches on the diamond board (bakeoff/gemini-marches)

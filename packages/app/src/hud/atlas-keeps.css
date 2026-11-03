@@ -1,0 +1,63 @@
+/* Living keep treatment on SVG overworld atlas (bakeoff/gemini-keeps) */
+
+.sc-atlas-keep,
+.sc-atlas-keep *,
+.sc-atlas-keep-plinth,
+.sc-atlas-keep-plinth *,
+.sc-atlas-keep-banner,
+.sc-atlas-keep-banner *,
+.sc-atlas-keep-light,
+.sc-atlas-keep-beacon,
+.sc-atlas-keep-beacon * {
+  pointer-events: none !important;
+}
+
+.sc-atlas-keep-banner {
+  animation: sc-atlas-keep-banner-flutter 1.5s ease-in-out infinite;
+  transform-origin: left bottom;
+}
+
+.sc-atlas-keep-light {
+  animation: sc-atlas-keep-hearth-glow 2.2s ease-in-out infinite;
+}
+
+.sc-atlas-keep-beacon {
+  animation: sc-atlas-keep-beacon-pulse 1.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes sc-atlas-keep-banner-flutter {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(4deg) skewX(2deg);
+  }
+}
+
+@keyframes sc-atlas-keep-hearth-glow {
+  0%, 100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-atlas-keep-beacon-pulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-keep-banner,
+  .sc-atlas-keep-light,
+  .sc-atlas-keep-beacon {
+    animation: none !important;
+  }
+}
