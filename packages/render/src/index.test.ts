@@ -4512,8 +4512,6 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           // Repaints with the static board key, next to the fog edge
           expect(code).toContain("paintBoardRoads(boardRoadsLayer, state)");
         });
-<<<<<<< HEAD
-=======
 
         it("paintBoardRoadTraffic draws moving travelers and trailing dust deterministically with phase", async () => {
           const { paintBoardRoadTraffic, drawBoardRoadTraffic, listBoardRoads, BOARD_ROAD_TRAFFIC_CART, BOARD_ROAD_TRAFFIC_DUST } = await import("./tokens.js");
@@ -4561,7 +4559,6 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           }
           expect(code).toContain("paintBoardRoadTraffic(boardRoadsTrafficLayer, lastState, phase)");
         });
->>>>>>> 90023cc (render: add living road treatment on diamond board)
       });
 
       describe("board march clarity", () => {
