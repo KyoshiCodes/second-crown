@@ -4410,6 +4410,110 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         });
       });
 
+      describe("board roads", () => {
+        // Home sits far away so only fog_seen decides what is seen.
+        function roadState(seen: string[] = ["p_home", "p_a", "p_b", "p_peak"]): GameState {
+          const state = createMockState();
+          state.board = {
+            homeProvinceId: "p_home",
+            provinces: [
+              { id: "p_home", x: 0, y: 0, terrain: "plain", node: "hold", occupantRealmId: "player" },
+              { id: "p_a", x: 5, y: 5, terrain: "plain", node: "none" },
+              { id: "p_b", x: 6, y: 5, terrain: "hill", node: "none" }, // seen, east of p_a -> road
+              { id: "p_peak", x: 5, y: 4, terrain: "peak", node: "none" }, // seen, north of p_a -> mountain path
+              { id: "p_fog", x: 5, y: 6, terrain: "wood", node: "none" }, // unseen, south of p_a -> trail into fog
+              { id: "p_far", x: 8, y: 8, terrain: "plain", node: "none" }, // unseen, alone -> nothing
+            ],
+          };
+          state.flags.fog_seen = JSON.stringify(seen);
+          return state;
+        }
+
+        it("listBoardRoads gives roads, mountain paths and fog trails once per neighbouring pair", async () => {
+          const { listBoardRoads } = await import("./tokens.js");
+          const roads = listBoardRoads(roadState());
+          const keys = roads.map((r) => `${r.fromId}>${r.toId}:${r.kind}${r.intoFog ? ":fog" : ""}`).sort();
+          expect(keys).toEqual(["p_a>p_b:road", "p_a>p_fog:path:fog", "p_peak>p_a:path"]);
+          expect(listBoardRoads(null)).toEqual([]);
+          expect(listBoardRoads(createMockState())).toEqual([]);
+        });
+
+        it("roads run tile top to tile top through the shared edge; fog trails stop at the edge", async () => {
+          const { listBoardRoads } = await import("./tokens.js");
+          const { provinceTokenBounds } = await import("./camera.js");
+          const { terrainElevation } = await import("./tiles.js");
+          const roads = listBoardRoads(roadState());
+          const a = provinceTokenBounds(5, 5);
+          const b = provinceTokenBounds(6, 5);
+          const aTop = a.cy - terrainElevation("plain");
+          const bTop = b.cy - terrainElevation("hill");
+          const road = roads.find((r) => r.toId === "p_b")!;
+          const mx = (a.cx + b.cx) / 2;
+          // plain (4) -> hill (9): a step at the shared edge midpoint
+          expect(road.points).toEqual([a.cx, aTop, mx, aTop + (b.cy - a.cy) / 2, mx, bTop - (b.cy - a.cy) / 2, b.cx, bTop]);
+
+          const trail = roads.find((r) => r.toId === "p_fog")!;
+          const f = provinceTokenBounds(5, 6);
+          expect(trail.points).toEqual([a.cx, aTop, (a.cx + f.cx) / 2, aTop + (f.cy - a.cy) / 2]);
+        });
+
+        it("drawBoardRoad strokes a wide steady ink underlay before the pale bed; paths are dashed", async () => {
+          const {
+            listBoardRoads, drawBoardRoad, BOARD_ROAD_INK, BOARD_ROAD_INK_ALPHA, BOARD_ROAD_INK_WIDTH,
+            BOARD_ROAD_BED, BOARD_ROAD_CROWN, BOARD_PATH_INK_WIDTH, BOARD_MARCH_INK_WIDTH,
+          } = await import("./tokens.js");
+          // Road edge still shows beside a march line drawn on top of it
+          expect(BOARD_ROAD_INK_WIDTH).toBeGreaterThan(BOARD_MARCH_INK_WIDTH);
+          const roads = listBoardRoads(roadState());
+
+          const g = createMockGraphics();
+          drawBoardRoad(g, roads.find((r) => r.kind === "road")!);
+          const strokes = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]);
+          expect(strokes.map((s: any) => s.color)).toEqual([BOARD_ROAD_INK, BOARD_ROAD_BED, BOARD_ROAD_CROWN]);
+          expect(strokes[0].width).toBe(BOARD_ROAD_INK_WIDTH);
+          expect(strokes[0].alpha).toBe(BOARD_ROAD_INK_ALPHA);
+
+          const gp = createMockGraphics();
+          drawBoardRoad(gp, roads.find((r) => r.intoFog)!);
+          const pStrokes = gp.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]);
+          expect(pStrokes.map((s: any) => s.color)).toEqual([BOARD_ROAD_INK, BOARD_ROAD_BED]);
+          expect(pStrokes[0].width).toBe(BOARD_PATH_INK_WIDTH);
+          // ink trace (1 moveTo) + several dashes
+          expect(gp.calls.filter((c: any) => c.method === "moveTo").length).toBeGreaterThan(2);
+        });
+
+        it("paintBoardRoads clears first, is deterministic, and draws nothing without roads", async () => {
+          const { paintBoardRoads } = await import("./tokens.js");
+          const g = createMockGraphics();
+          paintBoardRoads(g, roadState());
+          expect(g.calls[0].method).toBe("clear");
+          const g2 = createMockGraphics();
+          paintBoardRoads(g2, roadState());
+          expect(JSON.stringify(g2.calls)).toBe(JSON.stringify(g.calls));
+          const g3 = createMockGraphics();
+          paintBoardRoads(g3, roadState(["p_home"]));
+          expect(g3.calls.length).toBe(1);
+        });
+
+        it("roads layer sits above the fog veil and below marks, fog edge, weather, marches, keeps, rim and hover", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+          const at = (name: string) => code.indexOf(`boardContainer.addChild(${name})`);
+          const roads = at("boardRoadsLayer");
+          expect(roads).toBeGreaterThan(at("boardStaticTilesLayer"));
+          for (const above of [
+            "boardProvincesLayer", "boardFogEdgeLayer", "boardWeatherGraphic", "boardRoutesLayer",
+            "boardKeepsLayer", "boardPawnsLayer", "boardNodePilesLayer", "boardOutpostMarksLayer",
+            "boardSelectionLayer", "boardHighlightLayer",
+          ]) {
+            expect(roads).toBeLessThan(at(above));
+          }
+          // Repaints with the static board key, next to the fog edge
+          expect(code).toContain("paintBoardRoads(boardRoadsLayer, state)");
+        });
+      });
+
       describe("board march clarity", () => {
         function marchState(): GameState {
           const state = createMockState();

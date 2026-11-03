@@ -125,6 +125,7 @@ import {
   paintBoardDynamicTokens,
   paintBoardNodePiles,
   paintBoardFogEdge,
+  paintBoardRoads,
   drawBoardNodePile,
   drawNodePileInkPlinth,
   isStockPileNode,
@@ -375,6 +376,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardContainer.addChild(boardStaticTilesLayer);
   const boardStaticCache = createBoardStaticLayerCache(boardStaticTilesLayer);
 
+  // Roads + paths between neighbouring provinces. Just ABOVE the static terrain + fog veil,
+  // BELOW province marks, fog edge, weather, marches, keeps, piles, camps, select rim and hover.
+  // Ink underlay + pale bed keep them readable through all of those. Repaints with the static key.
+  const boardRoadsLayer = new Graphics();
+  boardRoadsLayer.eventMode = "none";
+  boardContainer.addChild(boardRoadsLayer);
+
   // Static tiles + fog edge repaint together, only when the seen set or layout changes.
   function updateBoardStatic(state: GameState | null): void {
     boardStaticCache.update(state, currentBand, visuals);
@@ -383,6 +391,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     if (key === boardFogEdgeKey) return;
     boardFogEdgeKey = key;
     paintBoardFogEdge(boardFogEdgeLayer, state);
+    paintBoardRoads(boardRoadsLayer, state);
   }
 
   // Dynamic token/mark layer (moving marks, ruins, rims, status marks): redraws every frame. Keeps, piles and camps have their own layers.
@@ -1167,6 +1176,7 @@ export {
   paintBoardDynamicTokens,
   paintBoardNodePiles,
   paintBoardFogEdge,
+  paintBoardRoads,
   drawBoardNodePile,
   drawNodePileInkPlinth,
   isStockPileNode,

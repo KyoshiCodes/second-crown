@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-03 — Clearer roads and paths on diamond board (wave/board-roads)
+
+- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged (roads are drawn only; they do not change march speed or adjacency).
+- `packages/render/src/tokens.ts`: new `listBoardRoads(state)` lists one line per neighbouring province pair (same 4-way adjacency as sim `neighbors`), in depth order. Kinds: `road` (both seen, no peak), `path` (both seen, one is a peak), and fog trail (`path` with `intoFog: true`, seen to unseen, stops at the shared diamond edge). Unseen–unseen pairs get nothing. Lines run tile top to tile top through the shared edge midpoint, with a step where heights differ.
+- `drawBoardRoad` strokes a steady dark ink underlay (`BOARD_ROAD_INK` `0x1a120b`, alpha `0.62`, width `6` for roads / `4.5` for paths), then a packed-earth bed (`BOARD_ROAD_BED` `0xd6b98a`, alpha `0.92`; solid width `3` for roads, dashed width `2` for paths, `BOARD_PATH_DASH` `3.5` / `BOARD_PATH_GAP` `2.5`), then a thin pale crown on roads (`BOARD_ROAD_CROWN` `0xfaf3e0`). Road ink is wider than march ink (`4`), so a road edge still shows beside a march line. No phase: nothing pulses.
+- `paintBoardRoads(g, state)` paints them on a new `boardRoadsLayer` in `packages/render/src/index.ts`, just above the cached static tiles (terrain + fog veil) and below province marks, fog edge, weather, marches, keeps, meeples, piles, camps, the select rim and hover. It repaints only when the static board key (seen set / layout) changes, next to the fog edge.
+- Tests: new `board roads` block in `packages/render/src/index.test.ts` (kinds, geometry, stroke order, determinism, layer order). `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+
 ## 2026-11-03 — Living selected province treatment on diamond board (bakeoff/gemini-select)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

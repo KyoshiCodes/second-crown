@@ -3203,6 +3203,180 @@ export function paintBoardNodePiles(
 }
 
 // -------------------------------------------------------------
+// Board Roads & Paths (own layer, steady lines between neighbouring provinces)
+// -------------------------------------------------------------
+
+/** Dark ink underlay under every road / path (contrast on snow, fog veil and sun glow). */
+export const BOARD_ROAD_INK = 0x1a120b;
+export const BOARD_ROAD_INK_ALPHA = 0.62;
+/** Road ink is wider than the march ink (4), so a road edge still shows beside a march line. */
+export const BOARD_ROAD_INK_WIDTH = 6;
+/** Packed-earth bed on top of the ink (lifts off dark wood, peak, storm and night tiles). */
+export const BOARD_ROAD_BED = 0xd6b98a;
+export const BOARD_ROAD_BED_ALPHA = 0.92;
+export const BOARD_ROAD_BED_WIDTH = 3;
+/** Thin pale crown down the middle of a road (roads only; paths have none). */
+export const BOARD_ROAD_CROWN = 0xfaf3e0;
+export const BOARD_ROAD_CROWN_ALPHA = 0.5;
+export const BOARD_ROAD_CROWN_WIDTH = 0.9;
+/** Paths are narrower and dashed, so they never read as a road. */
+export const BOARD_PATH_INK_WIDTH = 4.5;
+export const BOARD_PATH_BED_WIDTH = 2;
+export const BOARD_PATH_DASH = 3.5;
+export const BOARD_PATH_GAP = 2.5;
+
+/**
+ * - `road`: both provinces seen, neither is a peak. Solid bed with a pale crown.
+ * - `path`: both seen and one is a peak (mountain path), or the far end is unseen
+ *   (a trail that stops at the fog edge). Narrow dashed bed.
+ */
+export type BoardRoadKind = "road" | "path";
+
+export interface BoardRoad {
+  fromId: string;
+  /** The neighbour this road leads to (may be unseen for a trail into fog). */
+  toId: string;
+  kind: BoardRoadKind;
+  /** True when `toId` is unseen: the line stops at the shared diamond edge. */
+  intoFog: boolean;
+  /** Flat polyline [x0, y0, x1, y1, ...] on the tile tops. */
+  points: number[];
+}
+
+/**
+ * Lists every road and path on the diamond board. One entry per neighbouring pair
+ * (same 4-way adjacency as the sim's `neighbors`), in depth order, so it is deterministic.
+ * Roads run tile top to tile top through the shared edge midpoint (a step where heights
+ * differ). Unseen–unseen pairs get nothing; a seen–unseen pair gets a path that stops
+ * at the shared edge, so nothing is drawn inside the fog.
+ */
+export function listBoardRoads(state: GameState | null | undefined): BoardRoad[] {
+  const provinces = state?.board?.provinces;
+  if (!provinces || !state) return [];
+  const at = new Map<string, Province>();
+  const seen = new Map<string, boolean>();
+  for (const p of provinces) {
+    at.set(`${p.x},${p.y}`, p);
+    seen.set(p.id, isProvinceSeen(state, p.id));
+  }
+  const top = (p: Province) => {
+    const b = provinceTokenBounds(p.x, p.y);
+    return { x: b.cx, y: b.cy - terrainElevation(p.terrain) };
+  };
+  const roads: BoardRoad[] = [];
+  for (const p of sortBoardProvincesDepth(provinces)) {
+    // Only look east (+x) and south (+y) so each pair is listed once.
+    for (const [dx, dy] of [[1, 0], [0, 1]] as const) {
+      const n = at.get(`${p.x + dx},${p.y + dy}`);
+      if (!n) continue;
+      const pSeen = seen.get(p.id) === true;
+      const nSeen = seen.get(n.id) === true;
+      if (!pSeen && !nSeen) continue;
+      const from = pSeen ? p : n;
+      const to = pSeen ? n : p;
+      const a = top(from);
+      // Half the world step between the two tile centres = the shared edge midpoint.
+      const fb = provinceTokenBounds(from.x, from.y);
+      const tb = provinceTokenBounds(to.x, to.y);
+      const hx = (tb.cx - fb.cx) / 2;
+      const hy = (tb.cy - fb.cy) / 2;
+      const edgeA = { x: a.x + hx, y: a.y + hy };
+      if (!(pSeen && nSeen)) {
+        roads.push({ fromId: from.id, toId: to.id, kind: "path", intoFog: true, points: [a.x, a.y, edgeA.x, edgeA.y] });
+        continue;
+      }
+      const z = top(to);
+      const edgeZ = { x: z.x - hx, y: z.y - hy };
+      const points =
+        edgeA.y === edgeZ.y
+          ? [a.x, a.y, edgeA.x, edgeA.y, z.x, z.y]
+          : [a.x, a.y, edgeA.x, edgeA.y, edgeZ.x, edgeZ.y, z.x, z.y];
+      const kind: BoardRoadKind = from.terrain === "peak" || to.terrain === "peak" ? "path" : "road";
+      roads.push({ fromId: from.id, toId: to.id, kind, intoFog: false, points });
+    }
+  }
+  return roads;
+}
+
+function traceBoardPolyline(g: Graphics, pts: number[]): void {
+  g.moveTo(pts[0]!, pts[1]!);
+  for (let i = 2; i < pts.length; i += 2) g.lineTo(pts[i]!, pts[i + 1]!);
+}
+
+/** Dashes along a polyline (dash/gap carried across corners). Deterministic. */
+function traceBoardDashes(g: Graphics, pts: number[], dash: number, gap: number): void {
+  let on = true;
+  let left = dash;
+  for (let i = 0; i + 3 < pts.length; i += 2) {
+    let x = pts[i]!;
+    let y = pts[i + 1]!;
+    const ex = pts[i + 2]!;
+    const ey = pts[i + 3]!;
+    let seg = Math.hypot(ex - x, ey - y);
+    if (seg === 0) continue;
+    const ux = (ex - x) / seg;
+    const uy = (ey - y) / seg;
+    while (seg > 0) {
+      const step = Math.min(left, seg);
+      const nx = x + ux * step;
+      const ny = y + uy * step;
+      if (on) {
+        g.moveTo(x, y);
+        g.lineTo(nx, ny);
+      }
+      x = nx;
+      y = ny;
+      seg -= step;
+      left -= step;
+      if (left <= 1e-6) {
+        on = !on;
+        left = on ? dash : gap;
+      }
+    }
+  }
+}
+
+/** Draws one road (ink, bed, crown) or path (ink, dashed bed). Steady: no phase. */
+export function drawBoardRoad(g: Graphics, r: BoardRoad): void {
+  if (!g || r.points.length < 4) return;
+  const isRoad = r.kind === "road";
+  traceBoardPolyline(g, r.points);
+  g.stroke({
+    width: isRoad ? BOARD_ROAD_INK_WIDTH : BOARD_PATH_INK_WIDTH,
+    color: BOARD_ROAD_INK,
+    alpha: BOARD_ROAD_INK_ALPHA,
+    cap: "round",
+    join: "round",
+  });
+  if (isRoad) {
+    traceBoardPolyline(g, r.points);
+    g.stroke({ width: BOARD_ROAD_BED_WIDTH, color: BOARD_ROAD_BED, alpha: BOARD_ROAD_BED_ALPHA, cap: "round", join: "round" });
+    traceBoardPolyline(g, r.points);
+    g.stroke({ width: BOARD_ROAD_CROWN_WIDTH, color: BOARD_ROAD_CROWN, alpha: BOARD_ROAD_CROWN_ALPHA, cap: "round", join: "round" });
+  } else {
+    traceBoardDashes(g, r.points, BOARD_PATH_DASH, BOARD_PATH_GAP);
+    g.stroke({ width: BOARD_PATH_BED_WIDTH, color: BOARD_ROAD_BED, alpha: BOARD_ROAD_BED_ALPHA, cap: "round" });
+  }
+}
+
+/**
+ * Paints every road and path on its own Graphics layer. The renderer stacks this layer
+ * just ABOVE the static terrain + fog veil and BELOW the province marks, fog edge, weather,
+ * marches, keeps, piles, camps, the select rim and hover, so none of those are hidden.
+ * The ink underlay + pale bed keep roads readable through all of them.
+ * Only the seen set and board layout change it (repaint with the static cache key). Non-interactive.
+ */
+export function paintBoardRoads(g: Graphics, state: GameState | null | undefined): void {
+  g.clear();
+  if ("eventMode" in g) {
+    (g as any).eventMode = "none";
+  }
+  for (const r of listBoardRoads(state)) {
+    drawBoardRoad(g, r);
+  }
+}
+
+// -------------------------------------------------------------
 // Board Fog Edge (own layer, steady line where seen meets unseen)
 // -------------------------------------------------------------
 

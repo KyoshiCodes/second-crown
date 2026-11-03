@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Roads and paths on the diamond board (wave/board-roads)
+
+- **Roads between provinces.** Neighbouring provinces you can see are now joined by pale earth roads with a dark edge, so you can follow the ways across the board at a glance.
+- **Mountain paths.** Where a road meets a peak it becomes a thinner dashed path.
+- **Trails into the fog.** Next to unexplored land, a dashed trail runs up to the fog line and stops there. Nothing is drawn inside the fog.
+- **Still readable.** Roads show through rain, snow, storms and night. March lines, keeps, marching pieces, piles, camps, province marks and the selected outline all draw on top, and the road still shows around them.
+- **Play is unchanged.** Roads are only drawn. They do not change march speed or which provinces touch.
+
 ## 2026-11-03 — Living selected province on the diamond board (bakeoff/gemini-select)
 
 - **Selected provinces are unmistakable and alive.** The gold rim stays crisp and steady, backed by dark ink and a soft pale halo so it remains readable under heavy snow, fog, night, and storms.
