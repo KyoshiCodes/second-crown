@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-02 — Clearer march paths and meeples on diamond board (wave/board-marches)
+
+- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/tokens.ts`: new `boardMarchRole`, `listMarchChevrons`, `drawMarchPathLine`, `drawMarchMeepleRing`, type `BoardMarchRole`, and constants `BOARD_MARCH_ROLE_COLORS`, `BOARD_MARCH_INK` / `_INK_ALPHA` / `_INK_WIDTH`, `BOARD_MARCH_LINE_ALPHA` / `_LINE_WIDTH`, `BOARD_MARCH_CHEVRON_SPACING` / `_CHEVRON_SIZE`, `BOARD_MARCH_RING_RX` / `_RING_RY` / `_RING_FILL_ALPHA`. `paintBoardMarches` draws the steady path + chevrons under the existing dotted trail and a ring under each meeple.
+- `packages/render/src/index.ts`: `boardRoutesLayer` and `boardPawnsLayer` move from below the fog edge to above `boardWeatherGraphic`, below node piles. New helpers re-exported.
+- Tests: new `board march clarity` block in `packages/render/src/index.test.ts`; fog edge layer-order test updated. `npm test`, `npm run test -w @second-crown/render`, and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+
 ## 2026-11-02 — Living fog treatment on diamond board (bakeoff/gemini-fog)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

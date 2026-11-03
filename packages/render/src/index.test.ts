@@ -4311,12 +4311,102 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
           const at = (name: string) => code.indexOf(`boardContainer.addChild(${name})`);
           const edge = at("boardFogEdgeLayer");
           expect(edge).toBeGreaterThan(at("boardStaticTilesLayer"));
-          expect(edge).toBeGreaterThan(at("boardPawnsLayer"));
+          expect(edge).toBeGreaterThan(at("boardProvincesLayer"));
+          expect(edge).toBeLessThan(at("boardRoutesLayer"));
+          expect(edge).toBeLessThan(at("boardPawnsLayer"));
           expect(edge).toBeLessThan(at("boardWeatherGraphic"));
           expect(edge).toBeLessThan(at("boardNodePilesLayer"));
           expect(edge).toBeLessThan(at("boardOutpostMarksLayer"));
           expect(edge).toBeLessThan(at("boardSelectionLayer"));
           expect(edge).toBeLessThan(at("boardHighlightLayer"));
+        });
+      });
+
+      describe("board march clarity", () => {
+        function marchState(): GameState {
+          const state = createMockState();
+          state.board = {
+            homeProvinceId: "p_home",
+            provinces: [
+              { id: "p_home", x: 1, y: 1, terrain: "plain", node: "hold", occupantRealmId: "player" },
+              { id: "p_forage", x: 2, y: 1, terrain: "wood", node: "woodcut" },
+              { id: "p_enemy", x: 5, y: 4, terrain: "hill", node: "hold", occupantRealmId: "rival" },
+            ],
+          };
+          state.flags["marches_json"] = JSON.stringify([
+            { id: "m_war", realmId: "player", fromId: "p_home", toId: "p_enemy", kind: "hold", arrivesTick: 150, force: { knight: 5 } },
+            { id: "m_raid", realmId: "rival", fromId: "p_enemy", toId: "p_home", kind: "hold", arrivesTick: 160, force: { spearman: 4 } },
+          ]);
+          return state;
+        }
+
+        it("boardMarchRole picks scout, gather, garrison, player and hostile colours", async () => {
+          const { boardMarchRole, BOARD_MARCH_ROLE_COLORS } = await import("./tokens.js");
+          const state = marchState();
+          expect(boardMarchRole({ id: "a", realmId: "player", fromId: "p_home", toId: "p_enemy", kind: "hold", arrivesTick: 1 } as any, state)).toBe("player");
+          expect(boardMarchRole({ id: "b", realmId: "rival", fromId: "p_enemy", toId: "p_home", kind: "hold", arrivesTick: 1 } as any, state)).toBe("hostile");
+          expect(new Set(Object.values(BOARD_MARCH_ROLE_COLORS)).size).toBe(5);
+        });
+
+        it("listMarchChevrons spaces chevrons along the route and skips short hops", async () => {
+          const { listMarchChevrons } = await import("./tokens.js");
+          expect(listMarchChevrons(0, 0, 20, 0, 26)).toEqual([]);
+          const pts = listMarchChevrons(0, 0, 130, 0, 26);
+          expect(pts.length).toBe(4);
+          // Centred, evenly spaced, pointing toward the destination
+          expect(pts[0].x).toBeCloseTo(130 - pts[3].x);
+          expect(pts[1].x - pts[0].x).toBeCloseTo(26);
+          expect(pts.every((p) => p.ux === 1 && p.uy === 0)).toBe(true);
+          expect(pts.every((p) => p.x > 13 && p.x < 117)).toBe(true);
+        });
+
+        it("drawMarchPathLine strokes the ink underlay before the coloured line", async () => {
+          const { drawMarchPathLine, BOARD_MARCH_INK, BOARD_MARCH_INK_ALPHA, BOARD_MARCH_INK_WIDTH } = await import("./tokens.js");
+          const g = createMockGraphics();
+          drawMarchPathLine(g, 0, 0, 130, 0, 0xf59e0b);
+          const strokes = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]);
+          expect(strokes[0]).toEqual({ width: BOARD_MARCH_INK_WIDTH, color: BOARD_MARCH_INK, alpha: BOARD_MARCH_INK_ALPHA });
+          expect(strokes[1].color).toBe(0xf59e0b);
+          // Chevrons: ink pass then pale pass
+          expect(strokes.length).toBe(4);
+          expect(strokes[2].color).toBe(BOARD_MARCH_INK);
+        });
+
+        it("paintBoardMarches draws a steady role-coloured path and a ring under each meeple, deterministically", async () => {
+          const { paintBoardMarches, BOARD_MARCH_INK, BOARD_MARCH_ROLE_COLORS, BOARD_MARCH_RING_RX } = await import("./tokens.js");
+          const routeG = createMockGraphics();
+          const pawnsG = createMockGraphics();
+          paintBoardMarches(routeG, pawnsG, marchState(), 1.5);
+
+          const routeStrokes = routeG.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]);
+          expect(routeStrokes.some((a: any) => a.color === BOARD_MARCH_ROLE_COLORS.player && a.alpha === 0.9)).toBe(true);
+          expect(routeStrokes.some((a: any) => a.color === BOARD_MARCH_ROLE_COLORS.hostile && a.alpha === 0.9)).toBe(true);
+          expect(routeStrokes.filter((a: any) => a.color === BOARD_MARCH_INK).length).toBeGreaterThanOrEqual(2);
+
+          const rings = pawnsG.calls.filter((c: any) => c.method === "ellipse" && c.args[2] === BOARD_MARCH_RING_RX);
+          expect(rings.length).toBe(2);
+
+          const routeG2 = createMockGraphics();
+          const pawnsG2 = createMockGraphics();
+          paintBoardMarches(routeG2, pawnsG2, marchState(), 1.5);
+          expect(JSON.stringify(routeG2.calls)).toBe(JSON.stringify(routeG.calls));
+          expect(JSON.stringify(pawnsG2.calls)).toBe(JSON.stringify(pawnsG.calls));
+        });
+
+        it("march layers sit above the fog edge and weather, below piles, camps, rim and hover", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+          const at = (name: string) => code.indexOf(`boardContainer.addChild(${name})`);
+          for (const layer of ["boardRoutesLayer", "boardPawnsLayer"]) {
+            expect(at(layer)).toBeGreaterThan(at("boardFogEdgeLayer"));
+            expect(at(layer)).toBeGreaterThan(at("boardWeatherGraphic"));
+            expect(at(layer)).toBeLessThan(at("boardNodePilesLayer"));
+            expect(at(layer)).toBeLessThan(at("boardOutpostMarksLayer"));
+            expect(at(layer)).toBeLessThan(at("boardSelectionLayer"));
+            expect(at(layer)).toBeLessThan(at("boardHighlightLayer"));
+          }
+          expect(at("boardRoutesLayer")).toBeLessThan(at("boardPawnsLayer"));
         });
       });
 

@@ -144,6 +144,21 @@ import {
   type BoardStaticLayerCache,
   paintBoardProvinces,
   paintBoardMarches,
+  boardMarchRole,
+  listMarchChevrons,
+  drawMarchPathLine,
+  drawMarchMeepleRing,
+  BOARD_MARCH_ROLE_COLORS,
+  BOARD_MARCH_INK,
+  BOARD_MARCH_INK_ALPHA,
+  BOARD_MARCH_INK_WIDTH,
+  BOARD_MARCH_LINE_ALPHA,
+  BOARD_MARCH_LINE_WIDTH,
+  BOARD_MARCH_CHEVRON_SPACING,
+  BOARD_MARCH_CHEVRON_SIZE,
+  BOARD_MARCH_RING_RX,
+  BOARD_MARCH_RING_RY,
+  BOARD_MARCH_RING_FILL_ALPHA,
   paintBoardHighlight,
   paintBoardSelectionRim,
   drawMarchEtaBadge,
@@ -351,16 +366,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardProvincesLayer.eventMode = "none";
   boardContainer.addChild(boardProvincesLayer);
 
-  const boardRoutesLayer = new Graphics();
-  boardRoutesLayer.eventMode = "none";
-  boardContainer.addChild(boardRoutesLayer);
-
-  const boardPawnsLayer = new Graphics();
-  boardPawnsLayer.eventMode = "none";
-  boardContainer.addChild(boardPawnsLayer);
-
-  // Steady fog edge where seen meets unseen. Above the fog veil, tokens and marches;
-  // BELOW weather, node piles, outpost / camp marks, the select rim and hover.
+  // Steady fog edge where seen meets unseen. Above the fog veil and tokens;
+  // BELOW marches, weather, node piles, outpost / camp marks, the select rim and hover.
   const boardFogEdgeLayer = new Graphics();
   boardFogEdgeLayer.eventMode = "none";
   boardContainer.addChild(boardFogEdgeLayer);
@@ -369,6 +376,16 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   const boardWeatherGraphic = new Graphics();
   boardWeatherGraphic.eventMode = "none";
   boardContainer.addChild(boardWeatherGraphic);
+
+  // March routes + meeples sit ABOVE the fog edge and weather so rain, snow, storm dim
+  // and the fog line never hide a column. Piles, camps, select rim and hover stay on top.
+  const boardRoutesLayer = new Graphics();
+  boardRoutesLayer.eventMode = "none";
+  boardContainer.addChild(boardRoutesLayer);
+
+  const boardPawnsLayer = new Graphics();
+  boardPawnsLayer.eventMode = "none";
+  boardContainer.addChild(boardPawnsLayer);
 
   // Node stock piles (+ stock badges) sit ABOVE weather + the static fog veil so rain,
   // snow, storm dim and sun/moon glow never wash them out. Select rim + hover stay on top.
@@ -1134,6 +1151,21 @@ export {
   type BoardStaticLayerCache,
   paintBoardProvinces,
   paintBoardMarches,
+  boardMarchRole,
+  listMarchChevrons,
+  drawMarchPathLine,
+  drawMarchMeepleRing,
+  BOARD_MARCH_ROLE_COLORS,
+  BOARD_MARCH_INK,
+  BOARD_MARCH_INK_ALPHA,
+  BOARD_MARCH_INK_WIDTH,
+  BOARD_MARCH_LINE_ALPHA,
+  BOARD_MARCH_LINE_WIDTH,
+  BOARD_MARCH_CHEVRON_SPACING,
+  BOARD_MARCH_CHEVRON_SIZE,
+  BOARD_MARCH_RING_RX,
+  BOARD_MARCH_RING_RY,
+  BOARD_MARCH_RING_FILL_ALPHA,
   paintBoardHighlight,
   paintBoardSelectionRim,
   drawMarchEtaBadge,

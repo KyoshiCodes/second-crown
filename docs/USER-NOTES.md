@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-02 — Clearer marches on the diamond board (wave/board-marches)
+
+- **Marching columns are easier to follow.** Each march now has a solid line with a dark edge from where it left to where it is going, with small arrows pointing the way.
+- **Colour tells you who is marching.** Amber for your armies, red for enemies, green for gatherers, blue for garrisons, and cyan for scouts.
+- **Meeples stand out.** Each marching piece stands on a dark ring in its march colour, so you can spot it on snow, in rain, or at night.
+- **Rain, snow and the fog line no longer cover marches.** Resource piles, outpost flags, rival camps, and your selected-province outline still draw on top.
+- **Play is unchanged.** March speed and arrival times work exactly as before.
+
 ## 2026-11-02 — Living fog treatment on the diamond board (bakeoff/gemini-fog)
 
 - **You can now see exactly where your map knowledge ends.** Where a province you have seen meets one still under cloud, the board draws a clear mist line with dark ink underlay and a soft slate band on the fog side.

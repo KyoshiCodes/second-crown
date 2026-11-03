@@ -9046,6 +9046,113 @@ export function drawLancerMeeple(
   pawnsG.fill({ color: 0x38bdf8 });
 }
 
+// ---------------------------------------------------------------------------
+// Clearer march paths + meeples (wave/board-marches)
+// Steady (no pulse) ink-backed route line, direction chevrons, and a ring under
+// each meeple, so columns stay readable over weather, night and the fog edge.
+// ---------------------------------------------------------------------------
+
+export const BOARD_MARCH_INK = 0x0f172a;
+export const BOARD_MARCH_INK_ALPHA = 0.6;
+export const BOARD_MARCH_INK_WIDTH = 4;
+export const BOARD_MARCH_LINE_ALPHA = 0.9;
+export const BOARD_MARCH_LINE_WIDTH = 1.6;
+export const BOARD_MARCH_CHEVRON_SPACING = 26;
+export const BOARD_MARCH_CHEVRON_SIZE = 3.5;
+export const BOARD_MARCH_RING_RX = 11;
+export const BOARD_MARCH_RING_RY = 5;
+export const BOARD_MARCH_RING_FILL_ALPHA = 0.5;
+
+/** Role colours: scout cyan, gather green, garrison blue, player amber, hostile red. */
+export const BOARD_MARCH_ROLE_COLORS = {
+  scout: 0x38bdf8,
+  gather: 0x22c55e,
+  garrison: 0x3b82f6,
+  player: 0xf59e0b,
+  hostile: 0xef4444,
+} as const;
+
+export type BoardMarchRole = keyof typeof BOARD_MARCH_ROLE_COLORS;
+
+/** Same role order paintBoardMarches already uses: scout > gather > garrison > player/hostile. */
+export function boardMarchRole(march: March, state: GameState): BoardMarchRole {
+  if (isScoutMarch(march)) return "scout";
+  if (isGatherMarch(march, state)) return "gather";
+  if (isGarrisonMarch(march)) return "garrison";
+  return march.realmId === "player" ? "player" : "hostile";
+}
+
+/**
+ * Chevron points along a route, from origin toward destination.
+ * Skips the first and last stretch so chevrons never sit under the meeple ring at
+ * the origin or the destination target. Pure: same inputs, same points.
+ */
+export function listMarchChevrons(
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+  spacing: number = BOARD_MARCH_CHEVRON_SPACING
+): { x: number; y: number; ux: number; uy: number }[] {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len = Math.hypot(dx, dy);
+  if (len < spacing * 1.5) return [];
+  const ux = dx / len;
+  const uy = dy / len;
+  const out: { x: number; y: number; ux: number; uy: number }[] = [];
+  const count = Math.floor(len / spacing) - 1;
+  const start = (len - (count - 1) * spacing) / 2;
+  for (let i = 0; i < count; i++) {
+    const d = start + i * spacing;
+    out.push({ x: ax + ux * d, y: ay + uy * d, ux, uy });
+  }
+  return out;
+}
+
+/** Steady ink underlay, coloured line, then direction chevrons (ink under colour). */
+export function drawMarchPathLine(
+  g: Graphics,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+  color: number
+): void {
+  g.moveTo(ax, ay);
+  g.lineTo(bx, by);
+  g.stroke({ width: BOARD_MARCH_INK_WIDTH, color: BOARD_MARCH_INK, alpha: BOARD_MARCH_INK_ALPHA });
+  g.moveTo(ax, ay);
+  g.lineTo(bx, by);
+  g.stroke({ width: BOARD_MARCH_LINE_WIDTH, color, alpha: BOARD_MARCH_LINE_ALPHA });
+
+  const s = BOARD_MARCH_CHEVRON_SIZE;
+  const chevrons = listMarchChevrons(ax, ay, bx, by);
+  for (const pass of [0, 1] as const) {
+    for (const c of chevrons) {
+      // Perpendicular (-uy, ux); tip leads along (ux, uy)
+      const tipX = c.x + c.ux * s;
+      const tipY = c.y + c.uy * s;
+      g.moveTo(c.x - c.ux * s - c.uy * s, c.y - c.uy * s + c.ux * s);
+      g.lineTo(tipX, tipY);
+      g.lineTo(c.x - c.ux * s + c.uy * s, c.y - c.uy * s - c.ux * s);
+    }
+    if (chevrons.length === 0) break;
+    if (pass === 0) {
+      g.stroke({ width: BOARD_MARCH_INK_WIDTH - 0.5, color: BOARD_MARCH_INK, alpha: BOARD_MARCH_INK_ALPHA });
+    } else {
+      g.stroke({ width: BOARD_MARCH_LINE_WIDTH, color: 0xffffff, alpha: BOARD_MARCH_LINE_ALPHA });
+    }
+  }
+}
+
+/** Ink ring under a meeple's feet, rimmed in the role colour. Drawn before the meeple. */
+export function drawMarchMeepleRing(g: Graphics, x: number, y: number, color: number): void {
+  g.ellipse(x, y + 6.5, BOARD_MARCH_RING_RX, BOARD_MARCH_RING_RY);
+  g.fill({ color: BOARD_MARCH_INK, alpha: BOARD_MARCH_RING_FILL_ALPHA });
+  g.stroke({ width: 1.4, color, alpha: 0.95 });
+}
+
 export function paintBoardMarches(
   routeG: Graphics,
   pawnsG: Graphics,
@@ -9074,6 +9181,9 @@ export function paintBoardMarches(
     // 1. Dotted Route Trail between origin and destination
     const dx = toB.cx - fromB.cx;
     const dy = toB.cy - fromB.cy;
+    const roleColor = BOARD_MARCH_ROLE_COLORS[boardMarchRole(m, state)];
+    // Steady ink-backed path under the animated dots, so the route reads in any weather.
+    drawMarchPathLine(routeG, fromB.cx, fromB.cy, toB.cx, toB.cy, roleColor);
     const distPx = Math.hypot(dx, dy);
     const steps = Math.max(4, Math.floor(distPx / 14));
 
@@ -9195,6 +9305,9 @@ export function paintBoardMarches(
     const kit = resolveCultureKit(cultId);
     const cult = culturePalette(cultId);
     const isNight = resolveDayPhase(state, phase) === "night";
+
+    // Ink ring under the column so the meeple stands out on snow, rain and night tiles.
+    drawMarchMeepleRing(pawnsG, pawnX, pawnY, roleColor);
 
     if (isScout) {
       drawScoutColumnMeeple(

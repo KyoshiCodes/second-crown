@@ -1,3 +1,12 @@
+## 2026-11-02 — render / clearer march paths and meeples on diamond board (wave/board-marches)
+
+- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order in `boardContainer` (bottom to top) on this branch: backdrop, static tiles (terrain + fog veil, cached), provinces/tokens, fog edge, weather, **routes, pawns**, node piles, outpost marks, selection, hover highlight. Marches moved above weather on purpose (readability over realism); keep them below piles, camps, rim and hover.
+- The new marks are steady (no `phase` term), so they read the same every frame. The old dotted trail, target rings and meeple drawing are untouched and still animate on top of the new path.
+- `boardMarchRole` mirrors the branch order already in `paintBoardMarches` (scout > gather > garrison > player/hostile). If you add a march type, add it to both.
+- Chevrons are centred on the route and skip short hops (`< 1.5 x spacing`), so neighbouring-tile marches show just the line.
+- Root `npm test` does not run the render suite. Run `npm run test -w @second-crown/render` too.
+
 ## 2026-11-02 — render & app / living fog treatment on diamond board (bakeoff/gemini-fog)
 
 - Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
