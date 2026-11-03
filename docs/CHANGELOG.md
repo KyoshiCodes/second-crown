@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-03 — Clearer unit and march labels on diamond board (wave/board-units)
+
+- Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged (labels are drawn only).
+- `packages/render/src/tokens.ts`: new `listBoardUnitLabels(state)` gives one label per unit the board draws: each march meeple (same list and position as `paintBoardMarches`, without the walk bob), each gather column `paintBoardGathers` draws, and each posted garrison on a seen, non-ruins tile. A label holds a role pip, the unit count (march force; hostile columns with no force use `levy`, like the red warband meeple) or garrison power, and the seconds to arrival. Labels sit `BOARD_UNIT_LABEL_LIFT` (`30`) above the unit's feet. One that would overlap an earlier label (back to front, then x, then id) is nudged straight up, at most 4 times.
+- `drawBoardUnitLabel` draws a leader line (only when nudged), a pointer, a pale 1px halo (`BOARD_UNIT_LABEL_HALO` `0xfff7d6`, alpha `0.55`), a dark plate (`BOARD_UNIT_LABEL_INK` `0x0b0f1a`, alpha `0.94`) with a role-coloured border (`BOARD_MARCH_ROLE_COLORS`; posted garrison blue), then the role pip (hostile skull, garrison shield, otherwise a chip), the count in `BOARD_UNIT_LABEL_TEXT` `0xfaf3e0`, and a gold hourglass plus seconds. 3x5 glyphs, the same table as the old ETA pill. Steady: no bob, no pulse.
+- `packages/render/src/index.ts`: new `boardUnitLabelsLayer`, the top board layer (above static tiles, roads, road traffic, marks, fog edge, weather, routes, keeps, meeples, piles, camps, select rim and hover). `paintBoardUnitLabels` runs next to every `paintBoardMarches` call.
+- `paintBoardMarches` / `paintBoardGathers` take `{ etaBadges?: boolean }` (default `true`), and `drawRedWarbandMeeple` takes `etaBadge` (default `true`). The board passes `false`, so the meeples' old ETA pills are off there and nothing is drawn twice. Callers that pass nothing keep the old behaviour.
+- Tests: fixed leftover merge-conflict markers in `packages/render/src/index.test.ts` from the living-roads merge (the render suite could not load on `main`). New `board unit and march labels (wave/board-units)` block (contents, fog, placement and nudging, draw order, determinism, ETA pills off, layer order). `npm test`, `npm run test -w @second-crown/render` (639), and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is empty.
+
 ## 2026-11-03 — Living road treatment on diamond board (bakeoff/gemini-roads)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged (roads are drawn only; they do not change march speed or adjacency).

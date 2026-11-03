@@ -4561,6 +4561,132 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
         });
       });
 
+      describe("board unit and march labels (wave/board-units)", () => {
+        function labelState(): GameState {
+          const state = createMockState();
+          state.board = {
+            homeProvinceId: "p_home",
+            provinces: [
+              { id: "p_home", x: 1, y: 1, terrain: "plain", node: "hold", occupantRealmId: "player" },
+              { id: "p_flag", x: 2, y: 1, terrain: "plain", node: "none", occupantRealmId: "player" },
+              { id: "p_enemy", x: 5, y: 4, terrain: "hill", node: "hold", occupantRealmId: "rival" },
+            ],
+          };
+          state.flags["fog_seen"] = JSON.stringify(["p_home", "p_flag", "p_enemy"]);
+          state.flags["marches_json"] = JSON.stringify([
+            { id: "m_war", realmId: "player", fromId: "p_home", toId: "p_enemy", kind: "hold", arrivesTick: 150, force: { knight: 5 } },
+            { id: "m_raid", realmId: "rival", fromId: "p_enemy", toId: "p_home", kind: "hold", arrivesTick: 160, force: { spearman: 4 } },
+          ]);
+          state.flags["garrisons_json"] = JSON.stringify([{ provinceId: "p_flag", force: { spearman: 4, archer: 2 } }]);
+          return state;
+        }
+
+        it("listBoardUnitLabels gives one label per march and posted garrison, with count, power and seconds", async () => {
+          const { listBoardUnitLabels, BOARD_MARCH_ROLE_COLORS, BOARD_UNIT_LABEL_POSTED_COLOR } = await import("./tokens.js");
+          const labels = listBoardUnitLabels(labelState());
+          const byId = Object.fromEntries(labels.map((l) => [l.id, l]));
+          expect(Object.keys(byId).sort()).toEqual(["m_raid", "m_war", "posted:p_flag"]);
+          expect(byId.m_war).toMatchObject({ kind: "player", count: 5, secs: 15, color: BOARD_MARCH_ROLE_COLORS.player });
+          expect(byId.m_raid).toMatchObject({ kind: "hostile", count: 4, secs: 16, color: BOARD_MARCH_ROLE_COLORS.hostile });
+          expect(byId["posted:p_flag"]).toMatchObject({ kind: "posted", secs: null, color: BOARD_UNIT_LABEL_POSTED_COLOR });
+          expect(byId["posted:p_flag"].count).toBeGreaterThan(0);
+          expect(listBoardUnitLabels(null)).toEqual([]);
+          expect(listBoardUnitLabels(createMockState())).toEqual([]);
+        });
+
+        it("posted garrison labels stay hidden in fog", async () => {
+          const { listBoardUnitLabels } = await import("./tokens.js");
+          const state = labelState();
+          state.flags["fog_seen"] = JSON.stringify(["p_enemy"]);
+          // Drop player ownership near p_flag so only fog_seen decides what is seen.
+          state.board!.homeProvinceId = "p_enemy";
+          state.board!.provinces[0].occupantRealmId = undefined as any;
+          state.board!.provinces[1].occupantRealmId = undefined as any;
+          const ids = listBoardUnitLabels(state).map((l) => l.id);
+          expect(ids).not.toContain("posted:p_flag");
+        });
+
+        it("labels sit above the unit's head and are nudged up, never overlapping, deterministically", async () => {
+          const { listBoardUnitLabels, BOARD_UNIT_LABEL_LIFT } = await import("./tokens.js");
+          const state = labelState();
+          // Two columns leaving home on the same tick: same spot, labels would overlap.
+          state.flags["marches_json"] = JSON.stringify([
+            { id: "m_a", realmId: "player", fromId: "p_home", toId: "p_enemy", kind: "hold", arrivesTick: 150, force: { knight: 5 } },
+            { id: "m_b", realmId: "player", fromId: "p_home", toId: "p_enemy", kind: "hold", arrivesTick: 150, force: { spearman: 12 } },
+          ]);
+          const labels = listBoardUnitLabels(state);
+          for (const l of labels) expect(l.y + l.h).toBeLessThanOrEqual(Math.round(l.anchorY - BOARD_UNIT_LABEL_LIFT));
+          for (let i = 0; i < labels.length; i++) {
+            for (let j = i + 1; j < labels.length; j++) {
+              const a = labels[i];
+              const b = labels[j];
+              const overlap = a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+              expect(overlap).toBe(false);
+            }
+          }
+          expect(labels.some((l) => l.nudged > 0)).toBe(true);
+          expect(JSON.stringify(listBoardUnitLabels(state))).toBe(JSON.stringify(labels));
+        });
+
+        it("drawBoardUnitLabel lays a pale halo, then the dark plate with a role border, then text", async () => {
+          const {
+            listBoardUnitLabels, drawBoardUnitLabel, BOARD_UNIT_LABEL_HALO, BOARD_UNIT_LABEL_INK, BOARD_UNIT_LABEL_TEXT,
+            BOARD_UNIT_LABEL_HOURGLASS, BOARD_MARCH_ROLE_COLORS,
+          } = await import("./tokens.js");
+          const war = listBoardUnitLabels(labelState()).find((l) => l.id === "m_war")!;
+          const g = createMockGraphics();
+          drawBoardUnitLabel(g, war);
+          const fills = g.calls.filter((c: any) => c.method === "fill").map((c: any) => c.args[0].color);
+          const halo = fills.indexOf(BOARD_UNIT_LABEL_HALO);
+          expect(halo).toBeGreaterThanOrEqual(0);
+          expect(fills.indexOf(BOARD_UNIT_LABEL_INK, halo)).toBeGreaterThan(halo);
+          expect(fills.lastIndexOf(BOARD_UNIT_LABEL_TEXT)).toBeGreaterThan(halo);
+          expect(fills).toContain(BOARD_UNIT_LABEL_HOURGLASS);
+          const strokes = g.calls.filter((c: any) => c.method === "stroke").map((c: any) => c.args[0]);
+          expect(strokes.some((s: any) => s.color === BOARD_MARCH_ROLE_COLORS.player)).toBe(true);
+        });
+
+        it("paintBoardUnitLabels clears first and is deterministic; the board turns off the meeples' own ETA pills", async () => {
+          const { paintBoardUnitLabels, paintBoardMarches } = await import("./tokens.js");
+          const g = createMockGraphics();
+          paintBoardUnitLabels(g, labelState());
+          expect(g.calls[0].method).toBe("clear");
+          const g2 = createMockGraphics();
+          paintBoardUnitLabels(g2, labelState());
+          expect(JSON.stringify(g2.calls)).toBe(JSON.stringify(g.calls));
+          const g3 = createMockGraphics();
+          paintBoardUnitLabels(g3, null);
+          expect(g3.calls.length).toBe(1);
+
+          const withPills = createMockGraphics();
+          paintBoardMarches(createMockGraphics(), withPills, labelState(), 1.5);
+          const noPills = createMockGraphics();
+          paintBoardMarches(createMockGraphics(), noPills, labelState(), 1.5, { etaBadges: false });
+          expect(noPills.calls.length).toBeLessThan(withPills.calls.length);
+        });
+
+        it("labels layer is the top board layer and repaints next to every marches paint", async () => {
+          const fs = await import("node:fs");
+          const path = await import("node:path");
+          const code = fs.readFileSync(path.resolve(__dirname, "index.ts"), "utf-8");
+          const at = (name: string) => code.indexOf(`boardContainer.addChild(${name})`);
+          const labels = at("boardUnitLabelsLayer");
+          expect(labels).toBeGreaterThan(0);
+          for (const below of [
+            "boardStaticTilesLayer", "boardRoadsLayer", "boardRoadsTrafficLayer", "boardProvincesLayer", "boardFogEdgeLayer",
+            "boardWeatherGraphic", "boardRoutesLayer", "boardKeepsLayer", "boardPawnsLayer", "boardNodePilesLayer",
+            "boardOutpostMarksLayer", "boardSelectionLayer", "boardHighlightLayer",
+          ]) {
+            expect(labels).toBeGreaterThan(at(below));
+          }
+          const marches = code.match(/paintBoardMarches\(boardRoutesLayer, boardPawnsLayer, (\w+), phase, BOARD_MARCH_PAINT\);/g) ?? [];
+          const paints = code.match(/paintBoardUnitLabels\(boardUnitLabelsLayer, \w+\);/g) ?? [];
+          expect(marches.length).toBeGreaterThan(0);
+          expect(paints.length).toBe(marches.length);
+          expect(code).not.toMatch(/paintBoardMarches\(boardRoutesLayer, boardPawnsLayer, \w+, phase\);/);
+        });
+      });
+
       describe("board march clarity", () => {
         function marchState(): GameState {
           const state = createMockState();

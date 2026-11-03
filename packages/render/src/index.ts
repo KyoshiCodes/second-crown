@@ -183,6 +183,15 @@ import {
   type BoardStaticLayerCache,
   paintBoardProvinces,
   paintBoardMarches,
+  paintBoardUnitLabels,
+  listBoardUnitLabels,
+  drawBoardUnitLabel,
+  boardUnitLabelWidth,
+  BOARD_UNIT_LABEL_INK,
+  BOARD_UNIT_LABEL_HALO,
+  BOARD_UNIT_LABEL_TEXT,
+  BOARD_UNIT_LABEL_LIFT,
+  BOARD_UNIT_LABEL_H,
   boardMarchRole,
   listMarchChevrons,
   drawMarchPathLine,
@@ -310,6 +319,11 @@ export interface MapRenderer {
 // -------------------------------------------------------------
 // Main Map Renderer Factory (Two-Band Camera: Hold vs Board)
 // -------------------------------------------------------------
+/** Board march paint options: the unit label layer shows ETAs, so the meeples skip their own pills. */
+const BOARD_MARCH_PAINT = { etaBadges: false } as const;
+
+export type { BoardUnitLabel, BoardUnitLabelKind, BoardMarchPaintOptions } from "./tokens.js";
+
 export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapRenderer> {
   const app = new Application();
   canvas.style.width = "100%";
@@ -483,6 +497,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
   boardHighlightLayer.visible = false;
   boardContainer.addChild(boardHighlightLayer);
 
+  // Unit + march labels (count, power, ETA). TOP of the board: above weather, fog,
+  // roads, marches, keeps, piles, camps, the select rim and hover, so nothing covers them.
+  // Repaints every frame next to the marches; the meeples' own ETA pills are off on the board.
+  const boardUnitLabelsLayer = new Graphics();
+  boardUnitLabelsLayer.eventMode = "none";
+  boardContainer.addChild(boardUnitLabelsLayer);
+
   // 3. Tabletop Hardwood Rim (rendered on top of world and mask)
   const tableRimLayer = new Graphics();
   tableRimLayer.eventMode = "none";
@@ -549,7 +570,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
         paintBoardKeeps(boardKeepsLayer, lastState, phase);
-        paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
+        paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase, BOARD_MARCH_PAINT);
+        paintBoardUnitLabels(boardUnitLabelsLayer, lastState);
         renderBoardSelection(lastState);
         drawBoardWeather(lastState, boardWeatherGraphic, phase, CANVAS_W, CANVAS_H);
       }
@@ -1081,7 +1103,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       paintBoardNodePiles(boardNodePilesLayer, state, phase);
       paintBoardOutpostMarks(boardOutpostMarksLayer, state, phase);
       paintBoardKeeps(boardKeepsLayer, state, phase);
-      paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase);
+      paintBoardMarches(boardRoutesLayer, boardPawnsLayer, state, phase, BOARD_MARCH_PAINT);
+      paintBoardUnitLabels(boardUnitLabelsLayer, state);
       renderBoardSelection(state);
       updateBoardWeather(phase);
       if (hoveredProvinceCoord) {
@@ -1109,7 +1132,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
         paintBoardKeeps(boardKeepsLayer, lastState, phase);
-        paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
+        paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase, BOARD_MARCH_PAINT);
+        paintBoardUnitLabels(boardUnitLabelsLayer, lastState);
         renderBoardSelection(lastState);
       }
     }
@@ -1142,7 +1166,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
         paintBoardNodePiles(boardNodePilesLayer, lastState, phase);
         paintBoardOutpostMarks(boardOutpostMarksLayer, lastState, phase);
         paintBoardKeeps(boardKeepsLayer, lastState, phase);
-        paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase);
+        paintBoardMarches(boardRoutesLayer, boardPawnsLayer, lastState, phase, BOARD_MARCH_PAINT);
+        paintBoardUnitLabels(boardUnitLabelsLayer, lastState);
         renderBoardSelection(lastState);
       }
     }
@@ -1245,6 +1270,15 @@ export {
   type BoardStaticLayerCache,
   paintBoardProvinces,
   paintBoardMarches,
+  paintBoardUnitLabels,
+  listBoardUnitLabels,
+  drawBoardUnitLabel,
+  boardUnitLabelWidth,
+  BOARD_UNIT_LABEL_INK,
+  BOARD_UNIT_LABEL_HALO,
+  BOARD_UNIT_LABEL_TEXT,
+  BOARD_UNIT_LABEL_LIFT,
+  BOARD_UNIT_LABEL_H,
   boardMarchRole,
   listMarchChevrons,
   drawMarchPathLine,

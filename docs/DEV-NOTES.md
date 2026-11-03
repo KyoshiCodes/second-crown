@@ -1,3 +1,14 @@
+## 2026-11-03 — render / clearer unit and march labels on diamond board (wave/board-units)
+
+- Slice constraints: Render only (`packages/render`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order on Pixi canvas: backdrop, static tiles (cached), roads, road traffic, provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, selection, hover highlight, **unit labels** (top).
+- Why on top: the old ETA pill lived on the pawns layer, so piles, camps, the select rim and hover could cover it, and it bobbed with the walk frame. A small plate on the top layer covers only a few pixels of the rim or hover. Readability: the pale halo works on dark ground (night, storm, wood, peak), the dark plate on pale ground (snow, fog veil, sun glow).
+- Single source: `listBoardUnitLabels` is pure (state in, labels out) and redoes the same march position maths as `paintBoardMarches` (`calculateMarchProgress`, Manhattan distance) and the gather `progress` fallback (`0.5`). If either painter changes how it places a meeple, change the label list too, or the pointer drifts off the unit.
+- Gathers: `paintBoardMarches` calls `paintBoardGathers` without `renderedGatherIds`, so a gather can be drawn twice (once as a march, once from `listGathersPresentation`). Labels follow what is drawn, so such a gather gets two labels. Fixing that dedupe is a separate change.
+- Fog: posted-garrison labels need `isProvinceSeen`. March labels follow the meeples, which `paintBoardMarches` draws for every listed march.
+- Old ETA pills: `paintBoardMarches(…, { etaBadges: false })`, `paintBoardGathers(…, undefined, { etaBadges: false })`, `drawRedWarbandMeeple(…, secs, false)`. `index.ts` passes `BOARD_MARCH_PAINT` (`{ etaBadges: false }`) at all four call sites. The layer-order test fails if any call site goes back to the old form.
+- Found on `main` while doing this: `index.test.ts` had `<<<<<<<` / `=======` / `>>>>>>>` lines from the living-roads merge, so `npm run test -w @second-crown/render` loaded no tests. Root `npm test` does not run the render suite, which is why it stayed green. Also, `updateBand` in `index.ts` calls `paintBoardRoadTraffic` twice in a row (harmless, left as is).
+
 ## 2026-11-03 — render & app / living road treatment on diamond board (bakeoff/gemini-roads)
 
 - Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

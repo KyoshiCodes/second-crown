@@ -8674,7 +8674,8 @@ export function drawRedWarbandMeeple(
   realmId?: string,
   phase: number = 0,
   power: number = 0,
-  secs?: number
+  secs?: number,
+  etaBadge: boolean = true
 ): void {
   const pal = realmId ? realmTokenPalette(realmId) : null;
   const accentRed = 0xdc2626;
@@ -8831,8 +8832,10 @@ export function drawRedWarbandMeeple(
   pawnsG.fill({ color: pal ? pal.pennantColor : bloodRed });
   pawnsG.stroke({ width: 0.7, color: 0x18181b });
 
-  // 9. Floating Hostile Threat & ETA Pill Badge
-  if (typeof secs === "number") {
+  // 9. Floating Hostile Threat & ETA Pill Badge (off when the board label layer shows it)
+  if (!etaBadge) {
+    // Board unit label layer draws count + ETA instead.
+  } else if (typeof secs === "number") {
     drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, accentRed, bob, true);
   } else {
     pawnsG.rect(pawnX - 16, pawnY - 28 - bob, 32, 9);
@@ -9580,12 +9583,19 @@ export function drawMarchMeepleRing(g: Graphics, x: number, y: number, color: nu
   g.stroke({ width: 1.4, color, alpha: 0.95 });
 }
 
+export interface BoardMarchPaintOptions {
+  /** Draw the small ETA pills on the meeples (default true). The board passes false: its unit label layer shows them. */
+  etaBadges?: boolean;
+}
+
 export function paintBoardMarches(
   routeG: Graphics,
   pawnsG: Graphics,
   state: GameState | null,
-  phase: number
+  phase: number,
+  opts: BoardMarchPaintOptions = {}
 ): void {
+  const etaBadges = opts.etaBadges !== false;
   routeG.clear();
   pawnsG.clear();
   if (!state?.board) return;
@@ -9749,7 +9759,7 @@ export function paintBoardMarches(
         phase,
         progress
       );
-      if (hasArrival) {
+      if (hasArrival && etaBadges) {
         drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x38bdf8, bob);
       }
     } else if (isGather) {
@@ -9773,7 +9783,7 @@ export function paintBoardMarches(
       if (isNight) {
         drawNightMarchLantern(pawnsG, pawnX, pawnY, facing, bob, phase);
       }
-      if (hasArrival) {
+      if (hasArrival && etaBadges) {
         drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x22c55e, bob);
       }
     } else if (isGarrison) {
@@ -9795,7 +9805,7 @@ export function paintBoardMarches(
       if (isNight) {
         drawNightMarchLantern(pawnsG, pawnX, pawnY, facing, bob, phase);
       }
-      if (hasArrival) {
+      if (hasArrival && etaBadges) {
         drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x3b82f6, bob);
       }
     } else if (isPlayer) {
@@ -10213,7 +10223,9 @@ export function paintBoardMarches(
         drawNightMarchLantern(pawnsG, pawnX, pawnY, facing, bob, phase);
       }
 
-      if (hasArrival) {
+      if (!etaBadges) {
+        // Board unit label layer draws count + ETA instead.
+      } else if (hasArrival) {
         drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, pal.accentColor, bob);
       } else {
         // Floating ETA pill badge with subtle shadow
@@ -10248,13 +10260,14 @@ export function paintBoardMarches(
         m.realmId,
         phase,
         forceCount,
-        hasArrival ? secs : undefined
+        hasArrival ? secs : undefined,
+        etaBadges
       );
     }
   }
 
   // Render gather expeditions if gather system is present (Astra lane stub)
-  paintBoardGathers(routeG, pawnsG, state, phase);
+  paintBoardGathers(routeG, pawnsG, state, phase, undefined, opts);
 }
 
 export function isOutpostProvince(
@@ -10323,7 +10336,8 @@ export function paintBoardGathers(
   pawnsG: Graphics,
   state: GameState | null,
   phase: number,
-  renderedGatherIds?: Set<string>
+  renderedGatherIds?: Set<string>,
+  opts: BoardMarchPaintOptions = {}
 ): void {
   const gathers = listGathersPresentation(state);
   if (gathers.length === 0) return;
@@ -10402,7 +10416,7 @@ export function paintBoardGathers(
     }
 
     const hasArrival = typeof g.arrivesTick === "number";
-    if (hasArrival) {
+    if (hasArrival && opts.etaBadges !== false) {
       const ticksLeft = Math.max(0, g.arrivesTick - (state?.meta?.tick ?? 0));
       const secs = Math.ceil(ticksLeft / 10);
       drawMarchEtaBadge(pawnsG, pawnX, pawnY, secs, 0x22c55e, bob);
@@ -10814,3 +10828,275 @@ export function paintBoardHighlight(
   g.stroke({ width: 0.8, color: 0xfef08a, alpha: 0.7 });
 }
 
+
+// ---------------------------------------------------------------------------
+// Board unit + march labels (wave/board-units). Own top layer, above the select
+// rim and hover, so weather, fog, marches, keeps, roads and the rim never cover
+// them. Steady: no bob, no pulse. Pure layout + Graphics calls; no sim writes.
+// ---------------------------------------------------------------------------
+
+/** Dark plate under the label text (contrast on snow, fog veil, sun glow). */
+export const BOARD_UNIT_LABEL_INK = 0x0b0f1a;
+export const BOARD_UNIT_LABEL_INK_ALPHA = 0.94;
+/** Pale 1px halo round the plate so it still lifts off night / storm / wood tiles. */
+export const BOARD_UNIT_LABEL_HALO = 0xfff7d6;
+export const BOARD_UNIT_LABEL_HALO_ALPHA = 0.55;
+/** Label text colour (counts, power, seconds). */
+export const BOARD_UNIT_LABEL_TEXT = 0xfaf3e0;
+/** Hourglass pip before the seconds. */
+export const BOARD_UNIT_LABEL_HOURGLASS = 0xfde047;
+/** Plate height: 5px glyphs + 2px padding top and bottom. */
+export const BOARD_UNIT_LABEL_H = 9;
+/** How far above the unit's feet the plate's bottom edge sits (clears meeple heads). */
+export const BOARD_UNIT_LABEL_LIFT = 30;
+/** Space kept between two labels after a nudge. */
+export const BOARD_UNIT_LABEL_GAP = 2;
+/** At most this many upward nudges when labels would overlap. */
+export const BOARD_UNIT_LABEL_MAX_NUDGE = 4;
+/** Posted garrison label border (garrison blue). */
+export const BOARD_UNIT_LABEL_POSTED_COLOR = BOARD_MARCH_ROLE_COLORS.garrison;
+
+export type BoardUnitLabelKind = BoardMarchRole | "posted";
+
+export interface BoardUnitLabel {
+  /** March id, `gather:<id>` for a gather column, or `posted:<provinceId>` for a posted garrison. */
+  id: string;
+  kind: BoardUnitLabelKind;
+  /** Border + pip colour. */
+  color: number;
+  /** The unit's feet on the board (what the pointer / leader line points at). */
+  anchorX: number;
+  anchorY: number;
+  /** Unit count (marches) or power (posted garrison); null = not shown. */
+  count: number | null;
+  /** Seconds to arrival; null = not shown. */
+  secs: number | null;
+  /** Plate rect after nudging. */
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  /** How many times this plate was nudged up to clear another label. */
+  nudged: number;
+}
+
+function clampLabelNumber(n: number): number {
+  return Math.min(999, Math.max(0, Math.floor(Number.isFinite(n) ? n : 0)));
+}
+
+/** Text width for 3x5 glyphs at 4px per char (3px glyph + 1px gap), no trailing gap. */
+function labelTextWidth(text: string): number {
+  return text.length > 0 ? text.length * 4 - 1 : 0;
+}
+
+/** Plate width: pad 2, pip 3, [gap 2 + count], [gap 3 + hourglass 3 + gap 2 + secs], pad 2. */
+export function boardUnitLabelWidth(count: number | null, secs: number | null): number {
+  let w = 2 + 3;
+  if (count !== null) w += 2 + labelTextWidth(String(clampLabelNumber(count)));
+  if (secs !== null) w += 3 + 3 + 2 + labelTextWidth(`${clampLabelNumber(secs)}s`);
+  return w + 2;
+}
+
+function sumLabelForce(force: Record<string, unknown> | undefined | null): number {
+  if (!force) return 0;
+  let n = 0;
+  for (const v of Object.values(force)) n += Number(v) || 0;
+  return n;
+}
+
+/**
+ * Lists one label per unit the board draws: each march meeple (same list and
+ * position paintBoardMarches uses, without the walk bob), each gather column
+ * paintBoardGathers draws, and each posted garrison on a seen tile.
+ * Labels sit above the unit and are nudged up (never sideways) when they would
+ * overlap one placed before them. Same state in, same labels out.
+ */
+export function listBoardUnitLabels(state: GameState | null): BoardUnitLabel[] {
+  if (!state?.board) return [];
+  const tick = state.meta?.tick ?? 0;
+  type Raw = Omit<BoardUnitLabel, "x" | "y" | "w" | "h" | "nudged">;
+  const raw: Raw[] = [];
+
+  for (const m of listMarches(state)) {
+    const fromProv = getProvince(state, m.fromId);
+    const toProv = getProvince(state, m.toId);
+    if (!fromProv || !toProv) continue;
+    const fromB = provinceTokenBounds(fromProv.x, fromProv.y);
+    const toB = provinceTokenBounds(toProv.x, toProv.y);
+    const dist = Math.max(1, Math.abs(toProv.x - fromProv.x) + Math.abs(toProv.y - fromProv.y));
+    const progress = calculateMarchProgress(tick, m.arrivesTick, dist);
+    const role = boardMarchRole(m, state);
+    let count: number | null = sumLabelForce(m.force as Record<string, unknown> | undefined);
+    // Same fallback the red warband meeple uses when a hostile column has no force list.
+    if (count <= 0 && role === "hostile") count = Number((m as { levy?: number }).levy ?? 10) || 0;
+    if (count <= 0) count = null;
+    const secs = typeof m.arrivesTick === "number" ? Math.ceil(Math.max(0, m.arrivesTick - tick) / 10) : null;
+    if (count === null && secs === null) continue;
+    raw.push({
+      id: m.id,
+      kind: role,
+      color: BOARD_MARCH_ROLE_COLORS[role],
+      anchorX: fromB.cx + (toB.cx - fromB.cx) * progress,
+      anchorY: fromB.cy + (toB.cy - fromB.cy) * progress,
+      count,
+      secs,
+    });
+  }
+
+  for (const gm of listGathersPresentation(state)) {
+    const fromId = gm.fromId ?? state.board.homeProvinceId;
+    const toId = gm.toId ?? gm.targetProvinceId;
+    if (!fromId || !toId) continue;
+    const fromProv = getProvince(state, fromId);
+    const toProv = getProvince(state, toId);
+    if (!fromProv || !toProv) continue;
+    const fromB = provinceTokenBounds(fromProv.x, fromProv.y);
+    const toB = provinceTokenBounds(toProv.x, toProv.y);
+    const progress = Math.min(1, Math.max(0, typeof gm.progress === "number" ? gm.progress : 0.5));
+    const n = sumLabelForce(gm.force);
+    const count = n > 0 ? n : null;
+    const secs = typeof gm.arrivesTick === "number" ? Math.ceil(Math.max(0, gm.arrivesTick - tick) / 10) : null;
+    if (count === null && secs === null) continue;
+    raw.push({
+      id: `gather:${gm.id}`,
+      kind: "gather",
+      color: BOARD_MARCH_ROLE_COLORS.gather,
+      anchorX: fromB.cx + (toB.cx - fromB.cx) * progress,
+      anchorY: fromB.cy + (toB.cy - fromB.cy) * progress,
+      count,
+      secs,
+    });
+  }
+
+  for (const p of state.board.provinces) {
+    if (p.node === "ruins") continue;
+    if (!isProvinceSeen(state, p.id)) continue;
+    const posted = getPostedGarrison(state, p.id);
+    if (!posted.posted) continue;
+    const b = provinceTokenBounds(p.x, p.y);
+    raw.push({
+      id: `posted:${p.id}`,
+      kind: "posted",
+      color: BOARD_UNIT_LABEL_POSTED_COLOR,
+      anchorX: b.cx,
+      anchorY: b.cy,
+      count: Math.max(0, Math.floor(posted.power)),
+      secs: null,
+    });
+  }
+
+  // Back to front (smaller y first), then x, then id: a fixed order for nudging.
+  raw.sort((a, b) => a.anchorY - b.anchorY || a.anchorX - b.anchorX || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+
+  const h = BOARD_UNIT_LABEL_H;
+  const gap = BOARD_UNIT_LABEL_GAP;
+  const placed: BoardUnitLabel[] = [];
+  for (const r of raw) {
+    const w = boardUnitLabelWidth(r.count, r.secs);
+    const x = Math.round(r.anchorX - w / 2);
+    let y = Math.round(r.anchorY - BOARD_UNIT_LABEL_LIFT - h);
+    let nudged = 0;
+    while (
+      nudged < BOARD_UNIT_LABEL_MAX_NUDGE &&
+      placed.some((o) => x < o.x + o.w + gap && o.x < x + w + gap && y < o.y + o.h + gap && o.y < y + h + gap)
+    ) {
+      y -= h + gap;
+      nudged++;
+    }
+    placed.push({ ...r, x, y, w, h, nudged });
+  }
+  return placed;
+}
+
+/** Adds 3x5 glyph rects for `text` at (x, y); caller fills. Returns the x just past the text. */
+function addLabelGlyphs(g: Graphics, text: string, x: number, y: number): number {
+  let cx = x;
+  for (const ch of text) {
+    const glyph = MARCH_ETA_GLYPHS_3X5[ch];
+    if (glyph) {
+      for (let r = 0; r < 5; r++) {
+        const bits = glyph[r];
+        for (let col = 0; col < 3; col++) {
+          if (bits & (4 >> col)) g.rect(cx + col, y + r, 1, 1);
+        }
+      }
+    }
+    cx += 4;
+  }
+  return cx - 1;
+}
+
+/** Role pip at (x, y), 3x5: hostile skull, posted shield, others a solid role chip. Caller fills. */
+function addLabelPip(g: Graphics, kind: BoardUnitLabelKind, x: number, y: number): void {
+  if (kind === "hostile") {
+    g.rect(x, y, 3, 3);
+    g.rect(x + 0.5, y + 3, 2, 2);
+  } else if (kind === "posted") {
+    g.poly([x, y, x + 3, y, x + 3, y + 3, x + 1.5, y + 5, x, y + 3]);
+  } else {
+    g.rect(x, y + 1, 3, 3);
+  }
+}
+
+/**
+ * Draws one label: leader line (only when nudged), pointer, pale halo, dark plate
+ * with a role-coloured border, role pip, count, then hourglass + seconds.
+ */
+export function drawBoardUnitLabel(g: Graphics, l: BoardUnitLabel): void {
+  const { x, y, w, h, color } = l;
+  const ax = Math.round(l.anchorX);
+  const restY = Math.round(l.anchorY - BOARD_UNIT_LABEL_LIFT);
+
+  // 1. Leader line from a nudged plate back down to where it would have sat.
+  if (l.nudged > 0) {
+    g.moveTo(ax, y + h);
+    g.lineTo(ax, restY);
+    g.stroke({ width: 2.5, color: BOARD_UNIT_LABEL_INK, alpha: 0.7 });
+    g.moveTo(ax, y + h);
+    g.lineTo(ax, restY);
+    g.stroke({ width: 1, color, alpha: 0.9 });
+  }
+
+  // 2. Pointer under the plate toward the unit.
+  g.poly([ax - 2.5, y + h, ax + 2.5, y + h, ax, y + h + 3]);
+  g.fill({ color: BOARD_UNIT_LABEL_INK, alpha: BOARD_UNIT_LABEL_INK_ALPHA });
+
+  // 3. Pale halo, then dark plate with role border.
+  g.rect(x - 1, y - 1, w + 2, h + 2);
+  g.fill({ color: BOARD_UNIT_LABEL_HALO, alpha: BOARD_UNIT_LABEL_HALO_ALPHA });
+  g.rect(x, y, w, h);
+  g.fill({ color: BOARD_UNIT_LABEL_INK, alpha: BOARD_UNIT_LABEL_INK_ALPHA });
+  g.stroke({ width: 1, color, alpha: 0.95 });
+
+  // 4. Role pip.
+  let cx = x + 2;
+  const ty = y + 2;
+  addLabelPip(g, l.kind, cx, ty);
+  g.fill({ color });
+  cx += 3;
+
+  // 5. Count / power.
+  if (l.count !== null) {
+    cx += 2;
+    cx = addLabelGlyphs(g, String(clampLabelNumber(l.count)), cx, ty);
+    g.fill({ color: BOARD_UNIT_LABEL_TEXT });
+  }
+
+  // 6. Hourglass + seconds.
+  if (l.secs !== null) {
+    cx += 3;
+    g.rect(cx, ty, 3, 1);
+    g.rect(cx + 1, ty + 1, 1, 3);
+    g.rect(cx, ty + 4, 3, 1);
+    g.fill({ color: BOARD_UNIT_LABEL_HOURGLASS });
+    cx += 3 + 2;
+    addLabelGlyphs(g, `${clampLabelNumber(l.secs)}s`, cx, ty);
+    g.fill({ color: BOARD_UNIT_LABEL_TEXT });
+  }
+}
+
+/** Clears `g` and draws every board unit / march label. Runs every frame next to the marches. */
+export function paintBoardUnitLabels(g: Graphics, state: GameState | null): void {
+  g.clear();
+  for (const l of listBoardUnitLabels(state)) drawBoardUnitLabel(g, l);
+}

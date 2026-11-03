@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Clearer unit and march labels on the diamond board (wave/board-units)
+
+- **Every marching column has a clear label.** A small dark tag floats above each marching piece. It shows how many troops are in the column and how many seconds until it arrives (hourglass).
+- **Colour tells you who it is.** The tag's edge matches the march: amber for your armies, red with a skull for enemies, cyan for scouts, green for gatherers, blue for garrisons.
+- **Garrisons show their strength.** A posted garrison on a province you can see has a blue tag with a shield and its power.
+- **Always on top.** Tags draw above rain, snow, storms, night, fog, roads, keeps, march lines and the selected outline, so they stay readable. They hold still instead of bobbing with the walk.
+- **No pile-ups.** When two columns stand on the same spot, one tag moves up and a thin line points back to its piece.
+- **Play is unchanged.** The tags only show what was already true.
+
 ## 2026-11-03 — Living roads and paths on the diamond board (bakeoff/gemini-roads)
 
 - **Living roads between provinces.** Neighbouring provinces you have explored are linked by packed-earth roads with dark ink edges, traversed by travelling merchant carts and soft puffs of road dust.
