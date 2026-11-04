@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Living research glyph (bakeoff/gemini-research-hint)
+
+- **Living research codex.** A miniature living heraldic codex glyph now rests beside the Kingdom tab's research hint line, illustrating your realm's next academic endeavor:
+  - **Ready to study:** an illuminated open vellum manuscript on a carved scholar's lectern, shining with a gentle golden breathing aura and twinkling apex star.
+  - **Prerequisites needed:** an antique study codex waiting in quiet study until your Keep or guild halls are ready.
+  - **All studies mastered:** a golden laurel wreath arc crowned with a master codex celebrating total realm knowledge.
+- **Subtle and readable.** The glyph aligns cleanly with the text line without causing vertical jumps, keeping costs and requirements completely clear.
+- **Never blocks clicks.** The glyph is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; study costs, durations, and research mechanics are untouched.
+
 ## 2026-11-04 — Research hint on the Kingdom tab (wave/research-hint)
 
 - **What to study next.** The Kingdom tab now shows one line with your next study and what it costs, for example "Next study · Husbandry · 20 food, 12 wood".

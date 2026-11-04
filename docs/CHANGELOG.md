@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-04 — Living research glyph on research hint line (bakeoff/gemini-research-hint)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `ResearchHint.tsx` & `research-hint.css`:
+  - Added `ResearchGlyphPip`: a 16px living heraldic research codex glyph rendered inline before the research hint line text on the Kingdom tab.
+  - Three state-aware heraldic presentations:
+    - `ready`: illuminated open vellum codex on a carved lectern with royal bookmark ribbon, study text rubrications, radiant gold apex star (`.sc-research-glyph-star`), and golden breathing aura (`.sc-research-glyph-aura`).
+    - `locked` (`!ready`): antique study tome awaiting required hall or Keep gate, rendered in muted slate and vellum with a calm guidance beacon.
+    - `isDone`: master scholar triumph crest with golden laurel wreath arc, grand bound codex, and golden beacon star when all kingdom studies are completed.
+  - Subtle living animations: gentle vertical float (`sc-research-glyph-float`), breathing luminous aura (`sc-research-glyph-breathe`), and twinkling apex star (`sc-research-glyph-twinkle`).
+  - Strict style isolation & click safety: `.sc-research-glyph-wrap, .sc-research-glyph-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `ResearchHint.test.tsx` (9 tests) verifying glyph states (ready, locked, done), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 64 app suites (295 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-04 — Research hint on the Kingdom tab (wave/research-hint)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

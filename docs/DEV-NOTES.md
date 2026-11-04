@@ -1,3 +1,25 @@
+## 2026-11-04 — app / living research glyph on research hint line (bakeoff/gemini-research-hint)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Research Glyph Design:
+  - `ResearchGlyphPip` in `packages/app/src/ResearchHint.tsx`: 16px living SVG codex glyph positioned on `.sc-research-glyph-wrap` immediately preceding the research hint text.
+  - Heraldic illumination states:
+    - `ready` (study can start immediately): illuminated open codex with curved vellum pages, carved wooden lectern stand, emerald ribbon bookmark, rubrication lines, 4-point gold beacon star (`.sc-research-glyph-star`), and warm breathing aura (`.sc-research-glyph-aura`).
+    - `locked` (`!ready`, hall or Keep requirement unmet): antique study codex in muted slate and parchment with centered guidance pip.
+    - `isDone` (all studies mastered): golden laurel wreath arc embracing a bound grand tome and apex triumph star.
+  - Motion & Aesthetics:
+    - `.sc-research-glyph-breathe`: gentle 3.2s pulsating ambient glow for ready studies.
+    - `.sc-research-glyph-float`: subtle vertical hover (1px) keeping the codex alive without distracting the eye.
+    - `.sc-research-glyph-twinkle`: delicate brightness cycle on the gold apex star.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/research-hint.css`.
+  - `.sc-research-glyph-wrap, .sc-research-glyph-wrap *` enforces `pointer-events: none !important;` so text selection or surrounding clicks are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/ResearchHint.test.tsx` (9 tests) verifies ready/locked/done heraldic glyph renderings, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 295 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-04 — app / research hint on the Kingdom tab (wave/research-hint)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
