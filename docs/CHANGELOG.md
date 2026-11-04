@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-11-04 — Living research pace glyph next to the research pace line (bakeoff/gemini-research-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `ResearchPace.tsx` & `research-pace.css`:
+  - Added `ResearchPaceGlyphPip`: a 16px living scholar astrolabe and armillary sphere rendered inline before the research pace line text on the Kingdom tab.
+  - State-aware pace and study presentation:
+    - `fast` (Academy pace active): brilliant golden armillary ring with inclined cyan knowledge orbit, 4 cardinal speed ticks reflecting accelerated (+25%) study pace, breathing golden-cyan ambient aura (`.sc-research-pace-aura`), and twinkling center scholar star (`.sc-research-pace-star`).
+    - `base` (Standard study pace): calm brass and pewter astrolabe with slate meridian ring and steady scholar pivot dots.
+    - `active` (lectern active): illuminated core beacon star at the center pivot when research is currently underway.
+    - `allUnlocked` (all unit studies known): master astrolabe laurel wreath with triumphant 8-point stellar compass.
+  - Subtle living animations: gentle vertical float (`sc-research-pace-float`), breathing luminous aura (`sc-research-pace-breathe`), and twinkling scholar star (`sc-research-pace-twinkle`).
+  - Strict style isolation & click safety: `.sc-research-pace-glyph-wrap, .sc-research-pace-glyph-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `ResearchPace.test.tsx` (10 tests) verifying glyph states (base, fast/academy, active, all-unlocked), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 69 app suites (332 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-04 — Research pace on the Kingdom tab (wave/research-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

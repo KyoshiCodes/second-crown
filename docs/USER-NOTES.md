@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Living research pace glyph next to the research pace line (bakeoff/gemini-research-pace)
+
+- **Living scholar glyph.** A miniature living astrolabe now sits right beside the Kingdom tab's research pace line:
+  - **Academy pace:** a radiant celestial armillary sphere with cyan knowledge rings, gold speed ticks, a breathing amber aura, and a twinkling center scholar star.
+  - **Base pace:** a calm, dignified brass-and-pewter astrolabe reflecting steady study without an Academy.
+  - **Active study:** a bright beacon star glowing at the heart of the astrolabe whenever your lectern is actively researching.
+  - **All units unlocked:** a laurel wreath and triumphant 8-point compass star when every unit study is complete.
+- **Subtle and aligned.** The glyph aligns cleanly with the text row without shifting surrounding lines or cluttering the layout.
+- **Never blocks clicks.** The glyph is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; study times, academy bonuses, and research requirements are untouched.
+
 ## 2026-11-04 — Research pace on the Kingdom tab (wave/research-pace)
 
 - **Research pace.** The Kingdom tab now shows one line with your research speed, for example "Research pace · base pace · lectern idle · next unlock Fieldcraft → Ranger (18s)".

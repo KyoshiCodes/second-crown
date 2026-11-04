@@ -1,3 +1,26 @@
+## 2026-11-04 — app / living research pace glyph next to the research pace line (bakeoff/gemini-research-pace)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Research Pace Glyph Design:
+  - `ResearchPaceGlyphPip` in `packages/app/src/ResearchPace.tsx`: 16px living SVG celestial scholar astrolabe positioned on `.sc-research-pace-glyph-wrap` immediately preceding the research pace text on the Kingdom tab.
+  - State illumination:
+    - `fast` (`fastPace(state)` true): outer golden armillary ring, inclined celestial cyan orbit, inner meridian arc, 4 cardinal speed ticks indicating rapid academy cadence, breathing golden-cyan aura (`.sc-research-pace-aura`), and twinkling center scholar star (`.sc-research-pace-star`).
+    - `base` (`fastPace(state)` false): dignified slate outer ring, inclined brass meridian ellipse, and 4 subtle coordinate pips.
+    - `active` (`activeStudy(state)` non-null): center radiant diamond star with sapphire/gold core beacon pip while a study is underway on the lectern.
+    - `allUnlocked` (`!nextUnlock(state)`): triumphant laurel wreath with 8-point stellar compass and sapphire core.
+  - Motion & Aesthetics:
+    - `.sc-research-pace-breathe`: gentle 2.4s pulsating ambient gold/cyan aura when running at Academy pace.
+    - `.sc-research-pace-float`: subtle vertical hover (1px) keeping the astrolabe alive, with slightly faster rhythm on Academy pace.
+    - `.sc-research-pace-twinkle`: delicate brightness and scale cycle on the scholar star.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/research-pace.css`.
+  - `.sc-research-pace-glyph-wrap, .sc-research-pace-glyph-wrap *` enforces `pointer-events: none !important;` so clicks or text selections are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/ResearchPace.test.tsx` (10 tests) verifies base/fast/active/all-unlocked heraldic glyph renderings, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 332 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-04 — app / research pace on the Kingdom tab (wave/research-pace)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
