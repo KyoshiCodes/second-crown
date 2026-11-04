@@ -1,3 +1,28 @@
+## 2026-11-03 — render & app / living hover treatment on diamond board (bakeoff/gemini-hover)
+
+- Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Layer order on the Pixi board: backdrop, static tiles (cached), roads, road traffic, provinces/tokens, fog edge, weather, routes, keeps, pawns, node piles, outpost marks, selection rim, **hover highlight (living hover rim)**, status marks, almanac, unit labels, hover tooltip (top).
+- Design & Non-Interference:
+  - Previously, `paintBoardHighlight` called `paintBoardSelectionRim`, drawing a duplicate bold gold selection rim with outer glow and target pips whenever hovering any tile, causing visual confusion with the actual selected province rim.
+  - New `paintBoardLivingHoverRim` introduces a dedicated visual identity:
+    - Cool silver-pearl living breathing perimeter line (`BOARD_HOVER_RIM_PALE = 0xf8fafc`) with soft breathing sinusoidal modulation.
+    - Soft translucent ground wash (`0xffffff` at living breathing alpha 0.04–0.09) giving immediate cursor focus without hiding roads, node piles, camps, or terrain contours.
+    - Steady dark ink underlay (`BOARD_HOVER_RIM_INK = 0x0b0f17`, width 2.0px) for crisp contrast on bright snow, pale desert sand, and dark swamp tiles.
+    - Corner focus ticks (4 on plateau, 4 on elevated base ring) providing tactile target precision without competing with the selection rim's cardinal pips.
+  - Harmonization with selection:
+    - If hovering an unselected province: draws the silver-pearl living hover rim.
+    - If hovering the currently selected province: `boardSelectionLayer` already draws the prestigious gold rim; `boardHighlightLayer` avoids duplicate or clashing lines, adding a subtle living gold halo boost and corner sparkle that elevates selection.
+  - Unscouted / fog tiles: renders an ethereal mist perimeter (`BOARD_HOVER_RIM_FOG = 0x94a3b8`), respecting fog mystery.
+- SVG Kingdom Atlas (`OverworldAtlas.tsx` & `atlas-hover.css`):
+  - Adds interactive hover tracking (`hoveredId`) on province polygon groups.
+  - Renders `.sc-atlas-hover-rim` with translucent living wash (`.sc-atlas-hover-wash`), dark ink underlay (`.sc-atlas-hover-ink`), silver-pearl perimeter halo (`.sc-atlas-hover-halo`), and corner ticks (`.sc-atlas-hover-tick`).
+  - Selected tile hover glint (`.sc-atlas-hover-glint`) for harmonious response.
+  - Isolated stylesheet with strict `pointer-events: none !important;` on all decorative overlays and `@media (prefers-reduced-motion: reduce)` accessibility guard.
+  - Zero modifications to `theme.css`.
+- Verification:
+  - Added unit test suite `packages/app/src/hud/atlasHover.test.tsx` and render tests in `packages/render/src/index.test.ts`.
+  - All tests pass: `npm test`, `npm run test -w @second-crown/render` (671 tests), and `npm run build -w @second-crown/app`.
+
 ## 2026-11-03 — render / clearer province hover tooltip on diamond board (wave/board-hover)
 
 - Slice constraints: Render only. Zero changes to `packages/sim`, `server/`, or `theme.css`.

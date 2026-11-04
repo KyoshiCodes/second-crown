@@ -16448,6 +16448,124 @@ describe("packages/render two-band camera and tabletop board helpers", () => {
                 });
               });
 
+
+              // bakeoff/gemini-hover: Living Hover Treatment on Diamond Board
+              describe("bakeoff/gemini-hover: Living Hover Treatment on Diamond Board", () => {
+                function createMockGraphics() {
+                  const calls: { method: string; args: any[] }[] = [];
+                  const g: any = {
+                    calls,
+                    clear: () => { calls.push({ method: "clear", args: [] }); },
+                    poly: (...args: any[]) => { calls.push({ method: "poly", args }); },
+                    fill: (...args: any[]) => { calls.push({ method: "fill", args }); },
+                    stroke: (...args: any[]) => { calls.push({ method: "stroke", args }); },
+                    rect: (...args: any[]) => { calls.push({ method: "rect", args }); },
+                    circle: (...args: any[]) => { calls.push({ method: "circle", args }); },
+                    ellipse: (...args: any[]) => { calls.push({ method: "ellipse", args }); },
+                    moveTo: (...args: any[]) => { calls.push({ method: "moveTo", args }); },
+                    lineTo: (...args: any[]) => { calls.push({ method: "lineTo", args }); },
+                  };
+                  return g;
+                }
+
+                it("exports paintBoardLivingHoverRim and hover constants", async () => {
+                  const mod = await import("./index.js");
+                  expect(typeof mod.paintBoardLivingHoverRim).toBe("function");
+                  expect(mod.BOARD_HOVER_RIM_INK).toBe(0x0b0f17);
+                  expect(mod.BOARD_HOVER_RIM_PALE).toBe(0xf8fafc);
+                  expect(mod.BOARD_HOVER_RIM_GOLD).toBe(0xfef08a);
+                  expect(mod.BOARD_HOVER_RIM_FOG).toBe(0x94a3b8);
+                });
+
+                it("paints subtle living hover rim on seen tile with ink backing and translucent wash", async () => {
+                  const { paintBoardLivingHoverRim, BOARD_HOVER_RIM_INK, BOARD_HOVER_RIM_PALE } = await import("./tokens.js");
+                  const state = createMockState();
+                  state.board = {
+                    homeProvinceId: "p_home",
+                    provinces: [
+                      { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                    ],
+                  };
+                  state.flags["seen:p_home"] = true;
+
+                  const g = createMockGraphics();
+                  paintBoardLivingHoverRim(g, 2, 2, state, 0, false);
+
+                  // Polygons: wash, ink underlay, halo glow, perimeter line
+                  const polys = g.calls.filter((c: any) => c.method === "poly");
+                  expect(polys.length).toBeGreaterThanOrEqual(3);
+
+                  // Strokes include ink backing and silver-pearl perimeter
+                  const strokes = g.calls.filter((c: any) => c.method === "stroke");
+                  const strokeColors = strokes.map((s: any) => s.args[0]?.color);
+                  expect(strokeColors).toContain(BOARD_HOVER_RIM_INK);
+                  expect(strokeColors).toContain(BOARD_HOVER_RIM_PALE);
+
+                  // Corner focus ticks
+                  const circles = g.calls.filter((c: any) => c.method === "circle");
+                  expect(circles.length).toBeGreaterThanOrEqual(4);
+                });
+
+                it("paints ethereal mist line on unscouted / fog tile", async () => {
+                  const { paintBoardLivingHoverRim, BOARD_HOVER_RIM_FOG } = await import("./tokens.js");
+                  const state = createMockState();
+                  state.board = {
+                    homeProvinceId: "p_home",
+                    provinces: [
+                      { id: "p_unseen", x: 3, y: 3, terrain: "wood", node: "none" },
+                    ],
+                  };
+                  // not seen
+
+                  const g = createMockGraphics();
+                  paintBoardLivingHoverRim(g, 3, 3, state, 0, false);
+
+                  const strokes = g.calls.filter((c: any) => c.method === "stroke");
+                  const strokeColors = strokes.map((s: any) => s.args[0]?.color);
+                  expect(strokeColors).toContain(BOARD_HOVER_RIM_FOG);
+                });
+
+                it("harmonizes when tile is already selected without fighting the gold rim", async () => {
+                  const { paintBoardLivingHoverRim, BOARD_HOVER_RIM_GOLD, BOARD_HOVER_RIM_PALE } = await import("./tokens.js");
+                  const state = createMockState();
+                  state.board = {
+                    homeProvinceId: "p_home",
+                    provinces: [
+                      { id: "p_home", x: 2, y: 2, terrain: "plain", node: "hold", occupantRealmId: "player" },
+                    ],
+                  };
+                  state.flags["seen:p_home"] = true;
+
+                  const g = createMockGraphics();
+                  paintBoardLivingHoverRim(g, 2, 2, state, 0, true);
+
+                  // Does NOT paint competing silver-pearl perimeter
+                  const strokes = g.calls.filter((c: any) => c.method === "stroke");
+                  const strokeColors = strokes.map((s: any) => s.args[0]?.color);
+                  expect(strokeColors).toContain(BOARD_HOVER_RIM_GOLD);
+                  expect(strokeColors).not.toContain(BOARD_HOVER_RIM_PALE);
+                });
+
+                it("paintBoardLivingHoverRim is purely deterministic for same state and phase", async () => {
+                  const { paintBoardLivingHoverRim } = await import("./tokens.js");
+                  const state = createMockState();
+                  state.board = {
+                    homeProvinceId: "p_home",
+                    provinces: [
+                      { id: "p_home", x: 2, y: 2, terrain: "hill", node: "quarry" },
+                    ],
+                  };
+                  state.flags["seen:p_home"] = true;
+
+                  const g1 = createMockGraphics();
+                  const g2 = createMockGraphics();
+                  paintBoardLivingHoverRim(g1, 2, 2, state, 1.5, false);
+                  paintBoardLivingHoverRim(g2, 2, 2, state, 1.5, false);
+
+                  expect(g1.calls).toEqual(g2.calls);
+                });
+              });
+
               describe("bakeoff/gemini-board-cache: static board tile cache and dynamic frame layer", () => {
                 function createMockGraphics() {
                   const calls: { method: string; args: any[] }[] = [];

@@ -34,6 +34,7 @@ import "./hud/atlas-keeps.css";
 import "./hud/atlas-roads.css";
 import "./hud/atlas-units.css";
 import "./hud/atlas-effects.css";
+import "./hud/atlas-hover.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -643,6 +644,7 @@ export function OverworldAtlas(props: {
   const svgRef = React.useRef<SVGSVGElement>(null);
   const [pan, setPan] = React.useState({ x: 0, y: 0 });
   const [dragging, setDragging] = React.useState(false);
+  const [hoveredId, setHoveredId] = React.useState<string | null>(null);
   const drag = React.useRef<{
     id: number;
     sx: number;
@@ -879,6 +881,8 @@ export function OverworldAtlas(props: {
               filter={seen ? "url(#atlas-shade)" : undefined}
               style={{ cursor: "pointer" }}
               onClick={() => selectProvince(p.id)}
+              onPointerEnter={() => setHoveredId(p.id)}
+              onPointerLeave={() => setHoveredId((cur) => (cur === p.id ? null : cur))}
             >
               {seen ? (
                 <>
@@ -1125,6 +1129,45 @@ export function OverworldAtlas(props: {
                     />
                   ) : null}
                 </>
+              ) : null}
+              {/* Living hover treatment on diamond tile (bakeoff/gemini-hover) */}
+              {!selected && hoveredId === p.id ? (
+                <g className="sc-atlas-hover-rim" style={{ pointerEvents: "none" }}>
+                  <polygon
+                    className="sc-atlas-hover-wash"
+                    points={diamond(cx, cy)}
+                    fill="#ffffff"
+                    style={{ pointerEvents: "none" }}
+                  />
+                  <polygon
+                    className="sc-atlas-hover-ink"
+                    points={diamond(cx, cy)}
+                    fill="none"
+                    stroke="#0b0f17"
+                    strokeWidth={2.8}
+                    style={{ pointerEvents: "none" }}
+                  />
+                  <polygon
+                    className="sc-atlas-hover-halo"
+                    points={diamond(cx, cy)}
+                    fill="none"
+                    stroke={seen ? "#f8fafc" : "#94a3b8"}
+                    strokeWidth={1.3}
+                    style={{ pointerEvents: "none" }}
+                  />
+                  <circle cx={cx} cy={cy - hh} r={1.2} className="sc-atlas-hover-tick" fill={seen ? "#f8fafc" : "#94a3b8"} style={{ pointerEvents: "none" }} />
+                  <circle cx={cx + hw} cy={cy} r={1.2} className="sc-atlas-hover-tick" fill={seen ? "#f8fafc" : "#94a3b8"} style={{ pointerEvents: "none" }} />
+                  <circle cx={cx} cy={cy + hh} r={1.2} className="sc-atlas-hover-tick" fill={seen ? "#f8fafc" : "#94a3b8"} style={{ pointerEvents: "none" }} />
+                  <circle cx={cx - hw} cy={cy} r={1.2} className="sc-atlas-hover-tick" fill={seen ? "#f8fafc" : "#94a3b8"} style={{ pointerEvents: "none" }} />
+                </g>
+              ) : null}
+              {selected && hoveredId === p.id ? (
+                <g className="sc-atlas-hover-glint" style={{ pointerEvents: "none" }}>
+                  <circle cx={cx} cy={cy - hh} r={2.0} fill="#fef08a" opacity={0.8} style={{ pointerEvents: "none" }} />
+                  <circle cx={cx + hw} cy={cy} r={2.0} fill="#fef08a" opacity={0.8} style={{ pointerEvents: "none" }} />
+                  <circle cx={cx} cy={cy + hh} r={2.0} fill="#fef08a" opacity={0.8} style={{ pointerEvents: "none" }} />
+                  <circle cx={cx - hw} cy={cy} r={2.0} fill="#fef08a" opacity={0.8} style={{ pointerEvents: "none" }} />
+                </g>
               ) : null}
               {/* March destination faint ring (player gold, hostile red) */}
               {destKind ? (

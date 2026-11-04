@@ -235,6 +235,13 @@ import {
   BOARD_MARCH_RING_RY,
   BOARD_MARCH_RING_FILL_ALPHA,
   paintBoardHighlight,
+  paintBoardLivingHoverRim,
+  BOARD_HOVER_RIM_INK,
+  BOARD_HOVER_RIM_INK_ALPHA,
+  BOARD_HOVER_RIM_HALO,
+  BOARD_HOVER_RIM_PALE,
+  BOARD_HOVER_RIM_GOLD,
+  BOARD_HOVER_RIM_FOG,
   paintBoardSelectionRim,
   drawBoardSelectionBrackets,
   SELECT_RIM_INK,
@@ -825,7 +832,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       ) {
         hoveredProvinceCoord = hit;
         boardHighlightLayer.visible = true;
-        paintBoardHighlight(boardHighlightLayer, hit.bx, hit.by, lastState);
+        paintBoardHighlight(boardHighlightLayer, hit.bx, hit.by, lastState, phase, selectedProvinceId);
         renderBoardHoverTip(lastState);
       } else {
         hoveredProvinceCoord = null;
@@ -1179,7 +1186,7 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
       renderBoardSelection(state);
       updateBoardWeather(phase);
       if (hoveredProvinceCoord) {
-        paintBoardHighlight(boardHighlightLayer, hoveredProvinceCoord.bx, hoveredProvinceCoord.by, state, phase);
+        paintBoardHighlight(boardHighlightLayer, hoveredProvinceCoord.bx, hoveredProvinceCoord.by, state, phase, selectedProvinceId);
       }
       renderBoardHoverTip(state);
     }
@@ -1390,6 +1397,13 @@ export {
   BOARD_MARCH_RING_RY,
   BOARD_MARCH_RING_FILL_ALPHA,
   paintBoardHighlight,
+  paintBoardLivingHoverRim,
+  BOARD_HOVER_RIM_INK,
+  BOARD_HOVER_RIM_INK_ALPHA,
+  BOARD_HOVER_RIM_HALO,
+  BOARD_HOVER_RIM_PALE,
+  BOARD_HOVER_RIM_GOLD,
+  BOARD_HOVER_RIM_FOG,
   paintBoardSelectionRim,
   drawBoardSelectionBrackets,
   SELECT_RIM_INK,

@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-03 — Living hover treatment on the diamond board (bakeoff/gemini-hover)
+
+- **Subtle living hover breath.** Moving your pointer over any province on the diamond board now illuminates the tile with a soft, silver-pearl living breathing perimeter and faint translucent ground wash, giving immediate tactile focus under your cursor.
+- **No more fighting the selected province.** Previously, hovering any tile drew a duplicate gold selection ring that competed with your selected province. Now, unselected tiles show the distinct silver-pearl hover breath, while hovering your currently selected province gently highlights its gold rim with a warm glint.
+- **Ethereal fog hover.** Unscouted provinces shrouded in fog respond with an ethereal mist outline that respects the frontier's mystery without giving away hidden features.
+- **Clear view of what matters.** The living hover rim sits right on the terrain, drawing beneath keeps, armies, node stock piles, outpost flags, and the top hover card so your realm remains crisp and readable.
+- **Play is unchanged.** Visual treatment only; all game rules and mechanics are untouched.
+
 ## 2026-11-03 — Clearer province hover tooltip on the diamond board (wave/board-hover)
 
 - **Hover a tile to read it.** On the board, pointing at a province now shows a small card above it with three lines: **Stock** (how much wood, stone or grain is left), **Owner** (you, nobody, or the rival's name) and **Status** (for example Clash, Incoming, Marching, Home, Garrison, Gathering, Rival held, Dry or Open).

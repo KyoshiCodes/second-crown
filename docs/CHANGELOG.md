@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 2026-11-03 — Living hover treatment on diamond board (bakeoff/gemini-hover)
+
+- Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `packages/render/src/tokens.ts` & `packages/render/src/index.ts`:
+  - New `paintBoardLivingHoverRim` and `BOARD_HOVER_RIM_*` constants (`BOARD_HOVER_RIM_INK = 0x0b0f17`, `BOARD_HOVER_RIM_PALE = 0xf8fafc`, `BOARD_HOVER_RIM_HALO = 0xfff7d6`, `BOARD_HOVER_RIM_GOLD = 0xfef08a`, `BOARD_HOVER_RIM_FOG = 0x94a3b8`).
+  - Subtle living hover treatment: soft translucent ground wash (`0xffffff` at living breathing alpha) giving tactile cursor feedback without hiding underlying terrain features, steady dark ink backing (`BOARD_HOVER_RIM_INK`), and living silver-pearl breathing perimeter line (`BOARD_HOVER_RIM_PALE`).
+  - Does not fight selected province rim: when hovering an unselected province, renders the cool silver-pearl living breath instead of duplicating the gold selection rim. When hovering the currently selected province, harmonizes with a delicate living gold halo boost and corner sparkle that elevates selection without clashing.
+  - Fog tiles: unscouted tiles render an ethereal mist perimeter (`BOARD_HOVER_RIM_FOG`) maintaining mystery.
+  - Corner focus ticks: 8 delicate corner focus ticks (plateau + base) provide tactile aim without competing with cardinal target pips.
+  - Layer stack: sits on `boardHighlightLayer` beneath status marks, almanac, unit labels, and hover tooltip card.
+- `packages/app/src/OverworldAtlas.tsx` & `packages/app/src/hud/atlas-hover.css`:
+  - SVG Kingdom Atlas interactive hover: translucent living hover wash (`.sc-atlas-hover-wash`), steady dark ink underlay (`.sc-atlas-hover-ink`), living silver-pearl perimeter halo (`.sc-atlas-hover-halo`), and corner ticks (`.sc-atlas-hover-tick`).
+  - Selected tile hover glint (`.sc-atlas-hover-glint`) for harmonious response.
+  - Isolated stylesheet with strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` motion guard.
+- Tests: added tests for `paintBoardLivingHoverRim` in `packages/render/src/index.test.ts` (671 render tests pass) and new `packages/app/src/hud/atlasHover.test.tsx` (60 app test files, 261 tests pass). Full `npm test`, render suite, and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-03 — Clearer province hover tooltip on diamond board (wave/board-hover)
 
 - Render only (`packages/render`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
