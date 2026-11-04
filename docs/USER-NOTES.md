@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Culture line on the Kingdom tab (wave/culture-picker)
+
+- **Your culture at a glance.** The Kingdom tab now shows one line with your current culture, for example "Culture · Crown Marches · next Cedar Kin".
+- **One-click switch.** The button on that line switches you to the next culture in the list. Click again to keep stepping through.
+- **Same as before.** It is the same switch as the full picker on the Crown tab. New Game still keeps your pick on this browser. Culture rules are unchanged.
+
 ## 2026-11-04 — Living research glyph (bakeoff/gemini-research-hint)
 
 - **Living research codex.** A miniature living heraldic codex glyph now rests beside the Kingdom tab's research hint line, illustrating your realm's next academic endeavor:

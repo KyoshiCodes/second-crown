@@ -1,0 +1,33 @@
+/* Culture line on the Kingdom tab. Do not touch theme.css. */
+
+.sc-culture-line-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  opacity: 0.85;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.sc-culture-line-row strong {
+  font-weight: 600;
+}
+
+.sc-culture-line-btn {
+  font: inherit;
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.sc-culture-line-btn:hover,
+.sc-culture-line-btn:focus-visible {
+  opacity: 1;
+}

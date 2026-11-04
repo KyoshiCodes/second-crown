@@ -1,3 +1,12 @@
+## 2026-11-04 — app / culture line on the Kingdom tab (wave/culture-picker)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `CultureLine.tsx` exports `nextCultureId(state)` (index of `playerCultureId` in `CULTURES`, +1, mod length) and `CultureLine`.
+- Switch goes through `act((s) => setPlayerCulture(s, id))` plus `rememberCulture(id)` from `CulturePicker.tsx`, matching the Crown tab picker's message text. If the picker's onClick changes, keep the two in step.
+- Class names are `sc-culture-line-row` / `sc-culture-line-btn` in `culture-line.css`; they do not clash with the picker's `sc-culture-line` / `sc-culture-line-key` in `hud/culture-picker.css`.
+- Branch: the old `wave/culture-picker` (tip `e3c74df`) was an ancestor of `origin/main`; it was fast-forwarded, not reset, before this commit.
+- Verification: `CultureLine.test.tsx` (4 tests). `npm test` (sim 323, app 299, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-04 — app / living research glyph on research hint line (bakeoff/gemini-research-hint)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.

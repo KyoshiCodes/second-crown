@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-04 — Culture line on the Kingdom tab (wave/culture-picker)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `CultureLine` on Kingdom, under the research hint: current culture name and crest, plus a "Switch to <next>" button.
+- Next culture is the next one in the sim `CULTURES` table, wrapping around. The button uses the existing `setPlayerCulture` action and remembers the pick on this browser, same as the Crown tab picker.
+- Styles in new `culture-line.css`.
+- Tests: new `CultureLine.test.tsx` (4 tests). Sim 323, app 299, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Living research glyph on research hint line (bakeoff/gemini-research-hint)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
