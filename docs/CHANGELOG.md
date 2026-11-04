@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-04 — Research pace on the Kingdom tab (wave/research-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `ResearchPace` line on Kingdom, under the research hint: research pace (Academy or base, from sim `researchDuration`), the running study and seconds left, and the next unit unlock with its study length at the current pace.
+- Styles in new `research-pace.css`.
+- Tests: new `ResearchPace.test.tsx` (5 tests). Sim 323, app 332, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Living market glyph on the market hint line (bakeoff/gemini-market-hint)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

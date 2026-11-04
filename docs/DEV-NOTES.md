@@ -1,3 +1,12 @@
+## 2026-11-04 — app / research pace on the Kingdom tab (wave/research-pace)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `ResearchPace.tsx` exports `fastPace(state)`, `activeStudy(state)`, `nextUnlock(state)`. They read only `RESEARCH`, `UNIT_TYPES`, `researchDuration`, `researchTicksLeft`, `researchDone`.
+- Pace: `researchDuration(state, firstId) < RESEARCH[firstId].ticks` means Academy pace. No hardcoded 20%, so it follows the sim if the Academy factor changes.
+- Next unlock: first `RESEARCH` entry in table order with `unlocks.length > 0` and not `researchDone`. Its length is `researchDuration`, omitted when that study is the one running (seconds left is already shown).
+- Seconds use `Math.ceil(ticks / 10)`, same as `StudyLine`.
+- Verification: `ResearchPace.test.tsx` (5 tests). `npm test` (sim 323, app 332, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-04 — app / living market glyph on the market hint line (bakeoff/gemini-market-hint)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.

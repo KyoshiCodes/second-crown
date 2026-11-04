@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Research pace on the Kingdom tab (wave/research-pace)
+
+- **Research pace.** The Kingdom tab now shows one line with your research speed, for example "Research pace · base pace · lectern idle · next unlock Fieldcraft → Ranger (18s)".
+- **Academy pace.** With a finished Academy the line says "Academy pace" and the times shown are the shorter Academy times.
+- **Next unlock.** Names the next study that opens new units and which units. When every unit is open, it says so.
+- **Read only.** Start studies from the lectern as before. Times and rules are the same.
+
 ## 2026-11-04 — Living market glyph on the market hint line (bakeoff/gemini-market-hint)
 
 - **Living trade glyph.** A miniature living merchant glyph now sits right beside the Kingdom tab's market hint line:

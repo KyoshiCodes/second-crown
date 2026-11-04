@@ -1,0 +1,16 @@
+/* Research pace line on the Kingdom tab. Do not touch theme.css. */
+
+.sc-research-pace {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.sc-research-pace strong {
+  font-weight: 600;
+}
+
+.sc-research-pace.is-fast strong:first-of-type {
+  color: #fef08a;
+}
