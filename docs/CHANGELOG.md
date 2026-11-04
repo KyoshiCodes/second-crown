@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-04 — Decree hint on the Kingdom tab (wave/decree-hint)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `DecreeHint` line on Kingdom, under the age line: next decree name and cost, read from the sim `DECREES` table. If stores cannot cover it, the line says so.
+- Picks the first decree in table order that is not active, preferring one the stores can pay for now. Says "every decree already sworn" when all are active.
+- Styles in new `decree-hint.css`.
+- Tests: new `DecreeHint.test.tsx` (5 tests). Sim 323, app 312, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Living age glyph on the age line (bakeoff/gemini-age)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

@@ -1,3 +1,11 @@
+## 2026-11-04 — app / decree hint on the Kingdom tab (wave/decree-hint)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `DecreeHint.tsx` exports `nextDecree(state)` and `decreeCostText(decree)`. Both read only the sim `DECREES` table and `decreeActive`.
+- Selection: first decree in `DECREES` order that is not active; one the stores can cover wins over an earlier one they cannot. The stock check is the same `Number(resources) >= Number(cost)` compare `hud/DecreeCard.tsx` uses for its short marker; keep the two in step.
+- Cost text uses the `"<n> <res>"` join, same as `ResearchHint`. The line points to the Crown tab, where `DecreesPanel` lives.
+- Verification: `DecreeHint.test.tsx` (5 tests). `npm test` (sim 323, app 312, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-04 — app / living age glyph on the age line (bakeoff/gemini-age)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.

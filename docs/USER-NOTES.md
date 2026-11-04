@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Decree hint on the Kingdom tab (wave/decree-hint)
+
+- **Next decree.** The Kingdom tab now shows one line with the next decree you can swear and what it costs, for example "Next decree · Muster the Host · 40 gold".
+- **Short on stores.** If you cannot pay for any open decree yet, the line says "not enough in stores".
+- **Read only.** Swear decrees on the Crown tab as before. Costs and rules are the same.
+
 ## 2026-11-04 — Living age glyph on the age line (bakeoff/gemini-age)
 
 - **Living age glyph.** A miniature living heraldic sunburst glyph now marks your realm's epoch right beside the Kingdom tab's age line:

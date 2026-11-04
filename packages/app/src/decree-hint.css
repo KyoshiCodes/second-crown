@@ -1,0 +1,12 @@
+/* Decree hint line on the Kingdom tab. Read-only text. */
+.sc-decree-hint {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 4px 0;
+}
+.sc-decree-hint strong {
+  font-weight: 600;
+}
+.sc-decree-hint.is-ready strong {
+  color: #fef08a;
+}
