@@ -1,3 +1,19 @@
+## 2026-11-04 — app / living culture emblem on balance notes (bakeoff/gemini-balance)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Component integration:
+  - `BalanceNotes` in `packages/app/src/BalanceNotes.tsx` reuses `CultureCrestPip` from `packages/app/src/hud/CultureCrestPip.tsx` at `size={15}` to sit harmoniously beside the culture name in `.sc-balance-culture-cell` without shifting line heights or table layout.
+  - Player culture detection: `BalanceNotes` takes `props?: BalanceNotesProps` (`{ state?: GameState; playerCulture?: string }`). If `props.playerCulture` is provided it uses that; otherwise if `props.state` is provided it calls `playerCultureId(props.state)` from `packages/sim`; otherwise falls back to `rememberedCulture()`. This allows zero-prop usage in isolated previews while illuminating the active culture when rendered in `KingdomTab.tsx` (`<BalanceNotes state={state} />`).
+  - Active culture visual state: the active row receives `.is-active-culture`, and its emblem receives `isSelected={true}`, activating its breathing golden aura and apex sparkle.
+- Style isolation & Safety:
+  - All emblem styling is isolated in `packages/app/src/hud/balance-notes.css`.
+  - Strict `pointer-events: none !important;` applied across `.sc-balance-culture-cell .sc-culture-crest`, `svg`, `path`, aura, and glint elements.
+  - Accessibility: `@media (prefers-reduced-motion: reduce)` disables crest float, pulse, and glint animations.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/BalanceNotes.test.tsx` covers base cost rendering, all 10 cultures' emblem presence with `data-culture`, active row selection styling, `pointer-events: none`, keyframes, and reduced-motion handling.
+  - All tests pass: `npm test -w @second-crown/app` (61 test files, 264 tests), `npm run test -w @second-crown/render` (671 tests), sim (323 tests), and server (158 tests). `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — app / balance notes panel on the Kingdom tab (wave/balance-notes)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.

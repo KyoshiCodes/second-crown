@@ -18,9 +18,9 @@
 
 .sc-balance-table th,
 .sc-balance-table td {
-  padding: 2px 4px;
+  padding: 3px 4px;
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
   overflow-wrap: anywhere;
 }
 
@@ -30,7 +30,111 @@
 }
 
 .sc-balance-table tr.is-plain td {
-  opacity: 0.6;
+  opacity: 0.65;
+}
+
+/* Active player culture row highlight */
+.sc-balance-table tr.is-active-culture td {
+  color: var(--chrome-accent, #fef08a);
+  font-weight: 500;
+  opacity: 1;
+}
+
+.sc-balance-table tr.is-active-culture {
+  background: rgba(250, 204, 21, 0.07);
+  border-radius: 4px;
+}
+
+/* Living culture emblem cell (bakeoff/gemini-balance) */
+.sc-balance-culture-td {
+  white-space: nowrap;
+}
+
+.sc-balance-culture-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  vertical-align: middle;
+}
+
+.sc-balance-culture-name {
+  font-weight: 500;
+}
+
+/* Strict pointer-events hygiene and isolated animations */
+.sc-balance-culture-cell .sc-culture-crest,
+.sc-balance-culture-cell .sc-culture-crest *,
+.sc-balance-culture-cell .sc-culture-crest-svg,
+.sc-balance-culture-cell .sc-culture-crest-svg *,
+.sc-balance-culture-cell .sc-culture-crest-aura,
+.sc-balance-culture-cell .sc-culture-crest-glint {
+  pointer-events: none !important;
+}
+
+.sc-balance-culture-cell .sc-culture-crest.is-idle .sc-culture-crest-svg {
+  animation: sc-balance-crest-idle 3s ease-in-out infinite;
+}
+
+.sc-balance-culture-cell .sc-culture-crest.is-selected .sc-culture-crest-svg {
+  animation: sc-balance-crest-float 2.4s ease-in-out infinite;
+}
+
+.sc-balance-culture-cell .sc-culture-crest.is-selected .sc-culture-crest-aura {
+  animation: sc-balance-crest-pulse 2.2s ease-in-out infinite alternate;
+}
+
+.sc-balance-culture-cell .sc-culture-crest.is-selected .sc-culture-crest-glint {
+  animation: sc-balance-crest-sparkle 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes sc-balance-crest-idle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.8px);
+  }
+}
+
+@keyframes sc-balance-crest-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-1.2px) scale(1.04);
+  }
+}
+
+@keyframes sc-balance-crest-pulse {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0.85;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes sc-balance-crest-sparkle {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.85) rotate(-5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.15) rotate(5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-balance-culture-cell .sc-culture-crest.is-idle .sc-culture-crest-svg,
+  .sc-balance-culture-cell .sc-culture-crest.is-selected .sc-culture-crest-svg,
+  .sc-balance-culture-cell .sc-culture-crest.is-selected .sc-culture-crest-aura,
+  .sc-balance-culture-cell .sc-culture-crest.is-selected .sc-culture-crest-glint {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 .sc-balance-foot {

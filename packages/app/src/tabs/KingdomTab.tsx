@@ -386,7 +386,7 @@ export function KingdomTab(props: {
         </>
       ) : null}
       <PeoplePanel state={state} act={act} />
-      <BalanceNotes />
+      <BalanceNotes state={state} />
       <h3>Market</h3>
       <p style={{ fontSize: 12 }}>{marketsN < 1 ? "Build a Market to trade." : `Markets x${marketsN}`}</p>
       <div className="sc-offer-grid">

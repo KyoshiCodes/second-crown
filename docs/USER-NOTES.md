@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Living culture emblems on balance notes (bakeoff/gemini-balance)
+
+- **Living culture emblems at a glance.** The Kingdom tab's **Balance notes** panel now displays each culture's miniature living heraldic emblem alongside its name.
+- **Your active culture stands out.** Your current realm culture is subtly highlighted with an illuminated crest featuring a warm golden aura and gleaming apex star.
+- **Clean and readable.** The miniature crests fit neatly inside the table rows without shifting the text, crowding numbers, or catching mouse clicks.
+- **Play is unchanged.** Visual enhancement only; unit costs, stats, and culture mechanics remain identical.
+
 ## 2026-11-04 — Balance notes on the Kingdom tab (wave/balance-notes)
 
 - **Compare cultures at a glance.** The Kingdom tab has a new **Balance notes** box (tap to open). It lists every culture, its one difference, its own unit, and what that unit costs.

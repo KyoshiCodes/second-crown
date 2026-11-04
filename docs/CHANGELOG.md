@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-04 — Living culture emblem on balance notes (bakeoff/gemini-balance)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `BalanceNotes.tsx` & `BalanceNotes.test.tsx`:
+  - Each culture row in the Kingdom tab **Balance notes** panel now displays a miniature 15px living heraldic crest (`CultureCrestPip`) immediately preceding the culture name.
+  - Active culture emphasis: accepts optional `state?: GameState` and `playerCulture?: string`. When the player's active culture is matched, the emblem renders in its selected state (`isSelected={true}`) with a breathing golden aura and apex sparkle, while the row gains `.is-active-culture` with subtle accent highlighting.
+- Isolated styling in `packages/app/src/hud/balance-notes.css`:
+  - Zero modifications to `theme.css`.
+  - Strict `pointer-events: none !important;` on all miniature emblem SVGs, paths, auras, and glints.
+  - Smooth keyframed animations (`sc-balance-crest-idle`, `sc-balance-crest-float`, `sc-balance-crest-pulse`, `sc-balance-crest-sparkle`) with `@media (prefers-reduced-motion: reduce)` motion guard.
+- `KingdomTab.tsx`: passed `state={state}` to `<BalanceNotes state={state} />`.
+- Tests: updated `BalanceNotes.test.tsx` (5 tests) verifying all 10 culture crests rendered, active culture row detection and selected crest styling, pointer-events: none, keyframes, and motion guard. Full `npm test` (sim 323, app 264, server 158) and `npm run build -w @second-crown/app` pass.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-04 — Balance notes panel on the Kingdom tab (wave/balance-notes)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
