@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Action confirmation sound (wave/action-sound)
+
+- **Hear when it worked.** Placing a building, queuing troops, or making a trade now plays a short chime along with the **Built / Trained / Traded** badge.
+- **Only on success.** A refused action stays silent.
+- **Play is unchanged.** Sound only. Costs and rules are the same.
+
 ## 2026-11-04 — Living action confirmation flash and spark treatment (bakeoff/gemini-flash)
 
 - **Living action spark.** When you build, train, or trade, your confirmation badge now sparkles with an authentic living starburst tailored to the action:

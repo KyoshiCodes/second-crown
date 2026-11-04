@@ -46,6 +46,11 @@ export const sfx = {
     setTimeout(() => tone(98, 0.35, "sine", 0.06), 140);
   },
   gift: () => tone(660, 0.1),
+  /** Two bright coin pings for a completed trade. */
+  trade: () => {
+    tone(784, 0.07, "triangle", 0.03);
+    setTimeout(() => tone(1047, 0.1, "triangle", 0.03), 60);
+  },
   seasonShift: (season: string) => {
     if (season === "Spring") {
       tone(440, 0.15, "triangle", 0.03);
@@ -83,3 +88,12 @@ export const sfx = {
   },
 };
 
+
+/** Actions that get a confirmation stinger. Mirrors ActionFlashKind. */
+export type ActionSoundKind = "build" | "train" | "trade";
+
+/** Short confirmation tone. Call only after the action already succeeded. */
+export function playActionSound(kind: ActionSoundKind): void {
+  const play = sfx[kind];
+  if (typeof play === "function") play();
+}

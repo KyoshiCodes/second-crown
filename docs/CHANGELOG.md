@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-04 — Action confirmation sound (wave/action-sound)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No new CSS. Game rules unchanged.
+- `flashAction(kind)` now also calls `playActionSound(kind)` (new in `sfx.ts`), so every successful build, train, or trade plays one short Web Audio tone. No audio files.
+- New `sfx.trade` (two quick coin pings). Build reuses `sfx.build`, train reuses `sfx.train`.
+- Removed the old direct `sfx.train()` calls in `ArmyTab`, `KeepHall`, `WarRoom` so train does not play twice. Build (main hold and shared hold) and trade were silent before; they now sound.
+- Tests: new `actionSound.test.ts` (5 tests). Sim 323, app 282, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Living action confirmation flash and spark treatment (bakeoff/gemini-flash)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

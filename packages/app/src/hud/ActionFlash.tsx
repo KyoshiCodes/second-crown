@@ -1,5 +1,6 @@
 import React from "react";
 import "./action-flash.css";
+import { playActionSound } from "../sfx";
 
 /** Which successful action the flash confirms. UI only — no game math. */
 export type ActionFlashKind = "build" | "train" | "trade";
@@ -21,10 +22,14 @@ const GLYPH: Record<ActionFlashKind, string> = {
   trade: "⚖",
 };
 
-/** Call only after a build, train, or trade has already succeeded. */
+/**
+ * Call only after a build, train, or trade has already succeeded.
+ * Shows the flash chip and plays the short confirmation tone (sfx.ts).
+ */
 export function flashAction(kind: ActionFlashKind): void {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent<ActionFlashKind>(EVENT, { detail: kind }));
+  playActionSound(kind);
 }
 
 export interface ActionSparkPipProps {

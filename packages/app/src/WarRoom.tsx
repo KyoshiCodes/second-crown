@@ -173,7 +173,7 @@ export function WarRoom(props: {
             disabled={!canLevy}
             onClick={() => act((st) => {
               const ok = tryTrain(st, { typeId: "militia", count: 5 });
-              if (ok) { sfx.train(); flashAction("train"); }
+              if (ok) flashAction("train");
               return ok ? "Raised 5 militia." : "Cannot afford 5 militia.";
             })}
           >

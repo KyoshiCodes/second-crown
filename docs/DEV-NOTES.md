@@ -1,3 +1,11 @@
+## 2026-11-04 — app / action confirmation sound (wave/action-sound)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math. No audio assets.
+- Hook point: `flashAction()` in `hud/ActionFlash.tsx` is already called only on success at every build/train/trade site, so the tone rides on it: dispatch the flash event, then `playActionSound(kind)`. One call site to keep correct instead of eight.
+- `playActionSound` lives in `sfx.ts` and maps kind → `sfx.build` / `sfx.train` / `sfx.trade`. `ActionSoundKind` mirrors `ActionFlashKind`; extend both together.
+- Do not call `sfx.train()` next to `flashAction("train")` any more — that double-plays. The three old pairs were collapsed.
+- Like the other stingers, these ignore the Music toggle (that only mutes the music bed). Browsers start `AudioContext` suspended until a user gesture; actions are always user clicks, so that is fine. Without Web Audio (`new AudioContext` throws) `tone()` returns silently.
+
 ## 2026-11-04 — app / living action confirmation flash and spark treatment (bakeoff/gemini-flash)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
