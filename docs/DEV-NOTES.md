@@ -1,3 +1,26 @@
+## 2026-11-04 — app / living age glyph on the age line (bakeoff/gemini-age)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Age Glyph Design:
+  - `AgeGlyphPip` in `packages/app/src/AgeLine.tsx`: 16px living SVG age glyph positioned on `.sc-age-glyph-wrap` immediately preceding the age line text on the Kingdom tab.
+  - Heraldic illumination states:
+    - `ready` (`canAscend(state)` is true): radiant golden ascending sunburst with breathing aura (`.sc-age-glyph-aura`), pulsing solar rays (`.sc-age-glyph-rays`), mountain horizon ridge, and twinkling 4-point solar diamond apex star (`.sc-age-glyph-star`).
+    - `waiting` (`!ready && !shared`): calm morning horizon with warm amber rising sun disc, morning rays, and golden core dot.
+    - `shared`: enduring realm foundation base and carved stone monolith with celestial sapphire disc and silver epoch star pip.
+  - Motion & Aesthetics:
+    - `.sc-age-glyph-breathe`: gentle 2.4s pulsating ambient gold glow when ready to ascend.
+    - `.sc-age-glyph-float`: subtle vertical hover (1px) keeping the glyph alive.
+    - `.sc-age-glyph-twinkle`: delicate brightness and scale cycle on the gold apex star.
+    - `.sc-age-glyph-rays`: breathing ray expansion and stroke-width emphasis.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/age-line.css`.
+  - `.sc-age-glyph-wrap, .sc-age-glyph-wrap *` enforces `pointer-events: none !important;` so clicks or selections are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/AgeLine.test.tsx` (8 tests) verifies ready/waiting/shared heraldic glyph renderings, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 307 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-04 — app / age line on the Kingdom tab (wave/age-line)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.

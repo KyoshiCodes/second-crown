@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Living age glyph on the age line (bakeoff/gemini-age)
+
+- **Living age glyph.** A miniature living heraldic sunburst glyph now marks your realm's epoch right beside the Kingdom tab's age line:
+  - **Ready to Ascend:** a blazing golden sunrise rising over the mountain horizon, illuminated with a breathing golden aura, dynamic radiant sunbeams, and a twinkling apex dawn star.
+  - **Gathering resources:** a calm morning dawn with warm amber rising sun disc, reflecting steady progress toward the next Dawn.
+  - **Shared hold:** an enduring stone monolith with celestial sapphire disc and silver epoch star, reflecting the collective era without ascension.
+- **Subtle and aligned.** The glyph sits comfortably in line with the text without vertical jumping or clutter.
+- **Never blocks clicks.** The glyph is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; ascension thresholds, prestige bonuses, and Second Dawn mechanics are untouched.
+
 ## 2026-11-04 — Age line on the Kingdom tab (wave/age-line)
 
 - **Your age at a glance.** The Kingdom tab now shows one line with your current age and what the next one needs, for example "Age · Dawn 0 · next age at 30K total resources."

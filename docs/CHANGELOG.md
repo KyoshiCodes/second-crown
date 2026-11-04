@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-04 — Living age glyph on the age line (bakeoff/gemini-age)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `AgeLine.tsx` & `age-line.css`:
+  - Added `AgeGlyphPip`: a 16px living heraldic age glyph rendered inline before the age line text on the Kingdom tab.
+  - Three state-aware epoch presentations:
+    - `ready` (ascension threshold met): radiant golden ascending sunburst with breathing aura (`.sc-age-glyph-aura`), pulsing dynamic solar rays (`.sc-age-glyph-rays`), illuminated mountain horizon ridge, and twinkling 4-point apex dawn star (`.sc-age-glyph-star`).
+    - `waiting` (`!ready && !shared`): serene morning dawn on the horizon with warm amber rising sun disc, calm morning rays, and golden morning core dot.
+    - `shared`: enduring realm foundation base and carved stone monolith with celestial sapphire disc and silver epoch star pip.
+  - Subtle living animations: gentle vertical float (`sc-age-glyph-float`), breathing luminous aura (`sc-age-glyph-breathe`), ray expansion pulse (`sc-age-glyph-rays`), and twinkling apex star (`sc-age-glyph-twinkle`).
+  - Strict style isolation & click safety: `.sc-age-glyph-wrap, .sc-age-glyph-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `AgeLine.test.tsx` (8 tests) verifying glyph states (ready, waiting, shared), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 66 app suites (307 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-04 — Age line on the Kingdom tab (wave/age-line)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
