@@ -50,6 +50,7 @@ import { BattleCard } from "./hud/BattleCard";
 import type { ActFn } from "./game/useGameEngine";
 import { getGiftThanks, getWarTaunt } from "./content/flavor";
 import { sfx } from "./sfx";
+import { flashAction } from "./hud/ActionFlash";
 
 export function WarRoom(props: {
   state: GameState | undefined;
@@ -172,7 +173,7 @@ export function WarRoom(props: {
             disabled={!canLevy}
             onClick={() => act((st) => {
               const ok = tryTrain(st, { typeId: "militia", count: 5 });
-              if (ok) sfx.train();
+              if (ok) { sfx.train(); flashAction("train"); }
               return ok ? "Raised 5 militia." : "Cannot afford 5 militia.";
             })}
           >

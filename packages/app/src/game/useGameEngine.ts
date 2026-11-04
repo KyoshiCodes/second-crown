@@ -44,6 +44,7 @@ import type { BattleSnap } from "../BattleVisual";
 import { getWarTaunt } from "../content/flavor";
 import { sfx } from "../sfx";
 import { rememberedCulture } from "../CulturePicker";
+import { flashAction } from "../hud/ActionFlash";
 
 export type Tab = "kingdom" | "army" | "war" | "world" | "crown";
 export type ActFn = (fn: (st: GameState, eng: TickEngine) => string) => void;
@@ -216,6 +217,7 @@ export function useGameEngine() {
       return;
     }
     const ok = tryBuild(st, { typeId, x, y });
+    if (ok) flashAction("build");
     setStatus(ok ? `Built ${nm}.` : canAfford(st, typeId) ? `Cannot place ${nm}.` : `Cannot afford ${nm}.`);
     if (ok) { syncUi(eng); persist(st); }
   }, [syncUi, persist]);

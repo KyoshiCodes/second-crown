@@ -15,6 +15,7 @@ import { WeatherOverlay } from "./seasons/WeatherOverlay";
 import { ThemeStage } from "./seasons/ThemeStage";
 import { type SeasonName } from "./music";
 import { sfx } from "./sfx";
+import { ActionFlash } from "./hud/ActionFlash";
 
 // Tab panels load in their own chunks so the board paints first.
 const KingdomTab = React.lazy(() => import("./tabs/KingdomTab").then((m) => ({ default: m.KingdomTab })));
@@ -109,6 +110,7 @@ export function AppShell() {
       style={{ background: activePack.backgroundCss }}
     >
       <ThemeStage season={season} holiday={holidayId} />
+      <ActionFlash />
       <WeatherOverlay season={season} holiday={holidayId} />
       <div className="sc-panel">
         <h1 style={{ margin: "0 0 4px", fontSize: 22 }} className="sc-title">Second Crown</h1>

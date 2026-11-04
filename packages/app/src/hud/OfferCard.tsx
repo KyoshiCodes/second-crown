@@ -4,6 +4,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { ResourcePip, type ResourceKind } from "./ResourcePip";
 import "./resource-pip.css";
 import "./offer-card.css";
+import { flashAction } from "./ActionFlash";
 
 type Offer = { id: string; give: Record<string, string>; get: Record<string, string> };
 
@@ -46,7 +47,11 @@ export function OfferCard(props: { state: GameState | undefined; offer: Offer; a
         type="button"
         className="sc-offer-btn"
         disabled={!ok}
-        onClick={() => act((st) => (tryTrade(st, offer.id) ? "Trade complete." : "Cannot trade."))}
+        onClick={() => act((st) => {
+          if (!tryTrade(st, offer.id)) return "Cannot trade.";
+          flashAction("trade");
+          return "Trade complete.";
+        })}
       >
         Trade
       </button>

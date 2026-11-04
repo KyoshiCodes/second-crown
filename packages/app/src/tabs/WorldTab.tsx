@@ -23,6 +23,7 @@ import { RealmCrestPip } from "../hud/RealmCrestPip";
 import { realmStance, type RealmStance } from "../hud/RealmCard";
 import type { ActFn } from "../game/useGameEngine";
 import { getGiftThanks } from "../content/flavor";
+import { flashAction } from "../hud/ActionFlash";
 
 type LogFilter = "all" | "claim" | "trade" | "war" | "levy";
 
@@ -374,7 +375,11 @@ export function WorldTab(props: {
         onJoin={(id) => act((st) => (tryJoinFaction(st, id) ? "Joined the faction." : "Cannot join."))}
         onLeave={(id) => act((st) => (tryLeaveFaction(st, id) ? "Left the faction." : "Not a member."))}
         onGift={(id) => act((st) => (tryGiftGold(st, 15, id) ? getGiftThanks(id) : "Need 15 gold."))}
-        onTrade={(realmId, offerId) => act((st) => (tryKingdomTrade(st, realmId, offerId) ? "Trade complete." : "Cannot make that trade."))}
+        onTrade={(realmId, offerId) => act((st) => {
+          if (!tryKingdomTrade(st, realmId, offerId)) return "Cannot make that trade.";
+          flashAction("trade");
+          return "Trade complete.";
+        })}
         onScout={(id) => act((st) => (tryScout(st, id) ? `Scouts ride to ${nameOf(id)}.` : "Need 10 gold."))}
       />
     </>

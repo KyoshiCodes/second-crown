@@ -30,6 +30,7 @@ import { UpkeepLine } from "../UpkeepLine";
 import { UnitCard } from "../hud/UnitCard";
 import type { ActFn } from "../game/useGameEngine";
 import { sfx } from "../sfx";
+import { flashAction } from "../hud/ActionFlash";
 
 function lockNote(id: string): string {
   if (id === "cavalry" || id === "knight") return "Study Horse lore on Crown (Keep II).";
@@ -102,7 +103,7 @@ export function ArmyTab(props: {
                 act((st) => {
                   if (!unitUnlocked(st, u.id)) return lock;
                   const ok = tryTrain(st, { typeId: u.id, count: trainQty });
-                  if (ok) sfx.train();
+                  if (ok) { sfx.train(); flashAction("train"); }
                   return ok ? `Queued ${trainQty} ${u.name}.` : queue.length >= cap ? "Barracks queue is full. Raise the Keep." : "Cannot afford that levy.";
                 })
               }

@@ -1,3 +1,11 @@
+## 2026-11-04 — app / action confirmation flash (wave/action-flash)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- Transport: `flashAction(kind)` dispatches a `window` `CustomEvent("sc-action-flash")` (same pattern as `sc-holiday-change`). `<ActionFlash />` in `AppShell` listens and shows one chip; a repeat flash bumps a key so the CSS animation replays, and resets the 900 ms hide timer. Timer is cleared on unmount.
+- Why an event and not a prop: success is known deep inside `act(...)` callbacks across many components; threading a setter through `ActFn` would change its signature everywhere.
+- Call `flashAction` only after the `try*` returned true (or the hold server accepted). Do not call it for upgrades, cancels, or refusals. To add another kind, extend `ActionFlashKind` plus `LABEL`/`GLYPH`, and a colour class in `action-flash.css`.
+- Accessibility: chip is `aria-hidden`; the existing status line already announces the result.
+
 ## 2026-11-04 — app / living culture emblem on balance notes (bakeoff/gemini-balance)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.

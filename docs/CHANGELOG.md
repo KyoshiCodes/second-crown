@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-04 — Action confirmation flash (wave/action-flash)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `hud/ActionFlash.tsx` + `hud/action-flash.css`: a brief (900 ms) fixed chip — "Built", "Trained", "Traded" — shown after a successful build, train, or trade. `pointer-events: none`, `aria-hidden` (the status line still carries the text), reduced-motion guard.
+- `flashAction(kind)` is called only in success branches: `useGameEngine.tapHoldTile` (`tryBuild`), `ArmyTab` / `KeepHall` / `WarRoom` (`tryTrain`), `OfferCard` (`tryTrade`), `WorldTab` (`tryKingdomTrade`), `JoinHoldCard` (shared-hold Train / Build after the server accepts). Upgrades, cancels and refusals do not flash.
+- `AppShell.tsx` mounts `<ActionFlash />` once.
+- Tests: new `hud/ActionFlash.test.tsx` (5 tests). Sim 323, app 269, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Living culture emblem on balance notes (bakeoff/gemini-balance)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

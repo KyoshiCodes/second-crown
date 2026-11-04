@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Action confirmation flash (wave/action-flash)
+
+- **See when it worked.** When you place a building, queue troops, or make a trade, a small badge pops up near the top of the screen: **Built**, **Trained**, or **Traded**. It fades away in under a second.
+- **Only on success.** If you cannot afford it or the plot is taken, no badge appears — read the status line as before.
+- **Never in the way.** The badge does not block clicks.
+- **Play is unchanged.** Look only. Costs and rules are the same.
+
 ## 2026-11-04 — Living culture emblems on balance notes (bakeoff/gemini-balance)
 
 - **Living culture emblems at a glance.** The Kingdom tab's **Balance notes** panel now displays each culture's miniature living heraldic emblem alongside its name.

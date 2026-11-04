@@ -14,6 +14,7 @@ import { HoldWorkPip } from "./hud/HoldWorkPip";
 import { HoldLogPip } from "./hud/HoldLogPip";
 import "./hud/hold-leave.css";
 import "./hud/hold-log.css";
+import { flashAction } from "./hud/ActionFlash";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 function whole(value: string): string {
@@ -155,6 +156,7 @@ export function JoinHoldCard({
     try {
       setView(await sendTrain(realmId, holdKey));
       setStatus("");
+      flashAction("train");
     } catch (e) {
       setStatus(`Train refused: ${e instanceof Error ? e.message : "unknown"}`);
     }
@@ -165,6 +167,7 @@ export function JoinHoldCard({
     try {
       setView(await sendBuild(realmId, holdKey));
       setStatus("");
+      flashAction("build");
     } catch (e) {
       setStatus(`Build refused: ${e instanceof Error ? e.message : "unknown"}`);
     }

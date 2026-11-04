@@ -25,6 +25,7 @@ import { ResearchBar } from "./ResearchBar";
 import { WallLine } from "./WallLine";
 import { sfx } from "./sfx";
 import "./keep-hall.css";
+import { flashAction } from "./hud/ActionFlash";
 
 type Room = "yard" | "lectern" | "gate";
 
@@ -118,7 +119,7 @@ function YardRoom(props: { state: GameState; act: ActFn }) {
             onClick={() =>
               act((st) => {
                 const ok = tryTrain(st, { typeId: u.id, count: qty });
-                if (ok) sfx.train();
+                if (ok) { sfx.train(); flashAction("train"); }
                 return ok
                   ? `Queued ${qty} ${u.name}.`
                   : listTraining(st, "player").length >= trainingQueueCap(st)
