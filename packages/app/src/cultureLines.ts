@@ -31,6 +31,11 @@ const DIFFERENCE_OF: Record<string, string> = {
   peak: `Keep +${PEAK_KEEP_VISION_BONUS} vision`,
 };
 
+/** Sim unit id for a culture's own unit, or null when it has none. */
+export function cultureUnitId(id: string): string | null {
+  return UNIT_OF[id] ?? null;
+}
+
 export function cultureLine(id: string): CultureLine {
   const unitId = UNIT_OF[id];
   const unit = unitId ? getUnitType(unitId)?.name ?? null : null;

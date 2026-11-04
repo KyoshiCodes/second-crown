@@ -1,3 +1,10 @@
+## 2026-11-04 — app / balance notes panel on the Kingdom tab (wave/balance-notes)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `BalanceNotes` takes no props and no `GameState`: it reads static content only (`CULTURES`, `getUnitType`, `cultureLine`). So it shows **base** cost, not the live `trainCostMultiplier(state, id)` price. If a later slice wants live prices, pass `state` and call `trainCostMultiplier` (already exported) — do not re-derive the discounts in the app.
+- Culture → unit mapping still lives only in `cultureLines.ts` (`UNIT_OF`); `cultureUnitId` exposes it so the panel does not duplicate it.
+- Rendered as a native `<details>` so it stays closed and out of the way by default.
+
 ## 2026-11-03 — render & app / living hover treatment on diamond board (bakeoff/gemini-hover)
 
 - Slice constraints: Render and App (`packages/render`, `packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

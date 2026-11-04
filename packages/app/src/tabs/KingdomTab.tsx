@@ -55,6 +55,7 @@ import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
 import { WorkCard } from "../hud/WorkCard";
 import { OfferCard } from "../hud/OfferCard";
+import { BalanceNotes } from "../BalanceNotes";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
 
@@ -385,6 +386,7 @@ export function KingdomTab(props: {
         </>
       ) : null}
       <PeoplePanel state={state} act={act} />
+      <BalanceNotes />
       <h3>Market</h3>
       <p style={{ fontSize: 12 }}>{marketsN < 1 ? "Build a Market to trade." : `Markets x${marketsN}`}</p>
       <div className="sc-offer-grid">

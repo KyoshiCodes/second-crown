@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Balance notes on the Kingdom tab (wave/balance-notes)
+
+- **Compare cultures at a glance.** The Kingdom tab has a new **Balance notes** box (tap to open). It lists every culture, its one difference, its own unit, and what that unit costs.
+- **Costs are base costs.** Barracks, research, doctrine, decrees, stables and archery ranges can make training cheaper than the number shown.
+- **Play is unchanged.** It only shows numbers the game already uses.
+
 ## 2026-11-03 — Living hover treatment on the diamond board (bakeoff/gemini-hover)
 
 - **Subtle living hover breath.** Moving your pointer over any province on the diamond board now illuminates the tile with a soft, silver-pearl living breathing perimeter and faint translucent ground wash, giving immediate tactile focus under your cursor.

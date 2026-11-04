@@ -1,0 +1,40 @@
+/* --- Kingdom tab balance notes: read-only table of culture edges and unit costs. Card look is .sc-work-card. --- */
+
+.sc-balance-notes {
+  margin: 8px 0;
+  font-size: 12px;
+}
+
+.sc-balance-notes > summary {
+  cursor: pointer;
+}
+
+.sc-balance-table {
+  width: 100%;
+  margin-top: 6px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.sc-balance-table th,
+.sc-balance-table td {
+  padding: 2px 4px;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.sc-balance-table th {
+  font-weight: 400;
+  opacity: 0.65;
+}
+
+.sc-balance-table tr.is-plain td {
+  opacity: 0.6;
+}
+
+.sc-balance-foot {
+  margin: 4px 0 0;
+  font-size: 11px;
+  opacity: 0.6;
+}

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-04 — Balance notes panel on the Kingdom tab (wave/balance-notes)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `BalanceNotes.tsx`: collapsible read-only card in `tabs/KingdomTab.tsx` (after `PeoplePanel`). Table of every culture: name, edge (`cultureLine().difference`), unit (`cultureLine().unit`), base cost (`unitCostText`, from `getUnitType().cost`). Base cultures show "looks only" / "base roster" / "—".
+- `cultureLines.ts`: new `cultureUnitId(id)` export (the existing `UNIT_OF` map).
+- New `hud/balance-notes.css` (layout only).
+- Tests: new `BalanceNotes.test.tsx` (2 tests). Sim 323, app 263, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-03 — Living hover treatment on diamond board (bakeoff/gemini-hover)
 
 - Render and App (`packages/render`, `packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
