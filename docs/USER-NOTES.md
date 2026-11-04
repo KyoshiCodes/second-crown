@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Living market glyph on the market hint line (bakeoff/gemini-market-hint)
+
+- **Living trade glyph.** A miniature living merchant glyph now sits right beside the Kingdom tab's market hint line:
+  - **Ready to Trade:** a lively merchant stall with a vibrant striped canopy, swaying golden balance scales with commodity trade pans, a gentle breathing prosperity aura, and a twinkling coin glint.
+  - **Awaiting stores:** a quiet terracotta stall with steady brass scales patiently waiting for grain or ore to arrive.
+  - **Market needed:** a shuttered timber stall with a small padlock indicating a Market must be built first.
+- **Subtle and aligned.** The glyph aligns cleanly with the text row without shifting surrounding lines or cluttering the layout.
+- **Never blocks clicks.** The glyph is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; trade ratios, market offers, and resource exchange rules are untouched.
+
 ## 2026-11-04 — Market hint on the Kingdom tab (wave/market-hint)
 
 - **Next trade.** The Kingdom tab now shows one line with the next Market trade you can make and what it costs, for example "Next trade · 8 gold → 25 food · costs 8 gold".

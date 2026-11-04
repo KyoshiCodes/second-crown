@@ -1,6 +1,9 @@
 /* Market hint line on the Kingdom tab. Read-only text. Do not touch theme.css. */
 
 .sc-market-hint {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-size: 12px;
   opacity: 0.85;
   margin: 4px 0;
@@ -13,4 +16,106 @@
 
 .sc-market-hint.is-ready strong {
   color: #fef08a;
+}
+
+/* Living Market Glyph */
+.sc-market-glyph-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-market-glyph-wrap,
+.sc-market-glyph-wrap * {
+  pointer-events: none !important;
+}
+
+.sc-market-glyph {
+  display: block;
+  pointer-events: none !important;
+  overflow: visible;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  animation: sc-market-glyph-float 3.5s ease-in-out infinite;
+}
+
+/* Ready state: golden-sapphire breathing aura */
+.sc-market-glyph-aura {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(254, 240, 138, 0.45) 0%, rgba(37, 99, 235, 0.2) 55%, transparent 75%);
+  pointer-events: none !important;
+  animation: sc-market-glyph-breathe 2.4s ease-in-out infinite;
+}
+
+/* Merchant scale balance sway */
+.sc-market-glyph.is-ready .sc-market-glyph-scale {
+  animation: sc-market-glyph-balance 3.2s ease-in-out infinite alternate;
+  transform-origin: 8px 7.5px;
+}
+
+/* Apex trade coin / glint twinkle */
+.sc-market-glyph-star {
+  animation: sc-market-glyph-twinkle 2s ease-in-out infinite;
+  transform-origin: 8px 3px;
+}
+
+/* Keyframes */
+@keyframes sc-market-glyph-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes sc-market-glyph-breathe {
+  0%, 100% {
+    transform: scale(0.92);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.95;
+  }
+}
+
+@keyframes sc-market-glyph-balance {
+  0% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes sc-market-glyph-twinkle {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .sc-market-glyph,
+  .sc-market-glyph-aura,
+  .sc-market-glyph-scale,
+  .sc-market-glyph-star {
+    animation: none !important;
+    transform: none !important;
+  }
+  .sc-market-glyph-aura {
+    opacity: 0.4;
+    transform: none;
+  }
 }

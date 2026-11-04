@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-04 — Living market glyph on the market hint line (bakeoff/gemini-market-hint)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `MarketHint.tsx` & `market-hint.css`:
+  - Added `MarketGlyphPip`: a 16px living merchant market glyph rendered inline before the market hint line text on the Kingdom tab.
+  - Three state-aware market trade presentations:
+    - `ready` (trade can be made now): merchant trade stall with red-and-gold striped canopy awning, swaying brass balance scales with trade commodity pans, breathing golden-sapphire aura (`.sc-market-glyph-aura`), and twinkling apex coin glint star (`.sc-market-glyph-star`).
+    - `waiting` (`!ready && !isClosed`): calm terracotta market awning with steady balance beam and suspended trade pans, quietly awaiting exchange stores.
+    - `isClosed` (no Market built yet): shuttered timber framework and locked padlock, signaling the need to construct a Market.
+  - Subtle living animations: gentle vertical float (`sc-market-glyph-float`), breathing luminous aura (`sc-market-glyph-breathe`), swaying balance beam (`sc-market-glyph-balance`), and twinkling apex glint (`sc-market-glyph-twinkle`).
+  - Strict style isolation & click safety: `.sc-market-glyph-wrap, .sc-market-glyph-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `MarketHint.test.tsx` (10 tests) verifying glyph states (ready, waiting, closed), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 68 app suites (327 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-04 — Market hint on the Kingdom tab (wave/market-hint)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

@@ -1,3 +1,26 @@
+## 2026-11-04 — app / living market glyph on the market hint line (bakeoff/gemini-market-hint)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Market Glyph Design:
+  - `MarketGlyphPip` in `packages/app/src/MarketHint.tsx`: 16px living SVG merchant market glyph positioned on `.sc-market-glyph-wrap` immediately preceding the market hint text on the Kingdom tab.
+  - Heraldic illumination states:
+    - `ready` (`canTrade` is true): striped red/gold awning canopy, central brass scales pillar, gently swaying balance beam (`.sc-market-glyph-scale`), left and right suspended commodity pans, breathing golden-sapphire aura (`.sc-market-glyph-aura`), and twinkling apex coin star glint (`.sc-market-glyph-star`).
+    - `waiting` (`!ready && !isClosed`, insufficient stores): quiet terracotta canopy with steady tilted balance beam awaiting resources.
+    - `isClosed` (no market built): shuttered timber framework with locked padlock indicating trade is unavailable.
+  - Motion & Aesthetics:
+    - `.sc-market-glyph-breathe`: gentle 2.4s pulsating ambient gold/sapphire prosperity glow when ready to trade.
+    - `.sc-market-glyph-float`: subtle vertical hover (1px) keeping the stall alive.
+    - `.sc-market-glyph-balance`: delicate ±3° swaying motion on the balance scale beam.
+    - `.sc-market-glyph-twinkle`: delicate brightness and scale cycle on the apex coin glint.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/market-hint.css`.
+  - `.sc-market-glyph-wrap, .sc-market-glyph-wrap *` enforces `pointer-events: none !important;` so clicks or selections are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating/swaying, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/MarketHint.test.tsx` (10 tests) verifies ready/waiting/closed heraldic glyph renderings, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 327 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-04 — app / market hint on the Kingdom tab (wave/market-hint)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
