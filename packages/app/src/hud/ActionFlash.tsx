@@ -27,20 +27,126 @@ export function flashAction(kind: ActionFlashKind): void {
   window.dispatchEvent(new CustomEvent<ActionFlashKind>(EVENT, { detail: kind }));
 }
 
-/** Pure view for one flash. Exported for tests. */
+export interface ActionSparkPipProps {
+  kind: ActionFlashKind;
+  size?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+/**
+ * Living vector spark / starburst glint tailored for each action kind:
+ * - build: warm golden forge craftsmanship spark with radiating ember rays
+ * - train: sharp silver-steel martial clash star with ruby-crimson edge
+ * - trade: faceted 8-point gold coin spark with specular shimmer
+ */
+export function ActionSparkPip({
+  kind,
+  size = 15,
+  className = "",
+  style,
+}: ActionSparkPipProps) {
+  const classes = ["sc-action-flash-spark-pip", `is-${kind}`, className]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width={size}
+      height={size}
+      className={classes}
+      style={{ pointerEvents: "none", ...style }}
+      aria-hidden="true"
+      data-spark-kind={kind}
+    >
+      {kind === "build" && (
+        <>
+          {/* Warm forge glow halo */}
+          <circle cx="8" cy="8" r="7" fill="rgba(251, 191, 36, 0.22)" />
+          {/* Cardinal forge spark diamond */}
+          <polygon
+            points="8,1.2 9.6,6.4 14.8,8 9.6,9.6 8,14.8 6.4,9.6 1.2,8 6.4,6.4"
+            fill="#fef08a"
+            stroke="#d97706"
+            strokeWidth="0.5"
+          />
+          {/* Diagonal forge micro-sparks */}
+          <line x1="3.5" y1="3.5" x2="5.2" y2="5.2" stroke="#fde68a" strokeWidth="0.8" strokeLinecap="round" />
+          <line x1="12.5" y1="3.5" x2="10.8" y2="5.2" stroke="#fde68a" strokeWidth="0.8" strokeLinecap="round" />
+          <line x1="3.5" y1="12.5" x2="5.2" y2="10.8" stroke="#fde68a" strokeWidth="0.8" strokeLinecap="round" />
+          <line x1="12.5" y1="12.5" x2="10.8" y2="10.8" stroke="#fde68a" strokeWidth="0.8" strokeLinecap="round" />
+          {/* Core white-hot spark center */}
+          <circle cx="8" cy="8" r="1.6" fill="#ffffff" />
+        </>
+      )}
+
+      {kind === "train" && (
+        <>
+          {/* Martial clash aura */}
+          <circle cx="8" cy="8" r="7" fill="rgba(248, 113, 113, 0.22)" />
+          {/* Crossed clash diagonals */}
+          <line x1="2.4" y1="2.4" x2="13.6" y2="13.6" stroke="#fca5a5" strokeWidth="0.75" strokeLinecap="round" opacity="0.85" />
+          <line x1="13.6" y1="2.4" x2="2.4" y2="13.6" stroke="#fca5a5" strokeWidth="0.75" strokeLinecap="round" opacity="0.85" />
+          {/* Elongated blade glint star */}
+          <polygon
+            points="8,0.6 9.4,6.6 15.4,8 9.4,9.4 8,15.4 6.6,9.4 0.6,8 6.6,6.6"
+            fill="#ffffff"
+            stroke="#ef4444"
+            strokeWidth="0.5"
+          />
+          {/* Gleaming center spark */}
+          <circle cx="8" cy="8" r="1.5" fill="#fef9c3" />
+        </>
+      )}
+
+      {kind === "trade" && (
+        <>
+          {/* Sapphire & gold prosperity aura */}
+          <circle cx="8" cy="8" r="7" fill="rgba(96, 165, 250, 0.22)" />
+          {/* Faceted 8-point gold coin spark */}
+          <polygon
+            points="8,1.2 9.5,5.5 13.8,3.2 11.5,7.5 15.8,8 11.5,8.5 13.8,12.8 9.5,10.5 8,14.8 6.5,10.5 2.2,12.8 4.5,8.5 0.2,8 4.5,7.5 2.2,3.2 6.5,5.5"
+            fill="#fef08a"
+            stroke="#2563eb"
+            strokeWidth="0.45"
+          />
+          {/* Radiant specular core */}
+          <circle cx="8" cy="8" r="1.7" fill="#ffffff" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+/** Pure view for one flash with living spark and aura treatment. Exported for tests. */
 export function ActionFlashChip(props: { kind: ActionFlashKind; flashKey?: number }) {
   const { kind, flashKey = 0 } = props;
   return (
     <div className="sc-action-flash" aria-hidden="true" data-action-flash={kind}>
       <span key={flashKey} className={`sc-action-flash-chip is-${kind}`}>
-        <span className="sc-action-flash-glyph">{GLYPH[kind]}</span>
-        <span>{LABEL[kind]}</span>
+        {/* Living radial glow halo behind the chip */}
+        <span className={`sc-action-flash-halo is-${kind}`} aria-hidden="true" />
+        {/* Specular diagonal shimmer sweep across chip */}
+        <span className="sc-action-flash-shimmer" aria-hidden="true" />
+        {/* Micro spark motes orbiting the chip */}
+        <span className="sc-action-flash-sparks" aria-hidden="true">
+          <span className="sc-action-flash-spark-mote is-top" />
+          <span className="sc-action-flash-spark-mote is-bottom" />
+          <span className="sc-action-flash-spark-mote is-trail" />
+        </span>
+        {/* Glyph with corner living spark pip */}
+        <span className="sc-action-flash-glyph-wrap">
+          <span className="sc-action-flash-glyph">{GLYPH[kind]}</span>
+          <ActionSparkPip kind={kind} size={15} />
+        </span>
+        <span className="sc-action-flash-label">{LABEL[kind]}</span>
       </span>
     </div>
   );
 }
 
-/** Mount once. Listens for flashAction() and shows a brief confirmation chip. */
+/** Mount once. Listens for flashAction() and shows a brief confirmation chip with living spark treatment. */
 export function ActionFlash() {
   const [flash, setFlash] = React.useState<{ kind: ActionFlashKind; n: number } | null>(null);
 

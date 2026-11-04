@@ -1,4 +1,9 @@
-/* Styles for ActionFlash only. Do not touch theme.css. */
+/* Styles for ActionFlash and living action confirmation sparks only. Do not touch theme.css. */
+
+.sc-action-flash,
+.sc-action-flash * {
+  pointer-events: none !important;
+}
 
 .sc-action-flash {
   position: fixed;
@@ -6,39 +11,180 @@
   top: 72px;
   transform: translateX(-50%);
   z-index: 60;
-  pointer-events: none;
   user-select: none;
 }
 
 .sc-action-flash-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
+  gap: 7px;
+  padding: 4px 14px 4px 10px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: #fef9c3;
-  background: rgba(6, 78, 59, 0.92);
+  background: rgba(6, 78, 59, 0.95);
   border: 1px solid #fbbf24;
-  box-shadow: 0 0 14px rgba(251, 191, 36, 0.45);
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
   animation: sc-action-flash-pop 900ms cubic-bezier(0.22, 1, 0.36, 1) 1 forwards;
 }
 
+.sc-action-flash-chip.is-build {
+  background: rgba(6, 78, 59, 0.95);
+  border-color: #fbbf24;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 .sc-action-flash-chip.is-train {
-  background: rgba(127, 29, 29, 0.92);
+  background: rgba(127, 29, 29, 0.95);
+  border-color: #fca5a5;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .sc-action-flash-chip.is-trade {
-  background: rgba(30, 58, 138, 0.92);
+  background: rgba(30, 58, 138, 0.95);
+  border-color: #93c5fd;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Atmospheric radial halo blooming out behind the confirmation pill */
+.sc-action-flash-halo {
+  position: absolute;
+  inset: -6px -12px;
+  border-radius: 999px;
+  z-index: -1;
+  opacity: 0;
+  animation: sc-action-flash-halo-pulse 900ms cubic-bezier(0.22, 1, 0.36, 1) 1 forwards;
+}
+
+.sc-action-flash-halo.is-build {
+  background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.5) 0%, rgba(251, 191, 36, 0.3) 50%, transparent 75%);
+  filter: blur(4px);
+}
+
+.sc-action-flash-halo.is-train {
+  background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.5) 0%, rgba(251, 191, 36, 0.3) 50%, transparent 75%);
+  filter: blur(4px);
+}
+
+.sc-action-flash-halo.is-trade {
+  background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.5) 0%, rgba(251, 191, 36, 0.3) 50%, transparent 75%);
+  filter: blur(4px);
+}
+
+/* Subtle diagonal light shimmer sweep across the chip */
+.sc-action-flash-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  mask-image: radial-gradient(circle, white 100%, transparent 100%);
+}
+
+.sc-action-flash-shimmer::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 30%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(254, 240, 138, 0.45) 65%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  animation: sc-action-flash-shimmer-sweep 900ms cubic-bezier(0.22, 1, 0.36, 1) 1 forwards;
+}
+
+/* Glyph and spark positioning */
+.sc-action-flash-glyph-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .sc-action-flash-glyph {
   font-size: 14px;
   line-height: 1;
+  transform-origin: center;
+  filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.6));
 }
 
+.sc-action-flash-label {
+  line-height: 1;
+}
+
+/* Living vector spark / starburst glint */
+.sc-action-flash-spark-pip {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  width: 15px;
+  height: 15px;
+  transform-origin: center;
+  animation: sc-action-flash-spark-twinkle 900ms cubic-bezier(0.16, 1, 0.3, 1) 1 forwards;
+  filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.8));
+}
+
+.sc-action-flash-spark-pip.is-train {
+  filter: drop-shadow(0 0 3px rgba(248, 113, 113, 0.8));
+}
+
+.sc-action-flash-spark-pip.is-trade {
+  filter: drop-shadow(0 0 3px rgba(96, 165, 250, 0.8));
+}
+
+/* Micro spark motes orbiting the chip */
+.sc-action-flash-sparks {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.sc-action-flash-spark-mote {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.sc-action-flash-spark-mote.is-top {
+  top: -2px;
+  left: 22%;
+  background: #fef08a;
+  box-shadow: 0 0 6px #fde047;
+  animation: sc-action-flash-mote-top 900ms ease-out 1 forwards;
+}
+
+.sc-action-flash-spark-mote.is-bottom {
+  bottom: -3px;
+  right: 25%;
+  background: #fef08a;
+  box-shadow: 0 0 6px #fde047;
+  animation: sc-action-flash-mote-bottom 900ms ease-out 1 forwards;
+}
+
+.sc-action-flash-spark-mote.is-trail {
+  top: 50%;
+  right: -4px;
+  background: #ffffff;
+  box-shadow: 0 0 6px #fbbf24;
+  animation: sc-action-flash-mote-trail 900ms ease-out 1 forwards;
+}
+
+/* Animations */
 @keyframes sc-action-flash-pop {
   0% {
     opacity: 0;
@@ -46,7 +192,7 @@
   }
   18% {
     opacity: 1;
-    transform: translateY(0) scale(1.08);
+    transform: translateY(0) scale(1.06);
   }
   40% {
     opacity: 1;
@@ -61,8 +207,151 @@
   }
 }
 
+@keyframes sc-action-flash-halo-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes sc-action-flash-shimmer-sweep {
+  0% {
+    left: -60%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  55% {
+    left: 120%;
+    opacity: 0.8;
+  }
+  100% {
+    left: 140%;
+    opacity: 0;
+  }
+}
+
+@keyframes sc-action-flash-spark-twinkle {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(-45deg);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1.35) rotate(15deg);
+  }
+  38% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  65% {
+    opacity: 0.9;
+    transform: scale(1.08) rotate(10deg);
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.6) rotate(35deg);
+  }
+}
+
+@keyframes sc-action-flash-mote-top {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-3px, -5px) scale(1.2);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translate(-6px, -9px) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-8px, -13px) scale(0.2);
+  }
+}
+
+@keyframes sc-action-flash-mote-bottom {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(4px, 4px) scale(1.3);
+  }
+  65% {
+    opacity: 0.7;
+    transform: translate(7px, 7px) scale(0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(10px, 10px) scale(0.2);
+  }
+}
+
+@keyframes sc-action-flash-mote-trail {
+  0% {
+    opacity: 0;
+    transform: translate(0, -50%) scale(0.4);
+  }
+  22% {
+    opacity: 1;
+    transform: translate(5px, -50%) scale(1.2);
+  }
+  70% {
+    opacity: 0.6;
+    transform: translate(9px, -50%) scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(13px, -50%) scale(0.1);
+  }
+}
+
+/* Reduced motion accessibility guard */
 @media (prefers-reduced-motion: reduce) {
+  .sc-action-flash-chip,
+  .sc-action-flash-halo,
+  .sc-action-flash-shimmer::after,
+  .sc-action-flash-spark-pip,
+  .sc-action-flash-spark-mote {
+    animation: none !important;
+  }
   .sc-action-flash-chip {
-    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .sc-action-flash-halo {
+    opacity: 0.5;
+    transform: none;
+  }
+  .sc-action-flash-spark-pip {
+    opacity: 1;
+    transform: none;
+  }
+  .sc-action-flash-spark-mote {
+    display: none;
   }
 }

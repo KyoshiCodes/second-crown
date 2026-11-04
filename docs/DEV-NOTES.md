@@ -1,3 +1,26 @@
+## 2026-11-04 — app / living action confirmation flash and spark treatment (bakeoff/gemini-flash)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Spark & Flash Design:
+  - `ActionSparkPip` in `packages/app/src/hud/ActionFlash.tsx`: 15px living SVG spark starburst positioned on the corner of `.sc-action-flash-glyph-wrap`.
+  - Action-specific heraldic motifs:
+    - `build`: 4-point forge diamond spark with 4 diagonal micro-rays and warm ember aura.
+    - `train`: elongated blade glint star with crossed clash diagonals and martial ruby-red stroke.
+    - `trade`: 8-point faceted coin spark with sapphire rim and specular white center.
+  - Chip atmospheric layering:
+    - Base pill `.sc-action-flash-chip` with high-contrast text (`#fef9c3`), gold leaf border, and action-tinted shadow.
+    - Radial atmospheric halo `.sc-action-flash-halo.is-${kind}` blooming outward behind the pill (`sc-action-flash-halo-pulse`).
+    - Diagonal specular light sweep `.sc-action-flash-shimmer` traversing the pill surface (`sc-action-flash-shimmer-sweep`).
+    - Orbiting micro spark motes `.sc-action-flash-spark-mote` (`is-top`, `is-bottom`, `is-trail`) drifting outward during entry (`sc-action-flash-mote-*`).
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/hud/action-flash.css`.
+  - `.sc-action-flash, .sc-action-flash *` enforces `pointer-events: none !important;` so UI clicks are never intercepted.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations and hides decorative particle motes while preserving readable static confirmation.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/hud/ActionFlash.test.tsx` (13 tests) verifies empty initial state, chip labels, brief timing, distinct vector charges per kind, living halo/shimmer/motes DOM structure, CSS keyframes, pointer-events safety, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 277 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-04 — app / action confirmation flash (wave/action-flash)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.

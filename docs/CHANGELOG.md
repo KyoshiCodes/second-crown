@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-11-04 — Living action confirmation flash and spark treatment (bakeoff/gemini-flash)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `ActionFlash.tsx` & `action-flash.css`:
+  - Living spark & starburst treatment: added `ActionSparkPip` providing distinct vector glints for each action confirmation:
+    - `build`: warm golden forge craftsmanship spark with cardinal diamond rays, white-hot core, and forge micro-sparks (`#d97706`, `#fef08a`).
+    - `train`: sharp silver-steel martial clash star with ruby-crimson edge and crossed diagonal clash glints (`#ef4444`, `#fca5a5`, `#ffffff`).
+    - `trade`: faceted 8-point gold coin spark with sapphire prosperity aura and specular glint (`#2563eb`, `#fef08a`, `#ffffff`).
+  - Atmospheric radial halo: `.sc-action-flash-halo.is-${kind}` blooms softly outward behind the chip upon confirmation, diffusing into the background.
+  - Specular light sweep: `.sc-action-flash-shimmer` sweeps diagonally across the confirmation pill at the peak of the animation.
+  - Orbiting micro-sparks: `.sc-action-flash-sparks` emits three delicate spark motes (`is-top`, `is-bottom`, `is-trail`) that drift and fade smoothly.
+  - Strict style isolation & click safety: `pointer-events: none !important;` enforced on `.sc-action-flash` and all children. `@media (prefers-reduced-motion: reduce)` motion guard stops animations cleanly. Zero changes to `theme.css`.
+- Tests: updated `ActionFlash.test.tsx` (13 tests) verifying distinct SVG charges, halo, shimmer, spark motes, isolated CSS keyframes, pointer-events, and reduced motion safety. All 82 sim suites (323 tests), 62 app suites (277 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-04 — Action confirmation flash (wave/action-flash)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

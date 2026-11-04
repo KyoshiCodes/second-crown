@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Living action confirmation flash and spark treatment (bakeoff/gemini-flash)
+
+- **Living action spark.** When you build, train, or trade, your confirmation badge now sparkles with an authentic living starburst tailored to the action:
+  - **Built:** a glowing golden forge diamond with radiating ember sparks.
+  - **Trained:** a sharp martial blade glint with crossed steel clash rays.
+  - **Traded:** a radiant 8-point gold coin spark with sapphire shimmer.
+- **Atmospheric glow.** A subtle colored halo pulses softly behind the badge and a delicate light sweep glides across the pill, giving clear and satisfying visual feedback without distracting from the game.
+- **Never blocks clicks.** The badge and all its sparks are purely decorative overlays and will never block or intercept your clicks.
+- **Play is unchanged.** Visual feedback only; building placement, recruitment, and trading mechanics are untouched.
+
 ## 2026-11-04 — Action confirmation flash (wave/action-flash)
 
 - **See when it worked.** When you place a building, queue troops, or make a trade, a small badge pops up near the top of the screen: **Built**, **Trained**, or **Traded**. It fades away in under a second.
