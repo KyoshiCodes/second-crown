@@ -1,3 +1,25 @@
+## 2026-11-04 — app / living academy pace glyph next to the academy pace line (bakeoff/gemini-academy-pace)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Academy Pace Glyph Design:
+  - `AcademyPaceGlyphPip` in `packages/app/src/AcademyPace.tsx`: 16px living SVG academy colonnade positioned on `.sc-academy-pace-glyph-wrap` immediately preceding the academy pace text on the Kingdom tab.
+  - State illumination:
+    - `on` (`academyRateOn(state)` true): classical amethyst colonnade and pediment with illuminated sanctuary arch, wisdom spire, twinkling apex beacon star (`.sc-academy-pace-star`), speed pips, and breathing lavender-violet aura (`.sc-academy-pace-aura`).
+    - `off` (`academyRateOn(state)` false): quiet slate and pewter foundation with unbuilt architectural framework awaiting academy construction.
+    - `allKnown` (`!nextAcademyUnlock(state)`): master academy laurel wreath with triumphant amethyst star.
+  - Motion & Aesthetics:
+    - `.sc-academy-pace-breathe`: gentle 2.4s pulsating ambient lavender/amethyst aura when running with an active Academy.
+    - `.sc-academy-pace-float`: subtle vertical hover (1px) keeping the colonnade alive, with slightly faster rhythm when active.
+    - `.sc-academy-pace-twinkle`: delicate brightness and scale cycle on the wisdom beacon star.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/academy-pace.css`.
+  - `.sc-academy-pace-glyph-wrap, .sc-academy-pace-glyph-wrap *` enforces `pointer-events: none !important;` so clicks or text selections are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/AcademyPace.test.tsx` (10 tests) verifies off/on/all-known heraldic glyph renderings, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 342 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-04 — app / academy pace on the Kingdom tab (wave/academy-pace)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.

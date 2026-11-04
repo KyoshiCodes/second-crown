@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-04 — Living academy pace glyph next to the academy pace line (bakeoff/gemini-academy-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `AcademyPace.tsx` & `academy-pace.css`:
+  - Added `AcademyPaceGlyphPip`: a 16px living academy colonnade and wisdom glyph rendered inline before the academy pace line text on the Kingdom tab.
+  - State-aware pace and academy presentation:
+    - `on` (Academy built and active): classical amethyst colonnade and pediment with illuminated sanctuary arch, wisdom spire, twinkling apex beacon star (`.sc-academy-pace-star`), speed pips, and breathing lavender-violet aura (`.sc-academy-pace-aura`).
+    - `off` (No Academy built yet, base rate): quiet slate and pewter foundation with unbuilt architectural framework awaiting academy construction.
+    - `allKnown` (All academy studies known): master academy laurel wreath with triumphant amethyst star.
+  - Subtle living animations: gentle vertical float (`sc-academy-pace-float`), breathing luminous aura (`sc-academy-pace-breathe`), and twinkling wisdom star (`sc-academy-pace-twinkle`).
+  - Strict style isolation & click safety: `.sc-academy-pace-glyph-wrap, .sc-academy-pace-glyph-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `AcademyPace.test.tsx` (10 tests) verifying glyph states (off/base, on/active, all-known), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 70 app suites (342 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-04 — Academy pace on the Kingdom tab (wave/academy-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

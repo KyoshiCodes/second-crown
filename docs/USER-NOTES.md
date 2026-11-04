@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Living academy pace glyph next to the academy pace line (bakeoff/gemini-academy-pace)
+
+- **Living academy glyph.** A miniature living academy colonnade now sits right beside the Kingdom tab's academy pace line:
+  - **Academy active:** a radiant amethyst colonnade and classical pediment with an illuminated sanctuary arch, wisdom spire, twinkling apex beacon star, and breathing lavender-violet aura.
+  - **No Academy built:** a quiet slate foundation and unbuilt framework waiting for an Academy to be raised.
+  - **All academy studies known:** a master scholastic laurel wreath with a triumphant amethyst star.
+- **Subtle and aligned.** The glyph aligns cleanly with the text row without shifting surrounding lines or cluttering the layout.
+- **Never blocks clicks.** The glyph is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; study times, academy bonuses, and research requirements are untouched.
+
 ## 2026-11-04 — Academy pace on the Kingdom tab (wave/academy-pace)
 
 - **Academy line.** The Kingdom tab now shows one line about your Academy, for example "Academy · no Academy, base rate · next academy study Husbandry (18s)".
