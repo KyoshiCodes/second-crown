@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Living action sound glyph and acoustic pulse (bakeoff/gemini-sound)
+
+- **See the sound.** When you place a building, train troops, or trade, a living acoustic sound glyph now appears right beside the confirmation text, pulsing with radiating sound waves:
+  - **Built:** a glowing forge chime emitter sending warm golden resonance waves into the air.
+  - **Trained:** a heraldic clarion war-horn sounding with sharp ruby and steel acoustic wavefronts.
+  - **Traded:** a coin chime bell ringing with sapphire and gold harmonic waves.
+- **Acoustic ripple.** A soft colored sound pulse ring ripples outward as the chime plays, visually echoing the audio stinger.
+- **Never blocks clicks.** The sound glyph and acoustic pulse are strictly visual overlays and never block clicks.
+- **Play is unchanged.** Visual audio feedback only; costs and rules remain the same.
+
 ## 2026-11-04 — Action confirmation sound (wave/action-sound)
 
 - **Hear when it worked.** Placing a building, queuing troops, or making a trade now plays a short chime along with the **Built / Trained / Traded** badge.

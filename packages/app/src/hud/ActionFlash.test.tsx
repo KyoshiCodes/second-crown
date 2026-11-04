@@ -6,6 +6,7 @@ import {
   ActionFlash,
   ActionFlashChip,
   ActionSparkPip,
+  ActionSoundPip,
   type ActionFlashKind,
 } from "./ActionFlash";
 
@@ -44,7 +45,7 @@ describe("ActionFlash", () => {
   });
 });
 
-describe("ActionSparkPip and Living Treatment", () => {
+describe("ActionSparkPip and ActionSoundPip Living Treatment", () => {
   const KINDS: ActionFlashKind[] = ["build", "train", "trade"];
 
   it.each(KINDS)("renders distinct living spark pip for %s", (kind) => {
@@ -56,7 +57,7 @@ describe("ActionSparkPip and Living Treatment", () => {
     expect(html).toContain('aria-hidden="true"');
   });
 
-  it("renders distinct vector charges for build, train, and trade", () => {
+  it("renders distinct vector charges for build, train, and trade sparks", () => {
     const buildHtml = renderToStaticMarkup(<ActionSparkPip kind="build" />);
     const trainHtml = renderToStaticMarkup(<ActionSparkPip kind="train" />);
     const tradeHtml = renderToStaticMarkup(<ActionSparkPip kind="trade" />);
@@ -74,7 +75,36 @@ describe("ActionSparkPip and Living Treatment", () => {
     expect(tradeHtml).toContain("#fef08a");
   });
 
-  it.each(KINDS)("integrates living halo, shimmer, and motes into %s chip", (kind) => {
+  it.each(KINDS)("renders distinct living sound glyph for %s", (kind) => {
+    const html = renderToStaticMarkup(<ActionSoundPip kind={kind} size={14} />);
+    expect(html).toContain("<svg");
+    expect(html).toContain(`data-sound-kind="${kind}"`);
+    expect(html).toContain(`is-${kind}`);
+    expect(html).toContain("sc-action-sound-wave is-inner");
+    expect(html).toContain("sc-action-sound-wave is-outer");
+    expect(html).toContain('style="pointer-events:none"');
+    expect(html).toContain('aria-hidden="true"');
+  });
+
+  it("renders distinct acoustic sound heraldry for build, train, and trade", () => {
+    const buildHtml = renderToStaticMarkup(<ActionSoundPip kind="build" />);
+    const trainHtml = renderToStaticMarkup(<ActionSoundPip kind="train" />);
+    const tradeHtml = renderToStaticMarkup(<ActionSoundPip kind="trade" />);
+
+    // Build: forge chime cone with amber stroke
+    expect(buildHtml).toContain("#d97706");
+    expect(buildHtml).toContain("#fef08a");
+
+    // Train: clarion war-horn emitter with ruby/crimson tones
+    expect(trainHtml).toContain("#ef4444");
+    expect(trainHtml).toContain("#b91c1c");
+
+    // Trade: coin bell chime emitter with sapphire resonance waves
+    expect(tradeHtml).toContain("#2563eb");
+    expect(tradeHtml).toContain("#93c5fd");
+  });
+
+  it.each(KINDS)("integrates living halo, shimmer, motes, and sound pulse into %s chip", (kind) => {
     const html = renderToStaticMarkup(<ActionFlashChip kind={kind} />);
 
     // Radial atmospheric halo
@@ -83,7 +113,7 @@ describe("ActionSparkPip and Living Treatment", () => {
     // Specular diagonal shimmer sweep
     expect(html).toContain('class="sc-action-flash-shimmer"');
 
-    // Glyph container with companion spark pip
+    // Action glyph container with companion spark pip
     expect(html).toContain('class="sc-action-flash-glyph-wrap"');
     expect(html).toContain(`data-spark-kind="${kind}"`);
 
@@ -92,6 +122,11 @@ describe("ActionSparkPip and Living Treatment", () => {
     expect(html).toContain("is-top");
     expect(html).toContain("is-bottom");
     expect(html).toContain("is-trail");
+
+    // Sound glyph wrap with acoustic pulse
+    expect(html).toContain('class="sc-action-sound-wrap"');
+    expect(html).toContain(`class="sc-action-sound-pulse is-${kind}"`);
+    expect(html).toContain(`data-sound-kind="${kind}"`);
   });
 
   it("enforces strict isolated styles, keyframes, and reduced-motion safety in action-flash.css", () => {
@@ -100,7 +135,7 @@ describe("ActionSparkPip and Living Treatment", () => {
     // Strict pointer-events safety
     expect(css).toMatch(/\.sc-action-flash[\s\S]*?pointer-events:\s*none\s*!important/);
 
-    // Living keyframes
+    // Spark & chip living keyframes
     expect(css).toContain("@keyframes sc-action-flash-pop");
     expect(css).toContain("@keyframes sc-action-flash-halo-pulse");
     expect(css).toContain("@keyframes sc-action-flash-shimmer-sweep");
@@ -109,11 +144,18 @@ describe("ActionSparkPip and Living Treatment", () => {
     expect(css).toContain("@keyframes sc-action-flash-mote-bottom");
     expect(css).toContain("@keyframes sc-action-flash-mote-trail");
 
+    // Sound glyph & acoustic wave pulse keyframes
+    expect(css).toContain("@keyframes sc-action-sound-vibe");
+    expect(css).toContain("@keyframes sc-action-sound-wave-inner");
+    expect(css).toContain("@keyframes sc-action-sound-wave-outer");
+    expect(css).toContain("@keyframes sc-action-sound-pulse");
+
     // Reduced motion guard
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
 
     // No leakage into theme.css
     const themeCss = readCssFile("../theme.css");
     expect(themeCss).not.toContain("sc-action-flash");
+    expect(themeCss).not.toContain("sc-action-sound");
   });
 });

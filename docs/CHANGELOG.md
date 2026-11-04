@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-04 — Living action sound glyph and acoustic pulse (bakeoff/gemini-sound)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `ActionFlash.tsx` & `action-flash.css`:
+  - Added `ActionSoundPip`: a living acoustic sound glyph positioned next to the action confirmation text label, visually celebrating the audio stinger with radiating acoustic wave arcs:
+    - `build`: resonant stone & forge chime emitter with radiating golden amber acoustic wave arcs (`#d97706`, `#fef08a`).
+    - `train`: martial clarion war-horn with ruby/steel acoustic wavefront arcs (`#ef4444`, `#fca5a5`, `#fef08a`).
+    - `trade`: coin bell chime emitter with sapphire & gold resonance wave arcs (`#2563eb`, `#93c5fd`, `#fef08a`).
+  - Radiating acoustic pulse ring: `.sc-action-sound-pulse.is-${kind}` radiates outward in expanding rings from the sound glyph, timed with the Web Audio stinger's acoustic envelope.
+  - Subtle acoustic recoil: `.sc-action-sound-pip` vibrates gently (`sc-action-sound-vibe`) upon emission, mimicking acoustic resonance.
+  - Strict style isolation & click safety: `pointer-events: none !important;` enforced on `.sc-action-sound-wrap`, `.sc-action-sound-pulse`, SVG paths, and all nested elements. `@media (prefers-reduced-motion: reduce)` motion guard disables animations cleanly. Zero changes to `theme.css`.
+- Tests: updated `ActionFlash.test.tsx` (17 tests) verifying distinct sound heraldry per kind, inner/outer acoustic wave arcs, sound wrap and pulse DOM integration, isolated CSS keyframes, pointer-events safety, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 63 app suites (286 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-04 — Action confirmation sound (wave/action-sound)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No new CSS. Game rules unchanged.

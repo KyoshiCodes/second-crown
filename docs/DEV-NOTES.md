@@ -1,3 +1,26 @@
+## 2026-11-04 — app / living action sound glyph and acoustic pulse (bakeoff/gemini-sound)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed. No audio assets.
+- Living Sound Glyph & Acoustic Pulse Design:
+  - `ActionSoundPip` in `packages/app/src/hud/ActionFlash.tsx`: 14px living SVG sound glyph positioned on `.sc-action-sound-wrap` after the confirmation text label.
+  - Heraldic acoustic motifs:
+    - `build`: forge chime cone / acoustic bell emitting dual golden resonance arcs.
+    - `train`: clarion war-horn emitter with ruby/steel wavefront arcs.
+    - `trade`: coin bell chime emitter with sapphire & gold resonance arcs.
+  - Motion & Acoustic Sync:
+    - `sc-action-sound-vibe`: subtle acoustic recoil/tilt timed with Web Audio attack.
+    - `sc-action-sound-wave-inner` / `sc-action-sound-wave-outer`: concentric wave arcs expanding outward with staggered delays (18% and 28%).
+    - `sc-action-sound-pulse`: expanding circular acoustic ring centered on the sound glyph, blooming from scale 0.6 to 3.0 before dissipating into the background.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/hud/action-flash.css`.
+  - `.sc-action-flash, .sc-action-flash *` enforces `pointer-events: none !important;` so UI clicks are never intercepted.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, hides acoustic pulse rings, and shows static sound glyph without movement.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/hud/ActionFlash.test.tsx` (17 tests) verifies empty initial state, chip labels, brief timing, distinct spark and sound SVG charges per kind, living halo/shimmer/motes/sound-pulse DOM structure, CSS keyframes, pointer-events safety, and absence of `theme.css` leakage.
+  - `packages/app/src/actionSound.test.ts` (5 tests) verifies Web Audio tone mapping and `flashAction` single-fire.
+  - Full suite passes: `npm test` (323 sim, 286 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-04 — app / action confirmation sound (wave/action-sound)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math. No audio assets.

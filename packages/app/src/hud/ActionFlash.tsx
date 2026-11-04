@@ -1,6 +1,6 @@
 import React from "react";
-import "./action-flash.css";
 import { playActionSound } from "../sfx";
+import "./action-flash.css";
 
 /** Which successful action the flash confirms. UI only — no game math. */
 export type ActionFlashKind = "build" | "train" | "trade";
@@ -22,14 +22,11 @@ const GLYPH: Record<ActionFlashKind, string> = {
   trade: "⚖",
 };
 
-/**
- * Call only after a build, train, or trade has already succeeded.
- * Shows the flash chip and plays the short confirmation tone (sfx.ts).
- */
+/** Call only after a build, train, or trade has already succeeded. Plays sound and dispatches flash event. */
 export function flashAction(kind: ActionFlashKind): void {
+  playActionSound(kind);
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent<ActionFlashKind>(EVENT, { detail: kind }));
-  playActionSound(kind);
 }
 
 export interface ActionSparkPipProps {
@@ -124,7 +121,139 @@ export function ActionSparkPip({
   );
 }
 
-/** Pure view for one flash with living spark and aura treatment. Exported for tests. */
+export interface ActionSoundPipProps {
+  kind: ActionFlashKind;
+  size?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+/**
+ * Living acoustic sound glyph next to the action confirmation:
+ * - build: stone & forge resonant chime emitter with radiant gold acoustic arcs
+ * - train: martial clarion war-horn with sharp crimson & steel acoustic wave arcs
+ * - trade: silver coin bell chime emitter with sapphire & gold resonance wave arcs
+ */
+export function ActionSoundPip({
+  kind,
+  size = 14,
+  className = "",
+  style,
+}: ActionSoundPipProps) {
+  const classes = ["sc-action-sound-pip", `is-${kind}`, className]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width={size}
+      height={size}
+      className={classes}
+      style={{ pointerEvents: "none", ...style }}
+      aria-hidden="true"
+      data-sound-kind={kind}
+    >
+      {kind === "build" && (
+        <>
+          {/* Forge chime sound cone / bell */}
+          <path
+            d="M2.5 6.2 L4.8 6.2 L7.8 3.8 L7.8 12.2 L4.8 9.8 L2.5 9.8 Z"
+            fill="#fef08a"
+            stroke="#d97706"
+            strokeWidth="0.6"
+            strokeLinejoin="round"
+          />
+          {/* Core acoustic tone pip */}
+          <circle cx="5" cy="8" r="0.8" fill="#ffffff" />
+          {/* Radiating acoustic wave arcs */}
+          <path
+            d="M10 5.6 C11.5 6.8 11.5 9.2 10 10.4"
+            fill="none"
+            stroke="#fef08a"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            className="sc-action-sound-wave is-inner"
+          />
+          <path
+            d="M12.4 3.8 C14.6 5.6 14.6 10.4 12.4 12.2"
+            fill="none"
+            stroke="#fde68a"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            className="sc-action-sound-wave is-outer"
+          />
+        </>
+      )}
+
+      {kind === "train" && (
+        <>
+          {/* Clarion war-horn emitter */}
+          <path
+            d="M2.5 6.2 L4.8 6.2 L7.8 3.8 L7.8 12.2 L4.8 9.8 L2.5 9.8 Z"
+            fill="#ffffff"
+            stroke="#ef4444"
+            strokeWidth="0.6"
+            strokeLinejoin="round"
+          />
+          {/* War-horn mouthpiece ring */}
+          <line x1="2.2" y1="6.8" x2="2.2" y2="9.2" stroke="#b91c1c" strokeWidth="0.7" />
+          {/* Steel/ruby acoustic wavefront arcs */}
+          <path
+            d="M10 5.6 C11.5 6.8 11.5 9.2 10 10.4"
+            fill="none"
+            stroke="#fca5a5"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            className="sc-action-sound-wave is-inner"
+          />
+          <path
+            d="M12.4 3.8 C14.6 5.6 14.6 10.4 12.4 12.2"
+            fill="none"
+            stroke="#fef08a"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            className="sc-action-sound-wave is-outer"
+          />
+        </>
+      )}
+
+      {kind === "trade" && (
+        <>
+          {/* Coin bell chime emitter */}
+          <path
+            d="M2.5 6.2 L4.8 6.2 L7.8 3.8 L7.8 12.2 L4.8 9.8 L2.5 9.8 Z"
+            fill="#fef08a"
+            stroke="#2563eb"
+            strokeWidth="0.6"
+            strokeLinejoin="round"
+          />
+          {/* Silver bell clapper core */}
+          <circle cx="5" cy="8" r="0.8" fill="#ffffff" />
+          {/* Sapphire resonance waves */}
+          <path
+            d="M10 5.6 C11.5 6.8 11.5 9.2 10 10.4"
+            fill="none"
+            stroke="#93c5fd"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            className="sc-action-sound-wave is-inner"
+          />
+          <path
+            d="M12.4 3.8 C14.6 5.6 14.6 10.4 12.4 12.2"
+            fill="none"
+            stroke="#fef08a"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            className="sc-action-sound-wave is-outer"
+          />
+        </>
+      )}
+    </svg>
+  );
+}
+
+/** Pure view for one flash with living spark, sound glyph, and pulse treatment. Exported for tests. */
 export function ActionFlashChip(props: { kind: ActionFlashKind; flashKey?: number }) {
   const { kind, flashKey = 0 } = props;
   return (
@@ -140,18 +269,24 @@ export function ActionFlashChip(props: { kind: ActionFlashKind; flashKey?: numbe
           <span className="sc-action-flash-spark-mote is-bottom" />
           <span className="sc-action-flash-spark-mote is-trail" />
         </span>
-        {/* Glyph with corner living spark pip */}
+        {/* Action Craft Glyph with corner living spark pip */}
         <span className="sc-action-flash-glyph-wrap">
           <span className="sc-action-flash-glyph">{GLYPH[kind]}</span>
           <ActionSparkPip kind={kind} size={15} />
         </span>
+        {/* Action text label */}
         <span className="sc-action-flash-label">{LABEL[kind]}</span>
+        {/* Living acoustic sound glyph and resonant pulse */}
+        <span className="sc-action-sound-wrap" aria-hidden="true">
+          <span className={`sc-action-sound-pulse is-${kind}`} />
+          <ActionSoundPip kind={kind} size={14} />
+        </span>
       </span>
     </div>
   );
 }
 
-/** Mount once. Listens for flashAction() and shows a brief confirmation chip with living spark treatment. */
+/** Mount once. Listens for flashAction() and shows a brief confirmation chip with living spark & sound pulse. */
 export function ActionFlash() {
   const [flash, setFlash] = React.useState<{ kind: ActionFlashKind; n: number } | null>(null);
 
