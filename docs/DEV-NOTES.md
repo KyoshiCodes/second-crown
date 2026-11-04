@@ -1,3 +1,11 @@
+## 2026-11-04 — app / market hint on the Kingdom tab (wave/market-hint)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `MarketHint.tsx` exports `nextTrade(state)` and `tradeCostText(offer)`. Both read only the sim `MARKET_OFFERS` table, `canTrade`, and `countBuilding`.
+- Selection: null with no finished Market. Otherwise the first offer in `MARKET_OFFERS` order where `canTrade` is true; if none, `MARKET_OFFERS[0]` with `ready: false`. Uses `canTrade` directly, so it stays in step with `hud/OfferCard.tsx` and the sim.
+- Display: the offer's own `label` plus its `give` side as the cost (`"<n> <res>"` join, same as `DecreeHint`).
+- Verification: `MarketHint.test.tsx` (6 tests). `npm test` (sim 323, app 323, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-04 — app / living decree seal on the decree hint line (bakeoff/gemini-decree-hint)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.

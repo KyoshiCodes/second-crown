@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Market hint on the Kingdom tab (wave/market-hint)
+
+- **Next trade.** The Kingdom tab now shows one line with the next Market trade you can make and what it costs, for example "Next trade · 8 gold → 25 food · costs 8 gold".
+- **Short on stores.** If you cannot pay for any trade yet, the line says "not enough in stores". With no Market built, it tells you to build one.
+- **Read only.** Trade with the Market cards further down the tab as before. Prices and rules are the same.
+
 ## 2026-11-04 — Living decree seal on the decree hint line (bakeoff/gemini-decree-hint)
 
 - **Living royal seal.** A miniature living heraldic wax seal now rests beside the Kingdom tab's decree hint line:

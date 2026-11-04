@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-04 — Market hint on the Kingdom tab (wave/market-hint)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `MarketHint` line on Kingdom, under the decree hint: next trade and its cost, read from the sim `MARKET_OFFERS` table. If stores cannot cover it, the line says so. With no Market built, it says to build one.
+- Picks the first offer in table order that the sim `canTrade` allows now; otherwise the first offer, marked short.
+- Styles in new `market-hint.css`.
+- Tests: new `MarketHint.test.tsx` (6 tests). Sim 323, app 323, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Living decree seal on the decree hint line (bakeoff/gemini-decree-hint)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

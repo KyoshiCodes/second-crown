@@ -1,0 +1,16 @@
+/* Market hint line on the Kingdom tab. Read-only text. Do not touch theme.css. */
+
+.sc-market-hint {
+  font-size: 12px;
+  opacity: 0.85;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.sc-market-hint strong {
+  font-weight: 600;
+}
+
+.sc-market-hint.is-ready strong {
+  color: #fef08a;
+}

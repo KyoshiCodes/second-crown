@@ -52,6 +52,7 @@ import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
 import { ResearchHint } from "../ResearchHint";
 import { DecreeHint } from "../DecreeHint";
+import { MarketHint } from "../MarketHint";
 import { CultureLine } from "../CultureLine";
 import { AgeLine } from "../AgeLine";
 import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
@@ -212,6 +213,7 @@ export function KingdomTab(props: {
       <CultureLine state={state} act={act} />
       <AgeLine state={state} />
       <DecreeHint state={state} />
+      <MarketHint state={state} />
       <p style={{ fontSize: 12, opacity: 0.75 }}>
         People labor /tick · food {labor.food} · wood {labor.wood} · stone {labor.stone} · gold {labor.gold}. Assign jobs on People.
       </p>
