@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-04 — Academy pace on the Kingdom tab (wave/academy-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `AcademyPace` line on Kingdom, under the research pace line: the Academy rate (on or base, from sim `researchDuration`, labelled with `LECTERN_STUDY_MULT`) and the next study an Academy can open, with its length at the current pace and its keep gate.
+- Styles in new `academy-pace.css`.
+- Tests: new `AcademyPace.test.tsx` (5 tests). Sim 323, app 342, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Living research pace glyph next to the research pace line (bakeoff/gemini-research-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Academy pace on the Kingdom tab (wave/academy-pace)
+
+- **Academy line.** The Kingdom tab now shows one line about your Academy, for example "Academy · no Academy, base rate · next academy study Husbandry (18s)".
+- **Academy rate.** With a finished Academy the line says "new studies 20% shorter" and the time shown is the shorter Academy time.
+- **Next academy study.** Names the next study an Academy can open that you do not know yet. If it needs a bigger keep, the line says so (for example "needs Keep II"). When you know them all, it says so.
+- **Read only.** Start studies from the lectern as before. Times and rules are the same.
+
 ## 2026-11-04 — Living research pace glyph next to the research pace line (bakeoff/gemini-research-pace)
 
 - **Living scholar glyph.** A miniature living astrolabe now sits right beside the Kingdom tab's research pace line:

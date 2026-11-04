@@ -1,0 +1,16 @@
+/* Academy pace line on the Kingdom tab. Do not touch theme.css. */
+
+.sc-academy-pace {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.sc-academy-pace strong {
+  font-weight: 600;
+}
+
+.sc-academy-pace.is-on strong:first-of-type {
+  color: #c4b5fd;
+}

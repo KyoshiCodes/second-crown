@@ -1,3 +1,12 @@
+## 2026-11-04 — app / academy pace on the Kingdom tab (wave/academy-pace)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `AcademyPace.tsx` exports `academyRateOn(state)`, `academyRateText()`, `nextAcademyUnlock(state)`. They read only `RESEARCH`, `LECTERN_STUDY_MULT`, `researchDuration`, `researchDone`, `researchKeepMin`, `researchKeepReady`.
+- Rate on/off: `researchDuration(state, firstId) < RESEARCH[firstId].ticks`, same test as `ResearchPace.fastPace`. It follows the sim's `countBuilding` check, not the realm-filtered `hallRoomBuilt`. The label reuses the keep hall lectern wording (`Math.round((1 - LECTERN_STUDY_MULT) * 100)`% shorter).
+- Next academy unlock: first `RESEARCH` entry in table order whose `needsAny` includes `"academy"` and is not `researchDone`. Siege craft never qualifies (needs a siege workshop). Keep gate shown as "needs Keep II" etc. when `researchKeepReady` is false.
+- Seconds use `Math.ceil(ticks / 10)`, same as `StudyLine`.
+- Verification: `AcademyPace.test.tsx` (5 tests). `npm test` (sim 323, app 342, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-04 — app / living research pace glyph next to the research pace line (bakeoff/gemini-research-pace)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.

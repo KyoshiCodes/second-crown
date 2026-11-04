@@ -52,6 +52,7 @@ import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
 import { ResearchHint } from "../ResearchHint";
 import { ResearchPace } from "../ResearchPace";
+import { AcademyPace } from "../AcademyPace";
 import { DecreeHint } from "../DecreeHint";
 import { MarketHint } from "../MarketHint";
 import { CultureLine } from "../CultureLine";
@@ -212,6 +213,7 @@ export function KingdomTab(props: {
       <StudyLine state={state} />
       <ResearchHint state={state} />
       <ResearchPace state={state} />
+      <AcademyPace state={state} />
       <CultureLine state={state} act={act} />
       <AgeLine state={state} />
       <DecreeHint state={state} />
