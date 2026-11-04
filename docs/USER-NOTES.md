@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Research hint on the Kingdom tab (wave/research-hint)
+
+- **What to study next.** The Kingdom tab now shows one line with your next study and what it costs, for example "Next study · Husbandry · 20 food, 12 wood".
+- **What is missing.** If you cannot start it yet, the line says what you still need, like a farm or Keep 2.
+- **Read only.** Start studies from the lectern as before. Costs and rules are the same.
+
 ## 2026-11-04 — Living action sound glyph and acoustic pulse (bakeoff/gemini-sound)
 
 - **See the sound.** When you place a building, train troops, or trade, a living acoustic sound glyph now appears right beside the confirmation text, pulsing with radiating sound waves:

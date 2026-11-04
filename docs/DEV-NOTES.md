@@ -1,3 +1,12 @@
+## 2026-11-04 — app / research hint on the Kingdom tab (wave/research-hint)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `ResearchHint.tsx` exports `nextResearch(state)` and `researchCostText(id)`. Both read only the sim `RESEARCH` table and existing helpers (`researchDone`, `researchTicksLeft`, `researchKeepReady`, `researchKeepMin`, `countBuilding`).
+- Selection: first id in `RESEARCH` key order that is not done and not underway; a ready one (hall built and Keep gate met) wins over an earlier locked one. Hall list logic mirrors `needList` in `ResearchBar.tsx`; keep the two in step if the research def shape changes.
+- Cost text uses the same `"<n> <res>"` join as `ResearchBar`. No duration shown, to keep the line short.
+- Note: `researchDone` / `researchTicksLeft` may set the `research_<id>` flag when a study has finished. That is existing behavior, same as `StudyLine` and `ResearchBar`.
+- Verification: `ResearchHint.test.tsx` (5 tests). `npm test` (sim 323, app 291, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-04 — app / living action sound glyph and acoustic pulse (bakeoff/gemini-sound)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed. No audio assets.

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-04 — Research hint on the Kingdom tab (wave/research-hint)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `ResearchHint` line on Kingdom, under the Studies line: next study name and cost, read from the sim `RESEARCH` table. If its hall or Keep level is missing, the line says which.
+- Picks the first unknown, not-underway study in table order, preferring one that can start now. Says "every study known" when none remain.
+- Styles in new `research-hint.css`.
+- Tests: new `ResearchHint.test.tsx` (5 tests). Sim 323, app 291, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Living action sound glyph and acoustic pulse (bakeoff/gemini-sound)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

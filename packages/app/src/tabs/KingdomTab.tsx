@@ -50,6 +50,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { PeoplePanel } from "../PeoplePanel";
 import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
+import { ResearchHint } from "../ResearchHint";
 import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
@@ -204,6 +205,7 @@ export function KingdomTab(props: {
         {tithe.food} · wood {tithe.wood} · stone {tithe.stone} · gold {tithe.gold}.
       </p>
       <StudyLine state={state} />
+      <ResearchHint state={state} />
       <p style={{ fontSize: 12, opacity: 0.75 }}>
         People labor /tick · food {labor.food} · wood {labor.wood} · stone {labor.stone} · gold {labor.gold}. Assign jobs on People.
       </p>

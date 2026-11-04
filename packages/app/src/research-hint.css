@@ -1,0 +1,12 @@
+/* Research hint line on the Kingdom tab. Read-only text. */
+.sc-research-hint {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 4px 0;
+}
+.sc-research-hint strong {
+  font-weight: 600;
+}
+.sc-research-hint.is-ready strong {
+  color: #fef08a;
+}
