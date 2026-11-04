@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-04 — Living decree seal on the decree hint line (bakeoff/gemini-decree-hint)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `DecreeHint.tsx` & `decree-hint.css`:
+  - Added `DecreeSealPip`: a 16px living royal wax seal rendered inline before the decree hint line text on the Kingdom tab.
+  - State-aware heraldic wax seal presentations:
+    - `ready` (stores can cover decree): molten golden-vermilion wax seal with breathing aura (`.sc-decree-seal-aura`), royal hanging ribbon tails, decree signet emblem (crossed blades for `muster`, wheat sheaf for `rite`, treaty scroll for `envoys`), and twinkling apex wax glint (`.sc-decree-seal-star`).
+    - `locked` (`!ready`): deep carmine pressed wax seal with indented matrix, quiet ribbons, and muted signet charge, quietly awaiting treasury stores.
+    - `isDone`: imperial triumph crown signet in warm gold with master ribbons and crown gem when all royal decrees have been sworn.
+  - Subtle living animations: gentle vertical float (`sc-decree-seal-float`), breathing luminous aura (`sc-decree-seal-breathe`), and twinkling apex glint (`sc-decree-seal-twinkle`).
+  - Strict style isolation & click safety: `.sc-decree-seal-wrap, .sc-decree-seal-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `DecreeHint.test.tsx` (10 tests) verifying glyph states (ready, locked, done), decree charges (`muster`, `rite`, `envoys`), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 67 app suites (317 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-04 — Decree hint on the Kingdom tab (wave/decree-hint)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Living decree seal on the decree hint line (bakeoff/gemini-decree-hint)
+
+- **Living royal seal.** A miniature living heraldic wax seal now rests beside the Kingdom tab's decree hint line:
+  - **Ready to Swear:** a glowing molten wax seal with warm golden ribbon tails, shining breathing aura, tailored decree signet (swords for Muster, wheat for Harvest Rite, treaty scroll for Envoys), and a twinkling wax glint.
+  - **Saving stores:** a deep carmine stamped wax seal quietly waiting until your granary or treasury has enough resources.
+  - **All decrees sworn:** an imperial crown seal celebrating full realm enactment.
+- **Subtle and aligned.** The seal fits neatly into the text row without shifting surrounding lines or cluttering the interface.
+- **Never blocks clicks.** The seal is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; decree costs, durations, and effects are untouched.
+
 ## 2026-11-04 — Decree hint on the Kingdom tab (wave/decree-hint)
 
 - **Next decree.** The Kingdom tab now shows one line with the next decree you can swear and what it costs, for example "Next decree · Muster the Host · 40 gold".

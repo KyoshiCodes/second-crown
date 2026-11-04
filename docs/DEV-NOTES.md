@@ -1,3 +1,25 @@
+## 2026-11-04 — app / living decree seal on the decree hint line (bakeoff/gemini-decree-hint)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Decree Seal Design:
+  - `DecreeSealPip` in `packages/app/src/DecreeHint.tsx`: 16px living SVG wax seal positioned on `.sc-decree-seal-wrap` immediately preceding the decree hint text on the Kingdom tab.
+  - Heraldic illumination states:
+    - `ready` (stores can cover decree): molten vermilion/golden wax seal disc with dual hanging ribbon tails, milled beaded matrix depression, breathing aura (`.sc-decree-seal-aura`), tailored vector signet charges (crossed blades for `muster`, wheat sheaf for `rite`, parchment treaty scroll for `envoys`), and twinkling apex wax glint star (`.sc-decree-seal-star`).
+    - `locked` (`!ready`, insufficient stores): deep carmine stamped wax seal with indented matrix and steady burgundy ribbon tails.
+    - `isDone` (all decrees sworn): imperial triumph crown seal with golden ribbons and apex crown gem.
+  - Motion & Aesthetics:
+    - `.sc-decree-seal-breathe`: gentle 2.4s pulsating ambient gold glow when ready to swear.
+    - `.sc-decree-seal-float`: subtle vertical hover (1px) keeping the seal alive.
+    - `.sc-decree-seal-twinkle`: delicate brightness and scale cycle on the wax glint.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/decree-hint.css`.
+  - `.sc-decree-seal-wrap, .sc-decree-seal-wrap *` enforces `pointer-events: none !important;` so clicks or selections are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/DecreeHint.test.tsx` (10 tests) verifies ready/locked/done heraldic seal renderings, decree charges, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 317 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-04 — app / decree hint on the Kingdom tab (wave/decree-hint)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.

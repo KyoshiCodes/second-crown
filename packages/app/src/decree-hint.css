@@ -1,12 +1,105 @@
-/* Decree hint line on the Kingdom tab. Read-only text. */
+/* Decree hint line on the Kingdom tab. Read-only text. Do not touch theme.css. */
+
 .sc-decree-hint {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-size: 12px;
-  opacity: 0.8;
+  opacity: 0.85;
   margin: 4px 0;
+  line-height: 1.4;
 }
+
 .sc-decree-hint strong {
   font-weight: 600;
 }
+
 .sc-decree-hint.is-ready strong {
   color: #fef08a;
+}
+
+/* Living Decree Seal */
+.sc-decree-seal-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-decree-seal-wrap,
+.sc-decree-seal-wrap * {
+  pointer-events: none !important;
+}
+
+.sc-decree-seal {
+  display: block;
+  pointer-events: none !important;
+  overflow: visible;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  animation: sc-decree-seal-float 3.5s ease-in-out infinite;
+}
+
+/* Ready state: golden breathing aura */
+.sc-decree-seal-aura {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.45) 0%, rgba(220, 38, 38, 0.2) 55%, transparent 75%);
+  pointer-events: none !important;
+  animation: sc-decree-seal-breathe 2.4s ease-in-out infinite;
+}
+
+/* Seal apex glint twinkle */
+.sc-decree-seal-star {
+  animation: sc-decree-seal-twinkle 2s ease-in-out infinite;
+  transform-origin: 8px 3.3px;
+}
+
+/* Keyframes */
+@keyframes sc-decree-seal-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes sc-decree-seal-breathe {
+  0%, 100% {
+    transform: scale(0.92);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.95;
+  }
+}
+
+@keyframes sc-decree-seal-twinkle {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .sc-decree-seal,
+  .sc-decree-seal-aura,
+  .sc-decree-seal-star {
+    animation: none !important;
+    transform: none !important;
+  }
+  .sc-decree-seal-aura {
+    opacity: 0.4;
+    transform: none;
+  }
 }
