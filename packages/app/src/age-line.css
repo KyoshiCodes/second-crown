@@ -1,0 +1,16 @@
+/* Age line on the Kingdom tab. Do not touch theme.css. */
+
+.sc-age-line {
+  font-size: 12px;
+  opacity: 0.85;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.sc-age-line strong {
+  font-weight: 600;
+}
+
+.sc-age-line.is-ready strong {
+  color: #fef08a;
+}

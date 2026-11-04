@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-04 — Age line on the Kingdom tab (wave/age-line)
+
+- **Your age at a glance.** The Kingdom tab now shows one line with your current age and what the next one needs, for example "Age · Dawn 0 · next age at 30K total resources."
+- **Ready hint.** When you have enough, the line says so. You still ascend from the Second Dawn card on the Crown tab.
+- **Nothing changed in the rules.** The line only shows numbers the game already had.
+
 ## 2026-11-04 — Culture line on the Kingdom tab (wave/culture-picker)
 
 - **Your culture at a glance.** The Kingdom tab now shows one line with your current culture, for example "Culture · Crown Marches · next Cedar Kin".

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-04 — Age line on the Kingdom tab (wave/age-line)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New read-only `AgeLine` on Kingdom, under the culture line: current age as "Dawn N" and the next-age requirement in total resources.
+- Values come straight from the sim: `flags.prestige_level`, `ascendThreshold`, `canAscend`. Shared holds say they have no Second Dawn.
+- Styles in new `age-line.css`.
+- Tests: new `AgeLine.test.tsx` (3 tests). Sim 323, app 302, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Culture line on the Kingdom tab (wave/culture-picker)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

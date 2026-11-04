@@ -1,3 +1,11 @@
+## 2026-11-04 — app / age line on the Kingdom tab (wave/age-line)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- "Age" here is the prestige level (`flags.prestige_level`), labelled "Dawn N" to match `hud/DawnCard.tsx`. Requirement is `ascendThreshold(state)` formatted with `formatLetterSuffix`; ready state is `canAscend(state)`. If the sim's ascend rule changes, this line follows automatically.
+- Shared-hold check uses `sharedRealmId` from `game/settleOnLoad`, same as `DawnCard`.
+- Class names: `sc-age-line` (+ `is-ready`) in `age-line.css`. Data attributes `data-dawn` / `data-ready` for tests.
+- Verification: `AgeLine.test.tsx` (3 tests). `npm test` (sim 323, app 302, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-04 — app / culture line on the Kingdom tab (wave/culture-picker)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
