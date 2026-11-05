@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-05 — Training pace on the Army tab (wave/training-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `TrainingPace` line on Army, above the unit cards: how long 10 militia take to drill now (sim `trainDurationTicks`) against the base time (unit `trainTicks`), and the next locked unit with the study that opens it.
+- `lockNote` moved from `tabs/ArmyTab.tsx` into `TrainingPace.tsx` and imported back, so the unit cards and the line share one copy.
+- Styles in new `training-pace.css`.
+- Tests: new `TrainingPace.test.tsx` (5 tests). Sim 323, app 352, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-04 — Living academy pace glyph next to the academy pace line (bakeoff/gemini-academy-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

@@ -30,17 +30,7 @@ import { UpkeepLine } from "../UpkeepLine";
 import { UnitCard } from "../hud/UnitCard";
 import type { ActFn } from "../game/useGameEngine";
 import { flashAction } from "../hud/ActionFlash";
-
-function lockNote(id: string): string {
-  if (id === "cavalry" || id === "knight") return "Study Horse lore on Crown (Keep II).";
-  if (id === "siege") return "Study Siege craft on Crown (Keep III + workshop).";
-  if (id === "ranger") return "Study Fieldcraft on Crown (Archery Range or Academy).";
-  if (id === "banner") return "Study Drill on Crown (Barracks or Academy).";
-  if (id === "outrider") return "Study Horse lore on Crown (Keep II).";
-  if (id === "warden") return "Study Screening on Crown (Barracks or Academy).";
-  if (id === "lancer") return "Study Horse lore on Crown (Keep II).";
-  return "";
-}
+import { TrainingPace, lockNote } from "../TrainingPace";
 
 export function ArmyTab(props: {
   state: GameState | undefined;
@@ -81,6 +71,7 @@ export function ArmyTab(props: {
         {rangeN ? " · Range −10% archers/rangers" : ""}
         {shopN ? " · Workshop −15% siege" : ""}
       </span>
+      <TrainingPace state={state} />
       <div className="sc-unit-grid">
         {unitTypes.map((u) => {
           const ticks = state ? trainDurationTicks(state, u.id, trainQty) : u.trainTicks * trainQty;

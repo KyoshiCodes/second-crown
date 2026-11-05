@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-05 — Training pace on the Army tab (wave/training-pace)
+
+- **Training line.** The Army tab now shows one line above the unit cards, for example "Training · 10 militia in 15s (base rate) · next unit Banner · Study Drill on Crown (Barracks or Academy)".
+- **Training rate.** With Barracks (or a bigger keep) the time drops and the base time is shown next to it.
+- **Next unit.** Names the next unit you cannot train yet and the study that opens it. When every unit is open, it says so.
+- **Read only.** Train from the unit cards as before. Times and rules are the same.
+
 ## 2026-11-04 — Living academy pace glyph next to the academy pace line (bakeoff/gemini-academy-pace)
 
 - **Living academy glyph.** A miniature living academy colonnade now sits right beside the Kingdom tab's academy pace line:

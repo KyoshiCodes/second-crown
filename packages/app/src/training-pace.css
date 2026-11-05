@@ -1,0 +1,16 @@
+/* Training pace line on the Army tab. Do not touch theme.css. */
+
+.sc-training-pace {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 6px 0 4px;
+  line-height: 1.4;
+}
+
+.sc-training-pace strong {
+  font-weight: 600;
+}
+
+.sc-training-pace.is-fast strong:first-of-type {
+  color: #86efac;
+}

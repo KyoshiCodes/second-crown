@@ -1,3 +1,11 @@
+## 2026-11-05 — app / training pace on the Army tab (wave/training-pace)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `TrainingPace.tsx` exports `trainingPace(state)`, `nextUnitUnlock(state)`, `lockNote(id)`, `PACE_UNIT` (`militia`), `PACE_COUNT` (10). They read only `listUnitTypes`, `trainDurationTicks`, `unitUnlocked`.
+- Rate: `trainDurationTicks(state, "militia", 10)` against `trainTicks * 10`. Faster when barracks or the keep gate `trainSpeed` apply; the line then shows both times. A batch of 10 keeps the `Math.ceil(ticks / 10)` seconds from rounding the difference away.
+- Next unit: first entry of `listUnitTypes()` (roster order) where `unitUnlocked` is false. The study text comes from `lockNote`, now living in `TrainingPace.tsx` (was private in `ArmyTab.tsx`); `ArmyTab` imports it, so there is still one copy.
+- Verification: `TrainingPace.test.tsx` (5 tests). `npm test` (sim 323, app 352, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-04 — app / living academy pace glyph next to the academy pace line (bakeoff/gemini-academy-pace)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
