@@ -1,3 +1,25 @@
+## 2026-11-05 — app / living training pace glyph next to the training pace line (bakeoff/gemini-training-pace)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Training Pace Glyph Design:
+  - `TrainingPaceGlyphPip` in `packages/app/src/TrainingPace.tsx`: 16px living SVG crossed training blades positioned on `.sc-training-pace-glyph-wrap` immediately preceding the training pace text on the Army tab.
+  - State illumination:
+    - `fast` (`now < base`): crossed steel drill blades with gold pommels and crossguards, outer emerald drill ring, 4 cardinal speed ticks, radiant apex clash diamond star (`.sc-training-pace-star`), and breathing emerald-gold martial aura (`.sc-training-pace-aura`).
+    - `base` (`now >= base`): quiet slate drill ring with crossed practice foils, bronze pommels, and center practice boss.
+    - `allUnlocked` (`!next`): master martial laurel wreath with gilded victory blades and triumphant emerald star.
+  - Motion & Aesthetics:
+    - `.sc-training-pace-breathe`: gentle 2.4s pulsating ambient emerald/gold aura when training at an accelerated pace.
+    - `.sc-training-pace-float`: subtle vertical hover (1px) keeping the blades alive, with slightly faster rhythm when fast.
+    - `.sc-training-pace-twinkle`: delicate brightness and scale cycle on the clash apex star.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/training-pace.css`.
+  - `.sc-training-pace-glyph-wrap, .sc-training-pace-glyph-wrap *` enforces `pointer-events: none !important;` so clicks or text selections are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/TrainingPace.test.tsx` (10 tests) verifies base/fast/all-unlocked heraldic glyph renderings, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 357 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-05 — app / training pace on the Army tab (wave/training-pace)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.

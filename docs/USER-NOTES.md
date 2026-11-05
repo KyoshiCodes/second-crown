@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-05 — Living training pace glyph next to the training pace line (bakeoff/gemini-training-pace)
+
+- **Living training glyph.** A miniature living martial blade glyph now sits right beside the Army tab's training pace line:
+  - **Fast training:** crossed steel drill blades with golden crossguards, speed ticks, an apex clash star, and a breathing emerald-gold martial aura.
+  - **Base rate:** quiet slate drill ring with crossed practice foils and bronze pommels.
+  - **All units unlocked:** master martial laurel wreath with gilded victory blades and a triumphant emerald star.
+- **Subtle and aligned.** The glyph aligns cleanly with the text row without shifting surrounding lines or cluttering the layout.
+- **Never blocks clicks.** The glyph is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; drill durations, barracks speed bonuses, and recruitment rules are untouched.
+
 ## 2026-11-05 — Training pace on the Army tab (wave/training-pace)
 
 - **Training line.** The Army tab now shows one line above the unit cards, for example "Training · 10 militia in 15s (base rate) · next unit Banner · Study Drill on Crown (Barracks or Academy)".

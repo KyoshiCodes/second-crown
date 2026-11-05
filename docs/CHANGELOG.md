@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-11-05 — Living training pace glyph next to the training pace line (bakeoff/gemini-training-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `TrainingPace.tsx` & `training-pace.css`:
+  - Added `TrainingPaceGlyphPip`: a 16px living crossed training blades glyph rendered inline before the training pace line text on the Army tab.
+  - State-aware martial drill presentation:
+    - `fast` (Accelerated barracks drilling): crossed steel drill blades with gold pommels and crossguards, outer emerald drill ring, 4 cardinal speed drill ticks, radiant apex clash diamond star (`.sc-training-pace-star`), and breathing emerald-gold martial aura (`.sc-training-pace-aura`).
+    - `base` (Standard militia drilling): quiet slate drill ring with crossed practice foils, bronze pommels, and center practice boss.
+    - `allUnlocked` (All roster units unlocked): master martial laurel wreath with gilded victory blades and triumphant emerald star.
+  - Subtle living animations: gentle vertical float (`sc-training-pace-float`), breathing luminous aura (`sc-training-pace-breathe`), and twinkling martial star (`sc-training-pace-twinkle`).
+  - Strict style isolation & click safety: `.sc-training-pace-glyph-wrap, .sc-training-pace-glyph-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `TrainingPace.test.tsx` (10 tests) verifying glyph states (base, fast, all-unlocked), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 71 app suites (357 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-05 — Training pace on the Army tab (wave/training-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
