@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-05 — Upkeep pace on the Army tab (wave/upkeep-pace)
+
+- **Upkeep line.** The Army tab now shows one line under the training line, for example "Upkeep · 0.40 food/tick (4.0/s, 20 mouths) · next change in 12s: +10 militia from the barracks".
+- **Next change.** Names the next troops that will join and add to what the army eats: a finished levy from the barracks, or a healed soldier from the infirmary. With nothing queued it says "no change queued".
+- **Read only.** Food costs and rules are the same.
+
 ## 2026-11-05 — Living training pace glyph next to the training pace line (bakeoff/gemini-training-pace)
 
 - **Living training glyph.** A miniature living martial blade glyph now sits right beside the Army tab's training pace line:

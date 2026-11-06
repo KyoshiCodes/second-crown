@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-05 — Upkeep pace on the Army tab (wave/upkeep-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `UpkeepPace` line on Army, under the training pace line: current food upkeep (sim `upkeepPerTick`, `armyMouths`) and the next queued change (earliest player training job or healed wounded, from `listTraining` / `listHealing`).
+- Styles in new `upkeep-pace.css`.
+- Tests: new `UpkeepPace.test.tsx` (5 tests). Sim 323, app 362, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-05 — Living training pace glyph next to the training pace line (bakeoff/gemini-training-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

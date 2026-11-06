@@ -1,3 +1,11 @@
+## 2026-11-05 — app / upkeep pace on the Army tab (wave/upkeep-pace)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `UpkeepPace.tsx` exports `UpkeepPace` and `nextUpkeepChange(state)`. It reads only `upkeepPerTick`, `armyMouths`, `listTraining`, `listHealing`, and `TICKS_PER_SECOND`.
+- Next change: earliest `doneTick` among player training jobs (champion filtered out, matching `armyMouths`) and heal jobs. Training adds `job.count` of `job.typeId`; a heal adds 1 militia (`deliverMilitia`). Ties go to training. Seconds use `Math.ceil(ticks / 10)`, same as the barracks queue.
+- Deliberately does not show the post-change rate: that would mean repeating the `0.02` food-per-mouth constant from `systems/upkeep.ts` in the app. Losses (battle, starvation) are not predictable from state, so they are not shown.
+- Verification: `UpkeepPace.test.tsx` (5 tests). `npm test` (sim 323, app 362, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-05 — app / living training pace glyph next to the training pace line (bakeoff/gemini-training-pace)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.

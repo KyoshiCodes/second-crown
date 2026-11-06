@@ -31,6 +31,7 @@ import { UnitCard } from "../hud/UnitCard";
 import type { ActFn } from "../game/useGameEngine";
 import { flashAction } from "../hud/ActionFlash";
 import { TrainingPace, lockNote } from "../TrainingPace";
+import { UpkeepPace } from "../UpkeepPace";
 
 export function ArmyTab(props: {
   state: GameState | undefined;
@@ -72,6 +73,7 @@ export function ArmyTab(props: {
         {shopN ? " · Workshop −15% siege" : ""}
       </span>
       <TrainingPace state={state} />
+      <UpkeepPace state={state} />
       <div className="sc-unit-grid">
         {unitTypes.map((u) => {
           const ticks = state ? trainDurationTicks(state, u.id, trainQty) : u.trainTicks * trainQty;
