@@ -1,0 +1,16 @@
+/* Wall pace line on the Kingdom tab. Do not touch theme.css. */
+
+.sc-wall-pace {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.sc-wall-pace strong {
+  font-weight: 600;
+}
+
+.sc-wall-pace.is-rising strong:last-of-type {
+  color: #fbbf24;
+}

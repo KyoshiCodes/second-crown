@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-06 — Wall pace on the Kingdom tab (wave/wall-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `WallPace` line on Kingdom, under the vision pace line: current wall HP (sim `wallHp`) and the next queued wall change (earliest player wall section or gate under construction).
+- Styles in new `wall-pace.css`.
+- Tests: new `WallPace.test.tsx` (4 tests). Sim 323, app 381, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-06 — Living vision pace glyph next to the vision pace line (bakeoff/gemini-vision-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

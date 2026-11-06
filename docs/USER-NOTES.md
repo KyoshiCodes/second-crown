@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-06 — Wall pace on the Kingdom tab (wave/wall-pace)
+
+- **Wall line.** The Kingdom tab now shows one line under the vision line, for example "Wall pace · wall HP 48 · next change in 9s: a wall section finishes".
+- **Next change.** Names the next wall section or gate being built that will change your wall HP. With nothing queued it says "no change queued".
+- **Read only.** Wall rules are the same.
+
 ## 2026-11-06 — Living vision pace glyph next to the vision pace line (bakeoff/gemini-vision-pace)
 
 - **Living vision glyph.** A miniature living scout aperture glyph now sits right beside the Kingdom tab's vision pace line:

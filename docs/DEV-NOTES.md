@@ -1,3 +1,12 @@
+## 2026-11-06 — app / wall pace on the Kingdom tab (wave/wall-pace)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `WallPace.tsx` exports `WallPace` and `nextWallChange(state)`. It reads only `wallHp`, `listWorksInProgress`, `buildTicksLeft`, and `TICKS_PER_SECOND`.
+- Next change: earliest player `walls` or `gate` under construction. Ties go walls, then gate. Seconds use `Math.ceil(ticks / 10)`.
+- Deliberately does not show the post-change HP (rim vs inner wall, ring close bonus, gate on rim; repeating that is game math). Masonry is not listed: `masonryWallBonus` feeds `defenseBonus`/`fortificationPower`, not `wallHp`.
+- Quirk noticed, not changed: `wallHp` counts inner walls with `countBuilding(state, "walls")`, which does not filter by realm. The line only lists the player's own works.
+- Verification: `WallPace.test.tsx` (4 tests). `npm test` (sim 323, app 381, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-06 — app / living vision pace glyph next to the vision pace line (bakeoff/gemini-vision-pace)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
