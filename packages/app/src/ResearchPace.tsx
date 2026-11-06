@@ -71,7 +71,7 @@ export function ResearchPaceGlyphPip({
   return (
     <span
       className={`sc-research-pace-glyph-wrap ${paceClass}${activeClass}${unlockedClass} ${className}`.trim()}
-      style={{ width: size, height: size, pointerEvents: "none", ...style }}
+      style={{ width: size, height: size, display: "inline-flex", flexShrink: 0, pointerEvents: "none", ...style }}
       aria-hidden="true"
       data-pace={fast ? "academy" : "base"}
       data-active={active ? "true" : "false"}

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-06 — Living research pace glyph next to research pace line (bakeoff/gemini-research-pace)
+
+- **Living research pace glyph:** Added inline SVG living celestial scholar armillary & astrolabe glyph to the research pace line on the Kingdom tab.
+- **Cadence & states:** Visual transitions across *Academy Pace* (radiant cyan knowledge ring, golden rim, speed ticks, breathing gold-cyan aura), *Base Pace* (pewter rim, brass meridian, coordinate pips), *Active Study* (illuminated central study beacon star with accelerated twinkle cadence), and *All Units Unlocked* (triumphant laurel wreath with 8-point stellar compass).
+- **Invariants:** Purely cosmetic; no modifications to `packages/sim` or `server`. Styles isolated to `research-pace.css` (zero changes to `theme.css`). Full reduced-motion accessibility and non-interactive overlay protection (`pointer-events: none`).
+
 ## 2026-11-06 — Living market pace glyph next to market pace line (bakeoff/gemini-market-pace)
 
 - **Living market pace glyph:** Added inline SVG living market canopy and scale glyph to the market pace line on the Kingdom tab.

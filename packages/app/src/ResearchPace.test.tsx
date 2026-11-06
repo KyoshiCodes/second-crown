@@ -90,7 +90,7 @@ describe("ResearchPaceGlyphPip Living Treatment", () => {
     expect(html).toContain("is-idle");
     expect(html).toContain('data-pace="base"');
     expect(html).toContain('data-active="false"');
-    expect(html).toContain('style="width:16px;height:16px;pointer-events:none"');
+    expect(html).toContain('style="width:16px;height:16px;display:inline-flex;flex-shrink:0;pointer-events:none"');
     expect(html).toContain('aria-hidden="true"');
     expect(html).not.toContain("sc-research-pace-aura");
     expect(html).not.toContain("sc-research-pace-star");
@@ -122,6 +122,8 @@ describe("Research pace styles and CSS isolation", () => {
     expect(css).toContain("@keyframes sc-research-pace-float");
     expect(css).toContain("@keyframes sc-research-pace-breathe");
     expect(css).toContain("@keyframes sc-research-pace-twinkle");
+    expect(css).toContain(".sc-research-pace-glyph-wrap.is-active .sc-research-pace-star");
+    expect(css).toContain(".sc-research-pace-glyph-wrap.is-all-unlocked .sc-research-pace-star");
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
   });
 

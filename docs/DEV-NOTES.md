@@ -1,3 +1,14 @@
+## 2026-11-06 — app / living research pace glyph (bakeoff/gemini-research-pace)
+
+- **ResearchPaceGlyphPip component:** Implemented in `packages/app/src/ResearchPace.tsx`. Inlined directly inside `.sc-research-pace-glyph-wrap` with `aria-hidden="true"` and dataset attributes (`data-pace`, `data-active`, `data-all-unlocked`, `data-unlock-id`).
+- **Glyph design:**
+  - `fast`: 16px SVG celestial armillary sphere with speed cardinal ticks, inclined cyan knowledge ring, golden rim, and breathing aura (`.sc-research-pace-aura`).
+  - `base`: Pewter outer ring with brass meridian and coordinate pips.
+  - `active`: Central study beacon star (`.sc-research-pace-star`) with tuned 1700ms twinkle cadence.
+  - `allUnlocked`: Master astrolabe laurel wreath with 8-point stellar compass.
+- **Styling:** Authored in `packages/app/src/research-pace.css`. `.sc-research-pace-glyph-wrap` and all children enforce `pointer-events: none !important;`. No modifications to `theme.css`. Full `prefers-reduced-motion` support.
+- **Tests:** `packages/app/src/ResearchPace.test.tsx` (10 tests) validating DOM structure, SVG element composition across states, non-interactivity, CSS keyframe declarations, and reduced-motion overrides.
+
 ## 2026-11-06 — app / living market pace glyph (bakeoff/gemini-market-pace)
 
 - **MarketPaceGlyphPip component:** Implemented in `packages/app/src/MarketPace.tsx`. Inlined directly inside `.sc-market-pace-glyph-wrap` with `aria-hidden="true"`.

@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-06 — Living research pace glyph next to research pace line (bakeoff/gemini-research-pace)
+
+- **Living scholar astrolabe:** When viewing the research pace line on the Kingdom tab, an expressive celestial astrolabe rests beside the speed and study status.
+- **Dynamic visual state:**
+  - When the Academy accelerates research, an illuminated golden armillary sphere with an inclined cyan knowledge ring and warm breathing aura marks the line.
+  - When researching at standard speed, a calm brass and pewter astrolabe keeps steady watch.
+  - While a study is underway on the lectern, a radiant star beacon illuminates the central study hub.
+  - Once every unit study is completed, a golden laurel triumph compass crowns the pace line.
+- **Accessibility:** Reduced-motion system preferences automatically quiet all celestial orbits and pulses into dignified static emblems.
+
 ## 2026-11-06 — Living market pace glyph next to market pace line (bakeoff/gemini-market-pace)
 
 - **Living trade canopy:** When viewing the market pace line on the Kingdom tab, an expressive market glyph rests beside the text.

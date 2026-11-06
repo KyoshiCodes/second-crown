@@ -64,6 +64,18 @@
   animation: sc-research-pace-twinkle 2200ms ease-in-out infinite;
 }
 
+.sc-research-pace-glyph-wrap.is-active .sc-research-pace-star {
+  animation: sc-research-pace-twinkle 1700ms ease-in-out infinite;
+}
+
+.sc-research-pace-glyph-wrap.is-all-unlocked .sc-research-pace-star {
+  animation: sc-research-pace-twinkle 2800ms ease-in-out infinite;
+}
+
+.sc-research-pace-glyph.is-fast line {
+  animation: sc-research-pace-twinkle 2000ms ease-in-out infinite alternate;
+}
+
 @keyframes sc-research-pace-float {
   0%, 100% {
     transform: translateY(0);
@@ -97,6 +109,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sc-research-pace-glyph,
+  .sc-research-pace-glyph.is-fast,
+  .sc-research-pace-glyph.is-fast line,
   .sc-research-pace-aura,
   .sc-research-pace-star {
     animation: none !important;
