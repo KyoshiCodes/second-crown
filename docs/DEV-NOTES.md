@@ -1,3 +1,24 @@
+## 2026-11-06 — app / living vision pace glyph next to the vision pace line (bakeoff/gemini-vision-pace)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Vision Pace Glyph Design:
+  - `VisionPaceGlyphPip` in `packages/app/src/VisionPace.tsx`: 16px living SVG horizon aperture positioned on `.sc-vision-pace-glyph-wrap` immediately preceding the vision pace text on the Kingdom tab.
+  - State illumination:
+    - `rising` (`next !== null`): radiant horizon aperture with glowing pupil iris, source charge (watchtower battlements, surveying compass cross, keep coronet), radiant apex beacon star (`.sc-vision-pace-star`), and breathing cyan aura (`.sc-vision-pace-aura`).
+    - `steady` (`next === null`): quiet slate horizon eye with calm pupil iris, lateral reference line, and vertical alignment pips.
+  - Motion & Aesthetics:
+    - `.sc-vision-pace-breathe`: gentle 2.4s pulsating ambient cyan/azure aura when vision expansion is scheduled to complete.
+    - `.sc-vision-pace-float`: subtle vertical hover (1px) keeping the horizon aperture alive, with slightly faster rhythm when rising.
+    - `.sc-vision-pace-twinkle`: delicate brightness and scale cycle on the beacon apex star.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/vision-pace.css`.
+  - `.sc-vision-pace-glyph-wrap, `.sc-vision-pace-glyph-wrap *` enforces `pointer-events: none !important;` so clicks or text selections are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/VisionPace.test.tsx` (10 tests) verifies steady/rising/source glyph renderings, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 377 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-06 — app / vision pace on the Kingdom tab (wave/vision-pace)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.

@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-11-06 — Living vision pace glyph next to the vision pace line (bakeoff/gemini-vision-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `VisionPace.tsx` & `vision-pace.css`:
+  - Added `VisionPaceGlyphPip`: a 16px living horizon aperture and scout beacon glyph rendered inline before the vision pace line text on the Kingdom tab.
+  - State-aware scout and reconnaissance illumination:
+    - `rising` (Next change queued, vision expanding soon): radiant horizon aperture with glowing pupil iris, source charge (watchtower battlements, surveying compass meridian, or keep coronet), radiant apex beacon diamond star (`.sc-vision-pace-star`), and breathing cyan aura (`.sc-vision-pace-aura`).
+    - `steady` (No change queued, vision range constant): quiet slate horizon eye with steady iris, lateral reference line, and quiet alignment pips.
+  - Subtle living animations: gentle vertical float (`sc-vision-pace-float`), breathing luminous aura (`sc-vision-pace-breathe`), and twinkling beacon star (`sc-vision-pace-twinkle`).
+  - Strict style isolation & click safety: `.sc-vision-pace-glyph-wrap, .sc-vision-pace-glyph-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `VisionPace.test.tsx` (10 tests) verifying glyph states (steady, rising, source charges for watchtower, surveying, keep), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 73 app suites (377 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-06 — Vision pace on the Kingdom tab (wave/vision-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

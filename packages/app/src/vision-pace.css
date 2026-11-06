@@ -1,6 +1,9 @@
-/* Vision pace line on the Kingdom tab. Do not touch theme.css. */
+/* Vision pace line and living glyph on the Kingdom tab. Do not touch theme.css. */
 
 .sc-vision-pace {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-size: 12px;
   opacity: 0.8;
   margin: 4px 0;
@@ -13,4 +16,92 @@
 
 .sc-vision-pace.is-rising strong:last-of-type {
   color: #7dd3fc;
+}
+
+/* Living vision pace glyph wrapper */
+.sc-vision-pace-glyph-wrap,
+.sc-vision-pace-glyph-wrap * {
+  pointer-events: none !important;
+}
+
+.sc-vision-pace-glyph-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  user-select: none;
+}
+
+/* Breathing sky-blue aura behind rising vision pace */
+.sc-vision-pace-aura {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(125, 211, 252, 0.45) 0%, rgba(14, 165, 233, 0.22) 55%, transparent 75%);
+  filter: blur(2px);
+  animation: sc-vision-pace-breathe 2400ms ease-in-out infinite alternate;
+}
+
+/* Living vision pace glyph */
+.sc-vision-pace-glyph {
+  display: block;
+  pointer-events: none !important;
+  overflow: visible;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  animation: sc-vision-pace-float 3.5s ease-in-out infinite;
+}
+
+.sc-vision-pace-glyph.is-rising {
+  animation: sc-vision-pace-float 2.6s ease-in-out infinite;
+}
+
+/* Twinkling beacon apex star */
+.sc-vision-pace-star {
+  transform-origin: 8px 2.5px;
+  animation: sc-vision-pace-twinkle 2200ms ease-in-out infinite;
+}
+
+@keyframes sc-vision-pace-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes sc-vision-pace-breathe {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes sc-vision-pace-twinkle {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-vision-pace-glyph,
+  .sc-vision-pace-aura,
+  .sc-vision-pace-star {
+    animation: none !important;
+  }
+  .sc-vision-pace-aura {
+    opacity: 0.6;
+  }
 }

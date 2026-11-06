@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-06 — Living vision pace glyph next to the vision pace line (bakeoff/gemini-vision-pace)
+
+- **Living vision glyph.** A miniature living scout aperture glyph now sits right beside the Kingdom tab's vision pace line:
+  - **Rising vision:** a radiant sky-blue horizon eye with a glowing pupil iris, charge detail for the incoming expansion (watchtower battlement crown, surveying meridian cross, or keep coronet), a twinkling apex beacon star, and a breathing cyan aura whenever a vision upgrade is underway.
+  - **Steady vision:** a quiet slate horizon eye with a steady iris and alignment pips when no vision expansion is queued.
+- **Subtle and aligned.** The glyph aligns cleanly with the text row without shifting surrounding lines or cluttering the layout.
+- **Never blocks clicks.** The glyph is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; vision ranges, fog-clearing distances, building queues, and study durations are untouched.
+
 ## 2026-11-06 — Vision pace on the Kingdom tab (wave/vision-pace)
 
 - **Vision line.** The Kingdom tab now shows one line under the academy line, for example "Vision pace · range 3 · next change in 12s: a watchtower finishes".
