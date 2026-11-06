@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-06 — Status chips for the selected province on the board (wave/board-status)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `BoardStatus` overlay on the map canvas, shown on the Board camera band when a province is selected: Owner, Stock (gather tiles), Garrison, Next event (soonest inbound column). Stacked at the canvas edge nearest the tile, never over the middle of the board, and click-through.
+- Styles in new `board-status.css` (breathing tone pip per chip, reduced-motion guard).
+- Tests: new `BoardStatus.test.tsx` (9 tests). Sim 323, app 406, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-06 — Living research pace glyph next to research pace line (bakeoff/gemini-research-pace)
 
 - **Living research pace glyph:** Added inline SVG living celestial scholar armillary & astrolabe glyph to the research pace line on the Kingdom tab.

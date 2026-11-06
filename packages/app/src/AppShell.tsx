@@ -7,6 +7,7 @@ import { SlotPips } from "./hud/SlotPip";
 import { SpeedControls } from "./HudControls";
 import { TutorialBanner } from "./TutorialBanner";
 import { ProvinceInspect } from "./ProvinceInspect";
+import { BoardStatus } from "./BoardStatus";
 import { KeepInterior } from "./KeepInterior";
 import { detectCurrentHoliday, getHolidayMeta, type HolidayId } from "./seasons/holidays";
 import { resolveActiveThemePack } from "./themes/packs";
@@ -198,6 +199,7 @@ export function AppShell() {
               className="sc-map-canvas"
               style={{ borderColor: activePack.chrome.borderColor }}
             />
+            <BoardStatus state={state} selectedId={selectedProvinceId} visible={cameraBand === "board"} />
             <div
               className="sc-map-controls"
               style={{

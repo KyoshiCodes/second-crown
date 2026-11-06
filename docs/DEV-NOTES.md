@@ -1,3 +1,10 @@
+## 2026-11-06 — app / board status chips (wave/board-status)
+
+- **Files:** `packages/app/src/BoardStatus.tsx` (exports `BoardStatus`, `boardStatusChips`, `boardStatusAnchor`), `packages/app/src/board-status.css`, test `BoardStatus.test.tsx`. Mounted in `AppShell.tsx` right after the map `<canvas>`, with `visible={cameraBand === "board"}`.
+- **Chips:** `owner` (home id / `occupantRealmId`, fog → Unknown), `stock` (seen gather tiles: `nodeStock`/`nodeStockMax` + `GATHER_NODES[node].resource`), `garrison` (`garrisonAt` force sum + `garrisonPower`; unseen → Unseen), `event` (earliest `listMarches` entry with `toId` = tile and `arrivesTick > tick`; rival columns only if seen; seconds via `TICKS_PER_SECOND`). 3 or 4 chips.
+- **Anchor:** `boardStatusAnchor` uses the iso layout (`x - y` across, `x + y` down) over `board.width`/`board.height` to choose the left/right canvas edge and a top % clamped to 6–78. It does not read camera pan/zoom (the renderer exposes no projection). If exact tile tracking is wanted later, add a `projectProvince(id)` getter to `MapRenderer` in `packages/render` and swap the anchor.
+- **CSS:** `.sc-board-status` absolute, z-index 4 (zoom controls are 5), `pointer-events: none`. Tone classes `tone-you|rival|warn|calm|fog` colour a breathing pip. `prefers-reduced-motion` disables animation. Narrow screens tighten the gutter. No `theme.css` changes.
+
 ## 2026-11-06 — app / living research pace glyph (bakeoff/gemini-research-pace)
 
 - **ResearchPaceGlyphPip component:** Implemented in `packages/app/src/ResearchPace.tsx`. Inlined directly inside `.sc-research-pace-glyph-wrap` with `aria-hidden="true"` and dataset attributes (`data-pace`, `data-active`, `data-all-unlocked`, `data-unlock-id`).

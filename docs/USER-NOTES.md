@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-06 — Status chips on the board (wave/board-status)
+
+- Pick a province while zoomed out to the board. A short stack of chips appears at the edge of the map, level with that tile.
+- The chips show who owns it, how much stock is left (wood, food or stone tiles), who is garrisoned there, and the next column due to arrive with a countdown.
+- Unscouted tiles show "Unknown" and "Unseen" instead of guessing.
+- The chips do not block clicks. Zoom back in to the hold and they hide.
+
 ## 2026-11-06 — Living research pace glyph next to research pace line (bakeoff/gemini-research-pace)
 
 - **Living scholar astrolabe:** When viewing the research pace line on the Kingdom tab, an expressive celestial astrolabe rests beside the speed and study status.
