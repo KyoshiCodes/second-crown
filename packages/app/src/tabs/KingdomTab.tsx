@@ -53,6 +53,7 @@ import { StudyLine } from "../StudyLine";
 import { ResearchHint } from "../ResearchHint";
 import { ResearchPace } from "../ResearchPace";
 import { AcademyPace } from "../AcademyPace";
+import { VisionPace } from "../VisionPace";
 import { DecreeHint } from "../DecreeHint";
 import { MarketHint } from "../MarketHint";
 import { CultureLine } from "../CultureLine";
@@ -214,6 +215,7 @@ export function KingdomTab(props: {
       <ResearchHint state={state} />
       <ResearchPace state={state} />
       <AcademyPace state={state} />
+      <VisionPace state={state} />
       <CultureLine state={state} act={act} />
       <AgeLine state={state} />
       <DecreeHint state={state} />

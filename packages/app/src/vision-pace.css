@@ -1,0 +1,16 @@
+/* Vision pace line on the Kingdom tab. Do not touch theme.css. */
+
+.sc-vision-pace {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.sc-vision-pace strong {
+  font-weight: 600;
+}
+
+.sc-vision-pace.is-rising strong:last-of-type {
+  color: #7dd3fc;
+}

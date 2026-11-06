@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-06 — Vision pace on the Kingdom tab (wave/vision-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `VisionPace` line on Kingdom, under the academy pace line: current vision range (sim `visionRange`) and the next queued vision change (earliest player watchtower under construction, the Surveying study, or a first keep when the culture grants keep vision).
+- Styles in new `vision-pace.css`.
+- Tests: new `VisionPace.test.tsx` (5 tests). Sim 323, app 372, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-05 — Living upkeep pace glyph next to the upkeep pace line (bakeoff/gemini-upkeep-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

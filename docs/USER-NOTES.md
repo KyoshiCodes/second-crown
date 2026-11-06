@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-06 — Vision pace on the Kingdom tab (wave/vision-pace)
+
+- **Vision line.** The Kingdom tab now shows one line under the academy line, for example "Vision pace · range 3 · next change in 12s: a watchtower finishes".
+- **Next change.** Names the next thing that will widen how far your hold sees: a watchtower being built, the Surveying study, or (for Peak culture) your first keep. With nothing queued it says "no change queued".
+- **Read only.** Vision rules are the same.
+
 ## 2026-11-05 — Living upkeep pace glyph next to the upkeep pace line (bakeoff/gemini-upkeep-pace)
 
 - **Living upkeep glyph.** A miniature living sustenance grain glyph now sits right beside the Army tab's upkeep pace line:

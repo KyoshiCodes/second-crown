@@ -1,3 +1,12 @@
+## 2026-11-06 — app / vision pace on the Kingdom tab (wave/vision-pace)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `VisionPace.tsx` exports `VisionPace` and `nextVisionChange(state)`. It reads only `visionRange`, `listWorksInProgress`, `buildTicksLeft`, `researchTicksLeft`, `keepLevel`, `keepVisionCultureBonus`, and `TICKS_PER_SECOND`.
+- Next change: earliest of player watchtowers under construction, `researchTicksLeft(state, "surveying")`, and (only when `keepLevel === 0` and `keepVisionCultureBonus > 0`) a player keep under construction. Ties go watchtower, surveying, keep. Seconds use `Math.ceil(ticks / 10)`.
+- Deliberately does not show the post-change range (a rim tower adds 2, an inner tower 1; repeating that is game math). Weather fog is not shown: `weatherFor` and `fogThickness` are not exported from `packages/sim`, and exporting them would be a sim change.
+- Quirk noticed, not changed: `visionRange` uses `countBuilding(state, "watchtower")`, which does not filter by realm. The line only lists the player's own towers.
+- Verification: `VisionPace.test.tsx` (5 tests). `npm test` (sim 323, app 372, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-05 — app / living upkeep pace glyph next to the upkeep pace line (bakeoff/gemini-upkeep-pace)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
