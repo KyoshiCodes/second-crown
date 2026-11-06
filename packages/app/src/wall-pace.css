@@ -1,6 +1,9 @@
-/* Wall pace line on the Kingdom tab. Do not touch theme.css. */
+/* Wall pace line and living glyph on the Kingdom tab. Do not touch theme.css. */
 
 .sc-wall-pace {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-size: 12px;
   opacity: 0.8;
   margin: 4px 0;
@@ -13,4 +16,92 @@
 
 .sc-wall-pace.is-rising strong:last-of-type {
   color: #fbbf24;
+}
+
+/* Living wall pace glyph wrapper */
+.sc-wall-pace-glyph-wrap,
+.sc-wall-pace-glyph-wrap * {
+  pointer-events: none !important;
+}
+
+.sc-wall-pace-glyph-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  user-select: none;
+}
+
+/* Breathing amber aura behind rising wall pace */
+.sc-wall-pace-aura {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.45) 0%, rgba(217, 119, 6, 0.22) 55%, transparent 75%);
+  filter: blur(2px);
+  animation: sc-wall-pace-breathe 2400ms ease-in-out infinite alternate;
+}
+
+/* Living wall pace glyph */
+.sc-wall-pace-glyph {
+  display: block;
+  pointer-events: none !important;
+  overflow: visible;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  animation: sc-wall-pace-float 3.5s ease-in-out infinite;
+}
+
+.sc-wall-pace-glyph.is-rising {
+  animation: sc-wall-pace-float 2.6s ease-in-out infinite;
+}
+
+/* Twinkling fortification apex star */
+.sc-wall-pace-star {
+  transform-origin: 8px 2.5px;
+  animation: sc-wall-pace-twinkle 2200ms ease-in-out infinite;
+}
+
+@keyframes sc-wall-pace-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes sc-wall-pace-breathe {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes sc-wall-pace-twinkle {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-wall-pace-glyph,
+  .sc-wall-pace-aura,
+  .sc-wall-pace-star {
+    animation: none !important;
+  }
+  .sc-wall-pace-aura {
+    opacity: 0.6;
+  }
 }

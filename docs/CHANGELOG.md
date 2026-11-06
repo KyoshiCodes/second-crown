@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-11-06 — Living wall pace glyph next to the wall pace line (bakeoff/gemini-wall-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `WallPace.tsx` & `wall-pace.css`:
+  - Added `WallPaceGlyphPip`: a 16px living stone rampart fortification glyph rendered inline before the wall pace line text on the Kingdom tab.
+  - State-aware wall and defensive architecture illumination:
+    - `rising` (Next change queued, wall HP rising soon): fortified golden masonry rampart, source charge (curtain wall merlons and arrow slit vs arched portcullis gatehouse with twin towers), radiant apex fortification diamond star (`.sc-wall-pace-star`), and breathing amber aura (`.sc-wall-pace-aura`).
+    - `steady` (No change queued, wall strength constant): quiet slate stone curtain wall with calm merlons, mortar joints, and center anchor pip.
+  - Subtle living animations: gentle vertical float (`sc-wall-pace-float`), breathing luminous aura (`sc-wall-pace-breathe`), and twinkling fortification star (`sc-wall-pace-twinkle`).
+  - Strict style isolation & click safety: `.sc-wall-pace-glyph-wrap, .sc-wall-pace-glyph-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `WallPace.test.tsx` (9 tests) verifying glyph states (steady, rising, source charges for walls and gate), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 74 app suites (386 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-06 — Wall pace on the Kingdom tab (wave/wall-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

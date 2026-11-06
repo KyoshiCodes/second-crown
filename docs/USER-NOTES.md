@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-06 — Living wall pace glyph next to the wall pace line (bakeoff/gemini-wall-pace)
+
+- **Living wall glyph.** A miniature living fortification glyph now sits right beside the Kingdom tab's wall pace line:
+  - **Rising wall:** a fortified golden stone rampart with crenellations (or an arched gatehouse with iron portcullis when a gate is building), a twinkling apex diamond star, and a breathing amber aura whenever a defensive upgrade is underway.
+  - **Steady wall:** a quiet slate stone curtain wall with steady merlons when no wall construction is queued.
+- **Subtle and aligned.** The glyph aligns cleanly with the text row without shifting surrounding lines or cluttering the layout.
+- **Never blocks clicks.** The glyph is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; wall hit points, construction durations, gate defense mechanics, and building rules are untouched.
+
 ## 2026-11-06 — Wall pace on the Kingdom tab (wave/wall-pace)
 
 - **Wall line.** The Kingdom tab now shows one line under the vision line, for example "Wall pace · wall HP 48 · next change in 9s: a wall section finishes".

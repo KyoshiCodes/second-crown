@@ -1,3 +1,24 @@
+## 2026-11-06 — app / living wall pace glyph next to the wall pace line (bakeoff/gemini-wall-pace)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Wall Pace Glyph Design:
+  - `WallPaceGlyphPip` in `packages/app/src/WallPace.tsx`: 16px living SVG stone rampart positioned on `.sc-wall-pace-glyph-wrap` immediately preceding the wall pace text on the Kingdom tab.
+  - State illumination:
+    - `rising` (`next !== null`): fortified golden stone rampart with crenellated merlons, mortar courses, source charge (curtain wall merlons vs arched gatehouse with portcullis), radiant apex fortification star (`.sc-wall-pace-star`), and breathing amber aura (`.sc-wall-pace-aura`).
+    - `steady` (`next === null`): quiet slate curtain wall with calm merlons, mortar joints, and center anchor pip.
+  - Motion & Aesthetics:
+    - `.sc-wall-pace-breathe`: gentle 2.4s pulsating ambient amber aura when wall fortification is scheduled to complete.
+    - `.sc-wall-pace-float`: subtle vertical hover (1px) keeping the rampart alive, with slightly faster rhythm when rising.
+    - `.sc-wall-pace-twinkle`: delicate brightness and scale cycle on the fortification apex star.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/wall-pace.css`.
+  - `.sc-wall-pace-glyph-wrap, `.sc-wall-pace-glyph-wrap *` enforces `pointer-events: none !important;` so clicks or text selections are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/WallPace.test.tsx` (9 tests) verifies steady/rising/gate glyph renderings, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 386 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-06 — app / wall pace on the Kingdom tab (wave/wall-pace)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
