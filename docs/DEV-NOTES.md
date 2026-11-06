@@ -1,3 +1,24 @@
+## 2026-11-05 — app / living upkeep pace glyph next to the upkeep pace line (bakeoff/gemini-upkeep-pace)
+
+- Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
+- Living Upkeep Pace Glyph Design:
+  - `UpkeepPaceGlyphPip` in `packages/app/src/UpkeepPace.tsx`: 16px living SVG sustenance grain sheaf positioned on `.sc-upkeep-pace-glyph-wrap` immediately preceding the upkeep pace text on the Army tab.
+  - State illumination:
+    - `rising` (`next !== null`): golden sustenance harvest sheaf with gilded grain heads, tied ribbon (tinted `#34d399` for infirmary healing, `#f59e0b` for barracks training), radiant apex harvest star (`.sc-upkeep-pace-star`), lateral grain ears, and breathing amber-gold aura (`.sc-upkeep-pace-aura`).
+    - `steady` (`next === null`): quiet slate granary sickle and steady grain ear with cool bronze handle and granary pivot boss.
+  - Motion & Aesthetics:
+    - `.sc-upkeep-pace-breathe`: gentle 2.4s pulsating ambient amber/gold aura when upkeep is scheduled to rise.
+    - `.sc-upkeep-pace-float`: subtle vertical hover (1px) keeping the sheaf alive, with slightly faster rhythm when rising.
+    - `.sc-upkeep-pace-twinkle`: delicate brightness and scale cycle on the harvest apex star.
+- Safety & Invariants:
+  - All styles isolated in `packages/app/src/upkeep-pace.css`.
+  - `.sc-upkeep-pace-glyph-wrap, `.sc-upkeep-pace-glyph-wrap *` enforces `pointer-events: none !important;` so clicks or text selections are never blocked.
+  - `@media (prefers-reduced-motion: reduce)` disables keyframe animations, stops floating, and sets steady opacity.
+  - Zero changes to `packages/app/src/theme.css`.
+- Verification:
+  - `packages/app/src/UpkeepPace.test.tsx` (10 tests) verifies steady/rising/healing glyph renderings, SVG structure, `aria-hidden` attribute, `pointer-events: none` CSS enforcement, keyframes presence, motion guard, and absence of `theme.css` leakage.
+  - Full suite passes: `npm test` (323 sim, 367 app, 158 server) and `npm run build -w @second-crown/app`.
+
 ## 2026-11-05 — app / upkeep pace on the Army tab (wave/upkeep-pace)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.

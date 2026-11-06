@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-11-05 — Living upkeep pace glyph next to the upkeep pace line (bakeoff/gemini-upkeep-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- `UpkeepPace.tsx` & `upkeep-pace.css`:
+  - Added `UpkeepPaceGlyphPip`: a 16px living sustenance grain sheaf glyph rendered inline before the upkeep pace line text on the Army tab.
+  - State-aware sustenance and supply heraldry:
+    - `rising` (Next change queued, mouths incoming): golden sustenance harvest sheaf with gilded grain heads, tied ribbon (tinted soft emerald for infirmary healing, martial amber for barracks training), radiant apex harvest diamond star (`.sc-upkeep-pace-star`), lateral grain ears, and breathing amber-gold aura (`.sc-upkeep-pace-aura`).
+    - `steady` (No change queued, army mouths constant): quiet slate granary sickle and steady grain ear with cool bronze handle and granary pivot boss.
+  - Subtle living animations: gentle vertical float (`sc-upkeep-pace-float`), breathing luminous aura (`sc-upkeep-pace-breathe`), and twinkling harvest star (`sc-upkeep-pace-twinkle`).
+  - Strict style isolation & click safety: `.sc-upkeep-pace-glyph-wrap, .sc-upkeep-pace-glyph-wrap *` enforced `pointer-events: none !important;`. Motion guard via `@media (prefers-reduced-motion: reduce)` disables keyframes cleanly and sets steady opacity. Zero changes to `theme.css`.
+- Tests: updated `UpkeepPace.test.tsx` (10 tests) verifying glyph states (steady, rising, source differentiation), SVG structure, `aria-hidden` decorative presentation, `pointer-events: none` safety, isolated CSS keyframes, reduced-motion guard, and absence of `theme.css` leakage. All 82 sim suites (323 tests), 72 app suites (367 tests), and 22 server suites (158 tests) pass. `npm run build -w @second-crown/app` succeeds.
+- `git diff origin/main -- packages/sim server packages/app/src/theme.css` is completely empty.
+
 ## 2026-11-05 — Upkeep pace on the Army tab (wave/upkeep-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

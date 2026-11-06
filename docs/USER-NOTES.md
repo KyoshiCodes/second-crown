@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-05 — Living upkeep pace glyph next to the upkeep pace line (bakeoff/gemini-upkeep-pace)
+
+- **Living upkeep glyph.** A miniature living sustenance grain glyph now sits right beside the Army tab's upkeep pace line:
+  - **Rising upkeep:** a radiant golden harvest sheaf with gilded ears, tied ribbon (martial amber for barracks levies, soothing emerald for infirmary wounded), a twinkling apex harvest diamond star, and a breathing amber-gold aura whenever new mouths are queued.
+  - **Steady upkeep:** a quiet slate granary sickle and steady grain ear with a cool bronze handle when no change is queued.
+- **Subtle and aligned.** The glyph aligns cleanly with the text row without shifting surrounding lines or cluttering the layout.
+- **Never blocks clicks.** The glyph is strictly decorative (`pointer-events: none`) and respects reduced-motion preferences.
+- **Play is unchanged.** Visual enhancement only; food consumption rates, army mouth counts, training queues, and healing schedules are untouched.
+
 ## 2026-11-05 — Upkeep pace on the Army tab (wave/upkeep-pace)
 
 - **Upkeep line.** The Army tab now shows one line under the training line, for example "Upkeep · 0.40 food/tick (4.0/s, 20 mouths) · next change in 12s: +10 militia from the barracks".
