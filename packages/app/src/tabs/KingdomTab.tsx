@@ -57,6 +57,7 @@ import { VisionPace } from "../VisionPace";
 import { WallPace } from "../WallPace";
 import { DecreeHint } from "../DecreeHint";
 import { MarketHint } from "../MarketHint";
+import { MarketPace } from "../MarketPace";
 import { CultureLine } from "../CultureLine";
 import { AgeLine } from "../AgeLine";
 import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
@@ -222,6 +223,7 @@ export function KingdomTab(props: {
       <AgeLine state={state} />
       <DecreeHint state={state} />
       <MarketHint state={state} />
+      <MarketPace state={state} />
       <p style={{ fontSize: 12, opacity: 0.75 }}>
         People labor /tick · food {labor.food} · wood {labor.wood} · stone {labor.stone} · gold {labor.gold}. Assign jobs on People.
       </p>

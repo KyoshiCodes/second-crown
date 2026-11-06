@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-06 — Market pace on the Kingdom tab (wave/market-pace)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- New `MarketPace` line on Kingdom, under the next-trade hint: trades open now (sim `canTrade` over `MARKET_OFFERS`, or "market closed") and the next queued market change (earliest player Market under construction).
+- Styles in new `market-pace.css`.
+- Tests: new `MarketPace.test.tsx` (5 tests). Sim 323, app 391, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-06 — Living wall pace glyph next to the wall pace line (bakeoff/gemini-wall-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

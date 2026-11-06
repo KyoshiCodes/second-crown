@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-06 — Market pace on the Kingdom tab (wave/market-pace)
+
+- **Market line.** The Kingdom tab now shows one line under the next-trade hint, for example "Market pace · 3 of 9 trades open · next change in 8s: another Market finishes".
+- **Rate.** Trade prices are fixed. The line counts how many trades you can afford right now. Without a Market it says "market closed".
+- **Next change.** Names the next Market being built. The first one opens trading. With nothing queued it says "no change queued".
+- **Read only.** Market rules are the same.
+
 ## 2026-11-06 — Living wall pace glyph next to the wall pace line (bakeoff/gemini-wall-pace)
 
 - **Living wall glyph.** A miniature living fortification glyph now sits right beside the Kingdom tab's wall pace line:

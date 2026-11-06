@@ -1,3 +1,12 @@
+## 2026-11-06 — app / market pace on the Kingdom tab (wave/market-pace)
+
+- Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- `MarketPace.tsx` exports `MarketPace`, `marketRate(state)`, and `nextMarketChange(state)`. It reads only `countBuilding`, `canTrade`, `MARKET_OFFERS`, `listWorksInProgress`, `buildTicksLeft`, and `TICKS_PER_SECOND`.
+- "Market rate": the sim has no variable exchange rate. `MARKET_OFFERS` is a fixed table and `canTrade` only checks for a Market plus stores. So the line shows the count of offers open now, not a price.
+- Next change: earliest player `market` under construction. Labelled "first" when no Market is finished yet (opens trading), else "another". A second Market does not change trades; it only adds Market production. Seconds use `Math.ceil(ticks / 10)`.
+- Not shown: when stores will cross an offer's give amount (would need an income forecast, which is game math).
+- Verification: `MarketPace.test.tsx` (5 tests). `npm test` (sim 323, app 391, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-06 — app / living wall pace glyph next to the wall pace line (bakeoff/gemini-wall-pace)
 
 - Slice constraints: App only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. No game math or balance rules changed.
