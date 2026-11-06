@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-06 — Living market pace glyph next to market pace line (bakeoff/gemini-market-pace)
+
+- **Living market pace glyph:** Added inline SVG living market canopy and scale glyph to the market pace line on the Kingdom tab.
+- **States:** Visual transitions across *Rising* (gold/amber canopy awning, trade spark/expansion scale, floating apex diamond star, and breathing amber aura), *Steady* (calm brass and slate balance scale), and *Closed* (shuttered stall with padlock).
+- **Invariants:** Purely cosmetic; no modifications to `packages/sim` or `server`. Styles isolated to `market-pace.css` (zero changes to `theme.css`). Full reduced-motion accessibility and non-interactive overlay protection (`pointer-events: none`).
+
 ## 2026-11-06 — Market pace on the Kingdom tab (wave/market-pace)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

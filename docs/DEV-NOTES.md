@@ -1,3 +1,13 @@
+## 2026-11-06 — app / living market pace glyph (bakeoff/gemini-market-pace)
+
+- **MarketPaceGlyphPip component:** Implemented in `packages/app/src/MarketPace.tsx`. Inlined directly inside `.sc-market-pace-glyph-wrap` with `aria-hidden="true"`.
+- **Glyph design:**
+  - `rising`: 16px SVG canopy awning (`#d4af37` stripes) over trade post, center trade spark (first market) or expansion balance (upgrade), apex diamond star, and `.sc-market-pace-aura` pulsing subtle amber radial aura.
+  - `steady`: Balanced scale with brass beam, dual pans carrying coin dots, and pivot point.
+  - `closed`: Slate shuttered facade with cross planks and padlock.
+- **Styling:** Authored in `packages/app/src/market-pace.css`. `.sc-market-pace-glyph-wrap` and all children enforce `pointer-events: none !important;`. No modifications to `theme.css`.
+- **Tests:** Added comprehensive test suite in `packages/app/src/MarketPace.test.tsx` validating DOM structure, SVG element composition across states, non-interactivity, CSS keyframe declarations, and reduced-motion overrides.
+
 ## 2026-11-06 — app / market pace on the Kingdom tab (wave/market-pace)
 
 - Slice constraints: App only. Zero changes to `packages/sim`, `server/`, or `theme.css`. No new game math.

@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-06 — Living market pace glyph next to market pace line (bakeoff/gemini-market-pace)
+
+- **Living trade canopy:** When viewing the market pace line on the Kingdom tab, an expressive market glyph rests beside the text.
+- **Dynamic visual state:**
+  - When gold can afford your next market level or expansion, a bright striped awning opens with glowing trade scales and an ambient amber pulse.
+  - When commerce is active but funds are accumulating, balanced merchant scales remain poised and steady.
+  - When the market is closed or unbuilt, a locked wooden shutter marks the stall.
+- **Accessibility:** Reduced-motion system preferences automatically calm all gentle floats and breathing effects into steady, dignified emblems.
+
 ## 2026-11-06 — Market pace on the Kingdom tab (wave/market-pace)
 
 - **Market line.** The Kingdom tab now shows one line under the next-trade hint, for example "Market pace · 3 of 9 trades open · next change in 8s: another Market finishes".
