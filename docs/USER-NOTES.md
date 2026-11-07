@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living hold glyphs on the joined hold panel (bakeoff/gemini-hold-living)
+
+- **Living hold emblems:** When you join a shared hold on the Cloud tab, subtle living badges now sit beneath the status rows alongside quiet corner watermarks on the hold cards:
+  - **Works:** Pulses while militia are drilling (*Drilling +N*) and glows gently while buildings or militia stand (*Yards active*).
+  - **Stores:** Glows softly as food, wood, stone, and gold vaults fill (*N/4 stocked*).
+  - **Stamps:** Warms with a wax signet glow once friends stamp the hold (*N stamped*).
+  - **Key:** Pulses in amber when a new one-time key needs copying (*Copy key*), settles to gold once copied (*Key copied*), and never repeats the secret key.
+- **Clean reading & controls:** Watermarks stay tucked into a soft bottom-right corner away from text and buttons, and **Train**, **Build**, **Stamp**, **Copy key**, and **Leave** work identically to before. No game numbers changed.
+
 ## 2026-11-07 — Hold panel shows a status stack (wave/hold-living)
 
 - Join a shared hold on the Cloud tab. Under the Realm and Tick card you now see five short rows: Works, Stores, Stamps, Key and Leave.

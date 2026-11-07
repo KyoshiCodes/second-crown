@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-07 — Living hold glyphs under the hold status cards (bakeoff/gemini-hold-living)
+
+- **Living hold glyph strip (`HoldLivingStrip`):** Added a 4-domain decorative SVG strip directly beneath `HoldStatusStack` on the joined hold panel (`JoinHoldCard.tsx`), giving **works**, **stores**, **stamps**, and **key** subtle glow, pulse, and drift motion:
+  - *Works (`domain-works`)*: Hammer & spearhead crest pulsing briskly while militia train (*"Drilling +N"*), drifting warmly when buildings or militia stand (*"Yards active"*), or resting calm when empty (*"Yards quiet"*).
+  - *Stores (`domain-stores`)*: Granary coffer & sheaf glowing softly when vaults hold whole goods (*"N/4 stocked"*) or resting muted when bare (*"Vaults bare"*).
+  - *Stamps (`domain-stamps`)*: Royal wax signet & crown glowing when stamped (*"N stamped"*) or resting calm when unstamped (*"Unstamped"*).
+  - *Key (`domain-key`)*: Trefoil ward key & seal pulsing in amber while a one-time key awaits copying (*"Copy key"*), glowing gold once copied (*"Key copied"*), or drifting softly when joined with an existing key (*"Key warded"*). Never repeats the secret key.
+- **Corner-confined card watermarks (`HoldCardUnderlay`):** Added `24×24` bottom-right corner watermarks with per-card silhouettes (`militia`, `farms`, `cottages`, `lumberCamps`, `food`, `wood`, `stone`, `gold`, `stamp`, `key`), radial vignette masks, and capped low opacity (`<= 0.24` wrapper, `<= 0.50` keyframes) inside the hold work, store, stamp, and key cards so card copy and top-right pips stay crisp.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/HoldLivingGlyph.test.tsx` (11 tests). Sim 323, app 537, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living status rows on the joined hold panel (wave/hold-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

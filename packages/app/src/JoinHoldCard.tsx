@@ -13,6 +13,7 @@ import { HoldKeyPip } from "./hud/HoldKeyPip";
 import { HoldWorkPip } from "./hud/HoldWorkPip";
 import { HoldLogPip } from "./hud/HoldLogPip";
 import { HoldStatusStack, wholeUnits } from "./hud/HoldStatusStack";
+import { HoldCardUnderlay, HoldLivingStrip } from "./hud/HoldLivingGlyph";
 import "./hud/hold-leave.css";
 import "./hud/hold-log.css";
 import { flashAction } from "./hud/ActionFlash";
@@ -245,6 +246,7 @@ export function JoinHoldCard({
               {copied ? <span className="sc-hold-key-note" role="status">Key copied. Share the realm id and the key.</span> : null}
               <span className="sc-hold-key-note">Share the realm id and this key with friends.</span>
               <span className="sc-hold-key-warning">Copy it now and send it to friends with the id. It is shown only this once; without it nobody, you included, can join again.</span>
+              <HoldCardUnderlay domain="key" variant="key" state={copied ? "active" : "warn"} />
             </div>
           ) : null}
           <div className="sc-hold-status" role="status" aria-label="Hold status">
@@ -265,6 +267,7 @@ export function JoinHoldCard({
             ) : null}
           </div>
           <HoldStatusStack view={view} madeKey={madeKey} copied={copied} confirmLeave={confirmLeave} />
+          <HoldLivingStrip view={view} madeKey={madeKey} copied={copied} />
           <div className="sc-hold-actions" aria-label="Hold actions">
             <div className="sc-hold-action-card" aria-label="Train">
               <HoldActionPip action="train" />
@@ -307,6 +310,7 @@ export function JoinHoldCard({
                 <HoldStorePip resource={id} />
                 <span className="sc-hold-store-name">{name}</span>
                 <span className="sc-hold-store-amount">{whole(view.stores[id])}</span>
+                <HoldCardUnderlay domain="stores" variant={id} state={Number(view.stores[id]) >= 1 ? "active" : "calm"} />
               </div>
             ))}
           </div>
@@ -317,6 +321,7 @@ export function JoinHoldCard({
                 <span className="sc-hold-work-name">{w.name}</span>
                 <span className="sc-hold-work-count">{w.count}</span>
                 {w.status ? <span className="sc-hold-work-status">{w.status}</span> : null}
+                <HoldCardUnderlay domain="works" variant={w.id} state={w.id === "militia" && view.training > 0 ? "busy" : w.count > 0 ? "active" : "calm"} />
               </div>
             ))}
           </div>
@@ -331,6 +336,7 @@ export function JoinHoldCard({
                     <HoldStampPip />
                     <span className="sc-hold-stamp-tick">Tick {s.tick}</span>
                     <span className="sc-hold-stamp-by">{s.by}</span>
+                    <HoldCardUnderlay domain="stamps" variant="stamp" state="active" />
                   </div>
                 ))}
               </div>

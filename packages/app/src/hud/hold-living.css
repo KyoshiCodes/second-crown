@@ -1,0 +1,263 @@
+/* Living hold glyphs under the hold status cards (works, stores, stamps, key).
+ * Isolated stylesheet — do not touch theme.css.
+ * Strictly decorative: pointer-events: none on all layers and children.
+ */
+
+.sc-hold-living-strip,
+.sc-hold-living-strip *,
+.sc-hold-living-item,
+.sc-hold-living-badge,
+.sc-hold-living-svg,
+.sc-hold-living-flair,
+.sc-hold-living-underlay,
+.sc-hold-living-underlay *,
+.sc-hold-living-watermark {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* 4-domain living strip directly beneath HoldStatusStack */
+.sc-hold-living-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin: -2px 0 8px;
+  padding: 0;
+}
+
+.sc-hold-living-item {
+  --sc-hl-accent: #c9b48a;
+  --sc-hl-glow: rgba(201, 180, 138, 0.24);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(120, 83, 30, 0.42);
+  background: rgba(20, 14, 10, 0.52);
+  color: rgba(232, 220, 200, 0.88);
+}
+
+/* Domain palettes */
+.sc-hold-living-item.domain-works,
+.sc-hold-living-underlay.domain-works {
+  --sc-hl-accent: #7dd3fc;
+  --sc-hl-glow: rgba(56, 189, 248, 0.26);
+}
+
+.sc-hold-living-item.domain-stores,
+.sc-hold-living-underlay.domain-stores {
+  --sc-hl-accent: #86efac;
+  --sc-hl-glow: rgba(134, 239, 172, 0.24);
+}
+
+.sc-hold-living-item.domain-stamps,
+.sc-hold-living-underlay.domain-stamps {
+  --sc-hl-accent: #fda4af;
+  --sc-hl-glow: rgba(244, 63, 94, 0.26);
+}
+
+.sc-hold-living-item.domain-key,
+.sc-hold-living-underlay.domain-key {
+  --sc-hl-accent: #fde047;
+  --sc-hl-glow: rgba(250, 204, 21, 0.26);
+}
+
+.sc-hold-living-item.state-warn,
+.sc-hold-living-underlay.state-warn {
+  --sc-hl-accent: #fb923c;
+  --sc-hl-glow: rgba(251, 146, 60, 0.32);
+  border-color: rgba(251, 146, 60, 0.48);
+}
+
+.sc-hold-living-item.state-busy {
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.sc-hold-living-item.state-calm {
+  opacity: 0.78;
+}
+
+.sc-hold-living-badge {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sc-hl-accent);
+  filter: drop-shadow(0 0 3px var(--sc-hl-glow));
+}
+
+.sc-hold-living-svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  overflow: visible;
+}
+
+.sc-hold-living-flair {
+  min-width: 0;
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+/* Strip SVG living layers: glow, pulse, drift */
+.sc-hold-living-glow {
+  transform-origin: 8px 8px;
+  animation: sc-hold-living-glow 3.4s ease-in-out infinite;
+}
+
+.sc-hold-living-pulse {
+  transform-origin: 8px 8px;
+  animation: sc-hold-living-pulse 2.6s ease-in-out infinite;
+}
+
+.sc-hold-living-drift {
+  transform-origin: 8px 8px;
+  animation: sc-hold-living-drift 3.8s ease-in-out infinite;
+}
+
+.sc-hold-living-item.state-busy .sc-hold-living-pulse,
+.sc-hold-living-item.state-warn .sc-hold-living-pulse {
+  animation-duration: 1.45s;
+}
+
+.sc-hold-living-item.state-calm .sc-hold-living-glow,
+.sc-hold-living-item.state-calm .sc-hold-living-pulse,
+.sc-hold-living-item.state-calm .sc-hold-living-drift {
+  animation-duration: 4.8s;
+}
+
+/* Card scoping for bottom-right corner watermarks on works, stores, stamps, and key cards */
+.sc-hold-work-card:has(> .sc-hold-living-underlay),
+.sc-hold-store-card:has(> .sc-hold-living-underlay),
+.sc-hold-stamp-card:has(> .sc-hold-living-underlay),
+.sc-hold-key-card:has(> .sc-hold-living-underlay) {
+  position: relative;
+  overflow: hidden;
+}
+
+.sc-hold-work-card:has(> .sc-hold-living-underlay) > :not(.sc-hold-living-underlay):not(.sc-hold-work-pip-wrapper),
+.sc-hold-store-card:has(> .sc-hold-living-underlay) > :not(.sc-hold-living-underlay):not(.sc-hold-store-pip-wrapper),
+.sc-hold-stamp-card:has(> .sc-hold-living-underlay) > :not(.sc-hold-living-underlay):not(.sc-hold-stamp-pip-wrapper),
+.sc-hold-key-card:has(> .sc-hold-living-underlay) > :not(.sc-hold-living-underlay):not(.sc-hold-key-pip-wrapper) {
+  position: relative;
+  z-index: 1;
+}
+
+.sc-hold-work-card:has(> .sc-hold-living-underlay) > .sc-hold-work-pip-wrapper,
+.sc-hold-store-card:has(> .sc-hold-living-underlay) > .sc-hold-store-pip-wrapper,
+.sc-hold-stamp-card:has(> .sc-hold-living-underlay) > .sc-hold-stamp-pip-wrapper,
+.sc-hold-key-card:has(> .sc-hold-living-underlay) > .sc-hold-key-pip-wrapper {
+  z-index: 2;
+}
+
+/* Corner-confined decorative watermark underlay (never overlaps left-aligned card text or top-right pip) */
+.sc-hold-living-underlay {
+  --sc-hl-accent: #c9b48a;
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 24px;
+  height: 24px;
+  z-index: 0;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: var(--sc-hl-accent);
+  opacity: 0.2;
+  -webkit-mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.46) 58%, transparent 92%);
+  mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.46) 58%, transparent 92%);
+}
+
+.sc-hold-living-underlay.state-busy,
+.sc-hold-living-underlay.state-warn {
+  opacity: 0.24;
+}
+
+.sc-hold-living-underlay.state-calm {
+  opacity: 0.13;
+}
+
+.sc-hold-living-watermark {
+  width: 24px;
+  height: 24px;
+  display: block;
+  overflow: visible;
+  transform-origin: 18px 18px;
+  animation: sc-hold-watermark-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-hold-living-underlay.state-busy .sc-hold-living-watermark,
+.sc-hold-living-underlay.state-warn .sc-hold-living-watermark {
+  animation-duration: 2.3s;
+}
+
+@keyframes sc-hold-living-glow {
+  0%, 100% {
+    opacity: 0.22;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.48;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-hold-living-pulse {
+  0%, 100% {
+    opacity: 0.84;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes sc-hold-living-drift {
+  0%, 100% {
+    opacity: 0.78;
+    transform: translate(0, 0);
+  }
+  50% {
+    opacity: 0.98;
+    transform: translate(0.45px, -0.65px);
+  }
+}
+
+@keyframes sc-hold-watermark-breathe {
+  0%, 100% {
+    opacity: 0.34;
+    transform: translate(0, 0) scale(0.97);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translate(-0.4px, -0.5px) scale(1.04);
+  }
+}
+
+@media (max-width: 520px) {
+  .sc-hold-living-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-hold-living-glow,
+  .sc-hold-living-pulse,
+  .sc-hold-living-drift,
+  .sc-hold-living-watermark {
+    animation: none !important;
+    transform: none !important;
+  }
+}
