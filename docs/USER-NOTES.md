@@ -11,6 +11,13 @@ Newest first. Plain language for playtesters.
   - **Garrisons:** A ridgepole pavilion tent and camp lantern glow steadily on watch (*Pavilion tent · standing watch*) and pulse if threatened (*Tent under threat*).
 - **Clean reading & controls:** Corner watermarks stay tucked softly in the bottom-right corner away from card numbers, and the **Recall** and **Sally** buttons work identically to before. No game numbers changed.
 
+## 2026-11-07 — Events and Quests cards show Name, Progress, Reward (wave/events-living)
+
+- Each event card and quest card now lists three rows top to bottom: **Name**, **Progress**, **Reward**.
+- Events show "Resolved" and the tick they fired; the Reward row shows what you got (red when food spoiled).
+- Quests show 0/1 or 1/1 and their gold. The **Claim** button is the same button, now in the Reward row.
+- No game numbers changed.
+
 ## 2026-11-07 — War Room force cards read like a ledger (wave/war-living)
 
 - Each force card in the War Room (Scouts, Gathers, Garrisons, Incoming) now lists four rows top to bottom: **Name**, **Destination**, **ETA**, **Action**.

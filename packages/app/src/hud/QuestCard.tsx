@@ -1,5 +1,6 @@
 import React from "react";
 import { ScrollPip } from "./ScrollPip";
+import { EventsLedger, questLedgerRows } from "./EventsLedger";
 import "./quest-card.css";
 
 export type QuestStatus = "open" | "ready" | "claimed";
@@ -27,31 +28,25 @@ export function QuestCard(props: {
 }) {
   const { id, name, hint, gold, complete, claimed } = props;
   const status = questStatus(complete, claimed);
-  const done = complete || claimed ? 1 : 0;
 
   return (
     <div className={`sc-quest-card is-${status}`} data-quest={id}>
-      <span className="sc-quest-head">
-        <span className="sc-quest-title-group">
-          <ScrollPip status={status} size={24} />
-          <span className="sc-quest-title">{name}</span>
-        </span>
-        <span className={`sc-quest-status is-${status}`}>{STATUS_LABEL[status]}</span>
-      </span>
-      <span className="sc-quest-hint">{hint}</span>
-      <span className="sc-quest-progress" role="progressbar" aria-valuemin={0} aria-valuemax={1} aria-valuenow={done}>
-        <span className="sc-quest-progress-fill" style={{ width: `${done * 100}%` }} />
-      </span>
-      <span className="sc-quest-foot">
-        <span className="sc-quest-count">{done}/1</span>
-        {status === "ready" ? (
-          <button type="button" className="sc-quest-btn" onClick={props.onClaim}>
-            Claim {gold} gold
-          </button>
-        ) : (
-          <span className="sc-quest-reward">{claimed ? `+${gold} gold taken` : `${gold} gold`}</span>
-        )}
-      </span>
+      <EventsLedger
+        rows={questLedgerRows({ name, hint, gold, status, statusLabel: STATUS_LABEL[status] }).map((r) => {
+          if (r.kind === "name") return { ...r, lead: <ScrollPip status={status} size={24} /> };
+          if (r.kind === "reward" && status === "ready") {
+            return {
+              ...r,
+              slot: (
+                <button type="button" className="sc-quest-btn" onClick={props.onClaim}>
+                  Claim {gold} gold
+                </button>
+              ),
+            };
+          }
+          return r;
+        })}
+      />
     </div>
   );
 }

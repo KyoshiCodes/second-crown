@@ -133,6 +133,15 @@ Merged through PR **#297** (hold status living pip, #297; hold status card, #297
 - **Invariants respected:** Purely visual presentation. Phrasing content only (`<span>` and `<svg>`) inside `<button>` elements. Zero changes to `packages/sim` or `server/`. Styles strictly isolated in `unit-living.css` (`theme.css` untouched). All decorative elements set to `pointer-events: none !important;`. Card text stays 100% readable and training clicks remain completely unblocked. Full `@media (prefers-reduced-motion: reduce)` support.
 - **Branch:** `bakeoff/gemini-army-living` (from `origin/main`). Pushed, no PR.
 
+## Living status rows on Events and Quests cards (branch wave/events-living, not merged)
+
+- **What it is:** Every event card (latest and older) and every quest card now stacks three rows: **Name** (omen / scroll pip + title; quests add the hint), **Progress** (events: "Resolved" or "Awaiting choice · N" with the fired tick; quests: 0/1 or 1/1 with the status word), **Reward** (events: the effect text after the dash, red for spoilage; quests: gold, or "+N gold taken"). Small tone-coloured bars under Progress.
+- **Where:** `packages/app/src/hud/EventsLedger.tsx` + `hud/events-living.css`; `hud/EventCard.tsx` and `hud/QuestCard.tsx` render it. `EventPanel.tsx` and `QuestPanel.tsx` unchanged.
+- **Reads only:** existing card props (`WorldEvent` tick/id/text, choices; quest name/hint/gold/complete/claimed). No sim calls added.
+- **Buttons:** Quest **Claim N gold** is the same button (now in the Reward row). Event choice buttons unchanged.
+- **Rules respected:** No changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
+- **Branch:** `wave/events-living` (from `origin/main`). Pushed, no PR.
+
 ## Living status rows on Army unit cards (branch wave/army-living, not merged)
 
 - **What it is:** Every Army tab unit card stacks three rows: **Power**, **Cost**, **Ready**, with tone pips and small bars. The rows replace the old one-line cost/lock text on the card.

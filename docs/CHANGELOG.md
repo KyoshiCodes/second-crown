@@ -11,6 +11,14 @@
 - **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `theme.css`, or `force-ledger.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
 - **Tests:** Updated `packages/app/src/hud/WarLivingGlyph.test.tsx` (9 tests). Sim 323, app 561, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
 
+## 2026-11-07 — Living status rows on Events and Quests cards (wave/events-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- Event and quest cards now stack **Name**, **Progress**, **Reward** rows built from existing values. Quest Claim button moved into the Reward row; event choice buttons unchanged.
+- Living touches: in-progress edges breathe, a ready quest reward glows, the latest event title shimmers. Reduced-motion turns them off.
+- New `hud/EventsLedger.tsx` + `hud/events-living.css`; `hud/EventCard.tsx` and `hud/QuestCard.tsx` render it.
+- Tests: new `hud/EventsLedger.test.tsx` (8 tests). `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-07 — Living ledger rows on War Room force cards (wave/war-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

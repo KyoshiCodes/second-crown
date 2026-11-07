@@ -1,0 +1,114 @@
+/* --- Events & Quests: stacked name / progress / reward rows on each card. --- */
+.sc-events-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  min-width: 0;
+}
+.sc-events-ledger-row {
+  --sc-events-tone: var(--chrome-btn-border);
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 2px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-events-tone);
+}
+.sc-events-ledger-row.tone-calm { --sc-events-tone: #6e7681; }
+.sc-events-ledger-row.tone-busy { --sc-events-tone: #d29922; }
+.sc-events-ledger-row.tone-ready { --sc-events-tone: #3fb950; }
+.sc-events-ledger-row.tone-done { --sc-events-tone: #8b949e; }
+.sc-events-ledger-row.tone-loss { --sc-events-tone: #f85149; }
+
+.sc-events-ledger-label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.sc-events-ledger-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  margin: 0;
+  min-width: 0;
+  text-align: right;
+}
+.sc-events-ledger-main {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.sc-events-ledger-row.is-name .sc-events-ledger-main { font-weight: 600; }
+.sc-events-ledger-row.is-reward.tone-ready .sc-events-ledger-main { color: #3fb950; }
+.sc-events-ledger-row.is-reward.tone-loss .sc-events-ledger-main { color: #f85149; }
+.sc-events-ledger-sub {
+  font-size: 10px;
+  opacity: 0.65;
+}
+.sc-events-ledger-row.is-name .sc-events-ledger-sub {
+  flex-basis: 100%;
+  white-space: normal;
+}
+
+.sc-events-ledger-bar {
+  grid-column: 1 / -1;
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(127, 127, 127, 0.18);
+}
+.sc-events-ledger-fill {
+  display: block;
+  height: 100%;
+  background: var(--sc-events-tone);
+  transition: width 0.4s ease;
+}
+
+/* Latest event keeps its larger gold title. */
+.sc-event-card.is-latest .sc-events-ledger-row.is-name .sc-events-ledger-main {
+  font-size: 15px;
+  color: #e3b341;
+}
+
+/* Living touches: in-progress edges breathe, a ready reward glows. */
+.sc-events-ledger-row.is-progress.tone-busy {
+  animation: sc-events-ledger-breathe 2.4s ease-in-out infinite;
+}
+.sc-quest-card.is-ready .sc-events-ledger-row.is-reward {
+  animation: sc-events-ledger-glow 2.8s ease-in-out infinite;
+}
+.sc-event-card.is-latest .sc-events-ledger-row.is-name {
+  background: linear-gradient(90deg, rgba(227, 179, 65, 0.12), transparent 70%) no-repeat;
+  background-size: 200% 100%;
+  animation: sc-events-ledger-shimmer 6s linear infinite;
+}
+
+@keyframes sc-events-ledger-breathe {
+  0%, 100% { border-left-color: var(--sc-events-tone); }
+  50% { border-left-color: transparent; }
+}
+@keyframes sc-events-ledger-glow {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: inset 4px 0 6px -4px var(--sc-events-tone); }
+}
+@keyframes sc-events-ledger-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-events-ledger-row { animation: none !important; }
+  .sc-events-ledger-fill { transition: none; }
+}

@@ -2,6 +2,7 @@ import React from "react";
 import type { WorldEvent } from "@second-crown/sim";
 import { formatLetterSuffix } from "@second-crown/sim";
 import { OmenPip, resolveOmenVariant } from "./OmenPip";
+import { EventsLedger, eventLedgerRows } from "./EventsLedger";
 import "./event-card.css";
 
 export type EventChoice = {
@@ -28,14 +29,16 @@ export function EventCard(props: {
 
   return (
     <div className={`sc-event-card is-${event.id}${latest ? " is-latest" : ""}`} data-event={event.id}>
-      <span className="sc-event-head">
-        <span className="sc-event-title-group">
-          <OmenPip variant={omen} size={24} />
-          <span className="sc-event-title">{title}</span>
-        </span>
-        <span className="sc-event-tick">t{formatLetterSuffix(event.tick)}</span>
-      </span>
-      {body ? <span className="sc-event-body">{body}</span> : null}
+      <EventsLedger
+        rows={eventLedgerRows({
+          id: event.id,
+          title,
+          body,
+          tickLabel: formatLetterSuffix(event.tick),
+          latest,
+          choiceCount: choices?.length ?? 0,
+        }).map((r) => (r.kind === "name" ? { ...r, lead: <OmenPip variant={omen} size={24} /> } : r))}
+      />
       {choices && choices.length > 0 ? (
         <span className="sc-event-choices">
           {choices.map((c) => (
