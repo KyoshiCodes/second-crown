@@ -1,0 +1,280 @@
+/* --- Living Omen & Scroll Glyphs under Event and Quest Cards (isolated from theme.css) --- */
+
+.sc-event-card:has(> .sc-events-living-underlay),
+.sc-quest-card:has(> .sc-events-living-underlay) {
+  position: relative;
+  overflow: hidden;
+}
+
+.sc-event-card:has(> .sc-events-living-underlay) > :not(.sc-events-living-underlay),
+.sc-quest-card:has(> .sc-events-living-underlay) > :not(.sc-events-living-underlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Corner-confined 32x32 ambient watermark tucked into the bottom-right pocket */
+.sc-events-living-underlay {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 32px;
+  height: 32px;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  opacity: 0.16;
+  -webkit-mask-image: radial-gradient(
+    circle at 72% 72%,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.42) 56%,
+    transparent 92%
+  );
+  mask-image: radial-gradient(
+    circle at 72% 72%,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.42) 56%,
+    transparent 92%
+  );
+}
+
+.sc-events-living-underlay * {
+  pointer-events: none !important;
+}
+
+.sc-events-living-underlay.state-latest,
+.sc-events-living-underlay.state-pending,
+.sc-events-living-underlay.state-ready {
+  opacity: 0.23;
+}
+
+.sc-events-living-underlay.state-loss {
+  opacity: 0.22;
+}
+
+.sc-events-living-underlay.state-claimed {
+  opacity: 0.13;
+}
+
+.sc-events-underlay-svg {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  transform-origin: center center;
+  animation: sc-events-underlay-drift 6.2s ease-in-out infinite;
+}
+
+.sc-events-living-underlay.state-pending .sc-events-underlay-svg,
+.sc-events-living-underlay.state-ready .sc-events-underlay-svg,
+.sc-events-living-underlay.state-loss .sc-events-underlay-svg {
+  animation: sc-events-underlay-pulse 3.4s ease-in-out infinite;
+}
+
+/* Color tokens per omen & scroll state */
+.sc-events-living-underlay.omen-comet,
+.sc-events-status-glyph.omen-comet {
+  color: #f59e0b;
+}
+
+.sc-events-living-underlay.omen-raven,
+.sc-events-status-glyph.omen-raven {
+  color: #818cf8;
+}
+
+.sc-events-living-underlay.omen-raven.state-loss,
+.sc-events-status-glyph.omen-raven.state-loss {
+  color: #f85149;
+}
+
+.sc-events-living-underlay.omen-harvest,
+.sc-events-status-glyph.omen-harvest {
+  color: #eab308;
+}
+
+.sc-events-living-underlay.scroll-open,
+.sc-events-status-glyph.scroll-open {
+  color: #d29922;
+}
+
+.sc-events-living-underlay.scroll-ready,
+.sc-events-status-glyph.scroll-ready {
+  color: #3fb950;
+}
+
+.sc-events-living-underlay.scroll-claimed,
+.sc-events-status-glyph.scroll-claimed {
+  color: #8b949e;
+}
+
+/* Left-aligned status glyph strip under EventsLedger (reserves 34px right pocket) */
+.sc-events-status-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  margin-top: 1px;
+  padding: 2px 34px 1px 1px;
+  min-height: 16px;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-events-status-glyph * {
+  pointer-events: none !important;
+}
+
+.sc-events-glyph-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  overflow: visible;
+  pointer-events: none !important;
+}
+
+.sc-events-glyph-flair {
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.68;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none !important;
+}
+
+.sc-events-status-glyph.state-latest .sc-events-glyph-flair,
+.sc-events-status-glyph.state-ready .sc-events-glyph-flair,
+.sc-events-status-glyph.state-pending .sc-events-glyph-flair {
+  opacity: 0.84;
+}
+
+.sc-events-status-glyph.state-loss .sc-events-glyph-flair {
+  color: #ff7b72;
+  opacity: 0.86;
+}
+
+.sc-events-status-glyph.state-claimed .sc-events-glyph-flair {
+  opacity: 0.56;
+}
+
+/* Subtle glow, pulse, and drift layers on the 14x14 omen and scroll emblems */
+.sc-events-status-glyph .sc-events-glow-layer {
+  transform-origin: 12px 12px;
+  animation: sc-events-omen-glow 4.2s ease-in-out infinite;
+}
+
+.sc-events-status-glyph .sc-events-drift-layer {
+  transform-origin: 12px 12px;
+  animation: sc-events-omen-drift 3.8s ease-in-out infinite;
+}
+
+.sc-events-status-glyph.kind-scroll .sc-events-drift-layer {
+  animation: sc-events-scroll-drift 4.4s ease-in-out infinite;
+}
+
+.sc-events-status-glyph .sc-events-pulse-layer {
+  transform-origin: 12px 12px;
+  animation: sc-events-omen-pulse 2.8s ease-in-out infinite;
+}
+
+.sc-events-status-glyph.state-ready .sc-events-pulse-layer,
+.sc-events-status-glyph.state-pending .sc-events-pulse-layer,
+.sc-events-status-glyph.state-loss .sc-events-pulse-layer {
+  animation: sc-events-omen-pulse-alert 1.85s ease-in-out infinite;
+}
+
+.sc-events-status-glyph.state-claimed .sc-events-drift-layer {
+  animation: none;
+}
+
+/* Keyframes — watermark stays strictly low-opacity so card copy never obscures */
+@keyframes sc-events-underlay-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.34;
+  }
+  50% {
+    transform: translate3d(-1px, -1px, 0) scale(1.03);
+    opacity: 0.48;
+  }
+}
+
+@keyframes sc-events-underlay-pulse {
+  0%, 100% {
+    transform: scale(0.98);
+    opacity: 0.36;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.52;
+  }
+}
+
+@keyframes sc-events-omen-glow {
+  0%, 100% {
+    opacity: 0.24;
+  }
+  50% {
+    opacity: 0.58;
+  }
+}
+
+@keyframes sc-events-omen-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0.75px, -0.65px, 0);
+  }
+}
+
+@keyframes sc-events-scroll-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, -0.65px, 0) rotate(-1.5deg);
+  }
+}
+
+@keyframes sc-events-omen-pulse {
+  0%, 100% {
+    transform: scale(0.96);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.98;
+  }
+}
+
+@keyframes sc-events-omen-pulse-alert {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.76;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-events-living-underlay,
+  .sc-events-underlay-svg,
+  .sc-events-status-glyph,
+  .sc-events-status-glyph .sc-events-glow-layer,
+  .sc-events-status-glyph .sc-events-drift-layer,
+  .sc-events-status-glyph .sc-events-pulse-layer {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

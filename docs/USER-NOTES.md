@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living omen and scroll glyphs on Event and Quest cards (bakeoff/gemini-events-living)
+
+- **Living event omens:** Under the Name, Progress, and Reward rows on each world event card, a subtle living omen emblem now echoes the portent:
+  - **Comet omens:** A streaking star and drifting embers glow softly on tributes and celestial signs (*Comet omen · blazing sky*).
+  - **Raven omens:** A perched raven's eye pulses on levies and turns crimson on food spoilage (*Raven portent · stores blighted*).
+  - **Harvest omens:** A tied wheat sheaf sways gently on harvest and timber windfalls (*Harvest omen · golden sheaf*, *Timber omen · windfall*).
+- **Living quest scrolls:** Quest cards now show an unfurled mandate scroll and feather quill while in progress (*Mandate scroll · unsealed*), pulse with a lit royal wax seal when ready to claim (*Royal scroll · seal lit*), and roll shut once claimed (*Archived scroll · sealed*).
+- **Clean reading & controls:** Soft corner watermarks stay tucked away from card text, and event choice buttons plus the **Claim** button work identically to before. No game numbers changed.
+
 ## 2026-11-07 — Living warbands, cloaks, carts, and tents on War Room force cards (bakeoff/gemini-war-living)
 
 - **Living force glyphs:** Under the ledger and Power/Risk rows on each War Room force card, a subtle living emblem now matches the party in the field:

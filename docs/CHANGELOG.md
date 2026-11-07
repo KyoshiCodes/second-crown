@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-07 — Living omen and scroll glyphs under Event and Quest cards (bakeoff/gemini-events-living)
+
+- **Living omen & scroll strips (`EventOmenLivingGlyph`, `QuestScrollLivingGlyph`):** Added left-aligned `14×14` living SVG emblems and state flairs directly beneath `EventsLedger` on `EventCard.tsx` and `QuestCard.tsx` with subtle glow (`sc-events-glow-layer`), drift (`sc-events-drift-layer`), and pulse (`sc-events-pulse-layer`) motion:
+  - *Event omens*: Streaking celestial fire-star & stardust (`comet` — *"Comet omen · blazing sky"*, *"Comet omen · foretold"*), perched prophetic raven & seer eye (`raven` — *"Raven omen · wings aloft"*, *"Raven omen · perched watch"*, *"Raven portent · stores blighted"* on spoilage), and swaying tied wheat sheaf (`harvest` — *"Harvest omen · golden sheaf"*, *"Timber omen · windfall"*, *"Harvest omen · gathered"*), plus *"… · choice awaits"* pulse when choices are pending.
+  - *Quest scrolls*: Unfurled mandate scroll with poised feather quill (`open` — *"Mandate scroll · unsealed"*), illuminated royal scroll with pulsing signet seal & crown star (`ready` — *"Royal scroll · seal lit"*), and rolled bound chronicle scroll (`claimed` — *"Archived scroll · sealed"*).
+- **Corner-confined card watermarks (`EventOmenUnderlay`, `QuestScrollUnderlay`):** Added `32×32` bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low-opacity keyframes (`<= 0.23` wrapper, `<= 0.52` keyframes) so `EventsLedger` text and choice / `Claim` buttons stay crisp.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `theme.css`, or `events-living.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/EventsLivingGlyph.test.tsx` (9 tests). Sim 323, app 578, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living war glyphs under War Room force cards (bakeoff/gemini-war-living)
 
 - **Living warband, cloak, cart & tent strip (`WarLivingGlyph`):** Updated the left-aligned `14×14` living SVG emblem and flair strip beneath `ForceLedger` and `ForceStatus` on every War Room force card (`ForceCard.tsx`) with bespoke artwork and subtle glow (`sc-war-glow-layer`), pulse (`sc-war-pulse-layer`), and drift (`sc-war-drift-layer`) motion:

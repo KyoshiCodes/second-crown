@@ -1,6 +1,7 @@
 import React from "react";
 import { ScrollPip } from "./ScrollPip";
 import { EventsLedger, questLedgerRows } from "./EventsLedger";
+import { QuestScrollLivingGlyph, QuestScrollUnderlay } from "./EventsLivingGlyph";
 import "./quest-card.css";
 
 export type QuestStatus = "open" | "ready" | "claimed";
@@ -29,8 +30,11 @@ export function QuestCard(props: {
   const { id, name, hint, gold, complete, claimed } = props;
   const status = questStatus(complete, claimed);
 
+  // EventsLedger stacks the former sc-quest-head (sc-quest-title-group, sc-quest-title, sc-quest-status)
+  // and sc-quest-progress rows; living scroll glyphs rest directly underneath.
   return (
     <div className={`sc-quest-card is-${status}`} data-quest={id}>
+      <QuestScrollUnderlay questId={id} status={status} />
       <EventsLedger
         rows={questLedgerRows({ name, hint, gold, status, statusLabel: STATUS_LABEL[status] }).map((r) => {
           if (r.kind === "name") return { ...r, lead: <ScrollPip status={status} size={24} /> };
@@ -47,6 +51,7 @@ export function QuestCard(props: {
           return r;
         })}
       />
+      <QuestScrollLivingGlyph questId={id} status={status} />
     </div>
   );
 }
