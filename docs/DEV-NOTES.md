@@ -1,3 +1,11 @@
+## 2026-11-07 — app / War Room force status rows (wave/war-living)
+
+- **Files:** `packages/app/src/hud/ForceStatus.tsx` (exports `ForceStatus`, `forceStatusRows`, `tripProgress`, types `ForceStatusRow`, `ForceStatusInput`), `packages/app/src/hud/force-status.css`, test `hud/ForceStatus.test.tsx`. `ForceCard` gained optional `status?: ForceStatusRow[]`, rendered after `detail`, before the button. Cards without `status` render exactly as before.
+- **Inputs (WarRoom.tsx):** power = `forcePower(m.force)` or `m.levy` when a column carries no force; gathers `forcePower(g.force)`; garrisons `garrisonPower`. Hostile power is hidden (`?`, tone fog) unless `watchtowerWarning` is set, same rule as the host name. `powerMax` = biggest visible power, so bar fill is a relative display only.
+- **ETA:** seconds via the existing `etaOf`. Progress bar only for gathers (`tripProgress(tick, arrivesTick, travelTicks)`); marches store no depart tick, so they show seconds only. Gathering phase shows `gathering · Ns`. Garrisons show `Posted`.
+- **Risk (labels, not math):** scout = recall open (same check as the Recall button) or Committed; gather = Empty haul / Host on target / laden / recall open; garrison = Column inbound if any `incomingOnHome`/`incomingOnPlayerFlags` column targets it, else Quiet; hostile = Unknown (no watch), else High/Held comparing column power to `realmPower` (home) or `garrisonPower` (flag), shown as `vs N`. Combat still rolls; this is a read-out.
+- **CSS:** tone classes `tone-calm|warn|danger|fog` set `--sc-force-row-tone`. Risk pip breathes; ETA fill shimmers; `prefers-reduced-motion` disables both. No `theme.css` changes.
+
 ## 2026-11-06 — app / living board animations (bakeoff/gemini-board-living)
 
 - **BoardLiving component:** Implemented in `packages/app/src/BoardLiving.tsx` and mounted in `AppShell.tsx` between the canvas and `BoardStatus` (`z-index: 2`, under status overlay `z-index: 4`).

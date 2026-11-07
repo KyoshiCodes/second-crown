@@ -1,5 +1,6 @@
 import React from "react";
 import { WarChip } from "./WarChip";
+import { ForceStatus, type ForceStatusRow } from "./ForceStatus";
 import "./force-card.css";
 
 export type ForceTone = "hostile" | "scout" | "gather" | "garrison";
@@ -14,8 +15,9 @@ export function ForceCard(props: {
   action?: { label: string; disabled?: boolean; onClick: () => void };
   loaded?: boolean;
   empty?: boolean;
+  status?: ForceStatusRow[];
 }) {
-  const { tone, name, dest, seconds, detail, captain, action, loaded, empty } = props;
+  const { tone, name, dest, seconds, detail, captain, action, loaded, empty, status } = props;
   return (
     <div className={`sc-force-card is-${tone}`}>
       <span className="sc-force-head">
@@ -28,6 +30,7 @@ export function ForceCard(props: {
       {captain ? <span className="sc-force-captain">Capt. {captain}</span> : null}
       <span className="sc-force-dest">→ {dest}</span>
       {detail ? <span className="sc-force-detail">{detail}</span> : null}
+      {status && status.length > 0 ? <ForceStatus rows={status} /> : null}
       {action ? (
         <button type="button" className="sc-force-btn" disabled={action.disabled} onClick={action.onClick}>
           {action.label}

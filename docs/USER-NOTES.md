@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Force cards show power, ETA and risk (wave/war-living)
+
+- On the War tab, each scout, gather party, garrison and incoming host card now has three short rows: Power, ETA and Risk.
+- Power has a small bar so you can compare forces at a glance. Gather parties also show how far along their trip is.
+- Risk tells you what to watch: a host that outmatches your defence reads High in red, a garrison with a column coming reads Column inbound, a scout you can no longer recall reads Committed.
+- Without a watchtower warning, enemy power shows "?" and risk shows Unknown.
+- Recall and Sally buttons work the same as before. The fight itself still rolls.
+
 ## 2026-11-06 — Living board animations under the status overlay (bakeoff/gemini-board-living)
 
 - **Living isometric board:** The tabletop board now features ambient living animations that breathe life into the terrain, holds, and fog beneath the status chips.

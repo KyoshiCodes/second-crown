@@ -2,6 +2,7 @@ import React from "react";
 import {
   canAffordTrain,
   canSally,
+  forcePower,
   garrisonPower,
   gateOnRim,
   getProvince,
@@ -44,6 +45,7 @@ import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
 import { ForceCard } from "./hud/ForceCard";
+import { forceStatusRows, tripProgress } from "./hud/ForceStatus";
 import { SlotPips } from "./hud/SlotPip";
 import { captainName } from "./hud/captainName";
 import { BattleCard } from "./hud/BattleCard";
@@ -99,6 +101,20 @@ export function WarRoom(props: {
     ? listLedger(state).find((e) => /march|battle|camp|siege|hold|garrison|flag|storm|sally/i.test(`${e.kind} ${e.text}`))
     : undefined;
   const story = state ? lastBattleStory(state) : null;
+
+  // Status rows read existing values only: forcePower / garrisonPower / realmPower, march and gather ticks.
+  const homeId = state?.board.homeProvinceId;
+  const columnPower = (m: { force?: Record<string, number>; levy: number }) => (m.force ? forcePower(m.force) : m.levy);
+  const postPower = (id: string) => (state ? garrisonPower(state, id) : 0);
+  const defenseAt = (id: string) => (id === homeId ? mine : postPower(id));
+  const threatened = new Set(hostileColumns.map((m) => m.toId));
+  const powerMax = Math.max(
+    1,
+    ...scouts.map(columnPower),
+    ...gathers.map((g) => forcePower(g.force)),
+    ...posts.map((g) => postPower(g.provinceId)),
+    ...(seen ? hostileColumns.map(columnPower) : []),
+  );
 
   const card = { margin: "10px 0", fontSize: 13 } as const;
   const h = { display: "block", marginBottom: 6 } as const;
@@ -232,6 +248,14 @@ export function WarRoom(props: {
                   name="Scout"
                   dest={provinceLabel(m.toId)}
                   seconds={etaOf(m.arrivesTick)}
+                  status={forceStatusRows({
+                    power: columnPower(m),
+                    powerMax,
+                    seconds: etaOf(m.arrivesTick),
+                    risk: m.id === firstColumnId && tick < m.arrivesTick
+                      ? { value: "Low · recall open", tone: "calm" }
+                      : { value: "Committed", tone: "warn" },
+                  })}
                   action={{
                     label: "Recall",
                     disabled: !(m.id === firstColumnId && tick < m.arrivesTick),
@@ -263,6 +287,20 @@ export function WarRoom(props: {
                     detail={g.phase !== "outbound" ? `${g.phase} · load ${g.load}` : g.phase}
                     loaded={isLoaded}
                     empty={isEmptyReturn}
+                    status={forceStatusRows({
+                      power: forcePower(g.force),
+                      powerMax,
+                      seconds: etaOf(g.arrivesTick),
+                      progress: g.phase === "gathering" ? undefined : tripProgress(tick, g.arrivesTick, g.travelTicks),
+                      etaNote: g.phase === "gathering" ? "gathering" : undefined,
+                      risk: isEmptyReturn
+                        ? { value: "Empty haul", tone: "warn" }
+                        : threatened.has(g.toId)
+                          ? { value: "Host on target", tone: "danger" }
+                          : g.phase === "returning"
+                            ? { value: "Low · laden", tone: "calm" }
+                            : { value: "Low · recall open", tone: "calm" },
+                    })}
                     action={{
                       label: "Recall",
                       disabled: g.phase === "returning",
@@ -287,6 +325,13 @@ export function WarRoom(props: {
                   name={`Garrison · power ${state ? garrisonPower(state, g.provinceId) : 0}`}
                   dest={provinceLabel(g.provinceId)}
                   detail={Object.entries(g.force).map(([k, n]) => `${n} ${k}`).join(", ")}
+                  status={forceStatusRows({
+                    power: postPower(g.provinceId),
+                    powerMax,
+                    risk: threatened.has(g.provinceId)
+                      ? { value: "Column inbound", tone: "danger" }
+                      : { value: "Quiet", tone: "calm" },
+                  })}
                   action={{
                     label: "Recall",
                     onClick: () =>
@@ -313,6 +358,16 @@ export function WarRoom(props: {
                 dest={provinceLabel(m.toId)}
                 seconds={etaOf(m.arrivesTick)}
                 detail={`from ${provinceLabel(m.fromId)}`}
+                status={forceStatusRows({
+                  power: seen ? columnPower(m) : undefined,
+                  powerMax,
+                  seconds: etaOf(m.arrivesTick),
+                  risk: !seen
+                    ? { value: "Unknown · no watch", tone: "fog" }
+                    : columnPower(m) >= defenseAt(m.toId)
+                      ? { value: `High · vs ${defenseAt(m.toId)}`, tone: "danger" }
+                      : { value: `Held · vs ${defenseAt(m.toId)}`, tone: "warn" },
+                })}
                 action={
                   sallyReady && m.id === sallyTargetId
                     ? {

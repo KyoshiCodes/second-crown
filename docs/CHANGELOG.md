@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-07 — Living status rows on War Room force cards (wave/war-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Every force card in the War Room (Scouts, Gathers, Garrisons, Incoming) now has three stacked rows: **Power**, **ETA**, **Risk**. Values come from existing sim reads (`forcePower`, `garrisonPower`, `realmPower`, march/gather ticks, `watchtowerWarning`).
+- Power bars compare each card against the biggest force on screen. Gathers get a trip progress bar from their stored `travelTicks`. Risk pips breathe (faster on danger); reduced-motion turns that off.
+- Existing buttons (Recall, Sally) and actions are unchanged.
+- New `hud/ForceStatus.tsx` + `hud/force-status.css`; `ForceCard` takes an optional `status` prop.
+- Tests: new `hud/ForceStatus.test.tsx` (9 tests). Sim 323, app 428, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-06 — Living board animations under the status overlay (bakeoff/gemini-board-living)
 
 - **Living board animations:** Added atmospheric living SVG animation layer (`BoardLiving.tsx`) mounted directly over the board canvas and under the status overlay chips.
