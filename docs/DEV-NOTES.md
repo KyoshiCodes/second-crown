@@ -1,3 +1,11 @@
+## 2026-11-07 — app / War Room force card ledger rows (wave/war-living)
+
+- **Files:** `packages/app/src/hud/ForceLedger.tsx` (exports `ForceLedger`, `ledgerEta`, `ledgerActionState`, types `ForceLedgerKind`, `ForceLedgerAction`, `ForceLedgerProps`), `packages/app/src/hud/force-ledger.css`, test `hud/ForceLedger.test.tsx`.
+- **Integration (`ForceCard.tsx`):** the old `.sc-force-head` / `.sc-force-captain` / `.sc-force-dest` / `.sc-force-detail` spans and the standalone `.sc-force-btn` are replaced by `<ForceLedger>`. ForceCard pulls the `eta` row out of `status` and hands it to the ledger (for its note and `fill`); `ForceStatus` now gets only the power and risk rows. Props of `ForceCard` are unchanged, so `WarRoom.tsx` is untouched.
+- **Inputs:** only the existing ForceCard props (`name`, `captain`, `dest`, `detail`, `seconds`, `action`, `status`). No sim imports, no state reads, no new math.
+- **Markup:** `<dl class="sc-force-ledger">` with `<div class="sc-force-ledger-row is-<name|dest|eta|action>">`; ETA row adds `is-moving` / `is-posted`; action row adds `state-ready` / `state-locked` / `state-none`. The button keeps class `sc-force-btn` and the name span keeps `sc-force-name` so old theme.css rules still apply.
+- **CSS:** `.sc-force-ledger-*`, tone via `--sc-force-ledger-tone`. `prefers-reduced-motion` disables the edge and shimmer animations. `theme.css` untouched.
+
 ## 2026-11-07 — app / living walker glyphs under People/Job cards (bakeoff/gemini-people-living)
 
 - **Components:** `packages/app/src/hud/PeopleLivingGlyph.tsx` exports `PeopleLivingGlyph` (`15×15` walker/idle pose badge + flair strip), `PeopleLivingUnderlay` (`28×28` bottom-right corner watermark), `getPeopleCraft`, `resolvePeopleLiving`, and types `PeopleCraft`, `PeoplePose`, `PeopleLivingState`, `PeopleLivingInput`, `PeopleLivingDescriptor`.

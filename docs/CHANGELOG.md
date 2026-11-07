@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-07 — Living ledger rows on War Room force cards (wave/war-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- Each War Room force card now stacks four ledger rows: **Name** (chip, name, captain), **Destination** (target and the old detail text), **ETA** (seconds / "gathering · Ns" / "Posted", with the trip bar when available), **Action** (the same Recall or Sally button; "None" when there is no action). Power and Risk rows stay below. ETA no longer shows twice.
+- Tone-coloured left edges per row; the ETA edge breathes while a force is moving and a ready action glows softly. Reduced-motion turns the motion off.
+- New `hud/ForceLedger.tsx` + `hud/force-ledger.css`; `hud/ForceCard.tsx` renders it. `WarRoom.tsx` unchanged.
+- Tests: new `hud/ForceLedger.test.tsx` (7 tests). `npm test` and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-07 — Living walker glyphs under People/Job cards (bakeoff/gemini-people-living)
 
 - **Living walker & idle-pose strip (`PeopleLivingGlyph`):** Added a left-aligned `15×15` living SVG emblem and flair strip directly beneath `JobStatusStack` on every People card (`JobCard.tsx`):

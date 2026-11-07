@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — War Room force cards read like a ledger (wave/war-living)
+
+- Each force card in the War Room (Scouts, Gathers, Garrisons, Incoming) now lists four rows top to bottom: **Name**, **Destination**, **ETA**, **Action**.
+- The **Recall** and **Sally** buttons are the same buttons, now in the Action row. If a card has nothing to do, it says "None".
+- Power and Risk rows are still underneath. The ETA bar fills as a party travels; the ETA edge pulses while a force is on the road.
+- No game numbers changed.
+
 ## 2026-11-07 — Living walker and resting glyphs on People cards (bakeoff/gemini-people-living)
 
 - **Living walkers & idle poses:** Under the Job, Post, and Idle rows on each People card in the Kingdom tab, a subtle living glyph now reflects how those hands spend their day:

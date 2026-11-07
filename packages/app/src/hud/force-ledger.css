@@ -1,0 +1,110 @@
+/* --- War Room: stacked name / destination / ETA / action rows on a force card. --- */
+.sc-force-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  min-width: 0;
+}
+.sc-force-ledger-row {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 2px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-force-ledger-tone, var(--chrome-btn-border));
+}
+.sc-force-ledger-label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.sc-force-ledger-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  margin: 0;
+  min-width: 0;
+  text-align: right;
+}
+.sc-force-ledger-main {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.sc-force-ledger-sub {
+  flex-basis: 100%;
+  min-width: 0;
+  font-size: 10.5px;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-force-ledger-row.is-name .sc-force-ledger-main { font-size: 12px; font-weight: 600; }
+.sc-force-ledger-row.is-name .sc-force-ledger-sub { font-style: italic; color: var(--chrome-accent); opacity: 0.9; }
+.sc-force-ledger-row.is-name .sc-war-chip,
+.sc-force-ledger-row.is-name svg { flex: none; }
+
+/* Row tones, kept local (theme.css untouched). */
+.sc-force-card.is-hostile .sc-force-ledger-row.is-name { --sc-force-ledger-tone: #f85149; }
+.sc-force-card.is-scout .sc-force-ledger-row.is-name { --sc-force-ledger-tone: #58a6ff; }
+.sc-force-card.is-gather .sc-force-ledger-row.is-name { --sc-force-ledger-tone: #d29922; }
+.sc-force-card.is-garrison .sc-force-ledger-row.is-name { --sc-force-ledger-tone: #4ade80; }
+.sc-force-ledger-row.is-dest { --sc-force-ledger-tone: #8b949e; }
+.sc-force-ledger-row.is-eta.is-moving { --sc-force-ledger-tone: #58a6ff; }
+.sc-force-ledger-row.is-eta.is-posted { --sc-force-ledger-tone: #4ade80; }
+.sc-force-ledger-row.is-eta .sc-force-ledger-main { color: var(--chrome-accent); }
+.sc-force-ledger-row.is-action.state-ready { --sc-force-ledger-tone: var(--chrome-accent); }
+.sc-force-ledger-row.is-action.state-locked { --sc-force-ledger-tone: #8b949e; }
+.sc-force-ledger-row.is-action.state-none { --sc-force-ledger-tone: transparent; }
+.sc-force-ledger-row.is-action.state-none .sc-force-ledger-main { opacity: 0.5; }
+.sc-force-ledger-row.is-action .sc-force-btn { margin: 0; }
+
+/* Trip bar under the ETA row (only when the sim stores trip length). */
+.sc-force-ledger-bar {
+  grid-column: 1 / -1;
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--chrome-btn-border);
+  overflow: hidden;
+}
+.sc-force-ledger-fill {
+  display: block;
+  height: 100%;
+  background-color: var(--sc-force-ledger-tone);
+  background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+  background-size: 200% 100%;
+  transition: width 0.6s ease-out;
+  animation: sc-force-ledger-shimmer 2.4s linear infinite;
+}
+
+/* Living: the ETA edge breathes while a force is on the road; a ready action glows softly. */
+.sc-force-ledger-row.is-eta.is-moving { animation: sc-force-ledger-edge 2.2s ease-in-out infinite; }
+.sc-force-ledger-row.is-action.state-ready { animation: sc-force-ledger-edge 3.2s ease-in-out infinite; }
+
+@keyframes sc-force-ledger-edge {
+  0%, 100% { border-left-color: var(--sc-force-ledger-tone); }
+  50% { border-left-color: transparent; }
+}
+@keyframes sc-force-ledger-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-force-ledger-row,
+  .sc-force-ledger-fill { animation: none !important; }
+  .sc-force-ledger-fill { transition: none; }
+}

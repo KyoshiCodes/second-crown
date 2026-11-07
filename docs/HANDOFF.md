@@ -142,12 +142,12 @@ Merged through PR **#297** (hold status living pip, #297; hold status card, #297
 
 ## Living status rows on War Room force cards (branch wave/war-living, not merged)
 
-- **What it is:** Every War Room force card (Scouts, Gathers, Garrisons, Incoming) has three stacked rows: **Power**, **ETA**, **Risk**, with tone pips and small bars.
-- **Where:** `packages/app/src/hud/ForceStatus.tsx`, `packages/app/src/hud/force-status.css`; `ForceCard.tsx` takes an optional `status` prop; `WarRoom.tsx` builds the rows.
+- **What it is:** Every War Room force card (Scouts, Gathers, Garrisons, Incoming) now opens with a four-row ledger: **Name** (chip, name, captain), **Destination** (target, plus the old detail line), **ETA** (seconds, "gathering · Ns", or "Posted", with the trip bar when the sim stores trip length), **Action** (the existing Recall / Sally button; "None" when the card has no action). Under it sit the **Power** and **Risk** rows, with tone pips and small bars. ETA is shown once, in the ledger.
+- **Where:** `packages/app/src/hud/ForceLedger.tsx` + `force-ledger.css` (ledger, 2026-11-07 expansion); `packages/app/src/hud/ForceStatus.tsx` + `force-status.css` (power/risk rows). `ForceCard.tsx` renders the ledger from props it already had and passes the ETA status row into it; `WarRoom.tsx` is unchanged by the expansion.
 - **Reads only:** `forcePower`, `garrisonPower`, `realmPower`, `listMarches`, `listGathers`, `listGarrisons`, `incomingOnHome`, `incomingOnPlayerFlags`, `watchtowerWarning`, `state.meta.tick`. Fog hides hostile power.
-- **Buttons:** Recall and Sally are unchanged.
+- **Buttons:** Recall and Sally are unchanged (same label, disabled state, and handler); they now live in the Action row.
 - **Rules respected:** No changes to `packages/sim`, `server/`, or `theme.css`. No new game math.
-- **Branch:** `wave/war-living` (from `origin/main`). Pushed, no PR.
+- **Branch:** `wave/war-living` (fast-forwarded to `origin/main`, then the ledger commit on top). Pushed, no PR.
 
 ## Living board animations under the status overlay (branch bakeoff/gemini-board-living, not merged)
 
