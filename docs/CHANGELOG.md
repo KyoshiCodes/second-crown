@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-07 — Living status rows on Standing works cards (wave/works-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Building output and bonus rules unchanged.
+- Every Standing works card in the Kingdom tab now stacks three rows: **Level** (`lv N / cap` from `maxLevelFor`, "N to cap" or "at cap", with a bar), **Staffed** (`+N%` from `staffBonus` with a bar that reads full at +40%, or Empty, No crew for works with no job, or Scarred · repair to work), **Bonuses** (cluster / pair / keep chips from the existing bonus readers, or none).
+- Staffed and Bonuses pips breathe while the work is crewed or lifted; scarred works pulse faster. Reduced-motion turns that off. Scarred works fog Level and Bonuses.
+- Demolish and Repair buttons unchanged: same `tryDemolish` / `tryRepair` calls and messages.
+- New `hud/WorkStatus.tsx` + `hud/work-status.css`; `hud/WorkCard.tsx` renders the rows in place of its old status and perks lines.
+- Tests: new `hud/WorkStatus.test.tsx` (10 tests). Sim 323, app 490, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living goods glyphs under Market stall cards (bakeoff/gemini-market-living)
 
 - **Living goods glyphs:** Added subtle living commodity heraldry under the Market stall cards (`OfferCard.tsx`), featuring a corner-confined ambient watermark underlay (`MarketLivingUnderlay`) and a left-aligned animated goods emblem strip (`MarketLivingGlyph`) directly beneath the Give / Get / Stock rows.

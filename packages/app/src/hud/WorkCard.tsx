@@ -2,7 +2,9 @@ import React from "react";
 import {
   adjacencyBonus,
   getBuildingType,
+  jobForBuildingType,
   keepBonus,
+  maxLevelFor,
   pairBonus,
   staffBonus,
   tryDemolish,
@@ -11,6 +13,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
 import { HallChip } from "./HallChip";
+import { WorkStatus, workStatusRows } from "./WorkStatus";
 
 type Building = GameState["buildings"][number];
 
@@ -22,11 +25,16 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
   const cluster = scarred ? 0 : pct(adjacencyBonus(state, b));
   const pair = scarred ? 0 : pct(pairBonus(state, b));
   const keep = scarred ? 0 : pct(keepBonus(state, b));
-  const perks = [
-    cluster > 0 ? `cluster +${cluster}%` : "",
-    pair > 0 ? `pair +${pair}%` : "",
-    keep > 0 ? `keep +${keep}%` : "",
-  ].filter(Boolean);
+  const rows = workStatusRows({
+    level: b.level,
+    maxLevel: maxLevelFor(state, b.typeId, b.realmId),
+    scarred,
+    crewed: jobForBuildingType(b.typeId) !== "unassigned",
+    staffPct: staff,
+    clusterPct: cluster,
+    pairPct: pair,
+    keepPct: keep,
+  });
   const cls = ["sc-work-card", scarred ? "is-scarred" : staff > 0 ? "is-staffed" : "is-empty"].join(" ");
 
   return (
@@ -36,10 +44,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
         <span className="sc-work-name">{nm}</span>
         <span className="sc-work-level">lv {b.level}</span>
       </div>
-      <div className="sc-work-status">
-        {scarred ? "Scarred · idle" : staff > 0 ? `Staffed +${staff}%` : "Empty"}
-      </div>
-      {perks.length > 0 ? <div className="sc-work-perks">{perks.join(" · ")}</div> : null}
+      <WorkStatus rows={rows} />
       <div className="sc-work-foot">
         <span className="sc-work-where">{b.x},{b.y}</span>
         {scarred ? (

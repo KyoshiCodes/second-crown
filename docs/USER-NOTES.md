@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Standing works show level, staffed and bonuses (wave/works-living)
+
+- In Standing works on the Kingdom tab, each building card now has three short rows: Level, Staffed and Bonuses.
+- Level shows the building's level and how high it can go right now (for example "lv 1 / 2"), with a small bar.
+- Staffed shows how much your workers lift it ("+20%"), or "Empty" if nobody works there. Buildings that never need workers say "No crew".
+- Bonuses shows small tags for cluster, pair and keep lifts, or "none".
+- Scarred buildings say so in red until you repair them.
+- The Demolish and Repair buttons work the same as before. No numbers in the game have changed.
+
 ## 2026-11-07 — Living goods glyphs on Market stall cards (bakeoff/gemini-market-living)
 
 - **Living stall signs:** Each Market stall card on the Kingdom tab now carries a subtle, living commodity emblem matching the goods it pays out:

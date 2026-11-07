@@ -1,3 +1,10 @@
+## 2026-11-07 — app / Standing works status rows (wave/works-living)
+
+- **Files:** `packages/app/src/hud/WorkStatus.tsx` (exports `WorkStatus`, `workStatusRows`, types `WorkStatusRow`, `WorkStatusInput`, `WorkBonusChip`), `packages/app/src/hud/work-status.css`, test `hud/WorkStatus.test.tsx`. `hud/WorkCard.tsx` now renders `<WorkStatus>` instead of `.sc-work-status` / `.sc-work-perks`; those rules in `theme.css` stay (still used by other cards).
+- **Inputs:** `b.level`, `maxLevelFor(state, typeId, realmId)`, `jobForBuildingType(typeId) !== "unassigned"`, and the whole percents WorkCard already computed from `staffBonus` / `adjacencyBonus` / `pairBonus` / `keepBonus`. `workStatusRows` is pure and takes plain numbers, so it is easy to test.
+- **Display-only constant:** `STAFF_BAR_FULL = 40` scales the staffed bar. It mirrors the current staff cap in `economy.ts` for display; if that cap changes, the bar just clamps. Never fed back into the sim.
+- **CSS:** classes are `.sc-workstat-*`, tones via `--sc-workstat-tone`. `.sc-work-grid:has(.sc-workstat)` widens columns to `minmax(190px, 1fr)` without touching `theme.css`.
+
 ## 2026-11-07 — app / living goods glyphs under Market stall cards (bakeoff/gemini-market-living)
 
 - **Components:** `packages/app/src/hud/MarketLivingGlyph.tsx` exports `MarketLivingUnderlay` (`34×34` bottom-right corner watermark), `MarketLivingGlyph` (`14×14` commodity badge + lot flair strip), `getOfferGoodsKind`, and `GoodsKind` (`"food" | "wood" | "stone" | "gold"`).
