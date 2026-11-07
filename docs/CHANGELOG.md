@@ -1,10 +1,14 @@
 # CHANGELOG
 
-## 2026-11-07 — Army unit glyph contrast fix (wave/army-glyph-contrast)
+## 2026-11-07 — Softened Army unit glyph contrast & corner confinement (bakeoff/gemini-army-glyph-contrast)
 
-- App only (`packages/app/src/hud/unit-living.css`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
-- **Fix:** The background unit glyph (`UnitLivingUnderlay`) showed at roughly 85–100% opacity over the Power/Cost/Ready lines because the `sc-unit-idle-breath` / `sc-unit-drilling-pulse` keyframes animate `opacity` and overrode the static `svg` value. The opacity cap moved to the wrapper span: 0.3 by default, 0.35 while drilling, 0.2 when locked.
-- **Tests:** One new test in `UnitLivingGlyph.test.tsx` checks that the wrapper caps stay ≤ 0.35 and that the `svg` rule has no opacity of its own. 323 sim + 458 app tests pass; app build succeeds.
+- **Contrast & corner confinement:** Softened the living unit glyphs on Army unit cards (`UnitLivingGlyph.tsx`, `unit-living.css`) so they never obscure card text, power figures, costs, or readiness notes.
+- **Root-cause fix & layout refinement:**
+  - *Dedicated low-opacity underlay keyframes*: Separated `.sc-unit-living-underlay svg` onto dedicated `sc-unit-underlay-breath` (`opacity: 0.35 -> 0.52`) and `sc-unit-underlay-pulse` (`opacity: 0.40 -> 0.58`) keyframes inside a capped wrapper (`opacity: 0.14..0.32`), fixing the shared keyframe bug that previously raised the background watermark to `0.85..1.0` opacity behind right-aligned card values.
+  - *Non-overlapping bottom-right corner pocket*: Confined `.sc-unit-living-underlay` to a compact `34px × 34px` bottom-right corner (`right: -2px; bottom: -2px`) with a soft radial fade mask, while left-aligning `.sc-unit-status-glyph` (`14px` icon + `36px` right-side clearance) so the watermark sits in an empty corner pocket away from card text.
+  - *Softened footer badge*: Reduced footer emblem contrast (`opacity: 0.58 -> 0.76` idle, `0.66 -> 0.86` drilling) and caption weight (`opacity: 0.56`).
+- **Invariants:** Purely visual presentation; zero changes to `packages/sim`, `server`, or `theme.css`. Preserves `pointer-events: none !important;`, phrasing-only markup inside `<button>`, and `prefers-reduced-motion: reduce`.
+- **Tests:** Expanded `packages/app/src/hud/UnitLivingGlyph.test.tsx` (10 tests) with explicit corner-confinement and opacity-ceiling regression guards.
 
 ## 2026-11-07 — Living unit glyphs under Army unit cards (bakeoff/gemini-army-living)
 

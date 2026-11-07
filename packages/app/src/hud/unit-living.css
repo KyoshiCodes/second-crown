@@ -12,29 +12,37 @@
   z-index: 1;
 }
 
-/* Ambient living unit glyph underlay beneath card contents */
+/* Corner-confined ambient living unit glyph watermark (bottom-right pocket) */
 .sc-unit-living-underlay {
   position: absolute;
-  inset: 0;
+  top: auto;
+  left: auto;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
   pointer-events: none !important;
   z-index: 0;
   overflow: hidden;
   user-select: none;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-end;
-  padding-right: 6px;
-  /* Contrast cap: opacity lives on the wrapper so the svg keyframes
-     (which animate opacity 0.85..1) can never push the glyph above it. */
-  opacity: 0.3;
+  opacity: 0.26;
+  -webkit-mask-image: radial-gradient(circle at 72% 72%, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0.35) 72%, transparent 100%);
+  mask-image: radial-gradient(circle at 72% 72%, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0.35) 72%, transparent 100%);
 }
 
 .sc-unit-living-underlay.is-drilling {
-  opacity: 0.35;
+  opacity: 0.32;
+}
+
+.sc-unit-living-underlay.is-short {
+  opacity: 0.22;
 }
 
 .sc-unit-living-underlay.is-locked {
-  opacity: 0.2;
+  opacity: 0.14;
 }
 
 .sc-unit-living-underlay,
@@ -44,40 +52,40 @@
 
 .sc-unit-living-underlay svg {
   display: block;
-  transform-origin: center center;
-  animation: sc-unit-idle-breath 3.8s ease-in-out infinite;
+  opacity: 0.42;
+  transform-origin: bottom right;
+  animation: sc-unit-underlay-breath 4.2s ease-in-out infinite;
 }
 
 .sc-unit-living-underlay.is-ready svg {
   color: #4ade80;
-  --sc-unit-glow: rgba(74, 222, 128, 0.4);
 }
 
 .sc-unit-living-underlay.is-drilling svg {
+  opacity: 0.48;
   color: #e3b341;
-  --sc-unit-glow: rgba(227, 179, 65, 0.5);
-  animation: sc-unit-drilling-pulse 1.8s ease-in-out infinite;
+  animation: sc-unit-underlay-pulse 2s ease-in-out infinite;
 }
 
 .sc-unit-living-underlay.is-short svg {
   color: #d29922;
-  --sc-unit-glow: rgba(210, 153, 34, 0.35);
 }
 
 .sc-unit-living-underlay.is-locked svg {
   color: #8b949e;
+  opacity: 0.32;
   animation: none;
 }
 
-/* Living unit glyph strip under status rows */
+/* Softened living unit glyph strip under status rows (reserves right corner pocket) */
 .sc-unit-status-glyph {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 5px;
   margin-top: 4px;
-  padding: 3px 0 1px;
-  border-top: 1px dotted rgba(255, 255, 255, 0.08);
+  padding: 3px 36px 1px 0;
+  border-top: 1px dotted rgba(255, 255, 255, 0.06);
   pointer-events: none !important;
   user-select: none;
 }
@@ -91,32 +99,33 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: none;
   transform-origin: center center;
-  animation: sc-unit-idle-breath 3s ease-in-out infinite;
+  animation: sc-unit-idle-breath 3.2s ease-in-out infinite;
 }
 
 .sc-unit-status-glyph.is-ready {
   color: #4ade80;
-  --sc-unit-glow: rgba(74, 222, 128, 0.55);
+  --sc-unit-glow: rgba(74, 222, 128, 0.32);
 }
 
 .sc-unit-status-glyph.is-drilling {
   color: #e3b341;
-  --sc-unit-glow: rgba(227, 179, 65, 0.6);
+  --sc-unit-glow: rgba(227, 179, 65, 0.38);
 }
 
 .sc-unit-status-glyph.is-drilling .sc-unit-glyph-icon {
-  animation: sc-unit-drilling-pulse 1.4s ease-in-out infinite;
+  animation: sc-unit-drilling-pulse 1.6s ease-in-out infinite;
 }
 
 .sc-unit-status-glyph.is-short {
   color: #d29922;
-  --sc-unit-glow: rgba(210, 153, 34, 0.5);
+  --sc-unit-glow: rgba(210, 153, 34, 0.28);
 }
 
 .sc-unit-status-glyph.is-locked {
   color: #8b949e;
-  opacity: 0.6;
+  opacity: 0.45;
 }
 
 .sc-unit-status-glyph.is-locked .sc-unit-glyph-icon {
@@ -126,52 +135,79 @@
 .sc-unit-glyph-flair {
   display: inline-block;
   font-size: 9px;
+  line-height: 1.1;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 0.56;
   font-weight: 500;
   color: var(--chrome-btn-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sc-unit-glyph-sparkle {
-  animation: sc-unit-sparkle 2s ease-in-out infinite;
+  animation: sc-unit-sparkle 2.2s ease-in-out infinite;
 }
 
-/* Animations */
+/* Dedicated low-opacity corner underlay animations (never overrides to opaque) */
+@keyframes sc-unit-underlay-breath {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.52;
+  }
+}
+
+@keyframes sc-unit-underlay-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.40;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.58;
+  }
+}
+
+/* Softened footer badge animations */
 @keyframes sc-unit-idle-breath {
   0%, 100% {
     transform: scale(1);
     filter: drop-shadow(0 0 1px var(--sc-unit-glow, transparent));
-    opacity: 0.85;
+    opacity: 0.58;
   }
   50% {
-    transform: scale(1.06);
-    filter: drop-shadow(0 0 4px var(--sc-unit-glow, transparent));
-    opacity: 1;
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 2px var(--sc-unit-glow, transparent));
+    opacity: 0.76;
   }
 }
 
 @keyframes sc-unit-drilling-pulse {
   0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 2px rgba(227, 179, 65, 0.5));
-    opacity: 0.88;
+    filter: drop-shadow(0 0 1px rgba(227, 179, 65, 0.3));
+    opacity: 0.66;
   }
   50% {
-    transform: scale(1.12);
-    filter: drop-shadow(0 0 6px rgba(227, 179, 65, 0.85));
-    opacity: 1;
+    transform: scale(1.07);
+    filter: drop-shadow(0 0 3px rgba(227, 179, 65, 0.55));
+    opacity: 0.86;
   }
 }
 
 @keyframes sc-unit-sparkle {
   0%, 100% {
-    opacity: 0.35;
+    opacity: 0.3;
     transform: scale(0.9);
   }
   50% {
-    opacity: 1;
-    transform: scale(1.2);
+    opacity: 0.82;
+    transform: scale(1.12);
   }
 }
 

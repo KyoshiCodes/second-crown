@@ -1,9 +1,11 @@
-## 2026-11-07 — app / Army unit glyph contrast (wave/army-glyph-contrast)
+## 2026-11-07 — app / softened Army unit glyph contrast (bakeoff/gemini-army-glyph-contrast)
 
-- **Root cause:** `.sc-unit-living-underlay svg { opacity: 0.13 }` was dead in practice. A running CSS animation that animates `opacity` overrides the element's static `opacity`, and both `sc-unit-idle-breath` (0.85→1) and `sc-unit-drilling-pulse` (0.88→1) do. The watermark rendered near full strength over the text.
-- **Fix:** Opacity now lives on the wrapper `.sc-unit-living-underlay` (0.3; `.is-drilling` 0.35; `.is-locked` 0.2). The svg keeps its keyframes. Effective opacity = wrapper × svg, so the max is the wrapper cap. Per-state `opacity` was removed from the svg rules.
-- **Rule of thumb:** For any decorative layer whose child animates `opacity`, put the readability cap on a parent, not on the animated element.
-- **Test:** `UnitLivingGlyph.test.tsx` › "caps the underlay glyph opacity on the wrapper…" parses `unit-living.css`, checks that each wrapper cap is in (0, 0.35], and checks that the `svg` rule has no `opacity`.
+- **Why:** `.sc-unit-living-underlay svg` previously shared `@keyframes sc-unit-idle-breath` and `sc-unit-drilling-pulse` (`opacity: 0.85..1`) with the footer badge icon, overriding its static `opacity: 0.13`/`0.22` rule and placing a full-opacity `64×64` SVG behind right-aligned `Cost` and `Ready` values.
+- **Fix (`unit-living.css`, `UnitLivingGlyph.tsx`):**
+  - Confined `.sc-unit-living-underlay` from `inset: 0` (`64×64`) to a `34px × 34px` bottom-right corner pocket (`right: -2px; bottom: -2px`) with a radial vignette `mask-image` fade.
+  - Capped wrapper opacity (`0.26` ready, `0.32` drilling, `0.22` short, `0.14` locked) and moved underlay SVG animation to dedicated `sc-unit-underlay-breath` (`0.35 -> 0.52`) and `sc-unit-underlay-pulse` (`0.40 -> 0.58`), keeping composite screen alpha strictly `<= 0.19`.
+  - Left-aligned `.sc-unit-status-glyph` with `padding: 3px 36px 1px 0`, shrunk its icon from `18px` to `14px`, and softened `sc-unit-idle-breath` / `sc-unit-drilling-pulse` icon glow and flair opacity (`0.56`).
+- **Guards:** Added CSS regression tests in `packages/app/src/hud/UnitLivingGlyph.test.tsx` (10 tests total) asserting corner bounds, radial mask, wrapper opacity `<= 0.35`, and underlay keyframe opacity `< 0.6`. Zero edits to `packages/sim`, `server/`, or `theme.css`; `pointer-events: none !important;` preserved.
 
 ## 2026-11-07 — app / living unit glyphs under Army unit cards (bakeoff/gemini-army-living)
 

@@ -2,10 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-07 — Army unit cards are easier to read (wave/army-glyph-contrast)
+## 2026-11-07 — Softer unit card glyphs for clear reading (bakeoff/gemini-army-glyph-contrast)
 
-- The large unit picture behind each Army unit card is now a faint watermark. The Power, Cost and Ready lines stay fully readable on top of it.
-- Nothing else changed: same cards, same buttons, same numbers.
+- **Clearer Army unit cards:** The living martial watermark on each Army unit card is now much softer and tucked neatly into the bottom-right corner, so unit names, power numbers, training costs, and readiness notes stay crisp and effortless to read.
+- **Unchanged controls:** Clicking any unit card to train levies works exactly the same as before.
 
 ## 2026-11-07 — Living unit glyphs under Army unit cards (bakeoff/gemini-army-living)
 

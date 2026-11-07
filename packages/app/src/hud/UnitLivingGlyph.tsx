@@ -37,9 +37,10 @@ export interface UnitLivingProps {
 }
 
 /**
- * Ambient background living glyph underlay beneath the unit card contents.
+ * Corner-confined ambient living glyph watermark tucked into the bottom-right
+ * pocket of the unit card so it never obscures card text.
  * Pure phrasing content (span + svg) valid inside a <button>, pointer-events: none,
- * subtle opacity with idle breath, glow, and drilling pulse.
+ * capped low opacity with dedicated underlay idle breath and drilling pulse.
  */
 export function UnitLivingUnderlay(props: UnitLivingProps) {
   const { typeId, open, affordable, drilling } = props;
@@ -59,8 +60,8 @@ export function UnitLivingUnderlay(props: UnitLivingProps) {
       aria-hidden="true"
     >
       <svg
-        width="64"
-        height="64"
+        width="34"
+        height="34"
         viewBox="0 0 64 64"
         fill="none"
         stroke="currentColor"
@@ -133,8 +134,8 @@ export function UnitLivingUnderlay(props: UnitLivingProps) {
 }
 
 /**
- * Living unit glyph strip rendered beneath the stacked status rows.
- * High clarity, delicate animated heraldry with idle breath, glow, and drilling pulse.
+ * Softened living unit glyph strip rendered beneath the stacked status rows,
+ * left-aligned with right-corner clearance so it never crowds card figures.
  * Pure phrasing content (spans only) for button semantics.
  */
 export function UnitLivingGlyph(props: UnitLivingProps) {
@@ -156,8 +157,8 @@ export function UnitLivingGlyph(props: UnitLivingProps) {
     >
       <span className="sc-unit-glyph-icon">
         <svg
-          width="18"
-          height="18"
+          width="14"
+          height="14"
           viewBox="0 0 20 20"
           fill="none"
           stroke="currentColor"

@@ -18,6 +18,22 @@ function readCssFile(relativePath: string): string {
   return fsMod.readFileSync(new URL(relativePath, import.meta.url), "utf8");
 }
 
+function extractBlock(css: string, header: string): string {
+  const idx = css.indexOf(header);
+  if (idx < 0) return "";
+  const open = css.indexOf("{", idx);
+  if (open < 0) return "";
+  let depth = 0;
+  for (let i = open; i < css.length; i++) {
+    if (css[i] === "{") depth++;
+    else if (css[i] === "}") {
+      depth--;
+      if (depth === 0) return css.slice(open + 1, i);
+    }
+  }
+  return "";
+}
+
 describe("getUnitFamily", () => {
   it("classifies units into infantry, ranged, cavalry, and command", () => {
     expect(getUnitFamily("militia")).toBe("infantry");
@@ -47,6 +63,8 @@ describe("UnitLivingUnderlay", () => {
       expect(html).toContain("sc-unit-living-underlay");
       expect(html).toContain('aria-hidden="true"');
       expect(html).toContain("<svg");
+      expect(html).toContain('width="34"');
+      expect(html).toContain('height="34"');
       expect(html).not.toMatch(/<(div|dl|dt|dd|p)\b/);
     }
   });
@@ -75,12 +93,13 @@ describe("UnitLivingUnderlay", () => {
 });
 
 describe("UnitLivingGlyph", () => {
-  it("renders living unit glyph with heraldic flairs", () => {
+  it("renders living unit glyph with heraldic flairs and compact 14px badge", () => {
     const locked = renderToStaticMarkup(
       <UnitLivingGlyph typeId="archer" open={false} affordable={false} />,
     );
     expect(locked).toContain("Sealed lore");
     expect(locked).toContain("is-locked");
+    expect(locked).toContain('width="14"');
     expect(locked).not.toMatch(/<(div|dl|dt|dd|p)\b/);
 
     const drilling = renderToStaticMarkup(
@@ -162,7 +181,7 @@ describe("UnitCard integration with living unit glyphs", () => {
   });
 });
 
-describe("unit-living.css isolation & accessibility", () => {
+describe("unit-living.css isolation, contrast softening & accessibility", () => {
   it("theme.css is untouched and does not contain unit-living classes", () => {
     const themeCss = readCssFile("../theme.css");
     expect(themeCss).not.toContain("sc-unit-living");
@@ -178,29 +197,53 @@ describe("unit-living.css isolation & accessibility", () => {
     expect(css).toContain("@keyframes sc-unit-drilling-pulse");
   });
 
-  it("caps the underlay glyph opacity on the wrapper so text stays readable", () => {
+  it("confines underlay to a non-overlapping bottom-right corner pocket with radial mask", () => {
     const css = readCssFile("./unit-living.css");
-    const rule = (sel: string): string => {
-      const start = css.indexOf(`\n${sel} {`);
-      if (start < 0) throw new Error(`missing rule ${sel}`);
-      const open = css.indexOf("{", start);
-      return css.slice(open + 1, css.indexOf("}", open));
-    };
-    const opacityOf = (sel: string): number => {
-      const m = rule(sel).match(/opacity:\s*([\d.]+)/);
-      if (!m) throw new Error(`no opacity on ${sel}`);
-      return Number(m[1]);
-    };
-    for (const sel of [
-      ".sc-unit-living-underlay",
-      ".sc-unit-living-underlay.is-drilling",
-      ".sc-unit-living-underlay.is-locked",
+    const underlayRule = extractBlock(css, ".sc-unit-living-underlay {");
+    expect(underlayRule).not.toContain("inset: 0");
+    expect(underlayRule).toContain("right: -2px");
+    expect(underlayRule).toContain("bottom: -2px");
+    expect(underlayRule).toContain("width: 34px");
+    expect(underlayRule).toContain("height: 34px");
+    expect(underlayRule).toContain("mask-image: radial-gradient");
+
+    const stripRule = extractBlock(css, ".sc-unit-status-glyph {");
+    expect(stripRule).toContain("justify-content: flex-start");
+    expect(stripRule).toContain("padding: 3px 36px 1px 0");
+  });
+
+  it("caps underlay opacity and uses dedicated low-opacity keyframes so card text stays readable", () => {
+    const css = readCssFile("./unit-living.css");
+
+    // Wrapper opacity caps across states stay <= 0.35
+    for (const selector of [
+      ".sc-unit-living-underlay {",
+      ".sc-unit-living-underlay.is-drilling {",
+      ".sc-unit-living-underlay.is-short {",
+      ".sc-unit-living-underlay.is-locked {",
     ]) {
-      const o = opacityOf(sel);
-      expect(o).toBeGreaterThan(0);
-      expect(o).toBeLessThanOrEqual(0.35);
+      const block = extractBlock(css, selector);
+      const match = block.match(/opacity:\s*([0-9.]+)/);
+      expect(match).not.toBeNull();
+      expect(Number(match![1])).toBeLessThanOrEqual(0.35);
     }
-    // The svg itself must not carry opacity: its keyframes animate opacity up to 1.
-    expect(rule(".sc-unit-living-underlay svg")).not.toMatch(/opacity/);
+
+    // Underlay SVG uses dedicated low-opacity keyframes, never high-opacity icon keyframes
+    const baseSvgRule = extractBlock(css, ".sc-unit-living-underlay svg {");
+    expect(baseSvgRule).toContain("sc-unit-underlay-breath");
+    expect(baseSvgRule).not.toContain("sc-unit-idle-breath");
+
+    const drillSvgRule = extractBlock(css, ".sc-unit-living-underlay.is-drilling svg {");
+    expect(drillSvgRule).toContain("sc-unit-underlay-pulse");
+    expect(drillSvgRule).not.toContain("sc-unit-drilling-pulse");
+
+    for (const kf of ["@keyframes sc-unit-underlay-breath", "@keyframes sc-unit-underlay-pulse"]) {
+      const kfBlock = extractBlock(css, kf);
+      const opacities = [...kfBlock.matchAll(/opacity:\s*([0-9.]+)/g)].map((m) => Number(m[1]));
+      expect(opacities.length).toBeGreaterThanOrEqual(2);
+      for (const op of opacities) {
+        expect(op).toBeLessThan(0.6);
+      }
+    }
   });
 });
