@@ -1,0 +1,87 @@
+/* Living status rows on People cards (JobCard). Do not touch theme.css. */
+
+.sc-jobstat {
+  --sc-jobstat-tone: #c9b48a;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 4px;
+  padding: 0;
+}
+
+.sc-jobstat-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px 2px 5px;
+  font-size: 11px;
+  line-height: 1.3;
+  background: rgba(18, 12, 8, 0.4);
+  border: 1px solid rgba(120, 83, 30, 0.5);
+  border-left: 3px solid var(--sc-jobstat-tone);
+  border-radius: 4px;
+  animation: sc-jobstat-in 200ms ease-out both;
+}
+
+.sc-jobstat-row:nth-child(2) { animation-delay: 30ms; }
+.sc-jobstat-row:nth-child(3) { animation-delay: 60ms; }
+
+.sc-jobstat-label {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+.sc-jobstat-value {
+  margin: 0;
+  min-width: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.sc-jobstat-pip {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sc-jobstat-tone);
+  animation: sc-jobstat-breathe 2.6s ease-in-out infinite;
+}
+
+/* Tones */
+.sc-jobstat-row.tone-busy { --sc-jobstat-tone: #38bdf8; }
+.sc-jobstat-row.tone-warn { --sc-jobstat-tone: #fb923c; }
+.sc-jobstat-row.tone-calm { --sc-jobstat-tone: #86efac; }
+.sc-jobstat-row.tone-none { --sc-jobstat-tone: #6b5a40; }
+
+.sc-jobstat-row.tone-warn .sc-jobstat-pip { animation-duration: 1.1s; }
+.sc-jobstat-row.tone-busy .sc-jobstat-pip { animation-duration: 1.6s; }
+.sc-jobstat-row.tone-none .sc-jobstat-pip { animation: none; opacity: 0.6; }
+
+@keyframes sc-jobstat-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes sc-jobstat-in {
+  from { opacity: 0; transform: translateX(-3px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-jobstat-row,
+  .sc-jobstat-pip {
+    animation: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .sc-jobstat-row { grid-template-columns: 40px 1fr; font-size: 10px; }
+}

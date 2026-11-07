@@ -27,6 +27,7 @@ export function PeoplePanel(props: { state: GameState | undefined; act: ActFn })
     const ib = order.indexOf(b);
     return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
   });
+  const kingdomIdle = groups.get("unassigned")?.length ?? 0;
   return (
     <>
       <h3>People</h3>
@@ -40,6 +41,7 @@ export function PeoplePanel(props: { state: GameState | undefined; act: ActFn })
             buildings={mine}
             posts={posts}
             act={act}
+            kingdomIdle={kingdomIdle}
           />
         ))}
       </div>

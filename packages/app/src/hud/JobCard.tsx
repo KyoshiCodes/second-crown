@@ -7,6 +7,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
 import { WalkerPip } from "./WalkerPip";
+import { JobStatusStack } from "./JobStatusStack";
 import "./walker-pip.css";
 
 type Citizen = GameState["citizens"][number];
@@ -19,8 +20,10 @@ export function JobCard(props: {
   buildings: Building[];
   posts: Building[];
   act: ActFn;
+  /** Hands on the Idle card across the kingdom. Display only. */
+  kingdomIdle?: number;
 }) {
-  const { name, idle, workers, buildings, posts, act } = props;
+  const { name, idle, workers, buildings, posts, act, kingdomIdle = 0 } = props;
   const label = (x: number, y: number) => {
     const b = buildings.find((q) => q.x === x && q.y === y);
     return `${b ? getBuildingType(b.typeId)?.name ?? b.typeId : "Tile"} ${x},${y}`;
@@ -44,6 +47,14 @@ export function JobCard(props: {
         <span className="sc-job-count">×{workers.length}</span>
       </span>
       <span className="sc-job-where">{idle ? "No post · waiting for work" : `Walks to ${siteText || "—"}`}</span>
+      <JobStatusStack
+        name={name}
+        idle={idle}
+        count={workers.length}
+        sites={[...sites]}
+        postCount={posts.length}
+        kingdomIdle={kingdomIdle}
+      />
       {workers.map((c, i) => (
         <span key={c.id} className="sc-job-row">
           <span className="sc-job-who">

@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — People cards show a status stack (wave/people-living)
+
+- Open the Kingdom tab and look at People. Each card now has three short rows: Job, Post and Idle.
+- Job shows the trade and how many hands work it. The Idle card says they have no trade yet.
+- Post shows where those hands walk to work. On the Idle card it says how many posts you can send them to.
+- Idle turns orange when someone is waiting for work, so you can spot spare hands from any card. It turns green when every hand is posted.
+- The "Post at…" picker and the Idle button work the same as before. No numbers in the game have changed.
+
 ## 2026-11-07 — Living hold glyphs on the joined hold panel (bakeoff/gemini-hold-living)
 
 - **Living hold emblems:** When you join a shared hold on the Cloud tab, subtle living badges now sit beneath the status rows alongside quiet corner watermarks on the hold cards:

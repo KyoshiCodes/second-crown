@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-07 — Living status rows on People cards (wave/people-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- Each People card now stacks three status rows under the "Walks to" line: **Job** (trade and hand count; Idle card says "No trade yet"), **Post** (walk-to sites, same labels as the card line; Idle card shows how many posts the picker offers), **Idle** (Idle card: hands waiting; other cards: spare hands idle in the kingdom, or "every hand posted"). Tone-coloured left edge and breathing pip per row; reduced-motion turns the motion off.
+- New `hud/JobStatusStack.tsx` + `hud/job-status-stack.css`; `hud/JobCard.tsx` renders it; `PeoplePanel.tsx` passes `kingdomIdle`. "Post at…" picker and Idle button unchanged.
+- Tests: new `hud/JobStatusStack.test.tsx` (10 tests). Sim 323, app 547, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living hold glyphs under the hold status cards (bakeoff/gemini-hold-living)
 
 - **Living hold glyph strip (`HoldLivingStrip`):** Added a 4-domain decorative SVG strip directly beneath `HoldStatusStack` on the joined hold panel (`JoinHoldCard.tsx`), giving **works**, **stores**, **stamps**, and **key** subtle glow, pulse, and drift motion:

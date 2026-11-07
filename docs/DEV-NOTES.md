@@ -1,3 +1,10 @@
+## 2026-11-07 — app / People card status rows (wave/people-living)
+
+- **Files:** `packages/app/src/hud/JobStatusStack.tsx` (exports `JobStatusStack`, `jobStatusRows`, types `JobStatusRow`, `JobStatusKind`, `JobStatusTone`, `JobStatusInput`), `packages/app/src/hud/job-status-stack.css`, test `hud/JobStatusStack.test.tsx`. `JobCard.tsx` renders `<JobStatusStack name idle count sites postCount kingdomIdle />` between `.sc-job-where` and the worker rows; new optional prop `kingdomIdle` (default 0). `PeoplePanel.tsx` computes `kingdomIdle = groups.get("unassigned")?.length ?? 0` and passes it to every card.
+- **Inputs:** values JobCard already had (`name`, `idle`, `workers.length`, its `sites` map of label → hands, `posts.length`) plus the existing Idle group size. No sim imports in the stack, no state reads. `jobStatusRows` is pure; a test asserts the input is unchanged.
+- **Markup:** `<dl class="sc-jobstat" aria-label="<name> living status">` with `<div class="sc-jobstat-row is-<kind> tone-<tone>">` rows (kinds `job`, `post`, `idle`; tones `busy`, `warn`, `calm`, `none`); pip inside `<dt>`, `aria-hidden`.
+- **CSS:** `.sc-jobstat-*`, tone via `--sc-jobstat-tone`; a compact sibling of `.sc-holdstat` sized for the narrow job grid (44px label column, 11px text). `prefers-reduced-motion` disables entry and pip animation. `theme.css` untouched.
+
 ## 2026-11-07 — app / living hold glyphs under hold status cards (bakeoff/gemini-hold-living)
 
 - **Components:** `packages/app/src/hud/HoldLivingGlyph.tsx` exports `HoldLivingStrip` (4-domain living strip for `works`, `stores`, `stamps`, `key`), `HoldCardUnderlay` (`24×24` bottom-right corner watermark), `resolveHoldLivingItems` (pure state resolver), and types `HoldLivingDomain`, `HoldLivingState`, `HoldLivingItem`, `HoldLivingInput`.
