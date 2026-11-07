@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living hall glyphs on Standing works cards (bakeoff/gemini-works-living)
+
+- **Living hall emblems:** Each Standing works card on the Kingdom tab now carries a subtle, living architectural glyph matching its kind of hall:
+  - **Farms, Granaries & Cottages:** Timbered hall gables and warm hearth flames (*Hearth lit* / *Hearth warm*).
+  - **Lumber Camps, Sawmills, Quarries & Masons:** Keystone arches and mill wheels (*Yards busy*).
+  - **Gold Mines, Markets & Mints:** Guildhall pediments and balance scales (*Coffers brisk*).
+  - **Barracks, Towers, Walls, Gates & Keeps:** Crenellated stone parapets and watch beacons (*Beacon lit* / *Ward standing*).
+  - **Academies, Chapels & Infirmaries:** Vaulted lancet arches and scholar stars (*Sanctum lit* / *Sanctum calm*).
+- **At-a-glance state:** Crewed and bonus-lifted halls glow and pulse gently; empty workyards rest in soft amber (*Hall uncrewed*); siege-damaged buildings pulse in red (*Siege scarred*) until repaired.
+- **Clean reading & controls:** Watermarks stay tucked into a quiet corner pocket away from numbers and tags, and **Demolish** / **Repair** work identically to before.
+
 ## 2026-11-07 — Standing works show level, staffed and bonuses (wave/works-living)
 
 - In Standing works on the Kingdom tab, each building card now has three short rows: Level, Staffed and Bonuses.

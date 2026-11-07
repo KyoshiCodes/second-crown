@@ -1,0 +1,290 @@
+/* --- Living hall glyphs under Kingdom Standing works cards --- */
+/* Isolated styles: theme.css and work-status.css stay untouched. */
+
+.sc-work-card:has(.sc-works-living-underlay) {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Keep header, status rows, and footer buttons cleanly above the decorative underlay */
+.sc-work-card:has(.sc-works-living-underlay) > *:not(.sc-works-living-underlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Corner-confined ambient hall watermark tucked into the right-hand pocket above the footer button */
+.sc-works-living-underlay {
+  position: absolute;
+  top: auto;
+  left: auto;
+  right: 2px;
+  bottom: 24px;
+  width: 32px;
+  height: 32px;
+  pointer-events: none !important;
+  z-index: 0;
+  overflow: hidden;
+  user-select: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  opacity: 0.25;
+  -webkit-mask-image: radial-gradient(circle at 68% 68%, rgba(0, 0, 0, 1) 18%, rgba(0, 0, 0, 0.32) 68%, transparent 100%);
+  mask-image: radial-gradient(circle at 68% 68%, rgba(0, 0, 0, 1) 18%, rgba(0, 0, 0, 0.32) 68%, transparent 100%);
+}
+
+.sc-works-living-underlay.is-lifted {
+  opacity: 0.29;
+}
+
+.sc-works-living-underlay.is-standing {
+  opacity: 0.21;
+}
+
+.sc-works-living-underlay.is-idle {
+  opacity: 0.15;
+}
+
+.sc-works-living-underlay.is-scarred {
+  opacity: 0.28;
+}
+
+.sc-works-living-underlay,
+.sc-works-living-underlay * {
+  pointer-events: none !important;
+}
+
+.sc-works-living-underlay svg {
+  display: block;
+  opacity: 0.42;
+  transform-origin: bottom right;
+  animation: sc-works-underlay-drift 4.4s ease-in-out infinite;
+}
+
+.sc-works-living-underlay.domain-hearth svg {
+  color: #f59e0b;
+}
+
+.sc-works-living-underlay.domain-craft svg {
+  color: #4ade80;
+}
+
+.sc-works-living-underlay.domain-mint svg {
+  color: #facc15;
+}
+
+.sc-works-living-underlay.domain-martial svg {
+  color: #79c0ff;
+}
+
+.sc-works-living-underlay.domain-sanctum svg {
+  color: #c4b5fd;
+}
+
+.sc-works-living-underlay.is-lifted svg {
+  animation: sc-works-underlay-pulse 3s ease-in-out infinite;
+}
+
+.sc-works-living-underlay.is-idle svg {
+  color: #d29922;
+  opacity: 0.34;
+}
+
+.sc-works-living-underlay.is-scarred svg {
+  color: #f85149;
+  opacity: 0.46;
+  animation: sc-works-underlay-pulse 1.8s ease-in-out infinite;
+}
+
+/* Subtle living hall glyph strip beneath WorkStatus rows (reserves right pocket) */
+.sc-works-status-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  margin-top: 2px;
+  padding: 3px 36px 1px 0;
+  border-top: 1px dotted rgba(255, 255, 255, 0.06);
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-works-status-glyph,
+.sc-works-status-glyph * {
+  pointer-events: none !important;
+}
+
+.sc-works-glyph-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  transform-origin: center center;
+  animation: sc-works-hall-drift 3.4s ease-in-out infinite;
+}
+
+.sc-works-status-glyph.domain-hearth.is-working,
+.sc-works-status-glyph.domain-hearth.is-standing {
+  color: #f59e0b;
+  --sc-works-glow: rgba(245, 158, 11, 0.34);
+}
+
+.sc-works-status-glyph.domain-craft.is-working,
+.sc-works-status-glyph.domain-craft.is-standing {
+  color: #4ade80;
+  --sc-works-glow: rgba(74, 222, 128, 0.32);
+}
+
+.sc-works-status-glyph.domain-mint.is-working,
+.sc-works-status-glyph.domain-mint.is-standing {
+  color: #facc15;
+  --sc-works-glow: rgba(250, 204, 21, 0.36);
+}
+
+.sc-works-status-glyph.domain-martial.is-working,
+.sc-works-status-glyph.domain-martial.is-standing {
+  color: #79c0ff;
+  --sc-works-glow: rgba(121, 192, 255, 0.34);
+}
+
+.sc-works-status-glyph.domain-sanctum.is-working,
+.sc-works-status-glyph.domain-sanctum.is-standing {
+  color: #c4b5fd;
+  --sc-works-glow: rgba(196, 181, 253, 0.36);
+}
+
+.sc-works-status-glyph.is-lifted .sc-works-glyph-icon {
+  animation: sc-works-lifted-pulse 2.4s ease-in-out infinite;
+}
+
+.sc-works-status-glyph.is-idle {
+  color: #d29922;
+  --sc-works-glow: rgba(210, 153, 34, 0.2);
+}
+
+.sc-works-status-glyph.is-idle .sc-works-glyph-icon {
+  animation: sc-works-idle-breath 3.8s ease-in-out infinite;
+}
+
+.sc-works-status-glyph.is-scarred {
+  color: #f85149;
+  --sc-works-glow: rgba(248, 81, 73, 0.38);
+}
+
+.sc-works-status-glyph.is-scarred .sc-works-glyph-icon {
+  animation: sc-works-scarred-pulse 1.6s ease-in-out infinite;
+}
+
+.sc-works-glyph-flair {
+  display: inline-block;
+  font-size: 9px;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.56;
+  font-weight: 500;
+  color: var(--chrome-btn-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-works-glyph-glint {
+  animation: sc-works-glint 2.3s ease-in-out infinite;
+}
+
+/* Dedicated low-opacity corner underlay animations (never overrides to opaque) */
+@keyframes sc-works-underlay-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.34;
+  }
+  50% {
+    transform: translate3d(-0.8px, -1.5px, 0) scale(1.04);
+    opacity: 0.50;
+  }
+}
+
+@keyframes sc-works-underlay-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.38;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.55;
+  }
+}
+
+/* Softened footer hall glyph animations: glow, drift, and pulse */
+@keyframes sc-works-hall-drift {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 1px var(--sc-works-glow, transparent));
+    opacity: 0.60;
+  }
+  50% {
+    transform: translateY(-0.8px) scale(1.04);
+    filter: drop-shadow(0 0 2.5px var(--sc-works-glow, transparent));
+    opacity: 0.80;
+  }
+}
+
+@keyframes sc-works-lifted-pulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 1px var(--sc-works-glow, transparent));
+    opacity: 0.64;
+  }
+  50% {
+    transform: translateY(-0.8px) scale(1.07);
+    filter: drop-shadow(0 0 3px var(--sc-works-glow, transparent));
+    opacity: 0.85;
+  }
+}
+
+@keyframes sc-works-idle-breath {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.62;
+  }
+}
+
+@keyframes sc-works-scarred-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 1px rgba(248, 81, 73, 0.28));
+    opacity: 0.64;
+  }
+  50% {
+    transform: scale(1.07);
+    filter: drop-shadow(0 0 3px rgba(248, 81, 73, 0.52));
+    opacity: 0.86;
+  }
+}
+
+@keyframes sc-works-glint {
+  0%, 100% {
+    opacity: 0.30;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.84;
+    transform: scale(1.12);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .sc-works-living-underlay svg,
+  .sc-works-glyph-icon,
+  .sc-works-glyph-glint {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

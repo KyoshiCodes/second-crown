@@ -14,6 +14,7 @@ import {
 import type { ActFn } from "../game/useGameEngine";
 import { HallChip } from "./HallChip";
 import { WorkStatus, workStatusRows } from "./WorkStatus";
+import { WorkLivingGlyph, WorkLivingUnderlay } from "./WorkLivingGlyph";
 
 type Building = GameState["buildings"][number];
 
@@ -25,11 +26,13 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
   const cluster = scarred ? 0 : pct(adjacencyBonus(state, b));
   const pair = scarred ? 0 : pct(pairBonus(state, b));
   const keep = scarred ? 0 : pct(keepBonus(state, b));
+  const crewed = jobForBuildingType(b.typeId) !== "unassigned";
+  const lifted = cluster + pair + keep > 0;
   const rows = workStatusRows({
     level: b.level,
     maxLevel: maxLevelFor(state, b.typeId, b.realmId),
     scarred,
-    crewed: jobForBuildingType(b.typeId) !== "unassigned",
+    crewed,
     staffPct: staff,
     clusterPct: cluster,
     pairPct: pair,
@@ -39,12 +42,26 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
 
   return (
     <div className={cls} title={`${nm} at ${b.x},${b.y}`}>
+      <WorkLivingUnderlay
+        typeId={b.typeId}
+        scarred={scarred}
+        crewed={crewed}
+        staffed={staff > 0}
+        lifted={lifted}
+      />
       <div className="sc-work-head">
         <HallChip typeId={b.typeId} staffed={staff > 0} scarred={scarred} />
         <span className="sc-work-name">{nm}</span>
         <span className="sc-work-level">lv {b.level}</span>
       </div>
       <WorkStatus rows={rows} />
+      <WorkLivingGlyph
+        typeId={b.typeId}
+        scarred={scarred}
+        crewed={crewed}
+        staffed={staff > 0}
+        lifted={lifted}
+      />
       <div className="sc-work-foot">
         <span className="sc-work-where">{b.x},{b.y}</span>
         {scarred ? (

@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-11-07 — Living hall glyphs under Kingdom work cards (bakeoff/gemini-works-living)
+
+- **Living hall glyphs:** Added subtle living architectural heraldry under the Kingdom Standing works cards (`WorkCard.tsx`), featuring a corner-confined ambient watermark underlay (`WorkLivingUnderlay`) and a left-aligned animated hall emblem strip (`WorkLivingGlyph`) directly beneath the Level / Staffed / Bonuses rows.
+- **Hall domain heraldry (`getHallDomain`):**
+  - *Hearth (`domain-hearth` — `farm`, `granary`, `cottage`)*: Timbered hall gable rafters and warm hearth flame (*"Hearth lit"* / *"Hearth warm"*).
+  - *Craft (`domain-craft` — `lumber_camp`, `sawmill`, `quarry`, `mason`)*: Mason keystone arch, joiner framing, and mill wheel (*"Yards busy"*).
+  - *Mint (`domain-mint` — `gold_mine`, `market`, `mint`)*: Guildhall awning pediment, balance beam, and crown bullion (*"Coffers brisk"*).
+  - *Martial (`domain-martial` — `barracks`, `stables`, `archery_range`, `siege_workshop`, `watchtower`, `walls`, `gate`, `keep`)*: Crenellated stone parapet, portcullis arch, and watchtower beacon (*"Beacon lit"* / *"Ward standing"*).
+  - *Sanctum (`domain-sanctum` — `academy`, `chapel`, `infirmary`)*: Vaulted lancet sanctuary arch and scholar star finial (*"Sanctum lit"* / *"Sanctum calm"*).
+- **Living motion & readability:**
+  - *Glow, drift & pulse*: Staffed and standing halls gently drift and glow in their domain hue (`sc-works-hall-drift` / `sc-works-underlay-drift`); works lifted by adjacency, pair, or keep bonuses pulse warmly (`sc-works-lifted-pulse`); uncrewed halls breathe softly (*"Hall uncrewed"*); siege-scarred halls pulse in coral red (`sc-works-scarred-pulse`, *"Siege scarred"*).
+  - *Zero text or button overlap*: `.sc-works-living-underlay` (`32px × 32px`) sits in the quiet right-hand pocket above the footer `Demolish` / `Repair` button (`right: 2px; bottom: 24px;`) with a radial vignette fade mask and dedicated low-opacity keyframes (`<= 0.55` inside `<= 0.29` wrapper), and card positioning is scoped via `.sc-work-card:has(.sc-works-living-underlay)` so other `.sc-work-card` panels stay untouched.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `theme.css`, or `work-status.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/WorkLivingGlyph.test.tsx` (10 tests). Sim 323, app 500, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
+
 ## 2026-11-07 — Living status rows on Standing works cards (wave/works-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Building output and bonus rules unchanged.
