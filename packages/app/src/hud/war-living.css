@@ -1,0 +1,231 @@
+/* --- Living war glyphs under War Room status cards --- */
+/* Isolated styles: theme.css is untouched. */
+
+.sc-force-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ensure all readable and interactive card children stay above the living underlay */
+.sc-force-card > *:not(.sc-war-living-underlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ambient living war glyph underlay beneath status card contents */
+.sc-war-living-underlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none !important;
+  z-index: 0;
+  overflow: hidden;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 4px;
+}
+
+.sc-war-living-underlay,
+.sc-war-living-underlay * {
+  pointer-events: none !important;
+}
+
+.sc-war-living-underlay svg {
+  display: block;
+  opacity: 0.14;
+  transform-origin: center center;
+  animation: sc-war-underlay-breathe 4s ease-in-out infinite;
+}
+
+.sc-war-living-underlay.is-hostile svg {
+  color: #f85149;
+  --sc-war-glow: rgba(248, 81, 73, 0.45);
+}
+
+.sc-war-living-underlay.is-hostile.is-danger svg {
+  opacity: 0.22;
+  animation: sc-war-underlay-danger 1.5s ease-in-out infinite;
+}
+
+.sc-war-living-underlay.is-scout svg {
+  color: #58a6ff;
+  --sc-war-glow: rgba(88, 166, 255, 0.4);
+}
+
+.sc-war-living-underlay.is-gather svg {
+  color: #d29922;
+  --sc-war-glow: rgba(210, 153, 34, 0.4);
+}
+
+.sc-war-living-underlay.is-garrison svg {
+  color: #4ade80;
+  --sc-war-glow: rgba(74, 222, 128, 0.35);
+}
+
+.sc-war-living-underlay.is-moving svg {
+  animation: sc-war-underlay-drift 3.6s ease-in-out infinite;
+}
+
+/* Living war glyph under status rows */
+.sc-war-status-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 4px;
+  padding: 3px 0 1px;
+  border-top: 1px dotted rgba(255, 255, 255, 0.08);
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-war-status-glyph,
+.sc-war-status-glyph * {
+  pointer-events: none !important;
+}
+
+.sc-war-glyph-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  animation: sc-war-pulse 2.8s ease-in-out infinite;
+}
+
+.sc-war-status-glyph.is-hostile {
+  color: #f85149;
+  --sc-war-glow: rgba(248, 81, 73, 0.6);
+}
+
+.sc-war-status-glyph.is-hostile.is-danger .sc-war-glyph-icon {
+  animation: sc-war-danger-pulse 1.2s ease-in-out infinite;
+}
+
+.sc-war-status-glyph.is-scout {
+  color: #58a6ff;
+  --sc-war-glow: rgba(88, 166, 255, 0.55);
+}
+
+.sc-war-status-glyph.is-gather {
+  color: #d29922;
+  --sc-war-glow: rgba(210, 153, 34, 0.55);
+}
+
+.sc-war-status-glyph.is-garrison {
+  color: #4ade80;
+  --sc-war-glow: rgba(74, 222, 128, 0.5);
+}
+
+.sc-war-status-glyph.is-moving .sc-war-glyph-icon {
+  animation: sc-war-drift 2.6s ease-in-out infinite;
+}
+
+.sc-war-glyph-flair {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  font-weight: 500;
+  color: var(--chrome-btn-text);
+}
+
+.sc-war-glyph-sparkle {
+  animation: sc-war-sparkle 2.2s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes sc-war-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 1px var(--sc-war-glow));
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 4px var(--sc-war-glow));
+    opacity: 1;
+  }
+}
+
+@keyframes sc-war-danger-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(248, 81, 73, 0.6));
+    opacity: 0.88;
+  }
+  50% {
+    transform: scale(1.14);
+    filter: drop-shadow(0 0 7px rgba(248, 81, 73, 0.9));
+    opacity: 1;
+  }
+}
+
+@keyframes sc-war-drift {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+    filter: drop-shadow(0 0 2px var(--sc-war-glow));
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateX(2.5px) scale(1.04);
+    filter: drop-shadow(0 0 5px var(--sc-war-glow));
+    opacity: 1;
+  }
+}
+
+@keyframes sc-war-sparkle {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes sc-war-underlay-breathe {
+  0%, 100% {
+    opacity: 0.12;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.20;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes sc-war-underlay-danger {
+  0%, 100% {
+    opacity: 0.16;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.28;
+    transform: scale(1.07);
+  }
+}
+
+@keyframes sc-war-underlay-drift {
+  0%, 100% {
+    opacity: 0.13;
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    opacity: 0.22;
+    transform: translateX(3px) scale(1.03);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .sc-war-living-underlay svg,
+  .sc-war-glyph-icon,
+  .sc-war-glyph-sparkle {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

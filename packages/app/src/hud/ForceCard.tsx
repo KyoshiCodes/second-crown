@@ -1,6 +1,7 @@
 import React from "react";
 import { WarChip } from "./WarChip";
 import { ForceStatus, type ForceStatusRow } from "./ForceStatus";
+import { WarLivingGlyph, WarLivingUnderlay } from "./WarLivingGlyph";
 import "./force-card.css";
 
 export type ForceTone = "hostile" | "scout" | "gather" | "garrison";
@@ -18,8 +19,13 @@ export function ForceCard(props: {
   status?: ForceStatusRow[];
 }) {
   const { tone, name, dest, seconds, detail, captain, action, loaded, empty, status } = props;
+  const isMoving = seconds !== undefined;
+  const riskRow = status?.find((r) => r.kind === "risk");
+  const riskTone = riskRow?.tone;
+
   return (
     <div className={`sc-force-card is-${tone}`}>
+      <WarLivingUnderlay tone={tone} riskTone={riskTone} moving={isMoving} />
       <span className="sc-force-head">
         <span className="sc-force-title-group">
           <WarChip kind={tone} size={24} loaded={loaded} empty={empty} />
@@ -30,7 +36,18 @@ export function ForceCard(props: {
       {captain ? <span className="sc-force-captain">Capt. {captain}</span> : null}
       <span className="sc-force-dest">→ {dest}</span>
       {detail ? <span className="sc-force-detail">{detail}</span> : null}
-      {status && status.length > 0 ? <ForceStatus rows={status} /> : null}
+      {status && status.length > 0 ? (
+        <>
+          <ForceStatus rows={status} />
+          <WarLivingGlyph
+            tone={tone}
+            riskTone={riskTone}
+            moving={isMoving}
+            loaded={loaded}
+            empty={empty}
+          />
+        </>
+      ) : null}
       {action ? (
         <button type="button" className="sc-force-btn" disabled={action.disabled} onClick={action.onClick}>
           {action.label}

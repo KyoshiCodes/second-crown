@@ -1,3 +1,15 @@
+## 2026-11-07 — app / living war glyphs under War Room status cards (bakeoff/gemini-war-living)
+
+- **Components:** `packages/app/src/hud/WarLivingGlyph.tsx` exports `WarLivingUnderlay` (ambient SVG watermark backdrop beneath card contents) and `WarLivingGlyph` (heraldic badge and flair under status rows).
+- **Integration:** Mounted inside `packages/app/src/hud/ForceCard.tsx`. `WarLivingUnderlay` sits at `z-index: 0` (`position: absolute; inset: 0; pointer-events: none !important; opacity: 0.12..0.22`), while readable elements and buttons sit at `z-index: 1`. When `status` is present, `WarLivingGlyph` renders under the `ForceStatus` rows.
+- **Heraldry & Motion:**
+  - `hostile`: Crossed broadswords, crossguards, clash spark star (`.sc-war-glyph-sparkle`), and danger pulse (`sc-war-danger-pulse` / `sc-war-underlay-danger`).
+  - `scout`: Outrider compass rose, horizon aperture, and reconnaissance drift (`sc-war-drift` / `sc-war-underlay-drift`).
+  - `gather`: Cart wheel with spoked hubs, tied harvest sheaf, golden dust motes, and flair reflecting load state (`Harvest laden`, `Empty haul`, `Supply party`).
+  - `garrison`: Crenellated stone battlement, heater shield contour, and ward pulse (`sc-war-pulse`), transitioning to `Ward breach alert` on danger tone.
+- **Styling:** Dedicated `packages/app/src/hud/war-living.css`. Strict `pointer-events: none !important;` on all layers and children. Zero alterations to `theme.css`. Full reduced-motion guard disabling all keyframe loops.
+- **Tests:** `packages/app/src/hud/WarLivingGlyph.test.tsx` (11 unit tests) covers all tones, danger and movement states, load states, DOM visibility, theme isolation, and reduced-motion compliance.
+
 ## 2026-11-07 — app / War Room force status rows (wave/war-living)
 
 - **Files:** `packages/app/src/hud/ForceStatus.tsx` (exports `ForceStatus`, `forceStatusRows`, `tripProgress`, types `ForceStatusRow`, `ForceStatusInput`), `packages/app/src/hud/force-status.css`, test `hud/ForceStatus.test.tsx`. `ForceCard` gained optional `status?: ForceStatusRow[]`, rendered after `detail`, before the button. Cards without `status` render exactly as before.

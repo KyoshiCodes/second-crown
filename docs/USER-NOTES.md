@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living war glyphs under War Room status cards (bakeoff/gemini-war-living)
+
+- **Living martial heraldry:** War Room force cards now come alive with subtle, animated war glyphs resting under each status card:
+  - **Hostile cards**: Dual crossed blades with a glowing clash spark and warning pulse that beats faster when danger looms.
+  - **Scout cards**: Outrider compass rose with horizon beacon rays gently drifting as the vanguard rides ahead.
+  - **Gather cards**: Golden harvest sheaf and supply wheel that shimmers with prosperity when laden with resources.
+  - **Garrison cards**: Fortified castle bulwark shield and stone battlements that watch steadfastly over your holdings.
+- **Readability & control:** The glyphs are delicate, subtle watermarks and badges designed to keep power numbers, countdowns, and risk notes completely legible. All buttons (Recall, Sally) remain instant and easy to click.
+
 ## 2026-11-07 — Force cards show power, ETA and risk (wave/war-living)
 
 - On the War tab, each scout, gather party, garrison and incoming host card now has three short rows: Power, ETA and Risk.

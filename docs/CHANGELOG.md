@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-07 — Living war glyphs under War Room status cards (bakeoff/gemini-war-living)
+
+- **Living war glyphs:** Added subtle animated living war heraldry under the War Room status cards (`ForceCard.tsx`), featuring an ambient background watermark underlay (`WarLivingUnderlay`) and an animated status emblem strip (`WarLivingGlyph`) directly under the status rows.
+- **Tone-tailored heraldry & animation:**
+  - *Hostile*: Crossed broadswords with ruby pommels, battle clash spark, and martial ember pulse (faster cadence when at danger risk).
+  - *Scout*: Outrider horizon compass rose with central observation aperture, sweeping beacon rays, and swift movement drift.
+  - *Gather*: Golden harvest sheaf with supply cart wheel, shimmering grain dust, and load-state awareness (laden harvest vs empty haul).
+  - *Garrison*: Fortified bulwark shield with stone battlement merlons, inner sentinel ward, and breach alert detection.
+- **Invariants:** Purely visual/heraldic presentation; zero changes to `packages/sim` or `server`. Isolated styling in `war-living.css` (`theme.css` untouched). All decorative layers strictly `pointer-events: none !important;` with `aria-hidden="true"`, ensuring buttons (Recall, Sally) remain completely unobstructed and card data 100% readable. Full `prefers-reduced-motion` compliance.
+- **Tests:** Added `packages/app/src/hud/WarLivingGlyph.test.tsx` (11 tests). All 323 sim, 439 app, and 158 server tests pass. Build succeeds cleanly.
+
 ## 2026-11-07 — Living status rows on War Room force cards (wave/war-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
