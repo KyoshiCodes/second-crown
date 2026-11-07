@@ -1,7 +1,10 @@
 import React from "react";
 import {
+  GATHER_NODES,
   getProvince,
   isProvinceSeen,
+  nodeStock,
+  nodeStockMax,
   type GameState,
   type Province,
 } from "@second-crown/sim";
@@ -38,18 +41,37 @@ export const TERRAIN_PULSE_COLORS: Record<string, { stroke: string; fill: string
   hill: { stroke: "#facc15", fill: "#ca8a04", aura: "rgba(250, 204, 21, 0.45)" },
 };
 
+/** Resource palette mapping for gather node pile living glyphs */
+export const NODE_GLYPH_COLORS: Record<string, { rim: string; mote: string }> = {
+  woodcut: { rim: "#f59e0b", mote: "#fde68a" },
+  field: { rim: "#eab308", mote: "#fef08a" },
+  quarry: { rim: "#94a3b8", mote: "#e2e8f0" },
+};
+
 export interface BoardLivingProps {
   state: GameState | undefined;
   selectedId: string | null;
   visible: boolean;
 }
 
+function safeNodeStock(state: GameState, p: Province): number {
+  if (!state.flags) return nodeStockMax(p.node);
+  return nodeStock(state, p.id);
+}
+
+function tileDelayStyle(x: number, y: number): React.CSSProperties {
+  const delaySec = (((x * 3 + y * 5) % 7) * 0.42).toFixed(2);
+  return { pointerEvents: "none", animationDelay: `${delaySec}s` };
+}
+
 /**
  * Living board animations positioned directly under the status overlay:
- * 1. Terrain pulse: living isometric diamond and breathing aura under selected province
- * 2. Keep glow: warm volumetric hearth aura and beacon illumination on player & visible rival holds
- * 3. Soft fog drift: ethereal floating mist veils gently drifting across unseen areas
- * 4. Status overlay tether: subtle atmospheric light line anchoring the status chips to the province
+ * 1. Soft fog drift: ethereal floating mist veils gently drifting across unseen areas
+ * 2. Living terrain glyphs: subtle alpine shimmer on peaks, sylvan canopy drift on woods, and tidal ripples on shores
+ * 3. Selected terrain pulse: living isometric diamond and breathing aura under selected province
+ * 4. Living structure glyphs: watchfire & smoke wisp on camps/outposts, and stock-reactive gleam on gather node piles
+ * 5. Keep glow: warm volumetric hearth aura and beacon illumination on player & visible rival holds
+ * 6. Status overlay tether: subtle atmospheric light line anchoring the status chips to the province
  */
 export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
   if (!visible || !state) return null;
@@ -59,19 +81,69 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
 
   // Selected province for terrain pulse
   const selProv = selectedId ? getProvince(state, selectedId) : null;
-  const selSeen = selProv ? (selProv.id === homeId || isProvinceSeen(state, selProv.id)) : false;
   const selCoords = selProv ? boardGridToWorld(selProv.x, selProv.y) : null;
   const terrainColors = selProv ? (TERRAIN_PULSE_COLORS[selProv.terrain] ?? TERRAIN_PULSE_COLORS.plain) : null;
 
-  // Holds for keep glow (home keep + seen realm keeps)
+  // Seen provinces partitioned into holds, terrain glyphs (peaks, woods, shores), camps, and node piles
   const holds: Array<{ id: string; p: Province; isPlayer: boolean; wx: number; wy: number }> = [];
+  const terrainGlyphs: Array<{
+    id: string;
+    p: Province;
+    terrain: "peak" | "wood" | "shore";
+    wx: number;
+    wy: number;
+  }> = [];
+  const campGlyphs: Array<{
+    id: string;
+    p: Province;
+    isPlayer: boolean;
+    wx: number;
+    wy: number;
+  }> = [];
+  const nodeGlyphs: Array<{
+    id: string;
+    p: Province;
+    node: keyof typeof GATHER_NODES;
+    stocked: boolean;
+    wx: number;
+    wy: number;
+  }> = [];
+
   for (const p of provinces) {
     const isPlayer = p.id === homeId;
     const isSeen = isPlayer || isProvinceSeen(state, p.id);
     if (!isSeen) continue;
+
+    const { wx, wy } = boardGridToWorld(p.x, p.y);
+
     if (isPlayer || p.occupantRealmId) {
-      const { wx, wy } = boardGridToWorld(p.x, p.y);
       holds.push({ id: p.id, p, isPlayer, wx, wy });
+    }
+
+    if (p.node !== "hold" && (p.terrain === "peak" || p.terrain === "wood" || p.terrain === "shore")) {
+      terrainGlyphs.push({ id: p.id, p, terrain: p.terrain, wx, wy });
+    }
+
+    if (p.node === "camp" || (Boolean(p.occupantRealmId) && !isPlayer && p.node !== "hold")) {
+      campGlyphs.push({
+        id: p.id,
+        p,
+        isPlayer: p.occupantRealmId === "player",
+        wx,
+        wy,
+      });
+    }
+
+    if (p.node in GATHER_NODES) {
+      const stock = safeNodeStock(state, p);
+      nodeGlyphs.push({
+        id: p.id,
+        p,
+        node: p.node as keyof typeof GATHER_NODES,
+        stocked: stock > 0,
+        wx,
+        wy,
+      });
     }
   }
 
@@ -167,7 +239,138 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
           </g>
         )}
 
-        {/* 2. Terrain Pulse Layer (for selected province) */}
+        {/* 2. Living Terrain Glyphs Layer (peaks, woods, shores on seen tiles) */}
+        {terrainGlyphs.length > 0 && (
+          <g className="sc-board-living-terrain-glyphs" style={{ pointerEvents: "none" }}>
+            {terrainGlyphs.map((tg) => {
+              const delay = tileDelayStyle(tg.p.x, tg.p.y);
+              if (tg.terrain === "peak") {
+                return (
+                  <g
+                    key={`tglyph-${tg.id}`}
+                    className="sc-board-glyph-peak"
+                    data-province-id={tg.id}
+                    style={{ pointerEvents: "none" }}
+                  >
+                    <polyline
+                      points={`${tg.wx - 5.5},${tg.wy - 2.5} ${tg.wx},${tg.wy - 9.2} ${tg.wx + 5.5},${tg.wy - 2.5}`}
+                      fill="none"
+                      stroke="#e2e8f0"
+                      strokeWidth="0.9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="sc-board-peak-ridge"
+                      style={delay}
+                    />
+                    <ellipse
+                      cx={tg.wx + 2.2}
+                      cy={tg.wy - 7}
+                      rx={6.2}
+                      ry={2}
+                      fill="#f1f5f9"
+                      className="sc-board-peak-mist"
+                      style={delay}
+                    />
+                    <circle
+                      cx={tg.wx}
+                      cy={tg.wy - 9.4}
+                      r={1.05}
+                      fill="#ffffff"
+                      className="sc-board-peak-glint"
+                      style={delay}
+                    />
+                  </g>
+                );
+              }
+              if (tg.terrain === "wood") {
+                return (
+                  <g
+                    key={`tglyph-${tg.id}`}
+                    className="sc-board-glyph-wood"
+                    data-province-id={tg.id}
+                    style={{ pointerEvents: "none" }}
+                  >
+                    <ellipse
+                      cx={tg.wx - 3.5}
+                      cy={tg.wy - 1.5}
+                      rx={4.4}
+                      ry={2.1}
+                      fill="none"
+                      stroke="#86efac"
+                      strokeWidth="0.75"
+                      className="sc-board-wood-bough"
+                      style={delay}
+                    />
+                    <ellipse
+                      cx={tg.wx + 3.2}
+                      cy={tg.wy - 0.5}
+                      rx={3.8}
+                      ry={1.8}
+                      fill="none"
+                      stroke="#a3e635"
+                      strokeWidth="0.7"
+                      className="sc-board-wood-bough"
+                      style={delay}
+                    />
+                    <circle
+                      cx={tg.wx - 1.8}
+                      cy={tg.wy - 4.2}
+                      r={0.9}
+                      fill="#bef264"
+                      className="sc-board-wood-mote"
+                      style={delay}
+                    />
+                    <circle
+                      cx={tg.wx + 2.6}
+                      cy={tg.wy - 3.2}
+                      r={0.75}
+                      fill="#bbf7d0"
+                      className="sc-board-wood-mote"
+                      style={delay}
+                    />
+                  </g>
+                );
+              }
+              return (
+                <g
+                  key={`tglyph-${tg.id}`}
+                  className="sc-board-glyph-shore"
+                  data-province-id={tg.id}
+                  style={{ pointerEvents: "none" }}
+                >
+                  <path
+                    d={`M ${tg.wx - 7} ${tg.wy + 1.8} Q ${tg.wx} ${tg.wy + 4.8} ${tg.wx + 7} ${tg.wy + 1.8}`}
+                    fill="none"
+                    stroke="#7dd3fc"
+                    strokeWidth="0.85"
+                    strokeLinecap="round"
+                    className="sc-board-shore-ripple"
+                    style={delay}
+                  />
+                  <path
+                    d={`M ${tg.wx - 4.5} ${tg.wy + 3.8} Q ${tg.wx} ${tg.wy + 6} ${tg.wx + 4.5} ${tg.wy + 3.8}`}
+                    fill="none"
+                    stroke="#bae6fd"
+                    strokeWidth="0.7"
+                    strokeLinecap="round"
+                    className="sc-board-shore-ripple is-outer"
+                    style={delay}
+                  />
+                  <circle
+                    cx={tg.wx + 2.4}
+                    cy={tg.wy + 2.2}
+                    r={0.85}
+                    fill="#e0f2fe"
+                    className="sc-board-shore-glint"
+                    style={delay}
+                  />
+                </g>
+              );
+            })}
+          </g>
+        )}
+
+        {/* 3. Terrain Pulse Layer (for selected province) */}
         {selProv && selCoords && terrainColors && (
           <g
             className="sc-board-living-terrain sc-board-terrain-group"
@@ -206,7 +409,101 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
           </g>
         )}
 
-        {/* 3. Keep Glow Layer (volumetric hearth and beacon illumination) */}
+        {/* 4. Living Structure Glyphs Layer (camps/outposts and gather node piles on seen tiles) */}
+        {(campGlyphs.length > 0 || nodeGlyphs.length > 0) && (
+          <g className="sc-board-living-structures" style={{ pointerEvents: "none" }}>
+            {nodeGlyphs.map((ng) => {
+              const pal = NODE_GLYPH_COLORS[ng.node] ?? NODE_GLYPH_COLORS.woodcut;
+              const delay = tileDelayStyle(ng.p.x, ng.p.y);
+              return (
+                <g
+                  key={`nglyph-${ng.id}`}
+                  className={`sc-board-glyph-node is-${ng.node} ${ng.stocked ? "is-stocked" : "is-dry"}`}
+                  data-province-id={ng.id}
+                  data-node={ng.node}
+                  style={{ pointerEvents: "none" }}
+                >
+                  <ellipse
+                    cx={ng.wx}
+                    cy={ng.wy + 1.4}
+                    rx={7.2}
+                    ry={3.3}
+                    fill="none"
+                    stroke={ng.stocked ? pal.rim : "#64748b"}
+                    strokeWidth="0.8"
+                    strokeDasharray={ng.stocked ? undefined : "2 2"}
+                    className={ng.stocked ? "sc-board-node-gleam" : "sc-board-node-dry"}
+                    style={delay}
+                  />
+                  {ng.stocked && (
+                    <>
+                      <circle
+                        cx={ng.wx + 2.2}
+                        cy={ng.wy - 3.2}
+                        r={0.95}
+                        fill={pal.mote}
+                        className="sc-board-node-mote"
+                        style={delay}
+                      />
+                      <circle
+                        cx={ng.wx - 2.4}
+                        cy={ng.wy - 2.1}
+                        r={0.75}
+                        fill={pal.mote}
+                        className="sc-board-node-mote is-alt"
+                        style={delay}
+                      />
+                    </>
+                  )}
+                </g>
+              );
+            })}
+            {campGlyphs.map((cg) => {
+              const delay = tileDelayStyle(cg.p.x, cg.p.y);
+              const emberStroke = cg.isPlayer ? "#60a5fa" : "#fb923c";
+              const emberCore = cg.isPlayer ? "#fde047" : "#fca5a5";
+              return (
+                <g
+                  key={`cglyph-${cg.id}`}
+                  className={`sc-board-glyph-camp ${cg.isPlayer ? "is-player" : "is-hostile"}`}
+                  data-province-id={cg.id}
+                  style={{ pointerEvents: "none" }}
+                >
+                  <ellipse
+                    cx={cg.wx - 0.8}
+                    cy={cg.wy + 1.8}
+                    rx={6.8}
+                    ry={3.1}
+                    fill="none"
+                    stroke={emberStroke}
+                    strokeWidth="0.8"
+                    className="sc-board-camp-ember"
+                    style={delay}
+                  />
+                  <circle
+                    cx={cg.wx - 1.5}
+                    cy={cg.wy + 0.6}
+                    r={1.05}
+                    fill={emberCore}
+                    className="sc-board-camp-spark"
+                    style={delay}
+                  />
+                  <path
+                    d={`M ${cg.wx - 1.5} ${cg.wy - 1.2} Q ${cg.wx - 3.2} ${cg.wy - 5.2} ${cg.wx - 0.8} ${cg.wy - 8.6}`}
+                    fill="none"
+                    stroke="#cbd5e1"
+                    strokeWidth="0.75"
+                    strokeLinecap="round"
+                    className="sc-board-camp-smoke"
+                    style={delay}
+                  />
+                </g>
+              );
+            })}
+          </g>
+        )}
+
+        {/* 5. Keep Glow Layer (volumetric hearth and beacon illumination) */}
         {holds.length > 0 && (
           <g className="sc-board-living-keeps" style={{ pointerEvents: "none" }}>
             {holds.map((h) => (
@@ -243,7 +540,7 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
           </g>
         )}
 
-        {/* 4. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
+        {/* 6. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
         {selProv && selCoords && anchor && (
           <g className="sc-board-living-status-tether" style={{ pointerEvents: "none" }}>
             <line

@@ -19,7 +19,98 @@
   display: block;
 }
 
-/* 1. Terrain pulse on the isometric board */
+/* 1. Living terrain glyphs (peaks, woods, shores) — subtle & readable */
+.sc-board-living-terrain-glyphs {
+  opacity: 0.72;
+}
+
+.sc-board-peak-ridge {
+  stroke-opacity: 0.34;
+  animation: sc-board-peak-shimmer 4.6s ease-in-out infinite;
+}
+
+.sc-board-peak-mist {
+  opacity: 0.24;
+  filter: blur(0.8px);
+  animation: sc-board-peak-mist-drift 6.4s ease-in-out infinite alternate;
+}
+
+.sc-board-peak-glint {
+  opacity: 0.35;
+  animation: sc-board-peak-glint-pulse 3.8s ease-in-out infinite;
+}
+
+.sc-board-wood-bough {
+  stroke-opacity: 0.32;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-board-wood-sway 4.8s ease-in-out infinite alternate;
+}
+
+.sc-board-wood-mote {
+  opacity: 0.28;
+  animation: sc-board-wood-spore-drift 5.2s ease-in-out infinite;
+}
+
+.sc-board-shore-ripple {
+  stroke-opacity: 0.36;
+  animation: sc-board-shore-tide 4.2s ease-in-out infinite;
+}
+
+.sc-board-shore-ripple.is-outer {
+  stroke-opacity: 0.24;
+  animation-duration: 5.4s;
+}
+
+.sc-board-shore-glint {
+  opacity: 0.32;
+  animation: sc-board-shore-sparkle 3.4s ease-in-out infinite;
+}
+
+/* 2. Living structure glyphs (camps & gather node piles) — subtle & readable */
+.sc-board-living-structures {
+  opacity: 0.76;
+}
+
+.sc-board-node-gleam {
+  stroke-opacity: 0.36;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-board-node-pulse 3.8s ease-in-out infinite;
+}
+
+.sc-board-node-dry {
+  stroke-opacity: 0.18;
+}
+
+.sc-board-node-mote {
+  opacity: 0.32;
+  animation: sc-board-node-mote-rise 4.4s ease-in-out infinite;
+}
+
+.sc-board-node-mote.is-alt {
+  opacity: 0.24;
+  animation-duration: 5.2s;
+}
+
+.sc-board-camp-ember {
+  stroke-opacity: 0.36;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-board-camp-ember-pulse 3.2s ease-in-out infinite;
+}
+
+.sc-board-camp-spark {
+  opacity: 0.42;
+  animation: sc-board-camp-spark-flicker 2.4s ease-in-out infinite alternate;
+}
+
+.sc-board-camp-smoke {
+  stroke-opacity: 0.26;
+  animation: sc-board-camp-smoke-drift 4.8s ease-in-out infinite;
+}
+
+/* 3. Terrain pulse on the selected isometric tile */
 .sc-board-terrain-group {
   transform-origin: center;
 }
@@ -40,7 +131,7 @@
   animation: sc-board-terrain-ring-expand 3.4s ease-out infinite;
 }
 
-/* 2. Keep glow on holds */
+/* 4. Keep glow on holds */
 .sc-board-keep-group {
   transform-origin: center;
 }
@@ -62,7 +153,7 @@
   opacity: 0.6;
 }
 
-/* 3. Soft fog drift on unseen regions */
+/* 5. Soft fog drift on unseen regions */
 .sc-board-fog-cloud {
   transform-origin: center;
   filter: blur(3px);
@@ -77,12 +168,136 @@
   animation: sc-board-fog-swell 4.5s ease-in-out infinite alternate;
 }
 
-/* 4. Status overlay tether underlay */
+/* 6. Status overlay tether underlay */
 .sc-board-status-tether {
   animation: sc-board-tether-flow 2.8s ease-in-out infinite alternate;
 }
 
 /* Keyframe animations */
+@keyframes sc-board-peak-shimmer {
+  0%, 100% {
+    stroke-opacity: 0.24;
+  }
+  50% {
+    stroke-opacity: 0.5;
+  }
+}
+
+@keyframes sc-board-peak-mist-drift {
+  0% {
+    transform: translate(-1.8px, 0);
+    opacity: 0.16;
+  }
+  100% {
+    transform: translate(2.2px, -0.8px);
+    opacity: 0.34;
+  }
+}
+
+@keyframes sc-board-peak-glint-pulse {
+  0%, 100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.52;
+  }
+}
+
+@keyframes sc-board-wood-sway {
+  0% {
+    transform: translateX(-0.7px);
+    stroke-opacity: 0.22;
+  }
+  100% {
+    transform: translateX(0.8px);
+    stroke-opacity: 0.44;
+  }
+}
+
+@keyframes sc-board-wood-spore-drift {
+  0%, 100% {
+    transform: translate(0, 0);
+    opacity: 0.16;
+  }
+  50% {
+    transform: translate(1.2px, -1.6px);
+    opacity: 0.44;
+  }
+}
+
+@keyframes sc-board-shore-tide {
+  0%, 100% {
+    transform: translateY(0);
+    stroke-opacity: 0.22;
+  }
+  50% {
+    transform: translateY(0.9px);
+    stroke-opacity: 0.48;
+  }
+}
+
+@keyframes sc-board-shore-sparkle {
+  0%, 100% {
+    opacity: 0.14;
+  }
+  50% {
+    opacity: 0.46;
+  }
+}
+
+@keyframes sc-board-node-pulse {
+  0%, 100% {
+    stroke-opacity: 0.22;
+    transform: scale(0.96);
+  }
+  50% {
+    stroke-opacity: 0.48;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes sc-board-node-mote-rise {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.16;
+  }
+  50% {
+    transform: translateY(-1.8px);
+    opacity: 0.48;
+  }
+}
+
+@keyframes sc-board-camp-ember-pulse {
+  0%, 100% {
+    stroke-opacity: 0.24;
+    transform: scale(0.96);
+  }
+  50% {
+    stroke-opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes sc-board-camp-spark-flicker {
+  0% {
+    opacity: 0.28;
+  }
+  100% {
+    opacity: 0.54;
+  }
+}
+
+@keyframes sc-board-camp-smoke-drift {
+  0%, 100% {
+    transform: translate(0, 0);
+    stroke-opacity: 0.15;
+  }
+  50% {
+    transform: translate(0.9px, -1.4px);
+    stroke-opacity: 0.36;
+  }
+}
+
 @keyframes sc-board-terrain-pulse {
   0%, 100% {
     stroke-opacity: 0.55;
@@ -203,6 +418,18 @@
 
 /* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
+  .sc-board-peak-ridge,
+  .sc-board-peak-mist,
+  .sc-board-peak-glint,
+  .sc-board-wood-bough,
+  .sc-board-wood-mote,
+  .sc-board-shore-ripple,
+  .sc-board-shore-glint,
+  .sc-board-node-gleam,
+  .sc-board-node-mote,
+  .sc-board-camp-ember,
+  .sc-board-camp-spark,
+  .sc-board-camp-smoke,
   .sc-board-terrain-diamond,
   .sc-board-terrain-aura,
   .sc-board-terrain-ring,

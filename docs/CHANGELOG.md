@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-11-07 — Living terrain and structure glyphs on the isometric board (bakeoff/gemini-board-living)
+
+- **Living terrain glyphs (`BoardLiving.tsx`, `OverworldAtlas.tsx`):** Added subtle, low-opacity living SVG glyphs on scouted isometric board tiles without obscuring labels, tokens, or selection chrome:
+  - *Peaks (`sc-board-glyph-peak` / `sc-atlas-glyph-peak`)*: Alpine ridge snowcap shimmer, drifting high-altitude mist wisp, and summit star glint.
+  - *Woods (`sc-board-glyph-wood` / `sc-atlas-glyph-wood`)*: Gentle canopy bough sway and drifting sylvan spore motes.
+  - *Shores (`sc-board-glyph-shore` / `sc-atlas-glyph-shore`)*: Coastal surf ripple arcs and sunlit water glint.
+- **Living structure glyphs (`BoardLiving.tsx`, `OverworldAtlas.tsx`):**
+  - *Camps & outposts (`sc-board-glyph-camp` / `sc-atlas-camp-smoke`)*: Watchfire ember pulse (cool azure/gold on player flags, warm ember/rose on hostile camps), spark flicker, and rising smoke wisp.
+  - *Gather node piles (`sc-board-glyph-node` / `sc-atlas-pile-glint`)*: Resource-tinted plinth gleam and rising stock motes on stocked `woodcut`, `field`, and `quarry` tiles, switching to a calm static contour (`is-dry`) when depleted (`nodeStock <= 0`).
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `packages/render`, or `theme.css`. Strict fog-of-war gating (`isProvinceSeen`), `pointer-events: none !important;` on every decorative layer, untouched hit-testing and camera pan/zoom, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Expanded `packages/app/src/BoardLiving.test.tsx` (17 tests). Sim 323, app 514, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living status rows on ProvinceInspect (wave/board-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living terrain and camp/resource glyphs on the board (bakeoff/gemini-board-living)
+
+- **Living terrain:** Scouted tiles on the isometric board now show gentle, readable ambient motion:
+  - **Peaks:** Subtle snowcap ridge shimmer and drifting high-altitude mist.
+  - **Woods:** Softly swaying canopy boughs and drifting forest motes.
+  - **Shores:** Gentle coastal surf ripples and water glints.
+- **Living camps & resource piles:** Camps and outposts show a quiet watchfire pulse and rising smoke wisp, while stocked woodcut, field, and quarry piles softly gleam until harvested dry.
+- **Clean map & controls:** Unexplored fog hides distant tiles as before, and clicking, hovering, zooming, and panning the map work identically. No game rules or numbers changed.
+
 ## 2026-11-07 — Province card shows a status stack (wave/board-living)
 
 - Click a province on the map. The card now starts with five short rows: Terrain, Owner, Stock, Outpost and Garrison.

@@ -1,3 +1,11 @@
+## 2026-11-07 — app / living terrain and structure glyphs on the isometric board (bakeoff/gemini-board-living)
+
+- **Surfaces:** Extends `packages/app/src/BoardLiving.tsx` + `packages/app/src/board-living.css` (main isometric board living overlay) and `packages/app/src/OverworldAtlas.tsx` + new `packages/app/src/hud/atlas-terrain-glyphs.css` (World tab isometric Kingdom Atlas).
+- **Inputs & fog gating:** Reads `isProvinceSeen` (with `homeProvinceId` always seen), `p.terrain`, `p.node`, `p.occupantRealmId`, `GATHER_NODES`, `nodeStock`, and `nodeStockMax`. Unseen provinces emit zero terrain or structure glyphs. `BoardLiving` and `OverworldAtlas` are pure over `GameState`.
+- **Readability & motion:** Terrain (`peak`, `wood`, `shore`) and structure (`camp`, `woodcut`/`field`/`quarry` node pile) keyframes cap individual opacity/stroke-opacity at `<= 0.55` inside muted group layers (`0.72` / `0.76`), staggered per tile via deterministic `(x * 3 + y * 5) % 7` animation delays. Depleted gather tiles (`stock <= 0`) render a calm static `.sc-board-node-dry` ring. `@media (prefers-reduced-motion: reduce)` disables all animations.
+- **Hit-testing & camera:** `pointer-events: none !important;` on all decorative layers and children; `packages/render` camera/hit-test math and `OverworldAtlas` pan wrapper + ground click handlers remain untouched. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/BoardLiving.test.tsx` (17 tests) covers seen vs unseen fog gating, player vs hostile camp differentiation, stocked vs dry gather node differentiation, `OverworldAtlas` terrain/structure glyphs, opacity ceilings, reduced-motion guards, and CSS isolation.
+
 ## 2026-11-07 — app / ProvinceInspect status rows (wave/board-living)
 
 - **Files:** `packages/app/src/ProvinceStatusStack.tsx` (exports `ProvinceStatusStack`, `provinceStatusRows`, types `ProvinceStatusRow`, `ProvinceStatusKind`, `ProvinceStatusTone`), `packages/app/src/province-status-stack.css`, test `ProvinceStatusStack.test.tsx`. `ProvinceInspect.tsx` gains one import and one `<ProvinceStatusStack state={state} provinceId={selectedId} />` after `.sc-inspect-head`.

@@ -1,0 +1,164 @@
+/* Living terrain & structure accent glyphs on SVG overworld atlas (bakeoff/gemini-board-living) */
+
+.sc-atlas-terrain-glyph,
+.sc-atlas-terrain-glyph *,
+.sc-atlas-pile-glint,
+.sc-atlas-camp-smoke {
+  pointer-events: none !important;
+}
+
+.sc-atlas-peak-ridge {
+  stroke-opacity: 0.45;
+  animation: sc-atlas-peak-shimmer 4.6s ease-in-out infinite;
+}
+
+.sc-atlas-peak-mist {
+  opacity: 0.26;
+  animation: sc-atlas-peak-mist-drift 6.2s ease-in-out infinite alternate;
+}
+
+.sc-atlas-peak-glint {
+  opacity: 0.38;
+  animation: sc-atlas-peak-glint-pulse 3.8s ease-in-out infinite;
+}
+
+.sc-atlas-wood-bough {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-atlas-wood-sway 4.8s ease-in-out infinite alternate;
+}
+
+.sc-atlas-wood-mote {
+  opacity: 0.32;
+  animation: sc-atlas-wood-spore-drift 5.2s ease-in-out infinite;
+}
+
+.sc-atlas-shore-ripple {
+  stroke-opacity: 0.38;
+  animation: sc-atlas-shore-tide 4.2s ease-in-out infinite;
+}
+
+.sc-atlas-shore-ripple.is-outer {
+  stroke-opacity: 0.25;
+  animation-duration: 5.4s;
+}
+
+.sc-atlas-shore-glint {
+  opacity: 0.34;
+  animation: sc-atlas-shore-sparkle 3.4s ease-in-out infinite;
+}
+
+.sc-atlas-pile-glint {
+  opacity: 0.34;
+  animation: sc-atlas-pile-mote-rise 4.2s ease-in-out infinite;
+}
+
+.sc-atlas-camp-smoke {
+  stroke-opacity: 0.28;
+  animation: sc-atlas-camp-smoke-drift 4.6s ease-in-out infinite;
+}
+
+@keyframes sc-atlas-peak-shimmer {
+  0%, 100% {
+    stroke-opacity: 0.28;
+  }
+  50% {
+    stroke-opacity: 0.56;
+  }
+}
+
+@keyframes sc-atlas-peak-mist-drift {
+  0% {
+    transform: translate(-1.6px, 0);
+    opacity: 0.16;
+  }
+  100% {
+    transform: translate(2px, -0.7px);
+    opacity: 0.34;
+  }
+}
+
+@keyframes sc-atlas-peak-glint-pulse {
+  0%, 100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.54;
+  }
+}
+
+@keyframes sc-atlas-wood-sway {
+  0% {
+    transform: translateX(-0.6px);
+  }
+  100% {
+    transform: translateX(0.7px);
+  }
+}
+
+@keyframes sc-atlas-wood-spore-drift {
+  0%, 100% {
+    transform: translate(0, 0);
+    opacity: 0.16;
+  }
+  50% {
+    transform: translate(1.1px, -1.5px);
+    opacity: 0.45;
+  }
+}
+
+@keyframes sc-atlas-shore-tide {
+  0%, 100% {
+    transform: translateY(0);
+    stroke-opacity: 0.22;
+  }
+  50% {
+    transform: translateY(0.8px);
+    stroke-opacity: 0.48;
+  }
+}
+
+@keyframes sc-atlas-shore-sparkle {
+  0%, 100% {
+    opacity: 0.14;
+  }
+  50% {
+    opacity: 0.48;
+  }
+}
+
+@keyframes sc-atlas-pile-mote-rise {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.16;
+  }
+  50% {
+    transform: translateY(-1.6px);
+    opacity: 0.48;
+  }
+}
+
+@keyframes sc-atlas-camp-smoke-drift {
+  0%, 100% {
+    transform: translate(0, 0);
+    stroke-opacity: 0.15;
+  }
+  50% {
+    transform: translate(0.8px, -1.3px);
+    stroke-opacity: 0.38;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-peak-ridge,
+  .sc-atlas-peak-mist,
+  .sc-atlas-peak-glint,
+  .sc-atlas-wood-bough,
+  .sc-atlas-wood-mote,
+  .sc-atlas-shore-ripple,
+  .sc-atlas-shore-glint,
+  .sc-atlas-pile-glint,
+  .sc-atlas-camp-smoke {
+    animation: none !important;
+  }
+}

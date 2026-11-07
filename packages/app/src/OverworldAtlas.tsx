@@ -35,6 +35,7 @@ import "./hud/atlas-roads.css";
 import "./hud/atlas-units.css";
 import "./hud/atlas-effects.css";
 import "./hud/atlas-hover.css";
+import "./hud/atlas-terrain-glyphs.css";
 
 const TILE_W = 54;
 const TILE_H = 27;
@@ -353,6 +354,7 @@ function MiniLogs(props: { cx: number; cy: number }) {
       <rect x={cx - 5} y={cy - 5.5} width={9} height={3.5} rx={0.8} fill="#9a3412" stroke="#451a03" strokeWidth={0.5} />
       <ellipse cx={cx + 4} cy={cy - 3.75} rx={1.2} ry={1.6} fill="#f59e0b" />
       <circle cx={cx + 4} cy={cy - 3.75} r={0.5} fill="#fef08a" />
+      <circle cx={cx - 1.5} cy={cy - 7} r={0.85} fill="#fde68a" className="sc-atlas-pile-glint" style={{ pointerEvents: "none" }} />
     </g>
   );
 }
@@ -381,6 +383,7 @@ function MiniSacks(props: { cx: number; cy: number }) {
       <ellipse cx={cx - 0.5} cy={cy - 4.2} rx={2.4} ry={1.4} fill="#eab308" />
       <rect x={cx - 0.8} y={cy - 6.6} width={1.6} height={1.2} fill="#78350f" />
       <circle cx={cx - 0.2} cy={cy - 7} r={0.8} fill="#fef08a" />
+      <circle cx={cx + 2.6} cy={cy - 7.8} r={0.85} fill="#fef08a" className="sc-atlas-pile-glint" style={{ pointerEvents: "none" }} />
     </g>
   );
 }
@@ -406,6 +409,7 @@ function MiniBlocks(props: { cx: number; cy: number }) {
       <polygon points={`${cx - 4},${cy - 4.5} ${cx},${cy - 6.5} ${cx + 4},${cy - 4.5} ${cx},${cy - 2.5}`} fill="#f4f4f5" stroke="#3f3f46" strokeWidth={0.4} />
       <polygon points={`${cx - 4},${cy - 4.5} ${cx},${cy - 2.5} ${cx},${cy + 0.5} ${cx - 4},${cy - 1.5}`} fill="#d4d4d8" stroke="#3f3f46" strokeWidth={0.4} />
       <polygon points={`${cx},${cy - 2.5} ${cx + 4},${cy - 4.5} ${cx + 4},${cy - 1.5} ${cx},${cy + 0.5}`} fill="#a1a1aa" stroke="#3f3f46" strokeWidth={0.4} />
+      <circle cx={cx + 1.8} cy={cy - 7.6} r={0.85} fill="#e2e8f0" className="sc-atlas-pile-glint" style={{ pointerEvents: "none" }} />
     </g>
   );
 }
@@ -477,6 +481,15 @@ function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor
         <circle cx={cx - 2.5} cy={cy + 2} r={1.2} fill="#fef08a" />
         <circle cx={cx - 2.5} cy={cy + 2} r={0.5} fill="#ffffff" />
       </g>
+      <path
+        d={`M ${cx - 2} ${cy - 5.2} Q ${cx - 3.6} ${cy - 8.4} ${cx - 1.2} ${cy - 11.2}`}
+        fill="none"
+        stroke="#cbd5e1"
+        strokeWidth={0.75}
+        strokeLinecap="round"
+        className="sc-atlas-camp-smoke"
+        style={{ pointerEvents: "none" }}
+      />
       {/* Flagpole */}
       <line x1={cx + 4.5} y1={cy + 4} x2={cx + 4.5} y2={cy - 11} stroke="#78350f" strokeWidth={1} />
       {/* Finial gold ball */}
@@ -1260,6 +1273,29 @@ export function OverworldAtlas(props: {
               ) : null}
               {seen ? (
                 <>
+                  {p.node !== "hold" && p.terrain === "shore" ? (
+                    <g className="sc-atlas-terrain-glyph sc-atlas-glyph-shore" style={{ pointerEvents: "none" }}>
+                      <path
+                        d={`M ${cx - 8} ${cy + 2.5} Q ${cx} ${cy + 6} ${cx + 8} ${cy + 2.5}`}
+                        fill="none"
+                        stroke="#7dd3fc"
+                        strokeWidth={0.9}
+                        strokeLinecap="round"
+                        className="sc-atlas-shore-ripple"
+                        style={{ pointerEvents: "none" }}
+                      />
+                      <path
+                        d={`M ${cx - 5} ${cy + 4.8} Q ${cx} ${cy + 7.2} ${cx + 5} ${cy + 4.8}`}
+                        fill="none"
+                        stroke="#bae6fd"
+                        strokeWidth={0.75}
+                        strokeLinecap="round"
+                        className="sc-atlas-shore-ripple is-outer"
+                        style={{ pointerEvents: "none" }}
+                      />
+                      <circle cx={cx + 3} cy={cy + 2.8} r={0.9} fill="#e0f2fe" className="sc-atlas-shore-glint" style={{ pointerEvents: "none" }} />
+                    </g>
+                  ) : null}
                   {p.node === "hold" ? (
                     <MiniKeep
                       cx={cx}
@@ -1287,12 +1323,26 @@ export function OverworldAtlas(props: {
                   ) : p.node && p.node !== "none" ? (
                     <circle cx={cx} cy={cy - 2} r={3.2} fill="#fbbf24" stroke="#111" strokeWidth={0.5} />
                   ) : p.terrain === "wood" ? (
-                    <>
-                      <ellipse cx={cx - 4} cy={cy} rx={3} ry={2} fill="#163822" />
-                      <ellipse cx={cx + 3} cy={cy + 1} rx={2.4} ry={1.6} fill="#1a4028" />
-                    </>
+                    <g className="sc-atlas-terrain-glyph sc-atlas-glyph-wood" style={{ pointerEvents: "none" }}>
+                      <ellipse cx={cx - 4} cy={cy} rx={3} ry={2} fill="#163822" className="sc-atlas-wood-bough" style={{ pointerEvents: "none" }} />
+                      <ellipse cx={cx + 3} cy={cy + 1} rx={2.4} ry={1.6} fill="#1a4028" className="sc-atlas-wood-bough" style={{ pointerEvents: "none" }} />
+                      <circle cx={cx - 2.2} cy={cy - 3.6} r={0.85} fill="#bef264" className="sc-atlas-wood-mote" style={{ pointerEvents: "none" }} />
+                      <circle cx={cx + 2.8} cy={cy - 2.4} r={0.7} fill="#86efac" className="sc-atlas-wood-mote" style={{ pointerEvents: "none" }} />
+                    </g>
                   ) : p.terrain === "peak" ? (
-                    <polygon points={`${cx - 5},${cy + 2} ${cx},${cy - 10} ${cx + 5},${cy + 2}`} fill="#d6d3d1" opacity={0.85} />
+                    <g className="sc-atlas-terrain-glyph sc-atlas-glyph-peak" style={{ pointerEvents: "none" }}>
+                      <polygon points={`${cx - 5},${cy + 2} ${cx},${cy - 10} ${cx + 5},${cy + 2}`} fill="#d6d3d1" opacity={0.85} style={{ pointerEvents: "none" }} />
+                      <polyline
+                        points={`${cx - 2.6},${cy - 3.8} ${cx},${cy - 10} ${cx + 2.6},${cy - 3.8}`}
+                        fill="none"
+                        stroke="#f8fafc"
+                        strokeWidth={0.85}
+                        className="sc-atlas-peak-ridge"
+                        style={{ pointerEvents: "none" }}
+                      />
+                      <ellipse cx={cx + 2.5} cy={cy - 7.5} rx={6} ry={1.9} fill="#f1f5f9" className="sc-atlas-peak-mist" style={{ pointerEvents: "none" }} />
+                      <circle cx={cx} cy={cy - 10.2} r={0.95} fill="#ffffff" className="sc-atlas-peak-glint" style={{ pointerEvents: "none" }} />
+                    </g>
                   ) : null}
                   {state && hasProvinceClash(state, p.id) ? (
                     <g className="sc-atlas-status-clash" style={{ pointerEvents: "none" }}>

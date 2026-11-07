@@ -1,14 +1,13 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { createGameState, revealProvince, type Province } from "@second-crown/sim";
+import { createGameState, isProvinceSeen, revealProvince } from "@second-crown/sim";
 import {
   BoardLiving,
   boardGridToWorld,
   TERRAIN_PULSE_COLORS,
-  CANVAS_W,
-  CANVAS_H,
 } from "./BoardLiving";
+import { OverworldAtlas } from "./OverworldAtlas";
 
 function readCssFile(relativePath: string): string {
   const proc = (globalThis as {
@@ -126,18 +125,159 @@ describe("BoardLiving component", () => {
     expect(html).toContain("sc-board-living-status-tether");
     expect(html).toContain("sc-board-status-tether");
   });
+
+  it("renders living terrain glyphs on seen peaks, woods, and shores while gating unseen tiles", () => {
+    const s = fresh();
+    const candidates = s.board.provinces.filter(
+      (p) => !isProvinceSeen(s, p.id) && p.node !== "hold"
+    );
+    const pPeak = candidates[0]!;
+    const pWood = candidates[1]!;
+    const pShore = candidates[2]!;
+    const pUnseenPeak = candidates[candidates.length - 1]!;
+
+    pPeak.terrain = "peak";
+    pWood.terrain = "wood";
+    pShore.terrain = "shore";
+    pUnseenPeak.terrain = "peak";
+
+    const beforeHtml = renderToStaticMarkup(<BoardLiving state={s} selectedId={null} visible={true} />);
+    expect(beforeHtml).not.toContain(`data-province-id="${pPeak.id}"`);
+    expect(beforeHtml).not.toContain(`data-province-id="${pWood.id}"`);
+    expect(beforeHtml).not.toContain(`data-province-id="${pShore.id}"`);
+    expect(beforeHtml).not.toContain(`data-province-id="${pUnseenPeak.id}"`);
+
+    revealProvince(s, pPeak.id);
+    revealProvince(s, pWood.id);
+    revealProvince(s, pShore.id);
+
+    const html = renderToStaticMarkup(<BoardLiving state={s} selectedId={null} visible={true} />);
+    expect(html).toContain("sc-board-living-terrain-glyphs");
+    expect(html).toContain("sc-board-glyph-peak");
+    expect(html).toContain("sc-board-peak-ridge");
+    expect(html).toContain("sc-board-peak-mist");
+    expect(html).toContain("sc-board-peak-glint");
+    expect(html).toContain("sc-board-glyph-wood");
+    expect(html).toContain("sc-board-wood-bough");
+    expect(html).toContain("sc-board-wood-mote");
+    expect(html).toContain("sc-board-glyph-shore");
+    expect(html).toContain("sc-board-shore-ripple");
+    expect(html).toContain("sc-board-shore-glint");
+    expect(html).not.toContain(`data-province-id="${pUnseenPeak.id}"`);
+  });
+
+  it("renders living structure glyphs on seen camps and stocked/depleted node piles", () => {
+    const s = fresh();
+    const candidates = s.board.provinces.filter(
+      (p) => !isProvinceSeen(s, p.id) && p.node !== "hold"
+    );
+    // Pick spaced-apart provinces so a player outpost's +1 neighbor vision doesn't reveal pUnseenField
+    const pHostileCamp = candidates[0]!;
+    const pPlayerOutpost = candidates[1]!;
+    const pWoodcut = candidates[2]!;
+    const pDryQuarry = candidates[3]!;
+    const pUnseenField = candidates[candidates.length - 1]!;
+
+    pHostileCamp.node = "camp";
+    pHostileCamp.occupantRealmId = null;
+
+    pPlayerOutpost.node = "none";
+    pPlayerOutpost.occupantRealmId = "player";
+
+    pWoodcut.node = "woodcut";
+    pDryQuarry.node = "quarry";
+    s.flags[`node_stock_${pDryQuarry.id}`] = 0;
+
+    pUnseenField.node = "field";
+
+    revealProvince(s, pHostileCamp.id);
+    revealProvince(s, pPlayerOutpost.id);
+    revealProvince(s, pWoodcut.id);
+    revealProvince(s, pDryQuarry.id);
+
+    const beforeSnap = JSON.stringify(s);
+    const html = renderToStaticMarkup(<BoardLiving state={s} selectedId={null} visible={true} />);
+    expect(JSON.stringify(s)).toBe(beforeSnap);
+
+    expect(html).toContain("sc-board-living-structures");
+    expect(html).toContain("sc-board-glyph-camp is-hostile");
+    expect(html).toContain("sc-board-glyph-camp is-player");
+    expect(html).toContain("sc-board-camp-ember");
+    expect(html).toContain("sc-board-camp-smoke");
+    expect(html).toContain("sc-board-glyph-node is-woodcut is-stocked");
+    expect(html).toContain("sc-board-node-gleam");
+    expect(html).toContain("sc-board-node-mote");
+    expect(html).toContain("sc-board-glyph-node is-quarry is-dry");
+    expect(html).toContain("sc-board-node-dry");
+    expect(html).not.toContain(`data-province-id="${pUnseenField.id}"`);
+  });
+});
+
+describe("OverworldAtlas living terrain and structure glyphs", () => {
+  it("renders living glyphs on seen peaks, woods, shores, camps, and stocked node piles while preserving pan and fog", () => {
+    const s = fresh();
+    const candidates = s.board.provinces.filter(
+      (p) => !isProvinceSeen(s, p.id) && p.node !== "hold"
+    );
+    const [pPeak, pWood, pShore, pCamp, pLogs] = candidates;
+    const pUnseenShore = candidates[candidates.length - 1]!;
+    // Ensure no other province is shore so only pShore (seen) and pUnseenShore (unseen) are shore
+    for (const p of s.board.provinces) {
+      if (p.terrain === "shore") p.terrain = "plain";
+    }
+    pPeak.terrain = "peak";
+    pPeak.node = "none";
+    pWood.terrain = "wood";
+    pWood.node = "none";
+    pShore.terrain = "shore";
+    pShore.node = "none";
+    pCamp.terrain = "hill";
+    pCamp.node = "camp";
+    pLogs.terrain = "wood";
+    pLogs.node = "woodcut";
+    pUnseenShore.terrain = "shore";
+    pUnseenShore.node = "none";
+
+    revealProvince(s, pPeak.id);
+    revealProvince(s, pWood.id);
+    revealProvince(s, pShore.id);
+    revealProvince(s, pCamp.id);
+    revealProvince(s, pLogs.id);
+
+    const html = renderToStaticMarkup(<OverworldAtlas state={s} selectedId={null} />);
+    expect(html).toContain('transform="translate(0 0)"');
+    expect(html).toContain("sc-atlas-glyph-peak");
+    expect(html).toContain("sc-atlas-glyph-wood");
+    expect(html).toContain("sc-atlas-glyph-shore");
+    expect(html).toContain("sc-atlas-camp-smoke");
+    expect(html).toContain("sc-atlas-pile-glint");
+
+    // Only one seen shore -> exactly one shore glyph group (unseen shore stays hidden under fog)
+    const shoreMatches = html.match(/sc-atlas-glyph-shore/g);
+    expect(shoreMatches?.length).toBe(1);
+  });
 });
 
 describe("Board living styling and CSS isolation", () => {
   it("enforces pointer-events: none !important on all layers", () => {
     const css = readCssFile("./board-living.css");
     expect(css).toContain("pointer-events: none !important;");
+
+    const atlasCss = readCssFile("./hud/atlas-terrain-glyphs.css");
+    expect(atlasCss).toContain("pointer-events: none !important;");
   });
 
-  it("provides keyframe animations for terrain pulse, keep glow, and fog drift", () => {
+  it("provides keyframe animations for terrain pulse, terrain/structure glyphs, keep glow, and fog drift", () => {
     const css = readCssFile("./board-living.css");
     expect(css).toContain("@keyframes sc-board-terrain-pulse");
     expect(css).toContain("@keyframes sc-board-terrain-aura-breathe");
+    expect(css).toContain("@keyframes sc-board-peak-shimmer");
+    expect(css).toContain("@keyframes sc-board-peak-mist-drift");
+    expect(css).toContain("@keyframes sc-board-wood-sway");
+    expect(css).toContain("@keyframes sc-board-shore-tide");
+    expect(css).toContain("@keyframes sc-board-node-pulse");
+    expect(css).toContain("@keyframes sc-board-camp-ember-pulse");
+    expect(css).toContain("@keyframes sc-board-camp-smoke-drift");
     expect(css).toContain("@keyframes sc-board-keep-breathe");
     expect(css).toContain("@keyframes sc-board-keep-flicker");
     expect(css).toContain("@keyframes sc-board-fog-drift");
@@ -145,17 +285,50 @@ describe("Board living styling and CSS isolation", () => {
     expect(css).toContain("@keyframes sc-board-tether-flow");
   });
 
+  it("keeps terrain and structure glyph opacities subtle so board labels and tokens stay readable", () => {
+    const css = readCssFile("./board-living.css");
+    const glyphKfNames = [
+      "sc-board-peak-shimmer",
+      "sc-board-peak-mist-drift",
+      "sc-board-peak-glint-pulse",
+      "sc-board-wood-sway",
+      "sc-board-wood-spore-drift",
+      "sc-board-shore-tide",
+      "sc-board-shore-sparkle",
+      "sc-board-node-pulse",
+      "sc-board-node-mote-rise",
+      "sc-board-camp-ember-pulse",
+      "sc-board-camp-spark-flicker",
+      "sc-board-camp-smoke-drift",
+    ];
+    for (const kf of glyphKfNames) {
+      const match = css.match(new RegExp(`@keyframes\\s+${kf}\\s*\\{[\\s\\S]*?\\n\\}`));
+      expect(match).not.toBeNull();
+      const ops = [...(match![0].matchAll(/(?:stroke-)?opacity:\s*([0-9.]+)/g))].map((m) => Number(m[1]));
+      expect(ops.length).toBeGreaterThan(0);
+      for (const v of ops) {
+        expect(v).toBeLessThanOrEqual(0.55);
+      }
+    }
+  });
+
   it("provides prefers-reduced-motion accessibility overrides", () => {
     const css = readCssFile("./board-living.css");
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
     expect(css).toContain("animation: none !important;");
+
+    const atlasCss = readCssFile("./hud/atlas-terrain-glyphs.css");
+    expect(atlasCss).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(atlasCss).toContain("animation: none !important;");
   });
 
   it("does not leak into theme.css", () => {
     const theme = readCssFile("./theme.css");
     expect(theme).not.toContain("sc-board-living");
     expect(theme).not.toContain("sc-board-terrain");
+    expect(theme).not.toContain("sc-board-glyph");
     expect(theme).not.toContain("sc-board-keep");
     expect(theme).not.toContain("sc-board-fog");
+    expect(theme).not.toContain("sc-atlas-terrain-glyph");
   });
 });
