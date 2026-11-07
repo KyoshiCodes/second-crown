@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-07 — Living research glyphs under Academy and Study cards (bakeoff/gemini-academy-living)
+
+- **Academy lectern & per-topic study strips (`AcademyLecternLivingGlyph`, `StudyLivingGlyph`):** Added left-aligned living SVG scholarly emblems directly beneath the Academy Lectern summary and beneath `StudyLedger` on all 10 study cards in `ResearchBar.tsx`, with subtle glow (`sc-academy-glow-layer`), drift (`sc-academy-drift-layer`), and pulse (`sc-academy-pulse-layer`) motion:
+  - *Academy Lectern strip*: Open codex tome with pulsing lamp flame while studying (*"Lectern lamp lit · studying …"*), sky-blue `-20%` Academy pace indicator (*"Academy armillary · -20% study pace · N/10 codified"*), field lectern state, and mastered codex star (*"Academy codex complete · all 10 studies codified"*).
+  - *10 bespoke topic emblems*: Distinct SVG geometry across `husbandry`, `forestry`, `masonry`, `logistics`, `surveying`, `fieldcraft`, `drill`, `screening`, `horse`, and `siege`, paired with folio status flairs (*"· scribes ink"*, *"· lectern -20%"*, *"· lectern open"*, *"· codified"*, *"· hall sealed"*).
+- **Corner-confined card watermarks (`StudyLivingUnderlay`):** Added `30×30` bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low-opacity keyframes (`<= 0.22` wrapper, `<= 0.50` keyframes) so `StudyLedger` text and `Study` / `Cancel` buttons stay crisp.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `theme.css`, or `academy-living.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/AcademyLivingGlyph.test.tsx` (8 tests). Sim 323, app 594, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living status rows on Academy study cards (wave/academy-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

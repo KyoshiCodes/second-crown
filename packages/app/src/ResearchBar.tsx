@@ -16,6 +16,11 @@ import type { ActFn } from "./game/useGameEngine";
 import { InhabitedOverlay } from "./hud/InhabitedOverlay";
 import { ScrollPip } from "./hud/ScrollPip";
 import { StudyLedger, studyLedgerRows, studyStatus } from "./hud/StudyLedger";
+import {
+  AcademyLecternLivingGlyph,
+  StudyLivingGlyph,
+  StudyLivingUnderlay,
+} from "./hud/AcademyLivingGlyph";
 import "./hud/button-pips.css";
 
 function needList(def: { needs?: string; needsAny?: readonly string[] }): string[] {
@@ -24,8 +29,8 @@ function needList(def: { needs?: string; needsAny?: readonly string[] }): string
   return [];
 }
 
-function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH }) {
-  const { state, act, id } = props;
+function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH; academyFast: boolean }) {
+  const { state, act, id, academyFast } = props;
   const def = RESEARCH[id];
   const done = researchDone(state, id);
   const left = researchTicksLeft(state, id);
@@ -39,7 +44,6 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
   const gate = keepNeed > 0 ? `; Keep ${keepNeed}` : "";
   const seconds = Math.round(researchDuration(state, id) / TICKS_PER_SECOND);
   const status = studyStatus({ done, ticksLeft: left, hallOk: hasHall, keepOk });
-  const pip = status === "known" ? "claimed" : status === "studying" ? "ready" : "open";
   const rows = studyLedgerRows({
     name: label,
     status,
@@ -52,7 +56,19 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
     hallOk: hasHall,
     keepOk,
   }).map((r) => {
-    if (r.kind === "name") return { ...r, lead: <ScrollPip size={16} status={pip} /> };
+    if (r.kind === "name") {
+      return {
+        ...r,
+        lead:
+          status === "known" ? (
+            <ScrollPip size={16} status="claimed" />
+          ) : status === "studying" ? (
+            <ScrollPip size={16} status="ready" />
+          ) : (
+            <ScrollPip size={16} status="open" />
+          ),
+      };
+    }
     if (r.kind === "progress" && status === "studying") {
       return {
         ...r,
@@ -72,7 +88,9 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
   });
   return (
     <div className={`sc-study-living-card is-${status}`} data-study={id} title={effect}>
+      <StudyLivingUnderlay topicId={id} status={status} academyFast={academyFast} />
       <StudyLedger rows={rows} />
+      <StudyLivingGlyph topicId={id} status={status} academyFast={academyFast} />
       {done || left > 0 ? null : (
         <button
           type="button"
@@ -115,9 +133,15 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
           ? " Raise an Academy on Kingdom — it counts as a hall for every study (farm/camp still work for early ones)."
           : ` Academy x${academy} covers every lectern hall.`}
       </p>
+      <AcademyLecternLivingGlyph
+        activeName={open ? RESEARCH[open].name : undefined}
+        knownCount={known.length}
+        totalCount={ids.length}
+        academyCount={academy}
+      />
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, position: "relative", zIndex: 1 }}>
         {ids.map((id) => (
-          <Row key={id} state={state} act={act} id={id} />
+          <Row key={id} state={state} act={act} id={id} academyFast={academy >= 1} />
         ))}
       </div>
     </div>

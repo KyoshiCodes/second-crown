@@ -1,3 +1,10 @@
+## 2026-11-07 — app / living research glyphs under Academy and Study cards (bakeoff/gemini-academy-living)
+
+- **Components:** `packages/app/src/hud/AcademyLivingGlyph.tsx` exports `AcademyLecternLivingGlyph`, `StudyLivingGlyph`, `StudyLivingUnderlay`, `getResearchDiscipline`, `resolveStudyLiving`, `resolveAcademyLecternLiving`, and types `ResearchDiscipline`, `LecternLivingMode`, `StudyLivingDescriptor`, `LecternLivingDescriptor`.
+- **Integration (`ResearchBar.tsx`):** Renders `<AcademyLecternLivingGlyph activeName knownCount totalCount academyCount />` directly beneath the Academy Lectern `<p>` summary, and renders `<StudyLivingUnderlay />` (`z-index: 0`) plus `<StudyLivingGlyph />` (`z-index: 1`, directly beneath `<StudyLedger />` and above `.sc-study-btn`) inside `.sc-study-living-card`. `tryStartResearch` and `tryCancelResearch` handlers remain untouched.
+- **Scoping & readability (`academy-glyph-living.css`):** Scoped via `.sc-study-living-card:has(> .sc-academy-living-underlay)` with foreground children at `z-index: 1` and `.sc-academy-living-underlay` confined to `right: -2px; bottom: -2px; width: 30px; height: 30px; z-index: 0` inside the `32px` right-side pocket reserved by `.sc-academy-topic-glyph` (`padding: 1px 32px 1px 1px`), with radial `mask-image`, wrapper opacity `0.12..0.22`, and watermark keyframe opacity `0.34..0.50`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `academy-living.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/AcademyLivingGlyph.test.tsx` (8 tests) covers all 10 `RESEARCH` disciplines and distinct SVG geometries, lectern/study state resolution, phrasing-only markup, `ResearchBar` integration (`GameState` immutability), corner watermark opacity ceilings, and CSS isolation.
+
 ## 2026-11-07 — app / Academy study card ledger rows (wave/academy-living)
 
 - **Files:** `packages/app/src/hud/StudyLedger.tsx` (exports `StudyLedger`, `studyLedgerRows`, `studyStatus`, types `StudyLedgerKind`, `StudyLedgerTone`, `StudyStatus`, `StudyLedgerRow`), `hud/academy-living.css`, test `hud/StudyLedger.test.tsx`.

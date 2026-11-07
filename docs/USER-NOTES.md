@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living research glyphs on Academy and Study cards (bakeoff/gemini-academy-living)
+
+- **Living lectern & topic emblems:** The Academy lectern header and every study card now carry subtle living scholarly badges beneath their rows:
+  - **Academy lectern:** Glows with a lit scholar's lamp while a study is underway, highlights the `-20%` Academy pace bonus once an Academy stands, and shines with a completion star once all 10 topics are codified.
+  - **All 10 research topics:** Each study card displays its own craft or martial treatise emblem — grain & sickle (*Husbandry*), oak bough (*Forestry*), ashlar & dividers (*Masonry*), route wheel (*Logistics*), astrolabe (*Surveying*), recurve bow (*Fieldcraft*), marshal banner (*Drill*), ward shield (*Screening*), horseshoe (*Horse lore*), and torsion engine (*Siege craft*).
+- **Clean reading & controls:** Soft corner watermarks stay tucked away from card text, and the **Study** and **Cancel** buttons work identically to before. No game numbers changed.
+
 ## 2026-11-07 — Academy studies show Name, Progress, Bonus (wave/academy-living)
 
 - Each study in the Academy / lectern is now its own card with three rows: **Name**, **Progress**, **Bonus**.

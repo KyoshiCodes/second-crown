@@ -1,0 +1,309 @@
+/* --- Living Research Glyphs under Academy Lectern & Study Cards (isolated from theme.css) --- */
+
+.sc-study-living-card:has(> .sc-academy-living-underlay) {
+  position: relative;
+  overflow: hidden;
+}
+
+.sc-study-living-card:has(> .sc-academy-living-underlay) > :not(.sc-academy-living-underlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Corner-confined 30x30 ambient research watermark tucked into the bottom-right pocket */
+.sc-academy-living-underlay {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 30px;
+  height: 30px;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  opacity: 0.15;
+  -webkit-mask-image: radial-gradient(
+    circle at 72% 72%,
+    rgba(0, 0, 0, 0.88) 0%,
+    rgba(0, 0, 0, 0.4) 56%,
+    transparent 92%
+  );
+  mask-image: radial-gradient(
+    circle at 72% 72%,
+    rgba(0, 0, 0, 0.88) 0%,
+    rgba(0, 0, 0, 0.4) 56%,
+    transparent 92%
+  );
+}
+
+.sc-academy-living-underlay * {
+  pointer-events: none !important;
+}
+
+.sc-academy-living-underlay.status-studying {
+  opacity: 0.22;
+}
+
+.sc-academy-living-underlay.status-open {
+  opacity: 0.18;
+}
+
+.sc-academy-living-underlay.status-known {
+  opacity: 0.16;
+}
+
+.sc-academy-living-underlay.status-locked {
+  opacity: 0.12;
+}
+
+.sc-academy-underlay-svg {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  transform-origin: center center;
+  animation: sc-academy-underlay-drift 6.4s ease-in-out infinite;
+}
+
+.sc-academy-living-underlay.status-studying .sc-academy-underlay-svg {
+  animation: sc-academy-underlay-pulse 3.2s ease-in-out infinite;
+}
+
+.sc-academy-living-underlay.status-locked .sc-academy-underlay-svg {
+  animation: none;
+  opacity: 0.36;
+}
+
+/* Color tokens by study status & discipline */
+.sc-academy-living-underlay.status-studying,
+.sc-academy-topic-glyph.status-studying,
+.sc-academy-lectern-glyph.mode-studying {
+  color: #e3b341;
+}
+
+.sc-academy-living-underlay.status-open,
+.sc-academy-topic-glyph.status-open {
+  color: #3fb950;
+}
+
+.sc-academy-living-underlay.status-open.is-fast,
+.sc-academy-topic-glyph.status-open.is-fast,
+.sc-academy-lectern-glyph.mode-academy {
+  color: #38bdf8;
+}
+
+.sc-academy-living-underlay.status-known,
+.sc-academy-topic-glyph.status-known,
+.sc-academy-lectern-glyph.mode-mastered {
+  color: #58d68d;
+}
+
+.sc-academy-living-underlay.status-locked,
+.sc-academy-topic-glyph.status-locked {
+  color: #8b949e;
+}
+
+.sc-academy-lectern-glyph.mode-field {
+  color: #c9a86a;
+}
+
+/* Academy Lectern header living strip (under the lectern summary paragraph) */
+.sc-academy-lectern-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  margin: -2px 0 8px;
+  padding: 2px 4px 2px 2px;
+  min-height: 16px;
+  position: relative;
+  z-index: 1;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-academy-lectern-glyph * {
+  pointer-events: none !important;
+}
+
+.sc-academy-lectern-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  overflow: visible;
+  pointer-events: none !important;
+}
+
+.sc-academy-lectern-flair {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.76;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none !important;
+}
+
+/* Left-aligned topic glyph strip under StudyLedger on each study card (reserves 32px right pocket) */
+.sc-academy-topic-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  margin-top: -1px;
+  padding: 1px 32px 1px 1px;
+  min-height: 16px;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-academy-topic-glyph * {
+  pointer-events: none !important;
+}
+
+.sc-academy-glyph-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  overflow: visible;
+  pointer-events: none !important;
+}
+
+.sc-academy-glyph-flair {
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none !important;
+}
+
+.sc-academy-topic-glyph.status-studying .sc-academy-glyph-flair,
+.sc-academy-topic-glyph.status-open .sc-academy-glyph-flair {
+  opacity: 0.84;
+}
+
+.sc-academy-topic-glyph.status-locked .sc-academy-glyph-flair {
+  opacity: 0.56;
+}
+
+/* Subtle glow, pulse, and drift animations across lectern & topic emblems */
+.sc-academy-lectern-glyph .sc-academy-glow-layer,
+.sc-academy-topic-glyph .sc-academy-glow-layer {
+  transform-origin: 12px 12px;
+  animation: sc-academy-glyph-glow 4.2s ease-in-out infinite;
+}
+
+.sc-academy-lectern-glyph .sc-academy-drift-layer,
+.sc-academy-topic-glyph .sc-academy-drift-layer {
+  transform-origin: 12px 12px;
+  animation: sc-academy-glyph-drift 3.9s ease-in-out infinite;
+}
+
+.sc-academy-lectern-glyph .sc-academy-pulse-layer,
+.sc-academy-topic-glyph .sc-academy-pulse-layer {
+  transform-origin: 12px 12px;
+  animation: sc-academy-glyph-pulse 2.9s ease-in-out infinite;
+}
+
+.sc-academy-topic-glyph.status-studying .sc-academy-pulse-layer,
+.sc-academy-lectern-glyph.mode-studying .sc-academy-pulse-layer {
+  animation: sc-academy-glyph-pulse-active 1.75s ease-in-out infinite;
+}
+
+.sc-academy-topic-glyph.status-locked .sc-academy-drift-layer,
+.sc-academy-topic-glyph.status-locked .sc-academy-pulse-layer {
+  animation: none;
+}
+
+/* Keyframes — watermark stays strictly low-opacity so study card text never obscures */
+@keyframes sc-academy-underlay-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.34;
+  }
+  50% {
+    transform: translate3d(-1px, -1px, 0) scale(1.03);
+    opacity: 0.46;
+  }
+}
+
+@keyframes sc-academy-underlay-pulse {
+  0%, 100% {
+    transform: scale(0.98);
+    opacity: 0.36;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.5;
+  }
+}
+
+@keyframes sc-academy-glyph-glow {
+  0%, 100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.56;
+  }
+}
+
+@keyframes sc-academy-glyph-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0.65px, -0.65px, 0);
+  }
+}
+
+@keyframes sc-academy-glyph-pulse {
+  0%, 100% {
+    transform: scale(0.96);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.96;
+  }
+}
+
+@keyframes sc-academy-glyph-pulse-active {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.78;
+  }
+  50% {
+    transform: scale(1.13);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-academy-living-underlay,
+  .sc-academy-underlay-svg,
+  .sc-academy-lectern-glyph,
+  .sc-academy-topic-glyph,
+  .sc-academy-lectern-glyph .sc-academy-glow-layer,
+  .sc-academy-lectern-glyph .sc-academy-drift-layer,
+  .sc-academy-lectern-glyph .sc-academy-pulse-layer,
+  .sc-academy-topic-glyph .sc-academy-glow-layer,
+  .sc-academy-topic-glyph .sc-academy-drift-layer,
+  .sc-academy-topic-glyph .sc-academy-pulse-layer {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
