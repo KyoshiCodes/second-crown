@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living walker and resting glyphs on People cards (bakeoff/gemini-people-living)
+
+- **Living walkers & idle poses:** Under the Job, Post, and Idle rows on each People card in the Kingdom tab, a subtle living glyph now reflects how those hands spend their day:
+  - **Posted workers:** Striding walkers carry their trade tool with a soft footpath glow — Farmers (*Furrows · striding*), Woodcutters (*Timber · striding*), Miners (*Delving · striding*), Merchants (*Stalls · striding*), Guards (*Walls · patrolling*), and Scholars (*Sanctum · studying*).
+  - **Idle hands:** A resting villager sits on a timber bench beside a warm ember, pulsing gently in amber when open posts are waiting (*Resting · posts open*) or breathing calmly before a staffed hall is built (*Resting · no hall yet*).
+- **Clean reading & controls:** Corner watermarks stay soft and out of the way of text, and the **Post at…** picker and **Idle** button work identically to before. No game numbers changed.
+
 ## 2026-11-07 — People cards show a status stack (wave/people-living)
 
 - Open the Kingdom tab and look at People. Each card now has three short rows: Job, Post and Idle.

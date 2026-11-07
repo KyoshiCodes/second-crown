@@ -8,6 +8,7 @@ import {
 import type { ActFn } from "../game/useGameEngine";
 import { WalkerPip } from "./WalkerPip";
 import { JobStatusStack } from "./JobStatusStack";
+import { PeopleLivingGlyph, PeopleLivingUnderlay } from "./PeopleLivingGlyph";
 import "./walker-pip.css";
 
 type Citizen = GameState["citizens"][number];
@@ -55,6 +56,13 @@ export function JobCard(props: {
         postCount={posts.length}
         kingdomIdle={kingdomIdle}
       />
+      <PeopleLivingGlyph
+        role={effectiveRole}
+        idle={idle}
+        count={workers.length}
+        siteCount={sites.size}
+        postCount={posts.length}
+      />
       {workers.map((c, i) => (
         <span key={c.id} className="sc-job-row">
           <span className="sc-job-who">
@@ -89,6 +97,13 @@ export function JobCard(props: {
           </button>
         </span>
       ))}
+      <PeopleLivingUnderlay
+        role={effectiveRole}
+        idle={idle}
+        count={workers.length}
+        siteCount={sites.size}
+        postCount={posts.length}
+      />
     </div>
   );
 }

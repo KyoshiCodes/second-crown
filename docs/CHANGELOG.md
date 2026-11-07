@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-07 — Living walker glyphs under People/Job cards (bakeoff/gemini-people-living)
+
+- **Living walker & idle-pose strip (`PeopleLivingGlyph`):** Added a left-aligned `15×15` living SVG emblem and flair strip directly beneath `JobStatusStack` on every People card (`JobCard.tsx`):
+  - *Assigned walkers (`pose-walking`)*: Striding walker silhouette with footpath glow (`sc-people-glow`), forward stride drift (`sc-people-walker-drift`), and pulsing trade charge (`sc-people-walker-pulse`) tailored to all six citizen trades (`farmer` hoe & furrow, `woodcutter` felling axe, `miner` pickaxe, `merchant` ducat coin, `guard` watch spear, `scholar` tome & star).
+  - *Idle poses (`pose-idle`)*: Seated resting villager on a timber bench beside a camp ember (`sc-people-idle-drift` + `sc-people-idle-pulse`), pulsing in warm amber when open posts await (*"Resting · posts open"*) or breathing calmly before a staffed hall stands (*"Resting · no hall yet"*).
+- **Corner-confined card watermarks (`PeopleLivingUnderlay`):** Added `28×28` bottom-right corner watermarks across all seven `PeopleCraft` variants (`idle`, `farmer`, `woodcutter`, `miner`, `merchant`, `guard`, `scholar`) with radial vignette masks and capped low opacity (`<= 0.22` wrapper, `<= 0.48` keyframes) so card text, the `Post at…` picker, and the `Idle` button remain crisp.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `theme.css`, or `job-status-stack.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/PeopleLivingGlyph.test.tsx` (9 tests). Sim 323, app 556, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living status rows on People cards (wave/people-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

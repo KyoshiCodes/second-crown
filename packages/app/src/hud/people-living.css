@@ -1,0 +1,288 @@
+/* Living walker & idle-pose glyphs under People/Job cards (JobCard).
+ * Isolated stylesheet — do not touch theme.css.
+ * Strictly decorative: pointer-events: none on all layers and children.
+ */
+
+.sc-people-living-glyph,
+.sc-people-living-glyph *,
+.sc-people-living-badge,
+.sc-people-living-svg,
+.sc-people-living-flair,
+.sc-people-living-underlay,
+.sc-people-living-underlay *,
+.sc-people-living-watermark {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* Scope card positioning only on JobCards carrying our underlay */
+.sc-job-card:has(> .sc-people-living-underlay) {
+  position: relative;
+  overflow: hidden;
+}
+
+.sc-job-card:has(> .sc-people-living-underlay) > :not(.sc-people-living-underlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Left-aligned living walker / idle strip directly beneath JobStatusStack */
+.sc-people-living-glyph {
+  --sc-pl-accent: #86efac;
+  --sc-pl-glow: rgba(74, 222, 128, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 2px 32px 2px 1px;
+  color: rgba(232, 220, 200, 0.86);
+}
+
+/* Craft & pose color grading */
+.sc-people-living-glyph.craft-farmer,
+.sc-people-living-underlay.craft-farmer {
+  --sc-pl-accent: #86efac;
+  --sc-pl-glow: rgba(74, 222, 128, 0.26);
+}
+
+.sc-people-living-glyph.craft-woodcutter,
+.sc-people-living-underlay.craft-woodcutter {
+  --sc-pl-accent: #6ee7b7;
+  --sc-pl-glow: rgba(52, 211, 153, 0.25);
+}
+
+.sc-people-living-glyph.craft-miner,
+.sc-people-living-underlay.craft-miner {
+  --sc-pl-accent: #93c5fd;
+  --sc-pl-glow: rgba(96, 165, 250, 0.26);
+}
+
+.sc-people-living-glyph.craft-merchant,
+.sc-people-living-underlay.craft-merchant {
+  --sc-pl-accent: #fde047;
+  --sc-pl-glow: rgba(250, 204, 21, 0.26);
+}
+
+.sc-people-living-glyph.craft-guard,
+.sc-people-living-underlay.craft-guard {
+  --sc-pl-accent: #7dd3fc;
+  --sc-pl-glow: rgba(56, 189, 248, 0.26);
+}
+
+.sc-people-living-glyph.craft-scholar,
+.sc-people-living-underlay.craft-scholar {
+  --sc-pl-accent: #d8b4fe;
+  --sc-pl-glow: rgba(192, 132, 252, 0.26);
+}
+
+.sc-people-living-glyph.pose-idle,
+.sc-people-living-underlay.pose-idle {
+  --sc-pl-accent: #fbbf24;
+  --sc-pl-glow: rgba(251, 191, 36, 0.24);
+}
+
+.sc-people-living-glyph.state-waiting,
+.sc-people-living-underlay.state-waiting {
+  --sc-pl-accent: #fb923c;
+  --sc-pl-glow: rgba(251, 146, 60, 0.3);
+}
+
+.sc-people-living-glyph.state-calm {
+  opacity: 0.78;
+}
+
+.sc-people-living-badge {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sc-pl-accent);
+  filter: drop-shadow(0 0 3px var(--sc-pl-glow));
+}
+
+.sc-people-living-svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  overflow: visible;
+}
+
+.sc-people-living-flair {
+  min-width: 0;
+  font-size: 10px;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.84;
+}
+
+/* Walker & idle SVG animation layers: glow, pulse, drift */
+.sc-people-glow {
+  transform-origin: 8px 9px;
+  animation: sc-people-glow-breathe 3.2s ease-in-out infinite;
+}
+
+.sc-people-walker-drift {
+  transform-origin: 8px 9px;
+  animation: sc-people-walker-stride 2.2s ease-in-out infinite;
+}
+
+.sc-people-walker-pulse {
+  transform-origin: 11px 6px;
+  animation: sc-people-tool-pulse 2.2s ease-in-out infinite;
+}
+
+.sc-people-idle-drift {
+  transform-origin: 8px 9px;
+  animation: sc-people-idle-sway 3.8s ease-in-out infinite;
+}
+
+.sc-people-idle-pulse {
+  transform-origin: 12px 10px;
+  animation: sc-people-ember-pulse 2.8s ease-in-out infinite;
+}
+
+.sc-people-living-glyph.state-waiting .sc-people-idle-pulse {
+  animation-duration: 1.55s;
+}
+
+.sc-people-living-glyph.state-calm .sc-people-glow,
+.sc-people-living-glyph.state-calm .sc-people-walker-drift,
+.sc-people-living-glyph.state-calm .sc-people-idle-drift {
+  animation-duration: 4.6s;
+}
+
+/* Corner-confined ambient watermark underlay (tucked away from text, select, and Idle button) */
+.sc-people-living-underlay {
+  --sc-pl-accent: #86efac;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 28px;
+  height: 28px;
+  z-index: 0;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: var(--sc-pl-accent);
+  opacity: 0.19;
+  -webkit-mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.42) 56%, transparent 90%);
+  mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.42) 56%, transparent 90%);
+}
+
+.sc-people-living-underlay.state-waiting,
+.sc-people-living-underlay.state-striding {
+  opacity: 0.22;
+}
+
+.sc-people-living-underlay.state-calm {
+  opacity: 0.13;
+}
+
+.sc-people-living-watermark {
+  width: 28px;
+  height: 28px;
+  display: block;
+  overflow: visible;
+  transform-origin: 20px 20px;
+  animation: sc-people-watermark-drift 4s ease-in-out infinite;
+}
+
+.sc-people-living-underlay.pose-idle .sc-people-living-watermark {
+  animation-name: sc-people-watermark-rest;
+  animation-duration: 4.8s;
+}
+
+@keyframes sc-people-glow-breathe {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.46;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-people-walker-stride {
+  0%, 100% {
+    opacity: 0.86;
+    transform: translate(-0.45px, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(0.55px, -0.55px);
+  }
+}
+
+@keyframes sc-people-tool-pulse {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-people-idle-sway {
+  0%, 100% {
+    opacity: 0.82;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.96;
+    transform: translateY(-0.45px);
+  }
+}
+
+@keyframes sc-people-ember-pulse {
+  0%, 100% {
+    opacity: 0.58;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.98;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes sc-people-watermark-drift {
+  0%, 100% {
+    opacity: 0.34;
+    transform: translate(0, 0) scale(0.97);
+  }
+  50% {
+    opacity: 0.48;
+    transform: translate(-0.45px, -0.45px) scale(1.03);
+  }
+}
+
+@keyframes sc-people-watermark-rest {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.44;
+    transform: scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-people-glow,
+  .sc-people-walker-drift,
+  .sc-people-walker-pulse,
+  .sc-people-idle-drift,
+  .sc-people-idle-pulse,
+  .sc-people-living-watermark {
+    animation: none !important;
+    transform: none !important;
+  }
+}
