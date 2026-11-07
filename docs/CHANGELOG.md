@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-07 — Living status rows on Academy study cards (wave/academy-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- Each study on the Academy / lectern (`ResearchBar`, shown in the Keep hall Lectern room and the tutorial banner) is now a card with **Name**, **Progress**, **Bonus** rows built from values the bar already read.
+- **Study** buttons are the same buttons (same label, disabled rule, click) under the rows. **Cancel** moved into the Progress row of the active study.
+- Progress fill for an active study reads the sim's stored `research_<id>_total` flag; saves without it show a moving bar instead of a fraction.
+- Living touches: active Progress edge breathes, a known Bonus glows softly. Reduced-motion turns them off.
+- New `hud/StudyLedger.tsx` + `hud/academy-living.css`.
+- Tests: new `hud/StudyLedger.test.tsx` (8 tests). Sim 323, app 586, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living omen and scroll glyphs under Event and Quest cards (bakeoff/gemini-events-living)
 
 - **Living omen & scroll strips (`EventOmenLivingGlyph`, `QuestScrollLivingGlyph`):** Added left-aligned `14×14` living SVG emblems and state flairs directly beneath `EventsLedger` on `EventCard.tsx` and `QuestCard.tsx` with subtle glow (`sc-events-glow-layer`), drift (`sc-events-drift-layer`), and pulse (`sc-events-pulse-layer`) motion:

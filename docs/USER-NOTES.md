@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Academy studies show Name, Progress, Bonus (wave/academy-living)
+
+- Each study in the Academy / lectern is now its own card with three rows: **Name**, **Progress**, **Bonus**.
+- Locked studies say what is missing (hall or Keep level) in red under the name.
+- A study underway shows seconds left and a filling bar, with **Cancel** right beside it.
+- Known studies show their bonus as active.
+- The **Study** buttons are the same buttons as before. No game numbers changed.
+
 ## 2026-11-07 — Living omen and scroll glyphs on Event and Quest cards (bakeoff/gemini-events-living)
 
 - **Living event omens:** Under the Name, Progress, and Reward rows on each world event card, a subtle living omen emblem now echoes the portent:

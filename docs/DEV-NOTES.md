@@ -1,3 +1,11 @@
+## 2026-11-07 — app / Academy study card ledger rows (wave/academy-living)
+
+- **Files:** `packages/app/src/hud/StudyLedger.tsx` (exports `StudyLedger`, `studyLedgerRows`, `studyStatus`, types `StudyLedgerKind`, `StudyLedgerTone`, `StudyStatus`, `StudyLedgerRow`), `hud/academy-living.css`, test `hud/StudyLedger.test.tsx`.
+- **Integration:** `ResearchBar.tsx` `Row` now always renders `<div class="sc-study-living-card is-<known|studying|open|locked>" data-study=id>` with `<StudyLedger>` first. The existing `.sc-study-btn` Study button follows unchanged when the study is neither known nor running. Cancel is passed as the Progress row `slot`. `ResearchBar` props and the lectern header paragraph unchanged. The `.sc-study-row` class is no longer emitted (its rule in `button-pips.css` is unused, left in place). The unused `.sc-study-card` rules in `theme.css` were not touched.
+- **Inputs:** only what `Row` already read (`researchDone`, `researchTicksLeft`, `researchDuration`, `researchKeepReady`, `researchKeepMin`, hall `countBuilding`, `RESEARCH[id].effect`) plus `state.flags.research_<id>_total` (written by `tryStartResearch`) for the active fill. Fill = `1 - left/total`, clamped; display only. Missing total → `fill: "run"` (indeterminate, aria-hidden).
+- **Markup:** `<dl class="sc-study-ledger">` → `<div class="sc-study-ledger-row is-<name|progress|bonus> tone-<calm|busy|ready|done|locked>">`, optional `.sc-study-ledger-bar` (role=progressbar, or `.is-run`).
+- **CSS:** `.sc-study-living-card`, `.sc-study-ledger-*`, tone via `--sc-study-tone`. `prefers-reduced-motion` disables animations. `theme.css` untouched.
+
 ## 2026-11-07 — app / living omen and scroll glyphs under Event and Quest cards (bakeoff/gemini-events-living)
 
 - **Components:** `packages/app/src/hud/EventsLivingGlyph.tsx` exports `EventOmenLivingGlyph`, `EventOmenUnderlay`, `QuestScrollLivingGlyph`, `QuestScrollUnderlay`, `resolveOmenLiving`, `resolveScrollLiving`, `getQuestSealMotif`, and types `OmenLivingState`, `ScrollSealMotif`, `OmenLivingDescriptor`, `ScrollLivingDescriptor`.

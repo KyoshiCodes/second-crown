@@ -15,6 +15,7 @@ import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import { InhabitedOverlay } from "./hud/InhabitedOverlay";
 import { ScrollPip } from "./hud/ScrollPip";
+import { StudyLedger, studyLedgerRows, studyStatus } from "./hud/StudyLedger";
 import "./hud/button-pips.css";
 
 function needList(def: { needs?: string; needsAny?: readonly string[] }): string[] {
@@ -34,50 +35,63 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH })
   const keepNeed = researchKeepMin(id);
   const label = def.name;
   const effect = "effect" in def ? String(def.effect) : "";
-  if (done) {
-    return (
-      <div title={effect} className="sc-study-row">
-        <ScrollPip size={16} status="claimed" />
-        <span>{label} known.{effect ? ` ${effect}` : ""}</span>
-      </div>
-    );
-  }
-  if (left > 0) {
-    return (
-      <div className="sc-study-row">
-        <ScrollPip size={16} status="ready" />
-        <span>Studying {label.toLowerCase()} · {Math.ceil(left / 10)}s left{" "}</span>
-        <button
-          type="button"
-          onClick={() =>
-            act((s) => (tryCancelResearch(s, id) ? `Called off ${label.toLowerCase()}.` : "Nothing to cancel."))
-          }
-        >
-          Cancel
-        </button>
-      </div>
-    );
-  }
   const cost = Object.entries(def.cost).map(([k, v]) => `${v} ${k}`).join(", ");
   const gate = keepNeed > 0 ? `; Keep ${keepNeed}` : "";
   const seconds = Math.round(researchDuration(state, id) / TICKS_PER_SECOND);
+  const status = studyStatus({ done, ticksLeft: left, hallOk: hasHall, keepOk });
+  const pip = status === "known" ? "claimed" : status === "studying" ? "ready" : "open";
+  const rows = studyLedgerRows({
+    name: label,
+    status,
+    ticksLeft: left,
+    ticksTotal: Number(state.flags[`research_${id}_total`] ?? 0),
+    seconds,
+    effect,
+    halls: buildings,
+    keepNeed,
+    hallOk: hasHall,
+    keepOk,
+  }).map((r) => {
+    if (r.kind === "name") return { ...r, lead: <ScrollPip size={16} status={pip} /> };
+    if (r.kind === "progress" && status === "studying") {
+      return {
+        ...r,
+        slot: (
+          <button
+            type="button"
+            onClick={() =>
+              act((s) => (tryCancelResearch(s, id) ? `Called off ${label.toLowerCase()}.` : "Nothing to cancel."))
+            }
+          >
+            Cancel
+          </button>
+        ),
+      };
+    }
+    return r;
+  });
   return (
-    <button
-      type="button"
-      disabled={!hasHall || !keepOk}
-      title={effect}
-      onClick={() =>
-        act((s) =>
-          tryStartResearch(s, id)
-            ? `Scribes begin ${label.toLowerCase()}.`
-            : `Need ${buildings.join(" or ")}${keepNeed ? `, Keep ${keepNeed}` : ""}, ${cost}, and a free study slot.`
-        )
-      }
-      className="sc-btn-with-pip sc-study-btn"
-    >
-      <ScrollPip size={16} status="open" />
-      <span>Study {label.toLowerCase()} ({cost}; {buildings.join(" or ")}{gate}; {seconds}s)</span>
-    </button>
+    <div className={`sc-study-living-card is-${status}`} data-study={id} title={effect}>
+      <StudyLedger rows={rows} />
+      {done || left > 0 ? null : (
+        <button
+          type="button"
+          disabled={!hasHall || !keepOk}
+          title={effect}
+          onClick={() =>
+            act((s) =>
+              tryStartResearch(s, id)
+                ? `Scribes begin ${label.toLowerCase()}.`
+                : `Need ${buildings.join(" or ")}${keepNeed ? `, Keep ${keepNeed}` : ""}, ${cost}, and a free study slot.`
+            )
+          }
+          className="sc-btn-with-pip sc-study-btn"
+        >
+          <ScrollPip size={16} status="open" />
+          <span>Study {label.toLowerCase()} ({cost}; {buildings.join(" or ")}{gate}; {seconds}s)</span>
+        </button>
+      )}
+    </div>
   );
 }
 

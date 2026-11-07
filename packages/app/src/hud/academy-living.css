@@ -1,0 +1,131 @@
+/* --- Academy / lectern: each study is a card with name / progress / bonus rows. --- */
+.sc-study-living-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 230px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--chrome-btn-border, rgba(127, 127, 127, 0.35));
+  border-radius: 6px;
+  background: rgba(127, 127, 127, 0.06);
+}
+.sc-study-living-card.is-known { opacity: 0.88; }
+.sc-study-living-card.is-locked { opacity: 0.72; }
+.sc-study-living-card.is-studying { border-color: #d29922; }
+
+/* The existing Study button keeps its label; it just fills the card width. */
+.sc-study-living-card > .sc-study-btn {
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
+  white-space: normal;
+}
+
+.sc-study-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  min-width: 0;
+}
+.sc-study-ledger-row {
+  --sc-study-tone: var(--chrome-btn-border, #6e7681);
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 2px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-study-tone);
+}
+.sc-study-ledger-row.tone-calm { --sc-study-tone: #6e7681; }
+.sc-study-ledger-row.tone-busy { --sc-study-tone: #d29922; }
+.sc-study-ledger-row.tone-ready { --sc-study-tone: #3fb950; }
+.sc-study-ledger-row.tone-done { --sc-study-tone: #8b949e; }
+.sc-study-ledger-row.tone-locked { --sc-study-tone: #f85149; }
+
+.sc-study-ledger-label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.sc-study-ledger-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  margin: 0;
+  min-width: 0;
+  text-align: right;
+}
+.sc-study-ledger-main {
+  min-width: 0;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.sc-study-ledger-row.is-name .sc-study-ledger-main { font-weight: 600; }
+.sc-study-ledger-row.is-bonus .sc-study-ledger-main { white-space: normal; }
+.sc-study-ledger-row.is-bonus.tone-ready .sc-study-ledger-main { color: #3fb950; }
+.sc-study-ledger-sub {
+  font-size: 10px;
+  opacity: 0.65;
+}
+.sc-study-ledger-row.is-name.tone-locked .sc-study-ledger-sub { color: #f85149; opacity: 0.85; }
+
+.sc-study-ledger-bar {
+  grid-column: 1 / -1;
+  position: relative;
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(127, 127, 127, 0.18);
+}
+.sc-study-ledger-fill {
+  display: block;
+  height: 100%;
+  background: var(--sc-study-tone);
+  transition: width 0.4s ease;
+}
+/* Active study: no fraction is shown, only a moving quill stroke. */
+.sc-study-ledger-bar.is-run .sc-study-ledger-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  animation: sc-study-ledger-run 1.8s ease-in-out infinite;
+}
+
+/* Living touches: active edge breathes, a known bonus glows softly. */
+.sc-study-ledger-row.is-progress.tone-busy {
+  animation: sc-study-ledger-breathe 2.4s ease-in-out infinite;
+}
+.sc-study-living-card.is-known .sc-study-ledger-row.is-bonus {
+  animation: sc-study-ledger-glow 3.2s ease-in-out infinite;
+}
+
+@keyframes sc-study-ledger-run {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(340%); }
+}
+@keyframes sc-study-ledger-breathe {
+  0%, 100% { border-left-color: var(--sc-study-tone); }
+  50% { border-left-color: transparent; }
+}
+@keyframes sc-study-ledger-glow {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: inset 4px 0 6px -4px var(--sc-study-tone); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-study-ledger-row,
+  .sc-study-ledger-bar.is-run .sc-study-ledger-fill { animation: none !important; }
+  .sc-study-ledger-fill { transition: none; }
+}
