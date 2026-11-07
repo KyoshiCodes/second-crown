@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Army unit cards are easier to read (wave/army-glyph-contrast)
+
+- The large unit picture behind each Army unit card is now a faint watermark. The Power, Cost and Ready lines stay fully readable on top of it.
+- Nothing else changed: same cards, same buttons, same numbers.
+
 ## 2026-11-07 — Living unit glyphs under Army unit cards (bakeoff/gemini-army-living)
 
 - **Living unit heraldry:** Army unit cards now feature subtle, living martial glyphs resting under each unit card:

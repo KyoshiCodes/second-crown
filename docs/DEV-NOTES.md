@@ -1,3 +1,10 @@
+## 2026-11-07 — app / Army unit glyph contrast (wave/army-glyph-contrast)
+
+- **Root cause:** `.sc-unit-living-underlay svg { opacity: 0.13 }` was dead in practice. A running CSS animation that animates `opacity` overrides the element's static `opacity`, and both `sc-unit-idle-breath` (0.85→1) and `sc-unit-drilling-pulse` (0.88→1) do. The watermark rendered near full strength over the text.
+- **Fix:** Opacity now lives on the wrapper `.sc-unit-living-underlay` (0.3; `.is-drilling` 0.35; `.is-locked` 0.2). The svg keeps its keyframes. Effective opacity = wrapper × svg, so the max is the wrapper cap. Per-state `opacity` was removed from the svg rules.
+- **Rule of thumb:** For any decorative layer whose child animates `opacity`, put the readability cap on a parent, not on the animated element.
+- **Test:** `UnitLivingGlyph.test.tsx` › "caps the underlay glyph opacity on the wrapper…" parses `unit-living.css`, checks that each wrapper cap is in (0, 0.35], and checks that the `svg` rule has no `opacity`.
+
 ## 2026-11-07 — app / living unit glyphs under Army unit cards (bakeoff/gemini-army-living)
 
 - **Components:** `packages/app/src/hud/UnitLivingGlyph.tsx` exports `UnitLivingUnderlay` (ambient SVG watermark backdrop beneath card contents), `UnitLivingGlyph` (heraldic badge and flair under status rows), and `getUnitFamily`.

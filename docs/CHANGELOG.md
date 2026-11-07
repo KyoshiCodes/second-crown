@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-07 — Army unit glyph contrast fix (wave/army-glyph-contrast)
+
+- App only (`packages/app/src/hud/unit-living.css`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- **Fix:** The background unit glyph (`UnitLivingUnderlay`) showed at roughly 85–100% opacity over the Power/Cost/Ready lines because the `sc-unit-idle-breath` / `sc-unit-drilling-pulse` keyframes animate `opacity` and overrode the static `svg` value. The opacity cap moved to the wrapper span: 0.3 by default, 0.35 while drilling, 0.2 when locked.
+- **Tests:** One new test in `UnitLivingGlyph.test.tsx` checks that the wrapper caps stay ≤ 0.35 and that the `svg` rule has no opacity of its own. 323 sim + 458 app tests pass; app build succeeds.
+
 ## 2026-11-07 — Living unit glyphs under Army unit cards (bakeoff/gemini-army-living)
 
 - **Living unit glyphs:** Added subtle living unit heraldry under the Army unit cards (`UnitCard.tsx`), featuring an ambient background watermark underlay (`UnitLivingUnderlay`) and an animated status emblem strip (`UnitLivingGlyph`) directly under the status rows.

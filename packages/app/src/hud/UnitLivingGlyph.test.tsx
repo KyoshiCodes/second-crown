@@ -177,4 +177,30 @@ describe("unit-living.css isolation & accessibility", () => {
     expect(css).toContain("@keyframes sc-unit-idle-breath");
     expect(css).toContain("@keyframes sc-unit-drilling-pulse");
   });
+
+  it("caps the underlay glyph opacity on the wrapper so text stays readable", () => {
+    const css = readCssFile("./unit-living.css");
+    const rule = (sel: string): string => {
+      const start = css.indexOf(`\n${sel} {`);
+      if (start < 0) throw new Error(`missing rule ${sel}`);
+      const open = css.indexOf("{", start);
+      return css.slice(open + 1, css.indexOf("}", open));
+    };
+    const opacityOf = (sel: string): number => {
+      const m = rule(sel).match(/opacity:\s*([\d.]+)/);
+      if (!m) throw new Error(`no opacity on ${sel}`);
+      return Number(m[1]);
+    };
+    for (const sel of [
+      ".sc-unit-living-underlay",
+      ".sc-unit-living-underlay.is-drilling",
+      ".sc-unit-living-underlay.is-locked",
+    ]) {
+      const o = opacityOf(sel);
+      expect(o).toBeGreaterThan(0);
+      expect(o).toBeLessThanOrEqual(0.35);
+    }
+    // The svg itself must not carry opacity: its keyframes animate opacity up to 1.
+    expect(rule(".sc-unit-living-underlay svg")).not.toMatch(/opacity/);
+  });
 });

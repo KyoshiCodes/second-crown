@@ -24,6 +24,17 @@
   align-items: center;
   justify-content: flex-end;
   padding-right: 6px;
+  /* Contrast cap: opacity lives on the wrapper so the svg keyframes
+     (which animate opacity 0.85..1) can never push the glyph above it. */
+  opacity: 0.3;
+}
+
+.sc-unit-living-underlay.is-drilling {
+  opacity: 0.35;
+}
+
+.sc-unit-living-underlay.is-locked {
+  opacity: 0.2;
 }
 
 .sc-unit-living-underlay,
@@ -33,7 +44,6 @@
 
 .sc-unit-living-underlay svg {
   display: block;
-  opacity: 0.13;
   transform-origin: center center;
   animation: sc-unit-idle-breath 3.8s ease-in-out infinite;
 }
@@ -44,7 +54,6 @@
 }
 
 .sc-unit-living-underlay.is-drilling svg {
-  opacity: 0.22;
   color: #e3b341;
   --sc-unit-glow: rgba(227, 179, 65, 0.5);
   animation: sc-unit-drilling-pulse 1.8s ease-in-out infinite;
@@ -57,7 +66,6 @@
 
 .sc-unit-living-underlay.is-locked svg {
   color: #8b949e;
-  opacity: 0.08;
   animation: none;
 }
 
