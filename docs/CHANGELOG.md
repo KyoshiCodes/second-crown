@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-07 — Living war glyphs under War Room force cards (bakeoff/gemini-war-living)
+
+- **Living warband, cloak, cart & tent strip (`WarLivingGlyph`):** Updated the left-aligned `14×14` living SVG emblem and flair strip beneath `ForceLedger` and `ForceStatus` on every War Room force card (`ForceCard.tsx`) with bespoke artwork and subtle glow (`sc-war-glow-layer`), pulse (`sc-war-pulse-layer`), and drift (`sc-war-drift-layer`) motion:
+  - *Warbands (`hostile` / `emblem-warband`)*: Horned iron helm, surcoat, and morningstar pulsing during high risk (*"Warband march · high risk"*, *"Warband march · advancing"*, *"Warband host · massed"*).
+  - *Cloaks (`scout` / `emblem-cloak`)*: Hooded stealth cloak, brooch clasp, and brass spyglass drifting gently while ranging (*"Cloak outrider · ranging"*, *"Cloak watch · posted"*).
+  - *Carts (`gather` / `emblem-cart`)*: Timber cargo wagon, yoke, spoked wheel, and grain sacks/crates distinguishing laden return hauls from empty outbound runs (*"Cart laden · hauling"*, *"Cart empty · outbound"*, *"Supply cart · on road"*, *"Supply cart · posted"*).
+  - *Tents (`garrison` / `emblem-tent`)*: Ridgepole pavilion tent, pennant finial, leaning spear, and glowing camp lantern (*"Tent under threat"*, *"Pavilion tent · relocating"*, *"Pavilion tent · standing watch"*).
+- **Corner-confined card watermarks (`WarLivingUnderlay`):** Confined the ambient watermark to a `34×34` bottom-right pocket (`right: -2px; bottom: -2px; z-index: 0`) with a radial vignette fade mask and dedicated low-opacity keyframes (`<= 0.25` wrapper, `<= 0.52` keyframes) so stacked `ForceLedger` and `ForceStatus` values never obscure.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `theme.css`, or `force-ledger.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/hud/WarLivingGlyph.test.tsx` (9 tests). Sim 323, app 561, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living ledger rows on War Room force cards (wave/war-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

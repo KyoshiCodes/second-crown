@@ -1,231 +1,260 @@
-/* --- Living war glyphs under War Room status cards --- */
-/* Isolated styles: theme.css is untouched. */
+/* Living war glyphs under War Room force cards (warbands, cloaks, carts, tents).
+ * Isolated stylesheet — do not touch theme.css.
+ * Strictly decorative: pointer-events: none on all layers and children.
+ */
 
-.sc-force-card {
+.sc-war-living-underlay,
+.sc-war-living-underlay *,
+.sc-war-living-watermark,
+.sc-war-status-glyph,
+.sc-war-status-glyph *,
+.sc-war-glyph-icon,
+.sc-war-glyph-svg,
+.sc-war-glyph-flair {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* Scope card positioning to ForceCards carrying our living underlay */
+.sc-force-card:has(> .sc-war-living-underlay) {
   position: relative;
   overflow: hidden;
 }
 
-/* Ensure all readable and interactive card children stay above the living underlay */
-.sc-force-card > *:not(.sc-war-living-underlay) {
+/* Keep ForceLedger, ForceStatus, and Recall/Sally buttons strictly above the underlay */
+.sc-force-card:has(> .sc-war-living-underlay) > :not(.sc-war-living-underlay) {
   position: relative;
   z-index: 1;
 }
 
-/* Ambient living war glyph underlay beneath status card contents */
+/* Force emblem palettes: warband (hostile), cloak (scout), cart (gather), tent (garrison) */
+.sc-war-living-underlay.emblem-warband,
+.sc-war-status-glyph.emblem-warband {
+  --sc-war-accent: #f85149;
+  --sc-war-glow: rgba(248, 81, 73, 0.34);
+}
+
+.sc-war-living-underlay.emblem-cloak,
+.sc-war-status-glyph.emblem-cloak {
+  --sc-war-accent: #58a6ff;
+  --sc-war-glow: rgba(88, 166, 255, 0.32);
+}
+
+.sc-war-living-underlay.emblem-cart,
+.sc-war-status-glyph.emblem-cart {
+  --sc-war-accent: #eab308;
+  --sc-war-glow: rgba(210, 153, 34, 0.32);
+}
+
+.sc-war-living-underlay.emblem-tent,
+.sc-war-status-glyph.emblem-tent {
+  --sc-war-accent: #4ade80;
+  --sc-war-glow: rgba(74, 222, 128, 0.3);
+}
+
+.sc-war-living-underlay.is-danger,
+.sc-war-status-glyph.is-danger {
+  --sc-war-accent: #f85149;
+  --sc-war-glow: rgba(248, 81, 73, 0.42);
+}
+
+/* Corner-confined ambient watermark underlay (never overlaps right-aligned ledger/status text) */
 .sc-war-living-underlay {
+  --sc-war-accent: #c9b48a;
   position: absolute;
-  inset: 0;
-  pointer-events: none !important;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
   z-index: 0;
-  overflow: hidden;
-  user-select: none;
-  display: flex;
-  align-items: center;
+  display: inline-flex;
+  align-items: flex-end;
   justify-content: flex-end;
-  padding-right: 4px;
+  color: var(--sc-war-accent);
+  opacity: 0.2;
+  -webkit-mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 58%, transparent 92%);
+  mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 58%, transparent 92%);
 }
 
-.sc-war-living-underlay,
-.sc-war-living-underlay * {
-  pointer-events: none !important;
+.sc-war-living-underlay.is-danger {
+  opacity: 0.25;
 }
 
-.sc-war-living-underlay svg {
-  display: block;
+.sc-war-living-underlay.is-empty {
   opacity: 0.14;
-  transform-origin: center center;
-  animation: sc-war-underlay-breathe 4s ease-in-out infinite;
 }
 
-.sc-war-living-underlay.is-hostile svg {
-  color: #f85149;
-  --sc-war-glow: rgba(248, 81, 73, 0.45);
+.sc-war-living-watermark {
+  width: 34px;
+  height: 34px;
+  display: block;
+  overflow: visible;
+  transform-origin: 24px 24px;
+  animation: sc-war-underlay-breathe 4.2s ease-in-out infinite;
 }
 
-.sc-war-living-underlay.is-hostile.is-danger svg {
-  opacity: 0.22;
-  animation: sc-war-underlay-danger 1.5s ease-in-out infinite;
+.sc-war-living-underlay.is-moving .sc-war-living-watermark {
+  animation: sc-war-underlay-drift 3.4s ease-in-out infinite;
 }
 
-.sc-war-living-underlay.is-scout svg {
-  color: #58a6ff;
-  --sc-war-glow: rgba(88, 166, 255, 0.4);
+.sc-war-living-underlay.is-danger .sc-war-living-watermark {
+  animation: sc-war-underlay-danger 2s ease-in-out infinite;
 }
 
-.sc-war-living-underlay.is-gather svg {
-  color: #d29922;
-  --sc-war-glow: rgba(210, 153, 34, 0.4);
-}
-
-.sc-war-living-underlay.is-garrison svg {
-  color: #4ade80;
-  --sc-war-glow: rgba(74, 222, 128, 0.35);
-}
-
-.sc-war-living-underlay.is-moving svg {
-  animation: sc-war-underlay-drift 3.6s ease-in-out infinite;
-}
-
-/* Living war glyph under status rows */
+/* Left-aligned living war glyph strip beneath ForceLedger & ForceStatus */
 .sc-war-status-glyph {
-  display: flex;
+  --sc-war-accent: #c9b48a;
+  --sc-war-glow: rgba(201, 180, 138, 0.26);
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 5px;
-  margin-top: 4px;
-  padding: 3px 0 1px;
+  justify-content: flex-start;
+  gap: 6px;
+  min-width: 0;
+  margin-top: 3px;
+  padding: 3px 36px 1px 1px;
   border-top: 1px dotted rgba(255, 255, 255, 0.08);
-  pointer-events: none !important;
-  user-select: none;
-}
-
-.sc-war-status-glyph,
-.sc-war-status-glyph * {
-  pointer-events: none !important;
+  color: var(--sc-war-accent);
 }
 
 .sc-war-glyph-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transform-origin: center center;
-  animation: sc-war-pulse 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px var(--sc-war-glow));
 }
 
-.sc-war-status-glyph.is-hostile {
-  color: #f85149;
-  --sc-war-glow: rgba(248, 81, 73, 0.6);
-}
-
-.sc-war-status-glyph.is-hostile.is-danger .sc-war-glyph-icon {
-  animation: sc-war-danger-pulse 1.2s ease-in-out infinite;
-}
-
-.sc-war-status-glyph.is-scout {
-  color: #58a6ff;
-  --sc-war-glow: rgba(88, 166, 255, 0.55);
-}
-
-.sc-war-status-glyph.is-gather {
-  color: #d29922;
-  --sc-war-glow: rgba(210, 153, 34, 0.55);
-}
-
-.sc-war-status-glyph.is-garrison {
-  color: #4ade80;
-  --sc-war-glow: rgba(74, 222, 128, 0.5);
-}
-
-.sc-war-status-glyph.is-moving .sc-war-glyph-icon {
-  animation: sc-war-drift 2.6s ease-in-out infinite;
+.sc-war-glyph-svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  overflow: visible;
 }
 
 .sc-war-glyph-flair {
   display: inline-block;
-  font-size: 9px;
+  min-width: 0;
+  font-size: 9.5px;
+  line-height: 1.2;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  opacity: 0.65;
   font-weight: 500;
   color: var(--chrome-btn-text);
+  opacity: 0.72;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.sc-war-glyph-sparkle {
-  animation: sc-war-sparkle 2.2s ease-in-out infinite;
+/* Living SVG layers inside badge: glow, pulse, drift */
+.sc-war-glow-layer {
+  transform-origin: 8px 9px;
+  animation: sc-war-glow 3.4s ease-in-out infinite;
 }
 
-/* Animations */
-@keyframes sc-war-pulse {
+.sc-war-pulse-layer {
+  transform-origin: 8px 8px;
+  animation: sc-war-pulse 2.6s ease-in-out infinite;
+}
+
+.sc-war-drift-layer {
+  transform-origin: 8px 9px;
+  animation: sc-war-drift 3.2s ease-in-out infinite;
+}
+
+.sc-war-status-glyph.is-moving .sc-war-drift-layer {
+  animation-duration: 2.1s;
+}
+
+.sc-war-status-glyph.is-danger .sc-war-pulse-layer {
+  animation: sc-war-danger-pulse 1.35s ease-in-out infinite;
+}
+
+@keyframes sc-war-glow {
   0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 1px var(--sc-war-glow));
-    opacity: 0.85;
+    opacity: 0.22;
+    transform: scale(0.94);
   }
   50% {
+    opacity: 0.48;
     transform: scale(1.08);
-    filter: drop-shadow(0 0 4px var(--sc-war-glow));
+  }
+}
+
+@keyframes sc-war-pulse {
+  0%, 100% {
+    opacity: 0.78;
+    transform: scale(0.96);
+  }
+  50% {
     opacity: 1;
+    transform: scale(1.07);
   }
 }
 
 @keyframes sc-war-danger-pulse {
   0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 2px rgba(248, 81, 73, 0.6));
-    opacity: 0.88;
+    opacity: 0.84;
+    transform: scale(0.96);
   }
   50% {
-    transform: scale(1.14);
-    filter: drop-shadow(0 0 7px rgba(248, 81, 73, 0.9));
     opacity: 1;
+    transform: scale(1.12);
   }
 }
 
 @keyframes sc-war-drift {
   0%, 100% {
-    transform: translateX(0) scale(1);
-    filter: drop-shadow(0 0 2px var(--sc-war-glow));
-    opacity: 0.85;
-  }
-  50% {
-    transform: translateX(2.5px) scale(1.04);
-    filter: drop-shadow(0 0 5px var(--sc-war-glow));
-    opacity: 1;
-  }
-}
-
-@keyframes sc-war-sparkle {
-  0%, 100% {
-    opacity: 0.35;
-    transform: scale(0.9);
+    opacity: 0.86;
+    transform: translate(0, 0);
   }
   50% {
     opacity: 1;
-    transform: scale(1.2);
+    transform: translate(0.65px, -0.45px);
   }
 }
 
 @keyframes sc-war-underlay-breathe {
   0%, 100% {
-    opacity: 0.12;
-    transform: scale(1);
+    opacity: 0.34;
+    transform: scale(0.97);
   }
   50% {
-    opacity: 0.20;
-    transform: scale(1.04);
-  }
-}
-
-@keyframes sc-war-underlay-danger {
-  0%, 100% {
-    opacity: 0.16;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.28;
-    transform: scale(1.07);
+    opacity: 0.48;
+    transform: scale(1.03);
   }
 }
 
 @keyframes sc-war-underlay-drift {
   0%, 100% {
-    opacity: 0.13;
-    transform: translateX(0) scale(1);
+    opacity: 0.36;
+    transform: translate(0, 0) scale(0.97);
   }
   50% {
-    opacity: 0.22;
-    transform: translateX(3px) scale(1.03);
+    opacity: 0.5;
+    transform: translate(0.6px, -0.45px) scale(1.03);
   }
 }
 
-/* Reduced motion support */
+@keyframes sc-war-underlay-danger {
+  0%, 100% {
+    opacity: 0.38;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity: 0.52;
+    transform: scale(1.05);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sc-war-living-underlay svg,
-  .sc-war-glyph-icon,
-  .sc-war-glyph-sparkle {
+  .sc-war-living-watermark,
+  .sc-war-glow-layer,
+  .sc-war-pulse-layer,
+  .sc-war-drift-layer {
     animation: none !important;
-    transition: none !important;
     transform: none !important;
   }
 }

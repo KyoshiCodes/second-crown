@@ -1,9 +1,16 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { WarLivingGlyph, WarLivingUnderlay } from "./WarLivingGlyph";
-import { ForceCard } from "./ForceCard";
+import { createGameState } from "@second-crown/sim";
+import {
+  WarLivingGlyph,
+  WarLivingUnderlay,
+  getWarForceEmblem,
+  resolveWarForceLiving,
+} from "./WarLivingGlyph";
+import { ForceCard, type ForceTone } from "./ForceCard";
 import { forceStatusRows } from "./ForceStatus";
+import { WarRoom } from "../WarRoom";
 
 function readCssFile(relativePath: string): string {
   const proc = (globalThis as {
@@ -18,109 +25,161 @@ function readCssFile(relativePath: string): string {
   return fsMod.readFileSync(new URL(relativePath, import.meta.url), "utf8");
 }
 
-describe("WarLivingUnderlay", () => {
-  it("renders underlay for all force tones with aria-hidden", () => {
-    for (const tone of ["hostile", "scout", "gather", "garrison"] as const) {
-      const html = renderToStaticMarkup(<WarLivingUnderlay tone={tone} />);
-      expect(html).toContain("sc-war-living-underlay");
-      expect(html).toContain(`is-${tone}`);
+const TONES: ForceTone[] = ["hostile", "scout", "gather", "garrison"];
+
+describe("getWarForceEmblem and resolveWarForceLiving", () => {
+  it("maps the four War Room force tones to warband, cloak, cart, and tent", () => {
+    expect(getWarForceEmblem("hostile")).toBe("warband");
+    expect(getWarForceEmblem("scout")).toBe("cloak");
+    expect(getWarForceEmblem("gather")).toBe("cart");
+    expect(getWarForceEmblem("garrison")).toBe("tent");
+    expect(getWarForceEmblem("warband")).toBe("warband");
+    expect(getWarForceEmblem("cloak")).toBe("cloak");
+    expect(getWarForceEmblem("cart")).toBe("cart");
+    expect(getWarForceEmblem("tent")).toBe("tent");
+  });
+
+  it("resolves readable flairs for warbands, cloaks, carts, and tents without mutating input", () => {
+    const input = { tone: "hostile" as const, riskTone: "danger", moving: true };
+    const snap = JSON.stringify(input);
+    expect(resolveWarForceLiving(input)).toEqual({
+      emblem: "warband",
+      isDanger: true,
+      moving: true,
+      flair: "Warband march",
+    });
+    expect(JSON.stringify(input)).toBe(snap);
+
+    expect(resolveWarForceLiving({ tone: "hostile", moving: false }).flair).toBe("Warband host");
+    expect(resolveWarForceLiving({ tone: "scout", moving: true }).flair).toBe("Cloak outrider");
+    expect(resolveWarForceLiving({ tone: "scout", moving: false }).flair).toBe("Cloak watch");
+    expect(resolveWarForceLiving({ tone: "gather", loaded: true }).flair).toBe("Cart laden");
+    expect(resolveWarForceLiving({ tone: "gather", empty: true }).flair).toBe("Cart empty");
+    expect(resolveWarForceLiving({ tone: "gather" }).flair).toBe("Supply cart");
+    expect(resolveWarForceLiving({ tone: "garrison", riskTone: "calm" }).flair).toBe("Pavilion tent");
+    expect(resolveWarForceLiving({ tone: "garrison", riskTone: "danger" }).flair).toBe("Tent under threat");
+  });
+});
+
+describe("WarLivingUnderlay and WarLivingGlyph markup", () => {
+  it("renders phrasing-only aria-hidden spans and distinct SVGs for warband, cloak, cart, and tent", () => {
+    const underlays = TONES.map((tone) => renderToStaticMarkup(<WarLivingUnderlay tone={tone} />));
+    expect(new Set(underlays).size).toBe(4);
+    for (const html of underlays) {
       expect(html).toContain('aria-hidden="true"');
-      expect(html).toContain("<svg");
+      expect(html).toContain("sc-war-living-underlay");
+      expect(html).not.toMatch(/<(?:div|p|section|article|button)\b/);
+    }
+
+    const badges = TONES.map((tone) => renderToStaticMarkup(<WarLivingGlyph tone={tone} moving={true} />));
+    expect(new Set(badges).size).toBe(4);
+    for (const html of badges) {
+      expect(html).toContain('aria-hidden="true"');
+      expect(html).toContain("sc-war-glow-layer");
+      expect(html).toContain("sc-war-drift-layer");
+      expect(html).toContain("sc-war-pulse-layer");
+      expect(html).not.toMatch(/<(?:div|p|section|article|button)\b/);
     }
   });
 
-  it("applies danger class when riskTone is danger or hostile tone", () => {
-    const dangerHostile = renderToStaticMarkup(<WarLivingUnderlay tone="hostile" />);
-    expect(dangerHostile).toContain("is-danger");
+  it("differentiates laden vs empty gather carts and moving vs danger classes", () => {
+    const ladenCart = renderToStaticMarkup(<WarLivingGlyph tone="gather" loaded={true} moving={true} />);
+    const emptyCart = renderToStaticMarkup(<WarLivingGlyph tone="gather" empty={true} moving={true} />);
+    expect(ladenCart).not.toBe(emptyCart);
+    expect(ladenCart).toContain("Cart laden");
+    expect(emptyCart).toContain("Cart empty");
 
-    const dangerGarrison = renderToStaticMarkup(<WarLivingUnderlay tone="garrison" riskTone="danger" />);
-    expect(dangerGarrison).toContain("is-danger");
+    const emptyUnderlay = renderToStaticMarkup(<WarLivingUnderlay tone="gather" empty={true} />);
+    expect(emptyUnderlay).toContain("is-empty");
 
-    const calmGarrison = renderToStaticMarkup(<WarLivingUnderlay tone="garrison" riskTone="calm" />);
-    expect(calmGarrison).not.toContain("is-danger");
-  });
-
-  it("applies is-moving class when moving is true", () => {
-    const moving = renderToStaticMarkup(<WarLivingUnderlay tone="scout" moving={true} />);
-    expect(moving).toContain("is-moving");
-
-    const stationary = renderToStaticMarkup(<WarLivingUnderlay tone="scout" moving={false} />);
-    expect(stationary).not.toContain("is-moving");
+    const alertTent = renderToStaticMarkup(<WarLivingGlyph tone="garrison" riskTone="danger" />);
+    expect(alertTent).toContain("emblem-tent");
+    expect(alertTent).toContain("is-danger");
+    expect(alertTent).toContain("Tent under threat");
   });
 });
 
-describe("WarLivingGlyph", () => {
-  it("renders living war glyph for hostile with crossed blades and warning text", () => {
-    const html = renderToStaticMarkup(<WarLivingGlyph tone="hostile" riskTone="danger" moving={true} />);
-    expect(html).toContain("sc-war-status-glyph");
-    expect(html).toContain("is-hostile");
-    expect(html).toContain("is-danger");
-    expect(html).toContain("is-moving");
-    expect(html).toContain("Hostile march");
-    expect(html).toContain("sc-war-glyph-sparkle");
-  });
-
-  it("renders living war glyph for scout with beacon sweep", () => {
-    const movingHtml = renderToStaticMarkup(<WarLivingGlyph tone="scout" moving={true} />);
-    expect(movingHtml).toContain("Vanguard sweep");
-
-    const idleHtml = renderToStaticMarkup(<WarLivingGlyph tone="scout" moving={false} />);
-    expect(idleHtml).toContain("Scout beacon");
-  });
-
-  it("renders gather party with load state awareness", () => {
-    const ladenHtml = renderToStaticMarkup(<WarLivingGlyph tone="gather" loaded={true} />);
-    expect(ladenHtml).toContain("Harvest laden");
-    expect(ladenHtml).toContain("sc-war-glyph-sparkle");
-
-    const emptyHtml = renderToStaticMarkup(<WarLivingGlyph tone="gather" empty={true} />);
-    expect(emptyHtml).toContain("Empty haul");
-
-    const defaultHtml = renderToStaticMarkup(<WarLivingGlyph tone="gather" />);
-    expect(defaultHtml).toContain("Supply party");
-  });
-
-  it("renders garrison ward with danger awareness", () => {
-    const safeHtml = renderToStaticMarkup(<WarLivingGlyph tone="garrison" riskTone="calm" />);
-    expect(safeHtml).toContain("Bulwark ward");
-
-    const alertHtml = renderToStaticMarkup(<WarLivingGlyph tone="garrison" riskTone="danger" />);
-    expect(alertHtml).toContain("Ward breach alert");
-  });
-});
-
-describe("ForceCard integration with living war glyphs", () => {
-  it("renders both underlay and living glyph when status rows are present", () => {
+describe("ForceCard and WarRoom integration", () => {
+  it("mounts WarLivingUnderlay and WarLivingGlyph beneath ForceLedger and ForceStatus while keeping buttons intact", () => {
     const rows = forceStatusRows({ power: 5, powerMax: 10, seconds: 4, risk: { value: "Low", tone: "calm" } });
     const html = renderToStaticMarkup(
-      <ForceCard tone="scout" name="Vanguard" dest="2,3" seconds={4} status={rows} />,
+      <ForceCard
+        tone="scout"
+        name="Scout"
+        captain="Ada"
+        dest="2,3"
+        seconds={4}
+        status={rows}
+        action={{ label: "Recall", onClick: () => {} }}
+      />,
     );
-    expect(html).toContain("sc-war-living-underlay");
-    expect(html).toContain("sc-war-status-glyph");
-    expect(html).toContain("Vanguard sweep");
+
+    const ledgerIdx = html.indexOf("sc-force-ledger");
+    const statusIdx = html.indexOf("sc-force-status");
+    const glyphIdx = html.indexOf("sc-war-status-glyph");
+    expect(ledgerIdx).toBeGreaterThan(-1);
+    expect(statusIdx).toBeGreaterThan(ledgerIdx);
+    expect(glyphIdx).toBeGreaterThan(statusIdx);
+    expect(html).toContain('data-war-underlay="cloak"');
+    expect(html).toContain('data-war-emblem="cloak"');
+    expect(html).toContain("Cloak outrider");
+    expect(html).toContain(">Recall</button>");
   });
 
-  it("renders underlay but omits status glyph when no status rows are present", () => {
+  it("renders living emblem under ForceLedger even when status rows are omitted", () => {
     const html = renderToStaticMarkup(<ForceCard tone="garrison" name="Garrison" dest="1,1" />);
-    expect(html).toContain("sc-war-living-underlay");
-    expect(html).not.toContain("sc-war-status-glyph");
+    expect(html).toContain("sc-force-ledger");
+    expect(html).not.toContain("sc-force-status");
+    expect(html).toContain('data-war-emblem="tent"');
+    expect(html).toContain("Pavilion tent");
+  });
+
+  it("renders living tent glyphs on posted garrisons in WarRoom without mutating GameState", () => {
+    const s = createGameState({ seed: 2 });
+    const targetId = s.board.provinces.find((p) => p.id !== s.board.homeProvinceId)!.id;
+    s.flags["garrisons_json"] = JSON.stringify([{ provinceId: targetId, force: { militia: 4 } }]);
+    s.flags["culture_rival"] = "western";
+    const before = JSON.stringify(s);
+
+    const html = renderToStaticMarkup(
+      <WarRoom state={s} act={() => {}} rivalOp={0} playerOp={0} battleSnap={null} setBattleSnap={() => {}} />,
+    );
+    expect(JSON.stringify(s)).toBe(before);
+    expect(html).toContain('data-war-emblem="tent"');
+    expect(html).toContain("Pavilion tent");
   });
 });
 
-describe("war-living.css isolation & accessibility", () => {
-  it("theme.css is untouched and does not contain war-living classes", () => {
-    const themeCss = readCssFile("../theme.css");
-    expect(themeCss).not.toContain("sc-war-living");
-    expect(themeCss).not.toContain("sc-war-status-glyph");
-    expect(themeCss).not.toContain("sc-war-pulse");
+describe("war-living.css isolation, corner confinement, and accessibility", () => {
+  it("keeps theme.css, force-card.css, force-ledger.css, and force-status.css free of war-living classes", () => {
+    for (const path of ["../theme.css", "./force-card.css", "./force-ledger.css", "./force-status.css"]) {
+      const otherCss = readCssFile(path);
+      expect(otherCss).not.toContain("sc-war-living");
+      expect(otherCss).not.toContain("sc-war-status-glyph");
+    }
   });
 
-  it("war-living.css includes reduced-motion guard and pointer-events: none", () => {
+  it("enforces pointer-events: none, corner-confined 34x34 watermark with radial mask, low opacity, and reduced-motion guard", () => {
     const css = readCssFile("./war-living.css");
-    expect(css).toContain("prefers-reduced-motion: reduce");
-    expect(css).toContain("pointer-events: none !important");
-    expect(css).toContain("@keyframes sc-war-pulse");
-    expect(css).toContain("@keyframes sc-war-drift");
-    expect(css).toContain("@keyframes sc-war-danger-pulse");
+    expect(css).toContain(".sc-force-card:has(> .sc-war-living-underlay)");
+    expect(css).toContain("pointer-events: none !important;");
+    expect(css).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(css).toContain("radial-gradient");
+
+    const underlayBlock = /\.sc-war-living-underlay\s*\{([\s\S]*?)\}/.exec(css)?.[1] ?? "";
+    expect(underlayBlock).toContain("width: 34px;");
+    expect(underlayBlock).toContain("height: 34px;");
+    expect(underlayBlock).not.toContain("inset: 0");
+    const wrapperOpacity = Number(/opacity:\s*([0-9.]+)/.exec(underlayBlock)?.[1] ?? "1");
+    expect(wrapperOpacity).toBeLessThanOrEqual(0.3);
+
+    for (const kf of ["sc-war-underlay-breathe", "sc-war-underlay-drift", "sc-war-underlay-danger"]) {
+      const block = new RegExp(`@keyframes\\s+${kf}\\s*\\{([\\s\\S]*?)\\}\\s*\\}`).exec(css)?.[0] ?? "";
+      const opacities = [...block.matchAll(/opacity:\s*([0-9.]+)/g)].map((m) => Number(m[1]));
+      expect(opacities.length).toBeGreaterThan(0);
+      for (const op of opacities) {
+        expect(op).toBeLessThanOrEqual(0.55);
+      }
+    }
   });
 });

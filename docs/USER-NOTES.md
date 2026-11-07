@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living warbands, cloaks, carts, and tents on War Room force cards (bakeoff/gemini-war-living)
+
+- **Living force glyphs:** Under the ledger and Power/Risk rows on each War Room force card, a subtle living emblem now matches the party in the field:
+  - **Incoming warbands:** A horned iron helm and morningstar pulse faster when danger is high (*Warband march · high risk*) and drift as the column advances.
+  - **Scouts:** A hooded stealth cloak and spyglass drift softly while an outrider ranges (*Cloak outrider · ranging*).
+  - **Gather parties:** A supply cart shows stacked grain sacks and crates on laden return hauls (*Cart laden · hauling*) or an open bed on empty outbound runs (*Cart empty · outbound*).
+  - **Garrisons:** A ridgepole pavilion tent and camp lantern glow steadily on watch (*Pavilion tent · standing watch*) and pulse if threatened (*Tent under threat*).
+- **Clean reading & controls:** Corner watermarks stay tucked softly in the bottom-right corner away from card numbers, and the **Recall** and **Sally** buttons work identically to before. No game numbers changed.
+
 ## 2026-11-07 — War Room force cards read like a ledger (wave/war-living)
 
 - Each force card in the War Room (Scouts, Gathers, Garrisons, Incoming) now lists four rows top to bottom: **Name**, **Destination**, **ETA**, **Action**.

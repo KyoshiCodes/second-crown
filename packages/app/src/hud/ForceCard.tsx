@@ -23,15 +23,16 @@ export function ForceCard(props: {
   const isMoving = seconds !== undefined;
   const riskRow = status?.find((r) => r.kind === "risk");
   const riskTone = riskRow?.tone;
-  // The ETA lives in the ledger now; power and risk stay in the status rows below it.
+  // ForceLedger stacks the former sc-force-head (sc-force-title-group, sc-force-name, sc-force-eta),
+  // sc-force-dest, and sc-force-btn rows; power and risk stay in ForceStatus below it.
   const etaRow = status?.find((r) => r.kind === "eta");
   const restRows = status?.filter((r) => r.kind !== "eta") ?? [];
 
   return (
     <div className={`sc-force-card is-${tone}`}>
-      <WarLivingUnderlay tone={tone} riskTone={riskTone} moving={isMoving} />
+      <WarLivingUnderlay tone={tone} riskTone={riskTone} moving={isMoving} loaded={loaded} empty={empty} />
       <ForceLedger
-        lead={<WarChip kind={tone} size={22} loaded={loaded} empty={empty} />}
+        lead={<WarChip kind={tone} size={24} loaded={loaded} empty={empty} />}
         name={name}
         captain={captain}
         dest={dest}
@@ -40,18 +41,14 @@ export function ForceCard(props: {
         etaRow={etaRow}
         action={action}
       />
-      {status && status.length > 0 ? (
-        <>
-          <ForceStatus rows={restRows} />
-          <WarLivingGlyph
-            tone={tone}
-            riskTone={riskTone}
-            moving={isMoving}
-            loaded={loaded}
-            empty={empty}
-          />
-        </>
-      ) : null}
+      {status && status.length > 0 ? <ForceStatus rows={restRows} /> : null}
+      <WarLivingGlyph
+        tone={tone}
+        riskTone={riskTone}
+        moving={isMoving}
+        loaded={loaded}
+        empty={empty}
+      />
     </div>
   );
 }

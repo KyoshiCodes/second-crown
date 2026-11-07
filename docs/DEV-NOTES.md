@@ -1,3 +1,10 @@
+## 2026-11-07 — app / living war glyphs under War Room force cards (bakeoff/gemini-war-living)
+
+- **Components:** `packages/app/src/hud/WarLivingGlyph.tsx` exports `WarLivingGlyph` (`14×14` force emblem + flair strip), `WarLivingUnderlay` (`34×34` bottom-right pocket watermark), `getWarForceEmblem`, `resolveWarForceLiving`, and types `WarForceEmblem` (`"warband" | "cloak" | "cart" | "tent"`), `WarLivingDescriptor`, `WarLivingGlyphProps`.
+- **Integration (`ForceCard.tsx`):** Renders `<WarLivingUnderlay tone riskTone moving loaded empty />` at `z-index: 0` inside `.sc-force-card`, `<ForceLedger>` (with `24px` `WarChip`) and `<ForceStatus>` at `z-index: 1`, and `<WarLivingGlyph tone riskTone moving loaded empty />` directly beneath `<ForceStatus />`. `Recall` and `Sally` button handlers remain untouched.
+- **Scoping & readability (`war-living.css`):** Scoped via `.sc-force-card:has(> .sc-war-living-underlay)` with foreground children at `z-index: 1` and `.sc-war-living-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` inside the `36px` right-side pocket reserved by `.sc-war-status-glyph` (`padding: 3px 36px 1px 1px`), with radial `mask-image`, wrapper opacity `0.14..0.25`, and watermark keyframe opacity `0.34..0.52`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `force-ledger.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/WarLivingGlyph.test.tsx` (9 tests) covers all 4 force emblems (`warband`, `cloak`, `cart`, `tent`), laden vs empty cart geometry, phrasing-only markup, `ForceCard` + `ForceLedger` + `WarRoom` integration (`GameState` immutability), corner watermark opacity ceilings, and CSS isolation.
+
 ## 2026-11-07 — app / War Room force card ledger rows (wave/war-living)
 
 - **Files:** `packages/app/src/hud/ForceLedger.tsx` (exports `ForceLedger`, `ledgerEta`, `ledgerActionState`, types `ForceLedgerKind`, `ForceLedgerAction`, `ForceLedgerProps`), `packages/app/src/hud/force-ledger.css`, test `hud/ForceLedger.test.tsx`.
