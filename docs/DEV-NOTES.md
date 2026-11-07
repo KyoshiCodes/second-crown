@@ -1,3 +1,11 @@
+## 2026-11-07 — app / Army unit status rows (wave/army-living)
+
+- **Files:** `packages/app/src/hud/UnitStatus.tsx` (exports `UnitStatus`, `unitStatusRows`, `jobProgress`, types `UnitStatusRow`, `UnitStatusInput`), `packages/app/src/hud/unit-status.css`, test `hud/UnitStatus.test.tsx`. `UnitCard` gained optional `status?: UnitStatusRow[]`; when given it replaces the `sc-unit-cost` / `sc-unit-lock` line. Cards without `status` render exactly as before.
+- **Markup:** rows are `<span>`s, not `dl`/`div`, because `UnitCard` is a `<button>` (phrasing content only). Test asserts no block tags.
+- **Inputs (ArmyTab.tsx):** power = `u.power`, `powerMax` = max power over `listUnitTypes()` (bar fill is a relative display only); home/away from `listTroopPosts` (away = marching + gathering); cost text = same per-unit string the card already showed; ticks = existing `trainDurationTicks` for `trainQty`; `affordable` = `canAffordTrain`; `queueFull` = `listTraining(...).length >= trainingQueueCap` (the train handler now reuses this const); drilling = sum of queued `count` for the type; progress = `jobProgress(tick, startedTick, doneTick)` of the first queued job (undefined while waiting).
+- **Ready precedence:** locked → drilling → queue full → short of stores → ready. Labels only; `tryTrain` still decides.
+- **CSS:** tone classes `tone-calm|warn|danger|fog` set `--sc-unit-row-tone`. Ready pip breathes on `.is-ready` cards (faster on danger/drilling); drilling fill shimmers; `prefers-reduced-motion` disables both. No `theme.css` changes.
+
 ## 2026-11-07 — app / living war glyphs under War Room status cards (bakeoff/gemini-war-living)
 
 - **Components:** `packages/app/src/hud/WarLivingGlyph.tsx` exports `WarLivingUnderlay` (ambient SVG watermark backdrop beneath card contents) and `WarLivingGlyph` (heraldic badge and flair under status rows).

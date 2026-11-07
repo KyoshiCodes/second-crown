@@ -1,0 +1,98 @@
+/* --- Army: stacked power / cost / readiness rows inside a unit card. --- */
+.sc-unit-status {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 4px 0 0;
+  padding: 4px 0 0;
+  border-top: 1px dashed var(--chrome-btn-border);
+}
+.sc-unit-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 6px;
+  row-gap: 2px;
+  font-size: 11px;
+  min-width: 0;
+}
+.sc-unit-row-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.75;
+}
+.sc-unit-row-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.sc-unit-row-pip {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sc-unit-row-tone);
+  box-shadow: 0 0 0 0 var(--sc-unit-row-tone);
+}
+.sc-unit-row-bar {
+  grid-column: 1 / -1;
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--chrome-btn-border);
+  overflow: hidden;
+}
+.sc-unit-row-fill {
+  display: block;
+  height: 100%;
+  background: var(--sc-unit-row-tone);
+  transition: width 0.6s ease-out;
+}
+
+/* Tone colours (kept local; theme.css untouched). */
+.sc-unit-row.tone-calm { --sc-unit-row-tone: #4ade80; }
+.sc-unit-row.tone-warn { --sc-unit-row-tone: #d29922; }
+.sc-unit-row.tone-danger { --sc-unit-row-tone: #f85149; }
+.sc-unit-row.tone-fog { --sc-unit-row-tone: #8b949e; }
+.sc-unit-row.is-power.tone-calm { --sc-unit-row-tone: var(--chrome-accent); }
+.sc-unit-row.is-cost.tone-calm { --sc-unit-row-tone: #e3b341; }
+.sc-unit-row.tone-danger .sc-unit-row-value { color: #f85149; font-weight: 600; }
+.sc-unit-row.tone-warn .sc-unit-row-value { color: #d29922; }
+.sc-unit-row.tone-fog .sc-unit-row-value { opacity: 0.6; font-style: italic; }
+
+/* Living: the readiness pip breathes on ready cards; drilling bars shimmer. */
+.sc-unit-card.is-ready .sc-unit-row.is-ready.tone-calm .sc-unit-row-pip {
+  animation: sc-unit-row-breathe 2.6s ease-in-out infinite;
+}
+.sc-unit-row.is-ready.tone-danger .sc-unit-row-pip {
+  animation: sc-unit-row-breathe 1.4s ease-in-out infinite;
+}
+.sc-unit-row.is-live .sc-unit-row-pip {
+  animation: sc-unit-row-breathe 1.1s ease-in-out infinite;
+}
+.sc-unit-row.is-live .sc-unit-row-fill {
+  background-image: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+  background-size: 200% 100%;
+  background-color: var(--sc-unit-row-tone);
+  animation: sc-unit-row-shimmer 2.4s linear infinite;
+}
+
+@keyframes sc-unit-row-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 var(--sc-unit-row-tone); opacity: 0.85; }
+  50% { box-shadow: 0 0 0 3px transparent; opacity: 1; }
+}
+@keyframes sc-unit-row-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-unit-row-pip,
+  .sc-unit-row .sc-unit-row-pip,
+  .sc-unit-row.is-live .sc-unit-row-fill { animation: none !important; }
+  .sc-unit-row-fill { transition: none; }
+}

@@ -5,6 +5,7 @@ import { BannerChip } from "./BannerChip";
 import { OutriderChip } from "./OutriderChip";
 import { WardenChip } from "./WardenChip";
 import { LancerChip } from "./LancerChip";
+import { UnitStatus, type UnitStatusRow } from "./UnitStatus";
 
 export type UnitCardProps = {
   typeId: string;
@@ -17,10 +18,12 @@ export type UnitCardProps = {
   lock: string;
   affordable: boolean;
   onTrain: () => void;
+  /** Optional stacked power / cost / readiness rows. Replaces the one-line cost/lock text when given. */
+  status?: UnitStatusRow[];
 };
 
 export function UnitCard(props: UnitCardProps) {
-  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain } = props;
+  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status } = props;
   const costText = Object.entries(cost).map(([k, v]) => `${v} ${k}`).join(" · ");
   const cls = ["sc-unit-card", !open ? "is-locked" : affordable ? "is-ready" : "is-short"].join(" ");
   return (
@@ -50,7 +53,9 @@ export function UnitCard(props: UnitCardProps) {
         <span className="sc-unit-name">{name}</span>
         <span className="sc-unit-power">pwr {power}</span>
       </span>
-      {open ? (
+      {status && status.length > 0 ? (
+        <UnitStatus rows={status} />
+      ) : open ? (
         <span className="sc-unit-cost">
           {costText} each · {Math.ceil(ticks / 10)}s
         </span>

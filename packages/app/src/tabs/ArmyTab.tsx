@@ -28,6 +28,7 @@ import { ArmyVisual } from "../ArmyVisual";
 import { MarshalCard } from "../MarshalCard";
 import { UpkeepLine } from "../UpkeepLine";
 import { UnitCard } from "../hud/UnitCard";
+import { unitStatusRows, jobProgress } from "../hud/UnitStatus";
 import type { ActFn } from "../game/useGameEngine";
 import { flashAction } from "../hud/ActionFlash";
 import { TrainingPace, lockNote } from "../TrainingPace";
@@ -58,6 +59,8 @@ export function ArmyTab(props: {
   const healing = state ? listHealing(state).length : 0;
   const healLeft = state ? healTicksLeft(state) : 0;
   const healSec = state ? healTicks(state) / 10 : undefined;
+  const powerMax = unitTypes.reduce((m, u) => Math.max(m, u.power), 0);
+  const queueFull = queue.length >= cap;
 
   return (
     <>
@@ -79,6 +82,25 @@ export function ArmyTab(props: {
           const ticks = state ? trainDurationTicks(state, u.id, trainQty) : u.trainTicks * trainQty;
           const open = !state || unitUnlocked(state, u.id);
           const lock = lockNote(u.id);
+          const affordable = !!state && canAffordTrain(state, u.id, trainQty);
+          const post = posts.find((p) => p.typeId === u.id);
+          const jobs = queue.filter((j) => j.typeId === u.id);
+          const first = jobs[0];
+          const status = unitStatusRows({
+            power: u.power,
+            powerMax,
+            home: post?.home ?? 0,
+            away: (post?.marching ?? 0) + (post?.gathering ?? 0),
+            costText: Object.entries(u.cost).map(([k, v]) => `${v} ${k}`).join(" · "),
+            ticks,
+            qty: trainQty,
+            open,
+            lock,
+            affordable,
+            queueFull,
+            drilling: jobs.reduce((n, j) => n + j.count, 0),
+            drillProgress: state && first ? jobProgress(state.meta.tick, first.startedTick, first.doneTick) : undefined,
+          });
           return (
             <UnitCard
               key={u.id}
@@ -90,13 +112,14 @@ export function ArmyTab(props: {
               ticks={ticks}
               open={open}
               lock={lock}
-              affordable={!!state && canAffordTrain(state, u.id, trainQty)}
+              affordable={affordable}
+              status={status}
               onTrain={() =>
                 act((st) => {
                   if (!unitUnlocked(st, u.id)) return lock;
                   const ok = tryTrain(st, { typeId: u.id, count: trainQty });
                   if (ok) flashAction("train");
-                  return ok ? `Queued ${trainQty} ${u.name}.` : queue.length >= cap ? "Barracks queue is full. Raise the Keep." : "Cannot afford that levy.";
+                  return ok ? `Queued ${trainQty} ${u.name}.` : queueFull ? "Barracks queue is full. Raise the Keep." : "Cannot afford that levy.";
                 })
               }
             />

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-07 — Living status rows on Army unit cards (wave/army-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
+- Every unit card on the Army tab now stacks three rows: **Power** (with home/away counts from `listTroopPosts`), **Cost** (per-unit cost before discounts, batch size and drill time from `trainDurationTicks`), **Ready** (Locked / Drilling N / Queue full / Short of stores / Ready to drill).
+- Power bars compare each unit to the strongest unit type. Drilling units get a shimmering progress bar from the queued job's stored ticks. Ready pips breathe; reduced-motion turns that off.
+- Train buttons, batch buttons, Cancel and quick levies are unchanged.
+- New `hud/UnitStatus.tsx` + `hud/unit-status.css`; `UnitCard` takes an optional `status` prop.
+- Tests: new `hud/UnitStatus.test.tsx` (10 tests). Sim 323, app 449, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living war glyphs under War Room status cards (bakeoff/gemini-war-living)
 
 - **Living war glyphs:** Added subtle animated living war heraldry under the War Room status cards (`ForceCard.tsx`), featuring an ambient background watermark underlay (`WarLivingUnderlay`) and an animated status emblem strip (`WarLivingGlyph`) directly under the status rows.

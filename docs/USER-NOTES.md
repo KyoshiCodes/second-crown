@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Unit cards show power, cost and readiness (wave/army-living)
+
+- On the Army tab, each unit card now has three short rows: Power, Cost and Ready.
+- Power has a small bar so you can compare units at a glance, plus how many you have at home and away.
+- Cost shows the price per unit (before discounts), your batch size and how long the drill takes.
+- Ready tells you why you can or cannot train: Ready to drill, Short of stores (red), Queue full, Drilling N (with a moving progress bar), or what research unlocks it.
+- Click a card to train, same as before. Costs and timings have not changed.
+
 ## 2026-11-07 — Living war glyphs under War Room status cards (bakeoff/gemini-war-living)
 
 - **Living martial heraldry:** War Room force cards now come alive with subtle, animated war glyphs resting under each status card:
