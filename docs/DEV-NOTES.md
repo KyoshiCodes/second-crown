@@ -1,3 +1,14 @@
+## 2026-11-06 — app / living board animations (bakeoff/gemini-board-living)
+
+- **BoardLiving component:** Implemented in `packages/app/src/BoardLiving.tsx` and mounted in `AppShell.tsx` between the canvas and `BoardStatus` (`z-index: 2`, under status overlay `z-index: 4`).
+- **Layers:**
+  - `terrain pulse`: Biome-colored diamond contour (`.sc-board-terrain-diamond`), breathing aura (`.sc-board-terrain-aura`), and dashed resonance ring (`.sc-board-terrain-ring`) on the selected province.
+  - `keep glow`: Radial gradient hearth glow (`.sc-board-keep-hearth-glow`), flickering core (`.sc-board-keep-light`), and beacon flare (`.sc-board-keep-beacon-ray`) for player and visible rival holds.
+  - `soft fog drift`: Organic drifting mist puffs (`.sc-board-fog-cloud`, `.sc-board-fog-puff`) with dual sinusoidal drifting keyframes (`sc-board-fog-drift`, `sc-board-fog-drift-alt`).
+  - `status tether`: Connection underlay (`.sc-board-status-tether`) bridging the tile center to the `BoardStatus` stack anchor.
+- **Styling:** Authored in `packages/app/src/board-living.css`. Strict `pointer-events: none !important;` on all decorative layers and children. Zero modifications to `theme.css`. Full reduced-motion overrides.
+- **Tests:** Added `packages/app/src/BoardLiving.test.tsx` (13 tests) verifying visibility gates, coordinate projection, terrain colors, keep detection, fog clouds, status tether, pointer-events, CSS keyframes, and theme isolation.
+
 ## 2026-11-06 — app / board status chips (wave/board-status)
 
 - **Files:** `packages/app/src/BoardStatus.tsx` (exports `BoardStatus`, `boardStatusChips`, `boardStatusAnchor`), `packages/app/src/board-status.css`, test `BoardStatus.test.tsx`. Mounted in `AppShell.tsx` right after the map `<canvas>`, with `visible={cameraBand === "board"}`.

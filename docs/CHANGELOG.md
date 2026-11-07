@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-06 — Living board animations under the status overlay (bakeoff/gemini-board-living)
+
+- **Living board animations:** Added atmospheric living SVG animation layer (`BoardLiving.tsx`) mounted directly over the board canvas and under the status overlay chips.
+- **Atmospheric layers:**
+  - *Terrain pulse*: Selected province terrain pulse diamond with biome-tailored illumination, breathing aura, and expanding resonance ripples.
+  - *Keep glow*: Volumetric warm hearth glow and beacon flare on player and seen rival holds.
+  - *Soft fog drift*: Translucent mist clouds gently drifting across unseen regions of the isometric board.
+  - *Status tether*: Soft atmospheric connection underlay tethering the selected tile to the status overlay stack.
+- **Invariants:** Purely visual; zero changes to `packages/sim` or `server`. Styles isolated in `board-living.css` (`theme.css` untouched). Strict `pointer-events: none` on all decorative layers and full `prefers-reduced-motion` compliance.
+
 ## 2026-11-06 — Status chips for the selected province on the board (wave/board-status)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.

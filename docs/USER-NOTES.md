@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-06 — Living board animations under the status overlay (bakeoff/gemini-board-living)
+
+- **Living isometric board:** The tabletop board now features ambient living animations that breathe life into the terrain, holds, and fog beneath the status chips.
+- **Dynamic visual life:**
+  - Selecting any province summons a pulsing biome-tinted terrain contour and expanding resonance ring that illuminates the land.
+  - Player and rival keeps radiate warm hearth light and beacon beams into the surrounding territory.
+  - Soft, ethereal mist clouds gently drift across unexplored fog regions of the board.
+  - A subtle luminous tether anchors the selected tile to the status chips resting at the canvas rim.
+- **Accessibility:** Reduced-motion preferences calm all terrain pulses, beacon shimmers, and drifting mist into dignified static accents.
+
 ## 2026-11-06 — Status chips on the board (wave/board-status)
 
 - Pick a province while zoomed out to the board. A short stack of chips appears at the edge of the map, level with that tile.
