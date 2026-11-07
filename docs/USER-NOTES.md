@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Market stalls show give, get and stock (wave/market-living)
+
+- In the Market on the Kingdom tab, each stall card now has three short rows: Give, Get and Stock.
+- Give shows the price and how much of it you hold, with a small bar. It turns red when you are short.
+- Get shows what you receive and how much of it you already have.
+- Stock tells you how many times you can make this trade right now (for example "x7 in hand"), or "Short of stores", or "Build a Market".
+- The Trade button works the same as before. Trade rates have not changed.
+
 ## 2026-11-07 — Softer unit card glyphs for clear reading (bakeoff/gemini-army-glyph-contrast)
 
 - **Clearer Army unit cards:** The living martial watermark on each Army unit card is now much softer and tucked neatly into the bottom-right corner, so unit names, power numbers, training costs, and readiness notes stay crisp and effortless to read.

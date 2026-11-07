@@ -1,3 +1,11 @@
+## 2026-11-07 — app / Market stall status rows (wave/market-living)
+
+- **Files:** `packages/app/src/hud/StallStatus.tsx` (exports `StallStatus`, `stallStatusRows`, `shortCount`, types `StallStatusRow`, `StallStatusInput`, `StallAmount`), `packages/app/src/hud/stall-status.css`, test `hud/StallStatus.test.tsx`. `hud/OfferCard.tsx` now renders `<StallStatus>` instead of its local `Side` rows; `offer-card.css` is untouched (its `.sc-offer-row/-tag/-side/-amt` rules are now unused).
+- **Inputs:** offer `give`/`get` from `MARKET_OFFERS`, `state.resources`, and `countBuilding(state, "market") > 0`. Nothing else.
+- **Display arithmetic only:** give bar = min over give resources of `have / need` (clamped 0..1); stock = min over give resources of `floor(have / need)`, capped at `x999+`. `Number()` on resource strings, same as the old `Side`; non-finite stores read as full. A test asserts "in hand" agrees with `canTrade` for every offer across several store levels. `tryTrade` still decides.
+- **Tones:** give `danger` when any give resource is short; stock `warn` at exactly one run, `danger` at zero; all rows `fog` with no Market or no state.
+- **CSS:** `--sc-stall-row-tone` per tone class. Stock pip breathes when live, faster when short; `prefers-reduced-motion` disables. `.sc-offer-grid:has(.sc-stall-status)` widens the grid min column to 170px from this file so `offer-card.css` and `theme.css` stay untouched.
+
 ## 2026-11-07 — app / softened Army unit glyph contrast (bakeoff/gemini-army-glyph-contrast)
 
 - **Why:** `.sc-unit-living-underlay svg` previously shared `@keyframes sc-unit-idle-breath` and `sc-unit-drilling-pulse` (`opacity: 0.85..1`) with the footer badge icon, overriding its static `opacity: 0.13`/`0.22` rule and placing a full-opacity `64×64` SVG behind right-aligned `Cost` and `Ready` values.

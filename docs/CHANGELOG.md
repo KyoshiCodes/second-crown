@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-07 — Living status rows on Market stall cards (wave/market-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Trade rates and rules unchanged.
+- Every stall card in the Kingdom tab Market now stacks three rows: **Give** (offer cost with resource pips, your current stores, and a bar showing how much of the cost you hold), **Get** (what the stall pays, plus your current stores of it), **Stock** (how many times your stores cover this trade right now, or Short of stores / Build a Market).
+- Stock pip breathes while a trade can run and pulses faster when short; reduced-motion turns that off. Rows fog when no Market stands.
+- Trade buttons unchanged: same `canTrade` / `tryTrade` calls, same disabled state.
+- New `hud/StallStatus.tsx` + `hud/stall-status.css`; `hud/OfferCard.tsx` renders the rows in place of its old two-line Give/Get layout.
+- Tests: new `hud/StallStatus.test.tsx` (11 tests). Sim 323, app 470, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Softened Army unit glyph contrast & corner confinement (bakeoff/gemini-army-glyph-contrast)
 
 - **Contrast & corner confinement:** Softened the living unit glyphs on Army unit cards (`UnitLivingGlyph.tsx`, `unit-living.css`) so they never obscure card text, power figures, costs, or readiness notes.

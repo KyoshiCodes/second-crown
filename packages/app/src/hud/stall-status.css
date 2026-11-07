@@ -1,0 +1,99 @@
+/* --- Market: stacked give / get / stock rows inside a stall card. --- */
+.sc-stall-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sc-stall-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 2px;
+  font-size: 11px;
+  min-width: 0;
+}
+.sc-stall-row-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 42px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.7;
+}
+.sc-stall-row-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+.sc-stall-amt { display: inline-flex; align-items: center; white-space: nowrap; }
+.sc-stall-amt.is-short { color: #f85149; }
+.sc-pip.sc-stall-res-pip { width: 16px; height: 16px; flex: 0 0 16px; margin-right: 3px; }
+.sc-stall-row-note {
+  font-size: 10px;
+  opacity: 0.65;
+  white-space: nowrap;
+}
+.sc-stall-row-pip {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sc-stall-row-tone);
+  box-shadow: 0 0 0 0 var(--sc-stall-row-tone);
+}
+.sc-stall-row-bar {
+  grid-column: 1 / -1;
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--chrome-btn-border);
+  overflow: hidden;
+}
+.sc-stall-row-fill {
+  display: block;
+  height: 100%;
+  background: var(--sc-stall-row-tone);
+  transition: width 0.6s ease-out;
+}
+
+/* Tone colours (kept local; theme.css untouched). */
+.sc-stall-row.tone-calm { --sc-stall-row-tone: #4ade80; }
+.sc-stall-row.tone-warn { --sc-stall-row-tone: #d29922; }
+.sc-stall-row.tone-danger { --sc-stall-row-tone: #f85149; }
+.sc-stall-row.tone-fog { --sc-stall-row-tone: #8b949e; }
+.sc-stall-row.is-get.tone-calm { --sc-stall-row-tone: #e3b341; }
+.sc-stall-row.tone-danger .sc-stall-row-note { color: #f85149; opacity: 1; font-weight: 600; }
+.sc-stall-row.tone-warn .sc-stall-row-note { color: #d29922; opacity: 1; }
+.sc-stall-row.is-stock .sc-stall-row-note { font-size: 11px; opacity: 0.9; }
+.sc-stall-row.tone-fog .sc-stall-row-value { opacity: 0.6; font-style: italic; }
+
+/* Living: the stock pip breathes while a trade can run; short stalls pulse faster. */
+.sc-stall-row.is-live .sc-stall-row-pip {
+  animation: sc-stall-row-breathe 2.6s ease-in-out infinite;
+}
+.sc-stall-row.is-stock.tone-danger .sc-stall-row-pip {
+  animation: sc-stall-row-breathe 1.4s ease-in-out infinite;
+}
+
+@keyframes sc-stall-row-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 var(--sc-stall-row-tone); opacity: 0.85; }
+  50% { box-shadow: 0 0 0 3px transparent; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-stall-row .sc-stall-row-pip { animation: none !important; }
+  .sc-stall-row-fill { transition: none; }
+}
+
+/* Stall cards carry three rows now; give them a little more width (offer-card.css untouched). */
+.sc-offer-grid:has(.sc-stall-status) {
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+}
