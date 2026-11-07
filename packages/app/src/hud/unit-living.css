@@ -1,0 +1,179 @@
+/* --- Living unit glyphs under Army unit cards --- */
+/* Isolated styles: theme.css is untouched. */
+
+.sc-unit-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ensure all interactive or readable children stay above the decorative underlay */
+.sc-unit-card > *:not(.sc-unit-living-underlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ambient living unit glyph underlay beneath card contents */
+.sc-unit-living-underlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none !important;
+  z-index: 0;
+  overflow: hidden;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+}
+
+.sc-unit-living-underlay,
+.sc-unit-living-underlay * {
+  pointer-events: none !important;
+}
+
+.sc-unit-living-underlay svg {
+  display: block;
+  opacity: 0.13;
+  transform-origin: center center;
+  animation: sc-unit-idle-breath 3.8s ease-in-out infinite;
+}
+
+.sc-unit-living-underlay.is-ready svg {
+  color: #4ade80;
+  --sc-unit-glow: rgba(74, 222, 128, 0.4);
+}
+
+.sc-unit-living-underlay.is-drilling svg {
+  opacity: 0.22;
+  color: #e3b341;
+  --sc-unit-glow: rgba(227, 179, 65, 0.5);
+  animation: sc-unit-drilling-pulse 1.8s ease-in-out infinite;
+}
+
+.sc-unit-living-underlay.is-short svg {
+  color: #d29922;
+  --sc-unit-glow: rgba(210, 153, 34, 0.35);
+}
+
+.sc-unit-living-underlay.is-locked svg {
+  color: #8b949e;
+  opacity: 0.08;
+  animation: none;
+}
+
+/* Living unit glyph strip under status rows */
+.sc-unit-status-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 4px;
+  padding: 3px 0 1px;
+  border-top: 1px dotted rgba(255, 255, 255, 0.08);
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-unit-status-glyph,
+.sc-unit-status-glyph * {
+  pointer-events: none !important;
+}
+
+.sc-unit-glyph-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  animation: sc-unit-idle-breath 3s ease-in-out infinite;
+}
+
+.sc-unit-status-glyph.is-ready {
+  color: #4ade80;
+  --sc-unit-glow: rgba(74, 222, 128, 0.55);
+}
+
+.sc-unit-status-glyph.is-drilling {
+  color: #e3b341;
+  --sc-unit-glow: rgba(227, 179, 65, 0.6);
+}
+
+.sc-unit-status-glyph.is-drilling .sc-unit-glyph-icon {
+  animation: sc-unit-drilling-pulse 1.4s ease-in-out infinite;
+}
+
+.sc-unit-status-glyph.is-short {
+  color: #d29922;
+  --sc-unit-glow: rgba(210, 153, 34, 0.5);
+}
+
+.sc-unit-status-glyph.is-locked {
+  color: #8b949e;
+  opacity: 0.6;
+}
+
+.sc-unit-status-glyph.is-locked .sc-unit-glyph-icon {
+  animation: none;
+}
+
+.sc-unit-glyph-flair {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  font-weight: 500;
+  color: var(--chrome-btn-text);
+}
+
+.sc-unit-glyph-sparkle {
+  animation: sc-unit-sparkle 2s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes sc-unit-idle-breath {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 1px var(--sc-unit-glow, transparent));
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 4px var(--sc-unit-glow, transparent));
+    opacity: 1;
+  }
+}
+
+@keyframes sc-unit-drilling-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(227, 179, 65, 0.5));
+    opacity: 0.88;
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 6px rgba(227, 179, 65, 0.85));
+    opacity: 1;
+  }
+}
+
+@keyframes sc-unit-sparkle {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .sc-unit-living-underlay svg,
+  .sc-unit-glyph-icon,
+  .sc-unit-glyph-sparkle {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

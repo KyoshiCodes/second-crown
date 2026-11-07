@@ -112,7 +112,7 @@ export function ArmyTab(props: {
               ticks={ticks}
               open={open}
               lock={lock}
-              affordable={affordable}
+              affordable={!!state && canAffordTrain(state, u.id, trainQty)}
               status={status}
               onTrain={() =>
                 act((st) => {

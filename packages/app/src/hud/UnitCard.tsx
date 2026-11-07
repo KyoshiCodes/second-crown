@@ -6,6 +6,7 @@ import { OutriderChip } from "./OutriderChip";
 import { WardenChip } from "./WardenChip";
 import { LancerChip } from "./LancerChip";
 import { UnitStatus, type UnitStatusRow } from "./UnitStatus";
+import { UnitLivingGlyph, UnitLivingUnderlay } from "./UnitLivingGlyph";
 
 export type UnitCardProps = {
   typeId: string;
@@ -26,6 +27,9 @@ export function UnitCard(props: UnitCardProps) {
   const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status } = props;
   const costText = Object.entries(cost).map(([k, v]) => `${v} ${k}`).join(" · ");
   const cls = ["sc-unit-card", !open ? "is-locked" : affordable ? "is-ready" : "is-short"].join(" ");
+  const readyRow = status?.find((r) => r.kind === "ready");
+  const isDrilling = Boolean(readyRow?.live || (readyRow?.value && readyRow.value.startsWith("Drilling")));
+
   return (
     <button
       type="button"
@@ -34,6 +38,12 @@ export function UnitCard(props: UnitCardProps) {
       disabled={!open || !affordable}
       onClick={onTrain}
     >
+      <UnitLivingUnderlay
+        typeId={typeId}
+        open={open}
+        affordable={affordable}
+        drilling={isDrilling}
+      />
       <span className="sc-unit-head">
         <span className="sc-unit-art sc-unit-art-wrapper" style={{ pointerEvents: "none", display: "inline-flex" }}>
           {typeId === "ranger" ? (
@@ -54,7 +64,15 @@ export function UnitCard(props: UnitCardProps) {
         <span className="sc-unit-power">pwr {power}</span>
       </span>
       {status && status.length > 0 ? (
-        <UnitStatus rows={status} />
+        <>
+          <UnitStatus rows={status} />
+          <UnitLivingGlyph
+            typeId={typeId}
+            open={open}
+            affordable={affordable}
+            drilling={isDrilling}
+          />
+        </>
       ) : open ? (
         <span className="sc-unit-cost">
           {costText} each · {Math.ceil(ticks / 10)}s

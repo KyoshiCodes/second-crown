@@ -1,3 +1,17 @@
+## 2026-11-07 — app / living unit glyphs under Army unit cards (bakeoff/gemini-army-living)
+
+- **Components:** `packages/app/src/hud/UnitLivingGlyph.tsx` exports `UnitLivingUnderlay` (ambient SVG watermark backdrop beneath card contents), `UnitLivingGlyph` (heraldic badge and flair under status rows), and `getUnitFamily`.
+- **Integration:** Mounted inside `packages/app/src/hud/UnitCard.tsx`. `UnitLivingUnderlay` sits at `z-index: 0` (`position: absolute; inset: 0; pointer-events: none !important; opacity: 0.08..0.22`), while readable elements and existing culture chips sit at `z-index: 1`. When `status` is present, `UnitLivingGlyph` renders under the `UnitStatus` rows.
+- **Button Semantics:** Because `UnitCard` is a `<button>`, all rendered nodes use `<span>` and `<svg>` elements only (no `div`/`dl`/`p`). Tests explicitly verify no block elements are introduced.
+- **Heraldry & Motion:**
+  - `infantry`: Crossed spears, spearhead polygon tips, center boss, and `sc-unit-idle-breath`.
+  - `ranged`: Recurve bow arc, notched arrow, cardinal sighting reticle, and target glow.
+  - `cavalry`: Heavy horseshoe arc with stud points, charging star, and swift drift.
+  - `command`: Swallowtail pennant standard with solar crown and rallying aura.
+  - States: `.is-ready` (calm emerald glow), `.is-drilling` (golden training pulse via `sc-unit-drilling-pulse`), `.is-short` (amber idle breath), `.is-locked` (static muted slate).
+- **Styling:** Dedicated `packages/app/src/hud/unit-living.css`. Strict `pointer-events: none !important;` on all layers and children. Zero alterations to `theme.css`. Full reduced-motion guard disabling all keyframe loops.
+- **Tests:** `packages/app/src/hud/UnitLivingGlyph.test.tsx` (8 unit tests) covers unit classification, state classes, phrasing content guarantees, DOM visibility, theme isolation, and reduced-motion compliance.
+
 ## 2026-11-07 — app / Army unit status rows (wave/army-living)
 
 - **Files:** `packages/app/src/hud/UnitStatus.tsx` (exports `UnitStatus`, `unitStatusRows`, `jobProgress`, types `UnitStatusRow`, `UnitStatusInput`), `packages/app/src/hud/unit-status.css`, test `hud/UnitStatus.test.tsx`. `UnitCard` gained optional `status?: UnitStatusRow[]`; when given it replaces the `sc-unit-cost` / `sc-unit-lock` line. Cards without `status` render exactly as before.

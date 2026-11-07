@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living unit glyphs under Army unit cards (bakeoff/gemini-army-living)
+
+- **Living unit heraldry:** Army unit cards now feature subtle, living martial glyphs resting under each unit card:
+  - **Infantry**: Crossed spears and shield bosses that breathe quietly on the front line.
+  - **Archers & Rangers**: Recurve bows and fletched arrows with gentle target focus.
+  - **Cavalry & Outriders**: Warhorse horseshoes and charging stars that surge with training momentum.
+  - **Banners & Champions**: Billowing rallying pennants and solar crowns.
+- **State awareness:** Units actively drilling in the barracks pulse with warm gold training sparks, ready levies breathe with confident emerald auras, and locked units rest quietly in slate silhouettes.
+- **Readability & clicks:** All numbers, costs, and readiness notes stay crisp and easy to read. Clicking any card to train levies remains instantaneous and unobstructed.
+
 ## 2026-11-07 — Unit cards show power, cost and readiness (wave/army-living)
 
 - On the Army tab, each unit card now has three short rows: Power, Cost and Ready.

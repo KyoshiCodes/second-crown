@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-11-07 — Living unit glyphs under Army unit cards (bakeoff/gemini-army-living)
+
+- **Living unit glyphs:** Added subtle living unit heraldry under the Army unit cards (`UnitCard.tsx`), featuring an ambient background watermark underlay (`UnitLivingUnderlay`) and an animated status emblem strip (`UnitLivingGlyph`) directly under the status rows.
+- **Role & family heraldry:**
+  - *Infantry* (`militia`, `spearman`, `warden`): Crossed spears, steel tips, and center shield boss with steady guard posture.
+  - *Ranged* (`archer`, `ranger`, `skirmisher`): Recurve composite bow, notched arrow, and sighting reticle with wind motes.
+  - *Cavalry* (`scout`, `outrider`, `knight`, `lancer`): Warhorse horseshoe contour, courier stars, and charging cavalry breath.
+  - *Command* (`banner`, `champion`): Billowing swallowtail standard with solar crown insignia and rallying aura.
+- **Living animation & state awareness:**
+  - *Idle breath*: Gentle breathing scale/filter on ready and waiting units.
+  - *Drilling pulse & sparkle*: Energetic cadence and training sparks while active jobs drill in the barracks.
+  - *Locked state*: Muted slate silhouette with quiet locked crest and zero distracting motion.
+- **Invariants & Button Semantics:** Phrasing content only (`<span>` and `<svg>`, strictly no block elements inside `<button>`). Purely visual; zero changes to `packages/sim` or `server`. Isolated styling in `unit-living.css` (`theme.css` untouched). All decorative layers strictly `pointer-events: none !important;` with `aria-hidden="true"`, ensuring card clicks (train) remain instant and card data 100% readable. Full `prefers-reduced-motion` compliance.
+- **Tests:** Added `packages/app/src/hud/UnitLivingGlyph.test.tsx` (8 tests). All 323 sim, 457 app, and 158 server tests pass. Build succeeds cleanly in 514ms.
+
 ## 2026-11-07 — Living status rows on Army unit cards (wave/army-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Game rules unchanged.
