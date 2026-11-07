@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Living goods glyphs on Market stall cards (bakeoff/gemini-market-living)
+
+- **Living stall signs:** Each Market stall card on the Kingdom tab now carries a subtle, living commodity emblem matching the goods it pays out:
+  - **Grain stalls (food):** Tied wheat sheaves with a warm harvest glint (*Grain lot*).
+  - **Timber stalls (wood):** Stacked seasoned cordwood logs with an oak gleam (*Timber lot*).
+  - **Stone stalls (stone):** Dressed quarry ashlar blocks with a mason spark (*Ashlar lot*).
+  - **Gold stalls (gold):** Stamped crown coinage with a bullion star glint (*Bullion lot*).
+- **At-a-glance status:** Open stalls gently glow and drift; stalls down to a single batch pulse warmly (*Last lot*); short stalls rest in soft amber (*Stores short*); shuttered stalls stay still until you build a Market.
+- **Clean reading & controls:** Watermarks stay tucked softly in the bottom-right corner away from numbers and prices, and the **Trade** button works identically to before.
+
 ## 2026-11-07 — Market stalls show give, get and stock (wave/market-living)
 
 - In the Market on the Kingdom tab, each stall card now has three short rows: Give, Get and Stock.

@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-11-07 — Living goods glyphs under Market stall cards (bakeoff/gemini-market-living)
+
+- **Living goods glyphs:** Added subtle living commodity heraldry under the Market stall cards (`OfferCard.tsx`), featuring a corner-confined ambient watermark underlay (`MarketLivingUnderlay`) and a left-aligned animated goods emblem strip (`MarketLivingGlyph`) directly beneath the Give / Get / Stock rows.
+- **Commodity heraldry (`getOfferGoodsKind`):**
+  - *Food (`goods-food`)*: Tied harvest wheat sheaf, arched grain ears, merchant ribbon band, and golden harvest glint (*"Grain lot"*).
+  - *Wood (`goods-wood`)*: Stacked seasoned timber billets, heartwood end-grain rings, and emerald oak glint (*"Timber lot"*).
+  - *Stone (`goods-stone`)*: Faceted isometric quarry ashlar block, chisel bevels, and mason spark (*"Ashlar lot"*).
+  - *Gold (`goods-gold`)*: Stacked mint coinage, milled crown ducat, and 4-point bullion star glint (*"Bullion lot"*).
+- **Living motion & readability:**
+  - *Glow, drift & pulse*: Open stalls gently drift and glow in their commodity hue (`sc-market-goods-drift` / `sc-market-underlay-drift`); stalls down to their final batch (`x1 in hand`) pulse warmly (`sc-market-goods-pulse`, *"Last lot"*); short stalls breathe softly (*"Stores short"*); shuttered stalls before a Market stands stay calm and static (*"Stall shuttered"*).
+  - *Zero text overlap*: `.sc-market-living-underlay` (`34px × 34px`) is confined to the empty bottom-right corner pocket (`right: -2px; bottom: -2px`) opposite the left-aligned `Trade` button with a radial vignette fade mask and dedicated low-opacity keyframes (`<= 0.55` inside `<= 0.30` wrapper), so card figures stay 100% crisp.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `theme.css`, or `offer-card.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/MarketLivingGlyph.test.tsx` (10 tests). Sim 323, app 480, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
+
 ## 2026-11-07 — Living status rows on Market stall cards (wave/market-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. Trade rates and rules unchanged.

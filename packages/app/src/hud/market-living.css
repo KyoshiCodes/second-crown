@@ -1,0 +1,265 @@
+/* --- Living goods glyphs under Market stall cards --- */
+/* Isolated styles: theme.css and offer-card.css stay untouched. */
+
+.sc-offer-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Keep all status rows and interactive Trade button cleanly above the decorative underlay */
+.sc-offer-card > *:not(.sc-market-living-underlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Corner-confined ambient goods watermark tucked into the bottom-right pocket */
+.sc-market-living-underlay {
+  position: absolute;
+  top: auto;
+  left: auto;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  pointer-events: none !important;
+  z-index: 0;
+  overflow: hidden;
+  user-select: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  opacity: 0.26;
+  -webkit-mask-image: radial-gradient(circle at 72% 72%, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0.35) 72%, transparent 100%);
+  mask-image: radial-gradient(circle at 72% 72%, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0.35) 72%, transparent 100%);
+}
+
+.sc-market-living-underlay.is-last {
+  opacity: 0.30;
+}
+
+.sc-market-living-underlay.is-short {
+  opacity: 0.20;
+}
+
+.sc-market-living-underlay.is-closed {
+  opacity: 0.12;
+}
+
+.sc-market-living-underlay,
+.sc-market-living-underlay * {
+  pointer-events: none !important;
+}
+
+.sc-market-living-underlay svg {
+  display: block;
+  opacity: 0.42;
+  transform-origin: bottom right;
+  animation: sc-market-underlay-drift 4.4s ease-in-out infinite;
+}
+
+.sc-market-living-underlay.goods-food.is-open svg {
+  color: #eab308;
+}
+
+.sc-market-living-underlay.goods-wood.is-open svg {
+  color: #4ade80;
+}
+
+.sc-market-living-underlay.goods-stone.is-open svg {
+  color: #79c0ff;
+}
+
+.sc-market-living-underlay.goods-gold.is-open svg {
+  color: #facc15;
+}
+
+.sc-market-living-underlay.is-last svg {
+  opacity: 0.48;
+  color: #d29922;
+  animation: sc-market-underlay-pulse 2.2s ease-in-out infinite;
+}
+
+.sc-market-living-underlay.is-short svg {
+  color: #d29922;
+}
+
+.sc-market-living-underlay.is-closed svg {
+  color: #8b949e;
+  opacity: 0.32;
+  animation: none;
+}
+
+/* Subtle living goods glyph strip beneath status rows (reserves right corner pocket) */
+.sc-market-status-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  margin-top: 3px;
+  padding: 3px 36px 1px 0;
+  border-top: 1px dotted rgba(255, 255, 255, 0.06);
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-market-status-glyph,
+.sc-market-status-glyph * {
+  pointer-events: none !important;
+}
+
+.sc-market-glyph-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  transform-origin: center center;
+  animation: sc-market-goods-drift 3.4s ease-in-out infinite;
+}
+
+.sc-market-status-glyph.goods-food.is-open {
+  color: #eab308;
+  --sc-market-glow: rgba(234, 179, 8, 0.34);
+}
+
+.sc-market-status-glyph.goods-wood.is-open {
+  color: #4ade80;
+  --sc-market-glow: rgba(74, 222, 128, 0.32);
+}
+
+.sc-market-status-glyph.goods-stone.is-open {
+  color: #79c0ff;
+  --sc-market-glow: rgba(121, 192, 255, 0.34);
+}
+
+.sc-market-status-glyph.goods-gold.is-open {
+  color: #facc15;
+  --sc-market-glow: rgba(250, 204, 21, 0.38);
+}
+
+.sc-market-status-glyph.is-last {
+  color: #d29922;
+  --sc-market-glow: rgba(210, 153, 34, 0.38);
+}
+
+.sc-market-status-glyph.is-last .sc-market-glyph-icon {
+  animation: sc-market-goods-pulse 1.8s ease-in-out infinite;
+}
+
+.sc-market-status-glyph.is-short {
+  color: #d29922;
+  --sc-market-glow: rgba(210, 153, 34, 0.22);
+}
+
+.sc-market-status-glyph.is-short .sc-market-glyph-icon {
+  animation: sc-market-short-breath 3.6s ease-in-out infinite;
+}
+
+.sc-market-status-glyph.is-closed {
+  color: #8b949e;
+  opacity: 0.45;
+}
+
+.sc-market-status-glyph.is-closed .sc-market-glyph-icon {
+  animation: none;
+}
+
+.sc-market-glyph-flair {
+  display: inline-block;
+  font-size: 9px;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.56;
+  font-weight: 500;
+  color: var(--chrome-btn-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-market-glyph-glint {
+  animation: sc-market-glint 2.4s ease-in-out infinite;
+}
+
+/* Dedicated low-opacity corner underlay animations (never overrides to opaque) */
+@keyframes sc-market-underlay-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.34;
+  }
+  50% {
+    transform: translate3d(-1px, -1.5px, 0) scale(1.04);
+    opacity: 0.50;
+  }
+}
+
+@keyframes sc-market-underlay-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.38;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.55;
+  }
+}
+
+/* Softened footer goods glyph animations: glow, drift, and pulse */
+@keyframes sc-market-goods-drift {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 1px var(--sc-market-glow, transparent));
+    opacity: 0.60;
+  }
+  50% {
+    transform: translateY(-0.8px) scale(1.05);
+    filter: drop-shadow(0 0 2.5px var(--sc-market-glow, transparent));
+    opacity: 0.80;
+  }
+}
+
+@keyframes sc-market-goods-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 1px rgba(210, 153, 34, 0.28));
+    opacity: 0.66;
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 3px rgba(210, 153, 34, 0.52));
+    opacity: 0.86;
+  }
+}
+
+@keyframes sc-market-short-breath {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.46;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.64;
+  }
+}
+
+@keyframes sc-market-glint {
+  0%, 100% {
+    opacity: 0.30;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.84;
+    transform: scale(1.12);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .sc-market-living-underlay svg,
+  .sc-market-glyph-icon,
+  .sc-market-glyph-glint {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
