@@ -1,3 +1,12 @@
+## 2026-11-07 — app / ProvinceInspect status rows (wave/board-living)
+
+- **Files:** `packages/app/src/ProvinceStatusStack.tsx` (exports `ProvinceStatusStack`, `provinceStatusRows`, types `ProvinceStatusRow`, `ProvinceStatusKind`, `ProvinceStatusTone`), `packages/app/src/province-status-stack.css`, test `ProvinceStatusStack.test.tsx`. `ProvinceInspect.tsx` gains one import and one `<ProvinceStatusStack state={state} provinceId={selectedId} />` after `.sc-inspect-head`.
+- **Inputs:** `getProvince`, `isProvinceSeen` (home always counts as seen), `p.terrain`, `p.node`, `p.occupantRealmId`, `GATHER_NODES`, `nodeStock`, `nodeStockMax`, `garrisonAt`, `garrisonPower`, realm names. Outpost reading mirrors `listOutposts` (occupied, not home, not `hold`) and the head's `siteOf`. `provinceStatusRows` is pure; a test asserts state is byte-identical after calling it on every province.
+- **Display arithmetic only:** stock bar = `have / max` clamped 0..1; garrison men = sum of `g.force` values (same as `BoardStatus`).
+- **Markup:** `<dl class="sc-provstat">` with `<div class="sc-provstat-row is-<kind> tone-<tone>">` children; pip lives inside the `<dt>` so the `dl` stays valid. Terrain row carries `data-terrain`.
+- **CSS:** classes `.sc-provstat-*`, tone via `--sc-provstat-tone`; terrain colours match `TERRAIN_PULSE_COLORS` in `BoardLiving`. `prefers-reduced-motion` disables the pip, entry and bar animations. `theme.css` untouched.
+- **Atlas:** no changes to `OverworldAtlas`, render camera, or hit-testing.
+
 ## 2026-11-07 — app / living hall glyphs under Kingdom work cards (bakeoff/gemini-works-living)
 
 - **Components:** `packages/app/src/hud/WorkLivingGlyph.tsx` exports `WorkLivingUnderlay` (`32×32` pocket watermark), `WorkLivingGlyph` (`14×14` hall domain badge + flair strip), `getHallDomain`, and `HallDomain` (`"hearth" | "craft" | "mint" | "martial" | "sanctum"`).

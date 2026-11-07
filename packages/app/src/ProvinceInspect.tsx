@@ -40,6 +40,7 @@ import {
 } from "@second-crown/sim";
 import { scoutGoldHint } from "./buildHints";
 import { KeepHall } from "./KeepHall";
+import { ProvinceStatusStack } from "./ProvinceStatusStack";
 import { ruinsLine } from "./hud/ruinsLine";
 import { shoreLine } from "./hud/shoreLine";
 import { woodLine } from "./hud/woodLine";
@@ -222,6 +223,7 @@ export function ProvinceInspect(props: {
           Close
         </button>
       </div>
+      <ProvinceStatusStack state={state} provinceId={selectedId} />
       <section className="sc-inspect-group is-tile">
         <div className="sc-inspect-group-head">Tile</div>
         <dl className="sc-inspect-facts">

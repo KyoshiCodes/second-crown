@@ -1,0 +1,121 @@
+/* Living status rows at the top of ProvinceInspect. Do not touch theme.css. */
+
+.sc-provstat {
+  --sc-provstat-tone: #c9b48a;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 4px 0 8px;
+  padding: 0;
+}
+
+.sc-provstat-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px 3px 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  background: rgba(18, 12, 8, 0.45);
+  border: 1px solid rgba(120, 83, 30, 0.55);
+  border-left: 3px solid var(--sc-provstat-tone);
+  border-radius: 4px;
+  animation: sc-provstat-in 200ms ease-out both;
+}
+
+.sc-provstat-row:nth-child(2) { animation-delay: 30ms; }
+.sc-provstat-row:nth-child(3) { animation-delay: 60ms; }
+.sc-provstat-row:nth-child(4) { animation-delay: 90ms; }
+.sc-provstat-row:nth-child(5) { animation-delay: 120ms; }
+
+.sc-provstat-label {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+.sc-provstat-value {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-provstat-pip {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sc-provstat-tone);
+  animation: sc-provstat-breathe 2.6s ease-in-out infinite;
+}
+
+.sc-provstat-bar {
+  flex: 1 1 40px;
+  max-width: 72px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.sc-provstat-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--sc-provstat-tone);
+  transition: width 400ms ease-out;
+}
+
+/* Tones */
+.sc-provstat-row.tone-you { --sc-provstat-tone: #facc15; }
+.sc-provstat-row.tone-rival { --sc-provstat-tone: #f87171; }
+.sc-provstat-row.tone-warn { --sc-provstat-tone: #fb923c; }
+.sc-provstat-row.tone-calm { --sc-provstat-tone: #86efac; }
+.sc-provstat-row.tone-fog { --sc-provstat-tone: #94a3b8; opacity: 0.75; }
+.sc-provstat-row.tone-none { --sc-provstat-tone: #6b5a40; }
+
+.sc-provstat-row.tone-warn .sc-provstat-pip { animation-duration: 1.1s; }
+.sc-provstat-row.tone-fog .sc-provstat-pip,
+.sc-provstat-row.tone-none .sc-provstat-pip { animation: none; opacity: 0.6; }
+
+/* Terrain swatch: the terrain row's tone follows the tile's terrain. */
+.sc-provstat-row.is-terrain[data-terrain="plain"] { --sc-provstat-tone: #4ade80; }
+.sc-provstat-row.is-terrain[data-terrain="wood"] { --sc-provstat-tone: #a3e635; }
+.sc-provstat-row.is-terrain[data-terrain="hill"] { --sc-provstat-tone: #facc15; }
+.sc-provstat-row.is-terrain[data-terrain="waste"] { --sc-provstat-tone: #94a3b8; }
+.sc-provstat-row.is-terrain[data-terrain="shore"] { --sc-provstat-tone: #38bdf8; }
+.sc-provstat-row.is-terrain[data-terrain="peak"] { --sc-provstat-tone: #c084fc; }
+
+@keyframes sc-provstat-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes sc-provstat-in {
+  from { opacity: 0; transform: translateX(-3px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-provstat-row,
+  .sc-provstat-pip,
+  .sc-provstat-bar-fill {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .sc-provstat-row { grid-template-columns: 70px 1fr; font-size: 11px; }
+}

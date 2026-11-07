@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Province card shows a status stack (wave/board-living)
+
+- Click a province on the map. The card now starts with five short rows: Terrain, Owner, Stock, Outpost and Garrison.
+- Stock shows how much is left on a gather tile with a small bar, and says "dry" when it is empty.
+- Outpost tells you if the tile is your hold, your flag, a rival's flag or hold, or a hostile camp.
+- Garrison shows how many men are posted and their power.
+- Tiles you have not scouted say Unknown or Unseen.
+- The map, clicking and buttons work the same as before. No numbers in the game have changed.
+
 ## 2026-11-07 — Living hall glyphs on Standing works cards (bakeoff/gemini-works-living)
 
 - **Living hall emblems:** Each Standing works card on the Kingdom tab now carries a subtle, living architectural glyph matching its kind of hall:

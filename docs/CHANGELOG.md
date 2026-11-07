@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-07 — Living status rows on ProvinceInspect (wave/board-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- The province inspect card now stacks five status rows under its header: **Terrain**, **Owner**, **Stock** (with a fill bar), **Outpost**, **Garrison**. Each row has a tone-coloured left edge and a breathing pip; the terrain row is coloured by terrain; a dry stock pulses faster. Fog reads Unknown / Unseen. Reduced-motion turns the motion off.
+- New `ProvinceStatusStack.tsx` + `province-status-stack.css`; `ProvinceInspect.tsx` renders it after the card head. Existing groups below are unchanged.
+- Atlas hit-testing and camera untouched.
+- Tests: new `ProvinceStatusStack.test.tsx` (10 tests). Sim 323, app 510, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living hall glyphs under Kingdom work cards (bakeoff/gemini-works-living)
 
 - **Living hall glyphs:** Added subtle living architectural heraldry under the Kingdom Standing works cards (`WorkCard.tsx`), featuring a corner-confined ambient watermark underlay (`WorkLivingUnderlay`) and a left-aligned animated hall emblem strip (`WorkLivingGlyph`) directly beneath the Level / Staffed / Bonuses rows.
