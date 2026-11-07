@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-07 — Living status rows on the joined hold panel (wave/hold-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- The joined hold panel (Cloud tab → Join hold) now stacks five status rows under the Realm / Tick card: **Works** (militia, farms, cottages, lumber camps, plus training), **Stores** (food, wood, stone, gold, floored like the store cards), **Stamps** (count and newest stamp), **Key** (joined with key / new key shown once / copied; the key itself is not repeated), **Leave** (solo crown untouched / confirm open). Tone-coloured left edge and breathing pip per row; reduced-motion turns the motion off.
+- New `hud/HoldStatusStack.tsx` + `hud/hold-status-stack.css`; `JoinHoldCard.tsx` renders it before the action cards. All existing buttons and cards unchanged.
+- Tests: new `hud/HoldStatusStack.test.tsx` (12 tests). Sim 323, app 526, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living terrain and structure glyphs on the isometric board (bakeoff/gemini-board-living)
 
 - **Living terrain glyphs (`BoardLiving.tsx`, `OverworldAtlas.tsx`):** Added subtle, low-opacity living SVG glyphs on scouted isometric board tiles without obscuring labels, tokens, or selection chrome:

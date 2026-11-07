@@ -1,3 +1,11 @@
+## 2026-11-07 — app / hold panel status rows (wave/hold-living)
+
+- **Files:** `packages/app/src/hud/HoldStatusStack.tsx` (exports `HoldStatusStack`, `holdStatusRows`, `wholeUnits`, types `HoldStatusRow`, `HoldStatusKind`, `HoldStatusTone`, `HoldStatusInput`), `packages/app/src/hud/hold-status-stack.css`, test `hud/HoldStatusStack.test.tsx`. `JoinHoldCard.tsx` imports it, renders `<HoldStatusStack view madeKey copied confirmLeave />` between `.sc-hold-status` and `.sc-hold-actions`, and its local `whole()` now aliases `wholeUnits` (same body, moved).
+- **Inputs:** `HoldView` fields only (`militia`, `training`, `farms`, `cottages`, `lumberCamps`, `stores`, `stamps`) plus card UI state (`madeKey`, `copied`, `confirmLeave`). No sim imports, no fetches. `holdStatusRows` is pure; a test asserts the view is unchanged after a call.
+- **Display arithmetic only:** stores floored via `wholeUnits`; "all empty" = every store below 1 (tone only).
+- **Markup:** `<dl class="sc-holdstat" aria-label="Hold living status">` with `<div class="sc-holdstat-row is-<kind> tone-<tone>">` rows; pip inside `<dt>`. Tones: `you`, `busy`, `warn`, `calm`, `none`.
+- **CSS:** `.sc-holdstat-*`, tone via `--sc-holdstat-tone`; mirrors `.sc-provstat` sizing. Values wrap (`overflow-wrap: anywhere`) instead of ellipsis since Works/Stores run long. `prefers-reduced-motion` disables entry and pip animation. `theme.css` untouched.
+
 ## 2026-11-07 — app / living terrain and structure glyphs on the isometric board (bakeoff/gemini-board-living)
 
 - **Surfaces:** Extends `packages/app/src/BoardLiving.tsx` + `packages/app/src/board-living.css` (main isometric board living overlay) and `packages/app/src/OverworldAtlas.tsx` + new `packages/app/src/hud/atlas-terrain-glyphs.css` (World tab isometric Kingdom Atlas).

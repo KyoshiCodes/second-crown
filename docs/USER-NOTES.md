@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-07 — Hold panel shows a status stack (wave/hold-living)
+
+- Join a shared hold on the Cloud tab. Under the Realm and Tick card you now see five short rows: Works, Stores, Stamps, Key and Leave.
+- Works lists your militia, farms, cottages and lumber camps, and says how many militia are training.
+- Stores lists food, wood, stone and gold in whole numbers.
+- Stamps shows how many stamps there are and who stamped last.
+- Key reminds you to copy a new key (it is shown only once) and turns gold once you copy it. It never shows the key a second time.
+- Leave says your solo crown is untouched, and turns orange while the leave confirmation is open.
+- All the buttons work the same as before. No numbers in the game have changed.
+
 ## 2026-11-07 — Living terrain and camp/resource glyphs on the board (bakeoff/gemini-board-living)
 
 - **Living terrain:** Scouted tiles on the isometric board now show gentle, readable ambient motion:

@@ -12,15 +12,13 @@ import { HoldLeavePip } from "./hud/HoldLeavePip";
 import { HoldKeyPip } from "./hud/HoldKeyPip";
 import { HoldWorkPip } from "./hud/HoldWorkPip";
 import { HoldLogPip } from "./hud/HoldLogPip";
+import { HoldStatusStack, wholeUnits } from "./hud/HoldStatusStack";
 import "./hud/hold-leave.css";
 import "./hud/hold-log.css";
 import { flashAction } from "./hud/ActionFlash";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
-function whole(value: string): string {
-  const n = Number(value);
-  return Number.isFinite(n) ? Math.floor(n).toLocaleString() : value;
-}
+const whole = wholeUnits;
 
 /** The four hold store cards, in display order. */
 const HOLD_STORES = [
@@ -266,6 +264,7 @@ export function JoinHoldCard({
               </div>
             ) : null}
           </div>
+          <HoldStatusStack view={view} madeKey={madeKey} copied={copied} confirmLeave={confirmLeave} />
           <div className="sc-hold-actions" aria-label="Hold actions">
             <div className="sc-hold-action-card" aria-label="Train">
               <HoldActionPip action="train" />
