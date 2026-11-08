@@ -30,6 +30,8 @@
 .sc-shell .sc-decree-status-glyph,
 .sc-shell .sc-diplo-crest-glyph,
 .sc-shell .sc-pact-crest-glyph,
+.sc-shell .sc-atlas-terrain-glyph,
+.sc-shell .sc-atlas-terrain-underlay,
 .sc-shell .sc-board-living,
 .sc-shell .sc-atlas-living-glyph,
 .sc-shell [class*="-living-underlay"],
@@ -224,6 +226,14 @@
 }
 .sc-shell .sc-diplo-living-underlay svg {
   opacity: 0.26 !important;
+}
+
+/* Atlas Province Terrain Underlays */
+.sc-shell .sc-atlas-terrain-underlay {
+  opacity: 0.13 !important;
+}
+.sc-shell .sc-atlas-terrain-underlay svg {
+  opacity: 0.28 !important;
 }
 
 /* ==========================================================================

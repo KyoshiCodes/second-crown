@@ -7,6 +7,8 @@
 }
 
 .sc-atlas-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -18,6 +20,14 @@
 }
 .sc-atlas-card.is-selected { border-color: #c8963e; box-shadow: 0 0 0 1px rgba(200, 150, 62, 0.25); }
 .sc-atlas-card.is-hover { border-style: dashed; }
+
+/* Foreground elements stay above decorative underlay */
+.sc-atlas-card-role,
+.sc-atlas-card-rows,
+.sc-atlas-terrain-glyph {
+  position: relative;
+  z-index: 1;
+}
 
 .sc-atlas-card-role {
   font-size: 10px;
@@ -96,6 +106,151 @@
   font-size: 10px;
   opacity: 0.6;
   font-family: monospace;
+}
+
+/* Ambient terrain watermark underlay confined to bottom-right pocket */
+.sc-atlas-terrain-underlay {
+  position: absolute;
+  top: auto;
+  left: auto;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  pointer-events: none !important;
+  z-index: 0;
+  overflow: hidden;
+  user-select: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  opacity: 0.13;
+  -webkit-mask-image: radial-gradient(circle at 72% 72%, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0.35) 72%, transparent 100%);
+  mask-image: radial-gradient(circle at 72% 72%, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0.35) 72%, transparent 100%);
+}
+
+.sc-atlas-terrain-underlay svg {
+  display: block;
+  opacity: 0.28;
+  transform-origin: bottom right;
+  animation: sc-atlas-underlay-breathe 4.5s ease-in-out infinite;
+}
+
+/* Living terrain glyph strip under status rows */
+.sc-atlas-terrain-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  margin-top: 2px;
+  padding: 3px 0 1px;
+  border-top: 1px dotted rgba(255, 255, 255, 0.08);
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-atlas-terrain-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  transform-origin: center center;
+  animation: sc-atlas-terrain-drift 3.8s ease-in-out infinite;
+}
+
+.sc-atlas-terrain-glyph.motion-pulse .sc-atlas-terrain-icon {
+  animation: sc-atlas-terrain-pulse 2.2s ease-in-out infinite;
+}
+
+.sc-atlas-terrain-flair {
+  display: inline-block;
+  font-size: 9.5px;
+  line-height: 1.15;
+  letter-spacing: 0.03em;
+  opacity: 0.76;
+  font-weight: 500;
+  color: var(--chrome-btn-text, #e6edf3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-atlas-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor);
+  opacity: 0.40;
+}
+
+.sc-atlas-pulse-layer {
+  animation: sc-atlas-layer-pulse 2.4s ease-in-out infinite;
+  opacity: 0.50;
+}
+
+.sc-atlas-drift-layer {
+  animation: sc-atlas-layer-drift 3.6s ease-in-out infinite;
+  opacity: 0.52;
+}
+
+/* Keyframes */
+@keyframes sc-atlas-underlay-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.24;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.32;
+  }
+}
+
+@keyframes sc-atlas-terrain-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -1px, 0);
+  }
+}
+
+@keyframes sc-atlas-terrain-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes sc-atlas-layer-pulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes sc-atlas-layer-drift {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.40;
+  }
+  50% {
+    transform: translateX(1px);
+    opacity: 0.60;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .sc-atlas-terrain-underlay svg,
+  .sc-atlas-terrain-icon,
+  .sc-atlas-pulse-layer,
+  .sc-atlas-drift-layer {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 @media (max-width: 420px) {

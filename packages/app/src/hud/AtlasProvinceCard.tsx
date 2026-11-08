@@ -1,5 +1,6 @@
 import React from "react";
 import { getProvince, isProvinceSeen, type GameState } from "@second-crown/sim";
+import { AtlasTerrainLivingGlyph, AtlasTerrainUnderlay } from "./AtlasTerrainLivingGlyph";
 import "./atlas-living.css";
 
 /**
@@ -84,10 +85,15 @@ export function atlasProvinceRows(state: GameState, provinceId: string): AtlasPr
 }
 
 export function AtlasProvinceCard(props: { state: GameState; provinceId: string; role: AtlasCardRole }) {
+  const p = getProvince(props.state, props.provinceId);
   const rows = atlasProvinceRows(props.state, props.provinceId);
-  if (rows.length === 0) return null;
+  if (rows.length === 0 || !p) return null;
+  const home = props.provinceId === props.state.board.homeProvinceId;
+  const seen = home || isProvinceSeen(props.state, props.provinceId);
+
   return (
-    <section className={`sc-atlas-card is-${props.role}`} aria-label={`${ROLE_LABEL[props.role]} province`}>
+    <section className={`sc-atlas-card is-${props.role} is-living`} aria-label={`${ROLE_LABEL[props.role]} province`}>
+      <AtlasTerrainUnderlay terrain={p.terrain} node={p.node} seen={seen} isHome={home} />
       <header className="sc-atlas-card-role">{ROLE_LABEL[props.role]}</header>
       <dl className="sc-atlas-card-rows">
         {rows.map((r) => (
@@ -103,6 +109,7 @@ export function AtlasProvinceCard(props: { state: GameState; provinceId: string;
           </div>
         ))}
       </dl>
+      <AtlasTerrainLivingGlyph terrain={p.terrain} node={p.node} seen={seen} isHome={home} />
     </section>
   );
 }

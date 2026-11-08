@@ -1,3 +1,10 @@
+## 2026-11-08 — app / living terrain glyphs under atlas province cards (bakeoff/gemini-atlas-living)
+
+- **Components:** `packages/app/src/hud/AtlasTerrainLivingGlyph.tsx` exports `AtlasTerrainLivingGlyph`, `AtlasTerrainUnderlay`, `resolveAtlasTerrainLiving`, and types `AtlasTerrainDescriptor`, `AtlasTerrainKind`.
+- **Integration (`hud/AtlasProvinceCard.tsx`):** `AtlasProvinceCard` mounts `<AtlasTerrainUnderlay terrain node seen isHome />` at `z-index: 0` inside `.sc-atlas-card`, header and rows at `z-index: 1`, and `<AtlasTerrainLivingGlyph terrain node seen isHome />` (`z-index: 1`) beneath the rows.
+- **Scoping & readability (`atlas-living.css`, `living-glyph-soften.css`):** Scoped via `.sc-atlas-card.is-living` with foreground children at `z-index: 1` and `.sc-atlas-terrain-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.13`, and underlay SVG opacity `0.28`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/AtlasTerrainLivingGlyph.test.tsx` (9 tests) covers terrain & fog state resolution, distinct SVG geometries across all biomes, phrasing-only markup, `AtlasProvinceCard` visual stack order, corner watermark opacity ceilings, and CSS isolation.
+
 ## 2026-11-08 — app / Overworld Atlas living province cards (wave/atlas-living)
 
 - **Files:** `packages/app/src/hud/AtlasProvinceCard.tsx` (exports `atlasProvinceRows`, `AtlasProvinceCard`, `AtlasProvinceCards`, types `AtlasProvinceRow`, `AtlasRowKind`, `AtlasRowTone`, `AtlasCardRole`), `hud/atlas-living.css`, test `hud/AtlasProvinceCard.test.tsx`.

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living terrain glyphs under atlas province cards (bakeoff/gemini-atlas-living)
+
+- **Living terrain glyph strips (`AtlasTerrainLivingGlyph`):** Added left-aligned 14×14 living SVG terrain emblems directly beneath the stacked rows on Overworld Atlas province cards (`AtlasProvinceCard.tsx`), with subtle glow (`sc-atlas-glow-layer`), drift (`sc-atlas-drift-layer`), and pulse (`sc-atlas-pulse-layer`) motion across Plain, Wood, Hill, Waste, Shore, Peak, and Uncharted Fog.
+- **Corner-confined card watermarks (`AtlasTerrainUnderlay`):** Added 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.13` wrapper, `0.28` keyframes) inside `.sc-atlas-card.is-living` so card text, coordinates, and map controls remain completely unobstructed.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/AtlasTerrainLivingGlyph.test.tsx` (9 tests). Sim 323, app 657, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 914ms.
+
 ## 2026-11-08 — Living province cards under the Overworld Atlas (wave/atlas-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

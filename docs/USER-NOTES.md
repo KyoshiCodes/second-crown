@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living terrain glyphs on atlas province cards (bakeoff/gemini-atlas-living)
+
+- **Living biome emblems:** Under the Name, Terrain, and Owner rows on each province card under the Kingdom Atlas, a subtle living terrain badge now reflects the biome and landmarks of the tile:
+  - **Plains & Woods:** Swaying pasture blades, wildflower sparks, and woodland pine canopies with gentle drift motion.
+  - **Hills & Wastes:** Highland knolls, granite quarry outcrops, and smoldering volcanic crags with steady pulse rhythms.
+  - **Shores & Peaks:** Undulating tidal waves and glacial alpine summits with icy glimmers.
+  - **Uncharted Fog:** Swirling mist clouds obscure unrevealed territories.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each card, keeping coordinates and province names crisp. No game numbers changed.
+
 ## 2026-11-08 — Atlas province cards show Name, Terrain, Owner (wave/atlas-living)
 
 - Under the Kingdom Atlas on the World tab there is now a small card for the province you clicked: its **Name** (like "Timber stand" or "Your hold", with its map coordinates), its **Terrain**, and its **Owner**.
