@@ -1,6 +1,7 @@
 import React from "react";
 import type { LedgerEntry } from "@second-crown/sim";
 import { QuillPip, type QuillPipVariant } from "./QuillPip";
+import { QuillLivingGlyph, QuillLivingUnderlay } from "./QuillLivingGlyph";
 import "./ledger-card.css";
 import "./ledger-living.css";
 
@@ -50,7 +51,9 @@ export function ledgerRows(tick: number, text: string, kind?: string): LedgerRow
 /**
  * Living LedgerCard for each Chronicle / Ledger of Crowns line:
  * - 16–20px quill/ink pip (pointer-events: none)
+ * - Corner-confined 34x34 watermark underlay (pointer-events: none)
  * - Stacked status rows: Time (tick + kind) and Entry (text)
+ * - Left-aligned 14x14 living quill glyph and rubrication flair strip
  * - Keeps .sc-ledger-card-time / .sc-ledger-card-text hooks on the row values
  * - Styled via ledger-card.css + ledger-living.css; theme.css remains untouched.
  */
@@ -67,20 +70,24 @@ export function LedgerCard(props: LedgerCardProps) {
       style={props.style}
       data-kind={kind}
     >
+      <QuillLivingUnderlay kind={kind} />
       <QuillPip size={pipSize} kind={kind} variant={props.variant} />
-      <dl className="sc-ledger-card-rows">
-        {rows.map((r) => (
-          <div key={r.kind} className={`sc-ledger-card-row is-${r.kind}`}>
-            <dt className="sc-ledger-card-label">{r.label}</dt>
-            <dd className="sc-ledger-card-value">
-              <span className={r.kind === "time" ? "sc-ledger-card-time" : "sc-ledger-card-text"}>
-                {r.value}
-              </span>
-              {r.sub ? <span className="sc-ledger-card-sub">{r.sub}</span> : null}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <div className="sc-ledger-card-body">
+        <dl className="sc-ledger-card-rows">
+          {rows.map((r) => (
+            <div key={r.kind} className={`sc-ledger-card-row is-${r.kind}`}>
+              <dt className="sc-ledger-card-label">{r.label}</dt>
+              <dd className="sc-ledger-card-value">
+                <span className={r.kind === "time" ? "sc-ledger-card-time" : "sc-ledger-card-text"}>
+                  {r.value}
+                </span>
+                {r.sub ? <span className="sc-ledger-card-sub">{r.sub}</span> : null}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <QuillLivingGlyph kind={kind} tick={tick} />
+      </div>
     </li>
   );
 }

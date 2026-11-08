@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living quill glyphs under ledger cards (bakeoff/gemini-ledger-living)
+
+- **Living quill glyph strips (`QuillLivingGlyph`):** Added left-aligned 14×14 living SVG chronicler quills directly beneath the stacked rows on Ledger of Crowns cards (`LedgerCard.tsx`), with subtle glow (`sc-ledger-glow-layer`), pulse (`sc-ledger-pulse-layer`), and drift (`sc-ledger-drift-layer`) motion across Martial (crimson rubric), Triumph (gilded illumination), Crown (royal court script), and Archive entries.
+- **Quill pip animations & underlays:** Added living sway and wet ink droplet pulse to `QuillPip` inside `.sc-ledger-card.is-living`, plus 34×34 bottom-right pocket watermarks (`QuillLivingUnderlay`) with radial vignette fade masks and dedicated low opacity (`0.11..0.15` wrapper, `0.28` child SVG).
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/QuillLivingGlyph.test.tsx` (11 tests) and updated `LivingGlyphSoften.test.ts`. Sim 323, app 684, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 703ms.
+
 ## 2026-11-08 — Living status rows on Ledger of Crowns cards (wave/ledger-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

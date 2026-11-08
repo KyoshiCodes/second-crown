@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living quill glyphs on Ledger of Crowns cards (bakeoff/gemini-ledger-living)
+
+- **Living chronicler quills:** Under the Time and Entry rows on each Chronicle card in the Ledger of Crowns on the Crown tab, a subtle living quill and scribe rubrication label now marks the nature of the entry:
+  - **Martial Records:** Crossed quill & blade with a pulsing crimson rubric for battle, war, and defeat.
+  - **Triumphs & Peace:** Illuminated swan quill with a radiant gold drift for victories and truces.
+  - **Royal Decrees:** Regal court quill with imperial sapphire ink for oaths, marshals, and mandates.
+  - **Chronicle & Archives:** Traditional iron-gall goose quill dipping into a faceted stone inkpot.
+- **Living quill pip accents:** The quill and inkpot pip at the head of each card now features a gently swaying feather and living wet ink droplet.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each card, keeping time stamps and chronicle text crisp. No game numbers changed.
+
 ## 2026-11-08 — Ledger of Crowns lines show Time and Entry (wave/ledger-living)
 
 - On the Crown tab, each line in the **Ledger of Crowns** is now a small card with two rows.

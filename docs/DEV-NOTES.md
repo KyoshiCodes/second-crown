@@ -1,3 +1,10 @@
+## 2026-11-08 — app / living quill glyphs under ledger cards (bakeoff/gemini-ledger-living)
+
+- **Components:** `packages/app/src/hud/QuillLivingGlyph.tsx` exports `QuillLivingGlyph`, `QuillLivingUnderlay`, `resolveQuillDescriptor`, and types `QuillDescriptor`, `QuillDescriptorTone`.
+- **Integration (`hud/LedgerCard.tsx`):** `LedgerCard` mounts `<QuillLivingUnderlay kind />` at `z-index: 0` inside `.sc-ledger-card.is-living`, rows inside `.sc-ledger-card-body` at `z-index: 1`, and `<QuillLivingGlyph kind tick />` (`z-index: 1`) beneath the rows.
+- **Scoping & readability (`ledger-living.css`, `living-glyph-soften.css`):** Scoped via `.sc-ledger-card.is-living` with foreground children at `z-index: 1` and `.sc-quill-living-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.11..0.15`, and underlay SVG opacity `0.28`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/QuillLivingGlyph.test.tsx` (11 tests) covers descriptor resolution across war/victory/crown/save/calm, 14×14 living glyph layers, 34×34 underlay watermark, phrasing-only markup, and CSS isolation. `LivingGlyphSoften.test.ts` updated to assert quill underlay and glow layer coverage.
+
 ## 2026-11-08 — app / living vault seal glyphs under vault cards (bakeoff/gemini-vault-living)
 
 - **Components:** `packages/app/src/hud/VaultSealLivingGlyph.tsx` exports `VaultSealLivingGlyph`, `VaultSealUnderlay`, `resolveVaultSealDescriptor`, and types `VaultSealDescriptor`, `VaultSealStatus`.

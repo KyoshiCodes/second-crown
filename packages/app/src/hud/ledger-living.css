@@ -2,6 +2,8 @@
  * Layered over ledger-card.css. Display only; theme.css untouched. */
 .sc-ledger-card.is-living {
   --sc-ledger-tone: #e3b341;
+  position: relative;
+  overflow: hidden;
   align-items: flex-start;
   gap: 9px;
   padding: 6px 10px 6px 8px;
@@ -17,8 +19,23 @@
 .sc-ledger-card.is-living[data-kind*="decree"] { --sc-ledger-tone: #818cf8; }
 .sc-ledger-card.is-living[data-kind*="save"] { --sc-ledger-tone: #38bdf8; }
 
+/* Foreground layers inside .sc-ledger-card stay crisp and above the watermark underlay */
+.sc-ledger-card.is-living .sc-quill-pip-wrapper,
+.sc-ledger-card.is-living .sc-ledger-card-body {
+  position: relative;
+  z-index: 1;
+}
+
 .sc-ledger-card.is-living .sc-quill-pip-wrapper {
   margin-top: 2px;
+}
+
+.sc-ledger-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
 }
 
 .sc-ledger-card-rows {
@@ -82,6 +99,160 @@
 .sc-ledger-card.is-living .sc-ledger-card-text {
   flex: 1 1 auto;
   font-size: 12px;
+}
+
+/* --- Living Quill Watermark Underlay --- */
+.sc-quill-living-underlay {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  pointer-events: none !important;
+  user-select: none;
+  z-index: 0;
+  opacity: 0.12;
+  mask-image: radial-gradient(circle at 75% 75%, black 45%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at 75% 75%, black 45%, transparent 78%);
+}
+.sc-quill-living-underlay.tone-war { color: #ef4444; opacity: 0.15; }
+.sc-quill-living-underlay.tone-victory { color: #facc15; opacity: 0.14; }
+.sc-quill-living-underlay.tone-crown { color: #818cf8; opacity: 0.13; }
+.sc-quill-living-underlay.tone-save { color: #38bdf8; opacity: 0.12; }
+.sc-quill-living-underlay.tone-calm { color: #e3b341; opacity: 0.11; }
+
+.sc-quill-living-underlay svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.28;
+  animation: sc-quill-underlay-breathe 4.5s ease-in-out infinite;
+}
+
+/* --- Living Quill Glyph Strip --- */
+.sc-quill-living-glyph {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 10px;
+  line-height: 1.2;
+  pointer-events: none !important;
+  user-select: none;
+}
+.sc-quill-living-glyph.tone-war { --sc-ledger-tone: #ef4444; }
+.sc-quill-living-glyph.tone-victory { --sc-ledger-tone: #facc15; }
+.sc-quill-living-glyph.tone-crown { --sc-ledger-tone: #818cf8; }
+.sc-quill-living-glyph.tone-save { --sc-ledger-tone: #38bdf8; }
+.sc-quill-living-glyph.tone-calm { --sc-ledger-tone: #e3b341; }
+
+.sc-quill-living-svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  overflow: visible;
+  display: block;
+}
+
+.sc-quill-living-label {
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sc-ledger-tone);
+}
+
+.sc-quill-living-sep {
+  opacity: 0.4;
+  font-size: 9px;
+  color: #6e7681;
+}
+
+.sc-quill-living-flair {
+  color: #8b949e;
+  font-size: 9.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Living Quill Animation Layers */
+.sc-ledger-card.is-living .sc-quill-droplet {
+  animation: sc-quill-pip-drop 2.5s ease-in-out infinite;
+  transform-origin: 2.2px 18.9px;
+}
+
+.sc-ledger-card.is-living .sc-quill-pen {
+  animation: sc-quill-pip-sway 4s ease-in-out infinite;
+  transform-origin: 2.5px 18.8px;
+}
+
+.sc-ledger-glow-layer {
+  opacity: 0.38;
+  filter: drop-shadow(0 0 1px currentColor);
+  animation: sc-ledger-glow-breathe 3.2s ease-in-out infinite;
+}
+
+.sc-ledger-pulse-layer {
+  opacity: 0.48;
+  transform-origin: center;
+}
+.sc-quill-living-glyph.motion-pulse .sc-ledger-pulse-layer {
+  animation: sc-ledger-pulse 2.2s ease-in-out infinite;
+}
+
+.sc-ledger-drift-layer {
+  opacity: 0.52;
+}
+.sc-quill-living-glyph.motion-drift .sc-ledger-drift-layer {
+  animation: sc-ledger-drift 3.6s ease-in-out infinite alternate;
+}
+
+@keyframes sc-ledger-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.45; }
+  50% { transform: scale(1.08); opacity: 0.70; }
+}
+
+@keyframes sc-ledger-drift {
+  0% { transform: translateX(0); opacity: 0.45; }
+  100% { transform: translateX(1.5px); opacity: 0.65; }
+}
+
+@keyframes sc-ledger-glow-breathe {
+  0%, 100% { opacity: 0.30; }
+  50% { opacity: 0.48; }
+}
+
+@keyframes sc-quill-underlay-breathe {
+  0%, 100% { opacity: 0.24; transform: scale(1); }
+  50% { opacity: 0.32; transform: scale(1.04); }
+}
+
+@keyframes sc-quill-pip-drop {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+@keyframes sc-quill-pip-sway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-1.5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-quill-living-underlay svg,
+  .sc-quill-droplet,
+  .sc-quill-pen,
+  .sc-ledger-glow-layer,
+  .sc-ledger-pulse-layer,
+  .sc-ledger-drift-layer {
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+  }
 }
 
 @media (max-width: 420px) {
