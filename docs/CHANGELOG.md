@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living status rows on Ledger of Crowns cards (wave/ledger-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- Each Ledger of Crowns line (Crown tab) now stacks two status rows: **Time** (`t<tick>` plus the entry kind as a tinted tag) and **Entry** (the text). Quill pip, kind accent colours, order, empty state, and save-audit lines unchanged.
+- Values come only from each entry's existing `tick`, `kind`, `text`. Styles in new `hud/ledger-living.css`; `ledger-card.css` untouched.
+- Tests: `hud/LedgerCard.test.tsx` (4 tests). Sim 323, app 676, server 158 pass; `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-08 — Living vault seal glyphs under vault cards (bakeoff/gemini-vault-living)
 
 - **Living vault seal glyph strips (`VaultSealLivingGlyph`):** Added left-aligned 14×14 living SVG security seals directly beneath the stacked rows on Kingdom vault cards (`VaultLivingCard.tsx`), with subtle glow (`sc-vault-glow-layer`), pulse (`sc-vault-pulse-layer`), and drift (`sc-vault-drift-layer`) motion across Food (cellar hatch), Wood (timber deadbolt), Stone (crypt keystone), and Gold (treasury dial).

@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Ledger of Crowns lines show Time and Entry (wave/ledger-living)
+
+- On the Crown tab, each line in the **Ledger of Crowns** is now a small card with two rows.
+- **Time** shows when it happened (the tick, like `t100`) and a small coloured tag saying what kind of entry it is (for example "crown", "war", or "save written").
+- **Entry** shows what happened, same words as before.
+- Nothing else changed: newest lines are still on top, and no game numbers changed.
+
 ## 2026-11-08 — Living vault seal glyphs on Kingdom vault cards (bakeoff/gemini-vault-living)
 
 - **Living security seals:** Under the Name, Stock, and Safety rows on each vault card on the Kingdom tab, a subtle living seal now displays the protection status and vault craft of the store:

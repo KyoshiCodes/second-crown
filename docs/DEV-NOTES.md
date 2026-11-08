@@ -5,6 +5,13 @@
 - **Scoping & readability (`vault-living.css`, `living-glyph-soften.css`):** Scoped via `.sc-vault-card.is-living` with foreground children at `z-index: 1` and `.sc-vault-seal-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.11..0.18`, and underlay SVG opacity `0.28`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `packages/sim`, and `server/` untouched.
 - **Tests:** `packages/app/src/hud/VaultSealLivingGlyph.test.tsx` (10 tests) covers descriptor resolution across food/wood/stone/gold, safe/exposed/full states, 14×14 living glyph layers, 34×34 underlay watermark, phrasing-only markup, and CSS isolation. `LivingGlyphSoften.test.ts` updated to assert vault underlay and glow layer coverage.
 
+## 2026-11-08 — app / Ledger of Crowns living status rows (wave/ledger-living)
+
+- **Files:** `packages/app/src/hud/LedgerCard.tsx` (now also exports `ledgerRows(tick, text, kind?)`, `ledgerKindLabel(kind?)`, types `LedgerRow`, `LedgerRowKind`), new `hud/ledger-living.css`, new test `hud/LedgerCard.test.tsx`.
+- **Markup:** `<li class="sc-ledger-card is-living" data-kind>` → QuillPip + `<dl class="sc-ledger-card-rows">` with `.sc-ledger-card-row.is-time` and `.is-text`. The row values keep the old `.sc-ledger-card-time` / `.sc-ledger-card-text` span hooks, so `save.test.tsx` and any external selectors still match. Kind tag is `.sc-ledger-card-sub` (underscores/hyphens → spaces; omitted when kind is empty).
+- **Props unchanged:** `entry` | `tick`/`text`/`kind`, `variant`, `pipSize`, `className`, `style`. `LedgerPanel.tsx` untouched.
+- **CSS:** `ledger-living.css` is imported by `LedgerCard.tsx` after `ledger-card.css` and is scoped to `.sc-ledger-card.is-living`. Per-kind tone via `--sc-ledger-tone`, mirroring the existing border-left accent rules. Rows collapse to one column under 420px. Label opacity 0.6 (readability floor). `theme.css` untouched.
+
 ## 2026-11-08 — app / Kingdom tab living vault cards (wave/vault-living)
 
 - **Files:** `packages/app/src/hud/VaultLivingCard.tsx` (exports `vaultRows`, `VaultLivingCard`, `VaultLivingCards`, `VAULT_RESOURCES`, types `VaultRow`, `VaultRowKind`, `VaultRowTone`, `VaultResource`), `hud/vault-living.css`, test `hud/VaultLivingCard.test.tsx`.

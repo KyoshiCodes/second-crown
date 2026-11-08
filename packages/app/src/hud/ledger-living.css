@@ -1,0 +1,91 @@
+/* --- Ledger of Crowns: living cards. Stacked Time / Entry rows per ledger line. ---
+ * Layered over ledger-card.css. Display only; theme.css untouched. */
+.sc-ledger-card.is-living {
+  --sc-ledger-tone: #e3b341;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 6px 10px 6px 8px;
+}
+.sc-ledger-card.is-living[data-kind*="war"],
+.sc-ledger-card.is-living[data-kind*="defeat"],
+.sc-ledger-card.is-living[data-kind*="loss"] { --sc-ledger-tone: #ef4444; }
+.sc-ledger-card.is-living[data-kind*="victory"],
+.sc-ledger-card.is-living[data-kind*="truce"],
+.sc-ledger-card.is-living[data-kind*="peace"] { --sc-ledger-tone: #facc15; }
+.sc-ledger-card.is-living[data-kind*="marshal"],
+.sc-ledger-card.is-living[data-kind*="crown"],
+.sc-ledger-card.is-living[data-kind*="decree"] { --sc-ledger-tone: #818cf8; }
+.sc-ledger-card.is-living[data-kind*="save"] { --sc-ledger-tone: #38bdf8; }
+
+.sc-ledger-card.is-living .sc-quill-pip-wrapper {
+  margin-top: 2px;
+}
+
+.sc-ledger-card-rows {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  margin: 0;
+}
+
+.sc-ledger-card-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: baseline;
+  column-gap: 6px;
+  min-width: 0;
+  padding-left: 5px;
+  border-left: 2px solid rgba(110, 118, 129, 0.55);
+}
+.sc-ledger-card-row.is-time {
+  border-left-color: var(--sc-ledger-tone);
+}
+
+.sc-ledger-card-label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.sc-ledger-card-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+}
+
+/* Time row: tick stays tabular; override the flat-row min-width from ledger-card.css */
+.sc-ledger-card.is-living .sc-ledger-card-time {
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.sc-ledger-card-sub {
+  padding: 0 5px;
+  font-size: 10px;
+  line-height: 15px;
+  letter-spacing: 0.03em;
+  color: var(--sc-ledger-tone);
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  opacity: 0.75;
+}
+
+.sc-ledger-card.is-living .sc-ledger-card-text {
+  flex: 1 1 auto;
+  font-size: 12px;
+}
+
+@media (max-width: 420px) {
+  .sc-ledger-card-row {
+    grid-template-columns: 1fr;
+  }
+}
