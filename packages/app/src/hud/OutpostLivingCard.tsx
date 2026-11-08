@@ -9,7 +9,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
-import { OutpostLivingGlyph, OutpostLivingUnderlay } from "./OutpostLivingGlyph";
+import { FlagLivingGlyph, FlagLivingUnderlay } from "./FlagLivingGlyph";
 import "./outpost-living.css";
 import "./flag-living.css";
 
@@ -128,7 +128,7 @@ export function OutpostLivingCard(props: {
       className={`sc-outpost-card is-living is-${province.node} ${mood} sc-flag-living`}
       aria-label={`${NODE_NAME[province.node] ?? province.node} flag at ${province.x},${province.y}`}
     >
-      <OutpostLivingUnderlay mood={rawMood} />
+      <FlagLivingUnderlay mood={rawMood} node={province.node} />
       <dl className="sc-outpost-card-rows">
         {rows.map((r) => (
           <div key={r.kind} className={`sc-outpost-card-row is-${r.kind} tone-${r.tone}`}>
@@ -148,7 +148,9 @@ export function OutpostLivingCard(props: {
           </div>
         ))}
       </dl>
-      <OutpostLivingGlyph state={state} province={province} nameOf={nameOf} />
+      <FlagLivingGlyph state={state} province={province} nameOf={nameOf} />
     </section>
   );
 }
+
+export const FlagLivingCard = OutpostLivingCard;

@@ -1,6 +1,20 @@
-/* --- Kingdom tab Flags: richer living layout (resources row + stock meter). ---
+/* --- Kingdom tab Flags: richer living layout (resources row + stock meter + living flag/camp glyphs). ---
  * Scoped to .sc-flag-living, which sits on the same element as .sc-outpost-card.
  * Builds on outpost-living.css; theme.css untouched. */
+
+/* Strict pointer-events isolation for decorative layers */
+.sc-flag-living-underlay,
+.sc-flag-living-underlay *,
+.sc-flag-living-glyph,
+.sc-flag-living-glyph *,
+.sc-flag-glyph-icon,
+.sc-flag-glyph-svg,
+.sc-flag-living-label,
+.sc-flag-living-dot,
+.sc-flag-living-flair {
+  pointer-events: none !important;
+  user-select: none;
+}
 
 .sc-flag-living .sc-outpost-card-rows {
   gap: 2px;
@@ -53,13 +67,167 @@
   animation: sc-flag-meter-breathe 2.4s ease-in-out infinite;
 }
 
+/* Corner-confined living flag watermark underlay */
+.sc-flag-living-underlay {
+  --sc-flag-accent: #c9b48a;
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  z-index: 0;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: var(--sc-flag-accent);
+  opacity: 0.14;
+  -webkit-mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 58%, transparent 92%);
+  mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 58%, transparent 92%);
+}
+
+.sc-flag-living-underlay.is-threatened {
+  --sc-flag-accent: #f85149;
+  opacity: 0.18;
+}
+
+.sc-flag-living-underlay.is-guarded {
+  --sc-flag-accent: #3fb950;
+  opacity: 0.14;
+}
+
+.sc-flag-living-underlay.is-bare {
+  --sc-flag-accent: #d29922;
+  opacity: 0.12;
+}
+
+.sc-flag-living-underlay.is-woodcut { --sc-flag-accent: #8b5a2b; }
+.sc-flag-living-underlay.is-quarry { --sc-flag-accent: #8b949e; }
+.sc-flag-living-underlay.is-field { --sc-flag-accent: #e3b341; }
+.sc-flag-living-underlay.is-ruins { --sc-flag-accent: #a371f7; }
+
+.sc-flag-living-watermark {
+  width: 34px;
+  height: 34px;
+  display: block;
+  overflow: visible;
+  opacity: 0.28;
+  transform-origin: 24px 24px;
+  animation: sc-flag-underlay-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-flag-living-underlay.is-threatened .sc-flag-living-watermark {
+  animation: sc-flag-underlay-pulse 1.8s ease-in-out infinite;
+}
+
+/* Living flag glyph strip below the rows */
+.sc-flag-living-glyph {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.sc-flag-living-glyph.tone-safe { color: #3fb950; }
+.sc-flag-living-glyph.tone-warn { color: #d29922; }
+.sc-flag-living-glyph.tone-danger { color: #f85149; }
+.sc-flag-living-glyph.tone-calm { color: #8b949e; }
+
+.sc-flag-glyph-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.sc-flag-glyph-svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  overflow: visible;
+}
+
+.sc-flag-glow-layer {
+  transform-origin: 7px 11.2px;
+  animation: sc-flag-glow-pulse 3.6s ease-in-out infinite;
+}
+
+.sc-flag-drift-layer {
+  transform-origin: 7px 8px;
+  animation: sc-flag-drift 3.2s ease-in-out infinite alternate;
+}
+
+.sc-flag-pulse-layer {
+  transform-origin: 7px 4px;
+  animation: sc-flag-pulse 1.4s ease-in-out infinite;
+}
+
+.sc-flag-living-label {
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.sc-flag-living-dot {
+  opacity: 0.45;
+  margin: 0 1px;
+}
+
+.sc-flag-living-flair {
+  font-size: 10.5px;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Keyframe animations */
 @keyframes sc-flag-meter-breathe {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
 }
 
+@keyframes sc-flag-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@keyframes sc-flag-drift {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-0.75px) rotate(0.4deg); }
+  100% { transform: translateY(0.5px) rotate(-0.4deg); }
+}
+
+@keyframes sc-flag-glow-pulse {
+  0%, 100% { opacity: 0.22; transform: scale(1); }
+  50% { opacity: 0.38; transform: scale(1.08); }
+}
+
+@keyframes sc-flag-underlay-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes sc-flag-underlay-pulse {
+  0%, 100% { opacity: 0.28; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(1.05); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sc-flag-meter-fill {
+  .sc-flag-meter-fill,
+  .sc-flag-living-watermark,
+  .sc-flag-glow-layer,
+  .sc-flag-drift-layer,
+  .sc-flag-pulse-layer {
     transition: none !important;
     animation: none !important;
   }

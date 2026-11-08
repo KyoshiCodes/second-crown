@@ -43,6 +43,8 @@
 .sc-shell .sc-outpost-living-underlay,
 .sc-shell .sc-camp-living-glyph,
 .sc-shell .sc-camp-living-underlay,
+.sc-shell .sc-flag-living-glyph,
+.sc-shell .sc-flag-living-underlay,
 .sc-shell .sc-board-living,
 .sc-shell .sc-atlas-living-glyph,
 .sc-shell [class*="-living-underlay"],
@@ -69,6 +71,7 @@
 .sc-shell .sc-node-living-underlay *,
 .sc-shell .sc-outpost-living-underlay *,
 .sc-shell .sc-camp-living-underlay *,
+.sc-shell .sc-flag-living-underlay *,
 .sc-shell .sc-board-living * {
   pointer-events: none !important;
 }
@@ -299,6 +302,21 @@
   opacity: 0.28 !important;
 }
 
+
+/* Flag Living Flag/Camp Underlays */
+.sc-shell .sc-flag-living-underlay {
+  opacity: 0.14 !important;
+}
+.sc-shell .sc-flag-living-underlay.is-threatened {
+  opacity: 0.18 !important;
+}
+.sc-shell .sc-flag-living-underlay.is-bare {
+  opacity: 0.12 !important;
+}
+.sc-shell .sc-flag-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
 /* Node Pile Underlays */
 .sc-shell .sc-node-pile-underlay,
 .sc-shell .sc-node-living-underlay {
@@ -430,6 +448,19 @@
   opacity: 0.52 !important;
 }
 
+
+/* Flag Living Flag/Camp Glow, Pulse, Drift */
+.sc-shell .sc-flag-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-flag-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-flag-drift-layer {
+  opacity: 0.52 !important;
+}
+
 /* Outpost Living Camp/Flag Glow, Pulse, Drift */
 .sc-shell .sc-outpost-glow-layer {
   filter: drop-shadow(0 0 1px currentColor) !important;
@@ -541,6 +572,7 @@
   .sc-shell .sc-node-living-underlay svg,
   .sc-shell .sc-outpost-living-underlay svg,
   .sc-shell .sc-camp-living-underlay svg,
+  .sc-shell .sc-flag-living-underlay svg,
   .sc-shell .sc-ledger-glow-layer,
   .sc-shell .sc-ledger-pulse-layer,
   .sc-shell .sc-ledger-drift-layer,
@@ -556,6 +588,9 @@
   .sc-shell .sc-camp-glow-layer,
   .sc-shell .sc-camp-pulse-layer,
   .sc-shell .sc-camp-drift-layer,
+  .sc-shell .sc-flag-glow-layer,
+  .sc-shell .sc-flag-pulse-layer,
+  .sc-shell .sc-flag-drift-layer,
   .sc-shell .sc-war-glow-layer,
   .sc-shell .sc-events-glow-layer,
   .sc-shell .sc-academy-glow-layer,

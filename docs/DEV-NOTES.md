@@ -1,3 +1,10 @@
+## 2026-11-08 — app / living flag/camp glyphs under flag cards (bakeoff/gemini-flag-living)
+
+- **Components:** `packages/app/src/hud/FlagLivingGlyph.tsx` exports `FlagLivingGlyph`, `FlagLivingUnderlay`, `resolveFlagGlyphDescriptor`, `resolveFlagGlyphDescriptorByValues`, and types `FlagGlyphDescriptor`, `FlagMood`, `FlagGlyphTone`. `OutpostLivingCard.tsx` also exports `FlagLivingCard` as an alias.
+- **Integration (`hud/OutpostLivingCard.tsx`):** `OutpostLivingCard` mounts `<FlagLivingUnderlay mood={rawMood} node={province.node} />` at `z-index: 0` inside `.sc-outpost-card.sc-flag-living`, 4 rows and meter at `z-index: 1`, and `<FlagLivingGlyph state={state} province={province} nameOf={nameOf} />` (`z-index: 1`) beneath the rows.
+- **Scoping & readability (`flag-living.css`, `living-glyph-soften.css`):** Scoped via `.sc-flag-living` with foreground children at `z-index: 1` and `.sc-flag-living-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.10..0.16`, and underlay SVG opacity `0.28`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/FlagLivingGlyph.test.tsx` (13 tests) covers descriptor resolution across threatened/guarded/bare moods, full/dry stock, 14×14 living glyph layers, 34×34 underlay watermark, 4-row card integration with meter, phrasing-only markup, and CSS isolation. `LivingGlyphSoften.test.ts` updated to assert flag underlay and glow layer coverage.
+
 ## 2026-11-08 — app / richer living Flags cards (wave/flag-living)
 
 - **Component:** `outpostRows(state, tile, nameOf?)` in `packages/app/src/hud/OutpostLivingCard.tsx` now returns four rows: `name`, `camp`, `flag`, `resources`. `OutpostRow` gained optional `fill` (0..1, stock left / max), set only on gather nodes.

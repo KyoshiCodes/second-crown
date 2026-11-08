@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living flag and camp glyphs on flag cards (bakeoff/gemini-flag-living)
+
+- **Living flags & camps:** Under the Name, Camp, Flag, and Stock rows on each Flags card in the Kingdom tab, a subtle living emblem now portrays the territory's operational status:
+  - **Guarded Flags:** Tall hoisted realm banner fluttering in emerald green over a garrisoned command post with soldier count and remaining resource reserve.
+  - **Threatened Redoubts:** Alert pulsing beacon in crimson warning whenever a rival march approaches the held outpost, displaying inbound realm and ETA seconds.
+  - **Frontier Claims:** Lone outpost flag in warning amber marking unpatrolled territorial claims and untouched resource seams.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each card, keeping row text, stock meters, and Abandon buttons crisp. No game numbers changed.
+
 ## 2026-11-08 — Flag cards show what's left on the tile (wave/flag-living)
 
 - On the **Kingdom** tab, under **Flags**, each flag card now has a fourth row, **Stock**: how much food, wood or stone is left on that tile, with a small bar. Amber when it runs low, red when *Dry*, *No pile* if the tile has nothing to gather.

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living flag/camp glyphs under flag cards (bakeoff/gemini-flag-living)
+
+- **Living flag glyph strips (`FlagLivingGlyph`):** Added left-aligned 14×14 living SVG flag and camp emblems directly beneath the stacked rows on Kingdom tab 4-row Flags cards (`OutpostLivingCard.tsx`), with subtle glow (`sc-flag-glow-layer`), pulse (`sc-flag-pulse-layer`), and drift (`sc-flag-drift-layer`) motion across Threatened (alert pulse redoubt), Guarded (garrison flag with realm swallowtail banner and stock flair), and Bare (frontier claim) states.
+- **Corner-confined card watermarks (`FlagLivingUnderlay`):** Added 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.10..0.16` wrapper, `0.28` child SVG) inside `.sc-outpost-card.sc-flag-living` depicting tall wooden flagstaff with halyard rigging, flying swallowtail realm banner, command marquee tent, and palisade stakes without obstructing text, stock meters, or Abandon actions.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/FlagLivingGlyph.test.tsx` (13 tests) and updated `LivingGlyphSoften.test.ts`. Sim 323, app 756, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 691ms.
+
 ## 2026-11-08 — Richer living Flags cards on the Kingdom tab (wave/flag-living)
 
 - **Flag rows (`OutpostLivingCard`):** Kingdom tab Flags cards stack Name, Camp, Flag and a new **Stock** resources row (node pile left of max with a thin meter, Dry, or No pile). Tones: safe / warn under a quarter / danger when dry / calm for no pile. Low or dry meters breathe (off under reduced motion).
