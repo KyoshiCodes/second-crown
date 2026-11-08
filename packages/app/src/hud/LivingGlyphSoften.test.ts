@@ -30,6 +30,7 @@ describe("living-glyph-soften.css", () => {
       "outpost",
       "camp",
       "flag",
+      "resource",
     ];
     for (const d of domains) {
       if (d === "hold") {
@@ -68,7 +69,7 @@ describe("living-glyph-soften.css", () => {
   });
 
   it("tones down glow intensity and caps decorative layer filters", () => {
-    const glowLayers = ["war", "events", "academy", "decree", "diplo", "vault", "ledger", "node", "outpost", "camp", "flag"];
+    const glowLayers = ["war", "events", "academy", "decree", "diplo", "vault", "ledger", "node", "outpost", "camp", "flag", "resource"];
     for (const g of glowLayers) {
       expect(css).toContain(`.sc-${g}-glow-layer`);
       expect(css).toContain(`.sc-${g}-pulse-layer`);

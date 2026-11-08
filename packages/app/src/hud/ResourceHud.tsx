@@ -6,6 +6,11 @@ import {
 } from "@second-crown/sim";
 import { isFoodStoresEmptyOrLow } from "@second-crown/render";
 import { ResourcePip, resolveResourcePipVariant } from "./ResourcePip";
+import {
+  ResourceLivingGlyph,
+  ResourceLivingUnderlay,
+  resolveResourceGlyphDescriptor,
+} from "./ResourceLivingGlyph";
 import "./resource-pip.css";
 import "./resource-living.css";
 
@@ -41,6 +46,7 @@ export function ResourceHud(props: {
         const full = !empty && Boolean(line?.full);
         const tone = empty ? "empty" : full ? "full" : "";
         const variant = resolveResourcePipVariant(r, props.state, full, have);
+        const desc = resolveResourceGlyphDescriptor(r, have, income, props.state);
         const tip = [
           `${RES_LABEL[r]} ${formatLetterSuffix(have)}${cap ? ` of ${cap}` : ""}`,
           line ? `vault keeps ${formatLetterSuffix(String(line.vault))} safe` : "",
@@ -56,6 +62,7 @@ export function ResourceHud(props: {
             className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}`}
             title={tip}
           >
+            <ResourceLivingUnderlay resource={r} mood={desc.mood} />
             <div className="sc-resource-living-rows">
               <div className="sc-resource-living-row is-name">
                 <div className="sc-ledger-name">
@@ -86,6 +93,7 @@ export function ResourceHud(props: {
                 )}
               </div>
             </div>
+            <ResourceLivingGlyph resource={r} have={have} income={income} state={props.state} />
           </div>
         );
       })}

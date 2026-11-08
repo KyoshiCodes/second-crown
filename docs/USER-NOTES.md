@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living resource glyphs on resource cards (bakeoff/gemini-resource-living)
+
+- **Living resource emblems:** Under the Name, Stock, and Income rows on each resource card at the top (Food, Wood, Stone, Gold), a subtle living emblem now portrays the store's operational flow:
+  - **Harvest Sheaf (Food):** Bound golden wheat with green drift when harvest intake flows, amber alert pulse when granaries are full, and red pulse when the larder is bare.
+  - **Timber Cord (Wood):** Stacked cordwood logs with woodland drift when timber hauling is active, amber pulse when yards are capped, and red pulse when dry.
+  - **Ashlar Cairn (Stone):** Dressed granite cairn with slate drift when quarry hewing is active, amber pulse when crypts are full, and red pulse when unworked.
+  - **Crown Mint (Gold):** Stamped imperial coronet coin with warm gold drift when tribute is minted, amber pulse when coffers overflow, and red pulse on empty coffers.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each resource cell, keeping numbers, caps, progress meters, and income rates crisp and unobstructed. No game numbers changed.
+
 ## 2026-11-08 — Resource cards are easier to read (wave/resource-living)
 
 - The four resource cards at the top (Food, Wood, Stone, Gold) now show three short lines: the name, **Stock** (how much you have, out of your storage limit, with a small bar) and **Income** (how much you gain per second, or *idle* if nothing is coming in).

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living resource glyphs under resource cards (bakeoff/gemini-resource-living)
+
+- **Living resource glyph strips (`ResourceLivingGlyph`):** Added left-aligned 14×14 living SVG resource emblems directly beneath the stacked Name, Stock, and Income rows in each Resource strip card (`ResourceHud.tsx`), with subtle glow (`sc-resource-glow-layer`), pulse (`sc-resource-pulse-layer`), and drift (`sc-resource-drift-layer`) motion across Empty/Bare (alert pulse danger), Full/Capped (alert pulse warn), Earning/Intake (intake drift), and Idle (calm resting) states across Harvest sheaf (Food), Timber cord (Wood), Ashlar cairn (Stone), and Crown mint (Gold).
+- **Corner-confined card watermarks (`ResourceLivingUnderlay`):** Added 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.10..0.18` wrapper, `0.28` child SVG) inside `.sc-resource-living` depicting harvest sickle and wheat bundle (food), felled logs and felling ax (wood), foundation ashlar and chisel (stone), and radiant crown coin with bullion ingots (gold) without obstructing stock values, meters, or income rates.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/ResourceLivingGlyph.test.tsx` (6 tests) and updated `LivingGlyphSoften.test.ts`. Sim 323, app 762, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 669ms.
+
 ## 2026-11-08 — Richer living Resource strip cards (wave/resource-living)
 
 - **Resource cards (`ResourceHud`):** Food, Wood, Stone and Gold cards stack Name, **Stock** (amount / cap with a thin meter when capped) and **Income** (`+N/s` or dim *idle*) rows. Per-resource tone on the stock rule and meter; full/bare meters breathe (off under reduced motion).

@@ -4,6 +4,8 @@
 
 .sc-resource-living {
   --sc-resource-tone: var(--chrome-accent, #c9b48a);
+  position: relative;
+  overflow: hidden;
 }
 .sc-resource-living.is-food  { --sc-resource-tone: #b9d27a; }
 .sc-resource-living.is-wood  { --sc-resource-tone: #c8955a; }
@@ -13,6 +15,8 @@
 .sc-resource-living.is-empty { --sc-resource-tone: #f87171; }
 
 .sc-resource-living-rows {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -97,12 +101,126 @@
   50% { opacity: 0.55; }
 }
 
+/* ==========================================================================
+   Living Watermark Underlay (bottom-right 34x34)
+   ========================================================================== */
+.sc-resource-living-underlay {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  z-index: 0;
+  pointer-events: none !important;
+  opacity: 0.14;
+  mask-image: radial-gradient(circle at 75% 75%, black 45%, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at 75% 75%, black 45%, transparent 80%);
+}
+.sc-resource-living-underlay.is-empty {
+  opacity: 0.16;
+}
+.sc-resource-living-underlay.is-full {
+  opacity: 0.18;
+}
+.sc-resource-living-underlay.is-earning {
+  opacity: 0.15;
+}
+.sc-resource-living-underlay.is-idle {
+  opacity: 0.10;
+}
+.sc-resource-living-underlay-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.28;
+}
+
+/* ==========================================================================
+   Living Glyph Strip (14x14 icon + label & status flair)
+   ========================================================================== */
+.sc-resource-living-glyph {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  padding-top: 2px;
+  border-top: 1px dashed rgba(200, 150, 62, 0.16);
+  font-size: 10px;
+  line-height: 1.2;
+  pointer-events: none !important;
+  min-width: 0;
+}
+.sc-resource-living-glyph-svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  display: block;
+}
+.sc-resource-living-glyph-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+.sc-resource-living-glyph-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sc-resource-living-glyph-flair {
+  font-size: 9px;
+  opacity: 0.65;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Animation layers */
+.sc-resource-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor);
+  opacity: 0.38;
+}
+.sc-resource-drift-layer {
+  animation: sc-resource-drift 3.6s ease-in-out infinite alternate;
+  opacity: 0.52;
+}
+.sc-resource-pulse-layer {
+  animation: sc-resource-pulse 1.8s ease-in-out infinite;
+  opacity: 0.48;
+}
+
+@keyframes sc-resource-drift {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-1px) rotate(1deg); }
+}
+
+@keyframes sc-resource-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.48; }
+  50% { transform: scale(1.06); opacity: 0.72; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sc-resource-living-meter-fill { transition: none; animation: none !important; }
+  .sc-resource-living-underlay-svg,
+  .sc-resource-living-glyph-svg,
+  .sc-resource-glow-layer,
+  .sc-resource-drift-layer,
+  .sc-resource-pulse-layer {
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+  }
 }
 
 /* Narrow screens: tighten the stack so four cards still fit one row. */
 @media (max-width: 520px) {
   .sc-resource-living-label { display: none; }
   .sc-resource-living-row { padding-left: 3px; }
+  .sc-resource-living-glyph-flair { display: none; }
 }
