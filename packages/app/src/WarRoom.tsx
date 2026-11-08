@@ -45,6 +45,7 @@ import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
 import { ForceCard } from "./hud/ForceCard";
+import { CampLivingRows } from "./hud/CampLivingRows";
 import { forceStatusRows, tripProgress } from "./hud/ForceStatus";
 import { SlotPips } from "./hud/SlotPip";
 import { captainName } from "./hud/captainName";
@@ -325,6 +326,7 @@ export function WarRoom(props: {
                   name={`Garrison · power ${state ? garrisonPower(state, g.provinceId) : 0}`}
                   dest={provinceLabel(g.provinceId)}
                   detail={Object.entries(g.force).map(([k, n]) => `${n} ${k}`).join(", ")}
+                  living={state ? <CampLivingRows state={state} provinceId={g.provinceId} nameOf={nameOf} /> : null}
                   status={forceStatusRows({
                     power: postPower(g.provinceId),
                     powerMax,

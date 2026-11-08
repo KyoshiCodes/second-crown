@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-08 — Living camp rows on War Room garrison cards (wave/camp-living)
+
+- **Camp rows (`CampLivingRows`):** War Room garrison cards stack Name (node + coords), Flag (Flying / Under threat with realm and ETA / Struck) and Stock (node pile left of max, Dry, or No pile). Tone pips and a left rule colour each row; danger pip pulses (off under reduced motion).
+- **ForceCard:** new optional `living` slot rendered under the ledger. Other ForceCard users unchanged.
+- **Controls:** Recall, power bar and risk row kept as-is.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`. Styles in `hud/camp-living.css`.
+- **Tests:** `hud/CampLivingRows.test.tsx` (7 tests). Sim 323, app 729, server 158 pass. App build succeeds.
+
 ## 2026-11-08 — Living camp/flag glyphs under outpost cards (bakeoff/gemini-outpost-living)
 
 - **Living outpost glyph strips (`OutpostLivingGlyph`):** Added left-aligned 14×14 living SVG camp and flag emblems directly beneath the stacked rows on Kingdom tab outpost cards (`OutpostLivingCard.tsx`), with subtle glow (`sc-outpost-glow-layer`), pulse (`sc-outpost-pulse-layer`), and drift (`sc-outpost-drift-layer`) motion across Threatened (alert pulse redoubt), Guarded (garrison camp tent with heraldic banner), and Bare (frontier flag) states.

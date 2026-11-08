@@ -1,3 +1,11 @@
+## 2026-11-08 — app / War Room living camp rows (wave/camp-living)
+
+- **Component:** `packages/app/src/hud/CampLivingRows.tsx` exports `campRows(state, provinceId, nameOf?)` → `CampRow[]` (`name`, `flag`, `resources`; empty for unknown tile) and `<CampLivingRows state provinceId nameOf? />` (a `<dl class="sc-camp-rows is-<node>">`).
+- **Sources:** `getProvince`, `incomingOnProvince`, `nodeStock`, `nodeStockMax`, `GATHER_NODES`. Flag reads `occupantRealmId === "player"` for Flying vs Struck. Stock tone is warn below `max / 4`. No tithe math copied (per-tile tithe would duplicate `outpostTithePerTick` constants).
+- **Integration:** `ForceCard` gained an optional `living?: React.ReactNode` rendered between `ForceLedger` and `ForceStatus`. `WarRoom.tsx` passes `CampLivingRows` on `tone="garrison"` cards only, reusing its `nameOf`.
+- **CSS:** `hud/camp-living.css`, `sc-camp-*` classes only; `theme.css` untouched. Danger pip pulse disabled under `prefers-reduced-motion`.
+- **Tests:** `hud/CampLivingRows.test.tsx` covers row order, name/coords, Flying, full stock, Dry, unknown tile, and render inside ForceCard with Recall kept.
+
 ## 2026-11-08 — app / living camp/flag glyphs under outpost cards (bakeoff/gemini-outpost-living)
 
 - **Components:** `packages/app/src/hud/OutpostLivingGlyph.tsx` exports `OutpostLivingGlyph`, `OutpostLivingUnderlay`, `resolveOutpostGlyphDescriptor`, `resolveOutpostGlyphDescriptorByValues`, and types `OutpostGlyphDescriptor`, `OutpostMood`, `OutpostGlyphTone`.

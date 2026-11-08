@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Garrison camps show Name, Flag and Stock (wave/camp-living)
+
+- In the **War Room**, under **Garrisons**, each camp card now shows three rows:
+  - **Name** — what the tile is (Forage field, Timber stand…) and where it is.
+  - **Flag** — *Flying* when quiet, *Under threat* in red with who is coming and how many seconds away.
+  - **Stock** — how much wood, food or stone is left on the tile. Amber when it runs low or is dry.
+- The **Recall** button and the power bar work exactly as before. No game numbers changed.
+
 ## 2026-11-08 — Living camp and flag glyphs on outpost cards (bakeoff/gemini-outpost-living)
 
 - **Living outposts & camps:** Under the Name, Camp, and Flag rows on each outpost card in the Kingdom tab (Flags section), a subtle living emblem now portrays the camp's readiness:
