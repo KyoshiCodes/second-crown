@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Softer background glyphs keep card text crisp (bakeoff/gemini-readability-polish)
+
+- **Softer corner watermarks:** The background commodity, tool, force, crest, seal, and study icons tucked into the bottom-right corners of cards are much softer and fainter now, ensuring numbers, labels, costs, and progress bars always stand out clearly in the foreground.
+- **Calmer glow effects:** Bright glowing halos and pulses around living icons have been softened into gentle ambient accents that won't distract or wash out nearby text.
+- **Atmospheric board polish:** Selection rings, keep lanterns, and drifting fog on the map are dialed back to soft whispers so province names, marching troops, and roads remain easy to track.
+- **Controls & rules:** Buttons look and work identically to before. No game numbers changed.
+
 ## 2026-11-08 — Easier-to-read status cards (wave/readability-polish)
 
 - The stacked status rows on decree, realm, pact, event, quest, study, and army cards have a bit more space between them. Each row also has a soft colored backing, so it's easier to tell where one row ends and the next begins.

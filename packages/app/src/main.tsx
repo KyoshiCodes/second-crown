@@ -6,6 +6,7 @@ import { SpectatorView, watchCodeFromHash } from "./SpectatorView";
 import "./theme.css";
 import "./seasons/themeStage.css";
 import "./hud/living-readability.css";
+import "./hud/living-glyph-soften.css";
 import { sfx } from "./sfx";
 import { loadMusicMuted, startMusicBed } from "./music";
 import { audioManager } from "./themes/audioManager";

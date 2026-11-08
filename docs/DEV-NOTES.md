@@ -1,3 +1,11 @@
+## 2026-11-08 — app / softened living glyphs and underlays (bakeoff/gemini-readability-polish)
+
+- **File:** `packages/app/src/hud/living-glyph-soften.css`, imported in `main.tsx` after `hud/living-readability.css` and `theme.css`. Per-tab living stylesheets and `theme.css` remain untouched.
+- **Scoping & cascade:** Scoped under `.sc-shell` (set on `body` by `applyTheme`), winning specificity over base single-class rules without disrupting layout or button styling.
+- **Watermark underlay opacity ceiling:** Capped all corner underlays across 10 card domains (`.sc-market-living-underlay`, `.sc-works-living-underlay`, `.sc-hold-card-underlay`, `.sc-people-living-underlay`, `.sc-unit-living-underlay`, `.sc-war-living-underlay`, `.sc-events-living-underlay`, `.sc-academy-living-underlay`, `.sc-decree-living-underlay`, `.sc-diplo-living-underlay`) to 0.07..0.18 on wrappers and 0.26..0.30 on child SVGs.
+- **Glow & pulse clamp:** Standardized `.sc-*-glow-layer` to `filter: drop-shadow(0 0 1px currentColor)` at `opacity: 0.38` (down from `0.70..0.95`). Standardized `.sc-*-pulse-layer` to 0.48 and `.sc-*-drift-layer` to 0.52. Softened inline pace auras to <= 0.25 and board atmospheric layers (`.sc-board-terrain-aura`, `.sc-board-keep-hearth-glow`, `.sc-board-fog-cloud`) to 0.14..0.26.
+- **Invariants & tests:** Strict `pointer-events: none !important;` on all decorative selectors. Verified by `packages/app/src/hud/LivingGlyphSoften.test.ts` (9 tests) checking underlay wrapper ceilings, glow clamp, pointer-events, import order in `main.tsx`, and theme isolation.
+
 ## 2026-11-08 — app / living card readability polish (wave/readability-polish)
 
 - **File:** `packages/app/src/hud/living-readability.css`, imported in `main.tsx` after `theme.css` and `seasons/themeStage.css`. Per-tab files (`decree-living.css`, `diplo-living.css`, `events-living.css`, `academy-living.css`, `force-ledger.css`, `*-glyph-living.css`, `market/works/unit/war/people/hold-living.css`) are untouched.

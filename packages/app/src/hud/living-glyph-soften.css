@@ -1,0 +1,396 @@
+/* --- Living glyph and underlay softening pass (bakeoff/gemini-readability-polish) ---
+ * Loaded from main.tsx after living-readability.css and theme.css.
+ * Scoped under .sc-shell to ensure living decorative underlays and glow layers
+ * never compete with card text, ledger numbers, progress bars, or action buttons.
+ * Strict pointer-events: none !important on all decorative layers. theme.css untouched.
+ */
+
+/* ==========================================================================
+   1. All Decorative Layers: Strict Pointer-Events Immunity & Base Reset
+   ========================================================================== */
+.sc-shell .sc-market-living-underlay,
+.sc-shell .sc-works-living-underlay,
+.sc-shell .sc-hold-card-underlay,
+.sc-shell .sc-people-living-underlay,
+.sc-shell .sc-unit-living-underlay,
+.sc-shell .sc-war-living-underlay,
+.sc-shell .sc-events-living-underlay,
+.sc-shell .sc-academy-living-underlay,
+.sc-shell .sc-decree-living-underlay,
+.sc-shell .sc-diplo-living-underlay,
+.sc-shell .sc-market-status-glyph,
+.sc-shell .sc-works-status-glyph,
+.sc-shell .sc-hold-living-strip,
+.sc-shell .sc-people-living-glyph,
+.sc-shell .sc-unit-status-glyph,
+.sc-shell .sc-war-status-glyph,
+.sc-shell .sc-events-status-glyph,
+.sc-shell .sc-academy-topic-glyph,
+.sc-shell .sc-academy-lectern-glyph,
+.sc-shell .sc-decree-status-glyph,
+.sc-shell .sc-diplo-crest-glyph,
+.sc-shell .sc-pact-crest-glyph,
+.sc-shell .sc-board-living,
+.sc-shell .sc-atlas-living-glyph,
+.sc-shell [class*="-living-underlay"],
+.sc-shell [class*="-living-glow"],
+.sc-shell [class*="-living-pulse"],
+.sc-shell [class*="-living-drift"] {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-shell .sc-market-living-underlay *,
+.sc-shell .sc-works-living-underlay *,
+.sc-shell .sc-hold-card-underlay *,
+.sc-shell .sc-people-living-underlay *,
+.sc-shell .sc-unit-living-underlay *,
+.sc-shell .sc-war-living-underlay *,
+.sc-shell .sc-events-living-underlay *,
+.sc-shell .sc-academy-living-underlay *,
+.sc-shell .sc-decree-living-underlay *,
+.sc-shell .sc-diplo-living-underlay *,
+.sc-shell .sc-board-living * {
+  pointer-events: none !important;
+}
+
+/* ==========================================================================
+   2. Watermark Underlays: Lower Opacity Floor across All Card Domains
+   ========================================================================== */
+
+/* Market Stall Underlays */
+.sc-shell .sc-market-living-underlay {
+  opacity: 0.14 !important;
+}
+.sc-shell .sc-market-living-underlay.is-last {
+  opacity: 0.18 !important;
+}
+.sc-shell .sc-market-living-underlay.is-short {
+  opacity: 0.11 !important;
+}
+.sc-shell .sc-market-living-underlay.is-closed {
+  opacity: 0.07 !important;
+}
+.sc-shell .sc-market-living-underlay svg {
+  opacity: 0.30 !important;
+}
+
+/* Kingdom Work Underlays */
+.sc-shell .sc-works-living-underlay {
+  opacity: 0.14 !important;
+}
+.sc-shell .sc-works-living-underlay.is-busy {
+  opacity: 0.18 !important;
+}
+.sc-shell .sc-works-living-underlay.is-short {
+  opacity: 0.11 !important;
+}
+.sc-shell .sc-works-living-underlay.is-idle {
+  opacity: 0.08 !important;
+}
+.sc-shell .sc-works-living-underlay.is-locked {
+  opacity: 0.09 !important;
+}
+.sc-shell .sc-works-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
+/* Hold Status Underlays (Works, Stores, Stamps, Key) */
+.sc-shell .sc-hold-card-underlay {
+  opacity: 0.13 !important;
+}
+.sc-shell .sc-hold-card-underlay.is-stocked,
+.sc-shell .sc-hold-card-underlay.is-active {
+  opacity: 0.17 !important;
+}
+.sc-shell .sc-hold-card-underlay.is-empty,
+.sc-shell .sc-hold-card-underlay.is-bare {
+  opacity: 0.08 !important;
+}
+.sc-shell .sc-hold-card-underlay svg {
+  opacity: 0.30 !important;
+}
+
+/* People / Citizen Trade & Idle Underlays */
+.sc-shell .sc-people-living-underlay {
+  opacity: 0.13 !important;
+}
+.sc-shell .sc-people-living-underlay.is-assigned {
+  opacity: 0.16 !important;
+}
+.sc-shell .sc-people-living-underlay.is-idle {
+  opacity: 0.09 !important;
+}
+.sc-shell .sc-people-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
+/* Army Unit Underlays */
+.sc-shell .sc-unit-living-underlay {
+  opacity: 0.14 !important;
+}
+.sc-shell .sc-unit-living-underlay.is-drilling {
+  opacity: 0.18 !important;
+}
+.sc-shell .sc-unit-living-underlay.is-short {
+  opacity: 0.11 !important;
+}
+.sc-shell .sc-unit-living-underlay.is-locked {
+  opacity: 0.07 !important;
+}
+.sc-shell .sc-unit-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
+/* War Room Force Underlays */
+.sc-shell .sc-war-living-underlay {
+  opacity: 0.13 !important;
+}
+.sc-shell .sc-war-living-underlay.is-engaged {
+  opacity: 0.16 !important;
+}
+.sc-shell .sc-war-living-underlay.is-transit {
+  opacity: 0.11 !important;
+}
+.sc-shell .sc-war-living-underlay.is-garrison {
+  opacity: 0.09 !important;
+}
+.sc-shell .sc-war-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
+/* Event Omen & Quest Scroll Underlays */
+.sc-shell .sc-events-living-underlay {
+  opacity: 0.12 !important;
+}
+.sc-shell .sc-events-living-underlay.is-ready,
+.sc-shell .sc-events-living-underlay.is-urgent {
+  opacity: 0.15 !important;
+}
+.sc-shell .sc-events-living-underlay.is-claimed,
+.sc-shell .sc-events-living-underlay.is-spent {
+  opacity: 0.07 !important;
+}
+.sc-shell .sc-events-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
+/* Academy Study Topic Underlays */
+.sc-shell .sc-academy-living-underlay {
+  opacity: 0.12 !important;
+}
+.sc-shell .sc-academy-living-underlay.status-active {
+  opacity: 0.15 !important;
+}
+.sc-shell .sc-academy-living-underlay.status-done {
+  opacity: 0.09 !important;
+}
+.sc-shell .sc-academy-living-underlay.status-locked {
+  opacity: 0.06 !important;
+}
+.sc-shell .sc-academy-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
+/* Royal Decree Seal Underlays */
+.sc-shell .sc-decree-living-underlay {
+  opacity: 0.12 !important;
+}
+.sc-shell .sc-decree-living-underlay.is-active {
+  opacity: 0.15 !important;
+}
+.sc-shell .sc-decree-living-underlay.is-ready {
+  opacity: 0.11 !important;
+}
+.sc-shell .sc-decree-living-underlay.is-cooldown {
+  opacity: 0.07 !important;
+}
+.sc-shell .sc-decree-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
+/* Diplomacy Realm & Pact Underlays */
+.sc-shell .sc-diplo-living-underlay {
+  opacity: 0.11 !important;
+}
+.sc-shell .sc-diplo-living-underlay.stance-war {
+  opacity: 0.14 !important;
+}
+.sc-shell .sc-diplo-living-underlay.stance-pact {
+  opacity: 0.13 !important;
+}
+.sc-shell .sc-diplo-living-underlay.stance-neutral {
+  opacity: 0.08 !important;
+}
+.sc-shell .sc-diplo-living-underlay svg {
+  opacity: 0.26 !important;
+}
+
+/* ==========================================================================
+   3. Glow Intensity: Toned-Down Filter Blurs and Calmed Glow Layers
+   ========================================================================== */
+
+/* War Room Force Glow & Pulse */
+.sc-shell .sc-war-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-war-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-war-drift-layer {
+  opacity: 0.52 !important;
+}
+
+/* Event Omen & Quest Scroll Glow & Pulse */
+.sc-shell .sc-events-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-events-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-events-drift-layer {
+  opacity: 0.52 !important;
+}
+
+/* Academy Study Topic Glow & Pulse */
+.sc-shell .sc-academy-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-academy-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-academy-drift-layer {
+  opacity: 0.52 !important;
+}
+
+/* Royal Decree Seal Glow & Pulse */
+.sc-shell .sc-decree-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-decree-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-decree-drift-layer {
+  opacity: 0.52 !important;
+}
+
+/* Diplomacy Realm & Pact Crest Glow & Pulse */
+.sc-shell .sc-diplo-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-diplo-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-diplo-drift-layer {
+  opacity: 0.52 !important;
+}
+
+/* Hold Living Strip Glow & Pulse */
+.sc-shell .sc-hold-living-glow {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.36 !important;
+}
+.sc-shell .sc-hold-living-pulse {
+  opacity: 0.45 !important;
+}
+
+/* People Living Walker Glow & Footpath */
+.sc-shell .sc-people-living-glow {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.36 !important;
+}
+.sc-shell .sc-people-living-footpath {
+  opacity: 0.22 !important;
+}
+.sc-shell .sc-people-living-pulse {
+  opacity: 0.45 !important;
+}
+
+/* Softened CSS Variable Glows for Cards */
+.sc-shell .sc-market-status-glyph {
+  --sc-market-glow: rgba(234, 179, 8, 0.16) !important;
+}
+.sc-shell .sc-works-status-glyph {
+  --sc-works-glow: rgba(227, 179, 65, 0.16) !important;
+}
+.sc-shell .sc-unit-status-glyph {
+  --sc-unit-glow: rgba(74, 222, 128, 0.16) !important;
+}
+.sc-shell .sc-market-glyph-icon,
+.sc-shell .sc-works-glyph-icon,
+.sc-shell .sc-unit-glyph-icon {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+}
+
+/* ==========================================================================
+   4. Board Living Atmospheric & Terrain Softening
+   ========================================================================== */
+.sc-shell .sc-board-terrain-aura {
+  opacity: 0.18 !important;
+  filter: drop-shadow(0 0 1.5px currentColor) !important;
+}
+.sc-shell .sc-board-terrain-ring {
+  stroke-opacity: 0.16 !important;
+}
+.sc-shell .sc-board-keep-hearth-glow {
+  opacity: 0.26 !important;
+}
+.sc-shell .sc-board-keep-beacon-ray {
+  opacity: 0.15 !important;
+}
+.sc-shell .sc-board-fog-cloud,
+.sc-shell .sc-board-fog-puff {
+  opacity: 0.14 !important;
+}
+.sc-shell .sc-board-status-tether {
+  opacity: 0.16 !important;
+}
+.sc-shell .sc-atlas-living-glyph {
+  stroke-opacity: 0.40 !important;
+  fill-opacity: 0.28 !important;
+}
+
+/* ==========================================================================
+   5. Inline Living Pace Glyphs
+   ========================================================================== */
+.sc-shell .sc-research-pace-aura,
+.sc-shell .sc-academy-pace-aura,
+.sc-shell .sc-training-pace-aura,
+.sc-shell .sc-upkeep-pace-aura,
+.sc-shell .sc-vision-pace-aura,
+.sc-shell .sc-wall-pace-aura,
+.sc-shell .sc-market-pace-aura {
+  opacity: 0.25 !important;
+  filter: drop-shadow(0 0 1px currentColor) !important;
+}
+
+/* ==========================================================================
+   6. Reduced Motion Support
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-shell .sc-market-living-underlay svg,
+  .sc-shell .sc-works-living-underlay svg,
+  .sc-shell .sc-hold-card-underlay svg,
+  .sc-shell .sc-people-living-underlay svg,
+  .sc-shell .sc-unit-living-underlay svg,
+  .sc-shell .sc-war-living-underlay svg,
+  .sc-shell .sc-events-living-underlay svg,
+  .sc-shell .sc-academy-living-underlay svg,
+  .sc-shell .sc-decree-living-underlay svg,
+  .sc-shell .sc-diplo-living-underlay svg,
+  .sc-shell .sc-war-glow-layer,
+  .sc-shell .sc-events-glow-layer,
+  .sc-shell .sc-academy-glow-layer,
+  .sc-shell .sc-decree-glow-layer,
+  .sc-shell .sc-diplo-glow-layer,
+  .sc-shell .sc-board-living * {
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+  }
+}

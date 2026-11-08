@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-08 — Softened living glyphs and underlays across status cards (bakeoff/gemini-readability-polish)
+
+- **Lowered watermark opacity floor:** Across all 10 card domains (Market, Works, Hold, People, Army units, War Room forces, Events & Quests, Academy studies, Royal Decrees, Diplomacy realms & pacts), corner underlay wrapper opacities are now capped at <= 0.20 (ranging from 0.07 for closed/idle states to 0.18 for active/ready states, down from earlier 0.22..0.35), with underlay SVGs softened to 0.26..0.30.
+- **Toned-down glow intensity & motion:** Clamped all glow layers (`.sc-*-glow-layer`) to drop-shadow(0 0 1px currentColor) with opacity 0.38 (down from 0.70..0.95), calmed pulse layers to 0.48, and lowered CSS variable glows to low-alpha washes (rgba(..., 0.16)).
+- **Board & pace softening:** Softened atmospheric terrain selection aura, keep beacon rays, hearth glow, and fog clouds on the board (0.14..0.26), plus inline pace halos (<= 0.25).
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/LivingGlyphSoften.test.ts` (9 tests). Sim 323, app 640, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 857ms.
+
 ## 2026-11-08 — Living card readability polish (wave/readability-polish)
 
 - **Row spacing and contrast:** Added `packages/app/src/hud/living-readability.css`, loaded from `main.tsx`. Decree, Diplomacy, Events, Study, and Force ledger rows get a 5px stack gap, `3px 6px 3px 7px` padding, `line-height: 1.35`, and an 8% tint of each row's tone. Living cards get an 8px gap.
