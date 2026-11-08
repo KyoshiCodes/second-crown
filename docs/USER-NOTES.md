@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Diplomacy cards show Realm/Pact, Stance, Power (wave/diplo-living)
+
+- Every realm card in the War tab Diplomacy grid and the World tab Known Crowns list now opens with three rows: **Realm** (crest and name), **Stance** (war, truce, friendly, wary, or hostile, plus their opinion of you), and **Power** (on the War tab, your power against theirs with a bar showing your share; on the World tab, their power once scouted).
+- Faction cards show **Pact** (seal, name, kind), **Stance** (whether you are a member, can join, or are too cold to join), and **Power** (how many realms are sworn).
+- All buttons (Declare war, Gift, Scout, Tribute, Trade, Join, Leave) work exactly as before. No game numbers changed.
+
 ## 2026-11-08 — Living decree seal glyphs on royal decree cards (bakeoff/gemini-decrees-living)
 
 - **Living decree seal emblems:** Under the Decree, Time left, and Effect rows on each royal decree card, a subtle living seal emblem now mirrors the crown's mandate:

@@ -1,3 +1,11 @@
+## 2026-11-08 — app / Diplomacy realm and pact ledger rows (wave/diplo-living)
+
+- **Files:** `packages/app/src/hud/DiploLedger.tsx` (exports `DiploLedger`, `realmLedgerRows`, `pactLedgerRows`, types `DiploLedgerKind`, `DiploLedgerTone`, `DiploLedgerRow`), `hud/diplo-living.css`, test `hud/DiploLedger.test.tsx`.
+- **Integration (`hud/RealmCard.tsx`):** `RealmCardHead` and the opinion/power lines are replaced by `<DiploLedger>` with `RealmCrestPip` (24px) as the name row's `lead`, `matchup: { mine, theirs }`. Declare/Gift buttons untouched. Card gains `is-living`. `RealmCardHead` stays exported but is no longer used in-repo.
+- **Integration (`WorldPanel.tsx`):** Known Crowns cards use `realmLedgerRows` with `power`/`scouted` (no match-up); the crest charge, era, lifestyle line, Scout line, blurb, taunt, and buttons remain. Faction cards replace `sc-work-head`/`sc-work-status` with `pactLedgerRows` and a 20px `FactionSealPip` lead; `sc-work-foot` and Join/Leave untouched.
+- **Display math only:** truce seconds = `Math.ceil(peaceLeft / 10)`; share = `round(mine / (mine + theirs) * 100)` (50 when both 0), same as the old line; cold = `stance < -10`, same as the Join button.
+- **CSS:** `diplo-living.css` is imported by `DiploLedger.tsx`. War stance row pulses, truce stance edge breathes; both off under `prefers-reduced-motion`. `theme.css` untouched.
+
 ## 2026-11-08 — app / living decree seal glyphs under royal decree cards (bakeoff/gemini-decrees-living)
 
 - **Components:** `packages/app/src/hud/DecreeLivingGlyph.tsx` exports `DecreeLivingGlyph`, `DecreeLivingUnderlay`, `getDecreeSealKind`, `resolveDecreeLiving`, and types `DecreeSealKind`, `DecreeLivingDescriptor`.

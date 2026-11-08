@@ -4,7 +4,10 @@ import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType, isScouted } from 
 import { Crest } from "./Crest";
 import { crestFor } from "./crests";
 import { getRealmFlavor } from "./content/flavor";
-import { RealmCardHead, playerStanceToward } from "./hud/RealmCard";
+import { playerStanceToward } from "./hud/RealmCard";
+import { RealmCrestPip } from "./hud/RealmCrestPip";
+import { FactionSealPip } from "./hud/FactionSealPip";
+import { DiploLedger, pactLedgerRows, realmLedgerRows } from "./hud/DiploLedger";
 import "./hud/crown-card.css";
 
 function hostLine(state: GameState, realmId: string): string {
@@ -61,13 +64,21 @@ export function WorldPanel(props: {
         const seen = isScouted(state, r.id);
         const offers = KINGDOM_OFFERS[r.id] ?? [];
         return (
-          <div key={r.id} className={`sc-realm-dip is-${stance}`} data-realm={r.id}>
-            <RealmCardHead realm={r} stance={stance} peaceLeft={peaceLeft} />
+          <div key={r.id} className={`sc-realm-dip is-${stance} is-living`} data-realm={r.id}>
+            <DiploLedger
+              rows={realmLedgerRows({
+                name: r.name,
+                nameSub: `${flavor.title} · ${ruler?.name ?? flavor.rulerName}`,
+                stance,
+                peaceLeft,
+                opinion,
+                power: seen ? power : undefined,
+                scouted: seen,
+                lead: <RealmCrestPip realmId={r.id} stance={stance} size={24} />,
+              })}
+            />
             <span className="sc-realm-dip-line">
-              {flavor.title} · {ruler?.name ?? flavor.rulerName} · {crestFor(r.id).chargeName}
-            </span>
-            <span className="sc-realm-dip-line">
-              {r.era} · {r.lifestyle} · {seen ? `power ${power}` : "power ?"} · opinion of you <strong>{opinion}</strong>
+              {crestFor(r.id).chargeName} · {r.era} · {r.lifestyle}
             </span>
             <span className="sc-realm-dip-line">
               Scout: {seen ? hostLine(state, r.id) : "unknown host"}
@@ -100,15 +111,18 @@ export function WorldPanel(props: {
         const cold = f.stance < -10;
         const tone = mine ? "is-member" : cold ? "is-cold" : "is-empty";
         return (
-          <div key={f.id} className={`sc-work-card sc-faction-card sc-crown-faction ${tone} ${mine ? "sc-faction-member" : ""}`}>
-            <div className="sc-work-head">
-              <span className="sc-work-name">{f.name}</span>
-              {f.kind ? <span className="sc-work-level">{f.kind}</span> : null}
-            </div>
-            <div className="sc-work-status">
-              Stance {f.stance}
-              {mine ? " · member" : ""}
-            </div>
+          <div key={f.id} className={`sc-work-card sc-faction-card sc-crown-faction ${tone} ${mine ? "sc-faction-member" : ""} is-living`}>
+            <DiploLedger
+              rows={pactLedgerRows({
+                name: f.name,
+                kind: f.kind,
+                stance: f.stance,
+                member: mine,
+                sworn: f.memberRealmIds.length,
+                leadsIt: f.leaderRealmId === "player",
+                lead: <FactionSealPip faction={f} isMember={mine} size={20} />,
+              })}
+            />
             <div className="sc-work-foot">
               <span className="sc-work-where">{f.memberRealmIds.length} sworn</span>
               {mine ? (

@@ -1,0 +1,111 @@
+/* --- Diplomacy: realm and pact cards open with name / stance / power rows. --- */
+.sc-realm-dip.is-living,
+.sc-crown-faction.is-living {
+  gap: 6px;
+}
+
+.sc-diplo-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  min-width: 0;
+}
+.sc-diplo-ledger-row {
+  --sc-diplo-tone: var(--chrome-btn-border, #6e7681);
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 2px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-diplo-tone);
+}
+.sc-diplo-ledger-row.tone-calm { --sc-diplo-tone: #6e7681; }
+.sc-diplo-ledger-row.tone-busy { --sc-diplo-tone: #d29922; }
+.sc-diplo-ledger-row.tone-ready { --sc-diplo-tone: #3fb950; }
+.sc-diplo-ledger-row.tone-off { --sc-diplo-tone: #f85149; }
+.sc-diplo-ledger-row.tone-truce { --sc-diplo-tone: #58a6ff; }
+
+.sc-diplo-ledger-label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.sc-diplo-ledger-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  margin: 0;
+  min-width: 0;
+  text-align: right;
+}
+.sc-diplo-ledger-row.is-name .sc-diplo-ledger-value {
+  justify-content: flex-start;
+  text-align: left;
+}
+.sc-diplo-ledger-lead {
+  display: inline-flex;
+  flex: none;
+  pointer-events: none;
+}
+.sc-diplo-ledger-main {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.sc-diplo-ledger-row.is-name .sc-diplo-ledger-main { font-weight: 600; white-space: nowrap; }
+.sc-diplo-ledger-row.is-stance .sc-diplo-ledger-main { font-weight: 600; color: var(--sc-diplo-tone); }
+.sc-diplo-ledger-row.is-stance.tone-calm .sc-diplo-ledger-main { color: inherit; }
+.sc-diplo-ledger-row.is-power.tone-ready .sc-diplo-ledger-main { color: #3fb950; }
+.sc-diplo-ledger-row.is-power.tone-off .sc-diplo-ledger-main { color: #f85149; }
+.sc-diplo-ledger-sub {
+  font-size: 10px;
+  opacity: 0.65;
+}
+
+.sc-diplo-ledger-bar {
+  grid-column: 1 / -1;
+  position: relative;
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(127, 127, 127, 0.18);
+}
+.sc-diplo-ledger-fill {
+  display: block;
+  height: 100%;
+  background: var(--sc-diplo-tone);
+  transition: width 0.4s ease;
+}
+
+/* Living touches: the stance edge pulses at war; truce breathes softly. */
+.sc-realm-dip.is-war .sc-diplo-ledger-row.is-stance {
+  animation: sc-diplo-ledger-pulse 1.6s ease-in-out infinite;
+}
+.sc-realm-dip.is-truce .sc-diplo-ledger-row.is-stance {
+  animation: sc-diplo-ledger-breathe 3s ease-in-out infinite;
+}
+
+@keyframes sc-diplo-ledger-pulse {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: inset 4px 0 6px -4px var(--sc-diplo-tone); }
+}
+@keyframes sc-diplo-ledger-breathe {
+  0%, 100% { border-left-color: var(--sc-diplo-tone); }
+  50% { border-left-color: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-diplo-ledger-row { animation: none !important; }
+  .sc-diplo-ledger-fill { transition: none; }
+}

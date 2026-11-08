@@ -1,6 +1,7 @@
 import React from "react";
 import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState } from "@second-crown/sim";
 import { RealmCrestPip } from "./RealmCrestPip";
+import { DiploLedger, realmLedgerRows } from "./DiploLedger";
 import "./realm-card.css";
 
 type Realm = GameState["realms"][number];
@@ -63,18 +64,19 @@ export function RealmCard(props: {
 }) {
   const { realm, stance, peaceLeft, opinion, myOpinion, mine, theirs } = props;
   const favored = mine >= theirs;
-  const share = mine + theirs > 0 ? Math.round((mine / (mine + theirs)) * 100) : 50;
+  const rows = realmLedgerRows({
+    name: realm.name,
+    stance,
+    peaceLeft,
+    opinion,
+    myOpinion,
+    matchup: { mine, theirs },
+    lead: <RealmCrestPip realmId={realm.id} stance={stance} size={24} />,
+  });
 
   return (
-    <div className={`sc-realm-dip is-${stance}`} data-realm={realm.id}>
-      <RealmCardHead realm={realm} stance={stance} peaceLeft={peaceLeft} />
-      <span className="sc-realm-dip-line">
-        Opinion of you <strong>{opinion}</strong>
-        {myOpinion !== undefined ? <> · yours of them {myOpinion}</> : null}
-      </span>
-      <span className={`sc-realm-dip-line ${favored ? "is-favored" : "is-unfavored"}`}>
-        Power {mine} vs {theirs} ({share}%)
-      </span>
+    <div className={`sc-realm-dip is-${stance} is-living`} data-realm={realm.id}>
+      <DiploLedger rows={rows} />
       <span className="sc-realm-dip-actions">
         <button
           type="button"

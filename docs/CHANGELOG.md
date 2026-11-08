@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-08 — Living status rows on Diplomacy realm and pact cards (wave/diplo-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- `RealmCard` (War tab) and the Known Crowns cards (World tab) now open with a `DiploLedger`: **Realm** (crest + name), **Stance** (stance label, truce seconds, opinion), **Power** (match-up with share bar on the War tab; scouted power or "?" on the World tab).
+- Faction (pact) cards on the World tab open with **Pact** (seal + name + kind), **Stance** (member / open / too cold, same -10 rule as Join), **Power** (sworn count, "you lead").
+- All existing buttons unchanged. Styles in `hud/diplo-living.css`; war stance pulses and truce breathes, both off under reduced motion.
+- Tests: `hud/DiploLedger.test.tsx` (8 tests). Sim 323, app 618, server 158 pass; `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-08 — Living decree seal glyphs under royal decree cards (bakeoff/gemini-decrees-living)
 
 - **Living decree seal strip (`DecreeLivingGlyph`):** Added left-aligned `14×14` living SVG seal emblems directly beneath `DecreeLedger` (above `.sc-decree-cost`) on all royal decree cards in `DecreeCard.tsx`, with subtle glow (`sc-decree-glow-layer`), drift (`sc-decree-drift-layer`), and pulse (`sc-decree-pulse-layer`) motion:
