@@ -65,6 +65,7 @@ import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
 import { WorkCard } from "../hud/WorkCard";
 import { OfferCard } from "../hud/OfferCard";
+import { VaultLivingCards } from "../hud/VaultLivingCard";
 import { BalanceNotes } from "../BalanceNotes";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
@@ -236,6 +237,7 @@ export function KingdomTab(props: {
           {formatLetterSuffix(String(ledgers.gold.exposed))}. Raise Keep, Mint, or Granary to hide more.
         </p>
       ) : null}
+      {state ? <VaultLivingCards state={state} /> : null}
       {packed.length > 0 ? (
         <p style={{ fontSize: 12, color: "#f85149" }}>
           Store full — extra is lost. Raise {packed.map((p) => p.label).join(", ")} to hold more {packed.map((p) => p.res).join(", ")}.

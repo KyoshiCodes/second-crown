@@ -1,3 +1,10 @@
+## 2026-11-08 — app / Kingdom tab living vault cards (wave/vault-living)
+
+- **Files:** `packages/app/src/hud/VaultLivingCard.tsx` (exports `vaultRows`, `VaultLivingCard`, `VaultLivingCards`, `VAULT_RESOURCES`, types `VaultRow`, `VaultRowKind`, `VaultRowTone`, `VaultResource`), `hud/vault-living.css`, test `hud/VaultLivingCard.test.tsx`.
+- **Integration (`tabs/KingdomTab.tsx`):** one import and `{state ? <VaultLivingCards state={state} /> : null}` directly after the existing vault ledger `<p>`. The ledger line and its hint text are unchanged.
+- **Reads only:** `resourceLedger(state, res)` → `have`, `cap`, `vault`, `exposed`, `full`. Safety tone is `safe` when `exposed <= 0`, else `warn`; Stock tone is `danger` when `full`. `cap` can be `Infinity` (uncapped store), in which case the "/ cap" sub is omitted. Numbers are floored for display and passed through `formatLetterSuffix`.
+- **CSS:** `vault-living.css` is imported by `VaultLivingCard.tsx`. Per-resource accent via `.is-food/.is-wood/.is-stone/.is-gold`; warn/danger pips pulse, disabled under `prefers-reduced-motion`. `theme.css` untouched (a test checks it holds no `sc-vault-card` rules).
+
 ## 2026-11-08 — app / living terrain glyphs under atlas province cards (bakeoff/gemini-atlas-living)
 
 - **Components:** `packages/app/src/hud/AtlasTerrainLivingGlyph.tsx` exports `AtlasTerrainLivingGlyph`, `AtlasTerrainUnderlay`, `resolveAtlasTerrainLiving`, and types `AtlasTerrainDescriptor`, `AtlasTerrainKind`.

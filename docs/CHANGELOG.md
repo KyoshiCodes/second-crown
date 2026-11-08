@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living vault cards on the Kingdom tab (wave/vault-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- Under the existing "Vault keeps (raid cannot take)" line, the Kingdom tab now shows four vault cards (Food, Wood, Stone, Gold). Each card stacks three rows: **Name** ("Food vault"), **Stock** (have / storage cap, red with "full" when the store is full), **Safety** ("All hidden" in green when stock is at or under the vault floor, otherwise "N exposed" in amber, with the floor shown beside it).
+- Every value comes from the sim's existing `resourceLedger`. The existing vault line and its "Raise Keep, Mint, or Granary" hint stay as they were. Styles in `hud/vault-living.css`.
+- Tests: `hud/VaultLivingCard.test.tsx` (6 tests). Sim 323, app 663, server 158 pass; `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-08 — Living terrain glyphs under atlas province cards (bakeoff/gemini-atlas-living)
 
 - **Living terrain glyph strips (`AtlasTerrainLivingGlyph`):** Added left-aligned 14×14 living SVG terrain emblems directly beneath the stacked rows on Overworld Atlas province cards (`AtlasProvinceCard.tsx`), with subtle glow (`sc-atlas-glow-layer`), drift (`sc-atlas-drift-layer`), and pulse (`sc-atlas-pulse-layer`) motion across Plain, Wood, Hill, Waste, Shore, Peak, and Uncharted Fog.

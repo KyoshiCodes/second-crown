@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Vault cards show Name, Stock, Safety (wave/vault-living)
+
+- On the Kingdom tab, under the "Vault keeps" line, there are now four small cards, one each for Food, Wood, Stone and Gold.
+- Each card shows the **Name** of the vault, your **Stock** (how much you have out of how much you can store; it turns red and says "full" when the store is full), and **Safety**: "All hidden" in green means a raid can take none of it, while "N exposed" in amber means that much sits above the vault floor and could be stolen.
+- The old vault line is still there. No game numbers changed.
+
 ## 2026-11-08 — Living terrain glyphs on atlas province cards (bakeoff/gemini-atlas-living)
 
 - **Living biome emblems:** Under the Name, Terrain, and Owner rows on each province card under the Kingdom Atlas, a subtle living terrain badge now reflects the biome and landmarks of the tile:
