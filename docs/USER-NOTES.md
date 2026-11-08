@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living vault seal glyphs on Kingdom vault cards (bakeoff/gemini-vault-living)
+
+- **Living security seals:** Under the Name, Stock, and Safety rows on each vault card on the Kingdom tab, a subtle living seal now displays the protection status and vault craft of the store:
+  - **Granary Cellar (Food):** Arched cellar door with iron padlock, seed rivets, and harvest fronds.
+  - **Timber Storehouse (Wood):** Heavy mortised timber crossbrace with bronze deadbolt.
+  - **Masonry Crypt (Stone):** Ashlar keystone arch with dual interlocking deadbolts.
+  - **Royal Treasury (Gold):** Octagonal coin vault strongbox with radial dial rivets and solar star tumbler.
+- **Safety-aware motion:** When all stores are below the vault floor, the seal glows a peaceful emerald green with a gentle drift; when stores sit exposed above the floor, a warning amber pulse marks the exposed amount; and when storage caps are reached, a rapid alert pulse signals the brim.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each card, keeping numbers and safety floors crisp. No game numbers changed.
+
 ## 2026-11-08 — Vault cards show Name, Stock, Safety (wave/vault-living)
 
 - On the Kingdom tab, under the "Vault keeps" line, there are now four small cards, one each for Food, Wood, Stone and Gold.

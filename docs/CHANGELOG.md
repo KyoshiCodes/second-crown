@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living vault seal glyphs under vault cards (bakeoff/gemini-vault-living)
+
+- **Living vault seal glyph strips (`VaultSealLivingGlyph`):** Added left-aligned 14×14 living SVG security seals directly beneath the stacked rows on Kingdom vault cards (`VaultLivingCard.tsx`), with subtle glow (`sc-vault-glow-layer`), pulse (`sc-vault-pulse-layer`), and drift (`sc-vault-drift-layer`) motion across Food (cellar hatch), Wood (timber deadbolt), Stone (crypt keystone), and Gold (treasury dial).
+- **Corner-confined card watermarks (`VaultSealUnderlay`):** Added 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.11..0.18` wrapper, `0.28` child SVG) inside `.sc-vault-card.is-living` so stock numbers, safety floors, and full indicators remain completely unobstructed.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/VaultSealLivingGlyph.test.tsx` (10 tests) and updated `LivingGlyphSoften.test.ts`. Sim 323, app 673, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 694ms.
+
 ## 2026-11-08 — Living vault cards on the Kingdom tab (wave/vault-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

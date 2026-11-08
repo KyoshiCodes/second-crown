@@ -1,3 +1,10 @@
+## 2026-11-08 — app / living vault seal glyphs under vault cards (bakeoff/gemini-vault-living)
+
+- **Components:** `packages/app/src/hud/VaultSealLivingGlyph.tsx` exports `VaultSealLivingGlyph`, `VaultSealUnderlay`, `resolveVaultSealDescriptor`, and types `VaultSealDescriptor`, `VaultSealStatus`.
+- **Integration (`hud/VaultLivingCard.tsx`):** `VaultLivingCard` mounts `<VaultSealUnderlay state res />` at `z-index: 0` inside `.sc-vault-card`, rows at `z-index: 1`, and `<VaultSealLivingGlyph state res />` (`z-index: 1`) beneath the rows.
+- **Scoping & readability (`vault-living.css`, `living-glyph-soften.css`):** Scoped via `.sc-vault-card.is-living` with foreground children at `z-index: 1` and `.sc-vault-seal-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.11..0.18`, and underlay SVG opacity `0.28`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/VaultSealLivingGlyph.test.tsx` (10 tests) covers descriptor resolution across food/wood/stone/gold, safe/exposed/full states, 14×14 living glyph layers, 34×34 underlay watermark, phrasing-only markup, and CSS isolation. `LivingGlyphSoften.test.ts` updated to assert vault underlay and glow layer coverage.
+
 ## 2026-11-08 — app / Kingdom tab living vault cards (wave/vault-living)
 
 - **Files:** `packages/app/src/hud/VaultLivingCard.tsx` (exports `vaultRows`, `VaultLivingCard`, `VaultLivingCards`, `VAULT_RESOURCES`, types `VaultRow`, `VaultRowKind`, `VaultRowTone`, `VaultResource`), `hud/vault-living.css`, test `hud/VaultLivingCard.test.tsx`.

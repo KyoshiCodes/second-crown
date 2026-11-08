@@ -1,5 +1,6 @@
 import React from "react";
 import { formatLetterSuffix, resourceLedger, type GameState } from "@second-crown/sim";
+import { VaultSealLivingGlyph, VaultSealUnderlay } from "./VaultSealLivingGlyph";
 import "./vault-living.css";
 
 /**
@@ -61,6 +62,7 @@ export function VaultLivingCard(props: { state: GameState; res: VaultResource })
       className={`sc-vault-card is-living is-${props.res} ${safe ? "is-safe" : "is-exposed"}`}
       aria-label={`${NAME[props.res]} vault`}
     >
+      <VaultSealUnderlay state={props.state} res={props.res} />
       <dl className="sc-vault-card-rows">
         {rows.map((r) => (
           <div key={r.kind} className={`sc-vault-card-row is-${r.kind} tone-${r.tone}`}>
@@ -75,6 +77,7 @@ export function VaultLivingCard(props: { state: GameState; res: VaultResource })
           </div>
         ))}
       </dl>
+      <VaultSealLivingGlyph state={props.state} res={props.res} />
     </section>
   );
 }

@@ -26,6 +26,13 @@
 .sc-vault-card.is-gold { --sc-vault-res: #f2cc60; }
 .sc-vault-card.is-exposed { box-shadow: inset 0 0 0 1px rgba(210, 153, 34, 0.12); }
 
+/* Foreground layers inside .sc-vault-card stay crisp and above the underlay */
+.sc-vault-card-rows,
+.sc-vault-seal-glyph {
+  position: relative;
+  z-index: 1;
+}
+
 .sc-vault-card-rows {
   display: flex;
   flex-direction: column;
@@ -95,13 +102,143 @@
   font-family: monospace;
 }
 
+/* --- Living Seal Watermark Underlay --- */
+.sc-vault-seal-underlay {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  pointer-events: none !important;
+  user-select: none;
+  z-index: 0;
+  opacity: 0.13;
+  mask-image: radial-gradient(circle at 75% 75%, black 45%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at 75% 75%, black 45%, transparent 78%);
+}
+.sc-vault-seal-underlay.is-food { color: #e3b341; }
+.sc-vault-seal-underlay.is-wood { color: #8b5a2b; }
+.sc-vault-seal-underlay.is-stone { color: #8b949e; }
+.sc-vault-seal-underlay.is-gold { color: #f2cc60; }
+
+.sc-vault-seal-underlay.is-safe { opacity: 0.11; }
+.sc-vault-seal-underlay.is-exposed { opacity: 0.15; }
+.sc-vault-seal-underlay.is-full { opacity: 0.18; }
+
+.sc-vault-seal-underlay svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.28;
+  animation: sc-vault-underlay-breathe 4.5s ease-in-out infinite;
+}
+
+/* --- Living Vault Seal Glyph Strip --- */
+.sc-vault-seal-glyph {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 10px;
+  line-height: 1.2;
+  pointer-events: none !important;
+  user-select: none;
+}
+.sc-vault-seal-glyph.tone-safe { --sc-vault-tone: #3fb950; }
+.sc-vault-seal-glyph.tone-warn { --sc-vault-tone: #d29922; }
+.sc-vault-seal-glyph.tone-danger { --sc-vault-tone: #f85149; }
+
+.sc-vault-seal-svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  overflow: visible;
+  display: block;
+}
+
+.sc-vault-seal-label {
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sc-vault-tone);
+}
+
+.sc-vault-seal-sep {
+  opacity: 0.4;
+  font-size: 9px;
+  color: #6e7681;
+}
+
+.sc-vault-seal-flair {
+  color: #8b949e;
+  font-size: 9.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Living Seal Animation Layers */
+.sc-vault-glow-layer {
+  opacity: 0.38;
+  filter: drop-shadow(0 0 1px currentColor);
+  animation: sc-vault-glow-breathe 3.2s ease-in-out infinite;
+}
+
+.sc-vault-pulse-layer {
+  opacity: 0.48;
+  transform-origin: center;
+}
+.sc-vault-seal-glyph.motion-pulse .sc-vault-pulse-layer {
+  animation: sc-vault-seal-pulse 2.2s ease-in-out infinite;
+}
+
+.sc-vault-drift-layer {
+  opacity: 0.52;
+}
+.sc-vault-seal-glyph.motion-drift .sc-vault-drift-layer {
+  animation: sc-vault-seal-drift 3.8s ease-in-out infinite alternate;
+}
+
 @keyframes sc-vault-pip-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.55; transform: scale(1.25); }
 }
 
+@keyframes sc-vault-glow-breathe {
+  0%, 100% { opacity: 0.30; }
+  50% { opacity: 0.48; }
+}
+
+@keyframes sc-vault-seal-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.45; }
+  50% { transform: scale(1.08); opacity: 0.70; }
+}
+
+@keyframes sc-vault-seal-drift {
+  0% { transform: translateX(0); opacity: 0.45; }
+  100% { transform: translateX(1.5px); opacity: 0.65; }
+}
+
+@keyframes sc-vault-underlay-breathe {
+  0%, 100% { opacity: 0.24; transform: scale(1); }
+  50% { opacity: 0.32; transform: scale(1.04); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sc-vault-card-pip { animation: none !important; }
+  .sc-vault-card-pip,
+  .sc-vault-seal-underlay svg,
+  .sc-vault-glow-layer,
+  .sc-vault-pulse-layer,
+  .sc-vault-drift-layer {
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+  }
 }
 
 @media (max-width: 420px) {

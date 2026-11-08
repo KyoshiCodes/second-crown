@@ -32,6 +32,8 @@
 .sc-shell .sc-pact-crest-glyph,
 .sc-shell .sc-atlas-terrain-glyph,
 .sc-shell .sc-atlas-terrain-underlay,
+.sc-shell .sc-vault-seal-glyph,
+.sc-shell .sc-vault-seal-underlay,
 .sc-shell .sc-board-living,
 .sc-shell .sc-atlas-living-glyph,
 .sc-shell [class*="-living-underlay"],
@@ -52,6 +54,7 @@
 .sc-shell .sc-academy-living-underlay *,
 .sc-shell .sc-decree-living-underlay *,
 .sc-shell .sc-diplo-living-underlay *,
+.sc-shell .sc-vault-seal-underlay *,
 .sc-shell .sc-board-living * {
   pointer-events: none !important;
 }
@@ -228,6 +231,24 @@
   opacity: 0.26 !important;
 }
 
+
+/* Vault Seal Underlays */
+.sc-shell .sc-vault-seal-underlay {
+  opacity: 0.13 !important;
+}
+.sc-shell .sc-vault-seal-underlay.is-full {
+  opacity: 0.18 !important;
+}
+.sc-shell .sc-vault-seal-underlay.is-exposed {
+  opacity: 0.15 !important;
+}
+.sc-shell .sc-vault-seal-underlay.is-safe {
+  opacity: 0.11 !important;
+}
+.sc-shell .sc-vault-seal-underlay svg {
+  opacity: 0.28 !important;
+}
+
 /* Atlas Province Terrain Underlays */
 .sc-shell .sc-atlas-terrain-underlay {
   opacity: 0.13 !important;
@@ -297,6 +318,19 @@
   opacity: 0.48 !important;
 }
 .sc-shell .sc-diplo-drift-layer {
+  opacity: 0.52 !important;
+}
+
+
+/* Vault Seal Living Glyph Glow, Pulse, Drift */
+.sc-shell .sc-vault-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-vault-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-vault-drift-layer {
   opacity: 0.52 !important;
 }
 
@@ -393,6 +427,10 @@
   .sc-shell .sc-academy-living-underlay svg,
   .sc-shell .sc-decree-living-underlay svg,
   .sc-shell .sc-diplo-living-underlay svg,
+  .sc-shell .sc-vault-seal-underlay svg,
+  .sc-shell .sc-vault-glow-layer,
+  .sc-shell .sc-vault-pulse-layer,
+  .sc-shell .sc-vault-drift-layer,
   .sc-shell .sc-war-glow-layer,
   .sc-shell .sc-events-glow-layer,
   .sc-shell .sc-academy-glow-layer,
