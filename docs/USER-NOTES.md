@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Resource cards are easier to read (wave/resource-living)
+
+- The four resource cards at the top (Food, Wood, Stone, Gold) now show three short lines: the name, **Stock** (how much you have, out of your storage limit, with a small bar) and **Income** (how much you gain per second, or *idle* if nothing is coming in).
+- Full and bare stores still glow the same way. No game numbers changed.
+
 ## 2026-11-08 — Living flag and camp glyphs on flag cards (bakeoff/gemini-flag-living)
 
 - **Living flags & camps:** Under the Name, Camp, Flag, and Stock rows on each Flags card in the Kingdom tab, a subtle living emblem now portrays the territory's operational status:

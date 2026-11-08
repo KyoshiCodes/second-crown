@@ -1,3 +1,10 @@
+## 2026-11-08 — app / richer living Resource strip cards (wave/resource-living)
+
+- **Component:** `ResourceHud` in `packages/app/src/hud/ResourceHud.tsx` now renders each `.sc-ledger-cell` with extra classes `sc-resource-living is-<resource>` and a `.sc-resource-living-rows` stack: `is-name` (existing `.sc-ledger-name`), `is-amount` (label + existing `.sc-ledger-amount` + optional `.sc-resource-living-meter`), `is-income` (label + `.sc-ledger-rate`, `is-earning` / `is-idle`). The income row now always renders (`idle` text) instead of disappearing.
+- **Sources:** unchanged — `resources`, `income`, `resourceLedger(state, r)`, `isFoodStoresEmptyOrLow`. New local `meterPct(have, cap)` is display-only (clamped 0..100, `null` when cap is missing/infinite).
+- **CSS:** new `hud/resource-living.css`; every selector under `.sc-resource-living*`. Existing `.sc-ledger-*` rules in `theme.css` still apply (untouched). Meter transition/breathe off under `prefers-reduced-motion`; labels hidden below 520px.
+- **Tests:** new `hud/ResourceHud.test.tsx` (stateless render: four cards x three rows, income vs idle, no meter without state/cap).
+
 ## 2026-11-08 — app / living flag/camp glyphs under flag cards (bakeoff/gemini-flag-living)
 
 - **Components:** `packages/app/src/hud/FlagLivingGlyph.tsx` exports `FlagLivingGlyph`, `FlagLivingUnderlay`, `resolveFlagGlyphDescriptor`, `resolveFlagGlyphDescriptorByValues`, and types `FlagGlyphDescriptor`, `FlagMood`, `FlagGlyphTone`. `OutpostLivingCard.tsx` also exports `FlagLivingCard` as an alias.

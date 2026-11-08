@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-08 — Richer living Resource strip cards (wave/resource-living)
+
+- **Resource cards (`ResourceHud`):** Food, Wood, Stone and Gold cards stack Name, **Stock** (amount / cap with a thin meter when capped) and **Income** (`+N/s` or dim *idle*) rows. Per-resource tone on the stock rule and meter; full/bare meters breathe (off under reduced motion).
+- **Layout:** small uppercase row labels (hidden under 520px), dashed rule above the income row. New `hud/resource-living.css`, scoped to `.sc-resource-living*`.
+- **Controls:** tooltip, list roles, full/bare tones and pips kept as-is.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`.
+- **Tests:** new `hud/ResourceHud.test.tsx` (row stack, income/idle, no meter without cap).
+
 ## 2026-11-08 — Living flag/camp glyphs under flag cards (bakeoff/gemini-flag-living)
 
 - **Living flag glyph strips (`FlagLivingGlyph`):** Added left-aligned 14×14 living SVG flag and camp emblems directly beneath the stacked rows on Kingdom tab 4-row Flags cards (`OutpostLivingCard.tsx`), with subtle glow (`sc-flag-glow-layer`), pulse (`sc-flag-pulse-layer`), and drift (`sc-flag-drift-layer`) motion across Threatened (alert pulse redoubt), Guarded (garrison flag with realm swallowtail banner and stock flair), and Bare (frontier claim) states.

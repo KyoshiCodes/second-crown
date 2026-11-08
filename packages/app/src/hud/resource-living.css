@@ -1,0 +1,108 @@
+/* --- Resource strip: richer living status layout. ---
+ * Scoped to .sc-resource-living, which sits on the same element as .sc-ledger-cell.
+ * Stacks Name / Stock / Income rows; builds on the ledger styles in theme.css (untouched). */
+
+.sc-resource-living {
+  --sc-resource-tone: var(--chrome-accent, #c9b48a);
+}
+.sc-resource-living.is-food  { --sc-resource-tone: #b9d27a; }
+.sc-resource-living.is-wood  { --sc-resource-tone: #c8955a; }
+.sc-resource-living.is-stone { --sc-resource-tone: #a7b0bb; }
+.sc-resource-living.is-gold  { --sc-resource-tone: #e3b341; }
+.sc-resource-living.is-full  { --sc-resource-tone: #fbbf5a; }
+.sc-resource-living.is-empty { --sc-resource-tone: #f87171; }
+
+.sc-resource-living-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sc-resource-living-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  border-left: 2px solid transparent;
+  border-radius: 0 3px 3px 0;
+}
+
+/* Name row reads as the card title; no left rule so the pip sits flush. */
+.sc-resource-living-row.is-name {
+  padding-left: 0;
+  align-items: center;
+}
+
+/* Stock row: tinted rule in the resource's tone. */
+.sc-resource-living-row.is-amount {
+  border-left-color: var(--sc-resource-tone);
+  background: rgba(255, 255, 255, 0.025);
+}
+.sc-resource-living-row.is-amount .sc-ledger-amount {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Income row: faint dashed rule above, dims when idle. */
+.sc-resource-living-row.is-income {
+  border-top: 1px dashed rgba(200, 150, 62, 0.18);
+}
+.sc-resource-living-row.is-income.is-earning {
+  border-left-color: rgba(120, 200, 120, 0.55);
+}
+.sc-resource-living-row.is-income.is-earning .sc-ledger-rate {
+  opacity: 0.85;
+}
+.sc-resource-living .sc-ledger-rate.is-idle {
+  font-style: italic;
+  opacity: 0.4;
+}
+
+.sc-resource-living-label {
+  flex: 0 0 auto;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+/* Thin stock meter under the amount (display-only). */
+.sc-resource-living-meter {
+  position: relative;
+  display: block;
+  flex: 1 0 100%;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(110, 118, 129, 0.22);
+  pointer-events: none;
+}
+.sc-resource-living-meter-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: block;
+  border-radius: 2px;
+  background: var(--sc-resource-tone);
+  transition: width 0.6s ease-out;
+}
+.sc-resource-living.is-full .sc-resource-living-meter-fill,
+.sc-resource-living.is-empty .sc-resource-living-meter-fill {
+  animation: sc-resource-meter-breathe 2.4s ease-in-out infinite;
+}
+@keyframes sc-resource-meter-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-resource-living-meter-fill { transition: none; animation: none !important; }
+}
+
+/* Narrow screens: tighten the stack so four cards still fit one row. */
+@media (max-width: 520px) {
+  .sc-resource-living-label { display: none; }
+  .sc-resource-living-row { padding-left: 3px; }
+}
