@@ -1,3 +1,11 @@
+## 2026-11-08 — app / ProvinceInspect living node card (wave/node-living)
+
+- **Files:** new `packages/app/src/hud/NodeLivingCard.tsx` (exports `NodeLivingCard`, `nodeRows(state, provinceId)`, types `NodeRow`, `NodeRowKind`, `NodeRowTone`), new `hud/node-living.css`, new test `hud/NodeLivingCard.test.tsx`. `ProvinceInspect.tsx` renders `<NodeLivingCard>` where the node stock line and `.sc-inspect-stock-badge` span were; it dropped its now-unused `stockMax`/`badge` locals and the `NODE_REGEN_PERIOD`/`nodeStockMax`/`stockBadge` imports.
+- **Markup:** `<section class="sc-node-card is-living is-<node> is-full|is-draining|is-dry">` → `<dl class="sc-node-card-rows">` with `.sc-node-card-row.is-name|is-stock|is-pile.tone-<tone>`, then `.sc-node-card-meter > .sc-node-card-meter-fill` (width = have/max, display only).
+- **Reads:** `nodeStock`, `nodeStockMax`, `storedNodeStock` (null → "Untouched"), `GATHER_NODES[node].resource`, `NODE_REGEN_PERIOD`, `stockBadge`. `nodeRows` returns null for unseen or non-gather tiles. Pure; a test asserts state is byte-identical after render.
+- **Controls:** Gather here / Tile is dry button, force picker, recall, and the `<res> left` fact are untouched.
+- **CSS:** scoped to `.sc-node-card`, mirrors `vault-living.css` (row grid, tone pips, pulse on warn/danger). Label opacity 0.72, sub 0.68. Reduced motion turns off the pip pulse and meter transition. `theme.css`, `inspect-card.css` untouched.
+
 ## 2026-11-08 — app / living quill glyphs under ledger cards (bakeoff/gemini-ledger-living)
 
 - **Components:** `packages/app/src/hud/QuillLivingGlyph.tsx` exports `QuillLivingGlyph`, `QuillLivingUnderlay`, `resolveQuillDescriptor`, and types `QuillDescriptor`, `QuillDescriptorTone`.

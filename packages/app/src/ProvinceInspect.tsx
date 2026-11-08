@@ -1,7 +1,6 @@
 import React from "react";
 import {
   GATHER_NODES,
-  NODE_REGEN_PERIOD,
   activePlayerMarch,
   campThreat,
   currentSeason,
@@ -22,7 +21,6 @@ import {
   listUnitTypes,
   maxMarches,
   nodeStock,
-  nodeStockMax,
   outpostTithePerTick,
   scoutCost,
   settlementName,
@@ -48,7 +46,7 @@ import { peakLine } from "./hud/peakLine";
 import { hillLine } from "./hud/hillLine";
 import { wasteLine } from "./hud/wasteLine";
 import { plainLine } from "./hud/plainLine";
-import { stockBadge } from "./hud/stockBadge";
+import { NodeLivingCard } from "./hud/NodeLivingCard";
 import { clashLine } from "./hud/clashLine";
 import { incomingLine } from "./hud/incomingLine";
 import { trailLine } from "./hud/trailLine";
@@ -166,7 +164,6 @@ export function ProvinceInspect(props: {
   const goldHint = scoutGoldHint(state);
   const canGather = seen && p.node in GATHER_NODES;
   const stock = canGather ? nodeStock(state, selectedId) : 0;
-  const stockMax = canGather ? nodeStockMax(p.node) : 0;
   const stored = canGather ? storedNodeStock(state, selectedId) : null;
   const stockRes = canGather ? GATHER_NODES[p.node as keyof typeof GATHER_NODES].resource : "";
   // Same count the sim refuses on: every player column, returning gathers included.
@@ -199,7 +196,6 @@ export function ProvinceInspect(props: {
   const hill = hillLine(seen, p.terrain);
   const waste = wasteLine(seen, p.terrain);
   const plain = plainLine(seen, p.terrain);
-  const badge = canGather ? stockBadge(stock, stockMax) : null;
   const clash = clashLine(state, selectedId);
   const incomingNote = incomingLine(state, selectedId);
   const trail = trailLine(state, selectedId);
@@ -257,14 +253,7 @@ export function ProvinceInspect(props: {
           ) : null}
         </dl>
         {!seen ? <div className="sc-inspect-line">Fog hides the token.</div> : null}
-        {canGather ? (
-          <div className="sc-inspect-line">
-            {NODE[p.node] ?? p.node} {stock}/{stockMax}
-            {stock < stockMax ? ` · refills +1 / ${NODE_REGEN_PERIOD / 10}s` : ""}
-            {stock <= 0 ? " · dry" : ""}
-          </div>
-        ) : null}
-        {badge ? <span className="sc-inspect-stock-badge">Board badge {badge}</span> : null}
+        {canGather ? <NodeLivingCard state={state} provinceId={selectedId} /> : null}
         {clash ? <div className="sc-inspect-line sc-inspect-clash">{clash}</div> : null}
         {incomingNote ? <div className="sc-inspect-line sc-inspect-incoming">{incomingNote}</div> : null}
         {trail ? <div className="sc-inspect-line sc-inspect-trail">{trail}</div> : null}

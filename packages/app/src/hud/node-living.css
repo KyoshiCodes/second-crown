@@ -1,0 +1,116 @@
+/* --- ProvinceInspect: living node card (name / stock / pile) for a seen gather node. --- */
+.sc-node-card {
+  --sc-node-res: #c8963e;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  margin: 4px 0 6px;
+  padding: 6px 8px;
+  background: rgba(12, 16, 20, 0.72);
+  border: 1px solid #4a3a1e;
+  border-top: 2px solid var(--sc-node-res);
+  border-radius: 8px;
+}
+.sc-node-card.is-woodcut { --sc-node-res: #8b5a2b; }
+.sc-node-card.is-quarry { --sc-node-res: #8b949e; }
+.sc-node-card.is-field { --sc-node-res: #e3b341; }
+.sc-node-card.is-draining { box-shadow: inset 0 0 0 1px rgba(210, 153, 34, 0.12); }
+.sc-node-card.is-dry { box-shadow: inset 0 0 0 1px rgba(248, 81, 73, 0.14); }
+
+.sc-node-card-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+}
+
+.sc-node-card-row {
+  --sc-node-tone: #6e7681;
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  align-items: center;
+  column-gap: 6px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-node-tone);
+}
+.sc-node-card-row.tone-calm { --sc-node-tone: #6e7681; }
+.sc-node-card-row.tone-safe { --sc-node-tone: #3fb950; }
+.sc-node-card-row.tone-warn { --sc-node-tone: #d29922; }
+.sc-node-card-row.tone-danger { --sc-node-tone: #f85149; }
+.sc-node-card-row.is-name { --sc-node-tone: var(--sc-node-res); }
+
+.sc-node-card-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+.sc-node-card-pip {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--sc-node-tone);
+}
+.sc-node-card-row.tone-warn .sc-node-card-pip,
+.sc-node-card-row.tone-danger .sc-node-card-pip {
+  animation: sc-node-pip-pulse 2.2s ease-in-out infinite;
+}
+
+.sc-node-card-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  margin: 0;
+  min-width: 0;
+  text-align: right;
+}
+.sc-node-card-row.is-name .sc-node-card-value { justify-content: flex-start; text-align: left; }
+.sc-node-card-main {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.sc-node-card-sub {
+  font-size: 10px;
+  opacity: 0.68;
+  font-family: monospace;
+}
+
+.sc-node-card-meter {
+  height: 3px;
+  margin-top: 1px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(110, 118, 129, 0.22);
+  pointer-events: none;
+}
+.sc-node-card-meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--sc-node-res);
+  transition: width 0.6s ease;
+}
+.sc-node-card.is-dry .sc-node-card-meter-fill { background: #f85149; }
+
+@keyframes sc-node-pip-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.25); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-node-card-pip { animation: none !important; }
+  .sc-node-card-meter-fill { transition: none; }
+}

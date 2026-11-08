@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-08 — Living node card in ProvinceInspect (wave/node-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- Selecting a seen gather node (Timber stand, Stone outcrop, Forage field) now shows a living node card in the Tile group that stacks three rows: **Name** (node name with its resource), **Stock** (`have/max`, "full", or the refill pace, red "dry" at zero) and **Pile** ("Untouched" or "N <res> left", with the board badge text), plus a thin stock meter.
+- Replaces the old one-line node stock text and the "Board badge" span. The `<res> left` fact and the Gather here / Tile is dry button are unchanged.
+- Values come only from `nodeStock`, `nodeStockMax`, `storedNodeStock`, `GATHER_NODES`, `NODE_REGEN_PERIOD`, and `stockBadge`. Styles in new `hud/node-living.css`.
+- Tests: `hud/NodeLivingCard.test.tsx` (7 tests). Sim 323, app 694, server 158 pass; `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-08 — Living quill glyphs under ledger cards (bakeoff/gemini-ledger-living)
 
 - **Living quill glyph strips (`QuillLivingGlyph`):** Added left-aligned 14×14 living SVG chronicler quills directly beneath the stacked rows on Ledger of Crowns cards (`LedgerCard.tsx`), with subtle glow (`sc-ledger-glow-layer`), pulse (`sc-ledger-pulse-layer`), and drift (`sc-ledger-drift-layer`) motion across Martial (crimson rubric), Triumph (gilded illumination), Crown (royal court script), and Archive entries.

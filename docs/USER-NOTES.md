@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Resource nodes show Name, Stock and Pile (wave/node-living)
+
+- Click a scouted Timber stand, Stone outcrop or Forage field on the board. In the side card, the stock line is now a small card with three rows.
+- **Name** is the node and what it gives (for example "Timber stand · Wood").
+- **Stock** shows how much is left out of the max. It says "full" when full, shows how fast it refills when it is being used, and turns red with "dry" when empty.
+- **Pile** says "Untouched" if nobody has gathered there yet, otherwise how much is left. It also shows the same count as the board badge.
+- A thin bar under the rows empties as the node is drained.
+- The Gather here button works the same. No game numbers changed.
+
 ## 2026-11-08 — Living quill glyphs on Ledger of Crowns cards (bakeoff/gemini-ledger-living)
 
 - **Living chronicler quills:** Under the Time and Entry rows on each Chronicle card in the Ledger of Crowns on the Crown tab, a subtle living quill and scribe rubrication label now marks the nature of the entry:
