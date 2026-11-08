@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living camp/flag glyphs under outpost cards (bakeoff/gemini-outpost-living)
+
+- **Living outpost glyph strips (`OutpostLivingGlyph`):** Added left-aligned 14×14 living SVG camp and flag emblems directly beneath the stacked rows on Kingdom tab outpost cards (`OutpostLivingCard.tsx`), with subtle glow (`sc-outpost-glow-layer`), pulse (`sc-outpost-pulse-layer`), and drift (`sc-outpost-drift-layer`) motion across Threatened (alert pulse redoubt), Guarded (garrison camp tent with heraldic banner), and Bare (frontier flag) states.
+- **Corner-confined card watermarks (`OutpostLivingUnderlay`):** Added 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.10..0.16` wrapper, `0.28` child SVG) inside `.sc-outpost-card.is-living` depicting command pavilion, flying banner, and palisade stakes without obstructing text or Abandon action.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/OutpostLivingGlyph.test.tsx` (9 tests) and updated `LivingGlyphSoften.test.ts`. Sim 323, app 722, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 654ms.
+
 ## 2026-11-08 — Living outpost cards on the Kingdom tab (wave/outpost-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

@@ -1,6 +1,7 @@
 import React from "react";
 import { garrisonAt, garrisonPower, incomingOnProvince, type GameState } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
+import { OutpostLivingGlyph, OutpostLivingUnderlay } from "./OutpostLivingGlyph";
 import "./outpost-living.css";
 
 /**
@@ -89,11 +90,13 @@ export function OutpostLivingCard(props: {
   const posted = Boolean(garrisonAt(state, province.id));
   const hit = Boolean(incomingOnProvince(state, province.id));
   const mood = hit ? "is-threatened" : posted ? "is-guarded" : "is-bare";
+  const rawMood = hit ? "threatened" : posted ? "guarded" : "bare";
   return (
     <section
       className={`sc-outpost-card is-living is-${province.node} ${mood}`}
       aria-label={`${NODE_NAME[province.node] ?? province.node} flag at ${province.x},${province.y}`}
     >
+      <OutpostLivingUnderlay mood={rawMood} />
       <dl className="sc-outpost-card-rows">
         {rows.map((r) => (
           <div key={r.kind} className={`sc-outpost-card-row is-${r.kind} tone-${r.tone}`}>
@@ -108,6 +111,7 @@ export function OutpostLivingCard(props: {
           </div>
         ))}
       </dl>
+      <OutpostLivingGlyph state={state} province={province} nameOf={nameOf} />
     </section>
   );
 }

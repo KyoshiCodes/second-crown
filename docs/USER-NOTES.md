@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living camp and flag glyphs on outpost cards (bakeoff/gemini-outpost-living)
+
+- **Living outposts & camps:** Under the Name, Camp, and Flag rows on each outpost card in the Kingdom tab (Flags section), a subtle living emblem now portrays the camp's readiness:
+  - **Guarded Camp:** Fortified command pavilion and banner fluttering in calm emerald green when soldiers are garrisoned.
+  - **Frontier Flag:** Lone outpost banner flying in amber caution over an unattended territorial claim.
+  - **Threatened Redoubt:** Alert pulsing beacon in crimson warning whenever a rival host marches toward the outpost, displaying ETA and the marching realm.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each card, keeping garrison power, threat warnings, and Abandon buttons crisp. No game numbers changed.
+
 ## 2026-11-08 — Flags show Name, Camp and Flag (wave/outpost-living)
 
 - Open the Kingdom tab and scroll to **Flags**. Each of your outposts is now a small card with three rows.

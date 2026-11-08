@@ -1,3 +1,10 @@
+## 2026-11-08 — app / living camp/flag glyphs under outpost cards (bakeoff/gemini-outpost-living)
+
+- **Components:** `packages/app/src/hud/OutpostLivingGlyph.tsx` exports `OutpostLivingGlyph`, `OutpostLivingUnderlay`, `resolveOutpostGlyphDescriptor`, `resolveOutpostGlyphDescriptorByValues`, and types `OutpostGlyphDescriptor`, `OutpostMood`, `OutpostGlyphTone`.
+- **Integration (`hud/OutpostLivingCard.tsx`):** `OutpostLivingCard` mounts `<OutpostLivingUnderlay mood={rawMood} />` at `z-index: 0` inside `.sc-outpost-card.is-living`, rows at `z-index: 1`, and `<OutpostLivingGlyph state={state} province={province} nameOf={nameOf} />` (`z-index: 1`) beneath the rows.
+- **Scoping & readability (`outpost-living.css`, `living-glyph-soften.css`):** Scoped via `.sc-outpost-card.is-living` with foreground children at `z-index: 1` and `.sc-outpost-living-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.10..0.16`, and underlay SVG opacity `0.28`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/OutpostLivingGlyph.test.tsx` (9 tests) covers descriptor resolution across threatened/guarded/bare states, 14×14 living glyph layers, 34×34 underlay watermark, phrasing-only markup, and CSS isolation. `LivingGlyphSoften.test.ts` updated to assert outpost underlay and glow layer coverage.
+
 
 ## 2026-11-08 — app / Kingdom tab living outpost cards (wave/outpost-living)
 

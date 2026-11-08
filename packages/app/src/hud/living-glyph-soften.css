@@ -39,6 +39,8 @@
 .sc-shell .sc-node-pile-glyph,
 .sc-shell .sc-node-pile-underlay,
 .sc-shell .sc-node-living-underlay,
+.sc-shell .sc-outpost-living-glyph,
+.sc-shell .sc-outpost-living-underlay,
 .sc-shell .sc-board-living,
 .sc-shell .sc-atlas-living-glyph,
 .sc-shell [class*="-living-underlay"],
@@ -63,6 +65,7 @@
 .sc-shell .sc-quill-living-underlay *,
 .sc-shell .sc-node-pile-underlay *,
 .sc-shell .sc-node-living-underlay *,
+.sc-shell .sc-outpost-living-underlay *,
 .sc-shell .sc-board-living * {
   pointer-events: none !important;
 }
@@ -396,6 +399,18 @@
   opacity: 0.52 !important;
 }
 
+/* Outpost Living Camp/Flag Glow, Pulse, Drift */
+.sc-shell .sc-outpost-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-outpost-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-outpost-drift-layer {
+  opacity: 0.52 !important;
+}
+
 /* Hold Living Strip Glow & Pulse */
 .sc-shell .sc-hold-living-glow {
   filter: drop-shadow(0 0 1px currentColor) !important;
@@ -493,6 +508,7 @@
   .sc-shell .sc-quill-living-underlay svg,
   .sc-shell .sc-node-pile-underlay svg,
   .sc-shell .sc-node-living-underlay svg,
+  .sc-shell .sc-outpost-living-underlay svg,
   .sc-shell .sc-ledger-glow-layer,
   .sc-shell .sc-ledger-pulse-layer,
   .sc-shell .sc-ledger-drift-layer,
@@ -502,6 +518,9 @@
   .sc-shell .sc-node-glow-layer,
   .sc-shell .sc-node-pulse-layer,
   .sc-shell .sc-node-drift-layer,
+  .sc-shell .sc-outpost-glow-layer,
+  .sc-shell .sc-outpost-pulse-layer,
+  .sc-shell .sc-outpost-drift-layer,
   .sc-shell .sc-war-glow-layer,
   .sc-shell .sc-events-glow-layer,
   .sc-shell .sc-academy-glow-layer,

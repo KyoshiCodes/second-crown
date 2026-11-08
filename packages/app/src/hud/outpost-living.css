@@ -92,11 +92,132 @@
   font-family: monospace;
 }
 
+/* --- Living Outpost Underlay Watermark --- */
+.sc-outpost-living-underlay {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  z-index: 0;
+  pointer-events: none !important;
+  opacity: 0.13;
+  mask-image: radial-gradient(circle at 75% 75%, black 40%, transparent 85%);
+  -webkit-mask-image: radial-gradient(circle at 75% 75%, black 40%, transparent 85%);
+  user-select: none;
+}
+.sc-outpost-living-underlay.is-threatened { opacity: 0.16; color: #f85149; }
+.sc-outpost-living-underlay.is-guarded { opacity: 0.15; color: #3fb950; }
+.sc-outpost-living-underlay.is-bare { opacity: 0.10; color: #d29922; }
+.sc-outpost-living-underlay svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.28;
+  pointer-events: none !important;
+}
+
+/* --- Living Outpost Glyph Strip --- */
+.sc-outpost-living-glyph {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin-top: 2px;
+  padding: 2px 0 1px 5px;
+  font-size: 10px;
+  line-height: 1;
+  pointer-events: none !important;
+  user-select: none;
+}
+.sc-outpost-living-svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  display: block;
+  pointer-events: none !important;
+}
+.sc-outpost-living-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sc-outpost-node, #c8963e);
+  opacity: 0.88;
+}
+.sc-outpost-living-sep {
+  opacity: 0.4;
+}
+.sc-outpost-living-flair {
+  opacity: 0.76;
+  font-style: italic;
+  font-family: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Living SVG Layers & Animations --- */
+.sc-outpost-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor);
+  opacity: 0.38;
+  pointer-events: none !important;
+}
+.sc-outpost-pulse-layer {
+  opacity: 0.52;
+  pointer-events: none !important;
+}
+.sc-outpost-drift-layer {
+  opacity: 0.82;
+  pointer-events: none !important;
+}
+
+.sc-outpost-living-glyph.motion-pulse .sc-outpost-pulse-layer {
+  animation: sc-outpost-pulse 2.2s ease-in-out infinite;
+}
+.sc-outpost-living-glyph.motion-drift .sc-outpost-drift-layer {
+  animation: sc-outpost-drift 3.8s ease-in-out infinite;
+}
+.sc-outpost-living-underlay.is-threatened svg {
+  animation: sc-outpost-underlay-pulse 2.6s ease-in-out infinite;
+}
+.sc-outpost-living-underlay.is-guarded svg,
+.sc-outpost-living-underlay.is-bare svg {
+  animation: sc-outpost-underlay-breathe 4.5s ease-in-out infinite;
+}
+
 @keyframes sc-outpost-pip-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.55; transform: scale(1.25); }
 }
 
+@keyframes sc-outpost-pulse {
+  0%, 100% { opacity: 0.42; transform: scale(1); }
+  50% { opacity: 0.72; transform: scale(1.06); }
+}
+
+@keyframes sc-outpost-drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.8px); }
+}
+
+@keyframes sc-outpost-underlay-pulse {
+  0%, 100% { opacity: 0.22; transform: scale(1); }
+  50% { opacity: 0.32; transform: scale(1.04); }
+}
+
+@keyframes sc-outpost-underlay-breathe {
+  0%, 100% { opacity: 0.22; }
+  50% { opacity: 0.29; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sc-outpost-card-pip { animation: none !important; }
+  .sc-outpost-living-glyph.motion-pulse .sc-outpost-pulse-layer,
+  .sc-outpost-living-glyph.motion-drift .sc-outpost-drift-layer,
+  .sc-outpost-living-underlay svg {
+    animation: none !important;
+    transform: none !important;
+  }
 }
