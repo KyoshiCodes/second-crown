@@ -4,11 +4,14 @@ import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType, isScouted } from 
 import { Crest } from "./Crest";
 import { crestFor } from "./crests";
 import { getRealmFlavor } from "./content/flavor";
-import { playerStanceToward } from "./hud/RealmCard";
+import { playerStanceToward, RealmCardHead } from "./hud/RealmCard";
 import { RealmCrestPip } from "./hud/RealmCrestPip";
 import { FactionSealPip } from "./hud/FactionSealPip";
 import { DiploLedger, pactLedgerRows, realmLedgerRows } from "./hud/DiploLedger";
+import { RealmLivingGlyph, RealmLivingUnderlay, PactLivingGlyph, PactLivingUnderlay } from "./hud/DiploLivingGlyph";
 import "./hud/crown-card.css";
+import "./hud/faction-seals.css";
+import "./hud/diplo-glyph-living.css";
 
 function hostLine(state: GameState, realmId: string): string {
   const parts = state.units
@@ -28,29 +31,23 @@ export function WorldPanel(props: {
   onFoundGuild: () => void;
   onJoin: (id: string) => void;
   onLeave: (id: string) => void;
+  onScout?: (realmId: string) => void;
   onGift?: (realmId: string) => void;
   onTrade?: (realmId: string, offerId: string) => void;
-  onScout?: (realmId: string) => void;
 }) {
-  const state = props.state;
+  const { state } = props;
   if (!state) return null;
-  const title = playerTitle(state);
-  const playerFlavor = getRealmFlavor("player");
+  const player = state.realms.find((r) => r.id === "player");
   const others = state.realms.filter((r) => r.id !== "player");
-
+  const tit = playerTitle(state);
   return (
-    <div className="sc-world-view" style={{ margin: "14px 0" }}>
-      <div className="sc-player-banner">
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-          <Crest realmId="player" size={44} />
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-              <strong style={{ fontSize: 16, color: "#fcd34d" }}>Your Crown</strong>
-              <span className="sc-rank-badge">{title}</span>
-              <span className="sc-charge-pill">{playerFlavor.chargeName}</span>
-            </div>
-            <p className="sc-realm-blurb">{playerFlavor.blurb}</p>
-            <p style={{ fontSize: 12, opacity: 0.75 }}>Power {realmPower(state, "player")} · {hostLine(state, "player")}</p>
+    <div style={{ margin: "12px 0" }}>
+      <div className="sc-world-banner" style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 12px", border: "1px solid var(--chrome-btn-border)", borderRadius: 6, marginBottom: 14 }}>
+        <Crest realmId="player" size={44} />
+        <div>
+          <div style={{ fontWeight: 600, fontSize: 14 }}>{player?.name ?? "Your Realm"}</div>
+          <div style={{ fontSize: 11, opacity: 0.75 }}>
+            {tit} · {player?.era ?? "iron"} · {player?.lifestyle ?? "feudal"} · Power {realmPower(state, "player")}
           </div>
         </div>
       </div>
@@ -65,6 +62,7 @@ export function WorldPanel(props: {
         const offers = KINGDOM_OFFERS[r.id] ?? [];
         return (
           <div key={r.id} className={`sc-realm-dip is-${stance} is-living`} data-realm={r.id}>
+            <RealmLivingUnderlay realmId={r.id} stance={stance} />
             <DiploLedger
               rows={realmLedgerRows({
                 name: r.name,
@@ -76,6 +74,14 @@ export function WorldPanel(props: {
                 scouted: seen,
                 lead: <RealmCrestPip realmId={r.id} stance={stance} size={24} />,
               })}
+            />
+            <RealmLivingGlyph
+              realmId={r.id}
+              stance={stance}
+              peaceLeft={peaceLeft}
+              opinion={opinion}
+              power={seen ? power : undefined}
+              scouted={seen}
             />
             <span className="sc-realm-dip-line">
               {crestFor(r.id).chargeName} · {r.era} · {r.lifestyle}
@@ -112,6 +118,7 @@ export function WorldPanel(props: {
         const tone = mine ? "is-member" : cold ? "is-cold" : "is-empty";
         return (
           <div key={f.id} className={`sc-work-card sc-faction-card sc-crown-faction ${tone} ${mine ? "sc-faction-member" : ""} is-living`}>
+            <PactLivingUnderlay faction={f} isMember={mine} />
             <DiploLedger
               rows={pactLedgerRows({
                 name: f.name,
@@ -120,9 +127,10 @@ export function WorldPanel(props: {
                 member: mine,
                 sworn: f.memberRealmIds.length,
                 leadsIt: f.leaderRealmId === "player",
-                lead: <FactionSealPip faction={f} isMember={mine} size={20} />,
+                lead: <FactionSealPip faction={f} isMember={mine} size={24} />,
               })}
             />
+            <PactLivingGlyph faction={f} isMember={mine} />
             <div className="sc-work-foot">
               <span className="sc-work-where">{f.memberRealmIds.length} sworn</span>
               {mine ? (

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-08 — Living crest glyphs under realm and pact cards (bakeoff/gemini-diplo-living)
+
+- **Living realm crest & pact seal strips (`RealmLivingGlyph`, `PactLivingGlyph`):** Added left-aligned `14×14` living SVG emblem strips directly beneath `DiploLedger` on realm cards (`RealmCard.tsx`, `WorldPanel.tsx`) and pact cards (`WorldPanel.tsx`), with subtle glow (`sc-diplo-glow-layer`), drift (`sc-diplo-drift-layer`), and pulse (`sc-diplo-pulse-layer`) motion:
+  - *Realm cards*: Stance-aware heraldic illumination across war (*"Hostile banner · war match-up N vs N"*), truce (*"Truce in force · Ns of peace remain"*), friendly (*"Warm ally · opinion +N"*), and wary (*"Guarded borders · opinion N"*) stances, with bespoke crest charges for Imperial Crown, Iron Keep Greatswords, Caravel, Waraxes, and Trident.
+  - *Pact cards*: Insignia across orders (chivalric blade), pacts (treaty stilettos), and guilds (artisan compass & hammer), displaying member and leadership flairs (*"Crown sovereign · leading N sworn members"*, *"Sworn member · N crowns bound"*).
+- **Corner-confined card watermarks (`RealmLivingUnderlay`, `PactLivingUnderlay`):** Added `34×34` bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low-opacity keyframes (`<= 0.22` wrapper, `<= 0.25` keyframes) so ledger text, details, and action buttons stay crisp.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `theme.css`, or `diplo-living.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/DiploLivingGlyph.test.tsx` (9 tests). Sim 323, app 627, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 806ms.
+
 ## 2026-11-08 — Living status rows on Diplomacy realm and pact cards (wave/diplo-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

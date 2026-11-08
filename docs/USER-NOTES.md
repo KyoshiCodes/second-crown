@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living crest glyphs on realm and pact cards (bakeoff/gemini-diplo-living)
+
+- **Living realm crest emblems:** Under the Realm, Stance, and Power rows on each realm card, a subtle living crest badge reflects the realm's heraldic posture:
+  - **Hostile & War:** Iron keep and greatsword banners pulse with a martial alert glow (*Hostile banner · war match-up N vs N*).
+  - **Truce:** Banners breathe with a quiet blue aura showing the remaining peace countdown (*Truce in force · Ns of peace remain*).
+  - **Allies & Wary:** Verdant glows on warm allies (*Warm ally · opinion +N*) and steady sentry watch on guarded borders.
+- **Living pact seals:** Faction cards display illuminated signets for holy orders, salt compacts, and artisan guilds, showing whether your crown leads or belongs to the pact (*Crown sovereign · leading N sworn members*).
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each card, and all action buttons (Declare war, Gift, Scout, Join, Leave) work identically to before. No game numbers changed.
+
 ## 2026-11-08 — Diplomacy cards show Realm/Pact, Stance, Power (wave/diplo-living)
 
 - Every realm card in the War tab Diplomacy grid and the World tab Known Crowns list now opens with three rows: **Realm** (crest and name), **Stance** (war, truce, friendly, wary, or hostile, plus their opinion of you), and **Power** (on the War tab, your power against theirs with a bar showing your share; on the World tab, their power once scouted).

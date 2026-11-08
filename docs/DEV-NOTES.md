@@ -1,3 +1,10 @@
+## 2026-11-08 — app / living crest glyphs under realm and pact cards (bakeoff/gemini-diplo-living)
+
+- **Components:** `packages/app/src/hud/DiploLivingGlyph.tsx` exports `RealmLivingGlyph`, `RealmLivingUnderlay`, `PactLivingGlyph`, `PactLivingUnderlay`, `resolveRealmLiving`, `resolvePactLiving`, and types `RealmLivingDescriptor`, `PactLivingDescriptor`, `FactionLike`.
+- **Integration (`hud/RealmCard.tsx`, `WorldPanel.tsx`):** `RealmCard` mounts `<RealmLivingUnderlay realmId stance />` at `z-index: 0` inside `.sc-realm-dip`, `<DiploLedger />` at `z-index: 1`, and `<RealmLivingGlyph />` directly beneath `<DiploLedger />` (above `.sc-realm-dip-actions`). `WorldPanel` Known Crowns mounts `<RealmLivingUnderlay />` + `<RealmLivingGlyph />` before details/actions. `WorldPanel` Factions mounts `<PactLivingUnderlay faction isMember />` and `<PactLivingGlyph faction isMember />` before `.sc-work-foot`. Declare war, Gift, Scout, Join, and Leave action handlers remain untouched.
+- **Scoping & readability (`diplo-glyph-living.css`):** Scoped via `.sc-realm-dip.is-living` and `.sc-faction-card.is-living` with foreground children at `z-index: 1` and `.sc-diplo-living-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.12..0.22`, and watermark keyframe opacity `<= 0.25`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `diplo-living.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/DiploLivingGlyph.test.tsx` (9 tests) covers realm & pact state resolution, distinct SVG geometries across all realm charges and faction kinds, phrasing-only markup, `RealmCard` and `WorldPanel` visual stack order, corner watermark opacity ceilings, and CSS isolation.
+
 ## 2026-11-08 — app / Diplomacy realm and pact ledger rows (wave/diplo-living)
 
 - **Files:** `packages/app/src/hud/DiploLedger.tsx` (exports `DiploLedger`, `realmLedgerRows`, `pactLedgerRows`, types `DiploLedgerKind`, `DiploLedgerTone`, `DiploLedgerRow`), `hud/diplo-living.css`, test `hud/DiploLedger.test.tsx`.

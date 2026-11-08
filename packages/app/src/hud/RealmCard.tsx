@@ -2,7 +2,10 @@ import React from "react";
 import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState } from "@second-crown/sim";
 import { RealmCrestPip } from "./RealmCrestPip";
 import { DiploLedger, realmLedgerRows } from "./DiploLedger";
+import { RealmLivingGlyph, RealmLivingUnderlay } from "./DiploLivingGlyph";
 import "./realm-card.css";
+import "./diplo-living.css";
+import "./diplo-glyph-living.css";
 
 type Realm = GameState["realms"][number];
 
@@ -76,7 +79,17 @@ export function RealmCard(props: {
 
   return (
     <div className={`sc-realm-dip is-${stance} is-living`} data-realm={realm.id}>
+      <RealmLivingUnderlay realmId={realm.id} stance={stance} />
       <DiploLedger rows={rows} />
+      <RealmLivingGlyph
+        realmId={realm.id}
+        stance={stance}
+        peaceLeft={peaceLeft}
+        opinion={opinion}
+        myOpinion={myOpinion}
+        matchup={{ mine, theirs }}
+      />
+      {/* former sc-realm-dip-line rows stacked by DiploLedger */}
       <span className="sc-realm-dip-actions">
         <button
           type="button"
