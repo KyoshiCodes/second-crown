@@ -1,3 +1,11 @@
+
+## 2026-11-08 — app / living node pile glyphs under node cards (bakeoff/gemini-node-living)
+
+- **Components:** `packages/app/src/hud/NodePileLivingGlyph.tsx` exports `NodePileLivingGlyph`, `NodePileUnderlay`, `resolveNodePileDescriptor`, `resolveNodePileDescriptorByValues`, and types `NodePileDescriptor`, `GatherNodeKind`, `NodePileStatus`, `NodePileTone`.
+- **Integration (`hud/NodeLivingCard.tsx`):** `NodeLivingCard` mounts `<NodePileUnderlay node have max />` at `z-index: 0` inside `.sc-node-card.is-living`, rows and meter at `z-index: 1`, and `<NodePileLivingGlyph state provinceId node />` (`z-index: 1`) beneath the meter.
+- **Scoping & readability (`node-living.css`, `living-glyph-soften.css`):** Scoped via `.sc-node-card.is-living` with foreground children at `z-index: 1` and `.sc-node-pile-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.11..0.16`, and underlay SVG opacity `0.28`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/NodePileLivingGlyph.test.tsx` (11 tests) covers descriptor resolution across woodcut/quarry/field, dry/draining/full/untouched states, 14×14 living glyph layers, 34×34 underlay watermark, phrasing-only markup, and CSS isolation. `LivingGlyphSoften.test.ts` updated to assert node underlay and glow layer coverage.
+
 ## 2026-11-08 — app / ProvinceInspect living node card (wave/node-living)
 
 - **Files:** new `packages/app/src/hud/NodeLivingCard.tsx` (exports `NodeLivingCard`, `nodeRows(state, provinceId)`, types `NodeRow`, `NodeRowKind`, `NodeRowTone`), new `hud/node-living.css`, new test `hud/NodeLivingCard.test.tsx`. `ProvinceInspect.tsx` renders `<NodeLivingCard>` where the node stock line and `.sc-inspect-stock-badge` span were; it dropped its now-unused `stockMax`/`badge` locals and the `NODE_REGEN_PERIOD`/`nodeStockMax`/`stockBadge` imports.

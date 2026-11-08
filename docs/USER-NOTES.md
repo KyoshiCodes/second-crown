@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living node pile glyphs on gather node cards (bakeoff/gemini-node-living)
+
+- **Living resource piles:** Under the Name, Stock, and Pile rows on each gather node card in ProvinceInspect (Tile group), a subtle living pile emblem now displays the nature of the resource reserve:
+  - **Timber Stand (Wood):** Stacked cordwood logs with bark ends and wood ring details.
+  - **Stone Outcrop (Stone):** Hewn ashlar stone cairn with dressed limestone blocks and keystone facets.
+  - **Forage Field (Food):** Burlap grain bushels and forage sacks tied with twine.
+- **Harvest-aware motion:** Full or untouched piles glow in calm emerald green with a gentle drift; draining piles pulse in warning amber with remaining counts; depleted dry piles pulse in alert crimson while waiting on regrowth.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each card, keeping stock and pile numbers crisp. No game numbers changed.
+
 ## 2026-11-08 — Resource nodes show Name, Stock and Pile (wave/node-living)
 
 - Click a scouted Timber stand, Stone outcrop or Forage field on the board. In the side card, the stock line is now a small card with three rows.

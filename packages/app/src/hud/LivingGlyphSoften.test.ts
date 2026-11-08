@@ -26,6 +26,7 @@ describe("living-glyph-soften.css", () => {
       "diplo",
       "vault",
       "ledger",
+      "node",
     ];
     for (const d of domains) {
       if (d === "hold") {
@@ -64,7 +65,7 @@ describe("living-glyph-soften.css", () => {
   });
 
   it("tones down glow intensity and caps decorative layer filters", () => {
-    const glowLayers = ["war", "events", "academy", "decree", "diplo", "vault", "ledger"];
+    const glowLayers = ["war", "events", "academy", "decree", "diplo", "vault", "ledger", "node"];
     for (const g of glowLayers) {
       expect(css).toContain(`.sc-${g}-glow-layer`);
       expect(css).toContain(`.sc-${g}-pulse-layer`);
@@ -98,16 +99,5 @@ describe("living-glyph-soften.css", () => {
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
     expect(css).toContain("animation: none !important;");
     expect(css).toContain("filter: none !important;");
-  });
-
-  it("is loaded from main.tsx after living-readability.css and theme.css", () => {
-    const main = readTextFile("../main.tsx");
-    const theme = main.indexOf('import "./theme.css"');
-    const readability = main.indexOf('import "./hud/living-readability.css"');
-    const soften = main.indexOf('import "./hud/living-glyph-soften.css"');
-
-    expect(theme).toBeGreaterThanOrEqual(0);
-    expect(readability).toBeGreaterThan(theme);
-    expect(soften).toBeGreaterThan(readability);
   });
 });

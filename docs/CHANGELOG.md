@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living node pile glyphs under node cards (bakeoff/gemini-node-living)
+
+- **Living node pile glyph strips (`NodePileLivingGlyph`):** Added left-aligned 14×14 living SVG pile emblems directly beneath the stacked rows and meter on gather node cards (`NodeLivingCard.tsx`), with subtle glow (`sc-node-glow-layer`), pulse (`sc-node-pulse-layer`), and drift (`sc-node-drift-layer`) motion across Timber stand (cordwood logs), Stone outcrop (ashlar cairn), and Forage field (grain bushels).
+- **Corner-confined card watermarks (`NodePileUnderlay`):** Added 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.11..0.16` wrapper, `0.28` child SVG) inside `.sc-node-card.is-living` so node name, stock ratios, and pile left counts remain completely unobstructed.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/NodePileLivingGlyph.test.tsx` (11 tests) and updated `LivingGlyphSoften.test.ts`. Sim 323, app 704, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 697ms.
+
 ## 2026-11-08 — Living node card in ProvinceInspect (wave/node-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

@@ -10,6 +10,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { stockBadge } from "./stockBadge";
+import { NodePileLivingGlyph, NodePileUnderlay } from "./NodePileLivingGlyph";
 import "./node-living.css";
 
 /**
@@ -95,6 +96,7 @@ export function NodeLivingCard(props: { state: GameState; provinceId: string }) 
   const state = have <= 0 ? "is-dry" : have < max ? "is-draining" : "is-full";
   return (
     <section className={`sc-node-card is-living is-${node} ${state}`} aria-label={`${NODE_NAME[node]} stock`}>
+      <NodePileUnderlay node={node} have={have} max={max} />
       <dl className="sc-node-card-rows">
         {rows.map((r) => (
           <div key={r.kind} className={`sc-node-card-row is-${r.kind} tone-${r.tone}`}>
@@ -112,6 +114,7 @@ export function NodeLivingCard(props: { state: GameState; provinceId: string }) 
       <div className="sc-node-card-meter" aria-hidden="true">
         <span className="sc-node-card-meter-fill" style={{ width: `${fill}%` }} />
       </div>
+      <NodePileLivingGlyph state={props.state} provinceId={props.provinceId} node={node} />
     </section>
   );
 }

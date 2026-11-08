@@ -36,6 +36,9 @@
 .sc-shell .sc-vault-seal-underlay,
 .sc-shell .sc-quill-living-glyph,
 .sc-shell .sc-quill-living-underlay,
+.sc-shell .sc-node-pile-glyph,
+.sc-shell .sc-node-pile-underlay,
+.sc-shell .sc-node-living-underlay,
 .sc-shell .sc-board-living,
 .sc-shell .sc-atlas-living-glyph,
 .sc-shell [class*="-living-underlay"],
@@ -58,6 +61,8 @@
 .sc-shell .sc-diplo-living-underlay *,
 .sc-shell .sc-vault-seal-underlay *,
 .sc-shell .sc-quill-living-underlay *,
+.sc-shell .sc-node-pile-underlay *,
+.sc-shell .sc-node-living-underlay *,
 .sc-shell .sc-board-living * {
   pointer-events: none !important;
 }
@@ -234,8 +239,6 @@
   opacity: 0.26 !important;
 }
 
-
-
 /* Ledger Card Quill Underlays */
 .sc-shell .sc-quill-living-underlay {
   opacity: 0.12 !important;
@@ -272,6 +275,24 @@
   opacity: 0.13 !important;
 }
 .sc-shell .sc-atlas-terrain-underlay svg {
+  opacity: 0.28 !important;
+}
+
+/* Node Pile Underlays */
+.sc-shell .sc-node-pile-underlay,
+.sc-shell .sc-node-living-underlay {
+  opacity: 0.14 !important;
+}
+.sc-shell .sc-node-pile-underlay.is-draining,
+.sc-shell .sc-node-living-underlay.is-draining {
+  opacity: 0.16 !important;
+}
+.sc-shell .sc-node-pile-underlay.is-dry,
+.sc-shell .sc-node-living-underlay.is-dry {
+  opacity: 0.11 !important;
+}
+.sc-shell .sc-node-pile-underlay svg,
+.sc-shell .sc-node-living-underlay svg {
   opacity: 0.28 !important;
 }
 
@@ -339,8 +360,6 @@
   opacity: 0.52 !important;
 }
 
-
-
 /* Ledger Living Quill Glow, Pulse, Drift */
 .sc-shell .sc-ledger-glow-layer {
   filter: drop-shadow(0 0 1px currentColor) !important;
@@ -362,6 +381,18 @@
   opacity: 0.48 !important;
 }
 .sc-shell .sc-vault-drift-layer {
+  opacity: 0.52 !important;
+}
+
+/* Node Living Pile Glow, Pulse, Drift */
+.sc-shell .sc-node-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-node-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-node-drift-layer {
   opacity: 0.52 !important;
 }
 
@@ -460,12 +491,17 @@
   .sc-shell .sc-diplo-living-underlay svg,
   .sc-shell .sc-vault-seal-underlay svg,
   .sc-shell .sc-quill-living-underlay svg,
+  .sc-shell .sc-node-pile-underlay svg,
+  .sc-shell .sc-node-living-underlay svg,
   .sc-shell .sc-ledger-glow-layer,
   .sc-shell .sc-ledger-pulse-layer,
   .sc-shell .sc-ledger-drift-layer,
   .sc-shell .sc-vault-glow-layer,
   .sc-shell .sc-vault-pulse-layer,
   .sc-shell .sc-vault-drift-layer,
+  .sc-shell .sc-node-glow-layer,
+  .sc-shell .sc-node-pulse-layer,
+  .sc-shell .sc-node-drift-layer,
   .sc-shell .sc-war-glow-layer,
   .sc-shell .sc-events-glow-layer,
   .sc-shell .sc-academy-glow-layer,

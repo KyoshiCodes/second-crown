@@ -21,6 +21,8 @@
 .sc-node-card.is-dry { box-shadow: inset 0 0 0 1px rgba(248, 81, 73, 0.14); }
 
 .sc-node-card-rows {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -90,6 +92,8 @@
 }
 
 .sc-node-card-meter {
+  position: relative;
+  z-index: 1;
   height: 3px;
   margin-top: 1px;
   overflow: hidden;
@@ -105,12 +109,135 @@
 }
 .sc-node-card.is-dry .sc-node-card-meter-fill { background: #f85149; }
 
+/* --- Living Node Pile Underlay Watermark --- */
+.sc-node-pile-underlay {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  z-index: 0;
+  pointer-events: none !important;
+  opacity: 0.14;
+  mask-image: radial-gradient(circle at 75% 75%, black 40%, transparent 85%);
+  -webkit-mask-image: radial-gradient(circle at 75% 75%, black 40%, transparent 85%);
+  user-select: none;
+}
+.sc-node-pile-underlay.is-woodcut { color: #8b5a2b; }
+.sc-node-pile-underlay.is-quarry { color: #8b949e; }
+.sc-node-pile-underlay.is-field { color: #e3b341; }
+.sc-node-pile-underlay.is-draining { opacity: 0.16; color: #d29922; }
+.sc-node-pile-underlay.is-dry { opacity: 0.11; color: #f85149; }
+.sc-node-pile-underlay svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.28;
+  pointer-events: none !important;
+}
+
+/* --- Living Node Pile Glyph Strip --- */
+.sc-node-pile-glyph {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin-top: 2px;
+  padding: 2px 0 1px 5px;
+  font-size: 10px;
+  line-height: 1;
+  pointer-events: none !important;
+  user-select: none;
+}
+.sc-node-pile-svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  display: block;
+  pointer-events: none !important;
+}
+.sc-node-pile-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sc-node-res, #c8963e);
+  opacity: 0.88;
+}
+.sc-node-pile-sep {
+  opacity: 0.4;
+}
+.sc-node-pile-flair {
+  opacity: 0.76;
+  font-style: italic;
+  font-family: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Living SVG Layers & Animations --- */
+.sc-node-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor);
+  opacity: 0.38;
+  pointer-events: none !important;
+}
+.sc-node-pulse-layer {
+  opacity: 0.52;
+  pointer-events: none !important;
+}
+.sc-node-drift-layer {
+  opacity: 0.82;
+  pointer-events: none !important;
+}
+
+.sc-node-pile-glyph.motion-pulse .sc-node-pulse-layer {
+  animation: sc-node-pile-pulse 2.2s ease-in-out infinite;
+}
+.sc-node-pile-glyph.motion-drift .sc-node-drift-layer {
+  animation: sc-node-pile-drift 3.8s ease-in-out infinite;
+}
+.sc-node-pile-underlay.is-draining svg {
+  animation: sc-node-underlay-pulse 3s ease-in-out infinite;
+}
+.sc-node-pile-underlay.is-full svg,
+.sc-node-pile-underlay.is-untouched svg {
+  animation: sc-node-underlay-breathe 4.5s ease-in-out infinite;
+}
+
 @keyframes sc-node-pip-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.55; transform: scale(1.25); }
 }
 
+@keyframes sc-node-pile-pulse {
+  0%, 100% { opacity: 0.42; transform: scale(1); }
+  50% { opacity: 0.72; transform: scale(1.05); }
+}
+
+@keyframes sc-node-pile-drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.8px); }
+}
+
+@keyframes sc-node-underlay-pulse {
+  0%, 100% { opacity: 0.24; transform: scale(1); }
+  50% { opacity: 0.32; transform: scale(1.04); }
+}
+
+@keyframes sc-node-underlay-breathe {
+  0%, 100% { opacity: 0.24; }
+  50% { opacity: 0.30; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sc-node-card-pip { animation: none !important; }
   .sc-node-card-meter-fill { transition: none; }
+  .sc-node-pile-glyph.motion-pulse .sc-node-pulse-layer,
+  .sc-node-pile-glyph.motion-drift .sc-node-drift-layer,
+  .sc-node-pile-underlay svg {
+    animation: none !important;
+    transform: none !important;
+  }
 }
