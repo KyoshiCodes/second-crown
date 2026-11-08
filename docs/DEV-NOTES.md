@@ -1,3 +1,10 @@
+## 2026-11-08 — app / royal decree card ledger rows (wave/decrees-living)
+
+- **Files:** `packages/app/src/hud/DecreeLedger.tsx` (exports `DecreeLedger`, `decreeLedgerRows`, `decreeStatus`, types `DecreeLedgerKind`, `DecreeLedgerTone`, `DecreeStatus`, `DecreeLedgerRow`), `hud/decree-living.css`, test `hud/DecreeLedger.test.tsx`.
+- **Integration (`hud/DecreeCard.tsx`):** The old head (seal, name, "Ns left") and blurb are replaced by `<DecreeLedger>`; the `WaxSealPip` is passed as the name row's `lead`. `decreeStatus` uses the card's existing `left` and `affordable`. Cost line, `sc-decree-btn`, and `tryDecree` handler untouched. Card gains `is-living` class.
+- **Display math only:** seconds = `Math.ceil(ticks / 10)` (same as before); bar = `left / decree.ticks`, clamped 0..1.
+- **CSS:** `decree-living.css` is imported after `decree-card.css`. `.sc-decree-grid:has(> .sc-decree-card.is-living)` raises the column minimum to 210px. Breathing time edge and effect glow are off under `prefers-reduced-motion`. `theme.css` untouched.
+
 ## 2026-11-07 — app / living research glyphs under Academy and Study cards (bakeoff/gemini-academy-living)
 
 - **Components:** `packages/app/src/hud/AcademyLivingGlyph.tsx` exports `AcademyLecternLivingGlyph`, `StudyLivingGlyph`, `StudyLivingUnderlay`, `getResearchDiscipline`, `resolveStudyLiving`, `resolveAcademyLecternLiving`, and types `ResearchDiscipline`, `LecternLivingMode`, `StudyLivingDescriptor`, `LecternLivingDescriptor`.

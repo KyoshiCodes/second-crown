@@ -1,0 +1,105 @@
+/* --- Crown: each royal decree card opens with name / time left / effect rows. --- */
+.sc-decree-grid:has(> .sc-decree-card.is-living) {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+}
+.sc-decree-card.is-living {
+  gap: 6px;
+}
+.sc-decree-card.is-living .sc-decree-ledger-row.is-name .sc-decree-ledger-value {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.sc-decree-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  min-width: 0;
+}
+.sc-decree-ledger-row {
+  --sc-decree-tone: var(--chrome-btn-border, #6e7681);
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 2px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-decree-tone);
+}
+.sc-decree-ledger-row.tone-calm { --sc-decree-tone: #6e7681; }
+.sc-decree-ledger-row.tone-busy { --sc-decree-tone: #d29922; }
+.sc-decree-ledger-row.tone-ready { --sc-decree-tone: #3fb950; }
+.sc-decree-ledger-row.tone-off { --sc-decree-tone: #f85149; }
+
+.sc-decree-ledger-label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.sc-decree-ledger-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  margin: 0;
+  min-width: 0;
+  text-align: right;
+}
+.sc-decree-ledger-main {
+  min-width: 0;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.sc-decree-ledger-row.is-name .sc-decree-ledger-main { font-weight: 600; }
+.sc-decree-ledger-row.is-effect .sc-decree-ledger-main { white-space: normal; line-height: 1.35; }
+.sc-decree-ledger-row.is-effect.tone-ready .sc-decree-ledger-main { color: #3fb950; }
+.sc-decree-ledger-row.is-time.tone-busy .sc-decree-ledger-main { color: #d29922; font-weight: 600; }
+.sc-decree-ledger-sub {
+  font-size: 10px;
+  opacity: 0.65;
+}
+.sc-decree-ledger-row.is-name.tone-off .sc-decree-ledger-sub { color: #f85149; opacity: 0.85; }
+
+.sc-decree-ledger-bar {
+  grid-column: 1 / -1;
+  position: relative;
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(127, 127, 127, 0.18);
+}
+.sc-decree-ledger-fill {
+  display: block;
+  height: 100%;
+  background: var(--sc-decree-tone);
+  transition: width 0.4s ease;
+}
+
+/* Living touches: the time edge breathes while sworn; the effect glows softly. */
+.sc-decree-ledger-row.is-time.tone-busy {
+  animation: sc-decree-ledger-breathe 2.4s ease-in-out infinite;
+}
+.sc-decree-card.is-active .sc-decree-ledger-row.is-effect {
+  animation: sc-decree-ledger-glow 3.2s ease-in-out infinite;
+}
+
+@keyframes sc-decree-ledger-breathe {
+  0%, 100% { border-left-color: var(--sc-decree-tone); }
+  50% { border-left-color: transparent; }
+}
+@keyframes sc-decree-ledger-glow {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: inset 4px 0 6px -4px var(--sc-decree-tone); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-decree-ledger-row { animation: none !important; }
+  .sc-decree-ledger-fill { transition: none; }
+}

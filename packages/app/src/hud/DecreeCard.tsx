@@ -3,8 +3,10 @@ import { DECREES, decreeUntil, tryDecree, type GameState } from "@second-crown/s
 import type { ActFn } from "../game/useGameEngine";
 import { ResourcePip, type ResourceKind } from "./ResourcePip";
 import { WaxSealPip } from "./WaxSealPip";
+import { DecreeLedger, decreeLedgerRows, decreeStatus } from "./DecreeLedger";
 import "./resource-pip.css";
 import "./decree-card.css";
+import "./decree-living.css";
 
 type Decree = (typeof DECREES)[number];
 
@@ -12,7 +14,7 @@ const PIP_KINDS: readonly string[] = ["food", "wood", "stone", "gold"];
 
 /**
  * One royal decree card with a 24px wax-seal pip:
- * - Shows name, blurb, cost with ResourcePips, seconds left while active, and Issue action.
+ * - Opens with stacked DecreeLedger rows (name, time left, effect), then cost with ResourcePips and Issue action.
  * - Active decree has a lit, glowing molten wax seal.
  * - Art strictly has pointer-events: none so clicks are never blocked.
  * Uses tryDecree as-is from sim.
@@ -24,17 +26,15 @@ export function DecreeCard(props: { state: GameState | undefined; decree: Decree
   const cost = Object.entries(decree.cost) as [string, string][];
   const affordable = !!state && cost.every(([res, amt]) => Number(state.resources[res] ?? "0") >= Number(amt));
   const tone = active ? "is-active" : affordable ? "is-ready" : "is-off";
+  const status = decreeStatus({ hasState: !!state, left, affordable });
 
   return (
-    <div className={`sc-decree-card ${tone}`} data-decree={decree.id} data-active={active}>
-      <span className="sc-decree-head">
-        <span className="sc-decree-title-group">
-          <WaxSealPip active={active} decreeId={decree.id} size={24} />
-          <span className="sc-decree-name">{decree.name}</span>
-        </span>
-        {active ? <span className="sc-decree-left">{Math.ceil(left / 10)}s left</span> : null}
-      </span>
-      <span className="sc-decree-blurb">{decree.blurb}</span>
+    <div className={`sc-decree-card is-living ${tone}`} data-decree={decree.id} data-active={active}>
+      <DecreeLedger
+        rows={decreeLedgerRows({ name: decree.name, blurb: decree.blurb, status, left, ticks: decree.ticks }).map((r) =>
+          r.kind === "name" ? { ...r, lead: <WaxSealPip active={active} decreeId={decree.id} size={24} /> } : r,
+        )}
+      />
       <span className="sc-decree-cost">
         {cost.map(([res, amt]) => {
           const short = !active && !!state && Number(state.resources[res] ?? "0") < Number(amt);

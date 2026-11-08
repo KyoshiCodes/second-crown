@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living status rows on royal decree cards (wave/decrees-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- `DecreeCard` now opens with a `DecreeLedger`: **Decree** (wax seal + name + status), **Time left** (seconds left with a draining bar while sworn; table length otherwise), **Effect** (blurb). Built only from `DECREES` and `decreeUntil`, which the card already read.
+- Cost line and **Issue** button unchanged. Styles in `hud/decree-living.css`; the decree grid widens its column minimum so the rows fit.
+- Tests: `hud/DecreeLedger.test.tsx` (7 tests). Full `npm test` passes; `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-07 — Living research glyphs under Academy and Study cards (bakeoff/gemini-academy-living)
 
 - **Academy lectern & per-topic study strips (`AcademyLecternLivingGlyph`, `StudyLivingGlyph`):** Added left-aligned living SVG scholarly emblems directly beneath the Academy Lectern summary and beneath `StudyLedger` on all 10 study cards in `ResearchBar.tsx`, with subtle glow (`sc-academy-glow-layer`), drift (`sc-academy-drift-layer`), and pulse (`sc-academy-pulse-layer`) motion:

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Royal decrees show Decree, Time left, Effect (wave/decrees-living)
+
+- Each royal decree card on the Crown tab now opens with three rows: **Decree** (name, and whether it is in force, ready, or short of stores), **Time left** (a bar drains while the decree is sworn), and **Effect** (what it does).
+- Cost and the **Issue** button work exactly as before. No game numbers changed.
+
 ## 2026-11-07 — Living research glyphs on Academy and Study cards (bakeoff/gemini-academy-living)
 
 - **Living lectern & topic emblems:** The Academy lectern header and every study card now carry subtle living scholarly badges beneath their rows:
