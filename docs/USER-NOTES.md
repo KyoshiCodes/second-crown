@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Easier-to-read status cards (wave/readability-polish)
+
+- The stacked status rows on decree, realm, pact, event, quest, study, and army cards have a bit more space between them. Each row also has a soft colored backing, so it's easier to tell where one row ends and the next begins.
+- Small labels, sub-lines, and the captions next to the little living icons are brighter and slightly larger.
+- Progress bars are a little thicker.
+- Buttons look and work the same. No game numbers changed.
+
 ## 2026-11-08 — Living crest glyphs on realm and pact cards (bakeoff/gemini-diplo-living)
 
 - **Living realm crest emblems:** Under the Realm, Stance, and Power rows on each realm card, a subtle living crest badge reflects the realm's heraldic posture:

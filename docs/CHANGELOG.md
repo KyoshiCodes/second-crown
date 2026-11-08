@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living card readability polish (wave/readability-polish)
+
+- **Row spacing and contrast:** Added `packages/app/src/hud/living-readability.css`, loaded from `main.tsx`. Decree, Diplomacy, Events, Study, and Force ledger rows get a 5px stack gap, `3px 6px 3px 7px` padding, `line-height: 1.35`, and an 8% tint of each row's tone. Living cards get an 8px gap.
+- **Text contrast:** Ledger labels and sub-lines go to 10.5px with opacity 0.8 to 0.82, up from about 0.6 to 0.65. Glyph flair captions go to 10px with opacity 0.78 to 0.8, up from 0.56 to 0.72. Calm and closed states fade less.
+- **Unchanged:** Action buttons (not targeted), `theme.css`, the per-tab living CSS files, `packages/sim`, `server/`. No rule or number changes.
+- **Tests:** Added `packages/app/src/hud/LivingReadability.test.ts` (4 tests: covers every ledger family, no button selectors, opacity floor of 0.6 or more, loads after `theme.css`). Sim 323, app 631, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-08 — Living crest glyphs under realm and pact cards (bakeoff/gemini-diplo-living)
 
 - **Living realm crest & pact seal strips (`RealmLivingGlyph`, `PactLivingGlyph`):** Added left-aligned `14×14` living SVG emblem strips directly beneath `DiploLedger` on realm cards (`RealmCard.tsx`, `WorldPanel.tsx`) and pact cards (`WorldPanel.tsx`), with subtle glow (`sc-diplo-glow-layer`), drift (`sc-diplo-drift-layer`), and pulse (`sc-diplo-pulse-layer`) motion:

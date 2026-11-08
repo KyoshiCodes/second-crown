@@ -1,3 +1,10 @@
+## 2026-11-08 — app / living card readability polish (wave/readability-polish)
+
+- **File:** `packages/app/src/hud/living-readability.css`, imported in `main.tsx` after `theme.css` and `seasons/themeStage.css`. Per-tab files (`decree-living.css`, `diplo-living.css`, `events-living.css`, `academy-living.css`, `force-ledger.css`, `*-glyph-living.css`, `market/works/unit/war/people/hold-living.css`) are untouched.
+- **Cascade:** Tab chunks (`KingdomTab`, `ArmyTab`, `WarTab`, `CrownTab`) load their CSS lazily, after `index.css`, so this file cannot rely on load order. Every selector is prefixed `.sc-shell` (set on `body` by `applyTheme` in `main.tsx`) for a +1 class edge. Originals with equal or higher specificity that still win (`.is-name.tone-off` subs, force `.is-name` sub, events `state-latest` flair) already sit at opacity 0.84 or higher.
+- **Row tint:** A shared `--sc-living-row-tone` var is mapped from each family's tone var (`--sc-decree-tone`, `--sc-diplo-tone`, `--sc-events-tone`, `--sc-study-tone`, `--sc-force-ledger-tone`). The background is `color-mix(in srgb, tone 8%, transparent)`. The force `is-action.state-none` row stays transparent. Existing `border-left` breathe/glow animations are unaffected.
+- **Guard rails:** `LivingReadability.test.ts` strips comments and checks that no selector mentions `button` or `-btn`, that every `opacity:` is 0.6 or more, that all five ledger row families are covered, and that the import order in `main.tsx` holds.
+
 ## 2026-11-08 — app / living crest glyphs under realm and pact cards (bakeoff/gemini-diplo-living)
 
 - **Components:** `packages/app/src/hud/DiploLivingGlyph.tsx` exports `RealmLivingGlyph`, `RealmLivingUnderlay`, `PactLivingGlyph`, `PactLivingUnderlay`, `resolveRealmLiving`, `resolvePactLiving`, and types `RealmLivingDescriptor`, `PactLivingDescriptor`, `FactionLike`.

@@ -1,0 +1,111 @@
+/* --- Living card readability pass (wave/readability-polish). ---
+ * Loaded last from main.tsx so it layers on top of the per-tab living files.
+ * Scoped under body.sc-shell for a small specificity edge. theme.css untouched.
+ * Only spacing, contrast and type size change here. Buttons are never targeted.
+ */
+
+/* 1. Card breathing room: stacked rows get a little more space from glyphs and buttons. */
+.sc-shell .sc-decree-card.is-living,
+.sc-shell .sc-realm-dip.is-living,
+.sc-shell .sc-crown-faction.is-living,
+.sc-shell .sc-study-living-card {
+  gap: 8px;
+}
+
+/* 2. Ledger stacks: a touch more gap between rows. */
+.sc-shell .sc-decree-ledger,
+.sc-shell .sc-diplo-ledger,
+.sc-shell .sc-events-ledger,
+.sc-shell .sc-study-ledger,
+.sc-shell .sc-force-ledger {
+  gap: 5px;
+}
+
+/* 3. Rows: a faint tone tint behind each row so neighbours stay separate. */
+.sc-shell .sc-decree-ledger-row,
+.sc-shell .sc-diplo-ledger-row,
+.sc-shell .sc-events-ledger-row,
+.sc-shell .sc-study-ledger-row,
+.sc-shell .sc-force-ledger-row {
+  padding: 3px 6px 3px 7px;
+  line-height: 1.35;
+  border-radius: 0 4px 4px 0;
+  background: color-mix(in srgb, var(--sc-living-row-tone, #6e7681) 8%, transparent);
+}
+.sc-shell .sc-decree-ledger-row { --sc-living-row-tone: var(--sc-decree-tone); }
+.sc-shell .sc-diplo-ledger-row { --sc-living-row-tone: var(--sc-diplo-tone); }
+.sc-shell .sc-events-ledger-row { --sc-living-row-tone: var(--sc-events-tone); }
+.sc-shell .sc-study-ledger-row { --sc-living-row-tone: var(--sc-study-tone); }
+.sc-shell .sc-force-ledger-row {
+  --sc-living-row-tone: var(--sc-force-ledger-tone, var(--chrome-btn-border, #6e7681));
+}
+/* An empty action row stays invisible, as before. */
+.sc-shell .sc-force-ledger-row.is-action.state-none { background: transparent; }
+
+/* 4. Labels and sub-lines: brighter and a half step larger. */
+.sc-shell .sc-decree-ledger-label,
+.sc-shell .sc-diplo-ledger-label,
+.sc-shell .sc-events-ledger-label,
+.sc-shell .sc-study-ledger-label,
+.sc-shell .sc-force-ledger-label {
+  font-size: 10.5px;
+  opacity: 0.8;
+}
+.sc-shell .sc-decree-ledger-sub,
+.sc-shell .sc-diplo-ledger-sub,
+.sc-shell .sc-events-ledger-sub,
+.sc-shell .sc-study-ledger-sub,
+.sc-shell .sc-force-ledger-sub {
+  font-size: 10.5px;
+  opacity: 0.82;
+}
+
+/* 5. Progress bars: slightly thicker so they read at a glance. */
+.sc-shell .sc-decree-ledger-bar,
+.sc-shell .sc-diplo-ledger-bar,
+.sc-shell .sc-events-ledger-bar,
+.sc-shell .sc-study-ledger-bar {
+  height: 4px;
+  margin-top: 1px;
+}
+
+/* 6. Glyph flair captions under cards: lift the faintest ones to a readable floor. */
+.sc-shell .sc-market-glyph-flair,
+.sc-shell .sc-works-glyph-flair,
+.sc-shell .sc-unit-glyph-flair {
+  font-size: 10px;
+  opacity: 0.78;
+}
+.sc-shell .sc-war-glyph-flair,
+.sc-shell .sc-academy-glyph-flair,
+.sc-shell .sc-events-glyph-flair {
+  font-size: 10px;
+  opacity: 0.8;
+}
+.sc-shell .sc-academy-topic-glyph.status-locked .sc-academy-glyph-flair,
+.sc-shell .sc-events-status-glyph.state-claimed .sc-events-glyph-flair {
+  opacity: 0.68;
+}
+.sc-shell .sc-people-living-flair,
+.sc-shell .sc-hold-living-flair {
+  opacity: 0.9;
+}
+/* Muted states no longer fade the caption below readable. */
+.sc-shell .sc-people-living-glyph.state-calm,
+.sc-shell .sc-hold-living-item.state-calm {
+  opacity: 0.88;
+}
+.sc-shell .sc-market-status-glyph.is-closed,
+.sc-shell .sc-unit-status-glyph.is-locked {
+  opacity: 0.62;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-shell .sc-decree-ledger-row,
+  .sc-shell .sc-diplo-ledger-row,
+  .sc-shell .sc-events-ledger-row,
+  .sc-shell .sc-study-ledger-row,
+  .sc-shell .sc-force-ledger-row {
+    transition: none;
+  }
+}
