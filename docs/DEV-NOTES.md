@@ -1,3 +1,10 @@
+## 2026-11-08 — app / living camp/flag glyphs under camp cards (bakeoff/gemini-camp-living)
+
+- **Components:** `packages/app/src/hud/CampLivingGlyph.tsx` exports `CampLivingGlyph`, `CampLivingUnderlay`, `resolveCampGlyphDescriptor`, `resolveCampGlyphDescriptorByValues`, and types `CampGlyphDescriptor`, `CampMood`, `CampGlyphTone`. `CampLivingRows.tsx` also exports `CampLivingCard` as an alias.
+- **Integration (`hud/CampLivingRows.tsx`):** `CampLivingRows` mounts `<CampLivingUnderlay mood={mood} node={node} />` at `z-index: 0` inside `.sc-camp-card.is-living`, rows at `z-index: 1`, and `<CampLivingGlyph state={state} provinceId={provinceId} nameOf={nameOf} />` (`z-index: 1`) beneath the rows.
+- **Scoping & readability (`camp-living.css`, `living-glyph-soften.css`):** Scoped via `.sc-camp-card.is-living` with foreground children at `z-index: 1` and `.sc-camp-living-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.12..0.18`, and underlay SVG opacity `0.28`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/CampLivingGlyph.test.tsx` (10 tests) covers descriptor resolution across threatened/flying/struck moods, full/depleted stock, 14×14 living glyph layers, 34×34 underlay watermark, ForceCard integration, phrasing-only markup, and CSS isolation. `LivingGlyphSoften.test.ts` updated to assert camp underlay and glow layer coverage.
+
 ## 2026-11-08 — app / War Room living camp rows (wave/camp-living)
 
 - **Component:** `packages/app/src/hud/CampLivingRows.tsx` exports `campRows(state, provinceId, nameOf?)` → `CampRow[]` (`name`, `flag`, `resources`; empty for unknown tile) and `<CampLivingRows state provinceId nameOf? />` (a `<dl class="sc-camp-rows is-<node>">`).

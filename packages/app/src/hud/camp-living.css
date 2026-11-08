@@ -1,4 +1,35 @@
-/* --- War Room Garrisons: living camp rows (name / flag / stock) inside each ForceCard. --- */
+/* --- War Room Garrisons: living camp rows and glyphs inside each ForceCard. --- */
+/* Strict pointer-events isolation for decorative elements */
+.sc-camp-living-underlay,
+.sc-camp-living-underlay *,
+.sc-camp-living-glyph,
+.sc-camp-living-glyph *,
+.sc-camp-glyph-icon,
+.sc-camp-glyph-svg,
+.sc-camp-glyph-label,
+.sc-camp-glyph-dot,
+.sc-camp-glyph-flair {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* Camp card container */
+.sc-camp-card.is-living {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 4px 0 2px;
+  padding: 4px 0 0;
+  border-top: 1px dashed rgba(200, 150, 62, 0.28);
+}
+
+.sc-camp-card.is-living .sc-camp-rows {
+  margin: 0;
+  padding: 0;
+  border-top: none;
+}
+
 .sc-camp-rows {
   --sc-camp-node: #c8963e;
   position: relative;
@@ -75,11 +106,163 @@
   overflow-wrap: anywhere;
 }
 
+/* Corner-confined living camp watermark underlay */
+.sc-camp-living-underlay {
+  --sc-camp-accent: #c9b48a;
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  z-index: 0;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: var(--sc-camp-accent);
+  opacity: 0.14;
+  -webkit-mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 58%, transparent 92%);
+  mask-image: radial-gradient(circle at 82% 82%, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.45) 58%, transparent 92%);
+}
+
+.sc-camp-living-underlay.is-threatened {
+  --sc-camp-accent: #f85149;
+  opacity: 0.18;
+}
+
+.sc-camp-living-underlay.is-flying {
+  --sc-camp-accent: #3fb950;
+  opacity: 0.14;
+}
+
+.sc-camp-living-underlay.is-struck {
+  --sc-camp-accent: #d29922;
+  opacity: 0.12;
+}
+
+.sc-camp-living-underlay.is-woodcut { --sc-camp-accent: #8b5a2b; }
+.sc-camp-living-underlay.is-quarry { --sc-camp-accent: #8b949e; }
+.sc-camp-living-underlay.is-field { --sc-camp-accent: #e3b341; }
+.sc-camp-living-underlay.is-ruins { --sc-camp-accent: #a371f7; }
+
+.sc-camp-living-watermark {
+  width: 34px;
+  height: 34px;
+  display: block;
+  overflow: visible;
+  opacity: 0.28;
+  transform-origin: 24px 24px;
+  animation: sc-camp-underlay-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-camp-living-underlay.is-threatened .sc-camp-living-watermark {
+  animation: sc-camp-underlay-pulse 1.8s ease-in-out infinite;
+}
+
+/* Living camp glyph strip below the rows */
+.sc-camp-living-glyph {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.sc-camp-living-glyph.tone-safe { color: #3fb950; }
+.sc-camp-living-glyph.tone-warn { color: #d29922; }
+.sc-camp-living-glyph.tone-danger { color: #f85149; }
+.sc-camp-living-glyph.tone-calm { color: #8b949e; }
+
+.sc-camp-glyph-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.sc-camp-glyph-svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  overflow: visible;
+}
+
+.sc-camp-glow-layer {
+  transform-origin: 7px 10.8px;
+  animation: sc-camp-glow-pulse 3.6s ease-in-out infinite;
+}
+
+.sc-camp-drift-layer {
+  transform-origin: 7px 8px;
+  animation: sc-camp-drift 3.2s ease-in-out infinite alternate;
+}
+
+.sc-camp-pulse-layer {
+  transform-origin: 7px 4px;
+  animation: sc-camp-pulse 1.4s ease-in-out infinite;
+}
+
+.sc-camp-glyph-label {
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.sc-camp-glyph-dot {
+  opacity: 0.45;
+  margin: 0 1px;
+}
+
+.sc-camp-glyph-flair {
+  font-size: 10.5px;
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Keyframe animations */
 @keyframes sc-camp-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.35; }
 }
 
+@keyframes sc-camp-drift {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-0.75px) rotate(0.4deg); }
+  100% { transform: translateY(0.5px) rotate(-0.4deg); }
+}
+
+@keyframes sc-camp-glow-pulse {
+  0%, 100% { opacity: 0.22; transform: scale(1); }
+  50% { opacity: 0.38; transform: scale(1.08); }
+}
+
+@keyframes sc-camp-underlay-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes sc-camp-underlay-pulse {
+  0%, 100% { opacity: 0.28; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(1.05); }
+}
+
+/* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .sc-camp-row.tone-danger .sc-camp-pip { animation: none; }
+  .sc-camp-row.tone-danger .sc-camp-pip,
+  .sc-camp-living-watermark,
+  .sc-camp-glow-layer,
+  .sc-camp-drift-layer,
+  .sc-camp-pulse-layer {
+    animation: none !important;
+  }
 }

@@ -8,6 +8,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
+import { CampLivingGlyph, CampLivingUnderlay, type CampMood } from "./CampLivingGlyph";
 import "./camp-living.css";
 
 /**
@@ -97,21 +98,31 @@ export function CampLivingRows(props: {
   const { state, provinceId, nameOf } = props;
   const rows = campRows(state, provinceId, nameOf);
   if (rows.length === 0) return null;
-  const node = getProvince(state, provinceId)?.node ?? "none";
+  const p = getProvince(state, provinceId);
+  const node = p?.node ?? "none";
+  const hit = Boolean(incomingOnProvince(state, provinceId));
+  const mood: CampMood = hit ? "threatened" : p?.occupantRealmId === "player" ? "flying" : "struck";
+
   return (
-    <dl className={`sc-camp-rows is-${node}`} aria-label="Camp status">
-      {rows.map((r) => (
-        <div key={r.kind} className={`sc-camp-row is-${r.kind} tone-${r.tone}`}>
-          <dt className="sc-camp-label">
-            <span className="sc-camp-pip" aria-hidden="true" />
-            {r.label}
-          </dt>
-          <dd className="sc-camp-value">
-            <span className="sc-camp-main">{r.value}</span>
-            {r.sub ? <span className="sc-camp-sub">{r.sub}</span> : null}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <div className={`sc-camp-card is-living is-${node} is-${mood}`}>
+      <CampLivingUnderlay mood={mood} node={node} />
+      <dl className={`sc-camp-rows is-${node}`} aria-label="Camp status">
+        {rows.map((r) => (
+          <div key={r.kind} className={`sc-camp-row is-${r.kind} tone-${r.tone}`}>
+            <dt className="sc-camp-label">
+              <span className="sc-camp-pip" aria-hidden="true" />
+              {r.label}
+            </dt>
+            <dd className="sc-camp-value">
+              <span className="sc-camp-main">{r.value}</span>
+              {r.sub ? <span className="sc-camp-sub">{r.sub}</span> : null}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <CampLivingGlyph state={state} provinceId={provinceId} nameOf={nameOf} />
+    </div>
   );
 }
+
+export const CampLivingCard = CampLivingRows;

@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living camp and flag glyphs on garrison cards (bakeoff/gemini-camp-living)
+
+- **Living garrison camps:** Under the Name, Flag, and Stock rows on each garrison camp card in the War Room (Garrisons section), a subtle living emblem now portrays the camp's readiness:
+  - **Flying Camp Banner:** Fortified command pavilion and realm banner fluttering in emerald green with resource stockpile status.
+  - **Threatened Camp Redoubt:** Alert pulsing beacon in crimson warning whenever a rival column marches on the held outpost, displaying ETA and the attacking realm.
+  - **Struck Flag:** Leaning banner in caution amber indicating a contested outpost where the flag was struck.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each camp section, keeping node names, stock counts, power bars, and Recall buttons crisp. No game numbers changed.
+
 ## 2026-11-08 — Garrison camps show Name, Flag and Stock (wave/camp-living)
 
 - In the **War Room**, under **Garrisons**, each camp card now shows three rows:

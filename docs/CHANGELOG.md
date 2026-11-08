@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-08 — Living camp/flag glyphs under camp cards (bakeoff/gemini-camp-living)
+
+- **Living camp glyph strips (`CampLivingGlyph`):** Added left-aligned 14×14 living SVG camp and flag emblems directly beneath the stacked rows on War Room garrison camp cards (`CampLivingRows.tsx`), with subtle glow (`sc-camp-glow-layer`), pulse (`sc-camp-pulse-layer`), and drift (`sc-camp-drift-layer`) motion across Threatened (alert pulse redoubt), Flying (garrison camp tent with heraldic banner and stock flair), and Struck (contested flag) states.
+- **Corner-confined card watermarks (`CampLivingUnderlay`):** Added 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.12..0.18` wrapper, `0.28` child SVG) inside `.sc-camp-card.is-living` depicting command pavilion, flying banner, palisade stakes, and node emblems without obstructing text, power bars, or Recall actions.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/CampLivingGlyph.test.tsx` (10 tests) and updated `LivingGlyphSoften.test.ts`. Sim 323, app 739, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 633ms.
+
 ## 2026-11-08 — Living camp rows on War Room garrison cards (wave/camp-living)
 
 - **Camp rows (`CampLivingRows`):** War Room garrison cards stack Name (node + coords), Flag (Flying / Under threat with realm and ETA / Struck) and Stock (node pile left of max, Dry, or No pile). Tone pips and a left rule colour each row; danger pip pulses (off under reduced motion).
