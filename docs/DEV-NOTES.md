@@ -1,3 +1,11 @@
+## 2026-11-08 — app / richer living Flags cards (wave/flag-living)
+
+- **Component:** `outpostRows(state, tile, nameOf?)` in `packages/app/src/hud/OutpostLivingCard.tsx` now returns four rows: `name`, `camp`, `flag`, `resources`. `OutpostRow` gained optional `fill` (0..1, stock left / max), set only on gather nodes.
+- **Sources:** adds `nodeStock`, `nodeStockMax`, `GATHER_NODES` to the existing `garrisonAt` / `garrisonPower` / `incomingOnProvince`. Tone: danger at 0, warn below `max / 4`, else safe; calm for non-gather nodes. No tithe math copied (same reason as `CampLivingRows`).
+- **Render:** `<section>` gets an extra trailing class `sc-flag-living` (kept after `is-living` so existing `"sc-outpost-card is-living"` assertions still match). Resources row renders `.sc-flag-meter > .sc-flag-meter-fill` with inline width.
+- **CSS:** new `hud/flag-living.css`, every selector under `.sc-flag-living` or `.sc-flag-meter*`; `outpost-living.css` and `theme.css` untouched. Meter transition and breathe disabled under `prefers-reduced-motion`.
+- **Tests:** `hud/OutpostLivingCard.test.tsx` updated for four rows; new tests for full/low/dry stock, no pile, meter in markup and CSS file presence.
+
 ## 2026-11-08 — app / living camp/flag glyphs under camp cards (bakeoff/gemini-camp-living)
 
 - **Components:** `packages/app/src/hud/CampLivingGlyph.tsx` exports `CampLivingGlyph`, `CampLivingUnderlay`, `resolveCampGlyphDescriptor`, `resolveCampGlyphDescriptorByValues`, and types `CampGlyphDescriptor`, `CampMood`, `CampGlyphTone`. `CampLivingRows.tsx` also exports `CampLivingCard` as an alias.

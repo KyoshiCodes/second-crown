@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-08 — Richer living Flags cards on the Kingdom tab (wave/flag-living)
+
+- **Flag rows (`OutpostLivingCard`):** Kingdom tab Flags cards stack Name, Camp, Flag and a new **Stock** resources row (node pile left of max with a thin meter, Dry, or No pile). Tones: safe / warn under a quarter / danger when dry / calm for no pile. Low or dry meters breathe (off under reduced motion).
+- **Layout:** zebra rows, larger name line, dashed rule above the resources row. New `hud/flag-living.css`, scoped to `.sc-flag-living`.
+- **Controls:** Abandon button, warn/done border, living glyph strip and watermark kept as-is.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`.
+- **Tests:** `hud/OutpostLivingCard.test.tsx` gains resources-row, low/dry, no-pile and CSS-file tests.
+
 ## 2026-11-08 — Living camp/flag glyphs under camp cards (bakeoff/gemini-camp-living)
 
 - **Living camp glyph strips (`CampLivingGlyph`):** Added left-aligned 14×14 living SVG camp and flag emblems directly beneath the stacked rows on War Room garrison camp cards (`CampLivingRows.tsx`), with subtle glow (`sc-camp-glow-layer`), pulse (`sc-camp-pulse-layer`), and drift (`sc-camp-drift-layer`) motion across Threatened (alert pulse redoubt), Flying (garrison camp tent with heraldic banner and stock flair), and Struck (contested flag) states.

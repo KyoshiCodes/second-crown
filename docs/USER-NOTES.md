@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Flag cards show what's left on the tile (wave/flag-living)
+
+- On the **Kingdom** tab, under **Flags**, each flag card now has a fourth row, **Stock**: how much food, wood or stone is left on that tile, with a small bar. Amber when it runs low, red when *Dry*, *No pile* if the tile has nothing to gather.
+- The rows are a little easier to scan (striped, with the tile name on top).
+- The **Abandon** button works exactly as before. No game numbers changed.
+
 ## 2026-11-08 — Living camp and flag glyphs on garrison cards (bakeoff/gemini-camp-living)
 
 - **Living garrison camps:** Under the Name, Flag, and Stock rows on each garrison camp card in the War Room (Garrisons section), a subtle living emblem now portrays the camp's readiness:

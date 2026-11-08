@@ -1,7 +1,15 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { createGameState, garrisonPower, listOutposts, plantOutpost, type GameState } from "@second-crown/sim";
+import {
+  createGameState,
+  garrisonPower,
+  listOutposts,
+  nodeStock,
+  nodeStockMax,
+  plantOutpost,
+  type GameState,
+} from "@second-crown/sim";
 import { OutpostLivingCard, outpostRows } from "./OutpostLivingCard";
 
 function readFile(relativePath: string): string {
@@ -28,9 +36,43 @@ function withFlag(): { s: GameState; id: string } {
 const tileOf = (s: GameState, id: string) => s.board.provinces.find((p) => p.id === id)!;
 
 describe("outpostRows", () => {
-  it("stacks name, camp, flag", () => {
+  it("stacks name, camp, flag, resources", () => {
     const { s, id } = withFlag();
-    expect(outpostRows(s, tileOf(s, id)).map((r) => r.kind)).toEqual(["name", "camp", "flag"]);
+    expect(outpostRows(s, tileOf(s, id)).map((r) => r.kind)).toEqual(["name", "camp", "flag", "resources"]);
+  });
+
+  it("reads the node pile left of its max on the resources row", () => {
+    const { s, id } = withFlag();
+    const p = tileOf(s, id);
+    const res = outpostRows(s, p)[3];
+    expect(res.value).toBe(`${Math.floor(nodeStock(s, id))} food`);
+    expect(res.sub).toBe(`of ${nodeStockMax(p.node)}`);
+    expect(res.tone).toBe("safe");
+    expect(res.fill).toBe(1);
+  });
+
+  it("goes amber when the pile is low and red when dry", () => {
+    const { s, id } = withFlag();
+    const p = tileOf(s, id);
+    s.flags[`node_stock_${id}`] = 10;
+    const low = outpostRows(s, p)[3];
+    expect(low.value).toBe("10 food");
+    expect(low.tone).toBe("warn");
+    expect(low.fill).toBeCloseTo(10 / nodeStockMax(p.node));
+    s.flags[`node_stock_${id}`] = 0;
+    const dry = outpostRows(s, p)[3];
+    expect(dry.value).toBe("Dry");
+    expect(dry.tone).toBe("danger");
+    expect(dry.fill).toBe(0);
+  });
+
+  it("reads No pile on a tile with nothing to gather", () => {
+    const { s, id } = withFlag();
+    const p = { ...tileOf(s, id), node: "ruins" };
+    const res = outpostRows(s, p)[3];
+    expect(res.value).toBe("No pile");
+    expect(res.tone).toBe("calm");
+    expect(res.fill).toBeUndefined();
   });
 
   it("names the node and its coordinates", () => {
@@ -81,12 +123,14 @@ describe("outpostRows", () => {
 });
 
 describe("OutpostLivingCard", () => {
-  it("renders three living rows with tones", () => {
+  it("renders four living rows with tones and a stock meter", () => {
     const { s, id } = withFlag();
     const html = renderToStaticMarkup(<OutpostLivingCard state={s} province={tileOf(s, id)} />);
     expect(html).toContain("sc-outpost-card is-living");
     expect(html).toContain("is-bare");
-    expect((html.match(/sc-outpost-card-row /g) ?? []).length).toBe(3);
+    expect((html.match(/sc-outpost-card-row /g) ?? []).length).toBe(4);
+    expect(html).toContain("sc-flag-living");
+    expect(html).toContain("sc-flag-meter-fill");
     expect(html).toContain("tone-warn");
   });
 
@@ -94,6 +138,13 @@ describe("OutpostLivingCard", () => {
     const src = readFile("../tabs/KingdomTab.tsx");
     expect(src).toContain("<OutpostLivingCard");
     expect(src).toContain("tryAbandonOutpost(st, p.id)");
+  });
+
+  it("styles the richer layout in its own CSS file", () => {
+    const css = readFile("./flag-living.css");
+    expect(css).toContain(".sc-flag-living");
+    expect(css).toContain(".sc-flag-meter");
+    expect(css).toContain("prefers-reduced-motion");
   });
 
   it("uses its own CSS file, scoped to .sc-outpost-card", () => {
