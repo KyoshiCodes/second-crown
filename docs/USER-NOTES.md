@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Atlas province cards show Name, Terrain, Owner (wave/atlas-living)
+
+- Under the Kingdom Atlas on the World tab there is now a small card for the province you clicked: its **Name** (like "Timber stand" or "Your hold", with its map coordinates), its **Terrain**, and its **Owner**.
+- Hover over another tile and a second dashed card shows that tile too. With nothing clicked, the card shows your home hold.
+- Tiles still in fog say "Uncharted" and "Unknown". Dragging, clicking, and Recenter work as before. No game numbers changed.
+
 ## 2026-11-08 — Softer background glyphs keep card text crisp (bakeoff/gemini-readability-polish)
 
 - **Softer corner watermarks:** The background commodity, tool, force, crest, seal, and study icons tucked into the bottom-right corners of cards are much softer and fainter now, ensuring numbers, labels, costs, and progress bars always stand out clearly in the foreground.

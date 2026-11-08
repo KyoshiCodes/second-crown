@@ -1,0 +1,103 @@
+/* --- Overworld Atlas: living province cards (name / terrain / owner) under the map. --- */
+.sc-atlas-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sc-atlas-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 8px;
+  background: rgba(12, 16, 20, 0.72);
+  border: 1px solid #4a3a1e;
+  border-radius: 8px;
+}
+.sc-atlas-card.is-selected { border-color: #c8963e; box-shadow: 0 0 0 1px rgba(200, 150, 62, 0.25); }
+.sc-atlas-card.is-hover { border-style: dashed; }
+
+.sc-atlas-card-role {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fef08a;
+  opacity: 0.75;
+}
+
+.sc-atlas-card-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+}
+
+.sc-atlas-card-row {
+  --sc-atlas-tone: #6e7681;
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  align-items: center;
+  column-gap: 6px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-atlas-tone);
+}
+.sc-atlas-card-row.tone-calm { --sc-atlas-tone: #6e7681; }
+.sc-atlas-card-row.tone-you { --sc-atlas-tone: #3fb950; }
+.sc-atlas-card-row.tone-rival { --sc-atlas-tone: #f85149; }
+.sc-atlas-card-row.tone-warn { --sc-atlas-tone: #d29922; }
+.sc-atlas-card-row.tone-fog { --sc-atlas-tone: #484f58; opacity: 0.7; }
+
+.sc-atlas-card-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.sc-atlas-card-pip {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--sc-atlas-tone);
+}
+.sc-atlas-card-row.is-terrain[data-terrain="plain"] .sc-atlas-card-pip { background: #22c55e; }
+.sc-atlas-card-row.is-terrain[data-terrain="wood"] .sc-atlas-card-pip { background: #166534; }
+.sc-atlas-card-row.is-terrain[data-terrain="hill"] .sc-atlas-card-pip { background: #a16207; }
+.sc-atlas-card-row.is-terrain[data-terrain="waste"] .sc-atlas-card-pip { background: #78716c; }
+.sc-atlas-card-row.is-terrain[data-terrain="shore"] .sc-atlas-card-pip { background: #0ea5e9; }
+.sc-atlas-card-row.is-terrain[data-terrain="peak"] .sc-atlas-card-pip { background: #e2e8f0; }
+
+.sc-atlas-card-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  margin: 0;
+  min-width: 0;
+  text-align: right;
+}
+.sc-atlas-card-row.is-name .sc-atlas-card-value { justify-content: flex-start; text-align: left; }
+.sc-atlas-card-main {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.sc-atlas-card-sub {
+  font-size: 10px;
+  opacity: 0.6;
+  font-family: monospace;
+}
+
+@media (max-width: 420px) {
+  .sc-atlas-cards { grid-template-columns: 1fr; }
+}

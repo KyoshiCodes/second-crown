@@ -1,3 +1,11 @@
+## 2026-11-08 — app / Overworld Atlas living province cards (wave/atlas-living)
+
+- **Files:** `packages/app/src/hud/AtlasProvinceCard.tsx` (exports `atlasProvinceRows`, `AtlasProvinceCard`, `AtlasProvinceCards`, types `AtlasProvinceRow`, `AtlasRowKind`, `AtlasRowTone`, `AtlasCardRole`), `hud/atlas-living.css`, test `hud/AtlasProvinceCard.test.tsx`.
+- **Integration (`OverworldAtlas.tsx`):** one import and `<AtlasProvinceCards state selectedId hoveredId />` after the `</svg>`. Uses the atlas's existing `hoveredId` state; header, pan, select, and Recenter untouched.
+- **Reads only:** `getProvince`, `isProvinceSeen`, `board.homeProvinceId`, `province.node/terrain/occupantRealmId/x/y`, realm names. Owner logic matches `ProvinceStatusStack`; node names match `ProvinceInspect`; coords label matches the War Room's `provinceLabel`.
+- **Province has no name field**, so the Name row is node label + `x,y`. If provinces ever get names, swap the value in `atlasProvinceRows`.
+- **CSS:** `atlas-living.css` is imported by `AtlasProvinceCard.tsx`. `theme.css` untouched (a test checks it holds no `sc-atlas-card` rules).
+
 ## 2026-11-08 — app / softened living glyphs and underlays (bakeoff/gemini-readability-polish)
 
 - **File:** `packages/app/src/hud/living-glyph-soften.css`, imported in `main.tsx` after `hud/living-readability.css` and `theme.css`. Per-tab living stylesheets and `theme.css` remain untouched.

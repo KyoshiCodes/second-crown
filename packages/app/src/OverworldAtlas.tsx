@@ -24,6 +24,7 @@ import {
   hasProvinceTrail,
 } from "@second-crown/render";
 import { detectCurrentHoliday } from "./seasons/holidays";
+import { AtlasProvinceCards } from "./hud/AtlasProvinceCard";
 import "./hud/atlas-select-rim.css";
 import "./hud/atlas-node-piles.css";
 import "./hud/atlas-camps.css";
@@ -1512,6 +1513,7 @@ export function OverworldAtlas(props: {
         </g>
         <MiniWeatherGlyph weather={weather} x={minX - 10} y={minY - 10} />
       </svg>
+      <AtlasProvinceCards state={state} selectedId={selectedId} hoveredId={hoveredId} />
     </div>
   );
 }

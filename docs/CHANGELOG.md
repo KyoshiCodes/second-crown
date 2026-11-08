@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-08 — Living province cards under the Overworld Atlas (wave/atlas-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- The World tab's Kingdom Atlas now has a card strip under the map. Each card stacks three rows: **Name** (node name, e.g. "Timber stand", or "Your hold", with grid coords), **Terrain** (with a terrain-coloured pip), **Owner** (You / rival realm / Empty).
+- A **Selected** card follows the clicked province; a dashed **Pointing at** card appears while hovering a different tile; a **Home** card shows when nothing is selected or hovered. Fog shows "Uncharted" / "Unknown" with coords only.
+- Drag-to-pan, click-to-select, and Recenter are unchanged. Styles in `hud/atlas-living.css`.
+- Tests: `hud/AtlasProvinceCard.test.tsx` (8 tests). Sim 323, app 648, server 158 pass; `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-08 — Softened living glyphs and underlays across status cards (bakeoff/gemini-readability-polish)
 
 - **Lowered watermark opacity floor:** Across all 10 card domains (Market, Works, Hold, People, Army units, War Room forces, Events & Quests, Academy studies, Royal Decrees, Diplomacy realms & pacts), corner underlay wrapper opacities are now capped at <= 0.20 (ranging from 0.07 for closed/idle states to 0.18 for active/ready states, down from earlier 0.22..0.35), with underlay SVGs softened to 0.26..0.30.
