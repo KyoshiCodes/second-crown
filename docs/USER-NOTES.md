@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Flags show Name, Camp and Flag (wave/outpost-living)
+
+- Open the Kingdom tab and scroll to **Flags**. Each of your outposts is now a small card with three rows.
+- **Name** is what the tile is (for example "Forage field") and where it is on the map.
+- **Camp** shows your garrison's power and how many soldiers are posted. It says "Unguarded" in amber when nobody is there.
+- **Flag** says "Flying" when all is quiet. It turns red with "Under threat" and who is coming and how many seconds away when a rival column is marching on it.
+- The Abandon button works the same. No game numbers changed.
+
 ## 2026-11-08 — Living node pile glyphs on gather node cards (bakeoff/gemini-node-living)
 
 - **Living resource piles:** Under the Name, Stock, and Pile rows on each gather node card in ProvinceInspect (Tile group), a subtle living pile emblem now displays the nature of the resource reserve:

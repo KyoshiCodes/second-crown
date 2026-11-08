@@ -1,4 +1,12 @@
 
+## 2026-11-08 — app / Kingdom tab living outpost cards (wave/outpost-living)
+
+- **Files:** new `packages/app/src/hud/OutpostLivingCard.tsx` (exports `OutpostLivingCard`, `outpostRows(state, tile, nameOf?)`, types `OutpostRow`, `OutpostRowKind`, `OutpostRowTone`, `OutpostTile`), new `hud/outpost-living.css`, new test `hud/OutpostLivingCard.test.tsx`. `tabs/KingdomTab.tsx` renders `<OutpostLivingCard state province nameOf>` inside each Flags `.sc-work-card.sc-plain-card` where the `.sc-work-head` and `.sc-work-status` were; it dropped the now-unused `power`/`eta` locals and the `garrisonPower` import.
+- **Markup:** `<section class="sc-outpost-card is-living is-<node> is-guarded|is-bare|is-threatened">` → `<dl class="sc-outpost-card-rows">` with `.sc-outpost-card-row.is-name|is-camp|is-flag.tone-<tone>`.
+- **Reads:** province `node`/`x`/`y`, `garrisonAt` (soldier count = sum of positive `force` values, display only), `garrisonPower`, `incomingOnProvince` (ETA via `TICKS_PER_SECOND`, same as the old `/10`). The realm name goes through the tab's `nameOf`, so fog still shows "Unknown host" without a watchtower. Pure; a test asserts state is byte-identical after render.
+- **Controls:** Abandon button and the outer card's `is-warn`/`is-done` border are untouched.
+- **CSS:** scoped to `.sc-outpost-card`, mirrors `node-living.css` (row grid, tone pips, pulse on warn/danger). Reduced motion turns off the pip pulse. `theme.css`, `plain-buttons.css` untouched.
+
 ## 2026-11-08 — app / living node pile glyphs under node cards (bakeoff/gemini-node-living)
 
 - **Components:** `packages/app/src/hud/NodePileLivingGlyph.tsx` exports `NodePileLivingGlyph`, `NodePileUnderlay`, `resolveNodePileDescriptor`, `resolveNodePileDescriptorByValues`, and types `NodePileDescriptor`, `GatherNodeKind`, `NodePileStatus`, `NodePileTone`.

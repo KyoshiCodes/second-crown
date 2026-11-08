@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-08 — Living outpost cards on the Kingdom tab (wave/outpost-living)
+
+- App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.
+- Kingdom tab **Flags** cards now stack three rows: **Name** (node name + coords), **Camp** (garrison power + soldier count, or "Unguarded") and **Flag** ("Flying", or "Under threat" with the inbound host and seconds).
+- Replaces the raw node id head and the one-line status text. The Abandon button and the card border state are unchanged.
+- Values come only from the province, `garrisonAt`, `garrisonPower`, `incomingOnProvince`, and the tab's fog-aware realm name. Styles in new `hud/outpost-living.css`.
+- Tests: `hud/OutpostLivingCard.test.tsx` (9 tests). Sim 323, app 713, server 158 pass; `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-08 — Living node pile glyphs under node cards (bakeoff/gemini-node-living)
 
 - **Living node pile glyph strips (`NodePileLivingGlyph`):** Added left-aligned 14×14 living SVG pile emblems directly beneath the stacked rows and meter on gather node cards (`NodeLivingCard.tsx`), with subtle glow (`sc-node-glow-layer`), pulse (`sc-node-pulse-layer`), and drift (`sc-node-drift-layer`) motion across Timber stand (cordwood logs), Stone outcrop (ashlar cairn), and Forage field (grain bushels).

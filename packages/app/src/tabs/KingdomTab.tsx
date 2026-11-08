@@ -13,7 +13,6 @@ import {
   formatLetterSuffix,
   fullStores,
   garrisonAt,
-  garrisonPower,
   getBuildingType,
   getProvince,
   housingCap,
@@ -66,6 +65,7 @@ import { VisionLine } from "../VisionLine";
 import { WorkCard } from "../hud/WorkCard";
 import { OfferCard } from "../hud/OfferCard";
 import { VaultLivingCards } from "../hud/VaultLivingCard";
+import { OutpostLivingCard } from "../hud/OutpostLivingCard";
 import { BalanceNotes } from "../BalanceNotes";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
@@ -379,19 +379,10 @@ export function KingdomTab(props: {
           <div className="sc-plain-grid">
           {flags.map((p) => {
             const posted = state ? garrisonAt(state, p.id) : undefined;
-            const power = state && posted ? garrisonPower(state, p.id) : 0;
             const hit = state ? incomingOnProvince(state, p.id) : undefined;
-            const eta = hit ? Math.max(0, Math.ceil((hit.arrivesTick - tick) / 10)) : 0;
             return (
               <div key={p.id} className={`sc-work-card sc-plain-card ${hit ? "is-warn" : posted ? "is-done" : ""}`}>
-                <div className="sc-work-head">
-                  <span className="sc-work-name">{p.node}</span>
-                  <span className="sc-work-level">{p.x},{p.y}</span>
-                </div>
-                <div className="sc-work-status">
-                  {posted ? `Garrison ${power}` : "Unguarded"}
-                  {hit ? ` · ${nameOf(hit.realmId)} in ${eta}s` : ""}
-                </div>
+                {state ? <OutpostLivingCard state={state} province={p} nameOf={nameOf} /> : null}
                 <div className="sc-plain-actions">
                 <button
                   type="button"
