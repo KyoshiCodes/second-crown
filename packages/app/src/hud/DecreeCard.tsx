@@ -4,9 +4,11 @@ import type { ActFn } from "../game/useGameEngine";
 import { ResourcePip, type ResourceKind } from "./ResourcePip";
 import { WaxSealPip } from "./WaxSealPip";
 import { DecreeLedger, decreeLedgerRows, decreeStatus } from "./DecreeLedger";
+import { DecreeLivingGlyph, DecreeLivingUnderlay } from "./DecreeLivingGlyph";
 import "./resource-pip.css";
 import "./decree-card.css";
 import "./decree-living.css";
+import "./decree-glyph-living.css";
 
 type Decree = (typeof DECREES)[number];
 
@@ -15,7 +17,8 @@ const PIP_KINDS: readonly string[] = ["food", "wood", "stone", "gold"];
 /**
  * One royal decree card with a 24px wax-seal pip:
  * - Opens with stacked DecreeLedger rows (name, time left, effect), then cost with ResourcePips and Issue action.
- * - Active decree has a lit, glowing molten wax seal.
+ * - DecreeLedger stacks former sc-decree-head (sc-decree-title-group, sc-decree-name, sc-decree-left) rows.
+ * - Active decree has a lit, glowing molten wax seal with ambient underlay watermark and living status strip.
  * - Art strictly has pointer-events: none so clicks are never blocked.
  * Uses tryDecree as-is from sim.
  */
@@ -30,11 +33,13 @@ export function DecreeCard(props: { state: GameState | undefined; decree: Decree
 
   return (
     <div className={`sc-decree-card is-living ${tone}`} data-decree={decree.id} data-active={active}>
+      <DecreeLivingUnderlay decreeId={decree.id} status={status} left={left} ticks={decree.ticks} />
       <DecreeLedger
         rows={decreeLedgerRows({ name: decree.name, blurb: decree.blurb, status, left, ticks: decree.ticks }).map((r) =>
           r.kind === "name" ? { ...r, lead: <WaxSealPip active={active} decreeId={decree.id} size={24} /> } : r,
         )}
       />
+      <DecreeLivingGlyph decreeId={decree.id} status={status} left={left} ticks={decree.ticks} />
       <span className="sc-decree-cost">
         {cost.map(([res, amt]) => {
           const short = !active && !!state && Number(state.resources[res] ?? "0") < Number(amt);

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-08 — Living decree seal glyphs under royal decree cards (bakeoff/gemini-decrees-living)
+
+- **Living decree seal strip (`DecreeLivingGlyph`):** Added left-aligned `14×14` living SVG seal emblems directly beneath `DecreeLedger` (above `.sc-decree-cost`) on all royal decree cards in `DecreeCard.tsx`, with subtle glow (`sc-decree-glow-layer`), drift (`sc-decree-drift-layer`), and pulse (`sc-decree-pulse-layer`) motion:
+  - *Muster the Host (`muster`)*: Crossed arming blades, spiked war coronet, and rally standard with fiery martial gleam (*"Host mustered · 10% cheaper training · Ns left"*, *"Host Muster Seal prepared · stores ready to issue"*).
+  - *Harvest Rite (`rite`)*: Upright wheat stalk with seed ears, crescent harvest sickle, and solar grain spark (*"Rite in force · +3 production yield · Ns left"*, *"Harvest Rite Seal prepared · stores ready to issue"*).
+  - *Send Envoys (`envoys`)*: Courier messenger wings, treaty parchment scroll, and diplomatic signet star (*"Envoys riding · +6 gift opinion · Ns left"*, *"Chancellery Envoy Seal prepared · stores ready to issue"*).
+  - *Royal Crown fallback (`crown`)*: Stamped signet matrix and imperial crown.
+- **Corner-confined card watermarks (`DecreeLivingUnderlay`):** Added `34×34` bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low-opacity keyframes (`<= 0.22` wrapper) so `DecreeLedger` text, costs, and the **Issue** button stay crisp.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, `theme.css`, or `decree-living.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only `<span>` + `<svg>` markup, `aria-hidden="true"`, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Added `packages/app/src/hud/DecreeLivingGlyph.test.tsx` (9 tests). Sim 323, app 610, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-08 — Living status rows on royal decree cards (wave/decrees-living)
 
 - App only (`packages/app`). No changes to `packages/sim`, `server/`, or `theme.css`. No rule or number changes.

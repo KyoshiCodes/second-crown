@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-08 — Living decree seal glyphs on royal decree cards (bakeoff/gemini-decrees-living)
+
+- **Living decree seal emblems:** Under the Decree, Time left, and Effect rows on each royal decree card, a subtle living seal emblem now mirrors the crown's mandate:
+  - **Muster the Host:** Crossed arming blades and war coronet with a fiery martial gleam (*Host mustered · 10% cheaper training · Ns left*).
+  - **Harvest Rite:** Crowned wheat ears and crescent sickle with a golden sunburst spark (*Rite in force · +3 production yield · Ns left*).
+  - **Send Envoys:** Messenger courier wings and parchment treaty with a diplomatic star (*Envoys riding · +6 gift opinion · Ns left*).
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each card, and the cost row plus **Issue** button work identically to before. No game numbers changed.
+
 ## 2026-11-08 — Royal decrees show Decree, Time left, Effect (wave/decrees-living)
 
 - Each royal decree card on the Crown tab now opens with three rows: **Decree** (name, and whether it is in force, ready, or short of stores), **Time left** (a bar drains while the decree is sworn), and **Effect** (what it does).

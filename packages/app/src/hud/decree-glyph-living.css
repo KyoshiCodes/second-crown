@@ -1,0 +1,236 @@
+/* --- Living Decree Seal Glyphs under Royal Decree Cards (isolated from theme.css) --- */
+
+.sc-decree-card.is-living {
+  position: relative;
+  overflow: hidden;
+}
+
+.sc-decree-card.is-living > :not(.sc-decree-living-underlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Corner-confined 34x34 ambient seal watermark tucked into the bottom-right pocket */
+.sc-decree-living-underlay {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 34px;
+  height: 34px;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  opacity: 0.15;
+  -webkit-mask-image: radial-gradient(
+    circle at 74% 74%,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.42) 56%,
+    transparent 92%
+  );
+  mask-image: radial-gradient(
+    circle at 74% 74%,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.42) 56%,
+    transparent 92%
+  );
+}
+
+.sc-decree-living-underlay * {
+  pointer-events: none !important;
+}
+
+.sc-decree-living-underlay.status-active {
+  opacity: 0.22;
+}
+
+.sc-decree-living-underlay.status-ready {
+  opacity: 0.18;
+}
+
+.sc-decree-living-underlay.status-short {
+  opacity: 0.13;
+}
+
+.sc-decree-living-underlay.status-idle {
+  opacity: 0.12;
+}
+
+.sc-decree-underlay-svg {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  transform-origin: center center;
+  animation: sc-decree-underlay-drift 6.4s ease-in-out infinite;
+}
+
+.sc-decree-living-underlay.status-active .sc-decree-underlay-svg {
+  animation: sc-decree-underlay-pulse 3s ease-in-out infinite;
+}
+
+.sc-decree-living-underlay.status-short .sc-decree-underlay-svg,
+.sc-decree-living-underlay.status-idle .sc-decree-underlay-svg {
+  animation: none;
+  opacity: 0.4;
+}
+
+/* Color tokens by decree and status */
+.sc-decree-living-underlay.decree-muster,
+.sc-decree-seal-glyph.decree-muster {
+  --sc-seal-accent: #f59e0b;
+}
+
+.sc-decree-living-underlay.decree-rite,
+.sc-decree-seal-glyph.decree-rite {
+  --sc-seal-accent: #3fb950;
+}
+
+.sc-decree-living-underlay.decree-envoys,
+.sc-decree-seal-glyph.decree-envoys {
+  --sc-seal-accent: #38bdf8;
+}
+
+.sc-decree-living-underlay.status-active,
+.sc-decree-seal-glyph.status-active {
+  color: var(--sc-seal-accent, #f59e0b);
+}
+
+.sc-decree-living-underlay.status-ready,
+.sc-decree-seal-glyph.status-ready {
+  color: var(--sc-seal-accent, #3fb950);
+}
+
+.sc-decree-living-underlay.status-short,
+.sc-decree-seal-glyph.status-short {
+  color: #f85149;
+}
+
+.sc-decree-living-underlay.status-idle,
+.sc-decree-seal-glyph.status-idle {
+  color: #8b949e;
+}
+
+/* Living 14x14 decree seal status strip between DecreeLedger and costs */
+.sc-decree-seal-glyph {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin: 1px 0 2px;
+  padding: 2px 5px;
+  font-size: 10px;
+  line-height: 1.25;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-decree-seal-glyph * {
+  pointer-events: none !important;
+}
+
+.sc-decree-seal-icon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  pointer-events: none !important;
+}
+
+.sc-decree-seal-flair {
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.9;
+}
+
+.sc-decree-seal-glyph.status-active .sc-decree-seal-flair {
+  color: var(--sc-seal-accent, #f59e0b);
+  font-weight: 600;
+}
+
+.sc-decree-seal-glyph.status-short .sc-decree-seal-flair {
+  color: #f85149;
+}
+
+/* Subtle living SVG layer animations */
+.sc-decree-glow-layer {
+  transform-origin: center center;
+  animation: sc-decree-glow 2.8s ease-in-out infinite;
+}
+
+.sc-decree-drift-layer {
+  transform-origin: center center;
+  animation: sc-decree-drift 4.8s ease-in-out infinite;
+}
+
+.sc-decree-pulse-layer {
+  transform-origin: center center;
+  animation: sc-decree-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes sc-decree-glow {
+  0%, 100% {
+    opacity: 0.18;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.38;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes sc-decree-drift {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.8px);
+  }
+}
+
+@keyframes sc-decree-pulse {
+  0%, 100% {
+    opacity: 0.82;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-decree-underlay-drift {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.04) rotate(1.5deg);
+  }
+}
+
+@keyframes sc-decree-underlay-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+/* Motion guard */
+@media (prefers-reduced-motion: reduce) {
+  .sc-decree-underlay-svg,
+  .sc-decree-glow-layer,
+  .sc-decree-drift-layer,
+  .sc-decree-pulse-layer {
+    animation: none !important;
+  }
+}

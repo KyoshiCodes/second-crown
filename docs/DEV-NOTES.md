@@ -1,3 +1,10 @@
+## 2026-11-08 — app / living decree seal glyphs under royal decree cards (bakeoff/gemini-decrees-living)
+
+- **Components:** `packages/app/src/hud/DecreeLivingGlyph.tsx` exports `DecreeLivingGlyph`, `DecreeLivingUnderlay`, `getDecreeSealKind`, `resolveDecreeLiving`, and types `DecreeSealKind`, `DecreeLivingDescriptor`.
+- **Integration (`hud/DecreeCard.tsx`):** Renders `<DecreeLivingUnderlay decreeId status left ticks />` (`z-index: 0`) at the card top, `<DecreeLedger>` (`z-index: 1`), and `<DecreeLivingGlyph decreeId status left ticks />` (`z-index: 1`, directly beneath `<DecreeLedger />` and above `.sc-decree-cost`). Cost line, `sc-decree-btn`, and `tryDecree` handler remain untouched.
+- **Scoping & readability (`decree-glyph-living.css`):** Scoped via `.sc-decree-card.is-living` with foreground children at `z-index: 1` and `.sc-decree-living-underlay` confined to `right: -2px; bottom: -2px; width: 34px; height: 34px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.12..0.22`, and watermark keyframe opacity `<= 0.25`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards. `theme.css`, `decree-living.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/DecreeLivingGlyph.test.tsx` (9 tests) covers decree seal kind mapping, active/ready/short/idle descriptor resolution, phrasing-only SVG markup, `DecreeCard` visual stack order, corner watermark opacity ceilings, and CSS isolation.
+
 ## 2026-11-08 — app / royal decree card ledger rows (wave/decrees-living)
 
 - **Files:** `packages/app/src/hud/DecreeLedger.tsx` (exports `DecreeLedger`, `decreeLedgerRows`, `decreeStatus`, types `DecreeLedgerKind`, `DecreeLedgerTone`, `DecreeStatus`, `DecreeLedgerRow`), `hud/decree-living.css`, test `hud/DecreeLedger.test.tsx`.
