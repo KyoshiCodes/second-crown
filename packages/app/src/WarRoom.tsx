@@ -41,6 +41,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { RealmCard, realmStance } from "./hud/RealmCard";
+import { realmPactOf } from "./hud/DiploLivingRows";
 import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
@@ -167,6 +168,7 @@ export function WarRoom(props: {
                 myOpinion={isRival ? playerOp : undefined}
                 mine={mine}
                 theirs={theirs}
+                pact={realmPactOf(state?.factions, r.id)}
                 declareLocked={!!activeWar || left > 0}
                 onDeclare={() => act((st) => {
                   const ok = tryDeclareWar(st, { attackerRealmId: "player", defenderRealmId: r.id });

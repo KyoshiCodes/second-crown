@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-09 — Richer living Diplomacy realm cards (wave/diplo-living)
+
+- **Realm cards (`WarRoom` → `RealmCard`, `WorldPanel` Known Crowns):** the crest pip now sits in a round stance-tinted chip beside a stacked **Name / Stance / Pact** column (`DiploLivingRows`), with the existing **Power** row kept below. Name carries a stance tag; Stance keeps "Truce Ns" and opinion; Pact shows the faction the realm is sworn to (kind · leads it · N sworn · with you · +N more) or "No pact · unsworn".
+- **Layout:** uppercase row labels (hidden under 520px), tone rule left of each row, dashed rule above Pact; chip pulses while at war, a truce stance rule breathes and a pact shared with you glows (off under reduced motion). New `hud/diplo-living-rows.css`, scoped to `.sc-diplo-living-head` / `.sc-diplo-living-row*`.
+- **Controls:** all diplomacy buttons unchanged. Pact (faction) cards untouched.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`. No new game math.
+- **Tests:** new `hud/DiploLivingRows.test.tsx`; `DiploLedger.test.tsx` and `DiploLivingGlyph.test.tsx` now anchor realm-card order checks on the living head. Sim 323, app 810, server 158 pass. App build succeeds.
+
 ## 2026-11-09 — Living decree glyphs under decree cards (bakeoff/gemini-decree-living)
 
 - **Living decree glyph strips (`DecreeLivingGlyph` / `DecreeSealLivingGlyph`):** Added left-aligned 14×14 living SVG royal seal emblems directly beneath the stacked Name, Duration, and Effect rows on royal decree cards (`DecreeCard.tsx`), with subtle glow (`sc-decree-glow-layer`), pulse (`sc-decree-pulse-layer`), and drift (`sc-decree-drift-layer`) motion across In Force (molten gleam pulse), Ready (prepared drift), Short (short stores pulse), and Idle (unsworn calm) states across Muster the Host (crossed blades/war coronet), Harvest Rite (wheat stalk/sickle arc), and Send Envoys (courier wings/treaty scroll).

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Realm cards in Diplomacy are easier to read (wave/diplo-living)
+
+- On the **War** tab Diplomacy grid and the **World** tab Known Crowns, each realm card now shows its crest in a small round coloured badge next to short lines: the **name** (with its stance, like friendly or at war), **Stance** (truce time and opinion), **Pact** (which pact that realm belongs to, whether it leads it, and whether you are in it too) and **Power** as before.
+- All buttons (Declare war, Gift, Scout, Tribute, Trade) work exactly as before. No game numbers changed.
+
 ## 2026-11-09 — Living decree glyphs on decree cards (bakeoff/gemini-decree-living)
 
 - **Living decree emblems:** Under the Name, Duration, and Effect rows on each royal decree card on the Crown tab, a subtle living emblem now portrays the decree's royal office and proclamation state:

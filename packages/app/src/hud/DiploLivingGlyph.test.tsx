@@ -166,7 +166,7 @@ describe("DiploLivingGlyph markup & visual stack order", () => {
     expect(
       inOrder(html, [
         "sc-diplo-living-underlay",
-        "sc-diplo-ledger",
+        "sc-diplo-living-head",
         rival.name,
         "sc-diplo-crest-glyph",
         "sc-realm-dip-actions",

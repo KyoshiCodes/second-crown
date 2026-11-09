@@ -1,7 +1,8 @@
 import React from "react";
 import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState } from "@second-crown/sim";
 import { RealmCrestPip } from "./RealmCrestPip";
-import { DiploLedger, realmLedgerRows } from "./DiploLedger";
+import { realmLedgerRows } from "./DiploLedger";
+import { DiploLivingRows, type RealmPact } from "./DiploLivingRows";
 import { RealmLivingGlyph, RealmLivingUnderlay } from "./DiploLivingGlyph";
 import "./realm-card.css";
 import "./diplo-living.css";
@@ -64,6 +65,8 @@ export function RealmCard(props: {
   declareLocked: boolean;
   onDeclare: () => void;
   onGift?: () => void;
+  /** Pact this realm is sworn to (realmPactOf over state.factions); null or omitted reads "No pact". */
+  pact?: RealmPact | null;
 }) {
   const { realm, stance, peaceLeft, opinion, myOpinion, mine, theirs } = props;
   const favored = mine >= theirs;
@@ -80,7 +83,7 @@ export function RealmCard(props: {
   return (
     <div className={`sc-realm-dip is-${stance} is-living`} data-realm={realm.id}>
       <RealmLivingUnderlay realmId={realm.id} stance={stance} />
-      <DiploLedger rows={rows} />
+      <DiploLivingRows realmId={realm.id} stance={stance} rows={rows} pact={props.pact ?? null} />
       <RealmLivingGlyph
         realmId={realm.id}
         stance={stance}
@@ -89,7 +92,7 @@ export function RealmCard(props: {
         myOpinion={myOpinion}
         matchup={{ mine, theirs }}
       />
-      {/* former sc-realm-dip-line rows stacked by DiploLedger */}
+      {/* former sc-realm-dip-line rows stacked by DiploLivingRows (Name / Stance / Pact / Power) */}
       <span className="sc-realm-dip-actions">
         <button
           type="button"

@@ -70,13 +70,13 @@ describe("cards keep their buttons after the rows", () => {
     const html = renderToStaticMarkup(
       <RealmCard realm={realm} stance="friendly" peaceLeft={0} opinion={30} mine={20} theirs={20} declareLocked={false} onDeclare={noop} onGift={noop} />,
     );
-    expect(inOrder(html, ["sc-diplo-ledger", realm.name, "Friendly", "20 vs 20", "Declare war", "Gift 15 gold"])).toBe(true);
+    expect(inOrder(html, ["sc-diplo-living-head", realm.name, "Friendly", "No pact", "20 vs 20", "Declare war", "Gift 15 gold"])).toBe(true);
   });
 
   it("WorldPanel: realm and pact cards render rows and keep Join/Leave", () => {
     const s = createGameState({ seed: 1 });
     const html = renderToStaticMarkup(<WorldPanel state={s} onFoundGuild={noop} onJoin={noop} onLeave={noop} />);
-    expect(html).toContain("sc-diplo-ledger");
+    expect(html).toContain("sc-diplo-living-rows");
     if ((s.factions ?? []).length > 0) {
       const f = s.factions![0];
       expect(inOrder(html, [f.name, `${f.memberRealmIds.length} sworn`])).toBe(true);

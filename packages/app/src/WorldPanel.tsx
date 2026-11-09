@@ -8,6 +8,7 @@ import { playerStanceToward, RealmCardHead } from "./hud/RealmCard";
 import { RealmCrestPip } from "./hud/RealmCrestPip";
 import { FactionSealPip } from "./hud/FactionSealPip";
 import { DiploLedger, pactLedgerRows, realmLedgerRows } from "./hud/DiploLedger";
+import { DiploLivingRows, realmPactOf } from "./hud/DiploLivingRows";
 import { RealmLivingGlyph, RealmLivingUnderlay, PactLivingGlyph, PactLivingUnderlay } from "./hud/DiploLivingGlyph";
 import "./hud/crown-card.css";
 import "./hud/faction-seals.css";
@@ -63,7 +64,10 @@ export function WorldPanel(props: {
         return (
           <div key={r.id} className={`sc-realm-dip is-${stance} is-living`} data-realm={r.id}>
             <RealmLivingUnderlay realmId={r.id} stance={stance} />
-            <DiploLedger
+            <DiploLivingRows
+              realmId={r.id}
+              stance={stance}
+              pact={realmPactOf(state.factions, r.id)}
               rows={realmLedgerRows({
                 name: r.name,
                 nameSub: `${flavor.title} · ${ruler?.name ?? flavor.rulerName}`,

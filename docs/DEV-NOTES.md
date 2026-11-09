@@ -1,3 +1,11 @@
+## 2026-11-09 — app / richer living Diplomacy realm cards (wave/diplo-living)
+
+- **Component:** new `packages/app/src/hud/DiploLivingRows.tsx` exports `DiploLivingRows`, `orderDiploRows(rows, pact)`, `pactLivingRow(pact)`, `realmPactOf(factions, realmId)`, `DIPLO_LIVING_KINDS` (`name`, `stance`, `pact`, `power`) and `RealmPact`. It takes the `DiploLedgerRow[]` from `realmLedgerRows()` (values unchanged) and inserts a Pact row; the name row's `lead` (crest pip) moves into the chip.
+- **Pact source:** `realmPactOf` filters `state.factions` by `memberRealmIds.includes(realmId)`, takes the first, and reports `leads` (`leaderRealmId === realmId`), `withYou` (`memberRealmIds` has `"player"`), `sworn` (member count) and `more` (other factions). Read-only; no new math.
+- **Wiring:** `RealmCard` takes an optional `pact` prop and renders `<DiploLivingRows>` in place of `<DiploLedger>`; `WarRoom` passes `realmPactOf(state?.factions, r.id)`; `WorldPanel` Known Crowns renders `<DiploLivingRows>` directly. Pact (faction) cards still use `DiploLedger` / `pactLedgerRows`.
+- **CSS:** new `hud/diplo-living-rows.css`; selectors under `.sc-diplo-living-head`, `.sc-diplo-living-chip`, `.sc-diplo-living-row*`, `.sc-diplo-living-meter*`. Stance tint via `--sc-diplo-stance-tone`. Labels hidden below 520px; animations and meter transition off under `prefers-reduced-motion`.
+- **Tests:** new `hud/DiploLivingRows.test.tsx`; realm-card order checks in `DiploLedger.test.tsx` / `DiploLivingGlyph.test.tsx` now look for `sc-diplo-living-head`.
+
 ## 2026-11-09 — app / living decree glyphs under decree cards (bakeoff/gemini-decree-living)
 
 - **Components:** `packages/app/src/hud/DecreeLivingGlyph.tsx` exports `DecreeSealLivingGlyph`, `DecreeLivingSealGlyph`, `DecreeSealLivingUnderlay`, `DecreeLivingGlyph`, `DecreeLivingUnderlay`, `getDecreeSealKind`, `resolveDecreeLiving`, and types `DecreeSealKind`, `DecreeLivingDescriptor`. `DecreeCard.tsx` exports `DecreeLivingCard` alias and marks each card with `sc-decree-living-card`.
