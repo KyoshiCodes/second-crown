@@ -1,0 +1,148 @@
+/* --- Standing works (building) cards: living status column (Name / Level / Staffed). ---
+ * Scoped to .sc-work-living-*; sits inside .sc-work-head on WorkCard only.
+ * theme.css is untouched; its .sc-work-name rules still apply. */
+
+.sc-work-head.sc-work-living-head {
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.sc-work-living-head > :first-child {
+  flex: none;
+  margin-top: 2px;
+}
+
+.sc-work-living-rows {
+  --sc-work-domain-tone: var(--chrome-accent, #c9b48a);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sc-work-living-rows.domain-hearth  { --sc-work-domain-tone: #e3b341; }
+.sc-work-living-rows.domain-craft   { --sc-work-domain-tone: #c8955a; }
+.sc-work-living-rows.domain-mint    { --sc-work-domain-tone: #f2cc60; }
+.sc-work-living-rows.domain-martial { --sc-work-domain-tone: #a7b0bb; }
+.sc-work-living-rows.domain-sanctum { --sc-work-domain-tone: #b9a7e8; }
+
+.sc-work-living-row {
+  --sc-work-living-tone: #8b949e;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1px 6px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-work-living-tone);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Name row reads as the card title: no rule, hall domain tag at the right. */
+.sc-work-living-row.is-name {
+  padding-left: 0;
+  border-left: none;
+  font-size: 12px;
+  flex-wrap: nowrap;
+}
+.sc-work-living-row.is-name .sc-work-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sc-work-living-domain {
+  flex: none;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sc-work-domain-tone);
+  opacity: 0.7;
+}
+.sc-work-living-domain.is-fog {
+  color: inherit;
+  opacity: 0.4;
+}
+
+.sc-work-living-row.is-level   { background: rgba(255, 255, 255, 0.025); }
+.sc-work-living-row.is-staffed { border-top: 1px dashed rgba(200, 150, 62, 0.18); }
+
+.sc-work-living-label {
+  flex: 0 0 auto;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+.sc-work-living-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-work-living-note {
+  margin-left: 6px;
+  font-size: 10px;
+  opacity: 0.55;
+}
+
+/* Tones (local; mirrors work-status.css so rows read the same). */
+.sc-work-living-row.tone-calm   { --sc-work-living-tone: #4ade80; }
+.sc-work-living-row.tone-warn   { --sc-work-living-tone: #d29922; }
+.sc-work-living-row.tone-danger { --sc-work-living-tone: #f85149; }
+.sc-work-living-row.tone-fog    { --sc-work-living-tone: #8b949e; }
+.sc-work-living-row.is-level.tone-calm { --sc-work-living-tone: var(--chrome-accent); }
+.sc-work-living-row.tone-warn .sc-work-living-value { color: #d29922; }
+.sc-work-living-row.tone-danger .sc-work-living-value { color: #f85149; font-weight: 600; }
+.sc-work-living-row.tone-fog .sc-work-living-value { opacity: 0.6; font-style: italic; }
+
+/* Thin meters: level toward cap, staff lift toward a full crew (display-only). */
+.sc-work-living-meter {
+  display: block;
+  flex: 1 0 100%;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(110, 118, 129, 0.22);
+  pointer-events: none;
+}
+.sc-work-living-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--sc-work-living-tone);
+  transition: width 0.6s ease-out;
+}
+
+/* Living: a crewed hall's staffed rule breathes; an empty hall's rule blinks warn. */
+.sc-work-living-row.is-staffed.is-live {
+  animation: sc-work-living-breathe 3s ease-in-out infinite;
+}
+.sc-work-living-row.is-staffed.tone-warn {
+  animation: sc-work-living-rule 2s ease-in-out infinite;
+}
+@keyframes sc-work-living-breathe {
+  0%, 100% { border-left-color: var(--sc-work-living-tone); }
+  50% { border-left-color: rgba(74, 222, 128, 0.35); }
+}
+@keyframes sc-work-living-rule {
+  0%, 100% { border-left-color: var(--sc-work-living-tone); }
+  50% { border-left-color: transparent; }
+}
+
+/* Narrow screens: drop the tiny labels and notes, keep values. */
+@media (max-width: 520px) {
+  .sc-work-living-label,
+  .sc-work-living-note { display: none; }
+  .sc-work-living-value { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-work-living-row,
+  .sc-work-living-row.is-staffed.is-live,
+  .sc-work-living-row.is-staffed.tone-warn { animation: none !important; }
+  .sc-work-living-meter-fill { transition: none; }
+}

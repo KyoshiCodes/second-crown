@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Building cards are easier to read (wave/building-living)
+
+- On the Kingdom tab, each standing building card now lists three short lines next to its picture: the **name** (with its kind: hearth, craft, mint, martial or sanctum), **Level** (current and max level, with a small bar) and **Staffed** (how much the workers lift it, with a small bar; it gently pulses when crewed and blinks amber when nobody is working there).
+- The Bonuses line underneath and the Demolish / Repair buttons work exactly as before. No game numbers changed.
+
 ## 2026-11-09 — Living unit glyphs on unit cards (bakeoff/gemini-unit-living)
 
 - **Living unit emblems:** Under the Name, Power, Cost, and Ready rows on each unit card in the Army tab, a subtle living emblem now portrays the regiment's operational readiness and branch of service:

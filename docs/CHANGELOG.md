@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-09 — Richer living Building cards (wave/building-living)
+
+- **Building cards (`WorkCard`, Kingdom tab Standing works):** hall chip now sits beside a stacked **Name / Level / Staffed** column (`WorkLivingRows`). Name carries a small hall-domain tag; Level keeps `lv N / max`, steps to cap and a thin meter; Staffed keeps the staff lift, crew note and meter. Bonuses row, living hall glyph strip and watermark stay below.
+- **Layout:** small uppercase labels and notes (hidden under 520px), tone rules on the left of each row, dashed rule above Staffed; a crewed hall's Staffed rule breathes, an empty hall's blinks warn (both off under reduced motion). New `hud/work-living-rows.css`, scoped to `.sc-work-living-*`.
+- **Controls:** Demolish / Repair buttons kept as-is.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`.
+- **Tests:** new `hud/WorkLivingRows.test.tsx` (row split, stack order, scarred fog, every buildable type living, CSS isolation); `WorkStatus.test.tsx` scarred assertion moved to the living row class.
+
 ## 2026-11-09 — Living unit glyphs under unit cards (bakeoff/gemini-unit-living)
 
 - **Living unit glyph strips (`UnitLivingGlyph`):** Added left-aligned 14×14 living SVG martial emblems directly beneath the stacked Name, Power, Cost, and Readiness rows in each Army unit card (`UnitCard.tsx`), with subtle glow (`sc-unit-glow-layer`), pulse (`sc-unit-pulse-layer`), and drift (`sc-unit-drift-layer`) motion across Locked (calm sealed lore), Drilling (cadre training pulse), Ready (levy ready drift), and Short (stores short pulse) states across Infantry (crossed blades), Ranged (recurve longbow), Cavalry (charger destrier helm), and Command (winged coronet keystone).

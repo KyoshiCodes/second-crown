@@ -15,6 +15,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { HallChip } from "./HallChip";
 import { WorkStatus, workStatusRows } from "./WorkStatus";
 import { WorkLivingGlyph, WorkLivingUnderlay } from "./WorkLivingGlyph";
+import { WorkLivingRows, splitWorkRows } from "./WorkLivingRows";
 
 type Building = GameState["buildings"][number];
 
@@ -38,6 +39,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
     pairPct: pair,
     keepPct: keep,
   });
+  const living = splitWorkRows(rows);
   const cls = ["sc-work-card", scarred ? "is-scarred" : staff > 0 ? "is-staffed" : "is-empty"].join(" ");
 
   return (
@@ -49,12 +51,11 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
         staffed={staff > 0}
         lifted={lifted}
       />
-      <div className="sc-work-head">
+      <div className="sc-work-head sc-work-living-head">
         <HallChip typeId={b.typeId} staffed={staff > 0} scarred={scarred} />
-        <span className="sc-work-name">{nm}</span>
-        <span className="sc-work-level">lv {b.level}</span>
+        <WorkLivingRows typeId={b.typeId} name={nm} scarred={scarred} rows={living.head} />
       </div>
-      <WorkStatus rows={rows} />
+      <WorkStatus rows={living.rest} />
       <WorkLivingGlyph
         typeId={b.typeId}
         scarred={scarred}

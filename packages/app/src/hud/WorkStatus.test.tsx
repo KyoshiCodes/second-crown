@@ -99,7 +99,7 @@ describe("WorkCard keeps its buttons", () => {
 
   it("scarred work shows rows and Repair", () => {
     const html = card(true);
-    expect(html).toContain("sc-workstat-row is-staffed tone-danger");
+    expect(html).toContain("sc-work-living-row is-staffed tone-danger");
     expect(html).toContain("Repair (8 stone)");
   });
 });

@@ -1,3 +1,11 @@
+## 2026-11-09 — app / richer living Building cards (wave/building-living)
+
+- **Component:** new `packages/app/src/hud/WorkLivingRows.tsx` exports `WorkLivingRows`, `splitWorkRows(rows)` and `WORK_LIVING_HEAD_KINDS` (`level`, `staffed`). `splitWorkRows` moves those rows into the head and leaves the rest (`bonuses`) for `WorkStatus`.
+- **Wiring:** `WorkCard` adds `sc-work-living-head` to `.sc-work-head` and renders `WorkLivingRows` beside `HallChip` (Name row keeps `.sc-work-name` so theme.css styling still applies); `WorkStatus` gets only the remaining rows. Inline `.sc-work-level` is omitted on this card (other `.sc-work-card` panels unaffected).
+- **Sources:** unchanged — `workStatusRows()` output and the existing `getHallDomain()` in `WorkLivingGlyph.tsx`. Meter widths are the existing `fill` values. No new math.
+- **CSS:** new `hud/work-living-rows.css`; every selector under `.sc-work-living*` (plus `.sc-work-head.sc-work-living-head`). Labels/notes hidden below 520px; breathe/blink and meter transition off under `prefers-reduced-motion`.
+- **Tests:** new `hud/WorkLivingRows.test.tsx`; `WorkStatus.test.tsx` scarred-card assertion now checks `sc-work-living-row is-staffed tone-danger`. `npm test` and app build pass.
+
 ## 2026-11-09 — app / living unit glyphs under unit cards (bakeoff/gemini-unit-living)
 
 - **Components:** `packages/app/src/hud/UnitLivingGlyph.tsx` exports `UnitLivingGlyph`, `UnitLivingUnderlay`, `resolveUnitGlyphDescriptor`, `getUnitFamily`, and types `UnitFamily`, `UnitMood`, `UnitGlyphDescriptor`.
