@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-09 — Living unit glyphs under unit cards (bakeoff/gemini-unit-living)
+
+- **Living unit glyph strips (`UnitLivingGlyph`):** Added left-aligned 14×14 living SVG martial emblems directly beneath the stacked Name, Power, Cost, and Readiness rows in each Army unit card (`UnitCard.tsx`), with subtle glow (`sc-unit-glow-layer`), pulse (`sc-unit-pulse-layer`), and drift (`sc-unit-drift-layer`) motion across Locked (calm sealed lore), Drilling (cadre training pulse), Ready (levy ready drift), and Short (stores short pulse) states across Infantry (crossed blades), Ranged (recurve longbow), Cavalry (charger destrier helm), and Command (winged coronet keystone).
+- **Corner-confined card watermarks (`UnitLivingUnderlay`):** Added 38×38 bottom-right pocket watermarks (`right: -4px; bottom: -4px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.10..0.18` wrapper, `0.26` child SVG) inside `.sc-unit-card.is-living` depicting family martial emblems without obstructing stats, meters, batch counters, or train actions.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/hud/UnitLivingGlyph.test.tsx` (11 tests) and updated `LivingGlyphSoften.test.ts` (7 tests). Sim 323, app 762, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 640ms.
+
 ## 2026-11-09 — Richer living Unit cards (wave/unit-living)
 
 - **Unit cards (`UnitCard`, Army tab):** art now sits beside a stacked **Name / Power / Cost** column (`UnitLivingRows`). Name carries a small family tag; Power keeps home/away counts and a thin meter; Cost keeps batch size and drill time. Ready row, living glyph strip and watermark stay below.

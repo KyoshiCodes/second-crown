@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Living unit glyphs on unit cards (bakeoff/gemini-unit-living)
+
+- **Living unit emblems:** Under the Name, Power, Cost, and Ready rows on each unit card in the Army tab, a subtle living emblem now portrays the regiment's operational readiness and branch of service:
+  - **Infantry:** Crossed broadswords with green drift when levy is ready, amber pulse when stores are short, blue pulse during training drill, and calm silver when lore is sealed.
+  - **Ranged:** Recurve longbow with notched flight arrow reflecting archer company readiness.
+  - **Cavalry:** Armored destrier charger helm with chamfron and flowing crest for knightly and mounted units.
+  - **Command:** Winged imperial coronet with command scepter keystone for elite leadership cadres.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each unit card, keeping power bars, per-unit costs, drill timers, batch counters, and train buttons crisp and unobstructed. No game numbers changed.
+
 ## 2026-11-09 — Unit cards are easier to read (wave/unit-living)
 
 - On the Army tab, each unit card now lists three short lines next to its picture: the **name** (with its kind: infantry, ranged, cavalry or command), **Power** (with a small bar comparing it to your strongest unit, and how many you have home or away) and **Cost** (price per unit, batch size and drill time).

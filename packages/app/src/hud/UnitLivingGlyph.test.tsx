@@ -1,7 +1,12 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { UnitLivingGlyph, UnitLivingUnderlay, getUnitFamily } from "./UnitLivingGlyph";
+import {
+  UnitLivingGlyph,
+  UnitLivingUnderlay,
+  getUnitFamily,
+  resolveUnitGlyphDescriptor,
+} from "./UnitLivingGlyph";
 import { UnitCard } from "./UnitCard";
 import { unitStatusRows } from "./UnitStatus";
 
@@ -44,6 +49,7 @@ describe("getUnitFamily", () => {
     expect(getUnitFamily("ranger")).toBe("ranged");
     expect(getUnitFamily("skirmisher")).toBe("ranged");
 
+    expect(getUnitFamily("cavalry")).toBe("cavalry");
     expect(getUnitFamily("scout")).toBe("cavalry");
     expect(getUnitFamily("knight")).toBe("cavalry");
     expect(getUnitFamily("lancer")).toBe("cavalry");
@@ -51,6 +57,31 @@ describe("getUnitFamily", () => {
 
     expect(getUnitFamily("banner")).toBe("command");
     expect(getUnitFamily("champion")).toBe("command");
+    expect(getUnitFamily("siege")).toBe("command");
+  });
+});
+
+describe("resolveUnitGlyphDescriptor", () => {
+  it("resolves descriptor with mood, flair, and motion across states", () => {
+    const locked = resolveUnitGlyphDescriptor({ typeId: "archer", open: false, affordable: false });
+    expect(locked.mood).toBe("locked");
+    expect(locked.flair).toBe("Sealed lore");
+    expect(locked.motion).toBe("calm");
+
+    const drilling = resolveUnitGlyphDescriptor({ typeId: "lancer", open: true, affordable: true, drilling: true });
+    expect(drilling.mood).toBe("drilling");
+    expect(drilling.flair).toBe("Drilling cadre");
+    expect(drilling.motion).toBe("pulse");
+
+    const ready = resolveUnitGlyphDescriptor({ typeId: "spearman", open: true, affordable: true });
+    expect(ready.mood).toBe("ready");
+    expect(ready.flair).toBe("Levy ready");
+    expect(ready.motion).toBe("drift");
+
+    const short = resolveUnitGlyphDescriptor({ typeId: "banner", open: true, affordable: false });
+    expect(short.mood).toBe("short");
+    expect(short.flair).toBe("Stores short");
+    expect(short.motion).toBe("pulse");
   });
 });
 
@@ -93,13 +124,14 @@ describe("UnitLivingUnderlay", () => {
 });
 
 describe("UnitLivingGlyph", () => {
-  it("renders living unit glyph with heraldic flairs and compact 14px badge", () => {
+  it("renders living unit glyph with heraldic flairs, glow layer, and compact 14px badge", () => {
     const locked = renderToStaticMarkup(
       <UnitLivingGlyph typeId="archer" open={false} affordable={false} />,
     );
     expect(locked).toContain("Sealed lore");
     expect(locked).toContain("is-locked");
     expect(locked).toContain('width="14"');
+    expect(locked).toContain("sc-unit-glow-layer");
     expect(locked).not.toMatch(/<(div|dl|dt|dd|p)\b/);
 
     const drilling = renderToStaticMarkup(
@@ -107,6 +139,7 @@ describe("UnitLivingGlyph", () => {
     );
     expect(drilling).toContain("Drilling cadre");
     expect(drilling).toContain("is-drilling");
+    expect(drilling).toContain("sc-unit-pulse-layer");
     expect(drilling).toContain("sc-unit-glyph-sparkle");
 
     const ready = renderToStaticMarkup(
@@ -114,12 +147,14 @@ describe("UnitLivingGlyph", () => {
     );
     expect(ready).toContain("Levy ready");
     expect(ready).toContain("is-ready");
+    expect(ready).toContain("sc-unit-drift-layer");
 
     const short = renderToStaticMarkup(
       <UnitLivingGlyph typeId="banner" open={true} affordable={false} />,
     );
     expect(short).toContain("Stores short");
     expect(short).toContain("is-short");
+    expect(short).toContain("sc-unit-pulse-layer");
   });
 });
 
@@ -195,6 +230,8 @@ describe("unit-living.css isolation, contrast softening & accessibility", () => 
     expect(css).toContain("pointer-events: none !important");
     expect(css).toContain("@keyframes sc-unit-idle-breath");
     expect(css).toContain("@keyframes sc-unit-drilling-pulse");
+    expect(css).toContain("@keyframes sc-unit-drift");
+    expect(css).toContain("@keyframes sc-unit-pulse");
   });
 
   it("confines underlay to a non-overlapping bottom-right corner pocket with radial mask", () => {

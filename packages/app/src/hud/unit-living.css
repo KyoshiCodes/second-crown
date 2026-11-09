@@ -150,6 +150,30 @@
   animation: sc-unit-sparkle 2.2s ease-in-out infinite;
 }
 
+/* Unit Living Glow, Drift & Pulse layers */
+.sc-unit-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor);
+  opacity: 0.38;
+}
+.sc-unit-drift-layer {
+  animation: sc-unit-drift 3.6s ease-in-out infinite alternate;
+  opacity: 0.52;
+}
+.sc-unit-pulse-layer {
+  animation: sc-unit-pulse 1.8s ease-in-out infinite;
+  opacity: 0.48;
+}
+
+@keyframes sc-unit-drift {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-1px) rotate(1deg); }
+}
+
+@keyframes sc-unit-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.48; }
+  50% { transform: scale(1.06); opacity: 0.72; }
+}
+
 /* Dedicated low-opacity corner underlay animations (never overrides to opaque) */
 @keyframes sc-unit-underlay-breath {
   0%, 100% {
@@ -158,14 +182,14 @@
   }
   50% {
     transform: scale(1.04);
-    opacity: 0.52;
+    opacity: 0.50;
   }
 }
 
 @keyframes sc-unit-underlay-pulse {
   0%, 100% {
     transform: scale(1);
-    opacity: 0.40;
+    opacity: 0.38;
   }
   50% {
     transform: scale(1.06);
@@ -173,17 +197,14 @@
   }
 }
 
-/* Softened footer badge animations */
 @keyframes sc-unit-idle-breath {
   0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 1px var(--sc-unit-glow, transparent));
-    opacity: 0.58;
+    opacity: 0.88;
   }
   50% {
     transform: scale(1.04);
-    filter: drop-shadow(0 0 2px var(--sc-unit-glow, transparent));
-    opacity: 0.76;
+    opacity: 1;
   }
 }
 
@@ -215,9 +236,13 @@
 @media (prefers-reduced-motion: reduce) {
   .sc-unit-living-underlay svg,
   .sc-unit-glyph-icon,
-  .sc-unit-glyph-sparkle {
+  .sc-unit-glyph-sparkle,
+  .sc-unit-glow-layer,
+  .sc-unit-drift-layer,
+  .sc-unit-pulse-layer {
     animation: none !important;
     transition: none !important;
     transform: none !important;
+    filter: none !important;
   }
 }

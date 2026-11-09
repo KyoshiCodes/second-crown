@@ -2,6 +2,7 @@ import React from "react";
 import "./unit-living.css";
 
 export type UnitFamily = "infantry" | "ranged" | "cavalry" | "command";
+export type UnitMood = "locked" | "drilling" | "ready" | "short";
 
 export function getUnitFamily(typeId: string): UnitFamily {
   switch (typeId) {
@@ -10,6 +11,7 @@ export function getUnitFamily(typeId: string): UnitFamily {
     case "skirmisher":
     case "composite_bowman":
       return "ranged";
+    case "cavalry":
     case "scout":
     case "outrider":
     case "knight":
@@ -20,6 +22,7 @@ export function getUnitFamily(typeId: string): UnitFamily {
     case "banner":
     case "champion":
     case "marshal":
+    case "siege":
       return "command";
     case "militia":
     case "spearman":
@@ -36,6 +39,65 @@ export interface UnitLivingProps {
   drilling?: boolean;
 }
 
+export interface UnitGlyphDescriptor {
+  typeId: string;
+  family: UnitFamily;
+  mood: UnitMood;
+  stateClass: string;
+  flair: string;
+  motion: "pulse" | "drift" | "calm";
+}
+
+/**
+ * Resolves state-aware heraldic descriptor for living unit glyph.
+ */
+export function resolveUnitGlyphDescriptor(props: UnitLivingProps): UnitGlyphDescriptor {
+  const { typeId, open, affordable, drilling } = props;
+  const family = getUnitFamily(typeId);
+
+  if (!open) {
+    return {
+      typeId,
+      family,
+      mood: "locked",
+      stateClass: "is-locked",
+      flair: "Sealed lore",
+      motion: "calm",
+    };
+  }
+
+  if (drilling) {
+    return {
+      typeId,
+      family,
+      mood: "drilling",
+      stateClass: "is-drilling",
+      flair: "Drilling cadre",
+      motion: "pulse",
+    };
+  }
+
+  if (affordable) {
+    return {
+      typeId,
+      family,
+      mood: "ready",
+      stateClass: "is-ready",
+      flair: "Levy ready",
+      motion: "drift",
+    };
+  }
+
+  return {
+    typeId,
+    family,
+    mood: "short",
+    stateClass: "is-short",
+    flair: "Stores short",
+    motion: "pulse",
+  };
+}
+
 /**
  * Corner-confined ambient living glyph watermark tucked into the bottom-right
  * pocket of the unit card so it never obscures card text.
@@ -43,20 +105,13 @@ export interface UnitLivingProps {
  * capped low opacity with dedicated underlay idle breath and drilling pulse.
  */
 export function UnitLivingUnderlay(props: UnitLivingProps) {
-  const { typeId, open, affordable, drilling } = props;
-  const family = getUnitFamily(typeId);
-
-  const stateClass = !open
-    ? "is-locked"
-    : drilling
-      ? "is-drilling"
-      : affordable
-        ? "is-ready"
-        : "is-short";
+  const desc = resolveUnitGlyphDescriptor(props);
+  const { family, stateClass } = desc;
 
   return (
     <span
       className={`sc-unit-living-underlay family-${family} ${stateClass}`}
+      style={{ pointerEvents: "none" }}
       aria-hidden="true"
     >
       <svg
@@ -68,6 +123,7 @@ export function UnitLivingUnderlay(props: UnitLivingProps) {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        style={{ pointerEvents: "none" }}
       >
         {family === "infantry" && (
           <g>
@@ -133,29 +189,75 @@ export function UnitLivingUnderlay(props: UnitLivingProps) {
   );
 }
 
+function UnitGlyphSvgPaths(props: { family: UnitFamily; drilling?: boolean }) {
+  const { family, drilling } = props;
+
+  switch (family) {
+    case "infantry":
+      return (
+        <g>
+          {/* Crossed spears & center pip */}
+          <line x1="3" y1="3" x2="17" y2="17" />
+          <line x1="17" y1="3" x2="3" y2="17" />
+          <circle cx="10" cy="10" r="2" fill="currentColor" className={drilling ? "sc-unit-glyph-sparkle" : undefined} />
+        </g>
+      );
+
+    case "ranged":
+      return (
+        <g>
+          {/* Bow and target star */}
+          <path d="M5 3 Q13 10 5 17" strokeWidth="1.8" />
+          <line x1="5" y1="3" x2="5" y2="17" strokeWidth="0.9" />
+          <line x1="4" y1="10" x2="16" y2="10" strokeWidth="1.6" />
+          <circle cx="14" cy="10" r="1.5" fill="currentColor" className={drilling ? "sc-unit-glyph-sparkle" : undefined} />
+        </g>
+      );
+
+    case "cavalry":
+      return (
+        <g>
+          {/* Horseshoe & star */}
+          <path d="M6 14 C5 7 15 7 14 14" strokeWidth="2" />
+          <circle cx="10" cy="9" r="1.5" fill="currentColor" className={drilling ? "sc-unit-glyph-sparkle" : undefined} />
+          <line x1="10" y1="3" x2="10" y2="6" strokeWidth="1.5" />
+        </g>
+      );
+
+    case "command":
+      return (
+        <g>
+          {/* Pennant & crown star */}
+          <line x1="5" y1="2" x2="5" y2="18" strokeWidth="2" />
+          <path d="M5 3 L15 7 L5 11 Z" fill="currentColor" fillOpacity="0.2" strokeWidth="1.5" />
+          <circle cx="10" cy="7" r="1.2" fill="currentColor" className={drilling ? "sc-unit-glyph-sparkle" : undefined} />
+        </g>
+      );
+  }
+}
+
 /**
  * Softened living unit glyph strip rendered beneath the stacked status rows,
  * left-aligned with right-corner clearance so it never crowds card figures.
  * Pure phrasing content (spans only) for button semantics.
  */
 export function UnitLivingGlyph(props: UnitLivingProps) {
-  const { typeId, open, affordable, drilling } = props;
-  const family = getUnitFamily(typeId);
-
-  const stateClass = !open
-    ? "is-locked"
-    : drilling
-      ? "is-drilling"
-      : affordable
-        ? "is-ready"
-        : "is-short";
+  const desc = resolveUnitGlyphDescriptor(props);
+  const { family, stateClass, flair, motion } = desc;
+  const motionClass =
+    motion === "pulse"
+      ? "sc-unit-pulse-layer"
+      : motion === "drift"
+      ? "sc-unit-drift-layer"
+      : "";
 
   return (
     <span
-      className={`sc-unit-status-glyph family-${family} ${stateClass}`}
+      className={`sc-unit-status-glyph sc-unit-living-glyph family-${family} ${stateClass}`}
+      style={{ pointerEvents: "none" }}
       aria-hidden="true"
     >
-      <span className="sc-unit-glyph-icon">
+      <span className="sc-unit-glyph-icon" style={{ pointerEvents: "none" }}>
         <svg
           width="14"
           height="14"
@@ -165,54 +267,16 @@ export function UnitLivingGlyph(props: UnitLivingProps) {
           strokeWidth="1.6"
           strokeLinecap="round"
           strokeLinejoin="round"
+          className={`sc-unit-glyph-svg ${motionClass}`}
+          style={{ pointerEvents: "none" }}
         >
-          {family === "infantry" && (
-            <g>
-              {/* Crossed spears & center pip */}
-              <line x1="3" y1="3" x2="17" y2="17" />
-              <line x1="17" y1="3" x2="3" y2="17" />
-              <circle cx="10" cy="10" r="2" fill="currentColor" className={drilling ? "sc-unit-glyph-sparkle" : undefined} />
-            </g>
-          )}
-
-          {family === "ranged" && (
-            <g>
-              {/* Bow and target star */}
-              <path d="M5 3 Q13 10 5 17" strokeWidth="1.8" />
-              <line x1="5" y1="3" x2="5" y2="17" strokeWidth="0.9" />
-              <line x1="4" y1="10" x2="16" y2="10" strokeWidth="1.6" />
-              <circle cx="14" cy="10" r="1.5" fill="currentColor" className={drilling ? "sc-unit-glyph-sparkle" : undefined} />
-            </g>
-          )}
-
-          {family === "cavalry" && (
-            <g>
-              {/* Horseshoe & star */}
-              <path d="M6 14 C5 7 15 7 14 14" strokeWidth="2" />
-              <circle cx="10" cy="9" r="1.5" fill="currentColor" className={drilling ? "sc-unit-glyph-sparkle" : undefined} />
-              <line x1="10" y1="3" x2="10" y2="6" strokeWidth="1.5" />
-            </g>
-          )}
-
-          {family === "command" && (
-            <g>
-              {/* Pennant & crown star */}
-              <line x1="5" y1="2" x2="5" y2="18" strokeWidth="2" />
-              <path d="M5 3 L15 7 L5 11 Z" fill="currentColor" fillOpacity="0.2" strokeWidth="1.5" />
-              <circle cx="10" cy="7" r="1.2" fill="currentColor" className={drilling ? "sc-unit-glyph-sparkle" : undefined} />
-            </g>
-          )}
+          <g className="sc-unit-glow-layer">
+            <UnitGlyphSvgPaths family={family} drilling={props.drilling} />
+          </g>
+          <UnitGlyphSvgPaths family={family} drilling={props.drilling} />
         </svg>
       </span>
-      <span className="sc-unit-glyph-flair">
-        {!open
-          ? "Sealed lore"
-          : drilling
-            ? "Drilling cadre"
-            : affordable
-              ? "Levy ready"
-              : "Stores short"}
-      </span>
+      <span className="sc-unit-glyph-flair">{flair}</span>
     </span>
   );
 }

@@ -23,6 +23,7 @@
 .sc-shell .sc-hold-living-strip,
 .sc-shell .sc-people-living-glyph,
 .sc-shell .sc-unit-status-glyph,
+.sc-shell .sc-unit-living-glyph,
 .sc-shell .sc-war-status-glyph,
 .sc-shell .sc-events-status-glyph,
 .sc-shell .sc-academy-topic-glyph,
@@ -359,6 +360,18 @@
    3. Glow Intensity: Toned-Down Filter Blurs and Calmed Glow Layers
    ========================================================================== */
 
+/* Unit Living Glow, Pulse, Drift */
+.sc-shell .sc-unit-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-unit-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-unit-drift-layer {
+  opacity: 0.52 !important;
+}
+
 /* War Room Force Glow & Pulse */
 .sc-shell .sc-war-glow-layer {
   filter: drop-shadow(0 0 1px currentColor) !important;
@@ -627,6 +640,9 @@
   .sc-shell .sc-resource-glow-layer,
   .sc-shell .sc-resource-pulse-layer,
   .sc-shell .sc-resource-drift-layer,
+  .sc-shell .sc-unit-glow-layer,
+  .sc-shell .sc-unit-pulse-layer,
+  .sc-shell .sc-unit-drift-layer,
   .sc-shell .sc-war-glow-layer,
   .sc-shell .sc-events-glow-layer,
   .sc-shell .sc-academy-glow-layer,

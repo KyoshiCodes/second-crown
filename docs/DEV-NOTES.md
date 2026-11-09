@@ -1,3 +1,10 @@
+## 2026-11-09 — app / living unit glyphs under unit cards (bakeoff/gemini-unit-living)
+
+- **Components:** `packages/app/src/hud/UnitLivingGlyph.tsx` exports `UnitLivingGlyph`, `UnitLivingUnderlay`, `resolveUnitGlyphDescriptor`, `getUnitFamily`, and types `UnitFamily`, `UnitMood`, `UnitGlyphDescriptor`.
+- **Integration (`hud/UnitCard.tsx`):** `UnitCard` mounts `<UnitLivingUnderlay ... />` at `z-index: 0` inside `.sc-unit-card.is-living`, head rows (`UnitLivingRows`) and status rows (`UnitStatus`) at `z-index: 1`, and `<UnitLivingGlyph ... />` (`z-index: 1`) beneath the rows.
+- **Scoping & readability (`unit-living.css`, `living-glyph-soften.css`):** Scoped via `.sc-unit-card.is-living` with `overflow: hidden; position: relative;`, foreground children at `z-index: 1`, and `.sc-unit-living-underlay` confined to `right: -4px; bottom: -4px; width: 38px; height: 38px; z-index: 0` with radial vignette `mask-image`, wrapper opacity `0.10..0.18`, and underlay SVG opacity `0.26`. Added `.sc-unit-glow-layer` (drop-shadow filter, opacity 0.38), `.sc-unit-drift-layer` (float drift, opacity 0.52), and `.sc-unit-pulse-layer` (scale breathe, opacity 0.48) with strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards in both `unit-living.css` and `living-glyph-soften.css`. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/hud/UnitLivingGlyph.test.tsx` (11 tests) covers descriptor resolution across locked/drilling/ready/short states, infantry/ranged/cavalry/command families, 14×14 living glyph layers, 38×38 underlay watermark, phrasing-only markup, and CSS isolation. `LivingGlyphSoften.test.ts` updated to assert unit glow layer and underlay coverage. Full test suite (323 sim, 762 app, 661 render, 158 server) passing.
+
 ## 2026-11-09 — app / richer living Unit cards (wave/unit-living)
 
 - **Component:** new `packages/app/src/hud/UnitLivingRows.tsx` exports `UnitLivingRows`, `splitUnitRows(rows)` and `LIVING_HEAD_KINDS` (`power`, `cost`). `splitUnitRows` moves those rows into the head and leaves the rest (`ready`) for `UnitStatus`.
