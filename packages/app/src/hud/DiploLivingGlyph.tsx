@@ -253,7 +253,7 @@ export function RealmLivingUnderlay(props: {
 
   return (
     <span
-      className={`sc-diplo-living-underlay realm-${realmId} stance-${stance}${cold ? " is-colder" : ""}`}
+      className={`sc-diplo-living-underlay sc-realm-living-underlay sc-realm-crest-underlay realm-${realmId} stance-${stance} is-${stance}${cold ? " is-colder" : ""}`}
       aria-hidden="true"
       data-realm-watermark={realmId}
       data-stance={stance}
@@ -284,15 +284,15 @@ export function RealmLivingGlyph(props: {
 
   return (
     <span
-      className={`sc-diplo-crest-glyph realm-${realmId} stance-${stance}`}
+      className={`sc-diplo-crest-glyph sc-realm-living-glyph sc-realm-crest-glyph sc-diplo-living-glyph realm-${realmId} stance-${stance} is-${stance}`}
       aria-hidden="true"
       data-realm-glyph={realmId}
       data-stance={stance}
     >
-      <svg viewBox="0 0 24 24" className="sc-diplo-crest-icon" focusable="false">
+      <svg viewBox="0 0 24 24" className="sc-diplo-crest-icon sc-realm-crest-icon" focusable="false">
         <RealmChargeEmblemSvg realmId={realmId} stance={stance} />
       </svg>
-      <span className="sc-diplo-crest-flair">{desc.flair}</span>
+      <span className="sc-diplo-crest-flair sc-realm-crest-flair">{desc.flair}</span>
     </span>
   );
 }
@@ -311,7 +311,7 @@ export function PactLivingUnderlay(props: {
 
   return (
     <span
-      className={`sc-diplo-living-underlay pact-${desc.kind} ${toneClass}`}
+      className={`sc-diplo-living-underlay sc-pact-living-underlay sc-pact-seal-underlay pact-${desc.kind} ${toneClass}`}
       aria-hidden="true"
       data-pact-watermark={desc.kind}
       data-member={desc.isMember}
@@ -337,7 +337,7 @@ export function PactLivingGlyph(props: {
 
   return (
     <span
-      className={`sc-diplo-crest-glyph pact-${desc.kind} ${toneClass}`}
+      className={`sc-diplo-crest-glyph sc-pact-crest-glyph sc-pact-living-glyph pact-${desc.kind} ${toneClass}`}
       aria-hidden="true"
       data-pact-glyph={desc.kind}
       data-member={desc.isMember}
@@ -349,3 +349,10 @@ export function PactLivingGlyph(props: {
     </span>
   );
 }
+
+export const RealmCrestLivingGlyph = RealmLivingGlyph;
+export const DiploLivingGlyph = RealmLivingGlyph;
+export const RealmCrestLivingUnderlay = RealmLivingUnderlay;
+export const DiploLivingUnderlay = RealmLivingUnderlay;
+export const PactSealLivingGlyph = PactLivingGlyph;
+export const PactSealLivingUnderlay = PactLivingUnderlay;

@@ -1,19 +1,25 @@
 /* --- Living Crest Glyphs under Realm and Pact Cards (isolated from theme.css) --- */
 
 .sc-realm-dip.is-living,
-.sc-faction-card.is-living {
+.sc-faction-card.is-living,
+.sc-realm-living-card,
+.sc-diplo-living-card {
   position: relative;
   overflow: hidden;
 }
 
 .sc-realm-dip.is-living > :not(.sc-diplo-living-underlay),
-.sc-faction-card.is-living > :not(.sc-diplo-living-underlay) {
+.sc-faction-card.is-living > :not(.sc-diplo-living-underlay),
+.sc-realm-living-card > :not(.sc-diplo-living-underlay),
+.sc-diplo-living-card > :not(.sc-diplo-living-underlay) {
   position: relative;
   z-index: 1;
 }
 
 /* Corner-confined 34x34 ambient crest watermark tucked into the bottom-right pocket */
-.sc-diplo-living-underlay {
+.sc-diplo-living-underlay,
+.sc-realm-living-underlay,
+.sc-pact-living-underlay {
   position: absolute;
   right: -2px;
   bottom: -2px;
@@ -41,7 +47,9 @@
   );
 }
 
-.sc-diplo-living-underlay * {
+.sc-diplo-living-underlay *,
+.sc-realm-living-underlay *,
+.sc-pact-living-underlay * {
   pointer-events: none !important;
 }
 
@@ -147,7 +155,9 @@
 }
 
 /* Living 14x14 crest status strip between DiploLedger and card actions/details */
-.sc-diplo-crest-glyph {
+.sc-diplo-crest-glyph,
+.sc-realm-living-glyph,
+.sc-pact-living-glyph {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -163,18 +173,22 @@
   user-select: none;
 }
 
-.sc-diplo-crest-glyph * {
+.sc-diplo-crest-glyph *,
+.sc-realm-living-glyph *,
+.sc-pact-living-glyph * {
   pointer-events: none !important;
 }
 
-.sc-diplo-crest-icon {
+.sc-diplo-crest-icon,
+.sc-realm-crest-icon {
   width: 14px;
   height: 14px;
   flex: 0 0 14px;
   pointer-events: none !important;
 }
 
-.sc-diplo-crest-flair {
+.sc-diplo-crest-flair,
+.sc-realm-crest-flair {
   font-weight: 500;
   letter-spacing: 0.015em;
   white-space: nowrap;

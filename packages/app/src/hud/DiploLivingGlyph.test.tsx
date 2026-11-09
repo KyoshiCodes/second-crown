@@ -9,8 +9,14 @@ import {
   PactLivingUnderlay,
   resolveRealmLiving,
   resolvePactLiving,
+  RealmCrestLivingGlyph,
+  DiploLivingGlyph,
+  RealmCrestLivingUnderlay,
+  DiploLivingUnderlay,
+  PactSealLivingGlyph,
+  PactSealLivingUnderlay,
 } from "./DiploLivingGlyph";
-import { RealmCard } from "./RealmCard";
+import { RealmCard, RealmLivingCard, DiploLivingCard } from "./RealmCard";
 import { WorldPanel } from "../WorldPanel";
 
 function readCssFile(relativePath: string): string {
@@ -209,5 +215,78 @@ describe("diplo-glyph-living.css contract & contrast safety", () => {
       const opacity = parseFloat(match[1]);
       expect(opacity).toBeLessThanOrEqual(0.25);
     }
+  });
+
+  it("renders distinct SVG heraldic emblems across player, rival, frost, silk, veil, tide, and ember", () => {
+    const realms = ["player", "rival", "k_frost", "k_silk", "k_veil", "k_tide", "k_ember"];
+    const svgs = realms.map((id) => {
+      const html = renderToStaticMarkup(<RealmLivingGlyph realmId={id} stance="war" />);
+      expect(html).toContain("sc-diplo-glow-layer");
+      expect(html).toContain("sc-diplo-drift-layer");
+      expect(html).toContain("sc-diplo-pulse-layer");
+      expect(html).toContain("sc-realm-living-glyph");
+      const start = html.indexOf("<svg");
+      const end = html.indexOf("</svg>") + 6;
+      return html.slice(start, end);
+    });
+    expect(new Set(svgs).size).toBe(7);
+  });
+
+  it("exposes RealmCrestLivingGlyph, RealmLivingCard, and DiploLivingCard aliases", () => {
+    const glyphHtml = renderToStaticMarkup(<RealmCrestLivingGlyph realmId="rival" stance="war" />);
+    expect(glyphHtml).toContain("sc-diplo-crest-glyph");
+    expect(glyphHtml).toContain("sc-realm-living-glyph");
+    expect(glyphHtml).toContain('aria-hidden="true"');
+
+    const underlayHtml = renderToStaticMarkup(<RealmCrestLivingUnderlay realmId="k_silk" stance="friendly" />);
+    expect(underlayHtml).toContain("sc-diplo-living-underlay");
+    expect(underlayHtml).toContain("sc-realm-living-underlay");
+    expect(underlayHtml).toContain('aria-hidden="true"');
+
+    const state = createGameState({ seed: 42 });
+    const rival = state.realms.find((r) => r.id === "rival")!;
+    const cardHtml = renderToStaticMarkup(
+      <RealmLivingCard
+        realm={rival}
+        stance="wary"
+        peaceLeft={0}
+        opinion={0}
+        mine={50}
+        theirs={20}
+        declareLocked={false}
+        onDeclare={noop}
+      />
+    );
+    expect(cardHtml).toContain("sc-realm-living-card");
+    expect(cardHtml).toContain("sc-diplo-living-card");
+  });
+
+  it("verifies phrasing-only markup (<span> + <svg>) and aria-hidden on all decorative components", () => {
+    const html = [
+      renderToStaticMarkup(<RealmLivingUnderlay realmId="rival" stance="war" />),
+      renderToStaticMarkup(<RealmLivingGlyph realmId="k_frost" stance="truce" />),
+      renderToStaticMarkup(<PactLivingUnderlay kind="order" isMember={true} />),
+      renderToStaticMarkup(<PactLivingGlyph kind="pact" isMember={false} />),
+    ].join("");
+
+    expect(html).not.toMatch(/<(div|p|section|article|ul|li|dl|button)/);
+    expect((html.match(/aria-hidden="true"/g) ?? []).length).toBe(4);
+  });
+
+  it("verifies strict isolation from theme.css and presence in living-glyph-soften.css", () => {
+    const diploCss = readCssFile("./diplo-glyph-living.css");
+    expect(diploCss).toContain(".sc-diplo-living-underlay");
+    expect(diploCss).toContain(".sc-diplo-crest-glyph");
+    expect(diploCss).toContain(".sc-diplo-glow-layer");
+    expect(diploCss).toContain("pointer-events: none !important;");
+
+    const softenCss = readCssFile("./living-glyph-soften.css");
+    expect(softenCss).toContain(".sc-diplo-living-underlay");
+    expect(softenCss).toContain(".sc-diplo-glow-layer");
+
+    const themeCss = readCssFile("../theme.css");
+    expect(themeCss).not.toContain("sc-diplo-living-underlay");
+    expect(themeCss).not.toContain("sc-diplo-crest-glyph");
+    expect(themeCss).not.toContain("sc-diplo-glow-layer");
   });
 });

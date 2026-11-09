@@ -81,7 +81,7 @@ export function RealmCard(props: {
   });
 
   return (
-    <div className={`sc-realm-dip is-${stance} is-living`} data-realm={realm.id}>
+    <div className={`sc-realm-dip is-${stance} is-living sc-realm-living-card sc-diplo-living-card`} data-realm={realm.id}>
       <RealmLivingUnderlay realmId={realm.id} stance={stance} />
       <DiploLivingRows realmId={realm.id} stance={stance} rows={rows} pact={props.pact ?? null} />
       <RealmLivingGlyph
@@ -112,3 +112,6 @@ export function RealmCard(props: {
     </div>
   );
 }
+
+export const RealmLivingCard = RealmCard;
+export const DiploLivingCard = RealmCard;

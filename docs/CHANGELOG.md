@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-09 — Living crest glyphs under realm cards (bakeoff/gemini-diplo-living)
+
+- **Living realm crest glyph strips (`RealmLivingGlyph` / `RealmCrestLivingGlyph`):** Added left-aligned 14×14 living SVG realm emblems directly beneath the stacked Name, Stance, Pact, and Power rows on realm cards (`RealmCard.tsx`), with subtle glow (`sc-diplo-glow-layer`), pulse (`sc-diplo-pulse-layer`), and drift (`sc-diplo-drift-layer`) motion across At War (crimson alert pulse), Truce (azure peace drift), Friendly (emerald ally drift), Hostile (crimson enmity pulse), and Wary (amber guarded drift) states across Player (solar crown), Rival (crossed broadswords & keep), Frostpeak (bearded waraxes), Silk Coast (gilded caravel), Veiled Realm (eye of providence), Tidehold (abyssal trident), and Embercrag (fire-phoenix).
+- **Corner-confined card watermarks (`RealmLivingUnderlay` / `RealmCrestLivingUnderlay`):** Added 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.08..0.14` wrapper, `0.26` child SVG) inside `.sc-realm-dip.sc-realm-living-card` depicting realm crest emblems without obstructing stats, pact tags, power meters, or Declare War / Gift action buttons.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/hud/DiploLivingGlyph.test.tsx` (13 tests) and `LivingGlyphSoften.test.ts` (7 tests). Sim 323, app 807, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 747ms.
+
 ## 2026-11-09 — Richer living Diplomacy realm cards (wave/diplo-living)
 
 - **Realm cards (`WarRoom` → `RealmCard`, `WorldPanel` Known Crowns):** the crest pip now sits in a round stance-tinted chip beside a stacked **Name / Stance / Pact** column (`DiploLivingRows`), with the existing **Power** row kept below. Name carries a stance tag; Stance keeps "Truce Ns" and opinion; Pact shows the faction the realm is sworn to (kind · leads it · N sworn · with you · +N more) or "No pact · unsworn".

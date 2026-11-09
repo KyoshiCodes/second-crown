@@ -21,6 +21,8 @@
 .sc-shell .sc-decree-living-underlay,
 .sc-shell .sc-decree-seal-underlay,
 .sc-shell .sc-diplo-living-underlay,
+.sc-shell .sc-realm-living-underlay,
+.sc-shell .sc-pact-living-underlay,
 .sc-shell .sc-market-status-glyph,
 .sc-shell .sc-works-status-glyph,
 .sc-shell .sc-building-status-glyph,
@@ -40,6 +42,10 @@
 .sc-shell .sc-decree-living-glyph,
 .sc-shell .sc-diplo-crest-glyph,
 .sc-shell .sc-pact-crest-glyph,
+.sc-shell .sc-realm-crest-glyph,
+.sc-shell .sc-realm-living-glyph,
+.sc-shell .sc-pact-living-glyph,
+.sc-shell .sc-diplo-living-glyph,
 .sc-shell .sc-atlas-terrain-glyph,
 .sc-shell .sc-atlas-terrain-underlay,
 .sc-shell .sc-vault-seal-glyph,
@@ -82,6 +88,12 @@
 .sc-shell .sc-decree-seal-glyph *,
 .sc-shell .sc-decree-living-glyph *,
 .sc-shell .sc-diplo-living-underlay *,
+.sc-shell .sc-realm-living-underlay *,
+.sc-shell .sc-pact-living-underlay *,
+.sc-shell .sc-realm-crest-glyph *,
+.sc-shell .sc-realm-living-glyph *,
+.sc-shell .sc-pact-living-glyph *,
+.sc-shell .sc-diplo-living-glyph *,
 .sc-shell .sc-vault-seal-underlay *,
 .sc-shell .sc-quill-living-underlay *,
 .sc-shell .sc-node-pile-underlay *,
@@ -301,7 +313,9 @@
 }
 
 /* Diplomacy Realm & Pact Underlays */
-.sc-shell .sc-diplo-living-underlay {
+.sc-shell .sc-diplo-living-underlay,
+.sc-shell .sc-realm-living-underlay,
+.sc-shell .sc-pact-living-underlay {
   opacity: 0.11 !important;
 }
 .sc-shell .sc-diplo-living-underlay.stance-war {
@@ -747,6 +761,8 @@
   .sc-shell .sc-decree-pulse-layer,
   .sc-shell .sc-decree-drift-layer,
   .sc-shell .sc-diplo-glow-layer,
+  .sc-shell .sc-diplo-pulse-layer,
+  .sc-shell .sc-diplo-drift-layer,
   .sc-shell .sc-board-living * {
     animation: none !important;
     transition: none !important;

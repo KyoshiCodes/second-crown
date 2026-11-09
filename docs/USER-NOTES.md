@@ -2,6 +2,18 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Living crest glyphs on realm cards (bakeoff/gemini-diplo-living)
+
+- **Living realm emblems:** Under the Name, Stance, Pact, and Power rows on each realm card on the War tab and World tab, a subtle living emblem now portrays the realm's heraldic crest and diplomatic stance:
+  - **Player Crown:** Radiant imperial solar crown with warm golden beacon rays.
+  - **Rival Hold:** Crossed iron arming swords and fortified stone keep in alert crimson.
+  - **Frostpeak:** Twin bearded northern waraxes with frost runic horns.
+  - **Silk Coast:** Gilded merchant caravel with billowing mainsail and scales of trade.
+  - **Veiled Realm:** Eye of providence and eightfold star in mystical lavender.
+  - **Tidehold:** Abyssal trident and surging ocean breaker waves.
+  - **Embercrag:** Fire-phoenix and rising arcane flame plumes.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each realm card, keeping opinion stats, truce countdowns, pact affiliations, power comparisons, and Declare War / Gift buttons crisp and unobstructed. No game numbers changed.
+
 ## 2026-11-09 — Realm cards in Diplomacy are easier to read (wave/diplo-living)
 
 - On the **War** tab Diplomacy grid and the **World** tab Known Crowns, each realm card now shows its crest in a small round coloured badge next to short lines: the **name** (with its stance, like friendly or at war), **Stance** (truce time and opinion), **Pact** (which pact that realm belongs to, whether it leads it, and whether you are in it too) and **Power** as before.
