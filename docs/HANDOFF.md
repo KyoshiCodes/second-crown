@@ -9,6 +9,26 @@ Merged through PR **#297** (hold status living pip, #297; hold status card, #297
 
 
 
+## Living decree glyphs under decree cards (branch bakeoff/gemini-decree-living, not merged)
+
+- **What it is:** Subtle living royal decree seal glyphs and corner-confined watermarks resting under the richer living Decree cards (`DecreeCard`, Crown tab):
+  - *Per-decree living seal strip (`DecreeLivingGlyph` / `DecreeSealLivingGlyph`)*: Left-aligned 14×14 SVG royal seal emblem and state flair rendered beneath the stacked Name, Duration, and Effect rows and above `.sc-decree-cost`:
+    - Decree sigils & royal heraldry:
+      - Host Muster (`muster`): Crossed arming blades, spiked battlements, war coronet, and fiery martial gleam.
+      - Harvest Rite (`rite`): Upright wheat stalk with seed ears, crescent harvest sickle, and radiant solar grain pip.
+      - Send Envoys (`envoys`): Twin courier messenger wings, royal treaty parchment scroll, and shimmering envoy star.
+      - Default / Crown (`crown`): Stamped signet matrix with imperial crown and triple sovereign pearls.
+    - Royal state & mood:
+      - In Force / Active (`active`): Glowing molten wax seal with active ink drift (`sc-decree-drift-layer`), fiery gleam pulse (`sc-decree-pulse-layer`), and lamp glow (`sc-decree-glow-layer`), flairs (*Host mustered · 10% cheaper training · Ns left*, *Rite in force · +3 production yield · Ns left*, *Envoys riding · +6 gift opinion · Ns left*).
+      - Ready to Swear (`ready`): Calm drift motion and gold-amber glow, flair (*prepared · stores ready to issue*).
+      - Stores Short (`short`): Amber-crimson alert pulse motion, flair (*held · short of royal stores*).
+      - Waiting / Idle (`idle`): Soft resting seal, flair (*unsworn · lasts Ns*).
+    - Three decorative animation layers: glow (`sc-decree-glow-layer`), pulse (`sc-decree-pulse-layer`), and drift (`sc-decree-drift-layer`).
+  - *Corner-confined card watermarks (`DecreeLivingUnderlay` / `DecreeSealLivingUnderlay`)*: 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and low opacity (`0.12..0.22` wrapper, `0.28` child SVG) inside `.sc-decree-card.sc-decree-living-card` depicting royal decree sigils without obscuring decree rows, duration meters, cost tokens, or the Issue button.
+- **Where:** `packages/app/src/hud/DecreeLivingGlyph.tsx`, `packages/app/src/hud/DecreeCard.tsx`, `packages/app/src/hud/decree-glyph-living.css`, `packages/app/src/hud/living-glyph-soften.css`, and test suites `packages/app/src/hud/DecreeLivingGlyph.test.tsx` and `packages/app/src/hud/LivingGlyphSoften.test.ts`.
+- **Invariants respected:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Preserves strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, capped low opacity for full readability, and full `@media (prefers-reduced-motion: reduce)` accessibility support.
+- **Branch:** `bakeoff/gemini-decree-living` (from `origin/main`, layered on `origin/wave/decree-living` `e9aaa07`). Pushed, no PR.
+
 ## Richer living Decree cards (branch wave/decree-living, not merged)
 
 - **What it is:** Each royal decree card now has its wax seal in a round seal-tinted chip beside a living status column: **Name** (with a seal + status tag: muster / rite / envoys / crown, and ready / short / in force / waiting), **Duration** (lasts Ns, or Ns left with a meter) and **Effect** (decree blurb, "active" while in force).

@@ -265,7 +265,7 @@ export function DecreeLivingUnderlay(props: {
   const { decreeId, sealKind, status } = resolveDecreeLiving(props);
   return (
     <span
-      className={`sc-decree-living-underlay decree-${decreeId} seal-${sealKind} status-${status}`}
+      className={`sc-decree-living-underlay sc-decree-seal-underlay decree-${decreeId} seal-${sealKind} status-${status} is-${status}`}
       aria-hidden="true"
       data-decree-watermark={decreeId}
       data-decree-seal={sealKind}
@@ -291,16 +291,20 @@ export function DecreeLivingGlyph(props: {
   const { decreeId, sealKind, status, flair } = resolveDecreeLiving(props);
   return (
     <span
-      className={`sc-decree-seal-glyph decree-${decreeId} seal-${sealKind} status-${status}`}
+      className={`sc-decree-seal-glyph sc-decree-living-glyph sc-decree-status-glyph decree-${decreeId} seal-${sealKind} status-${status}`}
       aria-hidden="true"
       data-decree-glyph={decreeId}
       data-decree-seal={sealKind}
       data-decree-status={status}
     >
-      <svg viewBox="0 0 24 24" className="sc-decree-seal-icon" focusable="false">
+      <svg viewBox="0 0 24 24" className="sc-decree-seal-icon sc-decree-glyph-icon" focusable="false">
         <DecreeSealEmblemSvg sealKind={sealKind} status={status} />
       </svg>
-      <span className="sc-decree-seal-flair">{flair}</span>
+      <span className="sc-decree-seal-flair sc-decree-glyph-flair">{flair}</span>
     </span>
   );
 }
+
+export const DecreeSealLivingGlyph = DecreeLivingGlyph;
+export const DecreeLivingSealGlyph = DecreeLivingGlyph;
+export const DecreeSealLivingUnderlay = DecreeLivingUnderlay;

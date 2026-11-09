@@ -33,7 +33,7 @@ export function DecreeCard(props: { state: GameState | undefined; decree: Decree
   const status = decreeStatus({ hasState: !!state, left, affordable });
 
   return (
-    <div className={`sc-decree-card is-living ${tone}`} data-decree={decree.id} data-active={active}>
+    <div className={`sc-decree-card is-living sc-decree-living-card ${tone}`} data-decree={decree.id} data-active={active}>
       <DecreeLivingUnderlay decreeId={decree.id} status={status} left={left} ticks={decree.ticks} />
       <DecreeLivingRows
         decreeId={decree.id}
@@ -67,3 +67,5 @@ export function DecreeCard(props: { state: GameState | undefined; decree: Decree
     </div>
   );
 }
+
+export const DecreeLivingCard = DecreeCard;

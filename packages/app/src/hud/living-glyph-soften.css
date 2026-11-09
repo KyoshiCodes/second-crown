@@ -19,6 +19,7 @@
 .sc-shell .sc-academy-living-underlay,
 .sc-shell .sc-research-living-underlay,
 .sc-shell .sc-decree-living-underlay,
+.sc-shell .sc-decree-seal-underlay,
 .sc-shell .sc-diplo-living-underlay,
 .sc-shell .sc-market-status-glyph,
 .sc-shell .sc-works-status-glyph,
@@ -35,6 +36,8 @@
 .sc-shell .sc-research-living-glyph,
 .sc-shell .sc-academy-lectern-glyph,
 .sc-shell .sc-decree-status-glyph,
+.sc-shell .sc-decree-seal-glyph,
+.sc-shell .sc-decree-living-glyph,
 .sc-shell .sc-diplo-crest-glyph,
 .sc-shell .sc-pact-crest-glyph,
 .sc-shell .sc-atlas-terrain-glyph,
@@ -75,6 +78,9 @@
 .sc-shell .sc-academy-living-underlay *,
 .sc-shell .sc-research-living-underlay *,
 .sc-shell .sc-decree-living-underlay *,
+.sc-shell .sc-decree-seal-underlay *,
+.sc-shell .sc-decree-seal-glyph *,
+.sc-shell .sc-decree-living-glyph *,
 .sc-shell .sc-diplo-living-underlay *,
 .sc-shell .sc-vault-seal-underlay *,
 .sc-shell .sc-quill-living-underlay *,
@@ -275,10 +281,16 @@
 .sc-shell .sc-decree-living-underlay {
   opacity: 0.12 !important;
 }
-.sc-shell .sc-decree-living-underlay.is-active {
+.sc-shell .sc-decree-living-underlay.status-active,
+.sc-shell .sc-decree-living-underlay.is-active,
+.sc-shell .sc-decree-seal-underlay.status-active,
+.sc-shell .sc-decree-seal-underlay.is-active {
   opacity: 0.15 !important;
 }
-.sc-shell .sc-decree-living-underlay.is-ready {
+.sc-shell .sc-decree-living-underlay.status-ready,
+.sc-shell .sc-decree-living-underlay.is-ready,
+.sc-shell .sc-decree-seal-underlay.status-ready,
+.sc-shell .sc-decree-seal-underlay.is-ready {
   opacity: 0.11 !important;
 }
 .sc-shell .sc-decree-living-underlay.is-cooldown {
@@ -732,6 +744,8 @@
   .sc-shell .sc-research-pulse-layer,
   .sc-shell .sc-research-drift-layer,
   .sc-shell .sc-decree-glow-layer,
+  .sc-shell .sc-decree-pulse-layer,
+  .sc-shell .sc-decree-drift-layer,
   .sc-shell .sc-diplo-glow-layer,
   .sc-shell .sc-board-living * {
     animation: none !important;

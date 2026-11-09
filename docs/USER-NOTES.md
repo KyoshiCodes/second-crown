@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Living decree glyphs on decree cards (bakeoff/gemini-decree-living)
+
+- **Living decree emblems:** Under the Name, Duration, and Effect rows on each royal decree card on the Crown tab, a subtle living emblem now portrays the decree's royal office and proclamation state:
+  - **Muster the Host:** Crossed arming swords with war coronet and spiked battlements drifting in martial amber when ready, with active fiery gleam while the host is assembled.
+  - **Harvest Rite:** Golden wheat ear with crescent sickle and radiant solar grain pip pulsing warmly while harvest abundance is in force.
+  - **Send Envoys:** Courier messenger wings with royal parchment scroll and envoy star glowing in diplomatic azure while emissaries ride.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each decree card, keeping countdown meters, resource costs, and Issue buttons crisp and unobstructed. No game numbers changed.
+
 ## 2026-11-09 — Decree cards are easier to read (wave/decree-living)
 
 - In **Royal decrees**, each card now shows its wax seal in a small round coloured badge next to three short lines: the **name** (with its seal, like muster or envoys, and whether it is ready, short, or in force), **Duration** (how long it lasts, or how long is left with a bar) and **Effect** (what the decree does).

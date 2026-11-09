@@ -7,8 +7,11 @@ import {
   DecreeLivingUnderlay,
   getDecreeSealKind,
   resolveDecreeLiving,
+  DecreeSealLivingGlyph,
+  DecreeLivingSealGlyph,
+  DecreeSealLivingUnderlay,
 } from "./DecreeLivingGlyph";
-import { DecreeCard } from "./DecreeCard";
+import { DecreeCard, DecreeLivingCard } from "./DecreeCard";
 
 function readCssFile(relativePath: string): string {
   const proc = (globalThis as {
@@ -163,5 +166,63 @@ describe("decree-glyph-living.css contract & contrast safety", () => {
       const opacity = parseFloat(match[1]);
       expect(opacity).toBeLessThanOrEqual(0.25);
     }
+  });
+
+  it("renders distinct SVG seal emblems across muster, rite, and envoys with glow, drift, and pulse layers", () => {
+    const ids = ["muster", "rite", "envoys"];
+    const svgs = ids.map((id) => {
+      const html = renderToStaticMarkup(<DecreeLivingGlyph decreeId={id} status="active" left={100} ticks={400} />);
+      expect(html).toContain("sc-decree-glow-layer");
+      expect(html).toContain("sc-decree-drift-layer");
+      expect(html).toContain("sc-decree-pulse-layer");
+      expect(html).toContain("sc-decree-living-glyph");
+      const start = html.indexOf("<svg");
+      const end = html.indexOf("</svg>") + 6;
+      return html.slice(start, end);
+    });
+    expect(new Set(svgs).size).toBe(3);
+  });
+
+  it("exposes DecreeSealLivingGlyph, DecreeSealLivingUnderlay, and DecreeLivingCard aliases", () => {
+    const glyphHtml = renderToStaticMarkup(<DecreeSealLivingGlyph decreeId="muster" status="ready" left={0} ticks={400} />);
+    expect(glyphHtml).toContain("sc-decree-seal-glyph");
+    expect(glyphHtml).toContain("sc-decree-living-glyph");
+    expect(glyphHtml).toContain('aria-hidden="true"');
+
+    const underlayHtml = renderToStaticMarkup(<DecreeSealLivingUnderlay decreeId="rite" status="active" left={100} ticks={400} />);
+    expect(underlayHtml).toContain("sc-decree-living-underlay");
+    expect(underlayHtml).toContain("sc-decree-seal-underlay");
+    expect(underlayHtml).toContain('aria-hidden="true"');
+
+    const state = createGameState({ seed: 42 });
+    const cardHtml = renderToStaticMarkup(<DecreeLivingCard state={state} decree={muster} act={noop as never} />);
+    expect(cardHtml).toContain("sc-decree-living-card");
+  });
+
+  it("verifies phrasing-only markup (<span> + <svg>) and aria-hidden on all decorative components", () => {
+    const html = [
+      renderToStaticMarkup(<DecreeLivingUnderlay decreeId="muster" status="active" left={100} ticks={400} />),
+      renderToStaticMarkup(<DecreeLivingGlyph decreeId="envoys" status="ready" left={0} ticks={500} />),
+    ].join("");
+
+    expect(html).not.toMatch(/<(div|p|section|article|ul|li|dl|button)/);
+    expect((html.match(/aria-hidden="true"/g) ?? []).length).toBe(2);
+  });
+
+  it("verifies strict isolation from theme.css and presence in living-glyph-soften.css", () => {
+    const decreeCss = readCssFile("./decree-glyph-living.css");
+    expect(decreeCss).toContain(".sc-decree-living-underlay");
+    expect(decreeCss).toContain(".sc-decree-seal-glyph");
+    expect(decreeCss).toContain(".sc-decree-glow-layer");
+    expect(decreeCss).toContain("pointer-events: none !important;");
+
+    const softenCss = readCssFile("./living-glyph-soften.css");
+    expect(softenCss).toContain(".sc-decree-living-underlay");
+    expect(softenCss).toContain(".sc-decree-glow-layer");
+
+    const themeCss = readCssFile("../theme.css");
+    expect(themeCss).not.toContain("sc-decree-living-underlay");
+    expect(themeCss).not.toContain("sc-decree-seal-glyph");
+    expect(themeCss).not.toContain("sc-decree-glow-layer");
   });
 });

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-09 — Living decree glyphs under decree cards (bakeoff/gemini-decree-living)
+
+- **Living decree glyph strips (`DecreeLivingGlyph` / `DecreeSealLivingGlyph`):** Added left-aligned 14×14 living SVG royal seal emblems directly beneath the stacked Name, Duration, and Effect rows on royal decree cards (`DecreeCard.tsx`), with subtle glow (`sc-decree-glow-layer`), pulse (`sc-decree-pulse-layer`), and drift (`sc-decree-drift-layer`) motion across In Force (molten gleam pulse), Ready (prepared drift), Short (short stores pulse), and Idle (unsworn calm) states across Muster the Host (crossed blades/war coronet), Harvest Rite (wheat stalk/sickle arc), and Send Envoys (courier wings/treaty scroll).
+- **Corner-confined card watermarks (`DecreeLivingUnderlay` / `DecreeSealLivingUnderlay`):** Added 34×34 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.12..0.22` wrapper, `0.28` child SVG) inside `.sc-decree-card.sc-decree-living-card` depicting decree seal emblems without obstructing stats, duration meters, costs, or the Issue action button.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/hud/DecreeLivingGlyph.test.tsx` (13 tests) and `LivingGlyphSoften.test.ts` (7 tests). Sim 323, app 803, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 519ms.
+
 ## 2026-11-09 — Richer living Decree cards (wave/decree-living)
 
 - **Royal decree cards (`DecreesPanel` → `DecreeCard`):** the wax-seal pip now sits in a round seal-tinted chip beside a stacked **Name / Duration / Effect** column (`DecreeLivingRows`). Name carries a seal + status tag (e.g. *muster · ready*, *envoys · in force*, *crown · short*); Duration keeps "Not sworn · lasts Ns" or "Ns left · of Ns" with a 4px remaining-share meter; Effect keeps the decree blurb and "active" while in force.
