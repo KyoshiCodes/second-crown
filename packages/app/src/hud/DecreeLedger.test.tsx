@@ -58,7 +58,7 @@ describe("DecreeCard living rows", () => {
     const s = createGameState({ seed: 1 });
     s.resources.gold = "1000";
     const html = renderToStaticMarkup(<DecreeCard state={s} decree={muster} act={noop as never} />);
-    expect(inOrder(html, ["sc-decree-ledger", muster.name, muster.blurb, "sc-decree-cost", "sc-decree-btn"])).toBe(true);
+    expect(inOrder(html, ["sc-decree-living-head", muster.name, muster.blurb, "sc-decree-cost", "sc-decree-btn"])).toBe(true);
     expect(html).toContain(">Issue<");
     expect(html).toContain("ready to issue");
   });

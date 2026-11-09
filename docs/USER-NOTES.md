@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Decree cards are easier to read (wave/decree-living)
+
+- In **Royal decrees**, each card now shows its wax seal in a small round coloured badge next to three short lines: the **name** (with its seal, like muster or envoys, and whether it is ready, short, or in force), **Duration** (how long it lasts, or how long is left with a bar) and **Effect** (what the decree does).
+- The cost line and the Issue button work exactly as before. No game numbers changed.
+
 ## 2026-11-09 — Living research glyphs on research cards (bakeoff/gemini-research-living)
 
 - **Living research emblems:** Under the Name, Progress, and Bonus rows on each research card on the Academy / lectern, a subtle living emblem now portrays the discipline's scholarly field and study status:

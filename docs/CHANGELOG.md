@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-09 — Richer living Decree cards (wave/decree-living)
+
+- **Royal decree cards (`DecreesPanel` → `DecreeCard`):** the wax-seal pip now sits in a round seal-tinted chip beside a stacked **Name / Duration / Effect** column (`DecreeLivingRows`). Name carries a seal + status tag (e.g. *muster · ready*, *envoys · in force*, *crown · short*); Duration keeps "Not sworn · lasts Ns" or "Ns left · of Ns" with a 4px remaining-share meter; Effect keeps the decree blurb and "active" while in force.
+- **Layout:** uppercase row labels (hidden under 520px), tone rule left of Duration and Effect, dashed rule above Effect; the chip glows in its seal tint while a decree is in force, the Duration rule breathes and the Effect row glows (off under reduced motion). New `hud/decree-living-rows.css`, scoped to `.sc-decree-living-head` / `.sc-decree-living-row*`.
+- **Controls:** cost line and **Issue** button (label, disabled rule, click) unchanged. Court cards (Banquet, Fortify, Trade routes, Chapel tithe) untouched. Living seal glyph strip and watermark stay where they were.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`. No new game math.
+- **Tests:** new `hud/DecreeLivingRows.test.tsx`; `DecreeLedger.test.tsx` and `DecreeLivingGlyph.test.tsx` now anchor on the living head instead of the old ledger class. Sim 323, app 799, server 158 pass. App build succeeds.
+
 ## 2026-11-09 — Living research glyphs under research cards (bakeoff/gemini-research-living)
 
 - **Living research glyph strips (`ResearchLivingGlyph` / `StudyLivingGlyph`):** Added left-aligned 14×14 living SVG scholarly emblems directly beneath the stacked Name, Progress, and Bonus rows in each Study card (`ResearchBar.tsx`), with subtle glow (`sc-research-glow-layer`), pulse (`sc-research-pulse-layer`), and drift (`sc-research-drift-layer`) motion across Studying (scribes ink drift), Open (lectern open drift), Known (codified treatise calm), and Sealed (hall sealed pulse) states across Agronomy (folio leaf/furrow), Masonry (ashlar plumb/keystone), Cartography (astrolabe star/compass), Tactics (commander banner/standard), Horsemanship (charger steed helm/mane), and Siegecraft (poliorcetics trebuchet/shot).

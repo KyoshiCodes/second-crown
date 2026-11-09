@@ -128,7 +128,7 @@ describe("DecreeLivingGlyph & DecreeLivingUnderlay markup", () => {
     expect(
       inOrder(html, [
         "sc-decree-living-underlay",
-        "sc-decree-ledger",
+        "sc-decree-living-head",
         muster.name,
         muster.blurb,
         "sc-decree-seal-glyph",

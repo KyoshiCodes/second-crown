@@ -1,0 +1,169 @@
+/* --- Royal decree cards: living status column (Name / Duration / Effect). ---
+ * Scoped to .sc-decree-living-head / .sc-decree-living-row*; sits inside .sc-decree-card.is-living.
+ * theme.css is untouched. Card frame still comes from decree-card.css / decree-living.css. */
+
+.sc-decree-living-head {
+  --sc-decree-seal-tone: var(--chrome-accent, #c9b48a);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.sc-decree-living-head.seal-muster { --sc-decree-seal-tone: #f0883e; }
+.sc-decree-living-head.seal-rite   { --sc-decree-seal-tone: #e3b341; }
+.sc-decree-living-head.seal-envoys { --sc-decree-seal-tone: #58a6ff; }
+.sc-decree-living-head.seal-crown  { --sc-decree-seal-tone: #d2a8ff; }
+
+/* Wax seal chip on the left. */
+.sc-decree-living-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-top: 1px;
+  border-radius: 50%;
+  border: 1px solid var(--sc-decree-seal-tone);
+  background: rgba(127, 127, 127, 0.08);
+  opacity: 0.92;
+}
+.sc-decree-living-head.is-short .sc-decree-living-chip,
+.sc-decree-living-head.is-idle .sc-decree-living-chip { opacity: 0.6; border-style: dashed; }
+.sc-decree-living-head.is-active .sc-decree-living-chip {
+  animation: sc-decree-living-chip 2.6s ease-in-out infinite;
+}
+
+.sc-decree-living-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.sc-decree-living-row {
+  --sc-decree-living-tone: #6e7681;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1px 6px;
+  min-width: 0;
+  padding: 2px 4px 2px 6px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-decree-living-tone);
+  border-radius: 0 3px 3px 0;
+}
+.sc-decree-living-row.tone-calm  { --sc-decree-living-tone: #6e7681; }
+.sc-decree-living-row.tone-busy  { --sc-decree-living-tone: #d29922; }
+.sc-decree-living-row.tone-ready { --sc-decree-living-tone: #3fb950; }
+.sc-decree-living-row.tone-off   { --sc-decree-living-tone: #f85149; }
+
+/* Name row reads as the card title: no rule, seal tag beside it. */
+.sc-decree-living-row.is-name {
+  padding-left: 0;
+  border-left: none;
+  font-size: 12.5px;
+}
+.sc-decree-living-row.is-name .sc-decree-living-label { display: none; }
+.sc-decree-living-row.is-name .sc-decree-living-value { justify-content: flex-start; text-align: left; }
+.sc-decree-living-row.is-name .sc-decree-living-main { font-weight: 600; }
+.sc-decree-living-tag {
+  margin-left: auto;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sc-decree-seal-tone);
+  opacity: 0.8;
+}
+.sc-decree-living-row.is-name.tone-off .sc-decree-living-tag { color: #f85149; }
+
+.sc-decree-living-row.is-duration { background: rgba(255, 255, 255, 0.025); }
+.sc-decree-living-row.is-effect { border-top: 1px dashed rgba(200, 150, 62, 0.18); }
+
+.sc-decree-living-label {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+.sc-decree-living-value {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  min-width: 0;
+  margin: 0;
+  text-align: right;
+}
+.sc-decree-living-main {
+  min-width: 0;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.sc-decree-living-row.is-effect .sc-decree-living-main { white-space: normal; line-height: 1.35; }
+.sc-decree-living-row.is-effect.tone-ready .sc-decree-living-main { color: #3fb950; }
+.sc-decree-living-row.is-duration.tone-busy .sc-decree-living-main { color: #d29922; }
+.sc-decree-living-sub {
+  font-size: 10.5px;
+  opacity: 0.72;
+}
+
+/* Thin meter under the Duration row (share of the decree still remaining). */
+.sc-decree-living-meter {
+  position: relative;
+  display: block;
+  flex: 1 0 100%;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(127, 127, 127, 0.2);
+}
+.sc-decree-living-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--sc-decree-living-tone);
+  transition: width 0.5s ease-out;
+}
+
+/* Living touches: the active duration rule breathes, an in-force effect glows. */
+.sc-decree-living-row.is-duration.tone-busy {
+  animation: sc-decree-living-breathe 2.4s ease-in-out infinite;
+}
+.sc-decree-living-head.is-active .sc-decree-living-row.is-effect {
+  animation: sc-decree-living-glow 3.2s ease-in-out infinite;
+}
+
+@keyframes sc-decree-living-chip {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 7px -1px var(--sc-decree-seal-tone); }
+}
+@keyframes sc-decree-living-breathe {
+  0%, 100% { border-left-color: var(--sc-decree-living-tone); }
+  50% { border-left-color: transparent; }
+}
+@keyframes sc-decree-living-glow {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: inset 4px 0 6px -4px var(--sc-decree-living-tone); }
+}
+
+/* Narrow screens: drop row labels, keep values. */
+@media (max-width: 520px) {
+  .sc-decree-living-label { display: none; }
+  .sc-decree-living-value { justify-content: flex-start; text-align: left; }
+  .sc-decree-living-chip { width: 26px; height: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-decree-living-chip,
+  .sc-decree-living-row { animation: none !important; }
+  .sc-decree-living-meter-fill { transition: none; }
+}

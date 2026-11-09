@@ -9,6 +9,15 @@ Merged through PR **#297** (hold status living pip, #297; hold status card, #297
 
 
 
+## Richer living Decree cards (branch wave/decree-living, not merged)
+
+- **What it is:** Each royal decree card now has its wax seal in a round seal-tinted chip beside a living status column: **Name** (with a seal + status tag: muster / rite / envoys / crown, and ready / short / in force / waiting), **Duration** (lasts Ns, or Ns left with a meter) and **Effect** (decree blurb, "active" while in force).
+- **Reads only:** the rows `decreeLedgerRows()` already built in `DecreeCard` and the existing `getDecreeSealKind()` grouping. No new game math.
+- **Controls kept:** cost line and Issue button unchanged; Court cards untouched.
+- **Where:** new `packages/app/src/hud/DecreeLivingRows.tsx` + `hud/decree-living-rows.css`; `DecreeCard.tsx` wiring. Tests in new `hud/DecreeLivingRows.test.tsx`.
+- **Invariants respected:** App-only. No changes to `packages/sim`, `server/` or `theme.css`.
+- **Branch:** `wave/decree-living` from `origin/main` (`3adf538`). Pushed, no PR.
+
 ## Living research glyphs under research cards (branch bakeoff/gemini-research-living, not merged)
 
 - **What it is:** Subtle living research/scholarly glyphs and corner-confined watermarks resting under the richer living Study/Research cards (`ResearchBar`, Academy tab):

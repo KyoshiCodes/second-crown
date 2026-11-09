@@ -1,3 +1,11 @@
+## 2026-11-09 — app / richer living Decree cards (wave/decree-living)
+
+- **Component:** new `packages/app/src/hud/DecreeLivingRows.tsx` exports `DecreeLivingRows`, `orderDecreeRows(rows)` and `DECREE_LIVING_KINDS` (`name`, `duration`, `effect`). It takes the `DecreeLedgerRow[]` that `DecreeCard` already builds with `decreeLedgerRows()`; the ledger's `time` row is shown as **Duration** (values unchanged). The name row's `lead` (wax seal pip) moves into the chip.
+- **Wiring:** `DecreeCard` renders `<DecreeLivingRows decreeId status rows />` in place of `<DecreeLedger rows />`. `DecreeLedger` is kept (still exported and tested) but no longer mounted by `DecreeCard`.
+- **Sources:** unchanged — `decreeLedgerRows()` / `decreeStatus()` output and the existing `getDecreeSealKind()` in `DecreeLivingGlyph.tsx` for the tag and tint (muster / rite / envoys / crown). Status words: active → "in force", ready, short, idle → "waiting". No new math.
+- **CSS:** new `hud/decree-living-rows.css`; selectors under `.sc-decree-living-head`, `.sc-decree-living-chip`, `.sc-decree-living-row*`, `.sc-decree-living-meter*`. Seal tints via `--sc-decree-seal-tone`. Labels hidden below 520px; chip glow, duration breathe, effect glow and meter transition off under `prefers-reduced-motion`.
+- **Tests:** new `hud/DecreeLivingRows.test.tsx`; order checks in `DecreeLedger.test.tsx` / `DecreeLivingGlyph.test.tsx` now look for `sc-decree-living-head`.
+
 ## 2026-11-09 — app / living research glyphs under research cards (bakeoff/gemini-research-living)
 
 - **Components:** `packages/app/src/hud/AcademyLivingGlyph.tsx` exports `ResearchLivingGlyph`, `ResearchLivingUnderlay`, `ResearchTopicLivingGlyph`, `ResearchLecternLivingGlyph`, `resolveResearchLiving`, `resolveResearchGlyphDescriptor`, `ResearchLivingDescriptor`, `ResearchDisciplineKind` alongside existing `StudyLivingGlyph`, `StudyLivingUnderlay`, `AcademyLecternLivingGlyph`. `ResearchBar.tsx` exports `ResearchCard` and `ResearchLivingCard` aliases and marks each card with `sc-research-living-card`.
