@@ -1,0 +1,133 @@
+/* --- Army unit cards: living status column (Name / Power / Cost). ---
+ * Scoped to .sc-unit-living-*; sits inside .sc-unit-head when a card has status rows.
+ * theme.css is untouched; its .sc-unit-name / locked-card rules still apply. */
+
+.sc-unit-head.sc-unit-living-head {
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.sc-unit-living-head .sc-unit-art {
+  margin-top: 2px;
+}
+
+.sc-unit-living-rows {
+  --sc-unit-family-tone: var(--chrome-accent, #c9b48a);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sc-unit-living-rows.family-infantry { --sc-unit-family-tone: #a7b0bb; }
+.sc-unit-living-rows.family-ranged   { --sc-unit-family-tone: #b9d27a; }
+.sc-unit-living-rows.family-cavalry  { --sc-unit-family-tone: #c8955a; }
+.sc-unit-living-rows.family-command  { --sc-unit-family-tone: #e3b341; }
+
+.sc-unit-living-row {
+  --sc-unit-living-tone: #8b949e;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1px 6px;
+  min-width: 0;
+  padding: 1px 0 1px 5px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-unit-living-tone);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Name row reads as the card title: no rule, family tag at the right. */
+.sc-unit-living-row.is-name {
+  padding-left: 0;
+  border-left: none;
+  font-size: 12px;
+  flex-wrap: nowrap;
+}
+.sc-unit-living-row.is-name .sc-unit-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sc-unit-living-family {
+  flex: none;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sc-unit-family-tone);
+  opacity: 0.7;
+}
+.sc-unit-living-family.is-fog {
+  color: inherit;
+  opacity: 0.4;
+}
+
+.sc-unit-living-row.is-power { background: rgba(255, 255, 255, 0.025); }
+.sc-unit-living-row.is-cost  { border-top: 1px dashed rgba(200, 150, 62, 0.18); }
+
+.sc-unit-living-label {
+  flex: 0 0 auto;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+.sc-unit-living-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tones (local; mirrors unit-status.css so rows read the same). */
+.sc-unit-living-row.tone-calm   { --sc-unit-living-tone: #4ade80; }
+.sc-unit-living-row.tone-warn   { --sc-unit-living-tone: #d29922; }
+.sc-unit-living-row.tone-danger { --sc-unit-living-tone: #f85149; }
+.sc-unit-living-row.tone-fog    { --sc-unit-living-tone: #8b949e; }
+.sc-unit-living-row.is-power.tone-calm { --sc-unit-living-tone: var(--chrome-accent); }
+.sc-unit-living-row.is-cost.tone-calm  { --sc-unit-living-tone: #e3b341; }
+.sc-unit-living-row.tone-warn .sc-unit-living-value { color: #d29922; }
+.sc-unit-living-row.tone-danger .sc-unit-living-value { color: #f85149; font-weight: 600; }
+.sc-unit-living-row.tone-fog .sc-unit-living-value { opacity: 0.6; font-style: italic; }
+
+/* Thin power meter (compares units against the strongest in the list; display-only). */
+.sc-unit-living-meter {
+  display: block;
+  flex: 1 0 100%;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(110, 118, 129, 0.22);
+  pointer-events: none;
+}
+.sc-unit-living-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--sc-unit-living-tone);
+  transition: width 0.6s ease-out;
+}
+
+/* Living: short-of-stores cost rule breathes so the reason is easy to spot. */
+.sc-unit-card.is-short .sc-unit-living-row.is-cost.tone-warn {
+  animation: sc-unit-living-rule 2s ease-in-out infinite;
+}
+@keyframes sc-unit-living-rule {
+  0%, 100% { border-left-color: var(--sc-unit-living-tone); }
+  50% { border-left-color: transparent; }
+}
+
+/* Narrow screens: drop the tiny labels, keep values. */
+@media (max-width: 520px) {
+  .sc-unit-living-label { display: none; }
+  .sc-unit-living-value { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-unit-living-row,
+  .sc-unit-card.is-short .sc-unit-living-row.is-cost.tone-warn { animation: none !important; }
+  .sc-unit-living-meter-fill { transition: none; }
+}

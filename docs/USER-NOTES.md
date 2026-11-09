@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Unit cards are easier to read (wave/unit-living)
+
+- On the Army tab, each unit card now lists three short lines next to its picture: the **name** (with its kind: infantry, ranged, cavalry or command), **Power** (with a small bar comparing it to your strongest unit, and how many you have home or away) and **Cost** (price per unit, batch size and drill time).
+- The ready line underneath, the train click and the x1/x5/x10 buttons work exactly as before. No game numbers changed.
+
 ## 2026-11-08 — Living resource glyphs on resource cards (bakeoff/gemini-resource-living)
 
 - **Living resource emblems:** Under the Name, Stock, and Income rows on each resource card at the top (Food, Wood, Stone, Gold), a subtle living emblem now portrays the store's operational flow:

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-09 — Richer living Unit cards (wave/unit-living)
+
+- **Unit cards (`UnitCard`, Army tab):** art now sits beside a stacked **Name / Power / Cost** column (`UnitLivingRows`). Name carries a small family tag; Power keeps home/away counts and a thin meter; Cost keeps batch size and drill time. Ready row, living glyph strip and watermark stay below.
+- **Layout:** small uppercase labels (hidden under 520px), tone rules on the left of each row, dashed rule above Cost; the Cost rule breathes on short-of-stores cards (off under reduced motion). New `hud/unit-living-rows.css`, scoped to `.sc-unit-living-*`.
+- **Controls:** train button, disabled/tooltip rules and x1/x5/x10 batch buttons kept as-is. Cards without status rows render the old layout.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`.
+- **Tests:** new `hud/UnitLivingRows.test.tsx` (row split, stack order, legacy fallback, ArmyTab every card living).
+
 ## 2026-11-08 — Living resource glyphs under resource cards (bakeoff/gemini-resource-living)
 
 - **Living resource glyph strips (`ResourceLivingGlyph`):** Added left-aligned 14×14 living SVG resource emblems directly beneath the stacked Name, Stock, and Income rows in each Resource strip card (`ResourceHud.tsx`), with subtle glow (`sc-resource-glow-layer`), pulse (`sc-resource-pulse-layer`), and drift (`sc-resource-drift-layer`) motion across Empty/Bare (alert pulse danger), Full/Capped (alert pulse warn), Earning/Intake (intake drift), and Idle (calm resting) states across Harvest sheaf (Food), Timber cord (Wood), Ashlar cairn (Stone), and Crown mint (Gold).

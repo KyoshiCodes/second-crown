@@ -7,6 +7,7 @@ import { WardenChip } from "./WardenChip";
 import { LancerChip } from "./LancerChip";
 import { UnitStatus, type UnitStatusRow } from "./UnitStatus";
 import { UnitLivingGlyph, UnitLivingUnderlay } from "./UnitLivingGlyph";
+import { UnitLivingRows, splitUnitRows } from "./UnitLivingRows";
 
 export type UnitCardProps = {
   typeId: string;
@@ -19,7 +20,8 @@ export type UnitCardProps = {
   lock: string;
   affordable: boolean;
   onTrain: () => void;
-  /** Optional stacked power / cost / readiness rows. Replaces the one-line cost/lock text when given. */
+  /** Optional stacked power / cost / readiness rows. When given, Power and Cost move into a living
+   *  Name / Power / Cost column beside the art (UnitLivingRows) and Readiness stays below. */
   status?: UnitStatusRow[];
 };
 
@@ -29,6 +31,7 @@ export function UnitCard(props: UnitCardProps) {
   const cls = ["sc-unit-card", !open ? "is-locked" : affordable ? "is-ready" : "is-short"].join(" ");
   const readyRow = status?.find((r) => r.kind === "ready");
   const isDrilling = Boolean(readyRow?.live || (readyRow?.value && readyRow.value.startsWith("Drilling")));
+  const living = status && status.length > 0 ? splitUnitRows(status) : undefined;
 
   return (
     <button
@@ -44,7 +47,7 @@ export function UnitCard(props: UnitCardProps) {
         affordable={affordable}
         drilling={isDrilling}
       />
-      <span className="sc-unit-head">
+      <span className={living ? "sc-unit-head sc-unit-living-head" : "sc-unit-head"}>
         <span className="sc-unit-art sc-unit-art-wrapper" style={{ pointerEvents: "none", display: "inline-flex" }}>
           {typeId === "ranger" ? (
             <RangerChip size={28} open={open} />
@@ -60,12 +63,18 @@ export function UnitCard(props: UnitCardProps) {
             <UnitIcon typeId={typeId} size={28} animated={open} />
           )}
         </span>
-        <span className="sc-unit-name">{name}</span>
-        <span className="sc-unit-power">pwr {power}</span>
+        {living ? (
+          <UnitLivingRows typeId={typeId} name={name} open={open} rows={living.head} />
+        ) : (
+          <>
+            <span className="sc-unit-name">{name}</span>
+            <span className="sc-unit-power">pwr {power}</span>
+          </>
+        )}
       </span>
-      {status && status.length > 0 ? (
+      {living ? (
         <>
-          <UnitStatus rows={status} />
+          <UnitStatus rows={living.rest} />
           <UnitLivingGlyph
             typeId={typeId}
             open={open}

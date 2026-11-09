@@ -1,3 +1,11 @@
+## 2026-11-09 — app / richer living Unit cards (wave/unit-living)
+
+- **Component:** new `packages/app/src/hud/UnitLivingRows.tsx` exports `UnitLivingRows`, `splitUnitRows(rows)` and `LIVING_HEAD_KINDS` (`power`, `cost`). `splitUnitRows` moves those rows into the head and leaves the rest (`ready`) for `UnitStatus`.
+- **Wiring:** `UnitCard` with non-empty `status` adds `sc-unit-living-head` to `.sc-unit-head` and renders `UnitLivingRows` (Name row keeps `.sc-unit-name` so theme.css locked-card styling still applies); `UnitStatus` gets only the remaining rows. Inline `.sc-unit-power` is omitted in that mode. Without `status`, the legacy head/cost/lock markup is unchanged.
+- **Sources:** unchanged — `unitStatusRows()` output from `ArmyTab` and the existing `getUnitFamily()` in `UnitLivingGlyph.tsx`. Meter width is the existing `fill` (power / powerMax). No new math.
+- **CSS:** new `hud/unit-living-rows.css`; every selector under `.sc-unit-living*` (plus `.sc-unit-head.sc-unit-living-head` / `.sc-unit-card.is-short` scoping). Labels hidden below 520px; cost-rule breathe and meter transition off under `prefers-reduced-motion`. Spans only (card is a `<button>`).
+- **Tests:** new `hud/UnitLivingRows.test.tsx`. Existing `UnitStatus.test.tsx` still passes (row kinds still present in the card markup).
+
 ## 2026-11-08 — app / living resource glyphs under resource cards (bakeoff/gemini-resource-living)
 
 - **Components:** `packages/app/src/hud/ResourceLivingGlyph.tsx` exports `ResourceLivingGlyph`, `ResourceLivingUnderlay`, `resolveResourceGlyphDescriptor`, `resolveResourceGlyphDescriptorByValues`, and types `ResourceKind`, `ResourceMood`, `ResourceGlyphTone`, `ResourceGlyphDescriptor`.
