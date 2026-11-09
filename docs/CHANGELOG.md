@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-09 — Living building glyphs under building cards (bakeoff/gemini-building-living)
+
+- **Living building glyph strips (`BuildingLivingGlyph` / `WorkLivingGlyph`):** Added left-aligned 14×14 living SVG architectural emblems directly beneath the stacked Name, Level, Staffed, and Bonuses rows in each Standing works card (`WorkCard.tsx`), with subtle glow (`sc-building-glow-layer`), pulse (`sc-building-pulse-layer`), and drift (`sc-building-drift-layer`) motion across Working (hearth/yards/coffers/beacon/sanctum lit), Standing (hearth warm / ward standing), Idle (hall uncrewed pulse), and Scarred (siege scarred alert pulse) states across Hearth (farm/granary/cottage), Craft (lumber/sawmill/quarry/mason), Mint (gold mine/market/mint), Martial (barracks/stables/range/siege/watchtower/walls/gate/keep), and Sanctum (academy/chapel/infirmary).
+- **Corner-confined card watermarks (`BuildingLivingUnderlay` / `WorkLivingUnderlay`):** Added 32×32 bottom-right pocket watermarks (`right: 2px; bottom: 24px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.14..0.18` wrapper, `0.28` child SVG) inside `.sc-work-card` / `.sc-building-card` depicting architectural elevations without obstructing stats, meters, Demolish, or Repair actions.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/hud/WorkLivingGlyph.test.tsx` (14 tests) and `LivingGlyphSoften.test.ts` (7 tests). Sim 323, app 766, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 702ms.
+
 ## 2026-11-09 — Richer living Building cards (wave/building-living)
 
 - **Building cards (`WorkCard`, Kingdom tab Standing works):** hall chip now sits beside a stacked **Name / Level / Staffed** column (`WorkLivingRows`). Name carries a small hall-domain tag; Level keeps `lv N / max`, steps to cap and a thin meter; Staffed keeps the staff lift, crew note and meter. Bonuses row, living hall glyph strip and watermark stay below.

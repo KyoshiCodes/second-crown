@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Living building glyphs on building cards (bakeoff/gemini-building-living)
+
+- **Living building emblems:** Under the Name, Level, Staffed, and Bonuses rows on each building card in Kingdom Standing works, a subtle living emblem now portrays the structure's domain and operational activity:
+  - **Hearth (Farms, Granaries, Cottages):** Gable rafters with amber hearth flame lit when staffed, warm when resting, and uncrewed pulse when hands are lacking.
+  - **Craft (Lumber Camps, Sawmills, Quarries, Masons):** Keystone arch and spinning mill wheel drifting in emerald while yards are busy.
+  - **Mint (Gold Mines, Markets, Mints):** Guildhall pediment and balance beam in gleaming gold while commerce flows briskly.
+  - **Martial (Barracks, Stables, Ranges, Siege, Towers, Walls, Gate, Keep):** Stone battlements with watchtower beacon shining in steel azure.
+  - **Sanctum (Academies, Chapels, Infirmaries):** Vaulted lancet arch and scholar star glowing in lavender calmness.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket above the footer buttons, keeping level meters, staffing lifts, Demolish, and Repair actions crisp and unobstructed. No game numbers changed.
+
 ## 2026-11-09 — Building cards are easier to read (wave/building-living)
 
 - On the Kingdom tab, each standing building card now lists three short lines next to its picture: the **name** (with its kind: hearth, craft, mint, martial or sanctum), **Level** (current and max level, with a small bar) and **Staffed** (how much the workers lift it, with a small bar; it gently pulses when crewed and blinks amber when nobody is working there).

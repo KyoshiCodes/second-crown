@@ -14,7 +14,12 @@ import {
 import type { ActFn } from "../game/useGameEngine";
 import { HallChip } from "./HallChip";
 import { WorkStatus, workStatusRows } from "./WorkStatus";
-import { WorkLivingGlyph, WorkLivingUnderlay } from "./WorkLivingGlyph";
+import {
+  WorkLivingGlyph,
+  WorkLivingUnderlay,
+  BuildingLivingGlyph,
+  BuildingLivingUnderlay,
+} from "./WorkLivingGlyph";
 import { WorkLivingRows, splitWorkRows } from "./WorkLivingRows";
 
 type Building = GameState["buildings"][number];
@@ -40,7 +45,11 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
     keepPct: keep,
   });
   const living = splitWorkRows(rows);
-  const cls = ["sc-work-card", scarred ? "is-scarred" : staff > 0 ? "is-staffed" : "is-empty"].join(" ");
+  const cls = [
+    "sc-work-card",
+    "sc-building-card",
+    scarred ? "is-scarred" : staff > 0 ? "is-staffed" : "is-empty",
+  ].join(" ");
 
   return (
     <div className={cls} title={`${nm} at ${b.x},${b.y}`}>
@@ -86,3 +95,6 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
     </div>
   );
 }
+
+export const BuildingCard = WorkCard;
+export const BuildingLivingCard = WorkCard;

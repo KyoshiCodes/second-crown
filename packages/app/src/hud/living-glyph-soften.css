@@ -10,6 +10,7 @@
    ========================================================================== */
 .sc-shell .sc-market-living-underlay,
 .sc-shell .sc-works-living-underlay,
+.sc-shell .sc-building-living-underlay,
 .sc-shell .sc-hold-card-underlay,
 .sc-shell .sc-people-living-underlay,
 .sc-shell .sc-unit-living-underlay,
@@ -20,6 +21,8 @@
 .sc-shell .sc-diplo-living-underlay,
 .sc-shell .sc-market-status-glyph,
 .sc-shell .sc-works-status-glyph,
+.sc-shell .sc-building-status-glyph,
+.sc-shell .sc-building-living-glyph,
 .sc-shell .sc-hold-living-strip,
 .sc-shell .sc-people-living-glyph,
 .sc-shell .sc-unit-status-glyph,
@@ -60,6 +63,7 @@
 
 .sc-shell .sc-market-living-underlay *,
 .sc-shell .sc-works-living-underlay *,
+.sc-shell .sc-building-living-underlay *,
 .sc-shell .sc-hold-card-underlay *,
 .sc-shell .sc-people-living-underlay *,
 .sc-shell .sc-unit-living-underlay *,
@@ -120,6 +124,31 @@
 .sc-shell .sc-works-living-underlay svg {
   opacity: 0.28 !important;
 }
+/* Building / Standing Works Underlays */
+.sc-shell .sc-building-living-underlay {
+  opacity: 0.14 !important;
+}
+.sc-shell .sc-building-living-underlay.is-busy,
+.sc-shell .sc-building-living-underlay.is-lifted {
+  opacity: 0.18 !important;
+}
+.sc-shell .sc-building-living-underlay.is-short {
+  opacity: 0.11 !important;
+}
+.sc-shell .sc-building-living-underlay.is-idle {
+  opacity: 0.08 !important;
+}
+.sc-shell .sc-building-living-underlay.is-locked,
+.sc-shell .sc-building-living-underlay.is-standing {
+  opacity: 0.12 !important;
+}
+.sc-shell .sc-building-living-underlay.is-scarred {
+  opacity: 0.17 !important;
+}
+.sc-shell .sc-building-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
 
 /* Hold Status Underlays (Works, Stores, Stamps, Key) */
 .sc-shell .sc-hold-card-underlay {
@@ -359,6 +388,22 @@
 /* ==========================================================================
    3. Glow Intensity: Toned-Down Filter Blurs and Calmed Glow Layers
    ========================================================================== */
+
+
+/* Building Living Building / Hall Glow, Pulse, Drift */
+.sc-shell .sc-building-glow-layer,
+.sc-shell .sc-works-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-building-pulse-layer,
+.sc-shell .sc-works-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-building-drift-layer,
+.sc-shell .sc-works-drift-layer {
+  opacity: 0.52 !important;
+}
 
 /* Unit Living Glow, Pulse, Drift */
 .sc-shell .sc-unit-glow-layer {

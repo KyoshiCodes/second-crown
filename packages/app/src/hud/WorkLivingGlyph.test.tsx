@@ -5,10 +5,15 @@ import { createCitizen, createGameState, listBuildableTypes, tryAssignCitizen } 
 import {
   WorkLivingGlyph,
   WorkLivingUnderlay,
+  BuildingLivingGlyph,
+  BuildingLivingUnderlay,
   getHallDomain,
+  getBuildingDomain,
+  resolveBuildingGlyphDescriptor,
+  resolveWorkGlyphDescriptor,
   type HallDomain,
 } from "./WorkLivingGlyph";
-import { WorkCard } from "./WorkCard";
+import { WorkCard, BuildingCard, BuildingLivingCard } from "./WorkCard";
 
 type B = ReturnType<typeof createGameState>["buildings"][number];
 
@@ -237,5 +242,104 @@ describe("WorkLivingGlyph and WorkLivingUnderlay", () => {
         expect(op).toBeLessThan(0.6);
       }
     }
+  });
+
+  it("resolves state-aware building descriptors with appropriate motion and flairs", () => {
+    const scarredDesc = resolveBuildingGlyphDescriptor({
+      typeId: "farm",
+      scarred: true,
+      crewed: true,
+      staffed: true,
+      lifted: true,
+    });
+    expect(scarredDesc.mood).toBe("scarred");
+    expect(scarredDesc.motion).toBe("pulse");
+    expect(scarredDesc.flair).toBe("Siege scarred");
+    expect(scarredDesc.lifted).toBe(false);
+
+    const workingLifted = resolveBuildingGlyphDescriptor({
+      typeId: "quarry",
+      scarred: false,
+      crewed: true,
+      staffed: true,
+      lifted: true,
+    });
+    expect(workingLifted.mood).toBe("working");
+    expect(workingLifted.motion).toBe("pulse");
+    expect(workingLifted.flair).toBe("Yards busy");
+    expect(workingLifted.lifted).toBe(true);
+
+    const workingSteady = resolveBuildingGlyphDescriptor({
+      typeId: "mint",
+      scarred: false,
+      crewed: true,
+      staffed: true,
+      lifted: false,
+    });
+    expect(workingSteady.mood).toBe("working");
+    expect(workingSteady.motion).toBe("drift");
+    expect(workingSteady.flair).toBe("Coffers brisk");
+
+    const idleDesc = resolveBuildingGlyphDescriptor({
+      typeId: "farm",
+      scarred: false,
+      crewed: true,
+      staffed: false,
+    });
+    expect(idleDesc.mood).toBe("idle");
+    expect(idleDesc.motion).toBe("pulse");
+    expect(idleDesc.flair).toBe("Hall uncrewed");
+
+    const standingDesc = resolveBuildingGlyphDescriptor({
+      typeId: "cottage",
+      scarred: false,
+      crewed: false,
+      staffed: false,
+    });
+    expect(standingDesc.mood).toBe("standing");
+    expect(standingDesc.motion).toBe("drift");
+    expect(standingDesc.flair).toBe("Hearth warm");
+
+    expect(resolveWorkGlyphDescriptor).toBe(resolveBuildingGlyphDescriptor);
+    expect(getBuildingDomain).toBe(getHallDomain);
+  });
+
+  it("exports BuildingLivingGlyph and BuildingLivingUnderlay aliases rendering identical markup", () => {
+    const props = { typeId: "academy", scarred: false, crewed: false, staffed: false };
+    const workGlyph = renderToStaticMarkup(<WorkLivingGlyph {...props} />);
+    const bldgGlyph = renderToStaticMarkup(<BuildingLivingGlyph {...props} />);
+    expect(bldgGlyph).toBe(workGlyph);
+
+    const workUnderlay = renderToStaticMarkup(<WorkLivingUnderlay {...props} />);
+    const bldgUnderlay = renderToStaticMarkup(<BuildingLivingUnderlay {...props} />);
+    expect(bldgUnderlay).toBe(workUnderlay);
+
+    expect(bldgGlyph).toContain("sc-building-living-glyph");
+    expect(bldgGlyph).toContain("sc-building-glow-layer");
+    expect(bldgUnderlay).toContain("sc-building-living-underlay");
+    expect(BuildingLivingGlyph).toBe(WorkLivingGlyph);
+    expect(BuildingLivingUnderlay).toBe(WorkLivingUnderlay);
+  });
+
+  it("exports BuildingCard and BuildingLivingCard aliases and marks card with sc-building-card", () => {
+    const s = createGameState({ seed: 1 });
+    const farm = { id: "f1", typeId: "farm", realmId: "player", x: 1, y: 2, level: 1, completesAtTick: null } as B;
+    s.buildings = [farm];
+    const html = renderToStaticMarkup(<BuildingLivingCard state={s} b={farm} scarred={false} act={noop as never} />);
+    expect(html).toContain("sc-work-card");
+    expect(html).toContain("sc-building-card");
+    expect(html).toContain("sc-building-living-glyph");
+    expect(html).toContain("sc-building-living-underlay");
+    expect(BuildingCard).toBe(WorkCard);
+  });
+
+  it("includes building-specific keyframes and layer rules in works-living.css", () => {
+    const css = readCssFile("./works-living.css");
+    expect(css).toContain("@keyframes sc-building-drift");
+    expect(css).toContain("@keyframes sc-building-breathe");
+    expect(css).toContain(".sc-building-glow-layer");
+    expect(css).toContain(".sc-building-pulse-layer");
+    expect(css).toContain(".sc-building-drift-layer");
+    expect(css).toContain(".sc-building-card:has(.sc-building-living-underlay)");
   });
 });

@@ -1,13 +1,17 @@
 /* --- Living hall glyphs under Kingdom Standing works cards --- */
 /* Isolated styles: theme.css and work-status.css stay untouched. */
 
-.sc-work-card:has(.sc-works-living-underlay) {
+.sc-work-card:has(.sc-works-living-underlay),
+.sc-work-card:has(.sc-building-living-underlay),
+.sc-building-card:has(.sc-building-living-underlay) {
   position: relative;
   overflow: hidden;
 }
 
 /* Keep header, status rows, and footer buttons cleanly above the decorative underlay */
-.sc-work-card:has(.sc-works-living-underlay) > *:not(.sc-works-living-underlay) {
+.sc-work-card:has(.sc-works-living-underlay) > *:not(.sc-works-living-underlay),
+.sc-work-card:has(.sc-building-living-underlay) > *:not(.sc-building-living-underlay),
+.sc-building-card:has(.sc-building-living-underlay) > *:not(.sc-building-living-underlay) {
   position: relative;
   z-index: 1;
 }
@@ -96,8 +100,57 @@
   animation: sc-works-underlay-pulse 1.8s ease-in-out infinite;
 }
 
+/* Building Living Underlay alias styles */
+.sc-building-living-underlay {
+  position: absolute;
+  top: auto;
+  left: auto;
+  right: 2px;
+  bottom: 24px;
+  width: 32px;
+  height: 32px;
+  pointer-events: none !important;
+  z-index: 0;
+  overflow: hidden;
+  user-select: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  opacity: 0.25;
+  -webkit-mask-image: radial-gradient(circle at 68% 68%, rgba(0, 0, 0, 1) 18%, rgba(0, 0, 0, 0.32) 68%, transparent 100%);
+  mask-image: radial-gradient(circle at 68% 68%, rgba(0, 0, 0, 1) 18%, rgba(0, 0, 0, 0.32) 68%, transparent 100%);
+}
+
+.sc-building-living-underlay.is-lifted { opacity: 0.29; }
+.sc-building-living-underlay.is-standing { opacity: 0.21; }
+.sc-building-living-underlay.is-idle { opacity: 0.15; }
+.sc-building-living-underlay.is-scarred { opacity: 0.28; }
+
+.sc-building-living-underlay,
+.sc-building-living-underlay * {
+  pointer-events: none !important;
+}
+
+.sc-building-living-underlay svg {
+  display: block;
+  opacity: 0.42;
+  transform-origin: bottom right;
+  animation: sc-works-underlay-drift 4.4s ease-in-out infinite;
+}
+
+.sc-building-living-underlay.domain-hearth svg { color: #f59e0b; }
+.sc-building-living-underlay.domain-craft svg { color: #4ade80; }
+.sc-building-living-underlay.domain-mint svg { color: #facc15; }
+.sc-building-living-underlay.domain-martial svg { color: #79c0ff; }
+.sc-building-living-underlay.domain-sanctum svg { color: #c4b5fd; }
+.sc-building-living-underlay.is-lifted svg { animation: sc-works-underlay-pulse 3s ease-in-out infinite; }
+.sc-building-living-underlay.is-idle svg { color: #d29922; opacity: 0.34; }
+.sc-building-living-underlay.is-scarred svg { color: #f85149; opacity: 0.46; animation: sc-works-underlay-pulse 1.8s ease-in-out infinite; }
+
 /* Subtle living hall glyph strip beneath WorkStatus rows (reserves right pocket) */
-.sc-works-status-glyph {
+.sc-works-status-glyph,
+.sc-building-status-glyph,
+.sc-building-living-glyph {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -110,11 +163,16 @@
 }
 
 .sc-works-status-glyph,
-.sc-works-status-glyph * {
+.sc-works-status-glyph *,
+.sc-building-status-glyph,
+.sc-building-status-glyph *,
+.sc-building-living-glyph,
+.sc-building-living-glyph * {
   pointer-events: none !important;
 }
 
-.sc-works-glyph-icon {
+.sc-works-glyph-icon,
+.sc-building-glyph-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -124,58 +182,74 @@
 }
 
 .sc-works-status-glyph.domain-hearth.is-working,
-.sc-works-status-glyph.domain-hearth.is-standing {
+.sc-works-status-glyph.domain-hearth.is-standing,
+.sc-building-status-glyph.domain-hearth.is-working,
+.sc-building-status-glyph.domain-hearth.is-standing {
   color: #f59e0b;
   --sc-works-glow: rgba(245, 158, 11, 0.34);
 }
 
 .sc-works-status-glyph.domain-craft.is-working,
-.sc-works-status-glyph.domain-craft.is-standing {
+.sc-works-status-glyph.domain-craft.is-standing,
+.sc-building-status-glyph.domain-craft.is-working,
+.sc-building-status-glyph.domain-craft.is-standing {
   color: #4ade80;
   --sc-works-glow: rgba(74, 222, 128, 0.32);
 }
 
 .sc-works-status-glyph.domain-mint.is-working,
-.sc-works-status-glyph.domain-mint.is-standing {
+.sc-works-status-glyph.domain-mint.is-standing,
+.sc-building-status-glyph.domain-mint.is-working,
+.sc-building-status-glyph.domain-mint.is-standing {
   color: #facc15;
   --sc-works-glow: rgba(250, 204, 21, 0.36);
 }
 
 .sc-works-status-glyph.domain-martial.is-working,
-.sc-works-status-glyph.domain-martial.is-standing {
+.sc-works-status-glyph.domain-martial.is-standing,
+.sc-building-status-glyph.domain-martial.is-working,
+.sc-building-status-glyph.domain-martial.is-standing {
   color: #79c0ff;
   --sc-works-glow: rgba(121, 192, 255, 0.34);
 }
 
 .sc-works-status-glyph.domain-sanctum.is-working,
-.sc-works-status-glyph.domain-sanctum.is-standing {
+.sc-works-status-glyph.domain-sanctum.is-standing,
+.sc-building-status-glyph.domain-sanctum.is-working,
+.sc-building-status-glyph.domain-sanctum.is-standing {
   color: #c4b5fd;
   --sc-works-glow: rgba(196, 181, 253, 0.36);
 }
 
-.sc-works-status-glyph.is-lifted .sc-works-glyph-icon {
+.sc-works-status-glyph.is-lifted .sc-works-glyph-icon,
+.sc-building-status-glyph.is-lifted .sc-building-glyph-icon {
   animation: sc-works-lifted-pulse 2.4s ease-in-out infinite;
 }
 
-.sc-works-status-glyph.is-idle {
+.sc-works-status-glyph.is-idle,
+.sc-building-status-glyph.is-idle {
   color: #d29922;
   --sc-works-glow: rgba(210, 153, 34, 0.2);
 }
 
-.sc-works-status-glyph.is-idle .sc-works-glyph-icon {
+.sc-works-status-glyph.is-idle .sc-works-glyph-icon,
+.sc-building-status-glyph.is-idle .sc-building-glyph-icon {
   animation: sc-works-idle-breath 3.8s ease-in-out infinite;
 }
 
-.sc-works-status-glyph.is-scarred {
+.sc-works-status-glyph.is-scarred,
+.sc-building-status-glyph.is-scarred {
   color: #f85149;
   --sc-works-glow: rgba(248, 81, 73, 0.38);
 }
 
-.sc-works-status-glyph.is-scarred .sc-works-glyph-icon {
+.sc-works-status-glyph.is-scarred .sc-works-glyph-icon,
+.sc-building-status-glyph.is-scarred .sc-building-glyph-icon {
   animation: sc-works-scarred-pulse 1.6s ease-in-out infinite;
 }
 
-.sc-works-glyph-flair {
+.sc-works-glyph-flair,
+.sc-building-glyph-flair {
   display: inline-block;
   font-size: 9px;
   line-height: 1.1;
@@ -189,8 +263,53 @@
   white-space: nowrap;
 }
 
-.sc-works-glyph-glint {
+.sc-works-glyph-glint,
+.sc-building-glyph-glint {
   animation: sc-works-glint 2.3s ease-in-out infinite;
+}
+
+/* Standardized Living Building Glow, Pulse, and Drift Layers */
+.sc-building-glow-layer,
+.sc-works-glow-layer {
+  filter: drop-shadow(0 0 1.2px currentColor);
+  opacity: 0.38;
+  pointer-events: none !important;
+}
+
+.sc-building-pulse-layer,
+.sc-works-pulse-layer {
+  animation: sc-building-breathe 2.8s ease-in-out infinite;
+  opacity: 0.48;
+  pointer-events: none !important;
+}
+
+.sc-building-drift-layer,
+.sc-works-drift-layer {
+  animation: sc-building-drift 3.6s ease-in-out infinite;
+  opacity: 0.52;
+  pointer-events: none !important;
+}
+
+@keyframes sc-building-drift {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.48;
+  }
+  50% {
+    transform: translateY(-0.8px) scale(1.03);
+    opacity: 0.64;
+  }
+}
+
+@keyframes sc-building-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.42;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.62;
+  }
 }
 
 /* Dedicated low-opacity corner underlay animations (never overrides to opaque) */
@@ -281,8 +400,17 @@
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .sc-works-living-underlay svg,
+  .sc-building-living-underlay svg,
   .sc-works-glyph-icon,
-  .sc-works-glyph-glint {
+  .sc-building-glyph-icon,
+  .sc-works-glyph-glint,
+  .sc-building-glyph-glint,
+  .sc-building-glow-layer,
+  .sc-works-glow-layer,
+  .sc-building-pulse-layer,
+  .sc-works-pulse-layer,
+  .sc-building-drift-layer,
+  .sc-works-drift-layer {
     animation: none !important;
     transition: none !important;
     transform: none !important;

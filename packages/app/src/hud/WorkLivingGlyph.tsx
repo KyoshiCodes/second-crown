@@ -2,6 +2,8 @@ import React from "react";
 import "./works-living.css";
 
 export type HallDomain = "hearth" | "craft" | "mint" | "martial" | "sanctum";
+export type BuildingDomain = HallDomain;
+export type BuildingMood = "working" | "standing" | "idle" | "scarred";
 
 /**
  * Classifies every Kingdom building type into its architectural hall domain
@@ -40,6 +42,8 @@ export function getHallDomain(typeId: string): HallDomain {
   }
 }
 
+export const getBuildingDomain = getHallDomain;
+
 export interface WorkLivingProps {
   typeId: string;
   scarred: boolean;
@@ -48,13 +52,22 @@ export interface WorkLivingProps {
   lifted?: boolean;
 }
 
-function workStateClass(props: WorkLivingProps): string {
-  if (props.scarred) return "is-scarred";
-  if (props.crewed) return props.staffed ? "is-working" : "is-idle";
-  return "is-standing";
+export type BuildingLivingProps = WorkLivingProps;
+
+export interface BuildingGlyphDescriptor {
+  typeId: string;
+  domain: HallDomain;
+  mood: BuildingMood;
+  stateClass: string;
+  flair: string;
+  motion: "pulse" | "drift" | "calm";
+  lifted: boolean;
+  staffed: boolean;
+  crewed: boolean;
+  scarred: boolean;
 }
 
-function hallFlair(domain: HallDomain, props: WorkLivingProps): string {
+export function hallFlair(domain: HallDomain, props: WorkLivingProps): string {
   if (props.scarred) return "Siege scarred";
   if (props.crewed && !props.staffed) return "Hall uncrewed";
 
@@ -85,19 +98,67 @@ function hallFlair(domain: HallDomain, props: WorkLivingProps): string {
   }
 }
 
+export function resolveBuildingGlyphDescriptor(props: WorkLivingProps): BuildingGlyphDescriptor {
+  const { typeId, scarred, crewed, staffed, lifted } = props;
+  const domain = getHallDomain(typeId);
+  const isLifted = !scarred && Boolean(lifted);
+
+  let mood: BuildingMood;
+  let stateClass: string;
+  let motion: "pulse" | "drift" | "calm";
+
+  if (scarred) {
+    mood = "scarred";
+    stateClass = "is-scarred";
+    motion = "pulse";
+  } else if (crewed) {
+    if (staffed) {
+      mood = "working";
+      stateClass = "is-working";
+      motion = isLifted ? "pulse" : "drift";
+    } else {
+      mood = "idle";
+      stateClass = "is-idle";
+      motion = "pulse";
+    }
+  } else {
+    mood = "standing";
+    stateClass = "is-standing";
+    motion = isLifted ? "pulse" : "drift";
+  }
+
+  const flair = hallFlair(domain, props);
+
+  return {
+    typeId,
+    domain,
+    mood,
+    stateClass,
+    flair,
+    motion,
+    lifted: isLifted,
+    staffed,
+    crewed,
+    scarred,
+  };
+}
+
+export const resolveWorkGlyphDescriptor = resolveBuildingGlyphDescriptor;
+
 /**
  * Corner-confined ambient hall watermark tucked into the quiet right-hand pocket
  * above the footer action button so it never overlaps status values or buttons.
  * Pure phrasing content (span + svg), pointer-events: none, capped low opacity.
  */
 export function WorkLivingUnderlay(props: WorkLivingProps) {
-  const domain = getHallDomain(props.typeId);
-  const stateCls = workStateClass(props);
-  const liftedCls = !props.scarred && props.lifted ? " is-lifted" : "";
+  const desc = resolveBuildingGlyphDescriptor(props);
+  const { domain, stateClass, lifted } = desc;
+  const liftedCls = lifted ? " is-lifted" : "";
 
   return (
     <span
-      className={`sc-works-living-underlay domain-${domain} ${stateCls}${liftedCls}`}
+      className={`sc-works-living-underlay domain-${domain} ${stateClass}${liftedCls} sc-building-living-underlay`}
+      style={{ pointerEvents: "none" }}
       aria-hidden="true"
     >
       <svg
@@ -109,6 +170,7 @@ export function WorkLivingUnderlay(props: WorkLivingProps) {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        style={{ pointerEvents: "none" }}
       >
         {domain === "hearth" && (
           <g>
@@ -194,23 +256,129 @@ export function WorkLivingUnderlay(props: WorkLivingProps) {
   );
 }
 
+export const BuildingLivingUnderlay = WorkLivingUnderlay;
+
+function BuildingGlyphSvgPaths(props: { domain: HallDomain; showGlint?: boolean }) {
+  const { domain, showGlint } = props;
+
+  switch (domain) {
+    case "hearth":
+      return (
+        <g>
+          {/* Hall gable & hearth flame */}
+          <polyline points="3,10 10,4 17,10" />
+          <path
+            d="M10 8.5 C12.2 11 12.6 13.5 10 16 C7.4 13.5 7.8 11 10 8.5 Z"
+            fill="currentColor"
+            fillOpacity="0.24"
+          />
+          <circle
+            cx="10"
+            cy="13"
+            r="1.2"
+            fill="currentColor"
+            className={showGlint ? "sc-works-glyph-glint sc-building-glyph-glint" : undefined}
+          />
+        </g>
+      );
+
+    case "craft":
+      return (
+        <g>
+          {/* Keystone arch & mill wheel */}
+          <path d="M4,16.5 V10 C4,5.5 16,5.5 16,10 V16.5" />
+          <circle cx="10" cy="12" r="3" fill="currentColor" fillOpacity="0.18" />
+          <circle
+            cx="10"
+            cy="4"
+            r="1.2"
+            fill="currentColor"
+            className={showGlint ? "sc-works-glyph-glint sc-building-glyph-glint" : undefined}
+          />
+        </g>
+      );
+
+    case "mint":
+      return (
+        <g>
+          {/* Guild pediment & balance scales */}
+          <polygon points="3,8 10,3.5 17,8" fill="currentColor" fillOpacity="0.18" />
+          <line x1="10" y1="8" x2="10" y2="16.5" />
+          <line x1="5" y1="11.5" x2="15" y2="11.5" />
+          <circle
+            cx="10"
+            cy="15.5"
+            r="1.3"
+            fill="currentColor"
+            className={showGlint ? "sc-works-glyph-glint sc-building-glyph-glint" : undefined}
+          />
+        </g>
+      );
+
+    case "martial":
+      return (
+        <g>
+          {/* Rampart merlons & watchtower beacon */}
+          <path
+            d="M3.5,8 H6.5 V10.5 H9 V8 H11 V10.5 H13.5 V8 H16.5 V16.5 H3.5 Z"
+            fill="currentColor"
+            fillOpacity="0.16"
+          />
+          <circle
+            cx="10"
+            cy="4.2"
+            r="1.3"
+            fill="currentColor"
+            className={showGlint ? "sc-works-glyph-glint sc-building-glyph-glint" : undefined}
+          />
+        </g>
+      );
+
+    case "sanctum":
+      return (
+        <g>
+          {/* Pointed lancet arch & scholar star */}
+          <path
+            d="M4.5,16.5 V10.5 Q10,4.5 15.5,10.5 V16.5"
+            fill="currentColor"
+            fillOpacity="0.16"
+          />
+          <line x1="3.5" y1="16.5" x2="16.5" y2="16.5" />
+          <circle
+            cx="10"
+            cy="3.8"
+            r="1.3"
+            fill="currentColor"
+            className={showGlint ? "sc-works-glyph-glint sc-building-glyph-glint" : undefined}
+          />
+        </g>
+      );
+  }
+}
+
 /**
- * Subtle living hall glyph strip rendered directly beneath the stacked WorkStatus rows,
+ * Subtle living building / hall glyph strip rendered directly beneath the stacked WorkStatus rows,
  * left-aligned with right-pocket clearance so it stays readable and never fights chrome.
  */
 export function WorkLivingGlyph(props: WorkLivingProps) {
-  const domain = getHallDomain(props.typeId);
-  const stateCls = workStateClass(props);
-  const liftedCls = !props.scarred && props.lifted ? " is-lifted" : "";
-  const showGlint = !props.scarred && (props.staffed || (!props.crewed && Boolean(props.lifted)));
-  const flair = hallFlair(domain, props);
+  const desc = resolveBuildingGlyphDescriptor(props);
+  const { domain, stateClass, flair, motion, lifted, staffed, crewed, scarred } = desc;
+  const liftedCls = lifted ? " is-lifted" : "";
+  const showGlint = !scarred && (staffed || (!crewed && lifted));
+  const motionClass =
+    motion === "pulse"
+      ? "sc-building-pulse-layer sc-works-pulse-layer"
+      : motion === "drift"
+      ? "sc-building-drift-layer sc-works-drift-layer"
+      : "";
 
   return (
     <span
-      className={`sc-works-status-glyph domain-${domain} ${stateCls}${liftedCls}`}
+      className={`sc-works-status-glyph domain-${domain} ${stateClass}${liftedCls} sc-building-status-glyph sc-building-living-glyph`}
+      style={{ pointerEvents: "none" }}
       aria-hidden="true"
     >
-      <span className="sc-works-glyph-icon">
+      <span className="sc-works-glyph-icon sc-building-glyph-icon" style={{ pointerEvents: "none" }}>
         <svg
           width="14"
           height="14"
@@ -220,96 +388,18 @@ export function WorkLivingGlyph(props: WorkLivingProps) {
           strokeWidth="1.6"
           strokeLinecap="round"
           strokeLinejoin="round"
+          className={`sc-building-glyph-svg sc-works-glyph-svg ${motionClass}`}
+          style={{ pointerEvents: "none" }}
         >
-          {domain === "hearth" && (
-            <g>
-              {/* Hall gable & hearth flame */}
-              <polyline points="3,10 10,4 17,10" />
-              <path
-                d="M10 8.5 C12.2 11 12.6 13.5 10 16 C7.4 13.5 7.8 11 10 8.5 Z"
-                fill="currentColor"
-                fillOpacity="0.24"
-              />
-              <circle
-                cx="10"
-                cy="13"
-                r="1.2"
-                fill="currentColor"
-                className={showGlint ? "sc-works-glyph-glint" : undefined}
-              />
-            </g>
-          )}
-
-          {domain === "craft" && (
-            <g>
-              {/* Keystone arch & mill wheel */}
-              <path d="M4,16.5 V10 C4,5.5 16,5.5 16,10 V16.5" />
-              <circle cx="10" cy="12" r="3" fill="currentColor" fillOpacity="0.18" />
-              <circle
-                cx="10"
-                cy="4"
-                r="1.2"
-                fill="currentColor"
-                className={showGlint ? "sc-works-glyph-glint" : undefined}
-              />
-            </g>
-          )}
-
-          {domain === "mint" && (
-            <g>
-              {/* Guild pediment & balance scales */}
-              <polygon points="3,8 10,3.5 17,8" fill="currentColor" fillOpacity="0.18" />
-              <line x1="10" y1="8" x2="10" y2="16.5" />
-              <line x1="5" y1="11.5" x2="15" y2="11.5" />
-              <circle
-                cx="10"
-                cy="15.5"
-                r="1.3"
-                fill="currentColor"
-                className={showGlint ? "sc-works-glyph-glint" : undefined}
-              />
-            </g>
-          )}
-
-          {domain === "martial" && (
-            <g>
-              {/* Rampart merlons & watchtower beacon */}
-              <path
-                d="M3.5,8 H6.5 V10.5 H9 V8 H11 V10.5 H13.5 V8 H16.5 V16.5 H3.5 Z"
-                fill="currentColor"
-                fillOpacity="0.16"
-              />
-              <circle
-                cx="10"
-                cy="4.2"
-                r="1.3"
-                fill="currentColor"
-                className={showGlint ? "sc-works-glyph-glint" : undefined}
-              />
-            </g>
-          )}
-
-          {domain === "sanctum" && (
-            <g>
-              {/* Pointed lancet arch & scholar star */}
-              <path
-                d="M4.5,16.5 V10.5 Q10,4.5 15.5,10.5 V16.5"
-                fill="currentColor"
-                fillOpacity="0.16"
-              />
-              <line x1="3.5" y1="16.5" x2="16.5" y2="16.5" />
-              <circle
-                cx="10"
-                cy="3.8"
-                r="1.3"
-                fill="currentColor"
-                className={showGlint ? "sc-works-glyph-glint" : undefined}
-              />
-            </g>
-          )}
+          <g className="sc-building-glow-layer sc-works-glow-layer" style={{ pointerEvents: "none" }}>
+            <BuildingGlyphSvgPaths domain={domain} showGlint={showGlint} />
+          </g>
+          <BuildingGlyphSvgPaths domain={domain} showGlint={showGlint} />
         </svg>
       </span>
-      <span className="sc-works-glyph-flair">{flair}</span>
+      <span className="sc-works-glyph-flair sc-building-glyph-flair">{flair}</span>
     </span>
   );
 }
+
+export const BuildingLivingGlyph = WorkLivingGlyph;
