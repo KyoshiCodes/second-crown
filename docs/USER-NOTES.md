@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Living research glyphs on research cards (bakeoff/gemini-research-living)
+
+- **Living research emblems:** Under the Name, Progress, and Bonus rows on each research card on the Academy / lectern, a subtle living emblem now portrays the discipline's scholarly field and study status:
+  - **Agronomy (Husbandry, Forestry):** Folio leaf and furrow sheaf drifting in amber ink while study is underway.
+  - **Masonry (Masonry):** Ashlar plumb-line and dressed stone keystone reflecting quarry and architectural treatises.
+  - **Cartography (Logistics, Surveying):** Astrolabe compass and star dial glowing softly under academy guidance.
+  - **Tactics (Fieldcraft, Drill, Screening):** Commander standard and marching banner drifting in martial steel.
+  - **Horsemanship (Horse):** Steed crest charger profile symbolizing mounted reconnaissance and cavalry arts.
+  - **Siegecraft (Siege):** Trebuchet engine arm and stone shot framed in poliorcetics blueprints.
+- **Clean reading & controls:** Soft corner watermarks stay tucked away in the bottom-right pocket of each card, keeping progress meters, hall requirements, Study buttons, and Cancel actions crisp and unobstructed. No game numbers changed.
+
 ## 2026-11-09 — Research cards are easier to read (wave/research-living)
 
 - On the Academy / lectern, each study card now shows its scroll mark in a small coloured badge next to three short lines: the **name** (with its field, like agronomy or siegecraft, and whether it is open, studying, known or sealed), **Progress** (with a bar while studying) and **Bonus** (what the study gives you, marked "active" once learned).

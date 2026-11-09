@@ -135,8 +135,8 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
     const isForestry = topicId === "forestry";
     return (
       <>
-        <circle className="sc-academy-glow-layer" cx="12" cy="12" r="7.5" fill="currentColor" opacity="0.18" />
-        <g className="sc-academy-drift-layer">
+        <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="12" r="7.5" fill="currentColor" opacity="0.18" />
+        <g className="sc-academy-drift-layer sc-research-drift-layer">
           {isForestry ? (
             /* Silviculture oak bough & felling blade */
             <>
@@ -178,7 +178,7 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
             </>
           )}
         </g>
-        <g className="sc-academy-pulse-layer">
+        <g className="sc-academy-pulse-layer sc-research-pulse-layer">
           <circle cx={isForestry ? "12" : "10.2"} cy="4.8" r="1.15" fill="currentColor" />
           <circle cx="17.8" cy="6.8" r="0.85" fill="currentColor" opacity="0.85" />
         </g>
@@ -189,8 +189,8 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
   if (discipline === "masonry") {
     return (
       <>
-        <rect className="sc-academy-glow-layer" x="4.5" y="5" width="15" height="14" rx="3" fill="currentColor" opacity="0.16" />
-        <g className="sc-academy-drift-layer">
+        <rect className="sc-academy-glow-layer sc-research-glow-layer" x="4.5" y="5" width="15" height="14" rx="3" fill="currentColor" opacity="0.16" />
+        <g className="sc-academy-drift-layer sc-research-drift-layer">
           {/* Dressed ashlar block & mason dividers */}
           <rect
             x="5.2"
@@ -212,7 +212,7 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
             strokeLinecap="round"
           />
         </g>
-        <g className="sc-academy-pulse-layer">
+        <g className="sc-academy-pulse-layer sc-research-pulse-layer">
           <circle cx="12" cy="4.6" r="1.35" fill="currentColor" />
           <polygon points="12,10.8 10.9,12.5 12,13.6 13.1,12.5" fill="currentColor" />
         </g>
@@ -224,8 +224,8 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
     const isLogistics = topicId === "logistics";
     return (
       <>
-        <circle className="sc-academy-glow-layer" cx="12" cy="12" r="7.8" fill="currentColor" opacity="0.18" />
-        <g className="sc-academy-drift-layer">
+        <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="12" r="7.8" fill="currentColor" opacity="0.18" />
+        <g className="sc-academy-drift-layer sc-research-drift-layer">
           <circle cx="12" cy="12" r="6.4" fill="currentColor" fillOpacity="0.16" stroke="currentColor" strokeWidth="1.25" />
           {isLogistics ? (
             /* Quartermaster route wheel & ledger spokes */
@@ -243,7 +243,7 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
             </>
           )}
         </g>
-        <g className="sc-academy-pulse-layer">
+        <g className="sc-academy-pulse-layer sc-research-pulse-layer">
           <polygon points="12,7.8 13.3,10.7 16.2,12 13.3,13.3 12,16.2 10.7,13.3 7.8,12 10.7,10.7" fill="currentColor" />
         </g>
       </>
@@ -253,8 +253,8 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
   if (discipline === "tactics") {
     return (
       <>
-        <circle className="sc-academy-glow-layer" cx="12" cy="12" r="7.5" fill="currentColor" opacity="0.18" />
-        <g className="sc-academy-drift-layer">
+        <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="12" r="7.5" fill="currentColor" opacity="0.18" />
+        <g className="sc-academy-drift-layer sc-research-drift-layer">
           {topicId === "fieldcraft" ? (
             /* Ranger recurve bow & fletched shaft */
             <>
@@ -292,7 +292,7 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
             />
           )}
         </g>
-        <g className="sc-academy-pulse-layer">
+        <g className="sc-academy-pulse-layer sc-research-pulse-layer">
           {topicId === "fieldcraft" ? (
             <polygon points="19.6,12 16.6,10.2 16.6,13.8" fill="currentColor" />
           ) : topicId === "drill" ? (
@@ -308,8 +308,8 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
   if (discipline === "horsemanship") {
     return (
       <>
-        <circle className="sc-academy-glow-layer" cx="12" cy="12" r="7.6" fill="currentColor" opacity="0.18" />
-        <g className="sc-academy-drift-layer">
+        <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="12" r="7.6" fill="currentColor" opacity="0.18" />
+        <g className="sc-academy-drift-layer sc-research-drift-layer">
           {/* Iron horseshoe arch & nail calkins */}
           <path
             d="M7.6 18.6 V11.4 C7.6 7.6 9.6 5.2 12 5.2 C14.4 5.2 16.4 7.6 16.4 11.4 V18.6"
@@ -321,7 +321,7 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
           <rect x="6.3" y="17.4" width="2.6" height="2" rx="0.5" fill="currentColor" />
           <rect x="15.1" y="17.4" width="2.6" height="2" rx="0.5" fill="currentColor" />
         </g>
-        <g className="sc-academy-pulse-layer">
+        <g className="sc-academy-pulse-layer sc-research-pulse-layer">
           <path d="M12 9.4 V14.6 M9.4 12 H14.6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
           <circle cx="12" cy="12" r="1.15" fill="currentColor" />
         </g>
@@ -332,8 +332,8 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
   /* Siegecraft: torsion frame, throwing arm & flaming counterweight shot */
   return (
     <>
-      <circle className="sc-academy-glow-layer" cx="12" cy="12" r="7.8" fill="currentColor" opacity="0.18" />
-      <g className="sc-academy-drift-layer">
+      <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="12" r="7.8" fill="currentColor" opacity="0.18" />
+      <g className="sc-academy-drift-layer sc-research-drift-layer">
         <path
           d="M4.8 18.8 H19.2 M7.4 18.8 L11.8 10.6 L15.4 18.8 M6.6 13.8 L17.6 6.4"
           fill="none"
@@ -345,7 +345,7 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
         <circle cx="8.2" cy="18.8" r="1.35" fill="currentColor" fillOpacity="0.35" stroke="currentColor" strokeWidth="1" />
         <circle cx="15.6" cy="18.8" r="1.35" fill="currentColor" fillOpacity="0.35" stroke="currentColor" strokeWidth="1" />
       </g>
-      <g className="sc-academy-pulse-layer">
+      <g className="sc-academy-pulse-layer sc-research-pulse-layer">
         <circle cx="18.2" cy="6.1" r="1.65" fill="currentColor" />
         <path d="M18.2 3.4 V4.4 M20.2 6.1 H21.2" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" />
       </g>
@@ -356,8 +356,8 @@ function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: 
 function LecternEmblemSvg({ mode }: { mode: LecternLivingMode }) {
   return (
     <>
-      <circle className="sc-academy-glow-layer" cx="12" cy="11.5" r="8" fill="currentColor" opacity="0.2" />
-      <g className="sc-academy-drift-layer">
+      <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="11.5" r="8" fill="currentColor" opacity="0.2" />
+      <g className="sc-academy-drift-layer sc-research-drift-layer">
         {/* Open codex tome on scholar lectern */}
         <path
           d="M4.6 7.4 C7.4 6.6 10.2 7.2 12 8.6 C13.8 7.2 16.6 6.6 19.4 7.4 V16.4 C16.6 15.6 13.8 16.2 12 17.6 C10.2 16.2 7.4 15.6 4.6 16.4 Z"
@@ -369,7 +369,7 @@ function LecternEmblemSvg({ mode }: { mode: LecternLivingMode }) {
         />
         <path d="M12 8.6 V17.6 M8.6 19.8 H15.4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
       </g>
-      <g className="sc-academy-pulse-layer">
+      <g className="sc-academy-pulse-layer sc-research-pulse-layer">
         {mode === "studying" ? (
           /* Lit scholar lamp flame above the codex */
           <path
@@ -424,12 +424,12 @@ export function StudyLivingUnderlay(props: {
   const { topicId, discipline, status, academyFast } = resolveStudyLiving(props);
   return (
     <span
-      className={`sc-academy-living-underlay discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}`}
+      className={`sc-academy-living-underlay sc-research-living-underlay discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}`}
       aria-hidden="true"
       data-study-watermark={topicId}
       data-study-discipline={discipline}
     >
-      <svg viewBox="0 0 24 24" className="sc-academy-underlay-svg" focusable="false">
+      <svg viewBox="0 0 24 24" className="sc-academy-underlay-svg sc-research-underlay-svg" focusable="false">
         <TopicEmblemSvg topicId={topicId} discipline={discipline} />
       </svg>
     </span>
@@ -448,16 +448,25 @@ export function StudyLivingGlyph(props: {
   const { topicId, discipline, status, academyFast, flair } = resolveStudyLiving(props);
   return (
     <span
-      className={`sc-academy-topic-glyph discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}`}
+      className={`sc-academy-topic-glyph sc-research-topic-glyph sc-research-living-glyph discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}`}
       aria-hidden="true"
       data-study-glyph={topicId}
       data-study-discipline={discipline}
       data-study-status={status}
     >
-      <svg viewBox="0 0 24 24" className="sc-academy-glyph-icon" focusable="false">
+      <svg viewBox="0 0 24 24" className="sc-academy-glyph-icon sc-research-glyph-icon" focusable="false">
         <TopicEmblemSvg topicId={topicId} discipline={discipline} />
       </svg>
-      <span className="sc-academy-glyph-flair">{flair}</span>
+      <span className="sc-academy-glyph-flair sc-research-glyph-flair">{flair}</span>
     </span>
   );
 }
+
+export const ResearchLivingGlyph = StudyLivingGlyph;
+export const ResearchLivingUnderlay = StudyLivingUnderlay;
+export const ResearchTopicLivingGlyph = StudyLivingGlyph;
+export const ResearchLecternLivingGlyph = AcademyLecternLivingGlyph;
+export const resolveResearchLiving = resolveStudyLiving;
+export const resolveResearchGlyphDescriptor = resolveStudyLiving;
+export type ResearchLivingDescriptor = StudyLivingDescriptor;
+export type ResearchDisciplineKind = ResearchDiscipline;

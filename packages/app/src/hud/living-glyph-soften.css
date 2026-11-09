@@ -17,6 +17,7 @@
 .sc-shell .sc-war-living-underlay,
 .sc-shell .sc-events-living-underlay,
 .sc-shell .sc-academy-living-underlay,
+.sc-shell .sc-research-living-underlay,
 .sc-shell .sc-decree-living-underlay,
 .sc-shell .sc-diplo-living-underlay,
 .sc-shell .sc-market-status-glyph,
@@ -30,6 +31,8 @@
 .sc-shell .sc-war-status-glyph,
 .sc-shell .sc-events-status-glyph,
 .sc-shell .sc-academy-topic-glyph,
+.sc-shell .sc-research-topic-glyph,
+.sc-shell .sc-research-living-glyph,
 .sc-shell .sc-academy-lectern-glyph,
 .sc-shell .sc-decree-status-glyph,
 .sc-shell .sc-diplo-crest-glyph,
@@ -70,6 +73,7 @@
 .sc-shell .sc-war-living-underlay *,
 .sc-shell .sc-events-living-underlay *,
 .sc-shell .sc-academy-living-underlay *,
+.sc-shell .sc-research-living-underlay *,
 .sc-shell .sc-decree-living-underlay *,
 .sc-shell .sc-diplo-living-underlay *,
 .sc-shell .sc-vault-seal-underlay *,
@@ -246,6 +250,26 @@
 .sc-shell .sc-academy-living-underlay svg {
   opacity: 0.28 !important;
 }
+/* Research Living Underlays */
+.sc-shell .sc-research-living-underlay {
+  opacity: 0.12 !important;
+}
+.sc-shell .sc-research-living-underlay.status-active,
+.sc-shell .sc-research-living-underlay.is-active {
+  opacity: 0.15 !important;
+}
+.sc-shell .sc-research-living-underlay.status-done,
+.sc-shell .sc-research-living-underlay.is-done {
+  opacity: 0.09 !important;
+}
+.sc-shell .sc-research-living-underlay.status-locked,
+.sc-shell .sc-research-living-underlay.is-locked {
+  opacity: 0.06 !important;
+}
+.sc-shell .sc-research-living-underlay svg {
+  opacity: 0.28 !important;
+}
+
 
 /* Royal Decree Seal Underlays */
 .sc-shell .sc-decree-living-underlay {
@@ -449,6 +473,18 @@
 .sc-shell .sc-academy-pulse-layer {
   opacity: 0.48 !important;
 }
+/* Research Living Topic Glow & Pulse */
+.sc-shell .sc-research-glow-layer {
+  filter: drop-shadow(0 0 1px currentColor) !important;
+  opacity: 0.38 !important;
+}
+.sc-shell .sc-research-pulse-layer {
+  opacity: 0.48 !important;
+}
+.sc-shell .sc-research-drift-layer {
+  opacity: 0.52 !important;
+}
+
 .sc-shell .sc-academy-drift-layer {
   opacity: 0.52 !important;
 }
@@ -654,6 +690,7 @@
   .sc-shell .sc-war-living-underlay svg,
   .sc-shell .sc-events-living-underlay svg,
   .sc-shell .sc-academy-living-underlay svg,
+  .sc-shell .sc-research-living-underlay svg,
   .sc-shell .sc-decree-living-underlay svg,
   .sc-shell .sc-diplo-living-underlay svg,
   .sc-shell .sc-vault-seal-underlay svg,
@@ -691,6 +728,9 @@
   .sc-shell .sc-war-glow-layer,
   .sc-shell .sc-events-glow-layer,
   .sc-shell .sc-academy-glow-layer,
+  .sc-shell .sc-research-glow-layer,
+  .sc-shell .sc-research-pulse-layer,
+  .sc-shell .sc-research-drift-layer,
   .sc-shell .sc-decree-glow-layer,
   .sc-shell .sc-diplo-glow-layer,
   .sc-shell .sc-board-living * {

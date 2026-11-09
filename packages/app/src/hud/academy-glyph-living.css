@@ -1,11 +1,15 @@
 /* --- Living Research Glyphs under Academy Lectern & Study Cards (isolated from theme.css) --- */
 
-.sc-study-living-card:has(> .sc-academy-living-underlay) {
+.sc-study-living-card:has(> .sc-academy-living-underlay),
+.sc-study-living-card:has(> .sc-research-living-underlay),
+.sc-research-living-card:has(> .sc-research-living-underlay) {
   position: relative;
   overflow: hidden;
 }
 
-.sc-study-living-card:has(> .sc-academy-living-underlay) > :not(.sc-academy-living-underlay) {
+.sc-study-living-card:has(> .sc-academy-living-underlay) > :not(.sc-academy-living-underlay),
+.sc-study-living-card:has(> .sc-research-living-underlay) > :not(.sc-research-living-underlay),
+.sc-research-living-card:has(> .sc-research-living-underlay) > :not(.sc-research-living-underlay) {
   position: relative;
   z-index: 1;
 }
@@ -77,32 +81,75 @@
   opacity: 0.36;
 }
 
+
+/* Research Living Underlay alias */
+.sc-research-living-underlay {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 30px;
+  height: 30px;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  opacity: 0.15;
+  -webkit-mask-image: radial-gradient(circle at 72% 72%, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.4) 56%, transparent 92%);
+  mask-image: radial-gradient(circle at 72% 72%, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.4) 56%, transparent 92%);
+}
+.sc-research-living-underlay * { pointer-events: none !important; }
+.sc-research-living-underlay.status-studying { opacity: 0.22; }
+.sc-research-living-underlay.status-open { opacity: 0.18; }
+.sc-research-living-underlay.status-known { opacity: 0.16; }
+.sc-research-living-underlay.status-locked { opacity: 0.12; }
+.sc-research-underlay-svg { width: 30px; height: 30px; flex-shrink: 0; pointer-events: none !important; transform-origin: center center; animation: sc-academy-underlay-drift 6.4s ease-in-out infinite; }
+.sc-research-living-underlay.status-studying .sc-research-underlay-svg { animation: sc-academy-underlay-pulse 3.2s ease-in-out infinite; }
+.sc-research-living-underlay.status-locked .sc-research-underlay-svg { animation: none; opacity: 0.36; }
+
 /* Color tokens by study status & discipline */
 .sc-academy-living-underlay.status-studying,
+.sc-research-living-underlay.status-studying,
 .sc-academy-topic-glyph.status-studying,
+.sc-research-topic-glyph.status-studying,
+.sc-research-living-glyph.status-studying,
 .sc-academy-lectern-glyph.mode-studying {
   color: #e3b341;
 }
 
 .sc-academy-living-underlay.status-open,
-.sc-academy-topic-glyph.status-open {
+.sc-research-living-underlay.status-open,
+.sc-academy-topic-glyph.status-open,
+.sc-research-topic-glyph.status-open,
+.sc-research-living-glyph.status-open {
   color: #3fb950;
 }
 
 .sc-academy-living-underlay.status-open.is-fast,
+.sc-research-living-underlay.status-open.is-fast,
 .sc-academy-topic-glyph.status-open.is-fast,
+.sc-research-topic-glyph.status-open.is-fast,
+.sc-research-living-glyph.status-open.is-fast,
 .sc-academy-lectern-glyph.mode-academy {
   color: #38bdf8;
 }
 
 .sc-academy-living-underlay.status-known,
+.sc-research-living-underlay.status-known,
 .sc-academy-topic-glyph.status-known,
+.sc-research-topic-glyph.status-known,
+.sc-research-living-glyph.status-known,
 .sc-academy-lectern-glyph.mode-mastered {
   color: #58d68d;
 }
 
 .sc-academy-living-underlay.status-locked,
-.sc-academy-topic-glyph.status-locked {
+.sc-research-living-underlay.status-locked,
+.sc-academy-topic-glyph.status-locked,
+.sc-research-topic-glyph.status-locked,
+.sc-research-living-glyph.status-locked {
   color: #8b949e;
 }
 
@@ -152,7 +199,9 @@
 }
 
 /* Left-aligned topic glyph strip under StudyLedger on each study card (reserves 32px right pocket) */
-.sc-academy-topic-glyph {
+.sc-academy-topic-glyph,
+.sc-research-topic-glyph,
+.sc-research-living-glyph {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -164,11 +213,14 @@
   user-select: none;
 }
 
-.sc-academy-topic-glyph * {
+.sc-academy-topic-glyph *,
+.sc-research-topic-glyph *,
+.sc-research-living-glyph * {
   pointer-events: none !important;
 }
 
-.sc-academy-glyph-icon {
+.sc-academy-glyph-icon,
+.sc-research-glyph-icon {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
@@ -178,7 +230,8 @@
   pointer-events: none !important;
 }
 
-.sc-academy-glyph-flair {
+.sc-academy-glyph-flair,
+.sc-research-glyph-flair {
   font-size: 9.5px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -201,19 +254,22 @@
 
 /* Subtle glow, pulse, and drift animations across lectern & topic emblems */
 .sc-academy-lectern-glyph .sc-academy-glow-layer,
-.sc-academy-topic-glyph .sc-academy-glow-layer {
+.sc-academy-topic-glyph .sc-academy-glow-layer,
+.sc-research-glow-layer {
   transform-origin: 12px 12px;
   animation: sc-academy-glyph-glow 4.2s ease-in-out infinite;
 }
 
 .sc-academy-lectern-glyph .sc-academy-drift-layer,
-.sc-academy-topic-glyph .sc-academy-drift-layer {
+.sc-academy-topic-glyph .sc-academy-drift-layer,
+.sc-research-drift-layer {
   transform-origin: 12px 12px;
   animation: sc-academy-glyph-drift 3.9s ease-in-out infinite;
 }
 
 .sc-academy-lectern-glyph .sc-academy-pulse-layer,
-.sc-academy-topic-glyph .sc-academy-pulse-layer {
+.sc-academy-topic-glyph .sc-academy-pulse-layer,
+.sc-research-pulse-layer {
   transform-origin: 12px 12px;
   animation: sc-academy-glyph-pulse 2.9s ease-in-out infinite;
 }
@@ -293,6 +349,13 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sc-academy-living-underlay,
+  .sc-research-living-underlay,
+  .sc-research-underlay-svg,
+  .sc-research-topic-glyph,
+  .sc-research-living-glyph,
+  .sc-research-glow-layer,
+  .sc-research-drift-layer,
+  .sc-research-pulse-layer,
   .sc-academy-underlay-svg,
   .sc-academy-lectern-glyph,
   .sc-academy-topic-glyph,

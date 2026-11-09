@@ -9,6 +9,28 @@ Merged through PR **#297** (hold status living pip, #297; hold status card, #297
 
 
 
+## Living research glyphs under research cards (branch bakeoff/gemini-research-living, not merged)
+
+- **What it is:** Subtle living research/scholarly glyphs and corner-confined watermarks resting under the richer living Study/Research cards (`ResearchBar`, Academy tab):
+  - *Per-study living glyph strip (`ResearchLivingGlyph` / `StudyLivingGlyph`)*: Left-aligned 14×14 SVG scholarly discipline emblem and status flair rendered beneath the stacked Name, Progress, and Bonus rows in each study card:
+    - Disciplines & scholarly heraldry:
+      - Agronomy (`agronomy`): Folio leaf and furrow wheat sheaf (husbandry, forestry).
+      - Masonry (`masonry`): Ashlar plumb-line and trowel keystone (masonry).
+      - Cartography (`cartography`): Astrolabe star and compass dial (logistics, surveying).
+      - Tactics (`tactics`): Field commander standard and marching banner (fieldcraft, drill, screening).
+      - Horsemanship (`horsemanship`): Charger steed head with flowing mane (horse).
+      - Siegecraft (`siegecraft`): Poliorcetics trebuchet frame and iron shot (siege).
+    - Scholarly state & mood:
+      - Studying (`studying`): Active ink drift (`sc-research-drift-layer`) and lamp glow (`sc-research-glow-layer`), flairs (*folio · scribes ink*).
+      - Open (`open`): Ready for study, calm drift, flairs (*treatise · lectern open* or *-20%* when Academy is staffed).
+      - Known (`known`): Mastered codex, codified calm flare, flairs (*treatise · codified*).
+      - Sealed / Locked (`locked`): Sealed hall lore, alert pulse (`sc-research-pulse-layer`), flairs (*scroll · hall sealed*).
+    - Three decorative animation layers: glow (`sc-research-glow-layer`), pulse (`sc-research-pulse-layer`), and drift (`sc-research-drift-layer`).
+  - *Corner-confined card watermarks (`ResearchLivingUnderlay` / `StudyLivingUnderlay`)*: 30×30 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and low opacity (`0.06..0.15` wrapper, `0.28` child SVG) inside `.sc-study-living-card.sc-research-living-card` depicting discipline-authentic scholarly emblems without obscuring card rows, study meters, or Study / Cancel buttons.
+- **Where:** `packages/app/src/hud/AcademyLivingGlyph.tsx`, `packages/app/src/ResearchBar.tsx`, `packages/app/src/hud/academy-glyph-living.css`, `packages/app/src/hud/living-glyph-soften.css`, and test suites `packages/app/src/hud/AcademyLivingGlyph.test.tsx` and `packages/app/src/hud/LivingGlyphSoften.test.ts`.
+- **Invariants respected:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Preserves strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, capped low opacity for full readability, and full `@media (prefers-reduced-motion: reduce)` accessibility support.
+- **Branch:** `bakeoff/gemini-research-living` (from `origin/main`, layered on `origin/wave/research-living` `c0cea9c`). Pushed, no PR.
+
 ## Richer living Research cards (branch wave/research-living, not merged)
 
 - **What it is:** Each study card on the Academy / lectern now has its scroll pip in a small discipline-tinted chip beside a living status column: **Name** (with a discipline + status tag: agronomy / masonry / cartography / tactics / horsemanship / siegecraft, and open / studying / known / sealed; sealed studies still list the missing hall or Keep), **Progress** (Known, "Ns left · studying" with a meter and the Cancel button, or "Not started · Ns to study") and **Bonus** (effect text; "active" once known). Living glyph strip and corner watermark unchanged.

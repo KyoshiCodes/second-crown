@@ -88,7 +88,7 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH; a
     return r;
   });
   return (
-    <div className={`sc-study-living-card is-${status}`} data-study={id} title={effect}>
+    <div className={`sc-study-living-card is-${status} sc-research-living-card`} data-study={id} title={effect}>
       <StudyLivingUnderlay topicId={id} status={status} academyFast={academyFast} />
       <StudyLivingRows topicId={id} status={status} rows={rows} />
       <StudyLivingGlyph topicId={id} status={status} academyFast={academyFast} />
@@ -148,3 +148,6 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
     </div>
   );
 }
+
+export const ResearchCard = Row;
+export const ResearchLivingCard = Row;

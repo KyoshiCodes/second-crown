@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-09 — Living research glyphs under research cards (bakeoff/gemini-research-living)
+
+- **Living research glyph strips (`ResearchLivingGlyph` / `StudyLivingGlyph`):** Added left-aligned 14×14 living SVG scholarly emblems directly beneath the stacked Name, Progress, and Bonus rows in each Study card (`ResearchBar.tsx`), with subtle glow (`sc-research-glow-layer`), pulse (`sc-research-pulse-layer`), and drift (`sc-research-drift-layer`) motion across Studying (scribes ink drift), Open (lectern open drift), Known (codified treatise calm), and Sealed (hall sealed pulse) states across Agronomy (folio leaf/furrow), Masonry (ashlar plumb/keystone), Cartography (astrolabe star/compass), Tactics (commander banner/standard), Horsemanship (charger steed helm/mane), and Siegecraft (poliorcetics trebuchet/shot).
+- **Corner-confined card watermarks (`ResearchLivingUnderlay` / `StudyLivingUnderlay`):** Added 30×30 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.06..0.15` wrapper, `0.28` child SVG) inside `.sc-study-living-card.sc-research-living-card` depicting scholarly discipline emblems without obstructing stats, meters, Study, or Cancel actions.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/hud/AcademyLivingGlyph.test.tsx` (11 tests) and `LivingGlyphSoften.test.ts` (7 tests). Sim 323, app 793, render 661, server 158 pass. `npm run build -w @second-crown/app` succeeds in 748ms.
+
 ## 2026-11-09 — Richer living Research cards (wave/research-living)
 
 - **Study cards (`ResearchBar`, Academy / lectern):** the status scroll pip now sits in a small discipline-tinted chip beside a stacked **Name / Progress / Bonus** column (`StudyLivingRows`). Name carries a discipline + status tag (e.g. *agronomy · open*, *siegecraft · sealed*); Progress keeps Known / "Ns left · studying" / "Not started · Ns to study" with a 4px meter; Bonus keeps the effect text and "active" once known.

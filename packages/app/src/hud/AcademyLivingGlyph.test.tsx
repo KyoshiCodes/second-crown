@@ -9,6 +9,10 @@ import {
   getResearchDiscipline,
   resolveAcademyLecternLiving,
   resolveStudyLiving,
+  ResearchLivingGlyph,
+  ResearchLivingUnderlay,
+  ResearchTopicLivingGlyph,
+  ResearchLecternLivingGlyph,
 } from "./AcademyLivingGlyph";
 import { ResearchBar } from "../ResearchBar";
 
@@ -193,5 +197,50 @@ describe("AcademyLivingGlyph — living research glyphs under Academy lectern an
     expect(themeCss).not.toContain("sc-academy-living-underlay");
     expect(themeCss).not.toContain("sc-academy-topic-glyph");
     expect(themeCss).not.toContain("sc-academy-lectern-glyph");
+  });
+
+  it("exposes ResearchLivingGlyph and ResearchLivingUnderlay aliases with living glow, drift, and pulse layers", () => {
+    const glyphHtml = renderToStaticMarkup(<ResearchLivingGlyph topicId="husbandry" status="studying" />);
+    expect(glyphHtml).toContain("sc-research-living-glyph");
+    expect(glyphHtml).toContain("sc-research-topic-glyph");
+    expect(glyphHtml).toContain("sc-research-glow-layer");
+    expect(glyphHtml).toContain("sc-research-drift-layer");
+    expect(glyphHtml).toContain("sc-research-pulse-layer");
+    expect(glyphHtml).toContain('aria-hidden="true"');
+
+    const underlayHtml = renderToStaticMarkup(<ResearchLivingUnderlay topicId="masonry" status="open" />);
+    expect(underlayHtml).toContain("sc-research-living-underlay");
+    expect(underlayHtml).toContain("sc-research-underlay-svg");
+    expect(underlayHtml).toContain('aria-hidden="true"');
+
+    const lecternHtml = renderToStaticMarkup(<ResearchLecternLivingGlyph knownCount={2} totalCount={10} academyCount={1} />);
+    expect(lecternHtml).toContain("sc-academy-lectern-glyph");
+    expect(lecternHtml).toContain("sc-research-glow-layer");
+  });
+
+  it("ResearchBar renders cards with sc-research-living-card and research living decorative layers", () => {
+    const state = createGameState({ seed: 42 });
+    const html = renderToStaticMarkup(<ResearchBar state={state} act={() => {}} />);
+    expect(html).toContain("sc-research-living-card");
+    expect(html).toContain("sc-research-living-underlay");
+    expect(html).toContain("sc-research-living-glyph");
+    expect(html).toContain("sc-research-glow-layer");
+  });
+
+  it("strictly isolates research living styles from theme.css and enforces pointer-events: none", () => {
+    const academyCss = readTextFile("./academy-glyph-living.css");
+    expect(academyCss).toContain(".sc-research-living-underlay");
+    expect(academyCss).toContain(".sc-research-living-glyph");
+    expect(academyCss).toContain(".sc-research-glow-layer");
+    expect(academyCss).toContain("pointer-events: none !important;");
+
+    const softenCss = readTextFile("./living-glyph-soften.css");
+    expect(softenCss).toContain(".sc-research-living-underlay");
+    expect(softenCss).toContain(".sc-research-glow-layer");
+
+    const themeCss = readTextFile("../theme.css");
+    expect(themeCss).not.toContain("sc-research-living-underlay");
+    expect(themeCss).not.toContain("sc-research-living-glyph");
+    expect(themeCss).not.toContain("sc-research-glow-layer");
   });
 });
