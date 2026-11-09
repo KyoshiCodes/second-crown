@@ -141,11 +141,11 @@ describe("AcademyLivingGlyph — living research glyphs under Academy lectern an
     expect((html.match(/data-study-watermark="/g) ?? []).length).toBe(10);
     expect((html.match(/data-study-glyph="/g) ?? []).length).toBe(10);
 
-    // Ensure StudyLivingGlyph sits after StudyLedger and before the Study button on an open card
+    // Ensure StudyLivingGlyph sits after the living study rows and before the Study button on an open card
     const masonryStart = html.indexOf('data-study="masonry"');
     const logisticsStart = html.indexOf('data-study="logistics"');
     const masonryCard = html.slice(masonryStart, logisticsStart);
-    const ledgerIdx = masonryCard.indexOf("sc-study-ledger");
+    const ledgerIdx = masonryCard.indexOf("sc-study-living-head");
     const glyphIdx = masonryCard.indexOf("sc-academy-topic-glyph");
     const btnIdx = masonryCard.indexOf("Study masonry (");
     expect(ledgerIdx).toBeGreaterThan(0);

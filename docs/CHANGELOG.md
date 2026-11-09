@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-09 — Richer living Research cards (wave/research-living)
+
+- **Study cards (`ResearchBar`, Academy / lectern):** the status scroll pip now sits in a small discipline-tinted chip beside a stacked **Name / Progress / Bonus** column (`StudyLivingRows`). Name carries a discipline + status tag (e.g. *agronomy · open*, *siegecraft · sealed*); Progress keeps Known / "Ns left · studying" / "Not started · Ns to study" with a 4px meter; Bonus keeps the effect text and "active" once known.
+- **Layout:** uppercase row labels (hidden under 520px), tone rule on the left of Progress and Bonus, dashed rule above Bonus; the chip glows softly while studying and the active Progress rule breathes (off under reduced motion). New `hud/study-living-rows.css`, scoped to `.sc-study-living-head` / `.sc-study-living-row*`.
+- **Controls:** **Study** buttons (label, disabled rule, click) and the **Cancel** button in the Progress row are unchanged. Living glyph strip and watermark stay where they were.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`. No new game math.
+- **Tests:** new `hud/StudyLivingRows.test.tsx`; `AcademyLivingGlyph.test.tsx` now anchors on the living head instead of the old ledger class.
+
 ## 2026-11-09 — Living building glyphs under building cards (bakeoff/gemini-building-living)
 
 - **Living building glyph strips (`BuildingLivingGlyph` / `WorkLivingGlyph`):** Added left-aligned 14×14 living SVG architectural emblems directly beneath the stacked Name, Level, Staffed, and Bonuses rows in each Standing works card (`WorkCard.tsx`), with subtle glow (`sc-building-glow-layer`), pulse (`sc-building-pulse-layer`), and drift (`sc-building-drift-layer`) motion across Working (hearth/yards/coffers/beacon/sanctum lit), Standing (hearth warm / ward standing), Idle (hall uncrewed pulse), and Scarred (siege scarred alert pulse) states across Hearth (farm/granary/cottage), Craft (lumber/sawmill/quarry/mason), Mint (gold mine/market/mint), Martial (barracks/stables/range/siege/watchtower/walls/gate/keep), and Sanctum (academy/chapel/infirmary).

@@ -1,3 +1,11 @@
+## 2026-11-09 — app / richer living Research cards (wave/research-living)
+
+- **Component:** new `packages/app/src/hud/StudyLivingRows.tsx` exports `StudyLivingRows`, `orderStudyRows(rows)` and `STUDY_LIVING_KINDS` (`name`, `progress`, `bonus`). It takes the `StudyLedgerRow[]` that `ResearchBar` already builds with `studyLedgerRows()`; the name row's `lead` (scroll pip) moves into `.sc-study-living-chip`, and any row `slot` (Cancel) renders inside `.sc-study-living-slot`.
+- **Wiring:** `ResearchBar` `Row` renders `<StudyLivingRows topicId status rows />` in place of `<StudyLedger rows />`. `StudyLedger` itself is kept (still exported and tested) but no longer mounted by `ResearchBar`.
+- **Sources:** unchanged — `studyLedgerRows()` / `studyStatus()` output and the existing `getResearchDiscipline()` in `AcademyLivingGlyph.tsx` for the tag and tint. Status words map `locked` → "sealed"; nothing else is derived. No new math.
+- **CSS:** new `hud/study-living-rows.css`; selectors under `.sc-study-living-head`, `.sc-study-living-chip`, `.sc-study-living-row*`, `.sc-study-living-meter*`. Discipline tints via `--sc-study-discipline-tone`. Labels hidden below 520px; chip glow, progress breathe, bonus glow, run stroke and meter transition off under `prefers-reduced-motion`. `academy-living.css` still provides the card frame.
+- **Tests:** new `hud/StudyLivingRows.test.tsx`; `hud/AcademyLivingGlyph.test.tsx` glyph-order check now looks for `sc-study-living-head`.
+
 ## 2026-11-09 — app / living building glyphs under building cards (bakeoff/gemini-building-living)
 
 - **Components:** `packages/app/src/hud/WorkLivingGlyph.tsx` exports `BuildingLivingGlyph`, `BuildingLivingUnderlay`, `resolveBuildingGlyphDescriptor`, `getBuildingDomain`, and types `BuildingDomain`, `BuildingMood`, `BuildingGlyphDescriptor` alongside existing `WorkLivingGlyph` and `WorkLivingUnderlay` exports. `WorkCard.tsx` exports `BuildingCard` and `BuildingLivingCard` aliases and marks each card with `sc-building-card`.

@@ -15,7 +15,8 @@ import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import { InhabitedOverlay } from "./hud/InhabitedOverlay";
 import { ScrollPip } from "./hud/ScrollPip";
-import { StudyLedger, studyLedgerRows, studyStatus } from "./hud/StudyLedger";
+import { studyLedgerRows, studyStatus } from "./hud/StudyLedger";
+import { StudyLivingRows } from "./hud/StudyLivingRows";
 import {
   AcademyLecternLivingGlyph,
   StudyLivingGlyph,
@@ -89,7 +90,7 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH; a
   return (
     <div className={`sc-study-living-card is-${status}`} data-study={id} title={effect}>
       <StudyLivingUnderlay topicId={id} status={status} academyFast={academyFast} />
-      <StudyLedger rows={rows} />
+      <StudyLivingRows topicId={id} status={status} rows={rows} />
       <StudyLivingGlyph topicId={id} status={status} academyFast={academyFast} />
       {done || left > 0 ? null : (
         <button

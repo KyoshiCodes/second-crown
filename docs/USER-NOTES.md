@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-09 — Research cards are easier to read (wave/research-living)
+
+- On the Academy / lectern, each study card now shows its scroll mark in a small coloured badge next to three short lines: the **name** (with its field, like agronomy or siegecraft, and whether it is open, studying, known or sealed), **Progress** (with a bar while studying) and **Bonus** (what the study gives you, marked "active" once learned).
+- The Study and Cancel buttons work exactly as before. No game numbers changed.
+
 ## 2026-11-09 — Living building glyphs on building cards (bakeoff/gemini-building-living)
 
 - **Living building emblems:** Under the Name, Level, Staffed, and Bonuses rows on each building card in Kingdom Standing works, a subtle living emblem now portrays the structure's domain and operational activity:

@@ -1,0 +1,192 @@
+/* --- Academy / lectern study cards: living status column (Name / Progress / Bonus). ---
+ * Scoped to .sc-study-living-head / .sc-study-living-row*; sits inside .sc-study-living-card.
+ * theme.css is untouched. Card frame still comes from academy-living.css. */
+
+.sc-study-living-head {
+  --sc-study-discipline-tone: var(--chrome-accent, #c9b48a);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.sc-study-living-head.discipline-agronomy    { --sc-study-discipline-tone: #e3b341; }
+.sc-study-living-head.discipline-masonry     { --sc-study-discipline-tone: #c8955a; }
+.sc-study-living-head.discipline-cartography { --sc-study-discipline-tone: #58a6ff; }
+.sc-study-living-head.discipline-tactics     { --sc-study-discipline-tone: #a7b0bb; }
+.sc-study-living-head.discipline-horsemanship { --sc-study-discipline-tone: #d2a8ff; }
+.sc-study-living-head.discipline-siegecraft  { --sc-study-discipline-tone: #f0883e; }
+
+/* Status pip chip on the left. */
+.sc-study-living-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-study-discipline-tone);
+  background: rgba(127, 127, 127, 0.08);
+  opacity: 0.9;
+}
+.sc-study-living-head.is-locked .sc-study-living-chip { opacity: 0.55; border-style: dashed; }
+.sc-study-living-head.is-studying .sc-study-living-chip {
+  animation: sc-study-living-chip 2.6s ease-in-out infinite;
+}
+
+.sc-study-living-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.sc-study-living-row {
+  --sc-study-living-tone: #6e7681;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1px 6px;
+  min-width: 0;
+  padding: 2px 4px 2px 6px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-study-living-tone);
+  border-radius: 0 3px 3px 0;
+}
+.sc-study-living-row.tone-calm   { --sc-study-living-tone: #6e7681; }
+.sc-study-living-row.tone-busy   { --sc-study-living-tone: #d29922; }
+.sc-study-living-row.tone-ready  { --sc-study-living-tone: #3fb950; }
+.sc-study-living-row.tone-done   { --sc-study-living-tone: #8b949e; }
+.sc-study-living-row.tone-locked { --sc-study-living-tone: #f85149; }
+
+/* Name row reads as the card title: no rule, discipline tag beside it. */
+.sc-study-living-row.is-name {
+  padding-left: 0;
+  border-left: none;
+  font-size: 12.5px;
+}
+.sc-study-living-row.is-name .sc-study-living-label { display: none; }
+.sc-study-living-row.is-name .sc-study-living-value { justify-content: flex-start; text-align: left; }
+.sc-study-living-row.is-name .sc-study-living-main { font-weight: 600; }
+.sc-study-living-tag {
+  margin-left: auto;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sc-study-discipline-tone);
+  opacity: 0.78;
+}
+.sc-study-living-row.is-name.tone-locked .sc-study-living-sub {
+  flex-basis: 100%;
+  color: #f85149;
+  opacity: 0.88;
+}
+
+.sc-study-living-row.is-progress { background: rgba(255, 255, 255, 0.025); }
+.sc-study-living-row.is-bonus { border-top: 1px dashed rgba(200, 150, 62, 0.18); }
+
+.sc-study-living-label {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+.sc-study-living-value {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  min-width: 0;
+  margin: 0;
+  text-align: right;
+}
+.sc-study-living-main {
+  min-width: 0;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.sc-study-living-row.is-bonus .sc-study-living-main { white-space: normal; }
+.sc-study-living-row.is-bonus.tone-ready .sc-study-living-main { color: #3fb950; }
+.sc-study-living-row.is-progress.tone-busy .sc-study-living-main { color: #d29922; }
+.sc-study-living-sub {
+  font-size: 10.5px;
+  opacity: 0.72;
+}
+.sc-study-living-slot > button {
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+/* Thin meter under the Progress row. */
+.sc-study-living-meter {
+  position: relative;
+  display: block;
+  flex: 1 0 100%;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(127, 127, 127, 0.2);
+}
+.sc-study-living-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--sc-study-living-tone);
+  transition: width 0.5s ease-out;
+}
+/* Active study with no stored total: a moving quill stroke, no fraction. */
+.sc-study-living-meter.is-run .sc-study-living-meter-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  animation: sc-study-living-run 1.8s ease-in-out infinite;
+}
+
+/* Living touches: the active progress rule breathes, a known bonus glows. */
+.sc-study-living-row.is-progress.tone-busy {
+  animation: sc-study-living-breathe 2.4s ease-in-out infinite;
+}
+.sc-study-living-head.is-known .sc-study-living-row.is-bonus {
+  animation: sc-study-living-glow 3.2s ease-in-out infinite;
+}
+
+@keyframes sc-study-living-chip {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 6px -1px #d29922; }
+}
+@keyframes sc-study-living-run {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(340%); }
+}
+@keyframes sc-study-living-breathe {
+  0%, 100% { border-left-color: var(--sc-study-living-tone); }
+  50% { border-left-color: transparent; }
+}
+@keyframes sc-study-living-glow {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: inset 4px 0 6px -4px var(--sc-study-living-tone); }
+}
+
+/* Narrow screens: drop row labels, keep values. */
+@media (max-width: 520px) {
+  .sc-study-living-label { display: none; }
+  .sc-study-living-value { justify-content: flex-start; text-align: left; }
+  .sc-study-living-chip { width: 22px; height: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-study-living-chip,
+  .sc-study-living-row,
+  .sc-study-living-meter.is-run .sc-study-living-meter-fill { animation: none !important; }
+  .sc-study-living-meter-fill { transition: none; }
+}
