@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-10 — Richer living Quest cards (wave/quest-living)
+
+- **Quest cards (`QuestPanel` → `QuestCard`):** the scroll pip now sits in a round status-tinted chip beside a stacked **Name / Progress / Reward** column (`QuestLivingRows`). Name carries the quest hint and a seal tag (sanctum / scout / valor / caravan / royal · unsealed / seal lit / sealed); Progress shows 0/1 or 1/1 with the status word and a meter; Reward shows the gold, or "+N gold taken" once claimed.
+- **Layout:** uppercase row labels (hidden under 520px), tone rule left of each row, dashed rule above Reward; chip is dashed while open and pulses when ready, an open Progress rule breathes and a ready Reward row glows (off under reduced motion). New `hud/quest-living-rows.css`, scoped to `.sc-quest-living-head` / `.sc-quest-living-row*`.
+- **Controls:** Claim button kept in the Reward row; living scroll glyph strip and watermark unchanged. Event cards untouched.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`. No new game math.
+- **Tests:** new `hud/QuestLivingRows.test.tsx`; `EventsLivingGlyph.test.tsx` now anchors the quest-card order check on the living head.
+
 ## 2026-11-10 — Living omen glyphs under event cards (bakeoff/gemini-event-living)
 
 - **Living omen glyph strips (`EventOmenLivingGlyph` / `EventLivingGlyph`):** Added left-aligned 14×14 living SVG omen emblems directly beneath the stacked Name, Omen, and Duration rows on event cards (`EventCard.tsx`), with subtle glow (`sc-events-glow-layer`), pulse (`sc-events-pulse-layer`), and drift (`sc-events-drift-layer`) motion across Latest (celestial blazing sky), Pending (alert choice pulse), Loss/Spoil (blighted stores tension pulse), and Settled (calm historical watch) states across Comet (star nucleus/streaking tail), Raven (prophetic perch/seer eye), and Harvest (wheat sheaf/sun-halo).

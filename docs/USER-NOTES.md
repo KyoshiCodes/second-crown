@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-10 — Quest cards are easier to read (wave/quest-living)
+
+- Each quest card now shows its scroll in a small round coloured badge next to short lines: the **name** (with what to do, and whether the seal is unsealed, lit or sealed), **Progress** (0/1 or 1/1 and a bar) and **Reward** (the gold, or what you already took).
+- The Claim button works exactly as before. No game numbers changed.
+
 ## 2026-11-10 — Living omen glyphs on event cards (bakeoff/gemini-event-living)
 
 - **Living omen emblems:** Under the Name, Omen, and Duration rows on each event card in the events chronicle, a subtle living emblem now portrays the event's portent and resolution state:

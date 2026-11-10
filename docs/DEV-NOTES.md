@@ -1,3 +1,11 @@
+## 2026-11-10 — app / richer living Quest cards (wave/quest-living)
+
+- **Component:** new `packages/app/src/hud/QuestLivingRows.tsx` exports `QuestLivingRows`, `orderQuestRows(rows)`, `QUEST_LIVING_KINDS` (`name`, `progress`, `reward`) and `QuestLivingKind`. It takes the `EventsLedgerRow[]` from `questLedgerRows()` unchanged (kinds keep their names); the name row's `lead` (ScrollPip) moves into the chip and each row's `slot` (Claim button) renders in place.
+- **Tag:** name tag is `${motif} · ${statusWord}` from `getQuestSealMotif(id)` and quest status (open→unsealed / ready→seal lit / claimed→sealed, matching `resolveScrollLiving()` flair). Read-only; no new math.
+- **Wiring:** `QuestCard` renders `<QuestLivingRows>` in place of `<EventsLedger>`; `QuestScrollUnderlay`, `QuestScrollLivingGlyph` and `onClaim` are unchanged. `EventsLedger` / `questLedgerRows` stay exported and tested.
+- **CSS:** new `hud/quest-living-rows.css`; selectors under `.sc-quest-living-head`, `.sc-quest-living-chip`, `.sc-quest-living-row*`, `.sc-quest-living-meter*`. Status tint via `--sc-quest-status-tone`. Labels hidden below 520px; animations and meter transition off under `prefers-reduced-motion`.
+- **Tests:** new `hud/QuestLivingRows.test.tsx` (7 tests); quest-card order check in `EventsLivingGlyph.test.tsx` now looks for `sc-quest-living-head`. Full suite green (323 sim, 828 app + render/server).
+
 ## 2026-11-10 — app / living omen glyphs under event cards (bakeoff/gemini-event-living)
 
 - **Components:** `packages/app/src/hud/EventsLivingGlyph.tsx` exports `EventOmenLivingGlyph`, `EventLivingGlyph`, `EventOmenUnderlay`, `EventOmenLivingUnderlay`, `EventLivingUnderlay`, `QuestScrollLivingGlyph`, `QuestScrollUnderlay`, `resolveOmenLiving`, `resolveScrollLiving`, and types `OmenLivingDescriptor`, `ScrollLivingDescriptor`. `EventCard.tsx` exports `EventLivingCard` alias and marks each card with `is-living sc-event-living-card`.

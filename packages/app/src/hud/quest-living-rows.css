@@ -1,0 +1,177 @@
+/* --- Quest cards: living status column (Name / Progress / Reward). ---
+ * Scoped to .sc-quest-living-head / .sc-quest-living-row*; sits inside .sc-quest-card.
+ * theme.css is untouched. Card frame and Claim button still come from quest-card.css. */
+
+.sc-quest-living-head {
+  --sc-quest-status-tone: #d29922;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.sc-quest-living-head.is-open    { --sc-quest-status-tone: #d29922; }
+.sc-quest-living-head.is-ready   { --sc-quest-status-tone: #3fb950; }
+.sc-quest-living-head.is-claimed { --sc-quest-status-tone: #6e7681; }
+
+/* Scroll chip on the left. */
+.sc-quest-living-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-top: 1px;
+  border-radius: 50%;
+  border: 1px solid var(--sc-quest-status-tone);
+  background: rgba(127, 127, 127, 0.08);
+  opacity: 0.92;
+}
+.sc-quest-living-head.is-open .sc-quest-living-chip { border-style: dashed; }
+.sc-quest-living-head.is-claimed .sc-quest-living-chip { opacity: 0.7; }
+.sc-quest-living-head.is-ready .sc-quest-living-chip {
+  animation: sc-quest-living-chip 2.4s ease-in-out infinite;
+}
+
+.sc-quest-living-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+.sc-quest-living-row {
+  --sc-quest-living-tone: #6e7681;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1px 6px;
+  min-width: 0;
+  padding: 2px 4px 2px 6px;
+  font-size: 11px;
+  border-left: 2px solid var(--sc-quest-living-tone);
+  border-radius: 0 3px 3px 0;
+}
+.sc-quest-living-row.tone-calm  { --sc-quest-living-tone: #6e7681; }
+.sc-quest-living-row.tone-busy  { --sc-quest-living-tone: #d29922; }
+.sc-quest-living-row.tone-ready { --sc-quest-living-tone: #3fb950; }
+.sc-quest-living-row.tone-done  { --sc-quest-living-tone: #8b949e; }
+.sc-quest-living-row.tone-loss  { --sc-quest-living-tone: #f85149; }
+
+/* Name row reads as the card title: no rule, seal tag beside it, hint below. */
+.sc-quest-living-row.is-name {
+  padding-left: 0;
+  border-left: none;
+  font-size: 12.5px;
+}
+.sc-quest-living-row.is-name .sc-quest-living-label { display: none; }
+.sc-quest-living-row.is-name .sc-quest-living-value { justify-content: flex-start; text-align: left; }
+.sc-quest-living-row.is-name .sc-quest-living-main {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sc-quest-living-row.is-name .sc-quest-living-sub {
+  flex: 1 0 100%;
+  font-size: 11px;
+  opacity: 0.8;
+}
+.sc-quest-living-tag {
+  margin-left: auto;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sc-quest-status-tone);
+  opacity: 0.8;
+}
+
+.sc-quest-living-row.is-progress { background: rgba(255, 255, 255, 0.025); }
+.sc-quest-living-row.is-reward { border-top: 1px dashed rgba(200, 150, 62, 0.18); }
+
+.sc-quest-living-label {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+.sc-quest-living-value {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px 6px;
+  min-width: 0;
+  margin: 0;
+  text-align: right;
+}
+.sc-quest-living-main {
+  min-width: 0;
+  max-width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.sc-quest-living-row.is-progress.tone-busy .sc-quest-living-main { color: #d29922; }
+.sc-quest-living-row.is-progress.tone-ready .sc-quest-living-main,
+.sc-quest-living-row.is-reward.tone-ready .sc-quest-living-main { color: #3fb950; }
+.sc-quest-living-sub {
+  font-size: 10.5px;
+  opacity: 0.72;
+}
+
+/* Thin meter under the Progress row (0 while open, full once done). */
+.sc-quest-living-meter {
+  position: relative;
+  display: block;
+  flex: 1 0 100%;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(127, 127, 127, 0.2);
+}
+.sc-quest-living-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--sc-quest-living-tone);
+  transition: width 0.5s ease-out;
+}
+
+/* Living touches: an open quest's progress rule breathes, a ready reward glows. */
+.sc-quest-living-row.is-progress.tone-busy {
+  animation: sc-quest-living-breathe 2.4s ease-in-out infinite;
+}
+.sc-quest-living-head.is-ready .sc-quest-living-row.is-reward {
+  animation: sc-quest-living-glow 3s ease-in-out infinite;
+}
+
+@keyframes sc-quest-living-chip {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: 0 0 7px -1px var(--sc-quest-status-tone); }
+}
+@keyframes sc-quest-living-breathe {
+  0%, 100% { border-left-color: var(--sc-quest-living-tone); }
+  50% { border-left-color: transparent; }
+}
+@keyframes sc-quest-living-glow {
+  0%, 100% { box-shadow: none; }
+  50% { box-shadow: inset 4px 0 6px -4px var(--sc-quest-living-tone); }
+}
+
+/* Narrow screens: drop row labels, keep values. */
+@media (max-width: 520px) {
+  .sc-quest-living-label { display: none; }
+  .sc-quest-living-value { justify-content: flex-start; text-align: left; }
+  .sc-quest-living-chip { width: 26px; height: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-quest-living-chip,
+  .sc-quest-living-row { animation: none !important; }
+  .sc-quest-living-meter-fill { transition: none; }
+}

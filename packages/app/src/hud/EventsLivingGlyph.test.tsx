@@ -163,7 +163,7 @@ describe("EventsLivingGlyph — living omen and scroll glyphs under EventCard an
     const readyHtml = renderToStaticMarkup(
       <QuestCard id="first_victory" name="Win a field" hint="Win any war." gold={25} complete claimed={false} onClaim={() => {}} />,
     );
-    const ledgerIdx = readyHtml.indexOf("sc-events-ledger");
+    const ledgerIdx = readyHtml.indexOf("sc-quest-living-head");
     const glyphIdx = readyHtml.indexOf("sc-events-status-glyph kind-scroll scroll-ready");
     expect(ledgerIdx).toBeGreaterThan(0);
     expect(glyphIdx).toBeGreaterThan(ledgerIdx);
