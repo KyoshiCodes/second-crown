@@ -1,11 +1,12 @@
 # CHANGELOG
 
-## 2026-11-10 — Playtest notes area in the Balance notes panel (wave/balance-notes)
+## 2026-11-10 — Richer lighting and atmosphere pass on the isometric board (bakeoff/gemini-board-light)
 
-- **Panel (`BalanceNotes.tsx`):** the Kingdom tab **Balance notes** card keeps its culture table (edge, unit, base cost, living crest) and gains a read-only **Playtest notes** box under the footnote. It renders the static `PLAYTEST_NOTES` list; while that list is empty it shows a placeholder line. No inputs, no saved state.
-- **CSS:** `.sc-balance-playtest*` rules added to the panel's own `hud/balance-notes.css`.
-- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`. No new game math. All existing controls kept.
-- **Tests:** `BalanceNotes.test.tsx` +4 (five edge/unit pairs, placeholder, logged lines, CSS). Sim 323, app 833 pass. `npm run build -w @second-crown/app` succeeds.
+- **Atmospheric sky lighting (`BoardLight` / `BoardLiving`):** Added time-of-day sky horizon glow (`sc-board-sky-horizon-glow`) and directional celestial beams (`sc-board-celestial-beam`) rendered at the board canvas background via radial gradients (`#sc-board-sky-dawn`, `#sc-board-sky-day`, `#sc-board-sky-dusk`, `#sc-board-sky-night`) based on sim ticks or explicit day/night state, shifting smoothly between golden dawn, clear daylight, amber dusk, and celestial night.
+- **Terrain facet shading:** Added sunward specular rim highlights (`sc-board-tile-sun-rim`) and leeward depth bevel shadows (`sc-board-tile-bevel-shadow`) to seen diamond tiles, giving isometric terrain tactile relief without obscuring meeples, roads, or selection rings.
+- **Structure foundation shadows & lantern sparks:** Added soft ground contact shadows (`sc-board-bldg-ground-shadow`, `.sc-board-node-ground-shadow`) under keeps and resource node piles, warm window lantern sparks (`sc-board-keep-window-lantern`) glowing at keep battlements during dusk and night, and campfire lantern ground blooms (`sc-board-camp-lantern-bloom`) under field camps.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers and SVGs, low opacities (`0.08..0.28`), and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/BoardLiving.test.tsx` (24 tests) and `LivingGlyphSoften.test.ts` (7 tests). Sim 323, app 835, server 158 pass. `npm run build -w @second-crown/app` succeeds cleanly.
 
 ## 2026-11-10 — Living scroll glyphs under quest cards (bakeoff/gemini-quest-living)
 

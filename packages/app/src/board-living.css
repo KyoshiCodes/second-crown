@@ -416,8 +416,115 @@
   }
 }
 
+/* 7. Time-of-day sky horizon glow and directional light beams */
+.sc-board-living-sky-light {
+  transform-origin: center top;
+}
+
+.sc-board-sky-horizon-glow {
+  transform-origin: center top;
+  animation: sc-board-sky-breathe 7.2s ease-in-out infinite alternate;
+}
+
+.sc-board-celestial-beam {
+  animation: sc-board-beam-shimmer 5.6s ease-in-out infinite alternate;
+}
+
+.sc-board-celestial-beam.is-alt {
+  animation-duration: 6.8s;
+  animation-delay: 1.2s;
+}
+
+.sc-board-celestial-beam.is-soft {
+  animation-duration: 8.2s;
+  animation-delay: 2.4s;
+}
+
+/* 8. Subtle terrain facet shading & sunward specular rims */
+.sc-board-tile-sun-rim {
+  animation: sc-board-rim-gleam 4.8s ease-in-out infinite alternate;
+}
+
+.sc-board-tile-bevel-shadow {
+  opacity: 0.68;
+}
+
+/* 9. Building foundation occlusion shadows & soft lantern glows */
+.sc-board-bldg-ground-shadow,
+.sc-board-node-ground-shadow {
+  opacity: 0.72;
+}
+
+.sc-board-keep-window-lantern {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-board-lantern-glow 2.8s ease-in-out infinite alternate;
+}
+
+.sc-board-camp-lantern-bloom {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-board-lantern-bloom-pulse 3.4s ease-in-out infinite alternate;
+}
+
+@keyframes sc-board-sky-breathe {
+  0% {
+    opacity: 0.75;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes sc-board-beam-shimmer {
+  0% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes sc-board-rim-gleam {
+  0% {
+    stroke-opacity: 0.65;
+  }
+  100% {
+    stroke-opacity: 1;
+  }
+}
+
+@keyframes sc-board-lantern-glow {
+  0% {
+    opacity: 0.65;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes sc-board-lantern-bloom-pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1.08);
+  }
+}
+
 /* Reduced motion accessibility */
 @media (prefers-reduced-motion: reduce) {
+  .sc-board-sky-horizon-glow,
+  .sc-board-celestial-beam,
+  .sc-board-tile-sun-rim,
+  .sc-board-keep-window-lantern,
+  .sc-board-camp-lantern-bloom,
   .sc-board-peak-ridge,
   .sc-board-peak-mist,
   .sc-board-peak-glint,

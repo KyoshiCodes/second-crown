@@ -2,10 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-10 — Playtest notes box in Balance notes (wave/balance-notes)
+## 2026-11-10 — Richer lighting and atmosphere on the board (bakeoff/gemini-board-light)
 
-- The Kingdom tab's **Balance notes** box (tap to open) still lists each culture with its one difference, its own unit and that unit's cost. Under the table there is now a **Playtest notes** box. It is empty for now and says so; feedback from playtest sessions will be written there.
-- It is read-only: nothing to click or type. No game numbers changed.
+- **Living atmosphere & time-of-day:** The isometric diamond board now breathes with a richer, softer lighting pass that tracks the passing hours:
+  - **Sky horizon & beams:** Soft horizon glow and subtle sun/moonbeams in the backdrop that shift gently across warm dawn, clear daylight, amber dusk, and starry night.
+  - **Terrain relief & shading:** Seen tiles now carry delicate sunward rim gleams and leeward bevel shadows, giving hills, meadows, and woods tangible isometric depth.
+  - **Keep lanterns & ground shadows:** Keeps and resource nodes cast soft foundation contact shadows onto the earth. At dusk and nightfall, warm lantern sparks gleam in keep windows and campfire embers glow softly under field camps.
+- **Clean reading & play:** All lighting effects are pure decorative underlays with strict non-interactive layers (`pointer-events: none`) and gentle opacities, ensuring unit tokens, march paths, roads, and territory clicks stay 100% crisp and responsive. No game numbers changed.
 
 ## 2026-11-10 — Living scroll glyphs on quest cards (bakeoff/gemini-quest-living)
 

@@ -703,6 +703,22 @@
 .sc-shell .sc-board-status-tether {
   opacity: 0.16 !important;
 }
+.sc-shell .sc-board-sky-horizon-glow {
+  opacity: 0.18 !important;
+}
+.sc-shell .sc-board-celestial-beam {
+  opacity: 0.12 !important;
+}
+.sc-shell .sc-board-bldg-ground-shadow,
+.sc-shell .sc-board-node-ground-shadow {
+  opacity: 0.22 !important;
+}
+.sc-shell .sc-board-keep-window-lantern {
+  opacity: 0.65 !important;
+}
+.sc-shell .sc-board-camp-lantern-bloom {
+  opacity: 0.14 !important;
+}
 .sc-shell .sc-atlas-living-glyph {
   stroke-opacity: 0.40 !important;
   fill-opacity: 0.28 !important;

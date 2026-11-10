@@ -6,9 +6,10 @@ Read `AGENTS.md` then this file.
 
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
 
-`main` is at `13135c3` (living scroll glyphs under quest cards). The living-layer wave is **fully merged**: every `wave/*-living` and `bakeoff/gemini-*-living` branch is on `main`. There is no waiting list. Per-slice detail lives in `CHANGELOG.md` (newest first) and `DEV-NOTES.md`; older versions of this file are in git history.
+`main` is at `13135c3` (living scroll glyphs under quest cards). The living-layer wave is **fully merged**: every `wave/*-living` and `bakeoff/gemini-*-living` branch is on `main`. There is no waiting list for HUD glyphs.
+Also waiting: `bakeoff/gemini-board-light` (**not merged**, richer lighting and atmosphere pass on the isometric board, see below). Per-slice detail lives in `CHANGELOG.md` (newest first) and `DEV-NOTES.md`; older versions of this file are in git history.
 
-Tests on `main` at the last slice: sim **323**, app **833**, server **158**, app build clean.
+Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app build clean.
 
 ## Live now
 
@@ -23,7 +24,13 @@ Tests on `main` at the last slice: sim **323**, app **833**, server **158**, app
 - **Cultures.** Ten cultures in the picker; five carry a unit and an edge (Mist / Ranger, Glen / Banner, Salt / Outrider, Fen / Warden, Peak / Lancer). First Second Dawn gives +1 militia, +20 food, +10 wood, once.
 - **Shared hold (opt-in).** Cloud panel **Join hold** card: hold key, train militia, build farm / cottage / lumber camp, stamps, intent log, leave. The server runs `packages/sim` only for a joined hold (ADR-011). Holds survive a restart. No owner-marked shared realm exists; solo play never touches the server sim.
 - **Board presentation.** Isometric 12×8 diamond board with terrain tiles, roads and traffic, fog edge, keeps, march paths and meeples, unit labels, node piles, outpost / camp marks, selection rim, hover tooltip, day/night with sun and moon, weather, static tile cache. Tabs lazy-load in split chunks.
-- **Feedback.** Action confirmation flash and sound, lo-fi radio, balance notes panel (culture table plus a read-only playtest notes box, filled from `PLAYTEST_NOTES` in `BalanceNotes.tsx`), pace lines (research, market, wall, vision, upkeep, training, academy), hint lines (research, market, decree, age, culture).
+- **Board lighting and atmosphere pass (bakeoff/gemini-board-light, not merged).** Richer time-of-day lighting and atmosphere pass on the isometric board (exported via `BoardLiving` / `BoardLight` in `packages/app/src/BoardLiving.tsx`):
+  - Sky horizon glow and directional celestial beams across dawn, day, dusk, night.
+  - Sunward specular rims and leeward bevel shadows on seen terrain tiles.
+  - Foundation occlusion ground shadows under keeps and resource nodes.
+  - Hearth lantern sparks at keep windows and campfire glow blooms at camps (illuminated at dusk and night).
+  - All decorative layers isolated, `pointer-events: none`, and softened in `hud/living-glyph-soften.css` with `prefers-reduced-motion` guards.
+- **Feedback.** Action confirmation flash and sound, lo-fi radio, balance notes panel, pace lines (research, market, wall, vision, upkeep, training, academy), hint lines (research, market, decree, age, culture).
 
 ### Living HUD layers (all on `main`)
 

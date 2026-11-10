@@ -1,9 +1,12 @@
-## 2026-11-10 — app / playtest notes area in Balance notes (wave/balance-notes)
+## 2026-11-10 — app / richer lighting and atmosphere pass on the isometric board (bakeoff/gemini-board-light)
 
-- **Component:** `packages/app/src/BalanceNotes.tsx` exports `PLAYTEST_NOTES: readonly string[]` (empty) and accepts an optional `notes` prop (test override, defaults to `PLAYTEST_NOTES`). Renders `.sc-balance-playtest` after `.sc-balance-foot`: a `<ul>` of lines, or the placeholder `<p className="sc-balance-playtest-empty">` when empty.
-- **Adding feedback:** append one short string per finding to `PLAYTEST_NOTES` and ship. Static text on purpose: no textarea, no save field, no server call. Long-form notes still belong in `USER-NOTES.md`.
-- **CSS:** `.sc-balance-playtest`, `-title`, `-empty`, `-list` in `hud/balance-notes.css`. `theme.css`, `packages/sim` and `server/` untouched. Table, crests and `KingdomTab` mount unchanged.
-- **Tests:** `BalanceNotes.test.tsx` now 7 tests. Full suite green (323 sim, 833 app).
+- **Components & helpers:** `packages/app/src/BoardLiving.tsx` exports `BoardLight` (alias to `BoardLiving`), `resolveBoardLightPhase`, `resolveBoardLight`, and types `BoardLightPhase`, `BoardLightDescriptor`.
+- **Lighting layers (`BoardLiving.tsx`):**
+  - **Sky & celestial illumination (`.sc-board-living-sky-light`):** Renders radial sky gradients (`#sc-board-sky-dawn`, `#sc-board-sky-day`, `#sc-board-sky-dusk`, `#sc-board-sky-night`), a horizon glow ellipse (`.sc-board-sky-horizon-glow`), and directional sun/moon light beams (`.sc-board-celestial-beam`) tied to resolved phase (`dawn`, `day`, `dusk`, `night`) or explicit `state.dayPhase` / `flags.dayPhase`.
+  - **Terrain facet shading (`.sc-board-living-terrain-shading`):** Adds sunward specular rim polylines (`.sc-board-tile-sun-rim`) along northern edges and leeward bevel shadow polylines (`.sc-board-tile-bevel-shadow`) along southern facets for visible, non-fogged diamond tiles.
+  - **Structure & node foundation light (`.sc-board-living-structure-light`):** Renders ground contact shadows (`.sc-board-bldg-ground-shadow`, `.sc-board-node-ground-shadow`) using radial `#sc-board-bldg-shadow-grad`, keep window lantern gleams (`.sc-board-keep-window-lantern`, active during dusk/night), and field camp lantern blooms (`.sc-board-camp-lantern-bloom`).
+- **Scoping & readability (`board-living.css`, `hud/living-glyph-soften.css`):** Scoped under `.sc-board-living` with `pointer-events: none !important;` on all decorative SVGs, ellipses, paths, and polygons. Opacities strictly capped (`0.08..0.28`). Keyframe animations (`sc-board-sky-breathe`, `sc-board-beam-shimmer`, `sc-board-rim-gleam`, `sc-board-lantern-glow`, `sc-board-lantern-bloom-pulse`) and softening rules in `living-glyph-soften.css` Section 4 with `@media (prefers-reduced-motion: reduce)` fallbacks. `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `packages/app/src/BoardLiving.test.tsx` (24 tests) covers `BoardLight` alias, time-of-day phase and descriptor resolution, sky horizon glow and directional beams, terrain facet rims and bevel shadows, structure ground shadows and keep lanterns, and CSS isolation. Full test suite (323 sim, 835 app, 158 server) passing.
 
 ## 2026-11-10 — app / living scroll glyphs under quest cards (bakeoff/gemini-quest-living)
 

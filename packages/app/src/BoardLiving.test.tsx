@@ -4,7 +4,11 @@ import { describe, expect, it } from "vitest";
 import { createGameState, isProvinceSeen, revealProvince } from "@second-crown/sim";
 import {
   BoardLiving,
+  BoardLight,
   boardGridToWorld,
+  resolveBoardLightPhase,
+  resolveBoardLight,
+  BOARD_DAY_CYCLE_TICKS,
   TERRAIN_PULSE_COLORS,
 } from "./BoardLiving";
 import { OverworldAtlas } from "./OverworldAtlas";
@@ -330,5 +334,103 @@ describe("Board living styling and CSS isolation", () => {
     expect(theme).not.toContain("sc-board-keep");
     expect(theme).not.toContain("sc-board-fog");
     expect(theme).not.toContain("sc-atlas-terrain-glyph");
+    expect(theme).not.toContain("sc-board-sky-horizon-glow");
+    expect(theme).not.toContain("sc-board-celestial-beam");
+    expect(theme).not.toContain("sc-board-tile-sun-rim");
+    expect(theme).not.toContain("sc-board-bldg-ground-shadow");
+    expect(theme).not.toContain("sc-board-keep-window-lantern");
+  });
+});
+
+describe("BoardLight — richer lighting and atmosphere pass on the isometric board", () => {
+  it("exports BoardLight alias pointing to BoardLiving", () => {
+    expect(BoardLight).toBe(BoardLiving);
+  });
+
+  it("resolves time-of-day phases across tick cycle and explicit overrides", () => {
+    const s = fresh();
+    s.meta.tick = 100;
+    expect(resolveBoardLightPhase(s)).toBe("dawn");
+    s.meta.tick = 1000;
+    expect(resolveBoardLightPhase(s)).toBe("day");
+    s.meta.tick = 2200;
+    expect(resolveBoardLightPhase(s)).toBe("dusk");
+    s.meta.tick = 3000;
+    expect(resolveBoardLightPhase(s)).toBe("night");
+
+    // Explicit override
+    (s as any).dayPhase = "dusk";
+    expect(resolveBoardLightPhase(s)).toBe("dusk");
+    (s as any).dayPhase = undefined;
+  });
+
+  it("resolves rich light descriptor with distinct palette and beam opacities per phase", () => {
+    const s = fresh();
+    s.meta.tick = 200;
+    const dawnLight = resolveBoardLight(s);
+    expect(dawnLight.phase).toBe("dawn");
+    expect(dawnLight.isNight).toBe(false);
+    expect(dawnLight.skyGradientId).toBe("sc-board-sky-dawn");
+    expect(dawnLight.lanternOpacity).toBe(0.35);
+
+    s.meta.tick = 3100;
+    const nightLight = resolveBoardLight(s);
+    expect(nightLight.phase).toBe("night");
+    expect(nightLight.isNight).toBe(true);
+    expect(nightLight.skyGradientId).toBe("sc-board-sky-night");
+    expect(nightLight.lanternOpacity).toBe(0.85);
+  });
+
+  it("renders time-of-day sky horizon glow and celestial light beams", () => {
+    const s = fresh();
+    s.meta.tick = 1000;
+    const dayHtml = renderToStaticMarkup(<BoardLiving state={s} selectedId={null} visible={true} />);
+    expect(dayHtml).toContain("sc-board-living-sky-light is-day");
+    expect(dayHtml).toContain("sc-board-sky-horizon-glow");
+    expect(dayHtml).toContain("url(#sc-board-sky-day)");
+    expect(dayHtml).toContain("sc-board-celestial-beams");
+    expect(dayHtml).toContain("sc-board-celestial-beam is-alt");
+    expect(dayHtml).toContain("sc-board-celestial-beam is-soft");
+
+    s.meta.tick = 3200;
+    const nightHtml = renderToStaticMarkup(<BoardLiving state={s} selectedId={null} visible={true} />);
+    expect(nightHtml).toContain("sc-board-living-sky-light is-night");
+    expect(nightHtml).toContain("url(#sc-board-sky-night)");
+  });
+
+  it("renders subtle isometric terrain facet shading on seen tiles", () => {
+    const s = fresh();
+    const html = renderToStaticMarkup(<BoardLiving state={s} selectedId={null} visible={true} />);
+    expect(html).toContain("sc-board-living-terrain-shading");
+    expect(html).toContain("sc-board-tile-sun-rim");
+    expect(html).toContain("sc-board-tile-bevel-shadow");
+    expect(html).toContain(`data-province-id="${s.board.homeProvinceId}"`);
+  });
+
+  it("renders building foundation ground shadows and window lanterns on holds and structures", () => {
+    const s = fresh();
+    s.meta.tick = 3000; // Night: lanterns shine brightly
+    const html = renderToStaticMarkup(<BoardLiving state={s} selectedId={null} visible={true} />);
+    expect(html).toContain("sc-board-living-structure-light");
+    expect(html).toContain("sc-board-bldg-ground-shadow");
+    expect(html).toContain("url(#sc-board-bldg-shadow-grad)");
+    expect(html).toContain("sc-board-keep-window-lantern");
+    expect(html).toContain('opacity="0.85"');
+  });
+
+  it("includes keyframe animations and reduced-motion rules for the lighting pass in board-living.css", () => {
+    const css = readCssFile("./board-living.css");
+    expect(css).toContain("@keyframes sc-board-sky-breathe");
+    expect(css).toContain("@keyframes sc-board-beam-shimmer");
+    expect(css).toContain("@keyframes sc-board-rim-gleam");
+    expect(css).toContain("@keyframes sc-board-lantern-glow");
+    expect(css).toContain("@keyframes sc-board-lantern-bloom-pulse");
+
+    const rmBlock = css.slice(css.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(rmBlock).toContain(".sc-board-sky-horizon-glow");
+    expect(rmBlock).toContain(".sc-board-celestial-beam");
+    expect(rmBlock).toContain(".sc-board-tile-sun-rim");
+    expect(rmBlock).toContain(".sc-board-keep-window-lantern");
+    expect(rmBlock).toContain(".sc-board-camp-lantern-bloom");
   });
 });

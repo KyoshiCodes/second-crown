@@ -42,6 +42,92 @@ export const TERRAIN_PULSE_COLORS: Record<string, { stroke: string; fill: string
 };
 
 /** Resource palette mapping for gather node pile living glyphs */
+export type BoardDayPhase = "dawn" | "day" | "dusk" | "night";
+
+export const BOARD_DAY_CYCLE_TICKS = 3600;
+
+export interface BoardLightDescriptor {
+  phase: BoardDayPhase;
+  isNight: boolean;
+  ambientColor: string;
+  sunwardStroke: string;
+  shadowStroke: string;
+  lanternOpacity: number;
+  skyGradientId: string;
+  beamOpacity: number;
+}
+
+export function resolveBoardLightPhase(state?: GameState | null): BoardDayPhase {
+  if (!state) return "day";
+  const explicit =
+    (state as any).dayPhase ??
+    (state as any).flags?.dayPhase ??
+    (state as any).flags?.day_phase;
+  if (typeof explicit === "string") {
+    const norm = explicit.toLowerCase().trim();
+    if (norm === "dawn" || norm === "day" || norm === "dusk" || norm === "night") {
+      return norm;
+    }
+  }
+  const rawTick = typeof state.meta?.tick === "number" ? state.meta.tick : 0;
+  const t = ((Math.floor(rawTick) % BOARD_DAY_CYCLE_TICKS) + BOARD_DAY_CYCLE_TICKS) % BOARD_DAY_CYCLE_TICKS;
+  if (t < 540) return "dawn";
+  if (t < 1980) return "day";
+  if (t < 2520) return "dusk";
+  return "night";
+}
+
+export function resolveBoardLight(state?: GameState | null): BoardLightDescriptor {
+  const phase = resolveBoardLightPhase(state);
+  switch (phase) {
+    case "dawn":
+      return {
+        phase,
+        isNight: false,
+        ambientColor: "rgba(251, 191, 36, 0.12)",
+        sunwardStroke: "rgba(253, 230, 138, 0.35)",
+        shadowStroke: "rgba(120, 53, 15, 0.22)",
+        lanternOpacity: 0.35,
+        skyGradientId: "sc-board-sky-dawn",
+        beamOpacity: 0.14,
+      };
+    case "dusk":
+      return {
+        phase,
+        isNight: false,
+        ambientColor: "rgba(249, 115, 22, 0.14)",
+        sunwardStroke: "rgba(253, 186, 116, 0.32)",
+        shadowStroke: "rgba(88, 28, 135, 0.26)",
+        lanternOpacity: 0.65,
+        skyGradientId: "sc-board-sky-dusk",
+        beamOpacity: 0.15,
+      };
+    case "night":
+      return {
+        phase,
+        isNight: true,
+        ambientColor: "rgba(56, 189, 248, 0.08)",
+        sunwardStroke: "rgba(186, 230, 253, 0.26)",
+        shadowStroke: "rgba(2, 6, 23, 0.32)",
+        lanternOpacity: 0.85,
+        skyGradientId: "sc-board-sky-night",
+        beamOpacity: 0.10,
+      };
+    case "day":
+    default:
+      return {
+        phase: "day",
+        isNight: false,
+        ambientColor: "rgba(254, 240, 138, 0.07)",
+        sunwardStroke: "rgba(255, 255, 255, 0.28)",
+        shadowStroke: "rgba(15, 23, 42, 0.20)",
+        lanternOpacity: 0.10,
+        skyGradientId: "sc-board-sky-day",
+        beamOpacity: 0.12,
+      };
+  }
+}
+
 export const NODE_GLYPH_COLORS: Record<string, { rim: string; mote: string }> = {
   woodcut: { rim: "#f59e0b", mote: "#fde68a" },
   field: { rim: "#eab308", mote: "#fef08a" },
@@ -85,6 +171,8 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
   const terrainColors = selProv ? (TERRAIN_PULSE_COLORS[selProv.terrain] ?? TERRAIN_PULSE_COLORS.plain) : null;
 
   // Seen provinces partitioned into holds, terrain glyphs (peaks, woods, shores), camps, and node piles
+    const light = resolveBoardLight(state);
+  const seenProvs: Province[] = [];
   const holds: Array<{ id: string; p: Province; isPlayer: boolean; wx: number; wy: number }> = [];
   const terrainGlyphs: Array<{
     id: string;
@@ -113,6 +201,7 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
     const isPlayer = p.id === homeId;
     const isSeen = isPlayer || isProvinceSeen(state, p.id);
     if (!isSeen) continue;
+    seenProvs.push(p);
 
     const { wx, wy } = boardGridToWorld(p.x, p.y);
 
@@ -181,6 +270,35 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         style={{ pointerEvents: "none" }}
       >
         <defs>
+                    {/* Time-of-day sky horizon radial gradients */}
+          <radialGradient id="sc-board-sky-dawn" cx="50%" cy="0%" r="80%">
+            <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.22" />
+            <stop offset="45%" stopColor="#f472b6" stopOpacity="0.10" />
+            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="sc-board-sky-day" cx="50%" cy="0%" r="80%">
+            <stop offset="0%" stopColor="#fef08a" stopOpacity="0.16" />
+            <stop offset="40%" stopColor="#38bdf8" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#0284c7" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="sc-board-sky-dusk" cx="50%" cy="0%" r="80%">
+            <stop offset="0%" stopColor="#f97316" stopOpacity="0.24" />
+            <stop offset="45%" stopColor="#c084fc" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#312e81" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id="sc-board-sky-night" cx="50%" cy="0%" r="80%">
+            <stop offset="0%" stopColor="#60a5fa" stopOpacity="0.14" />
+            <stop offset="40%" stopColor="#818cf8" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="#0f172a" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Soft building foundation occlusion shadow gradient */}
+          <radialGradient id="sc-board-bldg-shadow-grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#090d16" stopOpacity="0.32" />
+            <stop offset="65%" stopColor="#0f172a" stopOpacity="0.16" />
+            <stop offset="100%" stopColor="#0f172a" stopOpacity="0" />
+          </radialGradient>
+
           {/* Radial hearth gradients for keep glow */}
           <radialGradient id="sc-board-hearth-gold" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#fef08a" stopOpacity="0.8" />
@@ -208,6 +326,69 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
             <stop offset="100%" stopColor="#475569" stopOpacity="0" />
           </radialGradient>
         </defs>
+
+                {/* 0. Time-of-Day Sky Horizon Glow & Celestial Light Shafts */}
+        <g className={`sc-board-living-sky-light is-${light.phase}`} style={{ pointerEvents: "none" }}>
+          <ellipse
+            cx={CANVAS_W / 2}
+            cy={36}
+            rx={CANVAS_W * 0.46}
+            ry={48}
+            fill={`url(#${light.skyGradientId})`}
+            className="sc-board-sky-horizon-glow"
+          />
+          <g className="sc-board-celestial-beams" opacity={light.beamOpacity}>
+            <polygon
+              points={`${CANVAS_W * 0.44},0 ${CANVAS_W * 0.47},0 ${CANVAS_W * 0.58},${CANVAS_H * 0.65} ${CANVAS_W * 0.52},${CANVAS_H * 0.65}`}
+              fill={light.ambientColor}
+              className="sc-board-celestial-beam"
+            />
+            <polygon
+              points={`${CANVAS_W * 0.50},0 ${CANVAS_W * 0.53},0 ${CANVAS_W * 0.68},${CANVAS_H * 0.75} ${CANVAS_W * 0.63},${CANVAS_H * 0.75}`}
+              fill={light.ambientColor}
+              className="sc-board-celestial-beam is-alt"
+            />
+            <polygon
+              points={`${CANVAS_W * 0.36},0 ${CANVAS_W * 0.39},0 ${CANVAS_W * 0.44},${CANVAS_H * 0.58} ${CANVAS_W * 0.39},${CANVAS_H * 0.58}`}
+              fill={light.ambientColor}
+              className="sc-board-celestial-beam is-soft"
+            />
+          </g>
+        </g>
+
+        {/* 0.5. Subtle Isometric Terrain Facet Shading & Specular Accents */}
+        <g className="sc-board-living-terrain-shading" style={{ pointerEvents: "none" }}>
+          {seenProvs.map((p) => {
+            const { wx, wy } = boardGridToWorld(p.x, p.y);
+            const delay = tileDelayStyle(p.x, p.y);
+            return (
+              <g key={`tshade-${p.id}`} className="sc-board-tile-shading" data-province-id={p.id} style={{ pointerEvents: "none" }}>
+                {/* Sunward Top-Left & Top-Right Edge Highlight */}
+                <polyline
+                  points={`${wx - BOARD_HALF_W},${wy} ${wx},${wy - BOARD_HALF_H} ${wx + BOARD_HALF_W},${wy}`}
+                  fill="none"
+                  stroke={light.sunwardStroke}
+                  strokeWidth="0.85"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="sc-board-tile-sun-rim"
+                  style={delay}
+                />
+                {/* Leeward Bottom-Left & Bottom-Right Edge Bevel Shadow */}
+                <polyline
+                  points={`${wx - BOARD_HALF_W},${wy} ${wx},${wy + BOARD_HALF_H} ${wx + BOARD_HALF_W},${wy}`}
+                  fill="none"
+                  stroke={light.shadowStroke}
+                  strokeWidth="0.9"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="sc-board-tile-bevel-shadow"
+                  style={delay}
+                />
+              </g>
+            );
+          })}
+        </g>
 
         {/* 1. Soft Fog Drift Layer (under keeps and status) */}
         {fogClusters.length > 0 && (
@@ -503,6 +684,99 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
           </g>
         )}
 
+                {/* 4.5. Structure Foundation Shading & Window Lantern Glows */}
+        <g className="sc-board-living-structure-light" style={{ pointerEvents: "none" }}>
+          {/* Holds foundation ground shadow & window lantern sparks */}
+          {holds.map((h) => {
+            const delay = tileDelayStyle(h.p.x, h.p.y);
+            return (
+              <g key={`bldg-light-${h.id}`} className="sc-board-bldg-light is-hold" style={{ pointerEvents: "none" }}>
+                <ellipse
+                  cx={h.wx}
+                  cy={h.wy + 2}
+                  rx={16}
+                  ry={7.5}
+                  fill="url(#sc-board-bldg-shadow-grad)"
+                  className="sc-board-bldg-ground-shadow"
+                  style={delay}
+                />
+                {/* Keep window lantern soft warm sparks */}
+                <circle
+                  cx={h.wx - 4.5}
+                  cy={h.wy - 7.5}
+                  r={1.1}
+                  fill="#fef08a"
+                  opacity={light.lanternOpacity}
+                  className="sc-board-keep-window-lantern"
+                  style={delay}
+                />
+                <circle
+                  cx={h.wx + 4.5}
+                  cy={h.wy - 7.5}
+                  r={1.1}
+                  fill="#fef08a"
+                  opacity={light.lanternOpacity}
+                  className="sc-board-keep-window-lantern"
+                  style={delay}
+                />
+                <circle
+                  cx={h.wx}
+                  cy={h.wy - 10.5}
+                  r={0.9}
+                  fill="#fde047"
+                  opacity={light.lanternOpacity * 0.9}
+                  className="sc-board-keep-window-lantern"
+                  style={delay}
+                />
+              </g>
+            );
+          })}
+
+          {/* Camps foundation shadow & campfire soft glow */}
+          {campGlyphs.map((cg) => {
+            const delay = tileDelayStyle(cg.p.x, cg.p.y);
+            return (
+              <g key={`camp-light-${cg.id}`} className="sc-board-bldg-light is-camp" style={{ pointerEvents: "none" }}>
+                <ellipse
+                  cx={cg.wx - 0.8}
+                  cy={cg.wy + 3.2}
+                  rx={11}
+                  ry={5.2}
+                  fill="url(#sc-board-bldg-shadow-grad)"
+                  className="sc-board-bldg-ground-shadow"
+                  style={delay}
+                />
+                <ellipse
+                  cx={cg.wx - 1.2}
+                  cy={cg.wy + 1.2}
+                  rx={7.5}
+                  ry={3.4}
+                  fill="rgba(245, 158, 11, 0.16)"
+                  className="sc-board-camp-lantern-bloom"
+                  style={delay}
+                />
+              </g>
+            );
+          })}
+
+          {/* Node pile contact ground shadows */}
+          {nodeGlyphs.map((ng) => {
+            const delay = tileDelayStyle(ng.p.x, ng.p.y);
+            return (
+              <ellipse
+                key={`node-light-${ng.id}`}
+                cx={ng.wx}
+                cy={ng.wy + 2.8}
+                rx={9.5}
+                ry={4.2}
+                fill="url(#sc-board-bldg-shadow-grad)"
+                className="sc-board-node-ground-shadow"
+                style={delay}
+              />
+            );
+          })}
+        </g>
+
         {/* 5. Keep Glow Layer (volumetric hearth and beacon illumination) */}
         {holds.length > 0 && (
           <g className="sc-board-living-keeps" style={{ pointerEvents: "none" }}>
@@ -568,3 +842,5 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
     </div>
   );
 }
+
+export const BoardLight = BoardLiving;
