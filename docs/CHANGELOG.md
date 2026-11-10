@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-10 — Living omen glyphs under event cards (bakeoff/gemini-event-living)
+
+- **Living omen glyph strips (`EventOmenLivingGlyph` / `EventLivingGlyph`):** Added left-aligned 14×14 living SVG omen emblems directly beneath the stacked Name, Omen, and Duration rows on event cards (`EventCard.tsx`), with subtle glow (`sc-events-glow-layer`), pulse (`sc-events-pulse-layer`), and drift (`sc-events-drift-layer`) motion across Latest (celestial blazing sky), Pending (alert choice pulse), Loss/Spoil (blighted stores tension pulse), and Settled (calm historical watch) states across Comet (star nucleus/streaking tail), Raven (prophetic perch/seer eye), and Harvest (wheat sheaf/sun-halo).
+- **Corner-confined card watermarks (`EventOmenUnderlay` / `EventOmenLivingUnderlay` / `EventLivingUnderlay`):** Added 32×32 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.13..0.23` wrapper, `0.28` child SVG) inside `.sc-event-card.is-living.sc-event-living-card` depicting omen emblems without obstructing title/body copy, duration bars, or interactive event choice buttons.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/hud/EventsLivingGlyph.test.tsx` (10 tests) and `LivingGlyphSoften.test.ts` (7 tests). Sim 323, app 822, server 158 pass. `npm run build -w @second-crown/app` succeeds cleanly.
+
 ## 2026-11-10 — Richer living Event cards (wave/event-living)
 
 - **Event cards (`EventPanel` → `EventCard`, latest and older):** the omen pip now sits in a round omen-tinted chip beside a stacked **Name / Omen / Duration** column (`EventLivingRows`). Name carries an omen tag (comet / raven / harvest · latest / awaiting / blighted / settled); Omen shows the event's effect text (e.g. "+10 gold", "lost 4 food"); Duration shows "Awaiting choice · N" or "Resolved" with the fired tick and a meter.

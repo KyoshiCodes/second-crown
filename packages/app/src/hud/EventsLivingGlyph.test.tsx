@@ -5,13 +5,16 @@ import { createGameState } from "@second-crown/sim";
 import {
   EventOmenLivingGlyph,
   EventOmenUnderlay,
+  EventOmenLivingUnderlay,
+  EventLivingGlyph,
+  EventLivingUnderlay,
   QuestScrollLivingGlyph,
   QuestScrollUnderlay,
   getQuestSealMotif,
   resolveOmenLiving,
   resolveScrollLiving,
 } from "./EventsLivingGlyph";
-import { EventCard } from "./EventCard";
+import { EventCard, EventLivingCard } from "./EventCard";
 import { QuestCard } from "./QuestCard";
 import { EventPanel } from "../EventPanel";
 import { QuestPanel } from "../QuestPanel";
@@ -136,11 +139,13 @@ describe("EventsLivingGlyph — living omen and scroll glyphs under EventCard an
     );
 
     const ledgerIdx = html.indexOf("sc-event-living-head");
-    const glyphIdx = html.indexOf("sc-events-status-glyph kind-omen omen-comet state-pending");
+    const glyphIdx = html.indexOf("sc-events-status-glyph");
     const choicesIdx = html.indexOf("sc-event-choices");
     expect(ledgerIdx).toBeGreaterThan(0);
     expect(glyphIdx).toBeGreaterThan(ledgerIdx);
     expect(choicesIdx).toBeGreaterThan(glyphIdx);
+    expect(html).toContain("sc-event-living-glyph");
+    expect(html).toContain("sc-omen-living-glyph");
     expect(html).toContain('data-omen-watermark="comet"');
     expect(html).toContain("Comet omen · choice awaits");
     expect(html).toContain("Accept");
@@ -187,10 +192,10 @@ describe("EventsLivingGlyph — living omen and scroll glyphs under EventCard an
 
   it("confines card watermarks to a low-opacity bottom-right pocket so text never obscures", () => {
     const css = readTextFile("./events-glyph-living.css");
-    expect(css).toMatch(/\.sc-events-living-underlay\s*\{[^}]*width:\s*32px/s);
-    expect(css).toMatch(/\.sc-events-living-underlay\s*\{[^}]*height:\s*32px/s);
-    expect(css).toMatch(/\.sc-events-living-underlay\s*\{[^}]*right:\s*-2px/s);
-    expect(css).toMatch(/\.sc-events-living-underlay\s*\{[^}]*bottom:\s*-2px/s);
+    expect(css).toMatch(/\.sc-events-living-underlay[^{]*\{[^}]*width:\s*32px/s);
+    expect(css).toMatch(/\.sc-events-living-underlay[^{]*\{[^}]*height:\s*32px/s);
+    expect(css).toMatch(/\.sc-events-living-underlay[^{]*\{[^}]*right:\s*-2px/s);
+    expect(css).toMatch(/\.sc-events-living-underlay[^{]*\{[^}]*bottom:\s*-2px/s);
     expect(css).toContain("mask-image: radial-gradient");
 
     const wrapperOpacities = [...css.matchAll(/\.sc-events-living-underlay[^{]*\{[^}]*?opacity:\s*([0-9.]+)/gs)].map(
@@ -225,5 +230,27 @@ describe("EventsLivingGlyph — living omen and scroll glyphs under EventCard an
     const themeCss = readTextFile("../theme.css");
     expect(themeCss).not.toContain("sc-events-living-underlay");
     expect(themeCss).not.toContain("sc-events-status-glyph");
+    expect(themeCss).not.toContain("sc-event-living-underlay");
+    expect(themeCss).not.toContain("sc-omen-living-underlay");
+    expect(themeCss).not.toContain("sc-event-living-glyph");
+    expect(themeCss).not.toContain("sc-omen-living-glyph");
+    expect(themeCss).not.toContain("sc-event-living-card");
+  });
+
+  it("exports EventLivingCard, EventOmenLivingUnderlay, EventLivingGlyph, and EventLivingUnderlay aliases", () => {
+    expect(EventLivingCard).toBe(EventCard);
+    expect(EventOmenLivingUnderlay).toBe(EventOmenUnderlay);
+    expect(EventLivingGlyph).toBe(EventOmenLivingGlyph);
+    expect(EventLivingUnderlay).toBe(EventOmenUnderlay);
+
+    const cardHtml = renderToStaticMarkup(
+      <EventLivingCard event={{ tick: 100, id: "timber", text: "Timber — +10 wood" }} latest />,
+    );
+    expect(cardHtml).toContain("sc-event-living-card");
+    expect(cardHtml).toContain("is-living");
+    expect(cardHtml).toContain("sc-event-living-underlay");
+    expect(cardHtml).toContain("sc-omen-living-underlay");
+    expect(cardHtml).toContain("sc-event-living-glyph");
+    expect(cardHtml).toContain("sc-omen-living-glyph");
   });
 });

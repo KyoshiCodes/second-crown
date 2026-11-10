@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-10 — Living omen glyphs on event cards (bakeoff/gemini-event-living)
+
+- **Living omen emblems:** Under the Name, Omen, and Duration rows on each event card in the events chronicle, a subtle living emblem now portrays the event's portent and resolution state:
+  - **Comet:** Streaking cosmic tail and drifting stardust motes with a pulsing star nucleus for signs in the sky and merchant tributes.
+  - **Raven:** Prophetic midnight halo and perched watcher with a pulsing seer eye for levy summons and store spoilage portents.
+  - **Harvest:** Radiant golden sun-halo and swaying wheat sheaf with pulsing tie-knot motes for bountiful harvests and timber windfalls.
+- **Clean reading & choices:** Soft corner watermarks stay tucked away in the bottom-right pocket of each event card, keeping event text, tick timestamps, duration meters, and Accept/Refuse choice buttons completely clear and responsive. No game numbers changed.
+
 ## 2026-11-10 — Event cards are easier to read (wave/event-living)
 
 - Each event card now shows its omen (comet, raven or harvest) in a small round coloured badge next to short lines: the **name** (with its omen and whether it is the latest, waiting on you, a loss, or settled), **Omen** (what the event did, like "+10 gold") and **Duration** (waiting for your choice, or resolved, and when it fired).

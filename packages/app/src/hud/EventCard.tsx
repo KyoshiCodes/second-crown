@@ -34,7 +34,7 @@ export function EventCard(props: {
   // EventLivingRows: omen pip in a tinted chip beside stacked Name / Omen / Duration rows,
   // all read from eventLedgerRows(); living omen glyph rests directly underneath, choices below.
   return (
-    <div className={`sc-event-card is-${event.id}${latest ? " is-latest" : ""}`} data-event={event.id}>
+    <div className={`sc-event-card is-${event.id}${latest ? " is-latest" : ""} is-living sc-event-living-card`} data-event={event.id}>
       <EventOmenUnderlay omen={omen} eventId={event.id} latest={latest} choiceCount={choiceCount} />
       <EventLivingRows
         eventId={event.id}
@@ -62,3 +62,5 @@ export function EventCard(props: {
     </div>
   );
 }
+
+export const EventLivingCard = EventCard;

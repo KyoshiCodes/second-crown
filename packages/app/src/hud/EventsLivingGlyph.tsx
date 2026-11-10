@@ -353,7 +353,7 @@ export function EventOmenUnderlay(props: {
   const { omen, state } = resolveOmenLiving(props);
   return (
     <span
-      className={`sc-events-living-underlay kind-omen omen-${omen} state-${state}`}
+      className={`sc-events-living-underlay sc-event-living-underlay sc-omen-living-underlay kind-omen omen-${omen} state-${state}`}
       aria-hidden="true"
       data-omen-watermark={omen}
     >
@@ -376,15 +376,15 @@ export function EventOmenLivingGlyph(props: {
   const { omen, state, flair } = resolveOmenLiving(props);
   return (
     <span
-      className={`sc-events-status-glyph kind-omen omen-${omen} state-${state}`}
+      className={`sc-events-status-glyph sc-event-living-glyph sc-omen-living-glyph kind-omen omen-${omen} state-${state}`}
       aria-hidden="true"
       data-omen-glyph={omen}
       data-omen-state={state}
     >
-      <svg viewBox="0 0 24 24" className="sc-events-glyph-icon" focusable="false">
+      <svg viewBox="0 0 24 24" className="sc-events-glyph-icon sc-event-glyph-icon" focusable="false">
         <OmenEmblemSvg omen={omen} />
       </svg>
-      <span className="sc-events-glyph-flair">{flair}</span>
+      <span className="sc-events-glyph-flair sc-event-glyph-flair">{flair}</span>
     </span>
   );
 }
@@ -427,3 +427,7 @@ export function QuestScrollLivingGlyph(props: { questId: string; status: QuestSt
     </span>
   );
 }
+
+export const EventOmenLivingUnderlay = EventOmenUnderlay;
+export const EventLivingGlyph = EventOmenLivingGlyph;
+export const EventLivingUnderlay = EventOmenUnderlay;
