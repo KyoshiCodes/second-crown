@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-10 — Event cards are easier to read (wave/event-living)
+
+- Each event card now shows its omen (comet, raven or harvest) in a small round coloured badge next to short lines: the **name** (with its omen and whether it is the latest, waiting on you, a loss, or settled), **Omen** (what the event did, like "+10 gold") and **Duration** (waiting for your choice, or resolved, and when it fired).
+- Event choice buttons work exactly as before. No game numbers changed.
+
 ## 2026-11-09 — Living crest glyphs on realm cards (bakeoff/gemini-diplo-living)
 
 - **Living realm emblems:** Under the Name, Stance, Pact, and Power rows on each realm card on the War tab and World tab, a subtle living emblem now portrays the realm's heraldic crest and diplomatic stance:

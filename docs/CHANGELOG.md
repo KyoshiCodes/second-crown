@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-10 — Richer living Event cards (wave/event-living)
+
+- **Event cards (`EventPanel` → `EventCard`, latest and older):** the omen pip now sits in a round omen-tinted chip beside a stacked **Name / Omen / Duration** column (`EventLivingRows`). Name carries an omen tag (comet / raven / harvest · latest / awaiting / blighted / settled); Omen shows the event's effect text (e.g. "+10 gold", "lost 4 food"); Duration shows "Awaiting choice · N" or "Resolved" with the fired tick and a meter.
+- **Layout:** uppercase row labels (hidden under 520px), tone rule left of each row, dashed rule above Duration; chip pulses on the latest or an awaiting event, an awaiting Duration rule breathes and the latest Omen row glows (off under reduced motion). New `hud/event-living-rows.css`, scoped to `.sc-event-living-head` / `.sc-event-living-row*`.
+- **Controls:** event choice buttons, living omen glyph strip and watermark unchanged. Quest cards untouched.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`. No new game math.
+- **Tests:** new `hud/EventLivingRows.test.tsx`; `EventsLedger.test.tsx` and `EventsLivingGlyph.test.tsx` now anchor event-card order checks on the living head.
+
 ## 2026-11-09 — Living crest glyphs under realm cards (bakeoff/gemini-diplo-living)
 
 - **Living realm crest glyph strips (`RealmLivingGlyph` / `RealmCrestLivingGlyph`):** Added left-aligned 14×14 living SVG realm emblems directly beneath the stacked Name, Stance, Pact, and Power rows on realm cards (`RealmCard.tsx`), with subtle glow (`sc-diplo-glow-layer`), pulse (`sc-diplo-pulse-layer`), and drift (`sc-diplo-drift-layer`) motion across At War (crimson alert pulse), Truce (azure peace drift), Friendly (emerald ally drift), Hostile (crimson enmity pulse), and Wary (amber guarded drift) states across Player (solar crown), Rival (crossed broadswords & keep), Frostpeak (bearded waraxes), Silk Coast (gilded caravel), Veiled Realm (eye of providence), Tidehold (abyssal trident), and Embercrag (fire-phoenix).

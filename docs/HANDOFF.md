@@ -32,6 +32,15 @@ Merged through PR **#297** (hold status living pip, #297; hold status card, #297
 - **Invariants respected:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Preserves strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, capped low opacity for full readability, and full `@media (prefers-reduced-motion: reduce)` accessibility support.
 - **Branch:** `bakeoff/gemini-diplo-living` (from `origin/main`, layered on `origin/wave/diplo-living` `b101fc4`). Pushed, no PR.
 
+## Richer living Event cards (branch wave/event-living, not merged)
+
+- **What it is:** Each event card (latest and older, in the events panel) now has its omen pip in a round omen-tinted chip beside a living status column: **Name** (with an omen tag: comet / raven / harvest · latest / awaiting / blighted / settled), **Omen** (the event's effect text), **Duration** ("Awaiting choice · N" or "Resolved", fired tick, meter).
+- **Reads only:** the rows `eventLedgerRows()` already built, plus `resolveOmenVariant()` and `resolveOmenLiving()`. No new game math.
+- **Controls kept:** event choice buttons unchanged; living omen glyph strip and watermark unchanged. Quest cards still use `EventsLedger`.
+- **Where:** new `packages/app/src/hud/EventLivingRows.tsx` + `hud/event-living-rows.css`; wiring in `hud/EventCard.tsx`. Tests in new `hud/EventLivingRows.test.tsx`.
+- **Invariants respected:** App-only. No changes to `packages/sim`, `server/` or `theme.css`.
+- **Branch:** `wave/event-living` from `origin/main` (`f66474b`). Pushed, no PR.
+
 ## Richer living Diplomacy realm cards (branch wave/diplo-living, not merged)
 
 - **What it is:** Each realm card (War tab Diplomacy grid and World tab Known Crowns) now has its crest in a round stance-tinted chip beside a living status column: **Name** (with a stance tag: at war / truce / friendly / wary / hostile), **Stance** (stance + truce seconds, opinion), **Pact** (the pact this realm is sworn to, or "No pact"; leads it / N sworn / with you), and the existing **Power** row kept underneath.

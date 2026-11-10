@@ -60,7 +60,7 @@ describe("EventsLedger", () => {
 });
 
 describe("EventCard with ledger", () => {
-  it("stacks name, progress, reward and keeps choice buttons", () => {
+  it("stacks name, omen, duration and keeps choice buttons", () => {
     const html = renderToStaticMarkup(
       <EventCard
         event={{ tick: 500, id: "tribute", text: "A merchant pays tribute — +10 gold" }}
@@ -68,7 +68,7 @@ describe("EventCard with ledger", () => {
         choices={[{ id: "a", label: "Accept", onPick: () => {} }, { id: "b", label: "Refuse", disabled: true, onPick: () => {} }]}
       />,
     );
-    expect(inOrder(html, ["is-name", "is-progress", "is-reward"])).toBe(true);
+    expect(inOrder(html, ["is-name", "is-omen", "is-duration"])).toBe(true);
     expect(html).toContain("A merchant pays tribute");
     expect(html).toContain("+10 gold");
     expect(html).toContain("Accept");

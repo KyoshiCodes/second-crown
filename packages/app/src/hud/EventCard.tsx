@@ -2,8 +2,9 @@ import React from "react";
 import type { WorldEvent } from "@second-crown/sim";
 import { formatLetterSuffix } from "@second-crown/sim";
 import { OmenPip, resolveOmenVariant } from "./OmenPip";
-import { EventsLedger, eventLedgerRows } from "./EventsLedger";
-import { EventOmenLivingGlyph, EventOmenUnderlay } from "./EventsLivingGlyph";
+import { eventLedgerRows } from "./EventsLedger";
+import { EventOmenLivingGlyph, EventOmenUnderlay, resolveOmenLiving } from "./EventsLivingGlyph";
+import { EventLivingRows } from "./EventLivingRows";
 import "./event-card.css";
 
 export type EventChoice = {
@@ -28,13 +29,17 @@ export function EventCard(props: {
   const { title, body } = splitEventText(event.text);
   const omen = resolveOmenVariant(event.id, event.text);
   const choiceCount = choices?.length ?? 0;
+  const { state } = resolveOmenLiving({ omen, eventId: event.id, latest, choiceCount });
 
-  // EventsLedger stacks the former sc-event-head (sc-event-title-group, sc-event-title, sc-event-tick)
-  // and effect rows; living omen glyphs rest directly underneath.
+  // EventLivingRows: omen pip in a tinted chip beside stacked Name / Omen / Duration rows,
+  // all read from eventLedgerRows(); living omen glyph rests directly underneath, choices below.
   return (
     <div className={`sc-event-card is-${event.id}${latest ? " is-latest" : ""}`} data-event={event.id}>
       <EventOmenUnderlay omen={omen} eventId={event.id} latest={latest} choiceCount={choiceCount} />
-      <EventsLedger
+      <EventLivingRows
+        eventId={event.id}
+        omen={omen}
+        state={state}
         rows={eventLedgerRows({
           id: event.id,
           title,

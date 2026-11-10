@@ -123,7 +123,7 @@ describe("EventsLivingGlyph — living omen and scroll glyphs under EventCard an
     expect((html.match(/aria-hidden="true"/g) ?? []).length).toBe(4);
   });
 
-  it("mounts living omen glyph under EventsLedger on EventCard while preserving choice buttons", () => {
+  it("mounts living omen glyph under EventLivingRows on EventCard while preserving choice buttons", () => {
     const html = renderToStaticMarkup(
       <EventCard
         event={{ tick: 500, id: "tribute", text: "A merchant pays tribute — +10 gold" }}
@@ -135,7 +135,7 @@ describe("EventsLivingGlyph — living omen and scroll glyphs under EventCard an
       />,
     );
 
-    const ledgerIdx = html.indexOf("sc-events-ledger");
+    const ledgerIdx = html.indexOf("sc-event-living-head");
     const glyphIdx = html.indexOf("sc-events-status-glyph kind-omen omen-comet state-pending");
     const choicesIdx = html.indexOf("sc-event-choices");
     expect(ledgerIdx).toBeGreaterThan(0);
