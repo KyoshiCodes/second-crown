@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-10 — Playtest notes area in the Balance notes panel (wave/balance-notes)
+
+- **Panel (`BalanceNotes.tsx`):** the Kingdom tab **Balance notes** card keeps its culture table (edge, unit, base cost, living crest) and gains a read-only **Playtest notes** box under the footnote. It renders the static `PLAYTEST_NOTES` list; while that list is empty it shows a placeholder line. No inputs, no saved state.
+- **CSS:** `.sc-balance-playtest*` rules added to the panel's own `hud/balance-notes.css`.
+- **Invariants:** App-only. No changes to `packages/sim`, `server/` or `theme.css`. No new game math. All existing controls kept.
+- **Tests:** `BalanceNotes.test.tsx` +4 (five edge/unit pairs, placeholder, logged lines, CSS). Sim 323, app 833 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-10 — Living scroll glyphs under quest cards (bakeoff/gemini-quest-living)
 
 - **Living scroll glyph strips (`QuestScrollLivingGlyph` / `QuestLivingGlyph`):** Added left-aligned 14×14 living SVG scroll mandate emblems directly beneath the stacked Name, Progress, and Reward rows on quest cards (`QuestCard.tsx`), with subtle glow (`sc-events-glow-layer`), pulse (`sc-events-pulse-layer`), and drift (`sc-events-drift-layer`) motion across Open (unfurled mandate/poised quill), Ready (illuminated royal seal lit/crown star), and Claimed (bound chronicle scroll/stamped seal) states across Sanctum (cathedral cross), Scout (vision compass), Valor (crossed saltire blades), Caravan (trade wheel), and Royal (signet disc) motifs.

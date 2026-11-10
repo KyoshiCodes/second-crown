@@ -61,3 +61,42 @@ describe("BalanceNotes", () => {
     expect(css).toContain("@media (prefers-reduced-motion: reduce)");
   });
 });
+
+describe("BalanceNotes playtest notes", () => {
+  it("shows the five culture edges, each with its own unit", () => {
+    const html = renderToStaticMarkup(<BalanceNotes playerCulture="mist" />);
+    const pairs: Array<[string, string]> = [
+      ["Farm +", "Ranger"],
+      ["Quarry +", "Banner"],
+      ["Lumber camp +", "Outrider"],
+      ["Cottage +", "Warden"],
+      ["Keep +", "Lancer"],
+    ];
+    for (const [edge, unit] of pairs) {
+      expect(html).toContain(edge);
+      expect(html).toContain(unit);
+    }
+  });
+
+  it("shows a read-only placeholder when no feedback is logged", () => {
+    const html = renderToStaticMarkup(<BalanceNotes playerCulture="mist" notes={[]} />);
+    expect(html).toContain("Playtest notes");
+    expect(html).toContain("No playtest feedback logged yet");
+    expect(html).not.toContain("sc-balance-playtest-list");
+    expect(html).not.toMatch(/<(textarea|input|button)/);
+  });
+
+  it("lists logged feedback lines in place of the placeholder", () => {
+    const html = renderToStaticMarkup(
+      <BalanceNotes playerCulture="mist" notes={["Glen: quarry edge feels weak early"]} />,
+    );
+    expect(html).toContain("<li>Glen: quarry edge feels weak early</li>");
+    expect(html).not.toContain("No playtest feedback logged yet");
+  });
+
+  it("keeps the note area styles in balance-notes.css", () => {
+    const css = readCssFile("./hud/balance-notes.css");
+    expect(css).toContain(".sc-balance-playtest");
+    expect(css).toContain(".sc-balance-playtest-empty");
+  });
+});

@@ -13,13 +13,22 @@ export function unitCostText(unitId: string): string | null {
   return parts.length ? parts.join(" · ") : null;
 }
 
+/**
+ * Playtest feedback shown under the table. Static text: add one short line per finding
+ * (e.g. "Glen: quarry edge feels weak before the first market"). Empty shows the placeholder.
+ */
+export const PLAYTEST_NOTES: readonly string[] = [];
+
 export interface BalanceNotesProps {
   state?: GameState;
   playerCulture?: string;
+  /** Override for tests; defaults to PLAYTEST_NOTES. */
+  notes?: readonly string[];
 }
 
 /** Read-only balance notes: each culture's one difference, living emblem, and unit's base cost. */
 export function BalanceNotes(props: BalanceNotesProps = {}) {
+  const notes = props.notes ?? PLAYTEST_NOTES;
   const activeCulture = props.playerCulture ?? (props.state ? playerCultureId(props.state) : rememberedCulture());
 
   return (
@@ -66,6 +75,21 @@ export function BalanceNotes(props: BalanceNotesProps = {}) {
       <p className="sc-balance-foot">
         Base cost per unit, before barracks, research, doctrine, decree and stable or range discounts. Read-only.
       </p>
+      <div className="sc-balance-playtest" aria-label="Playtest notes">
+        <div className="sc-balance-playtest-title">Playtest notes</div>
+        {notes.length ? (
+          <ul className="sc-balance-playtest-list">
+            {notes.map((n, i) => (
+              <li key={i}>{n}</li>
+            ))}
+          </ul>
+        ) : (
+          <p className="sc-balance-playtest-empty">
+            No playtest feedback logged yet. Notes on the five culture edges will be written here after the next
+            session.
+          </p>
+        )}
+      </div>
     </details>
   );
 }

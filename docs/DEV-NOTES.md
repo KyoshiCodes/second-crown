@@ -1,3 +1,10 @@
+## 2026-11-10 — app / playtest notes area in Balance notes (wave/balance-notes)
+
+- **Component:** `packages/app/src/BalanceNotes.tsx` exports `PLAYTEST_NOTES: readonly string[]` (empty) and accepts an optional `notes` prop (test override, defaults to `PLAYTEST_NOTES`). Renders `.sc-balance-playtest` after `.sc-balance-foot`: a `<ul>` of lines, or the placeholder `<p className="sc-balance-playtest-empty">` when empty.
+- **Adding feedback:** append one short string per finding to `PLAYTEST_NOTES` and ship. Static text on purpose: no textarea, no save field, no server call. Long-form notes still belong in `USER-NOTES.md`.
+- **CSS:** `.sc-balance-playtest`, `-title`, `-empty`, `-list` in `hud/balance-notes.css`. `theme.css`, `packages/sim` and `server/` untouched. Table, crests and `KingdomTab` mount unchanged.
+- **Tests:** `BalanceNotes.test.tsx` now 7 tests. Full suite green (323 sim, 833 app).
+
 ## 2026-11-10 — app / living scroll glyphs under quest cards (bakeoff/gemini-quest-living)
 
 - **Components:** `packages/app/src/hud/EventsLivingGlyph.tsx` exports `QuestScrollLivingGlyph`, `QuestLivingGlyph`, `QuestScrollUnderlay`, `QuestScrollLivingUnderlay`, `QuestLivingUnderlay`, `getQuestSealMotif`, `resolveScrollLiving`, and type `ScrollLivingDescriptor`. `QuestCard.tsx` exports `QuestLivingCard` alias and marks each card with `is-living sc-quest-living-card`.

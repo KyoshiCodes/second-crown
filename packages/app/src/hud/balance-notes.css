@@ -142,3 +142,36 @@
   font-size: 11px;
   opacity: 0.6;
 }
+
+/* Playtest notes: static read-only text under the table. */
+.sc-balance-playtest {
+  margin-top: 8px;
+  padding: 6px 8px;
+  border: 1px dashed rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+
+.sc-balance-playtest-title {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.sc-balance-playtest-empty {
+  margin: 4px 0 0;
+  font-size: 11px;
+  font-style: italic;
+  opacity: 0.6;
+}
+
+.sc-balance-playtest-list {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 12px;
+}
+
+.sc-balance-playtest-list li {
+  margin: 2px 0;
+  overflow-wrap: anywhere;
+}

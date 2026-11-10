@@ -8,7 +8,7 @@ Read `AGENTS.md` then this file.
 
 `main` is at `13135c3` (living scroll glyphs under quest cards). The living-layer wave is **fully merged**: every `wave/*-living` and `bakeoff/gemini-*-living` branch is on `main`. There is no waiting list. Per-slice detail lives in `CHANGELOG.md` (newest first) and `DEV-NOTES.md`; older versions of this file are in git history.
 
-Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app build clean.
+Tests on `main` at the last slice: sim **323**, app **833**, server **158**, app build clean.
 
 ## Live now
 
@@ -23,7 +23,7 @@ Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app
 - **Cultures.** Ten cultures in the picker; five carry a unit and an edge (Mist / Ranger, Glen / Banner, Salt / Outrider, Fen / Warden, Peak / Lancer). First Second Dawn gives +1 militia, +20 food, +10 wood, once.
 - **Shared hold (opt-in).** Cloud panel **Join hold** card: hold key, train militia, build farm / cottage / lumber camp, stamps, intent log, leave. The server runs `packages/sim` only for a joined hold (ADR-011). Holds survive a restart. No owner-marked shared realm exists; solo play never touches the server sim.
 - **Board presentation.** Isometric 12×8 diamond board with terrain tiles, roads and traffic, fog edge, keeps, march paths and meeples, unit labels, node piles, outpost / camp marks, selection rim, hover tooltip, day/night with sun and moon, weather, static tile cache. Tabs lazy-load in split chunks.
-- **Feedback.** Action confirmation flash and sound, lo-fi radio, balance notes panel, pace lines (research, market, wall, vision, upkeep, training, academy), hint lines (research, market, decree, age, culture).
+- **Feedback.** Action confirmation flash and sound, lo-fi radio, balance notes panel (culture table plus a read-only playtest notes box, filled from `PLAYTEST_NOTES` in `BalanceNotes.tsx`), pace lines (research, market, wall, vision, upkeep, training, academy), hint lines (research, market, decree, age, culture).
 
 ### Living HUD layers (all on `main`)
 

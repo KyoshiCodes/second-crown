@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-10 — Playtest notes box in Balance notes (wave/balance-notes)
+
+- The Kingdom tab's **Balance notes** box (tap to open) still lists each culture with its one difference, its own unit and that unit's cost. Under the table there is now a **Playtest notes** box. It is empty for now and says so; feedback from playtest sessions will be written there.
+- It is read-only: nothing to click or type. No game numbers changed.
+
 ## 2026-11-10 — Living scroll glyphs on quest cards (bakeoff/gemini-quest-living)
 
 - **Living scroll emblems:** Under the Name, Progress, and Reward rows on each quest card in the Quests panel, a subtle living emblem now portrays the quest's royal mandate and seal status:
