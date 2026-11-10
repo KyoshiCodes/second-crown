@@ -22,3 +22,9 @@ Build the hold, staff works, trade at Market, study on Crown, raise companies, m
 ## What is not done
 
 True multiplayer battles, player bazaar/auction, guild rallies, deep research tree, hero gear loop, mobile client. See `docs/ROADMAP.md`.
+
+## 2026-11 note
+
+The living HUD layers are complete: every main card (resources, buildings, people, vault, flags, market, units, war, diplomacy, research, decrees, events, quests, ledger, atlas, nodes, joined hold) has living status rows and a living glyph, all on `main`. Tests at that point: sim 323, app 828, server 158.
+
+Next focus: **balance** (playtest notes first, then numbers) and **board polish** (one readability pass on the diamond board). See `docs/ROADMAP.md`.
