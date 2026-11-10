@@ -1,3 +1,35 @@
+## 2026-11-10 — sim + app / research tree, six tier II lectern studies (wave/research-tree, not merged)
+
+- **Spec.** Tier II = a `RESEARCH` entry with `requires: <tier I id>`. Tier I entries have no `requires`. Ticks below are table values; `researchDuration` still applies the Academy x0.8.
+
+| Study | Builds on | Needs | Cost | Time | Effect |
+|---|---|---|---|---|---|
+| Crop rotation (`crop_rotation`) | Husbandry | granary or academy, Keep II | 60 food, 30 wood, 20 gold | 28s | another +10% food from farms and granaries (22% with Husbandry) |
+| Timber framing (`timber_framing`) | Forestry | sawmill or academy, Keep II | 60 wood, 30 food, 20 gold | 28s | another +10% wood from lumber camps and sawmills (22% with Forestry) |
+| Fortification (`fortification`) | Masonry | mason or academy, Keep III | 70 stone, 40 wood, 30 gold | 32s | another +10% stone; finished walls hold another +24 HP (40 with Masonry) |
+| Supply trains (`supply_trains`) | Logistics | market or academy, Keep III | 60 gold, 50 wood, 40 food | 34s | +100 warehouse space; one more column, still limited by the Keep |
+| Cartography (`cartography`) | Surveying | watchtower or academy, Keep III | 50 gold, 30 wood | 30s | hold vision +1 tile (2 with Surveying); scouting costs 4 gold less |
+| Quartermastery (`quartermastery`) | Drill | barracks or academy, Keep II | 50 food, 45 gold, 30 wood | 30s | training costs 8% less |
+
+- **Table (`packages/sim/src/systems/research.ts`).** Six entries appended after `siege`, so `Object.keys(RESEARCH)` keeps tier I first (the hint, pace and academy lines walk the table in order). IDs are snake_case and permanent (invariant 8). `unlocks` is `[]` on all six, so `ResearchPace.nextUnlock` ignores them.
+- **Helpers (same file).** `researchRequires(id): ResearchId | null`, `researchTier(id): 1 | 2`, `researchPrereqReady(state, id)` are exported from `@second-crown/sim` along with the `ResearchId` type. Internal to the sim: `cartographyScoutDiscount` (4), `supplyTrainsColumnBonus` (1), `quartermasteryTrainMult` (0.92).
+- **Gate.** `tryStartResearch` returns false when `researchPrereqReady` is false, before any cost is taken. Cancel and refund are unchanged and work for tier II.
+- **Effect wiring.**
+  - `researchYield`: food / wood / stone add 0.10 on top of the tier I 0.12 (additive, 0.22 total). Gold is unchanged.
+  - `masonryWallBonus`: 16 + 24 with Fortification (read by `fortificationPower` and `defenseBonus` in `combat.ts`).
+  - `surveyingVisionBonus`: 1 + 1 with Cartography (read by `fog.visionRange`).
+  - `fog.scoutCost`: `max(12, 22 - 2 * watchtowers) - cartographyScoutDiscount`, so the floor drops from 12 to 8.
+  - `labor.maxMarches`: `+ supplyTrainsColumnBonus`, still clamped by `currentKeepGate(state).marchCap`.
+  - `storage.storageCap`: `+ supplyTrainsBonus` (100). `storage.ts` cannot import `research.ts` without a cycle, so it reads `flags.research_supply_trains` and also `research_supply_trains_until <= tick`. That makes the cap correct from the finish tick without anyone calling `researchDone` first.
+  - `train.trainCostMultiplier`: `m *= quartermasteryTrainMult` before the existing 0.45 floor.
+- **Known quirk left alone.** The older `logisticsBonus` in `storage.ts` reads only `flags.research_logistics`, which is set lazily by `researchDone` / `researchTicksLeft`. The +50 therefore appears on the first read after the finish tick rather than exactly on it. Not changed in this slice.
+- **UI (`packages/app/src/ResearchBar.tsx`).** Rows are grouped with `researchTier` into `<section class="sc-research-tree-tier" data-research-tier="1|2">` with a heading and known count. `Row` reads `researchRequires` / `researchPrereqReady`, adds `data-tier`, the `sc-research-tree-link` "Builds on" line, and disables Study when the prerequisite is missing. `ResearchCard` / `ResearchLivingCard` aliases unchanged.
+- **Ledger (`hud/StudyLedger.tsx`).** `studyStatus` takes optional `prereqOk` (false → `locked`); `studyLedgerRows` takes optional `prereq` / `prereqOk` and puts "needs <study>" first in the name row's sub line. Both default to the old behaviour.
+- **Other app files.** `ResearchHint.nextResearch` adds the prerequisite to its ready check and to the "needs" text. `StudyLine` has boost text for the six. `hud/AcademyLivingGlyph.tsx` adds folio labels, discipline cases and `TIER_TWO_EMBLEM` (a tier II card draws its tier I emblem, so there are still 10 distinct emblems for 16 topics).
+- **CSS.** New `packages/app/src/research-tree.css`, every selector under `.sc-research-tree-*` (asserted by test). `theme.css` untouched.
+- **Balance.** All six sets of numbers are first-pass and untested in play. Costs stay under the base warehouse caps (gold 100, wood / stone 150, food 200) so each is affordable without storage buildings.
+- **Tests.** `systems/research.test.ts` "tier II studies" (9 tests): prerequisite and Keep gates, refund, stacking yields, wall HP, vision and scout fee, storage and columns, finish-tick storage, training multiplier. `ResearchTree.test.tsx` (9 tests): tier sections and counts, sealed vs open card, Cancel kept, hint order, ledger rows, emblem groups, CSS scope. Full suite: sim 332, app 849, server 158; app build clean.
+
 ## 2026-11-10 — app / richer lighting and atmosphere pass on the isometric board (bakeoff/gemini-board-light)
 
 - **Components & helpers:** `packages/app/src/BoardLiving.tsx` exports `BoardLight` (alias to `BoardLiving`), `resolveBoardLightPhase`, `resolveBoardLight`, and types `BoardLightPhase`, `BoardLightDescriptor`.

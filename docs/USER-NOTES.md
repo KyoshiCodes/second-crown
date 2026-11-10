@@ -2,6 +2,26 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-10 — Six deeper studies on the lectern (wave/research-tree, not merged yet)
+
+The lectern in the Keep now has a second row of studies. Each one builds on a study you already know, so the lectern is split into **I First studies** (the ten you had) and **II Deeper studies** (six new ones).
+
+- **Crop rotation** (after Husbandry, Keep II): another +10% food. Costs 60 food, 30 wood, 20 gold.
+- **Timber framing** (after Forestry, Keep II): another +10% wood. Costs 60 wood, 30 food, 20 gold.
+- **Fortification** (after Masonry, Keep III): another +10% stone, and walls hold another +24 HP. Costs 70 stone, 40 wood, 30 gold.
+- **Supply trains** (after Logistics, Keep III): +100 warehouse space and one more column on the board, up to what your Keep allows. Costs 60 gold, 50 wood, 40 food.
+- **Cartography** (after Surveying, Keep III): you see one tile farther and scouting costs 4 gold less. Costs 50 gold, 30 wood.
+- **Quartermastery** (after Drill, Keep II): training troops costs 8% less. Costs 50 food, 45 gold, 30 wood.
+
+How it works:
+
+- A deeper study card says "Builds on Husbandry" (or whichever study it needs). Until you know that study the card is sealed and its Study button is greyed out.
+- The Study and Cancel buttons work exactly as before. Still one study at a time, and cancelling still refunds the unused part.
+- An Academy still counts as the hall for every study and still makes new studies 20% shorter.
+- Your existing studies and saves are untouched.
+
+These numbers are a first pass and have not been playtested. If a study feels too cheap, too dear or pointless, write it down here.
+
 ## 2026-11-10 — Richer lighting and atmosphere on the board (bakeoff/gemini-board-light)
 
 - **Living atmosphere & time-of-day:** The isometric diamond board now breathes with a richer, softer lighting pass that tracks the passing hours:

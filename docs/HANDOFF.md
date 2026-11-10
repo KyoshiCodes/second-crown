@@ -8,6 +8,7 @@ Read `AGENTS.md` then this file.
 
 `main` is at `13135c3` (living scroll glyphs under quest cards). The living-layer wave is **fully merged**: every `wave/*-living` and `bakeoff/gemini-*-living` branch is on `main`. There is no waiting list for HUD glyphs.
 Also waiting: `bakeoff/gemini-board-light` (**not merged**, richer lighting and atmosphere pass on the isometric board, see below). Per-slice detail lives in `CHANGELOG.md` (newest first) and `DEV-NOTES.md`; older versions of this file are in git history.
+Also waiting: `wave/research-tree` (**not merged**, pushed, no PR). Six tier II lectern studies, sim + UI, see "Research tree" below. On that branch: sim **332**, app **849**, server **158**, app build clean.
 
 Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app build clean.
 
@@ -21,6 +22,7 @@ Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app
 - **Board war.** Marches, column clashes, camps, outposts and flags, garrisons, hold storm, sally, incoming raids.
 - **Map economy.** Gather nodes with stock, scouts and fog, seasons, weather (slows marches).
 - **Crown.** Lectern studies with Academy discount, market stalls, royal decrees, events and quests, diplomacy (realms, pacts, truce, gifts), Ledger of Crowns with save/load audit lines.
+- **Research tree (wave/research-tree, not merged).** Six tier II studies on the lectern, each needing one tier I study plus Keep II or III: Crop rotation (Husbandry, +10% food), Timber framing (Forestry, +10% wood), Fortification (Masonry, +10% stone and +24 wall HP), Supply trains (Logistics, +100 warehouse and +1 column up to the Keep limit), Cartography (Surveying, +1 vision and scouting 4 gold cheaper), Quartermastery (Drill, training 8% cheaper). Lectern shows **I First studies** / **II Deeper studies**; Study and Cancel unchanged. Sim change is small and pure (`systems/research.ts` plus one-line hooks in `storage`, `labor`, `fog`, `train`); no save schema change. Numbers are first-pass, not playtested.
 - **Cultures.** Ten cultures in the picker; five carry a unit and an edge (Mist / Ranger, Glen / Banner, Salt / Outrider, Fen / Warden, Peak / Lancer). First Second Dawn gives +1 militia, +20 food, +10 wood, once.
 - **Shared hold (opt-in).** Cloud panel **Join hold** card: hold key, train militia, build farm / cottage / lumber camp, stamps, intent log, leave. The server runs `packages/sim` only for a joined hold (ADR-011). Holds survive a restart. No owner-marked shared realm exists; solo play never touches the server sim.
 - **Board presentation.** Isometric 12×8 diamond board with terrain tiles, roads and traffic, fog edge, keeps, march paths and meeples, unit labels, node piles, outpost / camp marks, selection rim, hover tooltip, day/night with sun and moon, weather, static tile cache. Tabs lazy-load in split chunks.

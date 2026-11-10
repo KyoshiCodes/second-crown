@@ -90,7 +90,11 @@ export {
   unitUnlocked,
   researchKeepMin,
   researchKeepReady,
+  researchRequires,
+  researchTier,
+  researchPrereqReady,
 } from "./systems/research.js";
+export type { ResearchId } from "./systems/research.js";
 
 export { tryDeclareWar, tryResolveWar, tryWhitePeace, peaceTicksRemaining, warSummary } from "./actions/war.js";
 export type { DeclareWarPayload, WarSummary } from "./actions/war.js";

@@ -27,10 +27,17 @@ export interface StudyLedgerRow {
 }
 
 /** Card status from the values ResearchBar already computes. */
-export function studyStatus(input: { done: boolean; ticksLeft: number; hallOk: boolean; keepOk: boolean }): StudyStatus {
+export function studyStatus(input: {
+  done: boolean;
+  ticksLeft: number;
+  hallOk: boolean;
+  keepOk: boolean;
+  /** Tier II only: false while the tier I study it builds on is not known. Defaults to true. */
+  prereqOk?: boolean;
+}): StudyStatus {
   if (input.done) return "known";
   if (input.ticksLeft > 0) return "studying";
-  return input.hallOk && input.keepOk ? "open" : "locked";
+  return input.hallOk && input.keepOk && input.prereqOk !== false ? "open" : "locked";
 }
 
 /** Rows for one study. Seconds use the same rounding the lectern already shows. */
@@ -48,9 +55,13 @@ export function studyLedgerRows(input: {
   keepNeed: number;
   hallOk: boolean;
   keepOk: boolean;
+  /** Tier II only: display name of the tier I study it builds on (sim researchRequires). */
+  prereq?: string;
+  prereqOk?: boolean;
 }): StudyLedgerRow[] {
-  const { name, status, ticksLeft, ticksTotal = 0, seconds, effect, halls, keepNeed, hallOk, keepOk } = input;
+  const { name, status, ticksLeft, ticksTotal = 0, seconds, effect, halls, keepNeed, hallOk, keepOk, prereq, prereqOk } = input;
   const needs: string[] = [];
+  if (prereq && prereqOk === false) needs.push(`needs ${prereq}`);
   if (!hallOk) needs.push(`needs ${halls.join(" or ")}`);
   if (!keepOk && keepNeed > 0) needs.push(`needs Keep ${"I".repeat(keepNeed)}`);
 

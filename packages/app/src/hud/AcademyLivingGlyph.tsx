@@ -36,6 +36,12 @@ const TOPIC_FOLIO_LABEL: Record<string, string> = {
   screening: "Vanguard treatise",
   horse: "Equerry tome",
   siege: "Poliorcetics scroll",
+  crop_rotation: "Fallow-field almanac",
+  timber_framing: "Joiner's pattern book",
+  fortification: "Curtain-wall treatise",
+  supply_trains: "Wagon-master ledger",
+  cartography: "Realm atlas",
+  quartermastery: "Muster-roll codex",
 };
 
 /** Maps a research topic id to its scholarly discipline. */
@@ -43,15 +49,21 @@ export function getResearchDiscipline(topicId: string): ResearchDiscipline {
   switch (topicId) {
     case "husbandry":
     case "forestry":
+    case "crop_rotation":
+    case "timber_framing":
       return "agronomy";
     case "masonry":
+    case "fortification":
       return "masonry";
     case "logistics":
     case "surveying":
+    case "supply_trains":
+    case "cartography":
       return "cartography";
     case "fieldcraft":
     case "drill":
     case "screening":
+    case "quartermastery":
       return "tactics";
     case "horse":
       return "horsemanship";
@@ -130,7 +142,19 @@ export function resolveAcademyLecternLiving(input: {
   };
 }
 
-function TopicEmblemSvg({ topicId, discipline }: { topicId: string; discipline: ResearchDiscipline }) {
+/** A tier II study wears the emblem of the tier I study it builds on (art grouping only). */
+export const TIER_TWO_EMBLEM: Record<string, string> = {
+  crop_rotation: "husbandry",
+  timber_framing: "forestry",
+  fortification: "masonry",
+  supply_trains: "logistics",
+  cartography: "surveying",
+  quartermastery: "drill",
+};
+
+function TopicEmblemSvg(props: { topicId: string; discipline: ResearchDiscipline }) {
+  const { discipline } = props;
+  const topicId = TIER_TWO_EMBLEM[props.topicId] ?? props.topicId;
   if (discipline === "agronomy") {
     const isForestry = topicId === "forestry";
     return (

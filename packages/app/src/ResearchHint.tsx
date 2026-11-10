@@ -5,6 +5,8 @@ import {
   researchDone,
   researchKeepMin,
   researchKeepReady,
+  researchPrereqReady,
+  researchRequires,
   researchTicksLeft,
   type GameState,
 } from "@second-crown/sim";
@@ -31,12 +33,14 @@ export function researchCostText(id: ResearchId): string {
 
 /**
  * Next study to point at: the first one in table order that is not known and not underway,
- * preferring one whose hall and Keep gate are already met. Read-only; no new rules.
+ * preferring one whose hall, Keep gate, and tier I prerequisite are already met. Read-only; no new rules.
  */
 export function nextResearch(state: GameState): { id: ResearchId; ready: boolean } | null {
   const ids = Object.keys(RESEARCH) as ResearchId[];
   const open = ids.filter((id) => !researchDone(state, id) && researchTicksLeft(state, id) <= 0);
-  const ready = open.find((id) => hallReady(state, id) && researchKeepReady(state, id));
+  const ready = open.find(
+    (id) => hallReady(state, id) && researchKeepReady(state, id) && researchPrereqReady(state, id),
+  );
   if (ready) return { id: ready, ready: true };
   return open.length ? { id: open[0], ready: false } : null;
 }
@@ -199,6 +203,8 @@ export function ResearchHint(props: { state: GameState | undefined }) {
     const parts: string[] = [];
     if (!hallReady(state, next.id)) parts.push(halls(next.id).join(" or "));
     if (!researchKeepReady(state, next.id)) parts.push(`Keep ${researchKeepMin(next.id)}`);
+    const prereq = researchRequires(next.id);
+    if (prereq && !researchPrereqReady(state, next.id)) parts.push(RESEARCH[prereq].name);
     need = parts.length ? ` · needs ${parts.join(", ")}` : "";
   }
   return (

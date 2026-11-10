@@ -11,6 +11,12 @@ const YIELD: Partial<Record<keyof typeof RESEARCH, string>> = {
   forestry: "+12% wood",
   masonry: "+12% stone",
   logistics: "+8% gold, +50 store, +1 column",
+  crop_rotation: "+10% food",
+  timber_framing: "+10% wood",
+  fortification: "+10% stone, +24 wall HP",
+  supply_trains: "+100 store, +1 column",
+  cartography: "+1 vision, -4 gold scouting",
+  quartermastery: "-8% training cost",
 };
 
 export function StudyLine(props: { state: GameState | undefined }) {

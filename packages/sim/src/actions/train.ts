@@ -4,7 +4,7 @@ import { getUnitType } from "../content/units.js";
 import { countBuilding } from "../content/buildings.js";
 import { flagNum } from "../systems/wave.js";
 import { decreeActive } from "../systems/decree.js";
-import { unitUnlocked } from "../systems/research.js";
+import { quartermasteryTrainMult, unitUnlocked } from "../systems/research.js";
 import { enqueueTraining, listTraining, trainingQueueCap } from "../systems/training.js";
 
 export interface TrainPayload {
@@ -43,6 +43,7 @@ export function trainCostMultiplier(state: GameState, typeId?: string): number {
     if (countBuilding(state, "siege_workshop") > 0) m *= 0.85;
   }
   if (barracksOnKeepYard(state)) m *= 0.9;
+  m *= quartermasteryTrainMult(state);
   return Math.max(0.45, m);
 }
 

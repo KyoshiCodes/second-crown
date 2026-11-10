@@ -1,0 +1,110 @@
+/*
+ * Research tree: tier headings on the lectern and the "Builds on" line on tier II cards.
+ * Dedicated sheet for ResearchBar.tsx. theme.css is not touched.
+ */
+
+.sc-research-tree-tier {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+
+.sc-research-tree-tier + .sc-research-tree-tier {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(180, 140, 70, 0.4);
+}
+
+.sc-research-tree-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sc-research-tree-numeral {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid rgba(180, 140, 70, 0.7);
+  border-radius: 3px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.sc-research-tree-count {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.75;
+}
+
+.sc-research-tree-note {
+  margin: 0 0 8px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.sc-research-tree-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Tier II card: a left rule ties it back to the study it builds on. */
+.sc-research-tree-card {
+  border-left: 3px solid rgba(180, 140, 70, 0.55);
+}
+
+.sc-research-tree-card.is-locked {
+  border-left-color: rgba(120, 130, 145, 0.5);
+}
+
+.sc-research-tree-link {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.sc-research-tree-link.is-met {
+  opacity: 1;
+}
+
+.sc-research-tree-link-mark {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 8px;
+  border-left: 2px solid rgba(120, 130, 145, 0.8);
+  border-bottom: 2px solid rgba(120, 130, 145, 0.8);
+  border-bottom-left-radius: 3px;
+}
+
+.sc-research-tree-link.is-met .sc-research-tree-link-mark {
+  border-color: rgba(200, 150, 50, 0.95);
+}
+
+@media (max-width: 520px) {
+  .sc-research-tree-heading {
+    flex-wrap: wrap;
+  }
+
+  .sc-research-tree-count {
+    margin-left: 0;
+  }
+}

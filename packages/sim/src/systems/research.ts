@@ -105,9 +105,93 @@ export const RESEARCH = {
     unlocks: ["siege"],
     effect: "Unlocks siege engines. Needs Keep III.",
   },
+  // Tier II. Each one deepens a tier I study named in `requires`.
+  crop_rotation: {
+    id: "crop_rotation",
+    name: "Crop rotation",
+    ticks: 280,
+    cost: { food: "60", wood: "30", gold: "20" },
+    needsAny: ["granary", "academy"],
+    keepMin: 2,
+    requires: "husbandry",
+    unlocks: [] as const,
+    effect: "Farms and granaries yield another +10% food. Needs Husbandry and Keep II.",
+  },
+  timber_framing: {
+    id: "timber_framing",
+    name: "Timber framing",
+    ticks: 280,
+    cost: { wood: "60", food: "30", gold: "20" },
+    needsAny: ["sawmill", "academy"],
+    keepMin: 2,
+    requires: "forestry",
+    unlocks: [] as const,
+    effect: "Lumber camps and sawmills yield another +10% wood. Needs Forestry and Keep II.",
+  },
+  fortification: {
+    id: "fortification",
+    name: "Fortification",
+    ticks: 320,
+    cost: { stone: "70", wood: "40", gold: "30" },
+    needsAny: ["mason", "academy"],
+    keepMin: 3,
+    requires: "masonry",
+    unlocks: [] as const,
+    effect: "Quarries yield another +10% stone. Finished walls hold another +24 HP. Needs Masonry and Keep III.",
+  },
+  supply_trains: {
+    id: "supply_trains",
+    name: "Supply trains",
+    ticks: 340,
+    cost: { gold: "60", wood: "50", food: "40" },
+    needsAny: ["market", "academy"],
+    keepMin: 3,
+    requires: "logistics",
+    unlocks: [] as const,
+    effect: "One more column on the board (up to the Keep limit) and +100 warehouse space. Needs Logistics and Keep III.",
+  },
+  cartography: {
+    id: "cartography",
+    name: "Cartography",
+    ticks: 300,
+    cost: { gold: "50", wood: "30" },
+    needsAny: ["watchtower", "academy"],
+    keepMin: 3,
+    requires: "surveying",
+    unlocks: [] as const,
+    effect: "Hold vision reaches one more tile. Scouting costs 4 gold less. Needs Surveying and Keep III.",
+  },
+  quartermastery: {
+    id: "quartermastery",
+    name: "Quartermastery",
+    ticks: 300,
+    cost: { food: "50", gold: "45", wood: "30" },
+    needsAny: ["barracks", "academy"],
+    keepMin: 2,
+    requires: "drill",
+    unlocks: [] as const,
+    effect: "Training costs 8% less. Needs Drill and Keep II.",
+  },
 } as const;
 
 export type ResearchId = keyof typeof RESEARCH;
+
+/** The tier I study a tier II study builds on, or null for a tier I study. */
+export function researchRequires(id: string): ResearchId | null {
+  const def = RESEARCH[id as ResearchId] as { requires?: ResearchId } | undefined;
+  return def?.requires ?? null;
+}
+
+/** 1 for the first lectern set, 2 for a study that builds on one of them. */
+export function researchTier(id: string): 1 | 2 {
+  return researchRequires(id) ? 2 : 1;
+}
+
+/** True when the study has no prerequisite, or its prerequisite is known. */
+export function researchPrereqReady(state: GameState, id: string): boolean {
+  const need = researchRequires(id);
+  return need === null || researchDone(state, need);
+}
 
 function anyStudyOpen(state: GameState): boolean {
   for (const id of Object.keys(RESEARCH)) {
@@ -167,15 +251,21 @@ export function unitUnlocked(state: GameState, typeId: string): boolean {
 
 /** Extra per-tick yield fraction for one resource after the matching study. */
 export function researchYield(state: GameState, res: string): number {
-  if (res === "food" && researchDone(state, "husbandry")) return 0.12;
-  if (res === "wood" && researchDone(state, "forestry")) return 0.12;
-  if (res === "stone" && researchDone(state, "masonry")) return 0.12;
+  if (res === "food") {
+    return (researchDone(state, "husbandry") ? 0.12 : 0) + (researchDone(state, "crop_rotation") ? 0.1 : 0);
+  }
+  if (res === "wood") {
+    return (researchDone(state, "forestry") ? 0.12 : 0) + (researchDone(state, "timber_framing") ? 0.1 : 0);
+  }
+  if (res === "stone") {
+    return (researchDone(state, "masonry") ? 0.12 : 0) + (researchDone(state, "fortification") ? 0.1 : 0);
+  }
   if (res === "gold" && researchDone(state, "logistics")) return 0.08;
   return 0;
 }
 
 export function masonryWallBonus(state: GameState): number {
-  return researchDone(state, "masonry") ? 16 : 0;
+  return (researchDone(state, "masonry") ? 16 : 0) + (researchDone(state, "fortification") ? 24 : 0);
 }
 
 export function logisticsCapBonus(state: GameState): number {
@@ -183,7 +273,22 @@ export function logisticsCapBonus(state: GameState): number {
 }
 
 export function surveyingVisionBonus(state: GameState): number {
-  return researchDone(state, "surveying") ? 1 : 0;
+  return (researchDone(state, "surveying") ? 1 : 0) + (researchDone(state, "cartography") ? 1 : 0);
+}
+
+/** Gold taken off every scouting fee once Cartography is known. */
+export function cartographyScoutDiscount(state: GameState): number {
+  return researchDone(state, "cartography") ? 4 : 0;
+}
+
+/** Extra board columns from Supply trains (still clamped by the Keep's column limit). */
+export function supplyTrainsColumnBonus(state: GameState): number {
+  return researchDone(state, "supply_trains") ? 1 : 0;
+}
+
+/** Training cost multiplier from Quartermastery. */
+export function quartermasteryTrainMult(state: GameState): number {
+  return researchDone(state, "quartermastery") ? 0.92 : 1;
 }
 
 export function tryStartResearch(state: GameState, id: ResearchId): boolean {
@@ -192,6 +297,7 @@ export function tryStartResearch(state: GameState, id: ResearchId): boolean {
   if (researchDone(state, id)) return false;
   if (anyStudyOpen(state)) return false;
   if (!researchKeepReady(state, id)) return false;
+  if (!researchPrereqReady(state, id)) return false;
   if (!def.needsAny.some((typeId) => countBuilding(state, typeId) >= 1)) return false;
   for (const [res, cost] of Object.entries(def.cost)) {
     if (D(state.resources[res] ?? "0").lt(cost)) return false;

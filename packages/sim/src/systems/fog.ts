@@ -4,7 +4,7 @@ import { countBuilding } from "../content/buildings.js";
 import { isHoldRim } from "../actions/build.js";
 import { getProvince, neighbors } from "./board.js";
 import { listOutposts } from "./outpost.js";
-import { surveyingVisionBonus } from "./research.js";
+import { cartographyScoutDiscount, surveyingVisionBonus } from "./research.js";
 import { keepVisionCultureBonus } from "./culture.js";
 import { keepLevel } from "../actions/upgrade.js";
 import { fogThickness, weatherFor } from "./weather.js";
@@ -92,5 +92,5 @@ export function tryScoutProvince(state: GameState, id: string): boolean {
 }
 
 export function scoutCost(state: GameState): number {
-  return Math.max(12, 22 - countBuilding(state, "watchtower") * 2);
+  return Math.max(12, 22 - countBuilding(state, "watchtower") * 2) - cartographyScoutDiscount(state);
 }

@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## 2026-11-10 — Research tree: six tier II lectern studies (wave/research-tree, not merged)
+
+- **New studies (sim + UI).** Six second-tier studies, each building on one first-tier study. A tier II study will not start until its tier I study is known, and each needs Keep II or III. Times are before the Academy's 20% discount.
+
+| Study | Builds on | Needs | Cost | Time | Effect |
+|---|---|---|---|---|---|
+| Crop rotation (`crop_rotation`) | Husbandry | granary or academy, Keep II | 60 food, 30 wood, 20 gold | 28s | another +10% food from farms and granaries (22% with Husbandry) |
+| Timber framing (`timber_framing`) | Forestry | sawmill or academy, Keep II | 60 wood, 30 food, 20 gold | 28s | another +10% wood from lumber camps and sawmills (22% with Forestry) |
+| Fortification (`fortification`) | Masonry | mason or academy, Keep III | 70 stone, 40 wood, 30 gold | 32s | another +10% stone; finished walls hold another +24 HP (40 with Masonry) |
+| Supply trains (`supply_trains`) | Logistics | market or academy, Keep III | 60 gold, 50 wood, 40 food | 34s | +100 warehouse space; one more column, still limited by the Keep |
+| Cartography (`cartography`) | Surveying | watchtower or academy, Keep III | 50 gold, 30 wood | 30s | hold vision +1 tile (2 with Surveying); scouting costs 4 gold less |
+| Quartermastery (`quartermastery`) | Drill | barracks or academy, Keep II | 50 food, 45 gold, 30 wood | 30s | training costs 8% less |
+
+- **Sim (`packages/sim`, pure, no I/O).** `RESEARCH` gains the six entries with a `requires` field. New helpers in `systems/research.ts`: `researchRequires`, `researchTier`, `researchPrereqReady` (exported from the package), plus `cartographyScoutDiscount`, `supplyTrainsColumnBonus`, `quartermasteryTrainMult`. `tryStartResearch` now also checks the prerequisite. Effects hook into the existing readers: `researchYield`, `masonryWallBonus`, `surveyingVisionBonus`, `storageCap`, `maxMarches`, `scoutCost`, `trainCostMultiplier`.
+- **Lectern UI (`ResearchBar`).** Cards are grouped under two headings, **I First studies** and **II Deeper studies**, each with an "N of M known" count. Every tier II card shows a "Builds on <study>" line and stays sealed with its Study button disabled until that study is known. Study and Cancel buttons are the same controls as before. New `research-tree.css`; `theme.css` untouched.
+- **Other readers.** `ResearchHint` no longer calls a tier II study ready before its tier I study; `StudyLine` lists the new boosts; tier II cards reuse the emblem of the study they build on.
+- **Balance note.** These are new numbers (economy, walls, vision, scouting fee, training cost). They are first-pass values and have not been playtested.
+- **Saves.** No schema change. Studies are stored as `flags.research_<id>` like the existing ten, so old saves load unchanged with the new studies unstudied.
+- **Invariants.** No changes to `server/` or `theme.css`. Sim stays deterministic and free of DOM / I/O.
+- **Tests.** 9 new sim tests in `systems/research.test.ts`, new `packages/app/src/ResearchTree.test.tsx` (9 tests), topic counts updated in `hud/AcademyLivingGlyph.test.tsx`. Sim 332, app 849, server 158 pass. `npm run build -w @second-crown/app` succeeds.
+
 ## 2026-11-10 — Richer lighting and atmosphere pass on the isometric board (bakeoff/gemini-board-light)
 
 - **Atmospheric sky lighting (`BoardLight` / `BoardLiving`):** Added time-of-day sky horizon glow (`sc-board-sky-horizon-glow`) and directional celestial beams (`sc-board-celestial-beam`) rendered at the board canvas background via radial gradients (`#sc-board-sky-dawn`, `#sc-board-sky-day`, `#sc-board-sky-dusk`, `#sc-board-sky-night`) based on sim ticks or explicit day/night state, shifting smoothly between golden dawn, clear daylight, amber dusk, and celestial night.

@@ -99,9 +99,9 @@ describe("AcademyLivingGlyph — living research glyphs under Academy lectern an
     });
   });
 
-  it("renders distinct SVG artwork with glow, drift, and pulse layers across all 10 research topics", () => {
+  it("renders distinct SVG artwork with glow, drift, and pulse layers across every research topic (10 emblems, tier II shares its tier I emblem)", () => {
     const topicIds = Object.keys(RESEARCH);
-    expect(topicIds.length).toBe(10);
+    expect(topicIds.length).toBe(16);
 
     const svgs = topicIds.map((topicId) => {
       const html = renderToStaticMarkup(<StudyLivingGlyph topicId={topicId} status="open" />);
@@ -138,12 +138,12 @@ describe("AcademyLivingGlyph — living research glyphs under Academy lectern an
 
     expect(JSON.stringify(state)).toBe(before);
     expect(html).toContain('data-lectern-mode="studying"');
-    expect(html).toContain("Lectern lamp lit · studying Forestry · 1/10 codified");
+    expect(html).toContain("Lectern lamp lit · studying Forestry · 1/16 codified");
     expect(html).toContain("Agronomy folio · codified");
     expect(html).toContain("Silviculture folio · scribes ink");
     expect(html).toContain("Ashlar treatise · lectern -20%");
-    expect((html.match(/data-study-watermark="/g) ?? []).length).toBe(10);
-    expect((html.match(/data-study-glyph="/g) ?? []).length).toBe(10);
+    expect((html.match(/data-study-watermark="/g) ?? []).length).toBe(16);
+    expect((html.match(/data-study-glyph="/g) ?? []).length).toBe(16);
 
     // Ensure StudyLivingGlyph sits after the living study rows and before the Study button on an open card
     const masonryStart = html.indexOf('data-study="masonry"');

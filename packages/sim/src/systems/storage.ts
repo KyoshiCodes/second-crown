@@ -39,12 +39,19 @@ function logisticsBonus(state: GameState): number {
   return Number(state.flags.research_logistics ?? 0) === 1 ? 50 : 0;
 }
 
+/** Supply trains (tier II of Logistics): known by flag, or its finish tick has passed. Read-only. */
+function supplyTrainsBonus(state: GameState): number {
+  if (Number(state.flags.research_supply_trains ?? 0) === 1) return 100;
+  const until = Number(state.flags.research_supply_trains_until ?? 0);
+  return until > 0 && state.meta.tick >= until ? 100 : 0;
+}
+
 /** Finite warehouse ceiling for food/wood/stone/gold. Every other resource is uncapped. */
 export function storageCap(state: GameState, res: string): number {
   if (!isCapped(res)) return Infinity;
   const raw = BASE_CAP[res] + countBuilding(state, CAP_BUILDING[res]) * CAP_PER_BUILDING[res];
   const keep = currentKeepGate(state).storeMult;
-  return Math.floor(raw * keep) + logisticsBonus(state);
+  return Math.floor(raw * keep) + logisticsBonus(state) + supplyTrainsBonus(state);
 }
 
 export type ResourceLedger = {
