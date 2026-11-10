@@ -34,7 +34,7 @@ export function QuestCard(props: {
   // QuestLivingRows: scroll pip in a status-tinted chip beside stacked Name / Progress / Reward rows,
   // all read from questLedgerRows(); Claim stays in the Reward row; living scroll glyph rests underneath.
   return (
-    <div className={`sc-quest-card is-${status}`} data-quest={id}>
+    <div className={`sc-quest-card is-${status} is-living sc-quest-living-card`} data-quest={id}>
       <QuestScrollUnderlay questId={id} status={status} />
       <QuestLivingRows
         questId={id}
@@ -59,3 +59,5 @@ export function QuestCard(props: {
     </div>
   );
 }
+
+export const QuestLivingCard = QuestCard;

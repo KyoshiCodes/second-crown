@@ -397,7 +397,7 @@ export function QuestScrollUnderlay(props: { questId: string; status: QuestStatu
   const { status, motif } = resolveScrollLiving(props);
   return (
     <span
-      className={`sc-events-living-underlay kind-scroll scroll-${status} state-${status}`}
+      className={`sc-events-living-underlay sc-quest-living-underlay sc-scroll-living-underlay kind-scroll scroll-${status} state-${status}`}
       aria-hidden="true"
       data-scroll-watermark={status}
     >
@@ -415,7 +415,7 @@ export function QuestScrollLivingGlyph(props: { questId: string; status: QuestSt
   const { status, motif, flair } = resolveScrollLiving(props);
   return (
     <span
-      className={`sc-events-status-glyph kind-scroll scroll-${status} state-${status}`}
+      className={`sc-events-status-glyph sc-quest-living-glyph sc-scroll-living-glyph kind-scroll scroll-${status} state-${status}`}
       aria-hidden="true"
       data-scroll-glyph={status}
       data-scroll-motif={motif}
@@ -431,3 +431,7 @@ export function QuestScrollLivingGlyph(props: { questId: string; status: QuestSt
 export const EventOmenLivingUnderlay = EventOmenUnderlay;
 export const EventLivingGlyph = EventOmenLivingGlyph;
 export const EventLivingUnderlay = EventOmenUnderlay;
+
+export const QuestScrollLivingUnderlay = QuestScrollUnderlay;
+export const QuestLivingGlyph = QuestScrollLivingGlyph;
+export const QuestLivingUnderlay = QuestScrollUnderlay;

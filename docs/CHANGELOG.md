@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-10 — Living scroll glyphs under quest cards (bakeoff/gemini-quest-living)
+
+- **Living scroll glyph strips (`QuestScrollLivingGlyph` / `QuestLivingGlyph`):** Added left-aligned 14×14 living SVG scroll mandate emblems directly beneath the stacked Name, Progress, and Reward rows on quest cards (`QuestCard.tsx`), with subtle glow (`sc-events-glow-layer`), pulse (`sc-events-pulse-layer`), and drift (`sc-events-drift-layer`) motion across Open (unfurled mandate/poised quill), Ready (illuminated royal seal lit/crown star), and Claimed (bound chronicle scroll/stamped seal) states across Sanctum (cathedral cross), Scout (vision compass), Valor (crossed saltire blades), Caravan (trade wheel), and Royal (signet disc) motifs.
+- **Corner-confined card watermarks (`QuestScrollUnderlay` / `QuestScrollLivingUnderlay` / `QuestLivingUnderlay`):** Added 32×32 bottom-right pocket watermarks (`right: -2px; bottom: -2px; z-index: 0`) with radial vignette fade masks and dedicated low opacity (`0.07..0.15` wrapper, `0.28` child SVG) inside `.sc-quest-card.is-living.sc-quest-living-card` depicting scroll mandate emblems without obstructing hint copy, progress bars, or the interactive Claim button.
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers, phrasing-only markup, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/hud/EventsLivingGlyph.test.tsx` (11 tests) and `LivingGlyphSoften.test.ts` (7 tests). Sim 323, app 828, server 158 pass. `npm run build -w @second-crown/app` succeeds cleanly.
+
 ## 2026-11-10 — Richer living Quest cards (wave/quest-living)
 
 - **Quest cards (`QuestPanel` → `QuestCard`):** the scroll pip now sits in a round status-tinted chip beside a stacked **Name / Progress / Reward** column (`QuestLivingRows`). Name carries the quest hint and a seal tag (sanctum / scout / valor / caravan / royal · unsealed / seal lit / sealed); Progress shows 0/1 or 1/1 with the status word and a meter; Reward shows the gold, or "+N gold taken" once claimed.

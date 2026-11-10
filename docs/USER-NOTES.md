@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-10 — Living scroll glyphs on quest cards (bakeoff/gemini-quest-living)
+
+- **Living scroll emblems:** Under the Name, Progress, and Reward rows on each quest card in the Quests panel, a subtle living emblem now portrays the quest's royal mandate and seal status:
+  - **Open mandate:** Unfurled parchment mandate with a poised quill and subtle seal charge while the quest is underway.
+  - **Ready to claim:** Illuminated parchment halo and lit royal wax seal with a crowning star when complete and ready for collection.
+  - **Claimed chronicle:** Ribbon-bound archival chronicle scroll calmly resting in the archives once collected.
+  - **Motif charges:** Unique charges for holy sanctums (cross), scout patrols (compass), martial valor (crossed blades), trade caravans (wheel), and royal edicts (sovereign disc).
+- **Clean reading & rewards:** Soft corner watermarks stay tucked away in the bottom-right pocket of each quest card, keeping hints, progress meters, and the Claim reward button completely clear and responsive. No game numbers changed.
+
 ## 2026-11-10 — Quest cards are easier to read (wave/quest-living)
 
 - Each quest card now shows its scroll in a small round coloured badge next to short lines: the **name** (with what to do, and whether the seal is unsealed, lit or sealed), **Progress** (0/1 or 1/1 and a bar) and **Reward** (the gold, or what you already took).

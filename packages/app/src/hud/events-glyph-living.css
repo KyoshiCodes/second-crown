@@ -4,7 +4,10 @@
 .sc-event-card:has(> .sc-event-living-underlay),
 .sc-event-card.is-living,
 .sc-event-living-card,
-.sc-quest-card:has(> .sc-events-living-underlay) {
+.sc-quest-card:has(> .sc-events-living-underlay),
+.sc-quest-card:has(> .sc-quest-living-underlay),
+.sc-quest-card.is-living,
+.sc-quest-living-card {
   position: relative;
   overflow: hidden;
 }
@@ -12,7 +15,9 @@
 .sc-event-card:has(> .sc-events-living-underlay) > :not(.sc-events-living-underlay),
 .sc-event-card:has(> .sc-event-living-underlay) > :not(.sc-event-living-underlay),
 .sc-event-living-card > :not(.sc-event-living-underlay):not(.sc-events-living-underlay),
-.sc-quest-card:has(> .sc-events-living-underlay) > :not(.sc-events-living-underlay) {
+.sc-quest-card:has(> .sc-events-living-underlay) > :not(.sc-events-living-underlay),
+.sc-quest-card:has(> .sc-quest-living-underlay) > :not(.sc-quest-living-underlay),
+.sc-quest-living-card > :not(.sc-quest-living-underlay):not(.sc-events-living-underlay) {
   position: relative;
   z-index: 1;
 }

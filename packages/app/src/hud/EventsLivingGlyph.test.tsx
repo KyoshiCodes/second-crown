@@ -10,12 +10,15 @@ import {
   EventLivingUnderlay,
   QuestScrollLivingGlyph,
   QuestScrollUnderlay,
+  QuestScrollLivingUnderlay,
+  QuestLivingGlyph,
+  QuestLivingUnderlay,
   getQuestSealMotif,
   resolveOmenLiving,
   resolveScrollLiving,
 } from "./EventsLivingGlyph";
 import { EventCard, EventLivingCard } from "./EventCard";
-import { QuestCard } from "./QuestCard";
+import { QuestCard, QuestLivingCard } from "./QuestCard";
 import { EventPanel } from "../EventPanel";
 import { QuestPanel } from "../QuestPanel";
 
@@ -164,9 +167,12 @@ describe("EventsLivingGlyph — living omen and scroll glyphs under EventCard an
       <QuestCard id="first_victory" name="Win a field" hint="Win any war." gold={25} complete claimed={false} onClaim={() => {}} />,
     );
     const ledgerIdx = readyHtml.indexOf("sc-quest-living-head");
-    const glyphIdx = readyHtml.indexOf("sc-events-status-glyph kind-scroll scroll-ready");
+    const glyphIdx = readyHtml.indexOf("sc-events-status-glyph");
     expect(ledgerIdx).toBeGreaterThan(0);
     expect(glyphIdx).toBeGreaterThan(ledgerIdx);
+    expect(readyHtml).toContain("sc-quest-living-glyph");
+    expect(readyHtml).toContain("sc-scroll-living-glyph");
+    expect(readyHtml).toContain("kind-scroll scroll-ready");
     expect(readyHtml).toContain("Royal scroll · seal lit");
     expect(readyHtml).toContain("Claim 25 gold");
   });
@@ -235,6 +241,11 @@ describe("EventsLivingGlyph — living omen and scroll glyphs under EventCard an
     expect(themeCss).not.toContain("sc-event-living-glyph");
     expect(themeCss).not.toContain("sc-omen-living-glyph");
     expect(themeCss).not.toContain("sc-event-living-card");
+    expect(themeCss).not.toContain("sc-quest-living-underlay");
+    expect(themeCss).not.toContain("sc-scroll-living-underlay");
+    expect(themeCss).not.toContain("sc-quest-living-glyph");
+    expect(themeCss).not.toContain("sc-scroll-living-glyph");
+    expect(themeCss).not.toContain("sc-quest-living-card");
   });
 
   it("exports EventLivingCard, EventOmenLivingUnderlay, EventLivingGlyph, and EventLivingUnderlay aliases", () => {
@@ -252,5 +263,30 @@ describe("EventsLivingGlyph — living omen and scroll glyphs under EventCard an
     expect(cardHtml).toContain("sc-omen-living-underlay");
     expect(cardHtml).toContain("sc-event-living-glyph");
     expect(cardHtml).toContain("sc-omen-living-glyph");
+  });
+
+  it("exports QuestLivingCard, QuestScrollLivingUnderlay, QuestLivingGlyph, and QuestLivingUnderlay aliases", () => {
+    expect(QuestLivingCard).toBe(QuestCard);
+    expect(QuestScrollLivingUnderlay).toBe(QuestScrollUnderlay);
+    expect(QuestLivingGlyph).toBe(QuestScrollLivingGlyph);
+    expect(QuestLivingUnderlay).toBe(QuestScrollUnderlay);
+
+    const cardHtml = renderToStaticMarkup(
+      <QuestLivingCard
+        id="raise_chapel"
+        name="Raise a chapel"
+        hint="Place a Chapel"
+        gold={20}
+        complete={false}
+        claimed={false}
+        onClaim={() => {}}
+      />,
+    );
+    expect(cardHtml).toContain("sc-quest-living-card");
+    expect(cardHtml).toContain("is-living");
+    expect(cardHtml).toContain("sc-quest-living-underlay");
+    expect(cardHtml).toContain("sc-scroll-living-underlay");
+    expect(cardHtml).toContain("sc-quest-living-glyph");
+    expect(cardHtml).toContain("sc-scroll-living-glyph");
   });
 });
