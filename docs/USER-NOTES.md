@@ -2,12 +2,19 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-11 — Season line with a Claim button on the Kingdom tab (wave/season-claim, not merged yet)
+## 2026-11-11 — Living seasonal crest and weather on season status lines (bakeoff/gemini-season-claim)
 
-- **Season line.** The Kingdom tab now has a line under your hold's name that shows the current season, how long is left in it, and the season court reward. Example: **Season · Spring · 0.6 days left (200s) · season court ready: +40 food**.
-- **Claim button.** When the reward is waiting, the line turns green and shows a **Claim** button. Press it to collect. After that the button disappears until the next season and the line says which season comes next.
-- **Same reward as before.** This is the same once-per-season reward as the Season court card on the Crown tab. You can claim it in either place, not both.
-- **Why the days are small.** A season is shorter than one game day (about 200 real seconds), so the line counts in tenths of a day. The number in brackets is real seconds.
+- **Living seasonal crests across the realm:** The season status lines now feature living, animated heraldic crests and weather pips that transform dynamically with the realm's current season:
+  - **Spring:** Vernal fresh sprout and blossom with drifting flower pollen and sparkling dewdrop glints.
+  - **Summer:** Radiant high-noon sun with cardinal sunbeams, solar flare sparkles, and rising heat shimmer.
+  - **Autumn:** Harvest oak leaf with acorns, harvest star twinkle, and windblown autumn leaves caught in swirling gales.
+  - **Winter:** Six-pointed crystalline snowflake with a faceted ice diamond core and gentle drifting snow flurries.
+- **Season court claim ready indicator:** On the Crown Tab's Season Court card, an expanding ripple ring pulses around the season pip when the seasonal turn or tribute is ripe for collection, resting peacefully once acknowledged.
+- **Where to see them:**
+  - On the Crown Tab inside the Season Court card header and status line.
+  - In the Province Inspect panel beside the season description and in the terrain climate breakdown.
+  - In the Kingdom Tab hold summary strip beside the realm season indicator.
+- **Non-intrusive & accessible:** All seasonal pips, weather motes, and ready rings are strictly decorative (`pointer-events: none !important;`), respect reduced-motion settings, and will never interfere with clicking, tab navigation, or reading. No game rules or sim calculations were changed.
 
 ## 2026-11-11 — Tribute line is back on diplomacy cards
 

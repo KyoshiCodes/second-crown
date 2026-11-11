@@ -84,6 +84,8 @@
 .sc-shell .sc-lancer-chip-wrapper,
 .sc-shell .sc-gift-pip-wrapper,
 .sc-shell .sc-realm-gift-badge,
+.sc-shell .sc-season-pip-wrapper,
+.sc-shell .sc-season-status-line,
 .sc-shell [class*="-living-underlay"],
 .sc-shell [class*="-living-glow"],
 .sc-shell [class*="-living-pulse"],
@@ -140,6 +142,8 @@
 .sc-shell .sc-lancer-chip-wrapper *,
 .sc-shell .sc-gift-pip-wrapper *,
 .sc-shell .sc-realm-gift-badge *,
+.sc-shell .sc-season-pip-wrapper *,
+.sc-shell .sc-season-status-line *,
 .sc-shell .sc-board-living * {
   pointer-events: none !important;
 }
@@ -861,6 +865,13 @@
   .sc-shell .sc-gift-mote,
   .sc-shell .sc-gift-glint-star,
   .sc-shell .sc-realm-gift-badge,
+  .sc-shell .sc-season-glow-layer,
+  .sc-shell .sc-season-ready-ring,
+  .sc-shell .sc-season-drift-layer,
+  .sc-shell .sc-season-pulse-layer,
+  .sc-shell .sc-season-mote,
+  .sc-shell .sc-season-wind-streak,
+  .sc-shell .sc-season-glint-star,
   .sc-shell .sc-board-living * {
     animation: none !important;
     transition: none !important;

@@ -36,6 +36,8 @@ import { DecreesPanel } from "../DecreesPanel";
 import { CulturePicker } from "../CulturePicker";
 import { LedgerPanel } from "../LedgerPanel";
 import { DawnCard } from "../hud/DawnCard";
+import { SeasonPip, SeasonStatusLine } from "../hud/SeasonPip";
+import "../hud/season-pip.css";
 import type { ActFn } from "../game/useGameEngine";
 import "../hud/plain-buttons.css";
 import "../hud/crown-card.css";
@@ -146,12 +148,15 @@ export function CrownTab(props: {
             </button>
           </div>
         </div>
-        <div className={`sc-work-card sc-plain-card ${claimed ? "is-done" : "is-ready"}`}>
+        <div className={`sc-work-card sc-plain-card sc-season-court-card ${claimed ? "is-done" : "is-ready"}`}>
           <div className="sc-work-head">
-            <span className="sc-work-name">Season court</span>
+            <span className="sc-work-name" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <SeasonPip season={boon?.season} size={20} claimed={claimed} />
+              <span>Season court</span>
+            </span>
           </div>
           <div className="sc-work-status">
-            {boon ? `${boon.season}: +${boon.amount} ${boon.res} once this season.` : ""}
+            <SeasonStatusLine season={boon?.season} state={state} boon={boon} claimed={claimed} />
           </div>
           <div className="sc-plain-actions">
             <button

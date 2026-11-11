@@ -60,6 +60,8 @@ import { staffedLine } from "./hud/staffedLine";
 import { fogEdgeLine } from "./hud/fogEdgeLine";
 import { ownerLine } from "./hud/ownerLine";
 import { seasonLine } from "./hud/seasonLine";
+import { SeasonPip } from "./hud/SeasonPip";
+import "./hud/season-pip.css";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
@@ -239,7 +241,10 @@ export function ProvinceInspect(props: {
           </div>
           <div className={`sc-inspect-season is-${season.toLowerCase()}`}>
             <dt>Season</dt>
-            <dd>{season}</dd>
+            <dd style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <SeasonPip season={season} size={14} />
+              <span>{season}</span>
+            </dd>
           </div>
           <div>
             <dt>Gold</dt>
@@ -260,7 +265,12 @@ export function ProvinceInspect(props: {
         {outpost ? (
           <div className={`sc-inspect-line sc-inspect-outpost ${outpost === "Your outpost" ? "is-yours" : "is-rival"}`}>{outpost}</div>
         ) : null}
-        {seasonNote ? <div className="sc-inspect-line sc-inspect-season">{seasonNote}</div> : null}
+        {seasonNote ? (
+          <div className="sc-inspect-line sc-inspect-season" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <SeasonPip season={season} size={14} />
+            <span>{seasonNote}</span>
+          </div>
+        ) : null}
         {garrisonNote ? <div className="sc-inspect-line sc-inspect-garrison">{garrisonNote}</div> : null}
         {scoutNote ? <div className="sc-inspect-line sc-inspect-scout">{scoutNote}</div> : null}
         {gatherNote ? <div className="sc-inspect-line sc-inspect-gather">{gatherNote}</div> : null}

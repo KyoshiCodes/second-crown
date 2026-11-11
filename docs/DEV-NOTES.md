@@ -1,12 +1,28 @@
-## 2026-11-11 — app / season status line and Claim button on the Kingdom tab (wave/season-claim, not merged)
+## 2026-11-11 — app / living seasonal crest or weather pip on season status line (bakeoff/gemini-season-claim)
 
-- **Component (`packages/app/src/SeasonClaimLine.tsx`):** exports `SeasonClaimLine({ state, act })`, `seasonClaimStatus(state)`, `seasonTicksLeft(tick)`, `SEASON_TICKS` (2000), `DAY_TICKS` (3600). Renders `div.sc-season-claim` with `is-ready` / `is-claimed`, `data-season`, `data-ready`. Returns `null` without state.
-- **Sim calls only:** `currentSeason`, `SEASONS`, `seasonBoonPreview`, `seasonClaimed`, and `tryClaimSeason` through `act`, with the same two messages as the Crown tab card. No new rules, no flags, no save change.
-- **Two display constants:** the sim does not export the season length or `DAY_CYCLE_TICKS`, and this slice may not edit `packages/sim`, so the app holds display copies. `SeasonClaimLine.test.tsx` pins both to the sim: the season must turn (and a claim must reopen) exactly when `seasonTicksLeft` runs out, and `sunMoonPositionAt` must repeat every `DAY_TICKS`. If the sim changes either number, those tests fail. Cleaner later: export both from `packages/sim/src/index.ts` and delete the copies (needs the owner's OK for a sim edit). `BoardLiving.tsx` has its own `BOARD_DAY_CYCLE_TICKS` copy for the same reason.
-- **Countdown rounding:** days = ticks left / 3600, rounded up to one decimal (never 0.0); seconds = `Math.ceil(ticks / 10)`, same as the pace lines. A full season is 2000 / 3600 = 0.6 days, so the line never reaches 1 day.
-- **Mount:** `tabs/KingdomTab.tsx`, right after the `.sc-map-strip` card and before the Income line. The Crown tab Season court card is untouched.
-- **Styling:** `packages/app/src/season-claim-line.css`, scoped to `.sc-season-claim`. Button reuses `sc-work-btn`. No `theme.css` edits (a test checks).
-- **Tests:** `SeasonClaimLine.test.tsx` (11 tests). Sim 362, app 905, server 158 pass. App build clean.
+- **Components (`packages/app/src/hud/SeasonPip.tsx`):**
+  - Exports `SeasonPip`, `SeasonalCrestPip` alias, `SeasonWeatherPip` alias, `SeasonStatusLine`, `SeasonName` type (`"spring" | "summer" | "autumn" | "winter"`), `SEASONS`, `SEASON_COLORS`, `SEASON_WEATHER`, `normalizeSeason(raw?: string): SeasonName`.
+  - Props: `season?: string` (normalized via `normalizeSeason`), `claimed?: boolean`, `ready?: boolean`, `size?: number` (default 24), `className?: string`, `style?: React.CSSProperties`, `showReadyRing?: boolean`, `ariaLabel?: string`.
+  - Phrasing wrapper `<span className="sc-season-pip-wrapper">` with `aria-hidden="true"`, `data-season-pip="true"`, `data-season={s}`, `data-claimed={claimed ? "true" : undefined}`, `data-ready={isReady ? "true" : undefined}`.
+  - Multi-layer SVG vector artwork (24×24):
+    - `.sc-season-glow-layer`: breathing atmospheric aura glow matching seasonal palette (spring green `#4ade80`, summer gold `#facc15`, autumn copper `#fb923c`, winter cyan `#38bdf8`).
+    - `.sc-season-ready-ring`: expanding radial pulse ripple when `isReady` (e.g. season claim ready).
+    - `.sc-season-drift-layer`: season-specific motes (pollen particles for spring, solar heat shimmer for summer, swirling gale motes for autumn, snow flurries for winter).
+    - `.sc-season-emblem-base`: vernal sprout & 5-petal flower (spring), solar disc with cardinal rays and flame arcs (summer), lobed leaf with veins and twin acorns (autumn), 6-fold barbed crystalline snowflake with faceted diamond core (winter).
+    - `.sc-season-glint-layer`: 4-point dewdrop/flare/star/crystal glints.
+  - `SeasonStatusLine` component: `<span className="sc-season-status-line">` combining `SeasonPip` with status text or custom children, supporting `ready`, `claimed`, and custom pip sizing.
+- **Styling (`packages/app/src/hud/season-pip.css` & `living-glyph-soften.css`):**
+  - All decorative wrappers, SVGs, rings, and layers enforce `pointer-events: none !important;` and `user-select: none;`.
+  - Keyframes: `sc-season-glow-pulse`, `sc-season-ready-ring`, `sc-season-mote-float`, `sc-season-wind-swirl`, `sc-season-glint-flare`.
+  - Added `.sc-shell .sc-season-pip-wrapper` and `.sc-shell .sc-season-status-line` to Section 1 pointer-events reset and reduced-motion block in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **UI Integration:**
+  - `packages/app/src/tabs/CrownTab.tsx`: mounted `SeasonPip` inside `.sc-work-head` of Season Court card; upgraded `.sc-work-status` to use `SeasonStatusLine`.
+  - `packages/app/src/ProvinceInspect.tsx`: mounted `SeasonPip` inline with `seasonNote` and in `.sc-inspect-season` tile stats grid cell.
+  - `packages/app/src/tabs/KingdomTab.tsx`: mounted inline `SeasonPip` beside `{season}` in the hold summary strip.
+- **Tests:**
+  - `packages/app/src/hud/SeasonPip.test.tsx` (13 tests) covers season normalization, multi-layer SVG elements, aura glows, ready/claimed states, sizing, aria-hidden, CrownTab/ProvinceInspect/KingdomTab integration, and CSS safety.
+  - Full test suite (sim 362, app 907, server 158) passing cleanly. App build clean.
 
 ## 2026-11-11 — app / fix: restore `gift?: GiftOffer` on RealmCard and the GiftLine on WorldPanel
 

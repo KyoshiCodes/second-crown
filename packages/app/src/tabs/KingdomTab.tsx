@@ -68,6 +68,8 @@ import { OfferCard } from "../hud/OfferCard";
 import { VaultLivingCards } from "../hud/VaultLivingCard";
 import { OutpostLivingCard } from "../hud/OutpostLivingCard";
 import { BalanceNotes } from "../BalanceNotes";
+import { SeasonPip } from "../hud/SeasonPip";
+import "../hud/season-pip.css";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
 
@@ -140,7 +142,10 @@ export function KingdomTab(props: {
         <div className="sc-map-strip-row">
           <div className="sc-map-strip-cell is-hold">
             <span className="sc-work-name">{hold}</span>
-            <span>{season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more).</span>
+            <span>
+              <SeasonPip season={season} size={13} style={{ marginRight: 4, verticalAlign: "-2px" }} />
+              {season}. People {pop}/{beds}. Work plots {plots}/{plotCap} (cottages buy more).
+            </span>
           </div>
           <div className="sc-map-strip-cell">
             <WallLine state={state} />

@@ -1,12 +1,22 @@
 # CHANGELOG
 
-## 2026-11-11 — Season status line and Claim button on the Kingdom tab (wave/season-claim, not merged)
+## 2026-11-11 — Living seasonal crest or weather pip on season status line (bakeoff/gemini-season-claim)
 
-- **New line (app only):** the Kingdom tab shows, under the hold strip, the season name, the days left in it (with real seconds in brackets), and the season court reward. A **Claim** button shows while this season's reward is unclaimed; after claiming, the button goes and the line names the next season.
-- **Same rules as before:** the button calls the existing sim `tryClaimSeason`, the same call the Crown tab's Season court card makes. One claim per season, same rewards (Spring +40 food, Summer +30 wood, Autumn +20 gold, Winter +24 stone). The Crown tab card is unchanged; claiming in either place marks both.
-- **Files:** `packages/app/src/SeasonClaimLine.tsx`, `season-claim-line.css`, `SeasonClaimLine.test.tsx`; one import and one line in `tabs/KingdomTab.tsx`. No edits to `packages/sim`, `server/`, or `theme.css`.
-- **Worth knowing:** a season lasts 2000 ticks (200 seconds) and a game day lasts 3600 ticks, so a full season is 0.6 of a day. The line is honest about that and shows tenths of a day. Changing the season length would be a sim change and was out of scope.
-- **Tests:** sim 362, app 905 (11 new), server 158 passing. App build clean.
+- **Dedicated living seasonal crest & weather pip (`SeasonPip` / `SeasonalCrestPip` / `SeasonWeatherPip`):** Created bespoke animated heraldic season pips (`packages/app/src/hud/SeasonPip.tsx` & `season-pip.css`) rendering unique multi-layer vector SVG heraldry (24×24) for all four seasons:
+  - **Spring (`spring`):** Vernal leafy sprout and five-petal blossom, morning dewdrop glint (`sc-season-glint-flare`), drifting pollen/petal motes (`sc-season-mote`), and emerald aura glow (`sc-season-glow-layer`).
+  - **Summer (`summer`):** Radiating high-noon solar disc with cardinal rays and flame waves, solar flare sparkle star, ascending solar heat shimmer dust motes, and warm amber aura glow.
+  - **Autumn (`autumn`):** Lobed harvest oak/maple leaf with veins and twin acorns, harvest star twinkle, swirling gale wind streaks and foliage motes (`sc-season-wind-swirl`), and rich copper/amber aura glow.
+  - **Winter (`winter`):** Six-fold crystalline snowflake with barbed branches and faceted ice diamond core, glacial twinkle glint, drifting snow flurries, and ice-cyan aura glow.
+- **Interactive claim & readiness states:**
+  - **Ready state (`is-ready`):** When seasonal rewards or court tribute are ripe for claiming (`ready={true}` or `claimed={false}`), renders an expanding ripple ring (`sc-season-ready-ring`) and heightened aura brightness.
+  - **Claimed state (`is-claimed`):** When already claimed (`claimed={true}`), rests in a calm, dignified ambient state.
+- **SeasonStatusLine component:** Phrasing wrapper `<span className="sc-season-status-line">` combining the living `SeasonPip` with season text, custom status children, and optional ready rings.
+- **UI Integration:**
+  - **Crown Tab (`CrownTab.tsx`):** Mounted `SeasonPip` in `.sc-work-head` of the Season Court card and upgraded the `.sc-work-status` line with `SeasonStatusLine`.
+  - **Province Inspect (`ProvinceInspect.tsx`):** Mounted inline `SeasonPip` in `seasonNote` and in the `.sc-inspect-season` tile stat grid cell.
+  - **Kingdom Tab (`KingdomTab.tsx`):** Mounted inline `SeasonPip` beside `{season}` in the hold summary strip.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` on all decorative containers, SVG layers, and wrappers. Full `@media (prefers-reduced-motion: reduce)` support disables keyframe animations.
+- **Tests:** New test suite `packages/app/src/hud/SeasonPip.test.tsx` (13 tests) verifying season normalization, SVG element structure, aura glows, ready/claimed states, sizing, aria-hidden, CrownTab/ProvinceInspect/KingdomTab integration, and CSS pointer-events safety. Full suite (sim 362, app 907, server 158) passing cleanly. App build clean.
 
 ## 2026-11-11 — Fix: tribute status line and gated Gift button back on diplomacy cards
 
