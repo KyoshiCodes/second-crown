@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-11 — Season status line and Claim button on the Kingdom tab (wave/season-claim, not merged)
+
+- **New line (app only):** the Kingdom tab shows, under the hold strip, the season name, the days left in it (with real seconds in brackets), and the season court reward. A **Claim** button shows while this season's reward is unclaimed; after claiming, the button goes and the line names the next season.
+- **Same rules as before:** the button calls the existing sim `tryClaimSeason`, the same call the Crown tab's Season court card makes. One claim per season, same rewards (Spring +40 food, Summer +30 wood, Autumn +20 gold, Winter +24 stone). The Crown tab card is unchanged; claiming in either place marks both.
+- **Files:** `packages/app/src/SeasonClaimLine.tsx`, `season-claim-line.css`, `SeasonClaimLine.test.tsx`; one import and one line in `tabs/KingdomTab.tsx`. No edits to `packages/sim`, `server/`, or `theme.css`.
+- **Worth knowing:** a season lasts 2000 ticks (200 seconds) and a game day lasts 3600 ticks, so a full season is 0.6 of a day. The line is honest about that and shows tenths of a day. Changing the season length would be a sim change and was out of scope.
+- **Tests:** sim 362, app 905 (11 new), server 158 passing. App build clean.
+
 ## 2026-11-11 — Fix: tribute status line and gated Gift button back on diplomacy cards
 
 - **What broke:** the gift pip change replaced `RealmCard.tsx` and `WorldPanel.tsx` and dropped the `gift?: GiftOffer` prop, the `GiftLine` status line, and the gold gate on the Gift button. `WarRoom.tsx` still passed `gift`, so the app build failed on types and `GiftLine.test.tsx` failed.

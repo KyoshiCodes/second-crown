@@ -59,6 +59,7 @@ import { MarketHint } from "../MarketHint";
 import { MarketPace } from "../MarketPace";
 import { CultureLine } from "../CultureLine";
 import { AgeLine } from "../AgeLine";
+import { SeasonClaimLine } from "../SeasonClaimLine";
 import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
@@ -209,6 +210,7 @@ export function KingdomTab(props: {
           ) : null}
         </div>
       </div>
+      <SeasonClaimLine state={state} act={act} />
       <p style={{ fontSize: 12, opacity: 0.85 }}>
         Income /s · food {formatLetterSuffix(income.food ?? "0")} · wood {formatLetterSuffix(income.wood ?? "0")} · stone{" "}
         {formatLetterSuffix(income.stone ?? "0")} · gold {formatLetterSuffix(income.gold ?? "0")}. Flag tithe /tick · food{" "}

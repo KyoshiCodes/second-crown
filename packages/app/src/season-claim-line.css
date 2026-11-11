@@ -1,0 +1,58 @@
+/* Season status line and Claim button on the Kingdom tab (SeasonClaimLine.tsx). Do not touch theme.css. */
+
+.sc-season-claim {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-season-claim strong {
+  font-weight: 600;
+}
+
+.sc-season-claim-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.sc-season-claim-text {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.sc-season-claim.is-ready {
+  border-color: rgba(63, 185, 80, 0.55);
+  background: rgba(63, 185, 80, 0.08);
+}
+
+.sc-season-claim.is-ready .sc-season-claim-dot {
+  color: #3fb950;
+  opacity: 1;
+}
+
+.sc-season-claim.is-ready strong {
+  color: #3fb950;
+}
+
+.sc-season-claim.is-claimed {
+  opacity: 0.8;
+}
+
+.sc-season-claim-btn {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 4px 14px;
+  font-weight: 600;
+}

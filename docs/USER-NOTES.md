@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — Season line with a Claim button on the Kingdom tab (wave/season-claim, not merged yet)
+
+- **Season line.** The Kingdom tab now has a line under your hold's name that shows the current season, how long is left in it, and the season court reward. Example: **Season · Spring · 0.6 days left (200s) · season court ready: +40 food**.
+- **Claim button.** When the reward is waiting, the line turns green and shows a **Claim** button. Press it to collect. After that the button disappears until the next season and the line says which season comes next.
+- **Same reward as before.** This is the same once-per-season reward as the Season court card on the Crown tab. You can claim it in either place, not both.
+- **Why the days are small.** A season is shorter than one game day (about 200 real seconds), so the line counts in tenths of a day. The number in brackets is real seconds.
+
 ## 2026-11-11 — Tribute line is back on diplomacy cards
 
 - **Tribute status line restored:** realm cards on the War tab and crown cards on the World tab again show a one-line tribute status above the buttons (cost, opinion gain, and "ready", how much gold you are short, or that standing is already as high as it goes).

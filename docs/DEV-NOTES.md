@@ -1,3 +1,13 @@
+## 2026-11-11 — app / season status line and Claim button on the Kingdom tab (wave/season-claim, not merged)
+
+- **Component (`packages/app/src/SeasonClaimLine.tsx`):** exports `SeasonClaimLine({ state, act })`, `seasonClaimStatus(state)`, `seasonTicksLeft(tick)`, `SEASON_TICKS` (2000), `DAY_TICKS` (3600). Renders `div.sc-season-claim` with `is-ready` / `is-claimed`, `data-season`, `data-ready`. Returns `null` without state.
+- **Sim calls only:** `currentSeason`, `SEASONS`, `seasonBoonPreview`, `seasonClaimed`, and `tryClaimSeason` through `act`, with the same two messages as the Crown tab card. No new rules, no flags, no save change.
+- **Two display constants:** the sim does not export the season length or `DAY_CYCLE_TICKS`, and this slice may not edit `packages/sim`, so the app holds display copies. `SeasonClaimLine.test.tsx` pins both to the sim: the season must turn (and a claim must reopen) exactly when `seasonTicksLeft` runs out, and `sunMoonPositionAt` must repeat every `DAY_TICKS`. If the sim changes either number, those tests fail. Cleaner later: export both from `packages/sim/src/index.ts` and delete the copies (needs the owner's OK for a sim edit). `BoardLiving.tsx` has its own `BOARD_DAY_CYCLE_TICKS` copy for the same reason.
+- **Countdown rounding:** days = ticks left / 3600, rounded up to one decimal (never 0.0); seconds = `Math.ceil(ticks / 10)`, same as the pace lines. A full season is 2000 / 3600 = 0.6 days, so the line never reaches 1 day.
+- **Mount:** `tabs/KingdomTab.tsx`, right after the `.sc-map-strip` card and before the Income line. The Crown tab Season court card is untouched.
+- **Styling:** `packages/app/src/season-claim-line.css`, scoped to `.sc-season-claim`. Button reuses `sc-work-btn`. No `theme.css` edits (a test checks).
+- **Tests:** `SeasonClaimLine.test.tsx` (11 tests). Sim 362, app 905, server 158 pass. App build clean.
+
 ## 2026-11-11 — app / fix: restore `gift?: GiftOffer` on RealmCard and the GiftLine on WorldPanel
 
 - **Cause:** the gift pip slice overwrote `hud/RealmCard.tsx` and `WorldPanel.tsx` from before the gift offer slice, losing the `gift` prop, `GiftLine`, the `sc-gift-btn` class, and `disabled={!gift.ok}`. `WarRoom.tsx` kept passing `gift={giftOffer(state, r.id)}`, so `tsc` failed.
