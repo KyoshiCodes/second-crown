@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-11-11 — Living glyphs and visual flair for research tree tier II (bakeoff/gemini-research-tree)
+
+- **Bespoke tier II living emblems (`StudyLivingGlyph` / `StudyLivingUnderlay`):** Replaced the placeholder tier I emblems for all six tier II research studies with dedicated, bespoke 16×16 and 30×30 SVG artwork across agronomy, masonry, cartography, and tactics:
+  - **Crop rotation (`crop_rotation`):** Four-quadrant circular fallow rotation cycle with clover bloom, golden grain spike, rested furrow lines, turning plow blade arc, and orbital seasonal motes.
+  - **Timber framing (`timber_framing`):** Heavy timber king-post roof truss with pegged wooden mortise-and-tenon dowel joints, diagonal strut braces, and suspended plumb bob weight.
+  - **Fortification (`fortification`):** Crenellated stone curtain-wall bastion with battlement embrasures, battered wall base, projecting machicolation corbels, crosslet arrow slit, and central watchfire beacon star.
+  - **Supply trains (`supply_trains`):** Covered Conestoga draught wagon with curved canvas bonnet, hitched wagon box bed, front & rear spoked road wheels, and swinging road-dust tail lantern.
+  - **Cartography (`cartography`):** Unfolded creased parchment realm atlas sheet with coastline island contours, navigational rhumb lines, corner sighting ring, and 8-point mariner's compass rose star.
+  - **Quartermastery (`quartermastery`):** Balanced beam scale with central fulcrum pillar, weighed ration/weapon and gold taler coin pans, quartermaster's chevron insignia, and equilibrium pointer.
+- **Tier II visual flair & link glow:** Added `is-tier-2` class and `data-study-tier="2"` to both the living glyph strip and corner watermark, soft golden/amber drop-shadow flourishes, and an animated breathing gold glow (`sc-research-link-glow`) on the prerequisite connection mark (`.sc-research-tree-link.is-met .sc-research-tree-link-mark`).
+- **Invariants:** App-only (`packages/app`). Zero changes to `packages/sim`, `server/`, or `theme.css`. Strict `pointer-events: none !important;` on all decorative layers and SVGs, low opacities (`0.06..0.24`), and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** Updated `packages/app/src/hud/AcademyLivingGlyph.test.tsx` (13 tests) and `LivingGlyphSoften.test.ts` (7 tests). Sim 332, app 852, server 158 pass. `npm run build -w @second-crown/app` succeeds in 535ms.
+
 ## 2026-11-10 — Research tree: six tier II lectern studies (wave/research-tree, not merged)
 
 - **New studies (sim + UI).** Six second-tier studies, each building on one first-tier study. A tier II study will not start until its tier I study is known, and each needs Keep II or III. Times are before the Academy's 20% discount.

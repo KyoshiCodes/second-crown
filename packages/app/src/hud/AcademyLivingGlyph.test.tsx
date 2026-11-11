@@ -9,6 +9,8 @@ import {
   getResearchDiscipline,
   resolveAcademyLecternLiving,
   resolveStudyLiving,
+  isTierTwoStudy,
+  TIER_TWO_TOPICS,
   ResearchLivingGlyph,
   ResearchLivingUnderlay,
   ResearchTopicLivingGlyph,
@@ -99,7 +101,7 @@ describe("AcademyLivingGlyph — living research glyphs under Academy lectern an
     });
   });
 
-  it("renders distinct SVG artwork with glow, drift, and pulse layers across every research topic (10 emblems, tier II shares its tier I emblem)", () => {
+  it("renders distinct SVG artwork with glow, drift, and pulse layers across all 16 research topics (bespoke emblems for both tier I and tier II)", () => {
     const topicIds = Object.keys(RESEARCH);
     expect(topicIds.length).toBe(16);
 
@@ -112,7 +114,81 @@ describe("AcademyLivingGlyph — living research glyphs under Academy lectern an
       const end = html.indexOf("</svg>") + 6;
       return html.slice(start, end);
     });
-    expect(new Set(svgs).size).toBe(10);
+    expect(new Set(svgs).size).toBe(16);
+  });
+
+  it("marks tier II study glyphs and underlays with is-tier-2 and data-study-tier='2'", () => {
+    const tierTwoTopics = [
+      "crop_rotation",
+      "timber_framing",
+      "fortification",
+      "supply_trains",
+      "cartography",
+      "quartermastery",
+    ];
+
+    for (const id of tierTwoTopics) {
+      const glyphHtml = renderToStaticMarkup(<StudyLivingGlyph topicId={id} status="open" />);
+      expect(glyphHtml).toContain('data-study-tier="2"');
+      expect(glyphHtml).toContain("is-tier-2");
+
+      const underlayHtml = renderToStaticMarkup(<StudyLivingUnderlay topicId={id} status="open" />);
+      expect(underlayHtml).toContain('data-study-tier="2"');
+      expect(underlayHtml).toContain("is-tier-2");
+    }
+
+    const tierOneGlyph = renderToStaticMarkup(<StudyLivingGlyph topicId="husbandry" status="open" />);
+    expect(tierOneGlyph).toContain('data-study-tier="1"');
+    expect(tierOneGlyph).not.toContain("is-tier-2");
+
+    const tierOneUnderlay = renderToStaticMarkup(<StudyLivingUnderlay topicId="masonry" status="open" />);
+    expect(tierOneUnderlay).toContain('data-study-tier="1"');
+    expect(tierOneUnderlay).not.toContain("is-tier-2");
+  });
+
+  it("resolves tier II study folios and flair strings with distinctive scholarly descriptors", () => {
+    expect(resolveStudyLiving({ topicId: "crop_rotation", status: "studying" })).toEqual({
+      topicId: "crop_rotation",
+      discipline: "agronomy",
+      status: "studying",
+      academyFast: false,
+      flair: "Fallow-field almanac · scribes ink",
+    });
+    expect(resolveStudyLiving({ topicId: "timber_framing", status: "known" })).toEqual({
+      topicId: "timber_framing",
+      discipline: "agronomy",
+      status: "known",
+      academyFast: false,
+      flair: "Joiner's pattern book · codified",
+    });
+    expect(resolveStudyLiving({ topicId: "fortification", status: "open", academyFast: true })).toEqual({
+      topicId: "fortification",
+      discipline: "masonry",
+      status: "open",
+      academyFast: true,
+      flair: "Curtain-wall treatise · lectern -20%",
+    });
+    expect(resolveStudyLiving({ topicId: "supply_trains", status: "locked" })).toEqual({
+      topicId: "supply_trains",
+      discipline: "cartography",
+      status: "locked",
+      academyFast: false,
+      flair: "Wagon-master ledger · hall sealed",
+    });
+    expect(resolveStudyLiving({ topicId: "cartography", status: "open", academyFast: false })).toEqual({
+      topicId: "cartography",
+      discipline: "cartography",
+      status: "open",
+      academyFast: false,
+      flair: "Realm atlas · lectern open",
+    });
+    expect(resolveStudyLiving({ topicId: "quartermastery", status: "known" })).toEqual({
+      topicId: "quartermastery",
+      discipline: "tactics",
+      status: "known",
+      academyFast: false,
+      flair: "Muster-roll codex · codified",
+    });
   });
 
   it("uses phrasing-only markup (<span> + <svg>) and aria-hidden on all decorative components", () => {

@@ -2,6 +2,18 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — Living glyphs and visual flair on deeper research studies (bakeoff/gemini-research-tree)
+
+- **Bespoke emblems for deeper studies:** Under the Name, Progress, and Bonus lines on each tier II study card in the Keep Lectern, subtle living emblems and corner watermarks now depict the study's unique scholarly craft instead of reusing first-tier artwork:
+  - **Crop rotation:** Four-field crop cycle with seasonal clover, golden barley, fallow furrows, and turning plowshare.
+  - **Timber framing:** Heavy pegged timber truss with carpenter's plumb line and framing dowels.
+  - **Fortification:** Crenellated curtain-wall fortress with defensive machicolations and crosslet arrow slits.
+  - **Supply trains:** Covered draught wagon with spoked wheels, harness hitch, and swinging road lantern.
+  - **Cartography:** Unfolded realm atlas chart with island coasts, rhumb lines, and mariner's compass rose.
+  - **Quartermastery:** Balanced beam scale weighing provisions and talers, stamped with the quartermaster's chevron.
+- **Prerequisite link flair:** When a required first-tier study is mastered, the "Builds on" connecting branch glows with a warm, steady golden pulse.
+- **Clean reading & play:** All glyphs and watermarks are non-interactive (`pointer-events: none`) with gentle opacities that never obscure text, timers, or the Study / Cancel buttons. No game numbers changed.
+
 ## 2026-11-10 — Six deeper studies on the lectern (wave/research-tree, not merged yet)
 
 The lectern in the Keep now has a second row of studies. Each one builds on a study you already know, so the lectern is split into **I First studies** (the ten you had) and **II Deeper studies** (six new ones).

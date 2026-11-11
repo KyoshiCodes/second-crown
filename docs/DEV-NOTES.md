@@ -1,3 +1,21 @@
+## 2026-11-11 — app / living glyphs and visual flair for research tree tier II (bakeoff/gemini-research-tree)
+
+- **Components:** `packages/app/src/hud/AcademyLivingGlyph.tsx` exports `isTierTwoStudy`, `TIER_TWO_TOPICS`, and keeps `TIER_TWO_EMBLEM` for reference. `TopicEmblemSvg` now implements bespoke SVG paths for all 16 topics (6 tier II + 10 tier I), eliminating the tier I emblem fallback.
+- **Bespoke artwork:**
+  - `crop_rotation` (agronomy): four-quadrant fallow cycle with clover bloom, barley ear, furrow polylines, turning plow curve, and seasonal orbital motes.
+  - `timber_framing` (agronomy): king-post truss with tie beam, rafters, king post, diagonal braces, dowel peg circles, and plumb bob weight.
+  - `fortification` (masonry): crenellated bastion parapet, battered wall base, machicolation corbels, crosslet arrow slit, and watchfire star.
+  - `supply_trains` (cartography): Conestoga wagon bonnet, bed, hitch tongue, spoked wheels, and tail lantern.
+  - `cartography` (cartography): folded map sheet with creases, coastline contour, rhumb line, astrolabe sight, and 8-point compass rose.
+  - `quartermastery` (tactics): beam balance scale, ration and taler pans, chevron insignia, equilibrium pointer, and weighed coin motes.
+- **Tier II markup & CSS:**
+  - `StudyLivingUnderlay` and `StudyLivingGlyph` attach `data-study-tier="2"` and `is-tier-2` on tier II topics.
+  - `hud/academy-glyph-living.css`: added `.sc-research-living-underlay.is-tier-2` (amber drop shadow, opacity 0.24 studying), `.sc-research-topic-glyph.is-tier-2` icon drop-shadow, and `@keyframes sc-research-link-glow` animating `.sc-research-tree-link.is-met .sc-research-tree-link-mark`.
+  - `hud/living-glyph-soften.css`: capped `.sc-shell .sc-research-living-underlay.is-tier-2` at opacity 0.13 (0.16 active/studying), svg at 0.30.
+  - Reduced-motion support in `academy-glyph-living.css` covers all new keyframes and link glows.
+  - `theme.css`, `packages/sim`, and `server/` untouched.
+- **Tests:** `AcademyLivingGlyph.test.tsx` (13 tests) checks all 16 distinct SVG emblems (`new Set(svgs).size === 16`), `is-tier-2` and `data-study-tier="2"` markup, tier II descriptors, and CSS isolation. Full test suite (332 sim, 852 app, 158 server) passing.
+
 ## 2026-11-10 — sim + app / research tree, six tier II lectern studies (wave/research-tree, not merged)
 
 - **Spec.** Tier II = a `RESEARCH` entry with `requires: <tier I id>`. Tier I entries have no `requires`. Ticks below are table values; `researchDuration` still applies the Academy x0.8.

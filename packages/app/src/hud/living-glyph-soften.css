@@ -305,6 +305,16 @@
 .sc-shell .sc-research-living-underlay svg {
   opacity: 0.28 !important;
 }
+.sc-shell .sc-research-living-underlay.is-tier-2 {
+  opacity: 0.13 !important;
+}
+.sc-shell .sc-research-living-underlay.is-tier-2.status-active,
+.sc-shell .sc-research-living-underlay.is-tier-2.status-studying {
+  opacity: 0.16 !important;
+}
+.sc-shell .sc-research-living-underlay.is-tier-2 svg {
+  opacity: 0.30 !important;
+}
 
 
 /* Royal Decree Seal Underlays */

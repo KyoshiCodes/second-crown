@@ -347,6 +347,40 @@
   }
 }
 
+/* Tier II deeper study living flourishes (isolated from theme.css) */
+.sc-research-living-underlay.is-tier-2,
+.sc-academy-living-underlay.is-tier-2 {
+  filter: drop-shadow(0 0 5px rgba(200, 150, 50, 0.22));
+}
+
+.sc-research-living-underlay.is-tier-2.status-studying,
+.sc-academy-living-underlay.is-tier-2.status-studying {
+  opacity: 0.24;
+}
+
+.sc-research-topic-glyph.is-tier-2,
+.sc-academy-topic-glyph.is-tier-2 {
+  position: relative;
+}
+
+.sc-research-topic-glyph.is-tier-2 .sc-research-glyph-icon,
+.sc-academy-topic-glyph.is-tier-2 .sc-academy-glyph-icon {
+  filter: drop-shadow(0 0 2.5px rgba(200, 150, 50, 0.26));
+}
+
+.sc-research-tree-link.is-met .sc-research-tree-link-mark {
+  animation: sc-research-link-glow 3.6s ease-in-out infinite;
+}
+
+@keyframes sc-research-link-glow {
+  0%, 100% {
+    border-color: rgba(200, 150, 50, 0.7);
+  }
+  50% {
+    border-color: rgba(240, 185, 75, 1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sc-academy-living-underlay,
   .sc-research-living-underlay,
@@ -364,7 +398,8 @@
   .sc-academy-lectern-glyph .sc-academy-pulse-layer,
   .sc-academy-topic-glyph .sc-academy-glow-layer,
   .sc-academy-topic-glyph .sc-academy-drift-layer,
-  .sc-academy-topic-glyph .sc-academy-pulse-layer {
+  .sc-academy-topic-glyph .sc-academy-pulse-layer,
+  .sc-research-tree-link.is-met .sc-research-tree-link-mark {
     animation: none !important;
     transition: none !important;
     transform: none !important;

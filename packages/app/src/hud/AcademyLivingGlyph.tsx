@@ -142,7 +142,7 @@ export function resolveAcademyLecternLiving(input: {
   };
 }
 
-/** A tier II study wears the emblem of the tier I study it builds on (art grouping only). */
+/** A tier II study builds on a tier I study (sim researchRequires mapping). */
 export const TIER_TWO_EMBLEM: Record<string, string> = {
   crop_rotation: "husbandry",
   timber_framing: "forestry",
@@ -152,10 +152,67 @@ export const TIER_TWO_EMBLEM: Record<string, string> = {
   quartermastery: "drill",
 };
 
+export const TIER_TWO_TOPICS = new Set<string>([
+  "crop_rotation",
+  "timber_framing",
+  "fortification",
+  "supply_trains",
+  "cartography",
+  "quartermastery",
+]);
+
+export function isTierTwoStudy(topicId: string): boolean {
+  return TIER_TWO_TOPICS.has(topicId);
+}
+
 function TopicEmblemSvg(props: { topicId: string; discipline: ResearchDiscipline }) {
-  const { discipline } = props;
-  const topicId = TIER_TWO_EMBLEM[props.topicId] ?? props.topicId;
+  const { topicId, discipline } = props;
   if (discipline === "agronomy") {
+    if (topicId === "crop_rotation") {
+      /* Crop rotation: four-quadrant fallow cycle, clover leaf, grain ear, furrow lines & turning plow */
+      return (
+        <>
+          <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="12" r="7.8" fill="currentColor" opacity="0.18" />
+          <g className="sc-academy-drift-layer sc-research-drift-layer">
+            <circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" strokeWidth="1.1" strokeDasharray="3 1.8" />
+            <path d="M12 4.8 V19.2 M4.8 12 H19.2" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
+            <circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" fillOpacity="0.32" stroke="currentColor" strokeWidth="0.9" />
+            <path d="M14.5 9.5 L16.5 7.5 M15 7.5 L16.5 9" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
+            <path d="M13.8 14.5 H17.2 M14.2 16.5 H16.8" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+            <path d="M7 16 C6.8 13.8 8.8 13.8 9.5 15.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </g>
+          <g className="sc-academy-pulse-layer sc-research-pulse-layer">
+            <circle cx="12" cy="4.8" r="1.15" fill="currentColor" />
+            <circle cx="19.2" cy="12" r="0.9" fill="currentColor" opacity="0.85" />
+            <circle cx="12" cy="19.2" r="0.8" fill="currentColor" opacity="0.75" />
+            <circle cx="4.8" cy="12" r="0.9" fill="currentColor" opacity="0.85" />
+          </g>
+        </>
+      );
+    }
+
+    if (topicId === "timber_framing") {
+      /* Timber framing: joiner's timber truss, pegged mortise-and-tenon joints & plumb bob */
+      return (
+        <>
+          <rect className="sc-academy-glow-layer sc-research-glow-layer" x="4.5" y="4.5" width="15" height="15" rx="3" fill="currentColor" opacity="0.18" />
+          <g className="sc-academy-drift-layer sc-research-drift-layer">
+            <path d="M4.6 18 H19.4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <path d="M5.5 18 L12 5.5 L18.5 18" fill="currentColor" fillOpacity="0.22" stroke="currentColor" strokeWidth="1.35" strokeLinejoin="round" />
+            <path d="M12 5.5 V18" stroke="currentColor" strokeWidth="1.25" />
+            <path d="M8.2 18 L12 12.5 M15.8 18 L12 12.5" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
+            <circle cx="12" cy="6.2" r="0.9" fill="currentColor" />
+            <circle cx="6.2" cy="17.2" r="0.8" fill="currentColor" />
+            <circle cx="17.8" cy="17.2" r="0.8" fill="currentColor" />
+          </g>
+          <g className="sc-academy-pulse-layer sc-research-pulse-layer">
+            <path d="M12 12.5 V15" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+            <polygon points="12,17.2 10.8,15 13.2,15" fill="currentColor" />
+          </g>
+        </>
+      );
+    }
+
     const isForestry = topicId === "forestry";
     return (
       <>
@@ -211,6 +268,39 @@ function TopicEmblemSvg(props: { topicId: string; discipline: ResearchDiscipline
   }
 
   if (discipline === "masonry") {
+    if (topicId === "fortification") {
+      /* Fortification: crenellated curtain-wall bastion with machicolations, arrow slits & beacon star */
+      return (
+        <>
+          <rect className="sc-academy-glow-layer sc-research-glow-layer" x="4" y="4" width="16" height="16" rx="2.5" fill="currentColor" opacity="0.18" />
+          <g className="sc-academy-drift-layer sc-research-drift-layer">
+            <path
+              d="M4.8 6.5 H7.2 V8.5 H9.6 V6.5 H14.4 V8.5 H16.8 V6.5 H19.2 V11.2 H4.8 Z"
+              fill="currentColor"
+              fillOpacity="0.28"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M4.8 11.2 H19.2 L20.2 18.8 H3.8 Z"
+              fill="currentColor"
+              fillOpacity="0.24"
+              stroke="currentColor"
+              strokeWidth="1.25"
+              strokeLinejoin="round"
+            />
+            <path d="M7.2 11.2 V12.8 M12 11.2 V13.2 M16.8 11.2 V12.8" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+            <path d="M8.5 15.2 H15.5 M4.8 16.8 H19.2" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+          </g>
+          <g className="sc-academy-pulse-layer sc-research-pulse-layer">
+            <path d="M12 13.8 V17 M10.8 15 H13.2" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+            <circle cx="12" cy="5.2" r="1.15" fill="currentColor" />
+          </g>
+        </>
+      );
+    }
+
     return (
       <>
         <rect className="sc-academy-glow-layer sc-research-glow-layer" x="4.5" y="5" width="15" height="14" rx="3" fill="currentColor" opacity="0.16" />
@@ -245,6 +335,55 @@ function TopicEmblemSvg(props: { topicId: string; discipline: ResearchDiscipline
   }
 
   if (discipline === "cartography") {
+    if (topicId === "supply_trains") {
+      /* Supply trains: covered draught wagon with spoked wheels & road-dust lantern */
+      return (
+        <>
+          <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="12" r="7.8" fill="currentColor" opacity="0.18" />
+          <g className="sc-academy-drift-layer sc-research-drift-layer">
+            <path
+              d="M5.4 12.5 C4.8 6.8 17.6 6.8 18.2 12.5 Z"
+              fill="currentColor"
+              fillOpacity="0.28"
+              stroke="currentColor"
+              strokeWidth="1.25"
+              strokeLinejoin="round"
+            />
+            <rect x="4.6" y="12.5" width="14" height="2.8" rx="0.5" fill="currentColor" fillOpacity="0.32" stroke="currentColor" strokeWidth="1.1" />
+            <path d="M18.6 14.2 L21.6 15.2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+            <circle cx="7.6" cy="17.4" r="2.3" fill="none" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M7.6 15.1 V19.7 M5.3 17.4 H9.9" stroke="currentColor" strokeWidth="0.95" />
+            <circle cx="16" cy="17.4" r="2.3" fill="none" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M16 15.1 V19.7 M13.7 17.4 H18.3" stroke="currentColor" strokeWidth="0.95" />
+          </g>
+          <g className="sc-academy-pulse-layer sc-research-pulse-layer">
+            <rect x="3.8" y="10.8" width="1.8" height="2.5" rx="0.4" fill="currentColor" />
+            <circle cx="4.7" cy="12.1" r="0.8" fill="currentColor" opacity="0.9" />
+            <circle cx="19.8" cy="13.2" r="0.9" fill="currentColor" opacity="0.8" />
+          </g>
+        </>
+      );
+    }
+
+    if (topicId === "cartography") {
+      /* Cartography: unfolded realm map sheet with creases, coastline & compass rose */
+      return (
+        <>
+          <rect className="sc-academy-glow-layer sc-research-glow-layer" x="4.2" y="4.2" width="15.6" height="15.6" rx="2" fill="currentColor" opacity="0.18" />
+          <g className="sc-academy-drift-layer sc-research-drift-layer">
+            <rect x="4.6" y="4.6" width="14.8" height="14.8" rx="1.2" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M9.5 4.6 V19.4 M14.5 4.6 V19.4" stroke="currentColor" strokeWidth="0.85" strokeDasharray="1.5 1.5" />
+            <path d="M6 9 C7.8 7.8 9.2 10.5 11.2 9.5 C13.2 8.5 14.8 11.5 18 10.2" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M5.5 17.5 L17.5 5.5" stroke="currentColor" strokeWidth="0.8" strokeDasharray="2 2" />
+          </g>
+          <g className="sc-academy-pulse-layer sc-research-pulse-layer">
+            <polygon points="15.5,13.2 16.3,14.7 17.8,15.5 16.3,16.3 15.5,17.8 14.7,16.3 13.2,15.5 14.7,14.7" fill="currentColor" />
+            <circle cx="7.2" cy="7.2" r="1.15" fill="currentColor" />
+          </g>
+        </>
+      );
+    }
+
     const isLogistics = topicId === "logistics";
     return (
       <>
@@ -275,6 +414,29 @@ function TopicEmblemSvg(props: { topicId: string; discipline: ResearchDiscipline
   }
 
   if (discipline === "tactics") {
+    if (topicId === "quartermastery") {
+      /* Quartermastery: muster-roll balance scale with weighed ration/weapons, coins & chevron */
+      return (
+        <>
+          <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="12" r="7.6" fill="currentColor" opacity="0.18" />
+          <g className="sc-academy-drift-layer sc-research-drift-layer">
+            <path d="M12 5.5 V18.5 M9 18.5 H15" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M6.2 8.2 L17.8 8.2" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+            <path d="M6.2 8.2 L4.8 12.8 M6.2 8.2 L7.6 12.8" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" />
+            <path d="M4.2 12.8 C4.8 14.5 7.6 14.5 8.2 12.8 Z" fill="currentColor" fillOpacity="0.32" stroke="currentColor" strokeWidth="1.05" />
+            <path d="M17.8 8.2 L16.4 12.8 M17.8 8.2 L19.2 12.8" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" />
+            <path d="M15.8 12.8 C16.4 14.5 19.2 14.5 19.8 12.8 Z" fill="currentColor" fillOpacity="0.32" stroke="currentColor" strokeWidth="1.05" />
+            <path d="M10.2 16.4 L12 14.8 L13.8 16.4" stroke="currentColor" strokeWidth="1.1" fill="none" strokeLinecap="round" />
+          </g>
+          <g className="sc-academy-pulse-layer sc-research-pulse-layer">
+            <polygon points="12,4.2 12.9,5.5 12,6.8 11.1,5.5" fill="currentColor" />
+            <circle cx="17.8" cy="11.4" r="0.9" fill="currentColor" />
+            <circle cx="6.2" cy="11.4" r="0.9" fill="currentColor" opacity="0.85" />
+          </g>
+        </>
+      );
+    }
+
     return (
       <>
         <circle className="sc-academy-glow-layer sc-research-glow-layer" cx="12" cy="12" r="7.5" fill="currentColor" opacity="0.18" />
@@ -446,12 +608,14 @@ export function StudyLivingUnderlay(props: {
   academyFast?: boolean;
 }) {
   const { topicId, discipline, status, academyFast } = resolveStudyLiving(props);
+  const isTier2 = isTierTwoStudy(topicId);
   return (
     <span
-      className={`sc-academy-living-underlay sc-research-living-underlay discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}`}
+      className={`sc-academy-living-underlay sc-research-living-underlay discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}${isTier2 ? " is-tier-2" : ""}`}
       aria-hidden="true"
       data-study-watermark={topicId}
       data-study-discipline={discipline}
+      data-study-tier={isTier2 ? "2" : "1"}
     >
       <svg viewBox="0 0 24 24" className="sc-academy-underlay-svg sc-research-underlay-svg" focusable="false">
         <TopicEmblemSvg topicId={topicId} discipline={discipline} />
@@ -470,13 +634,15 @@ export function StudyLivingGlyph(props: {
   academyFast?: boolean;
 }) {
   const { topicId, discipline, status, academyFast, flair } = resolveStudyLiving(props);
+  const isTier2 = isTierTwoStudy(topicId);
   return (
     <span
-      className={`sc-academy-topic-glyph sc-research-topic-glyph sc-research-living-glyph discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}`}
+      className={`sc-academy-topic-glyph sc-research-topic-glyph sc-research-living-glyph discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}${isTier2 ? " is-tier-2" : ""}`}
       aria-hidden="true"
       data-study-glyph={topicId}
       data-study-discipline={discipline}
       data-study-status={status}
+      data-study-tier={isTier2 ? "2" : "1"}
     >
       <svg viewBox="0 0 24 24" className="sc-academy-glyph-icon sc-research-glyph-icon" focusable="false">
         <TopicEmblemSvg topicId={topicId} discipline={discipline} />
