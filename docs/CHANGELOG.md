@@ -1,13 +1,24 @@
 # CHANGELOG
 
-## 2026-11-11 — Clearer lectern study cards: Cost row and short Study button (wave/research-tree, not merged)
+## 2026-11-11 — Living research glyphs and ink pips changing with research progress (bakeoff/gemini-research-tree)
 
-- **Cost row on every study card.** Each card on the lectern (Keep → Lectern, and the primer banner) now shows a **Cost** row under the name / progress / bonus rows: one chip per resource (for example `20 food`, `12 wood`). A chip turns red when the stores do not cover it.
-- **One plain reason line.** Under the chips: `Short 13 food, 4 wood.`, `Stores cover it. Ready to study.`, `Stores cover it. Lectern is busy with Husbandry.`, or `Paid.` on a study that is underway or already known.
-- **Shorter Study button.** The label is now `Study husbandry (14s)`. The cost and hall list no longer ride in the button text (cost is in the Cost row; a missing hall, Keep level, or first study is still named in red under the study name).
-- **Unchanged:** all research math, costs, times, the Academy discount, Cancel and its refund, and when the Study button is disabled (missing hall, Keep level, or first study). `tryStartResearch` in the sim still decides and spends.
-- **Files:** new `packages/app/src/ResearchCost.tsx` and `ResearchCost.test.tsx`; edits to `ResearchBar.tsx` and `research-tree.css`. No edits to `packages/sim`, `server/`, or `theme.css`.
-- **Tests:** sim 362, app 927 (9 new), server 159 passing. App build clean. Not opened in a browser.
+- **Dedicated living research ink pip (`ResearchInkPip` / `StudyInkPip` / `InkPip`):** Created a bespoke animated medieval scholar inkpot and quill pip component (`packages/app/src/hud/ResearchInkPip.tsx` & `research-ink-pip.css`) rendering layered SVG geometry:
+  - **Dynamic fluid ink level:** Physical ink reservoir physically fills in real-time as research progress advances from 0% to 100%, with fluid surface ripple effects (`.sc-ink-surface-ripple`).
+  - **Transcription quill motion:** Goose quill feather dips into the inkwell neck and bobs gently with active transcription rhythms (`.is-writing` / `sc-ink-quill-dip`) while research is underway.
+  - **Scriptorium atmosphere:** Scriptorium ink motes and vapour particles (`.sc-ink-mote`) drift upward from freshly inked parchment.
+  - **4-bead progressive droplet track (`ResearchInkDroplets`):** 4 micro ink droplets marking quartile milestones (25%, 50%, 75%, 100%), with active droplets glowing and filled droplets displaying deep lustrous ink coats.
+  - **Mastered illumination:** Completed / known studies illuminate with permanent royal gold / sapphire ink sheen, crowned by a 4-point scholar star twinkle (`.sc-ink-star-glint`).
+  - **Sealed state:** Locked studies display a dry stone inkpot with sealed cap (`.sc-ink-cap-seal`).
+- **Research card integration:**
+  - Mounted `.sc-study-ink-badge` in the top-right corner of every study card in `ResearchBar.tsx` across tier I and tier II studies.
+  - Computed normalized `progress` (0.0 to 1.0) from `researchTicksLeft`, `research_${id}_total`, and `researchDuration`.
+  - Added `data-progress` and `data-ink-stage` attributes to research cards.
+- **Enhanced living research glyphs:**
+  - `StudyLivingGlyph` and `StudyLivingUnderlay` accept `progress?: number`.
+  - Added SVG inking progress ring (`.sc-research-ink-progress-ring`) around the research discipline emblem while studying.
+  - Flair text dynamically reports progress percentage (`... · scribes ink (50%)`) while preserving string compatibility for existing tests.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` on all decorative containers, SVG layers, and droplet tracks. Full `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** New test suite `packages/app/src/hud/ResearchInkPip.test.tsx` (9 tests) verifying pure helpers, SVG markup, ink stages, 4-bead droplet tracking, `ResearchBar` integration, and CSS isolation. Full test suite (sim 362, app 927, server 158) passing cleanly. App build clean.
 
 ## 2026-11-11 — Living seasonal crest or weather pip on season status line (bakeoff/gemini-season-claim)
 

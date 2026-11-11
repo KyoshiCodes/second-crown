@@ -1,15 +1,37 @@
-## 2026-11-11 — app / Cost row and short Study button on lectern study cards (wave/research-tree, not merged)
+## 2026-11-11 — app / living research glyphs and ink pips changing with research progress (bakeoff/gemini-research-tree)
 
-- **Branch note:** `wave/research-tree` already existed (tier II studies, `26ed41b`, an ancestor of `main`). It was re-pointed at `origin/main` (`27f0f57`) and this slice sits on top, so the push was a plain fast-forward, no force.
-- **`packages/app/src/ResearchCost.tsx` (new):**
-  - `studyCostParts(cost, resources)`: one `{ res, need, short }` per entry of the sim `RESEARCH[id].cost`, in table order. `short` is `ceil(need - have)` or 0. Uses `Number()` on the store strings; display only.
-  - `studyCostNote({ status, parts, busyWith })`: the reason line. Order: known / studying → "Paid."; any short resource → "Short N res, …"; another study open → "Stores cover it. Lectern is busy with X."; locked → "Stores cover it."; else "Stores cover it. Ready to study." Hall / Keep / prerequisite gates are not repeated here; the name row's red sub-line already carries them.
-  - `ResearchCostRow`: `.sc-research-tree-cost.is-<status>` with `data-study-cost="paid" | "due"`, chips `.sc-research-tree-cost-chip` (`is-short` only while due), note `.sc-research-tree-cost-note.tone-ok | short | wait | calm`.
-- **`ResearchBar.tsx`:** `Row` takes optional `busyWith` (name of a different open study, passed from `ResearchBar`) and renders `ResearchCostRow` after `StudyLivingGlyph`, right above the Study button, on every card. Button label is `Study <name> (<seconds>s)`; the old `(cost; halls; Keep; seconds)` tail is gone. `disabled` logic, the click handler, the failure message, and Cancel are untouched.
-- **Not done on purpose:** the Study button is not disabled for short stores or a busy lectern. The click still goes through `tryStartResearch` and reports the same message as before. Disabling would be a behavior change the brief did not ask for; the Cost row explains instead.
-- **CSS:** new rules in `research-tree.css`, all under `.sc-research-tree-cost*` (the sheet's scope test still holds). No `theme.css` edit.
-- **Tests:** `ResearchCost.test.tsx` (9): helpers, chip states, every card has a cost row, the green note agrees with `tryStartResearch`, Paid / busy states, render does not mutate stores. Existing assertions on `Study husbandry (` still pass. Full run: sim 362, app 927, server 159; `npm run build -w @second-crown/app` clean.
-- **Not verified:** not opened in a browser; covered by static-markup tests only.
+- **Components (`packages/app/src/hud/ResearchInkPip.tsx`):**
+  - Exports `ResearchInkPip`, `StudyInkPip` alias, `InkPip` alias, `ResearchProgressPip` alias, `ResearchInkDroplets`, `calcResearchProgress`, `resolveInkStage`, `formatInkStatus`, and `InkStage` type (`"locked" | "open" | "stage-1" | "stage-2" | "stage-3" | "stage-4" | "known"`).
+  - Pure calculation helpers:
+    - `calcResearchProgress({ done, ticksLeft, ticksTotal, duration })`: computes normalized 0.0..1.0 progress clamped.
+    - `resolveInkStage(progress, status)`: maps progress percentage and status to ink stages.
+    - `formatInkStatus(progress, status)`: returns accessible summary text.
+  - Phrasing wrapper `<span className="sc-research-ink-pip sc-ink-pip-wrapper">` with `aria-hidden="true"`, `data-ink-pip="true"`, `data-ink-stage={stage}`, `data-progress={pct}`, `data-status={status}`.
+  - Multi-layer SVG vector artwork (24×24):
+    - `.sc-ink-pot-hull`, `.sc-ink-pot-rim`, `.sc-ink-pot-opening`: stoneware inkpot with lip rim and internal well.
+    - `.sc-ink-fluid-rect`: dynamic ink level calculated via `fluidHeight = progress * reservoirMaxHeight` and clipped to internal well shape.
+    - `.sc-ink-surface-ripple`: gentle animated ripple curve across ink meniscus.
+    - `.sc-ink-quill`: angled goose quill dipped in ink; animates with transcription bobbing motion (`sc-ink-quill-dip`) when studying.
+    - `.sc-ink-drift-layer`: rising scriptorium ink vapor motes (`sc-ink-mote-rise`).
+    - `.sc-ink-star-glint`: 4-point scholar star twinkle when study is mastered/codified.
+    - `.sc-ink-cap-seal`: stone capped seal when locked.
+  - `ResearchInkDroplets`: 4-bead mini ink droplet track with states `empty`, `active`, and `filled` tracking 25% increments.
+- **Styling (`packages/app/src/hud/research-ink-pip.css` & `living-glyph-soften.css`):**
+  - All decorative wrappers, SVGs, tracks, and layers enforce `pointer-events: none !important;` and `user-select: none;`.
+  - Added `.sc-shell .sc-research-ink-pip`, `.sc-shell .sc-study-ink-pip`, `.sc-shell .sc-ink-pip-wrapper`, `.sc-shell .sc-study-ink-badge`, `.sc-shell .sc-ink-pot-container`, `.sc-shell .sc-ink-droplet-track` to Section 1 pointer-events reset and reduced-motion block in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **UI Integration:**
+  - `packages/app/src/ResearchBar.tsx`:
+    - Evaluates `progress = done ? 1 : left > 0 ? Math.min(1, Math.max(0, 1 - left / effectiveTotal)) : 0`.
+    - Mounts `.sc-study-ink-badge` in top-right corner of each study card with `<ResearchInkPip size={18} showDrops={status === "studying"} />`.
+    - Passes `progress` to `StudyLivingUnderlay` and `StudyLivingGlyph`.
+    - Sets `data-progress` on `.sc-study-living-card`.
+  - `packages/app/src/hud/AcademyLivingGlyph.tsx`:
+    - `resolveStudyLiving`: accepts `progress?: number`; when studying and progress is defined, outputs `scribes ink (N%)` (preserving `"scribes ink"` substring match).
+    - `StudyLivingGlyph`: renders `.sc-research-ink-progress-ring` around discipline emblem when studying with dynamic stroke dashoffset.
+- **Tests:**
+  - `packages/app/src/hud/ResearchInkPip.test.tsx` (9 tests) covering pure helpers, SVG markup, ink stages, 4-bead droplets, `ResearchBar` integration, and CSS isolation.
+  - Full test suite passing: sim 362, app 927, server 158. App build clean.
 
 ## 2026-11-11 — app / living seasonal crest or weather pip on season status line (bakeoff/gemini-season-claim)
 

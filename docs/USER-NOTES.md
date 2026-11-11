@@ -2,12 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-11 — Study cards show the cost up front (wave/research-tree, not on the live game yet)
+## 2026-11-11 — Living research glyphs and ink pips that change with study progress (bakeoff/gemini-research-tree)
 
-- **Cost row on every study.** Open the Keep, then the Lectern. Each study card now has a **Cost** row with one small chip per resource, such as "20 food" and "12 wood". A chip is red when you do not have enough.
-- **It tells you what is stopping you.** Under the chips is one short line: "Short 13 food, 4 wood.", "Stores cover it. Ready to study.", or "Lectern is busy with Husbandry." Studies you have started or finished say "Paid."
-- **Shorter Study button.** The button now just says, for example, "Study husbandry (14s)". The number is how long the study takes.
-- Nothing about research itself changed: same costs, same times, same bonuses, same Cancel refund.
+- **Living inkwells and progressive ink pips on study cards:** Each research card in the Keep Lectern now features an animated medieval inkwell and quill badge in its top corner:
+  - **Rising ink level:** As your scholars study, the fluid ink level inside the inkpot visibly rises from empty to full.
+  - **Transcription quill motion:** When research is actively underway, the goose quill feather dips into the inkwell and bobs with writing motion, with delicate ink vapours rising from fresh parchment.
+  - **Progress droplet track:** A track of four small ink droplets beside the inkpot fills one by one as study progress passes 25%, 50%, 75%, and 100%.
+  - **Illuminated gold master seal:** When a study is fully completed and known, the inkwell illuminates with radiant royal gold ink and a twinkling 4-point scholar star.
+  - **Sealed stone inkpot:** Locked studies that still lack buildings or Keep upgrades show a dry stone inkpot with a sealed cap.
+- **Dynamic progress ring on research glyphs:** The research discipline emblem at the bottom of the card now traces a living progress ring that fills as scribes transcribe, and the text notes your exact percent completion.
+- **Strictly visual:** All ink pips, quills, droplets, and progress rings are strictly visual (`pointer-events: none !important;`), honor reduced-motion preferences, and never block button clicks, cancellations, or reading. No game rules, research costs, or timers were changed.
 
 ## 2026-11-11 — Living seasonal crest and weather on season status lines (bakeoff/gemini-season-claim)
 

@@ -18,6 +18,7 @@ export interface StudyLivingDescriptor {
   status: StudyStatus;
   academyFast: boolean;
   flair: string;
+  progress?: number;
 }
 
 export interface LecternLivingDescriptor {
@@ -82,14 +83,17 @@ export function resolveStudyLiving(input: {
   topicId: string;
   status: StudyStatus;
   academyFast?: boolean;
+  progress?: number;
 }): StudyLivingDescriptor {
-  const { topicId, status, academyFast = false } = input;
+  const { topicId, status, academyFast = false, progress } = input;
   const discipline = getResearchDiscipline(topicId);
   const folio = TOPIC_FOLIO_LABEL[topicId] ?? "Scholarly folio";
 
   const stateWord =
     status === "studying"
-      ? "scribes ink"
+      ? progress !== undefined
+        ? `scribes ink (${Math.round(Math.min(1, Math.max(0, progress)) * 100)}%)`
+        : "scribes ink"
       : status === "known"
         ? "codified"
         : status === "open"
@@ -104,6 +108,7 @@ export function resolveStudyLiving(input: {
     status,
     academyFast,
     flair: `${folio} · ${stateWord}`,
+    progress,
   };
 }
 
@@ -606,9 +611,11 @@ export function StudyLivingUnderlay(props: {
   topicId: string;
   status: StudyStatus;
   academyFast?: boolean;
+  progress?: number;
 }) {
-  const { topicId, discipline, status, academyFast } = resolveStudyLiving(props);
+  const { topicId, discipline, status, academyFast, progress } = resolveStudyLiving(props);
   const isTier2 = isTierTwoStudy(topicId);
+  const pct = progress !== undefined ? Math.round(Math.min(1, Math.max(0, progress)) * 100) : undefined;
   return (
     <span
       className={`sc-academy-living-underlay sc-research-living-underlay discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}${isTier2 ? " is-tier-2" : ""}`}
@@ -616,6 +623,7 @@ export function StudyLivingUnderlay(props: {
       data-study-watermark={topicId}
       data-study-discipline={discipline}
       data-study-tier={isTier2 ? "2" : "1"}
+      data-progress={pct}
     >
       <svg viewBox="0 0 24 24" className="sc-academy-underlay-svg sc-research-underlay-svg" focusable="false">
         <TopicEmblemSvg topicId={topicId} discipline={discipline} />
@@ -632,9 +640,11 @@ export function StudyLivingGlyph(props: {
   topicId: string;
   status: StudyStatus;
   academyFast?: boolean;
+  progress?: number;
 }) {
-  const { topicId, discipline, status, academyFast, flair } = resolveStudyLiving(props);
+  const { topicId, discipline, status, academyFast, flair, progress } = resolveStudyLiving(props);
   const isTier2 = isTierTwoStudy(topicId);
+  const pct = progress !== undefined ? Math.round(Math.min(1, Math.max(0, progress)) * 100) : undefined;
   return (
     <span
       className={`sc-academy-topic-glyph sc-research-topic-glyph sc-research-living-glyph discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}${isTier2 ? " is-tier-2" : ""}`}
@@ -643,9 +653,24 @@ export function StudyLivingGlyph(props: {
       data-study-discipline={discipline}
       data-study-status={status}
       data-study-tier={isTier2 ? "2" : "1"}
+      data-progress={pct}
     >
       <svg viewBox="0 0 24 24" className="sc-academy-glyph-icon sc-research-glyph-icon" focusable="false">
         <TopicEmblemSvg topicId={topicId} discipline={discipline} />
+        {progress !== undefined && status === "studying" ? (
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeDasharray="62.8"
+            strokeDashoffset={62.8 * (1 - Math.min(1, Math.max(0, progress)))}
+            className="sc-research-ink-progress-ring"
+            opacity="0.8"
+          />
+        ) : null}
       </svg>
       <span className="sc-academy-glyph-flair sc-research-glyph-flair">{flair}</span>
     </span>

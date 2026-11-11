@@ -1,0 +1,347 @@
+/* --- Living research ink pip & progress glyph (bakeoff/gemini-research-tree) ---
+ * Isolated styling for ResearchInkPip, StudyInkPip, and the 4-stage ink droplets.
+ * Never touches theme.css.
+ * All layers enforce pointer-events: none !important so clicks and studies are never blocked.
+ */
+
+.sc-research-ink-pip,
+.sc-ink-pip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  pointer-events: none !important;
+  user-select: none;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.sc-ink-pot-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  pointer-events: none !important;
+}
+
+.sc-ink-pot-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none !important;
+}
+
+/* ==========================================================================
+   Inkpot Vessels & Structural Geometry
+   ========================================================================== */
+.sc-ink-pot-shadow {
+  fill: rgba(0, 0, 0, 0.45);
+}
+
+.sc-ink-pot-hull {
+  fill: #1e1e24;
+  stroke: #3f3f46;
+  stroke-width: 1.15;
+  stroke-linejoin: round;
+}
+
+.sc-ink-pot-rim {
+  fill: #27272a;
+  stroke: #52525b;
+  stroke-width: 0.95;
+}
+
+.sc-ink-pot-opening {
+  fill: #09090b;
+}
+
+.sc-ink-cap-seal {
+  fill: #3f3f46;
+  stroke: #52525b;
+  stroke-width: 0.9;
+}
+
+/* ==========================================================================
+   Quill Feather Artwork & Animation
+   ========================================================================== */
+.sc-ink-quill-spine {
+  fill: none;
+  stroke: #cbd5e1;
+  stroke-width: 1.15;
+  stroke-linecap: round;
+}
+
+.sc-ink-quill-vane {
+  fill: #e2e8f0;
+  fill-opacity: 0.75;
+  stroke: #94a3b8;
+  stroke-width: 0.85;
+  stroke-linejoin: round;
+}
+
+.sc-ink-quill-nib {
+  fill: #d29922;
+  stroke: #f59e0b;
+  stroke-width: 0.5;
+}
+
+.sc-ink-quill.is-writing {
+  transform-origin: 11.5px 13.5px;
+  animation: sc-ink-quill-dip 2.2s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Fluid Ink Level & Ripple
+   ========================================================================== */
+.sc-ink-fluid-rect {
+  transition: y 0.35s ease-out, height 0.35s ease-out;
+}
+
+.sc-ink-surface-ripple {
+  fill: none;
+  stroke: rgba(165, 180, 252, 0.65);
+  stroke-width: 0.85;
+  stroke-linecap: round;
+  animation: sc-ink-ripple-flow 1.9s ease-in-out infinite alternate;
+}
+
+/* ==========================================================================
+   Atmospheric Glow & Vapor Motes
+   ========================================================================== */
+.sc-ink-glow-layer {
+  fill: #d29922;
+  transition: opacity 0.3s ease;
+}
+
+.is-studying .sc-ink-glow-layer {
+  fill: #6366f1;
+  animation: sc-ink-glow-pulse 2.6s ease-in-out infinite;
+}
+
+.is-known .sc-ink-glow-layer {
+  fill: #f59e0b;
+  animation: sc-ink-master-breathe 3.4s ease-in-out infinite;
+}
+
+.is-locked .sc-ink-glow-layer {
+  fill: #3f3f46;
+  opacity: 0.05 !important;
+}
+
+.sc-ink-mote {
+  fill: #818cf8;
+  opacity: 0.75;
+  animation: sc-ink-mote-rise 2s ease-out infinite;
+}
+
+.sc-ink-mote.mote-1 { animation-delay: 0s; }
+.sc-ink-mote.mote-2 { animation-delay: 0.7s; }
+.sc-ink-mote.mote-3 { animation-delay: 1.4s; }
+
+/* ==========================================================================
+   Scholar Star & Glint Details
+   ========================================================================== */
+.sc-ink-star-glint {
+  fill: #fbbf24;
+  animation: sc-ink-star-twinkle 2.8s ease-in-out infinite;
+}
+
+.sc-ink-gold-core {
+  fill: #f59e0b;
+  opacity: 0.9;
+}
+
+.sc-ink-wet-glimmer {
+  fill: #93c5fd;
+  opacity: 0.85;
+  animation: sc-ink-glimmer-pulse 1.6s ease-in-out infinite alternate;
+}
+
+.sc-ink-dormant-glint {
+  fill: #71717a;
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   4-Bead Progressive Droplet Bar
+   ========================================================================== */
+.sc-ink-droplet-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5px;
+  padding: 1px 3px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  pointer-events: none !important;
+}
+
+.sc-ink-drop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 7px;
+  height: 9px;
+  pointer-events: none !important;
+}
+
+.sc-ink-drop-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.sc-ink-drop-body {
+  transition: fill 0.3s ease, stroke 0.3s ease;
+}
+
+.sc-ink-drop.is-empty .sc-ink-drop-body {
+  fill: rgba(255, 255, 255, 0.05);
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 0.8;
+}
+
+.sc-ink-drop.is-active .sc-ink-drop-body {
+  fill: #4338ca;
+  stroke: #818cf8;
+  stroke-width: 0.9;
+  animation: sc-ink-drop-pulse 1.6s ease-in-out infinite alternate;
+}
+
+.sc-ink-drop.is-filled .sc-ink-drop-body {
+  fill: #6366f1;
+  stroke: #a5b4fc;
+  stroke-width: 0.9;
+}
+
+.is-known .sc-ink-drop.is-filled .sc-ink-drop-body {
+  fill: #d97706;
+  stroke: #fcd34d;
+}
+
+.sc-ink-drop-glint {
+  fill: #ffffff;
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   Study Card Top-Corner Badge
+   ========================================================================== */
+.sc-study-ink-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 2;
+  pointer-events: none !important;
+}
+
+.sc-study-ink-badge .sc-ink-droplet-track {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(2px);
+}
+
+/* ==========================================================================
+   Keyframe Animations
+   ========================================================================== */
+@keyframes sc-ink-quill-dip {
+  0%, 100% {
+    transform: rotate(0deg) translate(0, 0);
+  }
+  30% {
+    transform: rotate(-3deg) translate(-0.5px, 0.8px);
+  }
+  60% {
+    transform: rotate(2deg) translate(0.3px, -0.4px);
+  }
+}
+
+@keyframes sc-ink-ripple-flow {
+  0% {
+    d: path("M6 12 Q9 11.3 12 12 T18 12");
+    opacity: 0.5;
+  }
+  100% {
+    d: path("M6 12 Q9 12.7 12 12 T18 12");
+    opacity: 0.85;
+  }
+}
+
+@keyframes sc-ink-glow-pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.38;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes sc-ink-master-breathe {
+  0%, 100% {
+    opacity: 0.28;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.44;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-ink-mote-rise {
+  0% {
+    transform: translateY(2px) scale(0.6);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(-4px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes sc-ink-star-twinkle {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-ink-glimmer-pulse {
+  0% { opacity: 0.5; transform: scale(0.9); }
+  100% { opacity: 0.95; transform: scale(1.15); }
+}
+
+@keyframes sc-ink-drop-pulse {
+  0% { filter: drop-shadow(0 0 1px rgba(99, 102, 241, 0.4)); }
+  100% { filter: drop-shadow(0 0 3px rgba(99, 102, 241, 0.8)); }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-research-ink-pip,
+  .sc-ink-pip-wrapper,
+  .sc-ink-pot-container,
+  .sc-ink-quill,
+  .sc-ink-glow-layer,
+  .sc-ink-mote,
+  .sc-ink-surface-ripple,
+  .sc-ink-star-glint,
+  .sc-ink-wet-glimmer,
+  .sc-ink-drop-body {
+    animation: none !important;
+    transition: none !important;
+  }
+}

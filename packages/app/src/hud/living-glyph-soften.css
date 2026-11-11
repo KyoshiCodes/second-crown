@@ -86,6 +86,12 @@
 .sc-shell .sc-realm-gift-badge,
 .sc-shell .sc-season-pip-wrapper,
 .sc-shell .sc-season-status-line,
+.sc-shell .sc-research-ink-pip,
+.sc-shell .sc-study-ink-pip,
+.sc-shell .sc-ink-pip-wrapper,
+.sc-shell .sc-study-ink-badge,
+.sc-shell .sc-ink-pot-container,
+.sc-shell .sc-ink-droplet-track,
 .sc-shell [class*="-living-underlay"],
 .sc-shell [class*="-living-glow"],
 .sc-shell [class*="-living-pulse"],
@@ -872,6 +878,15 @@
   .sc-shell .sc-season-mote,
   .sc-shell .sc-season-wind-streak,
   .sc-shell .sc-season-glint-star,
+  .sc-shell .sc-research-ink-pip,
+  .sc-shell .sc-ink-quill,
+  .sc-shell .sc-ink-glow-layer,
+  .sc-shell .sc-ink-mote,
+  .sc-shell .sc-ink-surface-ripple,
+  .sc-shell .sc-ink-star-glint,
+  .sc-shell .sc-ink-wet-glimmer,
+  .sc-shell .sc-ink-drop-body,
+  .sc-shell .sc-research-ink-progress-ring,
   .sc-shell .sc-board-living * {
     animation: none !important;
     transition: none !important;
