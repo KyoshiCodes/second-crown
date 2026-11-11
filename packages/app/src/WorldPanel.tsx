@@ -1,6 +1,6 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
-import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType, isScouted, giftOffer } from "@second-crown/sim";
+import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType, isScouted } from "@second-crown/sim";
 import { Crest } from "./Crest";
 import { crestFor } from "./crests";
 import { getRealmFlavor } from "./content/flavor";
@@ -10,10 +10,11 @@ import { FactionSealPip } from "./hud/FactionSealPip";
 import { DiploLedger, pactLedgerRows, realmLedgerRows } from "./hud/DiploLedger";
 import { DiploLivingRows, realmPactOf } from "./hud/DiploLivingRows";
 import { RealmLivingGlyph, RealmLivingUnderlay, PactLivingGlyph, PactLivingUnderlay } from "./hud/DiploLivingGlyph";
-import { GiftLine } from "./hud/GiftLine";
+import { GiftPip, resolveGiftStatus } from "./hud/GiftPip";
 import "./hud/crown-card.css";
 import "./hud/faction-seals.css";
 import "./hud/diplo-glyph-living.css";
+import "./hud/gift-pip.css";
 
 function hostLine(state: GameState, realmId: string): string {
   const parts = state.units
@@ -62,10 +63,30 @@ export function WorldPanel(props: {
         const power = realmPower(state, r.id);
         const seen = isScouted(state, r.id);
         const offers = KINGDOM_OFFERS[r.id] ?? [];
-        const gift = giftOffer(state, r.id);
+        const giftStatus = resolveGiftStatus({
+          state,
+          realmId: r.id,
+          hasGiftAction: !!props.onGift,
+        });
+        const hasGift = giftStatus === "available" || giftStatus === "just-sent";
+        const cardGiftClass = hasGift ? ` has-gift is-gift-${giftStatus}` : "";
         return (
-          <div key={r.id} className={`sc-realm-dip is-${stance} is-living`} data-realm={r.id}>
+          <div key={r.id} className={`sc-realm-dip is-${stance} is-living${cardGiftClass}`} data-realm={r.id} data-gift-status={giftStatus ?? undefined}>
             <RealmLivingUnderlay realmId={r.id} stance={stance} />
+            {hasGift ? (
+              <span
+                className="sc-realm-gift-badge"
+                aria-hidden="true"
+                data-realm-gift={r.id}
+                data-gift-status={giftStatus}
+              >
+                <GiftPip
+                  status={giftStatus}
+                  size={20}
+                  title={giftStatus === "just-sent" ? "Tribute dispatched!" : "Tribute available (15 gold)"}
+                />
+              </span>
+            ) : null}
             <DiploLivingRows
               realmId={r.id}
               stance={stance}
@@ -97,14 +118,18 @@ export function WorldPanel(props: {
             </span>
             <p className="sc-realm-blurb" style={{ margin: "2px 0 0" }}>{flavor.blurb}</p>
             <div className="sc-realm-taunt"><em>"{flavor.warTaunt}"</em></div>
-            {props.onGift ? <GiftLine offer={gift} /> : null}
             <span className="sc-realm-dip-actions">
               {!seen && props.onScout ? (
                 <button type="button" className="sc-realm-dip-btn" onClick={() => props.onScout?.(r.id)}>Scout host (10 gold)</button>
               ) : null}
               {props.onGift ? (
-                <button type="button" className="sc-realm-dip-btn sc-gift-btn" disabled={!gift.ok} onClick={() => props.onGift?.(r.id)}>
-                  Send {gift.cost} Gold Tribute to {ruler?.name ?? r.name}
+                <button
+                  type="button"
+                  className={`sc-realm-dip-btn sc-realm-gift-btn${giftStatus ? ` is-${giftStatus}` : ""}`}
+                  onClick={() => props.onGift?.(r.id)}
+                >
+                  <GiftPip status={giftStatus ?? "unaffordable"} size={14} />
+                  <span>Send 15 Gold Tribute to {ruler?.name ?? r.name}</span>
                 </button>
               ) : null}
               {props.onTrade && offers.map((o) => (

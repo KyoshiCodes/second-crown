@@ -1,14 +1,31 @@
-## 2026-11-11 — sim + app / gift helpers and tribute line on diplomacy cards (wave/diplomacy-gifts, not merged)
+## 2026-11-11 — app / living gift and tribute pips on diplomacy realm cards (bakeoff/gemini-diplomacy-gifts)
 
-- **Starting point.** `tryGiftGold(state, amount = 15, realmId = "rival")` already existed with hard-coded numbers, and the UI repeated them ("Gift 15 gold (+12 opinion)", "Need 15 gold."). The label was wrong whenever a bonus was active.
-- **Sim (`actions/diplomacy.ts`).** `giftOffer(state, realmId, amount)` is the single read for the UI: `{ realmId, cost, gain, opinion, short, ok, block }`. Block order: `no_ruler`, then `at_cap` (their opinion of the player >= 100), then `no_gold`. `short` is the missing gold rounded up. `gain` is before the cap, so a gift at opinion 95 still reads +12 and lands at 100. `tryGiftGold` returns false unless `giftOffer(...).ok`; the at-cap refusal is the only behavior change. `giftBonusOpinion` is the old inline `extra` (Silk Seal 4, Court 5, Envoys 6), still added to both opinion edges.
-- **Determinism.** No new state, flags or events. The gift is still a player action that writes a `gift` entry to `inputLog`. `giftOffer` does not mutate (a test compares the serialized state).
-- **App.** `hud/GiftLine.tsx`: `giftLineTone`, `giftLineText`, `giftRefusal`, `giftButtonLabel`, `GiftLine`. Display only, all numbers come from `giftOffer`. `RealmCard` takes an optional `gift?: GiftOffer`; without it the card renders exactly as before (old label, no line), so existing callers and tests are unchanged. `WarRoom.tsx` passes `giftOffer(state, r.id)` and an `onGift` for every realm. `WorldPanel.tsx` shows the line only when `onGift` is passed, so `SpectatorView` stays read-only. `tabs/WorldTab.tsx` uses `giftRefusal` for the refusal message.
-- **Button labels.** The War tab label still starts with "Gift", which `main.tsx` uses to play the gift sound. The World tab label ("Send 15 Gold Tribute to ...") does not, so no sound there; that was already the case.
-- **CSS.** `hud/gift-line.css`, every selector under `.sc-gift-`. `theme.css` untouched.
-- **Not changed.** Strings are literals in the component like the rest of the diplomacy cards (invariant 9 is not enforced yet). Gifts are still allowed during a war and during a truce.
-- **Tests.** `diplomacy.test.ts` (6 new), `GiftLine.test.tsx` (9). Sim 362, server 158. App 882, all passing; app build passes.
-- **Culture-unit chip fix.** On `origin/main`, 9 app tests (`UnitLivingRows`, `UnitStatus`, `UnitLivingGlyph`, `BandagePip`) and `npm run build -w @second-crown/app` fail because `UnitCard.tsx` imports `hasCultureUnitChip` from `CultureUnitChip.tsx`, which did not export it, and passes a `typeId` prop the chip does not take. Fixed on this branch at the owner's request: `hasCultureUnitChip(typeId)` is exported from `CultureUnitChip.tsx` (wraps `isCultureUniqueUnit`), and `UnitCard` passes `unitId={typeId}`. The five culture units still hit their direct chip branches first, so this is a fallback path only.
+- **Components (`packages/app/src/hud/GiftPip.tsx`):**
+  - Exports `GiftPip`, `TributePip` alias, `GiftStatus` (`"available" | "just-sent" | "unaffordable"`), `GIFT_GOLD_COST` (15), `GIFT_JUST_SENT_TICKS` (40 ticks / 4s).
+  - Pure evaluation helpers:
+    - `isGiftAvailable(state?: GameState, cost?: number): boolean`: checks `Number(state.resources.gold) >= cost`.
+    - `giftJustSentTicksAgo(state?: GameState, realmId?: string, windowTicks?: number): number | null`: queries `state.inputLog` in reverse for `entry.type === "gift"` targeting the realm within `windowTicks`.
+    - `isGiftJustSent(state?: GameState, realmId?: string, windowTicks?: number): boolean`.
+    - `resolveGiftStatus(options)`: returns `"just-sent"`, `"available"`, `"unaffordable"`, or `null`.
+  - Phrasing wrapper `<span className="sc-gift-pip-wrapper">` with `aria-hidden="true"`, `data-gift-pip="true"`, `data-gift-status={status}`.
+  - Multi-layer SVG vector artwork (24×24):
+    - `.sc-gift-glow-layer`: breathing gold aura glow.
+    - `.sc-gift-sent-ping`: expanding radial ripple shockwave ring when `status === "just-sent"`.
+    - `.sc-gift-drift-layer`: corner coin sparkles (`.sc-gift-sparkle`) and ascending gold motes (`.sc-gift-mote`).
+    - `.sc-gift-chest-base`: domed coffer lid, casket body, gilded iron straps, lock plate, keyhole, and hanging swallowtail ribbon seal.
+    - `.sc-gift-pulse-layer`: 4-point royal star glint on the lock clasp (`.sc-gift-glint-star`).
+- **Styling (`packages/app/src/hud/gift-pip.css` & `living-glyph-soften.css`):**
+  - All decorative wrappers, SVGs, badges, and layers enforce `pointer-events: none !important;` and `user-select: none;`.
+  - Keyframes: `sc-gift-glow-breathe`, `sc-gift-sparkle-pulse`, `sc-gift-sent-ping`, `sc-gift-motes-drift`, `sc-gift-glint-flare`, `sc-realm-gift-badge-pulse`.
+  - Added `.sc-shell .sc-gift-pip-wrapper` and `.sc-shell .sc-realm-gift-badge` to Section 1 pointer-events reset and reduced-motion overrides in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **UI Mounting:**
+  - `packages/app/src/hud/RealmCard.tsx`: accepts `state?: GameState`, `giftStatus?: GiftStatus`, `giftAvailable?: boolean`, `giftJustSent?: boolean`. Mounts `.sc-realm-gift-badge` in top-right corner when a gift is available or just sent, and embeds `GiftPip` inside `.sc-realm-gift-btn`.
+  - `packages/app/src/WarRoom.tsx`: passes `state={state}` to `RealmCard`.
+  - `packages/app/src/WorldPanel.tsx`: mounts `.sc-realm-gift-badge` and embeds `GiftPip` inside the "Send 15 Gold Tribute" button for Known Crowns cards.
+- **Tests:**
+  - `packages/app/src/hud/GiftPip.test.tsx` (12 tests) covers pure state helpers, SVG sizing, aria-hidden, data attributes, `RealmCard` and `WorldPanel` integration, and CSS isolation.
+  - Sim 356, app 885, server 158 pass. App build clean.
 
 ## 2026-11-11 — app / distinct 28px living chips for each culture's unique unit (bakeoff/gemini-culture-units)
 

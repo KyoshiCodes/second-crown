@@ -82,6 +82,8 @@
 .sc-shell .sc-outrider-chip-wrapper,
 .sc-shell .sc-warden-chip-wrapper,
 .sc-shell .sc-lancer-chip-wrapper,
+.sc-shell .sc-gift-pip-wrapper,
+.sc-shell .sc-realm-gift-badge,
 .sc-shell [class*="-living-underlay"],
 .sc-shell [class*="-living-glow"],
 .sc-shell [class*="-living-pulse"],
@@ -136,6 +138,8 @@
 .sc-shell .sc-outrider-chip-wrapper *,
 .sc-shell .sc-warden-chip-wrapper *,
 .sc-shell .sc-lancer-chip-wrapper *,
+.sc-shell .sc-gift-pip-wrapper *,
+.sc-shell .sc-realm-gift-badge *,
 .sc-shell .sc-board-living * {
   pointer-events: none !important;
 }
@@ -849,6 +853,14 @@
   .sc-shell .sc-lancer-glow-layer,
   .sc-shell .sc-lancer-drift-layer,
   .sc-shell .sc-lancer-glint-layer,
+  .sc-shell .sc-gift-glow-layer,
+  .sc-shell .sc-gift-sent-ping,
+  .sc-shell .sc-gift-drift-layer,
+  .sc-shell .sc-gift-pulse-layer,
+  .sc-shell .sc-gift-sparkle,
+  .sc-shell .sc-gift-mote,
+  .sc-shell .sc-gift-glint-star,
+  .sc-shell .sc-realm-gift-badge,
   .sc-shell .sc-board-living * {
     animation: none !important;
     transition: none !important;

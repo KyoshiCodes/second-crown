@@ -164,6 +164,7 @@ export function WarRoom(props: {
             return (
               <RealmCard
                 key={r.id}
+                state={state}
                 realm={r}
                 stance={realmStance(atWar, left, opinion)}
                 peaceLeft={left}

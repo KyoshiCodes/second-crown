@@ -1,13 +1,14 @@
 import React from "react";
-import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState, type GiftOffer } from "@second-crown/sim";
+import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState } from "@second-crown/sim";
 import { RealmCrestPip } from "./RealmCrestPip";
 import { realmLedgerRows } from "./DiploLedger";
 import { DiploLivingRows, type RealmPact } from "./DiploLivingRows";
 import { RealmLivingGlyph, RealmLivingUnderlay } from "./DiploLivingGlyph";
-import { GiftLine, giftButtonLabel } from "./GiftLine";
+import { GiftPip, resolveGiftStatus, type GiftStatus } from "./GiftPip";
 import "./realm-card.css";
 import "./diplo-living.css";
 import "./diplo-glyph-living.css";
+import "./gift-pip.css";
 
 type Realm = GameState["realms"][number];
 
@@ -66,10 +67,16 @@ export function RealmCard(props: {
   declareLocked: boolean;
   onDeclare: () => void;
   onGift?: () => void;
-  /** Sim giftOffer for this realm: adds the tribute status line and gates the Gift button. */
-  gift?: GiftOffer;
   /** Pact this realm is sworn to (realmPactOf over state.factions); null or omitted reads "No pact". */
   pact?: RealmPact | null;
+  /** Game state to evaluate gold resources and recent gift history deterministically. */
+  state?: GameState;
+  /** Explicit gift status override ("available" | "just-sent" | "unaffordable"). */
+  giftStatus?: GiftStatus;
+  /** Explicit gift available flag (e.g. player has >= 15 gold). */
+  giftAvailable?: boolean;
+  /** Explicit gift just sent flag (e.g. sent in recent seconds). */
+  giftJustSent?: boolean;
 }) {
   const { realm, stance, peaceLeft, opinion, myOpinion, mine, theirs } = props;
   const favored = mine >= theirs;
@@ -83,9 +90,39 @@ export function RealmCard(props: {
     lead: <RealmCrestPip realmId={realm.id} stance={stance} size={24} />,
   });
 
+  const giftStatus =
+    props.giftStatus ??
+    resolveGiftStatus({
+      state: props.state,
+      realmId: realm.id,
+      hasGiftAction: !!props.onGift,
+      giftAvailable: props.giftAvailable,
+      giftJustSent: props.giftJustSent,
+    });
+  const hasGift = giftStatus === "available" || giftStatus === "just-sent";
+  const cardGiftClass = hasGift ? ` has-gift is-gift-${giftStatus}` : "";
+
   return (
-    <div className={`sc-realm-dip is-${stance} is-living sc-realm-living-card sc-diplo-living-card`} data-realm={realm.id}>
+    <div
+      className={`sc-realm-dip is-${stance} is-living sc-realm-living-card sc-diplo-living-card${cardGiftClass}`}
+      data-realm={realm.id}
+      data-gift-status={giftStatus ?? undefined}
+    >
       <RealmLivingUnderlay realmId={realm.id} stance={stance} />
+      {hasGift ? (
+        <span
+          className="sc-realm-gift-badge"
+          aria-hidden="true"
+          data-realm-gift={realm.id}
+          data-gift-status={giftStatus}
+        >
+          <GiftPip
+            status={giftStatus}
+            size={20}
+            title={giftStatus === "just-sent" ? "Tribute dispatched!" : "Tribute available (15 gold)"}
+          />
+        </span>
+      ) : null}
       <DiploLivingRows realmId={realm.id} stance={stance} rows={rows} pact={props.pact ?? null} />
       <RealmLivingGlyph
         realmId={realm.id}
@@ -96,7 +133,6 @@ export function RealmCard(props: {
         matchup={{ mine, theirs }}
       />
       {/* former sc-realm-dip-line rows stacked by DiploLivingRows (Name / Stance / Pact / Power) */}
-      {props.gift ? <GiftLine offer={props.gift} /> : null}
       <span className="sc-realm-dip-actions">
         <button
           type="button"
@@ -110,11 +146,11 @@ export function RealmCard(props: {
         {props.onGift ? (
           <button
             type="button"
-            className="sc-realm-dip-btn sc-gift-btn"
-            disabled={props.gift ? !props.gift.ok : false}
+            className={`sc-realm-dip-btn sc-realm-gift-btn${giftStatus ? ` is-${giftStatus}` : ""}`}
             onClick={props.onGift}
           >
-            {props.gift ? giftButtonLabel(props.gift) : "Gift 15 gold (+12 opinion)"}
+            <GiftPip status={giftStatus ?? "unaffordable"} size={14} />
+            <span>Gift 15 gold (+12 opinion)</span>
           </button>
         ) : null}
       </span>

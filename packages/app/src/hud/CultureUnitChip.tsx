@@ -26,10 +26,7 @@ export function isCultureUniqueUnit(unitId: string): boolean {
   return unitId in UNIT_TO_CULTURE;
 }
 
-/** True when a sim unit type id has its own culture living chip. Name used by UnitCard. */
-export function hasCultureUnitChip(typeId: string): boolean {
-  return isCultureUniqueUnit(typeId);
-}
+export const hasCultureUnitChip = isCultureUniqueUnit;
 
 export function cultureForUniqueUnit(unitId: string): string | null {
   return UNIT_TO_CULTURE[unitId] ?? null;
@@ -40,6 +37,8 @@ export interface CultureUnitChipProps {
   cultureId?: string;
   /** Sim unit type id (e.g. "ranger", "banner", "outrider", "warden", "lancer") */
   unitId?: string;
+  /** Alias for unitId */
+  typeId?: string;
   /** Size in pixels (default: 28) */
   size?: number;
   /** Whether the unit is available / unlocked (default: true) */
@@ -62,13 +61,14 @@ export interface CultureUnitChipProps {
 export function CultureUnitChip({
   cultureId,
   unitId,
+  typeId,
   size = 28,
   open = true,
   className = "",
   style,
   title,
 }: CultureUnitChipProps) {
-  const resolvedUnitId = unitId ?? (cultureId ? CULTURE_UNIQUE_UNITS[cultureId] : undefined);
+  const resolvedUnitId = unitId ?? typeId ?? (cultureId ? CULTURE_UNIQUE_UNITS[cultureId] : undefined);
   const resolvedCultureId = cultureId ?? (resolvedUnitId ? UNIT_TO_CULTURE[resolvedUnitId] : undefined);
 
   if (!resolvedUnitId) return null;

@@ -2,14 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-11 — Tribute is easier to read and send (wave/diplomacy-gifts, not merged yet)
+## 2026-11-11 — Living gift and tribute pips on diplomacy realm cards (bakeoff/gemini-diplomacy-gifts)
 
-- **Tribute line on every crown.** War tab, Diplomacy cards, and World tab, Known Crowns: each card now has a short line telling you what a gift costs and what it earns. Green **Tribute: 15 gold for +12 opinion · ready** means you can send it. Amber **short N gold** tells you how much gold you still need.
-- **The button tells the truth.** The Gift button shows the real opinion you will gain. Silk Seal, Court doctrine and the Envoys decree each make gifts land harder, and the number now goes up with them.
-- **No wasted gold.** If a ruler already thinks as well of you as they can (opinion 100), the line reads **standing is as high as it goes** and the button is greyed out. Before, you could still pay and get nothing.
-- **Gift any crown from the War tab.** The Gift button used to be only on Lord Varric's card there. Now every crown has one.
-- **Nothing else moved.** Declare war, Scout, Trade, Join and Leave work as before.
-- **Culture unit chips fixed.** A coding slip left the game unable to build after the culture unit chips landed. That is repaired here; the Ranger, Banner, Outrider, Warden and Lancer chips look and work the same.
+- **Living tribute coffers on realm cards:** Diplomacy cards in both the War Room (War tab) and Known Crowns (World tab) now feature animated living tribute pips:
+  - **Ready to send tribute:** When your treasury holds at least 15 gold to send a diplomatic tribute or gift, a glowing golden tribute coffer appears in the top corner of the realm card and beside the gift button, pulsing with a warm amber breathing aura and shimmering coin sparkles.
+  - **Tribute dispatched celebration:** When you send tribute to a realm, the coffer bursts with a luminous celebratory gold glow, an expanding celebration ripple ring, and rising golden dust motes to confirm your diplomatic envoy was received with thanks.
+- **Clear treasury reading:** If you lack the 15 gold required to dispatch tribute, the badge rests quietly and the button pip dims to a calm bronze silhouette.
+- **Non-intrusive:** All gift pips, glow effects, and celebration rings are strictly visual (`pointer-events: none`) and will never block button clicks, war declarations, or text reading. No game mechanics or sim math were changed.
 
 ## 2026-11-11 — Living unit chips for unique culture units (bakeoff/gemini-culture-units)
 

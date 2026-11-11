@@ -1,13 +1,18 @@
 # CHANGELOG
 
-## 2026-11-11 — Gift / tribute helpers and a tribute line on diplomacy cards (wave/diplomacy-gifts, not merged)
+## 2026-11-11 — Living gift and tribute pips on diplomacy realm cards (bakeoff/gemini-diplomacy-gifts)
 
-- **What was already there.** `tryGiftGold` (15 gold, +12 opinion from the receiving ruler, +6 of yours toward them, plus Silk Seal +4, Court doctrine +5, Envoys decree +6) and a Gift button. This slice does not add a second gift action; it makes the existing one readable and safe.
-- **Sim (`packages/sim/src/actions/diplomacy.ts`, pure, no I/O).** New exports: `GIFT_GOLD_COST` (15), `GIFT_BASE_OPINION` (12), `giftBonusOpinion`, `giftOpinionGain`, `giftOffer` (read-only: cost, gain, their opinion, gold still missing, `ok`, `block` = `no_ruler` / `at_cap` / `no_gold`), types `GiftOffer`, `GiftBlock`. `tryGiftGold` now goes through `giftOffer`.
-- **One rule change.** A gift to a ruler whose opinion of you is already 100 is refused and spends no gold. Before, the gold was spent for nothing. Everything else about a gift (cost, gain, input-log entry, Open Hand achievement count) is the same. No save schema change.
-- **Cards.** New `hud/GiftLine.tsx` + `hud/gift-line.css`: a one-line tribute status ("Tribute: 15 gold for +12 opinion · ready" / "· short N gold" / "standing is as high as it goes"). Shown on War tab Diplomacy cards (`RealmCard`, new optional `gift` prop) and World tab crown cards (`WorldPanel`). The Gift button label shows the real gain and is disabled when the gift cannot be sent. War tab: the Gift button is now on every crown's card (it was only on the rival's). Declare war, Scout, Trade, Join / Leave untouched. `theme.css` and `server/` untouched.
-- **Tests.** `diplomacy.test.ts` +6 (offer is read-only, gold missing, gain matches the gift with bonuses, refusal at full standing, other crowns + input log, unknown realm). New `GiftLine.test.tsx` (9). Sim 362, server 158 pass. App: 882 pass, and `npm run build -w @second-crown/app` passes.
-- **Fix (culture-unit chips).** `origin/main` had 9 failing app tests and a failing app build: `UnitCard.tsx` imported `hasCultureUnitChip` from `CultureUnitChip.tsx`, which did not export it. `CultureUnitChip.tsx` now exports `hasCultureUnitChip`, and `UnitCard` passes `unitId` instead of a `typeId` prop the chip does not take. No gift logic changed.
+- **Dedicated living tribute coffer pip (`GiftPip` / `TributePip`):** Created a bespoke living heraldic tribute pip component (`packages/app/src/hud/GiftPip.tsx` & `gift-pip.css`) rendering an ornate medieval gilded diplomatic tribute coffer with layered SVG geometry (domed lid, reinforced gilded iron strapping, royal signet clasp, and swallowtail ribbon seal).
+- **Reactive living gift states:**
+  - **Available state (`is-available`):** When the player holds sufficient gold (15 gold) to send tribute, the coffer shimmers with a warm golden amber breathing aura (`sc-gift-glow-layer`), ambient coin glimmers (`sc-gift-sparkle`), and a gleaming royal star twinkle on the lock clasp (`sc-gift-glint-star`).
+  - **Just-sent state (`is-just-sent`):** When tribute was dispatched to the realm within the recent window (evaluated from `state.inputLog` or transient prop), the pip displays a radiant celebratory golden glow, an expanding ping ripple shockwave ring (`sc-gift-sent-ping`), and ascending golden tribute dust motes (`sc-gift-motes-drift`).
+  - **Unaffordable state (`is-unaffordable`):** When tribute action is present but the crown lacks 15 gold, the pip displays a subtle desaturated bronze silhouette without competing glows.
+- **Realm card & tab integration:**
+  - Mounted `.sc-realm-gift-badge` in the top corner of diplomacy realm cards in `RealmCard.tsx` (War Room) and `WorldPanel.tsx` (Known Crowns) when tribute is available or just sent.
+  - Embedded living `GiftPip` directly into the "Gift 15 gold" / "Send 15 Gold Tribute" buttons in both views.
+  - Passed `state={state}` in `WarRoom.tsx` so diplomacy realm cards deterministically evaluate gold reserves and input log gift history.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` on all decorative containers, SVG layers, and badges. Full `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** New test suite `packages/app/src/hud/GiftPip.test.tsx` (12 tests) verifying pure helpers (`isGiftAvailable`, `isGiftJustSent`, `giftJustSentTicksAgo`, `resolveGiftStatus`), 24px and custom sizing, aria-hidden, data attributes, `RealmCard` and `WorldPanel` integration, and CSS safety. Full test suite (sim 356, app 885, server 158) passing cleanly.
 
 ## 2026-11-11 — Distinct 28px living chips for each culture's unique unit (bakeoff/gemini-culture-units)
 
