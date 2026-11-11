@@ -1,9 +1,10 @@
 import React from "react";
-import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState } from "@second-crown/sim";
+import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState, type GiftOffer } from "@second-crown/sim";
 import { RealmCrestPip } from "./RealmCrestPip";
 import { realmLedgerRows } from "./DiploLedger";
 import { DiploLivingRows, type RealmPact } from "./DiploLivingRows";
 import { RealmLivingGlyph, RealmLivingUnderlay } from "./DiploLivingGlyph";
+import { GiftLine, giftButtonLabel } from "./GiftLine";
 import "./realm-card.css";
 import "./diplo-living.css";
 import "./diplo-glyph-living.css";
@@ -65,6 +66,8 @@ export function RealmCard(props: {
   declareLocked: boolean;
   onDeclare: () => void;
   onGift?: () => void;
+  /** Sim giftOffer for this realm: adds the tribute status line and gates the Gift button. */
+  gift?: GiftOffer;
   /** Pact this realm is sworn to (realmPactOf over state.factions); null or omitted reads "No pact". */
   pact?: RealmPact | null;
 }) {
@@ -93,6 +96,7 @@ export function RealmCard(props: {
         matchup={{ mine, theirs }}
       />
       {/* former sc-realm-dip-line rows stacked by DiploLivingRows (Name / Stance / Pact / Power) */}
+      {props.gift ? <GiftLine offer={props.gift} /> : null}
       <span className="sc-realm-dip-actions">
         <button
           type="button"
@@ -104,8 +108,13 @@ export function RealmCard(props: {
           Declare war
         </button>
         {props.onGift ? (
-          <button type="button" className="sc-realm-dip-btn" onClick={props.onGift}>
-            Gift 15 gold (+12 opinion)
+          <button
+            type="button"
+            className="sc-realm-dip-btn sc-gift-btn"
+            disabled={props.gift ? !props.gift.ok : false}
+            onClick={props.onGift}
+          >
+            {props.gift ? giftButtonLabel(props.gift) : "Gift 15 gold (+12 opinion)"}
           </button>
         ) : null}
       </span>

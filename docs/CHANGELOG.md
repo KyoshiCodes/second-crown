@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-11 — Gift / tribute helpers and a tribute line on diplomacy cards (wave/diplomacy-gifts, not merged)
+
+- **What was already there.** `tryGiftGold` (15 gold, +12 opinion from the receiving ruler, +6 of yours toward them, plus Silk Seal +4, Court doctrine +5, Envoys decree +6) and a Gift button. This slice does not add a second gift action; it makes the existing one readable and safe.
+- **Sim (`packages/sim/src/actions/diplomacy.ts`, pure, no I/O).** New exports: `GIFT_GOLD_COST` (15), `GIFT_BASE_OPINION` (12), `giftBonusOpinion`, `giftOpinionGain`, `giftOffer` (read-only: cost, gain, their opinion, gold still missing, `ok`, `block` = `no_ruler` / `at_cap` / `no_gold`), types `GiftOffer`, `GiftBlock`. `tryGiftGold` now goes through `giftOffer`.
+- **One rule change.** A gift to a ruler whose opinion of you is already 100 is refused and spends no gold. Before, the gold was spent for nothing. Everything else about a gift (cost, gain, input-log entry, Open Hand achievement count) is the same. No save schema change.
+- **Cards.** New `hud/GiftLine.tsx` + `hud/gift-line.css`: a one-line tribute status ("Tribute: 15 gold for +12 opinion · ready" / "· short N gold" / "standing is as high as it goes"). Shown on War tab Diplomacy cards (`RealmCard`, new optional `gift` prop) and World tab crown cards (`WorldPanel`). The Gift button label shows the real gain and is disabled when the gift cannot be sent. War tab: the Gift button is now on every crown's card (it was only on the rival's). Declare war, Scout, Trade, Join / Leave untouched. `theme.css` and `server/` untouched.
+- **Tests.** `diplomacy.test.ts` +6 (offer is read-only, gold missing, gain matches the gift with bonuses, refusal at full standing, other crowns + input log, unknown realm). New `GiftLine.test.tsx` (9). Sim 362, server 158 pass. App: 873 pass, 9 fail. The 9 failures (UnitCard tests) and the failing `npm run build -w @second-crown/app` are the same on `origin/main` without this change: `UnitCard.tsx` imports `hasCultureUnitChip` from `CultureUnitChip.tsx`, which does not export it.
+
 ## 2026-11-11 — Distinct 28px living chips for each culture's unique unit (bakeoff/gemini-culture-units)
 
 - **Dedicated living culture unit chips (`CultureUnitChip`):** Created a unified living chip component (`packages/app/src/hud/CultureUnitChip.tsx` & `culture-unit-chip.css`) rendering distinct 28px living heraldic chips for each culture with a unique unit:

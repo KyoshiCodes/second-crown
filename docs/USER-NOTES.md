@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — Tribute is easier to read and send (wave/diplomacy-gifts, not merged yet)
+
+- **Tribute line on every crown.** War tab, Diplomacy cards, and World tab, Known Crowns: each card now has a short line telling you what a gift costs and what it earns. Green **Tribute: 15 gold for +12 opinion · ready** means you can send it. Amber **short N gold** tells you how much gold you still need.
+- **The button tells the truth.** The Gift button shows the real opinion you will gain. Silk Seal, Court doctrine and the Envoys decree each make gifts land harder, and the number now goes up with them.
+- **No wasted gold.** If a ruler already thinks as well of you as they can (opinion 100), the line reads **standing is as high as it goes** and the button is greyed out. Before, you could still pay and get nothing.
+- **Gift any crown from the War tab.** The Gift button used to be only on Lord Varric's card there. Now every crown has one.
+- **Nothing else moved.** Declare war, Scout, Trade, Join and Leave work as before.
+
 ## 2026-11-11 — Living unit chips for unique culture units (bakeoff/gemini-culture-units)
 
 - **Living heraldic chips for unique culture troops:** The five cultures that muster unique martial units now feature distinct, animated 28px living chips:

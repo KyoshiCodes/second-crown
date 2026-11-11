@@ -1,3 +1,14 @@
+## 2026-11-11 — sim + app / gift helpers and tribute line on diplomacy cards (wave/diplomacy-gifts, not merged)
+
+- **Starting point.** `tryGiftGold(state, amount = 15, realmId = "rival")` already existed with hard-coded numbers, and the UI repeated them ("Gift 15 gold (+12 opinion)", "Need 15 gold."). The label was wrong whenever a bonus was active.
+- **Sim (`actions/diplomacy.ts`).** `giftOffer(state, realmId, amount)` is the single read for the UI: `{ realmId, cost, gain, opinion, short, ok, block }`. Block order: `no_ruler`, then `at_cap` (their opinion of the player >= 100), then `no_gold`. `short` is the missing gold rounded up. `gain` is before the cap, so a gift at opinion 95 still reads +12 and lands at 100. `tryGiftGold` returns false unless `giftOffer(...).ok`; the at-cap refusal is the only behavior change. `giftBonusOpinion` is the old inline `extra` (Silk Seal 4, Court 5, Envoys 6), still added to both opinion edges.
+- **Determinism.** No new state, flags or events. The gift is still a player action that writes a `gift` entry to `inputLog`. `giftOffer` does not mutate (a test compares the serialized state).
+- **App.** `hud/GiftLine.tsx`: `giftLineTone`, `giftLineText`, `giftRefusal`, `giftButtonLabel`, `GiftLine`. Display only, all numbers come from `giftOffer`. `RealmCard` takes an optional `gift?: GiftOffer`; without it the card renders exactly as before (old label, no line), so existing callers and tests are unchanged. `WarRoom.tsx` passes `giftOffer(state, r.id)` and an `onGift` for every realm. `WorldPanel.tsx` shows the line only when `onGift` is passed, so `SpectatorView` stays read-only. `tabs/WorldTab.tsx` uses `giftRefusal` for the refusal message.
+- **Button labels.** The War tab label still starts with "Gift", which `main.tsx` uses to play the gift sound. The World tab label ("Send 15 Gold Tribute to ...") does not, so no sound there; that was already the case.
+- **CSS.** `hud/gift-line.css`, every selector under `.sc-gift-`. `theme.css` untouched.
+- **Not changed.** Strings are literals in the component like the rest of the diplomacy cards (invariant 9 is not enforced yet). Gifts are still allowed during a war and during a truce.
+- **Tests.** `diplomacy.test.ts` (6 new), `GiftLine.test.tsx` (9). Sim 362, server 158. App 873 pass / 9 fail; the 9 (`UnitLivingRows`, `UnitStatus`, `UnitLivingGlyph`, `BandagePip` tests) fail the same way on `origin/main`, and `npm run build -w @second-crown/app` fails there too: `UnitCard.tsx` imports `hasCultureUnitChip` from `CultureUnitChip.tsx`, which does not export it (and passes it a `typeId` prop it does not take). Left alone here: those are another agent's files.
+
 ## 2026-11-11 — app / distinct 28px living chips for each culture's unique unit (bakeoff/gemini-culture-units)
 
 - **Components (`packages/app/src/hud/CultureUnitChip.tsx`):**

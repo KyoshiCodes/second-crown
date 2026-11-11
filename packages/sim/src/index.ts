@@ -107,6 +107,13 @@ export type { TradeOffer } from "./actions/trade.js";
 
 export {
   tryGiftGold,
+  giftOffer,
+  giftOpinionGain,
+  giftBonusOpinion,
+  GIFT_GOLD_COST,
+  GIFT_BASE_OPINION,
+  type GiftOffer,
+  type GiftBlock,
   getOpinion,
   rivalOpinionOfPlayer,
   playerOpinionOfRival,

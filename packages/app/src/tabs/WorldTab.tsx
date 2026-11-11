@@ -2,6 +2,7 @@ import React from "react";
 import {
   tryFoundGuild,
   tryGiftGold,
+  giftOffer,
   tryJoinFaction,
   tryLeaveFaction,
   tryKingdomTrade,
@@ -24,6 +25,7 @@ import { realmStance, type RealmStance } from "../hud/RealmCard";
 import type { ActFn } from "../game/useGameEngine";
 import { getGiftThanks } from "../content/flavor";
 import { flashAction } from "../hud/ActionFlash";
+import { giftRefusal } from "../hud/GiftLine";
 
 type LogFilter = "all" | "claim" | "trade" | "war" | "levy";
 
@@ -374,7 +376,10 @@ export function WorldTab(props: {
         onFoundGuild={() => act((st) => (tryFoundGuild(st) ? "Guild founded." : "You already lead a guild."))}
         onJoin={(id) => act((st) => (tryJoinFaction(st, id) ? "Joined the faction." : "Cannot join."))}
         onLeave={(id) => act((st) => (tryLeaveFaction(st, id) ? "Left the faction." : "Not a member."))}
-        onGift={(id) => act((st) => (tryGiftGold(st, 15, id) ? getGiftThanks(id) : "Need 15 gold."))}
+        onGift={(id) => act((st) => {
+          const offer = giftOffer(st, id);
+          return tryGiftGold(st, offer.cost, id) ? getGiftThanks(id) : giftRefusal(offer);
+        })}
         onTrade={(realmId, offerId) => act((st) => {
           if (!tryKingdomTrade(st, realmId, offerId)) return "Cannot make that trade.";
           flashAction("trade");

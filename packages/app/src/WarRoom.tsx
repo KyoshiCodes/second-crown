@@ -25,6 +25,8 @@ import {
   realmPower,
   tryDeclareWar,
   tryGiftGold,
+  giftOffer,
+  GIFT_GOLD_COST,
   tryRecallGarrison,
   tryRecallGather,
   tryRecallMarch,
@@ -41,6 +43,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { RealmCard, realmStance } from "./hud/RealmCard";
+import { giftRefusal } from "./hud/GiftLine";
 import { realmPactOf } from "./hud/DiploLivingRows";
 import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
@@ -175,9 +178,12 @@ export function WarRoom(props: {
                   if (!ok) return "Cannot declare war.";
                   return `${r.name}: "${getWarTaunt(r.id)}"`;
                 })}
-                onGift={isRival
-                  ? () => act((st) => (tryGiftGold(st) ? `Lord Varric: "${getGiftThanks("rival")}"` : "Need 15 gold."))
-                  : undefined}
+                gift={state ? giftOffer(state, r.id) : undefined}
+                onGift={() => act((st) => {
+                  const offer = giftOffer(st, r.id);
+                  if (!tryGiftGold(st, GIFT_GOLD_COST, r.id)) return giftRefusal(offer);
+                  return `${isRival ? "Lord Varric" : r.name}: "${getGiftThanks(r.id)}"`;
+                })}
               />
             );
           })}

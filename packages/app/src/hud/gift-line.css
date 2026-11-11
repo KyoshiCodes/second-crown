@@ -1,0 +1,29 @@
+/* Tribute status line on Diplomacy cards (GiftLine.tsx). Scoped to .sc-gift-line. */
+.sc-gift-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+
+.sc-gift-line-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sc-gift-line.is-ready { color: #3fb950; }
+.sc-gift-line.is-short { color: #d29922; }
+.sc-gift-line.is-full { color: #58a6ff; }
+.sc-gift-line.is-off { opacity: 0.6; }
+
+.sc-realm-dip-btn.sc-gift-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}

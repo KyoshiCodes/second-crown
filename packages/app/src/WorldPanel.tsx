@@ -1,6 +1,6 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
-import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType, isScouted } from "@second-crown/sim";
+import { realmPower, playerTitle, KINGDOM_OFFERS, getUnitType, isScouted, giftOffer } from "@second-crown/sim";
 import { Crest } from "./Crest";
 import { crestFor } from "./crests";
 import { getRealmFlavor } from "./content/flavor";
@@ -10,6 +10,7 @@ import { FactionSealPip } from "./hud/FactionSealPip";
 import { DiploLedger, pactLedgerRows, realmLedgerRows } from "./hud/DiploLedger";
 import { DiploLivingRows, realmPactOf } from "./hud/DiploLivingRows";
 import { RealmLivingGlyph, RealmLivingUnderlay, PactLivingGlyph, PactLivingUnderlay } from "./hud/DiploLivingGlyph";
+import { GiftLine } from "./hud/GiftLine";
 import "./hud/crown-card.css";
 import "./hud/faction-seals.css";
 import "./hud/diplo-glyph-living.css";
@@ -61,6 +62,7 @@ export function WorldPanel(props: {
         const power = realmPower(state, r.id);
         const seen = isScouted(state, r.id);
         const offers = KINGDOM_OFFERS[r.id] ?? [];
+        const gift = giftOffer(state, r.id);
         return (
           <div key={r.id} className={`sc-realm-dip is-${stance} is-living`} data-realm={r.id}>
             <RealmLivingUnderlay realmId={r.id} stance={stance} />
@@ -95,13 +97,14 @@ export function WorldPanel(props: {
             </span>
             <p className="sc-realm-blurb" style={{ margin: "2px 0 0" }}>{flavor.blurb}</p>
             <div className="sc-realm-taunt"><em>"{flavor.warTaunt}"</em></div>
+            {props.onGift ? <GiftLine offer={gift} /> : null}
             <span className="sc-realm-dip-actions">
               {!seen && props.onScout ? (
                 <button type="button" className="sc-realm-dip-btn" onClick={() => props.onScout?.(r.id)}>Scout host (10 gold)</button>
               ) : null}
               {props.onGift ? (
-                <button type="button" className="sc-realm-dip-btn" onClick={() => props.onGift?.(r.id)}>
-                  Send 15 Gold Tribute to {ruler?.name ?? r.name}
+                <button type="button" className="sc-realm-dip-btn sc-gift-btn" disabled={!gift.ok} onClick={() => props.onGift?.(r.id)}>
+                  Send {gift.cost} Gold Tribute to {ruler?.name ?? r.name}
                 </button>
               ) : null}
               {props.onTrade && offers.map((o) => (
