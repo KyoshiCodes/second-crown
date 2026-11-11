@@ -9,6 +9,7 @@ export function getUnitFamily(typeId: string): UnitFamily {
     case "archer":
     case "ranger":
     case "skirmisher":
+    case "cedar_stalker":
     case "composite_bowman":
       return "ranged";
     case "cavalry":
@@ -18,6 +19,7 @@ export function getUnitFamily(typeId: string): UnitFamily {
     case "lancer":
     case "cataphract":
     case "horse_archer":
+    case "dune_lancer":
       return "cavalry";
     case "banner":
     case "champion":
@@ -27,6 +29,9 @@ export function getUnitFamily(typeId: string): UnitFamily {
     case "militia":
     case "spearman":
     case "warden":
+    case "halberdier":
+    case "reef_raider":
+    case "ironclad":
     default:
       return "infantry";
   }

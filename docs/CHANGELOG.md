@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## 2026-11-11 — Culture units: one unique unit per culture (wave/culture-units, not merged)
+
+- **Six new units (sim + Army tab).** One per culture. Five open with the crown's culture kit; the Ironclad opens with a study.
+
+| Unit (`id`) | Culture | Opens with | Role | Power | Cost | Drill |
+|---|---|---|---|---|---|---|
+| Halberdier (`halberdier`) | Western | western kit: Crown Marches, Mist, Glen, Salt, Fen, Peak | line | 4 | 7 food, 5 wood, 1 stone | 3.5s |
+| Cedar Stalker (`cedar_stalker`) | Cedar | cedar kit: Cedar Kin | skirmish | 4 | 6 food, 4 wood, 1 gold | 3.2s |
+| Dune Lancer (`dune_lancer`) | Sand | sand kit: Sand Banner | shock | 6 | 9 food, 4 gold, 2 wood | 4.5s |
+| Horse Archer (`horse_archer`) | Steppe | steppe kit: Wind Host | ranged | 6 | 9 food, 5 wood, 3 gold | 4.5s |
+| Reef Raider (`reef_raider`) | Islands | islands kit: Tide Clans | line | 4 | 6 food, 6 wood | 3.2s |
+| Ironclad (`ironclad`) | Iron March | Fortification study (any culture) | line | 8 | 10 food, 6 stone, 6 gold | 6s |
+
+- **Effects.** Each unit is a normal company: it adds its power to the host and fights with its role in the existing matchup table (line beats shock, shock beats ranged, ranged beats line; skirmish is strong against siege). No new combat rule, no new building discount. Drill times are before barracks speed-ups; costs are before training discounts.
+- **Iron March is the rival realm, not a culture a crown can pick.** Its Ironclad is therefore gated by research: Fortification (tier II, needs Masonry and Keep III) now also unlocks ironclads, for every culture. The study's effect text and `unlocks` list say so.
+- **Sim (`packages/sim/src/systems/cultureUnits.ts`, pure, no I/O).** New exports: `CULTURE_UNITS`, `cultureKitId`, `playerCultureKit`, `cultureUnitGate`, `isCultureUnit`, `cultureUnitForKit`, `playerCultureUnitId`, `unitInRoster`, `listRosterUnitTypes`, types `CultureKitId` and `CultureUnitGate`. `unitUnlocked` in `research.ts` reads the gate table first. Unit rows are in `content/units.ts`. No save change, no new flags.
+- **Army tab.** The unit grid lists the base roster, this crown's own culture unit, and the Ironclad, all in the existing `UnitCard`. Other cultures' units are not shown. New `CultureUnitChip` (home-kit silhouette plus an origin pip) and `hud/culture-unit-chip.css`. A line under the grid names the crown's culture unit. Train, cancel, treat, levy and mercenary controls are unchanged.
+- **Also touched.** Training pace line "next unit" reads the crown's roster, so it never names another culture's unit. Culture picker and Balance notes now name a unit for Crown Marches, Cedar Kin, Sand Banner, Wind Host and Tide Clans.
+- **Unchanged.** `server/`, `theme.css`, `packages/render`. The ten existing cultures, their edges, and the base roster gates.
+- **Tests.** New `cultureUnits.test.ts` (16) and `hud/CultureUnitChip.test.tsx` (12). Edited `cultureLines.test.tsx`, `BalanceNotes.test.tsx`, `TrainingPace.test.tsx` for the new unit names and the Ironclad gate. Sim 356, app 875, server 158 pass. App build clean. `packages/render` tests were not run.
+
 ## 2026-11-11 — Living heal glow and bandage pips on wounded unit chips (bakeoff/gemini-infirmary)
 
 - **Bespoke bandage pip (`BandagePip` / `WoundedChip` / `WoundedUnitChip`):** Created dedicated medieval field-dressing linen bandage glyphs with crossed wrapping tapes, stitched seam details, and a center restorative cross.

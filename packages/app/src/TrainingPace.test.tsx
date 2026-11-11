@@ -75,7 +75,7 @@ describe("TrainingPace", () => {
 
   it("says every unit is unlocked when all studies are done", () => {
     const s = bare();
-    for (const id of ["horse", "siege", "fieldcraft", "drill", "screening"]) s.flags[`research_${id}`] = 1;
+    for (const id of ["horse", "siege", "fieldcraft", "drill", "screening", "fortification"]) s.flags[`research_${id}`] = 1;
     expect(nextUnitUnlock(s)).toBeNull();
     const html = renderToStaticMarkup(<TrainingPace state={s} />);
     expect(html).toContain("every unit unlocked");

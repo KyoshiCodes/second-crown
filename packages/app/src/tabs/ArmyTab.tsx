@@ -9,6 +9,13 @@ import {
   listTroopPosts,
   listTraining,
   listUnitTypes,
+  listRosterUnitTypes,
+  isCultureUnit,
+  cultureUnitGate,
+  playerCultureUnitId,
+  getUnitType,
+  getCulture,
+  playerCultureId,
   trainCostMultiplier,
   trainDurationTicks,
   trainingQueueCap,
@@ -44,7 +51,9 @@ export function ArmyTab(props: {
   setTrainQty: (n: number) => void;
 }) {
   const { state, act, trainQty, setTrainQty } = props;
-  const unitTypes = listUnitTypes();
+  // Base roster, this crown's own culture unit, and the ironclad. Other kits' units stay off the tab.
+  const unitTypes = state ? listRosterUnitTypes(state) : listUnitTypes().filter((u) => !isCultureUnit(u.id));
+  const kitUnit = state ? getUnitType(playerCultureUnitId(state)) : undefined;
   const trainMult = state ? trainCostMultiplier(state) : 1;
   const barracksN = state ? countBuilding(state, "barracks") : 0;
   const stablesN = state ? countBuilding(state, "stables") : 0;
@@ -136,6 +145,11 @@ export function ArmyTab(props: {
       <p style={{ fontSize: 12, opacity: 0.75, marginTop: 6 }}>
         Cavalry, knights, outriders, and lancers need Horse lore. Siege needs Siege craft. Rangers need Fieldcraft. Banners need Drill. Wardens need Screening. All start on the Crown lectern.
       </p>
+      {state && kitUnit ? (
+        <p style={{ fontSize: 12, opacity: 0.75, marginTop: 6 }} data-culture-unit-note={kitUnit.id}>
+          Culture unit: {getCulture(playerCultureId(state)).name} crowns drill the {kitUnit.name} ({cultureUnitGate(kitUnit.id)?.origin} halls). Ironclads are Iron March plate, copied once Fortification is studied.
+        </p>
+      ) : null}
       <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Hover a unit for its role. Costs shown are per unit, before discounts. Cancel refunds the unused fraction. Food levy and mercenaries still arrive at once.</p>
       <div className="sc-work-grid">
         <div className={["sc-work-card", queue.length > 0 ? "is-staffed" : "is-empty"].join(" ")}>

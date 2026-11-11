@@ -9,6 +9,7 @@ import { UnitStatus, type UnitStatusRow } from "./UnitStatus";
 import { UnitLivingGlyph, UnitLivingUnderlay } from "./UnitLivingGlyph";
 import { UnitLivingRows, splitUnitRows } from "./UnitLivingRows";
 import { BandagePip } from "./BandagePip";
+import { CultureUnitChip, hasCultureUnitChip } from "./CultureUnitChip";
 
 export type UnitCardProps = {
   typeId: string;
@@ -67,6 +68,8 @@ export function UnitCard(props: UnitCardProps) {
             <WardenChip size={28} open={open} />
           ) : typeId === "lancer" ? (
             <LancerChip size={28} open={open} />
+          ) : hasCultureUnitChip(typeId) ? (
+            <CultureUnitChip typeId={typeId} size={28} open={open} />
           ) : (
             <UnitIcon typeId={typeId} size={28} animated={open} />
           )}

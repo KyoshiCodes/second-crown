@@ -1,5 +1,5 @@
 import React from "react";
-import { listUnitTypes, trainDurationTicks, unitUnlocked, type GameState } from "@second-crown/sim";
+import { listRosterUnitTypes, listUnitTypes, trainDurationTicks, unitUnlocked, type GameState } from "@second-crown/sim";
 import "./training-pace.css";
 
 /** Batch the pace line reports: ten militia, same as the x10 levy button. */
@@ -15,6 +15,7 @@ export function lockNote(id: string): string {
   if (id === "outrider") return "Study Horse lore on Crown (Keep II).";
   if (id === "warden") return "Study Screening on Crown (Barracks or Academy).";
   if (id === "lancer") return "Study Horse lore on Crown (Keep II).";
+  if (id === "ironclad") return "Study Fortification on Crown (Masonry + Keep III).";
   return "";
 }
 
@@ -30,9 +31,9 @@ export function trainingPace(state: GameState): { now: number; base: number } {
   return { now, base: def ? def.trainTicks * PACE_COUNT : now };
 }
 
-/** First unit in roster order that the sim still keeps locked. Read-only. */
+/** First unit on this crown's roster that the sim still keeps locked. Other kits' units are not on it. Read-only. */
 export function nextUnitUnlock(state: GameState): { id: string; name: string; note: string } | null {
-  const u = listUnitTypes().find((t) => !unitUnlocked(state, t.id));
+  const u = listRosterUnitTypes(state).find((t) => !unitUnlocked(state, t.id));
   return u ? { id: u.id, name: u.name, note: lockNote(u.id) } : null;
 }
 

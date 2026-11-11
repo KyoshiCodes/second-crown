@@ -13,7 +13,7 @@ const YIELD: Partial<Record<keyof typeof RESEARCH, string>> = {
   logistics: "+8% gold, +50 store, +1 column",
   crop_rotation: "+10% food",
   timber_framing: "+10% wood",
-  fortification: "+10% stone, +24 wall HP",
+  fortification: "+10% stone, +24 wall HP, ironclads",
   supply_trains: "+100 store, +1 column",
   cartography: "+1 vision, -4 gold scouting",
   quartermastery: "-8% training cost",

@@ -33,7 +33,9 @@ describe("BalanceNotes", () => {
     expect(html).toContain("Farm +1 food");
     expect(html).toContain("Ranger");
     expect(html).toContain(unitCostText(cultureUnitId("mist")!)!);
-    expect(html).toContain("base roster");
+    expect(html).not.toContain("base roster");
+    expect(html).toContain("Halberdier");
+    expect(html).toContain(unitCostText(cultureUnitId("tide")!)!);
 
     // Living emblem presence for all 10 cultures
     CULTURES.forEach((c) => {

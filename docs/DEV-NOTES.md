@@ -1,3 +1,16 @@
+## 2026-11-11 — sim + app / culture units (wave/culture-units, not merged)
+
+- **Units.** Six rows appended to `UNIT_TYPES` in `packages/sim/src/content/units.ts`: `halberdier`, `cedar_stalker`, `dune_lancer`, `horse_archer`, `reef_raider`, `ironclad`. They sit after `champion` so the base roster order does not move.
+- **Gates.** `packages/sim/src/systems/cultureUnits.ts` holds `CULTURE_UNITS`, one row per unit with either `kit` or `research`, never both. `unitUnlocked` (`research.ts`) checks it first: a kit unit is open when `playerCultureKit(state)` matches; `ironclad` is open when `researchDone(state, "fortification")`. `tryTrain` and `canAffordTrain` already call `unitUnlocked`, so no train code changed.
+- **Kits in the sim.** `cultureKitId` maps `woodland` to cedar, `desert` to sand, `steppe` to steppe, `tide` to islands, everything else (western, mist, glen, salt, fen, peak, unknown) to western. This mirrors `resolveCultureKit` in `packages/render`; the sim cannot import render, so there are two tables. Keep them in step if a kit is added.
+- **Iron March.** It is the `rival` archetype in `content/world.ts`, not an entry in `CULTURES`. Rather than add an eleventh pickable culture, the Ironclad is a research unlock. `RESEARCH.fortification.unlocks` is now `["ironclad"]` and its effect text mentions it; `ResearchPace` picks the name up from `unlocks`.
+- **Roster.** `listRosterUnitTypes(state)` is `listUnitTypes()` minus other kits' units. Use it for anything that offers training. `listUnitTypes()` still returns every unit and is still right for lookups (`ProvinceInspect` column picker uses it so troops kept from an old culture can still march).
+- **Footgun: culture can change mid-run.** `setPlayerCulture` is callable any time (culture hint line). Owned stacks and queued jobs of the old kit unit stay; only new training is refused. Nothing converts or deletes units.
+- **Footgun: `unitUnlocked` is player-only.** It reads the player's culture even if `tryTrain` is passed another `realmId`. Same as the existing research gates. NPC realms do not train from the roster.
+- **Not done.** No stables / range discount for the mounted or missile culture units in `trainCostMultiplier`. No Horse lore requirement on Dune Lancer or Horse Archer. No board art: `packages/render` draws unknown unit ids with its default look.
+- **App.** `hud/CultureUnitChip.tsx` maps each culture unit to an existing `UnitIcon` silhouette and a culture (`ART` table), forces that culture on the icon, and adds an origin pip. `UnitCard` uses it when `hasCultureUnitChip(typeId)`. Styles in `hud/culture-unit-chip.css` (`pointer-events: none`). `getUnitFamily` gained the new ids. `tabs/ArmyTab.tsx` builds its grid from `listRosterUnitTypes`. `TrainingPace.lockNote` has an `ironclad` line and `nextUnitUnlock` reads the roster. `cultureLines.ts` names the kit unit for the five base cultures.
+- **Tests.** `cultureUnits.test.ts` (16), `hud/CultureUnitChip.test.tsx` (12). Sim 356, app 875, server 158. App build clean. `packages/render` not run.
+
 ## 2026-11-11 — app / living heal glow and bandage pips for wounded unit chips (bakeoff/gemini-infirmary)
 
 - **Components (`packages/app/src/hud/BandagePip.tsx`):**

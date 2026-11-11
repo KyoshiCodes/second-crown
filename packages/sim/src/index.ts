@@ -39,6 +39,9 @@ export { CULTURES, getCulture, NPC_CULTURE_IDS, MIST_FARM_BONUS, GLEN_QUARRY_BON
 export type { CultureDef } from "./content/cultures.js";
 export { setPlayerCulture, playerCultureId, cultureOfRealm, farmCultureBonus, quarryCultureBonus, woodCultureBonus, cottageCultureBonus, keepVisionCultureBonus } from "./systems/culture.js";
 
+export { CULTURE_UNITS, cultureKitId, playerCultureKit, cultureUnitGate, isCultureUnit, cultureUnitForKit, playerCultureUnitId, unitInRoster, listRosterUnitTypes } from "./systems/cultureUnits.js";
+export type { CultureKitId, CultureUnitGate } from "./systems/cultureUnits.js";
+
 export { playerTitle, extraArchetypes } from "./content/world.js";
 
 export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";

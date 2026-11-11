@@ -3,6 +3,7 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
 import { keepLevel } from "../actions/upgrade.js";
 import { addCapped } from "./storage.js";
+import { cultureUnitGate, playerCultureKit } from "./cultureUnits.js";
 
 export const RESEARCH = {
   husbandry: {
@@ -136,8 +137,8 @@ export const RESEARCH = {
     needsAny: ["mason", "academy"],
     keepMin: 3,
     requires: "masonry",
-    unlocks: [] as const,
-    effect: "Quarries yield another +10% stone. Finished walls hold another +24 HP. Needs Masonry and Keep III.",
+    unlocks: ["ironclad"],
+    effect: "Quarries yield another +10% stone. Finished walls hold another +24 HP. Unlocks ironclads. Needs Masonry and Keep III.",
   },
   supply_trains: {
     id: "supply_trains",
@@ -241,6 +242,8 @@ export function researchTicksLeft(state: GameState, id: string): number {
 }
 
 export function unitUnlocked(state: GameState, typeId: string): boolean {
+  const gate = cultureUnitGate(typeId);
+  if (gate) return gate.kit ? playerCultureKit(state) === gate.kit : researchDone(state, gate.research);
   if (typeId === "cavalry" || typeId === "knight" || typeId === "outrider" || typeId === "lancer") return researchDone(state, "horse");
   if (typeId === "siege") return researchDone(state, "siege");
   if (typeId === "ranger") return researchDone(state, "fieldcraft");
