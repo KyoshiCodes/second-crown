@@ -26,6 +26,11 @@ export function isCultureUniqueUnit(unitId: string): boolean {
   return unitId in UNIT_TO_CULTURE;
 }
 
+/** True when a sim unit type id has its own culture living chip. Name used by UnitCard. */
+export function hasCultureUnitChip(typeId: string): boolean {
+  return isCultureUniqueUnit(typeId);
+}
+
 export function cultureForUniqueUnit(unitId: string): string | null {
   return UNIT_TO_CULTURE[unitId] ?? null;
 }

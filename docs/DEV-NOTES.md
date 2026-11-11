@@ -7,7 +7,8 @@
 - **Button labels.** The War tab label still starts with "Gift", which `main.tsx` uses to play the gift sound. The World tab label ("Send 15 Gold Tribute to ...") does not, so no sound there; that was already the case.
 - **CSS.** `hud/gift-line.css`, every selector under `.sc-gift-`. `theme.css` untouched.
 - **Not changed.** Strings are literals in the component like the rest of the diplomacy cards (invariant 9 is not enforced yet). Gifts are still allowed during a war and during a truce.
-- **Tests.** `diplomacy.test.ts` (6 new), `GiftLine.test.tsx` (9). Sim 362, server 158. App 873 pass / 9 fail; the 9 (`UnitLivingRows`, `UnitStatus`, `UnitLivingGlyph`, `BandagePip` tests) fail the same way on `origin/main`, and `npm run build -w @second-crown/app` fails there too: `UnitCard.tsx` imports `hasCultureUnitChip` from `CultureUnitChip.tsx`, which does not export it (and passes it a `typeId` prop it does not take). Left alone here: those are another agent's files.
+- **Tests.** `diplomacy.test.ts` (6 new), `GiftLine.test.tsx` (9). Sim 362, server 158. App 882, all passing; app build passes.
+- **Culture-unit chip fix.** On `origin/main`, 9 app tests (`UnitLivingRows`, `UnitStatus`, `UnitLivingGlyph`, `BandagePip`) and `npm run build -w @second-crown/app` fail because `UnitCard.tsx` imports `hasCultureUnitChip` from `CultureUnitChip.tsx`, which did not export it, and passes a `typeId` prop the chip does not take. Fixed on this branch at the owner's request: `hasCultureUnitChip(typeId)` is exported from `CultureUnitChip.tsx` (wraps `isCultureUniqueUnit`), and `UnitCard` passes `unitId={typeId}`. The five culture units still hit their direct chip branches first, so this is a fallback path only.
 
 ## 2026-11-11 — app / distinct 28px living chips for each culture's unique unit (bakeoff/gemini-culture-units)
 

@@ -69,7 +69,7 @@ export function UnitCard(props: UnitCardProps) {
           ) : typeId === "lancer" ? (
             <LancerChip size={28} open={open} />
           ) : hasCultureUnitChip(typeId) ? (
-            <CultureUnitChip typeId={typeId} size={28} open={open} />
+            <CultureUnitChip unitId={typeId} size={28} open={open} />
           ) : (
             <UnitIcon typeId={typeId} size={28} animated={open} />
           )}

@@ -9,6 +9,7 @@ Newest first. Plain language for playtesters.
 - **No wasted gold.** If a ruler already thinks as well of you as they can (opinion 100), the line reads **standing is as high as it goes** and the button is greyed out. Before, you could still pay and get nothing.
 - **Gift any crown from the War tab.** The Gift button used to be only on Lord Varric's card there. Now every crown has one.
 - **Nothing else moved.** Declare war, Scout, Trade, Join and Leave work as before.
+- **Culture unit chips fixed.** A coding slip left the game unable to build after the culture unit chips landed. That is repaired here; the Ranger, Banner, Outrider, Warden and Lancer chips look and work the same.
 
 ## 2026-11-11 — Living unit chips for unique culture units (bakeoff/gemini-culture-units)
 
