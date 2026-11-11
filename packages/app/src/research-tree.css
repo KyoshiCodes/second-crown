@@ -99,7 +99,79 @@
   border-color: rgba(200, 150, 50, 0.95);
 }
 
+/* Cost row on every study card: label, one chip per resource, one plain reason line. */
+.sc-research-tree-cost {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  padding-top: 5px;
+  border-top: 1px dashed rgba(180, 140, 70, 0.3);
+  font-size: 11px;
+}
+
+.sc-research-tree-cost-label {
+  flex: 0 0 auto;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+
+.sc-research-tree-cost-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.sc-research-tree-cost-chip {
+  padding: 1px 6px;
+  border: 1px solid rgba(63, 185, 80, 0.55);
+  border-radius: 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sc-research-tree-cost-chip.is-short {
+  border-color: rgba(248, 81, 73, 0.75);
+  color: #f85149;
+}
+
+.sc-research-tree-cost.is-known .sc-research-tree-cost-chip,
+.sc-research-tree-cost.is-studying .sc-research-tree-cost-chip {
+  border-color: rgba(127, 127, 127, 0.4);
+  opacity: 0.7;
+}
+
+.sc-research-tree-cost-note {
+  flex: 1 0 100%;
+  font-size: 10.5px;
+  opacity: 0.8;
+}
+
+.sc-research-tree-cost-note.tone-ok {
+  color: #3fb950;
+  opacity: 1;
+}
+
+.sc-research-tree-cost-note.tone-short {
+  color: #f85149;
+  opacity: 0.95;
+}
+
+.sc-research-tree-cost-note.tone-wait {
+  color: #d29922;
+  opacity: 1;
+}
+
 @media (max-width: 520px) {
+  .sc-research-tree-cost-chips {
+    margin-left: 0;
+  }
+
   .sc-research-tree-heading {
     flex-wrap: wrap;
   }

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-11 — Clearer lectern study cards: Cost row and short Study button (wave/research-tree, not merged)
+
+- **Cost row on every study card.** Each card on the lectern (Keep → Lectern, and the primer banner) now shows a **Cost** row under the name / progress / bonus rows: one chip per resource (for example `20 food`, `12 wood`). A chip turns red when the stores do not cover it.
+- **One plain reason line.** Under the chips: `Short 13 food, 4 wood.`, `Stores cover it. Ready to study.`, `Stores cover it. Lectern is busy with Husbandry.`, or `Paid.` on a study that is underway or already known.
+- **Shorter Study button.** The label is now `Study husbandry (14s)`. The cost and hall list no longer ride in the button text (cost is in the Cost row; a missing hall, Keep level, or first study is still named in red under the study name).
+- **Unchanged:** all research math, costs, times, the Academy discount, Cancel and its refund, and when the Study button is disabled (missing hall, Keep level, or first study). `tryStartResearch` in the sim still decides and spends.
+- **Files:** new `packages/app/src/ResearchCost.tsx` and `ResearchCost.test.tsx`; edits to `ResearchBar.tsx` and `research-tree.css`. No edits to `packages/sim`, `server/`, or `theme.css`.
+- **Tests:** sim 362, app 927 (9 new), server 159 passing. App build clean. Not opened in a browser.
+
 ## 2026-11-11 — Living seasonal crest or weather pip on season status line (bakeoff/gemini-season-claim)
 
 - **Dedicated living seasonal crest & weather pip (`SeasonPip` / `SeasonalCrestPip` / `SeasonWeatherPip`):** Created bespoke animated heraldic season pips (`packages/app/src/hud/SeasonPip.tsx` & `season-pip.css`) rendering unique multi-layer vector SVG heraldry (24×24) for all four seasons:

@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — Study cards show the cost up front (wave/research-tree, not on the live game yet)
+
+- **Cost row on every study.** Open the Keep, then the Lectern. Each study card now has a **Cost** row with one small chip per resource, such as "20 food" and "12 wood". A chip is red when you do not have enough.
+- **It tells you what is stopping you.** Under the chips is one short line: "Short 13 food, 4 wood.", "Stores cover it. Ready to study.", or "Lectern is busy with Husbandry." Studies you have started or finished say "Paid."
+- **Shorter Study button.** The button now just says, for example, "Study husbandry (14s)". The number is how long the study takes.
+- Nothing about research itself changed: same costs, same times, same bonuses, same Cancel refund.
+
 ## 2026-11-11 — Living seasonal crest and weather on season status lines (bakeoff/gemini-season-claim)
 
 - **Living seasonal crests across the realm:** The season status lines now feature living, animated heraldic crests and weather pips that transform dynamically with the realm's current season:

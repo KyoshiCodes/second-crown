@@ -25,6 +25,7 @@ import {
   StudyLivingGlyph,
   StudyLivingUnderlay,
 } from "./hud/AcademyLivingGlyph";
+import { ResearchCostRow, studyCostParts } from "./ResearchCost";
 import "./hud/button-pips.css";
 import "./research-tree.css";
 
@@ -34,8 +35,15 @@ function needList(def: { needs?: string; needsAny?: readonly string[] }): string
   return [];
 }
 
-function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH; academyFast: boolean }) {
-  const { state, act, id, academyFast } = props;
+function Row(props: {
+  state: GameState;
+  act: ActFn;
+  id: keyof typeof RESEARCH;
+  academyFast: boolean;
+  /** Name of another study already on the lectern (display only). */
+  busyWith?: string;
+}) {
+  const { state, act, id, academyFast, busyWith } = props;
   const def = RESEARCH[id];
   const done = researchDone(state, id);
   const left = researchTicksLeft(state, id);
@@ -49,7 +57,6 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH; a
   const label = def.name;
   const effect = "effect" in def ? String(def.effect) : "";
   const cost = Object.entries(def.cost).map(([k, v]) => `${v} ${k}`).join(", ");
-  const gate = keepNeed > 0 ? `; Keep ${keepNeed}` : "";
   const seconds = Math.round(researchDuration(state, id) / TICKS_PER_SECOND);
   const status = studyStatus({ done, ticksLeft: left, hallOk: hasHall, keepOk, prereqOk });
   const rows = studyLedgerRows({
@@ -113,6 +120,7 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH; a
       <StudyLivingUnderlay topicId={id} status={status} academyFast={academyFast} />
       <StudyLivingRows topicId={id} status={status} rows={rows} />
       <StudyLivingGlyph topicId={id} status={status} academyFast={academyFast} />
+      <ResearchCostRow status={status} parts={studyCostParts(def.cost, state.resources)} busyWith={busyWith} />
       {done || left > 0 ? null : (
         <button
           type="button"
@@ -128,7 +136,7 @@ function Row(props: { state: GameState; act: ActFn; id: keyof typeof RESEARCH; a
           className="sc-btn-with-pip sc-study-btn"
         >
           <ScrollPip size={16} status="open" />
-          <span>Study {label.toLowerCase()} ({cost}; {buildings.join(" or ")}{gate}; {seconds}s)</span>
+          <span>Study {label.toLowerCase()} ({seconds}s)</span>
         </button>
       )}
     </div>
@@ -181,7 +189,14 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
             ) : null}
             <div className="sc-research-tree-cards">
               {tierIds.map((id) => (
-                <Row key={id} state={state} act={act} id={id} academyFast={academy >= 1} />
+                <Row
+                  key={id}
+                  state={state}
+                  act={act}
+                  id={id}
+                  academyFast={academy >= 1}
+                  busyWith={open && open !== id ? RESEARCH[open].name : undefined}
+                />
               ))}
             </div>
           </section>

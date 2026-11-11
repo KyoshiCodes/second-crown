@@ -1,3 +1,16 @@
+## 2026-11-11 — app / Cost row and short Study button on lectern study cards (wave/research-tree, not merged)
+
+- **Branch note:** `wave/research-tree` already existed (tier II studies, `26ed41b`, an ancestor of `main`). It was re-pointed at `origin/main` (`27f0f57`) and this slice sits on top, so the push was a plain fast-forward, no force.
+- **`packages/app/src/ResearchCost.tsx` (new):**
+  - `studyCostParts(cost, resources)`: one `{ res, need, short }` per entry of the sim `RESEARCH[id].cost`, in table order. `short` is `ceil(need - have)` or 0. Uses `Number()` on the store strings; display only.
+  - `studyCostNote({ status, parts, busyWith })`: the reason line. Order: known / studying → "Paid."; any short resource → "Short N res, …"; another study open → "Stores cover it. Lectern is busy with X."; locked → "Stores cover it."; else "Stores cover it. Ready to study." Hall / Keep / prerequisite gates are not repeated here; the name row's red sub-line already carries them.
+  - `ResearchCostRow`: `.sc-research-tree-cost.is-<status>` with `data-study-cost="paid" | "due"`, chips `.sc-research-tree-cost-chip` (`is-short` only while due), note `.sc-research-tree-cost-note.tone-ok | short | wait | calm`.
+- **`ResearchBar.tsx`:** `Row` takes optional `busyWith` (name of a different open study, passed from `ResearchBar`) and renders `ResearchCostRow` after `StudyLivingGlyph`, right above the Study button, on every card. Button label is `Study <name> (<seconds>s)`; the old `(cost; halls; Keep; seconds)` tail is gone. `disabled` logic, the click handler, the failure message, and Cancel are untouched.
+- **Not done on purpose:** the Study button is not disabled for short stores or a busy lectern. The click still goes through `tryStartResearch` and reports the same message as before. Disabling would be a behavior change the brief did not ask for; the Cost row explains instead.
+- **CSS:** new rules in `research-tree.css`, all under `.sc-research-tree-cost*` (the sheet's scope test still holds). No `theme.css` edit.
+- **Tests:** `ResearchCost.test.tsx` (9): helpers, chip states, every card has a cost row, the green note agrees with `tryStartResearch`, Paid / busy states, render does not mutate stores. Existing assertions on `Study husbandry (` still pass. Full run: sim 362, app 927, server 159; `npm run build -w @second-crown/app` clean.
+- **Not verified:** not opened in a browser; covered by static-markup tests only.
+
 ## 2026-11-11 — app / living seasonal crest or weather pip on season status line (bakeoff/gemini-season-claim)
 
 - **Components (`packages/app/src/hud/SeasonPip.tsx`):**
