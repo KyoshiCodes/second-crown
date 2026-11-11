@@ -1,3 +1,11 @@
+## 2026-11-11 — app / fix: restore ResearchCostRow on living study cards (main)
+
+- **Cause:** `3b9516d` (living research glyphs) was built on a `ResearchBar.tsx` from before `ba9acb7`, so merging it removed the `ResearchCostRow` import and mount, the `busyWith` prop on `Row`, and the short Study label. `ResearchCost.tsx` and its test stayed, so 3 tests in `ResearchCost.test.tsx` failed (`data-study-cost`, "Stores cover it. Ready to study.", "Paid.").
+- **Fix in `ResearchBar.tsx`:** `Row` takes optional `busyWith` again (name of a different open study, passed from `ResearchBar`); `ResearchCostRow` is mounted after `StudyLivingGlyph`, right above the Study button; label is `Study <name> (<seconds>s)`; the unused `gate` string is gone. The ink pip badge, `progress` maths, `data-progress`, and `progress` props on the living glyphs are untouched.
+- **Docs note:** the same commit had also overwritten the Cost row entries in these four docs; see git history (`ba9acb7`) for the full original write-up of `ResearchCost.tsx`.
+- **Tests:** sim 362, app 936, server 158 (1 skipped: symlink permission on Windows). `npm run build -w @second-crown/app` clean.
+- **Not verified:** not opened in a browser; static-markup tests only.
+
 ## 2026-11-11 — app / living research glyphs and ink pips changing with research progress (bakeoff/gemini-research-tree)
 
 - **Components (`packages/app/src/hud/ResearchInkPip.tsx`):**

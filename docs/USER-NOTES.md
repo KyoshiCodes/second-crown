@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — Study cards show the cost again
+
+- **Cost row is back.** Open the Keep, then the Lectern. Each study card shows a **Cost** row with one small chip per resource, such as "20 food" and "12 wood". A chip is red when you do not have enough.
+- **It tells you what is stopping you.** Under the chips: "Short 13 food, 4 wood.", "Stores cover it. Ready to study.", or "Lectern is busy with Husbandry." Studies you have started or finished say "Paid."
+- **Short Study button.** The button says, for example, "Study husbandry (14s)". The number is how long the study takes.
+- The new inkwell badges and progress rings are still there. Nothing about research itself changed.
+
 ## 2026-11-11 — Living research glyphs and ink pips that change with study progress (bakeoff/gemini-research-tree)
 
 - **Living inkwells and progressive ink pips on study cards:** Each research card in the Keep Lectern now features an animated medieval inkwell and quill badge in its top corner:

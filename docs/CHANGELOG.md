@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-11 — Fix: Cost row back on the living lectern study cards (main)
+
+- **What broke.** The living research glyph slice (`3b9516d`) dropped the Cost row from `ResearchBar.tsx` and put the long `(cost; halls; Keep; seconds)` tail back on the Study button, so `ResearchCost.test.tsx` failed on `main`.
+- **Fix.** Every study card again shows the **Cost** row (one chip per resource, red when short) with its one-line reason: `Short 13 food, 4 wood.`, `Stores cover it. Ready to study.`, `Stores cover it. Lectern is busy with Husbandry.`, or `Paid.` The Study button label is `Study husbandry (14s)` again.
+- **Kept.** The living ink pip badge, progress ring, `data-progress`, and all living glyphs from `3b9516d`.
+- **Unchanged:** research math, costs, times, Cancel, and when Study is disabled. `tryStartResearch` still decides and spends.
+- **Files:** `packages/app/src/ResearchBar.tsx` only. No edits to `packages/sim`, `server/`, or CSS.
+- **Tests:** sim 362, app 936, server 158 passing (1 skipped). App build clean. Not opened in a browser.
+
 ## 2026-11-11 — Living research glyphs and ink pips changing with research progress (bakeoff/gemini-research-tree)
 
 - **Dedicated living research ink pip (`ResearchInkPip` / `StudyInkPip` / `InkPip`):** Created a bespoke animated medieval scholar inkpot and quill pip component (`packages/app/src/hud/ResearchInkPip.tsx` & `research-ink-pip.css`) rendering layered SVG geometry:
