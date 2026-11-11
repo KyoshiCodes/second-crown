@@ -1,3 +1,10 @@
+## 2026-11-11 — app / fix: restore `gift?: GiftOffer` on RealmCard and the GiftLine on WorldPanel
+
+- **Cause:** the gift pip slice overwrote `hud/RealmCard.tsx` and `WorldPanel.tsx` from before the gift offer slice, losing the `gift` prop, `GiftLine`, the `sc-gift-btn` class, and `disabled={!gift.ok}`. `WarRoom.tsx` kept passing `gift={giftOffer(state, r.id)}`, so `tsc` failed.
+- **`RealmCard`:** `gift?: GiftOffer` prop. Renders `<GiftLine offer={gift} />` before `.sc-realm-dip-actions` when `gift` and `onGift` are both set. Gift button carries both `sc-realm-gift-btn` and `sc-gift-btn`, is `disabled` when `gift` is given and not ok, and labels itself with `giftButtonLabel(gift)`. `resolveGiftStatus` gets `giftAvailable: props.giftAvailable ?? gift?.ok`, so the pip agrees with the sim offer (including the opinion cap).
+- **`WorldPanel`:** computes `giftOffer(state, r.id)` per crown card; same line, gate, and `giftAvailable: gift.ok`; button text uses `gift.cost`.
+- **Lesson:** when two slices touch the same file, merge rather than replace the file (see AGENTS.md, "Do not run two agents on the same files without a merge plan").
+
 ## 2026-11-11 — app / living gift and tribute pips on diplomacy realm cards (bakeoff/gemini-diplomacy-gifts)
 
 - **Components (`packages/app/src/hud/GiftPip.tsx`):**

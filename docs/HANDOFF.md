@@ -13,6 +13,8 @@ Also waiting: `wave/infirmary-heal` (**not merged**, pushed, no PR). Infirmary a
 Also waiting: `bakeoff/gemini-research-tree` (**not merged**, living glyphs and visual flair for the new research studies, see below). On this branch: sim **332**, app **852**, server **158**, app build clean.
 Also waiting: `bakeoff/gemini-infirmary` (**not merged**, subtle living heal glow and bandage pips on wounded unit chips when Infirmary is active, see below). On this branch: sim **340**, app **862**, server **158**, app build clean.
 Also waiting: `bakeoff/gemini-culture-units` (**not merged**, distinct 28px living chips for each culture's unique unit, see below). On this branch: sim **340**, app **872**, server **158**, app build clean.
+Fixed on `main` (2026-11-11): `RealmCard` takes `gift?: GiftOffer` again and `WorldPanel` crown cards show the `GiftLine` tribute line with a gated Gift button; the gift pip slice had dropped both and broken the app build. Gift pip kept. Now: sim **362**, app **894**, server **158**, app build clean.
+
 Also waiting: `bakeoff/gemini-diplomacy-gifts` (**not merged**, living gift or tribute pip on diplomacy realm cards when available or just sent, see below). On this branch: sim **356**, app **885**, server **158**, app build clean.
 
 Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app build clean.

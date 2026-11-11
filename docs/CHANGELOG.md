@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-11 — Fix: tribute status line and gated Gift button back on diplomacy cards
+
+- **What broke:** the gift pip change replaced `RealmCard.tsx` and `WorldPanel.tsx` and dropped the `gift?: GiftOffer` prop, the `GiftLine` status line, and the gold gate on the Gift button. `WarRoom.tsx` still passed `gift`, so the app build failed on types and `GiftLine.test.tsx` failed.
+- **Fix (app only):** `RealmCard` takes `gift?: GiftOffer` again. With it, the card shows the tribute status line above the buttons, the Gift button label comes from the sim offer (cost and real opinion gain), and the button is disabled when the offer is not ok. `WorldPanel` crown cards get the same line and gate. The living gift pip, corner badge, and button pip are kept; the pip's available state now follows the sim offer when one is given.
+- **Tests:** sim 362, app 894, server 158 passing. App build clean. No sim or server edits.
+
 ## 2026-11-11 — Living gift and tribute pips on diplomacy realm cards (bakeoff/gemini-diplomacy-gifts)
 
 - **Dedicated living tribute coffer pip (`GiftPip` / `TributePip`):** Created a bespoke living heraldic tribute pip component (`packages/app/src/hud/GiftPip.tsx` & `gift-pip.css`) rendering an ornate medieval gilded diplomatic tribute coffer with layered SVG geometry (domed lid, reinforced gilded iron strapping, royal signet clasp, and swallowtail ribbon seal).

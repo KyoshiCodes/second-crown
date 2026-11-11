@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — Tribute line is back on diplomacy cards
+
+- **Tribute status line restored:** realm cards on the War tab and crown cards on the World tab again show a one-line tribute status above the buttons (cost, opinion gain, and "ready", how much gold you are short, or that standing is already as high as it goes).
+- **Gift button is gated again:** the Gift button greys out when you cannot send a gift, and its label shows the real opinion gain (for example +17 with the Court doctrine).
+- The glowing tribute coffer pip from the last update is unchanged.
+
 ## 2026-11-11 — Living gift and tribute pips on diplomacy realm cards (bakeoff/gemini-diplomacy-gifts)
 
 - **Living tribute coffers on realm cards:** Diplomacy cards in both the War Room (War tab) and Known Crowns (World tab) now feature animated living tribute pips:

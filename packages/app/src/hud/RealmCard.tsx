@@ -1,10 +1,11 @@
 import React from "react";
-import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState } from "@second-crown/sim";
+import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState, type GiftOffer } from "@second-crown/sim";
 import { RealmCrestPip } from "./RealmCrestPip";
 import { realmLedgerRows } from "./DiploLedger";
 import { DiploLivingRows, type RealmPact } from "./DiploLivingRows";
 import { RealmLivingGlyph, RealmLivingUnderlay } from "./DiploLivingGlyph";
 import { GiftPip, resolveGiftStatus, type GiftStatus } from "./GiftPip";
+import { GiftLine, giftButtonLabel } from "./GiftLine";
 import "./realm-card.css";
 import "./diplo-living.css";
 import "./diplo-glyph-living.css";
@@ -67,6 +68,8 @@ export function RealmCard(props: {
   declareLocked: boolean;
   onDeclare: () => void;
   onGift?: () => void;
+  /** Sim gift offer (giftOffer). Drives the tribute status line, the button label, and whether the button is enabled. */
+  gift?: GiftOffer;
   /** Pact this realm is sworn to (realmPactOf over state.factions); null or omitted reads "No pact". */
   pact?: RealmPact | null;
   /** Game state to evaluate gold resources and recent gift history deterministically. */
@@ -79,6 +82,7 @@ export function RealmCard(props: {
   giftJustSent?: boolean;
 }) {
   const { realm, stance, peaceLeft, opinion, myOpinion, mine, theirs } = props;
+  const { gift } = props;
   const favored = mine >= theirs;
   const rows = realmLedgerRows({
     name: realm.name,
@@ -96,7 +100,7 @@ export function RealmCard(props: {
       state: props.state,
       realmId: realm.id,
       hasGiftAction: !!props.onGift,
-      giftAvailable: props.giftAvailable,
+      giftAvailable: props.giftAvailable ?? gift?.ok,
       giftJustSent: props.giftJustSent,
     });
   const hasGift = giftStatus === "available" || giftStatus === "just-sent";
@@ -133,6 +137,7 @@ export function RealmCard(props: {
         matchup={{ mine, theirs }}
       />
       {/* former sc-realm-dip-line rows stacked by DiploLivingRows (Name / Stance / Pact / Power) */}
+      {gift && props.onGift ? <GiftLine offer={gift} /> : null}
       <span className="sc-realm-dip-actions">
         <button
           type="button"
@@ -146,11 +151,12 @@ export function RealmCard(props: {
         {props.onGift ? (
           <button
             type="button"
-            className={`sc-realm-dip-btn sc-realm-gift-btn${giftStatus ? ` is-${giftStatus}` : ""}`}
+            className={`sc-realm-dip-btn sc-realm-gift-btn${giftStatus ? ` is-${giftStatus}` : ""} sc-gift-btn`}
+            disabled={gift ? !gift.ok : false}
             onClick={props.onGift}
           >
             <GiftPip status={giftStatus ?? "unaffordable"} size={14} />
-            <span>Gift 15 gold (+12 opinion)</span>
+            <span>{gift ? giftButtonLabel(gift) : "Gift 15 gold (+12 opinion)"}</span>
           </button>
         ) : null}
       </span>
