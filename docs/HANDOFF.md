@@ -1,4 +1,4 @@
-# Handoff (2026-11-10)
+# Handoff (2026-11-11)
 
 Read `AGENTS.md` then this file.
 
@@ -9,6 +9,7 @@ Read `AGENTS.md` then this file.
 `main` is at `13135c3` (living scroll glyphs under quest cards). The living-layer wave is **fully merged**: every `wave/*-living` and `bakeoff/gemini-*-living` branch is on `main`. There is no waiting list for HUD glyphs.
 Also waiting: `bakeoff/gemini-board-light` (**not merged**, richer lighting and atmosphere pass on the isometric board, see below). Per-slice detail lives in `CHANGELOG.md` (newest first) and `DEV-NOTES.md`; older versions of this file are in git history.
 Also waiting: `wave/research-tree` (**not merged**, pushed, no PR). Six tier II lectern studies, sim + UI, see "Research tree" below. On that branch: sim **332**, app **849**, server **158**, app build clean.
+Also waiting: `wave/infirmary-heal` (**not merged**, pushed, no PR). Infirmary auto-heal, sim + Army tab line, see "Infirmary auto-heal" below. On that branch: sim **340**, app **855**, server **158**, app build clean.
 Also waiting: `bakeoff/gemini-research-tree` (**not merged**, living glyphs and visual flair for the new research studies, see below). On this branch: sim **332**, app **852**, server **158**, app build clean.
 
 Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app build clean.
@@ -22,6 +23,7 @@ Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app
 - **Host.** Train queue with x1/x5/x10 batches, barracks / stables / range / workshop, upkeep, mercs, champion, wounded + manual infirmary treat.
 - **Board war.** Marches, column clashes, camps, outposts and flags, garrisons, hold storm, sally, incoming raids.
 - **Map economy.** Gather nodes with stock, scouts and fog, seasons, weather (slows marches).
+- **Infirmary auto-heal (wave/infirmary-heal, not merged).** A finished player Infirmary with at least one worker posted on it heals by itself: every 100 ticks (10s) one wounded in ten, rounded up, comes back as militia, free. No worker or a scarred / unfinished Infirmary: no healing. Manual Treat is unchanged and still works beside it. Army tab Wounded card shows **Healing · N wounded · next M in Xs**, or **Not healing · no worker at the Infirmary**. Sim change is small and pure (`systems/ward.ts`: `infirmaryStaffed`, `autoHealAmount`, `autoHealActive`, `autoHealTicksLeft`, `autoHealTick`, run from `WardSystem`); no save schema change. Numbers are first-pass, not playtested.
 - **Crown.** Lectern studies with Academy discount, market stalls, royal decrees, events and quests, diplomacy (realms, pacts, truce, gifts), Ledger of Crowns with save/load audit lines.
 - **Research tree (wave/research-tree, not merged).** Six tier II studies on the lectern, each needing one tier I study plus Keep II or III: Crop rotation (Husbandry, +10% food), Timber framing (Forestry, +10% wood), Fortification (Masonry, +10% stone and +24 wall HP), Supply trains (Logistics, +100 warehouse and +1 column up to the Keep limit), Cartography (Surveying, +1 vision and scouting 4 gold cheaper), Quartermastery (Drill, training 8% cheaper). Lectern shows **I First studies** / **II Deeper studies**; Study and Cancel unchanged. Sim change is small and pure (`systems/research.ts` plus one-line hooks in `storage`, `labor`, `fog`, `train`); no save schema change. Numbers are first-pass, not playtested.
   - **Living flair (bakeoff/gemini-research-tree, not merged).** Adds bespoke living glyphs, corner watermarks, and tier II link flares for all six tier II studies across agronomy, masonry, cartography, and tactics (16 distinct emblems across the lectern). All decorative layers isolated, `pointer-events: none`, and softened in `hud/living-glyph-soften.css`.
@@ -66,7 +68,7 @@ Not living (left as they are on purpose): Keep interior room cards, Court cards.
 
 1. **Playtest notes + balance pass.** Owner plays a full session on the live build; log what feels slow, confusing or pointless in `USER-NOTES.md`. Then tune numbers (five culture edges, gather vs farm income). Balance changes touch `packages/sim`: ask the owner first, small constants only.
 2. **Board visual pass.** One readability sweep of the diamond board (`packages/render` + atlas CSS): layer order, contrast under weather and fog, label clutter. No new marks.
-3. **Infirmary auto-heal.** Needs a short written spec first (treat is manual today: 4 food + 50 ticks → 1 militia). Sim change, owner approval required.
+3. **Infirmary auto-heal.** Built on `wave/infirmary-heal` (owner asked for it), waiting for merge. After merge: playtest the pace (1 in 10 every 10s, free) against manual Treat.
 
 After those, see `ROADMAP.md` (research expansion, audio, performance).
 
@@ -115,6 +117,7 @@ cd ~/second-crown && git pull && npm test && npm run build -w @second-crown/app 
 - Column clashes use the column, not the home army.
 - One study at a time. Academy only shortens *new* studies.
 - Treat wounded is 4 food + 50 ticks → 1 militia.
+- Auto-heal (wave/infirmary-heal) fires only on ticks that are a multiple of 100, as a `WardSystem` event, never as a per-tick step. That keeps a batch settle equal to tick by tick.
 - Wall HP already includes gate HP; do not add them twice in copy.
 - Vision ≠ rim tower count. See DEV-NOTES.
 

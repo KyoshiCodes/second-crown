@@ -1,0 +1,44 @@
+/* Infirmary auto-heal status line on the Army tab's Wounded card. Do not touch theme.css. */
+
+.sc-infirmary-heal {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.sc-infirmary-heal.is-healing {
+  color: #86efac;
+}
+
+.sc-infirmary-heal.is-idle {
+  color: #fcd34d;
+  opacity: 0.9;
+}
+
+.sc-infirmary-heal-next {
+  opacity: 0.75;
+}
+
+.sc-infirmary-heal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  flex-shrink: 0;
+  pointer-events: none;
+  animation: sc-infirmary-heal-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sc-infirmary-heal-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-infirmary-heal-dot {
+    animation: none;
+  }
+}

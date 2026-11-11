@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — The Infirmary heals by itself (wave/infirmary-heal, not merged yet)
+
+- **Auto-heal.** If you have a finished Infirmary with at least one worker in it, your wounded now get better without you clicking. Every 10 seconds, one wounded in ten (rounded up, so always at least one) comes back as militia. It costs no food.
+- **It needs a worker.** An Infirmary with nobody working in it does not heal. Neither does one that is still being built or was knocked down in a siege. Post a worker on it from the Kingdom tab.
+- **Where to see it.** Army tab, Wounded card. A green line reads **Healing · N wounded · next M in Xs**. If you have an Infirmary but no worker in it, an amber line reads **Not healing · no worker at the Infirmary**.
+- **Treat still works.** The Treat button is the same as before: 4 food, one wounded back as militia in 5 seconds (4 with a Barracks). Use it when you want troops back faster than the Infirmary manages alone.
+- The pace is a first guess. Tell us if it feels too slow or too generous.
+
 ## 2026-11-11 — Living glyphs and visual flair on deeper research studies (bakeoff/gemini-research-tree)
 
 - **Bespoke emblems for deeper studies:** Under the Name, Progress, and Bonus lines on each tier II study card in the Keep Lectern, subtle living emblems and corner watermarks now depict the study's unique scholarly craft instead of reusing first-tier artwork:

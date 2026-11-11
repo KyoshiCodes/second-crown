@@ -1,3 +1,16 @@
+## 2026-11-11 — sim + app / Infirmary auto-heal tick (wave/infirmary-heal, not merged)
+
+- **Rule.** `autoHealTick(state, tick)` in `packages/sim/src/systems/ward.ts`: if `tick % AUTO_HEAL_EVERY === 0` and `autoHealActive(state)`, move `autoHealAmount(wounded)` from `flags.wounded_player` to player militia. `AUTO_HEAL_EVERY = 100`, `AUTO_HEAL_SHARE = 10`, amount = `ceil(wounded / 10)`. Free, no `inputLog` entry (it is not a player input).
+- **Staffed** = `infirmaryStaffed(state)`: a player `infirmary` with `completesAtTick === null` and a player citizen whose job is the Infirmary job (`scholar`) standing on its tile. Same tile match as the staff bonus in `economy.ts`. A scarred Infirmary has a non-null `completesAtTick`, so it does not heal.
+- **Footgun: it is an event, not a per-tick step.** `WardSystem.tick()` and `advanceAnalytic()` are still empty. Healing runs from `processEventsAt`, and `nextEventTick` returns the next multiple of 100 while healing is active, so `settleTicks` fine-ticks across it. Do not move the heal into `tick()`: a batch would skip it and offline would stop matching online (invariant 2). The test "settles a batch the same as tick by tick" guards this.
+- **Footgun: integer share.** The share is a divisor, not `wounded * 0.1`. `30 * 0.1` is `3.0000000000000004` in floats and would round up to 4.
+- **Cadence is global.** Heal ticks sit on world ticks 100, 200, ... rather than "100 ticks after the wound", so nothing new is stored in the save. The first heal after a battle can come sooner than 10s.
+- **No save change.** No new flags. `clearRunJobs` on Second Dawn already clears `wounded_player`.
+- **`countBuilding(state, "infirmary")` counts every realm**; `infirmaryStaffed` filters to the player on purpose.
+- **App.** `packages/app/src/InfirmaryHealLine.tsx` exports `infirmaryHeal(state)` (pure read: `healing` / `unstaffed` / null) and `InfirmaryHealLine`, mounted in the Wounded card in `tabs/ArmyTab.tsx` under the status line. Styles in `infirmary-heal.css` (pulse dot honours reduced motion). The Keep Hall Yard room does not show the line yet.
+- **Not changed.** The Infirmary blurb in `content/buildings.ts` does not mention auto-heal yet. `UpkeepPace` "next change" still only looks at training and manual treat jobs, not the next heal tick.
+- **Tests.** `ward.test.ts` (8 new), `InfirmaryHealLine.test.tsx` (4). Sim 340, app 855, server 158. `packages/render` has 3 failures in `index.test.ts` (DecreeCard / QuestCard / EventCard pips) that are already on `origin/main`.
+
 ## 2026-11-11 — app / living glyphs and visual flair for research tree tier II (bakeoff/gemini-research-tree)
 
 - **Components:** `packages/app/src/hud/AcademyLivingGlyph.tsx` exports `isTierTwoStudy`, `TIER_TWO_TOPICS`, and keeps `TIER_TWO_EMBLEM` for reference. `TopicEmblemSvg` now implements bespoke SVG paths for all 16 topics (6 tier II + 10 tier I), eliminating the tier I emblem fallback.

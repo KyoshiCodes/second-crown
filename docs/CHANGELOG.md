@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-11 — Infirmary auto-heal tick (wave/infirmary-heal, not merged)
+
+- **New rule (sim).** A finished player Infirmary with at least one worker posted on its tile heals wounded by itself. On every tick that is a multiple of 100 (10s), one wounded in ten, rounded up (at least 1), returns as militia. It costs no food and writes no input-log entry. No worker, or an Infirmary that is still going up or scarred: nothing heals.
+- **Sim (`packages/sim/src/systems/ward.ts`, pure, no I/O).** New exports: `AUTO_HEAL_EVERY` (100), `AUTO_HEAL_SHARE` (10), `infirmaryStaffed`, `autoHealAmount`, `autoHealActive`, `autoHealTicksLeft`, `autoHealTick`. `WardSystem.nextEventTick` reports the next heal tick while healing is active; `WardSystem.processEventsAt` calls `autoHealTick` after finished treat jobs. `deliverMilitia` takes a count. No save schema change: it reads the existing `wounded_player` flag, buildings and citizens.
+- **Unchanged.** `tryTreatWounded` (4 food, 50 ticks, 40 with the Yard bonus), beds, battle casualties, training, Second Dawn clearing.
+- **Army tab.** New `InfirmaryHealLine` inside the Wounded card: "Healing · N wounded · next M in Xs" while a staffed Infirmary is healing, "Not healing · no worker at the Infirmary" when one stands empty, nothing otherwise. Treat and train controls are the same. New `infirmary-heal.css`; `theme.css` and `server/` untouched.
+- **Tests.** `ward.test.ts` +8 (staffing, share, heal tick only, engine wait, unstaffed / unfinished, empties then stops, batch settle equals tick by tick, manual treat beside it). New `InfirmaryHealLine.test.tsx` (4). Sim 340, app 855, server 158 pass. App build clean. `packages/render` has 3 failing tests (DecreeCard / QuestCard / EventCard pips) that fail the same way on `origin/main` without this change.
+
 ## 2026-11-11 — Living glyphs and visual flair for research tree tier II (bakeoff/gemini-research-tree)
 
 - **Bespoke tier II living emblems (`StudyLivingGlyph` / `StudyLivingUnderlay`):** Replaced the placeholder tier I emblems for all six tier II research studies with dedicated, bespoke 16×16 and 30×30 SVG artwork across agronomy, masonry, cartography, and tactics:

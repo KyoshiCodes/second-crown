@@ -33,6 +33,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { flashAction } from "../hud/ActionFlash";
 import { TrainingPace, lockNote } from "../TrainingPace";
 import { UpkeepPace } from "../UpkeepPace";
+import { InfirmaryHealLine } from "../InfirmaryHealLine";
 
 export function ArmyTab(props: {
   state: GameState | undefined;
@@ -184,6 +185,7 @@ export function ArmyTab(props: {
             {halls > 0 ? `Infirmary ${halls} (${beds} beds)` : "No Infirmary"}
             {healing > 0 ? ` · treating ${healing} · next in ${Math.ceil(healLeft / 10)}s` : ""}
           </div>
+          <InfirmaryHealLine state={state} />
           {wounded > 0 && halls < 1 ? (
             <div className="sc-work-perks">Raise an Infirmary on Kingdom. Half of home losses go to beds instead of the grave.</div>
           ) : null}

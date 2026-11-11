@@ -2,10 +2,15 @@ import type { GameState } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
 import { hallRoomBuilt, YARD_HEAL_TICKS } from "./hallBonus.js";
+import { jobForBuildingType } from "./citizens.js";
 
 const REPAIR_STONE = 8;
 const TREAT_FOOD = 4;
 export const HEAL_TICKS = 50;
+/** A staffed Infirmary heals on every tick that is a multiple of this. */
+export const AUTO_HEAL_EVERY = 100;
+/** One wounded in this many walks out per heal tick, rounded up. */
+export const AUTO_HEAL_SHARE = 10;
 
 interface HealJob {
   doneTick: number;
@@ -71,18 +76,66 @@ export function absorbBattleCasualties(
   return { saved, dead: Math.max(0, lost - saved) };
 }
 
-function deliverMilitia(state: GameState): void {
+function deliverMilitia(state: GameState, n = 1): void {
   const militia = state.units.find((u) => u.realmId === "player" && u.typeId === "militia");
-  if (militia) militia.count = toDecimalString(D(militia.count).add(1));
+  if (militia) militia.count = toDecimalString(D(militia.count).add(n));
   else {
     state.units.push({
       id: `u_heal_${state.meta.tick}`,
       typeId: "militia",
       realmId: "player",
-      count: "1",
+      count: String(n),
       armyId: null,
     });
   }
+}
+
+/** A finished player Infirmary with at least one worker posted on its tile. */
+export function infirmaryStaffed(state: GameState): boolean {
+  const job = jobForBuildingType("infirmary");
+  return state.buildings.some(
+    (b) =>
+      b.realmId === "player" &&
+      b.typeId === "infirmary" &&
+      b.completesAtTick === null &&
+      state.citizens.some(
+        (c) => c.realmId === "player" && c.job === job && c.tile?.x === b.x && c.tile?.y === b.y
+      )
+  );
+}
+
+/** How many of `wounded` one heal tick returns: one in AUTO_HEAL_SHARE, rounded up. */
+export function autoHealAmount(wounded: number): number {
+  if (wounded <= 0) return 0;
+  return Math.ceil(Math.floor(wounded) / AUTO_HEAL_SHARE);
+}
+
+/** True while a staffed Infirmary has wounded to heal. */
+export function autoHealActive(state: GameState): boolean {
+  return woundedCount(state) > 0 && infirmaryStaffed(state);
+}
+
+/** Ticks until the next heal tick, or 0 when nothing is healing. */
+export function autoHealTicksLeft(state: GameState): number {
+  if (!autoHealActive(state)) return 0;
+  return nextAutoHealTick(state.meta.tick) - state.meta.tick;
+}
+
+function nextAutoHealTick(tick: number): number {
+  return Math.floor(tick / AUTO_HEAL_EVERY) * AUTO_HEAL_EVERY + AUTO_HEAL_EVERY;
+}
+
+/**
+ * The auto-heal tick. On a heal tick a staffed Infirmary returns a share of the wounded
+ * as militia, free. Returns how many walked out. Manual treat is untouched.
+ */
+export function autoHealTick(state: GameState, tick: number): number {
+  if (tick % AUTO_HEAL_EVERY !== 0 || !autoHealActive(state)) return 0;
+  const wounded = woundedCount(state);
+  const healed = autoHealAmount(wounded);
+  state.flags.wounded_player = wounded - healed;
+  deliverMilitia(state, healed);
+  return healed;
 }
 
 export function tryTreatWounded(state: GameState): boolean {
@@ -140,17 +193,21 @@ export function tryRepair(state: GameState, buildingId: string): boolean {
 export const WardSystem = {
   nextEventTick(state: GameState): number | null {
     const jobs = readHeals(state);
-    return jobs.length ? Math.min(...jobs.map((j) => j.doneTick)) : null;
+    const ticks = jobs.map((j) => j.doneTick);
+    if (autoHealActive(state)) ticks.push(nextAutoHealTick(state.meta.tick));
+    return ticks.length ? Math.min(...ticks) : null;
   },
   processEventsAt(state: GameState, tick: number): void {
     const jobs = readHeals(state);
-    if (!jobs.some((j) => j.doneTick === tick)) return;
-    const remaining: HealJob[] = [];
-    for (const job of jobs) {
-      if (job.doneTick === tick) deliverMilitia(state);
-      else remaining.push(job);
+    if (jobs.some((j) => j.doneTick === tick)) {
+      const remaining: HealJob[] = [];
+      for (const job of jobs) {
+        if (job.doneTick === tick) deliverMilitia(state);
+        else remaining.push(job);
+      }
+      saveHeals(state, remaining);
     }
-    saveHeals(state, remaining);
+    autoHealTick(state, tick);
   },
   advanceAnalytic(): void {},
   tick(): void {},
