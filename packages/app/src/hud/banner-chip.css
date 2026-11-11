@@ -1,5 +1,5 @@
 /* Banner Chip (28px).
-   Living banner unit chip for the Banner card in the Army tab.
+   Living banner unit chip for the Banner card in the Army tab and Culture Picker.
    Displays warrior with tall ash spear, flying heraldic pennant, and glen-green cloak.
    Strictly pointer-events: none to guarantee card clicks and training are never blocked.
    No theme.css edits. */
@@ -16,6 +16,10 @@
   line-height: 1;
 }
 
+.sc-banner-chip-wrapper * {
+  pointer-events: none !important;
+}
+
 .sc-banner-chip-wrapper svg {
   display: block;
   pointer-events: none !important;
@@ -29,4 +33,79 @@
 .sc-banner-chip-wrapper.is-locked {
   opacity: 0.65;
   filter: grayscale(0.4);
+}
+
+/* Living Animations: highland emerald aura, pennant wave flutter, forge glint, pollen drift */
+.sc-banner-chip-wrapper.is-open .sc-banner-glow-layer {
+  transform-origin: 14px 14px;
+  animation: sc-banner-glow-breathe 2.8s ease-in-out infinite;
+}
+
+.sc-banner-chip-wrapper.is-open .sc-banner-pennant {
+  transform-origin: 18.5px 8.8px;
+  animation: sc-banner-pennant-flutter 2.4s ease-in-out infinite;
+}
+
+.sc-banner-chip-wrapper.is-open .sc-banner-glint-layer {
+  transform-origin: 18.5px 1.6px;
+  animation: sc-banner-glint-pulse 2s ease-in-out infinite;
+}
+
+.sc-banner-chip-wrapper.is-open .sc-banner-drift-layer {
+  transform-origin: 14px 18px;
+  animation: sc-banner-mote-drift 3.4s ease-in-out infinite;
+}
+
+@keyframes sc-banner-glow-breathe {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.16;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.38;
+  }
+}
+
+@keyframes sc-banner-pennant-flutter {
+  0%, 100% {
+    transform: rotate(0deg) skewY(0deg);
+  }
+  50% {
+    transform: rotate(2.5deg) skewY(2deg);
+  }
+}
+
+@keyframes sc-banner-glint-pulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-banner-mote-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate3d(-0.6px, -1.2px, 0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-banner-chip-wrapper,
+  .sc-banner-glow-layer,
+  .sc-banner-pennant,
+  .sc-banner-glint-layer,
+  .sc-banner-drift-layer {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
 }

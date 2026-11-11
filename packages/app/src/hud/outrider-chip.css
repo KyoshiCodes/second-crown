@@ -1,5 +1,5 @@
 /* Outrider Chip (28px).
-   Living outrider unit chip for the Outrider card in the Army tab.
+   Living outrider unit chip for the Outrider card in the Army tab and Culture Picker.
    Displays scout cavalry on horse with short lance and salt-grey cloak.
    Strictly pointer-events: none to guarantee card clicks and training are never blocked.
    No theme.css edits. */
@@ -16,6 +16,10 @@
   line-height: 1;
 }
 
+.sc-outrider-chip-wrapper * {
+  pointer-events: none !important;
+}
+
 .sc-outrider-chip-wrapper svg {
   display: block;
   pointer-events: none !important;
@@ -29,4 +33,64 @@
 .sc-outrider-chip-wrapper.is-locked {
   opacity: 0.65;
   filter: grayscale(0.4);
+}
+
+/* Living Animations: charge aura, salt-dust motes, and lance glint pulse */
+.sc-outrider-chip-wrapper.is-open .sc-outrider-glow-layer {
+  transform-origin: 14px 14px;
+  animation: sc-outrider-glow-breathe 2.8s ease-in-out infinite;
+}
+
+.sc-outrider-chip-wrapper.is-open .sc-outrider-drift-layer {
+  transform-origin: 6px 23px;
+  animation: sc-outrider-dust-drift 3.2s ease-in-out infinite;
+}
+
+.sc-outrider-chip-wrapper.is-open .sc-outrider-pulse-layer {
+  transform-origin: 25.5px 8.5px;
+  animation: sc-outrider-glint-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sc-outrider-glow-breathe {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.16;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.38;
+  }
+}
+
+@keyframes sc-outrider-dust-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate3d(-1.2px, -0.8px, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-outrider-glint-pulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-outrider-chip-wrapper,
+  .sc-outrider-glow-layer,
+  .sc-outrider-drift-layer,
+  .sc-outrider-pulse-layer {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
 }

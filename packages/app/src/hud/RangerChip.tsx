@@ -57,6 +57,18 @@ export function RangerChip({
         className={`sc-ranger-chip ${statusClass}`}
         style={{ pointerEvents: "none", display: "block" }}
       >
+        {/* Living Mist Aura (Active/Open) */}
+        {open ? (
+          <circle
+            className="sc-ranger-glow-layer"
+            cx="14"
+            cy="14"
+            r="11"
+            fill="#0284c7"
+            opacity="0.22"
+          />
+        ) : null}
+
         {/* 1. Ground contact shadow */}
         <ellipse cx="14" cy="25" rx="6.5" ry="1.8" fill="#000000" fillOpacity="0.32" />
 
@@ -241,14 +253,31 @@ export function RangerChip({
           />
         </g>
 
-        {/* 8. Morning mist wisps */}
-        <path
-          d="M6 24.5 Q10 23.5 14 24.5 Q18 25.5 22 24.5"
-          stroke={open ? "#bae6fd" : "#64748b"}
-          strokeWidth="0.8"
-          fill="none"
-          opacity={open ? "0.6" : "0.3"}
-        />
+        {/* 8. Morning mist wisps & living stealth motes */}
+        <g className="sc-ranger-drift-layer">
+          <path
+            d="M6 24.5 Q10 23.5 14 24.5 Q18 25.5 22 24.5"
+            stroke={open ? "#bae6fd" : "#64748b"}
+            strokeWidth="0.8"
+            fill="none"
+            opacity={open ? "0.6" : "0.3"}
+          />
+          {open ? (
+            <>
+              <circle cx="7" cy="20" r="0.75" fill="#7dd3fc" opacity="0.8" />
+              <circle cx="21" cy="18" r="0.65" fill="#bae6fd" opacity="0.75" />
+              <circle cx="14" cy="22.5" r="0.55" fill="#38bdf8" opacity="0.85" />
+            </>
+          ) : null}
+        </g>
+
+        {/* Living arrow tip & eye glint */}
+        {open ? (
+          <g className="sc-ranger-pulse-layer">
+            <circle cx="25.5" cy="14" r="0.85" fill="#e0f2fe" opacity="0.9" />
+            <circle cx="16.5" cy="13.2" r="0.55" fill="#38bdf8" />
+          </g>
+        ) : null}
       </svg>
     </span>
   );

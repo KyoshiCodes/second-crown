@@ -57,6 +57,18 @@ export function WardenChip({
         className={`sc-warden-chip ${statusClass}`}
         style={{ pointerEvents: "none", display: "block" }}
       >
+        {/* Living Fen-Reed Vitality Aura (Active/Open) */}
+        {open ? (
+          <circle
+            className="sc-warden-glow-layer"
+            cx="14"
+            cy="14"
+            r="11"
+            fill="#365314"
+            opacity="0.22"
+          />
+        ) : null}
+
         {/* 1. Ground contact shadow */}
         <ellipse cx="14" cy="25" rx="7" ry="1.8" fill="#000000" fillOpacity="0.32" />
 
@@ -197,6 +209,22 @@ export function WardenChip({
           <rect x="17.8" y="14" width="2.2" height="2" rx="0.5" fill="#44403c" />
           <circle cx="18.9" cy="15" r="0.9" fill="#fbcfe8" />
         </g>
+
+        {/* Living reed sway fringes & shield boss glint */}
+        {open ? (
+          <>
+            <g className="sc-warden-sway-layer">
+              <path d="M4 24.5 C5 21, 6 18, 5 15.5" stroke="#65a30d" strokeWidth="0.8" fill="none" opacity="0.75" />
+              <path d="M24 24.5 C23 21, 22 18, 23 15.5" stroke="#65a30d" strokeWidth="0.8" fill="none" opacity="0.75" />
+              <circle cx="6" cy="17" r="0.65" fill="#eab308" opacity="0.85" />
+              <circle cx="22" cy="17" r="0.65" fill="#eab308" opacity="0.85" />
+            </g>
+            <g className="sc-warden-glint-layer">
+              <circle cx="19.5" cy="1.8" r="0.85" fill="#fef08a" opacity="0.95" />
+              <circle cx="9" cy="16.5" r="0.75" fill="#facc15" opacity="0.9" />
+            </g>
+          </>
+        ) : null}
       </svg>
     </span>
   );

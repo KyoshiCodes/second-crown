@@ -1,99 +1,147 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
-import { CULTURE_UNITS, createGameState, setPlayerCulture } from "@second-crown/sim";
-import { CultureUnitChip, hasCultureUnitChip } from "./CultureUnitChip";
-import { ArmyTab } from "../tabs/ArmyTab";
-import { lockNote, nextUnitUnlock } from "../TrainingPace";
+import { describe, it, expect } from "vitest";
+import {
+  CultureUnitChip,
+  CULTURE_UNIQUE_UNITS,
+  UNIT_TO_CULTURE,
+  isCultureUniqueUnit,
+  cultureForUniqueUnit,
+} from "./CultureUnitChip";
 
-function readTextFile(relativePath: string): string {
+function readCssFile(relativePath: string): string {
   const proc = (globalThis as {
-    process?: { getBuiltinModule?: (id: string) => { readFileSync: (path: URL, encoding: string) => string } };
+    process?: {
+      getBuiltinModule?: (id: string) => {
+        readFileSync: (path: URL, encoding: string) => string;
+      };
+    };
   }).process;
   const fsMod = proc?.getBuiltinModule?.("node:fs");
   if (!fsMod) throw new Error("node:fs unavailable in test runner");
   return fsMod.readFileSync(new URL(relativePath, import.meta.url), "utf8");
 }
 
-function army(culture: string, flags: Record<string, number> = {}): string {
-  const s = createGameState({ seed: 1 });
-  setPlayerCulture(s, culture);
-  Object.assign(s.flags, flags);
-  return renderToStaticMarkup(<ArmyTab state={s} act={() => undefined} trainQty={1} setTrainQty={() => undefined} />);
-}
+describe("CultureUnitChip (bakeoff/gemini-culture-units)", () => {
+  it("exports culture mapping constants and helper functions", () => {
+    expect(CULTURE_UNIQUE_UNITS.mist).toBe("ranger");
+    expect(CULTURE_UNIQUE_UNITS.glen).toBe("banner");
+    expect(CULTURE_UNIQUE_UNITS.salt).toBe("outrider");
+    expect(CULTURE_UNIQUE_UNITS.fen).toBe("warden");
+    expect(CULTURE_UNIQUE_UNITS.peak).toBe("lancer");
 
-describe("CultureUnitChip", () => {
-  it("has a chip for every culture unit and none for the base roster", () => {
-    for (const g of CULTURE_UNITS) expect(hasCultureUnitChip(g.unitId)).toBe(true);
-    expect(hasCultureUnitChip("militia")).toBe(false);
-    expect(renderToStaticMarkup(<CultureUnitChip typeId="militia" />)).toBe("");
+    expect(UNIT_TO_CULTURE.ranger).toBe("mist");
+    expect(UNIT_TO_CULTURE.banner).toBe("glen");
+    expect(UNIT_TO_CULTURE.outrider).toBe("salt");
+    expect(UNIT_TO_CULTURE.warden).toBe("fen");
+    expect(UNIT_TO_CULTURE.lancer).toBe("peak");
+
+    expect(isCultureUniqueUnit("ranger")).toBe(true);
+    expect(isCultureUniqueUnit("banner")).toBe(true);
+    expect(isCultureUniqueUnit("outrider")).toBe(true);
+    expect(isCultureUniqueUnit("warden")).toBe(true);
+    expect(isCultureUniqueUnit("lancer")).toBe(true);
+    expect(isCultureUniqueUnit("spearman")).toBe(false);
+
+    expect(cultureForUniqueUnit("ranger")).toBe("mist");
+    expect(cultureForUniqueUnit("lancer")).toBe("peak");
+    expect(cultureForUniqueUnit("militia")).toBeNull();
   });
 
-  it("marks origin and open state", () => {
-    const open = renderToStaticMarkup(<CultureUnitChip typeId="horse_archer" open />);
-    expect(open).toContain('data-culture-unit="horse_archer"');
-    expect(open).toContain('data-origin="Steppe"');
-    expect(open).toContain("is-steppe is-open");
-    const locked = renderToStaticMarkup(<CultureUnitChip typeId="ironclad" open={false} />);
-    expect(locked).toContain('data-origin="Iron March"');
-    expect(locked).toContain("is-iron is-locked");
+  it("renders distinct 28px living chip for Mist Reach (Ranger)", () => {
+    const html = renderToStaticMarkup(<CultureUnitChip cultureId="mist" size={28} open={true} />);
+    expect(html).toContain('data-culture-unit-chip="true"');
+    expect(html).toContain('data-unit-culture="mist"');
+    expect(html).toContain('data-unit="ranger"');
+    expect(html).toContain("sc-ranger-chip-wrapper");
+    expect(html).toContain("sc-ranger-glow-layer");
+    expect(html).toContain("sc-ranger-drift-layer");
+    expect(html).toContain("sc-ranger-pulse-layer");
+    expect(html).toContain('width="28"');
+    expect(html).toContain('height="28"');
   });
 
-  it("never takes clicks from the card", () => {
-    const css = readTextFile("./culture-unit-chip.css");
-    expect(css).toContain("pointer-events: none !important");
+  it("renders distinct 28px living chip for Glen Holds (Banner)", () => {
+    const html = renderToStaticMarkup(<CultureUnitChip cultureId="glen" size={28} open={true} />);
+    expect(html).toContain('data-culture-unit-chip="true"');
+    expect(html).toContain('data-unit-culture="glen"');
+    expect(html).toContain('data-unit="banner"');
+    expect(html).toContain("sc-banner-chip-wrapper");
+    expect(html).toContain("sc-banner-glow-layer");
+    expect(html).toContain("sc-banner-pennant");
+    expect(html).toContain("sc-banner-glint-layer");
+    expect(html).toContain("sc-banner-drift-layer");
   });
-});
 
-describe("Army tab culture units", () => {
-  const pairs: Array<[string, string, string]> = [
-    ["western", "halberdier", "Halberdier"],
-    ["woodland", "cedar_stalker", "Cedar Stalker"],
-    ["desert", "dune_lancer", "Dune Lancer"],
-    ["steppe", "horse_archer", "Horse Archer"],
-    ["tide", "reef_raider", "Reef Raider"],
-  ];
+  it("renders distinct 28px living chip for Salt Reaches (Outrider)", () => {
+    const html = renderToStaticMarkup(<CultureUnitChip cultureId="salt" size={28} open={true} />);
+    expect(html).toContain('data-culture-unit-chip="true"');
+    expect(html).toContain('data-unit-culture="salt"');
+    expect(html).toContain('data-unit="outrider"');
+    expect(html).toContain("sc-outrider-chip-wrapper");
+    expect(html).toContain("sc-outrider-glow-layer");
+    expect(html).toContain("sc-outrider-drift-layer");
+    expect(html).toContain("sc-outrider-pulse-layer");
+  });
 
-  it.each(pairs)("%s shows its own unit card and the ironclad, and no other kit unit", (culture, unit, name) => {
-    const html = army(culture);
-    expect(html).toContain(`data-culture-unit="${unit}"`);
-    expect(html).toContain(name);
-    expect(html).toContain('data-culture-unit="ironclad"');
-    for (const [, other] of pairs) {
-      if (other !== unit) expect(html).not.toContain(`data-culture-unit="${other}"`);
+  it("renders distinct 28px living chip for Fen Steads (Warden)", () => {
+    const html = renderToStaticMarkup(<CultureUnitChip cultureId="fen" size={28} open={true} />);
+    expect(html).toContain('data-culture-unit-chip="true"');
+    expect(html).toContain('data-unit-culture="fen"');
+    expect(html).toContain('data-unit="warden"');
+    expect(html).toContain("sc-warden-chip-wrapper");
+    expect(html).toContain("sc-warden-glow-layer");
+    expect(html).toContain("sc-warden-sway-layer");
+    expect(html).toContain("sc-warden-glint-layer");
+  });
+
+  it("renders distinct 28px living chip for Peak Holds (Lancer)", () => {
+    const html = renderToStaticMarkup(<CultureUnitChip cultureId="peak" size={28} open={true} />);
+    expect(html).toContain('data-culture-unit-chip="true"');
+    expect(html).toContain('data-unit-culture="peak"');
+    expect(html).toContain('data-unit="lancer"');
+    expect(html).toContain("sc-lancer-chip-wrapper");
+    expect(html).toContain("sc-lancer-glow-layer");
+    expect(html).toContain("sc-lancer-drift-layer");
+    expect(html).toContain("sc-lancer-glint-layer");
+  });
+
+  it("resolves unit by unitId directly", () => {
+    const html = renderToStaticMarkup(<CultureUnitChip unitId="lancer" size={28} open={true} />);
+    expect(html).toContain('data-unit-culture="peak"');
+    expect(html).toContain('data-unit="lancer"');
+    expect(html).toContain("sc-lancer-chip-wrapper");
+  });
+
+  it("returns null for base cultures without unique units", () => {
+    expect(renderToStaticMarkup(<CultureUnitChip cultureId="western" />)).toBe("");
+    expect(renderToStaticMarkup(<CultureUnitChip cultureId="woodland" />)).toBe("");
+    expect(renderToStaticMarkup(<CultureUnitChip cultureId="desert" />)).toBe("");
+    expect(renderToStaticMarkup(<CultureUnitChip cultureId="steppe" />)).toBe("");
+    expect(renderToStaticMarkup(<CultureUnitChip cultureId="tide" />)).toBe("");
+  });
+
+  it("renders locked state without living open glow when open is false", () => {
+    const html = renderToStaticMarkup(<CultureUnitChip cultureId="mist" open={false} />);
+    expect(html).toContain("is-locked");
+    expect(html).toContain('data-open="false"');
+    expect(html).not.toContain("sc-ranger-glow-layer");
+  });
+
+  it("enforces pointer-events: none and reduced motion in all chip CSS files", () => {
+    const cssFiles = [
+      "./ranger-chip.css",
+      "./banner-chip.css",
+      "./outrider-chip.css",
+      "./warden-chip.css",
+      "./lancer-chip.css",
+      "./culture-unit-chip.css",
+    ];
+
+    for (const file of cssFiles) {
+      const css = readCssFile(file);
+      expect(css).toContain("pointer-events: none !important");
+      expect(css).toContain("@media (prefers-reduced-motion: reduce)");
     }
-    expect(html).toContain(`data-culture-unit-note="${unit}"`);
-  });
-
-  it("uses the existing unit card layout for the new cards", () => {
-    const html = army("steppe");
-    const cards = html.match(/class="sc-unit-card[^"]*"/g) ?? [];
-    // 12 base units + Horse Archer + Ironclad.
-    expect(cards.length).toBe(14);
-  });
-
-  it("keeps the ironclad locked with a Fortification note until the study is done", () => {
-    expect(lockNote("ironclad")).toContain("Fortification");
-    const before = army("western");
-    expect(before).toMatch(/data-culture-unit="ironclad"[^>]*data-open="false"/);
-    const after = army("western", { research_fortification: 1 });
-    expect(after).toMatch(/data-culture-unit="ironclad"[^>]*data-open="true"/);
-  });
-
-  it("keeps train, cancel and treat controls on the tab", () => {
-    const s = createGameState({ seed: 1 });
-    const html = renderToStaticMarkup(<ArmyTab state={s} act={() => undefined} trainQty={1} setTrainQty={() => undefined} />);
-    expect(html).toContain("Barracks queue");
-    expect(html).toContain("Treat");
-    expect(html).toContain("Food levy");
-  });
-
-  it("the pace line never names another kit's unit as next", () => {
-    const s = createGameState({ seed: 1 });
-    setPlayerCulture(s, "tide");
-    for (const id of ["horse", "siege", "fieldcraft", "drill", "screening"]) s.flags[`research_${id}`] = 1;
-    expect(nextUnitUnlock(s)?.id).toBe("ironclad");
-    s.flags.research_fortification = 1;
-    expect(nextUnitUnlock(s)).toBeNull();
   });
 });

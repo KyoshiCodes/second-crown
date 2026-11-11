@@ -76,6 +76,12 @@
 .sc-shell .sc-bandage-pip,
 .sc-shell .sc-unit-chip-bandage-badge,
 .sc-shell .sc-wounded-chip-art,
+.sc-shell .sc-culture-unit-chip-container,
+.sc-shell .sc-ranger-chip-wrapper,
+.sc-shell .sc-banner-chip-wrapper,
+.sc-shell .sc-outrider-chip-wrapper,
+.sc-shell .sc-warden-chip-wrapper,
+.sc-shell .sc-lancer-chip-wrapper,
 .sc-shell [class*="-living-underlay"],
 .sc-shell [class*="-living-glow"],
 .sc-shell [class*="-living-pulse"],
@@ -124,6 +130,12 @@
 .sc-shell .sc-bandage-pip *,
 .sc-shell .sc-unit-chip-bandage-badge *,
 .sc-shell .sc-wounded-chip-art *,
+.sc-shell .sc-culture-unit-chip-container *,
+.sc-shell .sc-ranger-chip-wrapper *,
+.sc-shell .sc-banner-chip-wrapper *,
+.sc-shell .sc-outrider-chip-wrapper *,
+.sc-shell .sc-warden-chip-wrapper *,
+.sc-shell .sc-lancer-chip-wrapper *,
 .sc-shell .sc-board-living * {
   pointer-events: none !important;
 }
@@ -821,6 +833,22 @@
   .sc-shell .sc-heal-pulse-layer,
   .sc-shell .sc-bandage-pip,
   .sc-shell .sc-unit-art.has-wounded.is-healing,
+  .sc-shell .sc-ranger-glow-layer,
+  .sc-shell .sc-ranger-drift-layer,
+  .sc-shell .sc-ranger-pulse-layer,
+  .sc-shell .sc-banner-glow-layer,
+  .sc-shell .sc-banner-pennant,
+  .sc-shell .sc-banner-glint-layer,
+  .sc-shell .sc-banner-drift-layer,
+  .sc-shell .sc-outrider-glow-layer,
+  .sc-shell .sc-outrider-drift-layer,
+  .sc-shell .sc-outrider-pulse-layer,
+  .sc-shell .sc-warden-glow-layer,
+  .sc-shell .sc-warden-sway-layer,
+  .sc-shell .sc-warden-glint-layer,
+  .sc-shell .sc-lancer-glow-layer,
+  .sc-shell .sc-lancer-drift-layer,
+  .sc-shell .sc-lancer-glint-layer,
   .sc-shell .sc-board-living * {
     animation: none !important;
     transition: none !important;

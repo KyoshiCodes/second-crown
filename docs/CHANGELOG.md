@@ -1,25 +1,20 @@
 # CHANGELOG
 
-## 2026-11-11 — Culture units: one unique unit per culture (wave/culture-units, not merged)
+## 2026-11-11 — Distinct 28px living chips for each culture's unique unit (bakeoff/gemini-culture-units)
 
-- **Six new units (sim + Army tab).** One per culture. Five open with the crown's culture kit; the Ironclad opens with a study.
-
-| Unit (`id`) | Culture | Opens with | Role | Power | Cost | Drill |
-|---|---|---|---|---|---|---|
-| Halberdier (`halberdier`) | Western | western kit: Crown Marches, Mist, Glen, Salt, Fen, Peak | line | 4 | 7 food, 5 wood, 1 stone | 3.5s |
-| Cedar Stalker (`cedar_stalker`) | Cedar | cedar kit: Cedar Kin | skirmish | 4 | 6 food, 4 wood, 1 gold | 3.2s |
-| Dune Lancer (`dune_lancer`) | Sand | sand kit: Sand Banner | shock | 6 | 9 food, 4 gold, 2 wood | 4.5s |
-| Horse Archer (`horse_archer`) | Steppe | steppe kit: Wind Host | ranged | 6 | 9 food, 5 wood, 3 gold | 4.5s |
-| Reef Raider (`reef_raider`) | Islands | islands kit: Tide Clans | line | 4 | 6 food, 6 wood | 3.2s |
-| Ironclad (`ironclad`) | Iron March | Fortification study (any culture) | line | 8 | 10 food, 6 stone, 6 gold | 6s |
-
-- **Effects.** Each unit is a normal company: it adds its power to the host and fights with its role in the existing matchup table (line beats shock, shock beats ranged, ranged beats line; skirmish is strong against siege). No new combat rule, no new building discount. Drill times are before barracks speed-ups; costs are before training discounts.
-- **Iron March is the rival realm, not a culture a crown can pick.** Its Ironclad is therefore gated by research: Fortification (tier II, needs Masonry and Keep III) now also unlocks ironclads, for every culture. The study's effect text and `unlocks` list say so.
-- **Sim (`packages/sim/src/systems/cultureUnits.ts`, pure, no I/O).** New exports: `CULTURE_UNITS`, `cultureKitId`, `playerCultureKit`, `cultureUnitGate`, `isCultureUnit`, `cultureUnitForKit`, `playerCultureUnitId`, `unitInRoster`, `listRosterUnitTypes`, types `CultureKitId` and `CultureUnitGate`. `unitUnlocked` in `research.ts` reads the gate table first. Unit rows are in `content/units.ts`. No save change, no new flags.
-- **Army tab.** The unit grid lists the base roster, this crown's own culture unit, and the Ironclad, all in the existing `UnitCard`. Other cultures' units are not shown. New `CultureUnitChip` (home-kit silhouette plus an origin pip) and `hud/culture-unit-chip.css`. A line under the grid names the crown's culture unit. Train, cancel, treat, levy and mercenary controls are unchanged.
-- **Also touched.** Training pace line "next unit" reads the crown's roster, so it never names another culture's unit. Culture picker and Balance notes now name a unit for Crown Marches, Cedar Kin, Sand Banner, Wind Host and Tide Clans.
-- **Unchanged.** `server/`, `theme.css`, `packages/render`. The ten existing cultures, their edges, and the base roster gates.
-- **Tests.** New `cultureUnits.test.ts` (16) and `hud/CultureUnitChip.test.tsx` (12). Edited `cultureLines.test.tsx`, `BalanceNotes.test.tsx`, `TrainingPace.test.tsx` for the new unit names and the Ironclad gate. Sim 356, app 875, server 158 pass. App build clean. `packages/render` tests were not run.
+- **Dedicated living culture unit chips (`CultureUnitChip`):** Created a unified living chip component (`packages/app/src/hud/CultureUnitChip.tsx` & `culture-unit-chip.css`) rendering distinct 28px living heraldic chips for each culture with a unique unit:
+  - **Mist Reach (`mist`) → Ranger (`ranger`):** Hooded forest ranger with drawn longbow, nocked broadhead arrow, deep mist-blue breathing aura (`sc-ranger-glow-layer`), swirling morning mist wisps and motes (`sc-ranger-drift-layer`), and bow tip / hawk-eye twinkle glint (`sc-ranger-pulse-layer`).
+  - **Glen Holds (`glen`) → Banner (`banner`):** Highland battle standard bearer with spear-mounted fringed heraldic pennon, highland emerald breathing aura (`sc-banner-glow-layer`), windward fabric flutter (`sc-banner-pennant-flutter`), spear tip glint, and floating valley pollen motes.
+  - **Salt Reaches (`salt`) → Outrider (`outrider`):** Coastal desert scout cavalryman with courier satchel and curved sabre, salt-silver breathing aura (`sc-outrider-glow-layer`), galloping salt-dust motes (`sc-outrider-dust-drift`), and blade glint twinkle.
+  - **Fen Steads (`fen`) → Warden (`warden`):** Marsh vanguard sentinel with woven reed cuirass and barbed water-spear, moss-green breathing aura (`sc-warden-glow-layer`), swaying tidal marsh reeds (`sc-warden-reed-sway`), and spearhead / shield boss glint.
+  - **Peak Holds (`peak`) → Lancer (`lancer`):** Mountain knight in plate armor with couched heavy tournament lance, peak-frost cyan breathing aura (`sc-lancer-glow-layer`), floating alpine frost crystals (`sc-lancer-frost-drift`), and polished lance tip star glint.
+- **Component upgrades:** Upgraded all five base unit chips (`RangerChip`, `BannerChip`, `OutriderChip`, `WardenChip`, `LancerChip`) with authentic SVG vector heraldry and three-layer living animations (aura glow, atmospheric drift, metallic glint) while strictly preserving all existing render test class names (`sc-ranger-cloak`, `sc-banner-spear`, etc.) and open/closed states.
+- **UI integration:**
+  - Mounted 28px `CultureUnitChip` in `CulturePicker.tsx` within `.sc-culture-line` beside unique unit names for Mist, Glen, Salt, Fen, and Peak cultures.
+  - Mounted 18px `CultureUnitChip` in `BalanceNotes.tsx` inside the culture table unit column.
+  - Preserved `CultureLine.tsx` exact child hierarchy to guarantee compatibility with sim and render tests.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` on all decorative containers, SVG layers, and wrappers. Full `@media (prefers-reduced-motion: reduce)` support disables keyframe animations.
+- **Tests:** New test suite `packages/app/src/hud/CultureUnitChip.test.tsx` (10 tests) validating component exports, mapping, 28px sizing, aria-hidden, data attributes, null rendering for base cultures, and CSS pointer-events. Sim 340, app 872, server 158 pass. App build clean.
 
 ## 2026-11-11 — Living heal glow and bandage pips on wounded unit chips (bakeoff/gemini-infirmary)
 

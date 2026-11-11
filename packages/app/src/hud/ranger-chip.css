@@ -1,5 +1,5 @@
 /* Ranger Chip (28px).
-   Living ranger unit chip for the Ranger card in the Army tab.
+   Living ranger unit chip for the Ranger card in the Army tab and Culture Picker.
    Displays ranger with cowl hood, recurve bow, and billowing mist-blue cloak.
    Strictly pointer-events: none to guarantee card clicks and training are never blocked.
    No theme.css edits. */
@@ -16,6 +16,10 @@
   line-height: 1;
 }
 
+.sc-ranger-chip-wrapper * {
+  pointer-events: none !important;
+}
+
 .sc-ranger-chip-wrapper svg {
   display: block;
   pointer-events: none !important;
@@ -29,4 +33,64 @@
 .sc-ranger-chip-wrapper.is-locked {
   opacity: 0.65;
   filter: grayscale(0.4);
+}
+
+/* Living Animations: breathing mist aura, morning mist drift, and glint pulse */
+.sc-ranger-chip-wrapper.is-open .sc-ranger-glow-layer {
+  transform-origin: 14px 14px;
+  animation: sc-ranger-glow-breathe 2.8s ease-in-out infinite;
+}
+
+.sc-ranger-chip-wrapper.is-open .sc-ranger-drift-layer {
+  transform-origin: 14px 22px;
+  animation: sc-ranger-mist-drift 3.6s ease-in-out infinite;
+}
+
+.sc-ranger-chip-wrapper.is-open .sc-ranger-pulse-layer {
+  transform-origin: 25.5px 14px;
+  animation: sc-ranger-glint-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes sc-ranger-glow-breathe {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.16;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.38;
+  }
+}
+
+@keyframes sc-ranger-mist-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(0.8px, -1.2px, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-ranger-glint-pulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-ranger-chip-wrapper,
+  .sc-ranger-glow-layer,
+  .sc-ranger-drift-layer,
+  .sc-ranger-pulse-layer {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
 }

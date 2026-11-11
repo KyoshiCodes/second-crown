@@ -1,5 +1,5 @@
 /* Warden Chip (28px).
-   Living warden unit chip for the Warden card in the Army tab.
+   Living warden unit chip for the Warden card in the Army tab and Culture Picker.
    Displays hold guard with short spear, round shield, and fen-reed cloak.
    Strictly pointer-events: none to guarantee card clicks and training are never blocked.
    No theme.css edits. */
@@ -16,6 +16,10 @@
   line-height: 1;
 }
 
+.sc-warden-chip-wrapper * {
+  pointer-events: none !important;
+}
+
 .sc-warden-chip-wrapper svg {
   display: block;
   pointer-events: none !important;
@@ -29,4 +33,62 @@
 .sc-warden-chip-wrapper.is-locked {
   opacity: 0.65;
   filter: grayscale(0.4);
+}
+
+/* Living Animations: fen vitality aura, marsh reed sway, and boss glint pulse */
+.sc-warden-chip-wrapper.is-open .sc-warden-glow-layer {
+  transform-origin: 14px 14px;
+  animation: sc-warden-glow-breathe 2.8s ease-in-out infinite;
+}
+
+.sc-warden-chip-wrapper.is-open .sc-warden-sway-layer {
+  transform-origin: 14px 24px;
+  animation: sc-warden-reed-sway 3.2s ease-in-out infinite;
+}
+
+.sc-warden-chip-wrapper.is-open .sc-warden-glint-layer {
+  transform-origin: 14px 10px;
+  animation: sc-warden-glint-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes sc-warden-glow-breathe {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.16;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.38;
+  }
+}
+
+@keyframes sc-warden-reed-sway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(2deg) skewX(1.5deg);
+  }
+}
+
+@keyframes sc-warden-glint-pulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-warden-chip-wrapper,
+  .sc-warden-glow-layer,
+  .sc-warden-sway-layer,
+  .sc-warden-glint-layer {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
 }

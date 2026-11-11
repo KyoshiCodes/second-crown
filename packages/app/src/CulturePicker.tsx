@@ -3,6 +3,7 @@ import { CULTURES, playerCultureId, setPlayerCulture, type GameState } from "@se
 import type { ActFn } from "./game/useGameEngine";
 import { cultureLine } from "./cultureLines";
 import { CultureCrestPip } from "./hud/CultureCrestPip";
+import { CultureUnitChip } from "./hud/CultureUnitChip";
 import "./hud/plain-buttons.css";
 import "./hud/culture-picker.css";
 
@@ -60,7 +61,16 @@ export function CulturePicker(props: { state: GameState | undefined; act: ActFn 
             <span className="sc-culture-lines">
               <span className={`sc-culture-line ${line.unit ? "" : "is-plain"}`}>
                 <span className="sc-culture-line-key">Unit:</span>
-                <span className="sc-culture-line-val">{line.unit ?? "base roster"}</span>
+                <span className="sc-culture-line-val" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  {line.unit ? (
+                    <>
+                      <CultureUnitChip cultureId={c.id} size={28} open={true} />
+                      <span>{line.unit}</span>
+                    </>
+                  ) : (
+                    <span>base roster</span>
+                  )}
+                </span>
               </span>
               <span className={`sc-culture-line ${line.difference ? "" : "is-plain"}`}>
                 <span className="sc-culture-line-key">Edge:</span>

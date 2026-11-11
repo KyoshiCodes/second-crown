@@ -2,6 +2,7 @@ import React from "react";
 import { CULTURES, getUnitType, playerCultureId, type GameState } from "@second-crown/sim";
 import { cultureLine, cultureUnitId } from "./cultureLines";
 import { CultureCrestPip } from "./hud/CultureCrestPip";
+import { CultureUnitChip } from "./hud/CultureUnitChip";
 import { rememberedCulture } from "./CulturePicker";
 import "./hud/balance-notes.css";
 
@@ -65,7 +66,16 @@ export function BalanceNotes(props: BalanceNotesProps = {}) {
                   </span>
                 </td>
                 <td>{line.difference ?? "looks only"}</td>
-                <td>{line.unit ?? "base roster"}</td>
+                <td>
+                  {line.unit ? (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      <CultureUnitChip cultureId={c.id} size={18} open={true} />
+                      <span>{line.unit}</span>
+                    </span>
+                  ) : (
+                    "base roster"
+                  )}
+                </td>
                 <td>{cost ?? "—"}</td>
               </tr>
             );

@@ -57,6 +57,18 @@ export function LancerChip({
         className={`sc-lancer-chip ${statusClass}`}
         style={{ pointerEvents: "none", display: "block" }}
       >
+        {/* Living Peak-Frost Knight Aura (Active/Open) */}
+        {open ? (
+          <circle
+            className="sc-lancer-glow-layer"
+            cx="14"
+            cy="14"
+            r="11"
+            fill="#e2e8f0"
+            opacity="0.22"
+          />
+        ) : null}
+
         {/* 1. Ground contact shadow */}
         <ellipse cx="14" cy="25.5" rx="10.5" ry="1.8" fill="#000000" fillOpacity="0.32" />
 
@@ -258,6 +270,22 @@ export function LancerChip({
           />
           <line x1="24.8" y1="6.5" x2="23.8" y2="7.5" stroke="#38bdf8" strokeWidth="0.4" />
         </g>
+
+        {/* Living alpine frost drift motes & lance tip glint */}
+        {open ? (
+          <>
+            <g className="sc-lancer-drift-layer">
+              <circle cx="6" cy="12" r="0.75" fill="#bae6fd" opacity="0.85" />
+              <circle cx="4" cy="18" r="0.55" fill="#f0f9ff" opacity="0.8" />
+              <circle cx="24.5" cy="18" r="0.65" fill="#38bdf8" opacity="0.85" />
+              <circle cx="22" cy="23" r="0.55" fill="#e0f2fe" opacity="0.75" />
+            </g>
+            <g className="sc-lancer-glint-layer">
+              <circle cx="27.5" cy="5.2" r="0.95" fill="#ffffff" opacity="0.95" />
+              <circle cx="14" cy="8" r="0.65" fill="#38bdf8" opacity="0.9" />
+            </g>
+          </>
+        ) : null}
       </svg>
     </span>
   );

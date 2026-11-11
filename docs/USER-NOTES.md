@@ -2,25 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-11 — Every culture gets its own unit (wave/culture-units, not merged yet)
+## 2026-11-11 — Living unit chips for unique culture units (bakeoff/gemini-culture-units)
 
-Six new units. You get the one that belongs to your crown style, and everyone can earn the sixth.
-
-- **Halberdier** (Western styles: Crown Marches, Mist Reach, Glen Holds, Salt Reaches, Fen Steads, Peak Holds). Line infantry, power 4. Costs 7 food, 5 wood, 1 stone. A step up from the spearman.
-- **Cedar Stalker** (Cedar Kin). Skirmisher, power 4. Costs 6 food, 4 wood, 1 gold. Fast, and good against siege engines.
-- **Dune Lancer** (Sand Banner). Shock horse, power 6. Costs 9 food, 4 gold, 2 wood. Good against archers. Does not need Horse lore.
-- **Horse Archer** (Wind Host). Mounted bow, power 6. Costs 9 food, 5 wood, 3 gold. Good against line infantry. Does not need Horse lore.
-- **Reef Raider** (Tide Clans). Line infantry, power 4. Costs 6 food, 6 wood, no stone or gold.
-- **Ironclad** (Iron March plate, copied). Heavy line infantry, power 8. Costs 10 food, 6 stone, 6 gold. Any crown can train it, but only after the **Fortification** study (needs Masonry and Keep III).
-
-How it works:
-
-- **Where to see them.** Army tab. Your culture's unit is a normal card in the unit grid, next to the others, with a small coloured diamond on its picture. The Ironclad card is there too, locked until Fortification is done. A line under the grid names your culture's unit.
-- **You only see your own.** A Wind Host crown does not see the Reef Raider, and so on.
-- **Training is the same.** Click the card to queue, x1 / x5 / x10 still apply, Cancel still refunds, Treat still works.
-- **If you change crown style** you keep the troops you already have. You just cannot train more of the old style's unit.
-- **The picker tells you.** Each crown style card on the Crown tab now names its unit.
-- The numbers are a first guess. Tell us which unit feels too strong or not worth the cost.
+- **Living heraldic chips for unique culture troops:** The five cultures that muster unique martial units now feature distinct, animated 28px living chips:
+  - **Mist Reach Rangers:** Hooded bowman with a drawn hunting bow, veiled in a breathing mist-blue aura and drifting morning fog wisps.
+  - **Glen Holds Banners:** Highland battle standard bearer with a fluttering emerald pennant and wind-blown glen pollen.
+  - **Salt Reaches Outriders:** Coastal desert cavalryman with a curved sabre, silver charge aura, and trailing salt-dust motes.
+  - **Fen Steads Wardens:** Marshland sentinel with a reed-wrapped spear, mossy vitality glow, and swaying wetland rushes.
+  - **Peak Holds Lancers:** Heavy plate knight with a couched frost lance, glacial blue aura, and drifting mountain frost crystals.
+- **Where to see them:** In the Culture Picker when reviewing your realm's heritage, beside the unique unit name in each culture card, and in the Balance Notes culture breakdown table.
+- **Subtle & non-blocking:** All chips and animations are strictly decorative (`pointer-events: none`), honoring reduced-motion preferences and never obstructing clicks, culture selection, or text readability.
 
 ## 2026-11-11 — Living heal glow and bandages on wounded units (bakeoff/gemini-infirmary)
 

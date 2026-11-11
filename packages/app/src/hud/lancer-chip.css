@@ -1,5 +1,5 @@
 /* Lancer Chip (28px).
-   Living lancer unit chip for the Lancer card in the Army tab.
+   Living lancer unit chip for the Lancer card in the Army tab and Culture Picker.
    Displays heavy shock knight on warhorse with long lance and peak-white cloak.
    Strictly pointer-events: none to guarantee card clicks and training are never blocked.
    No theme.css edits. */
@@ -16,6 +16,10 @@
   line-height: 1;
 }
 
+.sc-lancer-chip-wrapper * {
+  pointer-events: none !important;
+}
+
 .sc-lancer-chip-wrapper svg {
   display: block;
   pointer-events: none !important;
@@ -29,4 +33,64 @@
 .sc-lancer-chip-wrapper.is-locked {
   opacity: 0.65;
   filter: grayscale(0.4);
+}
+
+/* Living Animations: peak frost aura, alpine snow drift, and lance tip glint */
+.sc-lancer-chip-wrapper.is-open .sc-lancer-glow-layer {
+  transform-origin: 14px 14px;
+  animation: sc-lancer-glow-breathe 2.8s ease-in-out infinite;
+}
+
+.sc-lancer-chip-wrapper.is-open .sc-lancer-drift-layer {
+  transform-origin: 14px 18px;
+  animation: sc-lancer-frost-drift 3.4s ease-in-out infinite;
+}
+
+.sc-lancer-chip-wrapper.is-open .sc-lancer-glint-layer {
+  transform-origin: 27px 5.5px;
+  animation: sc-lancer-glint-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sc-lancer-glow-breathe {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.16;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.38;
+  }
+}
+
+@keyframes sc-lancer-frost-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate3d(0.8px, -1.2px, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-lancer-glint-pulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-lancer-chip-wrapper,
+  .sc-lancer-glow-layer,
+  .sc-lancer-drift-layer,
+  .sc-lancer-glint-layer {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
 }

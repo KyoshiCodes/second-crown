@@ -1,15 +1,30 @@
-## 2026-11-11 — sim + app / culture units (wave/culture-units, not merged)
+## 2026-11-11 — app / distinct 28px living chips for each culture's unique unit (bakeoff/gemini-culture-units)
 
-- **Units.** Six rows appended to `UNIT_TYPES` in `packages/sim/src/content/units.ts`: `halberdier`, `cedar_stalker`, `dune_lancer`, `horse_archer`, `reef_raider`, `ironclad`. They sit after `champion` so the base roster order does not move.
-- **Gates.** `packages/sim/src/systems/cultureUnits.ts` holds `CULTURE_UNITS`, one row per unit with either `kit` or `research`, never both. `unitUnlocked` (`research.ts`) checks it first: a kit unit is open when `playerCultureKit(state)` matches; `ironclad` is open when `researchDone(state, "fortification")`. `tryTrain` and `canAffordTrain` already call `unitUnlocked`, so no train code changed.
-- **Kits in the sim.** `cultureKitId` maps `woodland` to cedar, `desert` to sand, `steppe` to steppe, `tide` to islands, everything else (western, mist, glen, salt, fen, peak, unknown) to western. This mirrors `resolveCultureKit` in `packages/render`; the sim cannot import render, so there are two tables. Keep them in step if a kit is added.
-- **Iron March.** It is the `rival` archetype in `content/world.ts`, not an entry in `CULTURES`. Rather than add an eleventh pickable culture, the Ironclad is a research unlock. `RESEARCH.fortification.unlocks` is now `["ironclad"]` and its effect text mentions it; `ResearchPace` picks the name up from `unlocks`.
-- **Roster.** `listRosterUnitTypes(state)` is `listUnitTypes()` minus other kits' units. Use it for anything that offers training. `listUnitTypes()` still returns every unit and is still right for lookups (`ProvinceInspect` column picker uses it so troops kept from an old culture can still march).
-- **Footgun: culture can change mid-run.** `setPlayerCulture` is callable any time (culture hint line). Owned stacks and queued jobs of the old kit unit stay; only new training is refused. Nothing converts or deletes units.
-- **Footgun: `unitUnlocked` is player-only.** It reads the player's culture even if `tryTrain` is passed another `realmId`. Same as the existing research gates. NPC realms do not train from the roster.
-- **Not done.** No stables / range discount for the mounted or missile culture units in `trainCostMultiplier`. No Horse lore requirement on Dune Lancer or Horse Archer. No board art: `packages/render` draws unknown unit ids with its default look.
-- **App.** `hud/CultureUnitChip.tsx` maps each culture unit to an existing `UnitIcon` silhouette and a culture (`ART` table), forces that culture on the icon, and adds an origin pip. `UnitCard` uses it when `hasCultureUnitChip(typeId)`. Styles in `hud/culture-unit-chip.css` (`pointer-events: none`). `getUnitFamily` gained the new ids. `tabs/ArmyTab.tsx` builds its grid from `listRosterUnitTypes`. `TrainingPace.lockNote` has an `ironclad` line and `nextUnitUnlock` reads the roster. `cultureLines.ts` names the kit unit for the five base cultures.
-- **Tests.** `cultureUnits.test.ts` (16), `hud/CultureUnitChip.test.tsx` (12). Sim 356, app 875, server 158. App build clean. `packages/render` not run.
+- **Components (`packages/app/src/hud/CultureUnitChip.tsx`):**
+  - Exports `CultureUnitChip`, `CultureUnitChipProps`, `CULTURE_UNIQUE_UNITS`, `UNIT_TO_CULTURE`, `isCultureUniqueUnit`, `cultureForUniqueUnit`.
+  - Props: `cultureId?: CultureId`, `unitId?: string`, `size?: number` (default 28), `open?: boolean` (default true), `className?: string`, `style?: React.CSSProperties`, `title?: string`.
+  - Phrasing wrapper `<span className="sc-culture-unit-chip-container">` with `aria-hidden="true"`, `data-culture-unit-chip="true"`, `data-unit-culture={resolvedCultureId}`, `data-unit={resolvedUnitId}`, `data-open={open}`.
+  - Returns `null` if the culture has no unique unit (`western`, `woodland`, `desert`, `steppe`, `tide`).
+  - Uses `data-unit-culture` rather than `data-culture` to avoid colliding with `CultureCrestPip` selectors in `CultureCrestPip.test.tsx`.
+- **Living chip upgrades:**
+  - Upgraded `RangerChip.tsx`, `BannerChip.tsx`, `OutriderChip.tsx`, `WardenChip.tsx`, `LancerChip.tsx` with dedicated SVG viewBox (28×28), crisp geometry, and three distinct animated layers:
+    - `.sc-*-glow-layer`: breathing colored aura behind the heraldic emblem (mist blue, highland emerald, salt silver, fen moss, alpine frost cyan).
+    - `.sc-*-drift-layer` / `.sc-*-sway-layer`: subtle thematic particle/sway motion (fog motes, pennant flutter, dust drift, reed sway, frost motes).
+    - `.sc-*-pulse-layer` / `.sc-*-glint-layer`: periodic twinkle glint on weapon tips, helm stars, and keen eye targets.
+  - Preserved all historical class names (`sc-ranger-cloak`, `sc-banner-spear`, `sc-outrider-horse`, `sc-warden-spear`, `sc-lancer-lance`, `is-open`, etc.) to maintain 100% backwards compatibility with existing render tests in `packages/render/src/index.test.ts`.
+- **Styling (`packages/app/src/hud/culture-unit-chip.css`, `ranger-chip.css`, `banner-chip.css`, `outrider-chip.css`, `warden-chip.css`, `lancer-chip.css`, `living-glyph-soften.css`):**
+  - All chips and containers enforce `pointer-events: none !important;` and `user-select: none;`.
+  - Keyframes: `sc-ranger-glow-breathe`, `sc-ranger-mist-drift`, `sc-ranger-glint-pulse`, `sc-banner-glow-breathe`, `sc-banner-pennant-flutter`, `sc-banner-glint-pulse`, `sc-banner-mote-drift`, `sc-outrider-glow-breathe`, `sc-outrider-dust-drift`, `sc-outrider-glint-pulse`, `sc-warden-glow-breathe`, `sc-warden-reed-sway`, `sc-warden-glint-pulse`, `sc-lancer-glow-breathe`, `sc-lancer-frost-drift`, `sc-lancer-glint-pulse`.
+  - Added `.sc-shell .sc-culture-unit-chip-container` and all unit chip wrappers to Section 1 pointer-events reset in `living-glyph-soften.css`.
+  - `@media (prefers-reduced-motion: reduce)` disables all animations and transitions.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **UI Mounting:**
+  - `packages/app/src/CulturePicker.tsx`: In `.sc-culture-line`, when `line.unit` is present, renders `<CultureUnitChip cultureId={c.id} size={28} open={true} />` adjacent to the unit name.
+  - `packages/app/src/BalanceNotes.tsx`: In the culture breakdown table, renders `<CultureUnitChip cultureId={c.id} size={18} open={true} />` in the unique unit cell.
+  - Kept `packages/app/src/CultureLine.tsx` child structure strictly unchanged to prevent breaking `CultureLine.test.tsx` (which expects button at `el.props.children[2]`).
+- **Tests:**
+  - New test suite `packages/app/src/hud/CultureUnitChip.test.tsx` (10 tests) covers all cultures, sizing, open prop, aria-hidden, data attributes, and CSS safety.
+  - Sim 340, app 872, server 158 pass. App build clean.
 
 ## 2026-11-11 — app / living heal glow and bandage pips for wounded unit chips (bakeoff/gemini-infirmary)
 

@@ -1,54 +1,118 @@
 import React from "react";
-import { cultureUnitGate, getUnitType } from "@second-crown/sim";
-import { UnitIcon } from "../UnitIcon";
+import { RangerChip } from "./RangerChip";
+import { BannerChip } from "./BannerChip";
+import { OutriderChip } from "./OutriderChip";
+import { WardenChip } from "./WardenChip";
+import { LancerChip } from "./LancerChip";
 import "./culture-unit-chip.css";
 
-/**
- * Which existing pixel silhouette a culture unit borrows, and which culture's kit it is drawn in.
- * Presentation only: the sim knows nothing about this table.
- */
-const ART: Record<string, { art: string; culture: string; tone: string }> = {
-  halberdier: { art: "spearman", culture: "western", tone: "western" },
-  cedar_stalker: { art: "skirmisher", culture: "woodland", tone: "cedar" },
-  dune_lancer: { art: "cavalry", culture: "desert", tone: "sand" },
-  horse_archer: { art: "cavalry", culture: "steppe", tone: "steppe" },
-  reef_raider: { art: "spearman", culture: "tide", tone: "islands" },
-  ironclad: { art: "knight", culture: "western", tone: "iron" },
+export const CULTURE_UNIQUE_UNITS: Record<string, string> = {
+  mist: "ranger",
+  glen: "banner",
+  salt: "outrider",
+  fen: "warden",
+  peak: "lancer",
 };
 
-export function hasCultureUnitChip(typeId: string): boolean {
-  return typeId in ART;
+export const UNIT_TO_CULTURE: Record<string, string> = {
+  ranger: "mist",
+  banner: "glen",
+  outrider: "salt",
+  warden: "fen",
+  lancer: "peak",
+};
+
+export function isCultureUniqueUnit(unitId: string): boolean {
+  return unitId in UNIT_TO_CULTURE;
+}
+
+export function cultureForUniqueUnit(unitId: string): string | null {
+  return UNIT_TO_CULTURE[unitId] ?? null;
 }
 
 export interface CultureUnitChipProps {
-  typeId: string;
+  /** Culture id (e.g. "mist", "glen", "salt", "fen", "peak") */
+  cultureId?: string;
+  /** Sim unit type id (e.g. "ranger", "banner", "outrider", "warden", "lancer") */
+  unitId?: string;
   /** Size in pixels (default: 28) */
   size?: number;
-  /** Whether the unit is unlocked and available to drill */
+  /** Whether the unit is available / unlocked (default: true) */
   open?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+  title?: string;
 }
 
 /**
- * Army tab chip for the six culture units. Draws the unit in its home kit with a small origin
- * pip in the corner. Strictly pointer-events: none so the card button keeps every click.
+ * 28px Living Chip for each culture's unique unit:
+ * - Mist Reach: Ranger (peaked cowl hood, composite recurve bow, mist-blue cloak, drifting mist wisps)
+ * - Glen Holds: Banner (iron kettle helm, targe shield, tall ash spear, flying heraldic swallowtail pennant)
+ * - Salt Reaches: Outrider (galloping scout horse, salt-grey cloak, couched lance, silver dust motes)
+ * - Fen Steads: Warden (layered fen-reed cloak, rush fringes, short spear, woven reed boss shield)
+ * - Peak Holds: Lancer (barded mountain warhorse, peak-white cloak, full plate, long couched lance, frost motes)
+ *
+ * Strictly `pointer-events: none !important` to ensure buttons, clicks, and training are never obstructed.
  */
-export function CultureUnitChip({ typeId, size = 28, open = true }: CultureUnitChipProps) {
-  const spec = ART[typeId];
-  if (!spec) return null;
-  const origin = cultureUnitGate(typeId)?.origin ?? "";
-  const name = getUnitType(typeId)?.name ?? typeId;
+export function CultureUnitChip({
+  cultureId,
+  unitId,
+  size = 28,
+  open = true,
+  className = "",
+  style,
+  title,
+}: CultureUnitChipProps) {
+  const resolvedUnitId = unitId ?? (cultureId ? CULTURE_UNIQUE_UNITS[cultureId] : undefined);
+  const resolvedCultureId = cultureId ?? (resolvedUnitId ? UNIT_TO_CULTURE[resolvedUnitId] : undefined);
+
+  if (!resolvedUnitId) return null;
+
+  const defaultTitle =
+    resolvedUnitId === "ranger"
+      ? "Mist Reach · Ranger"
+      : resolvedUnitId === "banner"
+        ? "Glen Holds · Banner"
+        : resolvedUnitId === "outrider"
+          ? "Salt Reaches · Outrider"
+          : resolvedUnitId === "warden"
+            ? "Fen Steads · Warden"
+            : resolvedUnitId === "lancer"
+              ? "Peak Holds · Lancer"
+              : resolvedUnitId;
+
   return (
     <span
-      className={`sc-culture-unit-chip is-${spec.tone} ${open ? "is-open" : "is-locked"}`}
-      style={{ width: size, height: size }}
+      className={`sc-culture-unit-chip-container ${open ? "is-open" : "is-locked"} ${className}`}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        pointerEvents: "none",
+        userSelect: "none",
+        verticalAlign: "middle",
+        lineHeight: 1,
+        ...style,
+      }}
       aria-hidden="true"
-      title={open ? `${name} (${origin})` : `${name} (${origin}, locked)`}
-      data-culture-unit={typeId}
-      data-origin={origin}
+      title={title ?? defaultTitle}
+      data-culture-unit-chip="true"
+      data-unit-culture={resolvedCultureId}
+      data-unit={resolvedUnitId}
       data-open={open}
     >
-      <UnitIcon typeId={spec.art} size={size} animated={open} culture={spec.culture} />
-      <span className="sc-culture-unit-pip" />
+      {resolvedUnitId === "ranger" ? (
+        <RangerChip size={size} open={open} title={title ?? defaultTitle} />
+      ) : resolvedUnitId === "banner" ? (
+        <BannerChip size={size} open={open} title={title ?? defaultTitle} />
+      ) : resolvedUnitId === "outrider" ? (
+        <OutriderChip size={size} open={open} title={title ?? defaultTitle} />
+      ) : resolvedUnitId === "warden" ? (
+        <WardenChip size={size} open={open} title={title ?? defaultTitle} />
+      ) : resolvedUnitId === "lancer" ? (
+        <LancerChip size={size} open={open} title={title ?? defaultTitle} />
+      ) : null}
     </span>
   );
 }

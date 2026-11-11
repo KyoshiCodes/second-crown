@@ -57,6 +57,18 @@ export function BannerChip({
         className={`sc-banner-chip ${statusClass}`}
         style={{ pointerEvents: "none", display: "block" }}
       >
+        {/* Living Highland Emerald Aura (Active/Open) */}
+        {open ? (
+          <circle
+            className="sc-banner-glow-layer"
+            cx="14"
+            cy="14"
+            r="11"
+            fill="#4d7c0f"
+            opacity="0.22"
+          />
+        ) : null}
+
         {/* 1. Ground contact shadow */}
         <ellipse cx="13.5" cy="25" rx="6.5" ry="1.8" fill="#000000" fillOpacity="0.32" />
 
@@ -172,6 +184,20 @@ export function BannerChip({
           <line x1="18" y1="6.5" x2="19" y2="6.5" stroke="#fef08a" strokeWidth="0.7" />
           <line x1="18" y1="11.2" x2="19" y2="11.2" stroke="#fef08a" strokeWidth="0.7" />
         </g>
+
+        {/* Living spearhead glint & highland pollen motes */}
+        {open ? (
+          <>
+            <g className="sc-banner-glint-layer">
+              <circle cx="18.5" cy="1.6" r="0.9" fill="#fef08a" opacity="0.95" />
+              <circle cx="13.5" cy="12.8" r="0.65" fill="#facc15" opacity="0.9" />
+            </g>
+            <g className="sc-banner-drift-layer">
+              <circle cx="8" cy="21" r="0.65" fill="#84cc16" opacity="0.75" />
+              <circle cx="24.5" cy="15" r="0.55" fill="#a3e635" opacity="0.7" />
+            </g>
+          </>
+        ) : null}
       </svg>
     </span>
   );

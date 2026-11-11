@@ -57,6 +57,18 @@ export function OutriderChip({
         className={`sc-outrider-chip ${statusClass}`}
         style={{ pointerEvents: "none", display: "block" }}
       >
+        {/* Living Salt Silver Charge Aura (Active/Open) */}
+        {open ? (
+          <circle
+            className="sc-outrider-glow-layer"
+            cx="14"
+            cy="14"
+            r="11"
+            fill="#94a3b8"
+            opacity="0.20"
+          />
+        ) : null}
+
         {/* 1. Ground contact shadow */}
         <ellipse cx="14" cy="25.5" rx="10.5" ry="1.8" fill="#000000" fillOpacity="0.32" />
 
@@ -239,6 +251,22 @@ export function OutriderChip({
             strokeWidth="0.3"
           />
         </g>
+
+        {/* Living salt-dust drift motes & lance tip glint */}
+        {open ? (
+          <>
+            <g className="sc-outrider-drift-layer">
+              <circle cx="5" cy="24" r="0.8" fill="#e2e8f0" opacity="0.8" />
+              <circle cx="8.5" cy="23.5" r="0.65" fill="#cbd5e1" opacity="0.75" />
+              <circle cx="3.5" cy="22" r="0.55" fill="#94a3b8" opacity="0.65" />
+              <circle cx="25" cy="11" r="0.6" fill="#f1f5f9" opacity="0.75" />
+            </g>
+            <g className="sc-outrider-pulse-layer">
+              <circle cx="25.5" cy="8.5" r="0.95" fill="#ffffff" opacity="0.95" />
+              <circle cx="16.5" cy="11" r="0.6" fill="#38bdf8" opacity="0.8" />
+            </g>
+          </>
+        ) : null}
       </svg>
     </span>
   );
