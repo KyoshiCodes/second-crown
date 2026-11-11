@@ -8,6 +8,7 @@ import { LancerChip } from "./LancerChip";
 import { UnitStatus, type UnitStatusRow } from "./UnitStatus";
 import { UnitLivingGlyph, UnitLivingUnderlay } from "./UnitLivingGlyph";
 import { UnitLivingRows, splitUnitRows } from "./UnitLivingRows";
+import { BandagePip } from "./BandagePip";
 
 export type UnitCardProps = {
   typeId: string;
@@ -23,10 +24,14 @@ export type UnitCardProps = {
   /** Optional stacked power / cost / readiness rows. When given, Power and Cost move into a living
    *  Name / Power / Cost column beside the art (UnitLivingRows) and Readiness stays below. */
   status?: UnitStatusRow[];
+  /** Optional wounded count for this unit type (e.g. wounded returning as militia or wounded troops) */
+  wounded?: number;
+  /** Whether the Infirmary is actively healing */
+  healing?: boolean;
 };
 
 export function UnitCard(props: UnitCardProps) {
-  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status } = props;
+  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status, wounded, healing } = props;
   const costText = Object.entries(cost).map(([k, v]) => `${v} ${k}`).join(" · ");
   const cls = ["sc-unit-card", !open ? "is-locked" : affordable ? "is-ready" : "is-short"].join(" ");
   const readyRow = status?.find((r) => r.kind === "ready");
@@ -48,7 +53,10 @@ export function UnitCard(props: UnitCardProps) {
         drilling={isDrilling}
       />
       <span className={living ? "sc-unit-head sc-unit-living-head" : "sc-unit-head"}>
-        <span className="sc-unit-art sc-unit-art-wrapper" style={{ pointerEvents: "none", display: "inline-flex" }}>
+        <span
+          className={`sc-unit-art sc-unit-art-wrapper${wounded && wounded > 0 ? " has-wounded" : ""}${healing ? " is-healing" : ""}`}
+          style={{ pointerEvents: "none", display: "inline-flex" }}
+        >
           {typeId === "ranger" ? (
             <RangerChip size={28} open={open} />
           ) : typeId === "banner" ? (
@@ -62,6 +70,11 @@ export function UnitCard(props: UnitCardProps) {
           ) : (
             <UnitIcon typeId={typeId} size={28} animated={open} />
           )}
+          {wounded && wounded > 0 ? (
+            <span className="sc-unit-chip-bandage-badge" aria-hidden="true">
+              <BandagePip size={12} active={healing} wounded={true} />
+            </span>
+          ) : null}
         </span>
         {living ? (
           <UnitLivingRows typeId={typeId} name={name} open={open} rows={living.head} />

@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  autoHealActive,
   canAffordTrain,
   countBuilding,
   healTicks,
@@ -34,6 +35,7 @@ import { flashAction } from "../hud/ActionFlash";
 import { TrainingPace, lockNote } from "../TrainingPace";
 import { UpkeepPace } from "../UpkeepPace";
 import { InfirmaryHealLine } from "../InfirmaryHealLine";
+import { BandagePip } from "../hud/BandagePip";
 
 export function ArmyTab(props: {
   state: GameState | undefined;
@@ -58,6 +60,8 @@ export function ArmyTab(props: {
   const cap = state ? trainingQueueCap(state) : 2;
   const beds = halls * 10;
   const healing = state ? listHealing(state).length : 0;
+  const isAutoHealing = state ? autoHealActive(state) : false;
+  const isActivelyHealing = isAutoHealing || healing > 0;
   const healLeft = state ? healTicksLeft(state) : 0;
   const healSec = state ? healTicks(state) / 10 : undefined;
   const powerMax = unitTypes.reduce((m, u) => Math.max(m, u.power), 0);
@@ -115,6 +119,8 @@ export function ArmyTab(props: {
               lock={lock}
               affordable={!!state && canAffordTrain(state, u.id, trainQty)}
               status={status}
+              wounded={u.id === "militia" ? wounded : 0}
+              healing={u.id === "militia" ? isActivelyHealing : false}
               onTrain={() =>
                 act((st) => {
                   if (!unitUnlocked(st, u.id)) return lock;
@@ -176,9 +182,14 @@ export function ArmyTab(props: {
             </div>
           ))}
         </div>
-        <div className={["sc-work-card", wounded > 0 && halls < 1 ? "is-scarred" : healing > 0 ? "is-staffed" : "is-empty"].join(" ")}>
+        <div className={["sc-work-card", wounded > 0 && halls < 1 ? "is-scarred" : isActivelyHealing ? "is-staffed is-healing" : "is-empty"].join(" ")}>
           <div className="sc-work-head">
-            <span className="sc-work-name">Wounded</span>
+            <span style={{ display: "inline-flex", alignItems: "center" }}>
+              <span className="sc-work-art sc-wounded-chip-art" style={{ pointerEvents: "none", display: "inline-flex" }}>
+                <BandagePip size={20} wounded={wounded > 0} active={isActivelyHealing} />
+              </span>
+              <span className="sc-work-name">Wounded</span>
+            </span>
             <span className="sc-work-level">{wounded}</span>
           </div>
           <div className="sc-work-status">

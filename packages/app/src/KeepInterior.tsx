@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  autoHealActive,
   canAfford,
   countBuilding,
   edgeWallCount,
@@ -302,6 +303,8 @@ function YardRoom(props: { state: GameState }) {
   const wounded = woundedCount(state);
   const beds = infirmaryBeds(state);
   const healing = listHealing(state).length;
+  const isAutoHealing = autoHealActive(state);
+  const isActivelyHealing = isAutoHealing || healing > 0;
   const healLeft = Math.ceil(healTicksLeft(state) / TICKS_PER_SECOND);
   const healSec = healTicks(state) / TICKS_PER_SECOND;
   return (
@@ -314,14 +317,14 @@ function YardRoom(props: { state: GameState }) {
           status={beds < 1 ? "No Infirmary" : `Wounded ${wounded} / ${beds} beds`}
           foot={`4 food · ${healSec}s per treat`}
           tone={beds < 1 ? "idle" : wounded >= beds ? "warn" : "good"}
-          pip={<BedPip size={16} active={wounded > 0} wounded={wounded > 0} />}
+          pip={<BedPip size={16} active={wounded > 0} wounded={wounded > 0} healing={isActivelyHealing} />}
         />
         <FactCard
           name="Healing"
-          tag={healing > 0 ? `${healLeft}s` : "idle"}
-          status={healing > 0 ? `Treating ${healing} (${healLeft}s)` : "No one on a cot"}
-          tone={healing > 0 ? "good" : "idle"}
-          pip={<BedPip size={16} active={healing > 0} />}
+          tag={healing > 0 ? `${healLeft}s` : isAutoHealing ? "auto" : "idle"}
+          status={healing > 0 ? `Treating ${healing} (${healLeft}s)` : isAutoHealing ? "Infirmary auto-healing" : "No one on a cot"}
+          tone={isActivelyHealing ? "good" : "idle"}
+          pip={<BedPip size={16} active={isActivelyHealing} healing={isActivelyHealing} />}
         />
         <FactCard
           name="Keep edge"

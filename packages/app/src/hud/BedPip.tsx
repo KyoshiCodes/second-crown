@@ -9,6 +9,8 @@ export interface BedPipProps {
   full?: boolean;
   /** Whether wounded troops are resting on the cot */
   wounded?: boolean;
+  /** Whether the Infirmary is actively healing */
+  healing?: boolean;
   /** Current population (optional for title tooltip) */
   pop?: number;
   /** Current housing bed capacity (optional for title tooltip) */
@@ -21,7 +23,8 @@ export interface BedPipProps {
 /**
  * Small Living Bed Pip (Hall room & housing cards):
  * - Medieval timber cot with carved oak posts, linen bolster pillow, and wool quilt.
- * - Reactive living state: candlelight glow when occupied/full, medical cross when wounded.
+ * - Reactive living state: candlelight glow when occupied/full, medical cross when wounded,
+ *   living emerald glow when actively healing.
  * - Strictly pointer-events: none.
  */
 export function BedPip({
@@ -29,6 +32,7 @@ export function BedPip({
   active = false,
   full = false,
   wounded = false,
+  healing = false,
   pop,
   cap,
   className = "",
@@ -36,19 +40,22 @@ export function BedPip({
   title,
 }: BedPipProps) {
   const isOccupied = active || full;
+  const isHealing = healing && (wounded || active);
   const tooltip =
     title ??
     (pop !== undefined && cap !== undefined
       ? `Beds ${pop}/${cap}${full ? " (Housing Full)" : ""}`
-      : wounded
-        ? "Infirmary Bed (Wounded resting)"
-        : isOccupied
-          ? "Cottage Bed (Occupied)"
-          : "Cottage Bed (Free cot)");
+      : isHealing
+        ? "Infirmary Cot · actively healing wounded"
+        : wounded
+          ? "Infirmary Bed (Wounded resting)"
+          : isOccupied
+            ? "Cottage Bed (Occupied)"
+            : "Cottage Bed (Free cot)");
 
   return (
     <span
-      className={`sc-bed-pip-wrapper ${isOccupied ? "is-occupied" : "is-free"} ${full ? "is-full" : ""} ${wounded ? "is-wounded" : ""} ${className}`}
+      className={`sc-bed-pip-wrapper ${isOccupied ? "is-occupied" : "is-free"} ${full ? "is-full" : ""} ${wounded ? "is-wounded" : ""} ${isHealing ? "is-healing" : ""} ${className}`}
       style={{
         width: size,
         height: size,
@@ -139,13 +146,16 @@ export function BedPip({
         />
 
         {/* 6. Reactive Living Detail */}
-        {wounded ? (
-          /* Red cross medical insignia */
-          <g className="sc-bed-cross">
+        {wounded || isHealing ? (
+          /* Medical cross insignia (emerald when healing, red when resting) */
+          <g className={`sc-bed-cross ${isHealing ? "is-healing" : ""}`}>
+            {isHealing ? (
+              <circle cx="15.2" cy="12.5" r="4.2" fill="#34d399" opacity="0.32" />
+            ) : null}
             <line x1="14" y1="12" x2="16.5" y2="13" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" />
             <line x1="15" y1="11" x2="15.5" y2="14" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" />
-            <line x1="14" y1="12" x2="16.5" y2="13" stroke="#ef4444" strokeWidth="0.6" strokeLinecap="round" />
-            <line x1="15" y1="11" x2="15.5" y2="14" stroke="#ef4444" strokeWidth="0.6" strokeLinecap="round" />
+            <line x1="14" y1="12" x2="16.5" y2="13" stroke={isHealing ? "#059669" : "#ef4444"} strokeWidth={isHealing ? "0.8" : "0.6"} strokeLinecap="round" />
+            <line x1="15" y1="11" x2="15.5" y2="14" stroke={isHealing ? "#059669" : "#ef4444"} strokeWidth={isHealing ? "0.8" : "0.6"} strokeLinecap="round" />
           </g>
         ) : isOccupied ? (
           /* Warm bedside candlelight flame */

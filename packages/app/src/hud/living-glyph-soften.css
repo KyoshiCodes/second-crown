@@ -73,6 +73,9 @@
 .sc-shell .sc-resource-living-underlay,
 .sc-shell .sc-board-living,
 .sc-shell .sc-atlas-living-glyph,
+.sc-shell .sc-bandage-pip,
+.sc-shell .sc-unit-chip-bandage-badge,
+.sc-shell .sc-wounded-chip-art,
 .sc-shell [class*="-living-underlay"],
 .sc-shell [class*="-living-glow"],
 .sc-shell [class*="-living-pulse"],
@@ -118,6 +121,9 @@
 .sc-shell .sc-camp-living-underlay *,
 .sc-shell .sc-flag-living-underlay *,
 .sc-shell .sc-resource-living-underlay *,
+.sc-shell .sc-bandage-pip *,
+.sc-shell .sc-unit-chip-bandage-badge *,
+.sc-shell .sc-wounded-chip-art *,
 .sc-shell .sc-board-living * {
   pointer-events: none !important;
 }
@@ -809,6 +815,12 @@
   .sc-shell .sc-diplo-glow-layer,
   .sc-shell .sc-diplo-pulse-layer,
   .sc-shell .sc-diplo-drift-layer,
+  .sc-shell .sc-heal-glow-layer,
+  .sc-shell .sc-heal-aura-ring,
+  .sc-shell .sc-heal-drift-layer,
+  .sc-shell .sc-heal-pulse-layer,
+  .sc-shell .sc-bandage-pip,
+  .sc-shell .sc-unit-art.has-wounded.is-healing,
   .sc-shell .sc-board-living * {
     animation: none !important;
     transition: none !important;

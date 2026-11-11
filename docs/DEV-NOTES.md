@@ -1,3 +1,22 @@
+## 2026-11-11 — app / living heal glow and bandage pips for wounded unit chips (bakeoff/gemini-infirmary)
+
+- **Components (`packages/app/src/hud/BandagePip.tsx`):**
+  - Exports `BandagePip`, `WoundedChip`, and `WoundedUnitChip` (phrasing-only `<span>` + `<svg>`).
+  - Props: `size?: number`, `active?: boolean`, `wounded?: boolean`, `className?: string`, `style?: React.CSSProperties`, `title?: string`.
+  - Markup attaches `aria-hidden="true"`, `data-bandage-pip`, `data-healing={isHealing}`, `data-wounded={wounded}`, and classes `.is-healing` or `.is-calm`.
+  - Visual layers: `.sc-heal-glow-layer` (emerald breath glow), `.sc-heal-aura-ring` (dashed spinning ring), `.sc-heal-drift-layer` (rising motes), `.sc-heal-bandage-base` (diagonal linen bandages with stitch lines), `.sc-heal-pulse-layer` (center restorative cross: emerald #86efac when healing, red #fca5a5 when calm).
+- **UnitCard & Tabs wiring:**
+  - `packages/app/src/hud/UnitCard.tsx`: added `wounded?: number` and `healing?: boolean` to `UnitCardProps`. When `wounded > 0`, `.sc-unit-art` gains `.has-wounded` (relative position) and `.is-healing` (soft emerald drop-shadow and keyframe pulse), rendering `.sc-unit-chip-bandage-badge` with a 12px `BandagePip`.
+  - `packages/app/src/tabs/ArmyTab.tsx`: checks `autoHealActive(state)` and manual `listHealing(state).length > 0`. Passes `wounded` and `healing` to Militia `UnitCard` (since wounded return as militia), and renders a 20px `BandagePip` inside `.sc-work-head` of the Wounded card.
+  - `packages/app/src/hud/BedPip.tsx` & `packages/app/src/KeepInterior.tsx`: `BedPipProps` accepts `healing?: boolean`. In `YardRoom`, active auto-healing or manual treat renders emerald cross `.sc-bed-cross.is-healing`.
+- **Styling (`packages/app/src/hud/infirmary-heal-living.css` & `living-glyph-soften.css`):**
+  - All decorative elements have `pointer-events: none !important;` and `user-select: none;`.
+  - Keyframe animations: `sc-heal-glow-breathe` (2.6s), `sc-heal-aura-spin` (10s), `sc-heal-mote-rise` (3.4s), `sc-heal-cross-pulse` (2.2s), `sc-heal-chip-pulse` (2.8s).
+  - Softening rules under `.sc-shell` prevent contrast degradation against card text and buttons.
+  - `@media (prefers-reduced-motion: reduce)` disables all animations and transitions.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Tests:** `packages/app/src/hud/BandagePip.test.tsx` (7 tests) validates static HTML rendering, active/calm data attributes, glow layers, UnitCard integration, pointer-events, and reduced motion CSS guards. Sim 340, app 862, server 158 pass. App build clean.
+
 ## 2026-11-11 — sim + app / Infirmary auto-heal tick (wave/infirmary-heal, not merged)
 
 - **Rule.** `autoHealTick(state, tick)` in `packages/sim/src/systems/ward.ts`: if `tick % AUTO_HEAL_EVERY === 0` and `autoHealActive(state)`, move `autoHealAmount(wounded)` from `flags.wounded_player` to player militia. `AUTO_HEAL_EVERY = 100`, `AUTO_HEAL_SHARE = 10`, amount = `ceil(wounded / 10)`. Free, no `inputLog` entry (it is not a player input).

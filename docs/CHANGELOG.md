@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-11-11 — Living heal glow and bandage pips on wounded unit chips (bakeoff/gemini-infirmary)
+
+- **Bespoke bandage pip (`BandagePip` / `WoundedChip` / `WoundedUnitChip`):** Created dedicated medieval field-dressing linen bandage glyphs with crossed wrapping tapes, stitched seam details, and a center restorative cross.
+- **Reactive living heal states:**
+  - **Calm wounded state (`is-calm`):** When wounded troops are present without active Infirmary healing, the pip displays an amber/red cross marking field dressing.
+  - **Active heal glow (`is-healing`):** When the Infirmary is actively healing (`autoHealActive(state)` or manual `healing > 0`), the pip breathes with an emerald glow layer (`sc-heal-glow-layer`), a rotating dashed herbal aura ring (`sc-heal-aura-ring`), and rising verdant restorative motes (`sc-heal-drift-layer`).
+- **Unit card & Army tab integration:**
+  - Mounted top-right badge `.sc-unit-chip-bandage-badge` on `UnitCard`'s `.sc-unit-art` chip when `wounded > 0`, illuminated with emerald living drop shadow and pulse when `healing` is true.
+  - On the Army tab, Militia unit card reflects wounded status (as healed wounded return as militia), and the Wounded work card embeds the living `BandagePip` in `.sc-work-head`.
+  - In `KeepInterior.tsx`'s Yard room, `BedPip` receives the `healing` state, illuminating infirmary beds with an emerald healing cross and soft halo.
+- **Invariants:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` on all decorative layers and SVGs, gentle opacities, and `@media (prefers-reduced-motion: reduce)` support.
+- **Tests:** New test suite in `packages/app/src/hud/BandagePip.test.tsx` (7 tests). Sim 340, app 862, server 158 pass. `npm run build -w @second-crown/app` succeeds cleanly.
+
 ## 2026-11-11 — Infirmary auto-heal tick (wave/infirmary-heal, not merged)
 
 - **New rule (sim).** A finished player Infirmary with at least one worker posted on its tile heals wounded by itself. On every tick that is a multiple of 100 (10s), one wounded in ten, rounded up (at least 1), returns as militia. It costs no food and writes no input-log entry. No worker, or an Infirmary that is still going up or scarred: nothing heals.

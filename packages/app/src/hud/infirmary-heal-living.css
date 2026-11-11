@@ -1,0 +1,148 @@
+/* --- Living heal glow & bandage pip for wounded unit chips (isolated from theme.css) --- */
+
+.sc-bandage-pip {
+  pointer-events: none !important;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sc-bandage-pip * {
+  pointer-events: none !important;
+}
+
+/* Wounded unit chip wrapper in UnitCard */
+.sc-unit-art.has-wounded {
+  position: relative;
+}
+
+.sc-unit-art.has-wounded.is-healing {
+  filter: drop-shadow(0 0 4px rgba(52, 211, 153, 0.45));
+  animation: sc-heal-chip-pulse 2.8s ease-in-out infinite;
+}
+
+/* Corner badge positioning for the bandage pip on the unit chip */
+.sc-unit-chip-bandage-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 13px;
+  height: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+}
+
+/* Dedicated chip slot on the Army tab's Wounded card */
+.sc-wounded-chip-art {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  pointer-events: none !important;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.sc-work-card.is-healing .sc-wounded-chip-art {
+  filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.5));
+}
+
+/* Living Animations: soft emerald heal glow, rotating aura ring, rising motes */
+.sc-heal-glow-layer {
+  transform-origin: 12px 12px;
+  animation: sc-heal-glow-breathe 2.6s ease-in-out infinite;
+}
+
+.sc-heal-aura-ring {
+  transform-origin: 12px 12px;
+  animation: sc-heal-aura-spin 10s linear infinite;
+}
+
+.sc-heal-drift-layer {
+  transform-origin: 12px 12px;
+  animation: sc-heal-mote-rise 3.4s ease-in-out infinite;
+}
+
+.sc-bandage-pip.is-healing .sc-heal-pulse-layer {
+  transform-origin: 12px 12px;
+  animation: sc-heal-cross-pulse 2.2s ease-in-out infinite;
+}
+
+/* BedPip integration when Infirmary is active */
+.sc-bed-cross.is-healing circle:first-child {
+  fill: #059669 !important;
+  animation: sc-heal-glow-breathe 2.4s ease-in-out infinite;
+}
+
+/* Keyframes */
+@keyframes sc-heal-glow-breathe {
+  0%, 100% {
+    transform: scale(0.92);
+    opacity: 0.22;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.48;
+  }
+}
+
+@keyframes sc-heal-aura-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sc-heal-mote-rise {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(0, -1.2px, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-heal-cross-pulse {
+  0%, 100% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-heal-chip-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px rgba(52, 211, 153, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 6.5px rgba(52, 211, 153, 0.65));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-bandage-pip,
+  .sc-heal-glow-layer,
+  .sc-heal-aura-ring,
+  .sc-heal-drift-layer,
+  .sc-heal-pulse-layer,
+  .sc-unit-art.has-wounded.is-healing,
+  .sc-bed-cross.is-healing circle {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

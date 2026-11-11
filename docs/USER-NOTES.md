@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — Living heal glow and bandages on wounded units (bakeoff/gemini-infirmary)
+
+- **Field bandages on wounded troops:** When you have wounded soldiers in your host, a small crossed-linen bandage pip appears in the corner of your militia unit chip and beside the Wounded card on the Army tab.
+- **Living restorative heal glow:** When your Infirmary is actively tending to wounded troops (either through the automatic worker heal or a manual treat order), the bandages glow with a gentle emerald pulse, spinning herbal aura ring, and rising restorative motes.
+- **Infirmary cots lit with care:** In the Keep Yard room, infirmary cots now display an emerald medical cross and green soothing halo when healing is underway.
+- **Non-intrusive:** All bandage pips and glow layers are purely visual (`pointer-events: none`) and will never block training, clicks, or text reading. No sim rules or balance numbers were changed.
+
 ## 2026-11-11 — The Infirmary heals by itself (wave/infirmary-heal, not merged yet)
 
 - **Auto-heal.** If you have a finished Infirmary with at least one worker in it, your wounded now get better without you clicking. Every 10 seconds, one wounded in ten (rounded up, so always at least one) comes back as militia. It costs no food.
