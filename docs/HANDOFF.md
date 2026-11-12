@@ -21,6 +21,8 @@ Also waiting: `bakeoff/gemini-season-claim` (**not merged**, living seasonal cre
 
 Also waiting: `wave/season-claim` (**not merged**, pushed, no PR). Season status line with a Claim button on the Kingdom tab, app only, see "Season line" under Feedback below. On that branch: sim **362**, app **905**, server **158**, app build clean.
 
+Also waiting: `wave/prestige-line` (**not merged**, pushed, no PR). Age / prestige status line with progress and an Ascend button on the Kingdom tab, app only, see "Prestige line" under Feedback below. On that branch: sim **362**, app **949**, server **158**, app build clean.
+
 Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app build clean.
 
 ## Live now
@@ -50,6 +52,7 @@ Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app
   - Hearth lantern sparks at keep windows and campfire glow blooms at camps (illuminated at dusk and night).
   - All decorative layers isolated, `pointer-events: none`, and softened in `hud/living-glyph-soften.css` with `prefers-reduced-motion` guards.
 - **Feedback.** Action confirmation flash and sound, lo-fi radio, balance notes panel, pace lines (research, market, wall, vision, upkeep, training, academy), hint lines (research, market, decree, age, culture).
+- **Prestige line (wave/prestige-line, not merged).** Kingdom tab, where the read-only age line was: **Age · Dawn 0 · 15K / 30K total resources (50%) · not ready yet** with a progress bar; when the sim says ready it turns gold and shows **Ascend**, which asks for a second press (**Confirm ascend** / **Cancel**) because ascending restarts the run. App only (`PrestigeLine.tsx`, `prestige-line.css`): it calls the existing sim `canAscend` / `ascendThreshold` / `tryAscend`, the same ones the Crown tab Second Dawn card uses (that card is unchanged, still one press). No sim, server, or `theme.css` edits. The old `AgeLine` component is no longer mounted; its `AgeGlyphPip` is reused.
 - **Season line (wave/season-claim, not merged).** Kingdom tab, under the hold strip: **Season · Spring · 0.6 days left (200s) · season court ready: +40 food** with a **Claim** button; after claiming the button goes and it reads **season court claimed, next in Summer**. App only (`SeasonClaimLine.tsx`, `season-claim-line.css`): it calls the existing sim `tryClaimSeason` / `seasonClaimed` / `seasonBoonPreview`, the same ones the Crown tab Season court card uses (that card is unchanged). No sim, server, or `theme.css` edits. Known oddity, not changed: a season is 2000 ticks and a game day is 3600, so a whole season is 0.6 of a day and the line always reads under one day.
 
 ### Living HUD layers (all on `main`)

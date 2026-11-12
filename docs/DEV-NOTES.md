@@ -1,3 +1,14 @@
+## 2026-11-11 — app / age and prestige status line with an Ascend button on the Kingdom tab (wave/prestige-line, not merged)
+
+- **Component (`packages/app/src/PrestigeLine.tsx`):** exports `PrestigeLine({ state, act })`, the hook-free `PrestigeLineView({ status, armed, onArm, onCancel, onAscend })`, and `prestigeStatus(state)`. Renders `div.sc-prestige-line` with `is-waiting` / `is-ready` / `is-shared` (+ `is-armed`), `data-dawn`, `data-ready`, `data-percent`. Returns `null` without state.
+- **Sim calls only:** `ascendThreshold`, `canAscend`, and `tryAscend` through `act`, with the same two messages as `hud/DawnCard.tsx` ("Ascended. Pick a doctrine." / "Not ready."). No new rules, no flags, no save change.
+- **One display sum:** the sim does not export the total that `canAscend` compares, and this slice may not edit `packages/sim`, so `prestigeStatus` adds up `state.resources` with the sim's `D` for display. It never decides readiness: `ready` is `canAscend`, and the percent is floored and capped at 99 unless `canAscend` is true (then 100). `PrestigeLine.test.tsx` checks `ready` and `percent === 100` against `canAscend` at several ages and totals. Cleaner later: export a `resourceTotal` from the sim and delete the loop (needs the owner's OK for a sim edit).
+- **Two-press confirm:** `armed` is local React state in `PrestigeLine`. First press arms, `Confirm ascend` runs `tryAscend`, `Cancel` disarms. If stores drop below the requirement while armed, the view falls back to the progress text with no buttons. `DawnCard` keeps its one-press Ascend.
+- **Shared hold:** when `sharedRealmId(state)` is not null the line reads "a shared hold has no Second Dawn.", with no bar and no button (same rule as `DawnCard`). `sharedRealmId` returns null today, so this path is covered through `PrestigeLineView` in tests.
+- **Mount:** `tabs/KingdomTab.tsx`, between `CultureLine` and `DecreeHint`, replacing `<AgeLine state={state} />`. `AgeLine.tsx`, `age-line.css` and `AgeLine.test.tsx` are untouched; `AgeGlyphPip` is imported from there. The `AgeLine` component itself is now unused and can be deleted in a cleanup slice.
+- **Styling:** `packages/app/src/prestige-line.css`, scoped to `.sc-prestige-*`. Buttons reuse `sc-work-btn`. Bar transition is off under `prefers-reduced-motion`. No `theme.css` edits (a test checks).
+- **Tests:** `PrestigeLine.test.tsx` (13 tests). Sim 362, app 949, server 158 (1 skipped: symlink permission on Windows). `npm run build -w @second-crown/app` clean.
+
 ## 2026-11-11 — app / fix: restore ResearchCostRow on living study cards (main)
 
 - **Cause:** `3b9516d` (living research glyphs) was built on a `ResearchBar.tsx` from before `ba9acb7`, so merging it removed the `ResearchCostRow` import and mount, the `busyWith` prop on `Row`, and the short Study label. `ResearchCost.tsx` and its test stayed, so 3 tests in `ResearchCost.test.tsx` failed (`data-study-cost`, "Stores cover it. Ready to study.", "Paid.").

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-11 — Age / prestige status line with an Ascend button on the Kingdom tab (wave/prestige-line, not merged)
+
+- **Changed line (app only):** the Kingdom tab's age line is now a status line with progress and a button. It shows the current age (**Dawn N**), the stores held against the next-age requirement (for example **15K / 30K total resources (50%)**), a small progress bar, and, when the crown is ready, an **Ascend** button.
+- **Two presses to ascend:** ascending restarts the run, so the first press only asks. The line turns red, says what starts over, and offers **Confirm ascend** and **Cancel**. The Crown tab's Second Dawn card still ascends in one press and is unchanged.
+- **Same rules as before:** readiness is the sim's `canAscend`, the requirement is the sim's `ascendThreshold`, and the confirm calls the sim's `tryAscend`, the same call the Second Dawn card makes. No prestige math changed.
+- **Files:** new `packages/app/src/PrestigeLine.tsx`, `prestige-line.css`, `PrestigeLine.test.tsx`; `tabs/KingdomTab.tsx` mounts `PrestigeLine` where the read-only `AgeLine` was. `AgeLine.tsx` stays (its `AgeGlyphPip` is reused) but the `AgeLine` component is no longer mounted. No edits to `packages/sim`, `server/`, or `theme.css`.
+- **Tests:** sim 362, app 949 (13 new), server 158 passing. App build clean.
+
 ## 2026-11-11 — Fix: Cost row back on the living lectern study cards (main)
 
 - **What broke.** The living research glyph slice (`3b9516d`) dropped the Cost row from `ResearchBar.tsx` and put the long `(cost; halls; Keep; seconds)` tail back on the Study button, so `ResearchCost.test.tsx` failed on `main`.

@@ -58,7 +58,7 @@ import { DecreeHint } from "../DecreeHint";
 import { MarketHint } from "../MarketHint";
 import { MarketPace } from "../MarketPace";
 import { CultureLine } from "../CultureLine";
-import { AgeLine } from "../AgeLine";
+import { PrestigeLine } from "../PrestigeLine";
 import { SeasonClaimLine } from "../SeasonClaimLine";
 import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
 import { WallLine } from "../WallLine";
@@ -228,7 +228,7 @@ export function KingdomTab(props: {
       <VisionPace state={state} />
       <WallPace state={state} />
       <CultureLine state={state} act={act} />
-      <AgeLine state={state} />
+      <PrestigeLine state={state} act={act} />
       <DecreeHint state={state} />
       <MarketHint state={state} />
       <MarketPace state={state} />

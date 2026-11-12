@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — Age line with progress and an Ascend button on the Kingdom tab (wave/prestige-line, not merged yet)
+
+- **Age line.** The age line on the Kingdom tab now shows how close you are to the next age. Example: **Age · Dawn 0 · 15K / 30K total resources (50%) · not ready yet**, with a small progress bar.
+- **Ascend button.** When your stores reach the requirement, the line turns gold and shows an **Ascend** button, so you no longer have to go to the Crown tab.
+- **It asks first.** Ascending starts your kingdom over, so the first press only asks. Press **Confirm ascend** to go ahead or **Cancel** to back out.
+- **Same ascension as before.** Nothing about ascending changed: same requirement, same reset, same dawn bonus. The Second Dawn card on the Crown tab still works too.
+
 ## 2026-11-11 — Study cards show the cost again
 
 - **Cost row is back.** Open the Keep, then the Lectern. Each study card shows a **Cost** row with one small chip per resource, such as "20 food" and "12 wood". A chip is red when you do not have enough.

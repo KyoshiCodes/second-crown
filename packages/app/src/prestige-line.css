@@ -1,0 +1,75 @@
+/* Age / prestige status line and Ascend button on the Kingdom tab (PrestigeLine.tsx). Do not touch theme.css. */
+
+.sc-prestige-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-prestige-line strong {
+  font-weight: 600;
+}
+
+.sc-prestige-text {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.sc-prestige-bar {
+  flex: 0 0 96px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.sc-prestige-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: #d9a441;
+  transition: width 0.3s ease;
+}
+
+.sc-prestige-line.is-ready {
+  border-color: rgba(254, 240, 138, 0.55);
+  background: rgba(254, 240, 138, 0.07);
+}
+
+.sc-prestige-line.is-ready strong {
+  color: #fef08a;
+}
+
+.sc-prestige-line.is-ready .sc-prestige-bar-fill {
+  background: #fef08a;
+}
+
+.sc-prestige-line.is-armed {
+  border-color: rgba(248, 113, 113, 0.6);
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.sc-prestige-line.is-shared {
+  opacity: 0.8;
+}
+
+.sc-prestige-btn {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 4px 14px;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-prestige-bar-fill {
+    transition: none;
+  }
+}
