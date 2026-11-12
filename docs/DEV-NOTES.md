@@ -1,3 +1,17 @@
+## 2026-11-12 — app / research cards: Needs checklist, have amounts, progress text (wave/research-advanced)
+
+- **New `packages/app/src/ResearchAdvanced.tsx`** (display only):
+  - `studyNeeds({ prereq, prereqOk, halls, hallBuilt, keepNeed, keepNow })` returns `StudyNeed[]` (`kind: "keep" | "study" | "hall"`, `label`, `met`, `detail`), in that order. Gates that do not apply are left out.
+  - `studyProgressText({ status, ticksLeft, ticksTotal, ticksBase, ticksPerSecond })` returns `{ value, sub }` for the Progress row, or `null` for a known study. Percent is capped at 99 while ticks remain. The Academy saving is `round(base / tps) - round(total / tps)`, so it always matches the two second counts on screen.
+  - `studyLeadsTo(id)` is the reverse lookup of the sim's `researchRequires`.
+  - `keepNumeral(level)`, and components `StudyNeedsRow`, `StudyLeadsLine`, `TierMeter`.
+- **`ResearchBar.tsx`:** `Row` builds `needs` only when status is `open` or `locked`, and then clears the name row's `sub` so the gate text is not repeated. It overrides the progress row's `value` / `sub` with `studyProgressText`. `studyLedgerRows` in `hud/StudyLedger.tsx` is unchanged, so other callers and its tests are unaffected. Hall names come from `getBuildingType(id)?.name`; Keep level from `keepLevel(state)`.
+- **`ResearchCost.tsx`:** a short, unpaid chip appends `<span class="sc-research-adv-have">have N</span>` where `N = need - short` (whole units held). `StudyCostPart` is unchanged.
+- **`research-advanced.css`:** every selector is under `.sc-research-adv-`; a test enforces it. `research-tree.css` and `theme.css` untouched.
+- **Markers for tests:** `data-study-needs="met|unmet"` on the row, `data-need` + `data-met="yes|no"` on each line.
+- **No sim or server edits.** `tryStartResearch` remains the only gate; a test checks the checklist reads "met" exactly when the sim accepts the study.
+- **Tests:** `ResearchAdvanced.test.tsx` (19). `ResearchTree.test.tsx` sealed-card assertion now reads the checklist instead of "needs Husbandry". sim 362, app 1033, server 158, build clean.
+
 ## 2026-11-12 — app / living omen pips changing with event type and progress (bakeoff/gemini-events-advanced)
 
 - **Components (`packages/app/src/hud/OmenPip.tsx`):**

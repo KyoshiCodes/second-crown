@@ -1,0 +1,123 @@
+/*
+ * Research cards, advanced pass: "Needs" checklist, "have" amounts on short cost chips,
+ * "Leads to" footer, and the tier heading meter.
+ * Dedicated sheet for ResearchAdvanced.tsx. theme.css is not touched.
+ */
+
+.sc-research-adv-needs {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px 8px;
+  padding-top: 5px;
+  border-top: 1px dashed rgba(180, 140, 70, 0.3);
+  font-size: 11px;
+}
+
+.sc-research-adv-label {
+  flex: 0 0 auto;
+  padding-top: 1px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+
+.sc-research-adv-need-list {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-research-adv-need {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 5px;
+  min-width: 0;
+}
+
+.sc-research-adv-need strong {
+  font-weight: 600;
+}
+
+.sc-research-adv-mark {
+  flex: 0 0 auto;
+  width: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sc-research-adv-need.is-met .sc-research-adv-mark {
+  color: #3fb950;
+}
+
+.sc-research-adv-need.is-unmet .sc-research-adv-mark,
+.sc-research-adv-need.is-unmet .sc-research-adv-detail {
+  color: #f85149;
+}
+
+.sc-research-adv-detail {
+  font-size: 10.5px;
+  opacity: 0.8;
+}
+
+.sc-research-adv-need.is-unmet .sc-research-adv-detail {
+  opacity: 0.95;
+}
+
+/* "have N" inside a short cost chip. */
+.sc-research-adv-have {
+  margin-left: 4px;
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+.sc-research-adv-leads {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 4px;
+  margin: 0;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.sc-research-adv-leads-mark {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 8px;
+  margin-right: 2px;
+  border-left: 2px solid rgba(200, 150, 50, 0.9);
+  border-top: 2px solid rgba(200, 150, 50, 0.9);
+  border-top-left-radius: 3px;
+}
+
+.sc-research-adv-tiermeter {
+  flex: 0 0 56px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(127, 127, 127, 0.28);
+}
+
+.sc-research-adv-tiermeter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: rgba(200, 150, 50, 0.95);
+}
+
+@media (max-width: 520px) {
+  .sc-research-adv-needs {
+    flex-direction: column;
+  }
+}

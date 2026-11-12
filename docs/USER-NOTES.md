@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-12 — Study cards: clearer costs, needs, and progress (wave/research-advanced, not on the live site yet)
+
+- **Needs list.** Each study you have not started now has a short "Needs" list with a tick or a cross on every line: the Keep level, the earlier study it builds on, and the building it needs. A cross tells you what is missing, for example "Keep III, yours is Keep I" or "Surveying, study it first".
+- **Costs.** When you cannot afford something, the red cost chip also shows how much you have, for example "20 food, have 7".
+- **Progress.** A study in progress shows a percent, the seconds left, and the full length, for example "58% · 10s left of 24s". Before you start, the card tells you how many seconds your Academy saves.
+- **The tree.** First studies now say which deeper study they lead to. Each tier heading has a small bar showing how many of its studies you know.
+- **Nothing about the rules changed.** Costs, times, and requirements are exactly as before.
+
 ## 2026-11-12 — Living omen pips that react to event types and progress (bakeoff/gemini-events-advanced)
 
 - **Living omen emblems on event cards:** The omen icons on event cards in the Crown tab now feature animated living illustrations that visually react to the specific portent:

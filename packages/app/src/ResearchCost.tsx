@@ -1,9 +1,10 @@
 import React from "react";
 import "./research-tree.css";
+import "./research-advanced.css";
 
 /**
- * Cost row on a lectern study card: one chip per resource, with the amount still
- * missing when stores are short, plus one plain line saying why Study would fail.
+ * Cost row on a lectern study card: one chip per resource (a short chip also says
+ * how much the stores hold), plus one plain line saying why Study would fail.
  * Display only. Costs come straight from the sim RESEARCH table and stores from
  * state.resources; tryStartResearch stays the only thing that decides and spends.
  */
@@ -65,6 +66,7 @@ export function ResearchCostRow(props: { status: StudyCostState; parts: StudyCos
             data-res={p.res}
           >
             {p.need} {p.res}
+            {!paid && p.short > 0 ? <span className="sc-research-adv-have">have {p.need - p.short}</span> : null}
           </span>
         ))}
       </span>

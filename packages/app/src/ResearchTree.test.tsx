@@ -71,7 +71,7 @@ describe("research tree on the lectern", () => {
     expect(sealed).toContain("is-locked");
     expect(sealed).toContain("Builds on <strong>Husbandry</strong>");
     expect(sealed).toContain("study it first");
-    expect(sealed).toContain("needs Husbandry");
+    expect(sealed).toMatch(/data-need="study" data-met="no"/);
     expect(sealed).toMatch(/<button[^>]*disabled/);
 
     s.flags.research_husbandry = 1;

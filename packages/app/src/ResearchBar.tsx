@@ -2,6 +2,8 @@ import React from "react";
 import {
   RESEARCH,
   countBuilding,
+  getBuildingType,
+  keepLevel,
   researchDone,
   researchDuration,
   researchKeepMin,
@@ -27,6 +29,14 @@ import {
 } from "./hud/AcademyLivingGlyph";
 import { ResearchInkPip } from "./hud/ResearchInkPip";
 import { ResearchCostRow, studyCostParts } from "./ResearchCost";
+import {
+  StudyLeadsLine,
+  StudyNeedsRow,
+  TierMeter,
+  studyLeadsTo,
+  studyNeeds,
+  studyProgressText,
+} from "./ResearchAdvanced";
 import "./hud/button-pips.css";
 import "./hud/research-ink-pip.css";
 import "./research-tree.css";
@@ -65,6 +75,29 @@ function Row(props: {
   const progress = done ? 1 : left > 0 ? Math.min(1, Math.max(0, 1 - left / effectiveTotal)) : 0;
   const seconds = Math.round(duration / TICKS_PER_SECOND);
   const status = studyStatus({ done, ticksLeft: left, hallOk: hasHall, keepOk, prereqOk });
+  const hallName = (b: string) => getBuildingType(b)?.name ?? b;
+  const builtHall = buildings.find((b) => countBuilding(state, b) > 0);
+  // The checklist is shown while the study can still be started; it replaces the
+  // "needs ..." words under the name so each gate is stated once.
+  const needs =
+    status === "open" || status === "locked"
+      ? studyNeeds({
+          prereq,
+          prereqOk,
+          halls: buildings.map(hallName),
+          hallBuilt: builtHall ? hallName(builtHall) : undefined,
+          keepNeed,
+          keepNow: keepLevel(state),
+        })
+      : [];
+  const progressText = studyProgressText({
+    status,
+    ticksLeft: left,
+    ticksTotal: effectiveTotal,
+    ticksBase: def.ticks,
+    ticksPerSecond: TICKS_PER_SECOND,
+  });
+  const leads = studyLeadsTo(id).map((next) => ({ name: RESEARCH[next].name, known: researchDone(state, next) }));
   const rows = studyLedgerRows({
     name: label,
     status,
@@ -79,9 +112,13 @@ function Row(props: {
     prereq,
     prereqOk,
   }).map((r) => {
+    if (r.kind === "progress" && progressText) {
+      r = { ...r, value: progressText.value, sub: progressText.sub };
+    }
     if (r.kind === "name") {
       return {
         ...r,
+        sub: needs.length > 0 ? undefined : r.sub,
         lead:
           status === "known" ? (
             <ScrollPip size={16} status="claimed" />
@@ -136,6 +173,7 @@ function Row(props: {
       </span>
       <StudyLivingRows topicId={id} status={status} rows={rows} />
       <StudyLivingGlyph topicId={id} status={status} academyFast={academyFast} progress={progress} />
+      <StudyNeedsRow needs={needs} />
       <ResearchCostRow status={status} parts={studyCostParts(def.cost, state.resources)} busyWith={busyWith} />
       {done || left > 0 ? null : (
         <button
@@ -155,6 +193,7 @@ function Row(props: {
           <span>Study {label.toLowerCase()} ({seconds}s)</span>
         </button>
       )}
+      <StudyLeadsLine leads={leads} />
     </div>
   );
 }
@@ -199,6 +238,7 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
               <span className="sc-research-tree-count">
                 {tierKnown} of {tierIds.length} known
               </span>
+              <TierMeter known={tierKnown} total={tierIds.length} />
             </h4>
             {tier === 2 ? (
               <p className="sc-research-tree-note">Each deeper study builds on one first study and needs Keep II or III.</p>

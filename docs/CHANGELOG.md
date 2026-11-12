@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-12 — Research cards: clearer costs, prerequisites, and progress (wave/research-advanced)
+
+- **Needs checklist (`StudyNeedsRow`):** every study that has not started lists its gates once, each with a tick or cross: Keep level ("Keep III · yours is Keep I"), the first study it builds on ("Surveying · study it first"), and the hall ("Lumber Camp or Sawmill or Academy · build one", or the built hall's name). Replaces the "needs ..." words under the study name. Hidden once a study is underway or known.
+- **Cost chips:** a chip the stores cannot cover also shows the amount held ("20 food have 7"). The reason line ("Short 13 food.") is unchanged.
+- **Progress row:** active study shows percent, seconds left, and total ("58% · 10s left of 24s"). Before starting, the row shows the Academy saving ("14s to study · Academy saves 4s").
+- **Tree links:** first studies show "Leads to <deeper study>"; tier headings carry a known meter.
+- **Scope:** app only. New `packages/app/src/ResearchAdvanced.tsx` and `research-advanced.css`; small edits in `ResearchBar.tsx` and `ResearchCost.tsx`. No edits to `packages/sim`, `server/`, or `theme.css`. All research math is unchanged; the UI only reads existing sim exports.
+- **Tests:** new `ResearchAdvanced.test.tsx` (19 tests); one assertion in `ResearchTree.test.tsx` updated for the checklist. sim 362, app 1033, server 158. App build clean.
+
 ## 2026-11-12 — Living omen pips changing with event type and progress (bakeoff/gemini-events-advanced)
 
 - **Upgraded living omen pips (`OmenPip` / `LivingOmenPip` / `EventOmenPip`):** Created enhanced animated vector heraldry and status indicators (`packages/app/src/hud/OmenPip.tsx` & `omen-pip.css`):
