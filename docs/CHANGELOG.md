@@ -1,12 +1,17 @@
 # CHANGELOG
 
-## 2026-11-12 — CSS hygiene pass 2 (wave/css-hygiene-2, not merged)
+## 2026-11-12 — CSS & SVG hygiene audit pass 2 (bakeoff/gemini-css-hygiene-2)
 
-- **Audit:** all 137 stylesheets under `packages/app/src` checked for conflict markers (none), unbalanced braces (none), unused rules, `theme.css` leakage, and pointer events on living decoration.
-- **Dead styles removed:** 23 classes no component renders, in `hud/atlas-effects.css`, `atlas-units.css`, `button-pips.css`, `copy-flash.css`, `faction-seals.css`, `force-card.css`, `hold-action-pip.css`, `hold-actions.css`, `inspect-card.css`, `living-glyph-soften.css`, `offer-card.css` and `keep-interior.css`. Deleted `hud/leave-confirm.css` (imported nowhere, its classes unused since the leave card replaced the confirm row).
-- **Pointer events:** 24 `aria-hidden` pips, chips and meter fills that animate but had no rule of their own now carry `pointer-events: none` in their own file (20 files).
-- **Not changed:** `theme.css`, `packages/sim`, `server/`, any component or test. No visible change expected.
-- **Tests:** sim 362, app 1043, server 158, app build clean.
+- **Comprehensive CSS/SVG hygiene and pointer-events audit:** Audited all 137 CSS files and living pip/glyph/veil/meter layers across the app for performance, unreferenced marker leaks, and click-blocking hazards:
+  - **Dead rules and marker cleanup:**
+    - Cleaned unreferenced legacy classes in `packages/app/src/hud/atlas-effects.css` (`.sc-atlas-status-effect`, `.sc-atlas-status-weather-spark`), `atlas-units.css` (`.sc-atlas-unit-glow`), `button-pips.css` (`.sc-study-row`), `copy-flash.css` (`.sc-copy-flash-group`), `faction-seals.css` (`.sc-faction-row`), `force-card.css` (`.sc-force-detail`, `.sc-force-captain`), `hold-action-pip.css` and `hold-actions.css` (`.sc-hold-action-card .sc-leave-confirm`), `inspect-card.css` (`.sc-inspect-stock-badge`), `offer-card.css` (`.sc-offer-row`, `.sc-offer-tag`, `.sc-offer-side`, `.sc-offer-amt`, `.sc-offer-pip`), and `keep-interior.css` (`.sc-keepin-facts`, `.sc-keepin-list`, `.sc-keepin-list-name`, `.sc-keepin-list-meta`).
+    - Removed unimported orphan file `packages/app/src/hud/leave-confirm.css`.
+    - Cleaned phantom/misnamed selectors in `packages/app/src/hud/living-glyph-soften.css` (`.sc-study-ink-pip` typo, `.sc-people-living-glow`, `.sc-people-living-footpath`, `.sc-people-living-pulse`).
+  - **Click-blocking vulnerability remediation:**
+    - Corrected accidental pointer-event blocking on interactive containers in `living-glyph-soften.css` (`.sc-prestige-line` which hosts the "Ascend" action buttons and `.sc-season-status-line`).
+    - Added strict `pointer-events: none;` on all decorative pips, dots, meters, and progress bar containers across 28 files: `.sc-atlas-card-pip`, `.sc-roads-pip`, `.sc-roads-mark`, `.sc-gift-line-dot`, `.sc-season-claim-dot`, `.sc-board-chip`, `.sc-board-chip-pip`, `.sc-study-ledger-bar`, `.sc-study-ledger-fill`, `.sc-camp-pip`, `.sc-decree-living-chip`, `.sc-decree-living-meter`, `.sc-decree-living-meter-fill`, `.sc-diplo-living-chip`, `.sc-diplo-living-meter`, `.sc-diplo-living-meter-fill`, `.sc-event-next-meter`, `.sc-event-next-fill`, `.sc-event-living-chip`, `.sc-event-living-meter`, `.sc-event-living-meter-fill`, `.sc-flag-meter`, `.sc-flag-meter-fill`, `.sc-force-ledger-bar`, `.sc-force-ledger-fill`, `.sc-force-row-pip`, `.sc-force-row-bar`, `.sc-force-row-fill`, `.sc-holdstat-pip`, `.sc-jobstat-pip`, `.sc-node-card-pip`, `.sc-outpost-card-pip`, `.sc-quest-living-chip`, `.sc-quest-living-meter`, `.sc-quest-living-meter-fill`, `.sc-stall-row-pip`, `.sc-stall-row-bar`, `.sc-stall-row-fill`, `.sc-study-living-chip`, `.sc-study-living-meter`, `.sc-study-living-meter-fill`, `.sc-unit-row-pip`, `.sc-unit-row-bar`, `.sc-unit-row-fill`, `.sc-vault-card-pip`, `.sc-workstat-pip`, `.sc-workstat-bar`, `.sc-workstat-fill`, `.sc-provstat-pip`, `.sc-provstat-bar`, `.sc-provstat-bar-fill`, `.sc-research-tree-link-mark`, `.sc-research-tree-numeral`, `.sc-research-adv-mark`, `.sc-research-adv-leads-mark`, `.sc-prestige-bar`, and `.sc-prestige-bar-fill`.
+    - Added all corresponding elements to Section 1 pointer-events immunity in `packages/app/src/hud/living-glyph-soften.css`.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict isolation preserved. All 141 app test suites (1043 tests) and production build passing cleanly.
 
 ## 2026-11-12 — Living research glyphs showing locked, available, and completed states (bakeoff/gemini-research-advanced)
 

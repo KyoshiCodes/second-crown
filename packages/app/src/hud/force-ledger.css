@@ -79,6 +79,7 @@
   border-radius: 2px;
   background: var(--chrome-btn-border);
   overflow: hidden;
+  pointer-events: none;
 }
 .sc-force-ledger-fill {
   display: block;
@@ -88,6 +89,7 @@
   background-size: 200% 100%;
   transition: width 0.6s ease-out;
   animation: sc-force-ledger-shimmer 2.4s linear infinite;
+  pointer-events: none;
 }
 
 /* Living: the ETA edge breathes while a force is on the road; a ready action glows softly. */

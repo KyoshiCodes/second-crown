@@ -57,6 +57,7 @@
   overflow: hidden;
   border-radius: 3px;
   background: rgba(127, 127, 127, 0.22);
+  pointer-events: none;
 }
 .sc-event-next-fill {
   display: block;
@@ -64,6 +65,7 @@
   border-radius: 3px;
   background: var(--sc-event-adv-tone);
   transition: width 0.4s linear;
+  pointer-events: none;
 }
 .sc-event-next.is-soon .sc-event-next-fill {
   animation: sc-event-next-soon 1s ease-in-out infinite;

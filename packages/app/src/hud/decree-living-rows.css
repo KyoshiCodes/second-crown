@@ -29,6 +29,7 @@
   border: 1px solid var(--sc-decree-seal-tone);
   background: rgba(127, 127, 127, 0.08);
   opacity: 0.92;
+  pointer-events: none;
 }
 .sc-decree-living-head.is-short .sc-decree-living-chip,
 .sc-decree-living-head.is-idle .sc-decree-living-chip { opacity: 0.6; border-style: dashed; }
@@ -125,6 +126,7 @@
   overflow: hidden;
   border-radius: 2px;
   background: rgba(127, 127, 127, 0.2);
+  pointer-events: none;
 }
 .sc-decree-living-meter-fill {
   display: block;
@@ -132,6 +134,7 @@
   border-radius: 2px;
   background: var(--sc-decree-living-tone);
   transition: width 0.5s ease-out;
+  pointer-events: none;
 }
 
 /* Living touches: the active duration rule breathes, an in-force effect glows. */

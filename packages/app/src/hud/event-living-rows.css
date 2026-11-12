@@ -29,6 +29,7 @@
   border: 1px solid var(--sc-event-omen-tone);
   background: rgba(127, 127, 127, 0.08);
   opacity: 0.92;
+  pointer-events: none;
 }
 .sc-event-living-head.is-settled .sc-event-living-chip { opacity: 0.7; }
 .sc-event-living-head.is-pending .sc-event-living-chip { border-style: dashed; }
@@ -135,6 +136,7 @@
   overflow: hidden;
   border-radius: 2px;
   background: rgba(127, 127, 127, 0.2);
+  pointer-events: none;
 }
 .sc-event-living-meter-fill {
   display: block;
@@ -142,6 +144,7 @@
   border-radius: 2px;
   background: var(--sc-event-living-tone);
   transition: width 0.5s ease-out;
+  pointer-events: none;
 }
 
 /* Living touches: an awaiting choice breathes, the latest omen glows. */

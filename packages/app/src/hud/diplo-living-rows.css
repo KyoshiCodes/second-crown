@@ -30,6 +30,7 @@
   border: 1px solid var(--sc-diplo-stance-tone);
   background: rgba(127, 127, 127, 0.08);
   opacity: 0.92;
+  pointer-events: none;
 }
 .sc-diplo-living-head.is-war .sc-diplo-living-chip {
   animation: sc-diplo-living-chip 1.8s ease-in-out infinite;
@@ -128,6 +129,7 @@
   overflow: hidden;
   border-radius: 2px;
   background: rgba(127, 127, 127, 0.2);
+  pointer-events: none;
 }
 .sc-diplo-living-meter-fill {
   display: block;
@@ -135,6 +137,7 @@
   border-radius: 2px;
   background: var(--sc-diplo-living-tone);
   transition: width 0.5s ease-out;
+  pointer-events: none;
 }
 
 /* Living touches: a truce rule breathes, a pact shared with you glows. */

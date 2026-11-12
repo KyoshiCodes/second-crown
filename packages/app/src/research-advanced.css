@@ -52,6 +52,7 @@
   width: 12px;
   font-weight: 700;
   text-align: center;
+  pointer-events: none;
 }
 
 .sc-research-adv-need.is-met .sc-research-adv-mark {
@@ -99,6 +100,7 @@
   border-left: 2px solid rgba(200, 150, 50, 0.9);
   border-top: 2px solid rgba(200, 150, 50, 0.9);
   border-top-left-radius: 3px;
+  pointer-events: none;
 }
 
 .sc-research-adv-tiermeter {

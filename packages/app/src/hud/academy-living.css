@@ -87,12 +87,14 @@
   overflow: hidden;
   border-radius: 2px;
   background: rgba(127, 127, 127, 0.18);
+  pointer-events: none;
 }
 .sc-study-ledger-fill {
   display: block;
   height: 100%;
   background: var(--sc-study-tone);
   transition: width 0.4s ease;
+  pointer-events: none;
 }
 /* Active study: no fraction is shown, only a moving quill stroke. */
 .sc-study-ledger-bar.is-run .sc-study-ledger-fill {

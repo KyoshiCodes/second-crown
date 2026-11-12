@@ -48,6 +48,7 @@
   border-radius: 50%;
   background: var(--sc-stall-row-tone);
   box-shadow: 0 0 0 0 var(--sc-stall-row-tone);
+  pointer-events: none;
 }
 .sc-stall-row-bar {
   grid-column: 1 / -1;
@@ -56,12 +57,14 @@
   border-radius: 2px;
   background: var(--chrome-btn-border);
   overflow: hidden;
+  pointer-events: none;
 }
 .sc-stall-row-fill {
   display: block;
   height: 100%;
   background: var(--sc-stall-row-tone);
   transition: width 0.6s ease-out;
+  pointer-events: none;
 }
 
 /* Tone colours (kept local; theme.css untouched). */

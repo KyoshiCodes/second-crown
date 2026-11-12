@@ -73,6 +73,7 @@
   flex: none;
   border-radius: 50%;
   background: var(--sc-vault-tone);
+  pointer-events: none;
 }
 .sc-vault-card-row.tone-warn .sc-vault-card-pip,
 .sc-vault-card-row.tone-danger .sc-vault-card-pip {

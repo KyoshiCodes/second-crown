@@ -81,6 +81,7 @@
   flex: none;
   border-radius: 50%;
   background: var(--sc-camp-tone);
+  pointer-events: none;
 }
 .sc-camp-row.tone-danger .sc-camp-pip {
   animation: sc-camp-pulse 1.4s ease-in-out infinite;

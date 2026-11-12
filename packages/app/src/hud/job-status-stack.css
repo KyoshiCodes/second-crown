@@ -53,6 +53,7 @@
   border-radius: 50%;
   background: var(--sc-jobstat-tone);
   animation: sc-jobstat-breathe 2.6s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* Tones */

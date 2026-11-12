@@ -62,6 +62,7 @@
   flex: none;
   border-radius: 50%;
   background: var(--sc-node-tone);
+  pointer-events: none;
 }
 .sc-node-card-row.tone-warn .sc-node-card-pip,
 .sc-node-card-row.tone-danger .sc-node-card-pip {

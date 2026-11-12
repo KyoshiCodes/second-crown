@@ -39,6 +39,7 @@
   font-size: 11px;
   letter-spacing: 0.04em;
   text-transform: none;
+  pointer-events: none;
 }
 
 .sc-research-tree-count {
@@ -93,6 +94,7 @@
   border-left: 2px solid rgba(120, 130, 145, 0.8);
   border-bottom: 2px solid rgba(120, 130, 145, 0.8);
   border-bottom-left-radius: 3px;
+  pointer-events: none;
 }
 
 .sc-research-tree-link.is-met .sc-research-tree-link-mark {

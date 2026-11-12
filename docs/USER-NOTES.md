@@ -2,9 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-12 — Style clean-up (wave/css-hygiene-2, not merged)
+## 2026-11-12 — CSS & SVG hygiene audit pass 2 (bakeoff/gemini-css-hygiene-2)
 
-- **Nothing should look different.** Unused style rules were removed, and small decorative dots, chips and progress fills on status rows can no longer get in the way of a click or a hover tooltip.
+- **Click-blocking immunity & UI responsiveness:**
+  - Audited all living icons, pips, glyphs, status bars, and decorative veils across every tab (Kingdom, War, Crown, Army, World).
+  - Ensured that all decorative dots, status pips, and progress bar tracks can never intercept mouse clicks or touch events, guaranteeing that action buttons (such as Ascend on the age line, Study on lectern cards, and Claim on seasonal rewards) always receive direct input reliably.
+- **Codebase cleanup & performance:**
+  - Purged obsolete legacy styles and unreferenced marker classes across the interface styles.
+  - Zero gameplay, simulation, or visual changes; purely under-the-hood polish for click safety and render efficiency.
 
 ## 2026-11-12 — Living research glyphs showing locked, available, and completed states (bakeoff/gemini-research-advanced)
 

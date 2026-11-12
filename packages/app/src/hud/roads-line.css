@@ -46,6 +46,7 @@ summary.sc-roads-head:focus-visible {
   border-radius: 2px;
   background: #d4b062;
   box-shadow: 0 0 0 1px rgba(40, 26, 10, 0.9);
+  pointer-events: none;
 }
 
 .sc-roads-line.is-fog .sc-roads-pip,
@@ -95,6 +96,7 @@ summary.sc-roads-head:focus-visible {
   width: 14px;
   height: 0;
   border-top: 2px solid #d4b062;
+  pointer-events: none;
 }
 
 .sc-roads-item.is-path .sc-roads-mark {

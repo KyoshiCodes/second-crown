@@ -25,6 +25,7 @@
   border-radius: 50%;
   background: currentColor;
   opacity: 0.5;
+  pointer-events: none;
 }
 
 .sc-season-claim-text {

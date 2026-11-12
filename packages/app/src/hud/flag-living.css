@@ -53,6 +53,7 @@
   overflow: hidden;
   border-radius: 2px;
   background: rgba(110, 118, 129, 0.22);
+  pointer-events: none;
 }
 .sc-flag-meter-fill {
   position: absolute;
@@ -61,6 +62,7 @@
   border-radius: 2px;
   background: var(--sc-outpost-tone, #6e7681);
   transition: width 0.6s ease-out;
+  pointer-events: none;
 }
 .sc-flag-living .sc-outpost-card-row.tone-warn .sc-flag-meter-fill,
 .sc-flag-living .sc-outpost-card-row.tone-danger .sc-flag-meter-fill {

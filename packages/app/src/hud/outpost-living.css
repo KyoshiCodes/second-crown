@@ -63,6 +63,7 @@
   flex: none;
   border-radius: 50%;
   background: var(--sc-outpost-tone);
+  pointer-events: none;
 }
 .sc-outpost-card-row.tone-warn .sc-outpost-card-pip,
 .sc-outpost-card-row.tone-danger .sc-outpost-card-pip {

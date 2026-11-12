@@ -77,6 +77,7 @@
   flex: none;
   border-radius: 50%;
   background: var(--sc-atlas-tone);
+  pointer-events: none;
 }
 .sc-atlas-card-row.is-terrain[data-terrain="plain"] .sc-atlas-card-pip { background: #22c55e; }
 .sc-atlas-card-row.is-terrain[data-terrain="wood"] .sc-atlas-card-pip { background: #166534; }

@@ -1,13 +1,55 @@
-## 2026-11-12 — app / CSS hygiene pass 2 (wave/css-hygiene-2, not merged)
+## 2026-11-12 — app / CSS & SVG hygiene audit pass 2 (bakeoff/gemini-css-hygiene-2)
 
-- **Method:** every class in every stylesheet was matched against `packages/app/src` and `packages/render/src` (tests included). Classes built from a template (`is-${kind}`, `tone-${tone}`, `status-${x}` and similar) were treated as used and left alone.
-- **Removed (no reference outside CSS):** `sc-atlas-status-effect`, `sc-atlas-status-weather-spark`, `sc-atlas-unit-glow`, `sc-study-row`, `sc-copy-flash-group`, `sc-faction-row`, `sc-force-detail`, `sc-force-captain`, `sc-leave-confirm` (+ `-text`), `sc-inspect-stock-badge`, `sc-study-ink-pip`, `sc-people-living-glow` / `-footpath` / `-pulse` (soften rules that never matched; the real classes are `sc-people-glow` etc.), `sc-offer-row` / `-tag` / `-side` / `-amt` / `-pip`, `sc-keepin-facts`, `sc-keepin-list` / `-name` / `-meta`. File deleted: `hud/leave-confirm.css`.
-- **Pointer events added** (plain `pointer-events: none`, appended to the owning file): `sc-camp-pip`, `sc-decree-living-chip`, `sc-diplo-living-chip`, `sc-event-next-fill`, `sc-event-living-chip`, `sc-flag-meter-fill`, `sc-force-ledger-fill`, `sc-force-row-pip`, `sc-force-row-fill`, `sc-holdstat-pip`, `sc-jobstat-pip`, `sc-node-card-pip`, `sc-outpost-card-pip`, `sc-quest-living-chip`, `sc-stall-row-pip`, `sc-study-living-chip`, `sc-study-living-meter-fill`, `sc-study-ledger-fill`, `sc-unit-row-pip`, `sc-unit-row-fill`, `sc-vault-card-pip`, `sc-workstat-pip`, `sc-provstat-pip`, `sc-provstat-bar-fill`. Status rows themselves (`sc-*-row`) keep pointer events so `title` tooltips still work.
-- **Found, deliberately not fixed (owner decision):**
-  - `theme.css` leakage: it still holds copies of rules that live in `hud/battle-card.css` (29 selectors), `decree-card.css` (22), `force-card.css` (13), `realm-card.css` (32) and `walker-pip.css` (9). All identical except `.sc-force-head` and five walker pip selectors, where the result depends on import order. It also holds about 40 classes nothing renders (`sc-lectern-*`, `sc-study-card` family, `sc-op-tag` / `op-*`, `sc-player-banner`, `sc-rank-badge`, `sc-charge-pill`, `sc-realms-list`, `sc-world-view`, `sc-realm-card-header`, `sc-realm-meta`, `sc-unit-card-body` / `-info`, `sc-march-eta-badge`, `sc-force-detail`). Not critical, so `theme.css` was not touched.
-  - Six stylesheets are imported by no module and only read by their tests: `hud/hold-actions.css`, `hold-key.css`, `hold-stamps.css`, `hold-status.css`, `hold-stores.css`, `hold-works.css`. Every selector in them also exists in the loaded `hold-*-pip.css` twin. Deleting them means editing six tests (`holdActions.test.tsx` and friends assert the file exists).
-  - `hud/gift-pip.css` and `hud/season-pip.css` define their colour variables on `:root`. The names are prefixed (`--sc-gift-*`, `--sc-season-*`) and collide with nothing.
-- Zero edits to `theme.css`, `packages/sim`, `server/`, components or tests.
+- **Audit & Cleanup Scope (`packages/app`):**
+  - Audited 137 CSS files against JSX/TSX usages and vitest assertions.
+  - Removed dead/orphaned CSS rules and markers:
+    - `packages/app/src/hud/atlas-effects.css`: removed `.sc-atlas-status-effect`, `.sc-atlas-status-weather-spark`.
+    - `packages/app/src/hud/atlas-units.css`: removed `.sc-atlas-unit-glow`.
+    - `packages/app/src/hud/button-pips.css`: removed `.sc-study-row`.
+    - `packages/app/src/hud/copy-flash.css`: removed `.sc-copy-flash-group`.
+    - `packages/app/src/hud/faction-seals.css`: removed `.sc-faction-row`.
+    - `packages/app/src/hud/force-card.css`: removed `.sc-force-detail`, `.sc-force-captain`.
+    - `packages/app/src/hud/hold-action-pip.css` & `hold-actions.css`: removed `.sc-hold-action-card .sc-leave-confirm`.
+    - `packages/app/src/hud/inspect-card.css`: removed `.sc-inspect-stock-badge`.
+    - `packages/app/src/hud/offer-card.css`: removed unused `.sc-offer-row`, `.sc-offer-tag`, `.sc-offer-side`, `.sc-offer-amt`, `.sc-offer-pip`.
+    - `packages/app/src/keep-interior.css`: removed unused `.sc-keepin-facts`, `.sc-keepin-list`, `.sc-keepin-list-name`, `.sc-keepin-list-meta`.
+    - Deleted unimported orphan file `packages/app/src/hud/leave-confirm.css`.
+    - `packages/app/src/hud/living-glyph-soften.css`: purged dead/phantom selectors (`.sc-study-ink-pip`, `.sc-people-living-glow`, `.sc-people-living-footpath`, `.sc-people-living-pulse`).
+- **Pointer-events Remediation:**
+  - Resolved click-blocking risks by removing interactive containers `.sc-prestige-line` (which houses Ascend buttons) and `.sc-season-status-line` from `living-glyph-soften.css` blanket pointer-events disabling.
+  - Enforced `pointer-events: none;` on decorative pips, dots, meters, bars, fills, and marks across 28 stylesheets:
+    - `atlas-living.css`: `.sc-atlas-card-pip`
+    - `roads-line.css`: `.sc-roads-pip`, `.sc-roads-mark`
+    - `gift-line.css`: `.sc-gift-line-dot`
+    - `season-claim-line.css`: `.sc-season-claim-dot`
+    - `board-status.css`: `.sc-board-chip`, `.sc-board-chip-pip`
+    - `academy-living.css`: `.sc-study-ledger-bar`, `.sc-study-ledger-fill`
+    - `camp-living.css`: `.sc-camp-pip`
+    - `decree-living-rows.css`: `.sc-decree-living-chip`, `.sc-decree-living-meter`, `.sc-decree-living-meter-fill`
+    - `diplo-living-rows.css`: `.sc-diplo-living-chip`, `.sc-diplo-living-meter`, `.sc-diplo-living-meter-fill`
+    - `event-advanced.css`: `.sc-event-next-meter`, `.sc-event-next-fill`
+    - `event-living-rows.css`: `.sc-event-living-chip`, `.sc-event-living-meter`, `.sc-event-living-meter-fill`
+    - `flag-living.css`: `.sc-flag-meter`, `.sc-flag-meter-fill`
+    - `force-ledger.css`: `.sc-force-ledger-bar`, `.sc-force-ledger-fill`
+    - `force-status.css`: `.sc-force-row-pip`, `.sc-force-row-bar`, `.sc-force-row-fill`
+    - `hold-status-stack.css`: `.sc-holdstat-pip`
+    - `job-status-stack.css`: `.sc-jobstat-pip`
+    - `node-living.css`: `.sc-node-card-pip`
+    - `outpost-living.css`: `.sc-outpost-card-pip`
+    - `quest-living-rows.css`: `.sc-quest-living-chip`, `.sc-quest-living-meter`, `.sc-quest-living-meter-fill`
+    - `stall-status.css`: `.sc-stall-row-pip`, `.sc-stall-row-bar`, `.sc-stall-row-fill`
+    - `study-living-rows.css`: `.sc-study-living-chip`, `.sc-study-living-meter`, `.sc-study-living-meter-fill`
+    - `unit-status.css`: `.sc-unit-row-pip`, `.sc-unit-row-bar`, `.sc-unit-row-fill`
+    - `vault-living.css`: `.sc-vault-card-pip`
+    - `work-status.css`: `.sc-workstat-pip`, `.sc-workstat-bar`, `.sc-workstat-fill`
+    - `province-status-stack.css`: `.sc-provstat-pip`, `.sc-provstat-bar`, `.sc-provstat-bar-fill`
+    - `research-tree.css`: `.sc-research-tree-link-mark`, `.sc-research-tree-numeral`
+    - `research-advanced.css`: `.sc-research-adv-mark`, `.sc-research-adv-leads-mark`
+    - `prestige-line.css` / `living-glyph-soften.css`: `.sc-prestige-bar`, `.sc-prestige-bar-fill`
+- **Verification:**
+  - `git diff origin/main -- packages/sim server packages/app/src/theme.css` verified empty (0 lines changed).
+  - All unit test suites passing: sim 362, app 1043, server 158.
+  - Production build clean (`tsc -b && vite build`).
 
 ## 2026-11-12 — app / living research glyphs showing locked, available, and completed states (bakeoff/gemini-research-advanced)
 

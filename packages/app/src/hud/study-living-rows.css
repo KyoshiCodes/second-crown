@@ -31,6 +31,7 @@
   border: 1px solid var(--sc-study-discipline-tone);
   background: rgba(127, 127, 127, 0.08);
   opacity: 0.9;
+  pointer-events: none;
 }
 .sc-study-living-head.is-locked .sc-study-living-chip { opacity: 0.55; border-style: dashed; }
 .sc-study-living-head.is-studying .sc-study-living-chip {
@@ -135,6 +136,7 @@
   overflow: hidden;
   border-radius: 2px;
   background: rgba(127, 127, 127, 0.2);
+  pointer-events: none;
 }
 .sc-study-living-meter-fill {
   display: block;
@@ -142,6 +144,7 @@
   border-radius: 2px;
   background: var(--sc-study-living-tone);
   transition: width 0.5s ease-out;
+  pointer-events: none;
 }
 /* Active study with no stored total: a moving quill stroke, no fraction. */
 .sc-study-living-meter.is-run .sc-study-living-meter-fill {
