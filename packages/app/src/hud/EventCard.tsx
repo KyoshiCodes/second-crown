@@ -1,7 +1,15 @@
 import React from "react";
 import type { WorldEvent } from "@second-crown/sim";
 import { formatLetterSuffix } from "@second-crown/sim";
-import { OmenPip, resolveOmenVariant } from "./OmenPip";
+import {
+  OmenPip,
+  resolveOmenVariant,
+  LivingOmenPip,
+  EventOmenPip,
+  OmenLivingPip,
+  resolveSpecificEventType,
+  type SpecificEventType,
+} from "./OmenPip";
 import { eventLedgerRows } from "./EventsLedger";
 import { EventOmenLivingGlyph, EventOmenUnderlay, resolveOmenLiving } from "./EventsLivingGlyph";
 import { EventLivingRows } from "./EventLivingRows";
@@ -33,6 +41,7 @@ export function EventCard(props: {
   const omen = resolveOmenVariant(event.id, event.text);
   const choiceCount = choices?.length ?? 0;
   const { state } = resolveOmenLiving({ omen, eventId: event.id, latest, choiceCount });
+  const eventProgress = choiceCount > 0 ? 0 : 1;
 
   // EventLivingRows: omen pip in a tinted chip beside stacked Name / Omen / Duration rows,
   // all read from eventLedgerRows(); living omen glyph rests directly underneath, choices below.
@@ -50,7 +59,23 @@ export function EventCard(props: {
           tickLabel: formatLetterSuffix(event.tick),
           latest,
           choiceCount,
-        }).map((r) => (r.kind === "name" ? { ...r, lead: <OmenPip variant={omen} size={24} /> } : r))}
+        }).map((r) => (
+          r.kind === "name"
+            ? {
+                ...r,
+                lead: (
+                  <OmenPip
+                    variant={omen}
+                    size={24}
+                    eventId={event.id}
+                    text={event.text}
+                    progress={eventProgress}
+                    state={state}
+                  />
+                ),
+              }
+            : r
+        ))}
       />
       <EventOmenLivingGlyph omen={omen} eventId={event.id} latest={latest} choiceCount={choiceCount} />
       <EventOutcomeFoot eventId={event.id} eventTick={event.tick} choiceCount={choiceCount} nowTick={nowTick} />

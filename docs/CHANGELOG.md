@@ -1,13 +1,17 @@
 # CHANGELOG
 
-## 2026-11-12 — Event cards: next-event countdown, time since, and outcome hints (wave/events-advanced, not merged)
+## 2026-11-12 — Living omen pips changing with event type and progress (bakeoff/gemini-events-advanced)
 
-- **Next event card (`EventNextCard`):** new card at the top of the Events panel on the Crown tab. Shows time left ("in 38s"), a progress bar, "25% · 125 / 500 ticks", and five "Could be" chips (Food gain, Wood gain, Gold gain, Food loss, Rival levy). The bar pulses in the last five seconds.
-- **Outcome footer (`EventOutcomeFoot`):** every event card now ends with a coloured tag (Gain / Loss / Rival / Undecided / News), one plain sentence about what the event did, and how long ago it fired ("50s ago").
-- **No math changed.** The countdown reads `EventSystem.nextEventTick()` and `EVENT_PERIOD` from the sim and `TICKS_PER_SECOND` from shared. Nothing predicts which event is next. No changes in `packages/sim` or `server/`.
-- **CSS:** new `packages/app/src/hud/event-advanced.css`. `theme.css` untouched.
-- **Files:** `hud/EventAdvanced.tsx` (new), `hud/event-advanced.css` (new), `hud/EventAdvanced.test.tsx` (new, 11 tests), `hud/EventCard.tsx` (optional `nowTick` prop + footer), `EventPanel.tsx` (countdown card + passes `nowTick`).
-- **Verify:** sim **362**, app **1003**, server **158**, app build clean.
+- **Upgraded living omen pips (`OmenPip` / `LivingOmenPip` / `EventOmenPip`):** Created enhanced animated vector heraldry and status indicators (`packages/app/src/hud/OmenPip.tsx` & `omen-pip.css`):
+  - **Dynamic atmospheric aura:** Breathing aura (`sc-omen-aura`) glowing with hue keyed to event type (golden harvest amber, celestial comet fire, obsidian-indigo raven portent, verdant timber windfall, crimson spoilage, and martial blue muster).
+  - **Animated vector heraldry:**
+    - **Comet:** Diffuse astral flame tail (`sc-omen-comet-tail-diffuse`), core pulse, drifting embers, and twinkling 4-point head starburst (`sc-omen-comet-head-gleam`). Specialized merchant coin tribute charm for gold windfalls.
+    - **Raven:** Perched outcrop, layered obsidian plumage with wing breathing heave (`sc-omen-raven-wing-fold`), feather ruffling, and blinking golden prophetic eye (`sc-omen-raven-eye-gleam`). Specialized miasma spore particles (`sc-omen-spoil-miasma-mote`) for spoilage events, and martial spear pennant flutter (`sc-omen-levy-banner-flutter`) for levies.
+    - **Harvest:** Straw ribbon tie, swaying central and fanning lateral wheat ears (`sc-omen-harvest-sheaf-sway`), and popping harvest sparkles. Specialized oak leaf and acorn charm (`sc-omen-timber-leaf-flutter`) for timber windfalls.
+  - **Circular progress arc ring:** SVG progress track (`sc-omen-progress-ring-fill`) dynamically representing event choice state (`is-pending` pulsing amber, `is-done` / `is-settled` emerald, `is-loss` crimson, `is-latest` glowing azure).
+- **Event card integration:** Embedded into `EventCard.tsx` row headers with dynamic progress, state, and event ID metadata.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` and `user-select: none;` on all decorative containers, SVG layers, and path elements. Full `@media (prefers-reduced-motion: reduce)` disabling all animations and transitions.
+- **Tests:** New test suite `packages/app/src/hud/OmenPip.test.tsx` (11 tests) verifying variant resolution, specific event type mapping, progress rings, specialized charms, drop-in aliases, and CSS isolation. Full test suite (sim 362, app 1004, server 158) passing cleanly. App build clean.
 
 ## 2026-11-11 — Living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 

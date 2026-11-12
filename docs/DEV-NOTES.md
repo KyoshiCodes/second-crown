@@ -1,14 +1,27 @@
-## 2026-11-12 — app / event cards: next-event countdown, age, outcome hints (wave/events-advanced, not merged)
+## 2026-11-12 — app / living omen pips changing with event type and progress (bakeoff/gemini-events-advanced)
 
-- **Module (`packages/app/src/hud/EventAdvanced.tsx`):** exports `EventNextCard`, `EventOutcomeFoot`, `eventPace`, `eventOutcome`, `eventAgeLabel`, `formatEventSpan`, `EVENT_POSSIBLE_OUTCOMES`, types `EventPace`, `EventOutcome`, `EventOutcomeKind`.
-  - `eventPace(state)` wraps `EventSystem.nextEventTick(state)` and `EVENT_PERIOD`; returns `{ nextTick, period, elapsed, left, fill }`. No schedule math of its own beyond subtracting `state.meta.tick`.
-  - `formatEventSpan(ticks)` uses `TICKS_PER_SECOND` and rounds up to whole seconds (`42s`, `3m 5s`, `1h 4m`).
-  - `eventOutcome(id, choiceCount)` maps the existing event ids (`harvest`, `timber`, `tribute`, `spoil`, `levy`) to a tag + sentence. Unknown ids (including the `"latest"` fallback id `EventPanel` builds when the log is empty) read as `news`. `choiceCount > 0` reads as `pending`.
-  - `EVENT_POSSIBLE_OUTCOMES` is a display list with no amounts and no odds, so it cannot drift from the numbers in `systems/events.ts`. **If a new event id is added in the sim, add it to this list and to `OUTCOME_BY_ID`.**
-- **Wiring:** `EventCard` takes optional `nowTick` and renders `EventOutcomeFoot` after the living glyph and before the choice buttons. `EventPanel` renders `EventNextCard` first and passes `state.meta.tick` as `nowTick`; with no `state` prop it renders neither the countdown nor ages (existing tests render it that way).
-- **Deliberately not done:** no prediction of the next event (that would mean copying `hashTick` out of the sim). The existing Duration row ("Resolved · t500") is unchanged.
-- **CSS:** `hud/event-advanced.css`, scoped to `.sc-event-next*`, `.sc-event-foot`, `.sc-event-hint-chip`, `.sc-event-outcome-*`, `.sc-event-age`. Reduced-motion rule included. `theme.css` untouched.
-- **Tests:** `hud/EventAdvanced.test.tsx` (11). Totals: sim 362, app 1003, server 158.
+- **Components (`packages/app/src/hud/OmenPip.tsx`):**
+  - Exports `OmenPip`, `LivingOmenPip`, `EventOmenPip`, `OmenLivingPip`, `resolveOmenVariant`, `resolveSpecificEventType`, `type OmenVariant`, and `type SpecificEventType`.
+  - Resolution helpers:
+    - `resolveOmenVariant(eventId, text)`: maps strings to canonical `"comet" | "raven" | "harvest"`.
+    - `resolveSpecificEventType(eventId, text)`: maps strings to specialized `"harvest" | "timber" | "spoil" | "levy" | "tribute" | "other"`.
+  - SVG vector layers & animated elements:
+    - Dynamic atmospheric aura (`.sc-omen-aura`) with portented color themes.
+    - Comet: diffuse tail (`.sc-omen-comet-tail-diffuse`), pulsing flame core (`.sc-omen-comet-core-flame`), 3 drifting star dust sparks, and twinkling 4-point head starburst (`.sc-omen-comet-head-gleam`). Tribute coin charm (`.sc-omen-tribute-coin-charm`).
+    - Raven: stone perch, talons, descending tail feathers, folded wing bulk with breathing heave (`.sc-omen-raven-wing-fold`), feather ruffling (`.sc-omen-raven-feather-ruffle`), hackles, and blinking eye (`.sc-omen-raven-eye-gleam`). Spoilage miasma spore particles (`.sc-omen-spoil-miasma-mote`) and levy spear banner flutter (`.sc-omen-levy-banner-flutter`).
+    - Harvest: crimson straw ribbon wrapper, descending stems, swaying center and fanning ears (`.sc-omen-harvest-sheaf-sway`, `.sc-omen-harvest-sheaf-sway-alt`), and golden sparkles (`.sc-omen-harvest-sparkle-1`, `2`). Timber windfall oak leaf and acorn charm (`.sc-omen-timber-leaf-flutter`).
+    - Perimeter progress arc ring (`.sc-omen-progress-ring-fill`) with radius 10.8, SVG dash offset calculations from normalized `progress` (0.0 to 1.0), and tone classes (`is-pending`, `is-done`, `is-loss`, `is-latest`).
+- **Styling (`packages/app/src/hud/omen-pip.css` & `living-glyph-soften.css`):**
+  - Scoped strictly to `.sc-omen-pip-wrapper`, `.sc-omen-pip`, `.sc-omen-aura`, `.sc-omen-progress-ring-fill`, `.sc-omen-comet-*`, `.sc-omen-raven-*`, `.sc-omen-harvest-*`.
+  - All decorative wrappers, SVGs, and paths enforce `pointer-events: none !important;` and `user-select: none;`.
+  - Keyframe animations: `sc-omen-aura-breathe`, `sc-omen-tail-flicker`, `sc-omen-core-pulse`, `sc-omen-spark-drift`, `sc-omen-spark-drift-alt`, `sc-omen-gleam-twinkle`, `sc-omen-wing-heave`, `sc-omen-eye-blink`, `sc-omen-feather-quiver`, `sc-omen-ear-sway`, `sc-omen-ear-sway-alt`, `sc-omen-glint-pop`, `sc-omen-leaf-flutter`, `sc-omen-miasma-rise`, `sc-omen-pennant-wave`, `sc-omen-pending-ring-pulse`, `sc-omen-latest-ring-glow`.
+  - Added `.sc-shell .sc-omen-pip-wrapper`, `.sc-shell .sc-omen-pip` to Section 1 pointer-events reset and reduced-motion block in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **UI Integration (`packages/app/src/hud/EventCard.tsx`):**
+  - Passed `eventId`, `text`, `progress`, and `state` to `OmenPip` in `EventCard.tsx`.
+- **Tests (`packages/app/src/hud/OmenPip.test.tsx`):**
+  - 11 tests verifying variant resolution, specific event type mapping, progress rings, specialized charms, drop-in aliases, and CSS isolation.
+  - Full suite passing: sim 362, app 1004, server 158. App build clean.
 
 ## 2026-11-11 — app / living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 

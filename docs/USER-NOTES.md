@@ -2,12 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-12 — Event cards tell you more (wave/events-advanced, not merged yet)
+## 2026-11-12 — Living omen pips that react to event types and progress (bakeoff/gemini-events-advanced)
 
-- **Next event countdown:** the Events panel on the Crown tab now starts with a "Next event" card. It shows how long until the next event, a bar that fills as it gets closer, and the kinds of thing that could happen (food, wood or gold gain, food loss, or a rival raising a levy). The game does not tell you which one is coming.
-- **What each event did:** every event card has a new bottom line with a coloured tag (Gain, Loss, or Rival) and one plain sentence, for example "Food was added to your stores."
-- **How long ago:** each card also shows when it fired, for example "50s ago".
-- Events themselves are unchanged: same timing, same rewards, same losses.
+- **Living omen emblems on event cards:** The omen icons on event cards in the Crown tab now feature animated living illustrations that visually react to the specific portent:
+  - **Celestial Comet:** A blazing comet with streaming fire tails and glowing embers. Tribute events display a merchant coin emblem glinting in the flame.
+  - **Prophetic Raven:** Perched raven with obsidian wings that gently breathe and feathers that ruffle in the wind, complete with a blinking golden eye. Blighted spoilage events emit rising red miasma spores, while militia levies display a martial spear and pennant.
+  - **Golden Harvest:** A tied sheaf of wheat with swaying stalks and sparkling harvest glints. Timber windfall events include a fluttering oak leaf and acorn.
+- **Visual resolution progress ring:** When an event is awaiting your decision, an amber progress ring traces around the omen pip and pulses gently until resolved. Completed events seal the ring in clean emerald green (or crimson for losses).
+- **Zero gameplay impact:** All animations and glows are strictly decorative overlay layers (`pointer-events: none !important;`). They respect your operating system's reduced-motion settings and never block clicking event choices or reading descriptions.
 
 ## 2026-11-11 — Living roads, mountain trails, and connected route highlights on the board (bakeoff/gemini-board-roads)
 

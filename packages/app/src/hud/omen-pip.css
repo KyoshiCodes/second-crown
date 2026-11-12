@@ -1,0 +1,364 @@
+/* Isolated stylesheet for upgraded living omen pips */
+
+.sc-omen-pip-wrapper,
+.sc-omen-pip-wrapper * {
+  pointer-events: none !important; /* strictly decorative - never block event card clicks */
+  user-select: none;
+}
+
+.sc-omen-pip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* 1. Ambient living aura behind omen */
+.sc-omen-aura {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  pointer-events: none !important;
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+}
+
+.sc-omen-comet .sc-omen-aura {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.45) 0%, rgba(234, 88, 12, 0.15) 60%, transparent 80%);
+  animation: sc-omen-aura-breathe 2.8s ease-in-out infinite alternate;
+}
+
+.sc-omen-raven .sc-omen-aura {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(79, 70, 229, 0.15) 60%, transparent 80%);
+  animation: sc-omen-aura-breathe 3.4s ease-in-out infinite alternate;
+}
+
+.sc-omen-harvest .sc-omen-aura {
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.45) 0%, rgba(202, 138, 4, 0.15) 60%, transparent 80%);
+  animation: sc-omen-aura-breathe 3.0s ease-in-out infinite alternate;
+}
+
+.sc-omen-pip-wrapper[data-omen-type="timber"] .sc-omen-aura {
+  background: radial-gradient(circle, rgba(163, 230, 53, 0.45) 0%, rgba(101, 163, 13, 0.15) 60%, transparent 80%);
+}
+
+.sc-omen-pip-wrapper[data-omen-type="spoil"] .sc-omen-aura {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, rgba(185, 28, 28, 0.15) 60%, transparent 80%);
+}
+
+.sc-omen-pip-wrapper[data-omen-type="levy"] .sc-omen-aura {
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.45) 0%, rgba(67, 56, 202, 0.15) 60%, transparent 80%);
+}
+
+/* 2. Living motion on SVG vector groups */
+/* Comet flame flicker & tail shimmer */
+.sc-omen-comet-tail-diffuse {
+  animation: sc-omen-tail-flicker 2.2s ease-in-out infinite alternate;
+}
+
+.sc-omen-comet-core-flame {
+  animation: sc-omen-core-pulse 1.8s ease-in-out infinite alternate;
+}
+
+.sc-omen-comet-spark-1 {
+  animation: sc-omen-spark-drift 2.4s ease-in-out infinite alternate;
+}
+
+.sc-omen-comet-spark-2 {
+  animation: sc-omen-spark-drift-alt 2.1s ease-in-out infinite alternate;
+}
+
+.sc-omen-comet-spark-3 {
+  animation: sc-omen-spark-drift 2.7s ease-in-out infinite alternate;
+}
+
+.sc-omen-comet-head-gleam {
+  animation: sc-omen-gleam-twinkle 1.6s ease-in-out infinite alternate;
+}
+
+/* Raven eye gleam & wing breathing */
+.sc-omen-raven-wing-fold {
+  animation: sc-omen-wing-heave 3.6s ease-in-out infinite alternate;
+}
+
+.sc-omen-raven-eye-gleam {
+  animation: sc-omen-eye-blink 4.2s ease-in-out infinite alternate;
+}
+
+.sc-omen-raven-feather-ruffle {
+  animation: sc-omen-feather-quiver 2.8s ease-in-out infinite alternate;
+}
+
+/* Harvest ears sway & golden glints */
+.sc-omen-harvest-sheaf-sway {
+  animation: sc-omen-ear-sway 3.2s ease-in-out infinite alternate;
+}
+
+.sc-omen-harvest-sheaf-sway-alt {
+  animation: sc-omen-ear-sway-alt 3.5s ease-in-out infinite alternate;
+}
+
+.sc-omen-harvest-sparkle-1 {
+  animation: sc-omen-glint-pop 2.5s ease-in-out infinite alternate;
+}
+
+.sc-omen-harvest-sparkle-2 {
+  animation: sc-omen-glint-pop-alt 2.8s ease-in-out infinite alternate;
+}
+
+/* Timber leaves drift & saw spark */
+.sc-omen-timber-leaf-flutter {
+  animation: sc-omen-leaf-flutter 2.9s ease-in-out infinite alternate;
+}
+
+/* Spoilage miasma vapour drift */
+.sc-omen-spoil-miasma-mote {
+  animation: sc-omen-miasma-rise 2.6s ease-in-out infinite alternate;
+}
+
+/* Levy banner flutter & spear glint */
+.sc-omen-levy-banner-flutter {
+  animation: sc-omen-pennant-wave 2.3s ease-in-out infinite alternate;
+}
+
+/* 3. Progress arc ring (surrounding the omen pip) */
+.sc-omen-progress-ring-bg {
+  stroke: rgba(148, 163, 184, 0.22);
+}
+
+.sc-omen-progress-ring-fill {
+  transition: stroke-dashoffset 0.35s ease, stroke 0.3s ease;
+}
+
+.sc-omen-progress-ring-fill.is-pending {
+  stroke: #f59e0b;
+  animation: sc-omen-pending-ring-pulse 2.2s ease-in-out infinite alternate;
+}
+
+.sc-omen-progress-ring-fill.is-done {
+  stroke: #10b981;
+}
+
+.sc-omen-progress-ring-fill.is-loss {
+  stroke: #ef4444;
+}
+
+.sc-omen-progress-ring-fill.is-latest {
+  stroke: #38bdf8;
+  animation: sc-omen-latest-ring-glow 2.0s ease-in-out infinite alternate;
+}
+
+/* Keyframe animations */
+@keyframes sc-omen-aura-breathe {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes sc-omen-tail-flicker {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 0.65;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes sc-omen-core-pulse {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes sc-omen-spark-drift {
+  0% {
+    opacity: 0.4;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0.95;
+    transform: translate(-0.8px, 0.8px);
+  }
+}
+
+@keyframes sc-omen-spark-drift-alt {
+  0% {
+    opacity: 0.5;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0.7px, -0.7px);
+  }
+}
+
+@keyframes sc-omen-gleam-twinkle {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes sc-omen-wing-heave {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-0.5px);
+  }
+}
+
+@keyframes sc-omen-eye-blink {
+  0%, 88%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  94% {
+    opacity: 0.2;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes sc-omen-feather-quiver {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-1.5deg);
+  }
+}
+
+@keyframes sc-omen-ear-sway {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes sc-omen-ear-sway-alt {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-2deg);
+  }
+}
+
+@keyframes sc-omen-glint-pop {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes sc-omen-glint-pop-alt {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes sc-omen-leaf-flutter {
+  0% {
+    transform: rotate(0deg) translate(0, 0);
+  }
+  100% {
+    transform: rotate(4deg) translate(0.5px, -0.5px);
+  }
+}
+
+@keyframes sc-omen-miasma-rise {
+  0% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.8;
+    transform: translateY(-1.2px);
+  }
+}
+
+@keyframes sc-omen-pennant-wave {
+  0% {
+    transform: skewX(0deg);
+  }
+  100% {
+    transform: skewX(-3deg);
+  }
+}
+
+@keyframes sc-omen-pending-ring-pulse {
+  0% {
+    opacity: 0.6;
+    stroke-width: 1.2;
+  }
+  100% {
+    opacity: 1;
+    stroke-width: 1.6;
+  }
+}
+
+@keyframes sc-omen-latest-ring-glow {
+  0% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 1px rgba(56, 189, 248, 0.4));
+  }
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 2.5px rgba(56, 189, 248, 0.8));
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .sc-omen-pip-wrapper,
+  .sc-omen-pip-wrapper *,
+  .sc-omen-aura,
+  .sc-omen-comet-tail-diffuse,
+  .sc-omen-comet-core-flame,
+  .sc-omen-comet-spark-1,
+  .sc-omen-comet-spark-2,
+  .sc-omen-comet-spark-3,
+  .sc-omen-comet-head-gleam,
+  .sc-omen-raven-wing-fold,
+  .sc-omen-raven-eye-gleam,
+  .sc-omen-raven-feather-ruffle,
+  .sc-omen-harvest-sheaf-sway,
+  .sc-omen-harvest-sheaf-sway-alt,
+  .sc-omen-harvest-sparkle-1,
+  .sc-omen-harvest-sparkle-2,
+  .sc-omen-timber-leaf-flutter,
+  .sc-omen-spoil-miasma-mote,
+  .sc-omen-levy-banner-flutter,
+  .sc-omen-progress-ring-fill {
+    animation: none !important;
+    transition: none !important;
+  }
+}
