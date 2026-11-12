@@ -1,0 +1,178 @@
+/* Isolated stylesheet for isometric board living roads, trails, and connected route marks */
+
+.sc-board-living-roads,
+.sc-board-living-roads * {
+  pointer-events: none !important; /* never block clicks or interactions on the board */
+  user-select: none;
+}
+
+.sc-board-living-roads {
+  opacity: 0.88;
+}
+
+/* 1. Road bed & path lines */
+.sc-board-road-ink {
+  stroke-opacity: 0.65;
+}
+
+.sc-board-road-bed {
+  stroke-opacity: 0.92;
+}
+
+.sc-board-path-dash {
+  stroke-opacity: 0.75;
+}
+
+.sc-board-road-crown {
+  stroke-opacity: 0.52;
+}
+
+/* 2. Connected route highlights (pulses when a connected province is selected) */
+.sc-board-road.is-connected-route .sc-board-road-bed {
+  stroke: #fef08a;
+  stroke-opacity: 1;
+}
+
+.sc-board-route-glow {
+  opacity: 0.45;
+  filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.6));
+  animation: sc-board-route-pulse 2.4s ease-in-out infinite alternate;
+}
+
+.sc-board-route-flow {
+  opacity: 0.85;
+  animation: sc-board-route-dash-flow 1.8s linear infinite;
+}
+
+.sc-board-route-waymarker {
+  opacity: 0.9;
+  filter: drop-shadow(0 0 1.5px rgba(251, 191, 36, 0.8));
+  animation: sc-board-route-waymarker-pulse 2.2s ease-in-out infinite alternate;
+}
+
+.sc-board-route-waymarker-core {
+  opacity: 0.95;
+}
+
+/* 3. Active march troops on route */
+.sc-board-route-march-pulse {
+  opacity: 0.82;
+  filter: drop-shadow(0 0 1.5px rgba(96, 165, 250, 0.7));
+  animation: sc-board-route-march-dash 1.4s linear infinite;
+}
+
+/* 4. Living road traffic and travel dust */
+.sc-board-road-traveler {
+  opacity: 0.9;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-board-road-traffic-flow 3.4s ease-in-out infinite;
+}
+
+.sc-board-road-dust {
+  opacity: 0.45;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-board-road-dust-puff 2.8s ease-in-out infinite;
+}
+
+/* 5. Edge trail entering the fog */
+.sc-board-trail-fog-wisp {
+  opacity: 0.48;
+  filter: blur(0.4px);
+  animation: sc-board-trail-fog-breathe 3.6s ease-in-out infinite alternate;
+}
+
+/* 6. Route Junction Milestones */
+.sc-board-junction-stone {
+  opacity: 0.9;
+}
+
+/* Keyframes */
+@keyframes sc-board-route-pulse {
+  0% {
+    opacity: 0.28;
+    stroke-width: 4.0px;
+  }
+  100% {
+    opacity: 0.65;
+    stroke-width: 5.4px;
+  }
+}
+
+@keyframes sc-board-route-dash-flow {
+  from {
+    stroke-dashoffset: 16;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-board-route-march-dash {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-board-route-waymarker-pulse {
+  0% {
+    r: 1.8px;
+    opacity: 0.65;
+  }
+  100% {
+    r: 2.5px;
+    opacity: 1;
+  }
+}
+
+@keyframes sc-board-road-traffic-flow {
+  0%, 100% {
+    transform: translate(0, 0);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(1.4px, 0.7px);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-board-road-dust-puff {
+  0%, 100% {
+    transform: scale(0.85);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.65;
+  }
+}
+
+@keyframes sc-board-trail-fog-breathe {
+  0% {
+    r: 0.9px;
+    opacity: 0.35;
+  }
+  100% {
+    r: 1.4px;
+    opacity: 0.65;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .sc-board-route-glow,
+  .sc-board-route-flow,
+  .sc-board-route-waymarker,
+  .sc-board-route-march-pulse,
+  .sc-board-road-traveler,
+  .sc-board-road-dust,
+  .sc-board-trail-fog-wisp {
+    animation: none !important;
+    transition: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}

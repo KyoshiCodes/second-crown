@@ -9,6 +9,19 @@ import {
   type Province,
 } from "@second-crown/sim";
 import { boardStatusAnchor } from "./BoardStatus";
+import {
+  BoardRoads,
+  BoardRoadLiving,
+  BoardRoutes,
+  listBoardConnectedRoads,
+  listBoardRoadJunctions,
+  boardTerrainElevation,
+  boardTileTop,
+  pointsToSvgPath,
+  type BoardConnectedRoad,
+  type BoardRoadKind,
+  type BoardRoadJunction,
+} from "./hud/BoardRoads";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -389,6 +402,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
             );
           })}
         </g>
+
+        {/* 0.8. Living Roads, Trails, and Connected Route Marks */}
+        <BoardRoads state={state} selectedId={selectedId} />
 
         {/* 1. Soft Fog Drift Layer (under keeps and status) */}
         {fogClusters.length > 0 && (
@@ -844,3 +860,17 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
 }
 
 export const BoardLight = BoardLiving;
+export const BoardRoadsLiving = BoardRoads;
+export {
+  BoardRoads,
+  BoardRoadLiving,
+  BoardRoutes,
+  listBoardConnectedRoads,
+  listBoardRoadJunctions,
+  boardTerrainElevation,
+  boardTileTop,
+  pointsToSvgPath,
+  type BoardConnectedRoad,
+  type BoardRoadKind,
+  type BoardRoadJunction,
+};

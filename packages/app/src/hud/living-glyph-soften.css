@@ -72,6 +72,11 @@
 .sc-shell .sc-resource-living-glyph,
 .sc-shell .sc-resource-living-underlay,
 .sc-shell .sc-board-living,
+.sc-shell .sc-board-living-roads,
+.sc-shell .sc-board-road,
+.sc-shell .sc-board-road *,
+.sc-shell .sc-board-road-traffic-group,
+.sc-shell .sc-board-road-junction,
 .sc-shell .sc-atlas-living-glyph,
 .sc-shell .sc-bandage-pip,
 .sc-shell .sc-unit-chip-bandage-badge,
@@ -901,6 +906,13 @@
   .sc-shell .sc-prestige-star-4,
   .sc-shell .sc-prestige-rays-group,
   .sc-shell .sc-prestige-pip-tier-star,
+  .sc-shell .sc-board-route-glow,
+  .sc-shell .sc-board-route-flow,
+  .sc-shell .sc-board-route-waymarker,
+  .sc-shell .sc-board-route-march-pulse,
+  .sc-shell .sc-board-road-traveler,
+  .sc-shell .sc-board-road-dust,
+  .sc-shell .sc-board-trail-fog-wisp,
   .sc-shell .sc-board-living * {
     animation: none !important;
     transition: none !important;

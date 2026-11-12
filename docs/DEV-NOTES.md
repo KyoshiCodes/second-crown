@@ -1,16 +1,38 @@
-## 2026-11-11 — app / roads status and list on ProvinceInspect (wave/board-roads, not merged)
+## 2026-11-11 — app / living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 
-- **Component (`packages/app/src/hud/RoadsLine.tsx`):** exports `roadsStatus(state, provinceId)`, `RoadsLine`, and types `RoadLink`, `RoadLinkKind` (`"road" | "path" | "fog"`), `RoadsStatus`.
-  - `roadsStatus` filters `listBoardRoads(state)` (from `@second-crown/render`, the list `paintBoardRoads` draws) to entries whose `fromId` or `toId` is the selected tile. It adds no adjacency or vision math of its own. `intoFog` entries become kind `fog`; otherwise the render kind (`road` / `path`) is kept.
-  - Unseen selected tile: `{ visible: false, links: [], summary: "Hidden by fog" }`. The render list does hold stubs from seen neighbours toward an unseen tile, but they stop at the shared edge, so the card lists none for the fogged tile itself.
-  - Target text: `Your hold x,y` for the home id, terrain label + `x,y` for a seen neighbour, `fog x,y` for an unseen one (terrain is not read for unseen tiles).
-  - Unknown id returns `null`. Pure read; a test checks the state JSON is unchanged.
-- **Markup:** `<details class="sc-roads-line is-shown" open>` with a `<summary>` head (pip, `Roads` label, summary) and `<ul class="sc-roads-list">`. Native `<details>` is the toggle, so there is no React state and it is keyboard reachable. Fogged or road-less tiles render a plain `<div class="sc-roads-line is-fog|is-none">` with no list. `data-roads-visible` is `true` / `false`.
-- **Mount:** `ProvinceInspect.tsx`, Tile group, right under the existing `trailLine` ("Your column · out") line. That line is unchanged.
-- **CSS:** `hud/roads-line.css` only. Row marks are solid (road), dashed (mountain path), dotted grey (trail into fog). No animation, so no reduced-motion block is needed. `theme.css` untouched (a test asserts it has no `sc-roads`).
-- **Known difference, not changed here:** `OverworldAtlas.tsx` builds its own road list and picks road/path by terrain even into fog; the diamond board (`listBoardRoads`) always uses `path` into fog. The card follows the board.
-- **Tests:** `hud/RoadsLine.test.tsx` (11). sim 362, app 976, server 158 (1 skipped: symlink permission on Windows). `npm run build -w @second-crown/app` clean.
-- **Not verified:** not opened in a browser; static-markup tests only.
+- **Components (`packages/app/src/hud/BoardRoads.tsx`):**
+  - Exports `BoardRoads`, `BoardRoadLiving`, `BoardRoutes`, `listBoardConnectedRoads`, `listBoardRoadJunctions`, `boardTerrainElevation`, `boardTileTop`, `pointsToSvgPath`, `type BoardConnectedRoad`, `type BoardRoadKind`, `type BoardRoadJunction`.
+  - Isometric math & 3D polyline generation:
+    - Pure `boardTerrainElevation(terrain)` returning accurate vertical face steps (`peak: 14, hill: 9, waste: 7, wood: 5, plain: 4, shore: 1`).
+    - Pure `boardTileTop(x, y, terrain)` computing top surface vertices based on board origin `(236, 56)` and tile half dimensions `(22, 11)`.
+    - Pure `pointsToSvgPath(points)` interpolating tile centers and shared edge midpoints into smooth isometric road paths.
+  - Multi-tier road classifier:
+    - Identifies non-duplicate grid neighbors (`[dx, dy]` in `[1, 0]` and `[0, 1]`).
+    - Differentiates `highway` (both provinces visible and non-peak), `mountain-trail` (visible route traversing peaks), `fog-trail` (visible province reaching fog of war), and `shrouded` (unexplored).
+    - Detects connected routes (`isConnectedToSelected`) when either endpoint matches `selectedId`, and flags active troop movements via `hasActiveMarch` (reading `listMarches(state)`).
+  - SVG vector layers:
+    - Base underlay ink bed (`.sc-board-road-underlay`).
+    - Roadbed with warm packed-earth stroke (`.sc-board-road-bed`).
+    - Mountain trails with dashed stroke (`.sc-board-path-dash`).
+    - Pale road crown centerline (`.sc-board-road-crown`).
+    - Fog edge wisps with subtle breathing opacity (`.sc-board-trail-fog-wisp`).
+    - Connected route radiant aura (`.sc-board-route-glow`), animated directional flow dashes (`.sc-board-route-flow`), and pulsating beacons (`.sc-board-route-waymarker`).
+    - March shimmer pulsing waves (`.sc-board-route-march-pulse`).
+    - Moving caravan dots (`.sc-board-road-traveler`) and trailing dust puffs (`.sc-board-road-dust`).
+    - Carved milestone junction markers (`.sc-board-road-junction`).
+- **Styling (`packages/app/src/hud/board-roads.css` & `living-glyph-soften.css`):**
+  - Scoped strictly to `.sc-board-living-roads`, `.sc-board-road`, `.sc-board-route-glow`, `.sc-board-route-flow`, `.sc-board-route-waymarker`, `.sc-board-road-traveler`, `.sc-board-road-dust`, `.sc-board-trail-fog-wisp`, `.sc-board-road-junction`.
+  - All decorative wrappers, paths, and SVGs enforce `pointer-events: none !important;` and `user-select: none;`.
+  - Keyframe animations: `sc-board-route-pulse`, `sc-board-route-dash-flow`, `sc-board-route-march-dash`, `sc-board-route-waymarker-pulse`, `sc-board-road-traffic-flow`, `sc-board-road-dust-puff`, `sc-board-trail-fog-breathe`.
+  - Added `.sc-shell .sc-board-living-roads`, `.sc-shell .sc-board-road`, `.sc-shell .sc-board-road *`, `.sc-shell .sc-board-road-traffic-group`, `.sc-shell .sc-board-road-junction` to Section 1 pointer-events reset.
+  - Added `.sc-shell .sc-board-route-glow`, `.sc-shell .sc-board-route-flow`, `.sc-shell .sc-board-route-waymarker`, `.sc-shell .sc-board-route-march-pulse`, `.sc-shell .sc-board-road-traveler`, `.sc-shell .sc-board-road-dust`, `.sc-shell .sc-board-trail-fog-wisp` to the reduced-motion block.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **UI Integration (`packages/app/src/BoardLiving.tsx`):**
+  - Mounted `<BoardRoads state={state} selectedId={selectedId} />` at layer 0.8 (above terrain shading and beneath structures, keeps, and status tether).
+  - Exported road helpers and components for board consumers.
+- **Tests (`packages/app/src/hud/BoardRoads.test.tsx`):**
+  - 17 tests verifying elevation maths, SVG paths, adjacency connectivity, fog boundaries, connected route selection, march detection, junction milestones, and CSS isolation.
+  - Full suite passing: sim 362, app 969, server 158. App build clean.
 
 ## 2026-11-11 — app / living prestige crest or age seal pip on prestige status line (bakeoff/gemini-prestige-line)
 

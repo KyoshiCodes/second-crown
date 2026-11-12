@@ -1,13 +1,17 @@
 # CHANGELOG
 
-## 2026-11-11 — Roads status on the province inspect card (wave/board-roads, not merged)
+## 2026-11-11 — Living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 
-- **What is new.** Click a province and the inspect card's Tile group now has a **Roads** block: a one-line status (`Roads · 3 roads · 1 trail into fog`) that opens and closes to a list of the connected roads, one row each (`Road to Wood 4,5`, `Mountain path to Peak 3,2`, `Trail to fog 2,6`, `Road to Your hold 3,3`). It starts open.
-- **Fog.** An unseen province reads `Roads · Hidden by fog` with no list (the board draws nothing inside fog). A trail into fog names only the square, never the hidden terrain.
-- **Same list as the board.** `roadsStatus` filters `listBoardRoads` from `packages/render`, the list the diamond board paints, so the card and the board cannot disagree. Road = both ends seen; mountain path = a seen peak on one end; trail = far end unseen.
-- **Unchanged:** all board math, road drawing, march and travel rules. Roads are still visual only; they do not change travel time.
-- **Files:** `packages/app/src/hud/RoadsLine.tsx` (new), `hud/roads-line.css` (new), `hud/RoadsLine.test.tsx` (new), `ProvinceInspect.tsx` (+2 lines). No edits to `packages/sim`, `packages/render`, `server/`, or `theme.css`.
-- **Tests:** sim 362, app 976 (+11), server 158 passing (1 skipped). App build clean. Not opened in a browser.
+- **Dedicated living board roads & trail glyphs (`BoardRoads` / `BoardRoadLiving` / `BoardRoutes`):** Created bespoke animated road network and connected route overlay (`packages/app/src/hud/BoardRoads.tsx` & `board-roads.css`):
+  - **3D isometric projection & elevation tracking:** Pure elevation calculation (`boardTerrainElevation` and `boardTileTop`) matching 3D isometric height faces (`peak: 14, hill: 9, waste: 7, wood: 5, plain: 4, shore: 1`), stepping polyline waypoints along shared tile edges so paths hug the isometric terrain realistically.
+  - **Paved highways & packed-earth beds:** High-traffic corridors between settled non-peak provinces feature dark ink underlays, warm packed-earth beds, and pale crown highlights (`sc-board-road-bed`, `sc-board-road-crown`).
+  - **Mountain trails:** Paths traversing rugged mountain peaks transition into dashed pack trails (`sc-board-path-dash`).
+  - **Fog boundary trails:** Paths reaching the unexplored shroud terminate at tile borders with breathing fog wisps (`sc-board-trail-fog-wisp`).
+  - **Connected routes illumination:** Selecting a province (`selectedId`) highlights all directly connected routes with radiating amber pulse auras (`sc-board-route-glow`), animated directional flow dashes (`sc-board-route-flow`), and pulsating waymarker beacons (`sc-board-route-waymarker`).
+  - **Animated traffic & milestones:** Traveling caravan dots (`sc-board-road-traveler`) drift along visible routes with trailing dust puffs (`sc-board-road-dust`), while road junctions with 2+ routes display stone milestone markers (`sc-board-road-junction`). Routes with active troop marches shimmer with golden pulse waves.
+- **Board living overlay integration:** Mounted `<BoardRoads state={state} selectedId={selectedId} />` at layer 0.8 in `packages/app/src/BoardLiving.tsx` (above terrain tiles and below structures and keep banners), preserving natural isometric z-depth. Exported road utilities and types for board consumers.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` and `user-select: none;` on all decorative containers, SVG layers, and path elements. Full `@media (prefers-reduced-motion: reduce)` disabling all animations and transitions.
+- **Tests:** New test suite `packages/app/src/hud/BoardRoads.test.tsx` (17 tests) verifying elevation maths, SVG paths, adjacency connectivity, fog boundaries, connected route selection, march detection, junction milestones, and CSS isolation. Full test suite (sim 362, app 969, server 158) passing cleanly. App build clean.
 
 ## 2026-11-11 — Living prestige crest or age seal pip on prestige status line (bakeoff/gemini-prestige-line)
 
