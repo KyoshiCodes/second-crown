@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-11 — Roads list on the province card (wave/board-roads, not live yet)
+
+- **See where the roads go.** Click any province. The card now has a **Roads** line, for example **Roads · 3 roads · 1 trail into fog**, with a short list under it: **Road to Wood 4,5**, **Mountain path to Peak 3,2**, **Trail to fog 2,6**.
+- **Hide or show the list.** Click the Roads line to fold the list away or open it again.
+- **Fog keeps its secrets.** A province you have not scouted says **Roads · Hidden by fog**. A trail that runs into fog tells you the square it heads for, not what is there.
+- **Play is unchanged.** Roads are still only a picture of which provinces touch. They do not make marches faster.
+
 ## 2026-11-11 — Living prestige crest and age seal on the prestige status line (bakeoff/gemini-prestige-line)
 
 - **Living age seal that evolves with your realm:** The prestige / age status line on the Kingdom tab now features a living heraldic crest that visually transforms as your kingdom advances through its Dawns:

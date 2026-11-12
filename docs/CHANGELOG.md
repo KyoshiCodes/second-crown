@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-11 — Roads status on the province inspect card (wave/board-roads, not merged)
+
+- **What is new.** Click a province and the inspect card's Tile group now has a **Roads** block: a one-line status (`Roads · 3 roads · 1 trail into fog`) that opens and closes to a list of the connected roads, one row each (`Road to Wood 4,5`, `Mountain path to Peak 3,2`, `Trail to fog 2,6`, `Road to Your hold 3,3`). It starts open.
+- **Fog.** An unseen province reads `Roads · Hidden by fog` with no list (the board draws nothing inside fog). A trail into fog names only the square, never the hidden terrain.
+- **Same list as the board.** `roadsStatus` filters `listBoardRoads` from `packages/render`, the list the diamond board paints, so the card and the board cannot disagree. Road = both ends seen; mountain path = a seen peak on one end; trail = far end unseen.
+- **Unchanged:** all board math, road drawing, march and travel rules. Roads are still visual only; they do not change travel time.
+- **Files:** `packages/app/src/hud/RoadsLine.tsx` (new), `hud/roads-line.css` (new), `hud/RoadsLine.test.tsx` (new), `ProvinceInspect.tsx` (+2 lines). No edits to `packages/sim`, `packages/render`, `server/`, or `theme.css`.
+- **Tests:** sim 362, app 976 (+11), server 158 passing (1 skipped). App build clean. Not opened in a browser.
+
 ## 2026-11-11 — Living prestige crest or age seal pip on prestige status line (bakeoff/gemini-prestige-line)
 
 - **Dedicated living prestige crest & age seal pip (`PrestigePip` / `PrestigeCrestPip` / `AgeSealPip` / `LivingPrestigePip`):** Created bespoke animated heraldic prestige crest pips (`packages/app/src/hud/PrestigePip.tsx` & `prestige-pip.css`) rendering layered SVG vector heraldry (24×24) transforming dynamically across prestige thresholds (Dawn 0..4+ and shared hold):

@@ -1,0 +1,124 @@
+/* Roads status on the province inspect card. Dedicated file: do not move into theme.css. */
+
+.sc-roads-line {
+  font-size: 12px;
+  color: #e7d9b8;
+}
+
+.sc-roads-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+summary.sc-roads-head {
+  cursor: pointer;
+  list-style: none;
+}
+
+summary.sc-roads-head::-webkit-details-marker {
+  display: none;
+}
+
+/* Small open/closed caret so the toggle reads as a toggle. */
+summary.sc-roads-head::after {
+  content: "▸";
+  margin-left: auto;
+  opacity: 0.6;
+  font-size: 10px;
+}
+
+details.sc-roads-line[open] > summary.sc-roads-head::after {
+  content: "▾";
+}
+
+summary.sc-roads-head:focus-visible {
+  outline: 1px solid #d4b062;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.sc-roads-pip {
+  flex: none;
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  background: #d4b062;
+  box-shadow: 0 0 0 1px rgba(40, 26, 10, 0.9);
+}
+
+.sc-roads-line.is-fog .sc-roads-pip,
+.sc-roads-line.is-none .sc-roads-pip {
+  background: #64748b;
+}
+
+.sc-roads-label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+  opacity: 0.65;
+}
+
+.sc-roads-summary {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-roads-line.is-fog .sc-roads-summary,
+.sc-roads-line.is-none .sc-roads-summary {
+  color: #94a3b8;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.sc-roads-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0 0 0 4px;
+  display: grid;
+  gap: 2px;
+}
+
+.sc-roads-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Line sample: solid for a road, dashed for a mountain path, faded dashes into fog. */
+.sc-roads-mark {
+  flex: none;
+  width: 14px;
+  height: 0;
+  border-top: 2px solid #d4b062;
+}
+
+.sc-roads-item.is-path .sc-roads-mark {
+  border-top-style: dashed;
+  border-top-color: #c9b48a;
+}
+
+.sc-roads-item.is-fog .sc-roads-mark {
+  border-top-style: dotted;
+  border-top-color: #64748b;
+}
+
+.sc-roads-kind {
+  flex: none;
+  font-weight: 600;
+}
+
+.sc-roads-item.is-fog .sc-roads-kind {
+  color: #94a3b8;
+}
+
+.sc-roads-target {
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

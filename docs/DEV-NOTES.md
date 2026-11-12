@@ -1,3 +1,17 @@
+## 2026-11-11 — app / roads status and list on ProvinceInspect (wave/board-roads, not merged)
+
+- **Component (`packages/app/src/hud/RoadsLine.tsx`):** exports `roadsStatus(state, provinceId)`, `RoadsLine`, and types `RoadLink`, `RoadLinkKind` (`"road" | "path" | "fog"`), `RoadsStatus`.
+  - `roadsStatus` filters `listBoardRoads(state)` (from `@second-crown/render`, the list `paintBoardRoads` draws) to entries whose `fromId` or `toId` is the selected tile. It adds no adjacency or vision math of its own. `intoFog` entries become kind `fog`; otherwise the render kind (`road` / `path`) is kept.
+  - Unseen selected tile: `{ visible: false, links: [], summary: "Hidden by fog" }`. The render list does hold stubs from seen neighbours toward an unseen tile, but they stop at the shared edge, so the card lists none for the fogged tile itself.
+  - Target text: `Your hold x,y` for the home id, terrain label + `x,y` for a seen neighbour, `fog x,y` for an unseen one (terrain is not read for unseen tiles).
+  - Unknown id returns `null`. Pure read; a test checks the state JSON is unchanged.
+- **Markup:** `<details class="sc-roads-line is-shown" open>` with a `<summary>` head (pip, `Roads` label, summary) and `<ul class="sc-roads-list">`. Native `<details>` is the toggle, so there is no React state and it is keyboard reachable. Fogged or road-less tiles render a plain `<div class="sc-roads-line is-fog|is-none">` with no list. `data-roads-visible` is `true` / `false`.
+- **Mount:** `ProvinceInspect.tsx`, Tile group, right under the existing `trailLine` ("Your column · out") line. That line is unchanged.
+- **CSS:** `hud/roads-line.css` only. Row marks are solid (road), dashed (mountain path), dotted grey (trail into fog). No animation, so no reduced-motion block is needed. `theme.css` untouched (a test asserts it has no `sc-roads`).
+- **Known difference, not changed here:** `OverworldAtlas.tsx` builds its own road list and picks road/path by terrain even into fog; the diamond board (`listBoardRoads`) always uses `path` into fog. The card follows the board.
+- **Tests:** `hud/RoadsLine.test.tsx` (11). sim 362, app 976, server 158 (1 skipped: symlink permission on Windows). `npm run build -w @second-crown/app` clean.
+- **Not verified:** not opened in a browser; static-markup tests only.
+
 ## 2026-11-11 — app / living prestige crest or age seal pip on prestige status line (bakeoff/gemini-prestige-line)
 
 - **Components (`packages/app/src/hud/PrestigePip.tsx`):**
