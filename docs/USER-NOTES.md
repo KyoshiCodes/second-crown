@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-12 — Living volumetric fog veil and mist glyphs on unexplored provinces (bakeoff/gemini-board-fog)
+
+- **Living volumetric cloud veils across unexplored lands:** Unseen provinces on the isometric map now display a living volumetric fog veil:
+  - **Billowing cumulus mounds:** Soft pearl and pure white cloud lobes that rise above unexplored territory, complete with gentle wind drift and breathing animations.
+  - **Atmospheric mist and ground shadows:** Ethereal blue celestial undertones with deep underside cloud shadows and soft aerial shadows cast down onto the diorama base.
+  - **Windblown mist wisps:** Flowing vapor tendrils and floating mist motes that drift across the shroud.
+  - **Cartographer compass stars:** Gilded brass compass rose emblems glinting through the clouds at the center of unexplored lands.
+  - **Frontier boundary glow:** Unseen provinces directly bordering your explored lands feature a subtle frontier mist glow, highlighting the edges of the known world.
+- **Zero gameplay impact:** The fog veil is completely decorative (`pointer-events: none !important;`). It respects reduced motion settings and never interferes with selecting visible provinces, reading tile stats, or ordering scouts and marches.
+
 ## 2026-11-11 — Living roads, mountain trails, and connected route highlights on the board (bakeoff/gemini-board-roads)
 
 - **Visible road networks across the board:** The isometric map now displays a living network of roads and trails that visually connect your provinces:

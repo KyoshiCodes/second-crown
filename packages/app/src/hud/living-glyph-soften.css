@@ -73,6 +73,9 @@
 .sc-shell .sc-resource-living-underlay,
 .sc-shell .sc-board-living,
 .sc-shell .sc-board-living-roads,
+.sc-shell .sc-board-living-fog-veil,
+.sc-shell .sc-board-fog-province,
+.sc-shell .sc-board-fog-province *,
 .sc-shell .sc-board-road,
 .sc-shell .sc-board-road *,
 .sc-shell .sc-board-road-traffic-group,
@@ -913,6 +916,14 @@
   .sc-shell .sc-board-road-traveler,
   .sc-shell .sc-board-road-dust,
   .sc-shell .sc-board-trail-fog-wisp,
+  .sc-shell .sc-board-fog-base-mist,
+  .sc-shell .sc-board-fog-cumulus-lobe,
+  .sc-shell .sc-board-fog-core-bank,
+  .sc-shell .sc-board-fog-wisp,
+  .sc-shell .sc-board-fog-mist-mote,
+  .sc-shell .sc-board-fog-compass-star,
+  .sc-shell .sc-board-fog-star-shimmer,
+  .sc-shell .sc-board-fog-frontier-glow,
   .sc-shell .sc-board-living * {
     animation: none !important;
     transition: none !important;

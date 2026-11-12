@@ -1,3 +1,31 @@
+## 2026-11-12 — app / living volumetric fog veil and mist glyphs on unseen provinces (bakeoff/gemini-board-fog)
+
+- **Components (`packages/app/src/hud/BoardFog.tsx`):**
+  - Exports `BoardFogVeil`, `BoardFog`, `BoardFogLiving`, `BoardMistGlyphs`, `listUnseenFogProvinces`, `isFogFrontier`, and `type UnseenFogProvince`.
+  - Pure isometric depth sorting and frontier detection:
+    - `listUnseenFogProvinces(state)`: filters out home and seen provinces, maps grid `(x, y)` to isometric pixel space `(wx, wy)` via `boardGridToWorld`, detects frontier edges via `isFogFrontier`, and sorts tiles back-to-front by isometric depth `(y * 20 + x)`.
+    - `isFogFrontier(state, province, seenSet)`: checks orthogonal 4-way neighbors to identify unseen provinces directly abutting explored lands.
+  - SVG vector layers per unseen province:
+    - Aerial ground contact shadow (`.sc-board-fog-ground-shadow`) simulating diffused cloud shadows on the diorama plinth.
+    - Ethereal celestial mist base stratum (`.sc-board-fog-base-mist`) using `#sc-board-fog-mist-stratum` radial gradient.
+    - Underside cloud shadow (`.sc-board-fog-underside-shadow`) providing volumetric relief.
+    - Multi-tiered billowing cumulus cloud lobes (`.sc-board-fog-cumulus-lobe`, `.sc-board-fog-core-bank`, `.sc-board-fog-crest-highlight`) with staggered animation delays.
+    - Windblown mist wisps (`.sc-board-fog-wisp`) and ambient mist motes (`.sc-board-fog-mist-mote`).
+    - Antique cartographer compass rose star (`.sc-board-fog-compass-star`) with central shimmer (`.sc-board-fog-star-shimmer`).
+    - Frontier boundary glow (`.sc-board-fog-frontier-glow`) on tiles adjacent to explored regions.
+- **Styling (`packages/app/src/hud/board-fog.css` & `living-glyph-soften.css`):**
+  - Scoped strictly to `.sc-board-living-fog-veil`, `.sc-board-fog-province`, `.sc-board-fog-base-mist`, `.sc-board-fog-cumulus-lobe`, `.sc-board-fog-core-bank`, `.sc-board-fog-wisp`, `.sc-board-fog-mist-mote`, `.sc-board-fog-compass-star`, `.sc-board-fog-frontier-glow`.
+  - All decorative wrappers, SVGs, and paths enforce `pointer-events: none !important;` and `user-select: none;`.
+  - Keyframe animations: `sc-board-fog-breathe`, `sc-board-fog-drift`, `sc-board-fog-drift-alt`, `sc-board-fog-swell`, `sc-board-fog-wisp-flow`, `sc-board-fog-wisp-flow-alt`, `sc-board-fog-mote-float`, `sc-board-fog-star-glint`, `sc-board-fog-star-twinkle`, `sc-board-fog-frontier-pulse`.
+  - Added `.sc-shell .sc-board-living-fog-veil`, `.sc-shell .sc-board-fog-province`, `.sc-shell .sc-board-fog-province *` to Section 1 pointer-events reset and reduced-motion block in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **UI Integration (`packages/app/src/BoardLiving.tsx`):**
+  - Mounted `<BoardFogVeil state={state} />` at layer 0.9 (above roads and beneath status overlay and tethers).
+  - Exported drop-in aliases and helpers for board consumers.
+- **Tests (`packages/app/src/hud/BoardFog.test.tsx`):**
+  - 11 tests covering filtering of seen tiles, frontier detection, depth sorting, empty/null safety, SVG structure rendering, drop-in aliases, BoardLiving integration, and CSS isolation.
+  - Full suite passing: sim 362, app 1004, server 158. App build clean.
+
 ## 2026-11-11 — app / living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 
 - **Components (`packages/app/src/hud/BoardRoads.tsx`):**

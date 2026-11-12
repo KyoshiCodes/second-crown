@@ -1,0 +1,203 @@
+/* Isolated stylesheet for isometric board living volumetric fog veil & mist glyphs */
+
+.sc-board-living-fog-veil,
+.sc-board-living-fog-veil * {
+  pointer-events: none !important; /* strictly decorative overlay - never blocks board selection or inspection */
+  user-select: none;
+}
+
+.sc-board-living-fog-veil {
+  opacity: 0.92;
+}
+
+/* 1. Underlying terrain shadow */
+.sc-board-fog-ground-shadow {
+  opacity: 0.65;
+}
+
+/* 2. Soft atmospheric base mist stratum */
+.sc-board-fog-base-mist {
+  opacity: 0.75;
+  animation: sc-board-fog-breathe 4.8s ease-in-out infinite alternate;
+}
+
+/* 3. Deep underbelly vapor shadow */
+.sc-board-fog-underside-shadow {
+  opacity: 0.55;
+}
+
+/* 4. Billowing cumulus mounds and vapor puffs */
+.sc-board-fog-cumulus-lobe {
+  animation: sc-board-fog-drift 5.6s ease-in-out infinite alternate;
+}
+
+.sc-board-fog-cumulus-lobe.is-alt {
+  animation: sc-board-fog-drift-alt 6.2s ease-in-out infinite alternate;
+}
+
+/* 5. Volumetric cloud bank core */
+.sc-board-fog-core-bank {
+  opacity: 0.88;
+  animation: sc-board-fog-swell 5.2s ease-in-out infinite alternate;
+}
+
+/* 6. Sunlit crest highlights */
+.sc-board-fog-crest-highlight {
+  opacity: 0.95;
+}
+
+/* 7. Windblown vapor wisps & tendrils */
+.sc-board-fog-wisp {
+  animation: sc-board-fog-wisp-flow 4.2s ease-in-out infinite alternate;
+}
+
+.sc-board-fog-wisp.is-alt {
+  animation: sc-board-fog-wisp-flow-alt 4.6s ease-in-out infinite alternate;
+}
+
+/* 8. Drifting ambient mist motes */
+.sc-board-fog-mist-mote {
+  animation: sc-board-fog-mote-float 3.8s ease-in-out infinite alternate;
+}
+
+/* 9. Antique Cartographer Compass Star & Glimmer */
+.sc-board-fog-compass-star {
+  opacity: 0.92;
+  filter: drop-shadow(0 0 1.5px rgba(212, 163, 89, 0.65));
+  animation: sc-board-fog-star-glint 3.6s ease-in-out infinite alternate;
+}
+
+.sc-board-fog-star-shimmer {
+  opacity: 0.75;
+  animation: sc-board-fog-star-twinkle 2.8s ease-in-out infinite alternate;
+}
+
+/* 10. Shroud frontier marker (adjacent to seen provinces) */
+.sc-board-fog-frontier-glow {
+  opacity: 0.45;
+  animation: sc-board-fog-frontier-pulse 3.2s ease-in-out infinite alternate;
+}
+
+/* Keyframe Animations */
+@keyframes sc-board-fog-breathe {
+  0% {
+    opacity: 0.65;
+    transform: scale(0.97);
+  }
+  100% {
+    opacity: 0.85;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes sc-board-fog-drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(1.4px, -1.0px);
+  }
+}
+
+@keyframes sc-board-fog-drift-alt {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-1.2px, -0.8px);
+  }
+}
+
+@keyframes sc-board-fog-swell {
+  0% {
+    opacity: 0.82;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 0.94;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes sc-board-fog-wisp-flow {
+  0% {
+    opacity: 0.45;
+    transform: translate(0, 0) scaleX(0.95);
+  }
+  100% {
+    opacity: 0.85;
+    transform: translate(2.2px, -0.6px) scaleX(1.05);
+  }
+}
+
+@keyframes sc-board-fog-wisp-flow-alt {
+  0% {
+    opacity: 0.5;
+    transform: translate(0, 0) scaleX(1.05);
+  }
+  100% {
+    opacity: 0.85;
+    transform: translate(-2px, -0.8px) scaleX(0.95);
+  }
+}
+
+@keyframes sc-board-fog-mote-float {
+  0% {
+    opacity: 0.35;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0.85;
+    transform: translate(1.6px, -2.2px);
+  }
+}
+
+@keyframes sc-board-fog-star-glint {
+  0% {
+    opacity: 0.75;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes sc-board-fog-star-twinkle {
+  0% {
+    opacity: 0.35;
+    transform: rotate(0deg) scale(0.85);
+  }
+  100% {
+    opacity: 0.95;
+    transform: rotate(15deg) scale(1.15);
+  }
+}
+
+@keyframes sc-board-fog-frontier-pulse {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1.04);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .sc-board-living-fog-veil,
+  .sc-board-living-fog-veil *,
+  .sc-board-fog-base-mist,
+  .sc-board-fog-cumulus-lobe,
+  .sc-board-fog-core-bank,
+  .sc-board-fog-wisp,
+  .sc-board-fog-mist-mote,
+  .sc-board-fog-compass-star,
+  .sc-board-fog-star-shimmer,
+  .sc-board-fog-frontier-glow {
+    animation: none !important;
+    transition: none !important;
+  }
+}

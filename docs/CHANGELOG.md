@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-11-12 — Living volumetric fog veil and mist glyphs on unseen provinces (bakeoff/gemini-board-fog)
+
+- **Dedicated living volumetric fog veil & mist glyphs (`BoardFogVeil` / `BoardFog` / `BoardFogLiving` / `BoardMistGlyphs`):** Created bespoke animated volumetric cloud overlay (`packages/app/src/hud/BoardFog.tsx` & `board-fog.css`):
+  - **Volumetric cumulus cloud mass:** Multi-tiered billowing cloud lobes spanning each unseen province diamond footprint with pearl and white shading (`sc-board-fog-cumulus-lobe`, `sc-board-fog-core-bank`, `sc-board-fog-crest-highlight`).
+  - **Stratum & underside shadow:** Deep underside vapor shadow (`sc-board-fog-underside-shadow`), ethereal celestial mist base stratum (`sc-board-fog-base-mist`), and soft aerial ground contact shadow on the diorama base.
+  - **Vapor wisps & ambient motes:** Windblown flowing mist tendrils (`sc-board-fog-wisp`) and gently floating mist motes (`sc-board-fog-mist-mote`) animating across the shroud.
+  - **Antique cartographer compass star:** Twinkling 8-point brass compass rose (`sc-board-fog-compass-star`) glinting at the center of unseen territories.
+  - **Frontier boundary flare:** Subtle glowing mist rim (`sc-board-fog-frontier-glow`) distinguishing unexplored provinces directly adjacent to explored lands.
+  - **Depth-sorted rendering:** Pure `listUnseenFogProvinces` sorting tiles back-to-front (`y * 20 + x`) to match isometric diamond perspective.
+- **Board living overlay integration:** Mounted `<BoardFogVeil state={state} />` at layer 0.9 in `packages/app/src/BoardLiving.tsx` (above roads/terrain and under status overlays). Exported drop-in aliases and helpers for board consumers.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` and `user-select: none;` on all decorative containers, SVG layers, and path elements. Full `@media (prefers-reduced-motion: reduce)` disabling all animations and transitions.
+- **Tests:** New test suite `packages/app/src/hud/BoardFog.test.tsx` (11 tests) verifying unseen province filtering, frontier detection, depth sorting, SVG structure, drop-in aliases, and CSS isolation. Full test suite (sim 362, app 1004, server 158) passing cleanly. App build clean.
+
 ## 2026-11-11 — Living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 
 - **Dedicated living board roads & trail glyphs (`BoardRoads` / `BoardRoadLiving` / `BoardRoutes`):** Created bespoke animated road network and connected route overlay (`packages/app/src/hud/BoardRoads.tsx` & `board-roads.css`):

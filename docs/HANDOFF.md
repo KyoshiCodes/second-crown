@@ -7,6 +7,7 @@ Read `AGENTS.md` then this file.
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
 
 `main` is at `13135c3` (living scroll glyphs under quest cards). The living-layer wave is **fully merged**: every `wave/*-living` and `bakeoff/gemini-*-living` branch is on `main`. There is no waiting list for HUD glyphs.
+Also waiting: `bakeoff/gemini-board-fog` (**not merged**, living volumetric fog veil and mist glyphs on unseen provinces on the isometric board, see below). On this branch: sim **362**, app **1004**, server **158**, app build clean.
 Also waiting: `bakeoff/gemini-board-roads` (**not merged**, living road/trail glyphs or animated path marks on isometric board that show connected routes, see below). On this branch: sim **362**, app **969**, server **158**, app build clean.
 Also waiting: `bakeoff/gemini-prestige-line` (**not merged**, living prestige crest or age seal pip on prestige status line, see below). On this branch: sim **362**, app **952**, server **158**, app build clean.
 Also waiting: `bakeoff/gemini-board-light` (**not merged**, richer lighting and atmosphere pass on the isometric board, see below). Per-slice detail lives in `CHANGELOG.md` (newest first) and `DEV-NOTES.md`; older versions of this file are in git history.
@@ -48,6 +49,15 @@ Tests on `main` at the last slice: sim **323**, app **828**, server **158**, app
   - **Living unique unit chips (bakeoff/gemini-culture-units, not merged).** Adds distinct 28px living chips (`CultureUnitChip`, `RangerChip`, `BannerChip`, `OutriderChip`, `WardenChip`, `LancerChip`) for the five cultures with unique martial units (Mist Reach / Ranger, Glen Holds / Banner, Salt Reaches / Outrider, Fen Steads / Warden, Peak Holds / Lancer). Each chip features bespoke SVG vector heraldry, breathing aura glow, ambient motion (mist wisps, pennant flutter, dust drift, reed sway, alpine frost drift), and metallic glint twinkle. Mounted in the Culture Picker alongside unique unit lines, in the Balance Notes culture roster breakdown, and reusable across host/army displays. All decorative layers isolated, strictly `pointer-events: none !important;`, and softened in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` fallbacks.
 - **Shared hold (opt-in).** Cloud panel **Join hold** card: hold key, train militia, build farm / cottage / lumber camp, stamps, intent log, leave. The server runs `packages/sim` only for a joined hold (ADR-011). Holds survive a restart. No owner-marked shared realm exists; solo play never touches the server sim.
 - **Board presentation.** Isometric 12×8 diamond board with terrain tiles, roads and traffic, fog edge, keeps, march paths and meeples, unit labels, node piles, outpost / camp marks, selection rim, hover tooltip, day/night with sun and moon, weather, static tile cache. Tabs lazy-load in split chunks.
+- **Living volumetric fog veil and mist glyphs on board (bakeoff/gemini-board-fog, not merged).** Rich living volumetric cloud veils and mist glyphs covering unseen provinces across the isometric board (exported via `BoardFogVeil` / `BoardFog` in `packages/app/src/hud/BoardFog.tsx`, mounted at layer 0.9 in `BoardLiving.tsx`):
+  - Volumetric cumulus cloud mounds (multi-tiered pearl and pure white lobes) spanning each unseen province footprint.
+  - Ethereal celestial mist base stratum (`sc-board-fog-base-mist`) and deep underbelly vapor shadow.
+  - Soft diffused aerial ground contact shadow on the diorama tabletop.
+  - Flowing wind-tendril vapor wisps (`sc-board-fog-wisp`) and floating ambient mist motes.
+  - Antique cartographer brass compass star glyph (`sc-board-fog-compass-star`) glinting at the center of unseen territories with golden shimmer.
+  - Shroud frontier flare (`sc-board-fog-frontier-glow`) illuminating the perimeter of unseen tiles directly adjacent to explored lands.
+  - Back-to-front depth sorting (`y * 20 + x`) ensuring natural isometric occlusion.
+  - All decorative layers isolated, strictly `pointer-events: none !important;`, and softened in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` fallbacks.
 - **Living road and trail glyphs on board (bakeoff/gemini-board-roads, not merged).** Living roads, mountain trails, fog boundaries, and illuminated connected routes across the isometric board (exported via `BoardRoads` / `BoardRoadLiving` in `packages/app/src/hud/BoardRoads.tsx`, mounted at layer 0.8 in `BoardLiving.tsx`):
   - 3D polyline geometry connecting tile centers through shared edge midpoints and elevation steps (`peak: 14, hill: 9, waste: 7, wood: 5, plain: 4, shore: 1`).
   - Living paved highways between settled non-peak provinces with dark earth ink beds and pale crown highlights.

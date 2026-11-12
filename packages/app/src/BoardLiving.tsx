@@ -22,6 +22,15 @@ import {
   type BoardRoadKind,
   type BoardRoadJunction,
 } from "./hud/BoardRoads";
+import {
+  BoardFogVeil,
+  BoardFog,
+  BoardFogLiving,
+  BoardMistGlyphs,
+  listUnseenFogProvinces,
+  isFogFrontier,
+  type UnseenFogProvince,
+} from "./hud/BoardFog";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -405,6 +414,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
 
         {/* 0.8. Living Roads, Trails, and Connected Route Marks */}
         <BoardRoads state={state} selectedId={selectedId} />
+
+        {/* 0.9. Volumetric Fog Veil & Living Mist Glyphs on Unseen Provinces */}
+        <BoardFogVeil state={state} />
 
         {/* 1. Soft Fog Drift Layer (under keeps and status) */}
         {fogClusters.length > 0 && (
@@ -873,4 +885,11 @@ export {
   type BoardConnectedRoad,
   type BoardRoadKind,
   type BoardRoadJunction,
+  BoardFogVeil,
+  BoardFog,
+  BoardFogLiving,
+  BoardMistGlyphs,
+  listUnseenFogProvinces,
+  isFogFrontier,
+  type UnseenFogProvince,
 };
