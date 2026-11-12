@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-12 — Event cards: next-event countdown, time since, and outcome hints (wave/events-advanced, not merged)
+
+- **Next event card (`EventNextCard`):** new card at the top of the Events panel on the Crown tab. Shows time left ("in 38s"), a progress bar, "25% · 125 / 500 ticks", and five "Could be" chips (Food gain, Wood gain, Gold gain, Food loss, Rival levy). The bar pulses in the last five seconds.
+- **Outcome footer (`EventOutcomeFoot`):** every event card now ends with a coloured tag (Gain / Loss / Rival / Undecided / News), one plain sentence about what the event did, and how long ago it fired ("50s ago").
+- **No math changed.** The countdown reads `EventSystem.nextEventTick()` and `EVENT_PERIOD` from the sim and `TICKS_PER_SECOND` from shared. Nothing predicts which event is next. No changes in `packages/sim` or `server/`.
+- **CSS:** new `packages/app/src/hud/event-advanced.css`. `theme.css` untouched.
+- **Files:** `hud/EventAdvanced.tsx` (new), `hud/event-advanced.css` (new), `hud/EventAdvanced.test.tsx` (new, 11 tests), `hud/EventCard.tsx` (optional `nowTick` prop + footer), `EventPanel.tsx` (countdown card + passes `nowTick`).
+- **Verify:** sim **362**, app **1003**, server **158**, app build clean.
+
 ## 2026-11-11 — Living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 
 - **Dedicated living board roads & trail glyphs (`BoardRoads` / `BoardRoadLiving` / `BoardRoutes`):** Created bespoke animated road network and connected route overlay (`packages/app/src/hud/BoardRoads.tsx` & `board-roads.css`):

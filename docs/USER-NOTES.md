@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-12 — Event cards tell you more (wave/events-advanced, not merged yet)
+
+- **Next event countdown:** the Events panel on the Crown tab now starts with a "Next event" card. It shows how long until the next event, a bar that fills as it gets closer, and the kinds of thing that could happen (food, wood or gold gain, food loss, or a rival raising a levy). The game does not tell you which one is coming.
+- **What each event did:** every event card has a new bottom line with a coloured tag (Gain, Loss, or Rival) and one plain sentence, for example "Food was added to your stores."
+- **How long ago:** each card also shows when it fired, for example "50s ago".
+- Events themselves are unchanged: same timing, same rewards, same losses.
+
 ## 2026-11-11 — Living roads, mountain trails, and connected route highlights on the board (bakeoff/gemini-board-roads)
 
 - **Visible road networks across the board:** The isometric map now displays a living network of roads and trails that visually connect your provinces:

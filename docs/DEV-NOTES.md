@@ -1,3 +1,15 @@
+## 2026-11-12 — app / event cards: next-event countdown, age, outcome hints (wave/events-advanced, not merged)
+
+- **Module (`packages/app/src/hud/EventAdvanced.tsx`):** exports `EventNextCard`, `EventOutcomeFoot`, `eventPace`, `eventOutcome`, `eventAgeLabel`, `formatEventSpan`, `EVENT_POSSIBLE_OUTCOMES`, types `EventPace`, `EventOutcome`, `EventOutcomeKind`.
+  - `eventPace(state)` wraps `EventSystem.nextEventTick(state)` and `EVENT_PERIOD`; returns `{ nextTick, period, elapsed, left, fill }`. No schedule math of its own beyond subtracting `state.meta.tick`.
+  - `formatEventSpan(ticks)` uses `TICKS_PER_SECOND` and rounds up to whole seconds (`42s`, `3m 5s`, `1h 4m`).
+  - `eventOutcome(id, choiceCount)` maps the existing event ids (`harvest`, `timber`, `tribute`, `spoil`, `levy`) to a tag + sentence. Unknown ids (including the `"latest"` fallback id `EventPanel` builds when the log is empty) read as `news`. `choiceCount > 0` reads as `pending`.
+  - `EVENT_POSSIBLE_OUTCOMES` is a display list with no amounts and no odds, so it cannot drift from the numbers in `systems/events.ts`. **If a new event id is added in the sim, add it to this list and to `OUTCOME_BY_ID`.**
+- **Wiring:** `EventCard` takes optional `nowTick` and renders `EventOutcomeFoot` after the living glyph and before the choice buttons. `EventPanel` renders `EventNextCard` first and passes `state.meta.tick` as `nowTick`; with no `state` prop it renders neither the countdown nor ages (existing tests render it that way).
+- **Deliberately not done:** no prediction of the next event (that would mean copying `hashTick` out of the sim). The existing Duration row ("Resolved · t500") is unchanged.
+- **CSS:** `hud/event-advanced.css`, scoped to `.sc-event-next*`, `.sc-event-foot`, `.sc-event-hint-chip`, `.sc-event-outcome-*`, `.sc-event-age`. Reduced-motion rule included. `theme.css` untouched.
+- **Tests:** `hud/EventAdvanced.test.tsx` (11). Totals: sim 362, app 1003, server 158.
+
 ## 2026-11-11 — app / living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 
 - **Components (`packages/app/src/hud/BoardRoads.tsx`):**

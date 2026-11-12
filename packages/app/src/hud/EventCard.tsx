@@ -5,6 +5,7 @@ import { OmenPip, resolveOmenVariant } from "./OmenPip";
 import { eventLedgerRows } from "./EventsLedger";
 import { EventOmenLivingGlyph, EventOmenUnderlay, resolveOmenLiving } from "./EventsLivingGlyph";
 import { EventLivingRows } from "./EventLivingRows";
+import { EventOutcomeFoot } from "./EventAdvanced";
 import "./event-card.css";
 
 export type EventChoice = {
@@ -24,8 +25,10 @@ export function EventCard(props: {
   event: WorldEvent;
   latest?: boolean;
   choices?: EventChoice[];
+  /** Current sim tick; when given, the card shows how long ago the event fired. */
+  nowTick?: number;
 }) {
-  const { event, latest, choices } = props;
+  const { event, latest, choices, nowTick } = props;
   const { title, body } = splitEventText(event.text);
   const omen = resolveOmenVariant(event.id, event.text);
   const choiceCount = choices?.length ?? 0;
@@ -50,6 +53,7 @@ export function EventCard(props: {
         }).map((r) => (r.kind === "name" ? { ...r, lead: <OmenPip variant={omen} size={24} /> } : r))}
       />
       <EventOmenLivingGlyph omen={omen} eventId={event.id} latest={latest} choiceCount={choiceCount} />
+      <EventOutcomeFoot eventId={event.id} eventTick={event.tick} choiceCount={choiceCount} nowTick={nowTick} />
       {choices && choices.length > 0 ? (
         <span className="sc-event-choices">
           {choices.map((c) => (
