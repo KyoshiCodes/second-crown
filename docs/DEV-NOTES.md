@@ -1,16 +1,26 @@
-## 2026-11-12 — app / research cards: Needs checklist, have amounts, progress text (wave/research-advanced)
+## 2026-11-12 — app / living research glyphs showing locked, available, and completed states (bakeoff/gemini-research-advanced)
 
-- **New `packages/app/src/ResearchAdvanced.tsx`** (display only):
-  - `studyNeeds({ prereq, prereqOk, halls, hallBuilt, keepNeed, keepNow })` returns `StudyNeed[]` (`kind: "keep" | "study" | "hall"`, `label`, `met`, `detail`), in that order. Gates that do not apply are left out.
-  - `studyProgressText({ status, ticksLeft, ticksTotal, ticksBase, ticksPerSecond })` returns `{ value, sub }` for the Progress row, or `null` for a known study. Percent is capped at 99 while ticks remain. The Academy saving is `round(base / tps) - round(total / tps)`, so it always matches the two second counts on screen.
-  - `studyLeadsTo(id)` is the reverse lookup of the sim's `researchRequires`.
-  - `keepNumeral(level)`, and components `StudyNeedsRow`, `StudyLeadsLine`, `TierMeter`.
-- **`ResearchBar.tsx`:** `Row` builds `needs` only when status is `open` or `locked`, and then clears the name row's `sub` so the gate text is not repeated. It overrides the progress row's `value` / `sub` with `studyProgressText`. `studyLedgerRows` in `hud/StudyLedger.tsx` is unchanged, so other callers and its tests are unaffected. Hall names come from `getBuildingType(id)?.name`; Keep level from `keepLevel(state)`.
-- **`ResearchCost.tsx`:** a short, unpaid chip appends `<span class="sc-research-adv-have">have N</span>` where `N = need - short` (whole units held). `StudyCostPart` is unchanged.
-- **`research-advanced.css`:** every selector is under `.sc-research-adv-`; a test enforces it. `research-tree.css` and `theme.css` untouched.
-- **Markers for tests:** `data-study-needs="met|unmet"` on the row, `data-need` + `data-met="yes|no"` on each line.
-- **No sim or server edits.** `tryStartResearch` remains the only gate; a test checks the checklist reads "met" exactly when the sim accepts the study.
-- **Tests:** `ResearchAdvanced.test.tsx` (19). `ResearchTree.test.tsx` sealed-card assertion now reads the checklist instead of "needs Husbandry". sim 362, app 1033, server 158, build clean.
+- **Components (`packages/app/src/hud/ResearchGlyphAdvanced.tsx` & `AcademyLivingGlyph.tsx`):**
+  - Exports `ResearchGlyphAdvanced`, `ResearchAdvancedGlyph`, `LivingResearchGlyph`, `ResearchStateSvgLayer`, `resolveResearchGlyphState`, and `type ResearchGlyphState`.
+  - State resolution:
+    - `resolveResearchGlyphState({ status, state, progress, done })`: maps sim values to canonical `"locked" | "available" | "studying" | "completed"`.
+  - SVG vector layers & animated elements:
+    - Ambient breathing aura (`.sc-research-advanced-aura`) styled by state.
+    - Locked: arched iron padlock shackle (`.sc-research-lock-shackle`), reinforced lock casing (`.sc-research-lock-casing`), keyhole rim and stem. Keyframes: `sc-research-adv-lock-breathe`, `sc-research-adv-lock-rattle`.
+    - Available: radiant 4-point discovery diamond spark (`.sc-research-available-spark`), expanding beacon ripple ring (`.sc-research-available-beacon`), and white core dot. Keyframes: `sc-research-adv-avail-aura`, `sc-research-adv-beacon-wave`, `sc-research-adv-spark-twinkle`.
+    - Studying: radial ink progress ring (`.sc-research-ink-progress-ring`), flickering scholar lamp flame (`.sc-research-studying-flame`). Keyframes: `sc-research-adv-study-aura`, `sc-research-adv-flame-flicker`, `sc-research-adv-ring-pulse`.
+    - Completed: master scholar laurel wreath arc (`.sc-research-completed-wreath`), laurel leaf cluster dots (`.sc-research-wreath-leaf`), celestial triumph star (`.sc-research-completed-star`). Keyframes: `sc-research-adv-complete-aura`, `sc-research-adv-triumph-star`, `sc-research-adv-wreath-breathe`.
+- **Styling (`packages/app/src/hud/research-glyph-advanced.css` & `living-glyph-soften.css`):**
+  - Scoped strictly to `.sc-research-glyph-advanced`, `.sc-research-advanced-aura`, `.sc-research-state-layer`, `.sc-research-lock-*`, `.sc-research-available-*`, `.sc-research-studying-*`, `.sc-research-completed-*`.
+  - All decorative wrappers, SVGs, and paths enforce `pointer-events: none !important;` and `user-select: none;`.
+  - Added `.sc-shell .sc-research-glyph-advanced`, `.sc-shell .sc-research-state-layer` to Section 1 pointer-events reset and reduced-motion block in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **UI Integration (`packages/app/src/hud/AcademyLivingGlyph.tsx` & `ResearchBar.tsx`):**
+  - `StudyLivingGlyph` and `StudyLivingUnderlay` render `<ResearchStateSvgLayer status={status} state={glyphState} progress={progress} />`.
+  - Added `data-study-state` to research cards in `ResearchBar.tsx`.
+- **Tests (`packages/app/src/hud/ResearchGlyphAdvanced.test.tsx`):**
+  - 10 tests verifying state resolution, vector heraldry across all states, `StudyLivingGlyph` / `StudyLivingUnderlay` integration, `ResearchBar` mounting, and CSS isolation.
+  - Full suite passing: sim 362, app 1024, server 158. App build clean.
 
 ## 2026-11-12 — app / living omen pips changing with event type and progress (bakeoff/gemini-events-advanced)
 

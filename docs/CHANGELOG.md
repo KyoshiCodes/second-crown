@@ -1,13 +1,17 @@
 # CHANGELOG
 
-## 2026-11-12 — Research cards: clearer costs, prerequisites, and progress (wave/research-advanced)
+## 2026-11-12 — Living research glyphs showing locked, available, and completed states (bakeoff/gemini-research-advanced)
 
-- **Needs checklist (`StudyNeedsRow`):** every study that has not started lists its gates once, each with a tick or cross: Keep level ("Keep III · yours is Keep I"), the first study it builds on ("Surveying · study it first"), and the hall ("Lumber Camp or Sawmill or Academy · build one", or the built hall's name). Replaces the "needs ..." words under the study name. Hidden once a study is underway or known.
-- **Cost chips:** a chip the stores cannot cover also shows the amount held ("20 food have 7"). The reason line ("Short 13 food.") is unchanged.
-- **Progress row:** active study shows percent, seconds left, and total ("58% · 10s left of 24s"). Before starting, the row shows the Academy saving ("14s to study · Academy saves 4s").
-- **Tree links:** first studies show "Leads to <deeper study>"; tier headings carry a known meter.
-- **Scope:** app only. New `packages/app/src/ResearchAdvanced.tsx` and `research-advanced.css`; small edits in `ResearchBar.tsx` and `ResearchCost.tsx`. No edits to `packages/sim`, `server/`, or `theme.css`. All research math is unchanged; the UI only reads existing sim exports.
-- **Tests:** new `ResearchAdvanced.test.tsx` (19 tests); one assertion in `ResearchTree.test.tsx` updated for the checklist. sim 362, app 1033, server 158. App build clean.
+- **Upgraded living research glyphs (`ResearchGlyphAdvanced` / `StudyLivingGlyph` / `ResearchStateSvgLayer`):** Created enhanced animated vector states and heraldry (`packages/app/src/hud/ResearchGlyphAdvanced.tsx` & `research-glyph-advanced.css`):
+  - **Dynamic atmospheric aura:** Breathing ambient aura (`.sc-research-advanced-aura`) colored to research status (cold slate iron for locked, emerald-gold discovery wave for available, warm amber lantern glow for studying, and sovereign gold coronation halo for completed).
+  - **Living vector heraldry by state:**
+    - **Locked:** Arched hardened iron padlock shackle (`sc-research-lock-shackle`), reinforced casing (`sc-research-lock-casing`), keyhole with stem, and metallic vigilance breathing (`sc-research-adv-lock-breathe`, `sc-research-adv-lock-rattle`).
+    - **Available (open / ready):** Radiant 4-point discovery diamond spark (`sc-research-available-spark`), expanding beacon ripple ring (`sc-research-available-beacon`), and welcoming inquiry gleam (`sc-research-adv-beacon-wave`, `sc-research-adv-spark-twinkle`).
+    - **Studying (active in-progress):** Circular ink progress ring (`sc-research-ink-progress-ring`), flickering scholar lamp flame at the apex (`sc-research-studying-flame`), and warm amber scriptorium pulse.
+    - **Completed (mastered / codified):** Master scholar laurel wreath arc (`sc-research-completed-wreath`), golden laurel leaf clusters (`sc-research-wreath-leaf`), and celestial 8-point triumph star (`sc-research-completed-star`).
+- **Research bar and card integration:** Integrated directly into `StudyLivingGlyph` and `StudyLivingUnderlay` in `packages/app/src/hud/AcademyLivingGlyph.tsx`, mounting on all 16 study cards in `packages/app/src/ResearchBar.tsx` with `data-study-state` attribute.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` and `user-select: none;` on all decorative containers, SVG layers, and path elements. Full `@media (prefers-reduced-motion: reduce)` disabling all animations and transitions.
+- **Tests:** New test suite `packages/app/src/hud/ResearchGlyphAdvanced.test.tsx` (10 tests) verifying state resolution, vector heraldry across all states, `StudyLivingGlyph` / `StudyLivingUnderlay` integration, `ResearchBar` mounting, and CSS isolation. Full test suite (sim 362, app 1024, server 158) passing cleanly. App build clean.
 
 ## 2026-11-12 — Living omen pips changing with event type and progress (bakeoff/gemini-events-advanced)
 

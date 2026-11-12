@@ -1,0 +1,327 @@
+/* --- Living Advanced Research Glyphs (isolated from theme.css) ---
+ * Provides rich, living, animated vector states for research glyphs:
+ * - Locked: cold iron padlock shackle, reinforced casing, keyhole, vigilance breathe
+ * - Available: radiant discovery spark, expanding beacon ripple, welcoming inquiry aura
+ * - Studying: active ink progress ring, flickering scholar flame, ink motes
+ * - Completed: master scholar laurel wreath, celestial triumph star, golden coronation halo
+ *
+ * Strict pointer-events: none !important on all decorative elements.
+ * Fully supports prefers-reduced-motion.
+ */
+
+.sc-research-glyph-advanced,
+.sc-research-glyph-advanced *,
+.sc-research-state-layer,
+.sc-research-state-layer * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-research-glyph-advanced {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* Atmospheric ambient breathing aura */
+.sc-research-advanced-aura {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  pointer-events: none !important;
+  filter: blur(2.5px);
+  opacity: 0.35;
+  transition: opacity 0.4s ease;
+}
+
+.sc-research-glyph-advanced.is-locked .sc-research-advanced-aura,
+.sc-research-glyph-advanced[data-research-state="locked"] .sc-research-advanced-aura {
+  background: radial-gradient(circle, rgba(148, 163, 184, 0.4) 0%, rgba(148, 163, 184, 0) 70%);
+  animation: sc-research-adv-lock-breathe 4.2s ease-in-out infinite alternate;
+}
+
+.sc-research-glyph-advanced.is-available .sc-research-advanced-aura,
+.sc-research-glyph-advanced[data-research-state="available"] .sc-research-advanced-aura {
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.45) 0%, rgba(250, 204, 21, 0.2) 45%, transparent 72%);
+  animation: sc-research-adv-avail-aura 2.8s ease-in-out infinite alternate;
+}
+
+.sc-research-glyph-advanced.is-studying .sc-research-advanced-aura,
+.sc-research-glyph-advanced[data-research-state="studying"] .sc-research-advanced-aura {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.5) 0%, rgba(217, 119, 6, 0.25) 50%, transparent 72%);
+  animation: sc-research-adv-study-aura 2.2s ease-in-out infinite alternate;
+}
+
+.sc-research-glyph-advanced.is-completed .sc-research-advanced-aura,
+.sc-research-glyph-advanced[data-research-state="completed"] .sc-research-advanced-aura {
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.55) 0%, rgba(245, 158, 11, 0.3) 50%, transparent 75%);
+  animation: sc-research-adv-complete-aura 3.2s ease-in-out infinite alternate;
+}
+
+/* Core SVG icon sizing and styling */
+.sc-research-advanced-svg {
+  display: block;
+  overflow: visible;
+  pointer-events: none !important;
+}
+
+/* --- State Colors & Filters --- */
+
+/* Locked: Cold iron / slate resilience */
+.sc-research-glyph-advanced.is-locked,
+.sc-research-topic-glyph.status-locked,
+.sc-research-living-glyph.status-locked {
+  color: #94a3b8;
+}
+
+.sc-research-glyph-advanced.is-locked .sc-research-lock-shackle,
+.sc-research-topic-glyph.status-locked .sc-research-lock-shackle {
+  transform-origin: 12px 10px;
+  animation: sc-research-adv-lock-rattle 5s ease-in-out infinite;
+}
+
+.sc-research-glyph-advanced.is-locked .sc-research-lock-casing,
+.sc-research-topic-glyph.status-locked .sc-research-lock-casing {
+  filter: drop-shadow(0 0 1.5px rgba(15, 23, 42, 0.7));
+}
+
+/* Available: Emerald discovery / beckoning golden glimmer */
+.sc-research-glyph-advanced.is-available,
+.sc-research-topic-glyph.status-open,
+.sc-research-living-glyph.status-open {
+  color: #4ade80;
+}
+
+.sc-research-glyph-advanced.is-available .sc-research-available-beacon,
+.sc-research-topic-glyph.status-open .sc-research-available-beacon {
+  transform-origin: 19.5px 4.5px;
+  animation: sc-research-adv-beacon-wave 2.6s ease-out infinite;
+}
+
+.sc-research-glyph-advanced.is-available .sc-research-available-spark,
+.sc-research-topic-glyph.status-open .sc-research-available-spark {
+  transform-origin: 19.5px 4.5px;
+  color: #fbbf24;
+  animation: sc-research-adv-spark-twinkle 2.2s ease-in-out infinite alternate;
+}
+
+/* Fast Academy Available variant */
+.sc-research-glyph-advanced.is-available.is-fast,
+.sc-research-topic-glyph.status-open.is-fast,
+.sc-research-living-glyph.status-open.is-fast {
+  color: #38bdf8;
+}
+
+/* Studying: Warm amber lantern illumination & active writing ring */
+.sc-research-glyph-advanced.is-studying,
+.sc-research-topic-glyph.status-studying,
+.sc-research-living-glyph.status-studying {
+  color: #f59e0b;
+}
+
+.sc-research-glyph-advanced.is-studying .sc-research-studying-flame,
+.sc-research-topic-glyph.status-studying .sc-research-studying-flame {
+  transform-origin: 12px 5px;
+  animation: sc-research-adv-flame-flicker 1.8s ease-in-out infinite;
+  color: #fde047;
+}
+
+.sc-research-glyph-advanced.is-studying .sc-research-ink-progress-ring,
+.sc-research-topic-glyph.status-studying .sc-research-ink-progress-ring {
+  transform-origin: 12px 12px;
+  animation: sc-research-adv-ring-pulse 2.5s ease-in-out infinite;
+}
+
+/* Completed: Sovereign coronation gold & celestial knowledge star */
+.sc-research-glyph-advanced.is-completed,
+.sc-research-topic-glyph.status-known,
+.sc-research-living-glyph.status-known {
+  color: #eab308;
+}
+
+.sc-research-glyph-advanced.is-completed .sc-research-completed-star,
+.sc-research-topic-glyph.status-known .sc-research-completed-star {
+  transform-origin: 12px 4px;
+  animation: sc-research-adv-triumph-star 2.8s ease-in-out infinite alternate;
+  color: #fef08a;
+  filter: drop-shadow(0 0 3px rgba(250, 204, 21, 0.85));
+}
+
+.sc-research-glyph-advanced.is-completed .sc-research-completed-wreath,
+.sc-research-topic-glyph.status-known .sc-research-completed-wreath {
+  transform-origin: 12px 17px;
+  animation: sc-research-adv-wreath-breathe 3.6s ease-in-out infinite alternate;
+  color: #f59e0b;
+}
+
+.sc-research-glyph-advanced.is-completed .sc-research-wreath-leaf,
+.sc-research-topic-glyph.status-known .sc-research-wreath-leaf {
+  color: #fbbf24;
+}
+
+/* --- Keyframe Animations --- */
+
+/* Locked state animations */
+@keyframes sc-research-adv-lock-breathe {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0.45;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-research-adv-lock-rattle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-1.5deg);
+  }
+  60% {
+    transform: rotate(1.5deg);
+  }
+}
+
+/* Available state animations */
+@keyframes sc-research-adv-avail-aura {
+  0% {
+    opacity: 0.28;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 0.65;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes sc-research-adv-beacon-wave {
+  0% {
+    r: 1.5;
+    opacity: 0.95;
+    stroke-width: 1;
+  }
+  50% {
+    r: 3.8;
+    opacity: 0.45;
+    stroke-width: 0.7;
+  }
+  100% {
+    r: 5.2;
+    opacity: 0;
+    stroke-width: 0.4;
+  }
+}
+
+@keyframes sc-research-adv-spark-twinkle {
+  0% {
+    transform: scale(0.85) rotate(-15deg);
+    opacity: 0.75;
+    filter: drop-shadow(0 0 1px rgba(250, 204, 21, 0.6));
+  }
+  100% {
+    transform: scale(1.22) rotate(15deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.95));
+  }
+}
+
+/* Studying state animations */
+@keyframes sc-research-adv-study-aura {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1.14);
+  }
+}
+
+@keyframes sc-research-adv-flame-flicker {
+  0%, 100% {
+    transform: scale(0.95) translate3d(0, 0, 0);
+    opacity: 0.88;
+  }
+  25% {
+    transform: scale(1.12) translate3d(-0.35px, -0.4px, 0);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(0.98) translate3d(0.35px, -0.2px, 0);
+    opacity: 0.92;
+  }
+}
+
+@keyframes sc-research-adv-ring-pulse {
+  0%, 100% {
+    stroke-opacity: 0.75;
+    filter: drop-shadow(0 0 1px rgba(245, 158, 11, 0.5));
+  }
+  50% {
+    stroke-opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.9));
+  }
+}
+
+/* Completed state animations */
+@keyframes sc-research-adv-complete-aura {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes sc-research-adv-triumph-star {
+  0% {
+    transform: scale(0.92) rotate(-8deg);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.2) rotate(12deg);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-research-adv-wreath-breathe {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+/* Accessibility: prefers-reduced-motion reset */
+@media (prefers-reduced-motion: reduce) {
+  .sc-research-glyph-advanced,
+  .sc-research-glyph-advanced *,
+  .sc-research-advanced-aura,
+  .sc-research-state-layer,
+  .sc-research-state-layer *,
+  .sc-research-lock-shackle,
+  .sc-research-available-beacon,
+  .sc-research-available-spark,
+  .sc-research-studying-flame,
+  .sc-research-ink-progress-ring,
+  .sc-research-completed-star,
+  .sc-research-completed-wreath {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+  .sc-research-advanced-aura {
+    opacity: 0.4 !important;
+  }
+}

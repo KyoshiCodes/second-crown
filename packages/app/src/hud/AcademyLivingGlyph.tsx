@@ -1,6 +1,12 @@
 import React from "react";
 import type { StudyStatus } from "./StudyLedger";
 import "./academy-glyph-living.css";
+import "./research-glyph-advanced.css";
+import {
+  ResearchStateSvgLayer,
+  resolveResearchGlyphState,
+  type ResearchGlyphState,
+} from "./ResearchGlyphAdvanced";
 
 export type ResearchDiscipline =
   | "agronomy"
@@ -615,18 +621,22 @@ export function StudyLivingUnderlay(props: {
 }) {
   const { topicId, discipline, status, academyFast, progress } = resolveStudyLiving(props);
   const isTier2 = isTierTwoStudy(topicId);
+  const glyphState = resolveResearchGlyphState({ status, progress });
   const pct = progress !== undefined ? Math.round(Math.min(1, Math.max(0, progress)) * 100) : undefined;
   return (
     <span
-      className={`sc-academy-living-underlay sc-research-living-underlay discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}${isTier2 ? " is-tier-2" : ""}`}
+      className={`sc-academy-living-underlay sc-research-living-underlay discipline-${discipline} status-${status} is-${glyphState} state-${glyphState}${academyFast ? " is-fast" : ""}${isTier2 ? " is-tier-2" : ""}`}
       aria-hidden="true"
       data-study-watermark={topicId}
       data-study-discipline={discipline}
+      data-study-status={status}
+      data-study-state={glyphState}
       data-study-tier={isTier2 ? "2" : "1"}
       data-progress={pct}
     >
       <svg viewBox="0 0 24 24" className="sc-academy-underlay-svg sc-research-underlay-svg" focusable="false">
         <TopicEmblemSvg topicId={topicId} discipline={discipline} />
+        <ResearchStateSvgLayer status={status} state={glyphState} progress={progress} />
       </svg>
     </span>
   );
@@ -635,6 +645,11 @@ export function StudyLivingUnderlay(props: {
 /**
  * Living 14x14 research topic emblem & flair strip rendered directly beneath
  * `StudyLedger` on each study card in `ResearchBar`.
+ * Upgraded with animated living vector states:
+ * - Locked: iron padlock shackle arch, lock body, keyhole, and metallic vigilance breathing
+ * - Available: radiant discovery diamond spark, expanding beacon wave, welcoming inquiry pulse
+ * - Studying: circular ink progress ring, flickering scholar lamp flame, and warm amber glow
+ * - Completed: master scholar laurel wreath, celestial triumph star, and golden coronation halo
  */
 export function StudyLivingGlyph(props: {
   topicId: string;
@@ -644,33 +659,22 @@ export function StudyLivingGlyph(props: {
 }) {
   const { topicId, discipline, status, academyFast, flair, progress } = resolveStudyLiving(props);
   const isTier2 = isTierTwoStudy(topicId);
+  const glyphState = resolveResearchGlyphState({ status, progress });
   const pct = progress !== undefined ? Math.round(Math.min(1, Math.max(0, progress)) * 100) : undefined;
   return (
     <span
-      className={`sc-academy-topic-glyph sc-research-topic-glyph sc-research-living-glyph discipline-${discipline} status-${status}${academyFast ? " is-fast" : ""}${isTier2 ? " is-tier-2" : ""}`}
+      className={`sc-academy-topic-glyph sc-research-topic-glyph sc-research-living-glyph discipline-${discipline} status-${status} is-${glyphState} state-${glyphState}${academyFast ? " is-fast" : ""}${isTier2 ? " is-tier-2" : ""}`}
       aria-hidden="true"
       data-study-glyph={topicId}
       data-study-discipline={discipline}
       data-study-status={status}
+      data-study-state={glyphState}
       data-study-tier={isTier2 ? "2" : "1"}
       data-progress={pct}
     >
       <svg viewBox="0 0 24 24" className="sc-academy-glyph-icon sc-research-glyph-icon" focusable="false">
         <TopicEmblemSvg topicId={topicId} discipline={discipline} />
-        {progress !== undefined && status === "studying" ? (
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            strokeDasharray="62.8"
-            strokeDashoffset={62.8 * (1 - Math.min(1, Math.max(0, progress)))}
-            className="sc-research-ink-progress-ring"
-            opacity="0.8"
-          />
-        ) : null}
+        <ResearchStateSvgLayer status={status} state={glyphState} progress={progress} />
       </svg>
       <span className="sc-academy-glyph-flair sc-research-glyph-flair">{flair}</span>
     </span>
@@ -685,3 +689,11 @@ export const resolveResearchLiving = resolveStudyLiving;
 export const resolveResearchGlyphDescriptor = resolveStudyLiving;
 export type ResearchLivingDescriptor = StudyLivingDescriptor;
 export type ResearchDisciplineKind = ResearchDiscipline;
+export {
+  ResearchGlyphAdvanced,
+  ResearchAdvancedGlyph,
+  LivingResearchGlyph,
+  ResearchStateSvgLayer,
+  resolveResearchGlyphState,
+  type ResearchGlyphState,
+} from "./ResearchGlyphAdvanced";

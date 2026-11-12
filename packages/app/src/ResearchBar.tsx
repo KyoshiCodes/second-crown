@@ -146,11 +146,13 @@ function Row(props: {
     }
     return r;
   });
+  const glyphState = status === "known" ? "completed" : status === "open" ? "available" : status;
   return (
     <div
-      className={`sc-study-living-card is-${status} sc-research-living-card${prereq ? " sc-research-tree-card" : ""}`}
+      className={`sc-study-living-card is-${status} is-${glyphState} sc-research-living-card${prereq ? " sc-research-tree-card" : ""}`}
       data-study={id}
       data-tier={researchTier(id)}
+      data-study-state={glyphState}
       data-progress={Math.round(progress * 100)}
       title={effect}
     >

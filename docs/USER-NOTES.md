@@ -2,13 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-12 — Study cards: clearer costs, needs, and progress (wave/research-advanced, not on the live site yet)
+## 2026-11-12 — Living research glyphs showing locked, available, and completed states (bakeoff/gemini-research-advanced)
 
-- **Needs list.** Each study you have not started now has a short "Needs" list with a tick or a cross on every line: the Keep level, the earlier study it builds on, and the building it needs. A cross tells you what is missing, for example "Keep III, yours is Keep I" or "Surveying, study it first".
-- **Costs.** When you cannot afford something, the red cost chip also shows how much you have, for example "20 food, have 7".
-- **Progress.** A study in progress shows a percent, the seconds left, and the full length, for example "58% · 10s left of 24s". Before you start, the card tells you how many seconds your Academy saves.
-- **The tree.** First studies now say which deeper study they lead to. Each tier heading has a small bar showing how many of its studies you know.
-- **Nothing about the rules changed.** Costs, times, and requirements are exactly as before.
+- **Living research emblems on study cards:** Research cards in the Academy Lectern on the Kingdom tab now feature animated living illustrations that visually reflect their exact state:
+  - **Locked:** Sealed with a sturdy iron padlock shackle and casing that gently breathes with cold iron vigilance, signaling prerequisites, hall requirements, or Keep gates that still need to be built.
+  - **Available:** A radiant 4-point golden discovery spark and pulsing circular beacon invite study, showing that all prerequisites and costs are ready to be pursued. When an Academy stands, an azure speed shimmer is added.
+  - **Studying:** An active circular ink progress ring traces your scholars' progress, crowned with a flickering lantern flame illuminating the lectern.
+  - **Completed:** Mastered knowledge is crowned with a celestial scholar star and an arching golden laurel wreath, celebrating codified wisdom.
+- **Zero gameplay impact:** All icons and animations are strictly decorative overlay layers (`pointer-events: none !important;`). They respect your operating system's reduced-motion settings and never block clicking Study or Cancel buttons or reading cost requirements.
 
 ## 2026-11-12 — Living omen pips that react to event types and progress (bakeoff/gemini-events-advanced)
 
