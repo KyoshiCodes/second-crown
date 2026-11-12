@@ -170,3 +170,9 @@
   .sc-diplo-living-row { animation: none !important; }
   .sc-diplo-living-meter-fill { transition: none; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-diplo-living-chip,
+.sc-diplo-living-chip * {
+  pointer-events: none;
+}

@@ -142,3 +142,8 @@
 @media (prefers-reduced-motion: reduce) {
   .sc-event-next-fill { animation: none !important; transition: none; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-event-next-fill {
+  pointer-events: none;
+}

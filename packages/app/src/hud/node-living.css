@@ -241,3 +241,8 @@
     transform: none !important;
   }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-node-card-pip {
+  pointer-events: none;
+}

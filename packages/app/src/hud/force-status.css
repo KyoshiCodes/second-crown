@@ -89,3 +89,9 @@
   .sc-force-row.is-eta .sc-force-row-fill { animation: none; }
   .sc-force-row-fill { transition: none; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-force-row-pip,
+.sc-force-row-fill {
+  pointer-events: none;
+}

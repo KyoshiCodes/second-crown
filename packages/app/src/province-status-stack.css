@@ -119,3 +119,9 @@
 @media (max-width: 560px) {
   .sc-provstat-row { grid-template-columns: 70px 1fr; font-size: 11px; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-provstat-pip,
+.sc-provstat-bar-fill {
+  pointer-events: none;
+}

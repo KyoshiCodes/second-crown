@@ -190,3 +190,10 @@
   .sc-study-living-meter.is-run .sc-study-living-meter-fill { animation: none !important; }
   .sc-study-living-meter-fill { transition: none; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-study-living-chip,
+.sc-study-living-chip *,
+.sc-study-living-meter-fill {
+  pointer-events: none;
+}

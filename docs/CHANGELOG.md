@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-12 — CSS hygiene pass 2 (wave/css-hygiene-2, not merged)
+
+- **Audit:** all 137 stylesheets under `packages/app/src` checked for conflict markers (none), unbalanced braces (none), unused rules, `theme.css` leakage, and pointer events on living decoration.
+- **Dead styles removed:** 23 classes no component renders, in `hud/atlas-effects.css`, `atlas-units.css`, `button-pips.css`, `copy-flash.css`, `faction-seals.css`, `force-card.css`, `hold-action-pip.css`, `hold-actions.css`, `inspect-card.css`, `living-glyph-soften.css`, `offer-card.css` and `keep-interior.css`. Deleted `hud/leave-confirm.css` (imported nowhere, its classes unused since the leave card replaced the confirm row).
+- **Pointer events:** 24 `aria-hidden` pips, chips and meter fills that animate but had no rule of their own now carry `pointer-events: none` in their own file (20 files).
+- **Not changed:** `theme.css`, `packages/sim`, `server/`, any component or test. No visible change expected.
+- **Tests:** sim 362, app 1043, server 158, app build clean.
+
 ## 2026-11-12 — Living research glyphs showing locked, available, and completed states (bakeoff/gemini-research-advanced)
 
 - **Upgraded living research glyphs (`ResearchGlyphAdvanced` / `StudyLivingGlyph` / `ResearchStateSvgLayer`):** Created enhanced animated vector states and heraldry (`packages/app/src/hud/ResearchGlyphAdvanced.tsx` & `research-glyph-advanced.css`):

@@ -43,19 +43,4 @@
 }
 .sc-force-eta { flex: none; font-size: 11px; color: var(--chrome-accent); font-variant-numeric: tabular-nums; }
 .sc-force-dest { font-size: 11px; opacity: 0.8; }
-.sc-force-detail {
-  font-size: 11px;
-  opacity: 0.7;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .sc-force-btn { align-self: flex-start; margin-top: 2px; padding: 1px 8px; font-size: 11px; }
-.sc-force-captain {
-  font-size: 11px;
-  font-style: italic;
-  color: var(--chrome-accent);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}

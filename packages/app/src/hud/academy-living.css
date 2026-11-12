@@ -129,3 +129,8 @@
   .sc-study-ledger-bar.is-run .sc-study-ledger-fill { animation: none !important; }
   .sc-study-ledger-fill { transition: none; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-study-ledger-fill {
+  pointer-events: none;
+}

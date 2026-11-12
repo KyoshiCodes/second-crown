@@ -96,3 +96,9 @@
   .sc-unit-row.is-live .sc-unit-row-fill { animation: none !important; }
   .sc-unit-row-fill { transition: none; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-unit-row-pip,
+.sc-unit-row-fill {
+  pointer-events: none;
+}

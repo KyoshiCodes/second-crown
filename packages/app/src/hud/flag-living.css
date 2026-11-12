@@ -232,3 +232,8 @@
     animation: none !important;
   }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-flag-meter-fill {
+  pointer-events: none;
+}

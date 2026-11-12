@@ -1,15 +1,11 @@
 /* Living effect and status treatment on diamond board / atlas — isolated styles (do not touch theme.css) */
 
-.sc-atlas-status-effect,
-.sc-atlas-status-effect *,
 .sc-atlas-status-clash,
 .sc-atlas-status-clash *,
 .sc-atlas-status-incoming,
 .sc-atlas-status-incoming *,
 .sc-atlas-status-trail,
-.sc-atlas-status-trail *,
-.sc-atlas-status-weather-spark,
-.sc-atlas-status-weather-spark * {
+.sc-atlas-status-trail * {
   pointer-events: none !important;
 }
 

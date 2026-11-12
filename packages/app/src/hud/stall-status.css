@@ -97,3 +97,8 @@
 .sc-offer-grid:has(.sc-stall-status) {
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-stall-row-pip {
+  pointer-events: none;
+}

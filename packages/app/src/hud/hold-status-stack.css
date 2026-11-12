@@ -88,3 +88,8 @@
 @media (max-width: 560px) {
   .sc-holdstat-row { grid-template-columns: 62px 1fr; font-size: 11px; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-holdstat-pip {
+  pointer-events: none;
+}

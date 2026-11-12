@@ -175,3 +175,9 @@
   .sc-quest-living-row { animation: none !important; }
   .sc-quest-living-meter-fill { transition: none; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-quest-living-chip,
+.sc-quest-living-chip * {
+  pointer-events: none;
+}

@@ -96,7 +96,6 @@
 .sc-shell .sc-season-pip-wrapper,
 .sc-shell .sc-season-status-line,
 .sc-shell .sc-research-ink-pip,
-.sc-shell .sc-study-ink-pip,
 .sc-shell .sc-ink-pip-wrapper,
 .sc-shell .sc-study-ink-badge,
 .sc-shell .sc-ink-pot-container,
@@ -705,18 +704,6 @@
   opacity: 0.36 !important;
 }
 .sc-shell .sc-hold-living-pulse {
-  opacity: 0.45 !important;
-}
-
-/* People Living Walker Glow & Footpath */
-.sc-shell .sc-people-living-glow {
-  filter: drop-shadow(0 0 1px currentColor) !important;
-  opacity: 0.36 !important;
-}
-.sc-shell .sc-people-living-footpath {
-  opacity: 0.22 !important;
-}
-.sc-shell .sc-people-living-pulse {
   opacity: 0.45 !important;
 }
 

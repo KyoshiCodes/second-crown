@@ -167,3 +167,9 @@
   .sc-decree-living-row { animation: none !important; }
   .sc-decree-living-meter-fill { transition: none; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-decree-living-chip,
+.sc-decree-living-chip * {
+  pointer-events: none;
+}

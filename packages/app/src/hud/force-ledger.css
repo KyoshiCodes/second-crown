@@ -108,3 +108,8 @@
   .sc-force-ledger-fill { animation: none !important; }
   .sc-force-ledger-fill { transition: none; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-force-ledger-fill {
+  pointer-events: none;
+}

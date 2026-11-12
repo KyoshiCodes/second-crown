@@ -1,11 +1,5 @@
 /* Styles for CopyFlashPip only. Do not touch theme.css. */
 
-.sc-copy-flash-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
 .sc-copy-flash-pip-wrapper {
   display: inline-flex;
   align-items: center;

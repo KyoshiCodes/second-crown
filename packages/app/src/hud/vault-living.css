@@ -244,3 +244,8 @@
 @media (max-width: 420px) {
   .sc-vault-cards { grid-template-columns: 1fr 1fr; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-vault-card-pip {
+  pointer-events: none;
+}

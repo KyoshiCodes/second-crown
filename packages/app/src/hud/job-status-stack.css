@@ -85,3 +85,8 @@
 @media (max-width: 560px) {
   .sc-jobstat-row { grid-template-columns: 40px 1fr; font-size: 10px; }
 }
+
+/* Hygiene: decorative pips, chips and meter fills never take pointer events. */
+.sc-jobstat-pip {
+  pointer-events: none;
+}

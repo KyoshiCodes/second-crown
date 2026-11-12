@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-12 — Style clean-up (wave/css-hygiene-2, not merged)
+
+- **Nothing should look different.** Unused style rules were removed, and small decorative dots, chips and progress fills on status rows can no longer get in the way of a click or a hover tooltip.
+
 ## 2026-11-12 — Living research glyphs showing locked, available, and completed states (bakeoff/gemini-research-advanced)
 
 - **Living research emblems on study cards:** Research cards in the Academy Lectern on the Kingdom tab now feature animated living illustrations that visually reflect their exact state:
