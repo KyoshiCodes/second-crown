@@ -2,12 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-11 — Age line with progress and an Ascend button on the Kingdom tab (wave/prestige-line, not merged yet)
+## 2026-11-11 — Living prestige crest and age seal on the prestige status line (bakeoff/gemini-prestige-line)
 
-- **Age line.** The age line on the Kingdom tab now shows how close you are to the next age. Example: **Age · Dawn 0 · 15K / 30K total resources (50%) · not ready yet**, with a small progress bar.
-- **Ascend button.** When your stores reach the requirement, the line turns gold and shows an **Ascend** button, so you no longer have to go to the Crown tab.
-- **It asks first.** Ascending starts your kingdom over, so the first press only asks. Press **Confirm ascend** to go ahead or **Cancel** to back out.
-- **Same ascension as before.** Nothing about ascending changed: same requirement, same reset, same dawn bonus. The Second Dawn card on the Crown tab still works too.
+- **Living age seal that evolves with your realm:** The prestige / age status line on the Kingdom tab now features a living heraldic crest that visually transforms as your kingdom advances through its Dawns:
+  - **Dawn 0 (Mortal Dawn):** An ancient stone arch foundation beneath a quiet morning crescent and pale dawn horizon.
+  - **Dawn 1 (First Second Dawn):** A gilded solar disc crowned with an arching laurel wreath and single radiant apex star.
+  - **Dawn 2 (Age of Crowns):** A twin-peaked heraldic coronet flanked by twin radiant stars.
+  - **Dawn 3 (Imperial Epoch):** A grand imperial diadem crown with triple constellation stars and a vibrant mantle.
+  - **Dawn 4+ (Celestial Era):** A mythic celestial crown with diamond heart, quad constellation stars, and a luminous solar corona.
+  - **Shared Realm:** An enduring stone monolith with an azure celestial disc.
+- **Living ascension alert:** When your kingdom gathers enough resources to claim its next Second Dawn, a pulsing light ripple expands outward from the seal and solar rays shimmer, indicating that your realm is ready to ascend from the Crown tab.
+- **Zero gameplay impact:** The crest is purely visual (`pointer-events: none !important;`), honors reduced-motion settings, and never interferes with buttons or reading. Ascension rules and resource requirements are unchanged.
 
 ## 2026-11-11 — Study cards show the cost again
 

@@ -1,12 +1,21 @@
 # CHANGELOG
 
-## 2026-11-11 — Age / prestige status line with an Ascend button on the Kingdom tab (wave/prestige-line, not merged)
+## 2026-11-11 — Living prestige crest or age seal pip on prestige status line (bakeoff/gemini-prestige-line)
 
-- **Changed line (app only):** the Kingdom tab's age line is now a status line with progress and a button. It shows the current age (**Dawn N**), the stores held against the next-age requirement (for example **15K / 30K total resources (50%)**), a small progress bar, and, when the crown is ready, an **Ascend** button.
-- **Two presses to ascend:** ascending restarts the run, so the first press only asks. The line turns red, says what starts over, and offers **Confirm ascend** and **Cancel**. The Crown tab's Second Dawn card still ascends in one press and is unchanged.
-- **Same rules as before:** readiness is the sim's `canAscend`, the requirement is the sim's `ascendThreshold`, and the confirm calls the sim's `tryAscend`, the same call the Second Dawn card makes. No prestige math changed.
-- **Files:** new `packages/app/src/PrestigeLine.tsx`, `prestige-line.css`, `PrestigeLine.test.tsx`; `tabs/KingdomTab.tsx` mounts `PrestigeLine` where the read-only `AgeLine` was. `AgeLine.tsx` stays (its `AgeGlyphPip` is reused) but the `AgeLine` component is no longer mounted. No edits to `packages/sim`, `server/`, or `theme.css`.
-- **Tests:** sim 362, app 949 (13 new), server 158 passing. App build clean.
+- **Dedicated living prestige crest & age seal pip (`PrestigePip` / `PrestigeCrestPip` / `AgeSealPip` / `LivingPrestigePip`):** Created bespoke animated heraldic prestige crest pips (`packages/app/src/hud/PrestigePip.tsx` & `prestige-pip.css`) rendering layered SVG vector heraldry (24×24) transforming dynamically across prestige thresholds (Dawn 0..4+ and shared hold):
+  - **Tier 0 / Dawn 0 (`mortal` / Mortal Dawn):** Rustic ashlar masonry arch, quiet morning crescent dawn horizon, and single soft dawn pip with stone-slate tones (`sc-prestige-horizon`).
+  - **Tier 1 / Dawn 1 (`second-dawn` / First Second Dawn):** Gilded solar disc, arching golden laurel wreath (`sc-prestige-laurel`), and single radiant apex star (`sc-prestige-star-1`).
+  - **Tier 2 / Dawn 2 (`ascendant` / Age of Crowns):** Twin-peaked heraldic coronet diadem, dual laurels, and twin radiant heraldic stars (`sc-prestige-star-1`, `sc-prestige-star-2`).
+  - **Tier 3 / Dawn 3 (`imperial` / Imperial Epoch):** Imperial crown diadem with central jewel, triple constellation stars, and sunburst mantle (`sc-prestige-star-1`, `sc-prestige-star-2`, `sc-prestige-star-3`).
+  - **Tier 4+ / Dawn 4+ (`celestial` / Celestial Era):** Mythic celestial crown with diamond heart, quad constellation stars, and solar corona halo.
+  - **Shared hold (`shared` / Enduring Epoch):** Enduring stone foundation monolith with deep sapphire celestial disc and white foundation star.
+- **Living ascension readiness treatment:**
+  - When the realm's resources reach or exceed the ascension threshold (`ready={true}` or `canAscend(state)`), the seal activates an expanding radial ripple ring (`sc-prestige-ready-ring`), heightened atmospheric aura breathing (`sc-prestige-aura`), and solar starburst rays (`sc-prestige-rays-group`).
+- **Prestige status line integration (`PrestigeStatusLine` / `PrestigeLine` & `AgeLine`):**
+  - Enhanced `AgeLine.tsx` with dynamic prestige crest heraldry (`AgeGlyphPip` / `PrestigePip`), `.sc-prestige-line`, `data-prestige={dawn}`, `data-prestige-tier={tier}`, and export aliases (`PrestigeLine`, `PrestigeStatusLine`, `PrestigeCrestPip`, `AgeSealPip`, `LivingPrestigePip`).
+  - Provides standalone `PrestigeStatusLine` component combining the living pip with current dawn and resource ascension threshold description.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strict `pointer-events: none !important;` and `user-select: none;` on all decorative containers, SVG layers, and ripple rings. Full `@media (prefers-reduced-motion: reduce)` disabling all animations and transitions.
+- **Tests:** New test suite `packages/app/src/hud/PrestigePip.test.tsx` (16 tests) verifying tier and epoch resolution, vector heraldry across tiers 0..4+, readiness rings, shared holds, `PrestigeStatusLine` integration, and CSS isolation. Full test suite (sim 362, app 952, server 158) passing cleanly. App build clean.
 
 ## 2026-11-11 — Fix: Cost row back on the living lectern study cards (main)
 

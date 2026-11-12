@@ -1,13 +1,36 @@
-## 2026-11-11 — app / age and prestige status line with an Ascend button on the Kingdom tab (wave/prestige-line, not merged)
+## 2026-11-11 — app / living prestige crest or age seal pip on prestige status line (bakeoff/gemini-prestige-line)
 
-- **Component (`packages/app/src/PrestigeLine.tsx`):** exports `PrestigeLine({ state, act })`, the hook-free `PrestigeLineView({ status, armed, onArm, onCancel, onAscend })`, and `prestigeStatus(state)`. Renders `div.sc-prestige-line` with `is-waiting` / `is-ready` / `is-shared` (+ `is-armed`), `data-dawn`, `data-ready`, `data-percent`. Returns `null` without state.
-- **Sim calls only:** `ascendThreshold`, `canAscend`, and `tryAscend` through `act`, with the same two messages as `hud/DawnCard.tsx` ("Ascended. Pick a doctrine." / "Not ready."). No new rules, no flags, no save change.
-- **One display sum:** the sim does not export the total that `canAscend` compares, and this slice may not edit `packages/sim`, so `prestigeStatus` adds up `state.resources` with the sim's `D` for display. It never decides readiness: `ready` is `canAscend`, and the percent is floored and capped at 99 unless `canAscend` is true (then 100). `PrestigeLine.test.tsx` checks `ready` and `percent === 100` against `canAscend` at several ages and totals. Cleaner later: export a `resourceTotal` from the sim and delete the loop (needs the owner's OK for a sim edit).
-- **Two-press confirm:** `armed` is local React state in `PrestigeLine`. First press arms, `Confirm ascend` runs `tryAscend`, `Cancel` disarms. If stores drop below the requirement while armed, the view falls back to the progress text with no buttons. `DawnCard` keeps its one-press Ascend.
-- **Shared hold:** when `sharedRealmId(state)` is not null the line reads "a shared hold has no Second Dawn.", with no bar and no button (same rule as `DawnCard`). `sharedRealmId` returns null today, so this path is covered through `PrestigeLineView` in tests.
-- **Mount:** `tabs/KingdomTab.tsx`, between `CultureLine` and `DecreeHint`, replacing `<AgeLine state={state} />`. `AgeLine.tsx`, `age-line.css` and `AgeLine.test.tsx` are untouched; `AgeGlyphPip` is imported from there. The `AgeLine` component itself is now unused and can be deleted in a cleanup slice.
-- **Styling:** `packages/app/src/prestige-line.css`, scoped to `.sc-prestige-*`. Buttons reuse `sc-work-btn`. Bar transition is off under `prefers-reduced-motion`. No `theme.css` edits (a test checks).
-- **Tests:** `PrestigeLine.test.tsx` (13 tests). Sim 362, app 949, server 158 (1 skipped: symlink permission on Windows). `npm run build -w @second-crown/app` clean.
+- **Components (`packages/app/src/hud/PrestigePip.tsx`):**
+  - Exports `PrestigePip`, `PrestigeCrestPip`, `AgeSealPip`, `LivingPrestigePip`, `PrestigeGlyphPip`, `PrestigeStatusLine`, `PrestigeLine`, `PrestigeTier` (0..4), `PrestigeEpoch` (`"mortal" | "second-dawn" | "ascendant" | "imperial" | "celestial" | "shared"`), `resolvePrestigeTier`, `resolvePrestigeEpoch`, and `resolvePrestigeTitle`.
+  - Pure resolution helpers:
+    - `resolvePrestigeTier(dawn)`: maps numerical dawn to 0..4 tier clamped with `Number.isFinite` guard against `NaN`.
+    - `resolvePrestigeEpoch(dawn, shared)`: maps dawn and shared state to semantic epoch strings.
+    - `resolvePrestigeTitle(dawn, ready, shared)`: produces accessible human-readable titles (e.g. `Prestige 2 · Age of Crowns · Ready to Ascend`).
+  - Phrasing wrapper `<span className="sc-prestige-pip-wrapper">` with `aria-hidden="true"`, `data-prestige-pip="true"`, `data-prestige-tier={tier}`, `data-dawn={dawn}`, `data-epoch={epoch}`, `data-ready={ready}`.
+  - SVG vector heraldry (24×24 viewBox):
+    - Ambient aura glow (`.sc-prestige-aura` and `.sc-prestige-glow-layer`).
+    - Ready shockwave ring (`.sc-prestige-ready-ring`, pulsing with `sc-prestige-ready-pulse`).
+    - Tier-specific heraldic bodies:
+      - Tier 0: rustic ashlar masonry arch and morning crescent (`.sc-prestige-horizon`).
+      - Tier 1: solar disc and arching laurel wreath (`.sc-prestige-laurel`) with apex star (`.sc-prestige-star-1`).
+      - Tier 2: dual coronet with twin heraldic stars (`.sc-prestige-star-1`, `.sc-prestige-star-2`).
+      - Tier 3: imperial crown diadem with triple constellation stars (`.sc-prestige-star-1`, `.sc-prestige-star-2`, `.sc-prestige-star-3`).
+      - Tier 4: celestial crown with diamond heart and quad constellation stars (`.sc-prestige-star-1`..`4`).
+      - Shared: enduring sapphire monolith (`.sc-prestige-shared-group`).
+    - Cardinal solar rays and starburst (`.sc-prestige-rays-group`).
+  - `PrestigeStatusLine`: drop-in paragraph component combining `PrestigePip` with current dawn, resource threshold, and ascension notice.
+- **Styling (`packages/app/src/hud/prestige-pip.css` & `living-glyph-soften.css`):**
+  - Scoped strictly to `.sc-prestige-pip-wrapper`, `.sc-prestige-line`, `.sc-prestige-svg`, `.sc-prestige-aura`, `.sc-prestige-ready-ring`.
+  - All decorative wrappers, SVGs, and rings enforce `pointer-events: none !important;` and `user-select: none;`.
+  - Keyframe animations: `sc-prestige-breathe`, `sc-prestige-ready-pulse`, `sc-prestige-star-twinkle`, `sc-prestige-solar-flare`, `sc-prestige-rays-shimmer`.
+  - Added `.sc-shell .sc-prestige-pip-wrapper`, `.sc-shell .sc-prestige-line`, `.sc-shell .sc-prestige-svg`, `.sc-shell .sc-prestige-aura`, `.sc-shell .sc-prestige-ready-ring` to Section 1 pointer-events reset and reduced-motion block in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **UI Integration (`packages/app/src/AgeLine.tsx`):**
+  - Enriched `AgeLine` with `.sc-prestige-line`, `data-prestige={dawn}`, `data-prestige-tier={tier}`.
+  - Enhanced `AgeGlyphPip` to add dynamic prestige crest star elements (`.sc-prestige-pip-tier-star`) while strictly maintaining all existing attributes (`data-age-glyph`, `is-waiting`, `is-ready`, `style`, etc.) expected by existing tests.
+  - Exported drop-in aliases: `PrestigeLine`, `PrestigeStatusLine`, `PrestigeCrestPip`, `AgeSealPip`, `LivingPrestigePip`.
+- **Tests (`packages/app/src/hud/PrestigePip.test.tsx`):**
+  - 16 tests covering tier resolution, epoch resolution, SVG layers across tiers 0..4+, readiness rings, shared holds, `PrestigeStatusLine` integration with GameState, and CSS isolation.
 
 ## 2026-11-11 — app / fix: restore ResearchCostRow on living study cards (main)
 

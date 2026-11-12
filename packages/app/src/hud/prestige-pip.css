@@ -1,0 +1,205 @@
+/* --- Living Prestige Crest & Age Seal Pip (bakeoff/gemini-prestige-line) ---
+ * Isolated styling for PrestigePip, AgeSealPip, and PrestigeStatusLine.
+ * Strict pointer-events: none !important on all decorative layers.
+ * Never touches theme.css.
+ */
+
+.sc-prestige-pip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  vertical-align: middle;
+  pointer-events: none !important;
+  user-select: none;
+  line-height: 1;
+}
+
+.sc-prestige-pip-wrapper,
+.sc-prestige-pip-wrapper * {
+  pointer-events: none !important;
+}
+
+.sc-prestige-svg {
+  display: block;
+  pointer-events: none !important;
+  overflow: visible;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+/* ==========================================================================
+   Aura Halos & Breathing Animations
+   ========================================================================== */
+.sc-prestige-aura {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  pointer-events: none !important;
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+}
+
+.epoch-mortal .sc-prestige-aura {
+  background: radial-gradient(circle, rgba(168, 162, 158, 0.25) 0%, transparent 70%);
+}
+
+.epoch-second-dawn .sc-prestige-aura {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.12) 55%, transparent 75%);
+  animation: sc-prestige-breathe 3.2s ease-in-out infinite;
+}
+
+.epoch-ascendant .sc-prestige-aura {
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.45) 0%, rgba(202, 138, 4, 0.16) 55%, transparent 75%);
+  animation: sc-prestige-breathe 2.8s ease-in-out infinite;
+}
+
+.epoch-imperial .sc-prestige-aura {
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.5) 0%, rgba(194, 65, 12, 0.18) 55%, transparent 75%);
+  animation: sc-prestige-breathe 2.5s ease-in-out infinite;
+}
+
+.epoch-celestial .sc-prestige-aura {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.55) 0%, rgba(14, 165, 233, 0.2) 55%, transparent 75%);
+  animation: sc-prestige-breathe 2.2s ease-in-out infinite;
+}
+
+.epoch-shared .sc-prestige-aura {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 70%);
+}
+
+/* ==========================================================================
+   Ready Shockwave Ring
+   ========================================================================== */
+.sc-prestige-ready-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(254, 240, 138, 0.85);
+  pointer-events: none !important;
+  animation: sc-prestige-ready-pulse 2.2s ease-out infinite;
+}
+
+.is-ready .sc-prestige-glow-layer {
+  animation: sc-prestige-solar-flare 2.4s ease-in-out infinite alternate;
+}
+
+/* ==========================================================================
+   Constellation Stars & Laurel Flares
+   ========================================================================== */
+.sc-prestige-star-1 {
+  animation: sc-prestige-star-twinkle 2.4s ease-in-out infinite;
+  transform-origin: 12px 5.4px;
+}
+
+.sc-prestige-star-2 {
+  animation: sc-prestige-star-twinkle 2.4s ease-in-out 0.8s infinite;
+  transform-origin: 16px 8px;
+}
+
+.sc-prestige-star-3 {
+  animation: sc-prestige-star-twinkle 2.4s ease-in-out 1.6s infinite;
+  transform-origin: 12px 5.4px;
+}
+
+.sc-prestige-star-4 {
+  animation: sc-prestige-star-twinkle 2.4s ease-in-out 1.2s infinite;
+  transform-origin: 12px 14px;
+}
+
+.sc-prestige-rays-group {
+  opacity: 0.75;
+  color: #f59e0b;
+  animation: sc-prestige-rays-shimmer 3s ease-in-out infinite alternate;
+}
+
+.epoch-mortal .sc-prestige-rays-group { color: #a8a29e; }
+.epoch-second-dawn .sc-prestige-rays-group { color: #f59e0b; }
+.epoch-ascendant .sc-prestige-rays-group { color: #eab308; }
+.epoch-imperial .sc-prestige-rays-group { color: #f97316; }
+.epoch-celestial .sc-prestige-rays-group { color: #38bdf8; }
+
+.sc-prestige-horizon {
+  color: #78716c;
+}
+
+.epoch-second-dawn .sc-prestige-horizon { color: #d97706; }
+.epoch-ascendant .sc-prestige-horizon { color: #ca8a04; }
+.epoch-imperial .sc-prestige-horizon { color: #c2410c; }
+.epoch-celestial .sc-prestige-horizon { color: #0284c7; }
+
+/* ==========================================================================
+   Keyframes
+   ========================================================================== */
+@keyframes sc-prestige-breathe {
+  0%, 100% {
+    transform: scale(0.94);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.85;
+  }
+}
+
+@keyframes sc-prestige-ready-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+
+@keyframes sc-prestige-star-twinkle {
+  0%, 100% {
+    opacity: 0.75;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+}
+
+@keyframes sc-prestige-solar-flare {
+  0% {
+    opacity: 0.22;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 0.45;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-prestige-rays-shimmer {
+  0% {
+    opacity: 0.6;
+    stroke-width: 1px;
+  }
+  100% {
+    opacity: 0.95;
+    stroke-width: 1.3px;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-prestige-aura,
+  .sc-prestige-ready-ring,
+  .sc-prestige-glow-layer,
+  .sc-prestige-star-1,
+  .sc-prestige-star-2,
+  .sc-prestige-star-3,
+  .sc-prestige-star-4,
+  .sc-prestige-rays-group {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

@@ -26,13 +26,15 @@ export function AgeGlyphPip({
   className = "",
   style,
 }: AgeGlyphPipProps) {
+  const tier = Math.min(4, Math.max(0, dawn));
   const statusClass = shared ? "is-shared" : ready ? "is-ready" : "is-waiting";
   return (
     <span
-      className={`sc-age-glyph-wrap ${statusClass} ${className}`.trim()}
+      className={`sc-age-glyph-wrap ${statusClass} tier-${tier} ${className}`.trim()}
       style={{ width: size, height: size, pointerEvents: "none", ...style }}
       aria-hidden="true"
       data-age-glyph={shared ? "shared" : `dawn-${dawn}`}
+      data-prestige-tier={tier}
       data-ready={ready ? "true" : "false"}
       data-dawn={dawn}
     >
@@ -133,6 +135,27 @@ export function AgeGlyphPip({
             />
             {/* Center Morning Core Pip */}
             <circle cx="8" cy="11.5" r="1.3" fill="#fef08a" />
+            {/* Prestige Tier Pips */}
+            {tier === 1 ? (
+              <circle cx="8" cy="4.2" r="0.85" fill="#fef08a" className="sc-prestige-pip-tier-star" />
+            ) : tier === 2 ? (
+              <>
+                <circle cx="5.8" cy="4.8" r="0.75" fill="#fef08a" className="sc-prestige-pip-tier-star" />
+                <circle cx="10.2" cy="4.8" r="0.75" fill="#fef08a" className="sc-prestige-pip-tier-star" />
+              </>
+            ) : tier === 3 ? (
+              <>
+                <circle cx="5" cy="5.2" r="0.7" fill="#fef08a" className="sc-prestige-pip-tier-star" />
+                <circle cx="8" cy="3.6" r="0.8" fill="#ffffff" className="sc-prestige-pip-tier-star" />
+                <circle cx="11" cy="5.2" r="0.7" fill="#fef08a" className="sc-prestige-pip-tier-star" />
+              </>
+            ) : tier >= 4 ? (
+              <>
+                <circle cx="4.6" cy="5.2" r="0.65" fill="#93c5fd" className="sc-prestige-pip-tier-star" />
+                <circle cx="11.4" cy="5.2" r="0.65" fill="#93c5fd" className="sc-prestige-pip-tier-star" />
+                <polygon points="8,2.8 8.8,4.2 8,5.6 7.2,4.2" fill="#ffffff" className="sc-prestige-pip-tier-star" />
+              </>
+            ) : null}
           </>
         )}
       </svg>
@@ -153,7 +176,7 @@ export function AgeLine(props: { state: GameState | undefined }) {
   const shared = sharedRealmId(state) !== null;
   if (shared) {
     return (
-      <p className="sc-age-line is-shared" data-dawn={dawn}>
+      <p className="sc-age-line sc-prestige-line is-shared" data-dawn={dawn} data-prestige={dawn}>
         <AgeGlyphPip dawn={dawn} shared ready={false} />
         Age · <strong>Dawn {dawn}</strong> · a shared hold has no Second Dawn.
       </p>
@@ -162,10 +185,21 @@ export function AgeLine(props: { state: GameState | undefined }) {
   const ready = canAscend(state);
   const need = formatLetterSuffix(ascendThreshold(state));
   return (
-    <p className={`sc-age-line${ready ? " is-ready" : ""}`} data-dawn={dawn} data-ready={ready ? "true" : "false"}>
+    <p
+      className={`sc-age-line sc-prestige-line${ready ? " is-ready" : ""}`}
+      data-dawn={dawn}
+      data-prestige={dawn}
+      data-ready={ready ? "true" : "false"}
+    >
       <AgeGlyphPip dawn={dawn} ready={ready} />
       Age · <strong>Dawn {dawn}</strong> · next age at {need} total resources
       {ready ? " · ready, ascend from the Crown tab." : "."}
     </p>
   );
 }
+
+export const PrestigeLine = AgeLine;
+export const PrestigeStatusLine = AgeLine;
+export const PrestigeCrestPip = AgeGlyphPip;
+export const AgeSealPip = AgeGlyphPip;
+export const LivingPrestigePip = AgeGlyphPip;

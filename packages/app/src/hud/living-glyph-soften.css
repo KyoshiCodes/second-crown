@@ -92,6 +92,11 @@
 .sc-shell .sc-study-ink-badge,
 .sc-shell .sc-ink-pot-container,
 .sc-shell .sc-ink-droplet-track,
+.sc-shell .sc-prestige-pip-wrapper,
+.sc-shell .sc-prestige-line,
+.sc-shell .sc-prestige-svg,
+.sc-shell .sc-prestige-aura,
+.sc-shell .sc-prestige-ready-ring,
 .sc-shell [class*="-living-underlay"],
 .sc-shell [class*="-living-glow"],
 .sc-shell [class*="-living-pulse"],
@@ -887,6 +892,15 @@
   .sc-shell .sc-ink-wet-glimmer,
   .sc-shell .sc-ink-drop-body,
   .sc-shell .sc-research-ink-progress-ring,
+  .sc-shell .sc-prestige-aura,
+  .sc-shell .sc-prestige-ready-ring,
+  .sc-shell .sc-prestige-glow-layer,
+  .sc-shell .sc-prestige-star-1,
+  .sc-shell .sc-prestige-star-2,
+  .sc-shell .sc-prestige-star-3,
+  .sc-shell .sc-prestige-star-4,
+  .sc-shell .sc-prestige-rays-group,
+  .sc-shell .sc-prestige-pip-tier-star,
   .sc-shell .sc-board-living * {
     animation: none !important;
     transition: none !important;
