@@ -1,3 +1,18 @@
+## 2026-11-12 — app / keep banner and outpost flag status lines (wave/keep-banners)
+
+- **New `packages/app/src/hud/BannerStatusLine.tsx`.** Three pure readers that return a `BannerStatus` (`kind`, `tone`, `title`, `headline`, `parts`, `text`), plus one renderer:
+  - `keepBannerStatus(state, nameOf?)`: `incomingOnHome` (soonest `arrivesTick` first), `keepLevel`, `listOutposts().length`, and the number of distinct flag tiles in `incomingOnPlayerFlags`. Tone: danger if a host is on the keep, warn if only a flag is threatened, else safe.
+  - `flagBannerStatus(state, provinceId, nameOf?)`: null for home, unknown ids, unseen tiles, camps and unflagged tiles. Player flag: `incomingOnProvince`, `garrisonAt`, `garrisonPower`. Rival flag (occupant is not the player, node is not `hold` or `camp`): names the realm, tone calm.
+  - `flagsSummaryStatus(state)`: guarded / unguarded / threatened counts over `listOutposts`. Null with no flags.
+  - `BannerStatusLine` renders `.sc-bannerline.is-<kind>.tone-<tone>`; wrappers `KeepBannerLine`, `FlagBannerLine`, `FlagsSummaryLine`.
+- **No game math.** Seconds are `ceil((arrivesTick - tick) / TICKS_PER_SECOND)`, the same reading `OutpostLivingCard` uses. Per-tile tithe is deliberately not shown: it would mean copying the per-node rates inside `outpostTithePerTick` into the UI.
+- **Wiring.** `ProvinceInspect.tsx`: `banner = home ? keepBannerStatus(state) : flagBannerStatus(state, selectedId)`, rendered in the Tile group where the outpost line was; the old `outpostLine` text now shows only when there is no banner status (so only for hostile camps). `outpostLine.ts` and its tests are unchanged. `tabs/KingdomTab.tsx`: `KeepBannerLine` after `KeepGateCard` (passes the tab's fog-aware `nameOf`, so a host is "Unknown host" without a watchtower, same as the existing warnings), `FlagsSummaryLine` under the Flags `h3`.
+- **Inspect card names the realm directly** (default `nameOf`), matching the card's existing "Incoming contest" line, which already does.
+- **CSS.** `hud/banner-status.css`, prefix `sc-bannerline` (not `sc-banner-`, which belongs to `banner-chip.css`). Pennant pip is a `clip-path` shape with `pointer-events: none`. No animation, so no reduced-motion block is needed. `theme.css` untouched.
+- **Untouched.** `packages/sim`, `server/`, `packages/render`, the atlas/board banner and flag placement code, `OutpostLivingCard`, `FlagLivingGlyph`.
+- **Tests.** `hud/BannerStatusLine.test.tsx`, 26 tests: tones and wording for each state, fog and camp nulls, no state mutation, presence in `ProvinceInspect` and `KingdomTab`, CSS isolation. Sim 362, app 1069, server 158, app build clean.
+- **Not verified.** Not opened in a browser; UI covered by static-markup tests only.
+
 ## 2026-11-12 — app / CSS & SVG hygiene audit pass 2 (bakeoff/gemini-css-hygiene-2)
 
 - **Audit & Cleanup Scope (`packages/app`):**

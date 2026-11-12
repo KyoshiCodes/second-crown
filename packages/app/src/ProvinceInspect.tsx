@@ -53,6 +53,7 @@ import { trailLine } from "./hud/trailLine";
 import { RoadsLine } from "./hud/RoadsLine";
 import { garrisonLine } from "./hud/garrisonLine";
 import { outpostLine } from "./hud/outpostLine";
+import { BannerStatusLine, flagBannerStatus, keepBannerStatus } from "./hud/BannerStatusLine";
 import { scoutLine } from "./hud/scoutLine";
 import { gatherLine } from "./hud/gatherLine";
 import { holdLine } from "./hud/holdLine";
@@ -203,6 +204,8 @@ export function ProvinceInspect(props: {
   const incomingNote = incomingLine(state, selectedId);
   const trail = trailLine(state, selectedId);
   const outpost = outpostLine(state, selectedId);
+  // Keep banner on the home hold, flag status on a flagged tile. Replaces the bare outpost line when present.
+  const banner = home ? keepBannerStatus(state) : flagBannerStatus(state, selectedId);
   const seasonNote = seen ? seasonLine(state) : null;
   const garrisonNote = garrisonLine(state, selectedId);
   const scoutNote = scoutLine(state, selectedId);
@@ -264,7 +267,8 @@ export function ProvinceInspect(props: {
         {incomingNote ? <div className="sc-inspect-line sc-inspect-incoming">{incomingNote}</div> : null}
         {trail ? <div className="sc-inspect-line sc-inspect-trail">{trail}</div> : null}
         <RoadsLine state={state} provinceId={selectedId} />
-        {outpost ? (
+        <BannerStatusLine status={banner} />
+        {outpost && !banner ? (
           <div className={`sc-inspect-line sc-inspect-outpost ${outpost === "Your outpost" ? "is-yours" : "is-rival"}`}>{outpost}</div>
         ) : null}
         {seasonNote ? (

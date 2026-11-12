@@ -67,6 +67,7 @@ import { WorkCard } from "../hud/WorkCard";
 import { OfferCard } from "../hud/OfferCard";
 import { VaultLivingCards } from "../hud/VaultLivingCard";
 import { OutpostLivingCard } from "../hud/OutpostLivingCard";
+import { FlagsSummaryLine, KeepBannerLine } from "../hud/BannerStatusLine";
 import { BalanceNotes } from "../BalanceNotes";
 import { SeasonPip } from "../hud/SeasonPip";
 import "../hud/season-pip.css";
@@ -268,6 +269,7 @@ export function KingdomTab(props: {
         <p style={{ fontSize: 12, opacity: 0.6 }}>Every farm/camp/mine that can pair is next to its warehouse.</p>
       )}
       <KeepGateCard gate={gateRow} keepLv={keepLv} beds={beds} pop={pop} plots={plots} plotCap={plotCap} />
+      {state ? <KeepBannerLine state={state} nameOf={nameOf} /> : null}
       {incoming.length > 0 ? (
         <p style={{ fontSize: 13, color: "#f85149" }}>
           {incoming.map((m) => {
@@ -383,6 +385,7 @@ export function KingdomTab(props: {
       {flags.length > 0 ? (
         <>
           <h3>Flags</h3>
+          {state ? <FlagsSummaryLine state={state} /> : null}
           <div className="sc-plain-grid">
           {flags.map((p) => {
             const posted = state ? garrisonAt(state, p.id) : undefined;

@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-12 — Clearer banner and flag status (wave/keep-banners)
+
+- **Keep banner line.** Click your hold on the map, or open the Kingdom tab: a new line tells you at a glance whether the banner over your keep is **Flying** or **Under threat**, who is coming and in how many seconds, your Keep level, and how many flags you have out.
+- **Flag line.** Click a tile where you planted a flag: the card now says **Flying** (green, guarded), **Unguarded** (amber, nobody posted there) or **Under threat** (red, with who is marching and when). It also shows the garrison's power and how many soldiers hold it. A rival flag shows whose it is.
+- **Flags roll-up.** On the Kingdom tab, the Flags section starts with one line: how many flags are planted, how many are guarded, how many are not, and whether any are under threat.
+- **Colours.** Green is fine, amber wants attention, red means a host is on the way.
+- **No rule changes.** Nothing about how flags, garrisons or raids work has changed. These lines only report what the game already knows.
+
 ## 2026-11-12 — CSS & SVG hygiene audit pass 2 (bakeoff/gemini-css-hygiene-2)
 
 - **Click-blocking immunity & UI responsiveness:**

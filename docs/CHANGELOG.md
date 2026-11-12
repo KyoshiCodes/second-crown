@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-12 — Keep banner and outpost flag status lines (wave/keep-banners)
+
+- **Keep banner line.** New one-line status for the banner over your keep, on the home hold's inspect card and on the Kingdom tab under the Keep gate card: `Keep banner · Flying · no host inbound · Keep level N · N flags out, all quiet`. Red with `Under threat · <realm> arrives in Ns` when a host marches on the keep (soonest host first, plus a count when there is more than one); amber when the keep is safe but one of your flags is threatened.
+- **Outpost flag line.** On the inspect card of a flagged tile: `Your flag · Flying` (green, with garrison power and soldier count), `Your flag · Unguarded` (amber, "post a garrison to hold it") or `Your flag · Under threat` (red, with the realm and seconds). A seen rival flag reads `<realm> flag · Rival outpost`. It replaces the bare "Your outpost" text line; hostile camps keep "Rival camp".
+- **Flags roll-up.** Kingdom tab, under the Flags heading: `Flags · N flags planted · N guarded · N unguarded · no host inbound` (or `N under threat`). Hidden until a flag is planted.
+- **Scope.** App only: new `packages/app/src/hud/BannerStatusLine.tsx` and `hud/banner-status.css`; small edits in `ProvinceInspect.tsx` and `tabs/KingdomTab.tsx`. `packages/sim`, `server/`, `theme.css` and all banner/flag placement code untouched. Display only: reads existing sim readers, no new game math.
+- **Tests.** New `hud/BannerStatusLine.test.tsx` (26 tests). Full suite: sim 362, app 1069, server 158. App build clean.
+
 ## 2026-11-12 — CSS & SVG hygiene audit pass 2 (bakeoff/gemini-css-hygiene-2)
 
 - **Comprehensive CSS/SVG hygiene and pointer-events audit:** Audited all 137 CSS files and living pip/glyph/veil/meter layers across the app for performance, unreferenced marker leaks, and click-blocking hazards:
