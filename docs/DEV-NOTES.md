@@ -1,3 +1,15 @@
+## 2026-11-12 — app / fog status line on the province inspect card (wave/board-fog, not merged)
+
+- **`packages/app/src/hud/FogLine.tsx`:** exports `fogStatus(state, provinceId): FogStatus | null` (pure read) and `FogLine` (React block). `FogStatus` = `{ seen, label, range, steps, seenTiles, totalTiles, fogSides, reason }`.
+  - `seen` is `isProvinceSeen`; `range` is `visionRange`; `fogSides` counts `neighbors` that are not seen; `seenTiles` counts `isProvinceSeen` over `state.board.provinces`; the scout price is `scoutCost`.
+  - `steps` is the grid distance from the home province, shown for the player to compare with `range`. It is display only and never decides whether a tile is seen.
+  - `reason` is picked from `seen` and `steps <= range`. Weather helpers (`weatherFor`, `fogThickness`) are not exported from the sim index and the brief forbids sim edits, so "inside your range, but the weather thickens the fog" is inferred from an unseen tile inside range, which only weather thickness can cause in `systems/fog.ts`. If a later slice exports the weather helpers, name the weather directly here.
+- **Markup:** `<details class="sc-fog-line is-clear|is-hidden" data-fog="off|on" data-vision-range="N" open>`. Same native-toggle pattern as `RoadsLine`; no React state.
+- **Mount:** `ProvinceInspect.tsx`, Tile group, directly above `<RoadsLine>`. The old `Sight` fact, `Fog hides the token.` and `Fog edge` lines are left as they were.
+- **CSS:** `hud/fog-line.css`, scoped to `.sc-fog-*`. `theme.css` untouched (a test asserts it).
+- **Not touched:** `packages/sim`, `packages/render`, `server/`.
+- **Tests:** `hud/FogLine.test.tsx`, 12 tests (agrees with `isProvinceSeen` on every tile, counts, fog sides, no state mutation, markup, mount, CSS isolation). Full run: sim 362, app 1005, server 159; app build clean.
+
 ## 2026-11-11 — app / living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 
 - **Components (`packages/app/src/hud/BoardRoads.tsx`):**

@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-12 — Fog status on the tile card (wave/board-fog, not merged yet)
+
+- **New Fog line when you click a tile.** The tile card now says straight out whether fog covers the tile and how far your hold can see: **Fog · Clear · Vision 3** or **Fog · Hidden · Vision 3**.
+- **Click the line to open or close the details** (it starts open):
+  - why the tile is clear or hidden (inside your hold's vision, scouted or watched from a flag, too far, or thick weather);
+  - how many steps the tile is from your hold, next to how many steps your hold sees;
+  - how many sides of the tile still touch fog;
+  - on a hidden tile, the gold price of a scout column;
+  - how many tiles of the whole board you can see right now.
+- **Nothing about fog itself changed.** Same vision, same scouting, same weather effect. This only tells you what is already true.
+
 ## 2026-11-11 — Living roads, mountain trails, and connected route highlights on the board (bakeoff/gemini-board-roads)
 
 - **Visible road networks across the board:** The isometric map now displays a living network of roads and trails that visually connect your provinces:

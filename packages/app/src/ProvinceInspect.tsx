@@ -51,6 +51,7 @@ import { clashLine } from "./hud/clashLine";
 import { incomingLine } from "./hud/incomingLine";
 import { trailLine } from "./hud/trailLine";
 import { RoadsLine } from "./hud/RoadsLine";
+import { FogLine } from "./hud/FogLine";
 import { garrisonLine } from "./hud/garrisonLine";
 import { outpostLine } from "./hud/outpostLine";
 import { scoutLine } from "./hud/scoutLine";
@@ -263,6 +264,7 @@ export function ProvinceInspect(props: {
         {clash ? <div className="sc-inspect-line sc-inspect-clash">{clash}</div> : null}
         {incomingNote ? <div className="sc-inspect-line sc-inspect-incoming">{incomingNote}</div> : null}
         {trail ? <div className="sc-inspect-line sc-inspect-trail">{trail}</div> : null}
+        <FogLine state={state} provinceId={selectedId} />
         <RoadsLine state={state} provinceId={selectedId} />
         {outpost ? (
           <div className={`sc-inspect-line sc-inspect-outpost ${outpost === "Your outpost" ? "is-yours" : "is-rival"}`}>{outpost}</div>

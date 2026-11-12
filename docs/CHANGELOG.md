@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-12 — Fog status line on the province inspect card (wave/board-fog, not merged)
+
+- **New `FogLine` on `ProvinceInspect`** (`packages/app/src/hud/FogLine.tsx`, `hud/fog-line.css`). In the Tile group, just above Roads: `Fog · Clear · Vision 3` on a tile in sight, `Fog · Hidden · Vision 3` on a tile under fog. It is a native `<details>` toggle (starts open) over a short list: why the tile is clear or hidden, steps from your hold against the hold's vision, how many sides of the tile still border fog, the scout price on a hidden tile, and `Board: N of M tiles in sight`.
+- **Fog math untouched.** Every value comes from existing sim helpers (`isProvinceSeen`, `visionRange`, `neighbors`, `scoutCost`). The line decides no fog rule and writes nothing.
+- **Scope:** app only. No edits to `packages/sim`, `packages/render`, `server/` or `theme.css`. `ProvinceInspect.tsx` +2 lines.
+- **Tests:** new `hud/FogLine.test.tsx` (12 tests). Full run: sim 362, app 1005, server 159. App build clean.
+
 ## 2026-11-11 — Living road/trail glyphs and animated path marks on isometric board (bakeoff/gemini-board-roads)
 
 - **Dedicated living board roads & trail glyphs (`BoardRoads` / `BoardRoadLiving` / `BoardRoutes`):** Created bespoke animated road network and connected route overlay (`packages/app/src/hud/BoardRoads.tsx` & `board-roads.css`):

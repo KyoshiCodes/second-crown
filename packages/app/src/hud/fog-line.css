@@ -1,0 +1,88 @@
+/* Fog status on the province inspect card. Dedicated file: do not move into theme.css. */
+
+.sc-fog-line {
+  font-size: 12px;
+  color: #e7d9b8;
+}
+
+.sc-fog-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.sc-fog-head::-webkit-details-marker {
+  display: none;
+}
+
+/* Small open/closed caret so the toggle reads as a toggle. */
+.sc-fog-head::after {
+  content: "▸";
+  margin-left: auto;
+  opacity: 0.6;
+  font-size: 10px;
+}
+
+.sc-fog-line[open] > .sc-fog-head::after {
+  content: "▾";
+}
+
+.sc-fog-head:focus-visible {
+  outline: 1px solid #7dd3fc;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Round pip: bright when the tile is in sight, hollow slate when fog covers it. */
+.sc-fog-pip {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7dd3fc;
+  box-shadow: 0 0 0 1px rgba(8, 28, 44, 0.9);
+}
+
+.sc-fog-line.is-hidden .sc-fog-pip {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px #64748b;
+}
+
+.sc-fog-label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+  opacity: 0.65;
+}
+
+.sc-fog-summary {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-fog-line.is-hidden .sc-fog-summary {
+  color: #94a3b8;
+}
+
+.sc-fog-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0 0 0 14px;
+  display: grid;
+  gap: 2px;
+  opacity: 0.9;
+}
+
+.sc-fog-item.is-edge,
+.sc-fog-item.is-scout {
+  color: #bae6fd;
+}
+
+.sc-fog-item.is-board {
+  opacity: 0.7;
+}

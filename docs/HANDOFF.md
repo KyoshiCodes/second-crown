@@ -7,6 +7,7 @@ Read `AGENTS.md` then this file.
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
 
 `main` is at `13135c3` (living scroll glyphs under quest cards). The living-layer wave is **fully merged**: every `wave/*-living` and `bakeoff/gemini-*-living` branch is on `main`. There is no waiting list for HUD glyphs.
+Also waiting: `wave/board-fog` (**not merged**, pushed, no PR). Fog status line on the province inspect card: `Fog · Clear · Vision 3` / `Fog · Hidden · Vision 3`, a toggle over the vision details (reason, steps from hold, fog sides, scout price, tiles in sight). App only (`hud/FogLine.tsx`, `hud/fog-line.css`, +2 lines in `ProvinceInspect.tsx`); fog math, `packages/sim`, `server/` and `theme.css` untouched. On that branch: sim **362**, app **1005**, server **159**, app build clean.
 Also waiting: `bakeoff/gemini-board-roads` (**not merged**, living road/trail glyphs or animated path marks on isometric board that show connected routes, see below). On this branch: sim **362**, app **969**, server **158**, app build clean.
 Also waiting: `bakeoff/gemini-prestige-line` (**not merged**, living prestige crest or age seal pip on prestige status line, see below). On this branch: sim **362**, app **952**, server **158**, app build clean.
 Also waiting: `bakeoff/gemini-board-light` (**not merged**, richer lighting and atmosphere pass on the isometric board, see below). Per-slice detail lives in `CHANGELOG.md` (newest first) and `DEV-NOTES.md`; older versions of this file are in git history.
