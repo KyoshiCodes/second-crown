@@ -1,14 +1,13 @@
-## 2026-11-13 — app / season effect line (wave/season-wash)
+## 2026-11-13 — app / living season wash over isometric board (bakeoff/gemini-season-wash)
 
-- **Component (`packages/app/src/hud/SeasonEffectLine.tsx`):** exports `SeasonEffectLine`, `seasonEffectStatus(state)`, `SEASON_YIELD_STEPS`, `YIELD_PCT_PER_STEP`, `SEASON_SIGHT`. Reads `currentSeason(state)` only and looks the effect text up in two small tables. Reuses `SeasonPip`.
-- **Display copies, pinned by tests.** The sim does not export `seasonProductionBonus` (`systems/age.ts`) or anything from `systems/weather.ts`, and this slice may not touch the sim. So the line holds display-only copies, the same pattern as `SEASON_TICKS` in `SeasonClaimLine.tsx`:
-  - `SEASON_YIELD_STEPS` (Spring 1, Summer 0, Autumn 1, Winter 0) is checked against the exported `productionBonus` at the first tick of each season.
-  - `YIELD_PCT_PER_STEP` (4) is checked against `computeIncomePerSecond` on a one-farm state.
-  - The sight wording (snow likely in Winter, storm the only risk otherwise) is checked over 200 seeds through `isProvinceSeen`. No odds or fog factors are copied into the app.
-- **The +4% is additive.** `rateFor` in `systems/economy.ts` adds 0.04 per production step inside one multiplier, so with other bonuses active the real lift is slightly under 4% of current income.
-- **Sight is the season's tendency, not today's sky.** The season's weather is rolled once per season in the sim (`weatherFor`), which the app cannot read. If `weatherFor` and `fogThickness` are ever exported from `packages/sim/src/index.ts`, this line can show the actual sky and reach. Note `resolveAtmosphereWeather` in `packages/render` already looks for `sim.weatherFor` and falls back to a season guess when it is missing, so the board's drawn weather can differ from the sim's.
-- **Wiring:** `tabs/KingdomTab.tsx` mounts it after `SeasonClaimLine`. `ProvinceInspect.tsx` mounts it on seen tiles in place of the old `seasonLine` text. `hud/seasonLine.ts` and its test are left in place and are now unused by the app.
-- **Styling (`hud/season-effect.css`):** every selector starts with `.sc-season-effect`. No edits to `theme.css`.
+- **Components (`packages/app/src/hud/BoardSeasonWash.tsx`, `BoardLiving.tsx`):**
+  - Exported `BoardSeasonWash`, `normalizeBoardSeason`, `resolveSeasonWashDescriptor`, `type BoardSeasonKey`, and `type SeasonWashDescriptor` from `hud/BoardSeasonWash.tsx` and re-exported from `BoardLiving.tsx`.
+  - Uses `currentSeason(state)` and `isProvinceSeen(state, p.id)` from `@second-crown/sim` to tint seen isometric province diamonds (`.sc-board-season-wash-tile`), apply a subtle ambient gradient (`.sc-board-season-wash-ambient`), and soften unseen fog clusters (`.sc-board-season-wash-fog`) for `spring` (`#4ade80`), `summer` (`#fde047`), `autumn` (`#f59e0b`), and `winter` (`#bae6fd`).
+- **Styling (`packages/app/src/hud/board-season-wash.css`, `living-glyph-soften.css`):**
+  - Isolated keyframes (`sc-season-wash-breathe`, `sc-season-tile-pulse`, `sc-season-fog-soften`) with `pointer-events: none !important;`, `user-select: none;`, and `@media (prefers-reduced-motion: reduce)` guards; registered in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/BoardSeasonWash.test.tsx`):**
+  - 5 tests covering season normalization, 4-season color resolution, tile tint & fog veil rendering with `pointer-events: none`, `BoardLiving` integration, and CSS isolation.
 
 ## 2026-11-13 — app / living keep banners & outpost flags with realm colors (bakeoff/gemini-keep-banners)
 

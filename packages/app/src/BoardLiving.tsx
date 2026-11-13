@@ -28,6 +28,13 @@ import {
   resolveBannerRealmColors,
   type BannerRealmColors,
 } from "./hud/BoardBanners";
+import {
+  BoardSeasonWash,
+  normalizeBoardSeason,
+  resolveSeasonWashDescriptor,
+  type BoardSeasonKey,
+  type SeasonWashDescriptor,
+} from "./hud/BoardSeasonWash";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -411,6 +418,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
 
         {/* 0.8. Living Roads, Trails, and Connected Route Marks */}
         <BoardRoads state={state} selectedId={selectedId} />
+
+        {/* 0.9. Living Season Wash (tints tiles & softens fog by season) */}
+        <BoardSeasonWash state={state} />
 
         {/* 1. Soft Fog Drift Layer (under keeps and status) */}
         {fogClusters.length > 0 && (
@@ -886,4 +896,9 @@ export {
   BoardKeepBanners,
   resolveBannerRealmColors,
   type BannerRealmColors,
+  BoardSeasonWash,
+  normalizeBoardSeason,
+  resolveSeasonWashDescriptor,
+  type BoardSeasonKey,
+  type SeasonWashDescriptor,
 };

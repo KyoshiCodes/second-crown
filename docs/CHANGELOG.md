@@ -1,13 +1,13 @@
 # CHANGELOG
 
-## 2026-11-13 — Season effect line on the Kingdom tab and inspect card (wave/season-wash)
+## 2026-11-13 — Subtle living season wash over the isometric board (bakeoff/gemini-season-wash)
 
-- **Season effect line (`SeasonEffectLine`):** New `packages/app/src/hud/SeasonEffectLine.tsx` and `packages/app/src/hud/season-effect.css`. One read-only line: `Season · <name> · <yield effect> · <sight effect>`.
-  - **Yields:** `Building yields +4%` in Spring and Autumn, `No yield bonus` in Summer and Winter.
-  - **Sight:** `Sight: snow is likely and shortens it` in Winter, `Sight: normal unless a storm sets in` in the other seasons.
-- **Where it shows:** Kingdom tab, directly under the season court line (`tabs/KingdomTab.tsx`). Province inspect card on seen tiles, where it replaces the bare `Season · spring` line (`ProvinceInspect.tsx`).
-- **No rule changes:** App-only. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. All season, weather and fog math is untouched.
-- **Tests:** New `packages/app/src/hud/SeasonEffectLine.test.tsx` (15 tests). Three of them check the displayed numbers against the sim's exported readers (`productionBonus`, `computeIncomePerSecond`, `isProvinceSeen`).
+- **Living isometric board season wash (`BoardSeasonWash`):** Created `packages/app/src/hud/BoardSeasonWash.tsx` and `packages/app/src/hud/board-season-wash.css`, mounted in `BoardLiving.tsx` (`0.9. Living Season Wash`):
+  - **Four-season palette (`resolveSeasonWashDescriptor`):** Resolves seasonal wash descriptors via `currentSeason(state)` from `@second-crown/sim`: **Spring** vernal green (`#4ade80`), **Summer** sunlit gold (`#fde047`), **Autumn** harvest amber (`#f59e0b`), and **Winter** cool frost (`#bae6fd`).
+  - **Tile tinting (`sc-board-season-wash-tile`):** Applies subtle staggered isometric diamond tint overlays over seen provinces with `mix-blend-mode: soft-light`.
+  - **Fog softening (`sc-board-season-wash-fog`):** Renders soft radial seasonal veils over unseen provinces so fog edges blend gently into the current season's hue, plus a subtle full-board atmospheric wash (`sc-board-season-wash-ambient`).
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strictly `pointer-events: none !important;` and `user-select: none;` on all wash layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/BoardSeasonWash.test.tsx` (5 tests) verifying season normalization, 4-season tile/fog descriptors, `pointer-events: none` rendering across all seasons, `BoardLiving` integration, and isolated CSS with reduced-motion support.
 
 ## 2026-11-13 — Living fluttering keep banners and outpost flags with realm colors (bakeoff/gemini-keep-banners)
 

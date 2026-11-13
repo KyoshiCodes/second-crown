@@ -1,0 +1,94 @@
+/* --- Living Board Season Wash (bakeoff/gemini-season-wash) ---
+ * Subtle living seasonal tint over isometric tiles and fog-softening veil.
+ * Completely isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-board-season-wash,
+.sc-board-season-wash * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-board-season-wash-ambient {
+  mix-blend-mode: soft-light;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-season-wash-breathe 9s ease-in-out infinite;
+}
+
+.sc-board-season-wash-tile {
+  mix-blend-mode: soft-light;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-season-tile-pulse 7.5s ease-in-out infinite;
+}
+
+.sc-board-season-wash-fog {
+  mix-blend-mode: screen;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-season-fog-soften 11s ease-in-out infinite;
+}
+
+.sc-board-season-wash-fog.is-alt {
+  animation-duration: 13.5s;
+  animation-direction: alternate;
+}
+
+/* Season-specific subtle opacity & hue modulation */
+.sc-board-season-wash.is-spring .sc-board-season-wash-tile {
+  fill-opacity: 0.14;
+}
+
+.sc-board-season-wash.is-summer .sc-board-season-wash-tile {
+  fill-opacity: 0.16;
+}
+
+.sc-board-season-wash.is-autumn .sc-board-season-wash-tile {
+  fill-opacity: 0.16;
+}
+
+.sc-board-season-wash.is-winter .sc-board-season-wash-tile {
+  fill-opacity: 0.18;
+}
+
+@keyframes sc-season-wash-breathe {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-season-tile-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-season-fog-soften {
+  0%,
+  100% {
+    opacity: 0.58;
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    opacity: 0.92;
+    transform: translate(1.2px, -0.6px) scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-board-season-wash-ambient,
+  .sc-board-season-wash-tile,
+  .sc-board-season-wash-fog,
+  .sc-board-season-wash-fog.is-alt {
+    animation: none !important;
+  }
+}
