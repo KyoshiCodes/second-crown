@@ -1,3 +1,14 @@
+## 2026-11-13 — app / living day-night wash & night building lanterns (bakeoff/gemini-day-night)
+
+- **Components (`packages/app/src/hud/BoardDayNight.tsx`, `BoardLiving.tsx`):**
+  - Exported `BoardDayNight`, `resolveDayNightDescriptor`, `listFinishedBuildingLanterns`, `type BoardDayNightPhase`, `type BuildingLanternPoint`, and `type DayNightWashDescriptor` from `hud/BoardDayNight.tsx` and re-exported from `BoardLiving.tsx`.
+  - Uses `dayPhase(state)` and `isProvinceSeen(state, p.id)` from `@second-crown/sim` to tint seen isometric tiles and apply a full-board wash shifting from warm `dawn`/`day`/`dusk` to cool `night`, and renders `.sc-board-day-night-lantern` blooms + cores for finished buildings (`completesAtTick === null`) at night.
+- **Styling (`packages/app/src/hud/board-day-night.css`, `living-glyph-soften.css`):**
+  - Isolated keyframes (`sc-day-night-wash-breathe`, `sc-day-night-lantern-bloom`, `sc-day-night-lantern-flicker`) with `pointer-events: none !important;`, `user-select: none;`, and `@media (prefers-reduced-motion: reduce)` guards; registered in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/BoardDayNight.test.tsx`):**
+  - 5 tests covering day-night phase descriptors, finished-building lantern filtering, day vs. night rendering, `BoardLiving` integration, and CSS isolation.
+
 ## 2026-11-13 — app / living season wash over isometric board (bakeoff/gemini-season-wash)
 
 - **Components (`packages/app/src/hud/BoardSeasonWash.tsx`, `BoardLiving.tsx`):**

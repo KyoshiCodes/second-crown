@@ -29,6 +29,14 @@ import {
   type BannerRealmColors,
 } from "./hud/BoardBanners";
 import {
+  BoardDayNight,
+  listFinishedBuildingLanterns,
+  resolveDayNightDescriptor,
+  type BoardDayNightPhase,
+  type BuildingLanternPoint,
+  type DayNightWashDescriptor,
+} from "./hud/BoardDayNight";
+import {
   BoardSeasonWash,
   normalizeBoardSeason,
   resolveSeasonWashDescriptor,
@@ -421,6 +429,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
 
         {/* 0.9. Living Season Wash (tints tiles & softens fog by season) */}
         <BoardSeasonWash state={state} />
+
+        {/* 0.95. Living Day-Night Wash & Night Building Lanterns */}
+        <BoardDayNight state={state} />
 
         {/* 1. Soft Fog Drift Layer (under keeps and status) */}
         {fogClusters.length > 0 && (
@@ -901,4 +912,10 @@ export {
   resolveSeasonWashDescriptor,
   type BoardSeasonKey,
   type SeasonWashDescriptor,
+  BoardDayNight,
+  listFinishedBuildingLanterns,
+  resolveDayNightDescriptor,
+  type BoardDayNightPhase,
+  type BuildingLanternPoint,
+  type DayNightWashDescriptor,
 };

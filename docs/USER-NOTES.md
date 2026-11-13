@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-13 — Subtle living day-night wash and night building lantern glows (bakeoff/gemini-day-night)
+
+- **Day-night atmosphere & night lanterns on the board:**
+  - **Warm daylight to cool night:** The isometric board now gently shifts from warm golden daylight and amber dusk into cool moonlit night as time passes.
+  - **Building lanterns at night:** Completed buildings on revealed holds emit soft, flickering warm lantern glows once night falls.
+- **Zero gameplay impact:** All wash and lantern glow layers are purely visual (`pointer-events: none !important;`), respect reduced-motion preferences, and never block clicking tiles or issuing commands.
+
 ## 2026-11-13 — Subtle living season wash over the isometric board (bakeoff/gemini-season-wash)
 
 - **Seasonal tint and softened fog on the board:**

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-13 — Subtle living day-night wash and night building lantern glows (bakeoff/gemini-day-night)
+
+- **Living isometric board day-night wash (`BoardDayNight`):** Created `packages/app/src/hud/BoardDayNight.tsx` and `packages/app/src/hud/board-day-night.css`, mounted in `BoardLiving.tsx` (`0.95. Living Day-Night Wash & Night Building Lanterns`):
+  - **Day-night atmospheric wash (`resolveDayNightDescriptor`):** Uses `dayPhase(state)` from `@second-crown/sim` to shift the board's ambient wash (`.sc-board-day-night-wash`) and seen isometric tile tints (`.sc-board-day-night-tile`) from warm dawn/daylight (`#fef08a` / `#fde047`) and amber dusk (`#fb923c` / `#6366f1`) to cool moonlit night (`#1e3a8a` / `#38bdf8`).
+  - **Night lantern glows on finished buildings (`listFinishedBuildingLanterns`):** Renders warm flickering radial lantern blooms (`.sc-board-day-night-lantern-bloom`) and lantern cores (`.sc-board-day-night-lantern-core`) around seen holds for finished buildings (`completesAtTick === null`) during `night`, omitting under-construction buildings and daylight phases.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strictly `pointer-events: none !important;` and `user-select: none;` on all wash and glow layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/BoardDayNight.test.tsx` (5 tests) verifying warm-to-cool descriptor shifts, finished-building lantern filtering, day vs. night rendering, `BoardLiving` integration, `pointer-events: none`, and isolated CSS.
+
 ## 2026-11-13 — Subtle living season wash over the isometric board (bakeoff/gemini-season-wash)
 
 - **Living isometric board season wash (`BoardSeasonWash`):** Created `packages/app/src/hud/BoardSeasonWash.tsx` and `packages/app/src/hud/board-season-wash.css`, mounted in `BoardLiving.tsx` (`0.9. Living Season Wash`):

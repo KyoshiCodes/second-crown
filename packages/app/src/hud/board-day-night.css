@@ -1,0 +1,93 @@
+/* --- Living Board Day-Night Wash & Night Building Lanterns (bakeoff/gemini-day-night) ---
+ * Subtle living day-night atmospheric wash shifting from warm daylight to cool night,
+ * with soft warm lantern glows on finished buildings at night.
+ * Completely isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-board-day-night,
+.sc-board-day-night * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-board-day-night-wash {
+  mix-blend-mode: soft-light;
+  transition: opacity 0.6s ease;
+  animation: sc-day-night-wash-breathe 10s ease-in-out infinite;
+}
+
+.sc-board-day-night.is-night .sc-board-day-night-wash {
+  mix-blend-mode: multiply;
+}
+
+.sc-board-day-night-tile {
+  mix-blend-mode: soft-light;
+  transition: fill 0.6s ease, fill-opacity 0.6s ease;
+}
+
+.sc-board-day-night.is-night .sc-board-day-night-tile {
+  mix-blend-mode: multiply;
+}
+
+.sc-board-day-night-lantern {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.sc-board-day-night-lantern-bloom {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-day-night-lantern-bloom 3.6s ease-in-out infinite;
+}
+
+.sc-board-day-night-lantern-core {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-day-night-lantern-flicker 2.4s ease-in-out infinite;
+}
+
+@keyframes sc-day-night-wash-breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-day-night-lantern-bloom {
+  0%,
+  100% {
+    opacity: 0.68;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-day-night-lantern-flicker {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: scale(0.95);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  70% {
+    opacity: 0.88;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-board-day-night-wash,
+  .sc-board-day-night-lantern-bloom,
+  .sc-board-day-night-lantern-core {
+    animation: none !important;
+  }
+}
