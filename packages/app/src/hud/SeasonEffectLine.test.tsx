@@ -207,7 +207,7 @@ describe("season-effect.css", () => {
   });
 
   it("is scoped to its own prefix and leaves theme.css alone", () => {
-    const selectors = css.match(/^[^{}/@\n][^{}]*\{/gm) ?? [];
+    const selectors = css.match(/^[^{}/@\r\n][^{}]*\{/gm) ?? [];
     expect(selectors.length).toBeGreaterThan(0);
     for (const sel of selectors) expect(sel.trim().startsWith(".sc-season-effect")).toBe(true);
     expect(readFile("../theme.css")).not.toContain("sc-season-effect");

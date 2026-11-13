@@ -1,0 +1,53 @@
+/* Day/night status line on the Kingdom tab and the inspect card (DayNightLine.tsx). Do not touch theme.css. */
+
+.sc-day-night {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sc-day-night-icon {
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+
+.sc-day-night-text {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.sc-day-night-label {
+  opacity: 0.75;
+}
+
+.sc-day-night strong {
+  font-weight: 600;
+}
+
+.sc-day-night.is-dawn strong,
+.sc-day-night.is-dawn .sc-day-night-icon { color: #fcd34d; }
+.sc-day-night.is-day strong,
+.sc-day-night.is-day .sc-day-night-icon { color: #fde68a; }
+.sc-day-night.is-dusk strong,
+.sc-day-night.is-dusk .sc-day-night-icon { color: #fdba74; }
+.sc-day-night.is-night strong,
+.sc-day-night.is-night .sc-day-night-icon { color: #bae6fd; }
+
+/* Full loads are the normal case, so the note stays quiet by day. */
+.sc-day-night-work {
+  opacity: 0.75;
+}
+
+/* Night cuts gather hauls, so the note is a soft warning there. */
+.sc-day-night.is-night .sc-day-night-work {
+  color: #fef08a;
+  opacity: 1;
+}
+
+.sc-day-night-sight {
+  opacity: 0.75;
+}

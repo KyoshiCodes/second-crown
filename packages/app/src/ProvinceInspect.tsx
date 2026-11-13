@@ -62,6 +62,7 @@ import { staffedLine } from "./hud/staffedLine";
 import { fogEdgeLine } from "./hud/fogEdgeLine";
 import { ownerLine } from "./hud/ownerLine";
 import { SeasonEffectLine } from "./hud/SeasonEffectLine";
+import { DayNightLine } from "./hud/DayNightLine";
 import { SeasonPip } from "./hud/SeasonPip";
 import "./hud/season-pip.css";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
@@ -271,6 +272,7 @@ export function ProvinceInspect(props: {
           <div className={`sc-inspect-line sc-inspect-outpost ${outpost === "Your outpost" ? "is-yours" : "is-rival"}`}>{outpost}</div>
         ) : null}
         {seen ? <SeasonEffectLine state={state} /> : null}
+        {seen ? <DayNightLine state={state} /> : null}
         {garrisonNote ? <div className="sc-inspect-line sc-inspect-garrison">{garrisonNote}</div> : null}
         {scoutNote ? <div className="sc-inspect-line sc-inspect-scout">{scoutNote}</div> : null}
         {gatherNote ? <div className="sc-inspect-line sc-inspect-gather">{gatherNote}</div> : null}

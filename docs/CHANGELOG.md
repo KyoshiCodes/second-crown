@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-13 — Day/night status line on the Kingdom tab and inspect card (wave/day-night)
+
+- **Day/night line (`DayNightLine`):** New `packages/app/src/hud/DayNightLine.tsx` and `packages/app/src/hud/day-night-line.css`. Reads `Time of day · <Dawn|Day|Dusk|Night> · <work effect> · <sight effect>` with a small sun or moon icon.
+  - **Work effect:** Night shows `Gather columns that get home now bring 20% less`. Dawn, day and dusk show `Gather columns bring full loads home`.
+  - **Sight effect:** Always `Sight: the same at every hour`. The sim has no rule that ties vision or fog to the hour.
+  - **Where:** Kingdom tab, directly under the season effect line. Province inspect card, directly under the season effect line, on seen tiles only.
+- **No rule changes:** All day/night math is untouched. Night is read from the sim's exported `sunMoonPosition`; the dawn, day and dusk names reuse the board's existing `resolveBoardLightPhase`, so the line always matches the sky the board draws. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
+- **Tests:** New `packages/app/src/hud/DayNightLine.test.tsx` (17 tests). The 20% figure is a display-only copy, so the tests run real gather columns home through `GatherSystem` by day and by night and check the ratio, and check that `isProvinceSeen` and `visionRange` do not change with the hour.
+- **Test fix:** The CSS scope check in `SeasonEffectLine.test.tsx` failed on Windows checkouts with CRLF line endings. Its selector regex now ignores `\r`. Test only, no behavior change.
+
 ## 2026-11-13 — Subtle living season wash over the isometric board (bakeoff/gemini-season-wash)
 
 - **Living isometric board season wash (`BoardSeasonWash`):** Created `packages/app/src/hud/BoardSeasonWash.tsx` and `packages/app/src/hud/board-season-wash.css`, mounted in `BoardLiving.tsx` (`0.9. Living Season Wash`):
