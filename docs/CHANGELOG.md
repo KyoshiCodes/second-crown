@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-13 — Season effect line on the Kingdom tab and inspect card (wave/season-wash)
+
+- **Season effect line (`SeasonEffectLine`):** New `packages/app/src/hud/SeasonEffectLine.tsx` and `packages/app/src/hud/season-effect.css`. One read-only line: `Season · <name> · <yield effect> · <sight effect>`.
+  - **Yields:** `Building yields +4%` in Spring and Autumn, `No yield bonus` in Summer and Winter.
+  - **Sight:** `Sight: snow is likely and shortens it` in Winter, `Sight: normal unless a storm sets in` in the other seasons.
+- **Where it shows:** Kingdom tab, directly under the season court line (`tabs/KingdomTab.tsx`). Province inspect card on seen tiles, where it replaces the bare `Season · spring` line (`ProvinceInspect.tsx`).
+- **No rule changes:** App-only. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. All season, weather and fog math is untouched.
+- **Tests:** New `packages/app/src/hud/SeasonEffectLine.test.tsx` (15 tests). Three of them check the displayed numbers against the sim's exported readers (`productionBonus`, `computeIncomePerSecond`, `isProvinceSeen`).
+
 ## 2026-11-13 — Living fluttering keep banners and outpost flags with realm colors (bakeoff/gemini-keep-banners)
 
 - **Living isometric board banners & outpost flags (`BoardBanners` / `BoardKeepBanners`):** Created `packages/app/src/hud/BoardBanners.tsx` and `packages/app/src/hud/board-banners.css`, mounted in `BoardLiving.tsx` (`5.5. Living Keep Banners & Outpost Flags`):

@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-13 — Season line now says what the season does (wave/season-wash)
+
+- **New season line.** It names the season and tells you its effect in plain words, for example: `Season · Autumn · Building yields +4% · Sight: normal unless a storm sets in`.
+- **Yields.** Spring and Autumn lift what your buildings produce by 4%. Summer and Winter give no bonus, and the line says so.
+- **Sight.** Winter usually brings snow, which shortens how far you see from your hold. In the other seasons only a storm does that.
+- **Where to find it.** On the Kingdom tab, right under the season court line. Also on the inspect card when you click a tile you can see (it replaces the old line that only named the season).
+- **Play is unchanged.** These bonuses were already in the game. The line only shows them.
+
 ## 2026-11-13 — Living fluttering keep banners and outpost flags with realm colors (bakeoff/gemini-keep-banners)
 
 - **Fluttering keep banners and outpost flags on the board and atlas:**

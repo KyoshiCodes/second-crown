@@ -1,0 +1,49 @@
+/* Season effect line on the Kingdom tab and the inspect card (SeasonEffectLine.tsx). Do not touch theme.css. */
+
+.sc-season-effect {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sc-season-effect-text {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.sc-season-effect-label {
+  opacity: 0.75;
+}
+
+.sc-season-effect strong {
+  font-weight: 600;
+}
+
+.sc-season-effect.is-spring strong { color: #86efac; }
+.sc-season-effect.is-summer strong { color: #fde68a; }
+.sc-season-effect.is-autumn strong { color: #fdba74; }
+.sc-season-effect.is-winter strong { color: #bae6fd; }
+
+/* A season that lifts yields reads green; one that does not stays quiet. */
+.sc-season-effect-yield {
+  opacity: 0.75;
+}
+
+.sc-season-effect.has-yield .sc-season-effect-yield {
+  color: #86efac;
+  opacity: 1;
+}
+
+.sc-season-effect-sight {
+  opacity: 0.85;
+}
+
+/* Snow is the likely winter sky, so the sight note is a soft warning there. */
+.sc-season-effect.is-winter .sc-season-effect-sight {
+  color: #fef08a;
+  opacity: 1;
+}

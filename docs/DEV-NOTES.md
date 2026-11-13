@@ -1,3 +1,15 @@
+## 2026-11-13 — app / season effect line (wave/season-wash)
+
+- **Component (`packages/app/src/hud/SeasonEffectLine.tsx`):** exports `SeasonEffectLine`, `seasonEffectStatus(state)`, `SEASON_YIELD_STEPS`, `YIELD_PCT_PER_STEP`, `SEASON_SIGHT`. Reads `currentSeason(state)` only and looks the effect text up in two small tables. Reuses `SeasonPip`.
+- **Display copies, pinned by tests.** The sim does not export `seasonProductionBonus` (`systems/age.ts`) or anything from `systems/weather.ts`, and this slice may not touch the sim. So the line holds display-only copies, the same pattern as `SEASON_TICKS` in `SeasonClaimLine.tsx`:
+  - `SEASON_YIELD_STEPS` (Spring 1, Summer 0, Autumn 1, Winter 0) is checked against the exported `productionBonus` at the first tick of each season.
+  - `YIELD_PCT_PER_STEP` (4) is checked against `computeIncomePerSecond` on a one-farm state.
+  - The sight wording (snow likely in Winter, storm the only risk otherwise) is checked over 200 seeds through `isProvinceSeen`. No odds or fog factors are copied into the app.
+- **The +4% is additive.** `rateFor` in `systems/economy.ts` adds 0.04 per production step inside one multiplier, so with other bonuses active the real lift is slightly under 4% of current income.
+- **Sight is the season's tendency, not today's sky.** The season's weather is rolled once per season in the sim (`weatherFor`), which the app cannot read. If `weatherFor` and `fogThickness` are ever exported from `packages/sim/src/index.ts`, this line can show the actual sky and reach. Note `resolveAtmosphereWeather` in `packages/render` already looks for `sim.weatherFor` and falls back to a season guess when it is missing, so the board's drawn weather can differ from the sim's.
+- **Wiring:** `tabs/KingdomTab.tsx` mounts it after `SeasonClaimLine`. `ProvinceInspect.tsx` mounts it on seen tiles in place of the old `seasonLine` text. `hud/seasonLine.ts` and its test are left in place and are now unused by the app.
+- **Styling (`hud/season-effect.css`):** every selector starts with `.sc-season-effect`. No edits to `theme.css`.
+
 ## 2026-11-13 — app / living keep banners & outpost flags with realm colors (bakeoff/gemini-keep-banners)
 
 - **Components (`packages/app/src/hud/BoardBanners.tsx`, `BoardLiving.tsx`, `OverworldAtlas.tsx`):**

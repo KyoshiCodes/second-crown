@@ -61,7 +61,7 @@ import { buildingLine } from "./hud/buildingLine";
 import { staffedLine } from "./hud/staffedLine";
 import { fogEdgeLine } from "./hud/fogEdgeLine";
 import { ownerLine } from "./hud/ownerLine";
-import { seasonLine } from "./hud/seasonLine";
+import { SeasonEffectLine } from "./hud/SeasonEffectLine";
 import { SeasonPip } from "./hud/SeasonPip";
 import "./hud/season-pip.css";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
@@ -206,7 +206,6 @@ export function ProvinceInspect(props: {
   const outpost = outpostLine(state, selectedId);
   // Keep banner on the home hold, flag status on a flagged tile. Replaces the bare outpost line when present.
   const banner = home ? keepBannerStatus(state) : flagBannerStatus(state, selectedId);
-  const seasonNote = seen ? seasonLine(state) : null;
   const garrisonNote = garrisonLine(state, selectedId);
   const scoutNote = scoutLine(state, selectedId);
   const gatherNote = gatherLine(state, selectedId);
@@ -271,12 +270,7 @@ export function ProvinceInspect(props: {
         {outpost && !banner ? (
           <div className={`sc-inspect-line sc-inspect-outpost ${outpost === "Your outpost" ? "is-yours" : "is-rival"}`}>{outpost}</div>
         ) : null}
-        {seasonNote ? (
-          <div className="sc-inspect-line sc-inspect-season" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-            <SeasonPip season={season} size={14} />
-            <span>{seasonNote}</span>
-          </div>
-        ) : null}
+        {seen ? <SeasonEffectLine state={state} /> : null}
         {garrisonNote ? <div className="sc-inspect-line sc-inspect-garrison">{garrisonNote}</div> : null}
         {scoutNote ? <div className="sc-inspect-line sc-inspect-scout">{scoutNote}</div> : null}
         {gatherNote ? <div className="sc-inspect-line sc-inspect-gather">{gatherNote}</div> : null}
