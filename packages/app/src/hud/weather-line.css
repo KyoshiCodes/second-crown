@@ -1,0 +1,53 @@
+/* Weather status line on the Kingdom tab and the inspect card (WeatherLine.tsx). Do not touch theme.css. */
+
+.sc-weather-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.sc-weather-line-icon {
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+
+.sc-weather-line-text {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.sc-weather-line-label {
+  opacity: 0.75;
+}
+
+.sc-weather-line strong {
+  font-weight: 600;
+}
+
+.sc-weather-line.is-clear strong,
+.sc-weather-line.is-clear .sc-weather-line-icon { color: #fde68a; }
+.sc-weather-line.is-rain strong,
+.sc-weather-line.is-rain .sc-weather-line-icon { color: #93c5fd; }
+.sc-weather-line.is-storm strong,
+.sc-weather-line.is-storm .sc-weather-line-icon { color: #c4b5fd; }
+.sc-weather-line.is-snow strong,
+.sc-weather-line.is-snow .sc-weather-line-icon { color: #e2e8f0; }
+
+/* "Normal" is the usual case, so those notes stay quiet. */
+.sc-weather-line-sight,
+.sc-weather-line-march,
+.sc-weather-line-gather {
+  opacity: 0.75;
+}
+
+/* A note the sky is actually changing is a soft warning. */
+.sc-weather-line-sight.is-hit,
+.sc-weather-line-march.is-hit,
+.sc-weather-line-gather.is-hit {
+  color: #fef08a;
+  opacity: 1;
+}

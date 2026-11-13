@@ -1,3 +1,16 @@
+## 2026-11-13 — app / weather status line (wave/weather)
+
+- **Component (`packages/app/src/hud/WeatherLine.tsx`):**
+  - Exports `WeatherLine`, `weatherStatus`, `currentWeather`, `keepSightReach`, `WEATHER_ODDS`, `WEATHER_SEASON_TICKS`, `WEATHER_MARCH_SPEED`, `WEATHER_GATHER_YIELD`, `WEATHER_FOG_THICKNESS`, `WEATHER_NAMES`, `type WeatherKind`, and `type WeatherStatus`.
+  - The sim does not export `weatherFor`, `marchSpeedFactor`, `gatherYieldFactor` or `fogThickness` from `packages/sim/src/index.ts`, and this slice may not edit the sim. So `currentWeather` repeats the roll (`createRngStreams(seed + floor(tick / 2000)).event()` against the season's odds table) and the three factor tables are copies. All are display-only.
+  - Sight reach uses the sim's exported `visionRange` and the same comparison as `isProvinceSeen` (`d * thickness <= range`).
+  - Left off the line: a storm also halves the rebuild timer a siege blow puts on a building (`buildingDamageFactor`). It is not vision, movement or yields.
+- **Mounts:** `tabs/KingdomTab.tsx` under `DayNightLine`; `ProvinceInspect.tsx` under `DayNightLine`, gated on `seen`.
+- **Styling (`packages/app/src/hud/weather-line.css`):** All selectors start with `.sc-weather-line`. No animation. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/WeatherLine.test.tsx`):** 19 tests. The test file imports `../../../sim/src/systems/weather` by relative path (test only) to pin the copies: roll equality over 300 seeds and 10 ticks, factor equality for all four skies, and sight reach against `isProvinceSeen` for every province with 0 to 6 watchtowers.
+- **Render gap found, not fixed:** `resolveAtmosphereWeather` (`packages/render/src/atmosphere.ts`) probes the sim module for `weatherFor`. It is not exported, so the board, atlas and banners draw a season-guessed sky (for example always snow in Winter, tick-based rain in Spring) that can disagree with the rules' sky.
+- **Possible follow-up (needs a sim edit, not done):** export `weatherFor` and the factor functions from `packages/sim/src/index.ts`. That lets this component drop its copies and makes the drawn sky match the rules with no render change.
+
 ## 2026-11-13 — app / living day-night wash & night building lanterns (bakeoff/gemini-day-night)
 
 - **Components (`packages/app/src/hud/BoardDayNight.tsx`, `BoardLiving.tsx`):**

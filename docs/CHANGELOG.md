@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-13 — Weather status line on the Kingdom tab and inspect card (wave/weather)
+
+- **Weather line (`WeatherLine`):** New `packages/app/src/hud/WeatherLine.tsx` and `packages/app/src/hud/weather-line.css`. Reads `Weather · <Clear|Rain|Storm|Snow> · <sight effect> · <march effect> · <gather effect>` with a small sky icon.
+  - **Sight effect:** Storm and snow show how far the keep sees now and how far it would see under a clear sky, for example `Sight: keep sees 3 tiles out, down from 5`. Clear and rain show `Sight: normal`.
+  - **March effect:** Rain shows `Marches: 20% slower`, storm `Marches: 40% slower`. Clear and snow show `Marches: normal`.
+  - **Gather effect:** Rain shows `Gather hauls: 10% less`, storm `Gather hauls: 25% less`. Clear and snow show `Gather hauls: normal`.
+  - **Where:** Kingdom tab, directly under the day/night line. Province inspect card, directly under the day/night line, on seen tiles only.
+- **No rule changes:** All weather math is untouched. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
+- **Tests:** New `packages/app/src/hud/WeatherLine.test.tsx` (19 tests). The sky roll and the three effect tables are display-only copies, so the tests read the sim's own `systems/weather.ts` and check the roll over 300 seeds, every factor, and the sight reach against `isProvinceSeen` tile by tile.
+- **Known gap, not changed here:** the board and atlas weather drawing (`resolveAtmosphereWeather` in `packages/render`) looks for a `weatherFor` export on the sim, does not find one, and falls back to a sky guessed from the season. The drawn sky can therefore differ from the sky the rules use. The new line always shows the rules' sky.
+
 ## 2026-11-13 — Subtle living day-night wash and night building lantern glows (bakeoff/gemini-day-night)
 
 - **Living isometric board day-night wash (`BoardDayNight`):** Created `packages/app/src/hud/BoardDayNight.tsx` and `packages/app/src/hud/board-day-night.css`, mounted in `BoardLiving.tsx` (`0.95. Living Day-Night Wash & Night Building Lanterns`):

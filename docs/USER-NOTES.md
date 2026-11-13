@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-13 — Weather now tells you what it does (wave/weather)
+
+- **New "Weather" line.** The Kingdom tab and the card you get when you click a tile you can see now show the current sky: **Clear**, **Rain**, **Storm** or **Snow**, with a small icon. The sky holds for a whole season.
+- **Rain.** Marches are **20% slower** and gather columns bring home **10% less**.
+- **Storm.** Marches are **40% slower**, gather columns bring home **25% less**, and your keep sees less far. The line gives the numbers, for example "keep sees 3 tiles out, down from 5".
+- **Snow.** Your keep sees less far. Marches and gather hauls are normal.
+- **Clear.** Everything is normal.
+- **Tiles you already scouted stay seen.** Bad weather only shortens how far the keep sees on its own.
+- **Heads up.** The rain or snow drawn on the board can differ from this line. The line shows the weather the game rules really use.
+- **Nothing else changed.** This is a read-only line. The weather rules are exactly as before.
+
 ## 2026-11-13 — Subtle living day-night wash and night building lantern glows (bakeoff/gemini-day-night)
 
 - **Day-night atmosphere & night lanterns on the board:**

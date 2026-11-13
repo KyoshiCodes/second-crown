@@ -72,6 +72,7 @@ import { BalanceNotes } from "../BalanceNotes";
 import { SeasonPip } from "../hud/SeasonPip";
 import { SeasonEffectLine } from "../hud/SeasonEffectLine";
 import { DayNightLine } from "../hud/DayNightLine";
+import { WeatherLine } from "../hud/WeatherLine";
 import "../hud/season-pip.css";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
@@ -221,6 +222,7 @@ export function KingdomTab(props: {
       <SeasonClaimLine state={state} act={act} />
       <SeasonEffectLine state={state} />
       <DayNightLine state={state} />
+      <WeatherLine state={state} />
       <p style={{ fontSize: 12, opacity: 0.85 }}>
         Income /s · food {formatLetterSuffix(income.food ?? "0")} · wood {formatLetterSuffix(income.wood ?? "0")} · stone{" "}
         {formatLetterSuffix(income.stone ?? "0")} · gold {formatLetterSuffix(income.gold ?? "0")}. Flag tithe /tick · food{" "}

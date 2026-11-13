@@ -7,6 +7,7 @@ Read `AGENTS.md` then this file.
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
 
 `main` is at `13135c3` (living scroll glyphs under quest cards). The living-layer wave is **fully merged**: every `wave/*-living` and `bakeoff/gemini-*-living` branch is on `main`. There is no waiting list for HUD glyphs.
+Also waiting: `wave/weather` (**not merged**, read-only weather status line on the Kingdom tab and the province inspect card: current sky and its effect on keep sight, march speed and gather hauls, see `docs/CHANGELOG.md`). On this branch: sim **362**, app **1136**, app build clean.
 Also waiting: `bakeoff/gemini-day-night` (**not merged**, subtle living day-night wash over the isometric board shifting from warm daylight to cool night, with soft lantern glows on finished buildings at night, see below).
 Also waiting: `bakeoff/gemini-season-wash` (**not merged**, subtle living season wash over the isometric board tinting tiles and softening fog by season: spring green, summer gold, autumn amber, winter cool, see below).
 Also waiting: `bakeoff/gemini-keep-banners` (**not merged**, living animated keep banners and outpost flags that flutter and show realm colors across the isometric board and overworld atlas, see below). On this branch: sim **362**, app **1049**, server **158**, app build clean.
