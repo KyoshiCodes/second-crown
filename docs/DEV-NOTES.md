@@ -1,17 +1,17 @@
-## 2026-11-12 — app / keep banner and outpost flag status lines (wave/keep-banners)
+## 2026-11-13 — app / living keep banners & outpost flags with realm colors (bakeoff/gemini-keep-banners)
 
-- **New `packages/app/src/hud/BannerStatusLine.tsx`.** Three pure readers that return a `BannerStatus` (`kind`, `tone`, `title`, `headline`, `parts`, `text`), plus one renderer:
-  - `keepBannerStatus(state, nameOf?)`: `incomingOnHome` (soonest `arrivesTick` first), `keepLevel`, `listOutposts().length`, and the number of distinct flag tiles in `incomingOnPlayerFlags`. Tone: danger if a host is on the keep, warn if only a flag is threatened, else safe.
-  - `flagBannerStatus(state, provinceId, nameOf?)`: null for home, unknown ids, unseen tiles, camps and unflagged tiles. Player flag: `incomingOnProvince`, `garrisonAt`, `garrisonPower`. Rival flag (occupant is not the player, node is not `hold` or `camp`): names the realm, tone calm.
-  - `flagsSummaryStatus(state)`: guarded / unguarded / threatened counts over `listOutposts`. Null with no flags.
-  - `BannerStatusLine` renders `.sc-bannerline.is-<kind>.tone-<tone>`; wrappers `KeepBannerLine`, `FlagBannerLine`, `FlagsSummaryLine`.
-- **No game math.** Seconds are `ceil((arrivesTick - tick) / TICKS_PER_SECOND)`, the same reading `OutpostLivingCard` uses. Per-tile tithe is deliberately not shown: it would mean copying the per-node rates inside `outpostTithePerTick` into the UI.
-- **Wiring.** `ProvinceInspect.tsx`: `banner = home ? keepBannerStatus(state) : flagBannerStatus(state, selectedId)`, rendered in the Tile group where the outpost line was; the old `outpostLine` text now shows only when there is no banner status (so only for hostile camps). `outpostLine.ts` and its tests are unchanged. `tabs/KingdomTab.tsx`: `KeepBannerLine` after `KeepGateCard` (passes the tab's fog-aware `nameOf`, so a host is "Unknown host" without a watchtower, same as the existing warnings), `FlagsSummaryLine` under the Flags `h3`.
-- **Inspect card names the realm directly** (default `nameOf`), matching the card's existing "Incoming contest" line, which already does.
-- **CSS.** `hud/banner-status.css`, prefix `sc-bannerline` (not `sc-banner-`, which belongs to `banner-chip.css`). Pennant pip is a `clip-path` shape with `pointer-events: none`. No animation, so no reduced-motion block is needed. `theme.css` untouched.
-- **Untouched.** `packages/sim`, `server/`, `packages/render`, the atlas/board banner and flag placement code, `OutpostLivingCard`, `FlagLivingGlyph`.
-- **Tests.** `hud/BannerStatusLine.test.tsx`, 26 tests: tones and wording for each state, fog and camp nulls, no state mutation, presence in `ProvinceInspect` and `KingdomTab`, CSS isolation. Sim 362, app 1069, server 158, app build clean.
-- **Not verified.** Not opened in a browser; UI covered by static-markup tests only.
+- **Components (`packages/app/src/hud/BoardBanners.tsx`, `BoardLiving.tsx`, `OverworldAtlas.tsx`):**
+  - Exported `BoardBanners`, `BoardKeepBanners`, `resolveBannerRealmColors`, and `type BannerRealmColors` from `hud/BoardBanners.tsx` and re-exported from `BoardLiving.tsx`.
+  - `resolveBannerRealmColors(realmId, isPlayer)` resolves canonical heraldic `pennant`, `accent`, `border`, `stud`, and `pole` colors from `realmTokenPalette` in `@second-crown/render` (with royal blue `#1d4ed8` / gold `#fbbf24` for player).
+  - `BoardBanners` renders `.sc-board-keep-banner` on seen holds and `.sc-board-outpost-flag` on seen outposts/camps, including `.sc-board-banner-cloth`, `.sc-board-banner-ribbon`, `.sc-board-flag-cloth`, `.sc-board-flag-ribbon`, and `.sc-board-banner-finial-glint`.
+  - Weather integration via `resolveAtmosphereWeather(state)` sets `is-storm`, `is-windy`, or `is-calm` on `.sc-board-living-banners`. Garrisoned player outposts (`getPostedGarrison`) display a golden honor streamer ribbon (`is-posted`).
+  - Upgraded `MiniKeep` and `MiniCamp` in `OverworldAtlas.tsx` to use `resolveBannerRealmColors` and pass `occupantRealmId` to `MiniCamp`.
+- **Styling (`packages/app/src/hud/board-banners.css`, `atlas-keeps.css`, `atlas-camps.css`, `living-glyph-soften.css`):**
+  - Isolated keyframes (`sc-board-banner-flutter`, `sc-board-banner-storm`, `sc-board-flag-flutter`, `sc-board-ribbon-wave`, `sc-board-finial-glint`, `sc-atlas-keep-ribbon-wave`, `sc-atlas-flag-ribbon-wave`) anchored with `transform-box: fill-box; transform-origin: 0% 50%;`.
+  - Strictly `pointer-events: none !important;` and `user-select: none;` on all decorative layers, registered in `living-glyph-soften.css`, with full `@media (prefers-reduced-motion: reduce)` guards.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/BoardBanners.test.tsx`):**
+  - 6 tests covering realm palette resolution, fog gating, storm wind state, `BoardLiving` integration, `OverworldAtlas` realm heraldry, and CSS isolation.
 
 ## 2026-11-12 — app / CSS & SVG hygiene audit pass 2 (bakeoff/gemini-css-hygiene-2)
 

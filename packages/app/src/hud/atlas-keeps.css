@@ -6,15 +6,25 @@
 .sc-atlas-keep-plinth *,
 .sc-atlas-keep-banner,
 .sc-atlas-keep-banner *,
+.sc-atlas-keep-banner-cloth,
+.sc-atlas-keep-banner-cloth *,
+.sc-atlas-keep-banner-ribbon,
 .sc-atlas-keep-light,
 .sc-atlas-keep-beacon,
 .sc-atlas-keep-beacon * {
   pointer-events: none !important;
 }
 
-.sc-atlas-keep-banner {
-  animation: sc-atlas-keep-banner-flutter 1.5s ease-in-out infinite;
-  transform-origin: left bottom;
+.sc-atlas-keep-banner-cloth {
+  animation: sc-atlas-keep-banner-flutter 2.2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+}
+
+.sc-atlas-keep-banner-ribbon {
+  animation: sc-atlas-keep-ribbon-wave 1.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
 }
 
 .sc-atlas-keep-light {
@@ -28,10 +38,27 @@
 
 @keyframes sc-atlas-keep-banner-flutter {
   0%, 100% {
-    transform: rotate(0deg);
+    transform: skewY(0deg) scaleX(1) rotate(0deg);
+  }
+  25% {
+    transform: skewY(-3.5deg) scaleX(0.94) rotate(-1.5deg);
   }
   50% {
-    transform: rotate(4deg) skewX(2deg);
+    transform: skewY(2.5deg) scaleX(1.03) rotate(1.5deg);
+  }
+  75% {
+    transform: skewY(-2deg) scaleX(0.96) rotate(-0.8deg);
+  }
+}
+
+@keyframes sc-atlas-keep-ribbon-wave {
+  0%, 100% {
+    transform: skewY(0deg) scaleX(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: skewY(-5.5deg) scaleX(0.92);
+    opacity: 0.72;
   }
 }
 
@@ -56,6 +83,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sc-atlas-keep-banner,
+  .sc-atlas-keep-banner-cloth,
+  .sc-atlas-keep-banner-ribbon,
   .sc-atlas-keep-light,
   .sc-atlas-keep-beacon {
     animation: none !important;

@@ -9,8 +9,15 @@
 }
 
 .sc-atlas-camp-flag {
-  transform-origin: 4.5px 0px;
-  animation: sc-atlas-flag-flutter 3.5s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  animation: sc-atlas-flag-flutter 2.8s ease-in-out infinite;
+}
+
+.sc-atlas-camp-flag-ribbon {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  animation: sc-atlas-flag-ribbon-wave 2s ease-in-out infinite;
 }
 
 .sc-atlas-camp-lantern {
@@ -21,8 +28,22 @@
   0%, 100% {
     transform: skewY(0deg) scaleX(1);
   }
+  30% {
+    transform: skewY(-3.5deg) scaleX(0.94);
+  }
+  65% {
+    transform: skewY(2.5deg) scaleX(1.03);
+  }
+}
+
+@keyframes sc-atlas-flag-ribbon-wave {
+  0%, 100% {
+    transform: skewY(0deg) scaleX(1);
+    opacity: 0.9;
+  }
   50% {
-    transform: skewY(-2.5deg) scaleX(0.96);
+    transform: skewY(-5deg) scaleX(0.92);
+    opacity: 0.7;
   }
 }
 
@@ -38,6 +59,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sc-atlas-camp-flag,
+  .sc-atlas-camp-flag-ribbon,
   .sc-atlas-camp-lantern {
     animation: none !important;
   }

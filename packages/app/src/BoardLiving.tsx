@@ -22,6 +22,12 @@ import {
   type BoardRoadKind,
   type BoardRoadJunction,
 } from "./hud/BoardRoads";
+import {
+  BoardBanners,
+  BoardKeepBanners,
+  resolveBannerRealmColors,
+  type BannerRealmColors,
+} from "./hud/BoardBanners";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -830,6 +836,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
           </g>
         )}
 
+        {/* 5.5. Living Keep Banners & Outpost Flags (fluttering realm heraldry) */}
+        <BoardBanners state={state} />
+
         {/* 6. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
         {selProv && selCoords && anchor && (
           <g className="sc-board-living-status-tether" style={{ pointerEvents: "none" }}>
@@ -873,4 +882,8 @@ export {
   type BoardConnectedRoad,
   type BoardRoadKind,
   type BoardRoadJunction,
+  BoardBanners,
+  BoardKeepBanners,
+  resolveBannerRealmColors,
+  type BannerRealmColors,
 };

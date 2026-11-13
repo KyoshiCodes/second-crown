@@ -1,0 +1,133 @@
+/* --- Living Keep Banners & Outpost Flags on the Isometric Board (bakeoff/gemini-keep-banners) --- */
+/* Isolated styles: do not move into theme.css. Strictly pointer-events: none on all layers. */
+
+.sc-board-living-banners,
+.sc-board-living-banners *,
+.sc-board-keep-banner,
+.sc-board-keep-banner *,
+.sc-board-outpost-flag,
+.sc-board-outpost-flag * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-board-banner-cloth {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  animation: sc-board-banner-flutter 2.4s ease-in-out infinite;
+}
+
+.sc-board-banner-ribbon {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  animation: sc-board-ribbon-wave 1.9s ease-in-out infinite;
+}
+
+.sc-board-flag-cloth {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  animation: sc-board-flag-flutter 2.8s ease-in-out infinite;
+}
+
+.sc-board-flag-ribbon {
+  transform-box: fill-box;
+  transform-origin: 0% 50%;
+  animation: sc-board-ribbon-wave 2.1s ease-in-out infinite;
+}
+
+.sc-board-banner-finial-glint {
+  animation: sc-board-finial-glint 3.2s ease-in-out infinite;
+}
+
+/* Faster, deeper whip during rain or storm weather */
+.sc-board-living-banners.is-windy .sc-board-banner-cloth,
+.sc-board-living-banners.is-windy .sc-board-flag-cloth {
+  animation-duration: 1.5s;
+}
+
+.sc-board-living-banners.is-storm .sc-board-banner-cloth {
+  animation-name: sc-board-banner-storm;
+  animation-duration: 1.05s;
+}
+
+.sc-board-living-banners.is-storm .sc-board-flag-cloth {
+  animation-name: sc-board-banner-storm;
+  animation-duration: 1.15s;
+}
+
+.sc-board-living-banners.is-storm .sc-board-banner-ribbon,
+.sc-board-living-banners.is-storm .sc-board-flag-ribbon {
+  animation-duration: 0.9s;
+}
+
+@keyframes sc-board-banner-flutter {
+  0%, 100% {
+    transform: skewY(0deg) scaleX(1) rotate(0deg);
+  }
+  25% {
+    transform: skewY(-3.5deg) scaleX(0.95) rotate(-1.5deg);
+  }
+  50% {
+    transform: skewY(2.5deg) scaleX(1.03) rotate(1.5deg);
+  }
+  75% {
+    transform: skewY(-2deg) scaleX(0.97) rotate(-0.8deg);
+  }
+}
+
+@keyframes sc-board-banner-storm {
+  0%, 100% {
+    transform: skewY(-2deg) scaleX(0.98) rotate(-1deg);
+  }
+  25% {
+    transform: skewY(-7deg) scaleX(0.91) rotate(-4deg);
+  }
+  50% {
+    transform: skewY(5deg) scaleX(1.05) rotate(3deg);
+  }
+  75% {
+    transform: skewY(-5deg) scaleX(0.93) rotate(-2.5deg);
+  }
+}
+
+@keyframes sc-board-flag-flutter {
+  0%, 100% {
+    transform: skewY(0deg) scaleX(1);
+  }
+  30% {
+    transform: skewY(-4deg) scaleX(0.94);
+  }
+  65% {
+    transform: skewY(3deg) scaleX(1.03);
+  }
+}
+
+@keyframes sc-board-ribbon-wave {
+  0%, 100% {
+    transform: skewY(0deg) scaleX(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: skewY(-6deg) scaleX(0.92);
+    opacity: 0.72;
+  }
+}
+
+@keyframes sc-board-finial-glint {
+  0%, 100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-board-banner-cloth,
+  .sc-board-banner-ribbon,
+  .sc-board-flag-cloth,
+  .sc-board-flag-ribbon,
+  .sc-board-banner-finial-glint {
+    animation: none !important;
+  }
+}

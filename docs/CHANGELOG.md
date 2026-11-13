@@ -1,12 +1,15 @@
 # CHANGELOG
 
-## 2026-11-12 — Keep banner and outpost flag status lines (wave/keep-banners)
+## 2026-11-13 — Living fluttering keep banners and outpost flags with realm colors (bakeoff/gemini-keep-banners)
 
-- **Keep banner line.** New one-line status for the banner over your keep, on the home hold's inspect card and on the Kingdom tab under the Keep gate card: `Keep banner · Flying · no host inbound · Keep level N · N flags out, all quiet`. Red with `Under threat · <realm> arrives in Ns` when a host marches on the keep (soonest host first, plus a count when there is more than one); amber when the keep is safe but one of your flags is threatened.
-- **Outpost flag line.** On the inspect card of a flagged tile: `Your flag · Flying` (green, with garrison power and soldier count), `Your flag · Unguarded` (amber, "post a garrison to hold it") or `Your flag · Under threat` (red, with the realm and seconds). A seen rival flag reads `<realm> flag · Rival outpost`. It replaces the bare "Your outpost" text line; hostile camps keep "Rival camp".
-- **Flags roll-up.** Kingdom tab, under the Flags heading: `Flags · N flags planted · N guarded · N unguarded · no host inbound` (or `N under threat`). Hidden until a flag is planted.
-- **Scope.** App only: new `packages/app/src/hud/BannerStatusLine.tsx` and `hud/banner-status.css`; small edits in `ProvinceInspect.tsx` and `tabs/KingdomTab.tsx`. `packages/sim`, `server/`, `theme.css` and all banner/flag placement code untouched. Display only: reads existing sim readers, no new game math.
-- **Tests.** New `hud/BannerStatusLine.test.tsx` (26 tests). Full suite: sim 362, app 1069, server 158. App build clean.
+- **Living isometric board banners & outpost flags (`BoardBanners` / `BoardKeepBanners`):** Created `packages/app/src/hud/BoardBanners.tsx` and `packages/app/src/hud/board-banners.css`, mounted in `BoardLiving.tsx` (`5.5. Living Keep Banners & Outpost Flags`):
+  - **Realm-accurate heraldry (`resolveBannerRealmColors`):** Resolves canonical realm colors via `realmTokenPalette` from `@second-crown/render` (player royal blue & gold, rival crimson, `k_silk` teal, `k_ash` burnt orange, `k_veil` violet, and deterministic custom realm palettes).
+  - **Keep banners (`sc-board-keep-banner`):** Tall spire masts above seen holds with gilded finials, glinting studs, fluttering swallowtail cloth (`sc-board-banner-cloth`), inner heraldic chevrons, and an independently waving trailing streamer ribbon (`sc-board-banner-ribbon`).
+  - **Outpost flags & rival camp pennants (`sc-board-outpost-flag`):** Mounted at camp/outpost masts with realm-colored pennants, accent chevrons, and golden honor ribbons (`is-posted`) when a player garrison is stationed.
+  - **Weather-reactive wind:** Accelerates and deepens cloth flutter during `"rain"` / `"snow"` (`is-windy`) and `"storm"` (`is-storm`).
+- **OverworldAtlas keep & camp banner upgrade:** Upgraded `MiniKeep` and `MiniCamp` in `packages/app/src/OverworldAtlas.tsx`, `hud/atlas-keeps.css`, and `hud/atlas-camps.css` to pass `occupantRealmId` to `MiniCamp`, render full realm-colored pennants, chevrons, finials, and trailing ribbons, and fix SVG `transform-box: fill-box; transform-origin: 0% 50%;` anchoring so banners flutter cleanly from their masts.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strictly `pointer-events: none !important;` and `user-select: none;` on all decorative layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/BoardBanners.test.tsx` (6 tests) verifying realm color resolution, fog gating, storm wind reactivity, `BoardLiving` integration, `OverworldAtlas` realm banners, and CSS isolation.
 
 ## 2026-11-12 — CSS & SVG hygiene audit pass 2 (bakeoff/gemini-css-hygiene-2)
 

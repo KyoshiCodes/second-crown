@@ -25,6 +25,7 @@ import {
 } from "@second-crown/render";
 import { detectCurrentHoliday } from "./seasons/holidays";
 import { AtlasProvinceCards } from "./hud/AtlasProvinceCard";
+import { resolveBannerRealmColors } from "./hud/BoardBanners";
 import "./hud/atlas-select-rim.css";
 import "./hud/atlas-node-piles.css";
 import "./hud/atlas-camps.css";
@@ -275,6 +276,7 @@ function MiniKeep(props: {
     const pal = realmTokenPalette(occupantRealmId);
     rimColor = cssColor(pal.borderColor, "#38bdf8");
   }
+  const bannerColors = resolveBannerRealmColors(occupantRealmId, home || occupantRealmId === "player");
 
   return (
     <g className="sc-atlas-keep" style={{ pointerEvents: "none" }}>
@@ -314,14 +316,32 @@ function MiniKeep(props: {
       ) : null}
 
       {/* Living fluttering heraldic banner atop the keep roof */}
-      <g className="sc-atlas-keep-banner" style={{ pointerEvents: "none" }}>
-        <line x1={cx} y1={cy - 26} x2={cx} y2={cy - 34} stroke="#78350f" strokeWidth={1} />
-        <polygon
-          points={`${cx},${cy - 34} ${cx + 7},${cy - 32} ${cx + 5},${cy - 30.5} ${cx + 7},${cy - 29} ${cx},${cy - 29}`}
-          fill={rimColor}
-          stroke="#0f172a"
-          strokeWidth={0.4}
+      <g className="sc-atlas-keep-banner" data-realm={bannerColors.realmId} style={{ pointerEvents: "none" }}>
+        <line x1={cx} y1={cy - 26} x2={cx} y2={cy - 34} stroke={bannerColors.pole} strokeWidth={1} />
+        <circle cx={cx} cy={cy - 34.4} r={1.0} fill={bannerColors.stud} stroke="#0f172a" strokeWidth={0.35} />
+        <path
+          d={`M ${cx} ${cy - 28.8} Q ${cx + 3.8} ${cy - 27.6} ${cx + 8} ${cy - 28.4}`}
+          fill="none"
+          stroke={bannerColors.accent}
+          strokeWidth={0.8}
+          strokeLinecap="round"
+          className="sc-atlas-keep-banner-ribbon"
+          style={{ pointerEvents: "none" }}
         />
+        <g className="sc-atlas-keep-banner-cloth" style={{ pointerEvents: "none" }}>
+          <polygon
+            points={`${cx},${cy - 34} ${cx + 8.5},${cy - 32.2} ${cx + 6.4},${cy - 30.6} ${cx + 8.5},${cy - 29} ${cx},${cy - 29}`}
+            fill={bannerColors.pennant}
+            stroke={bannerColors.border}
+            strokeWidth={0.5}
+            strokeLinejoin="round"
+          />
+          <polygon
+            points={`${cx + 1.2},${cy - 32.4} ${cx + 5.2},${cy - 31.3} ${cx + 4.1},${cy - 30.6} ${cx + 5.2},${cy - 29.8} ${cx + 1.2},${cy - 29.8}`}
+            fill={bannerColors.accent}
+            opacity={0.9}
+          />
+        </g>
       </g>
 
       {showRivalCrest ? <MiniRealmCrest cx={cx} cy={cy - 38} realmId={occupantRealmId!} /> : null}
@@ -415,8 +435,17 @@ function MiniBlocks(props: { cx: number; cy: number }) {
   );
 }
 
-function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor?: string; isPosted?: boolean }) {
-  const { cx, cy, isPlayer = false, flagColor = "#2563eb", isPosted = false } = props;
+function MiniCamp(props: {
+  cx: number;
+  cy: number;
+  isPlayer?: boolean;
+  flagColor?: string;
+  isPosted?: boolean;
+  occupantRealmId?: string | null;
+}) {
+  const { cx, cy, isPlayer = false, flagColor, isPosted = false, occupantRealmId } = props;
+  const flagColors = resolveBannerRealmColors(occupantRealmId, isPlayer);
+  const resolvedFlagFill = flagColor ?? flagColors.pennant;
   return (
     <g
       className={`sc-atlas-camp ${isPlayer ? "sc-atlas-camp-outpost" : "sc-atlas-camp-rival"}`}
@@ -492,22 +521,34 @@ function MiniCamp(props: { cx: number; cy: number; isPlayer?: boolean; flagColor
         style={{ pointerEvents: "none" }}
       />
       {/* Flagpole */}
-      <line x1={cx + 4.5} y1={cy + 4} x2={cx + 4.5} y2={cy - 11} stroke="#78350f" strokeWidth={1} />
+      <line x1={cx + 4.5} y1={cy + 4} x2={cx + 4.5} y2={cy - 11} stroke={flagColors.pole} strokeWidth={1} />
       {/* Finial gold ball */}
-      <circle cx={cx + 4.5} cy={cy - 11.5} r={1} fill={isPlayer ? "#facc15" : "#a1a1aa"} />
+      <circle cx={cx + 4.5} cy={cy - 11.5} r={1} fill={flagColors.stud} />
       {/* Flag pennant */}
-      <g className="sc-atlas-camp-flag" style={{ pointerEvents: "none" }}>
+      <g className="sc-atlas-camp-flag" data-realm={flagColors.realmId} style={{ pointerEvents: "none" }}>
         <polygon
           points={`${cx + 4.5},${cy - 11} ${cx + 12},${cy - 8.5} ${cx + 10},${cy - 6.5} ${cx + 12},${cy - 4.5} ${cx + 4.5},${cy - 4.5}`}
-          fill={flagColor}
-          stroke={isPlayer ? "#facc15" : "#451a03"}
+          fill={resolvedFlagFill}
+          stroke={flagColors.border}
           strokeWidth={0.5}
+          strokeLinejoin="round"
         />
         {/* Chevron / stripe on flag */}
         <polygon
           points={`${cx + 6.5},${cy - 8.5} ${cx + 8.5},${cy - 6.5} ${cx + 6.5},${cy - 5.5} ${cx + 7.5},${cy - 5.5} ${cx + 9.5},${cy - 6.5} ${cx + 7.5},${cy - 8.5}`}
-          fill={isPlayer ? "#fde047" : "#fca5a5"}
+          fill={flagColors.accent}
         />
+        {isPosted ? (
+          <path
+            d={`M ${cx + 4.5} ${cy - 4.4} Q ${cx + 7.5} ${cy - 3.2} ${cx + 10.8} ${cy - 3.8}`}
+            fill="none"
+            stroke={flagColors.stud}
+            strokeWidth={0.75}
+            strokeLinecap="round"
+            className="sc-atlas-camp-flag-ribbon"
+            style={{ pointerEvents: "none" }}
+          />
+        ) : null}
       </g>
     </g>
   );
@@ -1318,7 +1359,7 @@ export function OverworldAtlas(props: {
                       cx={cx}
                       cy={cy}
                       isPlayer={occupant === "player"}
-                      flagColor={occupant === "player" ? "#2563eb" : "#dc2626"}
+                      occupantRealmId={p.occupantRealmId}
                       isPosted={Boolean(state && getPostedGarrison(state, p.id).posted)}
                     />
                   ) : p.node && p.node !== "none" ? (

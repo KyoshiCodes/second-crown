@@ -2,13 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-12 — Clearer banner and flag status (wave/keep-banners)
+## 2026-11-13 — Living fluttering keep banners and outpost flags with realm colors (bakeoff/gemini-keep-banners)
 
-- **Keep banner line.** Click your hold on the map, or open the Kingdom tab: a new line tells you at a glance whether the banner over your keep is **Flying** or **Under threat**, who is coming and in how many seconds, your Keep level, and how many flags you have out.
-- **Flag line.** Click a tile where you planted a flag: the card now says **Flying** (green, guarded), **Unguarded** (amber, nobody posted there) or **Under threat** (red, with who is marching and when). It also shows the garrison's power and how many soldiers hold it. A rival flag shows whose it is.
-- **Flags roll-up.** On the Kingdom tab, the Flags section starts with one line: how many flags are planted, how many are guarded, how many are not, and whether any are under threat.
-- **Colours.** Green is fine, amber wants attention, red means a host is on the way.
-- **No rule changes.** Nothing about how flags, garrisons or raids work has changed. These lines only report what the game already knows.
+- **Fluttering keep banners and outpost flags on the board and atlas:**
+  - **Realm-colored heraldry:** Every revealed keep, player outpost, and rival camp now flies a living heraldic banner or pennant colored to its realm (royal cobalt and gold for your crown, crimson for the rival, teal for Silk & Crescent, burnt orange for Ash & Flame, violet for Veil, and distinct crests for custom realms).
+  - **Animated cloth & trailing streamers:** Banners wave gently from their flagpoles with a two-part cloth and trailing streamer ribbon. Player outposts with a posted garrison fly an extra golden honor ribbon.
+  - **Weather-reactive wind:** Banners flutter briskly in rain or snow and whip fiercely during storms.
+- **Zero gameplay impact:** All banners, masts, and streamers are purely decorative (`pointer-events: none !important;`), respect your reduced-motion settings, and never block clicking tiles or issuing commands.
 
 ## 2026-11-12 — CSS & SVG hygiene audit pass 2 (bakeoff/gemini-css-hygiene-2)
 
