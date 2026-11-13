@@ -1,14 +1,12 @@
 # CHANGELOG
 
-## 2026-11-13 — Day/night status line on the Kingdom tab and inspect card (wave/day-night)
+## 2026-11-13 — Subtle living day-night wash and night building lantern glows (bakeoff/gemini-day-night)
 
-- **Day/night line (`DayNightLine`):** New `packages/app/src/hud/DayNightLine.tsx` and `packages/app/src/hud/day-night-line.css`. Reads `Time of day · <Dawn|Day|Dusk|Night> · <work effect> · <sight effect>` with a small sun or moon icon.
-  - **Work effect:** Night shows `Gather columns that get home now bring 20% less`. Dawn, day and dusk show `Gather columns bring full loads home`.
-  - **Sight effect:** Always `Sight: the same at every hour`. The sim has no rule that ties vision or fog to the hour.
-  - **Where:** Kingdom tab, directly under the season effect line. Province inspect card, directly under the season effect line, on seen tiles only.
-- **No rule changes:** All day/night math is untouched. Night is read from the sim's exported `sunMoonPosition`; the dawn, day and dusk names reuse the board's existing `resolveBoardLightPhase`, so the line always matches the sky the board draws. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
-- **Tests:** New `packages/app/src/hud/DayNightLine.test.tsx` (17 tests). The 20% figure is a display-only copy, so the tests run real gather columns home through `GatherSystem` by day and by night and check the ratio, and check that `isProvinceSeen` and `visionRange` do not change with the hour.
-- **Test fix:** The CSS scope check in `SeasonEffectLine.test.tsx` failed on Windows checkouts with CRLF line endings. Its selector regex now ignores `\r`. Test only, no behavior change.
+- **Living isometric board day-night wash (`BoardDayNight`):** Created `packages/app/src/hud/BoardDayNight.tsx` and `packages/app/src/hud/board-day-night.css`, mounted in `BoardLiving.tsx` (`0.95. Living Day-Night Wash & Night Building Lanterns`):
+  - **Day-night atmospheric wash (`resolveDayNightDescriptor`):** Uses `dayPhase(state)` from `@second-crown/sim` to shift the board's ambient wash (`.sc-board-day-night-wash`) and seen isometric tile tints (`.sc-board-day-night-tile`) from warm dawn/daylight (`#fef08a` / `#fde047`) and amber dusk (`#fb923c` / `#6366f1`) to cool moonlit night (`#1e3a8a` / `#38bdf8`).
+  - **Night lantern glows on finished buildings (`listFinishedBuildingLanterns`):** Renders warm flickering radial lantern blooms (`.sc-board-day-night-lantern-bloom`) and lantern cores (`.sc-board-day-night-lantern-core`) around seen holds for finished buildings (`completesAtTick === null`) during `night`, omitting under-construction buildings and daylight phases.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strictly `pointer-events: none !important;` and `user-select: none;` on all wash and glow layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/BoardDayNight.test.tsx` (5 tests) verifying warm-to-cool descriptor shifts, finished-building lantern filtering, day vs. night rendering, `BoardLiving` integration, `pointer-events: none`, and isolated CSS.
 
 ## 2026-11-13 — Subtle living season wash over the isometric board (bakeoff/gemini-season-wash)
 

@@ -2,12 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-13 — Day and night now tell you what they do (wave/day-night)
+## 2026-11-13 — Subtle living day-night wash and night building lantern glows (bakeoff/gemini-day-night)
 
-- **New "Time of day" line.** The Kingdom tab and the card you get when you click a tile you can see now show the current phase: **Dawn**, **Day**, **Dusk** or **Night**, with a small sun or moon.
-- **What night does.** Gather columns that get home at night bring back **20% less**. The line warns you in yellow while it is night. At dawn, by day and at dusk they bring full loads.
-- **What night does not do.** The hour never changes how far your realm sees. Only weather and watchtowers do. The line says so: "Sight: the same at every hour".
-- **Nothing else changed.** This is a read-only line. The day and night rules are exactly as before.
+- **Day-night atmosphere & night lanterns on the board:**
+  - **Warm daylight to cool night:** The isometric board now gently shifts from warm golden daylight and amber dusk into cool moonlit night as time passes.
+  - **Building lanterns at night:** Completed buildings on revealed holds emit soft, flickering warm lantern glows once night falls.
+- **Zero gameplay impact:** All wash and lantern glow layers are purely visual (`pointer-events: none !important;`), respect reduced-motion preferences, and never block clicking tiles or issuing commands.
 
 ## 2026-11-13 — Subtle living season wash over the isometric board (bakeoff/gemini-season-wash)
 
