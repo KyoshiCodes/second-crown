@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-11-14 — Study tree map on the lectern (wave/research-tree, not merged)
+
+- **Study tree (`ResearchTreeMap`):** New `packages/app/src/ResearchTreeMap.tsx` and `packages/app/src/research-tree-map.css`, mounted at the top of the lectern in `ResearchBar.tsx`, above the "First studies" and "Deeper studies" card sections.
+  - **Branches:** Six rows, one per first study that a deeper study builds on: Husbandry → Crop rotation, Forestry → Timber framing, Masonry → Fortification, Logistics → Supply trains, Surveying → Cartography, Drill → Quartermastery. The four first studies with no deeper study (Fieldcraft, Screening, Horse lore, Siege craft) sit in a "Stand alone" group under the branches.
+  - **Prerequisite line:** The line between a first study and its deeper study is grey and dashed until the first study is known, then solid gold.
+  - **Node states:** Known (✓), Studying (◔), Ready (●), Waiting (○), Sealed (✗), with a legend. One short line per node: `Known`, `42% · 12s left`, `Ready · 18s to study`, `Lectern busy`, `Short 15 food`, or `Needs Husbandry, Keep II` (every unmet gate, first study first).
+  - **Progress:** A bar on each node (full when known, the running percent while studying) and a header line such as `3 of 16 known · studying Masonry 42%` with a meter.
+  - **Jump to card:** Clicking a node scrolls to that study's full card and outlines it for about 1.6 seconds. The map has no Study or Cancel control of its own.
+  - **Narrow widths:** Under 400px of lectern width the deeper study drops under its first study, joined by an elbow line (CSS container query).
+- **Unchanged:** All sixteen study cards, the Study and Cancel buttons, the tier headings and every research number. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
+- **Tests:** New `packages/app/src/ResearchTreeMap.test.tsx` (12 tests): branch shape against the sim's `researchRequires`, every node state, the summary line, the rendered markup, that the cards and buttons are still in place under the map, and that the stylesheet is scoped, has no animation, and keeps decorative layers click-through. Totals on this branch: sim 362, app 1148, server 158.
+- **Not verified:** Not opened in a browser. Layout is covered by static-markup tests only.
+
 ## 2026-11-13 — Weather status line on the Kingdom tab and inspect card (wave/weather)
 
 - **Weather line (`WeatherLine`):** New `packages/app/src/hud/WeatherLine.tsx` and `packages/app/src/hud/weather-line.css`. Reads `Weather · <Clear|Rain|Storm|Snow> · <sight effect> · <march effect> · <gather effect>` with a small sky icon.

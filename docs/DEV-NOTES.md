@@ -1,3 +1,17 @@
+## 2026-11-14 — app / study tree map on the lectern (wave/research-tree, not merged)
+
+- **Component (`packages/app/src/ResearchTreeMap.tsx`):**
+  - Exports `ResearchTreeMap`, `studyTreeNode`, `studyTreeBranches`, `studyTreeSummary`, `type StudyNodeState`, `type StudyTreeNode`, `type StudyBranch`.
+  - `studyTreeNode(state, id)` makes the same reads as the card `Row` in `ResearchBar.tsx` (`researchDone`, `researchTicksLeft`, `researchKeepReady`, `researchPrereqReady`, `countBuilding`, `researchDuration`, the `research_<id>_total` flag) and reuses `studyStatus`, `studyNeeds`, `studyProgressText` and `studyCostParts`. It splits the card's `open` status in two: `ready` (stores cover the cost and the lectern is free) and `waiting` (stores short, or another study is on the lectern).
+  - `studyTreeBranches(state)` builds the tree from `researchRequires` through `studyLeadsTo`. A new tier II study in the sim table shows up with no change here. A first study with two deeper studies stacks them on the right. A tier III study (a study that requires a tier II one) would not be drawn: branches are one level deep, like `researchTier`.
+  - Display only. No call to `tryStartResearch` or `tryCancelResearch`.
+- **Jump to card:** A node is a `<button>`. Its click handler finds the card with `closest(".sc-research-lectern").querySelector('[data-study="<id>"]')`, calls `scrollIntoView` (not smooth under `prefers-reduced-motion`), and adds the class `sc-research-map-target` for 1600 ms. No element ids are used, because `ResearchBar` can be on the page twice (`TutorialBanner` and the Keep hall Lectern room). Nodes carry `data-map-node`, not `data-study`, so existing tests that slice cards by `data-study` still find the card first.
+- **Mount:** one line in `ResearchBar.tsx`, after `AcademyLecternLivingGlyph` and before the tier sections. `Row` is untouched.
+- **Styling (`packages/app/src/research-tree-map.css`):** every selector contains `.sc-research-map`. No keyframes, no animation. Decorative layers (link, bars, marks, meter) have `pointer-events: none`. Node buttons use `.sc-research-map .sc-research-map-node` so they win over the plain `button` rule in `theme.css` without editing it. Narrow layout uses `@container (max-width: 400px)` on the map itself. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/ResearchTreeMap.test.tsx`):** 12 tests. `npm test` (sim 362, app 1148, server 158) and `npm run build -w @second-crown/app` pass.
+- **Not verified:** not opened in a browser. Check the node button look against the theme, the 400px elbow layout, and the jump scroll inside the inspect card.
+- **Possible follow-up (not done):** the lectern still lists all sixteen full cards under the map. A later slice could show only the card for the node that is clicked. That changes what many card tests expect, so it needs its own brief.
+
 ## 2026-11-13 — app / weather status line (wave/weather)
 
 - **Component (`packages/app/src/hud/WeatherLine.tsx`):**

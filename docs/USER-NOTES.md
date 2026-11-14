@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-14 — The lectern now has a study tree (wave/research-tree, not merged yet)
+
+- **New "Study tree" box at the top of the lectern.** It shows all sixteen studies at once, before the long list of cards.
+- **Branches.** Each row shows a first study on the left and the deeper study that builds on it on the right, joined by a line. The line is grey and dashed until you know the first study. Then it turns gold.
+- **Marks.** ✓ Known. ◔ Studying. ● Ready to study now. ○ Waiting (the lectern is busy, or your stores are short). ✗ Sealed (something is still needed).
+- **One short line per study.** It says the percent and seconds left, or what the study still needs (for example "Needs Husbandry, Keep II"), or what you are short of (for example "Short 15 food").
+- **Progress bars.** Each study has a small bar. The header shows how many studies you know out of sixteen.
+- **Click a study to jump to its card.** The card is where the Study and Cancel buttons are. The card gets a gold outline for a moment so you can find it.
+- **Four studies stand alone.** Fieldcraft, Screening, Horse lore and Siege craft have no deeper study yet. They sit in their own group under the branches.
+- **Nothing else changed.** Costs, times, requirements and buttons are exactly as before.
+
 ## 2026-11-13 — Weather now tells you what it does (wave/weather)
 
 - **New "Weather" line.** The Kingdom tab and the card you get when you click a tile you can see now show the current sky: **Clear**, **Rain**, **Storm** or **Snow**, with a small icon. The sky holds for a whole season.

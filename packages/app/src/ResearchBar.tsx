@@ -37,6 +37,7 @@ import {
   studyNeeds,
   studyProgressText,
 } from "./ResearchAdvanced";
+import { ResearchTreeMap } from "./ResearchTreeMap";
 import "./hud/button-pips.css";
 import "./hud/research-ink-pip.css";
 import "./research-tree.css";
@@ -226,6 +227,7 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
         totalCount={ids.length}
         academyCount={academy}
       />
+      <ResearchTreeMap state={state} />
       {([1, 2] as const).map((tier) => {
         const tierIds = ids.filter((id) => researchTier(id) === tier);
         if (tierIds.length === 0) return null;

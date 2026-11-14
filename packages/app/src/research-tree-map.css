@@ -1,0 +1,316 @@
+/*
+ * Study tree map on the lectern: branches of first study -> deeper study, with a
+ * state mark and a progress bar on every node.
+ * Dedicated sheet for ResearchTreeMap.tsx. theme.css is not touched.
+ * Every selector starts with .sc-research-map. No animation.
+ */
+
+.sc-research-map {
+  position: relative;
+  z-index: 1;
+  container-type: inline-size;
+  margin: 0 0 12px;
+  padding: 8px;
+  border: 1px solid rgba(180, 140, 70, 0.45);
+  border-radius: 6px;
+  background: rgba(127, 127, 127, 0.05);
+}
+
+.sc-research-map-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0 0 6px;
+}
+
+.sc-research-map-title {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sc-research-map-sum {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.sc-research-map-meter {
+  flex: 1 1 80px;
+  min-width: 60px;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgba(127, 127, 127, 0.28);
+  pointer-events: none;
+}
+
+.sc-research-map-meter-fill {
+  display: block;
+  height: 100%;
+  background: rgba(200, 150, 50, 0.95);
+  pointer-events: none;
+}
+
+/* Legend: the five marks and what they mean. */
+.sc-research-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.sc-research-map-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Column captions over the branches. Same grid as a branch row. */
+.sc-research-map-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+  margin: 0 0 4px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.68;
+  pointer-events: none;
+}
+
+.sc-research-map-branches {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-research-map-branch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+  align-items: center;
+}
+
+/* The line from a first study to its deeper study. Grey and dashed until the first study is known. */
+.sc-research-map-link {
+  height: 0;
+  border-top: 2px dashed rgba(120, 130, 145, 0.75);
+  pointer-events: none;
+}
+
+.sc-research-map-branch.is-met .sc-research-map-link {
+  border-top: 2px solid rgba(200, 150, 50, 0.95);
+}
+
+.sc-research-map-kids {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* A node. It is a button only so it can jump to the study's card. */
+.sc-research-map .sc-research-map-node {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  margin: 0;
+  padding: 5px 7px 8px;
+  overflow: hidden;
+  border: 1px solid rgba(127, 127, 127, 0.45);
+  border-left-width: 3px;
+  border-radius: 5px;
+  background: rgba(127, 127, 127, 0.08);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sc-research-map .sc-research-map-node:hover {
+  background: rgba(180, 140, 70, 0.16);
+}
+
+.sc-research-map .sc-research-map-node:focus-visible {
+  outline: 2px solid rgba(200, 150, 50, 0.95);
+  outline-offset: 1px;
+}
+
+.sc-research-map-mark {
+  flex: 0 0 auto;
+  width: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+
+.sc-research-map-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sc-research-map-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.sc-research-map-line {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+  overflow-wrap: anywhere;
+}
+
+.sc-research-map-bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: rgba(127, 127, 127, 0.22);
+  pointer-events: none;
+}
+
+.sc-research-map-bar-fill {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  pointer-events: none;
+}
+
+/* State colours. The mark, the left edge and the bar share one colour per state. */
+.sc-research-map .sc-research-map-node.is-known {
+  border-color: rgba(200, 150, 50, 0.7);
+}
+
+.sc-research-map-node.is-known .sc-research-map-mark,
+.sc-research-map-node.is-known .sc-research-map-bar,
+.sc-research-map-key.is-known .sc-research-map-mark {
+  color: #d4a53a;
+}
+
+.sc-research-map .sc-research-map-node.is-studying {
+  border-color: rgba(88, 166, 255, 0.8);
+  background: rgba(88, 166, 255, 0.1);
+}
+
+.sc-research-map-node.is-studying .sc-research-map-mark,
+.sc-research-map-node.is-studying .sc-research-map-bar,
+.sc-research-map-key.is-studying .sc-research-map-mark {
+  color: #58a6ff;
+}
+
+.sc-research-map .sc-research-map-node.is-ready {
+  border-color: rgba(63, 185, 80, 0.8);
+}
+
+.sc-research-map-node.is-ready .sc-research-map-mark,
+.sc-research-map-node.is-ready .sc-research-map-line,
+.sc-research-map-key.is-ready .sc-research-map-mark {
+  color: #3fb950;
+}
+
+.sc-research-map .sc-research-map-node.is-waiting {
+  border-color: rgba(210, 153, 34, 0.75);
+}
+
+.sc-research-map-node.is-waiting .sc-research-map-mark,
+.sc-research-map-node.is-waiting .sc-research-map-line,
+.sc-research-map-key.is-waiting .sc-research-map-mark {
+  color: #d29922;
+}
+
+.sc-research-map .sc-research-map-node.is-locked {
+  border-style: dashed;
+  border-left-style: solid;
+}
+
+.sc-research-map-node.is-locked .sc-research-map-name {
+  opacity: 0.7;
+}
+
+.sc-research-map-node.is-locked .sc-research-map-mark,
+.sc-research-map-key.is-locked .sc-research-map-mark {
+  color: #8b949e;
+}
+
+/* First studies that no deeper study builds on. */
+.sc-research-map-solo {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(180, 140, 70, 0.4);
+}
+
+.sc-research-map-solo-label {
+  margin: 0 0 4px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+
+.sc-research-map-solo-nodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+
+.sc-research-map-foot {
+  margin: 8px 0 0;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* The study card a node jumped to: a short gold outline. Class is added by ResearchTreeMap only. */
+.sc-research-map-target {
+  outline: 2px solid rgba(200, 150, 50, 0.95);
+  outline-offset: 2px;
+}
+
+/* Narrow lectern: the deeper study drops under its first study, joined by an elbow. */
+@container (max-width: 400px) {
+  .sc-research-map-cols {
+    display: none;
+  }
+
+  .sc-research-map-branch {
+    grid-template-columns: 18px minmax(0, 1fr);
+    row-gap: 4px;
+    align-items: stretch;
+  }
+
+  .sc-research-map-branch > .sc-research-map-node {
+    grid-column: 1 / -1;
+  }
+
+  .sc-research-map-link {
+    width: 10px;
+    height: 20px;
+    margin-left: 6px;
+    border-top: 0;
+    border-bottom: 2px dashed rgba(120, 130, 145, 0.75);
+    border-left: 2px dashed rgba(120, 130, 145, 0.75);
+    border-bottom-left-radius: 4px;
+  }
+
+  .sc-research-map-branch.is-met .sc-research-map-link {
+    border-top: 0;
+    border-bottom: 2px solid rgba(200, 150, 50, 0.95);
+    border-left: 2px solid rgba(200, 150, 50, 0.95);
+  }
+}
