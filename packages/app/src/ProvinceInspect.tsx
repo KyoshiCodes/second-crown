@@ -64,6 +64,7 @@ import { ownerLine } from "./hud/ownerLine";
 import { SeasonEffectLine } from "./hud/SeasonEffectLine";
 import { DayNightLine } from "./hud/DayNightLine";
 import { WeatherLine } from "./hud/WeatherLine";
+import { PrestigeRankLine } from "./hud/PrestigeRankLine";
 import { SeasonPip } from "./hud/SeasonPip";
 import "./hud/season-pip.css";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
@@ -275,6 +276,7 @@ export function ProvinceInspect(props: {
         {seen ? <SeasonEffectLine state={state} /> : null}
         {seen ? <DayNightLine state={state} /> : null}
         {seen ? <WeatherLine state={state} /> : null}
+        <PrestigeRankLine state={state} />
         {garrisonNote ? <div className="sc-inspect-line sc-inspect-garrison">{garrisonNote}</div> : null}
         {scoutNote ? <div className="sc-inspect-line sc-inspect-scout">{scoutNote}</div> : null}
         {gatherNote ? <div className="sc-inspect-line sc-inspect-gather">{gatherNote}</div> : null}

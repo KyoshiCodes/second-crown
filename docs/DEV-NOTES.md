@@ -1,3 +1,18 @@
+## 2026-11-15 — app / prestige rank line (wave/prestige, not merged)
+
+- **Component (`packages/app/src/hud/PrestigeRankLine.tsx`):**
+  - Exports `PrestigeRankLine`, `prestigeRank`, `YIELD_PCT_PER_PRODUCTION`, `type PrestigeRank`.
+  - `prestigeRank(state)` reuses `prestigeStatus` from `PrestigeLine.tsx` (dawn, `ascendThreshold`, percent, `canAscend`, shared) and adds the sim's `playerTitle`, the sworn entry from `DOCTRINES`, and `flags.dawn_gift`. Display only. No call to `tryAscend` or `tryPickDoctrine`.
+  - `YIELD_PCT_PER_PRODUCTION = 4` is a display-only copy. The sim's `rateFor` (`systems/economy.ts`) multiplies by `1 + productionBonus(state) * 0.04` and does not export the 0.04. The test reads the text of `economy.ts` and fails if that expression changes. The first-dawn gift amounts (1 militia, 20 food, 10 wood) are also written out in the text; they live in `tryAscend` and are not exported. A sim change to the gift needs a text change here.
+  - The percent is additive with the other production points (doctrine, decree, season, advisor) and with `researchYield`, so "+8% yield" means 8 points added to the multiplier, not income times 1.08 when other bonuses are active.
+  - `playerTitle` also rises with won wars, so the title is not a pure function of the Dawn count.
+- **Name:** `AgeLine.tsx` already exports the aliases `PrestigeLine` and `PrestigeStatusLine` (both the old read-only `AgeLine`, mounted nowhere). The new component is named `PrestigeRankLine` to avoid a third meaning.
+- **Mounts:** `tabs/KingdomTab.tsx`, one line after `<PrestigeLine>`, with `threshold={false}` (the Age line above shows the threshold, bar and Ascend button). `ProvinceInspect.tsx`, one line after `<WeatherLine>`, not gated on `seen`.
+- **Styling (`packages/app/src/hud/prestige-rank-line.css`):** every selector starts with `.sc-prestige-rank-`. No animation. The glyph (`AgeGlyphPip`, reused) has `pointer-events: none`. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/PrestigeRankLine.test.tsx`):** 20 tests. `npm test` (sim 362, app 1168, server 158) and `npm run build -w @second-crown/app` pass.
+- **Not verified:** not opened in a browser. Check how the full line wraps inside the narrow inspect card.
+- **Possible follow-up (not done):** fold this line into the Age line so the Kingdom tab has one prestige row. That changes `PrestigeLineView` and its tests, so it needs its own brief.
+
 ## 2026-11-14 — app / study tree map on the lectern (wave/research-tree, not merged)
 
 - **Component (`packages/app/src/ResearchTreeMap.tsx`):**

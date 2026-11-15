@@ -73,6 +73,7 @@ import { SeasonPip } from "../hud/SeasonPip";
 import { SeasonEffectLine } from "../hud/SeasonEffectLine";
 import { DayNightLine } from "../hud/DayNightLine";
 import { WeatherLine } from "../hud/WeatherLine";
+import { PrestigeRankLine } from "../hud/PrestigeRankLine";
 import "../hud/season-pip.css";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
@@ -236,6 +237,7 @@ export function KingdomTab(props: {
       <WallPace state={state} />
       <CultureLine state={state} act={act} />
       <PrestigeLine state={state} act={act} />
+      <PrestigeRankLine state={state} threshold={false} />
       <DecreeHint state={state} />
       <MarketHint state={state} />
       <MarketPace state={state} />

@@ -1,0 +1,53 @@
+/* Read-only prestige rank line on the Kingdom tab and the inspect card (PrestigeRankLine.tsx). Do not touch theme.css. */
+
+.sc-prestige-rank-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-prestige-rank-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  pointer-events: none;
+}
+
+.sc-prestige-rank-text {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.sc-prestige-rank-label {
+  opacity: 0.75;
+}
+
+.sc-prestige-rank-line strong {
+  font-weight: 600;
+  color: #fde68a;
+}
+
+/* The bonus in force now is the part to read first. */
+.sc-prestige-rank-grants.is-active {
+  color: #bbf7d0;
+}
+
+/* What is not yet earned stays quiet. */
+.sc-prestige-rank-next,
+.sc-prestige-rank-upcoming,
+.sc-prestige-rank-grants:not(.is-active) {
+  opacity: 0.8;
+}
+
+.sc-prestige-rank-line.is-ready .sc-prestige-rank-next {
+  opacity: 1;
+  color: #fef08a;
+  font-weight: 600;
+}
+
+.sc-prestige-rank-line.is-shared strong {
+  color: inherit;
+}
