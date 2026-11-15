@@ -2,8 +2,10 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { CULTURES, createGameState, setPlayerCulture } from "@second-crown/sim";
-import { CultureCrestPip } from "./CultureCrestPip";
+import { CultureCrestPip, HomeKeepCultureCrest } from "./CultureCrestPip";
 import { CulturePicker } from "../CulturePicker";
+import { CultureLine } from "../CultureLine";
+import { BoardLiving } from "../BoardLiving";
 
 function readCssFile(relativePath: string): string {
   const proc = (globalThis as {
@@ -24,7 +26,8 @@ describe("CultureCrestPip (bakeoff/gemini-culture)", () => {
       const html = renderToStaticMarkup(<CultureCrestPip cultureId={culture.id} isSelected={false} />);
       expect(html).toContain(`data-culture="${culture.id}"`);
       expect(html).toContain(`id="charge-${culture.id}"`);
-      expect(html).toContain('class="sc-culture-crest is-idle "');
+      expect(html).toContain(`class="sc-culture-crest is-idle culture-${culture.id}"`);
+      expect(html).toContain(`data-culture-tabard="${culture.palette.tabard}"`);
       expect(html).toMatch(/style="[^"]*pointer-events:\s*none/);
     }
   });
@@ -74,5 +77,35 @@ describe("CultureCrestPip (bakeoff/gemini-culture)", () => {
     // Zero contamination of theme.css
     const theme = readCssFile("../theme.css");
     expect(theme).not.toContain("sc-culture-crest");
+  });
+
+  it("renders next to CultureLine and on the home keep in HomeKeepCultureCrest & BoardLiving", () => {
+    const s = createGameState({ seed: 42 });
+    setPlayerCulture(s, "desert");
+    const lineHtml = renderToStaticMarkup(<CultureLine state={s} act={() => undefined} />);
+    expect(lineHtml).toContain("sc-culture-crest is-selected culture-desert");
+    expect(lineHtml).toContain(`data-culture="desert"`);
+
+    const homeId = s.board.homeProvinceId;
+    const keepHtml = renderToStaticMarkup(
+      <svg viewBox="0 0 560 360">
+        <HomeKeepCultureCrest state={s} />
+      </svg>,
+    );
+    expect(keepHtml).toContain("sc-keep-culture-crest culture-desert");
+    expect(keepHtml).toContain(`data-home-keep-culture-crest="true"`);
+    expect(keepHtml).toContain(`data-province-id="${homeId}"`);
+    expect(keepHtml).toContain(`pointer-events:none`);
+
+    const boardHtml = renderToStaticMarkup(
+      <BoardLiving state={s} selectedId={null} visible={true} />,
+    );
+    expect(boardHtml).toContain("sc-keep-culture-crest culture-desert");
+    expect(boardHtml).toContain(`data-home-keep-culture-crest="true"`);
+
+    const pipCss = readCssFile("./culture-crest-pip.css");
+    expect(pipCss).toContain("pointer-events: none !important;");
+    expect(pipCss).toContain("prefers-reduced-motion: reduce");
+    expect(pipCss).toContain(".sc-keep-culture-crest");
   });
 });

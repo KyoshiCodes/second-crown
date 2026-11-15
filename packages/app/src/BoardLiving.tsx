@@ -44,6 +44,12 @@ import {
   type SeasonWashDescriptor,
 } from "./hud/BoardSeasonWash";
 import {
+  CultureCrestPip,
+  HomeKeepCultureCrest,
+  type CultureCrestPipProps,
+  type HomeKeepCultureCrestProps,
+} from "./hud/CultureCrestPip";
+import {
   HomeKeepCrownPip,
   PrestigeCrownPip,
   resolvePrestigeCrownDescriptor,
@@ -870,6 +876,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
+        {/* 5.7. Living Culture Crest Pip on Home Keep */}
+        <HomeKeepCultureCrest state={state} />
+
         {/* 6. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
         {selProv && selCoords && anchor && (
           <g className="sc-board-living-status-tether" style={{ pointerEvents: "none" }}>
@@ -927,6 +936,10 @@ export {
   resolvePrestigeCrownDescriptor,
   type PrestigeCrownDescriptor,
   type PrestigeTier,
+  CultureCrestPip,
+  HomeKeepCultureCrest,
+  type CultureCrestPipProps,
+  type HomeKeepCultureCrestProps,
   BoardDayNight,
   listFinishedBuildingLanterns,
   resolveDayNightDescriptor,

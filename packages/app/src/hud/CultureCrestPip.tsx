@@ -1,5 +1,6 @@
 import React from "react";
-import { getCulture } from "@second-crown/sim";
+import { getCulture, getProvince, playerCultureId, type GameState } from "@second-crown/sim";
+import "./culture-crest-pip.css";
 
 export interface CultureCrestPipProps {
   /** The culture identifier (e.g. "western", "woodland", "desert", "steppe", "tide", "mist", "glen", "salt", "fen", "peak") */
@@ -158,7 +159,7 @@ export function CultureCrestPip({
 
   return (
     <span
-      className={`sc-culture-crest ${pickedClass} ${className}`}
+      className={`sc-culture-crest ${pickedClass} culture-${cultureId} ${className}`.trim()}
       style={{
         width: size,
         height: size,
@@ -173,6 +174,7 @@ export function CultureCrestPip({
       aria-hidden="true"
       data-culture={cultureId}
       data-picked={isSelected}
+      data-culture-tabard={tabard}
     >
       {/* Living breathing glow aura when selected */}
       {isSelected && (
@@ -235,5 +237,87 @@ export function CultureCrestPip({
         ) : null}
       </svg>
     </span>
+  );
+}
+
+const BOARD_ORIGIN_X = 236;
+const BOARD_ORIGIN_Y = 56;
+const BOARD_HALF_W = 22;
+const BOARD_HALF_H = 11;
+
+function boardGridToWorld(bx: number, by: number): { wx: number; wy: number } {
+  return {
+    wx: BOARD_ORIGIN_X + (bx - by) * BOARD_HALF_W,
+    wy: BOARD_ORIGIN_Y + (bx + by) * BOARD_HALF_H,
+  };
+}
+
+export interface HomeKeepCultureCrestProps {
+  state: GameState;
+}
+
+export function HomeKeepCultureCrest({ state }: HomeKeepCultureCrestProps) {
+  const homeId = state.board?.homeProvinceId;
+  if (!homeId) return null;
+  const home = getProvince(state, homeId);
+  if (!home) return null;
+
+  const cultureId = playerCultureId(state);
+  const culture = getCulture(cultureId);
+  const tabard = culture.palette.tabard;
+  const { wx, wy } = boardGridToWorld(home.x, home.y);
+  const cx = wx + 11;
+  const cy = wy - 14;
+  const auraId = `sc-keep-culture-aura-${cultureId}`;
+
+  return (
+    <g
+      className={`sc-keep-culture-crest culture-${cultureId}`}
+      data-home-keep-culture-crest="true"
+      data-province-id={homeId}
+      data-culture={cultureId}
+      data-culture-tabard={tabard}
+      aria-hidden="true"
+      style={{ pointerEvents: "none" }}
+    >
+      <defs>
+        <radialGradient id={auraId} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={tabard} stopOpacity="0.62" />
+          <stop offset="65%" stopColor={tabard} stopOpacity="0.24" />
+          <stop offset="100%" stopColor={tabard} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      <circle
+        cx={cx}
+        cy={cy}
+        r={6.4}
+        fill={`url(#${auraId})`}
+        className="sc-keep-culture-crest-aura"
+        style={{ pointerEvents: "none" }}
+      />
+
+      <g className="sc-keep-culture-crest-body" style={{ pointerEvents: "none" }}>
+        <path
+          d={`M ${cx} ${cy - 4.4} L ${cx + 3.6} ${cy - 2.9} V ${cy + 0.4} C ${cx + 3.6} ${cy + 2.8} ${cx + 2.0} ${cy + 4.3} ${cx} ${cy + 4.9} C ${cx - 2.0} ${cy + 4.3} ${cx - 3.6} ${cy + 2.8} ${cx - 3.6} ${cy + 0.4} V ${cy - 2.9} Z`}
+          fill="#0b0f17"
+          stroke={tabard}
+          strokeWidth="0.95"
+          strokeLinejoin="round"
+        />
+        <path
+          d={`M ${cx} ${cy - 3.4} L ${cx + 2.7} ${cy - 2.2} V ${cy + 0.3} C ${cx + 2.7} ${cy + 2.1} ${cx + 1.5} ${cy + 3.3} ${cx} ${cy + 3.8} C ${cx - 1.5} ${cy + 3.3} ${cx - 2.7} ${cy + 2.1} ${cx - 2.7} ${cy + 0.3} V ${cy - 2.2} Z`}
+          fill={tabard}
+          fillOpacity="0.52"
+        />
+        <circle
+          cx={cx}
+          cy={cy + 0.1}
+          r={1.15}
+          fill="#fef08a"
+          className="sc-keep-culture-crest-glint"
+        />
+      </g>
+    </g>
   );
 }

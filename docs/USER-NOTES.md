@@ -2,14 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-15 — Your culture now tells you what it gives you (wave/culture, not merged yet)
+## 2026-11-15 — Living culture crest pip on culture line and home keep (bakeoff/gemini-culture)
 
-- **New "Culture" status line.** It is on the Kingdom tab, under the line with the Switch button, and on the card you get when you click any tile.
-- **Your culture.** It shows the culture you are playing, for example "Mist Reach".
-- **Its bonus.** Mist Reach, Glen Holds, Salt Reaches, Fen Steads and Peak Holds each have one bonus. The line states it and how much you are getting right now, for example "each finished farm feeds +1 food per tick (3 farms: +3 now)". The other five cultures change how your kingdom looks and have no bonus; the line says so.
-- **Its special unit.** Each style of hall opens one unit nobody else can train: Halberdier (western halls), Cedar Stalker, Dune Lancer, Horse Archer or Reef Raider. Mist, Glen, Salt, Fen and Peak build western halls, so they get the Halberdier.
-- **About the Ranger, Banner, Outrider, Warden and Lancer.** The culture picker shows one of these beside each bonus culture. Any culture can train them once the right study is done. The line names the study and whether you have it.
-- **Nothing else changed.** This is a read-only line with no button. Culture rules, the Switch button and the culture picker are exactly as before.
+- **Pulsing culture crest on the culture line and home keep:**
+  - **Culture-colored heraldry:** Your active culture's shield crest gently pulses and shifts its aura and tabard colors whenever you switch cultures.
+  - **Shown in two places:** Appears right next to the Culture status line on the Kingdom tab and as a miniature shield crest on your home keep on the isometric board.
+- **Zero gameplay impact:** The crest pip is purely decorative (`pointer-events: none !important;`), respects reduced-motion settings, and never blocks clicks.
 
 ## 2026-11-15 — Living prestige crown seal on prestige line and home keep (bakeoff/gemini-prestige)
 

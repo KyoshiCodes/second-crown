@@ -1,0 +1,83 @@
+/* --- Living Culture Crest Pip (bakeoff/gemini-culture) ---
+ * Subtle living culture crest pip that gently pulses and shifts colors
+ * according to the current culture, shown next to the culture line and on the home keep.
+ * Isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-culture-crest,
+.sc-culture-crest *,
+.sc-keep-culture-crest,
+.sc-keep-culture-crest * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-culture-crest-aura,
+.sc-keep-culture-crest-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-culture-crest-aura-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-culture-crest-svg,
+.sc-keep-culture-crest-body {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-culture-crest-pulse 4.8s ease-in-out infinite;
+}
+
+.sc-culture-crest-glint,
+.sc-keep-culture-crest-glint {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-culture-crest-shimmer 3.6s ease-in-out infinite;
+}
+
+@keyframes sc-culture-crest-aura-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes sc-culture-crest-pulse {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(0.98);
+    filter: brightness(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+    filter: brightness(1.08);
+  }
+}
+
+@keyframes sc-culture-crest-shimmer {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-culture-crest-aura,
+  .sc-culture-crest-svg,
+  .sc-culture-crest-glint,
+  .sc-keep-culture-crest-aura,
+  .sc-keep-culture-crest-body,
+  .sc-keep-culture-crest-glint {
+    animation: none !important;
+  }
+}

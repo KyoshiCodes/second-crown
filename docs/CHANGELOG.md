@@ -1,16 +1,13 @@
 # CHANGELOG
 
-## 2026-11-15 — Culture status line on the Kingdom tab and inspect card (wave/culture, not merged)
+## 2026-11-15 — Living culture crest pip on culture line and home keep (bakeoff/gemini-culture)
 
-- **Culture status line (`CultureStatusLine`):** New `packages/app/src/hud/CultureStatusLine.tsx` and `packages/app/src/hud/culture-status-line.css`. Read-only. Reads `Culture · <name> · Bonus: <rule> (<amount now>) · Special unit: <unit> (<kit> halls only, open on the Army tab)` with the existing culture crest. Mist, Glen, Salt, Fen and Peak add `· Picker unit: <unit>, open to every crown after the <study> study (studied / not studied yet)`.
-  - **Culture:** the sim's `playerCultureId` and its name from `CULTURES`.
-  - **Bonus:** the culture's one rule difference with the sim's own number, then what it adds right now from the crown's finished buildings. Mist `each finished farm feeds +1 food per tick (3 farms: +3 now)`. Glen the same for quarries and stone. Salt for lumber camps and wood. Fen `each finished cottage holds +1 citizen`. Peak `a finished keep sees +1 tile farther (+1 hold vision now)`. With nothing built it reads `(no finished farm yet)`. Crown Marches, Cedar Kin, Sand Banner, Wind Host and Tide Clans read `Bonus: none, this culture changes looks only`.
-  - **Special unit:** the unit the sim opens for the culture's halls (`playerCultureUnitId`): Halberdier (Western), Cedar Stalker (Cedar), Dune Lancer (Sand), Horse Archer (Steppe), Reef Raider (Islands). Mist, Glen, Salt, Fen and Peak build western halls, so their special unit is the Halberdier.
-  - **Picker unit:** the culture picker shows Ranger, Banner, Outrider, Warden and Lancer beside the five bonus cultures. In the sim those units are not tied to a culture: any crown opens them with a study (Fieldcraft, Drill, Horse lore, Screening, Horse lore). The line says so instead of calling them unlocked by the culture.
-  - **Where:** Kingdom tab, directly under the existing culture line (which keeps its Switch button). Province inspect card, directly under the prestige line, on every tile (seen or not: the culture belongs to the realm, not the tile).
-- **Unchanged:** All culture math, the Kingdom tab's culture line and Switch button, the Crown tab's culture picker. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
-- **Tests:** New `packages/app/src/hud/CultureStatusLine.test.tsx` (28 tests): all ten cultures; each bonus amount against the sim's `computeIncomePerSecond`, `housingCap` and `visionRange`; the special unit against `playerCultureUnitId` and `unitUnlocked` across every kit; the picker unit against `RESEARCH`; the save is not changed; both mounts; the stylesheet. Totals on this branch: sim 362, app 1201, server 158. App build clean.
-- **Not verified:** Not opened in a browser. Layout is covered by static-markup tests only.
+- **Living culture crest pip (`CultureCrestPip` & `HomeKeepCultureCrest`):** Enhanced `packages/app/src/hud/CultureCrestPip.tsx` and created `packages/app/src/hud/culture-crest-pip.css`:
+  - **Culture-reactive pulse & color shift:** Uses `playerCultureId(state)` and `getCulture(cultureId).palette.tabard` to pulse and shift shield aura, border, and field colors across all 10 cultures.
+  - **Culture line (`CultureLine.tsx`):** Displays the pulsing `<CultureCrestPip />` beside the current culture line on the Kingdom tab.
+  - **Home keep (`BoardLiving.tsx`):** Mounts `<HomeKeepCultureCrest state={state} />` (`5.7. Living Culture Crest Pip on Home Keep`) on the player's home keep on the isometric board.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strictly `pointer-events: none !important;` and `user-select: none;` on all pip layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Updated `packages/app/src/hud/CultureCrestPip.test.tsx` (5 tests) verifying all 10 culture crests, `CultureLine` integration, `HomeKeepCultureCrest` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-15 — Living prestige crown/seal pip on prestige line and home keep (bakeoff/gemini-prestige)
 
