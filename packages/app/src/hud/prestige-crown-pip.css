@@ -1,0 +1,116 @@
+/* --- Living Prestige Crown / Seal Pip (bakeoff/gemini-prestige) ---
+ * Subtle living crown/seal pip that glows and pulses more strongly as prestige rises.
+ * Shown next to the prestige line and on the home keep.
+ * Isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-prestige-crown-pip,
+.sc-prestige-crown-pip *,
+.sc-keep-prestige-crown,
+.sc-keep-prestige-crown * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-prestige-crown-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sc-prestige-crown-aura,
+.sc-keep-prestige-crown-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-prestige-crown-pulse var(--sc-crown-pulse, 5.5s) ease-in-out infinite;
+}
+
+.sc-prestige-crown-body,
+.sc-keep-prestige-crown-body {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-prestige-crown-glow var(--sc-crown-pulse, 5.5s) ease-in-out infinite;
+}
+
+.sc-prestige-crown-gem,
+.sc-keep-prestige-crown-gem {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-prestige-gem-twinkle calc(var(--sc-crown-pulse, 5.5s) * 0.8) ease-in-out infinite;
+}
+
+/* Stronger glow/pulse as prestige tier rises */
+.sc-prestige-crown-pip.tier-0,
+.sc-keep-prestige-crown.tier-0 {
+  --sc-crown-pulse: 5.5s;
+}
+
+.sc-prestige-crown-pip.tier-1,
+.sc-keep-prestige-crown.tier-1 {
+  --sc-crown-pulse: 4.4s;
+}
+
+.sc-prestige-crown-pip.tier-2,
+.sc-keep-prestige-crown.tier-2 {
+  --sc-crown-pulse: 3.4s;
+}
+
+.sc-prestige-crown-pip.tier-3,
+.sc-keep-prestige-crown.tier-3 {
+  --sc-crown-pulse: 2.6s;
+}
+
+.sc-prestige-crown-pip.tier-4,
+.sc-keep-prestige-crown.tier-4 {
+  --sc-crown-pulse: 2s;
+}
+
+@keyframes sc-prestige-crown-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes sc-prestige-crown-glow {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes sc-prestige-gem-twinkle {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-prestige-crown-aura,
+  .sc-prestige-crown-body,
+  .sc-prestige-crown-gem,
+  .sc-keep-prestige-crown-aura,
+  .sc-keep-prestige-crown-body,
+  .sc-keep-prestige-crown-gem {
+    animation: none !important;
+  }
+}

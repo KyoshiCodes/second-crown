@@ -43,6 +43,13 @@ import {
   type BoardSeasonKey,
   type SeasonWashDescriptor,
 } from "./hud/BoardSeasonWash";
+import {
+  HomeKeepCrownPip,
+  PrestigeCrownPip,
+  resolvePrestigeCrownDescriptor,
+  type PrestigeCrownDescriptor,
+  type PrestigeTier,
+} from "./hud/PrestigeCrownPip";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -860,6 +867,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.5. Living Keep Banners & Outpost Flags (fluttering realm heraldry) */}
         <BoardBanners state={state} />
 
+        {/* 5.6. Living Prestige Crown Seal on Home Keep */}
+        <HomeKeepCrownPip state={state} />
+
         {/* 6. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
         {selProv && selCoords && anchor && (
           <g className="sc-board-living-status-tether" style={{ pointerEvents: "none" }}>
@@ -912,6 +922,11 @@ export {
   resolveSeasonWashDescriptor,
   type BoardSeasonKey,
   type SeasonWashDescriptor,
+  HomeKeepCrownPip,
+  PrestigeCrownPip,
+  resolvePrestigeCrownDescriptor,
+  type PrestigeCrownDescriptor,
+  type PrestigeTier,
   BoardDayNight,
   listFinishedBuildingLanterns,
   resolveDayNightDescriptor,

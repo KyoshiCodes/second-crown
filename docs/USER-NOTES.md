@@ -2,14 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-15 — Prestige now tells you what it gives you (wave/prestige, not merged yet)
+## 2026-11-15 — Living prestige crown seal on prestige line and home keep (bakeoff/gemini-prestige)
 
-- **New "Prestige" line.** It is on the Kingdom tab, under the Age line, and on the card you get when you click any tile.
-- **Your rank.** It shows your Dawn number and your title, for example "Dawn 2 · Crown-Claimant".
-- **What the next Dawn needs.** On the tile card it shows the total resources you need and how far along you are, for example "Dawn 3 at 80K total resources (41% there)". On the Kingdom tab this figure is on the Age line just above, with the progress bar and the Ascend button.
-- **What your rank gives you now.** Each Dawn adds +1 production to every finished building. That is 4% more yield per Dawn, and it stacks. If you have sworn a doctrine, the line names it and says what it does.
-- **What one more Dawn would add.** The next production bonus, a new doctrine pick, and on your first Dawn only a gift of 1 militia, 20 food and 10 wood.
-- **Nothing else changed.** This is a read-only line with no button. The prestige rules, the thresholds and the Ascend button are exactly as before.
+- **Glowing prestige crown pip:**
+  - **Prestige status line:** A small living crown seal now sits beside your Age / Dawn status line on the Kingdom tab.
+  - **Home keep seal:** Your home keep on the isometric board also wears a matching floating crown seal above its spire.
+  - **Stronger glow as prestige rises:** Each Dawn level enriches the crown's gold, adds crown gems, brightens its aura, and quickens its gentle pulse.
+- **Zero gameplay impact:** The crown pip is purely decorative (`pointer-events: none !important;`), respects reduced-motion settings, and never blocks clicks.
 
 ## 2026-11-14 — The lectern now has a study tree (wave/research-tree, not merged yet)
 

@@ -1,17 +1,14 @@
-## 2026-11-15 — app / prestige rank line (wave/prestige, not merged)
+## 2026-11-15 — app / living prestige crown pip on prestige line & home keep (bakeoff/gemini-prestige)
 
-- **Component (`packages/app/src/hud/PrestigeRankLine.tsx`):**
-  - Exports `PrestigeRankLine`, `prestigeRank`, `YIELD_PCT_PER_PRODUCTION`, `type PrestigeRank`.
-  - `prestigeRank(state)` reuses `prestigeStatus` from `PrestigeLine.tsx` (dawn, `ascendThreshold`, percent, `canAscend`, shared) and adds the sim's `playerTitle`, the sworn entry from `DOCTRINES`, and `flags.dawn_gift`. Display only. No call to `tryAscend` or `tryPickDoctrine`.
-  - `YIELD_PCT_PER_PRODUCTION = 4` is a display-only copy. The sim's `rateFor` (`systems/economy.ts`) multiplies by `1 + productionBonus(state) * 0.04` and does not export the 0.04. The test reads the text of `economy.ts` and fails if that expression changes. The first-dawn gift amounts (1 militia, 20 food, 10 wood) are also written out in the text; they live in `tryAscend` and are not exported. A sim change to the gift needs a text change here.
-  - The percent is additive with the other production points (doctrine, decree, season, advisor) and with `researchYield`, so "+8% yield" means 8 points added to the multiplier, not income times 1.08 when other bonuses are active.
-  - `playerTitle` also rises with won wars, so the title is not a pure function of the Dawn count.
-- **Name:** `AgeLine.tsx` already exports the aliases `PrestigeLine` and `PrestigeStatusLine` (both the old read-only `AgeLine`, mounted nowhere). The new component is named `PrestigeRankLine` to avoid a third meaning.
-- **Mounts:** `tabs/KingdomTab.tsx`, one line after `<PrestigeLine>`, with `threshold={false}` (the Age line above shows the threshold, bar and Ascend button). `ProvinceInspect.tsx`, one line after `<WeatherLine>`, not gated on `seen`.
-- **Styling (`packages/app/src/hud/prestige-rank-line.css`):** every selector starts with `.sc-prestige-rank-`. No animation. The glyph (`AgeGlyphPip`, reused) has `pointer-events: none`. Zero edits to `theme.css`, `packages/sim`, or `server/`.
-- **Verification (`packages/app/src/hud/PrestigeRankLine.test.tsx`):** 20 tests. `npm test` (sim 362, app 1168, server 158) and `npm run build -w @second-crown/app` pass.
-- **Not verified:** not opened in a browser. Check how the full line wraps inside the narrow inspect card.
-- **Possible follow-up (not done):** fold this line into the Age line so the Kingdom tab has one prestige row. That changes `PrestigeLineView` and its tests, so it needs its own brief.
+- **Components (`packages/app/src/hud/PrestigeCrownPip.tsx`, `AgeLine.tsx`, `BoardLiving.tsx`):**
+  - Exported `PrestigeCrownPip`, `HomeKeepCrownPip`, `resolvePrestigeCrownDescriptor`, `type PrestigeCrownDescriptor`, and `type PrestigeTier` from `hud/PrestigeCrownPip.tsx`, re-exported from `AgeLine.tsx` and `BoardLiving.tsx`.
+  - `resolvePrestigeCrownDescriptor(prestige)` maps `flags.prestige_level` into tiers `0`–`4`, monotonically increasing `glowOpacity` (`0.18` to `0.95`) and decreasing `pulseDurationSec` (`5.5s` to `2.0s`).
+  - Mounted `<PrestigeCrownPip />` in `AgeLine.tsx` and `<HomeKeepCrownPip />` in `BoardLiving.tsx` above `state.board.homeProvinceId`.
+- **Styling (`packages/app/src/hud/prestige-crown-pip.css`, `living-glyph-soften.css`):**
+  - Isolated keyframes (`sc-prestige-crown-pulse`, `sc-prestige-crown-glow`, `sc-prestige-gem-twinkle`) with `pointer-events: none !important;`, `user-select: none;`, and `@media (prefers-reduced-motion: reduce)` guards; registered in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/PrestigeCrownPip.test.tsx`):**
+  - 5 tests covering prestige tier scaling, `pointer-events: none`, `AgeLine` integration, `HomeKeepCrownPip` & `BoardLiving` integration, and CSS isolation.
 
 ## 2026-11-14 — app / study tree map on the lectern (wave/research-tree, not merged)
 

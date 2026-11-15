@@ -1,6 +1,7 @@
 import React from "react";
 import { ascendThreshold, canAscend, formatLetterSuffix, type GameState } from "@second-crown/sim";
 import { sharedRealmId } from "./game/settleOnLoad";
+import { PrestigeCrownPip, resolvePrestigeCrownDescriptor } from "./hud/PrestigeCrownPip";
 import "./age-line.css";
 
 export interface AgeGlyphPipProps {
@@ -178,6 +179,7 @@ export function AgeLine(props: { state: GameState | undefined }) {
     return (
       <p className="sc-age-line sc-prestige-line is-shared" data-dawn={dawn} data-prestige={dawn}>
         <AgeGlyphPip dawn={dawn} shared ready={false} />
+        <PrestigeCrownPip prestige={dawn} size={16} />
         Age · <strong>Dawn {dawn}</strong> · a shared hold has no Second Dawn.
       </p>
     );
@@ -192,6 +194,7 @@ export function AgeLine(props: { state: GameState | undefined }) {
       data-ready={ready ? "true" : "false"}
     >
       <AgeGlyphPip dawn={dawn} ready={ready} />
+      <PrestigeCrownPip prestige={dawn} size={16} />
       Age · <strong>Dawn {dawn}</strong> · next age at {need} total resources
       {ready ? " · ready, ascend from the Crown tab." : "."}
     </p>
@@ -203,3 +206,4 @@ export const PrestigeStatusLine = AgeLine;
 export const PrestigeCrestPip = AgeGlyphPip;
 export const AgeSealPip = AgeGlyphPip;
 export const LivingPrestigePip = AgeGlyphPip;
+export { PrestigeCrownPip, resolvePrestigeCrownDescriptor };

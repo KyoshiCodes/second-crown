@@ -1,16 +1,13 @@
 # CHANGELOG
 
-## 2026-11-15 — Prestige rank line on the Kingdom tab and inspect card (wave/prestige, not merged)
+## 2026-11-15 — Living prestige crown/seal pip on prestige line and home keep (bakeoff/gemini-prestige)
 
-- **Prestige line (`PrestigeRankLine`):** New `packages/app/src/hud/PrestigeRankLine.tsx` and `packages/app/src/hud/prestige-rank-line.css`. Read-only. Reads `Prestige · Dawn <n> · <title> · <next threshold> · Grants: <bonuses> · Dawn <n+1> grants: <what one more dawn adds>` with the existing age glyph.
-  - **Rank:** the Dawn count (`flags.prestige_level`) and the sim's `playerTitle` (Petty Lord, War-Duke, Crown-Claimant, High Sovereign).
-  - **Next threshold:** `Dawn 2 at 55K total resources (36% there)`, from the sim's `ascendThreshold`. When the sim's `canAscend` is true it reads `Ready for Dawn 2: ascend from the Kingdom or Crown tab`.
-  - **Bonuses in force:** `+2 production on every finished building (+8% yield)` (one production point per dawn, 4% building yield per point), then the sworn doctrine with the sim's own wording, for example `Harvest Law: +2 production on every completed building`. At Dawn 1 or later with no doctrine it reads `a doctrine, not sworn yet (Crown tab)`. At Dawn 0 it reads `Grants: nothing yet`.
-  - **Next dawn:** the stacked production bonus, a doctrine pick, and the one-time first-dawn gift (1 militia, 20 food, 10 wood) while it is still unclaimed.
-  - **Where:** Kingdom tab, directly under the existing Age line. There it leaves out the threshold part, because the Age line right above already shows it with a progress bar and the Ascend button. Province inspect card, directly under the weather line, in full, on every tile (seen or not: the rank belongs to the realm, not the tile).
-- **Unchanged:** All prestige math, the Age line, the Ascend button and its confirm step, the Crown tab's Second Dawn card. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
-- **Tests:** New `packages/app/src/hud/PrestigeRankLine.test.tsx` (20 tests): rank, title, threshold and readiness against the sim's `playerTitle`, `ascendThreshold` and `canAscend`; the dawn bonus against `productionBonus`; the 4% step against the text of the sim's `systems/economy.ts`; doctrine wording against `DOCTRINES`; the gift note before and after a real `tryAscend`; both mounts; the stylesheet. Totals on this branch: sim 362, app 1168, server 158. App build clean.
-- **Not verified:** Not opened in a browser. Layout is covered by static-markup tests only.
+- **Living prestige crown/seal pip (`PrestigeCrownPip` & `HomeKeepCrownPip`):** Created `packages/app/src/hud/PrestigeCrownPip.tsx` and `packages/app/src/hud/prestige-crown-pip.css`:
+  - **Escalating prestige glow & pulse (`resolvePrestigeCrownDescriptor`):** Scales glow opacity (`0.18` → `0.95`), aura radius, gem accents, and pulse cadence (`5.5s` → `2.0s`) across prestige tiers `0`–`4+` from `state.flags.prestige_level`.
+  - **Prestige line (`AgeLine.tsx`):** Renders `<PrestigeCrownPip prestige={dawn} size={16} />` next to the prestige status line for both standard and shared realms.
+  - **Home keep (`BoardLiving.tsx`):** Mounts `<HomeKeepCrownPip state={state} />` (`5.6. Living Prestige Crown Seal on Home Keep`) above the player's home keep on the isometric board.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`. Strictly `pointer-events: none !important;` and `user-select: none;` on all pip layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/PrestigeCrownPip.test.tsx` (5 tests) verifying escalating glow/pulse descriptors, `pointer-events: none`, `AgeLine` integration, `HomeKeepCrownPip` & `BoardLiving` integration, and CSS isolation.
 
 ## 2026-11-14 — Study tree map on the lectern (wave/research-tree, not merged)
 
