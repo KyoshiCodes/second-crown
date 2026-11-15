@@ -17,6 +17,7 @@ import { HoldCardUnderlay, HoldLivingStrip } from "./hud/HoldLivingGlyph";
 import "./hud/hold-leave.css";
 import "./hud/hold-log.css";
 import { flashAction } from "./hud/ActionFlash";
+import { publishHoldView } from "./hud/holdWatch";
 
 /** Whole units for display. The hold keeps the sim's exact decimal strings. */
 const whole = wholeUnits;
@@ -107,6 +108,12 @@ export function JoinHoldCard({
       flashCancel.current = null;
     }
   }, [realmId]);
+
+  // Share the view (never the key) with the read-only stamps line on the Kingdom tab and inspect card.
+  React.useEffect(() => {
+    publishHoldView(view);
+  }, [view]);
+  React.useEffect(() => () => publishHoldView(null), []);
 
   React.useEffect(() => {
     if (realmId === null) return;

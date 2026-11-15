@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-11-15 — Stamps status line on the Kingdom tab and inspect card (wave/stamps, not merged)
+
+- **Stamps line (`StampsStatusLine`):** New `packages/app/src/hud/StampsStatusLine.tsx` and `packages/app/src/hud/stamps-status-line.css`, mounted under the prestige rank line on the Kingdom tab (`tabs/KingdomTab.tsx`) and under the culture status line on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
+  - **Hold joined, with stamps:** `Stamps · Hold oak-hill · 3 active · guest_bob at tick 99 (1 tick ago), guest_alice at tick 6 (94 ticks ago) · Remaining: no time limit, a stamp never runs out · Effect: none, a stamp is a mark in the hold's log and changes no stores, works or militia`. Newest first, at most five, then `+N older`.
+  - **Hold joined, no stamps:** `Stamps · Hold oak-hill · None active`, with where to press Stamp and the effect text.
+  - **Stamp sent but not landed:** adds `N landing on the next tick` (the hold's `pending` count).
+  - **No hold joined (solo play):** `Stamps · No shared hold joined · Stamps exist only in a shared hold. Join one on the Cloud panel.`
+- **Remaining time and effect:** the sim's stamp (`packages/sim/src/actions/stamp.ts`) only adds a record to the hold's input log. It has no timer and no effect. The line says so in plain words; it does not invent a duration or a bonus.
+- **Hold view outside the card (`hud/holdWatch.ts`):** `JoinHoldCard` now publishes its `HoldView` to a small in-memory store and clears it on leave or unmount, so the two lines can read it. The hold key is never published. Nothing is saved or sent.
+- **Unchanged:** all stamp math, the Stamp button, the stamp cards on the Join hold card. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
+- **Tests:** New `packages/app/src/hud/StampsStatusLine.test.tsx` (21 tests). `npm test` (sim 362, app 1223, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-15 — Living culture crest pip on culture line and home keep (bakeoff/gemini-culture)
 
 - **Living culture crest pip (`CultureCrestPip` & `HomeKeepCultureCrest`):** Enhanced `packages/app/src/hud/CultureCrestPip.tsx` and created `packages/app/src/hud/culture-crest-pip.css`:

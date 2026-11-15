@@ -2,6 +2,17 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-15 — New "Stamps" line (wave/stamps, not merged yet)
+
+- **New "Stamps" line.** The Kingdom tab and the card you get when you click a tile now show a Stamps line.
+- **If you have joined a shared hold** (Cloud panel, Join hold), the line names the hold, counts its stamps and lists the newest five: who stamped and how many ticks ago. Older ones are counted as "+N older".
+- **Remaining time.** Stamps have no time limit. A stamp never runs out, so every stamp counts as active.
+- **Effect.** A stamp does nothing to the hold. It is a mark in the hold's log that every friend can see. It does not change stores, works or militia. The line says this so nobody waits for a bonus.
+- **A stamp you just pressed** shows as "landing on the next tick" for a moment before it joins the list.
+- **If you have not joined a hold,** the line says so and points to the Cloud panel. Stamps do not exist in solo play.
+- **Heads up.** The line follows the hold only while the Cloud panel is open. Closing the panel drops the hold view (as before), and the line goes back to "No shared hold joined".
+- **Nothing else changed.** This is a read-only line. The Stamp button is still on the hold card.
+
 ## 2026-11-15 — Living culture crest pip on culture line and home keep (bakeoff/gemini-culture)
 
 - **Pulsing culture crest on the culture line and home keep:**

@@ -1,3 +1,18 @@
+## 2026-11-15 — app / stamps status line (wave/stamps, not merged)
+
+- **Component (`packages/app/src/hud/StampsStatusLine.tsx`):**
+  - Exports `StampsStatusLine`, `stampsStatus`, `STAMPS_LISTED`, `STAMP_REMAINING_TEXT`, `STAMP_EFFECT_TEXT`, `type StampsStatus`, `type StampRow`.
+  - `stampsStatus(view)` takes a `HoldView | null` and returns `kind` (`solo`, `empty`, `active`), the realm id without `join-`, the active count (`view.stamps.length`), up to five rows newest first, the `older` count, `pending`, and the whole line as `text`. The only arithmetic is the age in ticks, `view.tick - stamp.tick`, floored at 0. Age is shown in ticks, not seconds, so the line assumes nothing about the hold's tick rate.
+  - `StampsStatusLine` takes an optional `view` prop. Without it, it reads `hud/holdWatch.ts` through `React.useSyncExternalStore`. Display only: no call to `sendStamp`, no button.
+- **Remaining time and effect are fixed texts.** `tryStamp` only pushes `{ tick, type: "stamp", issuerId }` onto `state.inputLog`; `listStamps` reads those records back. There is no expiry and no effect anywhere in `packages/sim` or `server/hold.mjs`. So "active" means every stamp, "Remaining" is "no time limit", and "Effect" is "none". Two tests guard this: one stamps a fresh state and checks that nothing but the input log changed, one reads `packages/sim/src/actions/stamp.ts` and fails if the `Stamp` type changes or a word like `duration` or `effect` appears. If either fails, update the two texts.
+- **Store (`packages/app/src/hud/holdWatch.ts`):** `publishHoldView`, `getHoldViewSnapshot`, `subscribeHoldView`. Module-level, in memory only. `JoinHoldCard.tsx` gained two effects: publish `view` on every change, publish `null` on unmount. The key (`holdKey`, `madeKey`) is never published. The card's own rendering is untouched.
+- **Limit:** the dock (`ChromeDock`) unmounts `CloudPanel` when it is closed, which already drops the card's hold view. So the line shows a hold only while the Cloud panel is open. Keeping a hold joined with the panel closed would mean lifting the hold state out of `JoinHoldCard`; that is a separate slice.
+- **`pending`:** `server/hold.mjs` queues only stamps in `hold.pending` (other intents apply at once), so the pending count is shown as stamps "landing on the next tick".
+- **Mounts:** one line in `tabs/KingdomTab.tsx` after `PrestigeRankLine`, one in `ProvinceInspect.tsx` after `CultureStatusLine`. The inspect card shows it for every tile, seen or not: stamps belong to the hold, not the tile.
+- **Styling (`packages/app/src/hud/stamps-status-line.css`):** every selector starts with `.sc-stamps-status-`. No animation of its own; the icon is the existing `HoldStampPip` at 14px with `pointer-events: none`. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/StampsStatusLine.test.tsx`):** 21 tests. `npm test` (sim 362, app 1223, server 158) and `npm run build -w @second-crown/app` pass.
+- **Not verified:** not opened in a browser. Check how the line wraps in the narrow inspect card, and join a real hold to see the line follow it.
+
 ## 2026-11-15 — app / living culture crest pip on culture line & home keep (bakeoff/gemini-culture)
 
 - **Components (`packages/app/src/hud/CultureCrestPip.tsx`, `CultureLine.tsx`, `BoardLiving.tsx`):**

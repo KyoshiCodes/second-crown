@@ -1,0 +1,51 @@
+/* Read-only stamps status line on the Kingdom tab and the inspect card (StampsStatusLine.tsx). Do not touch theme.css. */
+
+.sc-stamps-status-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-stamps-status-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  pointer-events: none;
+}
+
+.sc-stamps-status-text {
+  flex: 1 1 200px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sc-stamps-status-label {
+  opacity: 0.75;
+}
+
+.sc-stamps-status-line strong {
+  font-weight: 600;
+  color: #fde68a;
+}
+
+/* The count is the part to read first once a hold has stamps. */
+.sc-stamps-status-line.is-active .sc-stamps-status-headline {
+  color: #fca5a5;
+  font-weight: 600;
+}
+
+.sc-stamps-status-pending {
+  color: #fef08a;
+}
+
+/* Solo play and an unstamped hold stay quiet. */
+.sc-stamps-status-line.is-solo,
+.sc-stamps-status-note,
+.sc-stamps-status-older,
+.sc-stamps-status-remaining,
+.sc-stamps-status-effect {
+  opacity: 0.8;
+}
