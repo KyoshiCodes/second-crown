@@ -45,7 +45,7 @@ describe("BalanceNotes", () => {
 
     // Active player culture row receives is-active-culture and is-selected on crest
     expect(html).toContain("is-active-culture");
-    expect(html).toContain('class="sc-culture-crest is-selected "');
+    expect(html).toMatch(/class="sc-culture-crest is-selected culture-[^"]+"/);
     expect(html).toContain('data-picked="true"');
     expect(html).toContain("sc-culture-crest-aura");
     expect(html).toContain("sc-culture-crest-glint");
