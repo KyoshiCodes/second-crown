@@ -1,0 +1,46 @@
+/* Read-only culture status line on the Kingdom tab and the inspect card (CultureStatusLine.tsx). Do not touch theme.css. */
+
+.sc-culture-status-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-culture-status-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  pointer-events: none;
+}
+
+.sc-culture-status-text {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.sc-culture-status-label {
+  opacity: 0.75;
+}
+
+.sc-culture-status-line strong {
+  font-weight: 600;
+  color: #fde68a;
+}
+
+/* A bonus that is paying out right now is the part to read first. */
+.sc-culture-status-bonus.is-active {
+  color: #bbf7d0;
+}
+
+.sc-culture-status-unit.is-open {
+  color: #bae6fd;
+}
+
+/* What is not earned yet, or is not tied to the culture, stays quiet. */
+.sc-culture-status-bonus:not(.is-active),
+.sc-culture-status-paired {
+  opacity: 0.8;
+}

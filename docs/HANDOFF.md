@@ -1,4 +1,4 @@
-# Handoff (2026-11-14)
+# Handoff (2026-11-15)
 
 Read `AGENTS.md` then this file.
 
@@ -7,6 +7,7 @@ Read `AGENTS.md` then this file.
 `http://129.153.17.72:8787/` · Oracle, `pm2 restart sc-cloud` · repo `KyoshiCodes/second-crown` `main`.
 
 `main` is at `13135c3` (living scroll glyphs under quest cards). The living-layer wave is **fully merged**: every `wave/*-living` and `bakeoff/gemini-*-living` branch is on `main`. There is no waiting list for HUD glyphs.
+Also waiting: `wave/culture` (**not merged**, pushed, no PR, 2026-11-15). **Culture status line** (`hud/CultureStatusLine.tsx`) on the Kingdom tab (under the culture switch line) and on the province inspect card (under the prestige line): the current culture, its one bonus with the amount it adds right now, and the special unit its halls open. Mist, Glen, Salt, Fen and Peak build western halls, so their special unit is the Halberdier; the Ranger, Banner, Outrider, Warden and Lancer the picker shows beside them are open to every crown by study, and the line says so. Read-only, no button. All culture math, the switch line and the picker are unchanged. App only: no `packages/sim`, `server/` or `theme.css` edits. On this branch: sim **362**, app **1201**, server **158**, app build clean. Not opened in a browser. Open question in `docs/DEV-NOTES.md`: gate those five units by culture in the sim, or reword the picker.
 Also waiting: `bakeoff/gemini-prestige` (**not merged**, subtle living crown/seal pip that glows and pulses more strongly as prestige rises, shown next to the prestige line and on the home keep, see below).
 Also waiting: `wave/research-tree` (**not merged**, pushed, no PR, 2026-11-14). **Study tree map** at the top of the lectern (`ResearchBar`, shown above the tabs and in the Keep hall's Lectern room): every study as a node in a branch, first study on the left, the deeper study that builds on it on the right, joined by a line that turns gold once the first study is known. Each node shows a state mark (known, studying, ready, waiting, sealed), one short line (percent and seconds left, what it still needs, or what the stores are short of) and a progress bar. Clicking a node scrolls to that study's card. All sixteen cards, the Study and Cancel buttons and all research math are unchanged. App only: new `ResearchTreeMap.tsx`, `research-tree-map.css`, one mount line in `ResearchBar.tsx`. See `docs/CHANGELOG.md`. On this branch: sim **362**, app **1148**, server **158**, app build clean. Not yet opened in a browser.
 On `main` (2026-11-14, `57037cd`): the `wave/weather` status line on the Kingdom tab and the province inspect card (current sky and its effect on keep sight, march speed and gather hauls).

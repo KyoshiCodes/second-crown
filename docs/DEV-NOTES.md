@@ -1,3 +1,17 @@
+## 2026-11-15 — app / culture status line (wave/culture, not merged)
+
+- **Component (`packages/app/src/hud/CultureStatusLine.tsx`):**
+  - Exports `CultureStatusLine`, `cultureStatus`, `type CultureStatus`.
+  - `cultureStatus(state)` reads `playerCultureId`, `getCulture`, the five `*CultureBonus(state, "player")` functions, `playerCultureUnitId`, `CULTURE_UNITS` (for the kit's origin word), `getUnitType`, `unitUnlocked` and `RESEARCH`. Display only. No call to `setPlayerCulture`. No number is copied from the sim: the per-building amounts come from the bonus functions.
+  - **Amount now:** bonus per building times the crown's finished buildings of that type (`realmId === "player"`, `completesAtTick === null`). Peak is the flat amount once any keep is finished. The tests check these against the sim's income, housing cap and vision range, so a sim change to how a bonus applies fails the test.
+  - **Special unit vs picker unit:** `unitUnlocked` gates only the six `CULTURE_UNITS` by kit. Mist, Glen, Salt, Fen and Peak all map to the western kit, so the unit their culture opens is the Halberdier. Ranger, Banner, Outrider, Warden and Lancer are gated by study only (`fieldcraft`, `drill`, `horse`, `screening`, `horse`) and any culture can train them. The picker (`cultureLines.ts`, `CultureUnitChip.tsx`) presents them as each culture's unit; that is a display pairing, not a rule. The line reports the kit unit as the special unit and adds the picker unit with its study. The pairing table is read from `CULTURE_UNIQUE_UNITS` in `CultureUnitChip.tsx`.
+  - The words for each rule ("each finished farm feeds") are written in the component. A new culture bonus in the sim needs a new branch in `bonusOf`; until then that culture reads "looks only".
+- **Mounts:** `tabs/KingdomTab.tsx`, one line after `<CultureLine>`. `ProvinceInspect.tsx`, one line after `<PrestigeRankLine>`, not gated on `seen`.
+- **Styling (`packages/app/src/hud/culture-status-line.css`):** every selector starts with `.sc-culture-status-`. No animation. The crest (`CultureCrestPip`, reused) has `pointer-events: none`. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/CultureStatusLine.test.tsx`):** 28 tests. `npm test` (sim 362, app 1201, server 158) and `npm run build -w @second-crown/app` pass.
+- **Not verified:** not opened in a browser. Check how the full line wraps inside the narrow inspect card.
+- **Open question for the owner (not done):** the picker says "Unit: Ranger" for Mist Reach, but the sim lets every crown train rangers. Either gate those five units by culture in `packages/sim` (a rules change, needs its own brief) or reword the picker. The Kingdom tab also now names the culture on two adjacent rows (switch line, status line); folding them into one row changes `CultureLine` and its tests.
+
 ## 2026-11-15 — app / living prestige crown pip on prestige line & home keep (bakeoff/gemini-prestige)
 
 - **Components (`packages/app/src/hud/PrestigeCrownPip.tsx`, `AgeLine.tsx`, `BoardLiving.tsx`):**
