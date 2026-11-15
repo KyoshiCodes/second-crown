@@ -88,7 +88,7 @@ describe("cost row on the lectern cards", () => {
     expect(h).toContain("12 wood");
     expect(h).toContain("Not started");
     // 180 ticks, Academy discount 20% -> 144 ticks -> 14s
-    expect(h).toContain("Study husbandry (20 food, 12 wood; farm or granary or academy; 14s)</span>");
+    expect(h).toContain("Study husbandry (14s)</span>");
   });
 
   it("turns green when the stores cover it and the sim agrees", () => {
