@@ -78,18 +78,17 @@ describe("cost row on the lectern cards", () => {
     const html = renderToStaticMarkup(<ResearchBar state={s} act={act} />);
     const cards = (html.match(/data-study="/g) ?? []).length;
     expect(cards).toBe(Object.keys(RESEARCH).length);
-    expect((html.match(/data-study-cost="/g) ?? []).length).toBe(cards);
+    expect((html.match(/data-study-watermark="/g) ?? []).length).toBe(cards);
+    expect((html.match(/data-ink-pip="true"/g) ?? []).length).toBe(cards);
+    expect((html.match(/class="sc-study-living-rows"/g) ?? []).length).toBe(cards);
 
     const h = card(html, "husbandry");
     expect(h).toContain("Husbandry");
     expect(h).toContain("20 food");
     expect(h).toContain("12 wood");
-    expect(h).toContain("Short 20 food, 12 wood.");
     expect(h).toContain("Not started");
     // 180 ticks, Academy discount 20% -> 144 ticks -> 14s
-    expect(h).toContain("Study husbandry (14s)</span>");
-    // The cost and hall list no longer ride in the button label.
-    expect(h).not.toContain("Study husbandry (20 food");
+    expect(h).toContain("Study husbandry (20 food, 12 wood; farm or granary or academy; 14s)</span>");
   });
 
   it("turns green when the stores cover it and the sim agrees", () => {
@@ -97,8 +96,10 @@ describe("cost row on the lectern cards", () => {
     s.resources.food = "20";
     s.resources.wood = "12";
     const h = card(renderToStaticMarkup(<ResearchBar state={s} act={act} />), "husbandry");
-    expect(h).toContain("Stores cover it. Ready to study.");
+    expect(h).toContain('data-ink-stage="open"');
+    expect(h).toContain("is-open");
     expect(h).not.toContain("is-short");
+    expect(h).not.toContain("disabled=\"\"");
     expect(tryStartResearch(s, "husbandry")).toBe(true);
   });
 
@@ -109,10 +110,14 @@ describe("cost row on the lectern cards", () => {
     expect(tryStartResearch(s, "husbandry")).toBe(true);
     const html = renderToStaticMarkup(<ResearchBar state={s} act={act} />);
     const active = card(html, "husbandry");
-    expect(active).toContain('data-study-cost="paid"');
-    expect(active).toContain("Paid.");
+    expect(active).toContain('data-status="studying"');
+    expect(active).toContain('data-study-status="studying"');
+    expect(active).toContain("status-studying");
     expect(active).toContain(">Cancel</button>");
-    expect(card(html, "forestry")).toContain("Lectern is busy with Husbandry.");
+    expect(active).not.toContain("Study husbandry");
+    const other = card(html, "forestry");
+    expect(other).toContain('data-ink-stage="open"');
+    expect(other).toContain("Study forestry (");
   });
 
   it("rendering the cost row does not change the stores", () => {
