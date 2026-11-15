@@ -1,0 +1,77 @@
+/* --- Living Stamp Pip (bakeoff/gemini-stamps) ---
+ * Subtle living wax-seal stamp pip that pulses and glows while a stamp is active.
+ * Shown next to the stamps line and on the home keep.
+ * Isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-living-stamp-pip,
+.sc-living-stamp-pip *,
+.sc-keep-stamp-pip,
+.sc-keep-stamp-pip * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-living-stamp-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.sc-living-stamp-pip.is-idle,
+.sc-keep-stamp-pip.is-idle {
+  opacity: 0.45;
+}
+
+.sc-living-stamp-pip.is-active .sc-living-stamp-aura,
+.sc-keep-stamp-pip.is-active .sc-keep-stamp-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-stamp-pip-aura 2.8s ease-in-out infinite;
+}
+
+.sc-living-stamp-pip.is-active .sc-living-stamp-seal,
+.sc-keep-stamp-pip.is-active .sc-keep-stamp-seal {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-stamp-pip-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes sc-stamp-pip-aura {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.14);
+  }
+}
+
+@keyframes sc-stamp-pip-pulse {
+  0%,
+  100% {
+    opacity: 0.88;
+    transform: scale(0.96);
+    filter: drop-shadow(0 0 1px rgba(245, 158, 11, 0.35));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.75));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-living-stamp-pip.is-active .sc-living-stamp-aura,
+  .sc-living-stamp-pip.is-active .sc-living-stamp-seal,
+  .sc-keep-stamp-pip.is-active .sc-keep-stamp-aura,
+  .sc-keep-stamp-pip.is-active .sc-keep-stamp-seal {
+    animation: none !important;
+  }
+}

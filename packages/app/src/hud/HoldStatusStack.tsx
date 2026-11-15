@@ -1,5 +1,6 @@
 import React from "react";
 import type { HoldView } from "../net/hold";
+import { LivingStampPip } from "./LivingStampPip";
 import "./hold-status-stack.css";
 
 /**
@@ -92,6 +93,7 @@ export function holdStatusRows(input: HoldStatusInput): HoldStatusRow[] {
 
 export function HoldStatusStack(props: HoldStatusInput) {
   const rows = holdStatusRows(props);
+  const stampCount = props.view.stamps.length;
   return (
     <dl className="sc-holdstat" aria-label="Hold living status">
       {rows.map((r) => (
@@ -99,6 +101,7 @@ export function HoldStatusStack(props: HoldStatusInput) {
           <dt className="sc-holdstat-label">
             <span className="sc-holdstat-pip" aria-hidden="true" />
             {r.label}
+            {r.kind === "stamps" ? <LivingStampPip active={stampCount > 0} count={stampCount} size={14} /> : null}
           </dt>
           <dd className="sc-holdstat-value">{r.value}</dd>
         </div>

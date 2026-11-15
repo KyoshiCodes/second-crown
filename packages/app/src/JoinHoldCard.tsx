@@ -8,6 +8,7 @@ import { HoldStorePip } from "./hud/HoldStorePip";
 import { HoldActionPip } from "./hud/HoldActionPip";
 import { HoldStatusPip } from "./hud/HoldStatusPip";
 import { HoldStampPip } from "./hud/HoldStampPip";
+import { LivingStampPip } from "./hud/LivingStampPip";
 import { HoldLeavePip } from "./hud/HoldLeavePip";
 import { HoldKeyPip } from "./hud/HoldKeyPip";
 import { HoldWorkPip } from "./hud/HoldWorkPip";
@@ -333,7 +334,10 @@ export function JoinHoldCard({
             ))}
           </div>
           <div className="sc-hold-stamps" aria-label="Hold stamps">
-            <div className="sc-hold-stamps-heading">Stamps</div>
+            <div className="sc-hold-stamps-heading">
+              Stamps
+              <LivingStampPip active={view.stamps.length > 0} count={view.stamps.length} size={14} />
+            </div>
             {view.stamps.length === 0 ? (
               <div className="sc-hold-stamps-empty">No stamps yet.</div>
             ) : (
