@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-16 — Decrees status line on the Kingdom tab and inspect card (wave/decrees-line, not merged)
+
+- **Decrees line (`DecreesStatusLine`):** New `packages/app/src/hud/DecreesStatusLine.tsx` and `packages/app/src/hud/decrees-status-line.css`, mounted under the stamps line and above the next-decree hint on the Kingdom tab (`tabs/KingdomTab.tsx`) and under the stamps line on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
+  - **Decrees in force:** `Decrees · 2 active · Muster the Host, 32s left: Training 10% cheaper · Send Envoys, 41s left: Gifts +6 opinion`. One entry per active decree, in the sim's table order, each with its own countdown and effect.
+  - **Nothing sworn:** `Decrees · None active · No decree bonus in force. Swear one on the Crown tab.`
+- **Where the numbers come from:** the active list and the time left are the sim's `decreeUntil(state, id)` for each entry of `DECREES`. Seconds are `ceil(ticks / TICKS_PER_SECOND)`, the same rounding the decree card on the Crown tab shows. The effect is the table's own blurb with its "for ~40s" ending dropped, because the line shows the real time left beside it.
+- **Unchanged:** all decree math, the decree cards and Issue buttons on the Crown tab, the next-decree hint. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
+- **Tests:** New `packages/app/src/hud/DecreesStatusLine.test.tsx` (19 tests). `npm test` (sim 362, app 1247, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-15 — Living stamp pip on stamps line and home keep (bakeoff/gemini-stamps)
 
 - **Living stamp pip (`LivingStampPip` & `HomeKeepStampPip`):** Created `packages/app/src/hud/LivingStampPip.tsx` and `packages/app/src/hud/living-stamp-pip.css`:

@@ -1,0 +1,53 @@
+/* Read-only decrees status line on the Kingdom tab and the inspect card (DecreesStatusLine.tsx). Do not touch theme.css. */
+
+.sc-decrees-status-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-decrees-status-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  pointer-events: none;
+}
+
+.sc-decrees-status-text {
+  flex: 1 1 200px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sc-decrees-status-label {
+  opacity: 0.75;
+}
+
+.sc-decrees-status-line strong {
+  font-weight: 600;
+  color: #fde68a;
+}
+
+/* The count is the part to read first while a decree is in force. */
+.sc-decrees-status-line.is-active .sc-decrees-status-headline {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* The countdown changes every second, so it stands out from the fixed effect text. */
+.sc-decrees-status-time {
+  color: #fef08a;
+}
+
+.sc-decrees-status-effect {
+  opacity: 0.9;
+}
+
+/* With nothing sworn the line stays quiet. */
+.sc-decrees-status-line.is-none,
+.sc-decrees-status-note {
+  opacity: 0.8;
+}
