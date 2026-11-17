@@ -2,13 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-16 — New "Decrees" line (wave/decrees-line, not merged yet)
+## 2026-11-17 — Living decree seal pip on decrees line and home keep (bakeoff/gemini-decrees-line)
 
-- **New "Decrees" line.** The Kingdom tab and the card you get when you click a tile now show a Decrees line.
-- **While a decree is running,** the line counts the decrees in force and lists each one: its name, how many seconds it has left, and what it gives you. Example: "Harvest Rite, 32s left: +3 production".
-- **The countdown is live.** It ticks down each second and the decree drops off the line the moment it ends.
-- **If no decree is running,** the line says "None active" and points you to the Crown tab.
-- **Nothing else changed.** This is a read-only line. You still swear decrees on the Crown tab, at the same cost, for the same length and the same bonus.
+- **Glowing & flickering decree wax seal pip:**
+  - **Decrees line & panel:** A small royal wax-seal pip sits beside the decrees hint and Royal decrees header (with glowing molten flicker on active `WaxSealPip` badges), lighting up with a soft gold glow and gentle flicker whenever a royal decree is active.
+  - **Home keep seal:** Your home keep on the isometric board also displays a matching decree wax seal that lights up and flickers while any decree is in force.
+- **Zero gameplay impact:** The decree seal pip is purely decorative (`pointer-events: none !important;`), respects reduced-motion settings, and never blocks clicks.
 
 ## 2026-11-15 — Living stamp pip on stamps line and home keep (bakeoff/gemini-stamps)
 

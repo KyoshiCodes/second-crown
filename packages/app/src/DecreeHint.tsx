@@ -1,5 +1,6 @@
 import React from "react";
 import { DECREES, decreeActive, type GameState } from "@second-crown/sim";
+import { LivingDecreePip, countActiveDecrees, firstActiveDecreeId } from "./hud/LivingDecreePip";
 import "./decree-hint.css";
 
 type Decree = (typeof DECREES)[number];
@@ -206,11 +207,14 @@ export function nextDecree(state: GameState): { decree: Decree; ready: boolean }
 export function DecreeHint(props: { state: GameState | undefined }) {
   const { state } = props;
   if (!state) return null;
+  const activeCount = countActiveDecrees(state);
+  const activeId = firstActiveDecreeId(state);
   const next = nextDecree(state);
   if (!next) {
     return (
       <p className="sc-decree-hint is-done">
         <DecreeSealPip isDone ready={false} />
+        <LivingDecreePip active={activeCount > 0} count={activeCount} decreeId={activeId} size={14} />
         Next decree · every decree already sworn.
       </p>
     );
@@ -219,6 +223,7 @@ export function DecreeHint(props: { state: GameState | undefined }) {
   return (
     <p className={`sc-decree-hint${ready ? " is-ready" : ""}`} data-decree={decree.id}>
       <DecreeSealPip decreeId={decree.id} ready={ready} />
+      <LivingDecreePip active={activeCount > 0} count={activeCount} decreeId={activeId} size={14} />
       Next decree · <strong>{decree.name}</strong> · {decreeCostText(decree)}
       {ready ? "" : " · not enough in stores"}. Swear it on the Crown tab.
     </p>

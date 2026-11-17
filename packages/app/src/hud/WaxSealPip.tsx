@@ -1,4 +1,5 @@
 import React from "react";
+import "./living-decree-pip.css";
 
 export interface WaxSealPipProps {
   /** Whether the royal decree or craft is currently active / owned (when true, seal is lit!) */
@@ -53,6 +54,7 @@ export function WaxSealPip({
       data-active={active}
       data-craft={craftId}
     >
+      {active ? <span className="sc-wax-seal-aura" aria-hidden="true" style={{ pointerEvents: "none" }} /> : null}
       <svg
         viewBox="0 0 24 24"
         width={size}

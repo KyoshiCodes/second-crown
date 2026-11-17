@@ -1,14 +1,14 @@
-## 2026-11-16 — app / decrees status line (wave/decrees-line, not merged)
+## 2026-11-17 — app / living decree seal pip on decrees line & home keep (bakeoff/gemini-decrees-line)
 
-- **Component (`packages/app/src/hud/DecreesStatusLine.tsx`):**
-  - Exports `DecreesStatusLine`, `decreesStatus`, `decreeEffectText`, `DECREES_NONE_TEXT`, `type DecreesStatus`, `type DecreeStatusRow`.
-  - `decreesStatus(state)` walks the sim's `DECREES` table, keeps each entry whose `decreeUntil(state, id)` is above 0, and returns `kind` (`none`, `active`), the count, one row per active decree (id, name, `ticksLeft`, `secondsLeft`, effect) and the whole line as `text`. The only arithmetic is `Math.ceil(ticksLeft / TICKS_PER_SECOND)`, the same rounding `DecreeLedger` uses on the Crown tab.
-  - `decreeEffectText(blurb)` strips a trailing "for ~40s" from the table blurb. The sim has no separate effect field, so the blurb is the single source of the effect text. A new decree whose blurb ends differently is shown whole.
-  - `DecreesStatusLine` takes `state` and renders nothing without one. Display only: no call to `tryDecree`, no button.
-- **Mounts:** one line in `tabs/KingdomTab.tsx` after `StampsStatusLine` and before `DecreeHint`, one in `ProvinceInspect.tsx` after `StampsStatusLine`. The inspect card shows it for every tile, seen or not: decrees belong to the crown, not the tile.
-- **Styling (`packages/app/src/hud/decrees-status-line.css`):** every selector starts with `.sc-decrees-status-`. No animation of its own; the icon is the existing `WaxSealPip` at 14px, lit while any decree is in force, with `pointer-events: none`. Zero edits to `theme.css`, `packages/sim`, or `server/`.
-- **Verification (`packages/app/src/hud/DecreesStatusLine.test.tsx`):** 19 tests: the line agrees with `decreeActive` and `decreeUntil` for every decree, drops a decree on the tick the sim does, leaves the state untouched, and shows once on each mount. `npm test` (sim 362, app 1247, server 158) and `npm run build -w @second-crown/app` pass.
-- **Not verified:** not opened in a browser. Check how the line wraps in the narrow inspect card with all three decrees active.
+- **Components (`packages/app/src/hud/LivingDecreePip.tsx`, `WaxSealPip.tsx`, `DecreeHint.tsx`, `DecreesPanel.tsx`, `BoardLiving.tsx`):**
+  - Exported `LivingDecreePip`, `HomeKeepDecreePip`, `countActiveDecrees`, `firstActiveDecreeId`, `type LivingDecreePipProps`, and `type HomeKeepDecreePipProps` from `hud/LivingDecreePip.tsx`, re-exported from `BoardLiving.tsx`.
+  - Reads `DECREES` and `decreeActive(state, d.id)` from `@second-crown/sim` (zero rule duplication).
+  - Mounted `<LivingDecreePip />` on `DecreeHint.tsx` and the `Royal decrees` header in `DecreesPanel.tsx`, added `.sc-wax-seal-aura` + glow/flicker styling to `WaxSealPip.tsx` when `active`, and mounted `<HomeKeepDecreePip state={state} />` on `state.board.homeProvinceId` in `BoardLiving.tsx`.
+- **Styling (`packages/app/src/hud/living-decree-pip.css`, `living-glyph-soften.css`):**
+  - Isolated keyframes (`sc-decree-pip-aura`, `sc-decree-pip-pulse`, `sc-decree-pip-flicker`) with `pointer-events: none !important;`, `user-select: none;`, and `@media (prefers-reduced-motion: reduce)` guards; registered in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingDecreePip.test.tsx`):**
+  - 5 tests covering `countActiveDecrees` / `firstActiveDecreeId`, idle vs. active pip states, `DecreeHint` / `DecreesPanel` / `WaxSealPip` integration, `HomeKeepDecreePip` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-15 — app / living stamp pip on stamps line & home keep (bakeoff/gemini-stamps)
 

@@ -57,6 +57,14 @@ import {
   type LivingStampPipProps,
 } from "./hud/LivingStampPip";
 import {
+  HomeKeepDecreePip,
+  LivingDecreePip,
+  countActiveDecrees,
+  firstActiveDecreeId,
+  type HomeKeepDecreePipProps,
+  type LivingDecreePipProps,
+} from "./hud/LivingDecreePip";
+import {
   HomeKeepCrownPip,
   PrestigeCrownPip,
   resolvePrestigeCrownDescriptor,
@@ -889,6 +897,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.8. Living Stamp Pip on Home Keep */}
         <HomeKeepStampPip state={state} />
 
+        {/* 5.9. Living Decree Seal Pip on Home Keep */}
+        <HomeKeepDecreePip state={state} />
+
         {/* 6. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
         {selProv && selCoords && anchor && (
           <g className="sc-board-living-status-tether" style={{ pointerEvents: "none" }}>
@@ -961,4 +972,10 @@ export {
   countActiveStamps,
   type HomeKeepStampPipProps,
   type LivingStampPipProps,
+  HomeKeepDecreePip,
+  LivingDecreePip,
+  countActiveDecrees,
+  firstActiveDecreeId,
+  type HomeKeepDecreePipProps,
+  type LivingDecreePipProps,
 };

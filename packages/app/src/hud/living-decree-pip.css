@@ -1,0 +1,128 @@
+/* --- Living Decree Seal Pip (bakeoff/gemini-decrees-line) ---
+ * Subtle living wax-seal decree pip that glows and flickers while a decree is active.
+ * Shown next to the decrees line and on the home keep.
+ * Isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-living-decree-pip,
+.sc-living-decree-pip *,
+.sc-keep-decree-pip,
+.sc-keep-decree-pip *,
+.sc-wax-seal-aura {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-living-decree-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sc-living-decree-pip.is-idle,
+.sc-keep-decree-pip.is-idle {
+  opacity: 0.48;
+}
+
+.sc-wax-seal-pip-wrapper {
+  position: relative;
+}
+
+.sc-wax-seal-aura {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(251, 191, 36, 0.55) 0%,
+    rgba(217, 119, 6, 0.25) 60%,
+    transparent 78%
+  );
+}
+
+.sc-living-decree-pip.is-active .sc-living-decree-aura,
+.sc-keep-decree-pip.is-active .sc-keep-decree-aura,
+.sc-wax-seal-pip-wrapper.is-lit .sc-wax-seal-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-decree-pip-aura 2.6s ease-in-out infinite;
+}
+
+.sc-living-decree-pip.is-active .sc-living-decree-seal,
+.sc-keep-decree-pip.is-active .sc-keep-decree-seal,
+.sc-wax-seal-pip.is-lit {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-decree-pip-pulse 2.6s ease-in-out infinite;
+}
+
+.sc-living-decree-pip.is-active .sc-living-decree-flicker,
+.sc-keep-decree-pip.is-active .sc-keep-decree-flicker,
+.sc-wax-seal-pip.is-lit .sc-wax-lit-sparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-decree-pip-flicker 1.7s ease-in-out infinite;
+}
+
+@keyframes sc-decree-pip-aura {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.96;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes sc-decree-pip-pulse {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(0.97);
+    filter: drop-shadow(0 0 1px rgba(251, 191, 36, 0.4));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.8));
+  }
+}
+
+@keyframes sc-decree-pip-flicker {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(0.88);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+  55% {
+    opacity: 0.72;
+    transform: scale(0.95);
+  }
+  80% {
+    opacity: 0.98;
+    transform: scale(1.14);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-living-decree-pip.is-active .sc-living-decree-aura,
+  .sc-living-decree-pip.is-active .sc-living-decree-seal,
+  .sc-living-decree-pip.is-active .sc-living-decree-flicker,
+  .sc-keep-decree-pip.is-active .sc-keep-decree-aura,
+  .sc-keep-decree-pip.is-active .sc-keep-decree-seal,
+  .sc-keep-decree-pip.is-active .sc-keep-decree-flicker,
+  .sc-wax-seal-pip-wrapper.is-lit .sc-wax-seal-aura,
+  .sc-wax-seal-pip.is-lit,
+  .sc-wax-seal-pip.is-lit .sc-wax-lit-sparkle {
+    animation: none !important;
+  }
+}

@@ -14,6 +14,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
 import { DecreeCard } from "./hud/DecreeCard";
+import { LivingDecreePip, countActiveDecrees, firstActiveDecreeId } from "./hud/LivingDecreePip";
 import "./hud/plain-buttons.css";
 
 export function DecreesPanel(props: { state: GameState | undefined; act: ActFn }) {
@@ -23,9 +24,20 @@ export function DecreesPanel(props: { state: GameState | undefined; act: ActFn }
   const titheWait = state ? titheTicksLeft(state) : 0;
   const banquetWait = state ? banquetTicksLeft(state) : 0;
   const fortWait = state ? fortifyTicksLeft(state) : 0;
+  const activeDecrees = countActiveDecrees(state);
+  const activeDecreeId = firstActiveDecreeId(state);
   return (
     <div style={{ margin: "12px 0" }}>
-      <h3>Royal decrees</h3>
+      <h3>
+        Royal decrees
+        <LivingDecreePip
+          active={activeDecrees > 0}
+          count={activeDecrees}
+          decreeId={activeDecreeId}
+          size={14}
+          style={{ marginLeft: 6 }}
+        />
+      </h3>
       <p style={{ fontSize: 12, opacity: 0.7 }}>Spend stores for a short age bonus. One of each at a time.</p>
       <div className="sc-decree-grid">
         {DECREES.map((d) => (
