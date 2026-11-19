@@ -1,0 +1,58 @@
+/* Read-only events status line on the Kingdom tab and the inspect card (EventsStatusLine.tsx). Do not touch theme.css. */
+
+.sc-events-status-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-events-status-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  pointer-events: none;
+}
+
+.sc-events-status-text {
+  flex: 1 1 200px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sc-events-status-label {
+  opacity: 0.75;
+}
+
+.sc-events-status-line strong {
+  font-weight: 600;
+  color: #c7d2fe;
+}
+
+/* The count is the part to read first while an event is in force. */
+.sc-events-status-line.is-active .sc-events-status-headline {
+  color: #a5b4fc;
+  font-weight: 600;
+}
+
+/* The countdown changes every second, so it stands out from the fixed effect text. */
+.sc-events-status-time {
+  color: #e0e7ff;
+}
+
+.sc-events-status-effect {
+  opacity: 0.9;
+}
+
+/* Spoilage is the one event that takes something away. */
+.sc-events-status-event[data-event="spoil"] .sc-events-status-effect {
+  color: #fca5a5;
+}
+
+/* With no event this period the line stays quiet. */
+.sc-events-status-line.is-none,
+.sc-events-status-note {
+  opacity: 0.8;
+}

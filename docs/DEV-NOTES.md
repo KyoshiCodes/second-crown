@@ -1,3 +1,15 @@
+## 2026-11-19 — app / events status line (wave/events-line, not merged)
+
+- **Component (`packages/app/src/hud/EventsStatusLine.tsx`):**
+  - Exports `EventsStatusLine`, `eventsStatus`, `currentPeriodEvent`, `eventsNoneText`, `type EventsStatus`, `type EventStatusRow`.
+  - The sim's world events have no duration: `EventSystem.processEventsAt` fires one every `EVENT_PERIOD` ticks and applies it once. `currentPeriodEvent(state)` returns the logged event whose tick equals `floor(tick / EVENT_PERIOD) * EVENT_PERIOD` (if above 0), falling back to `last_event` / `last_event_tick`. Older events are not shown.
+  - `eventsStatus(state)` takes time left from the existing `eventPace` (which reads `EventSystem.nextEventTick`) and rounds with `Math.ceil(ticks / TICKS_PER_SECOND)`. Name and effect come from `splitEventText` in `EventCard.tsx`. Returns `kind` (`none`, `active`), count, rows, `nextSeconds` and the whole line as `text`. At most one row today; the list shape matches `DecreesStatusLine` in case events ever overlap.
+  - `EventsStatusLine` takes `state` and renders nothing without one. Icon is the existing `OmenPip` at 14px. Display only, no button.
+- **Mounts:** one line in `tabs/KingdomTab.tsx` and one in `ProvinceInspect.tsx`, each right after `DecreesStatusLine`. Shown on every inspect tile, seen or not.
+- **Styling (`packages/app/src/hud/events-status-line.css`):** every selector starts with `.sc-events-status-`. No animation. Spoilage effect text is tinted red. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/EventsStatusLine.test.tsx`):** 17 tests: time left matches `nextEventTick`, the line hands over on the tick the next event fires, stale events are hidden, all five event ids render, state is untouched, one mount each. `npm test` (sim 362, app 1269, server 158) and `npm run build -w @second-crown/app` pass.
+- **Not verified:** not opened in a browser. Check wrapping in the narrow inspect card.
+
 ## 2026-11-17 — app / living decree seal pip on decrees line & home keep (bakeoff/gemini-decrees-line)
 
 - **Components (`packages/app/src/hud/LivingDecreePip.tsx`, `WaxSealPip.tsx`, `DecreeHint.tsx`, `DecreesPanel.tsx`, `BoardLiving.tsx`):**

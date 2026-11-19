@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-19 — Events status line on the Kingdom tab and inspect card (wave/events-line, not merged)
+
+- **Events line (`EventsStatusLine`):** New `packages/app/src/hud/EventsStatusLine.tsx` and `packages/app/src/hud/events-status-line.css`, mounted right under the decrees line on the Kingdom tab (`tabs/KingdomTab.tsx`) and on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
+  - **Event in force:** `Events · 1 active · Bountiful harvest, 32s left: +25 food`.
+  - **Nothing this period:** `Events · None active · No event in force. Next event in 50s.`
+- **What "active" means:** world events in the sim are one-shot. One fires every `EVENT_PERIOD` (500 ticks) and applies its effect on that tick. The line treats the event of the current period as active until the next one replaces it. An event from an earlier period (e.g. a stale save) is not shown.
+- **Where the numbers come from:** the event is read from the sim's `getEventLog` (falling back to the `last_event` / `last_event_tick` flags, as `EventPanel` does). Time left is `EventSystem.nextEventTick` minus the current tick via the existing `eventPace`, shown as `ceil(ticks / TICKS_PER_SECOND)` seconds like the "Next event" card. The name and effect are the sim's event text split at the dash (`splitEventText`).
+- **Unchanged:** all event math, the Events tab cards and the next-event card. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
+- **Tests:** New `packages/app/src/hud/EventsStatusLine.test.tsx` (17 tests). `npm test` (sim 362, app 1269, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-17 — Living decree seal pip on decrees line and home keep (bakeoff/gemini-decrees-line)
 
 - **Living decree seal pip (`LivingDecreePip` & `HomeKeepDecreePip`):** Created `packages/app/src/hud/LivingDecreePip.tsx` and `packages/app/src/hud/living-decree-pip.css`:

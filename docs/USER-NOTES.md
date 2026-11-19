@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-19 — New "Events" line (wave/events-line, not merged yet)
+
+- **New "Events" line.** The Kingdom tab and the card you get when you click a tile now show an Events line, right under the Decrees line.
+- **After an event fires,** the line shows it: its name, how many seconds until the next event replaces it, and what it gave you (or took). Example: "Bountiful harvest, 32s left: +25 food".
+- **The effect has already happened.** Events add or take their resources the moment they fire. The countdown is how long that event stays the current one.
+- **Before the first event, or after a long gap,** the line says "None active" and counts down to the next event.
+- **Nothing else changed.** This is a read-only line. Events fire on the same schedule with the same results.
+
 ## 2026-11-17 — Living decree seal pip on decrees line and home keep (bakeoff/gemini-decrees-line)
 
 - **Glowing & flickering decree wax seal pip:**

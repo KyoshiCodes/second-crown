@@ -61,6 +61,7 @@ import { CultureLine } from "../CultureLine";
 import { CultureStatusLine } from "../hud/CultureStatusLine";
 import { StampsStatusLine } from "../hud/StampsStatusLine";
 import { DecreesStatusLine } from "../hud/DecreesStatusLine";
+import { EventsStatusLine } from "../hud/EventsStatusLine";
 import { PrestigeLine } from "../PrestigeLine";
 import { SeasonClaimLine } from "../SeasonClaimLine";
 import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
@@ -244,6 +245,7 @@ export function KingdomTab(props: {
       <PrestigeRankLine state={state} threshold={false} />
       <StampsStatusLine />
       <DecreesStatusLine state={state} />
+      <EventsStatusLine state={state} />
       <DecreeHint state={state} />
       <MarketHint state={state} />
       <MarketPace state={state} />

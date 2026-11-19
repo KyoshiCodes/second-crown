@@ -68,6 +68,7 @@ import { PrestigeRankLine } from "./hud/PrestigeRankLine";
 import { CultureStatusLine } from "./hud/CultureStatusLine";
 import { StampsStatusLine } from "./hud/StampsStatusLine";
 import { DecreesStatusLine } from "./hud/DecreesStatusLine";
+import { EventsStatusLine } from "./hud/EventsStatusLine";
 import { SeasonPip } from "./hud/SeasonPip";
 import "./hud/season-pip.css";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
@@ -283,6 +284,7 @@ export function ProvinceInspect(props: {
         <CultureStatusLine state={state} />
         <StampsStatusLine />
         <DecreesStatusLine state={state} />
+        <EventsStatusLine state={state} />
         {garrisonNote ? <div className="sc-inspect-line sc-inspect-garrison">{garrisonNote}</div> : null}
         {scoutNote ? <div className="sc-inspect-line sc-inspect-scout">{scoutNote}</div> : null}
         {gatherNote ? <div className="sc-inspect-line sc-inspect-gather">{gatherNote}</div> : null}
