@@ -1,0 +1,174 @@
+/* --- Living Quest Scroll Pip (bakeoff/gemini-quests-line) ---
+ * Subtle living parchment scroll pip that unrolls and glows while a quest is active.
+ * Shown next to the quests line and on the home keep.
+ * Isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-living-quest-scroll-pip,
+.sc-living-quest-scroll-pip *,
+.sc-keep-quest-scroll-pip,
+.sc-keep-quest-scroll-pip *,
+.sc-scroll-pip-aura,
+.sc-quests-status-line .sc-quests-status-icon,
+.sc-quests-status-line .sc-quests-status-icon * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-living-quest-scroll-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sc-living-quest-scroll-pip.is-idle,
+.sc-keep-quest-scroll-pip.is-idle {
+  opacity: 0.48;
+}
+
+.sc-quests-status-line.is-none .sc-quests-status-icon {
+  opacity: 0.5;
+  filter: saturate(0.4);
+}
+
+.sc-quests-status-line.is-none .sc-quests-status-icon .sc-scroll-pip-aura {
+  opacity: 0;
+  animation: none;
+}
+
+.sc-scroll-pip-aura {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+}
+
+.sc-scroll-pip-aura.is-open {
+  background: radial-gradient(
+    circle,
+    rgba(253, 230, 138, 0.44) 0%,
+    rgba(217, 119, 6, 0.2) 62%,
+    transparent 80%
+  );
+}
+
+.sc-scroll-pip-aura.is-ready {
+  background: radial-gradient(
+    circle,
+    rgba(254, 240, 138, 0.68) 0%,
+    rgba(245, 158, 11, 0.34) 60%,
+    transparent 80%
+  );
+}
+
+.sc-living-quest-scroll-pip.is-active .sc-living-quest-scroll-aura,
+.sc-keep-quest-scroll-pip.is-active .sc-keep-quest-scroll-aura,
+.sc-scroll-pip-wrapper.is-open .sc-scroll-pip-aura,
+.sc-quests-status-line.is-active .sc-quests-status-icon .sc-scroll-pip-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-quest-scroll-aura 3.0s ease-in-out infinite;
+}
+
+.sc-living-quest-scroll-pip.is-ready .sc-living-quest-scroll-aura,
+.sc-keep-quest-scroll-pip.is-ready .sc-keep-quest-scroll-aura,
+.sc-scroll-pip-wrapper.is-lit .sc-scroll-pip-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-quest-scroll-aura 2.2s ease-in-out infinite;
+}
+
+.sc-living-quest-scroll-pip.is-active .sc-living-quest-scroll-body,
+.sc-keep-quest-scroll-pip.is-active .sc-keep-quest-scroll-body,
+.sc-quests-status-line.is-active .sc-quests-status-icon .sc-scroll-pip {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: sc-quest-scroll-unroll 3.4s ease-in-out infinite;
+}
+
+.sc-living-quest-scroll-pip.is-active .sc-living-quest-scroll-roller,
+.sc-keep-quest-scroll-pip.is-active .sc-keep-quest-scroll-roller {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-quest-scroll-roller 3.4s ease-in-out infinite;
+}
+
+.sc-living-quest-scroll-pip.is-active .sc-living-quest-scroll-glint,
+.sc-keep-quest-scroll-pip.is-active .sc-keep-quest-scroll-glint,
+.sc-scroll-pip.is-lit .sc-scroll-lit-sparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-quest-scroll-glint 2.0s ease-in-out infinite;
+}
+
+@keyframes sc-quest-scroll-aura {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.96;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes sc-quest-scroll-unroll {
+  0%,
+  100% {
+    opacity: 0.92;
+    transform: scaleY(0.93) translateY(-0.2px);
+    filter: drop-shadow(0 0 1px rgba(251, 191, 36, 0.35));
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1.06) translateY(0.2px);
+    filter: drop-shadow(0 0 3px rgba(253, 224, 71, 0.78));
+  }
+}
+
+@keyframes sc-quest-scroll-roller {
+  0%,
+  100% {
+    transform: translateY(-0.55px);
+  }
+  50% {
+    transform: translateY(0.65px);
+  }
+}
+
+@keyframes sc-quest-scroll-glint {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.84);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+  75% {
+    opacity: 0.78;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-living-quest-scroll-pip.is-active .sc-living-quest-scroll-aura,
+  .sc-living-quest-scroll-pip.is-active .sc-living-quest-scroll-body,
+  .sc-living-quest-scroll-pip.is-active .sc-living-quest-scroll-roller,
+  .sc-living-quest-scroll-pip.is-active .sc-living-quest-scroll-glint,
+  .sc-keep-quest-scroll-pip.is-active .sc-keep-quest-scroll-aura,
+  .sc-keep-quest-scroll-pip.is-active .sc-keep-quest-scroll-body,
+  .sc-keep-quest-scroll-pip.is-active .sc-keep-quest-scroll-roller,
+  .sc-keep-quest-scroll-pip.is-active .sc-keep-quest-scroll-glint,
+  .sc-scroll-pip-wrapper.is-open .sc-scroll-pip-aura,
+  .sc-scroll-pip-wrapper.is-lit .sc-scroll-pip-aura,
+  .sc-scroll-pip.is-lit .sc-scroll-lit-sparkle,
+  .sc-quests-status-line.is-active .sc-quests-status-icon .sc-scroll-pip-aura,
+  .sc-quests-status-line.is-active .sc-quests-status-icon .sc-scroll-pip {
+    animation: none !important;
+  }
+}

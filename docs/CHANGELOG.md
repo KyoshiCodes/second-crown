@@ -1,14 +1,13 @@
 # CHANGELOG
 
-## 2026-11-19 — Quests status line on the Kingdom tab and inspect card (wave/quests-line, not merged)
+## 2026-11-19 — Living scroll pip on quests line and home keep (bakeoff/gemini-quests-line)
 
-- **Quests line (`QuestsStatusLine`):** New `packages/app/src/hud/QuestsStatusLine.tsx` and `packages/app/src/hud/quests-status-line.css`, mounted right under the events line on the Kingdom tab (`tabs/KingdomTab.tsx`) and on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
-  - **Quests left:** `Quests · 5 active, 1 ready · Raise a chapel, 1/1 ready to claim: 20 gold · Ride scouts, 0/1 in progress: 15 gold · …`
-  - **All claimed:** `Quests · None active · Every quest claimed.`
-- **What "active" means:** every quest not yet claimed. A quest in the sim is a single goal, so progress is `0/1 in progress` or `1/1 ready to claim`, the same count the quest cards show. The headline adds `N ready` when gold is waiting on Claim.
-- **Where the numbers come from:** `listQuests` from the sim and `questStatus` from `QuestCard.tsx`. Reward is `QUESTS[].gold`.
-- **Unchanged:** all quest math, the Quests panel and its Claim buttons. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
-- **Tests:** New `packages/app/src/hud/QuestsStatusLine.test.tsx` (16 tests). `npm test` (sim 362, app 1290, server 158) and `npm run build -w @second-crown/app` pass.
+- **Living quest scroll pip (`LivingQuestScrollPip` & `HomeKeepQuestScrollPip`):** Created `packages/app/src/hud/LivingQuestScrollPip.tsx` and `packages/app/src/hud/living-quest-scroll-pip.css`:
+  - **Active scroll unroll & glow:** Reads `listQuests(state)` via `summarizeActiveQuests` (`active` unclaimed count, `ready` claimable count, and `"open" | "ready" | "idle"` status). Renders an unrolling, glowing parchment scroll (`is-active` with gentle unroll sway, bottom roller drift, radial aura, and golden glint, brighter when ready to claim) while any quest remains active, and a quiet slate scroll (`is-idle`) once all quests are claimed.
+  - **Quests line & panel (`QuestPanel.tsx`, `ScrollPip.tsx`):** Mounts `<LivingQuestScrollPip />` in the `Quests` header of `QuestPanel`, and adds isolated `.sc-scroll-pip-aura` glow and `.sc-quests-status-line` active unroll/glow styling in `living-quest-scroll-pip.css` imported by `ScrollPip.tsx`.
+  - **Home keep (`BoardLiving.tsx`):** Mounts `<HomeKeepQuestScrollPip state={state} />` (`5.11. Living Quest Scroll Pip on Home Keep`) above the player's home keep on the isometric board.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css` (and zero edits to `KingdomTab.tsx` / `ProvinceInspect.tsx`). Strictly `pointer-events: none !important;` and `user-select: none;` on all pip layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/LivingQuestScrollPip.test.tsx` (5 tests) verifying `summarizeActiveQuests`, idle vs. open vs. ready rendering, `QuestPanel` / `ScrollPip` integration, `HomeKeepQuestScrollPip` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-19 — Living omen pip on events line and home keep (bakeoff/gemini-events-line)
 

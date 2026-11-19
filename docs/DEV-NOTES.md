@@ -1,13 +1,14 @@
-## 2026-11-19 — app / quests status line (wave/quests-line, not merged)
+## 2026-11-19 — app / living scroll pip on quests line & home keep (bakeoff/gemini-quests-line)
 
-- **Component (`packages/app/src/hud/QuestsStatusLine.tsx`):**
-  - Exports `QuestsStatusLine`, `questsStatus`, `QUESTS_NONE_TEXT`, `type QuestsStatus`, `type QuestStatusRow`.
-  - `questsStatus(state)` walks the sim's `listQuests(state)` and maps each entry through `questStatus(complete, claimed)` from `hud/QuestCard.tsx`. Claimed quests are skipped; the rest are rows in `QUESTS` table order. Quests are single-goal in the sim, so `done`/`of` is 0/1 or 1/1, matching `questLedgerRows`. Reward is `def.gold`. Returns `kind` (`none`, `active`), `active`, `ready`, rows, headline and the whole line as `text`.
-  - `QuestsStatusLine` takes `state` and renders nothing without one. Icon is the existing `ScrollPip` at 14px: lit when any quest is ready, `open` otherwise, `claimed` when all are done. Display only, no button; Claim stays on `QuestPanel`.
-- **Mounts:** one line in `tabs/KingdomTab.tsx` and one in `ProvinceInspect.tsx`, each right after `EventsStatusLine`. Shown on every inspect tile, seen or not.
-- **Styling (`packages/app/src/hud/quests-status-line.css`):** every selector starts with `.sc-quests-status-`. No animation. Ready progress and the headline are tinted gold when something can be claimed. Zero edits to `theme.css`, `packages/sim`, or `server/`.
-- **Verification (`packages/app/src/hud/QuestsStatusLine.test.tsx`):** 16 tests: rows match `listQuests`, rewards match `QUESTS`, ready/claimed transitions, all-claimed text, state untouched (no gold paid), one mount each. `npm test` (sim 362, app 1290, server 158) and `npm run build -w @second-crown/app` pass.
-- **Not verified:** not opened in a browser. With five quests the line is long; check wrapping in the narrow inspect card.
+- **Components (`packages/app/src/hud/LivingQuestScrollPip.tsx`, `ScrollPip.tsx`, `QuestPanel.tsx`, `BoardLiving.tsx`):**
+  - Exported `LivingQuestScrollPip`, `HomeKeepQuestScrollPip`, `summarizeActiveQuests`, `type LivingQuestScrollPipProps`, `type HomeKeepQuestScrollPipProps`, and `type ActiveQuestsSummary` from `hud/LivingQuestScrollPip.tsx`, re-exported from `BoardLiving.tsx`.
+  - Reads `listQuests(state)` and `getProvince(state, homeId)` from `@second-crown/sim` (zero quest rule duplication).
+  - Mounted `<LivingQuestScrollPip />` on the `Quests` header in `QuestPanel.tsx`, imported `living-quest-scroll-pip.css` and added conditional `.sc-scroll-pip-aura` inside `ScrollPip.tsx` to animate `ScrollPip` and `.sc-quests-status-line.is-active .sc-quests-status-icon`, and mounted `<HomeKeepQuestScrollPip state={state} />` on `state.board.homeProvinceId` in `BoardLiving.tsx`.
+- **Styling (`packages/app/src/hud/living-quest-scroll-pip.css`, `living-glyph-soften.css`):**
+  - Isolated keyframes (`sc-quest-scroll-aura`, `sc-quest-scroll-unroll`, `sc-quest-scroll-roller`, `sc-quest-scroll-glint`) with `pointer-events: none !important;`, `user-select: none;`, and `@media (prefers-reduced-motion: reduce)` guards; registered in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, `server/`, `KingdomTab.tsx`, or `ProvinceInspect.tsx`.
+- **Verification (`packages/app/src/hud/LivingQuestScrollPip.test.tsx`):**
+  - 5 tests covering `summarizeActiveQuests`, idle vs. open vs. ready pip states, `QuestPanel` / `ScrollPip` integration, `HomeKeepQuestScrollPip` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-19 — app / living omen pip on events line & home keep (bakeoff/gemini-events-line)
 

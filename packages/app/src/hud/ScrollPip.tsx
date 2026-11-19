@@ -1,4 +1,5 @@
 import React from "react";
+import "./living-quest-scroll-pip.css";
 
 export type ScrollPipStatus = "open" | "ready" | "claimed";
 
@@ -45,6 +46,9 @@ export function ScrollPip({
       aria-hidden="true"
       data-status={status}
     >
+      {status !== "claimed" ? (
+        <span className={`sc-scroll-pip-aura is-${status}`} aria-hidden="true" style={{ pointerEvents: "none" }} />
+      ) : null}
       <svg
         viewBox="0 0 24 24"
         width={size}

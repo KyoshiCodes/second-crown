@@ -2,13 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-19 — New "Quests" line (wave/quests-line, not merged yet)
+## 2026-11-19 — Living scroll pip on quests line and home keep (bakeoff/gemini-quests-line)
 
-- **New "Quests" line.** The Kingdom tab and the card you get when you click a tile now show a Quests line, right under the Events line.
-- **It lists every quest you have not claimed yet:** its name, its progress, and the gold it pays. Example: "Raise a chapel, 1/1 ready to claim: 20 gold".
-- **"Ready" means the goal is done.** Open the Quests panel and press Claim to get the gold. The line itself has no button.
-- **Once every quest is claimed,** the line says "None active".
-- **Nothing else changed.** Quests have the same goals and the same rewards.
+- **Unrolling & glowing quest scroll pip:**
+  - **Quests line & panel:** A small parchment scroll pip sits beside the Quests header (and softly unrolls and glows on the active Quests status line and `ScrollPip` badges), brightening further when a completed quest is ready to claim.
+  - **Home keep scroll:** Your home keep on the isometric board also displays a matching parchment scroll pip above the keep spire that gently unrolls and glows while any quest is active.
+- **Zero gameplay impact:** The quest scroll pip is purely decorative (`pointer-events: none !important;`), respects reduced-motion settings, and never blocks clicks.
 
 ## 2026-11-19 — Living omen pip on events line and home keep (bakeoff/gemini-events-line)
 
