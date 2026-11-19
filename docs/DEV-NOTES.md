@@ -1,3 +1,14 @@
+## 2026-11-19 — app / quests status line (wave/quests-line, not merged)
+
+- **Component (`packages/app/src/hud/QuestsStatusLine.tsx`):**
+  - Exports `QuestsStatusLine`, `questsStatus`, `QUESTS_NONE_TEXT`, `type QuestsStatus`, `type QuestStatusRow`.
+  - `questsStatus(state)` walks the sim's `listQuests(state)` and maps each entry through `questStatus(complete, claimed)` from `hud/QuestCard.tsx`. Claimed quests are skipped; the rest are rows in `QUESTS` table order. Quests are single-goal in the sim, so `done`/`of` is 0/1 or 1/1, matching `questLedgerRows`. Reward is `def.gold`. Returns `kind` (`none`, `active`), `active`, `ready`, rows, headline and the whole line as `text`.
+  - `QuestsStatusLine` takes `state` and renders nothing without one. Icon is the existing `ScrollPip` at 14px: lit when any quest is ready, `open` otherwise, `claimed` when all are done. Display only, no button; Claim stays on `QuestPanel`.
+- **Mounts:** one line in `tabs/KingdomTab.tsx` and one in `ProvinceInspect.tsx`, each right after `EventsStatusLine`. Shown on every inspect tile, seen or not.
+- **Styling (`packages/app/src/hud/quests-status-line.css`):** every selector starts with `.sc-quests-status-`. No animation. Ready progress and the headline are tinted gold when something can be claimed. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/QuestsStatusLine.test.tsx`):** 16 tests: rows match `listQuests`, rewards match `QUESTS`, ready/claimed transitions, all-claimed text, state untouched (no gold paid), one mount each. `npm test` (sim 362, app 1290, server 158) and `npm run build -w @second-crown/app` pass.
+- **Not verified:** not opened in a browser. With five quests the line is long; check wrapping in the narrow inspect card.
+
 ## 2026-11-19 — app / living omen pip on events line & home keep (bakeoff/gemini-events-line)
 
 - **Components (`packages/app/src/hud/LivingEventOmenPip.tsx`, `OmenPip.tsx`, `EventAdvanced.tsx`, `EventPanel.tsx`, `BoardLiving.tsx`):**

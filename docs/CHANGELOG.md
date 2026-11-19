@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-19 — Quests status line on the Kingdom tab and inspect card (wave/quests-line, not merged)
+
+- **Quests line (`QuestsStatusLine`):** New `packages/app/src/hud/QuestsStatusLine.tsx` and `packages/app/src/hud/quests-status-line.css`, mounted right under the events line on the Kingdom tab (`tabs/KingdomTab.tsx`) and on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
+  - **Quests left:** `Quests · 5 active, 1 ready · Raise a chapel, 1/1 ready to claim: 20 gold · Ride scouts, 0/1 in progress: 15 gold · …`
+  - **All claimed:** `Quests · None active · Every quest claimed.`
+- **What "active" means:** every quest not yet claimed. A quest in the sim is a single goal, so progress is `0/1 in progress` or `1/1 ready to claim`, the same count the quest cards show. The headline adds `N ready` when gold is waiting on Claim.
+- **Where the numbers come from:** `listQuests` from the sim and `questStatus` from `QuestCard.tsx`. Reward is `QUESTS[].gold`.
+- **Unchanged:** all quest math, the Quests panel and its Claim buttons. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
+- **Tests:** New `packages/app/src/hud/QuestsStatusLine.test.tsx` (16 tests). `npm test` (sim 362, app 1290, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-19 — Living omen pip on events line and home keep (bakeoff/gemini-events-line)
 
 - **Living event omen pip (`LivingEventOmenPip` & `HomeKeepOmenPip`):** Created `packages/app/src/hud/LivingEventOmenPip.tsx` and `packages/app/src/hud/living-omen-pip.css`:

@@ -1,0 +1,61 @@
+/* Read-only quests status line on the Kingdom tab and the inspect card (QuestsStatusLine.tsx). Do not touch theme.css. */
+
+.sc-quests-status-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-quests-status-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  pointer-events: none;
+}
+
+.sc-quests-status-text {
+  flex: 1 1 200px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sc-quests-status-label {
+  opacity: 0.75;
+}
+
+.sc-quests-status-line strong {
+  font-weight: 600;
+  color: #f5e1b8;
+}
+
+/* The count is the part to read first, brighter when gold is waiting on Claim. */
+.sc-quests-status-line.is-active .sc-quests-status-headline {
+  font-weight: 600;
+}
+
+.sc-quests-status-line.has-ready .sc-quests-status-headline {
+  color: #fcd34d;
+}
+
+.sc-quests-status-progress {
+  opacity: 0.85;
+}
+
+/* A met goal is the thing the player can act on. */
+.sc-quests-status-quest.is-ready .sc-quests-status-progress {
+  color: #fde68a;
+  opacity: 1;
+}
+
+.sc-quests-status-reward {
+  color: #fbbf24;
+}
+
+/* With every quest claimed the line stays quiet. */
+.sc-quests-status-line.is-none,
+.sc-quests-status-note {
+  opacity: 0.8;
+}
