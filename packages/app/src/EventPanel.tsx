@@ -2,6 +2,7 @@ import React from "react";
 import type { GameState, WorldEvent } from "@second-crown/sim";
 import { EventCard } from "./hud/EventCard";
 import { EventNextCard } from "./hud/EventAdvanced";
+import { LivingEventOmenPip, activePeriodEvent } from "./hud/LivingEventOmenPip";
 import { miraRemark } from "./content/mira";
 
 export function EventPanel(props: {
@@ -15,11 +16,21 @@ export function EventPanel(props: {
   const latest = newestFirst[0] ?? (props.lastEvent ? { tick: props.lastEventTick, id: "latest", text: props.lastEvent } : undefined);
   const older = newestFirst.slice(1);
   const nowTick = props.state?.meta.tick;
+  const activeEv = activePeriodEvent(props.state);
 
   return (
     <div className="sc-event-panel">
       {props.state ? <EventNextCard state={props.state} /> : null}
-      <div className="sc-event-label">Latest event</div>
+      <div className="sc-event-label">
+        Latest event
+        <LivingEventOmenPip
+          active={activeEv !== null}
+          eventId={activeEv?.id}
+          text={activeEv?.text}
+          size={14}
+          style={{ marginLeft: 6 }}
+        />
+      </div>
       {latest ? (
         <EventCard event={latest} latest nowTick={nowTick} />
       ) : (

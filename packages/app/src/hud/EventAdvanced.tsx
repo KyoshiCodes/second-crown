@@ -1,6 +1,7 @@
 import React from "react";
 import { EVENT_PERIOD, EventSystem, type GameState } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
+import { LivingEventOmenPip, activePeriodEvent } from "./LivingEventOmenPip";
 import "./event-advanced.css";
 
 /**
@@ -85,10 +86,20 @@ export function EventNextCard(props: { state: GameState }) {
   const pace = eventPace(props.state);
   if (!pace) return null;
   const pct = Math.round(pace.fill * 100);
+  const activeEv = activePeriodEvent(props.state);
   return (
     <div className={`sc-event-next${pace.left <= 5 * TICKS_PER_SECOND ? " is-soon" : ""}`} data-event-next={pace.nextTick}>
       <div className="sc-event-next-head">
-        <span className="sc-event-next-title">Next event</span>
+        <span className="sc-event-next-title">
+          <LivingEventOmenPip
+            active={activeEv !== null}
+            eventId={activeEv?.id}
+            text={activeEv?.text}
+            size={14}
+            style={{ marginRight: 5 }}
+          />
+          Next event
+        </span>
         <span className="sc-event-next-left">
           in <strong>{formatEventSpan(pace.left)}</strong>
         </span>

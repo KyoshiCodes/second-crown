@@ -1,0 +1,117 @@
+/* --- Living Omen Pip (bakeoff/gemini-events-line) ---
+ * Subtle living omen pip that shifts and glows while a world event is active.
+ * Shown next to the events line and on the home keep.
+ * Isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-living-event-omen-pip,
+.sc-living-event-omen-pip *,
+.sc-keep-omen-pip,
+.sc-keep-omen-pip *,
+.sc-events-status-line .sc-events-status-icon,
+.sc-events-status-line .sc-events-status-icon * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-living-event-omen-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sc-living-event-omen-pip.is-idle,
+.sc-keep-omen-pip.is-idle {
+  opacity: 0.48;
+}
+
+.sc-events-status-line.is-none .sc-events-status-icon {
+  opacity: 0.5;
+  filter: saturate(0.45);
+}
+
+.sc-events-status-line.is-none .sc-events-status-icon .sc-omen-aura {
+  opacity: 0;
+  animation: none;
+}
+
+.sc-living-event-omen-pip.is-active .sc-living-event-omen-aura,
+.sc-keep-omen-pip.is-active .sc-keep-omen-aura,
+.sc-events-status-line.is-active .sc-events-status-icon .sc-omen-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-event-omen-aura 2.9s ease-in-out infinite;
+}
+
+.sc-living-event-omen-pip.is-active .sc-living-event-omen-body,
+.sc-keep-omen-pip.is-active .sc-keep-omen-body,
+.sc-events-status-line.is-active .sc-events-status-icon {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-event-omen-shift 3.4s ease-in-out infinite;
+}
+
+.sc-living-event-omen-pip.is-active .sc-living-event-omen-spark,
+.sc-keep-omen-pip.is-active .sc-keep-omen-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-event-omen-shimmer 2.1s ease-in-out infinite;
+}
+
+@keyframes sc-event-omen-aura {
+  0%,
+  100% {
+    opacity: 0.44;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.94;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes sc-event-omen-shift {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(0.97) rotate(-2deg);
+    filter: hue-rotate(0deg) brightness(0.98) drop-shadow(0 0 1px rgba(165, 180, 252, 0.45));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06) rotate(2deg);
+    filter: hue-rotate(14deg) brightness(1.14) drop-shadow(0 0 3px rgba(251, 191, 36, 0.78));
+  }
+}
+
+@keyframes sc-event-omen-shimmer {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.84);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+  70% {
+    opacity: 0.75;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-living-event-omen-pip.is-active .sc-living-event-omen-aura,
+  .sc-living-event-omen-pip.is-active .sc-living-event-omen-body,
+  .sc-living-event-omen-pip.is-active .sc-living-event-omen-spark,
+  .sc-keep-omen-pip.is-active .sc-keep-omen-aura,
+  .sc-keep-omen-pip.is-active .sc-keep-omen-body,
+  .sc-keep-omen-pip.is-active .sc-keep-omen-spark,
+  .sc-events-status-line.is-active .sc-events-status-icon .sc-omen-aura,
+  .sc-events-status-line.is-active .sc-events-status-icon {
+    animation: none !important;
+  }
+}

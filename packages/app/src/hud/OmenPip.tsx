@@ -1,5 +1,6 @@
 import React from "react";
 import "./omen-pip.css";
+import "./living-omen-pip.css";
 
 export type OmenVariant = "comet" | "raven" | "harvest";
 

@@ -1,14 +1,14 @@
-## 2026-11-19 — app / events status line (wave/events-line, not merged)
+## 2026-11-19 — app / living omen pip on events line & home keep (bakeoff/gemini-events-line)
 
-- **Component (`packages/app/src/hud/EventsStatusLine.tsx`):**
-  - Exports `EventsStatusLine`, `eventsStatus`, `currentPeriodEvent`, `eventsNoneText`, `type EventsStatus`, `type EventStatusRow`.
-  - The sim's world events have no duration: `EventSystem.processEventsAt` fires one every `EVENT_PERIOD` ticks and applies it once. `currentPeriodEvent(state)` returns the logged event whose tick equals `floor(tick / EVENT_PERIOD) * EVENT_PERIOD` (if above 0), falling back to `last_event` / `last_event_tick`. Older events are not shown.
-  - `eventsStatus(state)` takes time left from the existing `eventPace` (which reads `EventSystem.nextEventTick`) and rounds with `Math.ceil(ticks / TICKS_PER_SECOND)`. Name and effect come from `splitEventText` in `EventCard.tsx`. Returns `kind` (`none`, `active`), count, rows, `nextSeconds` and the whole line as `text`. At most one row today; the list shape matches `DecreesStatusLine` in case events ever overlap.
-  - `EventsStatusLine` takes `state` and renders nothing without one. Icon is the existing `OmenPip` at 14px. Display only, no button.
-- **Mounts:** one line in `tabs/KingdomTab.tsx` and one in `ProvinceInspect.tsx`, each right after `DecreesStatusLine`. Shown on every inspect tile, seen or not.
-- **Styling (`packages/app/src/hud/events-status-line.css`):** every selector starts with `.sc-events-status-`. No animation. Spoilage effect text is tinted red. Zero edits to `theme.css`, `packages/sim`, or `server/`.
-- **Verification (`packages/app/src/hud/EventsStatusLine.test.tsx`):** 17 tests: time left matches `nextEventTick`, the line hands over on the tick the next event fires, stale events are hidden, all five event ids render, state is untouched, one mount each. `npm test` (sim 362, app 1269, server 158) and `npm run build -w @second-crown/app` pass.
-- **Not verified:** not opened in a browser. Check wrapping in the narrow inspect card.
+- **Components (`packages/app/src/hud/LivingEventOmenPip.tsx`, `OmenPip.tsx`, `EventAdvanced.tsx`, `EventPanel.tsx`, `BoardLiving.tsx`):**
+  - Exported `LivingEventOmenPip`, `HomeKeepOmenPip`, `activePeriodEvent`, `resolveActiveOmenPalette`, `type LivingEventOmenPipProps`, `type HomeKeepOmenPipProps`, and `type ActiveOmenPalette` from `hud/LivingEventOmenPip.tsx`, re-exported from `BoardLiving.tsx`.
+  - Reads `EVENT_PERIOD` and `getEventLog` from `@second-crown/sim` (`last_event` / `last_event_tick` fallback) and `resolveOmenVariant` / `resolveSpecificEventType` from `OmenPip.tsx` (zero event math added).
+  - Mounted `<LivingEventOmenPip />` on `EventNextCard` (`EventAdvanced.tsx`) and `EventPanel` (`EventPanel.tsx`), imported `living-omen-pip.css` in `OmenPip.tsx` to animate `.sc-events-status-line.is-active .sc-events-status-icon`, and mounted `<HomeKeepOmenPip state={state} />` on `state.board.homeProvinceId` in `BoardLiving.tsx`.
+- **Styling (`packages/app/src/hud/living-omen-pip.css`, `living-glyph-soften.css`):**
+  - Isolated keyframes (`sc-event-omen-aura`, `sc-event-omen-shift`, `sc-event-omen-shimmer`) with `pointer-events: none !important;`, `user-select: none;`, and `@media (prefers-reduced-motion: reduce)` guards; registered in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, `server/`, `KingdomTab.tsx`, or `ProvinceInspect.tsx`.
+- **Verification (`packages/app/src/hud/LivingEventOmenPip.test.tsx`):**
+  - 5 tests covering `activePeriodEvent`, `resolveActiveOmenPalette`, idle vs. active rendering, `EventNextCard` / `EventPanel` integration, `HomeKeepOmenPip` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-17 — app / living decree seal pip on decrees line & home keep (bakeoff/gemini-decrees-line)
 

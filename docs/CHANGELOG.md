@@ -1,14 +1,13 @@
 # CHANGELOG
 
-## 2026-11-19 — Events status line on the Kingdom tab and inspect card (wave/events-line, not merged)
+## 2026-11-19 — Living omen pip on events line and home keep (bakeoff/gemini-events-line)
 
-- **Events line (`EventsStatusLine`):** New `packages/app/src/hud/EventsStatusLine.tsx` and `packages/app/src/hud/events-status-line.css`, mounted right under the decrees line on the Kingdom tab (`tabs/KingdomTab.tsx`) and on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
-  - **Event in force:** `Events · 1 active · Bountiful harvest, 32s left: +25 food`.
-  - **Nothing this period:** `Events · None active · No event in force. Next event in 50s.`
-- **What "active" means:** world events in the sim are one-shot. One fires every `EVENT_PERIOD` (500 ticks) and applies its effect on that tick. The line treats the event of the current period as active until the next one replaces it. An event from an earlier period (e.g. a stale save) is not shown.
-- **Where the numbers come from:** the event is read from the sim's `getEventLog` (falling back to the `last_event` / `last_event_tick` flags, as `EventPanel` does). Time left is `EventSystem.nextEventTick` minus the current tick via the existing `eventPace`, shown as `ceil(ticks / TICKS_PER_SECOND)` seconds like the "Next event" card. The name and effect are the sim's event text split at the dash (`splitEventText`).
-- **Unchanged:** all event math, the Events tab cards and the next-event card. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
-- **Tests:** New `packages/app/src/hud/EventsStatusLine.test.tsx` (17 tests). `npm test` (sim 362, app 1269, server 158) and `npm run build -w @second-crown/app` pass.
+- **Living event omen pip (`LivingEventOmenPip` & `HomeKeepOmenPip`):** Created `packages/app/src/hud/LivingEventOmenPip.tsx` and `packages/app/src/hud/living-omen-pip.css`:
+  - **Active omen shift & glow:** Reads the current `EVENT_PERIOD` world event via `activePeriodEvent` (`getEventLog` + `last_event`/`last_event_tick` fallback) and resolves event-type palettes via `resolveActiveOmenPalette` (`harvest`, `timber`, `spoil`, `levy`, `tribute`). Renders a shifting/glowing omen medallion (`is-active` with breathing radial aura, subtle hue-shift/pulse, and spark glint) while an event is in force, and a quiet slate medallion (`is-idle`) before the first event or on a stale period.
+  - **Events line & panel (`EventAdvanced.tsx`, `EventPanel.tsx`, `OmenPip.tsx`):** Mounts `<LivingEventOmenPip />` on `EventNextCard` (`Next event`) and `EventPanel` (`Latest event`), and adds isolated `.sc-events-status-line` active/idle glow & shift styling in `living-omen-pip.css` imported by `OmenPip.tsx`.
+  - **Home keep (`BoardLiving.tsx`):** Mounts `<HomeKeepOmenPip state={state} />` (`5.10. Living Omen Pip on Home Keep`) above the player's home keep on the isometric board.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css` (and zero edits to `KingdomTab.tsx` / `ProvinceInspect.tsx`). Strictly `pointer-events: none !important;` and `user-select: none;` on all pip layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/LivingEventOmenPip.test.tsx` (5 tests) verifying `activePeriodEvent`, shifting event palettes, idle vs. active rendering, `EventNextCard` / `EventPanel` integration, `HomeKeepOmenPip` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-17 — Living decree seal pip on decrees line and home keep (bakeoff/gemini-decrees-line)
 

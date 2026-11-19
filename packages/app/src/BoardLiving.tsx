@@ -65,6 +65,15 @@ import {
   type LivingDecreePipProps,
 } from "./hud/LivingDecreePip";
 import {
+  HomeKeepOmenPip,
+  LivingEventOmenPip,
+  activePeriodEvent,
+  resolveActiveOmenPalette,
+  type HomeKeepOmenPipProps,
+  type LivingEventOmenPipProps,
+  type ActiveOmenPalette,
+} from "./hud/LivingEventOmenPip";
+import {
   HomeKeepCrownPip,
   PrestigeCrownPip,
   resolvePrestigeCrownDescriptor,
@@ -900,6 +909,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.9. Living Decree Seal Pip on Home Keep */}
         <HomeKeepDecreePip state={state} />
 
+        {/* 5.10. Living Omen Pip on Home Keep */}
+        <HomeKeepOmenPip state={state} />
+
         {/* 6. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
         {selProv && selCoords && anchor && (
           <g className="sc-board-living-status-tether" style={{ pointerEvents: "none" }}>
@@ -978,4 +990,11 @@ export {
   firstActiveDecreeId,
   type HomeKeepDecreePipProps,
   type LivingDecreePipProps,
+  HomeKeepOmenPip,
+  LivingEventOmenPip,
+  activePeriodEvent,
+  resolveActiveOmenPalette,
+  type HomeKeepOmenPipProps,
+  type LivingEventOmenPipProps,
+  type ActiveOmenPalette,
 };
