@@ -63,6 +63,7 @@ import { StampsStatusLine } from "../hud/StampsStatusLine";
 import { DecreesStatusLine } from "../hud/DecreesStatusLine";
 import { EventsStatusLine } from "../hud/EventsStatusLine";
 import { QuestsStatusLine } from "../hud/QuestsStatusLine";
+import { ResearchStatusLine } from "../hud/ResearchStatusLine";
 import { PrestigeLine } from "../PrestigeLine";
 import { SeasonClaimLine } from "../SeasonClaimLine";
 import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
@@ -248,6 +249,7 @@ export function KingdomTab(props: {
       <DecreesStatusLine state={state} />
       <EventsStatusLine state={state} />
       <QuestsStatusLine state={state} />
+      <ResearchStatusLine state={state} />
       <DecreeHint state={state} />
       <MarketHint state={state} />
       <MarketPace state={state} />

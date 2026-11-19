@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-19 — Research status line on the Kingdom tab and inspect card (wave/research-line, not merged)
+
+- **Research line (`ResearchStatusLine`):** New `packages/app/src/hud/ResearchStatusLine.tsx` and `packages/app/src/hud/research-status-line.css`, mounted right under the quests line on the Kingdom tab (`tabs/KingdomTab.tsx`) and on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
+  - **Study running:** `Research · 1 active · Husbandry, 42% · 104s left: Farms and granaries yield more food.`
+  - **Lectern idle:** `Research · None active · Lectern idle. 3 of 16 studies known.`
+- **What "active" means:** every study whose `researchTicksLeft` is above 0. The lectern takes one at a time today; the line lists all of them so it stays right if that changes.
+- **Where the numbers come from:** `researchTicksLeft`, `researchDone`, `researchDuration` and the `research_<id>_total` flag from the sim; progress text is `studyProgressText` from `ResearchAdvanced.tsx`, the same as the study cards. The bonus is the study's `RESEARCH[].effect` with its "Needs ..." gate sentence removed.
+- **Unchanged:** all research math, the lectern cards, Start and Cancel. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
+- **Tests:** New `packages/app/src/hud/ResearchStatusLine.test.tsx` (16 tests). `npm test` (sim 362, app 1311, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-19 — Living scroll pip on quests line and home keep (bakeoff/gemini-quests-line)
 
 - **Living quest scroll pip (`LivingQuestScrollPip` & `HomeKeepQuestScrollPip`):** Created `packages/app/src/hud/LivingQuestScrollPip.tsx` and `packages/app/src/hud/living-quest-scroll-pip.css`:

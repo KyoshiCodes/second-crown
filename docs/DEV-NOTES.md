@@ -1,3 +1,15 @@
+## 2026-11-19 — app / research status line (wave/research-line, not merged)
+
+- **Component (`packages/app/src/hud/ResearchStatusLine.tsx`):**
+  - Exports `ResearchStatusLine`, `researchStatus`, `researchBonusText`, `researchNoneText`, `type ResearchStatus`, `type ResearchStatusRow`.
+  - `researchStatus(state)` walks `RESEARCH` in table order. A study with `researchTicksLeft > 0` is a row; otherwise `researchDone` adds to `known`. Total ticks are the `research_<id>_total` flag (set by `tryStartResearch`), falling back to `researchDuration`, the same as `ResearchBar`'s `Row`. Progress is `studyProgressText({ status: "studying", ... }).value`, so the line and the card always agree (0-99%, never 100% while seconds remain). Bonus is `researchBonusText(def.effect)`, which drops sentences starting with "Needs".
+  - `ResearchStatusLine` takes `state`, renders nothing without one. Icon is the existing `ScrollPip` at 14px: lit while a study runs, `open` when idle, `claimed` when every study is known. Display only, no button.
+  - Note: `researchTicksLeft`/`researchDone` set `research_<id>` = 1 on the first read after a study's end tick. That is existing sim behaviour (`StudyLine` and `ResearchBar` call them the same way); the line adds no new writes. Test asserts state is unchanged while a study runs.
+- **Mounts:** one line in `tabs/KingdomTab.tsx` and one in `ProvinceInspect.tsx`, each right after `QuestsStatusLine`. Shown on every inspect tile, seen or not.
+- **Styling (`packages/app/src/hud/research-status-line.css`):** every selector starts with `.sc-research-status-`. No animation. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/ResearchStatusLine.test.tsx`):** 16 tests: bonus text for every study, idle text, progress matching the card, 0%/99% bounds, known/cancel transitions, state untouched, one mount each, CSS prefix. `npm test` (sim 362, app 1311, server 158) and `npm run build -w @second-crown/app` pass.
+- **Not verified:** not opened in a browser. `StudyLine` above it still says the same study in shorter form; consider dropping one later.
+
 ## 2026-11-19 — app / living scroll pip on quests line & home keep (bakeoff/gemini-quests-line)
 
 - **Components (`packages/app/src/hud/LivingQuestScrollPip.tsx`, `ScrollPip.tsx`, `QuestPanel.tsx`, `BoardLiving.tsx`):**

@@ -1,0 +1,52 @@
+/* Read-only research status line on the Kingdom tab and the inspect card (ResearchStatusLine.tsx). Do not touch theme.css. */
+
+.sc-research-status-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-research-status-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  pointer-events: none;
+}
+
+.sc-research-status-text {
+  flex: 1 1 200px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sc-research-status-label {
+  opacity: 0.75;
+}
+
+.sc-research-status-line strong {
+  font-weight: 600;
+  color: #f5e1b8;
+}
+
+/* The count is the part to read first while scribes are at work. */
+.sc-research-status-line.is-active .sc-research-status-headline {
+  font-weight: 600;
+  color: #c4b5fd;
+}
+
+.sc-research-status-progress {
+  color: #ddd6fe;
+}
+
+.sc-research-status-bonus {
+  color: #a7f3d0;
+}
+
+/* With the lectern idle the line stays quiet. */
+.sc-research-status-line.is-none,
+.sc-research-status-note {
+  opacity: 0.8;
+}

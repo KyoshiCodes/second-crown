@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-19 — New "Research" line (wave/research-line, not merged yet)
+
+- **New "Research" line.** The Kingdom tab and the card you get when you click a tile now show a Research line, right under the Quests line.
+- **It shows the study on your lectern:** its name, how far along it is (percent and seconds left), and what it gives you once learned. Example: "Husbandry, 42% · 104s left: Farms and granaries yield more food."
+- **When nothing is being studied,** the line says "None active" and how many studies you already know.
+- **The line has no button.** Start or cancel studies on the lectern as before.
+- **Nothing else changed.** Studies cost and take the same as before and give the same bonuses.
+
 ## 2026-11-19 — Living scroll pip on quests line and home keep (bakeoff/gemini-quests-line)
 
 - **Unrolling & glowing quest scroll pip:**
