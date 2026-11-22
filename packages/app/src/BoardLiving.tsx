@@ -82,6 +82,14 @@ import {
   type ActiveQuestsSummary,
 } from "./hud/LivingQuestScrollPip";
 import {
+  HomeKeepLecternPip,
+  LivingLecternPip,
+  summarizeActiveStudy,
+  type HomeKeepLecternPipProps,
+  type LivingLecternPipProps,
+  type ActiveStudySummary,
+} from "./hud/LivingLecternPip";
+import {
   HomeKeepCrownPip,
   PrestigeCrownPip,
   resolvePrestigeCrownDescriptor,
@@ -923,6 +931,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.11. Living Quest Scroll Pip on Home Keep */}
         <HomeKeepQuestScrollPip state={state} />
 
+        {/* 5.12. Living Lectern Pip on Home Keep */}
+        <HomeKeepLecternPip state={state} />
+
         {/* 6. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
         {selProv && selCoords && anchor && (
           <g className="sc-board-living-status-tether" style={{ pointerEvents: "none" }}>
@@ -1014,4 +1025,10 @@ export {
   type HomeKeepQuestScrollPipProps,
   type LivingQuestScrollPipProps,
   type ActiveQuestsSummary,
+  HomeKeepLecternPip,
+  LivingLecternPip,
+  summarizeActiveStudy,
+  type HomeKeepLecternPipProps,
+  type LivingLecternPipProps,
+  type ActiveStudySummary,
 };

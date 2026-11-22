@@ -1,0 +1,146 @@
+/* --- Living Lectern Pip (bakeoff/gemini-research-line) ---
+ * Subtle living lectern codex pip that glows and turns pages while a study is active.
+ * Shown next to the research line and on the home keep.
+ * Isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-living-lectern-pip,
+.sc-living-lectern-pip *,
+.sc-keep-lectern-pip,
+.sc-keep-lectern-pip *,
+.sc-research-status-line .sc-research-status-icon,
+.sc-research-status-line .sc-research-status-icon * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-living-lectern-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sc-living-lectern-pip.is-idle,
+.sc-keep-lectern-pip.is-idle {
+  opacity: 0.48;
+}
+
+.sc-research-status-line.is-none .sc-research-status-icon {
+  opacity: 0.52;
+  filter: saturate(0.45);
+}
+
+.sc-research-status-line.is-none .sc-research-status-icon .sc-scroll-pip-aura {
+  opacity: 0;
+  animation: none;
+}
+
+.sc-living-lectern-pip.is-active .sc-living-lectern-aura,
+.sc-keep-lectern-pip.is-active .sc-keep-lectern-aura,
+.sc-research-status-line.is-active .sc-research-status-icon .sc-scroll-pip-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-lectern-pip-aura 2.8s ease-in-out infinite;
+}
+
+.sc-living-lectern-pip.is-active .sc-living-lectern-body,
+.sc-keep-lectern-pip.is-active .sc-keep-lectern-body,
+.sc-research-status-line.is-active .sc-research-status-icon .sc-scroll-pip {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-lectern-pip-glow 2.8s ease-in-out infinite;
+}
+
+.sc-living-lectern-pip.is-active .sc-living-lectern-page,
+.sc-keep-lectern-pip.is-active .sc-keep-lectern-page {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: sc-lectern-page-turn 2.6s ease-in-out infinite;
+}
+
+.sc-living-lectern-pip.is-active .sc-living-lectern-spark,
+.sc-keep-lectern-pip.is-active .sc-keep-lectern-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-lectern-spark-glint 2.0s ease-in-out infinite;
+}
+
+@keyframes sc-lectern-pip-aura {
+  0%,
+  100% {
+    opacity: 0.44;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.96;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes sc-lectern-pip-glow {
+  0%,
+  100% {
+    opacity: 0.92;
+    transform: scale(0.98);
+    filter: drop-shadow(0 0 1px rgba(167, 139, 250, 0.4));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 3px rgba(250, 204, 21, 0.8));
+  }
+}
+
+@keyframes sc-lectern-page-turn {
+  0%,
+  100% {
+    opacity: 0.95;
+    transform: scaleX(1) translateY(0);
+  }
+  45% {
+    opacity: 0.72;
+    transform: scaleX(0.15) translateY(-0.5px);
+  }
+  65% {
+    opacity: 0.95;
+    transform: scaleX(-0.92) translateY(-0.2px);
+  }
+  85% {
+    opacity: 0.85;
+    transform: scaleX(0.25) translateY(-0.4px);
+  }
+}
+
+@keyframes sc-lectern-spark-glint {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.84);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+  75% {
+    opacity: 0.76;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-living-lectern-pip.is-active .sc-living-lectern-aura,
+  .sc-living-lectern-pip.is-active .sc-living-lectern-body,
+  .sc-living-lectern-pip.is-active .sc-living-lectern-page,
+  .sc-living-lectern-pip.is-active .sc-living-lectern-spark,
+  .sc-keep-lectern-pip.is-active .sc-keep-lectern-aura,
+  .sc-keep-lectern-pip.is-active .sc-keep-lectern-body,
+  .sc-keep-lectern-pip.is-active .sc-keep-lectern-page,
+  .sc-keep-lectern-pip.is-active .sc-keep-lectern-spark,
+  .sc-research-status-line.is-active .sc-research-status-icon .sc-scroll-pip-aura,
+  .sc-research-status-line.is-active .sc-research-status-icon .sc-scroll-pip {
+    animation: none !important;
+  }
+}

@@ -1,14 +1,14 @@
-## 2026-11-19 — app / research status line (wave/research-line, not merged)
+## 2026-11-21 — app / living lectern pip on research line & home keep (bakeoff/gemini-research-line)
 
-- **Component (`packages/app/src/hud/ResearchStatusLine.tsx`):**
-  - Exports `ResearchStatusLine`, `researchStatus`, `researchBonusText`, `researchNoneText`, `type ResearchStatus`, `type ResearchStatusRow`.
-  - `researchStatus(state)` walks `RESEARCH` in table order. A study with `researchTicksLeft > 0` is a row; otherwise `researchDone` adds to `known`. Total ticks are the `research_<id>_total` flag (set by `tryStartResearch`), falling back to `researchDuration`, the same as `ResearchBar`'s `Row`. Progress is `studyProgressText({ status: "studying", ... }).value`, so the line and the card always agree (0-99%, never 100% while seconds remain). Bonus is `researchBonusText(def.effect)`, which drops sentences starting with "Needs".
-  - `ResearchStatusLine` takes `state`, renders nothing without one. Icon is the existing `ScrollPip` at 14px: lit while a study runs, `open` when idle, `claimed` when every study is known. Display only, no button.
-  - Note: `researchTicksLeft`/`researchDone` set `research_<id>` = 1 on the first read after a study's end tick. That is existing sim behaviour (`StudyLine` and `ResearchBar` call them the same way); the line adds no new writes. Test asserts state is unchanged while a study runs.
-- **Mounts:** one line in `tabs/KingdomTab.tsx` and one in `ProvinceInspect.tsx`, each right after `QuestsStatusLine`. Shown on every inspect tile, seen or not.
-- **Styling (`packages/app/src/hud/research-status-line.css`):** every selector starts with `.sc-research-status-`. No animation. Zero edits to `theme.css`, `packages/sim`, or `server/`.
-- **Verification (`packages/app/src/hud/ResearchStatusLine.test.tsx`):** 16 tests: bonus text for every study, idle text, progress matching the card, 0%/99% bounds, known/cancel transitions, state untouched, one mount each, CSS prefix. `npm test` (sim 362, app 1311, server 158) and `npm run build -w @second-crown/app` pass.
-- **Not verified:** not opened in a browser. `StudyLine` above it still says the same study in shorter form; consider dropping one later.
+- **Components (`packages/app/src/hud/LivingLecternPip.tsx`, `StudyLine.tsx`, `ResearchBar.tsx`, `ScrollPip.tsx`, `BoardLiving.tsx`):**
+  - Exported `LivingLecternPip`, `HomeKeepLecternPip`, `summarizeActiveStudy`, `type LivingLecternPipProps`, `type HomeKeepLecternPipProps`, and `type ActiveStudySummary` from `hud/LivingLecternPip.tsx`, re-exported from `BoardLiving.tsx`.
+  - Reads `RESEARCH`, `researchTicksLeft`, and `researchDone` from `@second-crown/sim` with defensive guards for partial test states (zero research rule duplication). Uses `data-study-id` rather than `data-study` so `ResearchTree.test.tsx`'s card-slicing helper stays untouched.
+  - Mounted `<LivingLecternPip />` in `StudyLine.tsx` and `ResearchBar.tsx`, imported `living-lectern-pip.css` in `ScrollPip.tsx` to animate `.sc-research-status-line.is-active .sc-research-status-icon`, and mounted `<HomeKeepLecternPip state={state} />` on `state.board.homeProvinceId` in `BoardLiving.tsx`.
+- **Styling (`packages/app/src/hud/living-lectern-pip.css`, `living-glyph-soften.css`):**
+  - Isolated keyframes (`sc-lectern-pip-aura`, `sc-lectern-pip-glow`, `sc-lectern-page-turn`, `sc-lectern-spark-glint`) with `pointer-events: none !important;`, `user-select: none;`, and `@media (prefers-reduced-motion: reduce)` guards; registered in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, `server/`, `KingdomTab.tsx`, or `ProvinceInspect.tsx`.
+- **Verification (`packages/app/src/hud/LivingLecternPip.test.tsx`):**
+  - 5 tests covering `summarizeActiveStudy`, idle vs. active pip states, `StudyLine` / `ResearchBar` integration, `HomeKeepLecternPip` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-19 — app / living scroll pip on quests line & home keep (bakeoff/gemini-quests-line)
 

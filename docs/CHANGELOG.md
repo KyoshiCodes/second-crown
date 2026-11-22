@@ -1,14 +1,13 @@
 # CHANGELOG
 
-## 2026-11-19 — Research status line on the Kingdom tab and inspect card (wave/research-line, not merged)
+## 2026-11-21 — Living lectern pip on research line and home keep (bakeoff/gemini-research-line)
 
-- **Research line (`ResearchStatusLine`):** New `packages/app/src/hud/ResearchStatusLine.tsx` and `packages/app/src/hud/research-status-line.css`, mounted right under the quests line on the Kingdom tab (`tabs/KingdomTab.tsx`) and on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
-  - **Study running:** `Research · 1 active · Husbandry, 42% · 104s left: Farms and granaries yield more food.`
-  - **Lectern idle:** `Research · None active · Lectern idle. 3 of 16 studies known.`
-- **What "active" means:** every study whose `researchTicksLeft` is above 0. The lectern takes one at a time today; the line lists all of them so it stays right if that changes.
-- **Where the numbers come from:** `researchTicksLeft`, `researchDone`, `researchDuration` and the `research_<id>_total` flag from the sim; progress text is `studyProgressText` from `ResearchAdvanced.tsx`, the same as the study cards. The bonus is the study's `RESEARCH[].effect` with its "Needs ..." gate sentence removed.
-- **Unchanged:** all research math, the lectern cards, Start and Cancel. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
-- **Tests:** New `packages/app/src/hud/ResearchStatusLine.test.tsx` (16 tests). `npm test` (sim 362, app 1311, server 158) and `npm run build -w @second-crown/app` pass.
+- **Living lectern pip (`LivingLecternPip` & `HomeKeepLecternPip`):** Created `packages/app/src/hud/LivingLecternPip.tsx` and `packages/app/src/hud/living-lectern-pip.css`:
+  - **Active lectern glow & page turn:** Reads `RESEARCH`, `researchTicksLeft`, and `researchDone` via `summarizeActiveStudy`. Renders an illuminated open folio lectern (`is-active` with radial glow aura, subtle spark glint, and sweeping page-turn animation across the spine) while a study is active, and a quiet slate lectern (`is-idle`) when no study is running.
+  - **Research line & lectern (`StudyLine.tsx`, `ResearchBar.tsx`, `ScrollPip.tsx`):** Mounts `<LivingLecternPip />` on `StudyLine` (`Studies ...`) and `ResearchBar` (`Lectern ...`), and adds isolated `.sc-research-status-line` active/idle glow styling in `living-lectern-pip.css` imported by `ScrollPip.tsx`.
+  - **Home keep (`BoardLiving.tsx`):** Mounts `<HomeKeepLecternPip state={state} />` (`5.12. Living Lectern Pip on Home Keep`) on the player's home keep on the isometric board.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css` (and zero edits to `KingdomTab.tsx` / `ProvinceInspect.tsx`). Strictly `pointer-events: none !important;` and `user-select: none;` on all pip layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/LivingLecternPip.test.tsx` (5 tests) verifying `summarizeActiveStudy`, idle vs. active pip rendering, `StudyLine` / `ResearchBar` integration, `HomeKeepLecternPip` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-19 — Living scroll pip on quests line and home keep (bakeoff/gemini-quests-line)
 

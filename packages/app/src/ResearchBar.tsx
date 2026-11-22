@@ -38,6 +38,7 @@ import {
   studyProgressText,
 } from "./ResearchAdvanced";
 import { ResearchTreeMap } from "./ResearchTreeMap";
+import { LivingLecternPip, summarizeActiveStudy } from "./hud/LivingLecternPip";
 import "./hud/button-pips.css";
 import "./hud/research-ink-pip.css";
 import "./research-tree.css";
@@ -208,6 +209,7 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
   const open = ids.find((id) => researchTicksLeft(state, id) > 0);
   const known = ids.filter((id) => researchDone(state, id)).map((id) => RESEARCH[id].name);
   const academy = countBuilding(state, "academy");
+  const summary = summarizeActiveStudy(state);
   return (
     <div
       className="sc-realm-card sc-research-lectern"
@@ -215,6 +217,14 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
     >
       <InhabitedOverlay motesCount={18} candleAnchor="top-right" />
       <p style={{ margin: "0 0 8px", opacity: 0.85, position: "relative", zIndex: 1 }}>
+        <LivingLecternPip
+          active={summary.active}
+          studyId={summary.studyId}
+          activeCount={summary.activeCount}
+          knownCount={summary.knownCount}
+          size={14}
+          style={{ marginRight: 5 }}
+        />
         Lectern {open ? `· studying ${RESEARCH[open].name} (${Math.ceil(researchTicksLeft(state, open) / 10)}s)` : "· idle (one study at a time)"}.
         {known.length > 0 ? ` Known: ${known.join(", ")}.` : " Nothing known yet."}
         {academy < 1

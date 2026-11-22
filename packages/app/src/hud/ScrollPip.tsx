@@ -1,5 +1,6 @@
 import React from "react";
 import "./living-quest-scroll-pip.css";
+import "./living-lectern-pip.css";
 
 export type ScrollPipStatus = "open" | "ready" | "claimed";
 

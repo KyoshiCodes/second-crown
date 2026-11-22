@@ -5,6 +5,7 @@ import {
   researchTicksLeft,
   type GameState,
 } from "@second-crown/sim";
+import { LivingLecternPip, summarizeActiveStudy } from "./hud/LivingLecternPip";
 
 const YIELD: Partial<Record<keyof typeof RESEARCH, string>> = {
   husbandry: "+12% food",
@@ -26,8 +27,17 @@ export function StudyLine(props: { state: GameState | undefined }) {
   const open = ids.find((id) => researchTicksLeft(state, id) > 0);
   const known = ids.filter((id) => researchDone(state, id));
   const boosts = known.map((id) => YIELD[id]).filter(Boolean);
+  const summary = summarizeActiveStudy(state);
   return (
     <p style={{ fontSize: 12, opacity: 0.8 }}>
+      <LivingLecternPip
+        active={summary.active}
+        studyId={summary.studyId}
+        activeCount={summary.activeCount}
+        knownCount={summary.knownCount}
+        size={14}
+        style={{ marginRight: 5 }}
+      />
       Studies {open ? `· ${RESEARCH[open].name} ${Math.ceil(researchTicksLeft(state, open) / 10)}s left on Crown` : "· lectern idle on Crown"}.
       {known.length > 0 ? ` Known: ${known.map((id) => RESEARCH[id].name).join(", ")}.` : ""}
       {boosts.length > 0 ? ` ${boosts.join("; ")}.` : ""}
