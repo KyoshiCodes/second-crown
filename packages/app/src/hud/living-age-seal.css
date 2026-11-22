@@ -1,0 +1,171 @@
+/* --- Living Age Seal (bakeoff/gemini-age-line) ---
+ * Subtle living epoch seal that shifts and glows as the age advances.
+ * Shown next to the age line and on the home keep.
+ * Isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-living-age-seal,
+.sc-living-age-seal *,
+.sc-keep-age-seal,
+.sc-keep-age-seal *,
+.sc-age-status-line .sc-age-status-icon,
+.sc-age-status-line .sc-age-status-icon * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-living-age-seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sc-living-age-seal .sc-living-age-seal-aura,
+.sc-keep-age-seal .sc-keep-age-seal-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-age-seal-glow 5.2s ease-in-out infinite;
+}
+
+.sc-living-age-seal .sc-living-age-seal-body,
+.sc-keep-age-seal .sc-keep-age-seal-body {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-age-seal-shift 5.2s ease-in-out infinite;
+}
+
+.sc-living-age-seal .sc-living-age-seal-glint,
+.sc-keep-age-seal .sc-keep-age-seal-glint {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-age-seal-twinkle 2.4s ease-in-out infinite;
+}
+
+.sc-living-age-seal.age-tier-1 .sc-living-age-seal-aura,
+.sc-living-age-seal.age-tier-1 .sc-living-age-seal-body,
+.sc-keep-age-seal.age-tier-1 .sc-keep-age-seal-aura,
+.sc-keep-age-seal.age-tier-1 .sc-keep-age-seal-body {
+  animation-duration: 4.3s;
+}
+
+.sc-living-age-seal.age-tier-2 .sc-living-age-seal-aura,
+.sc-living-age-seal.age-tier-2 .sc-living-age-seal-body,
+.sc-keep-age-seal.age-tier-2 .sc-keep-age-seal-aura,
+.sc-keep-age-seal.age-tier-2 .sc-keep-age-seal-body {
+  animation-duration: 3.5s;
+}
+
+.sc-living-age-seal.age-tier-3 .sc-living-age-seal-aura,
+.sc-living-age-seal.age-tier-3 .sc-living-age-seal-body,
+.sc-keep-age-seal.age-tier-3 .sc-keep-age-seal-aura,
+.sc-keep-age-seal.age-tier-3 .sc-keep-age-seal-body {
+  animation-duration: 2.8s;
+}
+
+.sc-living-age-seal.age-tier-4 .sc-living-age-seal-aura,
+.sc-living-age-seal.age-tier-4 .sc-living-age-seal-body,
+.sc-keep-age-seal.age-tier-4 .sc-keep-age-seal-aura,
+.sc-keep-age-seal.age-tier-4 .sc-keep-age-seal-body {
+  animation-duration: 2.2s;
+}
+
+.sc-living-age-seal.is-ready .sc-living-age-seal-aura,
+.sc-living-age-seal.is-ready .sc-living-age-seal-body,
+.sc-keep-age-seal.is-ready .sc-keep-age-seal-aura,
+.sc-keep-age-seal.is-ready .sc-keep-age-seal-body {
+  animation-duration: 2s;
+}
+
+.sc-living-age-seal.is-shared .sc-living-age-seal-aura,
+.sc-living-age-seal.is-shared .sc-living-age-seal-body,
+.sc-keep-age-seal.is-shared .sc-keep-age-seal-aura,
+.sc-keep-age-seal.is-shared .sc-keep-age-seal-body {
+  animation-duration: 5.8s;
+}
+
+.sc-age-status-line .sc-age-status-icon.tier-1,
+.sc-age-status-line .sc-age-status-icon.tier-2,
+.sc-age-status-line .sc-age-status-icon.tier-3,
+.sc-age-status-line .sc-age-status-icon.tier-4,
+.sc-age-status-line .sc-age-status-icon.is-ready {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-age-seal-shift 4.3s ease-in-out infinite;
+}
+
+.sc-age-status-line .sc-age-status-icon.tier-2 {
+  animation-duration: 3.5s;
+  filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.48));
+}
+
+.sc-age-status-line .sc-age-status-icon.tier-3 {
+  animation-duration: 2.8s;
+  filter: drop-shadow(0 0 3px rgba(250, 204, 21, 0.65));
+}
+
+.sc-age-status-line .sc-age-status-icon.tier-4,
+.sc-age-status-line .sc-age-status-icon.is-ready {
+  animation-duration: 2.2s;
+  filter: drop-shadow(0 0 4px rgba(254, 240, 138, 0.85));
+}
+
+@keyframes sc-age-seal-glow {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.98;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes sc-age-seal-shift {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(0.97) rotate(-1.5deg);
+    filter: hue-rotate(0deg) brightness(0.98) drop-shadow(0 0 1px rgba(245, 158, 11, 0.35));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06) rotate(1.5deg);
+    filter: hue-rotate(12deg) brightness(1.14) drop-shadow(0 0 3px rgba(253, 224, 71, 0.78));
+  }
+}
+
+@keyframes sc-age-seal-twinkle {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.84);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.24);
+  }
+  75% {
+    opacity: 0.76;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-living-age-seal .sc-living-age-seal-aura,
+  .sc-living-age-seal .sc-living-age-seal-body,
+  .sc-living-age-seal .sc-living-age-seal-glint,
+  .sc-keep-age-seal .sc-keep-age-seal-aura,
+  .sc-keep-age-seal .sc-keep-age-seal-body,
+  .sc-keep-age-seal .sc-keep-age-seal-glint,
+  .sc-age-status-line .sc-age-status-icon.tier-1,
+  .sc-age-status-line .sc-age-status-icon.tier-2,
+  .sc-age-status-line .sc-age-status-icon.tier-3,
+  .sc-age-status-line .sc-age-status-icon.tier-4,
+  .sc-age-status-line .sc-age-status-icon.is-ready {
+    animation: none !important;
+  }
+}

@@ -10,6 +10,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
 import { AgeGlyphPip } from "./AgeLine";
+import { LivingAgeSeal } from "./hud/LivingAgeSeal";
 import { sharedRealmId } from "./game/settleOnLoad";
 import "./prestige-line.css";
 
@@ -76,6 +77,7 @@ export function PrestigeLineView(props: PrestigeLineViewProps) {
       data-percent={s.percent}
     >
       <AgeGlyphPip dawn={s.dawn} ready={s.ready} shared={s.shared} />
+      <LivingAgeSeal dawn={s.dawn} ready={s.ready} shared={s.shared} size={15} />
       <span className="sc-prestige-text">
         Age · <strong>Dawn {s.dawn}</strong> ·{" "}
         {s.shared

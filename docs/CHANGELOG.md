@@ -1,13 +1,13 @@
 # CHANGELOG
 
-## 2026-11-22 — Age status line on the Kingdom tab and inspect card (wave/age-line, not merged)
+## 2026-11-22 — Living age seal on age line and home keep (bakeoff/gemini-age-line)
 
-- **Age line (`AgeStatusLine`):** New `packages/app/src/hud/AgeStatusLine.tsx` and `packages/app/src/hud/age-status-line.css`, mounted right under the Prestige line on the Kingdom tab (`tabs/KingdomTab.tsx`) and on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
-  - **Building toward the next age:** `Age · Dawn 2 · 50% · 40K of 80K total resources toward Dawn 3 [bar] · Grants: +2 production on every finished building (+8% yield) · Host Law: 8% cheaper training`
-  - **Ready:** `Age · Dawn 0 · Ready for Dawn 1: ascend from the Age line or the Crown tab · Grants: No age bonus yet`
-- **Where the numbers come from:** progress is `prestigeStatus` (`PrestigeLine.tsx`: the sim's `ascendThreshold` and `canAscend`); bonuses are `prestigeRank` (`hud/PrestigeRankLine.tsx`: one production point per dawn, the sworn doctrine). The age is the Dawn count, `flags.prestige_level`.
-- **Unchanged:** all age math, the Age line's Ascend button, the Prestige line, the Crown tab. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
-- **Tests:** New `packages/app/src/hud/AgeStatusLine.test.tsx` (12 tests). `npm test` (sim 362, app 1328, server 158) and `npm run build -w @second-crown/app` pass.
+- **Living age seal (`LivingAgeSeal` & `HomeKeepAgeSeal`):** Created `packages/app/src/hud/LivingAgeSeal.tsx` and `packages/app/src/hud/living-age-seal.css`:
+  - **Age-progressive glow & palette shift (`resolveAgeSealDescriptor`, `readAgeSealState`):** Scales aura glow opacity (`0.22` → `0.96`), quickens pulse/shift cadence (`5.2s` → `2.2s`, `2.0s` when ready to ascend), adds tier pips and diamond star glints, and shifts epoch seal colors across tiers `0`–`4+` from `flags.prestige_level` and `canAscend(state)` (with celestial sapphire styling for shared holds).
+  - **Age line (`AgeLine.tsx`, `PrestigeLine.tsx`):** Mounts `<LivingAgeSeal />` beside the age/prestige line (in standard and shared realms) and styles `.sc-age-status-line .sc-age-status-icon` tiers cleanly inside `living-age-seal.css`.
+  - **Home keep (`BoardLiving.tsx`):** Mounts `<HomeKeepAgeSeal state={state} />` (`5.13. Living Age Seal on Home Keep`) on the player's home keep on the isometric board.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css` (and zero edits to `KingdomTab.tsx` / `ProvinceInspect.tsx`). Strictly `pointer-events: none !important;` and `user-select: none;` on all seal layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/LivingAgeSeal.test.tsx` (5 tests) verifying progressive descriptors, `LivingAgeSeal`, `AgeLine` & `PrestigeLine` integration, `HomeKeepAgeSeal` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-21 — Living lectern pip on research line and home keep (bakeoff/gemini-research-line)
 

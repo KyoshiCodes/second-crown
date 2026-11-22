@@ -90,6 +90,16 @@ import {
   type ActiveStudySummary,
 } from "./hud/LivingLecternPip";
 import {
+  HomeKeepAgeSeal,
+  LivingAgeSeal,
+  readAgeSealState,
+  resolveAgeSealDescriptor,
+  type HomeKeepAgeSealProps,
+  type LivingAgeSealProps,
+  type AgeSealDescriptor,
+  type AgeSealTier,
+} from "./hud/LivingAgeSeal";
+import {
   HomeKeepCrownPip,
   PrestigeCrownPip,
   resolvePrestigeCrownDescriptor,
@@ -934,6 +944,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.12. Living Lectern Pip on Home Keep */}
         <HomeKeepLecternPip state={state} />
 
+        {/* 5.13. Living Age Seal on Home Keep */}
+        <HomeKeepAgeSeal state={state} />
+
         {/* 6. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
         {selProv && selCoords && anchor && (
           <g className="sc-board-living-status-tether" style={{ pointerEvents: "none" }}>
@@ -1031,4 +1044,12 @@ export {
   type HomeKeepLecternPipProps,
   type LivingLecternPipProps,
   type ActiveStudySummary,
+  HomeKeepAgeSeal,
+  LivingAgeSeal,
+  readAgeSealState,
+  resolveAgeSealDescriptor,
+  type HomeKeepAgeSealProps,
+  type LivingAgeSealProps,
+  type AgeSealDescriptor,
+  type AgeSealTier,
 };
