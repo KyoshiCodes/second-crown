@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-22 — Age status line on the Kingdom tab and inspect card (wave/age-line, not merged)
+
+- **Age line (`AgeStatusLine`):** New `packages/app/src/hud/AgeStatusLine.tsx` and `packages/app/src/hud/age-status-line.css`, mounted right under the Prestige line on the Kingdom tab (`tabs/KingdomTab.tsx`) and on the inspect card (`ProvinceInspect.tsx`). Read-only, no button.
+  - **Building toward the next age:** `Age · Dawn 2 · 50% · 40K of 80K total resources toward Dawn 3 [bar] · Grants: +2 production on every finished building (+8% yield) · Host Law: 8% cheaper training`
+  - **Ready:** `Age · Dawn 0 · Ready for Dawn 1: ascend from the Age line or the Crown tab · Grants: No age bonus yet`
+- **Where the numbers come from:** progress is `prestigeStatus` (`PrestigeLine.tsx`: the sim's `ascendThreshold` and `canAscend`); bonuses are `prestigeRank` (`hud/PrestigeRankLine.tsx`: one production point per dawn, the sworn doctrine). The age is the Dawn count, `flags.prestige_level`.
+- **Unchanged:** all age math, the Age line's Ascend button, the Prestige line, the Crown tab. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`.
+- **Tests:** New `packages/app/src/hud/AgeStatusLine.test.tsx` (12 tests). `npm test` (sim 362, app 1328, server 158) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-21 — Living lectern pip on research line and home keep (bakeoff/gemini-research-line)
 
 - **Living lectern pip (`LivingLecternPip` & `HomeKeepLecternPip`):** Created `packages/app/src/hud/LivingLecternPip.tsx` and `packages/app/src/hud/living-lectern-pip.css`:

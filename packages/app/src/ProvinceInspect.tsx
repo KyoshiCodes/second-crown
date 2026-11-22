@@ -65,6 +65,7 @@ import { SeasonEffectLine } from "./hud/SeasonEffectLine";
 import { DayNightLine } from "./hud/DayNightLine";
 import { WeatherLine } from "./hud/WeatherLine";
 import { PrestigeRankLine } from "./hud/PrestigeRankLine";
+import { AgeStatusLine } from "./hud/AgeStatusLine";
 import { CultureStatusLine } from "./hud/CultureStatusLine";
 import { StampsStatusLine } from "./hud/StampsStatusLine";
 import { DecreesStatusLine } from "./hud/DecreesStatusLine";
@@ -283,6 +284,7 @@ export function ProvinceInspect(props: {
         {seen ? <DayNightLine state={state} /> : null}
         {seen ? <WeatherLine state={state} /> : null}
         <PrestigeRankLine state={state} />
+        <AgeStatusLine state={state} />
         <CultureStatusLine state={state} />
         <StampsStatusLine />
         <DecreesStatusLine state={state} />

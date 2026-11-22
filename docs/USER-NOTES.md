@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-22 — New "Age" status line (wave/age-line, not merged yet)
+
+- **New Age status line.** The Kingdom tab and the card you get when you click a tile now show one line with everything about your age, right under the Prestige line.
+- **It shows three things:** your current age (Dawn number), how close you are to the next one (percent, resources held vs. needed, and a small bar), and what your current age gives you (bonus production on every building, and your sworn doctrine).
+- **When you can ascend,** the line says so. Ascend from the Age line's button or the Crown tab as before.
+- **The line has no button.** Nothing else changed: ages cost the same and grant the same bonuses.
+
 ## 2026-11-21 — Living lectern pip on research line and home keep (bakeoff/gemini-research-line)
 
 - **Glowing & page-turning lectern pip:**

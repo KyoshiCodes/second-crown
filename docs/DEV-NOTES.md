@@ -1,3 +1,15 @@
+## 2026-11-22 — app / age status line (wave/age-line, not merged)
+
+- **Component (`packages/app/src/hud/AgeStatusLine.tsx`):**
+  - Exports `AgeStatusLine`, `ageStatus`, `type AgeStatus`.
+  - `ageStatus(state)` adds no age math. Progress is `prestigeStatus(state)` (percent, `have`, `need`, `ready`, `shared`); bonuses are `prestigeRank(state)` (`production` = dawn, `doctrine`) with `YIELD_PCT_PER_PRODUCTION` for the yield percent. `kind` is `shared` / `ready` / `waiting`. Dawn 0 says "No age bonus yet"; Dawn 1+ with no doctrine says "a doctrine to swear (Crown tab)".
+  - Renders nothing without `state`. Icon is the existing `AgeGlyphPip` at 14px. A 48px inline progress bar shows only while waiting. Display only, no button.
+- **Mounts:** one line in `tabs/KingdomTab.tsx` and one in `ProvinceInspect.tsx`, each right after `PrestigeRankLine`. Shown on every inspect tile, seen or not.
+- **Overlap:** the Kingdom tab already shows `PrestigeLine` (Age, progress bar, Ascend) and `PrestigeRankLine` (rank, grants). The new line repeats their figures in one place, as asked. Consider dropping one later.
+- **Styling (`packages/app/src/hud/age-status-line.css`):** every selector starts with `.sc-age-status-`. No animation. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/AgeStatusLine.test.tsx`):** 12 tests: progress vs. `ascendThreshold`, ready vs. `canAscend`, Dawn 0 grants, production step vs. `productionBonus`, doctrine text, render, one mount each (Kingdom after Prestige line, inspect seen and unseen), CSS prefix and theme.css isolation. The `shared` branch is untested: `sharedRealmId` always returns null today. `npm test` (sim 362, app 1328, server 158) and `npm run build -w @second-crown/app` pass.
+- **Not verified:** not opened in a browser.
+
 ## 2026-11-21 — app / living lectern pip on research line & home keep (bakeoff/gemini-research-line)
 
 - **Components (`packages/app/src/hud/LivingLecternPip.tsx`, `StudyLine.tsx`, `ResearchBar.tsx`, `ScrollPip.tsx`, `BoardLiving.tsx`):**

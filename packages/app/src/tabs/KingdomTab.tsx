@@ -80,6 +80,7 @@ import { SeasonEffectLine } from "../hud/SeasonEffectLine";
 import { DayNightLine } from "../hud/DayNightLine";
 import { WeatherLine } from "../hud/WeatherLine";
 import { PrestigeRankLine } from "../hud/PrestigeRankLine";
+import { AgeStatusLine } from "../hud/AgeStatusLine";
 import "../hud/season-pip.css";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
@@ -245,6 +246,7 @@ export function KingdomTab(props: {
       <CultureStatusLine state={state} />
       <PrestigeLine state={state} act={act} />
       <PrestigeRankLine state={state} threshold={false} />
+      <AgeStatusLine state={state} />
       <StampsStatusLine />
       <DecreesStatusLine state={state} />
       <EventsStatusLine state={state} />
