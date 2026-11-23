@@ -16,6 +16,7 @@ import {
   getUnitType,
   housingCap,
   isProvinceSeen,
+  playerCultureKit,
   playerCultureUnitId,
   setPlayerCulture,
   unitUnlocked,
@@ -257,6 +258,39 @@ describe("cultureStatus: the picker unit", () => {
   });
 });
 
+describe("cultureStatus: the unlocked kits", () => {
+  it("lists exactly the culture units the sim unlocks, own kit first, for all ten", () => {
+    for (const c of CULTURES) {
+      const s = crown(c.id);
+      const st = cultureStatus(s);
+      expect(st.kit).toBe(playerCultureKit(s));
+      const expected = CULTURE_UNITS.filter((g) => unitUnlocked(s, g.unitId)).map((g) => g.unitId);
+      expect(st.kits.map((k) => k.unitId)).toEqual(expected);
+      expect(st.kits).toHaveLength(1);
+      expect(st.kits[0].source).toBe("kit");
+      expect(st.kits[0].unitId).toBe(playerCultureUnitId(s));
+    }
+  });
+
+  it("names the kit and its unit, and leaves locked kits out", () => {
+    expect(cultureStatus(crown("woodland")).kitsText).toBe("Kits: Cedar (buildings, Cedar Stalker)");
+    expect(cultureStatus(crown("mist")).kitsText).toBe("Kits: Western (buildings, Halberdier)");
+    expect(cultureStatus(crown("tide")).kitsText).not.toContain("Iron March");
+  });
+
+  it("adds the Iron March kit once Fortification is studied", () => {
+    const s = crown("desert");
+    s.flags["research_fortification"] = 1;
+    expect(unitUnlocked(s, "ironclad")).toBe(true);
+    const st = cultureStatus(s);
+    expect(st.kits.map((k) => k.unitId)).toEqual(["dune_lancer", "ironclad"]);
+    expect(st.kits[1].source).toBe("study");
+    expect(st.kitsText).toBe(
+      `Kits: Sand (buildings, Dune Lancer) · Iron March (${getUnitType("ironclad")!.name}, ${RESEARCH.fortification.name} study)`,
+    );
+  });
+});
+
 describe("cultureStatus is read-only", () => {
   it("does not change the save", () => {
     for (const c of CULTURES) {
@@ -288,6 +322,18 @@ describe("CultureStatusLine markup", () => {
     expect(html).toContain("sc-culture-status-bonus is-active");
     expect(html).toContain("Special unit: Halberdier (Western halls only, open on the Army tab)");
     expect(html).toContain("Picker unit: Ranger, open to every crown after the Fieldcraft study (not studied yet)");
+    expect(html).toContain('data-culture-kit="western"');
+    expect(html).toContain('data-kits-unlocked="1"');
+    expect(html).toContain('<span class="sc-culture-status-kits">Kits: Western (buildings, Halberdier)</span>');
+  });
+
+  it("tints the kits part when a second kit is unlocked", () => {
+    const s = crown("steppe");
+    s.flags["research_fortification"] = 1;
+    const html = renderToStaticMarkup(<CultureStatusLine state={s} />);
+    expect(html).toContain('data-kits-unlocked="2"');
+    expect(html).toContain("sc-culture-status-kits has-extra");
+    expect(html).toContain("Iron March (");
   });
 
   it("marks a looks-only culture and leaves the picker part out", () => {
@@ -340,6 +386,7 @@ describe("where the line shows", () => {
     expect(html.match(/sc-culture-status-line/g)?.length).toBe(1);
     expect(html).toContain("<strong>Sand Banner</strong>");
     expect(html).toContain("Special unit: Dune Lancer (Sand halls only, open on the Army tab)");
+    expect(html).toContain("Kits: Sand (buildings, Dune Lancer)");
   });
 
   it("shows on the inspect card for an unseen tile too: the culture belongs to the realm, not the tile", () => {
@@ -365,6 +412,7 @@ describe("culture-status-line.css", () => {
       "sc-culture-status-bonus",
       "sc-culture-status-unit",
       "sc-culture-status-paired",
+      "sc-culture-status-kits",
     ]) {
       expect(css).toContain(`.${cls}`);
     }

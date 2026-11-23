@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-22 — Culture line now lists your kits (wave/culture-line, not merged yet)
+
+- **The Culture line** on the Kingdom tab and on the card you get when you click a tile now ends with **Kits**: the culture kits your crown has unlocked.
+- **Every crown starts with one:** its own building kit and the unit it trains (for example `Sand (buildings, Dune Lancer)`).
+- **Finish the Fortification study** and the Iron March kit (the Ironclad) is added, and that part of the line lights up.
+- **Nothing else changed:** cultures give the same bonuses and units as before. The line has no button.
+
 ## 2026-11-22 — Living age seal on age line and home keep (bakeoff/gemini-age-line)
 
 - **Epoch-shifting living age seal:**

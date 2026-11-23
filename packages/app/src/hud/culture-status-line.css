@@ -44,3 +44,13 @@
 .sc-culture-status-paired {
   opacity: 0.8;
 }
+
+/* Unlocked culture kits. A second kit (the Iron March, after Fortification) gets a faint tint. */
+.sc-culture-status-kits {
+  opacity: 0.9;
+}
+
+.sc-culture-status-kits.has-extra {
+  opacity: 1;
+  color: #e9d5ff;
+}

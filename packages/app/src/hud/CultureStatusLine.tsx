@@ -8,6 +8,7 @@ import {
   getUnitType,
   keepVisionCultureBonus,
   playerCultureId,
+  playerCultureKit,
   playerCultureUnitId,
   quarryCultureBonus,
   unitUnlocked,
@@ -39,9 +40,29 @@ export interface CultureStatus {
    * base cultures.
    */
   paired: { id: string; name: string; study: string; open: boolean } | null;
+  /** The sim's `playerCultureKit`: the building kit this crown wears. */
+  kit: string;
+  /**
+   * Every culture kit this crown has unlocked, in the sim's `CULTURE_UNITS` order: its own kit
+   * (always) and the Iron March's, once the Fortification study is done. Locked kits are left out.
+   */
+  kits: { origin: string; unitId: string; unitName: string; source: "kit" | "study"; study: string }[];
   bonusText: string;
   unitText: string;
   pairedText: string;
+  /** "Kits: Western (buildings, Halberdier) · Iron March (Ironclad, Fortification study)". */
+  kitsText: string;
+}
+
+/** The unlocked kits, straight from the sim's gates and `unitUnlocked`. */
+function kitsOf(state: GameState): CultureStatus["kits"] {
+  return CULTURE_UNITS.filter((g) => unitUnlocked(state, g.unitId)).map((g) => ({
+    origin: g.origin,
+    unitId: g.unitId,
+    unitName: getUnitType(g.unitId)?.name ?? g.unitId,
+    source: g.kit ? ("kit" as const) : ("study" as const),
+    study: g.research ? (RESEARCH[g.research]?.name ?? g.research) : "",
+  }));
 }
 
 function finished(state: GameState, typeId: string): number {
@@ -119,12 +140,16 @@ export function cultureStatus(state: GameState): CultureStatus {
       ? { id: pairedId, name: pairedDef.name, study: study.name, open: unitUnlocked(state, pairedId) }
       : null;
 
+  const kits = kitsOf(state);
+
   return {
     id,
     name: def.name,
     bonus,
     unit,
     paired,
+    kit: playerCultureKit(state),
+    kits,
     bonusText: bonus ? `Bonus: ${bonus.text} (${bonus.nowText})` : "Bonus: none, this culture changes looks only",
     unitText: `Special unit: ${unit.name} (${unit.origin} halls only, ${unit.open ? "open on the Army tab" : "locked"})`,
     pairedText: paired
@@ -132,12 +157,15 @@ export function cultureStatus(state: GameState): CultureStatus {
           paired.open ? "studied" : "not studied yet"
         })`
       : "",
+    kitsText: `Kits: ${kits
+      .map((k) => (k.source === "kit" ? `${k.origin} (buildings, ${k.unitName})` : `${k.origin} (${k.unitName}, ${k.study} study)`))
+      .join(" · ")}`,
   };
 }
 
 /**
  * Read-only culture status line for the Kingdom tab and the province inspect card: the current
- * culture, its one bonus, and the unit its halls unlock. It has no button; switching stays on the
+ * culture, its one bonus, the unit its halls unlock, and every culture kit the crown has unlocked. It has no button; switching stays on the
  * Kingdom tab's culture line and the Crown tab's picker.
  */
 export function CultureStatusLine(props: { state: GameState | undefined }) {
@@ -150,6 +178,8 @@ export function CultureStatusLine(props: { state: GameState | undefined }) {
       data-culture-status={c.id}
       data-culture-unit={c.unit.id}
       data-bonus-now={c.bonus ? c.bonus.now : 0}
+      data-culture-kit={c.kit}
+      data-kits-unlocked={c.kits.length}
     >
       <CultureCrestPip cultureId={c.id} size={14} isSelected className="sc-culture-status-icon" />
       <span className="sc-culture-status-text">
@@ -164,7 +194,8 @@ export function CultureStatusLine(props: { state: GameState | undefined }) {
             {" "}
             · <span className="sc-culture-status-paired">{c.pairedText}</span>
           </>
-        ) : null}
+        ) : null}{" "}
+        · <span className={`sc-culture-status-kits${c.kits.length > 1 ? " has-extra" : ""}`}>{c.kitsText}</span>
       </span>
     </div>
   );

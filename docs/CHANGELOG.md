@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-22 — Culture status line shows unlocked kits (wave/culture-line, not merged)
+
+- **Culture line (`CultureStatusLine`):** the existing read-only line on the Kingdom tab (`tabs/KingdomTab.tsx`, under the culture line) and the inspect card (`ProvinceInspect.tsx`) already showed the current culture, its bonus and its special unit. It now ends with every culture kit the crown has unlocked.
+  - **Default:** `Culture · Sand Banner · Bonus: none, this culture changes looks only · Special unit: Dune Lancer (Sand halls only, open on the Army tab) · Kits: Sand (buildings, Dune Lancer)`
+  - **After Fortification:** `... · Kits: Sand (buildings, Dune Lancer) · Iron March (Ironclad, Fortification study)` (tinted).
+- **Where the numbers come from:** the sim's `CULTURE_UNITS` filtered by `unitUnlocked`, plus `playerCultureKit`. Locked kits are left out. No new culture math.
+- **Unchanged:** all culture math, the culture line's switch button, the Crown tab picker. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`; the new styles live in `hud/culture-status-line.css`.
+- **Tests:** `packages/app/src/hud/CultureStatusLine.test.tsx` now 32 tests (+5). `npm test` (sim 362, app 1337, server 158 pass / 1 skipped) and `npm run build -w @second-crown/app` pass.
+
 ## 2026-11-22 — Living age seal on age line and home keep (bakeoff/gemini-age-line)
 
 - **Living age seal (`LivingAgeSeal` & `HomeKeepAgeSeal`):** Created `packages/app/src/hud/LivingAgeSeal.tsx` and `packages/app/src/hud/living-age-seal.css`:

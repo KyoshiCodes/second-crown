@@ -1,3 +1,14 @@
+## 2026-11-22 — app / culture status line: unlocked kits (wave/culture-line, not merged)
+
+- **Component (`packages/app/src/hud/CultureStatusLine.tsx`):** extended, not replaced. A culture status line already existed (culture, bonus, special unit, picker unit) and was already mounted on the Kingdom tab and inspect card, so no mount changes.
+  - `CultureStatus` gains `kit` (the sim's `playerCultureKit`), `kits` (`CULTURE_UNITS` filtered by `unitUnlocked`, in sim order: origin, unit id/name, `source` `"kit" | "study"`, study name), and `kitsText`.
+  - Renders a new `.sc-culture-status-kits` segment at the end of the line, with `has-extra` when more than one kit is unlocked. New attributes `data-culture-kit` and `data-kits-unlocked`.
+  - Today every crown has exactly one kit (its own); the Iron March kit (ironclad) joins after the Fortification study. If the sim adds gates to `CULTURE_UNITS`, they show up here with no app change.
+- **Overlap:** the kits segment repeats the special unit's name. Kept so the kit list reads on its own; drop the unit name from `kitsText` if it feels noisy.
+- **Styling (`packages/app/src/hud/culture-status-line.css`):** two new rules, both prefixed `.sc-culture-status-`. No animation. Zero edits to `theme.css`, `packages/sim`, or `server/`.
+- **Verification:** 5 new tests in `CultureStatusLine.test.tsx` (kit list vs. `unitUnlocked` for all ten cultures, text, Fortification adds Iron March, markup and tint, inspect card). `npm test` (sim 362, app 1337, server 158) and `npm run build -w @second-crown/app` pass.
+- **Not verified:** not opened in a browser.
+
 ## 2026-11-22 — app / living age seal on age line & home keep (bakeoff/gemini-age-line)
 
 - **Components (`packages/app/src/hud/LivingAgeSeal.tsx`, `AgeLine.tsx`, `PrestigeLine.tsx`, `BoardLiving.tsx`):**
