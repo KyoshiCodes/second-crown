@@ -1031,3 +1031,9 @@
     filter: none !important;
   }
 }
+
+/* music reactive layer */
+.sc-shell .sc-music-reactive-layer,
+.sc-shell .sc-music-reactive-layer * {
+  pointer-events: none !important;
+}
