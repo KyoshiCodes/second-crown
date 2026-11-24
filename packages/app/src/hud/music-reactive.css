@@ -1,0 +1,403 @@
+/* --- Subtle Music-Reactive Layer (isolated CSS) ---
+ * Loaded from MusicReactiveLayer.tsx. Never touches theme.css.
+ * Strict pointer-events: none !important on all overlays & pseudo-elements.
+ * Respects html[data-chrome="dusk" | "night" | "parchment"] and
+ * prefers-reduced-motion: reduce.
+ */
+
+/* ==========================================================================
+   1. Base & Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-music-rgb: 204, 174, 114;
+  --sc-music-highlight-rgb: 240, 212, 152;
+  --sc-music-pulse-duration: 6.6s;
+  --sc-music-bg-opacity: 0.08;
+  --sc-music-chrome-opacity: 0.10;
+  --sc-music-strip-opacity: 0.17;
+  --sc-music-card-opacity: 0.20;
+}
+
+:root[data-chrome="night"] {
+  --sc-music-rgb: 144, 174, 210;
+  --sc-music-highlight-rgb: 190, 216, 245;
+  --sc-music-pulse-duration: 6.8s;
+  --sc-music-bg-opacity: 0.08;
+  --sc-music-chrome-opacity: 0.11;
+  --sc-music-strip-opacity: 0.18;
+  --sc-music-card-opacity: 0.21;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-music-rgb: 198, 154, 78;
+  --sc-music-highlight-rgb: 234, 192, 112;
+  --sc-music-pulse-duration: 6.6s;
+  --sc-music-bg-opacity: 0.09;
+  --sc-music-chrome-opacity: 0.11;
+  --sc-music-strip-opacity: 0.18;
+  --sc-music-card-opacity: 0.21;
+}
+
+/* ==========================================================================
+   2. Track Profiles x Chrome Themes
+   ========================================================================== */
+
+/* --- Track: "All We Know" (warmer gold, warmer/richer pulse) --- */
+:root[data-music-track="all-we-know"],
+:root[data-chrome="dusk"][data-music-track="all-we-know"] {
+  --sc-music-rgb: 228, 178, 72;
+  --sc-music-highlight-rgb: 252, 220, 132;
+  --sc-music-pulse-duration: 5.8s;
+  --sc-music-bg-opacity: 0.11;
+  --sc-music-chrome-opacity: 0.14;
+  --sc-music-strip-opacity: 0.24;
+  --sc-music-card-opacity: 0.28;
+}
+
+:root[data-chrome="night"][data-music-track="all-we-know"] {
+  --sc-music-rgb: 214, 170, 86;
+  --sc-music-highlight-rgb: 238, 200, 120;
+  --sc-music-pulse-duration: 5.8s;
+  --sc-music-bg-opacity: 0.09;
+  --sc-music-chrome-opacity: 0.12;
+  --sc-music-strip-opacity: 0.20;
+  --sc-music-card-opacity: 0.24;
+}
+
+:root[data-chrome="parchment"][data-music-track="all-we-know"] {
+  --sc-music-rgb: 212, 148, 44;
+  --sc-music-highlight-rgb: 242, 194, 98;
+  --sc-music-pulse-duration: 5.8s;
+  --sc-music-bg-opacity: 0.12;
+  --sc-music-chrome-opacity: 0.15;
+  --sc-music-strip-opacity: 0.24;
+  --sc-music-card-opacity: 0.28;
+}
+
+/* --- Track: "Holding On" (cooler slate, calmer/cooler pulse) --- */
+:root[data-music-track="holding-on"],
+:root[data-chrome="dusk"][data-music-track="holding-on"] {
+  --sc-music-rgb: 126, 158, 196;
+  --sc-music-highlight-rgb: 176, 202, 228;
+  --sc-music-pulse-duration: 7.2s;
+  --sc-music-bg-opacity: 0.08;
+  --sc-music-chrome-opacity: 0.11;
+  --sc-music-strip-opacity: 0.19;
+  --sc-music-card-opacity: 0.22;
+}
+
+:root[data-chrome="night"][data-music-track="holding-on"] {
+  --sc-music-rgb: 120, 166, 216;
+  --sc-music-highlight-rgb: 176, 212, 244;
+  --sc-music-pulse-duration: 7.2s;
+  --sc-music-bg-opacity: 0.10;
+  --sc-music-chrome-opacity: 0.13;
+  --sc-music-strip-opacity: 0.21;
+  --sc-music-card-opacity: 0.25;
+}
+
+:root[data-chrome="parchment"][data-music-track="holding-on"] {
+  --sc-music-rgb: 116, 142, 168;
+  --sc-music-highlight-rgb: 164, 186, 206;
+  --sc-music-pulse-duration: 7.2s;
+  --sc-music-bg-opacity: 0.08;
+  --sc-music-chrome-opacity: 0.10;
+  --sc-music-strip-opacity: 0.18;
+  --sc-music-card-opacity: 0.21;
+}
+
+/* --- Track: "Ambient" (other playing lofi tracks or Realm bed) --- */
+:root[data-music-track="ambient"],
+:root[data-chrome="dusk"][data-music-track="ambient"] {
+  --sc-music-rgb: 204, 174, 114;
+  --sc-music-highlight-rgb: 240, 212, 152;
+  --sc-music-pulse-duration: 6.6s;
+  --sc-music-bg-opacity: 0.08;
+  --sc-music-chrome-opacity: 0.10;
+  --sc-music-strip-opacity: 0.17;
+  --sc-music-card-opacity: 0.20;
+}
+
+:root[data-chrome="night"][data-music-track="ambient"] {
+  --sc-music-rgb: 144, 174, 210;
+  --sc-music-highlight-rgb: 190, 216, 245;
+  --sc-music-pulse-duration: 6.6s;
+  --sc-music-bg-opacity: 0.08;
+  --sc-music-chrome-opacity: 0.10;
+  --sc-music-strip-opacity: 0.18;
+  --sc-music-card-opacity: 0.21;
+}
+
+:root[data-chrome="parchment"][data-music-track="ambient"] {
+  --sc-music-rgb: 198, 154, 78;
+  --sc-music-highlight-rgb: 234, 192, 112;
+  --sc-music-pulse-duration: 6.6s;
+  --sc-music-bg-opacity: 0.09;
+  --sc-music-chrome-opacity: 0.11;
+  --sc-music-strip-opacity: 0.18;
+  --sc-music-card-opacity: 0.21;
+}
+
+/* ==========================================================================
+   3. Board Background Reactive Veil (.sc-music-reactive-layer)
+   ========================================================================== */
+.sc-music-reactive-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+  overflow: hidden;
+  transition: opacity 420ms ease;
+}
+
+.sc-music-reactive-layer * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-music-reactive-layer.is-idle {
+  opacity: 0;
+}
+
+.sc-music-reactive-layer.is-playing {
+  opacity: 1;
+}
+
+.sc-music-reactive-wash,
+.sc-music-reactive-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none !important;
+}
+
+.sc-music-reactive-layer.is-idle .sc-music-reactive-wash,
+.sc-music-reactive-layer.is-idle .sc-music-reactive-vignette {
+  opacity: 0;
+  animation: none;
+}
+
+.sc-music-reactive-layer.is-playing .sc-music-reactive-wash {
+  opacity: var(--sc-music-bg-opacity);
+  background:
+    radial-gradient(ellipse 92% 62% at 50% 24%, rgba(var(--sc-music-rgb), 0.72) 0%, rgba(var(--sc-music-rgb), 0.18) 54%, transparent 78%),
+    radial-gradient(circle at 82% 84%, rgba(var(--sc-music-highlight-rgb), 0.36) 0%, transparent 56%);
+  animation: sc-music-reactive-bg-pulse var(--sc-music-pulse-duration) ease-in-out infinite;
+}
+
+.sc-music-reactive-layer.is-playing .sc-music-reactive-vignette {
+  opacity: calc(var(--sc-music-bg-opacity) * 0.85);
+  box-shadow:
+    inset 0 0 90px rgba(var(--sc-music-rgb), 0.35),
+    inset 0 1px 0 rgba(var(--sc-music-highlight-rgb), 0.22);
+  animation: sc-music-reactive-bg-pulse var(--sc-music-pulse-duration) ease-in-out infinite;
+}
+
+/* ==========================================================================
+   4. Isometric Board Canvas Frame
+   ========================================================================== */
+html[data-music-reactive="playing"] .sc-map-canvas-container > div::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 9px;
+  pointer-events: none !important;
+  z-index: 2;
+  opacity: var(--sc-music-chrome-opacity);
+  border: 1px solid rgba(var(--sc-music-highlight-rgb), 0.65);
+  background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(var(--sc-music-highlight-rgb), 0.22), transparent 68%);
+  box-shadow:
+    0 0 18px rgba(var(--sc-music-rgb), 0.35),
+    inset 0 0 18px rgba(var(--sc-music-rgb), 0.25);
+  animation: sc-music-reactive-bg-pulse var(--sc-music-pulse-duration) ease-in-out infinite;
+}
+
+/* ==========================================================================
+   5. Top Chrome Bar (.sc-chrome)
+   ========================================================================== */
+html[data-music-reactive="playing"] .sc-chrome::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none !important;
+  z-index: 0;
+  opacity: var(--sc-music-chrome-opacity);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(var(--sc-music-rgb), 0.24) 22%,
+    rgba(var(--sc-music-highlight-rgb), 0.36) 50%,
+    rgba(var(--sc-music-rgb), 0.24) 78%,
+    transparent 100%
+  );
+  border-bottom: 1px solid rgba(var(--sc-music-highlight-rgb), 0.72);
+  box-shadow: 0 2px 14px rgba(var(--sc-music-rgb), 0.32);
+  animation: sc-music-reactive-chrome-pulse var(--sc-music-pulse-duration) ease-in-out infinite;
+}
+
+/* ==========================================================================
+   6. Resource Strip (slightly stronger pulse; ::after only)
+   ========================================================================== */
+html[data-music-reactive="playing"] .sc-resource-bar.sc-ledger {
+  position: relative;
+}
+
+html[data-music-reactive="playing"] .sc-resource-bar.sc-ledger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none !important;
+  z-index: 2;
+  opacity: var(--sc-music-strip-opacity);
+  border: 1px solid rgba(var(--sc-music-highlight-rgb), 0.72);
+  background: linear-gradient(
+    180deg,
+    rgba(var(--sc-music-highlight-rgb), 0.22) 0%,
+    rgba(var(--sc-music-rgb), 0.08) 45%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 14px rgba(var(--sc-music-rgb), 0.38),
+    inset 0 0 12px rgba(var(--sc-music-highlight-rgb), 0.26);
+  animation: sc-music-reactive-strip-pulse var(--sc-music-pulse-duration) ease-in-out infinite;
+}
+
+html[data-music-reactive="playing"] .sc-resource-bar .sc-ledger-cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none !important;
+  z-index: 0;
+  opacity: calc(var(--sc-music-strip-opacity) * 0.78);
+  background: radial-gradient(circle at 88% 12%, rgba(var(--sc-music-highlight-rgb), 0.32) 0%, transparent 62%);
+  animation: sc-music-reactive-strip-pulse var(--sc-music-pulse-duration) ease-in-out infinite;
+}
+
+/* ==========================================================================
+   7. Selected Cards (slightly stronger pulse; leaves tab indicator untouched)
+   ========================================================================== */
+html[data-music-reactive="playing"] .sc-atlas-card.is-selected,
+html[data-music-reactive="playing"] .sc-inspect-card,
+html[data-music-reactive="playing"] .sc-culture-crest.is-selected,
+html[data-music-reactive="playing"] .sc-work-card.is-selected,
+html[data-music-reactive="playing"] .sc-decree-card.is-active,
+html[data-music-reactive="playing"] .sc-ledger-card.is-selected,
+html[data-music-reactive="playing"] .sc-realm-card.is-selected {
+  position: relative;
+}
+
+html[data-music-reactive="playing"] .sc-atlas-card.is-selected::after,
+html[data-music-reactive="playing"] .sc-inspect-card::after,
+html[data-music-reactive="playing"] .sc-culture-crest.is-selected::after,
+html[data-music-reactive="playing"] .sc-work-card.is-selected::after,
+html[data-music-reactive="playing"] .sc-decree-card.is-active::after,
+html[data-music-reactive="playing"] .sc-ledger-card.is-selected::after,
+html[data-music-reactive="playing"] .sc-realm-card.is-selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none !important;
+  z-index: 2;
+  opacity: var(--sc-music-card-opacity);
+  border: 1px solid rgba(var(--sc-music-highlight-rgb), 0.85);
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgba(var(--sc-music-highlight-rgb), 0.24) 0%, transparent 72%),
+    radial-gradient(circle at 100% 100%, rgba(var(--sc-music-rgb), 0.16) 0%, transparent 55%);
+  box-shadow:
+    0 0 16px rgba(var(--sc-music-rgb), 0.44),
+    inset 0 0 14px rgba(var(--sc-music-highlight-rgb), 0.28);
+  animation: sc-music-reactive-card-pulse var(--sc-music-pulse-duration) ease-in-out infinite;
+}
+
+/* ==========================================================================
+   8. Isolated Keyframes
+   ========================================================================== */
+@keyframes sc-music-reactive-bg-pulse {
+  0%, 100% {
+    opacity: calc(var(--sc-music-bg-opacity) * 0.48);
+  }
+  50% {
+    opacity: var(--sc-music-bg-opacity);
+  }
+}
+
+@keyframes sc-music-reactive-chrome-pulse {
+  0%, 100% {
+    opacity: calc(var(--sc-music-chrome-opacity) * 0.5);
+  }
+  50% {
+    opacity: var(--sc-music-chrome-opacity);
+  }
+}
+
+@keyframes sc-music-reactive-strip-pulse {
+  0%, 100% {
+    opacity: calc(var(--sc-music-strip-opacity) * 0.48);
+  }
+  50% {
+    opacity: var(--sc-music-strip-opacity);
+  }
+}
+
+@keyframes sc-music-reactive-card-pulse {
+  0%, 100% {
+    opacity: calc(var(--sc-music-card-opacity) * 0.48);
+  }
+  50% {
+    opacity: var(--sc-music-card-opacity);
+  }
+}
+
+/* ==========================================================================
+   9. Reduced Motion Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-music-reactive-layer,
+  .sc-music-reactive-layer *,
+  html[data-music-reactive="playing"] .sc-map-canvas-container > div::after,
+  html[data-music-reactive="playing"] .sc-chrome::after,
+  html[data-music-reactive="playing"] .sc-resource-bar.sc-ledger::after,
+  html[data-music-reactive="playing"] .sc-resource-bar .sc-ledger-cell::after,
+  html[data-music-reactive="playing"] .sc-atlas-card.is-selected::after,
+  html[data-music-reactive="playing"] .sc-inspect-card::after,
+  html[data-music-reactive="playing"] .sc-culture-crest.is-selected::after,
+  html[data-music-reactive="playing"] .sc-work-card.is-selected::after,
+  html[data-music-reactive="playing"] .sc-decree-card.is-active::after,
+  html[data-music-reactive="playing"] .sc-ledger-card.is-selected::after,
+  html[data-music-reactive="playing"] .sc-realm-card.is-selected::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .sc-music-reactive-layer.is-playing .sc-music-reactive-wash,
+  .sc-music-reactive-layer.is-playing .sc-music-reactive-vignette {
+    opacity: calc(var(--sc-music-bg-opacity) * 0.72);
+  }
+
+  html[data-music-reactive="playing"] .sc-chrome::after,
+  html[data-music-reactive="playing"] .sc-map-canvas-container > div::after {
+    opacity: calc(var(--sc-music-chrome-opacity) * 0.72);
+  }
+
+  html[data-music-reactive="playing"] .sc-resource-bar.sc-ledger::after {
+    opacity: calc(var(--sc-music-strip-opacity) * 0.72);
+  }
+
+  html[data-music-reactive="playing"] .sc-resource-bar .sc-ledger-cell::after {
+    opacity: calc(var(--sc-music-strip-opacity) * 0.56);
+  }
+
+  html[data-music-reactive="playing"] .sc-atlas-card.is-selected::after,
+  html[data-music-reactive="playing"] .sc-inspect-card::after,
+  html[data-music-reactive="playing"] .sc-culture-crest.is-selected::after,
+  html[data-music-reactive="playing"] .sc-work-card.is-selected::after,
+  html[data-music-reactive="playing"] .sc-decree-card.is-active::after,
+  html[data-music-reactive="playing"] .sc-ledger-card.is-selected::after,
+  html[data-music-reactive="playing"] .sc-realm-card.is-selected::after {
+    opacity: calc(var(--sc-music-card-opacity) * 0.72);
+  }
+}
