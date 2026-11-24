@@ -210,7 +210,7 @@
 .sc-shell [class*="-living-glow"],
 .sc-shell [class*="-living-pulse"],
 .sc-shell [class*="-living-drift"] {
-  pointer-events: none !important;
+  .sc-shell .sc-music-reactive-layer,`n.sc-shell .sc-music-reactive-layer *,`n  pointer-events: none !important;
   user-select: none;
 }
 
@@ -264,7 +264,7 @@
 .sc-shell .sc-realm-gift-badge *,
 .sc-shell .sc-season-pip-wrapper *,
 .sc-shell .sc-board-living * {
-  pointer-events: none !important;
+  .sc-shell .sc-music-reactive-layer,`n.sc-shell .sc-music-reactive-layer *,`n  pointer-events: none !important;
 }
 
 /* ==========================================================================
