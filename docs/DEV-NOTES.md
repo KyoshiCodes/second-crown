@@ -1,13 +1,14 @@
-## 2026-11-22 — app / culture status line: unlocked kits (wave/culture-line, not merged)
+## 2026-11-24 — app / living culture banner on culture line & home keep (bakeoff/gemini-culture-line)
 
-- **Component (`packages/app/src/hud/CultureStatusLine.tsx`):** extended, not replaced. A culture status line already existed (culture, bonus, special unit, picker unit) and was already mounted on the Kingdom tab and inspect card, so no mount changes.
-  - `CultureStatus` gains `kit` (the sim's `playerCultureKit`), `kits` (`CULTURE_UNITS` filtered by `unitUnlocked`, in sim order: origin, unit id/name, `source` `"kit" | "study"`, study name), and `kitsText`.
-  - Renders a new `.sc-culture-status-kits` segment at the end of the line, with `has-extra` when more than one kit is unlocked. New attributes `data-culture-kit` and `data-kits-unlocked`.
-  - Today every crown has exactly one kit (its own); the Iron March kit (ironclad) joins after the Fortification study. If the sim adds gates to `CULTURE_UNITS`, they show up here with no app change.
-- **Overlap:** the kits segment repeats the special unit's name. Kept so the kit list reads on its own; drop the unit name from `kitsText` if it feels noisy.
-- **Styling (`packages/app/src/hud/culture-status-line.css`):** two new rules, both prefixed `.sc-culture-status-`. No animation. Zero edits to `theme.css`, `packages/sim`, or `server/`.
-- **Verification:** 5 new tests in `CultureStatusLine.test.tsx` (kit list vs. `unitUnlocked` for all ten cultures, text, Fortification adds Iron March, markup and tint, inspect card). `npm test` (sim 362, app 1337, server 158) and `npm run build -w @second-crown/app` pass.
-- **Not verified:** not opened in a browser.
+- **Components (`packages/app/src/hud/LivingCultureBanner.tsx`, `CultureLine.tsx`, `CultureCrestPip.tsx`, `BoardLiving.tsx`):**
+  - Exported `LivingCultureBanner`, `HomeKeepCultureBanner`, `resolveCultureBannerDescriptor`, `readCultureBannerState`, `type LivingCultureBannerProps`, `type HomeKeepCultureBannerProps`, `type CultureBannerDescriptor`, and `type CultureBannerPattern` from `hud/LivingCultureBanner.tsx`, re-exported from `BoardLiving.tsx`.
+  - Reads `playerCultureId(state)` and `getCulture(id)` from `@second-crown/sim` with defensive guards for partial test states (zero culture rule duplication).
+  - Mounted `<LivingCultureBanner />` inside the `<span>` of `CultureLine.tsx` (preserving `<p>`'s 3-child structure for `CultureLine.test.tsx`), imported `living-culture-banner.css` in `CultureCrestPip.tsx` to animate `.sc-culture-status-line .sc-culture-status-icon`, and mounted `<HomeKeepCultureBanner state={state} />` on `state.board.homeProvinceId` in `BoardLiving.tsx`.
+- **Styling (`packages/app/src/hud/living-culture-banner.css`, `living-glyph-soften.css`):**
+  - Isolated keyframes (`sc-culture-banner-glow`, `sc-culture-banner-flutter`, `sc-culture-banner-shimmer`) with `pointer-events: none !important;`, `user-select: none;`, and `@media (prefers-reduced-motion: reduce)` guards; registered in `living-glyph-soften.css`.
+  - Zero edits to `theme.css`, `packages/sim`, `server/`, `CultureStatusLine.tsx`, `KingdomTab.tsx`, or `ProvinceInspect.tsx`.
+- **Verification (`packages/app/src/hud/LivingCultureBanner.test.tsx`):**
+  - 5 tests covering all 10 culture descriptors/patterns, `LivingCultureBanner`, `CultureLine` integration, `HomeKeepCultureBanner` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-22 — app / living age seal on age line & home keep (bakeoff/gemini-age-line)
 

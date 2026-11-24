@@ -1,13 +1,13 @@
 # CHANGELOG
 
-## 2026-11-22 — Culture status line shows unlocked kits (wave/culture-line, not merged)
+## 2026-11-24 — Living culture banner on culture line and home keep (bakeoff/gemini-culture-line)
 
-- **Culture line (`CultureStatusLine`):** the existing read-only line on the Kingdom tab (`tabs/KingdomTab.tsx`, under the culture line) and the inspect card (`ProvinceInspect.tsx`) already showed the current culture, its bonus and its special unit. It now ends with every culture kit the crown has unlocked.
-  - **Default:** `Culture · Sand Banner · Bonus: none, this culture changes looks only · Special unit: Dune Lancer (Sand halls only, open on the Army tab) · Kits: Sand (buildings, Dune Lancer)`
-  - **After Fortification:** `... · Kits: Sand (buildings, Dune Lancer) · Iron March (Ironclad, Fortification study)` (tinted).
-- **Where the numbers come from:** the sim's `CULTURE_UNITS` filtered by `unitUnlocked`, plus `playerCultureKit`. Locked kits are left out. No new culture math.
-- **Unchanged:** all culture math, the culture line's switch button, the Crown tab picker. Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css`; the new styles live in `hud/culture-status-line.css`.
-- **Tests:** `packages/app/src/hud/CultureStatusLine.test.tsx` now 32 tests (+5). `npm test` (sim 362, app 1337, server 158 pass / 1 skipped) and `npm run build -w @second-crown/app` pass.
+- **Living culture banner (`LivingCultureBanner` & `HomeKeepCultureBanner`):** Created `packages/app/src/hud/LivingCultureBanner.tsx` and `packages/app/src/hud/living-culture-banner.css`:
+  - **Culture-reactive colors & patterns (`resolveCultureBannerDescriptor`, `readCultureBannerState`):** Maps all 10 `CULTURES` (`western`, `woodland`, `desert`, `steppe`, `tide`, `mist`, `glen`, `salt`, `fen`, `peak`) to canonical `palette.tabard` fills, complementary trim/aura colors, and 10 distinct heraldic banner patterns (`chevron`, `pine`, `diamond`, `stripe`, `wave`, `band`, `check`, `saltire`, `reed`, `peak`) with gentle flutter and shimmer animations.
+  - **Culture line (`CultureLine.tsx`, `CultureCrestPip.tsx`):** Mounts `<LivingCultureBanner />` inside the culture line text span next to `Culture ·` (preserving `<button>` indexing in `CultureLine.test.tsx`) and imports `living-culture-banner.css` via `CultureCrestPip.tsx` so `.sc-culture-status-line .sc-culture-status-icon` glows softly too.
+  - **Home keep (`BoardLiving.tsx`):** Mounts `<HomeKeepCultureBanner state={state} />` (`5.14. Living Culture Banner on Home Keep`) flying above the player's home keep on the isometric board.
+- **Invariants & performance:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, or `packages/app/src/theme.css` (and zero edits to `CultureStatusLine.tsx`, `KingdomTab.tsx`, or `ProvinceInspect.tsx`). Strictly `pointer-events: none !important;` and `user-select: none;` on all banner layers, registered in `hud/living-glyph-soften.css` with `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** New test suite `packages/app/src/hud/LivingCultureBanner.test.tsx` (5 tests) verifying all 10 culture patterns/colors, `LivingCultureBanner`, `CultureLine` integration, `HomeKeepCultureBanner` & `BoardLiving` integration, `pointer-events: none`, and CSS isolation.
 
 ## 2026-11-22 — Living age seal on age line and home keep (bakeoff/gemini-age-line)
 

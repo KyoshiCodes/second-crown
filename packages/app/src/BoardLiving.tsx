@@ -100,6 +100,16 @@ import {
   type AgeSealTier,
 } from "./hud/LivingAgeSeal";
 import {
+  HomeKeepCultureBanner,
+  LivingCultureBanner,
+  readCultureBannerState,
+  resolveCultureBannerDescriptor,
+  type HomeKeepCultureBannerProps,
+  type LivingCultureBannerProps,
+  type CultureBannerDescriptor,
+  type CultureBannerPattern,
+} from "./hud/LivingCultureBanner";
+import {
   HomeKeepCrownPip,
   PrestigeCrownPip,
   resolvePrestigeCrownDescriptor,
@@ -947,6 +957,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.13. Living Age Seal on Home Keep */}
         <HomeKeepAgeSeal state={state} />
 
+        {/* 5.14. Living Culture Banner on Home Keep */}
+        <HomeKeepCultureBanner state={state} />
+
         {/* 6. Atmospheric Status Overlay Tether (connects selected tile to status stack) */}
         {selProv && selCoords && anchor && (
           <g className="sc-board-living-status-tether" style={{ pointerEvents: "none" }}>
@@ -1052,4 +1065,12 @@ export {
   type LivingAgeSealProps,
   type AgeSealDescriptor,
   type AgeSealTier,
+  HomeKeepCultureBanner,
+  LivingCultureBanner,
+  readCultureBannerState,
+  resolveCultureBannerDescriptor,
+  type HomeKeepCultureBannerProps,
+  type LivingCultureBannerProps,
+  type CultureBannerDescriptor,
+  type CultureBannerPattern,
 };

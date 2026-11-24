@@ -1,0 +1,98 @@
+/* --- Living Culture Banner (bakeoff/gemini-culture-line) ---
+ * Subtle living banner that shifts colors and patterns with the active culture.
+ * Shown next to the culture line and on the home keep.
+ * Isolated from theme.css; strict pointer-events: none on all layers.
+ */
+
+.sc-living-culture-banner,
+.sc-living-culture-banner *,
+.sc-keep-culture-banner,
+.sc-keep-culture-banner *,
+.sc-culture-status-line .sc-culture-status-icon,
+.sc-culture-status-line .sc-culture-status-icon * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-living-culture-banner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.sc-living-culture-banner .sc-living-culture-banner-aura,
+.sc-keep-culture-banner .sc-keep-culture-banner-aura,
+.sc-culture-status-line .sc-culture-status-icon {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-culture-banner-glow 3.8s ease-in-out infinite;
+}
+
+.sc-culture-status-line .sc-culture-status-icon {
+  animation-duration: 4.2s;
+}
+
+.sc-living-culture-banner .sc-living-culture-banner-cloth,
+.sc-keep-culture-banner .sc-keep-culture-banner-cloth {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: sc-culture-banner-flutter 3.2s ease-in-out infinite;
+}
+
+.sc-living-culture-banner .sc-living-culture-banner-pattern,
+.sc-keep-culture-banner .sc-keep-culture-banner-pattern {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-culture-banner-shimmer 3.6s ease-in-out infinite;
+}
+
+@keyframes sc-culture-banner-glow {
+  0%,
+  100% {
+    opacity: 0.56;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.98;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes sc-culture-banner-flutter {
+  0%,
+  100% {
+    transform: skewY(0deg) scaleX(0.98);
+    filter: brightness(0.98);
+  }
+  50% {
+    transform: skewY(-2.4deg) scaleX(1.04);
+    filter: brightness(1.1);
+  }
+}
+
+@keyframes sc-culture-banner-shimmer {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-living-culture-banner .sc-living-culture-banner-aura,
+  .sc-living-culture-banner .sc-living-culture-banner-cloth,
+  .sc-living-culture-banner .sc-living-culture-banner-pattern,
+  .sc-keep-culture-banner .sc-keep-culture-banner-aura,
+  .sc-keep-culture-banner .sc-keep-culture-banner-cloth,
+  .sc-keep-culture-banner .sc-keep-culture-banner-pattern,
+  .sc-culture-status-line .sc-culture-status-icon {
+    animation: none !important;
+  }
+}

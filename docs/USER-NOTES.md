@@ -2,12 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
-## 2026-11-22 — Culture line now lists your kits (wave/culture-line, not merged yet)
+## 2026-11-24 — Living culture banner on culture line and home keep (bakeoff/gemini-culture-line)
 
-- **The Culture line** on the Kingdom tab and on the card you get when you click a tile now ends with **Kits**: the culture kits your crown has unlocked.
-- **Every crown starts with one:** its own building kit and the unit it trains (for example `Sand (buildings, Dune Lancer)`).
-- **Finish the Fortification study** and the Iron March kit (the Ironclad) is added, and that part of the line lights up.
-- **Nothing else changed:** cultures give the same bonuses and units as before. The line has no button.
+- **Fluttering culture banner with realm patterns:**
+  - **Culture line:** A small fluttering swallowtail banner now sits beside your Culture line on the Kingdom tab, shifting both its cloth colors and heraldic pattern (`chevron`, `pine`, `diamond`, `stripe`, `wave`, `band`, `check`, `saltire`, `reed`, `peak`) whenever you switch between any of the 10 cultures.
+  - **Home keep banner:** Your home keep on the isometric board flies a matching miniature culture banner above its spire that updates immediately with your active culture.
+- **Zero gameplay impact:** The culture banner is purely decorative (`pointer-events: none !important;`), respects reduced-motion settings, and never blocks clicks.
 
 ## 2026-11-22 — Living age seal on age line and home keep (bakeoff/gemini-age-line)
 

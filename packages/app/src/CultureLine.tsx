@@ -3,6 +3,7 @@ import { CULTURES, getCulture, playerCultureId, setPlayerCulture, type GameState
 import type { ActFn } from "./game/useGameEngine";
 import { rememberCulture } from "./CulturePicker";
 import { CultureCrestPip } from "./hud/CultureCrestPip";
+import { LivingCultureBanner } from "./hud/LivingCultureBanner";
 import "./culture-line.css";
 
 /** The culture after the current one in table order, wrapping. Read-only; no new rules. */
@@ -23,6 +24,7 @@ export function CultureLine(props: { state: GameState | undefined; act: ActFn })
     <p className="sc-culture-line-row" data-culture={current.id}>
       <CultureCrestPip cultureId={current.id} size={16} isSelected />
       <span>
+        <LivingCultureBanner cultureId={current.id} size={16} style={{ marginRight: 5 }} />
         Culture · <strong>{current.name}</strong> · next {next.name}.
       </span>
       <button

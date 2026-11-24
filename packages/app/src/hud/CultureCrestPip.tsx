@@ -1,6 +1,7 @@
 import React from "react";
 import { getCulture, getProvince, playerCultureId, type GameState } from "@second-crown/sim";
 import "./culture-crest-pip.css";
+import "./living-culture-banner.css";
 
 export interface CultureCrestPipProps {
   /** The culture identifier (e.g. "western", "woodland", "desert", "steppe", "tide", "mist", "glen", "salt", "fen", "peak") */
