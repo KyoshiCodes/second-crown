@@ -29,6 +29,8 @@ import {
 } from "./hud/AcademyLivingGlyph";
 import { ResearchInkPip } from "./hud/ResearchInkPip";
 import { ResearchCostRow, studyCostParts } from "./ResearchCost";
+import { StudyProjection } from "./CostProjection";
+import { realmRates, type RealmRates } from "./projection";
 import {
   StudyLeadsLine,
   StudyNeedsRow,
@@ -59,8 +61,11 @@ function Row(props: {
   academyFast: boolean;
   /** Name of another study already on the lectern (display only). */
   busyWith?: string;
+  /** Net income, stores and caps for the projection line; read once per lectern. */
+  rates?: RealmRates;
 }) {
   const { state, act, id, academyFast, busyWith } = props;
+  const rates = props.rates ?? realmRates(state);
   const def = RESEARCH[id];
   const done = researchDone(state, id);
   const left = researchTicksLeft(state, id);
@@ -200,6 +205,7 @@ function Row(props: {
       ) : null}
       <StudyNeedsRow needs={needs} />
       <ResearchCostRow status={status} parts={studyCostParts(def.cost, state.resources)} busyWith={busyWith} />
+      <StudyProjection cost={def.cost} rates={rates} paid={status === "known" || status === "studying"} />
       {done || left > 0 ? null : (
         <button
           type="button"
@@ -231,6 +237,7 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
   const known = ids.filter((id) => researchDone(state, id)).map((id) => RESEARCH[id].name);
   const academy = countBuilding(state, "academy");
   const summary = summarizeActiveStudy(state);
+  const rates = realmRates(state);
   return (
     <div
       className="sc-realm-card sc-research-lectern"
@@ -287,6 +294,7 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
                   id={id}
                   academyFast={academy >= 1}
                   busyWith={open && open !== id ? RESEARCH[open].name : undefined}
+                  rates={rates}
                 />
               ))}
             </div>

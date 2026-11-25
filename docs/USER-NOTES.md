@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — See how long a study will take to afford
+
+- **Study cards:** expensive studies now say how much production they cost at your current income, e.g. "about 2h of stone production. Ready in about 1h 40m; stone is the limiter." If a store has no income, or the cost is bigger than your warehouse can hold, the card says so.
+- **Kingdom tab:** under the Pace line, a small **Limiter** note names the store holding back your next study and your next Keep level, and roughly how long until you can pay. It disappears when your stores already cover both.
+- Food income here is after your army eats. Nothing about costs or production changed; this is information only.
+
 ## 2026-11-25 — Subtle elite troop glow & clearer multi-day pulse
 
 - **Tier IV and Tier V unit cards:** Unlocked Tier IV (gold) and Tier V (imperial crimson-gold) troop cards now wear a quiet border glow and soft corner sheen so top-tier units feel distinct without cluttering the card.

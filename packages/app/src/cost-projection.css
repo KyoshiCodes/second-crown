@@ -1,0 +1,16 @@
+.sc-cost-projection {
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+  opacity: 0.85;
+}
+.sc-cost-projection.tone-calm { color: #8b949e; }
+.sc-cost-projection.tone-wait { color: #d29922; }
+.sc-cost-projection.tone-stuck { color: #f0883e; }
+
+.sc-bottleneck-line {
+  margin: 2px 0 6px;
+  font-size: 12px;
+  color: #d29922;
+}
+.sc-bottleneck-line.is-stuck { color: #f0883e; }

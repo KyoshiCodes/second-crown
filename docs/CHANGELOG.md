@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Cost projections & limiter note (read-only)
+
+- **Study card projection (`CostProjection.tsx` `StudyProjection`, wired in `ResearchBar.tsx`):** under the cost row of unpaid studies, one line comparing the cost with net income: seconds of production for the slowest store, time until stores cover it, and the limiter. Shown only when the cost is ≥ `PROJECTION_MIN_SECONDS` (300s) of income, a needed store has no income, or the cost exceeds `storageCap`.
+- **Limiter line (`BottleneckLine`, under `PaceLine` in `tabs/KingdomTab.tsx`):** names the limiting store for the next study (`nextResearch`) and the next Keep level (`upgradeCost` on the keep), with time to afford. Hidden when stores already cover both.
+- **Helper (`packages/app/src/projection.ts`):** pure `projectCost` / `projectionWorthShowing`; `realmRates` reads `computeIncomePerSecond`, `upkeepPerTick` (food only) and `storageCap`. No `packages/sim` change.
+- **Tests:** `projection.test.tsx` (9). Now: sim **374**, app **1499**, server **158** (+1 Windows skip), app build clean.
+
 ## 2026-11-25 — Quiet elite unit tier glow & clearer multi-day badge pulse
 
 - **Tier IV & Tier V unit card accents (`horizon/horizon.ts`, `hud/UnitCard.tsx`, `horizon/horizon-elite-tier.css`):** Added `isEliteUnitTier` (`tier >= 4`) and a non-blocking `<span class="sc-unit-elite-rim">` (`pointer-events: none !important;`) on Tier IV (`is-tier-4`, royal-gold gentle border pulse) and Tier V (`is-tier-5`, imperial crimson-gold border/rim pulse) unit cards. Locked elite cards show a faint static border tint with no pulse; Tiers I–III stay unchanged.

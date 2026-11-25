@@ -1,3 +1,11 @@
+## 2026-11-25 — app / cost projections & limiter note
+
+- **`packages/app/src/projection.ts`:** `RealmRates { rate, have, cap }`; `projectCost(cost, rates)` returns per-resource `short`, `productionSeconds = need/rate`, `waitSeconds = short/rate` (Infinity when rate ≤ 0 or `need > cap`), `overCap`, plus the overall max and a `limiter` (ranked: over cap > no income > longest wait > longest production; table order breaks ties). `projectionWorthShowing` gates on `PROJECTION_MIN_SECONDS = 300`, no-income shortfall, or over cap. `realmRates(state)` = `computeIncomePerSecond` with `upkeepPerTick × TICKS_PER_SECOND` subtracted from food, stores from `state.resources`, caps from `storageCap`.
+- **`CostProjection.tsx`:** `projectionText`, `StudyProjection` (hidden for known/studying), `bottlenecks(state)` (next study via `ResearchHint.nextResearch`, next Keep level via `upgradeCost` unless an upgrade job is running), `BottleneckLine`. CSS in `cost-projection.css`.
+- **Wiring:** `ResearchBar` computes `realmRates` once and passes `rates` to each `Row` (falls back to computing its own when `ResearchCard` is used alone). `KingdomTab` renders `<BottleneckLine>` right after `<PaceLine>`.
+- **Limits:** income is the instantaneous rate; it ignores staffing changes, season swings, tithe timing and market trades. Only food has upkeep subtracted. No `packages/sim`, `packages/render` or `server/` change.
+- **Verification:** `projection.test.tsx` 9 tests; `npm test` → sim 374, app 1499, server 158 (+1 Windows skip); app build clean.
+
 ## 2026-11-25 — app / quiet elite unit tier glow & multi-day badge pulse
 
 - **Helpers & components (`packages/app/src/horizon/horizon.ts`, `hud/UnitCard.tsx`, `horizon/LongProjectBadge.tsx`):**
