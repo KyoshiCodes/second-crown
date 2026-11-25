@@ -1,3 +1,11 @@
+## 2026-11-25 — sim / catch-up boundaries and study cancel refunds
+
+- **Why:** Codex audit at `572164f`. `settleTicks` batches at the rate read at the batch's first tick; only building completions, upgrades, and the 100-tick rival pulse split a stretch. A study finish or decree expiry mid-stretch was missed (Keep III fixture: Crop Rotation 463.125 live vs 405 catch-up; Harvest Rite the other way).
+- **Fix:** `systems/timedEffects.ts` `TimedEffectsSystem` (first in `SYSTEMS`): `nextEventTick` = earliest unfinished `research_<id>_until` or `decree_<id>_until` after now; `processEventsAt` calls `researchDone` for every study with an `_until` (latches `research_<id>` = 1, which `storageCap`'s Logistics bonus reads); `advanceAnalytic` is a no-op because batches stop one tick short. Runs in live `tick()` too, so both paths latch the same flags. Seasons change on multiples of 2000, already split by the rival pulse.
+- **Refund:** `research_<id>_paid` (object, like `upgrades_json` jobs' `paid`) is set at start and deleted on cancel. `researchPaid(state, id)` → `{ paid, total }`: snapshot if present; else `_total` missing or equal to `PRE_PACING[id].ticks` / `ceil(ticks × 0.8)` → pre-pacing cost (the sets do not overlap with current lengths); else current `RESEARCH` cost. No save migration; nothing rewrites `_until`/`_total`.
+- **Tests:** `settleMatch.test.ts` "catch-up splits where income changes mid-stretch" (crop rotation, Harvest Rite, Keep upgrade, Logistics cap with full stores, all combined); crop rotation, Harvest Rite and Logistics fail without `TimedEffectsSystem` in `SYSTEMS`. `research.test.ts` "cancel refunds what was paid, not today's price" (6).
+- **Verification:** `npm test` → sim 390, app 1516, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean.
+
 ## 2026-11-25 — app / living mid & late income bracket accents
 
 - **Helpers & wiring (`packages/app/src/hud/incomeBracket.ts`, `ResourceHud.tsx`):**

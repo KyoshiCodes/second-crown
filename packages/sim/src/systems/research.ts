@@ -181,6 +181,48 @@ export const RESEARCH = {
 
 export type ResearchId = keyof typeof RESEARCH;
 
+/**
+ * The table before pacing pass 1 (ad830a9). Studies started then carry no paid-cost
+ * snapshot; their stored length (base or Academy 80%) or a missing length marks them.
+ */
+const PRE_PACING: Record<ResearchId, { ticks: number; cost: Record<string, string> }> = {
+  husbandry: { ticks: 180, cost: { food: "20", wood: "12" } },
+  forestry: { ticks: 180, cost: { wood: "20", food: "10" } },
+  masonry: { ticks: 200, cost: { stone: "16", wood: "12" } },
+  logistics: { ticks: 220, cost: { gold: "30", wood: "16", food: "12" } },
+  surveying: { ticks: 200, cost: { gold: "24", wood: "16" } },
+  fieldcraft: { ticks: 180, cost: { food: "20", wood: "12" } },
+  drill: { ticks: 180, cost: { food: "20", wood: "12" } },
+  screening: { ticks: 180, cost: { food: "20", wood: "12" } },
+  horse: { ticks: 240, cost: { gold: "40", wood: "24" } },
+  siege: { ticks: 360, cost: { gold: "70", wood: "40", stone: "30" } },
+  crop_rotation: { ticks: 280, cost: { food: "60", wood: "30", gold: "20" } },
+  timber_framing: { ticks: 280, cost: { wood: "60", food: "30", gold: "20" } },
+  fortification: { ticks: 320, cost: { stone: "70", wood: "40", gold: "30" } },
+  supply_trains: { ticks: 340, cost: { gold: "60", wood: "50", food: "40" } },
+  cartography: { ticks: 300, cost: { gold: "50", wood: "30" } },
+  quartermastery: { ticks: 300, cost: { food: "50", gold: "45", wood: "30" } },
+};
+
+/**
+ * What the player paid for an in-flight study, and the length it was started with.
+ * New studies store both. An older save falls back to the table it was started under.
+ */
+export function researchPaid(state: GameState, id: ResearchId): { paid: Record<string, string>; total: number } {
+  const def = RESEARCH[id];
+  const storedTotal = Number(state.flags[`research_${id}_total`] ?? 0);
+  const stored = state.flags[`research_${id}_paid`];
+  if (stored && typeof stored === "object" && !Array.isArray(stored)) {
+    return { paid: { ...(stored as Record<string, string>) }, total: storedTotal || def.ticks };
+  }
+  const old = PRE_PACING[id];
+  if (storedTotal === 0) return { paid: { ...old.cost }, total: old.ticks };
+  if (storedTotal === old.ticks || storedTotal === Math.ceil(old.ticks * 0.8)) {
+    return { paid: { ...old.cost }, total: storedTotal };
+  }
+  return { paid: { ...def.cost }, total: storedTotal };
+}
+
 /** The tier I study a tier II study builds on, or null for a tier I study. */
 export function researchRequires(id: string): ResearchId | null {
   const def = RESEARCH[id as ResearchId] as { requires?: ResearchId } | undefined;
@@ -315,24 +357,26 @@ export function tryStartResearch(state: GameState, id: ResearchId): boolean {
   const duration = researchDuration(state, id);
   state.flags[`research_${id}_until`] = state.meta.tick + duration;
   state.flags[`research_${id}_total`] = duration;
+  state.flags[`research_${id}_paid`] = { ...def.cost };
   state.inputLog.push({ tick: state.meta.tick, type: "research", issuerId: "player", payload: { id } });
   return true;
 }
 
-/** Refunds the unused fraction of the study cost and frees the lectern. */
+/** Refunds the unused fraction of what was paid at start (not today's price) and frees the lectern. */
 export function tryCancelResearch(state: GameState, id: ResearchId): boolean {
   const def = RESEARCH[id];
   if (!def) return false;
   if (researchDone(state, id)) return false;
   const left = researchTicksLeft(state, id);
   if (left <= 0) return false;
-  const total = Number(state.flags[`research_${id}_total`] ?? def.ticks);
-  const frac = left / total;
-  for (const [res, cost] of Object.entries(def.cost)) {
+  const { paid, total } = researchPaid(state, id);
+  const frac = total > 0 ? Math.min(1, left / total) : 0;
+  for (const [res, cost] of Object.entries(paid)) {
     addCapped(state, res, D(cost).mul(frac));
   }
   delete state.flags[`research_${id}_until`];
   delete state.flags[`research_${id}_total`];
+  delete state.flags[`research_${id}_paid`];
   state.inputLog.push({ tick: state.meta.tick, type: "cancel_research", issuerId: "player", payload: { id } });
   return true;
 }

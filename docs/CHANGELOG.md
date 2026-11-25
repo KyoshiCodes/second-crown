@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Sim fix: offline catch-up boundaries and study cancel refunds
+
+- **Catch-up boundaries (`systems/timedEffects.ts`, `core/tickEngine.ts`):** new `TimedEffectsSystem` reports the next study finish (`research_<id>_until`) and decree expiry (`decree_<id>_until`) as event ticks, so `settleTicks` never batches across a change in yield, Harvest Rite bonus, or Logistics/Supply-trains warehouse space. Its `processEventsAt` latches finished studies so flag readers (`storageCap`) agree.
+- **Study refunds (`systems/research.ts`):** `tryStartResearch` snapshots `research_<id>_paid`; `tryCancelResearch` refunds `paid × left/total` (clamped to 1) via new exported `researchPaid`. Old saves without a snapshot: stored length equal to the pre-pacing base or Academy length, or no length at all → pre-pacing table (`PRE_PACING`, from before `ad830a9`); any other length → current table. `_until`/`_total` are never rewritten.
+- **Unchanged:** combat, pacing tables, costs, durations.
+- **Tests:** `core/settleMatch.test.ts` +5, `systems/research.test.ts` +6. Now: sim **390**, app **1516**, server **158** (+1 Windows skip), app build clean.
+
 ## 2026-11-25 — Living mid & late income bracket accents on stores strip
 
 - **Income bracket classification (`hud/incomeBracket.ts`, `hud/ResourceHud.tsx`):** Added `resolveIncomeBracket` (`BASE_INCOME_PER_SECOND = 10`, `INCOME_MID_MULT = 3` → `30/s`, `INCOME_LATE_MULT = 15` → `150/s`) and `incomeBracketLabel` (`"Mid income (3×+ base)"` / `"Late income (15×+ base)"`) on store cells and rate lines.

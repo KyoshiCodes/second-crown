@@ -19,6 +19,7 @@ import {
   supplyTrainsColumnBonus,
   quartermasteryTrainMult,
   RESEARCH,
+  researchPaid,
 } from "./research.js";
 import { tryTrain, trainCostMultiplier } from "../actions/train.js";
 import { scoutCost } from "./fog.js";
@@ -407,5 +408,73 @@ describe("academy research", () => {
       expect(quartermasteryTrainMult(s)).toBe(0.92);
       expect(trainCostMultiplier(s, "militia")).toBeCloseTo(before * 0.92);
     });
+  });
+});
+
+describe("cancel refunds what was paid, not today's price", () => {
+  /** An in-flight Husbandry study as an older save holds it: finish tick and length, no paid snapshot. */
+  function inFlight(total: number | null, until: number) {
+    const s = createGameState({ seed: 1 });
+    for (const res of ["food", "wood", "stone", "gold"]) s.resources[res] = "0";
+    s.flags.research_husbandry_until = until;
+    if (total !== null) s.flags.research_husbandry_total = total;
+    return s;
+  }
+
+  it("a new study snapshots its cost and cancel refunds from the snapshot", () => {
+    const s = createGameState({ seed: 1, withStarterBuildings: true });
+    s.resources.food = "80";
+    s.resources.wood = "48";
+    expect(tryStartResearch(s, "husbandry")).toBe(true);
+    expect(s.flags.research_husbandry_paid).toEqual({ food: "80", wood: "48" });
+    // Stand in for a later price change: the refund follows the snapshot, not RESEARCH.
+    s.flags.research_husbandry_paid = { food: "40", wood: "20" };
+    s.meta.tick = 1_500; // halfway through 3_000
+    expect(tryCancelResearch(s, "husbandry")).toBe(true);
+    expect(D(s.resources.food).toNumber()).toBe(20);
+    expect(D(s.resources.wood).toNumber()).toBe(10);
+    expect(s.flags.research_husbandry_paid).toBeUndefined();
+    expect(s.flags.research_husbandry_until).toBeUndefined();
+  });
+
+  it("a pre-pacing study (20 food / 12 wood, 180 ticks) refunds half of 20/12, not 40/24", () => {
+    const s = inFlight(180, 90);
+    expect(tryCancelResearch(s, "husbandry")).toBe(true);
+    expect(D(s.resources.food).toNumber()).toBe(10);
+    expect(D(s.resources.wood).toNumber()).toBe(6);
+  });
+
+  it("a pre-pacing study under an Academy (144 ticks) is still read as the old price", () => {
+    const s = inFlight(144, 72);
+    expect(researchPaid(s, "husbandry")).toEqual({ paid: { food: "20", wood: "12" }, total: 144 });
+    expect(tryCancelResearch(s, "husbandry")).toBe(true);
+    expect(D(s.resources.food).toNumber()).toBe(10);
+    expect(D(s.resources.wood).toNumber()).toBe(6);
+  });
+
+  it("a study with no stored length predates the Academy rule and uses the old table", () => {
+    const s = inFlight(null, 45);
+    expect(researchPaid(s, "husbandry")).toEqual({ paid: { food: "20", wood: "12" }, total: 180 });
+    expect(tryCancelResearch(s, "husbandry")).toBe(true);
+    expect(D(s.resources.food).toNumber()).toBe(5);
+    expect(D(s.resources.wood).toNumber()).toBe(3);
+  });
+
+  it("a post-pacing study without a snapshot (3_000 ticks) refunds the current table", () => {
+    const s = inFlight(3_000, 750);
+    expect(researchPaid(s, "husbandry").paid).toEqual({ food: "80", wood: "48" });
+    expect(tryCancelResearch(s, "husbandry")).toBe(true);
+    expect(D(s.resources.food).toNumber()).toBe(20);
+    expect(D(s.resources.wood).toNumber()).toBe(12);
+  });
+
+  it("reading the paid cost leaves the finish tick and length alone, and the study still finishes", () => {
+    const s = inFlight(180, 90);
+    researchPaid(s, "husbandry");
+    expect(s.flags.research_husbandry_until).toBe(90);
+    expect(s.flags.research_husbandry_total).toBe(180);
+    expect(s.flags.research_husbandry_paid).toBeUndefined();
+    s.meta.tick = 90;
+    expect(researchDone(s, "husbandry")).toBe(true);
   });
 });

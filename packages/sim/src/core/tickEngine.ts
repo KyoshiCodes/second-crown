@@ -12,6 +12,7 @@ import { NodeStockSystem } from "../systems/nodeStock.js";
 import { WardSystem } from "../systems/ward.js";
 import { UpgradeSystem } from "../actions/upgrade.js";
 import { ColumnVisionSystem } from "../systems/columnVision.js";
+import { TimedEffectsSystem } from "../systems/timedEffects.js";
 import { economyGain } from "../systems/economy.js";
 import { storageCap } from "../systems/storage.js";
 import { upkeepPerTick } from "../systems/upkeep.js";
@@ -22,7 +23,7 @@ const STORES = ["food", "wood", "stone", "gold"] as const;
 /** Fine ticks a store must hold still before a batch may pin it. Rates are flat within a stretch, so one is enough. */
 const STEADY_TICKS = 1;
 
-const SYSTEMS = [EconomySystem, RivalSystem, EventSystem, MarchSystem, UpkeepSystem, GatherSystem, TrainingSystem, NodeStockSystem, WardSystem, UpgradeSystem, ColumnVisionSystem];
+const SYSTEMS = [TimedEffectsSystem, EconomySystem, RivalSystem, EventSystem, MarchSystem, UpkeepSystem, GatherSystem, TrainingSystem, NodeStockSystem, WardSystem, UpgradeSystem, ColumnVisionSystem];
 
 export class TickEngine {
   readonly rng: RngStreams;

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Fixes: offline income and study refunds
+
+- **Offline income now matches playing live.** If a study finished or a decree ran out while you were away, the catch-up used to pay the wrong rate for the rest of that stretch (too little after Crop Rotation, too much after Harvest Rite). It now switches at the exact moment, like live play.
+- **Cancelling a study refunds what you actually paid.** Studies started before the pacing change used to refund at the new, higher price. Now you get back the unused share of what you paid. Studies already running keep their finish time.
+
 ## 2026-11-25 — Quiet mid & late income cues on stores
 
 - **Scaled income glow & pip:** When a store's income scales into the **Mid** (`3×+` base, `30/s+`) or **Late** (`15×+` base, `150/s+`) production brackets, a soft glow appears along the bottom of its store card alongside a small living pip next to its `+rate/s` readout (sage-teal for Mid, warm gold for Late).

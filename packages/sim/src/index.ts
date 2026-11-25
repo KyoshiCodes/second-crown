@@ -96,6 +96,7 @@ export {
   researchRequires,
   researchTier,
   researchPrereqReady,
+  researchPaid,
 } from "./systems/research.js";
 export type { ResearchId } from "./systems/research.js";
 
