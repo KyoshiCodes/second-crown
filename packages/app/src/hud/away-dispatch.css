@@ -1,0 +1,259 @@
+/* --- Return Briefing Living Dispatch Styles (isolated CSS) ---
+ * Loaded from hud/AwaySummary.tsx and hud/AwayReturnSeal.tsx.
+ * Leaves theme.css and hud/away-summary.css untouched.
+ * Strict pointer-events: none !important on sheen overlay and seal geometry.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-away-surface-top: rgba(34, 28, 22, 0.92);
+  --sc-away-surface-bottom: rgba(20, 16, 13, 0.95);
+  --sc-away-accent-rgb: 218, 178, 98;
+  --sc-away-seal-rgb: 204, 128, 72;
+  --sc-away-ink: #f3e8d2;
+  --sc-away-muted: #c4ae86;
+}
+
+:root[data-chrome="night"] {
+  --sc-away-surface-top: rgba(20, 26, 38, 0.92);
+  --sc-away-surface-bottom: rgba(12, 16, 24, 0.95);
+  --sc-away-accent-rgb: 146, 182, 224;
+  --sc-away-seal-rgb: 162, 194, 232;
+  --sc-away-ink: #e2e8f0;
+  --sc-away-muted: #9bb0ca;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-away-surface-top: rgba(44, 31, 18, 0.92);
+  --sc-away-surface-bottom: rgba(34, 24, 14, 0.95);
+  --sc-away-accent-rgb: 224, 176, 92;
+  --sc-away-seal-rgb: 212, 112, 76;
+  --sc-away-ink: #f5e6c8;
+  --sc-away-muted: #d6b884;
+}
+
+/* ==========================================================================
+   2. Short Dispatch Presentation (distinct from Fold primer & chat)
+   ========================================================================== */
+.sc-away.sc-away-dispatch {
+  position: relative;
+  overflow: hidden;
+  margin: 6px 0 10px;
+  padding: 9px 12px 10px;
+  border: 1px solid rgba(var(--sc-away-accent-rgb), 0.34);
+  border-left: 3px solid rgba(var(--sc-away-seal-rgb), 0.78);
+  border-radius: 7px;
+  background: linear-gradient(165deg, var(--sc-away-surface-top), var(--sc-away-surface-bottom));
+  color: var(--sc-away-ink);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--sc-away-accent-rgb), 0.14),
+    0 6px 18px rgba(0, 0, 0, 0.28);
+  animation: sc-away-dispatch-enter 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sc-away-dispatch-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+  background:
+    radial-gradient(ellipse 60% 70% at 6% 12%, rgba(var(--sc-away-seal-rgb), 0.12), transparent 65%),
+    radial-gradient(ellipse 45% 55% at 94% 0%, rgba(var(--sc-away-accent-rgb), 0.08), transparent 62%);
+}
+
+.sc-away-dispatch .sc-away-head,
+.sc-away-dispatch .sc-away-row {
+  position: relative;
+  z-index: 1;
+}
+
+.sc-away-dispatch .sc-away-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding-bottom: 5px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(var(--sc-away-accent-rgb), 0.16);
+  color: rgb(var(--sc-away-accent-rgb));
+}
+
+.sc-away-dispatch-kicker {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(var(--sc-away-seal-rgb), 0.42);
+  background: rgba(var(--sc-away-seal-rgb), 0.14);
+  color: rgb(var(--sc-away-seal-rgb));
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 15px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-away-dispatch .sc-away-elapsed {
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--sc-away-accent-rgb), 0.24);
+  background: rgba(var(--sc-away-accent-rgb), 0.08);
+  color: var(--sc-away-muted);
+  font-size: 11px;
+  line-height: 16px;
+  opacity: 0.95;
+}
+
+.sc-away-dispatch .sc-away-close {
+  color: var(--sc-away-muted);
+  opacity: 0.8;
+  transition: color 160ms ease, opacity 160ms ease;
+}
+
+.sc-away-dispatch .sc-away-close:hover {
+  color: var(--sc-away-ink);
+  opacity: 1;
+}
+
+.sc-away-dispatch .sc-away-close:focus-visible {
+  outline: 2px solid rgba(var(--sc-away-accent-rgb), 0.78);
+  outline-offset: 1px;
+}
+
+.sc-away-dispatch .sc-away-row {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--sc-away-ink);
+}
+
+.sc-away-dispatch .sc-away-label {
+  min-width: 60px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--sc-away-muted);
+  opacity: 0.92;
+}
+
+.sc-away-dispatch .sc-away-next {
+  margin-top: 6px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border-left: 2px solid rgba(var(--sc-away-accent-rgb), 0.56);
+  background: rgba(var(--sc-away-accent-rgb), 0.09);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   3. Living Time-Passed Return Seal
+   ========================================================================== */
+.sc-away-seal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: rgb(var(--sc-away-seal-rgb));
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-away-seal-ring {
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--sc-away-seal-rgb), 0.48);
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-away-seal-pulse 5.2s ease-out infinite;
+}
+
+.sc-away-seal-svg {
+  width: 18px;
+  height: 18px;
+  position: relative;
+  z-index: 1;
+  pointer-events: none !important;
+  filter: drop-shadow(0 0 3px rgba(var(--sc-away-seal-rgb), 0.3));
+}
+
+.sc-away-seal-grain {
+  animation: sc-away-grain-breathe 3.6s ease-in-out infinite;
+}
+
+.sc-away-seal.is-hours .sc-away-seal-ring {
+  animation-duration: 4.4s;
+}
+
+.sc-away-seal.is-days {
+  color: rgb(var(--sc-away-accent-rgb));
+}
+
+.sc-away-seal.is-days .sc-away-seal-ring {
+  border-color: rgba(var(--sc-away-accent-rgb), 0.62);
+  animation-duration: 3.8s;
+}
+
+.sc-away-seal.is-days .sc-away-seal-svg {
+  filter: drop-shadow(0 0 5px rgba(var(--sc-away-accent-rgb), 0.42));
+}
+
+@keyframes sc-away-dispatch-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sc-away-seal-pulse {
+  0% {
+    opacity: 0.66;
+    transform: scale(0.92);
+  }
+  70%, 100% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
+}
+
+@keyframes sc-away-grain-breathe {
+  0%, 100% {
+    opacity: 0.56;
+    transform: translateY(-0.3px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0.4px);
+  }
+}
+
+/* ==========================================================================
+   4. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-away.sc-away-dispatch,
+  .sc-away-dispatch .sc-away-close,
+  .sc-away-seal-ring,
+  .sc-away-seal-grain {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .sc-away-seal-ring {
+    display: none;
+  }
+}

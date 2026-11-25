@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Calm dispatch look for "While you were away"
+
+- **Short royal dispatch style:** The return briefing card now wears a calm folio dispatch look with a `Dispatch` tag, distinct from both the fold primer and floating chat, and follows your Dusk, Night, or Parchment theme.
+- **Return hourglass seal:** Beside the title, a quiet pulsing wax-and-hourglass seal marks how long your realm ran while you were gone (shifting tone cleanly for multi-day returns).
+
 ## 2026-11-25 — "While you were away"
 
 - **A real welcome back.** After a minute or more away, a small green card at the top tells you how long the realm ran, which buildings and studies finished, any raids, battles or troop losses, how your stores changed (and which are full), and the one thing to do next.

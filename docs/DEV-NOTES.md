@@ -1,3 +1,10 @@
+## 2026-11-25 — app / living return dispatch ("While you were away")
+
+- **Return seal (`packages/app/src/hud/AwayReturnSeal.tsx`):** Exported `AwaySpanTier` (`"brief" | "hours" | "days"`), `resolveAwaySpanTier(elapsed)`, and `<AwayReturnSeal elapsed={s.elapsed} />`. Renders a non-blocking hourglass wax-seal SVG (`sc-away-seal is-*`, `data-away-seal`), concentric ring (`sc-away-seal-ring`), and sand mote (`sc-away-seal-grain`) with `aria-hidden="true"` and `pointer-events: none !important;`.
+- **Banner wiring (`packages/app/src/hud/AwaySummary.tsx`):** Imports `away-dispatch.css` after `away-summary.css`, attaches `.sc-away-dispatch.is-span-*` and `data-away-span`, prepends `<span className="sc-away-dispatch-sheen" />`, and mounts `<AwayReturnSeal>` + `.sc-away-dispatch-kicker` ("Dispatch") inside `.sc-away-head` while keeping existing row/dismiss attributes (`data-away-elapsed`, `data-away-row`, `Dismiss away summary`) intact.
+- **Dedicated CSS (`packages/app/src/hud/away-dispatch.css`):** Theme tokens for Dusk, Night, and Parchment dark-sepia chrome (`--sc-away-surface-top/bottom`, `--sc-away-accent-rgb`, `--sc-away-seal-rgb`, `--sc-away-ink`, `--sc-away-muted`), keyframes (`sc-away-dispatch-enter`, `sc-away-seal-pulse`, `sc-away-grain-breathe`), `@media (prefers-reduced-motion: reduce)` guards, and zero edits to `theme.css`, `away-summary.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/AwayDispatch.test.tsx`):** 7 tests passing (`npm test` -> sim 390, app 1553, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — app / "While you were away" summary
 
 - **`packages/app/src/game/awaySummary.ts`:** `snapshotForAway(state)` captures tick, stores, player buildings (level, finished), finished studies, player war statuses and player troop total. It must be a pure read: it mirrors `researchDone` without writing `research_<id>=1`. `buildAwaySummary(before, after, settledTicks)` diffs that against the settled state. `awayNextStep(state, rates?)` picks one line. `AWAY_MIN_TICKS = 600`.

@@ -1,6 +1,8 @@
 import React from "react";
 import type { AwaySummary } from "../game/awaySummary";
 import "./away-summary.css";
+import "./away-dispatch.css";
+import { AwayReturnSeal, resolveAwaySpanTier } from "./AwayReturnSeal";
 
 const DOT = " · ";
 
@@ -23,9 +25,19 @@ export function AwaySummaryBanner(props: { summary: AwaySummary | null; onDismis
   }
   const stores = [s.changes.join(", "), s.full.length ? `full: ${s.full.join(", ")}` : ""].filter(Boolean).join(DOT);
   if (stores) rows.push({ key: "stores", label: "Stores", text: stores });
+  const spanTier = resolveAwaySpanTier(s.elapsed);
   return (
-    <section className="sc-away" role="status" aria-label="While you were away" data-away-elapsed={s.elapsed}>
+    <section
+      className={`sc-away sc-away-dispatch is-span-${spanTier}`}
+      role="status"
+      aria-label="While you were away"
+      data-away-elapsed={s.elapsed}
+      data-away-span={spanTier}
+    >
+      <span className="sc-away-dispatch-sheen" aria-hidden="true" />
       <div className="sc-away-head">
+        <AwayReturnSeal elapsed={s.elapsed} />
+        <span className="sc-away-dispatch-kicker" aria-hidden="true">Dispatch</span>
         <strong>While you were away</strong>
         <span className="sc-away-elapsed">{s.elapsed} settled</span>
         <button type="button" className="sc-away-close" onClick={props.onDismiss} aria-label="Dismiss away summary">

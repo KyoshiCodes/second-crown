@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Living return dispatch presentation ("While you were away")
+
+- **Short dispatch styling (`hud/AwaySummary.tsx`, `hud/away-dispatch.css`):** Refines `AwaySummaryBanner` into a calm bordered dispatch folio card (`.sc-away.sc-away-dispatch`) distinct from the green/chrome primer and floating Global Chat: left wax-ribbon edge, header divider, uppercase `Dispatch` kicker tag, rounded elapsed pill (`... settled`), corner sheen overlay (`sc-away-dispatch-sheen`), and highlighted `Next` directive strip with a gentle `360ms` fade entrance.
+- **Quiet "time passed" return seal (`hud/AwayReturnSeal.tsx`):** Added `<AwayReturnSeal>` (`resolveAwaySpanTier` classifying `"brief"` / `"hours"` / `"days"`) displaying an SVG stamped wax/hourglass crest (`sc-away-seal`), concentric halo ring (`sc-away-seal-ring`), and slowly breathing sand mote (`sc-away-seal-grain`), all strictly `pointer-events: none !important;`.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `hud/away-summary.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment theme variables and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/AwayDispatch.test.tsx` (7 tests). Now: sim **390**, app **1553**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — "While you were away" return summary
 
 - **Replaces the one-line return note** (`Welcome back — settled N ticks.`) with a dismissible card above the stores strip (`hud/AwaySummary.tsx`, `hud/away-summary.css`), shown after solo offline settlement on load and after **Import save**.
