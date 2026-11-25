@@ -13,6 +13,7 @@ import {
   sendToServer,
   type ChatMessage,
 } from "./globalChat";
+import { publishChatFeed } from "./chatFeed";
 import "./global-chat.css";
 import "./chat-living.css";
 import "./chat-polish.css";
@@ -137,6 +138,11 @@ export function GlobalChatPanel(props: {
       }
     };
   }, []);
+
+  // Mirror the list for read-only panels (staff Admin panel). See ./chatFeed.ts.
+  React.useEffect(() => {
+    publishChatFeed(messages);
+  }, [messages]);
 
   React.useEffect(() => {
     const el = listRef.current;

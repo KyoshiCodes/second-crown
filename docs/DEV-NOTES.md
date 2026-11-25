@@ -1,3 +1,13 @@
+## 2026-11-25 — app / staff Admin / Moderation panel foundation
+
+- **Files:** `packages/app/src/admin/staff.ts` (gate + stubs), `admin/AdminPanel.tsx` (UI), `admin/admin-panel.css`, `admin/AdminPanel.test.tsx` (11 tests), `chat/chatFeed.ts` (read-only chat mirror). `<AdminPanel />` is the last child of `.sc-shell` in `AppShell.tsx`, right after `<GlobalChatPanel />`.
+- **Gate:** `STAFF_KEY = "sc-staff"`; `readStaffFlag()` is true only for `"1"`. `useStaffFlag()` applies `parseStaffQuery(location.search)` once on mount (`?staff=1` saves, `?staff=0` removes) and listens for `sc-staff-change` (dispatched by `setStaffFlag`). `AdminPanel` returns `null` when off, so no DOM for normal players. The flag is client-side and forgeable: when real endpoints land, the server must check staff on the session (Discord login) and ignore this flag entirely.
+- **Stubs (all in `staff.ts`):** `moderatePlayer(action: "mute"|"kick"|"ban", player, reason?) -> Promise<false>`, `fetchPlayerList() -> Promise<null>`, `fetchServerStatus() -> Promise<null>`. Each only `console.info`s. Intended endpoints are in comments: `POST /api/admin/{mute,kick,ban}`, `GET /api/admin/players`, `GET /api/admin/status`. A test asserts no `fetch(` outside comments in `staff.ts` / `AdminPanel.tsx`. Wire them there only.
+- **Panel state (local, not persisted):** `toast` (auto-clears after `ADMIN_TOAST_MS = 2600`), `marks` (author -> last action, shown as a pill), `armedBan` (message id awaiting "Confirm ban"). Moderation targets the message author. Own messages (`isOwnMessage`) have actions disabled. Pure helpers `recentForModeration(list, limit = 8)` and `playersSeenInChat(list, author)`.
+- **Chat feed:** `chatFeed.ts` holds a module-level list (starts as `SEED_CHAT`), `publishChatFeed` / `getChatFeed` / `subscribeChatFeed`, and `useChatFeed()` via `useSyncExternalStore`. `GlobalChatPanel` calls `publishChatFeed(messages)` in a `useEffect`; nothing else in chat changed and `sendToServer` is still its only server seam.
+- **Placement:** `.sc-admin-float` mirrors `.sc-chat-float` on the left (`position: fixed; left/bottom: 12px; z-index: 110; pointer-events: none`, fold gets `pointer-events: auto`). Body scrolls at `min(60vh, 460px)`. On very narrow screens the two floats can overlap when both are open; staff tooling is desktop-first. `Fold` is `noisy` and follows Compact like the others.
+- **Verification:** `npm test` -> sim 362, app 1433, server 158 (1 skip); `npm run build -w @second-crown/app` clean. Not yet opened in a browser.
+
 ## 2026-11-25 — app / Global Chat living identity, just-sent & ready-send accents
 
 - **Component (`packages/app/src/chat/GlobalChatPanel.tsx`):**

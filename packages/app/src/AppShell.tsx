@@ -25,6 +25,7 @@ import { BoardFocusFrame } from "./hud/BoardFocus";
 import { BandToggle, HoldFocusTag } from "./hud/HoldDensity";
 import { NewsUnreadBadge } from "./news/NewsUnreadBadge";
 import { GlobalChatPanel } from "./chat/GlobalChatPanel";
+import { AdminPanel } from "./admin/AdminPanel";
 
 // Tab panels load in their own chunks so the board paints first.
 const KingdomTab = React.lazy(() => import("./tabs/KingdomTab").then((m) => ({ default: m.KingdomTab })));
@@ -290,6 +291,7 @@ export function AppShell() {
         </CultureContext.Provider>
       </div>
       <GlobalChatPanel />
+      <AdminPanel />
     </div>
   );
 }

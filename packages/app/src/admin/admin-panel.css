@@ -1,0 +1,218 @@
+/* --- Admin panel (staff only, floating bottom-left). Loaded only from AdminPanel.tsx.
+   Card look comes from .sc-fold; this file adds placement, sections, rows and toast.
+   Do not touch theme.css. --- */
+
+.sc-admin-float {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 110; /* same layer as Global Chat (bottom-right), below the chrome bar (120) */
+  width: min(320px, calc(100vw - 24px));
+  pointer-events: none; /* only the panel itself takes clicks */
+}
+
+.sc-admin-float > .sc-fold.sc-admin-fold {
+  margin: 0;
+  pointer-events: auto;
+  position: relative;
+  background: var(--chrome-bar-bg-open, rgba(10, 8, 6, 0.96));
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  border-color: rgba(220, 80, 60, 0.55);
+}
+
+.sc-admin-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sc-admin-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #fff3ef;
+  background: rgba(190, 60, 45, 0.85);
+}
+
+.sc-admin-float .sc-fold-body {
+  max-height: min(60vh, 460px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sc-admin-section {
+  padding: 4px 0 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sc-admin-section:last-of-type {
+  border-bottom: 0;
+}
+.sc-admin-h {
+  margin: 2px 0 5px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.sc-admin-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.sc-admin-row {
+  padding: 4px 7px 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.035);
+  border-left: 2px solid rgba(220, 80, 60, 0.4);
+}
+.sc-admin-row-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.sc-admin-author {
+  font-weight: 600;
+  color: var(--chrome-accent, #fef08a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-admin-time {
+  margin-left: auto;
+  font-size: 10.5px;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+.sc-admin-mark {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.sc-admin-mark.mark-mute { color: #f5c26b; }
+.sc-admin-mark.mark-kick { color: #f59e6b; }
+.sc-admin-mark.mark-ban  { color: #ff8a7a; }
+
+.sc-admin-text {
+  margin: 1px 0 4px;
+  font-size: 12px;
+  line-height: 1.35;
+  opacity: 0.88;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-admin-actions {
+  display: flex;
+  gap: 4px;
+}
+.sc-admin-btn {
+  padding: 2px 8px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--chrome-btn-text, #f5ead8);
+  background: var(--chrome-btn-bg, #1c1814);
+  border: 1px solid var(--chrome-btn-border, #6b542e);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.sc-admin-btn:hover:not(:disabled) {
+  border-color: var(--chrome-btn-border-hover, #d4a72c);
+}
+.sc-admin-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.sc-admin-btn.act-ban:hover:not(:disabled),
+.sc-admin-btn.act-ban.is-armed {
+  border-color: #d9584a;
+  color: #ffd2cb;
+}
+.sc-admin-btn.act-ban.is-armed {
+  background: rgba(190, 60, 45, 0.35);
+}
+
+.sc-admin-empty,
+.sc-admin-placeholder {
+  margin: 0 0 6px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.sc-admin-status {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  margin: 0 0 6px;
+  font-size: 12px;
+}
+.sc-admin-status dt { opacity: 0.6; }
+.sc-admin-status dd { margin: 0; }
+
+.sc-admin-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 6px;
+}
+.sc-admin-note {
+  margin: 0;
+  font-size: 10.5px;
+  opacity: 0.55;
+}
+.sc-admin-linkbtn {
+  padding: 0;
+  font: inherit;
+  font-size: 10.5px;
+  color: var(--chrome-accent, #fef08a);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sc-admin-toast {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: calc(100% + 6px);
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  color: #fff3ef;
+  background: rgba(40, 18, 14, 0.96);
+  border: 1px solid rgba(220, 80, 60, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  animation: sc-admin-toast-in 180ms ease-out;
+}
+@keyframes sc-admin-toast-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+:root[data-chrome="parchment"] .sc-admin-toast {
+  color: #3a1a12;
+  background: #f6e7d4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-admin-toast { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .sc-admin-float {
+    left: 8px;
+    bottom: 8px;
+  }
+}

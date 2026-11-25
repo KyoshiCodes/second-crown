@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Staff Admin panel (staff testing only)
+
+- **Most players will not see anything new.** This panel is hidden unless staff tools are turned on in your browser.
+- **For staff testing:** open the game with `?staff=1` at the end of the address (for example `http://129.153.17.72:8787/?staff=1`). An "Admin" panel appears in the bottom-left corner. Use `?staff=0` or the "Turn off staff tools" link to hide it again.
+- **What it does today:** lists recent chat messages with Mute, Kick and Ban buttons, plus placeholder Players and Server status sections. The buttons only show a small notice on your own screen. Nothing is sent to the server and nobody is actually muted, kicked or banned yet.
+
 ## 2026-11-25 — Global Chat sender crests & sent highlight
 
 - **Sender crests:** Each chat sender now wears a small crest next to their name — a glowing gold crown for you, an amber seal for the Herald, and a calm shield for other players.

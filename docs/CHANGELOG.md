@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-25 — Staff Admin / Moderation panel foundation (local stubs)
+
+- **Admin panel (`admin/AdminPanel.tsx`, mounted after `GlobalChatPanel` in `AppShell.tsx`):** floating `Fold#admin-panel` "Admin" (red `STAFF` badge) pinned bottom-left. Three sections: **Chat moderation** (last 8 chat lines, newest first, each with Mute / Kick / Ban; Ban needs a second click "Confirm ban"; buttons disabled on your own lines), **Players** (placeholder + names seen in chat + Refresh stub), **Server status** (placeholder rows + Check status stub). Footer: "Turn off staff tools".
+- **Staff gate (`admin/staff.ts`):** panel renders nothing unless `localStorage["sc-staff"] === "1"`. Turn on with `?staff=1` in the URL (saved), off with `?staff=0` or the in-panel button. Local testing switch only, not security.
+- **Stubs:** `moderatePlayer(action, player)`, `fetchPlayerList()`, `fetchServerStatus()` only `console.info` and resolve `false` / `null`. Comments name the future endpoints (`POST /api/admin/mute|kick|ban`, `GET /api/admin/players`, `GET /api/admin/status`). Each action shows a small local toast and marks the author row (`muted` / `kicked` / `banned`) for this tab only.
+- **Chat feed mirror (`chat/chatFeed.ts`):** tiny read-only store; `GlobalChatPanel` publishes its list on change (one `useEffect`), Admin reads it with `useChatFeed()`. No chat behavior change.
+- **Styles:** new `admin/admin-panel.css`. `theme.css`, `packages/sim`, `packages/render`, `server/` untouched. App only.
+- **Tests:** added `admin/AdminPanel.test.tsx` (11 tests). Now: sim **362**, app **1433**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Global Chat living identity, just-sent & ready-send accents
 
 - **Living sender pips/crests (`chat/GlobalChatPanel.tsx`, `chat/chat-identity.css`):** Added `resolveChatSenderCrest` rendering distinct miniature `pointer-events: none !important;` crests beside every author name: an imperial gold crown (`sender-self`) on your messages, an amber diamond seal (`sender-herald`) on Herald announcements, and a calm slate shield (`sender-peer`) on other players/NPCs.
