@@ -64,18 +64,18 @@ export function SeasonClaimLine(props: { state: GameState | undefined; act: ActF
   const { state, act } = props;
   if (!state) return null;
   const s = seasonClaimStatus(state);
+  const court = s.ready ? `season court ready: +${s.amount} ${s.res}` : `season court claimed, next in ${s.nextSeason}`;
   return (
     <div
       className={`sc-season-claim${s.ready ? " is-ready" : " is-claimed"}`}
+      title={`Season · ${s.season} · ${s.daysLeft.toFixed(1)} days left (${s.secondsLeft}s) · ${court}`}
       data-season={s.season.toLowerCase()}
       data-ready={s.ready ? "true" : "false"}
     >
       <span className="sc-season-claim-dot" aria-hidden="true" />
       <span className="sc-season-claim-text">
         Season · <strong>{s.season}</strong> · {s.daysLeft.toFixed(1)} days left ({s.secondsLeft}s) ·{" "}
-        {s.ready
-          ? `season court ready: +${s.amount} ${s.res}`
-          : `season court claimed, next in ${s.nextSeason}`}
+        {court}
       </span>
       {s.ready ? (
         <button

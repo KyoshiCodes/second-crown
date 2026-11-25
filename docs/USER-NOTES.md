@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — Tidier Kingdom tab
+
+- The building list and everything you're raising or improving now live in one **Raise / Improve** panel. Click its title bar to fold it; the title still shows what you picked and how many works are underway.
+- Building buttons are smaller, so more fit on a row. Green dot and green edge = you can afford it. The one you picked still says "Picked — tap a plot".
+- Works underway are one short line each with a **Cancel** button.
+- The season line is a single row now. Hover it to read the full line. The **Claim** button is still on the right.
+
 ## 2026-11-24 — The Ledger folds too
 
 - On the **Crown** tab, click the **Ledger of Crowns** title bar (▾ / ▸) to fold or unfold it. Your choice is remembered.

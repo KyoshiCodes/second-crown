@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-24 — Kingdom tab flow pass: Raise / Improve fold, one-row season claim
+
+- **Raise / Improve (`hud/RaiseImproveFold.tsx`):** the build picker, the picked building's blurb, and the old "Raising" and "Improving" grids are now one `Fold` (`id="kingdom-raise"`, calm: starts open, saved in `sc-fold:kingdom-raise`, follows Compact). Folded title bar: `Picked: <name>` (or `N affordable`) `· N raising · N improving`. Works underway are one short row each (tag, name, `→ lv N`, seconds left, Cancel) instead of two headed card grids. Picker chips are one line, 7 across on a 900px board (was 5 across, two lines each); afford state is the left border plus a dot, and the words stay for screen readers. The picked chip still says "Picked — tap a plot".
+- **Season claim (`SeasonClaimLine.tsx`, `season-claim-line.css`):** one row, no wrap. Text trims with an ellipsis (full line in the tooltip); Claim button stays on the right (26px tall, 30px on phones). Same text, same sim call.
+- **Unchanged:** build / upgrade / repair / cancel math and calls, Standing works, People, Market, Flags, Realm notes. No `packages/sim` or `server/` edits; `theme.css` untouched (new `kingdom-flow.css`).
+- **Space (estimated from CSS at 900px, one raise + one improvement underway):** Kingdom tab body under the board ~670px → ~210px open, ~85px folded. Standing works / People / Market sit ~460px higher.
+- **Tests:** `hud/RaiseImproveFold.test.tsx` (5). Now: sim 362, app 1374, server 158, app build clean.
+
 ## 2026-11-24 — Ledger of Crowns folds
 
 - **`LedgerPanel.tsx`:** the Crown tab's Ledger of Crowns is now a `Fold` (`id="crown-ledger"`, noisy). Click the "Ledger of Crowns" title bar to open / close; choice saved in `sc-fold:crown-ledger`; starts folded after the first visit. Folded summary: `N entries · <newest entry>` (trimmed at 48 chars) or "No entries yet". Follows the Compact toggle like the other folds.

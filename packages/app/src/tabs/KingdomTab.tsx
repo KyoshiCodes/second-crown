@@ -1,7 +1,5 @@
 import React from "react";
 import {
-  buildTicksLeft,
-  canAfford,
   canHouse,
   canRaiseWork,
   clearKeepNotice,
@@ -13,7 +11,6 @@ import {
   formatLetterSuffix,
   fullStores,
   garrisonAt,
-  getBuildingType,
   getProvince,
   housingCap,
   incomingOnHome,
@@ -23,12 +20,8 @@ import {
   keepLevel,
   keepNotice,
   laborPerTick,
-  listBuildableTypes,
   listOutposts,
   listScarred,
-  isScarred,
-  listUpgrades,
-  listWorksInProgress,
   MARKET_OFFERS,
   outpostTithePerTick,
   PAIR_LABEL,
@@ -37,8 +30,6 @@ import {
   settlementName,
   tryAbandonOutpost,
   tryAssignCitizen,
-  tryCancelBuild,
-  tryCancelUpgrade,
   unpairedWorks,
   watchtowerWarning,
   workPlotCap,
@@ -71,6 +62,7 @@ import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsS
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
 import { WorkCard } from "../hud/WorkCard";
+import { RaiseImproveFold } from "../hud/RaiseImproveFold";
 import { OfferCard } from "../hud/OfferCard";
 import { VaultLivingCards } from "../hud/VaultLivingCard";
 import { OutpostLivingCard } from "../hud/OutpostLivingCard";
@@ -93,14 +85,10 @@ export function KingdomTab(props: {
   setSelectedBuild: (id: string) => void;
 }) {
   const { state, act, selectedBuild, setSelectedBuild } = props;
-  const types = listBuildableTypes();
   const marketsN = state ? countBuilding(state, "market") : 0;
-  const selected = selectedBuild ? getBuildingType(selectedBuild) : undefined;
   const hold = state ? settlementName(state) : "Your Hold";
   const season = state ? currentSeason(state) : "Spring";
   const scarred = state ? listScarred(state) : [];
-  const works = state ? listWorksInProgress(state).filter((b) => !isScarred(state, b)) : [];
-  const upgrades = state ? listUpgrades(state) : [];
   const flags = state ? listOutposts(state) : [];
   const standing =
     state?.buildings.filter((b) => b.realmId === "player" && b.completesAtTick === null && b.typeId !== "keep") ?? [];
@@ -313,87 +301,7 @@ export function KingdomTab(props: {
           }).join(" · ")}
         </p>
       ) : null}
-      {selected ? <p style={{ fontSize: 12, opacity: 0.8 }}>{selected.name}: {selected.blurb}</p> : null}
-      <div className="sc-plain-grid">
-        {types.map((t) => {
-          const n = state ? countBuilding(state, t.id) : 0;
-          const afford = state ? canAfford(state, t.id) : false;
-          const picked = selectedBuild === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              title={t.blurb}
-              onClick={() => setSelectedBuild(t.id)}
-              className={`sc-work-card sc-plain-pick ${picked ? "is-picked" : afford ? "is-afford" : "is-short"}`}
-            >
-              <span className="sc-work-head">
-                <span className="sc-work-name">{t.name}</span>
-                {n ? <span className="sc-work-level">x{n}</span> : null}
-              </span>
-              <span className="sc-work-status">{picked ? "Picked — tap a plot" : afford ? "Can afford" : "Short on stores"}</span>
-            </button>
-          );
-        })}
-      </div>
-      {works.length > 0 ? (
-        <>
-          <h3>Raising</h3>
-          <div className="sc-plain-grid">
-          {works.map((b) => {
-            const left = state ? buildTicksLeft(state, b.id) : 0;
-            const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
-            return (
-              <div key={b.id} className="sc-work-card sc-plain-card is-ready">
-                <div className="sc-work-head">
-                  <span className="sc-work-name">{nm}</span>
-                </div>
-                <div className="sc-work-status">{Math.ceil(left / 10)}s left</div>
-                <div className="sc-plain-actions">
-                <button
-                  type="button"
-                  className="sc-work-btn"
-                  onClick={() => act((st) => (tryCancelBuild(st, b.id) ? `Struck the ${nm} scaffolding.` : "That work already stands."))}
-                >
-                  Cancel
-                </button>
-                </div>
-              </div>
-            );
-          })}
-          </div>
-        </>
-      ) : null}
-      {upgrades.length > 0 ? (
-        <>
-          <h3>Improving</h3>
-          <div className="sc-plain-grid">
-          {upgrades.map((job) => {
-            const b = state?.buildings.find((x) => x.id === job.buildingId);
-            const nm = getBuildingType(b?.typeId ?? "")?.name ?? job.buildingId;
-            const left = state ? Math.max(0, job.doneTick - state.meta.tick) : 0;
-            return (
-              <div key={job.id} className="sc-work-card sc-plain-card is-ready">
-                <div className="sc-work-head">
-                  <span className="sc-work-name">{nm}</span>
-                  <span className="sc-work-level">→ lv {job.fromLevel + 1}</span>
-                </div>
-                <div className="sc-work-status">{Math.ceil(left / 10)}s left</div>
-                <div className="sc-plain-actions">
-                <button
-                  type="button"
-                  className="sc-work-btn"
-                  onClick={() => act((st) => (tryCancelUpgrade(st, job.buildingId) ? `Stopped improving the ${nm}.` : "That work already finished."))}
-                >
-                  Cancel
-                </button>
-                </div>
-              </div>
-            );
-          })}
-          </div>
-        </>
-      ) : null}
+      <RaiseImproveFold state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />
       {state && standing.length + scarred.length > 0 ? (
         <Fold id="kingdom-standing" noisy title="Standing works" summary={`${standing.length} standing${scarred.length ? ` · ${scarred.length} scarred` : ""}`}>
           <div className="sc-work-grid">
