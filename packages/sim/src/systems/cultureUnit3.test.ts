@@ -60,12 +60,12 @@ describe("salt culture", () => {
 });
 
 describe("outrider", () => {
-  it("costs the same as cavalry, power 5, drills in 5s", () => {
+  it("costs the same as cavalry, power 13, drills in 100s", () => {
     const outrider = getUnitType("outrider")!;
     const cavalry = getUnitType("cavalry")!;
     expect(outrider.cost).toEqual(cavalry.cost);
-    expect(outrider.power).toBe(5);
-    expect(outrider.trainTicks).toBe(5 * TICKS_PER_SECOND);
+    expect(outrider.power).toBe(13);
+    expect(outrider.trainTicks).toBe(100 * TICKS_PER_SECOND);
   });
 
   it("refuses until Horse lore is done; cavalry still unlocks with it", () => {
@@ -79,7 +79,7 @@ describe("outrider", () => {
     expect(tryStartResearch(s, "horse")).toBe(true);
     expect(tryTrain(s, { typeId: "outrider", count: 1 })).toBe(false);
 
-    s.meta.tick += 10_000;
+    s.meta.tick += 40_000;
     expect(researchDone(s, "horse")).toBe(true);
     expect(unitUnlocked(s, "cavalry")).toBe(true);
     expect(tryTrain(s, { typeId: "outrider", count: 1 })).toBe(true);

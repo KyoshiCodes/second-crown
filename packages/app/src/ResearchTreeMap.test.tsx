@@ -78,7 +78,7 @@ describe("study tree map", () => {
     const n = studyTreeNode(realm(3), "husbandry");
     expect(n.state).toBe("ready");
     expect(n.pct).toBe(0);
-    expect(n.line).toMatch(/^Ready · \d+s to study$/);
+    expect(n.line).toMatch(/^Ready · \d+[smhd]( \d+[smh])? to study$/);
   });
 
   it("seals a deeper study and names the first study it needs, then opens it", () => {
@@ -123,9 +123,9 @@ describe("study tree map", () => {
   it("says what the stores are short of when the gates are met but the cost is not", () => {
     const s = realm(3);
     s.resources.food = "5";
-    s.resources.wood = "12";
-    // Husbandry costs 20 food and 12 wood.
-    expect(studyTreeNode(s, "husbandry")).toMatchObject({ state: "waiting", line: "Short 15 food" });
+    s.resources.wood = "48";
+    // Husbandry costs 80 food and 48 wood (pacing pass 1).
+    expect(studyTreeNode(s, "husbandry")).toMatchObject({ state: "waiting", line: "Short 75 food" });
   });
 
   it("sums up the tree in one line", () => {

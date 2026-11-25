@@ -96,12 +96,14 @@ describe("kit unit unlocks", () => {
   it("trains and cancels through the normal barracks queue", () => {
     const s = game("steppe");
     // Stay under the warehouse cap so the refund is not clipped.
-    for (const r of ["food", "wood", "gold"]) s.resources[r] = "100";
+    // A tier III horse archer is 135 food / 75 wood / 45 gold after pacing pass 1.
+    for (const r of ["wood", "gold"]) s.resources[r] = "100";
+    s.resources.food = "190";
     const before = s.resources.food;
-    expect(tryTrain(s, { typeId: "horse_archer", count: 2 })).toBe(true);
+    expect(tryTrain(s, { typeId: "horse_archer", count: 1 })).toBe(true);
     const job = listTraining(s, "player")[0];
     expect(job.typeId).toBe("horse_archer");
-    expect(job.count).toBe(2);
+    expect(job.count).toBe(1);
     expect(s.resources.food).not.toBe(before);
     expect(tryCancelTraining(s, job.id)).toBe(true);
     expect(listTraining(s, "player").length).toBe(0);

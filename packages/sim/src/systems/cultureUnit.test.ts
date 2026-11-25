@@ -45,12 +45,12 @@ describe("mist culture", () => {
 });
 
 describe("ranger", () => {
-  it("costs the same as an archer, power 4, drills in 4s", () => {
+  it("costs the same as an archer, power 6, drills in 32s", () => {
     const ranger = getUnitType("ranger")!;
     const archer = getUnitType("archer")!;
     expect(ranger.cost).toEqual(archer.cost);
-    expect(ranger.power).toBe(4);
-    expect(ranger.trainTicks).toBe(4 * TICKS_PER_SECOND);
+    expect(ranger.power).toBe(6);
+    expect(ranger.trainTicks).toBe(32 * TICKS_PER_SECOND);
   });
 
   it("refuses until Fieldcraft is done; archer stays open", () => {

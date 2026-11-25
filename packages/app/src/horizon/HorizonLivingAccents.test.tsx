@@ -169,7 +169,9 @@ describe("long-horizon row glow on builds and research", () => {
     shortStudy.flags.research_husbandry_until = shortStudy.meta.tick + 50;
     shortStudy.flags.research_husbandry_total = 100;
     const shortHtml = renderToStaticMarkup(<ResearchBar state={shortStudy} act={() => {}} />);
-    expect(shortHtml).not.toContain("is-long-horizon");
+    // Other cards may now show hour-scale "Takes" times (pacing pass 1); only husbandry must stay calm.
+    expect(shortHtml).not.toMatch(/is-long-horizon[^"]*" data-study="husbandry"/);
+    expect(shortHtml).not.toMatch(/is-long-horizon[^"]*" data-horizon-study="husbandry"/);
 
     const hourStudy = setKeepLevel(3);
     hourStudy.buildings.push({ id: "ac", typeId: "academy", realmId: "player", x: 6, y: 6, level: 1, completesAtTick: null });

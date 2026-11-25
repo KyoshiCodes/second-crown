@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-25 — Sim pacing pass 1 (long-game times and costs)
+
+- **New `packages/sim/src/content/pacing.ts`:** one table for the long-game curves (`UPGRADE_TIME_MULT`, `UPGRADE_COST_MULT`, `UNIT_TIER_PACING`, plus `MINUTE_TICKS` / `HOUR_TICKS` / `DAY_TICKS`). Pure numbers, deterministic.
+- **Building upgrades (`actions/upgrade.ts`):** time = `buildTicks × [80, 450, 2500, 14000]` by from-level (was `buildTicks × level`); cost = `cost × [3, 12, 60, 500]` (was `cost × (level+1)`). Keep I→II 19m, II→III 1.75h, III→IV 9.7h, IV→V 2.3d. Keep IV→V costs 20,000 stone / 10,000 wood / 7,500 gold. First-time construction times and costs are unchanged.
+- **Warehouse (`systems/keepGate.ts`):** `storeMult` by Keep is now 1, 1, 4, 20, 100, 400 (was 1, 1, 1.2, 1.4, 1.6, 1.8) so the bigger late costs fit in storage.
+- **Studies (`systems/research.ts`):** tier I with no Keep gate 5–6m (was 18–20s); Keep II studies 40m–3h; Keep III studies 8h–1.5d (Supply trains 36h). Costs ×4 (early) to ×30 (Keep III). The Academy still takes 20% off.
+- **Units (`content/units.ts`):** the old table is now `BASE_UNIT_TYPES`; `UNIT_TYPES` is scaled by tier. Cost ×2/×5/×15/×40/×100, drill time ×4/×8/×20/×40/×80, power ×1/×1.5/×2.5/×4/×6 for Tiers I–V. Champion (hired) unchanged.
+- **Tests:** new `content/pacing.test.ts` (5), new pacing blocks in `upgrade.test.ts` (3), `research.test.ts` (3), `storage.test.ts` (1). Old numbers updated in sim tests and in 7 app `*.test.tsx` files (expected values only, no app source changed). Now: sim **374**, app **1472**, server **158** (+1 Windows skip), app build clean.
+
 ## 2026-11-25 — Living progression accents (long waits, unit tiers, pace breathing)
 
 - **Long-horizon row & card glow (`horizon/horizon-living.css`, `hud/RaiseImproveFold.tsx`, `ResearchBar.tsx`):** Building work rows, study time lines (`.sc-horizon-study`), and active studying cards whose wait is measured in hours or days (`isLongHorizon`) gain `.is-long-horizon.is-horizon-hours` (warm burnished-gold ambient glow, `4.2s`) or `.is-long-horizon.is-horizon-days` (richer ember-amber pulse, `3.6s`), alongside synchronized non-blocking `HOURS` / `DAYS` hourglass badge shimmer. Short waits (`< 1h`) stay calm.

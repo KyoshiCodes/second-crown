@@ -5,12 +5,16 @@ import { keepLevel } from "../actions/upgrade.js";
 import { addCapped } from "./storage.js";
 import { cultureUnitGate, playerCultureKit } from "./cultureUnits.js";
 
+/**
+ * Pacing pass 1: tier I minutes (5-6m), Keep II hours (40m-3h), Keep III 8h-1.5d.
+ * Ticks are base times; a finished Academy takes 20% off. 36_000 ticks = 1 hour.
+ */
 export const RESEARCH = {
   husbandry: {
     id: "husbandry",
     name: "Husbandry",
-    ticks: 180,
-    cost: { food: "20", wood: "12" },
+    ticks: 3_000,
+    cost: { food: "80", wood: "48" },
     needsAny: ["farm", "granary", "academy"],
     keepMin: 0,
     unlocks: [] as const,
@@ -19,8 +23,8 @@ export const RESEARCH = {
   forestry: {
     id: "forestry",
     name: "Forestry",
-    ticks: 180,
-    cost: { wood: "20", food: "10" },
+    ticks: 3_000,
+    cost: { wood: "80", food: "40" },
     needsAny: ["lumber_camp", "sawmill", "academy"],
     keepMin: 0,
     unlocks: [] as const,
@@ -29,8 +33,8 @@ export const RESEARCH = {
   masonry: {
     id: "masonry",
     name: "Masonry",
-    ticks: 200,
-    cost: { stone: "16", wood: "12" },
+    ticks: 3_600,
+    cost: { stone: "64", wood: "48" },
     needsAny: ["quarry", "mason", "academy"],
     keepMin: 0,
     unlocks: [] as const,
@@ -39,8 +43,8 @@ export const RESEARCH = {
   logistics: {
     id: "logistics",
     name: "Logistics",
-    ticks: 220,
-    cost: { gold: "30", wood: "16", food: "12" },
+    ticks: 27_000,
+    cost: { gold: "300", wood: "160", food: "120" },
     needsAny: ["barracks", "market", "academy"],
     keepMin: 2,
     unlocks: [] as const,
@@ -49,8 +53,8 @@ export const RESEARCH = {
   surveying: {
     id: "surveying",
     name: "Surveying",
-    ticks: 200,
-    cost: { gold: "24", wood: "16" },
+    ticks: 24_000,
+    cost: { gold: "240", wood: "160" },
     needsAny: ["watchtower", "academy"],
     keepMin: 2,
     unlocks: [] as const,
@@ -59,8 +63,8 @@ export const RESEARCH = {
   fieldcraft: {
     id: "fieldcraft",
     name: "Fieldcraft",
-    ticks: 180,
-    cost: { food: "20", wood: "12" },
+    ticks: 3_000,
+    cost: { food: "80", wood: "48" },
     needsAny: ["archery_range", "academy"],
     keepMin: 0,
     unlocks: ["ranger"],
@@ -69,8 +73,8 @@ export const RESEARCH = {
   drill: {
     id: "drill",
     name: "Drill",
-    ticks: 180,
-    cost: { food: "20", wood: "12" },
+    ticks: 3_000,
+    cost: { food: "80", wood: "48" },
     needsAny: ["barracks", "academy"],
     keepMin: 0,
     unlocks: ["banner"],
@@ -79,8 +83,8 @@ export const RESEARCH = {
   screening: {
     id: "screening",
     name: "Screening",
-    ticks: 180,
-    cost: { food: "20", wood: "12" },
+    ticks: 3_000,
+    cost: { food: "80", wood: "48" },
     needsAny: ["barracks", "academy"],
     keepMin: 0,
     unlocks: ["warden"],
@@ -89,8 +93,8 @@ export const RESEARCH = {
   horse: {
     id: "horse",
     name: "Horse lore",
-    ticks: 240,
-    cost: { gold: "40", wood: "24" },
+    ticks: 36_000,
+    cost: { gold: "320", wood: "200" },
     needsAny: ["academy", "barracks"],
     keepMin: 2,
     unlocks: ["cavalry", "knight", "outrider", "lancer"],
@@ -99,8 +103,8 @@ export const RESEARCH = {
   siege: {
     id: "siege",
     name: "Siege craft",
-    ticks: 360,
-    cost: { gold: "70", wood: "40", stone: "30" },
+    ticks: 288_000,
+    cost: { gold: "1750", wood: "1000", stone: "750" },
     needsAny: ["siege_workshop"],
     keepMin: 3,
     unlocks: ["siege"],
@@ -110,8 +114,8 @@ export const RESEARCH = {
   crop_rotation: {
     id: "crop_rotation",
     name: "Crop rotation",
-    ticks: 280,
-    cost: { food: "60", wood: "30", gold: "20" },
+    ticks: 72_000,
+    cost: { food: "360", wood: "180", gold: "120" },
     needsAny: ["granary", "academy"],
     keepMin: 2,
     requires: "husbandry",
@@ -121,8 +125,8 @@ export const RESEARCH = {
   timber_framing: {
     id: "timber_framing",
     name: "Timber framing",
-    ticks: 280,
-    cost: { wood: "60", food: "30", gold: "20" },
+    ticks: 72_000,
+    cost: { wood: "360", food: "180", gold: "120" },
     needsAny: ["sawmill", "academy"],
     keepMin: 2,
     requires: "forestry",
@@ -132,8 +136,8 @@ export const RESEARCH = {
   fortification: {
     id: "fortification",
     name: "Fortification",
-    ticks: 320,
-    cost: { stone: "70", wood: "40", gold: "30" },
+    ticks: 432_000,
+    cost: { stone: "2100", wood: "1200", gold: "900" },
     needsAny: ["mason", "academy"],
     keepMin: 3,
     requires: "masonry",
@@ -143,8 +147,8 @@ export const RESEARCH = {
   supply_trains: {
     id: "supply_trains",
     name: "Supply trains",
-    ticks: 340,
-    cost: { gold: "60", wood: "50", food: "40" },
+    ticks: 1_296_000,
+    cost: { gold: "1800", wood: "1500", food: "1200" },
     needsAny: ["market", "academy"],
     keepMin: 3,
     requires: "logistics",
@@ -154,8 +158,8 @@ export const RESEARCH = {
   cartography: {
     id: "cartography",
     name: "Cartography",
-    ticks: 300,
-    cost: { gold: "50", wood: "30" },
+    ticks: 360_000,
+    cost: { gold: "1500", wood: "900" },
     needsAny: ["watchtower", "academy"],
     keepMin: 3,
     requires: "surveying",
@@ -165,8 +169,8 @@ export const RESEARCH = {
   quartermastery: {
     id: "quartermastery",
     name: "Quartermastery",
-    ticks: 300,
-    cost: { food: "50", gold: "45", wood: "30" },
+    ticks: 108_000,
+    cost: { food: "300", gold: "270", wood: "180" },
     needsAny: ["barracks", "academy"],
     keepMin: 2,
     requires: "drill",

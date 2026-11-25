@@ -2,6 +2,7 @@ import type { GameState, InputRecord } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { getBuildingType } from "../content/buildings.js";
 import { buildCostMultiplier } from "./build.js";
+import { upgradeCostMult, upgradeTimeMult } from "../content/pacing.js";
 import { addCapped } from "../systems/storage.js";
 import { recordCrown } from "../systems/ledger.js";
 
@@ -60,7 +61,7 @@ export function upgradeDurationTicks(state: GameState, buildingId: string): numb
   if (!b) return 0;
   const def = getBuildingType(b.typeId);
   if (!def) return 0;
-  return Math.max(20, def.buildTicks * b.level);
+  return Math.max(20, def.buildTicks * upgradeTimeMult(b.level));
 }
 
 export function upgradeCost(state: GameState, buildingId: string): Record<string, string> | null {
@@ -70,7 +71,7 @@ export function upgradeCost(state: GameState, buildingId: string): Record<string
   const def = getBuildingType(b.typeId);
   if (!def) return null;
   const mult = buildCostMultiplier(state, b.realmId);
-  const scale = b.level + 1;
+  const scale = upgradeCostMult(b.level);
   const out: Record<string, string> = {};
   for (const [res, costStr] of Object.entries(def.cost)) {
     out[res] = toDecimalString(D(costStr ?? "0").mul(scale).mul(mult).ceil());

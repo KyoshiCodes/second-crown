@@ -43,12 +43,12 @@ describe("peak culture", () => {
 });
 
 describe("lancer", () => {
-  it("costs the same as a knight, power 6, drills in 6s", () => {
+  it("costs the same as a knight, power 15, drills in 120s", () => {
     const lancer = getUnitType("lancer")!;
     const knight = getUnitType("knight")!;
     expect(lancer.cost).toEqual(knight.cost);
-    expect(lancer.power).toBe(6);
-    expect(lancer.trainTicks).toBe(6 * TICKS_PER_SECOND);
+    expect(lancer.power).toBe(15);
+    expect(lancer.trainTicks).toBe(120 * TICKS_PER_SECOND);
     const s = createGameState({ seed: 1 });
     expect(trainCostMultiplier(s, "lancer")).toBe(trainCostMultiplier(s, "knight"));
     s.buildings.push({ id: "st", typeId: "stables", realmId: "player", x: 7, y: 7, level: 1, completesAtTick: null });
@@ -66,7 +66,7 @@ describe("lancer", () => {
     expect(tryStartResearch(s, "horse")).toBe(true);
     expect(tryTrain(s, { typeId: "lancer", count: 1 })).toBe(false);
 
-    s.meta.tick += 10_000;
+    s.meta.tick += 40_000;
     expect(researchDone(s, "horse")).toBe(true);
     expect(unitUnlocked(s, "knight")).toBe(true);
     expect(tryTrain(s, { typeId: "lancer", count: 1 })).toBe(true);

@@ -163,15 +163,16 @@ describe("advanced research cards on the lectern", () => {
     const c = card(renderToStaticMarkup(<ResearchBar state={s} act={act} />), "forestry");
     expect(c).toMatch(/data-need="hall" data-met="no"/);
     expect(c).toContain("<strong>Lumber Camp or Sawmill or Academy</strong>");
-    expect(c).toContain("18s to study");
+    // Forestry: 3_000 ticks with no Academy = 5m (pacing pass 1).
+    expect(c).toContain("5m to study");
     expect(c).not.toContain("Academy saves");
   });
 
   it("the checklist agrees with the sim on when a study may start", () => {
     const s = realm(3);
     s.flags.research_surveying = 1;
-    s.resources.gold = "500";
-    s.resources.wood = "500";
+    s.resources.gold = "1500";
+    s.resources.wood = "900";
     const c = card(renderToStaticMarkup(<ResearchBar state={s} act={act} />), "cartography");
     expect(c).toContain('data-study-needs="met"');
     expect(c).not.toMatch(/<button[^>]*disabled/);
@@ -183,9 +184,9 @@ describe("advanced research cards on the lectern", () => {
     s.resources.food = "7.9";
     s.resources.wood = "50";
     const c = card(renderToStaticMarkup(<ResearchBar state={s} act={act} />), "husbandry");
-    expect(c).toMatch(/is-short" data-res="food">20 food<span class="sc-research-adv-have">have 7<\/span>/);
-    expect(c).toMatch(/data-res="wood">12 wood<\/span>/);
-    expect(c).toContain("Short 13 food.");
+    expect(c).toMatch(/is-short" data-res="food">80 food<span class="sc-research-adv-have">have 7<\/span>/);
+    expect(c).toMatch(/data-res="wood">48 wood<\/span>/);
+    expect(c).toContain("Short 73 food.");
   });
 
   it("an active study shows percent and total, and drops the checklist", () => {

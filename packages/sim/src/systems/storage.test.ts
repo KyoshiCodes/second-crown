@@ -58,20 +58,29 @@ describe("storageCap", () => {
     expect(storageCap(s, res)).toBe(after);
   });
 
-  it("finished Keep II lifts every cap by 20%", () => {
+  it("finished Keep II lifts every cap fourfold", () => {
     const s = createGameState({ seed: 1 });
     keepAt(s, 2);
-    expect(storageCap(s, "food")).toBe(240);
-    expect(storageCap(s, "wood")).toBe(180);
-    expect(storageCap(s, "stone")).toBe(180);
-    expect(storageCap(s, "gold")).toBe(120);
+    expect(storageCap(s, "food")).toBe(800);
+    expect(storageCap(s, "wood")).toBe(600);
+    expect(storageCap(s, "stone")).toBe(600);
+    expect(storageCap(s, "gold")).toBe(400);
+  });
+
+  it("late Keeps hold tens of thousands (pacing pass 1)", () => {
+    const s = createGameState({ seed: 1 });
+    keepAt(s, 4);
+    expect(storageCap(s, "stone")).toBe(15_000);
+    expect(storageCap(s, "gold")).toBe(10_000);
+    keepAt(s, 5);
+    expect(storageCap(s, "food")).toBe(80_000);
   });
 
   it("Keep II stretches the default floor and the granary wing", () => {
     const s = createGameState({ seed: 1 });
     const base = storageCap(s, "food");
     keepAt(s, 2);
-    expect(storageCap(s, "food")).toBe(Math.floor(base * 1.2));
+    expect(storageCap(s, "food")).toBe(Math.floor(base * 4));
     s.buildings.push({
       id: "g1",
       typeId: "granary",
@@ -81,7 +90,7 @@ describe("storageCap", () => {
       level: 1,
       completesAtTick: null,
     });
-    expect(storageCap(s, "food")).toBe(Math.floor((200 + 300) * 1.2));
+    expect(storageCap(s, "food")).toBe(Math.floor((200 + 300) * 4));
   });
 });
 

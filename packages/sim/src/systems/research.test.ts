@@ -48,9 +48,9 @@ function keepAt(s: ReturnType<typeof createGameState>, level: number) {
 describe("academy research", () => {
   it("blocks cavalry until horse lore finishes behind Keep II", () => {
     const s = createGameState({ seed: 1 });
-    s.resources.gold = "200";
-    s.resources.food = "200";
-    s.resources.wood = "200";
+    s.resources.gold = "400";
+    s.resources.food = "400";
+    s.resources.wood = "400";
     expect(unitUnlocked(s, "cavalry")).toBe(false);
     expect(tryTrain(s, { typeId: "cavalry", count: 1 })).toBe(false);
     expect(tryStartResearch(s, "horse")).toBe(false);
@@ -67,16 +67,16 @@ describe("academy research", () => {
     expect(tryStartResearch(s, "horse")).toBe(false);
     keepAt(s, 2);
     expect(tryStartResearch(s, "horse")).toBe(true);
-    s.meta.tick = 300;
+    s.meta.tick = 36_000;
     expect(researchDone(s, "horse")).toBe(true);
     expect(tryTrain(s, { typeId: "cavalry", count: 1 })).toBe(true);
   });
 
   it("blocks siege engines until siege craft finishes behind Keep III", () => {
     const s = createGameState({ seed: 1 });
-    s.resources.gold = "200";
-    s.resources.wood = "200";
-    s.resources.stone = "200";
+    s.resources.gold = "1750";
+    s.resources.wood = "1000";
+    s.resources.stone = "750";
     expect(unitUnlocked(s, "siege")).toBe(false);
     s.buildings.push({
       id: "sw",
@@ -91,14 +91,16 @@ describe("academy research", () => {
     expect(tryStartResearch(s, "siege")).toBe(false);
     keepAt(s, 3);
     expect(tryStartResearch(s, "siege")).toBe(true);
-    s.meta.tick = 400;
+    s.meta.tick = 288_000 - 1;
+    expect(researchDone(s, "siege")).toBe(false);
+    s.meta.tick = 288_000;
     expect(researchDone(s, "siege")).toBe(true);
     expect(unitUnlocked(s, "siege")).toBe(true);
   });
 
   it("a finished academy also opens horse lore once Keep II stands", () => {
     const s = createGameState({ seed: 1 });
-    s.resources.gold = "200";
+    s.resources.gold = "320";
     s.resources.wood = "200";
     expect(tryStartResearch(s, "horse")).toBe(false);
     s.buildings.push({
@@ -116,8 +118,8 @@ describe("academy research", () => {
 
   it("cancels a study and refunds the unused fraction (academy-paced duration)", () => {
     const s = createGameState({ seed: 1 });
-    s.resources.gold = "80";
-    s.resources.wood = "48";
+    s.resources.gold = "400";
+    s.resources.wood = "250";
     keepAt(s, 2);
     s.buildings.push({
       id: "ac",
@@ -129,15 +131,16 @@ describe("academy research", () => {
       completesAtTick: null,
     });
     expect(tryStartResearch(s, "horse")).toBe(true);
-    expect(s.resources.gold).toBe("40");
-    // Academy present: 240 ticks * 0.8 = 192.
-    s.meta.tick = 120;
-    expect(researchTicksLeft(s, "horse")).toBe(72);
+    expect(s.resources.gold).toBe("80");
+    // Academy present: 36_000 ticks (1h) * 0.8 = 28_800. Cancel a quarter of the way in.
+    s.meta.tick = 7_200;
+    expect(researchTicksLeft(s, "horse")).toBe(21_600);
     expect(tryCancelResearch(s, "horse")).toBe(true);
     expect(researchTicksLeft(s, "horse")).toBe(0);
     expect(researchDone(s, "horse")).toBe(false);
-    expect(D(s.resources.gold).eq(55)).toBe(true);
-    expect(D(s.resources.wood).eq(33)).toBe(true);
+    // Refund 3/4 of 320 gold and 200 wood.
+    expect(D(s.resources.gold).eq(320)).toBe(true);
+    expect(D(s.resources.wood).eq(200)).toBe(true);
     expect(tryCancelResearch(s, "horse")).toBe(false);
     expect(tryStartResearch(s, "horse")).toBe(true);
   });
@@ -161,8 +164,8 @@ describe("academy research", () => {
 
   it("a finished academy shortens a new husbandry study by 20%, but not one already in progress", () => {
     const withoutAcademy = createGameState({ seed: 1 });
-    withoutAcademy.resources.food = "40";
-    withoutAcademy.resources.wood = "24";
+    withoutAcademy.resources.food = "80";
+    withoutAcademy.resources.wood = "48";
     withoutAcademy.buildings.push({
       id: "farm",
       typeId: "farm",
@@ -173,11 +176,11 @@ describe("academy research", () => {
       completesAtTick: null,
     });
     expect(tryStartResearch(withoutAcademy, "husbandry")).toBe(true);
-    expect(researchTicksLeft(withoutAcademy, "husbandry")).toBe(180);
+    expect(researchTicksLeft(withoutAcademy, "husbandry")).toBe(3_000);
 
     const withAcademy = createGameState({ seed: 1 });
-    withAcademy.resources.food = "40";
-    withAcademy.resources.wood = "24";
+    withAcademy.resources.food = "80";
+    withAcademy.resources.wood = "48";
     withAcademy.buildings.push({
       id: "ac",
       typeId: "academy",
@@ -188,8 +191,8 @@ describe("academy research", () => {
       completesAtTick: null,
     });
     expect(tryStartResearch(withAcademy, "husbandry")).toBe(true);
-    // 180 ticks * 0.8 = 144, ceil'd (already whole here).
-    expect(researchTicksLeft(withAcademy, "husbandry")).toBe(144);
+    // 3_000 ticks (5m) * 0.8 = 2_400.
+    expect(researchTicksLeft(withAcademy, "husbandry")).toBe(2_400);
 
     // A study already underway keeps its original done tick even if an Academy
     // finishes construction afterward - the discount only applies at start time.
@@ -202,13 +205,13 @@ describe("academy research", () => {
       level: 1,
       completesAtTick: null,
     });
-    expect(researchTicksLeft(withoutAcademy, "husbandry")).toBe(180);
+    expect(researchTicksLeft(withoutAcademy, "husbandry")).toBe(3_000);
   });
 
   it("researchDuration reports the full tick length, or 20% less once an Academy stands", () => {
     const s = createGameState({ seed: 1 });
-    expect(researchDuration(s, "husbandry")).toBe(180);
-    expect(researchDuration(s, "siege")).toBe(360);
+    expect(researchDuration(s, "husbandry")).toBe(3_000);
+    expect(researchDuration(s, "siege")).toBe(288_000);
     s.buildings.push({
       id: "ac",
       typeId: "academy",
@@ -218,16 +221,16 @@ describe("academy research", () => {
       level: 1,
       completesAtTick: null,
     });
-    // 180 * 0.8 = 144, exact.
-    expect(researchDuration(s, "husbandry")).toBe(144);
-    // 360 * 0.8 = 288, exact - Academy discounts every study, even ones it doesn't gate.
-    expect(researchDuration(s, "siege")).toBe(288);
+    // 3_000 * 0.8 = 2_400, exact.
+    expect(researchDuration(s, "husbandry")).toBe(2_400);
+    // 288_000 * 0.8 = 230_400, exact - Academy discounts every study, even ones it doesn't gate.
+    expect(researchDuration(s, "siege")).toBe(230_400);
   });
 
   it("surveying needs Keep II and stretches vision", () => {
     const s = createGameState({ seed: 1 });
-    s.resources.gold = "40";
-    s.resources.wood = "40";
+    s.resources.gold = "240";
+    s.resources.wood = "160";
     s.buildings.push({
       id: "ac",
       typeId: "academy",
@@ -241,9 +244,36 @@ describe("academy research", () => {
     expect(tryStartResearch(s, "surveying")).toBe(false);
     keepAt(s, 2);
     expect(tryStartResearch(s, "surveying")).toBe(true);
-    s.meta.tick = 250;
+    s.meta.tick = 24_000;
     expect(researchDone(s, "surveying")).toBe(true);
     expect(visionRange(s)).toBe(base + 1);
+  });
+
+  describe("pacing pass 1", () => {
+    const H = 36_000;
+    it("tier I studies with no Keep gate stay in minutes", () => {
+      for (const [id, def] of Object.entries(RESEARCH)) {
+        if (researchTier(id) !== 1 || def.keepMin !== 0) continue;
+        expect(def.ticks).toBeGreaterThanOrEqual(3_000);
+        expect(def.ticks).toBeLessThanOrEqual(H);
+      }
+    });
+
+    it("Keep II studies take tens of minutes to hours", () => {
+      expect(RESEARCH.horse.ticks).toBe(H);
+      expect(RESEARCH.crop_rotation.ticks).toBe(2 * H);
+      expect(RESEARCH.quartermastery.ticks).toBe(3 * H);
+    });
+
+    it("Keep III studies take 8h to 1.5d and cost in the thousands", () => {
+      for (const [id, def] of Object.entries(RESEARCH)) {
+        if (def.keepMin < 3) continue;
+        expect(def.ticks, id).toBeGreaterThanOrEqual(8 * H);
+        const total = Object.values(def.cost).reduce((n, v) => n + Number(v), 0);
+        expect(total, id).toBeGreaterThanOrEqual(2_000);
+      }
+      expect(RESEARCH.supply_trains.ticks).toBe(36 * H);
+    });
   });
 
   describe("tier II studies", () => {
@@ -258,7 +288,7 @@ describe("academy research", () => {
 
     function academyRealm(keep: number) {
       const s = createGameState({ seed: 1 });
-      for (const res of ["food", "wood", "stone", "gold"]) s.resources[res] = "100";
+      for (const res of ["food", "wood", "stone", "gold"]) s.resources[res] = "3000";
       s.buildings.push({
         id: "ac",
         typeId: "academy",
@@ -288,11 +318,11 @@ describe("academy research", () => {
         const s = academyRealm(3);
         expect(researchPrereqReady(s, id)).toBe(false);
         expect(tryStartResearch(s, id)).toBe(false);
-        expect(s.resources.gold).toBe("100");
+        expect(s.resources.gold).toBe("3000");
         s.flags[`research_${parent}`] = 1;
         expect(researchPrereqReady(s, id)).toBe(true);
         expect(tryStartResearch(s, id)).toBe(true);
-        s.meta.tick = 1000;
+        s.meta.tick = RESEARCH[id].ticks;
         expect(researchDone(s, id)).toBe(true);
       }
     });
@@ -308,12 +338,13 @@ describe("academy research", () => {
     it("cancel refunds the unused fraction and frees the lectern", () => {
       const s = academyRealm(2);
       s.flags.research_husbandry = 1;
+      s.resources.food = "400";
       expect(tryStartResearch(s, "crop_rotation")).toBe(true);
       expect(s.resources.food).toBe("40");
-      // Academy pace: 280 * 0.8 = 224 ticks. Half way through.
-      s.meta.tick = 112;
+      // Academy pace: 72_000 (2h) * 0.8 = 57_600 ticks. Half way through.
+      s.meta.tick = 28_800;
       expect(tryCancelResearch(s, "crop_rotation")).toBe(true);
-      expect(D(s.resources.food).eq(70)).toBe(true);
+      expect(D(s.resources.food).eq(220)).toBe(true);
       expect(researchDone(s, "crop_rotation")).toBe(false);
     });
 

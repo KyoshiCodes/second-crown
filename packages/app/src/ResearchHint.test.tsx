@@ -28,8 +28,8 @@ function done(state: ReturnType<typeof createGameState>, ...ids: string[]) {
 
 describe("researchCostText", () => {
   it("reads costs straight from the sim research table", () => {
-    expect(researchCostText("husbandry")).toBe("20 food, 12 wood");
-    expect(researchCostText("logistics")).toBe("30 gold, 16 wood, 12 food");
+    expect(researchCostText("husbandry")).toBe("80 food, 48 wood");
+    expect(researchCostText("logistics")).toBe("300 gold, 160 wood, 120 food");
   });
 });
 
@@ -44,7 +44,7 @@ describe("ResearchHint", () => {
     expect(nextResearch(s)).toEqual({ id: "husbandry", ready: false });
     const html = renderToStaticMarkup(<ResearchHint state={s} />);
     expect(html).toContain(RESEARCH.husbandry.name);
-    expect(html).toContain("20 food, 12 wood");
+    expect(html).toContain("80 food, 48 wood");
     expect(html).toContain("needs farm or granary or academy");
     expect(html).toContain('data-research-glyph="husbandry"');
     expect(html).toContain('data-ready="false"');

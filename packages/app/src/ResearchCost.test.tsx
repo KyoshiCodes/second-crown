@@ -84,17 +84,17 @@ describe("cost row on the lectern cards", () => {
 
     const h = card(html, "husbandry");
     expect(h).toContain("Husbandry");
-    expect(h).toContain("20 food");
-    expect(h).toContain("12 wood");
+    expect(h).toContain("80 food");
+    expect(h).toContain("48 wood");
     expect(h).toContain("Not started");
-    // 180 ticks, Academy discount 20% -> 144 ticks -> 14s
-    expect(h).toContain("Study husbandry (14s)</span>");
+    // 3_000 ticks, Academy discount 20% -> 2_400 ticks -> 4m
+    expect(h).toContain("Study husbandry (4m)</span>");
   });
 
   it("turns green when the stores cover it and the sim agrees", () => {
     const s = realm();
-    s.resources.food = "20";
-    s.resources.wood = "12";
+    s.resources.food = "80";
+    s.resources.wood = "48";
     const h = card(renderToStaticMarkup(<ResearchBar state={s} act={act} />), "husbandry");
     expect(h).toContain('data-ink-stage="open"');
     expect(h).toContain("is-open");

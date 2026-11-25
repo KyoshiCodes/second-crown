@@ -84,7 +84,9 @@ describe("researchStatus", () => {
     expect(row.ticksLeft).toBe(left);
     expect(row.ticksTotal).toBe(total);
     expect(row.percent).toBe(Math.round((1 - left / total) * 100));
-    expect(row.progress).toBe(`${row.percent}% · ${Math.ceil(left / TICKS_PER_SECOND)}s left`);
+    // Pacing pass 1: husbandry is 3_000 ticks, so half way leaves 1_500 ticks = 2m 30s.
+    expect(left).toBe(1_500);
+    expect(row.progress).toBe(`${row.percent}% · 2m 30s left`);
     expect(row.bonus).toBe("Farms and granaries yield more food.");
     expect(st.text).toBe(`Research · 1 active · Husbandry, ${row.progress}: Farms and granaries yield more food.`);
   });
@@ -138,7 +140,7 @@ describe("ResearchStatusLine", () => {
     expect(html).toContain('data-research-active="1"');
     expect(html).toContain('data-study="husbandry"');
     expect(html).toContain("<strong>Husbandry</strong>");
-    expect(html).toContain("s left");
+    expect(html).toContain("m left");
     expect(html).toContain("Farms and granaries yield more food.");
     expect(html).toContain(`aria-label="${researchStatus(s).text}"`);
     expect(html).toContain("is-lit");

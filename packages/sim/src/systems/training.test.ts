@@ -64,8 +64,8 @@ describe("training queue", () => {
     const waiting = listTraining(s)[1];
     expect(tryCancelTraining(s, waiting.id)).toBe(true);
     expect(listTraining(s)).toHaveLength(1);
-    expect(D(s.resources.food).eq(96)).toBe(true);
-    expect(D(s.resources.wood).eq(99)).toBe(true);
+    expect(D(s.resources.food).eq(92)).toBe(true);
+    expect(D(s.resources.wood).eq(98)).toBe(true);
     expect(playerMilitia(s)).toBeUndefined();
   });
 

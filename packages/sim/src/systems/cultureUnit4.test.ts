@@ -49,12 +49,12 @@ describe("fen culture", () => {
 });
 
 describe("warden", () => {
-  it("costs the same as a skirmisher, power 3, drills in 3s", () => {
+  it("costs the same as a skirmisher, power 5, drills in 24s", () => {
     const warden = getUnitType("warden")!;
     const skirmisher = getUnitType("skirmisher")!;
     expect(warden.cost).toEqual(skirmisher.cost);
-    expect(warden.power).toBe(3);
-    expect(warden.trainTicks).toBe(3 * TICKS_PER_SECOND);
+    expect(warden.power).toBe(5);
+    expect(warden.trainTicks).toBe(24 * TICKS_PER_SECOND);
     const s = createGameState({ seed: 1 });
     expect(trainCostMultiplier(s, "warden")).toBe(trainCostMultiplier(s, "skirmisher"));
   });

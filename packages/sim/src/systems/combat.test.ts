@@ -64,8 +64,9 @@ describe("combat / war", () => {
     const before = realmPower(state, "player");
     expect(tryTrain(state, { typeId: "militia", count: 5 })).toBe(true);
     expect(realmPower(state, "player")).toBe(before);
-    expect(D(state.resources.food).eq(80)).toBe(true);
-    expect(D(state.resources.wood).eq(95)).toBe(true);
+    // Militia after pacing pass 1: 8 food + 2 wood each.
+    expect(D(state.resources.food).eq(60)).toBe(true);
+    expect(D(state.resources.wood).eq(90)).toBe(true);
     new TickEngine(state).settleTicks(trainDurationTicks(state, "militia", 5));
     expect(realmPower(state, "player")).toBe(before + 5);
   });

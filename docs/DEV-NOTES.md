@@ -1,3 +1,12 @@
+## 2026-11-25 — sim / pacing pass 1
+
+- **Where the numbers live:** `packages/sim/src/content/pacing.ts`. Upgrade curves are indexed by *from-level* (1–4). Unit curves are indexed by `UnitType.tier`. Research ticks and costs are literal values in the `RESEARCH` table (comment at its head gives the bands). Tick math: 600 = 1m, 36,000 = 1h, 864,000 = 1d.
+- **Units:** `BASE_UNIT_TYPES` holds the old hand-tuned stats; `UNIT_TYPES` is built from it once at module load by `paceUnit` (cost ceil, trainTicks ceil, power round). Champion is in `UNPACED_UNITS`. Tests that compare two units (`ranger` vs `archer`, etc.) still hold because pairs share a tier.
+- **Storage coupling:** each upgrade step's cost must fit under `storageCap` at the lowest Keep that allows that step (a from-level-L upgrade needs Keep ≥ L). That is why `KEEP_GATES.storeMult` went up with this pass. If you raise `UPGRADE_COST_MULT` or research costs, check gold first: it has the smallest cap (100 base, +150 per Mint).
+- **Not changed:** first-time `buildTicks` / building `cost`, production rates, rival / camp strength, combat formulas (only `power` inputs grew for Tier II+). Rival and camp balance against stronger Tier III–IV units is not playtested yet.
+- **App follow-up (not done here, app was out of scope):** `horizon.ts` cost brackets (`COST_BRACKET_COSTLY = 50`, `COST_BRACKET_STEEP = 200`) now flag almost every non-militia batch. Retune them to the new costs.
+- **Verification:** `npm test` → sim 374, app 1472, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean.
+
 ## 2026-11-25 — app / living progression accents
 
 - **Helpers & components (`packages/app/src/horizon/`):**

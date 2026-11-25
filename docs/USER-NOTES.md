@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — The long game is longer
+
+- **Studies take real time now.** Starter studies (Husbandry, Drill, and so on) take about 5 minutes. Keep II studies take 40 minutes to 3 hours. Keep III studies take 8 hours to a day and a half.
+- **Upgrades get slower and pricier with every level.** A Keep goes I→II in about 19 minutes, II→III in under 2 hours, III→IV in about 10 hours, and IV→V in a bit over 2 days. The last Keep step costs 20,000 stone, 10,000 wood and 7,500 gold.
+- **Bigger warehouses at higher Keeps.** Storage is ×4 at Keep II, ×20 at Keep III, ×100 at Keep IV and ×400 at Keep V, so you can save up for those costs.
+- **Higher-tier troops are much stronger and much dearer.** A Knight now costs 180 food, 120 gold and 60 wood, takes 2 minutes to drill, and is worth 25 power (was 10). Militia stay cheap.
+- Placing a new building costs and takes the same as before.
+
 ## 2026-11-25 — Living accents for long progression
 
 - **Long-wait glow:** Building works and lectern studies that take hours glow warmly in gold, and multi-day waits pulse in deeper amber so long commitments stand out at a glance.

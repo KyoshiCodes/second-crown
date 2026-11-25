@@ -1,4 +1,5 @@
 import type { UnitTypeId, ResourceId } from "@second-crown/shared";
+import { UNIT_TIER_PACING } from "./pacing.js";
 
 export type UnitRole = "line" | "ranged" | "shock" | "skirmish" | "siege" | "support";
 
@@ -17,7 +18,8 @@ export interface UnitType {
   blurb?: string;
 }
 
-export const UNIT_TYPES: Record<string, UnitType> = {
+/** Pre-pacing numbers. The live table is UNIT_TYPES, scaled by tier in pacing.ts. */
+export const BASE_UNIT_TYPES: Record<string, UnitType> = {
   militia: {
     id: "militia",
     name: "Militia",
@@ -287,6 +289,28 @@ export const UNIT_TYPES: Record<string, UnitType> = {
     blurb: "Iron March plate, copied. Needs Fortification.",
   },
 };
+
+/** Units hired outside the train queue keep their base numbers. */
+const UNPACED_UNITS = new Set(["champion"]);
+
+function paceUnit(base: UnitType): UnitType {
+  if (UNPACED_UNITS.has(base.id)) return { ...base, cost: { ...base.cost } };
+  const p = UNIT_TIER_PACING[base.tier];
+  const cost: Partial<Record<ResourceId, string>> = {};
+  for (const [res, amt] of Object.entries(base.cost)) {
+    cost[res as ResourceId] = String(Math.ceil(Number(amt) * p.cost));
+  }
+  return {
+    ...base,
+    power: Math.round(base.power * p.power),
+    trainTicks: Math.ceil(base.trainTicks * p.train),
+    cost,
+  };
+}
+
+export const UNIT_TYPES: Record<string, UnitType> = Object.fromEntries(
+  Object.entries(BASE_UNIT_TYPES).map(([id, u]) => [id, paceUnit(u)]),
+);
 
 export function getUnitType(id: string): UnitType | undefined {
   return UNIT_TYPES[id];

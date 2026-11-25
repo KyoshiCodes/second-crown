@@ -20,8 +20,8 @@ function readCssFile(relativePath: string): string {
 
 describe("unitCostText", () => {
   it("reads base costs straight from the sim unit table", () => {
-    expect(unitCostText("ranger")).toBe("food 5 · wood 6 · gold 1");
-    expect(unitCostText("lancer")).toBe("food 12 · gold 8 · wood 4");
+    expect(unitCostText("ranger")).toBe("food 25 · wood 30 · gold 5");
+    expect(unitCostText("lancer")).toBe("food 180 · gold 120 · wood 60");
     expect(unitCostText("nope")).toBeNull();
   });
 });

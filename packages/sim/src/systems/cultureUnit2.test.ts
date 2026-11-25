@@ -49,12 +49,12 @@ describe("glen culture", () => {
 });
 
 describe("banner", () => {
-  it("costs the same as a spearman, power 3, drills in 3s", () => {
+  it("costs the same as a spearman, power 5, drills in 24s", () => {
     const banner = getUnitType("banner")!;
     const spearman = getUnitType("spearman")!;
     expect(banner.cost).toEqual(spearman.cost);
-    expect(banner.power).toBe(3);
-    expect(banner.trainTicks).toBe(3 * TICKS_PER_SECOND);
+    expect(banner.power).toBe(5);
+    expect(banner.trainTicks).toBe(24 * TICKS_PER_SECOND);
   });
 
   it("refuses until Drill is done; spearman stays open", () => {
