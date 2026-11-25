@@ -1,3 +1,13 @@
+## 2026-11-24 — app / collapsible Fold visual polish & Compact board focus
+
+- **Components (`packages/app/src/hud/Fold.tsx`):**
+  - Imported `./fold-polish.css`, exported `FOLD_CLOSE_MS = 180`, and added a visual-only `closing` transition state (`prevOpenRef`) so closing panels play `.sc-fold-reveal.is-closing` for `180ms` (skipped under SSR or `prefers-reduced-motion: reduce`) before unmounting children. Closed initial/SSR renders still omit `.sc-fold-reveal` / `.sc-fold-body`.
+  - Preserved all `initialFoldOpen` rules, `FOLD_ALL_EVENT`, `COMPACT_EVENT`, and `localStorage` keys (`sc-fold:<id>`, `sc-fold-seen:<id>`, `sc-compact`).
+- **Dedicated CSS (`packages/app/src/hud/fold-polish.css`):**
+  - Grid-row expand/collapse animations (`@keyframes sc-fold-open`, `@keyframes sc-fold-close`, `sc-fold-body-in`, `sc-fold-body-out`), Dusk/Night/Parchment summary accent tokens (`--sc-fold-gold`, `--sc-fold-summary-text`, `--sc-compact-glow-rgb`), and Compact focus overlays (`:root.sc-compact .sc-shell::after`, `:root.sc-compact .sc-map-canvas-container::before`, `:root.sc-compact .sc-map-canvas`) using `pointer-events: none !important;` and leaving `.sc-map-canvas-container > div::before`/`::after` untouched.
+  - Zero edits to `theme.css`, `layout-priority.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/FoldPolish.test.tsx`):** 2 tests passing (`npm test` -> sim 362, app 1376, server 158; `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-24 — app / Kingdom tab flow pass
 
 - **`hud/RaiseImproveFold.tsx`:** `<RaiseImproveFold state act selectedBuild setSelectedBuild>` replaces the picker blurb, `.sc-plain-grid` picker and the `Raising` / `Improving` `<h3>` grids in `KingdomTab.tsx` (same position: after keep gate / banners / incoming lines, before Standing works). `Fold id="kingdom-raise"`, not noisy (it is the main action). Exports `worksInProgress(state)` (raises = `listWorksInProgress` minus `isScarred`, then `listUpgrades`; seconds = `ceil(ticks/10)` as before) and `raiseImproveSummary(pickedName, works, affordable)`. Cancel calls `tryCancelBuild` / `tryCancelUpgrade` with the same messages as before. KingdomTab drops the now-unused sim imports.

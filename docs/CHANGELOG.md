@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-24 — Visual polish pass on collapsible Fold panels and Compact mode
+
+- **Soft open/close motion (`hud/Fold.tsx`, `hud/fold-polish.css`):** Wrapped `.sc-fold-body` inside `.sc-fold-reveal` (`display: grid`) with `220ms` cubic-bezier grid-row + opacity + `-4px` glide-in opening and a `180ms` (`FOLD_CLOSE_MS`) visual close fade before unmounting on close, keeping reduced-motion guards (`@media (prefers-reduced-motion: reduce)`) and zero layout snap.
+- **Cleaner folded summary styling (`fold-polish.css`):** Raised `.sc-fold-summary` contrast when collapsed (`.sc-fold.is-closed .sc-fold-summary`) with a crisp warm text tone, a subtle gold left-edge bar, and a faint translucent highlight across Dusk, Night, and Parchment chrome themes.
+- **Compact board-focus glow & vignette (`:root.sc-compact`):** Added a soft `pointer-events: none !important;` peripheral viewport vignette (`.sc-shell::after`), radial board halo (`.sc-map-canvas-container::before`), and subtle gilded focus shadow on `.sc-map-canvas` while slightly muting closed fold headers so the board clearly holds focus.
+- **Unchanged invariants:** Zero changes to `Fold` behavior, `localStorage` keys (`sc-fold:<id>`, `sc-fold-seen:<id>`, `sc-compact`), `theme.css`, `layout-priority.css`, `packages/sim`, or `server/`.
+- **Tests:** Added `packages/app/src/hud/FoldPolish.test.tsx` (2 tests). Now: sim **362**, app **1376**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-24 — Kingdom tab flow pass: Raise / Improve fold, one-row season claim
 
 - **Raise / Improve (`hud/RaiseImproveFold.tsx`):** the build picker, the picked building's blurb, and the old "Raising" and "Improving" grids are now one `Fold` (`id="kingdom-raise"`, calm: starts open, saved in `sc-fold:kingdom-raise`, follows Compact). Folded title bar: `Picked: <name>` (or `N affordable`) `· N raising · N improving`. Works underway are one short row each (tag, name, `→ lv N`, seconds left, Cancel) instead of two headed card grids. Picker chips are one line, 7 across on a 900px board (was 5 across, two lines each); afford state is the left border plus a dot, and the words stay for screen readers. The picked chip still says "Picked — tap a plot".

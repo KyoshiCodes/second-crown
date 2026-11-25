@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — Smoother folds & Compact board focus
+
+- **Softer opening and closing:** Collapsible panels now glide open and softly fold shut instead of snapping open or closed (respecting reduced-motion preferences).
+- **Clearer folded summaries:** When a panel is folded, its summary line stands out cleanly with a subtle gold edge accent so you can scan key info at a glance.
+- **Board focus in Compact mode:** Turning on **Compact** gently dims the outer screen edges and adds a soft halo around the map so the board takes center stage.
+
 ## 2026-11-24 — Tidier Kingdom tab
 
 - The building list and everything you're raising or improving now live in one **Raise / Improve** panel. Click its title bar to fold it; the title still shows what you picked and how many works are underway.
