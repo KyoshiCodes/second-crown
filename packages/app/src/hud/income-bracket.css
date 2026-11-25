@@ -1,0 +1,196 @@
+/* --- Income Bracket Living Accents (isolated CSS) ---
+ * Loaded from hud/ResourceHud.tsx after economy-pressure.css.
+ * Never modifies theme.css, hud-micro-feedback.css, or economy-pressure.css.
+ * Avoids store cell pseudo-elements so existing music/flash layers stay intact.
+ * Strict pointer-events: none !important on glows, pips, and rings.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-income-mid-rgb: 92, 198, 162;
+  --sc-income-late-rgb: 232, 204, 108;
+}
+
+:root[data-chrome="night"] {
+  --sc-income-mid-rgb: 102, 206, 178;
+  --sc-income-late-rgb: 224, 198, 118;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-income-mid-rgb: 28, 128, 92;
+  --sc-income-late-rgb: 162, 114, 24;
+}
+
+/* ==========================================================================
+   2. Whisper-Soft Bottom-Edge Glow on Mid / Late Store Cells
+   ========================================================================== */
+.sc-income-bracket-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-income-bracket-glow.is-mid {
+  background: linear-gradient(
+    to top,
+    rgba(var(--sc-income-mid-rgb), 0.12) 0%,
+    rgba(var(--sc-income-mid-rgb), 0.03) 38%,
+    transparent 70%
+  );
+  animation: sc-income-glow-mid 5.6s ease-in-out infinite;
+}
+
+.sc-income-bracket-glow.is-late {
+  background: linear-gradient(
+    to top,
+    rgba(var(--sc-income-late-rgb), 0.16) 0%,
+    rgba(var(--sc-income-late-rgb), 0.05) 42%,
+    transparent 76%
+  );
+  animation: sc-income-glow-late 4.8s ease-in-out infinite;
+}
+
+.sc-ledger-cell.is-bottleneck .sc-income-bracket-glow,
+.sc-ledger-cell.is-empty .sc-income-bracket-glow {
+  opacity: 0.4;
+}
+
+@keyframes sc-income-glow-mid {
+  0%, 100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-income-glow-late {
+  0%, 100% {
+    opacity: 0.68;
+    box-shadow: inset 0 -1px 0 rgba(var(--sc-income-late-rgb), 0.22);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: inset 0 -1px 0 rgba(var(--sc-income-late-rgb), 0.44);
+  }
+}
+
+/* ==========================================================================
+   3. Living Income Bracket Pip Beside +rate/s
+   ========================================================================== */
+.sc-ledger-cell.is-income-mid .sc-ledger-rate,
+.sc-ledger-cell.is-income-late .sc-ledger-rate {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sc-ledger-cell.is-income-late .sc-ledger-rate {
+  color: rgb(var(--sc-income-late-rgb));
+}
+
+:root[data-chrome="parchment"] .sc-ledger-cell.is-income-mid .sc-ledger-rate {
+  color: #165c42;
+}
+
+:root[data-chrome="parchment"] .sc-ledger-cell.is-income-late .sc-ledger-rate {
+  color: #6b450a;
+}
+
+.sc-income-bracket-pip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 7px;
+  height: 7px;
+  flex: none;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-income-bracket-pip::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  pointer-events: none !important;
+}
+
+.sc-income-bracket-pip.is-mid::before {
+  background: rgb(var(--sc-income-mid-rgb));
+  box-shadow: 0 0 4px rgba(var(--sc-income-mid-rgb), 0.62);
+  animation: sc-income-pip-mid 4.6s ease-in-out infinite;
+}
+
+.sc-income-bracket-pip.is-late::before {
+  background: rgb(var(--sc-income-late-rgb));
+  box-shadow: 0 0 5px rgba(var(--sc-income-late-rgb), 0.72);
+  animation: sc-income-pip-late 3.8s ease-in-out infinite;
+}
+
+.sc-income-bracket-pip-ring {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--sc-income-late-rgb), 0.6);
+  pointer-events: none !important;
+  animation: sc-income-pip-ring 3.8s ease-out infinite;
+}
+
+@keyframes sc-income-pip-mid {
+  0%, 100% {
+    opacity: 0.66;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes sc-income-pip-late {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes sc-income-pip-ring {
+  0% {
+    opacity: 0.58;
+    transform: scale(1);
+  }
+  75%, 100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+/* ==========================================================================
+   4. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-income-bracket-glow.is-mid,
+  .sc-income-bracket-glow.is-late,
+  .sc-income-bracket-pip.is-mid::before,
+  .sc-income-bracket-pip.is-late::before,
+  .sc-income-bracket-pip-ring {
+    animation: none !important;
+  }
+
+  .sc-income-bracket-pip-ring {
+    display: none;
+  }
+}

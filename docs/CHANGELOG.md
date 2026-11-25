@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Living mid & late income bracket accents on stores strip
+
+- **Income bracket classification (`hud/incomeBracket.ts`, `hud/ResourceHud.tsx`):** Added `resolveIncomeBracket` (`BASE_INCOME_PER_SECOND = 10`, `INCOME_MID_MULT = 3` → `30/s`, `INCOME_LATE_MULT = 15` → `150/s`) and `incomeBracketLabel` (`"Mid income (3×+ base)"` / `"Late income (15×+ base)"`) on store cells and rate lines.
+- **Quiet glows & living pips (`hud/income-bracket.css`):** Scaled store cells render a subtle bottom-edge glow (`sc-income-bracket-glow`, dimmed when bottlenecked or empty so amber/crimson alerts stay primary) and a miniature pip beside `+rate/s` (`sc-income-bracket-pip` sage-teal for `mid`, warm gold with subtle halo ring for `late`), using child elements rather than store pseudo-elements (`pointer-events: none !important;`). Base incomes stay completely still.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `hud-micro-feedback.css`, `economy-pressure.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/IncomeBracket.test.tsx` (8 tests). Now: sim **379**, app **1516**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Sim income pass (production scales with Keep and level)
 
 - **Level yield curve (`content/pacing.ts` `LEVEL_YIELD_MULT` / `levelYieldMult`):** building output by level is 1 / 2 / 3.5 / 5 / 8 (was linear 1–5). L1–L2 unchanged.

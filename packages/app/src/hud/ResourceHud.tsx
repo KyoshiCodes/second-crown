@@ -15,7 +15,9 @@ import "./resource-pip.css";
 import "./resource-living.css";
 import "./hud-micro-feedback.css";
 import "./economy-pressure.css";
+import "./income-bracket.css";
 import { bottleneckResourceMap } from "./economyPressure";
+import { incomeBracketLabel, resolveIncomeBracket, type IncomeBracket } from "./incomeBracket";
 
 export const HUD_PULSE_MS = 680;
 export type ResourceMicroPulseKey = "food" | "wood" | "stone" | "gold";
@@ -65,6 +67,7 @@ export function ResourceHud(props: {
   state?: GameState;
   pulseOverride?: Partial<Record<ResourceMicroPulseKey, Exclude<ResourceMicroPulseKind, null>>>;
   bottleneckOverride?: Readonly<Record<string, string | boolean>>;
+  incomeBracketOverride?: Partial<Record<ResourceMicroPulseKey, IncomeBracket>>;
 }) {
   const hungry = props.state ? isFoodStoresEmptyOrLow(props.state) : false;
   const bottleneckMap = bottleneckResourceMap(props.state);
@@ -162,21 +165,30 @@ export function ResourceHud(props: {
                 : []
             : (bottleneckMap[r] ?? []).map((b) => b.target);
         const isBottleneck = !empty && bottleneckTargets.length > 0;
-        const cellTip = [tip, isBottleneck ? `limiter for ${bottleneckTargets.join(", ")}` : ""]
+        const incomeBracket = props.incomeBracketOverride?.[r] ?? resolveIncomeBracket(income);
+        const incomeBracketNote = incomeBracketLabel(incomeBracket);
+        const isHighIncome = incomeBracket !== "base";
+        const cellTip = [
+          tip,
+          isBottleneck ? `limiter for ${bottleneckTargets.join(", ")}` : "",
+          incomeBracketNote ?? "",
+        ]
           .filter(Boolean)
           .join(" · ");
         return (
           <div
             key={r}
             role="listitem"
-            className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}${isBottleneck ? " is-bottleneck" : ""}`}
+            className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}${isBottleneck ? " is-bottleneck" : ""}${isHighIncome ? ` is-income-${incomeBracket}` : ""}`}
             data-hud-pulse={activePulse ?? undefined}
             data-economy-bottleneck={isBottleneck ? "true" : undefined}
             data-bottleneck-targets={isBottleneck ? bottleneckTargets.join(", ") : undefined}
+            data-income-bracket={isHighIncome ? incomeBracket : undefined}
             title={cellTip}
           >
             <ResourceLivingUnderlay resource={r} mood={desc.mood} />
             {isBottleneck ? <span className="sc-econ-bottleneck-glow" aria-hidden="true" /> : null}
+            {isHighIncome ? <span className={`sc-income-bracket-glow is-${incomeBracket}`} aria-hidden="true" /> : null}
             {activePulse ? (
               <span
                 key={`flash-${pulseSeq}`}
@@ -210,7 +222,18 @@ export function ResourceHud(props: {
               <div className={`sc-resource-living-row is-income ${earning ? "is-earning" : "is-idle"}`}>
                 <span className="sc-resource-living-label">Income</span>
                 {earning ? (
-                  <div className="sc-ledger-rate">+{formatLetterSuffix(income!)}/s</div>
+                  <div className="sc-ledger-rate" title={incomeBracketNote ?? undefined}>
+                    +{formatLetterSuffix(income!)}/s
+                    {isHighIncome ? (
+                      <span
+                        className={`sc-income-bracket-pip is-${incomeBracket}`}
+                        data-income-pip={incomeBracket}
+                        aria-hidden="true"
+                      >
+                        {incomeBracket === "late" ? <span className="sc-income-bracket-pip-ring" /> : null}
+                      </span>
+                    ) : null}
+                  </div>
                 ) : (
                   <div className="sc-ledger-rate is-idle">idle</div>
                 )}

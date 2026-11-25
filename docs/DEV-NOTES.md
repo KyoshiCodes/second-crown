@@ -1,3 +1,13 @@
+## 2026-11-25 — app / living mid & late income bracket accents
+
+- **Helpers & wiring (`packages/app/src/hud/incomeBracket.ts`, `ResourceHud.tsx`):**
+  - Exported `BASE_INCOME_PER_SECOND = 10`, `INCOME_MID_MULT = 3`, `INCOME_LATE_MULT = 15`, `IncomeBracket`, `resolveIncomeBracket`, and `incomeBracketLabel`.
+  - `ResourceHud` accepts optional `incomeBracketOverride`, appends `is-income-mid` / `is-income-late` + `data-income-bracket` and tooltip labels, and renders child `.sc-income-bracket-glow` + rate `.sc-income-bracket-pip` (`sc-income-bracket-pip-ring` for late, `pointer-events: none !important;`) without touching base-income renders or existing spacing.
+- **Dedicated CSS (`packages/app/src/hud/income-bracket.css`):**
+  - Imported after `economy-pressure.css` in `ResourceHud.tsx`. Defines Dusk/Night/Parchment RGB tokens (`--sc-income-mid-rgb`, `--sc-income-late-rgb`), softens `.sc-income-bracket-glow` when paired with `.is-bottleneck` / `.is-empty`, avoids `.sc-ledger-cell` pseudo-elements, and includes `@media (prefers-reduced-motion: reduce)`.
+  - Zero edits to `theme.css`, `hud-micro-feedback.css`, `economy-pressure.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/IncomeBracket.test.tsx`):** 8 tests passing (`npm test` -> sim 379, app 1516, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — sim / income pass
 
 - **Data (`packages/sim/src/content/pacing.ts`):** `LEVEL_YIELD_MULT` {1:1, 2:2, 3:3.5, 4:5, 5:8}, `KEEP_INCOME_MULT` {0:1, 1:1, 2:1.25, 3:1.5, 4:2.5, 5:3.5}; clamped helpers `levelYieldMult(level)`, `keepIncomeMult(keep)`.

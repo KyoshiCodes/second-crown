@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Quiet mid & late income cues on stores
+
+- **Scaled income glow & pip:** When a store's income scales into the **Mid** (`3×+` base, `30/s+`) or **Late** (`15×+` base, `150/s+`) production brackets, a soft glow appears along the bottom of its store card alongside a small living pip next to its `+rate/s` readout (sage-teal for Mid, warm gold for Late).
+- **Hover tooltip:** Hovering the store cell or rate shows `"Mid income (3×+ base)"` or `"Late income (15×+ base)"`.
+
 ## 2026-11-25 — Your income grows with your Keep
 
 - **Upgraded buildings pay much more.** A level 3 farm now makes 3.5× a level 1 farm, level 4 makes 5×, level 5 makes 8× (levels 1–2 unchanged).
