@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Living accents for long progression
+
+- **Long-wait glow:** Building works and lectern studies that take hours glow warmly in gold, and multi-day waits pulse in deeper amber so long commitments stand out at a glance.
+- **Unit tier crests:** Every unit card's tier tag now carries a tiny colored crest matching its rank — slate circle (Tier I), emerald chevron (Tier II), azure diamond (Tier III), royal-gold star (Tier IV), and crimson-gold crown (Tier V).
+- **Mid & late pace breathing:** Once your realm reaches **mid** or **late** pace, the Kingdom Pace summary breathes gently with softly pulsing rank pips.
+
 ## 2026-11-25 — Long waits are easier to read
 
 - **Times in hours and days:** Study, building and drill times no longer pile up as huge second counts. Under a minute still reads `45s`; longer waits read `1m 30s`, `3h 20m`, or `2d 4h`. Hover a time to see the exact seconds.

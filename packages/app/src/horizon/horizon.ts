@@ -63,7 +63,29 @@ export function exactSeconds(seconds: number): string {
 
 // ---------- Units ----------
 
+export type UnitTierRank = 1 | 2 | 3 | 4 | 5;
+export type UnitTierShape = "circle" | "chevron" | "diamond" | "star" | "crown";
+
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII"];
+
+const TIER_SHAPES: Record<UnitTierRank, UnitTierShape> = {
+  1: "circle",
+  2: "chevron",
+  3: "diamond",
+  4: "star",
+  5: "crown",
+};
+
+export function unitTierRank(tier: number | undefined): UnitTierRank {
+  const n = Math.floor(tier ?? 1);
+  if (!Number.isFinite(n) || n <= 1) return 1;
+  if (n >= 5) return 5;
+  return n as UnitTierRank;
+}
+
+export function unitTierShape(tier: number | undefined): UnitTierShape {
+  return TIER_SHAPES[unitTierRank(tier)];
+}
 
 export function unitTierLabel(tier: number | undefined): string {
   const t = Math.max(1, Math.floor(tier ?? 1));
@@ -109,6 +131,11 @@ export function unitBracketNote(input: { costTotal: number; seconds: number }): 
 // ---------- Pace ----------
 
 export type PaceStage = "early" | "mid" | "late";
+
+/** True when the player has reached mid or late pace and the Pace line softly breathes. */
+export function isPaceBreathing(stage: PaceStage): boolean {
+  return stage === "mid" || stage === "late";
+}
 
 /**
  * Where the realm stands, from Keep level (0–5) and the share of lectern studies known.

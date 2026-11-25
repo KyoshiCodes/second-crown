@@ -1,3 +1,14 @@
+## 2026-11-25 — app / living progression accents
+
+- **Helpers & components (`packages/app/src/horizon/`):**
+  - `horizon.ts` exports `UnitTierRank`, `UnitTierShape`, `unitTierRank`, `unitTierShape`, and `isPaceBreathing(stage)`.
+  - `HorizonTime.tsx` exports `<UnitTierPip>` (inline `10×10` SVG per tier rank inside `.sc-horizon-tier`), updates `PaceLine` with `.is-pace-breathing` + `data-pace-breathing="true"` in `mid`/`late`, and keeps all elements inside `UnitCard` strictly phrasing-only (`span`/`svg`).
+  - `RaiseImproveFold.tsx` (`sc-raise-work`) and `ResearchBar.tsx` (`sc-study-living-card` while `studying`, plus `.sc-horizon-study`) attach `.is-long-horizon.is-horizon-hours` / `.is-horizon-days` and `data-long-horizon` whenever `isLongHorizon(...)` is true.
+- **Dedicated CSS (`packages/app/src/horizon/horizon-living.css`):**
+  - Imported after `horizon.css` in `HorizonTime.tsx`. Defines Dusk/Night/Parchment RGB tokens (`--sc-horizon-hours-rgb`, `--sc-horizon-days-rgb`, `--sc-tier-1..5-rgb`, `--sc-pace-mid/late-rgb`), `box-shadow` glow pulses for hours/days waits (avoiding pseudo-element collisions), tier crest animations, and `mid`/`late` pace breathing with `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)`.
+  - Zero edits to `theme.css`, `horizon.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/horizon/HorizonLivingAccents.test.tsx`):** 12 tests passing (`npm test` -> sim 362, app 1472, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — app / progression horizon displays
 
 - **Module (`packages/app/src/horizon/`):** `horizon.ts` (pure: `formatHorizon`, `formatTicksHorizon`, `horizonBracket`, `isLongHorizon`, `exactSeconds`, `unitTierLabel`, `batchCostTotal`, `costBracket` with `COST_BRACKET_COSTLY = 50` / `COST_BRACKET_STEEP = 200`, `unitBracketNote`, `paceStage`), `HorizonTime.tsx` (`HorizonTime`, `HorizonBadge`, `UnitTierNote`, `summarizePace`, `PaceLine`), `horizon.css`, `horizon.test.tsx`.

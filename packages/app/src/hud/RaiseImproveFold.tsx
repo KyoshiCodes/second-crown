@@ -14,6 +14,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
 import { Fold } from "./Fold";
+import { horizonBracket, isLongHorizon } from "../horizon/horizon";
 import { HorizonBadge, HorizonTime } from "../horizon/HorizonTime";
 import "../kingdom-flow.css";
 
@@ -106,22 +107,32 @@ export function RaiseImproveFold(props: {
     >
       {works.length > 0 ? (
         <div className="sc-raise-works" aria-label="Works underway">
-          {works.map((w) => (
-            <div key={w.key} className={`sc-raise-work is-${w.kind}`} data-kind={w.kind}>
-              <span className="sc-raise-work-tag">{w.kind === "raise" ? "Raising" : "Improving"}</span>
-              <span className="sc-raise-work-name">
-                {w.name}
-                {w.level ? <span className="sc-raise-work-level"> {w.level}</span> : null}
-              </span>
-              <span className="sc-raise-work-time">
-                <HorizonTime seconds={w.secondsLeft} />
-                <HorizonBadge seconds={w.secondsLeft} />
-              </span>
-              <button type="button" className="sc-work-btn sc-raise-work-cancel" onClick={() => cancel(w)}>
-                Cancel
-              </button>
-            </div>
-          ))}
+          {works.map((w) => {
+            const bracket = horizonBracket(w.secondsLeft);
+            const longWait = isLongHorizon(w.secondsLeft);
+            return (
+              <div
+                key={w.key}
+                className={`sc-raise-work is-${w.kind}${longWait ? ` is-long-horizon is-horizon-${bracket}` : ""}`}
+                data-kind={w.kind}
+                data-horizon={bracket}
+                data-long-horizon={longWait ? bracket : undefined}
+              >
+                <span className="sc-raise-work-tag">{w.kind === "raise" ? "Raising" : "Improving"}</span>
+                <span className="sc-raise-work-name">
+                  {w.name}
+                  {w.level ? <span className="sc-raise-work-level"> {w.level}</span> : null}
+                </span>
+                <span className="sc-raise-work-time">
+                  <HorizonTime seconds={w.secondsLeft} />
+                  <HorizonBadge seconds={w.secondsLeft} />
+                </span>
+                <button type="button" className="sc-work-btn sc-raise-work-cancel" onClick={() => cancel(w)}>
+                  Cancel
+                </button>
+              </div>
+            );
+          })}
         </div>
       ) : null}
       {selected ? <p className="sc-raise-blurb">{selected.name}: {selected.blurb}</p> : null}

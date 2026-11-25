@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-25 — Living progression accents (long waits, unit tiers, pace breathing)
+
+- **Long-horizon row & card glow (`horizon/horizon-living.css`, `hud/RaiseImproveFold.tsx`, `ResearchBar.tsx`):** Building work rows, study time lines (`.sc-horizon-study`), and active studying cards whose wait is measured in hours or days (`isLongHorizon`) gain `.is-long-horizon.is-horizon-hours` (warm burnished-gold ambient glow, `4.2s`) or `.is-long-horizon.is-horizon-days` (richer ember-amber pulse, `3.6s`), alongside synchronized non-blocking `HOURS` / `DAYS` hourglass badge shimmer. Short waits (`< 1h`) stay calm.
+- **Living unit tier pips (`horizon/horizon.ts`, `horizon/HorizonTime.tsx`):** Added `unitTierRank`, `unitTierShape`, and `<UnitTierPip>` (`pointer-events: none !important;`) beside every `Tier I–V` label on unit cards, shifting shape and palette per tier: Tier I slate `circle`, Tier II emerald `chevron`, Tier III steel-azure `diamond`, Tier IV royal-gold `star`, and Tier V imperial crimson-gold `crown`.
+- **Mid & late pace breathing (`isPaceBreathing`, `PaceLine`):** When `PaceLine` enters `mid` or `late` pace (`is-pace-breathing`), the Kingdom Pace summary breathes softly (`4.4s` warm gold in `mid`, `3.6s` ember-amber in `late`) with staggered glowing active pips while `early` stays still.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `horizon.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/horizon/HorizonLivingAccents.test.tsx` (12 tests). Now: sim **362**, app **1472**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Progression horizon displays
 
 - **Long-form time (`horizon/horizon.ts`):** `formatHorizon(seconds)` rounds up and shows the two largest units: `<60s` → `Ns`; `<1h` → `Xm Ys`; `<1d` → `Xh Ym`; else `Xd Yh`; a zero second unit is dropped. `horizonBracket` → `seconds|minutes|hours|days`.

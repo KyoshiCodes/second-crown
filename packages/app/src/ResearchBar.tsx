@@ -38,7 +38,7 @@ import {
   studyProgressText,
 } from "./ResearchAdvanced";
 import { ResearchTreeMap } from "./ResearchTreeMap";
-import { formatHorizon } from "./horizon/horizon";
+import { formatHorizon, horizonBracket, isLongHorizon } from "./horizon/horizon";
 import { HorizonBadge, HorizonTime } from "./horizon/HorizonTime";
 import { LivingLecternPip, summarizeActiveStudy } from "./hud/LivingLecternPip";
 import "./hud/button-pips.css";
@@ -151,13 +151,18 @@ function Row(props: {
     return r;
   });
   const glyphState = status === "known" ? "completed" : status === "open" ? "available" : status;
+  const displaySeconds = status === "studying" ? left / TICKS_PER_SECOND : seconds;
+  const studyHorizon = horizonBracket(displaySeconds);
+  const studyRowLong = (status === "studying" || status === "open" || status === "locked") && isLongHorizon(displaySeconds);
+  const activeCardLong = status === "studying" && isLongHorizon(displaySeconds);
   return (
     <div
-      className={`sc-study-living-card is-${status} is-${glyphState} sc-research-living-card${prereq ? " sc-research-tree-card" : ""}`}
+      className={`sc-study-living-card is-${status} is-${glyphState} sc-research-living-card${prereq ? " sc-research-tree-card" : ""}${activeCardLong ? ` is-long-horizon is-horizon-${studyHorizon}` : ""}`}
       data-study={id}
       data-tier={researchTier(id)}
       data-study-state={glyphState}
       data-progress={Math.round(progress * 100)}
+      data-long-horizon={activeCardLong ? studyHorizon : undefined}
       title={effect}
     >
       {prereq ? (
@@ -180,10 +185,15 @@ function Row(props: {
       <StudyLivingRows topicId={id} status={status} rows={rows} />
       <StudyLivingGlyph topicId={id} status={status} academyFast={academyFast} progress={progress} />
       {status === "studying" || status === "open" || status === "locked" ? (
-        <p className="sc-horizon-study" data-horizon-study={id}>
+        <p
+          className={`sc-horizon-study${studyRowLong ? ` is-long-horizon is-horizon-${studyHorizon}` : ""}`}
+          data-horizon-study={id}
+          data-horizon={studyHorizon}
+          data-long-horizon={studyRowLong ? studyHorizon : undefined}
+        >
           {status === "studying" ? "Time left " : "Takes "}
-          <HorizonTime seconds={status === "studying" ? left / TICKS_PER_SECOND : seconds} />
-          <HorizonBadge seconds={status === "studying" ? left / TICKS_PER_SECOND : seconds} />
+          <HorizonTime seconds={displaySeconds} />
+          <HorizonBadge seconds={displaySeconds} />
         </p>
       ) : null}
       <StudyNeedsRow needs={needs} />

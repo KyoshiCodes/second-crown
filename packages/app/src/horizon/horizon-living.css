@@ -1,0 +1,354 @@
+/* --- Progression Horizon Living Accents (isolated CSS) ---
+ * Loaded only from horizon/HorizonTime.tsx after horizon.css.
+ * Never modifies theme.css or horizon.css.
+ * Strict pointer-events: none !important on tier pips, horizon badges, and pace pips.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-horizon-hours-rgb: 227, 179, 65;
+  --sc-horizon-days-rgb: 240, 136, 62;
+
+  --sc-tier-1-rgb: 168, 178, 192;
+  --sc-tier-2-rgb: 102, 196, 138;
+  --sc-tier-3-rgb: 112, 182, 242;
+  --sc-tier-4-rgb: 238, 192, 82;
+  --sc-tier-5-rgb: 236, 118, 92;
+
+  --sc-pace-mid-rgb: 227, 179, 65;
+  --sc-pace-late-rgb: 240, 136, 62;
+}
+
+:root[data-chrome="night"] {
+  --sc-horizon-hours-rgb: 218, 184, 102;
+  --sc-horizon-days-rgb: 232, 142, 84;
+
+  --sc-tier-1-rgb: 162, 178, 202;
+  --sc-tier-2-rgb: 112, 204, 154;
+  --sc-tier-3-rgb: 132, 192, 248;
+  --sc-tier-4-rgb: 232, 196, 108;
+  --sc-tier-5-rgb: 238, 128, 108;
+
+  --sc-pace-mid-rgb: 218, 184, 102;
+  --sc-pace-late-rgb: 232, 142, 84;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-horizon-hours-rgb: 178, 122, 24;
+  --sc-horizon-days-rgb: 192, 88, 24;
+
+  --sc-tier-1-rgb: 108, 98, 86;
+  --sc-tier-2-rgb: 38, 128, 74;
+  --sc-tier-3-rgb: 44, 106, 172;
+  --sc-tier-4-rgb: 184, 124, 24;
+  --sc-tier-5-rgb: 176, 52, 38;
+
+  --sc-pace-mid-rgb: 178, 122, 24;
+  --sc-pace-late-rgb: 192, 88, 24;
+}
+
+/* ==========================================================================
+   2. Long-Horizon Glow (Hours & Days Research / Building Rows)
+   ========================================================================== */
+.sc-raise-work.is-long-horizon,
+.sc-study-living-card.is-long-horizon {
+  border-radius: 6px;
+}
+
+.sc-horizon-study.is-long-horizon {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  border-left: 2px solid rgba(var(--sc-horizon-hours-rgb), 0.55);
+  background: rgba(var(--sc-horizon-hours-rgb), 0.06);
+}
+
+.sc-horizon-study.is-long-horizon.is-horizon-days {
+  border-left-color: rgba(var(--sc-horizon-days-rgb), 0.68);
+  background: rgba(var(--sc-horizon-days-rgb), 0.08);
+}
+
+.sc-raise-work.is-long-horizon.is-horizon-hours,
+.sc-study-living-card.is-long-horizon.is-horizon-hours,
+.sc-horizon-study.is-long-horizon.is-horizon-hours {
+  border-color: rgba(var(--sc-horizon-hours-rgb), 0.42);
+  animation: sc-horizon-glow-hours 4.2s ease-in-out infinite;
+}
+
+.sc-raise-work.is-long-horizon.is-horizon-days,
+.sc-study-living-card.is-long-horizon.is-horizon-days,
+.sc-horizon-study.is-long-horizon.is-horizon-days {
+  border-color: rgba(var(--sc-horizon-days-rgb), 0.52);
+  animation: sc-horizon-glow-days 3.6s ease-in-out infinite;
+}
+
+.sc-horizon-badge,
+.sc-horizon-badge-glass {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-horizon-badge.is-hours {
+  animation: sc-horizon-badge-pulse 4.2s ease-in-out infinite;
+}
+
+.sc-horizon-badge.is-days {
+  animation: sc-horizon-badge-pulse 3.6s ease-in-out infinite;
+}
+
+.sc-horizon-badge.is-hours .sc-horizon-badge-glass,
+.sc-horizon-badge.is-days .sc-horizon-badge-glass {
+  animation: sc-horizon-glass-breathe 3.8s ease-in-out infinite;
+}
+
+@keyframes sc-horizon-glow-hours {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--sc-horizon-hours-rgb), 0.14);
+  }
+  50% {
+    box-shadow: 0 0 11px 1px rgba(var(--sc-horizon-hours-rgb), 0.28);
+  }
+}
+
+@keyframes sc-horizon-glow-days {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--sc-horizon-days-rgb), 0.18);
+  }
+  50% {
+    box-shadow: 0 0 14px 2px rgba(var(--sc-horizon-days-rgb), 0.34);
+  }
+}
+
+@keyframes sc-horizon-badge-pulse {
+  0%, 100% {
+    opacity: 0.86;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-horizon-glass-breathe {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+/* ==========================================================================
+   3. Living Unit Tier Pips / Crests (Tier I - V)
+   ========================================================================== */
+.sc-horizon-tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sc-horizon-tier-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+  flex: none;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-horizon-tier-pip svg {
+  display: block;
+  pointer-events: none !important;
+}
+
+.sc-horizon-tier.tier-1 {
+  border-color: rgba(var(--sc-tier-1-rgb), 0.42);
+  color: rgb(var(--sc-tier-1-rgb));
+}
+
+.sc-horizon-tier.tier-2 {
+  border-color: rgba(var(--sc-tier-2-rgb), 0.5);
+  color: rgb(var(--sc-tier-2-rgb));
+}
+
+.sc-horizon-tier.tier-3 {
+  border-color: rgba(var(--sc-tier-3-rgb), 0.55);
+  color: rgb(var(--sc-tier-3-rgb));
+}
+
+.sc-horizon-tier.tier-4 {
+  border-color: rgba(var(--sc-tier-4-rgb), 0.62);
+  color: rgb(var(--sc-tier-4-rgb));
+}
+
+.sc-horizon-tier.tier-5 {
+  border-color: rgba(var(--sc-tier-5-rgb), 0.68);
+  color: rgb(var(--sc-tier-5-rgb));
+  background: rgba(var(--sc-tier-5-rgb), 0.1);
+}
+
+.sc-horizon-tier-pip.tier-1 {
+  color: rgb(var(--sc-tier-1-rgb));
+  animation: sc-tier-pip-breathe 4.8s ease-in-out infinite;
+}
+
+.sc-horizon-tier-pip.tier-2 {
+  color: rgb(var(--sc-tier-2-rgb));
+  filter: drop-shadow(0 0 2px rgba(var(--sc-tier-2-rgb), 0.4));
+  animation: sc-tier-pip-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-horizon-tier-pip.tier-3 {
+  color: rgb(var(--sc-tier-3-rgb));
+  filter: drop-shadow(0 0 2.5px rgba(var(--sc-tier-3-rgb), 0.48));
+  animation: sc-tier-pip-shimmer 3.6s ease-in-out infinite;
+}
+
+.sc-horizon-tier-pip.tier-4 {
+  color: rgb(var(--sc-tier-4-rgb));
+  filter: drop-shadow(0 0 3px rgba(var(--sc-tier-4-rgb), 0.55));
+  animation: sc-tier-pip-twinkle 3.1s ease-in-out infinite;
+}
+
+.sc-horizon-tier-pip.tier-5 {
+  color: rgb(var(--sc-tier-5-rgb));
+  filter: drop-shadow(0 0 3.5px rgba(var(--sc-tier-5-rgb), 0.65));
+  animation: sc-tier-pip-crown 2.7s ease-in-out infinite;
+}
+
+@keyframes sc-tier-pip-breathe {
+  0%, 100% {
+    opacity: 0.78;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes sc-tier-pip-shimmer {
+  0%, 100% {
+    opacity: 0.76;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-tier-pip-twinkle {
+  0%, 100% {
+    opacity: 0.78;
+    transform: scale(0.94) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(8deg);
+  }
+}
+
+@keyframes sc-tier-pip-crown {
+  0%, 100% {
+    opacity: 0.82;
+    transform: scale(0.96);
+    filter: drop-shadow(0 0 2px rgba(var(--sc-tier-5-rgb), 0.48));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 5px rgba(var(--sc-tier-5-rgb), 0.85));
+  }
+}
+
+/* ==========================================================================
+   4. Gentle Breathing on Mid / Late Pace Summary
+   ========================================================================== */
+.sc-horizon-pace-pips,
+.sc-horizon-pace-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-horizon-pace.is-mid.is-pace-breathing {
+  animation: sc-pace-breathe-mid 4.4s ease-in-out infinite;
+}
+
+.sc-horizon-pace.is-late.is-pace-breathing {
+  animation: sc-pace-breathe-late 3.6s ease-in-out infinite;
+}
+
+.sc-horizon-pace.is-pace-breathing .sc-horizon-pace-pip.is-on {
+  animation: sc-pace-pip-pulse 3.2s ease-in-out infinite;
+}
+
+.sc-horizon-pace.is-pace-breathing .sc-horizon-pace-pip.is-on:nth-child(2) {
+  animation-delay: 0.35s;
+}
+
+.sc-horizon-pace.is-pace-breathing .sc-horizon-pace-pip.is-on:nth-child(3) {
+  animation-delay: 0.7s;
+}
+
+@keyframes sc-pace-breathe-mid {
+  0%, 100% {
+    background: rgba(var(--sc-pace-mid-rgb), 0.04);
+    box-shadow: 0 0 0 0 rgba(var(--sc-pace-mid-rgb), 0.14);
+  }
+  50% {
+    background: rgba(var(--sc-pace-mid-rgb), 0.11);
+    box-shadow: 0 0 10px 1px rgba(var(--sc-pace-mid-rgb), 0.24);
+  }
+}
+
+@keyframes sc-pace-breathe-late {
+  0%, 100% {
+    background: rgba(var(--sc-pace-late-rgb), 0.05);
+    box-shadow: 0 0 0 0 rgba(var(--sc-pace-late-rgb), 0.18);
+  }
+  50% {
+    background: rgba(var(--sc-pace-late-rgb), 0.14);
+    box-shadow: 0 0 12px 1px rgba(var(--sc-pace-late-rgb), 0.32);
+  }
+}
+
+@keyframes sc-pace-pip-pulse {
+  0%, 100% {
+    opacity: 0.76;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
+}
+
+/* ==========================================================================
+   5. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-raise-work.is-long-horizon.is-horizon-hours,
+  .sc-raise-work.is-long-horizon.is-horizon-days,
+  .sc-study-living-card.is-long-horizon.is-horizon-hours,
+  .sc-study-living-card.is-long-horizon.is-horizon-days,
+  .sc-horizon-study.is-long-horizon.is-horizon-hours,
+  .sc-horizon-study.is-long-horizon.is-horizon-days,
+  .sc-horizon-badge.is-hours,
+  .sc-horizon-badge.is-days,
+  .sc-horizon-badge-glass,
+  .sc-horizon-tier-pip,
+  .sc-horizon-pace.is-pace-breathing,
+  .sc-horizon-pace.is-pace-breathing .sc-horizon-pace-pip.is-on {
+    animation: none !important;
+  }
+}
