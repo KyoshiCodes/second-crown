@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-24 — Living HUD micro-feedback pass (resources, Fold headers, active tab)
+
+- **Resource cell micro-feedback (`hud/ResourceHud.tsx`, `hud/hud-micro-feedback.css`):** Added `detectResourceMicroPulse` (`income-up`, `became-full`, `became-empty`, never firing on first paint) driving a `680ms` (`HUD_PULSE_MS`) `pointer-events: none` `.sc-hud-cell-flash` highlight when income ticks up or a store hits full/bare, alongside gentle breathing perimeter glows on `.is-full` and `.is-empty` cells.
+- **Fold title bar motion (`hud/Fold.tsx`, `hud-micro-feedback.css`):** Added `data-fold-motion="expanded|collapsed"` (`FOLD_HEAD_PULSE_MS = 320`) triggering a soft horizontal sheen sweep across `.sc-fold-head::before`, a subtle caret nudge animation, and delicate caret hover cues without changing `Fold` rules or `localStorage` keys.
+- **Light active tab treatment (`hud-micro-feedback.css`):** Added a subtle breathing top sheen on `.sc-tabs-bar .sc-tab.active::before` (`4.4s` ease-in-out) with a `-0.5px` lift while dimming inactive tabs slightly (`0.88` -> `1` on hover/focus) and leaving `theme.css`'s notch and lantern untouched.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `packages/sim`, `packages/render`, and `server/` untouched); strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards across Dusk, Night, and Parchment themes.
+- **Tests:** Added `packages/app/src/hud/HudMicroFeedback.test.tsx` (3 tests). Now: sim **362**, app **1390**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-24 — Hold view density pass
 
 - **Tighter chrome on the Hold band (`hud/hold-density.css`):** when the camera is on Hold, the same trims the Board band already had (title 18→16px, one-line subtitle with ellipsis, status banner margin 4px, tabs gap 6 / margin 6 / tab padding 5×12), plus shell top padding 20→12px. The stores strip goes to two lines per cell (name, then stock + income side by side): the decorative glyph strip and the tiny STOCK / INCOME labels are hidden, ledger margin 12→6px, cell padding 6/7→3px. Income stays visible on Hold (Compact still hides it, as before). The hold canvas starts about **80px higher** (estimated from CSS, not measured in a browser); canvas size and 14:9 shape unchanged.

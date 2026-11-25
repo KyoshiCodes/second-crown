@@ -1,3 +1,15 @@
+## 2026-11-24 — app / living HUD micro-feedback pass
+
+- **ResourceHud (`packages/app/src/hud/ResourceHud.tsx`):**
+  - Exported `HUD_PULSE_MS = 680`, `parseResourceNumeric`, `detectResourceMicroPulse`, and types (`ResourceMicroPulseKey`, `ResourceMicroPulseKind`, `ResourceCellSnapshot`), plus optional `pulseOverride` prop for deterministic SSR tests.
+  - Compares per-resource snapshots (`income`, `full`, `empty`) in `useEffect` (skipped on initial mount, SSR, and `prefers-reduced-motion: reduce`), rendering `.sc-hud-cell-flash.is-*` overlays (`pointer-events: none`) rather than touching `.sc-ledger-cell::before` (`theme.css`) or `::after` (`music-reactive.css`).
+- **Fold (`packages/app/src/hud/Fold.tsx`):**
+  - Imported `./hud-micro-feedback.css`, exported `FOLD_HEAD_PULSE_MS = 320`, and tracks transient `headMotion` (`expanded` / `collapsed` on `data-fold-motion`) cleanly alongside `closing` in the `[open]` effect. Storage keys (`sc-fold:*`, `sc-fold-seen:*`, `sc-compact`) untouched.
+- **Dedicated CSS (`packages/app/src/hud/hud-micro-feedback.css`):**
+  - Theme tokens across Dusk, Night, Parchment; resource flash/glow keyframes; `.sc-fold-head::before` sweep; `.sc-tabs-bar .sc-tab.active::before` sheen (`::after` left to `theme.css`); strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)`.
+  - Zero edits to `theme.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/HudMicroFeedback.test.tsx`):** 3 tests passing (`npm test` -> sim 362, app 1390, server 158; `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-24 — app / Hold view density pass
 
 - **`hud/HoldDensity.tsx`:** imports `./hold-density.css`. `BandToggle({ band, onToggle })` replaces the inline-styled toggle button in `AppShell`'s `.sc-map-controls`; it renders one `<button class="sc-band-toggle" data-band>` with two `aria-hidden` `.sc-band-seg` spans (`is-hold` / `is-board`, live one gets `is-on`) and an `aria-label` naming the current mode and the switch target. `HoldFocusTag({ visible })` returns null off Hold; on Hold it renders `.sc-hold-focus-tag` (absolute, z 4, same spot as `.sc-board-focus-tag`). Mounted next to `BoardFocusFrame`.

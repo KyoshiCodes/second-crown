@@ -1,6 +1,7 @@
 import React from "react";
 import "../layout-priority.css";
 import "./fold-polish.css";
+import "./hud-micro-feedback.css";
 
 /**
  * Collapsible section for secondary panels (layout priority pass).
@@ -22,6 +23,7 @@ const COMPACT_KEY = "sc-compact";
 export const FOLD_ALL_EVENT = "sc-fold-all";
 export const COMPACT_EVENT = "sc-compact-change";
 export const FOLD_CLOSE_MS = 180;
+export const FOLD_HEAD_PULSE_MS = 320;
 
 function read(key: string): string | null {
   try {
@@ -62,22 +64,29 @@ export function Fold(props: {
   const { id, title, summary, noisy = false, className, children } = props;
   const [open, setOpen] = React.useState(() => initialFoldOpen(id, noisy));
   const [closing, setClosing] = React.useState(false);
+  const [headMotion, setHeadMotion] = React.useState<"expanded" | "collapsed" | null>(null);
   const prevOpenRef = React.useRef(open);
 
   React.useEffect(() => {
     if (prevOpenRef.current === open) return;
     prevOpenRef.current = open;
-    if (open) {
-      setClosing(false);
-      return;
-    }
     if (typeof window === "undefined" || window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
       setClosing(false);
+      setHeadMotion(null);
       return;
     }
+    setHeadMotion(open ? "expanded" : "collapsed");
+    const headTimer = window.setTimeout(() => setHeadMotion(null), FOLD_HEAD_PULSE_MS);
+    if (open) {
+      setClosing(false);
+      return () => window.clearTimeout(headTimer);
+    }
     setClosing(true);
-    const timer = window.setTimeout(() => setClosing(false), FOLD_CLOSE_MS);
-    return () => window.clearTimeout(timer);
+    const closeTimer = window.setTimeout(() => setClosing(false), FOLD_CLOSE_MS);
+    return () => {
+      window.clearTimeout(closeTimer);
+      window.clearTimeout(headTimer);
+    };
   }, [open]);
 
   React.useEffect(() => {
@@ -104,7 +113,13 @@ export function Fold(props: {
 
   return (
     <section className={`sc-fold ${open ? "is-open" : "is-closed"}${className ? ` ${className}` : ""}`} data-fold={id}>
-      <button type="button" className="sc-fold-head" aria-expanded={open} onClick={toggle}>
+      <button
+        type="button"
+        className="sc-fold-head"
+        aria-expanded={open}
+        data-fold-motion={headMotion ?? undefined}
+        onClick={toggle}
+      >
         <span className="sc-fold-caret" aria-hidden="true">{open ? "▾" : "▸"}</span>
         <span className="sc-fold-title">{title}</span>
         {summary ? <span className="sc-fold-summary">{summary}</span> : null}

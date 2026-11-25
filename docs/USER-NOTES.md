@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — Subtle HUD micro-feedback
+
+- **Resource bar flashes & store glows:** Resource cards give a quick emerald-gold shimmer when their income rate increases, and glow warmly when a store fills up (or softly crimson if Food runs bare).
+- **Fold header motion:** Expanding or collapsing a Fold panel sends a soft highlight sweep across its title bar with a small caret nudge.
+- **Light active tab glow:** The selected tab sits slightly brighter with a soft top shimmer, while inactive tabs sit quietly until hovered.
+
 ## 2026-11-24 — Hold view gets the same care
 
 - **More hold, less header:** in Hold view the title, stores strip and tabs are slimmer, so your hold sits about 80px higher on screen. Each store now shows its name on one line and its stock and income on the next.

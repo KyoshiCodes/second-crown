@@ -13,6 +13,34 @@ import {
 } from "./ResourceLivingGlyph";
 import "./resource-pip.css";
 import "./resource-living.css";
+import "./hud-micro-feedback.css";
+
+export const HUD_PULSE_MS = 680;
+export type ResourceMicroPulseKey = "food" | "wood" | "stone" | "gold";
+export type ResourceMicroPulseKind = "income-up" | "became-full" | "became-empty" | null;
+
+export interface ResourceCellSnapshot {
+  income: number;
+  full: boolean;
+  empty: boolean;
+}
+
+export function parseResourceNumeric(raw: string | undefined): number {
+  const n = Number(raw ?? "0");
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** Detects transient store micro-pulse triggers across snapshots (never on initial paint). */
+export function detectResourceMicroPulse(
+  prev: ResourceCellSnapshot | undefined,
+  next: ResourceCellSnapshot,
+): ResourceMicroPulseKind {
+  if (!prev) return null;
+  if (!prev.empty && next.empty) return "became-empty";
+  if (!prev.full && next.full) return "became-full";
+  if (next.income > prev.income + 1e-9) return "income-up";
+  return null;
+}
 
 const RES_LABEL: Record<string, string> = { food: "Food", wood: "Wood", stone: "Stone", gold: "Gold" };
 
@@ -33,17 +61,80 @@ export function ResourceHud(props: {
   resources: Record<string, string>;
   income: Record<string, string>;
   state?: GameState;
+  pulseOverride?: Partial<Record<ResourceMicroPulseKey, Exclude<ResourceMicroPulseKind, null>>>;
 }) {
   const hungry = props.state ? isFoodStoresEmptyOrLow(props.state) : false;
+
+  const entries = (["food", "wood", "stone", "gold"] as const).map((r) => {
+    const line = props.state ? resourceLedger(props.state, r) : null;
+    const have = props.resources[r] ?? "0";
+    const cap = line && Number.isFinite(line.cap) ? formatLetterSuffix(String(line.cap)) : null;
+    const income = props.income[r];
+    const empty = r === "food" && hungry;
+    const full = !empty && Boolean(line?.full);
+    return {
+      r,
+      line,
+      have,
+      cap,
+      income,
+      empty,
+      full,
+      snap: { income: parseResourceNumeric(income), full, empty } as ResourceCellSnapshot,
+    };
+  });
+
+  const [food, wood, stone, gold] = entries;
+  const prevRef = React.useRef<Record<ResourceMicroPulseKey, ResourceCellSnapshot> | null>(null);
+  const seqRef = React.useRef(0);
+  const [pulses, setPulses] = React.useState<
+    Partial<Record<ResourceMicroPulseKey, { kind: Exclude<ResourceMicroPulseKind, null>; seq: number }>>
+  >({});
+
+  React.useEffect(() => {
+    const current = { food: food.snap, wood: wood.snap, stone: stone.snap, gold: gold.snap };
+    const prev = prevRef.current;
+    prevRef.current = current;
+    if (!prev || typeof window === "undefined") return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+
+    const triggered: Array<[ResourceMicroPulseKey, Exclude<ResourceMicroPulseKind, null>]> = [];
+    for (const key of ["food", "wood", "stone", "gold"] as const) {
+      const kind = detectResourceMicroPulse(prev[key], current[key]);
+      if (kind) triggered.push([key, kind]);
+    }
+    if (triggered.length === 0) return;
+
+    const seq = ++seqRef.current;
+    setPulses((cur) => {
+      const next = { ...cur };
+      for (const [k, kind] of triggered) next[k] = { kind, seq };
+      return next;
+    });
+
+    const timers = triggered.map(([k]) =>
+      window.setTimeout(() => {
+        setPulses((cur) => {
+          if (cur[k]?.seq !== seq) return cur;
+          const next = { ...cur };
+          delete next[k];
+          return next;
+        });
+      }, HUD_PULSE_MS),
+    );
+    return () => {
+      for (const id of timers) window.clearTimeout(id);
+    };
+  }, [
+    food.snap.income, food.snap.full, food.snap.empty,
+    wood.snap.income, wood.snap.full, wood.snap.empty,
+    stone.snap.income, stone.snap.full, stone.snap.empty,
+    gold.snap.income, gold.snap.full, gold.snap.empty,
+  ]);
+
   return (
     <div className="sc-resource-bar sc-ledger" role="list" aria-label="Stores">
-      {(["food", "wood", "stone", "gold"] as const).map((r) => {
-        const line = props.state ? resourceLedger(props.state, r) : null;
-        const have = props.resources[r] ?? "0";
-        const cap = line && Number.isFinite(line.cap) ? formatLetterSuffix(String(line.cap)) : null;
-        const income = props.income[r];
-        const empty = r === "food" && hungry;
-        const full = !empty && Boolean(line?.full);
+      {entries.map(({ r, line, have, cap, income, empty, full }) => {
         const tone = empty ? "empty" : full ? "full" : "";
         const variant = resolveResourcePipVariant(r, props.state, full, have);
         const desc = resolveResourceGlyphDescriptor(r, have, income, props.state);
@@ -55,14 +146,25 @@ export function ResourceHud(props: {
         ].filter(Boolean).join(" · ");
         const pct = meterPct(have, line?.cap);
         const earning = hasIncome(income);
+        const activePulse = props.pulseOverride?.[r] ?? pulses[r]?.kind ?? null;
+        const pulseSeq = pulses[r]?.seq ?? 0;
         return (
           <div
             key={r}
             role="listitem"
             className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}`}
+            data-hud-pulse={activePulse ?? undefined}
             title={tip}
           >
             <ResourceLivingUnderlay resource={r} mood={desc.mood} />
+            {activePulse ? (
+              <span
+                key={`flash-${pulseSeq}`}
+                className={`sc-hud-cell-flash is-${activePulse}`}
+                aria-hidden="true"
+                style={{ pointerEvents: "none" }}
+              />
+            ) : null}
             <div className="sc-resource-living-rows">
               <div className="sc-resource-living-row is-name">
                 <div className="sc-ledger-name">
