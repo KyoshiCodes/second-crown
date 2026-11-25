@@ -47,6 +47,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
 import { PeoplePanel } from "../PeoplePanel";
+import { Fold } from "../hud/Fold";
 import { KeepGateCard } from "../KeepGateCard";
 import { StudyLine } from "../StudyLine";
 import { ResearchHint } from "../ResearchHint";
@@ -228,6 +229,7 @@ export function KingdomTab(props: {
         </div>
       </div>
       <SeasonClaimLine state={state} act={act} />
+      <Fold id="kingdom-notes" noisy title="Realm notes" summary="Season, income, studies, culture, vaults, pairing">
       <SeasonEffectLine state={state} />
       <DayNightLine state={state} />
       <WeatherLine state={state} />
@@ -290,6 +292,7 @@ export function KingdomTab(props: {
       ) : (
         <p style={{ fontSize: 12, opacity: 0.6 }}>Every farm/camp/mine that can pair is next to its warehouse.</p>
       )}
+      </Fold>
       <KeepGateCard gate={gateRow} keepLv={keepLv} beds={beds} pop={pop} plots={plots} plotCap={plotCap} />
       {state ? <KeepBannerLine state={state} nameOf={nameOf} /> : null}
       {incoming.length > 0 ? (
@@ -392,8 +395,7 @@ export function KingdomTab(props: {
         </>
       ) : null}
       {state && standing.length + scarred.length > 0 ? (
-        <>
-          <h3>Standing works</h3>
+        <Fold id="kingdom-standing" noisy title="Standing works" summary={`${standing.length} standing${scarred.length ? ` · ${scarred.length} scarred` : ""}`}>
           <div className="sc-work-grid">
             {scarred.map((b) => (
               <WorkCard key={b.id} state={state} b={b} scarred act={act} />
@@ -402,11 +404,10 @@ export function KingdomTab(props: {
               <WorkCard key={b.id} state={state} b={b} scarred={false} act={act} />
             ))}
           </div>
-        </>
+        </Fold>
       ) : null}
       {flags.length > 0 ? (
-        <>
-          <h3>Flags</h3>
+        <Fold id="kingdom-flags" title="Flags" summary={`${flags.length} planted`}>
           {state ? <FlagsSummaryLine state={state} /> : null}
           <div className="sc-plain-grid">
           {flags.map((p) => {
@@ -428,17 +429,20 @@ export function KingdomTab(props: {
             );
           })}
           </div>
-        </>
+        </Fold>
       ) : null}
-      <PeoplePanel state={state} act={act} />
+      <Fold id="kingdom-people" noisy title="People" summary={`${pop}/${beds} housed`}>
+        <PeoplePanel state={state} act={act} />
+      </Fold>
       <BalanceNotes state={state} />
-      <h3>Market</h3>
-      <p style={{ fontSize: 12 }}>{marketsN < 1 ? "Build a Market to trade." : `Markets x${marketsN}`}</p>
-      <div className="sc-offer-grid">
-        {MARKET_OFFERS.map((o) => (
-          <OfferCard key={o.id} state={state} offer={o} act={act} />
-        ))}
-      </div>
+      <Fold id="kingdom-market" noisy title="Market" summary={marketsN < 1 ? "No market yet" : `Markets x${marketsN}`}>
+        <p style={{ fontSize: 12 }}>{marketsN < 1 ? "Build a Market to trade." : `Markets x${marketsN}`}</p>
+        <div className="sc-offer-grid">
+          {MARKET_OFFERS.map((o) => (
+            <OfferCard key={o.id} state={state} offer={o} act={act} />
+          ))}
+        </div>
+      </Fold>
     </>
   );
 }

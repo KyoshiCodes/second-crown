@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-24 — Layout priority pass: board first, foldable panels, Compact mode
+
+- **Board first (`AppShell.tsx`):** above the board now: one header row (title + Pause / speed / music toggle), the hold subtitle, the stores strip, the primer, the status line, the tab bar. The **province inspect card** and the **study tree** (`ResearchBar`, moved out of `TutorialBanner.tsx`) now render **below** the board, before the tab body.
+- **Foldable panels (`hud/Fold.tsx`):** one click header with a caret, title and a short summary that stays visible when closed. Choice saved per panel in `sc-fold:<id>`. "Noisy" panels start closed once the player has seen them once (`sc-fold-seen:<id>`). Folded: Primer (calm), Study tree (noisy), Kingdom → Realm notes (noisy), Standing works (noisy), Flags (calm), People (noisy), Market (noisy); World → Holds on the Board (noisy), Market & auction (noisy); Crown → Events (noisy), Achievements (noisy).
+- **Compact toggle (`ChromeDock.tsx`):** new top-bar button. On: folds every panel, hides the income row and glyphs in the stores strip, tightens spacing; saved in `sc-compact`. Off: unfolds every panel.
+- **Board band:** with the camera on Board (`.sc-band-board`), the stores strip shrinks to name + amount.
+- **Top chrome:** Hold/Board button label shortened (`🏰 Hold → 🗺️`), row gap 10 → 6 px, padding trimmed. Music panel, ThemeDock, Holiday unchanged in place and behavior.
+- **Scope:** app only, styles in new `layout-priority.css` (`theme.css` untouched). No `packages/sim` or `server/` edits.
+- **Tests:** `hud/Fold.test.tsx` (7). Now: sim 362, app 1366, server 158, app build clean.
+
 ## 2026-11-24 — Source-based board music lighting, playing pulse & light weather response
 
 - **Source-based board & map lighting (`BoardMusicLighting.tsx`, `board-music-lighting.css`, `BoardLiving.tsx`):**

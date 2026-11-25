@@ -26,6 +26,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { getGiftThanks } from "../content/flavor";
 import { flashAction } from "../hud/ActionFlash";
 import { giftRefusal } from "../hud/GiftLine";
+import { Fold } from "../hud/Fold";
 
 type LogFilter = "all" | "claim" | "trade" | "war" | "levy";
 
@@ -300,8 +301,8 @@ export function WorldTab(props: {
         </div>
       )}
 
-      <div className="sc-realm-card" style={{ marginBottom: 16 }}>
-        <h3 style={{ margin: "0 0 8px", fontSize: 15, color: "#fcd34d" }}>Holds on the Board</h3>
+      <Fold id="world-holds" noisy title="Holds on the Board" summary={`${holds.length} holds`}>
+      <div className="sc-realm-card" style={{ marginBottom: 8 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
           {holds.map((p) => {
             const occupantId = p.occupantRealmId;
@@ -367,9 +368,12 @@ export function WorldTab(props: {
           })}
         </div>
       </div>
+      </Fold>
 
-      <MarketPanel state={state} act={act} />
-      <AuctionPanel state={state} />
+      <Fold id="world-market" noisy title="Market & auction">
+        <MarketPanel state={state} act={act} />
+        <AuctionPanel state={state} />
+      </Fold>
 
       <WorldPanel
         state={state}

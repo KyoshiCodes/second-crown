@@ -8,7 +8,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
-import { ResearchBar } from "./ResearchBar";
+import { Fold } from "./hud/Fold";
 
 const TAB_HINT: Record<string, string> = {
   kingdom: "Open Kingdom.",
@@ -23,9 +23,14 @@ export function TutorialBanner(props: { state: GameState | undefined; act: ActFn
   const { state, act } = props;
   const step = state ? currentTutorial(state) : null;
   const n = state ? tutorialIndex(state) + 1 : 0;
+  if (!state || !step) return null;
   return (
-    <>
-      {state && step ? (
+    <Fold
+      id="primer"
+      className="sc-fold-primer"
+      title={`Primer ${n}/${TUTORIAL_STEPS.length}`}
+      summary={step.text}
+    >
         <div className="sc-primer-banner">
           {/* Royal Wax Seal */}
           <div className="sc-wax-seal" title="Royal Charter Seal" aria-hidden="true">
@@ -59,8 +64,6 @@ export function TutorialBanner(props: { state: GameState | undefined; act: ActFn
             </button>
           </div>
         </div>
-      ) : null}
-      <ResearchBar state={state} act={act} />
-    </>
+    </Fold>
   );
 }

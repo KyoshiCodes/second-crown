@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — More room for the board
+
+- The map now sits right under your stores, the primer and the tabs. The study tree and the province card moved **below** the map.
+- Big panels can fold: click a panel's title bar (▾ / ▸) to open or close it. Your choice is remembered.
+- Foldable: Primer, Study tree; on Kingdom: Realm notes, Standing works, Flags, People, Market; on World: Holds on the Board, Market & auction; on Crown: Events, Achievements.
+- The busiest panels start folded after your first visit. A short line next to the title still tells you what's inside (for example "Studying Husbandry · 3/16 known").
+- New **Compact** button in the top bar: folds everything and tightens spacing. Click again to unfold all.
+- When the camera is on **Board**, the stores strip shrinks to one line.
+
 ## 2026-11-24 — Source-based board music lighting & weather lift
 
 - **Board ambient lighting by music source:**

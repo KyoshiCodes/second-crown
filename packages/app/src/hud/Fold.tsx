@@ -1,0 +1,120 @@
+import React from "react";
+import "../layout-priority.css";
+
+/**
+ * Collapsible section for secondary panels (layout priority pass).
+ *
+ * State lives in localStorage:
+ *   sc-fold:<id>       "1" open / "0" closed, written whenever the player toggles.
+ *   sc-fold-seen:<id>  set the first time the panel renders.
+ *
+ * With no saved choice a panel starts open. A `noisy` panel starts closed once
+ * the player has seen it at least once (any later page load).
+ *
+ * The top-bar Compact toggle sends `sc-fold-all` with `{ open: boolean }`; every
+ * mounted fold follows it and saves the result.
+ */
+
+const OPEN_KEY = (id: string) => `sc-fold:${id}`;
+const SEEN_KEY = (id: string) => `sc-fold-seen:${id}`;
+const COMPACT_KEY = "sc-compact";
+export const FOLD_ALL_EVENT = "sc-fold-all";
+export const COMPACT_EVENT = "sc-compact-change";
+
+function read(key: string): string | null {
+  try {
+    return typeof localStorage === "undefined" ? null : localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function write(key: string, value: string) {
+  try {
+    if (typeof localStorage !== "undefined") localStorage.setItem(key, value);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Resolve the starting open state for a fold. Exported for tests. */
+export function initialFoldOpen(id: string, noisy: boolean): boolean {
+  const saved = read(OPEN_KEY(id));
+  if (saved === "1") return true;
+  if (saved === "0") return false;
+  if (read(COMPACT_KEY) === "1") return false;
+  if (noisy && read(SEEN_KEY(id)) === "1") return false;
+  return true;
+}
+
+export function Fold(props: {
+  id: string;
+  title: React.ReactNode;
+  /** Short line shown next to the title (always visible, most useful when closed). */
+  summary?: React.ReactNode;
+  /** Close by default after the player has seen it once. */
+  noisy?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const { id, title, summary, noisy = false, className, children } = props;
+  const [open, setOpen] = React.useState(() => initialFoldOpen(id, noisy));
+
+  React.useEffect(() => {
+    write(SEEN_KEY(id), "1");
+    const onAll = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail;
+      if (detail && typeof detail.open === "boolean") {
+        setOpen(detail.open);
+        write(OPEN_KEY(id), detail.open ? "1" : "0");
+      }
+    };
+    window.addEventListener(FOLD_ALL_EVENT, onAll);
+    return () => window.removeEventListener(FOLD_ALL_EVENT, onAll);
+  }, [id]);
+
+  const toggle = () => {
+    setOpen((v) => {
+      write(OPEN_KEY(id), v ? "0" : "1");
+      return !v;
+    });
+  };
+
+  return (
+    <section className={`sc-fold ${open ? "is-open" : "is-closed"}${className ? ` ${className}` : ""}`} data-fold={id}>
+      <button type="button" className="sc-fold-head" aria-expanded={open} onClick={toggle}>
+        <span className="sc-fold-caret" aria-hidden="true">{open ? "▾" : "▸"}</span>
+        <span className="sc-fold-title">{title}</span>
+        {summary ? <span className="sc-fold-summary">{summary}</span> : null}
+      </button>
+      {open ? <div className="sc-fold-body">{children}</div> : null}
+    </section>
+  );
+}
+
+export function loadCompact(): boolean {
+  return read(COMPACT_KEY) === "1";
+}
+
+/** Compact mode: tightens chrome spacing (body class) and folds every panel. */
+export function setCompact(on: boolean) {
+  write(COMPACT_KEY, on ? "1" : "0");
+  applyCompactClass(on);
+  window.dispatchEvent(new CustomEvent(FOLD_ALL_EVENT, { detail: { open: !on } }));
+  window.dispatchEvent(new CustomEvent(COMPACT_EVENT, { detail: on }));
+}
+
+export function applyCompactClass(on: boolean) {
+  if (typeof document === "undefined") return;
+  document.documentElement.classList.toggle("sc-compact", on);
+}
+
+export function useCompact(): boolean {
+  const [on, setOn] = React.useState(loadCompact);
+  React.useEffect(() => {
+    const onChange = (ev: Event) => setOn(Boolean((ev as CustomEvent).detail));
+    window.addEventListener(COMPACT_EVENT, onChange);
+    return () => window.removeEventListener(COMPACT_EVENT, onChange);
+  }, []);
+  return on;
+}

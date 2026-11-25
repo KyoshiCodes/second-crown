@@ -6,6 +6,7 @@ import { ThemeDock } from "./ThemeDock";
 import { MusicPanel } from "./MusicPanel";
 import { getHolidayOverride, setHolidayOverride } from "./seasons/holidays";
 import "./hud/plain-buttons.css";
+import { setCompact, useCompact } from "./hud/Fold";
 
 const KEY = "sc-chrome-open";
 
@@ -20,6 +21,7 @@ export function ChromeDock() {
   const [holiday, setHoliday] = React.useState(getHolidayOverride);
   const [band, setBand] = React.useState<"hold" | "board">("hold");
   const [lastWorld, setLastWorld] = React.useState<string>("");
+  const compact = useCompact();
 
   React.useEffect(() => {
     const onBand = (ev: Event) => {
@@ -70,13 +72,14 @@ export function ChromeDock() {
       }}
     >
       <div
+        className="sc-chrome-row"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: 10,
+          gap: 6,
           flexWrap: "wrap",
-          padding: "6px 12px",
+          padding: "4px 10px",
           fontSize: 13,
         }}
       >
@@ -92,7 +95,16 @@ export function ChromeDock() {
             fontWeight: 600,
           }}
         >
-          {band === "board" ? "🗺️ Board (Switch to Hold 🏰)" : "🏰 Hold (Switch to Board 🗺️)"}
+          {band === "board" ? "🗺️ Board → 🏰" : "🏰 Hold → 🗺️"}
+        </button>
+        <button
+          type="button"
+          className="sc-compact-toggle"
+          aria-pressed={compact}
+          onClick={() => setCompact(!compact)}
+          title="Compact: fold every side panel and tighten spacing so the board gets the room. Click again to unfold."
+        >
+          {compact ? "Compact on" : "Compact"}
         </button>
         <label className="sc-work-card sc-plain-card sc-plain-inline sc-plain-chip">
           Holiday

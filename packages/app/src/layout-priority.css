@@ -1,0 +1,175 @@
+/* Layout priority pass: board first, secondary panels foldable, tighter chrome.
+   Scoped to .sc-fold, .sc-head-row, .sc-band-board and :root.sc-compact. */
+
+/* ---------- Fold (collapsible section) ---------- */
+.sc-fold {
+  margin: 8px 0;
+  border: 1px solid var(--chrome-btn-border, #3a3228);
+  border-radius: 6px;
+  background: rgba(14, 11, 8, 0.55);
+}
+
+.sc-fold-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 10px;
+  margin: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--chrome-accent, #fef08a);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sc-fold-head:hover {
+  background: var(--chrome-btn-bg-hover, #2a2219);
+}
+
+.sc-fold-head:focus-visible {
+  outline: 2px solid var(--chrome-accent, #fef08a);
+  outline-offset: -2px;
+}
+
+.sc-fold-caret {
+  width: 10px;
+  flex: none;
+  opacity: 0.8;
+}
+
+.sc-fold-title {
+  flex: none;
+}
+
+.sc-fold-summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 400;
+  font-size: 12px;
+  opacity: 0.7;
+  color: var(--chrome-btn-text, #e8dcc8);
+}
+
+.sc-fold-body {
+  padding: 0 10px 8px;
+}
+
+/* A fold around a card that already has its own frame: drop the inner margin. */
+.sc-fold-body > .sc-primer-banner,
+.sc-fold-body > .sc-research-lectern {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ---------- Header row: title + speed on one line ---------- */
+.sc-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  flex-wrap: wrap;
+}
+
+.sc-head-row .sc-title {
+  margin: 0 !important;
+  font-size: 18px !important;
+}
+
+.sc-head-row > div {
+  margin-top: 0 !important;
+}
+
+.sc-shell .sc-subtitle {
+  margin-top: 2px;
+}
+
+/* Tabs bar sits right on top of the board now. */
+.sc-shell .sc-tabs-bar {
+  margin-bottom: 8px !important;
+}
+
+/* ---------- Board band: shrink what sits above the board ---------- */
+.sc-band-board .sc-resource-bar.sc-ledger {
+  margin: 6px 0;
+}
+
+.sc-band-board .sc-resource-bar .sc-ledger-cell {
+  padding: 3px 8px;
+}
+
+.sc-band-board .sc-resource-bar .sc-resource-living-row.is-income,
+.sc-band-board .sc-resource-bar .sc-resource-living-label,
+.sc-band-board .sc-resource-bar .sc-resource-living-glyph,
+.sc-band-board .sc-resource-bar .sc-resource-living-underlay {
+  display: none;
+}
+
+.sc-band-board .sc-resource-bar .sc-resource-living-rows {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+/* ---------- Top chrome: tighter spacing ---------- */
+.sc-chrome-row {
+  gap: 6px !important;
+  padding: 4px 10px !important;
+}
+
+.sc-chrome-row > button,
+.sc-chrome-row > label {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.sc-compact-toggle[aria-pressed="true"] {
+  color: var(--chrome-accent, #fef08a);
+  border-color: var(--chrome-btn-border-hover, #c8963e);
+  font-weight: 600;
+}
+
+/* ---------- Compact mode ---------- */
+:root.sc-compact .sc-shell .sc-subtitle {
+  font-size: 12px !important;
+}
+
+:root.sc-compact .sc-shell .sc-resource-bar.sc-ledger {
+  margin: 4px 0;
+}
+
+:root.sc-compact .sc-shell .sc-resource-bar .sc-ledger-cell {
+  padding: 2px 8px;
+}
+
+:root.sc-compact .sc-shell .sc-resource-bar .sc-resource-living-row.is-income,
+:root.sc-compact .sc-shell .sc-resource-bar .sc-resource-living-label,
+:root.sc-compact .sc-shell .sc-resource-bar .sc-resource-living-glyph,
+:root.sc-compact .sc-shell .sc-resource-bar .sc-resource-living-underlay {
+  display: none;
+}
+
+:root.sc-compact .sc-fold {
+  margin: 5px 0;
+}
+
+:root.sc-compact .sc-fold-head {
+  padding: 3px 8px;
+}
+
+@media (max-width: 560px) {
+  .sc-fold-summary {
+    display: none;
+  }
+}
+
+/* Panels that bring their own heading: the fold title already names them. */
+.sc-fold[data-fold="kingdom-people"] .sc-fold-body > h3:first-child {
+  display: none;
+}

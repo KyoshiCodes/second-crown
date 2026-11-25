@@ -40,6 +40,7 @@ import { SeasonPip, SeasonStatusLine } from "../hud/SeasonPip";
 import "../hud/season-pip.css";
 import type { ActFn } from "../game/useGameEngine";
 import "../hud/plain-buttons.css";
+import { Fold } from "../hud/Fold";
 import "../hud/crown-card.css";
 
 export function CrownTab(props: {
@@ -78,7 +79,9 @@ export function CrownTab(props: {
 
   return (
     <>
-      <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} state={state} />
+      <Fold id="crown-events" noisy title="Events" summary={eventLog.length ? `${eventLog.length} logged` : "Quiet so far"}>
+        <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} state={state} />
+      </Fold>
       {notice ? (
         <div className="sc-work-card sc-plain-card sc-plain-inline is-notice">
           <span className="sc-work-status">{notice}</span>
@@ -258,7 +261,12 @@ export function CrownTab(props: {
         <p style={{ fontSize: 13 }}>Found a guild on the World tab, then customize it here.</p>
       )}
 
-      <h3>Achievements</h3>
+      <Fold
+        id="crown-achievements"
+        noisy
+        title="Achievements"
+        summary={state ? `${listAchievements(state).filter((a) => a.done).length}/${listAchievements(state).length} done` : undefined}
+      >
       <div className="sc-crown-grid">
         {(state ? listAchievements(state) : []).map((a) => (
           <div key={a.def.id} className={`sc-work-card sc-crown-card ${a.done ? "is-done" : "is-empty"}`}>
@@ -270,6 +278,7 @@ export function CrownTab(props: {
           </div>
         ))}
       </div>
+      </Fold>
 
       <div className="sc-work-card sc-crown-save">
         <span className="sc-work-name">Save file</span>

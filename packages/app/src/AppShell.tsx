@@ -1,11 +1,13 @@
 import React from "react";
-import { formatLetterSuffix, settlementName, currentSeason, playerCultureId } from "@second-crown/sim";
+import { formatLetterSuffix, settlementName, currentSeason, playerCultureId, RESEARCH, researchDone, researchTicksLeft } from "@second-crown/sim";
 import { useGameEngine, type Tab } from "./game/useGameEngine";
 import { CultureContext } from "./UnitIcon";
 import { ResourceHud } from "./hud/ResourceHud";
 import { SlotPips } from "./hud/SlotPip";
 import { SpeedControls } from "./HudControls";
 import { TutorialBanner } from "./TutorialBanner";
+import { ResearchBar } from "./ResearchBar";
+import { Fold } from "./hud/Fold";
 import { ProvinceInspect } from "./ProvinceInspect";
 import { BoardLiving } from "./BoardLiving";
 import { BoardStatus } from "./BoardStatus";
@@ -82,6 +84,13 @@ export function AppShell() {
   const prevSeasonRef = React.useRef(season);
   const [keepOpen, setKeepOpen] = React.useState(false);
   const closeKeep = React.useCallback(() => setKeepOpen(false), []);
+  const studySummary = (() => {
+    if (!state) return "";
+    const ids = Object.keys(RESEARCH) as (keyof typeof RESEARCH)[];
+    const busy = ids.find((id) => researchTicksLeft(state, id) > 0);
+    const known = ids.filter((id) => researchDone(state, id)).length;
+    return `${busy ? `Studying ${RESEARCH[busy].name}` : "Lectern idle"} · ${known}/${ids.length} known`;
+  })();
 
   React.useEffect(() => {
     document.title = hold + " - Second Crown";
@@ -109,7 +118,7 @@ export function AppShell() {
 
   return (
     <div
-      className={`sc-shell theme-${tab} season-${season.toLowerCase()} pack-${activePack.id} ${holiday ? holiday.themeClass : ""}`}
+      className={`sc-shell sc-band-${cameraBand} theme-${tab} season-${season.toLowerCase()} pack-${activePack.id} ${holiday ? holiday.themeClass : ""}`}
       style={{ background: activePack.backgroundCss }}
     >
       <ThemeStage season={season} holiday={holidayId} />
@@ -117,27 +126,21 @@ export function AppShell() {
       <ActionFlash />
       <WeatherOverlay season={season} holiday={holidayId} />
       <div className="sc-panel">
-        <h1 style={{ margin: "0 0 4px", fontSize: 22 }} className="sc-title">Second Crown</h1>
+        {/* Above the board: one header row, the stores strip, the primer (foldable), status, tabs. */}
+        <div className="sc-head-row">
+          <h1 className="sc-title">Second Crown</h1>
+          <SpeedControls paused={paused} speed={speed} onPauseToggle={() => setPaused((p) => !p)} onSpeed={(n) => { setPaused(false); setSpeed(n); }} />
+        </div>
         <div style={{ fontSize: 13, opacity: 0.85 }} className="sc-subtitle">
           {hold} · {title} · {activePack.propEmoji} {activePack.name} · Tick {formatLetterSuffix(tick)}
           {prestige > 0 ? ` · Prestige ${prestige}` : ""} · Power {power.player} vs {power.rival}
         </div>
 
-        {offlineNote ? <p style={{ color: "#3fb950" }}>{offlineNote}</p> : null}
-        <SpeedControls paused={paused} speed={speed} onPauseToggle={() => setPaused((p) => !p)} onSpeed={(n) => { setPaused(false); setSpeed(n); }} />
+        {offlineNote ? <p style={{ color: "#3fb950", margin: "4px 0" }}>{offlineNote}</p> : null}
         <ResourceHud resources={resources} income={income} state={state} />
         <TutorialBanner state={state} act={act} />
-        {status ? <div className="sc-status-banner" style={{ marginBottom: 10 }}>{status}</div> : null}
+        {status ? <div className="sc-status-banner" style={{ marginBottom: 8 }}>{status}</div> : null}
         <CultureContext.Provider value={state ? playerCultureId(state) : "western"}>
-        {tab === "kingdom" ? (
-          <ProvinceInspect
-            state={state}
-            selectedId={selectedProvinceId}
-            onClear={() => setSelectedProvinceId(null)}
-            act={act}
-            onEnterKeep={() => setKeepOpen(true)}
-          />
-        ) : null}
         {keepOpen && tab === "kingdom" ? (
           <KeepInterior
             state={state}
@@ -232,6 +235,21 @@ export function AppShell() {
             </div>
           </div>
         </div>
+        {/* Below the board: the inspected province, then the study tree, then the tab body. */}
+        {tab === "kingdom" ? (
+          <ProvinceInspect
+            state={state}
+            selectedId={selectedProvinceId}
+            onClear={() => setSelectedProvinceId(null)}
+            act={act}
+            onEnterKeep={() => setKeepOpen(true)}
+          />
+        ) : null}
+        {state ? (
+          <Fold id="study-tree" noisy title="Study tree" summary={studySummary}>
+            <ResearchBar state={state} act={act} />
+          </Fold>
+        ) : null}
           <React.Suspense fallback={<TabLoading />}>
           {tab === "kingdom" && <KingdomTab state={state} act={act} selectedBuild={selectedBuild} setSelectedBuild={setSelectedBuild} />}
           {tab === "army" && <ArmyTab state={state} act={act} trainQty={trainQty} setTrainQty={setTrainQty} />}

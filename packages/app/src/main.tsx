@@ -12,6 +12,7 @@ import { loadMusicMuted, startMusicBed } from "./music";
 import { installNowPlaying } from "./nowPlaying";
 import { audioManager } from "./themes/audioManager";
 import { applyChrome, loadChrome } from "./ThemeDock";
+import { applyCompactClass, loadCompact } from "./hud/Fold";
 
 const THEMES = ["kingdom", "army", "war", "world", "crown"] as const;
 
@@ -22,6 +23,7 @@ function applyTheme(name: string) {
 
 applyTheme("kingdom");
 applyChrome(loadChrome());
+applyCompactClass(loadCompact());
 loadMusicMuted();
 installNowPlaying();
 
