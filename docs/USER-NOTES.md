@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Living Global Chat accents
+
+- **Online presence pip:** A small softly pulsing green pip now sits next to the "Global Chat" header.
+- **New-message glow & row entrance:** New messages slide in gently with a subtle edge glow, and the chat title bar glows briefly when a new message arrives.
+
 ## 2026-11-25 — Global Chat (preview)
 
 - **Global Chat box:** a small "Global Chat" panel now sits in the bottom-right corner on every tab. Click its title bar to open or close it.

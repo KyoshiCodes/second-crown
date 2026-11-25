@@ -1,3 +1,13 @@
+## 2026-11-25 — app / living Global Chat accents pass
+
+- **Component (`packages/app/src/chat/GlobalChatPanel.tsx`):**
+  - Exported `CHAT_ARRIVAL_MS = 900` and `detectNewChatMessageId(prevLastId, messages)` plus optional `arrivalOverrideId` prop for SSR render tests.
+  - Tracks `initialIdsRef` and `prevLastIdRef` so initial `SEED_CHAT` rows stay calm, while newly appended messages trigger `has-new-message` / `data-chat-arrival="true"` for `900ms` and `.is-entering` on the new `<li>` without altering `"sc-chat-msg"` class count (`GlobalChatPanel.test.tsx`).
+- **Dedicated CSS (`packages/app/src/chat/chat-living.css`):**
+  - Renders `.sc-chat-presence-pip` (`sc-chat-presence-breathe` + concentric `sc-chat-presence-ring` halo on `::after`), `.sc-chat-fold.has-new-message > .sc-fold-head` glow + `::after` sheen (`900ms`, leaving `::before` untouched for `hud-micro-feedback.css`), and `.sc-chat-msg.is-entering` glide + glow, with Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+  - Zero edits to `theme.css`, `global-chat.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/chat/ChatLivingAccents.test.tsx`):** 3 tests passing (`npm test` -> sim 362, app 1411, server 158; `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — app / Global Chat panel (local only)
 
 - **Files:** `packages/app/src/chat/globalChat.ts` (data + helpers), `chat/GlobalChatPanel.tsx` (UI), `chat/global-chat.css`, `chat/GlobalChatPanel.test.tsx` (7 tests). Mounted as `<GlobalChatPanel />` as the last child of `.sc-shell` in `AppShell.tsx`, so it is outside the tab Suspense and the `CultureContext` provider.

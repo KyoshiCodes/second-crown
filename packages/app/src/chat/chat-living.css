@@ -1,0 +1,183 @@
+/* --- Living Global Chat Accents (isolated CSS) ---
+ * Loaded from chat/GlobalChatPanel.tsx. Never touches theme.css or global-chat.css.
+ * Strict pointer-events: none !important on presence pip, rings, and arrival shimmer.
+ * Respects html[data-chrome="dusk" | "night" | "parchment"] and prefers-reduced-motion.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-chat-online-rgb: 74, 222, 128;
+  --sc-chat-arrival-rgb: 232, 184, 78;
+}
+
+:root[data-chrome="night"] {
+  --sc-chat-online-rgb: 94, 214, 168;
+  --sc-chat-arrival-rgb: 144, 186, 232;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-chat-online-rgb: 68, 194, 114;
+  --sc-chat-arrival-rgb: 224, 168, 62;
+}
+
+/* ==========================================================================
+   2. Living Presence / Online Pip on Panel Header
+   ========================================================================== */
+.sc-chat-title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sc-chat-presence-pip {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  pointer-events: none !important;
+  user-select: none;
+  background: rgb(var(--sc-chat-online-rgb));
+  box-shadow: 0 0 6px rgba(var(--sc-chat-online-rgb), 0.72);
+  animation: sc-chat-presence-breathe 2.8s ease-in-out infinite;
+}
+
+.sc-chat-presence-pip::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--sc-chat-online-rgb), 0.55);
+  pointer-events: none !important;
+  animation: sc-chat-presence-ring 2.8s ease-out infinite;
+}
+
+@keyframes sc-chat-presence-breathe {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-chat-presence-ring {
+  0% {
+    opacity: 0.65;
+    transform: scale(0.75);
+  }
+  75%, 100% {
+    opacity: 0;
+    transform: scale(1.65);
+  }
+}
+
+/* ==========================================================================
+   3. Header Pulse & Glow on New Message Arrival
+   ========================================================================== */
+.sc-chat-fold.has-new-message > .sc-fold-head {
+  animation: sc-chat-head-glow 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sc-chat-fold.has-new-message > .sc-fold-head::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none !important;
+  user-select: none;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--sc-chat-arrival-rgb), 0.22) 0%,
+    rgba(var(--sc-chat-online-rgb), 0.12) 48%,
+    transparent 92%
+  );
+  animation: sc-chat-head-sheen 900ms ease-out forwards;
+}
+
+.sc-chat-fold.has-new-message .sc-chat-presence-pip {
+  box-shadow:
+    0 0 8px rgba(var(--sc-chat-online-rgb), 0.92),
+    0 0 12px rgba(var(--sc-chat-arrival-rgb), 0.52);
+}
+
+@keyframes sc-chat-head-glow {
+  0% {
+    box-shadow:
+      inset 0 0 0 1px rgba(var(--sc-chat-arrival-rgb), 0.55),
+      0 0 10px rgba(var(--sc-chat-arrival-rgb), 0.28);
+  }
+  100% {
+    box-shadow:
+      inset 0 0 0 1px rgba(var(--sc-chat-arrival-rgb), 0),
+      0 0 0 rgba(var(--sc-chat-arrival-rgb), 0);
+  }
+}
+
+@keyframes sc-chat-head-sheen {
+  0% {
+    opacity: 0;
+    transform: translateX(-16%);
+  }
+  32% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(14%);
+  }
+}
+
+/* ==========================================================================
+   4. Gentle Entrance Motion on New Message Rows
+   ========================================================================== */
+.sc-chat-list > .sc-work-card.sc-chat-msg.is-entering {
+  animation:
+    sc-chat-row-enter 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    sc-chat-row-glow 720ms ease-out;
+}
+
+@keyframes sc-chat-row-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sc-chat-row-glow {
+  0% {
+    box-shadow:
+      inset 0 0 0 1px rgba(var(--sc-chat-arrival-rgb), 0.42),
+      0 0 8px rgba(var(--sc-chat-arrival-rgb), 0.18);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+/* ==========================================================================
+   5. Reduced Motion Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-chat-presence-pip,
+  .sc-chat-presence-pip::after,
+  .sc-chat-fold.has-new-message > .sc-fold-head,
+  .sc-chat-fold.has-new-message > .sc-fold-head::after,
+  .sc-chat-list > .sc-work-card.sc-chat-msg.is-entering {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .sc-chat-presence-pip::after {
+    display: none;
+  }
+}

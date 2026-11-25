@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-25 — Living Global Chat accents pass
+
+- **Presence pip (`chat/GlobalChatPanel.tsx`, `chat/chat-living.css`):** Added a softly breathing emerald `.sc-chat-presence-pip` with a gentle concentric pulse ring beside `"Global Chat"` on the floating panel header (visible open or folded; `pointer-events: none !important;`).
+- **New-message arrival glow (`detectNewChatMessageId`, `CHAT_ARRIVAL_MS = 900`):** When a new message arrives after initial mount, `.sc-chat-fold.has-new-message` briefly glows and sweeps a soft warm-gold shimmer across `.sc-fold-head::after` (`900ms`, brightening the presence pip halo).
+- **Gentle row entrance:** Newly appended rows receive `.is-entering`, sliding softly upward and fading in (`260ms`) with a delicate `720ms` settling edge glow while seed messages remain calm on first paint.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `global-chat.css`, `packages/sim`, `packages/render`, and `server/` untouched); `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards across Dusk, Night, and Parchment themes.
+- **Tests:** Added `packages/app/src/chat/ChatLivingAccents.test.tsx` (3 tests). Now: sim **362**, app **1411**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Global Chat panel (local only)
 
 - **New floating `Fold#global-chat` "Global Chat" (`chat/GlobalChatPanel.tsx`):** fixed to the bottom-right corner (`z-index: 110`, under the sticky chrome bar at 120), 320px wide (narrower on small screens), on every tab. Mounted once at the end of `AppShell.tsx`. Folded bar reads `N · <last author>`. `noisy`, so it starts open on the first visit and closed after that; open/closed is remembered in `sc-fold:global-chat` and it follows Compact.
