@@ -1,4 +1,5 @@
 import React from "react";
+import { formatHorizon } from "../horizon/horizon";
 import "./unit-status.css";
 
 /**
@@ -74,7 +75,7 @@ export function unitStatusRows(input: UnitStatusInput): UnitStatusRow[] {
   rows.push({
     kind: "cost",
     label: "Cost",
-    value: open ? `${costText} · x${qty} ${Math.ceil(ticks / 10)}s` : "—",
+    value: open ? `${costText} · x${qty} ${formatHorizon(ticks / 10)}` : "—",
     tone: !open ? "fog" : affordable ? "calm" : "warn",
   });
 

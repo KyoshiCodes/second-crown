@@ -58,6 +58,7 @@ import { QuestsStatusLine } from "../hud/QuestsStatusLine";
 import { ResearchStatusLine } from "../hud/ResearchStatusLine";
 import { PrestigeLine } from "../PrestigeLine";
 import { SeasonClaimLine } from "../SeasonClaimLine";
+import { PaceLine } from "../horizon/HorizonTime";
 import { quarryHintPlot, staffQuarryHint, staffTowerHint, wallsReadyHint, wallsStoneHint } from "../buildHints";
 import { WallLine } from "../WallLine";
 import { VisionLine } from "../VisionLine";
@@ -216,6 +217,7 @@ export function KingdomTab(props: {
           ) : null}
         </div>
       </div>
+      <PaceLine state={state} />
       <SeasonClaimLine state={state} act={act} />
       <Fold id="kingdom-notes" noisy title="Realm notes" summary="Season, income, studies, culture, vaults, pairing">
       <SeasonEffectLine state={state} />

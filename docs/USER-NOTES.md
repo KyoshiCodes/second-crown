@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Long waits are easier to read
+
+- **Times in hours and days:** Study, building and drill times no longer pile up as huge second counts. Under a minute still reads `45s`; longer waits read `1m 30s`, `3h 20m`, or `2d 4h`. Hover a time to see the exact seconds.
+- **Long-wait pill:** A study or building work that takes an hour or more shows a small `HOURS` (amber) or `DAYS` (orange) tag.
+- **Unit tiers:** Each unit card on the Army tab shows its tier (`Tier I` to `Tier V`). If the batch you picked (x1/x5/x10) is pricey or slow, it says so, e.g. `Higher bracket · costly batch`.
+- **Pace line:** The Kingdom tab now says `Current pace: early`, `mid` or `late`, from your Keep level and how many studies you know.
+
 ## 2026-11-25 — Living Admin panel accents (staff testing only)
 
 - **Living status pips:** Each message author and tracked player row in the Admin panel now shows a small status pip — a softly breathing green dot with a ring for `online`, amber for `muted`, ember ring for `kicked`, and crimson for `banned`.

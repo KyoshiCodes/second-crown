@@ -38,6 +38,8 @@ import {
   studyProgressText,
 } from "./ResearchAdvanced";
 import { ResearchTreeMap } from "./ResearchTreeMap";
+import { formatHorizon } from "./horizon/horizon";
+import { HorizonBadge, HorizonTime } from "./horizon/HorizonTime";
 import { LivingLecternPip, summarizeActiveStudy } from "./hud/LivingLecternPip";
 import "./hud/button-pips.css";
 import "./hud/research-ink-pip.css";
@@ -177,6 +179,13 @@ function Row(props: {
       </span>
       <StudyLivingRows topicId={id} status={status} rows={rows} />
       <StudyLivingGlyph topicId={id} status={status} academyFast={academyFast} progress={progress} />
+      {status === "studying" || status === "open" || status === "locked" ? (
+        <p className="sc-horizon-study" data-horizon-study={id}>
+          {status === "studying" ? "Time left " : "Takes "}
+          <HorizonTime seconds={status === "studying" ? left / TICKS_PER_SECOND : seconds} />
+          <HorizonBadge seconds={status === "studying" ? left / TICKS_PER_SECOND : seconds} />
+        </p>
+      ) : null}
       <StudyNeedsRow needs={needs} />
       <ResearchCostRow status={status} parts={studyCostParts(def.cost, state.resources)} busyWith={busyWith} />
       {done || left > 0 ? null : (
@@ -194,7 +203,7 @@ function Row(props: {
           className="sc-btn-with-pip sc-study-btn"
         >
           <ScrollPip size={16} status="open" />
-          <span>Study {label.toLowerCase()} ({seconds}s)</span>
+          <span>Study {label.toLowerCase()} ({formatHorizon(seconds)})</span>
         </button>
       )}
       <StudyLeadsLine leads={leads} />
@@ -225,7 +234,7 @@ export function ResearchBar(props: { state: GameState | undefined; act: ActFn })
           size={14}
           style={{ marginRight: 5 }}
         />
-        Lectern {open ? `· studying ${RESEARCH[open].name} (${Math.ceil(researchTicksLeft(state, open) / 10)}s)` : "· idle (one study at a time)"}.
+        Lectern {open ? `· studying ${RESEARCH[open].name} (${formatHorizon(researchTicksLeft(state, open) / TICKS_PER_SECOND)})` : "· idle (one study at a time)"}.
         {known.length > 0 ? ` Known: ${known.join(", ")}.` : " Nothing known yet."}
         {academy < 1
           ? " Raise an Academy on Kingdom — it counts as a hall for every study (farm/camp still work for early ones)."

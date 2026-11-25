@@ -1,4 +1,5 @@
 import React from "react";
+import { formatHorizon } from "./horizon/horizon";
 import { RESEARCH, researchRequires } from "@second-crown/sim";
 import "./research-advanced.css";
 
@@ -89,12 +90,14 @@ export function studyProgressText(input: {
     const frac = ticksTotal > 0 ? 1 - ticksLeft / ticksTotal : 0;
     // Never show 100% while seconds remain.
     const pct = Math.min(99, Math.max(0, Math.round(frac * 100)));
-    return { value: `${pct}% · ${Math.ceil(ticksLeft / ticksPerSecond)}s left`, sub: `of ${totalS}s` };
+    return { value: `${pct}% · ${formatHorizon(ticksLeft / ticksPerSecond)} left`, sub: `of ${formatHorizon(totalS)}` };
   }
   const saved = Math.round(ticksBase / ticksPerSecond) - totalS;
   return {
     value: "Not started",
-    sub: saved > 0 ? `${totalS}s to study · Academy saves ${saved}s` : `${totalS}s to study`,
+    sub: saved > 0
+      ? `${formatHorizon(totalS)} to study · Academy saves ${formatHorizon(saved)}`
+      : `${formatHorizon(totalS)} to study`,
   };
 }
 

@@ -10,6 +10,8 @@ import { UnitLivingGlyph, UnitLivingUnderlay } from "./UnitLivingGlyph";
 import { UnitLivingRows, splitUnitRows } from "./UnitLivingRows";
 import { BandagePip } from "./BandagePip";
 import { CultureUnitChip, hasCultureUnitChip } from "./CultureUnitChip";
+import { UnitTierNote } from "../horizon/HorizonTime";
+import { batchCostTotal, formatHorizon, unitBracketNote } from "../horizon/horizon";
 
 export type UnitCardProps = {
   typeId: string;
@@ -29,10 +31,15 @@ export type UnitCardProps = {
   wounded?: number;
   /** Whether the Infirmary is actively healing */
   healing?: boolean;
+  /** Unit tier from the sim's unit table (1–5). Shown as "Tier II". */
+  tier?: number;
+  /** Batch size the cost is multiplied by (x1 / x5 / x10). `ticks` is already for the batch. */
+  qty?: number;
 };
 
 export function UnitCard(props: UnitCardProps) {
-  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status, wounded, healing } = props;
+  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status, wounded, healing, tier, qty = 1 } = props;
+  const bracketNote = open ? unitBracketNote({ costTotal: batchCostTotal(cost, qty), seconds: ticks / 10 }) : null;
   const costText = Object.entries(cost).map(([k, v]) => `${v} ${k}`).join(" · ");
   const cls = ["sc-unit-card", !open ? "is-locked" : affordable ? "is-ready" : "is-short"].join(" ");
   const readyRow = status?.find((r) => r.kind === "ready");
@@ -88,6 +95,7 @@ export function UnitCard(props: UnitCardProps) {
           </>
         )}
       </span>
+      <UnitTierNote tier={tier} note={bracketNote} />
       {living ? (
         <>
           <UnitStatus rows={living.rest} />
@@ -100,7 +108,7 @@ export function UnitCard(props: UnitCardProps) {
         </>
       ) : open ? (
         <span className="sc-unit-cost">
-          {costText} each · {Math.ceil(ticks / 10)}s
+          {costText} each · {formatHorizon(ticks / 10)}
         </span>
       ) : (
         <span className="sc-unit-lock">{lock || "Locked"}</span>

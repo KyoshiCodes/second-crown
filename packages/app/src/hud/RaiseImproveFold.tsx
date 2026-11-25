@@ -14,6 +14,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
 import { Fold } from "./Fold";
+import { HorizonBadge, HorizonTime } from "../horizon/HorizonTime";
 import "../kingdom-flow.css";
 
 /** One row in the works-in-progress strip: a raise or an improvement, already read from the sim. */
@@ -112,7 +113,10 @@ export function RaiseImproveFold(props: {
                 {w.name}
                 {w.level ? <span className="sc-raise-work-level"> {w.level}</span> : null}
               </span>
-              <span className="sc-raise-work-time">{w.secondsLeft}s</span>
+              <span className="sc-raise-work-time">
+                <HorizonTime seconds={w.secondsLeft} />
+                <HorizonBadge seconds={w.secondsLeft} />
+              </span>
               <button type="button" className="sc-work-btn sc-raise-work-cancel" onClick={() => cancel(w)}>
                 Cancel
               </button>

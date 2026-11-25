@@ -1,4 +1,5 @@
 import React from "react";
+import { formatHorizon } from "../horizon/horizon";
 import "./academy-living.css";
 
 /**
@@ -72,12 +73,12 @@ export function studyLedgerRows(input: {
     status === "known"
       ? { kind: "progress", label: "Progress", value: "Known", tone: "done", fill: 1 }
       : status === "studying"
-        ? { kind: "progress", label: "Progress", value: `${Math.ceil(ticksLeft / 10)}s left`, sub: "studying", tone: "busy", fill: ticksTotal > 0 ? Math.min(1, Math.max(0, 1 - ticksLeft / ticksTotal)) : "run" }
+        ? { kind: "progress", label: "Progress", value: `${formatHorizon(ticksLeft / 10)} left`, sub: "studying", tone: "busy", fill: ticksTotal > 0 ? Math.min(1, Math.max(0, 1 - ticksLeft / ticksTotal)) : "run" }
         : {
             kind: "progress",
             label: "Progress",
             value: "Not started",
-            sub: `${seconds}s to study`,
+            sub: `${formatHorizon(seconds)} to study`,
             tone: status === "open" ? "ready" : "locked",
             fill: 0,
           };

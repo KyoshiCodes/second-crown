@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-25 — Progression horizon displays
+
+- **Long-form time (`horizon/horizon.ts`):** `formatHorizon(seconds)` rounds up and shows the two largest units: `<60s` → `Ns`; `<1h` → `Xm Ys`; `<1d` → `Xh Ym`; else `Xd Yh`; a zero second unit is dropped. `horizonBracket` → `seconds|minutes|hours|days`.
+- **Research:** study card `Time left` / `Takes` line with `<HorizonTime>` + `<HorizonBadge>` (hours/days pill). Progress row (`studyProgressText`, `StudyLedger`), tree map `Ready · … to study`, Study button and lectern header use `formatHorizon`.
+- **Buildings:** Raise / Improve work rows (`RaiseImproveFold`) use `<HorizonTime>` + badge.
+- **Units:** `UnitCard` takes `tier` and `qty`; shows `Tier I–V` and a `Higher bracket · …` note (`unitBracketNote`: batch total ≥50 costly, ≥200 steep; drill ≥1m long, ≥1h hours, ≥1d days; placeholder). Cost row times use `formatHorizon`.
+- **Pace line:** `<PaceLine>` on the Kingdom tab above the Season claim line, from `keepLevel` and known studies (`paceStage`).
+- **Styles:** `horizon/horizon.css` (theme.css untouched). sim, render, server untouched.
+- **Tests:** `horizon/horizon.test.tsx` (15 tests). Now: sim **362**, app **1460**, server **158** (+1 skip), app build clean.
+
 ## 2026-11-25 — Living Admin / Moderation panel accents
 
 - **Button warning pulses & flagged rows (`admin/AdminPanel.tsx`, `admin/admin-living.css`):** Hovering or focusing **Mute** (amber), **Kick** (ember-orange), or **Ban** (crimson, or `.is-armed` `"Confirm ban"`) applies a soft warning glow pulse. Messages flagged automatically for shouting/spam (`detectFlaggedMessage`), toggled manually via the compact local `Flag` / `Unflag` control, or armed for ban highlight the row (`.is-flagged` + non-blocking `Flagged` pill) and gently pulse its enabled moderation buttons.

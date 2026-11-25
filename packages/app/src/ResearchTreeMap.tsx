@@ -1,4 +1,5 @@
 import React from "react";
+import { formatHorizon } from "./horizon/horizon";
 import {
   RESEARCH,
   countBuilding,
@@ -158,7 +159,7 @@ export function studyTreeNode(state: GameState, id: Id): StudyTreeNode {
   }
   const busy = activeStudy(state);
   if (busy && busy !== id) return { ...base, state: "waiting", pct: 0, line: "Lectern busy" };
-  return { ...base, state: "ready", pct: 0, line: `Ready · ${Math.round(duration / TICKS_PER_SECOND)}s to study` };
+  return { ...base, state: "ready", pct: 0, line: `Ready · ${formatHorizon(Math.round(duration / TICKS_PER_SECOND))} to study` };
 }
 
 /**

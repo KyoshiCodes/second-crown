@@ -124,6 +124,8 @@ export function ArmyTab(props: {
               cost={u.cost}
               blurb={u.blurb}
               ticks={ticks}
+              tier={u.tier}
+              qty={trainQty}
               open={open}
               lock={lock}
               affordable={!!state && canAffordTrain(state, u.id, trainQty)}

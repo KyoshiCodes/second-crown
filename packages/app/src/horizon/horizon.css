@@ -1,0 +1,134 @@
+/* Progression horizon: long-form times, long-wait badges, unit tier notes, Pace line.
+   App only. Dedicated file; theme.css untouched. */
+
+.sc-horizon-time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sc-horizon-time.is-hours {
+  color: #e3b341;
+}
+.sc-horizon-time.is-days {
+  color: #f0883e;
+  font-weight: 600;
+}
+
+.sc-horizon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  border: 1px solid rgba(227, 179, 65, 0.55);
+  background: rgba(227, 179, 65, 0.12);
+  color: #e3b341;
+  pointer-events: none;
+}
+.sc-horizon-badge.is-days {
+  border-color: rgba(240, 136, 62, 0.6);
+  background: rgba(240, 136, 62, 0.14);
+  color: #f0883e;
+}
+.sc-horizon-badge-glass {
+  width: 6px;
+  height: 8px;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 0, 55% 50%, 100% 100%, 0 100%, 45% 50%);
+  opacity: 0.85;
+}
+
+/* Research card: badge row sits under the living rows. */
+.sc-horizon-study {
+  position: relative;
+  z-index: 1;
+  margin: 2px 0 4px;
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+/* Raise / Improve work rows. */
+.sc-raise-work-time.is-hours,
+.sc-raise-work-time.is-days {
+  min-width: 4.5em;
+}
+
+/* Unit cards. */
+.sc-horizon-unit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin-top: 3px;
+  font-size: 10px;
+  line-height: 1.3;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+.sc-horizon-tier {
+  padding: 0 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(201, 209, 217, 0.35);
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+.sc-horizon-note {
+  color: #e3b341;
+}
+.sc-horizon-unit.is-higher .sc-horizon-tier {
+  border-color: rgba(227, 179, 65, 0.55);
+}
+
+/* Pace line on the Kingdom tab. */
+.sc-horizon-pace {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 6px;
+  padding: 3px 8px;
+  font-size: 12px;
+  border-left: 3px solid rgba(201, 209, 217, 0.4);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 4px 4px 0;
+}
+.sc-horizon-pace strong {
+  text-transform: capitalize;
+}
+.sc-horizon-pace.is-early {
+  border-left-color: #3fb950;
+}
+.sc-horizon-pace.is-mid {
+  border-left-color: #e3b341;
+}
+.sc-horizon-pace.is-late {
+  border-left-color: #f0883e;
+}
+.sc-horizon-pace-pips {
+  display: inline-flex;
+  gap: 2px;
+}
+.sc-horizon-pace-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(201, 209, 217, 0.25);
+}
+.sc-horizon-pace.is-early .sc-horizon-pace-pip.is-on {
+  background: #3fb950;
+}
+.sc-horizon-pace.is-mid .sc-horizon-pace-pip.is-on {
+  background: #e3b341;
+}
+.sc-horizon-pace.is-late .sc-horizon-pace-pip.is-on {
+  background: #f0883e;
+}
+
+:root[data-chrome="parchment"] .sc-horizon-pace {
+  background: rgba(0, 0, 0, 0.04);
+}

@@ -1,3 +1,12 @@
+## 2026-11-25 — app / progression horizon displays
+
+- **Module (`packages/app/src/horizon/`):** `horizon.ts` (pure: `formatHorizon`, `formatTicksHorizon`, `horizonBracket`, `isLongHorizon`, `exactSeconds`, `unitTierLabel`, `batchCostTotal`, `costBracket` with `COST_BRACKET_COSTLY = 50` / `COST_BRACKET_STEEP = 200`, `unitBracketNote`, `paceStage`), `HorizonTime.tsx` (`HorizonTime`, `HorizonBadge`, `UnitTierNote`, `summarizePace`, `PaceLine`), `horizon.css`, `horizon.test.tsx`.
+- **Format contract:** under 60s output is identical to the old `${n}s`, so existing short-timer tests are unchanged. Use `formatHorizon` for any new duration text instead of `Math.ceil(t / 10) + "s"`.
+- **Call sites:** `ResearchAdvanced.studyProgressText`, `StudyLedger`, `ResearchTreeMap` (ready line), `ResearchBar` (horizon line per card, Study button, lectern header), `RaiseImproveFold` work rows, `UnitStatus` cost row, `UnitCard` (`tier`, `qty` props; ArmyTab passes `u.tier`, `trainQty`), `KingdomTab` (`<PaceLine>` before `<SeasonClaimLine>`).
+- **Pace rule:** late if `keep >= 4` or known/total ≥ ⅔; early if `keep <= 1` and share < ⅓; else mid. Reads `keepLevel` + `researchDone` only.
+- **Untouched:** `packages/sim`, `packages/render`, `server/`, `theme.css`. Cost brackets are placeholders until unit costs are scaled.
+- **Verification:** `npm test` → sim 362, app 1460, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean.
+
 ## 2026-11-25 — app / living Admin / Moderation panel accents
 
 - **Component (`packages/app/src/admin/AdminPanel.tsx`):**
