@@ -48,7 +48,7 @@ describe("researchBonusText", () => {
     expect(researchBonusText(RESEARCH.husbandry.effect)).toBe("Farms and granaries yield more food.");
     expect(researchBonusText(RESEARCH.logistics.effect)).toBe("One extra column on the board and +50 warehouse space.");
     expect(researchBonusText(RESEARCH.fortification.effect)).toBe(
-      "Quarries yield another +10% stone. Finished walls hold another +24 HP. Unlocks ironclads.",
+      "Quarries yield another +25% stone. Finished walls hold another +24 HP. Unlocks ironclads.",
     );
     for (const def of Object.values(RESEARCH)) {
       const bonus = researchBonusText(def.effect);

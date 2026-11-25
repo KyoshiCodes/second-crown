@@ -78,3 +78,42 @@ export const NPC_START_ARMY_MULT = 1.25;
 export function npcStartCount(base: number): number {
   return base > 0 ? Math.ceil(base * NPC_START_ARMY_MULT) : 0;
 }
+
+/**
+ * Income pass (2026-11-25). Building output scales with two plain tables so the
+ * longer studies and upgrades stay reachable. Measured against one level-1
+ * building at Keep I (= 1×):
+ *   Keep I   (L1-2):  1× / 2×        (unchanged)
+ *   Keep II  (L3):    3.5 × 1.25 ≈ 4.4×
+ *   Keep III (L4):    5   × 1.5  = 7.5×
+ *   Keep IV  (L5):    8   × 2.5  = 20×
+ *   Keep V   (L5):    8   × 3.5  = 28×   (~35× with the deep yield studies)
+ * Level is already gated by the Keep (others may reach keep+1).
+ */
+export const LEVEL_YIELD_MULT: Readonly<Record<number, number>> = {
+  1: 1,
+  2: 2,
+  3: 3.5,
+  4: 5,
+  5: 8,
+};
+
+/** Realm-wide output multiplier from the realm's highest finished Keep level. */
+export const KEEP_INCOME_MULT: Readonly<Record<number, number>> = {
+  0: 1,
+  1: 1,
+  2: 1.25,
+  3: 1.5,
+  4: 2.5,
+  5: 3.5,
+};
+
+export function levelYieldMult(level: number): number {
+  const l = Math.max(1, Math.min(5, Math.floor(level)));
+  return LEVEL_YIELD_MULT[l];
+}
+
+export function keepIncomeMult(keep: number): number {
+  const k = Math.max(0, Math.min(5, Math.floor(keep)));
+  return KEEP_INCOME_MULT[k];
+}

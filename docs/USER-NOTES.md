@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Your income grows with your Keep
+
+- **Upgraded buildings pay much more.** A level 3 farm now makes 3.5× a level 1 farm, level 4 makes 5×, level 5 makes 8× (levels 1–2 unchanged).
+- **A bigger Keep lifts every building.** Keep II +25%, Keep III +50%, Keep IV ×2.5, Keep V ×3.5. Keep I is unchanged.
+- **Example (one farm, food per second):** Keep I level 1: 10. Keep III level 4: 75. Keep IV level 5: 200.
+- **Stronger tier II yield studies:** Crop Rotation, Timber Framing and Fortification now give +25% (was +10%). Logistics gives +15% gold (was +8%).
+- Combat, troop strength, build times, study times and costs did not change.
+
 ## 2026-11-25 — Calm store bottleneck & "Saving" cues
 
 - **Bottleneck store pulse:** When a store (`Food`, `Wood`, `Stone`, or `Gold`) is holding back your next study or Keep upgrade, its store card wears a quiet amber glow and small pulsing dot (hover to see what it is holding back).

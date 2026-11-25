@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-25 — Sim income pass (production scales with Keep and level)
+
+- **Level yield curve (`content/pacing.ts` `LEVEL_YIELD_MULT` / `levelYieldMult`):** building output by level is 1 / 2 / 3.5 / 5 / 8 (was linear 1–5). L1–L2 unchanged.
+- **Keep income multiplier (`KEEP_INCOME_MULT` / `keepIncomeMult`):** realm-wide output ×1 / 1 / 1.25 / 1.5 / 2.5 / 3.5 for keep 0–V, read from the realm's highest finished Keep. Wired into `systems/economy.ts` `rateFor`, so `economyGain`, `computeIncomePerSecond` and offline catch-up all agree.
+- **Studies (`systems/research.ts` `researchYield`):** crop rotation / timber framing / fortification +10% → **+25%**; Logistics gold +8% → **+15%**. Study text and `StudyLine.tsx` labels updated.
+- **Result per building vs Keep I L1:** Keep II L3 ≈4.4×, Keep III L4 7.5×, Keep IV L5 20×, Keep V L5 28× (~35× with yield studies).
+- **Unchanged:** labor, trade routes, outpost tithe, combat, unit power, build/research/upgrade times and costs.
+- **Tests:** new `systems/income.test.ts` (5); `research.test.ts` and app `ResearchStatusLine.test.tsx` expected values. Now: sim **379**, app **1508**, server **158** (+1 Windows skip), app build clean.
+
 ## 2026-11-25 — Living economy pressure accents (bottleneck pulse & "Saving" pip)
 
 - **Store bottleneck pulse (`hud/economyPressure.ts`, `hud/ResourceHud.tsx`, `hud/economy-pressure.css`):** Added `bottleneckResourceMap(state)` grouping active next-study and Keep-upgrade limiters by store. Non-empty limiting store cells receive `.is-bottleneck` with a calm `4.8s` amber inner glow (`sc-econ-bottleneck-glow`), a tiny breathing amber pip (`sc-econ-bottleneck-pip`), and tooltip text (`limiter for ...`), using child spans rather than store pseudo-elements (`pointer-events: none !important;`).

@@ -120,7 +120,7 @@ export const RESEARCH = {
     keepMin: 2,
     requires: "husbandry",
     unlocks: [] as const,
-    effect: "Farms and granaries yield another +10% food. Needs Husbandry and Keep II.",
+    effect: "Farms and granaries yield another +25% food. Needs Husbandry and Keep II.",
   },
   timber_framing: {
     id: "timber_framing",
@@ -131,7 +131,7 @@ export const RESEARCH = {
     keepMin: 2,
     requires: "forestry",
     unlocks: [] as const,
-    effect: "Lumber camps and sawmills yield another +10% wood. Needs Forestry and Keep II.",
+    effect: "Lumber camps and sawmills yield another +25% wood. Needs Forestry and Keep II.",
   },
   fortification: {
     id: "fortification",
@@ -142,7 +142,7 @@ export const RESEARCH = {
     keepMin: 3,
     requires: "masonry",
     unlocks: ["ironclad"],
-    effect: "Quarries yield another +10% stone. Finished walls hold another +24 HP. Unlocks ironclads. Needs Masonry and Keep III.",
+    effect: "Quarries yield another +25% stone. Finished walls hold another +24 HP. Unlocks ironclads. Needs Masonry and Keep III.",
   },
   supply_trains: {
     id: "supply_trains",
@@ -259,15 +259,15 @@ export function unitUnlocked(state: GameState, typeId: string): boolean {
 /** Extra per-tick yield fraction for one resource after the matching study. */
 export function researchYield(state: GameState, res: string): number {
   if (res === "food") {
-    return (researchDone(state, "husbandry") ? 0.12 : 0) + (researchDone(state, "crop_rotation") ? 0.1 : 0);
+    return (researchDone(state, "husbandry") ? 0.12 : 0) + (researchDone(state, "crop_rotation") ? 0.25 : 0);
   }
   if (res === "wood") {
-    return (researchDone(state, "forestry") ? 0.12 : 0) + (researchDone(state, "timber_framing") ? 0.1 : 0);
+    return (researchDone(state, "forestry") ? 0.12 : 0) + (researchDone(state, "timber_framing") ? 0.25 : 0);
   }
   if (res === "stone") {
-    return (researchDone(state, "masonry") ? 0.12 : 0) + (researchDone(state, "fortification") ? 0.1 : 0);
+    return (researchDone(state, "masonry") ? 0.12 : 0) + (researchDone(state, "fortification") ? 0.25 : 0);
   }
-  if (res === "gold" && researchDone(state, "logistics")) return 0.08;
+  if (res === "gold" && researchDone(state, "logistics")) return 0.15;
   return 0;
 }
 

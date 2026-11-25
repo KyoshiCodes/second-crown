@@ -11,6 +11,8 @@ import { addCapped } from "./storage.js";
 import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
+import { keepLevel } from "../actions/upgrade.js";
+import { keepIncomeMult, levelYieldMult } from "../content/pacing.js";
 import { farmCultureBonus, quarryCultureBonus, woodCultureBonus } from "./culture.js";
 
 const PAIR: Record<string, string> = {
@@ -99,7 +101,8 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
           ? woodCultureBonus(state, building.realmId)
           : 0;
   return D(rateStr)
-    .mul(Math.max(1, building.level))
+    .mul(levelYieldMult(building.level))
+    .mul(keepIncomeMult(keepLevel(state, building.realmId)))
     .mul(1 + productionBonus(state) * 0.04 + researchYield(state, res))
     .mul(scarce)
     .mul(staffBonus(state, building))

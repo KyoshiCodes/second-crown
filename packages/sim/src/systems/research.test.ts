@@ -357,9 +357,9 @@ describe("academy research", () => {
       s.flags.research_crop_rotation = 1;
       s.flags.research_timber_framing = 1;
       s.flags.research_fortification = 1;
-      expect(researchYield(s, "food")).toBeCloseTo(0.22);
-      expect(researchYield(s, "wood")).toBeCloseTo(0.22);
-      expect(researchYield(s, "stone")).toBeCloseTo(0.22);
+      expect(researchYield(s, "food")).toBeCloseTo(0.37);
+      expect(researchYield(s, "wood")).toBeCloseTo(0.37);
+      expect(researchYield(s, "stone")).toBeCloseTo(0.37);
       expect(researchYield(s, "gold")).toBe(0);
       expect(masonryWallBonus(s)).toBe(40);
     });

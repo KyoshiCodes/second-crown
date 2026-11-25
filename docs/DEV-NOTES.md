@@ -1,3 +1,12 @@
+## 2026-11-25 — sim / income pass
+
+- **Data (`packages/sim/src/content/pacing.ts`):** `LEVEL_YIELD_MULT` {1:1, 2:2, 3:3.5, 4:5, 5:8}, `KEEP_INCOME_MULT` {0:1, 1:1, 2:1.25, 3:1.5, 4:2.5, 5:3.5}; clamped helpers `levelYieldMult(level)`, `keepIncomeMult(keep)`.
+- **Wiring (`systems/economy.ts` `rateFor`):** `.mul(Math.max(1, level))` → `.mul(levelYieldMult(level)).mul(keepIncomeMult(keepLevel(state, building.realmId)))`. Multiplicative with staff/adjacency/pair/keep-yard bonuses; culture flat bonuses still added after. Only building production scales: `laborPerTick`, route gold and outpost tithe are untouched.
+- **Studies (`systems/research.ts` `researchYield`):** tier II yields 0.1 → 0.25; logistics gold 0.08 → 0.15.
+- **Determinism:** plain number tables, no clocks or RNG. Batch catch-up and tick-by-tick go through the same `rateFor`.
+- **Tuning:** to retune the curve, edit only the two tables; `income.test.ts` asserts Keep I unchanged, Keep II–III in 3–8×, Keep IV–V in 15–40× for a single farm.
+- **Verification:** `npm test` → sim 379, app 1508, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean.
+
 ## 2026-11-25 — app / living economy pressure accents
 
 - **Helpers & components (`packages/app/src/hud/economyPressure.ts`, `SavingPip.tsx`, `ResourceHud.tsx`):**
