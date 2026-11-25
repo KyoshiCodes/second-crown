@@ -1,3 +1,14 @@
+## 2026-11-25 — app / living economy pressure accents
+
+- **Helpers & components (`packages/app/src/hud/economyPressure.ts`, `SavingPip.tsx`, `ResourceHud.tsx`):**
+  - Exported `SAVING_MIN_SECONDS = 600`, `isSavingCost(p)`, `isCostSaving(cost, rates)`, and `bottleneckResourceMap(state)`.
+  - `ResourceHud` accepts optional `bottleneckOverride` for SSR tests, emits `.is-bottleneck`, `data-economy-bottleneck="true"`, `.sc-econ-bottleneck-glow`, and `.sc-econ-bottleneck-pip` (`pointer-events: none !important;`), and preserves existing `ResourceHud.test.tsx` / `HudMicroFeedback.test.tsx` output when `state` is omitted.
+  - `StudyProjection` (`CostProjection.tsx`), `RaiseImproveFold.tsx` (`compact` phrasing-only pip inside `.sc-plain-pick`), and `WorkCard.tsx` (fed precomputed `rates` from `KingdomTab.tsx`, preserving no `sc-work-level`) render `<SavingPip>` + `.is-saving-cost` when `>= 600s` of income is still short.
+- **Dedicated CSS (`packages/app/src/hud/economy-pressure.css`):**
+  - Imported from `ResourceHud.tsx` and `SavingPip.tsx`. Defines Dusk/Night/Parchment RGB tokens (`--sc-econ-bottleneck-rgb`, `--sc-econ-saving-rgb`), keyframes (`sc-econ-bottleneck-pulse`, `sc-econ-pip-breathe`, `sc-econ-saving-dot`, `sc-econ-saving-glow`), zero `.sc-ledger-cell` pseudo-elements, `pointer-events: none !important;`, and `@media (prefers-reduced-motion: reduce)`.
+  - Zero edits to `theme.css`, `cost-projection.css`, `hud-micro-feedback.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/EconomyPressure.test.tsx`):** 9 tests passing (`npm test` -> sim 374, app 1508, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — app / cost projections & limiter note
 
 - **`packages/app/src/projection.ts`:** `RealmRates { rate, have, cap }`; `projectCost(cost, rates)` returns per-resource `short`, `productionSeconds = need/rate`, `waitSeconds = short/rate` (Infinity when rate ≤ 0 or `need > cap`), `overCap`, plus the overall max and a `limiter` (ranked: over cap > no income > longest wait > longest production; table order breaks ties). `projectionWorthShowing` gates on `PROJECTION_MIN_SECONDS = 300`, no-income shortfall, or over cap. `realmRates(state)` = `computeIncomePerSecond` with `upkeepPerTick × TICKS_PER_SECOND` subtracted from food, stores from `state.resources`, caps from `storageCap`.

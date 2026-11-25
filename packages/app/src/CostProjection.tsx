@@ -10,6 +10,8 @@ import {
   type RealmRates,
 } from "./projection";
 import "./cost-projection.css";
+import { isSavingCost } from "./hud/economyPressure";
+import { SavingPip } from "./hud/SavingPip";
 
 /**
  * Display-only projections. Compare a cost with current net income (food after army
@@ -40,10 +42,17 @@ export function projectionText(p: CostProjection): { text: string; tone: "calm" 
 /** Projection line under a study card's cost row. Hidden for paid studies and cheap ones. */
 export function StudyProjection(props: { cost: Readonly<Record<string, string>>; rates: RealmRates; paid: boolean }) {
   if (props.paid) return null;
-  const line = projectionText(projectCost(props.cost, props.rates));
+  const proj = projectCost(props.cost, props.rates);
+  const line = projectionText(proj);
   if (!line) return null;
+  const saving = isSavingCost(proj);
   return (
-    <p className={`sc-cost-projection tone-${line.tone}`} data-cost-projection={line.tone}>
+    <p
+      className={`sc-cost-projection tone-${line.tone}${saving ? " is-saving-cost" : ""}`}
+      data-cost-projection={line.tone}
+      data-saving={saving ? "true" : undefined}
+    >
+      {saving ? <SavingPip /> : null}
       {line.text}
     </p>
   );

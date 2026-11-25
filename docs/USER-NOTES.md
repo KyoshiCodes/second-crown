@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Calm store bottleneck & "Saving" cues
+
+- **Bottleneck store pulse:** When a store (`Food`, `Wood`, `Stone`, or `Gold`) is holding back your next study or Keep upgrade, its store card wears a quiet amber glow and small pulsing dot (hover to see what it is holding back).
+- **"Saving" indicator on expensive builds & studies:** Studies, build picker choices, and standing building upgrades whose unpaid cost takes more than ~10 minutes of your current net income now show a small soft **Saving** pip so you can spot slow-saving items at a glance.
+
 ## 2026-11-25 — See how long a study will take to afford
 
 - **Study cards:** expensive studies now say how much production they cost at your current income, e.g. "about 2h of stone production. Ready in about 1h 40m; stone is the limiter." If a store has no income, or the cost is bigger than your warehouse can hold, the card says so.

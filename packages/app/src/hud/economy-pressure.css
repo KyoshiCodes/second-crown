@@ -1,0 +1,175 @@
+/* --- Economy Pressure Living Accents (isolated CSS) ---
+ * Loaded from hud/ResourceHud.tsx and hud/SavingPip.tsx.
+ * Never modifies theme.css, cost-projection.css, or hud-micro-feedback.css.
+ * Avoids pseudo-elements on store cells so existing music/flash layers stay intact.
+ * Strict pointer-events: none !important on glows and decorative pips.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-econ-bottleneck-rgb: 238, 178, 72;
+  --sc-econ-saving-rgb: 224, 168, 68;
+}
+
+:root[data-chrome="night"] {
+  --sc-econ-bottleneck-rgb: 232, 184, 96;
+  --sc-econ-saving-rgb: 218, 174, 98;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-econ-bottleneck-rgb: 184, 114, 22;
+  --sc-econ-saving-rgb: 168, 104, 22;
+}
+
+/* ==========================================================================
+   2. Soft Amber Bottleneck Pulse on Store Cells
+   ========================================================================== */
+.sc-resource-bar .sc-ledger-cell.is-bottleneck:not(.is-empty) {
+  border-color: rgba(var(--sc-econ-bottleneck-rgb), 0.52);
+}
+
+.sc-econ-bottleneck-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-econ-bottleneck-pulse 4.8s ease-in-out infinite;
+}
+
+.sc-econ-bottleneck-pip {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-left: 4px;
+  flex: none;
+  background: rgb(var(--sc-econ-bottleneck-rgb));
+  box-shadow: 0 0 4px rgba(var(--sc-econ-bottleneck-rgb), 0.65);
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-econ-pip-breathe 3.8s ease-in-out infinite;
+}
+
+@keyframes sc-econ-bottleneck-pulse {
+  0%, 100% {
+    background: rgba(var(--sc-econ-bottleneck-rgb), 0.03);
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-econ-bottleneck-rgb), 0.16);
+  }
+  50% {
+    background: rgba(var(--sc-econ-bottleneck-rgb), 0.09);
+    box-shadow:
+      inset 0 0 0 1px rgba(var(--sc-econ-bottleneck-rgb), 0.36),
+      0 0 10px rgba(var(--sc-econ-bottleneck-rgb), 0.18);
+  }
+}
+
+@keyframes sc-econ-pip-breathe {
+  0%, 100% {
+    opacity: 0.58;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
+}
+
+/* ==========================================================================
+   3. Living "Saving" Pip & Calm 10m+ Row Accents
+   ========================================================================== */
+.sc-saving-pip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  color: rgb(var(--sc-econ-saving-rgb));
+  background: rgba(var(--sc-econ-saving-rgb), 0.11);
+  border: 1px solid rgba(var(--sc-econ-saving-rgb), 0.38);
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-saving-pip.is-compact {
+  padding: 2px;
+  margin-left: 4px;
+  background: rgba(var(--sc-econ-saving-rgb), 0.12);
+}
+
+.sc-saving-pip-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+  background: currentColor;
+  box-shadow: 0 0 3px rgba(var(--sc-econ-saving-rgb), 0.55);
+  pointer-events: none !important;
+  animation: sc-econ-saving-dot 4.2s ease-in-out infinite;
+}
+
+:root[data-chrome="parchment"] .sc-saving-pip {
+  color: #6f430b;
+  background: rgba(var(--sc-econ-saving-rgb), 0.14);
+}
+
+.sc-cost-projection.is-saving-cost {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border-left: 2px solid rgba(var(--sc-econ-saving-rgb), 0.45);
+  animation: sc-econ-saving-glow 5.2s ease-in-out infinite;
+}
+
+.sc-plain-pick.is-saving-cost,
+.sc-building-card.is-saving-cost {
+  border-left: 2px solid rgba(var(--sc-econ-saving-rgb), 0.48);
+  animation: sc-econ-saving-glow 5.2s ease-in-out infinite;
+}
+
+@keyframes sc-econ-saving-dot {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes sc-econ-saving-glow {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-econ-saving-rgb), 0.08);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-econ-saving-rgb), 0.24);
+  }
+}
+
+/* ==========================================================================
+   4. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-econ-bottleneck-glow,
+  .sc-econ-bottleneck-pip,
+  .sc-saving-pip-dot,
+  .sc-cost-projection.is-saving-cost,
+  .sc-plain-pick.is-saving-cost,
+  .sc-building-card.is-saving-cost {
+    animation: none !important;
+  }
+}

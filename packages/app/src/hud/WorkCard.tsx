@@ -9,9 +9,14 @@ import {
   staffBonus,
   tryDemolish,
   tryRepair,
+  upgradeCost,
+  upgradeJobFor,
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
+import { projectCost, realmRates, type RealmRates } from "../projection";
+import { isSavingCost } from "./economyPressure";
+import { SavingPip } from "./SavingPip";
 import { HallChip } from "./HallChip";
 import { WorkStatus, workStatusRows } from "./WorkStatus";
 import {
@@ -24,7 +29,7 @@ import { WorkLivingRows, splitWorkRows } from "./WorkLivingRows";
 
 type Building = GameState["buildings"][number];
 
-export function WorkCard(props: { state: GameState; b: Building; scarred: boolean; act: ActFn }) {
+export function WorkCard(props: { state: GameState; b: Building; scarred: boolean; act: ActFn; rates?: RealmRates }) {
   const { state, b, scarred, act } = props;
   const nm = getBuildingType(b.typeId)?.name ?? b.typeId;
   const pct = (n: number) => Math.round((n - 1) * 100);
@@ -44,15 +49,24 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
     pairPct: pair,
     keepPct: keep,
   });
+  const nextUpgrade = !scarred && !upgradeJobFor(state, b.id) ? upgradeCost(state, b.id) : null;
+  const savingUpgrade = Boolean(
+    nextUpgrade && isSavingCost(projectCost(nextUpgrade, props.rates ?? realmRates(state))),
+  );
   const living = splitWorkRows(rows);
   const cls = [
     "sc-work-card",
     "sc-building-card",
     scarred ? "is-scarred" : staff > 0 ? "is-staffed" : "is-empty",
+    ...(savingUpgrade ? ["is-saving-cost"] : []),
   ].join(" ");
 
   return (
-    <div className={cls} title={`${nm} at ${b.x},${b.y}`}>
+    <div
+      className={cls}
+      data-saving={savingUpgrade ? "true" : undefined}
+      title={`${nm} at ${b.x},${b.y}`}
+    >
       <WorkLivingUnderlay
         typeId={b.typeId}
         scarred={scarred}
@@ -74,6 +88,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
       />
       <div className="sc-work-foot">
         <span className="sc-work-where">{b.x},{b.y}</span>
+        {savingUpgrade ? <SavingPip /> : null}
         {scarred ? (
           <button
             type="button"

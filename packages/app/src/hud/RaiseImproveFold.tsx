@@ -17,6 +17,9 @@ import { Fold } from "./Fold";
 import { horizonBracket, isLongHorizon } from "../horizon/horizon";
 import { HorizonBadge, HorizonTime } from "../horizon/HorizonTime";
 import { LongProjectBadge } from "../horizon/LongProjectBadge";
+import { realmRates } from "../projection";
+import { isCostSaving } from "./economyPressure";
+import { SavingPip } from "./SavingPip";
 import "../kingdom-flow.css";
 
 /** One row in the works-in-progress strip: a raise or an improvement, already read from the sim. */
@@ -87,6 +90,7 @@ export function RaiseImproveFold(props: {
   const selected = selectedBuild ? getBuildingType(selectedBuild) : undefined;
   const works = worksInProgress(state);
   const affordable = state ? types.filter((t) => canAfford(state, t.id)).length : 0;
+  const rates = state ? realmRates(state) : null;
 
   const cancel = (w: WorkInProgress) =>
     act((st) =>
@@ -143,17 +147,20 @@ export function RaiseImproveFold(props: {
           const n = state ? countBuilding(state, t.id) : 0;
           const afford = state ? canAfford(state, t.id) : false;
           const picked = selectedBuild === t.id;
+          const saving = Boolean(rates && !afford && isCostSaving(t.cost, rates));
           return (
             <button
               key={t.id}
               type="button"
               title={t.blurb}
               onClick={() => setSelectedBuild(t.id)}
-              className={`sc-work-card sc-plain-pick ${picked ? "is-picked" : afford ? "is-afford" : "is-short"}`}
+              className={`sc-work-card sc-plain-pick ${picked ? "is-picked" : afford ? "is-afford" : "is-short"}${saving ? " is-saving-cost" : ""}`}
+              data-saving={saving ? "true" : undefined}
             >
               <span className="sc-work-head">
                 <span className="sc-work-name">{t.name}</span>
                 {n ? <span className="sc-work-level">x{n}</span> : null}
+                {saving ? <SavingPip compact /> : null}
               </span>
               <span className="sc-work-status">{picked ? "Picked — tap a plot" : afford ? "Can afford" : "Short on stores"}</span>
             </button>

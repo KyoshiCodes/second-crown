@@ -37,6 +37,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import type { ActFn } from "../game/useGameEngine";
+import { realmRates } from "../projection";
 import { PeoplePanel } from "../PeoplePanel";
 import { Fold } from "../hud/Fold";
 import { KeepGateCard } from "../KeepGateCard";
@@ -106,6 +107,7 @@ export function KingdomTab(props: {
   const gateRow = state ? currentKeepGate(state) : KEEP_GATES[0];
   const notice = state ? keepNotice(state) : "";
   const income = state ? computeIncomePerSecond(state) : {};
+  const rates = state ? realmRates(state) : undefined;
   const tithe = state ? outpostTithePerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const labor = state ? laborPerTick(state) : { food: 0, wood: 0, stone: 0, gold: 0 };
   const wallsHint = wallsStoneHint(state);
@@ -310,10 +312,10 @@ export function KingdomTab(props: {
         <Fold id="kingdom-standing" noisy title="Standing works" summary={`${standing.length} standing${scarred.length ? ` · ${scarred.length} scarred` : ""}`}>
           <div className="sc-work-grid">
             {scarred.map((b) => (
-              <WorkCard key={b.id} state={state} b={b} scarred act={act} />
+              <WorkCard key={b.id} state={state} b={b} scarred act={act} rates={rates} />
             ))}
             {standing.map((b) => (
-              <WorkCard key={b.id} state={state} b={b} scarred={false} act={act} />
+              <WorkCard key={b.id} state={state} b={b} scarred={false} act={act} rates={rates} />
             ))}
           </div>
         </Fold>

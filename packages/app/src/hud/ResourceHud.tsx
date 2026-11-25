@@ -14,6 +14,8 @@ import {
 import "./resource-pip.css";
 import "./resource-living.css";
 import "./hud-micro-feedback.css";
+import "./economy-pressure.css";
+import { bottleneckResourceMap } from "./economyPressure";
 
 export const HUD_PULSE_MS = 680;
 export type ResourceMicroPulseKey = "food" | "wood" | "stone" | "gold";
@@ -62,8 +64,10 @@ export function ResourceHud(props: {
   income: Record<string, string>;
   state?: GameState;
   pulseOverride?: Partial<Record<ResourceMicroPulseKey, Exclude<ResourceMicroPulseKind, null>>>;
+  bottleneckOverride?: Readonly<Record<string, string | boolean>>;
 }) {
   const hungry = props.state ? isFoodStoresEmptyOrLow(props.state) : false;
+  const bottleneckMap = bottleneckResourceMap(props.state);
 
   const entries = (["food", "wood", "stone", "gold"] as const).map((r) => {
     const line = props.state ? resourceLedger(props.state, r) : null;
@@ -148,15 +152,31 @@ export function ResourceHud(props: {
         const earning = hasIncome(income);
         const activePulse = props.pulseOverride?.[r] ?? pulses[r]?.kind ?? null;
         const pulseSeq = pulses[r]?.seq ?? 0;
+        const overrideVal = props.bottleneckOverride && r in props.bottleneckOverride ? props.bottleneckOverride[r] : undefined;
+        const bottleneckTargets =
+          overrideVal !== undefined
+            ? typeof overrideVal === "string"
+              ? [overrideVal]
+              : overrideVal
+                ? ["upgrade"]
+                : []
+            : (bottleneckMap[r] ?? []).map((b) => b.target);
+        const isBottleneck = !empty && bottleneckTargets.length > 0;
+        const cellTip = [tip, isBottleneck ? `limiter for ${bottleneckTargets.join(", ")}` : ""]
+          .filter(Boolean)
+          .join(" · ");
         return (
           <div
             key={r}
             role="listitem"
-            className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}`}
+            className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}${isBottleneck ? " is-bottleneck" : ""}`}
             data-hud-pulse={activePulse ?? undefined}
-            title={tip}
+            data-economy-bottleneck={isBottleneck ? "true" : undefined}
+            data-bottleneck-targets={isBottleneck ? bottleneckTargets.join(", ") : undefined}
+            title={cellTip}
           >
             <ResourceLivingUnderlay resource={r} mood={desc.mood} />
+            {isBottleneck ? <span className="sc-econ-bottleneck-glow" aria-hidden="true" /> : null}
             {activePulse ? (
               <span
                 key={`flash-${pulseSeq}`}
@@ -170,6 +190,7 @@ export function ResourceHud(props: {
                 <div className="sc-ledger-name">
                   <ResourcePip resource={r} variant={variant} />
                   {RES_LABEL[r]}
+                  {isBottleneck ? <span className="sc-econ-bottleneck-pip" aria-hidden="true" /> : null}
                   {full ? <span className="sc-ledger-tag">full</span> : null}
                   {empty ? <span className="sc-ledger-tag">bare</span> : null}
                 </div>

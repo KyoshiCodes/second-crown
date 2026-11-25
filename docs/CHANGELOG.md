@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Living economy pressure accents (bottleneck pulse & "Saving" pip)
+
+- **Store bottleneck pulse (`hud/economyPressure.ts`, `hud/ResourceHud.tsx`, `hud/economy-pressure.css`):** Added `bottleneckResourceMap(state)` grouping active next-study and Keep-upgrade limiters by store. Non-empty limiting store cells receive `.is-bottleneck` with a calm `4.8s` amber inner glow (`sc-econ-bottleneck-glow`), a tiny breathing amber pip (`sc-econ-bottleneck-pip`), and tooltip text (`limiter for ...`), using child spans rather than store pseudo-elements (`pointer-events: none !important;`).
+- **10m+ `"Saving"` pip & calm row glow (`hud/SavingPip.tsx`, `CostProjection.tsx`, `hud/RaiseImproveFold.tsx`, `hud/WorkCard.tsx`):** Added `isSavingCost` / `isCostSaving` (`SAVING_MIN_SECONDS = 600`) and `<SavingPip>` (`pointer-events: none !important;`). Unpaid study projections (`CostProjection`), build picker chips (`RaiseImproveFold`, compact pip), and standing building cards whose next upgrade takes ≥10m of current net income (`WorkCard`) show a soft `"Saving"` indicator and quiet border pulse tuned not to fight existing horizon glows.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `cost-projection.css`, `hud-micro-feedback.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/EconomyPressure.test.tsx` (9 tests). Now: sim **374**, app **1508**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Cost projections & limiter note (read-only)
 
 - **Study card projection (`CostProjection.tsx` `StudyProjection`, wired in `ResearchBar.tsx`):** under the cost row of unpaid studies, one line comparing the cost with net income: seconds of production for the slowest store, time until stores cover it, and the limiter. Shown only when the cost is ≥ `PROJECTION_MIN_SECONDS` (300s) of income, a needed store has no income, or the cost exceeds `storageCap`.
