@@ -1,5 +1,6 @@
 import React from "react";
 import { resolveWeatherKind, type WeatherKind } from "@second-crown/render";
+import { useNowPlaying, type MusicSource, type NowPlaying } from "../nowPlaying";
 import { type HolidayId, getHolidayMeta } from "./holidays";
 
 interface Particle {
@@ -10,17 +11,77 @@ interface Particle {
   size: number;
   alpha: number;
   color: string;
-  kind: "rain" | "snow";
+  kind: "rain" | "snow" | "mote";
+}
+
+export interface MusicWeatherResponse {
+  countMultiplier: number;
+  alphaMultiplier: number;
+  speedMultiplier: number;
+  moteCount: number;
+  moteColor: string;
+}
+
+const SEASON_MOTE_COLORS: Record<"Spring" | "Summer" | "Autumn" | "Winter", string> = {
+  Spring: "#86efac",
+  Summer: "#fef08a",
+  Autumn: "#fdba74",
+  Winter: "#bae6fd",
+};
+
+/** Computes lightweight weather/mote boost while music is playing. */
+export function resolveMusicWeatherResponse(
+  playing: boolean,
+  source: MusicSource,
+  season: "Spring" | "Summer" | "Autumn" | "Winter",
+  weatherKind: WeatherKind,
+): MusicWeatherResponse {
+  if (!playing) {
+    return {
+      countMultiplier: 1,
+      alphaMultiplier: 1,
+      speedMultiplier: 1,
+      moteCount: 0,
+      moteColor: "",
+    };
+  }
+  const moteColor =
+    source === "travis"
+      ? "#fde68a"
+      : source === "lofi"
+        ? "#b8c7e8"
+        : SEASON_MOTE_COLORS[season];
+
+  if (weatherKind === "clear") {
+    return {
+      countMultiplier: 1,
+      alphaMultiplier: 1,
+      speedMultiplier: 1,
+      moteCount: 14,
+      moteColor,
+    };
+  }
+  return {
+    countMultiplier: 1.25,
+    alphaMultiplier: 1.12,
+    speedMultiplier: 1.06,
+    moteCount: 0,
+    moteColor,
+  };
 }
 
 export function WeatherOverlay(props: {
   season: "Spring" | "Summer" | "Autumn" | "Winter";
   holiday: HolidayId;
+  nowPlayingOverride?: Pick<NowPlaying, "source" | "playing">;
 }) {
-  const { season, holiday } = props;
+  const { season, holiday, nowPlayingOverride } = props;
+  const liveNp = useNowPlaying();
+  const np = nowPlayingOverride ?? liveNp;
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const holidayMeta = getHolidayMeta(holiday);
   const weatherKind: WeatherKind = resolveWeatherKind(season, holiday);
+  const musicBoost = resolveMusicWeatherResponse(np.playing, np.source, season, weatherKind);
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
@@ -28,7 +89,7 @@ export function WeatherOverlay(props: {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let animId: number;
+    let animId = 0;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
@@ -39,8 +100,16 @@ export function WeatherOverlay(props: {
     };
     window.addEventListener("resize", onResize);
 
-    // Weather particles: rain in autumn-ish wet seasons, snow in winter, clear otherwise
-    const count = weatherKind === "clear" ? 0 : weatherKind === "snow" ? 50 : 45;
+    const reducedMotion =
+      typeof window !== "undefined" &&
+      Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
+    const activeBoost = reducedMotion
+      ? resolveMusicWeatherResponse(false, np.source, season, weatherKind)
+      : musicBoost;
+
+    // Weather particles: rain in autumn-ish wet seasons, snow in winter, light motes on clear playing skies
+    const baseCount = weatherKind === "clear" ? 0 : weatherKind === "snow" ? 50 : 45;
+    const count = Math.round(baseCount * activeBoost.countMultiplier);
     const particles: Particle[] = [];
 
     const initParticle = (): Particle => {
@@ -48,10 +117,10 @@ export function WeatherOverlay(props: {
         return {
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.6,
-          vy: 0.8 + Math.random() * 1.2,
+          vx: (Math.random() - 0.5) * 0.6 * activeBoost.speedMultiplier,
+          vy: (0.8 + Math.random() * 1.2) * activeBoost.speedMultiplier,
           size: 1.5 + Math.random() * 2.8,
-          alpha: 0.35 + Math.random() * 0.55,
+          alpha: Math.min(0.95, (0.35 + Math.random() * 0.55) * activeBoost.alphaMultiplier),
           color: Math.random() > 0.3 ? "#ffffff" : "#bae6fd",
           kind: "snow",
         };
@@ -60,10 +129,10 @@ export function WeatherOverlay(props: {
       return {
         x: Math.random() * (width + 60),
         y: Math.random() * height,
-        vx: -1.2 + (Math.random() - 0.5) * 0.8,
-        vy: 7.0 + Math.random() * 4.0,
+        vx: (-1.2 + (Math.random() - 0.5) * 0.8) * activeBoost.speedMultiplier,
+        vy: (7.0 + Math.random() * 4.0) * activeBoost.speedMultiplier,
         size: 2.0 + Math.random() * 2.0,
-        alpha: 0.3 + Math.random() * 0.45,
+        alpha: Math.min(0.9, (0.3 + Math.random() * 0.45) * activeBoost.alphaMultiplier),
         color: "#93c5fd",
         kind: "rain",
       };
@@ -73,10 +142,23 @@ export function WeatherOverlay(props: {
       particles.push(initParticle());
     }
 
+    for (let i = 0; i < activeBoost.moteCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: -(0.18 + Math.random() * 0.28),
+        size: 1.1 + Math.random() * 1.3,
+        alpha: 0.12 + Math.random() * 0.16,
+        color: activeBoost.moteColor || "#fde68a",
+        kind: "mote",
+      });
+    }
+
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      if (weatherKind === "clear" || particles.length === 0) {
+      if (particles.length === 0) {
         return;
       }
 
@@ -84,7 +166,22 @@ export function WeatherOverlay(props: {
         p.x += p.vx;
         p.y += p.vy;
 
-        if (p.kind === "snow") {
+        if (p.kind === "mote") {
+          if (p.y < -8) {
+            p.y = height + 8;
+            p.x = Math.random() * width;
+          }
+          if (p.x > width + 8) p.x = -8;
+          else if (p.x < -8) p.x = width + 8;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.alpha;
+          ctx.fill();
+          ctx.restore();
+        } else if (p.kind === "snow") {
           if (p.y > height + 15) {
             p.y = -10;
             p.x = Math.random() * width;
@@ -134,21 +231,23 @@ export function WeatherOverlay(props: {
       animId = requestAnimationFrame(render);
     };
 
-    if (count > 0) {
+    if (particles.length > 0) {
       render();
     } else {
       ctx.clearRect(0, 0, width, height);
     }
 
     return () => {
-      cancelAnimationFrame(animId);
+      if (animId) cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
     };
-  }, [season, holiday, weatherKind]);
+  }, [season, holiday, weatherKind, np.playing, np.source]);
 
   return (
     <div
       className={`sc-weather-container weather-${weatherKind} season-${season.toLowerCase()} ${holiday !== "none" ? `holiday-${holiday}` : ""}`}
+      data-music-playing={np.playing ? "true" : "false"}
+      data-music-source={np.source}
       style={{
         position: "fixed",
         top: 0,

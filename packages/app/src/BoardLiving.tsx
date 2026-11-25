@@ -44,6 +44,13 @@ import {
   type SeasonWashDescriptor,
 } from "./hud/BoardSeasonWash";
 import {
+  BoardMusicLighting,
+  readBoardMusicSeason,
+  resolveBoardMusicLighting,
+  type BoardMusicLightingDescriptor,
+  type BoardMusicLightingProps,
+} from "./hud/BoardMusicLighting";
+import {
   CultureCrestPip,
   HomeKeepCultureCrest,
   type CultureCrestPipProps,
@@ -505,6 +512,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
 
         {/* 0.95. Living Day-Night Wash & Night Building Lanterns */}
         <BoardDayNight state={state} />
+
+        {/* 0.98. Living Source-Based Board Music Lighting */}
+        <BoardMusicLighting state={state} />
 
         {/* 1. Soft Fog Drift Layer (under keeps and status) */}
         {fogClusters.length > 0 && (
@@ -1012,6 +1022,11 @@ export {
   resolveSeasonWashDescriptor,
   type BoardSeasonKey,
   type SeasonWashDescriptor,
+  BoardMusicLighting,
+  readBoardMusicSeason,
+  resolveBoardMusicLighting,
+  type BoardMusicLightingDescriptor,
+  type BoardMusicLightingProps,
   HomeKeepCrownPip,
   PrestigeCrownPip,
   resolvePrestigeCrownDescriptor,

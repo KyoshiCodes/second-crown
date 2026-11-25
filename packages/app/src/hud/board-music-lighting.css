@@ -1,0 +1,180 @@
+/* --- Source-Based Board Music Lighting (isolated CSS) ---
+ * Loaded from BoardMusicLighting.tsx. Never touches theme.css or music-panel.css.
+ * Strict pointer-events: none !important on all overlays & pseudo-elements.
+ * Keyed off <html data-music-playing="true|false" data-music-source="travis|lofi|realm">
+ * and .sc-board-music-lighting SVG layers, plus prefers-reduced-motion: reduce.
+ */
+
+/* ==========================================================================
+   1. Strict Click Immunity
+   ========================================================================== */
+.sc-board-music-lighting,
+.sc-board-music-lighting * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   2. Source-Based CSS Tokens (Travis -> Warm Gold, Lofi -> Cool Dusk, Realm -> Season)
+   ========================================================================== */
+html[data-music-playing="true"][data-music-source="travis"] .sc-shell {
+  --sc-board-music-rgb: 245, 185, 66;
+  --sc-board-music-hi-rgb: 253, 230, 138;
+  --sc-board-music-pulse: 5.8s;
+  --sc-board-music-opacity: 0.16;
+}
+
+html[data-music-playing="true"][data-music-source="lofi"] .sc-shell {
+  --sc-board-music-rgb: 111, 139, 184;
+  --sc-board-music-hi-rgb: 165, 180, 252;
+  --sc-board-music-pulse: 7.4s;
+  --sc-board-music-opacity: 0.14;
+}
+
+html[data-music-playing="true"][data-music-source="realm"] .sc-shell,
+html[data-music-playing="true"][data-music-source="realm"] .sc-shell.season-spring {
+  --sc-board-music-rgb: 74, 222, 128;
+  --sc-board-music-hi-rgb: 187, 247, 208;
+  --sc-board-music-pulse: 6.6s;
+  --sc-board-music-opacity: 0.13;
+}
+
+html[data-music-playing="true"][data-music-source="realm"] .sc-shell.season-summer {
+  --sc-board-music-rgb: 253, 224, 71;
+  --sc-board-music-hi-rgb: 254, 240, 138;
+  --sc-board-music-pulse: 6.2s;
+  --sc-board-music-opacity: 0.15;
+}
+
+html[data-music-playing="true"][data-music-source="realm"] .sc-shell.season-autumn {
+  --sc-board-music-rgb: 245, 158, 11;
+  --sc-board-music-hi-rgb: 253, 186, 116;
+  --sc-board-music-pulse: 6.8s;
+  --sc-board-music-opacity: 0.15;
+}
+
+html[data-music-playing="true"][data-music-source="realm"] .sc-shell.season-winter {
+  --sc-board-music-rgb: 125, 211, 252;
+  --sc-board-music-hi-rgb: 224, 242, 254;
+  --sc-board-music-pulse: 7.2s;
+  --sc-board-music-opacity: 0.14;
+}
+
+/* ==========================================================================
+   3. Board SVG Ambient Lighting Layer (.sc-board-music-lighting)
+   ========================================================================== */
+.sc-board-music-lighting {
+  transition: opacity 420ms ease;
+}
+
+.sc-board-music-lighting.is-idle {
+  opacity: 0;
+}
+
+.sc-board-music-lighting.is-playing {
+  opacity: 1;
+}
+
+.sc-board-music-ambient {
+  mix-blend-mode: soft-light;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.sc-board-music-halo {
+  mix-blend-mode: screen;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.sc-board-music-lighting.is-playing .sc-board-music-ambient {
+  animation: sc-board-music-breathe var(--sc-board-music-pulse, 6.4s) ease-in-out infinite;
+}
+
+.sc-board-music-lighting.is-playing .sc-board-music-halo {
+  animation: sc-board-music-halo-pulse var(--sc-board-music-pulse, 6.4s) ease-in-out infinite;
+}
+
+.sc-board-music-lighting.source-travis {
+  --sc-board-music-pulse: 5.8s;
+}
+
+.sc-board-music-lighting.source-lofi {
+  --sc-board-music-pulse: 7.4s;
+}
+
+.sc-board-music-lighting.source-realm {
+  --sc-board-music-pulse: 6.6s;
+}
+
+/* ==========================================================================
+   4. Map Canvas Container Source Wash (board & hold bands; ::before avoids ::after)
+   ========================================================================== */
+html[data-music-playing="true"] .sc-map-canvas-container > div::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  pointer-events: none !important;
+  z-index: 1;
+  opacity: var(--sc-board-music-opacity, 0.14);
+  background:
+    radial-gradient(ellipse 76% 52% at 50% 18%, rgba(var(--sc-board-music-hi-rgb, 245, 185, 66), 0.34) 0%, rgba(var(--sc-board-music-rgb, 245, 185, 66), 0.12) 55%, transparent 82%),
+    radial-gradient(circle at 82% 86%, rgba(var(--sc-board-music-rgb, 245, 185, 66), 0.18) 0%, transparent 56%);
+  box-shadow: inset 0 0 28px rgba(var(--sc-board-music-rgb, 245, 185, 66), 0.24);
+  animation: sc-board-music-canvas-pulse var(--sc-board-music-pulse, 6.4s) ease-in-out infinite;
+}
+
+/* ==========================================================================
+   5. Isolated Keyframes
+   ========================================================================== */
+@keyframes sc-board-music-breathe {
+  0%, 100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-board-music-halo-pulse {
+  0%, 100% {
+    opacity: 0.42;
+  }
+  50% {
+    opacity: 0.88;
+  }
+}
+
+@keyframes sc-board-music-canvas-pulse {
+  0%, 100% {
+    opacity: calc(var(--sc-board-music-opacity, 0.14) * 0.55);
+  }
+  50% {
+    opacity: var(--sc-board-music-opacity, 0.14);
+  }
+}
+
+/* ==========================================================================
+   6. Reduced Motion Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-board-music-lighting,
+  .sc-board-music-lighting *,
+  html[data-music-playing="true"] .sc-map-canvas-container > div::before {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .sc-board-music-lighting.is-playing .sc-board-music-ambient {
+    opacity: 0.72;
+  }
+
+  .sc-board-music-lighting.is-playing .sc-board-music-halo {
+    opacity: 0.58;
+  }
+
+  html[data-music-playing="true"] .sc-map-canvas-container > div::before {
+    opacity: calc(var(--sc-board-music-opacity, 0.14) * 0.72);
+  }
+}

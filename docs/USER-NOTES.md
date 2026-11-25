@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — Source-based board music lighting & weather lift
+
+- **Board ambient lighting by music source:**
+  - Playing **Travis Brown** bathes the map/board in a warmer gold glow.
+  - Playing **Lofi** shifts the map/board to a cooler dusk-blue glow.
+  - Playing the **Realm** score matches the current season palette (**Spring** green, **Summer** gold, **Autumn** amber, **Winter** frost).
+- **Gentle pulse & weather lift:** While music plays, the board ambient light softly breathes (`pointer-events: none`, never blocking clicks or UI panels), active rain/snow thickens slightly, and clear skies catch a few gentle drifting light motes (disabled under reduced-motion settings).
+
 ## 2026-11-24 — Pick your music
 
 - The top bar now has a gold **music button**. Press **▶** to play, **❚❚** to pause.

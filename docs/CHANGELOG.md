@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-11-24 — Source-based board music lighting, playing pulse & light weather response
+
+- **Source-based board & map lighting (`BoardMusicLighting.tsx`, `board-music-lighting.css`, `BoardLiving.tsx`):**
+  - Reads `useNowPlaying()` (`packages/app/src/nowPlaying.ts`) and pairs with `<html data-music-playing="true" data-music-source="...">` rules in dedicated `board-music-lighting.css` (`theme.css` untouched):
+    - **Travis (`source="travis"`):** Warmer gold ambient wash and rim halo (`5.8s` gentle breathing pulse).
+    - **Lofi (`source="lofi"`):** Cooler dusk indigo-slate ambient lighting (`7.4s` gentle breathing pulse).
+    - **Realm (`source="realm"`):** Follows the active season palette (`Spring` emerald, `Summer` sunlit gold, `Autumn` harvest amber, `Winter` cool frost).
+  - Applies soft pulsing lighting across both the isometric board SVG overlay (`BoardLiving.tsx`, layer `0.98`) and the map canvas frame (`html[data-music-playing="true"] .sc-map-canvas-container > div::before`, leaving `.sc-map-controls`, `MusicPanel`, and `ThemeDock` uncovered).
+- **Light weather / particle response (`WeatherOverlay.tsx`):** Computes `resolveMusicWeatherResponse(...)` from `useNowPlaying()` so playing music gently boosts rain/snow particle density (`1.25×`) and alpha (`1.12×`), or floats `14` subtle source-tinted light motes on clear skies (suppressed when paused or when `prefers-reduced-motion: reduce)` matches).
+- **Invariants & accessibility:** App-only (`packages/app`). Zero edits to `packages/sim`, `server/`, `packages/app/src/theme.css`, `MusicPanel.tsx`, `music-panel.css`, or `ThemeDock.tsx`. Strict `pointer-events: none !important;` and `user-select: none;` across overlays, plus `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/BoardMusicLighting.test.tsx` (4 tests) covering source/season lighting resolution, SVG/BoardLiving integration, `WeatherOverlay` particle boost, and CSS isolation. Now: sim **362**, app **1359**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-24 — Music panel: one picker for every track, now-playing hooks
 
 - **Visible song picker (`MusicPanel.tsx`, `music-panel.css`):** a gold chip in the top bar (where the old Music / Lofi dropdowns were) with a play / pause button and the current track and artist. Clicking it opens a list of all 34 tracks: Travis Brown (*All We Know*, *Holding On*), the Realm score (synth, follows season / holiday), and the 31 HoliznaCC0 lofi tracks. Previous / play / next, a volume slider with %, a clear gold active row and a small equalizer while playing. Closes on outside click or Esc.

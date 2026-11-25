@@ -1,3 +1,15 @@
+## 2026-11-24 — app / source-based board music lighting & light weather response
+
+- **Board lighting (`packages/app/src/hud/BoardMusicLighting.tsx`, `BoardLiving.tsx`):**
+  - Exported `BoardMusicLighting`, `resolveBoardMusicLighting`, `readBoardMusicSeason`, `type BoardMusicLightingDescriptor`, and `type BoardMusicLightingProps`, re-exported from `BoardLiving.tsx` and mounted right after `<BoardDayNight />`.
+  - Consumes `useNowPlaying()` (`../nowPlaying`) + `normalizeBoardSeason(currentSeason(state))` to map `travis` (warmer gold), `lofi` (cooler dusk), and `realm` (4 seasonal palettes) into a `pointer-events: none` ambient gradient + halo SVG group (`is-playing` / `is-idle`).
+- **Dedicated CSS (`packages/app/src/hud/board-music-lighting.css`):**
+  - Uses `html[data-music-playing="true"][data-music-source="travis|lofi|realm"]` (written by `nowPlaying.ts`) + `.sc-shell.season-*` overrides to drive both `.sc-board-music-lighting` and `.sc-map-canvas-container > div::before` (intentionally using `::before` so `music-reactive.css`'s `::after` ring remains untouched; `z-index: 1` stays below `.sc-map-controls` at `z-index: 5`).
+  - Zero edits to `theme.css`, `MusicPanel.tsx`, `music-panel.css`, `ThemeDock.tsx`, `packages/sim`, or `server/`.
+- **Weather response (`packages/app/src/seasons/WeatherOverlay.tsx`):**
+  - Exported `resolveMusicWeatherResponse` and extended `WeatherOverlay` (plus optional `nowPlayingOverride` prop for deterministic tests) to add a gentle `1.25×` count / `1.12×` alpha boost for rain/snow or `14` soft source-tinted drifting motes on clear skies while playing, skipped under `prefers-reduced-motion: reduce`.
+- **Verification (`packages/app/src/hud/BoardMusicLighting.test.tsx`):** 4 tests passing (`npm test` -> sim 362, app 1359, server 158; `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-24 — app / music panel + now-playing hooks
 
 - Three sources, each keeps its engine: `travisMusic.ts` (own lazy `HTMLAudioElement`), `music.ts` lofi `<audio>` (mode `lofi`) and `music.ts` synth (mode `bed`, shown as "Realm"). `audioManager` holiday / battle tracks still follow `isMusicMuted()`.
