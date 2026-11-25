@@ -1,3 +1,12 @@
+## 2026-11-25 — sim + app / camp tiers (lean-to, stockade)
+
+- **Why ranking, not threat:** `campThreat` (5–9 by hash) does not guarantee a low or high camp on every seed. Ranking by Manhattan distance from `homeProvinceId` does, with ~7 camps on a 12x8 board. `campThreat` is kept (still sizes the Fair camp guard).
+- **Stability:** the stockade ranking counts camps in `respawn_json` so breaking it does not hand the title to another camp mid-respawn. The lean-to ranking counts only live camps on purpose: flag one and the next nearest becomes the starter. Tier is read in `resolveMarchArrival` **before** the raid resolves, because the raid changes the board.
+- **Rivals** raid through the same `resolveCampRaid`, so they also auto-win lean-tos at 3+ and fight the stockade.
+- **Pre-existing quirks left alone (Fair camp):** a win returns `levy` as militia (a spearman column comes back as militia), and a loss returns 40% of survivors *and* `levy - 2` militia. Lean-to and stockade do not use these paths. Worth a separate fix.
+- **Tests that push fake camps** off-board (e.g. `p_9_9`) now become the farthest camp, i.e. the stockade. Pick a real province with `campTierId(...) === "camp"` instead.
+- **Files:** `packages/sim/src/content/camps.ts`, `systems/camp.ts`, `systems/engagement.ts` (`resolveCampRaid`, `wallSoak` param), `systems/march.ts` (camp branch), `index.ts` exports; app `ProvinceInspect.tsx` (`CampTierLines`), `ProvinceStatusStack.tsx`, `hud/AtlasProvinceCard.tsx`; tests `camp.test.ts`, `march.test.ts`, `campTierLabels.test.tsx`. `npm test` → sim 398, app 1556, server 158; app build clean.
+
 ## 2026-11-25 — app / living return dispatch ("While you were away")
 
 - **Return seal (`packages/app/src/hud/AwayReturnSeal.tsx`):** Exported `AwaySpanTier` (`"brief" | "hours" | "days"`), `resolveAwaySpanTier(elapsed)`, and `<AwayReturnSeal elapsed={s.elapsed} />`. Renders a non-blocking hourglass wax-seal SVG (`sc-away-seal is-*`, `data-away-seal`), concentric ring (`sc-away-seal-ring`), and sand mote (`sc-away-seal-grain`) with `aria-hidden="true"` and `pointer-events: none !important;`.

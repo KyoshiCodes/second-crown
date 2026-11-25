@@ -11,7 +11,8 @@ import { gateHp, gateOnRim } from "./gate.js";
 import { listGathers } from "./gather.js";
 import { plantOutpost, listOutposts } from "./outpost.js";
 import { addCapped } from "./storage.js";
-import { campThreat } from "./camp.js";
+import { campTier } from "./camp.js";
+import { CAMP_TIERS, formatCampLoot } from "../content/camps.js";
 import { absorbWounded, markScarred } from "./ward.js";
 import { detachGarrison, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
@@ -355,20 +356,33 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     return noteMarch(state, outcome === "stormed" ? "Hold stormed." : "The hold stands.");
   }
   if (march.kind === "camp" || dest.node === "camp") {
-    void campThreat(state, dest);
+    // Tier is read before the fight: breaking the camp changes which camp is nearest/farthest.
+    const tier = campTier(state, dest) ?? CAMP_TIERS.camp;
+    const sentForce = march.force ? { ...march.force } : undefined;
+    const hadSiege = (sentForce?.siege ?? 0) > 0;
     const wins = resolveCampRaid(state, march, dest, rng) === "win";
+    const label = tier.id === "camp" ? "Camp" : tier.id === "lean_to" ? "Lean-to" : "Stockade";
     if (wins) {
       scheduleRespawn(state, dest);
       dest.node = "none";
+      const loot: Record<string, number> = {};
+      for (const [k, v] of Object.entries(tier.reward)) loot[k] = v ?? 0;
+      if (hadSiege) for (const [k, v] of Object.entries(tier.siegeReward)) loot[k] = (loot[k] ?? 0) + (v ?? 0);
+      const lootText = formatCampLoot(loot);
       if (march.realmId === "player") {
         plantOutpost(state, dest);
-        addCapped(state, "wood", 6);
-        returnLevy(state, levy);
-        return noteMarch(state, "Camp broken. Flag planted. +6 wood.");
+        for (const [k, v] of Object.entries(loot)) addCapped(state, k, v);
+        if (tier.sureWinAt === null && march.force) returnForce(state, march.force, 1);
+        else if (sentForce && tier.id !== "camp") returnForce(state, sentForce, 1);
+        else returnLevy(state, levy);
+        const siegeNote = hadSiege && tier.palisade > 0 ? " Siege broke the palisade." : "";
+        return noteMarch(state, `${label} broken.${siegeNote} Flag planted. ${lootText}.`);
       }
-      return noteMarch(state, "Camp broken. +6 wood.");
+      return noteMarch(state, `${label} broken. ${lootText}.`);
     }
     if (march.realmId === "player") {
+      if (tier.lossDead === 0) return noteMarch(state, `The ${label.toLowerCase()} holds. Your column falls back, all home.`);
+      if (tier.id === "stockade") return noteMarch(state, "The stockade holds. Survivors limp home.");
       absorbWounded(state, 2);
       returnLevy(state, Math.max(0, levy - 2));
     }

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-25 — Camp tiers: safe lean-to and optional stockade
+
+- **Content (`packages/sim/src/content/camps.ts`):** `CAMP_TIERS` with `lean_to` (Safe), `camp` (Fair, the old behaviour), `stockade` (Hard). Each tier is data: guard, sure-win size, palisade, reward, siege reward, loss deaths. `formatCampLoot` gives "+6 wood +3 food".
+- **Assignment (`systems/camp.ts`):** `campTierId(state, p)` is pure and deterministic. Nearest live unflagged camp to home = lean-to (the next one takes over when you flag it). Farthest camp site, counting camps waiting to respawn, = stockade (needs 2+ sites). Ties break by province id.
+- **Lean-to:** 3+ in the column always wins, no clash is fought. Smaller columns turn back with everyone. Pays +6 wood +3 food.
+- **Stockade:** fights 6 spearmen, 3 archers, 4 militia behind a 60-point palisade (existing `resolveRounds` wall soak). Any Siege Engine in the column skips the palisade. Pays +10 gold +8 stone +6 wood, plus +6 gold with siege. Survivors return by unit type. A loss returns 40% of survivors (the existing loss rule) and no extra militia. Probe: 20 militia 0/100, 6 spear + 4 archer + 5 militia ~35/100, same plus 2 Siege Engines 100/100.
+- **Bandit camp:** unchanged numbers and returns.
+- **UI:** inspect card shows `Bandit lean-to · Safe · +6 wood +3 food` plus a one-line hint (replaces `Camp threat N`). Status stack outpost row and atlas name row show tier and difficulty.
+- **Engine:** `resolveColumnClash` takes an optional `wallSoak` (default 0) passed to `resolveRounds`. No combat formula changed.
+- **Tests:** `camp.test.ts` +8 (tiers, determinism, lean-to win/no-loss/hand-off, stockade militia wall, siege payoff, loot and survivors), `campTierLabels.test.tsx` +3. `march.test.ts` camp-haul test now targets a real Fair camp. Now: sim **398**, app **1556**, server **158**, app build clean.
+
 ## 2026-11-25 — Living return dispatch presentation ("While you were away")
 
 - **Short dispatch styling (`hud/AwaySummary.tsx`, `hud/away-dispatch.css`):** Refines `AwaySummaryBanner` into a calm bordered dispatch folio card (`.sc-away.sc-away-dispatch`) distinct from the green/chrome primer and floating Global Chat: left wax-ribbon edge, header divider, uppercase `Dispatch` kicker tag, rounded elapsed pill (`... settled`), corner sheen overlay (`sc-away-dispatch-sheen`), and highlighted `Next` directive strip with a gentle `360ms` fade entrance.

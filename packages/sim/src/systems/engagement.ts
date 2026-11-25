@@ -7,7 +7,8 @@ import { recordCrown } from "./ledger.js";
 import { writeLastBattle } from "./lastBattle.js";
 import { detachGarrison, garrisonAt, mergeGarrisonForce } from "./garrison.js";
 import { returnForce } from "./column.js";
-import { campThreat } from "./camp.js";
+import { campThreat, campTier } from "./camp.js";
+import { CAMP_TIERS } from "../content/camps.js";
 import { plantOutpost } from "./outpost.js";
 import { absorbBattleCasualties } from "./ward.js";
 
@@ -60,7 +61,8 @@ export function resolveColumnClash(
   state: GameState,
   attacker: ColumnSide,
   defender: ColumnSide,
-  rng: RngStreams
+  rng: RngStreams,
+  wallSoak = 0
 ): {
   attackerWins: boolean;
   events: BattleEvent[];
@@ -74,7 +76,7 @@ export function resolveColumnClash(
   const marshal = playerMarshal(state);
   if (attacker.realmId === "player") applyMarshalBonuses(atk, marshal);
   if (defender.realmId === "player") applyMarshalBonuses(def, marshal);
-  const fought = resolveRounds(atk, def, rng);
+  const fought = resolveRounds(atk, def, rng, wallSoak);
   const attackerForce = forceFromStacks(atk);
   const defenderForce = forceFromStacks(def);
   attacker.force = attackerForce;
@@ -189,16 +191,26 @@ export function resolveCampRaid(
   dest: Province,
   rng: RngStreams
 ): "win" | "lose" {
+  const tier = campTier(state, dest) ?? CAMP_TIERS.camp;
   const threat = Math.max(1, campThreat(state, dest));
   const heads = Math.max(2, Math.min(3, threat - 2));
   const incoming = attacker.levy ?? 0;
+  // Safe tier: no fight at all. Big enough wins, too small turns back whole.
+  if (tier.lossDead === 0 && tier.sureWinAt !== null) {
+    if (incoming >= tier.sureWinAt) return "win";
+    if (attacker.realmId === "player" && attacker.force) returnForce(state, attacker.force, 1);
+    return "lose";
+  }
+  const guard = tier.guard ?? { militia: heads };
   const defender: ColumnSide = {
     realmId: "camp",
-    levy: heads,
-    force: { militia: heads },
+    levy: Object.values(guard).reduce((n, v) => n + v, 0),
+    force: { ...guard },
   };
-  const result = resolveColumnClash(state, attacker, defender, rng);
-  if (incoming >= 5) return "win";
+  const siegeInColumn = (attacker.force?.siege ?? 0) > 0;
+  const palisade = siegeInColumn ? 0 : tier.palisade;
+  const result = resolveColumnClash(state, attacker, defender, rng, palisade);
+  if (tier.sureWinAt !== null && incoming >= tier.sureWinAt) return "win";
   if (!result.attackerWins && attacker.realmId === "player" && attacker.force) {
     returnForce(state, attacker.force, 0.4);
   }

@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  campTier,
   GATHER_NODES,
   garrisonAt,
   garrisonPower,
@@ -93,7 +94,15 @@ export function provinceStatusRows(state: GameState, provinceId: string): Provin
   // Outpost: node + occupantRealmId, same reading as the site tag in the card head.
   if (home) rows.push({ kind: "outpost", label: "Outpost", value: "Your hold", tone: "you" });
   else if (!seen) rows.push({ kind: "outpost", label: "Outpost", value: "Unseen", tone: "fog" });
-  else if (p.node === "camp") rows.push({ kind: "outpost", label: "Outpost", value: "Hostile camp", tone: "warn" });
+  else if (p.node === "camp") {
+    const tier = campTier(state, p);
+    rows.push({
+      kind: "outpost",
+      label: "Outpost",
+      value: tier ? `${tier.name} · ${tier.difficulty}` : "Hostile camp",
+      tone: tier?.difficulty === "Safe" ? "calm" : "warn",
+    });
+  }
   else if (p.node !== "hold" && occ === "player")
     rows.push({ kind: "outpost", label: "Outpost", value: "Your flag", tone: "you" });
   else if (p.node !== "hold" && occ)

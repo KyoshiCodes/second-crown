@@ -5,6 +5,7 @@ import { D } from "../core/decimal.js";
 import { createRngStreams } from "../core/rng.js";
 import { storageCap } from "./storage.js";
 import { listLedger } from "./ledger.js";
+import { campTierId } from "./camp.js";
 import {
   applySiegeBlow,
   edgeWallCount,
@@ -94,16 +95,16 @@ describe("W2 marches and walls", () => {
   it("cut raid haul: camp pays +6 wood, a gather node pays +5", () => {
     const rng = createRngStreams(1);
     const camp = createGameState({ seed: 1 });
+    const fair = camp.board.provinces.find((p) => campTierId(camp, p) === "camp")!;
     const campMarch: March = {
       id: "m1",
       realmId: "player",
       fromId: camp.board.homeProvinceId,
-      toId: "p_9_9",
+      toId: fair.id,
       arrivesTick: 10,
       kind: "camp",
       levy: 5,
     };
-    camp.board.provinces.push({ id: "p_9_9", x: 9, y: 9, terrain: "plain", node: "camp", occupantRealmId: null });
     resolveMarchArrival(camp, campMarch, rng);
     expect(camp.resources.wood).toBe("6");
     expect(listLedger(camp).some((e) => /Camp broken/.test(e.text))).toBe(true);

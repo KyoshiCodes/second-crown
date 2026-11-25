@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Safe starter camp and a hard stockade
+
+- **Bandit lean-to (Safe).** The camp closest to your hold is now marked Safe. Send 3 or more militia and they always win, and nobody dies. Too few and they just come back. It pays +6 wood and +3 food. Flag it and the next closest camp becomes the new lean-to.
+- **Bandit stockade (Hard, optional).** The camp farthest from your hold is a walled stockade with spearmen and archers. A pile of militia will not take it. Bring spearmen and archers, and a Siege Engine breaks the wall outright. It pays +10 gold, +8 stone, +6 wood, and +6 more gold if a Siege Engine came along. A good thing to send out while a long Keep upgrade is building.
+- **Other camps** work exactly as before (Fair, 5 militia, +6 wood).
+- **Click any camp** to see its name, difficulty, and what it pays.
+
 ## 2026-11-25 — Calm dispatch look for "While you were away"
 
 - **Short royal dispatch style:** The return briefing card now wears a calm folio dispatch look with a `Dispatch` tag, distinct from both the fold primer and floating chat, and follows your Dusk, Night, or Parchment theme.

@@ -2,7 +2,8 @@ import React from "react";
 import {
   GATHER_NODES,
   activePlayerMarch,
-  campThreat,
+  campTier,
+  formatCampLoot,
   currentSeason,
   edgeWallCount,
   gateHp,
@@ -106,6 +107,22 @@ const RESOURCE: Record<string, string> = {
 type Site = { kind: "outpost" | "rival" | "camp"; label: string } | null;
 
 /** Outpost/camp status from existing state: node + occupantRealmId. No new sim fields. */
+/** Camp tier, difficulty, payoff. Short labels; numbers come from CAMP_TIERS. */
+function CampTierLines(props: { state: GameState; p: Parameters<typeof campTier>[1] }) {
+  const tier = campTier(props.state, props.p);
+  if (!tier) return null;
+  const siege = formatCampLoot(tier.siegeReward);
+  return (
+    <>
+      <div className={`sc-inspect-line sc-inspect-camp-tier is-${tier.id} ${tier.difficulty === "Safe" ? "is-good" : "is-warn"}`}>
+        {tier.name} · {tier.difficulty} · {formatCampLoot(tier.reward)}
+        {siege ? ` (siege ${siege})` : ""}
+      </div>
+      <div className="sc-inspect-line sc-inspect-camp-hint">{tier.hint}</div>
+    </>
+  );
+}
+
 function siteOf(state: GameState, id: string, seen: boolean): Site {
   const p = getProvince(state, id);
   if (!p || !seen || id === state.board.homeProvinceId) return null;
@@ -299,7 +316,7 @@ export function ProvinceInspect(props: {
         {buildingNote ? <div className="sc-inspect-line sc-inspect-building">{buildingNote}</div> : null}
         {staffedNote ? <div className="sc-inspect-line sc-inspect-staffed">{staffedNote}</div> : null}
         {fogEdgeNote ? <div className="sc-inspect-line sc-inspect-fog-edge">{fogEdgeNote}</div> : null}
-        {seen && p.node === "camp" ? <div className="sc-inspect-line">Camp threat {campThreat(state, p)}</div> : null}
+        {seen && p.node === "camp" ? <CampTierLines state={state} p={p} /> : null}
         {ruins ? <div className="sc-inspect-line sc-inspect-ruins">{ruins}</div> : null}
         {shore ? <div className="sc-inspect-line sc-inspect-shore">{shore}</div> : null}
         {wood ? <div className="sc-inspect-line sc-inspect-wood">{wood}</div> : null}

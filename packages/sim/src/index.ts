@@ -243,7 +243,9 @@ export { forcePower, takeForce, returnForce } from "./systems/column.js";
 export { gateOnRim, gateHp } from "./systems/gate.js";
 export { hallBonuses, hallRoomBuilt, HALL_ROOM_NEEDS, YARD_HEAL_TICKS, LECTERN_STUDY_MULT } from "./systems/hallBonus.js";
 export type { HallBonus, HallRoom } from "./systems/hallBonus.js";
-export { campThreat } from "./systems/camp.js";
+export { campThreat, campTier, campTierId } from "./systems/camp.js";
+export { CAMP_TIERS, formatCampLoot } from "./content/camps.js";
+export type { CampTier, CampTierId } from "./content/camps.js";
 
 export {
   woundedCount,

@@ -1,5 +1,5 @@
 import React from "react";
-import { getProvince, isProvinceSeen, type GameState } from "@second-crown/sim";
+import { campTier, getProvince, isProvinceSeen, type GameState } from "@second-crown/sim";
 import { AtlasTerrainLivingGlyph, AtlasTerrainUnderlay } from "./AtlasTerrainLivingGlyph";
 import "./atlas-living.css";
 
@@ -67,7 +67,8 @@ export function atlasProvinceRows(state: GameState, provinceId: string): AtlasPr
   const name: AtlasProvinceRow = home
     ? { kind: "name", label: "Name", value: "Your hold", sub: coords, tone: "you" }
     : seen
-      ? { kind: "name", label: "Name", value: NODE[p.node] ?? p.node, sub: coords, tone: p.node === "camp" ? "warn" : "calm" }
+      ? campName(state, p, coords) ??
+        { kind: "name", label: "Name", value: NODE[p.node] ?? p.node, sub: coords, tone: "calm" }
       : { kind: "name", label: "Name", value: "Uncharted", sub: coords, tone: "fog" };
 
   const terrain: AtlasProvinceRow = seen
@@ -82,6 +83,20 @@ export function atlasProvinceRows(state: GameState, provinceId: string): AtlasPr
   else owner = { kind: "owner", label: "Owner", value: "Empty", tone: "calm" };
 
   return [name, terrain, owner];
+}
+
+/** Camp tier on the name row: "Bandit lean-to" with "3,4 · Safe". */
+function campName(state: GameState, p: Parameters<typeof campTier>[1], coords: string): AtlasProvinceRow | null {
+  if (p.node !== "camp") return null;
+  const tier = campTier(state, p);
+  if (!tier) return null;
+  return {
+    kind: "name",
+    label: "Name",
+    value: tier.name,
+    sub: `${coords} · ${tier.difficulty}`,
+    tone: tier.difficulty === "Safe" ? "calm" : "warn",
+  };
 }
 
 export function AtlasProvinceCard(props: { state: GameState; provinceId: string; role: AtlasCardRole }) {
