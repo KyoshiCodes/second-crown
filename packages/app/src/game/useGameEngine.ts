@@ -45,6 +45,7 @@ import { getWarTaunt } from "../content/flavor";
 import { sfx } from "../sfx";
 import { rememberedCulture } from "../CulturePicker";
 import { flashAction } from "../hud/ActionFlash";
+import { AWAY_MIN_TICKS, buildAwaySummary, snapshotForAway, type AwaySummary } from "./awaySummary";
 
 export type Tab = "kingdom" | "army" | "war" | "world" | "crown";
 export type ActFn = (fn: (st: GameState, eng: TickEngine) => string) => void;
@@ -65,7 +66,7 @@ export function useGameEngine() {
   const [units, setUnits] = React.useState<GameState["units"]>([]);
   const [wars, setWars] = React.useState<GameState["wars"]>([]);
   const [status, setStatus] = React.useState("");
-  const [offlineNote, setOfflineNote] = React.useState("");
+  const [awaySummary, setAwaySummary] = React.useState<AwaySummary | null>(null);
   const [power, setPower] = React.useState({ player: 0, rival: 0 });
   const [prestige, setPrestige] = React.useState(0);
   const [ascendReady, setAscendReady] = React.useState(false);
@@ -233,9 +234,10 @@ export function useGameEngine() {
         if (saved) {
           // Solo returns this same state; a shared realm reads the server save (REALTIME.md Phase 2).
           state = (await loadSaved(deserializeState(saved))).state;
+          const before = snapshotForAway(state);
           const result = await settleOnLoad(state);
           const settled = result.mode === "solo" ? result.settled : 0;
-          setOfflineNote(settled > 0 ? `Welcome back — settled ${settled} ticks.` : "");
+          setAwaySummary(settled >= AWAY_MIN_TICKS ? buildAwaySummary(before, state, settled) : null);
           setStatus("Loaded autosave.");
         } else {
           state = freshState(Date.now() >>> 0);
@@ -304,6 +306,8 @@ export function useGameEngine() {
     persist(st);
   }, [syncUi, persist]);
 
+  const dismissAway = React.useCallback(() => setAwaySummary(null), []);
+
   const saveNow = React.useCallback(() => {
     const st = engineRef.current?.getState();
     if (st) persist(st);
@@ -318,7 +322,9 @@ export function useGameEngine() {
     try {
       const json = await pickSaveFile();
       const st = deserializeState(json);
-      applyOfflineProgress(st, Date.now());
+      const before = snapshotForAway(st);
+      const settled = applyOfflineProgress(st, Date.now());
+      setAwaySummary(settled >= AWAY_MIN_TICKS ? buildAwaySummary(before, st, settled) : null);
       engineRef.current = new TickEngine(st);
       lastRivalWar.current = null;
       lastIncoming.current = null;
@@ -340,7 +346,7 @@ export function useGameEngine() {
     lastIncoming.current = null;
     lastFlagHit.current = null;
     setBattleSnap(null);
-    setOfflineNote("");
+    setAwaySummary(null);
     setTab("kingdom");
     persist(st);
     setStatus("New world generated.");
@@ -396,7 +402,7 @@ export function useGameEngine() {
   return {
     tab, setTab,
     tick, resources, income, units, wars,
-    status, offlineNote,
+    status, awaySummary, dismissAway,
     power, prestige,
     ascendReady, ascendNeed,
     selectedBuild, setSelectedBuild,

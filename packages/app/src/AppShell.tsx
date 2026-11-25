@@ -26,6 +26,7 @@ import { BandToggle, HoldFocusTag } from "./hud/HoldDensity";
 import { NewsUnreadBadge } from "./news/NewsUnreadBadge";
 import { GlobalChatPanel } from "./chat/GlobalChatPanel";
 import { AdminPanel } from "./admin/AdminPanel";
+import { AwaySummaryBanner } from "./hud/AwaySummary";
 
 // Tab panels load in their own chunks so the board paints first.
 const KingdomTab = React.lazy(() => import("./tabs/KingdomTab").then((m) => ({ default: m.KingdomTab })));
@@ -57,7 +58,7 @@ export function AppShell() {
   const {
     tab, setTab,
     tick, resources, income,
-    status, offlineNote,
+    status, awaySummary, dismissAway,
     power, prestige,
     ascendReady, ascendNeed,
     selectedBuild, setSelectedBuild,
@@ -141,7 +142,7 @@ export function AppShell() {
           {prestige > 0 ? ` · Prestige ${prestige}` : ""} · Power {power.player} vs {power.rival}
         </div>
 
-        {offlineNote ? <p style={{ color: "#3fb950", margin: "4px 0" }}>{offlineNote}</p> : null}
+        <AwaySummaryBanner summary={awaySummary} onDismiss={dismissAway} />
         <ResourceHud resources={resources} income={income} state={state} />
         <TutorialBanner state={state} act={act} />
         {status ? <div className="sc-status-banner" style={{ marginBottom: 8 }}>{status}</div> : null}

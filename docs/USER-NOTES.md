@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — "While you were away"
+
+- **A real welcome back.** After a minute or more away, a small green card at the top tells you how long the realm ran, which buildings and studies finished, any raids, battles or troop losses, how your stores changed (and which are full), and the one thing to do next.
+- **Close it with ×.** It only appears once per return.
+
 ## 2026-11-25 — Calm deficit glow & blocker icons on studies and builds
 
 - **Food deficit glow on Stores:** When your army eats more food than you produce, the **Food** store card gets a gentle rose-rust tint along with a small pulsing dot beside the **Net** readout so you can spot negative food flow cleanly without mistaking it for an empty storehouse or amber limiter.

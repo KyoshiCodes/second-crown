@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-25 — "While you were away" return summary
+
+- **Replaces the one-line return note** (`Welcome back — settled N ticks.`) with a dismissible card above the stores strip (`hud/AwaySummary.tsx`, `hud/away-summary.css`), shown after solo offline settlement on load and after **Import save**.
+- **Rows (empty rows hidden):** settled game time (`formatHorizon`); **Works** finished or upgraded; **Studies** finished; **Events** (net troop loss, player wars that ended, player-relevant world-log lines: raid, battle, march, loot, and declare/levy naming Your Crown; newest 3, then `+N more in the ledger`); **Stores** (up to 4 net changes, plus stores now at warehouse cap); **Next** (column on the hold → food deficit → idle lectern whose next study stores already cover → first Limiter entry).
+- **Threshold:** absences under one game minute (`AWAY_MIN_TICKS = 600`) show no card. The old note showed for any tick count.
+- **Pure diff (`game/awaySummary.ts`):** `snapshotForAway(state)` before settlement, `buildAwaySummary(before, after, settled)` after. Read-only; reuses `bottlenecks`/`bottleneckPhrase`, `foodDeficitText`, `nextResearch`, `realmRates`, `projectCost`, `getWorldLog`, `incomingOnHome`.
+- **Unchanged:** `packages/sim`, production, costs, combat, `server/`, `theme.css`.
+- **Tests:** `game/awaySummary.test.tsx` (7). Now: sim **390**, app **1546**, server **158** (+1 Windows skip), app build clean.
+
 ## 2026-11-25 — Living food deficit & blocker accents on HUD, studies, and builds
 
 - **Food deficit cell state (`hud/ResourceHud.tsx`, `hud/blockerAccents.ts`, `hud/blocker-deficit.css`):** Added `isFoodInDeficit` and optional `foodDeficitOverride`. When net food after army upkeep is negative, the Food store cell gets `.is-food-deficit` with a soft rose-rust inner wash (`sc-food-deficit-glow`, no store pseudo-elements, `pointer-events: none !important;`), updated cell tooltip, and a gently breathing `.sc-deficit-pip` beside the `Net −.../s after upkeep` readout (`sc-food-deficit` on the Kingdom deficit line also gains a quiet rose-rust left accent). Coexists cleanly alongside bare-larder alerts, bottleneck amber pulses, and scaled-income glows.
