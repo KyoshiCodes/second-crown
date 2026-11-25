@@ -5,13 +5,13 @@ import { resolveMarchArrival, tryMarch, tryRecallMarch, listMarches, type March 
 import { campThreat } from "./camp.js";
 
 describe("camps and ruins", () => {
-  it("gives camps a 4-8 threat", () => {
+  it("gives camps a 5-9 threat", () => {
     const s = createGameState({ seed: 1 });
     const camp = s.board.provinces.find((p) => p.node === "camp");
     expect(camp).toBeTruthy();
     const t = campThreat(s, camp!);
-    expect(t).toBeGreaterThanOrEqual(4);
-    expect(t).toBeLessThanOrEqual(8);
+    expect(t).toBeGreaterThanOrEqual(5);
+    expect(t).toBeLessThanOrEqual(9);
   });
 
   it("can recall a column before it arrives and returns the levy", () => {

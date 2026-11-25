@@ -1,3 +1,11 @@
+## 2026-11-25 — sim+app / batch warning retune + light NPC pressure
+
+- **App:** `COST_BRACKET_COSTLY = 500`, `COST_BRACKET_STEEP = 2000` in `horizon/horizon.ts` (closes the follow-up noted under pacing pass 1).
+- **Sim knob:** `NPC_START_ARMY_MULT` (1.25) + `npcStartCount()` in `content/pacing.ts`, applied in `content/world.ts` `seedWorldActors` only when a realm is first seeded (or units are back-filled). Existing saves keep their current NPC armies. The rival's starting units are literals in `state/createGameState.ts` (15 militia / 5 spearmen); the migration fallback in `save/serialize.ts` is unchanged.
+- **Camps:** `campThreat` base is 5 (camp) / 7 (ruins) + `hash % 5`. `resolveCampRaid` caps defenders at `min(3, threat-2)`, so every camp now has 3 militia. The `incoming >= 5` auto-win in `engagement.ts` is untouched, so the early-game guarantee holds. To push camps harder, that cap is the next lever, but it is a formula change.
+- **Test gotcha:** with more NPC units on the board, `s.units.find(u => u.typeId === X)` can hit an NPC stack. Filter by `realmId === "player"` (fixed in `siege.test.ts`).
+- **Verification:** `npm test` → sim 374, app 1482, server 158 (+1 Windows skip); app build clean.
+
 ## 2026-11-25 — app / "Long project" pacing badge & tooltips
 
 - **Helpers & components (`packages/app/src/horizon/`):**

@@ -130,11 +130,12 @@ export function unitTierLabel(tier: number | undefined): string {
 export type CostBracket = "standard" | "costly" | "steep";
 
 /**
- * Placeholder cost bands for one batch (sum of every resource in the cost × batch size).
- * Unit costs are not scaled for the late game yet; these thresholds only sort today's numbers.
+ * Cost bands for one batch (sum of every resource in the cost × batch size).
+ * Tuned to the paced unit table: one Tier III Knight ~360, one Tier IV Siege engine ~1520.
+ * 50 militia or a few Knights reads "costly"; two Siege engines or a big Knight batch reads "steep".
  */
-export const COST_BRACKET_COSTLY = 50;
-export const COST_BRACKET_STEEP = 200;
+export const COST_BRACKET_COSTLY = 500;
+export const COST_BRACKET_STEEP = 2000;
 
 export function batchCostTotal(cost: Partial<Record<string, string | number>>, qty = 1): number {
   let sum = 0;

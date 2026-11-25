@@ -7,10 +7,10 @@ function hash(n: number): number {
   return (x ^ (x >>> 16)) >>> 0;
 }
 
-/** Bandit camp or ruin strength. 4–8 so a 5-militia levy still clears the old test camps. */
+/** Bandit camp or ruin strength. Camps 5–9, ruins 7–11 (light pressure pass); a 5-militia levy still clears camps. */
 export function campThreat(state: GameState, p: Province): number {
   if (p.node !== "camp" && p.node !== "ruins") return 0;
   const h = hash(state.meta.seed + p.x * 17 + p.y * 31);
-  const base = p.node === "ruins" ? 6 : 4;
+  const base = p.node === "ruins" ? 7 : 5;
   return base + (h % 5);
 }

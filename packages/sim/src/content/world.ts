@@ -1,6 +1,7 @@
 import type { Character, Faction, GameState, Realm } from "@second-crown/shared";
 import { D, toDecimalString } from "../core/decimal.js";
 import { pushWorldLog } from "../systems/events.js";
+import { npcStartCount } from "./pacing.js";
 
 export interface KingdomArchetype {
   key: string;
@@ -230,8 +231,8 @@ export function seedWorldActors(state: GameState, { fillUnits = false }: { fillU
       state.opinions.push({ from: "char_player", to: charId, value: Math.floor(v / 2), expiresTick: null });
     }
     if ((newRealm || fillUnits) && !state.units.some((u) => u.realmId === realmId)) {
-      addNpcUnit(state, realmId, "militia", a.startMilitia);
-      addNpcUnit(state, realmId, a.eliteType, a.startElite);
+      addNpcUnit(state, realmId, "militia", npcStartCount(a.startMilitia));
+      addNpcUnit(state, realmId, a.eliteType, npcStartCount(a.startElite));
     }
   }
 

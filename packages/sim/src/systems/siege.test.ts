@@ -47,6 +47,6 @@ describe("W11 siege and composition", () => {
     );
     const camp = s.board.provinces.find((p) => p.node === "camp");
     expect(tryMarchWith(s, camp!.id, { militia: 2, archer: 2 })).toBe(true);
-    expect(D(s.units.find((u) => u.typeId === "archer")?.count ?? "0").toNumber()).toBe(2);
+    expect(D(s.units.find((u) => u.typeId === "archer" && u.realmId === "player")?.count ?? "0").toNumber()).toBe(2);
   });
 });

@@ -67,3 +67,14 @@ export const UNIT_TIER_PACING: Readonly<Record<1 | 2 | 3 | 4 | 5, UnitTierPacing
   4: { cost: 40, train: 40, power: 4 },
   5: { cost: 100, train: 80, power: 6 },
 };
+
+/**
+ * Light pressure pass (2026-11-25). Paced units hit harder per head, so NPC
+ * realms start with a little more. Multiplies each archetype's startMilitia and
+ * startElite (rounded up) when a realm is first seeded. Plain data, deterministic.
+ */
+export const NPC_START_ARMY_MULT = 1.25;
+
+export function npcStartCount(base: number): number {
+  return base > 0 ? Math.ceil(base * NPC_START_ARMY_MULT) : 0;
+}

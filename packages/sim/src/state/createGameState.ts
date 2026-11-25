@@ -93,14 +93,14 @@ export function createGameState(options: CreateGameStateOptions = {}): GameState
       id: "u_rival_0",
       typeId: "militia",
       realmId: "rival",
-      count: "12",
+      count: "15",
       armyId: null,
     },
     {
       id: "u_rival_spear",
       typeId: "spearman",
       realmId: "rival",
-      count: "4",
+      count: "5",
       armyId: null,
     }
   );

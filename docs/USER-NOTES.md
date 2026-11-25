@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Fewer cost warnings, tougher neighbours
+
+- **Army tab:** the "costly batch" warning now starts at 500 total resources and "steep cost" at 2,000, so ordinary batches are no longer flagged.
+- **Rivals and camps hit a little harder:** other kingdoms start with about 25% more troops. Lord Varric starts with 15 militia and 5 spearmen. Bandit camps always field three defenders. A 5-strong levy still breaks a camp.
+
 ## 2026-11-25 — "Long project" tags for 4+ hour waits
 
 - **Long project pill:** Studies and building works that take 4 hours or longer now show a softly breathing **Long project** pill (warm gold for multi-hour jobs, deeper ember for multi-day jobs).

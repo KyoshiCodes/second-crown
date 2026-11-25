@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-25 — Batch warning retune + light NPC pressure
+
+- **Army batch warnings (`app/src/horizon/horizon.ts`):** `COST_BRACKET_COSTLY` 50 → **500**, `COST_BRACKET_STEEP` 200 → **2000** (one Knight ~360, one Siege engine ~1520). Same `costly batch` / `steep cost` wording.
+- **Light NPC pressure (sim content only, no combat formula change):** new `NPC_START_ARMY_MULT = 1.25` / `npcStartCount` in `content/pacing.ts`, used by `seedWorldActors` for each archetype's `startMilitia` / `startElite` (rounded up). Lord Varric's rival starts with 15 militia + 5 spearmen (was 12 + 4). `campThreat` camps 5–9 (was 4–8), ruins 7–11 (was 6–10), so camps field 3 defenders instead of 2–3. A 5-strong levy still clears a camp.
+- **Tests:** `horizon.test.tsx` thresholds, `camp.test.ts` range, `siege.test.ts` now reads the player's archers only. Now: sim **374**, app **1482**, server **158** (+1 Windows skip), app build clean.
+
 ## 2026-11-25 — "Long project" pacing badge & tooltip enhancement
 
 - **`Long project` badge (`horizon/LongProjectBadge.tsx`, `horizon/horizon-pacing.css`):** Added `<LongProjectBadge>` beside `<HorizonBadge>` on lectern studies (`ResearchBar.tsx`) and Raise / Improve work rows (`RaiseImproveFold.tsx`) whenever remaining or total wait is `>= 4` hours (`LONG_PROJECT_SECONDS = 14_400`). Displays a softly breathing `"Long project"` pill with a living status pip (`pointer-events: none !important;`) in warm amber (`hours`) or deeper ember (`.is-days.is-multi-day`).

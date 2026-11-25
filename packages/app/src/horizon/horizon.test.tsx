@@ -58,14 +58,15 @@ describe("brackets", () => {
     expect(unitTierLabel(3)).toBe("Tier III");
     expect(unitTierLabel(undefined)).toBe("Tier I");
     expect(batchCostTotal({ food: "4", wood: "1" }, 10)).toBe(50);
-    expect(costBracket(49)).toBe("standard");
-    expect(costBracket(50)).toBe("costly");
-    expect(costBracket(200)).toBe("steep");
+    expect(costBracket(499)).toBe("standard");
+    expect(costBracket(500)).toBe("costly");
+    expect(costBracket(1999)).toBe("costly");
+    expect(costBracket(2000)).toBe("steep");
   });
   it("notes only higher brackets", () => {
     expect(unitBracketNote({ costTotal: 5, seconds: 2 })).toBeNull();
-    expect(unitBracketNote({ costTotal: 120, seconds: 2 })).toBe("Higher bracket · costly batch");
-    expect(unitBracketNote({ costTotal: 300, seconds: 7200 })).toBe("Higher bracket · steep cost · hours-long drill");
+    expect(unitBracketNote({ costTotal: 1200, seconds: 2 })).toBe("Higher bracket · costly batch");
+    expect(unitBracketNote({ costTotal: 3000, seconds: 7200 })).toBe("Higher bracket · steep cost · hours-long drill");
     expect(unitBracketNote({ costTotal: 5, seconds: 90 })).toBe("Higher bracket · long drill");
   });
 });
