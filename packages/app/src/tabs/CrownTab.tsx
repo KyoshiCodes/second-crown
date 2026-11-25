@@ -42,6 +42,7 @@ import type { ActFn } from "../game/useGameEngine";
 import "../hud/plain-buttons.css";
 import { Fold } from "../hud/Fold";
 import "../hud/crown-card.css";
+import { GameNewsPanel } from "../news/GameNewsPanel";
 
 export function CrownTab(props: {
   state: GameState | undefined;
@@ -79,6 +80,7 @@ export function CrownTab(props: {
 
   return (
     <>
+      <GameNewsPanel />
       <Fold id="crown-events" noisy title="Events" summary={eventLog.length ? `${eventLog.length} logged` : "Quiet so far"}>
         <EventPanel lastEvent={lastEvent} lastEventTick={lastEventTick} log={eventLog} state={state} />
       </Fold>

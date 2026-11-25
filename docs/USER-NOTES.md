@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — Game News
+
+- **Game News on the Crown tab:** a new "Game News" panel at the top of the 👑 Crown tab lists recent updates, newest first. Each one has a date, a short title, a Major or Minor tag, and a few lines on what changed.
+- Click the title bar to fold it away; when folded it still shows how many updates there are and the newest one.
+
 ## 2026-11-24 — Subtle HUD micro-feedback
 
 - **Resource bar flashes & store glows:** Resource cards give a quick emerald-gold shimmer when their income rate increases, and glow warmly when a store fills up (or softly crimson if Food runs bare).

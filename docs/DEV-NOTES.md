@@ -1,3 +1,13 @@
+## 2026-11-24 — app / Game News panel
+
+- **Where the news lives:** `packages/app/src/news/gameNews.ts` exports `GAME_NEWS: readonly NewsEntry[]` (`{ id, date: "YYYY-MM-DD", kind: "major" | "minor", title, body: string[] }`). To post news, add an entry at the top of the array; keep `body` to 2–4 lines (the test enforces 2–4 and unique ids). No server, no fetch, nothing in the save.
+- **Helpers:** `sortedNews` (date desc, stable on ties), `newsSummary` (`"N updates · <newest title>"` / `"No news yet"`), `formatNewsDate` (parses the ISO string by hand, so no timezone drift).
+- **Component:** `news/GameNewsPanel.tsx` renders `<Fold id="crown-news">` with an `<ol class="sc-news-list">` of `.sc-work-card.sc-news-card.is-<kind>` items (`<time dateTime>`). Optional `news` prop for tests. Mounted as the first child of `CrownTab` (above `crown-events`).
+- **CSS:** `news/game-news.css` only (`theme.css` untouched). Compact tightens card padding via `:root.sc-compact`.
+- **Not touched:** `packages/sim`, `packages/render`, `server/`, `AppShell` tab list (it is a section under Crown, not a sixth tab).
+- **Verification:** `news/GameNewsPanel.test.tsx` (7). `npm test` → sim 362, app 1397, server 158 (+1 skip); `npm run build -w @second-crown/app` clean. Not yet opened in a browser.
+- **Later:** if news should update without a deploy, move `GAME_NEWS` to a JSON served by `server/index.mjs` and keep the same shape.
+
 ## 2026-11-24 — app / living HUD micro-feedback pass
 
 - **ResourceHud (`packages/app/src/hud/ResourceHud.tsx`):**

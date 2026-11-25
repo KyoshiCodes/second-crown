@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-24 — Game News panel (Crown tab)
+
+- **New `Fold#crown-news` "Game News" at the top of the Crown tab (`news/GameNewsPanel.tsx`):** a list of short update cards, newest first. Each card shows a title, a Major / Minor tag, the date ("Nov 24, 2026") and 2–4 short lines. Folded title bar reads `N updates · <newest title>`. Not `noisy`, so it starts open; open/closed is remembered in `sc-fold:crown-news` and it follows Compact like every other fold.
+- **Data (`news/gameNews.ts`):** a plain `GAME_NEWS` array in the app (no server, no fetch). Seeded with **6** entries for what shipped on 2026-11-24: layout priority (major), Ledger fold (minor), board presence (major), living board accents (minor), Hold density (minor), HUD micro-feedback (minor). Helpers: `sortedNews`, `newsSummary`, `formatNewsDate`.
+- **Styles (`news/game-news.css`):** layout, kind tags and body text on top of `.sc-work-card`; gold left edge for Major. `theme.css` untouched.
+- **Unchanged:** `packages/sim`, `packages/render`, `server/`, save format.
+- **Tests:** `news/GameNewsPanel.test.tsx` (7). Now: sim **362**, app **1397**, server **158** (+1 skip), app build clean.
+
 ## 2026-11-24 — Living HUD micro-feedback pass (resources, Fold headers, active tab)
 
 - **Resource cell micro-feedback (`hud/ResourceHud.tsx`, `hud/hud-micro-feedback.css`):** Added `detectResourceMicroPulse` (`income-up`, `became-full`, `became-empty`, never firing on first paint) driving a `680ms` (`HUD_PULSE_MS`) `pointer-events: none` `.sc-hud-cell-flash` highlight when income ticks up or a store hits full/bare, alongside gentle breathing perimeter glows on `.is-full` and `.is-empty` cells.
