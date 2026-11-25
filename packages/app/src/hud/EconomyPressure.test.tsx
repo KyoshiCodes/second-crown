@@ -80,6 +80,7 @@ describe("ResourceHud bottleneck accents", () => {
     expect(html).toContain("sc-econ-bottleneck-glow");
     expect(html).toContain("sc-econ-bottleneck-pip");
     expect(html).toContain("limiter for");
+    expect(html).toContain('class="sc-ledger-tag is-limiter"');
 
     const richState = createGameState({ seed: 1 });
     for (const k of ["food", "wood", "stone", "gold"]) richState.resources[k] = "100000";

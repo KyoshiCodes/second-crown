@@ -14,3 +14,32 @@
   color: #d29922;
 }
 .sc-bottleneck-line.is-stuck { color: #f0883e; }
+.sc-bottleneck-line p { margin: 0; }
+.sc-blocked-line {
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #f0883e;
+}
+.sc-blocked-label {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0 4px;
+  margin-right: 2px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  vertical-align: 1px;
+}
+.sc-food-deficit { color: #f85149; }
+.sc-ledger-rate.is-deficit { color: #f85149; }
+.sc-ledger-tag.is-limiter { color: #d29922; }
+.sc-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

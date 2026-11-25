@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Clearer "when can I afford it" and "why can't I start it"
+
+- **Two times, not one:** Expensive studies and the Kingdom **Limiter** line now say both when you can pay ("Ready to pay in ~40m") and how long the work takes once started ("finishes in ~6h after you start").
+- **Why it's blocked:** Study cards show a **Blocked** tag with the reason: missing prerequisite, needs a higher Keep, needs a hall, lectern busy, warehouse too small, or stores short.
+- **Food deficit shown:** If your army eats more than you grow, you'll see **Food −2/s after upkeep** on the Kingdom tab, and a **Net** line in the food box at the top.
+- **No hover needed:** The top store boxes show a small **limiter** tag when that store is holding you back, so it works on phones and with a keyboard.
+
 ## 2026-11-25 — Study text & quieter chat on new games
 
 - **Logistics text updated:** The Kingdom Realm notes line for known studies now correctly lists **+15% gold** (matching the actual income bonus) instead of +8%.

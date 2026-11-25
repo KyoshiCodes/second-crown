@@ -17,6 +17,8 @@ import "./hud-micro-feedback.css";
 import "./economy-pressure.css";
 import "./income-bracket.css";
 import { bottleneckResourceMap } from "./economyPressure";
+import { foodDeficit, formatSignedRate, realmRates } from "../projection";
+import "../cost-projection.css";
 import { incomeBracketLabel, resolveIncomeBracket, type IncomeBracket } from "./incomeBracket";
 
 export const HUD_PULSE_MS = 680;
@@ -71,6 +73,7 @@ export function ResourceHud(props: {
 }) {
   const hungry = props.state ? isFoodStoresEmptyOrLow(props.state) : false;
   const bottleneckMap = bottleneckResourceMap(props.state);
+  const foodNet = props.state ? foodDeficit(realmRates(props.state)) : null;
 
   const entries = (["food", "wood", "stone", "gold"] as const).map((r) => {
     const line = props.state ? resourceLedger(props.state, r) : null;
@@ -203,6 +206,12 @@ export function ResourceHud(props: {
                   <ResourcePip resource={r} variant={variant} />
                   {RES_LABEL[r]}
                   {isBottleneck ? <span className="sc-econ-bottleneck-pip" aria-hidden="true" /> : null}
+                  {isBottleneck ? (
+                    <span className="sc-ledger-tag is-limiter" data-limiter-tag={r}>
+                      limiter
+                      <span className="sc-visually-hidden"> for {bottleneckTargets.join(", ")}</span>
+                    </span>
+                  ) : null}
                   {full ? <span className="sc-ledger-tag">full</span> : null}
                   {empty ? <span className="sc-ledger-tag">bare</span> : null}
                 </div>
@@ -238,6 +247,12 @@ export function ResourceHud(props: {
                   <div className="sc-ledger-rate is-idle">idle</div>
                 )}
               </div>
+              {r === "food" && foodNet !== null ? (
+                <div className="sc-resource-living-row is-net" data-food-deficit={foodNet}>
+                  <span className="sc-resource-living-label">Net</span>
+                  <div className="sc-ledger-rate is-deficit">{formatSignedRate(foodNet)} after upkeep</div>
+                </div>
+              ) : null}
             </div>
             <ResourceLivingGlyph resource={r} have={have} income={income} state={props.state} />
           </div>

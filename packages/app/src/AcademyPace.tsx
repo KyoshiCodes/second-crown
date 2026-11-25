@@ -8,13 +8,14 @@ import {
   researchKeepReady,
   type GameState,
 } from "@second-crown/sim";
+import { TICKS_PER_SECOND } from "@second-crown/shared";
 import "./academy-pace.css";
 
 type ResearchId = keyof typeof RESEARCH;
 
-/** Sim ticks to whole seconds, same rounding as StudyLine (10 ticks per second). */
+/** Sim ticks to whole seconds, same rounding as StudyLine. */
 function secs(ticks: number): number {
-  return Math.ceil(ticks / 10);
+  return Math.ceil(ticks / TICKS_PER_SECOND);
 }
 
 /** True when the sim's researchDuration runs shorter than the table ticks (Academy rate active). */

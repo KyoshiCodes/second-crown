@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-25 — Actionable economy cues: ready vs finish, block reasons, food deficit
+
+- **Ready vs finish (`CostProjection.tsx`):** `projectionText(p, { finishSeconds })` now reads `Ready to pay in ~5m (food is the limiter) · finishes in ~6h after you start.` or `Stores cover it now · finishes in …`. Study cards pass `researchDuration`; the Kingdom Limiter line passes `researchDuration` / `upgradeDurationTicks` for the Keep.
+- **Block reasons (`projection.ts` `blockReasons`, `CostProjection.tsx` `BlockedLine`):** visible `Blocked` label on study cards listing `missing prerequisite (X)`, `needs Keep II`, `needs <hall>`, `lectern busy (X)`, `warehouse too small (stone 600 > 400)`, `stores short (40 gold)`. The Limiter line adds prerequisite / Keep / lectern-busy gates for the next study.
+- **Food deficit:** negative net food (income minus army upkeep) shows as `Food −2/s after upkeep` (Kingdom `Deficit` label, study card text) and a `Net −2/s after upkeep` row in the HUD food cell. Previously reported as "No food income".
+- **Visible, not hover-only:** HUD limiter cells show a `limiter` tag (targets in screen-reader text); Kingdom line uses visible `Limiter` / `Deficit` labels; the hover-only explainer title is gone.
+- **Tick rate:** `ticksToSeconds` uses shared `TICKS_PER_SECOND`; `AcademyPace.tsx` no longer hard-codes `/ 10`.
+- **Unchanged:** `packages/sim`, production, costs, combat, `server/`, `theme.css`.
+- **Tests:** `projection.test.tsx` +5 (deficit, block reasons, Blocked label, tick rate, limiter line), `EconomyPressure.test.tsx` limiter-tag assertion. Now: sim **390**, app **1526**, app build clean.
+
 ## 2026-11-25 — P1 hygiene: Logistics +15% label & default-folded sample chat
 
 - **Logistics bonus label (`StudyLine.tsx`):** Updated `STUDY_YIELD_LABELS.logistics` from `+8% gold` to **`+15% gold, +50 store, +1 column`** to match `researchYield` in `packages/sim`. Audited all other hard-coded study labels and added sim-backed parity assertions.

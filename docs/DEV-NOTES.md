@@ -1,3 +1,13 @@
+## 2026-11-25 — app / actionable economy cues (Codex P1)
+
+- **Pure helpers (`packages/app/src/projection.ts`):** `ticksToSeconds` (shared `TICKS_PER_SECOND`), `formatSignedRate` (U+2212 minus, 1 dp under 10), `foodDeficit(rates)` / `foodDeficitText(rates)` (net food from `realmRates`, already upkeep-adjusted; null when ≥ 0), `blockReasons(projection, gates)` → ordered `BlockReason[]` (`prereq`, `keep`, `hall`, `busy`, `warehouse`, `stores`). Gates are read by callers from existing sim helpers (`researchPrereqReady`, `researchKeepReady`, `countBuilding`, `researchTicksLeft`); nothing new in `packages/sim`.
+- **`CostProjection.tsx`:** `projectionText(p, { finishSeconds? })` — ready-to-pay vs finish tail; a negative food rate reads as a deficit instead of "No food income". `StudyProjection` takes optional `finishSeconds` and `gates` and renders `BlockedLine` (`.sc-blocked-line`, `data-blocked`) above the time line; still renders nothing for paid studies. `BottleneckEntry` gained `rate`, `finishSeconds`, `gates`; `bottleneckPhrase` → `"Keep II: stone short, ready to pay in ~4m · finishes in ~2m after you start"`; entries joined with `"; "`. `BottleneckLine` is now a `<div>` with visible `Deficit` / `Limiter` labels (`.sc-blocked-label`) and shows even with no limiter when food is in deficit.
+- **`ResearchBar.tsx`:** passes `finishSeconds={seconds}` and gates (prereq / Keep / hall names / `busyWith`).
+- **`hud/ResourceHud.tsx`:** visible `.sc-ledger-tag.is-limiter` (`data-limiter-tag`) with `.sc-visually-hidden` targets; food cell adds `.is-net` row (`data-food-deficit`) when `foodDeficit < 0`. The cell `title` is kept.
+- **`AcademyPace.tsx`:** `secs` uses `TICKS_PER_SECOND`. Many other app files still divide by literal `10` (decree/diplo/march timers); left for a separate sweep.
+- **CSS:** `cost-projection.css` only.
+- **Verification:** `npm test` → sim 390, app 1526; `npm run build -w @second-crown/app` clean.
+
 ## 2026-11-25 — app / P1 hygiene: Logistics label & default-folded sample chat
 
 - **Study label fix (`packages/app/src/StudyLine.tsx`):** Exported `STUDY_YIELD_LABELS`; changed `logistics` to `"+15% gold, +50 store, +1 column"`. `StudyLine.test.tsx` (2 tests) verifies live yield/storage/discount deltas against `computeIncomePerSecond`, `storageCap`, `trainCostMultiplier`, and `RESEARCH` (all other study labels already match).

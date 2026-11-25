@@ -205,7 +205,18 @@ function Row(props: {
       ) : null}
       <StudyNeedsRow needs={needs} />
       <ResearchCostRow status={status} parts={studyCostParts(def.cost, state.resources)} busyWith={busyWith} />
-      <StudyProjection cost={def.cost} rates={rates} paid={status === "known" || status === "studying"} />
+      <StudyProjection
+        cost={def.cost}
+        rates={rates}
+        paid={status === "known" || status === "studying"}
+        finishSeconds={seconds}
+        gates={{
+          prereq: prereqOk ? undefined : prereq,
+          keepNeed: keepOk ? undefined : keepNeed,
+          halls: hasHall ? undefined : buildings.map(hallName),
+          busyWith,
+        }}
+      />
       {done || left > 0 ? null : (
         <button
           type="button"

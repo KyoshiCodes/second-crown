@@ -1,12 +1,33 @@
 import React from "react";
-import { RESEARCH, keepLevel, upgradeCost, upgradeJobFor, type GameState } from "@second-crown/sim";
+import {
+  RESEARCH,
+  keepLevel,
+  researchDone,
+  researchDuration,
+  researchKeepMin,
+  researchKeepReady,
+  researchPrereqReady,
+  researchRequires,
+  researchTicksLeft,
+  upgradeCost,
+  upgradeDurationTicks,
+  upgradeJobFor,
+  type GameState,
+} from "@second-crown/sim";
 import { formatHorizon } from "./horizon/horizon";
 import { nextResearch } from "./ResearchHint";
 import {
+  blockReasons,
+  foodDeficit,
+  foodDeficitText,
+  formatSignedRate,
   projectCost,
   projectionWorthShowing,
   realmRates,
+  ticksToSeconds,
+  type BlockReason,
   type CostProjection,
+  type ProjectGates,
   type RealmRates,
 } from "./projection";
 import "./cost-projection.css";
@@ -20,41 +41,90 @@ import { SavingPip } from "./hud/SavingPip";
  */
 
 const KEEP_ROMAN = ["none", "I", "II", "III", "IV", "V"];
+const DOT = " · ";
 
-/** One plain sentence for a study card, or null when the cost is small next to income. */
-export function projectionText(p: CostProjection): { text: string; tone: "calm" | "wait" | "stuck" } | null {
+const approx = (s: number) => `~${formatHorizon(s)}`;
+
+/** " · finishes in ~6h after you start", or "" when the length is unknown. */
+function finishTail(finishSeconds?: number): string {
+  return finishSeconds !== undefined && finishSeconds > 0
+    ? `${DOT}finishes in ${approx(finishSeconds)} after you start`
+    : "";
+}
+
+/**
+ * One plain sentence for a study card, or null when the cost is small next to income.
+ * Separates "time to afford" (ready to pay) from "time to finish" (length once started).
+ */
+export function projectionText(
+  p: CostProjection,
+  opts: { finishSeconds?: number } = {},
+): { text: string; tone: "calm" | "wait" | "stuck" } | null {
   if (!projectionWorthShowing(p) || !p.limiter) return null;
   const over = p.parts.find((x) => x.overCap);
   if (over) {
     return {
-      text: `Needs ${over.need} ${over.res}, but stores hold only ${over.cap}. Raise ${over.res} storage first.`,
+      text: `Warehouse too small: needs ${over.need} ${over.res}, stores hold ${over.cap}. Raise ${over.res} storage first.`,
       tone: "stuck",
     };
   }
   const dry = p.parts.find((x) => x.short > 0 && !Number.isFinite(x.waitSeconds));
-  if (dry) return { text: `No ${dry.res} income right now, so the ${dry.short} short will not refill.`, tone: "stuck" };
-  const lim = p.limiter;
-  const head = `At current income this is about ${formatHorizon(p.productionSeconds)} of ${lim.res} production`;
-  if (p.waitSeconds <= 0) return { text: `${head}. Stores cover it now.`, tone: "calm" };
-  return { text: `${head}. Ready in about ${formatHorizon(p.waitSeconds)}; ${lim.res} is the limiter.`, tone: "wait" };
+  if (dry) {
+    if (dry.rate < 0) {
+      const head =
+        dry.res === "food" ? `Food ${formatSignedRate(dry.rate)} after upkeep` : `${dry.res} ${formatSignedRate(dry.rate)}`;
+      return { text: `${head}, so the ${dry.short} ${dry.res} short will not refill.`, tone: "stuck" };
+    }
+    return { text: `No ${dry.res} income right now, so the ${dry.short} short will not refill.`, tone: "stuck" };
+  }
+  const tail = finishTail(opts.finishSeconds);
+  if (p.waitSeconds <= 0) return { text: `Stores cover it now${tail}.`, tone: "calm" };
+  return {
+    text: `Ready to pay in ${approx(p.waitSeconds)} (${p.limiter.res} is the limiter)${tail}.`,
+    tone: "wait",
+  };
 }
 
-/** Projection line under a study card's cost row. Hidden for paid studies and cheap ones. */
-export function StudyProjection(props: { cost: Readonly<Record<string, string>>; rates: RealmRates; paid: boolean }) {
+/** Visible "Blocked" label plus every reason, so it reads without hover on touch and keyboard. */
+export function BlockedLine(props: { reasons: readonly BlockReason[] }) {
+  if (props.reasons.length === 0) return null;
+  return (
+    <p className="sc-blocked-line" data-blocked={props.reasons.map((r) => r.kind).join(",")}>
+      <span className="sc-blocked-label">Blocked</span> {props.reasons.map((r) => r.text).join(DOT)}
+    </p>
+  );
+}
+
+/** Projection lines under a study card's cost row. Hidden for paid studies; the time line is hidden for cheap ones. */
+export function StudyProjection(props: {
+  cost: Readonly<Record<string, string>>;
+  rates: RealmRates;
+  paid: boolean;
+  /** Study length once started, in seconds. */
+  finishSeconds?: number;
+  /** Non-store gates read from the sim (prerequisite, Keep, hall, lectern busy). */
+  gates?: ProjectGates;
+}) {
   if (props.paid) return null;
   const proj = projectCost(props.cost, props.rates);
-  const line = projectionText(proj);
-  if (!line) return null;
-  const saving = isSavingCost(proj);
+  const line = projectionText(proj, { finishSeconds: props.finishSeconds });
+  const reasons = props.gates ? blockReasons(proj, props.gates) : [];
+  if (!line && reasons.length === 0) return null;
+  const saving = line ? isSavingCost(proj) : false;
   return (
-    <p
-      className={`sc-cost-projection tone-${line.tone}${saving ? " is-saving-cost" : ""}`}
-      data-cost-projection={line.tone}
-      data-saving={saving ? "true" : undefined}
-    >
-      {saving ? <SavingPip /> : null}
-      {line.text}
-    </p>
+    <>
+      <BlockedLine reasons={reasons} />
+      {line ? (
+        <p
+          className={`sc-cost-projection tone-${line.tone}${saving ? " is-saving-cost" : ""}`}
+          data-cost-projection={line.tone}
+          data-saving={saving ? "true" : undefined}
+        >
+          {saving ? <SavingPip /> : null}
+          {line.text}
+        </p>
+      ) : null}
+    </>
   );
 }
 
@@ -66,6 +136,12 @@ export interface BottleneckEntry {
   /** Seconds until stores cover it; Infinity when they never will at this rate. */
   waitSeconds: number;
   overCap: boolean;
+  /** Net rate of the limiting store per second (negative for a food deficit). */
+  rate: number;
+  /** Length once started, in seconds (0 when unknown). */
+  finishSeconds: number;
+  /** Gates outside the stores (prerequisite, Keep, lectern busy). */
+  gates: BlockReason[];
 }
 
 /**
@@ -78,12 +154,23 @@ export function bottlenecks(state: GameState, rates: RealmRates = realmRates(sta
   if (next) {
     const p = projectCost(RESEARCH[next.id].cost, rates);
     if (p.limiter && p.limiter.short > 0) {
+      const ids = Object.keys(RESEARCH) as (keyof typeof RESEARCH)[];
+      const running = ids.find((id) => !researchDone(state, id) && researchTicksLeft(state, id) > 0);
+      const prereqId = researchRequires(next.id);
+      const gates = blockReasons(p, {
+        prereq: prereqId && !researchPrereqReady(state, next.id) ? RESEARCH[prereqId].name : undefined,
+        keepNeed: researchKeepReady(state, next.id) ? undefined : researchKeepMin(next.id),
+        busyWith: running ? RESEARCH[running].name : undefined,
+      }).filter((r) => r.kind !== "stores" && r.kind !== "warehouse");
       out.push({
         target: RESEARCH[next.id].name,
         kind: "study",
         res: p.limiter.res,
         waitSeconds: p.limiter.waitSeconds,
         overCap: p.limiter.overCap,
+        rate: p.limiter.rate,
+        finishSeconds: ticksToSeconds(researchDuration(state, next.id)),
+        gates,
       });
     }
   }
@@ -100,6 +187,9 @@ export function bottlenecks(state: GameState, rates: RealmRates = realmRates(sta
           res: p.limiter.res,
           waitSeconds: p.limiter.waitSeconds,
           overCap: p.limiter.overCap,
+          rate: p.limiter.rate,
+          finishSeconds: ticksToSeconds(upgradeDurationTicks(state, keep.id)),
+          gates: [],
         });
       }
     }
@@ -108,25 +198,42 @@ export function bottlenecks(state: GameState, rates: RealmRates = realmRates(sta
 }
 
 export function bottleneckPhrase(e: BottleneckEntry): string {
-  if (e.overCap) return `${e.res} storage is too small for ${e.target}`;
-  if (!Number.isFinite(e.waitSeconds)) return `${e.res} is the limiter for ${e.target} (no ${e.res} income)`;
-  return `${e.res} is the limiter for ${e.target} (about ${formatHorizon(e.waitSeconds)})`;
+  let head: string;
+  if (e.overCap) head = `warehouse too small for ${e.res}`;
+  else if (!Number.isFinite(e.waitSeconds)) {
+    head =
+      e.rate < 0 && e.res === "food"
+        ? `food ${formatSignedRate(e.rate)} after upkeep, will not refill`
+        : `no ${e.res} income, will not refill`;
+  } else head = `${e.res} short, ready to pay in ${approx(e.waitSeconds)}`;
+  const gates = e.gates.map((g) => `${DOT}${g.text}`).join("");
+  return `${e.target}: ${head}${gates}${finishTail(e.finishSeconds)}`;
 }
 
-/** Small note under the Pace line. Hidden when stores already cover the next study and Keep level. */
+/**
+ * Small note under the Pace line. Names what blocks the next study and Keep level, and any
+ * food deficit after army upkeep. Hidden when nothing is short and food holds.
+ */
 export function BottleneckLine(props: { state: GameState | undefined }) {
   const { state } = props;
   if (!state) return null;
-  const list = bottlenecks(state);
-  if (list.length === 0) return null;
-  const stuck = list.some((e) => e.overCap || !Number.isFinite(e.waitSeconds));
+  const rates = realmRates(state);
+  const list = bottlenecks(state, rates);
+  const deficit = foodDeficitText(rates);
+  if (list.length === 0 && !deficit) return null;
+  const stuck = Boolean(deficit) || list.some((e) => e.overCap || !Number.isFinite(e.waitSeconds));
   return (
-    <p
-      className={`sc-bottleneck-line${stuck ? " is-stuck" : ""}`}
-      data-bottleneck={list.map((e) => e.res).join(",")}
-      title="Compares the cost of the next study and the next Keep level with what you hold, your net income per second (food after army upkeep), and your warehouse caps. Read-only."
-    >
-      Limiter · {list.map(bottleneckPhrase).join(" · ")}.
-    </p>
+    <div className={`sc-bottleneck-line${stuck ? " is-stuck" : ""}`} data-bottleneck={list.map((e) => e.res).join(",")}>
+      {deficit ? (
+        <p className="sc-food-deficit" data-food-deficit={foodDeficit(rates) ?? undefined}>
+          <span className="sc-blocked-label">Deficit</span> {deficit}.
+        </p>
+      ) : null}
+      {list.length > 0 ? (
+        <p>
+          <span className="sc-blocked-label">Limiter</span> {list.map(bottleneckPhrase).join("; ")}.
+        </p>
+      ) : null}
+    </div>
   );
 }

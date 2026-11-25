@@ -113,3 +113,70 @@ export function realmRates(state: GameState): RealmRates {
   }
   return { rate, have, cap };
 }
+
+/** Seconds from sim ticks, via the shared tick rate. */
+export function ticksToSeconds(ticks: number): number {
+  return ticks / TICKS_PER_SECOND;
+}
+
+/** A per-second rate with an explicit sign, using a true minus for deficits: "−2/s", "+0.4/s". */
+export function formatSignedRate(n: number): string {
+  const abs = Math.abs(n);
+  const shown = abs >= 10 ? Math.round(abs).toString() : (Math.round(abs * 10) / 10).toString();
+  if (shown === "0") return "0/s";
+  return `${n < 0 ? "−" : "+"}${shown}/s`;
+}
+
+/** Net food per second after army upkeep when it is below zero; null when food holds even or grows. */
+export function foodDeficit(rates: RealmRates): number | null {
+  const r = rates.rate.food ?? 0;
+  return r < 0 ? r : null;
+}
+
+/** "Food −2/s after upkeep", or null when there is no deficit. */
+export function foodDeficitText(rates: RealmRates): string | null {
+  const d = foodDeficit(rates);
+  return d === null ? null : `Food ${formatSignedRate(d)} after upkeep`;
+}
+
+export type BlockKind = "prereq" | "keep" | "hall" | "busy" | "warehouse" | "stores";
+
+export interface BlockReason {
+  kind: BlockKind;
+  /** Short plain words, e.g. "lectern busy (Forestry)". */
+  text: string;
+}
+
+/** Gates outside the stores that the caller already read from the sim. Unset means met. */
+export interface ProjectGates {
+  /** Name of an unknown prerequisite study. */
+  prereq?: string;
+  /** Keep level still needed. */
+  keepNeed?: number;
+  /** Hall names when none is built. */
+  halls?: readonly string[];
+  /** Name of the study (or job) already occupying the slot. */
+  busyWith?: string;
+}
+
+const ROMAN = ["0", "I", "II", "III", "IV", "V"];
+
+/**
+ * Pure: every reason a project cannot start right now, most structural first
+ * (prerequisite, Keep, hall, lectern busy, warehouse too small, stores short).
+ */
+export function blockReasons(p: CostProjection, gates: ProjectGates = {}): BlockReason[] {
+  const out: BlockReason[] = [];
+  if (gates.prereq) out.push({ kind: "prereq", text: `missing prerequisite (${gates.prereq})` });
+  if (gates.keepNeed) out.push({ kind: "keep", text: `needs Keep ${ROMAN[gates.keepNeed] ?? gates.keepNeed}` });
+  if (gates.halls && gates.halls.length > 0) out.push({ kind: "hall", text: `needs ${gates.halls.join(" or ")}` });
+  if (gates.busyWith) out.push({ kind: "busy", text: `lectern busy (${gates.busyWith})` });
+  for (const x of p.parts) {
+    if (x.overCap) out.push({ kind: "warehouse", text: `warehouse too small (${x.res} ${x.need} > ${x.cap})` });
+  }
+  const short = p.parts.filter((x) => x.short > 0 && !x.overCap);
+  if (short.length > 0) {
+    out.push({ kind: "stores", text: `stores short (${short.map((x) => `${x.short} ${x.res}`).join(", ")})` });
+  }
+  return out;
+}

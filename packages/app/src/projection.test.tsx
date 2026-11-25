@@ -2,9 +2,19 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { createGameState, RESEARCH, computeIncomePerSecond, upkeepPerTick } from "@second-crown/sim";
-import { projectCost, projectionWorthShowing, realmRates, type RealmRates } from "./projection";
+import {
+  blockReasons,
+  foodDeficitText,
+  formatSignedRate,
+  projectCost,
+  projectionWorthShowing,
+  realmRates,
+  ticksToSeconds,
+  type RealmRates,
+} from "./projection";
 import { BottleneckLine, StudyProjection, bottleneckPhrase, bottlenecks, projectionText } from "./CostProjection";
 import { ResearchBar } from "./ResearchBar";
+import { TICKS_PER_SECOND } from "@second-crown/shared";
 
 function rates(partial: Partial<RealmRates>): RealmRates {
   return { rate: {}, have: {}, cap: {}, ...partial };
@@ -44,7 +54,10 @@ describe("projectCost", () => {
     const dear = projectCost({ food: "100" }, rates({ rate: { food: 0.2 }, have: { food: 40 }, cap: { food: 200 } }));
     expect(projectionWorthShowing(dear)).toBe(true);
     expect(projectionText(dear)?.text).toBe(
-      "At current income this is about 8m 20s of food production. Ready in about 5m; food is the limiter.",
+      "Ready to pay in ~5m (food is the limiter).",
+    );
+    expect(projectionText(dear, { finishSeconds: 6 * 3600 })?.text).toBe(
+      "Ready to pay in ~5m (food is the limiter) · finishes in ~6h after you start.",
     );
   });
 });
@@ -54,7 +67,7 @@ describe("realmRates", () => {
     const s = createGameState({ seed: 1 });
     const r = realmRates(s);
     const gross = Number(computeIncomePerSecond(s).food ?? 0);
-    expect(r.rate.food).toBeCloseTo(gross - upkeepPerTick(s) * 10);
+    expect(r.rate.food).toBeCloseTo(gross - upkeepPerTick(s) * TICKS_PER_SECOND);
     expect(Number.isFinite(r.cap.stone)).toBe(true);
   });
 });
@@ -94,5 +107,56 @@ describe("projection UI", () => {
     expect(html).toContain("data-cost-projection");
     expect(JSON.stringify(s)).toBe(before);
     expect(Object.keys(RESEARCH).length).toBeGreaterThan(0);
+  });
+});
+
+describe("actionable cues", () => {
+  it("shows a negative net food rate as a deficit instead of hiding it", () => {
+    const r = rates({ rate: { food: -2 }, have: { food: 5 }, cap: { food: 500 } });
+    expect(foodDeficitText(r)).toBe("Food −2/s after upkeep");
+    expect(foodDeficitText(rates({ rate: { food: 1 } }))).toBeNull();
+    expect(formatSignedRate(-0.44)).toBe("−0.4/s");
+    const p = projectCost({ food: "100" }, r);
+    expect(projectionText(p)?.text).toBe("Food −2/s after upkeep, so the 95 food short will not refill.");
+  });
+
+  it("names every reason a project is blocked, structural gates first", () => {
+    const p = projectCost(
+      { stone: "600", gold: "50" },
+      rates({ rate: { stone: 1, gold: 1 }, have: { stone: 0, gold: 10 }, cap: { stone: 400, gold: 500 } }),
+    );
+    const kinds = blockReasons(p, { prereq: "Masonry", keepNeed: 2, halls: ["Academy"], busyWith: "Forestry" });
+    expect(kinds.map((k) => k.kind)).toEqual(["prereq", "keep", "hall", "busy", "warehouse", "stores"]);
+    expect(kinds.map((k) => k.text)).toEqual([
+      "missing prerequisite (Masonry)",
+      "needs Keep II",
+      "needs Academy",
+      "lectern busy (Forestry)",
+      "warehouse too small (stone 600 > 400)",
+      "stores short (40 gold)",
+    ]);
+    expect(blockReasons(projectCost({ gold: "5" }, rates({ have: { gold: 10 } })))).toEqual([]);
+  });
+
+  it("renders a visible Blocked label on a study card", () => {
+    const r = rates({ rate: { gold: 1 }, have: { gold: 0 }, cap: { gold: 500 } });
+    const html = renderToStaticMarkup(
+      <StudyProjection cost={{ gold: "20" }} rates={r} paid={false} gates={{ busyWith: "Forestry" }} />,
+    );
+    expect(html).toContain('<span class="sc-blocked-label">Blocked</span>');
+    expect(html).toContain("lectern busy (Forestry)");
+    expect(html).toContain("stores short (20 gold)");
+  });
+
+  it("converts ticks with the shared tick rate", () => {
+    expect(ticksToSeconds(TICKS_PER_SECOND * 6)).toBe(6);
+  });
+
+  it("puts ready-to-pay and finish time in the Kingdom limiter line", () => {
+    const s = createGameState({ seed: 1 });
+    for (const k of Object.keys(s.resources)) s.resources[k] = "0";
+    const html = renderToStaticMarkup(<BottleneckLine state={s} />);
+    expect(html).toContain("after you start");
+    expect(html).toContain('<span class="sc-blocked-label">Limiter</span>');
   });
 });
