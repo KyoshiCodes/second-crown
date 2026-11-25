@@ -1,3 +1,14 @@
+## 2026-11-25 — app / quiet elite unit tier glow & multi-day badge pulse
+
+- **Helpers & components (`packages/app/src/horizon/horizon.ts`, `hud/UnitCard.tsx`, `horizon/LongProjectBadge.tsx`):**
+  - Exported `isEliteUnitTier(tier)` (`tier !== undefined && unitTierRank(tier) >= 4`).
+  - `UnitCard` appends `is-elite-tier is-tier-4|5` + `data-elite-tier` and renders a phrasing-only `<span class="sc-unit-elite-rim">` (`pointer-events: none !important;`) for Tier IV/V only; Tiers I–III keep exact previous markup.
+  - `LongProjectBadge` imports `horizon-elite-tier.css` after `horizon-pacing.css` to sharpen the `.is-days.is-multi-day` breathing cadence.
+- **Dedicated CSS (`packages/app/src/horizon/horizon-elite-tier.css`):**
+  - Defines Dusk/Night/Parchment RGB tokens (`--sc-elite-tier4-rgb`, `--sc-elite-tier5-rgb`, `--sc-multiday-breathe-rgb`), keyframes (`sc-unit-elite-glow-4`, `sc-unit-elite-glow-5`, `sc-unit-elite-rim-pulse`, `sc-long-project-multiday-breathe`, `sc-long-project-multiday-pip`), static locked fallback, `pointer-events: none !important;`, and `@media (prefers-reduced-motion: reduce)`.
+  - Zero edits to `theme.css`, `horizon.css`, `horizon-living.css`, `horizon-pacing.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/horizon/EliteTierAccent.test.tsx`):** 8 tests passing (`npm test` -> sim 374, app 1490, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — sim+app / batch warning retune + light NPC pressure
 
 - **App:** `COST_BRACKET_COSTLY = 500`, `COST_BRACKET_STEEP = 2000` in `horizon/horizon.ts` (closes the follow-up noted under pacing pass 1).

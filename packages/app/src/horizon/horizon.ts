@@ -127,6 +127,11 @@ export function unitTierLabel(tier: number | undefined): string {
   return `Tier ${ROMAN[t] ?? t}`;
 }
 
+/** True for elite units (Tier IV or Tier V) deserving a quiet highlight on unit cards. */
+export function isEliteUnitTier(tier: number | undefined): boolean {
+  return tier !== undefined && unitTierRank(tier) >= 4;
+}
+
 export type CostBracket = "standard" | "costly" | "steep";
 
 /**

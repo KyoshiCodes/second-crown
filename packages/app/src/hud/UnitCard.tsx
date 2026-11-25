@@ -11,7 +11,8 @@ import { UnitLivingRows, splitUnitRows } from "./UnitLivingRows";
 import { BandagePip } from "./BandagePip";
 import { CultureUnitChip, hasCultureUnitChip } from "./CultureUnitChip";
 import { UnitTierNote } from "../horizon/HorizonTime";
-import { batchCostTotal, formatHorizon, unitBracketNote } from "../horizon/horizon";
+import { batchCostTotal, formatHorizon, isEliteUnitTier, unitBracketNote, unitTierRank } from "../horizon/horizon";
+import "../horizon/horizon-elite-tier.css";
 
 export type UnitCardProps = {
   typeId: string;
@@ -41,7 +42,13 @@ export function UnitCard(props: UnitCardProps) {
   const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status, wounded, healing, tier, qty = 1 } = props;
   const bracketNote = open ? unitBracketNote({ costTotal: batchCostTotal(cost, qty), seconds: ticks / 10 }) : null;
   const costText = Object.entries(cost).map(([k, v]) => `${v} ${k}`).join(" · ");
-  const cls = ["sc-unit-card", !open ? "is-locked" : affordable ? "is-ready" : "is-short"].join(" ");
+  const elite = isEliteUnitTier(tier);
+  const tierRank = tier !== undefined ? unitTierRank(tier) : undefined;
+  const cls = [
+    "sc-unit-card",
+    !open ? "is-locked" : affordable ? "is-ready" : "is-short",
+    ...(elite && tierRank ? ["is-elite-tier", `is-tier-${tierRank}`] : []),
+  ].join(" ");
   const readyRow = status?.find((r) => r.kind === "ready");
   const isDrilling = Boolean(readyRow?.live || (readyRow?.value && readyRow.value.startsWith("Drilling")));
   const living = status && status.length > 0 ? splitUnitRows(status) : undefined;
@@ -50,6 +57,7 @@ export function UnitCard(props: UnitCardProps) {
     <button
       type="button"
       className={cls}
+      data-elite-tier={elite && tierRank ? `tier-${tierRank}` : undefined}
       title={open ? `${blurb ?? ""} Cost ${costText} each. ${ticks} ticks to drill.`.trim() : lock}
       disabled={!open || !affordable}
       onClick={onTrain}
@@ -60,6 +68,7 @@ export function UnitCard(props: UnitCardProps) {
         affordable={affordable}
         drilling={isDrilling}
       />
+      {elite ? <span className="sc-unit-elite-rim" aria-hidden="true" /> : null}
       <span className={living ? "sc-unit-head sc-unit-living-head" : "sc-unit-head"}>
         <span
           className={`sc-unit-art sc-unit-art-wrapper${wounded && wounded > 0 ? " has-wounded" : ""}${healing ? " is-healing" : ""}`}

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Quiet elite unit tier glow & clearer multi-day badge pulse
+
+- **Tier IV & Tier V unit card accents (`horizon/horizon.ts`, `hud/UnitCard.tsx`, `horizon/horizon-elite-tier.css`):** Added `isEliteUnitTier` (`tier >= 4`) and a non-blocking `<span class="sc-unit-elite-rim">` (`pointer-events: none !important;`) on Tier IV (`is-tier-4`, royal-gold gentle border pulse) and Tier V (`is-tier-5`, imperial crimson-gold border/rim pulse) unit cards. Locked elite cards show a faint static border tint with no pulse; Tiers I–III stay unchanged.
+- **Clearer multi-day `"Long project"` breathing (`horizon/LongProjectBadge.tsx`, `horizon/horizon-elite-tier.css`):** Multi-day `.sc-long-project-badge.is-days.is-multi-day` pills now breathe more clearly (`3.4s` dual-tone border glow + `2.8s` ember pip pulse).
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `horizon.css`, `horizon-living.css`, `horizon-pacing.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/horizon/EliteTierAccent.test.tsx` (8 tests). Now: sim **374**, app **1490**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Batch warning retune + light NPC pressure
 
 - **Army batch warnings (`app/src/horizon/horizon.ts`):** `COST_BRACKET_COSTLY` 50 → **500**, `COST_BRACKET_STEEP` 200 → **2000** (one Knight ~360, one Siege engine ~1520). Same `costly batch` / `steep cost` wording.

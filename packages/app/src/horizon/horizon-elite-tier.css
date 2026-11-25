@@ -1,0 +1,162 @@
+/* --- Elite Unit Tiers (Tier IV / V) & Multi-Day Project Pulse (isolated CSS) ---
+ * Loaded from hud/UnitCard.tsx and horizon/LongProjectBadge.tsx.
+ * Never modifies theme.css, horizon.css, horizon-living.css, or horizon-pacing.css.
+ * Strict pointer-events: none !important on rim overlays and decorative pips.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-elite-tier4-rgb: 238, 192, 82;
+  --sc-elite-tier5-rgb: 236, 118, 92;
+  --sc-multiday-breathe-rgb: 242, 134, 72;
+}
+
+:root[data-chrome="night"] {
+  --sc-elite-tier4-rgb: 232, 196, 108;
+  --sc-elite-tier5-rgb: 238, 128, 108;
+  --sc-multiday-breathe-rgb: 236, 144, 88;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-elite-tier4-rgb: 184, 124, 24;
+  --sc-elite-tier5-rgb: 176, 52, 38;
+  --sc-multiday-breathe-rgb: 184, 78, 22;
+}
+
+/* ==========================================================================
+   2. Quiet Elite-Tier Unit Card Rim & Border Pulse (Tier IV / Tier V)
+   ========================================================================== */
+.sc-unit-card.is-elite-tier {
+  position: relative;
+}
+
+.sc-unit-elite-rim {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-unit-card.is-elite-tier.is-tier-4:not(.is-locked) {
+  border-color: rgba(var(--sc-elite-tier4-rgb), 0.56);
+  animation: sc-unit-elite-glow-4 4.4s ease-in-out infinite;
+}
+
+.sc-unit-card.is-elite-tier.is-tier-4:not(.is-locked) .sc-unit-elite-rim {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--sc-elite-tier4-rgb), 0.14) 0%,
+    transparent 44%,
+    rgba(var(--sc-elite-tier4-rgb), 0.08) 100%
+  );
+  opacity: 0.55;
+}
+
+.sc-unit-card.is-elite-tier.is-tier-5:not(.is-locked) {
+  border-color: rgba(var(--sc-elite-tier5-rgb), 0.64);
+  animation: sc-unit-elite-glow-5 3.6s ease-in-out infinite;
+}
+
+.sc-unit-card.is-elite-tier.is-tier-5:not(.is-locked) .sc-unit-elite-rim {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--sc-elite-tier5-rgb), 0.18) 0%,
+    rgba(var(--sc-elite-tier4-rgb), 0.08) 48%,
+    rgba(var(--sc-elite-tier5-rgb), 0.12) 100%
+  );
+  animation: sc-unit-elite-rim-pulse 3.6s ease-in-out infinite;
+}
+
+.sc-unit-card.is-elite-tier.is-tier-4.is-locked {
+  border-color: rgba(var(--sc-elite-tier4-rgb), 0.28);
+}
+
+.sc-unit-card.is-elite-tier.is-tier-5.is-locked {
+  border-color: rgba(var(--sc-elite-tier5-rgb), 0.34);
+}
+
+.sc-unit-card.is-elite-tier.is-locked .sc-unit-elite-rim {
+  opacity: 0.22;
+}
+
+@keyframes sc-unit-elite-glow-4 {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--sc-elite-tier4-rgb), 0.16);
+  }
+  50% {
+    box-shadow: 0 0 11px 1px rgba(var(--sc-elite-tier4-rgb), 0.32);
+  }
+}
+
+@keyframes sc-unit-elite-glow-5 {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--sc-elite-tier5-rgb), 0.22);
+  }
+  50% {
+    box-shadow: 0 0 13px 1.5px rgba(var(--sc-elite-tier5-rgb), 0.42);
+  }
+}
+
+@keyframes sc-unit-elite-rim-pulse {
+  0%, 100% {
+    opacity: 0.48;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* ==========================================================================
+   3. Clearer Breathing on Multi-Day "Long project" Badge
+   ========================================================================== */
+.sc-long-project-badge.is-days.is-multi-day {
+  border-color: rgba(var(--sc-multiday-breathe-rgb), 0.68);
+  animation: sc-long-project-multiday-breathe 3.4s ease-in-out infinite;
+}
+
+.sc-long-project-badge.is-days.is-multi-day .sc-long-project-pip {
+  pointer-events: none !important;
+  animation: sc-long-project-multiday-pip 2.8s ease-in-out infinite;
+}
+
+@keyframes sc-long-project-multiday-breathe {
+  0%, 100% {
+    border-color: rgba(var(--sc-multiday-breathe-rgb), 0.5);
+    box-shadow: 0 0 0 0 rgba(var(--sc-multiday-breathe-rgb), 0.18);
+  }
+  50% {
+    border-color: rgba(var(--sc-multiday-breathe-rgb), 0.88);
+    box-shadow: 0 0 11px 1.5px rgba(var(--sc-multiday-breathe-rgb), 0.38);
+  }
+}
+
+@keyframes sc-long-project-multiday-pip {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(0.92);
+    box-shadow: 0 0 3px rgba(var(--sc-multiday-breathe-rgb), 0.55);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.26);
+    box-shadow: 0 0 7px rgba(var(--sc-multiday-breathe-rgb), 0.92);
+  }
+}
+
+/* ==========================================================================
+   4. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-unit-card.is-elite-tier.is-tier-4:not(.is-locked),
+  .sc-unit-card.is-elite-tier.is-tier-5:not(.is-locked),
+  .sc-unit-card.is-elite-tier.is-tier-5:not(.is-locked) .sc-unit-elite-rim,
+  .sc-long-project-badge.is-days.is-multi-day,
+  .sc-long-project-badge.is-days.is-multi-day .sc-long-project-pip {
+    animation: none !important;
+  }
+}

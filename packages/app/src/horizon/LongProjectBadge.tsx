@@ -1,6 +1,7 @@
 import React from "react";
 import { horizonBracket, isLongProject, pacingTier, pacingTooltip } from "./horizon";
 import "./horizon-pacing.css";
+import "./horizon-elite-tier.css";
 
 /** Soft living "Long project" pill shown when a study or build waits >= 4 hours. */
 export function LongProjectBadge(props: { seconds: number }) {

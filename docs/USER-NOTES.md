@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Subtle elite troop glow & clearer multi-day pulse
+
+- **Tier IV and Tier V unit cards:** Unlocked Tier IV (gold) and Tier V (imperial crimson-gold) troop cards now wear a quiet border glow and soft corner sheen so top-tier units feel distinct without cluttering the card.
+- **Multi-day projects:** The `"Long project"` pill on day-scale works and studies now breathes a bit more clearly so multi-day timers stand out from hour-scale ones.
+
 ## 2026-11-25 — Fewer cost warnings, tougher neighbours
 
 - **Army tab:** the "costly batch" warning now starts at 500 total resources and "steep cost" at 2,000, so ordinary batches are no longer flagged.
