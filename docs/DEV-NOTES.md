@@ -1,3 +1,13 @@
+## 2026-11-25 — app / living Admin / Moderation panel accents
+
+- **Component (`packages/app/src/admin/AdminPanel.tsx`):**
+  - Exported `AdminPlayerStatus` (`"online" | "muted" | "kicked" | "banned"`), `ADMIN_ACTION_FLASH_MS = 1400`, `ADMIN_ACTION_CONFIRM_LABEL`, `resolveAdminPlayerStatus`, `detectFlaggedMessage`, and `isMessageFlagged`, plus optional `marksOverride`, `flaggedIdsOverride`, `actionFlashOverride`, and `armedBanOverride` props for deterministic SSR testing.
+  - Preserved all `AdminPanel.test.tsx` invariants (`class="sc-admin-row"` exact match on unflagged non-flashing rows, `Mute`/`Kick`/`Ban` counts, `disabled=""` count = 3, `"Seen in chat: Wren, Ilse"`, and zero `fetch(` calls outside `*`-comments).
+- **Dedicated CSS (`packages/app/src/admin/admin-living.css`):**
+  - Imported after `admin-panel.css`. Styles `.sc-admin-status-pip` (`status-online` / `status-muted` / `status-kicked` / `status-banned`), `.sc-admin-player-list` / `.sc-admin-player-row`, hover/focus/armed warning pulses on `.act-mute` / `.act-kick` / `.act-ban`, `.is-flagged` message highlighting, and `1400ms` `.is-action-flash` + `::after` sweep + `.sc-admin-confirm-pill` across Dusk/Night/Parchment with `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)`.
+  - Zero edits to `theme.css`, `admin-panel.css`, `staff.ts`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/admin/AdminLivingAccents.test.tsx`):** 12 tests passing (`npm test` -> sim 362, app 1445, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — app / staff Admin / Moderation panel foundation
 
 - **Files:** `packages/app/src/admin/staff.ts` (gate + stubs), `admin/AdminPanel.tsx` (UI), `admin/admin-panel.css`, `admin/AdminPanel.test.tsx` (11 tests), `chat/chatFeed.ts` (read-only chat mirror). `<AdminPanel />` is the last child of `.sc-shell` in `AppShell.tsx`, right after `<GlobalChatPanel />`.

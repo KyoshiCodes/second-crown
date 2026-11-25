@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Living Admin panel accents (staff testing only)
+
+- **Living status pips:** Each message author and tracked player row in the Admin panel now shows a small status pip — a softly breathing green dot with a ring for `online`, amber for `muted`, ember ring for `kicked`, and crimson for `banned`.
+- **Warning pulses on action buttons:** Hovering **Mute**, **Kick**, or **Ban** (or arming `"Confirm ban"`) gives the button a gentle warning pulse; flagged chat lines also pulse softly so they stand out for review.
+- **Action confirmation flash:** Pressing a moderation button sends a brief soft highlight and `✓ Muted` / `✓ Kicked` / `✓ Banned` pill across both the message row and matching player row as visual confirmation (still local stubs only).
+
 ## 2026-11-25 — Staff Admin panel (staff testing only)
 
 - **Most players will not see anything new.** This panel is hidden unless staff tools are turned on in your browser.

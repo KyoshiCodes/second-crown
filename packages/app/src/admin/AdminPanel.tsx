@@ -12,11 +12,77 @@ import {
   type ModAction,
 } from "./staff";
 import "./admin-panel.css";
+import "./admin-living.css";
 
 /** How many recent chat lines the moderation list shows. */
 export const ADMIN_RECENT_LIMIT = 8;
 export const ADMIN_TOAST_MS = 2600;
+export const ADMIN_ACTION_FLASH_MS = 1400;
 const MOD_ACTIONS: readonly ModAction[] = ["mute", "kick", "ban"];
+
+export type AdminPlayerStatus = "online" | "muted" | "kicked" | "banned";
+
+export const ADMIN_ACTION_CONFIRM_LABEL: Record<ModAction, string> = {
+  mute: "Muted",
+  kick: "Kicked",
+  ban: "Banned",
+};
+
+export interface AdminActionFlash {
+  id: number;
+  msgId?: string;
+  author: string;
+  action: ModAction;
+}
+
+/** Map the latest local moderation mark to a player's display status. Pure. */
+export function resolveAdminPlayerStatus(mark?: ModAction): AdminPlayerStatus {
+  if (mark === "mute") return "muted";
+  if (mark === "kick") return "kicked";
+  if (mark === "ban") return "banned";
+  return "online";
+}
+
+/** Lightweight client-only check for shouting or repeated punctuation spam. Pure. */
+export function detectFlaggedMessage(text: string): boolean {
+  if (/[!?]{4,}/.test(text)) return true;
+  const letters = text.match(/[A-Za-z]/g);
+  if (!letters || letters.length < 10) return false;
+  let upper = 0;
+  for (const ch of letters) {
+    if (ch >= "A" && ch <= "Z") upper += 1;
+  }
+  return upper / letters.length >= 0.75;
+}
+
+/** True when a message was manually flagged, armed for ban confirmation, or auto-flagged. Pure. */
+export function isMessageFlagged(
+  msg: ChatMessage,
+  opts?: { flaggedIds?: ReadonlySet<string> | readonly string[]; armedBanId?: string | null },
+): boolean {
+  if (opts?.armedBanId === msg.id) return true;
+  if (opts?.flaggedIds) {
+    if (Array.isArray(opts.flaggedIds)) {
+      if (opts.flaggedIds.includes(msg.id)) return true;
+    } else if ((opts.flaggedIds as ReadonlySet<string>).has(msg.id)) {
+      return true;
+    }
+  }
+  return detectFlaggedMessage(msg.text);
+}
+
+function AdminStatusPip(props: { status: AdminPlayerStatus }) {
+  return (
+    <span
+      className={`sc-admin-status-pip status-${props.status}`}
+      data-admin-status-pip={props.status}
+      aria-hidden="true"
+    >
+      <span className="sc-admin-status-dot" />
+      {props.status === "online" ? <span className="sc-admin-status-ring" /> : null}
+    </span>
+  );
+}
 
 /** Newest first, capped. Pure, for tests. */
 export function recentForModeration(list: readonly ChatMessage[], limit = ADMIN_RECENT_LIMIT): ChatMessage[] {
@@ -45,6 +111,11 @@ export function AdminPanel(props: {
   messages?: readonly ChatMessage[];
   author?: string;
   now?: number;
+  /** Tests: deterministic moderation status marks, flags, armed ban, or confirmation flash. */
+  marksOverride?: Readonly<Record<string, ModAction>>;
+  flaggedIdsOverride?: readonly string[];
+  actionFlashOverride?: { msgId?: string; author?: string; action: ModAction } | null;
+  armedBanOverride?: string | null;
 }) {
   const staffFlag = useStaffFlag();
   const staff = props.forceStaff ?? staffFlag;
@@ -56,7 +127,10 @@ export function AdminPanel(props: {
   const [toast, setToast] = React.useState<{ id: number; text: string } | null>(null);
   const [marks, setMarks] = React.useState<Record<string, ModAction>>({});
   const [armedBan, setArmedBan] = React.useState<string | null>(null);
+  const [flaggedIds, setFlaggedIds] = React.useState<string[]>([]);
+  const [actionFlash, setActionFlash] = React.useState<AdminActionFlash | null>(null);
   const toastSeq = React.useRef(0);
+  const flashSeq = React.useRef(0);
 
   React.useEffect(() => {
     if (!toast || typeof window === "undefined") return undefined;
@@ -64,21 +138,50 @@ export function AdminPanel(props: {
     return () => window.clearTimeout(t);
   }, [toast]);
 
+  React.useEffect(() => {
+    if (!actionFlash || typeof window === "undefined") return undefined;
+    const t = window.setTimeout(() => setActionFlash(null), ADMIN_ACTION_FLASH_MS);
+    return () => window.clearTimeout(t);
+  }, [actionFlash]);
+
   if (!staff) return null;
+
+  const effectiveMarks: Readonly<Record<string, ModAction>> = props.marksOverride
+    ? { ...marks, ...props.marksOverride }
+    : marks;
+  const effectiveArmedBan = props.armedBanOverride !== undefined ? props.armedBanOverride : armedBan;
+  const effectiveFlaggedSet = new Set([...flaggedIds, ...(props.flaggedIdsOverride ?? [])]);
+  const effectiveFlash: AdminActionFlash | null =
+    props.actionFlashOverride !== undefined
+      ? props.actionFlashOverride
+        ? {
+            id: 0,
+            msgId: props.actionFlashOverride.msgId,
+            author: props.actionFlashOverride.author ?? "",
+            action: props.actionFlashOverride.action,
+          }
+        : null
+      : actionFlash;
 
   const say = (text: string) => {
     toastSeq.current += 1;
     setToast({ id: toastSeq.current, text });
   };
 
+  const toggleFlag = (id: string) => {
+    setFlaggedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+  };
+
   const act = (action: ModAction, msg: ChatMessage) => {
     // Ban needs a second click on the same row.
-    if (action === "ban" && armedBan !== msg.id) {
+    if (action === "ban" && effectiveArmedBan !== msg.id) {
       setArmedBan(msg.id);
       return;
     }
     setArmedBan(null);
     setMarks((m) => ({ ...m, [msg.author]: action }));
+    flashSeq.current += 1;
+    setActionFlash({ id: flashSeq.current, msgId: msg.id, author: msg.author, action });
     say(`${MOD_ACTION_LABEL[action]}: ${msg.author} (local stub, not sent)`);
     void moderatePlayer(action, msg.author); // future: POST /api/admin/<action>
   };
@@ -108,12 +211,46 @@ export function AdminPanel(props: {
             <ol className="sc-admin-list">
               {recent.map((m) => {
                 const own = isOwnMessage(m, author);
-                const mark = marks[m.author];
+                const mark = effectiveMarks[m.author];
+                const status = resolveAdminPlayerStatus(mark);
+                const flagged =
+                  !own &&
+                  isMessageFlagged(m, {
+                    flaggedIds: effectiveFlaggedSet,
+                    armedBanId: effectiveArmedBan,
+                  });
+                const rowFlash =
+                  effectiveFlash &&
+                  (effectiveFlash.msgId === m.id || (!effectiveFlash.msgId && effectiveFlash.author === m.author))
+                    ? effectiveFlash.action
+                    : null;
+                const rowClasses = ["sc-admin-row"];
+                if (flagged) rowClasses.push("is-flagged");
+                if (rowFlash) rowClasses.push("is-action-flash", `flash-${rowFlash}`);
+
                 return (
-                  <li key={m.id} className="sc-admin-row" data-admin-msg={m.id}>
+                  <li
+                    key={m.id}
+                    className={rowClasses.join(" ")}
+                    data-admin-msg={m.id}
+                    data-admin-status={status}
+                    data-admin-flagged={flagged ? "true" : undefined}
+                    data-admin-flash={rowFlash ?? undefined}
+                  >
                     <div className="sc-admin-row-meta">
+                      <AdminStatusPip status={status} />
                       <span className="sc-admin-author">{m.author}</span>
                       {mark ? <span className={`sc-admin-mark mark-${mark}`}>{mark}d</span> : null}
+                      {flagged ? (
+                        <span className="sc-admin-flag-pill" aria-hidden="true">
+                          Flagged
+                        </span>
+                      ) : null}
+                      {rowFlash ? (
+                        <span className={`sc-admin-confirm-pill flash-${rowFlash}`} aria-hidden="true">
+                          ✓ {ADMIN_ACTION_CONFIRM_LABEL[rowFlash]}
+                        </span>
+                      ) : null}
                       <span className="sc-admin-time">{formatChatRelative(m.at, now)}</span>
                     </div>
                     <p className="sc-admin-text" title={m.text}>{m.text}</p>
@@ -122,14 +259,25 @@ export function AdminPanel(props: {
                         <button
                           key={a}
                           type="button"
-                          className={`sc-admin-btn act-${a}${a === "ban" && armedBan === m.id ? " is-armed" : ""}`}
+                          className={`sc-admin-btn act-${a}${a === "ban" && effectiveArmedBan === m.id ? " is-armed" : ""}`}
                           disabled={own}
                           title={own ? "That's you" : `${MOD_ACTION_LABEL[a]} ${m.author} (stub)`}
                           onClick={() => act(a, m)}
                         >
-                          {a === "ban" && armedBan === m.id ? "Confirm ban" : MOD_ACTION_LABEL[a]}
+                          {a === "ban" && effectiveArmedBan === m.id ? "Confirm ban" : MOD_ACTION_LABEL[a]}
                         </button>
                       ))}
+                      {!own ? (
+                        <button
+                          type="button"
+                          className={`sc-admin-flag-btn${flagged ? " is-flagged" : ""}`}
+                          aria-pressed={flagged}
+                          title={flagged ? "Clear local flag" : "Flag message for review"}
+                          onClick={() => toggleFlag(m.id)}
+                        >
+                          {flagged ? "Unflag" : "Flag"}
+                        </button>
+                      ) : null}
                     </div>
                   </li>
                 );
@@ -145,6 +293,36 @@ export function AdminPanel(props: {
             Online list needs a server endpoint. Seen in chat:{" "}
             {players.length === 0 ? "nobody" : players.join(", ")}
           </p>
+          {players.length > 0 ? (
+            <ul className="sc-admin-player-list" aria-label="Tracked players">
+              {players.map((player) => {
+                const status = resolveAdminPlayerStatus(effectiveMarks[player]);
+                const playerFlash =
+                  effectiveFlash && effectiveFlash.author === player ? effectiveFlash.action : null;
+                const playerRowClasses = ["sc-admin-player-row"];
+                if (playerFlash) playerRowClasses.push("is-action-flash", `flash-${playerFlash}`);
+
+                return (
+                  <li
+                    key={player}
+                    className={playerRowClasses.join(" ")}
+                    data-admin-player={player}
+                    data-admin-status={status}
+                    data-admin-flash={playerFlash ?? undefined}
+                  >
+                    <AdminStatusPip status={status} />
+                    <span className="sc-admin-player-name">{player}</span>
+                    <span className={`sc-admin-player-state state-${status}`}>{status}</span>
+                    {playerFlash ? (
+                      <span className={`sc-admin-confirm-pill flash-${playerFlash}`} aria-hidden="true">
+                        ✓ {ADMIN_ACTION_CONFIRM_LABEL[playerFlash]}
+                      </span>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
           <button
             type="button"
             className="sc-admin-btn"

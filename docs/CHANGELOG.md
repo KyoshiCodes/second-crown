@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-25 — Living Admin / Moderation panel accents
+
+- **Button warning pulses & flagged rows (`admin/AdminPanel.tsx`, `admin/admin-living.css`):** Hovering or focusing **Mute** (amber), **Kick** (ember-orange), or **Ban** (crimson, or `.is-armed` `"Confirm ban"`) applies a soft warning glow pulse. Messages flagged automatically for shouting/spam (`detectFlaggedMessage`), toggled manually via the compact local `Flag` / `Unflag` control, or armed for ban highlight the row (`.is-flagged` + non-blocking `Flagged` pill) and gently pulse its enabled moderation buttons.
+- **Living status pips:** Added `resolveAdminPlayerStatus` and `<AdminStatusPip>` (`pointer-events: none !important;`) beside every message author and tracked player row in the Players section: emerald breathing dot + expanding ring (`online`), warm amber (`muted`), ember-orange ring (`kicked`), and steady crimson glow (`banned`).
+- **"Action taken" confirmation flash (`ADMIN_ACTION_FLASH_MS = 1400`):** Triggering a local stub moderation action (`Mute`, `Kick`, or confirmed `Ban`) applies `.is-action-flash.flash-<action>` (subtle surface/rim glow + `900ms` sweep + non-blocking `✓ Muted` / `✓ Kicked` / `✓ Banned` pill) to both the targeted chat row and matching player roster row before settling.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `admin-panel.css`, `staff.ts`, `packages/sim`, `packages/render`, and `server/` untouched); zero `fetch(` calls; Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/admin/AdminLivingAccents.test.tsx` (12 tests). Now: sim **362**, app **1445**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Staff Admin / Moderation panel foundation (local stubs)
 
 - **Admin panel (`admin/AdminPanel.tsx`, mounted after `GlobalChatPanel` in `AppShell.tsx`):** floating `Fold#admin-panel` "Admin" (red `STAFF` badge) pinned bottom-left. Three sections: **Chat moderation** (last 8 chat lines, newest first, each with Mute / Kick / Ban; Ban needs a second click "Confirm ban"; buttons disabled on your own lines), **Players** (placeholder + names seen in chat + Refresh stub), **Server status** (placeholder rows + Check status stub). Footer: "Turn off staff tools".

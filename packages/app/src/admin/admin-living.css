@@ -1,0 +1,539 @@
+/* --- Admin Panel Living Accents (isolated CSS) ---
+ * Loaded only from admin/AdminPanel.tsx after admin-panel.css.
+ * Never modifies theme.css or admin-panel.css.
+ * Strict pointer-events: none !important on status pips, pills, and flash sweeps.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-admin-warn-mute-rgb: 245, 194, 107;
+  --sc-admin-warn-kick-rgb: 245, 158, 107;
+  --sc-admin-warn-ban-rgb: 235, 92, 76;
+
+  --sc-admin-pip-online-rgb: 74, 222, 128;
+  --sc-admin-pip-muted-rgb: 245, 194, 107;
+  --sc-admin-pip-kicked-rgb: 245, 158, 107;
+  --sc-admin-pip-banned-rgb: 235, 92, 76;
+
+  --sc-admin-flag-rgb: 245, 178, 86;
+
+  --sc-admin-flash-mute-rgb: 245, 194, 107;
+  --sc-admin-flash-kick-rgb: 245, 158, 107;
+  --sc-admin-flash-ban-rgb: 235, 92, 76;
+}
+
+:root[data-chrome="night"] {
+  --sc-admin-warn-mute-rgb: 238, 196, 118;
+  --sc-admin-warn-kick-rgb: 238, 152, 98;
+  --sc-admin-warn-ban-rgb: 232, 96, 84;
+
+  --sc-admin-pip-online-rgb: 86, 226, 148;
+  --sc-admin-pip-muted-rgb: 238, 196, 118;
+  --sc-admin-pip-kicked-rgb: 238, 152, 98;
+  --sc-admin-pip-banned-rgb: 232, 96, 84;
+
+  --sc-admin-flag-rgb: 232, 176, 94;
+
+  --sc-admin-flash-mute-rgb: 238, 196, 118;
+  --sc-admin-flash-kick-rgb: 238, 152, 98;
+  --sc-admin-flash-ban-rgb: 232, 96, 84;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-admin-warn-mute-rgb: 186, 122, 24;
+  --sc-admin-warn-kick-rgb: 194, 96, 32;
+  --sc-admin-warn-ban-rgb: 184, 46, 36;
+
+  --sc-admin-pip-online-rgb: 28, 148, 78;
+  --sc-admin-pip-muted-rgb: 186, 122, 24;
+  --sc-admin-pip-kicked-rgb: 194, 96, 32;
+  --sc-admin-pip-banned-rgb: 184, 46, 36;
+
+  --sc-admin-flag-rgb: 188, 112, 24;
+
+  --sc-admin-flash-mute-rgb: 186, 122, 24;
+  --sc-admin-flash-kick-rgb: 194, 96, 32;
+  --sc-admin-flash-ban-rgb: 184, 46, 36;
+}
+
+/* ==========================================================================
+   2. Living Status Pips (online / muted / kicked / banned)
+   ========================================================================== */
+.sc-admin-row-meta {
+  align-items: center;
+}
+
+.sc-admin-status-pip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+  flex: none;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-admin-status-dot,
+.sc-admin-status-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none !important;
+}
+
+.sc-admin-status-dot {
+  width: 6px;
+  height: 6px;
+}
+
+.sc-admin-status-pip.status-online .sc-admin-status-dot {
+  background: rgb(var(--sc-admin-pip-online-rgb));
+  box-shadow: 0 0 5px rgba(var(--sc-admin-pip-online-rgb), 0.7);
+  animation: sc-admin-pip-online 3.2s ease-in-out infinite;
+}
+
+.sc-admin-status-pip.status-online .sc-admin-status-ring {
+  width: 6px;
+  height: 6px;
+  border: 1px solid rgba(var(--sc-admin-pip-online-rgb), 0.65);
+  animation: sc-admin-pip-ring 3.2s ease-out infinite;
+}
+
+.sc-admin-status-pip.status-muted .sc-admin-status-dot {
+  background: rgb(var(--sc-admin-pip-muted-rgb));
+  box-shadow: 0 0 4px rgba(var(--sc-admin-pip-muted-rgb), 0.55);
+  animation: sc-admin-pip-muted 3.8s ease-in-out infinite;
+}
+
+.sc-admin-status-pip.status-kicked .sc-admin-status-dot {
+  width: 7px;
+  height: 7px;
+  background: transparent;
+  border: 1.5px solid rgb(var(--sc-admin-pip-kicked-rgb));
+  box-shadow: 0 0 4px rgba(var(--sc-admin-pip-kicked-rgb), 0.45);
+  animation: sc-admin-pip-kicked 4s ease-in-out infinite;
+}
+
+.sc-admin-status-pip.status-banned .sc-admin-status-dot {
+  background: rgb(var(--sc-admin-pip-banned-rgb));
+  box-shadow: 0 0 6px rgba(var(--sc-admin-pip-banned-rgb), 0.72);
+  animation: sc-admin-pip-banned 2.6s ease-in-out infinite;
+}
+
+@keyframes sc-admin-pip-online {
+  0%, 100% {
+    opacity: 0.78;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-admin-pip-ring {
+  0% {
+    opacity: 0.68;
+    transform: scale(1);
+  }
+  75%, 100% {
+    opacity: 0;
+    transform: scale(2.15);
+  }
+}
+
+@keyframes sc-admin-pip-muted {
+  0%, 100% {
+    opacity: 0.52;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.94;
+    transform: scale(1);
+  }
+}
+
+@keyframes sc-admin-pip-kicked {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes sc-admin-pip-banned {
+  0%, 100% {
+    opacity: 0.72;
+    box-shadow: 0 0 3px rgba(var(--sc-admin-pip-banned-rgb), 0.45);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(var(--sc-admin-pip-banned-rgb), 0.85);
+  }
+}
+
+/* ==========================================================================
+   3. Player Roster Status Rows
+   ========================================================================== */
+.sc-admin-player-list {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.sc-admin-player-row {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 2px solid rgba(var(--sc-admin-pip-online-rgb), 0.32);
+  font-size: 11.5px;
+}
+
+.sc-admin-player-row[data-admin-status="muted"] {
+  border-left-color: rgba(var(--sc-admin-pip-muted-rgb), 0.6);
+}
+
+.sc-admin-player-row[data-admin-status="kicked"] {
+  border-left-color: rgba(var(--sc-admin-pip-kicked-rgb), 0.6);
+}
+
+.sc-admin-player-row[data-admin-status="banned"] {
+  border-left-color: rgba(var(--sc-admin-pip-banned-rgb), 0.75);
+}
+
+:root[data-chrome="parchment"] .sc-admin-player-row {
+  background: rgba(90, 62, 32, 0.06);
+}
+
+.sc-admin-player-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-admin-player-state {
+  margin-left: auto;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.78;
+}
+
+.sc-admin-player-state.state-online {
+  color: rgb(var(--sc-admin-pip-online-rgb));
+}
+
+.sc-admin-player-state.state-muted {
+  color: rgb(var(--sc-admin-pip-muted-rgb));
+}
+
+.sc-admin-player-state.state-kicked {
+  color: rgb(var(--sc-admin-pip-kicked-rgb));
+}
+
+.sc-admin-player-state.state-banned {
+  color: rgb(var(--sc-admin-pip-banned-rgb));
+}
+
+/* ==========================================================================
+   4. Soft Warning Pulse on Mute / Kick / Ban + Flagged Message Accent
+   ========================================================================== */
+.sc-admin-btn.act-mute,
+.sc-admin-btn.act-kick,
+.sc-admin-btn.act-ban {
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 180ms ease;
+}
+
+.sc-admin-btn.act-mute:hover:not(:disabled),
+.sc-admin-btn.act-mute:focus-visible:not(:disabled) {
+  border-color: rgba(var(--sc-admin-warn-mute-rgb), 0.85);
+  color: rgb(var(--sc-admin-warn-mute-rgb));
+  animation: sc-admin-warn-pulse-mute 1.9s ease-in-out infinite;
+}
+
+.sc-admin-btn.act-kick:hover:not(:disabled),
+.sc-admin-btn.act-kick:focus-visible:not(:disabled) {
+  border-color: rgba(var(--sc-admin-warn-kick-rgb), 0.88);
+  color: rgb(var(--sc-admin-warn-kick-rgb));
+  animation: sc-admin-warn-pulse-kick 1.75s ease-in-out infinite;
+}
+
+.sc-admin-btn.act-ban:hover:not(:disabled),
+.sc-admin-btn.act-ban:focus-visible:not(:disabled),
+.sc-admin-btn.act-ban.is-armed:not(:disabled) {
+  border-color: rgba(var(--sc-admin-warn-ban-rgb), 0.92);
+  animation: sc-admin-warn-pulse-ban 1.55s ease-in-out infinite;
+}
+
+.sc-admin-row.is-flagged,
+.sc-admin-row[data-admin-flagged="true"] {
+  border-left-color: rgba(var(--sc-admin-flag-rgb), 0.85);
+  background: rgba(var(--sc-admin-flag-rgb), 0.08);
+}
+
+.sc-admin-row.is-flagged .sc-admin-btn.act-mute:not(:disabled),
+.sc-admin-row[data-admin-flagged="true"] .sc-admin-btn.act-mute:not(:disabled) {
+  border-color: rgba(var(--sc-admin-warn-mute-rgb), 0.68);
+  animation: sc-admin-warn-pulse-mute 2.2s ease-in-out infinite;
+}
+
+.sc-admin-row.is-flagged .sc-admin-btn.act-kick:not(:disabled),
+.sc-admin-row[data-admin-flagged="true"] .sc-admin-btn.act-kick:not(:disabled) {
+  border-color: rgba(var(--sc-admin-warn-kick-rgb), 0.72);
+  animation: sc-admin-warn-pulse-kick 2.2s ease-in-out 0.25s infinite;
+}
+
+.sc-admin-row.is-flagged .sc-admin-btn.act-ban:not(:disabled),
+.sc-admin-row[data-admin-flagged="true"] .sc-admin-btn.act-ban:not(:disabled) {
+  border-color: rgba(var(--sc-admin-warn-ban-rgb), 0.78);
+  animation: sc-admin-warn-pulse-ban 2.1s ease-in-out 0.5s infinite;
+}
+
+@keyframes sc-admin-warn-pulse-mute {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--sc-admin-warn-mute-rgb), 0.34);
+  }
+  50% {
+    box-shadow: 0 0 8px 1px rgba(var(--sc-admin-warn-mute-rgb), 0.42);
+  }
+}
+
+@keyframes sc-admin-warn-pulse-kick {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--sc-admin-warn-kick-rgb), 0.36);
+  }
+  50% {
+    box-shadow: 0 0 9px 1px rgba(var(--sc-admin-warn-kick-rgb), 0.46);
+  }
+}
+
+@keyframes sc-admin-warn-pulse-ban {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--sc-admin-warn-ban-rgb), 0.42);
+  }
+  50% {
+    box-shadow: 0 0 10px 2px rgba(var(--sc-admin-warn-ban-rgb), 0.52);
+  }
+}
+
+.sc-admin-flag-pill {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0 4px;
+  border-radius: 3px;
+  color: rgb(var(--sc-admin-flag-rgb));
+  background: rgba(var(--sc-admin-flag-rgb), 0.16);
+  border: 1px solid rgba(var(--sc-admin-flag-rgb), 0.45);
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-admin-flag-btn {
+  margin-left: auto;
+  padding: 2px 6px;
+  font: inherit;
+  font-size: 10.5px;
+  color: var(--chrome-btn-text, #f5ead8);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  opacity: 0.72;
+  cursor: pointer;
+}
+
+.sc-admin-flag-btn:hover,
+.sc-admin-flag-btn.is-flagged {
+  opacity: 1;
+  color: rgb(var(--sc-admin-flag-rgb));
+  border-color: rgba(var(--sc-admin-flag-rgb), 0.65);
+  background: rgba(var(--sc-admin-flag-rgb), 0.12);
+}
+
+:root[data-chrome="parchment"] .sc-admin-flag-btn {
+  border-color: rgba(90, 62, 32, 0.25);
+}
+
+/* ==========================================================================
+   5. Gentle "Action Taken" Confirmation Flash
+   ========================================================================== */
+.sc-admin-row {
+  position: relative;
+  overflow: hidden;
+}
+
+.sc-admin-row.is-action-flash.flash-mute,
+.sc-admin-player-row.is-action-flash.flash-mute {
+  animation: sc-admin-flash-mute 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sc-admin-row.is-action-flash.flash-kick,
+.sc-admin-player-row.is-action-flash.flash-kick {
+  animation: sc-admin-flash-kick 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sc-admin-row.is-action-flash.flash-ban,
+.sc-admin-player-row.is-action-flash.flash-ban {
+  animation: sc-admin-flash-ban 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sc-admin-row.is-action-flash::after,
+.sc-admin-player-row.is-action-flash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none !important;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.14) 48%,
+    transparent 100%
+  );
+  animation: sc-admin-flash-sweep 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sc-admin-confirm-pill {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0 5px;
+  border-radius: 4px;
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-admin-confirm-pill-fade 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sc-admin-confirm-pill.flash-mute {
+  color: rgb(var(--sc-admin-flash-mute-rgb));
+  background: rgba(var(--sc-admin-flash-mute-rgb), 0.18);
+  border: 1px solid rgba(var(--sc-admin-flash-mute-rgb), 0.55);
+}
+
+.sc-admin-confirm-pill.flash-kick {
+  color: rgb(var(--sc-admin-flash-kick-rgb));
+  background: rgba(var(--sc-admin-flash-kick-rgb), 0.18);
+  border: 1px solid rgba(var(--sc-admin-flash-kick-rgb), 0.55);
+}
+
+.sc-admin-confirm-pill.flash-ban {
+  color: rgb(var(--sc-admin-flash-ban-rgb));
+  background: rgba(var(--sc-admin-flash-ban-rgb), 0.18);
+  border: 1px solid rgba(var(--sc-admin-flash-ban-rgb), 0.58);
+}
+
+@keyframes sc-admin-flash-mute {
+  0% {
+    background: rgba(var(--sc-admin-flash-mute-rgb), 0.28);
+    border-left-color: rgba(var(--sc-admin-flash-mute-rgb), 0.95);
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-admin-flash-mute-rgb), 0.55);
+  }
+  100% {
+    background: rgba(var(--sc-admin-flash-mute-rgb), 0.05);
+    border-left-color: rgba(var(--sc-admin-flash-mute-rgb), 0.62);
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+}
+
+@keyframes sc-admin-flash-kick {
+  0% {
+    background: rgba(var(--sc-admin-flash-kick-rgb), 0.28);
+    border-left-color: rgba(var(--sc-admin-flash-kick-rgb), 0.95);
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-admin-flash-kick-rgb), 0.55);
+  }
+  100% {
+    background: rgba(var(--sc-admin-flash-kick-rgb), 0.05);
+    border-left-color: rgba(var(--sc-admin-flash-kick-rgb), 0.62);
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+}
+
+@keyframes sc-admin-flash-ban {
+  0% {
+    background: rgba(var(--sc-admin-flash-ban-rgb), 0.3);
+    border-left-color: rgba(var(--sc-admin-flash-ban-rgb), 0.98);
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-admin-flash-ban-rgb), 0.6);
+  }
+  100% {
+    background: rgba(var(--sc-admin-flash-ban-rgb), 0.06);
+    border-left-color: rgba(var(--sc-admin-flash-ban-rgb), 0.72);
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+}
+
+@keyframes sc-admin-flash-sweep {
+  0% {
+    opacity: 0.75;
+    transform: translateX(-100%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sc-admin-confirm-pill-fade {
+  0% {
+    opacity: 0.98;
+    transform: translateY(-1px);
+  }
+  72% {
+    opacity: 0.94;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.68;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   6. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-admin-status-pip.status-online .sc-admin-status-dot,
+  .sc-admin-status-pip.status-online .sc-admin-status-ring,
+  .sc-admin-status-pip.status-muted .sc-admin-status-dot,
+  .sc-admin-status-pip.status-kicked .sc-admin-status-dot,
+  .sc-admin-status-pip.status-banned .sc-admin-status-dot,
+  .sc-admin-btn.act-mute:hover:not(:disabled),
+  .sc-admin-btn.act-mute:focus-visible:not(:disabled),
+  .sc-admin-btn.act-kick:hover:not(:disabled),
+  .sc-admin-btn.act-kick:focus-visible:not(:disabled),
+  .sc-admin-btn.act-ban:hover:not(:disabled),
+  .sc-admin-btn.act-ban:focus-visible:not(:disabled),
+  .sc-admin-btn.act-ban.is-armed:not(:disabled),
+  .sc-admin-row.is-flagged .sc-admin-btn:not(:disabled),
+  .sc-admin-row[data-admin-flagged="true"] .sc-admin-btn:not(:disabled),
+  .sc-admin-row.is-action-flash,
+  .sc-admin-player-row.is-action-flash,
+  .sc-admin-row.is-action-flash::after,
+  .sc-admin-player-row.is-action-flash::after,
+  .sc-admin-confirm-pill {
+    animation: none !important;
+  }
+
+  .sc-admin-status-pip.status-online .sc-admin-status-ring,
+  .sc-admin-row.is-action-flash::after,
+  .sc-admin-player-row.is-action-flash::after {
+    display: none;
+  }
+}
