@@ -3,6 +3,7 @@ import {
   GATHER_NODES,
   activePlayerMarch,
   campTier,
+  campTierId,
   formatCampLoot,
   currentSeason,
   edgeWallCount,
@@ -78,6 +79,7 @@ import "./hud/season-pip.css";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
+import { CampTierPip } from "./hud/CampTierPip";
 
 const TERRAIN: Record<string, string> = {
   plain: "Plain",
@@ -114,11 +116,15 @@ function CampTierLines(props: { state: GameState; p: Parameters<typeof campTier>
   const siege = formatCampLoot(tier.siegeReward);
   return (
     <>
-      <div className={`sc-inspect-line sc-inspect-camp-tier is-${tier.id} ${tier.difficulty === "Safe" ? "is-good" : "is-warn"}`}>
+      <div
+        className={`sc-inspect-line sc-inspect-camp-tier is-${tier.id} ${tier.difficulty === "Safe" ? "is-good" : "is-warn"}`}
+        data-camp-tier-line={tier.id}
+      >
+        <CampTierPip tierId={tier.id} />
         {tier.name} · {tier.difficulty} · {formatCampLoot(tier.reward)}
         {siege ? ` (siege ${siege})` : ""}
       </div>
-      <div className="sc-inspect-line sc-inspect-camp-hint">{tier.hint}</div>
+      <div className={`sc-inspect-line sc-inspect-camp-hint is-${tier.id}`}>{tier.hint}</div>
     </>
   );
 }
@@ -242,11 +248,20 @@ export function ProvinceInspect(props: {
   const staffedNote = staffedLine(state, selectedId);
   const fogEdgeNote = fogEdgeLine(state, selectedId);
   const hasForces = Boolean(incoming) || onTile.length > 0 || Boolean(march) || Boolean(here);
+  const seenCampTierId = seen && p.node === "camp" ? campTierId(state, p) : null;
   return (
-    <div className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}`}>
+    <div
+      className={`sc-inspect-card${home ? " is-home" : ""}${flagged ? " is-flagged" : ""}${seen ? "" : " is-fog"}${seenCampTierId ? ` is-camp-tier-${seenCampTierId}` : ""}`}
+      data-camp-tier={seenCampTierId ?? undefined}
+    >
       <div className="sc-inspect-head">
         <div className="sc-inspect-name">{name}</div>
-        {site ? <span className={`sc-inspect-site is-${site.kind}`}>{site.label}</span> : null}
+        {site ? (
+          <span className={`sc-inspect-site is-${site.kind}${seenCampTierId ? ` is-tier-${seenCampTierId}` : ""}`}>
+            {seenCampTierId ? <CampTierPip tierId={seenCampTierId} compact /> : null}
+            {site.label}
+          </span>
+        ) : null}
         <button type="button" className="sc-inspect-close" onClick={onClear}>
           Close
         </button>

@@ -1,6 +1,7 @@
 import React from "react";
-import { campTier, getProvince, isProvinceSeen, type GameState } from "@second-crown/sim";
+import { campTier, campTierId, getProvince, isProvinceSeen, type GameState } from "@second-crown/sim";
 import { AtlasTerrainLivingGlyph, AtlasTerrainUnderlay } from "./AtlasTerrainLivingGlyph";
+import { CampTierPip } from "./CampTierPip";
 import "./atlas-living.css";
 
 /**
@@ -105,9 +106,14 @@ export function AtlasProvinceCard(props: { state: GameState; provinceId: string;
   if (rows.length === 0 || !p) return null;
   const home = props.provinceId === props.state.board.homeProvinceId;
   const seen = home || isProvinceSeen(props.state, props.provinceId);
+  const seenCampTierId = seen && p.node === "camp" ? campTierId(props.state, p) : null;
 
   return (
-    <section className={`sc-atlas-card is-${props.role} is-living`} aria-label={`${ROLE_LABEL[props.role]} province`}>
+    <section
+      className={`sc-atlas-card is-${props.role} is-living${seenCampTierId ? ` is-camp-tier-${seenCampTierId}` : ""}`}
+      data-camp-tier={seenCampTierId ?? undefined}
+      aria-label={`${ROLE_LABEL[props.role]} province`}
+    >
       <AtlasTerrainUnderlay terrain={p.terrain} node={p.node} seen={seen} isHome={home} />
       <header className="sc-atlas-card-role">{ROLE_LABEL[props.role]}</header>
       <dl className="sc-atlas-card-rows">
@@ -118,6 +124,7 @@ export function AtlasProvinceCard(props: { state: GameState; provinceId: string;
               {r.label}
             </dt>
             <dd className="sc-atlas-card-value">
+              {r.kind === "name" && seenCampTierId ? <CampTierPip tierId={seenCampTierId} compact /> : null}
               <span className="sc-atlas-card-main">{r.value}</span>
               {r.sub ? <span className="sc-atlas-card-sub">{r.sub}</span> : null}
             </dd>

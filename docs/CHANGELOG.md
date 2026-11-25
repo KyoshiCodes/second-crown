@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Living camp tier accents on board and inspect
+
+- **Board camp overlays (`hud/BoardCampTierAccents.tsx`, `BoardLiving.tsx`):** Added `listBoardCampTierAccents(state)` and `<BoardCampTierAccents>` (strictly `pointer-events: none !important;`, fog-respecting) rendering quiet isometric tile auras and miniature tier crests over revealed unflagged camps: calm sage-emerald leaf chevron for **Bandit lean-to** (`Safe`), subtle warm-ochre triangle for fair **Bandit camp**, and warmer ember-amber aura with pulsing ring & spark for **Bandit stockade** (`Hard`).
+- **Inspect & atlas tier pips (`hud/CampTierPip.tsx`, `ProvinceInspect.tsx`, `hud/AtlasProvinceCard.tsx`):** Added phrasing-only `<CampTierPip>` badges (`Safe` leaf, `Fair` tent, `Hard` palisade) and distinct left-border/row tints on `ProvinceInspect` (site badge, card border, tier/hint lines) and `AtlasProvinceCard` (card border + compact name-row pip).
+- **Unchanged invariants & accessibility:** Dedicated `hud/camp-tier-accents.css` only (`theme.css`, `inspect-card.css`, `atlas-living.css`, `board-living.css`, `packages/sim`, `packages/render`, and `server/` untouched); camera & hit-testing untouched; Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/CampTierAccents.test.tsx` (7 tests). Now: sim **398**, app **1563**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Camp tiers: safe lean-to and optional stockade
 
 - **Content (`packages/sim/src/content/camps.ts`):** `CAMP_TIERS` with `lean_to` (Safe), `camp` (Fair, the old behaviour), `stockade` (Hard). Each tier is data: guard, sure-win size, palisade, reward, siege reward, loss deaths. `formatCampLoot` gives "+6 wood +3 food".

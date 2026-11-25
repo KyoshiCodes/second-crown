@@ -1,0 +1,285 @@
+/* --- Camp Tier Living Accents (isolated CSS) ---
+ * Loaded from hud/CampTierPip.tsx and hud/BoardCampTierAccents.tsx.
+ * Leaves theme.css, inspect-card.css, atlas-living.css, and board-living.css untouched.
+ * Strict pointer-events: none !important on board overlays, rings, sparks, and pips.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-camp-safe-rgb: 110, 224, 166;
+  --sc-camp-fair-rgb: 226, 178, 92;
+  --sc-camp-hard-rgb: 245, 138, 68;
+}
+
+:root[data-chrome="night"] {
+  --sc-camp-safe-rgb: 104, 218, 178;
+  --sc-camp-fair-rgb: 212, 176, 112;
+  --sc-camp-hard-rgb: 242, 142, 86;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-camp-safe-rgb: 118, 214, 152;
+  --sc-camp-fair-rgb: 228, 176, 86;
+  --sc-camp-hard-rgb: 240, 124, 58;
+}
+
+/* ==========================================================================
+   2. Isometric Board SVG Camp Tier Overlays
+   ========================================================================== */
+.sc-board-camp-accents,
+.sc-board-camp-tier,
+.sc-board-camp-aura,
+.sc-board-camp-crest,
+.sc-board-camp-ring,
+.sc-board-camp-spark {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-board-camp-tier.is-lean_to .sc-board-camp-aura {
+  animation: sc-camp-safe-breathe 5.2s ease-in-out infinite;
+}
+
+.sc-board-camp-tier.is-camp .sc-board-camp-aura {
+  animation: sc-camp-fair-breathe 4.8s ease-in-out infinite;
+}
+
+.sc-board-camp-tier.is-stockade .sc-board-camp-aura {
+  animation: sc-camp-hard-breathe 3.8s ease-in-out infinite;
+}
+
+.sc-board-camp-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-camp-hard-ring 4.2s ease-out infinite;
+}
+
+.sc-board-camp-spark {
+  animation: sc-camp-hard-spark 3.4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   3. Living <CampTierPip> (Inspect & Atlas)
+   ========================================================================== */
+.sc-camp-tier-pip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  flex: none;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-camp-tier-pip.is-compact {
+  padding: 2px;
+  margin-right: 4px;
+}
+
+.sc-camp-tier-pip-icon {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  pointer-events: none !important;
+}
+
+.sc-camp-tier-pip.is-lean_to {
+  color: rgb(var(--sc-camp-safe-rgb));
+  background: rgba(var(--sc-camp-safe-rgb), 0.12);
+  border: 1px solid rgba(var(--sc-camp-safe-rgb), 0.42);
+}
+
+.sc-camp-tier-pip.is-lean_to .sc-camp-tier-pip-icon {
+  animation: sc-camp-safe-breathe 5.2s ease-in-out infinite;
+}
+
+.sc-camp-tier-pip.is-camp {
+  color: rgb(var(--sc-camp-fair-rgb));
+  background: rgba(var(--sc-camp-fair-rgb), 0.12);
+  border: 1px solid rgba(var(--sc-camp-fair-rgb), 0.4);
+}
+
+.sc-camp-tier-pip.is-camp .sc-camp-tier-pip-icon {
+  animation: sc-camp-fair-breathe 4.8s ease-in-out infinite;
+}
+
+.sc-camp-tier-pip.is-stockade {
+  color: rgb(var(--sc-camp-hard-rgb));
+  background: rgba(var(--sc-camp-hard-rgb), 0.14);
+  border: 1px solid rgba(var(--sc-camp-hard-rgb), 0.5);
+}
+
+.sc-camp-tier-pip.is-stockade .sc-camp-tier-pip-icon {
+  animation: sc-camp-hard-breathe 3.8s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   4. Inspect Card, Tier Line & Atlas Card Tint Distinction
+   ========================================================================== */
+.sc-inspect-card.is-camp-tier-lean_to {
+  border-left-color: rgba(var(--sc-camp-safe-rgb), 0.85);
+}
+
+.sc-inspect-card.is-camp-tier-camp {
+  border-left-color: rgba(var(--sc-camp-fair-rgb), 0.78);
+}
+
+.sc-inspect-card.is-camp-tier-stockade {
+  border-left-color: rgba(var(--sc-camp-hard-rgb), 0.92);
+  animation: sc-camp-inspect-hard-glow 4.6s ease-in-out infinite;
+}
+
+.sc-inspect-site.is-tier-lean_to,
+.sc-inspect-site.is-tier-camp,
+.sc-inspect-site.is-tier-stockade {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.sc-inspect-site.is-tier-lean_to {
+  color: rgb(var(--sc-camp-safe-rgb));
+}
+
+.sc-inspect-site.is-tier-camp {
+  color: rgb(var(--sc-camp-fair-rgb));
+}
+
+.sc-inspect-site.is-tier-stockade {
+  color: rgb(var(--sc-camp-hard-rgb));
+}
+
+.sc-inspect-camp-tier.is-lean_to,
+.sc-inspect-camp-tier.is-camp,
+.sc-inspect-camp-tier.is-stockade {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.sc-inspect-camp-tier.is-lean_to {
+  border-left: 2px solid rgba(var(--sc-camp-safe-rgb), 0.65);
+  background: rgba(var(--sc-camp-safe-rgb), 0.08);
+  color: rgb(var(--sc-camp-safe-rgb));
+}
+
+.sc-inspect-camp-tier.is-camp {
+  border-left: 2px solid rgba(var(--sc-camp-fair-rgb), 0.58);
+  background: rgba(var(--sc-camp-fair-rgb), 0.07);
+  color: rgb(var(--sc-camp-fair-rgb));
+}
+
+.sc-inspect-camp-tier.is-stockade {
+  border-left: 2px solid rgba(var(--sc-camp-hard-rgb), 0.78);
+  background: rgba(var(--sc-camp-hard-rgb), 0.1);
+  color: rgb(var(--sc-camp-hard-rgb));
+}
+
+.sc-inspect-camp-hint.is-lean_to {
+  color: rgba(var(--sc-camp-safe-rgb), 0.88);
+}
+
+.sc-inspect-camp-hint.is-stockade {
+  color: rgba(var(--sc-camp-hard-rgb), 0.92);
+}
+
+.sc-atlas-card.is-camp-tier-lean_to {
+  border-left: 3px solid rgba(var(--sc-camp-safe-rgb), 0.82);
+}
+
+.sc-atlas-card.is-camp-tier-camp {
+  border-left: 3px solid rgba(var(--sc-camp-fair-rgb), 0.76);
+}
+
+.sc-atlas-card.is-camp-tier-stockade {
+  border-left: 3px solid rgba(var(--sc-camp-hard-rgb), 0.9);
+}
+
+@keyframes sc-camp-safe-breathe {
+  0%, 100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+@keyframes sc-camp-fair-breathe {
+  0%, 100% {
+    opacity: 0.58;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes sc-camp-hard-breathe {
+  0%, 100% {
+    opacity: 0.66;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-camp-hard-ring {
+  0% {
+    opacity: 0.64;
+    transform: scale(0.88);
+  }
+  75%, 100% {
+    opacity: 0;
+    transform: scale(1.68);
+  }
+}
+
+@keyframes sc-camp-hard-spark {
+  0%, 100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.92;
+    transform: translateY(-2.4px);
+  }
+}
+
+@keyframes sc-camp-inspect-hard-glow {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-camp-hard-rgb), 0.14);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-camp-hard-rgb), 0.32);
+  }
+}
+
+/* ==========================================================================
+   5. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-board-camp-tier .sc-board-camp-aura,
+  .sc-board-camp-ring,
+  .sc-board-camp-spark,
+  .sc-camp-tier-pip-icon,
+  .sc-inspect-card.is-camp-tier-stockade {
+    animation: none !important;
+  }
+
+  .sc-board-camp-ring,
+  .sc-board-camp-spark {
+    display: none;
+  }
+}

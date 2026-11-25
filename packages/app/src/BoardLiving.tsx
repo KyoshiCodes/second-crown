@@ -138,6 +138,11 @@ import {
   type PrestigeCrownDescriptor,
   type PrestigeTier,
 } from "./hud/PrestigeCrownPip";
+import {
+  BoardCampTierAccents,
+  listBoardCampTierAccents,
+  type BoardCampTierPoint,
+} from "./hud/BoardCampTierAccents";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -961,6 +966,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.5. Living Keep Banners & Outpost Flags (fluttering realm heraldry) */}
         <BoardBanners state={state} />
 
+        {/* 5.55. Living Camp Tier Accents (safe lean-to vs fair camp vs hard stockade) */}
+        <BoardCampTierAccents state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1119,4 +1127,7 @@ export {
   type LivingCultureBannerProps,
   type CultureBannerDescriptor,
   type CultureBannerPattern,
+  BoardCampTierAccents,
+  listBoardCampTierAccents,
+  type BoardCampTierPoint,
 };

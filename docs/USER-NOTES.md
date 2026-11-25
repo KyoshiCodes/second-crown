@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Easy-to-spot safe vs hard camps on the board and inspect
+
+- **Distinct board markers:** Scouted **Safe** starter lean-tos now wear a calm sage-green tile glow and leaf crest on the board, **Fair** bandit camps show a warm ochre camp marker, and optional **Hard** stockades pulse softly in ember-amber with a small fortified ring.
+- **Matching inspect & atlas badges:** Clicking or hovering any scouted camp shows a matching `Safe`, `Fair`, or `Hard` icon and colored accent strip on the Inspect and Atlas cards.
+
 ## 2026-11-25 — Safe starter camp and a hard stockade
 
 - **Bandit lean-to (Safe).** The camp closest to your hold is now marked Safe. Send 3 or more militia and they always win, and nobody dies. Too few and they just come back. It pays +6 wood and +3 food. Flag it and the next closest camp becomes the new lean-to.
