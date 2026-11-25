@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — The board takes the stage
+
+- **Bigger board:** in Board view the map now grows to fill your screen. On a typical 1080p monitor it's about half again as tall as before. On small screens it stays the same size as before.
+- **Board focus frame:** in Board view, the map gets a soft gold edge with little corner brackets and a small "Board focus" tag in the top-left corner, so it's clear the board is the main thing on screen. Clicks go straight through it.
+- **No more jumping:** opening or closing a province card, or switching tabs, no longer scrolls the board out from under you.
+- Compact mode works the same as before.
+
 ## 2026-11-24 — Smoother folds & Compact board focus
 
 - **Softer opening and closing:** Collapsible panels now glide open and softly fold shut instead of snapping open or closed (respecting reduced-motion preferences).

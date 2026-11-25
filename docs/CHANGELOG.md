@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-24 — Board presence pass
+
+- **Bigger board on the Board band (`hud/board-focus.css`):** when the camera is on Board, `.sc-map-canvas-container` breaks out of the 760px panel: width `max(100%, min(1120px, 100vw - 56px, (100vh - 150px) × 14/9))`, centred with negative side margins. The canvas keeps its 14:9 shape (CSS scale only), so on a 1920×1080 browser the board goes from 760×488 to 1120×720 (+232px tall, about +48%). It never gets smaller than before. The inline `maxWidth: 900` moved to `.sc-board-frame` in CSS, and the Board band lifts that cap.
+- **Tighter chrome above the board (Board band only):** title 16px, subtitle on one line with ellipsis, tabs bar gap 6px / margin 6px, tab padding 5px 12px, status banner margin 4px. Saves roughly 10–25px depending on width.
+- **Focus treatment (`hud/BoardFocus.tsx`):** `<BoardFocusFrame visible={cameraBand === "board"} />` adds a soft edge (gold hairline, darkened inner rim, four gold corner brackets) and a small pill tag at the top left that reads "BOARD FOCUS", with a slowly breathing amber dot. Both are `aria-hidden` and `pointer-events: none !important`. Outside Compact the canvas also gets a faint gold outer glow; Compact keeps its own glow from `fold-polish.css`. Reduced motion turns off the fade-in and the breathing dot.
+- **Board stays put:** the province inspect card, study tree and tab body are wrapped in `.sc-below-board` with `overflow-anchor: none` (the board container keeps `overflow-anchor: auto`), so a card opening or closing below can't scroll the board away. On the Board band `.sc-below-board` has `min-height: 45vh`, so a tab switch or the Loading fallback can't shrink the page and drag the scroll position.
+- **Unchanged:** camera math, hit-testing (`getBoundingClientRect` scaling in render), Compact rules, `theme.css`, `packages/sim`, `server/`.
+- **Tests:** `hud/BoardFocus.test.tsx` (4). Now: sim **362**, app **1380**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-24 — Visual polish pass on collapsible Fold panels and Compact mode
 
 - **Soft open/close motion (`hud/Fold.tsx`, `hud/fold-polish.css`):** Wrapped `.sc-fold-body` inside `.sc-fold-reveal` (`display: grid`) with `220ms` cubic-bezier grid-row + opacity + `-4px` glide-in opening and a `180ms` (`FOLD_CLOSE_MS`) visual close fade before unmounting on close, keeping reduced-motion guards (`@media (prefers-reduced-motion: reduce)`) and zero layout snap.

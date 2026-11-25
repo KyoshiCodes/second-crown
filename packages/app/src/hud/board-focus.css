@@ -1,0 +1,168 @@
+/* Board presence pass (isolated; do not touch theme.css).
+ * 1. Board band: the board frame breaks out of the 760px panel and grows with
+ *    the viewport, keeping the canvas 14:9 (CSS scale only; camera math and
+ *    hit-testing read getBoundingClientRect, so they follow).
+ * 2. Board band: tighter chrome above the board.
+ * 3. Soft edge frame + "Board focus" tag (pointer-events none).
+ * 4. Content below the board never moves it (scroll anchoring + min-height).
+ */
+
+/* ---------- 1. Board viewport size ---------- */
+.sc-board-frame {
+  max-width: 900px;
+}
+
+.sc-band-board .sc-map-canvas-container {
+  /* Never smaller than the panel; otherwise as big as the viewport allows:
+     at most 1120px wide, inside the window, and short enough that the board
+     plus the sticky chrome bar fits on one screen. */
+  --sc-board-w: max(
+    100%,
+    min(1120px, calc(100vw - 56px), calc((100vh - 150px) * 14 / 9))
+  );
+  width: var(--sc-board-w);
+  margin-left: calc((100% - var(--sc-board-w)) / 2);
+  margin-right: calc((100% - var(--sc-board-w)) / 2);
+  margin-bottom: 10px;
+}
+
+.sc-band-board .sc-board-frame {
+  max-width: none;
+}
+
+/* ---------- 2. Tighter chrome above the board ---------- */
+.sc-band-board .sc-head-row .sc-title {
+  font-size: 16px !important;
+}
+
+.sc-band-board .sc-subtitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-band-board .sc-status-banner {
+  margin-bottom: 4px !important;
+}
+
+.sc-band-board .sc-tabs-bar {
+  gap: 6px !important;
+  margin-bottom: 6px !important;
+}
+
+.sc-band-board .sc-tabs-bar .sc-tab {
+  padding: 5px 12px;
+}
+
+/* ---------- 3. Focus treatment ---------- */
+.sc-board-focus-edge,
+.sc-board-focus-tag {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-board-focus-edge {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 8px;
+  /* Gold hairline, soft darkened rim, and four corner brackets. */
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 167, 44, 0.42),
+    inset 0 0 26px 4px rgba(4, 3, 2, 0.42);
+  background:
+    linear-gradient(rgba(254, 240, 138, 0.7), rgba(254, 240, 138, 0.7)) top 6px left 6px / 18px 2px no-repeat,
+    linear-gradient(rgba(254, 240, 138, 0.7), rgba(254, 240, 138, 0.7)) top 6px left 6px / 2px 18px no-repeat,
+    linear-gradient(rgba(254, 240, 138, 0.7), rgba(254, 240, 138, 0.7)) top 6px right 6px / 18px 2px no-repeat,
+    linear-gradient(rgba(254, 240, 138, 0.7), rgba(254, 240, 138, 0.7)) top 6px right 6px / 2px 18px no-repeat,
+    linear-gradient(rgba(254, 240, 138, 0.7), rgba(254, 240, 138, 0.7)) bottom 6px left 6px / 18px 2px no-repeat,
+    linear-gradient(rgba(254, 240, 138, 0.7), rgba(254, 240, 138, 0.7)) bottom 6px left 6px / 2px 18px no-repeat,
+    linear-gradient(rgba(254, 240, 138, 0.7), rgba(254, 240, 138, 0.7)) bottom 6px right 6px / 18px 2px no-repeat,
+    linear-gradient(rgba(254, 240, 138, 0.7), rgba(254, 240, 138, 0.7)) bottom 6px right 6px / 2px 18px no-repeat;
+  animation: sc-board-focus-in 320ms ease-out both;
+}
+
+.sc-band-board .sc-board-frame .sc-map-canvas {
+  border-color: rgba(200, 150, 62, 0.75) !important;
+}
+
+/* Outer glow only outside Compact: Compact keeps its own glow (fold-polish.css). */
+:root:not(.sc-compact) .sc-band-board .sc-board-frame .sc-map-canvas {
+  box-shadow:
+    0 0 0 1px rgba(212, 167, 44, 0.22),
+    0 10px 28px rgba(0, 0, 0, 0.55),
+    0 0 18px rgba(212, 167, 44, 0.12);
+}
+
+.sc-board-focus-tag {
+  position: absolute;
+  top: 10px;
+  left: 30px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px 1px 6px;
+  border: 1px solid rgba(200, 150, 62, 0.6);
+  border-radius: 999px;
+  background: rgba(18, 12, 8, 0.78);
+  color: #fef08a;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 16px;
+  opacity: 0.85;
+  animation: sc-board-focus-in 320ms ease-out both;
+}
+
+.sc-board-focus-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f5b942;
+  box-shadow: 0 0 6px rgba(245, 185, 66, 0.8);
+  animation: sc-board-focus-breathe 3.6s ease-in-out infinite;
+}
+
+@keyframes sc-board-focus-in {
+  from { opacity: 0; }
+}
+
+@keyframes sc-board-focus-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 560px) {
+  .sc-board-focus-tag {
+    top: 6px;
+    left: 24px;
+    font-size: 9.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-board-focus-edge,
+  .sc-board-focus-tag,
+  .sc-board-focus-dot {
+    animation: none !important;
+  }
+}
+
+/* ---------- 4. Content below never shoves the board ---------- */
+/* Scroll anchoring: the board is the anchor, never the inspect card or tab
+   body, so a card opening or closing below cannot scroll the board away. */
+.sc-map-canvas-container {
+  overflow-anchor: auto;
+}
+
+.sc-below-board {
+  overflow-anchor: none;
+}
+
+/* Reserve height below the board so swapping tabs, the Loading fallback or a
+   closing inspect card cannot shrink the page and drag the scroll position. */
+.sc-band-board .sc-below-board {
+  min-height: 45vh;
+}

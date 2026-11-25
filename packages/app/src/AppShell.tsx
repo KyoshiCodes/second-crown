@@ -21,6 +21,7 @@ import { type SeasonName } from "./music";
 import { sfx } from "./sfx";
 import { ActionFlash } from "./hud/ActionFlash";
 import { MusicReactiveLayer } from "./hud/MusicReactiveLayer";
+import { BoardFocusFrame } from "./hud/BoardFocus";
 
 // Tab panels load in their own chunks so the board paints first.
 const KingdomTab = React.lazy(() => import("./tabs/KingdomTab").then((m) => ({ default: m.KingdomTab })));
@@ -199,7 +200,7 @@ export function AppShell() {
             alignItems: "center",
           }}
         >
-          <div style={{ position: "relative", maxWidth: 900, width: "100%" }}>
+          <div className="sc-board-frame" style={{ position: "relative", width: "100%" }}>
             <canvas
               ref={canvasRef}
               className="sc-map-canvas"
@@ -207,6 +208,7 @@ export function AppShell() {
             />
             <BoardLiving state={state} selectedId={selectedProvinceId} visible={cameraBand === "board"} />
             <BoardStatus state={state} selectedId={selectedProvinceId} visible={cameraBand === "board"} />
+            <BoardFocusFrame visible={cameraBand === "board"} />
             <div
               className="sc-map-controls"
               style={{
@@ -236,6 +238,7 @@ export function AppShell() {
           </div>
         </div>
         {/* Below the board: the inspected province, then the study tree, then the tab body. */}
+        <div className="sc-below-board">
         {tab === "kingdom" ? (
           <ProvinceInspect
             state={state}
@@ -280,6 +283,7 @@ export function AppShell() {
             />
           )}
           </React.Suspense>
+        </div>
         </CultureContext.Provider>
       </div>
     </div>

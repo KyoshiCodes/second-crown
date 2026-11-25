@@ -1,3 +1,11 @@
+## 2026-11-24 — app / board presence pass
+
+- **`hud/BoardFocus.tsx`:** `BoardFocusFrame({ visible })` returns null off Board; on Board it renders `.sc-board-focus-edge` (absolute inset 0, z 3) and `.sc-board-focus-tag` (z 4; map controls stay at z 5). Imports `./board-focus.css`. Rendered in `AppShell` inside the board frame, after `BoardStatus`. It uses its own elements, not `::before`/`::after` on the frame, because `board-music-lighting.css` and `music-reactive.css` already use those pseudo-elements.
+- **`AppShell.tsx`:** the inner board div is `className="sc-board-frame"` (the inline `maxWidth: 900` moved to CSS). Everything below the board (inspect card, study tree Fold, Suspense tab body) is wrapped in `<div className="sc-below-board">`.
+- **`hud/board-focus.css`:** sizing is a CSS var `--sc-board-w` on `.sc-band-board .sc-map-canvas-container`, using `width` plus symmetric negative `margin-left/right` (the percentages resolve against the panel width in both). `100vw - 56px` leaves room for a desktop scrollbar so it doesn't scroll sideways. `(100vh - 150px) × 14/9` keeps the board plus the sticky chrome on one screen. Never set `aspect-ratio` or a height here: the Pixi canvas is 560×360 and `getCanvasCoords` scales X and Y separately, so a changed aspect would stretch the picture (the test checks this).
+- **Scroll anchoring:** `.sc-below-board { overflow-anchor: none }` takes the content below out of anchor selection, so Chrome/Firefox anchor on the board instead. Safari ignores `overflow-anchor`; the `45vh` min-height still covers the scroll-clamp case there.
+- **Verification:** `BoardFocus.test.tsx` (4 tests). `npm test` → sim 362, app 1380, server 158; app build clean. Not opened in a browser yet.
+
 ## 2026-11-24 — app / collapsible Fold visual polish & Compact board focus
 
 - **Components (`packages/app/src/hud/Fold.tsx`):**
