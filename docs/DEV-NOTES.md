@@ -1,3 +1,9 @@
+## 2026-11-24 — app / Ledger of Crowns fold
+
+- **`LedgerPanel.tsx`:** the old `<h3>Ledger of Crowns</h3>` fragment is now `<Fold id="crown-ledger" noisy title="Ledger of Crowns" summary={ledgerSummary(rows)}>`. `ledgerSummary(rows)` (exported) relies on `listLedgerWithSaveAudit` being newest-first: `"No entries yet"` / `"1 entry · …"` / `"N entries · …"`, preview cut at 48 chars with `…`. Body (list / empty line) unmounts when closed, so `LedgerCard` living effects stop while folded.
+- **CSS:** `layout-priority.css` zeroes the list / empty-line margins inside `.sc-fold[data-fold="crown-ledger"]`. `ledger-card.css`, `ledger-living.css`, `theme.css` unchanged.
+- **Tests:** `LedgerPanel.test.tsx` (summary text, open/closed render, noisy fold after seen). `save.test.tsx` still finds "Ledger of Crowns" (Fold title always renders). sim 362, app 1369, server 158; build clean.
+
 ## 2026-11-24 — app / layout priority pass (board first, Fold, Compact)
 
 - **`hud/Fold.tsx`:** `<Fold id title summary? noisy? className?>`. Renders `section.sc-fold[data-fold=id]` with a `button.sc-fold-head[aria-expanded]`; the body is **unmounted** when closed (children's effects stop while folded). `initialFoldOpen(id, noisy)`: saved `sc-fold:<id>` wins; else `sc-compact=1` → closed; else noisy + `sc-fold-seen:<id>` → closed; else open. The seen flag is written on mount. All storage access is guarded, so node-env tests (no `localStorage`) render folds open and existing `KingdomTab` render tests still see every line.

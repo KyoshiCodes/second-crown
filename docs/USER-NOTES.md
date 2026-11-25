@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — The Ledger folds too
+
+- On the **Crown** tab, click the **Ledger of Crowns** title bar (▾ / ▸) to fold or unfold it. Your choice is remembered.
+- It starts folded after your first visit. Folded, the title bar still shows how many entries there are and the newest one.
+- The **Compact** button folds it along with everything else.
+
 ## 2026-11-24 — More room for the board
 
 - The map now sits right under your stores, the primer and the tabs. The study tree and the province card moved **below** the map.

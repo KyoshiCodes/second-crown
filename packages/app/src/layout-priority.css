@@ -173,3 +173,10 @@
 .sc-fold[data-fold="kingdom-people"] .sc-fold-body > h3:first-child {
   display: none;
 }
+
+/* ---------- Ledger of Crowns fold (Crown tab) ---------- */
+.sc-fold[data-fold="crown-ledger"] .sc-fold-body > .sc-ledger-card-list,
+.sc-fold[data-fold="crown-ledger"] .sc-fold-body > .sc-ledger-card-empty {
+  margin-top: 0;
+  margin-bottom: 0;
+}

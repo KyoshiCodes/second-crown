@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-24 — Ledger of Crowns folds
+
+- **`LedgerPanel.tsx`:** the Crown tab's Ledger of Crowns is now a `Fold` (`id="crown-ledger"`, noisy). Click the "Ledger of Crowns" title bar to open / close; choice saved in `sc-fold:crown-ledger`; starts folded after the first visit. Folded summary: `N entries · <newest entry>` (trimmed at 48 chars) or "No entries yet". Follows the Compact toggle like the other folds.
+- **Unchanged:** ledger data, merge with save audit, `LedgerCard` rows and quill pips. No `packages/sim` or `server/` edits; `theme.css` untouched (small margin rule in `layout-priority.css`).
+- **Tests:** `LedgerPanel.test.tsx` (3). Now: sim 362, app 1369, server 158, app build clean.
+
 ## 2026-11-24 — Layout priority pass: board first, foldable panels, Compact mode
 
 - **Board first (`AppShell.tsx`):** above the board now: one header row (title + Pause / speed / music toggle), the hold subtitle, the stores strip, the primer, the status line, the tab bar. The **province inspect card** and the **study tree** (`ResearchBar`, moved out of `TutorialBanner.tsx`) now render **below** the board, before the tab body.
