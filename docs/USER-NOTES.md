@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Global Chat (preview)
+
+- **Global Chat box:** a small "Global Chat" panel now sits in the bottom-right corner on every tab. Click its title bar to open or close it.
+- **Preview only:** you can type and press Send (or Enter), but for now your message only shows on your own screen and is gone after a reload. Other players can't see it yet; that comes when the server side is hooked up.
+
 ## 2026-11-24 — News card polish & "New" badge
 
 - **Living news cards:** Game News cards on the 👑 Crown tab now have a softly glowing pip beside each title, a miniature stamped date seal, and a gentle hover lift.

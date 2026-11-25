@@ -1,3 +1,12 @@
+## 2026-11-25 — app / Global Chat panel (local only)
+
+- **Files:** `packages/app/src/chat/globalChat.ts` (data + helpers), `chat/GlobalChatPanel.tsx` (UI), `chat/global-chat.css`, `chat/GlobalChatPanel.test.tsx` (7 tests). Mounted as `<GlobalChatPanel />` as the last child of `.sc-shell` in `AppShell.tsx`, so it is outside the tab Suspense and the `CultureContext` provider.
+- **Data:** `ChatMessage = { id, author, text, at (epoch ms), local? }`. `SEED_CHAT` (3), `CHAT_MAX_LEN = 240`, `CHAT_MAX_MESSAGES = 50`. Helpers: `cleanChatText` (collapse whitespace, trim, clamp), `appendChat` (pure, caps length), `makeLocalMessage(author, raw, now)` (null on blank), `formatChatTime` (HH:MM local), `chatSummary`.
+- **Send flow:** form `onSubmit` → `makeLocalMessage("You", draft)` → `setMessages(appendChat(...))` → clear input → `void sendToServer(msg)`. State is component-local `useState`; not persisted, not in the save.
+- **Server seam:** `sendToServer(msg): Promise<boolean>` in `globalChat.ts` is a no-op returning `false`, with the intended `fetch("/api/chat", { method: "POST", ... })` shape in its comment. When wiring it: add the endpoint in `server/index.mjs`, fill in `sendToServer`, and add a poll/stream that replaces local messages with the server list (drop `local` on echo). Chat must stay out of `packages/sim`.
+- **Placement:** `.sc-chat-float` is `position: fixed; right/bottom: 12px; z-index: 110; pointer-events: none`, with `pointer-events: auto` on the fold itself so the transparent wrapper never eats board clicks. The fold uses `noisy` so returning players don't get the board covered.
+- **Keys:** the only global key handlers (KeepInterior, MusicPanel) listen for Escape, so typing in the chat input does not trigger game shortcuts.
+
 ## 2026-11-24 — app / living news polish & server readiness
 
 - **Unread tracking (`packages/app/src/news/newsState.ts`, `NewsUnreadBadge.tsx`, `AppShell.tsx`):**

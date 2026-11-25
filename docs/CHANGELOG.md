@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-25 — Global Chat panel (local only)
+
+- **New floating `Fold#global-chat` "Global Chat" (`chat/GlobalChatPanel.tsx`):** fixed to the bottom-right corner (`z-index: 110`, under the sticky chrome bar at 120), 320px wide (narrower on small screens), on every tab. Mounted once at the end of `AppShell.tsx`. Folded bar reads `N · <last author>`. `noisy`, so it starts open on the first visit and closed after that; open/closed is remembered in `sc-fold:global-chat` and it follows Compact.
+- **Messages:** 3 seed messages (`SEED_CHAT` in `chat/globalChat.ts`), a text input (max 240 chars) and a Send button (disabled while blank; Enter also sends). The list scrolls (max 220px) and keeps the newest 50.
+- **Local send:** Send cleans the text, appends it to component state as a `local` message (gold left edge), clears the input, then calls `sendToServer(msg)`, a placeholder that does nothing and resolves `false`. No fetch, nothing in the save; chat resets on reload.
+- **Styles (`chat/global-chat.css`):** placement, list and form on top of `.sc-fold` / `.sc-work-card`, using the chrome palette variables so Dusk / Night / Parchment all apply. `theme.css` untouched.
+- **Unchanged:** `packages/sim`, `packages/render`, `server/`, save format.
+- **Tests:** `chat/GlobalChatPanel.test.tsx` (7). Now: sim **362**, app **1408**, server **158** (+1 skip), app build clean.
+
 ## 2026-11-24 — Living news polish & light server readiness pass
 
 - **News card living accents (`news/GameNewsPanel.tsx`, `news/news-living.css`):** Added a breathing `.sc-news-pip` beside each title (warm gold for Major, slate-silver for Minor, extra halo on the newest card), a miniature stamped `.sc-news-date-seal` wax emblem around `<time>`, and a gentle `-1px` hover lift with corner sheen (`::after`, `pointer-events: none !important;`).

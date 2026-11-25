@@ -1,0 +1,123 @@
+/* --- Global Chat (floating, bottom-right). Loaded only from GlobalChatPanel.tsx.
+   Card look comes from .sc-work-card and .sc-fold; this file adds placement, list and form.
+   Do not touch theme.css. --- */
+
+.sc-chat-float {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 110; /* above board and fold vignette, below the sticky chrome bar (120) */
+  width: min(320px, calc(100vw - 24px));
+  pointer-events: none; /* only the panel itself takes clicks */
+}
+
+.sc-chat-float > .sc-fold.sc-chat-fold {
+  margin: 0;
+  pointer-events: auto;
+  background: var(--chrome-bar-bg-open, rgba(10, 8, 6, 0.96));
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.sc-chat-list {
+  list-style: none;
+  margin: 2px 0 6px;
+  padding: 0 2px 0 0;
+  display: grid;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sc-chat-list > .sc-work-card.sc-chat-msg {
+  margin: 0;
+  padding: 4px 8px 5px;
+  gap: 1px;
+}
+.sc-chat-msg.is-local {
+  border-left-color: var(--chrome-btn-border-hover, #d4a72c);
+}
+
+.sc-chat-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sc-chat-author {
+  font-weight: 600;
+  color: var(--chrome-accent, #fef08a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sc-chat-time {
+  font-size: 10.5px;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+.sc-chat-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  opacity: 0.92;
+}
+
+.sc-chat-form {
+  display: flex;
+  gap: 6px;
+}
+.sc-chat-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 5px 8px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--chrome-btn-text, #f5ead8);
+  background: var(--chrome-btn-bg, #1c1814);
+  border: 1px solid var(--chrome-btn-border, #6b542e);
+  border-radius: 5px;
+}
+.sc-chat-input:focus {
+  outline: none;
+  border-color: var(--chrome-btn-border-hover, #d4a72c);
+}
+.sc-chat-send {
+  flex: 0 0 auto;
+  padding: 5px 12px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--chrome-btn-text, #f5ead8);
+  background: linear-gradient(180deg, var(--chrome-btn-bg-hover, #2a2219), var(--chrome-btn-bg, #1c1814));
+  border: 1px solid var(--chrome-btn-border, #6b542e);
+  border-radius: 5px;
+  cursor: pointer;
+}
+.sc-chat-send:hover:not(:disabled) {
+  border-color: var(--chrome-btn-border-hover, #d4a72c);
+}
+.sc-chat-send:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sc-chat-note {
+  margin: 4px 0 2px;
+  font-size: 10.5px;
+  opacity: 0.55;
+}
+
+:root.sc-compact .sc-chat-list {
+  max-height: 160px;
+}
+
+@media (max-width: 640px) {
+  .sc-chat-float {
+    right: 8px;
+    bottom: 8px;
+  }
+  .sc-chat-list {
+    max-height: 150px;
+  }
+}
