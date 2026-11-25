@@ -23,6 +23,7 @@ import { ActionFlash } from "./hud/ActionFlash";
 import { MusicReactiveLayer } from "./hud/MusicReactiveLayer";
 import { BoardFocusFrame } from "./hud/BoardFocus";
 import { BandToggle, HoldFocusTag } from "./hud/HoldDensity";
+import { NewsUnreadBadge } from "./news/NewsUnreadBadge";
 
 // Tab panels load in their own chunks so the board paints first.
 const KingdomTab = React.lazy(() => import("./tabs/KingdomTab").then((m) => ({ default: m.KingdomTab })));
@@ -165,6 +166,7 @@ export function AppShell() {
                 <span className="sc-tab-icon">{TAB_ICON[id]}</span>
                 <span>{TAB_LABEL[id]}</span>
                 {id === "war" && <SlotPips state={state} compact />}
+                {id === "crown" && <NewsUnreadBadge />}
                 {isActive && (
                   <span className="sc-tab-lantern" title="Active lantern tick" aria-hidden="true">
                     <svg

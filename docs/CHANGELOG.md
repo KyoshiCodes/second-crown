@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-24 — Living news polish & light server readiness pass
+
+- **News card living accents (`news/GameNewsPanel.tsx`, `news/news-living.css`):** Added a breathing `.sc-news-pip` beside each title (warm gold for Major, slate-silver for Minor, extra halo on the newest card), a miniature stamped `.sc-news-date-seal` wax emblem around `<time>`, and a gentle `-1px` hover lift with corner sheen (`::after`, `pointer-events: none !important;`).
+- **"What's new" unread tab badge (`news/newsState.ts`, `news/NewsUnreadBadge.tsx`, `AppShell.tsx`):** Tracks the newest seen entry id in `localStorage` (`sc-news-seen-id`, broadcast via `sc-news-seen-change`). Renders a compact `New` pill badge with a softly pulsing dot on the Crown tab whenever unread items exist, and marks news seen on Crown tab mount.
+- **Server-feed placeholder (`news/gameNews.ts`):** Added `NEWS_ENDPOINT_PLACEHOLDER: string | null = null` and `getActiveNewsFeed()` (currently returning local `GAME_NEWS`) with comments marking the future server-fetched endpoint seam without issuing any network requests.
+- **Unchanged invariants & accessibility:** Dedicated CSS (`theme.css`, `game-news.css`, `packages/sim`, `packages/render`, and `server/` untouched); `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards across Dusk, Night, and Parchment themes.
+- **Tests:** Added `packages/app/src/news/NewsLivingPolish.test.tsx` (4 tests). Now: sim **362**, app **1401**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-24 — Game News panel (Crown tab)
 
 - **New `Fold#crown-news` "Game News" at the top of the Crown tab (`news/GameNewsPanel.tsx`):** a list of short update cards, newest first. Each card shows a title, a Major / Minor tag, the date ("Nov 24, 2026") and 2–4 short lines. Folded title bar reads `N updates · <newest title>`. Not `noisy`, so it starts open; open/closed is remembered in `sc-fold:crown-news` and it follows Compact like every other fold.

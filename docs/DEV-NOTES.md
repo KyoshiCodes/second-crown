@@ -1,3 +1,14 @@
+## 2026-11-24 — app / living news polish & server readiness
+
+- **Unread tracking (`packages/app/src/news/newsState.ts`, `NewsUnreadBadge.tsx`, `AppShell.tsx`):**
+  - Exported `NEWS_SEEN_KEY` (`"sc-news-seen-id"`), `NEWS_SEEN_EVENT` (`"sc-news-seen-change"`), `latestNewsId`, `readLastSeenNewsId`, `countUnreadNews`, `hasUnreadNews`, `markNewsSeen`, and `useUnreadNews`.
+  - Mounted `<NewsUnreadBadge />` inside the Crown tab button in `AppShell.tsx`; `GameNewsPanel` invokes `markNewsSeen` on mount when rendering the live feed (`!props.news`).
+- **Card accents & dedicated CSS (`packages/app/src/news/GameNewsPanel.tsx`, `news-living.css`):**
+  - Added `.sc-news-pip` and `.sc-news-date-seal` (plus `::after` corner sheen and `-1px` hover lift) without introducing `"sc-news-card"` inside child class names (`GameNewsPanel.test.tsx` counts `sc-news-card` occurrences). Strict `pointer-events: none !important;` and Dusk/Night/Parchment + `@media (prefers-reduced-motion: reduce)` guards. Zero edits to `theme.css`, `game-news.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Server-feed placeholder (`packages/app/src/news/gameNews.ts`):**
+  - Added `NEWS_ENDPOINT_PLACEHOLDER = null` and `getActiveNewsFeed()` returning `GAME_NEWS` synchronously (zero `fetch()` calls).
+- **Verification (`packages/app/src/news/NewsLivingPolish.test.tsx`):** 4 tests passing (`npm test` -> sim 362, app 1401, server 158; `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-24 — app / Game News panel
 
 - **Where the news lives:** `packages/app/src/news/gameNews.ts` exports `GAME_NEWS: readonly NewsEntry[]` (`{ id, date: "YYYY-MM-DD", kind: "major" | "minor", title, body: string[] }`). To post news, add an entry at the top of the array; keep `body` to 2–4 lines (the test enforces 2–4 and unique ids). No server, no fetch, nothing in the save.

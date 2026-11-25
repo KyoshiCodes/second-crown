@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — News card polish & "New" badge
+
+- **Living news cards:** Game News cards on the 👑 Crown tab now have a softly glowing pip beside each title, a miniature stamped date seal, and a gentle hover lift.
+- **"What's new" indicator:** When there are updates you haven't opened yet, a small pulsing **New** badge appears on the Crown tab and clears as soon as you visit it.
+
 ## 2026-11-24 — Game News
 
 - **Game News on the Crown tab:** a new "Game News" panel at the top of the 👑 Crown tab lists recent updates, newest first. Each one has a date, a short title, a Major or Minor tag, and a few lines on what changed.

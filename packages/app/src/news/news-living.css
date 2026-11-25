@@ -1,0 +1,209 @@
+/* --- Living News Polish (isolated CSS) ---
+ * Loaded from GameNewsPanel.tsx and NewsUnreadBadge.tsx. Never touches theme.css or game-news.css.
+ * Strict pointer-events: none !important on pips, date seals, hover sheen, and tab badge.
+ * Respects html[data-chrome="dusk" | "night" | "parchment"] and prefers-reduced-motion.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-news-major-rgb: 232, 184, 78;
+  --sc-news-minor-rgb: 148, 163, 184;
+  --sc-news-seal-border: rgba(228, 178, 72, 0.34);
+  --sc-news-seal-bg: rgba(228, 178, 72, 0.09);
+  --sc-news-badge-bg: rgba(212, 167, 44, 0.22);
+  --sc-news-badge-text: #fef08a;
+  --sc-news-badge-border: rgba(228, 178, 72, 0.62);
+}
+
+:root[data-chrome="night"] {
+  --sc-news-major-rgb: 224, 188, 108;
+  --sc-news-minor-rgb: 148, 174, 212;
+  --sc-news-seal-border: rgba(148, 174, 212, 0.32);
+  --sc-news-seal-bg: rgba(122, 162, 212, 0.11);
+  --sc-news-badge-bg: rgba(122, 162, 212, 0.22);
+  --sc-news-badge-text: #e2e8f0;
+  --sc-news-badge-border: rgba(168, 198, 232, 0.56);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-news-major-rgb: 218, 158, 52;
+  --sc-news-minor-rgb: 152, 134, 108;
+  --sc-news-seal-border: rgba(218, 158, 52, 0.36);
+  --sc-news-seal-bg: rgba(218, 158, 52, 0.10);
+  --sc-news-badge-bg: rgba(218, 158, 52, 0.24);
+  --sc-news-badge-text: #f8e6bd;
+  --sc-news-badge-border: rgba(224, 176, 96, 0.65);
+}
+
+/* ==========================================================================
+   2. News Cards: Gentle Hover Lift & Corner Sheen
+   ========================================================================== */
+.sc-news-list > .sc-work-card.sc-news-card {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 170ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.sc-news-list > .sc-work-card.sc-news-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none !important;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  background: radial-gradient(
+    ellipse 70% 55% at 96% 8%,
+    rgba(var(--sc-news-major-rgb), 0.12) 0%,
+    transparent 70%
+  );
+}
+
+.sc-news-list > .sc-work-card.sc-news-card.is-minor::after {
+  background: radial-gradient(
+    ellipse 70% 55% at 96% 8%,
+    rgba(var(--sc-news-minor-rgb), 0.10) 0%,
+    transparent 70%
+  );
+}
+
+.sc-news-list > .sc-work-card.sc-news-card:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.32),
+    0 0 0 1px rgba(var(--sc-news-minor-rgb), 0.24);
+}
+
+.sc-news-list > .sc-work-card.sc-news-card.is-major:hover {
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.36),
+    0 0 0 1px rgba(var(--sc-news-major-rgb), 0.34);
+}
+
+.sc-news-list > .sc-work-card.sc-news-card:hover::after {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   3. Living Card Pip & Subtle Date Seal
+   ========================================================================== */
+.sc-news-pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  align-self: center;
+  pointer-events: none !important;
+  user-select: none;
+  background: rgb(var(--sc-news-minor-rgb));
+  box-shadow: 0 0 5px rgba(var(--sc-news-minor-rgb), 0.45);
+  animation: sc-news-pip-breathe 4.6s ease-in-out infinite;
+}
+
+.sc-news-pip.is-major {
+  background: rgb(var(--sc-news-major-rgb));
+  box-shadow: 0 0 7px rgba(var(--sc-news-major-rgb), 0.62);
+  animation-duration: 3.4s;
+}
+
+.sc-news-pip.is-latest {
+  box-shadow: 0 0 8px rgba(var(--sc-news-major-rgb), 0.72);
+}
+
+.sc-news-date-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px 1px 4px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-news-seal-border);
+  background: var(--sc-news-seal-bg);
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-news-seal-icon {
+  display: block;
+  flex: none;
+  pointer-events: none !important;
+  opacity: 0.86;
+}
+
+@keyframes sc-news-pip-breathe {
+  0%, 100% {
+    opacity: 0.66;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+/* ==========================================================================
+   4. Crown Tab Unread "What's new" Badge
+   ========================================================================== */
+.sc-news-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 2px;
+  padding: 1px 6px 1px 5px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-news-badge-border);
+  background: var(--sc-news-badge-bg);
+  color: var(--sc-news-badge-text);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-news-tab-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 5px currentColor;
+  pointer-events: none !important;
+  animation: sc-news-dot-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes sc-news-dot-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.88);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+/* ==========================================================================
+   5. Reduced Motion Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-news-list > .sc-work-card.sc-news-card,
+  .sc-news-list > .sc-work-card.sc-news-card::after,
+  .sc-news-pip,
+  .sc-news-tab-dot {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .sc-news-list > .sc-work-card.sc-news-card:hover {
+    transform: none;
+  }
+}

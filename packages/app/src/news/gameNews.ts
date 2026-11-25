@@ -110,3 +110,18 @@ export function formatNewsDate(iso: string): string {
   const month = months[Number(m[2]) - 1];
   return month ? `${month} ${Number(m[3])}, ${m[1]}` : iso;
 }
+
+/**
+ * Placeholder for a future server-fetched news endpoint (e.g. "/api/news").
+ * Deliberately null and unused for now: keep client news local until a server feed is added.
+ */
+export const NEWS_ENDPOINT_PLACEHOLDER: string | null = null;
+
+/**
+ * Active news feed accessor.
+ * Currently returns local GAME_NEWS directly; swap in cached/fetched server entries
+ * here once NEWS_ENDPOINT_PLACEHOLDER is wired up.
+ */
+export function getActiveNewsFeed(): readonly NewsEntry[] {
+  return GAME_NEWS;
+}
