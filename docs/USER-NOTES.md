@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Study text & quieter chat on new games
+
+- **Logistics text updated:** The Kingdom Realm notes line for known studies now correctly lists **+15% gold** (matching the actual income bonus) instead of +8%.
+- **Sample chat starts tucked away:** On a fresh hold with only placeholder messages, the bottom-right Global Chat bar now starts folded so the corner stays clear until you open it or real messages arrive.
+
 ## 2026-11-25 — Fixes: offline income and study refunds
 
 - **Offline income now matches playing live.** If a study finished or a decree ran out while you were away, the catch-up used to pay the wrong rate for the rest of that stretch (too little after Crop Rotation, too much after Harvest Rite). It now switches at the exact moment, like live play.

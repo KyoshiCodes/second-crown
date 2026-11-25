@@ -60,7 +60,7 @@ describe("own messages", () => {
 
 describe("empty state and footer", () => {
   it("shows the quiet-hall empty state with a restore button, and disables Clear", () => {
-    const html = renderToStaticMarkup(<GlobalChatPanel initial={[]} now={NOW} />);
+    const html = renderToStaticMarkup(<GlobalChatPanel defaultOpen initial={[]} now={NOW} />);
     expect(html).toContain("sc-chat-empty");
     expect(html).toContain("The hall is quiet.");
     expect(html).toContain("Restore sample messages");
@@ -69,7 +69,7 @@ describe("empty state and footer", () => {
   });
 
   it("shows the Local badge note and an enabled Clear when there are messages", () => {
-    const html = renderToStaticMarkup(<GlobalChatPanel now={NOW} />);
+    const html = renderToStaticMarkup(<GlobalChatPanel defaultOpen now={NOW} />);
     expect(html).toContain("sc-chat-note-badge");
     expect(html).toContain("Only you see these. Chat clears on reload.");
     expect(html).toContain(">Clear</button>");

@@ -1,3 +1,12 @@
+## 2026-11-25 — app / P1 hygiene: Logistics label & default-folded sample chat
+
+- **Study label fix (`packages/app/src/StudyLine.tsx`):** Exported `STUDY_YIELD_LABELS`; changed `logistics` to `"+15% gold, +50 store, +1 column"`. `StudyLine.test.tsx` (2 tests) verifies live yield/storage/discount deltas against `computeIncomePerSecond`, `storageCap`, `trainCostMultiplier`, and `RESEARCH` (all other study labels already match).
+- **Default-folded sample chat (`packages/app/src/hud/Fold.tsx`, `chat/GlobalChatPanel.tsx`):**
+  - `initialFoldOpen(id, noisy, defaultOpen = true)` falls back to `defaultOpen` only after explicit `sc-fold:<id>`, `sc-compact`, and `noisy && seen` checks.
+  - `GlobalChatPanel` exports `hasRealChatMessages(messages)` (true when any message id is outside `SEED_CHAT`) and passes `defaultOpen={props.defaultOpen ?? hasRealChatMessages(messages)}` to `<Fold id="global-chat" noisy ...>`. Keeps `sc-fold:global-chat` and `sc-fold-seen:global-chat` keys unchanged.
+- **Zero edits** to `packages/sim`, `packages/render`, `server/`, or `theme.css`.
+- **Verification:** `npm test` -> sim 390, app 1521, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean.
+
 ## 2026-11-25 — sim / catch-up boundaries and study cancel refunds
 
 - **Why:** Codex audit at `572164f`. `settleTicks` batches at the rate read at the batch's first tick; only building completions, upgrades, and the 100-tick rival pulse split a stretch. A study finish or decree expiry mid-stretch was missed (Keep III fixture: Crop Rotation 463.125 live vs 405 catch-up; Harvest Rite the other way).

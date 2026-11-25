@@ -32,7 +32,7 @@ describe("Living Global Chat accents", () => {
   });
 
   it("renders presence pip in header, quiet initial rows, and arrival accents when a new message arrives", () => {
-    const idleHtml = renderToStaticMarkup(<GlobalChatPanel />);
+    const idleHtml = renderToStaticMarkup(<GlobalChatPanel defaultOpen />);
     expect(idleHtml).toContain("sc-chat-presence-pip");
     expect(idleHtml).toContain("sc-chat-title-wrap");
     expect(idleHtml).toContain("Global Chat");
@@ -43,7 +43,7 @@ describe("Living Global Chat accents", () => {
     expect(idleHtml).not.toContain("is-entering");
 
     const latestId = SEED_CHAT[SEED_CHAT.length - 1].id;
-    const arrivingHtml = renderToStaticMarkup(<GlobalChatPanel arrivalOverrideId={latestId} />);
+    const arrivingHtml = renderToStaticMarkup(<GlobalChatPanel defaultOpen arrivalOverrideId={latestId} />);
     expect(arrivingHtml).toContain('data-chat-arrival="true"');
     expect(arrivingHtml).toContain("sc-chat-fold has-new-message");
     expect(arrivingHtml).toContain("sc-chat-msg is-entering");

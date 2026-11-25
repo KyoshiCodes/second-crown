@@ -42,13 +42,13 @@ function write(key: string, value: string) {
 }
 
 /** Resolve the starting open state for a fold. Exported for tests. */
-export function initialFoldOpen(id: string, noisy: boolean): boolean {
+export function initialFoldOpen(id: string, noisy: boolean, defaultOpen = true): boolean {
   const saved = read(OPEN_KEY(id));
   if (saved === "1") return true;
   if (saved === "0") return false;
   if (read(COMPACT_KEY) === "1") return false;
   if (noisy && read(SEEN_KEY(id)) === "1") return false;
-  return true;
+  return defaultOpen;
 }
 
 export function Fold(props: {
@@ -58,11 +58,13 @@ export function Fold(props: {
   summary?: React.ReactNode;
   /** Close by default after the player has seen it once. */
   noisy?: boolean;
+  /** Fallback open state on first visit when no user choice is stored. Defaults to true. */
+  defaultOpen?: boolean;
   className?: string;
   children: React.ReactNode;
 }) {
-  const { id, title, summary, noisy = false, className, children } = props;
-  const [open, setOpen] = React.useState(() => initialFoldOpen(id, noisy));
+  const { id, title, summary, noisy = false, defaultOpen = true, className, children } = props;
+  const [open, setOpen] = React.useState(() => initialFoldOpen(id, noisy, defaultOpen));
   const [closing, setClosing] = React.useState(false);
   const [headMotion, setHeadMotion] = React.useState<"expanded" | "collapsed" | null>(null);
   const prevOpenRef = React.useRef(open);

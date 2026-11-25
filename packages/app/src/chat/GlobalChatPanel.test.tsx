@@ -1,7 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
-import { GlobalChatPanel } from "./GlobalChatPanel";
+import { afterEach, describe, expect, it } from "vitest";
+import { GlobalChatPanel, hasRealChatMessages } from "./GlobalChatPanel";
 import {
   CHAT_MAX_LEN,
   CHAT_MAX_MESSAGES,
@@ -55,12 +55,45 @@ describe("global chat helpers", () => {
 });
 
 describe("GlobalChatPanel", () => {
-  it("renders a global-chat fold with seed messages, input and Send", () => {
+  afterEach(() => {
+    delete (globalThis as { localStorage?: unknown }).localStorage;
+  });
+
+  it("detects whether non-seed messages exist", () => {
+    expect(hasRealChatMessages([])).toBe(false);
+    expect(hasRealChatMessages(SEED_CHAT)).toBe(false);
+    expect(hasRealChatMessages([...SEED_CHAT, { id: "real-1", author: "You", text: "hi", at: 1000, local: true }])).toBe(
+      true,
+    );
+  });
+
+  it("folds sample chat by default on a fresh hold", () => {
     const html = renderToStaticMarkup(<GlobalChatPanel />);
     expect(html).toContain('data-fold="global-chat"');
     expect(html).toContain("Global Chat");
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain(chatSummary(SEED_CHAT));
+    expect(html).not.toContain("sc-chat-msg");
+  });
+
+  it("opens when real messages exist or when explicitly opened", () => {
+    const html = renderToStaticMarkup(<GlobalChatPanel defaultOpen />);
+    expect(html).toContain('data-fold="global-chat"');
+    expect(html).toContain('aria-expanded="true"');
     expect(html.match(/sc-chat-msg/g)?.length).toBe(SEED_CHAT.length);
     expect(html).toContain('class="sc-chat-input"');
     expect(html).toContain(">Send</button>");
+
+    const realMsg: ChatMessage = { id: "real-1", author: "You", text: "Hail", at: 1000, local: true };
+    const withRealHtml = renderToStaticMarkup(<GlobalChatPanel initial={[...SEED_CHAT, realMsg]} />);
+    expect(withRealHtml).toContain('aria-expanded="true"');
+    expect(withRealHtml.match(/sc-chat-msg/g)?.length).toBe(SEED_CHAT.length + 1);
+
+    (globalThis as { localStorage?: unknown }).localStorage = {
+      getItem: (k: string) => (k === "sc-fold:global-chat" ? "1" : null),
+      setItem: () => {},
+      removeItem: () => {},
+    };
+    expect(renderToStaticMarkup(<GlobalChatPanel />)).toContain('aria-expanded="true"');
   });
 });

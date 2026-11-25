@@ -80,6 +80,13 @@ function ChatSenderPip({ crest }: { crest: ChatSenderCrestKind }) {
   );
 }
 
+const SEED_IDS = new Set(SEED_CHAT.map((m) => m.id));
+
+/** True when the chat feed holds at least one non-seed message. Pure. */
+export function hasRealChatMessages(messages: readonly ChatMessage[]): boolean {
+  return messages.some((m) => !SEED_IDS.has(m.id));
+}
+
 /** Stand-in for "last id" once the list has been cleared after mount, so the next send still glows. */
 const EMPTY_AFTER_MOUNT = "__chat-empty__";
 
@@ -101,6 +108,8 @@ export function detectNewChatMessageId(
 export function GlobalChatPanel(props: {
   initial?: readonly ChatMessage[];
   author?: string;
+  /** Deterministic override for SSR / fold tests. Defaults to open only when real messages exist. */
+  defaultOpen?: boolean;
   /** Deterministic override for SSR / render tests. */
   arrivalOverrideId?: string;
   /** Deterministic override for "just sent" SSR / render tests. */
@@ -208,6 +217,7 @@ export function GlobalChatPanel(props: {
         }
         summary={chatSummary(messages)}
         noisy
+        defaultOpen={props.defaultOpen ?? hasRealChatMessages(messages)}
         className={`sc-chat-fold${activeArrivalId ? " has-new-message" : ""}`}
       >
         <ol className="sc-chat-list" ref={listRef} aria-live="polite">

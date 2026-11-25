@@ -7,11 +7,11 @@ import {
 } from "@second-crown/sim";
 import { LivingLecternPip, summarizeActiveStudy } from "./hud/LivingLecternPip";
 
-const YIELD: Partial<Record<keyof typeof RESEARCH, string>> = {
+export const STUDY_YIELD_LABELS: Partial<Record<keyof typeof RESEARCH, string>> = {
   husbandry: "+12% food",
   forestry: "+12% wood",
   masonry: "+12% stone",
-  logistics: "+8% gold, +50 store, +1 column",
+  logistics: "+15% gold, +50 store, +1 column",
   crop_rotation: "+25% food",
   timber_framing: "+25% wood",
   fortification: "+25% stone, +24 wall HP, ironclads",
@@ -26,7 +26,7 @@ export function StudyLine(props: { state: GameState | undefined }) {
   const ids = Object.keys(RESEARCH) as (keyof typeof RESEARCH)[];
   const open = ids.find((id) => researchTicksLeft(state, id) > 0);
   const known = ids.filter((id) => researchDone(state, id));
-  const boosts = known.map((id) => YIELD[id]).filter(Boolean);
+  const boosts = known.map((id) => STUDY_YIELD_LABELS[id]).filter(Boolean);
   const summary = summarizeActiveStudy(state);
   return (
     <p style={{ fontSize: 12, opacity: 0.8 }}>

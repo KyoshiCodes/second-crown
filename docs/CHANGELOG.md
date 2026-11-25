@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-25 — P1 hygiene: Logistics +15% label & default-folded sample chat
+
+- **Logistics bonus label (`StudyLine.tsx`):** Updated `STUDY_YIELD_LABELS.logistics` from `+8% gold` to **`+15% gold, +50 store, +1 column`** to match `researchYield` in `packages/sim`. Audited all other hard-coded study labels and added sim-backed parity assertions.
+- **Sample Global Chat folded on fresh holds (`hud/Fold.tsx`, `chat/GlobalChatPanel.tsx`):** Added `defaultOpen?: boolean` to `Fold` / `initialFoldOpen` and `hasRealChatMessages(messages)` in `GlobalChatPanel`. When only sample messages (or no non-seed messages) exist on a fresh hold, Global Chat starts collapsed to its compact title bar (`aria-expanded="false"`), opening automatically once real messages arrive or when toggled open (`sc-fold:global-chat = "1"`).
+- **Tests:** Added `StudyLine.test.tsx` (2), updated `Fold.test.tsx` (+1), `GlobalChatPanel.test.tsx` (+2), and `ChatPolish`/`ChatLivingAccents`/`ChatIdentity` expanded-body fixtures (`defaultOpen`). Now: sim **390**, app **1521**, server **158** (+1 Windows skip), app build clean.
+
 ## 2026-11-25 — Sim fix: offline catch-up boundaries and study cancel refunds
 
 - **Catch-up boundaries (`systems/timedEffects.ts`, `core/tickEngine.ts`):** new `TimedEffectsSystem` reports the next study finish (`research_<id>_until`) and decree expiry (`decree_<id>_until`) as event ticks, so `settleTicks` never batches across a change in yield, Harvest Rite bonus, or Logistics/Supply-trains warehouse space. Its `processEventsAt` latches finished studies so flag readers (`storageCap`) agree.

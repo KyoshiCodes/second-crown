@@ -48,6 +48,12 @@ describe("Fold", () => {
     expect(initialFoldOpen("kingdom-market", false)).toBe(false);
   });
 
+  it("honors defaultOpen=false on first sight while keeping saved '1' open", () => {
+    expect(initialFoldOpen("global-chat", true, false)).toBe(false);
+    stubStorage({ "sc-fold:global-chat": "1" });
+    expect(initialFoldOpen("global-chat", true, false)).toBe(true);
+  });
+
   it("renders the title and summary always, the body only when open", () => {
     const open = renderToStaticMarkup(
       <Fold id="x" title="Study tree" summary="Lectern idle">

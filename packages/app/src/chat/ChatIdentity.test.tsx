@@ -55,7 +55,7 @@ describe("Global Chat living identity & just-sent", () => {
     expect(html).toContain("sc-chat-send is-ready");
     expect(html).toContain('data-send-ready="true"');
 
-    const idleHtml = renderToStaticMarkup(<GlobalChatPanel now={NOW} initialDraft="" />);
+    const idleHtml = renderToStaticMarkup(<GlobalChatPanel defaultOpen now={NOW} initialDraft="" />);
     expect(idleHtml).toContain('data-send-ready="false"');
     expect(idleHtml).not.toContain("sc-chat-send is-ready");
     expect(idleHtml).not.toContain("is-just-sent");
