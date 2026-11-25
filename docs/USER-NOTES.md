@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — Hold view gets the same care
+
+- **More hold, less header:** in Hold view the title, stores strip and tabs are slimmer, so your hold sits about 80px higher on screen. Each store now shows its name on one line and its stock and income on the next.
+- **Clearer Hold / Board switch:** the button in the map corner now shows both "🏰 Hold" and "🗺️ Board". The one you're in is lit: green for Hold, gold for Board.
+- **Hold tag:** a small green "HOLD" tag sits in the corner of the view, like the gold "BOARD FOCUS" tag in Board view.
+
 ## 2026-11-24 — Quiet board life & crisp tile selection
 
 - **Quiet ambient board life:** Seen keeps show a gentle hearth glow with tiny sparks (warmer at dusk and night), and a handful of woods, shores, ridges, and meadows show soft fireflies or water glints that subtly respond to time of day and active music.

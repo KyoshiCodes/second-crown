@@ -22,6 +22,7 @@ import { sfx } from "./sfx";
 import { ActionFlash } from "./hud/ActionFlash";
 import { MusicReactiveLayer } from "./hud/MusicReactiveLayer";
 import { BoardFocusFrame } from "./hud/BoardFocus";
+import { BandToggle, HoldFocusTag } from "./hud/HoldDensity";
 
 // Tab panels load in their own chunks so the board paints first.
 const KingdomTab = React.lazy(() => import("./tabs/KingdomTab").then((m) => ({ default: m.KingdomTab })));
@@ -209,6 +210,7 @@ export function AppShell() {
             <BoardLiving state={state} selectedId={selectedProvinceId} visible={cameraBand === "board"} />
             <BoardStatus state={state} selectedId={selectedProvinceId} visible={cameraBand === "board"} />
             <BoardFocusFrame visible={cameraBand === "board"} />
+            <HoldFocusTag visible={cameraBand === "hold"} />
             <div
               className="sc-map-controls"
               style={{
@@ -228,9 +230,7 @@ export function AppShell() {
               <button type="button" onClick={zoomIn} title="Zoom In" style={{ padding: "1px 8px", fontSize: 14, fontWeight: 700, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>+</button>
               <button type="button" onClick={zoomOut} title="Zoom Out" style={{ padding: "1px 8px", fontSize: 14, fontWeight: 700, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>−</button>
               <button type="button" onClick={resetView} title="Reset View" style={{ padding: "1px 6px", fontSize: 12, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>⟲</button>
-              <button type="button" onClick={toggleCameraBand} title="Toggle Board / Hold" style={{ padding: "1px 8px", fontSize: 12, fontWeight: 600, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>
-                {cameraBand === "board" ? "🏰 Hold" : "🗺️ Board"}
-              </button>
+              <BandToggle band={cameraBand} onToggle={toggleCameraBand} />
               <button type="button" onClick={() => setKeepOpen(true)} title="Enter the keep" style={{ padding: "1px 8px", fontSize: 12, fontWeight: 600, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>
                 Enter the keep
               </button>

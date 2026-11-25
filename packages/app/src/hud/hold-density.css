@@ -1,0 +1,183 @@
+/* Hold density pass (isolated; do not touch theme.css).
+ * 1. Hold band: tighter chrome above the canvas, matching the Board band's
+ *    trims (board-focus.css) so toggling does not make the header jump.
+ * 2. Hold band: the stores strip folds to two lines per cell (name, then
+ *    stock + income side by side); the decorative glyph strip and the tiny
+ *    STOCK / INCOME labels step aside. Income stays visible.
+ * 3. Hold / Board toggle: two-segment pill, the live mode lit.
+ * 4. "Hold" tag on the canvas, the twin of "Board focus" (pointer-events none).
+ * Canvas size, aspect, camera math and hit-testing are untouched.
+ */
+
+/* ---------- 1. Tighter chrome above the hold ---------- */
+.sc-shell.sc-band-hold {
+  padding-top: 12px;
+}
+
+.sc-band-hold .sc-head-row .sc-title {
+  font-size: 16px !important;
+}
+
+.sc-band-hold .sc-subtitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-band-hold .sc-status-banner {
+  margin-bottom: 4px !important;
+}
+
+.sc-band-hold .sc-tabs-bar {
+  gap: 6px !important;
+  margin-bottom: 6px !important;
+}
+
+.sc-band-hold .sc-tabs-bar .sc-tab {
+  padding: 5px 12px;
+}
+
+/* ---------- 2. Two-line stores strip ---------- */
+.sc-band-hold .sc-resource-bar.sc-ledger {
+  margin: 6px 0;
+}
+
+.sc-band-hold .sc-resource-bar .sc-ledger-cell {
+  padding: 3px 8px;
+}
+
+.sc-band-hold .sc-resource-bar .sc-resource-living-glyph,
+.sc-band-hold .sc-resource-bar .sc-resource-living-label {
+  display: none;
+}
+
+.sc-band-hold .sc-resource-bar .sc-resource-living-rows {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1px 6px;
+}
+
+.sc-band-hold .sc-resource-bar .sc-resource-living-row.is-name {
+  flex: 1 0 100%;
+}
+
+.sc-band-hold .sc-resource-bar .sc-resource-living-row.is-amount {
+  flex: 1 1 auto;
+}
+
+.sc-band-hold .sc-resource-bar .sc-resource-living-row.is-income {
+  flex: 0 0 auto;
+  border-top: 0;
+  font-size: 11px;
+}
+
+/* Compact still drops the income row via layout-priority.css (no display set here). */
+
+/* ---------- 3. Hold / Board toggle ---------- */
+.sc-map-controls .sc-band-toggle {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #c8963e;
+  border-radius: 4px;
+  background: #1a120b;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.sc-map-controls .sc-band-toggle:hover:not(:disabled) {
+  background: #1a120b;
+  border-color: #fef08a;
+}
+
+.sc-band-seg {
+  padding: 0 7px;
+  color: rgba(232, 220, 200, 0.5);
+  white-space: nowrap;
+  transition: background 200ms ease, color 200ms ease, box-shadow 200ms ease;
+}
+
+.sc-band-seg + .sc-band-seg {
+  border-left: 1px solid rgba(200, 150, 62, 0.45);
+}
+
+.sc-band-toggle:hover .sc-band-seg:not(.is-on) {
+  color: rgba(254, 240, 138, 0.85);
+}
+
+/* Hold lit: green field, the Kingdom accent. */
+.sc-band-seg.is-hold.is-on {
+  color: #eafbe9;
+  background: linear-gradient(180deg, #2f6b34 0%, #1f4a23 100%);
+  box-shadow: inset 0 1px 0 rgba(200, 255, 200, 0.25);
+}
+
+/* Board lit: gold field, the Board focus accent. */
+.sc-band-seg.is-board.is-on {
+  color: #1a120b;
+  background: linear-gradient(180deg, #f5d36a 0%, #c8963e 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 250, 220, 0.6);
+  text-shadow: none;
+}
+
+/* ---------- 4. Hold tag on the canvas ---------- */
+.sc-hold-focus-tag {
+  position: absolute;
+  top: 10px;
+  left: 30px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px 1px 6px;
+  border: 1px solid rgba(104, 211, 145, 0.55);
+  border-radius: 999px;
+  background: rgba(10, 18, 10, 0.78);
+  color: #c6f6d5;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 16px;
+  opacity: 0.85;
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-hold-focus-in 320ms ease-out both;
+}
+
+.sc-hold-focus-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #68d391;
+  box-shadow: 0 0 6px rgba(104, 211, 145, 0.8);
+}
+
+.sc-band-hold .sc-board-frame .sc-map-canvas {
+  border-color: rgba(104, 211, 145, 0.45) !important;
+}
+
+@keyframes sc-hold-focus-in {
+  from { opacity: 0; }
+}
+
+@media (max-width: 560px) {
+  .sc-hold-focus-tag {
+    top: 6px;
+    left: 24px;
+    font-size: 9.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-hold-focus-tag,
+  .sc-band-seg {
+    animation: none !important;
+    transition: none !important;
+  }
+}

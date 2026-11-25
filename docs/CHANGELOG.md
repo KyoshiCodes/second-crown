@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-24 — Hold view density pass
+
+- **Tighter chrome on the Hold band (`hud/hold-density.css`):** when the camera is on Hold, the same trims the Board band already had (title 18→16px, one-line subtitle with ellipsis, status banner margin 4px, tabs gap 6 / margin 6 / tab padding 5×12), plus shell top padding 20→12px. The stores strip goes to two lines per cell (name, then stock + income side by side): the decorative glyph strip and the tiny STOCK / INCOME labels are hidden, ledger margin 12→6px, cell padding 6/7→3px. Income stays visible on Hold (Compact still hides it, as before). The hold canvas starts about **80px higher** (estimated from CSS, not measured in a browser); canvas size and 14:9 shape unchanged.
+- **Clearer Hold / Board toggle (`hud/HoldDensity.tsx` `BandToggle`):** the single "🏰 Hold" / "🗺️ Board" button is now a two-segment pill that always names both modes; the live one is lit (green for Hold, gold for Board), the other is dimmed. Still one button calling the same `toggleCameraBand`.
+- **Hold tag (`HoldFocusTag`):** a small green "HOLD" pill over the canvas on Hold, twin of Board's gold "BOARD FOCUS" tag, and a faint green canvas border on Hold (gold stays on Board). `pointer-events: none`, `aria-hidden`.
+- **Unchanged:** camera math, hit-testing, Fold panels, Compact, `theme.css`, `packages/sim`, `server/`.
+- **Tests:** `hud/HoldDensity.test.tsx` (4). Now: sim **362**, app **1387**, server **158** (+1 skip), app build clean.
+
 ## 2026-11-24 — Living board accents & tactile province selection pass
 
 - **Quiet ambient board life (`hud/BoardLivingAccents.tsx`, `hud/board-living-accents.css`, `BoardLiving.tsx`):** Added deterministic, low-opacity ambient accents across seen keeps (`listKeepAccents`, capped at 8 hearth halos + rising sparks) and natural terrain tiles (`listTerrainAccents`, capped at 10 sparse wood fireflies, shore glints, ridge glints, and meadow wisps). Opacities, colors, and breathing cadence (`4.8s`–`6.4s`) gently follow time of day (`dawn`/`day`/`dusk`/`night`) and active music playback via `useNowPlaying()`.

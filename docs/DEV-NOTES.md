@@ -1,3 +1,10 @@
+## 2026-11-24 — app / Hold view density pass
+
+- **`hud/HoldDensity.tsx`:** imports `./hold-density.css`. `BandToggle({ band, onToggle })` replaces the inline-styled toggle button in `AppShell`'s `.sc-map-controls`; it renders one `<button class="sc-band-toggle" data-band>` with two `aria-hidden` `.sc-band-seg` spans (`is-hold` / `is-board`, live one gets `is-on`) and an `aria-label` naming the current mode and the switch target. `HoldFocusTag({ visible })` returns null off Hold; on Hold it renders `.sc-hold-focus-tag` (absolute, z 4, same spot as `.sc-board-focus-tag`). Mounted next to `BoardFocusFrame`.
+- **`hud/hold-density.css`:** all rules scoped to `.sc-band-hold` (or the new classes). Mirrors the Board-band chrome trims from `board-focus.css` / `layout-priority.css` so the header height is close to the same in both bands. Stores strip: `.sc-resource-living-rows` switches to `flex-direction: row; flex-wrap: wrap`, name row `flex: 1 0 100%`, amount + income share line 2; glyph and labels `display: none`. It never sets `display` on `.is-income`, so Compact's hide rule in `layout-priority.css` still wins. No rule touches `.sc-map-canvas-container` size or `aspect-ratio`; only the canvas `border-color` on Hold (green, `!important` to beat the inline pack colour, same as Board does in gold).
+- **Not touched:** `packages/render` (camera, bands, hit-testing), `useGameEngine.ts`, `theme.css`, Fold/Compact code, sim, server.
+- **Verification:** `hud/HoldDensity.test.tsx` (4). `npm test` → sim 362, app 1387, server 158 (+1 skip); `npm run build -w @second-crown/app` clean. The ~80px saving is summed from the CSS (ledger margins 12, cell padding 7, glyph strip ~27, merged income line ~18, shell padding 8, title ~3, tabs ~6), not measured.
+
 ## 2026-11-24 — app / living board accents & tactile province selection
 
 - **Components (`packages/app/src/hud/BoardLivingAccents.tsx`, `BoardLiving.tsx`):**
