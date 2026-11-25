@@ -1,3 +1,12 @@
+## 2026-11-25 — app / Global Chat polish
+
+- **Helpers (`packages/app/src/chat/globalChat.ts`):** `formatChatRelative(at, now)` (pure; pass `now`), `formatChatStamp(at)` for the `<time title>`, `isOwnMessage(msg, author)` (`local === true || author === author`, so own lines stay styled once a server echo drops the `local` flag), `CHAT_CLOCK_TICK_MS = 30_000`. `formatChatTime` kept (used by `formatChatStamp`).
+- **Panel (`chat/GlobalChatPanel.tsx`):** new optional `now` prop freezes the clock for SSR tests; otherwise a 30s `setInterval` ticks a `clock` state (also bumped on Send so a fresh line reads `now`). Rows add `.is-own` and `data-chat-own`; `.is-local` is unchanged (and still adds the `only you` tag). The list has `aria-live="polite"`. Empty list renders one `li.sc-chat-empty` with `Restore sample messages` (resets to `SEED_CHAT`). Footer `.sc-chat-foot` holds the note and the `Clear` button (`setMessages([])`). Nothing persists, so Clear has no storage to wipe.
+- **Arrival glow after Clear:** `prevLastIdRef` now stores a sentinel (`EMPTY_AFTER_MOUNT`) instead of `null` when the list is empty after mount, so the first message sent after Clear still triggers the arrival glow. `detectNewChatMessageId` itself is unchanged.
+- **Server seam:** `sendToServer()` remains the only call site (a test asserts one call and no `fetch(` in the panel). When the endpoint lands, fill it in `globalChat.ts` only.
+- **CSS (`chat/chat-polish.css`):** loaded after `global-chat.css` and `chat-living.css`. Own-colour token `--sc-chat-own-rgb` per `data-chrome` (dusk gold, night steel blue, parchment amber). `.is-own` rule is more specific than the old `.sc-chat-msg.is-local` left-border rule, so it wins without editing `global-chat.css`. `theme.css` untouched.
+- **Verification:** `chat/ChatPolish.test.tsx` 8 tests. `npm test` -> sim 362, app 1419, server 158 (1 skip); `npm run build -w @second-crown/app` clean. Not yet opened in a browser.
+
 ## 2026-11-25 — app / living Global Chat accents pass
 
 - **Component (`packages/app/src/chat/GlobalChatPanel.tsx`):**

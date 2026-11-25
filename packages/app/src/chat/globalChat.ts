@@ -53,6 +53,42 @@ export function formatChatTime(at: number): string {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
+/** How often the panel re-renders relative times. */
+export const CHAT_CLOCK_TICK_MS = 30_000;
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/**
+ * Short relative label: "now" (<1 min, or a clock that runs behind), "4m", "2h",
+ * then "Yesterday", then "Nov 25". Pure: pass `now` so tests stay deterministic.
+ */
+export function formatChatRelative(at: number, now: number): string {
+  const diff = now - at;
+  if (diff < 60_000) return "now";
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  if (hours < 48) return "Yesterday";
+  const d = new Date(at);
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+}
+
+/** Full local stamp for the hover tooltip: "Nov 25, 09:04". */
+export function formatChatStamp(at: number): string {
+  const d = new Date(at);
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${formatChatTime(at)}`;
+}
+
+/**
+ * True when this client wrote the message. Today that is anything flagged `local`.
+ * Once a server echoes messages back (no `local` flag), the author name match keeps
+ * the player's own lines styled the same way.
+ */
+export function isOwnMessage(msg: ChatMessage, author: string): boolean {
+  return msg.local === true || msg.author === author;
+}
+
 export function chatSummary(list: readonly ChatMessage[]): string {
   if (list.length === 0) return "No messages";
   const last = list[list.length - 1];

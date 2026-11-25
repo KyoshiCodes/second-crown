@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Global Chat polish
+
+- **How long ago:** each chat message now shows how long ago it was posted ("now", "4m", "2h", "Yesterday"). Hover the time to see the exact date and time.
+- **Your messages stand out:** your own lines sit slightly to the right, with a gold edge on the right side, a soft gold tint and a small "only you" tag (because nobody else can see them yet).
+- **Clear button:** a small "Clear" link at the bottom of the chat empties it, for testing. When the chat is empty you can bring back the sample messages.
+- **Clearer note:** a "LOCAL" badge reminds you that chat is only on your screen and clears when you reload.
+
 ## 2026-11-25 — Living Global Chat accents
 
 - **Online presence pip:** A small softly pulsing green pip now sits next to the "Global Chat" header.

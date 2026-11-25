@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-25 — Global Chat polish (relative time, own messages, clear, empty state)
+
+- **Relative time on every message:** the time column now reads `now` / `4m` / `2h` / `Yesterday` / `Nov 20` (`formatChatRelative(at, now)` in `chat/globalChat.ts`) and re-renders every 30s (`CHAT_CLOCK_TICK_MS`). Hover shows the full local stamp, e.g. `Nov 25, 09:04` (`formatChatStamp`). Future timestamps (clock skew) read `now`, never negative.
+- **Own messages restyled:** `isOwnMessage(msg, author)` (local flag, or author name match for when a server echoes messages back). Own rows get `.is-own`: inset 18px from the left, the gold edge moves from the left to a 3px right edge, a faint gold tint fades in from the right, the author name turns gold, and unsent rows carry a small `ONLY YOU` pill. Night chrome uses steel blue instead of gold.
+- **Clear button (testing):** a small `Clear` link in the panel footer empties this tab's chat. Disabled when the list is empty. The empty state offers `Restore sample messages`.
+- **Empty state:** dashed card, `✦` glyph, "The hall is quiet." and a hint, instead of a blank list.
+- **Local-only note:** now a `LOCAL` badge plus "Only you see these. Chat clears on reload." on one footer row with Clear.
+- **Server seam unchanged:** `sendToServer()` is still the only server call site in the panel and still a no-op that resolves `false`.
+- **Styles:** new `chat/chat-polish.css`. `theme.css`, `packages/sim`, `packages/render`, `server/` untouched. App only.
+- **Tests:** added `chat/ChatPolish.test.tsx` (8 tests). Now: sim **362**, app **1419**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Living Global Chat accents pass
 
 - **Presence pip (`chat/GlobalChatPanel.tsx`, `chat/chat-living.css`):** Added a softly breathing emerald `.sc-chat-presence-pip` with a gentle concentric pulse ring beside `"Global Chat"` on the floating panel header (visible open or folded; `pointer-events: none !important;`).

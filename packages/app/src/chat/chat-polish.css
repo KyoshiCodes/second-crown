@@ -1,0 +1,145 @@
+/* --- Global Chat polish (relative time, own messages, empty state, footer) ---
+ * Loaded from chat/GlobalChatPanel.tsx after global-chat.css and chat-living.css.
+ * Never touches theme.css. Theme tokens follow html[data-chrome].
+ */
+
+:root,
+:root[data-chrome="dusk"] {
+  --sc-chat-own-rgb: 212, 167, 44;
+}
+:root[data-chrome="night"] {
+  --sc-chat-own-rgb: 144, 186, 232;
+}
+:root[data-chrome="parchment"] {
+  --sc-chat-own-rgb: 176, 124, 30;
+}
+
+/* 1. Relative time: quiet, fixed width so the author column does not jump on each tick. */
+.sc-chat-time {
+  flex: none;
+  min-width: 3.2em;
+  text-align: right;
+  cursor: default;
+}
+
+/* 2. Own messages: inset from the left, gold edge moved to the right, warm tint.
+      Reads as "my line" at a glance without a chat-bubble look. */
+.sc-chat-list > .sc-work-card.sc-chat-msg.is-own {
+  margin-left: 18px;
+  border-left-width: 1px;
+  border-left-color: var(--chrome-btn-border, #6b542e);
+  border-right: 3px solid rgb(var(--sc-chat-own-rgb));
+  background:
+    linear-gradient(270deg, rgba(var(--sc-chat-own-rgb), 0.16), rgba(var(--sc-chat-own-rgb), 0.03) 70%),
+    linear-gradient(180deg, var(--chrome-btn-bg-hover, #2a2219), var(--chrome-btn-bg, #1c1814));
+}
+.sc-chat-msg.is-own .sc-chat-author {
+  color: rgb(var(--sc-chat-own-rgb));
+}
+.sc-chat-msg.is-own .sc-chat-text {
+  opacity: 1;
+}
+
+.sc-chat-own-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  font-size: 9.5px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+  color: rgb(var(--sc-chat-own-rgb));
+  border: 1px solid rgba(var(--sc-chat-own-rgb), 0.55);
+  border-radius: 7px;
+  opacity: 0.8;
+}
+
+/* 3. Empty state. */
+.sc-chat-empty {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 14px 8px 12px;
+  text-align: center;
+  border: 1px dashed var(--chrome-btn-border, #6b542e);
+  border-radius: 5px;
+}
+.sc-chat-empty-glyph {
+  font-size: 16px;
+  color: var(--chrome-accent, #fef08a);
+  opacity: 0.7;
+}
+.sc-chat-empty-title {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.sc-chat-empty-hint {
+  margin: 0 0 4px;
+  font-size: 11px;
+  opacity: 0.65;
+}
+
+/* 4. Footer: local-only note + Clear. */
+.sc-chat-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 5px 0 2px;
+}
+.sc-chat-foot > .sc-chat-note {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  opacity: 0.7;
+}
+.sc-chat-note-badge {
+  flex: none;
+  padding: 0 5px;
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--chrome-btn-text, #f5ead8);
+  background: rgba(var(--sc-chat-own-rgb), 0.22);
+  border: 1px solid rgba(var(--sc-chat-own-rgb), 0.5);
+  border-radius: 3px;
+}
+
+.sc-chat-linkbtn {
+  flex: none;
+  padding: 1px 4px;
+  font: inherit;
+  font-size: 10.5px;
+  color: var(--chrome-btn-text, #f5ead8);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  opacity: 0.7;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sc-chat-linkbtn:hover:not(:disabled),
+.sc-chat-linkbtn:focus-visible {
+  opacity: 1;
+  outline: none;
+  border-color: var(--chrome-btn-border, #6b542e);
+}
+.sc-chat-linkbtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .sc-chat-list > .sc-work-card.sc-chat-msg.is-own {
+    margin-left: 10px;
+  }
+}
