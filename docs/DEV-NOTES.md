@@ -1,3 +1,15 @@
+## 2026-11-24 — app / music panel + now-playing hooks
+
+- Three sources, each keeps its engine: `travisMusic.ts` (own lazy `HTMLAudioElement`), `music.ts` lofi `<audio>` (mode `lofi`) and `music.ts` synth (mode `bed`, shown as "Realm"). `audioManager` holiday / battle tracks still follow `isMusicMuted()`.
+- `nowPlaying.ts` is the single facade. `MUSIC_LIBRARY` ids: `travis-N`, `realm`, `lofi-N`. `getNowPlaying()` picks the live source (Travis playing > mode bed > mode lofi), else the last chosen id. `playTrack(id)` / `toggleMusic()` / `pauseMusic()` / `stepTrack(±1)` (skips realm) / `setMusicVolume(0..1)`. Call play actions from click handlers (autoplay rules).
+- Lofi resume: when mode isn't lofi, `playTrack` calls `pickLofiTrack(i)` (sets index only, no load) then `setMusicMode("lofi")`, so re-playing the same track continues from where it paused. A pick while already in lofi reloads (existing behaviour; a picked lofi track still loops via `lofiPinned`).
+- `installNowPlaying()` (called once in `main.tsx`) listens to `sc-music-change`, `sc-lofi-track`, `sc-lofi-status`, `sc-travis-change`; on each it writes `document.documentElement.dataset.musicPlaying` / `musicTrackId` / `musicSource`, saves the playing id to `sc-music-last-track`, and fires `sc-now-playing` (detail = snapshot) only when id or playing changes.
+- Volume: `sc-music-volume` (was `sc-travis-volume`, never shipped). `music.ts` gained `setLofiVolume`; the lofi element and `pickLofiTrack` use it instead of 0.38 / 0.7. Realm synth gain unchanged.
+- `MusicReactiveLayer.readCurrentMusicReactiveState` now goes through `getNowPlaying()` for Travis (profile from title via `resolveMusicTrackProfile`) and subscribes to `sc-travis-change` + `sc-now-playing`. Lofi / Realm path unchanged.
+- CSS: `music-panel.css` only. Every selector is prefixed `.music-panel …` and hover rules use `:hover:not(:disabled)` so they beat the global `button:hover:not(:disabled)` in `theme.css` (that rule loads later and would otherwise repaint them). Own `--mp-*` tokens; dark umber + gold on every chrome theme. Reduced motion stops the equalizer.
+- Removed: `MusicDock`/`LofiDock` components (file keeps `useMusicMode` for `HudControls`), `lofi-dock.css`, missing `lofi-a.ogg` / `lofi-b.ogg` entries. `nextLofiTrack` / `prevLofiTrack` in `music.ts` are now unused.
+- Not yet opened in a browser.
+
 ## 2026-11-24 — app / living culture banner on culture line & home keep (bakeoff/gemini-culture-line)
 
 - **Components (`packages/app/src/hud/LivingCultureBanner.tsx`, `CultureLine.tsx`, `CultureCrestPip.tsx`, `BoardLiving.tsx`):**

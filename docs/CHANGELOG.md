@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-11-24 — Music panel: one picker for every track, now-playing hooks
+
+- **Visible song picker (`MusicPanel.tsx`, `music-panel.css`):** a gold chip in the top bar (where the old Music / Lofi dropdowns were) with a play / pause button and the current track and artist. Clicking it opens a list of all 34 tracks: Travis Brown (*All We Know*, *Holding On*), the Realm score (synth, follows season / holiday), and the 31 HoliznaCC0 lofi tracks. Previous / play / next, a volume slider with %, a clear gold active row and a small equalizer while playing. Closes on outside click or Esc.
+- **Why:** before this the lofi track list only appeared after switching the Music dropdown from Off (the default) to Lofi, so most players never saw a way to pick songs.
+- **Travis Brown player (`travisMusic.ts`):** two recorded tracks with their own `<audio>`. Playing one sets the `sc-music` mode Off; turning Lofi or Realm on pauses Travis, so only one source plays.
+- **Persistence:** last chosen track in `sc-music-last-track` (e.g. `travis-1`, `lofi-7`, `realm`); one shared volume in `sc-music-volume` (Travis + Lofi). Never autoplays.
+- **Now-playing hooks (`nowPlaying.ts`):** `getNowPlaying()`, the `sc-now-playing` window event, `useNowPlaying()`, and `<html data-music-playing data-music-track-id data-music-source>` for later visual work.
+- **Reactive layer fixed:** `MusicReactiveLayer` now reacts to Travis Brown tracks too (gold for *All We Know*, slate for *Holding On*). Before it only read `music.ts`, so those palettes never showed.
+- **Cleanup:** removed `lofi-a.ogg` / `lofi-b.ogg` from `LOFI_FILES` (files never existed, so the lofi loop hit a 404 after track 33); removed the old `MusicDock` / `LofiDock` UI and `lofi-dock.css` (`useMusicMode` stays). Lofi volume is no longer hard-coded (0.38 / 0.7).
+- **Scope:** app only. No edits to `packages/sim` or `server/`. ThemeDock, primer and resource strip untouched.
+- **Tests:** `MusicPanel.test.tsx` (9). Now: sim 362, app 1355, server 158, app build clean.
+
 ## 2026-11-24 — Living culture banner on culture line and home keep (bakeoff/gemini-culture-line)
 
 - **Living culture banner (`LivingCultureBanner` & `HomeKeepCultureBanner`):** Created `packages/app/src/hud/LivingCultureBanner.tsx` and `packages/app/src/hud/living-culture-banner.css`:

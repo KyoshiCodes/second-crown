@@ -3,7 +3,7 @@ import { TesterBar } from "./TesterBar";
 import { CloudPanel } from "./CloudPanel";
 import { BoardPanel } from "./BoardPanel";
 import { ThemeDock } from "./ThemeDock";
-import { MusicDock } from "./MusicDock";
+import { MusicPanel } from "./MusicPanel";
 import { getHolidayOverride, setHolidayOverride } from "./seasons/holidays";
 import "./hud/plain-buttons.css";
 
@@ -120,7 +120,7 @@ export function ChromeDock() {
             <option value="none">Off</option>
           </select>
         </label>
-        <MusicDock />
+        <MusicPanel />
         <ThemeDock />
         {lastWorld ? (
           <div

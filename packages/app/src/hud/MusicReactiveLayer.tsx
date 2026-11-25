@@ -11,6 +11,8 @@ import {
   type LofiStatus,
   type MusicMode,
 } from "../music";
+import { findTrack, getNowPlaying, NOW_PLAYING_EVENT } from "../nowPlaying";
+import { TRAVIS_CHANGE_EVENT } from "../travisMusic";
 import "./music-reactive.css";
 
 export type MusicTrackProfile = "all-we-know" | "holding-on" | "ambient" | "idle";
@@ -102,9 +104,18 @@ export function resolveMusicReactiveState(input: MusicReactiveInput): MusicReact
   };
 }
 
-/** Reads live playback state from music.ts with zero side effects. */
+/** Reads live playback state (Travis Brown, Lofi or Realm) with zero side effects. */
 export function readCurrentMusicReactiveState(): MusicReactiveState {
   const mode = getMusicMode();
+  const np = getNowPlaying();
+  if (np.source === "travis") {
+    if (!np.playing) {
+      return { playing: false, mode, profile: "idle", tone: "none", trackName: "" };
+    }
+    const track = findTrack(np.trackId);
+    const profile = resolveMusicTrackProfile(np.title, track?.src);
+    return { playing: true, mode, profile, tone: PROFILE_TO_TONE[profile], trackName: np.title };
+  }
   const lofiStatus = getLofiStatus();
   const trackIndex = getLofiIndex();
   const trackName = lofiTrackName(trackIndex);
@@ -142,7 +153,7 @@ export function clearMusicReactiveAttributes(
   delete target.dataset.musicTrack;
 }
 
-/** Subscribes to music mode, track, and playback status events. */
+/** Subscribes to music mode, track, playback status, and Travis Brown player events. */
 export function useMusicReactiveState(): MusicReactiveState {
   const [state, setState] = React.useState<MusicReactiveState>(readCurrentMusicReactiveState);
 
@@ -153,10 +164,14 @@ export function useMusicReactiveState(): MusicReactiveState {
     window.addEventListener(MUSIC_CHANGE_EVENT, sync);
     window.addEventListener(LOFI_TRACK_EVENT, sync);
     window.addEventListener(LOFI_STATUS_EVENT, sync);
+    window.addEventListener(TRAVIS_CHANGE_EVENT, sync);
+    window.addEventListener(NOW_PLAYING_EVENT, sync);
     return () => {
       window.removeEventListener(MUSIC_CHANGE_EVENT, sync);
       window.removeEventListener(LOFI_TRACK_EVENT, sync);
       window.removeEventListener(LOFI_STATUS_EVENT, sync);
+      window.removeEventListener(TRAVIS_CHANGE_EVENT, sync);
+      window.removeEventListener(NOW_PLAYING_EVENT, sync);
     };
   }, []);
 

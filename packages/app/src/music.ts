@@ -3,7 +3,7 @@
  * Music mode (key sc-music): off (default), lofi (LOFI_TRACKS in order, synth lofi fallback),
  * or bed (the seasonal / holiday bed above).
  * Lofi never skips on a failed file: a 404 or autoplay block stops and sets LofiStatus.
- * A dock pick (pickLofiTrack) loads the file, sets volume 0.7, and calls play() inside the click.
+ * A dock pick (pickLofiTrack) loads the file at the panel volume (setLofiVolume) and calls play() inside the click.
  */
 
 export type SeasonName = "Spring" | "Summer" | "Autumn" | "Winter";
@@ -12,7 +12,7 @@ export type MusicMode = "off" | "lofi" | "bed";
 export const MUSIC_KEY = "sc-music";
 export const MUSIC_MODES: readonly MusicMode[] = ["off", "lofi", "bed"];
 export const MUSIC_CHANGE_EVENT = "sc-music-change";
-/** Every lofi .ogg in public/audio (holiday beds excluded), in filename order. */
+/** Every HoliznaCC0 lofi .ogg in public/audio (holiday beds and Travis Brown excluded), in filename order. */
 const LOFI_FILES = [
   "03 HoliznaCC0 - Something In the Air.ogg",
   "04 HoliznaCC0 - Small Towns Smaller Lives.ogg",
@@ -45,8 +45,6 @@ const LOFI_FILES = [
   "31 HoliznaCC0 - Not It (Lofi).mp3.ogg",
   "32 HoliznaCC0 - Plants.mp3.ogg",
   "33 HoliznaCC0 - Seasons Change.ogg",
-  "lofi-a.ogg",
-  "lofi-b.ogg",
 ];
 export const LOFI_TRACKS = LOFI_FILES.map((f) => `/audio/${encodeURIComponent(f)}`);
 /** Fired when the lofi track index changes (detail: index). */
@@ -80,6 +78,8 @@ let lofiPickId = 0;
 /** True once the player picks a track: that track repeats instead of advancing. */
 let lofiPinned = false;
 let lofiRecordingPlaying = false;
+/** Player volume for lofi recordings (0..1). Set by the music panel via setLofiVolume. */
+let lofiVolume = 0.5;
 let step = 0;
 let currentSeasonName: SeasonName = "Spring";
 let currentHolidayId: string | null = null;
@@ -274,7 +274,7 @@ function lofi(): HTMLAudioElement | null {
   } catch {
     return null;
   }
-  lofiEl.volume = 0.38;
+  lofiEl.volume = lofiVolume;
   lofiEl.addEventListener("playing", () => {
     setLofiStatus("playing");
     if (!lofiRecordingPlaying) {
@@ -343,7 +343,7 @@ function retryAfterFailure() {
 
 /**
  * Dock pick: call straight from the click handler so play() runs inside the user gesture.
- * Always reloads the file, volume 0.7, repeats this track. A rejection or load error
+ * Always reloads the file at the panel volume, repeats this track. A rejection or load error
  * sets the status line; it never moves on to another track.
  */
 export function pickLofiTrack(i: number): void {
@@ -363,7 +363,7 @@ export function pickLofiTrack(i: number): void {
   lofiRecordingPlaying = false;
   setLofiStatus("idle");
   el.loop = true;
-  el.volume = 0.7;
+  el.volume = lofiVolume;
   el.src = src;
   el.load();
   try {
@@ -391,6 +391,11 @@ export function pickLofiTrack(i: number): void {
       setLofiStatus(name === "NotAllowedError" ? "blocked" : "missing", playErrorText(err));
     },
   );
+}
+
+export function setLofiVolume(v: number): void {
+  lofiVolume = Math.min(1, Math.max(0, Number.isFinite(v) ? v : 0.5));
+  if (lofiEl) lofiEl.volume = lofiVolume;
 }
 
 export function nextLofiTrack(): void {

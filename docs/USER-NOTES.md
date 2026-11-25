@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — Pick your music
+
+- The top bar now has a gold **music button**. Press **▶** to play, **❚❚** to pause.
+- Click the song name next to it to open the full list: two songs by **Travis Brown** (*All We Know*, *Holding On*), the **Realm** score (changes with the season and holidays), and 31 **lofi** tracks. Click any song to play it.
+- Inside the list: skip back / forward, and a volume slider.
+- The game remembers your last song and your volume. It stays silent until you press play.
+- Only one song plays at a time.
+
 ## 2026-11-24 — Living culture banner on culture line and home keep (bakeoff/gemini-culture-line)
 
 - **Fluttering culture banner with realm patterns:**

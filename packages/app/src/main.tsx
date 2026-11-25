@@ -9,6 +9,7 @@ import "./hud/living-readability.css";
 import "./hud/living-glyph-soften.css";
 import { sfx } from "./sfx";
 import { loadMusicMuted, startMusicBed } from "./music";
+import { installNowPlaying } from "./nowPlaying";
 import { audioManager } from "./themes/audioManager";
 import { applyChrome, loadChrome } from "./ThemeDock";
 
@@ -22,6 +23,7 @@ function applyTheme(name: string) {
 applyTheme("kingdom");
 applyChrome(loadChrome());
 loadMusicMuted();
+installNowPlaying();
 
 document.addEventListener("click", (e) => {
   audioManager.start();
