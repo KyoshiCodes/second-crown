@@ -40,6 +40,7 @@ import {
 import { ResearchTreeMap } from "./ResearchTreeMap";
 import { formatHorizon, horizonBracket, isLongHorizon } from "./horizon/horizon";
 import { HorizonBadge, HorizonTime } from "./horizon/HorizonTime";
+import { LongProjectBadge } from "./horizon/LongProjectBadge";
 import { LivingLecternPip, summarizeActiveStudy } from "./hud/LivingLecternPip";
 import "./hud/button-pips.css";
 import "./hud/research-ink-pip.css";
@@ -194,6 +195,7 @@ function Row(props: {
           {status === "studying" ? "Time left " : "Takes "}
           <HorizonTime seconds={displaySeconds} />
           <HorizonBadge seconds={displaySeconds} />
+          <LongProjectBadge seconds={displaySeconds} />
         </p>
       ) : null}
       <StudyNeedsRow needs={needs} />

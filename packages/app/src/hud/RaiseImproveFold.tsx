@@ -16,6 +16,7 @@ import type { ActFn } from "../game/useGameEngine";
 import { Fold } from "./Fold";
 import { horizonBracket, isLongHorizon } from "../horizon/horizon";
 import { HorizonBadge, HorizonTime } from "../horizon/HorizonTime";
+import { LongProjectBadge } from "../horizon/LongProjectBadge";
 import "../kingdom-flow.css";
 
 /** One row in the works-in-progress strip: a raise or an improvement, already read from the sim. */
@@ -126,6 +127,7 @@ export function RaiseImproveFold(props: {
                 <span className="sc-raise-work-time">
                   <HorizonTime seconds={w.secondsLeft} />
                   <HorizonBadge seconds={w.secondsLeft} />
+                  <LongProjectBadge seconds={w.secondsLeft} />
                 </span>
                 <button type="button" className="sc-work-btn sc-raise-work-cancel" onClick={() => cancel(w)}>
                   Cancel

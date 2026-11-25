@@ -1,0 +1,143 @@
+/* --- Progression Long-Project Pacing Badge (isolated CSS) ---
+ * Loaded only from horizon/LongProjectBadge.tsx.
+ * Never modifies theme.css, horizon.css, or horizon-living.css.
+ * Strict pointer-events: none !important on decorative pip.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-pacing-long-rgb: 238, 186, 78;
+  --sc-pacing-multiday-rgb: 242, 134, 72;
+}
+
+:root[data-chrome="night"] {
+  --sc-pacing-long-rgb: 226, 184, 102;
+  --sc-pacing-multiday-rgb: 236, 144, 88;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-pacing-long-rgb: 168, 108, 18;
+  --sc-pacing-multiday-rgb: 184, 78, 22;
+}
+
+/* ==========================================================================
+   2. "Long project" Pacing Indicator Pill (>= 4 hours)
+   ========================================================================== */
+.sc-long-project-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 5px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  white-space: nowrap;
+  cursor: help;
+  color: rgb(var(--sc-pacing-long-rgb));
+  background: rgba(var(--sc-pacing-long-rgb), 0.12);
+  border: 1px solid rgba(var(--sc-pacing-long-rgb), 0.48);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.sc-long-project-badge:hover {
+  border-color: rgba(var(--sc-pacing-long-rgb), 0.78);
+  background: rgba(var(--sc-pacing-long-rgb), 0.18);
+}
+
+.sc-long-project-badge.is-hours {
+  animation: sc-long-project-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-long-project-badge.is-days,
+.sc-long-project-badge.is-multi-day {
+  color: rgb(var(--sc-pacing-multiday-rgb));
+  background: rgba(var(--sc-pacing-multiday-rgb), 0.14);
+  border-color: rgba(var(--sc-pacing-multiday-rgb), 0.56);
+  animation: sc-long-project-breathe-days 3.8s ease-in-out infinite;
+}
+
+.sc-long-project-badge.is-days:hover,
+.sc-long-project-badge.is-multi-day:hover {
+  border-color: rgba(var(--sc-pacing-multiday-rgb), 0.85);
+  background: rgba(var(--sc-pacing-multiday-rgb), 0.22);
+}
+
+:root[data-chrome="parchment"] .sc-long-project-badge {
+  color: #6b4109;
+  background: rgba(var(--sc-pacing-long-rgb), 0.14);
+}
+
+:root[data-chrome="parchment"] .sc-long-project-badge.is-days,
+:root[data-chrome="parchment"] .sc-long-project-badge.is-multi-day {
+  color: #7c2d0c;
+  background: rgba(var(--sc-pacing-multiday-rgb), 0.16);
+}
+
+/* ==========================================================================
+   3. Living Pacing Pip
+   ========================================================================== */
+.sc-long-project-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+  background: currentColor;
+  box-shadow: 0 0 4px rgba(var(--sc-pacing-long-rgb), 0.65);
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-long-project-pip-pulse 3.2s ease-in-out infinite;
+}
+
+.sc-long-project-badge.is-days .sc-long-project-pip,
+.sc-long-project-badge.is-multi-day .sc-long-project-pip {
+  box-shadow: 0 0 5px rgba(var(--sc-pacing-multiday-rgb), 0.72);
+}
+
+@keyframes sc-long-project-breathe {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--sc-pacing-long-rgb), 0.12);
+  }
+  50% {
+    box-shadow: 0 0 8px 1px rgba(var(--sc-pacing-long-rgb), 0.26);
+  }
+}
+
+@keyframes sc-long-project-breathe-days {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--sc-pacing-multiday-rgb), 0.16);
+  }
+  50% {
+    box-shadow: 0 0 10px 1px rgba(var(--sc-pacing-multiday-rgb), 0.32);
+  }
+}
+
+@keyframes sc-long-project-pip-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+/* ==========================================================================
+   4. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-long-project-badge.is-hours,
+  .sc-long-project-badge.is-days,
+  .sc-long-project-badge.is-multi-day,
+  .sc-long-project-pip {
+    animation: none !important;
+  }
+}

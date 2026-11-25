@@ -1,12 +1,12 @@
 import React from "react";
 import { RESEARCH, keepLevel, researchDone, type GameState } from "@second-crown/sim";
 import {
-  exactSeconds,
   formatHorizon,
   horizonBracket,
   isLongHorizon,
   isPaceBreathing,
   paceStage,
+  pacingTooltip,
   unitTierLabel,
   unitTierRank,
   unitTierShape,
@@ -14,8 +14,9 @@ import {
 } from "./horizon";
 import "./horizon.css";
 import "./horizon-living.css";
+export { LongProjectBadge } from "./LongProjectBadge";
 
-/** A duration in long form ("3h 20m"). Tooltip carries the exact seconds. */
+/** A duration in long form ("3h 20m"). Tooltip carries exact seconds and pacing context. */
 export function HorizonTime(props: { seconds: number; suffix?: string; className?: string }) {
   const { seconds, suffix, className } = props;
   const bracket = horizonBracket(seconds);
@@ -23,7 +24,7 @@ export function HorizonTime(props: { seconds: number; suffix?: string; className
     <span
       className={`sc-horizon-time is-${bracket}${className ? ` ${className}` : ""}`}
       data-horizon={bracket}
-      title={exactSeconds(seconds)}
+      title={pacingTooltip(seconds)}
     >
       {formatHorizon(seconds)}
       {suffix ? ` ${suffix}` : ""}
@@ -37,7 +38,7 @@ export function HorizonBadge(props: { seconds: number }) {
   if (!isLongHorizon(seconds)) return null;
   const bracket = horizonBracket(seconds);
   return (
-    <span className={`sc-horizon-badge is-${bracket}`} data-horizon={bracket} title={exactSeconds(seconds)}>
+    <span className={`sc-horizon-badge is-${bracket}`} data-horizon={bracket} title={pacingTooltip(seconds)}>
       <span className="sc-horizon-badge-glass" aria-hidden="true" />
       {bracket}
     </span>

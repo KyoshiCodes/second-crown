@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — "Long project" pacing badge & tooltip enhancement
+
+- **`Long project` badge (`horizon/LongProjectBadge.tsx`, `horizon/horizon-pacing.css`):** Added `<LongProjectBadge>` beside `<HorizonBadge>` on lectern studies (`ResearchBar.tsx`) and Raise / Improve work rows (`RaiseImproveFold.tsx`) whenever remaining or total wait is `>= 4` hours (`LONG_PROJECT_SECONDS = 14_400`). Displays a softly breathing `"Long project"` pill with a living status pip (`pointer-events: none !important;`) in warm amber (`hours`) or deeper ember (`.is-days.is-multi-day`).
+- **Enhanced pacing tooltips (`horizon/horizon.ts`, `horizon/HorizonTime.tsx`):** Added `pacingTier` (`short` / `extended` / `long-project` / `multi-day`) and `pacingTooltip` on `HorizonTime`, `HorizonBadge`, and `LongProjectBadge`, keeping exact seconds while clarifying 1h+, 4h+, and multi-day commitments that progress while away.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `horizon.css`, `horizon-living.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/horizon/LongProjectBadge.test.tsx` (10 tests). Now: sim **374**, app **1482**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Sim pacing pass 1 (long-game times and costs)
 
 - **New `packages/sim/src/content/pacing.ts`:** one table for the long-game curves (`UPGRADE_TIME_MULT`, `UPGRADE_COST_MULT`, `UNIT_TIER_PACING`, plus `MINUTE_TICKS` / `HOUR_TICKS` / `DAY_TICKS`). Pure numbers, deterministic.

@@ -1,3 +1,13 @@
+## 2026-11-25 — app / "Long project" pacing badge & tooltips
+
+- **Helpers & components (`packages/app/src/horizon/`):**
+  - `horizon.ts` exports `LONG_PROJECT_SECONDS = 14_400` (`4 * HOUR`), `PacingTier`, `isLongProject(seconds)`, `pacingTier(seconds)`, and `pacingTooltip(seconds)` (always retains `exactSeconds(seconds)` so `horizon.test.tsx` assertions keep passing).
+  - `LongProjectBadge.tsx` renders `<span class="sc-long-project-badge is-<bracket>[ is-multi-day]">` with `<span class="sc-long-project-pip">` when `isLongProject(seconds)` is true; mounted right after `<HorizonBadge>` in `ResearchBar.tsx` and `RaiseImproveFold.tsx` without mutating existing `.sc-study-living-card` or `.sc-horizon-study` class lists.
+  - `HorizonTime.tsx` updates `HorizonTime` and `HorizonBadge` `title` attributes to use `pacingTooltip(seconds)` and re-exports `LongProjectBadge`.
+- **Dedicated CSS (`packages/app/src/horizon/horizon-pacing.css`):**
+  - Imported from `LongProjectBadge.tsx`. Defines Dusk/Night/Parchment tokens (`--sc-pacing-long-rgb`, `--sc-pacing-multiday-rgb`), pill breathing (`sc-long-project-breathe`, `sc-long-project-breathe-days`), pip pulse (`sc-long-project-pip-pulse`, `pointer-events: none !important;`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to `theme.css`, `horizon.css`, `horizon-living.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/horizon/LongProjectBadge.test.tsx`):** 10 tests passing (`npm test` -> sim 374, app 1482, server 158 (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — sim / pacing pass 1
 
 - **Where the numbers live:** `packages/sim/src/content/pacing.ts`. Upgrade curves are indexed by *from-level* (1–4). Unit curves are indexed by `UnitType.tier`. Research ticks and costs are literal values in the `RESEARCH` table (comment at its head gives the bands). Tick math: 600 = 1m, 36,000 = 1h, 864,000 = 1d.

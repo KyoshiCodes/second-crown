@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — "Long project" tags for 4+ hour waits
+
+- **Long project pill:** Studies and building works that take 4 hours or longer now show a softly breathing **Long project** pill (warm gold for multi-hour jobs, deeper ember for multi-day jobs).
+- **Clearer hover tooltips:** Hovering any hour- or day-scale timer or badge now explains that it is an extended or multi-day commitment that keeps progressing while you are away, alongside the exact second count.
+
 ## 2026-11-25 — The long game is longer
 
 - **Studies take real time now.** Starter studies (Husbandry, Drill, and so on) take about 5 minutes. Keep II studies take 40 minutes to 3 hours. Keep III studies take 8 hours to a day and a half.

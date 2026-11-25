@@ -61,6 +61,41 @@ export function exactSeconds(seconds: number): string {
   return `${s.toLocaleString("en-US")} second${s === 1 ? "" : "s"}`;
 }
 
+/** Threshold (4 hours) at which a wait earns the "Long project" pacing badge. */
+export const LONG_PROJECT_SECONDS = 4 * HOUR;
+
+export type PacingTier = "short" | "extended" | "long-project" | "multi-day";
+
+/** True when a research or building wait is 4 hours or longer. */
+export function isLongProject(seconds: number): boolean {
+  const s = Math.ceil(Math.max(0, seconds));
+  return s >= LONG_PROJECT_SECONDS;
+}
+
+/** Classifies a wait into display pacing bands for indicators and tooltips. */
+export function pacingTier(seconds: number): PacingTier {
+  if (horizonBracket(seconds) === "days") return "multi-day";
+  if (isLongProject(seconds)) return "long-project";
+  if (horizonBracket(seconds) === "hours") return "extended";
+  return "short";
+}
+
+/** Tooltip text carrying exact seconds plus pacing context for hour/day waits. */
+export function pacingTooltip(seconds: number): string {
+  const exact = exactSeconds(seconds);
+  const tier = pacingTier(seconds);
+  if (tier === "multi-day") {
+    return `Long project (multi-day commitment) · ${formatHorizon(seconds)} (${exact}). Progress continues while away.`;
+  }
+  if (tier === "long-project") {
+    return `Long project (4h+ commitment) · ${formatHorizon(seconds)} (${exact}). Progress continues while away.`;
+  }
+  if (tier === "extended") {
+    return `Multi-hour wait · ${formatHorizon(seconds)} (${exact}). Progress continues while away.`;
+  }
+  return exact;
+}
+
 // ---------- Units ----------
 
 export type UnitTierRank = 1 | 2 | 3 | 4 | 5;
