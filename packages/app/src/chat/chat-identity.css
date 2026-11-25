@@ -1,0 +1,191 @@
+/* --- Global Chat Living Identity, Just-Sent & Ready-Send (isolated CSS) ---
+ * Loaded from chat/GlobalChatPanel.tsx after chat-polish.css.
+ * Never touches theme.css, global-chat.css, chat-living.css, or chat-polish.css.
+ * Strict pointer-events: none !important on sender pips and sent pill.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-chat-crest-self-rgb: 238, 192, 82;
+  --sc-chat-crest-herald-rgb: 234, 152, 72;
+  --sc-chat-crest-peer-rgb: 148, 163, 184;
+  --sc-chat-just-sent-rgb: 242, 198, 92;
+  --sc-chat-send-ready-rgb: 228, 178, 72;
+}
+
+:root[data-chrome="night"] {
+  --sc-chat-crest-self-rgb: 154, 198, 242;
+  --sc-chat-crest-herald-rgb: 218, 178, 108;
+  --sc-chat-crest-peer-rgb: 144, 166, 196;
+  --sc-chat-just-sent-rgb: 156, 200, 245;
+  --sc-chat-send-ready-rgb: 144, 186, 232;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-chat-crest-self-rgb: 216, 154, 48;
+  --sc-chat-crest-herald-rgb: 208, 128, 48;
+  --sc-chat-crest-peer-rgb: 148, 130, 104;
+  --sc-chat-just-sent-rgb: 224, 164, 58;
+  --sc-chat-send-ready-rgb: 216, 156, 52;
+}
+
+/* ==========================================================================
+   2. Living Sender Pips / Crests (Self vs Herald vs Peer)
+   ========================================================================== */
+.sc-chat-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-chat-sender-pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  flex: none;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-chat-sender-pip svg {
+  display: block;
+  pointer-events: none !important;
+}
+
+.sc-chat-sender-pip.sender-self {
+  color: rgb(var(--sc-chat-crest-self-rgb));
+  filter: drop-shadow(0 0 3px rgba(var(--sc-chat-crest-self-rgb), 0.52));
+  animation: sc-chat-crest-breathe 3.2s ease-in-out infinite;
+}
+
+.sc-chat-sender-pip.sender-herald {
+  color: rgb(var(--sc-chat-crest-herald-rgb));
+  filter: drop-shadow(0 0 2.5px rgba(var(--sc-chat-crest-herald-rgb), 0.45));
+  animation: sc-chat-crest-twinkle 4.2s ease-in-out infinite;
+}
+
+.sc-chat-sender-pip.sender-peer {
+  color: rgb(var(--sc-chat-crest-peer-rgb));
+  opacity: 0.85;
+  animation: sc-chat-crest-breathe 5.0s ease-in-out infinite;
+}
+
+@keyframes sc-chat-crest-breathe {
+  0%, 100% {
+    opacity: 0.78;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes sc-chat-crest-twinkle {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+/* ==========================================================================
+   3. Soft "Just Sent" Settling Accent
+   ========================================================================== */
+.sc-chat-list > .sc-work-card.sc-chat-msg.is-just-sent {
+  animation: sc-chat-just-sent-settle 2800ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.sc-chat-just-sent-pill {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 4px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(var(--sc-chat-just-sent-rgb));
+  background: rgba(var(--sc-chat-just-sent-rgb), 0.14);
+  border: 1px solid rgba(var(--sc-chat-just-sent-rgb), 0.48);
+  border-radius: 6px;
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-chat-sent-pill-fade 2800ms ease-out forwards;
+}
+
+@keyframes sc-chat-just-sent-settle {
+  0% {
+    border-color: rgba(var(--sc-chat-just-sent-rgb), 0.9);
+    box-shadow:
+      inset 0 0 0 1px rgba(var(--sc-chat-just-sent-rgb), 0.38),
+      0 0 10px rgba(var(--sc-chat-just-sent-rgb), 0.24);
+  }
+  45% {
+    border-color: rgba(var(--sc-chat-just-sent-rgb), 0.56);
+    box-shadow:
+      inset 0 0 0 1px rgba(var(--sc-chat-just-sent-rgb), 0.16),
+      0 0 5px rgba(var(--sc-chat-just-sent-rgb), 0.1);
+  }
+  100% {
+    border-color: var(--chrome-btn-border, #6b542e);
+    box-shadow: none;
+  }
+}
+
+@keyframes sc-chat-sent-pill-fade {
+  0% {
+    opacity: 0;
+    transform: translateX(-3px);
+  }
+  12%, 55% {
+    opacity: 0.92;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+/* ==========================================================================
+   4. Gentle Breathing on Send Button When Input Has Text
+   ========================================================================== */
+.sc-chat-send.is-ready:not(:disabled) {
+  border-color: rgba(var(--sc-chat-send-ready-rgb), 0.72);
+  animation: sc-chat-send-breathe 2.6s ease-in-out infinite;
+}
+
+@keyframes sc-chat-send-breathe {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(var(--sc-chat-send-ready-rgb), 0);
+  }
+  50% {
+    box-shadow:
+      0 0 8px rgba(var(--sc-chat-send-ready-rgb), 0.32),
+      inset 0 0 6px rgba(var(--sc-chat-send-ready-rgb), 0.14);
+  }
+}
+
+/* ==========================================================================
+   5. Reduced Motion Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-chat-sender-pip.sender-self,
+  .sc-chat-sender-pip.sender-herald,
+  .sc-chat-sender-pip.sender-peer,
+  .sc-chat-list > .sc-work-card.sc-chat-msg.is-just-sent,
+  .sc-chat-just-sent-pill,
+  .sc-chat-send.is-ready:not(:disabled) {
+    animation: none !important;
+    transition: none !important;
+  }
+}

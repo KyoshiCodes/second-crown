@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-25 — Global Chat living identity, just-sent & ready-send accents
+
+- **Living sender pips/crests (`chat/GlobalChatPanel.tsx`, `chat/chat-identity.css`):** Added `resolveChatSenderCrest` rendering distinct miniature `pointer-events: none !important;` crests beside every author name: an imperial gold crown (`sender-self`) on your messages, an amber diamond seal (`sender-herald`) on Herald announcements, and a calm slate shield (`sender-peer`) on other players/NPCs.
+- **Soft "just sent" settling accent (`CHAT_JUST_SENT_MS = 2800`):** Newly sent messages carry `.is-just-sent` (`data-just-sent="true"`) and a subtle fading `"sent"` micro-pill (`.sc-chat-just-sent-pill`), lighting the card rim warmly before settling smoothly into `.is-own` over `2.8s`.
+- **Ready Send button breathing:** When the draft input contains non-whitespace text, `.sc-chat-send.is-ready` gently breathes (`2.6s`, `data-send-ready="true"`) and remains still when blank/disabled.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `global-chat.css`, `chat-living.css`, `chat-polish.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/chat/ChatIdentity.test.tsx` (3 tests). Now: sim **362**, app **1422**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Global Chat polish (relative time, own messages, clear, empty state)
 
 - **Relative time on every message:** the time column now reads `now` / `4m` / `2h` / `Yesterday` / `Nov 20` (`formatChatRelative(at, now)` in `chat/globalChat.ts`) and re-renders every 30s (`CHAT_CLOCK_TICK_MS`). Hover shows the full local stamp, e.g. `Nov 25, 09:04` (`formatChatStamp`). Future timestamps (clock skew) read `now`, never negative.

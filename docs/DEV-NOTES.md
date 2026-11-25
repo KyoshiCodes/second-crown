@@ -1,3 +1,13 @@
+## 2026-11-25 — app / Global Chat living identity, just-sent & ready-send accents
+
+- **Component (`packages/app/src/chat/GlobalChatPanel.tsx`):**
+  - Exported `CHAT_JUST_SENT_MS = 2800`, `ChatSenderCrestKind` (`"self" | "herald" | "peer"`), and `resolveChatSenderCrest(msg, author)` plus optional `justSentOverrideId` and `initialDraft` props for deterministic SSR tests.
+  - Preserved `ChatPolish.test.tsx` & `GlobalChatPanel.test.tsx` invariants (`is-own` once per own row, exact `sc-chat-msg` count, single `sendToServer(` call site, zero `fetch(` calls).
+- **Dedicated CSS (`packages/app/src/chat/chat-identity.css`):**
+  - Styles `.sc-chat-sender-pip` (`sender-self` / `sender-herald` / `sender-peer`), settling `2800ms` `.is-just-sent` / `.sc-chat-just-sent-pill` (`sc-chat-just-sent-settle`, `sc-chat-sent-pill-fade`), and `.sc-chat-send.is-ready:not(:disabled)` (`sc-chat-send-breathe`) across Dusk/Night/Parchment with `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)`.
+  - Zero edits to `theme.css`, `global-chat.css`, `chat-living.css`, `chat-polish.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/chat/ChatIdentity.test.tsx`):** 3 tests passing (`npm test` -> sim 362, app 1422, server 158; `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — app / Global Chat polish
 
 - **Helpers (`packages/app/src/chat/globalChat.ts`):** `formatChatRelative(at, now)` (pure; pass `now`), `formatChatStamp(at)` for the `<time title>`, `isOwnMessage(msg, author)` (`local === true || author === author`, so own lines stay styled once a server echo drops the `local` flag), `CHAT_CLOCK_TICK_MS = 30_000`. `formatChatTime` kept (used by `formatChatStamp`).

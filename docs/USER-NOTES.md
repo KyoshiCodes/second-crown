@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Global Chat sender crests & sent highlight
+
+- **Sender crests:** Each chat sender now wears a small crest next to their name — a glowing gold crown for you, an amber seal for the Herald, and a calm shield for other players.
+- **Just-sent glow & ready Send button:** Messages you just sent show a brief `"sent"` glow that softly settles after a moment, and the **Send** button breathes lightly once you start typing.
+
 ## 2026-11-25 — Global Chat polish
 
 - **How long ago:** each chat message now shows how long ago it was posted ("now", "4m", "2h", "Yesterday"). Hover the time to see the exact date and time.
