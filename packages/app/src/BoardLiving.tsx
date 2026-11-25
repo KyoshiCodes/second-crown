@@ -51,6 +51,21 @@ import {
   type BoardMusicLightingProps,
 } from "./hud/BoardMusicLighting";
 import {
+  BoardLivingAccents,
+  listKeepAccents,
+  listTerrainAccents,
+  readAccentDayPhase,
+  resolveAccentMusicTint,
+  resolveProvinceSelectionFeedback,
+  type AccentDayPhase,
+  type AccentMusicTint,
+  type BoardLivingAccentsProps,
+  type KeepAccentPoint,
+  type ProvinceSelectionFeedback,
+  type SelectionFeedbackTone,
+  type TerrainAccentPoint,
+} from "./hud/BoardLivingAccents";
+import {
   CultureCrestPip,
   HomeKeepCultureCrest,
   type CultureCrestPipProps,
@@ -716,6 +731,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
           </g>
         )}
 
+        {/* 3.2. Living Ambient Accents & Tactile Province Selection */}
+        <BoardLivingAccents state={state} selectedId={selectedId} dayPhase={light.phase} />
+
         {/* 4. Living Structure Glyphs Layer (camps/outposts and gather node piles on seen tiles) */}
         {(campGlyphs.length > 0 || nodeGlyphs.length > 0) && (
           <g className="sc-board-living-structures" style={{ pointerEvents: "none" }}>
@@ -1027,6 +1045,19 @@ export {
   resolveBoardMusicLighting,
   type BoardMusicLightingDescriptor,
   type BoardMusicLightingProps,
+  BoardLivingAccents,
+  listKeepAccents,
+  listTerrainAccents,
+  readAccentDayPhase,
+  resolveAccentMusicTint,
+  resolveProvinceSelectionFeedback,
+  type AccentDayPhase,
+  type AccentMusicTint,
+  type BoardLivingAccentsProps,
+  type KeepAccentPoint,
+  type ProvinceSelectionFeedback,
+  type SelectionFeedbackTone,
+  type TerrainAccentPoint,
   HomeKeepCrownPip,
   PrestigeCrownPip,
   resolvePrestigeCrownDescriptor,

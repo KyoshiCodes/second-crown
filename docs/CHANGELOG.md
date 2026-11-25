@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-24 — Living board accents & tactile province selection pass
+
+- **Quiet ambient board life (`hud/BoardLivingAccents.tsx`, `hud/board-living-accents.css`, `BoardLiving.tsx`):** Added deterministic, low-opacity ambient accents across seen keeps (`listKeepAccents`, capped at 8 hearth halos + rising sparks) and natural terrain tiles (`listTerrainAccents`, capped at 10 sparse wood fireflies, shore glints, ridge glints, and meadow wisps). Opacities, colors, and breathing cadence (`4.8s`–`6.4s`) gently follow time of day (`dawn`/`day`/`dusk`/`night`) and active music playback via `useNowPlaying()`.
+- **Tactile province selection & atlas hover feedback (`resolveProvinceSelectionFeedback`, `board-living-accents.css`):** Selecting a tile now triggers a one-shot isometric diamond settle ripple (`sc-select-ripple-out`), an ownership/visibility-tinted inner ground sheen (`player` gold, `rival` crimson, `fog` cool silver, `neutral` ivory-gold), a lifted sunward bevel edge highlight, and four N/E/S/W vertex ticks, plus a gentle `-1px` gold-rimmed hover lift on `.sc-atlas-card`.
+- **Unchanged invariants:** Zero changes to camera math (`packages/render`), hit-testing, `theme.css`, `packages/sim`, or `server/`. Strict `pointer-events: none !important;` and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/BoardLivingAccents.test.tsx` (3 tests). Now: sim **362**, app **1383**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-24 — Board presence pass
 
 - **Bigger board on the Board band (`hud/board-focus.css`):** when the camera is on Board, `.sc-map-canvas-container` breaks out of the 760px panel: width `max(100%, min(1120px, 100vw - 56px, (100vh - 150px) × 14/9))`, centred with negative side margins. The canvas keeps its 14:9 shape (CSS scale only), so on a 1920×1080 browser the board goes from 760×488 to 1120×720 (+232px tall, about +48%). It never gets smaller than before. The inline `maxWidth: 900` moved to `.sc-board-frame` in CSS, and the Board band lifts that cap.

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-24 — Quiet board life & crisp tile selection
+
+- **Quiet ambient board life:** Seen keeps show a gentle hearth glow with tiny sparks (warmer at dusk and night), and a handful of woods, shores, ridges, and meadows show soft fireflies or water glints that subtly respond to time of day and active music.
+- **Tactile province selection:** Clicking a province on the board gives a quick outward tile ripple, a lifted top-edge highlight, and four crisp corner ticks (plus a subtle hover lift on atlas province cards). Everything stays light, readable, and non-blocking.
+
 ## 2026-11-24 — The board takes the stage
 
 - **Bigger board:** in Board view the map now grows to fill your screen. On a typical 1080p monitor it's about half again as tall as before. On small screens it stays the same size as before.

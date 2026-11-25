@@ -1,3 +1,13 @@
+## 2026-11-24 — app / living board accents & tactile province selection
+
+- **Components (`packages/app/src/hud/BoardLivingAccents.tsx`, `BoardLiving.tsx`):**
+  - Exported `BoardLivingAccents`, `listKeepAccents`, `listTerrainAccents`, `resolveAccentMusicTint`, `resolveProvinceSelectionFeedback`, `readAccentDayPhase`, and supporting types from `hud/BoardLivingAccents.tsx`, re-exported from `BoardLiving.tsx` and mounted right after the terrain pulse layer.
+  - Uses deterministic coordinate math (`boardTerrainElevation` from `./BoardRoads`, standalone `readAccentDayPhase` + `dayPhase` prop to avoid circular imports with `BoardLiving.tsx`), hard caps (`<= 8` keep accents, `<= 10` terrain accents), and `useNowPlaying()` (`../nowPlaying`) so accents remain quiet and deterministic.
+- **Dedicated CSS (`packages/app/src/hud/board-living-accents.css`):**
+  - Houses ambient keep/terrain animations (`sc-accent-hearth-breathe`, `sc-accent-mote-rise`, `sc-accent-terrain-drift`, `sc-accent-glint-twinkle`), one-shot selection settle ripple (`sc-select-ripple-out`), lifted bevel & corner tick pulses (`sc-select-edge-pulse`, `sc-select-corner-breathe`), subtle `.sc-atlas-card:hover` lift, strict `pointer-events: none !important;`, and `@media (prefers-reduced-motion: reduce)` guards.
+  - Zero edits to `packages/render/`, `theme.css`, `packages/sim`, or `server/`.
+- **Verification (`packages/app/src/hud/BoardLivingAccents.test.tsx`):** 3 tests passing (`npm test` -> sim 362, app 1383, server 158; `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-24 — app / board presence pass
 
 - **`hud/BoardFocus.tsx`:** `BoardFocusFrame({ visible })` returns null off Board; on Board it renders `.sc-board-focus-edge` (absolute inset 0, z 3) and `.sc-board-focus-tag` (z 4; map controls stay at z 5). Imports `./board-focus.css`. Rendered in `AppShell` inside the board frame, after `BoardStatus`. It uses its own elements, not `::before`/`::after` on the frame, because `board-music-lighting.css` and `music-reactive.css` already use those pseudo-elements.
