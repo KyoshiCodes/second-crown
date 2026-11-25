@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Calm deficit glow & blocker icons on studies and builds
+
+- **Food deficit glow on Stores:** When your army eats more food than you produce, the **Food** store card gets a gentle rose-rust tint along with a small pulsing dot beside the **Net** readout so you can spot negative food flow cleanly without mistaking it for an empty storehouse or amber limiter.
+- **At-a-glance study & build blockers:** Studies and building upgrades blocked by **warehouse too small** (copper cap badge), a **missing prerequisite** (violet diamond seal), or a **busy lectern** (blue hourglass badge) now wear calm colored icons that look clearly different from the warm gold **Saving** badge used when you are just waiting for resources.
+
 ## 2026-11-25 — Clearer "when can I afford it" and "why can't I start it"
 
 - **Two times, not one:** Expensive studies and the Kingdom **Limiter** line now say both when you can pay ("Ready to pay in ~40m") and how long the work takes once started ("finishes in ~6h after you start").

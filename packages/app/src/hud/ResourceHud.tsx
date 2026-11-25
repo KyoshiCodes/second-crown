@@ -20,6 +20,8 @@ import { bottleneckResourceMap } from "./economyPressure";
 import { foodDeficit, formatSignedRate, realmRates } from "../projection";
 import "../cost-projection.css";
 import { incomeBracketLabel, resolveIncomeBracket, type IncomeBracket } from "./incomeBracket";
+import "./blocker-deficit.css";
+import { isFoodInDeficit } from "./blockerAccents";
 
 export const HUD_PULSE_MS = 680;
 export type ResourceMicroPulseKey = "food" | "wood" | "stone" | "gold";
@@ -70,10 +72,18 @@ export function ResourceHud(props: {
   pulseOverride?: Partial<Record<ResourceMicroPulseKey, Exclude<ResourceMicroPulseKind, null>>>;
   bottleneckOverride?: Readonly<Record<string, string | boolean>>;
   incomeBracketOverride?: Partial<Record<ResourceMicroPulseKey, IncomeBracket>>;
+  foodDeficitOverride?: number | null;
 }) {
   const hungry = props.state ? isFoodStoresEmptyOrLow(props.state) : false;
   const bottleneckMap = bottleneckResourceMap(props.state);
-  const foodNet = props.state ? foodDeficit(realmRates(props.state)) : null;
+  const foodNet =
+    props.foodDeficitOverride !== undefined
+      ? isFoodInDeficit(props.foodDeficitOverride)
+        ? props.foodDeficitOverride
+        : null
+      : props.state
+        ? foodDeficit(realmRates(props.state))
+        : null;
 
   const entries = (["food", "wood", "stone", "gold"] as const).map((r) => {
     const line = props.state ? resourceLedger(props.state, r) : null;
@@ -171,10 +181,13 @@ export function ResourceHud(props: {
         const incomeBracket = props.incomeBracketOverride?.[r] ?? resolveIncomeBracket(income);
         const incomeBracketNote = incomeBracketLabel(incomeBracket);
         const isHighIncome = incomeBracket !== "base";
+        const deficitAmount = r === "food" && isFoodInDeficit(foodNet) ? foodNet : null;
+        const isFoodDeficit = deficitAmount !== null;
         const cellTip = [
           tip,
           isBottleneck ? `limiter for ${bottleneckTargets.join(", ")}` : "",
           incomeBracketNote ?? "",
+          isFoodDeficit ? `Food ${formatSignedRate(deficitAmount)} after upkeep` : "",
         ]
           .filter(Boolean)
           .join(" · ");
@@ -182,16 +195,18 @@ export function ResourceHud(props: {
           <div
             key={r}
             role="listitem"
-            className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}${isBottleneck ? " is-bottleneck" : ""}${isHighIncome ? ` is-income-${incomeBracket}` : ""}`}
+            className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}${isBottleneck ? " is-bottleneck" : ""}${isHighIncome ? ` is-income-${incomeBracket}` : ""}${isFoodDeficit ? " is-food-deficit" : ""}`}
             data-hud-pulse={activePulse ?? undefined}
             data-economy-bottleneck={isBottleneck ? "true" : undefined}
             data-bottleneck-targets={isBottleneck ? bottleneckTargets.join(", ") : undefined}
             data-income-bracket={isHighIncome ? incomeBracket : undefined}
+            data-food-deficit-cell={isFoodDeficit ? "true" : undefined}
             title={cellTip}
           >
             <ResourceLivingUnderlay resource={r} mood={desc.mood} />
             {isBottleneck ? <span className="sc-econ-bottleneck-glow" aria-hidden="true" /> : null}
             {isHighIncome ? <span className={`sc-income-bracket-glow is-${incomeBracket}`} aria-hidden="true" /> : null}
+            {isFoodDeficit ? <span className="sc-food-deficit-glow" aria-hidden="true" /> : null}
             {activePulse ? (
               <span
                 key={`flash-${pulseSeq}`}
@@ -250,7 +265,10 @@ export function ResourceHud(props: {
               {r === "food" && foodNet !== null ? (
                 <div className="sc-resource-living-row is-net" data-food-deficit={foodNet}>
                   <span className="sc-resource-living-label">Net</span>
-                  <div className="sc-ledger-rate is-deficit">{formatSignedRate(foodNet)} after upkeep</div>
+                  <div className="sc-ledger-rate is-deficit">
+                    <span className="sc-deficit-pip" data-deficit-pip="true" aria-hidden="true" />
+                    {formatSignedRate(foodNet)} after upkeep
+                  </div>
                 </div>
               ) : null}
             </div>

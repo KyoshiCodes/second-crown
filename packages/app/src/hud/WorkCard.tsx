@@ -17,6 +17,8 @@ import type { ActFn } from "../game/useGameEngine";
 import { projectCost, realmRates, type RealmRates } from "../projection";
 import { isSavingCost } from "./economyPressure";
 import { SavingPip } from "./SavingPip";
+import { hasWarehouseBlocker } from "./blockerAccents";
+import { BlockerPip } from "./BlockerPip";
 import { HallChip } from "./HallChip";
 import { WorkStatus, workStatusRows } from "./WorkStatus";
 import {
@@ -50,21 +52,23 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
     keepPct: keep,
   });
   const nextUpgrade = !scarred && !upgradeJobFor(state, b.id) ? upgradeCost(state, b.id) : null;
-  const savingUpgrade = Boolean(
-    nextUpgrade && isSavingCost(projectCost(nextUpgrade, props.rates ?? realmRates(state))),
-  );
+  const upgradeProj = nextUpgrade ? projectCost(nextUpgrade, props.rates ?? realmRates(state)) : null;
+  const warehouseBlocked = Boolean(upgradeProj && hasWarehouseBlocker(upgradeProj));
+  const savingUpgrade = Boolean(upgradeProj && !warehouseBlocked && isSavingCost(upgradeProj));
   const living = splitWorkRows(rows);
   const cls = [
     "sc-work-card",
     "sc-building-card",
     scarred ? "is-scarred" : staff > 0 ? "is-staffed" : "is-empty",
     ...(savingUpgrade ? ["is-saving-cost"] : []),
+    ...(warehouseBlocked ? ["is-blocker-warehouse"] : []),
   ].join(" ");
 
   return (
     <div
       className={cls}
       data-saving={savingUpgrade ? "true" : undefined}
+      data-blocker-accent={warehouseBlocked ? "warehouse" : undefined}
       title={`${nm} at ${b.x},${b.y}`}
     >
       <WorkLivingUnderlay
@@ -88,7 +92,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
       />
       <div className="sc-work-foot">
         <span className="sc-work-where">{b.x},{b.y}</span>
-        {savingUpgrade ? <SavingPip /> : null}
+        {warehouseBlocked ? <BlockerPip kind="warehouse" /> : savingUpgrade ? <SavingPip /> : null}
         {scarred ? (
           <button
             type="button"

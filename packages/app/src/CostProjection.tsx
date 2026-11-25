@@ -33,6 +33,8 @@ import {
 import "./cost-projection.css";
 import { isSavingCost } from "./hud/economyPressure";
 import { SavingPip } from "./hud/SavingPip";
+import { hasWarehouseBlocker, resolveLivingBlockers } from "./hud/blockerAccents";
+import { BlockerPip } from "./hud/BlockerPip";
 
 /**
  * Display-only projections. Compare a cost with current net income (food after army
@@ -88,9 +90,20 @@ export function projectionText(
 /** Visible "Blocked" label plus every reason, so it reads without hover on touch and keyboard. */
 export function BlockedLine(props: { reasons: readonly BlockReason[] }) {
   if (props.reasons.length === 0) return null;
+  const living = resolveLivingBlockers(props.reasons);
+  const primary = living[0];
   return (
-    <p className="sc-blocked-line" data-blocked={props.reasons.map((r) => r.kind).join(",")}>
-      <span className="sc-blocked-label">Blocked</span> {props.reasons.map((r) => r.text).join(DOT)}
+    <p
+      className={`sc-blocked-line${primary ? ` is-blocker-${primary}` : ""}`}
+      data-blocked={props.reasons.map((r) => r.kind).join(",")}
+      data-blocker-accent={living.length > 0 ? living.join(",") : undefined}
+    >
+      <span className="sc-blocked-label">Blocked</span>{" "}
+      {living.map((kind) => (
+        <BlockerPip key={kind} kind={kind} />
+      ))}
+      {living.length > 0 ? " " : null}
+      {props.reasons.map((r) => r.text).join(DOT)}
     </p>
   );
 }
@@ -110,17 +123,20 @@ export function StudyProjection(props: {
   const line = projectionText(proj, { finishSeconds: props.finishSeconds });
   const reasons = props.gates ? blockReasons(proj, props.gates) : [];
   if (!line && reasons.length === 0) return null;
-  const saving = line ? isSavingCost(proj) : false;
+  const warehouseBlocked = hasWarehouseBlocker(proj);
+  const saving = line ? !warehouseBlocked && isSavingCost(proj) : false;
+  const inlineWarehouse = Boolean(line && warehouseBlocked && reasons.length === 0);
   return (
     <>
       <BlockedLine reasons={reasons} />
       {line ? (
         <p
-          className={`sc-cost-projection tone-${line.tone}${saving ? " is-saving-cost" : ""}`}
+          className={`sc-cost-projection tone-${line.tone}${saving ? " is-saving-cost" : ""}${inlineWarehouse ? " is-blocker-warehouse" : ""}`}
           data-cost-projection={line.tone}
           data-saving={saving ? "true" : undefined}
+          data-blocker-accent={inlineWarehouse ? "warehouse" : undefined}
         >
-          {saving ? <SavingPip /> : null}
+          {inlineWarehouse ? <BlockerPip kind="warehouse" /> : saving ? <SavingPip /> : null}
           {line.text}
         </p>
       ) : null}

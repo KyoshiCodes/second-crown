@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Living food deficit & blocker accents on HUD, studies, and builds
+
+- **Food deficit cell state (`hud/ResourceHud.tsx`, `hud/blockerAccents.ts`, `hud/blocker-deficit.css`):** Added `isFoodInDeficit` and optional `foodDeficitOverride`. When net food after army upkeep is negative, the Food store cell gets `.is-food-deficit` with a soft rose-rust inner wash (`sc-food-deficit-glow`, no store pseudo-elements, `pointer-events: none !important;`), updated cell tooltip, and a gently breathing `.sc-deficit-pip` beside the `Net −.../s after upkeep` readout (`sc-food-deficit` on the Kingdom deficit line also gains a quiet rose-rust left accent). Coexists cleanly alongside bare-larder alerts, bottleneck amber pulses, and scaled-income glows.
+- **Distinct living blocker indicators (`hud/BlockerPip.tsx`, `CostProjection.tsx`, `hud/RaiseImproveFold.tsx`, `hud/WorkCard.tsx`):** Added `resolveLivingBlockers`, `hasWarehouseBlocker`, `projectPartialCost`, and phrasing-only `<BlockerPip>` (`pointer-events: none !important;`) with three distinct colors & SVG shapes: copper-terracotta storage cap (`warehouse` / `Cap`), slate-violet diamond link (`prereq` / `Prereq`), and cerulean hourglass (`busy` / `Busy`). Wired into study `BlockedLine`, standalone over-cap `StudyProjection`, compact build picker chips (`RaiseImproveFold`), and standing upgrade cards (`WorkCard`), keeping `"stores short"` / `<SavingPip>` visually separate.
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `cost-projection.css`, `economy-pressure.css`, `hud-micro-feedback.css`, `income-bracket.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/BlockerDeficitAccents.test.tsx` (13 tests). Now: sim **390**, app **1539**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Actionable economy cues: ready vs finish, block reasons, food deficit
 
 - **Ready vs finish (`CostProjection.tsx`):** `projectionText(p, { finishSeconds })` now reads `Ready to pay in ~5m (food is the limiter) · finishes in ~6h after you start.` or `Stores cover it now · finishes in …`. Study cards pass `researchDuration`; the Kingdom Limiter line passes `researchDuration` / `upgradeDurationTicks` for the Keep.

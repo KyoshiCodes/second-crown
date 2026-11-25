@@ -18,8 +18,10 @@ import { horizonBracket, isLongHorizon } from "../horizon/horizon";
 import { HorizonBadge, HorizonTime } from "../horizon/HorizonTime";
 import { LongProjectBadge } from "../horizon/LongProjectBadge";
 import { realmRates } from "../projection";
-import { isCostSaving } from "./economyPressure";
+import { isSavingCost } from "./economyPressure";
 import { SavingPip } from "./SavingPip";
+import { hasWarehouseBlocker, projectPartialCost } from "./blockerAccents";
+import { BlockerPip } from "./BlockerPip";
 import "../kingdom-flow.css";
 
 /** One row in the works-in-progress strip: a raise or an improvement, already read from the sim. */
@@ -147,20 +149,23 @@ export function RaiseImproveFold(props: {
           const n = state ? countBuilding(state, t.id) : 0;
           const afford = state ? canAfford(state, t.id) : false;
           const picked = selectedBuild === t.id;
-          const saving = Boolean(rates && !afford && isCostSaving(t.cost, rates));
+          const proj = rates && !afford ? projectPartialCost(t.cost, rates) : null;
+          const warehouseBlocked = Boolean(proj && hasWarehouseBlocker(proj));
+          const saving = Boolean(proj && !warehouseBlocked && isSavingCost(proj));
           return (
             <button
               key={t.id}
               type="button"
               title={t.blurb}
               onClick={() => setSelectedBuild(t.id)}
-              className={`sc-work-card sc-plain-pick ${picked ? "is-picked" : afford ? "is-afford" : "is-short"}${saving ? " is-saving-cost" : ""}`}
+              className={`sc-work-card sc-plain-pick ${picked ? "is-picked" : afford ? "is-afford" : "is-short"}${saving ? " is-saving-cost" : ""}${warehouseBlocked ? " is-blocker-warehouse" : ""}`}
               data-saving={saving ? "true" : undefined}
+              data-blocker-accent={warehouseBlocked ? "warehouse" : undefined}
             >
               <span className="sc-work-head">
                 <span className="sc-work-name">{t.name}</span>
                 {n ? <span className="sc-work-level">x{n}</span> : null}
-                {saving ? <SavingPip compact /> : null}
+                {warehouseBlocked ? <BlockerPip kind="warehouse" compact /> : saving ? <SavingPip compact /> : null}
               </span>
               <span className="sc-work-status">{picked ? "Picked — tap a plot" : afford ? "Can afford" : "Short on stores"}</span>
             </button>
