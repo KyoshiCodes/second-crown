@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-26 — Living Realm slice 3 (flag contest timing, clash lock in the sim)
+
+- **Flag contests (`systems/flagContest.ts`, `rival.ts maybeContestFlag`):** one contesting NPC column per player flag at a time (`FLAG_CONTEST_COLUMNS_PER_FLAG` = 1), then a cooldown of `FLAG_CONTEST_COOLDOWN_TICKS` = 500 ticks (50 s) from the column's arrival tick. Other realms target the next open flag in board order. Who and when only; the contest fight is unchanged.
+- **Snapshot (`flagContestSnapshot`):** `{ tick, limited, contests[], cooldowns[] }`: which flags are under contest, by which realm, until when, and which are resting.
+- **Clash lock in the action (`tryResolveWar`, `warFightOpen`):** an early Fight is refused in the sim, same rule as the War tab. Sieges are open. White Peace works in every phase.
+- **Switch:** `living_flag_cooldown` (key `flagCooldown`); `false` restores unlimited contests. Counter `livingCounts().flagContests`.
+- **Playtest:** living section adds `Flag contests fired: N.` (0 in both bot runs; the bot never plants flags). No balance table changed, no other number moved.
+- **Tests:** new `systems/flagContest.test.ts` (12: one-column rule, next-flag spread, cooldown, prune, off switch, determinism, snapshot, action-level clash lock, white peace in every phase); progression harness test expects the fifth living line. No existing test relied on an early fight (the `combat.test.ts` cases fight a rival war already past its clash). Now: sim **502**, app **1626**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-26 — Living presentation for NPC board activity & clash lock
 
 - **NPC board overlays (`hud/BoardNpcActivity.tsx`, `hud/npc-board-clash.css`, `BoardLiving.tsx`):** Added pure `listBoardNpcAccents` and `<BoardNpcActivity>` inside `BoardLiving`, reading `npcBoardSnapshot(state)` (`kind: "claim" | "camp" | "gather"`, `phase: "planted" | "marching" | "outbound" | "gathering" | "returning"`, matching the shipped snapshot directly) and tinting each overlay via `resolveLivingCultureKit` (`pointer-events: none !important;`, fog-gated, capped at 6 per kind). Claims show diamond boundary banners; camp marches show drifted dashed trails + column chevrons; gatherers show harvest-bobbing crews and transit paths.

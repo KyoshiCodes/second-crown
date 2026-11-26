@@ -10,6 +10,7 @@ import { tryNpcMarch } from "./march.js";
 import { maybeNpcRaid } from "./raidMarch.js";
 import { NPC_RAID_PULSE_TICKS } from "../content/livingRealm.js";
 import { maybeNpcCampMarch, maybeNpcClaim, maybeNpcGatherCrew } from "./npcBoard.js";
+import { flagContestOpen, noteFlagContest, pruneFlagContests } from "./flagContest.js";
 import { atWar, maybeNpcTrade, maybeNpcWar, maybeWhisper, settleNpcWars, tickWarPhases } from "./livingRealm.js";
 
 export const RivalSystem = {
@@ -38,6 +39,7 @@ function npcs(state: GameState) {
 function tickAi(state: GameState, atTick: number): void {
   ensureBoard(state);
   driftOpinions(state);
+  pruneFlagContests(state, atTick);
   for (const realm of npcs(state)) {
     growRealm(state, realm.id);
     maybeNpcClaim(state, realm.id, atTick);
@@ -65,11 +67,18 @@ export function maybeContestFlag(state: GameState, realmId: string, atTick: numb
   if (realmId === "player") return false;
   if (peaceLocked(state, realmId, "player")) return false;
   if (isShielded(state)) return false;
+  // First player flag that is open to a contest (flagContest.ts: one column per flag, then a
+  // cooldown). With living_flag_cooldown off every flag is open, so this is the first flag, as before.
   const flag = state.board.provinces.find(
-    (p) => p.occupantRealmId === "player" && p.id !== state.board.homeProvinceId && p.node !== "hold"
+    (p) =>
+      p.occupantRealmId === "player" &&
+      p.id !== state.board.homeProvinceId &&
+      p.node !== "hold" &&
+      flagContestOpen(state, p.id, atTick)
   );
   if (!flag) return false;
   if (!tryNpcMarch(state, realmId, flag.id)) return false;
+  noteFlagContest(state, flag.id, realmId, atTick);
   const name = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
   pushWorldLog(state, "raid", `${name} contests your flag at ${flag.x},${flag.y}`);
   return true;

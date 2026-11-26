@@ -331,6 +331,7 @@ export {
   tickWarPhases,
   warPhaseTimeline,
   playerFightOpen,
+  warFightOpen,
   LIVING_SWITCH_FLAGS,
 } from "./systems/livingRealm.js";
 export {
@@ -346,6 +347,12 @@ export {
   NPC_BOARD_KINDS,
 } from "./systems/npcBoard.js";
 export type { NpcBoardSnapshot, NpcBoardActivity, NpcBoardKind, NpcBoardPhase, NpcClaim } from "./systems/npcBoard.js";
+export {
+  flagContestSnapshot,
+  flagContestOpen,
+  getFlagContests,
+} from "./systems/flagContest.js";
+export type { FlagContestSnapshot, FlagContestEntry, FlagCooldownEntry, FlagContestRecord } from "./systems/flagContest.js";
 export type { LivingSwitches, CultureNews, WarPhase } from "./systems/livingRealm.js";
 export {
   WAR_PHASE_IDS,
@@ -357,6 +364,8 @@ export {
   NPC_PLAYER_RING,
   NPC_BOARD_GRACE_TICKS,
   NPC_CLAIM_CAP,
+  FLAG_CONTEST_COLUMNS_PER_FLAG,
+  FLAG_CONTEST_COOLDOWN_TICKS,
 } from "./content/livingRealm.js";
 export type { WarPhaseId } from "./content/livingRealm.js";
 export { workerSnapshot, unitActivity, unitActivityAt, WORKER_TASK_TAGS, UNIT_DOING_LABEL } from "./systems/boardActivity.js";

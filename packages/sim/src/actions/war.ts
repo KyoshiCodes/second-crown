@@ -4,6 +4,7 @@ import type { RngStreams } from "../core/rng.js";
 import { noteWar } from "../systems/wave.js";
 import { fortifyTicksLeft } from "../systems/court.js";
 import { DECREES, decreeUntil } from "../systems/decree.js";
+import { warFightOpen } from "../systems/livingRealm.js";
 
 export interface DeclareWarPayload {
   attackerRealmId: string;
@@ -70,6 +71,9 @@ export function tryResolveWar(
     ? state.wars.find((w) => w.id === warId && w.status === "active" && warInvolves(w, "player"))
     : activeWarFor(state, "player");
   if (!war) return { ok: false };
+  // Clash lock, same rule as the War tab: no Fight before the main clash (sieges excepted).
+  // White peace (tryWhitePeace) is not gated and stays open in every phase.
+  if (!warFightOpen(state, war)) return { ok: false };
   const result = resolveBattle(state, war, rng);
   state.inputLog.push({
     tick: state.meta.tick,

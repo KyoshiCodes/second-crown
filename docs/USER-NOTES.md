@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Your flags get breathing room
+
+- **One attacker per flag.** Only one kingdom sends a column at a given flag of yours at a time. Before, every kingdom could pile onto the same flag on the same beat.
+- **A short rest after each attack.** Once that column arrives, the flag is left alone for 50 seconds before anyone can try again. A fight at the flag plays out exactly as before.
+- **Fight waits for the Main clash, everywhere.** The lock on **Fight** is now part of the game rules, not only the button. **White Peace** still works in every phase.
+
 ## 2026-11-26 — NPC claims, camp columns & crews on the map; calm Fight lock
 
 - **Other kingdoms on the map:** Revealed NPC tile claims show a small culture-colored boundary banner, NPC camp marches show a dashed trail and column chevron, and NPC foraging crews appear beside resource nodes (and along their path in transit).

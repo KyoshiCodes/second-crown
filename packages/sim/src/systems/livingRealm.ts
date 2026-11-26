@@ -34,6 +34,8 @@ export interface LivingSwitches {
   npcClaim: boolean;
   npcCamp: boolean;
   npcGather: boolean;
+  /** One contesting column per player flag, then FLAG_CONTEST_COOLDOWN_TICKS of quiet (flagContest.ts). */
+  flagCooldown: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -44,6 +46,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   npcClaim: "living_npc_claim",
   npcCamp: "living_npc_camp",
   npcGather: "living_npc_gather",
+  flagCooldown: "living_flag_cooldown",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -135,6 +138,7 @@ export function livingCounts(state: GameState): {
   npcClaims: number;
   npcCampMarches: number;
   npcGathers: number;
+  flagContests: number;
 } {
   return {
     trades: count(state, "living_trades"),
@@ -144,6 +148,7 @@ export function livingCounts(state: GameState): {
     npcClaims: count(state, "living_npc_claims"),
     npcCampMarches: count(state, "living_npc_camp_marches"),
     npcGathers: count(state, "living_npc_gathers"),
+    flagContests: count(state, "living_flag_contests"),
   };
 }
 
@@ -389,7 +394,12 @@ export function warPhaseTimeline(war: War, atTick: number): { id: WarPhaseId; ti
  */
 export function playerFightOpen(state: GameState, atTick = state.meta.tick): boolean {
   const war = activeWarFor(state);
-  if (!war) return false;
+  return war ? warFightOpen(state, war, atTick) : false;
+}
+
+/** True when `war` (active) may be fought now: a siege war, or one that reached the main clash. */
+export function warFightOpen(state: GameState, war: War, atTick = state.meta.tick): boolean {
+  if (war.status !== "active") return false;
   if (isInstantWar(war)) return true;
   return warPhase(state, war, atTick)?.id === "clash";
 }

@@ -102,3 +102,14 @@ export const NPC_CLAIM_LOG_CAP = 8;
 
 /** War tab line while the player's Fight waits on the main clash. */
 export const FIGHT_LOCKED_LINE = "The lines have not closed";
+
+// ---------------------------------------------------------------- flag contests (slice 3)
+
+/** Most NPC columns contesting one player flag at the same time. */
+export const FLAG_CONTEST_COLUMNS_PER_FLAG = 1;
+/**
+ * Quiet time on a flag after a contest ends, in ticks (10 ticks = 1 s). 500 = 50 seconds.
+ * A contest ends on its column's arrival tick. NPCs only act on the 100-tick world pulse,
+ * so the next contest starts on the first pulse at or after `arrival + cooldown`.
+ */
+export const FLAG_CONTEST_COOLDOWN_TICKS = 500;

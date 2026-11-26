@@ -51,7 +51,9 @@ describe("progression harness", () => {
     expect(l.workers.firstPostedTick).not.toBeNull();
     expect(l.workers.maxPosted).toBeGreaterThan(0);
     const text = livingText(r);
-    expect(text.split("\n")).toHaveLength(4);
+    expect(text.split("\n")).toHaveLength(5);
+    expect(text).toMatch(/^Flag contests fired: \d+\.$/m);
+    expect(l.flagContests).toBeGreaterThanOrEqual(0);
     expect(text).toMatch(/^First war phase: /);
     expect(text).toContain("NPC trade fired: yes");
     expect(l.npcClaims).toBeGreaterThan(0);
