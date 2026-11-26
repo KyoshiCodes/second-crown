@@ -1,3 +1,12 @@
+## 2026-11-25 — sim / Bandit camp return fixes
+
+- **Contract relied on:** `resolveColumnClash` writes the survivors back to `attacker.force` / `attacker.levy`, and `resolveCampRaid` receives the `march` object itself. So after `resolveCampRaid`, `march.force` is the column that came out: the whole column for a lean-to (no clash), the survivors by type for camp and stockade. A march with no `force` (legacy levy-only) still gets a militia `force` from the clash; for a levy-only lean-to win the `returnLevy(levy)` fallback stays.
+- **Win:** the three-way branch (stockade `march.force` / lean-to `sentForce` / camp `returnLevy(levy)`) is now `if (march.force) returnForce(march.force, 1) else returnLevy(levy)`. `sentForce` is gone; `hadSiege` reads `march.force` before the raid.
+- **Loss:** dropped `absorbWounded(state, 2)` + `returnLevy(state, levy - 2)`. The 40% return lives only in `resolveCampRaid` (shared with stockade). `absorbWounded` import removed from `march.ts`. `CampTier.lossDead` is still read only as the "Safe" flag (`lossDead === 0`); the number 2 is no longer applied anywhere.
+- **Side effect worth knowing:** a sure win (5+ levy) where the clash itself went badly now brings home only clash survivors, not the full levy. At live numbers a 4+ column always beats the 3-militia guard, so this barely shows.
+- **Why the pinned test:** at live numbers only a 2-unit column loses to an ordinary camp (probed 400 seeds: 3 militia, 3–4 archers, mixed 4s, siege 4s never lose). For 2 units `levy - 2 = 0` and `floor(≤2 × 0.4) = 0`, so the double count can't be seen. `campReturn.test.ts` `vi.mock`s `resolveCampRaid` with a stand-in that keeps its loss contract (set survivors, `returnForce(…, 0.4)`) to check the march branch directly.
+- **Files:** `packages/sim/src/systems/march.ts`, `systems/camp.test.ts`, new `systems/campReturn.test.ts`. Replaces the "Pre-existing quirks left alone (Fair camp)" note in the camp tiers entry below.
+
 ## 2026-11-25 — app / living camp tier accents (board & inspect)
 
 - **Board overlay (`packages/app/src/hud/BoardCampTierAccents.tsx`, `BoardLiving.tsx`):** Exported `BoardCampTierPoint` and pure `listBoardCampTierAccents(state)` (skips unseen or flagged camps, reads `campTierId` + `isProvinceSeen`). Mounted `<BoardCampTierAccents>` in `BoardLiving.tsx` right after `<BoardBanners>` (`pointer-events: none !important;`, isometric aura diamond + crest SVG per tier: `lean_to` sage leaf chevron, `camp` warm ochre triangle, `stockade` ember diamond + pulsing ring & spark). Camera & hit-testing untouched.
@@ -10,7 +19,7 @@
 - **Why ranking, not threat:** `campThreat` (5–9 by hash) does not guarantee a low or high camp on every seed. Ranking by Manhattan distance from `homeProvinceId` does, with ~7 camps on a 12x8 board. `campThreat` is kept (still sizes the Fair camp guard).
 - **Stability:** the stockade ranking counts camps in `respawn_json` so breaking it does not hand the title to another camp mid-respawn. The lean-to ranking counts only live camps on purpose: flag one and the next nearest becomes the starter. Tier is read in `resolveMarchArrival` **before** the raid resolves, because the raid changes the board.
 - **Rivals** raid through the same `resolveCampRaid`, so they also auto-win lean-tos at 3+ and fight the stockade.
-- **Pre-existing quirks left alone (Fair camp):** a win returns `levy` as militia (a spearman column comes back as militia), and a loss returns 40% of survivors *and* `levy - 2` militia. Lean-to and stockade do not use these paths. Worth a separate fix.
+- **Pre-existing quirks (Fair camp), fixed 2026-11-25 (see "Bandit camp return fixes" above):** a win returned `levy` as militia, and a loss returned 40% of survivors *and* `levy - 2` militia.
 - **Tests that push fake camps** off-board (e.g. `p_9_9`) now become the farthest camp, i.e. the stockade. Pick a real province with `campTierId(...) === "camp"` instead.
 - **Files:** `packages/sim/src/content/camps.ts`, `systems/camp.ts`, `systems/engagement.ts` (`resolveCampRaid`, `wallSoak` param), `systems/march.ts` (camp branch), `index.ts` exports; app `ProvinceInspect.tsx` (`CampTierLines`), `ProvinceStatusStack.tsx`, `hud/AtlasProvinceCard.tsx`; tests `camp.test.ts`, `march.test.ts`, `campTierLabels.test.tsx`. `npm test` → sim 398, app 1556, server 158; app build clean.
 

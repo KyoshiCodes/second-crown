@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Bandit camp raids bring the right soldiers home
+
+- **Spearmen stay spearmen.** When you win a raid on an ordinary Bandit camp, the soldiers who survive come home as the units they left as. Before, everyone came back as militia.
+- **No phantom survivors on a loss.** A lost raid on an ordinary camp now brings home only the survivors who actually made it (about 40%). Before, some came home twice.
+- Lean-tos and stockades work the same as before.
+
 ## 2026-11-25 — Easy-to-spot safe vs hard camps on the board and inspect
 
 - **Distinct board markers:** Scouted **Safe** starter lean-tos now wear a calm sage-green tile glow and leaf crest on the board, **Fair** bandit camps show a warm ochre camp marker, and optional **Hard** stockades pulse softly in ember-amber with a small fortified ring.

@@ -13,7 +13,7 @@ import { plantOutpost, listOutposts } from "./outpost.js";
 import { addCapped } from "./storage.js";
 import { campTier } from "./camp.js";
 import { CAMP_TIERS, formatCampLoot } from "../content/camps.js";
-import { absorbWounded, markScarred } from "./ward.js";
+import { markScarred } from "./ward.js";
 import { detachGarrison, mergeGarrisonForce } from "./garrison.js";
 import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
@@ -358,8 +358,7 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
   if (march.kind === "camp" || dest.node === "camp") {
     // Tier is read before the fight: breaking the camp changes which camp is nearest/farthest.
     const tier = campTier(state, dest) ?? CAMP_TIERS.camp;
-    const sentForce = march.force ? { ...march.force } : undefined;
-    const hadSiege = (sentForce?.siege ?? 0) > 0;
+    const hadSiege = (march.force?.siege ?? 0) > 0;
     const wins = resolveCampRaid(state, march, dest, rng) === "win";
     const label = tier.id === "camp" ? "Camp" : tier.id === "lean_to" ? "Lean-to" : "Stockade";
     if (wins) {
@@ -372,8 +371,9 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       if (march.realmId === "player") {
         plantOutpost(state, dest);
         for (const [k, v] of Object.entries(loot)) addCapped(state, k, v);
-        if (tier.sureWinAt === null && march.force) returnForce(state, march.force, 1);
-        else if (sentForce && tier.id !== "camp") returnForce(state, sentForce, 1);
+        // resolveCampRaid leaves march.force as the column that came out: the whole column for a
+        // lean-to (no fight), the clash survivors by type for a camp or stockade.
+        if (march.force) returnForce(state, march.force, 1);
         else returnLevy(state, levy);
         const siegeNote = hadSiege && tier.palisade > 0 ? " Siege broke the palisade." : "";
         return noteMarch(state, `${label} broken.${siegeNote} Flag planted. ${lootText}.`);
@@ -382,11 +382,10 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     }
     if (march.realmId === "player") {
       if (tier.lossDead === 0) return noteMarch(state, `The ${label.toLowerCase()} holds. Your column falls back, all home.`);
-      if (tier.id === "stockade") return noteMarch(state, "The stockade holds. Survivors limp home.");
-      absorbWounded(state, 2);
-      returnLevy(state, Math.max(0, levy - 2));
+      // resolveCampRaid already sent 40% of the survivors home by type; nothing more comes back.
+      return noteMarch(state, `The ${label.toLowerCase()} holds. Survivors limp home.`);
     }
-    return noteMarch(state, "The camp holds. Two did not return.");
+    return noteMarch(state, "The camp holds.");
   }
   if (march.kind === "node") {
     const node = dest.node;

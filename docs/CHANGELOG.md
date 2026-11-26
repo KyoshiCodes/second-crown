@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-25 — Bandit camp return fixes
+
+- **Win returns units by type (`systems/march.ts`):** a won ordinary Bandit camp raid sends the clash survivors home as the types they marched as (`returnForce(state, march.force, 1)`). It used to call `returnLevy(levy)`, which turned the whole sent column into militia and also ignored clash losses (the casualties were already counted by `absorbBattleCasualties`).
+- **Loss no longer double-counts:** `resolveCampRaid` already returns 40% of survivors by type on a loss. The camp branch then also ran `absorbWounded(state, 2)` and `returnLevy(state, levy - 2)`. Both are removed. Loss text: `The camp holds. Survivors limp home.` (rivals: `The camp holds.`).
+- **Lean-to and stockade unchanged.** The win branch is now a single `returnForce(march.force)` for every tier: whole column for a lean-to (no clash), survivors for camp and stockade.
+- **Unchanged:** raid strength, guard sizes, the 5-levy sure win, camp loot, combat formulas.
+- **Tests:** `camp.test.ts` +3 (mixed-force win returns spearmen and archers by type; 20-seed spear/archer win adds 0 militia; live-number loss returns exactly `floor(survivors × 0.4)` per type). New `campReturn.test.ts` (2): pins a lost raid of 4 spearmen + 3 militia with 3 + 2 survivors and checks 1 spearman, 0 militia, 0 wounded come home (old code: +5 militia). All four player tests fail on the old code. Now: sim **403**, app **1563**, server **158** (+1 Windows skip), app build clean.
+
 ## 2026-11-25 — Living camp tier accents on board and inspect
 
 - **Board camp overlays (`hud/BoardCampTierAccents.tsx`, `BoardLiving.tsx`):** Added `listBoardCampTierAccents(state)` and `<BoardCampTierAccents>` (strictly `pointer-events: none !important;`, fog-respecting) rendering quiet isometric tile auras and miniature tier crests over revealed unflagged camps: calm sage-emerald leaf chevron for **Bandit lean-to** (`Safe`), subtle warm-ochre triangle for fair **Bandit camp**, and warmer ember-amber aura with pulsing ring & spark for **Bandit stockade** (`Hard`).

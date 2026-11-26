@@ -157,5 +157,67 @@ describe("camps and ruins", () => {
       expect(count(s, "siege")).toBeGreaterThan(0);
       expect(count(s, "spearman")).toBeGreaterThan(0);
     });
+
+    describe("ordinary camp returns", () => {
+      const TYPES = ["militia", "spearman", "archer"];
+      const home = (s: GameState) => Object.fromEntries(TYPES.map((t) => [t, count(s, t)]));
+      const total = (f: Record<string, number>) => Object.values(f).reduce((a, b) => a + b, 0);
+
+      it("a mixed force that wins comes home as the same unit types (spearmen stay spearmen)", () => {
+        const s = createGameState({ seed: 1 });
+        const fair = campOf(s, "camp");
+        const sent = { spearman: 6, archer: 2, militia: 3 };
+        const m = march(s, fair.id, { ...sent });
+        const before = home(s);
+        const msg = resolveMarchArrival(s, m, createRngStreams(7));
+        expect(msg).toContain("Camp broken");
+        const survivors = m.force!;
+        expect(survivors.spearman).toBeGreaterThan(0);
+        for (const t of TYPES) {
+          const back = count(s, t) - before[t];
+          expect(back).toBe(survivors[t] ?? 0);
+          expect(back).toBeLessThanOrEqual(sent[t as keyof typeof sent]);
+        }
+      });
+
+      it("a winning mixed force is never folded into militia, across seeds", () => {
+        for (let i = 0; i < 20; i++) {
+          const s = createGameState({ seed: 1 });
+          const fair = campOf(s, "camp");
+          const m = march(s, fair.id, { spearman: 5, archer: 3 });
+          const before = home(s);
+          resolveMarchArrival(s, m, createRngStreams(300 + i));
+          expect(count(s, "militia") - before.militia).toBe(0);
+          expect(count(s, "spearman") - before.spearman).toBe(m.force!.spearman ?? 0);
+          expect(count(s, "archer") - before.archer).toBe(m.force!.archer ?? 0);
+        }
+      });
+
+      it("a lost raid (live numbers) returns 40% of the survivors by type, never more than were sent", () => {
+        // At live numbers only a 2-unit column loses to an ordinary camp. campReturn.test.ts pins a
+        // bigger lost column to check the old levy-2 double count directly.
+        let losses = 0;
+        for (let i = 0; i < 40; i++) {
+          const s = createGameState({ seed: 1 });
+          const fair = campOf(s, "camp");
+          const sent = { militia: 2 };
+          const m = march(s, fair.id, { ...sent });
+          const before = home(s);
+          const msg = resolveMarchArrival(s, m, createRngStreams(400 + i));
+          if (msg.includes("broken")) continue;
+          losses++;
+          expect(msg).toBe("The camp holds. Survivors limp home.");
+          let backTotal = 0;
+          for (const t of TYPES) {
+            const back = count(s, t) - before[t];
+            expect(back).toBe(Math.floor((m.force![t] ?? 0) * 0.4));
+            backTotal += back;
+          }
+          expect(backTotal).toBeLessThanOrEqual(total(m.force!));
+          expect(backTotal).toBeLessThan(total(sent));
+        }
+        expect(losses).toBeGreaterThan(0);
+      });
+    });
   });
 });
