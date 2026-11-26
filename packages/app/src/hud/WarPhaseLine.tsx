@@ -2,6 +2,7 @@ import React from "react";
 import { playerWarPhase, WAR_PHASE_IDS, WAR_PHASE_TITLE, type GameState } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import "./war-phase.css";
+import "./living-realm-ui.css";
 
 /**
  * War phase strip for the War tab: a four-step meter (columns, skirmish, clash, aftermath)
@@ -23,6 +24,7 @@ export function WarPhaseLine(props: { state: GameState | undefined }) {
         ))}
       </ol>
       <p className="sc-war-phase-line">
+        <span className="sc-war-phase-pip" aria-hidden="true" />
         <strong>{phase.title}.</strong> {phase.line}
         {left !== null && phase.id !== "aftermath" ? <span className="sc-war-phase-left"> Next in {left}s.</span> : null}
       </p>

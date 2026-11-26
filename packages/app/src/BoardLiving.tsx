@@ -143,6 +143,17 @@ import {
   listBoardCampTierAccents,
   type BoardCampTierPoint,
 } from "./hud/BoardCampTierAccents";
+import {
+  BoardLivingRealm,
+  listBoardCaravanTrails,
+  listBoardUnitTasks,
+  listBoardWarPhaseArcs,
+  listBoardWorkerFigures,
+  type BoardCaravanTrail,
+  type BoardUnitTaskPoint,
+  type BoardWarPhaseArc,
+  type BoardWorkerFigure,
+} from "./hud/BoardLivingRealm";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -969,6 +980,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.55. Living Camp Tier Accents (safe lean-to vs fair camp vs hard stockade) */}
         <BoardCampTierAccents state={state} />
 
+        {/* 5.58. Living Realm Workers, Unit Tasks, War Phase Arcs & Caravan Trails */}
+        <BoardLivingRealm state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1130,4 +1144,13 @@ export {
   BoardCampTierAccents,
   listBoardCampTierAccents,
   type BoardCampTierPoint,
+  BoardLivingRealm,
+  listBoardCaravanTrails,
+  listBoardUnitTasks,
+  listBoardWarPhaseArcs,
+  listBoardWorkerFigures,
+  type BoardCaravanTrail,
+  type BoardUnitTaskPoint,
+  type BoardWarPhaseArc,
+  type BoardWorkerFigure,
 };

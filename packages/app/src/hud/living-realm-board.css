@@ -1,0 +1,303 @@
+/* --- Living Realm Wave (Slice 1) Board Overlays (isolated CSS) ---
+ * Loaded from hud/BoardLivingRealm.tsx inside BoardLiving.
+ * Leaves theme.css, board-living.css, and war-phase.css untouched.
+ * Strict pointer-events: none !important across all SVG groups and children.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-lr-phase-columns-rgb: 224, 186, 86;
+  --sc-lr-phase-skirmish-rgb: 244, 146, 72;
+  --sc-lr-phase-clash-rgb: 236, 92, 92;
+  --sc-lr-phase-aftermath-rgb: 126, 210, 156;
+  --sc-lr-caravan-rgb: 96, 206, 152;
+  --sc-lr-caravan-gold: #f6cf6e;
+}
+
+:root[data-chrome="night"] {
+  --sc-lr-phase-columns-rgb: 234, 198, 108;
+  --sc-lr-phase-skirmish-rgb: 248, 158, 92;
+  --sc-lr-phase-clash-rgb: 244, 108, 120;
+  --sc-lr-phase-aftermath-rgb: 138, 224, 174;
+  --sc-lr-caravan-rgb: 110, 218, 168;
+  --sc-lr-caravan-gold: #fde088;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-lr-phase-columns-rgb: 222, 176, 74;
+  --sc-lr-phase-skirmish-rgb: 238, 138, 66;
+  --sc-lr-phase-clash-rgb: 230, 88, 84;
+  --sc-lr-phase-aftermath-rgb: 118, 198, 144;
+  --sc-lr-caravan-rgb: 92, 196, 144;
+  --sc-lr-caravan-gold: #f4c968;
+}
+
+.sc-lr-board-layer,
+.sc-lr-board-layer *,
+.sc-lr-worker,
+.sc-lr-unit-task,
+.sc-lr-war-arc,
+.sc-lr-caravan-trail,
+.sc-lr-caravan-mote {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   2. Board Workers & Resource-Node Crews
+   ========================================================================== */
+.sc-lr-worker.is-idle {
+  opacity: 0.82;
+  animation: none;
+}
+
+.sc-lr-worker.is-working.is-task-farm {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+  animation: sc-lr-work-farm 2.8s ease-in-out infinite;
+}
+
+.sc-lr-worker.is-working.is-task-quarry {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+  animation: sc-lr-work-quarry 1.9s ease-in-out infinite;
+}
+
+.sc-lr-worker.is-working.is-task-yard {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+  animation: sc-lr-work-yard 2.4s ease-in-out infinite;
+}
+
+.sc-lr-worker.is-working.is-task-march {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+  animation: sc-lr-work-march 2.1s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   3. Active Unit Task Chevrons & Markers
+   ========================================================================== */
+.sc-lr-unit-task {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+.sc-lr-unit-task.is-doing-marching,
+.sc-lr-unit-task.is-doing-returning {
+  animation: sc-lr-unit-stride 2.6s ease-in-out infinite;
+}
+
+.sc-lr-unit-task.is-doing-scouting {
+  animation: sc-lr-unit-scout 3s ease-in-out infinite;
+}
+
+.sc-lr-unit-task.is-doing-gathering {
+  animation: sc-lr-work-yard 2.4s ease-in-out infinite;
+}
+
+.sc-lr-unit-task.is-doing-garrisoned {
+  animation: sc-lr-garrison-breathe 4.4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   4. War Phase Board Arcs
+   ========================================================================== */
+.sc-lr-war-arc-path {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.sc-lr-war-arc.is-phase-columns .sc-lr-war-arc-path {
+  stroke: rgba(var(--sc-lr-phase-columns-rgb), 0.62);
+  stroke-dasharray: 4 3;
+  animation: sc-lr-arc-drift 4.6s linear infinite;
+}
+
+.sc-lr-war-arc.is-phase-skirmish .sc-lr-war-arc-path {
+  stroke: rgba(var(--sc-lr-phase-skirmish-rgb), 0.72);
+  stroke-dasharray: 3 2;
+  animation: sc-lr-arc-drift 2.9s linear infinite;
+}
+
+.sc-lr-war-arc.is-phase-clash .sc-lr-war-arc-path {
+  stroke: rgba(var(--sc-lr-phase-clash-rgb), 0.78);
+  animation: sc-lr-clash-pulse 2.4s ease-in-out infinite;
+}
+
+.sc-lr-war-arc.is-phase-aftermath .sc-lr-war-arc-path {
+  stroke: rgba(var(--sc-lr-phase-aftermath-rgb), 0.56);
+  stroke-dasharray: 2 4;
+  animation: sc-lr-aftermath-settle 5s ease-in-out infinite;
+}
+
+.sc-lr-war-arc-sigil {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+.sc-lr-war-arc.is-phase-clash .sc-lr-war-arc-sigil {
+  animation: sc-lr-clash-ring 2.4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   5. Trade Caravan Trails & Goods Motes
+   ========================================================================== */
+.sc-lr-caravan-trail {
+  fill: none;
+  stroke: rgba(var(--sc-lr-caravan-rgb), 0.52);
+  stroke-width: 1.15;
+  stroke-dasharray: 2.5 3.5;
+  stroke-linecap: round;
+  animation: sc-lr-caravan-flow 5.4s linear infinite;
+}
+
+.sc-lr-caravan-mote {
+  fill: var(--sc-lr-caravan-gold);
+  animation: sc-lr-caravan-gleam 3.2s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   6. Keyframes & Reduced Motion
+   ========================================================================== */
+@keyframes sc-lr-work-farm {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-1px) rotate(4deg);
+  }
+}
+
+@keyframes sc-lr-work-quarry {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-1.4px);
+  }
+  65% {
+    transform: translateY(0.5px);
+  }
+}
+
+@keyframes sc-lr-work-yard {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-1.2px) scale(1.04);
+  }
+}
+
+@keyframes sc-lr-work-march {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(1px, -1px);
+  }
+}
+
+@keyframes sc-lr-unit-stride {
+  0%, 100% {
+    opacity: 0.82;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-1.4px);
+  }
+}
+
+@keyframes sc-lr-unit-scout {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes sc-lr-garrison-breathe {
+  0%, 100% {
+    opacity: 0.76;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-lr-arc-drift {
+  from {
+    stroke-dashoffset: 14;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-lr-clash-pulse {
+  0%, 100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+@keyframes sc-lr-clash-ring {
+  0%, 100% {
+    opacity: 0.66;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes sc-lr-aftermath-settle {
+  0%, 100% {
+    opacity: 0.42;
+  }
+  50% {
+    opacity: 0.78;
+  }
+}
+
+@keyframes sc-lr-caravan-flow {
+  from {
+    stroke-dashoffset: 18;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-lr-caravan-gleam {
+  0%, 100% {
+    opacity: 0.68;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-lr-worker,
+  .sc-lr-unit-task,
+  .sc-lr-war-arc-path,
+  .sc-lr-war-arc-sigil,
+  .sc-lr-caravan-trail,
+  .sc-lr-caravan-mote {
+    animation: none !important;
+  }
+}

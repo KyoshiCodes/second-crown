@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Living workers, war phase arcs, whispers card & caravan trails
+
+- **Workers & troops on the map:** Posted villagers and resource-node gatherers now appear as small figures tinted by culture kit (Western, Cedar, Sand, Steppe, Islands, Iron March) — idle villagers sit quietly while working farmers, quarrymen, woodcutters, and march/garrison/scout crews move with gentle task motions.
+- **War phases on the board & War tab:** Active and aftermath war phases (`Columns forming`, `Skirmish`, `Main clash`, `Aftermath`) now draw calm phase arcs between holds on the board alongside matching phase stripes on the War tab.
+- **Realm Whispers & Caravans card + caravan trails:** A read-only **Realm Whispers & Caravans** panel on the World tab shows incoming whispers and caravans with each culture's crest seal (no chat input), and recent trade caravans leave soft green-gold trails between holds on the map.
+
 ## 2026-11-25 — The realm comes alive (first slice)
 
 - **Other kingdoms trade.** Caravans now run between kingdoms. If you have a **Market**, kingdoms you are at peace with sometimes send you one (+1 gold).

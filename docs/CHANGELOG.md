@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-25 — Living presentation for Living Realm (slice 1)
+
+- **Board workers, unit tasks & culture palettes (`hud/BoardLivingRealm.tsx`, `hud/living-realm-board.css`, `BoardLiving.tsx`):** Added `listBoardWorkerFigures`, `listBoardUnitTasks`, `resolveLivingCultureKit` (`western`, `woodland`/Cedar, `desert`/Sand, `steppe`, `tide`/Islands, `iron`/Iron March with player-kit fallback), and `<BoardLivingRealm>` inside `BoardLiving`. Reads `workerSnapshot` and `unitActivity` to draw seated `idle` figures vs animated `farm`/`quarry`/`yard`/`march` working figures at posted buildings and seen gather nodes, plus active march/return/garrison/scout task chevrons (strictly `pointer-events: none !important;`).
+- **War phase arcs & strip accents (`BoardLivingRealm.tsx`, `hud/WarPhaseLine.tsx`, `hud/living-realm-ui.css`):** Added `listBoardWarPhaseArcs` and quiet `WarPhaseLine` phase stripes/pips for every shipped sim phase ID (`columns`, `skirmish`, `clash`, `aftermath`; note the sim named `"columns"` / `"Columns forming"` rather than `"forming"`).
+- **Culture whispers card & caravan trails (`hud/CultureWhispersCard.tsx`, `tabs/WorldTab.tsx`, `BoardLivingRealm.tsx`):** Added read-only `<CultureWhispersCard>` (zero chat input) inside `WorldTab` (`Fold#world-culture-whispers`) displaying `getCultureNews` entries with `<CultureCrestPip>` seals and `Whisper`/`Caravan` tags, plus `listBoardCaravanTrails` drawing green-gold board trails across hold provinces for caravans within 600 ticks (`CARAVAN_BOARD_WINDOW_TICKS`).
+- **Unchanged invariants & accessibility:** Dedicated `living-realm-board.css` and `living-realm-ui.css` only (`theme.css`, `board-living.css`, `war-phase.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingRealmAccents.test.tsx` (7 tests). Now: sim **468**, app **1619**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Living Realm wave, first slice (NPC caravans, whispers, NPC wars, war phases, board snapshot)
 
 - **NPC caravans (`systems/livingRealm.ts` `maybeNpcTrade`):** the old `maybeTrade` never fired (salt gate needed `salt % 100 === 0`). Now pulse-based: each NPC realm sends a caravan every `NPC_TRADE_PULSES` (3) pulses, staggered by realm salt. NPC-to-NPC caravans go to culture news; a caravan to the player needs a market (same gate as the Market) and pays the existing +1 gold via `addCapped`. Skipped while at war or peace-locked with the partner.

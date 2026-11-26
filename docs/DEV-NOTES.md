@@ -1,3 +1,15 @@
+## 2026-11-25 — app / living presentation for Living Realm (slice 1)
+
+- **Board overlay (`packages/app/src/hud/BoardLivingRealm.tsx`, `BoardLiving.tsx`):**
+  - Exported `LivingCultureKit` (`western | woodland | desert | steppe | tide | iron`), `LIVING_CULTURE_PALETTE`, `resolveLivingCultureKit` (pure state read with player fallback; avoids mutating `state.flags` when an unseeded id appears), `CARAVAN_BOARD_WINDOW_TICKS = 600`, `listBoardWorkerFigures`, `listBoardUnitTasks`, `listBoardWarPhaseArcs`, `listBoardCaravanTrails`, and `<BoardLivingRealm>`.
+  - Guards partial mock `GameState` test fixtures (`!state?.board?.provinces || !state.flags` plus `Array.isArray(state.citizens|units|wars)`) so legacy unit tests in `BoardBanners.test.tsx` stay green.
+  - Note on prompt vs shipped names: sim shipped war phase ID `"columns"` (`"Columns forming"`) rather than `"forming"`, so selectors and data attributes target `columns | skirmish | clash | aftermath`. Trade caravans are read from `getCultureNews` (`kind === "caravan"`) and `getWorldLog` (`id === "trade"`) within `CARAVAN_BOARD_WINDOW_TICKS`.
+- **UI components (`packages/app/src/hud/CultureWhispersCard.tsx`, `hud/WarPhaseLine.tsx`, `tabs/WorldTab.tsx`):**
+  - `CultureWhispersCard` exports `summarizeCultureNews(state)` and a read-only `<ul class="sc-culture-whisper-list">` using `<CultureCrestPip>` (`sc-culture-crest`) with zero `<input>`/`<textarea>`. Mounted inside `Fold#world-culture-whispers` in `WorldTab.tsx`.
+  - `WarPhaseLine.tsx` imports `living-realm-ui.css` after `war-phase.css` and adds a non-blocking `.sc-war-phase-pip` while preserving existing `data-phase` attributes and exact text checked by `WarPhaseLine.test.tsx`.
+- **Dedicated CSS (`living-realm-board.css` & `living-realm-ui.css`):** Full Dusk/Night/Parchment tokens, `pointer-events: none !important;`, task/phase/caravan animations, and `@media (prefers-reduced-motion: reduce)`. Zero edits to `theme.css`, `board-living.css`, `war-phase.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingRealmAccents.test.tsx`):** 7 tests passing (`npm test` -> sim **468**, app **1619**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — sim + app / Living Realm wave, first slice
 
 - **Why the gate change:** `rival.ts` `maybeTrade` / `maybeNpcWar` used `(atTick + salt) % 300|400 === 0` with `atTick` a multiple of 100, so they needed `salt % 100 === 0`; no realm qualified. New gates use the pulse number: `(pulse + salt) % N === 0`. **Still dead with the same bug (left alone, out of scope):** `maybeClaim` (`% 200`), `maybeCampMarch` (`% 300`), `maybeGather` (`% 200`) in `rival.ts`. Switching those on changes the board for the player; raise as its own item.

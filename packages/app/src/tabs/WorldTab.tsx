@@ -13,6 +13,7 @@ import {
   watchtowerWarning,
   peaceTicksRemaining,
   opinionOfPlayerFromRealm,
+  getCultureNews,
   type GameState,
   type WorldEvent,
 } from "@second-crown/sim";
@@ -27,6 +28,7 @@ import { getGiftThanks } from "../content/flavor";
 import { flashAction } from "../hud/ActionFlash";
 import { giftRefusal } from "../hud/GiftLine";
 import { Fold } from "../hud/Fold";
+import { CultureWhispersCard } from "../hud/CultureWhispersCard";
 
 type LogFilter = "all" | "claim" | "trade" | "war" | "levy";
 
@@ -81,6 +83,18 @@ export function WorldTab(props: {
   const tradeCount = worldEntries.filter((e) => e.id === "trade").length;
   const warCount = worldEntries.filter((e) => e.id === "declare" || e.id === "battle" || e.id === "raid").length;
   const levyCount = worldEntries.filter((e) => e.id === "levy" || e.id === "loot").length;
+  const cultureNews = state ? getCultureNews(state) : [];
+  const whisperCount = cultureNews.filter((n) => n.kind === "whisper").length;
+  const caravanCount = cultureNews.filter((n) => n.kind === "caravan").length;
+  const newsSummary =
+    cultureNews.length === 0
+      ? "quiet"
+      : [
+          whisperCount > 0 ? `${whisperCount} ${whisperCount === 1 ? "whisper" : "whispers"}` : "",
+          caravanCount > 0 ? `${caravanCount} ${caravanCount === 1 ? "caravan" : "caravans"}` : "",
+        ]
+          .filter(Boolean)
+          .join(" · ");
 
   return (
     <>
@@ -258,6 +272,10 @@ export function WorldTab(props: {
           )}
         </div>
       </div>
+
+      <Fold id="world-culture-whispers" title="Realm Whispers & Caravans" summary={newsSummary}>
+        <CultureWhispersCard state={state} />
+      </Fold>
 
       {clash ? (
         <div className="sc-realm-card" style={{ marginBottom: 12, border: "1px solid #b45309" }}>

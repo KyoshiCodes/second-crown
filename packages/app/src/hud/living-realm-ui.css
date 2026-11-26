@@ -1,0 +1,260 @@
+/* --- Living Realm Wave (Slice 1) UI Accents (isolated CSS) ---
+ * Loaded from hud/WarPhaseLine.tsx and hud/CultureWhispersCard.tsx.
+ * Leaves theme.css and war-phase.css untouched.
+ * Strict pointer-events: none !important on pips, tags, and decorative badges.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-lr-ui-columns-rgb: 224, 186, 86;
+  --sc-lr-ui-skirmish-rgb: 244, 146, 72;
+  --sc-lr-ui-clash-rgb: 236, 92, 92;
+  --sc-lr-ui-aftermath-rgb: 126, 210, 156;
+  --sc-lr-whisper-rgb: 146, 178, 228;
+  --sc-lr-caravan-ui-rgb: 98, 206, 150;
+  --sc-lr-whisper-text: #bfd7f8;
+  --sc-lr-caravan-text: #9eeac2;
+}
+
+:root[data-chrome="night"] {
+  --sc-lr-ui-columns-rgb: 234, 198, 108;
+  --sc-lr-ui-skirmish-rgb: 248, 158, 92;
+  --sc-lr-ui-clash-rgb: 244, 108, 120;
+  --sc-lr-ui-aftermath-rgb: 138, 224, 174;
+  --sc-lr-whisper-rgb: 164, 192, 240;
+  --sc-lr-caravan-ui-rgb: 112, 218, 168;
+  --sc-lr-whisper-text: #cbe0fc;
+  --sc-lr-caravan-text: #aff0cf;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-lr-ui-columns-rgb: 222, 176, 74;
+  --sc-lr-ui-skirmish-rgb: 238, 138, 66;
+  --sc-lr-ui-clash-rgb: 230, 88, 84;
+  --sc-lr-ui-aftermath-rgb: 118, 198, 144;
+  --sc-lr-whisper-rgb: 158, 190, 232;
+  --sc-lr-caravan-ui-rgb: 102, 202, 148;
+  --sc-lr-whisper-text: #d6e4f8;
+  --sc-lr-caravan-text: #aee8c8;
+}
+
+/* ==========================================================================
+   2. WarPhaseLine Quiet Phase Living Accents
+   ========================================================================== */
+.sc-war-phase[data-phase] {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-left: 3px solid rgba(var(--sc-lr-ui-columns-rgb), 0.65);
+  background: rgba(var(--sc-lr-ui-columns-rgb), 0.06);
+}
+
+.sc-war-phase[data-phase="skirmish"] {
+  border-left-color: rgba(var(--sc-lr-ui-skirmish-rgb), 0.72);
+  background: rgba(var(--sc-lr-ui-skirmish-rgb), 0.07);
+}
+
+.sc-war-phase[data-phase="clash"] {
+  border-left-color: rgba(var(--sc-lr-ui-clash-rgb), 0.78);
+  background: rgba(var(--sc-lr-ui-clash-rgb), 0.08);
+  animation: sc-lr-phase-clash-glow 4s ease-in-out infinite;
+}
+
+.sc-war-phase[data-phase="aftermath"] {
+  border-left-color: rgba(var(--sc-lr-ui-aftermath-rgb), 0.65);
+  background: rgba(var(--sc-lr-ui-aftermath-rgb), 0.06);
+}
+
+.sc-war-phase-pip {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: middle;
+  pointer-events: none !important;
+  user-select: none;
+  background: rgb(var(--sc-lr-ui-columns-rgb));
+  box-shadow: 0 0 5px rgba(var(--sc-lr-ui-columns-rgb), 0.55);
+  animation: sc-lr-phase-pip-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-war-phase[data-phase="skirmish"] .sc-war-phase-pip {
+  background: rgb(var(--sc-lr-ui-skirmish-rgb));
+  box-shadow: 0 0 5px rgba(var(--sc-lr-ui-skirmish-rgb), 0.6);
+  animation-duration: 3.2s;
+}
+
+.sc-war-phase[data-phase="clash"] .sc-war-phase-pip {
+  background: rgb(var(--sc-lr-ui-clash-rgb));
+  box-shadow: 0 0 6px rgba(var(--sc-lr-ui-clash-rgb), 0.68);
+  animation-duration: 2.6s;
+}
+
+.sc-war-phase[data-phase="aftermath"] .sc-war-phase-pip {
+  background: rgb(var(--sc-lr-ui-aftermath-rgb));
+  box-shadow: 0 0 5px rgba(var(--sc-lr-ui-aftermath-rgb), 0.52);
+  animation-duration: 5.2s;
+}
+
+/* ==========================================================================
+   3. Culture Whispers & Caravans Card List (World Tab, read-only)
+   ========================================================================== */
+.sc-culture-whispers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sc-culture-whisper-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-culture-whisper-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(var(--sc-lr-whisper-rgb), 0.24);
+  border-left: 2.5px solid rgba(var(--sc-lr-whisper-rgb), 0.55);
+  background: rgba(var(--sc-lr-whisper-rgb), 0.05);
+}
+
+.sc-culture-whisper-item.is-caravan {
+  border-color: rgba(var(--sc-lr-caravan-ui-rgb), 0.26);
+  border-left-color: rgba(var(--sc-lr-caravan-ui-rgb), 0.62);
+  background: rgba(var(--sc-lr-caravan-ui-rgb), 0.06);
+}
+
+.sc-culture-whisper-crest {
+  flex: none;
+  margin-top: 1px;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-culture-whisper-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sc-culture-whisper-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+
+.sc-culture-whisper-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-culture-whisper-tag.is-whisper {
+  color: var(--sc-lr-whisper-text);
+  border: 1px solid rgba(var(--sc-lr-whisper-rgb), 0.42);
+  background: rgba(var(--sc-lr-whisper-rgb), 0.12);
+}
+
+.sc-culture-whisper-tag.is-caravan {
+  color: var(--sc-lr-caravan-text);
+  border: 1px solid rgba(var(--sc-lr-caravan-ui-rgb), 0.44);
+  background: rgba(var(--sc-lr-caravan-ui-rgb), 0.13);
+}
+
+.sc-culture-whisper-pip {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-lr-phase-pip-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-culture-whisper-tag.is-whisper .sc-culture-whisper-pip {
+  background: rgb(var(--sc-lr-whisper-rgb));
+}
+
+.sc-culture-whisper-tag.is-caravan .sc-culture-whisper-pip {
+  background: rgb(var(--sc-lr-caravan-ui-rgb));
+}
+
+.sc-culture-whisper-culture {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.sc-culture-whisper-tick {
+  margin-left: auto;
+  font-family: monospace;
+  font-size: 10.5px;
+  opacity: 0.62;
+}
+
+.sc-culture-whisper-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.38;
+  opacity: 0.92;
+}
+
+.sc-culture-whisper-empty {
+  margin: 0;
+  padding: 6px 2px;
+  font-size: 12px;
+  opacity: 0.68;
+  font-style: italic;
+}
+
+/* ==========================================================================
+   4. Keyframes & Reduced Motion
+   ========================================================================== */
+@keyframes sc-lr-phase-pip-breathe {
+  0%, 100% {
+    opacity: 0.66;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes sc-lr-phase-clash-glow {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-lr-ui-clash-rgb), 0.08);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-lr-ui-clash-rgb), 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-war-phase[data-phase="clash"],
+  .sc-war-phase-pip,
+  .sc-culture-whisper-pip {
+    animation: none !important;
+  }
+}
