@@ -1,0 +1,307 @@
+/* --- Living Realm Slice 5: Join NPC War & Board War Imagery (isolated CSS) ---
+ * Loaded from hud/JoinableWarsCard.tsx and hud/BoardWarImagery.tsx.
+ * Leaves theme.css, board-living.css, living-realm-board.css,
+ * living-realm-ui.css, npc-board-clash.css, flag-contest-accents.css,
+ * war-loss-raid-accents.css, and war-phase.css untouched.
+ * Strict pointer-events: none !important on all board imagery & decorative chips.
+ * Calm heraldic banners & short phase lines — no blood or gore.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-war-join-border: rgba(148, 163, 184, 0.24);
+  --sc-war-join-bg: rgba(15, 23, 42, 0.36);
+  --sc-war-join-btn-bg: rgba(30, 41, 59, 0.72);
+  --sc-war-join-btn-border: rgba(148, 163, 184, 0.34);
+  --sc-war-join-btn-hover: rgba(51, 65, 85, 0.88);
+  --sc-war-join-muted: rgba(203, 213, 225, 0.72);
+  --sc-war-img-columns-rgb: 148, 184, 214;
+  --sc-war-img-skirmish-rgb: 226, 178, 92;
+  --sc-war-img-clash-rgb: 245, 194, 86;
+  --sc-war-img-aftermath-rgb: 156, 168, 184;
+  --sc-war-img-pill-bg: rgba(15, 22, 34, 0.84);
+  --sc-war-img-pill-border: rgba(214, 184, 118, 0.38);
+  --sc-war-img-pill-text: #f1e6cf;
+}
+
+:root[data-chrome="night"] {
+  --sc-war-join-border: rgba(129, 148, 178, 0.28);
+  --sc-war-join-bg: rgba(11, 16, 28, 0.5);
+  --sc-war-join-btn-bg: rgba(22, 30, 48, 0.8);
+  --sc-war-join-btn-border: rgba(148, 163, 184, 0.38);
+  --sc-war-join-btn-hover: rgba(38, 50, 76, 0.92);
+  --sc-war-join-muted: rgba(203, 213, 225, 0.76);
+  --sc-war-img-columns-rgb: 162, 198, 228;
+  --sc-war-img-skirmish-rgb: 238, 190, 104;
+  --sc-war-img-clash-rgb: 250, 206, 108;
+  --sc-war-img-aftermath-rgb: 168, 182, 198;
+  --sc-war-img-pill-bg: rgba(10, 14, 24, 0.88);
+  --sc-war-img-pill-border: rgba(198, 178, 128, 0.44);
+  --sc-war-img-pill-text: #f4ebd8;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-war-join-border: rgba(194, 162, 114, 0.26);
+  --sc-war-join-bg: rgba(34, 24, 15, 0.48);
+  --sc-war-join-btn-bg: rgba(48, 34, 22, 0.78);
+  --sc-war-join-btn-border: rgba(196, 164, 112, 0.36);
+  --sc-war-join-btn-hover: rgba(68, 49, 31, 0.9);
+  --sc-war-join-muted: rgba(235, 218, 186, 0.76);
+  --sc-war-img-columns-rgb: 166, 196, 206;
+  --sc-war-img-skirmish-rgb: 228, 172, 84;
+  --sc-war-img-clash-rgb: 242, 188, 78;
+  --sc-war-img-aftermath-rgb: 184, 172, 154;
+  --sc-war-img-pill-bg: rgba(30, 21, 13, 0.86);
+  --sc-war-img-pill-border: rgba(218, 182, 116, 0.42);
+  --sc-war-img-pill-text: #f5e6c8;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Layer & Decorative Swatches
+   ========================================================================== */
+.sc-war-imagery-layer,
+.sc-war-imagery-layer *,
+.sc-war-imagery-entry,
+.sc-war-imagery-front,
+.sc-war-imagery-standard,
+.sc-war-imagery-ally,
+.sc-war-imagery-crest,
+.sc-war-imagery-banner,
+.sc-join-war-dot,
+.sc-join-war-phase-pill {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. War Tab Joinable NPC Wars Card
+   ========================================================================== */
+.sc-join-wars-card {
+  display: block;
+}
+
+.sc-join-wars-note {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--sc-war-join-muted);
+}
+
+.sc-join-wars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sc-join-war-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  border: 1px solid var(--sc-war-join-border);
+  background: var(--sc-war-join-bg);
+}
+
+.sc-join-war-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sc-join-war-matchup {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.sc-join-war-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  flex: none;
+}
+
+.sc-join-war-vs {
+  font-size: 11px;
+  color: var(--sc-war-join-muted);
+}
+
+.sc-join-war-phase-pill {
+  font-size: 10.5px;
+  line-height: 1.2;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-war-join-border);
+  color: var(--sc-war-join-muted);
+}
+
+.sc-join-war-phase-pill.is-phase-columns {
+  border-color: rgba(var(--sc-war-img-columns-rgb), 0.45);
+}
+
+.sc-join-war-phase-pill.is-phase-skirmish {
+  border-color: rgba(var(--sc-war-img-skirmish-rgb), 0.48);
+}
+
+.sc-join-war-phase-pill.is-phase-clash {
+  border-color: rgba(var(--sc-war-img-clash-rgb), 0.56);
+}
+
+.sc-join-war-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sc-join-war-btn {
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  border: 1px solid var(--sc-war-join-btn-border);
+  border-left: 3px solid var(--sc-join-side-color, var(--sc-war-join-btn-border));
+  background: var(--sc-war-join-btn-bg);
+  color: inherit;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, opacity 140ms ease;
+}
+
+.sc-join-war-btn:hover:not(:disabled) {
+  background: var(--sc-war-join-btn-hover);
+}
+
+.sc-join-war-btn:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   4. Board War Imagery (Opposing Culture Banners & Short Phase Line)
+   ========================================================================== */
+.sc-war-imagery-front {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 1.05;
+}
+
+.sc-war-imagery-front.is-phase-columns {
+  stroke: rgba(var(--sc-war-img-columns-rgb), 0.58);
+  stroke-dasharray: 2.2 2.8;
+  animation: sc-war-img-front-flow 4.8s linear infinite;
+}
+
+.sc-war-imagery-front.is-phase-skirmish {
+  stroke: rgba(var(--sc-war-img-skirmish-rgb), 0.72);
+  stroke-dasharray: 3.4 2.2;
+  animation: sc-war-img-front-flow 3.4s linear infinite;
+}
+
+.sc-war-imagery-front.is-phase-clash {
+  stroke: rgba(var(--sc-war-img-clash-rgb), 0.84);
+  stroke-width: 1.25;
+  animation: sc-war-img-clash-pulse 3.2s ease-in-out infinite;
+}
+
+.sc-war-imagery-front.is-phase-aftermath {
+  stroke: rgba(var(--sc-war-img-aftermath-rgb), 0.44);
+  stroke-dasharray: 1.6 3;
+}
+
+.sc-war-imagery-standard {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: sc-war-img-banner-flutter 3.8s ease-in-out infinite;
+}
+
+.sc-war-imagery-entry.is-phase-aftermath .sc-war-imagery-standard {
+  opacity: 0.76;
+  animation: none;
+}
+
+.sc-war-imagery-crest {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-war-img-crest-breathe 3.4s ease-in-out infinite;
+}
+
+.sc-war-imagery-pill-bg {
+  fill: var(--sc-war-img-pill-bg);
+  stroke: var(--sc-war-img-pill-border);
+  stroke-width: 0.7;
+}
+
+.sc-war-imagery-pill-text {
+  fill: var(--sc-war-img-pill-text);
+  font-size: 5.2px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ==========================================================================
+   5. Calm Keyframes
+   ========================================================================== */
+@keyframes sc-war-img-front-flow {
+  from {
+    stroke-dashoffset: 10;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-war-img-clash-pulse {
+  0%,
+  100% {
+    opacity: 0.68;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+@keyframes sc-war-img-banner-flutter {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(1.8deg);
+  }
+}
+
+@keyframes sc-war-img-crest-breathe {
+  0%,
+  100% {
+    opacity: 0.74;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+/* ==========================================================================
+   6. Reduced Motion Support
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-war-imagery-front.is-phase-columns,
+  .sc-war-imagery-front.is-phase-skirmish,
+  .sc-war-imagery-front.is-phase-clash,
+  .sc-war-imagery-standard,
+  .sc-war-imagery-crest {
+    animation: none !important;
+  }
+
+  .sc-join-war-btn {
+    transition: none;
+  }
+}

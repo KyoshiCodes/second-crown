@@ -173,6 +173,11 @@ import {
   type BoardNpcWarLossPoint,
   type BoardHomeRaidAccent,
 } from "./hud/BoardWarLossAndRaid";
+import {
+  BoardWarImagery,
+  listBoardWarImagery,
+  type BoardWarImageryItem,
+} from "./hud/BoardWarImagery";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1011,6 +1016,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.596. Living Realm NPC War Loss Aftermath & Home-Raid Timing Accents */}
         <BoardWarLossAndRaid state={state} />
 
+        {/* 5.597. Living Realm War Imagery (opposing culture banners & short phase line) */}
+        <BoardWarImagery state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1194,4 +1202,7 @@ export {
   resolveBoardHomeRaid,
   type BoardNpcWarLossPoint,
   type BoardHomeRaidAccent,
+  BoardWarImagery,
+  listBoardWarImagery,
+  type BoardWarImageryItem,
 };

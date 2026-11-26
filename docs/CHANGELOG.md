@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for joining NPC wars & board war imagery
+
+- **War tab Join controls (`hud/JoinableWarsCard.tsx`, `WarRoom.tsx`):** Added `listJoinableNpcWars` and `<JoinableWarsCard>` calling `@second-crown/sim`'s `joinableWars` and `joinSide` (`5d54edb` shipped `joinableWars` where early planning noted `listJoinableWars`). Shows each joinable NPC-vs-NPC war with culture dots, phase badge, and one calm `Join <Realm>` button per side (`disabled` when peace-locked).
+- **Board war imagery (`hud/BoardWarImagery.tsx`, `BoardLiving.tsx`):** Added `listBoardWarImagery` and `<BoardWarImagery>` reading `warImagerySnapshot(state)` (exact name match, `pointer-events: none !important;`, fog-respecting, capped at 4 wars, zero blood or gore): draws opposing culture-kit heraldic standards near the two holds (plus a small companion pennant for joined wars), a phase-styled front line + center crest, and a short calm banner pill.
+- **Unchanged invariants & accessibility:** Dedicated `hud/war-join-imagery.css` only (`theme.css`, `board-living.css`, `living-realm-board.css`, `living-realm-ui.css`, `npc-board-clash.css`, `flag-contest-accents.css`, `war-loss-raid-accents.css`, `war-phase.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/WarJoinImagery.test.tsx` (4 tests). Now: sim **542**, app **1638**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living presentation for NPC war losses & home-raid timing
 
 - **Aftermath & home-raid board overlays (`hud/BoardWarLossAndRaid.tsx`, `hud/war-loss-raid-accents.css`, `BoardLiving.tsx`):** Added `listBoardNpcWarLosses`, `resolveBoardHomeRaid`, and `<BoardWarLossAndRaid>` inside `BoardLiving` (`pointer-events: none !important;`):

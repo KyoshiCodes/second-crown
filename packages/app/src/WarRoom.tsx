@@ -64,6 +64,7 @@ import { getGiftThanks, getWarTaunt } from "./content/flavor";
 import { sfx } from "./sfx";
 import { flashAction } from "./hud/ActionFlash";
 import { WarPhaseLine } from "./hud/WarPhaseLine";
+import { JoinableWarsCard } from "./hud/JoinableWarsCard";
 import "./hud/npc-board-clash.css";
 
 export function WarRoom(props: {
@@ -247,6 +248,8 @@ export function WarRoom(props: {
         {!activeWar ? <p style={{ margin: "6px 0 0", fontSize: 12, opacity: 0.7 }}>No war declared. Fight opens once one is.</p> : null}
         <BattleVisual snap={battleSnap} active={!!activeWar} />
       </section>
+
+      <JoinableWarsCard state={state} act={act} />
 
       <section className="sc-realm-card" style={card}>
         <strong style={h}>Last battle</strong>
