@@ -99,6 +99,10 @@ export interface LivingReport {
   npcGathers: number;
   /** Flag contests launched on player flags (slice 3: one column per flag, then a cooldown). */
   flagContests: number;
+  /** Units NPC realms lost settling NPC-vs-NPC wars (slice 4). */
+  npcWarLosses: number;
+  /** Rival columns launched at the player's hold (slice 4: one in flight, then a cooldown). */
+  homeRaids: number;
   workers: {
     /** First bot look with at least one citizen at a post. */
     firstPostedTick: number | null;
@@ -428,6 +432,8 @@ export function livingText(r: ProgressionReport): string {
     `NPC trade fired: ${l.trades > 0 ? "yes" : "no"} (${l.trades} caravans, ${l.playerTrades} to the player). Whispers: ${l.whispers}. NPC wars started: ${l.npcWars}.`,
     `NPC board: claimed ${l.npcClaims > 0 ? "yes" : "no"} (${l.npcClaims}), marched on camps ${l.npcCampMarches > 0 ? "yes" : "no"} (${l.npcCampMarches}), gathered ${l.npcGathers > 0 ? "yes" : "no"} (${l.npcGathers}).`,
     `Flag contests fired: ${l.flagContests}.`,
+    `NPC war losses applied: ${l.npcWarLosses} units.`,
+    `Home raids fired: ${l.homeRaids}.`,
     `Workers had posts: ${w.firstPostedTick !== null ? "yes" : "no"} (first at ${clock(w.firstPostedTick)}, most posted ${w.maxPosted}). End: ${Object.entries(w.end).map(([k, v]) => `${k} ${v}`).join(", ")}.`,
   ].join("\n");
 }

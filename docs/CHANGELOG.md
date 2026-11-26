@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-26 — Living Realm slice 4 (NPC war losses, home-raid timing)
+
+- **NPC war losses (`livingRealm.ts settleNpcWars`, `applyNpcWarLoss`):** an NPC-vs-NPC war that settles at the clash now costs the loser (both sides on white peace) `NPC_WAR_LOSS_SHARE` = 12% of each unit stack, floored per stack, capped at `NPC_WAR_LOSS_CAP` = 20 units per side per war. The winner is still decided on power before losses. Aftermath line carries the count. Player wars unchanged.
+- **Home-raid timing (`raidMarch.ts`):** one rival column on the hold at a time (`HOME_RAID_IN_FLIGHT` = 1), then `HOME_RAID_COOLDOWN_TICKS` = 750 (75 s) from its arrival tick. The existing launch gap and 500-tick raid pulse still apply. Raid strength and outcome unchanged.
+- **Snapshot (`homeRaidSnapshot`):** `{ tick, limited, inbound | null, cooldownUntil | null, nextStartTick | null }`.
+- **Switches:** `living_npc_war_losses`, `living_home_raid_cooldown`; `false` restores the old behaviour. Counters `livingCounts().npcWarLosses`, `.homeRaids`.
+- **Playtest:** living section adds `NPC war losses applied: N units.` and `Home raids fired: N.` (attentive 1666 / 26, low-touch 4308 / 15). Raid tables and every balance table unchanged.
+- **Tests:** new `systems/livingSlice4.test.ts` (19: share, cap, never empties, refuses player, loser-only, white peace both, determinism, off switches, player wars untouched, one-in-flight, cooldown, raid strength unchanged, snapshot shapes); progression harness test expects seven living lines. Now: sim **521**, app **1630**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-26 — Living presentation for contested flags
 
 - **Contested flag board overlays (`hud/BoardFlagContests.tsx`, `hud/flag-contest-accents.css`, `BoardLiving.tsx`):** Added `listBoardFlagContests`, `listBoardFlagCooldowns`, and `<BoardFlagContests>` inside `BoardLiving`, reading `flagContestSnapshot(state)` from `@second-crown/sim` (`145c9e5`, exact name match — zero mismatch). Active contests render non-blocking (`pointer-events: none !important;`), fog-respecting diamond auras, calm pulsing rings, inner rims, and contesting-culture wax seals (`LIVING_CULTURE_PALETTE` via `resolveLivingCultureKit`); flags resting in post-contest cooldown render quiet dashed sage-slate rings (`active` takes precedence over `cooldown`).

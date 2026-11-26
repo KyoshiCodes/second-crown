@@ -52,7 +52,7 @@ it("writes the progression report into docs/PLAYTEST.md", () => {
     "",
     "### Living realm (same two runs)",
     "",
-    "War phase timing, NPC caravans and whispers, NPC board activity (claims, camp marches, foraging crews), flag contests, and worker posts. Measure only.",
+    "War phase timing, NPC caravans and whispers, NPC board activity (claims, camp marches, foraging crews), flag contests, NPC war losses, home raids fired, and worker posts. Measure only.",
     "",
     "Attentive:",
     "",

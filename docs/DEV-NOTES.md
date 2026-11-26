@@ -1,3 +1,13 @@
+## 2026-11-26 — sim / Living Realm slice 4 (NPC war losses, home-raid timing)
+
+- **Constants (`content/livingRealm.ts`):** `NPC_WAR_LOSS_SHARE` 0.12, `NPC_WAR_LOSS_CAP` 20, `HOME_RAID_IN_FLIGHT` 1, `HOME_RAID_COOLDOWN_TICKS` 750. Exported from `@second-crown/sim`.
+- **NPC war losses (`systems/livingRealm.ts`):** `applyNpcWarLoss(state, realmId)` walks `state.units` in order, takes `floor(count * share)` per stack until the cap is spent, refuses `"player"`. Committed force = the realm's whole standing force (NPC wars have no columns; NPC raid columns do not remove units either). Floor of 12% never empties a stack, so repeated wars bottom out at 8 per stack. `settleNpcWars` sets the status first (power read before loss), then applies losses and writes `{ warId, attacker, defender }` to `flags.npc_war_losses_json` (last 8) and bumps `flags.living_npc_war_losses_units`. `aftermathLine` appends the count for NPC wars with a record, so the world-log line and the aftermath phase line match.
+- **Home-raid timing (`systems/raidMarch.ts`):** `homeRaidAllowed` = first tick + launch gap (unchanged), then while `living_home_raid_cooldown` is on: no more than `HOME_RAID_IN_FLIGHT` columns in `incomingOnHome`, and `atTick >= cooldownUntil` from `flags.home_raid_json` (`HomeRaidRecord { realmId, marchId, sinceTick, untilTick, cooldownUntil }`). `untilTick = max(atTick, march.arrivesTick)` because `tryNpcMarch` stamps arrival from `state.meta.tick`, which can lag the pulse tick during analytic advance. `maybeNpcRaid` bumps `living_home_raids` either way. The old `incomingOnHome` guard in `maybeNpcRaid` stays, so with the switch off raids launch exactly as before (only the `living_home_raids` counter is new).
+- **Snapshot:** `homeRaidSnapshot(state, atTick?)` → `{ tick, limited, inbound: { realmId, realmName, marchId, sinceTick, arrivesTick } | null, cooldownUntil: number | null, nextStartTick: number | null }`. `nextStartTick` = first multiple of `NPC_RAID_PULSE_TICKS` at or after max(now, `HOME_RAID_FIRST_TICK`, last launch + `homeRaidGap`, cooldown end); null while a raid is inbound. Timing only: a shield, weak rival or busy column can still delay it.
+- **Switches:** `LIVING_SWITCH_FLAGS.npcWarLosses` = `living_npc_war_losses`, `.homeRaidCooldown` = `living_home_raid_cooldown`.
+- **Harness:** `LivingReport.npcWarLosses`, `.homeRaids`; `livingText` is now seven lines.
+- **Left alone:** player wars, `resolveBattle`, raid strength (`homeRaidPerType`), siege resolution, `homeRaidGap` / breach respite, flag contests, app/render/server.
+
 ## 2026-11-26 — app / living presentation for contested flags
 
 - **Board overlay (`packages/app/src/hud/BoardFlagContests.tsx`, `BoardLiving.tsx`):**

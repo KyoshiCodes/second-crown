@@ -1,7 +1,10 @@
 import type { GameState, War } from "@second-crown/shared";
 import { countBuilding } from "../content/buildings.js";
+import { D, toDecimalString } from "../core/decimal.js";
 import {
   CULTURE_NEWS_CAP,
+  NPC_WAR_LOSS_CAP,
+  NPC_WAR_LOSS_SHARE,
   NPC_TRADE_PULSES,
   NPC_WAR_PEACE_TICKS,
   NPC_WAR_PULSES,
@@ -36,6 +39,10 @@ export interface LivingSwitches {
   npcGather: boolean;
   /** One contesting column per player flag, then FLAG_CONTEST_COOLDOWN_TICKS of quiet (flagContest.ts). */
   flagCooldown: boolean;
+  /** NPC-vs-NPC wars cost the loser (both on white peace) a capped share of its units. */
+  npcWarLosses: boolean;
+  /** One home raid in flight, then HOME_RAID_COOLDOWN_TICKS of quiet after it resolves (raidMarch.ts). */
+  homeRaidCooldown: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -47,6 +54,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   npcCamp: "living_npc_camp",
   npcGather: "living_npc_gather",
   flagCooldown: "living_flag_cooldown",
+  npcWarLosses: "living_npc_war_losses",
+  homeRaidCooldown: "living_home_raid_cooldown",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -139,6 +148,8 @@ export function livingCounts(state: GameState): {
   npcCampMarches: number;
   npcGathers: number;
   flagContests: number;
+  npcWarLosses: number;
+  homeRaids: number;
 } {
   return {
     trades: count(state, "living_trades"),
@@ -149,6 +160,8 @@ export function livingCounts(state: GameState): {
     npcCampMarches: count(state, "living_npc_camp_marches"),
     npcGathers: count(state, "living_npc_gathers"),
     flagContests: count(state, "living_flag_contests"),
+    npcWarLosses: count(state, "living_npc_war_losses_units"),
+    homeRaids: count(state, "living_home_raids"),
   };
 }
 
@@ -255,10 +268,68 @@ export function isNpcWar(war: War): boolean {
   return war.attackerRealmId !== "player" && war.defenderRealmId !== "player";
 }
 
+/** Units lost by each side of a settled NPC war (slice 4). Absent on player wars and when losses are off. */
+export interface NpcWarLosses {
+  warId: string;
+  attacker: number;
+  defender: number;
+}
+
+/**
+ * Take NPC_WAR_LOSS_SHARE of each of `realmId`'s unit stacks (floored per stack, in state
+ * order), stopping at NPC_WAR_LOSS_CAP units in all. The committed force is the realm's whole
+ * standing force: NPC wars have no columns. A floored share below 100% never empties a stack.
+ * Refuses the player outright. Returns units lost.
+ */
+export function applyNpcWarLoss(state: GameState, realmId: string): number {
+  if (realmId === "player") return 0;
+  let left = NPC_WAR_LOSS_CAP;
+  let lost = 0;
+  for (const u of state.units) {
+    if (left <= 0) break;
+    if (u.realmId !== realmId) continue;
+    const have = Math.floor(D(u.count).toNumber());
+    const n = Math.min(left, Math.floor(have * NPC_WAR_LOSS_SHARE));
+    if (n <= 0) continue;
+    u.count = toDecimalString(D(u.count).sub(n));
+    left -= n;
+    lost += n;
+  }
+  return lost;
+}
+
+const LOSS_KEY = "npc_war_losses_json";
+/** Loss records kept for the aftermath line; older ones drop off. */
+const LOSS_LOG_CAP = 8;
+
+export function getNpcWarLosses(state: GameState): NpcWarLosses[] {
+  const raw = state.flags[LOSS_KEY];
+  if (typeof raw !== "string" || !raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as NpcWarLosses[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function npcWarLossesFor(state: GameState, warId: string): NpcWarLosses | null {
+  return getNpcWarLosses(state).find((l) => l.warId === warId) ?? null;
+}
+
+function recordNpcWarLosses(state: GameState, rec: NpcWarLosses): void {
+  const list = getNpcWarLosses(state);
+  list.push(rec);
+  state.flags[LOSS_KEY] = JSON.stringify(list.slice(-LOSS_LOG_CAP));
+  state.flags.living_npc_war_losses_units = count(state, "living_npc_war_losses_units") + rec.attacker + rec.defender;
+}
+
 /**
  * Timed settle: when an NPC war reaches its main clash it ends by comparing realm power
- * (existing realmPower, no casualties, no loot). A clear edge is a win; otherwise white peace.
- * Either way the pair is peace-locked for NPC_WAR_PEACE_TICKS.
+ * (existing realmPower, no loot). A clear edge is a win; otherwise white peace. Power is read
+ * before any loss. With `living_npc_war_losses` on (default) the loser, or both sides on white
+ * peace, then loses a capped share (applyNpcWarLoss). Either way the pair is peace-locked for
+ * NPC_WAR_PEACE_TICKS. Only wars between two NPC realms settle here.
  */
 export function settleNpcWars(state: GameState, atTick: number): War[] {
   const settled: War[] = [];
@@ -271,6 +342,15 @@ export function settleNpcWars(state: GameState, atTick: number): War[] {
     war.status = pa - pd > edge ? "attacker_won" : pd - pa > edge ? "defender_won" : "white_peace";
     war.endedTick = atTick;
     state.flags[`peace_${war.attackerRealmId}_${war.defenderRealmId}`] = atTick + NPC_WAR_PEACE_TICKS;
+    if (livingSwitches(state).npcWarLosses) {
+      const hitA = war.status !== "attacker_won";
+      const hitD = war.status !== "defender_won";
+      recordNpcWarLosses(state, {
+        warId: war.id,
+        attacker: hitA ? applyNpcWarLoss(state, war.attackerRealmId) : 0,
+        defender: hitD ? applyNpcWarLoss(state, war.defenderRealmId) : 0,
+      });
+    }
     pushWorldLog(state, "battle", aftermathLine(state, war));
     settled.push(war);
   }
@@ -294,9 +374,10 @@ export interface WarPhase {
 function aftermathLine(state: GameState, war: War): string {
   const a = nameOf(state, war.attackerRealmId);
   const d = nameOf(state, war.defenderRealmId);
-  if (war.status === "attacker_won") return `${a} holds the field. ${d} falls back.`;
-  if (war.status === "defender_won") return `${d} holds the field. ${a} falls back.`;
-  if (war.status === "white_peace") return `${a} and ${d} part in white peace.`;
+  const loss = isNpcWar(war) ? npcWarLossesFor(state, war.id) : null;
+  if (war.status === "attacker_won") return `${a} holds the field. ${d} falls back${loss ? `, ${loss.defender} lost` : ""}.`;
+  if (war.status === "defender_won") return `${d} holds the field. ${a} falls back${loss ? `, ${loss.attacker} lost` : ""}.`;
+  if (war.status === "white_peace") return `${a} and ${d} part in white peace${loss ? ` (${a} ${loss.attacker} lost, ${d} ${loss.defender} lost)` : ""}.`;
   return `The war between ${a} and ${d} is over.`;
 }
 

@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Kingdom wars cost soldiers; raids on your hold get a breather
+
+- **Wars between other kingdoms now cost them troops.** The side that loses (or both sides, on a white peace) loses about an eighth of its army, never more than 20 soldiers in one war. The world log says how many fell.
+- **One raid on your hold at a time.** Only one enemy column can be marching on your hold at once.
+- **75 seconds of quiet after a raid.** Once a raid reaches your hold and is fought, no new raid can set out for at least 75 seconds. Raids hit exactly as hard as before.
+
 ## 2026-11-26 — Contested flags glow on the map
 
 - **Contested flags:** When another kingdom has a column marching on one of your flags, that flag now shows a calm pulsing ring and tiny rival culture seal on the map in the challenger's colors.

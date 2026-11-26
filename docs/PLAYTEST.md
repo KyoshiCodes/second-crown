@@ -147,7 +147,7 @@ Raids by stage: unwalled 1 held / 5 breached, walled 0 held / 1 breached, keep2 
 
 ### Living realm (same two runs)
 
-War phase timing, NPC caravans and whispers, NPC board activity (claims, camp marches, foraging crews), flag contests, and worker posts. Measure only.
+War phase timing, NPC caravans and whispers, NPC board activity (claims, camp marches, foraging crews), flag contests, NPC war losses, home raids fired, and worker posts. Measure only.
 
 Attentive:
 
@@ -156,6 +156,8 @@ First war phase: 0m 10s. Player war: columns 0m 10s → skirmish 0m 20s → clas
 NPC trade fired: yes (911 caravans, 0 to the player). Whispers: 252. NPC wars started: 101.
 NPC board: claimed yes (15), marched on camps yes (485), gathered yes (1260).
 Flag contests fired: 0.
+NPC war losses applied: 1666 units.
+Home raids fired: 26.
 Workers had posts: yes (first at 0m, most posted 14). End: farm 5, quarry 3, yard 6, idle 0, march 0.
 ```
 
@@ -166,6 +168,8 @@ First war phase: 0m 10s. Player war: columns 0m 10s → skirmish 0m 20s → clas
 NPC trade fired: yes (2379 caravans, 0 to the player). Whispers: 660. NPC wars started: 264.
 NPC board: claimed yes (15), marched on camps yes (1289), gathered yes (3300).
 Flag contests fired: 0.
+NPC war losses applied: 4308 units.
+Home raids fired: 15.
 Workers had posts: yes (first at 30m, most posted 14). End: farm 7, quarry 2, yard 5, idle 0, march 0.
 ```
 <!-- sim-progression:end -->

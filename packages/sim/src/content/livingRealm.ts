@@ -113,3 +113,23 @@ export const FLAG_CONTEST_COLUMNS_PER_FLAG = 1;
  * so the next contest starts on the first pulse at or after `arrival + cooldown`.
  */
 export const FLAG_CONTEST_COOLDOWN_TICKS = 500;
+
+// ---------------------------------------------------------------- NPC war losses and home-raid timing (slice 4)
+
+/**
+ * NPC-vs-NPC war losses at the settle. The losing side (both sides on white peace) loses
+ * this share of each unit stack it fields, floored per stack. Player wars never use this.
+ */
+export const NPC_WAR_LOSS_SHARE = 0.12;
+/** Hard cap on units one side can lose in one NPC war, so a realm is never emptied by a single war. */
+export const NPC_WAR_LOSS_CAP = 20;
+
+/** Most rival columns marching on the player's hold at the same time. */
+export const HOME_RAID_IN_FLIGHT = 1;
+/**
+ * Quiet time after a home raid resolves (its column's arrival tick), in ticks (10 ticks = 1 s).
+ * 750 = 75 seconds. Home raids only launch on NPC_RAID_PULSE_TICKS (500) pulses, and the
+ * existing launch-to-launch gap (raidPressure.ts homeRaidGap) still applies, so the next raid
+ * starts on the first raid pulse that clears all three.
+ */
+export const HOME_RAID_COOLDOWN_TICKS = 750;

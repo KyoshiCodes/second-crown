@@ -236,7 +236,8 @@ export type { March } from "./systems/march.js";
 export { tryDispatchScout } from "./systems/scoutColumn.js";
 export { incomingOnProvince, incomingOnPlayerFlags } from "./systems/incoming.js";
 
-export { incomingOnHome, watchtowerWarning, maybeNpcRaid } from "./systems/raidMarch.js";
+export { incomingOnHome, watchtowerWarning, maybeNpcRaid, homeRaidAllowed, homeRaidSnapshot, getHomeRaid } from "./systems/raidMarch.js";
+export type { HomeRaidSnapshot, HomeRaidRecord } from "./systems/raidMarch.js";
 export { canSally, trySally } from "./systems/sally.js";
 export { resolveSiegeHold, yardPower, keepPower } from "./systems/siege.js";
 export type { SiegeReport } from "./systems/siege.js";
@@ -325,6 +326,9 @@ export {
   maybeWhisper,
   maybeNpcWar,
   settleNpcWars,
+  applyNpcWarLoss,
+  getNpcWarLosses,
+  npcWarLossesFor,
   isNpcWar,
   warPhase,
   playerWarPhase,
@@ -353,7 +357,7 @@ export {
   getFlagContests,
 } from "./systems/flagContest.js";
 export type { FlagContestSnapshot, FlagContestEntry, FlagCooldownEntry, FlagContestRecord } from "./systems/flagContest.js";
-export type { LivingSwitches, CultureNews, WarPhase } from "./systems/livingRealm.js";
+export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses } from "./systems/livingRealm.js";
 export {
   WAR_PHASE_IDS,
   WAR_PHASE_START,
@@ -366,6 +370,10 @@ export {
   NPC_CLAIM_CAP,
   FLAG_CONTEST_COLUMNS_PER_FLAG,
   FLAG_CONTEST_COOLDOWN_TICKS,
+  NPC_WAR_LOSS_SHARE,
+  NPC_WAR_LOSS_CAP,
+  HOME_RAID_IN_FLIGHT,
+  HOME_RAID_COOLDOWN_TICKS,
 } from "./content/livingRealm.js";
 export type { WarPhaseId } from "./content/livingRealm.js";
 export { workerSnapshot, unitActivity, unitActivityAt, WORKER_TASK_TAGS, UNIT_DOING_LABEL } from "./systems/boardActivity.js";
