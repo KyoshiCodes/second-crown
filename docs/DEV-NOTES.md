@@ -1,3 +1,13 @@
+## 2026-11-26 — sim / Living Realm slice 5 (join an NPC war, war imagery)
+
+- **Model:** joining does not turn the NPC war into a three-party war. `joinSide(state, warId, side)` pushes a separate player war `{ id: war_join_<tick>_<n>, attackerRealmId: "player", defenderRealmId: foe, startedTick: npcWar.startedTick, joinedWarId, allyRealmId }`. Copying `startedTick` keeps the player in the same phase as the war they joined, so `warPhase`, `warFightOpen`, `tryResolveWar`, `tryWhitePeace`, `activeWarFor` and `tickWarPhases` work unchanged. `isNpcWar` is false for it, so `settleNpcWars` / `applyNpcWarLoss` never touch it (and `applyNpcWarLoss` refuses `"player"` anyway). The NPC war keeps running and settles at its clash between the two NPCs; the player's war goes on against the foe until Fight or White Peace.
+- **Gate:** `joinSide` only accepts what `joinableWars(state)` lists with that side open: switch on, `!atWar(state, "player")`, war active and NPC-vs-NPC, and no peace lock between the player and the foe at `meta.tick`. Calls `noteWar` (same achievement as declaring), logs `join_npc_war { warId, side }`, bumps `flags.living_npc_wars_joined`, writes one world-log `declare` line.
+- **Shared:** optional `WarInstance.joinedWarId?: string | null`, `allyRealmId?: string | null`. No save migration needed.
+- **Imagery:** `warImagerySnapshot(state, atTick?)` walks `state.wars` in order, skips `w_siege_*`, keeps any war `warPhase` returns non-null for (active, or finished within `WAR_AFTERMATH_TICKS`). Entry `{ warId, attackerRealmId, attackerName, defenderRealmId, defenderName, phase, active, player, allyRealmId, banner }`. Banner verbs agree with one side or two (`A musters` / `Player and Ally muster`). Aftermath banner by status: attacker won `D falls back from A`, defender won `A falls back from D`, white peace `A and D fall back`.
+- **Switch:** `LIVING_SWITCH_FLAGS.joinNpcWar` = `living_join_npc_war`.
+- **Harness:** `LivingReport.joinableWarsSeen` = distinct war ids in `joinableWars` across bot looks; the bot never joins. `livingText` is now eight lines. Both runs read 0 because the bot sits in its rival war the whole run.
+- **Left alone:** combat (`resolveBattle`, `realmPower`), phase timing (`WAR_PHASE_START`, aftermath length), NPC war settle rule and loss numbers, `maybeNpcWar` / `maybeDeclare`, raid and flag-contest code, balance tables, app/render/server.
+
 ## 2026-11-26 — app / living presentation for NPC war losses & home-raid timing
 
 - **Board overlay (`packages/app/src/hud/BoardWarLossAndRaid.tsx`, `BoardLiving.tsx`):**

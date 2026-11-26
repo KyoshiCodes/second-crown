@@ -51,7 +51,9 @@ describe("progression harness", () => {
     expect(l.workers.firstPostedTick).not.toBeNull();
     expect(l.workers.maxPosted).toBeGreaterThan(0);
     const text = livingText(r);
-    expect(text.split("\n")).toHaveLength(7);
+    expect(text.split("\n")).toHaveLength(8);
+    expect(text).toMatch(/^Joinable wars seen: \d+\.$/m);
+    expect(l.joinableWarsSeen).toBeGreaterThanOrEqual(0);
     expect(text).toMatch(/^NPC war losses applied: \d+ units\.$/m);
     expect(text).toMatch(/^Home raids fired: \d+\.$/m);
     expect(l.npcWarLosses).toBeGreaterThan(0);

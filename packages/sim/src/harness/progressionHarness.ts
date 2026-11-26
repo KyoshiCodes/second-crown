@@ -13,7 +13,7 @@ import { computeIncomePerSecond } from "../systems/economy.js";
 import { allOfType, freeSlot, playerUnitCount, queuedCount } from "./playtestHarness.js";
 import { raidStage } from "../systems/raidPressure.js";
 import type { RaidStageId } from "../content/raids.js";
-import { isNpcWar, livingCounts, warPhaseTimeline } from "../systems/livingRealm.js";
+import { isNpcWar, joinableWars, livingCounts, warPhaseTimeline } from "../systems/livingRealm.js";
 import { workerSnapshot, type WorkerTaskTag } from "../systems/boardActivity.js";
 import type { WarPhaseId } from "../content/livingRealm.js";
 
@@ -103,6 +103,8 @@ export interface LivingReport {
   npcWarLosses: number;
   /** Rival columns launched at the player's hold (slice 4: one in flight, then a cooldown). */
   homeRaids: number;
+  /** Distinct NPC wars the player could have joined at a bot look (slice 5). Measure only; the bot never joins. */
+  joinableWarsSeen: number;
   workers: {
     /** First bot look with at least one citizen at a post. */
     firstPostedTick: number | null;
@@ -310,6 +312,7 @@ export function runProgression(options: ProgressionOptions = {}): ProgressionRep
   let siegesSeen = 0;
   let firstPostedTick: number | null = null;
   let maxPosted = 0;
+  const joinableSeen = new Set<string>();
 
   while (state.meta.tick < maxTicks) {
     const wait = builderTurn(state, studies);
@@ -327,6 +330,7 @@ export function runProgression(options: ProgressionOptions = {}): ProgressionRep
     const posted = workerSnapshot(state).posted;
     if (posted > 0 && firstPostedTick === null) firstPostedTick = state.meta.tick;
     maxPosted = Math.max(maxPosted, posted);
+    for (const j of joinableWars(state)) joinableSeen.add(j.warId);
     for (const s of studies) if (s.doneTick === null && researchDone(state, s.id)) s.doneTick = state.meta.tick;
     const k = keepLevel(state);
     for (let lv = 1; lv <= Math.min(3, k); lv++) {
@@ -359,6 +363,7 @@ export function runProgression(options: ProgressionOptions = {}): ProgressionRep
     npcWar: warRow(npcWar),
     firstPhaseTick: phased.length ? Math.min(...phased.map((w) => w.startedTick)) : null,
     ...counts,
+    joinableWarsSeen: joinableSeen.size,
     workers: { firstPostedTick, maxPosted, end: workerSnapshot(state).counts },
   };
 
@@ -434,6 +439,7 @@ export function livingText(r: ProgressionReport): string {
     `Flag contests fired: ${l.flagContests}.`,
     `NPC war losses applied: ${l.npcWarLosses} units.`,
     `Home raids fired: ${l.homeRaids}.`,
+    `Joinable wars seen: ${l.joinableWarsSeen}.`,
     `Workers had posts: ${w.firstPostedTick !== null ? "yes" : "no"} (first at ${clock(w.firstPostedTick)}, most posted ${w.maxPosted}). End: ${Object.entries(w.end).map(([k, v]) => `${k} ${v}`).join(", ")}.`,
   ].join("\n");
 }

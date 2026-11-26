@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Join another kingdom's war (rules only, no button yet)
+
+- **Pick a side.** When two other kingdoms are at war and you are at peace, you can join either side. You then fight the other side, and your war follows the same steps as theirs: columns, skirmish, then the main clash, when Fight opens. White Peace works at any time.
+- **You never take their losses.** The soldiers lost when two kingdoms settle their war come only from those two kingdoms.
+- **Not if you are already at war,** not once their war is over, and not against a kingdom you just made peace with.
+- **War banners.** The game now knows a short banner line for every war (who is mustering, skirmishing, clashing or falling back), ready for the map.
+- The button and the banners on the map come in the next update.
+
 ## 2026-11-26 — War aftermath standards & home-raid signs on the map
 
 - **Fallen standards after kingdom wars:** When two other kingdoms settle a war and lose soldiers, the losing hold briefly wears a quiet lowered banner in its colors during the aftermath before clearing.

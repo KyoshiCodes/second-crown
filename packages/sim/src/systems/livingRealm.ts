@@ -18,6 +18,7 @@ import {
 } from "../content/livingRealm.js";
 import { realmPower } from "./combat.js";
 import { activeWarFor } from "../actions/war.js";
+import { noteWar } from "./wave.js";
 import { cultureOfRealm } from "./culture.js";
 import { pushWorldLog } from "./events.js";
 import { addCapped } from "./storage.js";
@@ -43,6 +44,8 @@ export interface LivingSwitches {
   npcWarLosses: boolean;
   /** One home raid in flight, then HOME_RAID_COOLDOWN_TICKS of quiet after it resolves (raidMarch.ts). */
   homeRaidCooldown: boolean;
+  /** The player may join one side of an NPC-vs-NPC war (joinSide). False hides the action. */
+  joinNpcWar: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -56,6 +59,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   flagCooldown: "living_flag_cooldown",
   npcWarLosses: "living_npc_war_losses",
   homeRaidCooldown: "living_home_raid_cooldown",
+  joinNpcWar: "living_join_npc_war",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -483,4 +487,152 @@ export function warFightOpen(state: GameState, war: War, atTick = state.meta.tic
   if (war.status !== "active") return false;
   if (isInstantWar(war)) return true;
   return warPhase(state, war, atTick)?.id === "clash";
+}
+
+// ---------------------------------------------------------------- join an NPC war (slice 5)
+
+export type WarSide = "attacker" | "defender";
+
+/** One NPC-vs-NPC war the player could join now, and which sides are open to them. */
+export interface JoinableWar {
+  warId: string;
+  attackerRealmId: string;
+  attackerName: string;
+  defenderRealmId: string;
+  defenderName: string;
+  phase: WarPhaseId;
+  startedTick: number;
+  /** A side is closed when the player is peace-locked with the realm they would fight. */
+  sides: Record<WarSide, boolean>;
+}
+
+function foeOf(war: War, side: WarSide): string {
+  return side === "attacker" ? war.defenderRealmId : war.attackerRealmId;
+}
+
+function allyOf(war: War, side: WarSide): string {
+  return side === "attacker" ? war.attackerRealmId : war.defenderRealmId;
+}
+
+/**
+ * Active NPC-vs-NPC wars the player may join at `atTick` (default: now), in state order.
+ * Empty when `living_join_npc_war` is off or the player is already at war. Pure read.
+ */
+export function joinableWars(state: GameState, atTick = state.meta.tick): JoinableWar[] {
+  if (!livingSwitches(state).joinNpcWar) return [];
+  if (atWar(state, "player")) return [];
+  const out: JoinableWar[] = [];
+  for (const war of state.wars) {
+    if (war.status !== "active" || !isNpcWar(war) || isInstantWar(war)) continue;
+    const sides: Record<WarSide, boolean> = {
+      attacker: !peaceLockedAt(state, "player", foeOf(war, "attacker"), atTick),
+      defender: !peaceLockedAt(state, "player", foeOf(war, "defender"), atTick),
+    };
+    if (!sides.attacker && !sides.defender) continue;
+    out.push({
+      warId: war.id,
+      attackerRealmId: war.attackerRealmId,
+      attackerName: nameOf(state, war.attackerRealmId),
+      defenderRealmId: war.defenderRealmId,
+      defenderName: nameOf(state, war.defenderRealmId),
+      phase: warPhase(state, war, atTick)?.id ?? "columns",
+      startedTick: war.startedTick,
+      sides,
+    });
+  }
+  return out;
+}
+
+/**
+ * The player joins `side` of the NPC war `warId`. This opens a player war against the other
+ * side, started on the NPC war's start tick so it shares its phase clock. From there the usual
+ * rules apply: phases, the Fight lock until the main clash, White Peace any time. The NPC war
+ * itself stays NPC-vs-NPC and still settles (and takes its losses) between the two NPC realms;
+ * the player's war is not an NPC war, so it never takes the NPC loss share.
+ * Refuses (null) when the switch is off, the player is at war, the war is missing, ended or not
+ * NPC-vs-NPC, the side is unknown, or the player is peace-locked with the realm they would fight.
+ */
+export function joinSide(state: GameState, warId: string, side: WarSide): War | null {
+  if (side !== "attacker" && side !== "defender") return null;
+  const open = joinableWars(state).find((j) => j.warId === warId);
+  if (!open || !open.sides[side]) return null;
+  const npc = state.wars.find((w) => w.id === warId)!;
+  const ally = allyOf(npc, side);
+  const foe = foeOf(npc, side);
+  const war: War = {
+    id: `war_join_${state.meta.tick}_${state.wars.length}`,
+    attackerRealmId: "player",
+    defenderRealmId: foe,
+    startedTick: npc.startedTick,
+    status: "active",
+    joinedWarId: npc.id,
+    allyRealmId: ally,
+  };
+  state.wars.push(war);
+  noteWar(state);
+  state.inputLog.push({ tick: state.meta.tick, type: "join_npc_war", payload: { warId, side }, issuerId: "player" });
+  bumpCount(state, "living_npc_wars_joined");
+  pushWorldLog(state, "declare", `${nameOf(state, "player")} rides beside ${nameOf(state, ally)} against ${nameOf(state, foe)}`);
+  return war;
+}
+
+// ---------------------------------------------------------------- war imagery (slice 5)
+
+/** One active war for the board's war imagery. Read-only. */
+export interface WarImageryEntry {
+  warId: string;
+  attackerRealmId: string;
+  attackerName: string;
+  defenderRealmId: string;
+  defenderName: string;
+  phase: WarPhaseId;
+  /** True when the player is one of the two sides. */
+  player: boolean;
+  /** The NPC realm the player fights beside, when this war came from joinSide. */
+  allyRealmId: string | null;
+  /** False while a finished war shows its aftermath. */
+  active: boolean;
+  /** Short banner: who is mustering, skirmishing, clashing, or falling back. */
+  banner: string;
+}
+
+function bannerLine(war: War, a: string, d: string, phase: WarPhaseId, ally: string | null): string {
+  const side = ally ? `${a} and ${ally}` : a;
+  const s = ally ? "" : "s";
+  if (phase === "columns") return `${side} muster${s} against ${d}`;
+  if (phase === "skirmish") return `${side} skirmish${ally ? "" : "es"} with ${d}`;
+  if (phase === "clash") return `${side} clash${ally ? "" : "es"} with ${d}`;
+  if (war.status === "attacker_won") return `${d} falls back from ${side}`;
+  if (war.status === "defender_won") return `${side} fall${s} back from ${d}`;
+  return `${side} and ${d} fall back`;
+}
+
+/**
+ * Every war on the board (sieges excluded, they have no lead-up) with its two sides, current
+ * phase and a banner line, in state order: active wars, plus finished ones while their
+ * aftermath shows (the "falling back" banner). Pure read; no combat formula or phase timing here.
+ */
+export function warImagerySnapshot(state: GameState, atTick = state.meta.tick): WarImageryEntry[] {
+  const out: WarImageryEntry[] = [];
+  for (const war of state.wars) {
+    if (isInstantWar(war)) continue;
+    const phase = warPhase(state, war, atTick);
+    if (!phase) continue;
+    const a = nameOf(state, war.attackerRealmId);
+    const d = nameOf(state, war.defenderRealmId);
+    const ally = war.allyRealmId ?? null;
+    out.push({
+      warId: war.id,
+      attackerRealmId: war.attackerRealmId,
+      attackerName: a,
+      defenderRealmId: war.defenderRealmId,
+      defenderName: d,
+      phase: phase.id,
+      active: war.status === "active",
+      player: !isNpcWar(war),
+      allyRealmId: ally,
+      banner: bannerLine(war, a, d, phase.id, ally ? nameOf(state, ally) : null),
+    });
+  }
+  return out;
 }

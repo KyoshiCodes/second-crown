@@ -94,6 +94,10 @@ export interface WarInstance {
   startedTick: number;
   status: WarStatus;
   endedTick?: number | null;
+  /** Set on a player war opened by joining an NPC war (living slice 5): the NPC war joined. */
+  joinedWarId?: string | null;
+  /** Set with joinedWarId: the NPC realm the player fights beside. */
+  allyRealmId?: string | null;
 }
 
 export interface FactionInstance {

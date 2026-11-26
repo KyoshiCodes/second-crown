@@ -8,6 +8,17 @@
 - **Unchanged invariants & accessibility:** Dedicated `hud/war-loss-raid-accents.css` only (`theme.css`, `board-living.css`, `living-realm-board.css`, `npc-board-clash.css`, `flag-contest-accents.css`, `raid-payoff-accents.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
 - **Tests:** Added `packages/app/src/hud/WarLossRaidAccents.test.tsx` (4 tests). Now: sim **521**, app **1634**, server **158** (+1 symlink skip on Windows), app build clean.
 
+## 2026-11-26 — Living Realm slice 5 (join an NPC war, war-imagery snapshot)
+
+- **Join an NPC war (`livingRealm.ts joinSide`):** a player at peace can join one side of an active NPC-vs-NPC war. This opens a player war against the other side, sharing the NPC war's start tick (same phase clock). Phases, the Fight lock until the clash, and White Peace apply as for any player war. The NPC war still settles between the two NPC realms; NPC war losses still hit only them.
+- **Refusals:** switch off, player already at war, war missing / ended / not NPC-vs-NPC, unknown side, or a peace lock with the realm the player would fight.
+- **Joinable list (`joinableWars`):** `{ warId, attacker/defender ids and names, phase, startedTick, sides: { attacker, defender } }[]`.
+- **War imagery (`warImagerySnapshot`):** for each non-siege war that is active or in its aftermath: both sides, phase id, `active`, `player`, `allyRealmId`, and a banner line (mustering / skirmishing / clashing / falling back). Read-only.
+- **Shared type:** optional `WarInstance.joinedWarId`, `allyRealmId` (old saves load unchanged).
+- **Switch:** `living_join_npc_war` (`false` hides the action). Counter `flags.living_npc_wars_joined`; input log type `join_npc_war`.
+- **Playtest:** living section adds `Joinable wars seen: N.` (attentive 0 / low-touch 0; the bot never leaves its rival war). Balance tables unchanged.
+- **Tests:** new `systems/livingSlice5.test.ts` (21: switch, list, both sides, peace locks, refuse at war / ended / unknown, phase clock, Fight lock and White Peace, determinism, NPC losses skip the player war, imagery phases, aftermath banners, joined banner, sieges left out, read-only). Harness test expects eight living lines. Now: sim **542**, app **1634**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 4 (NPC war losses, home-raid timing)
 
 - **NPC war losses (`livingRealm.ts settleNpcWars`, `applyNpcWarLoss`):** an NPC-vs-NPC war that settles at the clash now costs the loser (both sides on white peace) `NPC_WAR_LOSS_SHARE` = 12% of each unit stack, floored per stack, capped at `NPC_WAR_LOSS_CAP` = 20 units per side per war. The winner is still decided on power before losses. Aftermath line carries the count. Player wars unchanged.

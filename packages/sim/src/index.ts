@@ -336,6 +336,9 @@ export {
   warPhaseTimeline,
   playerFightOpen,
   warFightOpen,
+  joinableWars,
+  joinSide,
+  warImagerySnapshot,
   LIVING_SWITCH_FLAGS,
 } from "./systems/livingRealm.js";
 export {
@@ -357,7 +360,7 @@ export {
   getFlagContests,
 } from "./systems/flagContest.js";
 export type { FlagContestSnapshot, FlagContestEntry, FlagCooldownEntry, FlagContestRecord } from "./systems/flagContest.js";
-export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses } from "./systems/livingRealm.js";
+export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry } from "./systems/livingRealm.js";
 export {
   WAR_PHASE_IDS,
   WAR_PHASE_START,
