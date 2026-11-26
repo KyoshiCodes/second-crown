@@ -1,0 +1,49 @@
+/* War phase strip (War tab). Quiet, readable; never blocks the Fight buttons. */
+
+.sc-war-phase {
+  margin: 8px 0 2px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.sc-war-phase-steps {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-war-phase-step {
+  flex: 1;
+  padding: 1px 4px;
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0.45;
+  border-bottom: 2px solid rgba(120, 83, 30, 0.6);
+}
+
+.sc-war-phase-step.is-past {
+  opacity: 0.7;
+}
+
+.sc-war-phase-step.is-now {
+  opacity: 1;
+  font-weight: 600;
+  border-bottom-color: #facc15;
+}
+
+.sc-war-phase[data-phase="skirmish"] .sc-war-phase-step.is-now { border-bottom-color: #fb923c; }
+.sc-war-phase[data-phase="clash"] .sc-war-phase-step.is-now { border-bottom-color: #f87171; }
+.sc-war-phase[data-phase="aftermath"] .sc-war-phase-step.is-now { border-bottom-color: #86efac; }
+
+.sc-war-phase-line {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.sc-war-phase-left {
+  opacity: 0.65;
+}

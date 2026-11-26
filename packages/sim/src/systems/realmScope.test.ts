@@ -67,7 +67,10 @@ describe("realm scope: wars", () => {
     new TickEngine(state).settleTicks(3000);
     const mine = warSummary(state).activeWar;
     expect(mine === undefined || mine.attackerRealmId === "player" || mine.defenderRealmId === "player").toBe(true);
-    expect(state.wars.find((w) => w.attackerRealmId === "k_ash")?.status).toBe("active");
+    // NPC wars now settle themselves at the main clash (living realm); the player never ends them.
+    const npc = state.wars.find((w) => w.id === "war_npc_k_ash_k_silk_400");
+    expect(npc?.status).not.toBe("active");
+    expect(state.inputLog.some((r) => r.type === "white_peace" || r.type === "resolve_war")).toBe(false);
   });
 });
 

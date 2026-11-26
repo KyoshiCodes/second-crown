@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-25 — Living Realm wave, first slice (NPC caravans, whispers, NPC wars, war phases, board snapshot)
+
+- **NPC caravans (`systems/livingRealm.ts` `maybeNpcTrade`):** the old `maybeTrade` never fired (salt gate needed `salt % 100 === 0`). Now pulse-based: each NPC realm sends a caravan every `NPC_TRADE_PULSES` (3) pulses, staggered by realm salt. NPC-to-NPC caravans go to culture news; a caravan to the player needs a market (same gate as the Market) and pays the existing +1 gold via `addCapped`. Skipped while at war or peace-locked with the partner.
+- **Realm whispers (`maybeWhisper`, `content/livingRealm.ts` `WHISPERS`):** one 1-2 sentence line every 3 pulses from an NPC realm's culture table (western/woodland/desert/steppe/tide) to a realm it is not at war with. Stored in `flags.culture_news` (cap 8); `listLedger` now includes culture news.
+- **NPC wars with a clean end (`maybeNpcWar`, `settleNpcWars`):** replaces the dead `rival.ts` `maybeNpcWar`. An NPC at peace may declare on another NPC at peace every 30 pulses. At the main clash (+300 ticks) it settles by `realmPower` (10% edge = win, else white peace), no casualties/loot, peace lock 900 ticks. `maybeDeclare` skips a realm already at war.
+- **War phases (`warPhase`, `playerWarPhase`, `tickWarPhases`, `warPhaseTimeline`):** stable ids `columns` / `skirmish` / `clash` / `aftermath` with a readable line each. Player-war phase changes write one world-log line (`war_columns` ... `war_aftermath`). Fight is not gated; combat formulas untouched. `tryWhitePeace` now records `endedTick`.
+- **Board snapshot (`systems/boardActivity.ts`):** `workerSnapshot` (citizen posts + gather crews; tags farm, quarry, yard, idle, march) and `unitActivity` / `unitActivityAt` (home, marching, returning, garrisoned, scouting, gathering). Read-only.
+- **App:** `hud/WarPhaseLine.tsx` + `hud/war-phase.css` on the War tab (four-step meter, `data-phase`); `BoardStatus` gains a **Doing** chip.
+- **Harness:** `ProgressionReport.living` + `livingText` (first war phase timing, NPC trade fired, worker posts); `npm run playtest` writes it into `docs/PLAYTEST.md`.
+- **Tests:** `systems/livingRealm.test.ts` (16), `systems/boardActivity.test.ts` (5), progression harness (+1), `realmScope.test.ts` (NPC war now settles), app `hud/WarPhaseLine.test.tsx` (5), `BoardStatus.test.tsx` (+3). Now: sim **468**, app **1612**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-25 — Living shared-realm seal in top bar & Hold/Board controls
 
 - **Shared-realm helper & seal (`hud/SharedRealmSeal.tsx`, `hud/shared-realm-seal.css`):** Added `cleanSharedRealmName`, `resolveSharedRealmInfo`, and phrasing-only `<SharedRealmSeal>` (`sc-shared-realm-seal`, breathing halo pip `sc-shared-realm-pip` + `sc-shared-realm-ring`, linked-rings `<svg>`, `pointer-events: none !important;`). Reads only existing seams: `sharedRealmId(state)` (`game/settleOnLoad.ts`, still `null` in Phases 1–3) and `holdWatch` (`hud/holdWatch.ts`, live whenever `JoinHoldCard` joins a shared hold). Stays hidden in solo play.

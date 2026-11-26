@@ -101,3 +101,30 @@ describe("BoardStatus", () => {
     expect(readCssFile("./theme.css")).not.toContain("sc-board-status");
   });
 });
+
+describe("boardStatusChips: what your troops are doing", () => {
+  it("tags a tile your column is marching on", () => {
+    const s = fresh();
+    const dest = s.board.provinces.find((p) => p.id !== s.board.homeProvinceId)!;
+    s.flags["marches_json"] = JSON.stringify([
+      { id: "m1", realmId: "player", fromId: s.board.homeProvinceId, toId: dest.id, arrivesTick: s.meta.tick + 50, kind: "camp", levy: 0, force: { militia: 5 }, purpose: "raid" },
+    ]);
+    expect(boardStatusChips(s, dest.id).find((c) => c.kind === "doing")).toMatchObject({ value: "Marching · 5", tone: "you" });
+  });
+
+  it("tags a garrisoned tile and a returning column", () => {
+    const s = fresh();
+    const post = s.board.provinces.find((p) => p.id !== s.board.homeProvinceId)!;
+    s.flags["garrisons_json"] = JSON.stringify([{ provinceId: post.id, force: { militia: 3 } }]);
+    expect(boardStatusChips(s, post.id).find((c) => c.kind === "doing")?.value).toBe("Garrisoned · 3");
+    s.flags["marches_json"] = JSON.stringify([
+      { id: "m2", realmId: "player", fromId: post.id, toId: s.board.homeProvinceId, arrivesTick: s.meta.tick + 50, kind: "hold", levy: 0, force: { militia: 2 }, purpose: "garrison_home" },
+    ]);
+    expect(boardStatusChips(s, s.board.homeProvinceId).find((c) => c.kind === "doing")?.value).toBe("Returning · 2");
+  });
+
+  it("no doing chip for troops resting at home", () => {
+    const s = fresh();
+    expect(boardStatusChips(s, s.board.homeProvinceId).some((c) => c.kind === "doing")).toBe(false);
+  });
+});

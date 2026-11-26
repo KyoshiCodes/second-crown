@@ -316,3 +316,23 @@ export {
   garrisonPower,
   listGarrisons,
 } from "./systems/garrison.js";
+export {
+  livingSwitches,
+  setLivingSwitch,
+  livingCounts,
+  getCultureNews,
+  maybeNpcTrade,
+  maybeWhisper,
+  maybeNpcWar,
+  settleNpcWars,
+  isNpcWar,
+  warPhase,
+  playerWarPhase,
+  tickWarPhases,
+  warPhaseTimeline,
+} from "./systems/livingRealm.js";
+export type { LivingSwitches, CultureNews, WarPhase } from "./systems/livingRealm.js";
+export { WAR_PHASE_IDS, WAR_PHASE_START, WAR_PHASE_TITLE, WAR_AFTERMATH_TICKS, WHISPERS } from "./content/livingRealm.js";
+export type { WarPhaseId } from "./content/livingRealm.js";
+export { workerSnapshot, unitActivity, unitActivityAt, WORKER_TASK_TAGS, UNIT_DOING_LABEL } from "./systems/boardActivity.js";
+export type { WorkerSnapshot, WorkerPost, WorkerTaskTag, UnitActivity, UnitDoing } from "./systems/boardActivity.js";

@@ -61,6 +61,7 @@ import type { ActFn } from "./game/useGameEngine";
 import { getGiftThanks, getWarTaunt } from "./content/flavor";
 import { sfx } from "./sfx";
 import { flashAction } from "./hud/ActionFlash";
+import { WarPhaseLine } from "./hud/WarPhaseLine";
 
 export function WarRoom(props: {
   state: GameState | undefined;
@@ -216,6 +217,7 @@ export function WarRoom(props: {
             White Peace
           </button>
         </div>
+        <WarPhaseLine state={state} />
         {!activeWar ? <p style={{ margin: "6px 0 0", fontSize: 12, opacity: 0.7 }}>No war declared. Fight opens once one is.</p> : null}
         <BattleVisual snap={battleSnap} active={!!activeWar} />
       </section>

@@ -9,7 +9,7 @@ import { ensureBoard } from "./board.js";
 import { tryNpcMarch } from "./march.js";
 import { maybeNpcRaid } from "./raidMarch.js";
 import { tryNpcGather } from "./gather.js";
-import { D, toDecimalString } from "../core/decimal.js";
+import { atWar, maybeNpcTrade, maybeNpcWar, maybeWhisper, settleNpcWars, tickWarPhases } from "./livingRealm.js";
 
 export const RivalSystem = {
   nextEventTick(_state: GameState): number | null {
@@ -49,11 +49,14 @@ function tickAi(state: GameState, atTick: number): void {
     maybeCampMarch(state, realm.id, atTick);
     maybeContestFlag(state, realm.id, atTick);
     maybeGather(state, realm.id, atTick);
-    maybeTrade(state, realm.id, atTick);
+    maybeNpcTrade(state, realm.id, atTick);
     maybeNpcWar(state, realm.id, atTick);
     if (atTick % 500 === 0) maybeNpcRaid(state, realm.id, atTick);
     maybeDeclare(state, realm.id, atTick);
   }
+  maybeWhisper(state, atTick);
+  settleNpcWars(state, atTick);
+  tickWarPhases(state, atTick);
   tickWorldClash(state, atTick);
 }
 
@@ -105,39 +108,12 @@ export function maybeContestFlag(state: GameState, realmId: string, atTick: numb
   return true;
 }
 
-function maybeTrade(state: GameState, realmId: string, atTick: number): void {
-  if ((atTick + salt(realmId)) % 300 !== 0) return;
-  const others = state.realms.filter((r) => r.id !== realmId);
-  if (!others.length) return;
-  const partner = others[(atTick + salt(realmId)) % others.length];
-  if (partner.id === "player") {
-    state.resources.gold = toDecimalString(D(state.resources.gold ?? "0").add(1));
-  }
-  const a = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
-  pushWorldLog(state, "trade", `${a} trades caravans with ${partner.name}`);
-}
-
-function maybeNpcWar(state: GameState, realmId: string, atTick: number): void {
-  if ((atTick + salt(realmId)) % 400 !== 0) return;
-  if (state.wars.some((w) => w.status === "active" && (w.attackerRealmId === realmId || w.defenderRealmId === realmId))) return;
-  const foes = npcs(state).filter((r) => r.id !== realmId && !peaceLocked(state, realmId, r.id));
-  if (!foes.length) return;
-  const foe = foes[(atTick + salt(realmId)) % foes.length];
-  state.wars.push({
-    id: `war_npc_${realmId}_${foe.id}_${atTick}`,
-    attackerRealmId: realmId,
-    defenderRealmId: foe.id,
-    startedTick: atTick,
-    status: "active",
-  });
-  const a = state.realms.find((r) => r.id === realmId)?.name ?? realmId;
-  pushWorldLog(state, "declare", `${a} makes war on ${foe.name}`);
-}
-
 function maybeDeclare(state: GameState, realmId: string, atTick: number): void {
   if (isShielded(state)) return;
   if (peaceLocked(state, realmId, "player")) return;
   if (state.wars.some((w) => w.status === "active" && w.defenderRealmId === "player")) return;
+  // A realm already fighting another realm does not open a second front on the player.
+  if (atWar(state, realmId)) return;
   const ruler = state.characters.find((c) => c.realmId === realmId && c.role === "ruler");
   const opinion = ruler ? getOpinion(state, ruler.id, "char_player") : 0;
   if (opinion >= 20) return;

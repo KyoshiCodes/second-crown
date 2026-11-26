@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runProgression, progressionText } from "./progressionHarness.js";
+import { runProgression, progressionText, livingText } from "./progressionHarness.js";
 import { BREACH_RESPITE_TICKS } from "../content/raids.js";
 
 describe("progression harness", () => {
@@ -39,6 +39,23 @@ describe("progression harness", () => {
     expect(text).toMatch(/^Progression \(seed 20260930/);
     expect(text).toContain("Keep: I ");
     expect(text).toContain("Raids: ");
+  });
+
+  it("reports living-realm activity: war phase timing, NPC trade, worker posts", () => {
+    const l = r.living;
+    expect(l.trades).toBeGreaterThan(0);
+    expect(l.whispers).toBeGreaterThan(0);
+    expect(l.npcWars).toBeGreaterThan(0);
+    expect(l.npcWar?.phases[0].id).toBe("columns");
+    expect(l.firstPhaseTick).not.toBeNull();
+    expect(l.workers.firstPostedTick).not.toBeNull();
+    expect(l.workers.maxPosted).toBeGreaterThan(0);
+    const text = livingText(r);
+    expect(text.split("\n")).toHaveLength(3);
+    expect(text).toMatch(/^First war phase: /);
+    expect(text).toContain("NPC trade fired: yes");
+    expect(text).toContain("Workers had posts: yes");
+    expect(livingText(runProgression())).toBe(text);
   });
 
   it("a low-touch realm (one look every 30 minutes) still reaches Keep III and is never spiralled", () => {

@@ -13,6 +13,9 @@ import { computeIncomePerSecond } from "../systems/economy.js";
 import { allOfType, freeSlot, playerUnitCount, queuedCount } from "./playtestHarness.js";
 import { raidStage } from "../systems/raidPressure.js";
 import type { RaidStageId } from "../content/raids.js";
+import { isNpcWar, livingCounts, warPhaseTimeline } from "../systems/livingRealm.js";
+import { workerSnapshot, type WorkerTaskTag } from "../systems/boardActivity.js";
+import type { WarPhaseId } from "../content/livingRealm.js";
 
 /**
  * Progression measurement harness. A low-touch "builder" bot plays a fresh realm
@@ -74,6 +77,28 @@ export interface ProgressionReport {
     firstTick: number | null;
     /** Raids by the raid stage the hold was in when the bot next looked (content/raids.ts). */
     byStage: Record<RaidStageId, { held: number; breached: number }>;
+  };
+  living: LivingReport;
+}
+
+/** Living Realm measurement: war phases, NPC caravans and whispers, worker posts. */
+export interface LivingReport {
+  /** First non-siege war the player was in, with each phase it reached and when. */
+  playerWar: { id: string; status: string; phases: { id: WarPhaseId; tick: number }[] } | null;
+  /** First war between two NPC realms. */
+  npcWar: { id: string; status: string; phases: { id: WarPhaseId; tick: number }[] } | null;
+  /** Tick of the first war phase seen in any war (player or NPC), null if none. */
+  firstPhaseTick: number | null;
+  trades: number;
+  playerTrades: number;
+  whispers: number;
+  npcWars: number;
+  workers: {
+    /** First bot look with at least one citizen at a post. */
+    firstPostedTick: number | null;
+    maxPosted: number;
+    /** Posts per task tag at the end. */
+    end: Record<WorkerTaskTag, number>;
   };
 }
 
@@ -273,6 +298,8 @@ export function runProgression(options: ProgressionOptions = {}): ProgressionRep
   };
   const isSiege = (w: GameState["wars"][number]) => w.id.startsWith("w_siege_") && w.defenderRealmId === "player";
   let siegesSeen = 0;
+  let firstPostedTick: number | null = null;
+  let maxPosted = 0;
 
   while (state.meta.tick < maxTicks) {
     const wait = builderTurn(state, studies);
@@ -287,6 +314,9 @@ export function runProgression(options: ProgressionOptions = {}): ProgressionRep
     const sieges = state.wars.filter(isSiege);
     for (const w of sieges.slice(siegesSeen)) byStage[raidStage(state).id][w.status === "defender_won" ? "held" : "breached"] += 1;
     siegesSeen = sieges.length;
+    const posted = workerSnapshot(state).posted;
+    if (posted > 0 && firstPostedTick === null) firstPostedTick = state.meta.tick;
+    maxPosted = Math.max(maxPosted, posted);
     for (const s of studies) if (s.doneTick === null && researchDone(state, s.id)) s.doneTick = state.meta.tick;
     const k = keepLevel(state);
     for (let lv = 1; lv <= Math.min(3, k); lv++) {
@@ -308,7 +338,22 @@ export function runProgression(options: ProgressionOptions = {}): ProgressionRep
     longest = Math.max(longest, run);
   }
 
+  const warRow = (w: GameState["wars"][number] | undefined) =>
+    w ? { id: w.id, status: w.status, phases: warPhaseTimeline(w, state.meta.tick) } : null;
+  const playerWar = state.wars.find((w) => !w.id.startsWith("w_siege_") && !isNpcWar(w));
+  const npcWar = state.wars.find(isNpcWar);
+  const phased = state.wars.filter((w) => !w.id.startsWith("w_siege_"));
+  const counts = livingCounts(state);
+  const living: LivingReport = {
+    playerWar: warRow(playerWar),
+    npcWar: warRow(npcWar),
+    firstPhaseTick: phased.length ? Math.min(...phased.map((w) => w.startedTick)) : null,
+    ...counts,
+    workers: { firstPostedTick, maxPosted, end: workerSnapshot(state).counts },
+  };
+
   return {
+    living,
     seed,
     ticksRun: state.meta.tick,
     turnEvery,
@@ -353,4 +398,28 @@ export function progressionText(r: ProgressionReport): string {
     .map(([k, v]) => `${k} ${v.held} held / ${v.breached} breached`);
   if (stages.length) out.push(`Raids by stage: ${stages.join(", ")}.`);
   return out.join("\n");
+}
+
+/** Minutes and seconds, for war phases that are seconds apart. */
+function clockS(ticks: number | null): string {
+  if (ticks === null) return "—";
+  const sec = Math.floor(ticks / 10);
+  const m = Math.floor(sec / 60);
+  return m >= 60 ? `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m ${String(sec % 60).padStart(2, "0")}s` : `${m}m ${String(sec % 60).padStart(2, "0")}s`;
+}
+
+function phaseRow(w: LivingReport["playerWar"]): string {
+  if (!w) return "none";
+  return `${w.phases.map((p) => `${p.id} ${clockS(p.tick)}`).join(" → ")} (${w.status.replace(/_/g, " ")})`;
+}
+
+/** Short, stable living-realm lines for docs/PLAYTEST.md. */
+export function livingText(r: ProgressionReport): string {
+  const l = r.living;
+  const w = l.workers;
+  return [
+    `First war phase: ${clockS(l.firstPhaseTick)}. Player war: ${phaseRow(l.playerWar)}. NPC war: ${phaseRow(l.npcWar)}.`,
+    `NPC trade fired: ${l.trades > 0 ? "yes" : "no"} (${l.trades} caravans, ${l.playerTrades} to the player). Whispers: ${l.whispers}. NPC wars started: ${l.npcWars}.`,
+    `Workers had posts: ${w.firstPostedTick !== null ? "yes" : "no"} (first at ${clock(w.firstPostedTick)}, most posted ${w.maxPosted}). End: ${Object.entries(w.end).map(([k, v]) => `${k} ${v}`).join(", ")}.`,
+  ].join("\n");
 }

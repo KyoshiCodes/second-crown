@@ -144,6 +144,26 @@ At end (5h 30m): food 4000/4000 (+238.4/s), wood 3000/3000 (+135/s), stone 3000/
 Raids: 15 on the hold, 3 held, 12 breached, longest breach run 3.
 Raids by stage: unwalled 1 held / 5 breached, walled 0 held / 1 breached, keep2 2 held / 5 breached, keep3 0 held / 1 breached.
 ```
+
+### Living realm (same two runs)
+
+War phase timing, NPC caravans and whispers, and worker posts. Measure only.
+
+Attentive:
+
+```
+First war phase: 0m 10s. Player war: columns 0m 10s → skirmish 0m 20s → clash 0m 40s (active). NPC war: columns 0m 50s → skirmish 1m 00s → clash 1m 20s → aftermath 1m 20s (attacker won).
+NPC trade fired: yes (911 caravans, 0 to the player). Whispers: 252. NPC wars started: 101.
+Workers had posts: yes (first at 0m, most posted 14). End: farm 5, quarry 3, yard 6, idle 0, march 0.
+```
+
+Low-touch:
+
+```
+First war phase: 0m 10s. Player war: columns 0m 10s → skirmish 0m 20s → clash 0m 40s (active). NPC war: columns 0m 50s → skirmish 1m 00s → clash 1m 20s → aftermath 1m 20s (attacker won).
+NPC trade fired: yes (2379 caravans, 0 to the player). Whispers: 660. NPC wars started: 264.
+Workers had posts: yes (first at 30m, most posted 14). End: farm 7, quarry 2, yard 5, idle 0, march 0.
+```
 <!-- sim-progression:end -->
 
 ## Fast path (guest codes, no Discord app yet)

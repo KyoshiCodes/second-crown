@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — The realm comes alive (first slice)
+
+- **Other kingdoms trade.** Caravans now run between kingdoms. If you have a **Market**, kingdoms you are at peace with sometimes send you one (+1 gold).
+- **Realm whispers.** Kingdoms at peace send short notes to each other (and to you). You will see them in the **Ledger of Crowns**.
+- **Kingdoms fight each other.** Two kingdoms may go to war. Each war ends on its own after about 30 seconds: one side holds the field, or they make white peace. These wars never touch your army.
+- **Wars have phases.** When you are at war, the War tab shows **Columns forming, Skirmish, Main clash, Aftermath**. You can still press **Fight** at any time; the Main clash is when the lines are ready.
+- **The board says what your troops are doing.** Select a tile and the status stack shows **Doing: Marching / Returning / Garrisoned / Scouting / Gathering**.
+
 ## 2026-11-25 — "Shared" seal in top bar & map controls
 
 - **Shared hold indicator:** When you join a shared hold from the Cloud panel, a small teal **Shared hold · \<name\>** pill gently pulses in the sticky top bar so you can tell at a glance that a shared hold is active alongside your solo crown. Solo play without a joined hold keeps the bar clean.

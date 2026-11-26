@@ -4,7 +4,7 @@ import { it, expect } from "vitest";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { runPlaytest, playtestMarkdown } from "./playtestHarness.js";
-import { runProgression, progressionText } from "./progressionHarness.js";
+import { runProgression, progressionText, livingText } from "./progressionHarness.js";
 
 const START = "<!-- sim-playtest:start -->";
 const END = "<!-- sim-playtest:end -->";
@@ -48,6 +48,22 @@ it("writes the progression report into docs/PLAYTEST.md", () => {
     "",
     "```",
     progressionText(idle),
+    "```",
+    "",
+    "### Living realm (same two runs)",
+    "",
+    "War phase timing, NPC caravans and whispers, and worker posts. Measure only.",
+    "",
+    "Attentive:",
+    "",
+    "```",
+    livingText(fast),
+    "```",
+    "",
+    "Low-touch:",
+    "",
+    "```",
+    livingText(idle),
     "```",
   ].join("\n");
   const block = `${PSTART}\n${body}\n${PEND}`;

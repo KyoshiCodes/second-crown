@@ -84,6 +84,7 @@ export function tryWhitePeace(state: GameState): boolean {
   const war = activeWarFor(state, "player");
   if (!war) return false;
   war.status = "white_peace";
+  war.endedTick = state.meta.tick;
   state.flags[`peace_${war.attackerRealmId}_${war.defenderRealmId}`] = state.meta.tick + 300;
   state.inputLog.push({
     tick: state.meta.tick,

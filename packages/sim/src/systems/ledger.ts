@@ -1,6 +1,7 @@
 import type { GameState } from "@second-crown/shared";
 import type { WorldEvent } from "./events.js";
 import { getWorldLog, pushWorldLog } from "./events.js";
+import { getCultureNews } from "./livingRealm.js";
 
 export interface LedgerEntry {
   tick: number;
@@ -16,6 +17,9 @@ export function listLedger(state: GameState): LedgerEntry[] {
   const out: LedgerEntry[] = [];
   for (const ev of getWorldLog(state)) {
     out.push({ tick: ev.tick, kind: ev.id, text: ev.text });
+  }
+  for (const n of getCultureNews(state)) {
+    out.push({ tick: n.tick, kind: n.kind, text: n.text });
   }
   for (const w of state.wars) {
     const atk = state.realms.find((r) => r.id === w.attackerRealmId)?.name ?? w.attackerRealmId;

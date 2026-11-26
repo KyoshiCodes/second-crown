@@ -8,6 +8,7 @@ import {
   listMarches,
   nodeStock,
   nodeStockMax,
+  unitActivityAt,
   type GameState,
 } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
@@ -18,7 +19,7 @@ import "./board-status.css";
  * Display only: every value is read from existing sim helpers or state fields. No new game math.
  */
 
-export type BoardChipKind = "owner" | "stock" | "garrison" | "event";
+export type BoardChipKind = "owner" | "stock" | "garrison" | "doing" | "event";
 
 export type BoardChip = {
   kind: BoardChipKind;
@@ -76,6 +77,15 @@ export function boardStatusChips(state: GameState, provinceId: string): BoardChi
     });
   } else {
     chips.push({ kind: "garrison", label: "Garrison", value: "Unseen", tone: "fog" });
+  }
+
+  // Doing: what your troops on this tile are doing (marching, returning, garrisoned, scouting, gathering).
+  // Troops sitting at home are not a chip. Read-only: unitActivityAt never changes state.
+  const doing = unitActivityAt(state, provinceId).filter((a) => a.doing !== "home");
+  if (doing.length > 0) {
+    const first = doing[0];
+    const more = doing.length > 1 ? ` +${doing.length - 1}` : "";
+    chips.push({ kind: "doing", label: "Doing", value: `${first.label} · ${first.men}${more}`, tone: "you" });
   }
 
   // Next event: the soonest column (yours or, if seen, a rival's) arriving on this tile.
