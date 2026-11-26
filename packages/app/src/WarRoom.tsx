@@ -50,6 +50,7 @@ import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
 import { ForceCard } from "./hud/ForceCard";
 import { ForceMixChips } from "./hud/ForceMixChips";
+import { RaidPressureCue, summarizeRaidPressure } from "./hud/RaidPressureCue";
 import { CampLivingRows } from "./hud/CampLivingRows";
 import { forceStatusRows, tripProgress } from "./hud/ForceStatus";
 import { SlotPips } from "./hud/SlotPip";
@@ -76,6 +77,7 @@ export function WarRoom(props: {
   const summary = state ? warSummary(state) : null;
   const activeDecrees = summary?.decrees.filter((d) => d.ticksLeft > 0) ?? [];
   const incoming = state ? incomingOnHome(state) : [];
+  const raidPressure = summarizeRaidPressure(state);
   const incomingFlags = state ? incomingOnPlayerFlags(state) : [];
   const hostileColumns = [...incoming, ...incomingFlags];
   const sallyTargetId = incoming[0]?.id;
@@ -361,8 +363,13 @@ export function WarRoom(props: {
         </div>
       </section>
 
-      <section className="sc-realm-card" style={card}>
+      <section
+        className={`sc-realm-card sc-home-front${raidPressure.tone !== "calm" ? ` is-raid-${raidPressure.tone}` : ""}`}
+        data-raid-pressure={raidPressure.tone !== "calm" ? raidPressure.tone : undefined}
+        style={card}
+      >
         <strong style={h}>Home front</strong>
+        <RaidPressureCue state={state} />
         <div style={{ opacity: 0.85, marginBottom: 2 }}>Incoming</div>
         {hostileColumns.length > 0 ? (
           <div className="sc-force-grid">

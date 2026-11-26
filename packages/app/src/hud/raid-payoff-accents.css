@@ -1,0 +1,235 @@
+/* --- Raid Pressure & Elite Payoff Living Accents (isolated CSS) ---
+ * Loaded from hud/RaidPressureCue.tsx and hud/ElitePayoffPip.tsx.
+ * Leaves theme.css, unit-payoff.css, and horizon-elite-tier.css untouched.
+ * Strict pointer-events: none !important on pips, tags, and SVG emblems.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-raid-elevated-rgb: 236, 174, 74;
+  --sc-raid-recover-rgb: 110, 214, 158;
+  --sc-payoff-shock-rgb: 238, 184, 78;
+  --sc-payoff-heavy-rgb: 224, 198, 112;
+  --sc-payoff-wall-rgb: 242, 136, 74;
+  --sc-payoff-vanguard-rgb: 186, 158, 232;
+}
+
+:root[data-chrome="night"] {
+  --sc-raid-elevated-rgb: 228, 178, 92;
+  --sc-raid-recover-rgb: 104, 218, 178;
+  --sc-payoff-shock-rgb: 230, 188, 102;
+  --sc-payoff-heavy-rgb: 214, 196, 130;
+  --sc-payoff-wall-rgb: 240, 146, 94;
+  --sc-payoff-vanguard-rgb: 192, 168, 236;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-raid-elevated-rgb: 232, 168, 66;
+  --sc-raid-recover-rgb: 118, 214, 148;
+  --sc-payoff-shock-rgb: 234, 178, 72;
+  --sc-payoff-heavy-rgb: 228, 194, 102;
+  --sc-payoff-wall-rgb: 238, 128, 64;
+  --sc-payoff-vanguard-rgb: 196, 164, 228;
+}
+
+/* ==========================================================================
+   2. War Room Home Front Raid Pressure / Breach Recovery State
+   ========================================================================== */
+.sc-home-front.is-raid-elevated {
+  border-left: 3px solid rgba(var(--sc-raid-elevated-rgb), 0.72);
+  animation: sc-raid-elevated-glow 5.2s ease-in-out infinite;
+}
+
+.sc-home-front.is-raid-recovering {
+  border-left: 3px solid rgba(var(--sc-raid-recover-rgb), 0.72);
+  animation: sc-raid-recover-glow 5.6s ease-in-out infinite;
+}
+
+.sc-raid-pressure-cue {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 3px 8px;
+  margin: 0 0 7px;
+  border-radius: 5px;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.sc-raid-pressure-cue.is-elevated {
+  border: 1px solid rgba(var(--sc-raid-elevated-rgb), 0.34);
+  background: rgba(var(--sc-raid-elevated-rgb), 0.09);
+  color: rgb(var(--sc-raid-elevated-rgb));
+}
+
+.sc-raid-pressure-cue.is-recovering {
+  border: 1px solid rgba(var(--sc-raid-recover-rgb), 0.34);
+  background: rgba(var(--sc-raid-recover-rgb), 0.09);
+  color: rgb(var(--sc-raid-recover-rgb));
+}
+
+.sc-raid-pressure-pip {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+  background: currentColor;
+  box-shadow: 0 0 4px currentColor;
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-raid-pip-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-raid-pressure-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 4px;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Elite Unit Payoff Role Pips & Note Accents
+   ========================================================================== */
+.sc-unit-card .sc-unit-payoff.is-payoff-shock,
+.sc-unit-card .sc-unit-payoff.is-payoff-heavy,
+.sc-unit-card .sc-unit-payoff.is-payoff-wall-ignore,
+.sc-unit-card .sc-unit-payoff.is-payoff-vanguard {
+  padding-left: 5px;
+  border-left: 2px solid transparent;
+}
+
+.sc-unit-card .sc-unit-payoff.is-payoff-shock {
+  border-left-color: rgba(var(--sc-payoff-shock-rgb), 0.52);
+}
+
+.sc-unit-card .sc-unit-payoff.is-payoff-heavy {
+  border-left-color: rgba(var(--sc-payoff-heavy-rgb), 0.52);
+}
+
+.sc-unit-card .sc-unit-payoff.is-payoff-wall-ignore {
+  border-left-color: rgba(var(--sc-payoff-wall-rgb), 0.58);
+}
+
+.sc-unit-card .sc-unit-payoff.is-payoff-vanguard {
+  border-left-color: rgba(var(--sc-payoff-vanguard-rgb), 0.5);
+}
+
+.sc-payoff-pip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 5px;
+  margin-right: 5px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-payoff-pip-icon {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  pointer-events: none !important;
+  animation: sc-payoff-pip-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-payoff-pip.is-locked .sc-payoff-pip-icon {
+  animation: none;
+  opacity: 0.75;
+}
+
+.sc-payoff-pip.is-shock {
+  color: rgb(var(--sc-payoff-shock-rgb));
+  background: rgba(var(--sc-payoff-shock-rgb), 0.12);
+  border: 1px solid rgba(var(--sc-payoff-shock-rgb), 0.42);
+}
+
+.sc-payoff-pip.is-heavy {
+  color: rgb(var(--sc-payoff-heavy-rgb));
+  background: rgba(var(--sc-payoff-heavy-rgb), 0.12);
+  border: 1px solid rgba(var(--sc-payoff-heavy-rgb), 0.42);
+}
+
+.sc-payoff-pip.is-wall-ignore {
+  color: rgb(var(--sc-payoff-wall-rgb));
+  background: rgba(var(--sc-payoff-wall-rgb), 0.14);
+  border: 1px solid rgba(var(--sc-payoff-wall-rgb), 0.48);
+}
+
+.sc-payoff-pip.is-vanguard {
+  color: rgb(var(--sc-payoff-vanguard-rgb));
+  background: rgba(var(--sc-payoff-vanguard-rgb), 0.12);
+  border: 1px solid rgba(var(--sc-payoff-vanguard-rgb), 0.42);
+}
+
+@keyframes sc-raid-elevated-glow {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-raid-elevated-rgb), 0.1);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-raid-elevated-rgb), 0.24);
+  }
+}
+
+@keyframes sc-raid-recover-glow {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-raid-recover-rgb), 0.1);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px rgba(var(--sc-raid-recover-rgb), 0.24);
+  }
+}
+
+@keyframes sc-raid-pip-breathe {
+  0%, 100% {
+    opacity: 0.62;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+}
+
+@keyframes sc-payoff-pip-breathe {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+/* ==========================================================================
+   4. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-home-front.is-raid-elevated,
+  .sc-home-front.is-raid-recovering,
+  .sc-raid-pressure-pip,
+  .sc-payoff-pip-icon {
+    animation: none !important;
+  }
+}

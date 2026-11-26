@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Raid pressure / recovery cues & elite role badges
+
+- **Home front raid cue:** On the War tab, the Home front card softly glows **warm amber** when a raid is inbound or the raid window is open (pointing out when walls would raise your defense), and **calm sage green** with a **Recovery** badge whenever post-breach respite is active.
+- **Elite role badges:** Cavalry (**Shock**), Knights (**Heavy**), and Siege Engines (**Wall-breaker**) wear small colored role crests beside their payoff lines so each unit's job reads at a glance.
+
 ## 2026-11-25 — Fairer raids, and what elite troops are for
 
 - **Raids grow with you, gently.** Before your first wall is finished, raiders come smaller (up to 4 of each troop). With a wall it is the same as before (up to 6). At Keep II they bring up to 7 of each but come less often (about every 4 minutes). At Keep III, up to 8 of each, about every 6 minutes.

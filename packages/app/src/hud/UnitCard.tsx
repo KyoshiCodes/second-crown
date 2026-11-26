@@ -15,6 +15,7 @@ import { batchCostTotal, formatHorizon, isEliteUnitTier, unitBracketNote, unitTi
 import "../horizon/horizon-elite-tier.css";
 import { unitPayoffNote } from "@second-crown/sim";
 import "./unit-payoff.css";
+import { ElitePayoffPip, resolveElitePayoffBadge } from "./ElitePayoffPip";
 
 export type UnitCardProps = {
   typeId: string;
@@ -55,6 +56,7 @@ export function UnitCard(props: UnitCardProps) {
   const isDrilling = Boolean(readyRow?.live || (readyRow?.value && readyRow.value.startsWith("Drilling")));
   const living = status && status.length > 0 ? splitUnitRows(status) : undefined;
   const payoff = unitPayoffNote(typeId);
+  const payoffBadge = payoff ? resolveElitePayoffBadge(typeId) : null;
 
   return (
     <button
@@ -109,7 +111,12 @@ export function UnitCard(props: UnitCardProps) {
       </span>
       <UnitTierNote tier={tier} note={bracketNote} />
       {payoff ? (
-        <span className="sc-unit-payoff" data-unit-payoff={typeId}>
+        <span
+          className={`sc-unit-payoff${payoffBadge ? ` is-payoff-${payoffBadge.kind}` : ""}`}
+          data-unit-payoff={typeId}
+          data-payoff-role={payoffBadge?.kind}
+        >
+          {payoffBadge ? <ElitePayoffPip badge={payoffBadge} locked={!open} /> : null}
           {payoff}
         </span>
       ) : null}
