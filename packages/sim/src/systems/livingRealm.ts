@@ -1,4 +1,4 @@
-import type { GameState, War } from "@second-crown/shared";
+import type { GameState, War, WarStatus } from "@second-crown/shared";
 import { countBuilding } from "../content/buildings.js";
 import { D, toDecimalString } from "../core/decimal.js";
 import {
@@ -13,7 +13,10 @@ import {
   WAR_PHASE_START,
   WAR_PHASE_TITLE,
   WHISPER_PULSES,
+  WHISPER_REPLY_DELAY_TICKS,
+  WHISPER_REPLY_QUEUE_CAP,
   whisperLinesFor,
+  whisperReplyLinesFor,
   type WarPhaseId,
 } from "../content/livingRealm.js";
 import { realmPower } from "./combat.js";
@@ -46,6 +49,8 @@ export interface LivingSwitches {
   homeRaidCooldown: boolean;
   /** The player may join one side of an NPC-vs-NPC war (joinSide). False hides the action. */
   joinNpcWar: boolean;
+  /** A realm answers a whisper it received once, WHISPER_REPLY_DELAY_TICKS later. False: one-way whispers only. */
+  correspondence: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -60,6 +65,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   npcWarLosses: "living_npc_war_losses",
   homeRaidCooldown: "living_home_raid_cooldown",
   joinNpcWar: "living_join_npc_war",
+  correspondence: "living_correspondence",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -119,10 +125,14 @@ export function atWar(state: GameState, realmId: string): boolean {
 
 export interface CultureNews {
   tick: number;
-  kind: "whisper" | "caravan";
+  kind: "whisper" | "caravan" | "reply";
   fromRealmId: string;
   toRealmId: string;
   text: string;
+  /** Whispers only, while `living_correspondence` is on: stable id a reply points back to (`wh_<tick>`). */
+  id?: string;
+  /** Replies only: the id of the whisper being answered. */
+  replyTo?: string;
 }
 
 export function getCultureNews(state: GameState): CultureNews[] {
@@ -154,6 +164,7 @@ export function livingCounts(state: GameState): {
   flagContests: number;
   npcWarLosses: number;
   homeRaids: number;
+  replies: number;
 } {
   return {
     trades: count(state, "living_trades"),
@@ -166,6 +177,7 @@ export function livingCounts(state: GameState): {
     flagContests: count(state, "living_flag_contests"),
     npcWarLosses: count(state, "living_npc_war_losses_units"),
     homeRaids: count(state, "living_home_raids"),
+    replies: count(state, "living_replies_sent"),
   };
 }
 
@@ -220,7 +232,11 @@ export function maybeWhisper(state: GameState, atTick: number): CultureNews | nu
   if (!npcs.length) return null;
   const round = pulse / WHISPER_PULSES;
   const from = npcs[(round + state.meta.seed) % npcs.length];
-  const listeners = state.realms.filter((r) => r.id !== from.id && !atWarWith(state, from.id, r.id));
+  const corr = livingSwitches(state).correspondence;
+  // With correspondence on, a peace-locked pair does not exchange words either. Off: the old filter.
+  const listeners = state.realms.filter(
+    (r) => r.id !== from.id && !atWarWith(state, from.id, r.id) && !(corr && peaceLockedAt(state, from.id, r.id, atTick))
+  );
   if (!listeners.length) return null;
   const salt = realmSalt(from.id);
   const to = listeners[(round + salt) % listeners.length];
@@ -233,9 +249,91 @@ export function maybeWhisper(state: GameState, atTick: number): CultureNews | nu
     toRealmId: to.id,
     text: `${from.name} to ${to.name}: "${line}"`,
   };
+  if (corr) {
+    item.id = `wh_${atTick}`;
+    // NPC listeners answer on their own. The player's realm is never made to speak for them.
+    if (to.id !== "player") {
+      queueReply(state, { whisperId: item.id, fromRealmId: to.id, toRealmId: from.id, dueTick: atTick + WHISPER_REPLY_DELAY_TICKS });
+    }
+  }
   pushCultureNews(state, item);
   bumpCount(state, "living_whispers_sent");
   return item;
+}
+
+// ---------------------------------------------------------------- correspondence (slice 6)
+
+/** A reply owed: `fromRealmId` (who got the whisper) answers `toRealmId` at `dueTick`. */
+export interface PendingReply {
+  whisperId: string;
+  fromRealmId: string;
+  toRealmId: string;
+  dueTick: number;
+}
+
+const REPLY_QUEUE_KEY = "culture_pending_replies";
+
+export function getPendingReplies(state: GameState): PendingReply[] {
+  const raw = state.flags[REPLY_QUEUE_KEY];
+  if (typeof raw !== "string" || !raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as PendingReply[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function setPendingReplies(state: GameState, list: PendingReply[]): void {
+  if (list.length) state.flags[REPLY_QUEUE_KEY] = JSON.stringify(list.slice(-WHISPER_REPLY_QUEUE_CAP));
+  else delete state.flags[REPLY_QUEUE_KEY];
+}
+
+function queueReply(state: GameState, p: PendingReply): void {
+  const list = getPendingReplies(state);
+  // One reply per whisper: a whisper id is queued at most once.
+  if (list.some((q) => q.whisperId === p.whisperId)) return;
+  setPendingReplies(state, [...list, p]);
+}
+
+/**
+ * On each world pulse: send every reply whose delay has run out, oldest first. Each pending
+ * reply leaves the queue when its time comes, sent or not, so a whisper gets at most one answer.
+ * It is dropped (never sent, never retried) when the two realms are at war or peace-locked at
+ * that tick, or either realm is gone. Off switch: nothing sends and the queue waits.
+ * Returns the replies sent.
+ */
+export function tickCorrespondence(state: GameState, atTick: number): CultureNews[] {
+  if (!livingSwitches(state).correspondence) return [];
+  const list = getPendingReplies(state);
+  if (!list.length) return [];
+  const sent: CultureNews[] = [];
+  const keep: PendingReply[] = [];
+  for (const p of list) {
+    if (p.dueTick > atTick) {
+      keep.push(p);
+      continue;
+    }
+    const from = state.realms.find((r) => r.id === p.fromRealmId);
+    const to = state.realms.find((r) => r.id === p.toRealmId);
+    if (!from || !to || atWarWith(state, from.id, to.id) || peaceLockedAt(state, from.id, to.id, atTick)) continue;
+    const salt = realmSalt(from.id);
+    const lines = whisperReplyLinesFor(cultureOfRealm(state, from.id));
+    const line = lines[(Math.floor(p.dueTick / 100) + salt) % lines.length].replace(/\{to\}/g, to.name);
+    const item: CultureNews = {
+      tick: atTick,
+      kind: "reply",
+      fromRealmId: from.id,
+      toRealmId: to.id,
+      text: `${from.name} answers ${to.name}: "${line}"`,
+      replyTo: p.whisperId,
+    };
+    pushCultureNews(state, item);
+    bumpCount(state, "living_replies_sent");
+    sent.push(item);
+  }
+  setPendingReplies(state, keep);
+  return sent;
 }
 
 // ---------------------------------------------------------------- NPC wars
@@ -574,6 +672,98 @@ export function joinSide(state: GameState, warId: string, side: WarSide): War | 
   bumpCount(state, "living_npc_wars_joined");
   pushWorldLog(state, "declare", `${nameOf(state, "player")} rides beside ${nameOf(state, ally)} against ${nameOf(state, foe)}`);
   return war;
+}
+
+// ---------------------------------------------------------------- joined-war outcome (slice 6)
+
+/**
+ * How a war the player joined (joinSide) ended. Read-only: built from the finished player war
+ * and the NPC war it joined; nothing here changes how either settles.
+ */
+export interface JoinedWarOutcome {
+  /** The player's war (war_join_…). */
+  warId: string;
+  /** The NPC-vs-NPC war the player joined. */
+  joinedWarId: string;
+  allyRealmId: string;
+  allyName: string;
+  foeRealmId: string;
+  foeName: string;
+  endedTick: number;
+  /** The player war's final status. */
+  status: Exclude<WarStatus, "active">;
+  /** Who held the field in the player's war: the player, the foe, or nobody (white peace / plain end). */
+  heldField: "player" | "foe" | null;
+  heldFieldRealmId: string | null;
+  heldFieldName: string | null;
+  whitePeace: boolean;
+  /** The joined NPC war's own result; null while it is still active. */
+  npcWar: { status: Exclude<WarStatus, "active">; heldFieldRealmId: string | null; whitePeace: boolean } | null;
+  /** Always false: the player's side never takes the NPC war loss share (applyNpcWarLoss refuses the player). */
+  playerTookNpcLossShare: false;
+  /** One calm line for the app. */
+  line: string;
+}
+
+function heldFieldOf(war: War): string | null {
+  if (war.status === "attacker_won") return war.attackerRealmId;
+  if (war.status === "defender_won") return war.defenderRealmId;
+  return null;
+}
+
+/** Outcome of the finished joined war `warId`; null when unknown, not a joined war, or still active. Pure read. */
+export function joinedWarOutcome(state: GameState, warId: string): JoinedWarOutcome | null {
+  const war = state.wars.find((w) => w.id === warId);
+  if (!war || !war.joinedWarId || war.status === "active") return null;
+  const status = war.status;
+  const foe = war.attackerRealmId === "player" ? war.defenderRealmId : war.attackerRealmId;
+  const ally = war.allyRealmId ?? "";
+  const heldId = heldFieldOf(war);
+  const heldField = heldId === null ? null : heldId === "player" ? "player" : "foe";
+  const whitePeace = status === "white_peace";
+  const npc = state.wars.find((w) => w.id === war.joinedWarId);
+  const npcStatus = npc?.status;
+  const npcWar =
+    npc && npcStatus && npcStatus !== "active"
+      ? { status: npcStatus, heldFieldRealmId: heldFieldOf(npc), whitePeace: npcStatus === "white_peace" }
+      : null;
+  const you = nameOf(state, "player");
+  const foeName = nameOf(state, foe);
+  const allyName = nameOf(state, ally);
+  const head =
+    heldField === "player"
+      ? `${you} and ${allyName} hold the field against ${foeName}.`
+      : heldField === "foe"
+        ? `${foeName} holds the field against ${you} and ${allyName}.`
+        : whitePeace
+          ? `${you} and ${foeName} part in white peace.`
+          : `The war beside ${allyName} against ${foeName} is over.`;
+  return {
+    warId: war.id,
+    joinedWarId: war.joinedWarId,
+    allyRealmId: ally,
+    allyName,
+    foeRealmId: foe,
+    foeName,
+    endedTick: war.endedTick ?? war.startedTick,
+    status,
+    heldField,
+    heldFieldRealmId: heldId,
+    heldFieldName: heldId ? nameOf(state, heldId) : null,
+    whitePeace,
+    npcWar,
+    playerTookNpcLossShare: false,
+    line: `${head} Your side took no NPC war losses.`,
+  };
+}
+
+/** The most recently finished joined war's outcome, or null. Pure read. */
+export function latestJoinedWarOutcome(state: GameState): JoinedWarOutcome | null {
+  for (let i = state.wars.length - 1; i >= 0; i--) {
+    const w = state.wars[i];
+    if (w.joinedWarId && w.status !== "active") return joinedWarOutcome(state, w.id);
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------- war imagery (slice 5)

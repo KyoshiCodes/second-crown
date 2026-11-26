@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Kingdoms answer each other's whispers
+
+- **Whispers get replies.** When one kingdom whispers to another, the one that heard it answers about 30 seconds later, in its own voice. Both lines show in the World tab's culture news, newest first. The answer is tagged **Reply**.
+- **One answer per whisper,** and no words at all between kingdoms that are at war or have just made peace.
+- **Whispers sent to you** still arrive as before. Your kingdom does not answer on its own.
+- **After a war you joined,** the game now records who held the field, whether it ended in white peace, and that your side lost no troops to the other kingdoms' war losses. It is not on screen yet; that comes next.
+
 ## 2026-11-26 — Join other kingdoms' wars & see opposing war banners on the map
 
 - **Join controls on War tab:** When you are at peace and other kingdoms are fighting, the War tab now shows a calm **Other kingdoms at war** card with one **Join** button per side (dimmed if you have a peace lock with the side you would fight).

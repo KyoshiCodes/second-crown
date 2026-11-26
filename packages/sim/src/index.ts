@@ -324,6 +324,10 @@ export {
   getCultureNews,
   maybeNpcTrade,
   maybeWhisper,
+  tickCorrespondence,
+  getPendingReplies,
+  joinedWarOutcome,
+  latestJoinedWarOutcome,
   maybeNpcWar,
   settleNpcWars,
   applyNpcWarLoss,
@@ -360,13 +364,15 @@ export {
   getFlagContests,
 } from "./systems/flagContest.js";
 export type { FlagContestSnapshot, FlagContestEntry, FlagCooldownEntry, FlagContestRecord } from "./systems/flagContest.js";
-export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry } from "./systems/livingRealm.js";
+export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry, PendingReply, JoinedWarOutcome } from "./systems/livingRealm.js";
 export {
   WAR_PHASE_IDS,
   WAR_PHASE_START,
   WAR_PHASE_TITLE,
   WAR_AFTERMATH_TICKS,
   WHISPERS,
+  WHISPER_REPLIES,
+  WHISPER_REPLY_DELAY_TICKS,
   FIGHT_LOCKED_LINE,
   NPC_PLAYER_RING,
   NPC_BOARD_GRACE_TICKS,

@@ -70,7 +70,7 @@ export function CultureWhispersCard(props: { state: GameState | undefined }) {
                 <div className="sc-culture-whisper-meta">
                   <span className={`sc-culture-whisper-tag is-${item.kind}`}>
                     <span className="sc-culture-whisper-pip" aria-hidden="true" />
-                    {item.kind === "caravan" ? "Caravan" : "Whisper"}
+                    {item.kind === "caravan" ? "Caravan" : item.kind === "reply" ? "Reply" : "Whisper"}
                   </span>
                   <span className="sc-culture-whisper-culture">{item.fromCultureName}</span>
                   <span className="sc-culture-whisper-tick">T{item.tick}</span>

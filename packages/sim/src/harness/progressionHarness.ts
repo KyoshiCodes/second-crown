@@ -105,6 +105,8 @@ export interface LivingReport {
   homeRaids: number;
   /** Distinct NPC wars the player could have joined at a bot look (slice 5). Measure only; the bot never joins. */
   joinableWarsSeen: number;
+  /** Whisper replies sent (slice 6 correspondence). */
+  replies: number;
   workers: {
     /** First bot look with at least one citizen at a post. */
     firstPostedTick: number | null;
@@ -440,6 +442,7 @@ export function livingText(r: ProgressionReport): string {
     `NPC war losses applied: ${l.npcWarLosses} units.`,
     `Home raids fired: ${l.homeRaids}.`,
     `Joinable wars seen: ${l.joinableWarsSeen}.`,
+    `Correspondence replies seen: ${l.replies}.`,
     `Workers had posts: ${w.firstPostedTick !== null ? "yes" : "no"} (first at ${clock(w.firstPostedTick)}, most posted ${w.maxPosted}). End: ${Object.entries(w.end).map(([k, v]) => `${k} ${v}`).join(", ")}.`,
   ].join("\n");
 }

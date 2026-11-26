@@ -11,7 +11,7 @@ import { maybeNpcRaid } from "./raidMarch.js";
 import { NPC_RAID_PULSE_TICKS } from "../content/livingRealm.js";
 import { maybeNpcCampMarch, maybeNpcClaim, maybeNpcGatherCrew } from "./npcBoard.js";
 import { flagContestOpen, noteFlagContest, pruneFlagContests } from "./flagContest.js";
-import { atWar, maybeNpcTrade, maybeNpcWar, maybeWhisper, settleNpcWars, tickWarPhases } from "./livingRealm.js";
+import { atWar, maybeNpcTrade, maybeNpcWar, maybeWhisper, settleNpcWars, tickCorrespondence, tickWarPhases } from "./livingRealm.js";
 
 export const RivalSystem = {
   nextEventTick(_state: GameState): number | null {
@@ -51,6 +51,7 @@ function tickAi(state: GameState, atTick: number): void {
     if (atTick % NPC_RAID_PULSE_TICKS === 0) maybeNpcRaid(state, realm.id, atTick);
     maybeDeclare(state, realm.id, atTick);
   }
+  tickCorrespondence(state, atTick);
   maybeWhisper(state, atTick);
   settleNpcWars(state, atTick);
   tickWarPhases(state, atTick);

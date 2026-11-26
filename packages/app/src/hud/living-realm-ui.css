@@ -170,7 +170,8 @@
   user-select: none;
 }
 
-.sc-culture-whisper-tag.is-whisper {
+.sc-culture-whisper-tag.is-whisper,
+.sc-culture-whisper-tag.is-reply {
   color: var(--sc-lr-whisper-text);
   border: 1px solid rgba(var(--sc-lr-whisper-rgb), 0.42);
   background: rgba(var(--sc-lr-whisper-rgb), 0.12);
@@ -193,7 +194,8 @@
   animation: sc-lr-phase-pip-breathe 4.2s ease-in-out infinite;
 }
 
-.sc-culture-whisper-tag.is-whisper .sc-culture-whisper-pip {
+.sc-culture-whisper-tag.is-whisper .sc-culture-whisper-pip,
+.sc-culture-whisper-tag.is-reply .sc-culture-whisper-pip {
   background: rgb(var(--sc-lr-whisper-rgb));
 }
 

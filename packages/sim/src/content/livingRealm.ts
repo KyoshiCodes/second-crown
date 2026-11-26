@@ -14,7 +14,7 @@ export const NPC_WAR_PULSES = 30;
 export const NPC_WAR_PEACE_TICKS = 900;
 /** An NPC war settles as a win only when one side is this much stronger (fraction of the larger power). */
 export const NPC_WAR_WIN_EDGE = 0.1;
-/** Culture-news list length (whispers and NPC-to-NPC caravans). */
+/** Culture-news list length (whispers, replies and NPC-to-NPC caravans). */
 export const CULTURE_NEWS_CAP = 8;
 
 /** War phases, in order. Stable ids the app styles by. */
@@ -77,6 +77,59 @@ export const WHISPERS: Record<string, readonly string[]> = {
 /** Fallback for player-only cultures (mist, glen, salt, fen, peak build as western). */
 export function whisperLinesFor(culture: string): readonly string[] {
   return WHISPERS[culture] ?? WHISPERS.western;
+}
+
+// ---------------------------------------------------------------- culture correspondence (slice 6)
+
+/**
+ * A realm that received a whisper answers it once, this many ticks later (10 ticks = 1 s).
+ * 300 = 30 seconds. Whispers go out on world pulses (multiples of 100), so the reply lands
+ * exactly on the pulse 300 ticks after its whisper.
+ */
+export const WHISPER_REPLY_DELAY_TICKS = 300;
+/** Pending replies kept at once; older ones drop (whispers come one per 300 ticks, so this never binds in play). */
+export const WHISPER_REPLY_QUEUE_CAP = 8;
+
+/**
+ * Reply lines by culture, in the same voice as WHISPERS. `{to}` is the realm being answered
+ * (the original whisperer). Picked by tick and realm salt, never by RNG.
+ */
+export const WHISPER_REPLIES: Record<string, readonly string[]> = {
+  western: [
+    "Word received. Our gate stays open to {to}'s heralds.",
+    "Kindly said. The keep sends its regards.",
+    "We will remember it at the next feast, {to}.",
+    "Agreed. Let the roads stay quiet.",
+  ],
+  woodland: [
+    "We heard you under the cedars. Your words are welcome, {to}.",
+    "A post for you too, facing back. Friend to friend.",
+    "The longhouse thanks {to}. Salt for hide, any season.",
+    "Our fires answer yours. Still no smoke of war.",
+  ],
+  desert: [
+    "Your words came with the caravan. A cup back to {to}.",
+    "The courtyard heard you. We drink to trade.",
+    "Shade and water for {to}'s riders, as promised.",
+    "Well said. The lamps burn for friends tonight.",
+  ],
+  steppe: [
+    "Heard on the wind, {to}. We ride easy.",
+    "The horses know your banners now. They do not shy.",
+    "Short memory, long grass. We agree.",
+    "A fire is set for {to} in the felt hall.",
+  ],
+  tide: [
+    "Your word came in on the tide. We send one back to {to}.",
+    "The stilt halls heard you. Fair winds.",
+    "We waved at your sails. Did {to} see?",
+    "Noted and charted. The shoal is yours to mind too.",
+  ],
+};
+
+/** Fallback for player-only cultures, as whisperLinesFor. */
+export function whisperReplyLinesFor(culture: string): readonly string[] {
+  return WHISPER_REPLIES[culture] ?? WHISPER_REPLIES.western;
 }
 
 // ---------------------------------------------------------------- NPC board activity (slice 2)

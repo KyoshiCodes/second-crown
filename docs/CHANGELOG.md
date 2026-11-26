@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-26 — Living Realm slice 6 (culture correspondence, joined-war outcome)
+
+- **Correspondence (`livingRealm.ts tickCorrespondence`):** an NPC realm that receives a whisper replies once, `WHISPER_REPLY_DELAY_TICKS` = 300 ticks (30 s) later, with a fixed line from its culture's new `WHISPER_REPLIES` table (tick + realm salt, no RNG). Replies are culture-news items `{ tick, kind: "reply", fromRealmId, toRealmId, text, replyTo }`; whispers gain `id: "wh_<tick>"`. Queue in `flags.culture_pending_replies` (cap 8). Dropped, not retried, if the pair is at war or peace-locked when it falls due. Whispers now also skip peace-locked realms. Whispers to the player get no auto-reply.
+- **Joined-war outcome (`joinedWarOutcome`, `latestJoinedWarOutcome`):** read-only result of a finished joined war: `heldField` (`player` / `foe` / null), `whitePeace`, the joined NPC war's own result, `playerTookNpcLossShare: false`, and a one-line summary. No change to how wars settle.
+- **App:** `CultureWhispersCard` tags replies **Reply** (whisper colors, `living-realm-ui.css`). Outcome not shown yet.
+- **Switch:** `living_correspondence` (`false` restores one-way whispers exactly). Counter `flags.living_replies_sent`, `livingCounts().replies`.
+- **Playtest:** living section adds `Correspondence replies seen: N.` (attentive 201 / low-touch 528). Balance tables unchanged.
+- **Tests:** new `systems/livingSlice6.test.ts` (15: switch on/off, delay, one reply, no player reply, real-play determinism, war drop, peace-lock drop, no whisper to peace-locked or warring realm, outcome null cases, full shape, foe win, white peace with NPC result, read-only). Harness test expects nine living lines. Now: sim **557**, app **1638**, app build clean.
+
 ## 2026-11-26 — Living presentation for joining NPC wars & board war imagery
 
 - **War tab Join controls (`hud/JoinableWarsCard.tsx`, `WarRoom.tsx`):** Added `listJoinableNpcWars` and `<JoinableWarsCard>` calling `@second-crown/sim`'s `joinableWars` and `joinSide` (`5d54edb` shipped `joinableWars` where early planning noted `listJoinableWars`). Shows each joinable NPC-vs-NPC war with culture dots, phase badge, and one calm `Join <Realm>` button per side (`disabled` when peace-locked).

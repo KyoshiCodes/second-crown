@@ -159,6 +159,7 @@ Flag contests fired: 0.
 NPC war losses applied: 1666 units.
 Home raids fired: 26.
 Joinable wars seen: 0.
+Correspondence replies seen: 201.
 Workers had posts: yes (first at 0m, most posted 14). End: farm 5, quarry 3, yard 6, idle 0, march 0.
 ```
 
@@ -172,6 +173,7 @@ Flag contests fired: 0.
 NPC war losses applied: 4308 units.
 Home raids fired: 15.
 Joinable wars seen: 0.
+Correspondence replies seen: 528.
 Workers had posts: yes (first at 30m, most posted 14). End: farm 7, quarry 2, yard 5, idle 0, march 0.
 ```
 <!-- sim-progression:end -->
