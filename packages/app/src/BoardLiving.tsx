@@ -166,6 +166,13 @@ import {
   type BoardFlagContestPoint,
   type BoardFlagCooldownPoint,
 } from "./hud/BoardFlagContests";
+import {
+  BoardWarLossAndRaid,
+  listBoardNpcWarLosses,
+  resolveBoardHomeRaid,
+  type BoardNpcWarLossPoint,
+  type BoardHomeRaidAccent,
+} from "./hud/BoardWarLossAndRaid";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1001,6 +1008,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.595. Living Realm Contested Flag Accents (pulsing ring + culture seal) */}
         <BoardFlagContests state={state} />
 
+        {/* 5.596. Living Realm NPC War Loss Aftermath & Home-Raid Timing Accents */}
+        <BoardWarLossAndRaid state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1179,4 +1189,9 @@ export {
   listBoardFlagCooldowns,
   type BoardFlagContestPoint,
   type BoardFlagCooldownPoint,
+  BoardWarLossAndRaid,
+  listBoardNpcWarLosses,
+  resolveBoardHomeRaid,
+  type BoardNpcWarLossPoint,
+  type BoardHomeRaidAccent,
 };

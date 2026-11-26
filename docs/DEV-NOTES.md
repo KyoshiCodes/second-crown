@@ -1,3 +1,11 @@
+## 2026-11-26 — app / living presentation for NPC war losses & home-raid timing
+
+- **Board overlay (`packages/app/src/hud/BoardWarLossAndRaid.tsx`, `BoardLiving.tsx`):**
+  - Exported `BoardNpcWarLossPoint`, `BoardHomeRaidAccent`, pure `listBoardNpcWarLosses(state)`, `resolveBoardHomeRaid(state)`, and `<BoardWarLossAndRaid>` (`pointer-events: none !important;`). Guards `!state?.board?.provinces || !state.flags || !state.meta` for partial test fixtures.
+  - **Snapshot mismatch note:** `@second-crown/sim` (`ec46828`) shipped `homeRaidSnapshot` directly (exact match), whereas NPC war losses shipped as `getNpcWarLosses` / `npcWarLossesFor` + `isNpcWar` + `warPhase` (`aftermath`, `WAR_AFTERMATH_TICKS = 300`) instead of `npcWarLossSnapshot`. `listBoardNpcWarLosses` joins settled NPC wars in `aftermath` with `npcWarLossesFor`, respects fog on the losing hold, caps at 6, and uses dipped culture-kit standards + ash hush (zero blood/gore). `resolveBoardHomeRaid` checks `snap.inbound` before `snap.cooldownUntil` (since `homeRaidSnapshot` exposes `cooldownUntil` while a column is still inbound).
+- **Dedicated CSS (`packages/app/src/hud/war-loss-raid-accents.css`):** Imported from `BoardWarLossAndRaid.tsx`. Dusk/Night/Parchment chrome tokens, strict `pointer-events: none !important;`, calm keyframes (`sc-war-loss-hush-breathe`, `sc-war-loss-standard-sway`, `sc-war-loss-wisp-drift`, `sc-home-raid-ring-pulse`, `sc-home-raid-trail-flow`, `sc-home-raid-chevron-stride`, `sc-home-raid-rest-breathe`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to `theme.css`, `board-living.css`, `living-realm-board.css`, `npc-board-clash.css`, `flag-contest-accents.css`, `raid-payoff-accents.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/WarLossRaidAccents.test.tsx`):** 4 tests passing (`npm test` -> sim **521**, app **1634**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-26 — sim / Living Realm slice 4 (NPC war losses, home-raid timing)
 
 - **Constants (`content/livingRealm.ts`):** `NPC_WAR_LOSS_SHARE` 0.12, `NPC_WAR_LOSS_CAP` 20, `HOME_RAID_IN_FLIGHT` 1, `HOME_RAID_COOLDOWN_TICKS` 750. Exported from `@second-crown/sim`.

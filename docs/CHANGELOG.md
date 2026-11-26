@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for NPC war losses & home-raid timing
+
+- **Aftermath & home-raid board overlays (`hud/BoardWarLossAndRaid.tsx`, `hud/war-loss-raid-accents.css`, `BoardLiving.tsx`):** Added `listBoardNpcWarLosses`, `resolveBoardHomeRaid`, and `<BoardWarLossAndRaid>` inside `BoardLiving` (`pointer-events: none !important;`):
+  - **NPC war loss aftermath:** `@second-crown/sim` (`ec46828`) shipped `getNpcWarLosses` / `npcWarLossesFor` + `isNpcWar` + `warPhase` (`aftermath`) rather than `npcWarLossSnapshot`; while an NPC war remains in its short-lived `aftermath` phase, seen losing holds (both on white peace when losses apply) display a calm ash diamond hush, a dipped culture-kit standard, and an ash wisp (no blood or gore).
+  - **Home-raid timing:** Reads `homeRaidSnapshot(state)` (exact match) to show a pulsing amber approach ring, curved trail, and chevron while a column is inbound on the player hold (prioritized over `cooldownUntil`), and a quiet dashed sage resting ring + rest mark during cooldown (`tick < cooldownUntil`).
+- **Unchanged invariants & accessibility:** Dedicated `hud/war-loss-raid-accents.css` only (`theme.css`, `board-living.css`, `living-realm-board.css`, `npc-board-clash.css`, `flag-contest-accents.css`, `raid-payoff-accents.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/WarLossRaidAccents.test.tsx` (4 tests). Now: sim **521**, app **1634**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 4 (NPC war losses, home-raid timing)
 
 - **NPC war losses (`livingRealm.ts settleNpcWars`, `applyNpcWarLoss`):** an NPC-vs-NPC war that settles at the clash now costs the loser (both sides on white peace) `NPC_WAR_LOSS_SHARE` = 12% of each unit stack, floored per stack, capped at `NPC_WAR_LOSS_CAP` = 20 units per side per war. The winner is still decided on power before losses. Aftermath line carries the count. Player wars unchanged.

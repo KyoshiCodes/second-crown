@@ -1,0 +1,221 @@
+/* --- Living Realm Slice 4: NPC War Losses & Home-Raid Timing Accents (isolated CSS) ---
+ * Loaded from hud/BoardWarLossAndRaid.tsx.
+ * Leaves theme.css, board-living.css, living-realm-board.css,
+ * npc-board-clash.css, flag-contest-accents.css, and raid-payoff-accents.css untouched.
+ * Strict pointer-events: none !important on all overlay elements.
+ * Calm heraldic / ash / amber / sage accents — no blood or gore.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-war-loss-hush-rgb: 92, 84, 76;
+  --sc-war-loss-hush-opacity: 0.24;
+  --sc-war-loss-ash-rgb: 196, 192, 184;
+  --sc-home-raid-amber-rgb: 236, 172, 76;
+  --sc-home-raid-ring-opacity: 0.8;
+  --sc-home-raid-rest-rgb: 134, 198, 168;
+  --sc-home-raid-rest-opacity: 0.56;
+}
+
+:root[data-chrome="night"] {
+  --sc-war-loss-hush-rgb: 104, 112, 128;
+  --sc-war-loss-hush-opacity: 0.28;
+  --sc-war-loss-ash-rgb: 186, 198, 214;
+  --sc-home-raid-amber-rgb: 244, 186, 92;
+  --sc-home-raid-ring-opacity: 0.86;
+  --sc-home-raid-rest-rgb: 122, 196, 172;
+  --sc-home-raid-rest-opacity: 0.62;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-war-loss-hush-rgb: 96, 80, 64;
+  --sc-war-loss-hush-opacity: 0.22;
+  --sc-war-loss-ash-rgb: 210, 198, 178;
+  --sc-home-raid-amber-rgb: 224, 154, 58;
+  --sc-home-raid-ring-opacity: 0.78;
+  --sc-home-raid-rest-rgb: 154, 204, 160;
+  --sc-home-raid-rest-opacity: 0.54;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Layer
+   ========================================================================== */
+.sc-war-loss-raid-layer,
+.sc-war-loss-raid-layer *,
+.sc-npc-war-loss,
+.sc-war-loss-hush,
+.sc-war-loss-standard,
+.sc-war-loss-wisp,
+.sc-home-raid,
+.sc-home-raid-ring,
+.sc-home-raid-trail,
+.sc-home-raid-chevron,
+.sc-home-raid-rest-ring,
+.sc-home-raid-rest-mark {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. NPC War Loss Aftermath (Calm Scar Hush & Fallen Standard)
+   ========================================================================== */
+.sc-war-loss-hush {
+  fill: rgba(var(--sc-war-loss-hush-rgb), var(--sc-war-loss-hush-opacity));
+  stroke: rgba(var(--sc-war-loss-ash-rgb), 0.36);
+  stroke-width: 0.75;
+  animation: sc-war-loss-hush-breathe 4.8s ease-in-out infinite;
+}
+
+.sc-war-loss-standard {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-war-loss-standard-sway 4.4s ease-in-out infinite;
+}
+
+.sc-war-loss-wisp {
+  fill: rgba(var(--sc-war-loss-ash-rgb), 0.72);
+  animation: sc-war-loss-wisp-drift 3.8s ease-out infinite;
+}
+
+/* ==========================================================================
+   4. Home-Raid Timing (Inbound Approach & Cooldown Resting Mark)
+   ========================================================================== */
+.sc-home-raid-ring {
+  fill: none;
+  stroke: rgba(var(--sc-home-raid-amber-rgb), var(--sc-home-raid-ring-opacity));
+  stroke-width: 1.15;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-home-raid-ring-pulse 3.2s ease-in-out infinite;
+}
+
+.sc-home-raid-trail {
+  fill: none;
+  stroke: rgba(var(--sc-home-raid-amber-rgb), 0.62);
+  stroke-width: 1.05;
+  stroke-dasharray: 3.5 2.5;
+  stroke-linecap: round;
+  animation: sc-home-raid-trail-flow 3.6s linear infinite;
+}
+
+.sc-home-raid-chevron {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-home-raid-chevron-stride 2.4s ease-in-out infinite;
+}
+
+.sc-home-raid-rest-ring {
+  fill: none;
+  stroke: rgba(var(--sc-home-raid-rest-rgb), var(--sc-home-raid-rest-opacity));
+  stroke-width: 0.95;
+  stroke-dasharray: 2.6 2.4;
+  stroke-linecap: round;
+  animation: sc-home-raid-rest-breathe 5.2s ease-in-out infinite;
+}
+
+.sc-home-raid-rest-mark {
+  animation: sc-home-raid-rest-breathe 5.2s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   5. Calm Keyframes
+   ========================================================================== */
+@keyframes sc-war-loss-hush-breathe {
+  0%,
+  100% {
+    opacity: 0.68;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-war-loss-standard-sway {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.96;
+    transform: translateY(-0.5px);
+  }
+}
+
+@keyframes sc-war-loss-wisp-drift {
+  0% {
+    opacity: 0.15;
+    transform: translateY(1px);
+  }
+  55% {
+    opacity: 0.75;
+    transform: translateY(-1.5px);
+  }
+  100% {
+    opacity: 0.15;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes sc-home-raid-ring-pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: var(--sc-home-raid-ring-opacity);
+  }
+  55% {
+    transform: scale(1.12);
+    opacity: calc(var(--sc-home-raid-ring-opacity) * 0.42);
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: var(--sc-home-raid-ring-opacity);
+  }
+}
+
+@keyframes sc-home-raid-trail-flow {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-home-raid-chevron-stride {
+  0%,
+  100% {
+    opacity: 0.88;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-home-raid-rest-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   6. Reduced Motion Support
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-war-loss-hush,
+  .sc-war-loss-standard,
+  .sc-war-loss-wisp,
+  .sc-home-raid-ring,
+  .sc-home-raid-trail,
+  .sc-home-raid-chevron,
+  .sc-home-raid-rest-ring,
+  .sc-home-raid-rest-mark {
+    animation: none !important;
+  }
+}

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — War aftermath standards & home-raid signs on the map
+
+- **Fallen standards after kingdom wars:** When two other kingdoms settle a war and lose soldiers, the losing hold briefly wears a quiet lowered banner in its colors during the aftermath before clearing.
+- **Inbound raid approach & resting period:** When a raid is marching on your hold, a calm amber approach ring and chevron point the way in; once it lands, your hold shows a quiet sage dashed resting ring until the cooldown window ends. Both stay non-blocking on clicks.
+
 ## 2026-11-26 — Kingdom wars cost soldiers; raids on your hold get a breather
 
 - **Wars between other kingdoms now cost them troops.** The side that loses (or both sides, on a white peace) loses about an eighth of its army, never more than 20 soldiers in one war. The world log says how many fell.
