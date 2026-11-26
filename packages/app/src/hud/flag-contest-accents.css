@@ -1,0 +1,144 @@
+/* --- Living Realm Slice 3: Flag Contest Timing Accents (isolated CSS) ---
+ * Loaded from hud/BoardFlagContests.tsx.
+ * Leaves theme.css, board-living.css, living-realm-board.css,
+ * and npc-board-clash.css untouched.
+ * Strict pointer-events: none !important on all contested-flag overlays.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-flag-contest-aura-opacity: 0.16;
+  --sc-flag-contest-ring-opacity: 0.8;
+  --sc-flag-contest-seal-shadow: drop-shadow(0 0 2.5px rgba(12, 16, 26, 0.72));
+  --sc-flag-cooldown-rgb: 154, 198, 174;
+  --sc-flag-cooldown-opacity: 0.48;
+}
+
+:root[data-chrome="night"] {
+  --sc-flag-contest-aura-opacity: 0.2;
+  --sc-flag-contest-ring-opacity: 0.86;
+  --sc-flag-contest-seal-shadow: drop-shadow(0 0 3px rgba(8, 12, 22, 0.85));
+  --sc-flag-cooldown-rgb: 132, 186, 166;
+  --sc-flag-cooldown-opacity: 0.54;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-flag-contest-aura-opacity: 0.15;
+  --sc-flag-contest-ring-opacity: 0.78;
+  --sc-flag-contest-seal-shadow: drop-shadow(0 0 2.5px rgba(28, 18, 10, 0.74));
+  --sc-flag-cooldown-rgb: 176, 206, 174;
+  --sc-flag-cooldown-opacity: 0.46;
+}
+
+/* ==========================================================================
+   2. Non-Blocking Contested Flag & Cooldown Overlays
+   ========================================================================== */
+.sc-flag-contest-layer,
+.sc-flag-contest-layer *,
+.sc-flag-contest,
+.sc-flag-contest-aura,
+.sc-flag-contest-ring,
+.sc-flag-contest-ring-inner,
+.sc-flag-contest-seal,
+.sc-flag-cooldown,
+.sc-flag-cooldown-ring {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-flag-contest-aura {
+  opacity: var(--sc-flag-contest-aura-opacity);
+  animation: sc-flag-contest-aura-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-flag-contest-ring {
+  opacity: var(--sc-flag-contest-ring-opacity);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-flag-contest-ring-pulse 3.4s ease-in-out infinite;
+}
+
+.sc-flag-contest-ring-inner {
+  opacity: 0.48;
+}
+
+.sc-flag-contest-seal {
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: var(--sc-flag-contest-seal-shadow);
+  animation: sc-flag-contest-seal-bob 3.2s ease-in-out infinite;
+}
+
+.sc-flag-cooldown-ring {
+  fill: none;
+  stroke: rgba(var(--sc-flag-cooldown-rgb), var(--sc-flag-cooldown-opacity));
+  stroke-width: 0.85;
+  stroke-dasharray: 2.4 2.2;
+  stroke-linecap: round;
+  animation: sc-flag-cooldown-breathe 5s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   3. Calm Keyframes
+   ========================================================================== */
+@keyframes sc-flag-contest-aura-breathe {
+  0%,
+  100% {
+    opacity: calc(var(--sc-flag-contest-aura-opacity) * 0.72);
+  }
+  50% {
+    opacity: calc(var(--sc-flag-contest-aura-opacity) * 1.18);
+  }
+}
+
+@keyframes sc-flag-contest-ring-pulse {
+  0% {
+    transform: scale(0.94);
+    opacity: calc(var(--sc-flag-contest-ring-opacity) * 0.96);
+  }
+  55% {
+    transform: scale(1.13);
+    opacity: calc(var(--sc-flag-contest-ring-opacity) * 0.42);
+  }
+  100% {
+    transform: scale(0.94);
+    opacity: calc(var(--sc-flag-contest-ring-opacity) * 0.96);
+  }
+}
+
+@keyframes sc-flag-contest-seal-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.92;
+  }
+  50% {
+    transform: translateY(-0.8px);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-flag-cooldown-breathe {
+  0%,
+  100% {
+    opacity: calc(var(--sc-flag-cooldown-opacity) * 0.72);
+  }
+  50% {
+    opacity: var(--sc-flag-cooldown-opacity);
+  }
+}
+
+/* ==========================================================================
+   4. Reduced Motion Support
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-flag-contest-aura,
+  .sc-flag-contest-ring,
+  .sc-flag-contest-seal,
+  .sc-flag-cooldown-ring {
+    animation: none !important;
+  }
+}

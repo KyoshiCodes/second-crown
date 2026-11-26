@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Contested flags glow on the map
+
+- **Contested flags:** When another kingdom has a column marching on one of your flags, that flag now shows a calm pulsing ring and tiny rival culture seal on the map in the challenger's colors.
+- **Resting flags:** Right after a contest arrives, while the flag is in its 50-second rest window, it wears a quiet dashed ring so you can see it is recovering. Both effects stay non-blocking on clicks.
+
 ## 2026-11-26 — Your flags get breathing room
 
 - **One attacker per flag.** Only one kingdom sends a column at a given flag of yours at a time. Before, every kingdom could pile onto the same flag on the same beat.

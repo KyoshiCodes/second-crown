@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for contested flags
+
+- **Contested flag board overlays (`hud/BoardFlagContests.tsx`, `hud/flag-contest-accents.css`, `BoardLiving.tsx`):** Added `listBoardFlagContests`, `listBoardFlagCooldowns`, and `<BoardFlagContests>` inside `BoardLiving`, reading `flagContestSnapshot(state)` from `@second-crown/sim` (`145c9e5`, exact name match — zero mismatch). Active contests render non-blocking (`pointer-events: none !important;`), fog-respecting diamond auras, calm pulsing rings, inner rims, and contesting-culture wax seals (`LIVING_CULTURE_PALETTE` via `resolveLivingCultureKit`); flags resting in post-contest cooldown render quiet dashed sage-slate rings (`active` takes precedence over `cooldown`).
+- **Unchanged invariants & accessibility:** Dedicated `hud/flag-contest-accents.css` only (`theme.css`, `board-living.css`, `living-realm-board.css`, `npc-board-clash.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/FlagContestAccents.test.tsx` (4 tests). Now: sim **502**, app **1630**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 3 (flag contest timing, clash lock in the sim)
 
 - **Flag contests (`systems/flagContest.ts`, `rival.ts maybeContestFlag`):** one contesting NPC column per player flag at a time (`FLAG_CONTEST_COLUMNS_PER_FLAG` = 1), then a cooldown of `FLAG_CONTEST_COOLDOWN_TICKS` = 500 ticks (50 s) from the column's arrival tick. Other realms target the next open flag in board order. Who and when only; the contest fight is unchanged.

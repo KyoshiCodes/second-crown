@@ -159,6 +159,13 @@ import {
   listBoardNpcAccents,
   type BoardNpcAccentPoint,
 } from "./hud/BoardNpcActivity";
+import {
+  BoardFlagContests,
+  listBoardFlagContests,
+  listBoardFlagCooldowns,
+  type BoardFlagContestPoint,
+  type BoardFlagCooldownPoint,
+} from "./hud/BoardFlagContests";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -991,6 +998,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.59. Living Realm NPC Board Activity (claims, camp marches, foraging gathers) */}
         <BoardNpcActivity state={state} />
 
+        {/* 5.595. Living Realm Contested Flag Accents (pulsing ring + culture seal) */}
+        <BoardFlagContests state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1164,4 +1174,9 @@ export {
   BoardNpcActivity,
   listBoardNpcAccents,
   type BoardNpcAccentPoint,
+  BoardFlagContests,
+  listBoardFlagContests,
+  listBoardFlagCooldowns,
+  type BoardFlagContestPoint,
+  type BoardFlagCooldownPoint,
 };
