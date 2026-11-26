@@ -1,3 +1,13 @@
+## 2026-11-25 — app / living starvation accents (Food cell & Army)
+
+- **Helpers & components (`packages/app/src/hud/StarvationCue.tsx`):** Exported `resolveUnitStarveRisk(starveState, typeId, homeCount)` (checks `starveState !== null && isTrainedUnit(typeId) && homeCount > 0`), phrasing-only `<UnitStarvePip state />` (`At risk` / `Shedding`, `<span>` + 9x9 `<svg>`, safe inside `<button>`), and `<ArmyStarvationNotice state noteOverride />` reading `starvationNote` (`projection.ts`).
+- **HUD, Army & Upkeep wiring:**
+  - `ResourceHud.tsx`: Imports `starvation-accents.css` after `blocker-deficit.css`, computes `starvationNote(props.state, rates)` (plus optional `starvationOverride`), adds `is-starve-${state}` + `data-starve-cell` + `.sc-starve-cell-glow` + `.sc-starve-tag` on the Food cell only when active (non-starving class strings stay byte-identical for `EconomyPressure`, `IncomeBracket`, and `BlockerDeficitAccents` tests).
+  - `UnitCard.tsx`: Accepts optional `starveRisk?: StarvationState | null`, renders `.sc-unit-starve-rim` and `<UnitStarvePip>` inside `<button>` when set, and preserves exact root `<button>` class strings checked by `EliteTierAccent.test.tsx` when unset.
+  - `ArmyTab.tsx`, `UpkeepLine.tsx`, `CostProjection.tsx`: Mounts `<ArmyStarvationNotice>` above `.sc-unit-grid` and passes `resolveUnitStarveRisk(starve?.state ?? null, u.id, post?.home ?? 0)` to each `UnitCard`; `UpkeepLine` adds `is-starve-${state}` + `.sc-upkeep-starve-row`; `CostProjection` styles `.sc-starve-note[data-starve]`.
+- **Dedicated CSS (`packages/app/src/hud/starvation-accents.css`):** Defines Dusk/Night/Parchment `--sc-starve-imminent-*` and `--sc-starve-active-*` tokens (high-contrast legible amber/coral text against Parchment's dark umber chrome), `pointer-events: none !important;`, keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to `theme.css`, `cost-projection.css`, `blocker-deficit.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/StarvationAccents.test.tsx`):** 8 tests passing (`npm test` -> sim **437**, app **1593**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — sim + app / starvation for trained troops
 
 - **Where:** all in `applyUpkeep` (`systems/upkeep.ts`). Starving = `food < need` for this step, the same branch that already took militia. The counter (`flags.starve_ticks`) is written only when it changes, so fed saves stay byte-identical.

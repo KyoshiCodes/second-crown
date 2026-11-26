@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Living starvation accents on Food cell & Army
+
+- **Food cell cues (`ResourceHud.tsx`, `hud/starvation-accents.css`):** Reads existing `starvationNote(state, rates)` (`projection.ts`) without inventing sim facts (optional `starvationOverride` for tests). When trained troops face imminent (`is-starve-imminent`, calm warm amber `hunger soon` tag) or active (`is-starve-starving`, calm ember-crimson `starving` tag) starvation, renders a dedicated `pointer-events: none !important;` child glow (`.sc-starve-cell-glow`) and tag pip, softens `.sc-food-deficit-glow`, appends the starvation text to the Food tooltip, and leaves militia-only deficits and non-starving class strings unchanged (no `.sc-ledger-cell` pseudo-elements).
+- **Army tab, UnitCard & Upkeep cues (`hud/StarvationCue.tsx`, `UnitCard.tsx`, `ArmyTab.tsx`, `UpkeepLine.tsx`, `CostProjection.tsx`):** Added `resolveUnitStarveRisk` (using `isTrainedUnit` + `homeCount > 0`), phrasing-only `<UnitStarvePip>` (`At risk` / `Shedding`), and `<ArmyStarvationNotice>` (`role="status"`). `ArmyTab` shows the notice bar above the roster and passes `starveRisk` to standing trained units (`UnitCard` adds `.sc-unit-starve-rim` and `<UnitStarvePip>` without altering default non-starving root classes); `UpkeepLine` adds an inline status row + card accent; `CostProjection` imports `starvation-accents.css` to style `[data-starve="imminent" | "starving"]` on `BottleneckLine`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/starvation-accents.css` only (`theme.css`, `cost-projection.css`, `blocker-deficit.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/StarvationAccents.test.tsx` (8 tests). Now: sim **437**, app **1593**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Starvation for trained troops
 
 - **Rule (`packages/sim/src/systems/upkeep.ts`):** a tick starves when stores cannot cover army upkeep. `flags.starve_ticks` counts starving ticks in a row; a fed tick or an empty army resets it. At 600 starving ticks (1 min) and every 600 after, every player stack except militia and champions loses `max(1, floor(count × 2%))`, capped at the stack. Emptied stacks are removed. Militia unchanged (1 per starving tick).

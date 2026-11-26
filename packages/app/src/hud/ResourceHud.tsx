@@ -17,11 +17,12 @@ import "./hud-micro-feedback.css";
 import "./economy-pressure.css";
 import "./income-bracket.css";
 import { bottleneckResourceMap } from "./economyPressure";
-import { foodDeficit, formatSignedRate, realmRates } from "../projection";
+import { foodDeficit, formatSignedRate, realmRates, starvationNote, type StarvationState } from "../projection";
 import "../cost-projection.css";
 import { incomeBracketLabel, resolveIncomeBracket, type IncomeBracket } from "./incomeBracket";
 import "./blocker-deficit.css";
 import { isFoodInDeficit } from "./blockerAccents";
+import "./starvation-accents.css";
 
 export const HUD_PULSE_MS = 680;
 export type ResourceMicroPulseKey = "food" | "wood" | "stone" | "gold";
@@ -73,17 +74,29 @@ export function ResourceHud(props: {
   bottleneckOverride?: Readonly<Record<string, string | boolean>>;
   incomeBracketOverride?: Partial<Record<ResourceMicroPulseKey, IncomeBracket>>;
   foodDeficitOverride?: number | null;
+  starvationOverride?: StarvationState | null;
 }) {
   const hungry = props.state ? isFoodStoresEmptyOrLow(props.state) : false;
   const bottleneckMap = bottleneckResourceMap(props.state);
+  const rates = props.state ? realmRates(props.state) : null;
   const foodNet =
     props.foodDeficitOverride !== undefined
       ? isFoodInDeficit(props.foodDeficitOverride)
         ? props.foodDeficitOverride
         : null
-      : props.state
-        ? foodDeficit(realmRates(props.state))
+      : rates
+        ? foodDeficit(rates)
         : null;
+  const starveNote = props.state && rates ? starvationNote(props.state, rates) : null;
+  const foodStarveState: StarvationState | null =
+    props.starvationOverride !== undefined ? props.starvationOverride : starveNote?.state ?? null;
+  const foodStarveTip = foodStarveState
+    ? starveNote?.state === foodStarveState
+      ? starveNote.text
+      : foodStarveState === "starving"
+        ? "Starving: trained troops at risk of deserting"
+        : "Hunger soon: larder draining toward desertion"
+    : "";
 
   const entries = (["food", "wood", "stone", "gold"] as const).map((r) => {
     const line = props.state ? resourceLedger(props.state, r) : null;
@@ -183,11 +196,13 @@ export function ResourceHud(props: {
         const isHighIncome = incomeBracket !== "base";
         const deficitAmount = r === "food" && isFoodInDeficit(foodNet) ? foodNet : null;
         const isFoodDeficit = deficitAmount !== null;
+        const starveState = r === "food" ? foodStarveState : null;
         const cellTip = [
           tip,
           isBottleneck ? `limiter for ${bottleneckTargets.join(", ")}` : "",
           incomeBracketNote ?? "",
           isFoodDeficit ? `Food ${formatSignedRate(deficitAmount)} after upkeep` : "",
+          starveState ? foodStarveTip : "",
         ]
           .filter(Boolean)
           .join(" · ");
@@ -195,18 +210,20 @@ export function ResourceHud(props: {
           <div
             key={r}
             role="listitem"
-            className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}${isBottleneck ? " is-bottleneck" : ""}${isHighIncome ? ` is-income-${incomeBracket}` : ""}${isFoodDeficit ? " is-food-deficit" : ""}`}
+            className={`sc-ledger-cell sc-resource-living is-${r} ${tone ? `is-${tone}` : ""}${isBottleneck ? " is-bottleneck" : ""}${isHighIncome ? ` is-income-${incomeBracket}` : ""}${isFoodDeficit ? " is-food-deficit" : ""}${starveState ? ` is-starve-${starveState}` : ""}`}
             data-hud-pulse={activePulse ?? undefined}
             data-economy-bottleneck={isBottleneck ? "true" : undefined}
             data-bottleneck-targets={isBottleneck ? bottleneckTargets.join(", ") : undefined}
             data-income-bracket={isHighIncome ? incomeBracket : undefined}
             data-food-deficit-cell={isFoodDeficit ? "true" : undefined}
+            data-starve-cell={starveState ?? undefined}
             title={cellTip}
           >
             <ResourceLivingUnderlay resource={r} mood={desc.mood} />
             {isBottleneck ? <span className="sc-econ-bottleneck-glow" aria-hidden="true" /> : null}
             {isHighIncome ? <span className={`sc-income-bracket-glow is-${incomeBracket}`} aria-hidden="true" /> : null}
             {isFoodDeficit ? <span className="sc-food-deficit-glow" aria-hidden="true" /> : null}
+            {starveState ? <span className={`sc-starve-cell-glow is-${starveState}`} aria-hidden="true" /> : null}
             {activePulse ? (
               <span
                 key={`flash-${pulseSeq}`}
@@ -229,6 +246,12 @@ export function ResourceHud(props: {
                   ) : null}
                   {full ? <span className="sc-ledger-tag">full</span> : null}
                   {empty ? <span className="sc-ledger-tag">bare</span> : null}
+                  {starveState ? (
+                    <span className={`sc-ledger-tag sc-starve-tag is-${starveState}`} data-starve-tag={starveState}>
+                      <span className="sc-starve-pip" aria-hidden="true" />
+                      {starveState === "starving" ? "starving" : "hunger soon"}
+                    </span>
+                  ) : null}
                 </div>
               </div>
               <div className="sc-resource-living-row is-amount">

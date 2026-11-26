@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Hungry Food cell & at-risk troop badges
+
+- **Food strip warning:** When trained troops are heading toward hunger (`hunger soon`, calm warm amber) or actively starving (`starving`, calm crimson), the top Food store cell shows a matching soft edge glow and tag alongside its countdown tooltip.
+- **Army & Upkeep cues:** On the Army tab, a matching status strip appears above the unit cards, trained unit cards stationed at home show a quiet `At risk` (amber) or `Shedding` (crimson) badge (while militia and champions stay untouched), and the Upkeep card highlights the active hunger countdown.
+
 ## 2026-11-25 — Hungry troops desert
 
 - **Trained troops now go hungry too.** If your larder is empty and you cannot feed the army, spearmen, archers, cavalry, knights, siege and the rest hold on for **1 minute**. After that, each kind of troop loses **2%** of its men (at least 1) every minute until food comes back. Champions never desert. Militia work as before: one walks off every tick you cannot feed them.

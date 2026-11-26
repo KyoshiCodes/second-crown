@@ -43,6 +43,8 @@ import { TrainingPace, lockNote } from "../TrainingPace";
 import { UpkeepPace } from "../UpkeepPace";
 import { InfirmaryHealLine } from "../InfirmaryHealLine";
 import { BandagePip } from "../hud/BandagePip";
+import { starvationNote } from "../projection";
+import { ArmyStarvationNotice, resolveUnitStarveRisk } from "../hud/StarvationCue";
 
 export function ArmyTab(props: {
   state: GameState | undefined;
@@ -75,6 +77,7 @@ export function ArmyTab(props: {
   const healSec = state ? healTicks(state) / 10 : undefined;
   const powerMax = unitTypes.reduce((m, u) => Math.max(m, u.power), 0);
   const queueFull = queue.length >= cap;
+  const starve = state ? starvationNote(state) : null;
 
   return (
     <>
@@ -91,6 +94,7 @@ export function ArmyTab(props: {
       </span>
       <TrainingPace state={state} />
       <UpkeepPace state={state} />
+      <ArmyStarvationNotice state={state} noteOverride={starve} />
       <div className="sc-unit-grid">
         {unitTypes.map((u) => {
           const ticks = state ? trainDurationTicks(state, u.id, trainQty) : u.trainTicks * trainQty;
@@ -132,6 +136,7 @@ export function ArmyTab(props: {
               status={status}
               wounded={u.id === "militia" ? wounded : 0}
               healing={u.id === "militia" ? isActivelyHealing : false}
+              starveRisk={resolveUnitStarveRisk(starve?.state ?? null, u.id, post?.home ?? 0)}
               onTrain={() =>
                 act((st) => {
                   if (!unitUnlocked(st, u.id)) return lock;

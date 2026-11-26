@@ -16,6 +16,8 @@ import "../horizon/horizon-elite-tier.css";
 import { unitPayoffNote } from "@second-crown/sim";
 import "./unit-payoff.css";
 import { ElitePayoffPip, resolveElitePayoffBadge } from "./ElitePayoffPip";
+import type { StarvationState } from "../projection";
+import { UnitStarvePip } from "./StarvationCue";
 
 export type UnitCardProps = {
   typeId: string;
@@ -39,10 +41,12 @@ export type UnitCardProps = {
   tier?: number;
   /** Batch size the cost is multiplied by (x1 / x5 / x10). `ticks` is already for the batch. */
   qty?: number;
+  /** Optional trained-troop starvation risk ("imminent" | "starving") passed by ArmyTab. */
+  starveRisk?: StarvationState | null;
 };
 
 export function UnitCard(props: UnitCardProps) {
-  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status, wounded, healing, tier, qty = 1 } = props;
+  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status, wounded, healing, tier, qty = 1, starveRisk } = props;
   const bracketNote = open ? unitBracketNote({ costTotal: batchCostTotal(cost, qty), seconds: ticks / 10 }) : null;
   const costText = Object.entries(cost).map(([k, v]) => `${v} ${k}`).join(" · ");
   const elite = isEliteUnitTier(tier);
@@ -51,6 +55,7 @@ export function UnitCard(props: UnitCardProps) {
     "sc-unit-card",
     !open ? "is-locked" : affordable ? "is-ready" : "is-short",
     ...(elite && tierRank ? ["is-elite-tier", `is-tier-${tierRank}`] : []),
+    ...(starveRisk ? ["is-starve-risk", `is-starve-${starveRisk}`] : []),
   ].join(" ");
   const readyRow = status?.find((r) => r.kind === "ready");
   const isDrilling = Boolean(readyRow?.live || (readyRow?.value && readyRow.value.startsWith("Drilling")));
@@ -63,6 +68,7 @@ export function UnitCard(props: UnitCardProps) {
       type="button"
       className={cls}
       data-elite-tier={elite && tierRank ? `tier-${tierRank}` : undefined}
+      data-starve-risk={starveRisk ?? undefined}
       title={open ? `${blurb ?? ""} Cost ${costText} each. ${ticks} ticks to drill.`.trim() : lock}
       disabled={!open || !affordable}
       onClick={onTrain}
@@ -74,6 +80,7 @@ export function UnitCard(props: UnitCardProps) {
         drilling={isDrilling}
       />
       {elite ? <span className="sc-unit-elite-rim" aria-hidden="true" /> : null}
+      {starveRisk ? <span className={`sc-unit-starve-rim is-${starveRisk}`} aria-hidden="true" /> : null}
       <span className={living ? "sc-unit-head sc-unit-living-head" : "sc-unit-head"}>
         <span
           className={`sc-unit-art sc-unit-art-wrapper${wounded && wounded > 0 ? " has-wounded" : ""}${healing ? " is-healing" : ""}`}
@@ -110,6 +117,7 @@ export function UnitCard(props: UnitCardProps) {
         )}
       </span>
       <UnitTierNote tier={tier} note={bracketNote} />
+      {starveRisk ? <UnitStarvePip state={starveRisk} /> : null}
       {payoff ? (
         <span
           className={`sc-unit-payoff${payoffBadge ? ` is-payoff-${payoffBadge.kind}` : ""}`}

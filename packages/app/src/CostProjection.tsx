@@ -32,6 +32,7 @@ import {
   type RealmRates,
 } from "./projection";
 import "./cost-projection.css";
+import "./hud/starvation-accents.css";
 import { isSavingCost } from "./hud/economyPressure";
 import { SavingPip } from "./hud/SavingPip";
 import { hasWarehouseBlocker, resolveLivingBlockers } from "./hud/blockerAccents";
