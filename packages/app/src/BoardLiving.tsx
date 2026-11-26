@@ -154,6 +154,11 @@ import {
   type BoardWarPhaseArc,
   type BoardWorkerFigure,
 } from "./hud/BoardLivingRealm";
+import {
+  BoardNpcActivity,
+  listBoardNpcAccents,
+  type BoardNpcAccentPoint,
+} from "./hud/BoardNpcActivity";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -983,6 +988,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.58. Living Realm Workers, Unit Tasks, War Phase Arcs & Caravan Trails */}
         <BoardLivingRealm state={state} />
 
+        {/* 5.59. Living Realm NPC Board Activity (claims, camp marches, foraging gathers) */}
+        <BoardNpcActivity state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1153,4 +1161,7 @@ export {
   type BoardUnitTaskPoint,
   type BoardWarPhaseArc,
   type BoardWorkerFigure,
+  BoardNpcActivity,
+  listBoardNpcAccents,
+  type BoardNpcAccentPoint,
 };

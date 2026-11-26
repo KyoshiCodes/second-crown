@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for NPC board activity & clash lock
+
+- **NPC board overlays (`hud/BoardNpcActivity.tsx`, `hud/npc-board-clash.css`, `BoardLiving.tsx`):** Added pure `listBoardNpcAccents` and `<BoardNpcActivity>` inside `BoardLiving`, reading `npcBoardSnapshot(state)` (`kind: "claim" | "camp" | "gather"`, `phase: "planted" | "marching" | "outbound" | "gathering" | "returning"`, matching the shipped snapshot directly) and tinting each overlay via `resolveLivingCultureKit` (`pointer-events: none !important;`, fog-gated, capped at 6 per kind). Claims show diamond boundary banners; camp marches show drifted dashed trails + column chevrons; gatherers show harvest-bobbing crews and transit paths.
+- **War tab calm clash lock (`WarRoom.tsx`, `hud/npc-board-clash.css`):** Added `.sc-fight-btn.is-clash-locked` on Fight while `activeWar && !fightOpen` and styled `.sc-fight-locked` (`data-clash-lock="waiting"`) with a soft `Waiting for clash` badge and breathing dot beside `FIGHT_LOCKED_LINE`, keeping `White Peace` visible and open.
+- **Unchanged invariants & accessibility:** Dedicated `hud/npc-board-clash.css` only (`theme.css`, `board-living.css`, `war-phase.css`, `living-realm-board.css`, `living-realm-ui.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/NpcBoardClash.test.tsx` (4 tests). Now: sim **490**, app **1626**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 2 (NPC board activity, clash lock)
 
 - **NPC board activity (`systems/npcBoard.ts`):** `maybeNpcClaim`, `maybeNpcCampMarch`, `maybeNpcGatherCrew` replace the dead `rival.ts` gates (`(tick + salt) % 200|300` never matched a pulse tick). Pulse cadence `(pulse + realmSalt) % N === 0`: claims every 4 pulses (cap 3 markers per realm, open `none` tiles only), camp marches every 6 (free camps, existing NPC column; skipped if the column would still be out at the next 500-tick raid pulse), crews every 3 (one per realm, never two crews on one node).

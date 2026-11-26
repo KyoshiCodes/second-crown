@@ -1,3 +1,13 @@
+## 2026-11-26 — app / living presentation for NPC board activity & clash lock
+
+- **Board overlay (`packages/app/src/hud/BoardNpcActivity.tsx`, `BoardLiving.tsx`):**
+  - Exported `BoardNpcAccentPoint`, pure `listBoardNpcAccents(state)` (guards `!state?.board?.provinces || !state.flags` for partial mock fixtures, reads `npcBoardSnapshot`, respects fog per province/origin, interpolates transit positions along quadratic paths by `(tick - sinceTick) / (untilTick - sinceTick)`, caps at 6 per kind), and `<BoardNpcActivity>` (`pointer-events: none !important;`). Reuses `LIVING_CULTURE_PALETTE` and `resolveLivingCultureKit` from `BoardLivingRealm.tsx`.
+  - All snapshot kinds (`claim`, `camp`, `gather`) and phases (`planted`, `marching`, `outbound`, `gathering`, `returning`) match `packages/sim/src/systems/npcBoard.ts` directly (zero mismatch).
+- **War tab clash lock (`packages/app/src/WarRoom.tsx`):**
+  - Fight button keeps literal `>Fight</button>` text and existing `data-fight-locked="true"` (preserving `FightLock.test.tsx`), gaining `.sc-fight-btn.is-clash-locked` while waiting; `.sc-fight-locked` gains `data-clash-lock="waiting"` and a phrasing-only `<span class="sc-fight-lock-badge">` ahead of `FIGHT_LOCKED_LINE`. White Peace remains untouched.
+- **Dedicated CSS (`packages/app/src/hud/npc-board-clash.css`):** Imported from `BoardNpcActivity.tsx` and `WarRoom.tsx`. Dusk/Night/Parchment tokens, `pointer-events: none !important;`, keyframes (`sc-npc-claim-breathe`, `sc-npc-claim-gleam`, `sc-npc-camp-drift`, `sc-npc-camp-stride`, `sc-npc-gather-flow`, `sc-npc-gather-bob`, `sc-fight-lock-breathe`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to `theme.css`, `board-living.css`, `war-phase.css`, `living-realm-board.css`, `living-realm-ui.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/NpcBoardClash.test.tsx`):** 4 tests passing (`npm test` -> sim **490**, app **1626**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-26 — sim + app / Living Realm slice 2 (NPC board activity, clash lock)
 
 - **Gate fix:** `tickAi` runs at multiples of 100, so the old `(atTick + salt) % 200|300` gates needed `salt % 100 === 0`. New `onCadence`: `pulse > 0 && (pulse + realmSalt) % N === 0`, N = `NPC_CLAIM_PULSES` 4 / `NPC_CAMP_PULSES` 6 / `NPC_GATHER_PULSES` 3 (`content/livingRealm.ts`, not a balance table). Order in `tickAi` is unchanged: claim, camp march, contest flag, gather, trade, NPC war, raid, declare.

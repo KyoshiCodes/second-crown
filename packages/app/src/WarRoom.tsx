@@ -64,6 +64,7 @@ import { getGiftThanks, getWarTaunt } from "./content/flavor";
 import { sfx } from "./sfx";
 import { flashAction } from "./hud/ActionFlash";
 import { WarPhaseLine } from "./hud/WarPhaseLine";
+import "./hud/npc-board-clash.css";
 
 export function WarRoom(props: {
   state: GameState | undefined;
@@ -217,6 +218,7 @@ export function WarRoom(props: {
           </button>
           <button
             type="button"
+            className={activeWar && !fightOpen ? "sc-fight-btn is-clash-locked" : "sc-fight-btn"}
             disabled={!activeWar || !fightOpen}
             onClick={resolveWar}
             title={activeWar && !fightOpen ? FIGHT_LOCKED_LINE : undefined}
@@ -230,8 +232,16 @@ export function WarRoom(props: {
         </div>
         <WarPhaseLine state={state} />
         {activeWar && !fightOpen ? (
-          <p className="sc-fight-locked" role="note" style={{ margin: "6px 0 0", fontSize: 12, opacity: 0.75 }}>
-            {FIGHT_LOCKED_LINE}.
+          <p className="sc-fight-locked" role="note" data-clash-lock="waiting">
+            <span className="sc-fight-lock-badge" aria-hidden="true">
+              <span className="sc-fight-lock-dot" />
+              <svg viewBox="0 0 12 12" width={10} height={10} className="sc-fight-lock-icon" aria-hidden="true" style={{ pointerEvents: "none" }}>
+                <rect x="2.5" y="5.5" width="7" height="5" rx="1" fill="none" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M4 5.5 V4 A2 2 0 0 1 8 4 V5.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+              Waiting for clash
+            </span>
+            <span>{FIGHT_LOCKED_LINE}.</span>
           </p>
         ) : null}
         {!activeWar ? <p style={{ margin: "6px 0 0", fontSize: 12, opacity: 0.7 }}>No war declared. Fight opens once one is.</p> : null}

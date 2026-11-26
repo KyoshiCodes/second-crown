@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — NPC claims, camp columns & crews on the map; calm Fight lock
+
+- **Other kingdoms on the map:** Revealed NPC tile claims show a small culture-colored boundary banner, NPC camp marches show a dashed trail and column chevron, and NPC foraging crews appear beside resource nodes (and along their path in transit).
+- **Calm clash lock on War tab:** Before a war reaches **Main clash**, the disabled **Fight** button wears a soft muted lock frame alongside a calm `Waiting for clash` pill; **White Peace** stays active and unchanged.
+
 ## 2026-11-26 — Kingdoms move on the board; Fight waits for the clash
 
 - **Other kingdoms plant markers.** Now and then a kingdom claims an empty tile near its own hold. Each kingdom keeps at most 3 markers. They never claim camps or resource tiles.

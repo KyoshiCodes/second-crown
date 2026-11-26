@@ -1,0 +1,248 @@
+/* --- Living Realm Slice 2: NPC Board Activity & Clash Lock (isolated CSS) ---
+ * Loaded from hud/BoardNpcActivity.tsx and WarRoom.tsx.
+ * Leaves theme.css, board-living.css, war-phase.css, living-realm-board.css,
+ * and living-realm-ui.css untouched.
+ * Strict pointer-events: none !important on all board overlays and lock badges.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-fight-lock-rgb: 214, 174, 88;
+  --sc-fight-lock-text: #ebd08c;
+  --sc-fight-lock-bg: rgba(34, 27, 16, 0.72);
+  --sc-npc-claim-glow: rgba(250, 204, 21, 0.24);
+  --sc-npc-camp-glow: rgba(251, 146, 60, 0.65);
+  --sc-npc-gather-glow: rgba(94, 214, 158, 0.56);
+}
+
+:root[data-chrome="night"] {
+  --sc-fight-lock-rgb: 196, 178, 118;
+  --sc-fight-lock-text: #f0dba2;
+  --sc-fight-lock-bg: rgba(18, 22, 34, 0.78);
+  --sc-npc-claim-glow: rgba(253, 224, 71, 0.26);
+  --sc-npc-camp-glow: rgba(253, 186, 116, 0.7);
+  --sc-npc-gather-glow: rgba(110, 231, 183, 0.6);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-fight-lock-rgb: 222, 176, 78;
+  --sc-fight-lock-text: #f3d796;
+  --sc-fight-lock-bg: rgba(36, 25, 16, 0.8);
+  --sc-npc-claim-glow: rgba(234, 179, 8, 0.24);
+  --sc-npc-camp-glow: rgba(249, 115, 22, 0.68);
+  --sc-npc-gather-glow: rgba(74, 222, 128, 0.55);
+}
+
+/* ==========================================================================
+   2. NPC Board Activity Layer (Claims, Camp Marches, Foraging Gathers)
+   ========================================================================== */
+.sc-npc-board-layer,
+.sc-npc-board-layer *,
+.sc-npc-activity,
+.sc-npc-claim-aura,
+.sc-npc-camp-path,
+.sc-npc-gather-path,
+.sc-npc-gather-crew {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-npc-claim-aura {
+  animation: sc-npc-claim-breathe 4.6s ease-in-out infinite;
+}
+
+.sc-npc-claim-pip {
+  animation: sc-npc-claim-gleam 4s ease-in-out infinite;
+}
+
+.sc-npc-camp-path {
+  fill: none;
+  stroke-width: 1.1;
+  stroke-dasharray: 3.5 2.5;
+  stroke-linecap: round;
+  opacity: 0.74;
+  animation: sc-npc-camp-drift 3.4s linear infinite;
+}
+
+.sc-npc-camp-column {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sc-npc-camp-stride 2.2s ease-in-out infinite;
+}
+
+.sc-npc-gather-path {
+  fill: none;
+  stroke-width: 0.95;
+  stroke-dasharray: 2 3;
+  stroke-linecap: round;
+  opacity: 0.64;
+  animation: sc-npc-gather-flow 4.4s linear infinite;
+}
+
+.sc-npc-gather-crew {
+  transform-box: fill-box;
+  transform-origin: 50% 85%;
+}
+
+.sc-npc-gather-crew.is-working {
+  animation: sc-npc-gather-bob 2.4s ease-in-out infinite;
+}
+
+.sc-npc-gather-crew.is-transit {
+  animation: sc-npc-camp-stride 2.5s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   3. War Tab Clash Lock Presentation (Fight Control & Note)
+   ========================================================================== */
+.sc-fight-btn[data-fight-locked="true"],
+.sc-fight-btn.is-clash-locked {
+  border: 1px dashed rgba(var(--sc-fight-lock-rgb), 0.56);
+  background: var(--sc-fight-lock-bg);
+  color: var(--sc-fight-lock-text);
+  opacity: 0.86;
+  cursor: not-allowed;
+  box-shadow: inset 0 0 0 1px rgba(var(--sc-fight-lock-rgb), 0.14);
+}
+
+.sc-fight-locked {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 5px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(var(--sc-fight-lock-rgb), 0.3);
+  border-left: 3px solid rgba(var(--sc-fight-lock-rgb), 0.68);
+  background: rgba(var(--sc-fight-lock-rgb), 0.08);
+  color: var(--sc-fight-lock-text);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.sc-fight-lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--sc-fight-lock-rgb), 0.44);
+  background: rgba(var(--sc-fight-lock-rgb), 0.13);
+  color: var(--sc-fight-lock-text);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-fight-lock-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+  background: rgb(var(--sc-fight-lock-rgb));
+  box-shadow: 0 0 5px rgba(var(--sc-fight-lock-rgb), 0.58);
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-fight-lock-breathe 3.8s ease-in-out infinite;
+}
+
+.sc-fight-lock-icon {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   4. Keyframes & Reduced Motion
+   ========================================================================== */
+@keyframes sc-npc-claim-breathe {
+  0%, 100% {
+    fill-opacity: 0.12;
+    stroke-opacity: 0.46;
+  }
+  50% {
+    fill-opacity: 0.24;
+    stroke-opacity: 0.78;
+  }
+}
+
+@keyframes sc-npc-claim-gleam {
+  0%, 100% {
+    opacity: 0.68;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+}
+
+@keyframes sc-npc-camp-drift {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-npc-camp-stride {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.2px);
+  }
+}
+
+@keyframes sc-npc-gather-flow {
+  from {
+    stroke-dashoffset: 15;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-npc-gather-bob {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-1px) rotate(4deg);
+  }
+}
+
+@keyframes sc-fight-lock-breathe {
+  0%, 100% {
+    opacity: 0.62;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-npc-claim-aura,
+  .sc-npc-claim-pip,
+  .sc-npc-camp-path,
+  .sc-npc-camp-column,
+  .sc-npc-gather-path,
+  .sc-npc-gather-crew,
+  .sc-fight-lock-dot {
+    animation: none !important;
+  }
+}
