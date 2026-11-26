@@ -91,7 +91,8 @@ export function canUpgrade(state: GameState, buildingId: string): boolean {
 
 export function tryUpgrade(state: GameState, buildingId: string): boolean {
   const b = state.buildings.find((x) => x.id === buildingId);
-  if (!b || b.completesAtTick !== null) return false;
+  // Paid from the player's stores, so only the player's own buildings.
+  if (!b || b.realmId !== "player" || b.completesAtTick !== null) return false;
   if (upgradeJobFor(state, buildingId)) return false;
   if (b.level >= maxLevelFor(state, b.typeId, b.realmId)) return false;
   const cost = upgradeCost(state, buildingId);

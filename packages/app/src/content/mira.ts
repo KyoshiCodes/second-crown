@@ -1,9 +1,9 @@
 import type { GameState } from "@second-crown/sim";
-import { isShielded, activeClash, flagNum } from "@second-crown/sim";
+import { isShielded, activeClash, flagNum, activeWarFor } from "@second-crown/sim";
 
 export function miraRemark(state: GameState | undefined, lastEvent: string): string {
   if (!state) return "Mira waits by the ledger.";
-  if (state.wars.some((w) => w.status === "active")) {
+  if (activeWarFor(state)) {
     return "The horns are up. Keep a reserve of food if the line breaks.";
   }
   if (isShielded(state)) {

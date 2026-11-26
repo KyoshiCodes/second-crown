@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-25 — Realm-scope audit and fixes
+
+- **Import save follows the shared-realm rule (`packages/app/src/game/useGameEngine.ts`):** Import now settles through `settleOnLoad` instead of calling `applyOfflineProgress` directly. Solo imports settle offline time as before; a shared realm (none exist yet) would not fast-forward. The skip rule itself is unchanged.
+- **Player war reads (`packages/sim/src/actions/war.ts`):** new `activeWarFor(state, realmId = "player")` and `warInvolves(war, realmId)`, exported from `index.ts`. `tryWhitePeace`, `tryResolveWar` (default and by `warId`) and `warSummary.activeWar` only touch a war the player is in. `tryDeclareWar`: the declaring side must not already be at war, and the player is never in two wars; a war between two other realms no longer blocks it.
+- **App war reads:** `AppShell` (War tab badge, war music), `WarRoom` (fight, white peace, declare lock, at-war tags), `WarLivingStrip`, `hud/RealmCard` (`playerStanceToward`), `SpectatorView`, `content/mira.ts` use `activeWarFor`.
+- **Player-only refund/pay guards:** `tryUpgrade`, `tryCancelBuild`, `tryDemolish` (`actions/`) and `tryCancelTraining` (`systems/training.ts`) refuse a building or order owned by another realm.
+- **Not changed:** `maybeNpcWar`/NPC trade salt gate (dormant, see DEV-NOTES), march/raid/gather/garrison scoping, server save keying, combat and balance tables.
+- **Tests:** `packages/sim/src/systems/realmScope.test.ts` (9), `packages/app/src/game/realmScope.test.ts` (5). Now: sim **446**, app **1598**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Living starvation accents on Food cell & Army
 
 - **Food cell cues (`ResourceHud.tsx`, `hud/starvation-accents.css`):** Reads existing `starvationNote(state, rates)` (`projection.ts`) without inventing sim facts (optional `starvationOverride` for tests). When trained troops face imminent (`is-starve-imminent`, calm warm amber `hunger soon` tag) or active (`is-starve-starving`, calm ember-crimson `starving` tag) starvation, renders a dedicated `pointer-events: none !important;` child glow (`.sc-starve-cell-glow`) and tag pip, softens `.sc-food-deficit-glow`, appends the starvation text to the Food tooltip, and leaves militia-only deficits and non-starving class strings unchanged (no `.sc-ledger-cell` pseudo-elements).

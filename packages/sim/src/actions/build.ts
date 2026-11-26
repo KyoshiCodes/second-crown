@@ -135,7 +135,8 @@ export function tryCancelBuild(state: GameState, buildingId: string): boolean {
   const idx = state.buildings.findIndex((b) => b.id === buildingId);
   if (idx < 0) return false;
   const b = state.buildings[idx];
-  if (b.completesAtTick === null) return false;
+  // Refunds land in the player's stores, so only the player's own scaffolding.
+  if (b.realmId !== "player" || b.completesAtTick === null) return false;
   const def = getBuildingType(b.typeId);
   if (!def || def.buildTicks <= 0) return false;
   const left = Math.max(0, b.completesAtTick - state.meta.tick);
@@ -162,6 +163,7 @@ export function tryDemolish(state: GameState, buildingId: string): boolean {
   const idx = state.buildings.findIndex((b) => b.id === buildingId);
   if (idx < 0) return false;
   const b = state.buildings[idx];
+  if (b.realmId !== "player") return false;
   if (b.typeId === "keep") return false;
   if (b.completesAtTick !== null) return false;
   const def = getBuildingType(b.typeId);

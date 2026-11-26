@@ -1,6 +1,6 @@
 import React from "react";
 import type { GameState } from "@second-crown/sim";
-import { formatLetterSuffix, getUnitType, realmPower, D, toDecimalString, playerCultureId, cultureOfRealm } from "@second-crown/sim";
+import { formatLetterSuffix, getUnitType, realmPower, D, toDecimalString, playerCultureId, cultureOfRealm, activeWarFor } from "@second-crown/sim";
 import type Decimal from "break_infinity.js";
 import { Crest } from "./Crest";
 import { UnitIcon } from "./UnitIcon";
@@ -51,7 +51,7 @@ export function WarLivingStrip(props: { state: GameState | undefined }) {
     return () => window.clearInterval(interval);
   }, []);
 
-  const activeWar = state?.wars.find((w) => w.status === "active");
+  const activeWar = (state ? activeWarFor(state) : undefined);
   const enemyRealmId = activeWar
     ? (activeWar.attackerRealmId === "player" ? activeWar.defenderRealmId : activeWar.attackerRealmId)
     : "rival";

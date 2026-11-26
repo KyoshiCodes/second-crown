@@ -1,5 +1,5 @@
 import React from "react";
-import { opinionOfPlayerFromRealm, peaceTicksRemaining, type GameState, type GiftOffer } from "@second-crown/sim";
+import { opinionOfPlayerFromRealm, peaceTicksRemaining, activeWarFor, type GameState, type GiftOffer } from "@second-crown/sim";
 import { RealmCrestPip } from "./RealmCrestPip";
 import { realmLedgerRows } from "./DiploLedger";
 import { DiploLivingRows, type RealmPact } from "./DiploLivingRows";
@@ -25,7 +25,7 @@ export function realmStance(atWar: boolean, peaceLeft: number, opinion: number):
 
 /** Player's stance toward a realm, same inputs the diplomacy grid uses. */
 export function playerStanceToward(state: GameState, realmId: string): { stance: RealmStance; peaceLeft: number; opinion: number } {
-  const war = state.wars.find((w) => w.status === "active");
+  const war = activeWarFor(state);
   const atWar = !!war && [war.attackerRealmId, war.defenderRealmId].includes(realmId);
   const peaceLeft = peaceTicksRemaining(state, "player", realmId);
   const opinion = opinionOfPlayerFromRealm(state, realmId);

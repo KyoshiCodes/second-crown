@@ -101,7 +101,7 @@ export {
 } from "./systems/research.js";
 export type { ResearchId } from "./systems/research.js";
 
-export { tryDeclareWar, tryResolveWar, tryWhitePeace, peaceTicksRemaining, warSummary } from "./actions/war.js";
+export { tryDeclareWar, tryResolveWar, tryWhitePeace, peaceTicksRemaining, warSummary, activeWarFor, warInvolves } from "./actions/war.js";
 export type { DeclareWarPayload, WarSummary } from "./actions/war.js";
 
 export { tryTrade, canTrade, MARKET_OFFERS } from "./actions/trade.js";

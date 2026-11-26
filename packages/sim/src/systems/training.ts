@@ -112,6 +112,8 @@ export function tryCancelTraining(state: GameState, jobId: string): boolean {
   const idx = jobs.findIndex((j) => j.id === jobId);
   if (idx < 0) return false;
   const job = jobs[idx];
+  // Refunds land in the player's stores, so only the player's own orders.
+  if (job.realmId !== "player") return false;
   const span = Math.max(1, job.doneTick - job.startedTick);
   const left = Math.max(0, job.doneTick - Math.max(state.meta.tick, job.startedTick));
   const frac = job.startedTick > state.meta.tick ? 1 : left / span;

@@ -16,7 +16,6 @@ import {
   realmPower,
   serializeState,
   deserializeState,
-  applyOfflineProgress,
   computeIncomePerSecond,
   getEventLog,
   getWorldLog,
@@ -323,7 +322,9 @@ export function useGameEngine() {
       const json = await pickSaveFile();
       const st = deserializeState(json);
       const before = snapshotForAway(st);
-      const settled = applyOfflineProgress(st, Date.now());
+      // Same rule as a load: solo settles offline time, a shared realm never fast-forwards.
+      const result = await settleOnLoad(st);
+      const settled = result.mode === "solo" ? result.settled : 0;
       setAwaySummary(settled >= AWAY_MIN_TICKS ? buildAwaySummary(before, st, settled) : null);
       engineRef.current = new TickEngine(st);
       lastRivalWar.current = null;

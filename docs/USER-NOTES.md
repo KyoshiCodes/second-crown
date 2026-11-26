@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Behind-the-scenes realm fixes
+
+- **Importing a save** now follows the same rules as reloading the page. Nothing changes for normal (solo) games: time away is still caught up.
+- **The War tab only shows your wars.** Fight, White peace, the "At war" tag on realms, the War tab star and the war music now only react to a war you are in. A war between two other realms (rare today) can no longer block you from declaring, end when you press White peace, or be fought by your Fight button.
+- **You can only upgrade, cancel, demolish or dismiss your own buildings and training orders.** You could not reach anyone else's from the screen anyway; this just makes sure stores can never move by accident.
+- No balance, combat or pacing changes.
+
 ## 2026-11-25 — Hungry Food cell & at-risk troop badges
 
 - **Food strip warning:** When trained troops are heading toward hunger (`hunger soon`, calm warm amber) or actively starving (`starving`, calm crimson), the top Food store cell shows a matching soft edge glow and tag alongside its countdown tooltip.

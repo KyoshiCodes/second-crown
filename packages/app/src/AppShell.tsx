@@ -1,5 +1,5 @@
 import React from "react";
-import { formatLetterSuffix, settlementName, currentSeason, playerCultureId, RESEARCH, researchDone, researchTicksLeft } from "@second-crown/sim";
+import { formatLetterSuffix, settlementName, currentSeason, playerCultureId, RESEARCH, researchDone, researchTicksLeft, activeWarFor } from "@second-crown/sim";
 import { useGameEngine, type Tab } from "./game/useGameEngine";
 import { CultureContext } from "./UnitIcon";
 import { ResourceHud } from "./hud/ResourceHud";
@@ -81,7 +81,7 @@ export function AppShell() {
     saveNow, exportSave, importSaveFile, newGame,
   } = engine;
 
-  const activeWar = state?.wars.find((w) => w.status === "active");
+  const activeWar = (state ? activeWarFor(state) : undefined);
   const hold = state ? settlementName(state) : "Your Hold";
   const season = (state ? currentSeason(state) : "Spring") as SeasonName;
   const [holidayId, setHolidayId] = React.useState<HolidayId>(() => detectCurrentHoliday());

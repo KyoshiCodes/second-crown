@@ -1,5 +1,5 @@
 import React from "react";
-import { deserializeState, formatLetterSuffix, realmPower, playerTitle, getWorldLog, type GameState } from "@second-crown/sim";
+import { deserializeState, formatLetterSuffix, realmPower, playerTitle, getWorldLog, activeWarFor, type GameState } from "@second-crown/sim";
 import { WorldPanel } from "./WorldPanel";
 import { BattleVisual } from "./BattleVisual";
 import { cloudUrl } from "./net/cloud";
@@ -35,7 +35,7 @@ export function SpectatorView(props: { code: string }) {
   if (!state) {
     return <div style={{ padding: 24 }}>Watching {props.code}. {err || "Loading…"}</div>;
   }
-  const war = state.wars.find((w) => w.status === "active");
+  const war = activeWarFor(state);
   return (
     <div style={{ padding: 20, maxWidth: 760, margin: "0 auto" }}>
       <p style={{ color: "#e3b341" }}>Spectator · {props.code} · refreshes every 4s</p>

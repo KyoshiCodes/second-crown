@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  activeWarFor,
   canAffordTrain,
   canSally,
   forcePower,
@@ -70,7 +71,7 @@ export function WarRoom(props: {
   setBattleSnap: (snap: BattleSnap | null) => void;
 }) {
   const { state, act, rivalOp, playerOp, battleSnap, setBattleSnap } = props;
-  const activeWar = state?.wars.find((w) => w.status === "active");
+  const activeWar = (state ? activeWarFor(state) : undefined);
   const otherRealms = (state?.realms ?? []).filter((r) => r.id !== "player");
   const mine = state ? realmPower(state, "player") : 0;
   const canLevy = state ? canAffordTrain(state, "militia", 5) : false;
@@ -127,7 +128,7 @@ export function WarRoom(props: {
   const card = { margin: "10px 0", fontSize: 13 } as const;
   const h = { display: "block", marginBottom: 6 } as const;
   const resolveWar = () => act((st, eng) => {
-    const war = st.wars.find((w) => w.status === "active");
+    const war = activeWarFor(st);
     const atk = war ? realmPower(st, war.attackerRealmId) : 0;
     const def = war ? realmPower(st, war.defenderRealmId) : 0;
     const r = tryResolveWar(st, eng.rng);
