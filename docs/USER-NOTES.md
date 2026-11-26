@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Mixed squad chips on returning & marching forces
+
+- **See mixed squads at a glance:** On the War tab, columns, gatherers, and garrisons carrying more than one unit type (like militia + spears or spears + siege) now show small role-colored chips (`↩` tinted when heading home), while plain single-unit militia groups stay uncluttered.
+
 ## 2026-11-25 — Bandit camp raids bring the right soldiers home
 
 - **Spearmen stay spearmen.** When you win a raid on an ordinary Bandit camp, the soldiers who survive come home as the units they left as. Before, everyone came back as militia.

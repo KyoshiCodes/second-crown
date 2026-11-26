@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Living mixed-unit chips on War Room force cards & columns
+
+- **Mixed unit chip group (`hud/ForceMixChips.tsx`, `hud/force-mix-chips.css`):** Added pure `summarizeForceMix` / `isMixedForce` and `<ForceMixChips>` (`pointer-events: none !important;`). When a force contains two or more distinct unit types, renders compact role-colored pips and short counts (e.g. `4 militia`, `3 spears`, `1 siege`, capped at 3 + overflow count) with a calm `↩` returning accent when heading home (`is-returning`). Single-type militia columns stay quiet.
+- **War Room & ForceCard wiring (`hud/ForceCard.tsx`, `WarRoom.tsx`):** `ForceCard` accepts optional `force` and `returning` props; `WarRoom` passes `force` on Columns (`garrison_home` marks returning), Scouts, Gathers (`phase === "returning"`), Garrisons, and watchtower-seen Incoming hosts (fog-hidden hosts stay masked).
+- **Unchanged invariants & accessibility:** Dedicated CSS only (`theme.css`, `force-card.css`, `force-ledger.css`, `force-status.css`, `camp-living.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/ForceMixChips.test.tsx` (7 tests). Now: sim **403**, app **1570**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Bandit camp return fixes
 
 - **Win returns units by type (`systems/march.ts`):** a won ordinary Bandit camp raid sends the clash survivors home as the types they marched as (`returnForce(state, march.force, 1)`). It used to call `returnLevy(levy)`, which turned the whole sent column into militia and also ignored clash losses (the casualties were already counted by `absorbBattleCasualties`).

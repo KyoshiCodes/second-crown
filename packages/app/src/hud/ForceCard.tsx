@@ -2,6 +2,7 @@ import React from "react";
 import { WarChip } from "./WarChip";
 import { ForceStatus, type ForceStatusRow } from "./ForceStatus";
 import { ForceLedger } from "./ForceLedger";
+import { ForceMixChips } from "./ForceMixChips";
 import { WarLivingGlyph, WarLivingUnderlay } from "./WarLivingGlyph";
 import "./force-card.css";
 
@@ -17,11 +18,13 @@ export function ForceCard(props: {
   action?: { label: string; disabled?: boolean; onClick: () => void };
   loaded?: boolean;
   empty?: boolean;
+  force?: Readonly<Record<string, number>>;
+  returning?: boolean;
   status?: ForceStatusRow[];
   /** Optional living rows stacked under the ledger (e.g. CampLivingRows on garrison cards). */
   living?: React.ReactNode;
 }) {
-  const { tone, name, dest, seconds, detail, captain, action, loaded, empty, status, living } = props;
+  const { tone, name, dest, seconds, detail, captain, action, loaded, empty, force, returning, status, living } = props;
   const isMoving = seconds !== undefined;
   const riskRow = status?.find((r) => r.kind === "risk");
   const riskTone = riskRow?.tone;
@@ -43,6 +46,7 @@ export function ForceCard(props: {
         etaRow={etaRow}
         action={action}
       />
+      <ForceMixChips force={force} returning={returning} />
       {living ?? null}
       {status && status.length > 0 ? <ForceStatus rows={restRows} /> : null}
       <WarLivingGlyph

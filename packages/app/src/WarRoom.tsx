@@ -49,6 +49,7 @@ import { BattleVisual, type BattleSnap } from "./BattleVisual";
 import { WarLivingStrip } from "./WarLivingStrip";
 import { MarshalCard } from "./MarshalCard";
 import { ForceCard } from "./hud/ForceCard";
+import { ForceMixChips } from "./hud/ForceMixChips";
 import { CampLivingRows } from "./hud/CampLivingRows";
 import { forceStatusRows, tripProgress } from "./hud/ForceStatus";
 import { SlotPips } from "./hud/SlotPip";
@@ -233,6 +234,7 @@ export function WarRoom(props: {
             {columns.map((m) => (
               <li key={m.id}>
                 {m.purpose ?? m.kind} → {m.toId} · {m.levy} · ETA {etaOf(m.arrivesTick)}s
+                <ForceMixChips force={m.force} returning={m.purpose === "garrison_home"} compact />
               </li>
             ))}
           </ul>
@@ -258,6 +260,7 @@ export function WarRoom(props: {
                   name="Scout"
                   dest={provinceLabel(m.toId)}
                   seconds={etaOf(m.arrivesTick)}
+                  force={m.force}
                   status={forceStatusRows({
                     power: columnPower(m),
                     powerMax,
@@ -297,6 +300,8 @@ export function WarRoom(props: {
                     detail={g.phase !== "outbound" ? `${g.phase} · load ${g.load}` : g.phase}
                     loaded={isLoaded}
                     empty={isEmptyReturn}
+                    force={g.force}
+                    returning={g.phase === "returning"}
                     status={forceStatusRows({
                       power: forcePower(g.force),
                       powerMax,
@@ -335,6 +340,7 @@ export function WarRoom(props: {
                   name={`Garrison · power ${state ? garrisonPower(state, g.provinceId) : 0}`}
                   dest={provinceLabel(g.provinceId)}
                   detail={Object.entries(g.force).map(([k, n]) => `${n} ${k}`).join(", ")}
+                  force={g.force}
                   living={state ? <CampLivingRows state={state} provinceId={g.provinceId} nameOf={nameOf} /> : null}
                   status={forceStatusRows({
                     power: postPower(g.provinceId),
@@ -369,6 +375,7 @@ export function WarRoom(props: {
                 dest={provinceLabel(m.toId)}
                 seconds={etaOf(m.arrivesTick)}
                 detail={`from ${provinceLabel(m.fromId)}`}
+                force={seen ? m.force : undefined}
                 status={forceStatusRows({
                   power: seen ? columnPower(m) : undefined,
                   powerMax,

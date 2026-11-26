@@ -1,0 +1,179 @@
+/* --- Force Mix Chips Living Accents (isolated CSS) ---
+ * Loaded from hud/ForceMixChips.tsx.
+ * Leaves theme.css, force-card.css, force-ledger.css, force-status.css, and camp-living.css untouched.
+ * Strict pointer-events: none !important on chips, dots, and returning marks.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-mix-bg: rgba(28, 24, 20, 0.72);
+  --sc-mix-border: rgba(218, 178, 98, 0.28);
+  --sc-mix-text: #e9dec8;
+  --sc-mix-return-rgb: 110, 214, 158;
+  --sc-mix-line-rgb: 148, 186, 224;
+  --sc-mix-ranged-rgb: 118, 214, 152;
+  --sc-mix-shock-rgb: 234, 178, 86;
+  --sc-mix-skirmish-rgb: 102, 212, 206;
+  --sc-mix-siege-rgb: 240, 134, 72;
+  --sc-mix-support-rgb: 192, 160, 232;
+}
+
+:root[data-chrome="night"] {
+  --sc-mix-bg: rgba(18, 24, 34, 0.76);
+  --sc-mix-border: rgba(146, 182, 224, 0.28);
+  --sc-mix-text: #dce6f2;
+  --sc-mix-return-rgb: 108, 218, 176;
+  --sc-mix-line-rgb: 148, 188, 232;
+  --sc-mix-ranged-rgb: 112, 210, 168;
+  --sc-mix-shock-rgb: 224, 186, 108;
+  --sc-mix-skirmish-rgb: 112, 214, 220;
+  --sc-mix-siege-rgb: 238, 146, 94;
+  --sc-mix-support-rgb: 186, 164, 236;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-mix-bg: rgba(42, 30, 18, 0.78);
+  --sc-mix-border: rgba(224, 176, 92, 0.34);
+  --sc-mix-text: #f3e2c2;
+  --sc-mix-return-rgb: 120, 214, 144;
+  --sc-mix-line-rgb: 158, 194, 224;
+  --sc-mix-ranged-rgb: 126, 212, 138;
+  --sc-mix-shock-rgb: 234, 182, 82;
+  --sc-mix-skirmish-rgb: 116, 208, 198;
+  --sc-mix-siege-rgb: 236, 132, 68;
+  --sc-mix-support-rgb: 196, 166, 228;
+}
+
+/* ==========================================================================
+   2. Mixed Unit Type Chip Group
+   ========================================================================== */
+.sc-force-mix {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-force-card .sc-force-mix {
+  margin: 4px 0 2px;
+}
+
+.sc-force-mix.is-compact {
+  margin: 0 0 0 6px;
+  vertical-align: middle;
+}
+
+.sc-force-mix.is-returning {
+  padding: 2px 5px;
+  border-radius: 5px;
+  border-left: 2px solid rgba(var(--sc-mix-return-rgb), 0.65);
+  background: rgba(var(--sc-mix-return-rgb), 0.08);
+  animation: sc-force-mix-return-pulse 4.8s ease-in-out infinite;
+}
+
+.sc-force-mix-return-mark {
+  font-size: 10px;
+  line-height: 1;
+  color: rgb(var(--sc-mix-return-rgb));
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-force-mix-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-mix-border);
+  background: var(--sc-mix-bg);
+  color: var(--sc-mix-text);
+  font-size: 10px;
+  line-height: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-force-mix-chip.is-more {
+  opacity: 0.78;
+}
+
+.sc-force-mix-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+  pointer-events: none !important;
+  user-select: none;
+  animation: sc-force-mix-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-force-mix-dot.role-line {
+  background: rgb(var(--sc-mix-line-rgb));
+  box-shadow: 0 0 3px rgba(var(--sc-mix-line-rgb), 0.55);
+}
+
+.sc-force-mix-dot.role-ranged {
+  background: rgb(var(--sc-mix-ranged-rgb));
+  box-shadow: 0 0 3px rgba(var(--sc-mix-ranged-rgb), 0.55);
+}
+
+.sc-force-mix-dot.role-shock {
+  background: rgb(var(--sc-mix-shock-rgb));
+  box-shadow: 0 0 3px rgba(var(--sc-mix-shock-rgb), 0.55);
+}
+
+.sc-force-mix-dot.role-skirmish {
+  background: rgb(var(--sc-mix-skirmish-rgb));
+  box-shadow: 0 0 3px rgba(var(--sc-mix-skirmish-rgb), 0.55);
+}
+
+.sc-force-mix-dot.role-siege {
+  background: rgb(var(--sc-mix-siege-rgb));
+  box-shadow: 0 0 4px rgba(var(--sc-mix-siege-rgb), 0.65);
+}
+
+.sc-force-mix-dot.role-support {
+  background: rgb(var(--sc-mix-support-rgb));
+  box-shadow: 0 0 3px rgba(var(--sc-mix-support-rgb), 0.55);
+}
+
+@keyframes sc-force-mix-breathe {
+  0%, 100% {
+    opacity: 0.66;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes sc-force-mix-return-pulse {
+  0%, 100% {
+    border-left-color: rgba(var(--sc-mix-return-rgb), 0.45);
+  }
+  50% {
+    border-left-color: rgba(var(--sc-mix-return-rgb), 0.88);
+  }
+}
+
+/* ==========================================================================
+   3. Accessibility — Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-force-mix.is-returning,
+  .sc-force-mix-dot {
+    animation: none !important;
+  }
+}
