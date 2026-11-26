@@ -24,6 +24,7 @@ import {
   projectCost,
   projectionWorthShowing,
   realmRates,
+  starvationNote,
   ticksToSeconds,
   type BlockReason,
   type CostProjection,
@@ -236,13 +237,19 @@ export function BottleneckLine(props: { state: GameState | undefined }) {
   const rates = realmRates(state);
   const list = bottlenecks(state, rates);
   const deficit = foodDeficitText(rates);
-  if (list.length === 0 && !deficit) return null;
-  const stuck = Boolean(deficit) || list.some((e) => e.overCap || !Number.isFinite(e.waitSeconds));
+  const starve = starvationNote(state, rates);
+  if (list.length === 0 && !deficit && !starve) return null;
+  const stuck = Boolean(deficit) || Boolean(starve) || list.some((e) => e.overCap || !Number.isFinite(e.waitSeconds));
   return (
     <div className={`sc-bottleneck-line${stuck ? " is-stuck" : ""}`} data-bottleneck={list.map((e) => e.res).join(",")}>
       {deficit ? (
         <p className="sc-food-deficit" data-food-deficit={foodDeficit(rates) ?? undefined}>
           <span className="sc-blocked-label">Deficit</span> {deficit}.
+        </p>
+      ) : null}
+      {starve ? (
+        <p className="sc-food-deficit sc-starve-note" data-starve={starve.state}>
+          <span className="sc-blocked-label">{starve.state === "starving" ? "Hunger" : "Hunger soon"}</span> {starve.text}.
         </p>
       ) : null}
       {list.length > 0 ? (

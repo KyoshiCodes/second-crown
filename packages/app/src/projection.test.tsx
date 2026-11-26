@@ -9,6 +9,7 @@ import {
   projectCost,
   projectionWorthShowing,
   realmRates,
+  starvationNote,
   ticksToSeconds,
   type RealmRates,
 } from "./projection";
@@ -158,5 +159,46 @@ describe("actionable cues", () => {
     const html = renderToStaticMarkup(<BottleneckLine state={s} />);
     expect(html).toContain("after you start");
     expect(html).toContain('<span class="sc-blocked-label">Limiter</span>');
+  });
+});
+
+describe("starvationNote", () => {
+  function host(food: string) {
+    const s = createGameState({ seed: 1 });
+    s.units = s.units.filter((u) => u.realmId !== "player");
+    s.units.push({ id: "sp", realmId: "player", typeId: "spearman", count: "500", armyId: null });
+    s.resources.food = food;
+    return s;
+  }
+
+  it("stays hidden when food holds", () => {
+    const s = host("100");
+    expect(starvationNote(s, rates({ rate: { food: 1 }, have: { food: 100 } }))).toBeNull();
+  });
+
+  it("warns ahead of time while food falls toward empty", () => {
+    const s = host("100");
+    const n = starvationNote(s, rates({ rate: { food: -10 }, have: { food: 100 } }));
+    expect(n?.state).toBe("imminent");
+    expect(n?.text).toBe("Larder empty in 10s; trained troops start deserting 1m after");
+    expect(n?.seconds).toBe(70);
+  });
+
+  it("counts down to the next desertion once starving, and shows in the Bottleneck line", () => {
+    const s = host("0");
+    s.flags.starve_ticks = 150;
+    const n = starvationNote(s, rates({ rate: { food: -10 }, have: { food: 0 } }));
+    expect(n?.state).toBe("starving");
+    expect(n?.text).toBe("Starving: trained troops desert 2% in 45s");
+    const html = renderToStaticMarkup(<BottleneckLine state={s} />);
+    expect(html).toContain('data-starve="starving"');
+    expect(html).toContain("Starving: trained troops desert 2% in 45s");
+  });
+
+  it("says nothing for a militia-only host (militia keep their own rule)", () => {
+    const s = createGameState({ seed: 1 });
+    s.units = s.units.filter((u) => u.realmId !== "player");
+    s.units.push({ id: "m", realmId: "player", typeId: "militia", count: "500", armyId: null });
+    expect(starvationNote(s, rates({ rate: { food: -10 }, have: { food: 0 } }))).toBeNull();
   });
 });

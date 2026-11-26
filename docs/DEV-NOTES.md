@@ -1,3 +1,12 @@
+## 2026-11-25 — sim + app / starvation for trained troops
+
+- **Where:** all in `applyUpkeep` (`systems/upkeep.ts`). Starving = `food < need` for this step, the same branch that already took militia. The counter (`flags.starve_ticks`) is written only when it changes, so fed saves stay byte-identical.
+- **Pulses:** `pulsesBetween(before, after)` counts thresholds 600, 1200, 1800... crossed by the counter, so a multi-tick `applyUpkeep` applies each pulse it crosses. In practice it never crosses one: `nextEventTick` stops batches on the pulse tick, which matters because a food-pinned batch restores unit counts in `TickEngine.batch`.
+- **Who:** `isTrainedUnit` = not militia, not champion. Rival units are untouched (upkeep is player-only, as before). Troops away in a column are not in `state.units` and neither eat nor starve.
+- **Balance knobs:** `STARVE_GRACE_TICKS`, `STARVE_PULSE_TICKS`, `STARVE_SHED_FRACTION` at the top of `upkeep.ts`. With no income, 2%/min halves a trained army in about 35 minutes; any food income stops losses once the army fits it.
+- **UI:** `starvationNote(state, rates)` in `projection.ts` (pure, reads `starveTicks`, `ticksToNextStarveLoss`, `foodDeficit`). Rendered by `BottleneckLine` with `data-starve="starving" | "imminent"`, reusing `.sc-food-deficit` styling.
+- **Tests lock:** no loss while fed; nothing in the grace minute; 2%/min-1 shed on each pulse; reset and fresh grace when fed; militia/champion rules; tick-by-tick equals `settleTicks`. Verification: `npm test` → sim 437, app 1585, server 158 (+1 skip); app build clean.
+
 ## 2026-11-25 — app / living raid pressure & elite payoff accents
 
 - **Raid pressure cue (`packages/app/src/hud/RaidPressureCue.tsx`, `WarRoom.tsx`):** Exported `RaidPressureTone`, `RaidPressureSummary`, `summarizeRaidPressure(state)` (reads `raidStage`, `breachRun`, `homeRaidGap`, `homeRaidPerType`, `incomingOnHome`, `isShielded`, plus `HOME_RAID_FIRST_TICK = 3000`), and `<RaidPressureCue state={state} />`. Mounted on `.sc-home-front` in `WarRoom.tsx`, applying `.is-raid-recovering` (sage green) when `breachRun > 0` and `.is-raid-elevated` (amber) when inbound/due (staying calm early or while shielded).

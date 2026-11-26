@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Hungry troops desert
+
+- **Trained troops now go hungry too.** If your larder is empty and you cannot feed the army, spearmen, archers, cavalry, knights, siege and the rest hold on for **1 minute**. After that, each kind of troop loses **2%** of its men (at least 1) every minute until food comes back. Champions never desert. Militia work as before: one walks off every tick you cannot feed them.
+- **Food back, losses stop.** As soon as one tick is fed, the count resets. If food runs out again, you get the full minute again.
+- **You get a warning.** On the Kingdom tab, under the Deficit line: *Hunger soon: Larder empty in 2m; trained troops start deserting 1m after.* Once starving: *Hunger: Starving: trained troops desert 2% in 45s.*
+- An army that starves shrinks until your farms can feed what is left, then stops.
+
 ## 2026-11-25 — Raid pressure / recovery cues & elite role badges
 
 - **Home front raid cue:** On the War tab, the Home front card softly glows **warm amber** when a raid is inbound or the raid window is open (pointing out when walls would raise your defense), and **calm sage green** with a **Recovery** badge whenever post-breach respite is active.

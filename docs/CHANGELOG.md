@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-25 — Starvation for trained troops
+
+- **Rule (`packages/sim/src/systems/upkeep.ts`):** a tick starves when stores cannot cover army upkeep. `flags.starve_ticks` counts starving ticks in a row; a fed tick or an empty army resets it. At 600 starving ticks (1 min) and every 600 after, every player stack except militia and champions loses `max(1, floor(count × 2%))`, capped at the stack. Emptied stacks are removed. Militia unchanged (1 per starving tick).
+- **Catch-up:** `UpkeepSystem.nextEventTick` returns the next desertion tick while starving with trained troops, so `settleTicks` fine-ticks it and batches never cross a pulse.
+- **Exports:** `starveTicks`, `ticksToNextStarveLoss`, `isTrainedUnit`, `starveShed`, `STARVE_GRACE_TICKS`, `STARVE_PULSE_TICKS`, `STARVE_SHED_FRACTION`.
+- **UI (`projection.ts` `starvationNote`, `CostProjection.tsx` `BottleneckLine`):** one line under the Deficit note: `Hunger soon` while food falls toward empty, `Hunger` with a countdown once starving. Hidden when food holds or only militia stand.
+- **Tests:** `systems/upkeep.test.ts` (+6), `projection.test.tsx` (+4). Now: sim **437**, app **1585**, server **158** (+1 Windows skip), app build clean.
+
 ## 2026-11-25 — Living raid pressure & elite-unit payoff accents
 
 - **Home front raid pressure / recovery strip (`hud/RaidPressureCue.tsx`, `WarRoom.tsx`):** Added pure `summarizeRaidPressure(state)` reading existing sim selectors (`raidStage`, `breachRun`, `homeRaidGap`, `homeRaidPerType`, `incomingOnHome`, `isShielded`). On the War Room Home front card (`.sc-home-front`), active breach respite renders a soft sage-green `Recovery` strip (`+... respite · next raid up to N/type`), while open raid windows or inbound raids render a calm amber `Pressure` strip (`No walls yet — walls raise defense` before walls, or current stage/cap once fortified; stays calm before `HOME_RAID_FIRST_TICK` or while shielded).

@@ -1,10 +1,16 @@
 import {
   computeIncomePerSecond,
+  isTrainedUnit,
+  starveTicks,
   storageCap,
+  ticksToNextStarveLoss,
   upkeepPerTick,
+  STARVE_GRACE_TICKS,
+  STARVE_SHED_FRACTION,
   type GameState,
 } from "@second-crown/sim";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
+import { formatHorizon } from "./horizon/horizon";
 
 /**
  * Read-only cost projections: "how long does this cost take at current income".
@@ -137,6 +143,39 @@ export function foodDeficit(rates: RealmRates): number | null {
 export function foodDeficitText(rates: RealmRates): string | null {
   const d = foodDeficit(rates);
   return d === null ? null : `Food ${formatSignedRate(d)} after upkeep`;
+}
+
+export type StarvationState = "starving" | "imminent";
+
+export interface StarvationNote {
+  state: StarvationState;
+  /** Seconds until trained troops next desert (counting the larder running dry, when imminent). */
+  seconds: number;
+  text: string;
+}
+
+/**
+ * Trained-troop starvation, in plain words. "starving" once the larder is empty and
+ * upkeep goes unpaid; "imminent" while food falls toward empty. Null when food holds
+ * or no trained troops stand. Reads the sim's own counters; changes nothing.
+ */
+export function starvationNote(state: GameState, rates: RealmRates = realmRates(state)): StarvationNote | null {
+  const trained = state.units.some((u) => u.realmId === "player" && isTrainedUnit(u.typeId) && Number(u.count) > 0);
+  if (!trained) return null;
+  const pct = `${Math.round(STARVE_SHED_FRACTION * 100)}%`;
+  if (starveTicks(state) > 0) {
+    const seconds = ticksToSeconds(ticksToNextStarveLoss(state));
+    return { state: "starving", seconds, text: `Starving: trained troops desert ${pct} in ${formatHorizon(seconds)}` };
+  }
+  const d = foodDeficit(rates);
+  if (d === null) return null;
+  const empty = (rates.have.food ?? 0) / -d;
+  const seconds = empty + ticksToSeconds(STARVE_GRACE_TICKS);
+  return {
+    state: "imminent",
+    seconds,
+    text: `Larder empty in ${formatHorizon(empty)}; trained troops start deserting ${formatHorizon(ticksToSeconds(STARVE_GRACE_TICKS))} after`,
+  };
 }
 
 export type BlockKind = "prereq" | "keep" | "hall" | "busy" | "warehouse" | "stores";
