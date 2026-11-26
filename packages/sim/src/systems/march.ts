@@ -8,7 +8,7 @@ import { createRngStreams, type RngStreams } from "../core/rng.js";
 import { maxMarches } from "./labor.js";
 import { forcePower, returnForce, takeForce } from "./column.js";
 import { gateHp, gateOnRim } from "./gate.js";
-import { listGathers } from "./gather.js";
+import { playerGatherCount } from "./gather.js";
 import { plantOutpost, listOutposts } from "./outpost.js";
 import { addCapped } from "./storage.js";
 import { campTier } from "./camp.js";
@@ -149,7 +149,7 @@ function manhattan(a: Province, b: Province): number {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
-function travelTicks(state: GameState, dist: number): number {
+export function travelTicks(state: GameState, dist: number): number {
   return Math.ceil((dist * TICKS_PER_STEP) / marchSpeedFactor(weatherFor(state)));
 }
 
@@ -162,7 +162,7 @@ function enqueueMarch(
   purpose?: March["purpose"]
 ): boolean {
   const mine = marches(state).filter((m) => m.realmId === "player");
-  if (mine.length + listGathers(state).length >= maxMarches(state)) return false;
+  if (mine.length + playerGatherCount(state) >= maxMarches(state)) return false;
   const dist = Math.max(1, manhattan(home, dest));
   let kind: March["kind"] = "node";
   if (dest.node === "camp") kind = "camp";
@@ -188,7 +188,7 @@ export function tryMarch(state: GameState, destId: string): boolean {
   const dest = getProvince(state, destId);
   const home = getProvince(state, state.board.homeProvinceId);
   if (!dest || !home || dest.id === home.id) return false;
-  if (marches(state).filter((m) => m.realmId === "player").length + listGathers(state).length >= maxMarches(state)) return false;
+  if (marches(state).filter((m) => m.realmId === "player").length + playerGatherCount(state) >= maxMarches(state)) return false;
   const levy = takeLevy(state);
   if (levy < 1) return false;
   return enqueueMarch(state, dest, home, levy, { militia: levy }, "raid");
@@ -198,7 +198,7 @@ export function tryMarchWith(state: GameState, destId: string, force: Record<str
   const dest = getProvince(state, destId);
   const home = getProvince(state, state.board.homeProvinceId);
   if (!dest || !home || dest.id === home.id) return false;
-  if (marches(state).filter((m) => m.realmId === "player").length + listGathers(state).length >= maxMarches(state)) return false;
+  if (marches(state).filter((m) => m.realmId === "player").length + playerGatherCount(state) >= maxMarches(state)) return false;
   const clean: Record<string, number> = {};
   for (const [k, v] of Object.entries(force)) {
     const n = Math.floor(Number(v) || 0);

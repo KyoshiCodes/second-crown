@@ -33,6 +33,8 @@ import {
   tryRecallMarch,
   tryRepair,
   tryResolveWar,
+  playerFightOpen,
+  FIGHT_LOCKED_LINE,
   trySally,
   tryTrain,
   tryTreatWounded,
@@ -73,6 +75,8 @@ export function WarRoom(props: {
 }) {
   const { state, act, rivalOp, playerOp, battleSnap, setBattleSnap } = props;
   const activeWar = (state ? activeWarFor(state) : undefined);
+  // Fight waits for the main clash; white peace stays open in every phase.
+  const fightOpen = state ? playerFightOpen(state) : false;
   const otherRealms = (state?.realms ?? []).filter((r) => r.id !== "player");
   const mine = state ? realmPower(state, "player") : 0;
   const canLevy = state ? canAffordTrain(state, "militia", 5) : false;
@@ -129,6 +133,7 @@ export function WarRoom(props: {
   const card = { margin: "10px 0", fontSize: 13 } as const;
   const h = { display: "block", marginBottom: 6 } as const;
   const resolveWar = () => act((st, eng) => {
+    if (activeWarFor(st) && !playerFightOpen(st)) return `${FIGHT_LOCKED_LINE}.`;
     const war = activeWarFor(st);
     const atk = war ? realmPower(st, war.attackerRealmId) : 0;
     const def = war ? realmPower(st, war.defenderRealmId) : 0;
@@ -210,7 +215,13 @@ export function WarRoom(props: {
           >
             Raise 5 militia
           </button>
-          <button type="button" disabled={!activeWar} onClick={resolveWar}>
+          <button
+            type="button"
+            disabled={!activeWar || !fightOpen}
+            onClick={resolveWar}
+            title={activeWar && !fightOpen ? FIGHT_LOCKED_LINE : undefined}
+            data-fight-locked={activeWar && !fightOpen ? "true" : undefined}
+          >
             Fight
           </button>
           <button type="button" disabled={!activeWar} onClick={() => act((st) => (tryWhitePeace(st) ? "White peace signed." : "No war."))}>
@@ -218,6 +229,11 @@ export function WarRoom(props: {
           </button>
         </div>
         <WarPhaseLine state={state} />
+        {activeWar && !fightOpen ? (
+          <p className="sc-fight-locked" role="note" style={{ margin: "6px 0 0", fontSize: 12, opacity: 0.75 }}>
+            {FIGHT_LOCKED_LINE}.
+          </p>
+        ) : null}
         {!activeWar ? <p style={{ margin: "6px 0 0", fontSize: 12, opacity: 0.7 }}>No war declared. Fight opens once one is.</p> : null}
         <BattleVisual snap={battleSnap} active={!!activeWar} />
       </section>

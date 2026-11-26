@@ -11,6 +11,8 @@ import { DAY_CYCLE_TICKS, dayPhase, nightWorkFactor } from "./dayNight.js";
 
 function fixture(node: keyof typeof GATHER_NODES = "woodcut") {
   const s = createGameState({ seed: 1, now: 0, withStarterBuildings: false });
+  // Player gathers only: NPC crews (living realm) would share listGathers.
+  s.flags.living_npc_gather = false;
   s.units = [{ id: "troops", typeId: "militia", realmId: "player", count: "30", armyId: null }];
   s.resources.food = "1000";
   s.buildings = [];

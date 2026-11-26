@@ -14,6 +14,7 @@ import {
   type WarPhaseId,
 } from "../content/livingRealm.js";
 import { realmPower } from "./combat.js";
+import { activeWarFor } from "../actions/war.js";
 import { cultureOfRealm } from "./culture.js";
 import { pushWorldLog } from "./events.js";
 import { addCapped } from "./storage.js";
@@ -30,19 +31,32 @@ export interface LivingSwitches {
   npcTrade: boolean;
   whispers: boolean;
   npcWars: boolean;
+  npcClaim: boolean;
+  npcCamp: boolean;
+  npcGather: boolean;
 }
+
+/** Flag name per switch. A flag set to `false` turns that behaviour off. */
+export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
+  npcTrade: "living_npc_trade",
+  whispers: "living_whispers",
+  npcWars: "living_npc_wars",
+  npcClaim: "living_npc_claim",
+  npcCamp: "living_npc_camp",
+  npcGather: "living_npc_gather",
+};
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
 export function livingSwitches(state: GameState): LivingSwitches {
-  return {
-    npcTrade: state.flags.living_npc_trade !== false,
-    whispers: state.flags.living_whispers !== false,
-    npcWars: state.flags.living_npc_wars !== false,
-  };
+  const out = {} as LivingSwitches;
+  for (const key of Object.keys(LIVING_SWITCH_FLAGS) as (keyof LivingSwitches)[]) {
+    out[key] = state.flags[LIVING_SWITCH_FLAGS[key]] !== false;
+  }
+  return out;
 }
 
 export function setLivingSwitch(state: GameState, key: keyof LivingSwitches, on: boolean): void {
-  const flag = key === "npcTrade" ? "living_npc_trade" : key === "whispers" ? "living_whispers" : "living_npc_wars";
+  const flag = LIVING_SWITCH_FLAGS[key];
   if (on) delete state.flags[flag];
   else state.flags[flag] = false;
 }
@@ -55,16 +69,16 @@ export function realmSalt(realmId: string): number {
   return n;
 }
 
-function nameOf(state: GameState, realmId: string): string {
+export function nameOf(state: GameState, realmId: string): string {
   return state.realms.find((r) => r.id === realmId)?.name ?? realmId;
 }
 
-function count(state: GameState, key: string): number {
+export function count(state: GameState, key: string): number {
   const v = state.flags[key];
   return typeof v === "number" ? v : 0;
 }
 
-function bumpCount(state: GameState, key: string): void {
+export function bumpCount(state: GameState, key: string): void {
   state.flags[key] = count(state, key) + 1;
 }
 
@@ -113,12 +127,23 @@ function pushCultureNews(state: GameState, item: CultureNews): void {
 }
 
 /** Counters for the playtest harness. */
-export function livingCounts(state: GameState): { trades: number; playerTrades: number; whispers: number; npcWars: number } {
+export function livingCounts(state: GameState): {
+  trades: number;
+  playerTrades: number;
+  whispers: number;
+  npcWars: number;
+  npcClaims: number;
+  npcCampMarches: number;
+  npcGathers: number;
+} {
   return {
     trades: count(state, "living_trades"),
     playerTrades: count(state, "living_player_trades"),
     whispers: count(state, "living_whispers_sent"),
     npcWars: count(state, "living_npc_wars_started"),
+    npcClaims: count(state, "living_npc_claims"),
+    npcCampMarches: count(state, "living_npc_camp_marches"),
+    npcGathers: count(state, "living_npc_gathers"),
   };
 }
 
@@ -353,4 +378,18 @@ export function warPhaseTimeline(war: War, atTick: number): { id: WarPhaseId; ti
   else if ((war.status === "attacker_won" || war.status === "defender_won") && end <= atTick) out.push({ id: "clash", tick: end });
   if (end <= atTick) out.push({ id: "aftermath", tick: end });
   return out;
+}
+
+// ---------------------------------------------------------------- clash lock
+
+/**
+ * True when the player may press Fight: they have an active war and it has reached the
+ * main clash. A siege war (fought the tick it starts) never locks. White peace is not
+ * gated by this; it stays open in every phase. Pure read for the War tab.
+ */
+export function playerFightOpen(state: GameState, atTick = state.meta.tick): boolean {
+  const war = activeWarFor(state);
+  if (!war) return false;
+  if (isInstantWar(war)) return true;
+  return warPhase(state, war, atTick)?.id === "clash";
 }

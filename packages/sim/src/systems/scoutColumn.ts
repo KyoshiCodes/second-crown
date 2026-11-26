@@ -3,7 +3,7 @@ import { D, toDecimalString } from "../core/decimal.js";
 import { getProvince } from "./board.js";
 import { takeForce } from "./column.js";
 import { isProvinceSeen, scoutCost } from "./fog.js";
-import { listGathers } from "./gather.js";
+import { playerGatherCount } from "./gather.js";
 import { listMarches, tryRecallMarch, type March } from "./march.js";
 import { maxMarches } from "./labor.js";
 
@@ -31,7 +31,7 @@ export function tryDispatchScout(state: GameState, destId: string): boolean {
   const home = getProvince(state, state.board.homeProvinceId);
   if (!dest || !home || dest.id === home.id) return false;
   const mine = listMarches(state).filter((m) => m.realmId === "player");
-  if (mine.length + listGathers(state).length >= maxMarches(state)) return false;
+  if (mine.length + playerGatherCount(state) >= maxMarches(state)) return false;
   if (mine.some((m) => m.purpose === "scout" && m.toId === destId)) return false;
   const cost = scoutCost(state);
   if (D(state.resources.gold ?? "0").lt(cost)) return false;

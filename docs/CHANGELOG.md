@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-26 — Living Realm slice 2 (NPC board activity, clash lock)
+
+- **NPC board activity (`systems/npcBoard.ts`):** `maybeNpcClaim`, `maybeNpcCampMarch`, `maybeNpcGatherCrew` replace the dead `rival.ts` gates (`(tick + salt) % 200|300` never matched a pulse tick). Pulse cadence `(pulse + realmSalt) % N === 0`: claims every 4 pulses (cap 3 markers per realm, open `none` tiles only), camp marches every 6 (free camps, existing NPC column; skipped if the column would still be out at the next 500-tick raid pulse), crews every 3 (one per realm, never two crews on one node).
+- **Player ring rule (`pickNpcTarget`):** Manhattan <= 2 from the player's hold is off-limits before tick 3000; afterwards outside-ring targets always win and the ring is used only when nothing outside is left. Player-held tiles are never targets. Nearest to the NPC's hold, ties by board order.
+- **Snapshot (`npcBoardSnapshot`, `npcBoardActivityAt`):** read-only list of NPC claims (shown 300 ticks), camp marches and crews with realm, kind, phase, tile and timing.
+- **Fix:** `tryMarch` / `tryMarchWith` / `enqueueMarch` and scout columns counted all realms' gather crews against the player's march slots; now only the player's (`playerGatherCount`).
+- **Clash lock (`WarRoom.tsx`, `playerFightOpen`):** Fight is disabled until the main clash with one line, "The lines have not closed."; White Peace stays available in every phase.
+- **Switches:** `living_npc_claim`, `living_npc_camp`, `living_npc_gather` (`setLivingSwitch` keys `npcClaim` / `npcCamp` / `npcGather`). Counters in `livingCounts`.
+- **Playtest:** living section of `docs/PLAYTEST.md` records whether NPCs claimed, marched on camps and gathered. Progression and raid numbers unchanged.
+- **Tests:** `systems/npcBoard.test.ts` (22), app `hud/FightLock.test.tsx` (3); `gather.test.ts` and one `livingRealm.test.ts` case turn the new behaviours off where they test something else; progression harness test checks the new line. Now: sim **490**, app **1622**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-25 — Living presentation for Living Realm (slice 1)
 
 - **Board workers, unit tasks & culture palettes (`hud/BoardLivingRealm.tsx`, `hud/living-realm-board.css`, `BoardLiving.tsx`):** Added `listBoardWorkerFigures`, `listBoardUnitTasks`, `resolveLivingCultureKit` (`western`, `woodland`/Cedar, `desert`/Sand, `steppe`, `tide`/Islands, `iron`/Iron March with player-kit fallback), and `<BoardLivingRealm>` inside `BoardLiving`. Reads `workerSnapshot` and `unitActivity` to draw seated `idle` figures vs animated `farm`/`quarry`/`yard`/`march` working figures at posted buildings and seen gather nodes, plus active march/return/garrison/scout task chevrons (strictly `pointer-events: none !important;`).

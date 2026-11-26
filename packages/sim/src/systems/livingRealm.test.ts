@@ -215,6 +215,9 @@ describe("living realm: war phases", () => {
   it("each phase writes one ledger line on the world pulse", () => {
     const s = fresh();
     setLivingSwitch(s, "npcWars", false);
+    // Board lines (claims, camp marches) would push phase lines out of the 24-line world log.
+    setLivingSwitch(s, "npcClaim", false);
+    setLivingSwitch(s, "npcCamp", false);
     const eng = new TickEngine(s);
     eng.settleTicks(1000);
     tryDeclareWar(s, { attackerRealmId: "player", defenderRealmId: "rival" });

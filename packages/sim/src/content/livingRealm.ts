@@ -78,3 +78,27 @@ export const WHISPERS: Record<string, readonly string[]> = {
 export function whisperLinesFor(culture: string): readonly string[] {
   return WHISPERS[culture] ?? WHISPERS.western;
 }
+
+// ---------------------------------------------------------------- NPC board activity (slice 2)
+
+/** An NPC realm tries to plant a claim marker every N world pulses (staggered by realm salt). */
+export const NPC_CLAIM_PULSES = 4;
+/** An NPC realm rides on a free camp every N world pulses. */
+export const NPC_CAMP_PULSES = 6;
+/** An NPC realm sends a foraging crew to a node every N world pulses. */
+export const NPC_GATHER_PULSES = 3;
+/** Most claim markers one NPC realm keeps on open tiles. */
+export const NPC_CLAIM_CAP = 3;
+/** Player ring: tiles within this Manhattan distance of the player's hold. */
+export const NPC_PLAYER_RING = 2;
+/** Grace window from tick 0: no NPC claim, camp march or gather inside the player ring. 3000 ticks = 5 minutes. */
+export const NPC_BOARD_GRACE_TICKS = 3000;
+/** NPC home raids may launch only on ticks that are multiples of this (rival.ts). Camp marches yield to them. */
+export const NPC_RAID_PULSE_TICKS = 500;
+/** How long a fresh claim marker shows in the board snapshot. */
+export const NPC_CLAIM_SHOW_TICKS = 300;
+/** Recent-claims list length. */
+export const NPC_CLAIM_LOG_CAP = 8;
+
+/** War tab line while the player's Fight waits on the main clash. */
+export const FIGHT_LOCKED_LINE = "The lines have not closed";

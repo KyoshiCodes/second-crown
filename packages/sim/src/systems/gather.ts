@@ -47,6 +47,11 @@ export function listGathers(state: GameState): Gather[] {
     : g.load }));
 }
 
+/** The player's own crews (any phase). Slot checks use this, never every realm's crews. */
+export function playerGatherCount(state: GameState): number {
+  return listGathers(state).filter((g) => g.realmId === "player").length;
+}
+
 function npcHomeId(state: GameState, realmId: string): string | null {
   const hold = state.board.provinces.find((p) => p.occupantRealmId === realmId && p.node === "hold");
   if (hold) return hold.id;
@@ -90,19 +95,29 @@ export function tryGather(state: GameState, destId: string, force: Record<string
   return true;
 }
 
-export function tryNpcGather(state: GameState, realmId: string): boolean {
+/** True when an NPC crew could work `p` now: a gather node, free or its own, with stock. */
+export function npcGatherable(state: GameState, realmId: string, p: { id: string; node: string; occupantRealmId: string | null }): boolean {
+  return p.node in GATHER_NODES && (!p.occupantRealmId || p.occupantRealmId === realmId) && nodeStock(state, p.id) > 0;
+}
+
+/** True while any crew (any realm) is headed to or working `provinceId`. */
+export function nodeBusy(state: GameState, provinceId: string): boolean {
+  return listGathers(state).some((g) => g.toId === provinceId && g.phase !== "returning");
+}
+
+/**
+ * Send an NPC crew. With `destId` the crew goes there (livingRealm picks it with the
+ * player-ring rule); without, the first workable node in board order (old behaviour).
+ */
+export function tryNpcGather(state: GameState, realmId: string, destId?: string): boolean {
   if (realmId === "player") return false;
   const fromId = npcHomeId(state, realmId);
   if (!fromId) return false;
   const home = getProvince(state, fromId);
   if (!home) return false;
-  const dest = state.board.provinces.find(
-    (p) =>
-      p.id !== fromId &&
-      p.node in GATHER_NODES &&
-      (!p.occupantRealmId || p.occupantRealmId === realmId) &&
-      nodeStock(state, p.id) > 0
-  );
+  const dest = destId
+    ? state.board.provinces.find((p) => p.id === destId && p.id !== fromId && npcGatherable(state, realmId, p))
+    : state.board.provinces.find((p) => p.id !== fromId && npcGatherable(state, realmId, p));
   if (!dest) return false;
   const gathers = listGathers(state);
   if (gathers.some((g) => g.toId === dest.id && g.phase !== "returning")) return false;

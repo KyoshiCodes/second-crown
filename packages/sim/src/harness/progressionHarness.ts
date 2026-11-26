@@ -93,6 +93,10 @@ export interface LivingReport {
   playerTrades: number;
   whispers: number;
   npcWars: number;
+  /** NPC board activity (slice 2): claim markers planted, camp marches sent, foraging crews sent. */
+  npcClaims: number;
+  npcCampMarches: number;
+  npcGathers: number;
   workers: {
     /** First bot look with at least one citizen at a post. */
     firstPostedTick: number | null;
@@ -420,6 +424,7 @@ export function livingText(r: ProgressionReport): string {
   return [
     `First war phase: ${clockS(l.firstPhaseTick)}. Player war: ${phaseRow(l.playerWar)}. NPC war: ${phaseRow(l.npcWar)}.`,
     `NPC trade fired: ${l.trades > 0 ? "yes" : "no"} (${l.trades} caravans, ${l.playerTrades} to the player). Whispers: ${l.whispers}. NPC wars started: ${l.npcWars}.`,
+    `NPC board: claimed ${l.npcClaims > 0 ? "yes" : "no"} (${l.npcClaims}), marched on camps ${l.npcCampMarches > 0 ? "yes" : "no"} (${l.npcCampMarches}), gathered ${l.npcGathers > 0 ? "yes" : "no"} (${l.npcGathers}).`,
     `Workers had posts: ${w.firstPostedTick !== null ? "yes" : "no"} (first at ${clock(w.firstPostedTick)}, most posted ${w.maxPosted}). End: ${Object.entries(w.end).map(([k, v]) => `${k} ${v}`).join(", ")}.`,
   ].join("\n");
 }

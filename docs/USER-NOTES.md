@@ -2,6 +2,15 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Kingdoms move on the board; Fight waits for the clash
+
+- **Other kingdoms plant markers.** Now and then a kingdom claims an empty tile near its own hold. Each kingdom keeps at most 3 markers. They never claim camps or resource tiles.
+- **Other kingdoms raid camps.** Kingdoms send columns at free camps. A camp they break comes back later, like yours.
+- **Other kingdoms gather.** Kingdoms send small crews to fields, quarries and woodcuts.
+- **Your doorstep is safe at first.** For the first 5 minutes, no kingdom touches anything within 2 tiles of your hold. After that they still pick tiles farther away first. They never take a tile you hold.
+- **Fight waits for the Main clash.** In a war, **Fight** stays locked until the Main clash, and the War tab says "The lines have not closed." **White Peace** works in every phase.
+- **Fixed:** another kingdom's gathering crew could take one of your march slots. Only your own crews count now.
+
 ## 2026-11-25 — Living workers, war phase arcs, whispers card & caravan trails
 
 - **Workers & troops on the map:** Posted villagers and resource-node gatherers now appear as small figures tinted by culture kit (Western, Cedar, Sand, Steppe, Islands, Iron March) — idle villagers sit quietly while working farmers, quarrymen, woodcutters, and march/garrison/scout crews move with gentle task motions.

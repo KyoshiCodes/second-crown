@@ -41,7 +41,7 @@ describe("progression harness", () => {
     expect(text).toContain("Raids: ");
   });
 
-  it("reports living-realm activity: war phase timing, NPC trade, worker posts", () => {
+  it("reports living-realm activity: war phase timing, NPC trade, NPC board, worker posts", () => {
     const l = r.living;
     expect(l.trades).toBeGreaterThan(0);
     expect(l.whispers).toBeGreaterThan(0);
@@ -51,9 +51,15 @@ describe("progression harness", () => {
     expect(l.workers.firstPostedTick).not.toBeNull();
     expect(l.workers.maxPosted).toBeGreaterThan(0);
     const text = livingText(r);
-    expect(text.split("\n")).toHaveLength(3);
+    expect(text.split("\n")).toHaveLength(4);
     expect(text).toMatch(/^First war phase: /);
     expect(text).toContain("NPC trade fired: yes");
+    expect(l.npcClaims).toBeGreaterThan(0);
+    expect(l.npcCampMarches).toBeGreaterThan(0);
+    expect(l.npcGathers).toBeGreaterThan(0);
+    expect(text).toContain("NPC board: claimed yes");
+    expect(text).toContain("marched on camps yes");
+    expect(text).toContain("gathered yes");
     expect(text).toContain("Workers had posts: yes");
     expect(livingText(runProgression())).toBe(text);
   });

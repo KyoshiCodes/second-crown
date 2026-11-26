@@ -330,9 +330,34 @@ export {
   playerWarPhase,
   tickWarPhases,
   warPhaseTimeline,
+  playerFightOpen,
+  LIVING_SWITCH_FLAGS,
 } from "./systems/livingRealm.js";
+export {
+  npcBoardSnapshot,
+  npcBoardActivityAt,
+  maybeNpcClaim,
+  maybeNpcCampMarch,
+  maybeNpcGatherCrew,
+  pickNpcTarget,
+  inPlayerRing,
+  getNpcClaims,
+  claimMarkers,
+  NPC_BOARD_KINDS,
+} from "./systems/npcBoard.js";
+export type { NpcBoardSnapshot, NpcBoardActivity, NpcBoardKind, NpcBoardPhase, NpcClaim } from "./systems/npcBoard.js";
 export type { LivingSwitches, CultureNews, WarPhase } from "./systems/livingRealm.js";
-export { WAR_PHASE_IDS, WAR_PHASE_START, WAR_PHASE_TITLE, WAR_AFTERMATH_TICKS, WHISPERS } from "./content/livingRealm.js";
+export {
+  WAR_PHASE_IDS,
+  WAR_PHASE_START,
+  WAR_PHASE_TITLE,
+  WAR_AFTERMATH_TICKS,
+  WHISPERS,
+  FIGHT_LOCKED_LINE,
+  NPC_PLAYER_RING,
+  NPC_BOARD_GRACE_TICKS,
+  NPC_CLAIM_CAP,
+} from "./content/livingRealm.js";
 export type { WarPhaseId } from "./content/livingRealm.js";
 export { workerSnapshot, unitActivity, unitActivityAt, WORKER_TASK_TAGS, UNIT_DOING_LABEL } from "./systems/boardActivity.js";
 export type { WorkerSnapshot, WorkerPost, WorkerTaskTag, UnitActivity, UnitDoing } from "./systems/boardActivity.js";
