@@ -19,6 +19,7 @@ import { revealProvince } from "./fog.js";
 import { recordCrown } from "./ledger.js";
 import { pairClashingMarches, resolveCampRaid, resolveHoldStorm, resolveOutpostAssault } from "./engagement.js";
 import { buildingDamageFactor, marchSpeedFactor, weatherFor } from "./weather.js";
+import { noteHomeSiegeResult } from "./raidPressure.js";
 
 const GRID_W = 16;
 const GRID_H = 10;
@@ -245,25 +246,28 @@ export function tryDispatchRecallGarrison(state: GameState, destId: string): boo
   return true;
 }
 
-function npcColumnForce(state: GameState, realmId: string): Record<string, number> {
+/** Default column cap per unit type for NPC marches (camps, flags). Home raids pass their own (raidPressure.ts). */
+const NPC_COLUMN_PER_TYPE = 6;
+
+function npcColumnForce(state: GameState, realmId: string, perType: number): Record<string, number> {
   const force: Record<string, number> = {};
   for (const u of state.units) {
     if (u.realmId !== realmId) continue;
-    const n = Math.min(6, Math.floor(Number(u.count) || 0));
+    const n = Math.min(perType, Math.floor(Number(u.count) || 0));
     if (n > 0) force[u.typeId] = n;
   }
   if (Object.keys(force).length === 0) force.militia = 8;
   return force;
 }
 
-export function tryNpcMarch(state: GameState, realmId: string, destId: string): boolean {
+export function tryNpcMarch(state: GameState, realmId: string, destId: string, perType = NPC_COLUMN_PER_TYPE): boolean {
   if (realmId === "player") return false;
   if (marches(state).some((m) => m.realmId === realmId)) return false;
   const dest = getProvince(state, destId);
   const from = state.board.provinces.find((p) => p.occupantRealmId === realmId && p.node === "hold");
   if (!dest || !from) return false;
   const dist = Math.max(1, manhattan(from, dest));
-  const force = npcColumnForce(state, realmId);
+  const force = npcColumnForce(state, realmId, perType);
   const levy = Object.values(force).reduce((a, b) => a + b, 0);
   saveMarches(state, [
     ...marches(state),
@@ -349,6 +353,7 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
       wallSoak: wallHp(state, "player"),
       attackerForce: march.force ?? { militia: levy },
     });
+    noteHomeSiegeResult(state, result.winnerId === "player");
     return noteMarch(state, result.winnerId === "player" ? "Siege broken." : "The hold is breached.");
   }
   if (dest.occupantRealmId && dest.occupantRealmId !== march.realmId && dest.node !== "camp") {

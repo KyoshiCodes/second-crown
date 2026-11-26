@@ -2,6 +2,16 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — Fairer raids, and what elite troops are for
+
+- **Raids grow with you, gently.** Before your first wall is finished, raiders come smaller (up to 4 of each troop). With a wall it is the same as before (up to 6). At Keep II they bring up to 7 of each but come less often (about every 4 minutes). At Keep III, up to 8 of each, about every 6 minutes.
+- **A lost raid gives you breathing room.** If raiders break into your hold, the next raid waits longer and comes smaller: about 5 extra minutes after one loss, 15 after two in a row, and a full hour after three or more. Hold one raid and things go back to normal. If you leave the game alone for hours, you will not be raided over and over.
+- **What it takes to hold:** at Keep II, about 24 militia and two rim walls, or 20 militia plus 6 spearmen. At Keep III, about 28 militia and two rim walls, or 20 militia plus 4 knights.
+- **Elite troops say what they are for.** Cavalry, knights, Siege Engines and other Tier III+ troops on the Army tab now have a short line saying what they beat and what beats them:
+  - Cavalry: *Strong vs archers ×1.4, skirmishers ×1.25 · weak vs line ×0.6. Rides down archer screens; a spear line stops it.*
+  - Knight: *Strong vs archers ×1.4, skirmishers ×1.25 · weak vs line ×0.6. Six take the bandit stockade; four steady a home guard.*
+  - Siege Engine: *Strong vs line ×1.25 · weak vs horse ×0.7, archers ×0.8. Ignores camp palisades: one turns a stockade loss into a win.*
+
 ## 2026-11-25 — Mixed squad chips on returning & marching forces
 
 - **See mixed squads at a glance:** On the War tab, columns, gatherers, and garrisons carrying more than one unit type (like militia + spears or spears + siege) now show small role-colored chips (`↩` tinted when heading home), while plain single-unit militia groups stay uncluttered.

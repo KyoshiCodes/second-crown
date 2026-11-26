@@ -5,6 +5,7 @@ import { listMarches, tryNpcMarch, type March } from "./march.js";
 import { realmPower } from "./combat.js";
 import { pushWorldLog } from "./events.js";
 import { isShielded } from "./wave.js";
+import { homeRaidGap, homeRaidPerType } from "./raidPressure.js";
 
 export function incomingOnHome(state: GameState): March[] {
   const home = state.board.homeProvinceId;
@@ -18,13 +19,13 @@ export function watchtowerWarning(state: GameState): March | undefined {
 
 /** No rival column on the hold before this tick (~5 game minutes). */
 export const HOME_RAID_FIRST_TICK = 3000;
-/** At most one home raid per this many ticks, across all rivals. */
+/** Base gap between home raids (walled stage). The live gap is `homeRaidGap` (content/raids.ts). */
 export const HOME_RAID_GAP = 1500;
 
 export function homeRaidAllowed(state: GameState, atTick: number): boolean {
   if (atTick < HOME_RAID_FIRST_TICK) return false;
   const last = state.flags.home_raid_last;
-  return typeof last !== "number" || atTick - last >= HOME_RAID_GAP;
+  return typeof last !== "number" || atTick - last >= homeRaidGap(state);
 }
 
 export function maybeNpcRaid(state: GameState, realmId: string, atTick: number): boolean {
@@ -34,7 +35,7 @@ export function maybeNpcRaid(state: GameState, realmId: string, atTick: number):
   if (realmPower(state, realmId) < 8) return false;
   const home = state.board.homeProvinceId;
   if (!getProvince(state, home)) return false;
-  const ok = tryNpcMarch(state, realmId, home);
+  const ok = tryNpcMarch(state, realmId, home, homeRaidPerType(state));
   if (!ok) return false;
   state.flags.home_raid_last = atTick;
   const name = state.realms.find((r) => r.id === realmId)?.name ?? realmId;

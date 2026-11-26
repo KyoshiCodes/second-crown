@@ -157,23 +157,23 @@ function num(v: string | undefined): number {
   return D(v ?? "0").toNumber();
 }
 
-function playerUnitCount(state: GameState, typeId: string): number {
+export function playerUnitCount(state: GameState, typeId: string): number {
   return state.units
     .filter((u) => u.realmId === "player" && u.typeId === typeId)
     .reduce((n, u) => n + num(u.count), 0);
 }
 
-function queuedCount(state: GameState, typeId: string): number {
+export function queuedCount(state: GameState, typeId: string): number {
   return listTraining(state, "player")
     .filter((j) => j.typeId === typeId)
     .reduce((n, j) => n + Number(j.count), 0);
 }
 
-function allOfType(state: GameState, typeId: string): number {
+export function allOfType(state: GameState, typeId: string): number {
   return state.buildings.filter((b) => b.realmId === "player" && b.typeId === typeId).length;
 }
 
-function freeSlot(state: GameState, typeId: string, rim: boolean): { x: number; y: number } | null {
+export function freeSlot(state: GameState, typeId: string, rim: boolean): { x: number; y: number } | null {
   for (let y = 0; y < 10; y++) {
     for (let x = 0; x < 16; x++) {
       if (isHoldRim(x, y) !== rim) continue;

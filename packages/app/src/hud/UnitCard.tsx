@@ -13,6 +13,8 @@ import { CultureUnitChip, hasCultureUnitChip } from "./CultureUnitChip";
 import { UnitTierNote } from "../horizon/HorizonTime";
 import { batchCostTotal, formatHorizon, isEliteUnitTier, unitBracketNote, unitTierRank } from "../horizon/horizon";
 import "../horizon/horizon-elite-tier.css";
+import { unitPayoffNote } from "@second-crown/sim";
+import "./unit-payoff.css";
 
 export type UnitCardProps = {
   typeId: string;
@@ -52,6 +54,7 @@ export function UnitCard(props: UnitCardProps) {
   const readyRow = status?.find((r) => r.kind === "ready");
   const isDrilling = Boolean(readyRow?.live || (readyRow?.value && readyRow.value.startsWith("Drilling")));
   const living = status && status.length > 0 ? splitUnitRows(status) : undefined;
+  const payoff = unitPayoffNote(typeId);
 
   return (
     <button
@@ -105,6 +108,11 @@ export function UnitCard(props: UnitCardProps) {
         )}
       </span>
       <UnitTierNote tier={tier} note={bracketNote} />
+      {payoff ? (
+        <span className="sc-unit-payoff" data-unit-payoff={typeId}>
+          {payoff}
+        </span>
+      ) : null}
       {living ? (
         <>
           <UnitStatus rows={living.rest} />

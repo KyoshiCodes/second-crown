@@ -18,7 +18,8 @@ export type { BuildingType } from "./content/buildings.js";
 
 export { UNIT_TYPES, getUnitType, listUnitTypes } from "./content/units.js";
 export type { UnitType, UnitRole } from "./content/units.js";
-export { matchupModifier } from "./content/matchup.js";
+export { matchupModifier, matchupRow } from "./content/matchup.js";
+export { unitPayoffNote, roleMatchupNote } from "./content/unitPayoff.js";
 
 export { CITIZEN_JOBS, getCitizenJob, listCitizenJobs } from "./content/citizens.js";
 export type { CitizenJob } from "./content/citizens.js";
@@ -246,6 +247,9 @@ export type { HallBonus, HallRoom } from "./systems/hallBonus.js";
 export { campThreat, campTier, campTierId } from "./systems/camp.js";
 export { CAMP_TIERS, formatCampLoot } from "./content/camps.js";
 export type { CampTier, CampTierId } from "./content/camps.js";
+export { RAID_STAGES, BREACH_RESPITE_TICKS, BREACH_SHRINK_PER_TYPE, RAID_MIN_PER_TYPE } from "./content/raids.js";
+export type { RaidStage, RaidStageId } from "./content/raids.js";
+export { raidStage, breachRun, homeRaidGap, homeRaidPerType, noteHomeSiegeResult } from "./systems/raidPressure.js";
 
 export {
   woundedCount,

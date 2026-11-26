@@ -10,6 +10,11 @@ const TABLE: Record<UnitRole, Partial<Record<UnitRole, number>>> = {
   support: { skirmish: 1.1 },
 };
 
+/** The roles a role hits harder (> 1) and softer (< 1), in table order. Read-only view for payoff notes. */
+export function matchupRow(role: UnitRole): { role: UnitRole; mult: number }[] {
+  return Object.entries(TABLE[role] ?? {}).map(([r, mult]) => ({ role: r as UnitRole, mult: mult ?? 1 }));
+}
+
 export function matchupModifier(attackerRole: UnitRole, defenderRole: UnitRole): number {
   return TABLE[attackerRole]?.[defenderRole] ?? 1;
 }
