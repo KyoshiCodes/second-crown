@@ -1,3 +1,13 @@
+## 2026-11-25 — app / living shared-realm seal (`ChromeDock` & `AppShell`)
+
+- **Seam choices (no guessed flags):** Uses only the two existing shared-realm signals in `packages/app`:
+  1. `sharedRealmId(state)` in `packages/app/src/game/settleOnLoad.ts` (which returns `null` today in Phases 1–3 until shared saves turn on).
+  2. `holdWatch` (`subscribeHoldView` / `getHoldViewSnapshot` in `packages/app/src/hud/holdWatch.ts`), published live by `JoinHoldCard` whenever an opt-in shared hold is joined.
+- **Component (`packages/app/src/hud/SharedRealmSeal.tsx`):** Exported `SharedRealmScope` (`"shared-realm" | "shared-hold"`), `SharedRealmInfo`, `cleanSharedRealmName`, `resolveSharedRealmInfo`, and phrasing-only `<SharedRealmSeal>` (`<span>` + `<svg>`, `role="status"`). `resolveSharedRealmInfo` checks `sharedRealmIdFn ?? sharedRealmId` first (`"Shared"`), then falls back to `holdView` when `includeHoldWatch !== false` (`"Shared hold"`), returning `null` in solo play.
+- **Wiring:** `ChromeDock.tsx` renders `<SharedRealmSeal />` right after the Hold/Board button; `AppShell.tsx` renders `<SharedRealmSeal state={state} includeHoldWatch={false} compact />` inside `.sc-map-controls` right after `<BandToggle band={cameraBand} onToggle={toggleCameraBand} />` (preserving `HoldDensity.test.tsx`'s exact `BandToggle` and `HoldFocusTag` checks).
+- **Dedicated CSS (`packages/app/src/hud/shared-realm-seal.css`):** Dusk/Night/Parchment celestial-teal tokens, `pointer-events: none !important;`, keyframes (`sc-shared-seal-breathe`, `sc-shared-pip-pulse`, `sc-shared-ring-breathe`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to `theme.css`, `hold-density.css`, `board-focus.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/SharedRealmSeal.test.tsx`):** 6 tests passing (`npm test` -> sim **446**, app **1604**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-25 — sim + app / realm-scope audit (Codex medium)
 
 - **Scope of the audit:** saves (load, Import, cloud pull), offline catch-up, marches (send, recall, scout, garrison, gather, sally), home raids and incoming reads, wars, refunds/payments from `state.resources`, and app reads of those. "Realm" here means both the per-realm entities inside one `GameState` (`player`, `rival`, `k_*`) and the shared-realm path (`sharedRealmId`, always `null` for now).

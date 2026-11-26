@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-25 — "Shared" seal in top bar & map controls
+
+- **Shared hold indicator:** When you join a shared hold from the Cloud panel, a small teal **Shared hold · \<name\>** pill gently pulses in the sticky top bar so you can tell at a glance that a shared hold is active alongside your solo crown. Solo play without a joined hold keeps the bar clean.
+- **Map bar readiness:** A matching compact **Shared** seal sits beside the Hold/Board toggle for shared-realm saves once shared saves turn on (solo crowns still run locally today).
+
 ## 2026-11-25 — Behind-the-scenes realm fixes
 
 - **Importing a save** now follows the same rules as reloading the page. Nothing changes for normal (solo) games: time away is still caught up.

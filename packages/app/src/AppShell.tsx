@@ -23,6 +23,7 @@ import { ActionFlash } from "./hud/ActionFlash";
 import { MusicReactiveLayer } from "./hud/MusicReactiveLayer";
 import { BoardFocusFrame } from "./hud/BoardFocus";
 import { BandToggle, HoldFocusTag } from "./hud/HoldDensity";
+import { SharedRealmSeal } from "./hud/SharedRealmSeal";
 import { NewsUnreadBadge } from "./news/NewsUnreadBadge";
 import { GlobalChatPanel } from "./chat/GlobalChatPanel";
 import { AdminPanel } from "./admin/AdminPanel";
@@ -236,6 +237,7 @@ export function AppShell() {
               <button type="button" onClick={zoomOut} title="Zoom Out" style={{ padding: "1px 8px", fontSize: 14, fontWeight: 700, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>−</button>
               <button type="button" onClick={resetView} title="Reset View" style={{ padding: "1px 6px", fontSize: 12, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>⟲</button>
               <BandToggle band={cameraBand} onToggle={toggleCameraBand} />
+              <SharedRealmSeal state={state} includeHoldWatch={false} compact />
               <button type="button" onClick={() => setKeepOpen(true)} title="Enter the keep" style={{ padding: "1px 8px", fontSize: 12, fontWeight: 600, background: "#2a1a10", color: "#fef08a", border: "1px solid #c8963e", borderRadius: 4, cursor: "pointer" }}>
                 Enter the keep
               </button>

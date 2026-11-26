@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-25 — Living shared-realm seal in top bar & Hold/Board controls
+
+- **Shared-realm helper & seal (`hud/SharedRealmSeal.tsx`, `hud/shared-realm-seal.css`):** Added `cleanSharedRealmName`, `resolveSharedRealmInfo`, and phrasing-only `<SharedRealmSeal>` (`sc-shared-realm-seal`, breathing halo pip `sc-shared-realm-pip` + `sc-shared-realm-ring`, linked-rings `<svg>`, `pointer-events: none !important;`). Reads only existing seams: `sharedRealmId(state)` (`game/settleOnLoad.ts`, still `null` in Phases 1–3) and `holdWatch` (`hud/holdWatch.ts`, live whenever `JoinHoldCard` joins a shared hold). Stays hidden in solo play.
+- **Top bar & map control wiring (`ChromeDock.tsx`, `AppShell.tsx`):** `ChromeDock` mounts `<SharedRealmSeal />` right after the Hold/Board button (`Shared hold · <realm>` when a shared hold is joined). `AppShell` mounts `<SharedRealmSeal state={state} includeHoldWatch={false} compact />` right after `<BandToggle band={cameraBand} onToggle={toggleCameraBand} />` inside `.sc-map-controls` without altering `BandToggle` or `HoldFocusTag`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/shared-realm-seal.css` only (`theme.css`, `hold-density.css`, `board-focus.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/SharedRealmSeal.test.tsx` (6 tests). Now: sim **446**, app **1604**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-25 — Realm-scope audit and fixes
 
 - **Import save follows the shared-realm rule (`packages/app/src/game/useGameEngine.ts`):** Import now settles through `settleOnLoad` instead of calling `applyOfflineProgress` directly. Solo imports settle offline time as before; a shared realm (none exist yet) would not fast-forward. The skip rule itself is unchanged.

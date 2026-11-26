@@ -7,6 +7,7 @@ import { MusicPanel } from "./MusicPanel";
 import { getHolidayOverride, setHolidayOverride } from "./seasons/holidays";
 import "./hud/plain-buttons.css";
 import { setCompact, useCompact } from "./hud/Fold";
+import { SharedRealmSeal } from "./hud/SharedRealmSeal";
 
 const KEY = "sc-chrome-open";
 
@@ -97,6 +98,7 @@ export function ChromeDock() {
         >
           {band === "board" ? "🗺️ Board → 🏰" : "🏰 Hold → 🗺️"}
         </button>
+        <SharedRealmSeal />
         <button
           type="button"
           className="sc-compact-toggle"
