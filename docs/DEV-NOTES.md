@@ -1,3 +1,12 @@
+## 2026-11-27 — sim / Living Realm slice 13 (friendly board presence, column standard strength)
+
+- **Presence:** `friendlyPresenceSnapshot(state, atTick = tick)` in `systems/livingRealm.ts`. Walks `state.realms` (skips player and any realm `atWarWith` the player), stops at `FRIENDLY_PRESENCE_CAP`. Pact set = `allyRealmId` of active wars where the player is a side (joinSide). Peace = `peaceLockedAt(state, r, "player", atTick)`. Culture via `peekCultureOfRealm` (never seeds the flag). Kind priority: trade > pact > peace.
+- **Trade check (`tradesWithPlayer`, private):** gather crews read raw from `flags.gathers_json` (importing `gather.ts` would cycle via march → ledger → livingRealm); a crew counts if player→realm-held province or realm→player-held province. Caravans: `getWorldLog` entries with `id === "trade"` and text prefix `"<realm name> trades caravans with "` within `FRIENDLY_TRADE_WINDOW_TICKS`. The player's own `trade_routes` count is global (no partner realm), so it is not used.
+- **Strength:** `STANDARD_STRENGTH` in `content/livingRealm.ts`, `standardStrength(phase)`; equals `columnRanks(phase)` for every phase (tested). On `ColumnMark` as `standardStrength`, forced to 1 when the switch is off.
+- **Switch:** `boardPresence` / `living_board_presence` added to `LivingSwitches`.
+- **Counts test:** three seeds × 300 pulses of caravans, whispers and correspondence with both snapshots called each pulse, flag on vs off: identical trace, `livingCounts` and resources.
+- **Left alone:** diplomacy, peace-lock writes, war declare / peace actions, `maybeNpcTrade`, `tryOpenRoute`, gather math, combat, phase timing, balance tables, app/render/server source.
+
 ## 2026-11-26 — app / living presentation for last-whisper summary line
 
 - **World tab component (`packages/app/src/hud/LastWhisperSummaryLine.tsx`, `tabs/WorldTab.tsx`):**

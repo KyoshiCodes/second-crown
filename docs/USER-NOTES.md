@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game now knows who your friends are
+
+- **Friendly realms tracked.** Realms at peace with you, riding beside you in a war you joined, or trading with you (caravans, foraging crews) are now tracked for calm marks on the map. Up to 6 at a time.
+- **Banner strength.** Your war column's standard now has a strength of 1, 2 or 3 that rises from march to skirmish to clash and drops back when the fighting ends.
+- **Nothing else changes.** Peace, trade and battles work exactly as before.
+- **Coming to the screen:** the map marks themselves. The game tracks them now; the screen shows them next.
+
 ## 2026-11-26 — Last whisper line under the World tab countdown
 
 - **Last whisper summary line:** Directly under the next-whisper countdown in the World tab's Realm Whispers section, a quiet `Last whisper from <realm> (<culture>)` line shows who sent the latest whisper that reached you (and stays hidden when none has arrived yet).

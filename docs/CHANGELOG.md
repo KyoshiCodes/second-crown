@@ -6,6 +6,15 @@
 - **Unchanged invariants & accessibility:** Dedicated `hud/last-whisper-summary.css` only (`CultureWhispersCard.tsx`, sim reply tables, `theme.css`, `board-living.css`, `column-ranks-whisper-hint.css`, `voice-rank-accents.css`, `realm-tag-ranks-note.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;`, and `@media (prefers-reduced-motion: reduce)` guards.
 - **Tests:** Added `packages/app/src/hud/LastWhisperSummaryLine.test.tsx` (3 tests). Now: sim **643**, app **1663**, server **158** (+1 symlink skip on Windows), app build clean.
 
+## 2026-11-27 — Living Realm slice 13 (friendly board presence, column standard strength)
+
+- **Friendly presence (`friendlyPresenceSnapshot(state, atTick?)`):** `{ realmId, name, culture, kind }[]` with kind `"peace" | "pact" | "trade"`. Pact: the ally of the player's active joined war. Peace: a running `peace_*` lock with the player. Trade (overrides pact/peace for a realm already listed): a live gather crew of either side on the other's province, or a caravan with the player in the world log within `FRIENDLY_TRADE_WINDOW_TICKS` (600). Realms at war with the player never listed. `state.realms` order, capped at `FRIENDLY_PRESENCE_CAP` (6).
+- **Standard strength:** `columnMarkSnapshot(state).standardStrength` 1 | 2 | 3 from the phase (`STANDARD_STRENGTH`: columns 1, skirmish 2, clash 3, aftermath 1), plus pure `standardStrength(phase)`.
+- **Switch:** `living_board_presence` (on). `false`: empty presence, `standardStrength` 1.
+- **Read-only:** diplomacy, peace locks, trade and gather math, combat, phase timing untouched.
+- **Playtest:** one Living realm line. Balance tables unchanged.
+- **Tests:** new `systems/livingSlice13.test.ts` (17); slice 8 shape test adds `standardStrength`. Now: sim **660**, app **1663**, server 158 (1 skipped), app build clean.
+
 ## 2026-11-26 — Living Realm slice 12 (player-only reply voice, last-whisper summary)
 
 - **Player-only reply voice (`content/livingRealm.ts` `PLAYER_REPLIES`):** mist, glen, salt, fen and peak player reply lines rewritten in the same voiced style as the other cultures. Mist hushed and omen-reading ("Out of the fog, {to}"), glen cairn-sworn stone and echo ("Sworn on the cairn, kept like stone"), salt trader's fair weights and yard book ("Fair weight and true measure"), fen homely and wry ("Peat on the fire, kettle on the hook"), peak lookout's report ("From the high keep: your words sighted"). Still 4 fixed lines per culture.

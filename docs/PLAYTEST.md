@@ -157,6 +157,8 @@ Player reply voice updated: the player's four fixed reply lines match their cult
 
 Player-only reply voice updated: Mist, Glen, Salt, Fen and Peak reply lines now have their own voice (`living_player_only_voice`); same reply rules.
 
+Friendly presence marks available: realms at peace with you, riding beside you (pact) or trading with you are listed for the board, up to 6 (`living_board_presence`); column marks also carry a standard strength 1 / 2 / 3 by phase. Read-only.
+
 Attentive:
 
 ```

@@ -222,6 +222,20 @@ export const RANKS_NOTE: Record<WarPhaseId, string> = {
   aftermath: "falling-back",
 };
 
+/** Board standard strength per war phase (slice 13): same mapping as ranks. Presentation only. */
+export const STANDARD_STRENGTH: Record<WarPhaseId, 1 | 2 | 3> = {
+  columns: 1,
+  skirmish: 2,
+  clash: 3,
+  aftermath: 1,
+};
+
+/** Most friendly realms the board shows at once (slice 13). */
+export const FRIENDLY_PRESENCE_CAP = 6;
+
+/** A caravan with the player counts as "recent" trade for this many ticks (slice 13). */
+export const FRIENDLY_TRADE_WINDOW_TICKS = 600;
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

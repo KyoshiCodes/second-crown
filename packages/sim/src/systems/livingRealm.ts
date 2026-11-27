@@ -22,6 +22,9 @@ import {
   playerReplyLinesFor,
   RANKS_LABEL,
   RANKS_NOTE,
+  STANDARD_STRENGTH,
+  FRIENDLY_PRESENCE_CAP,
+  FRIENDLY_TRADE_WINDOW_TICKS,
   type FormationId,
   type ColumnMarkId,
   type WarPhaseId,
@@ -30,7 +33,7 @@ import { realmPower } from "./combat.js";
 import { activeWarFor } from "../actions/war.js";
 import { noteWar } from "./wave.js";
 import { cultureOfRealm, peekCultureOfRealm } from "./culture.js";
-import { pushWorldLog } from "./events.js";
+import { getWorldLog, pushWorldLog } from "./events.js";
 import { addCapped } from "./storage.js";
 
 /**
@@ -87,6 +90,12 @@ export interface LivingSwitches {
    * reply lines are voiced too. False: those five keep their slice 7-11 lines. Same sizes either way.
    */
   playerOnlyVoice: boolean;
+  /**
+   * Board presence (slice 13): friendlyPresenceSnapshot lists peace / pact / trade realms and
+   * columnMarkSnapshot.standardStrength follows the phase. False: empty presence, strength 1.
+   * Read-only either way.
+   */
+  boardPresence: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -108,6 +117,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   cultureVoice: "living_culture_voice",
   playerReplyVoice: "living_player_reply_voice",
   playerOnlyVoice: "living_player_only_voice",
+  boardPresence: "living_board_presence",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -1112,6 +1122,8 @@ export interface ColumnMark {
   ranksLabel: string;
   /** One-word phase companion (slice 11): columns "column", skirmish "skirmish", clash "clash", aftermath "falling-back". */
   ranksNote: string;
+  /** Board standard weight (slice 13): columns 1, skirmish 2, clash 3, aftermath 1. 1 with living_board_presence off. */
+  standardStrength: StandardStrength;
   /** False only while a finished joined war shows its aftermath (falling-back). */
   active: boolean;
 }
@@ -1147,6 +1159,14 @@ export function ranksNote(phase: WarPhaseId): string {
   return RANKS_NOTE[phase];
 }
 
+/** Standard strength (slice 13): 1 | 2 | 3. Presentation only. */
+export type StandardStrength = 1 | 2 | 3;
+
+/** Standard strength for a war phase: columns 1, skirmish 2, clash 3, aftermath 1. Pure. */
+export function standardStrength(phase: WarPhaseId): StandardStrength {
+  return STANDARD_STRENGTH[phase];
+}
+
 /**
  * Column marks for the player's joined war: the newest active joined war, else the newest
  * finished one still showing its aftermath ("falling-back"), else null. Phase comes from
@@ -1166,8 +1186,82 @@ export function columnMarkSnapshot(state: GameState, atTick = state.meta.tick): 
     ranks: columnRanks(pick.phase),
     ranksLabel: ranksLabel(columnRanks(pick.phase)),
     ranksNote: ranksNote(pick.phase),
+    standardStrength: livingSwitches(state).boardPresence ? standardStrength(pick.phase) : 1,
     active: pick.active,
   };
+}
+
+// ---------------------------------------------------------------- friendly presence (slice 13)
+
+export type FriendlyPresenceKind = "peace" | "pact" | "trade";
+
+/** One friendly realm for the board's calm presence marks. Read-only. */
+export interface FriendlyPresence {
+  realmId: string;
+  name: string;
+  culture: string;
+  kind: FriendlyPresenceKind;
+}
+
+/** Raw gather crews, read straight from the flag (no import from gather.ts, which would cycle). */
+function rawGathers(state: GameState): { realmId: string; toId: string }[] {
+  const raw = state.flags["gathers_json"];
+  if (typeof raw !== "string") return [];
+  try {
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * True when a realm and the player share a live trade link: a gather crew of either side on a
+ * province the other holds, or a caravan between them in the world log within
+ * FRIENDLY_TRADE_WINDOW_TICKS. Pure read.
+ */
+function tradesWithPlayer(state: GameState, realmId: string, name: string, atTick: number): boolean {
+  const owner = (id: string) => state.board.provinces.find((p) => p.id === id)?.occupantRealmId ?? null;
+  for (const g of rawGathers(state)) {
+    if (g.realmId === "player" && owner(g.toId) === realmId) return true;
+    if (g.realmId === realmId && owner(g.toId) === "player") return true;
+  }
+  const prefix = `${name} trades caravans with `;
+  return getWorldLog(state).some(
+    (ev) => ev.id === "trade" && ev.text.startsWith(prefix) && ev.tick <= atTick && atTick - ev.tick <= FRIENDLY_TRADE_WINDOW_TICKS
+  );
+}
+
+/**
+ * Friendly realms for the board, in state.realms order, at most FRIENDLY_PRESENCE_CAP.
+ * A realm qualifies when it is not at war with the player and either rides beside the player in
+ * an active joined war (pact: war.allyRealmId) or holds a running peace lock with the player
+ * (peace). kind is "trade" when such a realm also has a live trade link (tradesWithPlayer),
+ * else "pact", else "peace". Empty with living_board_presence off. Pure read; no diplomacy or
+ * trade math here.
+ */
+export function friendlyPresenceSnapshot(state: GameState, atTick = state.meta.tick): FriendlyPresence[] {
+  if (!livingSwitches(state).boardPresence) return [];
+  const allies = new Set<string>();
+  for (const w of state.wars) {
+    if (w.status === "active" && w.allyRealmId && (w.attackerRealmId === "player" || w.defenderRealmId === "player")) {
+      allies.add(w.allyRealmId);
+    }
+  }
+  const out: FriendlyPresence[] = [];
+  for (const r of state.realms) {
+    if (out.length >= FRIENDLY_PRESENCE_CAP) break;
+    if (r.id === "player" || atWarWith(state, r.id, "player")) continue;
+    const pact = allies.has(r.id);
+    if (!pact && !peaceLockedAt(state, r.id, "player", atTick)) continue;
+    out.push({
+      realmId: r.id,
+      name: r.name,
+      culture: peekCultureOfRealm(state, r.id),
+      kind: tradesWithPlayer(state, r.id, r.name, atTick) ? "trade" : pact ? "pact" : "peace",
+    });
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------- war imagery (slice 5)
