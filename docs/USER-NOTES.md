@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — War columns list, province march ETAs, and last-battle notes
+
+- **Columns on road expander in War:** At the top of War, a collapsed **Columns on road** toggle shows active marches, enemy threat warnings, destinations, ETAs, and column power without adding clutter.
+- **Incoming & outgoing march ETAs on Inspect cards:** Inspecting a seen tile quietly shows incoming and outgoing march kinds and countdowns, remaining hidden under fog.
+- **Recent battle note in War:** For a few minutes after a battle, a quiet status line notes whether your host held the field or withdrew, alongside a short recovery tip.
+
 ## 2026-11-27 — The game can now describe columns, marches and the last battle
 
 - **Under the hood only.** The game can list up to six columns on the road: whose they are, where they are going, how soon they arrive and how strong they are, with a warning like "Enemy columns march on your lands."

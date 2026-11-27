@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for column status, march ETA detail, and battle outcome notes (Slice 24)
+
+- **War column-status expander (`hud/ColumnStatusExpander.tsx`, `WarRoom.tsx`):** Added `resolveColumnStatus` and `<ColumnStatusExpander>` under `<WarLivingStrip>`, reading `columnStatusSnapshot(state)` (`a6b0eec`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-col-status">` showing active columns, threat/overflow notes, destination coords, remaining ticks/seconds, and strength, hiding cleanly when `null` or `living_column_status` is `false`.
+- **Inspect march ETA note (`hud/MarchEtaNote.tsx`, `ProvinceInspect.tsx`):** Added `resolveMarchEta` and `<MarchEtaNote>` inside `ProvinceInspect` (strictly gated on `seen` to preserve fog secrecy), reading `marchEtaSnapshot(state, provinceId)` (`a6b0eec`, exact match — zero mismatch) to list incoming and outgoing march kinds and ETAs, hiding cleanly when `null`, empty, unseen, or `living_march_eta` is `false`.
+- **War battle-outcome note (`hud/BattleOutcomeNoteLine.tsx`, `WarRoom.tsx`):** Added `resolveBattleOutcomeNote` and `<BattleOutcomeNoteLine>` under `<WarLivingStrip>`, reading `battleOutcomeNoteSnapshot(state)` (`a6b0eec`, exact match — zero mismatch) to display the recent battle line, tick, and recovery/press suggestion, hiding cleanly when `null` or `living_battle_notes` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/column-status.css`, `hud/march-eta.css`, and `hud/battle-outcome-note.css` only (no sim/server math, `theme.css`, `inspect-card.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice24Presentation.test.tsx` (4 tests). Now: sim **851**, app **1709**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 24 (column status, march ETA, battle notes)
 
 - **Column status (`columnStatusSnapshot(state)`):** `{ columns: { id, name, kind, destination, ticksLeft, strength }[], note }` or null with no columns. Every march on the board, soonest first (id breaks ties), cap 6 (`COLUMN_STATUS_CAP`). `name` = owner realm name, `destination` = province id, `ticksLeft` never below 0, `strength` = march arrival's power sum. `note`: `COLUMN_NOTE_THREAT` (rival column heading to home or a player province), else `COLUMN_NOTE_MORE` (more than 6), else null.

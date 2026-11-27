@@ -1,3 +1,14 @@
+## 2026-11-27 — app / living presentation for column status, march ETA & battle outcome notes
+
+- **War column status expander (`packages/app/src/hud/ColumnStatusExpander.tsx`, `packages/app/src/WarRoom.tsx`):**
+  - Exported pure `resolveColumnStatus(state)` wrapping `columnStatusSnapshot(state)` (`a6b0eec`, exact match — zero mismatch) and mounted collapsed `<details class="sc-col-status">` under `<WarLivingStrip>` listing owner, kind, destination coords, `~Ns (Tt)` ETA, power (`strength`), and threat/more notes.
+- **Inspect march ETA note (`packages/app/src/hud/MarchEtaNote.tsx`, `packages/app/src/ProvinceInspect.tsx`):**
+  - Exported pure `resolveMarchEta(state, provinceId)` wrapping `marchEtaSnapshot(state, provinceId)` (`a6b0eec`, exact match — zero mismatch) and mounted `{seen ? <MarchEtaNote ... /> : null}` under `<InspectDetailSection>` so fogged tiles never reveal hidden marches.
+- **War battle outcome note (`packages/app/src/hud/BattleOutcomeNoteLine.tsx`, `packages/app/src/WarRoom.tsx`):**
+  - Exported pure `resolveBattleOutcomeNote(state)` wrapping `battleOutcomeNoteSnapshot(state)` (`a6b0eec`, exact match — zero mismatch) and mounted `<BattleOutcomeNoteLine state={state} />` under `<WarLivingStrip>` rendering `snap.last.text`, tick, and `snap.suggestion`.
+- **Dedicated CSS (`hud/column-status.css`, `hud/march-eta.css`, `hud/battle-outcome-note.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, calm reveal/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, `inspect-card.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice24Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **851**, app **1709**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 24 (column status, march ETA, battle notes)
 
 - **Where:** `columnStatusSnapshot`, `marchEtaSnapshot`, `battleOutcomeNoteSnapshot` in `systems/livingStatus.ts`. Constants (`COLUMN_STATUS_CAP`, `COLUMN_NOTE_*`, `MARCH_ETA_CAP`, `BATTLE_NOTE_*`, `BATTLE_SUGGEST_*`) in `content/livingRealm.ts`.

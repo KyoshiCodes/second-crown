@@ -66,6 +66,8 @@ import { flashAction } from "./hud/ActionFlash";
 import { WarPhaseLine } from "./hud/WarPhaseLine";
 import { JoinableWarsCard } from "./hud/JoinableWarsCard";
 import { JoinedWarOutcomeLine } from "./hud/JoinedWarOutcomeCue";
+import { ColumnStatusExpander } from "./hud/ColumnStatusExpander";
+import { BattleOutcomeNoteLine } from "./hud/BattleOutcomeNoteLine";
 import "./hud/npc-board-clash.css";
 
 export function WarRoom(props: {
@@ -160,6 +162,8 @@ export function WarRoom(props: {
   return (
     <div className="sc-tab-war">
       <WarLivingStrip state={state} />
+      <ColumnStatusExpander state={state} />
+      <BattleOutcomeNoteLine state={state} />
       <MarshalCard state={state} act={act} />
 
       <section className="sc-realm-card" style={card}>
