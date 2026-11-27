@@ -214,6 +214,11 @@ import {
   resolveBoardFeedback,
   type BoardFeedbackView,
 } from "./hud/BoardFeedbackLayer";
+import {
+  BoardUnitWaitingLayer,
+  resolveBoardUnitWaiting,
+  type BoardUnitWaitingView,
+} from "./hud/BoardUnitWaitingLayer";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1077,6 +1082,9 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
         {/* 5.5997. Living Realm Selection, Last Inspected & Pending March Feedback */}
         <BoardFeedbackLayer state={state} selectedId={selectedId} lastInspectedId={lastInspectedId} />
 
+        {/* 5.5998. Living Realm Posted Garrison & Waiting Unit Marks */}
+        <BoardUnitWaitingLayer state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1285,4 +1293,7 @@ export {
   BoardFeedbackLayer,
   resolveBoardFeedback,
   type BoardFeedbackView,
+  BoardUnitWaitingLayer,
+  resolveBoardUnitWaiting,
+  type BoardUnitWaitingView,
 };

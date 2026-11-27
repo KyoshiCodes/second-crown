@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for clash result detail and unit waiting states (Slice 25)
+
+- **War clash result panel (`hud/ClashResultPanel.tsx`, `WarRoom.tsx`):** Added `resolveClashResult` and `<ClashResultPanel>` in place of `<BattleCard>` in `WarRoom`, reading `clashResultSnapshot(state)` (`efb819b`, exact match — zero mismatch) to show sides, realm names, muster strengths (`pwr`), casualties, outcome pill (`Victory` / `Defeat` / `Others fought`), clean/costly note, and optional blow-by-blow fold, hiding completely when `null`, stale, or `living_clash_result` is `false`.
+- **Board unit waiting visuals (`hud/BoardUnitWaitingLayer.tsx`, `BoardLiving.tsx`):** Added `resolveBoardUnitWaiting` and `<BoardUnitWaitingLayer>` reading `unitWaitingSnapshot(state)` (`efb819b`, exact match — zero mismatch) to draw non-blocking (`pointer-events: none`) posted garrison shields and waiting/marching destination rings on seen tiles only (`isProvinceSeen` + home keep guard).
+- **War & Army unit waiting states (`hud/UnitWaitingList.tsx`, `hud/UnitCard.tsx`, `tabs/ArmyTab.tsx`, `WarRoom.tsx`):** Added `resolveUnitWaiting`, `resolveUnitWaitingBadge`, and `<UnitWaitingList>` inside War `Columns` and Army `Posts`, plus phrasing-only `Posted` / `Marching` / `Posted · Marching` badges on matching `<UnitCard>` buttons, hiding cleanly when empty or `living_unit_waiting` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/clash-result.css`, `hud/unit-waiting-board.css`, and `hud/unit-waiting-list.css` only (no combat/garrison/march/pathfinding math, `theme.css`, `battle-card.css`, `BattleCard.tsx`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/overlays, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice25Presentation.test.tsx` (4 tests). Now: sim **866**, app **1713**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 25 (clash result detail, unit waiting states)
 
 - **Clash result (`clashResultSnapshot(state)`):** `{ forces: { side, name, strength, casualties }[], outcome, note }` or null with no stored battle or none within `BATTLE_NOTE_RECENT_TICKS` (1800). Forces in stored order (attacker, defender), cap 4 (`CLASH_FORCE_CAP`). `outcome` = `CLASH_OUTCOME_WON` / `CLASH_OUTCOME_LOST` / `CLASH_OUTCOME_OTHERS`. `note` = `CLASH_NOTE_CLEAN` / `CLASH_NOTE_COSTLY` / null.

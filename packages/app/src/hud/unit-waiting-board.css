@@ -1,0 +1,141 @@
+/* --- Living Realm Slice 25: Board Unit Waiting States (isolated CSS) ---
+ * Loaded from hud/BoardUnitWaitingLayer.tsx.
+ * Leaves theme.css, board-living.css, and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on all overlay elements.
+ * Clear posted vs waiting/marching unit visuals across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-uwb-posted-stroke: rgba(74, 222, 128, 0.72);
+  --sc-uwb-posted-pip: #4ade80;
+  --sc-uwb-posted-bg: rgba(14, 22, 32, 0.88);
+  --sc-uwb-posted-border: rgba(74, 222, 128, 0.5);
+  --sc-uwb-posted-text: #dcfce7;
+  --sc-uwb-waiting-stroke: rgba(251, 191, 36, 0.76);
+  --sc-uwb-waiting-pip: #fbbf24;
+  --sc-uwb-waiting-bg: rgba(14, 20, 32, 0.88);
+  --sc-uwb-waiting-border: rgba(251, 191, 36, 0.54);
+  --sc-uwb-waiting-text: #fef3c7;
+}
+
+:root[data-chrome="night"] {
+  --sc-uwb-posted-stroke: rgba(110, 231, 183, 0.78);
+  --sc-uwb-posted-pip: #6ee7b7;
+  --sc-uwb-posted-bg: rgba(8, 12, 22, 0.92);
+  --sc-uwb-posted-border: rgba(110, 231, 183, 0.56);
+  --sc-uwb-posted-text: #d1fae5;
+  --sc-uwb-waiting-stroke: rgba(253, 224, 71, 0.82);
+  --sc-uwb-waiting-pip: #fde047;
+  --sc-uwb-waiting-bg: rgba(8, 12, 22, 0.92);
+  --sc-uwb-waiting-border: rgba(253, 224, 71, 0.58);
+  --sc-uwb-waiting-text: #fef9c3;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-uwb-posted-stroke: rgba(134, 239, 172, 0.74);
+  --sc-uwb-posted-pip: #86efac;
+  --sc-uwb-posted-bg: rgba(30, 21, 13, 0.9);
+  --sc-uwb-posted-border: rgba(134, 239, 172, 0.52);
+  --sc-uwb-posted-text: #dcfce7;
+  --sc-uwb-waiting-stroke: rgba(250, 204, 21, 0.78);
+  --sc-uwb-waiting-pip: #facc15;
+  --sc-uwb-waiting-bg: rgba(30, 21, 13, 0.9);
+  --sc-uwb-waiting-border: rgba(250, 204, 21, 0.56);
+  --sc-uwb-waiting-text: #fef3c7;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Layer
+   ========================================================================== */
+.sc-uw-board-layer,
+.sc-uw-board-layer * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Posted & Waiting Marks
+   ========================================================================== */
+.sc-uw-posted-rim {
+  fill: none;
+  stroke: var(--sc-uwb-posted-stroke);
+  stroke-width: 0.95;
+}
+
+.sc-uw-posted-pip {
+  fill: var(--sc-uwb-posted-bg);
+  stroke: var(--sc-uwb-posted-pip);
+  stroke-width: 0.85;
+}
+
+.sc-uw-posted-pill-bg {
+  fill: var(--sc-uwb-posted-bg);
+  stroke: var(--sc-uwb-posted-border);
+  stroke-width: 0.55;
+}
+
+.sc-uw-posted-pill-text {
+  fill: var(--sc-uwb-posted-text);
+  font-size: 4.5px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+
+.sc-uw-waiting-rim {
+  fill: none;
+  stroke: var(--sc-uwb-waiting-stroke);
+  stroke-width: 0.95;
+  stroke-dasharray: 2.2 1.8;
+  animation: sc-uw-waiting-dash 4.6s linear infinite;
+}
+
+.sc-uw-waiting-pip {
+  fill: var(--sc-uwb-waiting-pip);
+  animation: sc-uw-pip-pulse 3.4s ease-in-out infinite;
+}
+
+.sc-uw-waiting-pill-bg {
+  fill: var(--sc-uwb-waiting-bg);
+  stroke: var(--sc-uwb-waiting-border);
+  stroke-width: 0.55;
+}
+
+.sc-uw-waiting-pill-text {
+  fill: var(--sc-uwb-waiting-text);
+  font-size: 4.5px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-uw-waiting-dash {
+  from {
+    stroke-dashoffset: 8;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-uw-pip-pulse {
+  0%,
+  100% {
+    opacity: 0.64;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-uw-waiting-rim,
+  .sc-uw-waiting-pip {
+    animation: none !important;
+  }
+}

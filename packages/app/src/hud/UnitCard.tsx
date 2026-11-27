@@ -18,6 +18,7 @@ import "./unit-payoff.css";
 import { ElitePayoffPip, resolveElitePayoffBadge } from "./ElitePayoffPip";
 import type { StarvationState } from "../projection";
 import { UnitStarvePip } from "./StarvationCue";
+import type { UnitWaitingBadgeKind } from "./UnitWaitingList";
 
 export type UnitCardProps = {
   typeId: string;
@@ -43,10 +44,12 @@ export type UnitCardProps = {
   qty?: number;
   /** Optional trained-troop starvation risk ("imminent" | "starving") passed by ArmyTab. */
   starveRisk?: StarvationState | null;
+  /** Optional posted / marching state from unitWaitingSnapshot passed by ArmyTab. */
+  waitingState?: UnitWaitingBadgeKind | null;
 };
 
 export function UnitCard(props: UnitCardProps) {
-  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status, wounded, healing, tier, qty = 1, starveRisk } = props;
+  const { typeId, name, power, cost, blurb, ticks, open, lock, affordable, onTrain, status, wounded, healing, tier, qty = 1, starveRisk, waitingState } = props;
   const bracketNote = open ? unitBracketNote({ costTotal: batchCostTotal(cost, qty), seconds: ticks / 10 }) : null;
   const costText = Object.entries(cost).map(([k, v]) => `${v} ${k}`).join(" · ");
   const elite = isEliteUnitTier(tier);
@@ -69,6 +72,7 @@ export function UnitCard(props: UnitCardProps) {
       className={cls}
       data-elite-tier={elite && tierRank ? `tier-${tierRank}` : undefined}
       data-starve-risk={starveRisk ?? undefined}
+      data-unit-waiting={waitingState ?? undefined}
       title={open ? `${blurb ?? ""} Cost ${costText} each. ${ticks} ticks to drill.`.trim() : lock}
       disabled={!open || !affordable}
       onClick={onTrain}
@@ -118,6 +122,12 @@ export function UnitCard(props: UnitCardProps) {
       </span>
       <UnitTierNote tier={tier} note={bracketNote} />
       {starveRisk ? <UnitStarvePip state={starveRisk} /> : null}
+      {waitingState ? (
+        <span className={`sc-unit-waiting-badge is-${waitingState}`}>
+          <span className="sc-unit-waiting-pip" aria-hidden="true" />
+          {waitingState === "both" ? "Posted · Marching" : waitingState === "posted" ? "Posted" : "Marching"}
+        </span>
+      ) : null}
       {payoff ? (
         <span
           className={`sc-unit-payoff${payoffBadge ? ` is-payoff-${payoffBadge.kind}` : ""}`}

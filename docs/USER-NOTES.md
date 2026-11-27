@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Clash result panel and posted / marching unit states
+
+- **Last clash detail on War:** After a recent clash, the War tab shows each side, muster strength, losses suffered, the Victory / Defeat / Others fought verdict, and whether losses were clean or heavy—hiding quietly when no clash happened recently.
+- **Posted & waiting unit states:** Garrisons posted on flags and companies waiting or marching on the road now show clear calm markers on seen board tiles, in War `Columns` and Army `Posts` lists, and as small `Posted` / `Marching` badges on Army unit cards.
+
 ## 2026-11-27 — The game can now describe the last clash and where your units are waiting
 
 - **Under the hood only.** For a few minutes after a battle the game can list each side, how strong it was and how many it lost, with "Victory", "Defeat" or "Others fought" and a short note.

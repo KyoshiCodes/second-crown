@@ -42,6 +42,7 @@ import { flashAction } from "../hud/ActionFlash";
 import { TrainingPace, lockNote } from "../TrainingPace";
 import { TrainingProgressLine } from "../hud/TrainingProgressLine";
 import { UnitUnlockExpander } from "../hud/UnitUnlockExpander";
+import { UnitWaitingList, resolveUnitWaiting, resolveUnitWaitingBadge } from "../hud/UnitWaitingList";
 import { UpkeepPace } from "../UpkeepPace";
 import { InfirmaryHealLine } from "../InfirmaryHealLine";
 import { BandagePip } from "../hud/BandagePip";
@@ -80,6 +81,7 @@ export function ArmyTab(props: {
   const powerMax = unitTypes.reduce((m, u) => Math.max(m, u.power), 0);
   const queueFull = queue.length >= cap;
   const starve = state ? starvationNote(state) : null;
+  const unitWaiting = resolveUnitWaiting(state);
 
   return (
     <>
@@ -141,6 +143,7 @@ export function ArmyTab(props: {
               wounded={u.id === "militia" ? wounded : 0}
               healing={u.id === "militia" ? isActivelyHealing : false}
               starveRisk={resolveUnitStarveRisk(starve?.state ?? null, u.id, post?.home ?? 0)}
+              waitingState={resolveUnitWaitingBadge(unitWaiting, u.id)}
               onTrain={() =>
                 act((st) => {
                   if (!unitUnlocked(st, u.id)) return lock;
@@ -206,6 +209,7 @@ export function ArmyTab(props: {
               {p.typeId}: home {p.home} · marching {p.marching} · gathering {p.gathering}
             </div>
           ))}
+          <UnitWaitingList state={state} compact />
         </div>
         <div className={["sc-work-card", wounded > 0 && halls < 1 ? "is-scarred" : isActivelyHealing ? "is-staffed is-healing" : "is-empty"].join(" ")}>
           <div className="sc-work-head">

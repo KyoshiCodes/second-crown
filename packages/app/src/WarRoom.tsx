@@ -58,7 +58,8 @@ import { CampLivingRows } from "./hud/CampLivingRows";
 import { forceStatusRows, tripProgress } from "./hud/ForceStatus";
 import { SlotPips } from "./hud/SlotPip";
 import { captainName } from "./hud/captainName";
-import { BattleCard } from "./hud/BattleCard";
+import { ClashResultPanel } from "./hud/ClashResultPanel";
+import { UnitWaitingList } from "./hud/UnitWaitingList";
 import type { ActFn } from "./game/useGameEngine";
 import { getGiftThanks, getWarTaunt } from "./content/flavor";
 import { sfx } from "./sfx";
@@ -257,16 +258,14 @@ export function WarRoom(props: {
 
       <JoinableWarsCard state={state} act={act} />
 
-      <section className="sc-realm-card" style={card}>
-        <strong style={h}>Last battle</strong>
-        <BattleCard story={story} report={lastField?.text} nameOf={nameOf} />
-      </section>
+      <ClashResultPanel state={state} story={story} report={lastField?.text} />
 
       <section className="sc-realm-card" style={card}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
           <strong style={{ margin: 0 }}>Columns</strong>
           <SlotPips state={state} />
         </div>
+        <UnitWaitingList state={state} compact />
         {columns.length === 0 ? (
           <p style={{ margin: "0 0 6px", opacity: 0.7 }}>No column on the road. March from the map.</p>
         ) : (

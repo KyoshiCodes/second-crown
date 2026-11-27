@@ -1,3 +1,12 @@
+## 2026-11-27 — app / living presentation for clash result detail & unit waiting states
+
+- **War clash result panel (`packages/app/src/hud/ClashResultPanel.tsx`, `packages/app/src/WarRoom.tsx`):**
+  - Exported pure `resolveClashResult(state)` wrapping `clashResultSnapshot(state)` (`efb819b`, exact match — zero mismatch) and replaced the `<BattleCard>` slot in `WarRoom` with `<ClashResultPanel>`, hiding completely on `null`, stale battles, or `living_clash_result` off. Renders attacker/defender forces, muster strengths, casualties, fixed outcome badge, optional `snap.note`, and optional collapsed blow-by-blow events. `BattleCard.tsx` and `battle-card.css` remain untouched.
+- **Board & list unit waiting visuals (`packages/app/src/hud/BoardUnitWaitingLayer.tsx`, `UnitWaitingList.tsx`, `UnitCard.tsx`, `BoardLiving.tsx`, `tabs/ArmyTab.tsx`, `WarRoom.tsx`):**
+  - Exported `resolveBoardUnitWaiting(state)`, `<BoardUnitWaitingLayer>`, `resolveUnitWaiting(state)`, `resolveUnitWaitingBadge(snap, typeId)`, and `<UnitWaitingList>` wrapping `unitWaitingSnapshot(state)` (`efb819b`, exact match — zero mismatch). `BoardUnitWaitingLayer` filters `location` and `destination` against `homeProvinceId` and `isProvinceSeen(state, id)` so fogged tiles stay hidden. `UnitCard` only adds `data-unit-waiting` and a phrasing-only `<span>` badge when `waitingState` is non-null.
+- **Dedicated CSS (`hud/clash-result.css`, `hud/unit-waiting-board.css`, `hud/unit-waiting-list.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips and board overlays, calm keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to combat/garrison/march/pathfinding math, `theme.css`, `battle-card.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice25Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **866**, app **1713**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 25 (clash result detail, unit waiting states)
 
 - **Where:** `clashResultSnapshot`, `unitWaitingSnapshot` in `systems/livingStatus.ts`. Constants (`CLASH_FORCE_CAP`, `CLASH_OUTCOME_*`, `CLASH_NOTE_*`, `UNIT_WAITING_CAP`) in `content/livingRealm.ts`. The slice 24 recent-battle lookup is now a shared `recentBattleTick` helper (same behaviour).
