@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Every kingdom writes to you now
+
+- **Whispers reach you in every world.** Before, in some worlds no kingdom ever whispered to you. Now each kingdom takes turns writing to everyone, you included, so you will hear from all of them over time.
+- **Not more whispers overall.** The same number go out as before; they are just shared fairly.
+- **Still quiet in war.** A kingdom you are at war with, or just made peace with, does not whisper to you.
+- **Joined wars** now report column marks (column, skirmish line, clash line, falling back). Not on screen yet; that comes next.
+
 ## 2026-11-26 — Reply buttons on whispers & joined-war formation marks on the map
 
 - **Answer whispers in one click:** When another kingdom sends you a whisper you can answer, 4 calm preset replies in your culture's voice appear underneath (no chat box). Once you send one, your answer tucks neatly under the whisper just like another kingdom's reply.

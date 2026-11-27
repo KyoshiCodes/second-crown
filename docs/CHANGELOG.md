@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-26 — Living Realm slice 8 (fair whisper rotation, column-mark snapshot)
+
+- **Fair whisper rotation (`livingRealm.ts maybeWhisper`):** the listener is now picked by the sender's own turn count instead of the global round. `turn = floor((round + seed) / npcs)` goes up by one each time a sender has the floor, and `to = listeners[(turn + salt) % listeners.length]`, so a sender walks its whole listener list, the player included. With no war or peace lock in the way, every NPC whispers to the player once every `npcs × listeners` rounds (6 realms: 75 pulses per NPC). Before, on 16 of seeds 1–40 the player never got a whisper (with 6 realms, `listeners = npcs`, so `(round + salt) % listeners` was fixed per sender). Same sender, same pulses, same war / peace-lock filter: the number of whispers is unchanged.
+- **Column-mark snapshot (`columnMarkSnapshot(state, atTick?)`):** read-only `ColumnMark | null` for the player's joined war: `{ warId, joinedWarId, ours: { realmIds, names }, theirs: { realmIds, names }, phase, column, active }`. `column` maps `columns → column`, `skirmish → skirmish-line`, `clash → clash-line`, `aftermath → falling-back`. Newest active joined war, else the newest finished one still in its aftermath (`active: false`), else null. Built on `formationSnapshot`; no combat or phase timing change.
+- **Switch:** `living_whisper_fair` (`false` restores the old picker exactly). Counter `flags.living_whispers_to_player`, `livingCounts().playerWhispers`.
+- **Playtest:** Living realm section adds `Player whispers received: N.` (attentive 46 / low-touch 124). Whisper totals unchanged (252 / 660); correspondence replies 201 → 187 and 528 → 489 because more whispers now go to the player, who is never auto-replied for. Balance tables unchanged.
+- **Tests:** new `systems/livingSlice8.test.ts` (15). Harness test expects the new line. Now: sim **585**, app **1646**, app build clean.
+
 ## 2026-11-26 — Living presentation for player whisper replies & joined-war formations
 
 - **Culture whisper reply buttons (`hud/CultureWhispersCard.tsx`, `tabs/WorldTab.tsx`):** Added `listReplyableWhispers` reading `replyableWhispers(state)` and calling `replyToWhisper(st, whisperId, lineIndex)` (`42a7826` shipped `replyableWhispers` / `PLAYER_REPLIES` rather than `playerReplyLines`, `replyToWhisper` exact match). Shows 4 fixed culture reply buttons beneath any whisper the player can answer (zero chat box); once sent, the player's reply pairs directly beneath the whisper via `pairCultureCorrespondence`.

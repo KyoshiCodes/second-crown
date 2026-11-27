@@ -1,3 +1,12 @@
+## 2026-11-26 — sim / Living Realm slice 8 (fair whisper rotation, column-mark snapshot)
+
+- **Why some seeds never whispered to the player:** sender = `npcs[(round + seed) % npcs]`, so a given sender only speaks on rounds `≡ c (mod npcs)`. The old listener index was `(round + salt) % L`. With 6 realms, `L = npcs = 5`, so that index never changed for a given sender: each NPC always whispered to the same realm. If none of them landed on the player, the player heard nothing, ever (16 of seeds 1–40).
+- **Fix (`maybeWhisper`, flag `living_whisper_fair`, on by default):** `turn = floor((round + seed) / npcs.length)` (how many times this sender has spoken; +1 per turn), listener index `(turn + salt) % listeners.length`. Over `L` turns a sender visits every listener once. Sender choice, the `pulse % WHISPER_PULSES` gate, the war filter and the peace-lock filter are unchanged, so whisper count and timing match the old picker tick for tick (tested). If a war or lock shrinks the listener list the rotation keeps going over what is left; the blocked realm is skipped, not forced.
+- **Counter:** `living_whispers_to_player` bumped when `to.id === "player"`; `livingCounts().playerWhispers`; `LivingReport.playerWhispers`; `livingText` line `Player whispers received: N.` (now 10 lines).
+- **Column marks:** content `COLUMN_MARK_IDS = ["column", "skirmish-line", "clash-line", "falling-back"]`, type `ColumnMarkId`. `columnMarkSnapshot(state, atTick = tick)` → `ColumnMark | null`; takes `formationSnapshot` rows, picks the newest `active` one, else the newest (aftermath) one, and maps phase → column id. Pure read. Exported from `index.ts` with `ColumnMark`, `COLUMN_MARK_IDS`, `ColumnMarkId`.
+- **Left alone:** whisper line choice (`lines[(round + salt) % lines.length]`, which also repeats per sender), cadence, `WHISPER_PULSES`, NPC replies and `tickCorrespondence`, `replyToWhisper`, `formationSnapshot`, `joinSide`, `settleNpcWars`, combat formulas, phase timing, balance tables, app/render/server. No app UI reads `columnMarkSnapshot` yet.
+- **Note:** the slice 7 seed note (some seeds never pick the player) is fixed by this slice.
+
 ## 2026-11-26 — app / living presentation for player whisper replies & joined-war formations
 
 - **Culture whisper replies (`packages/app/src/hud/CultureWhispersCard.tsx`, `tabs/WorldTab.tsx`):**

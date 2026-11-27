@@ -211,6 +211,10 @@ export function playerReplyLinesFor(culture: string): readonly string[] {
 export const FORMATION_IDS = ["muster", "skirmish", "clash", "fall-back"] as const;
 export type FormationId = (typeof FORMATION_IDS)[number];
 
+/** Joined-war column-mark ids, in order (slice 8). Presentation only; derived from the war phase. */
+export const COLUMN_MARK_IDS = ["column", "skirmish-line", "clash-line", "falling-back"] as const;
+export type ColumnMarkId = (typeof COLUMN_MARK_IDS)[number];
+
 // ---------------------------------------------------------------- NPC board activity (slice 2)
 
 /** An NPC realm tries to plant a claim marker every N world pulses (staggered by realm salt). */

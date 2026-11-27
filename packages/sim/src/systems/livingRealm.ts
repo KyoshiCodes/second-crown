@@ -19,6 +19,7 @@ import {
   whisperReplyLinesFor,
   playerReplyLinesFor,
   type FormationId,
+  type ColumnMarkId,
   type WarPhaseId,
 } from "../content/livingRealm.js";
 import { realmPower } from "./combat.js";
@@ -55,6 +56,12 @@ export interface LivingSwitches {
   correspondence: boolean;
   /** The player may answer a whisper they received with one fixed line (replyToWhisper). False hides the action. */
   playerReply: boolean;
+  /**
+   * Fair whisper listener rotation: each sender walks its listener list one step per turn, so
+   * every listener (the player included) hears from every sender in turn. False: the old picker,
+   * which can lock a sender onto one listener forever.
+   */
+  whisperFair: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -71,6 +78,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   joinNpcWar: "living_join_npc_war",
   correspondence: "living_correspondence",
   playerReply: "living_player_reply",
+  whisperFair: "living_whisper_fair",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -171,6 +179,7 @@ export function livingCounts(state: GameState): {
   homeRaids: number;
   replies: number;
   playerReplies: number;
+  playerWhispers: number;
 } {
   return {
     trades: count(state, "living_trades"),
@@ -185,6 +194,7 @@ export function livingCounts(state: GameState): {
     homeRaids: count(state, "living_home_raids"),
     replies: count(state, "living_replies_sent"),
     playerReplies: count(state, "living_player_replies"),
+    playerWhispers: count(state, "living_whispers_to_player"),
   };
 }
 
@@ -230,6 +240,12 @@ export function maybeNpcTrade(state: GameState, realmId: string, atTick: number)
 /**
  * One realm whisper every WHISPER_PULSES pulses: an NPC realm sends a short line from its
  * culture's table to a realm it is not at war with (the player included). Pure text.
+ *
+ * Sender: NPCs take turns by round + seed (unchanged). Listener, with `living_whisper_fair` on:
+ * `turn` counts how many times this sender has had the floor, and the listener index steps by
+ * one per turn, so over L turns (L = listeners) a sender reaches every listener once. With no
+ * war or peace lock in the way, every NPC whispers to the player once every npcs × L rounds.
+ * Off: the old index (round + salt), which with L = npcs always lands on the same listener.
  */
 export function maybeWhisper(state: GameState, atTick: number): CultureNews | null {
   if (!livingSwitches(state).whispers) return null;
@@ -246,7 +262,9 @@ export function maybeWhisper(state: GameState, atTick: number): CultureNews | nu
   );
   if (!listeners.length) return null;
   const salt = realmSalt(from.id);
-  const to = listeners[(round + salt) % listeners.length];
+  const turn = Math.floor((round + state.meta.seed) / npcs.length);
+  const pick = livingSwitches(state).whisperFair ? turn + salt : round + salt;
+  const to = listeners[pick % listeners.length];
   const lines = whisperLinesFor(cultureOfRealm(state, from.id));
   const line = lines[(round + salt) % lines.length].replace(/\{to\}/g, to.name);
   const item: CultureNews = {
@@ -265,6 +283,7 @@ export function maybeWhisper(state: GameState, atTick: number): CultureNews | nu
   }
   pushCultureNews(state, item);
   bumpCount(state, "living_whispers_sent");
+  if (to.id === "player") bumpCount(state, "living_whispers_to_player");
   return item;
 }
 
@@ -896,6 +915,52 @@ export function formationSnapshot(state: GameState, atTick = state.meta.tick): J
     });
   }
   return out;
+}
+
+// ---------------------------------------------------------------- column marks (slice 8)
+
+/** Column marks for the player's joined war, by phase. Read-only; no combat formula or phase timing. */
+export interface ColumnMark {
+  /** The player's war (war_join_…). */
+  warId: string;
+  /** The NPC-vs-NPC war the player joined. */
+  joinedWarId: string;
+  /** The player and the ally they ride beside. */
+  ours: FormationSide;
+  /** The realm they fight. */
+  theirs: FormationSide;
+  phase: WarPhaseId;
+  /** columns → column, skirmish → skirmish-line, clash → clash-line, aftermath → falling-back. */
+  column: ColumnMarkId;
+  /** False only while a finished joined war shows its aftermath (falling-back). */
+  active: boolean;
+}
+
+const COLUMN_OF: Record<WarPhaseId, ColumnMarkId> = {
+  columns: "column",
+  skirmish: "skirmish-line",
+  clash: "clash-line",
+  aftermath: "falling-back",
+};
+
+/**
+ * Column marks for the player's joined war: the newest active joined war, else the newest
+ * finished one still showing its aftermath ("falling-back"), else null. Phase comes from
+ * warPhase, unchanged. Pure read.
+ */
+export function columnMarkSnapshot(state: GameState, atTick = state.meta.tick): ColumnMark | null {
+  const rows = formationSnapshot(state, atTick);
+  const pick = [...rows].reverse().find((r) => r.active) ?? [...rows].reverse()[0];
+  if (!pick) return null;
+  return {
+    warId: pick.warId,
+    joinedWarId: pick.joinedWarId,
+    ours: pick.ours,
+    theirs: pick.theirs,
+    phase: pick.phase,
+    column: COLUMN_OF[pick.phase],
+    active: pick.active,
+  };
 }
 
 // ---------------------------------------------------------------- war imagery (slice 5)

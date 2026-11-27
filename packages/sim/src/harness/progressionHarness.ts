@@ -107,6 +107,8 @@ export interface LivingReport {
   joinableWarsSeen: number;
   /** Whisper replies sent (slice 6 correspondence). */
   replies: number;
+  /** Whispers an NPC sent to the player (slice 8 fair rotation). */
+  playerWhispers: number;
   workers: {
     /** First bot look with at least one citizen at a post. */
     firstPostedTick: number | null;
@@ -443,6 +445,7 @@ export function livingText(r: ProgressionReport): string {
     `Home raids fired: ${l.homeRaids}.`,
     `Joinable wars seen: ${l.joinableWarsSeen}.`,
     `Correspondence replies seen: ${l.replies}.`,
+    `Player whispers received: ${l.playerWhispers}.`,
     `Workers had posts: ${w.firstPostedTick !== null ? "yes" : "no"} (first at ${clock(w.firstPostedTick)}, most posted ${w.maxPosted}). End: ${Object.entries(w.end).map(([k, v]) => `${k} ${v}`).join(", ")}.`,
   ].join("\n");
 }
