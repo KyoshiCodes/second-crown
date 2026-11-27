@@ -1,3 +1,11 @@
+## 2026-11-26 — app / living presentation for joined-war column marks
+
+- **Board column marks (`packages/app/src/hud/BoardColumnMarks.tsx`, `BoardLiving.tsx`):**
+  - Exported `COLUMN_MARK_LABEL`, `BoardColumnMarkView`, pure `resolveBoardColumnMark(state)` (guards `!state?.board?.provinces || !state.flags || !state.meta || !Array.isArray(state.wars)`), and `<BoardColumnMarks>` (`pointer-events: none !important;`).
+  - Reads `columnMarkSnapshot(state)` from `@second-crown/sim` (`d536270`, exact match — zero mismatch): anchors opposing culture-kit column standards + 3 trailing rank dots at 28% / 72% along the road line between holds (`ourDir` / `theirDir` flip on `"falling-back"`), and places the compact phase pill at `(midX, midY + 27)` cleanly below `BoardJoinedFormations` (`midY + 14`) so both layers stay distinct and non-overlapping. Zero blood or gore.
+- **Dedicated CSS (`packages/app/src/hud/column-marks.css`):** Imported from `BoardColumnMarks.tsx`. Dusk/Night/Parchment chrome tokens, strict `pointer-events: none !important;`, calm keyframes (`sc-colmark-road-flow`, `sc-colmark-stride`, `sc-colmark-pulse`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to the whisper picker (`CultureWhispersCard.tsx`, `WorldTab.tsx`), `theme.css`, `board-living.css`, `player-reply-formation.css`, `war-join-imagery.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/ColumnMarks.test.tsx`):** 3 tests passing (`npm test` -> sim **585**, app **1649**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-26 — sim / Living Realm slice 8 (fair whisper rotation, column-mark snapshot)
 
 - **Why some seeds never whispered to the player:** sender = `npcs[(round + seed) % npcs]`, so a given sender only speaks on rounds `≡ c (mod npcs)`. The old listener index was `(round + salt) % L`. With 6 realms, `L = npcs = 5`, so that index never changed for a given sender: each NPC always whispered to the same realm. If none of them landed on the player, the player heard nothing, ever (16 of seeds 1–40).

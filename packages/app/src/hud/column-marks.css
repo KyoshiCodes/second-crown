@@ -1,0 +1,163 @@
+/* --- Living Realm Slice 8: Joined-War Board Column Marks (isolated CSS) ---
+ * Loaded from hud/BoardColumnMarks.tsx.
+ * Leaves theme.css, board-living.css, player-reply-formation.css,
+ * and war-join-imagery.css untouched.
+ * Strict pointer-events: none !important on all overlay elements.
+ * Calm column standards & short phase marks — no blood or gore.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-colmark-column-rgb: 142, 182, 218;
+  --sc-colmark-skirmish-rgb: 224, 174, 88;
+  --sc-colmark-clash-rgb: 242, 194, 84;
+  --sc-colmark-fallback-rgb: 156, 170, 186;
+  --sc-colmark-pill-bg: rgba(14, 20, 32, 0.86);
+  --sc-colmark-pill-text: #efe4cd;
+}
+
+:root[data-chrome="night"] {
+  --sc-colmark-column-rgb: 158, 198, 234;
+  --sc-colmark-skirmish-rgb: 236, 188, 102;
+  --sc-colmark-clash-rgb: 248, 206, 104;
+  --sc-colmark-fallback-rgb: 168, 182, 198;
+  --sc-colmark-pill-bg: rgba(10, 14, 24, 0.9);
+  --sc-colmark-pill-text: #f3ead6;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-colmark-column-rgb: 162, 194, 206;
+  --sc-colmark-skirmish-rgb: 224, 168, 78;
+  --sc-colmark-clash-rgb: 238, 186, 74;
+  --sc-colmark-fallback-rgb: 178, 168, 152;
+  --sc-colmark-pill-bg: rgba(30, 21, 13, 0.88);
+  --sc-colmark-pill-text: #f5e6c8;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Layer
+   ========================================================================== */
+.sc-colmark-layer,
+.sc-colmark-layer *,
+.sc-colmark-entry,
+.sc-colmark-road,
+.sc-colmark-column,
+.sc-colmark-dot,
+.sc-colmark-badge {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Opposing Column Marks & Short Phase Badge
+   ========================================================================== */
+.sc-colmark-road {
+  fill: none;
+  stroke: rgba(var(--sc-colmark-column-rgb), 0.48);
+  stroke-width: 0.85;
+  stroke-dasharray: 1.8 2.8;
+  stroke-linecap: round;
+  animation: sc-colmark-road-flow 4.6s linear infinite;
+}
+
+.sc-colmark-entry.is-col-skirmish-line .sc-colmark-road {
+  stroke: rgba(var(--sc-colmark-skirmish-rgb), 0.56);
+}
+
+.sc-colmark-entry.is-col-clash-line .sc-colmark-road {
+  stroke: rgba(var(--sc-colmark-clash-rgb), 0.68);
+  stroke-dasharray: 3.2 1.8;
+}
+
+.sc-colmark-entry.is-col-falling-back .sc-colmark-road {
+  stroke: rgba(var(--sc-colmark-fallback-rgb), 0.4);
+  stroke-dasharray: 1.4 3.4;
+  animation: none;
+}
+
+.sc-colmark-column {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sc-colmark-stride 3s ease-in-out infinite;
+}
+
+.sc-colmark-entry.is-col-falling-back .sc-colmark-column {
+  opacity: 0.74;
+  animation: none;
+}
+
+.sc-colmark-dot {
+  animation: sc-colmark-pulse 3.2s ease-in-out infinite;
+}
+
+.sc-colmark-badge-bg {
+  fill: var(--sc-colmark-pill-bg);
+  stroke: rgba(var(--sc-colmark-column-rgb), 0.56);
+  stroke-width: 0.65;
+  stroke-dasharray: 2.2 1.2;
+}
+
+.sc-colmark-entry.is-col-skirmish-line .sc-colmark-badge-bg {
+  stroke: rgba(var(--sc-colmark-skirmish-rgb), 0.64);
+}
+
+.sc-colmark-entry.is-col-clash-line .sc-colmark-badge-bg {
+  stroke: rgba(var(--sc-colmark-clash-rgb), 0.74);
+  stroke-dasharray: none;
+}
+
+.sc-colmark-entry.is-col-falling-back .sc-colmark-badge-bg {
+  stroke: rgba(var(--sc-colmark-fallback-rgb), 0.52);
+}
+
+.sc-colmark-badge-text {
+  fill: var(--sc-colmark-pill-text);
+  font-size: 4.8px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-colmark-road-flow {
+  from {
+    stroke-dashoffset: 9.2;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-colmark-stride {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.88;
+  }
+  50% {
+    transform: translateY(-0.6px);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-colmark-pulse {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-colmark-road,
+  .sc-colmark-column,
+  .sc-colmark-dot {
+    animation: none !important;
+  }
+}

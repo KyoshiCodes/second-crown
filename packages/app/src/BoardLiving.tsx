@@ -188,6 +188,12 @@ import {
   listBoardJoinedFormations,
   type BoardJoinedFormationPoint,
 } from "./hud/BoardJoinedFormations";
+import {
+  BoardColumnMarks,
+  COLUMN_MARK_LABEL,
+  resolveBoardColumnMark,
+  type BoardColumnMarkView,
+} from "./hud/BoardColumnMarks";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1035,6 +1041,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.599. Living Realm Joined-War Formation Marks (opposing standards & phase mark) */}
         <BoardJoinedFormations state={state} />
 
+        {/* 5.5995. Living Realm Joined-War Column Marks (opposing column standards & phase mark) */}
+        <BoardColumnMarks state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1227,4 +1236,8 @@ export {
   BoardJoinedFormations,
   listBoardJoinedFormations,
   type BoardJoinedFormationPoint,
+  BoardColumnMarks,
+  COLUMN_MARK_LABEL,
+  resolveBoardColumnMark,
+  type BoardColumnMarkView,
 };

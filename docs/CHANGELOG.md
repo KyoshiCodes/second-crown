@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for joined-war column marks
+
+- **Joined-war board column marks (`hud/BoardColumnMarks.tsx`, `BoardLiving.tsx`):** Added `COLUMN_MARK_LABEL`, `resolveBoardColumnMark`, and `<BoardColumnMarks>` inside `BoardLiving`, reading `columnMarkSnapshot(state)` from `@second-crown/sim` (`d536270`, exact name match — zero mismatch). Renders opposing culture-kit column standards with trailing march rank dots (`28%` / `72%` between the holds) along a subtle dotted road and a compact phase mark badge (`Column`, `Skirmish line`, `Clash line`, `Falling back`) positioned distinctly from `BoardJoinedFormations` (`pointer-events: none !important;`, zero blood or gore).
+- **Unchanged invariants & accessibility:** Dedicated `hud/column-marks.css` only (`CultureWhispersCard.tsx`, `WorldTab.tsx`, `theme.css`, `board-living.css`, `player-reply-formation.css`, `war-join-imagery.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/ColumnMarks.test.tsx` (3 tests). Now: sim **585**, app **1649**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 8 (fair whisper rotation, column-mark snapshot)
 
 - **Fair whisper rotation (`livingRealm.ts maybeWhisper`):** the listener is now picked by the sender's own turn count instead of the global round. `turn = floor((round + seed) / npcs)` goes up by one each time a sender has the floor, and `to = listeners[(turn + salt) % listeners.length]`, so a sender walks its whole listener list, the player included. With no war or peace lock in the way, every NPC whispers to the player once every `npcs × listeners` rounds (6 realms: 75 pulses per NPC). Before, on 16 of seeds 1–40 the player never got a whisper (with 6 realms, `listeners = npcs`, so `(round + salt) % listeners` was fixed per sender). Same sender, same pulses, same war / peace-lock filter: the number of whispers is unchanged.
