@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 16 (system status snapshots)
+
+- **Economy (`economyPressureSnapshot(state)`):** `{ foodPressure, woodPressure, stonePressure, goldPressure, fullStores, bareFood }`. Each pressure is `"low" | "ok" | "high"`: high = under 25% of cap with net per second ≤ 0 (food: also whenever the larder is bare); low = at or over 75% of cap with net ≥ 0; ok otherwise. Net = `computeIncomePerSecond`, minus army upkeep for food. `fullStores` = resource ids from `storageHint.fullStores`. `bareFood` = new `isBareFood`, same rule as render's `isFoodStoresEmptyOrLow` (food ≤ max(5, 50 ticks of upkeep)).
+- **Research (`researchProgressSnapshot(state)`):** `{ active, completedCount, nextAvailable }`. active = `{ id, name, ticksLeft, totalTicks }` or null. nextAvailable = name of the first study in table order the player could start (Keep level, prerequisite, one needed building; cost and the one-study lock ignored), or null.
+- **Court (`courtStatusSnapshot(state)`):** `{ activeDecrees, openSlots, lastDecree }`; null when the player has no character. openSlots = decrees not running (one of each at a time). lastDecree = `{ id, name, startedTick, active }` from the stored end tick, or null.
+- **Board (`boardFeedbackSnapshot(state, view?)`):** `{ selectedProvince, lastInspected, pendingMarch }`. Selection is app state, so the app passes `{ selectedProvinceId, lastInspectedProvinceId }`; unknown or missing ids give null. pendingMarch = the player's column on the road (`activePlayerMarch`) with `arrivesInTicks`, or null.
+- **Switches:** `living_economy_status`, `living_research_status`, `living_court_status`, `living_board_feedback` (all on). `false`: that snapshot returns null.
+- **Read-only:** yields, trade, caps, research pacing, decree math, selection and pathfinding untouched. Snapshots never write state (lazy research flag writes go to a throwaway flags copy).
+- **Playtest:** one line. Balance tables unchanged.
+- **Tests:** new `systems/livingSlice16.test.ts` (20). Now: sim **717**, app **1673**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for board friendly routes (Slice 15)
 
 - **Board friendly routes (`hud/BoardFriendlyRoutes.tsx`, `BoardLiving.tsx`):** Added `listBoardFriendlyRoutes` and `<BoardFriendlyRoutes>` right before `<BoardFriendlyPresence>`, reading `friendlyRoutesSnapshot(state)` (`4ff15ac`, exact match — zero mismatch). Renders non-blocking (`pointer-events: none !important;`), fog-respecting culture-kit gradient arcs between seen friendly holds trimmed away from hold pips/standards (`strength` `1` subtle peace arc, `2` medium pact/trade arc + waymarker, `3` stronger trade + pact arc with `.sc-froute-glow` and gold diamond waymarker; zero blood/gore).

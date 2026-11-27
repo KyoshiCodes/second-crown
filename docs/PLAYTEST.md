@@ -163,6 +163,8 @@ Relationship summary available: up to 8 known realms with stance (war / peace / 
 
 Friendly routes available: up to 8 quiet paths between pairs of friendly realms, kind peace / pact / trade, strength 1 / 2 / 3 (`living_friendly_routes`). Read-only.
 
+System status snapshots available: economy pressure, research progress, court status and board feedback (`living_economy_status`, `living_research_status`, `living_court_status`, `living_board_feedback`). Read-only.
+
 Attentive:
 
 ```

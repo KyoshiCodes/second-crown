@@ -242,6 +242,13 @@ export const RELATIONSHIP_SUMMARY_CAP = 8;
 /** Most quiet routes between friendly realms the board shows at once (slice 15). */
 export const FRIENDLY_ROUTES_CAP = 8;
 
+// ---------------------------------------------------------------- system status (slice 16)
+
+/** Below this share of its cap, with net income at or under zero, a store is under "high" pressure. */
+export const ECONOMY_PRESSURE_HIGH_FILL = 0.25;
+/** At or above this share of its cap, with net income at or over zero, a store is under "low" pressure. */
+export const ECONOMY_PRESSURE_LOW_FILL = 0.75;
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

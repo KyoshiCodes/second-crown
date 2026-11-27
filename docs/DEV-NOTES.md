@@ -1,3 +1,13 @@
+## 2026-11-27 — sim / Living Realm slice 16 (system status snapshots)
+
+- **File:** new `systems/livingStatus.ts`; thresholds `ECONOMY_PRESSURE_HIGH_FILL` (0.25) and `ECONOMY_PRESSURE_LOW_FILL` (0.75) in `content/livingRealm.ts`. Four switches added to `LivingSwitches` (`economyStatus`, `researchStatus`, `courtStatus`, `boardFeedback`).
+- **Purity trap:** `researchDone` / `researchTicksLeft` write `research_<id> = 1` when a study's finish tick has passed, and `computeIncomePerSecond` reaches them through the yield math. The economy snapshot calls income on `readCopy(state)` (same object, fresh `flags`). The research snapshot uses its own `studyKnown`, which never writes. A test proves the state is byte-identical after all four calls with an overdue study.
+- **bareFood:** `isBareFood` copies render's `isFoodStoresEmptyOrLow` rule (the sim cannot import render). If one changes, change both.
+- **Court null:** "no court" = no character with `realmId === "player"`. lastDecree is derived from `decree_<id>_until - ticks` (tryDecree logs nothing); ties go to DECREES order.
+- **Board:** the sim has no selection; `useGameEngine` holds `selectedProvinceId` in React state. The snapshot takes a `BoardView` argument. There is no last-inspected state in the app yet; the app would need to track it to pass it.
+- **Counts test:** three seeds × 600 real `TickEngine` ticks with starter buildings, snapshots called every 20 ticks on one state, all four flags off on the other: identical `livingCounts`, resources, units, buildings, wars and flags (apart from the switches).
+- **Left alone:** economy, storage, research, decree, march and selection code; balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for board friendly routes
 
 - **Board routes layer (`packages/app/src/hud/BoardFriendlyRoutes.tsx`, `BoardLiving.tsx`):**

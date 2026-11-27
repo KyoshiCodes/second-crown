@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game now keeps a short status on your stores, studies, court and map clicks
+
+- **Under the hood only.** The game can now tell, at a glance, which stores are running low or filling up, what you're studying and what you could study next, which decrees are running, and what you've selected on the map and where your column is heading.
+- **Nothing else changes.** Income, research times, decrees and movement work exactly as before.
+- **Coming to the screen:** compact status lines that use this.
+
 ## 2026-11-27 — Friendly routes drawn on the map
 
 - **Quiet arcs between friendly holds:** When visible friendly neighbors trade, share a war pact beside you, or keep peace with each other, calm culture-tinted arcs now link their holds on the map without blocking clicks or covering banners (stronger paths show a gentle waymarker or soft gold-trimmed glow).

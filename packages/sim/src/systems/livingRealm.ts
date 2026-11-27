@@ -108,6 +108,14 @@ export interface LivingSwitches {
    * friendly realms. False: empty list. Read-only either way.
    */
   friendlyRoutes: boolean;
+  /** Economy status (slice 16): economyPressureSnapshot. False: null. Read-only either way. */
+  economyStatus: boolean;
+  /** Research status (slice 16): researchProgressSnapshot. False: null. Read-only either way. */
+  researchStatus: boolean;
+  /** Court status (slice 16): courtStatusSnapshot. False: null. Read-only either way. */
+  courtStatus: boolean;
+  /** Board feedback (slice 16): boardFeedbackSnapshot. False: null. Read-only either way. */
+  boardFeedback: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -132,6 +140,10 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   boardPresence: "living_board_presence",
   relationshipSummary: "living_relationship_summary",
   friendlyRoutes: "living_friendly_routes",
+  economyStatus: "living_economy_status",
+  researchStatus: "living_research_status",
+  courtStatus: "living_court_status",
+  boardFeedback: "living_board_feedback",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

@@ -382,6 +382,25 @@ export {
 export type { FlagContestSnapshot, FlagContestEntry, FlagCooldownEntry, FlagContestRecord } from "./systems/flagContest.js";
 export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry, PendingReply, JoinedWarOutcome, ReplyableWhisper, JoinedWarFormation, FormationSide, ColumnMark, ColumnRanks, NextWhisperHint, LastWhisperSummary, FriendlyPresence, FriendlyPresenceKind, FriendlyRoute, FriendlyRouteKind, StandardStrength, RealmRelationship, RelationshipStance, RelationshipInteraction, RelationshipNext } from "./systems/livingRealm.js";
 export {
+  economyPressureSnapshot,
+  isBareFood,
+  researchProgressSnapshot,
+  courtStatusSnapshot,
+  boardFeedbackSnapshot,
+} from "./systems/livingStatus.js";
+export type {
+  PressureLevel,
+  EconomyPressure,
+  ResearchActive,
+  ResearchProgress,
+  CourtDecreeRef,
+  CourtStatus,
+  BoardFeedbackProvince,
+  PendingMarch,
+  BoardFeedback,
+  BoardView,
+} from "./systems/livingStatus.js";
+export {
   WAR_PHASE_IDS,
   WAR_PHASE_START,
   WAR_PHASE_TITLE,
@@ -401,6 +420,8 @@ export {
   FRIENDLY_TRADE_WINDOW_TICKS,
   RELATIONSHIP_SUMMARY_CAP,
   FRIENDLY_ROUTES_CAP,
+  ECONOMY_PRESSURE_HIGH_FILL,
+  ECONOMY_PRESSURE_LOW_FILL,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,
