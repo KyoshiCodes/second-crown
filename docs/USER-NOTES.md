@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now count who does what
+
+- **Under the hood only.** The game can now say how many villagers have no trade, how many work each job (farmer, miner and so on), and which of your buildings each job works at.
+- **Staffing:** it can also count buildings with no worker and idle villagers, with a short line like "Idle villagers could staff your empty works."
+- **Nothing else changes.** Hiring, jobs and building bonuses work exactly as before.
+- **Coming to the screen:** a people and jobs summary.
+
 ## 2026-11-27 — Housekeeping
 
 - **Nothing changes in the game.** Notes and handoff docs were tidied, and the inspect card now gets tile names from the same list as the rest of the game. The names you see are the same.

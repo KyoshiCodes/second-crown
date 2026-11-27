@@ -175,6 +175,8 @@ Research progress, study-effect previews, and academy feedback available (`livin
 
 Decree-effect summaries and richer inspect detail available (`living_decree_effects`, `living_inspect_detail`). Read-only.
 
+Job summary and staffing pressure available (`living_job_summary`, `living_staffing_pressure`). Read-only.
+
 Attentive:
 
 ```

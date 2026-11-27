@@ -357,6 +357,18 @@ export const INSPECT_NOTE_THREAT = "A foreign column is heading here.";
 export const INSPECT_NOTE_WORKED = "A crew is gathering here.";
 export const INSPECT_NOTE_DEPLETED = "Picked clean. It regrows slowly.";
 
+// ---------------------------------------------------------------- job summary, staffing pressure (slice 22)
+
+/** Slice 22: most buildings jobSummarySnapshot lists per job (finished player works that take it, board order). */
+export const JOB_SUMMARY_BUILDING_CAP = 3;
+
+/** Slice 22: empty works and idle villagers both present. */
+export const STAFFING_NOTE_ASSIGN = "Idle villagers could staff your empty works.";
+/** Slice 22: empty works, no idle villagers. */
+export const STAFFING_NOTE_SHORT = "Works stand empty and no one is idle.";
+/** Slice 22: idle villagers, no empty works. */
+export const STAFFING_NOTE_SPARE = "Villagers are idle with no empty works.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

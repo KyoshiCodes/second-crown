@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 22 (job summary, staffing pressure)
+
+- **Job summary (`jobSummarySnapshot(state)`):** `{ idle, byJob: { id, name, count, buildings: { id, name, x, y }[] }[] }` or null with no player citizens. `idle` = player citizens with job `unassigned`. `byJob` = real jobs in `CITIZEN_JOBS` order (`unassigned` excluded) with at least one worker or one finished player work, so its length never exceeds the 6 real jobs. `name` from `CITIZEN_JOBS`. `buildings` = finished player works whose `jobForBuildingType` is that job, board order, cap 3 (`JOB_SUMMARY_BUILDING_CAP`), building name from `getBuildingType`.
+- **Staffing pressure (`staffingPressureSnapshot(state)`):** `{ emptyBuildings, idleVillagers, note }` or null when both are 0. `emptyBuildings` = `emptyStaffWorks(state).length` (same rule as the existing staff hint: finished player works with a trade and no matching worker on the tile; keep, walls, gate, cottage, house, watchtower skipped). `idleVillagers` = player `unassigned` citizens. `note`: `STAFFING_NOTE_ASSIGN` (both), `STAFFING_NOTE_SHORT` (empty works only), `STAFFING_NOTE_SPARE` (idle only).
+- **Switches:** `living_job_summary`, `living_staffing_pressure` (false: null). Both on.
+- **Read-only:** assignment rules (`tryAssignCitizen`, `hireCitizenForBuilding`), citizen and staff math (`staffBonus`), housing, balance tables untouched. No writes (tested).
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice22.test.ts` (13). Now: sim **822**, app **1698**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Docs hygiene + shared inspect tile names
 
 - **HANDOFF:** current tip recorded as `59961f3`; new "Current status" summary under Live; every `wave/*` / `bakeoff/*` entry that said "not merged" now says "merged, live" (all 28 checked with `git merge-base --is-ancestor`); test counts updated to sim **809**, app **1698**, server **158**.

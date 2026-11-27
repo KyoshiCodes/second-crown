@@ -400,6 +400,8 @@ export {
   academyFeedbackSnapshot,
   decreeEffectSummarySnapshot,
   inspectDetailSnapshot,
+  jobSummarySnapshot,
+  staffingPressureSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -430,6 +432,10 @@ export type {
   InspectStock,
   InspectMarch,
   InspectDetail,
+  JobBuilding,
+  JobSummaryEntry,
+  JobSummary,
+  StaffingPressure,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -479,6 +485,10 @@ export {
   INSPECT_NOTE_THREAT,
   INSPECT_NOTE_WORKED,
   INSPECT_NOTE_DEPLETED,
+  JOB_SUMMARY_BUILDING_CAP,
+  STAFFING_NOTE_ASSIGN,
+  STAFFING_NOTE_SHORT,
+  STAFFING_NOTE_SPARE,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

@@ -141,6 +141,10 @@ export interface LivingSwitches {
   decreeEffects: boolean;
   /** Inspect detail (slice 21): inspectDetailSnapshot. False: null. Read-only either way. */
   inspectDetail: boolean;
+  /** Job summary (slice 22): jobSummarySnapshot. False: null. Read-only either way. */
+  jobSummary: boolean;
+  /** Staffing pressure (slice 22): staffingPressureSnapshot. False: null. Read-only either way. */
+  staffingPressure: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -181,6 +185,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   academyFeedback: "living_academy_feedback",
   decreeEffects: "living_decree_effects",
   inspectDetail: "living_inspect_detail",
+  jobSummary: "living_job_summary",
+  staffingPressure: "living_staffing_pressure",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

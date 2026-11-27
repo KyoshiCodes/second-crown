@@ -1,4 +1,4 @@
-import type { GameState } from "@second-crown/shared";
+import type { CitizenJobId, GameState } from "@second-crown/shared";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { D } from "../core/decimal.js";
 import { countBuilding, getBuildingType } from "../content/buildings.js";
@@ -23,6 +23,10 @@ import {
   INSPECT_NOTE_THREAT,
   INSPECT_NOTE_WORKED,
   INSPECT_OUTPOST_CAP,
+  JOB_SUMMARY_BUILDING_CAP,
+  STAFFING_NOTE_ASSIGN,
+  STAFFING_NOTE_SHORT,
+  STAFFING_NOTE_SPARE,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -44,6 +48,9 @@ import { GATHER_NODES, listGathers } from "./gather.js";
 import { nodeStock, nodeStockMax } from "./nodeStock.js";
 import { listOutposts } from "./outpost.js";
 import { settlementName } from "../actions/settlement.js";
+import { jobForBuildingType } from "./citizens.js";
+import { CITIZEN_JOBS } from "../content/citizens.js";
+import { emptyStaffWorks } from "./staffHint.js";
 
 /**
  * Living Realm slice 16: compact system status for the HUD. Every function here is a pure
@@ -751,4 +758,86 @@ export function inspectDetailSnapshot(state: GameState, provinceId: string): Ins
     marches,
     notes: notes.slice(0, INSPECT_NOTE_CAP),
   };
+}
+
+// ---------------------------------------------------------------- job summary (slice 22)
+
+export interface JobBuilding {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+}
+
+export interface JobSummaryEntry {
+  id: CitizenJobId;
+  name: string;
+  /** Player citizens holding this job. */
+  count: number;
+  /** Finished player works that take this job (jobForBuildingType), board order, cap JOB_SUMMARY_BUILDING_CAP. */
+  buildings: JobBuilding[];
+}
+
+export interface JobSummary {
+  /** Player citizens with no trade ("unassigned"). */
+  idle: number;
+  /** Real jobs (CITIZEN_JOBS order, "unassigned" excluded) with a worker or a finished work; never more than the job count. */
+  byJob: JobSummaryEntry[];
+}
+
+/**
+ * Slice 22: who does what. Null with no player citizens or living_job_summary off.
+ * Pure read; assignment rules untouched.
+ */
+export function jobSummarySnapshot(state: GameState): JobSummary | null {
+  if (!livingSwitches(state).jobSummary) return null;
+  const people = state.citizens.filter((c) => c.realmId === "player");
+  if (people.length === 0) return null;
+  const works = state.buildings.filter((b) => b.realmId === "player" && b.completesAtTick === null);
+  const byJob: JobSummaryEntry[] = [];
+  for (const job of Object.values(CITIZEN_JOBS)) {
+    if (job.id === "unassigned") continue;
+    const count = people.filter((c) => c.job === job.id).length;
+    const all = works.filter((b) => jobForBuildingType(b.typeId) === job.id);
+    if (count === 0 && all.length === 0) continue;
+    byJob.push({
+      id: job.id,
+      name: job.name,
+      count,
+      buildings: all.slice(0, JOB_SUMMARY_BUILDING_CAP).map((b) => ({
+        id: b.id,
+        name: getBuildingType(b.typeId)?.name ?? b.typeId,
+        x: b.x,
+        y: b.y,
+      })),
+    });
+  }
+  return { idle: people.filter((c) => c.job === "unassigned").length, byJob };
+}
+
+// ---------------------------------------------------------------- staffing pressure (slice 22)
+
+export interface StaffingPressure {
+  /** Finished player works with no matching worker on their tile (emptyStaffWorks, the staff hint's rule). */
+  emptyBuildings: number;
+  /** Player citizens with no trade. */
+  idleVillagers: number;
+  /** STAFFING_NOTE_ASSIGN / STAFFING_NOTE_SHORT / STAFFING_NOTE_SPARE, else null. */
+  note: string | null;
+}
+
+/**
+ * Slice 22: empty works vs idle hands. Null when both are zero or living_staffing_pressure is
+ * off. Pure read; citizen and staff math untouched.
+ */
+export function staffingPressureSnapshot(state: GameState): StaffingPressure | null {
+  if (!livingSwitches(state).staffingPressure) return null;
+  const emptyBuildings = emptyStaffWorks(state).length;
+  const idleVillagers = state.citizens.filter((c) => c.realmId === "player" && c.job === "unassigned").length;
+  if (emptyBuildings === 0 && idleVillagers === 0) return null;
+  let note: string | null = null;
+  if (emptyBuildings > 0 && idleVillagers > 0) note = STAFFING_NOTE_ASSIGN;
+  else if (emptyBuildings > 0) note = STAFFING_NOTE_SHORT;
+  else note = STAFFING_NOTE_SPARE;
+  return { emptyBuildings, idleVillagers, note };
 }

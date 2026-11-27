@@ -1,3 +1,12 @@
+## 2026-11-27 — sim / Living Realm slice 22 (job summary, staffing pressure)
+
+- **Where:** `jobSummarySnapshot` and `staffingPressureSnapshot` in `systems/livingStatus.ts`. Constants `JOB_SUMMARY_BUILDING_CAP`, `STAFFING_NOTE_ASSIGN`, `STAFFING_NOTE_SHORT`, `STAFFING_NOTE_SPARE` in `content/livingRealm.ts`.
+- **Job summary:** walks `CITIZEN_JOBS` (insertion order) and skips `unassigned`. A job appears only if it has a player worker or a finished player work, so the UI never gets empty rows. "Idle" means job `unassigned`; a citizen with a job but no tile counts under that job, not as idle.
+- **Staffing:** reuses `emptyStaffWorks` (`systems/staffHint.ts`) rather than its own scan, so the count always matches the existing staff hint. If the hint's SKIP list changes, this follows.
+- **Switches:** `jobSummary`, `staffingPressure` in `LivingSwitches`.
+- **Exports:** both functions, types `JobBuilding`, `JobSummaryEntry`, `JobSummary`, `StaffingPressure`, and the four constants from `packages/sim`.
+- **Left alone:** `citizens.ts` (assignment, hiring), `staffBonus`, `staffHint.ts`, housing, balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — docs hygiene / shared inspect tile names
 
 - `ProvinceInspect.tsx` now uses `INSPECT_NODE_NAMES` from `@second-crown/sim` (`content/livingRealm.ts`), the same table `inspectDetailSnapshot` uses for `name`. The two can no longer drift. Rename a node there, not in the app.
