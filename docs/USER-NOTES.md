@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Last whisper line under the World tab countdown
+
+- **Last whisper summary line:** Directly under the next-whisper countdown in the World tab's Realm Whispers section, a quiet `Last whisper from <realm> (<culture>)` line shows who sent the latest whisper that reached you (and stays hidden when none has arrived yet).
+
 ## 2026-11-26 — Every culture's replies now have their own voice
 
 - **Mist, Glen, Salt, Fen and Peak replies rewritten.** Your four reply buttons now sound like your people: Mist speaks softly of fog and good omens, Glen swears on cairn and stone, Salt talks like an honest trader, Fen is homely and a little wry, Peak reports like a lookout on the walls.

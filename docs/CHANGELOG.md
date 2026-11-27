@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for last-whisper summary line (World tab)
+
+- **World tab last-whisper summary (`hud/LastWhisperSummaryLine.tsx`, `tabs/WorldTab.tsx`):** Added `resolveLastWhisperSummary` and `<LastWhisperSummaryLine>` directly under `<NextWhisperHintLine>` inside `Fold#world-culture-whispers`. Reads `lastWhisperSummary(state)` (`ee1351d`, exact match — zero mismatch) to render a calm single-line pill `"Last whisper from <realm> (<culture>)"` (preferring realm + culture only rather than full body text), hiding when `lastWhisperSummary(state)` is `null`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/last-whisper-summary.css` only (`CultureWhispersCard.tsx`, sim reply tables, `theme.css`, `board-living.css`, `column-ranks-whisper-hint.css`, `voice-rank-accents.css`, `realm-tag-ranks-note.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;`, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LastWhisperSummaryLine.test.tsx` (3 tests). Now: sim **643**, app **1663**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 12 (player-only reply voice, last-whisper summary)
 
 - **Player-only reply voice (`content/livingRealm.ts` `PLAYER_REPLIES`):** mist, glen, salt, fen and peak player reply lines rewritten in the same voiced style as the other cultures. Mist hushed and omen-reading ("Out of the fog, {to}"), glen cairn-sworn stone and echo ("Sworn on the cairn, kept like stone"), salt trader's fair weights and yard book ("Fair weight and true measure"), fen homely and wry ("Peat on the fire, kettle on the hook"), peak lookout's report ("From the high keep: your words sighted"). Still 4 fixed lines per culture.

@@ -1,3 +1,11 @@
+## 2026-11-26 — app / living presentation for last-whisper summary line
+
+- **World tab component (`packages/app/src/hud/LastWhisperSummaryLine.tsx`, `tabs/WorldTab.tsx`):**
+  - Exported pure `resolveLastWhisperSummary(state)` (partial-state guard) and `<LastWhisperSummaryLine state={state} />` mounted directly below `<NextWhisperHintLine>` inside `Fold#world-culture-whispers`.
+  - Reads `lastWhisperSummary(state)` (`ee1351d`, exact match — zero mismatch) and reuses `formatWhisperSenderTag(fromName, fromCulture)` to render `"Last whisper from <realm> (<culture>)"` on a single compact pill (`white-space: nowrap; text-overflow: ellipsis;`, realm + culture only, omitting `summary.text`), returning `null` cleanly when no whisper to `"player"` is in culture news.
+- **Dedicated CSS (`packages/app/src/hud/last-whisper-summary.css`):** Imported from `LastWhisperSummaryLine.tsx`. Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;`, calm pip keyframe (`sc-last-whisper-breathe`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to `CultureWhispersCard.tsx`, sim reply tables, `theme.css`, `board-living.css`, `column-ranks-whisper-hint.css`, `voice-rank-accents.css`, `realm-tag-ranks-note.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LastWhisperSummaryLine.test.tsx`):** 3 tests passing (`npm test` -> sim **643**, app **1663**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-26 — sim / Living Realm slice 12 (player-only reply voice, last-whisper summary)
 
 - **Tables:** `PLAYER_REPLIES_NPC_ONLY = { ...PLAYER_REPLIES_PLAIN, ...PLAYER_REPLIES_NPC_VOICE }` is the old slice 11 `PLAYER_REPLIES`. `PLAYER_REPLIES = { ...PLAYER_REPLIES_NPC_ONLY, ...PLAYER_REPLIES_PLAYER_ONLY_VOICE }` (private const, five player-only cultures). Key order unchanged. `playerReplyLinesFor(culture, voiced = true, playerOnlyVoiced = true)`: `voiced` false → plain; else `playerOnlyVoiced` false → NPC_ONLY; else full. The private `playerLines` passes both switches (`playerReplyVoice`, new `playerOnlyVoice` / flag `living_player_only_voice`).

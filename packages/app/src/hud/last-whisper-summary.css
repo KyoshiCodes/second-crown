@@ -1,0 +1,115 @@
+/* --- Living Realm Slice 12: Last Whisper Summary Line (isolated CSS) ---
+ * Loaded from hud/LastWhisperSummaryLine.tsx.
+ * Leaves theme.css, board-living.css, living-realm-ui.css,
+ * column-ranks-whisper-hint.css, voice-rank-accents.css, and realm-tag-ranks-note.css untouched.
+ * Strict pointer-events: none !important on overlay/decorative spans.
+ * Calm, single-line summary pill in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-last-whisper-rgb: 148, 163, 184;
+  --sc-last-whisper-bg: rgba(15, 23, 42, 0.28);
+  --sc-last-whisper-border: rgba(148, 163, 184, 0.2);
+  --sc-last-whisper-text: rgba(203, 213, 225, 0.78);
+  --sc-last-whisper-realm: #e2e8f0;
+  --sc-last-whisper-paren: rgba(186, 204, 224, 0.78);
+  --sc-last-whisper-culture: #cbd5e1;
+}
+
+:root[data-chrome="night"] {
+  --sc-last-whisper-rgb: 162, 198, 228;
+  --sc-last-whisper-bg: rgba(10, 15, 28, 0.4);
+  --sc-last-whisper-border: rgba(148, 163, 184, 0.26);
+  --sc-last-whisper-text: rgba(214, 224, 236, 0.82);
+  --sc-last-whisper-realm: #f1f5f9;
+  --sc-last-whisper-paren: rgba(196, 214, 236, 0.84);
+  --sc-last-whisper-culture: #dbeafe;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-last-whisper-rgb: 212, 178, 122;
+  --sc-last-whisper-bg: rgba(34, 24, 15, 0.38);
+  --sc-last-whisper-border: rgba(196, 164, 112, 0.26);
+  --sc-last-whisper-text: rgba(235, 218, 186, 0.82);
+  --sc-last-whisper-realm: #fef3c7;
+  --sc-last-whisper-paren: rgba(236, 214, 174, 0.84);
+  --sc-last-whisper-culture: #f6e7c4;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Spans
+   ========================================================================== */
+.sc-last-whisper-summary,
+.sc-last-whisper-summary * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. World Tab "Last whisper from <realm> (<culture>)" Line
+   ========================================================================== */
+.sc-last-whisper-summary {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-last-whisper-border);
+  background: var(--sc-last-whisper-bg);
+  color: var(--sc-last-whisper-text);
+  font-size: 11.5px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-last-whisper-pip {
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgb(var(--sc-last-whisper-rgb));
+  animation: sc-last-whisper-breathe 4.6s ease-in-out infinite;
+}
+
+.sc-last-whisper-realm {
+  font-weight: 600;
+  color: var(--sc-last-whisper-realm);
+}
+
+.sc-last-whisper-paren {
+  color: var(--sc-last-whisper-paren);
+  font-weight: 400;
+}
+
+.sc-last-whisper-culture {
+  font-weight: 500;
+  color: var(--sc-last-whisper-culture);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-last-whisper-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.88;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-last-whisper-pip {
+    animation: none !important;
+  }
+}
