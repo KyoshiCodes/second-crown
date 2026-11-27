@@ -239,6 +239,9 @@ export const FRIENDLY_TRADE_WINDOW_TICKS = 600;
 /** Most realms the World tab relationship summary lists (slice 14). */
 export const RELATIONSHIP_SUMMARY_CAP = 8;
 
+/** Most quiet routes between friendly realms the board shows at once (slice 15). */
+export const FRIENDLY_ROUTES_CAP = 8;
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

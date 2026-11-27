@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game now knows the quiet roads between your friends
+
+- **Friendly routes.** When two realms you're friendly with also get along with each other (they trade, one rides beside you in your war, or they're at peace), the game now notes a quiet road between them, rated 1 to 3. Trade or a war pact makes it stronger; both make it strongest.
+- **Nothing else changes.** Trade, peace, war and movement work exactly as before.
+- **Coming to the screen:** route lines on the map. The game tracks them now; the map shows them next.
+
 ## 2026-11-27 — Known realms card on the World tab
 
 - **Compact relationship list:** Right below the Realm Whispers & Caravans fold on the World tab, a quiet Known Realms section now lists each realm you have seen or interacted with — showing its name, culture, stance (`War`, `Pact`, `Peace`, or `Neutral`), last interaction, and what can happen next (and hides cleanly when none are known).

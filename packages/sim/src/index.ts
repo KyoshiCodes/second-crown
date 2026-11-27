@@ -340,6 +340,7 @@ export {
   friendlyPresenceSnapshot,
   standardStrength,
   realmRelationshipSummary,
+  friendlyRoutesSnapshot,
   getPendingReplies,
   joinedWarOutcome,
   latestJoinedWarOutcome,
@@ -379,7 +380,7 @@ export {
   getFlagContests,
 } from "./systems/flagContest.js";
 export type { FlagContestSnapshot, FlagContestEntry, FlagCooldownEntry, FlagContestRecord } from "./systems/flagContest.js";
-export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry, PendingReply, JoinedWarOutcome, ReplyableWhisper, JoinedWarFormation, FormationSide, ColumnMark, ColumnRanks, NextWhisperHint, LastWhisperSummary, FriendlyPresence, FriendlyPresenceKind, StandardStrength, RealmRelationship, RelationshipStance, RelationshipInteraction, RelationshipNext } from "./systems/livingRealm.js";
+export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry, PendingReply, JoinedWarOutcome, ReplyableWhisper, JoinedWarFormation, FormationSide, ColumnMark, ColumnRanks, NextWhisperHint, LastWhisperSummary, FriendlyPresence, FriendlyPresenceKind, FriendlyRoute, FriendlyRouteKind, StandardStrength, RealmRelationship, RelationshipStance, RelationshipInteraction, RelationshipNext } from "./systems/livingRealm.js";
 export {
   WAR_PHASE_IDS,
   WAR_PHASE_START,
@@ -399,6 +400,7 @@ export {
   FRIENDLY_PRESENCE_CAP,
   FRIENDLY_TRADE_WINDOW_TICKS,
   RELATIONSHIP_SUMMARY_CAP,
+  FRIENDLY_ROUTES_CAP,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

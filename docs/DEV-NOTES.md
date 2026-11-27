@@ -1,3 +1,14 @@
+## 2026-11-27 — sim / Living Realm slice 15 (friendly routes)
+
+- **Snapshot:** `friendlyRoutesSnapshot(state, atTick = tick)` in `systems/livingRealm.ts`, types `FriendlyRoute`, `FriendlyRouteKind`; cap `FRIENDLY_ROUTES_CAP` (8) in `content/livingRealm.ts`. Ends = `friendlyPresenceSnapshot(state, atTick)` realm ids (so it inherits presence's cap of 6, its order and its `living_board_presence` switch). Walks pairs i < j, stops at the cap.
+- **Trade (`tradesBetween`, private):** gather crew of either realm on a province the other occupies (`rawGathers`), or a `caravan` culture-news item between them either way within `FRIENDLY_TRADE_WINDOW_TICKS`. NPC↔NPC caravans go to culture news, not the world log, so this differs from `tradesWithPlayer` on purpose.
+- **Pact:** `playerPactAllies(state).has(a) || .has(b)`. "Both are allies" can never hold: `joinableWars` requires the player to have no active war, so at most one ally exists. The ally's partner is always a friend of the player because both ends come from presence.
+- **Peace:** `peaceLockedAt(state, a, b, atTick)`. Pairs at war (`atWarWith`) are skipped first.
+- **Strength:** `1 + trade + pact`, typed `1 | 2 | 3`. Peace adds nothing over the base.
+- **Switch:** `friendlyRoutes` / `living_friendly_routes` added to `LivingSwitches`.
+- **Counts test:** three seeds × 300 pulses with a joined war and all other NPCs befriended, every snapshot called each pulse, flag on vs off: identical trace, `livingCounts`, resources, wars and flags (apart from the switch itself).
+- **Left alone:** trade, diplomacy, peace-lock writes, pathfinding, gather, combat, phase timing, balance tables, app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for World tab relationship summary
 
 - **World tab component (`packages/app/src/hud/RealmRelationshipCard.tsx`, `tabs/WorldTab.tsx`):**

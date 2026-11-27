@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 15 (friendly routes)
+
+- **Friendly routes (`friendlyRoutesSnapshot(state, atTick?)`):** `{ fromRealmId, toRealmId, kind, strength }[]` for pairs of friendly realms. Both ends must be listed in `friendlyPresenceSnapshot`; the player is never an end. Pairs go in presence order (`fromRealmId` is the earlier realm), capped at `FRIENDLY_ROUTES_CAP` (8).
+- **Reason for a route:** the two are not at war with each other and at least one holds: `"trade"` (a caravan between them in culture news within `FRIENDLY_TRADE_WINDOW_TICKS`, or a gather crew of one on the other's province), `"pact"` (one end is the player's joined-war ally), `"peace"` (a running peace lock between them). kind is the first of trade, pact, peace.
+- **Strength:** 1, +1 for active trade, +1 for a pact. So peace 1, pact or trade 2, trade + pact 3.
+- **Switch:** `living_friendly_routes` (on). `false`: empty list. Also empty when `living_board_presence` is off (no ends).
+- **Read-only:** trade, diplomacy, peace locks, pathfinding, gather and war math untouched. `friendlyPresenceSnapshot` unchanged.
+- **Playtest:** one Living realm line. Balance tables unchanged.
+- **Tests:** new `systems/livingSlice15.test.ts` (18). Now: sim **697**, app **1670**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for World tab relationship summary card
 
 - **World tab relationship card (`hud/RealmRelationshipCard.tsx`, `tabs/WorldTab.tsx`):** Added `listRealmRelationships` and `<RealmRelationshipCard>` directly under `Fold#world-culture-whispers`, reading `realmRelationshipSummary(state)` (`62fe177`, exact match — zero mismatch). Displays one compact row per known NPC realm (name, culture display name, stance pill `War`/`Pact`/`Peace`/`Neutral`, last interaction, and next possible action) and hides the entire section cleanly when the list is empty.

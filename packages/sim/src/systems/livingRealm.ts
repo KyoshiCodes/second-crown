@@ -26,6 +26,7 @@ import {
   FRIENDLY_PRESENCE_CAP,
   FRIENDLY_TRADE_WINDOW_TICKS,
   RELATIONSHIP_SUMMARY_CAP,
+  FRIENDLY_ROUTES_CAP,
   type FormationId,
   type ColumnMarkId,
   type WarPhaseId,
@@ -102,6 +103,11 @@ export interface LivingSwitches {
    * last interaction and next possible move. False: empty list. Read-only either way.
    */
   relationshipSummary: boolean;
+  /**
+   * Friendly routes (slice 15): friendlyRoutesSnapshot lists quiet paths between pairs of
+   * friendly realms. False: empty list. Read-only either way.
+   */
+  friendlyRoutes: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -125,6 +131,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   playerOnlyVoice: "living_player_only_voice",
   boardPresence: "living_board_presence",
   relationshipSummary: "living_relationship_summary",
+  friendlyRoutes: "living_friendly_routes",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -1400,6 +1407,79 @@ export function realmRelationshipSummary(state: GameState, atTick = state.meta.t
     else if (stance === "pact") next = "riding together";
     else next = playerWar ? null : "can declare";
     out.push({ realmId: r.id, name: r.name, culture: peekCultureOfRealm(state, r.id), stance, lastInteraction: last, nextPossible: next });
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- friendly routes (slice 15)
+
+export type FriendlyRouteKind = "peace" | "pact" | "trade";
+
+/** One quiet path between two friendly realms for the board. Read-only. */
+export interface FriendlyRoute {
+  fromRealmId: string;
+  toRealmId: string;
+  kind: FriendlyRouteKind;
+  strength: 1 | 2 | 3;
+}
+
+/**
+ * True when two NPC realms share a live trade link: a gather crew of either on a province the
+ * other holds, or a caravan between them in culture news within FRIENDLY_TRADE_WINDOW_TICKS.
+ * Same window as tradesWithPlayer. Pure read.
+ */
+function tradesBetween(state: GameState, a: string, b: string, atTick: number): boolean {
+  const owner = (id: string) => state.board.provinces.find((p) => p.id === id)?.occupantRealmId ?? null;
+  for (const g of rawGathers(state)) {
+    if (g.realmId === a && owner(g.toId) === b) return true;
+    if (g.realmId === b && owner(g.toId) === a) return true;
+  }
+  return getCultureNews(state).some(
+    (n) =>
+      n.kind === "caravan" &&
+      ((n.fromRealmId === a && n.toRealmId === b) || (n.fromRealmId === b && n.toRealmId === a)) &&
+      n.tick <= atTick &&
+      atTick - n.tick <= FRIENDLY_TRADE_WINDOW_TICKS
+  );
+}
+
+/**
+ * Quiet routes between pairs of friendly realms (both ends listed in friendlyPresenceSnapshot),
+ * at most FRIENDLY_ROUTES_CAP. Pairs go in presence order (i < j); fromRealmId is the earlier.
+ * A pair qualifies when the two are not at war with each other and have a reason for a path:
+ *   trade = a live trade link between them (tradesBetween),
+ *   pact  = one end rides beside the player in the active joined war (playerPactAllies) and
+ *           the other is a friend of the player too (the player holds one joined war at a
+ *           time, so at most one ally exists and "both allies" could never happen),
+ *   peace = a running peace lock between them (peaceLockedAt).
+ * kind is the first that holds of trade, pact, peace.
+ * strength = 1, +1 when trade is active, +1 when a pact exists (so peace 1, pact or trade 2,
+ * trade + pact 3). Empty with living_friendly_routes off (or no presence). Pure read; no trade,
+ * diplomacy or pathfinding math here.
+ */
+export function friendlyRoutesSnapshot(state: GameState, atTick = state.meta.tick): FriendlyRoute[] {
+  if (!livingSwitches(state).friendlyRoutes) return [];
+  const ends = friendlyPresenceSnapshot(state, atTick).map((p) => p.realmId);
+  if (ends.length < 2) return [];
+  const allies = playerPactAllies(state);
+  const out: FriendlyRoute[] = [];
+  for (let i = 0; i < ends.length; i++) {
+    for (let j = i + 1; j < ends.length; j++) {
+      if (out.length >= FRIENDLY_ROUTES_CAP) return out;
+      const a = ends[i];
+      const b = ends[j];
+      if (atWarWith(state, a, b)) continue;
+      const trade = tradesBetween(state, a, b, atTick);
+      const pact = allies.has(a) || allies.has(b);
+      const peace = peaceLockedAt(state, a, b, atTick);
+      if (!trade && !pact && !peace) continue;
+      out.push({
+        fromRealmId: a,
+        toRealmId: b,
+        kind: trade ? "trade" : pact ? "pact" : "peace",
+        strength: (1 + (trade ? 1 : 0) + (pact ? 1 : 0)) as 1 | 2 | 3,
+      });
+    }
   }
   return out;
 }

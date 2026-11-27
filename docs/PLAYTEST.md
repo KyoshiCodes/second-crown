@@ -161,6 +161,8 @@ Friendly presence marks available: realms at peace with you, riding beside you (
 
 Relationship summary available: up to 8 known realms with stance (war / peace / pact / neutral), last interaction and next possible move (`living_relationship_summary`). Read-only.
 
+Friendly routes available: up to 8 quiet paths between pairs of friendly realms, kind peace / pact / trade, strength 1 / 2 / 3 (`living_friendly_routes`). Read-only.
+
 Attentive:
 
 ```
