@@ -8,6 +8,15 @@
 - **Unchanged invariants & accessibility:** Dedicated `hud/research-progress-detail.css`, `hud/study-effect-preview.css`, and `hud/academy-feedback.css` only (no sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/tracks, and `@media (prefers-reduced-motion: reduce)` guards.
 - **Tests:** Added `packages/app/src/hud/LivingSlice20Presentation.test.tsx` (4 tests). Now: sim **787**, app **1695**, server **158** (+1 symlink skip on Windows), app build clean.
 
+## 2026-11-27 — Living Realm slice 21 (decree effects, inspect detail)
+
+- **Decree effects (`decreeEffectSummarySnapshot(state)`):** `{ active: { id, name, effect }[], openSlots, suggestion }` or null with no court (no player character). Same active scan as `courtDetailSnapshot` (DECREES order, capped at `DECREES.length`). `effect` comes from the fixed `DECREE_EFFECTS` table: muster "Training costs 10% less", rite "+3 production", envoys "Gifts earn +6 opinion"; tests pin each to `trainCostMultiplier`, `productionBonus`, `giftBonusOpinion`. `suggestion`: the `DECREE_SUGGESTIONS` line for the first open decree the player can afford (DECREES order), `DECREE_SUGGEST_SAVE` when slots are open but none is affordable, null when every decree is in force.
+- **Inspect detail (`inspectDetailSnapshot(state, provinceId)`):** `{ id, name, terrain, stock, outposts, marches, notes }` or null for an unknown id. `name` = `settlementName` on the home hold, else `INSPECT_NODE_NAMES[node]` (same words as the inspect card). `terrain` = raw terrain id. `stock` = `{ resource, have, max }` from `GATHER_NODES` / `nodeStock` / `nodeStockMax` on gather nodes, else null. `outposts` = `listOutposts` tiles of any realm on or within `BOARD_NEARBY_RADIUS` (2) of the tile, board order, cap 3, `BoardFeedbackProvince` shape. `marches` = marches of any realm heading to the tile as `{ id, kind, eta }` (eta in ticks, never negative), soonest first then id, cap 3. `notes`: fixed lines in priority order, cap 3: home / your outpost / rival-held (one of the three), hostile camp, foreign column inbound, crew gathering, picked clean. Fog is not applied (the app already gates unseen tiles).
+- **Switches:** `living_decree_effects`, `living_inspect_detail` (false: null). Both on.
+- **Read-only:** decree costs, lengths and math; pathfinding; inspect rules; fog; balance tables untouched. No lazy flag writes (tested).
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice21.test.ts` (22). Now: sim **809**, app **1695**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living Realm slice 20 (research progress, study-effect previews, academy feedback)
 
 - **Research progress (`researchProgressDetailSnapshot(state)`):** `{ activeId, name, percent, ticksLeft, totalTicks }` or null when nothing is being studied. Same open-study scan as `researchProgressSnapshot` (ticksLeft / totalTicks identical to its `active`); `percent` = floor((total - left) / total * 100), clamped 0-100.

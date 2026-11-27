@@ -29,6 +29,14 @@
 - **Dedicated CSS (`hud/economy-yield-breakdown.css`, `hud/storage-pressure-detail.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, calm reveal/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
 - **Verification (`packages/app/src/hud/LivingSlice18Presentation.test.tsx`):** 5 tests passing (`npm test` -> sim **746**, app **1687**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
 
+## 2026-11-27 — sim / Living Realm slice 21 (decree effects, inspect detail)
+
+- **Decrees:** `decreeEffectSummarySnapshot` in `systems/livingStatus.ts`, same `decree_<id>_until > tick` scan as `courtDetailSnapshot`. Affordability reads `DECREES[i].cost` against `state.resources` with `D().gte` (the same check `tryDecree` makes; `tryDecree` itself untouched). `DECREE_EFFECTS` / `DECREE_SUGGESTIONS` / `DECREE_SUGGEST_SAVE` live in `content/livingRealm.ts`. **If a decree's effect changes (train.ts, economy.ts, diplomacy.ts), update `DECREE_EFFECTS`; the tests will fail until you do.** A decree id missing from the table falls back to its `blurb`.
+- **Inspect:** `inspectDetailSnapshot` deliberately avoids `isProvinceSeen`, because `seenSet` writes `fog_seen` lazily. Fog stays an app concern. `listMarches` / `listGathers` / `nodeStock` / `listOutposts` / `settlementName` are pure reads. Outposts are collected per occupant realm via `listOutposts(state, realm)` then filtered by Manhattan distance <= `BOARD_NEARBY_RADIUS`. `INSPECT_NODE_NAMES` copies the `NODE` labels in `app/src/ProvinceInspect.tsx` (the app can switch to the sim table later).
+- **Switches:** `decreeEffects`, `inspectDetail` in `LivingSwitches`.
+- **Exports:** both functions, types `DecreeEffect`, `DecreeEffectSummary`, `InspectStock`, `InspectMarch`, `InspectDetail`, and the `DECREE_*` / `INSPECT_*` constants from `packages/sim`.
+- **Left alone:** decree costs, lengths, math, `tryDecree`; pathfinding; fog; inspect card rules; balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — sim / Living Realm slice 20 (research progress, study preview, academy feedback)
 
 - **Progress:** `researchProgressDetailSnapshot` in `systems/livingStatus.ts` uses a new private `openStudy(state)` (the same `studyKnown` + `research_<id>_until > tick` scan, first in table order; total falls back to the table length). No lazy flag writes.

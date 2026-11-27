@@ -309,6 +309,54 @@ export const ACADEMY_NOTE_IDLE = "The lectern is free. New studies run 20% short
 /** Slice 20: academy note when the open study was started at full length (before the bonus). */
 export const ACADEMY_NOTE_EARLY = "This study began before the Academy. The next one runs shorter.";
 
+// ---------------------------------------------------------------- decree effects, inspect detail (slice 21)
+
+/**
+ * Slice 21: what each decree does while in force, in plain words. Mirrors live code:
+ * muster = trainCostMultiplier x0.9 (actions/train.ts), rite = productionBonus +3
+ * (systems/economy.ts), envoys = giftBonusOpinion +6 (actions/diplomacy.ts). Tests pin them.
+ */
+export const DECREE_EFFECTS: Record<string, string> = {
+  muster: "Training costs 10% less",
+  rite: "+3 production",
+  envoys: "Gifts earn +6 opinion",
+};
+
+/** Slice 21: suggestion when a decree slot is open and that decree is affordable (first in DECREES order). */
+export const DECREE_SUGGESTIONS: Record<string, string> = {
+  muster: "Muster the Host is ready to swear before training.",
+  rite: "Harvest Rite is ready to swear for more production.",
+  envoys: "Send Envoys is ready to swear before a gift.",
+};
+/** Slice 21: suggestion when a slot is open but no open decree is affordable. */
+export const DECREE_SUGGEST_SAVE = "Save gold or food to swear the next decree.";
+
+/** Slice 21: inspect card name per node (the home hold uses settlementName instead). */
+export const INSPECT_NODE_NAMES: Record<string, string> = {
+  none: "Open ground",
+  hold: "Hold",
+  camp: "Hostile camp",
+  woodcut: "Timber stand",
+  quarry: "Stone outcrop",
+  field: "Forage field",
+  ruins: "Ruins",
+};
+
+/** Slice 21: most outposts inspectDetailSnapshot lists (within BOARD_NEARBY_RADIUS of the tile). */
+export const INSPECT_OUTPOST_CAP = 3;
+/** Slice 21: most marches inspectDetailSnapshot lists (heading to the tile, soonest first). */
+export const INSPECT_MARCH_CAP = 3;
+/** Slice 21: most notes inspectDetailSnapshot lists. */
+export const INSPECT_NOTE_CAP = 3;
+
+export const INSPECT_NOTE_HOME = "Your hold.";
+export const INSPECT_NOTE_OUTPOST = "Your outpost. It pays a small tithe.";
+export const INSPECT_NOTE_RIVAL = "Held by another realm.";
+export const INSPECT_NOTE_CAMP = "A hostile camp. Clear it with a march.";
+export const INSPECT_NOTE_THREAT = "A foreign column is heading here.";
+export const INSPECT_NOTE_WORKED = "A crew is gathering here.";
+export const INSPECT_NOTE_DEPLETED = "Picked clean. It regrows slowly.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

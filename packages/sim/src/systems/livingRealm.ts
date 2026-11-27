@@ -137,6 +137,10 @@ export interface LivingSwitches {
   studyPreview: boolean;
   /** Academy feedback (slice 20): academyFeedbackSnapshot. False: null. Read-only either way. */
   academyFeedback: boolean;
+  /** Decree effects (slice 21): decreeEffectSummarySnapshot. False: null. Read-only either way. */
+  decreeEffects: boolean;
+  /** Inspect detail (slice 21): inspectDetailSnapshot. False: null. Read-only either way. */
+  inspectDetail: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -175,6 +179,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   researchProgress: "living_research_progress",
   studyPreview: "living_study_preview",
   academyFeedback: "living_academy_feedback",
+  decreeEffects: "living_decree_effects",
+  inspectDetail: "living_inspect_detail",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

@@ -173,6 +173,8 @@ Research, court, and board interaction detail available (`living_research_detail
 
 Research progress, study-effect previews, and academy feedback available (`living_research_progress`, `living_study_preview`, `living_academy_feedback`). Read-only.
 
+Decree-effect summaries and richer inspect detail available (`living_decree_effects`, `living_inspect_detail`). Read-only.
+
 Attentive:
 
 ```

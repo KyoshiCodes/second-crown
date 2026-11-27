@@ -9,6 +9,20 @@ import {
   BOARD_NEARBY_FRIENDLY_CAP,
   BOARD_NEARBY_RADIUS,
   COURT_GUIDANCE_FULL,
+  DECREE_EFFECTS,
+  DECREE_SUGGESTIONS,
+  DECREE_SUGGEST_SAVE,
+  INSPECT_MARCH_CAP,
+  INSPECT_NODE_NAMES,
+  INSPECT_NOTE_CAMP,
+  INSPECT_NOTE_CAP,
+  INSPECT_NOTE_DEPLETED,
+  INSPECT_NOTE_HOME,
+  INSPECT_NOTE_OUTPOST,
+  INSPECT_NOTE_RIVAL,
+  INSPECT_NOTE_THREAT,
+  INSPECT_NOTE_WORKED,
+  INSPECT_OUTPOST_CAP,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -25,7 +39,11 @@ import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus } from "./econ
 import { upkeepPerTick } from "./upkeep.js";
 import { RESEARCH, academyReady, type ResearchId } from "./research.js";
 import { DECREES } from "./decree.js";
-import { activePlayerMarch } from "./march.js";
+import { activePlayerMarch, listMarches } from "./march.js";
+import { GATHER_NODES, listGathers } from "./gather.js";
+import { nodeStock, nodeStockMax } from "./nodeStock.js";
+import { listOutposts } from "./outpost.js";
+import { settlementName } from "../actions/settlement.js";
 
 /**
  * Living Realm slice 16: compact system status for the HUD. Every function here is a pure
@@ -599,4 +617,138 @@ export function academyFeedbackSnapshot(state: GameState): AcademyFeedback | nul
     else if (bonusActive && a.totalTicks === RESEARCH[a.id].ticks) note = ACADEMY_NOTE_EARLY;
   }
   return { built, staffed, bonusActive, note };
+}
+
+// ---------------------------------------------------------------- decree effect summary (slice 21)
+
+export interface DecreeEffect {
+  id: string;
+  name: string;
+  /** Fixed DECREE_EFFECTS line. */
+  effect: string;
+}
+
+export interface DecreeEffectSummary {
+  /** Decrees in force, DECREES order, never more than DECREES.length. */
+  active: DecreeEffect[];
+  /** Same as courtDetailSnapshot.openSlots. */
+  openSlots: number;
+  /** First open, affordable decree's DECREE_SUGGESTIONS line; DECREE_SUGGEST_SAVE if none is affordable; null when every decree is in force. */
+  suggestion: string | null;
+}
+
+/**
+ * Slice 21: running decrees with what they do. Null with no court (no player character) or with
+ * living_decree_effects off. Same active scan as courtDetailSnapshot. Decree math untouched.
+ */
+export function decreeEffectSummarySnapshot(state: GameState): DecreeEffectSummary | null {
+  if (!livingSwitches(state).decreeEffects) return null;
+  if (!state.characters.some((c) => c.realmId === "player")) return null;
+  const tick = state.meta.tick;
+  const active: DecreeEffect[] = [];
+  let suggestion: string | null = null;
+  let anyOpen = false;
+  for (const d of DECREES) {
+    const until = Number(state.flags[`decree_${d.id}_until`] ?? 0);
+    if (until > tick) {
+      active.push({ id: d.id, name: d.name, effect: DECREE_EFFECTS[d.id] ?? d.blurb });
+      continue;
+    }
+    anyOpen = true;
+    const affordable = Object.entries(d.cost).every(([res, amt]) => D(state.resources[res] ?? "0").gte(D(amt)));
+    if (affordable && suggestion === null) suggestion = DECREE_SUGGESTIONS[d.id] ?? null;
+  }
+  if (anyOpen && suggestion === null) suggestion = DECREE_SUGGEST_SAVE;
+  const capped = active.slice(0, DECREES.length);
+  return { active: capped, openSlots: DECREES.length - capped.length, suggestion };
+}
+
+// ---------------------------------------------------------------- inspect detail (slice 21)
+
+export interface InspectStock {
+  /** GATHER_NODES[node].resource. */
+  resource: string;
+  /** nodeStock. */
+  have: number;
+  /** nodeStockMax. */
+  max: number;
+}
+
+export interface InspectMarch {
+  id: string;
+  /** March kind ("camp" | "node" | "hold"), as boardFeedbackSnapshot.pendingMarch.kind. */
+  kind: string;
+  /** Ticks until arrival, never negative. */
+  eta: number;
+}
+
+export interface InspectDetail {
+  id: string;
+  /** settlementName on the home hold, else INSPECT_NODE_NAMES[node]. */
+  name: string;
+  /** Raw terrain id. */
+  terrain: string;
+  /** Gather nodes only, else null. */
+  stock: InspectStock | null;
+  /** Outposts (listOutposts, any realm) on or within BOARD_NEARBY_RADIUS of the tile, board order, capped. BoardFeedbackProvince shape. */
+  outposts: BoardFeedbackProvince[];
+  /** Marches (any realm) heading to the tile, soonest first then id, capped. */
+  marches: InspectMarch[];
+  /** Fixed INSPECT_NOTE_* lines in priority order, capped. */
+  notes: string[];
+}
+
+/**
+ * Slice 21: richer inspect card data for one province. Null for an unknown id or with
+ * living_inspect_detail off. Fog is not applied here (the app already gates unseen tiles).
+ * Pure read: no lazy flag writes. Pathfinding and inspect rules untouched.
+ */
+export function inspectDetailSnapshot(state: GameState, provinceId: string): InspectDetail | null {
+  if (!livingSwitches(state).inspectDetail) return null;
+  const p = state.board.provinces.find((q) => q.id === provinceId);
+  if (!p) return null;
+  const homeId = state.board.homeProvinceId;
+  const isHome = p.id === homeId;
+  const tick = state.meta.tick;
+
+  const gatherDef = Object.prototype.hasOwnProperty.call(GATHER_NODES, p.node)
+    ? GATHER_NODES[p.node as keyof typeof GATHER_NODES]
+    : null;
+  const stock: InspectStock | null = gatherDef
+    ? { resource: gatherDef.resource, have: nodeStock(state, p.id), max: nodeStockMax(p.node) }
+    : null;
+
+  const realms = new Set<string>();
+  for (const q of state.board.provinces) if (q.occupantRealmId) realms.add(q.occupantRealmId);
+  const outpostIds = new Set<string>();
+  for (const r of realms) for (const o of listOutposts(state, r)) outpostIds.add(o.id);
+  const outposts: BoardFeedbackProvince[] = state.board.provinces
+    .filter((q) => outpostIds.has(q.id) && Math.abs(q.x - p.x) + Math.abs(q.y - p.y) <= BOARD_NEARBY_RADIUS)
+    .slice(0, INSPECT_OUTPOST_CAP)
+    .map((q) => ({ id: q.id, x: q.x, y: q.y, node: q.node, ownerRealmId: q.occupantRealmId, isHome: q.id === homeId }));
+
+  const inbound = listMarches(state).filter((m) => m.toId === p.id);
+  const marches: InspectMarch[] = inbound
+    .map((m) => ({ id: m.id, kind: m.kind, eta: Math.max(0, m.arrivesTick - tick) }))
+    .sort((a, b) => a.eta - b.eta || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    .slice(0, INSPECT_MARCH_CAP);
+
+  const notes: string[] = [];
+  if (isHome) notes.push(INSPECT_NOTE_HOME);
+  else if (p.occupantRealmId === "player" && outpostIds.has(p.id)) notes.push(INSPECT_NOTE_OUTPOST);
+  else if (p.occupantRealmId && p.occupantRealmId !== "player") notes.push(INSPECT_NOTE_RIVAL);
+  if (p.node === "camp") notes.push(INSPECT_NOTE_CAMP);
+  if (inbound.some((m) => m.realmId !== "player")) notes.push(INSPECT_NOTE_THREAT);
+  if (listGathers(state).some((g) => g.toId === p.id && g.phase !== "returning")) notes.push(INSPECT_NOTE_WORKED);
+  if (stock && stock.have <= 0) notes.push(INSPECT_NOTE_DEPLETED);
+
+  return {
+    id: p.id,
+    name: isHome ? settlementName(state) : INSPECT_NODE_NAMES[p.node] ?? p.node,
+    terrain: p.terrain,
+    stock,
+    outposts,
+    marches,
+    notes: notes.slice(0, INSPECT_NOTE_CAP),
+  };
 }

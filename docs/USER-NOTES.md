@@ -8,6 +8,13 @@ Newest first. Plain language for playtesters.
 - **Study-effect previews:** Expanding **Next unlocks** (or hovering an entry) calmly previews what each study grants, such as yield boosts, extra march capacity, or newly unlocked troops.
 - **Academy feedback line:** When you have an Academy built or under construction, a quiet status note shows whether it is still rising, idle with the 20% bonus ready, or running on an older study.
 
+## 2026-11-27 — The game can now explain your decrees and say more about a tile
+
+- **Under the hood only.** Decrees: the game can now list each running decree with what it does ("Training costs 10% less", "+3 production", "Gifts earn +6 opinion"), how many slots are free, and a short hint about which decree you can afford next.
+- **Tiles:** for any tile it can now give its name, terrain, how much is left to gather, nearby outposts, columns heading there (with time to arrival), and up to three short notes like "A foreign column is heading here." or "Picked clean. It regrows slowly."
+- **Nothing else changes.** Decrees, marching and the inspect card work exactly as before.
+- **Coming to the screen:** decree effect lines on the Kingdom tab and a richer inspect card.
+
 ## 2026-11-27 — The game can now show study progress, what a study does, and how your Academy is doing
 
 - **Under the hood only.** Research: the game can show how far along the current study is (as a percent and time left).
