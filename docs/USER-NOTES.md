@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Study progress bar, unlock previews, and Academy status on Kingdom
+
+- **Study progress bar:** When a study is underway, a slim progress strip under the Kingdom research line shows its completion percentage and remaining seconds cleanly, disappearing automatically when the lectern is idle.
+- **Study-effect previews:** Expanding **Next unlocks** (or hovering an entry) calmly previews what each study grants, such as yield boosts, extra march capacity, or newly unlocked troops.
+- **Academy feedback line:** When you have an Academy built or under construction, a quiet status note shows whether it is still rising, idle with the 20% bonus ready, or running on an older study.
+
 ## 2026-11-27 — The game can now show study progress, what a study does, and how your Academy is doing
 
 - **Under the hood only.** Research: the game can show how far along the current study is (as a percent and time left).

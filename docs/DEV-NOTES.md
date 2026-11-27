@@ -1,3 +1,14 @@
+## 2026-11-27 — app / living presentation for research progress, study previews & academy feedback
+
+- **Research progress detail bar (`packages/app/src/hud/ResearchProgressDetailBar.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**
+  - Exported pure `resolveResearchProgressDetail(state)` wrapping `researchProgressDetailSnapshot(state)` (`36af5fb`, exact match — zero mismatch) and mounted `<ResearchProgressDetailBar state={state} />` under `<ResearchProgressLine>`. Renders `.sc-rpd-row` with thin track bar, `percent` (`0–100`), and `~Ns` ETA; returns `null` when idle or `living_research_progress` is `false`.
+- **Optional study-effect previews (`packages/app/src/hud/ResearchDetailExpander.tsx`):**
+  - Exported pure `resolveStudyEffectPreview(state, studyId)` wrapping `studyEffectPreviewSnapshot(state, studyId)` (`36af5fb`, exact match — zero mismatch) and attached calm `.sc-study-preview` notes plus `title` hover tooltips inside each `Next unlocks` item while keeping `<details>` collapsed by default.
+- **Academy feedback line (`packages/app/src/hud/AcademyFeedbackLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**
+  - Exported pure `resolveAcademyFeedback(state)` wrapping `academyFeedbackSnapshot(state)` (`36af5fb`, exact match — zero mismatch) and mounted `<AcademyFeedbackLine state={state} />` under `<ResearchProgressLine>`. Surfaces `building` / `staffed` / `bonus active` / `idle` status and `snap.note`, returning `null` when no Academy exists or `living_academy_feedback` is `false`.
+- **Dedicated CSS (`hud/research-progress-detail.css`, `hud/study-effect-preview.css`, `hud/academy-feedback.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/tracks, calm breathe/fade transitions, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice20Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **787**, app **1695**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — app / living presentation for research, court & board interaction detail
 
 - **Research next-unlocks expander (`packages/app/src/hud/ResearchDetailExpander.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**

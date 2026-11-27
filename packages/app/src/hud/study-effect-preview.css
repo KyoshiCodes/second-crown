@@ -1,0 +1,70 @@
+/* --- Living Realm Slice 20: Study Effect Preview (isolated CSS) ---
+ * Loaded from hud/ResearchDetailExpander.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Calm optional study-effect preview inside next-unlocks items in Dusk, Night, Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-sep-text: rgba(186, 198, 214, 0.8);
+  --sc-sep-hover-text: #dbe4ef;
+  --sc-sep-pip-rgb: 134, 210, 178;
+}
+
+:root[data-chrome="night"] {
+  --sc-sep-text: rgba(196, 210, 226, 0.84);
+  --sc-sep-hover-text: #e2e8f0;
+  --sc-sep-pip-rgb: 152, 224, 194;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-sep-text: rgba(226, 204, 166, 0.82);
+  --sc-sep-hover-text: #f5e6c8;
+  --sc-sep-pip-rgb: 190, 242, 100;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-study-preview-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Quiet Optional Study Effect Preview
+   ========================================================================== */
+.sc-study-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--sc-sep-text);
+  font-size: 10.5px;
+  opacity: 0.82;
+  transition: opacity 0.16s ease, color 0.16s ease;
+}
+
+.sc-research-detail-item:hover .sc-study-preview,
+.sc-research-detail-item:focus-within .sc-study-preview {
+  opacity: 1;
+  color: var(--sc-sep-hover-text);
+}
+
+.sc-study-preview-pip {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-sep-pip-rgb));
+  opacity: 0.78;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-study-preview {
+    transition: none !important;
+  }
+}

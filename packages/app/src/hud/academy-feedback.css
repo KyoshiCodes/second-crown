@@ -1,0 +1,125 @@
+/* --- Living Realm Slice 20: Academy Feedback Sub-Line (isolated CSS) ---
+ * Loaded from hud/AcademyFeedbackLine.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Quiet academy status note in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-af-bg: rgba(16, 22, 34, 0.4);
+  --sc-af-border: rgba(148, 163, 184, 0.17);
+  --sc-af-text: #cbd5e1;
+  --sc-af-muted: rgba(186, 198, 214, 0.78);
+  --sc-af-bonus-rgb: 134, 210, 178;
+  --sc-af-staffed-rgb: 147, 197, 253;
+  --sc-af-building-rgb: 234, 196, 108;
+  --sc-af-idle-rgb: 148, 163, 184;
+}
+
+:root[data-chrome="night"] {
+  --sc-af-bg: rgba(10, 14, 24, 0.52);
+  --sc-af-border: rgba(148, 163, 184, 0.23);
+  --sc-af-text: #dbe4ef;
+  --sc-af-muted: rgba(196, 210, 226, 0.84);
+  --sc-af-bonus-rgb: 152, 224, 194;
+  --sc-af-staffed-rgb: 168, 212, 255;
+  --sc-af-building-rgb: 245, 208, 120;
+  --sc-af-idle-rgb: 168, 182, 200;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-af-bg: rgba(34, 24, 15, 0.48);
+  --sc-af-border: rgba(196, 164, 112, 0.21);
+  --sc-af-text: #efe1c4;
+  --sc-af-muted: rgba(226, 204, 166, 0.8);
+  --sc-af-bonus-rgb: 190, 242, 100;
+  --sc-af-staffed-rgb: 162, 194, 222;
+  --sc-af-building-rgb: 228, 178, 86;
+  --sc-af-idle-rgb: 204, 182, 146;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-academy-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Quiet Academy Status Sub-Line
+   ========================================================================== */
+.sc-academy-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-af-border);
+  background: var(--sc-af-bg);
+  color: var(--sc-af-text);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.sc-academy-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  animation: sc-af-pip-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-academy-pip.is-bonus {
+  background: rgb(var(--sc-af-bonus-rgb));
+}
+
+.sc-academy-pip.is-staffed {
+  background: rgb(var(--sc-af-staffed-rgb));
+}
+
+.sc-academy-pip.is-building {
+  background: rgb(var(--sc-af-building-rgb));
+}
+
+.sc-academy-pip.is-idle {
+  background: rgb(var(--sc-af-idle-rgb));
+}
+
+.sc-academy-label {
+  color: var(--sc-af-muted);
+  font-weight: 500;
+}
+
+.sc-academy-status {
+  font-weight: 500;
+}
+
+.sc-academy-note {
+  color: var(--sc-af-muted);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-af-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.58;
+  }
+  50% {
+    opacity: 0.94;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-academy-pip {
+    animation: none !important;
+  }
+}

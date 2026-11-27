@@ -82,6 +82,8 @@ import { StoragePressureDetailLine } from "../hud/StoragePressureDetailLine";
 import { EconomyYieldsLine } from "../hud/EconomyYieldsLine";
 import { EconomyYieldBreakdown } from "../hud/EconomyYieldBreakdown";
 import { ResearchProgressLine } from "../hud/ResearchProgressLine";
+import { ResearchProgressDetailBar } from "../hud/ResearchProgressDetailBar";
+import { AcademyFeedbackLine } from "../hud/AcademyFeedbackLine";
 import { ResearchDetailExpander } from "../hud/ResearchDetailExpander";
 import { CourtStatusLine } from "../hud/CourtStatusLine";
 import { CourtDetailLine } from "../hud/CourtDetailLine";
@@ -233,6 +235,8 @@ export function KingdomTab(props: {
       <EconomyYieldsLine state={state} />
       <EconomyYieldBreakdown state={state} />
       <ResearchProgressLine state={state} />
+      <ResearchProgressDetailBar state={state} />
+      <AcademyFeedbackLine state={state} />
       <ResearchDetailExpander state={state} />
       <CourtStatusLine state={state} />
       <CourtDetailLine state={state} />

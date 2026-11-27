@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for research progress, study previews, and academy feedback (Slice 20)
+
+- **Research progress detail bar (`hud/ResearchProgressDetailBar.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveResearchProgressDetail` and `<ResearchProgressDetailBar>` under `<ResearchProgressLine>`, reading `researchProgressDetailSnapshot(state)` (`36af5fb`, exact match — zero mismatch) to render a thin progress strip, whole-percent note, and `~Ns` countdown while a study is open, hiding cleanly when `null` or `living_research_progress` is `false`.
+- **Optional study-effect previews (`hud/ResearchDetailExpander.tsx`):** Added `resolveStudyEffectPreview` reading `studyEffectPreviewSnapshot(state, studyId)` (`36af5fb`, exact match — zero mismatch) to display calm optional outcome summaries on each collapsed `Next unlocks` entry (plus `title` hover text), hiding previews when `living_study_preview` is `false`.
+- **Academy feedback sub-line (`hud/AcademyFeedbackLine.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveAcademyFeedback` and `<AcademyFeedbackLine>` under `<ResearchProgressLine>`, reading `academyFeedbackSnapshot(state)` (`36af5fb`, exact match — zero mismatch) to show `building` / `staffed` / `bonus active` / `idle` state and guidance note, hiding cleanly when `null` or `living_academy_feedback` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/research-progress-detail.css`, `hud/study-effect-preview.css`, and `hud/academy-feedback.css` only (no sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/tracks, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice20Presentation.test.tsx` (4 tests). Now: sim **787**, app **1695**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 20 (research progress, study-effect previews, academy feedback)
 
 - **Research progress (`researchProgressDetailSnapshot(state)`):** `{ activeId, name, percent, ticksLeft, totalTicks }` or null when nothing is being studied. Same open-study scan as `researchProgressSnapshot` (ticksLeft / totalTicks identical to its `active`); `percent` = floor((total - left) / total * 100), clamped 0-100.
