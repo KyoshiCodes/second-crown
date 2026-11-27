@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Whisper hint names the realm & map rank note shows the phase
+
+- **Next whisper names realm and culture:** When whispers are enabled and a sender can speak, the World tab countdown line now reads `Next whisper in ~Ns · from <realm> (<culture>)` (falling back cleanly if either name is missing, and hiding altogether if whispers are off).
+- **Richer rank marks and phase note on the map:** Joined-war rank bars now carry quiet highlight bevels and vanguard trim pips, and the rank note below the columns adds the phase word (`one rank · column`, `two ranks · skirmish`, `three ranks · clash`, or `one rank · falling-back`) without blocking clicks.
+
 ## 2026-11-26 — Your replies speak in your culture's voice
 
 - **Your reply buttons sound like your people.** If you play a western, woodland, desert, steppe or tide culture, your four fixed replies to a whisper now use the same voice as that culture's whispers: formal, kin-speak, a host's courtesy, short and blunt, or sailor's talk. Other cultures keep their lines.

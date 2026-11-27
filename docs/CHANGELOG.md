@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for whisper realm tag & richer column rank phase companion
+
+- **World tab `from <realm> (<culture>)` tag (`hud/NextWhisperHintLine.tsx`):** Added `formatWhisperSenderTag` reading `nextWhisperHint(state).fromName` + `fromCulture` (`73c784c`, exact match — zero mismatch) to show `"Next whisper in ~Ns · from <realm> (<culture>)"`, falling back cleanly when either is `null` and keeping the full line hidden when `nextWhisperHint(state)` is `null`.
+- **Richer board column unit ranks & `ranksNote` (`hud/BoardColumnRanks.tsx`):** Added subtle lead-bar bevels (`.sc-colrank-bevel`), heraldic trim pips (`.sc-colrank-pip`), and a quiet `.sc-colrank-note-phase` companion (`column`, `skirmish`, `clash`, `falling-back`, from `columnMarkSnapshot(state).ranksNote`, exact match — zero mismatch) beside `ranksLabel` inside `.sc-colrank-note` below `BoardColumnMarks` (`pointer-events: none !important;`, zero blood/gore, zero overlap).
+- **Unchanged invariants & accessibility:** Dedicated `hud/realm-tag-ranks-note.css` only (`CultureWhispersCard.tsx`, sim line tables, hint math, `theme.css`, `board-living.css`, `column-marks.css`, `column-ranks-whisper-hint.css`, `voice-rank-accents.css`, `player-reply-formation.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/RealmTagRanksNote.test.tsx` (4 tests). Now: sim **630**, app **1660**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 11 (player reply voice, fromName contract, ranks note)
 
 - **Player reply voice (`content/livingRealm.ts` `PLAYER_REPLIES`):** the five NPC cultures' player reply lines rewritten to match the whisper voice. Western formal ("By the steward's seal"), woodland kin ("Kin of {to}: the cedars carried your words"), desert host ("as a host must send"), steppe clipped ("Heard, {to}. Herd calm."), tide sailor ("One floats back on the ebb"). Mist, glen, salt, fen, peak unchanged. Still 4 lines per culture, fixed text. Previous table kept as `PLAYER_REPLIES_PLAIN`; `playerReplyLinesFor(culture, voiced = true)`.

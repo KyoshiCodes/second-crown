@@ -15,6 +15,7 @@ import {
 } from "./BoardLivingRealm";
 import "./column-ranks-whisper-hint.css";
 import "./voice-rank-accents.css";
+import "./realm-tag-ranks-note.css";
 
 const BOARD_ORIGIN_X = 236;
 const BOARD_ORIGIN_Y = 56;
@@ -26,6 +27,7 @@ export interface BoardColumnRanksView {
   column: ColumnMarkId;
   ranks: ColumnRanks;
   ranksLabel: string;
+  ranksNote: string;
   active: boolean;
   playerKit: LivingCultureKit;
   allyKit: LivingCultureKit | null;
@@ -86,9 +88,11 @@ export function resolveBoardColumnRanks(
 
   const midX = (p1.wx + p2.wx) * 0.5;
   const midY = (p1.wy + p2.wy) * 0.5;
+  const ranksNote = mark.ranksNote ?? "";
+  const combinedLabel = ranksNote ? `${mark.ranksLabel} · ${ranksNote}` : mark.ranksLabel;
   const noteX = Number(Math.max(64, Math.min(496, midX)).toFixed(1));
   const noteY = Number(Math.max(30, Math.min(348, midY + 38)).toFixed(1));
-  const noteW = Number(Math.max(36, mark.ranksLabel.length * 3.0 + 12).toFixed(1));
+  const noteW = Number(Math.max(48, combinedLabel.length * 2.9 + 14).toFixed(1));
 
   const allyId = mark.ours.realmIds.find((id) => id !== "player") ?? null;
   const baseDir = p2.wx >= p1.wx ? 1 : -1;
@@ -101,6 +105,7 @@ export function resolveBoardColumnRanks(
     column: mark.column,
     ranks: mark.ranks,
     ranksLabel: mark.ranksLabel,
+    ranksNote,
     active: mark.active,
     playerKit: resolveLivingCultureKit(state, "player"),
     allyKit: allyId ? resolveLivingCultureKit(state, allyId) : null,
@@ -148,6 +153,8 @@ export const BoardColumnRanks: React.FC<{ state: GameState }> = ({ state }) => {
 
   const ours = buildRankBars(v.ranks, v.ourDir);
   const theirs = buildRankBars(v.ranks, v.theirDir);
+  const ourLead = ours.bars[0];
+  const theirLead = theirs.bars[0];
 
   return (
     <g
@@ -161,6 +168,7 @@ export const BoardColumnRanks: React.FC<{ state: GameState }> = ({ state }) => {
         data-column-ranks={v.ranks}
         data-column-ranks-phase={v.column}
         data-ranks-label={v.ranksLabel}
+        data-ranks-note={v.ranksNote || undefined}
       >
         {/* Player + ally stronger unit rank stack */}
         <g
@@ -192,6 +200,24 @@ export const BoardColumnRanks: React.FC<{ state: GameState }> = ({ state }) => {
               />
             );
           })}
+          {ourLead ? (
+            <>
+              <line
+                className="sc-colrank-bevel"
+                x1={Number((ourLead.x + 0.6).toFixed(1))}
+                y1={Number((ourLead.y + 0.45).toFixed(1))}
+                x2={Number((ourLead.x + ourLead.width - 0.6).toFixed(1))}
+                y2={Number((ourLead.y + 0.45).toFixed(1))}
+              />
+              <circle
+                className="sc-colrank-pip"
+                cx={Number((v.ourDir > 0 ? ourLead.x + ourLead.width + 0.9 : ourLead.x - 0.9).toFixed(1))}
+                cy={Number((ourLead.y + ourLead.height / 2).toFixed(1))}
+                r={0.65}
+                fill={pPal.trim}
+              />
+            </>
+          ) : null}
         </g>
 
         {/* Opposing foe stronger unit rank stack */}
@@ -224,9 +250,27 @@ export const BoardColumnRanks: React.FC<{ state: GameState }> = ({ state }) => {
               />
             );
           })}
+          {theirLead ? (
+            <>
+              <line
+                className="sc-colrank-bevel"
+                x1={Number((theirLead.x + 0.6).toFixed(1))}
+                y1={Number((theirLead.y + 0.45).toFixed(1))}
+                x2={Number((theirLead.x + theirLead.width - 0.6).toFixed(1))}
+                y2={Number((theirLead.y + 0.45).toFixed(1))}
+              />
+              <circle
+                className="sc-colrank-pip"
+                cx={Number((v.theirDir > 0 ? theirLead.x + theirLead.width + 0.9 : theirLead.x - 0.9).toFixed(1))}
+                cy={Number((theirLead.y + theirLead.height / 2).toFixed(1))}
+                r={0.65}
+                fill={fPal.trim}
+              />
+            </>
+          ) : null}
         </g>
 
-        {/* Quiet rank count note pill below column badge */}
+        {/* Quiet rank count + phase companion note pill below column badge */}
         <g
           className="sc-colrank-note"
           transform={`translate(${v.noteX}, ${v.noteY})`}
@@ -245,7 +289,13 @@ export const BoardColumnRanks: React.FC<{ state: GameState }> = ({ state }) => {
             y={1.2}
             textAnchor="middle"
           >
-            {v.ranksLabel}
+            <tspan className="sc-colrank-note-label">{v.ranksLabel}</tspan>
+            {v.ranksNote ? (
+              <>
+                <tspan className="sc-colrank-note-sep"> · </tspan>
+                <tspan className="sc-colrank-note-phase">{v.ranksNote}</tspan>
+              </>
+            ) : null}
           </text>
         </g>
       </g>

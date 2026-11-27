@@ -1,0 +1,128 @@
+/* --- Living Realm Slice 11: Hint Realm Tag & Richer Column Rank Phase Companion (isolated CSS) ---
+ * Loaded from hud/NextWhisperHintLine.tsx and hud/BoardColumnRanks.tsx.
+ * Leaves theme.css, board-living.css, column-marks.css,
+ * player-reply-formation.css, column-ranks-whisper-hint.css, and voice-rank-accents.css untouched.
+ * Strict pointer-events: none !important on all overlay elements and decorative spans.
+ * Calm realm attribution and quiet heraldic rank bevels — zero blood or gore.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-hint-realm-color: #f1f5f9;
+  --sc-hint-paren-color: rgba(186, 204, 224, 0.82);
+  --sc-colrank-bevel-stroke: rgba(248, 250, 252, 0.56);
+  --sc-colrank-pip-stroke: rgba(15, 23, 42, 0.72);
+  --sc-colrank-note-sep-color: rgba(148, 163, 184, 0.78);
+  --sc-colrank-note-phase-color: #bfdbfe;
+  --sc-colrank-clash-plate-stroke: rgba(253, 224, 71, 0.62);
+}
+
+:root[data-chrome="night"] {
+  --sc-hint-realm-color: #f8fafc;
+  --sc-hint-paren-color: rgba(196, 214, 236, 0.86);
+  --sc-colrank-bevel-stroke: rgba(248, 250, 252, 0.64);
+  --sc-colrank-pip-stroke: rgba(8, 12, 22, 0.84);
+  --sc-colrank-note-sep-color: rgba(162, 182, 206, 0.82);
+  --sc-colrank-note-phase-color: #bae6fd;
+  --sc-colrank-clash-plate-stroke: rgba(254, 240, 138, 0.7);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-hint-realm-color: #fef3c7;
+  --sc-hint-paren-color: rgba(236, 214, 174, 0.86);
+  --sc-colrank-bevel-stroke: rgba(254, 243, 199, 0.58);
+  --sc-colrank-pip-stroke: rgba(28, 20, 12, 0.78);
+  --sc-colrank-note-sep-color: rgba(212, 178, 122, 0.8);
+  --sc-colrank-note-phase-color: #fde68a;
+  --sc-colrank-clash-plate-stroke: rgba(250, 204, 21, 0.64);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Rules
+   ========================================================================== */
+.sc-colrank-bevel,
+.sc-colrank-pip,
+.sc-colrank-note-label,
+.sc-colrank-note-sep,
+.sc-colrank-note-phase,
+.sc-next-whisper-realm,
+.sc-next-whisper-paren {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. World Tab "from <realm> (<culture>)" Realm Tag
+   ========================================================================== */
+.sc-next-whisper-realm {
+  font-weight: 600;
+  color: var(--sc-hint-realm-color);
+  letter-spacing: 0.01em;
+}
+
+.sc-next-whisper-paren {
+  color: var(--sc-hint-paren-color);
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   4. Richer Column Unit Ranks & Quiet Phase Companion Note
+   ========================================================================== */
+.sc-colrank-bevel {
+  stroke: var(--sc-colrank-bevel-stroke);
+  stroke-width: 0.45;
+  stroke-linecap: round;
+  animation: sc-colrank-bevel-gleam 3.6s ease-in-out infinite;
+}
+
+.sc-colrank-pip {
+  stroke: var(--sc-colrank-pip-stroke);
+  stroke-width: 0.45;
+  animation: sc-colrank-bevel-gleam 3.6s ease-in-out infinite;
+}
+
+.sc-colrank-entry.is-rank-clash-line .sc-colrank-plate {
+  stroke: var(--sc-colrank-clash-plate-stroke);
+}
+
+.sc-colrank-entry.is-rank-falling-back .sc-colrank-bevel,
+.sc-colrank-entry.is-rank-falling-back .sc-colrank-pip {
+  opacity: 0.52;
+  animation: none;
+}
+
+.sc-colrank-note-label {
+  font-weight: 600;
+}
+
+.sc-colrank-note-sep {
+  fill: var(--sc-colrank-note-sep-color);
+}
+
+.sc-colrank-note-phase {
+  fill: var(--sc-colrank-note-phase-color);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   5. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-colrank-bevel-gleam {
+  0%,
+  100% {
+    opacity: 0.68;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-colrank-bevel,
+  .sc-colrank-pip {
+    animation: none !important;
+  }
+}
