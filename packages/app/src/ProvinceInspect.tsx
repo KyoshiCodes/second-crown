@@ -26,6 +26,7 @@ import {
   outpostTithePerTick,
   scoutCost,
   settlementName,
+  INSPECT_NODE_NAMES,
   storedNodeStock,
   tryAbandonOutpost,
   tryDispatchGarrison,
@@ -89,16 +90,6 @@ const TERRAIN: Record<string, string> = {
   waste: "Waste",
   shore: "Shore",
   peak: "Peak",
-};
-
-const NODE: Record<string, string> = {
-  none: "Open ground",
-  hold: "Hold",
-  camp: "Hostile camp",
-  woodcut: "Timber stand",
-  quarry: "Stone outcrop",
-  field: "Forage field",
-  ruins: "Ruins",
 };
 
 const RESOURCE: Record<string, string> = {
@@ -218,7 +209,7 @@ export function ProvinceInspect(props: {
     : "";
   const canScout =
     !seen && gold >= cost && !full && (owned(state, "skirmisher") >= 1 || owned(state, "militia") >= 1);
-  const name = home ? settlementName(state) : seen ? NODE[p.node] ?? p.node : "Unscouted province";
+  const name = home ? settlementName(state) : seen ? INSPECT_NODE_NAMES[p.node] ?? p.node : "Unscouted province";
   const site = siteOf(state, selectedId, seen);
   const yard = home ? keepYardWorks(state) : [];
   const onTile = marchesHere(state, selectedId, seen);

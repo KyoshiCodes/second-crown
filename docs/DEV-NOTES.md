@@ -1,3 +1,10 @@
+## 2026-11-27 — docs hygiene / shared inspect tile names
+
+- `ProvinceInspect.tsx` now uses `INSPECT_NODE_NAMES` from `@second-crown/sim` (`content/livingRealm.ts`), the same table `inspectDetailSnapshot` uses for `name`. The two can no longer drift. Rename a node there, not in the app.
+- **Remaining copies (not changed in this pass):** local node-name maps still live in `hud/AtlasProvinceCard.tsx` (`NODE`, identical), `hud/CampLivingRows.tsx` (`NODE_NAME`, identical), `hud/OutpostLivingCard.tsx` (`NODE_NAME`, no `hold` key) and `hud/NodeLivingCard.tsx` (`NODE_NAME`, gather nodes only, typed by `GATHER_NODES`). All strings match the sim table today. Fold them onto `INSPECT_NODE_NAMES` in a later UI pass.
+- `ProvinceInspect`'s `TERRAIN` map has no sim twin (`inspectDetailSnapshot.terrain` is the raw id), so it stays in the app.
+- HANDOFF: the "not merged" labels on old `wave/*` / `bakeoff/*` entries were all stale. Before calling a branch waiting, check `git merge-base --is-ancestor origin/<branch> origin/main`.
+
 ## 2026-11-27 — app / living presentation for decree-effect summaries & province inspect detail
 
 - **Decree-effect summary line (`packages/app/src/hud/DecreeEffectSummaryLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**

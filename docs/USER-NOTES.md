@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Housekeeping
+
+- **Nothing changes in the game.** Notes and handoff docs were tidied, and the inspect card now gets tile names from the same list as the rest of the game. The names you see are the same.
+
 ## 2026-11-27 — Decree effect summaries on Kingdom and richer province inspect detail
 
 - **Active decree effects & suggestions on Kingdom:** Under the court countdown line, a quiet summary strip now spells out what active decrees do (`Training costs 10% less`, `+3 production`, `Gifts earn +6 opinion`) and notes which open decree is ready to swear next.

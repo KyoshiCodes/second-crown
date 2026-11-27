@@ -1,8 +1,15 @@
 # Roadmap
 
-Copy of intent in `docs/ROADMAP.md` (2026-10-04).
+Source of truth: `docs/ROADMAP.md` and "Next recommended slices" in `docs/HANDOFF.md`.
 
-Live: Mist/Ranger, Glen/Banner, Salt/Outrider, Fen/Warden, Peak/Lancer with chips, keeps and march meeples. First dawn +1 militia, +20 food, +10 wood, once.
-Near: playtest the five cultures, culture picker names the unit, fog "unseen" copy.
-Parked: another dawn gift; real time (server clock, server save, shared hold), plan in `docs/REALTIME.md`, not started. Do not implement.
-Later: guild rally, auction, deeper tree. Spec first.
+Live: everything in [[02 Systems]], including the research tree and infirmary auto-heal.
+
+Near (from HANDOFF):
+
+1. Playtest notes + balance pass on the live build.
+2. Board visual pass: readability, contrast, label clutter.
+3. Infirmary auto-heal pace check against manual Treat.
+
+After those: research expansion, audio, performance (see `docs/ROADMAP.md`).
+
+Parked: another dawn gift; an owner-marked shared realm; more shared-hold intents. Do not implement.

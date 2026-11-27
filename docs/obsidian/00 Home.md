@@ -15,3 +15,7 @@ Idle kingdom + board war. This vault mirrors `docs/` in git.
 ## Live
 
 http://129.153.17.72:8787/
+
+`main` at `59961f3` (2026-11-27). Every slice and branch is merged and live. Nothing is waiting.
+
+Newest: Living Realm slices 16–21. See [[02 Systems]] and [[05 Patch notes]].

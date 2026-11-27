@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-27 — Docs hygiene + shared inspect tile names
+
+- **HANDOFF:** current tip recorded as `59961f3`; new "Current status" summary under Live; every `wave/*` / `bakeoff/*` entry that said "not merged" now says "merged, live" (all 28 checked with `git merge-base --is-ancestor`); test counts updated to sim **809**, app **1698**, server **158**.
+- **Obsidian vault:** `00 Home`, `01 Timeline`, `02 Systems`, `03 Roadmap`, `05 Patch notes`, `06 Invariants` refreshed for Living Realm slices 1–21.
+- **`ProvinceInspect.tsx`:** drops its local `NODE` map and reads `INSPECT_NODE_NAMES` from `@second-crown/sim` (the table `inspectDetailSnapshot` uses). Same strings, no visible change. No `packages/sim`, `server/` or game math changes.
+
 ## 2026-11-27 — Living presentation for decree-effect summaries and inspect detail (Slice 21)
 
 - **Court decree-effect summary line (`hud/DecreeEffectSummaryLine.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveDecreeEffectSummary` and `<DecreeEffectSummaryLine>` directly under `<CourtDetailLine>`, reading `decreeEffectSummarySnapshot(state)` (`7e4d28b`, exact match — zero mismatch) to list running decrees' plain-word effects and next affordable/save decree suggestions, hiding cleanly when `null` or `living_decree_effects` is `false`.
