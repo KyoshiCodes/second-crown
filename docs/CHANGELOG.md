@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for player whisper replies & joined-war formations
+
+- **Culture whisper reply buttons (`hud/CultureWhispersCard.tsx`, `tabs/WorldTab.tsx`):** Added `listReplyableWhispers` reading `replyableWhispers(state)` and calling `replyToWhisper(st, whisperId, lineIndex)` (`42a7826` shipped `replyableWhispers` / `PLAYER_REPLIES` rather than `playerReplyLines`, `replyToWhisper` exact match). Shows 4 fixed culture reply buttons beneath any whisper the player can answer (zero chat box); once sent, the player's reply pairs directly beneath the whisper via `pairCultureCorrespondence`.
+- **Joined-war board formations (`hud/BoardJoinedFormations.tsx`, `BoardLiving.tsx`):** Added `FORMATION_LABEL`, `listBoardJoinedFormations`, and `<BoardJoinedFormations>` reading `formationSnapshot(state)` (exact match, `pointer-events: none !important;`, zero blood/gore): renders opposing culture standards (player + ally vs foe), a calm geometric phase emblem, and a short formation pill (`Muster`, `Skirmish`, `Clash`, `Fall-back`).
+- **Unchanged invariants & accessibility:** Dedicated `hud/player-reply-formation.css` only (`theme.css`, `living-realm-ui.css`, `correspondence-outcome.css`, `board-living.css`, `war-join-imagery.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/PlayerReplyFormation.test.tsx` (4 tests). Now: sim **570**, app **1646**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 7 (player reply, joined-war formation snapshot)
 
 - **Player reply (`livingRealm.ts replyToWhisper(state, whisperId, lineIndex)`):** the player answers one whisper they received with one fixed line from their culture's new `PLAYER_REPLIES` table (4 lines × 10 cultures = 40 lines; unknown culture falls back to western). One reply per whisper. Appended to `flags.culture_news` with the NPC reply shape `{ tick, kind: "reply", fromRealmId: "player", toRealmId, text, replyTo }`. Refuses (null) when the switch is off, the whisper is unknown / not to the player / off the news list, already answered, the index is out of range, or the player is at war or peace-locked with the sender. Logs `reply_whisper` to `inputLog`. Never automatic.

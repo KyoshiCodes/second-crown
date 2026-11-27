@@ -274,7 +274,7 @@ export function WorldTab(props: {
       </div>
 
       <Fold id="world-culture-whispers" title="Realm Whispers & Caravans" summary={newsSummary}>
-        <CultureWhispersCard state={state} />
+        <CultureWhispersCard state={state} act={act} />
       </Fold>
 
       {clash ? (

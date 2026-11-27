@@ -1,3 +1,13 @@
+## 2026-11-26 — app / living presentation for player whisper replies & joined-war formations
+
+- **Culture whisper replies (`packages/app/src/hud/CultureWhispersCard.tsx`, `tabs/WorldTab.tsx`):**
+  - Exported `listReplyableWhispers(state)` (partial-state guard) and wired optional `act` prop from `WorldTab.tsx` into `<CultureWhispersCard state={state} act={act} />`.
+  - **Shape mismatch note:** `@second-crown/sim` (`42a7826`) shipped `replyableWhispers` + `PLAYER_REPLIES` rather than `playerReplyLines`, alongside `replyToWhisper` (exact match). Renders 4 fixed culture-line buttons inside `.sc-reply-picker` for each answerable whisper (zero `<input>`/`<textarea>`); once answered, `replyToWhisper` appends `{ kind: "reply", fromRealmId: "player", replyTo }`, which `pairCultureCorrespondence` pairs automatically.
+- **Joined-war board formations (`packages/app/src/hud/BoardJoinedFormations.tsx`, `BoardLiving.tsx`):**
+  - Exported `FORMATION_LABEL`, `BoardJoinedFormationPoint`, pure `listBoardJoinedFormations(state)` (reads `formationSnapshot`, exact match, capped at 3), and `<BoardJoinedFormations>` (`pointer-events: none !important;`). Renders left/right culture standards (player + companion ally vs foe), geometric phase emblems, and formation pills (`Muster`, `Skirmish`, `Clash`, `Fall-back`) with zero blood or gore.
+- **Dedicated CSS (`packages/app/src/hud/player-reply-formation.css`):** Imported from `CultureWhispersCard.tsx` and `BoardJoinedFormations.tsx`. Dusk/Night/Parchment tokens, strict `pointer-events: none !important;`, calm keyframes (`sc-formation-sway`, `sc-formation-breathe`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to `theme.css`, `living-realm-ui.css`, `correspondence-outcome.css`, `board-living.css`, `war-join-imagery.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/PlayerReplyFormation.test.tsx`):** 4 tests passing (`npm test` -> sim **570**, app **1646**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-26 — sim / Living Realm slice 7 (player reply, joined-war formation snapshot)
 
 - **Content (`content/livingRealm.ts`):** `PLAYER_REPLIES` (4 lines per culture for all 10 cultures in `CULTURES`, `{to}` = the whisperer), `playerReplyLinesFor(culture)` (western fallback), `FORMATION_IDS = ["muster", "skirmish", "clash", "fall-back"]`, type `FormationId`.

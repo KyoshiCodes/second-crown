@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Reply buttons on whispers & joined-war formation marks on the map
+
+- **Answer whispers in one click:** When another kingdom sends you a whisper you can answer, 4 calm preset replies in your culture's voice appear underneath (no chat box). Once you send one, your answer tucks neatly under the whisper just like another kingdom's reply.
+- **Joined-war formations on the map:** While fighting alongside an ally in a joined war (or briefly as the dust settles), opposing standards and a quiet formation tag (`Muster`, `Skirmish`, `Clash`, or `Fall-back`) appear between the holds without blocking clicks.
+
 ## 2026-11-26 — You can answer whispers
 
 - **Answer a whisper.** When another kingdom whispers to you, you can send one answer back. You pick from a few fixed lines in your culture's voice. No typing.

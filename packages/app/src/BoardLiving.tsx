@@ -183,6 +183,11 @@ import {
   resolveBoardJoinedOutcome,
   type BoardJoinedOutcomePoint,
 } from "./hud/JoinedWarOutcomeCue";
+import {
+  BoardJoinedFormations,
+  listBoardJoinedFormations,
+  type BoardJoinedFormationPoint,
+} from "./hud/BoardJoinedFormations";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1027,6 +1032,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.598. Living Realm Joined-War Outcome Ribbon (short-lived aftermath) */}
         <BoardJoinedOutcome state={state} />
 
+        {/* 5.599. Living Realm Joined-War Formation Marks (opposing standards & phase mark) */}
+        <BoardJoinedFormations state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1216,4 +1224,7 @@ export {
   BoardJoinedOutcome,
   resolveBoardJoinedOutcome,
   type BoardJoinedOutcomePoint,
+  BoardJoinedFormations,
+  listBoardJoinedFormations,
+  type BoardJoinedFormationPoint,
 };

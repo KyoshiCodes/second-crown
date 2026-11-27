@@ -3,12 +3,17 @@ import {
   cultureOfRealm,
   getCulture,
   getCultureNews,
+  replyToWhisper,
+  replyableWhispers,
   type CultureNews,
   type GameState,
+  type ReplyableWhisper,
 } from "@second-crown/sim";
+import type { ActFn } from "../game/useGameEngine";
 import { CultureCrestPip } from "./CultureCrestPip";
 import "./living-realm-ui.css";
 import "./correspondence-outcome.css";
+import "./player-reply-formation.css";
 
 export interface CultureNewsDisplayItem extends CultureNews {
   fromCultureId: string;
@@ -123,12 +128,35 @@ function renderKindTag(kind: CultureNews["kind"]) {
 }
 
 /**
- * Read-only Culture Whispers, Correspondence & Caravans list for the World tab.
- * Shows whisper + reply pairs newest-first with culture crests and zero chat input.
+ * Lists whispers sent to the player that may still be answered (`replyableWhispers`)
+ * with partial-state safety for minimal test fixtures.
  */
-export function CultureWhispersCard(props: { state: GameState | undefined }) {
+export function listReplyableWhispers(
+  state: GameState | undefined,
+): ReplyableWhisper[] {
+  if (
+    !state?.flags ||
+    !state.meta ||
+    !Array.isArray(state.realms) ||
+    !Array.isArray(state.wars)
+  ) {
+    return [];
+  }
+  return replyableWhispers(state);
+}
+
+/**
+ * Read-only Culture Whispers, Correspondence & Caravans list for the World tab.
+ * Shows whisper + reply pairs newest-first with culture crests, fixed culture reply
+ * choices when applicable, and zero text input.
+ */
+export function CultureWhispersCard(props: { state: GameState | undefined; act?: ActFn }) {
   const rawCount = summarizeCultureNews(props.state).length;
   const entries = pairCultureCorrespondence(props.state);
+  const replyableById = new Map<string, ReplyableWhisper>();
+  for (const r of listReplyableWhispers(props.state)) {
+    replyableById.set(r.whisper.id, r);
+  }
 
   return (
     <div className="sc-culture-whispers" data-culture-whispers={rawCount}>
@@ -195,6 +223,7 @@ export function CultureWhispersCard(props: { state: GameState | undefined }) {
             }
 
             const { item } = entry;
+            const replyable = item.id ? replyableById.get(item.id) : undefined;
             return (
               <li
                 key={entry.id}
@@ -214,6 +243,35 @@ export function CultureWhispersCard(props: { state: GameState | undefined }) {
                     <span className="sc-culture-whisper-tick">T{item.tick}</span>
                   </div>
                   <p className="sc-culture-whisper-text">{item.text}</p>
+                  {replyable ? (
+                    <div
+                      className="sc-reply-picker"
+                      data-reply-picker={replyable.whisper.id}
+                    >
+                      <span className="sc-reply-picker-label">Reply with:</span>
+                      <div className="sc-reply-picker-buttons">
+                        {replyable.lines.map((line, idx) => (
+                          <button
+                            key={`${replyable.whisper.id}-reply-${idx}`}
+                            type="button"
+                            className="sc-reply-choice-btn"
+                            data-reply-whisper={replyable.whisper.id}
+                            data-reply-index={idx}
+                            onClick={() =>
+                              props.act?.((st) => {
+                                const sent = replyToWhisper(st, replyable.whisper.id, idx);
+                                return sent
+                                  ? `Answered ${item.fromRealmName}.`
+                                  : "Cannot answer that whisper now.";
+                              })
+                            }
+                          >
+                            {line}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </li>
             );
