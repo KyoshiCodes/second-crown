@@ -185,6 +185,8 @@ Clash result detail and unit waiting states available (`living_clash_result`, `l
 
 Board surface detail and selection feedback available (`living_board_surface`, `living_selection_feedback`). Read-only.
 
+Battle feedback and board polish detail available (`living_battle_feedback`, `living_board_polish`). Read-only.
+
 Attentive:
 
 ```

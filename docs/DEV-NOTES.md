@@ -1,3 +1,13 @@
+## 2026-11-27 — sim / Living Realm slice 27 (battle feedback, board polish detail)
+
+- **Where:** `battleFeedbackSnapshot`, `boardPolishSnapshot` in `systems/livingStatus.ts`. Constants `BATTLE_FEEDBACK_NOTE_*`, `BATTLE_FEEDBACK_MARK_*`, `POLISH_MARCH_*`, `POLISH_KEEP_*` in `content/livingRealm.ts`. `fog` reuses `SURFACE_FOG_CLEAR` / `SURFACE_FOG_VEILED`.
+- **Battle tile:** no battle stored a tile before this slice, so `LastBattleStory` gains optional `provinceId` (record only, like slice 25 `forces`). Writers: `resolveColumnClash` stores `attacker.toId ?? defender.toId` (covers march pairs, outpost assault, camp raid, hold storm); `sally.ts` adds `toId: incoming.toId` to the defender side so sallies get the home tile; `resolveBattle` stores `BattleOptions.provinceId`, passed only by the home siege in `march.ts`. The War-tab Fight (`actions/war.ts`) is realm-level and has no tile, so `provinceId` is null there. Unknown stored ids also give null.
+- **Recency:** same `recentBattleTick` window as slices 24/25.
+- **Shared helpers:** `keepKind` and `marchKind` now back both `boardSurfaceSnapshot` (slice 26, output unchanged, its tests still pass) and `boardPolishSnapshot`, so the two cannot drift. Polish labels are shorter (board badges); surface lines stay sentences.
+- **Switches:** `battleFeedback`, `boardPolish` in `LivingSwitches`.
+- **Exports:** the two functions, types `BattleFeedback`, `BoardPolish`, and the constants from `packages/sim`.
+- **Left alone:** combat / engagement math, `fog.ts`, `board.ts`, pathfinding, balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for board surface detail & selection feedback
 
 - **Board surface overlay (`packages/app/src/hud/BoardSurfaceLayer.tsx`, `packages/app/src/BoardLiving.tsx`):**

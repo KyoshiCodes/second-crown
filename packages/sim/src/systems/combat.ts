@@ -78,6 +78,8 @@ export interface BattleOptions {
   wallSoak?: number;
   /** Fight only this column of the attacker (by unit type), not the attacker's whole realm. */
   attackerForce?: Record<string, number>;
+  /** Slice 27: tile the battle is fought on, stored with the battle. Record only; no math reads it. */
+  provinceId?: string;
 }
 
 function columnStacks(stacks: Stack[], force: Record<string, number>): Stack[] {
@@ -184,6 +186,7 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams, opts:
       { side: "attacker", realmId: war.attackerRealmId, strength: atk, casualties: stackLoss(atkStart, atkStacks) },
       { side: "defender", realmId: war.defenderRealmId, strength: def, casualties: stackLoss(defStart, defStacks) },
     ],
+    provinceId: opts.provinceId,
   });
 
   return {

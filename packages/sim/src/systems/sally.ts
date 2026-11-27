@@ -22,6 +22,7 @@ export function trySally(state: GameState): boolean {
   const rng = createRngStreams(state.meta.seed + state.meta.tick + 17);
   const atk = { realmId: "player", levy: SALLY, force };
   const def = {
+    toId: incoming.toId,
     realmId: incoming.realmId,
     levy: incoming.levy,
     force: incoming.force ?? { militia: Math.max(1, incoming.levy) },

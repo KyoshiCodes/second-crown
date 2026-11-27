@@ -483,6 +483,34 @@ export const SELECTION_NOTE_RIVAL = "Held by another realm.";
 /** Slice 26: selection note, open ground. */
 export const SELECTION_NOTE_OPEN = "Open ground.";
 
+// ---------------------------------------------------------------- battle feedback, board polish (slice 27)
+
+/** Slice 27: battle feedback note, the player won. */
+export const BATTLE_FEEDBACK_NOTE_WON = "You won here.";
+/** Slice 27: battle feedback note, the player lost. */
+export const BATTLE_FEEDBACK_NOTE_LOST = "You lost here.";
+/** Slice 27: battle feedback note, the player was not in it. */
+export const BATTLE_FEEDBACK_NOTE_OTHERS = "Others fought here.";
+/** Slice 27: battle feedback mark, the player won. */
+export const BATTLE_FEEDBACK_MARK_WON = "won";
+/** Slice 27: battle feedback mark, the player lost. */
+export const BATTLE_FEEDBACK_MARK_LOST = "lost";
+/** Slice 27: battle feedback mark, the player was not in it. */
+export const BATTLE_FEEDBACK_MARK_OTHERS = "clash";
+
+/** Slice 27: board polish march label, a rival column is coming. */
+export const POLISH_MARCH_ENEMY = "Foe inbound";
+/** Slice 27: board polish march label, only player columns are coming. */
+export const POLISH_MARCH_OWN = "Ally inbound";
+/** Slice 27: board polish march label, a column is leaving (none inbound). */
+export const POLISH_MARCH_LEAVING = "Marching out";
+/** Slice 27: board polish keep label, the player's home or a hold the player holds. */
+export const POLISH_KEEP_HOME = "Your keep";
+/** Slice 27: board polish keep label, a hold another realm holds. */
+export const POLISH_KEEP_RIVAL = "Rival keep";
+/** Slice 27: board polish keep label, a hold no realm holds. */
+export const POLISH_KEEP_EMPTY = "Empty hold";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

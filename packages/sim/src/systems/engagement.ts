@@ -130,6 +130,7 @@ export function resolveColumnClash(
       { side: "attacker", realmId: attacker.realmId, strength: atkPower, casualties: Math.max(0, atkMen - men(atk)) },
       { side: "defender", realmId: defender.realmId, strength: defPower, casualties: Math.max(0, defMen - men(def)) },
     ],
+    provinceId: attacker.toId ?? defender.toId,
   });
 
   return {

@@ -71,6 +71,18 @@ import {
   SELECTION_NOTE_OWN,
   SELECTION_NOTE_RIVAL,
   SELECTION_NOTE_OPEN,
+  BATTLE_FEEDBACK_NOTE_WON,
+  BATTLE_FEEDBACK_NOTE_LOST,
+  BATTLE_FEEDBACK_NOTE_OTHERS,
+  BATTLE_FEEDBACK_MARK_WON,
+  BATTLE_FEEDBACK_MARK_LOST,
+  BATTLE_FEEDBACK_MARK_OTHERS,
+  POLISH_MARCH_ENEMY,
+  POLISH_MARCH_OWN,
+  POLISH_MARCH_LEAVING,
+  POLISH_KEEP_HOME,
+  POLISH_KEEP_RIVAL,
+  POLISH_KEEP_EMPTY,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -1322,16 +1334,31 @@ export function boardSurfaceSnapshot(state: GameState, provinceId: string): Boar
     ? SURFACE_ELEVATION[p.terrain]
     : SURFACE_ELEVATION_DEFAULT;
   const fog = seenNoWrite(state, p.id) ? SURFACE_FOG_CLEAR : SURFACE_FOG_VEILED;
-  let keep: string | null = null;
-  if (p.id === state.board.homeProvinceId || (p.node === "hold" && p.occupantRealmId === "player")) keep = SURFACE_KEEP_HOME;
-  else if (p.node === "hold") keep = p.occupantRealmId ? SURFACE_KEEP_RIVAL : SURFACE_KEEP_EMPTY;
-  const all = listMarches(state);
-  const inbound = all.filter((m) => m.toId === p.id);
-  let marches: string | null = null;
-  if (inbound.some((m) => m.realmId !== "player")) marches = SURFACE_MARCH_ENEMY;
-  else if (inbound.length > 0) marches = SURFACE_MARCH_OWN;
-  else if (all.some((m) => m.fromId === p.id)) marches = SURFACE_MARCH_LEAVING;
+  const k = keepKind(state, p);
+  const keep = k === "home" ? SURFACE_KEEP_HOME : k === "rival" ? SURFACE_KEEP_RIVAL : k === "empty" ? SURFACE_KEEP_EMPTY : null;
+  const m = marchKind(state, p.id);
+  const marches = m === "enemy" ? SURFACE_MARCH_ENEMY : m === "own" ? SURFACE_MARCH_OWN : m === "leaving" ? SURFACE_MARCH_LEAVING : null;
   return { terrain: p.terrain, elevation, fog, keep, marches };
+}
+
+type KeepKind = "home" | "rival" | "empty" | null;
+type MarchKind = "enemy" | "own" | "leaving" | null;
+
+/** Home tile or a player hold: home; another hold: rival / empty; else null. Shared by slices 26 and 27. */
+function keepKind(state: GameState, p: { id: string; node?: string; occupantRealmId?: string | null }): KeepKind {
+  if (p.id === state.board.homeProvinceId || (p.node === "hold" && p.occupantRealmId === "player")) return "home";
+  if (p.node === "hold") return p.occupantRealmId ? "rival" : "empty";
+  return null;
+}
+
+/** Rival inbound beats player inbound beats a column leaving the tile. Shared by slices 26 and 27. */
+function marchKind(state: GameState, provinceId: string): MarchKind {
+  const all = listMarches(state);
+  const inbound = all.filter((m) => m.toId === provinceId);
+  if (inbound.some((m) => m.realmId !== "player")) return "enemy";
+  if (inbound.length > 0) return "own";
+  if (all.some((m) => m.fromId === provinceId)) return "leaving";
+  return null;
 }
 
 // ---------------------------------------------------------------- selection feedback (slice 26)
@@ -1362,4 +1389,59 @@ export function selectionFeedbackSnapshot(state: GameState, view: BoardView = {}
   else if (p.occupantRealmId) note = SELECTION_NOTE_RIVAL;
   else note = SELECTION_NOTE_OPEN;
   return { selected: p.id, note };
+}
+
+// ---------------------------------------------------------------- battle feedback (slice 27)
+
+export interface BattleFeedback {
+  /** Tile the last battle was fought on, or null when it has no known tile (realm-level Fight, or stored before slice 27). */
+  provinceId: string | null;
+  /** BATTLE_FEEDBACK_NOTE_* line. */
+  note: string;
+  /** BATTLE_FEEDBACK_MARK_* (won / lost / clash). */
+  mark: string;
+}
+
+/**
+ * Slice 27: feedback on the last battle (last_battle_json). Null with no stored battle, no
+ * "battle" world-log entry within BATTLE_NOTE_RECENT_TICKS, or living_battle_feedback off.
+ * Pure read; combat math untouched.
+ */
+export function battleFeedbackSnapshot(state: GameState): BattleFeedback | null {
+  if (!livingSwitches(state).battleFeedback) return null;
+  const story = lastBattleStory(state);
+  if (!story) return null;
+  if (recentBattleTick(state) === null) return null;
+  const stored = typeof story.provinceId === "string" ? story.provinceId : null;
+  const provinceId = stored && state.board.provinces.some((q) => q.id === stored) ? stored : null;
+  if (story.winnerId === "player") return { provinceId, note: BATTLE_FEEDBACK_NOTE_WON, mark: BATTLE_FEEDBACK_MARK_WON };
+  if (story.loserId === "player") return { provinceId, note: BATTLE_FEEDBACK_NOTE_LOST, mark: BATTLE_FEEDBACK_MARK_LOST };
+  return { provinceId, note: BATTLE_FEEDBACK_NOTE_OTHERS, mark: BATTLE_FEEDBACK_MARK_OTHERS };
+}
+
+// ---------------------------------------------------------------- board polish detail (slice 27)
+
+export interface BoardPolish {
+  /** POLISH_MARCH_* short label, or null when no column is coming or leaving. */
+  march: string | null;
+  /** POLISH_KEEP_* short label on the home tile or a hold, else null. */
+  keep: string | null;
+  /** "clear" / "veiled" (isProvinceSeen, without its lazy fog_seen write). */
+  fog: string;
+}
+
+/**
+ * Slice 27: short board labels for one tile. Null for an unknown id or with
+ * living_board_polish off. Pure read; pathfinding and fog rules untouched.
+ */
+export function boardPolishSnapshot(state: GameState, provinceId: string): BoardPolish | null {
+  if (!livingSwitches(state).boardPolish) return null;
+  const p = state.board.provinces.find((q) => q.id === provinceId);
+  if (!p) return null;
+  const m = marchKind(state, p.id);
+  const march = m === "enemy" ? POLISH_MARCH_ENEMY : m === "own" ? POLISH_MARCH_OWN : m === "leaving" ? POLISH_MARCH_LEAVING : null;
+  const k = keepKind(state, p);
+  const keep = k === "home" ? POLISH_KEEP_HOME : k === "rival" ? POLISH_KEEP_RIVAL : k === "empty" ? POLISH_KEEP_EMPTY : null;
+  const fog = seenNoWrite(state, p.id) ? SURFACE_FOG_CLEAR : SURFACE_FOG_VEILED;
+  return { march, keep, fog };
 }

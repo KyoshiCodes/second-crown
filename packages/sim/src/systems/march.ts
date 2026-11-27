@@ -352,6 +352,7 @@ export function resolveMarchArrival(state: GameState, march: March, rng: RngStre
     const result = resolveBattle(state, war, rng, {
       wallSoak: wallHp(state, "player"),
       attackerForce: march.force ?? { militia: levy },
+      provinceId: dest.id,
     });
     noteHomeSiegeResult(state, result.winnerId === "player");
     return noteMarch(state, result.winnerId === "player" ? "Siege broken." : "The hold is breached.");

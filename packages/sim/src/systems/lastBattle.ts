@@ -19,6 +19,8 @@ export interface LastBattleStory {
   phases: BattlePhase[];
   /** Slice 25: optional; absent on battles stored before slice 25. */
   forces?: ClashForceRecord[];
+  /** Slice 27: optional tile the battle was fought on. Record only; no math reads it. Absent on older battles and realm-level fights. */
+  provinceId?: string;
 }
 
 export function lastBattleStory(state: GameState): LastBattleStory | null {
@@ -40,5 +42,6 @@ export function writeLastBattle(state: GameState, story: LastBattleStory): void 
     events: (story.events ?? []).slice(0, 10),
     phases: (story.phases ?? []).slice(0, 6),
     ...(story.forces ? { forces: story.forces.slice(0, 4) } : {}),
+    ...(story.provinceId ? { provinceId: story.provinceId } : {}),
   });
 }

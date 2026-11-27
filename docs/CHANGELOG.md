@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 27 (battle feedback, board polish detail)
+
+- **Battle feedback (`battleFeedbackSnapshot(state)`):** `{ provinceId, note, mark }` or null with no stored battle or no `battle` world-log entry within `BATTLE_NOTE_RECENT_TICKS` (1800). `note` = `You won here.` / `You lost here.` / `Others fought here.` `mark` = `won` / `lost` / `clash`. `provinceId` = stored tile, or null when the battle has no tile (realm-level Fight, older battles) or the tile is not on the board.
+- **Battle tile record:** `last_battle_json` gains optional `provinceId`. Column clashes store the attacking column's destination (falls back to the defender's); sally now passes the incoming column's `toId`; the home siege passes `BattleOptions.provinceId`. Record only; combat math unchanged (tested: same result and state with or without it).
+- **Board polish (`boardPolishSnapshot(state, provinceId)`):** `{ march, keep, fog }` or null for an unknown province. `march` = `Foe inbound` / `Ally inbound` / `Marching out` / null. `keep` = `Your keep` / `Rival keep` / `Empty hold` / null. `fog` = `clear` / `veiled`.
+- **Switches:** `living_battle_feedback`, `living_board_polish` (false: null). All on.
+- **Read-only:** combat math, pathfinding and fog rules untouched; no `fog_seen` write.
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice27.test.ts` (15). Now: sim **895**, app **1717**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-27 — Living presentation for board surface detail and selection feedback (Slice 26)
 
 - **Board surface layer (`hud/BoardSurfaceLayer.tsx`, `BoardLiving.tsx`):** Added `resolveBoardSurface` and `<BoardSurfaceLayer>`, reading `boardSurfaceSnapshot(state, provinceId)` (`e7ffa69`, exact match — zero mismatch) to render non-blocking terrain/elevation contours, veiled fog diamonds, keep plinths, and march surface arcs on clear tiles while keeping veiled tiles strictly fogged, hiding cleanly when `living_board_surface` is `false`.

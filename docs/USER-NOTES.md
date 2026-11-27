@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now point at your last battle and label map tiles
+
+- **Under the hood only.** After a recent battle the game can say where it was fought and give a short line: "You won here.", "You lost here." or "Others fought here." Battles from the War tab Fight button have no single tile, so they carry no place.
+- **Tile labels:** for any tile it can give short labels such as "Foe inbound", "Marching out", "Your keep", "Rival keep", and whether the tile is under fog.
+- **Nothing else changes.** Battles, movement and fog work exactly as before.
+- **Coming to the screen:** a battle marker on the board and tile badges.
+
 ## 2026-11-27 — Polished board surface detail and calmer selection feedback
 
 - **Clearer terrain, fog, keeps, and marches on the map:** Seen tiles on the main board now show calm elevation contours (peaks, hills, shores, level ground), distinct keep bases, and subtle march outlines, while fogged tiles stay quietly veiled without leaking hidden details.

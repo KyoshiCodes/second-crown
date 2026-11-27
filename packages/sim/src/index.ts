@@ -413,6 +413,8 @@ export {
   unitWaitingSnapshot,
   boardSurfaceSnapshot,
   selectionFeedbackSnapshot,
+  battleFeedbackSnapshot,
+  boardPolishSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -466,6 +468,8 @@ export type {
   UnitWaitingStates,
   BoardSurface,
   SelectionFeedback,
+  BattleFeedback,
+  BoardPolish,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -563,6 +567,18 @@ export {
   SELECTION_NOTE_OWN,
   SELECTION_NOTE_RIVAL,
   SELECTION_NOTE_OPEN,
+  BATTLE_FEEDBACK_NOTE_WON,
+  BATTLE_FEEDBACK_NOTE_LOST,
+  BATTLE_FEEDBACK_NOTE_OTHERS,
+  BATTLE_FEEDBACK_MARK_WON,
+  BATTLE_FEEDBACK_MARK_LOST,
+  BATTLE_FEEDBACK_MARK_OTHERS,
+  POLISH_MARCH_ENEMY,
+  POLISH_MARCH_OWN,
+  POLISH_MARCH_LEAVING,
+  POLISH_KEEP_HOME,
+  POLISH_KEEP_RIVAL,
+  POLISH_KEEP_EMPTY,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,
