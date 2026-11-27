@@ -1,3 +1,12 @@
+## 2026-11-27 — app / living presentation for job summary & staffing pressure
+
+- **Job summary expander (`packages/app/src/hud/JobSummaryExpander.tsx`, `packages/app/src/PeoplePanel.tsx`):**
+  - Exported pure `resolveJobSummary(state)` wrapping `jobSummarySnapshot(state)` (`6fb1b6b`, exact match — zero mismatch) and mounted `<JobSummaryExpander state={state} />` under `<h3>People</h3>`. Renders a collapsed-by-default `<details class="sc-job-summary">` with `Idle N`, per-job counts, and expandable building list; returns `null` when no player citizens exist or `living_job_summary` is `false`.
+- **Staffing pressure sub-line (`packages/app/src/hud/StaffingPressureLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**
+  - Exported pure `resolveStaffingPressure(state)` wrapping `staffingPressureSnapshot(state)` (`6fb1b6b`, exact match — zero mismatch) and mounted `<StaffingPressureLine state={state} />` under `<DecreeEffectSummaryLine>` so it surfaces even when `PeoplePanel` is hidden (`emptyBuildings > 0`, `idleVillagers === 0`). Returns `null` when balanced or `living_staffing_pressure` is `false`.
+- **Dedicated CSS (`hud/job-summary.css`, `hud/staffing-pressure.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, calm reveal/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice22Presentation.test.tsx`):** 3 tests passing (`npm test` -> sim **822**, app **1701**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 22 (job summary, staffing pressure)
 
 - **Where:** `jobSummarySnapshot` and `staffingPressureSnapshot` in `systems/livingStatus.ts`. Constants `JOB_SUMMARY_BUILDING_CAP`, `STAFFING_NOTE_ASSIGN`, `STAFFING_NOTE_SHORT`, `STAFFING_NOTE_SPARE` in `content/livingRealm.ts`.

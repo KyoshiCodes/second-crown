@@ -8,6 +8,7 @@ import {
 } from "@second-crown/sim";
 import type { ActFn } from "./game/useGameEngine";
 import { JobCard } from "./hud/JobCard";
+import { JobSummaryExpander } from "./hud/JobSummaryExpander";
 
 export function PeoplePanel(props: { state: GameState | undefined; act: ActFn }) {
   const { state, act } = props;
@@ -31,6 +32,7 @@ export function PeoplePanel(props: { state: GameState | undefined; act: ActFn })
   return (
     <>
       <h3>People</h3>
+      <JobSummaryExpander state={state} />
       <div className="sc-job-grid">
         {keys.map((k) => (
           <JobCard

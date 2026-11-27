@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — People job summary and staffing pressure note
+
+- **Job summary in People:** At the top of the People panel, a calm collapsed strip shows your idle count and per-job worker counts at a glance, expanding cleanly to list up to three matching workplaces per trade.
+- **Staffing pressure on Kingdom:** When workplaces stand empty or villagers remain idle, a quiet Kingdom note highlights the counts and next staffing hint, disappearing automatically when everyone and every work is matched.
+
 ## 2026-11-27 — The game can now count who does what
 
 - **Under the hood only.** The game can now say how many villagers have no trade, how many work each job (farmer, miner and so on), and which of your buildings each job works at.

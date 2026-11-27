@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for job summary and staffing pressure (Slice 22)
+
+- **People panel job-summary expander (`hud/JobSummaryExpander.tsx`, `PeoplePanel.tsx`):** Added `resolveJobSummary` and `<JobSummaryExpander>` directly under `<h3>People</h3>`, reading `jobSummarySnapshot(state)` (`6fb1b6b`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-job-summary">` showing idle count, per-job worker counts, and up to 3 building locations when expanded, hiding cleanly when `null` or `living_job_summary` is `false`.
+- **Kingdom staffing-pressure line (`hud/StaffingPressureLine.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveStaffingPressure` and `<StaffingPressureLine>` directly under `<DecreeEffectSummaryLine>`, reading `staffingPressureSnapshot(state)` (`6fb1b6b`, exact match — zero mismatch) to show empty-work / idle-villager counts and fixed guidance, hiding cleanly when balanced (`null`) or `living_staffing_pressure` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/job-summary.css` and `hud/staffing-pressure.css` only (no sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice22Presentation.test.tsx` (3 tests). Now: sim **822**, app **1701**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 22 (job summary, staffing pressure)
 
 - **Job summary (`jobSummarySnapshot(state)`):** `{ idle, byJob: { id, name, count, buildings: { id, name, x, y }[] }[] }` or null with no player citizens. `idle` = player citizens with job `unassigned`. `byJob` = real jobs in `CITIZEN_JOBS` order (`unassigned` excluded) with at least one worker or one finished player work, so its length never exceeds the 6 real jobs. `name` from `CITIZEN_JOBS`. `buildings` = finished player works whose `jobForBuildingType` is that job, board order, cap 3 (`JOB_SUMMARY_BUILDING_CAP`), building name from `getBuildingType`.

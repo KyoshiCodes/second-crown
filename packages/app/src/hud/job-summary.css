@@ -1,0 +1,152 @@
+/* --- Living Realm Slice 22: Job Summary Expander (isolated CSS) ---
+ * Loaded from hud/JobSummaryExpander.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Calm job-summary expander in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-js-bg: rgba(16, 22, 34, 0.38);
+  --sc-js-border: rgba(148, 163, 184, 0.16);
+  --sc-js-text: #cbd5e1;
+  --sc-js-muted: rgba(186, 198, 214, 0.78);
+  --sc-js-idle: #fde68a;
+  --sc-js-pip-rgb: 134, 210, 178;
+}
+
+:root[data-chrome="night"] {
+  --sc-js-bg: rgba(10, 14, 24, 0.5);
+  --sc-js-border: rgba(148, 163, 184, 0.22);
+  --sc-js-text: #dbe4ef;
+  --sc-js-muted: rgba(196, 210, 226, 0.84);
+  --sc-js-idle: #fef08a;
+  --sc-js-pip-rgb: 152, 224, 194;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-js-bg: rgba(34, 24, 15, 0.46);
+  --sc-js-border: rgba(196, 164, 112, 0.2);
+  --sc-js-text: #efe1c4;
+  --sc-js-muted: rgba(226, 204, 166, 0.8);
+  --sc-js-idle: #fde68a;
+  --sc-js-pip-rgb: 190, 242, 100;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-job-summary-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Job Summary Expander
+   ========================================================================== */
+.sc-job-summary {
+  margin: 0 0 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-js-border);
+  background: var(--sc-js-bg);
+  color: var(--sc-js-text);
+  font-size: 11px;
+  line-height: 1.38;
+}
+
+.sc-job-summary-toggle {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--sc-js-muted);
+  font-weight: 500;
+  list-style: none;
+  user-select: none;
+  transition: color 0.16s ease;
+}
+
+.sc-job-summary-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.sc-job-summary-toggle::before {
+  content: "▸";
+  font-size: 10px;
+  opacity: 0.75;
+  transition: transform 0.16s ease;
+}
+
+.sc-job-summary[open] > .sc-job-summary-toggle {
+  color: var(--sc-js-text);
+}
+
+.sc-job-summary[open] > .sc-job-summary-toggle::before {
+  transform: rotate(90deg);
+}
+
+.sc-job-summary-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-js-pip-rgb));
+  opacity: 0.78;
+}
+
+.sc-job-summary-idle {
+  color: var(--sc-js-idle);
+  font-weight: 500;
+}
+
+.sc-job-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px solid var(--sc-js-border);
+  animation: sc-js-reveal 0.18s ease-out;
+}
+
+.sc-job-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.sc-job-summary-name {
+  font-weight: 500;
+}
+
+.sc-job-summary-works {
+  color: var(--sc-js-muted);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-js-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-job-summary-toggle,
+  .sc-job-summary-toggle::before {
+    transition: none !important;
+  }
+  .sc-job-summary-list {
+    animation: none !important;
+  }
+}
