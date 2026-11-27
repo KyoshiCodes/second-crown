@@ -17,6 +17,8 @@ import {
   WHISPER_REPLY_QUEUE_CAP,
   whisperLinesFor,
   whisperReplyLinesFor,
+  playerReplyLinesFor,
+  type FormationId,
   type WarPhaseId,
 } from "../content/livingRealm.js";
 import { realmPower } from "./combat.js";
@@ -51,6 +53,8 @@ export interface LivingSwitches {
   joinNpcWar: boolean;
   /** A realm answers a whisper it received once, WHISPER_REPLY_DELAY_TICKS later. False: one-way whispers only. */
   correspondence: boolean;
+  /** The player may answer a whisper they received with one fixed line (replyToWhisper). False hides the action. */
+  playerReply: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -66,6 +70,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   homeRaidCooldown: "living_home_raid_cooldown",
   joinNpcWar: "living_join_npc_war",
   correspondence: "living_correspondence",
+  playerReply: "living_player_reply",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -165,6 +170,7 @@ export function livingCounts(state: GameState): {
   npcWarLosses: number;
   homeRaids: number;
   replies: number;
+  playerReplies: number;
 } {
   return {
     trades: count(state, "living_trades"),
@@ -178,6 +184,7 @@ export function livingCounts(state: GameState): {
     npcWarLosses: count(state, "living_npc_war_losses_units"),
     homeRaids: count(state, "living_home_raids"),
     replies: count(state, "living_replies_sent"),
+    playerReplies: count(state, "living_player_replies"),
   };
 }
 
@@ -334,6 +341,73 @@ export function tickCorrespondence(state: GameState, atTick: number): CultureNew
   }
   setPendingReplies(state, keep);
   return sent;
+}
+
+// ---------------------------------------------------------------- player reply (slice 7)
+
+/** A whisper the player received and may still answer. */
+export interface ReplyableWhisper {
+  whisper: CultureNews & { id: string };
+  /** The player's reply lines (their culture), already filled with the whisperer's name. Index = lineIndex. */
+  lines: string[];
+}
+
+function answered(news: CultureNews[], whisperId: string): boolean {
+  return news.some((n) => n.kind === "reply" && n.replyTo === whisperId);
+}
+
+function playerLines(state: GameState, toRealmId: string): string[] {
+  const to = nameOf(state, toRealmId);
+  return playerReplyLinesFor(cultureOfRealm(state, "player")).map((l) => l.replace(/\{to\}/g, to));
+}
+
+/**
+ * Whispers sent to the player that they may answer now, newest first. A whisper qualifies when
+ * it carries an id (correspondence on when it was sent), is still in the culture news list, has
+ * no reply yet, and the player is neither at war nor peace-locked with the sender.
+ * Empty when `living_player_reply` is off. Pure read.
+ */
+export function replyableWhispers(state: GameState, atTick = state.meta.tick): ReplyableWhisper[] {
+  if (!livingSwitches(state).playerReply) return [];
+  const news = getCultureNews(state);
+  const out: ReplyableWhisper[] = [];
+  for (let i = news.length - 1; i >= 0; i--) {
+    const n = news[i];
+    if (n.kind !== "whisper" || n.toRealmId !== "player" || !n.id) continue;
+    if (answered(news, n.id)) continue;
+    if (!state.realms.some((r) => r.id === n.fromRealmId)) continue;
+    if (atWarWith(state, "player", n.fromRealmId) || peaceLockedAt(state, "player", n.fromRealmId, atTick)) continue;
+    out.push({ whisper: n as CultureNews & { id: string }, lines: playerLines(state, n.fromRealmId) });
+  }
+  return out;
+}
+
+/**
+ * The player answers whisper `whisperId` with fixed line `lineIndex` from their culture's
+ * PLAYER_REPLIES table. One reply per whisper. The reply is a culture-news item with the same
+ * shape as an NPC reply (kind "reply", replyTo), sent at the current tick. Never automatic.
+ * Refuses (null) when the switch is off, the whisper is unknown or not to the player, already
+ * answered, the line index is out of range, or the player is at war or peace-locked with the sender.
+ */
+export function replyToWhisper(state: GameState, whisperId: string, lineIndex: number): CultureNews | null {
+  const open = replyableWhispers(state).find((r) => r.whisper.id === whisperId);
+  if (!open) return null;
+  if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex >= open.lines.length) return null;
+  const w = open.whisper;
+  const you = nameOf(state, "player");
+  const to = nameOf(state, w.fromRealmId);
+  const item: CultureNews = {
+    tick: state.meta.tick,
+    kind: "reply",
+    fromRealmId: "player",
+    toRealmId: w.fromRealmId,
+    text: `${you} answers ${to}: "${open.lines[lineIndex]}"`,
+    replyTo: w.id,
+  };
+  pushCultureNews(state, item);
+  bumpCount(state, "living_player_replies");
+  state.inputLog.push({ tick: state.meta.tick, type: "reply_whisper", payload: { whisperId, lineIndex }, issuerId: "player" });
+  return item;
 }
 
 // ---------------------------------------------------------------- NPC wars
@@ -764,6 +838,64 @@ export function latestJoinedWarOutcome(state: GameState): JoinedWarOutcome | nul
     if (w.joinedWarId && w.status !== "active") return joinedWarOutcome(state, w.id);
   }
   return null;
+}
+
+// ---------------------------------------------------------------- joined-war formation (slice 7)
+
+/** One side of a joined war, for the formation view. */
+export interface FormationSide {
+  realmIds: string[];
+  names: string[];
+}
+
+/** A joined war's formation at a glance. Read-only; no combat formula or phase timing here. */
+export interface JoinedWarFormation {
+  /** The player's war (war_join_…). */
+  warId: string;
+  /** The NPC-vs-NPC war the player joined. */
+  joinedWarId: string;
+  /** The player and the ally they ride beside. */
+  ours: FormationSide;
+  /** The realm they fight. */
+  theirs: FormationSide;
+  phase: WarPhaseId;
+  /** columns → muster, skirmish → skirmish, clash → clash, aftermath → fall-back. */
+  formation: FormationId;
+  /** False while a finished joined war shows its aftermath (fall-back). */
+  active: boolean;
+}
+
+const FORMATION_OF: Record<WarPhaseId, FormationId> = {
+  columns: "muster",
+  skirmish: "skirmish",
+  clash: "clash",
+  aftermath: "fall-back",
+};
+
+/**
+ * Formation snapshot for joined wars (joinSide), in state order: every active one, plus a
+ * finished one while its aftermath shows (formation "fall-back"). Phase comes from warPhase,
+ * unchanged. Pure read.
+ */
+export function formationSnapshot(state: GameState, atTick = state.meta.tick): JoinedWarFormation[] {
+  const out: JoinedWarFormation[] = [];
+  for (const war of state.wars) {
+    if (!war.joinedWarId) continue;
+    const phase = warPhase(state, war, atTick);
+    if (!phase) continue;
+    const foe = war.attackerRealmId === "player" ? war.defenderRealmId : war.attackerRealmId;
+    const oursIds = war.allyRealmId ? ["player", war.allyRealmId] : ["player"];
+    out.push({
+      warId: war.id,
+      joinedWarId: war.joinedWarId,
+      ours: { realmIds: oursIds, names: oursIds.map((id) => nameOf(state, id)) },
+      theirs: { realmIds: [foe], names: [nameOf(state, foe)] },
+      phase: phase.id,
+      formation: FORMATION_OF[phase.id],
+      active: war.status === "active",
+    });
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------- war imagery (slice 5)

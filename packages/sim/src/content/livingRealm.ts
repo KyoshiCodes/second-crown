@@ -132,6 +132,85 @@ export function whisperReplyLinesFor(culture: string): readonly string[] {
   return WHISPER_REPLIES[culture] ?? WHISPER_REPLIES.western;
 }
 
+// ---------------------------------------------------------------- player reply (slice 7)
+
+/**
+ * Fixed lines the player may send back to a whisper they received, by the player's culture.
+ * Four per culture; the player picks one by index. `{to}` is the realm being answered.
+ * No free-form text.
+ */
+export const PLAYER_REPLIES: Record<string, readonly string[]> = {
+  western: [
+    "Your herald was fed and sent home warm, {to}.",
+    "We hear you. The banners stay furled.",
+    "Our steward has noted it. Good harvests to you.",
+    "Kind words travel well. So do ours, {to}.",
+  ],
+  woodland: [
+    "The trees carried your words to us, {to}.",
+    "We leave a mark on the trail for you. Peace on it.",
+    "Our hunters will not cross your streams.",
+    "Words heard. The longhouse sends smoke of welcome.",
+  ],
+  desert: [
+    "A lamp is lit for {to} at our gate.",
+    "Your words were cool water. We send dates back.",
+    "The well is open to honest riders.",
+    "Heard in the courtyard. May your caravans be heavy.",
+  ],
+  steppe: [
+    "The herd heard you, {to}. It stays calm.",
+    "Ride past our grass in peace.",
+    "A good word for a good word. That is our way.",
+    "We tie a ribbon on the post for {to}.",
+  ],
+  tide: [
+    "Your message washed in clean, {to}. One floats back.",
+    "We will keep a lantern on the jetty for you.",
+    "Calm water between us. Let it stay so.",
+    "Our nets are full. We wish yours the same.",
+  ],
+  mist: [
+    "Your words came through the fog, {to}. We answer softly.",
+    "The terraces are quiet. So are our spears.",
+    "We heard you at dawn. A good sign.",
+    "Rain for your fields, {to}.",
+  ],
+  glen: [
+    "The glen echoes your words back, {to}.",
+    "Our cairn has a new stone for you.",
+    "Stone holds a promise. So do we.",
+    "Heard. The pipes play a friendly tune tonight.",
+  ],
+  salt: [
+    "Salt and timber for honest friends, {to}.",
+    "We heard you over the surf. All is well here.",
+    "Our boats will wave if they pass yours.",
+    "A plank from our yard bears your name now.",
+  ],
+  fen: [
+    "Your words found us among the reeds, {to}.",
+    "The cottages are warm. Our answer is too.",
+    "We pole our boats your way only to trade.",
+    "Heard. The frogs sing your name tonight.",
+  ],
+  peak: [
+    "We saw your words from the high keep, {to}.",
+    "The passes stay open to your heralds.",
+    "Snow on our peaks, peace in our hearts.",
+    "Heard. Our watchfires burn for friends.",
+  ],
+};
+
+/** The player's reply lines for a culture; unknown cultures use western. */
+export function playerReplyLinesFor(culture: string): readonly string[] {
+  return PLAYER_REPLIES[culture] ?? PLAYER_REPLIES.western;
+}
+
+/** Joined-war formation ids, in order. Presentation only; derived from the war phase. */
+export const FORMATION_IDS = ["muster", "skirmish", "clash", "fall-back"] as const;
+export type FormationId = (typeof FORMATION_IDS)[number];
+
 // ---------------------------------------------------------------- NPC board activity (slice 2)
 
 /** An NPC realm tries to plant a claim marker every N world pulses (staggered by realm salt). */

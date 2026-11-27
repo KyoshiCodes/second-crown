@@ -1,3 +1,12 @@
+## 2026-11-26 — sim / Living Realm slice 7 (player reply, joined-war formation snapshot)
+
+- **Content (`content/livingRealm.ts`):** `PLAYER_REPLIES` (4 lines per culture for all 10 cultures in `CULTURES`, `{to}` = the whisperer), `playerReplyLinesFor(culture)` (western fallback), `FORMATION_IDS = ["muster", "skirmish", "clash", "fall-back"]`, type `FormationId`.
+- **Reply flow:** `replyableWhispers(state, atTick = tick)` walks `getCultureNews` newest → oldest and keeps `kind: "whisper"`, `toRealmId: "player"`, with an `id` (so only whispers sent while `living_correspondence` was on), no existing `kind: "reply"` with that `replyTo`, sender still in `state.realms`, not `atWarWith` and not `peaceLockedAt` the player. Returns `{ whisper, lines }`, lines = player culture table with `{to}` filled. `replyToWhisper(state, whisperId, lineIndex)` uses that list, checks `Number.isInteger(lineIndex)` and range, pushes `{ tick: meta.tick, kind: "reply", fromRealmId: "player", toRealmId: whisperer, text: "<You> answers <Them>: \"<line>\"", replyTo: whisperId }`, bumps `living_player_replies`, logs `{ type: "reply_whisper", payload: { whisperId, lineIndex } }`. "Answered" is read from the news list itself: a whisper always drops off the capped list before its reply, so no extra flag is needed. Whispers to the player still queue no NPC-side reply (`maybeWhisper` unchanged).
+- **Formation:** `formationSnapshot(state, atTick = tick)` → `JoinedWarFormation[]` for every war with `joinedWarId` whose `warPhase` is non-null (active, or aftermath window). `ours.realmIds = ["player", allyRealmId]`, `theirs.realmIds = [foe]`, `phase` from `warPhase`, `formation` from a fixed map, `active = status === "active"`. Pure read.
+- **Switch:** `LIVING_SWITCH_FLAGS.playerReply` = `living_player_reply`.
+- **Seed note:** the existing whisper picker never chooses the player as listener on some seeds (e.g. 20261126 with 7 realms). Slice 7 tests use seed 1. Not changed here; worth a look if playtesters never see a whisper.
+- **Left alone:** whisper cadence and lines, NPC reply timing and table, `tickCorrespondence`, `joinSide`, `settleNpcWars`, combat formulas, phase timing, balance tables, app/render/server. No app UI for the reply list or formation yet.
+
 ## 2026-11-26 — app / living presentation for culture correspondence & joined-war outcomes
 
 - **Culture correspondence (`packages/app/src/hud/CultureWhispersCard.tsx`):**

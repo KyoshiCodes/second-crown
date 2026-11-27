@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — You can answer whispers
+
+- **Answer a whisper.** When another kingdom whispers to you, you can send one answer back. You pick from a few fixed lines in your culture's voice. No typing.
+- **One answer per whisper.** You cannot answer a kingdom you are at war with, or one you just made peace with.
+- **Nothing is sent for you.** Your kingdom only answers when you choose to.
+- **Joined wars** now report their formation (mustering, skirmishing, clashing, falling back). The buttons and the formation display are not on screen yet; that comes next.
+
 ## 2026-11-26 — Paired kingdom letters & joined-war results on screen
 
 - **Whisper + reply pairs:** In the World tab's culture news, replies are now tucked neatly under the whisper they answer as a short two-part thread (with each kingdom's crest and zero chat box), newest first.

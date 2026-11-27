@@ -325,6 +325,9 @@ export {
   maybeNpcTrade,
   maybeWhisper,
   tickCorrespondence,
+  replyableWhispers,
+  replyToWhisper,
+  formationSnapshot,
   getPendingReplies,
   joinedWarOutcome,
   latestJoinedWarOutcome,
@@ -364,7 +367,7 @@ export {
   getFlagContests,
 } from "./systems/flagContest.js";
 export type { FlagContestSnapshot, FlagContestEntry, FlagCooldownEntry, FlagContestRecord } from "./systems/flagContest.js";
-export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry, PendingReply, JoinedWarOutcome } from "./systems/livingRealm.js";
+export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry, PendingReply, JoinedWarOutcome, ReplyableWhisper, JoinedWarFormation, FormationSide } from "./systems/livingRealm.js";
 export {
   WAR_PHASE_IDS,
   WAR_PHASE_START,
@@ -373,6 +376,8 @@ export {
   WHISPERS,
   WHISPER_REPLIES,
   WHISPER_REPLY_DELAY_TICKS,
+  PLAYER_REPLIES,
+  FORMATION_IDS,
   FIGHT_LOCKED_LINE,
   NPC_PLAYER_RING,
   NPC_BOARD_GRACE_TICKS,
@@ -384,6 +389,6 @@ export {
   HOME_RAID_IN_FLIGHT,
   HOME_RAID_COOLDOWN_TICKS,
 } from "./content/livingRealm.js";
-export type { WarPhaseId } from "./content/livingRealm.js";
+export type { WarPhaseId, FormationId } from "./content/livingRealm.js";
 export { workerSnapshot, unitActivity, unitActivityAt, WORKER_TASK_TAGS, UNIT_DOING_LABEL } from "./systems/boardActivity.js";
 export type { WorkerSnapshot, WorkerPost, WorkerTaskTag, UnitActivity, UnitDoing } from "./systems/boardActivity.js";

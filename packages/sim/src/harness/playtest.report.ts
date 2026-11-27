@@ -54,6 +54,8 @@ it("writes the progression report into docs/PLAYTEST.md", () => {
     "",
     "War phase timing, NPC caravans and whispers, NPC board activity (claims, camp marches, foraging crews), flag contests, NPC war losses, home raids fired, and worker posts. Measure only.",
     "",
+    "Player replies available: a player may answer a whisper they received with one fixed line (`living_player_reply`). The bots never reply.",
+    "",
     "Attentive:",
     "",
     "```",

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-26 — Living Realm slice 7 (player reply, joined-war formation snapshot)
+
+- **Player reply (`livingRealm.ts replyToWhisper(state, whisperId, lineIndex)`):** the player answers one whisper they received with one fixed line from their culture's new `PLAYER_REPLIES` table (4 lines × 10 cultures = 40 lines; unknown culture falls back to western). One reply per whisper. Appended to `flags.culture_news` with the NPC reply shape `{ tick, kind: "reply", fromRealmId: "player", toRealmId, text, replyTo }`. Refuses (null) when the switch is off, the whisper is unknown / not to the player / off the news list, already answered, the index is out of range, or the player is at war or peace-locked with the sender. Logs `reply_whisper` to `inputLog`. Never automatic.
+- **List (`replyableWhispers(state, atTick?)`):** whispers the player may still answer, newest first, each with its reply lines filled in. Empty when the switch is off.
+- **Formation snapshot (`formationSnapshot(state, atTick?)`):** read-only list of joined wars: `{ warId, joinedWarId, ours: { realmIds, names }, theirs: { realmIds, names }, phase, formation, active }`. `formation` maps `columns → muster`, `skirmish → skirmish`, `clash → clash`, `aftermath → fall-back`. Active joined wars, plus a finished one while its aftermath shows (`active: false`). No change to combat or phase timing.
+- **Switch:** `living_player_reply` (`false` hides the list and refuses the action). Counter `flags.living_player_replies`, `livingCounts().playerReplies`.
+- **Playtest:** one line in the Living realm section (doc and `playtest.report.ts`): player replies available. Balance tables unchanged.
+- **Tests:** new `systems/livingSlice7.test.ts` (13: table size, switch, reply shape, one reply, no auto-reply, determinism, unknown / NPC whisper / bad index, war, peace lock both ways, empty snapshot, muster→skirmish→clash shape, fall-back then gone, read-only). Now: sim **570**, app **1642**, app build clean.
+
 ## 2026-11-26 — Living presentation for culture correspondence & joined-war outcomes
 
 - **Culture correspondence pairs (`hud/CultureWhispersCard.tsx`):** Added `pairCultureCorrespondence` reading `@second-crown/sim`'s `getCultureNews(state)` (`b30ddb0` extended `CultureNews` with `id` / `replyTo` / `kind: "reply"` rather than `correspondenceNews`). Groups each whisper and its matching reply into a calm thread pair newest-first showing both realms' culture crests, names, tags, and text with zero chat input.

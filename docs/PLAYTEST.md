@@ -149,6 +149,8 @@ Raids by stage: unwalled 1 held / 5 breached, walled 0 held / 1 breached, keep2 
 
 War phase timing, NPC caravans and whispers, NPC board activity (claims, camp marches, foraging crews), flag contests, NPC war losses, home raids fired, and worker posts. Measure only.
 
+Player replies available: a player may answer a whisper they received with one fixed line (`living_player_reply`). The bots never reply.
+
 Attentive:
 
 ```
