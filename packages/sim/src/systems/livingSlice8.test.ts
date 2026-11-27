@@ -180,6 +180,7 @@ describe("column-mark snapshot", () => {
       theirs: { realmIds: [d], names: [name(s, d)] },
       phase: "columns",
       column: "column",
+      ranks: 1,
       active: true,
     });
     expect(columnMarkSnapshot(s, T0 + WAR_PHASE_START.skirmish)).toMatchObject({ phase: "skirmish", column: "skirmish-line" });

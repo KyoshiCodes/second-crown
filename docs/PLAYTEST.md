@@ -163,6 +163,7 @@ Home raids fired: 26.
 Joinable wars seen: 0.
 Correspondence replies seen: 187.
 Player whispers received: 46.
+Distinct whisper lines seen: 16.
 Workers had posts: yes (first at 0m, most posted 14). End: farm 5, quarry 3, yard 6, idle 0, march 0.
 ```
 
@@ -178,6 +179,7 @@ Home raids fired: 15.
 Joinable wars seen: 0.
 Correspondence replies seen: 489.
 Player whispers received: 124.
+Distinct whisper lines seen: 16.
 Workers had posts: yes (first at 30m, most posted 14). End: farm 7, quarry 2, yard 5, idle 0, march 0.
 ```
 <!-- sim-progression:end -->

@@ -6,6 +6,12 @@ Newest first. Plain language for playtesters.
 
 - **Opposing column marks on the map:** For the joined war you are fighting, opposing column banners with marching rank dots and a calm phase label (`Column`, `Skirmish line`, `Clash line`, or `Falling back`) now appear between the two holds alongside the existing formation marks, without blocking clicks.
 
+## 2026-11-26 — Kingdoms vary what they say
+
+- **Fewer repeated lines.** Each kingdom now works through all of its culture's whisper lines before it starts over, and never says the same line twice in a row. In some worlds a kingdom used to say one line forever.
+- **Not more whispers.** Same kingdoms, same timing, same number of whispers.
+- **Coming to the screen:** a "next whisper in ~N s" hint, and joined-war column marks drawn as 1, 2 or 3 ranks (marching column 1, skirmish line 2, clash line 3, falling back 1). The game now reports both; the screens that show them come next.
+
 ## 2026-11-26 — Every kingdom writes to you now
 
 - **Whispers reach you in every world.** Before, in some worlds no kingdom ever whispered to you. Now each kingdom takes turns writing to everyone, you included, so you will hear from all of them over time.

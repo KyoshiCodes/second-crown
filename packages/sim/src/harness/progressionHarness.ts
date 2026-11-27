@@ -109,6 +109,8 @@ export interface LivingReport {
   replies: number;
   /** Whispers an NPC sent to the player (slice 8 fair rotation). */
   playerWhispers: number;
+  /** Distinct whisper lines (culture table + line) sent (slice 9 variety). */
+  distinctWhisperLines: number;
   workers: {
     /** First bot look with at least one citizen at a post. */
     firstPostedTick: number | null;
@@ -446,6 +448,7 @@ export function livingText(r: ProgressionReport): string {
     `Joinable wars seen: ${l.joinableWarsSeen}.`,
     `Correspondence replies seen: ${l.replies}.`,
     `Player whispers received: ${l.playerWhispers}.`,
+    `Distinct whisper lines seen: ${l.distinctWhisperLines}.`,
     `Workers had posts: ${w.firstPostedTick !== null ? "yes" : "no"} (first at ${clock(w.firstPostedTick)}, most posted ${w.maxPosted}). End: ${Object.entries(w.end).map(([k, v]) => `${k} ${v}`).join(", ")}.`,
   ].join("\n");
 }

@@ -1,4 +1,5 @@
 import type { GameState, War, WarStatus } from "@second-crown/shared";
+import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { countBuilding } from "../content/buildings.js";
 import { D, toDecimalString } from "../core/decimal.js";
 import {
@@ -16,6 +17,7 @@ import {
   WHISPER_REPLY_DELAY_TICKS,
   WHISPER_REPLY_QUEUE_CAP,
   whisperLinesFor,
+  WHISPERS,
   whisperReplyLinesFor,
   playerReplyLinesFor,
   type FormationId,
@@ -62,6 +64,12 @@ export interface LivingSwitches {
    * which can lock a sender onto one listener forever.
    */
   whisperFair: boolean;
+  /**
+   * Whisper line variety (slice 9): each sender cycles through its culture's lines over its own
+   * successive turns, so no line repeats until all have been said. False: the old line picker
+   * (round + salt), which can repeat one line per sender.
+   */
+  whisperVariety: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -79,6 +87,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   correspondence: "living_correspondence",
   playerReply: "living_player_reply",
   whisperFair: "living_whisper_fair",
+  whisperVariety: "living_whisper_variety",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -180,6 +189,7 @@ export function livingCounts(state: GameState): {
   replies: number;
   playerReplies: number;
   playerWhispers: number;
+  distinctWhisperLines: number;
 } {
   return {
     trades: count(state, "living_trades"),
@@ -195,6 +205,7 @@ export function livingCounts(state: GameState): {
     replies: count(state, "living_replies_sent"),
     playerReplies: count(state, "living_player_replies"),
     playerWhispers: count(state, "living_whispers_to_player"),
+    distinctWhisperLines: distinctWhisperLines(state),
   };
 }
 
@@ -246,6 +257,9 @@ export function maybeNpcTrade(state: GameState, realmId: string, atTick: number)
  * one per turn, so over L turns (L = listeners) a sender reaches every listener once. With no
  * war or peace lock in the way, every NPC whispers to the player once every npcs × L rounds.
  * Off: the old index (round + salt), which with L = npcs always lands on the same listener.
+ *
+ * Line, with `living_whisper_variety` on: whisperLineIndex(turn, salt, lines), so a sender cycles
+ * through its culture's lines over its own turns. Off: lines[(round + salt) % lines].
  */
 export function maybeWhisper(state: GameState, atTick: number): CultureNews | null {
   if (!livingSwitches(state).whispers) return null;
@@ -266,7 +280,8 @@ export function maybeWhisper(state: GameState, atTick: number): CultureNews | nu
   const pick = livingSwitches(state).whisperFair ? turn + salt : round + salt;
   const to = listeners[pick % listeners.length];
   const lines = whisperLinesFor(cultureOfRealm(state, from.id));
-  const line = lines[(round + salt) % lines.length].replace(/\{to\}/g, to.name);
+  const lineIdx = livingSwitches(state).whisperVariety ? whisperLineIndex(turn, salt, lines.length) : (round + salt) % lines.length;
+  const line = lines[lineIdx].replace(/\{to\}/g, to.name);
   const item: CultureNews = {
     tick: atTick,
     kind: "whisper",
@@ -284,7 +299,75 @@ export function maybeWhisper(state: GameState, atTick: number): CultureNews | nu
   pushCultureNews(state, item);
   bumpCount(state, "living_whispers_sent");
   if (to.id === "player") bumpCount(state, "living_whispers_to_player");
+  markWhisperLine(state, cultureOfRealm(state, from.id), lineIdx);
   return item;
+}
+
+/** Bit offset per whisper table (culture), in WHISPERS order. 5 tables × 4 lines = 20 bits. */
+const WHISPER_LINE_BASE: Record<string, number> = (() => {
+  const out: Record<string, number> = {};
+  let at = 0;
+  for (const [k, lines] of Object.entries(WHISPERS)) {
+    out[k] = at;
+    at += lines.length;
+  }
+  return out;
+})();
+
+/** Note a (table, line) pair as said. Bitmask in `living_whisper_lines_seen`; measure only. */
+function markWhisperLine(state: GameState, culture: string, lineIdx: number): void {
+  const table = culture in WHISPERS ? culture : "western";
+  const bit = WHISPER_LINE_BASE[table] + lineIdx;
+  if (bit >= 30) return;
+  const seen = count(state, "living_whisper_lines_seen");
+  state.flags.living_whisper_lines_seen = seen | (1 << bit);
+}
+
+/** How many distinct whisper lines (culture table + line) have been sent. */
+export function distinctWhisperLines(state: GameState): number {
+  let m = count(state, "living_whisper_lines_seen");
+  let n = 0;
+  while (m) {
+    n += m & 1;
+    m >>>= 1;
+  }
+  return n;
+}
+
+/**
+ * Line index for a sender's `turn`-th whisper (slice 9, `living_whisper_variety`). Turns come in
+ * blocks of `n` (n = lines); inside a block every line is said once, in order, from
+ * `(salt + block) % n`. Each new block starts one line later, so a sender whose listener count
+ * equals `n` does not tell each listener the same line every cycle. With n >= 3 two successive
+ * whispers from one sender never share a line. Pure function of turn, salt and n.
+ */
+export function whisperLineIndex(turn: number, salt: number, n: number): number {
+  if (n <= 0) return 0;
+  return (turn + Math.floor(turn / n) + salt) % n;
+}
+
+/** What the app needs for "next whisper in ~Ns". Read-only. */
+export interface NextWhisperHint {
+  /** The state's current tick. */
+  tick: number;
+  /** The next world pulse (strictly after `tick`) on which maybeWhisper runs its sender pick. */
+  nextPulseTick: number;
+  /** (nextPulseTick - tick) in seconds, rounded up (10 ticks = 1 s). */
+  secondsApprox: number;
+}
+
+/**
+ * The next whisper pulse after the current tick, or null when `living_whispers` is off or there
+ * is no NPC realm to send one. A pulse is a chance, not a promise: a sender at war with or
+ * peace-locked against every realm stays silent that pulse. Pure read.
+ */
+export function nextWhisperHint(state: GameState): NextWhisperHint | null {
+  if (!livingSwitches(state).whispers) return null;
+  if (!state.realms.some((r) => r.id !== "player")) return null;
+  const tick = state.meta.tick;
+  const every = WHISPER_PULSES * 100;
+  const nextPulseTick = (Math.floor(tick / every) + 1) * every;
+  return { tick, nextPulseTick, secondsApprox: Math.ceil((nextPulseTick - tick) / TICKS_PER_SECOND) };
 }
 
 // ---------------------------------------------------------------- correspondence (slice 6)
@@ -932,6 +1015,8 @@ export interface ColumnMark {
   phase: WarPhaseId;
   /** columns → column, skirmish → skirmish-line, clash → clash-line, aftermath → falling-back. */
   column: ColumnMarkId;
+  /** Ranks the board draws (slice 9): column 1, skirmish-line 2, clash-line 3, falling-back 1. */
+  ranks: ColumnRanks;
   /** False only while a finished joined war shows its aftermath (falling-back). */
   active: boolean;
 }
@@ -942,6 +1027,20 @@ const COLUMN_OF: Record<WarPhaseId, ColumnMarkId> = {
   clash: "clash-line",
   aftermath: "falling-back",
 };
+
+/** Rank count per column mark (slice 9). Presentation only; derived from the phase. */
+export type ColumnRanks = 1 | 2 | 3;
+export const COLUMN_RANKS: Record<ColumnMarkId, ColumnRanks> = {
+  column: 1,
+  "skirmish-line": 2,
+  "clash-line": 3,
+  "falling-back": 1,
+};
+
+/** Ranks for a war phase: columns 1, skirmish 2, clash 3, aftermath 1. Pure. */
+export function columnRanks(phase: WarPhaseId): ColumnRanks {
+  return COLUMN_RANKS[COLUMN_OF[phase]];
+}
 
 /**
  * Column marks for the player's joined war: the newest active joined war, else the newest
@@ -959,6 +1058,7 @@ export function columnMarkSnapshot(state: GameState, atTick = state.meta.tick): 
     theirs: pick.theirs,
     phase: pick.phase,
     column: COLUMN_OF[pick.phase],
+    ranks: columnRanks(pick.phase),
     active: pick.active,
   };
 }

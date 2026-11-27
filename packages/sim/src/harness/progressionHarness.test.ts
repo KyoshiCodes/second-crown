@@ -51,11 +51,13 @@ describe("progression harness", () => {
     expect(l.workers.firstPostedTick).not.toBeNull();
     expect(l.workers.maxPosted).toBeGreaterThan(0);
     const text = livingText(r);
-    expect(text.split("\n")).toHaveLength(10);
+    expect(text.split("\n")).toHaveLength(11);
     expect(text).toMatch(/^Joinable wars seen: \d+\.$/m);
     expect(text).toMatch(/^Correspondence replies seen: \d+\.$/m);
     expect(text).toMatch(/^Player whispers received: \d+\.$/m);
     expect(l.playerWhispers).toBeGreaterThan(0);
+    expect(text).toMatch(/^Distinct whisper lines seen: \d+\.$/m);
+    expect(l.distinctWhisperLines).toBeGreaterThan(0);
     expect(l.replies).toBeGreaterThan(0);
     expect(l.joinableWarsSeen).toBeGreaterThanOrEqual(0);
     expect(text).toMatch(/^NPC war losses applied: \d+ units\.$/m);
