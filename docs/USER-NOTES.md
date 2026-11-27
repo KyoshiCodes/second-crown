@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Whisper hint culture tag & clearer column ranks on the map
+
+- **Next whisper names its culture:** When whispers are enabled and a sender has a listener, the World tab timing line now reads `Next whisper in ~Ns · from <culture>` (dropping the `from` tag if no one can receive it right now, and hiding altogether if whispers are off).
+- **Clearer unit ranks on the map:** Joined-war column standards now frame their 1 / 2 / 3 rank bars on a quiet backing plate and display a small rank-count note (`one rank`, `two ranks`, or `three ranks`) below the existing formation and column labels without blocking clicks.
+
 ## 2026-11-26 — Each culture has its own voice
 
 - **Kingdoms sound like themselves.** Whispers and replies now read differently by culture: western realms speak formally, woodland realms slowly and as kin, desert realms with a host's courtesy, steppe realms in short blunt bursts, tide realms like sailors.

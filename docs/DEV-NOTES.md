@@ -1,3 +1,12 @@
+## 2026-11-26 — app / living presentation for whisper culture tag & stronger column ranks
+
+- **World tab hint tag (`packages/app/src/hud/NextWhisperHintLine.tsx`):**
+  - Exported `formatWhisperCultureTag(fromCulture)` reading `nextWhisperHint(state).fromCulture` (`b868b24`, exact match — zero mismatch) and `getCulture(fromCulture).name`. Appends `· from <culture>` inside `.sc-next-whisper-from` when non-null while preserving hide-on-null-`fromCulture` and hide-on-null-`hint` behavior.
+- **Board stronger unit ranks & note (`packages/app/src/hud/BoardColumnRanks.tsx`):**
+  - Reads `columnMarkSnapshot(state).ranksLabel` (exact match — zero mismatch): adds `buildRankBars` dark backing plates (`.sc-colrank-plate`) framing `6.8x1.9` rank bars (`.sc-colrank-mark.is-strong`, clash lead gold rim) beside both column standards plus a quiet `.sc-colrank-note` pill at `(midX, midY + 38)` cleanly below `BoardJoinedFormations` (`midY + 14`) and `BoardColumnMarks` (`midY + 27`). Strict `pointer-events: none !important;`, zero blood/gore.
+- **Dedicated CSS (`packages/app/src/hud/voice-rank-accents.css`):** Imported from `NextWhisperHintLine.tsx` and `BoardColumnRanks.tsx`. Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;`, calm keyframe (`sc-colrank-strong-breathe`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to `CultureWhispersCard.tsx`, sim line tables, hint math, `theme.css`, `board-living.css`, `column-marks.css`, `column-ranks-whisper-hint.css`, `player-reply-formation.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/VoiceRankAccents.test.tsx`):** 3 tests passing (`npm test` -> sim **618**, app **1656**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-26 — sim / Living Realm slice 10 (culture voice, hint sender tag, rank note)
 
 - **Tables:** `WHISPERS` and `WHISPER_REPLIES` are now the voiced tables; the slice 1–9 text lives on as `WHISPERS_PLAIN` / `WHISPER_REPLIES_PLAIN`. `whisperLinesFor(culture, voiced = true)` and `whisperReplyLinesFor(culture, voiced = true)` pick the set; player-only cultures still fall back to `western` in both. `maybeWhisper` and `tickCorrespondence` pass `livingSwitches(state).cultureVoice` (flag `living_culture_voice`).

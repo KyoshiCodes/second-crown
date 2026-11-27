@@ -14,6 +14,7 @@ import {
   type LivingCultureKit,
 } from "./BoardLivingRealm";
 import "./column-ranks-whisper-hint.css";
+import "./voice-rank-accents.css";
 
 const BOARD_ORIGIN_X = 236;
 const BOARD_ORIGIN_Y = 56;
@@ -24,6 +25,7 @@ export interface BoardColumnRanksView {
   warId: string;
   column: ColumnMarkId;
   ranks: ColumnRanks;
+  ranksLabel: string;
   active: boolean;
   playerKit: LivingCultureKit;
   allyKit: LivingCultureKit | null;
@@ -34,6 +36,9 @@ export interface BoardColumnRanksView {
   theirY: number;
   ourDir: number;
   theirDir: number;
+  noteX: number;
+  noteY: number;
+  noteW: number;
 }
 
 function tileCenter(p: Province): { wx: number; wy: number } {
@@ -51,9 +56,9 @@ function findHold(state: GameState, realmId: string): Province | undefined {
 }
 
 /**
- * Reads `columnMarkSnapshot(state)` (including `.ranks`: 1, 2, or 3) and places calm
- * unit-rank stacks just below each opposing column standard without colliding with
- * `BoardJoinedFormations` or `BoardColumnMarks`.
+ * Reads `columnMarkSnapshot(state)` (`.ranks` and `.ranksLabel`) and positions
+ * clearer unit-rank stacks and a small rank-count note cleanly away from
+ * `BoardJoinedFormations` and `BoardColumnMarks`.
  */
 export function resolveBoardColumnRanks(
   state: GameState | null | undefined,
@@ -75,9 +80,15 @@ export function resolveBoardColumnRanks(
   const p1 = tileCenter(ourHold);
   const p2 = tileCenter(foeHold);
   const ourX = Number(Math.max(44, Math.min(516, p1.wx + (p2.wx - p1.wx) * 0.28)).toFixed(1));
-  const ourY = Number(Math.max(20, Math.min(344, p1.wy + (p2.wy - p1.wy) * 0.28 + 9.5)).toFixed(1));
+  const ourY = Number(Math.max(20, Math.min(340, p1.wy + (p2.wy - p1.wy) * 0.28 + 9.5)).toFixed(1));
   const theirX = Number(Math.max(44, Math.min(516, p1.wx + (p2.wx - p1.wx) * 0.72)).toFixed(1));
-  const theirY = Number(Math.max(20, Math.min(344, p1.wy + (p2.wy - p1.wy) * 0.72 + 9.5)).toFixed(1));
+  const theirY = Number(Math.max(20, Math.min(340, p1.wy + (p2.wy - p1.wy) * 0.72 + 9.5)).toFixed(1));
+
+  const midX = (p1.wx + p2.wx) * 0.5;
+  const midY = (p1.wy + p2.wy) * 0.5;
+  const noteX = Number(Math.max(64, Math.min(496, midX)).toFixed(1));
+  const noteY = Number(Math.max(30, Math.min(348, midY + 38)).toFixed(1));
+  const noteW = Number(Math.max(36, mark.ranksLabel.length * 3.0 + 12).toFixed(1));
 
   const allyId = mark.ours.realmIds.find((id) => id !== "player") ?? null;
   const baseDir = p2.wx >= p1.wx ? 1 : -1;
@@ -89,6 +100,7 @@ export function resolveBoardColumnRanks(
     warId: mark.warId,
     column: mark.column,
     ranks: mark.ranks,
+    ranksLabel: mark.ranksLabel,
     active: mark.active,
     playerKit: resolveLivingCultureKit(state, "player"),
     allyKit: allyId ? resolveLivingCultureKit(state, allyId) : null,
@@ -99,12 +111,32 @@ export function resolveBoardColumnRanks(
     theirY,
     ourDir,
     theirDir,
+    noteX,
+    noteY,
+    noteW,
   };
 }
 
+function buildRankBars(ranks: ColumnRanks, dir: number) {
+  const barW = 6.8;
+  const barH = 1.9;
+  const stepY = 2.6;
+  const bars = Array.from({ length: ranks }, (_, idx) => {
+    const x = Number(((dir > 0 ? -7.2 : 0.4) - idx * 1.3 * dir).toFixed(1));
+    const y = Number((idx * stepY).toFixed(1));
+    return { idx, x, y, width: barW, height: barH };
+  });
+  const minX = Number((Math.min(...bars.map((b) => b.x)) - 1.2).toFixed(1));
+  const maxX = Number((Math.max(...bars.map((b) => b.x + barW)) + 1.2).toFixed(1));
+  const plateW = Number((maxX - minX).toFixed(1));
+  const plateY = -1.1;
+  const plateH = Number(((ranks - 1) * stepY + barH + 2.2).toFixed(1));
+  return { bars, plateX: minX, plateY, plateW, plateH };
+}
+
 /**
- * Quiet, non-blocking SVG overlay showing 1, 2, or 3 unit-rank bars beside each
- * joined-war column standard from `columnMarkSnapshot(state).ranks`. Zero blood/gore.
+ * Quiet, non-blocking SVG overlay showing stronger 1, 2, or 3 unit-rank bars on a
+ * subtle backing plate beside each joined-war column standard plus `ranksLabel`. Zero blood/gore.
  */
 export const BoardColumnRanks: React.FC<{ state: GameState }> = ({ state }) => {
   const v = resolveBoardColumnRanks(state);
@@ -113,7 +145,9 @@ export const BoardColumnRanks: React.FC<{ state: GameState }> = ({ state }) => {
   const pPal = LIVING_CULTURE_PALETTE[v.playerKit];
   const aPal = v.allyKit ? LIVING_CULTURE_PALETTE[v.allyKit] : null;
   const fPal = LIVING_CULTURE_PALETTE[v.foeKit];
-  const indices = Array.from({ length: v.ranks }, (_, i) => i);
+
+  const ours = buildRankBars(v.ranks, v.ourDir);
+  const theirs = buildRankBars(v.ranks, v.theirDir);
 
   return (
     <g
@@ -126,57 +160,93 @@ export const BoardColumnRanks: React.FC<{ state: GameState }> = ({ state }) => {
         data-column-ranks-war={v.warId}
         data-column-ranks={v.ranks}
         data-column-ranks-phase={v.column}
+        data-ranks-label={v.ranksLabel}
       >
-        {/* Player + ally unit ranks */}
+        {/* Player + ally stronger unit rank stack */}
         <g
           className="sc-colrank-group is-ours"
           transform={`translate(${v.ourX}, ${v.ourY})`}
         >
-          {indices.map((idx) => {
-            const xOff = (v.ourDir > 0 ? -5.5 : 0.5) - idx * 1.4 * v.ourDir;
-            const yOff = idx * 2.2;
-            const fill = idx === 1 && aPal ? aPal.tunic : idx === 2 ? pPal.trim : pPal.tunic;
+          <rect
+            className="sc-colrank-plate"
+            x={ours.plateX}
+            y={ours.plateY}
+            width={ours.plateW}
+            height={ours.plateH}
+            rx={1.5}
+          />
+          {ours.bars.map((b) => {
+            const fill = b.idx === 1 && aPal ? aPal.tunic : b.idx === 2 ? pPal.trim : pPal.tunic;
             return (
               <rect
-                key={`our-rank-${idx}`}
-                className={`sc-colrank-mark${idx === 0 ? " is-lead" : ""}`}
+                key={`our-rank-${b.idx}`}
+                className={`sc-colrank-mark is-strong${b.idx === 0 ? " is-lead" : ""}`}
                 data-rank-side="ours"
-                x={Number(xOff.toFixed(1))}
-                y={Number(yOff.toFixed(1))}
-                width={5}
-                height={1.4}
-                rx={0.6}
+                x={b.x}
+                y={b.y}
+                width={b.width}
+                height={b.height}
+                rx={0.75}
                 fill={fill}
-                style={{ animationDelay: `${idx * 0.25}s` }}
+                style={{ animationDelay: `${b.idx * 0.25}s` }}
               />
             );
           })}
         </g>
 
-        {/* Opposing foe unit ranks */}
+        {/* Opposing foe stronger unit rank stack */}
         <g
           className="sc-colrank-group is-theirs"
           transform={`translate(${v.theirX}, ${v.theirY})`}
         >
-          {indices.map((idx) => {
-            const xOff = (v.theirDir > 0 ? -5.5 : 0.5) - idx * 1.4 * v.theirDir;
-            const yOff = idx * 2.2;
-            const fill = idx === 2 ? fPal.trim : fPal.tunic;
+          <rect
+            className="sc-colrank-plate"
+            x={theirs.plateX}
+            y={theirs.plateY}
+            width={theirs.plateW}
+            height={theirs.plateH}
+            rx={1.5}
+          />
+          {theirs.bars.map((b) => {
+            const fill = b.idx === 2 ? fPal.trim : fPal.tunic;
             return (
               <rect
-                key={`their-rank-${idx}`}
-                className={`sc-colrank-mark${idx === 0 ? " is-lead" : ""}`}
+                key={`their-rank-${b.idx}`}
+                className={`sc-colrank-mark is-strong${b.idx === 0 ? " is-lead" : ""}`}
                 data-rank-side="theirs"
-                x={Number(xOff.toFixed(1))}
-                y={Number(yOff.toFixed(1))}
-                width={5}
-                height={1.4}
-                rx={0.6}
+                x={b.x}
+                y={b.y}
+                width={b.width}
+                height={b.height}
+                rx={0.75}
                 fill={fill}
-                style={{ animationDelay: `${idx * 0.25 + 0.15}s` }}
+                style={{ animationDelay: `${b.idx * 0.25 + 0.15}s` }}
               />
             );
           })}
+        </g>
+
+        {/* Quiet rank count note pill below column badge */}
+        <g
+          className="sc-colrank-note"
+          transform={`translate(${v.noteX}, ${v.noteY})`}
+        >
+          <rect
+            className="sc-colrank-note-bg"
+            x={-v.noteW / 2}
+            y={-4.2}
+            width={v.noteW}
+            height={8}
+            rx={3.8}
+          />
+          <text
+            className="sc-colrank-note-text"
+            x={0}
+            y={1.2}
+            textAnchor="middle"
+          >
+            {v.ranksLabel}
+          </text>
         </g>
       </g>
     </g>

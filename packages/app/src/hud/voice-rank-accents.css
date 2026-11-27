@@ -1,0 +1,133 @@
+/* --- Living Realm Slice 10: Hint Culture Tag & Stronger Column Rank Visuals (isolated CSS) ---
+ * Loaded from hud/NextWhisperHintLine.tsx and hud/BoardColumnRanks.tsx.
+ * Leaves theme.css, board-living.css, column-marks.css,
+ * player-reply-formation.css, and column-ranks-whisper-hint.css untouched.
+ * Strict pointer-events: none !important on all overlay elements and decorative spans.
+ * Calm culture tag & clearer heraldic unit ranks — zero blood or gore.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-hint-from-color: #dbeafe;
+  --sc-hint-sep-color: rgba(148, 163, 184, 0.72);
+  --sc-colrank-plate-bg: rgba(12, 18, 30, 0.76);
+  --sc-colrank-plate-border: rgba(148, 178, 214, 0.4);
+  --sc-colrank-note-bg: rgba(12, 18, 30, 0.88);
+  --sc-colrank-note-border: rgba(148, 178, 214, 0.44);
+  --sc-colrank-note-text: #e2e8f0;
+  --sc-colrank-clash-glow: #fde047;
+}
+
+:root[data-chrome="night"] {
+  --sc-hint-from-color: #e0f2fe;
+  --sc-hint-sep-color: rgba(162, 182, 206, 0.76);
+  --sc-colrank-plate-bg: rgba(8, 12, 22, 0.84);
+  --sc-colrank-plate-border: rgba(162, 198, 228, 0.46);
+  --sc-colrank-note-bg: rgba(8, 12, 22, 0.92);
+  --sc-colrank-note-border: rgba(162, 198, 228, 0.5);
+  --sc-colrank-note-text: #f1f5f9;
+  --sc-colrank-clash-glow: #fef08a;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-hint-from-color: #f6e7c4;
+  --sc-hint-sep-color: rgba(212, 178, 122, 0.76);
+  --sc-colrank-plate-bg: rgba(28, 20, 12, 0.8);
+  --sc-colrank-plate-border: rgba(212, 178, 122, 0.42);
+  --sc-colrank-note-bg: rgba(28, 20, 12, 0.9);
+  --sc-colrank-note-border: rgba(212, 178, 122, 0.48);
+  --sc-colrank-note-text: #f5e6c8;
+  --sc-colrank-clash-glow: #facc15;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Rules
+   ========================================================================== */
+.sc-colrank-plate,
+.sc-colrank-note,
+.sc-colrank-note *,
+.sc-next-whisper-from,
+.sc-next-whisper-culture {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. World Tab "from <culture>" Tag
+   ========================================================================== */
+.sc-next-whisper-from {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sc-next-whisper-sep {
+  color: var(--sc-hint-sep-color);
+}
+
+.sc-next-whisper-culture {
+  font-weight: 600;
+  color: var(--sc-hint-from-color);
+}
+
+/* ==========================================================================
+   4. Stronger Unit Rank Backing Plates & Rank Count Pill
+   ========================================================================== */
+.sc-colrank-plate {
+  fill: var(--sc-colrank-plate-bg);
+  stroke: var(--sc-colrank-plate-border);
+  stroke-width: 0.5;
+}
+
+.sc-colrank-mark.is-strong {
+  stroke-width: 0.55;
+  animation: sc-colrank-strong-breathe 3.4s ease-in-out infinite;
+}
+
+.sc-colrank-entry.is-rank-clash-line .sc-colrank-mark.is-lead {
+  stroke: var(--sc-colrank-clash-glow);
+  stroke-width: 0.7;
+}
+
+.sc-colrank-entry.is-rank-falling-back .sc-colrank-plate,
+.sc-colrank-entry.is-rank-falling-back .sc-colrank-mark.is-strong {
+  opacity: 0.72;
+  animation: none;
+}
+
+.sc-colrank-note-bg {
+  fill: var(--sc-colrank-note-bg);
+  stroke: var(--sc-colrank-note-border);
+  stroke-width: 0.6;
+  animation: sc-colrank-strong-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-colrank-note-text {
+  fill: var(--sc-colrank-note-text);
+  font-size: 4.7px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   5. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-colrank-strong-breathe {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-colrank-mark.is-strong,
+  .sc-colrank-note-bg {
+    animation: none !important;
+  }
+}

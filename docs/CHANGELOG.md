@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for whisper culture tag & stronger column rank visuals
+
+- **World tab `from <culture>` tag (`hud/NextWhisperHintLine.tsx`):** Added `formatWhisperCultureTag` reading `nextWhisperHint(state).fromCulture` (`b868b24`, exact match — zero mismatch) and `getCulture(fromCulture).name` to show `"Next whisper in ~Ns · from <culture>"`, hiding only the `from` tag when `fromCulture` is `null` while keeping the whole line hidden when `nextWhisperHint(state)` is `null`.
+- **Stronger board column unit ranks & `ranksLabel` (`hud/BoardColumnRanks.tsx`):** Added translucent backing plates (`.sc-colrank-plate`), clearer 1 / 2 / 3 rank bars (`.sc-colrank-mark.is-strong`), and a quiet `.sc-colrank-note` pill displaying `columnMarkSnapshot(state).ranksLabel` (`"one rank"`, `"two ranks"`, `"three ranks"`, exact match — zero mismatch) below `BoardColumnMarks` (`pointer-events: none !important;`, zero blood/gore).
+- **Unchanged invariants & accessibility:** Dedicated `hud/voice-rank-accents.css` only (`CultureWhispersCard.tsx`, sim line tables, hint math, `theme.css`, `board-living.css`, `column-marks.css`, `column-ranks-whisper-hint.css`, `player-reply-formation.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/VoiceRankAccents.test.tsx` (3 tests). Now: sim **618**, app **1656**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 10 (culture voice, hint sender tag, rank note)
 
 - **Culture voice (`content/livingRealm.ts` `WHISPERS`, `WHISPER_REPLIES`):** all five NPC cultures' whisper and NPC reply tables rewritten for a distinct voice. Western formal and oath-bound ("By seal and steward's hand"), woodland slow kin-speak with forest images, desert host's courtesy and proverbs ("a guest never drinks second"), steppe clipped with no greeting ("Grass long. Horses fat."), tide sailor's cant ("two cables off the point"). Still 4 lines per culture, fixed text. Previous tables kept as `WHISPERS_PLAIN` / `WHISPER_REPLIES_PLAIN`. `PLAYER_REPLIES` untouched.
