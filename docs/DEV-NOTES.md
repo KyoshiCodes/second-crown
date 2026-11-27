@@ -1,3 +1,11 @@
+## 2026-11-26 — sim / Living Realm slice 10 (culture voice, hint sender tag, rank note)
+
+- **Tables:** `WHISPERS` and `WHISPER_REPLIES` are now the voiced tables; the slice 1–9 text lives on as `WHISPERS_PLAIN` / `WHISPER_REPLIES_PLAIN`. `whisperLinesFor(culture, voiced = true)` and `whisperReplyLinesFor(culture, voiced = true)` pick the set; player-only cultures still fall back to `western` in both. `maybeWhisper` and `tickCorrespondence` pass `livingSwitches(state).cultureVoice` (flag `living_culture_voice`).
+- **Why sizes stayed at 4:** the line index (`whisperLineIndex`, reply `(dueTick/100 + salt) % n`) and the `living_whisper_lines_seen` bitmask (`WHISPER_LINE_BASE`, 20 bits) both depend on n. Same n means the voice switch only swaps text; the test compares kind, tick, from, to and line index for on vs off across three seeds.
+- **Hint sender:** private `whisperSenderAt(state, atTick)` repeats maybeWhisper's sender pick (`npcs[(round + seed) % npcs]`) and listener filter (war, plus peace lock when correspondence is on) at `nextPulseTick`, against current state. A war or peace lock that starts before the pulse can still silence it; the hint is a forecast. `fromCulture` uses new `peekCultureOfRealm` (culture.ts), which does not seed `culture_<id>`, so the hint stays a pure read.
+- **Rank note:** `RANKS_LABEL` in content, `ranksLabel(ranks)` in livingRealm, `ColumnMark.ranksLabel` set in `columnMarkSnapshot`. No phase timing or combat touched.
+- **Left alone:** `PLAYER_REPLIES`, sender and listener choice, fair rotation, line-cycling formula, `WHISPER_PULSES`, whisper count, reply delay, combat, phase timing, balance tables, app/render/server. The app still shows only "Next whisper in ~Ns" and rank bars; showing `fromName` and `ranksLabel` is the next app slice.
+
 ## 2026-11-26 — app / living presentation for column unit ranks & next-whisper hint
 
 - **Board column unit ranks (`packages/app/src/hud/BoardColumnRanks.tsx`, `BoardLiving.tsx`):**

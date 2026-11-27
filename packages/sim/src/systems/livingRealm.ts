@@ -20,6 +20,7 @@ import {
   WHISPERS,
   whisperReplyLinesFor,
   playerReplyLinesFor,
+  RANKS_LABEL,
   type FormationId,
   type ColumnMarkId,
   type WarPhaseId,
@@ -27,7 +28,7 @@ import {
 import { realmPower } from "./combat.js";
 import { activeWarFor } from "../actions/war.js";
 import { noteWar } from "./wave.js";
-import { cultureOfRealm } from "./culture.js";
+import { cultureOfRealm, peekCultureOfRealm } from "./culture.js";
 import { pushWorldLog } from "./events.js";
 import { addCapped } from "./storage.js";
 
@@ -70,6 +71,11 @@ export interface LivingSwitches {
    * (round + salt), which can repeat one line per sender.
    */
   whisperVariety: boolean;
+  /**
+   * Culture voice (slice 10): whisper and NPC reply lines come from the voiced tables (WHISPERS,
+   * WHISPER_REPLIES). False: the plain slice 1-9 tables. Same table sizes either way.
+   */
+  cultureVoice: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -88,6 +94,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   playerReply: "living_player_reply",
   whisperFair: "living_whisper_fair",
   whisperVariety: "living_whisper_variety",
+  cultureVoice: "living_culture_voice",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -279,7 +286,7 @@ export function maybeWhisper(state: GameState, atTick: number): CultureNews | nu
   const turn = Math.floor((round + state.meta.seed) / npcs.length);
   const pick = livingSwitches(state).whisperFair ? turn + salt : round + salt;
   const to = listeners[pick % listeners.length];
-  const lines = whisperLinesFor(cultureOfRealm(state, from.id));
+  const lines = whisperLinesFor(cultureOfRealm(state, from.id), livingSwitches(state).cultureVoice);
   const lineIdx = livingSwitches(state).whisperVariety ? whisperLineIndex(turn, salt, lines.length) : (round + salt) % lines.length;
   const line = lines[lineIdx].replace(/\{to\}/g, to.name);
   const item: CultureNews = {
@@ -354,6 +361,14 @@ export interface NextWhisperHint {
   nextPulseTick: number;
   /** (nextPulseTick - tick) in seconds, rounded up (10 ticks = 1 s). */
   secondsApprox: number;
+  /**
+   * Likely sender (slice 10): the NPC whose turn it is on nextPulseTick, by the same pick as
+   * maybeWhisper. Null (all three) when that sender has no listener as the state stands now
+   * (at war with or peace-locked against every realm), so no single sender is knowable.
+   */
+  fromRealmId: string | null;
+  fromName: string | null;
+  fromCulture: string | null;
 }
 
 /**
@@ -367,7 +382,33 @@ export function nextWhisperHint(state: GameState): NextWhisperHint | null {
   const tick = state.meta.tick;
   const every = WHISPER_PULSES * 100;
   const nextPulseTick = (Math.floor(tick / every) + 1) * every;
-  return { tick, nextPulseTick, secondsApprox: Math.ceil((nextPulseTick - tick) / TICKS_PER_SECOND) };
+  const secondsApprox = Math.ceil((nextPulseTick - tick) / TICKS_PER_SECOND);
+  const from = whisperSenderAt(state, nextPulseTick);
+  return {
+    tick,
+    nextPulseTick,
+    secondsApprox,
+    fromRealmId: from ? from.id : null,
+    fromName: from ? from.name : null,
+    fromCulture: from ? peekCultureOfRealm(state, from.id) : null,
+  };
+}
+
+/**
+ * The realm maybeWhisper would pick as sender at whisper pulse tick `atTick`, if it has at least
+ * one listener in the current state; else null. Same sender pick and listener filter as
+ * maybeWhisper. Pure read.
+ */
+function whisperSenderAt(state: GameState, atTick: number): { id: string; name: string } | null {
+  const npcs = state.realms.filter((r) => r.id !== "player");
+  if (!npcs.length) return null;
+  const round = Math.floor(atTick / 100) / WHISPER_PULSES;
+  const from = npcs[(round + state.meta.seed) % npcs.length];
+  const corr = livingSwitches(state).correspondence;
+  const heard = state.realms.some(
+    (r) => r.id !== from.id && !atWarWith(state, from.id, r.id) && !(corr && peaceLockedAt(state, from.id, r.id, atTick))
+  );
+  return heard ? { id: from.id, name: from.name } : null;
 }
 
 // ---------------------------------------------------------------- correspondence (slice 6)
@@ -427,7 +468,7 @@ export function tickCorrespondence(state: GameState, atTick: number): CultureNew
     const to = state.realms.find((r) => r.id === p.toRealmId);
     if (!from || !to || atWarWith(state, from.id, to.id) || peaceLockedAt(state, from.id, to.id, atTick)) continue;
     const salt = realmSalt(from.id);
-    const lines = whisperReplyLinesFor(cultureOfRealm(state, from.id));
+    const lines = whisperReplyLinesFor(cultureOfRealm(state, from.id), livingSwitches(state).cultureVoice);
     const line = lines[(Math.floor(p.dueTick / 100) + salt) % lines.length].replace(/\{to\}/g, to.name);
     const item: CultureNews = {
       tick: atTick,
@@ -1017,6 +1058,8 @@ export interface ColumnMark {
   column: ColumnMarkId;
   /** Ranks the board draws (slice 9): column 1, skirmish-line 2, clash-line 3, falling-back 1. */
   ranks: ColumnRanks;
+  /** Short board note for `ranks` (slice 10): "one rank", "two ranks", "three ranks". */
+  ranksLabel: string;
   /** False only while a finished joined war shows its aftermath (falling-back). */
   active: boolean;
 }
@@ -1042,6 +1085,11 @@ export function columnRanks(phase: WarPhaseId): ColumnRanks {
   return COLUMN_RANKS[COLUMN_OF[phase]];
 }
 
+/** Label for a rank count: 1 "one rank", 2 "two ranks", 3 "three ranks". Pure. */
+export function ranksLabel(ranks: ColumnRanks): string {
+  return RANKS_LABEL[ranks];
+}
+
 /**
  * Column marks for the player's joined war: the newest active joined war, else the newest
  * finished one still showing its aftermath ("falling-back"), else null. Phase comes from
@@ -1059,6 +1107,7 @@ export function columnMarkSnapshot(state: GameState, atTick = state.meta.tick): 
     phase: pick.phase,
     column: COLUMN_OF[pick.phase],
     ranks: columnRanks(pick.phase),
+    ranksLabel: ranksLabel(columnRanks(pick.phase)),
     active: pick.active,
   };
 }

@@ -181,6 +181,7 @@ describe("column-mark snapshot", () => {
       phase: "columns",
       column: "column",
       ranks: 1,
+      ranksLabel: "one rank",
       active: true,
     });
     expect(columnMarkSnapshot(s, T0 + WAR_PHASE_START.skirmish)).toMatchObject({ phase: "skirmish", column: "skirmish-line" });

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-26 — Living Realm slice 10 (culture voice, hint sender tag, rank note)
+
+- **Culture voice (`content/livingRealm.ts` `WHISPERS`, `WHISPER_REPLIES`):** all five NPC cultures' whisper and NPC reply tables rewritten for a distinct voice. Western formal and oath-bound ("By seal and steward's hand"), woodland slow kin-speak with forest images, desert host's courtesy and proverbs ("a guest never drinks second"), steppe clipped with no greeting ("Grass long. Horses fat."), tide sailor's cant ("two cables off the point"). Still 4 lines per culture, fixed text. Previous tables kept as `WHISPERS_PLAIN` / `WHISPER_REPLIES_PLAIN`. `PLAYER_REPLIES` untouched.
+- **Hint sender tag (`nextWhisperHint`):** now `{ tick, nextPulseTick, secondsApprox, fromRealmId, fromName, fromCulture } | null`. The sender is the NPC whose turn it is on `nextPulseTick`, by maybeWhisper's own pick. The three `from` fields are null when that sender has no listener as the state stands now (at war with or peace-locked against every realm); seconds stay.
+- **Rank note (`ColumnMark.ranksLabel`, `ranksLabel(ranks)`, `RANKS_LABEL`):** 1 "one rank", 2 "two ranks", 3 "three ranks". Read-only, derived from `ranks` only.
+- **Switch:** `living_culture_voice` (`false` restores the plain tables). Sender, listener, fair rotation, line-cycling formula, `WHISPER_PULSES`, whisper and reply counts unchanged (tested).
+- **Playtest:** one line in the Living realm section ("Cultures with distinct voice"). Report numbers and balance tables unchanged.
+- **Tests:** new `systems/livingSlice10.test.ts` (14); slice 8 snapshot test expects `ranksLabel`; slice 9 hint tests match the timing fields. Now: sim **618**, app **1653**, app build clean.
+
 ## 2026-11-26 — Living presentation for column unit ranks & next-whisper hint
 
 - **Board column unit ranks (`hud/BoardColumnRanks.tsx`, `BoardLiving.tsx`):** Added `resolveBoardColumnRanks` and `<BoardColumnRanks>` inside `BoardLiving`, reading `columnMarkSnapshot(state).ranks` (`columnRanks`, `6193e06`, exact name match — zero mismatch). Draws 1, 2, or 3 calm horizontal culture-kit rank bars (`column`: 1, `skirmish-line`: 2, `clash-line`: 3, `falling-back`: 1) beside the opposing column standards (`pointer-events: none !important;`, zero blood/gore) without crowding `BoardJoinedFormations` or `BoardColumnMarks`.

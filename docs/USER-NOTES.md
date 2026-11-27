@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Each culture has its own voice
+
+- **Kingdoms sound like themselves.** Whispers and replies now read differently by culture: western realms speak formally, woodland realms slowly and as kin, desert realms with a host's courtesy, steppe realms in short blunt bursts, tide realms like sailors.
+- **Same rhythm.** Same kingdoms, same timing, same number of whispers and replies.
+- **Coming to the screen:** the next-whisper hint will name who is likely to speak, and the column marks get a short "one rank / two ranks / three ranks" note. The game reports both now; the screens come next.
+
 ## 2026-11-26 — Column ranks on the map & next-whisper countdown
 
 - **Column unit ranks on the map:** Joined-war column standards now show 1, 2, or 3 quiet rank bars alongside them (1 while marching or falling back, 2 in skirmish lines, 3 at the clash), without blocking clicks or covering the existing formation or column labels.

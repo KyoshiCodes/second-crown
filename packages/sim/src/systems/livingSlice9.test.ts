@@ -223,11 +223,11 @@ describe("column ranks", () => {
 describe("next-whisper hint", () => {
   it("gives the next whisper pulse after now", () => {
     const s = fresh(1);
-    expect(nextWhisperHint(s)).toEqual({ tick: T0, nextPulseTick: 20400, secondsApprox: 30 });
+    expect(nextWhisperHint(s)).toMatchObject({ tick: T0, nextPulseTick: 20400, secondsApprox: 30 });
     s.meta.tick = 20400;
-    expect(nextWhisperHint(s)).toEqual({ tick: 20400, nextPulseTick: 20700, secondsApprox: 30 });
+    expect(nextWhisperHint(s)).toMatchObject({ tick: 20400, nextPulseTick: 20700, secondsApprox: 30 });
     s.meta.tick = 20695;
-    expect(nextWhisperHint(s)).toEqual({ tick: 20695, nextPulseTick: 20700, secondsApprox: 1 });
+    expect(nextWhisperHint(s)).toMatchObject({ tick: 20695, nextPulseTick: 20700, secondsApprox: 1 });
     s.meta.tick = 0;
     expect(nextWhisperHint(s)!.nextPulseTick).toBe(300);
   });
@@ -251,7 +251,7 @@ describe("next-whisper hint", () => {
   it("does not depend on the variety switch", () => {
     const s = fresh(1);
     setLivingSwitch(s, "whisperVariety", false);
-    expect(nextWhisperHint(s)).toEqual({ tick: T0, nextPulseTick: 20400, secondsApprox: 30 });
+    expect(nextWhisperHint(s)).toMatchObject({ tick: T0, nextPulseTick: 20400, secondsApprox: 30 });
   });
 
   it("is read-only", () => {

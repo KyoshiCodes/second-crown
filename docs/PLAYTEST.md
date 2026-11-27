@@ -151,6 +151,8 @@ War phase timing, NPC caravans and whispers, NPC board activity (claims, camp ma
 
 Player replies available: a player may answer a whisper they received with one fixed line (`living_player_reply`). The bots never reply.
 
+Cultures with distinct voice: whisper and NPC reply lines read differently per culture (`living_culture_voice`); same timing, same counts, same 16 lines.
+
 Attentive:
 
 ```

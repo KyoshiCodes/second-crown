@@ -38,10 +38,46 @@ export const WAR_PHASE_TITLE: Record<WarPhaseId, string> = {
 };
 
 /**
- * Whisper lines by culture. `{to}` is the listener's realm name. One or two short sentences.
- * Picked by tick and realm salt, never by RNG.
+ * Whisper lines by culture, with culture voice (slice 10, `living_culture_voice`, on by default).
+ * Same table sizes as WHISPERS_PLAIN (4 per culture), so line cycling is unchanged. `{to}` is the
+ * listener's realm name. Voice: western formal and oath-bound; woodland slow, kin-speak, forest
+ * images; desert host's courtesy and proverbs; steppe clipped, no greeting; tide sailor's cant.
  */
 export const WHISPERS: Record<string, readonly string[]> = {
+  western: [
+    "By seal and steward's hand: {to} has the keep's good faith.",
+    "The levy drills at dawn, by law and custom. Pray yours never needs to.",
+    "Our masons stand idle and honest. Say the word, {to}, and they march with trowels.",
+    "The heralds report the king's roads quiet. We intend to keep them so.",
+  ],
+  woodland: [
+    "Kin of {to}: the cedars grow slow, and so does our anger. Walk easy.",
+    "We carved your sign on the trail post. The moss has not covered it.",
+    "The elders smoked on it. Hide and bead for {to}'s salt, when the snow goes.",
+    "Longhouse fire, low and steady. The forest hears no war drum.",
+  ],
+  desert: [
+    "Peace upon {to}. Our wells are full, and a guest never drinks second.",
+    "The lancers sleep in the shade. The wise do not wake a calm noon.",
+    "Pale stone, fine glass, honest weight. Our caravans swear by all three.",
+    "Under the courtyard lamps we spoke your name, {to}. Kindly, as is proper.",
+  ],
+  steppe: [
+    "Grass long. Horses fat. Ride through, {to}.",
+    "Saw your banners. Did not turn. Remember that.",
+    "Wide sky, short grudges. The old quarrel sleeps.",
+    "One fire free in the felt hall. Yours, {to}. Bring meat.",
+  ],
+  tide: [
+    "Fair tide, {to}. A hold of salt fish rides it your way.",
+    "Stilt halls dry, nets heavy. The sea owes us nothing this month.",
+    "Green sails off your coast are ours. Dip a flag; we'll dip back.",
+    "New shoal charted, two cables off the point. Mind your keels, {to}.",
+  ],
+};
+
+/** The slice 1-9 whisper lines (plain voice). Used when `living_culture_voice` is false. */
+export const WHISPERS_PLAIN: Record<string, readonly string[]> = {
   western: [
     "Our levy drills at dawn. May yours never need to.",
     "The keep bell rang twice today. Only for a wedding.",
@@ -74,9 +110,13 @@ export const WHISPERS: Record<string, readonly string[]> = {
   ],
 };
 
-/** Fallback for player-only cultures (mist, glen, salt, fen, peak build as western). */
-export function whisperLinesFor(culture: string): readonly string[] {
-  return WHISPERS[culture] ?? WHISPERS.western;
+/**
+ * Fallback for player-only cultures (mist, glen, salt, fen, peak build as western).
+ * `voiced` false gives the plain (pre-slice-10) table.
+ */
+export function whisperLinesFor(culture: string, voiced = true): readonly string[] {
+  const t = voiced ? WHISPERS : WHISPERS_PLAIN;
+  return t[culture] ?? t.western;
 }
 
 // ---------------------------------------------------------------- culture correspondence (slice 6)
@@ -91,10 +131,44 @@ export const WHISPER_REPLY_DELAY_TICKS = 300;
 export const WHISPER_REPLY_QUEUE_CAP = 8;
 
 /**
- * Reply lines by culture, in the same voice as WHISPERS. `{to}` is the realm being answered
- * (the original whisperer). Picked by tick and realm salt, never by RNG.
+ * Reply lines by culture, with culture voice (slice 10), matching WHISPERS. `{to}` is the realm
+ * being answered (the original whisperer). Same sizes as WHISPER_REPLIES_PLAIN.
  */
 export const WHISPER_REPLIES: Record<string, readonly string[]> = {
+  western: [
+    "The keep acknowledges {to}'s word, sealed and entered in the rolls.",
+    "Courteously received. Our gate stands open to your heralds.",
+    "It shall be read aloud at the next feast, {to}, with a toast.",
+    "Agreed, upon our oath. The roads stay quiet.",
+  ],
+  woodland: [
+    "We heard you under the cedars, kin. Your words may stay a while.",
+    "A post for {to} too, facing back. The trail runs both ways.",
+    "The elders nod. Salt for hide, in any season.",
+    "Our smoke rises straight to answer yours. No drums.",
+  ],
+  desert: [
+    "Your words came with the caravan, {to}, sweet as dates. A cup returns.",
+    "The courtyard heard you and was glad. Trade is the better war.",
+    "Shade and water for {to}'s riders, as a host has promised.",
+    "Well spoken. Tonight the lamps burn for friends.",
+  ],
+  steppe: [
+    "Heard, {to}. We ride easy.",
+    "Horses know your banners now. No shying.",
+    "Short memory. Long grass. Agreed.",
+    "Fire is set for {to}. Come hungry.",
+  ],
+  tide: [
+    "Your word came in on the flood, {to}. One goes out on the ebb.",
+    "Stilt halls heard you. Fair winds and a following sea.",
+    "Saw your flag dip. We dipped back. Did {to} see?",
+    "Logged and charted. The shoal is yours to mind too.",
+  ],
+};
+
+/** The slice 6-9 reply lines (plain voice). Used when `living_culture_voice` is false. */
+export const WHISPER_REPLIES_PLAIN: Record<string, readonly string[]> = {
   western: [
     "Word received. Our gate stays open to {to}'s heralds.",
     "Kindly said. The keep sends its regards.",
@@ -127,10 +201,18 @@ export const WHISPER_REPLIES: Record<string, readonly string[]> = {
   ],
 };
 
-/** Fallback for player-only cultures, as whisperLinesFor. */
-export function whisperReplyLinesFor(culture: string): readonly string[] {
-  return WHISPER_REPLIES[culture] ?? WHISPER_REPLIES.western;
+/** Fallback for player-only cultures, as whisperLinesFor. `voiced` false gives the plain table. */
+export function whisperReplyLinesFor(culture: string, voiced = true): readonly string[] {
+  const t = voiced ? WHISPER_REPLIES : WHISPER_REPLIES_PLAIN;
+  return t[culture] ?? t.western;
 }
+
+/** Board label per rank count (slice 10). Presentation only. */
+export const RANKS_LABEL: Record<1 | 2 | 3, string> = {
+  1: "one rank",
+  2: "two ranks",
+  3: "three ranks",
+};
 
 // ---------------------------------------------------------------- player reply (slice 7)
 

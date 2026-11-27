@@ -26,6 +26,14 @@ export function cultureOfRealm(state: GameState, realmId: string): string {
   return seeded;
 }
 
+/** cultureOfRealm without seeding the NPC culture flag. Pure read (slice 10, next-whisper hint). */
+export function peekCultureOfRealm(state: GameState, realmId: string): string {
+  if (realmId === "player") return playerCultureId(state);
+  const raw = state.flags[`culture_${realmId}`];
+  if (typeof raw === "string" && raw) return raw;
+  return NPC_CULTURE_IDS[(realmId.length * 7) % NPC_CULTURE_IDS.length];
+}
+
 /** Extra base food per farm for this realm. Reads only; never seeds an NPC culture flag. */
 export function farmCultureBonus(state: GameState, realmId: string): number {
   const id = realmId === "player" ? playerCultureId(state) : state.flags[`culture_${realmId}`];
