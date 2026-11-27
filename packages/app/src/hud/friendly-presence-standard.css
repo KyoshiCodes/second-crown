@@ -1,0 +1,167 @@
+/* --- Living Realm Slice 13: Friendly Board Presence & Column Standard Strength (isolated CSS) ---
+ * Loaded from hud/BoardFriendlyPresence.tsx and hud/BoardColumnMarks.tsx.
+ * Leaves theme.css, board-living.css, column-marks.css, column-ranks-whisper-hint.css,
+ * voice-rank-accents.css, realm-tag-ranks-note.css, and last-whisper-summary.css untouched.
+ * Strict pointer-events: none !important on all overlay elements.
+ * Calm friendly hold marks & stronger column standards — zero blood or gore.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-friendly-peace-rgb: 134, 210, 178;
+  --sc-friendly-pact-rgb: 147, 197, 253;
+  --sc-friendly-trade-rgb: 234, 196, 108;
+  --sc-friendly-ring-bg: rgba(14, 22, 34, 0.72);
+  --sc-friendly-stroke: rgba(226, 232, 240, 0.62);
+  --sc-colmark-strength-halo: rgba(250, 204, 21, 0.42);
+  --sc-colmark-finial-stroke: rgba(248, 250, 252, 0.72);
+}
+
+:root[data-chrome="night"] {
+  --sc-friendly-peace-rgb: 152, 224, 194;
+  --sc-friendly-pact-rgb: 168, 212, 255;
+  --sc-friendly-trade-rgb: 245, 208, 120;
+  --sc-friendly-ring-bg: rgba(8, 13, 24, 0.8);
+  --sc-friendly-stroke: rgba(241, 245, 249, 0.68);
+  --sc-colmark-strength-halo: rgba(254, 240, 138, 0.48);
+  --sc-colmark-finial-stroke: rgba(248, 250, 252, 0.8);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-friendly-peace-rgb: 154, 204, 162;
+  --sc-friendly-pact-rgb: 162, 194, 222;
+  --sc-friendly-trade-rgb: 228, 178, 86;
+  --sc-friendly-ring-bg: rgba(30, 21, 13, 0.76);
+  --sc-friendly-stroke: rgba(245, 230, 200, 0.64);
+  --sc-colmark-strength-halo: rgba(234, 179, 8, 0.44);
+  --sc-colmark-finial-stroke: rgba(254, 243, 199, 0.76);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Layer
+   ========================================================================== */
+.sc-friendly-layer,
+.sc-friendly-layer *,
+.sc-friendly-entry,
+.sc-friendly-route,
+.sc-friendly-pip,
+.sc-friendly-standard,
+.sc-colmark-finial,
+.sc-colmark-standard-halo {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Non-War Friendly Presence Marks (Peace / Pact / Trade)
+   ========================================================================== */
+.sc-friendly-route {
+  fill: none;
+  stroke-width: 0.72;
+  stroke-dasharray: 2.2 3.2;
+  stroke-linecap: round;
+  opacity: 0.4;
+}
+
+.sc-friendly-route.is-trade {
+  stroke: rgba(var(--sc-friendly-trade-rgb), 0.76);
+  animation: sc-friendly-route-drift 6.4s linear infinite;
+}
+
+.sc-friendly-route.is-pact {
+  stroke: rgba(var(--sc-friendly-pact-rgb), 0.72);
+  stroke-dasharray: 2.8 2.6;
+  animation: sc-friendly-route-drift 7.2s linear infinite;
+}
+
+.sc-friendly-aura.is-peace {
+  fill: var(--sc-friendly-ring-bg);
+  stroke: rgba(var(--sc-friendly-peace-rgb), 0.62);
+  stroke-width: 0.6;
+}
+
+.sc-friendly-aura.is-trade {
+  fill: var(--sc-friendly-ring-bg);
+  stroke: rgba(var(--sc-friendly-trade-rgb), 0.66);
+  stroke-width: 0.6;
+}
+
+.sc-friendly-pip {
+  stroke: var(--sc-friendly-stroke);
+  stroke-width: 0.45;
+  animation: sc-friendly-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-friendly-standard {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: sc-friendly-breathe 4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   4. Stronger Column Standards Scaled by standardStrength (1 / 2 / 3)
+   ========================================================================== */
+.sc-colmark-finial {
+  stroke: var(--sc-colmark-finial-stroke);
+  stroke-width: 0.35;
+}
+
+.sc-colmark-standard-halo {
+  fill: none;
+  stroke: var(--sc-colmark-strength-halo);
+  stroke-width: 0.7;
+  animation: sc-colmark-halo-gleam 3.2s ease-in-out infinite;
+}
+
+.sc-colmark-entry.is-strength-2 .sc-colmark-column {
+  filter: drop-shadow(0 0 1px rgba(248, 250, 252, 0.16));
+}
+
+.sc-colmark-entry.is-strength-3 .sc-colmark-column {
+  filter: drop-shadow(0 0 1.4px rgba(250, 204, 21, 0.24));
+}
+
+/* ==========================================================================
+   5. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-friendly-route-drift {
+  from {
+    stroke-dashoffset: 10.8;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes sc-friendly-breathe {
+  0%,
+  100% {
+    opacity: 0.76;
+  }
+  50% {
+    opacity: 0.98;
+  }
+}
+
+@keyframes sc-colmark-halo-gleam {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-friendly-route,
+  .sc-friendly-pip,
+  .sc-friendly-standard,
+  .sc-colmark-standard-halo,
+  .sc-colmark-finial {
+    animation: none !important;
+  }
+}

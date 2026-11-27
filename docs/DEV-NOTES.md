@@ -1,3 +1,13 @@
+## 2026-11-27 — app / living presentation for friendly board presence & column standard strength
+
+- **Friendly board presence (`packages/app/src/hud/BoardFriendlyPresence.tsx`, `BoardLiving.tsx`):**
+  - Exported `BoardFriendlyPresenceItem`, `listBoardFriendlyPresence(state)` (partial-state & `isProvinceSeen` fog guards), and `<BoardFriendlyPresence>` mounted inside `BoardLiving.tsx` right before `<BoardJoinedFormations>`.
+  - Reads `friendlyPresenceSnapshot(state)` (`2181b07`, exact match — zero mismatch) to place calm culture-kit marks on the upper-left flank of seen friendly holds (`peace` halo pip, `pact` companion standard, `trade` rotated diamond pip, and gentle quadratic routes for `pact`/`trade` only). Strict `pointer-events: none !important;`, zero blood/gore.
+- **Column standard strength scaling (`packages/app/src/hud/BoardColumnMarks.tsx`):**
+  - Reads `columnMarkSnapshot(state).standardStrength` (`1 | 2 | 3`, exact match — zero mismatch): scales masts/pennants upward (`poleTop` `-6.5` / `-7.6` / `-8.6`) via `standardMetrics(strength)`, adds pole finials (`2`/`3`) and `.sc-colmark-standard-halo` (`3`), and exposes `data-standard-strength` + `is-strength-1|2|3` with zero overlap against formations, column badges, or unit ranks.
+- **Dedicated CSS (`packages/app/src/hud/friendly-presence-standard.css`):** Imported from `BoardFriendlyPresence.tsx` and `BoardColumnMarks.tsx`. Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;`, calm keyframes (`sc-friendly-route-drift`, `sc-friendly-breathe`, `sc-colmark-halo-gleam`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to diplomacy/combat math, `theme.css`, `board-living.css`, `column-marks.css`, `column-ranks-whisper-hint.css`, `voice-rank-accents.css`, `realm-tag-ranks-note.css`, `last-whisper-summary.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/FriendlyPresenceStandard.test.tsx`):** 4 tests passing (`npm test` -> sim **660**, app **1667**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 13 (friendly board presence, column standard strength)
 
 - **Presence:** `friendlyPresenceSnapshot(state, atTick = tick)` in `systems/livingRealm.ts`. Walks `state.realms` (skips player and any realm `atWarWith` the player), stops at `FRIENDLY_PRESENCE_CAP`. Pact set = `allyRealmId` of active wars where the player is a side (joinSide). Peace = `peaceLockedAt(state, r, "player", atTick)`. Culture via `peekCultureOfRealm` (never seeds the flag). Kind priority: trade > pact > peace.

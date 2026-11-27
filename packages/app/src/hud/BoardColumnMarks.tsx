@@ -5,6 +5,7 @@ import {
   type ColumnMarkId,
   type GameState,
   type Province,
+  type StandardStrength,
 } from "@second-crown/sim";
 import { boardTerrainElevation } from "./BoardRoads";
 import {
@@ -13,6 +14,7 @@ import {
   type LivingCultureKit,
 } from "./BoardLivingRealm";
 import "./column-marks.css";
+import "./friendly-presence-standard.css";
 
 const BOARD_ORIGIN_X = 236;
 const BOARD_ORIGIN_Y = 56;
@@ -30,6 +32,7 @@ export interface BoardColumnMarkView {
   warId: string;
   joinedWarId: string;
   column: ColumnMarkId;
+  standardStrength: StandardStrength;
   active: boolean;
   label: string;
   playerKit: LivingCultureKit;
@@ -107,6 +110,7 @@ export function resolveBoardColumnMark(
     warId: mark.warId,
     joinedWarId: mark.joinedWarId,
     column: mark.column,
+    standardStrength: mark.standardStrength ?? 1,
     active: mark.active,
     label,
     playerKit: resolveLivingCultureKit(state, "player"),
@@ -122,6 +126,17 @@ export function resolveBoardColumnMark(
     ourDir,
     theirDir,
   };
+}
+
+function standardMetrics(strength: StandardStrength) {
+  switch (strength) {
+    case 3:
+      return { poleTop: -8.6, poleW: 1.15, flagW: 6.0, flagTop: -8.3, flagBot: -4.9 };
+    case 2:
+      return { poleTop: -7.6, poleW: 1.0, flagW: 5.1, flagTop: -7.3, flagBot: -4.3 };
+    default:
+      return { poleTop: -6.5, poleW: 0.85, flagW: 4.2, flagTop: -6.2, flagBot: -3.6 };
+  }
 }
 
 function renderColumnPhaseGlyph(column: ColumnMarkId, color: string) {
@@ -173,6 +188,9 @@ export const BoardColumnMarks: React.FC<{ state: GameState }> = ({ state }) => {
           ? "#cbd5e1"
           : pPal.accent;
 
+  const m = standardMetrics(v.standardStrength);
+  const flagMid = Number(((m.flagTop + m.flagBot) * 0.5).toFixed(1));
+
   return (
     <g
       className="sc-colmark-layer"
@@ -180,9 +198,10 @@ export const BoardColumnMarks: React.FC<{ state: GameState }> = ({ state }) => {
       style={{ pointerEvents: "none" }}
     >
       <g
-        className={`sc-colmark-entry is-col-${v.column}`}
+        className={`sc-colmark-entry is-col-${v.column} is-strength-${v.standardStrength}`}
         data-column-mark={v.warId}
         data-column-phase={v.column}
+        data-standard-strength={v.standardStrength}
         data-column-active={v.active ? "true" : "false"}
       >
         <line
@@ -193,18 +212,30 @@ export const BoardColumnMarks: React.FC<{ state: GameState }> = ({ state }) => {
           y2={v.theirY}
         />
 
-        {/* Our column standard + trailing rank pips */}
+        {/* Our column standard + trailing rank pips (scaled upward by standardStrength) */}
         <g
           className="sc-colmark-column is-ours"
           transform={`translate(${v.ourX}, ${v.ourY})`}
         >
-          <line x1={0} y1={1} x2={0} y2={-6.5} stroke={pPal.trim} strokeWidth={0.85} />
+          {v.standardStrength === 3 ? (
+            <circle className="sc-colmark-standard-halo" cx={1.4 * v.ourDir} cy={-4.6} r={5.4} />
+          ) : null}
+          <line x1={0} y1={1} x2={0} y2={m.poleTop} stroke={pPal.trim} strokeWidth={m.poleW} />
           <polygon
-            points={`0,-6.2 ${4.2 * v.ourDir},-4.9 0,-3.6`}
+            points={`0,${m.flagTop} ${m.flagW * v.ourDir},${flagMid} 0,${m.flagBot}`}
             fill={pPal.tunic}
             stroke={pPal.trim}
             strokeWidth={0.45}
           />
+          {v.standardStrength >= 2 ? (
+            <circle
+              className="sc-colmark-finial"
+              cx={0}
+              cy={Number((m.poleTop - 0.5).toFixed(1))}
+              r={v.standardStrength === 3 ? 0.95 : 0.75}
+              fill={pPal.trim}
+            />
+          ) : null}
           <circle className="sc-colmark-dot" cx={-2.6 * v.ourDir} cy={1} r={0.95} fill={pPal.tunic} />
           <circle
             className="sc-colmark-dot"
@@ -216,18 +247,30 @@ export const BoardColumnMarks: React.FC<{ state: GameState }> = ({ state }) => {
           <circle className="sc-colmark-dot" cx={-7.8 * v.ourDir} cy={1} r={0.85} fill={pPal.trim} />
         </g>
 
-        {/* Opposing column standard + trailing rank pips */}
+        {/* Opposing column standard + trailing rank pips (scaled upward by standardStrength) */}
         <g
           className="sc-colmark-column is-theirs"
           transform={`translate(${v.theirX}, ${v.theirY})`}
         >
-          <line x1={0} y1={1} x2={0} y2={-6.5} stroke={fPal.trim} strokeWidth={0.85} />
+          {v.standardStrength === 3 ? (
+            <circle className="sc-colmark-standard-halo" cx={1.4 * v.theirDir} cy={-4.6} r={5.4} />
+          ) : null}
+          <line x1={0} y1={1} x2={0} y2={m.poleTop} stroke={fPal.trim} strokeWidth={m.poleW} />
           <polygon
-            points={`0,-6.2 ${4.2 * v.theirDir},-4.9 0,-3.6`}
+            points={`0,${m.flagTop} ${m.flagW * v.theirDir},${flagMid} 0,${m.flagBot}`}
             fill={fPal.tunic}
             stroke={fPal.trim}
             strokeWidth={0.45}
           />
+          {v.standardStrength >= 2 ? (
+            <circle
+              className="sc-colmark-finial"
+              cx={0}
+              cy={Number((m.poleTop - 0.5).toFixed(1))}
+              r={v.standardStrength === 3 ? 0.95 : 0.75}
+              fill={fPal.trim}
+            />
+          ) : null}
           <circle className="sc-colmark-dot" cx={-2.6 * v.theirDir} cy={1} r={0.95} fill={fPal.tunic} />
           <circle className="sc-colmark-dot" cx={-5.2 * v.theirDir} cy={1} r={0.95} fill={fPal.trim} />
           <circle className="sc-colmark-dot" cx={-7.8 * v.theirDir} cy={1} r={0.85} fill={fPal.tunic} />

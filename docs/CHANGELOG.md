@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for friendly board presence & column standard strength
+
+- **Board friendly presence (`hud/BoardFriendlyPresence.tsx`, `BoardLiving.tsx`):** Added `listBoardFriendlyPresence` and `<BoardFriendlyPresence>` before `<BoardJoinedFormations>`, reading `friendlyPresenceSnapshot(state)` (`2181b07`, exact match — zero mismatch). Renders fog-respecting, non-blocking (`pointer-events: none !important;`) culture-kit marks beside friendly holds (`peace` calm halo pip, `pact` companion mini-standard, `trade` rotated diamond pip, plus gentle route arcs for `pact`/`trade` only; zero blood/gore).
+- **Joined-war column standard strength (`hud/BoardColumnMarks.tsx`):** Reads `columnMarkSnapshot(state).standardStrength` (`1` / `2` / `3`, exact match — zero mismatch) to scale each column's upward mast, pennant, finial (`2`/`3`), and soft gold halo (`3`) cleanly without overlapping formations, column badges, or rank marks.
+- **Unchanged invariants & accessibility:** Dedicated `hud/friendly-presence-standard.css` only (diplomacy/combat math, `theme.css`, `board-living.css`, `column-marks.css`, `column-ranks-whisper-hint.css`, `voice-rank-accents.css`, `realm-tag-ranks-note.css`, `last-whisper-summary.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/FriendlyPresenceStandard.test.tsx` (4 tests). Now: sim **660**, app **1667**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living presentation for last-whisper summary line (World tab)
 
 - **World tab last-whisper summary (`hud/LastWhisperSummaryLine.tsx`, `tabs/WorldTab.tsx`):** Added `resolveLastWhisperSummary` and `<LastWhisperSummaryLine>` directly under `<NextWhisperHintLine>` inside `Fold#world-culture-whispers`. Reads `lastWhisperSummary(state)` (`ee1351d`, exact match — zero mismatch) to render a calm single-line pill `"Last whisper from <realm> (<culture>)"` (preferring realm + culture only rather than full body text), hiding when `lastWhisperSummary(state)` is `null`.

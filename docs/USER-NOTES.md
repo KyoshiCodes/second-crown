@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Friendly neighbors & stronger banners on the map
+
+- **Calm friendly marks on the map:** Realms at peace, riding with you under a war pact, or trading with you now show quiet culture-colored marks near their visible holds (plus soft dotted routes for active pact or trade partners), without clutter or blocking clicks.
+- **Stronger column banners:** Your joined war's opposing column standards now grow taller from march (`1`) to skirmish (`2`) to the clash (`3`) with a finial and soft clash halo, returning to resting height when fighting ends.
+
 ## 2026-11-27 — The game now knows who your friends are
 
 - **Friendly realms tracked.** Realms at peace with you, riding beside you in a war you joined, or trading with you (caravans, foraging crews) are now tracked for calm marks on the map. Up to 6 at a time.

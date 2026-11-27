@@ -199,6 +199,11 @@ import {
   resolveBoardColumnRanks,
   type BoardColumnRanksView,
 } from "./hud/BoardColumnRanks";
+import {
+  BoardFriendlyPresence,
+  listBoardFriendlyPresence,
+  type BoardFriendlyPresenceItem,
+} from "./hud/BoardFriendlyPresence";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1043,6 +1048,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.598. Living Realm Joined-War Outcome Ribbon (short-lived aftermath) */}
         <BoardJoinedOutcome state={state} />
 
+        {/* 5.598. Living Realm Friendly Presence Marks (peace / pact / trade) */}
+        <BoardFriendlyPresence state={state} />
+
         {/* 5.599. Living Realm Joined-War Formation Marks (opposing standards & phase mark) */}
         <BoardJoinedFormations state={state} />
 
@@ -1251,4 +1259,7 @@ export {
   BoardColumnRanks,
   resolveBoardColumnRanks,
   type BoardColumnRanksView,
+  BoardFriendlyPresence,
+  listBoardFriendlyPresence,
+  type BoardFriendlyPresenceItem,
 };
