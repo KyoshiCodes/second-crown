@@ -1,0 +1,143 @@
+/* --- Living Realm Slice 16: Board Selection & Pending March Feedback (isolated CSS) ---
+ * Loaded from hud/BoardFeedbackLayer.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on all overlay elements.
+ * Calm selection highlight & pending march cue in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-fb-selected-stroke: #fde047;
+  --sc-fb-inspected-stroke: rgba(148, 184, 218, 0.72);
+  --sc-fb-label-bg: rgba(14, 20, 32, 0.88);
+  --sc-fb-label-border: rgba(250, 204, 21, 0.58);
+  --sc-fb-label-text: #fef3c7;
+  --sc-fb-march-stroke: #93c5fd;
+  --sc-fb-pill-bg: rgba(14, 20, 32, 0.88);
+  --sc-fb-pill-border: rgba(147, 197, 253, 0.54);
+  --sc-fb-pill-text: #dbeafe;
+}
+
+:root[data-chrome="night"] {
+  --sc-fb-selected-stroke: #fef08a;
+  --sc-fb-inspected-stroke: rgba(168, 204, 236, 0.78);
+  --sc-fb-label-bg: rgba(8, 12, 22, 0.92);
+  --sc-fb-label-border: rgba(254, 240, 138, 0.64);
+  --sc-fb-label-text: #fef9c3;
+  --sc-fb-march-stroke: #bae6fd;
+  --sc-fb-pill-bg: rgba(8, 12, 22, 0.92);
+  --sc-fb-pill-border: rgba(186, 230, 253, 0.6);
+  --sc-fb-pill-text: #e0f2fe;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-fb-selected-stroke: #facc15;
+  --sc-fb-inspected-stroke: rgba(212, 178, 122, 0.76);
+  --sc-fb-label-bg: rgba(30, 21, 13, 0.9);
+  --sc-fb-label-border: rgba(250, 204, 21, 0.6);
+  --sc-fb-label-text: #fef3c7;
+  --sc-fb-march-stroke: #fde68a;
+  --sc-fb-pill-bg: rgba(30, 21, 13, 0.9);
+  --sc-fb-pill-border: rgba(253, 230, 138, 0.56);
+  --sc-fb-pill-text: #fef3c7;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Layer
+   ========================================================================== */
+.sc-fb-layer,
+.sc-fb-layer *,
+.sc-fb-selected-rim,
+.sc-fb-inspected-rim,
+.sc-fb-label-bg,
+.sc-fb-label-text,
+.sc-fb-march-path,
+.sc-fb-march-pill-bg,
+.sc-fb-march-pill-text {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Selected / Last-Inspected Diamond & Pending March Trail
+   ========================================================================== */
+.sc-fb-selected-rim {
+  fill: none;
+  stroke: var(--sc-fb-selected-stroke);
+  stroke-width: 1.15;
+  animation: sc-fb-breathe 3.2s ease-in-out infinite;
+}
+
+.sc-fb-inspected-rim {
+  fill: none;
+  stroke: var(--sc-fb-inspected-stroke);
+  stroke-width: 0.85;
+  stroke-dasharray: 2.2 2;
+}
+
+.sc-fb-label-bg {
+  fill: var(--sc-fb-label-bg);
+  stroke: var(--sc-fb-label-border);
+  stroke-width: 0.6;
+}
+
+.sc-fb-label-text {
+  fill: var(--sc-fb-label-text);
+  font-size: 4.9px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.sc-fb-march-path {
+  fill: none;
+  stroke: var(--sc-fb-march-stroke);
+  stroke-width: 1;
+  stroke-dasharray: 2.4 2;
+  stroke-linecap: round;
+  animation: sc-fb-march-drift 4s linear infinite;
+}
+
+.sc-fb-march-pill-bg {
+  fill: var(--sc-fb-pill-bg);
+  stroke: var(--sc-fb-pill-border);
+  stroke-width: 0.6;
+}
+
+.sc-fb-march-pill-text {
+  fill: var(--sc-fb-pill-text);
+  font-size: 4.8px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-fb-breathe {
+  0%,
+  100% {
+    opacity: 0.68;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-fb-march-drift {
+  from {
+    stroke-dashoffset: 8.8;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-fb-selected-rim,
+  .sc-fb-march-path {
+    animation: none !important;
+  }
+}

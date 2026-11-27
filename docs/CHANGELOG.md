@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for system status snapshots (Slice 16)
+
+- **Economy pressure (`hud/EconomyPressureLine.tsx`, `tabs/KingdomTab.tsx`):** Reads `economyPressureSnapshot(state)` (`43aa10e`, exact match — zero mismatch) to show calm high/low/full-store pips above the Kingdom pace strip, hiding cleanly when all four pressures are `ok`, `bareFood` is `false`, and `fullStores` is empty.
+- **Research progress & court status (`hud/ResearchProgressLine.tsx`, `hud/CourtStatusLine.tsx`, `tabs/KingdomTab.tsx`):** Reads `researchProgressSnapshot(state)` and `courtStatusSnapshot(state)` (exact match — zero mismatch) to display compact status lines for active/next study (`completedCount`, progress bar) and active/open court decrees (`lastDecree`).
+- **Board feedback (`hud/BoardFeedbackLayer.tsx`, `BoardLiving.tsx`):** Reads `boardFeedbackSnapshot(state, view)` (exact match — zero mismatch) to render non-blocking (`pointer-events: none !important;`) selection/last-inspected diamonds and pending march ETA trail.
+- **Unchanged invariants & accessibility:** Dedicated CSS files `hud/economy-pressure-status.css`, `hud/research-court-status.css`, and `hud/board-feedback-status.css` only (no sim math, `theme.css`, `board-living.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` changes); Dusk/Night/Parchment tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/SystemStatusSnapshots.test.tsx` (5 tests). Now: sim **717**, app **1678**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 16 (system status snapshots)
 
 - **Economy (`economyPressureSnapshot(state)`):** `{ foodPressure, woodPressure, stonePressure, goldPressure, fullStores, bareFood }`. Each pressure is `"low" | "ok" | "high"`: high = under 25% of cap with net per second ≤ 0 (food: also whenever the larder is bare); low = at or over 75% of cap with net ≥ 0; ok otherwise. Net = `computeIncomePerSecond`, minus army upkeep for food. `fullStores` = resource ids from `storageHint.fullStores`. `bareFood` = new `isBareFood`, same rule as render's `isFoodStoresEmptyOrLow` (food ≤ max(5, 50 ticks of upkeep)).

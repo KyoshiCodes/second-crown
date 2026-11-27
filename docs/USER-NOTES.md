@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Quiet status lines for stores, research, court, and board clicks
+
+- **Economy, research, and court lines on Kingdom:** Compact, calm status lines under the Kingdom strip now highlight low/full stores (hiding automatically when everything is steady), show your active study progress or next available study, and summarize active and open court decrees.
+- **Map selection & march feedback:** Selecting or inspecting a province and launching a march now show a non-blocking diamond highlight, a short label, and a dotted march trail with its arrival countdown.
+
 ## 2026-11-27 — The game now keeps a short status on your stores, studies, court and map clicks
 
 - **Under the hood only.** The game can now tell, at a glance, which stores are running low or filling up, what you're studying and what you could study next, which decrees are running, and what you've selected on the map and where your column is heading.

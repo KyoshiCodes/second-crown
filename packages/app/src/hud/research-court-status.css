@@ -1,0 +1,123 @@
+/* --- Living Realm Slice 16: Research & Court Status Lines (isolated CSS) ---
+ * Loaded from hud/ResearchProgressLine.tsx and hud/CourtStatusLine.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips and bars.
+ * Calm lectern progress & court decree status in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-sys-line-bg: rgba(16, 22, 34, 0.5);
+  --sc-sys-line-border: rgba(148, 163, 184, 0.2);
+  --sc-sys-line-text: #dbe4ef;
+  --sc-sys-muted-text: rgba(186, 198, 214, 0.78);
+  --sc-sys-research-rgb: 147, 197, 253;
+  --sc-sys-court-rgb: 216, 180, 122;
+  --sc-sys-bar-track: rgba(148, 163, 184, 0.2);
+}
+
+:root[data-chrome="night"] {
+  --sc-sys-line-bg: rgba(10, 14, 24, 0.62);
+  --sc-sys-line-border: rgba(148, 163, 184, 0.26);
+  --sc-sys-line-text: #e2e8f0;
+  --sc-sys-muted-text: rgba(196, 210, 226, 0.82);
+  --sc-sys-research-rgb: 168, 212, 255;
+  --sc-sys-court-rgb: 234, 196, 134;
+  --sc-sys-bar-track: rgba(148, 163, 184, 0.24);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-sys-line-bg: rgba(34, 24, 15, 0.58);
+  --sc-sys-line-border: rgba(196, 164, 112, 0.24);
+  --sc-sys-line-text: #f5e6c8;
+  --sc-sys-muted-text: rgba(230, 208, 172, 0.8);
+  --sc-sys-research-rgb: 162, 194, 222;
+  --sc-sys-court-rgb: 228, 178, 86;
+  --sc-sys-bar-track: rgba(196, 164, 112, 0.24);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Elements
+   ========================================================================== */
+.sc-sys-pip,
+.sc-sys-bar,
+.sc-sys-bar-fill {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Compact Research & Court Status Lines
+   ========================================================================== */
+.sc-sys-status-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-sys-line-border);
+  background: var(--sc-sys-line-bg);
+  color: var(--sc-sys-line-text);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.sc-sys-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  animation: sc-sys-pip-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-sys-status-line.is-research .sc-sys-pip {
+  background: rgb(var(--sc-sys-research-rgb));
+}
+
+.sc-sys-status-line.is-court .sc-sys-pip {
+  background: rgb(var(--sc-sys-court-rgb));
+}
+
+.sc-sys-bar {
+  width: 56px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--sc-sys-bar-track);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sc-sys-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: rgb(var(--sc-sys-research-rgb));
+}
+
+.sc-sys-muted {
+  color: var(--sc-sys-muted-text);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-sys-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.58;
+  }
+  50% {
+    opacity: 0.94;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-sys-pip {
+    animation: none !important;
+  }
+}

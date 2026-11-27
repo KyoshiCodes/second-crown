@@ -1,0 +1,108 @@
+/* --- Living Realm Slice 16: Economy Pressure Status Line (isolated CSS) ---
+ * Loaded from hud/EconomyPressureLine.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Calm resource pressure indicators in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-econ-line-bg: rgba(16, 22, 34, 0.56);
+  --sc-econ-line-border: rgba(148, 163, 184, 0.22);
+  --sc-econ-line-text: #dbe4ef;
+  --sc-econ-high-rgb: 234, 152, 92;
+  --sc-econ-low-rgb: 134, 210, 178;
+  --sc-econ-full-rgb: 234, 196, 108;
+}
+
+:root[data-chrome="night"] {
+  --sc-econ-line-bg: rgba(10, 14, 24, 0.66);
+  --sc-econ-line-border: rgba(148, 163, 184, 0.28);
+  --sc-econ-line-text: #e2e8f0;
+  --sc-econ-high-rgb: 244, 164, 104;
+  --sc-econ-low-rgb: 152, 224, 194;
+  --sc-econ-full-rgb: 245, 208, 120;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-econ-line-bg: rgba(34, 24, 15, 0.62);
+  --sc-econ-line-border: rgba(196, 164, 112, 0.26);
+  --sc-econ-line-text: #f5e6c8;
+  --sc-econ-high-rgb: 224, 144, 84;
+  --sc-econ-low-rgb: 154, 204, 162;
+  --sc-econ-full-rgb: 228, 178, 86;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-econ-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Resource Pressure Strip
+   ========================================================================== */
+.sc-econ-status-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-econ-line-border);
+  background: var(--sc-econ-line-bg);
+  color: var(--sc-econ-line-text);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.sc-econ-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-econ-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  animation: sc-econ-pip-breathe 4s ease-in-out infinite;
+}
+
+.sc-econ-pip.is-high {
+  background: rgb(var(--sc-econ-high-rgb));
+}
+
+.sc-econ-pip.is-low {
+  background: rgb(var(--sc-econ-low-rgb));
+}
+
+.sc-econ-pip.is-full {
+  background: rgb(var(--sc-econ-full-rgb));
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-econ-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-econ-pip {
+    animation: none !important;
+  }
+}

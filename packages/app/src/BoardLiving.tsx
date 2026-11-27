@@ -209,6 +209,11 @@ import {
   listBoardFriendlyRoutes,
   type BoardFriendlyRouteItem,
 } from "./hud/BoardFriendlyRoutes";
+import {
+  BoardFeedbackLayer,
+  resolveBoardFeedback,
+  type BoardFeedbackView,
+} from "./hud/BoardFeedbackLayer";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -337,6 +342,7 @@ export const NODE_GLYPH_COLORS: Record<string, { rim: string; mote: string }> = 
 export interface BoardLivingProps {
   state: GameState | undefined;
   selectedId: string | null;
+  lastInspectedId?: string | null;
   visible: boolean;
 }
 
@@ -359,7 +365,7 @@ function tileDelayStyle(x: number, y: number): React.CSSProperties {
  * 5. Keep glow: warm volumetric hearth aura and beacon illumination on player & visible rival holds
  * 6. Status overlay tether: subtle atmospheric light line anchoring the status chips to the province
  */
-export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
+export function BoardLiving({ state, selectedId, lastInspectedId = null, visible }: BoardLivingProps) {
   if (!visible || !state) return null;
 
   const provinces = state.board?.provinces ?? [];
@@ -1068,6 +1074,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.5996. Living Realm Joined-War Column Unit Ranks (1-3 rank marks) */}
         <BoardColumnRanks state={state} />
 
+        {/* 5.5997. Living Realm Selection, Last Inspected & Pending March Feedback */}
+        <BoardFeedbackLayer state={state} selectedId={selectedId} lastInspectedId={lastInspectedId} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1273,4 +1282,7 @@ export {
   BoardFriendlyRoutes,
   listBoardFriendlyRoutes,
   type BoardFriendlyRouteItem,
+  BoardFeedbackLayer,
+  resolveBoardFeedback,
+  type BoardFeedbackView,
 };

@@ -1,3 +1,14 @@
+## 2026-11-27 — app / living presentation for economy, research, court & board feedback
+
+- **Kingdom status components (`hud/EconomyPressureLine.tsx`, `hud/ResearchProgressLine.tsx`, `hud/CourtStatusLine.tsx`, `tabs/KingdomTab.tsx`):**
+  - Exported pure readers + components mounted cleanly under `.sc-map-strip` (preserving `Fold#kingdom-notes` and existing status-line ordering).
+  - `EconomyPressureLine` hides when `economyPressureSnapshot` is `null` or all pressures are `"ok"`, `!bareFood`, and `fullStores.length === 0`.
+  - `ResearchProgressLine` shows active study bar + `~Ns left` + `completedCount` or idle `nextAvailable`; `CourtStatusLine` shows active/open decree counts + `lastDecree`.
+- **Board feedback layer (`hud/BoardFeedbackLayer.tsx`, `BoardLiving.tsx`):**
+  - Extended `BoardLivingProps` with optional `lastInspectedId?: string | null` (default `null`) and mounted `<BoardFeedbackLayer>` right after `<BoardColumnRanks>`, reading `boardFeedbackSnapshot(state, view)` to draw non-blocking (`pointer-events: none !important;`) selected diamond + label, distinct last-inspected dashed diamond, and pending march trail + ETA pill.
+- **Dedicated CSS (`hud/economy-pressure-status.css`, `hud/research-court-status.css`, `hud/board-feedback-status.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;`, calm keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, `board-living.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/SystemStatusSnapshots.test.tsx`):** 5 tests passing (`npm test` -> sim **717**, app **1678**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 16 (system status snapshots)
 
 - **File:** new `systems/livingStatus.ts`; thresholds `ECONOMY_PRESSURE_HIGH_FILL` (0.25) and `ECONOMY_PRESSURE_LOW_FILL` (0.75) in `content/livingRealm.ts`. Four switches added to `LivingSwitches` (`economyStatus`, `researchStatus`, `courtStatus`, `boardFeedback`).
