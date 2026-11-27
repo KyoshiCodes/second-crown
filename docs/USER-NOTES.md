@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Next research unlocks, decree timers, and nearby allies on the board
+
+- **Next research unlocks on Kingdom:** Directly beneath the research progress line, a collapsed **Next unlocks** toggle expands calmly to list up to three nearby studies, noting whether each is ready to start or still needs a Keep level, earlier study, or building.
+- **Court decree countdowns and guidance:** Under the court status line, active decrees now display their remaining time alongside calm guidance when your court is idle or every decree is running.
+- **Nearby friendly realms on province selection:** Selecting a tile on the map quietly notes friendly realms (allies or realms at peace) holding provinces within two steps.
+
 ## 2026-11-27 — The game can now explain research, court and map selections in more detail
 
 - **Under the hood only.** Research: the game can list what you have studied and up to three studies you are close to, with what each still needs (a Keep level, an earlier study, or a building).

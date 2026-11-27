@@ -1,0 +1,99 @@
+/* --- Living Realm Slice 19: Court Detail Sub-Line (isolated CSS) ---
+ * Loaded from hud/CourtDetailLine.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Quiet active-decree countdown & guidance in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-cd-bg: rgba(16, 22, 34, 0.4);
+  --sc-cd-border: rgba(148, 163, 184, 0.17);
+  --sc-cd-text: #cbd5e1;
+  --sc-cd-muted: rgba(186, 198, 214, 0.78);
+  --sc-cd-pip-rgb: 216, 180, 122;
+}
+
+:root[data-chrome="night"] {
+  --sc-cd-bg: rgba(10, 14, 24, 0.52);
+  --sc-cd-border: rgba(148, 163, 184, 0.23);
+  --sc-cd-text: #dbe4ef;
+  --sc-cd-muted: rgba(196, 210, 226, 0.84);
+  --sc-cd-pip-rgb: 234, 196, 134;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-cd-bg: rgba(34, 24, 15, 0.48);
+  --sc-cd-border: rgba(196, 164, 112, 0.21);
+  --sc-cd-text: #efe1c4;
+  --sc-cd-muted: rgba(226, 204, 166, 0.8);
+  --sc-cd-pip-rgb: 228, 178, 86;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-court-detail-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Court Decree Detail Line
+   ========================================================================== */
+.sc-court-detail-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-cd-border);
+  background: var(--sc-cd-bg);
+  color: var(--sc-cd-text);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.sc-court-detail-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-cd-pip-rgb));
+  animation: sc-cd-pip-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-court-detail-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.sc-court-detail-ticks,
+.sc-court-detail-guidance {
+  color: var(--sc-cd-muted);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-cd-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.58;
+  }
+  50% {
+    opacity: 0.94;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-court-detail-pip {
+    animation: none !important;
+  }
+}

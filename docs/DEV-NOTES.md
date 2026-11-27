@@ -1,3 +1,14 @@
+## 2026-11-27 — app / living presentation for research, court & board interaction detail
+
+- **Research next-unlocks expander (`packages/app/src/hud/ResearchDetailExpander.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**
+  - Exported pure `resolveResearchDetail(state)` wrapping `researchDetailSnapshot(state)` (`f60fbcd`, exact match — zero mismatch) and mounted `<ResearchDetailExpander state={state} />` directly under `<ResearchProgressLine>`. Renders a collapsed-by-default `<details class="sc-research-detail">` (`Next unlocks (N)`) showing `ready` or `needs ...` gates and hiding cleanly when `nextUnlocks` is empty or `living_research_detail` is `false`.
+- **Court detail sub-line (`packages/app/src/hud/CourtDetailLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**
+  - Exported pure `resolveCourtDetail(state)` wrapping `courtDetailSnapshot(state)` (`f60fbcd`, exact match — zero mismatch) and mounted `<CourtDetailLine state={state} />` directly under `<CourtStatusLine>`. Lists active decrees with `~Ns (Tt)` remaining plus `guidance` text, returning `null` with no court or when `living_court_detail` is `false`.
+- **Board nearby-friendly overlay (`packages/app/src/hud/BoardInteractionDetailOverlay.tsx`, `packages/app/src/hud/BoardFeedbackLayer.tsx`):**
+  - Exported pure `resolveBoardNearbyFriendly(state, view)` wrapping `boardInteractionDetailSnapshot(state, view)` (`f60fbcd`, exact match — zero mismatch) and mounted non-blocking `<BoardNearbyFriendlyMark>` inside `<BoardFeedbackLayer>` to render a quiet `Near: ...` SVG pill beneath a selected province when friendly realms occupy tiles within `BOARD_NEARBY_RADIUS` steps (`pointer-events: none`).
+- **Dedicated CSS (`hud/research-detail.css`, `hud/court-detail.css`, `hud/board-interaction-detail.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips and SVG overlay elements, calm reveal/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice19Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **767**, app **1691**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — app / living presentation for yield breakdown & storage pressure detail
 
 - **Yield breakdown expander (`packages/app/src/hud/EconomyYieldBreakdown.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**

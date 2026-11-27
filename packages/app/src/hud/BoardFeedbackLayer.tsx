@@ -5,6 +5,7 @@ import {
   type GameState,
 } from "@second-crown/sim";
 import { boardTerrainElevation } from "./BoardRoads";
+import { BoardNearbyFriendlyMark } from "./BoardInteractionDetailOverlay";
 import "./board-feedback-status.css";
 
 const BOARD_ORIGIN_X = 236;
@@ -163,6 +164,12 @@ export const BoardFeedbackLayer: React.FC<{
           </g>
         </g>
       ) : null}
+
+      <BoardNearbyFriendlyMark
+        state={state}
+        selectedId={selectedId}
+        lastInspectedId={lastInspectedId}
+      />
 
       {v.march ? (
         <g className="sc-fb-march" data-fb-march={v.march.id}>

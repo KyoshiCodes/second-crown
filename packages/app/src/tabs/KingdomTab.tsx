@@ -82,7 +82,9 @@ import { StoragePressureDetailLine } from "../hud/StoragePressureDetailLine";
 import { EconomyYieldsLine } from "../hud/EconomyYieldsLine";
 import { EconomyYieldBreakdown } from "../hud/EconomyYieldBreakdown";
 import { ResearchProgressLine } from "../hud/ResearchProgressLine";
+import { ResearchDetailExpander } from "../hud/ResearchDetailExpander";
 import { CourtStatusLine } from "../hud/CourtStatusLine";
+import { CourtDetailLine } from "../hud/CourtDetailLine";
 import "../hud/season-pip.css";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
@@ -231,7 +233,9 @@ export function KingdomTab(props: {
       <EconomyYieldsLine state={state} />
       <EconomyYieldBreakdown state={state} />
       <ResearchProgressLine state={state} />
+      <ResearchDetailExpander state={state} />
       <CourtStatusLine state={state} />
+      <CourtDetailLine state={state} />
       <PaceLine state={state} />
       <BottleneckLine state={state} />
       <SeasonClaimLine state={state} act={act} />

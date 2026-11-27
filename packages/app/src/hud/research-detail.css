@@ -1,0 +1,151 @@
+/* --- Living Realm Slice 19: Research Detail Expander (isolated CSS) ---
+ * Loaded from hud/ResearchDetailExpander.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Calm next-unlocks expander in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-rd-bg: rgba(16, 22, 34, 0.38);
+  --sc-rd-border: rgba(148, 163, 184, 0.16);
+  --sc-rd-text: #cbd5e1;
+  --sc-rd-muted: rgba(186, 198, 214, 0.78);
+  --sc-rd-ready: #86efac;
+  --sc-rd-pip-rgb: 147, 197, 253;
+}
+
+:root[data-chrome="night"] {
+  --sc-rd-bg: rgba(10, 14, 24, 0.5);
+  --sc-rd-border: rgba(148, 163, 184, 0.22);
+  --sc-rd-text: #dbe4ef;
+  --sc-rd-muted: rgba(196, 210, 226, 0.84);
+  --sc-rd-ready: #a7f3d0;
+  --sc-rd-pip-rgb: 168, 212, 255;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-rd-bg: rgba(34, 24, 15, 0.46);
+  --sc-rd-border: rgba(196, 164, 112, 0.2);
+  --sc-rd-text: #efe1c4;
+  --sc-rd-muted: rgba(226, 204, 166, 0.8);
+  --sc-rd-ready: #bef264;
+  --sc-rd-pip-rgb: 162, 194, 222;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-research-detail-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Next-Unlocks Expander
+   ========================================================================== */
+.sc-research-detail {
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-rd-border);
+  background: var(--sc-rd-bg);
+  color: var(--sc-rd-text);
+  font-size: 11px;
+  line-height: 1.38;
+}
+
+.sc-research-detail-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--sc-rd-muted);
+  font-weight: 500;
+  list-style: none;
+  user-select: none;
+  transition: color 0.16s ease;
+}
+
+.sc-research-detail-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.sc-research-detail-toggle::before {
+  content: "▸";
+  font-size: 10px;
+  opacity: 0.75;
+  transition: transform 0.16s ease;
+}
+
+.sc-research-detail[open] > .sc-research-detail-toggle {
+  color: var(--sc-rd-text);
+}
+
+.sc-research-detail[open] > .sc-research-detail-toggle::before {
+  transform: rotate(90deg);
+}
+
+.sc-research-detail-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-rd-pip-rgb));
+  opacity: 0.74;
+}
+
+.sc-research-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px solid var(--sc-rd-border);
+  animation: sc-rd-reveal 0.18s ease-out;
+}
+
+.sc-research-detail-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.sc-research-detail-name {
+  font-weight: 500;
+}
+
+.sc-research-detail-gate {
+  color: var(--sc-rd-muted);
+}
+
+.sc-research-detail-gate.is-ready {
+  color: var(--sc-rd-ready);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-rd-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-research-detail-toggle,
+  .sc-research-detail-toggle::before {
+    transition: none !important;
+  }
+  .sc-research-detail-list {
+    animation: none !important;
+  }
+}

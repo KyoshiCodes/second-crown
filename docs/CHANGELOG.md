@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for research, court, and board interaction detail (Slice 19)
+
+- **Research next-unlocks expander (`hud/ResearchDetailExpander.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveResearchDetail` and `<ResearchDetailExpander>` directly under `<ResearchProgressLine>`, reading `researchDetailSnapshot(state)` (`f60fbcd`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-research-detail">` (`Next unlocks (N)`) showing ready vs missing-gate notes and hiding cleanly when empty or `living_research_detail` is `false`.
+- **Court decree detail line (`hud/CourtDetailLine.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveCourtDetail` and `<CourtDetailLine>` directly under `<CourtStatusLine>`, reading `courtDetailSnapshot(state)` (`f60fbcd`, exact match — zero mismatch) to show running decrees with `~Ns (Tt)` countdowns and fixed royal guidance, hiding cleanly when `null` or `living_court_detail` is `false`.
+- **Board nearby-friendly mark (`hud/BoardInteractionDetailOverlay.tsx`, `hud/BoardFeedbackLayer.tsx`):** Added `resolveBoardNearbyFriendly` and non-blocking `<BoardNearbyFriendlyMark>` inside `<BoardFeedbackLayer>`, reading `boardInteractionDetailSnapshot(state, view)` (`f60fbcd`, exact match — zero mismatch) to show a quiet `Near: ...` pill beneath a selected province when friendly realms hold tiles within 2 steps, hiding when unselected, empty, or `living_board_detail` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/research-detail.css`, `hud/court-detail.css`, and `hud/board-interaction-detail.css` only (no sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/overlay elements, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice19Presentation.test.tsx` (4 tests). Now: sim **767**, app **1691**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 19 (research, court, and board interaction detail)
 
 - **Research detail (`researchDetailSnapshot(state)`):** `{ active, completed, nextUnlocks }` or null. `active` = same as `researchProgressSnapshot.active`. `completed` = `{ id, name }[]` of known studies in table order. `nextUnlocks` = `{ id, name, requires }[]`: unknown, not-open studies missing at most one gate (Keep level, prerequisite study, one of its buildings; cost ignored). `requires` lists the missing gates in plain words (`"Keep II"`, `"Husbandry"`, `"Farm or Granary or Academy"`), empty when it could start now. Fewest gaps first, ties in table order, cap 3 (`RESEARCH_NEXT_UNLOCKS_CAP`).
