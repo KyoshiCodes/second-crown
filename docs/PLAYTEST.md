@@ -159,6 +159,8 @@ Player-only reply voice updated: Mist, Glen, Salt, Fen and Peak reply lines now 
 
 Friendly presence marks available: realms at peace with you, riding beside you (pact) or trading with you are listed for the board, up to 6 (`living_board_presence`); column marks also carry a standard strength 1 / 2 / 3 by phase. Read-only.
 
+Relationship summary available: up to 8 known realms with stance (war / peace / pact / neutral), last interaction and next possible move (`living_relationship_summary`). Read-only.
+
 Attentive:
 
 ```

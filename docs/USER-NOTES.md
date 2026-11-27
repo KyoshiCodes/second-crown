@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game now keeps a relationship list
+
+- **Who's who.** For up to 8 realms you know, the game now tracks where you stand (war, peace, pact or neutral), the last thing that happened between you (a whisper, a reply, a caravan, a war started or ended, peace made, a pact) and what you could do next (fight, reply, declare war, or wait out a peace).
+- **Nothing else changes.** War, peace, trade and whispers work exactly as before.
+- **Coming to the screen:** a compact list on the World tab. The game tracks it now; the screen shows it next.
+
 ## 2026-11-27 — Friendly neighbors & stronger banners on the map
 
 - **Calm friendly marks on the map:** Realms at peace, riding with you under a war pact, or trading with you now show quiet culture-colored marks near their visible holds (plus soft dotted routes for active pact or trade partners), without clutter or blocking clicks.

@@ -25,12 +25,13 @@ import {
   STANDARD_STRENGTH,
   FRIENDLY_PRESENCE_CAP,
   FRIENDLY_TRADE_WINDOW_TICKS,
+  RELATIONSHIP_SUMMARY_CAP,
   type FormationId,
   type ColumnMarkId,
   type WarPhaseId,
 } from "../content/livingRealm.js";
 import { realmPower } from "./combat.js";
-import { activeWarFor } from "../actions/war.js";
+import { activeWarFor, warInvolves } from "../actions/war.js";
 import { noteWar } from "./wave.js";
 import { cultureOfRealm, peekCultureOfRealm } from "./culture.js";
 import { getWorldLog, pushWorldLog } from "./events.js";
@@ -96,6 +97,11 @@ export interface LivingSwitches {
    * Read-only either way.
    */
   boardPresence: boolean;
+  /**
+   * Relationship summary (slice 14): realmRelationshipSummary lists known NPC realms with stance,
+   * last interaction and next possible move. False: empty list. Read-only either way.
+   */
+  relationshipSummary: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -118,6 +124,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   playerReplyVoice: "living_player_reply_voice",
   playerOnlyVoice: "living_player_only_voice",
   boardPresence: "living_board_presence",
+  relationshipSummary: "living_relationship_summary",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -1242,12 +1249,7 @@ function tradesWithPlayer(state: GameState, realmId: string, name: string, atTic
  */
 export function friendlyPresenceSnapshot(state: GameState, atTick = state.meta.tick): FriendlyPresence[] {
   if (!livingSwitches(state).boardPresence) return [];
-  const allies = new Set<string>();
-  for (const w of state.wars) {
-    if (w.status === "active" && w.allyRealmId && (w.attackerRealmId === "player" || w.defenderRealmId === "player")) {
-      allies.add(w.allyRealmId);
-    }
-  }
+  const allies = playerPactAllies(state);
   const out: FriendlyPresence[] = [];
   for (const r of state.realms) {
     if (out.length >= FRIENDLY_PRESENCE_CAP) break;
@@ -1260,6 +1262,144 @@ export function friendlyPresenceSnapshot(state: GameState, atTick = state.meta.t
       culture: peekCultureOfRealm(state, r.id),
       kind: tradesWithPlayer(state, r.id, r.name, atTick) ? "trade" : pact ? "pact" : "peace",
     });
+  }
+  return out;
+}
+
+/** Allies of the player's active joined wars (war.allyRealmId). The game's only "pact". Pure read. */
+function playerPactAllies(state: GameState): Set<string> {
+  const allies = new Set<string>();
+  for (const w of state.wars) {
+    if (w.status === "active" && w.allyRealmId && (w.attackerRealmId === "player" || w.defenderRealmId === "player")) {
+      allies.add(w.allyRealmId);
+    }
+  }
+  return allies;
+}
+
+// ---------------------------------------------------------------- relationship summary (slice 14)
+
+export type RelationshipStance = "war" | "peace" | "pact" | "neutral";
+
+/** Most recent interaction with the player still in the existing logs. Fixed strings. */
+export type RelationshipInteraction = "whisper" | "reply" | "trade" | "war started" | "war ended" | "peace made" | "pact made";
+
+/** What the player could do next with this realm, from current flags and timers. Fixed strings. */
+export type RelationshipNext = "can fight" | "fight locked" | "can reply" | "peace locked" | "riding together" | "can declare";
+
+/** One row of the World tab relationship summary. Read-only. */
+export interface RealmRelationship {
+  realmId: string;
+  name: string;
+  culture: string;
+  stance: RelationshipStance;
+  lastInteraction: RelationshipInteraction | null;
+  nextPossible: RelationshipNext | null;
+}
+
+/** Same-tick tie-break: the earlier entry wins. */
+const INTERACTION_RANK: RelationshipInteraction[] = ["peace made", "war ended", "war started", "pact made", "trade", "reply", "whisper"];
+
+/** Tick the player's war began: a joined war keeps the NPC war's startedTick, so read the join tick from its id. */
+function playerWarStartTick(war: War): number {
+  const m = war.joinedWarId ? /^war_join_(\d+)_/.exec(war.id) : null;
+  return m ? Number(m[1]) : war.startedTick;
+}
+
+/**
+ * Newest player-relevant interaction with `realmId`, from existing records only: culture news
+ * (whisper to the player, reply either way), world-log caravans with the player (same text
+ * match as friendly presence), and state.wars (a player war with the realm: started / ended,
+ * white peace = "peace made"; a joined war with the realm as ally = "pact made").
+ * Same-tick ties go by INTERACTION_RANK. Null when nothing is on record at or before atTick.
+ */
+function lastInteractionWith(state: GameState, realmId: string, name: string, atTick: number): RelationshipInteraction | null {
+  let bestTick = -Infinity;
+  let best: RelationshipInteraction | null = null;
+  const consider = (tick: number, kind: RelationshipInteraction) => {
+    if (tick > atTick) return;
+    if (best === null || tick > bestTick || (tick === bestTick && INTERACTION_RANK.indexOf(kind) < INTERACTION_RANK.indexOf(best))) {
+      bestTick = tick;
+      best = kind;
+    }
+  };
+  for (const n of getCultureNews(state)) {
+    if (n.kind === "whisper" && n.fromRealmId === realmId && n.toRealmId === "player") consider(n.tick, "whisper");
+    else if (
+      n.kind === "reply" &&
+      ((n.fromRealmId === realmId && n.toRealmId === "player") || (n.fromRealmId === "player" && n.toRealmId === realmId))
+    )
+      consider(n.tick, "reply");
+  }
+  const prefix = `${name} trades caravans with `;
+  for (const ev of getWorldLog(state)) if (ev.id === "trade" && ev.text.startsWith(prefix)) consider(ev.tick, "trade");
+  for (const w of state.wars) {
+    if (!warInvolves(w, "player")) continue;
+    if (warInvolves(w, realmId)) {
+      consider(playerWarStartTick(w), "war started");
+      if (w.status !== "active" && typeof w.endedTick === "number") consider(w.endedTick, w.status === "white_peace" ? "peace made" : "war ended");
+    } else if (w.allyRealmId === realmId) {
+      consider(playerWarStartTick(w), "pact made");
+    }
+  }
+  return best;
+}
+
+/** Provinces the player has seen, read raw from fog_seen (never seeds the flag the way fog.ts does). */
+function rawSeenProvinces(state: GameState): Set<string> {
+  const raw = state.flags["fog_seen"];
+  if (typeof raw !== "string" || !raw) return new Set();
+  try {
+    const list = JSON.parse(raw);
+    return new Set(Array.isArray(list) ? (list as string[]) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+/**
+ * Compact relationship list for the World tab: NPC realms the player knows, in state.realms
+ * order, at most RELATIONSHIP_SUMMARY_CAP. Known = the player has seen one of its provinces
+ * (fog_seen), or its stance is not neutral, or any interaction is on record.
+ *
+ * stance (same definitions as friendlyPresenceSnapshot): war = an active war between them;
+ * pact = ally of the player's active joined war; peace = a running peace lock; else neutral.
+ *
+ * nextPossible, from current flags and timers only: war: "can fight" once the clash is open
+ * (warFightOpen), else "fight locked". Otherwise "can reply" when a whisper from the realm is
+ * replyable; then peace "peace locked", pact "riding together"; neutral "can declare" when the
+ * player has no active war (tryDeclareWar's gates), else null.
+ *
+ * Empty with living_relationship_summary off. Pure read; no diplomacy, war or trade math here.
+ */
+export function realmRelationshipSummary(state: GameState, atTick = state.meta.tick): RealmRelationship[] {
+  if (!livingSwitches(state).relationshipSummary) return [];
+  const allies = playerPactAllies(state);
+  const seen = rawSeenProvinces(state);
+  const replyFrom = new Set(replyableWhispers(state, atTick).map((r) => r.whisper.fromRealmId));
+  const playerWar = activeWarFor(state, "player");
+  const out: RealmRelationship[] = [];
+  for (const r of state.realms) {
+    if (out.length >= RELATIONSHIP_SUMMARY_CAP) break;
+    if (r.id === "player") continue;
+    const war = state.wars.find((w) => w.status === "active" && warInvolves(w, "player") && warInvolves(w, r.id));
+    const stance: RelationshipStance = war
+      ? "war"
+      : allies.has(r.id)
+        ? "pact"
+        : peaceLockedAt(state, r.id, "player", atTick)
+          ? "peace"
+          : "neutral";
+    const last = lastInteractionWith(state, r.id, r.name, atTick);
+    const sawHold = state.board.provinces.some((p) => p.occupantRealmId === r.id && seen.has(p.id));
+    if (stance === "neutral" && !last && !sawHold) continue;
+    let next: RelationshipNext | null;
+    if (war) next = warFightOpen(state, war, atTick) ? "can fight" : "fight locked";
+    else if (replyFrom.has(r.id)) next = "can reply";
+    else if (stance === "peace") next = "peace locked";
+    else if (stance === "pact") next = "riding together";
+    else next = playerWar ? null : "can declare";
+    out.push({ realmId: r.id, name: r.name, culture: peekCultureOfRealm(state, r.id), stance, lastInteraction: last, nextPossible: next });
   }
   return out;
 }

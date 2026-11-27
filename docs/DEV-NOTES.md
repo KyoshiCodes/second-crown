@@ -1,3 +1,14 @@
+## 2026-11-27 — sim / Living Realm slice 14 (relationship summary)
+
+- **Summary:** `realmRelationshipSummary(state, atTick = tick)` in `systems/livingRealm.ts`, types `RealmRelationship`, `RelationshipStance`, `RelationshipInteraction`, `RelationshipNext`; cap `RELATIONSHIP_SUMMARY_CAP` (8) in `content/livingRealm.ts`. Walks `state.realms` (skips player), stops at the cap.
+- **Known:** stance not neutral, or a last interaction exists, or one of the realm's provinces is in `fog_seen`. `fog_seen` is read raw (`rawSeenProvinces`) because `fog.ts` `seenSet` writes the flag when missing, and the live vision radius is not counted (the app can filter further with `isProvinceSeen`).
+- **Stance:** war = active war with both the player and the realm as sides (NPC wars ignored); pact = `playerPactAllies` (new private helper, also used by `friendlyPresenceSnapshot`, same output); peace = `peaceLockedAt`.
+- **Last interaction (`lastInteractionWith`, private):** culture news (whisper realm→player, reply either way), world-log `trade` entries with the slice 13 caravan text prefix, `state.wars` player wars. Joined wars keep the NPC war's `startedTick`, so the join tick is read from the `war_join_<tick>_` id (`playerWarStartTick`). Events after `atTick` ignored. Same-tick tie order: peace made, war ended, war started, pact made, trade, reply, whisper. Culture news and world log are capped, so old events fall off naturally.
+- **Next possible:** war → `warFightOpen` ? can fight : fight locked; else `replyableWhispers` has the realm → can reply; peace → peace locked; pact → riding together; neutral → can declare when `activeWarFor(player)` is empty (mirrors `tryDeclareWar`'s gates; peace lock is already its own stance), else null.
+- **Switch:** `relationshipSummary` / `living_relationship_summary` added to `LivingSwitches`.
+- **Counts test:** three seeds × 300 pulses of caravans, whispers, correspondence and NPC settles with a joined war, all three snapshots called each pulse, flag on vs off: identical trace, `livingCounts`, resources and wars.
+- **Left alone:** diplomacy, peace-lock writes, war declare / peace actions, trade and gather math, combat, phase timing, balance tables, app/render/server source.
+
 ## 2026-11-27 — app / living presentation for friendly board presence & column standard strength
 
 - **Friendly board presence (`packages/app/src/hud/BoardFriendlyPresence.tsx`, `BoardLiving.tsx`):**

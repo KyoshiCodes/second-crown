@@ -236,6 +236,9 @@ export const FRIENDLY_PRESENCE_CAP = 6;
 /** A caravan with the player counts as "recent" trade for this many ticks (slice 13). */
 export const FRIENDLY_TRADE_WINDOW_TICKS = 600;
 
+/** Most realms the World tab relationship summary lists (slice 14). */
+export const RELATIONSHIP_SUMMARY_CAP = 8;
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 14 (relationship summary)
+
+- **Relationship summary (`realmRelationshipSummary(state, atTick?)`):** `{ realmId, name, culture, stance, lastInteraction, nextPossible }[]` for NPC realms the player knows (a seen hold in `fog_seen`, a non-neutral stance, or any interaction on record). `state.realms` order, capped at `RELATIONSHIP_SUMMARY_CAP` (8).
+- **Stance:** `"war"` (active war between them), `"pact"` (ally of the player's active joined war), `"peace"` (running peace lock), else `"neutral"`. Pact and peace use the same definitions as `friendlyPresenceSnapshot`.
+- **Last interaction (fixed strings or null):** newest of `"whisper"` (whisper to the player in culture news), `"reply"` (either way), `"trade"` (caravan with the player in the world log), `"war started"` / `"war ended"` / `"peace made"` (player war with the realm in `state.wars`; white peace = peace made), `"pact made"` (joined war with the realm as ally). Read from existing logs only; nothing new is recorded.
+- **Next possible (fixed strings or null):** war `"can fight"` / `"fight locked"` (clash gate); else `"can reply"` (replyable whisper); peace `"peace locked"`; pact `"riding together"`; neutral `"can declare"` when the player has no active war, else null.
+- **Switch:** `living_relationship_summary` (on). `false`: empty list.
+- **Read-only:** diplomacy, peace locks, war declare / peace, trade, gather, combat and phase timing untouched. `friendlyPresenceSnapshot` output unchanged (its ally loop moved into a shared helper).
+- **Playtest:** one Living realm line. Balance tables unchanged.
+- **Tests:** new `systems/livingSlice14.test.ts` (19). Now: sim **679**, app **1667**, server 158 (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for friendly board presence & column standard strength
 
 - **Board friendly presence (`hud/BoardFriendlyPresence.tsx`, `BoardLiving.tsx`):** Added `listBoardFriendlyPresence` and `<BoardFriendlyPresence>` before `<BoardJoinedFormations>`, reading `friendlyPresenceSnapshot(state)` (`2181b07`, exact match — zero mismatch). Renders fog-respecting, non-blocking (`pointer-events: none !important;`) culture-kit marks beside friendly holds (`peace` calm halo pip, `pact` companion mini-standard, `trade` rotated diamond pip, plus gentle route arcs for `pact`/`trade` only; zero blood/gore).
