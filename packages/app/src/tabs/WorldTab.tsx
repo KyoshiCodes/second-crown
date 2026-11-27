@@ -31,6 +31,7 @@ import { Fold } from "../hud/Fold";
 import { CultureWhispersCard } from "../hud/CultureWhispersCard";
 import { NextWhisperHintLine } from "../hud/NextWhisperHintLine";
 import { LastWhisperSummaryLine } from "../hud/LastWhisperSummaryLine";
+import { RealmRelationshipCard } from "../hud/RealmRelationshipCard";
 
 type LogFilter = "all" | "claim" | "trade" | "war" | "levy";
 
@@ -280,6 +281,8 @@ export function WorldTab(props: {
         <LastWhisperSummaryLine state={state} />
         <CultureWhispersCard state={state} act={act} />
       </Fold>
+
+      <RealmRelationshipCard state={state} />
 
       {clash ? (
         <div className="sc-realm-card" style={{ marginBottom: 12, border: "1px solid #b45309" }}>

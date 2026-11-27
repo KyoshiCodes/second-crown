@@ -1,0 +1,215 @@
+/* --- Living Realm Slice 14: World Tab Relationship Summary (isolated CSS) ---
+ * Loaded from hud/RealmRelationshipCard.tsx.
+ * Leaves theme.css, board-living.css, living-realm-ui.css,
+ * last-whisper-summary.css, and friendly-presence-standard.css untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Calm, compact realm relationship list in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-rel-card-bg: rgba(16, 22, 34, 0.72);
+  --sc-rel-card-border: rgba(148, 163, 184, 0.24);
+  --sc-rel-row-bg: rgba(12, 18, 28, 0.64);
+  --sc-rel-row-border: rgba(148, 163, 184, 0.16);
+  --sc-rel-title-color: #f1e6cf;
+  --sc-rel-name-color: #e2e8f0;
+  --sc-rel-muted-color: rgba(186, 198, 214, 0.76);
+  --sc-rel-war-rgb: 224, 122, 95;
+  --sc-rel-pact-rgb: 147, 197, 253;
+  --sc-rel-peace-rgb: 134, 210, 178;
+  --sc-rel-neutral-rgb: 162, 174, 190;
+  --sc-rel-action-color: #fde68a;
+}
+
+:root[data-chrome="night"] {
+  --sc-rel-card-bg: rgba(10, 14, 24, 0.8);
+  --sc-rel-card-border: rgba(148, 163, 184, 0.3);
+  --sc-rel-row-bg: rgba(8, 12, 22, 0.74);
+  --sc-rel-row-border: rgba(148, 163, 184, 0.2);
+  --sc-rel-title-color: #f5ebd6;
+  --sc-rel-name-color: #f1f5f9;
+  --sc-rel-muted-color: rgba(196, 210, 226, 0.82);
+  --sc-rel-war-rgb: 236, 134, 108;
+  --sc-rel-pact-rgb: 168, 212, 255;
+  --sc-rel-peace-rgb: 152, 224, 194;
+  --sc-rel-neutral-rgb: 178, 190, 206;
+  --sc-rel-action-color: #fef08a;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-rel-card-bg: rgba(34, 24, 15, 0.76);
+  --sc-rel-card-border: rgba(196, 164, 112, 0.28);
+  --sc-rel-row-bg: rgba(24, 17, 10, 0.66);
+  --sc-rel-row-border: rgba(196, 164, 112, 0.2);
+  --sc-rel-title-color: #fef3c7;
+  --sc-rel-name-color: #f5e6c8;
+  --sc-rel-muted-color: rgba(230, 208, 172, 0.78);
+  --sc-rel-war-rgb: 224, 136, 98;
+  --sc-rel-pact-rgb: 162, 194, 222;
+  --sc-rel-peace-rgb: 154, 204, 162;
+  --sc-rel-neutral-rgb: 194, 178, 152;
+  --sc-rel-action-color: #fde047;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-rel-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. World Tab Known-Realms Relationship Card
+   ========================================================================== */
+.sc-rel-card {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--sc-rel-card-border);
+  background: var(--sc-rel-card-bg);
+}
+
+.sc-rel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sc-rel-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sc-rel-title-color);
+}
+
+.sc-rel-count {
+  font-size: 11px;
+  color: var(--sc-rel-muted-color);
+}
+
+.sc-rel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 6px;
+}
+
+.sc-rel-row {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-rel-row-border);
+  background: var(--sc-rel-row-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sc-rel-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sc-rel-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-rel-neutral-rgb));
+  animation: sc-rel-pip-pulse 4.4s ease-in-out infinite;
+}
+
+.sc-rel-pip.is-stance-war {
+  background: rgb(var(--sc-rel-war-rgb));
+}
+
+.sc-rel-pip.is-stance-pact {
+  background: rgb(var(--sc-rel-pact-rgb));
+}
+
+.sc-rel-pip.is-stance-peace {
+  background: rgb(var(--sc-rel-peace-rgb));
+}
+
+.sc-rel-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sc-rel-name-color);
+}
+
+.sc-rel-culture {
+  font-size: 11px;
+  color: var(--sc-rel-muted-color);
+}
+
+.sc-rel-stance {
+  margin-left: auto;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--sc-rel-neutral-rgb), 0.34);
+  color: rgb(var(--sc-rel-neutral-rgb));
+  background: rgba(var(--sc-rel-neutral-rgb), 0.1);
+}
+
+.sc-rel-stance.is-stance-war {
+  border-color: rgba(var(--sc-rel-war-rgb), 0.42);
+  color: rgb(var(--sc-rel-war-rgb));
+  background: rgba(var(--sc-rel-war-rgb), 0.12);
+}
+
+.sc-rel-stance.is-stance-pact {
+  border-color: rgba(var(--sc-rel-pact-rgb), 0.42);
+  color: rgb(var(--sc-rel-pact-rgb));
+  background: rgba(var(--sc-rel-pact-rgb), 0.12);
+}
+
+.sc-rel-stance.is-stance-peace {
+  border-color: rgba(var(--sc-rel-peace-rgb), 0.42);
+  color: rgb(var(--sc-rel-peace-rgb));
+  background: rgba(var(--sc-rel-peace-rgb), 0.12);
+}
+
+.sc-rel-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--sc-rel-muted-color);
+}
+
+.sc-rel-next.is-actionable {
+  color: var(--sc-rel-action-color);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-rel-pip-pulse {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-rel-pip {
+    animation: none !important;
+  }
+}

@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Known realms card on the World tab
+
+- **Compact relationship list:** Right below the Realm Whispers & Caravans fold on the World tab, a quiet Known Realms section now lists each realm you have seen or interacted with — showing its name, culture, stance (`War`, `Pact`, `Peace`, or `Neutral`), last interaction, and what can happen next (and hides cleanly when none are known).
+
 ## 2026-11-27 — The game now keeps a relationship list
 
 - **Who's who.** For up to 8 realms you know, the game now tracks where you stand (war, peace, pact or neutral), the last thing that happened between you (a whisper, a reply, a caravan, a war started or ended, peace made, a pact) and what you could do next (fight, reply, declare war, or wait out a peace).

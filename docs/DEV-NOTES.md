@@ -1,3 +1,11 @@
+## 2026-11-27 — app / living presentation for World tab relationship summary
+
+- **World tab component (`packages/app/src/hud/RealmRelationshipCard.tsx`, `tabs/WorldTab.tsx`):**
+  - Exported `RELATIONSHIP_STANCE_LABEL`, pure `listRealmRelationships(state)` (partial-state guard), and `<RealmRelationshipCard state={state} />` mounted directly under `Fold#world-culture-whispers`.
+  - Reads `realmRelationshipSummary(state)` (`62fe177`, exact match — zero mismatch) to render one compact row per known NPC realm (name, `formatWhisperCultureTag` display culture, color-coded stance pill, `Last: ...`, `Next: ...`), returning `null` when the list is empty or `living_relationship_summary` is `false`.
+- **Dedicated CSS (`packages/app/src/hud/relationship-summary.css`):** Imported from `RealmRelationshipCard.tsx`. Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on decorative pips, calm pip pulse keyframe (`sc-rel-pip-pulse`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to diplomacy/war math, `CultureWhispersCard.tsx`, `theme.css`, `board-living.css`, `last-whisper-summary.css`, `friendly-presence-standard.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/RealmRelationshipCard.test.tsx`):** 3 tests passing (`npm test` -> sim **679**, app **1670**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 14 (relationship summary)
 
 - **Summary:** `realmRelationshipSummary(state, atTick = tick)` in `systems/livingRealm.ts`, types `RealmRelationship`, `RelationshipStance`, `RelationshipInteraction`, `RelationshipNext`; cap `RELATIONSHIP_SUMMARY_CAP` (8) in `content/livingRealm.ts`. Walks `state.realms` (skips player), stops at the cap.

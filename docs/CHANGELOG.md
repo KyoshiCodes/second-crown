@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for World tab relationship summary card
+
+- **World tab relationship card (`hud/RealmRelationshipCard.tsx`, `tabs/WorldTab.tsx`):** Added `listRealmRelationships` and `<RealmRelationshipCard>` directly under `Fold#world-culture-whispers`, reading `realmRelationshipSummary(state)` (`62fe177`, exact match — zero mismatch). Displays one compact row per known NPC realm (name, culture display name, stance pill `War`/`Pact`/`Peace`/`Neutral`, last interaction, and next possible action) and hides the entire section cleanly when the list is empty.
+- **Unchanged invariants & accessibility:** Dedicated `hud/relationship-summary.css` only (diplomacy/war math, `CultureWhispersCard.tsx`, `theme.css`, `board-living.css`, `last-whisper-summary.css`, `friendly-presence-standard.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/RealmRelationshipCard.test.tsx` (3 tests). Now: sim **679**, app **1670**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 14 (relationship summary)
 
 - **Relationship summary (`realmRelationshipSummary(state, atTick?)`):** `{ realmId, name, culture, stance, lastInteraction, nextPossible }[]` for NPC realms the player knows (a seen hold in `fog_seen`, a non-neutral stance, or any interaction on record). `state.realms` order, capped at `RELATIONSHIP_SUMMARY_CAP` (8).
