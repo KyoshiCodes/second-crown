@@ -369,6 +369,36 @@ export const STAFFING_NOTE_SHORT = "Works stand empty and no one is idle.";
 /** Slice 22: idle villagers, no empty works. */
 export const STAFFING_NOTE_SPARE = "Villagers are idle with no empty works.";
 
+// ---------------------------------------------------------------- training, unit unlocks, relationship detail (slice 23)
+
+/** Slice 23: nothing in the player's training queue. */
+export const TRAINING_NOTE_IDLE = "The yard is quiet. Train a company.";
+/** Slice 23: the player's training queue is at its keep cap. */
+export const TRAINING_NOTE_FULL = "The training queue is full.";
+
+/** Slice 23: most entries unitUnlockSnapshot lists in each of ready and locked. */
+export const UNIT_UNLOCK_CAP = 4;
+/** Slice 23: requires line for a locked unit no study opens (should not happen; tests pin it). */
+export const UNIT_REQUIRES_FALLBACK = "Needs a study.";
+
+/** Slice 23: a gift to this realm is on record within RELATIONSHIP_GIFT_RECENT_TICKS. */
+export const RELATIONSHIP_GIFT_RECENT = "Gift sent recently.";
+/** Slice 23: a gift to this realm is on record, but older. */
+export const RELATIONSHIP_GIFT_OLD = "Gift sent a while ago.";
+/** Slice 23: how recent a gift counts as "recently" (60 s). */
+export const RELATIONSHIP_GIFT_RECENT_TICKS = 600;
+/** Slice 23: below this opinion, relationshipDetailSnapshot suggests a gift. */
+export const RELATIONSHIP_WARM_OPINION = 50;
+
+/** Slice 23: suggestion at war. */
+export const RELATIONSHIP_SUGGEST_WAR = "At war. Gifts can wait for peace.";
+/** Slice 23: suggestion when their opinion is at the cap. */
+export const RELATIONSHIP_SUGGEST_CAP = "They could not think better of you.";
+/** Slice 23: suggestion when a gift is affordable and opinion is low. */
+export const RELATIONSHIP_SUGGEST_GIFT = "A gift would warm them.";
+/** Slice 23: suggestion when opinion is low and gold is short of a gift. */
+export const RELATIONSHIP_SUGGEST_SAVE = "Save gold for a gift.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

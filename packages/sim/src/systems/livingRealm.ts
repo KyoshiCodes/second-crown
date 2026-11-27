@@ -145,6 +145,12 @@ export interface LivingSwitches {
   jobSummary: boolean;
   /** Staffing pressure (slice 22): staffingPressureSnapshot. False: null. Read-only either way. */
   staffingPressure: boolean;
+  /** Training progress (slice 23): trainingProgressSnapshot. False: null. Read-only either way. */
+  trainingProgress: boolean;
+  /** Unit unlocks (slice 23): unitUnlockSnapshot. False: null. Read-only either way. */
+  unitUnlocks: boolean;
+  /** Relationship detail (slice 23): relationshipDetailSnapshot. False: null. Read-only either way. */
+  relationshipDetail: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -187,6 +193,9 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   inspectDetail: "living_inspect_detail",
   jobSummary: "living_job_summary",
   staffingPressure: "living_staffing_pressure",
+  trainingProgress: "living_training_progress",
+  unitUnlocks: "living_unit_unlocks",
+  relationshipDetail: "living_relationship_detail",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -1457,6 +1466,21 @@ function rawSeenProvinces(state: GameState): Set<string> {
   }
 }
 
+function stanceFrom(state: GameState, realmId: string, war: boolean, allies: Set<string>, atTick: number): RelationshipStance {
+  if (war) return "war";
+  if (allies.has(realmId)) return "pact";
+  return peaceLockedAt(state, realmId, "player", atTick) ? "peace" : "neutral";
+}
+
+/**
+ * Slice 23: the player's stance with one realm, the same rule realmRelationshipSummary uses
+ * (war, pact, peace, neutral). No switch, no cap. Pure read.
+ */
+export function relationshipStanceWith(state: GameState, realmId: string, atTick = state.meta.tick): RelationshipStance {
+  const war = state.wars.some((w) => w.status === "active" && warInvolves(w, "player") && warInvolves(w, realmId));
+  return stanceFrom(state, realmId, war, playerPactAllies(state), atTick);
+}
+
 /**
  * Compact relationship list for the World tab: NPC realms the player knows, in state.realms
  * order, at most RELATIONSHIP_SUMMARY_CAP. Known = the player has seen one of its provinces
@@ -1483,13 +1507,7 @@ export function realmRelationshipSummary(state: GameState, atTick = state.meta.t
     if (out.length >= RELATIONSHIP_SUMMARY_CAP) break;
     if (r.id === "player") continue;
     const war = state.wars.find((w) => w.status === "active" && warInvolves(w, "player") && warInvolves(w, r.id));
-    const stance: RelationshipStance = war
-      ? "war"
-      : allies.has(r.id)
-        ? "pact"
-        : peaceLockedAt(state, r.id, "player", atTick)
-          ? "peace"
-          : "neutral";
+    const stance = stanceFrom(state, r.id, !!war, allies, atTick);
     const last = lastInteractionWith(state, r.id, r.name, atTick);
     const sawHold = state.board.provinces.some((p) => p.occupantRealmId === r.id && seen.has(p.id));
     if (stance === "neutral" && !last && !sawHold) continue;

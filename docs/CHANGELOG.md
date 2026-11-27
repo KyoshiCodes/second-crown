@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 23 (training progress, unit unlocks, relationship detail)
+
+- **Training progress (`trainingProgressSnapshot(state)`):** `{ active: { id, name, ticksLeft, totalTicks } | null, queue: { id, name, count }[], note }` or null with no finished player Barracks (Yard room, `hallRoomBuilt(state, "yard")`). `id` is the training job id, `name` the unit name. Player jobs only, start order; active = head job when started and not done. `note`: `TRAINING_NOTE_IDLE` (no jobs), `TRAINING_NOTE_FULL` (at `trainingQueueCap`), else null.
+- **Unit unlocks (`unitUnlockSnapshot(state)`):** `{ ready: { id, name }[], locked: { id, name, requires }[] }` or null with an empty roster. Roster = `listRosterUnitTypes`, split by `unitUnlocked` on a read copy, roster order, cap 4 each (`UNIT_UNLOCK_CAP`). `requires` = `Needs <study name>.` from `RESEARCH[*].unlocks` (fallback `UNIT_REQUIRES_FALLBACK`, never hit today; tested).
+- **Relationship detail (`relationshipDetailSnapshot(state, realmId)`):** `{ opinion, stance, lastGift, suggestion }` or null for unknown realm / `player`. `opinion` = `opinionOfPlayerFromRealm`. `stance` = new exported `relationshipStanceWith` (the slice 14 summary rule; `realmRelationshipSummary` now calls the same helper, output unchanged). `lastGift` = `RELATIONSHIP_GIFT_RECENT` (newest `gift` input to the realm within `RELATIONSHIP_GIFT_RECENT_TICKS` = 600) / `RELATIONSHIP_GIFT_OLD` / null. `suggestion` = `RELATIONSHIP_SUGGEST_WAR` (war), `RELATIONSHIP_SUGGEST_CAP` (opinion 100), else below `RELATIONSHIP_WARM_OPINION` (50) `RELATIONSHIP_SUGGEST_GIFT` (gift affordable) or `RELATIONSHIP_SUGGEST_SAVE`, else null.
+- **Switches:** `living_training_progress`, `living_unit_unlocks`, `living_relationship_detail` (false: null). All on.
+- **Read-only:** training math (`training.ts`, `train.ts`), unlock rules (`unitUnlocked`, `cultureUnits.ts`), diplomacy and gift math (`diplomacy.ts`), balance tables untouched. No writes (tested).
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice23.test.ts` (16). Now: sim **838**, app **1701**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for job summary and staffing pressure (Slice 22)
 
 - **People panel job-summary expander (`hud/JobSummaryExpander.tsx`, `PeoplePanel.tsx`):** Added `resolveJobSummary` and `<JobSummaryExpander>` directly under `<h3>People</h3>`, reading `jobSummarySnapshot(state)` (`6fb1b6b`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-job-summary">` showing idle count, per-job worker counts, and up to 3 building locations when expanded, hiding cleanly when `null` or `living_job_summary` is `false`.

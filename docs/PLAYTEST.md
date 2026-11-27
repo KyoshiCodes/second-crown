@@ -177,6 +177,8 @@ Decree-effect summaries and richer inspect detail available (`living_decree_effe
 
 Job summary and staffing pressure available (`living_job_summary`, `living_staffing_pressure`). Read-only.
 
+Training progress, unit unlocks, and relationship detail available (`living_training_progress`, `living_unit_unlocks`, `living_relationship_detail`). Read-only.
+
 Attentive:
 
 ```

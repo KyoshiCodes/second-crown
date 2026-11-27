@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now describe training, unlocks and neighbours
+
+- **Under the hood only.** Once you have a Barracks, the game can say which company is training, how long it has left, and what is queued behind it.
+- **Units:** it can list up to four units you can train now and up to four still locked, with the study each one needs (for example "Needs Horse lore.").
+- **Neighbours:** for any realm it can give their opinion of you, whether you are at war, at peace or neutral, whether you sent a gift recently, and a short tip like "A gift would warm them."
+- **Nothing else changes.** Training times, unlocks, gifts and opinion work exactly as before.
+- **Coming to the screen:** training, unit and relationship detail.
+
 ## 2026-11-27 — People job summary and staffing pressure note
 
 - **Job summary in People:** At the top of the People panel, a calm collapsed strip shows your idle count and per-job worker counts at a glance, expanding cleanly to list up to three matching workplaces per trade.

@@ -27,6 +27,18 @@ import {
   STAFFING_NOTE_ASSIGN,
   STAFFING_NOTE_SHORT,
   STAFFING_NOTE_SPARE,
+  TRAINING_NOTE_IDLE,
+  TRAINING_NOTE_FULL,
+  UNIT_UNLOCK_CAP,
+  UNIT_REQUIRES_FALLBACK,
+  RELATIONSHIP_GIFT_RECENT,
+  RELATIONSHIP_GIFT_OLD,
+  RELATIONSHIP_GIFT_RECENT_TICKS,
+  RELATIONSHIP_WARM_OPINION,
+  RELATIONSHIP_SUGGEST_WAR,
+  RELATIONSHIP_SUGGEST_CAP,
+  RELATIONSHIP_SUGGEST_GIFT,
+  RELATIONSHIP_SUGGEST_SAVE,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -36,12 +48,12 @@ import {
   YIELD_BREAKDOWN_CAP,
 } from "../content/livingRealm.js";
 import { keepLevel } from "../actions/upgrade.js";
-import { friendlyRealmIds, livingSwitches } from "./livingRealm.js";
+import { friendlyRealmIds, livingSwitches, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
 import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus } from "./economy.js";
 import { upkeepPerTick } from "./upkeep.js";
-import { RESEARCH, academyReady, type ResearchId } from "./research.js";
+import { RESEARCH, academyReady, unitUnlocked, type ResearchId } from "./research.js";
 import { DECREES } from "./decree.js";
 import { activePlayerMarch, listMarches } from "./march.js";
 import { GATHER_NODES, listGathers } from "./gather.js";
@@ -51,6 +63,11 @@ import { settlementName } from "../actions/settlement.js";
 import { jobForBuildingType } from "./citizens.js";
 import { CITIZEN_JOBS } from "../content/citizens.js";
 import { emptyStaffWorks } from "./staffHint.js";
+import { listTraining, trainingQueueCap } from "./training.js";
+import { hallRoomBuilt } from "./hallBonus.js";
+import { getUnitType } from "../content/units.js";
+import { listRosterUnitTypes } from "./cultureUnits.js";
+import { giftOffer, opinionOfPlayerFromRealm } from "../actions/diplomacy.js";
 
 /**
  * Living Realm slice 16: compact system status for the HUD. Every function here is a pure
@@ -840,4 +857,147 @@ export function staffingPressureSnapshot(state: GameState): StaffingPressure | n
   else if (emptyBuildings > 0) note = STAFFING_NOTE_SHORT;
   else note = STAFFING_NOTE_SPARE;
   return { emptyBuildings, idleVillagers, note };
+}
+
+// ---------------------------------------------------------------- training progress (slice 23)
+
+export interface TrainingActive {
+  /** Training job id (tr_N). */
+  id: string;
+  /** Unit name. */
+  name: string;
+  ticksLeft: number;
+  totalTicks: number;
+}
+
+export interface TrainingQueued {
+  /** Training job id (tr_N). */
+  id: string;
+  /** Unit name. */
+  name: string;
+  count: number;
+}
+
+export interface TrainingProgress {
+  /** The player job under way now (started, not done), or null. */
+  active: TrainingActive | null;
+  /** Player jobs waiting behind it, start order. */
+  queue: TrainingQueued[];
+  /** TRAINING_NOTE_IDLE (no jobs), TRAINING_NOTE_FULL (queue at keep cap), else null. */
+  note: string | null;
+}
+
+/**
+ * Slice 23: the player's training yard. Null with no finished player Barracks (the Hall's Yard
+ * room) or living_training_progress off. Reads training_json; training math untouched.
+ */
+export function trainingProgressSnapshot(state: GameState): TrainingProgress | null {
+  if (!livingSwitches(state).trainingProgress) return null;
+  if (!hallRoomBuilt(state, "yard")) return null;
+  const tick = state.meta.tick;
+  const jobs = listTraining(state, "player")
+    .map((j, i) => ({ j, i }))
+    .sort((a, b) => a.j.startedTick - b.j.startedTick || a.i - b.i)
+    .map(({ j }) => j);
+  const unitName = (typeId: string) => getUnitType(typeId)?.name ?? typeId;
+  const head = jobs[0];
+  const running = head && head.startedTick <= tick && head.doneTick > tick ? head : null;
+  const active: TrainingActive | null = running
+    ? {
+        id: running.id,
+        name: unitName(running.typeId),
+        ticksLeft: running.doneTick - tick,
+        totalTicks: Math.max(1, running.doneTick - running.startedTick),
+      }
+    : null;
+  const queue = jobs.filter((j) => j !== running).map((j) => ({ id: j.id, name: unitName(j.typeId), count: j.count }));
+  let note: string | null = null;
+  if (jobs.length === 0) note = TRAINING_NOTE_IDLE;
+  else if (jobs.length >= trainingQueueCap(state, "player")) note = TRAINING_NOTE_FULL;
+  return { active, queue, note };
+}
+
+// ---------------------------------------------------------------- unit unlocks (slice 23)
+
+export interface UnitReady {
+  id: string;
+  name: string;
+}
+
+export interface UnitLocked {
+  id: string;
+  name: string;
+  /** "Needs <study name>." from the study whose RESEARCH.unlocks lists the unit. */
+  requires: string;
+}
+
+export interface UnitUnlocks {
+  /** Roster units the player can train now (unitUnlocked), roster order, cap UNIT_UNLOCK_CAP. */
+  ready: UnitReady[];
+  /** Roster units still gated, roster order, cap UNIT_UNLOCK_CAP. */
+  locked: UnitLocked[];
+}
+
+/**
+ * Slice 23: what the crown can train and what is still gated. Roster = listRosterUnitTypes
+ * (base units, this crown's kit unit, the ironclad). Null with living_unit_unlocks off or an
+ * empty roster. Unlock rules untouched (unitUnlocked runs on a read copy).
+ */
+export function unitUnlockSnapshot(state: GameState): UnitUnlocks | null {
+  if (!livingSwitches(state).unitUnlocks) return null;
+  const roster = listRosterUnitTypes(state);
+  if (roster.length === 0) return null;
+  const copy = readCopy(state);
+  const ready: UnitReady[] = [];
+  const locked: UnitLocked[] = [];
+  for (const u of roster) {
+    if (unitUnlocked(copy, u.id)) {
+      if (ready.length < UNIT_UNLOCK_CAP) ready.push({ id: u.id, name: u.name });
+    } else if (locked.length < UNIT_UNLOCK_CAP) {
+      const study = Object.values(RESEARCH).find((r) => (r.unlocks as readonly string[]).includes(u.id));
+      locked.push({ id: u.id, name: u.name, requires: study ? `Needs ${study.name}.` : UNIT_REQUIRES_FALLBACK });
+    }
+  }
+  return { ready, locked };
+}
+
+// ---------------------------------------------------------------- relationship detail (slice 23)
+
+export interface RelationshipDetail {
+  /** Their ruler's opinion of the player (-100..100), 0 with no ruler. */
+  opinion: number;
+  /** Same rule as the World tab summary: war, pact, peace, neutral. */
+  stance: RelationshipStance;
+  /** RELATIONSHIP_GIFT_RECENT / RELATIONSHIP_GIFT_OLD from the gift input log, else null. */
+  lastGift: string | null;
+  /** A fixed RELATIONSHIP_SUGGEST_* line, else null. */
+  suggestion: string | null;
+}
+
+/**
+ * Slice 23: one realm's standing with the player. Null for an unknown realm, the player itself,
+ * or living_relationship_detail off. Pure read; diplomacy and gift math untouched.
+ */
+export function relationshipDetailSnapshot(state: GameState, realmId: string): RelationshipDetail | null {
+  if (!livingSwitches(state).relationshipDetail) return null;
+  if (realmId === "player" || !state.realms.some((r) => r.id === realmId)) return null;
+  const tick = state.meta.tick;
+  const copy = readCopy(state);
+  const opinion = opinionOfPlayerFromRealm(copy, realmId);
+  const stance = relationshipStanceWith(copy, realmId, tick);
+  let giftTick: number | null = null;
+  for (const rec of state.inputLog) {
+    if (rec.type !== "gift" || rec.tick > tick) continue;
+    const to = (rec.payload as { to?: unknown } | undefined)?.to;
+    if (to === realmId && (giftTick === null || rec.tick > giftTick)) giftTick = rec.tick;
+  }
+  const lastGift =
+    giftTick === null ? null : tick - giftTick <= RELATIONSHIP_GIFT_RECENT_TICKS ? RELATIONSHIP_GIFT_RECENT : RELATIONSHIP_GIFT_OLD;
+  const offer = giftOffer(copy, realmId);
+  let suggestion: string | null = null;
+  if (stance === "war") suggestion = RELATIONSHIP_SUGGEST_WAR;
+  else if (offer.block === "at_cap") suggestion = RELATIONSHIP_SUGGEST_CAP;
+  else if (offer.block !== "no_ruler" && opinion < RELATIONSHIP_WARM_OPINION)
+    suggestion = offer.ok ? RELATIONSHIP_SUGGEST_GIFT : RELATIONSHIP_SUGGEST_SAVE;
+  return { opinion, stance, lastGift, suggestion };
 }
