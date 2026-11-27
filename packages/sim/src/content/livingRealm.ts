@@ -249,6 +249,11 @@ export const ECONOMY_PRESSURE_HIGH_FILL = 0.25;
 /** At or above this share of its cap, with net income at or over zero, a store is under "low" pressure. */
 export const ECONOMY_PRESSURE_LOW_FILL = 0.75;
 
+// ---------------------------------------------------------------- history and yields (slice 17)
+
+/** Most past interactions relationshipHistorySnapshot returns for one realm (slice 17). */
+export const RELATIONSHIP_HISTORY_CAP = 4;
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

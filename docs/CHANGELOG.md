@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 17 (relationship history, economy yields, last-inspected)
+
+- **Relationship history (`relationshipHistorySnapshot(state, realmId, atTick?)`):** `{ tick, kind, text }[]`, newest first, at most 4 (`RELATIONSHIP_HISTORY_CAP`). Same kinds and sources as the summary's `lastInteraction` (whisper, reply, trade, war started, war ended, peace made, pact made). `text` is the record's own text for culture news and world-log caravans; wars carry no text, so a fixed line names the realm (`War with X began.` / `War with X ended.` / `Peace made with X.` / `Rode to war beside X.`). Same-tick ties use the `lastInteraction` rank, so entry 0's kind always equals the summary row's `lastInteraction`. Empty for the player, an unknown realm, or no records. Nothing invented.
+- **Economy yields (`economyYieldsSnapshot(state)`):** `{ foodPerSec, woodPerSec, stonePerSec, goldPerSec, foodUpkeep }`, numbers per second. These are the exact nets the pressure line judges by (now one shared helper): building income, with `foodPerSec` already net of army upkeep; gross food = `foodPerSec + foodUpkeep`.
+- **Last inspected:** no sim change. `boardFeedbackSnapshot(state, view?)` already takes `{ lastInspectedProvinceId }`; the app will track `lastInspectedId` and pass it (`BoardLiving` already accepts the prop; `AppShell` does not pass it yet).
+- **Switches:** `living_relationship_history` (false: `[]`), `living_economy_yields` (false: null). Both on.
+- **Read-only:** yield, upkeep, storage, diplomacy and war formulas untouched. `lastInteraction` refactored to read the head of the same history list; results unchanged (slice 14 tests pass as before).
+- **Playtest:** one line. Balance tables unchanged.
+- **Tests:** new `systems/livingSlice17.test.ts` (17). Now: sim **734**, app **1678**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for system status snapshots (Slice 16)
 
 - **Economy pressure (`hud/EconomyPressureLine.tsx`, `tabs/KingdomTab.tsx`):** Reads `economyPressureSnapshot(state)` (`43aa10e`, exact match — zero mismatch) to show calm high/low/full-store pips above the Kingdom pace strip, hiding cleanly when all four pressures are `ok`, `bareFood` is `false`, and `fullStores` is empty.

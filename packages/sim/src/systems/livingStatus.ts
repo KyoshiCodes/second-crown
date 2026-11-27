@@ -49,6 +49,16 @@ export function isBareFood(state: GameState): boolean {
   return food <= Math.max(5, upkeepPerTick(state) * 50);
 }
 
+type StoreRes = "food" | "wood" | "stone" | "gold";
+
+/** Net per second the pressure line reads: building income per store; food minus army upkeep. */
+function netRates(state: GameState): Record<StoreRes, number> & { foodUpkeep: number } {
+  const income = computeIncomePerSecond(readCopy(state));
+  const foodUpkeep = upkeepPerTick(state) * TICKS_PER_SECOND;
+  const per = (res: StoreRes) => D(income[res] ?? "0").toNumber();
+  return { food: per("food") - foodUpkeep, wood: per("wood"), stone: per("stone"), gold: per("gold"), foodUpkeep };
+}
+
 /**
  * Shortage pressure per capped store, from stores vs cap and the current net per second
  * (building income; food also pays army upkeep):
@@ -59,15 +69,14 @@ export function isBareFood(state: GameState): boolean {
  */
 export function economyPressureSnapshot(state: GameState): EconomyPressure | null {
   if (!livingSwitches(state).economyStatus) return null;
-  const income = computeIncomePerSecond(readCopy(state));
+  const rates = netRates(state);
   const bareFood = isBareFood(state);
-  const level = (res: "food" | "wood" | "stone" | "gold"): PressureLevel => {
+  const level = (res: StoreRes): PressureLevel => {
     if (res === "food" && bareFood) return "high";
     const have = D(state.resources[res] ?? "0").toNumber();
     const cap = storageCap(state, res);
     const fill = cap > 0 ? have / cap : 1;
-    let net = D(income[res] ?? "0").toNumber();
-    if (res === "food") net -= upkeepPerTick(state) * TICKS_PER_SECOND;
+    const net = rates[res];
     if (fill < ECONOMY_PRESSURE_HIGH_FILL && net <= 0) return "high";
     if (fill >= ECONOMY_PRESSURE_LOW_FILL && net >= 0) return "low";
     return "ok";
@@ -80,6 +89,29 @@ export function economyPressureSnapshot(state: GameState): EconomyPressure | nul
     fullStores: fullStores(state).map((f) => f.res),
     bareFood,
   };
+}
+
+// ---------------------------------------------------------------- economy yields (slice 17)
+
+export interface EconomyYields {
+  /** Net food per second: building income minus army upkeep (can be negative). */
+  foodPerSec: number;
+  woodPerSec: number;
+  stonePerSec: number;
+  goldPerSec: number;
+  /** Army food upkeep per second (already taken out of foodPerSec). */
+  foodUpkeep: number;
+}
+
+/**
+ * Slice 17: the exact net rates economyPressureSnapshot judges by (same netRates helper), so
+ * the HUD can print numbers beside the pressure words. Gross food = foodPerSec + foodUpkeep.
+ * Null with living_economy_yields off. Yield, upkeep and storage formulas untouched.
+ */
+export function economyYieldsSnapshot(state: GameState): EconomyYields | null {
+  if (!livingSwitches(state).economyYields) return null;
+  const r = netRates(state);
+  return { foodPerSec: r.food, woodPerSec: r.wood, stonePerSec: r.stone, goldPerSec: r.gold, foodUpkeep: r.foodUpkeep };
 }
 
 // ---------------------------------------------------------------- research progress

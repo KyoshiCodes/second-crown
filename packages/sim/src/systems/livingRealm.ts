@@ -26,6 +26,7 @@ import {
   FRIENDLY_PRESENCE_CAP,
   FRIENDLY_TRADE_WINDOW_TICKS,
   RELATIONSHIP_SUMMARY_CAP,
+  RELATIONSHIP_HISTORY_CAP,
   FRIENDLY_ROUTES_CAP,
   type FormationId,
   type ColumnMarkId,
@@ -116,6 +117,10 @@ export interface LivingSwitches {
   courtStatus: boolean;
   /** Board feedback (slice 16): boardFeedbackSnapshot. False: null. Read-only either way. */
   boardFeedback: boolean;
+  /** Relationship history (slice 17): relationshipHistorySnapshot. False: empty list. Read-only either way. */
+  relationshipHistory: boolean;
+  /** Economy yields (slice 17): economyYieldsSnapshot. False: null. Read-only either way. */
+  economyYields: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -144,6 +149,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   researchStatus: "living_research_status",
   courtStatus: "living_court_status",
   boardFeedback: "living_board_feedback",
+  relationshipHistory: "living_relationship_history",
+  economyYields: "living_economy_yields",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -1325,43 +1332,70 @@ function playerWarStartTick(war: War): number {
   return m ? Number(m[1]) : war.startedTick;
 }
 
+/** One past interaction with the player, from an existing record. Read-only. */
+export interface RelationshipHistoryEntry {
+  tick: number;
+  kind: RelationshipInteraction;
+  /** The record's own text (culture news, world log); wars have no text, so a fixed line names the realm. */
+  text: string;
+}
+
 /**
- * Newest player-relevant interaction with `realmId`, from existing records only: culture news
- * (whisper to the player, reply either way), world-log caravans with the player (same text
- * match as friendly presence), and state.wars (a player war with the realm: started / ended,
- * white peace = "peace made"; a joined war with the realm as ally = "pact made").
- * Same-tick ties go by INTERACTION_RANK. Null when nothing is on record at or before atTick.
+ * Every player-relevant interaction with `realmId` at or before atTick, from existing records
+ * only: culture news (whisper to the player, reply either way), world-log caravans with the
+ * player (same text match as friendly presence), and state.wars (a player war with the realm:
+ * started / ended, white peace = "peace made"; a joined war with the realm as ally = "pact made").
+ * Newest first; same-tick ties go by INTERACTION_RANK, then source order (news, log, wars).
  */
-function lastInteractionWith(state: GameState, realmId: string, name: string, atTick: number): RelationshipInteraction | null {
-  let bestTick = -Infinity;
-  let best: RelationshipInteraction | null = null;
-  const consider = (tick: number, kind: RelationshipInteraction) => {
+function interactionsWith(state: GameState, realmId: string, name: string, atTick: number): RelationshipHistoryEntry[] {
+  const out: (RelationshipHistoryEntry & { seq: number })[] = [];
+  const add = (tick: number, kind: RelationshipInteraction, text: string) => {
     if (tick > atTick) return;
-    if (best === null || tick > bestTick || (tick === bestTick && INTERACTION_RANK.indexOf(kind) < INTERACTION_RANK.indexOf(best))) {
-      bestTick = tick;
-      best = kind;
-    }
+    out.push({ tick, kind, text, seq: out.length });
   };
   for (const n of getCultureNews(state)) {
-    if (n.kind === "whisper" && n.fromRealmId === realmId && n.toRealmId === "player") consider(n.tick, "whisper");
+    if (n.kind === "whisper" && n.fromRealmId === realmId && n.toRealmId === "player") add(n.tick, "whisper", n.text);
     else if (
       n.kind === "reply" &&
       ((n.fromRealmId === realmId && n.toRealmId === "player") || (n.fromRealmId === "player" && n.toRealmId === realmId))
     )
-      consider(n.tick, "reply");
+      add(n.tick, "reply", n.text);
   }
   const prefix = `${name} trades caravans with `;
-  for (const ev of getWorldLog(state)) if (ev.id === "trade" && ev.text.startsWith(prefix)) consider(ev.tick, "trade");
+  for (const ev of getWorldLog(state)) if (ev.id === "trade" && ev.text.startsWith(prefix)) add(ev.tick, "trade", ev.text);
   for (const w of state.wars) {
     if (!warInvolves(w, "player")) continue;
     if (warInvolves(w, realmId)) {
-      consider(playerWarStartTick(w), "war started");
-      if (w.status !== "active" && typeof w.endedTick === "number") consider(w.endedTick, w.status === "white_peace" ? "peace made" : "war ended");
+      add(playerWarStartTick(w), "war started", `War with ${name} began.`);
+      if (w.status !== "active" && typeof w.endedTick === "number") {
+        if (w.status === "white_peace") add(w.endedTick, "peace made", `Peace made with ${name}.`);
+        else add(w.endedTick, "war ended", `War with ${name} ended.`);
+      }
     } else if (w.allyRealmId === realmId) {
-      consider(playerWarStartTick(w), "pact made");
+      add(playerWarStartTick(w), "pact made", `Rode to war beside ${name}.`);
     }
   }
-  return best;
+  out.sort((a, b) => b.tick - a.tick || INTERACTION_RANK.indexOf(a.kind) - INTERACTION_RANK.indexOf(b.kind) || a.seq - b.seq);
+  return out.map(({ tick, kind, text }) => ({ tick, kind, text }));
+}
+
+/** Newest interaction kind with `realmId` (head of interactionsWith), or null when nothing is on record. */
+function lastInteractionWith(state: GameState, realmId: string, name: string, atTick: number): RelationshipInteraction | null {
+  return interactionsWith(state, realmId, name, atTick)[0]?.kind ?? null;
+}
+
+/**
+ * Slice 17: the most recent interactions (at most RELATIONSHIP_HISTORY_CAP) between the player
+ * and `realmId`, newest first, same kinds and sources as lastInteraction (so entry 0's kind is
+ * always the summary row's lastInteraction). Nothing is invented: an entry exists only where a
+ * record does. Empty for an unknown realm, the player itself, or with living_relationship_history off.
+ */
+export function relationshipHistorySnapshot(state: GameState, realmId: string, atTick = state.meta.tick): RelationshipHistoryEntry[] {
+  if (!livingSwitches(state).relationshipHistory) return [];
+  if (realmId === "player") return [];
+  const realm = state.realms.find((r) => r.id === realmId);
+  if (!realm) return [];
+  return interactionsWith(state, realm.id, realm.name, atTick).slice(0, RELATIONSHIP_HISTORY_CAP);
 }
 
 /** Provinces the player has seen, read raw from fog_seen (never seeds the flag the way fog.ts does). */

@@ -1,3 +1,13 @@
+## 2026-11-27 — sim / Living Realm slice 17 (relationship history, economy yields)
+
+- **History:** `lastInteractionWith` in `systems/livingRealm.ts` became `interactionsWith` (collects every record, sorts tick desc → `INTERACTION_RANK` → source order news/log/wars) plus a one-line `lastInteractionWith` that takes entry 0. `relationshipHistorySnapshot` slices it to `RELATIONSHIP_HISTORY_CAP` (4, `content/livingRealm.ts`). One scan for both, so the summary's `lastInteraction` and history[0] cannot drift.
+- **Bounded by the logs:** culture news and `world_log` are already capped where they are written (world log keeps 24), so history only goes back as far as those logs do. Wars are kept in `state.wars`. Fixed war lines are the only non-record text.
+- **Yields:** new private `netRates(state)` in `systems/livingStatus.ts` (income on `readCopy`, food minus `upkeepPerTick * TICKS_PER_SECOND`). `economyPressureSnapshot` now calls it too; numbers identical to before. `economyYieldsSnapshot` returns it renamed.
+- **Last inspected:** sim already ready (`BoardView.lastInspectedProvinceId`). App wiring still to do: `AppShell.tsx` passes only `selectedId` to `<BoardLiving>`; it needs a `lastInspectedId` state (e.g. set to the previous `selectedProvinceId` when selection changes) passed as the existing `lastInspectedId` prop.
+- **Switches:** `relationshipHistory`, `economyYields` added to `LivingSwitches`.
+- **Counts test:** three seeds × 600 `TickEngine` ticks, snapshots every 20 ticks vs both flags off: identical counts, resources, units, wars, flags.
+- **Left alone:** economy, upkeep, storage, diplomacy, war, trade code; balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for economy, research, court & board feedback
 
 - **Kingdom status components (`hud/EconomyPressureLine.tsx`, `hud/ResearchProgressLine.tsx`, `hud/CourtStatusLine.tsx`, `tabs/KingdomTab.tsx`):**

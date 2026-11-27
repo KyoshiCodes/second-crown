@@ -165,6 +165,8 @@ Friendly routes available: up to 8 quiet paths between pairs of friendly realms,
 
 System status snapshots available: economy pressure, research progress, court status and board feedback (`living_economy_status`, `living_research_status`, `living_court_status`, `living_board_feedback`). Read-only.
 
+Last-inspected, relationship history (last 4 dealings per realm) and yield rates available (`living_relationship_history`, `living_economy_yields`). Read-only.
+
 Attentive:
 
 ```

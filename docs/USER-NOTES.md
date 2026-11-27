@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game now remembers your recent dealings with each realm and your exact income
+
+- **Under the hood only.** For each realm, the game can now list your last four dealings with it (whispers, replies, trade, wars, peace, pacts), newest first. It can also give your exact food, wood, stone and gold per second, and how much food your army eats.
+- **The map is ready to remember** the last province you looked at, as well as the one you have selected.
+- **Nothing else changes.** Income, upkeep, diplomacy and war work exactly as before.
+- **Coming to the screen:** a short history under each realm and numbers beside the store status.
+
 ## 2026-11-27 — Quiet status lines for stores, research, court, and board clicks
 
 - **Economy, research, and court lines on Kingdom:** Compact, calm status lines under the Kingdom strip now highlight low/full stores (hiding automatically when everything is steady), show your active study progress or next available study, and summarize active and open court decrees.
