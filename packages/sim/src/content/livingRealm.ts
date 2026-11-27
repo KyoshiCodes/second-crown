@@ -424,6 +424,24 @@ export const BATTLE_SUGGEST_WON = "Rest the host, then press on.";
 /** Slice 24: suggestion after a loss. */
 export const BATTLE_SUGGEST_LOST = "Retrain before the next march.";
 
+// ---------------------------------------------------------------- clash result, unit waiting (slice 25)
+
+/** Slice 25: most forces clashResultSnapshot lists. */
+export const CLASH_FORCE_CAP = 4;
+/** Slice 25: clash outcome, player won. */
+export const CLASH_OUTCOME_WON = "Victory";
+/** Slice 25: clash outcome, player lost. */
+export const CLASH_OUTCOME_LOST = "Defeat";
+/** Slice 25: clash outcome, player not in it. */
+export const CLASH_OUTCOME_OTHERS = "Others fought";
+/** Slice 25: the player's side lost no one. */
+export const CLASH_NOTE_CLEAN = "Not one of yours fell.";
+/** Slice 25: the player's side lost more men than the other side. */
+export const CLASH_NOTE_COSTLY = "You lost more men than they did.";
+
+/** Slice 25: most entries unitWaitingSnapshot lists in each of posted and waiting. */
+export const UNIT_WAITING_CAP = 5;
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

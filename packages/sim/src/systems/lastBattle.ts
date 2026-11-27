@@ -2,11 +2,23 @@ import type { GameState } from "@second-crown/shared";
 import type { BattleEvent } from "./resolver.js";
 import type { BattlePhase } from "./combat.js";
 
+/** Slice 25: one side of the clash as it stood at muster, with its losses. Record only; no math reads it. */
+export interface ClashForceRecord {
+  side: "attacker" | "defender";
+  realmId: string;
+  /** Power at muster (the same figure the battle used). */
+  strength: number;
+  /** Men lost in this clash. */
+  casualties: number;
+}
+
 export interface LastBattleStory {
   winnerId: string;
   loserId: string;
   events: BattleEvent[];
   phases: BattlePhase[];
+  /** Slice 25: optional; absent on battles stored before slice 25. */
+  forces?: ClashForceRecord[];
 }
 
 export function lastBattleStory(state: GameState): LastBattleStory | null {
@@ -27,5 +39,6 @@ export function writeLastBattle(state: GameState, story: LastBattleStory): void 
     loserId: story.loserId,
     events: (story.events ?? []).slice(0, 10),
     phases: (story.phases ?? []).slice(0, 6),
+    ...(story.forces ? { forces: story.forces.slice(0, 4) } : {}),
   });
 }

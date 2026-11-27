@@ -157,6 +157,10 @@ export interface LivingSwitches {
   marchEta: boolean;
   /** Battle outcome notes (slice 24): battleOutcomeNoteSnapshot. False: null. Read-only either way. */
   battleNotes: boolean;
+  /** Clash result detail (slice 25): clashResultSnapshot. False: null. Read-only either way. */
+  clashResult: boolean;
+  /** Unit waiting states (slice 25): unitWaitingSnapshot. False: null. Read-only either way. */
+  unitWaiting: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -205,6 +209,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   columnStatus: "living_column_status",
   marchEta: "living_march_eta",
   battleNotes: "living_battle_notes",
+  clashResult: "living_clash_result",
+  unitWaiting: "living_unit_waiting",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

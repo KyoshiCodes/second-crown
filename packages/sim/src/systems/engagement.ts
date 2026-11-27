@@ -73,6 +73,12 @@ export function resolveColumnClash(
   const defStart = sideStart(defender);
   const atk = stacksFromForce(attacker.realmId, attacker.force, attacker.levy);
   const def = stacksFromForce(defender.realmId, defender.force, defender.levy);
+  const men = (xs: Stack[]) => xs.reduce((n, x) => n + x.count, 0);
+  const power = (xs: Stack[]) => xs.reduce((n, x) => n + (getUnitType(x.typeId)?.power ?? 0) * x.count, 0);
+  const atkMen = men(atk);
+  const defMen = men(def);
+  const atkPower = power(atk);
+  const defPower = power(def);
   const marshal = playerMarshal(state);
   if (attacker.realmId === "player") applyMarshalBonuses(atk, marshal);
   if (defender.realmId === "player") applyMarshalBonuses(def, marshal);
@@ -120,6 +126,10 @@ export function resolveColumnClash(
       ...fought.events,
     ],
     phases: [{ title: "Field", text: "Two columns met on the same tile." }],
+    forces: [
+      { side: "attacker", realmId: attacker.realmId, strength: atkPower, casualties: Math.max(0, atkMen - men(atk)) },
+      { side: "defender", realmId: defender.realmId, strength: defPower, casualties: Math.max(0, defMen - men(def)) },
+    ],
   });
 
   return {

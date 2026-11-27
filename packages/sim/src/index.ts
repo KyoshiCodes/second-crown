@@ -409,6 +409,8 @@ export {
   columnStatusSnapshot,
   marchEtaSnapshot,
   battleOutcomeNoteSnapshot,
+  clashResultSnapshot,
+  unitWaitingSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -455,6 +457,11 @@ export type {
   MarchEtaEntry,
   MarchEta,
   BattleOutcomeNote,
+  ClashForce,
+  ClashResult,
+  UnitPosted,
+  UnitWaiting,
+  UnitWaitingStates,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -530,6 +537,13 @@ export {
   BATTLE_NOTE_OTHERS,
   BATTLE_SUGGEST_WON,
   BATTLE_SUGGEST_LOST,
+  CLASH_FORCE_CAP,
+  CLASH_OUTCOME_WON,
+  CLASH_OUTCOME_LOST,
+  CLASH_OUTCOME_OTHERS,
+  CLASH_NOTE_COSTLY,
+  CLASH_NOTE_CLEAN,
+  UNIT_WAITING_CAP,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

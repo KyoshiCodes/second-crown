@@ -1,3 +1,13 @@
+## 2026-11-27 — sim / Living Realm slice 25 (clash result detail, unit waiting states)
+
+- **Where:** `clashResultSnapshot`, `unitWaitingSnapshot` in `systems/livingStatus.ts`. Constants (`CLASH_FORCE_CAP`, `CLASH_OUTCOME_*`, `CLASH_NOTE_*`, `UNIT_WAITING_CAP`) in `content/livingRealm.ts`. The slice 24 recent-battle lookup is now a shared `recentBattleTick` helper (same behaviour).
+- **Why a record change:** `last_battle_json` had no strength or casualties, so the clash screen could not be fed read-only. `LastBattleStory.forces?: ClashForceRecord[]` (`side`, `realmId`, `strength`, `casualties`) is now written by the two `writeLastBattle` callers. `combat.ts`: strength = the muster `atk` / `def` numbers already in the Muster phase text (defender includes the defense bonus); casualties = stack counts before vs after `resolveRounds` (a copy of the defender stacks is taken before the fight). `engagement.ts`: strength = unit power x count of the clash stacks, casualties = stack men before vs after. No math reads `forces`; a test runs a battle twice and compares whole state.
+- **Note rule:** only when the player fought and forces are stored: player casualties 0 -> clean; player casualties > other side's -> costly; else null.
+- **Unit waiting:** rows are per unit type, not per man or per column. Garrisons have no realm field; they are player-only today (`tryGarrison`). Player marches of every purpose count (raid, garrison, scout, return); a levy-only march shows as militia, same as `stacksFromForce`. `location` / `destination` are province ids.
+- **Switches:** `clashResult`, `unitWaiting` in `LivingSwitches`.
+- **Exports:** the two functions, types `ClashForce`, `ClashResult`, `UnitPosted`, `UnitWaiting`, `UnitWaitingStates`, and the constants from `packages/sim`. `ClashForceRecord` stays internal to `lastBattle.ts`.
+- **Left alone:** `resolver.ts` (round math), win/loss, loot, casualty absorption, `garrison.ts`, `march.ts`, balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for column status, march ETA & battle outcome notes
 
 - **War column status expander (`packages/app/src/hud/ColumnStatusExpander.tsx`, `packages/app/src/WarRoom.tsx`):**

@@ -93,6 +93,12 @@ function stacksPower(stacks: Stack[]): number {
   return stacks.reduce((n, s) => n + (getUnitType(s.typeId)?.power ?? 0) * s.count, 0);
 }
 
+/** Slice 25: men lost between two snapshots of the same stacks (record only). */
+function stackLoss(before: Stack[], after: Stack[]): number {
+  const n = (xs: Stack[]) => xs.reduce((a, x) => a + Math.max(0, x.count), 0);
+  return Math.max(0, n(before) - n(after));
+}
+
 /** Column losses come off the realm's units; the rest of the realm stays home. */
 function writeColumnLosses(state: GameState, before: Stack[], after: Stack[]): void {
   for (const s of after) {
@@ -114,6 +120,7 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams, opts:
   const atk = column ? stacksPower(atkStacks) : realmPower(state, war.attackerRealmId);
   const def = realmPower(state, war.defenderRealmId) + defenseBonus(state, war.defenderRealmId);
   const defStacks = stacksFor(state, war.defenderRealmId);
+  const defStart = defStacks.map((s) => ({ ...s }));
   const marshal = playerMarshal(state);
   if (war.attackerRealmId === "player") applyMarshalBonuses(atkStacks, marshal);
   if (war.defenderRealmId === "player") applyMarshalBonuses(defStacks, marshal);
@@ -168,7 +175,16 @@ export function resolveBattle(state: GameState, war: War, rng: RngStreams, opts:
     },
   ];
 
-  writeLastBattle(state, { winnerId, loserId, events: fought.events, phases });
+  writeLastBattle(state, {
+    winnerId,
+    loserId,
+    events: fought.events,
+    phases,
+    forces: [
+      { side: "attacker", realmId: war.attackerRealmId, strength: atk, casualties: stackLoss(atkStart, atkStacks) },
+      { side: "defender", realmId: war.defenderRealmId, strength: def, casualties: stackLoss(defStart, defStacks) },
+    ],
+  });
 
   return {
     winnerId,

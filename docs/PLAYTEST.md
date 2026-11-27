@@ -181,6 +181,8 @@ Training progress, unit unlocks, and relationship detail available (`living_trai
 
 Column status, march ETA detail, and battle outcome notes available (`living_column_status`, `living_march_eta`, `living_battle_notes`). Read-only.
 
+Clash result detail and unit waiting states available (`living_clash_result`, `living_unit_waiting`). Read-only.
+
 Attentive:
 
 ```

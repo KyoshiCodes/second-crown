@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now describe the last clash and where your units are waiting
+
+- **Under the hood only.** For a few minutes after a battle the game can list each side, how strong it was and how many it lost, with "Victory", "Defeat" or "Others fought" and a short note.
+- **Units waiting:** it can list up to five unit types posted in garrisons and up to five still on the road, with where they are going and how soon they arrive.
+- **Nothing else changes.** Battles, garrisons and marches work exactly as before.
+- **Coming to the screen:** a clash result screen and unit waiting list.
+
 ## 2026-11-27 — War columns list, province march ETAs, and last-battle notes
 
 - **Columns on road expander in War:** At the top of War, a collapsed **Columns on road** toggle shows active marches, enemy threat warnings, destinations, ETAs, and column power without adding clutter.

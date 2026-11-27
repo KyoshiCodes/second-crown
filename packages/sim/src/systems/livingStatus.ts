@@ -49,6 +49,13 @@ import {
   BATTLE_NOTE_OTHERS,
   BATTLE_SUGGEST_WON,
   BATTLE_SUGGEST_LOST,
+  CLASH_FORCE_CAP,
+  CLASH_OUTCOME_WON,
+  CLASH_OUTCOME_LOST,
+  CLASH_OUTCOME_OTHERS,
+  CLASH_NOTE_COSTLY,
+  CLASH_NOTE_CLEAN,
+  UNIT_WAITING_CAP,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -69,6 +76,7 @@ import { activePlayerMarch, listMarches, type March } from "./march.js";
 import { forcePower } from "./column.js";
 import { lastBattleStory } from "./lastBattle.js";
 import { getWorldLog } from "./events.js";
+import { listGarrisons } from "./garrison.js";
 import { GATHER_NODES, listGathers } from "./gather.js";
 import { nodeStock, nodeStockMax } from "./nodeStock.js";
 import { listOutposts } from "./outpost.js";
@@ -1120,6 +1128,17 @@ export interface BattleOutcomeNote {
   suggestion: string | null;
 }
 
+/** Tick of the newest "battle" world-log entry, or null when none is within BATTLE_NOTE_RECENT_TICKS. */
+function recentBattleTick(state: GameState): number | null {
+  const tick = state.meta.tick;
+  let at: number | null = null;
+  for (const ev of getWorldLog(state)) {
+    if (ev.id === "battle" && ev.tick <= tick && (at === null || ev.tick > at)) at = ev.tick;
+  }
+  if (at === null || tick - at > BATTLE_NOTE_RECENT_TICKS) return null;
+  return at;
+}
+
 /**
  * Slice 24: a short note on the last battle (last_battle_json). Null with no stored battle, no
  * "battle" world-log entry within BATTLE_NOTE_RECENT_TICKS, or living_battle_notes off.
@@ -1129,13 +1148,127 @@ export function battleOutcomeNoteSnapshot(state: GameState): BattleOutcomeNote |
   if (!livingSwitches(state).battleNotes) return null;
   const story = lastBattleStory(state);
   if (!story) return null;
-  const tick = state.meta.tick;
-  let at: number | null = null;
-  for (const ev of getWorldLog(state)) {
-    if (ev.id === "battle" && ev.tick <= tick && (at === null || ev.tick > at)) at = ev.tick;
-  }
-  if (at === null || tick - at > BATTLE_NOTE_RECENT_TICKS) return null;
+  const at = recentBattleTick(state);
+  if (at === null) return null;
   if (story.winnerId === "player") return { last: { tick: at, text: BATTLE_NOTE_WON }, suggestion: BATTLE_SUGGEST_WON };
   if (story.loserId === "player") return { last: { tick: at, text: BATTLE_NOTE_LOST }, suggestion: BATTLE_SUGGEST_LOST };
   return { last: { tick: at, text: BATTLE_NOTE_OTHERS }, suggestion: null };
+}
+
+// ---------------------------------------------------------------- clash result detail (slice 25)
+
+export interface ClashForce {
+  side: "attacker" | "defender";
+  /** Realm name of that side. */
+  name: string;
+  /** Power at muster, as the battle used it. */
+  strength: number;
+  /** Men lost in the clash. */
+  casualties: number;
+}
+
+export interface ClashResult {
+  /** Sides as stored with the battle (attacker first), cap CLASH_FORCE_CAP. Empty for a battle stored before slice 25. */
+  forces: ClashForce[];
+  /** CLASH_OUTCOME_WON / CLASH_OUTCOME_LOST / CLASH_OUTCOME_OTHERS. */
+  outcome: string;
+  /** CLASH_NOTE_CLEAN / CLASH_NOTE_COSTLY when the player fought and forces are known, else null. */
+  note: string | null;
+}
+
+/**
+ * Slice 25: the last clash for a clash screen (last_battle_json). Null with no stored battle,
+ * no "battle" world-log entry within BATTLE_NOTE_RECENT_TICKS, or living_clash_result off.
+ * Pure read; combat math untouched.
+ */
+export function clashResultSnapshot(state: GameState): ClashResult | null {
+  if (!livingSwitches(state).clashResult) return null;
+  const story = lastBattleStory(state);
+  if (!story) return null;
+  if (recentBattleTick(state) === null) return null;
+  const stored = Array.isArray(story.forces) ? story.forces : [];
+  const forces: ClashForce[] = stored.slice(0, CLASH_FORCE_CAP).map((f) => ({
+    side: f.side,
+    name: nameOf(state, f.realmId),
+    strength: f.strength,
+    casualties: f.casualties,
+  }));
+  const outcome =
+    story.winnerId === "player" ? CLASH_OUTCOME_WON : story.loserId === "player" ? CLASH_OUTCOME_LOST : CLASH_OUTCOME_OTHERS;
+  let note: string | null = null;
+  const mine = stored.find((f) => f.realmId === "player");
+  const theirs = stored.find((f) => f.realmId !== "player");
+  if (outcome !== CLASH_OUTCOME_OTHERS && mine) {
+    if (mine.casualties === 0) note = CLASH_NOTE_CLEAN;
+    else if (theirs && mine.casualties > theirs.casualties) note = CLASH_NOTE_COSTLY;
+  }
+  return { forces, outcome, note };
+}
+
+// ---------------------------------------------------------------- unit waiting states (slice 25)
+
+export interface UnitPosted {
+  /** Unit type id. */
+  id: string;
+  /** Unit name. */
+  name: string;
+  /** Province id of the garrison. */
+  location: string;
+}
+
+export interface UnitWaiting {
+  /** Unit type id. */
+  id: string;
+  /** Unit name. */
+  name: string;
+  /** Province id the march is heading to. */
+  destination: string;
+  /** Ticks until the march arrives, never below 0. */
+  ticksLeft: number;
+}
+
+export interface UnitWaitingStates {
+  /** Unit types standing in a garrison: location then unit id, cap UNIT_WAITING_CAP. */
+  posted: UnitPosted[];
+  /** Unit types on a player march: soonest first, then march id, then unit id, cap UNIT_WAITING_CAP. */
+  waiting: UnitWaiting[];
+}
+
+/** Unit type ids with at least one man in a force (levy counts as militia), sorted. */
+function forceUnitIds(force?: Record<string, number>, levy = 0): string[] {
+  const src = force && Object.keys(force).length > 0 ? force : levy > 0 ? { militia: levy } : {};
+  return Object.entries(src)
+    .filter(([, n]) => Math.floor(Number(n) || 0) > 0)
+    .map(([k]) => k)
+    .sort();
+}
+
+function cmpStr(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/**
+ * Slice 25: player units posted in garrisons and units still on the road. Null when both lists
+ * are empty or living_unit_waiting off. Pure read; garrison and march rules untouched.
+ */
+export function unitWaitingSnapshot(state: GameState): UnitWaitingStates | null {
+  if (!livingSwitches(state).unitWaiting) return null;
+  const unitName = (id: string) => getUnitType(id)?.name ?? id;
+  const posted: UnitPosted[] = [];
+  for (const g of listGarrisons(state)) {
+    for (const id of forceUnitIds(g.force)) posted.push({ id, name: unitName(id), location: g.provinceId });
+  }
+  posted.sort((a, b) => cmpStr(a.location, b.location) || cmpStr(a.id, b.id));
+  const tick = state.meta.tick;
+  const rows: { marchId: string; row: UnitWaiting }[] = [];
+  for (const m of listMarches(state)) {
+    if (m.realmId !== "player") continue;
+    const ticksLeft = Math.max(0, m.arrivesTick - tick);
+    for (const id of forceUnitIds(m.force, m.levy ?? 0)) {
+      rows.push({ marchId: m.id, row: { id, name: unitName(id), destination: m.toId, ticksLeft } });
+    }
+  }
+  rows.sort((a, b) => a.row.ticksLeft - b.row.ticksLeft || cmpStr(a.marchId, b.marchId) || cmpStr(a.row.id, b.row.id));
+  if (posted.length === 0 && rows.length === 0) return null;
+  return { posted: posted.slice(0, UNIT_WAITING_CAP), waiting: rows.slice(0, UNIT_WAITING_CAP).map((r) => r.row) };
 }

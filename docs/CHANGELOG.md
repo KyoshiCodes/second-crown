@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 25 (clash result detail, unit waiting states)
+
+- **Clash result (`clashResultSnapshot(state)`):** `{ forces: { side, name, strength, casualties }[], outcome, note }` or null with no stored battle or none within `BATTLE_NOTE_RECENT_TICKS` (1800). Forces in stored order (attacker, defender), cap 4 (`CLASH_FORCE_CAP`). `outcome` = `CLASH_OUTCOME_WON` / `CLASH_OUTCOME_LOST` / `CLASH_OUTCOME_OTHERS`. `note` = `CLASH_NOTE_CLEAN` / `CLASH_NOTE_COSTLY` / null.
+- **Battle record:** `last_battle_json` gains an optional `forces` array (`side`, `realmId`, `strength`, `casualties`), filled by `resolveBattle` and `resolveColumnClash`. Record only: nothing reads it for math, and the battle result is unchanged (tested). Older saves read as `forces: []`.
+- **Unit waiting (`unitWaitingSnapshot(state)`):** `{ posted: { id, name, location }[], waiting: { id, name, destination, ticksLeft }[] }` or null when both are empty. One row per unit type; posted = garrisons, waiting = player marches. Cap 5 each (`UNIT_WAITING_CAP`).
+- **Switches:** `living_clash_result`, `living_unit_waiting` (false: null). All on.
+- **Read-only:** combat math, garrison and march rules, balance tables untouched.
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice25.test.ts` (15). Now: sim **866**, app **1709**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for column status, march ETA detail, and battle outcome notes (Slice 24)
 
 - **War column-status expander (`hud/ColumnStatusExpander.tsx`, `WarRoom.tsx`):** Added `resolveColumnStatus` and `<ColumnStatusExpander>` under `<WarLivingStrip>`, reading `columnStatusSnapshot(state)` (`a6b0eec`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-col-status">` showing active columns, threat/overflow notes, destination coords, remaining ticks/seconds, and strength, hiding cleanly when `null` or `living_column_status` is `false`.
