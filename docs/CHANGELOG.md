@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for column unit ranks & next-whisper hint
+
+- **Board column unit ranks (`hud/BoardColumnRanks.tsx`, `BoardLiving.tsx`):** Added `resolveBoardColumnRanks` and `<BoardColumnRanks>` inside `BoardLiving`, reading `columnMarkSnapshot(state).ranks` (`columnRanks`, `6193e06`, exact name match — zero mismatch). Draws 1, 2, or 3 calm horizontal culture-kit rank bars (`column`: 1, `skirmish-line`: 2, `clash-line`: 3, `falling-back`: 1) beside the opposing column standards (`pointer-events: none !important;`, zero blood/gore) without crowding `BoardJoinedFormations` or `BoardColumnMarks`.
+- **World tab next-whisper hint (`hud/NextWhisperHintLine.tsx`, `tabs/WorldTab.tsx`):** Added `resolveNextWhisperHint` and `<NextWhisperHintLine>` above `CultureWhispersCard`, reading `nextWhisperHint(state)` (exact name match — zero mismatch) to display `Next whisper in ~Ns` and hide cleanly when `null`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/column-ranks-whisper-hint.css` only (`CultureWhispersCard.tsx`, sim line tables, `theme.css`, `board-living.css`, `column-marks.css`, `player-reply-formation.css`, `living-realm-ui.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/ColumnRanksWhisperHint.test.tsx` (4 tests). Now: sim **604**, app **1653**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living presentation for joined-war column marks
 
 - **Joined-war board column marks (`hud/BoardColumnMarks.tsx`, `BoardLiving.tsx`):** Added `COLUMN_MARK_LABEL`, `resolveBoardColumnMark`, and `<BoardColumnMarks>` inside `BoardLiving`, reading `columnMarkSnapshot(state)` from `@second-crown/sim` (`d536270`, exact name match — zero mismatch). Renders opposing culture-kit column standards with trailing march rank dots (`28%` / `72%` between the holds) along a subtle dotted road and a compact phase mark badge (`Column`, `Skirmish line`, `Clash line`, `Falling back`) positioned distinctly from `BoardJoinedFormations` (`pointer-events: none !important;`, zero blood or gore).

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Column ranks on the map & next-whisper countdown
+
+- **Column unit ranks on the map:** Joined-war column standards now show 1, 2, or 3 quiet rank bars alongside them (1 while marching or falling back, 2 in skirmish lines, 3 at the clash), without blocking clicks or covering the existing formation or column labels.
+- **Next-whisper hint:** In the World tab's Realm Whispers section, a quiet `Next whisper in ~Ns` note shows roughly when the next whisper pulse arrives (and hides if whispers are turned off).
+
 ## 2026-11-26 — Joined-war column marks on the map
 
 - **Opposing column marks on the map:** For the joined war you are fighting, opposing column banners with marching rank dots and a calm phase label (`Column`, `Skirmish line`, `Clash line`, or `Falling back`) now appear between the two holds alongside the existing formation marks, without blocking clicks.

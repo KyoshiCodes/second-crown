@@ -29,6 +29,7 @@ import { flashAction } from "../hud/ActionFlash";
 import { giftRefusal } from "../hud/GiftLine";
 import { Fold } from "../hud/Fold";
 import { CultureWhispersCard } from "../hud/CultureWhispersCard";
+import { NextWhisperHintLine } from "../hud/NextWhisperHintLine";
 
 type LogFilter = "all" | "claim" | "trade" | "war" | "levy";
 
@@ -274,6 +275,7 @@ export function WorldTab(props: {
       </div>
 
       <Fold id="world-culture-whispers" title="Realm Whispers & Caravans" summary={newsSummary}>
+        <NextWhisperHintLine state={state} />
         <CultureWhispersCard state={state} act={act} />
       </Fold>
 

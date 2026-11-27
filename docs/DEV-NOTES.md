@@ -1,3 +1,13 @@
+## 2026-11-26 — app / living presentation for column unit ranks & next-whisper hint
+
+- **Board column unit ranks (`packages/app/src/hud/BoardColumnRanks.tsx`, `BoardLiving.tsx`):**
+  - Exported `BoardColumnRanksView`, pure `resolveBoardColumnRanks(state)` (partial-state guard), and `<BoardColumnRanks>` (`pointer-events: none !important;`).
+  - Reads `columnMarkSnapshot(state)` (exact match with `6193e06` `columnRanks` / `.ranks`: `1 | 2 | 3`) to draw 1, 2, or 3 culture-kit horizontal rank bars below/beside each opposing column standard (`ourY + 9.5` / `theirY + 9.5`, gold lead rim on `clash-line`, hushed static bars on `falling-back`, zero blood/gore), coexisting cleanly with `BoardJoinedFormations` and `BoardColumnMarks`.
+- **World tab next-whisper hint (`packages/app/src/hud/NextWhisperHintLine.tsx`, `tabs/WorldTab.tsx`):**
+  - Exported `resolveNextWhisperHint(state)` and `<NextWhisperHintLine>` mounted above `<CultureWhispersCard>` inside `Fold#world-culture-whispers`, reading `nextWhisperHint(state)` (exact match) to show `Next whisper in ~Ns` and return `null` when the hint is `null`.
+- **Dedicated CSS (`packages/app/src/hud/column-ranks-whisper-hint.css`):** Imported from `BoardColumnRanks.tsx` and `NextWhisperHintLine.tsx`. Dusk/Night/Parchment chrome tokens, strict `pointer-events: none !important;`, calm keyframes (`sc-colrank-breathe`, `sc-next-whisper-pulse`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to `CultureWhispersCard.tsx` (whisper picker), sim line tables, `theme.css`, `board-living.css`, `column-marks.css`, `player-reply-formation.css`, `living-realm-ui.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/ColumnRanksWhisperHint.test.tsx`):** 4 tests passing (`npm test` -> sim **604**, app **1653**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-26 — app / living presentation for joined-war column marks
 
 - **Board column marks (`packages/app/src/hud/BoardColumnMarks.tsx`, `BoardLiving.tsx`):**
