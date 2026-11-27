@@ -336,6 +336,7 @@ export {
   whisperLineIndex,
   distinctWhisperLines,
   nextWhisperHint,
+  lastWhisperSummary,
   getPendingReplies,
   joinedWarOutcome,
   latestJoinedWarOutcome,
@@ -375,7 +376,7 @@ export {
   getFlagContests,
 } from "./systems/flagContest.js";
 export type { FlagContestSnapshot, FlagContestEntry, FlagCooldownEntry, FlagContestRecord } from "./systems/flagContest.js";
-export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry, PendingReply, JoinedWarOutcome, ReplyableWhisper, JoinedWarFormation, FormationSide, ColumnMark, ColumnRanks, NextWhisperHint } from "./systems/livingRealm.js";
+export type { LivingSwitches, CultureNews, WarPhase, NpcWarLosses, WarSide, JoinableWar, WarImageryEntry, PendingReply, JoinedWarOutcome, ReplyableWhisper, JoinedWarFormation, FormationSide, ColumnMark, ColumnRanks, NextWhisperHint, LastWhisperSummary } from "./systems/livingRealm.js";
 export {
   WAR_PHASE_IDS,
   WAR_PHASE_START,
@@ -390,6 +391,7 @@ export {
   WHISPER_REPLY_DELAY_TICKS,
   PLAYER_REPLIES,
   PLAYER_REPLIES_PLAIN,
+  PLAYER_REPLIES_NPC_ONLY,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

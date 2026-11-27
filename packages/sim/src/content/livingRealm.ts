@@ -231,9 +231,9 @@ export const RANKS_NOTE: Record<WarPhaseId, string> = {
  *
  * Player reply voice (slice 11, `living_player_reply_voice`, on by default): the five NPC
  * cultures speak in the same voice as WHISPERS (western formal, woodland kin, desert host,
- * steppe clipped, tide sailor). Player-only cultures (mist, glen, salt, fen, peak) keep their
- * slice 7 lines. Same sizes as PLAYER_REPLIES_PLAIN (4 per culture). Built below from
- * PLAYER_REPLIES_PLAIN with these five cultures replaced.
+ * steppe clipped, tide sailor). Player-only cultures (mist, glen, salt, fen, peak) are voiced in
+ * slice 12 (PLAYER_REPLIES_PLAYER_ONLY_VOICE, `living_player_only_voice`). Same sizes as PLAYER_REPLIES_PLAIN (4 per culture). Built below from
+ * PLAYER_REPLIES_PLAIN with the voiced cultures replaced.
  */
 const PLAYER_REPLIES_NPC_VOICE: Record<string, readonly string[]> = {
   western: [
@@ -332,15 +332,67 @@ export const PLAYER_REPLIES_PLAIN: Record<string, readonly string[]> = {
   ],
 };
 
-/** Voiced player reply lines (slice 11): plain table with the five NPC cultures voiced. */
-export const PLAYER_REPLIES: Record<string, readonly string[]> = {
+/**
+ * Player-only culture reply voice (slice 12, `living_player_only_voice`, on by default). Same
+ * 4 lines per culture as the plain table. Voice: mist hushed and omen-reading (fog, dawn, rain);
+ * glen cairn-sworn, stone and echo; salt a trader's fair weights and yard book; fen homely and
+ * wry, reeds and kettles; peak a lookout's report (sighted, the watch, beacons).
+ */
+const PLAYER_REPLIES_PLAYER_ONLY_VOICE: Record<string, readonly string[]> = {
+  mist: [
+    "Out of the fog, {to}: your words reached the terraces, soft and whole.",
+    "Grey morning, still water. Our spears sleep under the eaves.",
+    "The dawn mist lifted as we read you. The old folk call that a good sign.",
+    "May the rain find {to}'s fields gently, and leave before harvest.",
+  ],
+  glen: [
+    "Your words rang down the glen, {to}, and the stones gave them back.",
+    "A stone for {to} on the cairn. It will stand when we are dust.",
+    "Sworn on the cairn, kept like stone. No blade comes down the glen.",
+    "The pipes play {to}'s name tonight. A walking tune, not a war tune.",
+  ],
+  salt: [
+    "Fair weight and true measure, {to}. Salt and timber for honest friends.",
+    "Heard over the surf and logged in the yard book. All sound here.",
+    "Our hulls dip a plank's width to yours in passing. Count on it.",
+    "A new plank in the yard bears {to}'s mark, cut clean and tarred.",
+  ],
+  fen: [
+    "Your words came slow through the reeds, {to}, as all good things do.",
+    "Peat on the fire, kettle on the hook. Our answer's as warm.",
+    "Our punts pole your way for trade, {to}. Nothing heavier aboard.",
+    "The frogs had your name by dusk. Fen gossip, all of it kind.",
+  ],
+  peak: [
+    "From the high keep: your words sighted, {to}. Clear sky between us.",
+    "The passes stand open to your heralds. The watch has its orders.",
+    "Snow on the crags, still air in the passes. Peace holds above the line.",
+    "Watchfires lit on the ridge for {to}. A friend's beacon, not a war beacon.",
+  ],
+};
+
+/**
+ * Slice 11 player reply lines: plain table with only the five NPC cultures voiced. Used when
+ * `living_player_reply_voice` is on and `living_player_only_voice` is false.
+ */
+export const PLAYER_REPLIES_NPC_ONLY: Record<string, readonly string[]> = {
   ...PLAYER_REPLIES_PLAIN,
   ...PLAYER_REPLIES_NPC_VOICE,
 };
 
-/** The player's reply lines for a culture; unknown cultures use western. `voiced` false gives the plain table. */
-export function playerReplyLinesFor(culture: string, voiced = true): readonly string[] {
-  const t = voiced ? PLAYER_REPLIES : PLAYER_REPLIES_PLAIN;
+/** Voiced player reply lines (slices 11-12): every culture voiced. */
+export const PLAYER_REPLIES: Record<string, readonly string[]> = {
+  ...PLAYER_REPLIES_NPC_ONLY,
+  ...PLAYER_REPLIES_PLAYER_ONLY_VOICE,
+};
+
+/**
+ * The player's reply lines for a culture; unknown cultures use western. `voiced` false gives the
+ * plain table. `playerOnlyVoiced` false (with `voiced` on) gives the slice 11 table, where mist,
+ * glen, salt, fen and peak keep their plain lines.
+ */
+export function playerReplyLinesFor(culture: string, voiced = true, playerOnlyVoiced = true): readonly string[] {
+  const t = !voiced ? PLAYER_REPLIES_PLAIN : playerOnlyVoiced ? PLAYER_REPLIES : PLAYER_REPLIES_NPC_ONLY;
   return t[culture] ?? t.western;
 }
 

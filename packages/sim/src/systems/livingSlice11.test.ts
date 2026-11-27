@@ -20,6 +20,7 @@ import {
 import {
   PLAYER_REPLIES,
   PLAYER_REPLIES_PLAIN,
+  PLAYER_REPLIES_NPC_ONLY,
   RANKS_NOTE,
   WAR_PHASE_START,
   WHISPER_PULSES,
@@ -69,7 +70,7 @@ describe("player reply voice: switch and tables", () => {
     }
   });
 
-  it("the five NPC cultures are rewritten, distinct and non-empty; player-only cultures unchanged", () => {
+  it("the five NPC cultures are rewritten, distinct and non-empty; player-only cultures unchanged in the slice 11 table", () => {
     for (const c of NPC_CULTURES) {
       const v = PLAYER_REPLIES[c];
       expect(new Set(v).size).toBe(4);
@@ -78,7 +79,7 @@ describe("player reply voice: switch and tables", () => {
         expect(PLAYER_REPLIES_PLAIN[c]).not.toContain(line);
       }
     }
-    for (const c of PLAYER_ONLY) expect(PLAYER_REPLIES[c]).toEqual(PLAYER_REPLIES_PLAIN[c]);
+    for (const c of PLAYER_ONLY) expect(PLAYER_REPLIES_NPC_ONLY[c]).toEqual(PLAYER_REPLIES_PLAIN[c]);
   });
 
   it("steppe stays clipped: no line over 40 characters", () => {

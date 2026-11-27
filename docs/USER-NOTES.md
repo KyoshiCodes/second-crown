@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Every culture's replies now have their own voice
+
+- **Mist, Glen, Salt, Fen and Peak replies rewritten.** Your four reply buttons now sound like your people: Mist speaks softly of fog and good omens, Glen swears on cairn and stone, Salt talks like an honest trader, Fen is homely and a little wry, Peak reports like a lookout on the walls.
+- **Same rules.** Still four choices, still one reply per whisper, still only whispers sent to you.
+- **Coming to the screen:** a "last whisper you got" summary (who, their culture, what they said). The game tracks it now; the screen shows it next.
+
 ## 2026-11-26 — Whisper hint names the realm & map rank note shows the phase
 
 - **Next whisper names realm and culture:** When whispers are enabled and a sender can speak, the World tab countdown line now reads `Next whisper in ~Ns · from <realm> (<culture>)` (falling back cleanly if either name is missing, and hiding altogether if whispers are off).

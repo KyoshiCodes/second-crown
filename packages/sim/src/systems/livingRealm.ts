@@ -82,6 +82,11 @@ export interface LivingSwitches {
    * PLAYER_REPLIES table. False: the plain slice 7-10 table. Same sizes either way.
    */
   playerReplyVoice: boolean;
+  /**
+   * Player-only reply voice (slice 12): with playerReplyVoice on, mist, glen, salt, fen and peak
+   * reply lines are voiced too. False: those five keep their slice 7-11 lines. Same sizes either way.
+   */
+  playerOnlyVoice: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -102,6 +107,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   whisperVariety: "living_whisper_variety",
   cultureVoice: "living_culture_voice",
   playerReplyVoice: "living_player_reply_voice",
+  playerOnlyVoice: "living_player_only_voice",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -418,6 +424,42 @@ function whisperSenderAt(state: GameState, atTick: number): { id: string; name: 
   return heard ? { id: from.id, name: from.name } : null;
 }
 
+// ---------------------------------------------------------------- last whisper (slice 12)
+
+/** The most recent whisper the player received (slice 12). */
+export interface LastWhisperSummary {
+  /** Tick the whisper was sent. */
+  tick: number;
+  fromRealmId: string;
+  /** The sender's current display name; the realm id if the realm is gone. */
+  fromName: string;
+  /** The sender's culture id (peeked, never seeded). */
+  fromCulture: string;
+  /** The whisper's stored news text, unchanged. */
+  text: string;
+}
+
+/**
+ * The newest whisper to the player still in the culture news list, or null when there is none.
+ * Pure read: does not change how whispers are sent or stored, and ignores switches (a whisper
+ * already received stays readable after `living_whispers` is turned off).
+ */
+export function lastWhisperSummary(state: GameState): LastWhisperSummary | null {
+  const news = getCultureNews(state);
+  for (let i = news.length - 1; i >= 0; i--) {
+    const n = news[i];
+    if (n.kind !== "whisper" || n.toRealmId !== "player") continue;
+    return {
+      tick: n.tick,
+      fromRealmId: n.fromRealmId,
+      fromName: nameOf(state, n.fromRealmId),
+      fromCulture: peekCultureOfRealm(state, n.fromRealmId),
+      text: n.text,
+    };
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------- correspondence (slice 6)
 
 /** A reply owed: `fromRealmId` (who got the whisper) answers `toRealmId` at `dueTick`. */
@@ -508,7 +550,8 @@ function answered(news: CultureNews[], whisperId: string): boolean {
 
 function playerLines(state: GameState, toRealmId: string): string[] {
   const to = nameOf(state, toRealmId);
-  return playerReplyLinesFor(cultureOfRealm(state, "player"), livingSwitches(state).playerReplyVoice).map((l) => l.replace(/\{to\}/g, to));
+  const sw = livingSwitches(state);
+  return playerReplyLinesFor(cultureOfRealm(state, "player"), sw.playerReplyVoice, sw.playerOnlyVoice).map((l) => l.replace(/\{to\}/g, to));
 }
 
 /**

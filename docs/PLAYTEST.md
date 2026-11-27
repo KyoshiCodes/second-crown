@@ -155,6 +155,8 @@ Cultures with distinct voice: whisper and NPC reply lines read differently per c
 
 Player reply voice updated: the player's four fixed reply lines match their culture's whisper voice (`living_player_reply_voice`); same reply rules.
 
+Player-only reply voice updated: Mist, Glen, Salt, Fen and Peak reply lines now have their own voice (`living_player_only_voice`); same reply rules.
+
 Attentive:
 
 ```

@@ -1,3 +1,10 @@
+## 2026-11-26 — sim / Living Realm slice 12 (player-only reply voice, last-whisper summary)
+
+- **Tables:** `PLAYER_REPLIES_NPC_ONLY = { ...PLAYER_REPLIES_PLAIN, ...PLAYER_REPLIES_NPC_VOICE }` is the old slice 11 `PLAYER_REPLIES`. `PLAYER_REPLIES = { ...PLAYER_REPLIES_NPC_ONLY, ...PLAYER_REPLIES_PLAYER_ONLY_VOICE }` (private const, five player-only cultures). Key order unchanged. `playerReplyLinesFor(culture, voiced = true, playerOnlyVoiced = true)`: `voiced` false → plain; else `playerOnlyVoiced` false → NPC_ONLY; else full. The private `playerLines` passes both switches (`playerReplyVoice`, new `playerOnlyVoice` / flag `living_player_only_voice`).
+- **Summary:** `lastWhisperSummary(state)` in `systems/livingRealm.ts` scans `getCultureNews` newest first for `kind === "whisper" && toRealmId === "player"`. `fromName` via `nameOf` (realm id if the realm is gone), `fromCulture` via `peekCultureOfRealm` (never seeds the culture flag), `text` is the stored news text. Ignores switches. Bounded by `CULTURE_NEWS_CAP` (8): an old whisper pushed out of news is no longer the "last". Type `LastWhisperSummary` exported from the sim index.
+- **Cadence test:** runs `maybeWhisper` + `tickCorrespondence` 400 pulses on three seeds with the flag on vs off and compares the send trace and `livingCounts` (identical).
+- **Left alone:** `replyToWhisper`, reply eligibility, one-reply rule, bots never replying, NPC culture player lines, `WHISPERS` / `WHISPER_REPLIES`, whisper send/storage, hint math, combat, balance tables, app/render/server source.
+
 ## 2026-11-26 — app / living presentation for whisper realm tag & richer column rank note
 
 - **World tab hint realm tag (`packages/app/src/hud/NextWhisperHintLine.tsx`):**

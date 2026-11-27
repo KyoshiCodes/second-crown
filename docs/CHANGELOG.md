@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-26 — Living Realm slice 12 (player-only reply voice, last-whisper summary)
+
+- **Player-only reply voice (`content/livingRealm.ts` `PLAYER_REPLIES`):** mist, glen, salt, fen and peak player reply lines rewritten in the same voiced style as the other cultures. Mist hushed and omen-reading ("Out of the fog, {to}"), glen cairn-sworn stone and echo ("Sworn on the cairn, kept like stone"), salt trader's fair weights and yard book ("Fair weight and true measure"), fen homely and wry ("Peat on the fire, kettle on the hook"), peak lookout's report ("From the high keep: your words sighted"). Still 4 fixed lines per culture.
+- **Switch:** `living_player_only_voice` (`false` restores the slice 11 lines for these five; table kept as `PLAYER_REPLIES_NPC_ONLY`). `playerReplyLinesFor(culture, voiced = true, playerOnlyVoiced = true)`. `living_player_reply_voice` off still gives the full plain table. `replyToWhisper`, who can reply and the one-reply rule unchanged.
+- **Last-whisper summary (`lastWhisperSummary(state)`):** `{ tick, fromRealmId, fromName, fromCulture, text } | null` for the newest whisper to the player still in culture news (cap 8). Read-only; whisper sending and storage unchanged.
+- **Playtest:** one Living realm line ("Player-only reply voice updated"). Balance tables unchanged.
+- **Tests:** new `systems/livingSlice12.test.ts` (13); slice 11 player-only assertion now checks `PLAYER_REPLIES_NPC_ONLY`. Now: sim **643**, app **1660**, app build clean.
+
 ## 2026-11-26 — Living presentation for whisper realm tag & richer column rank phase companion
 
 - **World tab `from <realm> (<culture>)` tag (`hud/NextWhisperHintLine.tsx`):** Added `formatWhisperSenderTag` reading `nextWhisperHint(state).fromName` + `fromCulture` (`73c784c`, exact match — zero mismatch) to show `"Next whisper in ~Ns · from <realm> (<culture>)"`, falling back cleanly when either is `null` and keeping the full line hidden when `nextWhisperHint(state)` is `null`.
