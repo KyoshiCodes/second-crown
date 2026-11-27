@@ -78,6 +78,7 @@ import { WeatherLine } from "../hud/WeatherLine";
 import { PrestigeRankLine } from "../hud/PrestigeRankLine";
 import { AgeStatusLine } from "../hud/AgeStatusLine";
 import { EconomyPressureLine } from "../hud/EconomyPressureLine";
+import { EconomyYieldsLine } from "../hud/EconomyYieldsLine";
 import { ResearchProgressLine } from "../hud/ResearchProgressLine";
 import { CourtStatusLine } from "../hud/CourtStatusLine";
 import "../hud/season-pip.css";
@@ -224,6 +225,7 @@ export function KingdomTab(props: {
         </div>
       </div>
       <EconomyPressureLine state={state} />
+      <EconomyYieldsLine state={state} />
       <ResearchProgressLine state={state} />
       <CourtStatusLine state={state} />
       <PaceLine state={state} />

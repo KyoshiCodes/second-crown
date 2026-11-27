@@ -57,6 +57,21 @@ function freshState(seed: number): GameState {
   return state;
 }
 
+/**
+ * Advances `lastInspectedProvinceId` when selection changes: remembers the previously
+ * selected province when selecting another or clearing, and keeps it when unchanged.
+ */
+export function nextLastInspected(
+  prevSelected: string | null,
+  nextSelected: string | null,
+  prevLastInspected: string | null,
+): string | null {
+  if (prevSelected !== null && prevSelected !== nextSelected) {
+    return prevSelected;
+  }
+  return prevLastInspected;
+}
+
 export function useGameEngine() {
   const [tab, setTab] = React.useState<Tab>("kingdom");
   const [tick, setTick] = React.useState(0);
@@ -72,6 +87,7 @@ export function useGameEngine() {
   const [ascendNeed, setAscendNeed] = React.useState(30_000);
   const [selectedBuild, setSelectedBuild] = React.useState<string | null>("farm");
   const [selectedProvinceId, setSelectedProvinceId] = React.useState<string | null>(null);
+  const [lastInspectedProvinceId, setLastInspectedProvinceId] = React.useState<string | null>(null);
   const [trainQty, setTrainQty] = React.useState(1);
   const [lastEvent, setLastEvent] = React.useState("");
   const [lastEventTick, setLastEventTick] = React.useState(0);
@@ -98,6 +114,10 @@ export function useGameEngine() {
 
   React.useEffect(() => { selectedBuildRef.current = selectedBuild; }, [selectedBuild]);
   React.useEffect(() => {
+    const prev = selectedProvinceIdRef.current;
+    if (prev !== selectedProvinceId) {
+      setLastInspectedProvinceId((cur) => nextLastInspected(prev, selectedProvinceId, cur));
+    }
     selectedProvinceIdRef.current = selectedProvinceId;
     mapRef.current?.setSelectedProvince(selectedProvinceId);
   }, [selectedProvinceId]);
@@ -348,6 +368,8 @@ export function useGameEngine() {
     lastFlagHit.current = null;
     setBattleSnap(null);
     setAwaySummary(null);
+    setSelectedProvinceId(null);
+    setLastInspectedProvinceId(null);
     setTab("kingdom");
     persist(st);
     setStatus("New world generated.");
@@ -408,6 +430,7 @@ export function useGameEngine() {
     ascendReady, ascendNeed,
     selectedBuild, setSelectedBuild,
     selectedProvinceId, setSelectedProvinceId,
+    lastInspectedProvinceId,
     trainQty, setTrainQty,
     lastEvent, lastEventTick, eventLog, worldLog,
     speed, setSpeed, paused, setPaused,

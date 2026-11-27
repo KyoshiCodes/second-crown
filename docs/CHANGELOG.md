@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for last-inspected tracking, relationship history, and economy yields (Slice 17)
+
+- **Board last-inspected tracking (`game/useGameEngine.ts`, `AppShell.tsx`):** Added `lastInspectedProvinceId` state (via pure `nextLastInspected`) and passed `lastInspectedId` into `<BoardLiving>`, lighting up the non-blocking dashed `.sc-fb-inspected-rim` on `<BoardFeedbackLayer>`.
+- **Relationship history expander (`hud/RealmRelationshipCard.tsx`):** Added `listRealmRelationshipHistory` reading `relationshipHistorySnapshot(state, realmId)` (`5178dc8`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-rel-history">` (`Recent (N)`) showing kind, record text, and tick under each row with history.
+- **Economy yields sub-line (`hud/EconomyYieldsLine.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveEconomyYields`, `formatEconomyYieldEntries`, and `<EconomyYieldsLine>` directly under `<EconomyPressureLine>`, reading `economyYieldsSnapshot(state)` (exact match — zero mismatch) to show non-zero per-second net rates and army food upkeep while hiding cleanly when all rates are zero.
+- **Unchanged invariants & accessibility:** Dedicated `hud/relationship-history.css` and `hud/economy-yields-status.css` only (no sim math, `theme.css`, `board-living.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice17Presentation.test.tsx` (4 tests). Now: sim **734**, app **1682**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 17 (relationship history, economy yields, last-inspected)
 
 - **Relationship history (`relationshipHistorySnapshot(state, realmId, atTick?)`):** `{ tick, kind, text }[]`, newest first, at most 4 (`RELATIONSHIP_HISTORY_CAP`). Same kinds and sources as the summary's `lastInteraction` (whisper, reply, trade, war started, war ended, peace made, pact made). `text` is the record's own text for culture news and world-log caravans; wars carry no text, so a fixed line names the realm (`War with X began.` / `War with X ended.` / `Peace made with X.` / `Rode to war beside X.`). Same-tick ties use the `lastInteraction` rank, so entry 0's kind always equals the summary row's `lastInteraction`. Empty for the player, an unknown realm, or no records. Nothing invented.

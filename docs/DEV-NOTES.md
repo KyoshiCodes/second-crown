@@ -1,3 +1,14 @@
+## 2026-11-27 — app / living presentation for last-inspected tracking, relationship history & economy yields
+
+- **Last-inspected tracking (`packages/app/src/game/useGameEngine.ts`, `packages/app/src/AppShell.tsx`):**
+  - Exported pure `nextLastInspected(prevSelected, nextSelected, prevLastInspected)` and added `lastInspectedProvinceId` React state updated inside the `selectedProvinceId` effect and reset on `newGame`. Passed `lastInspectedId={lastInspectedProvinceId}` from `AppShell` into `<BoardLiving>`.
+- **Relationship history expander (`packages/app/src/hud/RealmRelationshipCard.tsx`):**
+  - Exported pure `listRealmRelationshipHistory(state, realmId)` wrapping `relationshipHistorySnapshot(state, realmId)` (`5178dc8`, exact match — zero mismatch); renders a collapsed-by-default `<details class="sc-rel-history">` (`Recent (N)`) under rows with history and omits it cleanly when empty or `living_relationship_history` is `false`.
+- **Economy yields sub-line (`packages/app/src/hud/EconomyYieldsLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**
+  - Exported `resolveEconomyYields(state)`, `formatEconomyYieldEntries(yields)`, and `<EconomyYieldsLine state={state} />` mounted under `<EconomyPressureLine>`, reading `economyYieldsSnapshot(state)` (exact match — zero mismatch) and hiding cleanly when all four rates are zero or `living_economy_yields` is `false`.
+- **Dedicated CSS (`hud/relationship-history.css`, `hud/economy-yields-status.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, calm breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, `board-living.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice17Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **734**, app **1682**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 17 (relationship history, economy yields)
 
 - **History:** `lastInteractionWith` in `systems/livingRealm.ts` became `interactionsWith` (collects every record, sorts tick desc → `INTERACTION_RANK` → source order news/log/wars) plus a one-line `lastInteractionWith` that takes entry 0. `relationshipHistorySnapshot` slices it to `RELATIONSHIP_HISTORY_CAP` (4, `content/livingRealm.ts`). One scan for both, so the summary's `lastInteraction` and history[0] cannot drift.

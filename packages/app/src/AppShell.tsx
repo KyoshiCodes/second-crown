@@ -64,6 +64,7 @@ export function AppShell() {
     ascendReady, ascendNeed,
     selectedBuild, setSelectedBuild,
     selectedProvinceId, setSelectedProvinceId,
+    lastInspectedProvinceId,
     trainQty, setTrainQty,
     lastEvent, lastEventTick, eventLog, worldLog,
     speed, setSpeed, paused, setPaused,
@@ -213,7 +214,12 @@ export function AppShell() {
               className="sc-map-canvas"
               style={{ borderColor: activePack.chrome.borderColor }}
             />
-            <BoardLiving state={state} selectedId={selectedProvinceId} visible={cameraBand === "board"} />
+            <BoardLiving
+              state={state}
+              selectedId={selectedProvinceId}
+              lastInspectedId={lastInspectedProvinceId}
+              visible={cameraBand === "board"}
+            />
             <BoardStatus state={state} selectedId={selectedProvinceId} visible={cameraBand === "board"} />
             <BoardFocusFrame visible={cameraBand === "board"} />
             <HoldFocusTag visible={cameraBand === "hold"} />

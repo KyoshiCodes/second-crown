@@ -1,0 +1,145 @@
+/* --- Living Realm Slice 17: Relationship History Expander (isolated CSS) ---
+ * Loaded from hud/RealmRelationshipCard.tsx.
+ * Leaves theme.css, board-living.css, relationship-summary.css, and all earlier CSS untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Calm, collapsed-by-default recent interactions drawer in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-rel-hist-border: rgba(148, 163, 184, 0.2);
+  --sc-rel-hist-bg: rgba(12, 18, 28, 0.48);
+  --sc-rel-hist-toggle: rgba(196, 210, 228, 0.86);
+  --sc-rel-hist-text: #dbe4ef;
+  --sc-rel-hist-muted: rgba(176, 190, 208, 0.72);
+  --sc-rel-hist-pip-rgb: 148, 184, 218;
+}
+
+:root[data-chrome="night"] {
+  --sc-rel-hist-border: rgba(148, 163, 184, 0.26);
+  --sc-rel-hist-bg: rgba(8, 12, 22, 0.58);
+  --sc-rel-hist-toggle: rgba(214, 226, 242, 0.9);
+  --sc-rel-hist-text: #e2e8f0;
+  --sc-rel-hist-muted: rgba(188, 204, 222, 0.78);
+  --sc-rel-hist-pip-rgb: 168, 212, 255;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-rel-hist-border: rgba(196, 164, 112, 0.24);
+  --sc-rel-hist-bg: rgba(26, 18, 11, 0.56);
+  --sc-rel-hist-toggle: rgba(238, 218, 178, 0.88);
+  --sc-rel-hist-text: #f5e6c8;
+  --sc-rel-hist-muted: rgba(224, 198, 158, 0.76);
+  --sc-rel-hist-pip-rgb: 228, 178, 86;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-rel-history-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Collapsed "Recent" Expander Under Relationship Row
+   ========================================================================== */
+.sc-rel-history {
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px dashed var(--sc-rel-hist-border);
+}
+
+.sc-rel-history-toggle {
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--sc-rel-hist-toggle);
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-rel-history-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.sc-rel-history-toggle::before {
+  content: "▸";
+  font-size: 9.5px;
+  opacity: 0.78;
+}
+
+.sc-rel-history[open] > .sc-rel-history-toggle::before {
+  content: "▾";
+}
+
+.sc-rel-history-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 4px 6px;
+  border-radius: 5px;
+  background: var(--sc-rel-hist-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sc-rel-history-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--sc-rel-hist-text);
+}
+
+.sc-rel-history-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-rel-hist-pip-rgb));
+  animation: sc-rel-hist-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-rel-history-kind {
+  font-weight: 600;
+  color: var(--sc-rel-hist-toggle);
+  flex-shrink: 0;
+}
+
+.sc-rel-history-text {
+  flex: 1;
+  color: var(--sc-rel-hist-text);
+}
+
+.sc-rel-history-tick {
+  font-size: 10px;
+  color: var(--sc-rel-hist-muted);
+  flex-shrink: 0;
+  font-family: monospace;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-rel-hist-breathe {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-rel-history-pip {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,113 @@
+/* --- Living Realm Slice 17: Economy Net Yields Sub-Line (isolated CSS) ---
+ * Loaded from hud/EconomyYieldsLine.tsx.
+ * Leaves theme.css, board-living.css, economy-pressure-status.css, and all earlier CSS untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Quiet per-second yields readout in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-yields-bg: rgba(16, 22, 34, 0.44);
+  --sc-yields-border: rgba(148, 163, 184, 0.18);
+  --sc-yields-text: #cbd5e1;
+  --sc-yields-pos: #86efac;
+  --sc-yields-neg: #fdba74;
+  --sc-yields-muted: rgba(186, 198, 214, 0.76);
+  --sc-yields-pip-rgb: 147, 197, 253;
+}
+
+:root[data-chrome="night"] {
+  --sc-yields-bg: rgba(10, 14, 24, 0.56);
+  --sc-yields-border: rgba(148, 163, 184, 0.24);
+  --sc-yields-text: #dbe4ef;
+  --sc-yields-pos: #a7f3d0;
+  --sc-yields-neg: #fed7aa;
+  --sc-yields-muted: rgba(196, 210, 226, 0.82);
+  --sc-yields-pip-rgb: 168, 212, 255;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-yields-bg: rgba(34, 24, 15, 0.52);
+  --sc-yields-border: rgba(196, 164, 112, 0.22);
+  --sc-yields-text: #efe1c4;
+  --sc-yields-pos: #bef264;
+  --sc-yields-neg: #fdba74;
+  --sc-yields-muted: rgba(226, 204, 166, 0.78);
+  --sc-yields-pip-rgb: 228, 178, 86;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-yields-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Per-Second Yields Sub-Line
+   ========================================================================== */
+.sc-yields-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-yields-border);
+  background: var(--sc-yields-bg);
+  color: var(--sc-yields-text);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.sc-yields-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-yields-pip-rgb));
+  animation: sc-yields-pip-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-yields-label {
+  color: var(--sc-yields-muted);
+  font-weight: 500;
+}
+
+.sc-yields-entry.is-pos {
+  color: var(--sc-yields-pos);
+  font-weight: 500;
+}
+
+.sc-yields-entry.is-neg {
+  color: var(--sc-yields-neg);
+  font-weight: 500;
+}
+
+.sc-yields-upkeep {
+  color: var(--sc-yields-muted);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-yields-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.54;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-yields-pip {
+    animation: none !important;
+  }
+}

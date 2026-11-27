@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Last-inspected highlights, realm history drawer, and net yield rates
+
+- **Last-inspected map ring:** Clicking from one province to another now keeps a softer dashed outline on the last province you inspected alongside your active selection.
+- **Recent history on Known Realms:** Each realm row on the World tab now has a collapsed **Recent** toggle that expands cleanly to show up to 4 recent whispers, replies, trades, or war events with that realm.
+- **Net per-second rates on Kingdom:** Directly below the store pressure line, a quiet net yield strip displays your non-zero food, wood, stone, and gold per second (plus food upkeep), hiding automatically when idle at zero.
+
 ## 2026-11-27 — The game now remembers your recent dealings with each realm and your exact income
 
 - **Under the hood only.** For each realm, the game can now list your last four dealings with it (whispers, replies, trade, wars, peace, pacts), newest first. It can also give your exact food, wood, stone and gold per second, and how much food your army eats.

@@ -1,12 +1,15 @@
 import React from "react";
 import {
   realmRelationshipSummary,
+  relationshipHistorySnapshot,
   type GameState,
   type RealmRelationship,
+  type RelationshipHistoryEntry,
   type RelationshipStance,
 } from "@second-crown/sim";
 import { formatWhisperCultureTag } from "./NextWhisperHintLine";
 import "./relationship-summary.css";
+import "./relationship-history.css";
 
 export const RELATIONSHIP_STANCE_LABEL: Record<RelationshipStance, string> = {
   war: "War",
@@ -34,6 +37,26 @@ export function listRealmRelationships(
     return [];
   }
   return realmRelationshipSummary(state);
+}
+
+/**
+ * Defensive pure reader over `@second-crown/sim`'s `relationshipHistorySnapshot(state, realmId)`.
+ * Returns `[]` when `living_relationship_history` is off, unknown realm, or partial state.
+ */
+export function listRealmRelationshipHistory(
+  state: GameState | null | undefined,
+  realmId: string,
+): RelationshipHistoryEntry[] {
+  if (
+    !state?.board?.provinces ||
+    !state.flags ||
+    !state.meta ||
+    !Array.isArray(state.realms) ||
+    !Array.isArray(state.wars)
+  ) {
+    return [];
+  }
+  return relationshipHistorySnapshot(state, realmId);
 }
 
 /**
@@ -65,6 +88,7 @@ export const RealmRelationshipCard: React.FC<{ state: GameState | undefined }> =
           const cultureLabel = formatWhisperCultureTag(row.culture) ?? row.culture;
           const stanceLabel = RELATIONSHIP_STANCE_LABEL[row.stance];
           const isActionable = row.nextPossible !== null && ACTIONABLE_NEXT.has(row.nextPossible);
+          const history = listRealmRelationshipHistory(state, row.realmId);
 
           return (
             <li
@@ -93,6 +117,29 @@ export const RealmRelationshipCard: React.FC<{ state: GameState | undefined }> =
                   Next: {row.nextPossible ?? "—"}
                 </span>
               </div>
+
+              {history.length > 0 ? (
+                <details className="sc-rel-history" data-rel-history-count={history.length}>
+                  <summary className="sc-rel-history-toggle">
+                    Recent ({history.length})
+                  </summary>
+                  <ul className="sc-rel-history-list">
+                    {history.map((entry, idx) => (
+                      <li
+                        key={`${entry.tick}-${entry.kind}-${idx}`}
+                        className="sc-rel-history-entry"
+                        data-history-kind={entry.kind}
+                        data-history-tick={entry.tick}
+                      >
+                        <span className="sc-rel-history-pip" aria-hidden="true" />
+                        <span className="sc-rel-history-kind">{entry.kind}</span>
+                        <span className="sc-rel-history-text">{entry.text}</span>
+                        <span className="sc-rel-history-tick">T{entry.tick}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ) : null}
             </li>
           );
         })}
