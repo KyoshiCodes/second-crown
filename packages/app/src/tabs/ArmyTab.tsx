@@ -40,6 +40,8 @@ import { unitStatusRows, jobProgress } from "../hud/UnitStatus";
 import type { ActFn } from "../game/useGameEngine";
 import { flashAction } from "../hud/ActionFlash";
 import { TrainingPace, lockNote } from "../TrainingPace";
+import { TrainingProgressLine } from "../hud/TrainingProgressLine";
+import { UnitUnlockExpander } from "../hud/UnitUnlockExpander";
 import { UpkeepPace } from "../UpkeepPace";
 import { InfirmaryHealLine } from "../InfirmaryHealLine";
 import { BandagePip } from "../hud/BandagePip";
@@ -93,6 +95,8 @@ export function ArmyTab(props: {
         {shopN ? " · Workshop −15% siege" : ""}
       </span>
       <TrainingPace state={state} />
+      <TrainingProgressLine state={state} />
+      <UnitUnlockExpander state={state} />
       <UpkeepPace state={state} />
       <ArmyStarvationNotice state={state} noteOverride={starve} />
       <div className="sc-unit-grid">

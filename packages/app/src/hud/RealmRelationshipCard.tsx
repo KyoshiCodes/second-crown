@@ -1,15 +1,18 @@
 import React from "react";
 import {
   realmRelationshipSummary,
+  relationshipDetailSnapshot,
   relationshipHistorySnapshot,
   type GameState,
   type RealmRelationship,
+  type RelationshipDetail,
   type RelationshipHistoryEntry,
   type RelationshipStance,
 } from "@second-crown/sim";
 import { formatWhisperCultureTag } from "./NextWhisperHintLine";
 import "./relationship-summary.css";
 import "./relationship-history.css";
+import "./relationship-detail.css";
 
 export const RELATIONSHIP_STANCE_LABEL: Record<RelationshipStance, string> = {
   war: "War",
@@ -60,6 +63,29 @@ export function listRealmRelationshipHistory(
 }
 
 /**
+ * Defensive pure reader over `@second-crown/sim`'s `relationshipDetailSnapshot(state, realmId)`.
+ * Returns `null` when `living_relationship_detail` is off, unknown realm, or partial state.
+ */
+export function resolveRealmRelationshipDetail(
+  state: GameState | null | undefined,
+  realmId: string,
+): RelationshipDetail | null {
+  if (
+    !state?.flags ||
+    !state.meta ||
+    !Array.isArray(state.realms) ||
+    !Array.isArray(state.inputLog)
+  ) {
+    return null;
+  }
+  try {
+    return relationshipDetailSnapshot(state, realmId);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Calm World tab card below the culture whispers fold showing one compact row per known
  * NPC realm from `realmRelationshipSummary`: name, culture, stance, last interaction, and
  * next possible action. Hides cleanly when empty.
@@ -89,6 +115,7 @@ export const RealmRelationshipCard: React.FC<{ state: GameState | undefined }> =
           const stanceLabel = RELATIONSHIP_STANCE_LABEL[row.stance];
           const isActionable = row.nextPossible !== null && ACTIONABLE_NEXT.has(row.nextPossible);
           const history = listRealmRelationshipHistory(state, row.realmId);
+          const detail = resolveRealmRelationshipDetail(state, row.realmId);
 
           return (
             <li
@@ -117,6 +144,22 @@ export const RealmRelationshipCard: React.FC<{ state: GameState | undefined }> =
                   Next: {row.nextPossible ?? "—"}
                 </span>
               </div>
+
+              {detail && (detail.lastGift || detail.suggestion) ? (
+                <div
+                  className="sc-rel-detail-note"
+                  data-rel-detail-realm={row.realmId}
+                  data-rel-opinion={detail.opinion}
+                >
+                  <span className="sc-rel-detail-pip" aria-hidden="true" />
+                  {detail.lastGift ? (
+                    <span className="sc-rel-detail-gift">{detail.lastGift}</span>
+                  ) : null}
+                  {detail.suggestion ? (
+                    <span className="sc-rel-detail-suggest">{detail.suggestion}</span>
+                  ) : null}
+                </div>
+              ) : null}
 
               {history.length > 0 ? (
                 <details className="sc-rel-history" data-rel-history-count={history.length}>

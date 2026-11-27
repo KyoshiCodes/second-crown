@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Army training progress, unit unlocks, and neighbour gift suggestions
+
+- **Training progress strip on Army:** When a Barracks stands finished, a slim progress strip shows the drilling company's bar, time left, queued count, or quiet/full note.
+- **Unit unlocks expander on Army:** A collapsed **Unit unlocks** toggle lets you check which roster troops are ready to train and which studies unlock locked troops.
+- **Last-gift & suggestion notes on Known Realms:** Each realm row on the World tab quietly notes recent gifts and when a diplomatic gift could warm them.
+
 ## 2026-11-27 — The game can now describe training, unlocks and neighbours
 
 - **Under the hood only.** Once you have a Barracks, the game can say which company is training, how long it has left, and what is queued behind it.

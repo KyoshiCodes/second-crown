@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for training progress, unit unlocks, and relationship detail (Slice 23)
+
+- **Army training progress (`hud/TrainingProgressLine.tsx`, `tabs/ArmyTab.tsx`):** Added `resolveTrainingProgress` and `<TrainingProgressLine>` under `<TrainingPace>`, reading `trainingProgressSnapshot(state)` (`1f487a8`, exact match — zero mismatch) to render active unit progress bar, remaining ticks/seconds, queue count, and idle/full note, hiding cleanly with no finished Barracks (`null`) or `living_training_progress` `false`.
+- **Army unit unlocks expander (`hud/UnitUnlockExpander.tsx`, `tabs/ArmyTab.tsx`):** Added `resolveUnitUnlocks` and `<UnitUnlockExpander>` under `<TrainingProgressLine>`, reading `unitUnlockSnapshot(state)` (`1f487a8`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-unit-unlocks">` showing ready vs locked units with study requirements, hiding cleanly when `null` or `living_unit_unlocks` is `false`.
+- **World relationship detail note (`hud/RealmRelationshipCard.tsx`):** Added `resolveRealmRelationshipDetail` reading `relationshipDetailSnapshot(state, realmId)` (`1f487a8`, exact match — zero mismatch) to render a quiet `.sc-rel-detail-note` showing `lastGift` recency and diplomatic suggestion under each realm card row, hiding cleanly when `null` or `living_relationship_detail` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/training-progress.css`, `hud/unit-unlocks.css`, and `hud/relationship-detail.css` only (no sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/tracks, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice23Presentation.test.tsx` (4 tests). Now: sim **838**, app **1705**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 23 (training progress, unit unlocks, relationship detail)
 
 - **Training progress (`trainingProgressSnapshot(state)`):** `{ active: { id, name, ticksLeft, totalTicks } | null, queue: { id, name, count }[], note }` or null with no finished player Barracks (Yard room, `hallRoomBuilt(state, "yard")`). `id` is the training job id, `name` the unit name. Player jobs only, start order; active = head job when started and not done. `note`: `TRAINING_NOTE_IDLE` (no jobs), `TRAINING_NOTE_FULL` (at `trainingQueueCap`), else null.

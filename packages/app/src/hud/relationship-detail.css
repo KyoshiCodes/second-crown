@@ -1,0 +1,90 @@
+/* --- Living Realm Slice 23: Relationship Detail Sub-Note (isolated CSS) ---
+ * Loaded from hud/RealmRelationshipCard.tsx.
+ * Leaves theme.css, relationship-summary.css, relationship-history.css, and earlier CSS untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Quiet last-gift & diplomatic suggestion sub-note in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-rdet-text: #cbd5e1;
+  --sc-rdet-muted: rgba(186, 198, 214, 0.78);
+  --sc-rdet-gift: #86efac;
+  --sc-rdet-pip-rgb: 216, 180, 122;
+}
+
+:root[data-chrome="night"] {
+  --sc-rdet-text: #dbe4ef;
+  --sc-rdet-muted: rgba(196, 210, 226, 0.84);
+  --sc-rdet-gift: #a7f3d0;
+  --sc-rdet-pip-rgb: 234, 196, 134;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-rdet-text: #efe1c4;
+  --sc-rdet-muted: rgba(226, 204, 166, 0.8);
+  --sc-rdet-gift: #bef264;
+  --sc-rdet-pip-rgb: 228, 178, 86;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-rel-detail-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Quiet Relationship Detail Note
+   ========================================================================== */
+.sc-rel-detail-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--sc-rdet-muted);
+}
+
+.sc-rel-detail-pip {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-rdet-pip-rgb));
+  animation: sc-rdet-pip-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-rel-detail-gift {
+  color: var(--sc-rdet-gift);
+  font-weight: 500;
+}
+
+.sc-rel-detail-suggest {
+  color: var(--sc-rdet-text);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-rdet-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-rel-detail-pip {
+    animation: none !important;
+  }
+}

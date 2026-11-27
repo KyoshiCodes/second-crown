@@ -1,3 +1,14 @@
+## 2026-11-27 — app / living presentation for training progress, unit unlocks & relationship detail
+
+- **Army training progress (`packages/app/src/hud/TrainingProgressLine.tsx`, `packages/app/src/tabs/ArmyTab.tsx`):**
+  - Exported pure `resolveTrainingProgress(state)` wrapping `trainingProgressSnapshot(state)` (`1f487a8`, exact match — zero mismatch) and mounted `<TrainingProgressLine state={state} />` under `<TrainingPace>`. Displays progress bar, `~Ns (Tt)` countdown, `+N queued`, and `snap.note`; returns `null` when no Barracks is finished or `living_training_progress` is `false`.
+- **Army unit unlocks expander (`packages/app/src/hud/UnitUnlockExpander.tsx`, `packages/app/src/tabs/ArmyTab.tsx`):**
+  - Exported pure `resolveUnitUnlocks(state)` wrapping `unitUnlockSnapshot(state)` (`1f487a8`, exact match — zero mismatch) and mounted collapsed `<details class="sc-unit-unlocks">` under `<TrainingProgressLine>` splitting ready units vs locked units with `requires`.
+- **World relationship detail note (`packages/app/src/hud/RealmRelationshipCard.tsx`):**
+  - Exported pure `resolveRealmRelationshipDetail(state, realmId)` wrapping `relationshipDetailSnapshot(state, realmId)` (`1f487a8`, exact match — zero mismatch) and mounted `.sc-rel-detail-note` inside each realm row showing `lastGift` and `suggestion`.
+- **Dedicated CSS (`hud/training-progress.css`, `hud/unit-unlocks.css`, `hud/relationship-detail.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/tracks, calm reveal/breathe transitions, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice23Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **838**, app **1705**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — app / living presentation for job summary & staffing pressure
 
 - **Job summary expander (`packages/app/src/hud/JobSummaryExpander.tsx`, `packages/app/src/PeoplePanel.tsx`):**

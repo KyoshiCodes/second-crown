@@ -1,0 +1,134 @@
+/* --- Living Realm Slice 23: Training Progress Line (isolated CSS) ---
+ * Loaded from hud/TrainingProgressLine.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips and progress tracks.
+ * Calm active training strip & queue readout in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-tp-bg: rgba(16, 22, 34, 0.42);
+  --sc-tp-border: rgba(148, 163, 184, 0.18);
+  --sc-tp-text: #dbe4ef;
+  --sc-tp-muted: rgba(186, 198, 214, 0.78);
+  --sc-tp-track: rgba(148, 163, 184, 0.22);
+  --sc-tp-fill-rgb: 134, 210, 178;
+  --sc-tp-idle-rgb: 148, 163, 184;
+}
+
+:root[data-chrome="night"] {
+  --sc-tp-bg: rgba(10, 14, 24, 0.54);
+  --sc-tp-border: rgba(148, 163, 184, 0.24);
+  --sc-tp-text: #e2e8f0;
+  --sc-tp-muted: rgba(196, 210, 226, 0.84);
+  --sc-tp-track: rgba(148, 163, 184, 0.26);
+  --sc-tp-fill-rgb: 152, 224, 194;
+  --sc-tp-idle-rgb: 168, 182, 200;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-tp-bg: rgba(34, 24, 15, 0.5);
+  --sc-tp-border: rgba(196, 164, 112, 0.22);
+  --sc-tp-text: #f5e6c8;
+  --sc-tp-muted: rgba(226, 204, 166, 0.8);
+  --sc-tp-track: rgba(196, 164, 112, 0.24);
+  --sc-tp-fill-rgb: 190, 242, 100;
+  --sc-tp-idle-rgb: 204, 182, 146;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Elements
+   ========================================================================== */
+.sc-train-progress-pip,
+.sc-train-progress-track,
+.sc-train-progress-fill {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Quiet Training Progress Strip
+   ========================================================================== */
+.sc-train-progress-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-tp-border);
+  background: var(--sc-tp-bg);
+  color: var(--sc-tp-text);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.sc-train-progress-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  animation: sc-tp-pip-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-train-progress-pip.is-active {
+  background: rgb(var(--sc-tp-fill-rgb));
+}
+
+.sc-train-progress-pip.is-idle {
+  background: rgb(var(--sc-tp-idle-rgb));
+}
+
+.sc-train-progress-name {
+  font-weight: 500;
+}
+
+.sc-train-progress-track {
+  width: 68px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--sc-tp-track);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sc-train-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: rgb(var(--sc-tp-fill-rgb));
+  transition: width 0.25s ease;
+}
+
+.sc-train-progress-eta,
+.sc-train-progress-queue,
+.sc-train-progress-note {
+  color: var(--sc-tp-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-tp-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 0.94;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-train-progress-pip {
+    animation: none !important;
+  }
+  .sc-train-progress-fill {
+    transition: none !important;
+  }
+}
