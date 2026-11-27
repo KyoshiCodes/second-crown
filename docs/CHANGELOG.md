@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 18 (yield breakdown, storage pressure detail)
+
+- **Yield breakdown (`economyYieldBreakdownSnapshot(state)`):** `{ food, wood, stone, gold }`, each a list of `{ id, name, perSec }`. Sources: finished buildings grouped by type (`id` = type id, `name` = building name), `trade_routes` ("Trade routes"), `outpost_tithe` ("Outpost tithe"), `labor` ("Labor"). Only sources with `perSec > 0`; highest first, ties by id; at most 4 per resource (`YIELD_BREAKDOWN_CAP`). Gross income: army upkeep is not a source, so food sources sum to `foodPerSec + foodUpkeep`; wood/stone/gold sum to their `economyYieldsSnapshot` rate (when no more than 4 sources).
+- **Storage pressure detail (`storagePressureDetailSnapshot(state)`):** `{ resource, percentFull, netPerSec, status }[]` for food, wood, stone, gold. `percentFull` = stores / cap × 100 (100 with cap 0). `netPerSec` = the same net as `economyYieldsSnapshot`. `status` = the same low/ok/high as `economyPressureSnapshot` (one shared helper now).
+- **Switches:** `living_yield_breakdown` (false: four empty lists), `living_storage_detail` (false: `[]`). Both on.
+- **Read-only:** yield, upkeep and storage formulas untouched. `economyPressureSnapshot` refactored onto the shared fill/level helpers; results unchanged (slice 16/17 tests pass as before).
+- **Playtest:** one line. Balance tables unchanged.
+- **Tests:** new `systems/livingSlice18.test.ts` (12). Now: sim **746**, app **1682**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for last-inspected tracking, relationship history, and economy yields (Slice 17)
 
 - **Board last-inspected tracking (`game/useGameEngine.ts`, `AppShell.tsx`):** Added `lastInspectedProvinceId` state (via pure `nextLastInspected`) and passed `lastInspectedId` into `<BoardLiving>`, lighting up the non-blocking dashed `.sc-fb-inspected-rim` on `<BoardFeedbackLayer>`.

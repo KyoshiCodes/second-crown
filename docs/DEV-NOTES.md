@@ -1,3 +1,12 @@
+## 2026-11-27 — sim / Living Realm slice 18 (yield breakdown, storage pressure detail)
+
+- **Sources:** new exported `incomeSourcesPerTick(state)` in `systems/economy.ts` walks the same pieces as `computeIncomePerSecond` (finished buildings via the private `rateFor`, routes × 0.15, outpost tithe, labor) but keeps them apart, keyed by `id|res`. `computeIncomePerSecond` itself is unchanged; the totals test pins the two together.
+- **Breakdown:** `economyYieldBreakdownSnapshot` in `systems/livingStatus.ts` runs it on `readCopy` (research flag writes never land), converts to per second, drops `perSec <= 0` and non-store resources, sorts desc then by id, slices to `YIELD_BREAKDOWN_CAP` (4, `content/livingRealm.ts`). Off: `{ food: [], wood: [], stone: [], gold: [] }`.
+- **Detail:** `storagePressureDetailSnapshot` uses new private `storeFill` + `pressureLevel`; `economyPressureSnapshot` now calls the same two, so status cannot drift. `netPerSec` comes from `netRates`, the helper behind `economyYieldsSnapshot`.
+- **Switches:** `yieldBreakdown`, `storageDetail` added to `LivingSwitches`.
+- **Exports:** both functions, `YieldSource`, `YieldBreakdown`, `StoragePressureDetail`, `YIELD_BREAKDOWN_CAP` from `packages/sim`.
+- **Left alone:** yield, upkeep, storage and cap formulas; balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for last-inspected tracking, relationship history & economy yields
 
 - **Last-inspected tracking (`packages/app/src/game/useGameEngine.ts`, `packages/app/src/AppShell.tsx`):**

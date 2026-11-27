@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now say where your income comes from
+
+- **Under the hood only.** For each of food, wood, stone and gold, the game can list up to four biggest sources (farms, markets, trade routes, outposts, workers, and so on) and how much each makes per second.
+- **Store detail.** For each store it can also give how full it is (as a percent), your net per second, and whether it is running low, steady, or nearly full.
+- **Nothing else changes.** Income, upkeep and storage work exactly as before.
+- **Coming to the screen:** a quiet breakdown beside the yield numbers.
+
 ## 2026-11-27 — Last-inspected highlights, realm history drawer, and net yield rates
 
 - **Last-inspected map ring:** Clicking from one province to another now keeps a softer dashed outline on the last province you inspected alongside your active selection.

@@ -175,6 +175,47 @@ export function economyGain(state: GameState, ticks: number, tithe = true): Reco
   return totals;
 }
 
+/** One named contributor to income, per tick (slice 18 yield breakdown). */
+export interface IncomeSourcePerTick {
+  id: string;
+  name: string;
+  res: string;
+  perTick: Decimal;
+}
+
+/**
+ * The same pieces computeIncomePerSecond adds up, kept apart by source: finished buildings
+ * grouped by type (id = type id), trade routes, outpost tithe, posted labor. Same formulas;
+ * summing perTick by resource gives computeIncomePerSecond's per-tick totals.
+ * Reads state, changes nothing (callers that care about lazy research flags pass a copy).
+ */
+export function incomeSourcesPerTick(state: GameState): IncomeSourcePerTick[] {
+  const byKey = new Map<string, IncomeSourcePerTick>();
+  const add = (id: string, name: string, res: string, perTick: Decimal) => {
+    const key = `${id}|${res}`;
+    const cur = byKey.get(key);
+    if (cur) cur.perTick = cur.perTick.add(perTick);
+    else byKey.set(key, { id, name, res, perTick });
+  };
+  for (const b of state.buildings) {
+    if (b.completesAtTick !== null) continue;
+    const def = getBuildingType(b.typeId);
+    if (!def) continue;
+    for (const [res, rateStr] of Object.entries(def.productionPerTick)) {
+      add(b.typeId, def.name, res, rateFor(state, b, res, rateStr ?? "0"));
+    }
+  }
+  const routes = routeGoldPerTick(state);
+  if (routes > 0) add("trade_routes", "Trade routes", "gold", D(routes).mul(0.15));
+  for (const [res, rate] of Object.entries(outpostTithePerTick(state))) {
+    if (rate > 0) add("outpost_tithe", "Outpost tithe", res, D(rate));
+  }
+  for (const [res, n] of Object.entries(laborPerTick(state))) {
+    if (n > 0) add("labor", "Labor", res, D(n));
+  }
+  return [...byKey.values()];
+}
+
 export function computeIncomePerSecond(state: GameState): Record<string, string> {
   const perTick: Record<string, Decimal> = {};
   for (const b of state.buildings) {

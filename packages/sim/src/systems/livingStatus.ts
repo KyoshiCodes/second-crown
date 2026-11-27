@@ -2,12 +2,12 @@ import type { GameState } from "@second-crown/shared";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { D } from "../core/decimal.js";
 import { countBuilding } from "../content/buildings.js";
-import { ECONOMY_PRESSURE_HIGH_FILL, ECONOMY_PRESSURE_LOW_FILL } from "../content/livingRealm.js";
+import { ECONOMY_PRESSURE_HIGH_FILL, ECONOMY_PRESSURE_LOW_FILL, YIELD_BREAKDOWN_CAP } from "../content/livingRealm.js";
 import { keepLevel } from "../actions/upgrade.js";
 import { livingSwitches } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
-import { computeIncomePerSecond } from "./economy.js";
+import { computeIncomePerSecond, incomeSourcesPerTick } from "./economy.js";
 import { upkeepPerTick } from "./upkeep.js";
 import { RESEARCH, type ResearchId } from "./research.js";
 import { DECREES } from "./decree.js";
@@ -59,6 +59,23 @@ function netRates(state: GameState): Record<StoreRes, number> & { foodUpkeep: nu
   return { food: per("food") - foodUpkeep, wood: per("wood"), stone: per("stone"), gold: per("gold"), foodUpkeep };
 }
 
+const STORES: StoreRes[] = ["food", "wood", "stone", "gold"];
+
+/** Stores over cap, as a fraction (1 when the cap is 0). */
+function storeFill(state: GameState, res: StoreRes): number {
+  const have = D(state.resources[res] ?? "0").toNumber();
+  const cap = storageCap(state, res);
+  return cap > 0 ? have / cap : 1;
+}
+
+/** The one low/ok/high rule, shared by economyPressureSnapshot and storagePressureDetailSnapshot. */
+function pressureLevel(res: StoreRes, fill: number, net: number, bareFood: boolean): PressureLevel {
+  if (res === "food" && bareFood) return "high";
+  if (fill < ECONOMY_PRESSURE_HIGH_FILL && net <= 0) return "high";
+  if (fill >= ECONOMY_PRESSURE_LOW_FILL && net >= 0) return "low";
+  return "ok";
+}
+
 /**
  * Shortage pressure per capped store, from stores vs cap and the current net per second
  * (building income; food also pays army upkeep):
@@ -71,16 +88,7 @@ export function economyPressureSnapshot(state: GameState): EconomyPressure | nul
   if (!livingSwitches(state).economyStatus) return null;
   const rates = netRates(state);
   const bareFood = isBareFood(state);
-  const level = (res: StoreRes): PressureLevel => {
-    if (res === "food" && bareFood) return "high";
-    const have = D(state.resources[res] ?? "0").toNumber();
-    const cap = storageCap(state, res);
-    const fill = cap > 0 ? have / cap : 1;
-    const net = rates[res];
-    if (fill < ECONOMY_PRESSURE_HIGH_FILL && net <= 0) return "high";
-    if (fill >= ECONOMY_PRESSURE_LOW_FILL && net >= 0) return "low";
-    return "ok";
-  };
+  const level = (res: StoreRes): PressureLevel => pressureLevel(res, storeFill(state, res), rates[res], bareFood);
   return {
     foodPressure: level("food"),
     woodPressure: level("wood"),
@@ -112,6 +120,68 @@ export function economyYieldsSnapshot(state: GameState): EconomyYields | null {
   if (!livingSwitches(state).economyYields) return null;
   const r = netRates(state);
   return { foodPerSec: r.food, woodPerSec: r.wood, stonePerSec: r.stone, goldPerSec: r.gold, foodUpkeep: r.foodUpkeep };
+}
+
+// ---------------------------------------------------------------- yield breakdown (slice 18)
+
+export interface YieldSource {
+  /** Building type id, or "trade_routes", "outpost_tithe", "labor". */
+  id: string;
+  name: string;
+  perSec: number;
+}
+
+export type YieldBreakdown = Record<StoreRes, YieldSource[]>;
+
+/**
+ * Slice 18: who makes each resource. Gross income only (army upkeep is a drain, not a source,
+ * so food sources sum to foodPerSec + foodUpkeep). Buildings are grouped by type; trade routes,
+ * outpost tithe and labor are one source each. Only sources with perSec > 0, highest first
+ * (ties by id), at most YIELD_BREAKDOWN_CAP per resource. Uncapped, each list sums to the
+ * matching economyYieldsSnapshot rate. With living_yield_breakdown off, all four lists are
+ * empty. Yield formulas untouched.
+ */
+export function economyYieldBreakdownSnapshot(state: GameState): YieldBreakdown {
+  const out: YieldBreakdown = { food: [], wood: [], stone: [], gold: [] };
+  if (!livingSwitches(state).yieldBreakdown) return out;
+  for (const src of incomeSourcesPerTick(readCopy(state))) {
+    if (!(STORES as string[]).includes(src.res)) continue;
+    const perSec = src.perTick.mul(TICKS_PER_SECOND).toNumber();
+    if (!(perSec > 0)) continue;
+    out[src.res as StoreRes].push({ id: src.id, name: src.name, perSec });
+  }
+  for (const res of STORES) {
+    out[res].sort((a, b) => b.perSec - a.perSec || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    out[res] = out[res].slice(0, YIELD_BREAKDOWN_CAP);
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- storage pressure detail (slice 18)
+
+export interface StoragePressureDetail {
+  resource: StoreRes;
+  /** Stores over cap, 0-100 (100 when the cap is 0; can pass 100 if stores sit over cap). */
+  percentFull: number;
+  /** The same net economyPressureSnapshot judges by (food net of army upkeep). */
+  netPerSec: number;
+  /** Same low/ok/high as economyPressureSnapshot's matching field. */
+  status: PressureLevel;
+}
+
+/**
+ * Slice 18: the numbers behind each pressure word, in food, wood, stone, gold order. Same fill,
+ * net and rule as economyPressureSnapshot. Empty with living_storage_detail off.
+ * Caps and yields untouched.
+ */
+export function storagePressureDetailSnapshot(state: GameState): StoragePressureDetail[] {
+  if (!livingSwitches(state).storageDetail) return [];
+  const rates = netRates(state);
+  const bareFood = isBareFood(state);
+  return STORES.map((res) => {
+    const fill = storeFill(state, res);
+    return { resource: res, percentFull: fill * 100, netPerSec: rates[res], status: pressureLevel(res, fill, rates[res], bareFood) };
+  });
 }
 
 // ---------------------------------------------------------------- research progress

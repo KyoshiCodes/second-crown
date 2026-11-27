@@ -121,6 +121,10 @@ export interface LivingSwitches {
   relationshipHistory: boolean;
   /** Economy yields (slice 17): economyYieldsSnapshot. False: null. Read-only either way. */
   economyYields: boolean;
+  /** Yield breakdown (slice 18): economyYieldBreakdownSnapshot. False: empty lists. Read-only either way. */
+  yieldBreakdown: boolean;
+  /** Storage detail (slice 18): storagePressureDetailSnapshot. False: empty list. Read-only either way. */
+  storageDetail: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -151,6 +155,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   boardFeedback: "living_board_feedback",
   relationshipHistory: "living_relationship_history",
   economyYields: "living_economy_yields",
+  yieldBreakdown: "living_yield_breakdown",
+  storageDetail: "living_storage_detail",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

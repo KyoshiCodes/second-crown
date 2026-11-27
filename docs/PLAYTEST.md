@@ -167,6 +167,8 @@ System status snapshots available: economy pressure, research progress, court st
 
 Last-inspected, relationship history (last 4 dealings per realm) and yield rates available (`living_relationship_history`, `living_economy_yields`). Read-only.
 
+Yield breakdown (top 4 sources per resource) and storage pressure detail available (`living_yield_breakdown`, `living_storage_detail`). Read-only.
+
 Attentive:
 
 ```

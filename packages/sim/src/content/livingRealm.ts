@@ -254,6 +254,9 @@ export const ECONOMY_PRESSURE_LOW_FILL = 0.75;
 /** Most past interactions relationshipHistorySnapshot returns for one realm (slice 17). */
 export const RELATIONSHIP_HISTORY_CAP = 4;
 
+/** Slice 18: most sources listed per resource in economyYieldBreakdownSnapshot (highest first). */
+export const YIELD_BREAKDOWN_CAP = 4;
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**
