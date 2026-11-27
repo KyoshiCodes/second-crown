@@ -1,0 +1,162 @@
+/* --- Living Realm Slice 18: Economy Yield Breakdown Expander (isolated CSS) ---
+ * Loaded from hud/EconomyYieldBreakdown.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Calm collapsed-by-default source breakdown in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-yb-bg: rgba(16, 22, 34, 0.36);
+  --sc-yb-border: rgba(148, 163, 184, 0.16);
+  --sc-yb-text: #cbd5e1;
+  --sc-yb-muted: rgba(186, 198, 214, 0.76);
+  --sc-yb-rate: #86efac;
+  --sc-yb-pip-rgb: 147, 197, 253;
+}
+
+:root[data-chrome="night"] {
+  --sc-yb-bg: rgba(10, 14, 24, 0.48);
+  --sc-yb-border: rgba(148, 163, 184, 0.22);
+  --sc-yb-text: #dbe4ef;
+  --sc-yb-muted: rgba(196, 210, 226, 0.82);
+  --sc-yb-rate: #a7f3d0;
+  --sc-yb-pip-rgb: 168, 212, 255;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-yb-bg: rgba(34, 24, 15, 0.44);
+  --sc-yb-border: rgba(196, 164, 112, 0.2);
+  --sc-yb-text: #efe1c4;
+  --sc-yb-muted: rgba(226, 204, 166, 0.78);
+  --sc-yb-rate: #bef264;
+  --sc-yb-pip-rgb: 228, 178, 86;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-yield-breakdown-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Yield Breakdown Expander
+   ========================================================================== */
+.sc-yield-breakdown {
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-yb-border);
+  background: var(--sc-yb-bg);
+  color: var(--sc-yb-text);
+  font-size: 11px;
+  line-height: 1.38;
+}
+
+.sc-yield-breakdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--sc-yb-muted);
+  font-weight: 500;
+  list-style: none;
+  user-select: none;
+  transition: color 0.16s ease;
+}
+
+.sc-yield-breakdown-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.sc-yield-breakdown-toggle::before {
+  content: "▸";
+  font-size: 10px;
+  opacity: 0.75;
+  transition: transform 0.16s ease;
+}
+
+.sc-yield-breakdown[open] > .sc-yield-breakdown-toggle {
+  color: var(--sc-yb-text);
+}
+
+.sc-yield-breakdown[open] > .sc-yield-breakdown-toggle::before {
+  transform: rotate(90deg);
+}
+
+.sc-yield-breakdown-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-yb-pip-rgb));
+  opacity: 0.72;
+}
+
+.sc-yield-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px solid var(--sc-yb-border);
+  animation: sc-yb-reveal 0.18s ease-out;
+}
+
+.sc-yield-breakdown-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.sc-yield-breakdown-res {
+  min-width: 42px;
+  color: var(--sc-yb-muted);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.sc-yield-breakdown-sources {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sc-yield-breakdown-source {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.sc-yield-breakdown-rate {
+  color: var(--sc-yb-rate);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-yb-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-yield-breakdown-toggle,
+  .sc-yield-breakdown-toggle::before {
+    transition: none !important;
+  }
+  .sc-yield-breakdown-list {
+    animation: none !important;
+  }
+}

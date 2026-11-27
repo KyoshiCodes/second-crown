@@ -1,0 +1,117 @@
+/* --- Living Realm Slice 18: Storage Pressure Detail Line (isolated CSS) ---
+ * Loaded from hud/StoragePressureDetailLine.tsx.
+ * Leaves theme.css and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips.
+ * Quiet percent-full and status note in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-spd-bg: rgba(16, 22, 34, 0.42);
+  --sc-spd-border: rgba(148, 163, 184, 0.18);
+  --sc-spd-text: #cbd5e1;
+  --sc-spd-muted: rgba(186, 198, 214, 0.78);
+  --sc-spd-high-rgb: 234, 152, 92;
+  --sc-spd-low-rgb: 134, 210, 178;
+}
+
+:root[data-chrome="night"] {
+  --sc-spd-bg: rgba(10, 14, 24, 0.54);
+  --sc-spd-border: rgba(148, 163, 184, 0.24);
+  --sc-spd-text: #dbe4ef;
+  --sc-spd-muted: rgba(196, 210, 226, 0.84);
+  --sc-spd-high-rgb: 244, 164, 104;
+  --sc-spd-low-rgb: 152, 224, 194;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-spd-bg: rgba(34, 24, 15, 0.5);
+  --sc-spd-border: rgba(196, 164, 112, 0.22);
+  --sc-spd-text: #efe1c4;
+  --sc-spd-muted: rgba(226, 204, 166, 0.8);
+  --sc-spd-high-rgb: 224, 144, 84;
+  --sc-spd-low-rgb: 154, 204, 162;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-storage-detail-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Quiet Storage Pressure Detail Sub-Line
+   ========================================================================== */
+.sc-storage-detail-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-spd-border);
+  background: var(--sc-spd-bg);
+  color: var(--sc-spd-text);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.sc-storage-detail-label {
+  color: var(--sc-spd-muted);
+  font-weight: 500;
+}
+
+.sc-storage-detail-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-storage-detail-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  animation: sc-spd-pip-breathe 4.2s ease-in-out infinite;
+}
+
+.sc-storage-detail-pip.is-high {
+  background: rgb(var(--sc-spd-high-rgb));
+}
+
+.sc-storage-detail-pip.is-low {
+  background: rgb(var(--sc-spd-low-rgb));
+}
+
+.sc-storage-detail-pct {
+  font-weight: 500;
+}
+
+.sc-storage-detail-note {
+  color: var(--sc-spd-muted);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-spd-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.94;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-storage-detail-pip {
+    animation: none !important;
+  }
+}

@@ -1,3 +1,12 @@
+## 2026-11-27 — app / living presentation for yield breakdown & storage pressure detail
+
+- **Yield breakdown expander (`packages/app/src/hud/EconomyYieldBreakdown.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**
+  - Exported pure `resolveEconomyYieldBreakdown(state)` wrapping `economyYieldBreakdownSnapshot(state)` (`ac170e0`, exact match — zero mismatch) and mounted `<EconomyYieldBreakdown state={state} />` directly under `<EconomyYieldsLine>`. Renders a collapsed-by-default `<details class="sc-yield-breakdown">` (`Breakdown (N)`) grouping non-empty resources with per-source names and `+X/s` rates, returning `null` when all four lists are empty or `living_yield_breakdown` is `false`.
+- **Storage pressure detail sub-line (`packages/app/src/hud/StoragePressureDetailLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**
+  - Exported pure `resolveStoragePressureDetail(state)` wrapping `storagePressureDetailSnapshot(state)` (`ac170e0`, exact match — zero mismatch) and mounted `<StoragePressureDetailLine state={state} />` directly under `<EconomyPressureLine>`. Filters to `status !== "ok"` entries to render quiet percent-full and status notes (`low` / `ample` / `full`) without disturbing existing all-`ok` assertions on `EconomyPressureLine`, returning `null` when all stores are `ok` or `living_storage_detail` is `false`.
+- **Dedicated CSS (`hud/economy-yield-breakdown.css`, `hud/storage-pressure-detail.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, calm reveal/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice18Presentation.test.tsx`):** 5 tests passing (`npm test` -> sim **746**, app **1687**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 18 (yield breakdown, storage pressure detail)
 
 - **Sources:** new exported `incomeSourcesPerTick(state)` in `systems/economy.ts` walks the same pieces as `computeIncomePerSecond` (finished buildings via the private `rateFor`, routes × 0.15, outpost tithe, labor) but keeps them apart, keyed by `id|res`. `computeIncomePerSecond` itself is unchanged; the totals test pins the two together.

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for yield breakdown and storage pressure detail (Slice 18)
+
+- **Yield breakdown expander (`hud/EconomyYieldBreakdown.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveEconomyYieldBreakdown` and `<EconomyYieldBreakdown>` directly under `<EconomyYieldsLine>`, reading `economyYieldBreakdownSnapshot(state)` (`ac170e0`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-yield-breakdown">` (`Breakdown (N)`) showing top sources per resource when opened and hiding cleanly when all lists are empty or `living_yield_breakdown` is `false`.
+- **Storage pressure detail sub-line (`hud/StoragePressureDetailLine.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveStoragePressureDetail` and `<StoragePressureDetailLine>` directly under `<EconomyPressureLine>`, reading `storagePressureDetailSnapshot(state)` (`ac170e0`, exact match — zero mismatch) to show percent full and status (`low` / `ample` / `full`) for non-`ok` stores only, hiding with zero clutter when all stores are `ok` or `living_storage_detail` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/economy-yield-breakdown.css` and `hud/storage-pressure-detail.css` only (no sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice18Presentation.test.tsx` (5 tests). Now: sim **746**, app **1687**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 18 (yield breakdown, storage pressure detail)
 
 - **Yield breakdown (`economyYieldBreakdownSnapshot(state)`):** `{ food, wood, stone, gold }`, each a list of `{ id, name, perSec }`. Sources: finished buildings grouped by type (`id` = type id, `name` = building name), `trade_routes` ("Trade routes"), `outpost_tithe` ("Outpost tithe"), `labor` ("Labor"). Only sources with `perSec > 0`; highest first, ties by id; at most 4 per resource (`YIELD_BREAKDOWN_CAP`). Gross income: army upkeep is not a source, so food sources sum to `foodPerSec + foodUpkeep`; wood/stone/gold sum to their `economyYieldsSnapshot` rate (when no more than 4 sources).

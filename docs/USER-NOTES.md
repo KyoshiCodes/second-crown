@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Income breakdown drawer and storage fill detail on Kingdom
+
+- **Collapsed income breakdown on Kingdom:** Below the net per-second strip, a calm collapsed **Breakdown** toggle opens cleanly to show your top income sources (farms, markets, trade routes, outpost tithes, and more) for food, wood, stone, and gold, and hides automatically when nothing is producing.
+- **Storage fill and status detail:** When any store is running low or nearing full capacity, a quiet sub-line beneath the store pressure indicator shows the percentage full alongside its status note, staying hidden with zero clutter whenever all stores are steady.
+
 ## 2026-11-27 — The game can now say where your income comes from
 
 - **Under the hood only.** For each of food, wood, stone and gold, the game can list up to four biggest sources (farms, markets, trade routes, outposts, workers, and so on) and how much each makes per second.
