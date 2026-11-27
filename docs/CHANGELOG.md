@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 20 (research progress, study-effect previews, academy feedback)
+
+- **Research progress (`researchProgressDetailSnapshot(state)`):** `{ activeId, name, percent, ticksLeft, totalTicks }` or null when nothing is being studied. Same open-study scan as `researchProgressSnapshot` (ticksLeft / totalTicks identical to its `active`); `percent` = floor((total - left) / total * 100), clamped 0-100.
+- **Study-effect preview (`studyEffectPreviewSnapshot(state, studyId)`):** `{ id, name, effects: string[] }` or null for an unknown id. `effects` comes from the fixed `STUDY_EFFECTS` table in `content/livingRealm.ts`, 1-3 lines per study (`STUDY_EFFECT_CAP`). Every line mirrors live code: yield % (`researchYield`), defense (`masonryWallBonus`), storage (`storageCap`), march columns (`maxMarches`), vision, scouting discount, training discount, and unit unlocks (`unitUnlocked`, unit display names). Tests pin each number to its helper. Independent of what is known.
+- **Academy feedback (`academyFeedbackSnapshot(state)`):** `{ built, staffed, bonusActive, note }` or null when the player has no Academy (finished or underway). `bonusActive` = `academyReady`, the rule `researchDuration` already uses (now exported, unchanged). `staffed` = a finished player Academy with `staffBonus > 1`; the Academy has no citizen job, so it reads false today. `note`: `ACADEMY_NOTE_BUILDING` (not finished), `ACADEMY_NOTE_IDLE` (finished, lectern free), `ACADEMY_NOTE_EARLY` (open study started at full table length while the bonus is on), else null.
+- **Switches:** `living_research_progress`, `living_study_preview`, `living_academy_feedback` (false: null). All on.
+- **Read-only:** research table, pacing, costs, gates; Academy 20% math; staffing; balance tables untouched.
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice20.test.ts` (20). Now: sim **787**, app **1691**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for research, court, and board interaction detail (Slice 19)
 
 - **Research next-unlocks expander (`hud/ResearchDetailExpander.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveResearchDetail` and `<ResearchDetailExpander>` directly under `<ResearchProgressLine>`, reading `researchDetailSnapshot(state)` (`f60fbcd`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-research-detail">` (`Next unlocks (N)`) showing ready vs missing-gate notes and hiding cleanly when empty or `living_research_detail` is `false`.

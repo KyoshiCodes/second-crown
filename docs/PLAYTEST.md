@@ -171,6 +171,8 @@ Yield breakdown (top 4 sources per resource) and storage pressure detail availab
 
 Research, court, and board interaction detail available (`living_research_detail`, `living_court_detail`, `living_board_detail`). Read-only.
 
+Research progress, study-effect previews, and academy feedback available (`living_research_progress`, `living_study_preview`, `living_academy_feedback`). Read-only.
+
 Attentive:
 
 ```

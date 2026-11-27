@@ -131,6 +131,12 @@ export interface LivingSwitches {
   courtDetail: boolean;
   /** Board detail (slice 19): boardInteractionDetailSnapshot. False: null. Read-only either way. */
   boardDetail: boolean;
+  /** Research progress (slice 20): researchProgressDetailSnapshot. False: null. Read-only either way. */
+  researchProgress: boolean;
+  /** Study preview (slice 20): studyEffectPreviewSnapshot. False: null. Read-only either way. */
+  studyPreview: boolean;
+  /** Academy feedback (slice 20): academyFeedbackSnapshot. False: null. Read-only either way. */
+  academyFeedback: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -166,6 +172,9 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   researchDetail: "living_research_detail",
   courtDetail: "living_court_detail",
   boardDetail: "living_board_detail",
+  researchProgress: "living_research_progress",
+  studyPreview: "living_study_preview",
+  academyFeedback: "living_academy_feedback",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

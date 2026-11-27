@@ -395,6 +395,9 @@ export {
   researchDetailSnapshot,
   courtDetailSnapshot,
   boardInteractionDetailSnapshot,
+  researchProgressDetailSnapshot,
+  studyEffectPreviewSnapshot,
+  academyFeedbackSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -417,6 +420,9 @@ export type {
   CourtActiveDecree,
   CourtDetail,
   BoardInteractionDetail,
+  ResearchProgressDetail,
+  StudyEffectPreview,
+  AcademyFeedback,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -447,6 +453,11 @@ export {
   COURT_GUIDANCE_FULL,
   BOARD_NEARBY_RADIUS,
   BOARD_NEARBY_FRIENDLY_CAP,
+  STUDY_EFFECT_CAP,
+  STUDY_EFFECTS,
+  ACADEMY_NOTE_BUILDING,
+  ACADEMY_NOTE_IDLE,
+  ACADEMY_NOTE_EARLY,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

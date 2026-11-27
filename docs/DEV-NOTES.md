@@ -18,6 +18,15 @@
 - **Dedicated CSS (`hud/economy-yield-breakdown.css`, `hud/storage-pressure-detail.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, calm reveal/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
 - **Verification (`packages/app/src/hud/LivingSlice18Presentation.test.tsx`):** 5 tests passing (`npm test` -> sim **746**, app **1687**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
 
+## 2026-11-27 — sim / Living Realm slice 20 (research progress, study preview, academy feedback)
+
+- **Progress:** `researchProgressDetailSnapshot` in `systems/livingStatus.ts` uses a new private `openStudy(state)` (the same `studyKnown` + `research_<id>_until > tick` scan, first in table order; total falls back to the table length). No lazy flag writes.
+- **Preview:** `studyEffectPreviewSnapshot` reads `STUDY_EFFECTS` (content/livingRealm.ts) by `RESEARCH` own-key check (so `"toString"` is null). The table is hand-written; `livingSlice20.test.ts` derives each number from the live helper (yield, wall bonus, storage cap, vision, scout discount, train mult) and checks unlock lines against `RESEARCH[id].unlocks` + `getUnitType().name` + `unitUnlocked`. **If a study's numbers change, update `STUDY_EFFECTS`; the tests will fail until you do.**
+- **Academy:** `academyFeedbackSnapshot` filters player `academy` buildings; `bonusActive` calls `academyReady` (exported from `research.ts`, body unchanged; note it uses `countBuilding`, which ignores realm, as before). `staffed` uses `staffBonus` from `economy.ts`; `jobForBuildingType("academy")` is `unassigned`, so false until the Academy gets a job. Early note: open study `totalTicks === RESEARCH[id].ticks` with the bonus on.
+- **Switches:** `researchProgress`, `studyPreview`, `academyFeedback` in `LivingSwitches`.
+- **Exports:** the three functions, types `ResearchProgressDetail`, `StudyEffectPreview`, `AcademyFeedback`, constants `STUDY_EFFECT_CAP`, `STUDY_EFFECTS`, `ACADEMY_NOTE_BUILDING`, `ACADEMY_NOTE_IDLE`, `ACADEMY_NOTE_EARLY` from `packages/sim`.
+- **Left alone:** research table and `effect` strings, pacing, costs, gates, Academy 20% math, staffing/citizen jobs, balance tables, app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — sim / Living Realm slice 19 (research, court, board interaction detail)
 
 - **Research:** `researchDetailSnapshot` in `systems/livingStatus.ts`. Same `studyKnown` (no lazy flag writes) and active-study loop as `researchProgressSnapshot`. New private `missingGates(state, id, keep)` returns the missing gates as labels (Keep as roman numeral, prerequisite by study name, `needsAny` building names joined with " or "). Candidates with `<= 1` gap, sorted by gap count then table index, sliced to `RESEARCH_NEXT_UNLOCKS_CAP`.

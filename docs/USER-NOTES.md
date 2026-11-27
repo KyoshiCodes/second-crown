@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now show study progress, what a study does, and how your Academy is doing
+
+- **Under the hood only.** Research: the game can show how far along the current study is (as a percent and time left).
+- **Previews:** for any study it can list up to three plain outcomes, like "+12% food from buildings" or "Unlocks Ranger". Only real effects are listed.
+- **Academy:** it can say whether your Academy is finished, whether its 20% faster-study bonus is on, and a short note (still being built, lectern free, or "this study began before the Academy").
+- **Nothing else changes.** Research speed, costs and the Academy bonus work exactly as before.
+- **Coming to the screen:** a progress bar, study previews and an Academy line in the Kingdom tab.
+
 ## 2026-11-27 — Next research unlocks, decree timers, and nearby allies on the board
 
 - **Next research unlocks on Kingdom:** Directly beneath the research progress line, a collapsed **Next unlocks** toggle expands calmly to list up to three nearby studies, noting whether each is ready to start or still needs a Keep level, earlier study, or building.

@@ -247,7 +247,8 @@ function anyStudyOpen(state: GameState): boolean {
   return false;
 }
 
-function academyReady(state: GameState): boolean {
+/** The rule researchDuration uses: any finished Academy shortens new studies. */
+export function academyReady(state: GameState): boolean {
   return countBuilding(state, "academy") >= 1;
 }
 

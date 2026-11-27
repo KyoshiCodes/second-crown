@@ -272,6 +272,43 @@ export const BOARD_NEARBY_RADIUS = 2;
 /** Slice 19: most realm ids boardInteractionDetailSnapshot lists in nearbyFriendly. */
 export const BOARD_NEARBY_FRIENDLY_CAP = 3;
 
+// ---------------------------------------------------------------- research progress, previews, academy (slice 20)
+
+/** Slice 20: most effect lines studyEffectPreviewSnapshot returns per study. */
+export const STUDY_EFFECT_CAP = 3;
+
+/**
+ * Slice 20: what each study does once known, in plain words. Every line mirrors live code in
+ * systems/research.ts (researchYield, masonryWallBonus, storage.ts logistics/supply bonuses,
+ * labor.ts maxMarches, surveyingVisionBonus, cartographyScoutDiscount, quartermasteryTrainMult,
+ * unitUnlocked). Tests pin the numbers to those helpers. At most STUDY_EFFECT_CAP lines each.
+ */
+export const STUDY_EFFECTS: Record<string, readonly string[]> = {
+  husbandry: ["+12% food from buildings"],
+  forestry: ["+12% wood from buildings"],
+  masonry: ["+12% stone from buildings", "+16 defense"],
+  logistics: ["+15% gold from buildings", "+1 march column (Keep limit applies)", "+50 storage"],
+  surveying: ["+1 vision range"],
+  fieldcraft: ["Unlocks Ranger"],
+  drill: ["Unlocks Banner"],
+  screening: ["Unlocks Warden"],
+  horse: ["Unlocks Cavalry, Knight, Outrider, Lancer"],
+  siege: ["Unlocks Siege Engine"],
+  crop_rotation: ["+25% food from buildings"],
+  timber_framing: ["+25% wood from buildings"],
+  fortification: ["+25% stone from buildings", "+24 defense", "Unlocks Ironclad"],
+  supply_trains: ["+1 march column (Keep limit applies)", "+100 storage"],
+  cartography: ["+1 vision range", "Scouting costs 4 gold less"],
+  quartermastery: ["Training costs 8% less"],
+};
+
+/** Slice 20: academy note while it is still being built. */
+export const ACADEMY_NOTE_BUILDING = "The Academy is still being built.";
+/** Slice 20: academy note when it stands and the lectern is free. */
+export const ACADEMY_NOTE_IDLE = "The lectern is free. New studies run 20% shorter.";
+/** Slice 20: academy note when the open study was started at full length (before the bonus). */
+export const ACADEMY_NOTE_EARLY = "This study began before the Academy. The next one runs shorter.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

@@ -3,6 +3,9 @@ import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { D } from "../core/decimal.js";
 import { countBuilding, getBuildingType } from "../content/buildings.js";
 import {
+  ACADEMY_NOTE_BUILDING,
+  ACADEMY_NOTE_EARLY,
+  ACADEMY_NOTE_IDLE,
   BOARD_NEARBY_FRIENDLY_CAP,
   BOARD_NEARBY_RADIUS,
   COURT_GUIDANCE_FULL,
@@ -10,15 +13,17 @@ import {
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
   RESEARCH_NEXT_UNLOCKS_CAP,
+  STUDY_EFFECT_CAP,
+  STUDY_EFFECTS,
   YIELD_BREAKDOWN_CAP,
 } from "../content/livingRealm.js";
 import { keepLevel } from "../actions/upgrade.js";
 import { friendlyRealmIds, livingSwitches } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
-import { computeIncomePerSecond, incomeSourcesPerTick } from "./economy.js";
+import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus } from "./economy.js";
 import { upkeepPerTick } from "./upkeep.js";
-import { RESEARCH, type ResearchId } from "./research.js";
+import { RESEARCH, academyReady, type ResearchId } from "./research.js";
 import { DECREES } from "./decree.js";
 import { activePlayerMarch } from "./march.js";
 
@@ -499,4 +504,99 @@ export function boardInteractionDetailSnapshot(state: GameState, view: BoardView
     nearbyFriendly = friendlyRealmIds(state).filter((id) => near.has(id)).slice(0, BOARD_NEARBY_FRIENDLY_CAP);
   }
   return { selected: sel, lastInspected: fb.lastInspected, pendingMarch: fb.pendingMarch, nearbyFriendly };
+}
+
+// ---------------------------------------------------------------- research progress detail (slice 20)
+
+export interface ResearchProgressDetail {
+  activeId: ResearchId;
+  name: string;
+  /** Whole percent done, 0-100 (floored, clamped). */
+  percent: number;
+  ticksLeft: number;
+  totalTicks: number;
+}
+
+/** The open study, same scan as researchProgressSnapshot (first unknown study in table order whose finish tick is ahead). */
+function openStudy(state: GameState): ResearchActive | null {
+  const tick = state.meta.tick;
+  for (const id of Object.keys(RESEARCH) as ResearchId[]) {
+    if (studyKnown(state, id)) continue;
+    const until = Number(state.flags[`research_${id}_until`] ?? 0);
+    if (until > tick) {
+      const total = Number(state.flags[`research_${id}_total`] ?? 0) || RESEARCH[id].ticks;
+      return { id, name: RESEARCH[id].name, ticksLeft: until - tick, totalTicks: total };
+    }
+  }
+  return null;
+}
+
+/**
+ * Slice 20: the open study as a progress bar. Null when nothing is being studied or with
+ * living_research_progress off. ticksLeft / totalTicks match researchProgressSnapshot.active.
+ * Pacing untouched.
+ */
+export function researchProgressDetailSnapshot(state: GameState): ResearchProgressDetail | null {
+  if (!livingSwitches(state).researchProgress) return null;
+  const a = openStudy(state);
+  if (!a) return null;
+  const raw = a.totalTicks > 0 ? ((a.totalTicks - a.ticksLeft) / a.totalTicks) * 100 : 0;
+  const percent = Math.max(0, Math.min(100, Math.floor(raw)));
+  return { activeId: a.id, name: a.name, percent, ticksLeft: a.ticksLeft, totalTicks: a.totalTicks };
+}
+
+// ---------------------------------------------------------------- study effect preview (slice 20)
+
+export interface StudyEffectPreview {
+  id: ResearchId;
+  name: string;
+  /** Plain-language outcomes from STUDY_EFFECTS, at most STUDY_EFFECT_CAP. */
+  effects: string[];
+}
+
+/**
+ * Slice 20: what a study does once known. Null for an unknown id or with living_study_preview
+ * off. Effects come from the fixed STUDY_EFFECTS table (mirrors live code). Pure read.
+ */
+export function studyEffectPreviewSnapshot(state: GameState, studyId: string): StudyEffectPreview | null {
+  if (!livingSwitches(state).studyPreview) return null;
+  if (!Object.prototype.hasOwnProperty.call(RESEARCH, studyId)) return null;
+  const id = studyId as ResearchId;
+  return { id, name: RESEARCH[id].name, effects: (STUDY_EFFECTS[id] ?? []).slice(0, STUDY_EFFECT_CAP) };
+}
+
+// ---------------------------------------------------------------- academy feedback (slice 20)
+
+export interface AcademyFeedback {
+  /** The player has a finished Academy. */
+  built: boolean;
+  /** A finished player Academy has staff (staffBonus > 1). The Academy takes no citizen job today, so this reads false. */
+  staffed: boolean;
+  /** The 20% study-length bonus applies to new studies (academyReady, researchDuration's rule). */
+  bonusActive: boolean;
+  /** ACADEMY_NOTE_BUILDING / ACADEMY_NOTE_IDLE / ACADEMY_NOTE_EARLY, else null. */
+  note: string | null;
+}
+
+/**
+ * Slice 20: Academy status. Null when the player has no Academy (finished or underway) or with
+ * living_academy_feedback off. bonusActive reads academyReady, the same rule researchDuration
+ * uses. Academy math untouched.
+ */
+export function academyFeedbackSnapshot(state: GameState): AcademyFeedback | null {
+  if (!livingSwitches(state).academyFeedback) return null;
+  const mine = state.buildings.filter((b) => b.realmId === "player" && b.typeId === "academy");
+  if (mine.length === 0) return null;
+  const done = mine.filter((b) => b.completesAtTick === null);
+  const built = done.length > 0;
+  const staffed = done.some((b) => staffBonus(state, b) > 1);
+  const bonusActive = academyReady(state);
+  let note: string | null = null;
+  if (!built) note = ACADEMY_NOTE_BUILDING;
+  else {
+    const a = openStudy(state);
+    if (!a) note = ACADEMY_NOTE_IDLE;
+    else if (bonusActive && a.totalTicks === RESEARCH[a.id].ticks) note = ACADEMY_NOTE_EARLY;
+  }
+  return { built, staffed, bonusActive, note };
 }
