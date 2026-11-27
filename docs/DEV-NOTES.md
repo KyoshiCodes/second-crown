@@ -1,3 +1,11 @@
+## 2026-11-26 — sim / Living Realm slice 11 (player reply voice, fromName contract, ranks note)
+
+- **Tables:** `PLAYER_REPLIES` is now `{ ...PLAYER_REPLIES_PLAIN, ...PLAYER_REPLIES_NPC_VOICE }` — the five NPC cultures voiced, the five player-only cultures identical to plain (same key order as before). `PLAYER_REPLIES_PLAIN` is the slice 7–10 text. `playerReplyLinesFor(culture, voiced = true)`; unknown cultures fall back to `western` in both. The private `playerLines` in `systems/livingRealm.ts` passes `livingSwitches(state).playerReplyVoice` (flag `living_player_reply_voice`), so `replyableWhispers` and `replyToWhisper` both follow it. Line index semantics unchanged (player picks 0–3).
+- **fromName:** `whisperSenderAt` returns `{ id, name }` from the `state.realms` entry, and `nextWhisperHint` sets `fromName = from ? from.name : null` alongside `fromRealmId`, so the two are null together. No field added; tests over six seeds plus the no-listener case.
+- **Ranks note:** `RANKS_NOTE: Record<WarPhaseId, string>` in content, `ranksNote(phase)` in livingRealm, `ColumnMark.ranksNote` set in `columnMarkSnapshot`. Keyed by phase (not column id) so it reads "skirmish"/"clash" rather than "skirmish-line"/"clash-line".
+- **App test tweak:** `PlayerReplyFormation.test.tsx` matched raw reply text against `renderToStaticMarkup`; the new lines contain `'`, which React escapes to `&#x27;`. The test now escapes `& ' "` before `toContain`. No app source change.
+- **Left alone:** `replyToWhisper` logic, reply eligibility (correspondence id, not at war, not peace-locked), one-reply rule, bots never replying, `WHISPERS` / `WHISPER_REPLIES`, hint math, combat, phase timing, balance tables, app/render/server source.
+
 ## 2026-11-26 — app / living presentation for whisper culture tag & stronger column ranks
 
 - **World tab hint tag (`packages/app/src/hud/NextWhisperHintLine.tsx`):**

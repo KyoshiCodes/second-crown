@@ -64,7 +64,7 @@ describe("Player whisper reply buttons & Joined-war board formations", () => {
     expect(beforeHtml).toContain('data-reply-index="0"');
     expect(beforeHtml).toContain('data-reply-index="3"');
     for (const line of replyables[0].lines) {
-      expect(beforeHtml).toContain(line);
+      expect(beforeHtml).toContain(line.replace(/&/g, "&amp;").replace(/'/g, "&#x27;").replace(/"/g, "&quot;"));
     }
     expect(beforeHtml).not.toContain("<input");
     expect(beforeHtml).not.toContain("<textarea");

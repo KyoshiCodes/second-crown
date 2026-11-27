@@ -153,6 +153,8 @@ Player replies available: a player may answer a whisper they received with one f
 
 Cultures with distinct voice: whisper and NPC reply lines read differently per culture (`living_culture_voice`); same timing, same counts, same 16 lines.
 
+Player reply voice updated: the player's four fixed reply lines match their culture's whisper voice (`living_player_reply_voice`); same reply rules.
+
 Attentive:
 
 ```

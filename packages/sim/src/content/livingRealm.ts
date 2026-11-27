@@ -214,14 +214,62 @@ export const RANKS_LABEL: Record<1 | 2 | 3, string> = {
   3: "three ranks",
 };
 
+/** One-word board companion per war phase (slice 11). Presentation only; derived from the phase. */
+export const RANKS_NOTE: Record<WarPhaseId, string> = {
+  columns: "column",
+  skirmish: "skirmish",
+  clash: "clash",
+  aftermath: "falling-back",
+};
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**
  * Fixed lines the player may send back to a whisper they received, by the player's culture.
  * Four per culture; the player picks one by index. `{to}` is the realm being answered.
  * No free-form text.
+ *
+ * Player reply voice (slice 11, `living_player_reply_voice`, on by default): the five NPC
+ * cultures speak in the same voice as WHISPERS (western formal, woodland kin, desert host,
+ * steppe clipped, tide sailor). Player-only cultures (mist, glen, salt, fen, peak) keep their
+ * slice 7 lines. Same sizes as PLAYER_REPLIES_PLAIN (4 per culture). Built below from
+ * PLAYER_REPLIES_PLAIN with these five cultures replaced.
  */
-export const PLAYER_REPLIES: Record<string, readonly string[]> = {
+const PLAYER_REPLIES_NPC_VOICE: Record<string, readonly string[]> = {
+  western: [
+    "By the steward's seal: your herald was fed, housed, and sent home warm, {to}.",
+    "Your word is entered in the rolls. Our banners stay furled, by oath.",
+    "The keep returns its courtesy, with good harvests to {to}'s fields.",
+    "So sworn, so kept. The king's roads stay quiet between us.",
+  ],
+  woodland: [
+    "Kin of {to}: the cedars carried your words to us, slow and whole.",
+    "We cut your mark on the trail post. Let the moss find it late.",
+    "The elders have said it. Our hunters will not cross your streams.",
+    "Longhouse smoke rises for {to}, kin. No drum beneath it.",
+  ],
+  desert: [
+    "Peace upon {to}. A lamp burns at our gate for your riders.",
+    "Your words were cool water. Dates go back, as a host must send.",
+    "The well is open to honest riders. No guest is turned from shade.",
+    "Heard in the courtyard, and kindly. May {to}'s caravans ride heavy.",
+  ],
+  steppe: [
+    "Heard, {to}. Herd calm.",
+    "Our grass. Your road. Ride through.",
+    "Good word for good word. Our way.",
+    "Ribbon on the post for {to}. Done.",
+  ],
+  tide: [
+    "Your word washed in clean, {to}. One floats back on the ebb.",
+    "Lantern's lit on the jetty. Steer by it.",
+    "Calm water between our hulls. Let it lie so.",
+    "Nets heavy here. Fair catch to {to}'s boats.",
+  ],
+};
+
+/** The slice 7-10 player reply lines (plain voice). Used when `living_player_reply_voice` is false. */
+export const PLAYER_REPLIES_PLAIN: Record<string, readonly string[]> = {
   western: [
     "Your herald was fed and sent home warm, {to}.",
     "We hear you. The banners stay furled.",
@@ -284,9 +332,16 @@ export const PLAYER_REPLIES: Record<string, readonly string[]> = {
   ],
 };
 
-/** The player's reply lines for a culture; unknown cultures use western. */
-export function playerReplyLinesFor(culture: string): readonly string[] {
-  return PLAYER_REPLIES[culture] ?? PLAYER_REPLIES.western;
+/** Voiced player reply lines (slice 11): plain table with the five NPC cultures voiced. */
+export const PLAYER_REPLIES: Record<string, readonly string[]> = {
+  ...PLAYER_REPLIES_PLAIN,
+  ...PLAYER_REPLIES_NPC_VOICE,
+};
+
+/** The player's reply lines for a culture; unknown cultures use western. `voiced` false gives the plain table. */
+export function playerReplyLinesFor(culture: string, voiced = true): readonly string[] {
+  const t = voiced ? PLAYER_REPLIES : PLAYER_REPLIES_PLAIN;
+  return t[culture] ?? t.western;
 }
 
 /** Joined-war formation ids, in order. Presentation only; derived from the war phase. */

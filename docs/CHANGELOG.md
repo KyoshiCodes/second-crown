@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-26 — Living Realm slice 11 (player reply voice, fromName contract, ranks note)
+
+- **Player reply voice (`content/livingRealm.ts` `PLAYER_REPLIES`):** the five NPC cultures' player reply lines rewritten to match the whisper voice. Western formal ("By the steward's seal"), woodland kin ("Kin of {to}: the cedars carried your words"), desert host ("as a host must send"), steppe clipped ("Heard, {to}. Herd calm."), tide sailor ("One floats back on the ebb"). Mist, glen, salt, fen, peak unchanged. Still 4 lines per culture, fixed text. Previous table kept as `PLAYER_REPLIES_PLAIN`; `playerReplyLinesFor(culture, voiced = true)`.
+- **Switch:** `living_player_reply_voice` (`false` restores `PLAYER_REPLIES_PLAIN`). `replyToWhisper`, `replyableWhispers` eligibility and the one-reply rule unchanged.
+- **fromName contract (`nextWhisperHint`):** no code change. `fromName` is always the sender realm's display name when `fromRealmId` is set, null when it is null. Now tested.
+- **Ranks note (`ColumnMark.ranksNote`, `ranksNote(phase)`, `RANKS_NOTE`):** columns "column", skirmish "skirmish", clash "clash", aftermath "falling-back". Read-only, from the existing phase; no combat or phase timing change.
+- **Playtest:** one line in the Living realm section ("Player reply voice updated"). Report numbers and balance tables unchanged.
+- **Tests:** new `systems/livingSlice11.test.ts` (12); slice 8 snapshot test expects `ranksNote`; app `PlayerReplyFormation.test.tsx` now HTML-escapes reply lines before matching. Now: sim **630**, app **1656**, app build clean.
+
 ## 2026-11-26 — Living presentation for whisper culture tag & stronger column rank visuals
 
 - **World tab `from <culture>` tag (`hud/NextWhisperHintLine.tsx`):** Added `formatWhisperCultureTag` reading `nextWhisperHint(state).fromCulture` (`b868b24`, exact match — zero mismatch) and `getCulture(fromCulture).name` to show `"Next whisper in ~Ns · from <culture>"`, hiding only the `from` tag when `fromCulture` is `null` while keeping the whole line hidden when `nextWhisperHint(state)` is `null`.

@@ -21,6 +21,7 @@ import {
   whisperReplyLinesFor,
   playerReplyLinesFor,
   RANKS_LABEL,
+  RANKS_NOTE,
   type FormationId,
   type ColumnMarkId,
   type WarPhaseId,
@@ -76,6 +77,11 @@ export interface LivingSwitches {
    * WHISPER_REPLIES). False: the plain slice 1-9 tables. Same table sizes either way.
    */
   cultureVoice: boolean;
+  /**
+   * Player reply voice (slice 11): the player's fixed reply lines come from the voiced
+   * PLAYER_REPLIES table. False: the plain slice 7-10 table. Same sizes either way.
+   */
+  playerReplyVoice: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -95,6 +101,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   whisperFair: "living_whisper_fair",
   whisperVariety: "living_whisper_variety",
   cultureVoice: "living_culture_voice",
+  playerReplyVoice: "living_player_reply_voice",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -501,7 +508,7 @@ function answered(news: CultureNews[], whisperId: string): boolean {
 
 function playerLines(state: GameState, toRealmId: string): string[] {
   const to = nameOf(state, toRealmId);
-  return playerReplyLinesFor(cultureOfRealm(state, "player")).map((l) => l.replace(/\{to\}/g, to));
+  return playerReplyLinesFor(cultureOfRealm(state, "player"), livingSwitches(state).playerReplyVoice).map((l) => l.replace(/\{to\}/g, to));
 }
 
 /**
@@ -1060,6 +1067,8 @@ export interface ColumnMark {
   ranks: ColumnRanks;
   /** Short board note for `ranks` (slice 10): "one rank", "two ranks", "three ranks". */
   ranksLabel: string;
+  /** One-word phase companion (slice 11): columns "column", skirmish "skirmish", clash "clash", aftermath "falling-back". */
+  ranksNote: string;
   /** False only while a finished joined war shows its aftermath (falling-back). */
   active: boolean;
 }
@@ -1090,6 +1099,11 @@ export function ranksLabel(ranks: ColumnRanks): string {
   return RANKS_LABEL[ranks];
 }
 
+/** One-word note for a war phase: column, skirmish, clash, falling-back. Pure. */
+export function ranksNote(phase: WarPhaseId): string {
+  return RANKS_NOTE[phase];
+}
+
 /**
  * Column marks for the player's joined war: the newest active joined war, else the newest
  * finished one still showing its aftermath ("falling-back"), else null. Phase comes from
@@ -1108,6 +1122,7 @@ export function columnMarkSnapshot(state: GameState, atTick = state.meta.tick): 
     column: COLUMN_OF[pick.phase],
     ranks: columnRanks(pick.phase),
     ranksLabel: ranksLabel(columnRanks(pick.phase)),
+    ranksNote: ranksNote(pick.phase),
     active: pick.active,
   };
 }

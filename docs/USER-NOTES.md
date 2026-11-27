@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Your replies speak in your culture's voice
+
+- **Your reply buttons sound like your people.** If you play a western, woodland, desert, steppe or tide culture, your four fixed replies to a whisper now use the same voice as that culture's whispers: formal, kin-speak, a host's courtesy, short and blunt, or sailor's talk. Other cultures keep their lines.
+- **Same rules.** Still four choices, still one reply per whisper, still only whispers sent to you.
+- **Coming to the screen:** the column marks get a one-word phase note (column, skirmish, clash, falling-back). The game reports it now; the board shows it next.
+
 ## 2026-11-26 — Whisper hint culture tag & clearer column ranks on the map
 
 - **Next whisper names its culture:** When whispers are enabled and a sender has a listener, the World tab timing line now reads `Next whisper in ~Ns · from <culture>` (dropping the `from` tag if no one can receive it right now, and hiding altogether if whispers are off).
