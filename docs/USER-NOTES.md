@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now explain research, court and map selections in more detail
+
+- **Under the hood only.** Research: the game can list what you have studied and up to three studies you are close to, with what each still needs (a Keep level, an earlier study, or a building).
+- **Court:** it can list each decree in force with time left, how many more you could swear, and a short hint when the court is idle or full.
+- **Map:** for the province you select, it can name friendly realms (at peace or fighting beside you) holding land within two steps.
+- **Nothing else changes.** Research speed, decree costs and effects, and marching work exactly as before.
+- **Coming to the screen:** quiet detail lines in the Kingdom tab and on the board.
+
 ## 2026-11-27 — Income breakdown drawer and storage fill detail on Kingdom
 
 - **Collapsed income breakdown on Kingdom:** Below the net per-second strip, a calm collapsed **Breakdown** toggle opens cleanly to show your top income sources (farms, markets, trade routes, outpost tithes, and more) for food, wood, stone, and gold, and hides automatically when nothing is producing.

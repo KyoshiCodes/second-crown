@@ -125,6 +125,12 @@ export interface LivingSwitches {
   yieldBreakdown: boolean;
   /** Storage detail (slice 18): storagePressureDetailSnapshot. False: empty list. Read-only either way. */
   storageDetail: boolean;
+  /** Research detail (slice 19): researchDetailSnapshot. False: null. Read-only either way. */
+  researchDetail: boolean;
+  /** Court detail (slice 19): courtDetailSnapshot. False: null. Read-only either way. */
+  courtDetail: boolean;
+  /** Board detail (slice 19): boardInteractionDetailSnapshot. False: null. Read-only either way. */
+  boardDetail: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -157,6 +163,9 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   economyYields: "living_economy_yields",
   yieldBreakdown: "living_yield_breakdown",
   storageDetail: "living_storage_detail",
+  researchDetail: "living_research_detail",
+  courtDetail: "living_court_detail",
+  boardDetail: "living_board_detail",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
@@ -1285,9 +1294,8 @@ export function friendlyPresenceSnapshot(state: GameState, atTick = state.meta.t
   const out: FriendlyPresence[] = [];
   for (const r of state.realms) {
     if (out.length >= FRIENDLY_PRESENCE_CAP) break;
-    if (r.id === "player" || atWarWith(state, r.id, "player")) continue;
+    if (!friendlyWith(state, r.id, allies, atTick)) continue;
     const pact = allies.has(r.id);
-    if (!pact && !peaceLockedAt(state, r.id, "player", atTick)) continue;
     out.push({
       realmId: r.id,
       name: r.name,
@@ -1296,6 +1304,18 @@ export function friendlyPresenceSnapshot(state: GameState, atTick = state.meta.t
     });
   }
   return out;
+}
+
+/** The friendly rule friendlyPresenceSnapshot uses: not the player, not at war with them, and a pact or a running peace lock. */
+function friendlyWith(state: GameState, realmId: string, allies: Set<string>, atTick: number): boolean {
+  if (realmId === "player" || atWarWith(state, realmId, "player")) return false;
+  return allies.has(realmId) || peaceLockedAt(state, realmId, "player", atTick);
+}
+
+/** Ids of realms friendly to the player (same rule as friendlyPresenceSnapshot, no cap, no switch), in state.realms order. Pure read. */
+export function friendlyRealmIds(state: GameState, atTick = state.meta.tick): string[] {
+  const allies = playerPactAllies(state);
+  return state.realms.filter((r) => friendlyWith(state, r.id, allies, atTick)).map((r) => r.id);
 }
 
 /** Allies of the player's active joined wars (war.allyRealmId). The game's only "pact". Pure read. */

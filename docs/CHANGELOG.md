@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 19 (research, court, and board interaction detail)
+
+- **Research detail (`researchDetailSnapshot(state)`):** `{ active, completed, nextUnlocks }` or null. `active` = same as `researchProgressSnapshot.active`. `completed` = `{ id, name }[]` of known studies in table order. `nextUnlocks` = `{ id, name, requires }[]`: unknown, not-open studies missing at most one gate (Keep level, prerequisite study, one of its buildings; cost ignored). `requires` lists the missing gates in plain words (`"Keep II"`, `"Husbandry"`, `"Farm or Granary or Academy"`), empty when it could start now. Fewest gaps first, ties in table order, cap 3 (`RESEARCH_NEXT_UNLOCKS_CAP`).
+- **Court detail (`courtDetailSnapshot(state)`):** `{ active: { id, name, ticksLeft }[], openSlots, guidance }`, or null with no player character. `active` in DECREES order. `guidance` = `COURT_GUIDANCE_IDLE` ("No decree in force. One can be sworn.") with none running, `COURT_GUIDANCE_FULL` ("Every decree is in force.") with all running, else null.
+- **Board interaction detail (`boardInteractionDetailSnapshot(state, view?)`):** `{ selected, lastInspected, pendingMarch, nearbyFriendly }`. The first three read exactly like `boardFeedbackSnapshot` (shared core). `nearbyFriendly` = ids of friendly realms (the `friendlyPresenceSnapshot` rule: pact or running peace lock, not at war) holding a province within 2 steps (Manhattan, `BOARD_NEARBY_RADIUS`) of the selected province, `state.realms` order, cap 3 (`BOARD_NEARBY_FRIENDLY_CAP`). Empty with no selection.
+- **Switches:** `living_research_detail`, `living_court_detail`, `living_board_detail` (false: null). All on. Independent of the slice 16 switches.
+- **Read-only:** research pacing/costs/gates, decree math, presence and pathfinding untouched. `friendlyPresenceSnapshot` and `boardFeedbackSnapshot` refactored onto shared helpers; results unchanged (slice 13/16 tests pass as before).
+- **Playtest:** one line. Balance tables unchanged.
+- **Tests:** new `systems/livingSlice19.test.ts` (21). Now: sim **767**, app **1687**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for yield breakdown and storage pressure detail (Slice 18)
 
 - **Yield breakdown expander (`hud/EconomyYieldBreakdown.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveEconomyYieldBreakdown` and `<EconomyYieldBreakdown>` directly under `<EconomyYieldsLine>`, reading `economyYieldBreakdownSnapshot(state)` (`ac170e0`, exact match — zero mismatch) into a calm, collapsed-by-default `<details class="sc-yield-breakdown">` (`Breakdown (N)`) showing top sources per resource when opened and hiding cleanly when all lists are empty or `living_yield_breakdown` is `false`.

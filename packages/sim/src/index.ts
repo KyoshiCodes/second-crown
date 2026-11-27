@@ -338,6 +338,7 @@ export {
   nextWhisperHint,
   lastWhisperSummary,
   friendlyPresenceSnapshot,
+  friendlyRealmIds,
   standardStrength,
   realmRelationshipSummary,
   relationshipHistorySnapshot,
@@ -391,6 +392,9 @@ export {
   researchProgressSnapshot,
   courtStatusSnapshot,
   boardFeedbackSnapshot,
+  researchDetailSnapshot,
+  courtDetailSnapshot,
+  boardInteractionDetailSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -407,6 +411,12 @@ export type {
   PendingMarch,
   BoardFeedback,
   BoardView,
+  ResearchRef,
+  ResearchUnlock,
+  ResearchDetail,
+  CourtActiveDecree,
+  CourtDetail,
+  BoardInteractionDetail,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -432,6 +442,11 @@ export {
   ECONOMY_PRESSURE_LOW_FILL,
   RELATIONSHIP_HISTORY_CAP,
   YIELD_BREAKDOWN_CAP,
+  RESEARCH_NEXT_UNLOCKS_CAP,
+  COURT_GUIDANCE_IDLE,
+  COURT_GUIDANCE_FULL,
+  BOARD_NEARBY_RADIUS,
+  BOARD_NEARBY_FRIENDLY_CAP,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

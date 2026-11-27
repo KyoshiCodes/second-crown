@@ -169,6 +169,8 @@ Last-inspected, relationship history (last 4 dealings per realm) and yield rates
 
 Yield breakdown (top 4 sources per resource) and storage pressure detail available (`living_yield_breakdown`, `living_storage_detail`). Read-only.
 
+Research, court, and board interaction detail available (`living_research_detail`, `living_court_detail`, `living_board_detail`). Read-only.
+
 Attentive:
 
 ```

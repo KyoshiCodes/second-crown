@@ -7,6 +7,15 @@
 - **Dedicated CSS (`hud/economy-yield-breakdown.css`, `hud/storage-pressure-detail.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips, calm reveal/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
 - **Verification (`packages/app/src/hud/LivingSlice18Presentation.test.tsx`):** 5 tests passing (`npm test` -> sim **746**, app **1687**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
 
+## 2026-11-27 — sim / Living Realm slice 19 (research, court, board interaction detail)
+
+- **Research:** `researchDetailSnapshot` in `systems/livingStatus.ts`. Same `studyKnown` (no lazy flag writes) and active-study loop as `researchProgressSnapshot`. New private `missingGates(state, id, keep)` returns the missing gates as labels (Keep as roman numeral, prerequisite by study name, `needsAny` building names joined with " or "). Candidates with `<= 1` gap, sorted by gap count then table index, sliced to `RESEARCH_NEXT_UNLOCKS_CAP`.
+- **Court:** `courtDetailSnapshot` reads `decree_<id>_until > tick` per DECREES entry; `ticksLeft = until - tick`. Guidance strings live in `content/livingRealm.ts`.
+- **Board:** `boardFeedbackSnapshot` body moved into private `boardFeedbackCore` (no switch) so both snapshots share it. `nearbyFriendly` scans `board.provinces` within `BOARD_NEARBY_RADIUS` of the selection and intersects with new exported `friendlyRealmIds(state, atTick?)` in `systems/livingRealm.ts` (the pact/peace/not-at-war rule, no cap, no switch). `friendlyPresenceSnapshot` now calls the same private `friendlyWith`.
+- **Switches:** `researchDetail`, `courtDetail`, `boardDetail` added to `LivingSwitches`.
+- **Exports:** the three functions, `friendlyRealmIds`, types `ResearchRef`, `ResearchUnlock`, `ResearchDetail`, `CourtActiveDecree`, `CourtDetail`, `BoardInteractionDetail`, constants `RESEARCH_NEXT_UNLOCKS_CAP`, `COURT_GUIDANCE_IDLE`, `COURT_GUIDANCE_FULL`, `BOARD_NEARBY_RADIUS`, `BOARD_NEARBY_FRIENDLY_CAP` from `packages/sim`.
+- **Left alone:** research table, pacing, costs and start rules; decree costs/lengths/effects; presence rules; pathfinding and march math; balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — sim / Living Realm slice 18 (yield breakdown, storage pressure detail)
 
 - **Sources:** new exported `incomeSourcesPerTick(state)` in `systems/economy.ts` walks the same pieces as `computeIncomePerSecond` (finished buildings via the private `rateFor`, routes × 0.15, outpost tithe, labor) but keeps them apart, keyed by `id|res`. `computeIncomePerSecond` itself is unchanged; the totals test pins the two together.

@@ -257,6 +257,21 @@ export const RELATIONSHIP_HISTORY_CAP = 4;
 /** Slice 18: most sources listed per resource in economyYieldBreakdownSnapshot (highest first). */
 export const YIELD_BREAKDOWN_CAP = 4;
 
+// ---------------------------------------------------------------- system detail (slice 19)
+
+/** Slice 19: most studies researchDetailSnapshot lists in nextUnlocks. */
+export const RESEARCH_NEXT_UNLOCKS_CAP = 3;
+
+/** Slice 19: court guidance when no decree is in force. */
+export const COURT_GUIDANCE_IDLE = "No decree in force. One can be sworn.";
+/** Slice 19: court guidance when every decree is in force. */
+export const COURT_GUIDANCE_FULL = "Every decree is in force.";
+
+/** Slice 19: "near" the selected province = within this many steps (Manhattan) on the board. */
+export const BOARD_NEARBY_RADIUS = 2;
+/** Slice 19: most realm ids boardInteractionDetailSnapshot lists in nearbyFriendly. */
+export const BOARD_NEARBY_FRIENDLY_CAP = 3;
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

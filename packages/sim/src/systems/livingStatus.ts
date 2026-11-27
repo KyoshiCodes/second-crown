@@ -1,10 +1,19 @@
 import type { GameState } from "@second-crown/shared";
 import { TICKS_PER_SECOND } from "@second-crown/shared";
 import { D } from "../core/decimal.js";
-import { countBuilding } from "../content/buildings.js";
-import { ECONOMY_PRESSURE_HIGH_FILL, ECONOMY_PRESSURE_LOW_FILL, YIELD_BREAKDOWN_CAP } from "../content/livingRealm.js";
+import { countBuilding, getBuildingType } from "../content/buildings.js";
+import {
+  BOARD_NEARBY_FRIENDLY_CAP,
+  BOARD_NEARBY_RADIUS,
+  COURT_GUIDANCE_FULL,
+  COURT_GUIDANCE_IDLE,
+  ECONOMY_PRESSURE_HIGH_FILL,
+  ECONOMY_PRESSURE_LOW_FILL,
+  RESEARCH_NEXT_UNLOCKS_CAP,
+  YIELD_BREAKDOWN_CAP,
+} from "../content/livingRealm.js";
 import { keepLevel } from "../actions/upgrade.js";
-import { livingSwitches } from "./livingRealm.js";
+import { friendlyRealmIds, livingSwitches } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
 import { computeIncomePerSecond, incomeSourcesPerTick } from "./economy.js";
@@ -327,6 +336,11 @@ export interface BoardView {
  */
 export function boardFeedbackSnapshot(state: GameState, view: BoardView = {}): BoardFeedback | null {
   if (!livingSwitches(state).boardFeedback) return null;
+  return boardFeedbackCore(state, view);
+}
+
+/** boardFeedbackSnapshot without its switch; shared with boardInteractionDetailSnapshot. */
+function boardFeedbackCore(state: GameState, view: BoardView): BoardFeedback {
   const find = (id: string | null | undefined): BoardFeedbackProvince | null => {
     if (!id) return null;
     const p = state.board.provinces.find((q) => q.id === id);
@@ -348,4 +362,141 @@ export function boardFeedbackSnapshot(state: GameState, view: BoardView = {}): B
         }
       : null,
   };
+}
+
+// ---------------------------------------------------------------- research detail (slice 19)
+
+export interface ResearchRef {
+  id: ResearchId;
+  name: string;
+}
+
+export interface ResearchUnlock {
+  id: ResearchId;
+  name: string;
+  /** What is still missing, in plain words ("Keep II", a study name, "Farm or Granary"). Empty: could start now (cost aside). */
+  requires: string[];
+}
+
+export interface ResearchDetail {
+  /** Same as researchProgressSnapshot.active. */
+  active: ResearchActive | null;
+  /** Known studies, in table order. */
+  completed: ResearchRef[];
+  /** Studies at most one gate away, fewest gaps first then table order, at most RESEARCH_NEXT_UNLOCKS_CAP. */
+  nextUnlocks: ResearchUnlock[];
+}
+
+const ROMAN = ["", "I", "II", "III", "IV", "V"];
+
+/** Gates a study still lacks: Keep level, prerequisite study, one of its buildings. Cost and the one-at-a-time lock ignored. */
+function missingGates(state: GameState, id: ResearchId, keep: number): string[] {
+  const def = RESEARCH[id] as (typeof RESEARCH)[ResearchId] & { requires?: ResearchId };
+  const out: string[] = [];
+  if (keep < def.keepMin) out.push(`Keep ${ROMAN[def.keepMin] ?? def.keepMin}`);
+  if (def.requires && !studyKnown(state, def.requires)) out.push(RESEARCH[def.requires].name);
+  if (!def.needsAny.some((t) => countBuilding(state, t) >= 1)) {
+    out.push(def.needsAny.map((t) => getBuildingType(t)?.name ?? t).join(" or "));
+  }
+  return out;
+}
+
+/**
+ * Slice 19: the lectern in more detail. active matches researchProgressSnapshot; completed lists
+ * known studies; nextUnlocks lists unknown, not-open studies missing at most one gate (same gates
+ * as nextAvailable), fewest gaps first, ties in table order, capped. Null with
+ * living_research_detail off. Research pacing, costs and gates untouched.
+ */
+export function researchDetailSnapshot(state: GameState): ResearchDetail | null {
+  if (!livingSwitches(state).researchDetail) return null;
+  const ids = Object.keys(RESEARCH) as ResearchId[];
+  const tick = state.meta.tick;
+  let active: ResearchActive | null = null;
+  const completed: ResearchRef[] = [];
+  for (const id of ids) {
+    if (studyKnown(state, id)) {
+      completed.push({ id, name: RESEARCH[id].name });
+      continue;
+    }
+    const until = Number(state.flags[`research_${id}_until`] ?? 0);
+    if (!active && until > tick) {
+      const total = Number(state.flags[`research_${id}_total`] ?? 0) || RESEARCH[id].ticks;
+      active = { id, name: RESEARCH[id].name, ticksLeft: until - tick, totalTicks: total };
+    }
+  }
+  const keep = keepLevel(state);
+  const candidates: (ResearchUnlock & { order: number })[] = [];
+  ids.forEach((id, order) => {
+    if (studyKnown(state, id) || active?.id === id) return;
+    const requires = missingGates(state, id, keep);
+    if (requires.length <= 1) candidates.push({ id, name: RESEARCH[id].name, requires, order });
+  });
+  candidates.sort((a, b) => a.requires.length - b.requires.length || a.order - b.order);
+  const nextUnlocks = candidates.slice(0, RESEARCH_NEXT_UNLOCKS_CAP).map(({ id, name, requires }) => ({ id, name, requires }));
+  return { active, completed, nextUnlocks };
+}
+
+// ---------------------------------------------------------------- court detail (slice 19)
+
+export interface CourtActiveDecree {
+  id: string;
+  name: string;
+  ticksLeft: number;
+}
+
+export interface CourtDetail {
+  /** Running decrees, in DECREES order. */
+  active: CourtActiveDecree[];
+  /** Same as courtStatusSnapshot.openSlots. */
+  openSlots: number;
+  /** COURT_GUIDANCE_IDLE with none in force, COURT_GUIDANCE_FULL with all in force, else null. */
+  guidance: string | null;
+}
+
+/**
+ * Slice 19: running decrees with time left. Null when the player has no court (no player
+ * character) or with living_court_detail off. Decree costs, lengths and effects untouched.
+ */
+export function courtDetailSnapshot(state: GameState): CourtDetail | null {
+  if (!livingSwitches(state).courtDetail) return null;
+  if (!state.characters.some((c) => c.realmId === "player")) return null;
+  const tick = state.meta.tick;
+  const active: CourtActiveDecree[] = [];
+  for (const d of DECREES) {
+    const until = Number(state.flags[`decree_${d.id}_until`] ?? 0);
+    if (until > tick) active.push({ id: d.id, name: d.name, ticksLeft: until - tick });
+  }
+  const openSlots = DECREES.length - active.length;
+  const guidance = active.length === 0 ? COURT_GUIDANCE_IDLE : openSlots === 0 ? COURT_GUIDANCE_FULL : null;
+  return { active, openSlots, guidance };
+}
+
+// ---------------------------------------------------------------- board interaction detail (slice 19)
+
+export interface BoardInteractionDetail {
+  selected: BoardFeedbackProvince | null;
+  lastInspected: BoardFeedbackProvince | null;
+  pendingMarch: PendingMarch | null;
+  /** Friendly realms (friendlyPresenceSnapshot's rule) holding a province within BOARD_NEARBY_RADIUS steps of selected. state.realms order, capped. */
+  nearbyFriendly: string[];
+}
+
+/**
+ * Slice 19: board feedback plus who is friendly nearby. selected / lastInspected / pendingMarch
+ * read exactly as boardFeedbackSnapshot (its own switch aside). nearbyFriendly is empty with no
+ * selection. Null with living_board_detail off. Selection, presence and pathfinding untouched.
+ */
+export function boardInteractionDetailSnapshot(state: GameState, view: BoardView = {}): BoardInteractionDetail | null {
+  if (!livingSwitches(state).boardDetail) return null;
+  const fb = boardFeedbackCore(state, view);
+  const sel = fb.selectedProvince;
+  let nearbyFriendly: string[] = [];
+  if (sel) {
+    const near = new Set<string>();
+    for (const p of state.board.provinces) {
+      if (p.occupantRealmId && Math.abs(p.x - sel.x) + Math.abs(p.y - sel.y) <= BOARD_NEARBY_RADIUS) near.add(p.occupantRealmId);
+    }
+    nearbyFriendly = friendlyRealmIds(state).filter((id) => near.has(id)).slice(0, BOARD_NEARBY_FRIENDLY_CAP);
+  }
+  return { selected: sel, lastInspected: fb.lastInspected, pendingMarch: fb.pendingMarch, nearbyFriendly };
 }
