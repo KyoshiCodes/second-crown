@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now describe columns, marches and the last battle
+
+- **Under the hood only.** The game can list up to six columns on the road: whose they are, where they are going, how soon they arrive and how strong they are, with a warning like "Enemy columns march on your lands."
+- **Marches:** for any tile it can list up to three marches heading there and three setting out from there, soonest first.
+- **Last battle:** for a few minutes after a battle it can say whether your host held the field, was driven off, or was not there, with a short tip.
+- **Nothing else changes.** Marching, travel times and battles work exactly as before.
+- **Coming to the screen:** column, march and battle detail.
+
 ## 2026-11-27 — Army training progress, unit unlocks, and neighbour gift suggestions
 
 - **Training progress strip on Army:** When a Barracks stands finished, a slim progress strip shows the drilling company's bar, time left, queued count, or quiet/full note.

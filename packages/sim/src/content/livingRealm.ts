@@ -399,6 +399,31 @@ export const RELATIONSHIP_SUGGEST_GIFT = "A gift would warm them.";
 /** Slice 23: suggestion when opinion is low and gold is short of a gift. */
 export const RELATIONSHIP_SUGGEST_SAVE = "Save gold for a gift.";
 
+// ---------------------------------------------------------------- column status, march ETA, battle notes (slice 24)
+
+/** Slice 24: most columns columnStatusSnapshot lists. */
+export const COLUMN_STATUS_CAP = 6;
+/** Slice 24: a rival column is marching on a province the player holds. */
+export const COLUMN_NOTE_THREAT = "Enemy columns march on your lands.";
+/** Slice 24: more columns on the road than the list shows. */
+export const COLUMN_NOTE_MORE = "More columns march than are shown.";
+
+/** Slice 24: most entries marchEtaSnapshot lists in each of incoming and outgoing. */
+export const MARCH_ETA_CAP = 3;
+
+/** Slice 24: a battle counts as recent for this many ticks (3 minutes). */
+export const BATTLE_NOTE_RECENT_TICKS = 1800;
+/** Slice 24: last battle, player won. */
+export const BATTLE_NOTE_WON = "Your host held the field.";
+/** Slice 24: last battle, player lost. */
+export const BATTLE_NOTE_LOST = "Your host was driven from the field.";
+/** Slice 24: last battle, player not in it. */
+export const BATTLE_NOTE_OTHERS = "Other realms fought; your host was not there.";
+/** Slice 24: suggestion after a win. */
+export const BATTLE_SUGGEST_WON = "Rest the host, then press on.";
+/** Slice 24: suggestion after a loss. */
+export const BATTLE_SUGGEST_LOST = "Retrain before the next march.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

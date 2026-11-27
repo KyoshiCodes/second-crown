@@ -39,6 +39,16 @@ import {
   RELATIONSHIP_SUGGEST_CAP,
   RELATIONSHIP_SUGGEST_GIFT,
   RELATIONSHIP_SUGGEST_SAVE,
+  COLUMN_STATUS_CAP,
+  COLUMN_NOTE_THREAT,
+  COLUMN_NOTE_MORE,
+  MARCH_ETA_CAP,
+  BATTLE_NOTE_RECENT_TICKS,
+  BATTLE_NOTE_WON,
+  BATTLE_NOTE_LOST,
+  BATTLE_NOTE_OTHERS,
+  BATTLE_SUGGEST_WON,
+  BATTLE_SUGGEST_LOST,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -48,14 +58,17 @@ import {
   YIELD_BREAKDOWN_CAP,
 } from "../content/livingRealm.js";
 import { keepLevel } from "../actions/upgrade.js";
-import { friendlyRealmIds, livingSwitches, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
+import { friendlyRealmIds, livingSwitches, nameOf, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
 import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus } from "./economy.js";
 import { upkeepPerTick } from "./upkeep.js";
 import { RESEARCH, academyReady, unitUnlocked, type ResearchId } from "./research.js";
 import { DECREES } from "./decree.js";
-import { activePlayerMarch, listMarches } from "./march.js";
+import { activePlayerMarch, listMarches, type March } from "./march.js";
+import { forcePower } from "./column.js";
+import { lastBattleStory } from "./lastBattle.js";
+import { getWorldLog } from "./events.js";
 import { GATHER_NODES, listGathers } from "./gather.js";
 import { nodeStock, nodeStockMax } from "./nodeStock.js";
 import { listOutposts } from "./outpost.js";
@@ -1000,4 +1013,129 @@ export function relationshipDetailSnapshot(state: GameState, realmId: string): R
   else if (offer.block !== "no_ruler" && opinion < RELATIONSHIP_WARM_OPINION)
     suggestion = offer.ok ? RELATIONSHIP_SUGGEST_GIFT : RELATIONSHIP_SUGGEST_SAVE;
   return { opinion, stance, lastGift, suggestion };
+}
+
+// ---------------------------------------------------------------- column status (slice 24)
+
+export interface ColumnStatusEntry {
+  /** March id. */
+  id: string;
+  /** Realm name of the column's owner. */
+  name: string;
+  /** March kind: camp, node or hold. */
+  kind: March["kind"];
+  /** Destination province id. */
+  destination: string;
+  /** Ticks until arrival, never below 0. */
+  ticksLeft: number;
+  /** Column power, the sum march arrival uses (forcePower, else levy times militia power). */
+  strength: number;
+}
+
+export interface ColumnStatus {
+  /** Columns on the road, soonest first (id breaks ties), cap COLUMN_STATUS_CAP. */
+  columns: ColumnStatusEntry[];
+  /** COLUMN_NOTE_THREAT (rival column on a player province), COLUMN_NOTE_MORE (over cap), else null. */
+  note: string | null;
+}
+
+function marchStrength(m: March): number {
+  return m.force ? forcePower(m.force) : (m.levy ?? 0) * (getUnitType("militia")?.power ?? 1);
+}
+
+function byEta<T extends { id: string; ticksLeft: number }>(a: T, b: T): number {
+  return a.ticksLeft - b.ticksLeft || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+}
+
+/**
+ * Slice 24: every column on the board (marches_json), soonest first. Null with no columns or
+ * living_column_status off. Pure read; column and march math untouched.
+ */
+export function columnStatusSnapshot(state: GameState): ColumnStatus | null {
+  if (!livingSwitches(state).columnStatus) return null;
+  const list = listMarches(state);
+  if (list.length === 0) return null;
+  const tick = state.meta.tick;
+  const all = list
+    .map((m) => ({
+      id: m.id,
+      name: nameOf(state, m.realmId),
+      kind: m.kind,
+      destination: m.toId,
+      ticksLeft: Math.max(0, m.arrivesTick - tick),
+      strength: marchStrength(m),
+    }))
+    .sort(byEta);
+  const held = new Set(state.board.provinces.filter((p) => p.occupantRealmId === "player").map((p) => p.id));
+  held.add(state.board.homeProvinceId);
+  let note: string | null = null;
+  if (list.some((m) => m.realmId !== "player" && held.has(m.toId))) note = COLUMN_NOTE_THREAT;
+  else if (all.length > COLUMN_STATUS_CAP) note = COLUMN_NOTE_MORE;
+  return { columns: all.slice(0, COLUMN_STATUS_CAP), note };
+}
+
+// ---------------------------------------------------------------- march ETA detail (slice 24)
+
+export interface MarchEtaEntry {
+  /** March id. */
+  id: string;
+  kind: March["kind"];
+  /** Ticks until arrival, never below 0. */
+  ticksLeft: number;
+}
+
+export interface MarchEta {
+  /** Marches heading to this province, soonest first, cap MARCH_ETA_CAP. */
+  incoming: MarchEtaEntry[];
+  /** Marches that set out from this province, soonest first, cap MARCH_ETA_CAP. */
+  outgoing: MarchEtaEntry[];
+}
+
+/**
+ * Slice 24: marches to and from one province. Null for an unknown province or living_march_eta
+ * off. Pure read; pathfinding and travel time untouched.
+ */
+export function marchEtaSnapshot(state: GameState, provinceId: string): MarchEta | null {
+  if (!livingSwitches(state).marchEta) return null;
+  if (!state.board.provinces.some((p) => p.id === provinceId)) return null;
+  const tick = state.meta.tick;
+  const list = listMarches(state);
+  const pick = (ms: March[]): MarchEtaEntry[] =>
+    ms
+      .map((m) => ({ id: m.id, kind: m.kind, ticksLeft: Math.max(0, m.arrivesTick - tick) }))
+      .sort(byEta)
+      .slice(0, MARCH_ETA_CAP);
+  return {
+    incoming: pick(list.filter((m) => m.toId === provinceId)),
+    outgoing: pick(list.filter((m) => m.fromId === provinceId)),
+  };
+}
+
+// ---------------------------------------------------------------- battle outcome notes (slice 24)
+
+export interface BattleOutcomeNote {
+  /** The last battle: tick of the newest "battle" world-log entry and a fixed BATTLE_NOTE_* line. */
+  last: { tick: number; text: string } | null;
+  /** BATTLE_SUGGEST_WON / BATTLE_SUGGEST_LOST when the player fought, else null. */
+  suggestion: string | null;
+}
+
+/**
+ * Slice 24: a short note on the last battle (last_battle_json). Null with no stored battle, no
+ * "battle" world-log entry within BATTLE_NOTE_RECENT_TICKS, or living_battle_notes off.
+ * Pure read; combat math untouched.
+ */
+export function battleOutcomeNoteSnapshot(state: GameState): BattleOutcomeNote | null {
+  if (!livingSwitches(state).battleNotes) return null;
+  const story = lastBattleStory(state);
+  if (!story) return null;
+  const tick = state.meta.tick;
+  let at: number | null = null;
+  for (const ev of getWorldLog(state)) {
+    if (ev.id === "battle" && ev.tick <= tick && (at === null || ev.tick > at)) at = ev.tick;
+  }
+  if (at === null || tick - at > BATTLE_NOTE_RECENT_TICKS) return null;
+  if (story.winnerId === "player") return { last: { tick: at, text: BATTLE_NOTE_WON }, suggestion: BATTLE_SUGGEST_WON };
+  if (story.loserId === "player") return { last: { tick: at, text: BATTLE_NOTE_LOST }, suggestion: BATTLE_SUGGEST_LOST };
+  return { last: { tick: at, text: BATTLE_NOTE_OTHERS }, suggestion: null };
 }

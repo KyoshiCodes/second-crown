@@ -1,3 +1,13 @@
+## 2026-11-27 — sim / Living Realm slice 24 (column status, march ETA, battle notes)
+
+- **Where:** `columnStatusSnapshot`, `marchEtaSnapshot`, `battleOutcomeNoteSnapshot` in `systems/livingStatus.ts`. Constants (`COLUMN_STATUS_CAP`, `COLUMN_NOTE_*`, `MARCH_ETA_CAP`, `BATTLE_NOTE_*`, `BATTLE_SUGGEST_*`) in `content/livingRealm.ts`.
+- **Columns = marches.** Every entry in `marches_json` (player and NPC, any purpose, scouts and garrisons too). `name` = owner realm name (`nameOf`), `destination` = province id (`toId`), `kind` = `March.kind`. `strength` is the same sum `resolveMarchArrival` uses: `forcePower(force)`, else `levy x militia power`. No fog filter in the sim, same as slice 21 inspect detail; the app should hide unseen ones if it cares.
+- **March ETA:** incoming = `toId === provinceId`, outgoing = `fromId === provinceId` (player marches set out from home; NPC columns from their hold). Shared `byEta` sort: ticksLeft, then id.
+- **Battle tick:** `last_battle_json` has no tick. Both writers (`combat.ts`, `engagement.ts`) call `recordCrown(state, "battle", ...)` in the same tick, so the tick is the newest `battle` entry in `world_log`. No entry, or older than `BATTLE_NOTE_RECENT_TICKS` (1800), returns null, so `last` is never null in a non-null result today; the type keeps `| null` to match the brief.
+- **Switches:** `columnStatus`, `marchEta`, `battleNotes` in `LivingSwitches`.
+- **Exports:** the three functions, types `ColumnStatusEntry`, `ColumnStatus`, `MarchEtaEntry`, `MarchEta`, `BattleOutcomeNote`, and the constants from `packages/sim`.
+- **Left alone:** `march.ts` (pathfinding, travel time), `column.ts`, `combat.ts`, `engagement.ts`, `lastBattle.ts`, balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for training progress, unit unlocks & relationship detail
 
 - **Army training progress (`packages/app/src/hud/TrainingProgressLine.tsx`, `packages/app/src/tabs/ArmyTab.tsx`):**

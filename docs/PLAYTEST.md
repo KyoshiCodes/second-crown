@@ -179,6 +179,8 @@ Job summary and staffing pressure available (`living_job_summary`, `living_staff
 
 Training progress, unit unlocks, and relationship detail available (`living_training_progress`, `living_unit_unlocks`, `living_relationship_detail`). Read-only.
 
+Column status, march ETA detail, and battle outcome notes available (`living_column_status`, `living_march_eta`, `living_battle_notes`). Read-only.
+
 Attentive:
 
 ```

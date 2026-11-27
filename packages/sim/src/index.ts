@@ -406,6 +406,9 @@ export {
   trainingProgressSnapshot,
   unitUnlockSnapshot,
   relationshipDetailSnapshot,
+  columnStatusSnapshot,
+  marchEtaSnapshot,
+  battleOutcomeNoteSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -447,6 +450,11 @@ export type {
   UnitLocked,
   UnitUnlocks,
   RelationshipDetail,
+  ColumnStatusEntry,
+  ColumnStatus,
+  MarchEtaEntry,
+  MarchEta,
+  BattleOutcomeNote,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -512,6 +520,16 @@ export {
   RELATIONSHIP_SUGGEST_CAP,
   RELATIONSHIP_SUGGEST_GIFT,
   RELATIONSHIP_SUGGEST_SAVE,
+  COLUMN_STATUS_CAP,
+  COLUMN_NOTE_THREAT,
+  COLUMN_NOTE_MORE,
+  MARCH_ETA_CAP,
+  BATTLE_NOTE_RECENT_TICKS,
+  BATTLE_NOTE_WON,
+  BATTLE_NOTE_LOST,
+  BATTLE_NOTE_OTHERS,
+  BATTLE_SUGGEST_WON,
+  BATTLE_SUGGEST_LOST,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

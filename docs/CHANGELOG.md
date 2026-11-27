@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 24 (column status, march ETA, battle notes)
+
+- **Column status (`columnStatusSnapshot(state)`):** `{ columns: { id, name, kind, destination, ticksLeft, strength }[], note }` or null with no columns. Every march on the board, soonest first (id breaks ties), cap 6 (`COLUMN_STATUS_CAP`). `name` = owner realm name, `destination` = province id, `ticksLeft` never below 0, `strength` = march arrival's power sum. `note`: `COLUMN_NOTE_THREAT` (rival column heading to home or a player province), else `COLUMN_NOTE_MORE` (more than 6), else null.
+- **March ETA (`marchEtaSnapshot(state, provinceId)`):** `{ incoming: { id, kind, ticksLeft }[], outgoing: { id, kind, ticksLeft }[] }` or null for an unknown province. Incoming = marches to it, outgoing = marches from it, soonest first, cap 3 each (`MARCH_ETA_CAP`).
+- **Battle notes (`battleOutcomeNoteSnapshot(state)`):** `{ last: { tick, text } | null, suggestion }` or null with no stored battle or none within `BATTLE_NOTE_RECENT_TICKS` (1800). `tick` = newest `battle` world-log entry. `text` = `BATTLE_NOTE_WON` / `BATTLE_NOTE_LOST` / `BATTLE_NOTE_OTHERS`; `suggestion` = `BATTLE_SUGGEST_WON` / `BATTLE_SUGGEST_LOST` / null.
+- **Switches:** `living_column_status`, `living_march_eta`, `living_battle_notes` (false: null). All on.
+- **Read-only:** column and march math, pathfinding, combat math, balance tables untouched. No writes (tested).
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice24.test.ts` (13). Now: sim **851**, app **1705**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for training progress, unit unlocks, and relationship detail (Slice 23)
 
 - **Army training progress (`hud/TrainingProgressLine.tsx`, `tabs/ArmyTab.tsx`):** Added `resolveTrainingProgress` and `<TrainingProgressLine>` under `<TrainingPace>`, reading `trainingProgressSnapshot(state)` (`1f487a8`, exact match — zero mismatch) to render active unit progress bar, remaining ticks/seconds, queue count, and idle/full note, hiding cleanly with no finished Barracks (`null`) or `living_training_progress` `false`.

@@ -151,6 +151,12 @@ export interface LivingSwitches {
   unitUnlocks: boolean;
   /** Relationship detail (slice 23): relationshipDetailSnapshot. False: null. Read-only either way. */
   relationshipDetail: boolean;
+  /** Column status (slice 24): columnStatusSnapshot. False: null. Read-only either way. */
+  columnStatus: boolean;
+  /** March ETA detail (slice 24): marchEtaSnapshot. False: null. Read-only either way. */
+  marchEta: boolean;
+  /** Battle outcome notes (slice 24): battleOutcomeNoteSnapshot. False: null. Read-only either way. */
+  battleNotes: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -196,6 +202,9 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   trainingProgress: "living_training_progress",
   unitUnlocks: "living_unit_unlocks",
   relationshipDetail: "living_relationship_detail",
+  columnStatus: "living_column_status",
+  marchEta: "living_march_eta",
+  battleNotes: "living_battle_notes",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */
