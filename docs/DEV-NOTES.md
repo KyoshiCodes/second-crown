@@ -1,3 +1,15 @@
+## 2026-11-27 — sim / Living Realm slice 26 (board surface detail, selection feedback)
+
+- **Where:** `boardSurfaceSnapshot`, `selectionFeedbackSnapshot` in `systems/livingStatus.ts`. Constants (`SURFACE_ELEVATION`, `SURFACE_ELEVATION_DEFAULT`, `SURFACE_FOG_*`, `SURFACE_KEEP_*`, `SURFACE_MARCH_*`, `SELECTION_NOTE_*`) in `content/livingRealm.ts`.
+- **Fog without writes:** `isProvinceSeen` lazily seeds `flags.fog_seen` when it is missing. The new `seenNoWrite` helper calls it on a shallow copy (`{ ...state, flags: { ...state.flags } }`) in that case, so both snapshots stay pure reads (tested with `JSON.stringify(state)` before/after). Same answer as `isProvinceSeen` on every tile (tested). Note player-held tiles are always seen (outpost vision), so "veiled" never pairs with "Held by you."
+- **Elevation:** there is no height field on `Province`; elevation is a fixed line per terrain id (peak / hill / shore get their own; plain, wood, waste read as level).
+- **Keep:** home tile, or `node === "hold"` held by the player -> `Your keep`; hold held by anyone else -> `A rival keep`; unheld hold -> `An empty hold`; else null.
+- **Marches:** any realm's march in `marches_json`. Inbound rival beats inbound player beats outbound (`fromId`).
+- **Selection signature:** `selectionFeedbackSnapshot(state, view: BoardView = {})`. The brief said `(state)`, but selection lives in the app (`BoardView` comment, slice 17/19), so the id is passed in. Called as `(state)` it returns null (nothing selected).
+- **Switches:** `boardSurface`, `selectionFeedback` in `LivingSwitches`.
+- **Exports:** the two functions, types `BoardSurface`, `SelectionFeedback`, and the constants from `packages/sim`.
+- **Left alone:** `fog.ts`, `board.ts`, pathfinding, march / selection rules, balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for clash result detail & unit waiting states
 
 - **War clash result panel (`packages/app/src/hud/ClashResultPanel.tsx`, `packages/app/src/WarRoom.tsx`):**

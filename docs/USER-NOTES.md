@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now describe a map tile's surface and your selection
+
+- **Under the hood only.** For any tile the game can say its ground (high peak, rising ground, low shore, level ground), whether it is under fog, whether a keep stands there, and whether a column is coming or leaving.
+- **Selection:** for the tile you have selected it can give one short line, such as "Your home hold.", "Under fog. Scout to see more." or "Open ground."
+- **Nothing else changes.** Terrain, fog, movement and selecting work exactly as before.
+- **Coming to the screen:** board polish using these lines.
+
 ## 2026-11-27 — Clash result panel and posted / marching unit states
 
 - **Last clash detail on War:** After a recent clash, the War tab shows each side, muster strength, losses suffered, the Victory / Defeat / Others fought verdict, and whether losses were clean or heavy—hiding quietly when no clash happened recently.

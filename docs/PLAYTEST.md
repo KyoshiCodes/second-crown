@@ -183,6 +183,8 @@ Column status, march ETA detail, and battle outcome notes available (`living_col
 
 Clash result detail and unit waiting states available (`living_clash_result`, `living_unit_waiting`). Read-only.
 
+Board surface detail and selection feedback available (`living_board_surface`, `living_selection_feedback`). Read-only.
+
 Attentive:
 
 ```

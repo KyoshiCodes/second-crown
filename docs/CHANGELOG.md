@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 26 (board surface detail, selection feedback)
+
+- **Board surface (`boardSurfaceSnapshot(state, provinceId)`):** `{ terrain, elevation, fog, keep, marches }` or null for an unknown province. `terrain` = raw terrain id. `elevation` = `SURFACE_ELEVATION[terrain]` (`High peak` / `Rising ground` / `Low shore` / `Level ground`). `fog` = `clear` / `veiled` (`isProvinceSeen`). `keep` = `Your keep` (home, or a hold the player holds) / `A rival keep` / `An empty hold` on hold tiles, else null. `marches` = `Enemy column inbound.` / `Your column is on the way.` / `A column marches out.` / null.
+- **Selection feedback (`selectionFeedbackSnapshot(state, view?)`):** `{ selected, note }` or null when nothing (or an unknown id) is selected. Selection is app state, so the app passes `{ selectedProvinceId }` (the same `BoardView` as `boardFeedbackSnapshot`). `note` priority: `Your home hold.` / `Under fog. Scout to see more.` / `Held by you.` / `Held by another realm.` / `Open ground.`
+- **Switches:** `living_board_surface`, `living_selection_feedback` (false: null). All on.
+- **Read-only:** terrain, fog, pathfinding and selection rules untouched; neither call writes `fog_seen`.
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice26.test.ts` (14). Now: sim **880**, app **1713**, server **158** (1 skipped), app build clean.
+
 ## 2026-11-27 — Living presentation for clash result detail and unit waiting states (Slice 25)
 
 - **War clash result panel (`hud/ClashResultPanel.tsx`, `WarRoom.tsx`):** Added `resolveClashResult` and `<ClashResultPanel>` in place of `<BattleCard>` in `WarRoom`, reading `clashResultSnapshot(state)` (`efb819b`, exact match — zero mismatch) to show sides, realm names, muster strengths (`pwr`), casualties, outcome pill (`Victory` / `Defeat` / `Others fought`), clean/costly note, and optional blow-by-blow fold, hiding completely when `null`, stale, or `living_clash_result` is `false`.

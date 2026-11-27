@@ -56,6 +56,21 @@ import {
   CLASH_NOTE_COSTLY,
   CLASH_NOTE_CLEAN,
   UNIT_WAITING_CAP,
+  SURFACE_ELEVATION,
+  SURFACE_ELEVATION_DEFAULT,
+  SURFACE_FOG_CLEAR,
+  SURFACE_FOG_VEILED,
+  SURFACE_KEEP_HOME,
+  SURFACE_KEEP_RIVAL,
+  SURFACE_KEEP_EMPTY,
+  SURFACE_MARCH_ENEMY,
+  SURFACE_MARCH_OWN,
+  SURFACE_MARCH_LEAVING,
+  SELECTION_NOTE_HOME,
+  SELECTION_NOTE_VEILED,
+  SELECTION_NOTE_OWN,
+  SELECTION_NOTE_RIVAL,
+  SELECTION_NOTE_OPEN,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -77,6 +92,7 @@ import { forcePower } from "./column.js";
 import { lastBattleStory } from "./lastBattle.js";
 import { getWorldLog } from "./events.js";
 import { listGarrisons } from "./garrison.js";
+import { isProvinceSeen } from "./fog.js";
 import { GATHER_NODES, listGathers } from "./gather.js";
 import { nodeStock, nodeStockMax } from "./nodeStock.js";
 import { listOutposts } from "./outpost.js";
@@ -1271,4 +1287,79 @@ export function unitWaitingSnapshot(state: GameState): UnitWaitingStates | null 
   rows.sort((a, b) => a.row.ticksLeft - b.row.ticksLeft || cmpStr(a.marchId, b.marchId) || cmpStr(a.row.id, b.row.id));
   if (posted.length === 0 && rows.length === 0) return null;
   return { posted: posted.slice(0, UNIT_WAITING_CAP), waiting: rows.slice(0, UNIT_WAITING_CAP).map((r) => r.row) };
+}
+
+// ---------------------------------------------------------------- board surface detail (slice 26)
+
+export interface BoardSurface {
+  /** Raw terrain id. */
+  terrain: string;
+  /** SURFACE_ELEVATION line for the terrain. */
+  elevation: string;
+  /** SURFACE_FOG_CLEAR / SURFACE_FOG_VEILED (isProvinceSeen). */
+  fog: string;
+  /** SURFACE_KEEP_* on the home tile or a hold tile, else null. */
+  keep: string | null;
+  /** SURFACE_MARCH_* when a column is coming to or leaving the tile, else null. */
+  marches: string | null;
+}
+
+/** isProvinceSeen without its lazy fog_seen write: reads a shallow copy when the flag is missing. */
+function seenNoWrite(state: GameState, provinceId: string): boolean {
+  if (typeof state.flags.fog_seen === "string" && state.flags.fog_seen) return isProvinceSeen(state, provinceId);
+  return isProvinceSeen({ ...state, flags: { ...state.flags } }, provinceId);
+}
+
+/**
+ * Slice 26: surface detail for one board tile. Null for an unknown id or with
+ * living_board_surface off. Pure read; terrain, fog and pathfinding rules untouched.
+ */
+export function boardSurfaceSnapshot(state: GameState, provinceId: string): BoardSurface | null {
+  if (!livingSwitches(state).boardSurface) return null;
+  const p = state.board.provinces.find((q) => q.id === provinceId);
+  if (!p) return null;
+  const elevation = Object.prototype.hasOwnProperty.call(SURFACE_ELEVATION, p.terrain)
+    ? SURFACE_ELEVATION[p.terrain]
+    : SURFACE_ELEVATION_DEFAULT;
+  const fog = seenNoWrite(state, p.id) ? SURFACE_FOG_CLEAR : SURFACE_FOG_VEILED;
+  let keep: string | null = null;
+  if (p.id === state.board.homeProvinceId || (p.node === "hold" && p.occupantRealmId === "player")) keep = SURFACE_KEEP_HOME;
+  else if (p.node === "hold") keep = p.occupantRealmId ? SURFACE_KEEP_RIVAL : SURFACE_KEEP_EMPTY;
+  const all = listMarches(state);
+  const inbound = all.filter((m) => m.toId === p.id);
+  let marches: string | null = null;
+  if (inbound.some((m) => m.realmId !== "player")) marches = SURFACE_MARCH_ENEMY;
+  else if (inbound.length > 0) marches = SURFACE_MARCH_OWN;
+  else if (all.some((m) => m.fromId === p.id)) marches = SURFACE_MARCH_LEAVING;
+  return { terrain: p.terrain, elevation, fog, keep, marches };
+}
+
+// ---------------------------------------------------------------- selection feedback (slice 26)
+
+export interface SelectionFeedback {
+  /** Selected province id. */
+  selected: string;
+  /** SELECTION_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 26: a short note on the selected tile. Selection is app state, so the app passes the
+ * id it holds (same BoardView as boardFeedbackSnapshot). Null when nothing (or an unknown id)
+ * is selected, or with living_selection_feedback off. Pure read; selection rules untouched.
+ * Note priority: home, veiled, held by you, held by another realm, open ground.
+ */
+export function selectionFeedbackSnapshot(state: GameState, view: BoardView = {}): SelectionFeedback | null {
+  if (!livingSwitches(state).selectionFeedback) return null;
+  const id = view.selectedProvinceId;
+  if (!id) return null;
+  const p = state.board.provinces.find((q) => q.id === id);
+  if (!p) return null;
+  let note: string;
+  if (p.id === state.board.homeProvinceId) note = SELECTION_NOTE_HOME;
+  else if (!seenNoWrite(state, p.id)) note = SELECTION_NOTE_VEILED;
+  else if (p.occupantRealmId === "player") note = SELECTION_NOTE_OWN;
+  else if (p.occupantRealmId) note = SELECTION_NOTE_RIVAL;
+  else note = SELECTION_NOTE_OPEN;
+  return { selected: p.id, note };
 }

@@ -161,6 +161,10 @@ export interface LivingSwitches {
   clashResult: boolean;
   /** Unit waiting states (slice 25): unitWaitingSnapshot. False: null. Read-only either way. */
   unitWaiting: boolean;
+  /** Board surface detail (slice 26): boardSurfaceSnapshot. False: null. Read-only either way. */
+  boardSurface: boolean;
+  /** Selection feedback (slice 26): selectionFeedbackSnapshot. False: null. Read-only either way. */
+  selectionFeedback: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -211,6 +215,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   battleNotes: "living_battle_notes",
   clashResult: "living_clash_result",
   unitWaiting: "living_unit_waiting",
+  boardSurface: "living_board_surface",
+  selectionFeedback: "living_selection_feedback",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

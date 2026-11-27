@@ -442,6 +442,47 @@ export const CLASH_NOTE_COSTLY = "You lost more men than they did.";
 /** Slice 25: most entries unitWaitingSnapshot lists in each of posted and waiting. */
 export const UNIT_WAITING_CAP = 5;
 
+// ---------------------------------------------------------------- board surface, selection feedback (slice 26)
+
+/** Slice 26: elevation line per terrain. */
+export const SURFACE_ELEVATION: Record<string, string> = {
+  peak: "High peak",
+  hill: "Rising ground",
+  shore: "Low shore",
+  plain: "Level ground",
+  wood: "Level ground",
+  waste: "Level ground",
+};
+/** Slice 26: elevation line for a terrain not in SURFACE_ELEVATION. */
+export const SURFACE_ELEVATION_DEFAULT = "Level ground";
+/** Slice 26: fog state, the player can see the tile. */
+export const SURFACE_FOG_CLEAR = "clear";
+/** Slice 26: fog state, the tile is under fog. */
+export const SURFACE_FOG_VEILED = "veiled";
+/** Slice 26: keep line, the player's home hold or a hold the player holds. */
+export const SURFACE_KEEP_HOME = "Your keep";
+/** Slice 26: keep line, a hold held by another realm. */
+export const SURFACE_KEEP_RIVAL = "A rival keep";
+/** Slice 26: keep line, a hold no realm holds. */
+export const SURFACE_KEEP_EMPTY = "An empty hold";
+/** Slice 26: marches line, a rival column is coming to the tile. */
+export const SURFACE_MARCH_ENEMY = "Enemy column inbound.";
+/** Slice 26: marches line, only player columns are coming. */
+export const SURFACE_MARCH_OWN = "Your column is on the way.";
+/** Slice 26: marches line, a column is leaving the tile (none inbound). */
+export const SURFACE_MARCH_LEAVING = "A column marches out.";
+
+/** Slice 26: selection note, the home hold. */
+export const SELECTION_NOTE_HOME = "Your home hold.";
+/** Slice 26: selection note, the tile is under fog. */
+export const SELECTION_NOTE_VEILED = "Under fog. Scout to see more.";
+/** Slice 26: selection note, a player-held tile. */
+export const SELECTION_NOTE_OWN = "Held by you.";
+/** Slice 26: selection note, a tile another realm holds. */
+export const SELECTION_NOTE_RIVAL = "Held by another realm.";
+/** Slice 26: selection note, open ground. */
+export const SELECTION_NOTE_OPEN = "Open ground.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**
