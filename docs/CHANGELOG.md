@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for board friendly routes (Slice 15)
+
+- **Board friendly routes (`hud/BoardFriendlyRoutes.tsx`, `BoardLiving.tsx`):** Added `listBoardFriendlyRoutes` and `<BoardFriendlyRoutes>` right before `<BoardFriendlyPresence>`, reading `friendlyRoutesSnapshot(state)` (`4ff15ac`, exact match — zero mismatch). Renders non-blocking (`pointer-events: none !important;`), fog-respecting culture-kit gradient arcs between seen friendly holds trimmed away from hold pips/standards (`strength` `1` subtle peace arc, `2` medium pact/trade arc + waymarker, `3` stronger trade + pact arc with `.sc-froute-glow` and gold diamond waymarker; zero blood/gore).
+- **Unchanged invariants & accessibility:** Dedicated `hud/friendly-routes.css` only (pathfinding/trade math, `theme.css`, `board-living.css`, `friendly-presence-standard.css`, `relationship-summary.css`, `column-marks.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/BoardFriendlyRoutes.test.tsx` (3 tests). Now: sim **697**, app **1673**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 15 (friendly routes)
 
 - **Friendly routes (`friendlyRoutesSnapshot(state, atTick?)`):** `{ fromRealmId, toRealmId, kind, strength }[]` for pairs of friendly realms. Both ends must be listed in `friendlyPresenceSnapshot`; the player is never an end. Pairs go in presence order (`fromRealmId` is the earlier realm), capped at `FRIENDLY_ROUTES_CAP` (8).

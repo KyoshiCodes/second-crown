@@ -204,6 +204,11 @@ import {
   listBoardFriendlyPresence,
   type BoardFriendlyPresenceItem,
 } from "./hud/BoardFriendlyPresence";
+import {
+  BoardFriendlyRoutes,
+  listBoardFriendlyRoutes,
+  type BoardFriendlyRouteItem,
+} from "./hud/BoardFriendlyRoutes";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1048,6 +1053,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.598. Living Realm Joined-War Outcome Ribbon (short-lived aftermath) */}
         <BoardJoinedOutcome state={state} />
 
+        {/* 5.5975. Living Realm Friendly Routes (quiet arcs between friendly holds) */}
+        <BoardFriendlyRoutes state={state} />
+
         {/* 5.598. Living Realm Friendly Presence Marks (peace / pact / trade) */}
         <BoardFriendlyPresence state={state} />
 
@@ -1262,4 +1270,7 @@ export {
   BoardFriendlyPresence,
   listBoardFriendlyPresence,
   type BoardFriendlyPresenceItem,
+  BoardFriendlyRoutes,
+  listBoardFriendlyRoutes,
+  type BoardFriendlyRouteItem,
 };

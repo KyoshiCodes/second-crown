@@ -1,3 +1,11 @@
+## 2026-11-27 — app / living presentation for board friendly routes
+
+- **Board routes layer (`packages/app/src/hud/BoardFriendlyRoutes.tsx`, `BoardLiving.tsx`):**
+  - Exported `BoardFriendlyRouteItem`, pure `listBoardFriendlyRoutes(state)` (partial-state guard + `isProvinceSeen` check on both holds, `7px` endpoint trim + alternating quadratic curve bow), and `<BoardFriendlyRoutes state={state} />` mounted inside `BoardLiving.tsx` directly before `<BoardFriendlyPresence>` so routes stay cleanly beneath hold pips, formations, and column standards.
+  - Reads `friendlyRoutesSnapshot(state)` (`4ff15ac`, exact match — zero mismatch) to render culture-kit SVG `<linearGradient>` arcs scaled by `strength` (`1`: faint dashed `0.72` stroke; `2`: medium `1.05` stroke + midpoint waymarker; `3`: `1.35` stroke + `.sc-froute-glow` + gold diamond waymarker). Strict `pointer-events: none !important;`, zero blood/gore.
+- **Dedicated CSS (`packages/app/src/hud/friendly-routes.css`):** Imported from `BoardFriendlyRoutes.tsx`. Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;`, calm drift/breathe keyframes (`sc-froute-drift`, `sc-froute-mote-breathe`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to pathfinding/trade math, `theme.css`, `board-living.css`, `friendly-presence-standard.css`, `relationship-summary.css`, `column-marks.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/BoardFriendlyRoutes.test.tsx`):** 3 tests passing (`npm test` -> sim **697**, app **1673**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 15 (friendly routes)
 
 - **Snapshot:** `friendlyRoutesSnapshot(state, atTick = tick)` in `systems/livingRealm.ts`, types `FriendlyRoute`, `FriendlyRouteKind`; cap `FRIENDLY_ROUTES_CAP` (8) in `content/livingRealm.ts`. Ends = `friendlyPresenceSnapshot(state, atTick)` realm ids (so it inherits presence's cap of 6, its order and its `living_board_presence` switch). Walks pairs i < j, stops at the cap.

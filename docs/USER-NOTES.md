@@ -2,6 +2,10 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Friendly routes drawn on the map
+
+- **Quiet arcs between friendly holds:** When visible friendly neighbors trade, share a war pact beside you, or keep peace with each other, calm culture-tinted arcs now link their holds on the map without blocking clicks or covering banners (stronger paths show a gentle waymarker or soft gold-trimmed glow).
+
 ## 2026-11-27 — The game now knows the quiet roads between your friends
 
 - **Friendly routes.** When two realms you're friendly with also get along with each other (they trade, one rides beside you in your war, or they're at peace), the game now notes a quiet road between them, rated 1 to 3. Trade or a war pact makes it stronger; both make it strongest.
