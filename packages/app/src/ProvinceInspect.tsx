@@ -80,6 +80,7 @@ import { TICKS_PER_SECOND } from "@second-crown/shared";
 import type { ActFn } from "./game/useGameEngine";
 import "./hud/inspect-card.css";
 import { CampTierPip } from "./hud/CampTierPip";
+import { InspectDetailSection } from "./hud/InspectDetailSection";
 
 const TERRAIN: Record<string, string> = {
   plain: "Plain",
@@ -356,6 +357,7 @@ export function ProvinceInspect(props: {
           </div>
         ) : null}
       </section>
+      {seen ? <InspectDetailSection state={state} provinceId={selectedId} /> : null}
       {hasForces ? (
         <section className="sc-inspect-group is-forces">
           <div className="sc-inspect-group-head">Forces</div>

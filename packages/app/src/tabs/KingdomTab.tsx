@@ -87,6 +87,7 @@ import { AcademyFeedbackLine } from "../hud/AcademyFeedbackLine";
 import { ResearchDetailExpander } from "../hud/ResearchDetailExpander";
 import { CourtStatusLine } from "../hud/CourtStatusLine";
 import { CourtDetailLine } from "../hud/CourtDetailLine";
+import { DecreeEffectSummaryLine } from "../hud/DecreeEffectSummaryLine";
 import "../hud/season-pip.css";
 import "../hud/map-strip.css";
 import "../hud/plain-buttons.css";
@@ -240,6 +241,7 @@ export function KingdomTab(props: {
       <ResearchDetailExpander state={state} />
       <CourtStatusLine state={state} />
       <CourtDetailLine state={state} />
+      <DecreeEffectSummaryLine state={state} />
       <PaceLine state={state} />
       <BottleneckLine state={state} />
       <SeasonClaimLine state={state} act={act} />

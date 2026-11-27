@@ -1,3 +1,12 @@
+## 2026-11-27 — app / living presentation for decree-effect summaries & province inspect detail
+
+- **Decree-effect summary line (`packages/app/src/hud/DecreeEffectSummaryLine.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**
+  - Exported pure `resolveDecreeEffectSummary(state)` wrapping `decreeEffectSummarySnapshot(state)` (`7e4d28b`, exact match — zero mismatch) and mounted `<DecreeEffectSummaryLine state={state} />` under `<CourtDetailLine>`. Lists active decree effects (`d.name: d.effect`) plus `snap.suggestion`, returning `null` with no court or when `living_decree_effects` is `false`.
+- **Inspect detail section (`packages/app/src/hud/InspectDetailSection.tsx`, `packages/app/src/ProvinceInspect.tsx`):**
+  - Exported pure `resolveInspectDetail(state, provinceId)` wrapping `inspectDetailSnapshot(state, provinceId)` (`7e4d28b`, exact match — zero mismatch) and mounted `{seen ? <InspectDetailSection state={state} provinceId={selectedId} /> : null}` after the `is-owner` group so fogged tiles never leak stock/outpost/march data.
+- **Dedicated CSS (`hud/decree-effect-summary.css`, `hud/inspect-detail.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips and stock bars, calm breathe/fill transitions, and `@media (prefers-reduced-motion: reduce)`. Zero edits to sim/server math, `theme.css`, `inspect-card.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice21Presentation.test.tsx`):** 3 tests passing (`npm test` -> sim **809**, app **1698**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — app / living presentation for research progress, study previews & academy feedback
 
 - **Research progress detail bar (`packages/app/src/hud/ResearchProgressDetailBar.tsx`, `packages/app/src/tabs/KingdomTab.tsx`):**

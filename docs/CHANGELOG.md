@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for decree-effect summaries and inspect detail (Slice 21)
+
+- **Court decree-effect summary line (`hud/DecreeEffectSummaryLine.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveDecreeEffectSummary` and `<DecreeEffectSummaryLine>` directly under `<CourtDetailLine>`, reading `decreeEffectSummarySnapshot(state)` (`7e4d28b`, exact match — zero mismatch) to list running decrees' plain-word effects and next affordable/save decree suggestions, hiding cleanly when `null` or `living_decree_effects` is `false`.
+- **Inspect detail section (`hud/InspectDetailSection.tsx`, `ProvinceInspect.tsx`):** Added `resolveInspectDetail` and `<InspectDetailSection>` inside `ProvinceInspect` (strictly gated on `seen` to preserve fog secrecy), reading `inspectDetailSnapshot(state, provinceId)` (`7e4d28b`, exact match — zero mismatch) to show gather-node stock (`have/max` + thin bar), nearby outposts within 2 steps, inbound marches with ETA, and up to 3 notes cleanly without crowding the existing card.
+- **Unchanged invariants & accessibility:** Dedicated `hud/decree-effect-summary.css` and `hud/inspect-detail.css` only (no sim/server math, `theme.css`, `inspect-card.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/stock bars, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice21Presentation.test.tsx` (3 tests). Now: sim **809**, app **1698**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living presentation for research progress, study previews, and academy feedback (Slice 20)
 
 - **Research progress detail bar (`hud/ResearchProgressDetailBar.tsx`, `tabs/KingdomTab.tsx`):** Added `resolveResearchProgressDetail` and `<ResearchProgressDetailBar>` under `<ResearchProgressLine>`, reading `researchProgressDetailSnapshot(state)` (`36af5fb`, exact match — zero mismatch) to render a thin progress strip, whole-percent note, and `~Ns` countdown while a study is open, hiding cleanly when `null` or `living_research_progress` is `false`.

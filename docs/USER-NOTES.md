@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Decree effect summaries on Kingdom and richer province inspect detail
+
+- **Active decree effects & suggestions on Kingdom:** Under the court countdown line, a quiet summary strip now spells out what active decrees do (`Training costs 10% less`, `+3 production`, `Gifts earn +6 opinion`) and notes which open decree is ready to swear next.
+- **Stock, outposts, and march detail on Inspect cards:** Inspecting a seen province now shows a compact **Detail** section with gather-node stock and fill bar, nearby outposts within two steps, incoming marches, and concise status notes while staying hidden on fogged tiles.
+
 ## 2026-11-27 — Study progress bar, unlock previews, and Academy status on Kingdom
 
 - **Study progress bar:** When a study is underway, a slim progress strip under the Kingdom research line shows its completion percentage and remaining seconds cleanly, disappearing automatically when the lectern is idle.

@@ -1,0 +1,152 @@
+/* --- Living Realm Slice 21: Province Inspect Detail Section (isolated CSS) ---
+ * Loaded from hud/InspectDetailSection.tsx.
+ * Leaves theme.css, inspect-card.css, and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on decorative pips and stock bars.
+ * Quiet stock / outpost / march detail in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-id-bg: rgba(16, 22, 34, 0.36);
+  --sc-id-border: rgba(148, 163, 184, 0.18);
+  --sc-id-text: #cbd5e1;
+  --sc-id-muted: rgba(186, 198, 214, 0.78);
+  --sc-id-track: rgba(148, 163, 184, 0.22);
+  --sc-id-fill-rgb: 134, 210, 178;
+  --sc-id-pip-rgb: 147, 197, 253;
+}
+
+:root[data-chrome="night"] {
+  --sc-id-bg: rgba(10, 14, 24, 0.48);
+  --sc-id-border: rgba(148, 163, 184, 0.24);
+  --sc-id-text: #dbe4ef;
+  --sc-id-muted: rgba(196, 210, 226, 0.84);
+  --sc-id-track: rgba(148, 163, 184, 0.26);
+  --sc-id-fill-rgb: 152, 224, 194;
+  --sc-id-pip-rgb: 168, 212, 255;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-id-bg: rgba(34, 24, 15, 0.46);
+  --sc-id-border: rgba(196, 164, 112, 0.22);
+  --sc-id-text: #efe1c4;
+  --sc-id-muted: rgba(226, 204, 166, 0.8);
+  --sc-id-track: rgba(196, 164, 112, 0.24);
+  --sc-id-fill-rgb: 190, 242, 100;
+  --sc-id-pip-rgb: 228, 178, 86;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Elements
+   ========================================================================== */
+.sc-inspect-detail-pip,
+.sc-inspect-stock-bar,
+.sc-inspect-stock-fill {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Quiet Inspect Detail Section
+   ========================================================================== */
+.sc-inspect-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-id-border);
+  background: var(--sc-id-bg);
+  color: var(--sc-id-text);
+  font-size: 11px;
+  line-height: 1.38;
+}
+
+.sc-inspect-detail-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sc-inspect-detail-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: rgb(var(--sc-id-pip-rgb));
+  animation: sc-id-pip-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-inspect-detail-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.sc-inspect-detail-label {
+  color: var(--sc-id-muted);
+  font-weight: 500;
+  min-width: 52px;
+}
+
+.sc-inspect-stock-bar {
+  width: 56px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--sc-id-track);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sc-inspect-stock-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: rgb(var(--sc-id-fill-rgb));
+  transition: width 0.25s ease;
+}
+
+.sc-inspect-detail-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sc-inspect-detail-chip {
+  color: var(--sc-id-text);
+}
+
+.sc-inspect-detail-notes {
+  margin: 0;
+  padding-left: 14px;
+  color: var(--sc-id-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-id-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.58;
+  }
+  50% {
+    opacity: 0.94;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-inspect-detail-pip {
+    animation: none !important;
+  }
+  .sc-inspect-stock-fill {
+    transition: none !important;
+  }
+}
