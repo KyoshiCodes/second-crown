@@ -1,0 +1,253 @@
+/* --- Living Realm Slice 6: Culture Correspondence & Joined-War Outcomes (isolated CSS) ---
+ * Loaded from hud/CultureWhispersCard.tsx and hud/JoinedWarOutcomeCue.tsx.
+ * Leaves theme.css, living-realm-ui.css, board-living.css,
+ * war-join-imagery.css, and war-phase.css untouched.
+ * Strict pointer-events: none !important on map overlays and decorative pills.
+ * Calm, read-only presentation — zero chat input.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-corr-thread-rgb: 148, 178, 214;
+  --sc-corr-reply-bg: rgba(18, 27, 44, 0.56);
+  --sc-corr-reply-border: rgba(148, 178, 214, 0.28);
+  --sc-outcome-victory-rgb: 142, 206, 158;
+  --sc-outcome-defeat-rgb: 226, 168, 92;
+  --sc-outcome-peace-rgb: 152, 186, 224;
+  --sc-outcome-bg: rgba(15, 23, 42, 0.42);
+  --sc-outcome-border: rgba(148, 163, 184, 0.26);
+  --sc-outcome-text: #eef2f7;
+  --sc-outcome-sub: rgba(203, 213, 225, 0.78);
+  --sc-outcome-ribbon-bg: rgba(15, 22, 34, 0.86);
+  --sc-outcome-ribbon-text: #f1e6cf;
+}
+
+:root[data-chrome="night"] {
+  --sc-corr-thread-rgb: 162, 194, 232;
+  --sc-corr-reply-bg: rgba(12, 18, 32, 0.68);
+  --sc-corr-reply-border: rgba(162, 194, 232, 0.34);
+  --sc-outcome-victory-rgb: 154, 218, 172;
+  --sc-outcome-defeat-rgb: 238, 180, 104;
+  --sc-outcome-peace-rgb: 168, 202, 236;
+  --sc-outcome-bg: rgba(10, 15, 28, 0.56);
+  --sc-outcome-border: rgba(148, 163, 184, 0.32);
+  --sc-outcome-text: #f3f6fb;
+  --sc-outcome-sub: rgba(203, 213, 225, 0.82);
+  --sc-outcome-ribbon-bg: rgba(10, 14, 24, 0.9);
+  --sc-outcome-ribbon-text: #f4ebd8;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-corr-thread-rgb: 212, 178, 122;
+  --sc-corr-reply-bg: rgba(38, 27, 17, 0.62);
+  --sc-corr-reply-border: rgba(212, 178, 122, 0.32);
+  --sc-outcome-victory-rgb: 162, 208, 152;
+  --sc-outcome-defeat-rgb: 228, 170, 88;
+  --sc-outcome-peace-rgb: 176, 198, 214;
+  --sc-outcome-bg: rgba(34, 24, 15, 0.56);
+  --sc-outcome-border: rgba(196, 164, 112, 0.3);
+  --sc-outcome-text: #f5e6c8;
+  --sc-outcome-sub: rgba(235, 218, 186, 0.8);
+  --sc-outcome-ribbon-bg: rgba(30, 21, 13, 0.88);
+  --sc-outcome-ribbon-text: #f5e6c8;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Rules for Map Overlays & Badges
+   ========================================================================== */
+.sc-joined-outcome-board,
+.sc-joined-outcome-board *,
+.sc-correspondence-thread,
+.sc-correspondence-from,
+.sc-joined-outcome-pip,
+.sc-joined-outcome-badge {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Culture Correspondence Pairs (Whisper + Reply, Read-Only)
+   ========================================================================== */
+.sc-culture-whisper-item.is-correspondence-pair {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sc-correspondence-whisper {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.sc-correspondence-reply {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-left: 14px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--sc-corr-reply-border);
+  border-left: 3px solid rgba(var(--sc-corr-thread-rgb), 0.58);
+  background: var(--sc-corr-reply-bg);
+}
+
+.sc-correspondence-from {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+.sc-correspondence-reply .sc-culture-whisper-pip {
+  animation: sc-corr-pip-breathe 4.4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   4. War Tab Joined-War Outcome Line
+   ========================================================================== */
+.sc-joined-outcome {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 7px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--sc-outcome-border);
+  border-left: 3px solid rgba(var(--sc-outcome-peace-rgb), 0.72);
+  background: var(--sc-outcome-bg);
+  color: var(--sc-outcome-text);
+  font-size: 12.5px;
+}
+
+.sc-joined-outcome.is-victory {
+  border-left-color: rgba(var(--sc-outcome-victory-rgb), 0.78);
+}
+
+.sc-joined-outcome.is-defeat {
+  border-left-color: rgba(var(--sc-outcome-defeat-rgb), 0.78);
+}
+
+.sc-joined-outcome-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.sc-joined-outcome-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: 1px solid rgba(var(--sc-outcome-peace-rgb), 0.42);
+  background: rgba(var(--sc-outcome-peace-rgb), 0.14);
+}
+
+.sc-joined-outcome.is-victory .sc-joined-outcome-badge {
+  border-color: rgba(var(--sc-outcome-victory-rgb), 0.48);
+  background: rgba(var(--sc-outcome-victory-rgb), 0.14);
+}
+
+.sc-joined-outcome.is-defeat .sc-joined-outcome-badge {
+  border-color: rgba(var(--sc-outcome-defeat-rgb), 0.48);
+  background: rgba(var(--sc-outcome-defeat-rgb), 0.14);
+}
+
+.sc-joined-outcome-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(var(--sc-outcome-peace-rgb));
+  animation: sc-outcome-breathe 4.6s ease-in-out infinite;
+}
+
+.sc-joined-outcome.is-victory .sc-joined-outcome-pip {
+  background: rgb(var(--sc-outcome-victory-rgb));
+}
+
+.sc-joined-outcome.is-defeat .sc-joined-outcome-pip {
+  background: rgb(var(--sc-outcome-defeat-rgb));
+}
+
+.sc-joined-outcome-line {
+  line-height: 1.35;
+}
+
+.sc-joined-outcome-npc {
+  font-size: 11.5px;
+  color: var(--sc-outcome-sub);
+}
+
+/* ==========================================================================
+   5. Map Joined-War Outcome Ribbon Pill
+   ========================================================================== */
+.sc-outcome-ribbon-bg {
+  fill: var(--sc-outcome-ribbon-bg);
+  stroke: rgba(var(--sc-outcome-peace-rgb), 0.62);
+  stroke-width: 0.75;
+  animation: sc-outcome-breathe 4.6s ease-in-out infinite;
+}
+
+.sc-joined-outcome-board.is-victory .sc-outcome-ribbon-bg {
+  stroke: rgba(var(--sc-outcome-victory-rgb), 0.7);
+}
+
+.sc-joined-outcome-board.is-defeat .sc-outcome-ribbon-bg {
+  stroke: rgba(var(--sc-outcome-defeat-rgb), 0.7);
+}
+
+.sc-outcome-ribbon-dot {
+  fill: rgb(var(--sc-outcome-peace-rgb));
+}
+
+.sc-joined-outcome-board.is-victory .sc-outcome-ribbon-dot {
+  fill: rgb(var(--sc-outcome-victory-rgb));
+}
+
+.sc-joined-outcome-board.is-defeat .sc-outcome-ribbon-dot {
+  fill: rgb(var(--sc-outcome-defeat-rgb));
+}
+
+.sc-outcome-ribbon-text {
+  fill: var(--sc-outcome-ribbon-text);
+  font-size: 5.2px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ==========================================================================
+   6. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-corr-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.66;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-outcome-breathe {
+  0%,
+  100% {
+    opacity: 0.74;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-correspondence-reply .sc-culture-whisper-pip,
+  .sc-joined-outcome-pip,
+  .sc-outcome-ribbon-bg {
+    animation: none !important;
+  }
+}

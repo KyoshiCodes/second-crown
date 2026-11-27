@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-26 — Living presentation for culture correspondence & joined-war outcomes
+
+- **Culture correspondence pairs (`hud/CultureWhispersCard.tsx`):** Added `pairCultureCorrespondence` reading `@second-crown/sim`'s `getCultureNews(state)` (`b30ddb0` extended `CultureNews` with `id` / `replyTo` / `kind: "reply"` rather than `correspondenceNews`). Groups each whisper and its matching reply into a calm thread pair newest-first showing both realms' culture crests, names, tags, and text with zero chat input.
+- **Joined-war outcomes (`hud/JoinedWarOutcomeCue.tsx`, `WarRoom.tsx`, `BoardLiving.tsx`):** Added `resolveLatestJoinedOutcome`, `resolveBoardJoinedOutcome`, `<JoinedWarOutcomeLine>` (War tab calm outcome badge + `JoinedWarOutcome.line` + optional settled NPC war note), and `<BoardJoinedOutcome>` (short-lived `WAR_AFTERMATH_TICKS` ribbon pill near the player hold, `pointer-events: none !important;`), reading `latestJoinedWarOutcome` (`joinedWarOutcome`, exact match).
+- **Unchanged invariants & accessibility:** Dedicated `hud/correspondence-outcome.css` only (`theme.css`, `living-realm-ui.css`, `board-living.css`, `living-realm-board.css`, `war-join-imagery.css`, `packages/sim`, `packages/render`, and `server/` untouched); Dusk/Night/Parchment chrome tokens and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/CorrespondenceOutcome.test.tsx` (4 tests). Now: sim **557**, app **1642**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-26 — Living Realm slice 6 (culture correspondence, joined-war outcome)
 
 - **Correspondence (`livingRealm.ts tickCorrespondence`):** an NPC realm that receives a whisper replies once, `WHISPER_REPLY_DELAY_TICKS` = 300 ticks (30 s) later, with a fixed line from its culture's new `WHISPER_REPLIES` table (tick + realm salt, no RNG). Replies are culture-news items `{ tick, kind: "reply", fromRealmId, toRealmId, text, replyTo }`; whispers gain `id: "wh_<tick>"`. Queue in `flags.culture_pending_replies` (cap 8). Dropped, not retried, if the pair is at war or peace-locked when it falls due. Whispers now also skip peace-locked realms. Whispers to the player get no auto-reply.

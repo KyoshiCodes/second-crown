@@ -1,3 +1,14 @@
+## 2026-11-26 — app / living presentation for culture correspondence & joined-war outcomes
+
+- **Culture correspondence (`packages/app/src/hud/CultureWhispersCard.tsx`):**
+  - Exported `CultureCorrespondenceEntry` and `pairCultureCorrespondence(state)` (with defensive `!state?.flags || !Array.isArray(state.realms)` guard in `summarizeCultureNews`).
+  - **Shape mismatch note:** `@second-crown/sim` (`b30ddb0`) shipped `id` / `replyTo` / `kind: "reply"` inside `getCultureNews(state)` instead of a separate `correspondenceNews` helper. `pairCultureCorrespondence` matches replies to whispers by `replyTo === whisper.id`, ordering paired threads and standalone items newest-first while preserving zero `<input>`/`<textarea>` controls.
+- **Joined-war outcomes (`packages/app/src/hud/JoinedWarOutcomeCue.tsx`, `WarRoom.tsx`, `BoardLiving.tsx`):**
+  - Exported `JoinedOutcomeTone`, `BoardJoinedOutcomePoint`, pure `resolveJoinedOutcomeTone`, `resolveLatestJoinedOutcome`, `resolveBoardJoinedOutcome`, `<JoinedWarOutcomeLine>`, and `<BoardJoinedOutcome>` (`pointer-events: none !important;`).
+  - Reads `latestJoinedWarOutcome(state)` (`joinedWarOutcome`, exact match): War tab displays the calm tone badge (`Field held` / `Foe held` / `White peace`), `outcome.line`, and settled NPC war summary; `BoardLiving` displays a short-lived (`WAR_AFTERMATH_TICKS`) aftermath pill near the player hold.
+- **Dedicated CSS (`packages/app/src/hud/correspondence-outcome.css`):** Imported from `CultureWhispersCard.tsx` and `JoinedWarOutcomeCue.tsx`. Dusk/Night/Parchment tokens, strict `pointer-events: none !important;` on map overlays and badges, calm keyframes (`sc-corr-pip-breathe`, `sc-outcome-breathe`), and `@media (prefers-reduced-motion: reduce)`. Zero edits to `theme.css`, `living-realm-ui.css`, `board-living.css`, `living-realm-board.css`, `war-join-imagery.css`, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/CorrespondenceOutcome.test.tsx`):** 4 tests passing (`npm test` -> sim **557**, app **1642**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-26 — sim / Living Realm slice 6 (culture correspondence, joined-war outcome)
 
 - **Content (`content/livingRealm.ts`):** `WHISPER_REPLY_DELAY_TICKS` 300, `WHISPER_REPLY_QUEUE_CAP` 8, `WHISPER_REPLIES` (4 lines per NPC culture, `{to}` = realm being answered), `whisperReplyLinesFor(culture)` (falls back to western like `whisperLinesFor`).

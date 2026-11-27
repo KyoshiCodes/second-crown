@@ -178,6 +178,11 @@ import {
   listBoardWarImagery,
   type BoardWarImageryItem,
 } from "./hud/BoardWarImagery";
+import {
+  BoardJoinedOutcome,
+  resolveBoardJoinedOutcome,
+  type BoardJoinedOutcomePoint,
+} from "./hud/JoinedWarOutcomeCue";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1019,6 +1024,9 @@ export function BoardLiving({ state, selectedId, visible }: BoardLivingProps) {
         {/* 5.597. Living Realm War Imagery (opposing culture banners & short phase line) */}
         <BoardWarImagery state={state} />
 
+        {/* 5.598. Living Realm Joined-War Outcome Ribbon (short-lived aftermath) */}
+        <BoardJoinedOutcome state={state} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1205,4 +1213,7 @@ export {
   BoardWarImagery,
   listBoardWarImagery,
   type BoardWarImageryItem,
+  BoardJoinedOutcome,
+  resolveBoardJoinedOutcome,
+  type BoardJoinedOutcomePoint,
 };

@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-26 — Paired kingdom letters & joined-war results on screen
+
+- **Whisper + reply pairs:** In the World tab's culture news, replies are now tucked neatly under the whisper they answer as a short two-part thread (with each kingdom's crest and zero chat box), newest first.
+- **Joined-war outcome lines:** When a war you joined finishes, the War tab shows a calm result badge and line (whether your side or the foe held the field, or white peace, and that you took no NPC war losses), alongside a brief non-blocking ribbon near your hold on the map.
+
 ## 2026-11-26 — Kingdoms answer each other's whispers
 
 - **Whispers get replies.** When one kingdom whispers to another, the one that heard it answers about 30 seconds later, in its own voice. Both lines show in the World tab's culture news, newest first. The answer is tagged **Reply**.

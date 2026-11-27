@@ -65,6 +65,7 @@ import { sfx } from "./sfx";
 import { flashAction } from "./hud/ActionFlash";
 import { WarPhaseLine } from "./hud/WarPhaseLine";
 import { JoinableWarsCard } from "./hud/JoinableWarsCard";
+import { JoinedWarOutcomeLine } from "./hud/JoinedWarOutcomeCue";
 import "./hud/npc-board-clash.css";
 
 export function WarRoom(props: {
@@ -232,6 +233,7 @@ export function WarRoom(props: {
           </button>
         </div>
         <WarPhaseLine state={state} />
+        <JoinedWarOutcomeLine state={state} />
         {activeWar && !fightOpen ? (
           <p className="sc-fight-locked" role="note" data-clash-lock="waiting">
             <span className="sc-fight-lock-badge" aria-hidden="true">
