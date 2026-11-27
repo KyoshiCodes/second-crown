@@ -1,3 +1,12 @@
+## 2026-11-27 — app / living presentation for board surface detail & selection feedback
+
+- **Board surface overlay (`packages/app/src/hud/BoardSurfaceLayer.tsx`, `packages/app/src/BoardLiving.tsx`):**
+  - Exported pure `resolveBoardSurface(state)` wrapping `boardSurfaceSnapshot(state, provinceId)` (`e7ffa69`, exact match — zero mismatch) and mounted `<BoardSurfaceLayer>` inside `BoardLiving`. Clear tiles emit calm elevation contours, keep plinths, and march surface rims; veiled tiles (`SURFACE_FOG_VEILED`) emit only `.sc-bsurf-veiled` mist polygons so hidden holds or incoming marches never leak under fog.
+- **Selection mark & note strip (`packages/app/src/hud/BoardSelectionFeedback.tsx`, `packages/app/src/BoardLiving.tsx`):**
+  - Exported `resolveSelectionFeedback(state, view)`, `<BoardSelectionFeedbackMark>`, and `<BoardSelectionFeedbackNote>` wrapping `selectionFeedbackSnapshot(state, { selectedProvinceId })` (`e7ffa69`, exact match — zero mismatch). `surfaceSummary` from `boardSurfaceSnapshot` is strictly gated on `surf.fog === SURFACE_FOG_CLEAR`. Both mark and note strip hide cleanly on `null` or `living_selection_feedback` off. Named tone union `BoardSelectionTone` to avoid colliding with `BoardLivingAccents`'s existing `SelectionFeedbackTone` re-export.
+- **Dedicated CSS (`hud/board-surface.css`, `hud/selection-feedback.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on all overlay and note elements, calm shimmer/pulse/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to terrain/fog/pathfinding/combat/selection math, `theme.css`, `board-living.css`, `board-feedback-status.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice26Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **880**, app **1717**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 26 (board surface detail, selection feedback)
 
 - **Where:** `boardSurfaceSnapshot`, `selectionFeedbackSnapshot` in `systems/livingStatus.ts`. Constants (`SURFACE_ELEVATION`, `SURFACE_ELEVATION_DEFAULT`, `SURFACE_FOG_*`, `SURFACE_KEEP_*`, `SURFACE_MARCH_*`, `SELECTION_NOTE_*`) in `content/livingRealm.ts`.

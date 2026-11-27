@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Polished board surface detail and calmer selection feedback
+
+- **Clearer terrain, fog, keeps, and marches on the map:** Seen tiles on the main board now show calm elevation contours (peaks, hills, shores, level ground), distinct keep bases, and subtle march outlines, while fogged tiles stay quietly veiled without leaking hidden details.
+- **Calmer selection mark & status note:** Clicking a province highlights it with a tone-matched focus mark and shows a quiet bottom-left note ("Your home hold.", "Under fog. Scout to see more.", "Held by you.", "Held by another realm.", or "Open ground."), hiding automatically when nothing is selected.
+
 ## 2026-11-27 — The game can now describe a map tile's surface and your selection
 
 - **Under the hood only.** For any tile the game can say its ground (high peak, rising ground, low shore, level ground), whether it is under fog, whether a keep stands there, and whether a column is coming or leaving.

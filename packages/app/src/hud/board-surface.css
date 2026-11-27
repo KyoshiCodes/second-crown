@@ -1,0 +1,185 @@
+/* --- Living Realm Slice 26: Board Surface Detail (isolated CSS) ---
+ * Loaded from hud/BoardSurfaceLayer.tsx.
+ * Leaves theme.css, board-living.css, and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on all overlay elements.
+ * Calm terrain/elevation, fog, keep, and march surface visuals in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bsurf-peak: rgba(226, 232, 240, 0.42);
+  --sc-bsurf-hill: rgba(250, 204, 21, 0.34);
+  --sc-bsurf-shore: rgba(125, 211, 252, 0.38);
+  --sc-bsurf-plain: rgba(134, 239, 172, 0.2);
+  --sc-bsurf-wood: rgba(163, 230, 53, 0.26);
+  --sc-bsurf-waste: rgba(148, 163, 184, 0.24);
+  --sc-bsurf-fog-fill: rgba(15, 23, 42, 0.28);
+  --sc-bsurf-fog-stroke: rgba(148, 163, 184, 0.16);
+  --sc-bsurf-keep-home: rgba(253, 224, 71, 0.56);
+  --sc-bsurf-keep-rival: rgba(248, 113, 113, 0.52);
+  --sc-bsurf-keep-empty: rgba(203, 213, 225, 0.42);
+  --sc-bsurf-march-enemy: rgba(248, 113, 113, 0.66);
+  --sc-bsurf-march-own: rgba(125, 211, 252, 0.6);
+  --sc-bsurf-march-leaving: rgba(251, 191, 36, 0.54);
+}
+
+:root[data-chrome="night"] {
+  --sc-bsurf-peak: rgba(241, 245, 249, 0.46);
+  --sc-bsurf-hill: rgba(253, 224, 71, 0.36);
+  --sc-bsurf-shore: rgba(186, 230, 253, 0.42);
+  --sc-bsurf-plain: rgba(110, 231, 183, 0.22);
+  --sc-bsurf-wood: rgba(190, 242, 100, 0.28);
+  --sc-bsurf-waste: rgba(148, 163, 184, 0.28);
+  --sc-bsurf-fog-fill: rgba(4, 8, 18, 0.38);
+  --sc-bsurf-fog-stroke: rgba(148, 163, 184, 0.2);
+  --sc-bsurf-keep-home: rgba(254, 240, 138, 0.64);
+  --sc-bsurf-keep-rival: rgba(252, 165, 165, 0.58);
+  --sc-bsurf-keep-empty: rgba(226, 232, 240, 0.46);
+  --sc-bsurf-march-enemy: rgba(252, 165, 165, 0.72);
+  --sc-bsurf-march-own: rgba(186, 230, 253, 0.66);
+  --sc-bsurf-march-leaving: rgba(253, 224, 71, 0.6);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bsurf-peak: rgba(245, 236, 218, 0.44);
+  --sc-bsurf-hill: rgba(250, 204, 21, 0.38);
+  --sc-bsurf-shore: rgba(186, 230, 253, 0.36);
+  --sc-bsurf-plain: rgba(167, 243, 208, 0.22);
+  --sc-bsurf-wood: rgba(190, 242, 100, 0.28);
+  --sc-bsurf-waste: rgba(214, 194, 160, 0.26);
+  --sc-bsurf-fog-fill: rgba(34, 24, 14, 0.34);
+  --sc-bsurf-fog-stroke: rgba(196, 164, 112, 0.18);
+  --sc-bsurf-keep-home: rgba(253, 224, 71, 0.6);
+  --sc-bsurf-keep-rival: rgba(248, 113, 113, 0.56);
+  --sc-bsurf-keep-empty: rgba(236, 220, 190, 0.44);
+  --sc-bsurf-march-enemy: rgba(248, 113, 113, 0.68);
+  --sc-bsurf-march-own: rgba(253, 230, 138, 0.62);
+  --sc-bsurf-march-leaving: rgba(251, 191, 36, 0.56);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Layer
+   ========================================================================== */
+.sc-bsurf-layer,
+.sc-bsurf-layer * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Terrain, Elevation, Fog, Keep & March Surface Marks
+   ========================================================================== */
+.sc-bsurf-contour {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sc-bsurf-contour.is-peak {
+  stroke: var(--sc-bsurf-peak);
+  stroke-width: 0.75;
+}
+
+.sc-bsurf-contour.is-hill {
+  stroke: var(--sc-bsurf-hill);
+  stroke-width: 0.7;
+}
+
+.sc-bsurf-contour.is-shore {
+  stroke: var(--sc-bsurf-shore);
+  stroke-width: 0.7;
+  animation: sc-bsurf-shore-shimmer 5s ease-in-out infinite;
+}
+
+.sc-bsurf-contour.is-level {
+  stroke: var(--sc-bsurf-plain);
+  stroke-width: 0.55;
+}
+
+.sc-bsurf-tile[data-bsurf-terrain="wood"] .sc-bsurf-contour.is-level {
+  stroke: var(--sc-bsurf-wood);
+}
+
+.sc-bsurf-tile[data-bsurf-terrain="waste"] .sc-bsurf-contour.is-level,
+.sc-bsurf-tile[data-bsurf-terrain="crag"] .sc-bsurf-contour.is-level {
+  stroke: var(--sc-bsurf-waste);
+}
+
+.sc-bsurf-veiled {
+  fill: var(--sc-bsurf-fog-fill);
+  stroke: var(--sc-bsurf-fog-stroke);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 2;
+}
+
+.sc-bsurf-keep {
+  fill: none;
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+}
+
+.sc-bsurf-keep.is-home {
+  stroke: var(--sc-bsurf-keep-home);
+}
+
+.sc-bsurf-keep.is-rival {
+  stroke: var(--sc-bsurf-keep-rival);
+}
+
+.sc-bsurf-keep.is-empty {
+  stroke: var(--sc-bsurf-keep-empty);
+  stroke-dasharray: 2 1.6;
+}
+
+.sc-bsurf-march {
+  fill: none;
+  stroke-width: 0.95;
+  stroke-linecap: round;
+  stroke-dasharray: 2.2 1.6;
+  animation: sc-bsurf-march-pulse 3.8s ease-in-out infinite;
+}
+
+.sc-bsurf-march.is-enemy {
+  stroke: var(--sc-bsurf-march-enemy);
+}
+
+.sc-bsurf-march.is-own {
+  stroke: var(--sc-bsurf-march-own);
+}
+
+.sc-bsurf-march.is-leaving {
+  stroke: var(--sc-bsurf-march-leaving);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-bsurf-shore-shimmer {
+  0%,
+  100% {
+    opacity: 0.52;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+@keyframes sc-bsurf-march-pulse {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-bsurf-contour.is-shore,
+  .sc-bsurf-march {
+    animation: none !important;
+  }
+}

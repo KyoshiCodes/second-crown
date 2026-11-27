@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for board surface detail and selection feedback (Slice 26)
+
+- **Board surface layer (`hud/BoardSurfaceLayer.tsx`, `BoardLiving.tsx`):** Added `resolveBoardSurface` and `<BoardSurfaceLayer>`, reading `boardSurfaceSnapshot(state, provinceId)` (`e7ffa69`, exact match — zero mismatch) to render non-blocking terrain/elevation contours, veiled fog diamonds, keep plinths, and march surface arcs on clear tiles while keeping veiled tiles strictly fogged, hiding cleanly when `living_board_surface` is `false`.
+- **Selection feedback mark & note (`hud/BoardSelectionFeedback.tsx`, `BoardLiving.tsx`):** Added `resolveSelectionFeedback`, `<BoardSelectionFeedbackMark>`, and `<BoardSelectionFeedbackNote>`, reading `selectionFeedbackSnapshot(state, { selectedProvinceId })` (`e7ffa69`, exact match — zero mismatch) to show a calm tone-coded selection highlight and bottom-left note strip (paired with clear-tile surface summary when `boardSurface` is active), hiding completely when `null` or `living_selection_feedback` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/board-surface.css` and `hud/selection-feedback.css` only (no terrain/fog/pathfinding/combat/selection math, `theme.css`, `board-living.css`, `board-feedback-status.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on all overlay and note elements, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice26Presentation.test.tsx` (4 tests). Now: sim **880**, app **1717**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 26 (board surface detail, selection feedback)
 
 - **Board surface (`boardSurfaceSnapshot(state, provinceId)`):** `{ terrain, elevation, fog, keep, marches }` or null for an unknown province. `terrain` = raw terrain id. `elevation` = `SURFACE_ELEVATION[terrain]` (`High peak` / `Rising ground` / `Low shore` / `Level ground`). `fog` = `clear` / `veiled` (`isProvinceSeen`). `keep` = `Your keep` (home, or a hold the player holds) / `A rival keep` / `An empty hold` on hold tiles, else null. `marches` = `Enemy column inbound.` / `Your column is on the way.` / `A column marches out.` / null.

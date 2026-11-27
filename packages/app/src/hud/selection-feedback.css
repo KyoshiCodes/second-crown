@@ -1,0 +1,180 @@
+/* --- Living Realm Slice 26: Board Selection Feedback (isolated CSS) ---
+ * Loaded from hud/BoardSelectionFeedback.tsx.
+ * Leaves theme.css, board-living.css, board-feedback-status.css, and all earlier CSS files untouched.
+ * Strict pointer-events: none !important on all overlay & note bar elements.
+ * Calm selection mark and note across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-sel-home: #fde047;
+  --sc-sel-veiled: #94a3b8;
+  --sc-sel-own: #7dd3fc;
+  --sc-sel-rival: #fca5a5;
+  --sc-sel-open: #bbf7d0;
+  --sc-sel-note-bg: rgba(14, 20, 32, 0.84);
+  --sc-sel-note-border: rgba(148, 163, 184, 0.28);
+  --sc-sel-note-text: #e2e8f0;
+  --sc-sel-note-muted: rgba(186, 198, 214, 0.8);
+}
+
+:root[data-chrome="night"] {
+  --sc-sel-home: #fef08a;
+  --sc-sel-veiled: #cbd5e1;
+  --sc-sel-own: #bae6fd;
+  --sc-sel-rival: #fecaca;
+  --sc-sel-open: #dcfce7;
+  --sc-sel-note-bg: rgba(8, 12, 22, 0.9);
+  --sc-sel-note-border: rgba(148, 163, 184, 0.32);
+  --sc-sel-note-text: #f1f5f9;
+  --sc-sel-note-muted: rgba(203, 213, 225, 0.84);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-sel-home: #facc15;
+  --sc-sel-veiled: #d6c2a0;
+  --sc-sel-own: #fde68a;
+  --sc-sel-rival: #fca5a5;
+  --sc-sel-open: #dcfce7;
+  --sc-sel-note-bg: rgba(30, 21, 13, 0.88);
+  --sc-sel-note-border: rgba(196, 164, 112, 0.34);
+  --sc-sel-note-text: #fef3c7;
+  --sc-sel-note-muted: rgba(226, 204, 166, 0.84);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay & Note Elements
+   ========================================================================== */
+.sc-sel-fb-layer,
+.sc-sel-fb-layer *,
+.sc-sel-fb-note-bar,
+.sc-sel-fb-note-bar * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Tile Selection Mark
+   ========================================================================== */
+.sc-sel-fb-layer {
+  color: var(--sc-sel-open);
+}
+
+.sc-sel-fb-layer.is-home {
+  color: var(--sc-sel-home);
+}
+
+.sc-sel-fb-layer.is-veiled {
+  color: var(--sc-sel-veiled);
+}
+
+.sc-sel-fb-layer.is-own {
+  color: var(--sc-sel-own);
+}
+
+.sc-sel-fb-layer.is-rival {
+  color: var(--sc-sel-rival);
+}
+
+.sc-sel-fb-layer.is-open {
+  color: var(--sc-sel-open);
+}
+
+.sc-sel-fb-halo {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.28;
+  stroke-width: 2.2;
+}
+
+.sc-sel-fb-rim {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  animation: sc-sel-fb-breathe 3.6s ease-in-out infinite;
+}
+
+.sc-sel-fb-corners {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ==========================================================================
+   4. Calm Selection Note Bar (bottom-left of board viewport)
+   ========================================================================== */
+.sc-sel-fb-note-bar {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  z-index: 3;
+  max-width: calc(100% - 210px);
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-sel-note-border);
+  background: var(--sc-sel-note-bg);
+  color: var(--sc-sel-note-text);
+  font-size: 11px;
+  line-height: 1.3;
+  backdrop-filter: blur(4px);
+}
+
+.sc-sel-fb-note-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--sc-sel-open);
+}
+
+.sc-sel-fb-note-bar.is-home .sc-sel-fb-note-pip {
+  background: var(--sc-sel-home);
+}
+
+.sc-sel-fb-note-bar.is-veiled .sc-sel-fb-note-pip {
+  background: var(--sc-sel-veiled);
+}
+
+.sc-sel-fb-note-bar.is-own .sc-sel-fb-note-pip {
+  background: var(--sc-sel-own);
+}
+
+.sc-sel-fb-note-bar.is-rival .sc-sel-fb-note-pip {
+  background: var(--sc-sel-rival);
+}
+
+.sc-sel-fb-note-text {
+  font-weight: 600;
+}
+
+.sc-sel-fb-surface-detail {
+  color: var(--sc-sel-note-muted);
+}
+
+/* ==========================================================================
+   5. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-sel-fb-breathe {
+  0%,
+  100% {
+    opacity: 0.66;
+  }
+  50% {
+    opacity: 0.98;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-sel-fb-rim {
+    animation: none !important;
+  }
+}

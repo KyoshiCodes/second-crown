@@ -219,6 +219,18 @@ import {
   resolveBoardUnitWaiting,
   type BoardUnitWaitingView,
 } from "./hud/BoardUnitWaitingLayer";
+import {
+  BoardSurfaceLayer,
+  resolveBoardSurface,
+  type BoardSurfaceView,
+} from "./hud/BoardSurfaceLayer";
+import {
+  BoardSelectionFeedbackMark,
+  BoardSelectionFeedbackNote,
+  resolveSelectionFeedback,
+  type BoardSelectionFeedbackView,
+  type BoardSelectionTone,
+} from "./hud/BoardSelectionFeedback";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -600,6 +612,9 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
             );
           })}
         </g>
+
+        {/* 0.6. Living Realm Board Surface Polish (terrain, elevation, fog, keep, marches) */}
+        <BoardSurfaceLayer state={state} />
 
         {/* 0.8. Living Roads, Trails, and Connected Route Marks */}
         <BoardRoads state={state} selectedId={selectedId} />
@@ -1085,6 +1100,9 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
         {/* 5.5998. Living Realm Posted Garrison & Waiting Unit Marks */}
         <BoardUnitWaitingLayer state={state} />
 
+        {/* 5.5999. Living Realm Calmer Selection Mark */}
+        <BoardSelectionFeedbackMark state={state} selectedId={selectedId} />
+
         {/* 5.6. Living Prestige Crown Seal on Home Keep */}
         <HomeKeepCrownPip state={state} />
 
@@ -1137,6 +1155,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
           </g>
         )}
       </svg>
+      <BoardSelectionFeedbackNote state={state} selectedId={selectedId} />
     </div>
   );
 }
@@ -1296,4 +1315,12 @@ export {
   BoardUnitWaitingLayer,
   resolveBoardUnitWaiting,
   type BoardUnitWaitingView,
+  BoardSurfaceLayer,
+  resolveBoardSurface,
+  type BoardSurfaceView,
+  BoardSelectionFeedbackMark,
+  BoardSelectionFeedbackNote,
+  resolveSelectionFeedback,
+  type BoardSelectionFeedbackView,
+  type BoardSelectionTone,
 };
