@@ -1,0 +1,160 @@
+/* --- Living Realm Slice 27: Board Polish Detail (isolated CSS) ---
+ * Loaded from hud/BoardPolishLayer.tsx.
+ * Leaves theme.css, board-living.css, board-surface.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on all overlay elements.
+ * Calm march, keep, and fog polish visuals in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bpol-enemy: #fca5a5;
+  --sc-bpol-own: #93c5fd;
+  --sc-bpol-leaving: #fde68a;
+  --sc-bpol-keep-home: #fef08a;
+  --sc-bpol-keep-rival: #fca5a5;
+  --sc-bpol-keep-empty: #cbd5e1;
+  --sc-bpol-fog-wisp: rgba(203, 213, 225, 0.24);
+  --sc-bpol-fog-edge: rgba(148, 163, 184, 0.2);
+  --sc-bpol-pill-bg: rgba(14, 20, 32, 0.86);
+  --sc-bpol-pill-border: rgba(148, 163, 184, 0.34);
+  --sc-bpol-pill-text: #e2e8f0;
+}
+
+:root[data-chrome="night"] {
+  --sc-bpol-enemy: #fecaca;
+  --sc-bpol-own: #bae6fd;
+  --sc-bpol-leaving: #fef08a;
+  --sc-bpol-keep-home: #fef9c3;
+  --sc-bpol-keep-rival: #fecaca;
+  --sc-bpol-keep-empty: #e2e8f0;
+  --sc-bpol-fog-wisp: rgba(226, 232, 240, 0.28);
+  --sc-bpol-fog-edge: rgba(148, 163, 184, 0.24);
+  --sc-bpol-pill-bg: rgba(8, 12, 22, 0.9);
+  --sc-bpol-pill-border: rgba(148, 163, 184, 0.38);
+  --sc-bpol-pill-text: #f1f5f9;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bpol-enemy: #fca5a5;
+  --sc-bpol-own: #fde68a;
+  --sc-bpol-leaving: #fbbf24;
+  --sc-bpol-keep-home: #fef3c7;
+  --sc-bpol-keep-rival: #fca5a5;
+  --sc-bpol-keep-empty: #e7d8be;
+  --sc-bpol-fog-wisp: rgba(226, 204, 166, 0.24);
+  --sc-bpol-fog-edge: rgba(196, 164, 112, 0.22);
+  --sc-bpol-pill-bg: rgba(30, 21, 13, 0.88);
+  --sc-bpol-pill-border: rgba(196, 164, 112, 0.38);
+  --sc-bpol-pill-text: #fef3c7;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Layer
+   ========================================================================== */
+.sc-bpol-layer,
+.sc-bpol-layer * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Veiled Fog Wisps, Keep Crests & March Badges
+   ========================================================================== */
+.sc-bpol-fog-veil {
+  fill: none;
+  stroke: var(--sc-bpol-fog-wisp);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  animation: sc-bpol-fog-drift 6.2s ease-in-out infinite alternate;
+}
+
+.sc-bpol-fog-edge {
+  fill: none;
+  stroke: var(--sc-bpol-fog-edge);
+  stroke-width: 0.5;
+  stroke-dasharray: 1.8 2.2;
+}
+
+.sc-bpol-keep-crest {
+  fill: none;
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sc-bpol-keep.is-home .sc-bpol-keep-crest {
+  stroke: var(--sc-bpol-keep-home);
+}
+
+.sc-bpol-keep.is-rival .sc-bpol-keep-crest {
+  stroke: var(--sc-bpol-keep-rival);
+}
+
+.sc-bpol-keep.is-empty .sc-bpol-keep-crest {
+  stroke: var(--sc-bpol-keep-empty);
+}
+
+.sc-bpol-march-chevron {
+  fill: none;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: sc-bpol-march-drift 3.6s ease-in-out infinite;
+}
+
+.sc-bpol-march.is-enemy .sc-bpol-march-chevron {
+  stroke: var(--sc-bpol-enemy);
+}
+
+.sc-bpol-march.is-own .sc-bpol-march-chevron {
+  stroke: var(--sc-bpol-own);
+}
+
+.sc-bpol-march.is-leaving .sc-bpol-march-chevron {
+  stroke: var(--sc-bpol-leaving);
+}
+
+.sc-bpol-pill-bg {
+  fill: var(--sc-bpol-pill-bg);
+  stroke: var(--sc-bpol-pill-border);
+  stroke-width: 0.5;
+}
+
+.sc-bpol-pill-text {
+  fill: var(--sc-bpol-pill-text);
+  font-size: 4.1px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-bpol-march-drift {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 0.98;
+  }
+}
+
+@keyframes sc-bpol-fog-drift {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 0.88;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-bpol-march-chevron,
+  .sc-bpol-fog-veil {
+    animation: none !important;
+  }
+}

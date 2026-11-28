@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for battle feedback and board polish detail (Slice 27)
+
+- **Battle feedback layer (`hud/BoardBattleFeedback.tsx`, `BoardLiving.tsx`):** Added `resolveBoardBattleFeedback`, `<BoardBattleFeedbackMark>`, and `<BoardBattleFeedbackNote>`, reading `battleFeedbackSnapshot(state)` (`d403345`, exact match — zero mismatch) to place a quiet `won` / `lost` / `clash` marker on the seen battle province (`isProvinceSeen` + `homeProvinceId` guard) and a calm top-left note strip (`You won here.` / `You lost here.` / `Others fought here.`), hiding completely when `null`, stale, or `living_battle_feedback` is `false`.
+- **Board polish layer (`hud/BoardPolishLayer.tsx`, `BoardLiving.tsx`):** Added `resolveBoardPolish` and `<BoardPolishLayer>`, reading `boardPolishSnapshot(state, provinceId)` (`d403345`, exact match — zero mismatch) to display clear-tile keep crests (`Your keep` / `Rival keep` / `Empty hold`), march chevrons (`Foe inbound` / `Ally inbound` / `Marching out`), and veiled fog wisps (`fog === "veiled"`), strictly keeping veiled tiles fogged without leaking hidden keeps or marches.
+- **Unchanged invariants & accessibility:** Dedicated `hud/battle-feedback.css` and `hud/board-polish.css` only (no combat/march/pathfinding/fog math, `theme.css`, `board-living.css`, `board-surface.css`, `selection-feedback.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on all overlay and note elements, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice27Presentation.test.tsx` (4 tests). Now: sim **895**, app **1721**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 27 (battle feedback, board polish detail)
 
 - **Battle feedback (`battleFeedbackSnapshot(state)`):** `{ provinceId, note, mark }` or null with no stored battle or no `battle` world-log entry within `BATTLE_NOTE_RECENT_TICKS` (1800). `note` = `You won here.` / `You lost here.` / `Others fought here.` `mark` = `won` / `lost` / `clash`. `provinceId` = stored tile, or null when the battle has no tile (realm-level Fight, older battles) or the tile is not on the board.

@@ -1,3 +1,12 @@
+## 2026-11-27 — app / living presentation for battle feedback & board polish detail
+
+- **Battle feedback overlay (`packages/app/src/hud/BoardBattleFeedback.tsx`, `packages/app/src/BoardLiving.tsx`):**
+  - Exported pure `resolveBoardBattleFeedback(state)` wrapping `battleFeedbackSnapshot(state)` (`d403345`, exact match — zero mismatch) and mounted `<BoardBattleFeedbackMark>` + `<BoardBattleFeedbackNote>` inside `BoardLiving`. Province marks and coordinates strictly require `prov.id === homeProvinceId || isProvinceSeen(state, prov.id)` so fogged tiles never leak; both hide cleanly on `null` or `living_battle_feedback` off.
+- **Board polish overlay (`packages/app/src/hud/BoardPolishLayer.tsx`, `packages/app/src/BoardLiving.tsx`):**
+  - Exported `resolveBoardPolish(state)` wrapping `boardPolishSnapshot(state, provinceId)` (`d403345`, exact match — zero mismatch) and mounted `<BoardPolishLayer>` inside `BoardLiving`. Clear tiles emit compact keep (`home` / `rival` / `empty`) and march (`enemy` / `own` / `leaving`) accents; veiled tiles (`SURFACE_FOG_VEILED`) emit only `.sc-bpol-fog` mist wisps so hidden keeps or columns never leak under fog.
+- **Dedicated CSS (`hud/battle-feedback.css`, `hud/board-polish.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on all overlay and note elements, calm breathe/drift keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to combat/march/fog/pathfinding/selection math, `theme.css`, `board-living.css`, `board-surface.css`, `selection-feedback.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice27Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **895**, app **1721**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 27 (battle feedback, board polish detail)
 
 - **Where:** `battleFeedbackSnapshot`, `boardPolishSnapshot` in `systems/livingStatus.ts`. Constants `BATTLE_FEEDBACK_NOTE_*`, `BATTLE_FEEDBACK_MARK_*`, `POLISH_MARCH_*`, `POLISH_KEEP_*` in `content/livingRealm.ts`. `fog` reuses `SURFACE_FOG_CLEAR` / `SURFACE_FOG_VEILED`.

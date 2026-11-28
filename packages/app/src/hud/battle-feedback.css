@@ -1,0 +1,165 @@
+/* --- Living Realm Slice 27: Battle Feedback Layer (isolated CSS) ---
+ * Loaded from hud/BoardBattleFeedback.tsx.
+ * Leaves theme.css, board-living.css, board-surface.css, selection-feedback.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on all overlay & note elements.
+ * Calm battle aftermath mark & note in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bfb-won: #4ade80;
+  --sc-bfb-lost: #fca5a5;
+  --sc-bfb-clash: #fbbf24;
+  --sc-bfb-note-bg: rgba(14, 20, 32, 0.84);
+  --sc-bfb-note-border: rgba(148, 163, 184, 0.28);
+  --sc-bfb-note-text: #e2e8f0;
+  --sc-bfb-note-muted: rgba(186, 198, 214, 0.8);
+}
+
+:root[data-chrome="night"] {
+  --sc-bfb-won: #6ee7b7;
+  --sc-bfb-lost: #fecaca;
+  --sc-bfb-clash: #fde047;
+  --sc-bfb-note-bg: rgba(8, 12, 22, 0.9);
+  --sc-bfb-note-border: rgba(148, 163, 184, 0.32);
+  --sc-bfb-note-text: #f1f5f9;
+  --sc-bfb-note-muted: rgba(203, 213, 225, 0.84);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bfb-won: #86efac;
+  --sc-bfb-lost: #fca5a5;
+  --sc-bfb-clash: #facc15;
+  --sc-bfb-note-bg: rgba(30, 21, 13, 0.88);
+  --sc-bfb-note-border: rgba(196, 164, 112, 0.34);
+  --sc-bfb-note-text: #fef3c7;
+  --sc-bfb-note-muted: rgba(226, 204, 166, 0.84);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay & Note Elements
+   ========================================================================== */
+.sc-bfb-layer,
+.sc-bfb-layer *,
+.sc-bfb-note-bar,
+.sc-bfb-note-bar * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Quiet Battle Province Mark
+   ========================================================================== */
+.sc-bfb-layer {
+  color: var(--sc-bfb-clash);
+}
+
+.sc-bfb-layer.is-won {
+  color: var(--sc-bfb-won);
+}
+
+.sc-bfb-layer.is-lost {
+  color: var(--sc-bfb-lost);
+}
+
+.sc-bfb-layer.is-clash {
+  color: var(--sc-bfb-clash);
+}
+
+.sc-bfb-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.95;
+  stroke-dasharray: 2 1.8;
+  animation: sc-bfb-ring-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-bfb-emblem {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ==========================================================================
+   4. Calm Top-Left Battle Feedback Note Strip
+   ========================================================================== */
+.sc-bfb-note-bar {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  z-index: 3;
+  max-width: calc(100% - 28px);
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-bfb-note-border);
+  background: var(--sc-bfb-note-bg);
+  color: var(--sc-bfb-note-text);
+  font-size: 11px;
+  line-height: 1.3;
+  backdrop-filter: blur(4px);
+}
+
+.sc-bfb-note-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--sc-bfb-clash);
+  animation: sc-bfb-pip-breathe 4.4s ease-in-out infinite;
+}
+
+.sc-bfb-note-bar.is-won .sc-bfb-note-pip {
+  background: var(--sc-bfb-won);
+}
+
+.sc-bfb-note-bar.is-lost .sc-bfb-note-pip {
+  background: var(--sc-bfb-lost);
+}
+
+.sc-bfb-note-text {
+  font-weight: 600;
+}
+
+.sc-bfb-note-where {
+  color: var(--sc-bfb-note-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   5. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-bfb-ring-breathe {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 0.94;
+  }
+}
+
+@keyframes sc-bfb-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 0.98;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-bfb-ring,
+  .sc-bfb-note-pip {
+    animation: none !important;
+  }
+}

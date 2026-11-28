@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Quiet battle feedback marker and polished keep / march / fog map badges
+
+- **Battle feedback on the map:** Right after a clash, a quiet top-left note (`You won here.`, `You lost here.`, or `Others fought here.`) appears above the board alongside a gentle marker on seen battleground tiles, hiding automatically when no battle happened recently.
+- **Keep, march, and fog polish:** Clear keeps and active marches show compact map badges (`Your keep`, `Rival keep`, `Empty hold`, `Foe inbound`, `Ally inbound`, `Marching out`), while veiled tiles keep calm drifting mist with zero hidden information leaked.
+
 ## 2026-11-27 — The game can now point at your last battle and label map tiles
 
 - **Under the hood only.** After a recent battle the game can say where it was fought and give a short line: "You won here.", "You lost here." or "Others fought here." Battles from the War tab Fight button have no single tile, so they carry no place.
