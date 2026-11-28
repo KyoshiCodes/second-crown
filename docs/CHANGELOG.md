@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for building detail and board scale (Slice 28)
+
+- **Building detail enrichment (`hud/BuildingDetailBadge.tsx`, `hud/WorkCard.tsx`):** Added `resolveBuildingDetail` and `<BuildingDetailStrip>`, reading `buildingDetailSnapshot(state, buildingId)` (`7e3fe19`, exact match — zero mismatch) to add calm tier card depth (`sc-bdet-depth-t1..t5`), `Tier I..V` step bars, optional citizen work-station marks (`Field` / `Woodlot` / `Pit` / `Stall` / `Post` / `Study`), and construction/upgrade/staffing status notes, hiding cleanly when `null` or `living_building_detail` is `false`.
+- **Board scale presentation (`hud/BoardScaleTag.tsx`, `BoardLiving.tsx`):** Added `resolveBoardScale`, `<BoardScaleHorizon>`, and `<BoardScaleNote>`, reading `boardScaleSnapshot(state)` (`7e3fe19`, exact match — zero mismatch) to render subtle cartographic perimeter brackets and a top-right `W×H` scale note pill without changing actual board dimensions, hiding cleanly when `null` or `living_board_scale` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/building-detail.css` and `hud/board-scale.css` only (no build/staff/upgrade/pathfinding math, `theme.css`, `board-living.css`, `work-living-rows.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/` edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/icons/scale overlays, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice28Presentation.test.tsx` (4 tests). Now: sim **910**, app **1725**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 28 (building detail, board scale)
 
 - **Building detail (`buildingDetailSnapshot(state, buildingId)`):** `{ name, tier, staffed, workStation, note }` or null for an unknown id. `tier` = `Tier I`–`Tier V` (level clamped 1–5). `staffed` = `staffBonus > 1`. `workStation` = `Field` / `Woodlot` / `Pit` / `Stall` / `Post` / `Study` per citizen job, null when no job. `note` = `Under construction.` / `Upgrade under way.` / `Needs no workers.` / `Staffed and working.` / `Waiting for a worker.`

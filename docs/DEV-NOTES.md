@@ -1,3 +1,12 @@
+## 2026-11-27 — app / living presentation for building detail & board scale
+
+- **Building detail enrichment (`packages/app/src/hud/BuildingDetailBadge.tsx`, `packages/app/src/hud/WorkCard.tsx`):**
+  - Exported pure `resolveBuildingDetail(state, buildingId)` wrapping `buildingDetailSnapshot(state, buildingId)` (`7e3fe19`, exact match — zero mismatch) and wired `<BuildingDetailStrip>` + `sc-bdet-depth-t1..t5` card classes into `WorkCard`. Displays clamped `Tier I..V` depth bars, work-station chip (`Field` / `Woodlot` / `Pit` / `Stall` / `Post` / `Study`), and note (`Under construction.` / `Upgrade under way.` / `Needs no workers.` / `Staffed and working.` / `Waiting for a worker.`); returns `null` when switched off without altering existing buttons or classes.
+- **Board scale presentation (`packages/app/src/hud/BoardScaleTag.tsx`, `packages/app/src/BoardLiving.tsx`):**
+  - Exported `resolveBoardScale(state)`, `<BoardScaleHorizon>`, and `<BoardScaleNote>` wrapping `boardScaleSnapshot(state)` (`7e3fe19`, exact match — zero mismatch). Renders cartographic corner brackets and top-right scale badge (`width×height` + small/mid/wide note) strictly without altering canvas or board dimensions.
+- **Dedicated CSS (`hud/building-detail.css`, `hud/board-scale.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on pips/icons/scale overlays, calm sheen/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to build/staff/upgrade/pathfinding math, `theme.css`, `board-living.css`, `work-living-rows.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice28Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **910**, app **1725**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 28 (building detail, board scale)
 
 - **Where:** `buildingDetailSnapshot`, `boardScaleSnapshot` in `systems/livingStatus.ts`. Constants `BUILDING_TIER_LABELS`, `BUILDING_WORK_STATIONS`, `BUILDING_NOTE_*`, `BOARD_SCALE_SMALL_TILES` (48), `BOARD_SCALE_MID_TILES` (120), `BOARD_SCALE_NOTE_*` in `content/livingRealm.ts`.

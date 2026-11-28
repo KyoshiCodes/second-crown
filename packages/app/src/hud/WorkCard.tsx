@@ -28,6 +28,7 @@ import {
   BuildingLivingUnderlay,
 } from "./WorkLivingGlyph";
 import { WorkLivingRows, splitWorkRows } from "./WorkLivingRows";
+import { BuildingDetailStrip, resolveBuildingDetail } from "./BuildingDetailBadge";
 
 type Building = GameState["buildings"][number];
 
@@ -56,12 +57,14 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
   const warehouseBlocked = Boolean(upgradeProj && hasWarehouseBlocker(upgradeProj));
   const savingUpgrade = Boolean(upgradeProj && !warehouseBlocked && isSavingCost(upgradeProj));
   const living = splitWorkRows(rows);
+  const bdet = resolveBuildingDetail(state, b.id);
   const cls = [
     "sc-work-card",
     "sc-building-card",
     scarred ? "is-scarred" : staff > 0 ? "is-staffed" : "is-empty",
     ...(savingUpgrade ? ["is-saving-cost"] : []),
     ...(warehouseBlocked ? ["is-blocker-warehouse"] : []),
+    ...(bdet ? [`sc-bdet-depth-t${bdet.tierRank}`] : []),
   ].join(" ");
 
   return (
@@ -69,6 +72,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
       className={cls}
       data-saving={savingUpgrade ? "true" : undefined}
       data-blocker-accent={warehouseBlocked ? "warehouse" : undefined}
+      data-building-tier={bdet ? `tier-${bdet.tierRank}` : undefined}
       title={`${nm} at ${b.x},${b.y}`}
     >
       <WorkLivingUnderlay
@@ -83,6 +87,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
         <WorkLivingRows typeId={b.typeId} name={nm} scarred={scarred} rows={living.head} />
       </div>
       <WorkStatus rows={living.rest} />
+      <BuildingDetailStrip state={state} buildingId={b.id} />
       <WorkLivingGlyph
         typeId={b.typeId}
         scarred={scarred}

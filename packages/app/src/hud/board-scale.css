@@ -1,0 +1,128 @@
+/* --- Living Realm Slice 28: Board Scale Detail (isolated CSS) ---
+ * Loaded from hud/BoardScaleTag.tsx.
+ * Leaves theme.css, board-living.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on perimeter frame & note pill.
+ * Calm cartographic scale note & perimeter ticks across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bscale-frame-small: rgba(148, 163, 184, 0.24);
+  --sc-bscale-frame-mid: rgba(147, 197, 253, 0.26);
+  --sc-bscale-frame-wide: rgba(250, 204, 21, 0.3);
+  --sc-bscale-bg: rgba(14, 20, 32, 0.84);
+  --sc-bscale-border: rgba(148, 163, 184, 0.28);
+  --sc-bscale-text: #e2e8f0;
+  --sc-bscale-muted: rgba(186, 198, 214, 0.82);
+  --sc-bscale-pip: #93c5fd;
+}
+
+:root[data-chrome="night"] {
+  --sc-bscale-frame-small: rgba(148, 163, 184, 0.28);
+  --sc-bscale-frame-mid: rgba(186, 230, 253, 0.3);
+  --sc-bscale-frame-wide: rgba(254, 240, 138, 0.34);
+  --sc-bscale-bg: rgba(8, 12, 22, 0.9);
+  --sc-bscale-border: rgba(148, 163, 184, 0.32);
+  --sc-bscale-text: #f1f5f9;
+  --sc-bscale-muted: rgba(203, 213, 225, 0.85);
+  --sc-bscale-pip: #bae6fd;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bscale-frame-small: rgba(196, 164, 112, 0.26);
+  --sc-bscale-frame-mid: rgba(212, 178, 122, 0.3);
+  --sc-bscale-frame-wide: rgba(250, 204, 21, 0.34);
+  --sc-bscale-bg: rgba(30, 21, 13, 0.88);
+  --sc-bscale-border: rgba(196, 164, 112, 0.34);
+  --sc-bscale-text: #fef3c7;
+  --sc-bscale-muted: rgba(226, 204, 166, 0.84);
+  --sc-bscale-pip: #fde68a;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Elements
+   ========================================================================== */
+.sc-bscale-frame,
+.sc-bscale-frame *,
+.sc-bscale-note,
+.sc-bscale-note * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Perimeter Cartographic Frame & Top-Right Scale Note
+   ========================================================================== */
+.sc-bscale-bracket {
+  fill: none;
+  stroke: var(--sc-bscale-frame-mid);
+  stroke-width: 0.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sc-bscale-frame.is-small .sc-bscale-bracket {
+  stroke: var(--sc-bscale-frame-small);
+}
+
+.sc-bscale-frame.is-wide .sc-bscale-bracket {
+  stroke: var(--sc-bscale-frame-wide);
+}
+
+.sc-bscale-note {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-bscale-border);
+  background: var(--sc-bscale-bg);
+  color: var(--sc-bscale-text);
+  font-size: 11px;
+  line-height: 1.3;
+  backdrop-filter: blur(4px);
+}
+
+.sc-bscale-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--sc-bscale-pip);
+  animation: sc-bscale-pip-breathe 4.8s ease-in-out infinite;
+}
+
+.sc-bscale-dims {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-bscale-text {
+  color: var(--sc-bscale-muted);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-bscale-pip-breathe {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-bscale-pip {
+    animation: none !important;
+  }
+}

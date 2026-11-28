@@ -243,6 +243,13 @@ import {
   resolveBoardPolish,
   type BoardPolishView,
 } from "./hud/BoardPolishLayer";
+import {
+  BoardScaleHorizon,
+  BoardScaleNote,
+  resolveBoardScale,
+  type BoardScaleBand,
+  type BoardScaleView,
+} from "./hud/BoardScaleTag";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1172,9 +1179,11 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
             />
           </g>
         )}
+        <BoardScaleHorizon state={state} />
       </svg>
       <BoardSelectionFeedbackNote state={state} selectedId={selectedId} />
       <BoardBattleFeedbackNote state={state} />
+      <BoardScaleNote state={state} />
     </div>
   );
 }
@@ -1350,4 +1359,9 @@ export {
   BoardPolishLayer,
   resolveBoardPolish,
   type BoardPolishView,
+  BoardScaleHorizon,
+  BoardScaleNote,
+  resolveBoardScale,
+  type BoardScaleBand,
+  type BoardScaleView,
 };

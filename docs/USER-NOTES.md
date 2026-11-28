@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Enriched building cards and board scale indicator
+
+- **Richer building cards on Kingdom:** Buildings now show gentle visual depth by tier (`Tier I`–`Tier V`), an optional work-station chip (`Field`, `Woodlot`, `Pit`, `Stall`, `Post`, `Study`), and a calm construction, upgrade, or staffing status line.
+- **Realm scale indicator on the map:** The top-right corner of the map gently displays your realm grid dimensions (`12×8 · A mid-sized realm.`) with subtle perimeter brackets while keeping the map size unchanged.
+
 ## 2026-11-27 — The game can now describe each building and the map size
 
 - **Under the hood only.** For any building the game can give its name, a tier ("Tier I" to "Tier V"), whether a worker is on it, what kind of work spot it is ("Field", "Pit", "Stall"…), and a short line such as "Staffed and working." or "Waiting for a worker."
