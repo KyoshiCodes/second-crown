@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Land and weather moods, seasoned work spots, and little extra structures
+
+- **Seasoned work spots help a bit more.** A staffed work spot on a building at Tier II or higher now adds another 3% on top of the 5% from before. Same rules: it pauses while building or upgrading, and extra workers do not stack it.
+- **Land and weather moods (under the hood).** The game can now describe your map ("Old woods", "Rolling hills"), today's weather ("Soft rain") and the season ("Frost on the fields."). Not on screen yet.
+- **Extra structures (under the hood).** Some buildings get a small companion piece: a windmill by the farm, a bell tower by the chapel, a well in the keep's courtyard, and a few more. They are just for looks. Not on screen yet.
+- **Unchanged:** build costs, the building list, upgrades, units, weather effects and battles.
+
 ## 2026-11-27 — Centered 16×10 map framing, building styles, and active station bonus marks
 
 - **Settled 16×10 map view:** The enlarged 16×10 realm now centers smoothly inside the tabletop frame with wide frontier mist and matching overlay framing across all 160 tiles.

@@ -193,6 +193,8 @@ Building life, work-station staging, and board expansion prep available (`living
 
 Board expanded to 16×10, building variety, and passive work-station benefits (+5% output when staffed) available (`living_building_variety`, `living_work_station_benefit`); 12×8 saves migrate automatically on load (old tiles kept, new strip seeded), no manual step.
 
+Environment enrichment, deeper work stations, and extra buildings available (`living_environment`, `living_work_station_depth`, `living_extra_buildings`); new bonus: a staffed station at Tier II or higher gives a further +3% output on top of the +5% (depth flag off removes only the +3%).
+
 Attentive:
 
 ```

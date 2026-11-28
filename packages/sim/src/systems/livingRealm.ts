@@ -183,6 +183,12 @@ export interface LivingSwitches {
   buildingVariety: boolean;
   /** Work station benefit (slice 30): +5% output at a staged station, and workStationBenefitSnapshot. False: no bonus, null. */
   workStationBenefit: boolean;
+  /** Environment enrichment (slice 31): environmentSnapshot. False: null. Read-only either way. */
+  environment: boolean;
+  /** Work station depth (slice 31): extra +3% at a staged Tier II+ station, and workStationDepthSnapshot. False: no extra bonus, null. */
+  workStationDepth: boolean;
+  /** Extra buildings (slice 31): extraBuildingSnapshot. False: null. Read-only either way. */
+  extraBuildings: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -244,6 +250,9 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   boardExpansion: "living_board_expansion",
   buildingVariety: "living_building_variety",
   workStationBenefit: "living_work_station_benefit",
+  environment: "living_environment",
+  workStationDepth: "living_work_station_depth",
+  extraBuildings: "living_extra_buildings",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

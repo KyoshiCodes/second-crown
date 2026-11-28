@@ -12,7 +12,7 @@ import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
 import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
-import { WORK_STATION_BENEFIT_MULT } from "../content/livingRealm.js";
+import { WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
 import { LIVING_SWITCH_FLAGS } from "./livingRealm.js";
 import { keepIncomeMult, levelYieldMult } from "../content/pacing.js";
 import { farmCultureBonus, quarryCultureBonus, woodCultureBonus } from "./culture.js";
@@ -64,6 +64,19 @@ export function workStationBonus(state: GameState, building: GameState["building
   if (staffBonus(state, building) <= 1) return 1;
   if (upgradeJobFor(state, building.id)) return 1;
   return WORK_STATION_BENEFIT_MULT;
+}
+
+/**
+ * Slice 31: a seasoned station. When workStationBonus is active and the building is
+ * Tier II or higher, a further flat WORK_STATION_DEPTH_MULT (+3%). One step.
+ * Flag living_work_station_depth false: 1 (the slice 30 bonus stays). Pure.
+ */
+export function workStationDepthBonus(state: GameState, building: GameState["buildings"][number]): number {
+  if (state.flags[LIVING_SWITCH_FLAGS.workStationDepth] === false) return 1;
+  if (workStationBonus(state, building) <= 1) return 1;
+  const level = Number.isFinite(building.level) ? Math.floor(building.level) : 1;
+  if (level < WORK_STATION_DEPTH_MIN_LEVEL) return 1;
+  return WORK_STATION_DEPTH_MULT;
 }
 
 /** Finished same-type neighbor on an edge: +10% each, cap +20%. */
@@ -122,6 +135,7 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(scarce)
     .mul(staffBonus(state, building))
     .mul(workStationBonus(state, building))
+    .mul(workStationDepthBonus(state, building))
     .mul(adjacencyBonus(state, building))
     .mul(pairBonus(state, building))
     .mul(keepBonus(state, building))

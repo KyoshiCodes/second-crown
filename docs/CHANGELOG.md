@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 31 (environment, work-station depth, extra buildings)
+
+- **Environment:** **`environmentSnapshot(state)`** `{ features, ambient, note }` or null (flag off or empty board). `features` = label for the board's most common terrain (`Open plains` / `Old woods` / `Rolling hills` / `Long shoreline` / `Barren wastes` / `High peaks`; ties break in that order); `ambient` = label for today's `weatherFor` (`Calm air` / `Soft rain` / `Rolling thunder` / `Quiet snowfall`); `note` = season line (`Buds on the trees.` / `Long warm days.` / `Leaves turning gold.` / `Frost on the fields.`). Read-only.
+- **Work-station depth (rule change):** `workStationDepthBonus` multiplies output by **1.03** when the slice 30 station bonus is active and the building is Tier II or higher (one step, after `workStationBonus`). Both together cap at x1.0815. **`workStationDepthSnapshot(state, buildingId)`** `{ depth, active, note }` or null (unknown id, no station, flag off); `depth` = `+3% at Tier II`; `note` = `Starts once built.` / `Paused for the upgrade.` / `Staff the station first.` / `Seasoned station in effect.` / `Needs the station bonus.` / `Reach Tier II for more.`
+- **Extra buildings:** **`extraBuildingSnapshot(state, buildingId)`** `{ extra, detail, note }` or null when the type has no extra. Visual add-ons on existing types only: farm `Windmill`, lumber_camp `Log pile`, quarry `Hoist crane`, granary `Silo`, market `Awning stalls`, chapel `Bell tower`, watchtower `Signal fire`, keep `Courtyard well`. `detail` = null (under construction) / `Being extended` (upgrading) / `Small` (below Tier III) / `Full size`; `note` = `Goes up after the main build.` / `Grows with the upgrade.` / `Adds life, not output.` No cost, no output, no new building type.
+- **Switches:** `living_environment`, `living_work_station_depth`, `living_extra_buildings` (false: null; the depth flag also removes only the +3%, the slice 30 +5% stays).
+- **Left alone:** build costs, building list, upgrade rules, `staffBonus`, slice 30 `workStationBonus`, weather / season rules, fog, pathfinding, board, render / app.
+- **Tests:** new `systems/livingSlice31.test.ts` (27): shapes, ties, flags, determinism, economy depth bonus vs flag off, combined cap, Tier I unchanged. Now: sim **980**, app **1734**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-27 — Living presentation for 16×10 board framing, building variety, and work-station benefit (Slice 30)
 
 - **16×10 camera framing & backdrop (`packages/render/src/camera.ts`, `index.ts`, `tiles.ts`, `hud/BoardWideEnvironment.tsx`, `BoardLiving.tsx`):** Added `boardCameraFit()` and updated render transform, hit-testing (`getBoardCoords`), and dynamic `BOARD_W × BOARD_H` plinth in `paintBoardBackdrop`, plus `<BoardWideEnvironment>` and `<g class="sc-board-world-fit">` in `BoardLiving` so all 160 tiles fit cleanly without right-edge clipping.

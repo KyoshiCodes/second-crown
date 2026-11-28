@@ -1,3 +1,11 @@
+## 2026-11-27 — sim / Living Realm slice 31 (environment, work-station depth, extra buildings)
+
+- **Where:** `environmentSnapshot`, `workStationDepthSnapshot`, `extraBuildingSnapshot` in `systems/livingStatus.ts`; `workStationDepthBonus` in `systems/economy.ts`; constants `ENVIRONMENT_*`, `WORK_STATION_DEPTH_*`, `EXTRA_BUILDING*` in `content/livingRealm.ts`. All exported from `packages/sim`.
+- **Environment:** counts `board.provinces` terrain; picks the highest count, ties broken by `ENVIRONMENT_FEATURES` key order (plain, wood, hill, shore, waste, peak). Ambient uses the existing `weatherFor` (seeded per season, already deterministic); note uses `currentSeason`. No write to state.
+- **Depth bonus:** `workStationDepthBonus` reads `state.flags.living_work_station_depth` directly (hot path, like slice 30). Active = `workStationBonus > 1` and floor(level) >= `WORK_STATION_DEPTH_MIN_LEVEL` (2). Multiplied in `rateFor` right after `workStationBonus`, so offline advance agrees. Benefit flag off implies depth inactive (it builds on the station bonus). Snapshot `active` calls the same function.
+- **Extra buildings:** `EXTRA_BUILDINGS` keys are a subset of the shipped building ids (test enforces). Uses shared `readBuilding` for phase / clamped level. No economy effect (test checks the flag does not change gains).
+- **Left alone:** build costs, `content/buildings.ts`, upgrade rules, `staffBonus`, slice 30 bonus, weather / season, fog, march, board, render / app. **Not yet in the app.**
+
 ## 2026-11-27 — app+render / living presentation for 16×10 board framing, building variety & work-station benefit
 
 - **Centered 16×10 camera & backdrop (`packages/render/src/camera.ts`, `index.ts`, `tiles.ts`, `packages/app/src/hud/BoardWideEnvironment.tsx`, `BoardLiving.tsx`):**

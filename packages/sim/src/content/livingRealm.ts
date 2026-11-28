@@ -659,6 +659,77 @@ export const WORK_STATION_BENEFIT_NOTE_UPGRADING = "Bonus paused for the upgrade
 /** Slice 30: work station benefit note, no worker at the station. */
 export const WORK_STATION_BENEFIT_NOTE_EMPTY = "Staff the station for a bonus.";
 
+// ---------------------------------------------------------------- environment, station depth, extra buildings (slice 31)
+
+/** Slice 31: environment features label by the board's most common terrain. Ties break in this key order. */
+export const ENVIRONMENT_FEATURES: Readonly<Record<string, string>> = {
+  plain: "Open plains",
+  wood: "Old woods",
+  hill: "Rolling hills",
+  shore: "Long shoreline",
+  waste: "Barren wastes",
+  peak: "High peaks",
+};
+/** Slice 31: environment ambient label by today's weather (weatherFor). */
+export const ENVIRONMENT_AMBIENT: Readonly<Record<string, string>> = {
+  clear: "Calm air",
+  rain: "Soft rain",
+  storm: "Rolling thunder",
+  snow: "Quiet snowfall",
+};
+/** Slice 31: environment note by season. */
+export const ENVIRONMENT_NOTE: Readonly<Record<string, string>> = {
+  Spring: "Buds on the trees.",
+  Summer: "Long warm days.",
+  Autumn: "Leaves turning gold.",
+  Winter: "Frost on the fields.",
+};
+
+/** Slice 31: extra output multiplier at a seasoned station (station bonus active and Tier II or higher). */
+export const WORK_STATION_DEPTH_MULT = 1.03;
+/** Slice 31: minimum building level for the station depth bonus. */
+export const WORK_STATION_DEPTH_MIN_LEVEL = 2;
+/** Slice 31: work station depth label (matches WORK_STATION_DEPTH_MULT and WORK_STATION_DEPTH_MIN_LEVEL). */
+export const WORK_STATION_DEPTH_LABEL = "+3% at Tier II";
+/** Slice 31: station depth note, the bonus is in effect. */
+export const WORK_STATION_DEPTH_NOTE_ACTIVE = "Seasoned station in effect.";
+/** Slice 31: station depth note, still being built. */
+export const WORK_STATION_DEPTH_NOTE_BUILDING = "Starts once built.";
+/** Slice 31: station depth note, an upgrade is under way. */
+export const WORK_STATION_DEPTH_NOTE_UPGRADING = "Paused for the upgrade.";
+/** Slice 31: station depth note, staffed but below Tier II. */
+export const WORK_STATION_DEPTH_NOTE_LOW_TIER = "Reach Tier II for more.";
+/** Slice 31: station depth note, no worker at the station. */
+export const WORK_STATION_DEPTH_NOTE_EMPTY = "Staff the station first.";
+/** Slice 31: station depth note, the slice 30 station bonus is switched off. */
+export const WORK_STATION_DEPTH_NOTE_NO_BASE = "Needs the station bonus.";
+
+/** Slice 31: extra visual structure per existing building type. Types not listed have none (snapshot null). Visual only. */
+export const EXTRA_BUILDINGS: Readonly<Record<string, string>> = {
+  farm: "Windmill",
+  lumber_camp: "Log pile",
+  quarry: "Hoist crane",
+  granary: "Silo",
+  market: "Awning stalls",
+  chapel: "Bell tower",
+  watchtower: "Signal fire",
+  keep: "Courtyard well",
+};
+/** Slice 31: extra building detail while the main building is upgrading. */
+export const EXTRA_BUILDING_DETAIL_UPGRADING = "Being extended";
+/** Slice 31: extra building detail below Tier III. */
+export const EXTRA_BUILDING_DETAIL_SMALL = "Small";
+/** Slice 31: extra building detail at Tier III or higher. */
+export const EXTRA_BUILDING_DETAIL_FULL = "Full size";
+/** Slice 31: level at which the extra structure reads full size. */
+export const EXTRA_BUILDING_FULL_LEVEL = 3;
+/** Slice 31: extra building note, the main building is still going up. */
+export const EXTRA_BUILDING_NOTE_BUILDING = "Goes up after the main build.";
+/** Slice 31: extra building note, an upgrade is under way. */
+export const EXTRA_BUILDING_NOTE_UPGRADING = "Grows with the upgrade.";
+/** Slice 31: extra building note, finished. */
+export const EXTRA_BUILDING_NOTE_STANDING = "Adds life, not output.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

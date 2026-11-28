@@ -126,6 +126,25 @@ import {
   WORK_STATION_BENEFIT_NOTE_BUILDING,
   WORK_STATION_BENEFIT_NOTE_UPGRADING,
   WORK_STATION_BENEFIT_NOTE_EMPTY,
+  ENVIRONMENT_FEATURES,
+  ENVIRONMENT_AMBIENT,
+  ENVIRONMENT_NOTE,
+  WORK_STATION_DEPTH_LABEL,
+  WORK_STATION_DEPTH_MIN_LEVEL,
+  WORK_STATION_DEPTH_NOTE_ACTIVE,
+  WORK_STATION_DEPTH_NOTE_BUILDING,
+  WORK_STATION_DEPTH_NOTE_UPGRADING,
+  WORK_STATION_DEPTH_NOTE_LOW_TIER,
+  WORK_STATION_DEPTH_NOTE_EMPTY,
+  WORK_STATION_DEPTH_NOTE_NO_BASE,
+  EXTRA_BUILDINGS,
+  EXTRA_BUILDING_DETAIL_UPGRADING,
+  EXTRA_BUILDING_DETAIL_SMALL,
+  EXTRA_BUILDING_DETAIL_FULL,
+  EXTRA_BUILDING_FULL_LEVEL,
+  EXTRA_BUILDING_NOTE_BUILDING,
+  EXTRA_BUILDING_NOTE_UPGRADING,
+  EXTRA_BUILDING_NOTE_STANDING,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -138,7 +157,9 @@ import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
 import { friendlyRealmIds, livingSwitches, nameOf, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
-import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, workStationBonus } from "./economy.js";
+import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, workStationBonus, workStationDepthBonus } from "./economy.js";
+import { weatherFor } from "./weather.js";
+import { currentSeason } from "./age.js";
 import { upkeepPerTick } from "./upkeep.js";
 import { RESEARCH, academyReady, unitUnlocked, type ResearchId } from "./research.js";
 import { DECREES } from "./decree.js";
@@ -1718,4 +1739,98 @@ export function workStationBenefitSnapshot(state: GameState, buildingId: string)
     : active ? WORK_STATION_BENEFIT_NOTE_ACTIVE
     : WORK_STATION_BENEFIT_NOTE_EMPTY;
   return { benefit: WORK_STATION_BENEFIT_LABEL, active, note };
+}
+
+// ---------------------------------------------------------------- environment (slice 31)
+
+export interface Environment {
+  /** ENVIRONMENT_FEATURES label for the board's most common terrain (ties: key order). */
+  features: string;
+  /** ENVIRONMENT_AMBIENT label for today's weather. */
+  ambient: string;
+  /** ENVIRONMENT_NOTE line for the season. */
+  note: string;
+}
+
+/**
+ * Slice 31: a short read of the land, the air and the season. Null with living_environment
+ * off or a board with no tiles. Pure read; pathfinding, fog and weather rules untouched.
+ */
+export function environmentSnapshot(state: GameState): Environment | null {
+  if (!livingSwitches(state).environment) return null;
+  const provinces = state.board?.provinces;
+  if (!Array.isArray(provinces) || provinces.length === 0) return null;
+  const counts: Record<string, number> = {};
+  for (const p of provinces) counts[p.terrain] = (counts[p.terrain] ?? 0) + 1;
+  let best: string | null = null;
+  for (const t of Object.keys(ENVIRONMENT_FEATURES)) {
+    if ((counts[t] ?? 0) > 0 && (best === null || counts[t] > counts[best])) best = t;
+  }
+  const features = best === null ? ENVIRONMENT_FEATURES.plain : ENVIRONMENT_FEATURES[best];
+  const ambient = ENVIRONMENT_AMBIENT[weatherFor(state)] ?? ENVIRONMENT_AMBIENT.clear;
+  const note = ENVIRONMENT_NOTE[currentSeason(state)] ?? ENVIRONMENT_NOTE.Spring;
+  return { features, ambient, note };
+}
+
+// ---------------------------------------------------------------- work station depth (slice 31)
+
+export interface WorkStationDepth {
+  /** WORK_STATION_DEPTH_LABEL ("+3% at Tier II"). */
+  depth: string;
+  /** True when the economy applies the depth bonus to this building (workStationDepthBonus > 1). */
+  active: boolean;
+  /** WORK_STATION_DEPTH_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 31: the seasoned-station bonus for one building. Null for an unknown id, a building
+ * that takes no worker, or with living_work_station_depth off (which also turns this bonus
+ * off; the slice 30 +5% stays). `active` reads the same rule the economy uses.
+ */
+export function workStationDepthSnapshot(state: GameState, buildingId: string): WorkStationDepth | null {
+  if (!livingSwitches(state).workStationDepth) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  const r = readBuilding(state, b);
+  if (r.workStation === null) return null;
+  const active = workStationDepthBonus(state, b) > 1;
+  const note =
+    r.phase === "building" ? WORK_STATION_DEPTH_NOTE_BUILDING
+    : r.phase === "upgrading" ? WORK_STATION_DEPTH_NOTE_UPGRADING
+    : r.phase !== "staffed" ? WORK_STATION_DEPTH_NOTE_EMPTY
+    : active ? WORK_STATION_DEPTH_NOTE_ACTIVE
+    : workStationBonus(state, b) <= 1 ? WORK_STATION_DEPTH_NOTE_NO_BASE
+    : r.level < WORK_STATION_DEPTH_MIN_LEVEL ? WORK_STATION_DEPTH_NOTE_LOW_TIER
+    : WORK_STATION_DEPTH_NOTE_EMPTY;
+  return { depth: WORK_STATION_DEPTH_LABEL, active, note };
+}
+
+// ---------------------------------------------------------------- extra buildings (slice 31)
+
+export interface ExtraBuilding {
+  /** EXTRA_BUILDINGS label for the type. */
+  extra: string;
+  /** EXTRA_BUILDING_DETAIL_*; null while the main building is still being built. */
+  detail: string | null;
+  /** EXTRA_BUILDING_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 31: the extra visual structure beside one building. Null for an unknown id, a type
+ * not in EXTRA_BUILDINGS, or with living_extra_buildings off. Visual only: no cost, no
+ * output, no new building type.
+ */
+export function extraBuildingSnapshot(state: GameState, buildingId: string): ExtraBuilding | null {
+  if (!livingSwitches(state).extraBuildings) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  const extra = EXTRA_BUILDINGS[b.typeId];
+  if (extra === undefined) return null;
+  const r = readBuilding(state, b);
+  if (r.phase === "building") return { extra, detail: null, note: EXTRA_BUILDING_NOTE_BUILDING };
+  if (r.phase === "upgrading") return { extra, detail: EXTRA_BUILDING_DETAIL_UPGRADING, note: EXTRA_BUILDING_NOTE_UPGRADING };
+  const detail = r.level >= EXTRA_BUILDING_FULL_LEVEL ? EXTRA_BUILDING_DETAIL_FULL : EXTRA_BUILDING_DETAIL_SMALL;
+  return { extra, detail, note: EXTRA_BUILDING_NOTE_STANDING };
 }

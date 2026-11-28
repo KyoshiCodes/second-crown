@@ -45,7 +45,7 @@ export type { CultureKitId, CultureUnitGate } from "./systems/cultureUnits.js";
 
 export { playerTitle, extraArchetypes } from "./content/world.js";
 
-export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, workStationBonus, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
+export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, workStationBonus, workStationDepthBonus, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
 export { unpairedWorks, PAIR_LABEL, PAIR_MATE } from "./systems/pairHint.js";
 export { emptyStaffWorks } from "./systems/staffHint.js";
 export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./systems/combat.js";
@@ -422,6 +422,9 @@ export {
   boardExpansionSnapshot,
   buildingVarietySnapshot,
   workStationBenefitSnapshot,
+  environmentSnapshot,
+  workStationDepthSnapshot,
+  extraBuildingSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -484,6 +487,9 @@ export type {
   BoardExpansion,
   BuildingVariety,
   WorkStationBenefit,
+  Environment,
+  WorkStationDepth,
+  ExtraBuilding,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -637,6 +643,26 @@ export {
   WORK_STATION_BENEFIT_NOTE_BUILDING,
   WORK_STATION_BENEFIT_NOTE_UPGRADING,
   WORK_STATION_BENEFIT_NOTE_EMPTY,
+  ENVIRONMENT_FEATURES,
+  ENVIRONMENT_AMBIENT,
+  ENVIRONMENT_NOTE,
+  WORK_STATION_DEPTH_MULT,
+  WORK_STATION_DEPTH_MIN_LEVEL,
+  WORK_STATION_DEPTH_LABEL,
+  WORK_STATION_DEPTH_NOTE_ACTIVE,
+  WORK_STATION_DEPTH_NOTE_BUILDING,
+  WORK_STATION_DEPTH_NOTE_UPGRADING,
+  WORK_STATION_DEPTH_NOTE_LOW_TIER,
+  WORK_STATION_DEPTH_NOTE_EMPTY,
+  WORK_STATION_DEPTH_NOTE_NO_BASE,
+  EXTRA_BUILDINGS,
+  EXTRA_BUILDING_DETAIL_UPGRADING,
+  EXTRA_BUILDING_DETAIL_SMALL,
+  EXTRA_BUILDING_DETAIL_FULL,
+  EXTRA_BUILDING_FULL_LEVEL,
+  EXTRA_BUILDING_NOTE_BUILDING,
+  EXTRA_BUILDING_NOTE_UPGRADING,
+  EXTRA_BUILDING_NOTE_STANDING,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,
