@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Realm mood pill and linked twin work-station marks
+
+- **Calm weather mood tag on the map:** A second subtle mood pill now sits directly below the map's land-and-season note (`Restless sky`, `Soft weather`, `Still season`, or `Open and quiet`), fading away if disabled.
+- **Twin pairing marks on work buildings:** Finished same-type work buildings in Kingdom now show two linked diamonds when paired, highlighting which structure holds the `+2%` lead bonus (`Paired +2% · Pair bonus on this one.`) versus its twin (`Paired · Paired; bonus on its twin.`).
+
 ## 2026-11-28 — Weather moods and paired work buildings
 
 - **Paired buildings help a little.** Build two of the same work building (two farms, two quarries, and so on) and the first one you finished makes 2% more. Only one bonus per building type, however many you build. Buildings still under construction do not count.

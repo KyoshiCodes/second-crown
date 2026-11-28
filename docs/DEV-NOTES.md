@@ -1,3 +1,12 @@
+## 2026-11-28 — app / living presentation for environment mood & station pairing
+
+- **Environment depth mood pill (`packages/app/src/hud/BoardEnvironmentMood.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardEnvironmentMood(state)` and `<BoardEnvironmentMoodPill>` wrapping `environmentSnapshot(state)?.mood` (`01b550b`, zero mismatch). Renders a non-blocking top-right pill (`top: 92px; right: 14px;`) stacked cleanly beneath `<BoardEnvironmentNote>` (`top: 66px`) with a 10×10 mood crest SVG (`restless`, `soft`, `still`, `open`), returning `null` when `mood` is `null` (`living_environment_depth` off) or `living_environment` is off.
+- **Station pairing mark (`packages/app/src/hud/WorkStationPairMark.tsx`, `WorkCard.tsx`):**
+  - Exported pure `resolveStationPair(state, buildingId)` and `<WorkStationPairBadge>` wrapping `stationPairSnapshot(state, buildingId)` (`01b550b`, zero mismatch). Draws two small linked SVG diamonds (`sc-wpair-link`) when `paired === true` (`Paired +2%` lead highlight vs `Paired` twin accent), plain unpaired guidance (`Build a second to pair.` / `Pairs once built.`) when `paired === false`, and hides on non-station buildings or `living_station_pair` off.
+- **Dedicated CSS (`hud/board-environment-mood.css`, `hud/work-station-pair.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on crests and linked-diamond glyphs, gentle breathing/glow keyframes, and `@media (prefers-reduced-motion: reduce)` guards. Zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, fog, or pathfinding.
+- **Verification (`packages/app/src/hud/LivingSlice32Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **998**, app **1743**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-28 — sim / Living Realm slice 32 (environment depth, station pairing)
 
 - **Where:** `environmentMood` + `stationPairSnapshot` in `systems/livingStatus.ts`; `stationPairState` / `stationPairBonus` in `systems/economy.ts`; constants `ENVIRONMENT_MOOD_*`, `STATION_PAIR_*` in `content/livingRealm.ts`. Exported from `packages/sim` (except `environmentMood`, test-only).

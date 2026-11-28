@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Living presentation for environment depth and station pairing (Slice 32)
+
+- **Environment depth mood pill (`hud/BoardEnvironmentMood.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentMood` and `<BoardEnvironmentMoodPill>`, reading `environmentSnapshot(state)?.mood` (`01b550b`, exact match — zero mismatch) to render a calm second top-right pill (`top: 92px`, stacked beneath `<BoardEnvironmentNote>`) with a subtle mood crest (`Restless sky`, `Soft weather`, `Still season`, `Open and quiet`), hiding cleanly when `mood` is `null` or `living_environment_depth` is `false`.
+- **Station pairing mark (`hud/WorkStationPairMark.tsx`, `hud/WorkCard.tsx`):** Added `resolveStationPair` and `<WorkStationPairBadge>`, reading `stationPairSnapshot(state, buildingId)` (`01b550b`, exact match — zero mismatch) to draw two linked SVG diamonds on paired work-station cards (`Paired +2%` / `Pair bonus on this one.` on the lead station, `Paired` / `Paired; bonus on its twin.` on twins) and quiet unpaired guidance otherwise, hiding cleanly on non-station buildings or `living_station_pair` off.
+- **Unchanged invariants & accessibility:** Dedicated `hud/board-environment-mood.css` and `hud/work-station-pair.css` only (zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, pathfinding, or fog math); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on crests and linked diamonds, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice32Presentation.test.tsx` (4 tests). Now: sim **998**, app **1743**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-28 — Living Realm slice 32 (environment depth, station pairing)
 
 - **Environment depth:** `environmentSnapshot(state)` gains **`mood`** → `{ features, ambient, note, mood }`. `mood` = `Restless sky` (storm) / `Soft weather` (rain or snow) / `Still season` (clear Winter) / `Open and quiet` (clear, other seasons). Read-only.

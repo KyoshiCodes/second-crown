@@ -271,6 +271,12 @@ import {
   type BoardEnvironmentAmbient,
   type BoardEnvironmentView,
 } from "./hud/BoardEnvironmentMarks";
+import {
+  BoardEnvironmentMoodPill,
+  resolveBoardEnvironmentMood,
+  type BoardEnvironmentMoodKind,
+  type BoardEnvironmentMoodView,
+} from "./hud/BoardEnvironmentMood";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1224,6 +1230,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
       <BoardScaleNote state={state} />
       <BoardExpansionBadge state={state} />
       <BoardEnvironmentNote state={state} />
+      <BoardEnvironmentMoodPill state={state} />
     </div>
   );
 }
@@ -1419,4 +1426,8 @@ export {
   type BoardEnvironmentTerrain,
   type BoardEnvironmentAmbient,
   type BoardEnvironmentView,
+  BoardEnvironmentMoodPill,
+  resolveBoardEnvironmentMood,
+  type BoardEnvironmentMoodKind,
+  type BoardEnvironmentMoodView,
 };

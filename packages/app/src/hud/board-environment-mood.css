@@ -1,0 +1,122 @@
+/* --- Living Realm Slice 32: Environment Depth Mood Pill (isolated CSS) ---
+ * Loaded from hud/BoardEnvironmentMood.tsx.
+ * Leaves theme.css, board-living.css, board-environment.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on mood pill and decorative crest.
+ * Calm second mood badge near BoardEnvironmentNote across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bmood-bg: rgba(14, 20, 32, 0.78);
+  --sc-bmood-border: rgba(148, 163, 184, 0.24);
+  --sc-bmood-text: #dbe4ef;
+  --sc-bmood-open: #86efac;
+  --sc-bmood-soft: #93c5fd;
+  --sc-bmood-still: #e2e8f0;
+  --sc-bmood-restless: #c4b5fd;
+  --sc-bmood-restless-border: rgba(196, 181, 253, 0.34);
+}
+
+:root[data-chrome="night"] {
+  --sc-bmood-bg: rgba(8, 12, 22, 0.86);
+  --sc-bmood-border: rgba(148, 163, 184, 0.28);
+  --sc-bmood-text: #e2e8f0;
+  --sc-bmood-open: #6ee7b7;
+  --sc-bmood-soft: #bae6fd;
+  --sc-bmood-still: #f1f5f9;
+  --sc-bmood-restless: #d8b4fe;
+  --sc-bmood-restless-border: rgba(216, 180, 254, 0.38);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bmood-bg: rgba(30, 21, 13, 0.84);
+  --sc-bmood-border: rgba(196, 164, 112, 0.3);
+  --sc-bmood-text: #fef3c7;
+  --sc-bmood-open: #fde68a;
+  --sc-bmood-soft: #bae6fd;
+  --sc-bmood-still: #fef3c7;
+  --sc-bmood-restless: #ddd6fe;
+  --sc-bmood-restless-border: rgba(221, 214, 254, 0.36);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Elements
+   ========================================================================== */
+.sc-bmood-pill,
+.sc-bmood-pill *,
+.sc-bmood-crest {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Environment Depth Mood Pill (Stacked Below .sc-benv-note at top: 66px)
+   ========================================================================== */
+.sc-bmood-pill {
+  position: absolute;
+  top: 92px;
+  right: 14px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2.5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-bmood-border);
+  background: var(--sc-bmood-bg);
+  color: var(--sc-bmood-text);
+  font-size: 10px;
+  line-height: 1.3;
+  backdrop-filter: blur(4px);
+}
+
+.sc-bmood-pill.is-restless {
+  border-color: var(--sc-bmood-restless-border);
+}
+
+.sc-bmood-crest {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  color: var(--sc-bmood-open);
+  animation: sc-bmood-breathe 5.8s ease-in-out infinite;
+}
+
+.sc-bmood-pill.is-soft .sc-bmood-crest {
+  color: var(--sc-bmood-soft);
+}
+
+.sc-bmood-pill.is-still .sc-bmood-crest {
+  color: var(--sc-bmood-still);
+}
+
+.sc-bmood-pill.is-restless .sc-bmood-crest {
+  color: var(--sc-bmood-restless);
+}
+
+.sc-bmood-label {
+  font-weight: 500;
+}
+
+@keyframes sc-bmood-breathe {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   4. Reduced Motion Accessibility Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-bmood-crest {
+    animation: none;
+    transition: none;
+  }
+}
