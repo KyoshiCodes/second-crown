@@ -45,7 +45,7 @@ export type { CultureKitId, CultureUnitGate } from "./systems/cultureUnits.js";
 
 export { playerTitle, extraArchetypes } from "./content/world.js";
 
-export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
+export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, workStationBonus, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
 export { unpairedWorks, PAIR_LABEL, PAIR_MATE } from "./systems/pairHint.js";
 export { emptyStaffWorks } from "./systems/staffHint.js";
 export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./systems/combat.js";
@@ -420,6 +420,8 @@ export {
   buildingLifeSnapshot,
   workStationStagingSnapshot,
   boardExpansionSnapshot,
+  buildingVarietySnapshot,
+  workStationBenefitSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -480,6 +482,8 @@ export type {
   BuildingLife,
   WorkStationStaging,
   BoardExpansion,
+  BuildingVariety,
+  WorkStationBenefit,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -620,6 +624,19 @@ export {
   BOARD_BAND_WIDE,
   BOARD_EXPANSION_NOTE_PLANNED,
   BOARD_EXPANSION_NOTE_WIDEST,
+  BUILDING_VARIETY,
+  BUILDING_VARIETY_DEFAULT,
+  BUILDING_VARIETY_TIER_DETAIL,
+  BUILDING_VARIETY_NOTE_BUILDING,
+  BUILDING_VARIETY_NOTE_UPGRADING,
+  BUILDING_VARIETY_NOTE_TOP,
+  BUILDING_VARIETY_NOTE_GROWING,
+  WORK_STATION_BENEFIT_MULT,
+  WORK_STATION_BENEFIT_LABEL,
+  WORK_STATION_BENEFIT_NOTE_ACTIVE,
+  WORK_STATION_BENEFIT_NOTE_BUILDING,
+  WORK_STATION_BENEFIT_NOTE_UPGRADING,
+  WORK_STATION_BENEFIT_NOTE_EMPTY,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

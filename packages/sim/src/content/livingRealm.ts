@@ -600,6 +600,65 @@ export const BOARD_EXPANSION_NOTE_PLANNED = "A larger board is planned, not open
 /** Slice 29: board expansion note, already in the widest band. */
 export const BOARD_EXPANSION_NOTE_WIDEST = "The board is already at its widest.";
 
+// ---------------------------------------------------------------- building variety, work-station benefit (slice 30)
+
+/** Slice 30: building variety label per building type id. A type not listed gives BUILDING_VARIETY_DEFAULT. */
+export const BUILDING_VARIETY: Readonly<Record<string, string>> = {
+  farm: "Farmstead",
+  cottage: "Dwelling",
+  lumber_camp: "Timber camp",
+  quarry: "Stone cut",
+  gold_mine: "Gold dig",
+  granary: "Grain store",
+  sawmill: "Plank mill",
+  mason: "Stoneworks",
+  market: "Trade hall",
+  mint: "Coin house",
+  barracks: "Muster hall",
+  stables: "Horse yard",
+  archery_range: "Bow yard",
+  academy: "Lecture hall",
+  siege_workshop: "Engine shop",
+  watchtower: "Lookout",
+  chapel: "Shrine",
+  infirmary: "Sickhouse",
+  walls: "Rampart",
+  gate: "Gatehouse",
+  keep: "Seat of rule",
+};
+/** Slice 30: building variety label for a type not in BUILDING_VARIETY. */
+export const BUILDING_VARIETY_DEFAULT = "Common building";
+/** Slice 30: tier detail per level (index 1..5; level clamped). Tier I shows none. */
+export const BUILDING_VARIETY_TIER_DETAIL: readonly (string | null)[] = [
+  null,
+  null,
+  "Second storey",
+  "Stone footing",
+  "Slate roof",
+  "Tower wing",
+];
+/** Slice 30: building variety note, still being built. */
+export const BUILDING_VARIETY_NOTE_BUILDING = "Its style shows once built.";
+/** Slice 30: building variety note, an upgrade is under way. */
+export const BUILDING_VARIETY_NOTE_UPGRADING = "Growing into a new tier.";
+/** Slice 30: building variety note, at the top tier. */
+export const BUILDING_VARIETY_NOTE_TOP = "At its finest form.";
+/** Slice 30: building variety note, finished with tiers still to come. */
+export const BUILDING_VARIETY_NOTE_GROWING = "Room to grow.";
+
+/** Slice 30: output multiplier while a worker is staged at a finished, non-upgrading station. */
+export const WORK_STATION_BENEFIT_MULT = 1.05;
+/** Slice 30: work station benefit label (matches WORK_STATION_BENEFIT_MULT). */
+export const WORK_STATION_BENEFIT_LABEL = "+5% output";
+/** Slice 30: work station benefit note, the bonus is in effect. */
+export const WORK_STATION_BENEFIT_NOTE_ACTIVE = "Station bonus in effect.";
+/** Slice 30: work station benefit note, the building is still being built. */
+export const WORK_STATION_BENEFIT_NOTE_BUILDING = "Bonus starts once built.";
+/** Slice 30: work station benefit note, an upgrade is under way. */
+export const WORK_STATION_BENEFIT_NOTE_UPGRADING = "Bonus paused for the upgrade.";
+/** Slice 30: work station benefit note, no worker at the station. */
+export const WORK_STATION_BENEFIT_NOTE_EMPTY = "Staff the station for a bonus.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

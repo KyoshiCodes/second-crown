@@ -131,9 +131,9 @@ describe("living realm slice 28: building detail", () => {
 });
 
 describe("living realm slice 28: board scale", () => {
-  it("live board: width, height and mid note", () => {
+  it("live board: width, height and wide note (16x10 since slice 30)", () => {
     const s = fresh();
-    expect(boardScaleSnapshot(s)).toEqual({ width: BOARD_W, height: BOARD_H, note: BOARD_SCALE_NOTE_MID });
+    expect(boardScaleSnapshot(s)).toEqual({ width: BOARD_W, height: BOARD_H, note: BOARD_SCALE_NOTE_WIDE });
   });
 
   it("note bands by tile count", () => {

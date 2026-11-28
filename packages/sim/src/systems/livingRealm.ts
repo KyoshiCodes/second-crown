@@ -179,6 +179,10 @@ export interface LivingSwitches {
   workStationStaging: boolean;
   /** Board expansion prep (slice 29): boardExpansionSnapshot. False: null. Read-only either way. */
   boardExpansion: boolean;
+  /** Building variety (slice 30): buildingVarietySnapshot. False: null. Read-only either way. */
+  buildingVariety: boolean;
+  /** Work station benefit (slice 30): +5% output at a staged station, and workStationBenefitSnapshot. False: no bonus, null. */
+  workStationBenefit: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -238,6 +242,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   buildingLife: "living_building_life",
   workStationStaging: "living_work_station_staging",
   boardExpansion: "living_board_expansion",
+  buildingVariety: "living_building_variety",
+  workStationBenefit: "living_work_station_benefit",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

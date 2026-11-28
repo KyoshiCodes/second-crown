@@ -121,14 +121,22 @@ describe("Living Realm Slice 28: building detail & board scale note", () => {
     expect(renderToStaticMarkup(<BoardScaleNote state={{} as GameState} />)).toBe("");
 
     const s = emptyBuildingState();
-    const midHtml = renderToStaticMarkup(<BoardLiving visible state={s} selectedId={null} />);
-    expect(midHtml).toContain('class="sc-bscale-frame is-mid"');
-    expect(midHtml).toContain(`data-bscale-dims="${BOARD_W}x${BOARD_H}"`);
-    expect(midHtml).toContain('class="sc-bscale-note is-mid"');
-    expect(midHtml).toContain(`${BOARD_W}×${BOARD_H}`);
-    expect(midHtml).toContain(BOARD_SCALE_NOTE_MID);
+    // Slice 30: the live board is 16x10 (160 tiles), the wide band.
+    const liveHtml = renderToStaticMarkup(<BoardLiving visible state={s} selectedId={null} />);
+    expect(liveHtml).toContain('class="sc-bscale-frame is-wide"');
+    expect(liveHtml).toContain(`data-bscale-dims="${BOARD_W}x${BOARD_H}"`);
+    expect(liveHtml).toContain('class="sc-bscale-note is-wide"');
+    expect(liveHtml).toContain(`${BOARD_W}×${BOARD_H}`);
+    expect(liveHtml).toContain(BOARD_SCALE_NOTE_WIDE);
     expect(s.board.width).toBe(BOARD_W);
     expect(s.board.height).toBe(BOARD_H);
+
+    s.board.width = 12;
+    s.board.height = 8;
+    const midHtml = renderToStaticMarkup(<BoardScaleNote state={s} />);
+    expect(midHtml).toContain('class="sc-bscale-note is-mid"');
+    expect(midHtml).toContain("12×8");
+    expect(midHtml).toContain(BOARD_SCALE_NOTE_MID);
 
     s.board.width = 6;
     s.board.height = 8;

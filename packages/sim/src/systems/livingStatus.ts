@@ -114,6 +114,18 @@ import {
   BOARD_BAND_WIDE,
   BOARD_EXPANSION_NOTE_PLANNED,
   BOARD_EXPANSION_NOTE_WIDEST,
+  BUILDING_VARIETY,
+  BUILDING_VARIETY_DEFAULT,
+  BUILDING_VARIETY_TIER_DETAIL,
+  BUILDING_VARIETY_NOTE_BUILDING,
+  BUILDING_VARIETY_NOTE_UPGRADING,
+  BUILDING_VARIETY_NOTE_TOP,
+  BUILDING_VARIETY_NOTE_GROWING,
+  WORK_STATION_BENEFIT_LABEL,
+  WORK_STATION_BENEFIT_NOTE_ACTIVE,
+  WORK_STATION_BENEFIT_NOTE_BUILDING,
+  WORK_STATION_BENEFIT_NOTE_UPGRADING,
+  WORK_STATION_BENEFIT_NOTE_EMPTY,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -126,7 +138,7 @@ import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
 import { friendlyRealmIds, livingSwitches, nameOf, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
-import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus } from "./economy.js";
+import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, workStationBonus } from "./economy.js";
 import { upkeepPerTick } from "./upkeep.js";
 import { RESEARCH, academyReady, unitUnlocked, type ResearchId } from "./research.js";
 import { DECREES } from "./decree.js";
@@ -1645,4 +1657,65 @@ export function boardExpansionSnapshot(state: GameState): BoardExpansion | null 
   if (tiles <= BOARD_SCALE_SMALL_TILES) return { current: BOARD_BAND_SMALL, prepared: BOARD_BAND_MID, note: BOARD_EXPANSION_NOTE_PLANNED };
   if (tiles <= BOARD_SCALE_MID_TILES) return { current: BOARD_BAND_MID, prepared: BOARD_BAND_WIDE, note: BOARD_EXPANSION_NOTE_PLANNED };
   return { current: BOARD_BAND_WIDE, prepared: BOARD_BAND_WIDE, note: BOARD_EXPANSION_NOTE_WIDEST };
+}
+
+// ---------------------------------------------------------------- building variety (slice 30)
+
+export interface BuildingVariety {
+  /** BUILDING_VARIETY label for the type, or BUILDING_VARIETY_DEFAULT. */
+  variety: string;
+  /** BUILDING_VARIETY_TIER_DETAIL entry for the level (clamped 1..5); null at Tier I or while being built. */
+  tierDetail: string | null;
+  /** BUILDING_VARIETY_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 30: style label and tier detail for one building. Null for an unknown id or with
+ * living_building_variety off. Pure read; build costs and upgrade rules untouched.
+ */
+export function buildingVarietySnapshot(state: GameState, buildingId: string): BuildingVariety | null {
+  if (!livingSwitches(state).buildingVariety) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  const r = readBuilding(state, b);
+  const variety = BUILDING_VARIETY[b.typeId] ?? BUILDING_VARIETY_DEFAULT;
+  const tierDetail = r.phase === "building" ? null : (BUILDING_VARIETY_TIER_DETAIL[r.level] ?? null);
+  const note =
+    r.phase === "building" ? BUILDING_VARIETY_NOTE_BUILDING
+    : r.phase === "upgrading" ? BUILDING_VARIETY_NOTE_UPGRADING
+    : r.level >= 5 ? BUILDING_VARIETY_NOTE_TOP
+    : BUILDING_VARIETY_NOTE_GROWING;
+  return { variety, tierDetail, note };
+}
+
+// ---------------------------------------------------------------- work station benefit (slice 30)
+
+export interface WorkStationBenefit {
+  /** WORK_STATION_BENEFIT_LABEL ("+5% output"). */
+  benefit: string;
+  /** True when the economy applies the bonus to this building (workStationBonus > 1). */
+  active: boolean;
+  /** WORK_STATION_BENEFIT_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 30: the passive work-station bonus for one building. Null for an unknown id, a
+ * building that takes no worker, or with living_work_station_benefit off (which also turns
+ * the bonus itself off). `active` reads the same rule the economy uses.
+ */
+export function workStationBenefitSnapshot(state: GameState, buildingId: string): WorkStationBenefit | null {
+  if (!livingSwitches(state).workStationBenefit) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  const r = readBuilding(state, b);
+  if (r.workStation === null) return null;
+  const active = workStationBonus(state, b) > 1;
+  const note =
+    r.phase === "building" ? WORK_STATION_BENEFIT_NOTE_BUILDING
+    : r.phase === "upgrading" ? WORK_STATION_BENEFIT_NOTE_UPGRADING
+    : active ? WORK_STATION_BENEFIT_NOTE_ACTIVE
+    : WORK_STATION_BENEFIT_NOTE_EMPTY;
+  return { benefit: WORK_STATION_BENEFIT_LABEL, active, note };
 }

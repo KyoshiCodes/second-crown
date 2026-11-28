@@ -172,8 +172,8 @@ describe("living realm slice 29: work station staging", () => {
 });
 
 describe("living realm slice 29: board expansion prep", () => {
-  it("live board: mid, wide prepared", () => {
-    expect(boardExpansionSnapshot(fresh())).toEqual({ current: BOARD_BAND_MID, prepared: BOARD_BAND_WIDE, note: BOARD_EXPANSION_NOTE_PLANNED });
+  it("live board: wide, already widest (16x10 since slice 30)", () => {
+    expect(boardExpansionSnapshot(fresh())).toEqual({ current: BOARD_BAND_WIDE, prepared: BOARD_BAND_WIDE, note: BOARD_EXPANSION_NOTE_WIDEST });
   });
 
   it("small and wide bands", () => {

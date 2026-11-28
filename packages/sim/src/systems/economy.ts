@@ -11,7 +11,9 @@ import { addCapped } from "./storage.js";
 import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
-import { keepLevel } from "../actions/upgrade.js";
+import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
+import { WORK_STATION_BENEFIT_MULT } from "../content/livingRealm.js";
+import { LIVING_SWITCH_FLAGS } from "./livingRealm.js";
 import { keepIncomeMult, levelYieldMult } from "../content/pacing.js";
 import { farmCultureBonus, quarryCultureBonus, woodCultureBonus } from "./culture.js";
 
@@ -49,6 +51,19 @@ export function staffBonus(state: GameState, building: GameState["buildings"][nu
       c.tile?.y === building.y
   ).length;
   return 1 + Math.min(0.4, n * 0.2);
+}
+
+/**
+ * Slice 30: a worker staged at a finished, non-upgrading work station adds a flat
+ * WORK_STATION_BENEFIT_MULT (+5%) on top of staffBonus. One step, not per worker.
+ * Flag living_work_station_benefit false: 1. Deterministic, reads state only.
+ */
+export function workStationBonus(state: GameState, building: GameState["buildings"][number]): number {
+  if (state.flags[LIVING_SWITCH_FLAGS.workStationBenefit] === false) return 1;
+  if (building.completesAtTick !== null) return 1;
+  if (staffBonus(state, building) <= 1) return 1;
+  if (upgradeJobFor(state, building.id)) return 1;
+  return WORK_STATION_BENEFIT_MULT;
 }
 
 /** Finished same-type neighbor on an edge: +10% each, cap +20%. */
@@ -106,6 +121,7 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(1 + productionBonus(state) * 0.04 + researchYield(state, res))
     .mul(scarce)
     .mul(staffBonus(state, building))
+    .mul(workStationBonus(state, building))
     .mul(adjacencyBonus(state, building))
     .mul(pairBonus(state, building))
     .mul(keepBonus(state, building))

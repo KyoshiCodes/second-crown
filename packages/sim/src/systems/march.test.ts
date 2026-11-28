@@ -110,12 +110,12 @@ describe("W2 marches and walls", () => {
     expect(listLedger(camp).some((e) => /Camp broken/.test(e.text))).toBe(true);
 
     const node = createGameState({ seed: 1 });
-    node.board.provinces.push({ id: "p_9_9", x: 9, y: 9, terrain: "plain", node: "woodcut", occupantRealmId: null });
+    node.board.provinces.push({ id: "p_40_40", x: 40, y: 40, terrain: "plain", node: "woodcut", occupantRealmId: null });
     const nodeMarch: March = {
       id: "m2",
       realmId: "player",
       fromId: node.board.homeProvinceId,
-      toId: "p_9_9",
+      toId: "p_40_40",
       arrivesTick: 10,
       kind: "node",
       levy: 5,
@@ -128,12 +128,12 @@ describe("W2 marches and walls", () => {
   it("raid payouts are lost past the wood storage cap", () => {
     const s = createGameState({ seed: 1 });
     s.resources.wood = String(storageCap(s, "wood"));
-    s.board.provinces.push({ id: "p_9_9", x: 9, y: 9, terrain: "plain", node: "camp", occupantRealmId: null });
+    s.board.provinces.push({ id: "p_40_40", x: 9, y: 9, terrain: "plain", node: "camp", occupantRealmId: null });
     const march: March = {
       id: "m3",
       realmId: "player",
       fromId: s.board.homeProvinceId,
-      toId: "p_9_9",
+      toId: "p_40_40",
       arrivesTick: 10,
       kind: "camp",
       levy: 5,

@@ -161,13 +161,20 @@ describe("Living Realm Slice 29: building life, work-station staging, and board 
     const before = JSON.stringify(s);
 
     const boardHtml = renderToStaticMarkup(<BoardLiving visible state={s} selectedId={null} />);
-    expect(boardHtml).toContain('class="sc-bexp-rim is-planned"');
-    expect(boardHtml).toContain('class="sc-bexp-badge is-planned"');
-    expect(boardHtml).toContain(`${BOARD_BAND_MID} → ${BOARD_BAND_WIDE}`);
-    expect(boardHtml).toContain(BOARD_EXPANSION_NOTE_PLANNED);
+    // Slice 30: the live board is 16x10, already the widest band.
+    expect(boardHtml).toContain('class="sc-bexp-rim is-widest"');
+    expect(boardHtml).toContain('class="sc-bexp-badge is-widest"');
+    expect(boardHtml).toContain(BOARD_EXPANSION_NOTE_WIDEST);
     expect(s.board.width).toBe(BOARD_W);
     expect(s.board.height).toBe(BOARD_H);
     expect(JSON.stringify(s)).toBe(before);
+
+    s.board.width = 12;
+    s.board.height = 8;
+    const midBadge = renderToStaticMarkup(<BoardExpansionBadge state={s} />);
+    expect(midBadge).toContain('data-bexp-stage="planned"');
+    expect(midBadge).toContain(`${BOARD_BAND_MID} → ${BOARD_BAND_WIDE}`);
+    expect(midBadge).toContain(BOARD_EXPANSION_NOTE_PLANNED);
 
     s.board.width = 14;
     s.board.height = 10;

@@ -4,12 +4,13 @@ import { createGameState } from "../state/createGameState.js";
 import { ensureBoard, seedBoard } from "./board.js";
 
 describe("W17 board size", () => {
-  it("seeds a 12 by 8 table", () => {
+  it("seeds a 16 by 10 table (slice 30)", () => {
     const b = seedBoard(1);
-    expect(BOARD_W).toBe(12);
-    expect(BOARD_H).toBe(8);
-    expect(b.provinces.length).toBe(96);
-    expect(b.width).toBe(12);
+    expect(BOARD_W).toBe(16);
+    expect(BOARD_H).toBe(10);
+    expect(b.provinces.length).toBe(160);
+    expect(b.width).toBe(16);
+    expect(b.height).toBe(10);
     expect(b.homeProvinceId).toBe("p_2_2");
   });
 
@@ -20,8 +21,8 @@ describe("W17 board size", () => {
     s.board.provinces = s.board.provinces.filter((p) => p.x < 8 && p.y < 6);
     expect(s.board.provinces.length).toBe(48);
     ensureBoard(s);
-    expect(s.board.provinces.length).toBe(96);
-    expect(s.board.provinces.some((p) => p.x === 11 && p.y === 7)).toBe(true);
+    expect(s.board.provinces.length).toBe(160);
+    expect(s.board.provinces.some((p) => p.x === 15 && p.y === 9)).toBe(true);
     expect(s.board.homeProvinceId).toBe("p_2_2");
   });
 });

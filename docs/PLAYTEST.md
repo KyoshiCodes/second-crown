@@ -191,6 +191,8 @@ Building detail and board scale note available (`living_building_detail`, `livin
 
 Building life, work-station staging, and board expansion prep available (`living_building_life`, `living_work_station_staging`, `living_board_expansion`). Read-only.
 
+Board expanded to 16×10, building variety, and passive work-station benefits (+5% output when staffed) available (`living_building_variety`, `living_work_station_benefit`); 12×8 saves migrate automatically on load (old tiles kept, new strip seeded), no manual step.
+
 Attentive:
 
 ```

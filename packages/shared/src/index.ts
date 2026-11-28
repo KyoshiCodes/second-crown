@@ -166,7 +166,7 @@ export const TICKS_PER_SECOND = 10;
 
 export const MAX_OFFLINE_MS = 30 * 24 * 60 * 60 * 1000;
 
-export const BOARD_W = 12;
-export const BOARD_H = 8;
+export const BOARD_W = 16;
+export const BOARD_H = 10;
 
 export { formatLetterSuffix } from "./formatNumber.js";

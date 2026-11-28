@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Bigger map, building styles, and a small bonus for staffed work spots
+
+- **The map is bigger.** It grows from 12×8 to 16×10 tiles: four new columns on the far side and two new rows at the bottom. Your old save keeps everything it had; the new land appears around it.
+- **Building styles (under the hood).** Each building now has a style name (a farm is a "Farmstead", the keep is the "Seat of rule") and a detail for its tier ("Stone footing", "Slate roof"…). Not on screen yet.
+- **Staffed work spots now help a little.** When a worker is at a finished building's work spot, that building makes 5% more. The bonus pauses while the building is upgrading. Extra workers on the same spot do not stack it.
+- **Unchanged:** build costs, upgrades, units and battles.
+
 ## 2026-11-27 — Living building ornaments, worker staging spots, and expansion horizon
 
 - **Tier ornaments & quiet life on buildings:** Higher-tier buildings on Kingdom gently display banners, glowing lamps, stone trim, and crests alongside calm construction, upgrade, or work activity lines.
