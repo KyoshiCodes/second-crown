@@ -1,3 +1,12 @@
+## 2026-11-27 — app / living presentation for building life, work-station staging & board expansion
+
+- **Building life & staging (`packages/app/src/hud/BuildingLifeOverlay.tsx`, `WorkStationStagingMark.tsx`, `WorkCard.tsx`):**
+  - Exported pure `resolveBuildingLife(state, buildingId)` (`buildingLifeSnapshot`, `c731298`, zero mismatch) and `resolveWorkStationStaging(state, buildingId)` (`workStationStagingSnapshot`, `c731298`, zero mismatch), mounting `<BuildingLifeRow>` and `<WorkStationStagingBadge>` inside `WorkCard` cleanly without altering buttons or existing card classes. Cottages and non-station buildings return `null` from `workStationStagingSnapshot` and stay uncluttered.
+- **Board expansion prep (`packages/app/src/hud/BoardExpansionBackdrop.tsx`, `BoardLiving.tsx`):**
+  - Exported `resolveBoardExpansion(state)`, `<BoardExpansionRim>`, and `<BoardExpansionBadge>` (`boardExpansionSnapshot`, `c731298`, zero mismatch). Renders non-blocking outer horizon arcs and top-right band readiness badge right below `<BoardScaleNote>` without altering canvas dimensions, board size, pathfinding, or fog.
+- **Dedicated CSS (`hud/building-life.css`, `hud/work-station-staging.css`, `hud/board-expansion.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on ornaments/pips/pads/horizon elements, calm sway/glow/breathe keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to build/staff/unit/pathfinding math, `theme.css`, `board-living.css`, `building-detail.css`, `board-scale.css`, earlier CSS files, `packages/sim`, `packages/render`, or `server/`.
+- **Verification (`packages/app/src/hud/LivingSlice29Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **930**, app **1729**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 29 (building life, work-station staging, board expansion prep)
 
 - **Where:** `buildingLifeSnapshot`, `workStationStagingSnapshot`, `boardExpansionSnapshot` in `systems/livingStatus.ts`. Constants `BUILDING_LIFE_TIER_ELEMENTS`, `BUILDING_LIFE_MOTION_*`, `BUILDING_LIFE_NOTE_*`, `WORK_STATION_STAGED`, `WORK_STATION_NOTE_*`, `BOARD_BAND_*`, `BOARD_EXPANSION_NOTE_*` in `content/livingRealm.ts`.

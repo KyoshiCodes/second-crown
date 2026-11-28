@@ -29,6 +29,8 @@ import {
 } from "./WorkLivingGlyph";
 import { WorkLivingRows, splitWorkRows } from "./WorkLivingRows";
 import { BuildingDetailStrip, resolveBuildingDetail } from "./BuildingDetailBadge";
+import { BuildingLifeRow } from "./BuildingLifeOverlay";
+import { WorkStationStagingBadge } from "./WorkStationStagingMark";
 
 type Building = GameState["buildings"][number];
 
@@ -88,6 +90,8 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
       </div>
       <WorkStatus rows={living.rest} />
       <BuildingDetailStrip state={state} buildingId={b.id} />
+      <BuildingLifeRow state={state} buildingId={b.id} />
+      <WorkStationStagingBadge state={state} buildingId={b.id} />
       <WorkLivingGlyph
         typeId={b.typeId}
         scarred={scarred}

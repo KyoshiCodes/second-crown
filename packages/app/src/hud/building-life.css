@@ -1,0 +1,187 @@
+/* --- Living Realm Slice 29: Building Life (isolated CSS) ---
+ * Loaded from hud/BuildingLifeOverlay.tsx.
+ * Leaves theme.css, board-living.css, building-detail.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on ornaments and decorative pips.
+ * Calm tier-specific ornaments & gentle motion across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-blife-bg: rgba(16, 22, 34, 0.38);
+  --sc-blife-border: rgba(148, 163, 184, 0.16);
+  --sc-blife-text: #cbd5e1;
+  --sc-blife-muted: rgba(186, 198, 214, 0.8);
+  --sc-blife-banner: #93c5fd;
+  --sc-blife-lamp: #fde047;
+  --sc-blife-trim: #cbd5e1;
+  --sc-blife-crest: #f9a8d4;
+  --sc-blife-scaffold: #fbbf24;
+  --sc-blife-hammers: #7dd3fc;
+  --sc-blife-work: #4ade80;
+}
+
+:root[data-chrome="night"] {
+  --sc-blife-bg: rgba(10, 14, 24, 0.5);
+  --sc-blife-border: rgba(148, 163, 184, 0.22);
+  --sc-blife-text: #dbe4ef;
+  --sc-blife-muted: rgba(196, 210, 226, 0.84);
+  --sc-blife-banner: #bae6fd;
+  --sc-blife-lamp: #fef08a;
+  --sc-blife-trim: #e2e8f0;
+  --sc-blife-crest: #fbcfe8;
+  --sc-blife-scaffold: #fde047;
+  --sc-blife-hammers: #bae6fd;
+  --sc-blife-work: #6ee7b7;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-blife-bg: rgba(34, 24, 15, 0.44);
+  --sc-blife-border: rgba(196, 164, 112, 0.22);
+  --sc-blife-text: #efe1c4;
+  --sc-blife-muted: rgba(226, 204, 166, 0.82);
+  --sc-blife-banner: #fde68a;
+  --sc-blife-lamp: #facc15;
+  --sc-blife-trim: #d6c2a0;
+  --sc-blife-crest: #fed7aa;
+  --sc-blife-scaffold: #facc15;
+  --sc-blife-hammers: #fde68a;
+  --sc-blife-work: #86efac;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Ornaments & Pips
+   ========================================================================== */
+.sc-blife-ornaments,
+.sc-blife-ornaments *,
+.sc-blife-motion-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Building Life Row
+   ========================================================================== */
+.sc-blife-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0;
+  padding: 3px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--sc-blife-border);
+  background: var(--sc-blife-bg);
+  color: var(--sc-blife-text);
+  font-size: 10.5px;
+  line-height: 1.3;
+}
+
+.sc-blife-ornaments {
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.sc-blife-banner {
+  stroke: var(--sc-blife-banner);
+  fill: var(--sc-blife-banner);
+  fill-opacity: 0.24;
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: sc-blife-banner-sway 4.4s ease-in-out infinite;
+}
+
+.sc-blife-lamp {
+  fill: var(--sc-blife-lamp);
+  animation: sc-blife-lamp-glow 3.8s ease-in-out infinite;
+}
+
+.sc-blife-trim {
+  stroke: var(--sc-blife-trim);
+  fill: none;
+}
+
+.sc-blife-crest {
+  stroke: var(--sc-blife-crest);
+  fill: var(--sc-blife-crest);
+  fill-opacity: 0.28;
+}
+
+.sc-blife-elements {
+  font-weight: 500;
+}
+
+.sc-blife-motion {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.sc-blife-motion.is-scaffold {
+  color: var(--sc-blife-scaffold);
+}
+
+.sc-blife-motion.is-hammers {
+  color: var(--sc-blife-hammers);
+}
+
+.sc-blife-motion.is-work {
+  color: var(--sc-blife-work);
+}
+
+.sc-blife-motion-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: currentColor;
+  animation: sc-blife-motion-pulse 3.6s ease-in-out infinite;
+}
+
+.sc-blife-note {
+  color: var(--sc-blife-muted);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-blife-banner-sway {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes sc-blife-lamp-glow {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sc-blife-motion-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-blife-banner,
+  .sc-blife-lamp,
+  .sc-blife-motion-pip {
+    animation: none !important;
+  }
+}

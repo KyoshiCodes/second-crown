@@ -250,6 +250,14 @@ import {
   type BoardScaleBand,
   type BoardScaleView,
 } from "./hud/BoardScaleTag";
+import {
+  BoardExpansionRim,
+  BoardExpansionBadge,
+  resolveBoardExpansion,
+  type BoardExpansionBand,
+  type BoardExpansionStage,
+  type BoardExpansionView,
+} from "./hud/BoardExpansionBackdrop";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1180,10 +1188,12 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
           </g>
         )}
         <BoardScaleHorizon state={state} />
+        <BoardExpansionRim state={state} />
       </svg>
       <BoardSelectionFeedbackNote state={state} selectedId={selectedId} />
       <BoardBattleFeedbackNote state={state} />
       <BoardScaleNote state={state} />
+      <BoardExpansionBadge state={state} />
     </div>
   );
 }
@@ -1364,4 +1374,10 @@ export {
   resolveBoardScale,
   type BoardScaleBand,
   type BoardScaleView,
+  BoardExpansionRim,
+  BoardExpansionBadge,
+  resolveBoardExpansion,
+  type BoardExpansionBand,
+  type BoardExpansionStage,
+  type BoardExpansionView,
 };

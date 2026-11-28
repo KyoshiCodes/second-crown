@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Living building ornaments, worker staging spots, and expansion horizon
+
+- **Tier ornaments & quiet life on buildings:** Higher-tier buildings on Kingdom gently display banners, glowing lamps, stone trim, and crests alongside calm construction, upgrade, or work activity lines.
+- **Worker staging marks:** Buildings with work stations now show clear open vs occupied staging pads (`Tilling`, `Chopping`, `Digging`, `Trading`, `Standing guard`, `Reading`).
+- **Map expansion horizon:** The map edges softly frame the current board band and next planned tier (`Mid-sized board → Wide board`) while keeping actual board size unchanged.
+
 ## 2026-11-27 — The game can now describe how buildings look alive, what workers are doing, and future map growth
 
 - **Under the hood only.** For each building the game can say which decorations its tier earns (a banner at Tier II, up to a crest at Tier V), what is moving (scaffolding, hammers, or work), and a short line such as "Busy with work." or "Quiet for now."
