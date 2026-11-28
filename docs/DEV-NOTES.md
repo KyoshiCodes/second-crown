@@ -1,3 +1,10 @@
+## 2026-11-28 — sim / Route B slice 1 (lighting snapshot)
+
+- **Where:** `systems/presentation.ts` (`lightingSnapshot`, tables `LIGHTING_WEATHER_TINT`, `LIGHTING_PHASE_INTENSITY`, `LIGHTING_WEATHER_INTENSITY`). Switch key `lighting` → `living_lighting` in `LIVING_SWITCH_FLAGS`. Exported from `packages/sim`.
+- **Pure read** of `dayPhase(state)` and `weatherFor(state)`. No new state, no save change, no RNG draw. Intensity rounded to 3 decimals.
+- Lighting snapshot is client-only presentation; no new server endpoints or secrets.
+- **Left alone:** pathfinding, fog, economy, combat, Slice 0 audio / particle snapshots, render / app UI. **Not yet in the app.**
+
 ## 2026-11-28 — app / Route B slice 0 presentation (board ambient audio & weather particles)
 
 - **Board ambient audio (`packages/app/src/hud/BoardAmbientAudio.tsx`, `BoardLiving.tsx`):**

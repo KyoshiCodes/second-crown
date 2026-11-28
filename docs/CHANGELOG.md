@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Route B slice 1 (lighting snapshot)
+
+- **`lightingSnapshot(state)`** in `packages/sim/src/systems/presentation.ts` → `{ timeOfDay, weatherTint, intensity }` or null. `timeOfDay` `dawn|day|dusk|night` from the existing day cycle; `weatherTint` `clear|rain|storm|snow` from current weather; `intensity` 0–1 = phase base (dawn 0.3, day 0, dusk 0.35, night 0.6) + weather add (clear 0, rain 0.2, storm 0.35, snow 0.15), clamped. Read-only; the sim draws nothing.
+- **Switch:** `living_lighting` (false: null). On by default.
+- **Left alone:** pathfinding, fog, economy, combat, weather / day rules, save format, server, render / app UI, and the Slice 0 `audioSnapshot` / `weatherParticleSnapshot`.
+- **Tests:** new `systems/routeBSlice1.test.ts` (8): shape, phase and weather mapping, intensity over a day, flag, slice 0 independence, no mutation, determinism, export. Now: sim **1086**, app **1764**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-28 — Route B slice 0 presentation (board ambient audio & weather particles)
 
 - **Board ambient audio (`hud/BoardAmbientAudio.tsx`, `BoardLiving.tsx`):** Added `resolveBoardAudio`, `BoardAmbientAudioEngine`, `boardAmbientAudio`, and `<BoardAudioBridge>`, reading `audioSnapshot(state)` (`ac7e914`, exact match — zero mismatch) to run a quiet Web Audio API ambient loop (`hold_dawn` / `hold_day` / `hold_dusk` / `hold_night`), smoothly crossfade `rain` / `wind` / `mist` weather noise branches (0 on `clear`), scale master gain by `volume`, and stop cleanly when `null`, `living_audio` is `false`, or unmounted.

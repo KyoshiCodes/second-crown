@@ -213,6 +213,8 @@ export interface LivingSwitches {
   audio: boolean;
   /** Weather particles (Route B slice 0): weatherParticleSnapshot. False: null. Read-only. */
   weatherParticles: boolean;
+  /** Lighting (Route B slice 1): lightingSnapshot. False: null. Read-only; the sim never draws light. */
+  lighting: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -289,6 +291,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   stationCare: "living_station_care",
   audio: "living_audio",
   weatherParticles: "living_weather_particles",
+  lighting: "living_lighting",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

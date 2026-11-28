@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Groundwork for map lighting
+
+- **Lighting (under the hood).** The game can now say what light the map should have: dawn, day, dusk or night, a tint for clear, rain, storm or snow, and how strong that tint should be. Nothing is drawn yet; the next step puts it on the map.
+- **Unchanged:** economy, movement, fog, battles, weather, saves, sound and rain effects.
+
 ## 2026-11-28 — Quiet map ambient sound and rain / mist weather overlay
 
 - **Ambient sound on the map:** The map now plays a soft background soundscape that shifts gently from dawn through night and crossfades rain, wind, or mist layers with the weather, adjusting volume at night.

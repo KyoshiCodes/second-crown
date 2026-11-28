@@ -739,6 +739,10 @@ export {
   AUDIO_VOLUME,
   AUDIO_NIGHT_FACTOR,
   WEATHER_PARTICLES,
+  lightingSnapshot,
+  LIGHTING_WEATHER_TINT,
+  LIGHTING_PHASE_INTENSITY,
+  LIGHTING_WEATHER_INTENSITY,
 } from "./systems/presentation.js";
 export type {
   AudioSnapshot,
@@ -746,4 +750,7 @@ export type {
   AudioWeatherLayerId,
   WeatherParticleSnapshot,
   WeatherParticleKind,
+  LightingSnapshot,
+  LightingTimeOfDay,
+  LightingWeatherTint,
 } from "./systems/presentation.js";

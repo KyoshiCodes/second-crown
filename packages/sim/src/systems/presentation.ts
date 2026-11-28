@@ -75,3 +75,53 @@ export function weatherParticleSnapshot(state: GameState): WeatherParticleSnapsh
   const p = WEATHER_PARTICLES[weatherFor(state)] ?? WEATHER_PARTICLES.clear;
   return { kind: p.kind, intensity: p.intensity };
 }
+
+// Route B slice 1: lighting tint for the current board. Pure read of day phase and weather.
+
+export type LightingTimeOfDay = DayPhase;
+export type LightingWeatherTint = "clear" | "rain" | "storm" | "snow";
+
+export interface LightingSnapshot {
+  /** Day phase from the existing day cycle. */
+  timeOfDay: LightingTimeOfDay;
+  /** Short tint id from the current weather. */
+  weatherTint: LightingWeatherTint;
+  /** How strong the tint should be, 0 to 1. */
+  intensity: number;
+}
+
+export const LIGHTING_WEATHER_TINT: Readonly<Record<Weather, LightingWeatherTint>> = {
+  clear: "clear",
+  rain: "rain",
+  storm: "storm",
+  snow: "snow",
+};
+
+/** Base tint strength per phase (full day light needs no tint). */
+export const LIGHTING_PHASE_INTENSITY: Readonly<Record<DayPhase, number>> = {
+  dawn: 0.3,
+  day: 0,
+  dusk: 0.35,
+  night: 0.6,
+};
+
+/** Added tint strength per weather. Sum is clamped to 0..1. */
+export const LIGHTING_WEATHER_INTENSITY: Readonly<Record<Weather, number>> = {
+  clear: 0,
+  rain: 0.2,
+  storm: 0.35,
+  snow: 0.15,
+};
+
+/** Route B slice 1: lighting tint. Null with living_lighting off. */
+export function lightingSnapshot(state: GameState): LightingSnapshot | null {
+  if (!livingSwitches(state).lighting) return null;
+  const weather = weatherFor(state);
+  const phase = dayPhase(state);
+  const raw = (LIGHTING_PHASE_INTENSITY[phase] ?? 0) + (LIGHTING_WEATHER_INTENSITY[weather] ?? 0);
+  return {
+    timeOfDay: phase,
+    weatherTint: LIGHTING_WEATHER_TINT[weather] ?? "clear",
+    intensity: Math.round(Math.min(1, Math.max(0, raw)) * 1000) / 1000,
+  };
+}

@@ -207,6 +207,8 @@ Environment wind and station care available (`living_environment_wind`, `living_
 
 Route B Slice 0 audio and weather particles available (`living_audio`, `living_weather_particles`); sim data only, nothing plays or shows yet.
 
+Route B Slice 1 lighting tint available (`living_lighting`); sim data only, no tint drawn yet.
+
 Attentive:
 
 ```
