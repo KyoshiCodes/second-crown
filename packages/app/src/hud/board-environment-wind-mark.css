@@ -1,0 +1,117 @@
+/* --- Living Realm Slice 36: Environment Wind Mark Pill (isolated CSS) ---
+ * Loaded from hud/BoardEnvironmentWindMark.tsx.
+ * Leaves theme.css, board-living.css, board-environment.css, board-environment-mood.css,
+ * board-environment-season-note.css, board-environment-weather-mark.css,
+ * board-environment-light-mark.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on wind-mark pill and decorative mark.
+ * Calm sixth wind-mark tag below BoardEnvironmentLightMarkPill across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bwind-bg: rgba(14, 20, 32, 0.72);
+  --sc-bwind-border: rgba(148, 163, 184, 0.22);
+  --sc-bwind-text: #dbe4ef;
+  --sc-bwind-still: #cbd5e1;
+  --sc-bwind-soft: #86efac;
+  --sc-bwind-steady: #7dd3fc;
+  --sc-bwind-gusting: #c4b5fd;
+}
+
+:root[data-chrome="night"] {
+  --sc-bwind-bg: rgba(8, 12, 22, 0.82);
+  --sc-bwind-border: rgba(148, 163, 184, 0.26);
+  --sc-bwind-text: #e2e8f0;
+  --sc-bwind-still: #e2e8f0;
+  --sc-bwind-soft: #6ee7b7;
+  --sc-bwind-steady: #bae6fd;
+  --sc-bwind-gusting: #d8b4fe;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bwind-bg: rgba(30, 21, 13, 0.78);
+  --sc-bwind-border: rgba(196, 164, 112, 0.28);
+  --sc-bwind-text: #fef3c7;
+  --sc-bwind-still: #f3e8c8;
+  --sc-bwind-soft: #bbf7d0;
+  --sc-bwind-steady: #bae6fd;
+  --sc-bwind-gusting: #ddd6fe;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Elements
+   ========================================================================== */
+.sc-bwind-pill,
+.sc-bwind-pill *,
+.sc-bwind-mark {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Environment Wind-Mark Pill (Stacked Below .sc-blight-pill at top: 164px)
+   ========================================================================== */
+.sc-bwind-pill {
+  position: absolute;
+  top: 188px;
+  right: 14px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2.5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-bwind-border);
+  background: var(--sc-bwind-bg);
+  color: var(--sc-bwind-text);
+  font-size: 10px;
+  line-height: 1.3;
+  backdrop-filter: blur(4px);
+}
+
+.sc-bwind-mark {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  color: var(--sc-bwind-still);
+  animation: sc-bwind-drift 5.6s ease-in-out infinite;
+}
+
+.sc-bwind-pill.is-soft .sc-bwind-mark {
+  color: var(--sc-bwind-soft);
+}
+
+.sc-bwind-pill.is-steady .sc-bwind-mark {
+  color: var(--sc-bwind-steady);
+}
+
+.sc-bwind-pill.is-gusting .sc-bwind-mark {
+  color: var(--sc-bwind-gusting);
+}
+
+.sc-bwind-label {
+  font-weight: 500;
+}
+
+@keyframes sc-bwind-drift {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+/* ==========================================================================
+   4. Reduced Motion Accessibility Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-bwind-mark {
+    animation: none;
+    transition: none;
+  }
+}

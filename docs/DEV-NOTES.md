@@ -1,3 +1,12 @@
+## 2026-11-28 — app / living presentation for environment wind mark & station care
+
+- **Environment wind-mark pill (`packages/app/src/hud/BoardEnvironmentWindMark.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardEnvironmentWindMark(state)` and `<BoardEnvironmentWindMarkPill>` wrapping `environmentSnapshot(state)?.windMark` (`03ff957`, zero mismatch). Renders a non-blocking sixth top-right pill (`top: 188px; right: 14px;`) stacked cleanly beneath `<BoardEnvironmentLightMarkPill>` (`top: 164px`) with a 10×10 wind emblem SVG (`still`, `soft`, `steady`, `gusting`), returning `null` when `windMark` is `null` (`living_environment_wind` off) or `living_environment` is off.
+- **Station care mark (`packages/app/src/hud/WorkStationCareMark.tsx`, `WorkCard.tsx`):**
+  - Exported pure `resolveStationCare(state, buildingId)` and `<WorkStationCareBadge>` wrapping `stationCareSnapshot(state, buildingId)` (`03ff957`, zero mismatch). Draws a thin SVG heart outline (`sc-wcare-heart`) with `Care +0.5%` when `cared === true`, plain muted notes otherwise (`Resting; care resumes at dawn.` / `Needs a worker to keep it.` / `Care paused for upgrade.` / `Cared for once built.`), and hides cleanly on non-station buildings or `living_station_care` off.
+- **Dedicated CSS (`hud/board-environment-wind-mark.css`, `hud/work-station-care.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on wind marks and care hearts, calm drift/glow keyframes, and `@media (prefers-reduced-motion: reduce)` guards. Zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, fog, or pathfinding.
+- **Verification (`packages/app/src/hud/LivingSlice36Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **1065**, app **1759**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-28 — sim / Living Realm slice 36 (environment wind, station care)
 
 - **Where:** `windMark` / `environmentWindMark` and `stationCareSnapshot` in `systems/livingStatus.ts`; `stationCareBonus` / `stationCareResting` / `nextStationCareTick` in `systems/economy.ts` (reuses `stationRhythmReady` for finished + staffed + not upgrading); constants `ENVIRONMENT_WIND_MARK`, `STATION_CARE_*` in `content/livingRealm.ts`. `DUSK_END` is now exported from `systems/dayNight.ts`. All exported from `packages/sim`.

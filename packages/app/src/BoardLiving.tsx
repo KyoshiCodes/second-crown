@@ -295,6 +295,12 @@ import {
   type BoardEnvironmentLightKind,
   type BoardEnvironmentLightMarkView,
 } from "./hud/BoardEnvironmentLightMark";
+import {
+  BoardEnvironmentWindMarkPill,
+  resolveBoardEnvironmentWindMark,
+  type BoardEnvironmentWindKind,
+  type BoardEnvironmentWindMarkView,
+} from "./hud/BoardEnvironmentWindMark";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1252,6 +1258,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
       <BoardEnvironmentSeasonNotePill state={state} />
       <BoardEnvironmentWeatherMarkPill state={state} />
       <BoardEnvironmentLightMarkPill state={state} />
+      <BoardEnvironmentWindMarkPill state={state} />
     </div>
   );
 }
@@ -1463,4 +1470,8 @@ export {
   resolveBoardEnvironmentLightMark,
   type BoardEnvironmentLightKind,
   type BoardEnvironmentLightMarkView,
+  BoardEnvironmentWindMarkPill,
+  resolveBoardEnvironmentWindMark,
+  type BoardEnvironmentWindKind,
+  type BoardEnvironmentWindMarkView,
 };

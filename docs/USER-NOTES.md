@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Wind tag on the map and care heart marks on work buildings
+
+- **Sixth wind tag on the map:** A calm wind pill (`Still air`, `Soft breeze`, `Steady wind`, or `Gusting`) now sits directly below the daylight tag in the top-right corner of the map.
+- **Care heart marks on work buildings:** Finished, staffed work buildings in Kingdom show a thin heart `Care +0.5%` seal (`Well kept: +0.5%.`) whenever they are not resting overnight, switching to plain notes while resting or unstaffed.
+
 ## 2026-11-28 — Wind marks and well-kept work buildings
 
 - **Well-kept work buildings.** A finished work building with a worker is kept with care whenever it is not resting at night, and works 0.5% harder. It stacks with the rhythm and high-light bonuses. Buildings with no worker, still being built, or being upgraded do not count.

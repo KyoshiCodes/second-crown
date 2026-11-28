@@ -1,0 +1,116 @@
+/* --- Living Realm Slice 36: Work-Station Care Mark (isolated CSS) ---
+ * Loaded from hud/WorkStationCareMark.tsx.
+ * Leaves theme.css, board-living.css, work-station-focus.css, work-station-rhythm.css,
+ * and earlier CSS files untouched.
+ * Strict pointer-events: none !important on thin heart care marks.
+ * Calm well-kept +0.5% care mark across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-wcare-bg: rgba(16, 22, 34, 0.34);
+  --sc-wcare-border: rgba(148, 163, 184, 0.16);
+  --sc-wcare-text: #cbd5e1;
+  --sc-wcare-muted: rgba(186, 198, 214, 0.78);
+  --sc-wcare-in-bg: rgba(244, 114, 182, 0.12);
+  --sc-wcare-in-border: rgba(249, 168, 212, 0.34);
+  --sc-wcare-in-text: #fce7f3;
+  --sc-wcare-heart: #f472b6;
+}
+
+:root[data-chrome="night"] {
+  --sc-wcare-bg: rgba(10, 14, 24, 0.46);
+  --sc-wcare-border: rgba(148, 163, 184, 0.22);
+  --sc-wcare-text: #dbe4ef;
+  --sc-wcare-muted: rgba(196, 210, 226, 0.84);
+  --sc-wcare-in-bg: rgba(244, 114, 182, 0.16);
+  --sc-wcare-in-border: rgba(249, 168, 212, 0.4);
+  --sc-wcare-in-text: #fdf2f8;
+  --sc-wcare-heart: #f9a8d4;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-wcare-bg: rgba(34, 24, 15, 0.4);
+  --sc-wcare-border: rgba(196, 164, 112, 0.22);
+  --sc-wcare-text: #efe1c4;
+  --sc-wcare-muted: rgba(226, 204, 166, 0.82);
+  --sc-wcare-in-bg: rgba(236, 72, 153, 0.14);
+  --sc-wcare-in-border: rgba(244, 114, 182, 0.34);
+  --sc-wcare-in-text: #fce7f3;
+  --sc-wcare-heart: #f472b6;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Care Marks
+   ========================================================================== */
+.sc-wcare-heart,
+.sc-wcare-heart * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Station Care Row & Thin Heart Seal
+   ========================================================================== */
+.sc-wcare-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0;
+  padding: 3px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--sc-wcare-border);
+  background: var(--sc-wcare-bg);
+  color: var(--sc-wcare-text);
+  font-size: 10.5px;
+  line-height: 1.3;
+}
+
+.sc-wcare-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-wcare-in-border);
+  background: var(--sc-wcare-in-bg);
+  color: var(--sc-wcare-in-text);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.sc-wcare-heart {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--sc-wcare-heart);
+  animation: sc-wcare-heart-glow 4.6s ease-in-out infinite;
+}
+
+.sc-wcare-note {
+  color: var(--sc-wcare-muted);
+}
+
+@keyframes sc-wcare-heart-glow {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   4. Reduced Motion Accessibility Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-wcare-heart {
+    animation: none;
+    transition: none;
+  }
+}

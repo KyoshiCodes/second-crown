@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Living presentation for environment wind and station care (Slice 36)
+
+- **Environment wind-mark pill (`hud/BoardEnvironmentWindMark.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentWindMark` and `<BoardEnvironmentWindMarkPill>`, reading `environmentSnapshot(state)?.windMark` (`03ff957`, exact match — zero mismatch) to render a calm sixth top-right pill (`top: 188px`, stacked beneath `<BoardEnvironmentLightMarkPill>`) with a small wind emblem (`Still air`, `Soft breeze`, `Steady wind`, `Gusting`), hiding cleanly when `windMark` is `null` or `living_environment_wind` is `false`.
+- **Station care mark (`hud/WorkStationCareMark.tsx`, `hud/WorkCard.tsx`):** Added `resolveStationCare` and `<WorkStationCareBadge>`, reading `stationCareSnapshot(state, buildingId)` (`03ff957`, exact match — zero mismatch) to draw a thin SVG heart outline (`Care +0.5% · Well kept: +0.5%.`) while a staffed work station is cared for, and quiet plain notes while resting, unstaffed, upgrading, or building, hiding cleanly on non-station buildings or `living_station_care` off.
+- **Unchanged invariants & accessibility:** Dedicated `hud/board-environment-wind-mark.css` and `hud/work-station-care.css` only (zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, pathfinding, or fog math); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on wind marks and care hearts, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice36Presentation.test.tsx` (4 tests). Now: sim **1065**, app **1759**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-28 — Living Realm slice 36 (environment wind, station care)
 
 - **Environment wind:** `environmentSnapshot(state)` gains **`windMark`** → `{ features, ambient, note, mood, seasonNote, weatherMark, lightMark, windMark }`. The sim has no wind roll, so the wind is read from the current weather and day phase (`environmentWindMark(weather, phase)`): storm `Gusting`, rain `Steady wind`, snow `Still air`, clear `Soft breeze` by day and dusk, `Still air` at dawn and night. Read-only.
