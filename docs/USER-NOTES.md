@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Centered 16×10 map framing, building styles, and active station bonus marks
+
+- **Settled 16×10 map view:** The enlarged 16×10 realm now centers smoothly inside the tabletop frame with wide frontier mist and matching overlay framing across all 160 tiles.
+- **Building variety & deeper tier details:** Building cards show each structure's style (`Farmstead`, `Timber camp`, `Stone cut`, `Seat of rule`, etc.) and architectural details (`Second storey`, `Stone footing`, `Slate roof`, `Tower wing`).
+- **Active station bonus seal:** Station buildings clearly mark when the `+5% output` passive bonus is active (`Station bonus in effect.`) or paused during building/upgrading.
+
 ## 2026-11-27 — Bigger map, building styles, and a small bonus for staffed work spots
 
 - **The map is bigger.** It grows from 12×8 to 16×10 tiles: four new columns on the far side and two new rows at the bottom. Your old save keeps everything it had; the new land appears around it.

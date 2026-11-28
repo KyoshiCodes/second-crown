@@ -1,0 +1,78 @@
+/* --- Living Realm Slice 30: Wide Board Settled Environment (isolated CSS) ---
+ * Loaded from hud/BoardWideEnvironment.tsx.
+ * Leaves theme.css, board-living.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on all overlay elements.
+ * Settled perimeter vista & mist bands for the 16x10 board in Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bwenv-mist: rgba(148, 163, 184, 0.14);
+  --sc-bwenv-horizon: rgba(147, 197, 253, 0.2);
+  --sc-bwenv-compass: rgba(250, 204, 21, 0.36);
+}
+
+:root[data-chrome="night"] {
+  --sc-bwenv-mist: rgba(100, 116, 139, 0.18);
+  --sc-bwenv-horizon: rgba(186, 230, 253, 0.24);
+  --sc-bwenv-compass: rgba(254, 240, 138, 0.42);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bwenv-mist: rgba(196, 164, 112, 0.15);
+  --sc-bwenv-horizon: rgba(212, 178, 122, 0.24);
+  --sc-bwenv-compass: rgba(250, 204, 21, 0.38);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Layer
+   ========================================================================== */
+.sc-bwenv-layer,
+.sc-bwenv-layer * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Settled Outer Frontier Mist & Horizon Ticks
+   ========================================================================== */
+.sc-bwenv-mist {
+  fill: var(--sc-bwenv-mist);
+  animation: sc-bwenv-mist-drift 8s ease-in-out infinite alternate;
+}
+
+.sc-bwenv-horizon {
+  fill: none;
+  stroke: var(--sc-bwenv-horizon);
+  stroke-width: 0.7;
+  stroke-dasharray: 2 3;
+}
+
+.sc-bwenv-compass-mark {
+  fill: none;
+  stroke: var(--sc-bwenv-compass);
+  stroke-width: 0.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-bwenv-mist-drift {
+  0% {
+    opacity: 0.48;
+  }
+  100% {
+    opacity: 0.82;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-bwenv-mist {
+    animation: none !important;
+  }
+}

@@ -1,3 +1,12 @@
+## 2026-11-27 — app+render / living presentation for 16×10 board framing, building variety & work-station benefit
+
+- **Centered 16×10 camera & backdrop (`packages/render/src/camera.ts`, `index.ts`, `tiles.ts`, `packages/app/src/hud/BoardWideEnvironment.tsx`, `BoardLiving.tsx`):**
+  - Added `boardCameraFit(width, height)` in `camera.ts` while leaving base `BOARD_ORIGIN_X/Y` and `boardGridToWorld()` untouched so coordinate tests hold. `index.ts` applies the same `boardScale`/`boardOrigin` formula in both `applyTransform()` and `getBoardCoords()` (`MIN_CAMERA_ZOOM` `0.40`, pan clamp `0.85`). `paintBoardBackdrop()` now builds plinth vertices dynamically from `BOARD_W`/`BOARD_H` with a wider walnut base rectangle. `BoardLiving` wraps world-space SVG layers in `<g class="sc-board-world-fit">` using `resolveBoardViewportFit(state)` and adds non-blocking `<BoardWideEnvironment>` perimeter mist/horizon cues.
+- **Building variety & passive benefit visuals (`packages/app/src/hud/BuildingVarietyBadge.tsx`, `WorkStationBenefitMark.tsx`, `WorkCard.tsx`):**
+  - Exported pure `resolveBuildingVariety(state, buildingId)` (`buildingVarietySnapshot`, `0b92508`, zero mismatch) and `resolveWorkStationBenefit(state, buildingId)` (`workStationBenefitSnapshot`, `0b92508`, zero mismatch), mounting `<BuildingVarietyRow>` and `<WorkStationBenefitBadge>` inside `WorkCard` cleanly without altering buttons or costs.
+- **Dedicated CSS (`hud/board-wide-env.css`, `hud/building-variety.css`, `hud/work-station-benefit.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on emblems, pips, and environment overlays, calm breathe/glow keyframes, and `@media (prefers-reduced-motion: reduce)`. Zero edits to `packages/sim`, `server/`, `packages/shared`, `theme.css`, `board-living.css`, earlier CSS files, build costs, upgrade rules, or pathfinding math.
+- **Verification (`packages/app/src/hud/LivingSlice30Presentation.test.tsx`):** 5 tests passing (`npm test` -> sim **953**, app **1734**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — app / living presentation for building life, work-station staging & board expansion
 
 - **Building life & staging (`packages/app/src/hud/BuildingLifeOverlay.tsx`, `WorkStationStagingMark.tsx`, `WorkCard.tsx`):**

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-27 — Living presentation for 16×10 board framing, building variety, and work-station benefit (Slice 30)
+
+- **16×10 camera framing & backdrop (`packages/render/src/camera.ts`, `index.ts`, `tiles.ts`, `hud/BoardWideEnvironment.tsx`, `BoardLiving.tsx`):** Added `boardCameraFit()` and updated render transform, hit-testing (`getBoardCoords`), and dynamic `BOARD_W × BOARD_H` plinth in `paintBoardBackdrop`, plus `<BoardWideEnvironment>` and `<g class="sc-board-world-fit">` in `BoardLiving` so all 160 tiles fit cleanly without right-edge clipping.
+- **Building variety & tier detail (`hud/BuildingVarietyBadge.tsx`, `hud/WorkCard.tsx`):** Added `resolveBuildingVariety` and `<BuildingVarietyRow>`, reading `buildingVarietySnapshot(state, buildingId)` (`0b92508`, exact match — zero mismatch) to show style labels, family emblems, and structural tier details (`Second storey` / `Stone footing` / `Slate roof` / `Tower wing`), hiding cleanly on `null` or `living_building_variety` off.
+- **Work-station passive benefit seal (`hud/WorkStationBenefitMark.tsx`, `hud/WorkCard.tsx`):** Added `resolveWorkStationBenefit` and `<WorkStationBenefitBadge>`, reading `workStationBenefitSnapshot(state, buildingId)` (`0b92508`, exact match — zero mismatch) to show a calm active `+5% output` passive seal (or paused/idle note), hiding cleanly without a station or when `living_work_station_benefit` is `false`.
+- **Unchanged invariants & accessibility:** Dedicated `hud/board-wide-env.css`, `hud/building-variety.css`, and `hud/work-station-benefit.css` only (no build costs, upgrade rules, pathfinding, fog math, `packages/sim`, `server/`, `packages/shared`, `theme.css`, `board-living.css`, or earlier CSS edits); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on decorative/overlay marks, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice30Presentation.test.tsx` (5 tests). Now: sim **953**, app **1734**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-27 — Living Realm slice 30 (board 16×10, building variety, passive work-station benefit)
 
 - **Board expansion (rule change):** `BOARD_W` / `BOARD_H` 12×8 → **16×10** (160 tiles). Saves migrate on load via the existing `ensureBoard` path (old tiles keep terrain, node, occupant; home id kept; new tiles seeded from the save seed). No save version bump. Pathfinding (march / neighbours) and fog read the province list, so no change was needed. The live board now reads wide in `boardScaleSnapshot` (`A wide realm.`) and `boardExpansionSnapshot` (`Wide board`, `The board is already at its widest.`).

@@ -6,10 +6,10 @@ export type CameraBand = "hold" | "board";
 export const ZOOM_THRESHOLD = 0.70;
 export const BOARD_DEFAULT_ZOOM = 0.58;
 export const HOLD_DEFAULT_ZOOM = 1.0;
-export const MIN_CAMERA_ZOOM = 0.45;
+export const MIN_CAMERA_ZOOM = 0.40;
 export const MAX_CAMERA_ZOOM = 2.2;
 
-// Tabletop Board Isometric Geometry (12 columns x 8 rows)
+// Tabletop Board Isometric Geometry (BOARD_W x BOARD_H, 16x10)
 export const BOARD_TILE_W = 44;
 export const BOARD_TILE_H = 22;
 export const BOARD_HALF_W = BOARD_TILE_W / 2; // 22
@@ -47,6 +47,40 @@ export function boardGridToWorld(bx: number, by: number): { wx: number; wy: numb
     wx: BOARD_ORIGIN_X + (bx - by) * BOARD_HALF_W,
     wy: BOARD_ORIGIN_Y + (bx + by) * BOARD_HALF_H,
   };
+}
+
+/**
+ * Fits an isometric `width x height` board comfortably inside the 560x360 viewport
+ * without mutating grid-to-world base coordinates.
+ */
+export function boardCameraFit(
+  width: number = BOARD_W,
+  height: number = BOARD_H,
+): {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+} {
+  const safeW = Number.isFinite(width) && width > 0 ? width : BOARD_W;
+  const safeH = Number.isFinite(height) && height > 0 ? height : BOARD_H;
+  const minX = BOARD_ORIGIN_X - safeH * BOARD_HALF_W;
+  const maxX = BOARD_ORIGIN_X + safeW * BOARD_HALF_W;
+  const minY = BOARD_ORIGIN_Y - BOARD_HALF_H;
+  const maxY = BOARD_ORIGIN_Y + (safeW + safeH - 1) * BOARD_HALF_H;
+  const innerW = CANVAS_W - 2 * RIM_SIZE - 16;
+  const innerH = CANVAS_H - 2 * RIM_SIZE - 16;
+  const scale = Number(
+    Math.min(1, innerW / Math.max(1, maxX - minX), innerH / Math.max(1, maxY - minY)).toFixed(4),
+  );
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+  const offsetX = Number((CANVAS_W / 2 - centerX * scale).toFixed(2));
+  const offsetY = Number((CANVAS_H / 2 - centerY * scale).toFixed(2));
+  return { scale, offsetX, offsetY, minX, maxX, minY, maxY };
 }
 
 export function boardWorldToGrid(wx: number, wy: number): { bx: number; by: number } {

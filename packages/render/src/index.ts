@@ -80,6 +80,7 @@ import {
   HALF_W,
   HALF_H,
   bandForZoom,
+  boardCameraFit,
   provinceTokenBounds,
   hitTestProvince,
   calculateMarchProgress,
@@ -661,12 +662,13 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     } else {
       holdContainer.visible = false;
       boardContainer.visible = true;
-      const boardScale = zoom / BOARD_DEFAULT_ZOOM;
+      const fit = boardCameraFit();
+      const zoomRatio = zoom / BOARD_DEFAULT_ZOOM;
+      const boardScale = zoomRatio * fit.scale;
+      const boardOriginX = panX + CANVAS_W / 2 + zoomRatio * (fit.offsetX - CANVAS_W / 2);
+      const boardOriginY = panY + CANVAS_H / 2 + zoomRatio * (fit.offsetY - CANVAS_H / 2);
       boardContainer.scale.set(boardScale);
-      boardContainer.position.set(
-        panX + (1 - boardScale) * (CANVAS_W / 2),
-        panY + (1 - boardScale) * (CANVAS_H / 2)
-      );
+      boardContainer.position.set(boardOriginX, boardOriginY);
     }
   }
   applyTransform();
@@ -680,8 +682,8 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
     panX = cx - wx * zoom;
     panY = cy - wy * zoom;
 
-    const maxPanX = CANVAS_W * 0.75;
-    const maxPanY = CANVAS_H * 0.75;
+    const maxPanX = CANVAS_W * 0.85;
+    const maxPanY = CANVAS_H * 0.85;
     panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
     panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
     applyTransform();
@@ -761,9 +763,11 @@ export async function createMapRenderer(canvas: HTMLCanvasElement): Promise<MapR
 
   function getBoardCoords(ev: PointerEvent | MouseEvent): { bx: number; by: number } {
     const { px, py } = getCanvasCoords(ev);
-    const boardScale = zoom / BOARD_DEFAULT_ZOOM;
-    const boardOriginX = panX + (1 - boardScale) * (CANVAS_W / 2);
-    const boardOriginY = panY + (1 - boardScale) * (CANVAS_H / 2);
+    const fit = boardCameraFit();
+    const zoomRatio = zoom / BOARD_DEFAULT_ZOOM;
+    const boardScale = zoomRatio * fit.scale;
+    const boardOriginX = panX + CANVAS_W / 2 + zoomRatio * (fit.offsetX - CANVAS_W / 2);
+    const boardOriginY = panY + CANVAS_H / 2 + zoomRatio * (fit.offsetY - CANVAS_H / 2);
     return {
       bx: (px - boardOriginX) / boardScale,
       by: (py - boardOriginY) / boardScale,

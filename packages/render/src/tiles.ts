@@ -1168,22 +1168,29 @@ export function paintMissingRimSegments(
 export function paintBoardBackdrop(g: Graphics, visuals: ThemeVisuals): void {
   g.clear();
 
-  // 1. Dark oiled walnut diorama table base
-  g.rect(RIM_SIZE, RIM_SIZE, CANVAS_W - 2 * RIM_SIZE, CANVAS_H - 2 * RIM_SIZE);
+  // 1. Wide oiled walnut diorama table base framing any board size under pan/zoom
+  g.rect(-120, -80, CANVAS_W + 240, CANVAS_H + 160);
   g.fill({ color: 0x120d09 });
 
-  // 2. Beveled parchment diorama plinth framing the 12x8 isometric board
-  // 12x8 isometric diamond board vertices with padding:
-  // Top: (236, 43), Right: (500, 177), Bottom: (324, 267), Left: (60, 133)
-  const pad = 10;
+  // 2. Dynamic beveled parchment diorama plinth framing BOARD_W x BOARD_H isometric board
+  const topX = BOARD_ORIGIN_X;
+  const topY = BOARD_ORIGIN_Y - BOARD_HALF_H - 2;
+  const rightX = BOARD_ORIGIN_X + BOARD_W * BOARD_HALF_W;
+  const rightY = BOARD_ORIGIN_Y + (BOARD_W - 1) * BOARD_HALF_H;
+  const botX = BOARD_ORIGIN_X + (BOARD_W - BOARD_H) * BOARD_HALF_W;
+  const botY = BOARD_ORIGIN_Y + (BOARD_W + BOARD_H - 1) * BOARD_HALF_H;
+  const leftX = BOARD_ORIGIN_X - BOARD_H * BOARD_HALF_W;
+  const leftY = BOARD_ORIGIN_Y + (BOARD_H - 1) * BOARD_HALF_H;
+  const pad = 12;
+
   const plinthPoly = [
-    236, 43 - pad,
-    500 + pad * 1.4, 177 - pad * 0.4,
-    500 + pad * 1.4, 177 + pad * 0.6,
-    324 + pad * 0.4, 267 + pad * 1.2,
-    324 - pad * 0.4, 267 + pad * 1.2,
-    60 - pad * 1.4, 133 + pad * 0.6,
-    60 - pad * 1.4, 133 - pad * 0.4,
+    topX, topY - pad,
+    rightX + pad * 1.4, rightY - pad * 0.4,
+    rightX + pad * 1.4, rightY + pad * 0.6,
+    botX + pad * 0.4, botY + pad * 1.2,
+    botX - pad * 0.4, botY + pad * 1.2,
+    leftX - pad * 1.4, leftY + pad * 0.6,
+    leftX - pad * 1.4, leftY - pad * 0.4,
   ];
 
   // Soft drop shadow under plinth
@@ -1195,22 +1202,32 @@ export function paintBoardBackdrop(g: Graphics, visuals: ThemeVisuals): void {
   g.fill({ color: 0x1a1510 });
   g.stroke({ width: 1.8, color: 0x45311e, alpha: 0.9 });
 
+  // Outer cartographic rim guide around settled plinth
+  const outerPoly = [
+    topX, topY - pad - 8,
+    rightX + pad * 1.4 + 10, rightY,
+    botX, botY + pad * 1.2 + 8,
+    leftX - pad * 1.4 - 10, leftY,
+  ];
+  g.poly(outerPoly);
+  g.stroke({ width: 0.8, color: visuals.gridLine, alpha: 0.25 });
+
   // Inner subtle brass inlay
   const innerPoly = [
-    236, 43 - pad + 3,
-    500 + pad * 1.4 - 3, 177,
-    324, 267 + pad * 1.2 - 3,
-    60 - pad * 1.4 + 3, 133,
+    topX, topY - pad + 3,
+    rightX + pad * 1.4 - 3, rightY,
+    botX, botY + pad * 1.2 - 3,
+    leftX - pad * 1.4 + 3, leftY,
   ];
   g.poly(innerPoly);
   g.stroke({ width: 1, color: 0xc8963e, alpha: 0.35 });
 
   // 3. Brass corner rivets on the plinth
   const rivets = [
-    { x: 236, y: 43 - pad + 5 },
-    { x: 500 + pad * 1.4 - 5, y: 177 },
-    { x: 324, y: 267 + pad * 1.2 - 5 },
-    { x: 60 - pad * 1.4 + 5, y: 133 },
+    { x: topX, y: topY - pad + 5 },
+    { x: rightX + pad * 1.4 - 5, y: rightY },
+    { x: botX, y: botY + pad * 1.2 - 5 },
+    { x: leftX - pad * 1.4 + 5, y: leftY },
   ];
   for (const r of rivets) {
     g.circle(r.x, r.y, 2);
@@ -1219,9 +1236,9 @@ export function paintBoardBackdrop(g: Graphics, visuals: ThemeVisuals): void {
     g.fill({ color: 0xfde047 });
   }
 
-  // 4. Antique Cartographer Compass Rose in upper right corner of table
-  const crX = CANVAS_W - RIM_SIZE - 28;
-  const crY = RIM_SIZE + 28;
+  // 4. Antique Cartographer Compass Rose set clearly near top-right corner of plinth
+  const crX = Math.max(CANVAS_W - RIM_SIZE - 28, rightX - 18);
+  const crY = Math.min(RIM_SIZE + 28, topY + 12);
   g.poly([crX, crY - 10, crX + 3, crY, crX, crY + 10, crX - 3, crY]);
   g.fill({ color: 0xc8963e, alpha: 0.65 });
   g.poly([crX - 10, crY, crX, crY + 3, crX + 10, crY, crX, crY - 3]);

@@ -258,6 +258,11 @@ import {
   type BoardExpansionStage,
   type BoardExpansionView,
 } from "./hud/BoardExpansionBackdrop";
+import {
+  BoardWideEnvironment,
+  resolveBoardViewportFit,
+  type BoardViewportFit,
+} from "./hud/BoardWideEnvironment";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -489,8 +494,8 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
   // Unseen provinces for soft fog drift clusters
   const unseenProvs = provinces.filter((p) => p.id !== homeId && !isProvinceSeen(state, p.id));
   const fogClusters: Array<{ key: string; cx: number; cy: number; isAlt: boolean }> = [];
-  // Sample up to 6 distinct fog cluster points across unseen territories
-  for (let i = 0; i < unseenProvs.length && fogClusters.length < 6; i += Math.max(1, Math.floor(unseenProvs.length / 6))) {
+  // Sample up to 9 distinct fog cluster points across the wider unseen frontier
+  for (let i = 0; i < unseenProvs.length && fogClusters.length < 9; i += Math.max(1, Math.floor(unseenProvs.length / 9))) {
     const p = unseenProvs[i];
     const { wx, wy } = boardGridToWorld(p.x, p.y);
     fogClusters.push({
@@ -500,6 +505,8 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
       isAlt: fogClusters.length % 2 === 1,
     });
   }
+
+  const viewportFit = resolveBoardViewportFit(state);
 
   // Anchor coords for status overlay tether
   const anchor = selProv && selCoords ? boardStatusAnchor(state, selProv.id) : null;
@@ -606,6 +613,16 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
           </g>
         </g>
 
+        {/* 0.2. Settled Perimeter Frontier Mist & Horizon (16x10) */}
+        <BoardWideEnvironment state={state} />
+
+        {/* World-coordinate layers scaled & centered to match render boardCameraFit */}
+        <g
+          className="sc-board-world-fit"
+          data-board-fit-scale={viewportFit.scale}
+          transform={`translate(${viewportFit.offsetX}, ${viewportFit.offsetY}) scale(${viewportFit.scale})`}
+          style={{ pointerEvents: "none" }}
+        >
         {/* 0.5. Subtle Isometric Terrain Facet Shading & Specular Accents */}
         <g className="sc-board-living-terrain-shading" style={{ pointerEvents: "none" }}>
           {seenProvs.map((p) => {
@@ -1187,6 +1204,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
             />
           </g>
         )}
+        </g>
         <BoardScaleHorizon state={state} />
         <BoardExpansionRim state={state} />
       </svg>
@@ -1380,4 +1398,7 @@ export {
   type BoardExpansionBand,
   type BoardExpansionStage,
   type BoardExpansionView,
+  BoardWideEnvironment,
+  resolveBoardViewportFit,
+  type BoardViewportFit,
 };

@@ -1,0 +1,133 @@
+/* --- Living Realm Slice 30: Passive Work-Station Benefit (isolated CSS) ---
+ * Loaded from hud/WorkStationBenefitMark.tsx.
+ * Leaves theme.css, board-living.css, work-station-staging.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on benefit pips.
+ * Calm passive benefit seal across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-wben-bg: rgba(16, 22, 34, 0.36);
+  --sc-wben-border: rgba(148, 163, 184, 0.16);
+  --sc-wben-text: #cbd5e1;
+  --sc-wben-muted: rgba(186, 198, 214, 0.78);
+  --sc-wben-active-bg: rgba(34, 197, 94, 0.15);
+  --sc-wben-active-border: rgba(74, 222, 128, 0.34);
+  --sc-wben-active-text: #bbf7d0;
+  --sc-wben-active-pip: #4ade80;
+  --sc-wben-idle-pip: #94a3b8;
+  --sc-wben-paused-pip: #fbbf24;
+}
+
+:root[data-chrome="night"] {
+  --sc-wben-bg: rgba(10, 14, 24, 0.48);
+  --sc-wben-border: rgba(148, 163, 184, 0.22);
+  --sc-wben-text: #dbe4ef;
+  --sc-wben-muted: rgba(196, 210, 226, 0.84);
+  --sc-wben-active-bg: rgba(34, 197, 94, 0.18);
+  --sc-wben-active-border: rgba(110, 231, 183, 0.4);
+  --sc-wben-active-text: #dcfce7;
+  --sc-wben-active-pip: #6ee7b7;
+  --sc-wben-idle-pip: #cbd5e1;
+  --sc-wben-paused-pip: #fde047;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-wben-bg: rgba(34, 24, 15, 0.42);
+  --sc-wben-border: rgba(196, 164, 112, 0.22);
+  --sc-wben-text: #efe1c4;
+  --sc-wben-muted: rgba(226, 204, 166, 0.8);
+  --sc-wben-active-bg: rgba(34, 197, 94, 0.15);
+  --sc-wben-active-border: rgba(134, 239, 172, 0.36);
+  --sc-wben-active-text: #dcfce7;
+  --sc-wben-active-pip: #86efac;
+  --sc-wben-idle-pip: #d6c2a0;
+  --sc-wben-paused-pip: #facc15;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Decorative Pips
+   ========================================================================== */
+.sc-wben-pip {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Work-Station Passive Benefit Row
+   ========================================================================== */
+.sc-wben-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0;
+  padding: 3px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--sc-wben-border);
+  background: var(--sc-wben-bg);
+  color: var(--sc-wben-text);
+  font-size: 10.5px;
+  line-height: 1.3;
+}
+
+.sc-wben-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sc-wben-muted);
+}
+
+.sc-wben-seal.is-active {
+  border: 1px solid var(--sc-wben-active-border);
+  background: var(--sc-wben-active-bg);
+  color: var(--sc-wben-active-text);
+}
+
+.sc-wben-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--sc-wben-idle-pip);
+}
+
+.sc-wben-seal.is-active .sc-wben-pip {
+  background: var(--sc-wben-active-pip);
+  animation: sc-wben-active-breathe 3.8s ease-in-out infinite;
+}
+
+.sc-wben-seal.is-building .sc-wben-pip,
+.sc-wben-seal.is-upgrading .sc-wben-pip {
+  background: var(--sc-wben-paused-pip);
+}
+
+.sc-wben-note {
+  color: var(--sc-wben-muted);
+}
+
+/* ==========================================================================
+   4. Calm Keyframes & Reduced Motion Support
+   ========================================================================== */
+@keyframes sc-wben-active-breathe {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-wben-seal.is-active .sc-wben-pip {
+    animation: none !important;
+  }
+}
