@@ -1,3 +1,10 @@
+## 2026-11-28 — sim / Route B slice 3 (hybrid board snapshot)
+
+- **Where:** `systems/presentation.ts` (`hybridBoardSnapshot`, types `HybridBoardSnapshot`, `HybridBoardProvince`). Switch key `hybridBoard` → `living_hybrid_board` in `LIVING_SWITCH_FLAGS`. Exported from `packages/sim`.
+- **Pure read** of `state.board.provinces` (all 160 on the 16×10 board, board order). `height` reuses Slice 2's `TERRAIN_RELIEF_HEIGHT`, so the 3D heights match the Pixi relief. Each entry is a new object; mutating the snapshot does not touch state (tested). `cameraLocked: true` is a literal type this slice.
+- Hybrid board snapshot is client-only presentation; no new server endpoints or secrets. Three.js is a client dependency only (`packages/render` / `packages/app`, never `packages/sim` or `server/`); not installed yet.
+- **Left alone:** pathfinding, fog rules, economy, combat, Slice 0/1/2 snapshots, render / app UI. **Not yet in the app.**
+
 ## 2026-11-28 — render+app / Route B slice 2 presentation (Pixi terrain depth & board overlay)
 
 - **Pixi static board draw path (`packages/render/src/tiles.ts`, `packages/render/src/tokens.ts`):**

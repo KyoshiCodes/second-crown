@@ -217,6 +217,8 @@ export interface LivingSwitches {
   lighting: boolean;
   /** Terrain depth (Route B slice 2): terrainDepthSnapshot. False: null. Read-only; the sim never draws relief. */
   terrainDepth: boolean;
+  /** Hybrid board (Route B slice 3): hybridBoardSnapshot. False: null. Read-only; the sim never draws 3D. */
+  hybridBoard: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -295,6 +297,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   weatherParticles: "living_weather_particles",
   lighting: "living_lighting",
   terrainDepth: "living_terrain_depth",
+  hybridBoard: "living_hybrid_board",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

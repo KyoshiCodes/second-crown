@@ -198,3 +198,34 @@ export function terrainDepthSnapshot(state: GameState): TerrainDepthSnapshot | n
     fogDensity: round3(unseenShare(state) * fogThickness(weather)),
   };
 }
+
+// Route B slice 3: data for the hybrid (Three.js) board toggle. Pure read of the board.
+
+export interface HybridBoardProvince {
+  id: string;
+  x: number;
+  y: number;
+  terrain: TerrainId;
+  /** Terrain elevation, 0 (flat) to 1 (peak), from TERRAIN_RELIEF_HEIGHT. */
+  height: number;
+}
+
+export interface HybridBoardSnapshot {
+  /** Every board province in board order, five fields each. */
+  provinces: HybridBoardProvince[];
+  /** Always true this slice: the camera stays isometric. */
+  cameraLocked: true;
+}
+
+/** Route B slice 3: hybrid board. Null with living_hybrid_board off. */
+export function hybridBoardSnapshot(state: GameState): HybridBoardSnapshot | null {
+  if (!livingSwitches(state).hybridBoard) return null;
+  const provinces = state.board.provinces.map((p) => ({
+    id: p.id,
+    x: p.x,
+    y: p.y,
+    terrain: p.terrain,
+    height: TERRAIN_RELIEF_HEIGHT[p.terrain] ?? 0,
+  }));
+  return { provinces, cameraLocked: true };
+}

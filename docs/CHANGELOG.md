@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Route B slice 3 (hybrid board snapshot)
+
+- **`hybridBoardSnapshot(state)`** in `packages/sim/src/systems/presentation.ts` → `{ provinces, cameraLocked }` or null. `provinces` is every board province in board order as `{ id, x, y, terrain, height }`; `height` 0–1 is the existing Slice 2 terrain elevation (`TERRAIN_RELIEF_HEIGHT`: plain 0, shore 0.1, wood 0.3, waste 0.3, hill 0.65, peak 1). `cameraLocked` is always `true` (the board stays isometric this slice). Read-only, fresh objects (no aliasing of board provinces). The sim draws nothing.
+- **Switch:** `living_hybrid_board` (false: null). On by default.
+- **Left alone:** pathfinding, fog rules, economy, combat, save format, server, render / app UI, and the Slice 0/1/2 `audioSnapshot` / `weatherParticleSnapshot` / `lightingSnapshot` / `terrainDepthSnapshot`. No Three.js dependency added yet.
+- **Tests:** new `systems/routeBSlice3.test.ts` (8): shape, height from terrain, flag, slice 0/1/2 independence both ways, no mutation and no aliasing, determinism, empty board, export. Now: sim **1103**, app **1772**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-28 — Route B slice 2 presentation (Pixi terrain depth & board overlay)
 
 - **Pixi static board depth (`packages/render/src/tiles.ts`, `packages/render/src/tokens.ts`):** Added `resolveTerrainDepthStyle(state)` reading `terrainDepthSnapshot(state)` (`ab83ba1`, exact match — zero mismatch) and extended `computeBoardStaticCacheKey`, `paintProvinceStaticTile`, `paintTileHeightFace`, and `paintFogHeightVeil` to deepen height-face shading & prow/foot seams by `relief`, add soft ambient ground shadows + contact penumbra scaled by `shadowStrength`, and thicken uncharted fog veils by `fogDensity` without changing `terrainElevation`, zoom, pan, or hit-testing.

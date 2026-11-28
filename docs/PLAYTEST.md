@@ -211,6 +211,8 @@ Route B Slice 1 lighting tint available (`living_lighting`); sim data only, no t
 
 Route B Slice 2 terrain depth available (`living_terrain_depth`); sim data only, nothing drawn yet.
 
+Route B Slice 3 hybrid board toggle available (`living_hybrid_board`); sim data only, no 3D view drawn yet.
+
 Attentive:
 
 ```

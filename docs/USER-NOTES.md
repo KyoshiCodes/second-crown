@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Groundwork for a 3D map view
+
+- **3D map data (under the hood).** The game can now hand a future 3D map view a list of every province with its position, terrain and how tall it should stand. The camera stays in the current angled view. Nothing new is drawn yet; a later step adds the toggle on screen.
+- **Unchanged:** economy, movement, fog rules, battles, saves, sound, rain effects, lighting tint and terrain depth.
+
 ## 2026-11-28 — Richer terrain depth, soft ground shadows, and deeper fog veil
 
 - **Richer terrain depth on the map:** Mountains, hills, and ridges now show crisper shaded cliff faces with soft ground shadows underneath, and unexplored provinces carry a thicker, calmer cloud veil that clears as you scout—without changing zoom, pan, or map clicks.

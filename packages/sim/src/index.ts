@@ -747,6 +747,7 @@ export {
   TERRAIN_RELIEF_HEIGHT,
   TERRAIN_RELIEF_BANDS,
   TERRAIN_SHADOW_WEATHER,
+  hybridBoardSnapshot,
 } from "./systems/presentation.js";
 export type {
   AudioSnapshot,
@@ -759,4 +760,6 @@ export type {
   LightingWeatherTint,
   TerrainDepthSnapshot,
   TerrainRelief,
+  HybridBoardSnapshot,
+  HybridBoardProvince,
 } from "./systems/presentation.js";
