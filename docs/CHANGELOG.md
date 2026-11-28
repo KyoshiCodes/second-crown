@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-28 — Living Realm slice 36 (environment wind, station care)
+
+- **Environment wind:** `environmentSnapshot(state)` gains **`windMark`** → `{ features, ambient, note, mood, seasonNote, weatherMark, lightMark, windMark }`. The sim has no wind roll, so the wind is read from the current weather and day phase (`environmentWindMark(weather, phase)`): storm `Gusting`, rain `Steady wind`, snow `Still air`, clear `Soft breeze` by day and dusk, `Still air` at dawn and night. Read-only.
+- **Station care (rule change):** a finished, staffed work-station building that is not being upgraded and not resting (night, while `living_station_rest` is on) is **cared** for and gets **+0.5%** output (`STATION_CARE_MULT` 1.005; about +0.35% averaged over a day with rest on). `economy.stationCareBonus`, applied in `rateFor` after `stationFocusBonus`; stacks with rhythm and focus. Stateless tick math; with rest on, night start / end are `EconomySystem.nextEventTick` events so offline settle equals tick-by-tick. **`stationCareSnapshot(state, buildingId)`** `{ cared, note }` or null (unknown id, no station, flag off); `note` = `Well kept: +0.5%.` / `Resting; care resumes at dawn.` / `Needs a worker to keep it.` / `Care paused for upgrade.` / `Cared for once built.`
+- **Switches:** `living_environment_wind` (false: `windMark` null, other fields kept), `living_station_care` (false: null and no +0.5%).
+- **Left alone:** pathfinding, fog, weather / season / day-cycle rules, march speed, build costs, building list, `staffBonus`, slice 30-35 station bonuses, gather night factor, render / app UI.
+- **Tests:** new `systems/livingSlice36.test.ts` (18): wind mapping per weather and phase, live match over a day, flag, care shape (cared / resting / rest off / unstaffed / building / upgrading), flag off, +0.5% exact on the building's share, no change at night or unstaffed, stacking with focus, event ticks, settle-vs-tick across dusk into night, determinism. Slice 31-35 shape tests updated for `windMark`. Now: sim **1065**, app **1755**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-28 — Living presentation for environment light and station focus (Slice 35)
 
 - **Environment light-mark pill (`hud/BoardEnvironmentLightMark.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentLightMark` and `<BoardEnvironmentLightMarkPill>`, reading `environmentSnapshot(state)?.lightMark` (`969e577`, exact match — zero mismatch) to render a calm fifth top-right pill (`top: 164px`, stacked beneath `<BoardEnvironmentWeatherMarkPill>`) with a small light emblem (`Soft dawn`, `High light`, `Long shadow`, `Deep quiet`), hiding cleanly when `lightMark` is `null` or `living_environment_light` is `false`.

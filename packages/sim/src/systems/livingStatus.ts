@@ -166,6 +166,12 @@ import {
   STATION_RHYTHM_NOTE_WAIT,
   ENVIRONMENT_LIGHT_MARK,
   STATION_FOCUS_NOTE_BUILDING,
+  ENVIRONMENT_WIND_MARK,
+  STATION_CARE_NOTE_BUILDING,
+  STATION_CARE_NOTE_CARED,
+  STATION_CARE_NOTE_RESTING,
+  STATION_CARE_NOTE_UNSTAFFED,
+  STATION_CARE_NOTE_UPGRADING,
   STATION_FOCUS_NOTE_FOCUSED,
   STATION_FOCUS_NOTE_RESTING,
   STATION_FOCUS_NOTE_UNSTAFFED,
@@ -183,7 +189,7 @@ import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
 import { friendlyRealmIds, livingSwitches, nameOf, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
-import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, stationPairBonus, stationPairState, stationFocusBonus, stationRestBonus, stationRhythmBonus, workStationBonus, workStationDepthBonus } from "./economy.js";
+import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, stationPairBonus, stationPairState, stationCareBonus, stationCareResting, stationFocusBonus, stationRestBonus, stationRhythmBonus, workStationBonus, workStationDepthBonus } from "./economy.js";
 import { weatherFor } from "./weather.js";
 import { currentSeason } from "./age.js";
 import { dayPhase } from "./dayNight.js";
@@ -1785,6 +1791,8 @@ export interface Environment {
   weatherMark: string | null;
   /** Slice 35: ENVIRONMENT_LIGHT_MARK for the day phase; null with living_environment_light off. */
   lightMark: string | null;
+  /** Slice 36: ENVIRONMENT_WIND_MARK from the current wind (weather and day phase); null with living_environment_wind off. */
+  windMark: string | null;
 }
 
 /**
@@ -1810,7 +1818,16 @@ export function environmentSnapshot(state: GameState): Environment | null {
   const seasonNote = livingSwitches(state).environmentNotes ? ENVIRONMENT_SEASON_NOTE[season] ?? ENVIRONMENT_SEASON_NOTE.Spring : null;
   const weatherMark = livingSwitches(state).environmentWeather ? ENVIRONMENT_WEATHER_MARK[weather] ?? ENVIRONMENT_WEATHER_MARK.clear : null;
   const lightMark = livingSwitches(state).environmentLight ? ENVIRONMENT_LIGHT_MARK[dayPhase(state)] ?? ENVIRONMENT_LIGHT_MARK.day : null;
-  return { features, ambient, note, mood, seasonNote, weatherMark, lightMark };
+  const windMark = livingSwitches(state).environmentWind ? environmentWindMark(weather, dayPhase(state)) : null;
+  return { features, ambient, note, mood, seasonNote, weatherMark, lightMark, windMark };
+}
+
+/** Slice 36: fixed wind mark. Storm: Gusting; rain: Steady wind; snow: Still air; clear: Soft breeze by day and dusk, else Still air. */
+export function environmentWindMark(weather: string, phase: string): string {
+  if (weather === "storm") return ENVIRONMENT_WIND_MARK.gusting;
+  if (weather === "rain") return ENVIRONMENT_WIND_MARK.steady;
+  if (weather === "snow") return ENVIRONMENT_WIND_MARK.still;
+  return phase === "day" || phase === "dusk" ? ENVIRONMENT_WIND_MARK.soft : ENVIRONMENT_WIND_MARK.still;
 }
 
 /** Slice 32: fixed mood line. Storm: restless; rain or snow: soft; clear Winter: still; else open. */
@@ -1983,4 +2000,31 @@ export function stationFocusSnapshot(state: GameState, buildingId: string): Stat
   if (livingSwitches(state).stationRest && dayPhase(state) === "night") return { focused: false, note: STATION_FOCUS_NOTE_RESTING };
   const focused = stationFocusBonus(state, b) > 1;
   return { focused, note: focused ? STATION_FOCUS_NOTE_FOCUSED : STATION_FOCUS_NOTE_WAIT };
+}
+
+// ---------------------------------------------------------------- station care (slice 36)
+
+export interface StationCare {
+  /** True while the +0.5% care bonus applies (finished, staffed, not resting, not upgrading). */
+  cared: boolean;
+  /** STATION_CARE_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 36: whether a station is kept with care. Null for an unknown id, a building that takes
+ * no worker, or with living_station_care off (which also turns the +0.5% off).
+ */
+export function stationCareSnapshot(state: GameState, buildingId: string): StationCare | null {
+  if (!livingSwitches(state).stationCare) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  const r = readBuilding(state, b);
+  if (r.workStation === null) return null;
+  if (r.phase === "building") return { cared: false, note: STATION_CARE_NOTE_BUILDING };
+  if (r.phase === "upgrading") return { cared: false, note: STATION_CARE_NOTE_UPGRADING };
+  if (!r.staffed) return { cared: false, note: STATION_CARE_NOTE_UNSTAFFED };
+  if (stationCareResting(state)) return { cared: false, note: STATION_CARE_NOTE_RESTING };
+  const cared = stationCareBonus(state, b) > 1;
+  return { cared, note: cared ? STATION_CARE_NOTE_CARED : STATION_CARE_NOTE_UNSTAFFED };
 }

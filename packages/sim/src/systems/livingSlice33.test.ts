@@ -54,7 +54,7 @@ describe("living realm slice 33: environment season note", () => {
     const s = fresh();
     const env = environmentSnapshot(s)!;
     expect(env.seasonNote).toBe(ENVIRONMENT_SEASON_NOTE[currentSeason(s)]);
-    expect(Object.keys(env).sort()).toEqual(["ambient", "features", "lightMark", "mood", "note", "seasonNote", "weatherMark"]);
+    expect(Object.keys(env).sort()).toEqual(["ambient", "features", "lightMark", "mood", "note", "seasonNote", "weatherMark", "windMark"]);
   });
 
   it("fixed strings per season", () => {

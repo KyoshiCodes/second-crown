@@ -203,6 +203,8 @@ Environment weather and station rhythm available (`living_environment_weather`, 
 
 Environment light and station focus available (`living_environment_light`, `living_station_focus`); new bonus: staffed work-station buildings focus through the high-light stretch of the day (end of dawn to dusk) and give +1% output, stacking with rhythm (focus flag off removes it).
 
+Environment wind and station care available (`living_environment_wind`, `living_station_care`); new bonus: staffed work-station buildings that are not resting or upgrading are well kept and give +0.5% output, stacking with rhythm and focus (care flag off removes it).
+
 Attentive:
 
 ```

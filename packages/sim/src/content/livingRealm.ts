@@ -829,6 +829,33 @@ export const STATION_FOCUS_NOTE_UPGRADING = "Focus paused for upgrade.";
 /** Slice 35: station focus note, still being built. */
 export const STATION_FOCUS_NOTE_BUILDING = "Focuses once built.";
 
+// ---------------------------------------------------------------- environment wind, station care (slice 36)
+
+/**
+ * Slice 36: short fixed wind mark on environmentSnapshot, from the current wind. The sim has no
+ * separate wind roll: the wind is read from the weather and the day phase. Storm: Gusting; rain:
+ * Steady wind; snow: Still air; clear: Soft breeze by day and dusk, Still air at dawn and night.
+ */
+export const ENVIRONMENT_WIND_MARK = {
+  still: "Still air",
+  soft: "Soft breeze",
+  steady: "Steady wind",
+  gusting: "Gusting",
+} as const;
+
+/** Slice 36: output multiplier on a cared-for station (finished, staffed, not resting, not upgrading). */
+export const STATION_CARE_MULT = 1.005;
+/** Slice 36: station care note, cared (bonus active). */
+export const STATION_CARE_NOTE_CARED = "Well kept: +0.5%.";
+/** Slice 36: station care note, resting for the night. */
+export const STATION_CARE_NOTE_RESTING = "Resting; care resumes at dawn.";
+/** Slice 36: station care note, no worker. */
+export const STATION_CARE_NOTE_UNSTAFFED = "Needs a worker to keep it.";
+/** Slice 36: station care note, being upgraded. */
+export const STATION_CARE_NOTE_UPGRADING = "Care paused for upgrade.";
+/** Slice 36: station care note, still being built. */
+export const STATION_CARE_NOTE_BUILDING = "Cared for once built.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

@@ -29,7 +29,7 @@ const NOON = DAY + 1200;
 const DUSK = DAY + 2200;
 const NIGHT = DAY + 3000;
 
-const KEYS = ["ambient", "features", "lightMark", "mood", "note", "seasonNote", "weatherMark"];
+const KEYS = ["ambient", "features", "lightMark", "mood", "note", "seasonNote", "weatherMark", "windMark"];
 
 function fresh(tick = NOON, seed = 1): GameState {
   const s = createGameState({ seed, now: 1, withStarterBuildings: false });

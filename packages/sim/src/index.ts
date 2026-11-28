@@ -45,7 +45,7 @@ export type { CultureKitId, CultureUnitGate } from "./systems/cultureUnits.js";
 
 export { playerTitle, extraArchetypes } from "./content/world.js";
 
-export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, workStationBonus, workStationDepthBonus, stationPairBonus, stationPairState, stationRestBonus, nextStationRestTick, stationRhythmBonus, stationRhythmReady, stationRhythmWindowAt, nextStationRhythmTick, stationFocusBonus, stationFocusWindowAt, nextStationFocusTick, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
+export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, workStationBonus, workStationDepthBonus, stationPairBonus, stationPairState, stationRestBonus, nextStationRestTick, stationRhythmBonus, stationRhythmReady, stationRhythmWindowAt, nextStationRhythmTick, stationFocusBonus, stationFocusWindowAt, nextStationFocusTick, stationCareBonus, stationCareResting, nextStationCareTick, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
 export { unpairedWorks, PAIR_LABEL, PAIR_MATE } from "./systems/pairHint.js";
 export { emptyStaffWorks } from "./systems/staffHint.js";
 export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./systems/combat.js";
@@ -429,6 +429,8 @@ export {
   stationRestSnapshot,
   stationRhythmSnapshot,
   stationFocusSnapshot,
+  stationCareSnapshot,
+  environmentWindMark,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -498,6 +500,7 @@ export type {
   StationRest,
   StationRhythm,
   StationFocus,
+  StationCare,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -705,6 +708,13 @@ export {
   STATION_FOCUS_NOTE_UNSTAFFED,
   STATION_FOCUS_NOTE_UPGRADING,
   STATION_FOCUS_NOTE_BUILDING,
+  ENVIRONMENT_WIND_MARK,
+  STATION_CARE_MULT,
+  STATION_CARE_NOTE_CARED,
+  STATION_CARE_NOTE_RESTING,
+  STATION_CARE_NOTE_UNSTAFFED,
+  STATION_CARE_NOTE_UPGRADING,
+  STATION_CARE_NOTE_BUILDING,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

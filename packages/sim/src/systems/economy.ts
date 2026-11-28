@@ -12,10 +12,10 @@ import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
 import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
-import { BUILDING_WORK_STATIONS, STATION_FOCUS_END, STATION_FOCUS_MULT, STATION_FOCUS_START, STATION_PAIR_MULT, STATION_REST_MULT, STATION_RHYTHM_END, STATION_RHYTHM_MULT, STATION_RHYTHM_START, WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
+import { BUILDING_WORK_STATIONS, STATION_CARE_MULT, STATION_FOCUS_END, STATION_FOCUS_MULT, STATION_FOCUS_START, STATION_PAIR_MULT, STATION_REST_MULT, STATION_RHYTHM_END, STATION_RHYTHM_MULT, STATION_RHYTHM_START, WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
 import { LIVING_SWITCH_FLAGS } from "./livingRealm.js";
 import { keepIncomeMult, levelYieldMult } from "../content/pacing.js";
-import { DAWN_END, DAY_CYCLE_TICKS, dayPhaseAt } from "./dayNight.js";
+import { DAWN_END, DAY_CYCLE_TICKS, DUSK_END, dayPhaseAt } from "./dayNight.js";
 import { farmCultureBonus, quarryCultureBonus, woodCultureBonus } from "./culture.js";
 
 const PAIR: Record<string, string> = {
@@ -190,6 +190,29 @@ export function nextStationFocusTick(tick: number): number {
   return base + DAY_CYCLE_TICKS + STATION_FOCUS_START;
 }
 
+/**
+ * Slice 36: station care. A finished, staffed station that is not being upgraded and not
+ * resting (night, while living_station_rest is on) is kept with care: +0.5% (STATION_CARE_MULT).
+ * Stateless tick math; with rest on, night start and end are economy event ticks.
+ * Flag living_station_care false: 1.
+ */
+export function stationCareBonus(state: GameState, building: GameState["buildings"][number]): number {
+  if (state.flags[LIVING_SWITCH_FLAGS.stationCare] === false) return 1;
+  if (stationCareResting(state)) return 1;
+  return stationRhythmReady(state, building) ? STATION_CARE_MULT : 1;
+}
+
+/** Slice 36: true while stations rest (night phase with living_station_rest on). */
+export function stationCareResting(state: GameState): boolean {
+  return state.flags[LIVING_SWITCH_FLAGS.stationRest] !== false && dayPhaseAt(state.meta.tick) === "night";
+}
+
+/** Slice 36: first night start or night end strictly after `tick` (where rest, and so care, can change). */
+export function nextStationCareTick(tick: number): number {
+  const base = Math.floor(tick / DAY_CYCLE_TICKS) * DAY_CYCLE_TICKS;
+  return tick - base < DUSK_END ? base + DUSK_END : base + DAY_CYCLE_TICKS;
+}
+
 /** Finished same-type neighbor on an edge: +10% each, cap +20%. */
 export function adjacencyBonus(state: GameState, building: GameState["buildings"][number]): number {
   const n = state.buildings.filter(
@@ -251,6 +274,7 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(stationRestBonus(state, building))
     .mul(stationRhythmBonus(state, building))
     .mul(stationFocusBonus(state, building))
+    .mul(stationCareBonus(state, building))
     .mul(adjacencyBonus(state, building))
     .mul(pairBonus(state, building))
     .mul(keepBonus(state, building))
@@ -278,6 +302,11 @@ export const EconomySystem = {
     if (state.flags[LIVING_SWITCH_FLAGS.stationFocus] !== false) {
       const focus = nextStationFocusTick(state.meta.tick);
       if (earliest === null || earliest <= state.meta.tick || focus < earliest) earliest = focus;
+    }
+    // Care only changes with time while rest is on (rest is what pauses it at night).
+    if (state.flags[LIVING_SWITCH_FLAGS.stationCare] !== false && state.flags[LIVING_SWITCH_FLAGS.stationRest] !== false) {
+      const care = nextStationCareTick(state.meta.tick);
+      if (earliest === null || earliest <= state.meta.tick || care < earliest) earliest = care;
     }
     return earliest;
   },

@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Wind marks and well-kept work buildings
+
+- **Well-kept work buildings.** A finished work building with a worker is kept with care whenever it is not resting at night, and works 0.5% harder. It stacks with the rhythm and high-light bonuses. Buildings with no worker, still being built, or being upgraded do not count.
+- **Wind marks (under the hood).** The game can now name the wind: "Still air", "Soft breeze", "Steady wind" or "Gusting", from the weather and time of day. Not on screen yet.
+- **Unchanged:** build costs, the building list, workers, weather effects, fog, movement and battles.
+
 ## 2026-11-28 — Daylight tag on the map and high-light focus rings on work buildings
 
 - **Fifth daylight tag on the map:** A calm daylight pill (`Soft dawn`, `High light`, `Long shadow`, or `Deep quiet`) now sits directly below the weather tag in the top-right corner of the map.

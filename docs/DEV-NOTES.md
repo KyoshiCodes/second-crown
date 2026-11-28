@@ -1,3 +1,11 @@
+## 2026-11-28 — sim / Living Realm slice 36 (environment wind, station care)
+
+- **Where:** `windMark` / `environmentWindMark` and `stationCareSnapshot` in `systems/livingStatus.ts`; `stationCareBonus` / `stationCareResting` / `nextStationCareTick` in `systems/economy.ts` (reuses `stationRhythmReady` for finished + staffed + not upgrading); constants `ENVIRONMENT_WIND_MARK`, `STATION_CARE_*` in `content/livingRealm.ts`. `DUSK_END` is now exported from `systems/dayNight.ts`. All exported from `packages/sim`.
+- **No wind state.** There is no wind roll in `weather.ts`; `windMark` is a pure read of weather + day phase. Storm already reads `Strong wind` as a `weatherMark`; `windMark` says `Gusting` for it so the two pills do not repeat each other.
+- **Care depends on the rest flag.** "Not resting" means night with `living_station_rest` on. With rest off, care is on all day and adds no event ticks. With rest on, night start (`k*3600+2520`) and end (`(k+1)*3600`) are `EconomySystem.nextEventTick` events. No new state, no save change. Tested with `settleTicks` vs `tickMany` across dusk into night.
+- **Test gotchas:** existing ratio tests kept passing because care is on in both arms. A test expecting `nextEventTick` null with rest on now also needs `living_station_care` off (none of the old ones hit this: they switch rest off).
+- **Left alone:** pathfinding, fog, weather / season / day lengths, build costs, `content/buildings.ts`, other station bonuses, `gather.ts` night factor, render / app UI. **Not yet in the app.**
+
 ## 2026-11-28 — app / living presentation for environment light mark & station focus
 
 - **Environment light-mark pill (`packages/app/src/hud/BoardEnvironmentLightMark.tsx`, `BoardLiving.tsx`):**
