@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Groundwork for map depth
+
+- **Terrain depth (under the hood).** The game can now say how hilly the map should look (low, mid or high), how strong soft ground shadows should be (softer under rain, storm or snow), and how thick the fog over unexplored land should feel (thinner as you scout). Nothing is drawn yet; the next step puts it on the map.
+- **Unchanged:** economy, movement, fog rules, battles, weather, saves, sound, rain effects and the lighting tint.
+
 ## 2026-11-28 — Calm map lighting tint for time of day and weather
 
 - **Subtle lighting over the map:** The map now carries a soft, calm tint that shifts gently between dawn, day, dusk, and night, with a light cool or misty shift during rain, storms, and snow—never obscuring the map or blocking clicks.

@@ -209,6 +209,8 @@ Route B Slice 0 audio and weather particles available (`living_audio`, `living_w
 
 Route B Slice 1 lighting tint available (`living_lighting`); sim data only, no tint drawn yet.
 
+Route B Slice 2 terrain depth available (`living_terrain_depth`); sim data only, nothing drawn yet.
+
 Attentive:
 
 ```

@@ -1,3 +1,11 @@
+## 2026-11-28 — sim / Route B slice 2 (terrain depth snapshot)
+
+- **Where:** `systems/presentation.ts` (`terrainDepthSnapshot`, tables `TERRAIN_RELIEF_HEIGHT`, `TERRAIN_RELIEF_BANDS`, `TERRAIN_SHADOW_WEATHER`). Switch key `terrainDepth` → `living_terrain_depth` in `LIVING_SWITCH_FLAGS`. Exported from `packages/sim`.
+- **Pure read** of `state.board.provinces[].terrain`, `isProvinceSeen` and `weatherFor` / `fogThickness`. No new state, no save change, no RNG draw. Values rounded to 3 decimals (mean height too, so band edges are exact).
+- **Gotcha:** `isProvinceSeen` writes `flags.fog_seen` the first time it runs on a state. `unseenShare` saves and restores that flag, so the snapshot never mutates state. Tested.
+- Terrain depth snapshot is client-only presentation; no new server endpoints or secrets.
+- **Left alone:** pathfinding, fog rules, economy, combat, Slice 0/1 audio / particle / lighting snapshots, render / app UI. **Not yet in the app.**
+
 ## 2026-11-28 — app / Route B slice 1 presentation (board lighting tint)
 
 - **Board lighting tint overlay (`packages/app/src/hud/BoardLightingTint.tsx`, `BoardLiving.tsx`):**

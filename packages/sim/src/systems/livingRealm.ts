@@ -215,6 +215,8 @@ export interface LivingSwitches {
   weatherParticles: boolean;
   /** Lighting (Route B slice 1): lightingSnapshot. False: null. Read-only; the sim never draws light. */
   lighting: boolean;
+  /** Terrain depth (Route B slice 2): terrainDepthSnapshot. False: null. Read-only; the sim never draws relief. */
+  terrainDepth: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -292,6 +294,7 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   audio: "living_audio",
   weatherParticles: "living_weather_particles",
   lighting: "living_lighting",
+  terrainDepth: "living_terrain_depth",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

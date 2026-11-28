@@ -743,6 +743,10 @@ export {
   LIGHTING_WEATHER_TINT,
   LIGHTING_PHASE_INTENSITY,
   LIGHTING_WEATHER_INTENSITY,
+  terrainDepthSnapshot,
+  TERRAIN_RELIEF_HEIGHT,
+  TERRAIN_RELIEF_BANDS,
+  TERRAIN_SHADOW_WEATHER,
 } from "./systems/presentation.js";
 export type {
   AudioSnapshot,
@@ -753,4 +757,6 @@ export type {
   LightingSnapshot,
   LightingTimeOfDay,
   LightingWeatherTint,
+  TerrainDepthSnapshot,
+  TerrainRelief,
 } from "./systems/presentation.js";

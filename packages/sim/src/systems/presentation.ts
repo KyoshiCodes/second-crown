@@ -1,6 +1,7 @@
-import type { GameState } from "@second-crown/shared";
+import type { GameState, TerrainId } from "@second-crown/shared";
 import { livingSwitches } from "./livingRealm.js";
-import { weatherFor, type Weather } from "./weather.js";
+import { fogThickness, weatherFor, type Weather } from "./weather.js";
+import { isProvinceSeen } from "./fog.js";
 import { dayPhase, type DayPhase } from "./dayNight.js";
 
 // Route B slice 0: read-only presentation snapshots for the client (audio and weather particles).
@@ -123,5 +124,77 @@ export function lightingSnapshot(state: GameState): LightingSnapshot | null {
     timeOfDay: phase,
     weatherTint: LIGHTING_WEATHER_TINT[weather] ?? "clear",
     intensity: Math.round(Math.min(1, Math.max(0, raw)) * 1000) / 1000,
+  };
+}
+
+// Route B slice 2: terrain depth for the current board. Pure read of terrain, fog and weather.
+
+export type TerrainRelief = "low" | "mid" | "high";
+
+export interface TerrainDepthSnapshot {
+  /** How strong the height faces should read, from the board's mean terrain height. */
+  relief: TerrainRelief;
+  /** How strong soft ground shadows should be, 0 to 1. */
+  shadowStrength: number;
+  /** How thick the uncharted fog veil should feel, 0 to 1. */
+  fogDensity: number;
+}
+
+/** Height weight per terrain, 0 (flat) to 1 (peak). */
+export const TERRAIN_RELIEF_HEIGHT: Readonly<Record<TerrainId, number>> = {
+  plain: 0,
+  shore: 0.1,
+  wood: 0.3,
+  waste: 0.3,
+  hill: 0.65,
+  peak: 1,
+};
+
+/** Mean height below `mid` reads "low"; at or above `high` reads "high". */
+export const TERRAIN_RELIEF_BANDS = { mid: 0.3, high: 0.5 } as const;
+
+/** Overcast skies soften ground shadows. Multiplies the terrain shadow. */
+export const TERRAIN_SHADOW_WEATHER: Readonly<Record<Weather, number>> = {
+  clear: 1,
+  rain: 0.7,
+  storm: 0.5,
+  snow: 0.8,
+};
+
+function round3(n: number): number {
+  return Math.round(Math.min(1, Math.max(0, n)) * 1000) / 1000;
+}
+
+/** Share of provinces the player has not seen, 0..1. Leaves `fog_seen` exactly as found. */
+function unseenShare(state: GameState): number {
+  const provinces = state.board.provinces;
+  if (provinces.length === 0) return 0;
+  const flags = state.flags;
+  const had = Object.prototype.hasOwnProperty.call(flags, "fog_seen");
+  const prev = flags.fog_seen;
+  let unseen = 0;
+  try {
+    for (const p of provinces) if (!isProvinceSeen(state, p.id)) unseen++;
+  } finally {
+    if (had) flags.fog_seen = prev;
+    else delete flags.fog_seen;
+  }
+  return unseen / provinces.length;
+}
+
+/** Route B slice 2: terrain depth. Null with living_terrain_depth off. */
+export function terrainDepthSnapshot(state: GameState): TerrainDepthSnapshot | null {
+  if (!livingSwitches(state).terrainDepth) return null;
+  const provinces = state.board.provinces;
+  let sum = 0;
+  for (const p of provinces) sum += TERRAIN_RELIEF_HEIGHT[p.terrain] ?? 0;
+  const mean = provinces.length ? Math.round((sum / provinces.length) * 1000) / 1000 : 0;
+  const relief: TerrainRelief =
+    mean >= TERRAIN_RELIEF_BANDS.high ? "high" : mean >= TERRAIN_RELIEF_BANDS.mid ? "mid" : "low";
+  const weather = weatherFor(state);
+  return {
+    relief,
+    shadowStrength: round3((0.25 + 0.75 * mean) * (TERRAIN_SHADOW_WEATHER[weather] ?? 1)),
+    fogDensity: round3(unseenShare(state) * fogThickness(weather)),
   };
 }

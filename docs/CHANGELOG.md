@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Route B slice 2 (terrain depth snapshot)
+
+- **`terrainDepthSnapshot(state)`** in `packages/sim/src/systems/presentation.ts` → `{ relief, shadowStrength, fogDensity }` or null. `relief` `low|mid|high` from the board's mean terrain height (plain 0, shore 0.1, wood 0.3, waste 0.3, hill 0.65, peak 1; `mid` at 0.3, `high` at 0.5); `shadowStrength` 0–1 = (0.25 + 0.75 × mean height) × weather softening (clear 1, rain 0.7, storm 0.5, snow 0.8); `fogDensity` 0–1 = share of provinces not seen × fog thickness (clear/rain 1, snow 1.2, storm 1.4), clamped. Read-only; the sim draws nothing.
+- **Switch:** `living_terrain_depth` (false: null). On by default.
+- **Left alone:** pathfinding, fog rules, economy, combat, weather / day rules, save format, server, render / app UI, and the Slice 0/1 `audioSnapshot` / `weatherParticleSnapshot` / `lightingSnapshot`.
+- **Tests:** new `systems/routeBSlice2.test.ts` (9): shape, relief bands, shadow, fog density and reveal, flag, slice 0/1 independence, no mutation (including no `fog_seen` write), determinism, empty board, export. Now: sim **1095**, app **1768**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-28 — Route B slice 1 presentation (board lighting tint)
 
 - **Board lighting tint (`hud/BoardLightingTint.tsx`, `hud/board-lighting-tint.css`, `BoardLiving.tsx`):** Added `resolveBoardLighting` and `<BoardLightingTint>`, reading `lightingSnapshot(state)` (`7d70b54`, exact match — zero mismatch) to apply a calm, non-blocking phase wash (`dawn` / `day` / `dusk` / `night`) and light weather color shift (`rain` / `storm` / `snow`, omitted on `clear`) scaled by `intensity`, hiding cleanly when `null` or `living_lighting` is `false`.
