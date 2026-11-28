@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Quiet map ambient sound and rain / mist weather overlay
+
+- **Ambient sound on the map:** The map now plays a soft background soundscape that shifts gently from dawn through night and crossfades rain, wind, or mist layers with the weather, adjusting volume at night.
+- **Rain and mist over the map:** Light rain streaks fall across the board during rain and storms (denser in storms), and soft mist wisps drift across during snow, disappearing completely in clear weather without ever blocking map clicks.
+- **Unchanged:** build costs, workers, economy, fog, movement, battles, and saves.
+
 ## 2026-11-28 — Groundwork for sound and rain effects
 
 - **Sound and weather effects (under the hood).** The game can now say which background sound fits the moment (dawn, day, dusk or night, plus a rain, wind or mist layer) and how loud, and whether rain or mist should fall on the map and how heavily. Nothing plays or shows yet; this is the first step toward the 3D look.

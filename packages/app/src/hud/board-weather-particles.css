@@ -1,0 +1,109 @@
+/* --- Route B Slice 0: Board Weather Particle Overlay (isolated CSS) ---
+ * Loaded from hud/BoardWeatherParticles.tsx.
+ * Leaves theme.css, board-living.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on overlay and all particles.
+ * Light rain streaks & mist wisps across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bwpart-rain-top: rgba(147, 197, 253, 0.06);
+  --sc-bwpart-rain-core: rgba(186, 230, 253, 0.56);
+  --sc-bwpart-mist-core: rgba(226, 232, 240, 0.24);
+  --sc-bwpart-mist-edge: rgba(148, 163, 184, 0);
+}
+
+:root[data-chrome="night"] {
+  --sc-bwpart-rain-top: rgba(125, 211, 252, 0.08);
+  --sc-bwpart-rain-core: rgba(224, 242, 254, 0.62);
+  --sc-bwpart-mist-core: rgba(241, 245, 249, 0.28);
+  --sc-bwpart-mist-edge: rgba(148, 163, 184, 0);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bwpart-rain-top: rgba(186, 230, 253, 0.08);
+  --sc-bwpart-rain-core: rgba(224, 242, 254, 0.52);
+  --sc-bwpart-mist-core: rgba(254, 243, 199, 0.24);
+  --sc-bwpart-mist-edge: rgba(214, 193, 152, 0);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Container
+   ========================================================================== */
+.sc-bwpart-overlay,
+.sc-bwpart-overlay * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-bwpart-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   3. Rain Streaks & Mist Wisps
+   ========================================================================== */
+.sc-bwpart-drop {
+  position: absolute;
+  width: 1.25px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to bottom,
+    var(--sc-bwpart-rain-top) 0%,
+    var(--sc-bwpart-rain-core) 100%
+  );
+  will-change: transform, opacity;
+  animation: sc-bwpart-rain-fall 0.85s linear infinite;
+}
+
+.sc-bwpart-overlay.is-heavy .sc-bwpart-drop {
+  width: 1.5px;
+}
+
+.sc-bwpart-wisp {
+  position: absolute;
+  border-radius: 999px;
+  background: radial-gradient(
+    ellipse at center,
+    var(--sc-bwpart-mist-core) 0%,
+    var(--sc-bwpart-mist-edge) 72%
+  );
+  filter: blur(4px);
+  will-change: transform, opacity;
+  animation: sc-bwpart-mist-drift 12s ease-in-out infinite alternate;
+}
+
+@keyframes sc-bwpart-rain-fall {
+  0% {
+    transform: translate3d(6px, -24px, 0) rotate(11deg);
+  }
+  100% {
+    transform: translate3d(-26px, 390px, 0) rotate(11deg);
+  }
+}
+
+@keyframes sc-bwpart-mist-drift {
+  0% {
+    transform: translate3d(-12px, -3px, 0) scale(0.96);
+  }
+  100% {
+    transform: translate3d(18px, 4px, 0) scale(1.04);
+  }
+}
+
+/* ==========================================================================
+   4. Reduced Motion Accessibility Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-bwpart-drop,
+  .sc-bwpart-wisp {
+    animation: none;
+    transition: none;
+  }
+}

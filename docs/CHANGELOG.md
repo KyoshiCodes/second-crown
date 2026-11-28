@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Route B slice 0 presentation (board ambient audio & weather particles)
+
+- **Board ambient audio (`hud/BoardAmbientAudio.tsx`, `BoardLiving.tsx`):** Added `resolveBoardAudio`, `BoardAmbientAudioEngine`, `boardAmbientAudio`, and `<BoardAudioBridge>`, reading `audioSnapshot(state)` (`ac7e914`, exact match — zero mismatch) to run a quiet Web Audio API ambient loop (`hold_dawn` / `hold_day` / `hold_dusk` / `hold_night`), smoothly crossfade `rain` / `wind` / `mist` weather noise branches (0 on `clear`), scale master gain by `volume`, and stop cleanly when `null`, `living_audio` is `false`, or unmounted.
+- **Board weather particles (`hud/BoardWeatherParticles.tsx`, `hud/board-weather-particles.css`, `BoardLiving.tsx`):** Added `resolveBoardWeatherParticles` and `<BoardWeatherParticles>`, reading `weatherParticleSnapshot(state)` (`ac7e914`, exact match — zero mismatch) to draw light rain streaks or drifting mist wisps over the board with `intensity` controlling density, hiding cleanly when `null`, `kind === "none"`, or `living_weather_particles` is `false`.
+- **Security & invariants:** Dedicated `hud/board-weather-particles.css` only (zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, pathfinding, or fog math); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on the particle overlay, and `@media (prefers-reduced-motion: reduce)` guards. Local/static Web Audio synthesis only — no new dependencies, no remote audio fetches, and no API keys/secrets.
+- **Tests:** Added `packages/app/src/hud/RouteBSlice0Presentation.test.tsx` (5 tests). Now: sim **1078**, app **1764**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-28 — Route B slice 0 (audio foundation, weather particle data)
 
 - **Start of Route B (2.5D → 3D).** Two read-only presentation snapshots in new `packages/sim/src/systems/presentation.ts`, exported from `packages/sim`. The sim plays no sound and draws nothing.

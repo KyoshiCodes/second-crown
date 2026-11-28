@@ -301,6 +301,18 @@ import {
   type BoardEnvironmentWindKind,
   type BoardEnvironmentWindMarkView,
 } from "./hud/BoardEnvironmentWindMark";
+import {
+  BoardAudioBridge,
+  BoardAmbientAudioEngine,
+  boardAmbientAudio,
+  resolveBoardAudio,
+} from "./hud/BoardAmbientAudio";
+import {
+  BoardWeatherParticles,
+  resolveBoardWeatherParticles,
+  type BoardWeatherParticle,
+  type BoardWeatherParticlesView,
+} from "./hud/BoardWeatherParticles";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1249,6 +1261,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
         <BoardScaleHorizon state={state} />
         <BoardExpansionRim state={state} />
       </svg>
+      <BoardWeatherParticles state={state} />
       <BoardSelectionFeedbackNote state={state} selectedId={selectedId} />
       <BoardBattleFeedbackNote state={state} />
       <BoardScaleNote state={state} />
@@ -1259,6 +1272,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
       <BoardEnvironmentWeatherMarkPill state={state} />
       <BoardEnvironmentLightMarkPill state={state} />
       <BoardEnvironmentWindMarkPill state={state} />
+      <BoardAudioBridge state={state} active={visible} />
     </div>
   );
 }
@@ -1474,4 +1488,12 @@ export {
   resolveBoardEnvironmentWindMark,
   type BoardEnvironmentWindKind,
   type BoardEnvironmentWindMarkView,
+  BoardAudioBridge,
+  BoardAmbientAudioEngine,
+  boardAmbientAudio,
+  resolveBoardAudio,
+  BoardWeatherParticles,
+  resolveBoardWeatherParticles,
+  type BoardWeatherParticle,
+  type BoardWeatherParticlesView,
 };

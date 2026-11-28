@@ -1,3 +1,16 @@
+## 2026-11-28 — app / Route B slice 0 presentation (board ambient audio & weather particles)
+
+- **Board ambient audio (`packages/app/src/hud/BoardAmbientAudio.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardAudio(state)` wrapping `audioSnapshot(state)` (`ac7e914`, zero mismatch), `BoardAmbientAudioEngine`, `boardAmbientAudio`, and `<BoardAudioBridge>` mounted inside `BoardLiving`.
+  - Uses the browser's built-in Web Audio API (no new heavy dependencies) with a quiet two-oscillator ambient bed (`hold_dawn` / `hold_day` / `hold_dusk` / `hold_night`) and a deterministic noise buffer feeding three parallel weather filter/gain branches (`rain`, `wind`, `mist`, all 0 on `clear`) that crossfade smoothly and scale master gain by `volume * AMBIENT_MASTER_CEILING`.
+  - Stops cleanly (stops oscillators/source, disconnects nodes, closes `AudioContext`, removes any autoplay-resume listeners) when `audioSnapshot` is `null` (`living_audio` off), `BoardLiving` is not `visible`, or on unmount.
+- **Board weather particle overlay (`packages/app/src/hud/BoardWeatherParticles.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardWeatherParticles(state)` wrapping `weatherParticleSnapshot(state)` (`ac7e914`, zero mismatch) and `<BoardWeatherParticles>` mounted inside `BoardLiving`.
+  - Renders light rain streaks (`kind: "rain"`) or drifting mist wisps (`kind: "mist"`) with particle count and styling driven by `intensity` (storm 1.0 denser than rain 0.6), hiding cleanly on `null`, `kind === "none"`, or `living_weather_particles` off.
+- **Dedicated CSS (`hud/board-weather-particles.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on `.sc-bwpart-overlay` and all particle elements, and `@media (prefers-reduced-motion: reduce)` guards. Zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, fog, or pathfinding.
+- **Security / local audio confirmation:** All board ambient/weather audio is synthesized locally in the browser via the Web Audio API (and existing music files in `packages/app/public/audio/` are local/static). Zero external audio URLs, zero remote asset hosts, zero API keys/tokens/secrets, and zero server changes were added.
+- **Verification (`packages/app/src/hud/RouteBSlice0Presentation.test.tsx`):** 5 tests passing (`npm test` -> sim **1078**, app **1764**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-28 — sim / Route B slice 0 (audio and weather particle snapshots)
 
 - **Where:** `systems/presentation.ts` (`audioSnapshot`, `weatherParticleSnapshot`, tables `AUDIO_AMBIENT`, `AUDIO_WEATHER_LAYER`, `AUDIO_VOLUME`, `AUDIO_NIGHT_FACTOR`, `WEATHER_PARTICLES`). Switch keys `audio` / `weatherParticles` in `LIVING_SWITCH_FLAGS`. All exported from `packages/sim`.
