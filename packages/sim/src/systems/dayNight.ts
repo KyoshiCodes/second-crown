@@ -6,7 +6,8 @@ export type DayPhase = "dawn" | "day" | "dusk" | "night";
 export const DAY_CYCLE_TICKS = 3600;
 
 // Phase ends within the cycle: dawn 0-539 (15%), day 540-1979 (40%), dusk 1980-2519 (15%), night 2520-3599 (30%).
-const DAWN_END = 540;
+/** First tick after dawn within a day (slice 33 station rest reads it). */
+export const DAWN_END = 540;
 const DAY_END = 1980;
 const DUSK_END = 2520;
 const PHASES: [DayPhase, number][] = [["dawn", DAWN_END], ["day", DAY_END], ["dusk", DUSK_END], ["night", DAY_CYCLE_TICKS]];

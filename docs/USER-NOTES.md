@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Season notes and rested work buildings
+
+- **Work buildings rest at night.** Farms, camps, quarries and other work buildings rest overnight, then work 2% harder at dawn. Dawn is a short part of each day, so it adds up to a small boost. Buildings still under construction do not count.
+- **Season notes (under the hood).** The game can now give each season a short tag: "Early growth", "High sun", "Turning leaves" or "Quiet frost". Not on screen yet.
+- **Unchanged:** build costs, the building list, workers, weather effects, fog, movement and battles.
+
 ## 2026-11-28 — Realm mood pill and linked twin work-station marks
 
 - **Calm weather mood tag on the map:** A second subtle mood pill now sits directly below the map's land-and-season note (`Restless sky`, `Soft weather`, `Still season`, or `Open and quiet`), fading away if disabled.

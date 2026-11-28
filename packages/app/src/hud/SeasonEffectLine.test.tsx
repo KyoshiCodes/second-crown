@@ -108,6 +108,8 @@ describe("display copies match the sim", () => {
     expect(productionBonus(spring)).toBe(other + 1);
     // One finished farm and no citizens, so food income is a pure building yield.
     for (const s of [spring, summer]) {
+      // Spring's tick 0 is dawn; keep the slice 33 dawn rest bonus out of the season ratio.
+      s.flags.living_station_rest = false;
       s.citizens = [];
       s.buildings = [{ id: "farm", typeId: "farm", realmId: "player", x: 9, y: 9, level: 1, completesAtTick: null }];
     }

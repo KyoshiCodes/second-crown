@@ -1,3 +1,12 @@
+## 2026-11-28 — sim / Living Realm slice 33 (environment notes, station rest)
+
+- **Where:** `seasonNote` in `environmentSnapshot` and `stationRestSnapshot` in `systems/livingStatus.ts`; `stationRestBonus` / `nextStationRestTick` in `systems/economy.ts`; constants `ENVIRONMENT_SEASON_NOTE`, `STATION_REST_*` in `content/livingRealm.ts`; `DAWN_END` now exported from `systems/dayNight.ts`. All exported from `packages/sim`.
+- **Why day-cycle rest:** the economy is a continuous rate, so a finished building never literally has zero output, and a stored "idle since" tracker would risk offline-equals-online (invariant 2). So "rest" is the crew's night off (`dayPhaseAt` night) and the recovery bonus is the dawn phase after it. No new state, no save change.
+- **Offline equals online:** batches read the rate at the stretch's first tick, so the bonus must not change inside a stretch. `EconomySystem.nextEventTick` now also returns the next dawn start (`k*3600`) or dawn end (`k*3600+540`) while `living_station_rest` is on. Tested with `settleTicks` vs `tickMany` across a dawn. Season boundaries were already safe (multiples of 100 = rival ticks).
+- **Station test:** same as slice 32 (`BUILDING_WORK_STATIONS[jobForBuildingType(type)]`). No staffing needed. Under construction: no bonus, note `Rests once built.` Upgrading does not pause it.
+- **Test gotcha:** app tests that compare income at tick 0 now see dawn; switch `living_station_rest` off when isolating another multiplier (done in `SeasonEffectLine.test.tsx`).
+- **Left alone:** pathfinding, fog, weather / season / day lengths, build costs, `content/buildings.ts`, other station bonuses, `gather.ts` night factor, render / app UI. **Not yet in the app.**
+
 ## 2026-11-28 — app / living presentation for environment mood & station pairing
 
 - **Environment depth mood pill (`packages/app/src/hud/BoardEnvironmentMood.tsx`, `BoardLiving.tsx`):**

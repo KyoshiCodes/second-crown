@@ -45,7 +45,7 @@ export type { CultureKitId, CultureUnitGate } from "./systems/cultureUnits.js";
 
 export { playerTitle, extraArchetypes } from "./content/world.js";
 
-export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, workStationBonus, workStationDepthBonus, stationPairBonus, stationPairState, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
+export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, workStationBonus, workStationDepthBonus, stationPairBonus, stationPairState, stationRestBonus, nextStationRestTick, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
 export { unpairedWorks, PAIR_LABEL, PAIR_MATE } from "./systems/pairHint.js";
 export { emptyStaffWorks } from "./systems/staffHint.js";
 export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./systems/combat.js";
@@ -426,6 +426,7 @@ export {
   workStationDepthSnapshot,
   extraBuildingSnapshot,
   stationPairSnapshot,
+  stationRestSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -492,6 +493,7 @@ export type {
   WorkStationDepth,
   ExtraBuilding,
   StationPair,
+  StationRest,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -674,6 +676,12 @@ export {
   STATION_PAIR_NOTE_TWIN,
   STATION_PAIR_NOTE_BUILDING,
   STATION_PAIR_NOTE_ALONE,
+  ENVIRONMENT_SEASON_NOTE,
+  STATION_REST_MULT,
+  STATION_REST_NOTE_RESTING,
+  STATION_REST_NOTE_FRESH,
+  STATION_REST_NOTE_WORKING,
+  STATION_REST_NOTE_BUILDING,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

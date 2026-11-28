@@ -197,6 +197,8 @@ Environment enrichment, deeper work stations, and extra buildings available (`li
 
 Environment depth and station pairing available (`living_environment_depth`, `living_station_pair`); new bonus: two finished work buildings of the same type give +2% output on the first one built (one per type; pair flag off removes it).
 
+Environment notes and station rest available (`living_environment_notes`, `living_station_rest`); new bonus: work-station buildings rest overnight and give +2% output through the following dawn (rest flag off removes it).
+
 Attentive:
 
 ```

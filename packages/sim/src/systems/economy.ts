@@ -12,9 +12,10 @@ import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
 import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
-import { BUILDING_WORK_STATIONS, STATION_PAIR_MULT, WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
+import { BUILDING_WORK_STATIONS, STATION_PAIR_MULT, STATION_REST_MULT, WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
 import { LIVING_SWITCH_FLAGS } from "./livingRealm.js";
 import { keepIncomeMult, levelYieldMult } from "../content/pacing.js";
+import { DAWN_END, DAY_CYCLE_TICKS, dayPhaseAt } from "./dayNight.js";
 import { farmCultureBonus, quarryCultureBonus, woodCultureBonus } from "./culture.js";
 
 const PAIR: Record<string, string> = {
@@ -106,6 +107,26 @@ export function stationPairBonus(state: GameState, building: GameState["building
   return stationPairState(state, building).lead ? STATION_PAIR_MULT : 1;
 }
 
+/**
+ * Slice 33: station rest. A finished station's crew rests through the night (no station
+ * work), and comes back fresh at dawn: +2% (STATION_REST_MULT) on its output for the dawn
+ * phase. Pure tick math on dayPhaseAt; dawn start and end are economy event ticks so a
+ * settled batch matches tick by tick. Flag living_station_rest false: 1.
+ */
+export function stationRestBonus(state: GameState, building: GameState["buildings"][number]): number {
+  if (state.flags[LIVING_SWITCH_FLAGS.stationRest] === false) return 1;
+  if (building.completesAtTick !== null) return 1;
+  if (BUILDING_WORK_STATIONS[jobForBuildingType(building.typeId)] === undefined) return 1;
+  return dayPhaseAt(state.meta.tick) === "dawn" ? STATION_REST_MULT : 1;
+}
+
+/** Slice 33: first dawn start or dawn end strictly after `tick` (where stationRestBonus can change). */
+export function nextStationRestTick(tick: number): number {
+  const base = Math.floor(tick / DAY_CYCLE_TICKS) * DAY_CYCLE_TICKS;
+  const dawnEnd = base + DAWN_END;
+  return tick < dawnEnd ? dawnEnd : base + DAY_CYCLE_TICKS;
+}
+
 /** Finished same-type neighbor on an edge: +10% each, cap +20%. */
 export function adjacencyBonus(state: GameState, building: GameState["buildings"][number]): number {
   const n = state.buildings.filter(
@@ -164,6 +185,7 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(workStationBonus(state, building))
     .mul(workStationDepthBonus(state, building))
     .mul(stationPairBonus(state, building))
+    .mul(stationRestBonus(state, building))
     .mul(adjacencyBonus(state, building))
     .mul(pairBonus(state, building))
     .mul(keepBonus(state, building))
@@ -179,6 +201,10 @@ export const EconomySystem = {
           earliest = b.completesAtTick;
         }
       }
+    }
+    if (state.flags[LIVING_SWITCH_FLAGS.stationRest] !== false) {
+      const rest = nextStationRestTick(state.meta.tick);
+      if (earliest === null || earliest <= state.meta.tick || rest < earliest) earliest = rest;
     }
     return earliest;
   },

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-28 — Living Realm slice 33 (environment notes, station rest)
+
+- **Environment notes:** `environmentSnapshot(state)` gains **`seasonNote`** → `{ features, ambient, note, mood, seasonNote }`. `seasonNote` = `Early growth` (Spring) / `High sun` (Summer) / `Turning leaves` (Autumn) / `Quiet frost` (Winter). Read-only.
+- **Station rest (rule change):** a finished work-station building rests through the night and gets **+2%** output (`STATION_REST_MULT` 1.02) through the following dawn phase (day-cycle ticks 0-539; about +0.3% averaged over a day). `economy.stationRestBonus`, applied in `rateFor` after `stationPairBonus`. Stateless tick math; dawn start / end added to `EconomySystem.nextEventTick` so offline settle equals tick-by-tick. **`stationRestSnapshot(state, buildingId)`** `{ resting, note }` or null (unknown id, no station, flag off); `resting` true at night; `note` = `Resting for the night.` / `Fresh from rest: +2%.` / `At work; rests at night.` / `Rests once built.`
+- **Switches:** `living_environment_notes` (false: `seasonNote` null, other fields kept), `living_station_rest` (false: null and no +2%).
+- **Left alone:** pathfinding, fog, weather / season / day-cycle rules, build costs, building list, `staffBonus`, slice 30/31/32 station bonuses, gather night factor, render / app UI.
+- **Tests:** new `systems/livingSlice33.test.ts` (16): season note mapping and flag, rest shape over a day, construction, flag off, dawn +2% exact, no change outside dawn, non-station untouched, event ticks, settle-vs-tick across a dawn, determinism. Slice 31/32 shape tests updated for `seasonNote`; app `SeasonEffectLine.test.tsx` turns station rest off to keep its season ratio pure. Now: sim **1014**, app **1743**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-28 — Living presentation for environment depth and station pairing (Slice 32)
 
 - **Environment depth mood pill (`hud/BoardEnvironmentMood.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentMood` and `<BoardEnvironmentMoodPill>`, reading `environmentSnapshot(state)?.mood` (`01b550b`, exact match — zero mismatch) to render a calm second top-right pill (`top: 92px`, stacked beneath `<BoardEnvironmentNote>`) with a subtle mood crest (`Restless sky`, `Soft weather`, `Still season`, `Open and quiet`), hiding cleanly when `mood` is `null` or `living_environment_depth` is `false`.

@@ -153,6 +153,11 @@ import {
   STATION_PAIR_NOTE_BUILDING,
   STATION_PAIR_NOTE_LEAD,
   STATION_PAIR_NOTE_TWIN,
+  ENVIRONMENT_SEASON_NOTE,
+  STATION_REST_NOTE_BUILDING,
+  STATION_REST_NOTE_FRESH,
+  STATION_REST_NOTE_RESTING,
+  STATION_REST_NOTE_WORKING,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -165,9 +170,10 @@ import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
 import { friendlyRealmIds, livingSwitches, nameOf, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
-import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, stationPairBonus, stationPairState, workStationBonus, workStationDepthBonus } from "./economy.js";
+import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, stationPairBonus, stationPairState, stationRestBonus, workStationBonus, workStationDepthBonus } from "./economy.js";
 import { weatherFor } from "./weather.js";
 import { currentSeason } from "./age.js";
+import { dayPhase } from "./dayNight.js";
 import { upkeepPerTick } from "./upkeep.js";
 import { RESEARCH, academyReady, unitUnlocked, type ResearchId } from "./research.js";
 import { DECREES } from "./decree.js";
@@ -1760,6 +1766,8 @@ export interface Environment {
   note: string;
   /** Slice 32: ENVIRONMENT_MOOD_* from weather and season; null with living_environment_depth off. */
   mood: string | null;
+  /** Slice 33: ENVIRONMENT_SEASON_NOTE for the season; null with living_environment_notes off. */
+  seasonNote: string | null;
 }
 
 /**
@@ -1782,7 +1790,8 @@ export function environmentSnapshot(state: GameState): Environment | null {
   const ambient = ENVIRONMENT_AMBIENT[weather] ?? ENVIRONMENT_AMBIENT.clear;
   const note = ENVIRONMENT_NOTE[season] ?? ENVIRONMENT_NOTE.Spring;
   const mood = livingSwitches(state).environmentDepth ? environmentMood(weather, season) : null;
-  return { features, ambient, note, mood };
+  const seasonNote = livingSwitches(state).environmentNotes ? ENVIRONMENT_SEASON_NOTE[season] ?? ENVIRONMENT_SEASON_NOTE.Spring : null;
+  return { features, ambient, note, mood, seasonNote };
 }
 
 /** Slice 32: fixed mood line. Storm: restless; rain or snow: soft; clear Winter: still; else open. */
@@ -1878,4 +1887,28 @@ export function stationPairSnapshot(state: GameState, buildingId: string): Stati
   if (b.completesAtTick !== null) return { paired: false, note: STATION_PAIR_NOTE_BUILDING };
   if (!stationPairState(state, b).paired) return { paired: false, note: STATION_PAIR_NOTE_ALONE };
   return { paired: true, note: stationPairBonus(state, b) > 1 ? STATION_PAIR_NOTE_LEAD : STATION_PAIR_NOTE_TWIN };
+}
+
+// ---------------------------------------------------------------- station rest (slice 33)
+
+export interface StationRest {
+  /** True through the night, while the station's crew rests. */
+  resting: boolean;
+  /** STATION_REST_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 33: whether a station is resting. Null for an unknown id, a building that takes no
+ * worker, or with living_station_rest off (which also turns the +2% off). A finished station
+ * rests at night and carries the +2% recovery bonus through the following dawn.
+ */
+export function stationRestSnapshot(state: GameState, buildingId: string): StationRest | null {
+  if (!livingSwitches(state).stationRest) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  if (readBuilding(state, b).workStation === null) return null;
+  if (b.completesAtTick !== null) return { resting: false, note: STATION_REST_NOTE_BUILDING };
+  if (dayPhase(state) === "night") return { resting: true, note: STATION_REST_NOTE_RESTING };
+  return { resting: false, note: stationRestBonus(state, b) > 1 ? STATION_REST_NOTE_FRESH : STATION_REST_NOTE_WORKING };
 }

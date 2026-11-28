@@ -752,6 +752,27 @@ export const STATION_PAIR_NOTE_BUILDING = "Pairs once built.";
 /** Slice 32: station pair note, no finished twin of this type. */
 export const STATION_PAIR_NOTE_ALONE = "Build a second to pair.";
 
+// ---------------------------------------------------------------- environment notes, station rest (slice 33)
+
+/** Slice 33: short fixed season note on environmentSnapshot. */
+export const ENVIRONMENT_SEASON_NOTE: Readonly<Record<string, string>> = {
+  Spring: "Early growth",
+  Summer: "High sun",
+  Autumn: "Turning leaves",
+  Winter: "Quiet frost",
+};
+
+/** Slice 33: output multiplier on a finished station during dawn, the first stretch of work after the night's rest. */
+export const STATION_REST_MULT = 1.02;
+/** Slice 33: station rest note, night (the station's crew is resting). */
+export const STATION_REST_NOTE_RESTING = "Resting for the night.";
+/** Slice 33: station rest note, dawn (recovery bonus active). */
+export const STATION_REST_NOTE_FRESH = "Fresh from rest: +2%.";
+/** Slice 33: station rest note, day or dusk. */
+export const STATION_REST_NOTE_WORKING = "At work; rests at night.";
+/** Slice 33: station rest note, still being built. */
+export const STATION_REST_NOTE_BUILDING = "Rests once built.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**
