@@ -1,3 +1,13 @@
+## 2026-11-27 — app / living presentation for environment, work-station depth & extra buildings
+
+- **Board environment marks (`packages/app/src/hud/BoardEnvironmentMarks.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardEnvironment(state)`, `<BoardEnvironmentLayer>`, and `<BoardEnvironmentNote>` wrapping `environmentSnapshot(state)` (`f99f046`, zero mismatch). Renders outer-viewport SVG terrain silhouettes (`plain` / `wood` / `hill` / `shore` / `waste` / `peak`), weather ambient marks (`clear` / `rain` / `storm` / `snow`), and a non-blocking top-right pill (`top: 66px`) below `<BoardExpansionBadge>` without touching camera math, board size, fog, or pathfinding.
+- **Work-station depth second mark & extra buildings (`packages/app/src/hud/WorkStationDepthMark.tsx`, `ExtraBuildingBadge.tsx`, `WorkCard.tsx`):**
+  - Exported pure `resolveWorkStationDepth(state, buildingId)` (`workStationDepthSnapshot`, `f99f046`, zero mismatch) and `<WorkStationDepthBadge>` showing a distinct diamond second mark (`sc-wdep-pip.is-second`) and `+3% at Tier II` seal when `active` is true, plus paused/low-tier/empty/missing-base notes.
+  - Exported pure `resolveExtraBuilding(state, buildingId)` (`extraBuildingSnapshot`, `f99f046`, zero mismatch) and `<ExtraBuildingRow>` rendering dedicated 14×14 SVG miniatures for all eight companion structures (`Windmill`, `Log pile`, `Hoist crane`, `Silo`, `Awning stalls`, `Bell tower`, `Signal fire`, `Courtyard well`), `Small` / `Full size` / `Being extended` detail chips (omitted while under construction), and visual-only notes inside `<WorkCard>`.
+- **Dedicated CSS (`hud/board-environment.css`, `hud/work-station-depth.css`, `hud/extra-building.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on overlays/pips/glyphs, gentle motion keyframes, and `@media (prefers-reduced-motion: reduce)` guards. Zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, upgrade rules, or pathfinding math.
+- **Verification (`packages/app/src/hud/LivingSlice31Presentation.test.tsx`):** 5 tests passing (`npm test` -> sim **980**, app **1739**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-27 — sim / Living Realm slice 31 (environment, work-station depth, extra buildings)
 
 - **Where:** `environmentSnapshot`, `workStationDepthSnapshot`, `extraBuildingSnapshot` in `systems/livingStatus.ts`; `workStationDepthBonus` in `systems/economy.ts`; constants `ENVIRONMENT_*`, `WORK_STATION_DEPTH_*`, `EXTRA_BUILDING*` in `content/livingRealm.ts`. All exported from `packages/sim`.

@@ -263,6 +263,14 @@ import {
   resolveBoardViewportFit,
   type BoardViewportFit,
 } from "./hud/BoardWideEnvironment";
+import {
+  BoardEnvironmentLayer,
+  BoardEnvironmentNote,
+  resolveBoardEnvironment,
+  type BoardEnvironmentTerrain,
+  type BoardEnvironmentAmbient,
+  type BoardEnvironmentView,
+} from "./hud/BoardEnvironmentMarks";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -615,6 +623,9 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
 
         {/* 0.2. Settled Perimeter Frontier Mist & Horizon (16x10) */}
         <BoardWideEnvironment state={state} />
+
+        {/* 0.25. Living Realm Environment Silhouettes & Ambient Marks (Slice 31) */}
+        <BoardEnvironmentLayer state={state} />
 
         {/* World-coordinate layers scaled & centered to match render boardCameraFit */}
         <g
@@ -1212,6 +1223,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
       <BoardBattleFeedbackNote state={state} />
       <BoardScaleNote state={state} />
       <BoardExpansionBadge state={state} />
+      <BoardEnvironmentNote state={state} />
     </div>
   );
 }
@@ -1401,4 +1413,10 @@ export {
   BoardWideEnvironment,
   resolveBoardViewportFit,
   type BoardViewportFit,
+  BoardEnvironmentLayer,
+  BoardEnvironmentNote,
+  resolveBoardEnvironment,
+  type BoardEnvironmentTerrain,
+  type BoardEnvironmentAmbient,
+  type BoardEnvironmentView,
 };

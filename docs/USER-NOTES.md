@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — Environment moods, seasoned Tier II+ station marks, and companion structures
+
+- **Land, weather, and season around the map:** The map border now shows gentle terrain silhouettes, weather atmosphere (`Calm air`, `Soft rain`, `Rolling thunder`, `Quiet snowfall`), and a quiet seasonal mood tag in the top-right stack.
+- **Second mark on seasoned work spots:** Staffed work spots at Tier II or higher now display a clear second `+3% at Tier II` seal (`Seasoned station in effect.`) right below the `+5%` station seal.
+- **Companion building structures:** Farms (`Windmill`), lumber camps (`Log pile`), quarries (`Hoist crane`), granaries (`Silo`), markets (`Awning stalls`), chapels (`Bell tower`), watchtowers (`Signal fire`), and keeps (`Courtyard well`) now show their companion piece in Kingdom (`Small` -> `Full size` at Tier III+, `Being extended` while upgrading). Purely visual.
+
 ## 2026-11-27 — Land and weather moods, seasoned work spots, and little extra structures
 
 - **Seasoned work spots help a bit more.** A staffed work spot on a building at Tier II or higher now adds another 3% on top of the 5% from before. Same rules: it pauses while building or upgrading, and extra workers do not stack it.

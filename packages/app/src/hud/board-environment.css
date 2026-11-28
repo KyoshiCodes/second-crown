@@ -1,0 +1,238 @@
+/* --- Living Realm Slice 31: Board Environment Enrichment (isolated CSS) ---
+ * Loaded from hud/BoardEnvironmentMarks.tsx.
+ * Leaves theme.css, board-living.css, board-wide-env.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on environment silhouettes, ambient marks, and note pill.
+ * Calm terrain silhouettes & seasonal weather moods across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-benv-terrain-stroke: rgba(148, 163, 184, 0.28);
+  --sc-benv-terrain-fill: rgba(30, 41, 59, 0.22);
+  --sc-benv-ambient-clear: rgba(253, 224, 71, 0.28);
+  --sc-benv-ambient-rain: rgba(125, 211, 252, 0.34);
+  --sc-benv-ambient-storm: rgba(196, 181, 253, 0.38);
+  --sc-benv-ambient-snow: rgba(241, 245, 249, 0.52);
+  --sc-benv-bg: rgba(14, 20, 32, 0.8);
+  --sc-benv-border: rgba(148, 163, 184, 0.24);
+  --sc-benv-text: #dbe4ef;
+  --sc-benv-muted: rgba(186, 198, 214, 0.82);
+  --sc-benv-pip: #86efac;
+  --sc-benv-pip-rain: #7dd3fc;
+  --sc-benv-pip-storm: #c4b5fd;
+  --sc-benv-pip-snow: #f1f5f9;
+}
+
+:root[data-chrome="night"] {
+  --sc-benv-terrain-stroke: rgba(186, 230, 253, 0.3);
+  --sc-benv-terrain-fill: rgba(15, 23, 42, 0.28);
+  --sc-benv-ambient-clear: rgba(254, 240, 138, 0.26);
+  --sc-benv-ambient-rain: rgba(147, 197, 253, 0.38);
+  --sc-benv-ambient-storm: rgba(216, 180, 254, 0.42);
+  --sc-benv-ambient-snow: rgba(248, 250, 252, 0.58);
+  --sc-benv-bg: rgba(8, 12, 22, 0.88);
+  --sc-benv-border: rgba(148, 163, 184, 0.28);
+  --sc-benv-text: #e2e8f0;
+  --sc-benv-muted: rgba(203, 213, 225, 0.85);
+  --sc-benv-pip: #6ee7b7;
+  --sc-benv-pip-rain: #93c5fd;
+  --sc-benv-pip-storm: #d8b4fe;
+  --sc-benv-pip-snow: #f8fafc;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-benv-terrain-stroke: rgba(196, 164, 112, 0.32);
+  --sc-benv-terrain-fill: rgba(68, 48, 26, 0.2);
+  --sc-benv-ambient-clear: rgba(250, 204, 21, 0.34);
+  --sc-benv-ambient-rain: rgba(147, 197, 253, 0.36);
+  --sc-benv-ambient-storm: rgba(196, 181, 253, 0.38);
+  --sc-benv-ambient-snow: rgba(254, 243, 199, 0.52);
+  --sc-benv-bg: rgba(30, 21, 13, 0.86);
+  --sc-benv-border: rgba(196, 164, 112, 0.3);
+  --sc-benv-text: #fef3c7;
+  --sc-benv-muted: rgba(226, 204, 166, 0.84);
+  --sc-benv-pip: #fde68a;
+  --sc-benv-pip-rain: #bae6fd;
+  --sc-benv-pip-storm: #ddd6fe;
+  --sc-benv-pip-snow: #fef3c7;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Elements
+   ========================================================================== */
+.sc-benv-layer,
+.sc-benv-layer *,
+.sc-benv-note,
+.sc-benv-note * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Outer Perimeter Terrain Silhouettes & Ambient Weather Marks
+   ========================================================================== */
+.sc-benv-terrain {
+  fill: var(--sc-benv-terrain-fill);
+  stroke: var(--sc-benv-terrain-stroke);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.72;
+}
+
+.sc-benv-ambient-mark {
+  fill: none;
+  stroke: var(--sc-benv-ambient-clear);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  animation: sc-benv-ambient-drift 7.5s ease-in-out infinite;
+}
+
+.sc-benv-ambient-mote {
+  fill: var(--sc-benv-ambient-clear);
+  animation: sc-benv-ambient-pulse 5.6s ease-in-out infinite;
+}
+
+.sc-benv-layer.is-ambient-rain .sc-benv-ambient-mark {
+  stroke: var(--sc-benv-ambient-rain);
+  animation: sc-benv-rain-fall 4.2s ease-in-out infinite;
+}
+
+.sc-benv-layer.is-ambient-storm .sc-benv-ambient-mark {
+  stroke: var(--sc-benv-ambient-storm);
+  animation: sc-benv-storm-sway 3.6s ease-in-out infinite;
+}
+
+.sc-benv-layer.is-ambient-snow .sc-benv-ambient-mote {
+  fill: var(--sc-benv-ambient-snow);
+  animation: sc-benv-snow-float 6.4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   4. Calm Environment Pill (Top-Right Stack Below Expansion Badge)
+   ========================================================================== */
+.sc-benv-note {
+  position: absolute;
+  top: 66px;
+  right: 14px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-benv-border);
+  background: var(--sc-benv-bg);
+  color: var(--sc-benv-text);
+  font-size: 10.5px;
+  line-height: 1.3;
+  backdrop-filter: blur(4px);
+}
+
+.sc-benv-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: var(--sc-benv-pip);
+}
+
+.sc-benv-note.is-ambient-rain .sc-benv-pip {
+  background: var(--sc-benv-pip-rain);
+}
+
+.sc-benv-note.is-ambient-storm .sc-benv-pip {
+  background: var(--sc-benv-pip-storm);
+}
+
+.sc-benv-note.is-ambient-snow .sc-benv-pip {
+  background: var(--sc-benv-pip-snow);
+}
+
+.sc-benv-features {
+  font-weight: 600;
+}
+
+.sc-benv-sep {
+  color: var(--sc-benv-muted);
+}
+
+.sc-benv-ambient,
+.sc-benv-season {
+  color: var(--sc-benv-muted);
+}
+
+@keyframes sc-benv-ambient-drift {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: translateX(0px);
+  }
+  50% {
+    opacity: 0.72;
+    transform: translateX(3px);
+  }
+}
+
+@keyframes sc-benv-ambient-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes sc-benv-rain-fall {
+  0%,
+  100% {
+    opacity: 0.36;
+    transform: translate(0px, 0px);
+  }
+  50% {
+    opacity: 0.76;
+    transform: translate(-1.5px, 2.5px);
+  }
+}
+
+@keyframes sc-benv-storm-sway {
+  0%,
+  100% {
+    opacity: 0.44;
+    transform: translate(0px, 0px);
+  }
+  50% {
+    opacity: 0.86;
+    transform: translate(-2px, 1.5px);
+  }
+}
+
+@keyframes sc-benv-snow-float {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: translate(0px, 0px);
+  }
+  50% {
+    opacity: 0.88;
+    transform: translate(1.5px, 2.5px);
+  }
+}
+
+/* ==========================================================================
+   5. Reduced Motion Accessibility Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-benv-ambient-mark,
+  .sc-benv-ambient-mote,
+  .sc-benv-layer.is-ambient-rain .sc-benv-ambient-mark,
+  .sc-benv-layer.is-ambient-storm .sc-benv-ambient-mark,
+  .sc-benv-layer.is-ambient-snow .sc-benv-ambient-mote {
+    animation: none;
+    transition: none;
+  }
+}

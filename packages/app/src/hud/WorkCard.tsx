@@ -33,6 +33,8 @@ import { BuildingLifeRow } from "./BuildingLifeOverlay";
 import { WorkStationStagingBadge } from "./WorkStationStagingMark";
 import { BuildingVarietyRow, resolveBuildingVariety } from "./BuildingVarietyBadge";
 import { WorkStationBenefitBadge } from "./WorkStationBenefitMark";
+import { WorkStationDepthBadge } from "./WorkStationDepthMark";
+import { ExtraBuildingRow, resolveExtraBuilding } from "./ExtraBuildingBadge";
 
 type Building = GameState["buildings"][number];
 
@@ -63,6 +65,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
   const living = splitWorkRows(rows);
   const bdet = resolveBuildingDetail(state, b.id);
   const bvar = resolveBuildingVariety(state, b.id);
+  const bxtra = resolveExtraBuilding(state, b.id);
   const cls = [
     "sc-work-card",
     "sc-building-card",
@@ -71,6 +74,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
     ...(warehouseBlocked ? ["is-blocker-warehouse"] : []),
     ...(bdet ? [`sc-bdet-depth-t${bdet.tierRank}`] : []),
     ...(bvar ? [`sc-bvar-family-${bvar.styleFamily}`] : []),
+    ...(bxtra ? [`sc-xtra-has-${bxtra.extraKind}`] : []),
   ].join(" ");
 
   return (
@@ -98,6 +102,8 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
       <WorkStationStagingBadge state={state} buildingId={b.id} />
       <BuildingVarietyRow state={state} buildingId={b.id} />
       <WorkStationBenefitBadge state={state} buildingId={b.id} />
+      <WorkStationDepthBadge state={state} buildingId={b.id} />
+      <ExtraBuildingRow state={state} buildingId={b.id} />
       <WorkLivingGlyph
         typeId={b.typeId}
         scarred={scarred}
