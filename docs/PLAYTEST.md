@@ -199,6 +199,8 @@ Environment depth and station pairing available (`living_environment_depth`, `li
 
 Environment notes and station rest available (`living_environment_notes`, `living_station_rest`); new bonus: work-station buildings rest overnight and give +2% output through the following dawn (rest flag off removes it).
 
+Environment weather and station rhythm available (`living_environment_weather`, `living_station_rhythm`); new bonus: staffed work-station buildings settle into rhythm from late morning to dusk and give +1% output (rhythm flag off removes it).
+
 Attentive:
 
 ```

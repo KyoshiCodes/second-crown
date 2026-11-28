@@ -45,7 +45,7 @@ export type { CultureKitId, CultureUnitGate } from "./systems/cultureUnits.js";
 
 export { playerTitle, extraArchetypes } from "./content/world.js";
 
-export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, workStationBonus, workStationDepthBonus, stationPairBonus, stationPairState, stationRestBonus, nextStationRestTick, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
+export { EconomySystem, computeIncomePerSecond, productionBonus, staffBonus, workStationBonus, workStationDepthBonus, stationPairBonus, stationPairState, stationRestBonus, nextStationRestTick, stationRhythmBonus, stationRhythmReady, stationRhythmWindowAt, nextStationRhythmTick, adjacencyBonus, pairBonus, keepBonus } from "./systems/economy.js";
 export { unpairedWorks, PAIR_LABEL, PAIR_MATE } from "./systems/pairHint.js";
 export { emptyStaffWorks } from "./systems/staffHint.js";
 export { realmPower, resolveBattle, fortificationPower, defenseBonus } from "./systems/combat.js";
@@ -427,6 +427,7 @@ export {
   extraBuildingSnapshot,
   stationPairSnapshot,
   stationRestSnapshot,
+  stationRhythmSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -494,6 +495,7 @@ export type {
   ExtraBuilding,
   StationPair,
   StationRest,
+  StationRhythm,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -682,6 +684,15 @@ export {
   STATION_REST_NOTE_FRESH,
   STATION_REST_NOTE_WORKING,
   STATION_REST_NOTE_BUILDING,
+  ENVIRONMENT_WEATHER_MARK,
+  STATION_RHYTHM_MULT,
+  STATION_RHYTHM_START,
+  STATION_RHYTHM_END,
+  STATION_RHYTHM_NOTE_IN,
+  STATION_RHYTHM_NOTE_WAIT,
+  STATION_RHYTHM_NOTE_UNSTAFFED,
+  STATION_RHYTHM_NOTE_UPGRADING,
+  STATION_RHYTHM_NOTE_BUILDING,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

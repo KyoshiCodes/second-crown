@@ -12,7 +12,7 @@ import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
 import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
-import { BUILDING_WORK_STATIONS, STATION_PAIR_MULT, STATION_REST_MULT, WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
+import { BUILDING_WORK_STATIONS, STATION_PAIR_MULT, STATION_REST_MULT, STATION_RHYTHM_END, STATION_RHYTHM_MULT, STATION_RHYTHM_START, WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
 import { LIVING_SWITCH_FLAGS } from "./livingRealm.js";
 import { keepIncomeMult, levelYieldMult } from "../content/pacing.js";
 import { DAWN_END, DAY_CYCLE_TICKS, dayPhaseAt } from "./dayNight.js";
@@ -127,6 +127,41 @@ export function nextStationRestTick(tick: number): number {
   return tick < dawnEnd ? dawnEnd : base + DAY_CYCLE_TICKS;
 }
 
+/**
+ * Slice 34: station rhythm. A finished, staffed station that is not being upgraded settles
+ * into its day's rhythm after a stretch of morning work: +1% (STATION_RHYTHM_MULT) from
+ * day-cycle tick STATION_RHYTHM_START to STATION_RHYTHM_END (dusk). Stateless tick math;
+ * both ends are economy event ticks. Flag living_station_rhythm false: 1.
+ */
+export function stationRhythmBonus(state: GameState, building: GameState["buildings"][number]): number {
+  if (state.flags[LIVING_SWITCH_FLAGS.stationRhythm] === false) return 1;
+  if (!stationRhythmWindowAt(state.meta.tick)) return 1;
+  return stationRhythmReady(state, building) ? STATION_RHYTHM_MULT : 1;
+}
+
+/** Slice 34: finished, staffed work station not being upgraded (the rhythm's preconditions). */
+export function stationRhythmReady(state: GameState, building: GameState["buildings"][number]): boolean {
+  if (building.completesAtTick !== null) return false;
+  if (BUILDING_WORK_STATIONS[jobForBuildingType(building.typeId)] === undefined) return false;
+  if (staffBonus(state, building) <= 1) return false;
+  return !upgradeJobFor(state, building.id);
+}
+
+/** Slice 34: true while the day-cycle tick is inside the rhythm stretch. */
+export function stationRhythmWindowAt(tick: number): boolean {
+  const t = ((tick % DAY_CYCLE_TICKS) + DAY_CYCLE_TICKS) % DAY_CYCLE_TICKS;
+  return t >= STATION_RHYTHM_START && t < STATION_RHYTHM_END;
+}
+
+/** Slice 34: first rhythm start or end strictly after `tick` (where stationRhythmBonus can change). */
+export function nextStationRhythmTick(tick: number): number {
+  const base = Math.floor(tick / DAY_CYCLE_TICKS) * DAY_CYCLE_TICKS;
+  const t = tick - base;
+  if (t < STATION_RHYTHM_START) return base + STATION_RHYTHM_START;
+  if (t < STATION_RHYTHM_END) return base + STATION_RHYTHM_END;
+  return base + DAY_CYCLE_TICKS + STATION_RHYTHM_START;
+}
+
 /** Finished same-type neighbor on an edge: +10% each, cap +20%. */
 export function adjacencyBonus(state: GameState, building: GameState["buildings"][number]): number {
   const n = state.buildings.filter(
@@ -186,6 +221,7 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(workStationDepthBonus(state, building))
     .mul(stationPairBonus(state, building))
     .mul(stationRestBonus(state, building))
+    .mul(stationRhythmBonus(state, building))
     .mul(adjacencyBonus(state, building))
     .mul(pairBonus(state, building))
     .mul(keepBonus(state, building))
@@ -205,6 +241,10 @@ export const EconomySystem = {
     if (state.flags[LIVING_SWITCH_FLAGS.stationRest] !== false) {
       const rest = nextStationRestTick(state.meta.tick);
       if (earliest === null || earliest <= state.meta.tick || rest < earliest) earliest = rest;
+    }
+    if (state.flags[LIVING_SWITCH_FLAGS.stationRhythm] !== false) {
+      const rhythm = nextStationRhythmTick(state.meta.tick);
+      if (earliest === null || earliest <= state.meta.tick || rhythm < earliest) earliest = rhythm;
     }
     return earliest;
   },

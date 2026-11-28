@@ -1,3 +1,11 @@
+## 2026-11-28 — sim / Living Realm slice 34 (environment weather, station rhythm)
+
+- **Where:** `weatherMark` in `environmentSnapshot` and `stationRhythmSnapshot` in `systems/livingStatus.ts`; `stationRhythmBonus` / `stationRhythmReady` / `stationRhythmWindowAt` / `nextStationRhythmTick` in `systems/economy.ts`; constants `ENVIRONMENT_WEATHER_MARK`, `STATION_RHYTHM_*` in `content/livingRealm.ts`. All exported from `packages/sim`.
+- **Why a fixed window:** "staffed and producing for a stretch" without stored state. A stored "staffed since" tick would need save changes and risk offline-equals-online (invariant 2). So rhythm = staffed + finished + not upgrading **right now**, and the day-cycle tick is in 900-1979 (360 ticks of day work first, ends at dusk). No new state, no save change.
+- **Offline equals online:** rhythm start (`k*3600+900`) and end (`k*3600+1980`) are `EconomySystem.nextEventTick` events while `living_station_rhythm` is on. Staffing itself is already a rate input (`staffBonus`), so nothing new there. Tested with `settleTicks` vs `tickMany` across the stretch.
+- **Test gotchas:** a staffed farmer adds food of their own, so the +1% test measures it on the building's share (gain with farm minus gain with worker only). Tests that expect `nextEventTick` null must now switch both `living_station_rest` and `living_station_rhythm` off.
+- **Left alone:** pathfinding, fog, weather / season / day lengths, build costs, `content/buildings.ts`, other station bonuses, `gather.ts` night factor, render / app UI. **Not yet in the app.**
+
 ## 2026-11-28 — app / living presentation for environment season note & station rest
 
 - **Environment season-note pill (`packages/app/src/hud/BoardEnvironmentSeasonNote.tsx`, `BoardLiving.tsx`):**

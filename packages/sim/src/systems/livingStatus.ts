@@ -158,6 +158,12 @@ import {
   STATION_REST_NOTE_FRESH,
   STATION_REST_NOTE_RESTING,
   STATION_REST_NOTE_WORKING,
+  ENVIRONMENT_WEATHER_MARK,
+  STATION_RHYTHM_NOTE_BUILDING,
+  STATION_RHYTHM_NOTE_IN,
+  STATION_RHYTHM_NOTE_UNSTAFFED,
+  STATION_RHYTHM_NOTE_UPGRADING,
+  STATION_RHYTHM_NOTE_WAIT,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -170,7 +176,7 @@ import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
 import { friendlyRealmIds, livingSwitches, nameOf, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
-import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, stationPairBonus, stationPairState, stationRestBonus, workStationBonus, workStationDepthBonus } from "./economy.js";
+import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, stationPairBonus, stationPairState, stationRestBonus, stationRhythmBonus, workStationBonus, workStationDepthBonus } from "./economy.js";
 import { weatherFor } from "./weather.js";
 import { currentSeason } from "./age.js";
 import { dayPhase } from "./dayNight.js";
@@ -1768,6 +1774,8 @@ export interface Environment {
   mood: string | null;
   /** Slice 33: ENVIRONMENT_SEASON_NOTE for the season; null with living_environment_notes off. */
   seasonNote: string | null;
+  /** Slice 34: ENVIRONMENT_WEATHER_MARK for the current weather; null with living_environment_weather off. */
+  weatherMark: string | null;
 }
 
 /**
@@ -1791,7 +1799,8 @@ export function environmentSnapshot(state: GameState): Environment | null {
   const note = ENVIRONMENT_NOTE[season] ?? ENVIRONMENT_NOTE.Spring;
   const mood = livingSwitches(state).environmentDepth ? environmentMood(weather, season) : null;
   const seasonNote = livingSwitches(state).environmentNotes ? ENVIRONMENT_SEASON_NOTE[season] ?? ENVIRONMENT_SEASON_NOTE.Spring : null;
-  return { features, ambient, note, mood, seasonNote };
+  const weatherMark = livingSwitches(state).environmentWeather ? ENVIRONMENT_WEATHER_MARK[weather] ?? ENVIRONMENT_WEATHER_MARK.clear : null;
+  return { features, ambient, note, mood, seasonNote, weatherMark };
 }
 
 /** Slice 32: fixed mood line. Storm: restless; rain or snow: soft; clear Winter: still; else open. */
@@ -1911,4 +1920,30 @@ export function stationRestSnapshot(state: GameState, buildingId: string): Stati
   if (b.completesAtTick !== null) return { resting: false, note: STATION_REST_NOTE_BUILDING };
   if (dayPhase(state) === "night") return { resting: true, note: STATION_REST_NOTE_RESTING };
   return { resting: false, note: stationRestBonus(state, b) > 1 ? STATION_REST_NOTE_FRESH : STATION_REST_NOTE_WORKING };
+}
+
+// ---------------------------------------------------------------- station rhythm (slice 34)
+
+export interface StationRhythm {
+  /** True while the +1% rhythm bonus applies (staffed, producing, midday stretch). */
+  inRhythm: boolean;
+  /** STATION_RHYTHM_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 34: whether a station is in its day's rhythm. Null for an unknown id, a building that
+ * takes no worker, or with living_station_rhythm off (which also turns the +1% off).
+ */
+export function stationRhythmSnapshot(state: GameState, buildingId: string): StationRhythm | null {
+  if (!livingSwitches(state).stationRhythm) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  const r = readBuilding(state, b);
+  if (r.workStation === null) return null;
+  if (r.phase === "building") return { inRhythm: false, note: STATION_RHYTHM_NOTE_BUILDING };
+  if (r.phase === "upgrading") return { inRhythm: false, note: STATION_RHYTHM_NOTE_UPGRADING };
+  if (!r.staffed) return { inRhythm: false, note: STATION_RHYTHM_NOTE_UNSTAFFED };
+  const inRhythm = stationRhythmBonus(state, b) > 1;
+  return { inRhythm, note: inRhythm ? STATION_RHYTHM_NOTE_IN : STATION_RHYTHM_NOTE_WAIT };
 }

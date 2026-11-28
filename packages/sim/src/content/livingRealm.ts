@@ -773,6 +773,33 @@ export const STATION_REST_NOTE_WORKING = "At work; rests at night.";
 /** Slice 33: station rest note, still being built. */
 export const STATION_REST_NOTE_BUILDING = "Rests once built.";
 
+// ---------------------------------------------------------------- environment weather, station rhythm (slice 34)
+
+/** Slice 34: short fixed weather mark on environmentSnapshot, by current weather. */
+export const ENVIRONMENT_WEATHER_MARK: Readonly<Record<string, string>> = {
+  clear: "Clear air",
+  rain: "Light rain",
+  storm: "Strong wind",
+  snow: "Still mist",
+};
+
+/** Slice 34: output multiplier on a staffed, producing station once it has settled into its day's rhythm. */
+export const STATION_RHYTHM_MULT = 1.01;
+/** Slice 34: day-cycle tick the rhythm starts (360 ticks into the day phase). */
+export const STATION_RHYTHM_START = 900;
+/** Slice 34: day-cycle tick the rhythm ends (start of dusk). */
+export const STATION_RHYTHM_END = 1980;
+/** Slice 34: station rhythm note, in rhythm (bonus active). */
+export const STATION_RHYTHM_NOTE_IN = "In rhythm: +1%.";
+/** Slice 34: station rhythm note, staffed and producing, outside the midday stretch. */
+export const STATION_RHYTHM_NOTE_WAIT = "Finds its rhythm by midday.";
+/** Slice 34: station rhythm note, no worker. */
+export const STATION_RHYTHM_NOTE_UNSTAFFED = "Needs a worker for rhythm.";
+/** Slice 34: station rhythm note, being upgraded. */
+export const STATION_RHYTHM_NOTE_UPGRADING = "Rhythm paused for upgrade.";
+/** Slice 34: station rhythm note, still being built. */
+export const STATION_RHYTHM_NOTE_BUILDING = "Finds rhythm once built.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

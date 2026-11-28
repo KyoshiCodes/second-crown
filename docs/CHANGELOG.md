@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-28 — Living Realm slice 34 (environment weather, station rhythm)
+
+- **Environment weather:** `environmentSnapshot(state)` gains **`weatherMark`** → `{ features, ambient, note, mood, seasonNote, weatherMark }`. `weatherMark` = `Clear air` (clear) / `Light rain` (rain) / `Strong wind` (storm) / `Still mist` (snow). Read-only.
+- **Station rhythm (rule change):** a finished, staffed work-station building that is not being upgraded is **in rhythm** from day-cycle tick 900 to 1979 (the later part of the day phase, 30% of each day) and gets **+1%** output (`STATION_RHYTHM_MULT` 1.01; about +0.3% averaged over a day). `economy.stationRhythmBonus`, applied in `rateFor` after `stationRestBonus`. Never overlaps the slice 33 dawn rest. Stateless tick math; rhythm start / end added to `EconomySystem.nextEventTick` so offline settle equals tick-by-tick. **`stationRhythmSnapshot(state, buildingId)`** `{ inRhythm, note }` or null (unknown id, no station, flag off); `note` = `In rhythm: +1%.` / `Finds its rhythm by midday.` / `Needs a worker for rhythm.` / `Rhythm paused for upgrade.` / `Finds rhythm once built.`
+- **Switches:** `living_environment_weather` (false: `weatherMark` null, other fields kept), `living_station_rhythm` (false: null and no +1%).
+- **Left alone:** pathfinding, fog, weather / season / day-cycle rules, build costs, building list, `staffBonus`, slice 30-33 station bonuses, gather night factor, render / app UI.
+- **Tests:** new `systems/livingSlice34.test.ts` (16): weather mark mapping and flag, rhythm shape over a day, unstaffed / building / upgrading, flag off, midday +1% exact on the building's share, no change outside the stretch, no overlap with dawn rest, event ticks, settle-vs-tick across the stretch, determinism. Slice 31/32/33 shape tests updated for `weatherMark`; slice 33 event-tick test switches rhythm off. Now: sim **1030**, app **1747**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-28 — Living presentation for environment notes and station rest (Slice 33)
 
 - **Environment season-note pill (`hud/BoardEnvironmentSeasonNote.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentSeasonNote` and `<BoardEnvironmentSeasonNotePill>`, reading `environmentSnapshot(state)?.seasonNote` (`f5c4a6f`, exact match — zero mismatch) to render a calm third top-right pill (`top: 116px`, stacked beneath `<BoardEnvironmentMoodPill>`) with a subtle season emblem (`Early growth`, `High sun`, `Turning leaves`, `Quiet frost`), hiding cleanly when `seasonNote` is `null` or `living_environment_notes` is `false`.

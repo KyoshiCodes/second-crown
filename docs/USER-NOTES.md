@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Weather marks and work buildings in rhythm
+
+- **Work buildings find a rhythm.** A finished work building with a worker settles into a rhythm through the middle of the day (from late morning until dusk) and works 1% harder. Buildings with no worker, still being built, or being upgraded do not count. It is a small boost, and it never overlaps the dawn rest bonus.
+- **Weather marks (under the hood).** The game can now give the current weather a short tag: "Clear air", "Light rain", "Strong wind" or "Still mist". Not on screen yet.
+- **Unchanged:** build costs, the building list, workers, weather effects, fog, movement and battles.
+
 ## 2026-11-28 — Seasonal realm tag and night-rest crescents on work buildings
 
 - **Season tag on the map:** A calm third seasonal badge (`Early growth`, `High sun`, `Turning leaves`, or `Quiet frost`) now rests directly below the weather mood pill in the map corner.

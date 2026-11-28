@@ -78,7 +78,7 @@ describe("living realm slice 31: environment", () => {
     expect(Object.values(ENVIRONMENT_FEATURES)).toContain(env.features);
     expect(env.ambient).toBe(ENVIRONMENT_AMBIENT[weatherFor(s)]);
     expect(env.note).toBe(ENVIRONMENT_NOTE[currentSeason(s)]);
-    expect(Object.keys(env).sort()).toEqual(["ambient", "features", "mood", "note", "seasonNote"]);
+    expect(Object.keys(env).sort()).toEqual(["ambient", "features", "mood", "note", "seasonNote", "weatherMark"]);
   });
 
   it("features follow the most common terrain", () => {
