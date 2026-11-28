@@ -201,6 +201,10 @@ export interface LivingSwitches {
   environmentWeather: boolean;
   /** Station rhythm (slice 34): +1% on staffed stations at midday, and stationRhythmSnapshot. False: no bonus, null. */
   stationRhythm: boolean;
+  /** Environment light (slice 35): lightMark on environmentSnapshot. False: lightMark null. Read-only either way. */
+  environmentLight: boolean;
+  /** Station focus (slice 35): +1% on staffed stations in high light, and stationFocusSnapshot. False: no bonus, null. */
+  stationFocus: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -271,6 +275,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   stationRest: "living_station_rest",
   environmentWeather: "living_environment_weather",
   stationRhythm: "living_station_rhythm",
+  environmentLight: "living_environment_light",
+  stationFocus: "living_station_focus",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

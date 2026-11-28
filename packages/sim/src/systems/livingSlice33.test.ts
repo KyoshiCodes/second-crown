@@ -54,7 +54,7 @@ describe("living realm slice 33: environment season note", () => {
     const s = fresh();
     const env = environmentSnapshot(s)!;
     expect(env.seasonNote).toBe(ENVIRONMENT_SEASON_NOTE[currentSeason(s)]);
-    expect(Object.keys(env).sort()).toEqual(["ambient", "features", "mood", "note", "seasonNote", "weatherMark"]);
+    expect(Object.keys(env).sort()).toEqual(["ambient", "features", "lightMark", "mood", "note", "seasonNote", "weatherMark"]);
   });
 
   it("fixed strings per season", () => {
@@ -197,6 +197,8 @@ describe("living realm slice 33: station rest economy", () => {
     setLivingSwitch(s, "stationRest", false);
     // Slice 34 station rhythm adds its own event ticks; switch it off to isolate rest.
     setLivingSwitch(s, "stationRhythm", false);
+    // Slice 35 station focus adds its own event ticks; switch it off too.
+    setLivingSwitch(s, "stationFocus", false);
     expect(EconomySystem.nextEventTick(s)).toBeNull();
   });
 

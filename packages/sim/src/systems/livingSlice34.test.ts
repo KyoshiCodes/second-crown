@@ -29,7 +29,7 @@ const NOON = DAY + 1200;
 const DUSK = DAY + 2200;
 const NIGHT = DAY + 3000;
 
-const KEYS = ["ambient", "features", "mood", "note", "seasonNote", "weatherMark"];
+const KEYS = ["ambient", "features", "lightMark", "mood", "note", "seasonNote", "weatherMark"];
 
 function fresh(tick = NOON, seed = 1): GameState {
   const s = createGameState({ seed, now: 1, withStarterBuildings: false });
@@ -228,6 +228,8 @@ describe("living realm slice 34: station rhythm economy", () => {
     staffedFarm(s);
     expect(EconomySystem.nextEventTick(s)).toBe(DAY + 1980);
     setLivingSwitch(s, "stationRhythm", false);
+    // Slice 35 station focus adds its own event ticks; switch it off too.
+    setLivingSwitch(s, "stationFocus", false);
     expect(EconomySystem.nextEventTick(s)).toBeNull();
   });
 

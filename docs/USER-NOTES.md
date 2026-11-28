@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Light marks and work buildings that focus in high light
+
+- **Work buildings focus in high light.** A finished work building with a worker focuses through the bright part of the day (from the end of dawn until dusk) and works 1% harder. It stacks with the midday rhythm bonus. Buildings with no worker, still being built, being upgraded, or resting at night do not count.
+- **Light marks (under the hood).** The game can now name the light of the day: "Soft dawn", "High light", "Long shadow" or "Deep quiet". Not on screen yet.
+- **Unchanged:** build costs, the building list, workers, weather effects, fog, movement and battles.
+
 ## 2026-11-28 — Weather tag on the map and midday rhythm dots on work buildings
 
 - **Fourth sky tag on the map:** A calm weather-mark pill (`Clear air`, `Light rain`, `Strong wind`, or `Still mist`) now sits directly below the season tag in the top-right corner of the map.

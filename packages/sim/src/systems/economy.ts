@@ -12,7 +12,7 @@ import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
 import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
-import { BUILDING_WORK_STATIONS, STATION_PAIR_MULT, STATION_REST_MULT, STATION_RHYTHM_END, STATION_RHYTHM_MULT, STATION_RHYTHM_START, WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
+import { BUILDING_WORK_STATIONS, STATION_FOCUS_END, STATION_FOCUS_MULT, STATION_FOCUS_START, STATION_PAIR_MULT, STATION_REST_MULT, STATION_RHYTHM_END, STATION_RHYTHM_MULT, STATION_RHYTHM_START, WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
 import { LIVING_SWITCH_FLAGS } from "./livingRealm.js";
 import { keepIncomeMult, levelYieldMult } from "../content/pacing.js";
 import { DAWN_END, DAY_CYCLE_TICKS, dayPhaseAt } from "./dayNight.js";
@@ -162,6 +162,34 @@ export function nextStationRhythmTick(tick: number): number {
   return base + DAY_CYCLE_TICKS + STATION_RHYTHM_START;
 }
 
+/**
+ * Slice 35: station focus. A finished, staffed station that is not being upgraded and not
+ * resting focuses through the high-light stretch (the day phase, day-cycle ticks
+ * STATION_FOCUS_START to STATION_FOCUS_END): +1% (STATION_FOCUS_MULT). Night rest never
+ * falls inside the stretch. Stateless tick math; both ends are economy event ticks.
+ * Flag living_station_focus false: 1.
+ */
+export function stationFocusBonus(state: GameState, building: GameState["buildings"][number]): number {
+  if (state.flags[LIVING_SWITCH_FLAGS.stationFocus] === false) return 1;
+  if (!stationFocusWindowAt(state.meta.tick)) return 1;
+  return stationRhythmReady(state, building) ? STATION_FOCUS_MULT : 1;
+}
+
+/** Slice 35: true while the day-cycle tick is inside the high-light stretch. */
+export function stationFocusWindowAt(tick: number): boolean {
+  const t = ((tick % DAY_CYCLE_TICKS) + DAY_CYCLE_TICKS) % DAY_CYCLE_TICKS;
+  return t >= STATION_FOCUS_START && t < STATION_FOCUS_END;
+}
+
+/** Slice 35: first focus start or end strictly after `tick` (where stationFocusBonus can change). */
+export function nextStationFocusTick(tick: number): number {
+  const base = Math.floor(tick / DAY_CYCLE_TICKS) * DAY_CYCLE_TICKS;
+  const t = tick - base;
+  if (t < STATION_FOCUS_START) return base + STATION_FOCUS_START;
+  if (t < STATION_FOCUS_END) return base + STATION_FOCUS_END;
+  return base + DAY_CYCLE_TICKS + STATION_FOCUS_START;
+}
+
 /** Finished same-type neighbor on an edge: +10% each, cap +20%. */
 export function adjacencyBonus(state: GameState, building: GameState["buildings"][number]): number {
   const n = state.buildings.filter(
@@ -222,6 +250,7 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(stationPairBonus(state, building))
     .mul(stationRestBonus(state, building))
     .mul(stationRhythmBonus(state, building))
+    .mul(stationFocusBonus(state, building))
     .mul(adjacencyBonus(state, building))
     .mul(pairBonus(state, building))
     .mul(keepBonus(state, building))
@@ -245,6 +274,10 @@ export const EconomySystem = {
     if (state.flags[LIVING_SWITCH_FLAGS.stationRhythm] !== false) {
       const rhythm = nextStationRhythmTick(state.meta.tick);
       if (earliest === null || earliest <= state.meta.tick || rhythm < earliest) earliest = rhythm;
+    }
+    if (state.flags[LIVING_SWITCH_FLAGS.stationFocus] !== false) {
+      const focus = nextStationFocusTick(state.meta.tick);
+      if (earliest === null || earliest <= state.meta.tick || focus < earliest) earliest = focus;
     }
     return earliest;
   },

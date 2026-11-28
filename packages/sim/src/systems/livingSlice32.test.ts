@@ -51,7 +51,7 @@ describe("living realm slice 32: environment mood", () => {
     const env = environmentSnapshot(s)!;
     expect(env.mood).toBe(environmentMood(weatherFor(s), currentSeason(s)));
     expect(MOODS).toContain(env.mood);
-    expect(Object.keys(env).sort()).toEqual(["ambient", "features", "mood", "note", "seasonNote", "weatherMark"]);
+    expect(Object.keys(env).sort()).toEqual(["ambient", "features", "lightMark", "mood", "note", "seasonNote", "weatherMark"]);
   });
 
   it("fixed mapping: storm, rain/snow, clear Winter, clear otherwise", () => {

@@ -800,6 +800,35 @@ export const STATION_RHYTHM_NOTE_UPGRADING = "Rhythm paused for upgrade.";
 /** Slice 34: station rhythm note, still being built. */
 export const STATION_RHYTHM_NOTE_BUILDING = "Finds rhythm once built.";
 
+// ---------------------------------------------------------------- environment light, station focus (slice 35)
+
+/** Slice 35: short fixed light mark on environmentSnapshot, by day phase. */
+export const ENVIRONMENT_LIGHT_MARK: Readonly<Record<string, string>> = {
+  dawn: "Soft dawn",
+  day: "High light",
+  dusk: "Long shadow",
+  night: "Deep quiet",
+};
+
+/** Slice 35: output multiplier on a staffed, producing station during the high-light stretch (day phase). */
+export const STATION_FOCUS_MULT = 1.01;
+/** Slice 35: day-cycle tick the high-light stretch starts (end of dawn). */
+export const STATION_FOCUS_START = 540;
+/** Slice 35: day-cycle tick the high-light stretch ends (start of dusk). */
+export const STATION_FOCUS_END = 1980;
+/** Slice 35: station focus note, focused (bonus active). */
+export const STATION_FOCUS_NOTE_FOCUSED = "Focused in high light: +1%.";
+/** Slice 35: station focus note, staffed and producing, outside the high-light stretch. */
+export const STATION_FOCUS_NOTE_WAIT = "Focuses in high light.";
+/** Slice 35: station focus note, resting for the night. */
+export const STATION_FOCUS_NOTE_RESTING = "Resting; no focus.";
+/** Slice 35: station focus note, no worker. */
+export const STATION_FOCUS_NOTE_UNSTAFFED = "Needs a worker to focus.";
+/** Slice 35: station focus note, being upgraded. */
+export const STATION_FOCUS_NOTE_UPGRADING = "Focus paused for upgrade.";
+/** Slice 35: station focus note, still being built. */
+export const STATION_FOCUS_NOTE_BUILDING = "Focuses once built.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

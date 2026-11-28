@@ -1,3 +1,11 @@
+## 2026-11-28 — sim / Living Realm slice 35 (environment light, station focus)
+
+- **Where:** `lightMark` in `environmentSnapshot` and `stationFocusSnapshot` in `systems/livingStatus.ts`; `stationFocusBonus` / `stationFocusWindowAt` / `nextStationFocusTick` in `systems/economy.ts` (reuses `stationRhythmReady` for finished + staffed + not upgrading); constants `ENVIRONMENT_LIGHT_MARK`, `STATION_FOCUS_*` in `content/livingRealm.ts`. All exported from `packages/sim`.
+- **High light = day phase.** The focus window (540-1979) is exactly the `day` phase, so `focused` is true only while `lightMark` is `High light`. "Not resting" needs no extra check in the bonus: rest is the night phase, outside the window. The snapshot still shows `Resting; no focus.` at night when `living_station_rest` is on.
+- **Offline equals online:** focus start (`k*3600+540`) and end (`k*3600+1980`) are `EconomySystem.nextEventTick` events while `living_station_focus` is on. No new state, no save change. Tested with `settleTicks` vs `tickMany` from dawn to dusk.
+- **Test gotchas:** tests that expect `nextEventTick` null must now switch `living_station_rest`, `living_station_rhythm` and `living_station_focus` off. The slice 34 midday ratio test still passes because focus is on in both arms.
+- **Left alone:** pathfinding, fog, weather / season / day lengths, build costs, `content/buildings.ts`, other station bonuses, `gather.ts` night factor, render / app UI. **Not yet in the app.**
+
 ## 2026-11-28 — app / living presentation for environment weather mark & station rhythm
 
 - **Environment weather-mark pill (`packages/app/src/hud/BoardEnvironmentWeatherMark.tsx`, `BoardLiving.tsx`):**

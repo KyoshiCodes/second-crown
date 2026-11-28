@@ -201,6 +201,8 @@ Environment notes and station rest available (`living_environment_notes`, `livin
 
 Environment weather and station rhythm available (`living_environment_weather`, `living_station_rhythm`); new bonus: staffed work-station buildings settle into rhythm from late morning to dusk and give +1% output (rhythm flag off removes it).
 
+Environment light and station focus available (`living_environment_light`, `living_station_focus`); new bonus: staffed work-station buildings focus through the high-light stretch of the day (end of dawn to dusk) and give +1% output, stacking with rhythm (focus flag off removes it).
+
 Attentive:
 
 ```

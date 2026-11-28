@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-28 — Living Realm slice 35 (environment light, station focus)
+
+- **Environment light:** `environmentSnapshot(state)` gains **`lightMark`** → `{ features, ambient, note, mood, seasonNote, weatherMark, lightMark }`. `lightMark` = `Soft dawn` (dawn) / `High light` (day) / `Long shadow` (dusk) / `Deep quiet` (night), from `dayPhase`. Read-only.
+- **Station focus (rule change):** a finished, staffed work-station building that is not being upgraded is **focused** through the high-light stretch (day phase, day-cycle ticks 540-1979, 40% of each day) and gets **+1%** output (`STATION_FOCUS_MULT` 1.01; about +0.4% averaged over a day). `economy.stationFocusBonus`, applied in `rateFor` after `stationRhythmBonus`; stacks with rhythm (x1.0201 from 900-1979). Night rest and the dawn fresh bonus fall outside the stretch, so focus never overlaps rest. Stateless tick math; focus start / end added to `EconomySystem.nextEventTick` so offline settle equals tick-by-tick. **`stationFocusSnapshot(state, buildingId)`** `{ focused, note }` or null (unknown id, no station, flag off); `note` = `Focused in high light: +1%.` / `Focuses in high light.` / `Resting; no focus.` / `Needs a worker to focus.` / `Focus paused for upgrade.` / `Focuses once built.`
+- **Switches:** `living_environment_light` (false: `lightMark` null, other fields kept), `living_station_focus` (false: null and no +1%).
+- **Left alone:** pathfinding, fog, weather / season / day-cycle rules, build costs, building list, `staffBonus`, slice 30-34 station bonuses, gather night factor, render / app UI.
+- **Tests:** new `systems/livingSlice35.test.ts` (17): light mark mapping over a day and flag, focus shape (focused / waiting / resting / unstaffed / building / upgrading), flag off, high-light +1% exact on the building's share, no change outside the stretch, stacking with rhythm, event ticks, settle-vs-tick across the stretch, determinism. Slice 31-34 shape tests updated for `lightMark`; slice 33/34 event-tick tests switch focus off. Now: sim **1047**, app **1751**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-28 — Living presentation for environment weather and station rhythm (Slice 34)
 
 - **Environment weather-mark pill (`hud/BoardEnvironmentWeatherMark.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentWeatherMark` and `<BoardEnvironmentWeatherMarkPill>`, reading `environmentSnapshot(state)?.weatherMark` (`42a95f3`, exact match — zero mismatch) to render a calm fourth top-right pill (`top: 140px`, stacked beneath `<BoardEnvironmentSeasonNotePill>`) with a small weather emblem (`Clear air`, `Light rain`, `Strong wind`, `Still mist`), hiding cleanly when `weatherMark` is `null` or `living_environment_weather` is `false`.
