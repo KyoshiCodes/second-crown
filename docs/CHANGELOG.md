@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Living presentation for environment light and station focus (Slice 35)
+
+- **Environment light-mark pill (`hud/BoardEnvironmentLightMark.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentLightMark` and `<BoardEnvironmentLightMarkPill>`, reading `environmentSnapshot(state)?.lightMark` (`969e577`, exact match — zero mismatch) to render a calm fifth top-right pill (`top: 164px`, stacked beneath `<BoardEnvironmentWeatherMarkPill>`) with a small light emblem (`Soft dawn`, `High light`, `Long shadow`, `Deep quiet`), hiding cleanly when `lightMark` is `null` or `living_environment_light` is `false`.
+- **Station focus mark (`hud/WorkStationFocusMark.tsx`, `hud/WorkCard.tsx`):** Added `resolveStationFocus` and `<WorkStationFocusBadge>`, reading `stationFocusSnapshot(state, buildingId)` (`969e577`, exact match — zero mismatch) to draw a thin SVG ring with a centered diamond (`Focus +1% · Focused in high light: +1%.`) while a staffed work station is focused in high light, and quiet plain notes when waiting, resting, unstaffed, upgrading, or building, hiding cleanly on non-station buildings or `living_station_focus` off.
+- **Unchanged invariants & accessibility:** Dedicated `hud/board-environment-light-mark.css` and `hud/work-station-focus.css` only (zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, pathfinding, or fog math); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on light marks and focus rings, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice35Presentation.test.tsx` (4 tests). Now: sim **1047**, app **1755**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-28 — Living Realm slice 35 (environment light, station focus)
 
 - **Environment light:** `environmentSnapshot(state)` gains **`lightMark`** → `{ features, ambient, note, mood, seasonNote, weatherMark, lightMark }`. `lightMark` = `Soft dawn` (dawn) / `High light` (day) / `Long shadow` (dusk) / `Deep quiet` (night), from `dayPhase`. Read-only.

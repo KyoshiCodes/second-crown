@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Daylight tag on the map and high-light focus rings on work buildings
+
+- **Fifth daylight tag on the map:** A calm daylight pill (`Soft dawn`, `High light`, `Long shadow`, or `Deep quiet`) now sits directly below the weather tag in the top-right corner of the map.
+- **Focus rings on work buildings:** Finished, staffed work buildings in Kingdom show a thin diamond-ring `Focus +1%` seal (`Focused in high light: +1%.`) during high light, switching back to plain guidance outside daytime hours or while resting.
+
 ## 2026-11-28 — Light marks and work buildings that focus in high light
 
 - **Work buildings focus in high light.** A finished work building with a worker focuses through the bright part of the day (from the end of dawn until dusk) and works 1% harder. It stacks with the midday rhythm bonus. Buildings with no worker, still being built, being upgraded, or resting at night do not count.

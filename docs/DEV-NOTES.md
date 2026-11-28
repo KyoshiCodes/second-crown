@@ -1,3 +1,12 @@
+## 2026-11-28 — app / living presentation for environment light mark & station focus
+
+- **Environment light-mark pill (`packages/app/src/hud/BoardEnvironmentLightMark.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardEnvironmentLightMark(state)` and `<BoardEnvironmentLightMarkPill>` wrapping `environmentSnapshot(state)?.lightMark` (`969e577`, zero mismatch). Renders a non-blocking fifth top-right pill (`top: 164px; right: 14px;`) stacked cleanly beneath `<BoardEnvironmentWeatherMarkPill>` (`top: 140px`) with a 10×10 daylight emblem SVG (`dawn`, `day`, `dusk`, `night`), returning `null` when `lightMark` is `null` (`living_environment_light` off) or `living_environment` is off.
+- **Station focus mark (`packages/app/src/hud/WorkStationFocusMark.tsx`, `WorkCard.tsx`):**
+  - Exported pure `resolveStationFocus(state, buildingId)` and `<WorkStationFocusBadge>` wrapping `stationFocusSnapshot(state, buildingId)` (`969e577`, zero mismatch). Draws a thin ring with a centered diamond (`sc-wfoc-ring`) and `Focus +1%` when `focused === true`, plain muted notes otherwise (`Focuses in high light.` / `Resting; no focus.` / `Needs a worker to focus.` / `Focus paused for upgrade.` / `Focuses once built.`), and hides cleanly on non-station buildings or `living_station_focus` off.
+- **Dedicated CSS (`hud/board-environment-light-mark.css`, `hud/work-station-focus.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on light emblems and focus rings, calm breathing/glow keyframes, and `@media (prefers-reduced-motion: reduce)` guards. Zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, fog, or pathfinding.
+- **Verification (`packages/app/src/hud/LivingSlice35Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **1047**, app **1755**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-28 — sim / Living Realm slice 35 (environment light, station focus)
 
 - **Where:** `lightMark` in `environmentSnapshot` and `stationFocusSnapshot` in `systems/livingStatus.ts`; `stationFocusBonus` / `stationFocusWindowAt` / `nextStationFocusTick` in `systems/economy.ts` (reuses `stationRhythmReady` for finished + staffed + not upgrading); constants `ENVIRONMENT_LIGHT_MARK`, `STATION_FOCUS_*` in `content/livingRealm.ts`. All exported from `packages/sim`.
