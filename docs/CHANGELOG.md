@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-11-28 — Route B slice 1 presentation (board lighting tint)
+
+- **Board lighting tint (`hud/BoardLightingTint.tsx`, `hud/board-lighting-tint.css`, `BoardLiving.tsx`):** Added `resolveBoardLighting` and `<BoardLightingTint>`, reading `lightingSnapshot(state)` (`7d70b54`, exact match — zero mismatch) to apply a calm, non-blocking phase wash (`dawn` / `day` / `dusk` / `night`) and light weather color shift (`rain` / `storm` / `snow`, omitted on `clear`) scaled by `intensity`, hiding cleanly when `null` or `living_lighting` is `false`.
+- **Presentation-only & invariants:** Dedicated `hud/board-lighting-tint.css` only (zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, Slice 0 audio/particle layers, build costs, pathfinding, or fog math); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;`, `@media (prefers-reduced-motion: reduce)` guards, and zero heavy filters (`backdrop-filter`).
+- **Tests:** Added `packages/app/src/hud/RouteBSlice1Presentation.test.tsx` (4 tests). Now: sim **1086**, app **1768**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-28 — Route B slice 1 (lighting snapshot)
 
 - **`lightingSnapshot(state)`** in `packages/sim/src/systems/presentation.ts` → `{ timeOfDay, weatherTint, intensity }` or null. `timeOfDay` `dawn|day|dusk|night` from the existing day cycle; `weatherTint` `clear|rain|storm|snow` from current weather; `intensity` 0–1 = phase base (dawn 0.3, day 0, dusk 0.35, night 0.6) + weather add (clear 0, rain 0.2, storm 0.35, snow 0.15), clamped. Read-only; the sim draws nothing.

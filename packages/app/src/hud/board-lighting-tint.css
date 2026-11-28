@@ -1,0 +1,104 @@
+/* --- Route B Slice 1: Board Lighting Tint Overlay (isolated CSS) ---
+ * Loaded from hud/BoardLightingTint.tsx.
+ * Leaves theme.css, board-living.css, board-weather-particles.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on lighting overlay and child tint layers.
+ * Calm phase & light weather color shifts across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-btint-dawn: linear-gradient(180deg, rgba(251, 191, 146, 0.72) 0%, rgba(244, 114, 182, 0.34) 52%, rgba(253, 224, 160, 0.48) 100%);
+  --sc-btint-day: linear-gradient(180deg, rgba(254, 249, 195, 0.32) 0%, rgba(186, 230, 253, 0.14) 100%);
+  --sc-btint-dusk: linear-gradient(180deg, rgba(251, 146, 60, 0.56) 0%, rgba(168, 85, 247, 0.36) 56%, rgba(49, 46, 129, 0.44) 100%);
+  --sc-btint-night: linear-gradient(180deg, rgba(15, 23, 42, 0.74) 0%, rgba(30, 41, 59, 0.58) 54%, rgba(30, 27, 75, 0.66) 100%);
+  --sc-btint-weather-rain: linear-gradient(180deg, rgba(96, 165, 250, 0.38) 0%, rgba(71, 85, 105, 0.48) 100%);
+  --sc-btint-weather-storm: linear-gradient(180deg, rgba(71, 85, 105, 0.56) 0%, rgba(67, 56, 202, 0.42) 100%);
+  --sc-btint-weather-snow: linear-gradient(180deg, rgba(226, 232, 240, 0.48) 0%, rgba(186, 230, 253, 0.34) 100%);
+}
+
+:root[data-chrome="night"] {
+  --sc-btint-dawn: linear-gradient(180deg, rgba(253, 186, 116, 0.64) 0%, rgba(217, 70, 239, 0.28) 52%, rgba(254, 240, 138, 0.38) 100%);
+  --sc-btint-day: linear-gradient(180deg, rgba(224, 242, 254, 0.26) 0%, rgba(125, 211, 252, 0.12) 100%);
+  --sc-btint-dusk: linear-gradient(180deg, rgba(249, 115, 22, 0.48) 0%, rgba(147, 51, 234, 0.34) 56%, rgba(15, 23, 42, 0.46) 100%);
+  --sc-btint-night: linear-gradient(180deg, rgba(2, 6, 23, 0.78) 0%, rgba(15, 23, 42, 0.62) 54%, rgba(30, 41, 59, 0.68) 100%);
+  --sc-btint-weather-rain: linear-gradient(180deg, rgba(56, 189, 248, 0.32) 0%, rgba(51, 65, 85, 0.46) 100%);
+  --sc-btint-weather-storm: linear-gradient(180deg, rgba(51, 65, 85, 0.54) 0%, rgba(79, 70, 229, 0.4) 100%);
+  --sc-btint-weather-snow: linear-gradient(180deg, rgba(241, 245, 249, 0.44) 0%, rgba(147, 197, 253, 0.32) 100%);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-btint-dawn: linear-gradient(180deg, rgba(252, 211, 77, 0.62) 0%, rgba(251, 146, 60, 0.36) 54%, rgba(254, 243, 199, 0.44) 100%);
+  --sc-btint-day: linear-gradient(180deg, rgba(254, 243, 199, 0.3) 0%, rgba(253, 230, 138, 0.14) 100%);
+  --sc-btint-dusk: linear-gradient(180deg, rgba(217, 119, 6, 0.54) 0%, rgba(146, 64, 14, 0.36) 56%, rgba(68, 48, 26, 0.42) 100%);
+  --sc-btint-night: linear-gradient(180deg, rgba(28, 25, 23, 0.72) 0%, rgba(41, 37, 36, 0.58) 54%, rgba(30, 41, 59, 0.62) 100%);
+  --sc-btint-weather-rain: linear-gradient(180deg, rgba(125, 211, 252, 0.34) 0%, rgba(87, 83, 78, 0.44) 100%);
+  --sc-btint-weather-storm: linear-gradient(180deg, rgba(87, 83, 78, 0.52) 0%, rgba(79, 70, 229, 0.36) 100%);
+  --sc-btint-weather-snow: linear-gradient(180deg, rgba(254, 249, 195, 0.42) 0%, rgba(226, 232, 240, 0.36) 100%);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Container
+   ========================================================================== */
+.sc-btint-overlay,
+.sc-btint-overlay * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-btint-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.sc-btint-phase,
+.sc-btint-weather {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.6s ease;
+}
+
+/* ==========================================================================
+   3. Time-of-Day & Weather Tint Layers
+   ========================================================================== */
+.sc-btint-overlay.is-phase-dawn .sc-btint-phase {
+  background: var(--sc-btint-dawn);
+}
+
+.sc-btint-overlay.is-phase-day .sc-btint-phase {
+  background: var(--sc-btint-day);
+}
+
+.sc-btint-overlay.is-phase-dusk .sc-btint-phase {
+  background: var(--sc-btint-dusk);
+}
+
+.sc-btint-overlay.is-phase-night .sc-btint-phase {
+  background: var(--sc-btint-night);
+}
+
+.sc-btint-overlay.is-weather-rain .sc-btint-weather {
+  background: var(--sc-btint-weather-rain);
+}
+
+.sc-btint-overlay.is-weather-storm .sc-btint-weather {
+  background: var(--sc-btint-weather-storm);
+}
+
+.sc-btint-overlay.is-weather-snow .sc-btint-weather {
+  background: var(--sc-btint-weather-snow);
+}
+
+/* ==========================================================================
+   4. Reduced Motion Accessibility Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-btint-phase,
+  .sc-btint-weather {
+    transition: none;
+  }
+}

@@ -313,6 +313,11 @@ import {
   type BoardWeatherParticle,
   type BoardWeatherParticlesView,
 } from "./hud/BoardWeatherParticles";
+import {
+  BoardLightingTint,
+  resolveBoardLighting,
+  type BoardLightingView,
+} from "./hud/BoardLightingTint";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1261,6 +1266,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
         <BoardScaleHorizon state={state} />
         <BoardExpansionRim state={state} />
       </svg>
+      <BoardLightingTint state={state} />
       <BoardWeatherParticles state={state} />
       <BoardSelectionFeedbackNote state={state} selectedId={selectedId} />
       <BoardBattleFeedbackNote state={state} />
@@ -1496,4 +1502,7 @@ export {
   resolveBoardWeatherParticles,
   type BoardWeatherParticle,
   type BoardWeatherParticlesView,
+  BoardLightingTint,
+  resolveBoardLighting,
+  type BoardLightingView,
 };

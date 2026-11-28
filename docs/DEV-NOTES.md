@@ -1,3 +1,12 @@
+## 2026-11-28 — app / Route B slice 1 presentation (board lighting tint)
+
+- **Board lighting tint overlay (`packages/app/src/hud/BoardLightingTint.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardLighting(state)` wrapping `lightingSnapshot(state)` (`7d70b54`, zero mismatch) and `<BoardLightingTint>` mounted inside `BoardLiving` right before `<BoardWeatherParticles>`.
+  - Applies calm, non-heavy opacities scaled by `intensity` (`phaseOpacity` 0.04–0.26, `weatherOpacity` 0.04–0.18 when `weatherTint !== "clear"`), keeping dawn/day/dusk/night distinct yet gentle and omitting `.sc-btint-weather` on `clear`. Hides cleanly on `null` or `living_lighting` off without disturbing Slice 0 audio (`<BoardAudioBridge>`) or particle (`<BoardWeatherParticles>`) layers.
+- **Dedicated CSS (`hud/board-lighting-tint.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on `.sc-btint-overlay` and children, `@media (prefers-reduced-motion: reduce)` guards, and no heavy `filter`/`backdrop-filter` rules. Zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, fog, or pathfinding.
+- **Presentation-only / security confirmation:** Purely client-side visual CSS overlay reading `lightingSnapshot(state)`. Zero simulation rule changes, zero server endpoints, zero keys/tokens/secrets, and zero external requests.
+- **Verification (`packages/app/src/hud/RouteBSlice1Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **1086**, app **1768**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-28 — sim / Route B slice 1 (lighting snapshot)
 
 - **Where:** `systems/presentation.ts` (`lightingSnapshot`, tables `LIGHTING_WEATHER_TINT`, `LIGHTING_PHASE_INTENSITY`, `LIGHTING_WEATHER_INTENSITY`). Switch key `lighting` → `living_lighting` in `LIVING_SWITCH_FLAGS`. Exported from `packages/sim`.

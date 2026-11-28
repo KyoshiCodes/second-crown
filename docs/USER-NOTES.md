@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Calm map lighting tint for time of day and weather
+
+- **Subtle lighting over the map:** The map now carries a soft, calm tint that shifts gently between dawn, day, dusk, and night, with a light cool or misty shift during rain, storms, and snow—never obscuring the map or blocking clicks.
+- **Unchanged:** build costs, workers, economy, fog, movement, battles, saves, and the existing map sound and rain/mist particle effects.
+
 ## 2026-11-28 — Groundwork for map lighting
 
 - **Lighting (under the hood).** The game can now say what light the map should have: dawn, day, dusk or night, a tint for clear, rain, storm or snow, and how strong that tint should be. Nothing is drawn yet; the next step puts it on the map.
