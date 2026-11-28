@@ -2,6 +2,14 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now describe how buildings look alive, what workers are doing, and future map growth
+
+- **Under the hood only.** For each building the game can say which decorations its tier earns (a banner at Tier II, up to a crest at Tier V), what is moving (scaffolding, hammers, or work), and a short line such as "Busy with work." or "Quiet for now."
+- **Work spots:** for buildings that take a worker, it can say what the worker is doing there ("Tilling" on a Field, "Digging" in a Pit…) or that the spot stands empty.
+- **Map growth prep:** it can name today's map size band ("Mid-sized board") and the next one planned ("Wide board"). The map does not actually grow.
+- **Nothing else changes.** Building, staffing, upgrades, units and the map work exactly as before.
+- **Coming to the screen:** livelier buildings and workers on the board.
+
 ## 2026-11-27 — Enriched building cards and board scale indicator
 
 - **Richer building cards on Kingdom:** Buildings now show gentle visual depth by tier (`Tier I`–`Tier V`), an optional work-station chip (`Field`, `Woodlot`, `Pit`, `Stall`, `Post`, `Study`), and a calm construction, upgrade, or staffing status line.

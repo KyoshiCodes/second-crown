@@ -189,6 +189,8 @@ Battle feedback and board polish detail available (`living_battle_feedback`, `li
 
 Building detail and board scale note available (`living_building_detail`, `living_board_scale`). Read-only.
 
+Building life, work-station staging, and board expansion prep available (`living_building_life`, `living_work_station_staging`, `living_board_expansion`). Read-only.
+
 Attentive:
 
 ```

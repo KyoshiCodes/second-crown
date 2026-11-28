@@ -173,6 +173,12 @@ export interface LivingSwitches {
   buildingDetail: boolean;
   /** Board scale (slice 28): boardScaleSnapshot. False: null. Read-only either way. */
   boardScale: boolean;
+  /** Building life (slice 29): buildingLifeSnapshot. False: null. Read-only either way. */
+  buildingLife: boolean;
+  /** Work station staging (slice 29): workStationStagingSnapshot. False: null. Read-only either way. */
+  workStationStaging: boolean;
+  /** Board expansion prep (slice 29): boardExpansionSnapshot. False: null. Read-only either way. */
+  boardExpansion: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -229,6 +235,9 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   boardPolish: "living_board_polish",
   buildingDetail: "living_building_detail",
   boardScale: "living_board_scale",
+  buildingLife: "living_building_life",
+  workStationStaging: "living_work_station_staging",
+  boardExpansion: "living_board_expansion",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

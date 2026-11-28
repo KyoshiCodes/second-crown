@@ -1,3 +1,14 @@
+## 2026-11-27 — sim / Living Realm slice 29 (building life, work-station staging, board expansion prep)
+
+- **Where:** `buildingLifeSnapshot`, `workStationStagingSnapshot`, `boardExpansionSnapshot` in `systems/livingStatus.ts`. Constants `BUILDING_LIFE_TIER_ELEMENTS`, `BUILDING_LIFE_MOTION_*`, `BUILDING_LIFE_NOTE_*`, `WORK_STATION_STAGED`, `WORK_STATION_NOTE_*`, `BOARD_BAND_*`, `BOARD_EXPANSION_NOTE_*` in `content/livingRealm.ts`.
+- **Shared read:** new private `readBuilding(state, b)` returns `{ level, workStation, staffed, phase }` with phase `building` / `upgrading` / `noStation` / `staffed` / `unstaffed` (first match in that order). `buildingDetailSnapshot` now uses it too; its output is unchanged (slice 28 tests pass as before). Staffed still comes from `economy.staffBonus`, upgrade from `upgradeJobFor`.
+- **Building life:** `tierElements` is null while under construction (scaffold stands in) and at Tier I. Upgrading keeps the current tier's elements.
+- **Staging:** returns null for any building with no station (so no `staged` on a cottage or keep-type building without a citizen job). A worker standing on a site under construction or upgrade is not staged.
+- **Board expansion:** reuses `BOARD_SCALE_SMALL_TILES` / `BOARD_SCALE_MID_TILES`; same null rule as board scale. `prepared` is a label only; there is no expansion code path.
+- **Switches:** `buildingLife`, `workStationStaging`, `boardExpansion` in `LivingSwitches`.
+- **Exports:** the three functions, types `BuildingLife`, `WorkStationStaging`, `BoardExpansion`, and the constants from `packages/sim`.
+- **Left alone:** `actions/build.ts`, `actions/upgrade.ts` (import only), `economy.ts`, `citizens.ts`, units, `board.ts`, pathfinding, fog, balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for building detail & board scale
 
 - **Building detail enrichment (`packages/app/src/hud/BuildingDetailBadge.tsx`, `packages/app/src/hud/WorkCard.tsx`):**

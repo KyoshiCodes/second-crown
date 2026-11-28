@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 29 (building life, work-station staging, board expansion prep)
+
+- **Building life:** **`buildingLifeSnapshot(state, buildingId)`** `{ tierElements, motion, note }` or null for an unknown id; `tierElements` = null at Tier I and while under construction, else `Banner` / `Banner, lamps` / `Banner, lamps, stone trim` / `Banner, lamps, stone trim, crest` (level clamped 2–5); `motion` = `Scaffold` (construction) / `Hammers` (upgrade) / `Work` (staffed) / null; `note` = `Scaffolding is up.` / `Hammers at work.` / `Stands steady.` (no station) / `Busy with work.` / `Quiet for now.` (same phase order as building detail).
+- **Work station staging:** **`workStationStagingSnapshot(state, buildingId)`** `{ station, staged, note }` or null for an unknown id or a building that takes no worker; `station` = `Field` / `Woodlot` / `Pit` / `Stall` / `Post` / `Study`; `staged` = `Tilling` / `Chopping` / `Digging` / `Trading` / `Standing guard` / `Reading` when a worker is on a finished, non-upgrading station, else null; `note` = `Opens when built.` / `Upgrade under way.` / `A worker is at the station.` / `The station stands empty.`
+- **Board expansion prep:** **`boardExpansionSnapshot(state)`** `{ current, prepared, note }` or null for non-positive / non-whole dimensions; `current` = `Small board` / `Mid-sized board` / `Wide board` (slice 28 bands, ≤48 / ≤120 tiles); `prepared` = the next band up (wide names itself); `note` = `A larger board is planned, not open yet.` / `The board is already at its widest.` Live 12×8 board: Mid-sized, Wide prepared. Nothing expands.
+- **Switches:** `living_building_life`, `living_work_station_staging`, `living_board_expansion` (false: null). All on.
+- **Read-only:** build, staff, upgrade, unit rules, board size, pathfinding and fog untouched. Balance tables untouched.
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice29.test.ts` (20). Now: sim **930**, app **1725**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-27 — Living presentation for building detail and board scale (Slice 28)
 
 - **Building detail enrichment (`hud/BuildingDetailBadge.tsx`, `hud/WorkCard.tsx`):** Added `resolveBuildingDetail` and `<BuildingDetailStrip>`, reading `buildingDetailSnapshot(state, buildingId)` (`7e3fe19`, exact match — zero mismatch) to add calm tier card depth (`sc-bdet-depth-t1..t5`), `Tier I..V` step bars, optional citizen work-station marks (`Field` / `Woodlot` / `Pit` / `Stall` / `Post` / `Study`), and construction/upgrade/staffing status notes, hiding cleanly when `null` or `living_building_detail` is `false`.

@@ -95,6 +95,25 @@ import {
   BOARD_SCALE_NOTE_SMALL,
   BOARD_SCALE_NOTE_MID,
   BOARD_SCALE_NOTE_WIDE,
+  BUILDING_LIFE_TIER_ELEMENTS,
+  BUILDING_LIFE_MOTION_SCAFFOLD,
+  BUILDING_LIFE_MOTION_HAMMERS,
+  BUILDING_LIFE_MOTION_WORK,
+  BUILDING_LIFE_NOTE_BUILDING,
+  BUILDING_LIFE_NOTE_UPGRADING,
+  BUILDING_LIFE_NOTE_NO_STATION,
+  BUILDING_LIFE_NOTE_STAFFED,
+  BUILDING_LIFE_NOTE_UNSTAFFED,
+  WORK_STATION_STAGED,
+  WORK_STATION_NOTE_BUILDING,
+  WORK_STATION_NOTE_UPGRADING,
+  WORK_STATION_NOTE_STAFFED,
+  WORK_STATION_NOTE_EMPTY,
+  BOARD_BAND_SMALL,
+  BOARD_BAND_MID,
+  BOARD_BAND_WIDE,
+  BOARD_EXPANSION_NOTE_PLANNED,
+  BOARD_EXPANSION_NOTE_WIDEST,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -1482,17 +1501,33 @@ export function buildingDetailSnapshot(state: GameState, buildingId: string): Bu
   const b = state.buildings.find((q) => q.id === buildingId);
   if (!b) return null;
   const name = getBuildingType(b.typeId)?.name ?? b.typeId;
-  const lvl = Math.max(1, Math.min(5, Math.floor(Number.isFinite(b.level) ? b.level : 1)));
-  const tier = BUILDING_TIER_LABELS[lvl];
-  const job = jobForBuildingType(b.typeId);
-  const workStation = BUILDING_WORK_STATIONS[job] ?? null;
+  const r = readBuilding(state, b);
+  const tier = BUILDING_TIER_LABELS[r.level];
+  const note =
+    r.phase === "building" ? BUILDING_NOTE_BUILDING
+    : r.phase === "upgrading" ? BUILDING_NOTE_UPGRADING
+    : r.phase === "noStation" ? BUILDING_NOTE_NO_STATION
+    : r.phase === "staffed" ? BUILDING_NOTE_STAFFED
+    : BUILDING_NOTE_UNSTAFFED;
+  return { name, tier, staffed: r.staffed, workStation: r.workStation, note };
+}
+
+type BuildingPhase = "building" | "upgrading" | "noStation" | "staffed" | "unstaffed";
+
+/**
+ * Shared read for slices 28/29: clamped level (1..5), work station label, staffed, and the
+ * first-match phase (construction, upgrade, no station, staffed / unstaffed). Pure.
+ */
+function readBuilding(state: GameState, b: GameState["buildings"][number]) {
+  const level = Math.max(1, Math.min(5, Math.floor(Number.isFinite(b.level) ? b.level : 1)));
+  const workStation: string | null = BUILDING_WORK_STATIONS[jobForBuildingType(b.typeId)] ?? null;
   const staffed = workStation !== null && staffBonus(state, b) > 1;
-  let note: string;
-  if (b.completesAtTick !== null) note = BUILDING_NOTE_BUILDING;
-  else if (upgradeJobFor(state, b.id)) note = BUILDING_NOTE_UPGRADING;
-  else if (workStation === null) note = BUILDING_NOTE_NO_STATION;
-  else note = staffed ? BUILDING_NOTE_STAFFED : BUILDING_NOTE_UNSTAFFED;
-  return { name, tier, staffed, workStation, note };
+  let phase: BuildingPhase;
+  if (b.completesAtTick !== null) phase = "building";
+  else if (upgradeJobFor(state, b.id)) phase = "upgrading";
+  else if (workStation === null) phase = "noStation";
+  else phase = staffed ? "staffed" : "unstaffed";
+  return { level, workStation, staffed, phase };
 }
 
 // ---------------------------------------------------------------- board scale (slice 28)
@@ -1518,4 +1553,96 @@ export function boardScaleSnapshot(state: GameState): BoardScale | null {
   const tiles = width * height;
   const note = tiles <= BOARD_SCALE_SMALL_TILES ? BOARD_SCALE_NOTE_SMALL : tiles <= BOARD_SCALE_MID_TILES ? BOARD_SCALE_NOTE_MID : BOARD_SCALE_NOTE_WIDE;
   return { width, height, note };
+}
+
+// ---------------------------------------------------------------- building life (slice 29)
+
+export interface BuildingLife {
+  /** BUILDING_LIFE_TIER_ELEMENTS entry for the level (clamped 1..5); null at Tier I or while being built. */
+  tierElements: string | null;
+  /** BUILDING_LIFE_MOTION_* (Scaffold / Hammers / Work), or null when nothing moves. */
+  motion: string | null;
+  /** BUILDING_LIFE_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 29: visual life cues for one building. Null for an unknown id or with
+ * living_building_life off. Same phase order as buildingDetailSnapshot. Pure read; build,
+ * staff and upgrade rules untouched.
+ */
+export function buildingLifeSnapshot(state: GameState, buildingId: string): BuildingLife | null {
+  if (!livingSwitches(state).buildingLife) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  const r = readBuilding(state, b);
+  const tierElements = r.phase === "building" ? null : (BUILDING_LIFE_TIER_ELEMENTS[r.level] ?? null);
+  switch (r.phase) {
+    case "building":
+      return { tierElements, motion: BUILDING_LIFE_MOTION_SCAFFOLD, note: BUILDING_LIFE_NOTE_BUILDING };
+    case "upgrading":
+      return { tierElements, motion: BUILDING_LIFE_MOTION_HAMMERS, note: BUILDING_LIFE_NOTE_UPGRADING };
+    case "noStation":
+      return { tierElements, motion: null, note: BUILDING_LIFE_NOTE_NO_STATION };
+    case "staffed":
+      return { tierElements, motion: BUILDING_LIFE_MOTION_WORK, note: BUILDING_LIFE_NOTE_STAFFED };
+    default:
+      return { tierElements, motion: null, note: BUILDING_LIFE_NOTE_UNSTAFFED };
+  }
+}
+
+// ---------------------------------------------------------------- work station staging (slice 29)
+
+export interface WorkStationStaging {
+  /** BUILDING_WORK_STATIONS label (Field / Woodlot / Pit / Stall / Post / Study). */
+  station: string;
+  /** WORK_STATION_STAGED pose when a worker is at a finished, non-upgrading station; else null. */
+  staged: string | null;
+  /** WORK_STATION_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 29: what is staged at a building's work station. Null for an unknown id, a building
+ * that takes no worker, or with living_work_station_staging off. Pure read; staffing and
+ * unit rules untouched.
+ */
+export function workStationStagingSnapshot(state: GameState, buildingId: string): WorkStationStaging | null {
+  if (!livingSwitches(state).workStationStaging) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  const r = readBuilding(state, b);
+  if (r.workStation === null) return null;
+  const station = r.workStation;
+  if (r.phase === "building") return { station, staged: null, note: WORK_STATION_NOTE_BUILDING };
+  if (r.phase === "upgrading") return { station, staged: null, note: WORK_STATION_NOTE_UPGRADING };
+  if (r.phase === "staffed") return { station, staged: WORK_STATION_STAGED[station] ?? null, note: WORK_STATION_NOTE_STAFFED };
+  return { station, staged: null, note: WORK_STATION_NOTE_EMPTY };
+}
+
+// ---------------------------------------------------------------- board expansion prep (slice 29)
+
+export interface BoardExpansion {
+  /** BOARD_BAND_* for today's board (same tile-count bands as boardScaleSnapshot). */
+  current: string;
+  /** BOARD_BAND_* for the next band up; the wide band names itself. */
+  prepared: string;
+  /** BOARD_EXPANSION_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 29: board expansion prep. Names the current band and the next one. Null with
+ * living_board_expansion off or a board with no positive whole width and height. Pure read;
+ * board size, pathfinding and fog untouched. Nothing is actually expanded.
+ */
+export function boardExpansionSnapshot(state: GameState): BoardExpansion | null {
+  if (!livingSwitches(state).boardExpansion) return null;
+  const width = state.board?.width;
+  const height = state.board?.height;
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0) return null;
+  const tiles = width * height;
+  if (tiles <= BOARD_SCALE_SMALL_TILES) return { current: BOARD_BAND_SMALL, prepared: BOARD_BAND_MID, note: BOARD_EXPANSION_NOTE_PLANNED };
+  if (tiles <= BOARD_SCALE_MID_TILES) return { current: BOARD_BAND_MID, prepared: BOARD_BAND_WIDE, note: BOARD_EXPANSION_NOTE_PLANNED };
+  return { current: BOARD_BAND_WIDE, prepared: BOARD_BAND_WIDE, note: BOARD_EXPANSION_NOTE_WIDEST };
 }

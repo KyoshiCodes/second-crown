@@ -545,6 +545,61 @@ export const BOARD_SCALE_NOTE_MID = "A mid-sized realm.";
 /** Slice 28: board scale note, a wide board. */
 export const BOARD_SCALE_NOTE_WIDE = "A wide realm.";
 
+// ---------------------------------------------------------------- building life, work-station staging, board expansion (slice 29)
+
+/** Slice 29: tier elements per level (index 1..5; level clamped). Tier I shows none. */
+export const BUILDING_LIFE_TIER_ELEMENTS: readonly (string | null)[] = [
+  null,
+  null,
+  "Banner",
+  "Banner, lamps",
+  "Banner, lamps, stone trim",
+  "Banner, lamps, stone trim, crest",
+];
+/** Slice 29: building motion, still being built. */
+export const BUILDING_LIFE_MOTION_SCAFFOLD = "Scaffold";
+/** Slice 29: building motion, an upgrade is under way. */
+export const BUILDING_LIFE_MOTION_HAMMERS = "Hammers";
+/** Slice 29: building motion, a worker is on the tile. */
+export const BUILDING_LIFE_MOTION_WORK = "Work";
+/** Slice 29: building life note, still being built. */
+export const BUILDING_LIFE_NOTE_BUILDING = "Scaffolding is up.";
+/** Slice 29: building life note, an upgrade is under way. */
+export const BUILDING_LIFE_NOTE_UPGRADING = "Hammers at work.";
+/** Slice 29: building life note, takes no worker. */
+export const BUILDING_LIFE_NOTE_NO_STATION = "Stands steady.";
+/** Slice 29: building life note, a worker is on the tile. */
+export const BUILDING_LIFE_NOTE_STAFFED = "Busy with work.";
+/** Slice 29: building life note, no worker on the tile. */
+export const BUILDING_LIFE_NOTE_UNSTAFFED = "Quiet for now.";
+
+/** Slice 29: what is staged at a staffed work station, by station label (BUILDING_WORK_STATIONS values). */
+export const WORK_STATION_STAGED: Readonly<Record<string, string>> = {
+  Field: "Tilling",
+  Woodlot: "Chopping",
+  Pit: "Digging",
+  Stall: "Trading",
+  Post: "Standing guard",
+  Study: "Reading",
+};
+/** Slice 29: work station note, the building is still being built. */
+export const WORK_STATION_NOTE_BUILDING = "Opens when built.";
+/** Slice 29: work station note, an upgrade is under way. */
+export const WORK_STATION_NOTE_UPGRADING = "Upgrade under way.";
+/** Slice 29: work station note, a worker is at the station. */
+export const WORK_STATION_NOTE_STAFFED = "A worker is at the station.";
+/** Slice 29: work station note, no worker at the station. */
+export const WORK_STATION_NOTE_EMPTY = "The station stands empty.";
+
+/** Slice 29: board band labels, same bands as slice 28 board scale. */
+export const BOARD_BAND_SMALL = "Small board";
+export const BOARD_BAND_MID = "Mid-sized board";
+export const BOARD_BAND_WIDE = "Wide board";
+/** Slice 29: board expansion note, a larger band is planned but not open. */
+export const BOARD_EXPANSION_NOTE_PLANNED = "A larger board is planned, not open yet.";
+/** Slice 29: board expansion note, already in the widest band. */
+export const BOARD_EXPANSION_NOTE_WIDEST = "The board is already at its widest.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**
